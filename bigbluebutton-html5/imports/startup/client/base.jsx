@@ -20,10 +20,11 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import LayoutManager from '/imports/ui/components/layout/layout-manager';
 import { withLayoutContext } from '/imports/ui/components/layout/context';
-import IntlStartup from '/imports/startup/client/intl';
 import VideoService from '/imports/ui/components/video-provider/service';
+import DebugWindow from '/imports/ui/components/debug-window/component';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
+const SHOW_DEBUG_WINDOW = Meteor.settings.public.app.showDebugWindow;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 
@@ -229,6 +230,9 @@ class Base extends Component {
 
     return (
       <Fragment>
+        {
+          SHOW_DEBUG_WINDOW && <DebugWindow />
+        }
         <LayoutManager />
         {
           (!meetingExisted && !meetingExist && Auth.loggedIn)
