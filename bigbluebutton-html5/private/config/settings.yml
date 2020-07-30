@@ -29,7 +29,7 @@ public:
     allowFullscreen: true
     remainingTimeThreshold: 30
     remainingTimeAlertThreshold: 1
-    showDebugWindow: true
+    showDebugWindow: false
     defaultSettings:
       application:
         animations: true
