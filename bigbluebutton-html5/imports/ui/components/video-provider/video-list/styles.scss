@@ -132,7 +132,7 @@
   bottom: 5px;
   left: 5px;
   right: 5px;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   height: 1.25rem;
   z-index: 2;
@@ -140,9 +140,6 @@
 
 .dropdown,
 .dropdownFireFox {
-  position: absolute;
-  left: 0;
-  flex: 1;
   display: flex;
   outline: none !important;
   width: var(--cam-dropdown-width);
