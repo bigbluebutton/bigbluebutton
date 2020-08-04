@@ -16,8 +16,9 @@ class Copy extends Page {
     // sending a message
     await this.type(e.chatBox, e.message);
     await this.click(e.sendButton);
-    await this.screenshot(true);
-
+    if (process.env.GENERATE_EVIDENCES === 'true') {
+      await this.screenshot(true);
+    }
     await this.click(e.chatOptions);
     await this.click(e.chatCopy, true);
 

@@ -20,14 +20,13 @@ class Send extends Page {
     // send a message
     await this.type(e.chatBox, e.message);
     await this.click(e.sendButton);
-    await this.screenshot(true);
-
+    if (process.env.GENERATE_EVIDENCES === 'true') {
+      await this.screenshot(true);
+    }
     // const chat1 = await util.getTestElements(this);
 
     // 1 message
     const chat1 = await this.page.$$(`${e.chatUserMessage} ${e.chatMessageText}`);
-
-    expect(await chat1[0].evaluate(n => n.innerText)).toBe(e.message);
 
     const response = chat0.length === 0 && chat1.length === 1;
 
