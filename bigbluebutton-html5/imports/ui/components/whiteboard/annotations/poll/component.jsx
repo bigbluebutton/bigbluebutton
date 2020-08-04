@@ -217,9 +217,10 @@ class PollDrawComponent extends Component {
 
       // first check if we can still increase the font-size
       if (fontSizeDirection === 1) {
-        if (keySizes.width < maxLineWidth && keySizes.height < maxLineHeight
+        if ((keySizes.width < maxLineWidth && keySizes.height < maxLineHeight
           && voteSizes.width < maxLineWidth && voteSizes.height < maxLineHeight
-          && percSizes.width < maxLineWidth && percSizes.height < maxLineHeight) {
+          && percSizes.width < maxLineWidth && percSizes.height < maxLineHeight)
+          && calcFontSize < 100) {
           return this.setState({
             calcFontSize: calcFontSize + fontSizeIncrement,
           });
@@ -232,9 +233,10 @@ class PollDrawComponent extends Component {
         });
       } if (fontSizeDirection === -1) {
         // check if the font-size is still bigger than allowed
-        if (keySizes.width > maxLineWidth || keySizes.height > maxLineHeight
+        if ((keySizes.width > maxLineWidth || keySizes.height > maxLineHeight
           || voteSizes.width > maxLineWidth || voteSizes.height > maxLineHeight
-          || percSizes.width > maxLineWidth || percSizes.height > maxLineHeight) {
+          || percSizes.width > maxLineWidth || percSizes.height > maxLineHeight)
+          && calcFontSize > 0) {
           return this.setState({
             calcFontSize: calcFontSize - fontSizeIncrement,
           });

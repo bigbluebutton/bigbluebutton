@@ -16,7 +16,7 @@ const propTypes = {
   swapLayout: PropTypes.bool,
   disableVideo: PropTypes.bool,
   audioModalIsOpen: PropTypes.bool,
-  webcamDraggableState: PropTypes.instanceOf(Object).isRequired,
+  layoutContextState: PropTypes.instanceOf(Object).isRequired,
 };
 
 const defaultProps = {
@@ -43,12 +43,12 @@ export default class Media extends Component {
       children,
       audioModalIsOpen,
       usersVideo,
-      webcamDraggableState,
+      layoutContextState,
     } = this.props;
 
-    const { placement } = webcamDraggableState;
-    const placementStorage = Storage.getItem('webcamPlacement');
-    const webcamPlacement = placement || placementStorage;
+    const { webcamsPlacement: placement } = layoutContextState;
+    const placementStorage = Storage.getItem('webcamsPlacement');
+    const webcamsPlacement = placement || placementStorage;
 
     const contentClassName = cx({
       [styles.content]: true,
@@ -57,13 +57,13 @@ export default class Media extends Component {
     const overlayClassName = cx({
       [styles.overlay]: true,
       [styles.hideOverlay]: hideOverlay,
-      [styles.floatingOverlay]: (webcamPlacement === 'floating'),
+      [styles.floatingOverlay]: (webcamsPlacement === 'floating'),
     });
 
     const containerClassName = cx({
       [styles.container]: true,
-      [styles.containerV]: webcamPlacement === 'top' || webcamPlacement === 'bottom' || webcamPlacement === 'floating',
-      [styles.containerH]: webcamPlacement === 'left' || webcamPlacement === 'right',
+      [styles.containerV]: webcamsPlacement === 'top' || webcamsPlacement === 'bottom' || webcamsPlacement === 'floating',
+      [styles.containerH]: webcamsPlacement === 'left' || webcamsPlacement === 'right',
     });
 
     return (
@@ -77,24 +77,24 @@ export default class Media extends Component {
           style={{
             maxHeight: usersVideo.length > 0
             && (
-              webcamPlacement !== 'left'
-              || webcamPlacement !== 'right'
+              webcamsPlacement !== 'left'
+              || webcamsPlacement !== 'right'
             )
             && (
-              webcamPlacement === 'top'
-              || webcamPlacement === 'bottom'
+              webcamsPlacement === 'top'
+              || webcamsPlacement === 'bottom'
             )
               ? '80%'
               : '100%',
             minHeight: BROWSER_ISMOBILE && window.innerWidth > window.innerHeight ? '50%' : '20%',
             maxWidth: usersVideo.length > 0
             && (
-              webcamPlacement !== 'top'
-              || webcamPlacement !== 'bottom'
+              webcamsPlacement !== 'top'
+              || webcamsPlacement !== 'bottom'
             )
             && (
-              webcamPlacement === 'left'
-              || webcamPlacement === 'right'
+              webcamsPlacement === 'left'
+              || webcamsPlacement === 'right'
             )
               ? '80%'
               : '100%',

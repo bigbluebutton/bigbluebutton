@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
@@ -7,7 +7,6 @@ import ErrorScreen from '/imports/ui/components/error-screen/component';
 import MeetingEnded from '/imports/ui/components/meeting-ended/component';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
-import AudioManager from '/imports/ui/services/audio-manager';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import { Session } from 'meteor/session';
@@ -19,6 +18,10 @@ import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import LayoutManager from '/imports/ui/components/layout/layout-manager';
+import { withLayoutContext } from '/imports/ui/components/layout/context';
+import IntlStartup from '/imports/startup/client/intl';
+import VideoService from '/imports/ui/components/video-provider/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
@@ -102,11 +105,22 @@ class Base extends Component {
       ejected,
       isMeteorConnected,
       subscriptionsReady,
+      layoutContextDispatch,
+      usersVideo,
     } = this.props;
     const {
       loading,
       meetingExisted,
     } = this.state;
+
+    if (usersVideo !== prevProps.usersVideo) {
+      layoutContextDispatch(
+        {
+          type: 'setUsersVideo',
+          value: usersVideo.length,
+        },
+      );
+    }
 
     if (!prevProps.subscriptionsReady && subscriptionsReady) {
       logger.info({ logCode: 'startup_client_subscriptions_ready' }, 'Subscriptions are ready');
@@ -168,8 +182,8 @@ class Base extends Component {
     const { updateLoadingState } = this;
     const stateControls = { updateLoadingState };
     const { loading } = this.state;
-    const codeError = Session.get('codeError');
     const {
+      codeError,
       ejected,
       meetingExist,
       meetingHasEnded,
@@ -183,7 +197,6 @@ class Base extends Component {
     }
 
     if (ejected) {
-      AudioManager.exitAudio();
       return (<MeetingEnded code="403" />);
     }
 
@@ -193,7 +206,6 @@ class Base extends Component {
     }
 
     if (((meetingHasEnded && !meetingIsBreakout)) || (codeError && (User && User.loggedOut))) {
-      AudioManager.exitAudio();
       return (<MeetingEnded code={codeError} />);
     }
 
@@ -201,21 +213,29 @@ class Base extends Component {
       // 680 is set for the codeError when the user requests a logout
       if (codeError !== '680') {
         logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${codeError}`);
+        return (<ErrorScreen code={codeError} />);
       }
-      return (<ErrorScreen code={codeError} />);
+      return (<MeetingEnded code={codeError} />);
     }
     // this.props.annotationsHandler.stop();
     return (<AppContainer {...this.props} baseControls={stateControls} />);
   }
 
   render() {
-    const { meetingExist } = this.props;
+    const {
+      meetingExist,
+    } = this.props;
     const { meetingExisted } = this.state;
 
     return (
-      (!meetingExisted && !meetingExist && Auth.loggedIn)
-        ? <LoadingScreen />
-        : this.renderByState()
+      <Fragment>
+        <LayoutManager />
+        {
+          (!meetingExisted && !meetingExist && Auth.loggedIn)
+            ? <LoadingScreen />
+            : this.renderByState()
+        }
+      </Fragment>
     );
   }
 }
@@ -367,6 +387,9 @@ const BaseContainer = withTracker(() => {
     Session.set('openPanel', '');
   }
 
+  const codeError = Session.get('codeError');
+  const usersVideo = VideoService.getVideoStreams();
+
   return {
     approved,
     ejected,
@@ -381,7 +404,9 @@ const BaseContainer = withTracker(() => {
     meetingIsBreakout: AppService.meetingIsBreakout(),
     subscriptionsReady: Session.get('subscriptionsReady'),
     loggedIn,
+    codeError,
+    usersVideo,
   };
-})(Base);
+})(withLayoutContext(Base));
 
 export default BaseContainer;

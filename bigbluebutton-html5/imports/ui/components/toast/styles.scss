@@ -158,6 +158,7 @@
   animation-duration: 0.75s;
   animation-fill-mode: both;
   max-width: var(--toast-max-width);
+  width: var(--toast-max-width);
 
   &:hover,
   &:focus {
