@@ -229,7 +229,7 @@ class VideoService {
 
   filterModeratorOnly(streams) {
     const me = Users.findOne({ userId: Auth.userID });
-    const amIViewer = me.role === ROLE_VIEWER;
+    const amIViewer = me?.role === ROLE_VIEWER;
 
     if (amIViewer) {
       const moderators = Users.find(
@@ -245,7 +245,7 @@ class VideoService {
         const { userId } = stream;
 
         const isModerator = moderators.includes(userId);
-        const isMe = me.userId === userId;
+        const isMe = me?.userId === userId;
 
         if (isModerator || isMe) result.push(stream);
 
@@ -264,13 +264,13 @@ class VideoService {
   webcamsOnlyForModerator() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID },
       { fields: { 'usersProp.webcamsOnlyForModerator': 1 } });
-    return m.usersProp ? m.usersProp.webcamsOnlyForModerator : false;
+    return m?.usersProp ? m.usersProp.webcamsOnlyForModerator : false;
   }
 
   hideUserList() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID },
       { fields: { 'lockSettingsProps.hideUserList': 1 } });
-    return m.lockSettingsProps ? m.lockSettingsProps.hideUserList : false;
+    return m?.lockSettingsProps ? m.lockSettingsProps.hideUserList : false;
   }
 
   getInfo() {
