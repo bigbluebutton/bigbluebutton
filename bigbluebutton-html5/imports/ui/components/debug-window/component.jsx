@@ -9,6 +9,9 @@ import Button from '/imports/ui/components/button/component';
 import Storage from '/imports/ui/services/storage/session';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 
+const SHOW_DEBUG_WINDOW = Meteor.settings.public.app.showDebugWindow;
+const SHOW_DEBUG_WINDOW_SHORTCUT = Meteor.settings.public.app.showDebugWindowShortcut;
+
 class DebugWindow extends PureComponent {
   constructor(props) {
     super(props);
@@ -29,6 +32,12 @@ class DebugWindow extends PureComponent {
 
   componentDidMount() {
     window.addEventListener('resize', this.handleResize, false);
+    document.addEventListener('keyup', (event) => {
+      const key = event.key.toUpperCase();
+      if (SHOW_DEBUG_WINDOW_SHORTCUT && event.ctrlKey && event.altKey && key === 'K') {
+        this.handleOnClick();
+      }
+    });
   }
 
   autoArrangeToggle() {
@@ -73,7 +82,7 @@ class DebugWindow extends PureComponent {
     return mountModal(
       <Modal
         overlayClassName={styles.overlay}
-        className={styles.modal}
+        className={styles.debugModal}
         onRequestClose={() => mountModal(null)}
         hideBorder
         contentLabel="Debug"
@@ -83,20 +92,41 @@ class DebugWindow extends PureComponent {
             <h3 className={styles.title}>Debug</h3>
           </div>
         </div>
+
         <div className={styles.row}>
-          <div className={styles.col} aria-hidden="true">
-            <hr className={styles.modalhr}/>
-          </div>
-        </div>
-        <div className={styles.row}>
-          <div className={styles.col} aria-hidden="true">
+          <div className={cx(styles.col, styles.col_4)} aria-hidden="true">
             <div className={styles.formElement}>
               <div className={styles.label}>
-                Enable Auto Arrange Layout
+                User Agent:
               </div>
             </div>
           </div>
           <div className={styles.col}>
+            <div className={cx(styles.formElement, styles.pullContentRight)}>
+              <input id="debugModalUserAgent" type="text" readOnly value={window.navigator.userAgent} />
+            </div>
+          </div>
+          <div className={cx(styles.col, styles.col_2)}>
+            <div className={cx(styles.formElement, styles.pullContentRight)}>
+              <button
+                type="button"
+                onClick={() => navigator.clipboard.writeText(window.navigator.userAgent)}
+              >
+                Copy
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.row}>
+          <div className={cx(styles.col, styles.col_4)} aria-hidden="true">
+            <div className={styles.formElement}>
+              <div className={styles.label}>
+                Enable Auto Arrange Layout:
+              </div>
+            </div>
+          </div>
+          <div className={cx(styles.col, styles.col_2)}>
             <div className={cx(styles.formElement, styles.pullContentRight)}>
               <Toggle
                 icons={false}
@@ -106,6 +136,13 @@ class DebugWindow extends PureComponent {
               />
             </div>
           </div>
+          <div className={styles.col}>
+            <div className={cx(styles.formElement, styles.pullContentRight)}>
+              <p className={styles.desc}>
+                (it will be disabled if you drag or resize the webcams area)
+              </p>
+            </div>
+          </div>
         </div>
       </Modal>,
     );
@@ -113,6 +150,7 @@ class DebugWindow extends PureComponent {
 
   render() {
     const { dragging, position } = this.state;
+    if (!SHOW_DEBUG_WINDOW) return false;
     return (
       <Draggable
         bounds="body"

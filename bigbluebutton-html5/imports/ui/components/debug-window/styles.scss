@@ -13,65 +13,93 @@
   }
 }
 
+.userAgent {
+  margin: 0;
+}
 
-.modal {
+.debugModal {
   @extend .modal;
   padding: var(--jumbo-padding-y);
   min-height: var(--min-modal-height);
   text-align: center;
+
+  .title {
+    margin-bottom: 24px;
+  }
+
+  .content {
+    padding-top: 0;
+  }
+
+  .modalhr {
+    width: 100%;
+    margin: 20px 0;
+  }
+  
+  .form {
+    display: flex;
+    flex-flow: column;
+  }
+  
+  .formElement {
+    position: relative;
+    display: flex;
+    flex-flow: column;
+    flex-grow: 1;
+    align-self: flex-start;
+  }
+
+  .desc {
+    text-align: justify;
+    margin: 0;
+  }
+  
+  .row {
+    display: flex;
+    flex-flow: row;
+    flex-grow: 1;
+    justify-content: space-between;
+    margin-bottom: 0.7rem;
+  }
+  
+  .col {
+    display: flex;
+    flex-grow: 1;
+    flex-basis: 0;
+
+    &:not(:first-child){
+      padding-left: 1rem;
+    }
+  
+    &:last-child {
+      padding-right: 0;
+  
+      [dir="rtl"] & {
+        padding-right: 0.1rem;
+        padding-left: 0;
+      }
+    }
+
+    &.col_4 {
+      min-width: calc(4 * (100% / 12));
+      max-width: calc(4 * (100% / 12));
+    }
+
+    &.col_2 {
+      min-width: calc(2 * (100% / 12));
+      max-width: calc(2 * (100% / 12));
+    }
+  }
+
+  
+  .label {
+    color: var(--color-gray-label);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    text-align: left;
+  }
 }
 
 .overlay {
   @extend .overlay;
-}
-
-.modalhr {
-  width: 100%;
-  margin: 20px 0;
-}
-
-.form {
-  display: flex;
-  flex-flow: column;
-}
-
-.formElement {
-  position: relative;
-  display: flex;
-  flex-flow: column;
-  flex-grow: 1;
-}
-
-.row {
-  display: flex;
-  flex-flow: row;
-  flex-grow: 1;
-  justify-content: space-between;
-  margin-bottom: 0.7rem;
-}
-
-.col {
-  display: flex;
-  flex-grow: 1;
-  flex-basis: 0;
-
-  &:last-child {
-    padding-right: 0;
-    padding-left: 1rem;
-
-    [dir="rtl"] & {
-      padding-right: 0.1rem;
-      padding-left: 0;
-    }
-  }
-
-  &:first-child {
-    padding-left: 0;
-  }
-}
-
-.label {
-  color: var(--color-gray-label);
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
 }

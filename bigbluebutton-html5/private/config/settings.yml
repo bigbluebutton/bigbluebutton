@@ -35,6 +35,7 @@ public:
     remainingTimeThreshold: 30
     remainingTimeAlertThreshold: 1
     showDebugWindow: false
+    showDebugWindowShortcut: true
     defaultSettings:
       application:
         animations: true

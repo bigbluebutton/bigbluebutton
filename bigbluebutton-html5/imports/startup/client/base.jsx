@@ -233,7 +233,7 @@ class Base extends Component {
     }
     return (
       <Fragment>
-        {SHOW_DEBUG_WINDOW && meetingExist && Auth.loggedIn && <DebugWindow />}
+        {meetingExist && Auth.loggedIn && <DebugWindow />}
         {meetingExist && Auth.loggedIn && <LayoutManager />}
         {this.renderByState()}
       </Fragment>
