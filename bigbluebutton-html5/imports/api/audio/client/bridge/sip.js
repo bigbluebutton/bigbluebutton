@@ -628,6 +628,14 @@ export default class SIPBridge extends BaseAudioBridge {
     return this.activeSession.transferCall(onTransferSuccess);
   }
 
+  getPeerConnection() {
+    const { currentSession } = this.activeSession;
+    if (currentSession && currentSession.mediaHandler) {
+      return currentSession.mediaHandler.peerConnection;
+    }
+    return null;
+  }
+
   exitAudio() {
     return this.activeSession.exitAudio();
   }

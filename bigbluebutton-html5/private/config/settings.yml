@@ -20,6 +20,7 @@ public:
     allowUserLookup: false
     enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
+    enableMultipleCameras: false
     enableTalkingIndicator: true
     mirrorOwnWebcam: false
     viewersInWebcam: 8
@@ -134,7 +135,6 @@ public:
         bitrate: 800
     enableScreensharing: true
     enableVideo: true
-    enableVideoStats: false
     enableVideoMenu: true
     enableListenOnly: true
     autoShareWebcam: false
