@@ -1,3 +1,3 @@
 const virtualizedListTest = require('./virtualizedlist.obj');
 
-describe('Virtualized List', () => virtualizedListTest());
+describe('Virtualized List', virtualizedListTest);

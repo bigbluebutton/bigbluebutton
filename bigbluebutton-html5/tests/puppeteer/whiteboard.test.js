@@ -1,3 +1,3 @@
 const whiteboardTest = require('./whiteboard.obj');
 
-describe('Whiteboard', () => whiteboardTest());
+describe('Whiteboard', whiteboardTest);

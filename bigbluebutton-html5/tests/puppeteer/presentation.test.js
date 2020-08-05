@@ -1,3 +1,3 @@
 const presentationTest = require('./presentation.obj');
 
-describe('Presentation', () => presentationTest());
+describe('Presentation', presentationTest);

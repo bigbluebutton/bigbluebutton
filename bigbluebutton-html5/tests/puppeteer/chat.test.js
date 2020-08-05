@@ -1,3 +1,3 @@
 const chatTest = require('./chat.obj');
 
-describe('Chat', () => chatTest());
+describe('Chat', chatTest);

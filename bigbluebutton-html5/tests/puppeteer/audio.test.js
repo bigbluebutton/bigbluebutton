@@ -1,3 +1,3 @@
 const audioTest = require('./audio.obj');
 
-describe('Audio', () => audioTest());
+describe('Audio', audioTest);

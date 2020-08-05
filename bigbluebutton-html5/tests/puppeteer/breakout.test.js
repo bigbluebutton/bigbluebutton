@@ -1,3 +1,3 @@
 const breakoutTest = require('./breakout.obj');
 
-describe('Breakout', () => breakoutTest());
+describe('Breakout', breakoutTest);
