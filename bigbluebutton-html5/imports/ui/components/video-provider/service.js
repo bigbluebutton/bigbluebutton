@@ -162,9 +162,8 @@ class VideoService {
       },
     ).fetch();
 
-    const hideUsers = this.hideUserList();
     const moderatorOnly = this.webcamsOnlyForModerator();
-    if (hideUsers || moderatorOnly) streams = this.filterModeratorOnly(streams);
+    if (moderatorOnly) streams = this.filterModeratorOnly(streams);
 
     const connectingStream = this.getConnectingStream(streams);
     if (connectingStream) streams.push(connectingStream);
@@ -256,12 +255,6 @@ class VideoService {
     const m = Meetings.findOne({ meetingId: Auth.meetingID },
       { fields: { 'usersProp.webcamsOnlyForModerator': 1 } });
     return m.usersProp ? m.usersProp.webcamsOnlyForModerator : false;
-  }
-
-  hideUserList() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'lockSettingsProps.hideUserList': 1 } });
-    return m.lockSettingsProps ? m.lockSettingsProps.hideUserList : false;
   }
 
   getInfo() {
