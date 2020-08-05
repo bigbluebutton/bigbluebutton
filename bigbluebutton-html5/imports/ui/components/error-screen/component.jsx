@@ -4,6 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import AudioManager from '/imports/ui/services/audio-manager';
+import logger from '/imports/startup/client/logger';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -42,8 +43,10 @@ const defaultProps = {
 
 class ErrorScreen extends PureComponent {
   componentDidMount() {
+    const { code } = this.props;
     AudioManager.exitAudio();
     Meteor.disconnect();
+    logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${code}`);
   }
 
   render() {

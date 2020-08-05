@@ -186,6 +186,7 @@ class Base extends Component {
     const {
       codeError,
       ejected,
+      ejectedReason,
       meetingExist,
       meetingHasEnded,
       meetingIsBreakout,
@@ -198,27 +199,26 @@ class Base extends Component {
     }
 
     if (ejected) {
-      return (<MeetingEnded code="403" />);
+      return (<MeetingEnded code="403" reason={ejectedReason} />);
     }
 
-    if ((meetingHasEnded || (User && User.loggedOut)) && meetingIsBreakout) {
+    if ((meetingHasEnded || User?.loggedOut) && meetingIsBreakout) {
       window.close();
       return null;
     }
 
-    if (((meetingHasEnded && !meetingIsBreakout)) || (codeError && (User && User.loggedOut))) {
+    if (((meetingHasEnded && !meetingIsBreakout)) || (codeError && User?.loggedOut)) {
       return (<MeetingEnded code={codeError} />);
     }
 
     if (codeError && !meetingHasEnded) {
       // 680 is set for the codeError when the user requests a logout
       if (codeError !== '680') {
-        logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${codeError}`);
         return (<ErrorScreen code={codeError} />);
       }
       return (<MeetingEnded code={codeError} />);
     }
-    // this.props.annotationsHandler.stop();
+
     return (<AppContainer {...this.props} baseControls={stateControls} />);
   }
 
@@ -265,6 +265,7 @@ const BaseContainer = withTracker(() => {
     approved: 1,
     authed: 1,
     ejected: 1,
+    ejectedReason: 1,
     color: 1,
     effectiveConnectionType: 1,
     extId: 1,
@@ -274,6 +275,8 @@ const BaseContainer = withTracker(() => {
     loggedOut: 1,
     meetingId: 1,
     userId: 1,
+    inactivityCheck: 1,
+    responseDelay: 1,
   };
   const User = Users.findOne({ intId: credentials.requesterUserId }, { fields });
   const meeting = Meetings.findOne({ meetingId }, {
@@ -287,8 +290,10 @@ const BaseContainer = withTracker(() => {
     Session.set('codeError', '410');
   }
 
-  const approved = User && User.approved && User.guest;
-  const ejected = User && User.ejected;
+  const approved = User?.approved && User?.guest;
+  const ejected = User?.ejected;
+  const ejectedReason = User?.ejectedReason;
+
   let userSubscriptionHandler;
 
   Breakouts.find({}, { fields: { _id: 1 } }).observeChanges({
@@ -394,6 +399,7 @@ const BaseContainer = withTracker(() => {
   return {
     approved,
     ejected,
+    ejectedReason,
     userSubscriptionHandler,
     breakoutRoomSubscriptionHandler,
     meetingModeratorSubscriptionHandler,
