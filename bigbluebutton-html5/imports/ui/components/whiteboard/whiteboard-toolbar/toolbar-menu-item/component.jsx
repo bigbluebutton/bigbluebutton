@@ -16,10 +16,7 @@ export default class ToolbarMenuItem extends Component {
     this.handleOnMouseUp = this.handleOnMouseUp.bind(this);
     this.handleOnMouseDown = this.handleOnMouseDown.bind(this);
     this.setRef = this.setRef.bind(this);
-  }
 
-  // generating a unique ref string for the toolbar-item
-  componentWillMount() {
     this.uniqueRef = _.uniqueId('toolbar-menu-item');
   }
 
