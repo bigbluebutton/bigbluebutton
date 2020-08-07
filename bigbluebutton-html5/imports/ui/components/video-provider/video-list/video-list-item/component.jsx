@@ -160,8 +160,10 @@ class VideoListItem extends Component {
       })}
       >
         {
-          !videoIsReady
-          && <div className={styles.connecting} />
+          !videoIsReady &&
+            <div className={styles.connecting}>
+              <span className={styles.loadingText}>{name}</span>
+            </div>
         }
         <div
           className={styles.videoContainer}
@@ -183,7 +185,8 @@ class VideoListItem extends Component {
           />
           {videoIsReady && this.renderFullscreenButton()}
         </div>
-        <div className={styles.info}>
+        { videoIsReady &&
+          <div className={styles.info}>
           {enableVideoMenu && availableActions.length >= 3
             ? (
               <Dropdown className={isFirefox ? styles.dropdownFireFox : styles.dropdown}>
@@ -214,6 +217,7 @@ class VideoListItem extends Component {
           {voiceUser.muted && !voiceUser.listenOnly ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
           {voiceUser.listenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
         </div>
+        }
       </div>
     );
   }
