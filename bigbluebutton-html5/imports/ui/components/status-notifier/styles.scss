@@ -3,7 +3,6 @@
 
 :root {
   --iconWrapperSize: 40px;
-  --icon-offset: .6rem;
   --innerToastWidth: 17rem;
   --toast-margin: .5rem;
   --toast-icon-side: 40px;
@@ -87,23 +86,6 @@
   padding: 5px 0;
 }
 
-.raisedHandsToast {
-  display: flex;
-  position: relative;
-  margin-bottom: var(--sm-padding-x);
-  padding: var(--md-padding-x);
-  border-radius: var(--border-radius);
-  box-shadow: 0 var(--border-size-small) 10px 0 rgba(0, 0, 0, 0.1), 0 var(--border-size) 15px 0 rgba(0, 0, 0, 0.05);
-  justify-content: space-between;
-  color: var(--color-text);
-  background-color: var(--color-white);
-  -webkit-animation-duration: 0.75s;
-  animation-duration: 0.75s;
-  -webkit-animation-fill-mode: both;
-  animation-fill-mode: both;
-  max-width: var(--toast-max-width);
-}
-
 .avatar:hover,
 .avatar:focus {
     border: solid var(--border-size) var(--color-gray-lighter);
@@ -118,8 +100,8 @@
   > i {
     position: relative;
     color: var(--color-white);
-    top: var(--icon-offset);
-    left: var(--icon-offset);
+    top: var(--toast-margin);
+    left: var(--toast-margin);
     font-size: var(--font-size-xl);
   
     [dir="rtl"] & {
