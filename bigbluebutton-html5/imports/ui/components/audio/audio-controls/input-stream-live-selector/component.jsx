@@ -113,7 +113,12 @@ class InputStreamLiveSelector extends Component {
     } = this.props;
     return (
       <Dropdown>
-        <DropdownTrigger>
+        <DropdownTrigger
+          onClick={() => {
+            this.setInputDevices();
+            this.setOutputDevices();
+          }}
+        >
           <Button
             aria-label={intl.formatMessage(intlMessages.changeLeaveAudio)}
             label={intl.formatMessage(intlMessages.changeLeaveAudio)}
@@ -122,10 +127,6 @@ class InputStreamLiveSelector extends Component {
             icon="audio_on"
             size="lg"
             circle
-            onClick={()=>{
-              this.setInputDevices();
-              this.setOutputDevices();
-            }}
             accessKey={shortcuts.leaveAudio}
           />
         </DropdownTrigger>

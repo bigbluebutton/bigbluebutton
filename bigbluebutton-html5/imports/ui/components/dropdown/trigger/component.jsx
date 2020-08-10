@@ -17,7 +17,8 @@ export default class DropdownTrigger extends Component {
   }
 
   handleClick() {
-    const { dropdownToggle } = this.props;
+    const { dropdownToggle, onClick } = this.props;
+    onClick && onClick();
     return dropdownToggle();
   }
 

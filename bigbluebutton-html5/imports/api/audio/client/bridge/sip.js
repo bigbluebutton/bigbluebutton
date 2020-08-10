@@ -717,8 +717,8 @@ export default class SIPBridge extends BaseAudioBridge {
 
     if (audioContext.setSinkId) {
       try {
-        audioContext.srcObject = null;
         await audioContext.setSinkId(value);
+        audioContext.load();
         this.media.outputDeviceId = value;
       } catch (err) {
         logger.error({
