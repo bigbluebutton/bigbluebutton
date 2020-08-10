@@ -143,10 +143,10 @@ class JoinHandler extends Component {
     const setModOnlyMessage = (resp) => {
       if (resp && resp.modOnlyMessage) {
         const sanitizedModOnlyText = SanitizeHTML(resp.modOnlyMessage, {
-          allowedTags: ['b', 'strong', 'i', 'u', 'a', 'br', 'img'],
+          allowedTags: ['a', 'b', 'br', 'i', 'img', 'li', 'small', 'span', 'strong', 'u', 'ul'],
           allowedAttributes: {
             a: ['href', 'name', 'target'],
-            img: ['src'],
+            img: ['src', 'width', 'height'],
           },
           allowedSchemes: ['https'],
         });
