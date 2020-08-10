@@ -71,7 +71,7 @@ function valueParser(val) {
     const parsedValue = JSON.parse(val.toLowerCase());
     return parsedValue;
   } catch (error) {
-    logger.error('Parameter value could not ber parsed');
+    logger.warn(`addUserSettings:Parameter ${val} could not be parsed (was not json)`);
     return val;
   }
 }
