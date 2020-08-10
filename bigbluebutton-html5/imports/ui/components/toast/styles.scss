@@ -148,7 +148,7 @@
 .actionToast {
   position: relative;
   margin-bottom: var(--sm-padding-x);
-  padding: 12px;
+  padding: var(--sm-padding-x);
   border-radius: var(--border-radius);
   box-shadow: 0 var(--border-size-small) 10px 0 rgba(0, 0, 0, 0.1), 0 var(--border-size) 15px 0 rgba(0, 0, 0, 0.05);
   display: flex;
