@@ -12,6 +12,7 @@ import setMinBrowserVersions from './minBrowserVersion';
 import userLeaving from '/imports/api/users/server/methods/userLeaving';
 
 const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
+let avaibleLocalesNames = [];
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
@@ -150,22 +151,23 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
 });
 
 WebApp.connectHandlers.use('/locales', (req, res) => {
-  let locales = [];
-  try {
-    locales = AVAILABLE_LOCALES
-      .map(file => file.replace('.json', ''))
-      .map(file => file.replace('_', '-'))
-      .map(locale => ({
-        locale,
-        name: Langmap[locale].nativeName,
-      }));
-  } catch (e) {
-    Logger.warn(`'Could not process locales error: ${e}`);
+  if (!avaibleLocalesNames.length) {
+    try {
+      avaibleLocalesNames = AVAILABLE_LOCALES
+        .map(file => file.replace('.json', ''))
+        .map(file => file.replace('_', '-'))
+        .map(locale => ({
+          locale,
+          name: Langmap[locale].nativeName,
+        }));
+    } catch (e) {
+      Logger.warn(`'Could not process locales error: ${e}`);
+    }
   }
 
   res.setHeader('Content-Type', 'application/json');
   res.writeHead(200);
-  res.end(JSON.stringify(locales));
+  res.end(JSON.stringify(avaibleLocalesNames));
 });
 
 WebApp.connectHandlers.use('/feedback', (req, res) => {

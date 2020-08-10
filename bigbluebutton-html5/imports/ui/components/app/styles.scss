@@ -155,12 +155,12 @@
   }
 
   @include mq($medium-up) {
-    flex: 0 25vw;
+    // flex: 0 25vw;
     order: 1;
   }
 
   @include mq($xlarge-up) {
-    flex-basis: 20vw;
+    // flex-basis: 20vw;
   }
 }
 
@@ -172,10 +172,10 @@
 
 .breakoutRoom {
   height: 100%;
-  width: 20vw;
+  // width: 20vw;
   background-color: var(--color-white);
   @include mq($small-only) {
-    width: auto;
+    // width: auto;
     height: auto;
   }
 }

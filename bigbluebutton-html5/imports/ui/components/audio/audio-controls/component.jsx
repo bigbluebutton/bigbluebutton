@@ -6,6 +6,7 @@ import Button from '/imports/ui/components/button/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import InputStreamLiveSelectorContainer from './input-stream-live-selector/container';
+import MutedAlert from '/imports/ui/components/muted-alert/component';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -93,29 +94,36 @@ class AudioControls extends PureComponent {
       intl,
       shortcuts,
       isVoiceUser,
+      inputStream,
+      isViewer,
+      isPresenter,
     } = this.props;
+
+    const label = muted ? intl.formatMessage(intlMessages.unmuteAudio)
+    : intl.formatMessage(intlMessages.muteAudio);
+
+
+    const toggleMuteBtn = (
+      <Button
+        className={cx(styles.muteToggle, !talking || styles.glow, !muted || styles.btn)}
+        onClick={handleToggleMuteMicrophone}
+        disabled={disable}
+        hideLabel
+        label={label}
+        aria-label={label}
+        color={!muted ? 'primary' : 'default'}
+        ghost={muted}
+        icon={muted ? 'mute' : 'unmute'}
+        size="lg"
+        circle
+        accessKey={shortcuts.togglemute}
+      />
+    );
 
     return (
       <span className={styles.container}>
-        {showMute && isVoiceUser
-          ? (
-            <Button
-              className={cx(styles.button, !talking || styles.glow, !muted || styles.btn)}
-              onClick={handleToggleMuteMicrophone}
-              disabled={disable}
-              hideLabel
-              label={muted ? intl.formatMessage(intlMessages.unmuteAudio)
-                : intl.formatMessage(intlMessages.muteAudio)}
-              aria-label={muted ? intl.formatMessage(intlMessages.unmuteAudio)
-                : intl.formatMessage(intlMessages.muteAudio)}
-              color={!muted ? 'primary' : 'default'}
-              ghost={muted}
-              icon={muted ? 'mute' : 'unmute'}
-              size="lg"
-              circle
-              // accessKey={shortcuts.toggleMute}
-            />
-          ) : null}
+        {muted ? <MutedAlert {...{ inputStream, isViewer, isPresenter }} /> : null}
+        { showMute && isVoiceUser ? toggleMuteBtn : null}
         {
           (inAudio)
             ? this.renderLeaveButton()
