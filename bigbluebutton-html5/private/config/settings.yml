@@ -116,49 +116,49 @@ public:
         - window
         - screen
       firefoxScreenshareSource: window
+    # cameraProfiles is an array of:
+    # - id: profile identifier
+    #   name: human-readable profile name
+    #   bitrate
+    #   hidden: whether this profile will be hidden in the video preview dropdown
+    #   constraints: a video media constraints dictionary (without the video key)
     cameraProfiles:
       - id: low-u30
         name: low-u30
         bitrate: 30
         hidden: true
         constraints:
-           video:
-              frameRate: 3
+          frameRate: 3
       - id: low-u25
         name: low-u25
         bitrate: 40
         hidden: true
         constraints:
-           video:
-              frameRate: 3
+          frameRate: 3
       - id: low-u20
         name: low-u20
         bitrate: 50
         hidden: true
         constraints:
-           video:
-              frameRate: 5
+          frameRate: 5
       - id: low-u15
         name: low-u15
         bitrate: 70
         hidden: true
         constraints:
-           video:
-              frameRate: 8
+          frameRate: 8
       - id: low-u12
         name: low-u12
         bitrate: 90
         hidden: true
         constraints:
-           video:
-              frameRate: 10
+          frameRate: 10
       - id: low-u8
         name: low-u8
         bitrate: 100
         hidden: true
         constraints:
-           video:
-              frameRate: 10
+          frameRate: 10
       - id: low
         name: Low quality
         default: false
@@ -181,6 +181,10 @@ public:
     enableListenOnly: true
     autoShareWebcam: false
     skipVideoPreview: false
+    # Entry `thresholds` is an array of:
+    # - threshold: minimum number of cameras being shared for profile to applied
+    #   profile: a camera profile id from the cameraProfiles configuration array
+    #            that will be applied to all cameras when threshold is hit
     cameraQualityThresholds:
       enabled: false
       thresholds:

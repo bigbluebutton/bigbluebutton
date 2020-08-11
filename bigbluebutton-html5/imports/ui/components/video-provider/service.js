@@ -501,11 +501,11 @@ class VideoService {
       this.applyBitrate(peer, bitrate);
     }
 
-    if (constraints && typeof constraints.video === 'object') {
+    if (constraints && typeof constraints === 'object') {
       peer.peerConnection.getSenders().forEach(sender => {
         const { track } = sender;
         if (track && track.kind === 'video' && typeof track.applyConstraints  === 'function') {
-          let normalizedVideoConstraints = this.reapplyResolutionIfNeeded(track, constraints.video);
+          let normalizedVideoConstraints = this.reapplyResolutionIfNeeded(track, constraints);
           track.applyConstraints(normalizedVideoConstraints)
             .then(() => {
               logger.info({
