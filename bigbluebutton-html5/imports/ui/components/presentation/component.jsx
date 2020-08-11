@@ -11,6 +11,7 @@ import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
 import { styles } from './styles.scss';
+import toastStyles from '/imports/ui/components/toast/styles';
 import MediaService, { shouldEnableSwapLayout } from '../media/service';
 import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
@@ -28,6 +29,10 @@ const intlMessages = defineMessages({
   changeNotification: {
     id: 'app.presentation.notificationLabel',
     description: 'label displayed in toast when presentation switches',
+  },
+  downloadLabel: {
+    id: 'app.presentation.downloadLabel',
+    description: 'label for downloadable presentations',
   },
 });
 
@@ -131,6 +136,7 @@ class PresentationArea extends PureComponent {
       restoreOnUpdate,
       layoutContextDispatch,
       layoutContextState,
+      userIsPresenter,
     } = this.props;
 
     const { numUsersVideo } = layoutContextState;
@@ -172,16 +178,36 @@ class PresentationArea extends PureComponent {
       }
     }
 
-    if (prevProps.currentPresentation.name !== currentPresentation.name) {
+    const downloadableOn = !prevProps.currentPresentation.downloadable
+      && currentPresentation.downloadable;
+
+    const shouldCloseToast = !(currentPresentation.downloadable && !userIsPresenter);
+
+    if (
+      prevProps.currentPresentation.name !== currentPresentation.name
+      || (downloadableOn && !userIsPresenter)
+    ) {
       if (this.currentPresentationToastId) {
-        return toast.update(this.currentPresentationToastId, {
+        toast.update(this.currentPresentationToastId, {
+          autoClose: shouldCloseToast,
           render: this.renderCurrentPresentationToast(),
         });
+      } else {
+        this.currentPresentationToastId = toast(this.renderCurrentPresentationToast(), {
+          onClose: () => { this.currentPresentationToastId = null; },
+          autoClose: shouldCloseToast,
+          className: toastStyles.actionToast,
+        });
       }
+    }
 
-      this.currentPresentationToastId = toast(this.renderCurrentPresentationToast(), {
-        onClose: () => { this.currentPresentationToastId = null; },
+    const downloadableOff = prevProps.currentPresentation.downloadable
+      && !currentPresentation.downloadable;
+
+    if (this.currentPresentationToastId && downloadableOff) {
+      toast.update(this.currentPresentationToastId, {
         autoClose: true,
+        render: this.renderCurrentPresentationToast(),
       });
     }
 
@@ -670,7 +696,10 @@ class PresentationArea extends PureComponent {
   }
 
   renderCurrentPresentationToast() {
-    const { intl, currentPresentation } = this.props;
+    const {
+      intl, currentPresentation, userIsPresenter, downloadPresentationUri,
+    } = this.props;
+    const { downloadable } = currentPresentation;
 
     return (
       <div className={styles.innerToastWrapper}>
@@ -679,10 +708,28 @@ class PresentationArea extends PureComponent {
             <Icon iconName="presentation" />
           </div>
         </div>
+
         <div className={styles.toastTextContent} data-test="toastSmallMsg">
           <div>{`${intl.formatMessage(intlMessages.changeNotification)}`}</div>
           <div className={styles.presentationName}>{`${currentPresentation.name}`}</div>
         </div>
+
+        {downloadable && !userIsPresenter
+          ? (
+            <span className={styles.toastDownload}>
+              <div className={toastStyles.separator} />
+              <a
+                className={styles.downloadBtn}
+                aria-label={`${intl.formatMessage(intlMessages.downloadLabel)} ${currentPresentation.name}`}
+                href={downloadPresentationUri}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {intl.formatMessage(intlMessages.downloadLabel)}
+              </a>
+            </span>
+          ) : null
+        }
       </div>
     );
   }
