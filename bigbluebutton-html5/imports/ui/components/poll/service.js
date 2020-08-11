@@ -59,7 +59,7 @@ const sendGroupMessage = (message) => {
     color: '0',
     correlationId: `${PUBLIC_CHAT_SYSTEM_ID}-${Date.now()}`,
     sender: {
-      id: PUBLIC_CHAT_SYSTEM_ID,
+      id: Auth.userID,
       name: '',
     },
     message,

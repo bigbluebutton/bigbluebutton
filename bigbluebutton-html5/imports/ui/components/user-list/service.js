@@ -510,7 +510,12 @@ export const getUserNamesLink = () => {
     .map(u => u.name)
     .join('\r\n');
   const link = document.createElement('a');
-  link.setAttribute('download', `save-users-list-${Date.now()}.txt`);
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
+    { fields: { 'meetingProp.name': 1 } });
+  const date = new Date();
+  const time = `${date.getHours()}-${date.getMinutes()}`;
+  const dateString = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}_${time}`;
+  link.setAttribute('download', `bbb-${meeting.meetingProp.name}[users-list]_${dateString}.txt`);
   link.setAttribute(
     'href',
     `data: ${mimeType} ;charset=utf-16,${encodeURIComponent(userNameListString)}`,
