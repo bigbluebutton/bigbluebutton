@@ -92,7 +92,7 @@
 
   [dir="rtl"]  & {
     padding-right: var(--lg-padding-y);
-    padding-left: none;
+    padding-left: 0;
   }
 
   > i {
@@ -141,6 +141,11 @@
 .unreadMessages {
   @extend %flex-column;
   justify-content: center;
+  margin-left: auto;
+  [dir="rtl"] & {
+    margin-right: auto;
+    margin-left: 0;
+  }
 }
 
 .unreadMessagesText {

@@ -1,18 +1,24 @@
 const Notifications = require('./notifications/notifications');
 const ShareScreen = require('./screenshare/screenshare');
 const Audio = require('./audio/audio');
+const Page = require('./core/page');
 
 describe('Notifications', () => {
+  beforeEach(() => {
+    jest.setTimeout(30000);
+  });
+
   test('Save settings notification', async () => {
     const test = new Notifications();
     let response;
     try {
-      await test.init();
-      response = await test.saveSettingsNotification();
+      const testName = 'saveSettingsNotification';
+      response = await test.saveSettingsNotification(testName);
     } catch (e) {
       console.log(e);
     } finally {
-      await test.close();
+      await test.close(test.page1, test.page2);
+      await test.page1.logger('Save Setting notification !');
     }
     expect(response).toBe(true);
   });
@@ -21,12 +27,13 @@ describe('Notifications', () => {
     const test = new Notifications();
     let response;
     try {
-      await test.init();
-      response = await test.publicChatNotification();
+      const testName = 'publicChatNotification';
+      response = await test.publicChatNotification(testName);
     } catch (e) {
       console.log(e);
     } finally {
-      await test.close();
+      await test.close(test.page1, test.page2);
+      await test.page1.logger('Public Chat notification !');
     }
     expect(response).toBe(true);
   });
@@ -35,12 +42,13 @@ describe('Notifications', () => {
     const test = new Notifications();
     let response;
     try {
-      await test.init();
-      response = await test.privateChatNotification();
+      const testName = 'privateChatNotification';
+      response = await test.privateChatNotification(testName);
     } catch (e) {
       console.log(e);
     } finally {
-      await test.close();
+      await test.close(test.page1, test.page2);
+      await test.page1.logger('Private Chat notification !');
     }
     expect(response).toBe(true);
   });
@@ -49,14 +57,13 @@ describe('Notifications', () => {
     const test = new Notifications();
     let response;
     try {
-      await test.initUser3();
-      await test.userJoinNotification();
-      await test.initUser4();
-      response = await test.getUserJoinPopupResponse();
+      const testName = 'userJoinNotification';
+      response = await test.getUserJoinPopupResponse(testName);
     } catch (e) {
       console.log(e);
     } finally {
       await test.closePages();
+      await test.page1.logger('User join notification !');
     }
     expect(response).toBe('User4 joined the session');
   });
@@ -65,12 +72,13 @@ describe('Notifications', () => {
     const test = new Notifications();
     let response;
     try {
-      await test.initUser3();
-      response = await test.fileUploaderNotification();
+      const testName = 'uploadPresentationNotification';
+      response = await test.fileUploaderNotification(testName);
     } catch (e) {
       console.log(e);
     } finally {
       await test.closePage(test.page3);
+      await test.page3.logger('Presentation upload notification !');
     }
     expect(response).toContain('Current presentation');
   });
@@ -79,44 +87,44 @@ describe('Notifications', () => {
     const test = new Notifications();
     let response;
     try {
-      await test.initUser3();
-      response = await test.publishPollResults();
+      const testName = 'pollResultsNotification';
+      response = await test.publishPollResults(testName);
     } catch (e) {
       console.log(e);
     } finally {
       await test.closePage(test.page3);
+      await test.page3.logger('Poll results notification !');
     }
     expect(response).toContain('Poll results were published to Public Chat and Whiteboard');
   });
 
   test('Screenshare notification', async () => {
-    const test = new ShareScreen();
-    const page = new Notifications()
+    const page = new Notifications();
     let response;
     try {
-      await page.initUser3();
-      response = await test.toast(page.page3);
+      const testName = 'screenShareNotification';
+      response = await page.screenshareToast(testName);
     } catch (e) {
       console.log(e);
     } finally {
       await page.closePage(page.page3);
+      await page.page3.logger('Screenshare notification !');
     }
     expect(response).toBe('Screenshare has started');
   });
 
   test('Audio notifications', async () => {
-    const test = new Audio();
-    const page = new Notifications();
+    const test = new Notifications();
     let response;
     try {
-      process.env.IS_AUDIO_TEST = true;
-      await test.initOneUser(page.page3);
-      response = await test.audioNotification(page.page3);
+      const testName = 'audioNotification';
+      response = await test.audioNotification(testName);
     } catch (e) {
       console.log(e);
     } finally {
-      await page.closePage(page.page3);
+      await test.closePage(test.page3);
+      await test.page3.logger('Audio notification !');
     }
-    expect(response).toBe('You have joined the audio conference');
-  })
+    expect(response).toBe(true);
+  });
 });

@@ -20,21 +20,33 @@
 package org.bigbluebutton.presentation.imp;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sun.org.apache.xerces.internal.impl.xs.opti.DefaultDocument;
+import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.presentation.UploadedPresentation;
-import org.jodconverter.OfficeDocumentConverter;
+import org.jodconverter.core.document.DefaultDocumentFormatRegistry;
+import org.jodconverter.core.document.DocumentFormat;
+import org.jodconverter.core.job.AbstractConverter;
+import org.jodconverter.local.LocalConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 
-public class Office2PdfPageConverter {
+public abstract class Office2PdfPageConverter {
   private static Logger log = LoggerFactory.getLogger(Office2PdfPageConverter.class);
 
-  public boolean convert(File presentationFile, File output, int page, UploadedPresentation pres,
-                         final OfficeDocumentConverter converter){
+  public static boolean convert(File presentationFile, File output, int page, UploadedPresentation pres,
+                         LocalConverter converter){
+
+    FileInputStream inputStream = null;
+    FileOutputStream outputStream = null;
+
     try {
       Map<String, Object> logData = new HashMap<>();
       logData.put("meetingId", pres.getMeetingId());
@@ -46,7 +58,15 @@ public class Office2PdfPageConverter {
       String logStr = gson.toJson(logData);
       log.info(" --analytics-- data={}", logStr);
 
-      converter.convert(presentationFile, output);
+      final DocumentFormat sourceFormat = DefaultDocumentFormatRegistry.getFormatByExtension(
+              FilenameUtils.getExtension(presentationFile.getName()));
+
+      inputStream = new FileInputStream(presentationFile);
+      outputStream = new FileOutputStream(output);
+
+      converter.convert(inputStream).as(sourceFormat).to(outputStream).as(DefaultDocumentFormatRegistry.PDF).execute();
+      outputStream.flush();
+
       if (output.exists()) {
         return true;
       } else {
@@ -74,6 +94,22 @@ public class Office2PdfPageConverter {
       String logStr = gson.toJson(logData);
       log.error(" --analytics-- data={}", logStr, e);
       return false;
+    } finally {
+       if(inputStream!=null) {
+         try {
+           inputStream.close();
+         } catch(Exception e) {
+
+         }
+       }
+
+      if(outputStream!=null) {
+        try {
+          outputStream.close();
+        } catch(Exception e) {
+
+        }
+      }
     }
   }
 

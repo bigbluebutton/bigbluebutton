@@ -8,7 +8,6 @@ import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
@@ -78,6 +77,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const handlePresentationClick = () => Session.set('showUploadPresentationView', true);
+
 class ActionsDropdown extends PureComponent {
   constructor(props) {
     super(props);
@@ -86,7 +87,6 @@ class ActionsDropdown extends PureComponent {
     this.pollId = _.uniqueId('action-item-');
     this.takePresenterId = _.uniqueId('action-item-');
 
-    this.handlePresentationClick = this.handlePresentationClick.bind(this);
     this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
     this.makePresentationItems = this.makePresentationItems.bind(this);
   }
@@ -161,7 +161,7 @@ class ActionsDropdown extends PureComponent {
             label={formatMessage(presentationLabel)}
             description={formatMessage(presentationDesc)}
             key={this.presentationItemId}
-            onClick={this.handlePresentationClick}
+            onClick={handlePresentationClick}
           />
         )
         : null),
@@ -196,13 +196,13 @@ class ActionsDropdown extends PureComponent {
     const presentationItemElements = presentations.map((p) => {
       const itemStyles = {};
       itemStyles[styles.presentationItem] = true;
-      itemStyles[styles.isCurrent] = p.isCurrent;
+      itemStyles[styles.isCurrent] = p.current;
 
       return (<DropdownListItem
         className={cx(itemStyles)}
         icon="file"
-        iconRight={p.isCurrent ? 'check' : null}
-        label={p.filename}
+        iconRight={p.current ? 'check' : null}
+        label={p.name}
         description="uploaded presentation file"
         key={`uploaded-presentation-${p.id}`}
         onClick={() => {
@@ -219,11 +219,6 @@ class ActionsDropdown extends PureComponent {
   handleExternalVideoClick() {
     const { mountModal } = this.props;
     mountModal(<ExternalVideoModal />);
-  }
-
-  handlePresentationClick() {
-    const { mountModal } = this.props;
-    mountModal(<PresentationUploaderContainer />);
   }
 
   render() {

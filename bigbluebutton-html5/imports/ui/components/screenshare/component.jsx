@@ -59,8 +59,14 @@ class ScreenshareComponent extends React.Component {
 
   componentWillUnmount() {
     const {
-      presenterScreenshareHasEnded, unshareScreen,
+      presenterScreenshareHasEnded,
+      unshareScreen,
+      getSwapLayout,
+      shouldEnableSwapLayout,
+      toggleSwapLayout,
     } = this.props;
+    const layoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
+    if (layoutSwapped) toggleSwapLayout();
     presenterScreenshareHasEnded();
     unshareScreen();
     this.screenshareContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
@@ -170,7 +176,10 @@ class ScreenshareComponent extends React.Component {
           <video
             id="screenshareVideo"
             key="screenshareVideo"
-            style={{ maxHeight: '100%', width: '100%' }}
+            style={{
+              maxHeight: '100%',
+              width: '100%',
+            }}
             playsInline
             onLoadedData={this.onVideoLoad}
             ref={(ref) => { this.videoTag = ref; }}
