@@ -31,7 +31,7 @@ require 'fastimage' # require fastimage to get the image size of the slides (gem
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 bbb_props = BigBlueButton.read_props
-$presentation_props = YAML::load(File.open('presentation.yml'))
+$presentation_props = YAML::load(File.read('presentation.yml'))
 
 # There's a couple of places where stuff is mysteriously divided or multiplied
 # by 2. This is just here to call out how spooky that is.
@@ -870,7 +870,7 @@ def processPresentation(package_dir)
   # Iterate through the events.xml and store the events, building the
   # xml files as we go
   last_timestamp = 0.0
-  events_xml = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
+  events_xml = Nokogiri::XML(File.read("#{$process_dir}/events.xml"))
   events_xml.xpath('/recording/event').each do |event|
     eventname = event['eventname']
     last_timestamp = timestamp =
@@ -1213,7 +1213,7 @@ begin
 
         processing_time = File.read("#{$process_dir}/processing_time")
 
-        @doc = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
+        @doc = Nokogiri::XML(File.read("#{$process_dir}/events.xml"))
 
         # Retrieve record events and calculate total recording duration.
         $rec_events = BigBlueButton::Events.match_start_and_stop_rec_events(
@@ -1244,7 +1244,7 @@ begin
 
         # Update state and add playback to metadata.xml
         ## Load metadata.xml
-        metadata = Nokogiri::XML(File.open("#{package_dir}/metadata.xml"))
+        metadata = Nokogiri::XML(File.read("#{package_dir}/metadata.xml"))
         ## Update state
         recording = metadata.root
         state = recording.at_xpath("state")
