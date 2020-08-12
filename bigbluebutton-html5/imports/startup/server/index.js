@@ -233,7 +233,7 @@ WebApp.connectHandlers.use('/guestWait', (req, res) => {
     try {
       guestWaitHtml = Assets.getText('static/guest-wait/guest-wait.html');
     } catch (e) {
-      Logger.warn(`'Could not process guest wait html file: ${e}`);
+      Logger.warn(`Could not process guest wait html file: ${e}`);
     }
   }
 
