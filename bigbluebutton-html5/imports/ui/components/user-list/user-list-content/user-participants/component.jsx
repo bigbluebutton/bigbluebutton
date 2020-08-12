@@ -68,7 +68,6 @@ class UserParticipants extends Component {
     this.rove = this.rove.bind(this);
     this.changeState = this.changeState.bind(this);
     this.rowRenderer = this.rowRenderer.bind(this);
-    this.getUsers = this.getUsers.bind(this);
     this.handleClickSelectedUser = this.handleClickSelectedUser.bind(this);
   }
 
