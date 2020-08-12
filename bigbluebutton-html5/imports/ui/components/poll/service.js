@@ -74,7 +74,6 @@ export default {
     { fields: { presenter: 1 } },
   ).presenter,
   pollTypes,
-  stopPoll: () => makeCall('stopPoll', Auth.userID),
   currentPoll: () => Polls.findOne({ meetingId: Auth.meetingID }),
   pollAnswerIds,
   sendGroupMessage,
