@@ -1,6 +1,5 @@
 import Meetings from '/imports/api/meetings';
 import logger from '/imports/startup/client/logger';
-import Media from "../../../../ui/components/media/component";
 
 const {
   constraints: GDM_CONSTRAINTS,
@@ -13,9 +12,6 @@ const getConferenceBridge = () => Meetings.findOne().voiceProp.voiceConf;
 
 const getScreenStream = async () => {
   const gDMCallback = (stream) => {
-    let audiostreams = []
-    let copyStream = new MediaStream();
-
     if (typeof stream.getVideoTracks === 'function'
         && typeof constraints.video === 'object') {
       stream.getVideoTracks().forEach((track) => {
@@ -29,14 +25,11 @@ const getScreenStream = async () => {
           });
         }
       });
-      copyStream = new MediaStream(stream.getVideoTracks())
     }
 
     if (typeof stream.getAudioTracks === 'function'
         && typeof constraints.audio === 'object') {
       stream.getAudioTracks().forEach((track) => {
-        stream.removeTrack(track)
-        audiostreams.push(track)
         if (typeof track.applyConstraints === 'function') {
           track.applyConstraints(constraints.audio).catch((error) => {
             logger.warn({
@@ -48,7 +41,7 @@ const getScreenStream = async () => {
       });
     }
 
-    return Promise.resolve(copyStream);
+    return Promise.resolve(stream);
   };
 
   const constraints = hasDisplayMedia ? GDM_CONSTRAINTS : null;
