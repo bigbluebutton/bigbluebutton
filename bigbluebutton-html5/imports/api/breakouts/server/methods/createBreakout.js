@@ -6,7 +6,11 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 export default function createBreakoutRoom(rooms, durationInMinutes, record = false) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
-  const MAX_BREAKOUT_ROOMS = Meteor.settings.public.app.breakoutRoomLimit;
+
+  const BREAKOUT_LIM = Meteor.settings.public.app.breakoutRoomLimit;
+  const MIN_BREAKOUT_ROOMS = 2;
+  const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
+
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
