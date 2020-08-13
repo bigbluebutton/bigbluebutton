@@ -34,7 +34,7 @@ public:
       duration: 4000
     remainingTimeThreshold: 30
     remainingTimeAlertThreshold: 1
-    breakoutRoomLimit: 30
+    breakoutRoomLimit: 8
     defaultSettings:
       application:
         animations: true
@@ -424,4 +424,3 @@ private:
       version: [0, 36]
     - browser: YandexBrowser
       version: 19
-
