@@ -15,11 +15,11 @@ const intlMessages = defineMessages({
   },
   message: {
     id: 'app.breakoutJoinConfirmation.message',
-    description: 'Join breakout confim message',
+    description: 'Join breakout confirm message',
   },
   freeJoinMessage: {
     id: 'app.breakoutJoinConfirmation.freeJoinMessage',
-    description: 'Join breakout confim message',
+    description: 'Join breakout confirm message',
   },
   confirmLabel: {
     id: 'app.createBreakoutRoom.join',
@@ -88,10 +88,15 @@ class BreakoutJoinConfirmation extends Component {
       breakoutURL,
       isFreeJoin,
       voiceUserJoined,
+      requestJoinURL,
     } = this.props;
 
     const { selectValue } = this.state;
-    const url = isFreeJoin ? getURL(selectValue) : breakoutURL;
+    if (!getURL(selectValue)) {
+      requestJoinURL(selectValue);
+    }
+    const urlFromSelectedRoom = getURL(selectValue);
+    const url = isFreeJoin ? urlFromSelectedRoom : breakoutURL;
 
     if (voiceUserJoined) {
       // leave main room's audio when joining a breakout room
@@ -103,6 +108,12 @@ class BreakoutJoinConfirmation extends Component {
     }
 
     VideoService.exitVideo();
+    if (url === '') {
+      logger.error({
+        logCode: 'breakoutjoinconfirmation_redirecting_to_url',
+        extraInfo: { breakoutURL, isFreeJoin },
+      }, 'joining breakout room but redirected to about://blank');
+    }
     window.open(url);
     mountModal(null);
   }

@@ -224,7 +224,7 @@ class UserOptions extends PureComponent {
           onClick={toggleStatus}
         />) : null
       ),
-      (isMeteorConnected ? (
+      (!meetingIsBreakout && isMeteorConnected ? (
         <DropdownListItem
           key={this.muteAllId}
           icon={isMeetingMuted ? 'unmute' : 'mute'}
@@ -233,7 +233,7 @@ class UserOptions extends PureComponent {
           onClick={toggleMuteAllUsers}
         />) : null
       ),
-      (!isMeetingMuted && isMeteorConnected ? (
+      (!meetingIsBreakout && !isMeetingMuted && isMeteorConnected ? (
         <DropdownListItem
           key={this.muteId}
           icon="mute"

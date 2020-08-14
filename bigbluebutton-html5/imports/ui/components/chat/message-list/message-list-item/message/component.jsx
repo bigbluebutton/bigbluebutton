@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import fastdom from 'fastdom';
+import { defineMessages, injectIntl } from 'react-intl';
 
 const propTypes = {
   text: PropTypes.string.isRequired,
@@ -34,13 +35,22 @@ const isElementInViewport = (el) => {
   );
 };
 
-export default class MessageListItem extends PureComponent {
+const intlMessages = defineMessages({
+  legendTitle: {
+    id: 'app.polling.pollingTitle',
+    description: 'heading for chat poll legend',
+  },
+});
+
+class MessageListItem extends PureComponent {
   constructor(props) {
     super(props);
 
     this.ticking = false;
 
     this.handleMessageInViewport = _.debounce(this.handleMessageInViewport.bind(this), 50);
+
+    this.renderPollListItem = this.renderPollListItem.bind(this);
   }
 
   componentDidMount() {
@@ -145,17 +155,56 @@ export default class MessageListItem extends PureComponent {
     });
   }
 
-  render() {
+  renderPollListItem() {
     const {
+      intl,
       text,
       className,
+      color,
+      isDefaultPoll,
     } = this.props;
+
+    const formatBoldBlack = s => s.bold().fontcolor('black');
+
+    let _text = text.replace('bbb-published-poll-<br/>', '');
+
+    if (!isDefaultPoll) {
+      const entries = _text.split('<br/>');
+      const options = [];
+      entries.map((e) => { options.push([e.slice(0, e.indexOf(':'))]); return e; });
+      options.map((o, idx) => {
+        _text = formatBoldBlack(_text.replace(o, idx + 1));
+        return _text;
+      });
+      _text += formatBoldBlack(`<br/><br/>${intl.formatMessage(intlMessages.legendTitle)}`);
+      options.map((o, idx) => { _text += `<br/>${idx + 1}: ${o}`; return _text; });
+    }
 
     return (
       <p
+        className={className}
+        style={{ borderLeft: `3px ${color} solid` }}
+        ref={(ref) => { this.text = ref; }}
+        dangerouslySetInnerHTML={{ __html: isDefaultPoll ? formatBoldBlack(_text) : _text }}
+        data-test="chatMessageText"
+      />
+    );
+  }
+
+  render() {
+    const {
+      text,
+      type,
+      className,
+    } = this.props;
+
+    if (type === 'poll') return this.renderPollListItem();
+
+    return (
+      <p
+        className={className}
         ref={(ref) => { this.text = ref; }}
         dangerouslySetInnerHTML={{ __html: text }}
-        className={className}
         data-test="chatMessageText"
       />
     );
@@ -164,3 +213,5 @@ export default class MessageListItem extends PureComponent {
 
 MessageListItem.propTypes = propTypes;
 MessageListItem.defaultProps = defaultProps;
+
+export default injectIntl(MessageListItem);
