@@ -134,20 +134,29 @@ class AudioManager {
       });
   }
 
-  joinStream(stream){
+  joinScreenShareStream(stream){
     this.isListenOnly = false;
     this.isEchoTest = false;
+    let audioContext = new AudioContext();
 
-    return this.askDevicesPermissions()
-        .then(this.onAudioJoining.bind(this))
-        .then(() => {
-          const callOptions = {
-            isListenOnly: false,
-            extension: null,
-            inputStream: stream,
-          };
-          return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
-        });
+    let shareGain = audioContext.createGain();
+    let micGain = audioContext.createGain();
+    let shareNode = audioContext.createMediaStreamSource(stream)
+    let micNode = audioContext.createMediaStreamSource(this.inputStream)
+    let destination = audioContext.createMediaStreamDestination();
+
+    micNode.connect(micGain)
+    shareNode.connect(shareGain)
+    micGain.connect(destination)
+    shareGain.connect(destination)
+    const callOptions = {
+      isListenOnly: false,
+      extension: null,
+      inputStream: destination.stream,
+    };
+
+
+    return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
   }
 
   joinEchoTest() {

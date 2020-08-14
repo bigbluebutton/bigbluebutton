@@ -62,7 +62,7 @@ const shareScreen = (onFail) => {
     let videoStream = new MediaStream(stream.getVideoTracks())
     let audioStream = new MediaStream(stream.getAudioTracks())
     KurentoBridge.kurentoShareScreen(onFail, videoStream);
-    AudioManager.joinStream(audioStream);
+    AudioManager.joinScreenShareStream(audioStream);
   }).catch(onFail);
 };
 
