@@ -145,7 +145,7 @@ class Page {
         '--lang=en-US',
       ];
       return {
-        headless: false,
+        headless: true,
         args,
       };
     }
@@ -172,7 +172,7 @@ class Page {
         '--lang=en-US',
       ];
       return {
-        headless: false,
+        headless: true,
         args,
       };
     }

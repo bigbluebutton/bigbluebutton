@@ -4,7 +4,7 @@ const Upload = require('./presentation/upload');
 
 const presentationTest = () => {
   beforeEach(() => {
-    jest.setTimeout(30000);
+    jest.setTimeout(50000);
   });
 
   test('Skip slide', async () => {
@@ -26,9 +26,10 @@ const presentationTest = () => {
     const test = new Upload();
     let response;
     try {
+      const testName = 'uploadPresentation';
       await test.init(Page.getArgs());
       await test.closeAudioModal();
-      response = await test.test();
+      response = await test.test(testName);
     } catch (e) {
       console.log(e);
     } finally {

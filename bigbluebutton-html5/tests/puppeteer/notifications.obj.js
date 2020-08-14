@@ -5,7 +5,7 @@ const Page = require('./core/page');
 
 const notificationsTest = () => {
   beforeEach(() => {
-    jest.setTimeout(30000);
+    jest.setTimeout(50000);
   });
 
   test('Save settings notification', async () => {
@@ -65,7 +65,7 @@ const notificationsTest = () => {
       await test.closePages();
       await test.page1.logger('User join notification !');
     }
-    expect(response).toBe('User4 joined the session');
+    expect(response).toBe(true);
   });
 
   test('Presentation upload notification', async () => {
@@ -80,7 +80,7 @@ const notificationsTest = () => {
       await test.closePage(test.page3);
       await test.page3.logger('Presentation upload notification !');
     }
-    expect(response).toContain('Current presentation');
+    expect(response).toBe(true);
   });
 
   test('Poll results notification', async () => {

@@ -14,9 +14,10 @@ const chatTest = () => {
     const test = new Send();
     let response;
     try {
+      const testName = 'sendChat';
       await test.init(Page.getArgs());
       await test.closeAudioModal();
-      response = await test.test();
+      response = await test.test(testName);
     } catch (e) {
       console.log(e);
     } finally {
@@ -29,9 +30,10 @@ const chatTest = () => {
     const test = new Clear();
     let response;
     try {
+      const testName = 'clearChat';
       await test.init(Page.getArgs());
       await test.closeAudioModal();
-      response = await test.test();
+      response = await test.test(testName);
     } catch (e) {
       console.log(e);
     } finally {
@@ -44,9 +46,10 @@ const chatTest = () => {
     const test = new Copy();
     let response;
     try {
+      const testName = 'copyChat';
       await test.init(Page.getArgs());
       await test.closeAudioModal();
-      response = await test.test();
+      response = await test.test(testName);
     } catch (e) {
       console.log(e);
     } finally {
@@ -59,9 +62,10 @@ const chatTest = () => {
     const test = new Save();
     let response;
     try {
+      const testName = 'saveChat';
       await test.init(Page.getArgs());
       await test.closeAudioModal();
-      response = await test.test();
+      response = await test.test(testName);
     } catch (e) {
       console.log(e);
     } finally {
@@ -74,10 +78,11 @@ const chatTest = () => {
     const test = new MultiUsers();
     let response;
     try {
+      const testName = 'sendPrivateChat';
       await test.init();
       await test.page1.closeAudioModal();
       await test.page2.closeAudioModal();
-      response = await test.multiUsersPrivateChat();
+      response = await test.multiUsersPrivateChat(testName);
     } catch (e) {
       console.log(e);
     } finally {
@@ -90,10 +95,11 @@ const chatTest = () => {
     const test = new MultiUsers();
     let response;
     try {
+      const testName = 'sendPublicChat';
       await test.init();
       await test.page1.closeAudioModal();
       await test.page2.closeAudioModal();
-      response = await test.multiUsersPublicChat();
+      response = await test.multiUsersPublicChat(testName);
     } catch (e) {
       console.log(e);
     } finally {

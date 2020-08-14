@@ -11,6 +11,8 @@ const virtualizedListTest = require('./virtualizedlist.obj');
 const webcamTest = require('./webcam.obj');
 const whiteboardTest = require('./whiteboard.obj');
 
+process.setMaxListeners(Infinity);
+
 describe('Audio', audioTest);
 describe('Chat', chatTest);
 describe('Breakout', breakoutTest);

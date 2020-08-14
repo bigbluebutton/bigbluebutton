@@ -31,29 +31,23 @@ class Create {
       await this.page1.screenshot(`${testName}`, `01-page01-initialized-${testName}`);
       await this.page2.screenshot(`${testName}`, `01-page02-initialized-${testName}`);
     }
-    this.page1.logger('page01 initialized');
-    this.page2.logger('page02 initialized');
     await this.page1.page.evaluate(util.clickTestElement, be.manageUsers);
     await this.page1.page.evaluate(util.clickTestElement, be.createBreakoutRooms);
-    this.page1.logger('page01 breakout rooms menu loaded');
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await this.page1.screenshot(`${testName}`, `02-page01-creating-breakoutrooms-${testName}`);
     }
     await this.page1.waitForSelector(be.randomlyAssign);
     await this.page1.page.evaluate(util.clickTestElement, be.randomlyAssign);
-    this.page1.logger('page01 randomly assigned  users');
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await this.page1.screenshot(`${testName}`, `03-page01-randomly-assign-user-${testName}`);
     }
     await this.page1.waitForSelector(be.modalConfirmButton);
     await this.page1.page.evaluate(util.clickTestElement, be.modalConfirmButton);
-    this.page1.logger('page01 breakout rooms creation confirmed');
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await this.page1.screenshot(`${testName}`, `04-page01-confirm-breakoutrooms-creation-${testName}`);
     }
     await this.page2.waitForSelector(be.modalConfirmButton);
     await this.page2.page.evaluate(util.clickTestElement, be.modalConfirmButton);
-    this.page2.logger('page02 breakout rooms join confirmed');
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await this.page2.screenshot(`${testName}`, `02-page02-accept-invite-breakoutrooms-${testName}`);
     }
@@ -65,7 +59,6 @@ class Create {
     await this.page2.waitForSelector(be.alreadyConnected);
     const page2 = await this.page2.browser.pages();
     await page2[2].bringToFront();
-    this.page2.logger('before closing audio modal');
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/03-breakout-page02-before-closing-audio-modal.png`) });
     }
@@ -74,7 +67,6 @@ class Create {
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/04-breakout-page02-after-closing-audio-modal.png`) });
     }
-    this.page2.logger('audio modal closed');
   }
 
   // Check if Breakoutrooms have been created
@@ -99,6 +91,13 @@ class Create {
       await this.page3.closeAudioModal();
       await this.page3.waitForSelector(be.breakoutRoomsButton);
       await this.page3.click(be.breakoutRoomsButton, true);
+
+      await this.page3.waitForSelector(be.breakoutRoomsItem);
+      await this.page3.waitForSelector(be.chatButton);
+      await this.page3.click(be.chatButton);
+      await this.page3.click(be.breakoutRoomsItem);
+
+
       await this.page3.waitForSelector(be.joinRoom1);
       await this.page3.click(be.joinRoom1, true);
       await this.page3.waitForSelector(be.alreadyConnected);
@@ -119,7 +118,6 @@ class Create {
       if (process.env.GENERATE_EVIDENCES === 'true') {
         await page3[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/00-breakout-page03-user-joined-with-mic-before-check-${testName}.png`) });
       }
-      this.page3.logger('joined breakout with audio');
     } else if (testName === 'joinBreakoutroomsWithVideo') {
       await this.page3.init(Page.getArgsWithVideo(), this.page1.meetingId, { ...params, fullName: 'Moderator3' }, undefined);
       await this.page3.closeAudioModal();
@@ -147,7 +145,6 @@ class Create {
       if (process.env.GENERATE_EVIDENCES === 'true') {
         await page3[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/00-breakout-page03-user-joined-with-webcam-before-check-${testName}.png`) });
       }
-      this.page3.logger('joined breakout with video');
     } else if (testName === 'joinBreakoutroomsAndShareScreen') {
       await this.page3.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Moderator3' }, undefined);
       await this.page3.closeAudioModal();
@@ -181,11 +178,9 @@ class Create {
       if (process.env.GENERATE_EVIDENCES === 'true') {
         await page3[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/00-breakout-page03-user-joined-with-screenshare-after-check-${testName}.png`) });
       }
-      this.page3.logger('joined breakout and started screen share');
     } else {
       await this.page3.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Moderator3' }, undefined);
       await this.page3.closeAudioModal();
-      this.page3.logger('joined breakout without use of any feature');
     }
   }
 

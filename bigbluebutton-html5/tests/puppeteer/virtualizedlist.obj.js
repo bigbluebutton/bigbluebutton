@@ -1,7 +1,7 @@
 const VirtualizedList = require('./virtualizedlist/virtualize');
 
 const virtualizedListTest = () => {
-  test('Virtualized List Audio test', async () => {
+  test('Virtualized Users List', async () => {
     const test = new VirtualizedList();
     let response;
     try {
