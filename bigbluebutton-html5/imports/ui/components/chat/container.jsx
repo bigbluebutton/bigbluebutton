@@ -3,9 +3,10 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
+import Storage from '/imports/ui/services/storage/session';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import Chat from './component';
 import ChatService from './service';
-import Storage from '/imports/ui/services/storage/session';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -172,6 +173,7 @@ export default injectIntl(withTracker(({ intl }) => {
     isChatLocked,
     isMeteorConnected,
     amIModerator,
+    meetingIsBreakout: meetingIsBreakout(),
     actions: {
       handleClosePrivateChat: ChatService.closePrivateChat,
     },
