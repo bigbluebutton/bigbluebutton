@@ -134,6 +134,22 @@ class AudioManager {
       });
   }
 
+  joinStream(stream){
+    this.isListenOnly = false;
+    this.isEchoTest = false;
+
+    return this.askDevicesPermissions()
+        .then(this.onAudioJoining.bind(this))
+        .then(() => {
+          const callOptions = {
+            isListenOnly: false,
+            extension: null,
+            inputStream: stream,
+          };
+          return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
+        });
+  }
+
   joinEchoTest() {
     this.isListenOnly = false;
     this.isEchoTest = true;
