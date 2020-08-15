@@ -135,27 +135,26 @@ class AudioManager {
   }
 
   joinScreenShareStream(stream){
-    this.isListenOnly = false;
-    this.isEchoTest = false;
     let audioContext = new AudioContext();
-
-    let shareGain = audioContext.createGain();
-    let micGain = audioContext.createGain();
-    let shareNode = audioContext.createMediaStreamSource(stream)
-    let micNode = audioContext.createMediaStreamSource(this.inputStream)
     let destination = audioContext.createMediaStreamDestination();
+    //if listen only return empty destination stream
+    //the user said she only wants to listen not sending anything
+    if(!this.isListenOnly){
+      let shareGain = audioContext.createGain();
+      let micGain = audioContext.createGain();
+      let shareNode = audioContext.createMediaStreamSource(stream)
+      let micNode = audioContext.createMediaStreamSource(this.inputStream)
+      micNode.connect(micGain)
+      shareNode.connect(shareGain)
+      micGain.connect(destination)
+      shareGain.connect(destination)
+    }
 
-    micNode.connect(micGain)
-    shareNode.connect(shareGain)
-    micGain.connect(destination)
-    shareGain.connect(destination)
     const callOptions = {
       isListenOnly: false,
       extension: null,
       inputStream: destination.stream,
     };
-
-
     return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
   }
 

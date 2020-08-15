@@ -59,17 +59,28 @@ const shareScreen = (onFail) => {
   }
 
   BridgeService.getScreenStream().then((stream) => {
+    window.screenShareStream = stream;
     let videoStream = new MediaStream(stream.getVideoTracks())
-    let audioStream = new MediaStream(stream.getAudioTracks())
-    KurentoBridge.kurentoShareScreen(onFail, videoStream);
-    AudioManager.joinScreenShareStream(audioStream);
+    KurentoBridge.kurentoShareScreen(onFail, videoStream)
+    if(typeof stream.getAudioTracks == "function" && stream.getAudioTracks().length > 0){
+      let audioStream = new MediaStream(stream.getAudioTracks())
+      AudioManager.joinScreenShareStream(audioStream)
+    }
+
   }).catch(onFail);
 };
 
 const screenShareEndAlert = () => new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/ScreenshareOff.mp3`).play();
 
 const unshareScreen = () => {
+  let stream = window.screenShareStream;
   KurentoBridge.kurentoExitScreenShare();
+  if(typeof stream.getAudioTracks == "function" && stream.getAudioTracks().length > 0){
+    //we are actually not really joining listening only
+    //but resetting to whatever was before
+    AudioManager.joinListenOnly()
+  }
+  stream.getTracks().forEach(stream=>stream.stop())
   screenShareEndAlert();
 };
 

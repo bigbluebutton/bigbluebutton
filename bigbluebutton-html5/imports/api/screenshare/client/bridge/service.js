@@ -1,5 +1,6 @@
 import Meetings from '/imports/api/meetings';
 import logger from '/imports/startup/client/logger';
+import AudioManager from '/imports/ui/services/audio-manager';
 
 const {
   constraints: GDM_CONSTRAINTS,
@@ -45,7 +46,9 @@ const getScreenStream = async () => {
   };
 
   const constraints = hasDisplayMedia ? GDM_CONSTRAINTS : null;
-
+  if(AudioManager.isListenOnly){
+    constraints.audio = false;
+  }
   // getDisplayMedia isn't supported, generate no stream and let the legacy
   // constraint fetcher work its way on kurento-extension.js
   if (constraints == null) {
