@@ -75,11 +75,6 @@ const screenShareEndAlert = () => new Audio(`${Meteor.settings.public.app.cdn + 
 const unshareScreen = () => {
   let stream = window.screenShareStream;
   KurentoBridge.kurentoExitScreenShare();
-  if(typeof stream.getAudioTracks == "function" && stream.getAudioTracks().length > 0){
-    //we are actually not really joining listening only
-    //but resetting to whatever was before
-    AudioManager.joinListenOnly()
-  }
   stream.getTracks().forEach(stream=>stream.stop())
   screenShareEndAlert();
 };
