@@ -8,10 +8,19 @@ import { makeCall } from '/imports/ui/services/api';
 
 import ReactPlayer from 'react-player';
 
-const isUrlValid = url => ReactPlayer.canPlay(url);
+import Panopto from './custom-players/panopto';
+
+const isUrlValid = (url) => {
+  return ReactPlayer.canPlay(url) || Panopto.canPlay(url);
+}
 
 const startWatching = (url) => {
-  const externalVideoUrl = url;
+  let externalVideoUrl = url;
+
+  if (Panopto.canPlay(url)) {
+    externalVideoUrl = Panopto.getSocialUrl(url);
+  }
+
   makeCall('startWatchingExternalVideo', { externalVideoUrl });
 };
 
