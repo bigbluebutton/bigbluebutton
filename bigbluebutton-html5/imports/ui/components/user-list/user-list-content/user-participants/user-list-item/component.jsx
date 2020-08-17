@@ -46,6 +46,10 @@ class UserListItem extends PureComponent {
       isMe,
       voiceUser,
       changeWhiteboardMode,
+      scrollArea,
+      notify,
+      raiseHandAudioAlert,
+      raiseHandPushAlert,
     } = this.props;
 
     const contents = (
@@ -78,6 +82,10 @@ class UserListItem extends PureComponent {
           isMe,
           voiceUser,
           changeWhiteboardMode,
+          scrollArea,
+          notify,
+          raiseHandAudioAlert,
+          raiseHandPushAlert,
         }}
       />
     );

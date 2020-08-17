@@ -13,33 +13,49 @@ object Polls {
 
   def handleStartPollReqMsg(state: MeetingState2x, userId: String, pollId: String, pollType: String,
                             lm: LiveMeeting): Option[SimplePollOutVO] = {
-    def createPoll(pollId: String, numRespondents: Int): Option[Poll] = {
+
+    def createPoll(stampedPollId: String): Option[Poll] = {
+      val numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter
+
       for {
-        poll <- PollFactory.createPoll(pollId, pollType, numRespondents, None)
+        poll <- PollFactory.createPoll(stampedPollId, pollType, numRespondents, None)
       } yield {
         lm.polls.save(poll)
         poll
       }
     }
 
-    for {
+    val pollWithPresentation = for {
       pod <- state.presentationPodManager.getDefaultPod()
       pres <- pod.getCurrentPresentation()
       page <- PresentationInPod.getCurrentPage(pres)
       pageId: String = if (pollId.contains("deskshare")) "deskshare" else page.id
       stampedPollId: String = pageId + "/" + System.currentTimeMillis()
-      numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter
 
-      poll <- createPoll(stampedPollId, numRespondents)
+      poll <- createPoll(stampedPollId)
       simplePoll <- getSimplePoll(poll.id, lm.polls)
     } yield {
       startPoll(simplePoll.id, lm.polls)
       simplePoll
     }
+
+    pollWithPresentation match {
+      case None => {
+        val stampedPollId: String = "public" + "/" + System.currentTimeMillis()
+        for {
+          poll <- createPoll(stampedPollId)
+          simplePoll <- getSimplePoll(poll.id, lm.polls)
+        } yield {
+          startPoll(simplePoll.id, lm.polls)
+          simplePoll
+        }
+      }
+      case default => default
+    }
   }
 
   def handleStopPollReqMsg(state: MeetingState2x, userId: String, lm: LiveMeeting): Option[String] = {
-    for {
+    var stoppedPoll = for {
       pod <- state.presentationPodManager.getDefaultPod()
       pres <- pod.getCurrentPresentation()
       page <- PresentationInPod.getCurrentPage(pres)
@@ -47,6 +63,18 @@ object Polls {
     } yield {
       stopPoll(curPoll.id, lm.polls)
       curPoll.id
+    }
+
+    stoppedPoll match {
+      case None => {
+        for {
+          curPoll <- getRunningPollThatStartsWith("public", lm.polls)
+        } yield {
+          stopPoll(curPoll.id, lm.polls)
+          curPoll.id
+        }
+      }
+      case default => default
     }
   }
 
@@ -131,28 +159,44 @@ object Polls {
   def handleStartCustomPollReqMsg(state: MeetingState2x, requesterId: String, pollId: String, pollType: String,
                                   answers: Seq[String], lm: LiveMeeting): Option[SimplePollOutVO] = {
 
-    def createPoll(pollId: String, numRespondents: Int): Option[Poll] = {
+    def createPoll(stampedPollId: String): Option[Poll] = {
+      val numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter
       for {
-        poll <- PollFactory.createPoll(pollId, pollType, numRespondents, Some(answers))
+        poll <- PollFactory.createPoll(stampedPollId, pollType, numRespondents, Some(answers))
       } yield {
         lm.polls.save(poll)
         poll
       }
     }
 
-    for {
+    val pollWithPresentation = for {
       pod <- state.presentationPodManager.getDefaultPod()
       pres <- pod.getCurrentPresentation()
       page <- PresentationInPod.getCurrentPage(pres)
       pageId: String = if (pollId.contains("deskshare")) "deskshare" else page.id
       stampedPollId: String = pageId + "/" + System.currentTimeMillis()
-      numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter
-      poll <- createPoll(stampedPollId, numRespondents)
-      simplePoll <- getSimplePoll(stampedPollId, lm.polls)
+
+      poll <- createPoll(stampedPollId)
+      simplePoll <- getSimplePoll(poll.id, lm.polls)
     } yield {
-      startPoll(poll.id, lm.polls)
+      startPoll(simplePoll.id, lm.polls)
       simplePoll
     }
+
+    pollWithPresentation match {
+      case None => {
+        val stampedPollId: String = "public" + "/" + System.currentTimeMillis()
+        for {
+          poll <- createPoll(stampedPollId)
+          simplePoll <- getSimplePoll(poll.id, lm.polls)
+        } yield {
+          startPoll(simplePoll.id, lm.polls)
+          simplePoll
+        }
+      }
+      case default => default
+    }
+
   }
 
   //

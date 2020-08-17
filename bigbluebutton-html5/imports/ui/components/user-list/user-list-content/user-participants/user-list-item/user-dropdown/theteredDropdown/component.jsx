@@ -1,15 +1,16 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
-import { isMobile } from 'react-device-detect';
-import TetherComponent from 'react-tether';
 import cx from 'classnames';
+import { isMobile } from 'react-device-detect';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import screenreaderTrap from 'makeup-screenreader-trap';
-import { styles } from './styles';
-import DropdownTrigger from './trigger/component';
-import DropdownContent from './content/component';
+import TetherComponent from 'react-tether';
+import { styles } from '/imports/ui/components/dropdown/styles';
+
+import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
+import DropdownContent from '/imports/ui/components/dropdown/content/component';
 
 const intlMessages = defineMessages({
   close: {
@@ -53,7 +54,6 @@ const propTypes = {
   onShow: PropTypes.func,
   autoFocus: PropTypes.bool,
   intl: intlShape.isRequired,
-  tethered: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -63,13 +63,13 @@ const defaultProps = {
   autoFocus: false,
   isOpen: false,
   keepOpen: null,
-  getContent: () => {},
 };
 
 const attachments = {
   'right-bottom': 'bottom left',
   'right-top': 'bottom left',
 };
+
 const targetAttachments = {
   'right-bottom': 'bottom right',
   'right-top': 'top right',
@@ -95,15 +95,13 @@ class Dropdown extends Component {
       onHide,
       keepOpen,
     } = this.props;
-
     const { isOpen } = this.state;
-
 
     if (isOpen && !prevState.isOpen) { onShow(); }
 
     if (!isOpen && prevState.isOpen) { onHide(); }
 
-    if (prevProps.keepOpen && !keepOpen) onHide();
+    if (prevProps.keepOpen && !keepOpen) { onHide(); }
   }
 
   handleShow() {
@@ -175,24 +173,12 @@ class Dropdown extends Component {
       className,
       intl,
       keepOpen,
-      tethered,
-      placement,
       getContent,
+      placement,
       ...otherProps
     } = this.props;
 
     const { isOpen } = this.state;
-    
-    const placements = placement && placement.replace(' ', '-');
-    const test = isMobile ? {
-      width: '100%',
-      height: '100%',
-      transform: 'translateY(0)',
-    } : {
-      width: '',
-      height: '',
-      transform: '',
-    };
 
     let trigger = children.find(x => x.type === DropdownTrigger);
     let content = children.find(x => x.type === DropdownContent);
@@ -203,7 +189,6 @@ class Dropdown extends Component {
       dropdownToggle: this.handleToggle,
       dropdownShow: this.handleShow,
       dropdownHide: this.handleHide,
-      keepOpen,
     });
 
     content = React.cloneElement(content, {
@@ -211,16 +196,26 @@ class Dropdown extends Component {
         getContent(ref);
         this.content = ref;
       },
+      keepOpen,
       'aria-expanded': isOpen,
       dropdownIsOpen: isOpen,
       dropdownToggle: this.handleToggle,
       dropdownShow: this.handleShow,
       dropdownHide: this.handleHide,
-      keepOpen,
     });
 
     const showCloseBtn = (isOpen && keepOpen) || (isOpen && keepOpen === null);
-
+    const placements = placement.replace(' ', '-');
+    // workaround
+    const test = isMobile ? {
+      width: '100%',
+      height: '100%',
+      transform: 'translateY(0)',
+    } : {
+      width: '',
+      height: '',
+      transform: '',
+    };
     return (
       <div
         className={cx(styles.dropdown, className)}
@@ -231,67 +226,49 @@ class Dropdown extends Component {
         ref={(node) => { this.dropdown = node; }}
         tabIndex={-1}
       >
-        {
-          tethered ?
-            (
-              <TetherComponent
-                style={{
-                  zIndex: isOpen ? 15 : '',
-                  ...test,
-                }}
-                attachment={
-                  isMobile ? 'middle bottom'
-                    : attachments[placements]
-                }
-                targetAttachment={
-                  isMobile ? ''
-                    : targetAttachments[placements]
-                }
-                constraints={[
-                  {
-                    to: 'scrollParent',
-                  },
-                ]}
-                renderTarget={ref => (
-                  <span ref={ref}>
-                    {trigger}
-                  </span>)}
-                renderElement={ref => (
-                  <div
-                    ref={ref}
-                  >
-                    {content}
-                    {showCloseBtn
-                      ? (
-                        <Button
-                          className={styles.close}
-                          label={intl.formatMessage(intlMessages.close)}
-                          size="lg"
-                          color="default"
-                          onClick={this.handleHide}
-                        />
-                      ) : null}
-                  </div>
-                )
-                }
-              />)
-            : (
-              <Fragment>
-                {trigger}
-                {content}
-                {showCloseBtn
-                  ? (
-                    <Button
-                      className={styles.close}
-                      label={intl.formatMessage(intlMessages.close)}
-                      size="lg"
-                      color="default"
-                      onClick={this.handleHide}
-                    />
-                  ) : null}
-              </Fragment>
-            )
-        }
+        <TetherComponent
+          style={{
+            zIndex: isOpen ? 15 : '',
+            ...test,
+          }}
+          attachment={
+            isMobile ? 'middle bottom'
+              : attachments[placements]
+          }
+          targetAttachment={
+            isMobile ? ''
+              : targetAttachments[placements]
+          }
+
+          constraints={[
+            {
+              to: 'scrollParent',
+            },
+          ]}
+
+          renderTarget={ref => (
+            <span ref={ref}>
+              {trigger}
+            </span>)}
+          renderElement={ref => (
+            <div
+              ref={ref}
+            >
+              {content}
+              {showCloseBtn
+                ? (
+                  <Button
+                    className={styles.close}
+                    label={intl.formatMessage(intlMessages.close)}
+                    size="lg"
+                    color="default"
+                    onClick={this.handleHide}
+                  />
+                ) : null}
+            </div>
+          )
+          }
+        />
       </div>
     );
   }
