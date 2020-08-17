@@ -61,6 +61,7 @@ export default function addUser(meetingId, user) {
         inactivityCheck: false,
         responseDelay: 0,
         loggedOut: false,
+        whiteboardAccess: user.presenter,
       },
       flat(user),
     ),

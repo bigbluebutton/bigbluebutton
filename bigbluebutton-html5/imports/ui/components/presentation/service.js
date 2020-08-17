@@ -16,7 +16,7 @@ const downloadPresentationUri = (podId) => {
     return null;
   }
 
-  const presentationFileName =  currentPresentation.id + '.' + currentPresentation.name.split('.').pop();
+  const presentationFileName = `${currentPresentation.id}.${currentPresentation.name.split('.').pop()}`;
 
   const uri = `https://${window.document.location.hostname}/bigbluebutton/presentation/download/`
     + `${currentPresentation.meetingId}/${currentPresentation.id}`
@@ -178,7 +178,17 @@ const getMultiUserStatus = (whiteboardId) => {
     meetingId: Auth.meetingID,
     whiteboardId,
   });
-  return data ? data.multiUser : false;
+
+  const currentUser = Users.findOne({
+    userId: Auth.userID,
+    meetingId: Auth.meetingID,
+  }, {
+    fields: {
+      whiteboardAccess: 1,
+    },
+  });
+
+  return data && data.multiUser && currentUser.whiteboardAccess;
 };
 
 export default {

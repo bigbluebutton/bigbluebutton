@@ -45,6 +45,7 @@ class UserListItem extends PureComponent {
       isMeteorConnected,
       isMe,
       voiceUser,
+      changeWhiteboardMode,
     } = this.props;
 
     const contents = (
@@ -76,6 +77,7 @@ class UserListItem extends PureComponent {
           isMeteorConnected,
           isMe,
           voiceUser,
+          changeWhiteboardMode,
         }}
       />
     );

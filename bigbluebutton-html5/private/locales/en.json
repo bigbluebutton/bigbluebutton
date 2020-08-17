@@ -78,6 +78,8 @@
     "app.userlist.menu.removeConfirmation.desc": "Prevent this user from rejoining the session.",
     "app.userList.menu.muteUserAudio.label": "Mute user",
     "app.userList.menu.unmuteUserAudio.label": "Unmute user",
+    "app.userList.menu.giveWBAccess.label" : "Give whiteboard access",
+    "app.userList.menu.removeWBAccess.label": "Remove whiteboard access",
     "app.userList.userAriaLabel": "{0} {1} {2}  Status {3}",
     "app.userList.menu.promoteUser.label": "Promote to moderator",
     "app.userList.menu.demoteUser.label": "Demote to viewer",

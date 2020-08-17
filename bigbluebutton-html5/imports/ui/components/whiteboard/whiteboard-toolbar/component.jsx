@@ -758,19 +758,24 @@ class WhiteboardToolbar extends Component {
   }
 
   renderMultiUserItem() {
-    const { intl, multiUser, isMeteorConnected } = this.props;
+    const {
+      intl, multiUser, isMeteorConnected, withAccessNum,
+    } = this.props;
 
     return (
-      <ToolbarMenuItem
-        disabled={!isMeteorConnected}
-        label={multiUser
-          ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
-          : intl.formatMessage(intlMessages.toolbarMultiUserOn)
-        }
-        icon={multiUser ? 'multi_whiteboard' : 'whiteboard'}
-        onItemClick={this.handleSwitchWhiteboardMode}
-        className={styles.toolbarButton}
-      />
+      <span className={styles.multiUserToolItem}>
+        {withAccessNum > 0 && <span className={styles.multiUserTool}>{withAccessNum}</span>}
+        <ToolbarMenuItem
+          disabled={!isMeteorConnected}
+          label={multiUser
+            ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
+            : intl.formatMessage(intlMessages.toolbarMultiUserOn)
+          }
+          icon={multiUser ? 'multi_whiteboard' : 'whiteboard'}
+          onItemClick={this.handleSwitchWhiteboardMode}
+          className={styles.toolbarButton}
+        />
+      </span>
     );
   }
 

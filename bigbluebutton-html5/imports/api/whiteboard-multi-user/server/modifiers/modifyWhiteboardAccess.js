@@ -1,12 +1,30 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
-
+import Users from '/imports/api/users';
 
 export default function modifyWhiteboardAccess(meetingId, whiteboardId, multiUser) {
   check(meetingId, String);
   check(whiteboardId, String);
   check(multiUser, Boolean);
+
+  if (!multiUser) {
+    const usersSelector = { meetingId, presenter: { $ne: true } };
+
+    const mod = {
+      $set: {
+        whiteboardAccess: false,
+      },
+    };
+
+    Users.update(usersSelector, mod, { multi: true }, (err) => {
+      if (err) {
+        return Logger.error(`Error removing whiteboard access, User collection: ${err}`);
+      }
+
+      return Logger.info(`updated Users whiteboardAccess flag=${false} meetingId=${meetingId} whiteboardId=${whiteboardId}`);
+    });
+  }
 
   const selector = {
     meetingId,
@@ -18,7 +36,6 @@ export default function modifyWhiteboardAccess(meetingId, whiteboardId, multiUse
     whiteboardId,
     multiUser,
   };
-
 
   const cb = (err, numChanged) => {
     if (err) {
