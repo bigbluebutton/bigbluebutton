@@ -27,6 +27,14 @@ module BigBlueButton
       FFMPEG_WF_FRAMERATE = 24
       FFMPEG_WF_ARGS = ['-an', '-codec', FFMPEG_WF_CODEC.to_s, '-q:v', '2', '-g', (FFMPEG_WF_FRAMERATE * 10).to_s, '-pix_fmt', 'yuv420p', '-r', FFMPEG_WF_FRAMERATE.to_s, '-f', 'mpegts']
       WF_EXT = 'ts'
+      # Parameters for burning-in the user's name. Could be moved to a more accessible place such as setting files.
+      NAME_BURNIN = true
+      NAME_BGCOLOR = 'black'
+      NAME_FGCOLOR = 'yellow'
+      NAME_SIZE_RECIPRCL = 10
+      NAME_ALPHA = 0.7
+      NAME_UNIFONT = false # Use Unifont irrespective to the used language. Always working but quality is not the best; sudo apt install unifont is necessary when true
+      NAME_DEF = "NotoSans-Regular" # Default font in case nothing found (never happens).
 
       def self.dump(edl)
         BigBlueButton.logger.debug "EDL Dump:"
@@ -166,6 +174,43 @@ module BigBlueButton
 
         merged_edl
       end
+      
+      def self.find_best_font(id, nm, bdir, flist)
+        tmpdir = "/tmp/"
+        sofficedir = tmpdir+".sofficeNameTagCreator"
+        f = File.open("#{bdir+id}.html", 'w')
+        f.puts "<span STYLE=\"font-family: 'sans-serif';\">#{nm.gsub(/&/,"&amp;").gsub(/</,"&lt;").gsub(/>/,"&gt;")}</span>"
+        f.close
+        BigBlueButton.execute("mkdir #{sofficedir}") unless File.exist?(sofficedir)
+        BigBlueButton.execute("/usr/lib/libreoffice/program/soffice.bin --headless --norestore --writer --convert-to pdf --outdir #{bdir} -env:UserInstallation=file://#{sofficedir} #{bdir+id}.html", false)
+        pdffont = NAME_DEF
+        if File.exist?("#{bdir+id}.pdf")
+          pdffonts_res = BigBlueButton.execute("/usr/bin/pdffonts #{bdir+id}.pdf | tail -n 1 | awk '{print$1}'")
+          pdffont = pdffonts_res.output[0].sub(/^.*\+(\S+).*/,'\1').chomp
+        end
+        f_ngram = []
+        flist.each do |h,v|
+          f_ngram << [v, ngram(h, pdffont, 3)]
+        end
+        f_ngram.sort!{|x,y| y[1] <=> x[1]}
+        BigBlueButton.execute("rm #{bdir+id}.html #{bdir+id}.pdf", false)
+        BigBlueButton.logger.info "#{f_ngram[0][0]} will be used for #{nm}."
+        f_ngram[0][0]
+      end
+
+      def self.escapeffmpg(s)
+        return s.gsub(/\\/,"\\\\\\\\\\\\\\\\").gsub(/\"/,"\\\\\\\\\\\"").gsub(/'/,"'\\\\\\\\\\\\''").gsub(/%/,"\\\\\\\\\\\%").gsub(/:/, "\\\\\\\\\\\:")
+      end
+
+      # To quickly calculate the similarity of two words
+      def self.ngram(s1, s2, n)
+        strings = [s1.gsub(/[ _-]/, "").downcase, s2.gsub(/[ _-]/, "").downcase] # -_ matches to capital letters?
+        return 0.0  if strings[0].size < n || strings[1].size < n
+        a = strings.map { |s| s.chars.each_cons(n).collect(&:join) }
+        dup = (a[0] & a[1]).size
+        all = (a[0] + a[1]).uniq.size
+        return dup/all.to_f
+      end
 
       def self.render(edl, layout, output_basename)
         videoinfo = {}
@@ -251,6 +296,31 @@ module BigBlueButton
         end
 
         dump(edl)
+        
+        uids = Hash.new
+        fonts = Hash.new
+        basedir = output_basename.sub(/webcams$/,'')
+        userIds_file = basedir+'users.json'
+        if NAME_BURNIN && File.exist?(userIds_file)
+          f = File.open(userIds_file)
+          uids = JSON.load(f)
+          f.close
+
+          uf = BigBlueButton.execute("/usr/bin/fc-match -f '%{file}' unifont") if NAME_UNIFONT
+          fclist = Hash.new
+          fclist_res = BigBlueButton.execute("/usr/bin/fc-list -f '%{file}\\n'")
+          fclist_res.output.each do |s|
+            fclist[File.basename(s, ".*")] = s.chomp
+          end
+          
+          uids.each do |h,v|
+            if NAME_UNIFONT
+              fonts[h] = uf.output[0].chomp
+            else
+              fonts[h] = find_best_font(h,v,basedir, fclist)
+            end
+          end
+        end
 
         BigBlueButton.logger.info "Compositing cuts"
         render = "#{output_basename}.#{WF_EXT}"
@@ -492,6 +562,11 @@ module BigBlueButton
             # Reset the timestamps to start at 0 so that everything is synced
             # for the video tiling, and scale to the desired size.
             ffmpeg_filter << ",setpts=PTS-STARTPTS,scale=#{scale_width}:#{scale_height},setsar=1"
+            # Burn-in the user's name in the video
+            uid = video[:filename].sub(/.*medium-(.+)-\d+.webm$/,'\1')
+            if id_names[uid]
+              ffmpeg_filter << ",drawtext=fontfile=#{id_fonts[uid]}:text='#{escapeffmpg(id_names[uid])}':fontsize=#{tile_height/NAME_SIZE_RECIPRCL}:box=1:fontcolor=#{NAME_FGCOLOR}:boxcolor=#{NAME_BGCOLOR}@#{NAME_ALPHA}:boxborderw=3"
+            end
             # And finally, pad the video to the desired aspect ratio
             ffmpeg_filter << ",pad=w=#{tile_width}:h=#{tile_height}:x=#{offset_x}:y=#{offset_y}:color=white"
             ffmpeg_filter << "[#{pad_name}_movie];"
