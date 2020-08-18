@@ -115,19 +115,23 @@ const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequen
 const renderPendingUsers = (message, usersArray, action, intl) => {
   if (!usersArray.length) return null;
   return (
-    <div>
+    <div className={styles.pendingUsers}>
       <p className={styles.mainTitle}>{message}</p>
-      {usersArray.map((user, idx) => renderGuestUserItem(
-        user.name,
-        user.color,
-        () => action([user], ALLOW_STATUS),
-        () => action([user], DENY_STATUS),
-        user.role,
-        idx + 1,
-        user.intId,
-        user.avatar,
-        intl,
-      ))}
+      <div className={styles.usersWrapper}>
+        <div className={styles.users}>
+          {usersArray.map((user, idx) => renderGuestUserItem(
+            user.name,
+            user.color,
+            () => action([user], ALLOW_STATUS),
+            () => action([user], DENY_STATUS),
+            user.role,
+            idx + 1,
+            user.intId,
+            user.avatar,
+            intl,
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
@@ -230,7 +234,7 @@ const WaitingUsers = (props) => {
           />
         </div>
       </header>
-      <main>
+      <div>
         <div>
           <p className={styles.mainTitle}>{intl.formatMessage(intlMessages.optionTitle)}</p>
           {
@@ -246,21 +250,21 @@ const WaitingUsers = (props) => {
             {intl.formatMessage(intlMessages.rememberChoice)}
           </label>
         </div>
-        {renderPendingUsers(
-          intl.formatMessage(intlMessages.pendingUsers,
-            { 0: authenticatedUsers.length }),
-          authenticatedUsers,
-          guestUsersCall,
-          intl,
-        )}
-        {renderPendingUsers(
-          intl.formatMessage(intlMessages.pendingGuestUsers,
-            { 0: guestUsers.length }),
-          guestUsers,
-          guestUsersCall,
-          intl,
-        )}
-      </main>
+      </div>
+      {renderPendingUsers(
+        intl.formatMessage(intlMessages.pendingUsers,
+          { 0: authenticatedUsers.length }),
+        authenticatedUsers,
+        guestUsersCall,
+        intl,
+      )}
+      {renderPendingUsers(
+        intl.formatMessage(intlMessages.pendingGuestUsers,
+          { 0: guestUsers.length }),
+        guestUsers,
+        guestUsersCall,
+        intl,
+      )}
     </div>
   );
 };
