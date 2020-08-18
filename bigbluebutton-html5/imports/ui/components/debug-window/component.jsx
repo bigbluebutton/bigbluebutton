@@ -1,6 +1,9 @@
 import React, { PureComponent } from 'react';
 import cx from 'classnames';
 import Draggable from 'react-draggable';
+import {
+  defineMessages, injectIntl, intlShape, FormattedMessage,
+} from 'react-intl';
 import styles from './styles.scss';
 import Modal from '/imports/ui/components/modal/simple/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
@@ -9,8 +12,32 @@ import Button from '/imports/ui/components/button/component';
 import Storage from '/imports/ui/services/storage/session';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 
-const SHOW_DEBUG_WINDOW = Meteor.settings.public.app.showDebugWindow;
-const SHOW_DEBUG_WINDOW_SHORTCUT = Meteor.settings.public.app.showDebugWindowShortcut;
+const SHOW_DEBUG_WINDOW = Meteor.settings.public.app.enableDebugWindowButton;
+const SHOW_DEBUG_WINDOW_SHORTCUT = Meteor.settings.public.app.enableDebugWindowShortcut;
+const SHOW_DEBUG_WINDOW_ACCESSKEY = Meteor.settings.public.app.shortcuts.openDebugWindow.accesskey;
+
+const messages = defineMessages({
+  debugModalTitle: {
+    id: 'app.debugWindow.windowTitle',
+    description: 'Debug window title',
+  },
+  userAgentLabel: {
+    id: 'app.debugWindow.form.userAgentLabel',
+    description: 'User agent form label',
+  },
+  copyButtonLabel: {
+    id: 'app.debugWindow.form.button.copy',
+    description: 'User agent form copy button',
+  },
+  enableAutoarrangeLayoutLabel: {
+    id: 'app.debugWindow.form.enableAutoarrangeLayoutLabel',
+    description: 'Enable Autoarrange layout label',
+  },
+  enableAutoarrangeLayoutDescription: {
+    id: 'app.debugWindow.form.enableAutoarrangeLayoutDescription',
+    description: 'Enable Autoarrange layout description',
+  },
+});
 
 class DebugWindow extends PureComponent {
   constructor(props) {
@@ -34,7 +61,7 @@ class DebugWindow extends PureComponent {
     window.addEventListener('resize', this.handleResize, false);
     document.addEventListener('keyup', (event) => {
       const key = event.key.toUpperCase();
-      if (SHOW_DEBUG_WINDOW_SHORTCUT && event.ctrlKey && event.altKey && key === 'K') {
+      if (SHOW_DEBUG_WINDOW_SHORTCUT && event.altKey && key === SHOW_DEBUG_WINDOW_ACCESSKEY) {
         this.handleOnClick();
       }
     });
@@ -77,7 +104,7 @@ class DebugWindow extends PureComponent {
   }
 
   handleOnClick() {
-    const { mountModal } = this.props;
+    const { mountModal, intl } = this.props;
     const autoArrangeLayout = Storage.getItem('autoArrangeLayout');
     return mountModal(
       <Modal
@@ -85,11 +112,13 @@ class DebugWindow extends PureComponent {
         className={styles.debugModal}
         onRequestClose={() => mountModal(null)}
         hideBorder
-        contentLabel="Debug"
+        contentLabel={intl.formatMessage(messages.debugModalTitle)}
       >
         <div className={styles.row}>
           <div className={styles.col} aria-hidden="true">
-            <h3 className={styles.title}>Debug</h3>
+            <h3 className={styles.title}>
+              {`${intl.formatMessage(messages.debugModalTitle)}`}
+            </h3>
           </div>
         </div>
 
@@ -97,7 +126,7 @@ class DebugWindow extends PureComponent {
           <div className={cx(styles.col, styles.col_4)} aria-hidden="true">
             <div className={styles.formElement}>
               <div className={styles.label}>
-                User Agent:
+                {`${intl.formatMessage(messages.userAgentLabel)}:`}
               </div>
             </div>
           </div>
@@ -112,7 +141,7 @@ class DebugWindow extends PureComponent {
                 type="button"
                 onClick={() => navigator.clipboard.writeText(window.navigator.userAgent)}
               >
-                Copy
+                {`${intl.formatMessage(messages.copyButtonLabel)}`}
               </button>
             </div>
           </div>
@@ -122,7 +151,7 @@ class DebugWindow extends PureComponent {
           <div className={cx(styles.col, styles.col_4)} aria-hidden="true">
             <div className={styles.formElement}>
               <div className={styles.label}>
-                Enable Auto Arrange Layout:
+                {`${intl.formatMessage(messages.enableAutoarrangeLayoutLabel)}:`}
               </div>
             </div>
           </div>
@@ -132,14 +161,14 @@ class DebugWindow extends PureComponent {
                 icons={false}
                 defaultChecked={autoArrangeLayout}
                 onChange={() => this.autoArrangeToggle()}
-                ariaLabel="teste"
+                ariaLabel={intl.formatMessage(messages.enableAutoarrangeLayoutLabel)}
               />
             </div>
           </div>
           <div className={styles.col}>
             <div className={cx(styles.formElement, styles.pullContentRight)}>
               <p className={styles.desc}>
-                (it will be disabled if you drag or resize the webcams area)
+                {`${intl.formatMessage(messages.enableAutoarrangeLayoutDescription)}`}
               </p>
             </div>
           </div>
@@ -182,4 +211,4 @@ class DebugWindow extends PureComponent {
   }
 }
 
-export default withLayoutConsumer(withModalMounter(DebugWindow));
+export default injectIntl(withLayoutConsumer(withModalMounter(DebugWindow)));

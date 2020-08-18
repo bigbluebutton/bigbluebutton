@@ -103,6 +103,7 @@ class App extends Component {
     super();
     this.state = {
       enableResize: !window.matchMedia(MOBILE_MEDIA).matches,
+      openPanel: '',
     };
 
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
@@ -112,10 +113,18 @@ class App extends Component {
 
   componentDidMount() {
     const {
-      locale, notify, intl, validIOSVersion, startBandwidthMonitoring, handleNetworkConnection,
+      locale,
+      notify,
+      intl,
+      validIOSVersion,
+      startBandwidthMonitoring,
+      handleNetworkConnection,
+      openPanel,
     } = this.props;
     const BROWSER_RESULTS = browser();
     const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
+
+    this.setOpenPanel(openPanel);
 
     MediaService.setSwapLayout();
     Modal.setAppElement('#app');
@@ -155,8 +164,12 @@ class App extends Component {
 
   componentDidUpdate(prevProps) {
     const {
-      meetingMuted, notify, currentUserEmoji, intl, hasPublishedPoll,
+      meetingMuted, notify, currentUserEmoji, intl, hasPublishedPoll, openPanel,
     } = this.props;
+
+    if (openPanel !== prevProps.openPanel) {
+      this.setOpenPanel(openPanel);
+    }
 
     if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
@@ -206,13 +219,18 @@ class App extends Component {
   }
 
   shouldAriaHide() {
-    const { openPanel, isPhone } = this.props;
+    const { openPanel } = this.state;
+    const { isPhone } = this.props;
     return openPanel !== '' && (isPhone || isLayeredView.matches);
   }
 
+  setOpenPanel(openPanel) {
+    this.setState({ openPanel });
+  }
+
   renderPanel() {
-    const { enableResize } = this.state;
-    const { openPanel, isRTL } = this.props;
+    const { enableResize, openPanel } = this.state;
+    const { isRTL } = this.props;
 
     return (
       <PanelManager
@@ -330,8 +348,9 @@ class App extends Component {
   }
 
   render() {
+    const { openPanel } = this.state;
     const {
-      customStyle, customStyleUrl, openPanel,
+      customStyle, customStyleUrl,
     } = this.props;
     return (
       <main className={styles.main}>

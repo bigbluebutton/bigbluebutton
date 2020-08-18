@@ -129,7 +129,7 @@ class PanelManager extends Component {
       waitingWidth,
       breakoutRoomWidth,
     } = this.state;
-    const { layoutContextState } = this.props;
+    const { layoutContextState, openPanel } = this.props;
     const {
       userListSize,
       chatSize,
