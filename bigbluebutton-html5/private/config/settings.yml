@@ -34,8 +34,8 @@ public:
       duration: 4000
     remainingTimeThreshold: 30
     remainingTimeAlertThreshold: 1
-    showDebugWindow: false
-    showDebugWindowShortcut: true
+    enableDebugWindowButton: false
+    enableDebugWindowShortcut: true
     defaultSettings:
       application:
         animations: true
@@ -81,6 +81,9 @@ public:
       openActions:
         accesskey: A
         descId: openActions
+      openDebugWindow:
+        accesskey: K
+        descId: openDebugWindow
     branding:
       displayBrandingArea: true
     connectionTimeout: 60000
