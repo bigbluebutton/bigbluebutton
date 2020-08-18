@@ -14,6 +14,14 @@ const propTypes = {
 };
 
 const intlMessages = defineMessages({
+  minimizePresentationLabel: {
+    id: 'app.actionsBar.actionsDropdown.minimizePresentationLabel',
+    description: '',
+  },
+  minimizePresentationDesc: {
+    id: 'app.actionsBar,actionsDropdown.minimizePresentationDesc',
+    description: '',
+  },
   restorePresentationLabel: {
     id: 'app.actionsBar.actionsDropdown.restorePresentationLabel',
     description: 'Restore Presentation option label',
@@ -34,9 +42,8 @@ const PresentationOptionsContainer = ({
   <Button
     className={cx(styles.button, !isLayoutSwapped || styles.btn)}
     icon="presentation"
-    data-test="restorePresentationButton"
-    label={intl.formatMessage(intlMessages.restorePresentationLabel)}
-    description={intl.formatMessage(intlMessages.restorePresentationDesc)}
+    label={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationLabel : intlMessages.minimizePresentationLabel)}
+    description={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationDesc : intlMessages.minimizePresentationDesc)}
     color={!isLayoutSwapped ? "primary" : "default"}
     hideLabel
     circle

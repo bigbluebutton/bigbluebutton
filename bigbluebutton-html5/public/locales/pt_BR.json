@@ -351,6 +351,8 @@
     "app.actionsBar.label": "Barra de ações",
     "app.actionsBar.actionsDropdown.restorePresentationLabel": "Restaurar apresentação",
     "app.actionsBar.actionsDropdown.restorePresentationDesc": "Restaura a apresentação depois que ela foi fechada",
+    "app.actionsBar.actionsDropdown.minimizePresentationLabel": "Fechar apresentação",
+    "app.actionsBar.actionsDropdown.minimizePresentationDesc": "Botão que fecha a apresentação",
     "app.screenshare.screenShareLabel" : "Compartilhamento de tela",
     "app.submenu.application.applicationSectionTitle": "Aplicação",
     "app.submenu.application.animationsLabel": "Animações",

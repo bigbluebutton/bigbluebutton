@@ -13,6 +13,7 @@ import UserListService from '/imports/ui/components/user-list/service';
 import ExternalVideoService from '/imports/ui/components/external-video-player/service';
 import CaptionsService from '/imports/ui/components/captions/service';
 import LayoutContext from '../layout/context';
+import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 
 import MediaService, {
   getSwapLayout,

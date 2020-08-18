@@ -358,6 +358,8 @@
     "app.actionsBar.label": "Actions bar",
     "app.actionsBar.actionsDropdown.restorePresentationLabel": "Restore presentation",
     "app.actionsBar.actionsDropdown.restorePresentationDesc": "Button to restore presentation after it has been closed",
+    "app.actionsBar.actionsDropdown.minimizePresentationLabel": "Close presentation",
+    "app.actionsBar.actionsDropdown.minimizePresentationDesc": "Button used to close presentation",
     "app.screenshare.screenShareLabel" : "Screen share",
     "app.submenu.application.applicationSectionTitle": "Application",
     "app.submenu.application.animationsLabel": "Animations",
