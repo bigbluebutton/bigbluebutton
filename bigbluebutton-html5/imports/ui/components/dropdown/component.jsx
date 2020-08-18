@@ -203,7 +203,7 @@ class Dropdown extends Component {
       dropdownToggle: this.handleToggle,
       dropdownShow: this.handleShow,
       dropdownHide: this.handleHide,
-      keepOpen,
+      keepopen: `${keepOpen}`,
     });
 
     content = React.cloneElement(content, {
@@ -216,7 +216,7 @@ class Dropdown extends Component {
       dropdownToggle: this.handleToggle,
       dropdownShow: this.handleShow,
       dropdownHide: this.handleHide,
-      keepOpen,
+      keepopen: `${keepOpen}`,
     });
 
     const showCloseBtn = (isOpen && keepOpen) || (isOpen && keepOpen === null);
