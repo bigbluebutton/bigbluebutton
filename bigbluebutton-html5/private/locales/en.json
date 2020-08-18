@@ -578,6 +578,8 @@
     "app.video.videoMenuDesc": "Open video menu dropdown",
     "app.video.chromeExtensionError": "You must install",
     "app.video.chromeExtensionErrorLink": "this Chrome extension",
+    "app.video.pagination.prevPage": "See previous videos",
+    "app.video.pagination.nextPage": "See next videos",
     "app.fullscreenButton.label": "Make {0} fullscreen",
     "app.deskshare.iceConnectionStateError": "Connection failed when sharing screen (ICE error 1108)",
     "app.sfu.mediaServerConnectionError2000": "Unable to connect to media server (error 2000)",

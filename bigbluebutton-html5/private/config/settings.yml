@@ -196,6 +196,14 @@ public:
           profile: low-u25
         - threshold: 30
           profile: low-u30
+    pagination:
+      enabled: false
+      desktopPageSizes:
+        moderator: 0
+        viewer: 5
+      mobilePageSizes:
+        moderator: 3
+        viewer: 3
   pingPong:
     clearUsersInSeconds: 180
     pongTimeInSeconds: 15

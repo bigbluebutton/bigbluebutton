@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import VideoService from './service';
-import VideoList from './video-list/component';
+import VideoListContainer from './video-list/container';
 import { defineMessages, injectIntl } from 'react-intl';
 import {
   fetchWebRTCMappedStunTurnServers,
@@ -233,7 +233,7 @@ class VideoProvider extends Component {
     }
   }
 
-  updateStreams(streams) {
+  getStreamsToConnectAndDisconnect(streams) {
     const streamsCameraIds = streams.map(s => s.cameraId);
     const streamsConnected = Object.keys(this.webRtcPeers);
 
@@ -245,15 +245,28 @@ class VideoProvider extends Component {
       return !streamsCameraIds.includes(cameraId);
     });
 
+    return [streamsToConnect, streamsToDisconnect];
+  }
+
+  connectStreams(streamsToConnect) {
     streamsToConnect.forEach((cameraId) => {
       const isLocal = VideoService.isLocalStream(cameraId);
       this.createWebRTCPeer(cameraId, isLocal);
     });
+  }
 
+  disconnectStreams(streamsToDisconnect) {
     streamsToDisconnect.forEach(cameraId => this.stopWebRTCPeer(cameraId));
+  }
+
+  updateStreams(streams) {
+    const [streamsToConnect, streamsToDisconnect] = this.getStreamsToConnectAndDisconnect(streams);
+
+    this.connectStreams(streamsToConnect);
+    this.disconnectStreams(streamsToDisconnect);
 
     if (CAMERA_QUALITY_THRESHOLDS_ENABLED) {
-      this.updateThreshold(streamsCameraIds.length);
+      this.updateThreshold(streams.length);
     }
   }
 
@@ -858,7 +871,7 @@ class VideoProvider extends Component {
       streams,
     } = this.props;
     return (
-      <VideoList
+      <VideoListContainer
         streams={streams}
         onMount={this.createVideoTag}
         swapLayout={swapLayout}
