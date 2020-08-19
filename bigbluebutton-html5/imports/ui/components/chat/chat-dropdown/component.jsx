@@ -71,7 +71,9 @@ class ChatDropdown extends PureComponent {
   }
 
   getAvailableActions() {
-    const { intl, isMeteorConnected, amIModerator } = this.props;
+    const {
+      intl, isMeteorConnected, amIModerator, meetingIsBreakout,
+    } = this.props;
 
     const clearIcon = 'delete';
     const saveIcon = 'download';
@@ -103,7 +105,7 @@ class ChatDropdown extends PureComponent {
         label={intl.formatMessage(intlMessages.copy)}
         key={this.actionsKey[1]}
       />,
-      amIModerator && isMeteorConnected ? (
+      !meetingIsBreakout && amIModerator && isMeteorConnected ? (
         <DropdownListItem
           data-test="chatClear"
           icon={clearIcon}
