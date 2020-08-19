@@ -160,15 +160,15 @@ public:
         constraints:
           frameRate: 10
       - id: low
-        name: Low quality
+        name: Low
         default: false
         bitrate: 100
       - id: medium
-        name: Medium quality
+        name: Medium
         default: true
         bitrate: 200
       - id: high
-        name: High quality
+        name: High
         default: false
         bitrate: 500
       - id: hd
