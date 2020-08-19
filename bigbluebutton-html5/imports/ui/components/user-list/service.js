@@ -406,8 +406,8 @@ const toggleVoice = (userId) => {
   } else {
     makeCall('toggleVoice', userId);
     logger.info({
-      logCode: 'usermenu_option_mute_audio',
-      extraInfo: { logType: 'moderator_action' },
+      logCode: 'usermenu_option_mute_toggle_audio',
+      extraInfo: { logType: 'moderator_action', userId },
     }, 'moderator muted user microphone');
   }
 };

@@ -4,7 +4,6 @@ import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import cx from 'classnames';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
@@ -14,18 +13,11 @@ import DropdownListSeparator from '/imports/ui/components/dropdown/list/separato
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import Icon from '/imports/ui/components/icon/component';
 import logger from '/imports/startup/client/logger';
-import VideoListItemStats from './video-list-item-stats/component';
-import FullscreenService from '../../../fullscreen-button/service';
-import FullscreenButtonContainer from '../../../fullscreen-button/container';
+import FullscreenService from '/imports/ui/components/fullscreen-button/service';
+import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
 import { styles } from '../styles';
-import { withDraggableConsumer } from '../../../media/webcam-draggable-overlay/context';
+import { withDraggableConsumer } from '/imports/ui/components/media/webcam-draggable-overlay/context';
 import VideoService from '../../service';
-
-const intlMessages = defineMessages({
-  connectionStatsLabel: {
-    id: 'app.video.stats.title',
-  },
-});
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
@@ -35,15 +27,12 @@ class VideoListItem extends Component {
     this.videoTag = null;
 
     this.state = {
-      showStats: false,
-      stats: { video: {} },
       videoIsReady: false,
       isFullscreen: false,
     };
 
     this.mirrorOwnWebcam = VideoService.mirrorOwnWebcam(props.user);
-    this.toggleStats = this.toggleStats.bind(this);
-    this.setStats = this.setStats.bind(this);
+
     this.setVideoIsReady = this.setVideoIsReady.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
   }
@@ -110,12 +99,6 @@ class VideoListItem extends Component {
     }
   }
 
-  setStats(updatedStats) {
-    const { stats } = this.state;
-    const { audio, video } = updatedStats;
-    this.setState({ stats: { ...stats, video, audio } });
-  }
-
   setVideoIsReady() {
     const { videoIsReady } = this.state;
     if (!videoIsReady) this.setState({ videoIsReady: true });
@@ -124,41 +107,20 @@ class VideoListItem extends Component {
 
   getAvailableActions() {
     const {
-      intl,
       actions,
-      user,
-      enableVideoStats,
+      cameraId,
+      name,
     } = this.props;
 
     return _.compact([
-      <DropdownListTitle className={styles.hiddenDesktop} key="name">{user.name}</DropdownListTitle>,
+      <DropdownListTitle className={styles.hiddenDesktop} key="name">{name}</DropdownListTitle>,
       <DropdownListSeparator className={styles.hiddenDesktop} key="sep" />,
-      ...actions.map(action => (<DropdownListItem key={user.userId} {...action} />)),
-      (enableVideoStats
-        ? (
-          <DropdownListItem
-            key={`list-item-stats-${user.userId}`}
-            onClick={() => { this.toggleStats(); }}
-            label={intl.formatMessage(intlMessages.connectionStatsLabel)}
-          />
-        )
-        : null),
+      ...actions.map(action => (<DropdownListItem key={cameraId} {...action} />)),
     ]);
   }
 
-  toggleStats() {
-    const { getStats, stopGettingStats } = this.props;
-    const { showStats } = this.state;
-    if (showStats) {
-      stopGettingStats();
-    } else {
-      getStats(this.videoTag, this.setStats);
-    }
-    this.setState({ showStats: !showStats });
-  }
-
   renderFullscreenButton() {
-    const { user } = this.props;
+    const { name } = this.props;
     const { isFullscreen } = this.state;
 
     if (!ALLOW_FULLSCREEN) return null;
@@ -166,7 +128,7 @@ class VideoListItem extends Component {
     return (
       <FullscreenButtonContainer
         fullscreenRef={this.videoContainer}
-        elementName={user.name}
+        elementName={name}
         isFullscreen={isFullscreen}
         dark
       />
@@ -175,15 +137,13 @@ class VideoListItem extends Component {
 
   render() {
     const {
-      showStats,
-      stats,
       videoIsReady,
       isFullscreen,
     } = this.state;
     const {
-      user,
+      name,
       voiceUser,
-      numOfUsers,
+      numOfStreams,
       webcamDraggableState,
       swapLayout,
     } = this.props;
@@ -200,8 +160,10 @@ class VideoListItem extends Component {
       })}
       >
         {
-          !videoIsReady
-          && <div className={styles.connecting} />
+          !videoIsReady &&
+            <div className={styles.connecting}>
+              <span className={styles.loadingText}>{name}</span>
+            </div>
         }
         <div
           className={styles.videoContainer}
@@ -223,14 +185,13 @@ class VideoListItem extends Component {
           />
           {videoIsReady && this.renderFullscreenButton()}
         </div>
-        <div className={styles.info}>
+        { videoIsReady &&
+          <div className={styles.info}>
           {enableVideoMenu && availableActions.length >= 3
             ? (
-              <Dropdown className={isFirefox ? styles.dropdownFireFox
-                : styles.dropdown}
-              >
+              <Dropdown className={isFirefox ? styles.dropdownFireFox : styles.dropdown}>
                 <DropdownTrigger className={styles.dropdownTrigger}>
-                  <span>{user.name}</span>
+                  <span>{name}</span>
                 </DropdownTrigger>
                 <DropdownContent placement="top left" className={styles.dropdownContent}>
                   <DropdownList className={styles.dropdownList}>
@@ -245,10 +206,10 @@ class VideoListItem extends Component {
               >
                 <span className={cx({
                   [styles.userName]: true,
-                  [styles.noMenu]: numOfUsers < 3,
+                  [styles.noMenu]: numOfStreams < 3,
                 })}
                 >
-                  {user.name}
+                  {name}
                 </span>
               </div>
             )
@@ -256,31 +217,21 @@ class VideoListItem extends Component {
           {voiceUser.muted && !voiceUser.listenOnly ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
           {voiceUser.listenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
         </div>
-        {
-          showStats
-            ? <VideoListItemStats toggleStats={this.toggleStats} stats={stats} />
-            : null
         }
       </div>
     );
   }
 }
 
-export default injectIntl(withDraggableConsumer(VideoListItem));
+export default withDraggableConsumer(VideoListItem);
 
 VideoListItem.defaultProps = {
-  numOfUsers: 0,
+  numOfStreams: 0,
 };
 
 VideoListItem.propTypes = {
-  intl: intlShape.isRequired,
-  enableVideoStats: PropTypes.bool.isRequired,
   actions: PropTypes.arrayOf(PropTypes.object).isRequired,
-  user: PropTypes.objectOf(PropTypes.oneOfType([
-    PropTypes.bool,
-    PropTypes.number,
-    PropTypes.object,
-    PropTypes.string,
-  ])).isRequired,
-  numOfUsers: PropTypes.number,
+  cameraId: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  numOfStreams: PropTypes.number,
 };

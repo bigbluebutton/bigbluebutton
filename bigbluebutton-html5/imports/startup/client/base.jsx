@@ -178,7 +178,10 @@ class Base extends Component {
       return (<MeetingEnded code="403" />);
     }
 
-    if (meetingHasEnded && meetingIsBreakout) window.close();
+    if ((meetingHasEnded || (User && User.loggedOut)) && meetingIsBreakout) {
+      window.close();
+      return null;
+    }
 
     if (((meetingHasEnded && !meetingIsBreakout)) || (codeError && (User && User.loggedOut))) {
       return (<MeetingEnded code={codeError} />);

@@ -27,7 +27,7 @@ export default function clearGroupChatMsg(meetingId, chatId) {
   }
 
   if (meetingId) {
-    return GroupChatMsg.remove({ meetingId, chatId: { $eq: PUBLIC_GROUP_CHAT_ID } }, () => {
+    return GroupChatMsg.remove({ meetingId }, () => {
       Logger.info(`Cleared GroupChatMsg (${meetingId})`);
     });
   }

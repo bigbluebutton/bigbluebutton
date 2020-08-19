@@ -256,7 +256,7 @@ module BigBlueButton
       end
 
       meeting_metadata = @redis.metadata_for(meeting_id)
-      return if meeting_metadata.nil?
+      return if meeting_metadata.nil? || meeting_metadata.empty?
 
       # Fill in/update the top-level meeting element
       if meeting.nil?

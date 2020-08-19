@@ -159,6 +159,51 @@ $after-content-order: 3;
   width: 100% !important;
 }
 
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.connectingSpinner {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  color: var(--color-white-with-transparency);
+  font-size: 2.5rem;
+  text-align: center;
+  white-space: nowrap;
+  z-index: 1;
+
+
+  &::after {
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    margin: 0 -0.25em 0 0;
+
+    [dir="rtl"] & {
+      margin: 0 0 0 -0.25em
+    }
+  }
+
+  &::before {
+    content: "\e949";
+    /* ascii code for the ellipsis character */
+    font-family: 'bbb-icons' !important;
+    display: inline-block;
+
+    :global(.animationsEnabled) & {
+      animation: spin 4s infinite linear;
+    }
+  }
+}
 
 span[class^=resizeWrapper] {
   div {

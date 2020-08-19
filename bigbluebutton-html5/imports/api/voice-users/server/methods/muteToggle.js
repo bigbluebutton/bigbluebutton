@@ -4,6 +4,8 @@ import RedisPubSub from '/imports/startup/server/redis';
 import Users from '/imports/api/users';
 import VoiceUsers from '/imports/api/voice-users';
 import _ from 'lodash';
+import Meetings from '/imports/api/meetings';
+import Logger from '/imports/startup/server/logger';
 
 export default function muteToggle(uId, implicitMutedState) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
@@ -27,6 +29,16 @@ export default function muteToggle(uId, implicitMutedState) {
 
   const { listenOnly, muted } = voiceUser;
   if (listenOnly) return;
+
+  // if allowModsToUnmuteUsers is false, users will be kicked out for attempting to unmute others
+  if (requesterUserId !== userToMute && muted) {
+    const meeting = Meetings.findOne({ meetingId },
+      { fields: { 'usersProp.allowModsToUnmuteUsers': 1 } });
+    if (meeting.usersProp && !meeting.usersProp.allowModsToUnmuteUsers) {
+      Logger.warn(`Attempted unmuting by another user meetingId:${meetingId} requester: ${requesterUserId} userId: ${userToMute}`);
+      return;
+    }
+  }
 
   const payload = {
     userId: userToMute,

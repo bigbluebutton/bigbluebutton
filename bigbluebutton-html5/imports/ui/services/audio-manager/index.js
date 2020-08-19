@@ -10,13 +10,16 @@ import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills';
 import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import { makeCall } from '/imports/ui/services/api';
+import { monitorAudioConnection } from '/imports/utils/stats';
 import AudioErrors from './error-codes';
+
+const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
 const MAX_LISTEN_ONLY_RETRIES = 1;
-const LISTEN_ONLY_CALL_TIMEOUT_MS = 15000;
+const LISTEN_ONLY_CALL_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
 
 const CALL_STATES = {
   STARTED: 'started',
@@ -52,6 +55,7 @@ class AudioManager {
     this.useKurento = Meteor.settings.public.kurento.enableListenOnly;
     this.failedMediaElements = [];
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
+    this.monitor = this.monitor.bind(this);
   }
 
   init(userData) {
@@ -318,6 +322,7 @@ class AudioManager {
       window.parent.postMessage({ response: 'joinedAudio' }, '*');
       this.notify(this.intl.formatMessage(this.messages.info.JOINED_AUDIO));
       logger.info({ logCode: 'audio_joined' }, 'Audio Joined');
+      if (ENABLE_NETWORK_MONITORING) this.monitor();
     }
   }
 
@@ -524,6 +529,12 @@ class AudioManager {
       error ? 'error' : 'info',
       audioIcon,
     );
+  }
+
+  monitor() {
+    const bridge = (this.useKurento && this.isListenOnly) ? this.listenOnlyBridge : this.bridge;
+    const peer = bridge.getPeerConnection();
+    monitorAudioConnection(peer);
   }
 
   handleAllowAutoplay() {
