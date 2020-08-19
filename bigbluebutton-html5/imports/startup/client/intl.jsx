@@ -19,13 +19,25 @@ const defaultProps = {
 };
 
 class IntlStartup extends Component {
+  static saveLocale(localeName) {
+    Settings.application.locale = localeName;
+    if (RTL_LANGUAGES.includes(localeName.substring(0, 2))) {
+      document.body.parentNode.setAttribute('dir', 'rtl');
+      Settings.application.isRTL = true;
+    } else {
+      document.body.parentNode.setAttribute('dir', 'ltr');
+      Settings.application.isRTL = false;
+    }
+    Settings.save();
+  }
+
   constructor(props) {
     super(props);
 
     this.state = {
       messages: {},
       normalizedLocale: null,
-      fetching: false,
+      fetching: true,
     };
 
     if (RTL_LANGUAGES.includes(props.locale)) {
@@ -35,14 +47,14 @@ class IntlStartup extends Component {
     this.fetchLocalizedMessages = this.fetchLocalizedMessages.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const { locale } = this.props;
     this.fetchLocalizedMessages(locale, true);
   }
 
-  componentWillUpdate(nextProps) {
+  componentDidUpdate() {
     const { fetching, normalizedLocale } = this.state;
-    const { locale } = nextProps;
+    const { locale } = this.props;
 
     if (!fetching
       && normalizedLocale
@@ -66,34 +78,23 @@ class IntlStartup extends Component {
         .then(({ messages, normalizedLocale }) => {
           const dasherizedLocale = normalizedLocale.replace('_', '-');
           this.setState({ messages, fetching: false, normalizedLocale: dasherizedLocale }, () => {
-            this.saveLocale(dasherizedLocale);
+            IntlStartup.saveLocale(dasherizedLocale);
           });
         })
         .catch(() => {
           this.setState({ fetching: false, normalizedLocale: null }, () => {
-            this.saveLocale(DEFAULT_LANGUAGE);
+            IntlStartup.saveLocale(DEFAULT_LANGUAGE);
           });
         });
     });
   }
 
-  saveLocale(localeName) {
-    Settings.application.locale = localeName;
-    if (RTL_LANGUAGES.includes(localeName.substring(0, 2))) {
-      document.body.parentNode.setAttribute('dir', 'rtl');
-      Settings.application.isRTL = true;
-    } else {
-      document.body.parentNode.setAttribute('dir', 'ltr');
-      Settings.application.isRTL = false;
-    }
-    Settings.save();
-  }
 
   render() {
     const { fetching, normalizedLocale, messages } = this.state;
     const { children } = this.props;
 
-    return fetching ? <LoadingScreen /> : (
+    return (fetching || !normalizedLocale) ? <LoadingScreen /> : (
       <IntlProvider locale={normalizedLocale} messages={messages}>
         {children}
       </IntlProvider>
