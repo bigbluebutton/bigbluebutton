@@ -148,9 +148,9 @@ class IntlStartup extends Component {
     this.fetchLocalizedMessages(locale, true);
   }
 
-  componentDidUpdate(nextProps) {
+  componentDidUpdate() {
     const { fetching, normalizedLocale } = this.state;
-    const { locale } = nextProps;
+    const { locale } = this.props;
 
     if (!fetching
       && normalizedLocale
