@@ -440,10 +440,20 @@ function WebRtcPeer(mode, options, callback) {
             self.showLocalVideo();
         }
         if (videoStream) {
-            videoStream.getTracks().forEach(track => pc.addTrack(track, videoStream));
+            if (typeof videoStream.getTracks === 'function'
+                  && typeof pc.addTrack === 'function') {
+                videoStream.getTracks().forEach(track => pc.addTrack(track, videoStream));
+            } else {
+                pc.addStream(videoStream);
+            }
         }
         if (audioStream) {
-            audioStream.getTracks().forEach(track => pc.addTrack(track, audioStream));
+            if (typeof audioStream.getTracks === 'function'
+                  && typeof pc.addTrack === 'function') {
+                audioStream.getTracks().forEach(track => pc.addTrack(track, audioStream));
+            } else {
+                pc.addStream(audioStream);
+            }
         }
         var browser = parser.getBrowser();
         if (mode === 'sendonly' && (browser.name === 'Chrome' || browser.name === 'Chromium') && browser.major === 39) {
@@ -1073,20 +1083,6 @@ var freeice = module.exports = function(opts) {
 
 },{"./stun.json":6,"./turn.json":7,"normalice":12}],6:[function(require,module,exports){
 module.exports=[
-  "stun.l.google.com:19302",
-  "stun1.l.google.com:19302",
-  "stun2.l.google.com:19302",
-  "stun3.l.google.com:19302",
-  "stun4.l.google.com:19302",
-  "stun.ekiga.net",
-  "stun.ideasip.com",
-  "stun.schlund.de",
-  "stun.stunprotocol.org:3478",
-  "stun.voiparound.com",
-  "stun.voipbuster.com",
-  "stun.voipstunt.com",
-  "stun.voxgratia.org",
-  "stun.services.mozilla.com"
 ]
 
 },{}],7:[function(require,module,exports){

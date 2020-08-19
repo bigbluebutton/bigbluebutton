@@ -24,14 +24,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -123,23 +118,16 @@ public class ParamsProcessorUtil {
     private Boolean defaultAllowDuplicateExtUserid = true;
 
 	private String formatConfNum(String s) {
-		if (s.length() == 5) {
-			StringBuilder confNumDash = new StringBuilder(s);
-			confNumDash.insert(2, '-');
-			return confNumDash.toString();
-		} else if (s.length() == 6 || s.length() == 7) {
-			StringBuilder confNumDash = new StringBuilder(s);
-			confNumDash.insert(3, '-');
-			return confNumDash.toString();
-		} else if (s.length() == 8) {
-			StringBuilder confNumDash = new StringBuilder(s);
-			confNumDash.insert(4, '-');
-			return confNumDash.toString();
-		} else if (s.length() == 9) {
-			StringBuilder confNumDash = new StringBuilder(s);
-			confNumDash.insert(3, '-');
-			confNumDash.insert(7, '-');
-			return confNumDash.toString();
+		if (s.length() > 5) {
+			/* Reverse conference number.
+			* Put a whitespace every third char.
+			* Reverse it again to display it correctly.
+			* Trim leading whitespaces.
+			* */
+			String confNumReversed = new StringBuilder(s).reverse().toString();
+			String confNumSplit = confNumReversed.replaceAll("(.{3})", "$1 ");
+			String confNumL = new StringBuilder(confNumSplit).reverse().toString().trim();
+			return confNumL;
 		}
 
 		return s;

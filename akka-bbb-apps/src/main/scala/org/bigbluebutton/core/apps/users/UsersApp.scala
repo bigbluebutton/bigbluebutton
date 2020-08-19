@@ -26,7 +26,7 @@ object UsersApp {
       u <- RegisteredUsers.findWithUserId(userId, liveMeeting.registeredUsers)
     } yield {
 
-      RegisteredUsers.eject(u.id, liveMeeting.registeredUsers, u.id)
+      RegisteredUsers.eject(u.id, liveMeeting.registeredUsers, false)
 
       val event = MsgBuilder.buildGuestWaitingLeftEvtMsg(liveMeeting.props.meetingProp.intId, u.id)
       outGW.send(event)
@@ -99,13 +99,14 @@ object UsersApp {
   }
 
   def ejectUserFromMeeting(outGW: OutMsgRouter, liveMeeting: LiveMeeting,
-                           userId: String, ejectedBy: String, reason: String, reasonCode: String): Unit = {
+                           userId: String, ejectedBy: String, reason: String,
+                           reasonCode: String, ban: Boolean): Unit = {
 
     val meetingId = liveMeeting.props.meetingProp.intId
 
     for {
       user <- Users2x.ejectFromMeeting(liveMeeting.users2x, userId)
-      reguser <- RegisteredUsers.eject(userId, liveMeeting.registeredUsers, ejectedBy)
+      reguser <- RegisteredUsers.eject(userId, liveMeeting.registeredUsers, ban)
     } yield {
       sendUserEjectedMessageToClient(outGW, meetingId, userId, ejectedBy, reason, reasonCode)
       sendUserLeftMeetingToAllClients(outGW, meetingId, userId)
