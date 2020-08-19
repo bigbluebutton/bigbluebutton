@@ -217,15 +217,13 @@ class VideoList extends Component {
     if (!VideoService.isPaginationEnabled() || numberOfPages === 1) return null;
 
     const currentPage = currentVideoPageIndex + 1;
-    const lastPage = (currentVideoPageIndex + 1) >= numberOfPages;
     const nextPageLabel = intl.formatMessage(intlMessages.nextPageLabel);
-    const nextPageDetailedLabel = `${nextPageLabel} (${lastPage ? currentPage : currentPage + 1}/${numberOfPages})`;
+    const nextPageDetailedLabel = `${nextPageLabel} (${currentPage}/${numberOfPages})`;
 
     return (
       <Button
         role="button"
         aria-label={nextPageLabel}
-        disabled={lastPage}
         color="primary"
         icon="right_arrow"
         size="md"
@@ -243,15 +241,13 @@ class VideoList extends Component {
     if (!VideoService.isPaginationEnabled() || numberOfPages === 1) return null;
 
     const currentPage = currentVideoPageIndex + 1;
-    const firstPage = currentVideoPageIndex === 0;
     const prevPageLabel = intl.formatMessage(intlMessages.prevPageLabel);
-    const prevPageDetailedLabel = `${prevPageLabel} (${firstPage ? currentPage : currentPage - 1}/${numberOfPages})`;
+    const prevPageDetailedLabel = `${prevPageLabel} (${currentPage}/${numberOfPages})`;
 
     return (
       <Button
         role="button"
         aria-label={prevPageLabel}
-        disabled={firstPage}
         color="primary"
         icon="left_arrow"
         size="md"

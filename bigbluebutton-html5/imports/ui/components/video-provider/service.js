@@ -214,14 +214,18 @@ class VideoService {
     return this.currentVideoPageIndex;
   }
 
+  calculateNextPage () {
+    return ((this.currentVideoPageIndex + 1) % this.numberOfPages + this.numberOfPages) % this.numberOfPages;
+  }
+
+  calculatePreviousPage () {
+    return ((this.currentVideoPageIndex - 1) % this.numberOfPages + this.numberOfPages) % this.numberOfPages;
+  }
+
   getNextVideoPage() {
     if (this.pageChangeLocked) return;
 
-    const nextVideoPageIndex = this.currentVideoPageIndex + 1;
-
-    if (nextVideoPageIndex < this.numberOfPages)  {
-      this.setCurrentVideoPageIndex(nextVideoPageIndex);
-    }
+    this.setCurrentVideoPageIndex(this.calculateNextPage());
 
     return this.currentVideoPageIndex;
   }
@@ -229,10 +233,7 @@ class VideoService {
   getPreviousVideoPage() {
     if (this.pageChangeLocked) return;
 
-    if (this.currentVideoPageIndex > 0) {
-      const previousVideoPageIndex = this.currentVideoPageIndex - 1;
-      this.setCurrentVideoPageIndex(previousVideoPageIndex);
-    }
+    this.setCurrentVideoPageIndex(this.calculatePreviousPage());
 
     return this.currentVideoPageIndex;
   }
