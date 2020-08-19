@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
 import UserListContainer from '/imports/ui/components/user-list/container';
@@ -11,6 +11,13 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Resizable from 're-resizable';
 import { styles } from '/imports/ui/components/app/styles';
 import _ from 'lodash';
+import { withLayoutConsumer } from '/imports/ui/components/layout/context';
+import {
+  USERLIST_MIN_WIDTH,
+  USERLIST_MAX_WIDTH,
+  CHAT_MIN_WIDTH,
+  CHAT_MAX_WIDTH,
+} from '/imports/ui/components/layout/layout-manager';
 
 const intlMessages = defineMessages({
   chatLabel: {
@@ -43,12 +50,8 @@ const propTypes = {
 const DEFAULT_PANEL_WIDTH = 340;
 
 // Variables for resizing user-list.
-const USERLIST_MIN_WIDTH_PX = 150;
-const USERLIST_MAX_WIDTH_PX = 240;
-
-// Variables for resizing chat.
-const CHAT_MIN_WIDTH = 150;
-const CHAT_MAX_WIDTH = 350;
+const USERLIST_MIN_WIDTH_PX = USERLIST_MIN_WIDTH;
+const USERLIST_MAX_WIDTH_PX = USERLIST_MAX_WIDTH;
 
 // Variables for resizing poll.
 const POLL_MIN_WIDTH = 320;
@@ -66,11 +69,9 @@ const CAPTIONS_MAX_WIDTH = 400;
 const WAITING_MIN_WIDTH = DEFAULT_PANEL_WIDTH;
 const WAITING_MAX_WIDTH = 800;
 
-const dispatchResizeEvent = () => window.dispatchEvent(new Event('resize'));
-
-class PanelManager extends PureComponent {
-  constructor() {
-    super();
+class PanelManager extends Component {
+  constructor(props) {
+    super(props);
 
     this.padKey = _.uniqueId('resize-pad-');
     this.userlistKey = _.uniqueId('userlist-');
@@ -81,23 +82,232 @@ class PanelManager extends PureComponent {
     this.captionsKey = _.uniqueId('captions-');
     this.waitingUsers = _.uniqueId('waitingUsers-');
 
+    const { layoutContextState } = props;
+    const { userListSize, chatSize } = layoutContextState;
+
     this.state = {
-      chatWidth: DEFAULT_PANEL_WIDTH,
-      pollWidth: DEFAULT_PANEL_WIDTH,
-      userlistWidth: 180,
+      userlistWidth: userListSize.width,
+      chatWidth: chatSize.width,
       noteWidth: DEFAULT_PANEL_WIDTH,
       captionsWidth: DEFAULT_PANEL_WIDTH,
+      pollWidth: DEFAULT_PANEL_WIDTH,
       waitingWidth: DEFAULT_PANEL_WIDTH,
+      breakoutRoomWidth: 0,
     };
+
+    this.setUserListWidth = this.setUserListWidth.bind(this);
+  }
+
+  shouldComponentUpdate(prevProps) {
+    const { layoutContextState } = this.props;
+    const { layoutContextState: prevLayoutContextState } = prevProps;
+    const {
+      userListSize,
+      chatSize,
+      breakoutRoomSize,
+    } = layoutContextState;
+    const {
+      userListSize: prevUserListSize,
+      chatSize: prevChatSize,
+      breakoutRoomSize: prevBreakoutRoomSize,
+    } = prevLayoutContextState;
+
+    if ((layoutContextState !== prevLayoutContextState)
+      && (userListSize.width === prevUserListSize.width
+        && chatSize.width === prevChatSize.width
+        && breakoutRoomSize.width === prevBreakoutRoomSize.width)) return false;
+    return true;
   }
 
   componentDidUpdate(prevProps) {
-    const { openPanel } = this.props;
-    const { openPanel: oldOpenPanel } = prevProps;
+    const {
+      userlistWidth,
+      chatWidth,
+      noteWidth,
+      captionsWidth,
+      pollWidth,
+      waitingWidth,
+      breakoutRoomWidth,
+    } = this.state;
+    const { layoutContextState } = this.props;
+    const {
+      userListSize,
+      chatSize,
+      noteSize,
+      captionsSize,
+      pollSize,
+      waitingSize,
+      breakoutRoomSize,
+    } = layoutContextState;
+    const { layoutContextState: oldLayoutContextState } = prevProps;
+    const {
+      userListSize: oldUserListSize,
+      chatSize: oldChatSize,
+      noteSize: oldNoteSize,
+      captionsSize: oldCaptionsSize,
+      pollSize: oldPollSize,
+      waitingSize: oldWaitingSize,
+      breakoutRoomSize: oldBreakoutRoomSize,
+    } = oldLayoutContextState;
 
-    if (openPanel !== oldOpenPanel) {
-      window.dispatchEvent(new Event('resize'));
+    if (userListSize.width !== oldUserListSize.width && userListSize.width !== userlistWidth) {
+      this.setUserListWidth(userListSize.width);
     }
+    if (chatSize.width !== oldChatSize.width && chatSize.width !== chatWidth) {
+      this.setChatWidth(chatSize.width);
+    }
+    if (noteSize.width !== oldNoteSize.width && noteSize.width !== noteWidth) {
+      this.setNoteWidth(noteSize.width);
+    }
+    if (captionsSize.width !== oldCaptionsSize.width && captionsSize.width !== captionsWidth) {
+      this.setCaptionsWidth(captionsSize.width);
+    }
+    if (pollSize.width !== oldPollSize.width && pollSize.width !== pollWidth) {
+      this.setPollWidth(pollSize.width);
+    }
+    if (waitingSize.width !== oldWaitingSize.width && waitingSize.width !== waitingWidth) {
+      this.setWaitingWidth(waitingSize.width);
+    }
+    if (breakoutRoomSize.width !== oldBreakoutRoomSize.width
+      && breakoutRoomSize.width !== breakoutRoomWidth) {
+      this.setBreakoutRoomWidth(breakoutRoomSize.width);
+    }
+  }
+
+  setUserListWidth(userlistWidth) {
+    this.setState({ userlistWidth });
+  }
+
+  setChatWidth(chatWidth) {
+    this.setState({ chatWidth });
+  }
+
+  setNoteWidth(noteWidth) {
+    this.setState({ noteWidth });
+  }
+
+  setCaptionsWidth(captionsWidth) {
+    this.setState({ captionsWidth });
+  }
+
+  setPollWidth(pollWidth) {
+    this.setState({ pollWidth });
+  }
+
+  setWaitingWidth(waitingWidth) {
+    this.setState({ waitingWidth });
+  }
+
+  setBreakoutRoomWidth(breakoutRoomWidth) {
+    this.setState({ breakoutRoomWidth });
+  }
+
+  userListResizeStop(addvalue) {
+    const { userlistWidth } = this.state;
+    const { layoutContextDispatch } = this.props;
+
+    this.setUserListWidth(userlistWidth + addvalue);
+
+    layoutContextDispatch(
+      {
+        type: 'setUserListSize',
+        value: {
+          width: userlistWidth + addvalue,
+        },
+      },
+    );
+
+    window.dispatchEvent(new Event('panelChanged'));
+  }
+
+  chatResizeStop(addvalue) {
+    const { chatWidth } = this.state;
+    const { layoutContextDispatch } = this.props;
+
+    this.setChatWidth(chatWidth + addvalue);
+
+    layoutContextDispatch(
+      {
+        type: 'setChatSize',
+        value: {
+          width: chatWidth + addvalue,
+        },
+      },
+    );
+
+    window.dispatchEvent(new Event('panelChanged'));
+  }
+
+  noteResizeStop(addvalue) {
+    const { noteWidth } = this.state;
+    const { layoutContextDispatch } = this.props;
+
+    this.setNoteWidth(noteWidth + addvalue);
+
+    layoutContextDispatch(
+      {
+        type: 'setNoteSize',
+        value: {
+          width: noteWidth + addvalue,
+        },
+      },
+    );
+
+    window.dispatchEvent(new Event('panelChanged'));
+  }
+
+  captionsResizeStop(addvalue) {
+    const { captionsWidth } = this.state;
+    const { layoutContextDispatch } = this.props;
+
+    this.setCaptionsWidth(captionsWidth + addvalue);
+
+    layoutContextDispatch(
+      {
+        type: 'setCaptionsSize',
+        value: {
+          width: captionsWidth + addvalue,
+        },
+      },
+    );
+
+    window.dispatchEvent(new Event('panelChanged'));
+  }
+
+  pollResizeStop(addvalue) {
+    const { pollWidth } = this.state;
+    const { layoutContextDispatch } = this.props;
+
+    this.setPollWidth(pollWidth + addvalue);
+
+    layoutContextDispatch(
+      {
+        type: 'setPollSize',
+        value: {
+          width: pollWidth + addvalue,
+        },
+      },
+    );
+
+    window.dispatchEvent(new Event('panelChanged'));
+  }
+
+  waitingResizeStop(addvalue) {
+    const { waitingWidth } = this.state;
+    const { layoutContextDispatch } = this.props;
+
+    this.setWaitingWidth(waitingWidth + addvalue);
+
+    layoutContextDispatch(
+      {
+        type: 'setWaitingUsersPanelSize',
+        value: {
+          width: waitingWidth + addvalue,
+        },
+      },
+    );
+
+    window.dispatchEvent(new Event('panelChanged'));
   }
 
   renderUserList() {
@@ -145,11 +355,8 @@ class PanelManager extends PureComponent {
         enable={resizableEnableOptions}
         key={this.userlistKey}
         size={{ width: userlistWidth }}
-        onResize={dispatchResizeEvent}
         onResizeStop={(e, direction, ref, d) => {
-          this.setState({
-            userlistWidth: userlistWidth + d.width,
-          });
+          this.userListResizeStop(d.width);
         }}
       >
         {this.renderUserList()}
@@ -194,11 +401,8 @@ class PanelManager extends PureComponent {
         enable={resizableEnableOptions}
         key={this.chatKey}
         size={{ width: chatWidth }}
-        onResize={dispatchResizeEvent}
         onResizeStop={(e, direction, ref, d) => {
-          this.setState({
-            chatWidth: chatWidth + d.width,
-          });
+          this.chatResizeStop(d.width);
         }}
       >
         {this.renderChat()}
@@ -243,11 +447,8 @@ class PanelManager extends PureComponent {
         enable={resizableEnableOptions}
         key={this.noteKey}
         size={{ width: noteWidth }}
-        onResize={dispatchResizeEvent}
         onResizeStop={(e, direction, ref, d) => {
-          this.setState({
-            noteWidth: noteWidth + d.width,
-          });
+          this.noteResizeStop(d.width);
         }}
       >
         {this.renderNote()}
@@ -292,11 +493,8 @@ class PanelManager extends PureComponent {
         enable={resizableEnableOptions}
         key={this.captionsKey}
         size={{ width: captionsWidth }}
-        onResize={dispatchResizeEvent}
         onResizeStop={(e, direction, ref, d) => {
-          this.setState({
-            captionsWidth: captionsWidth + d.width,
-          });
+          this.captionsResizeStop(captionsWidth + d.width);
         }}
       >
         {this.renderCaptions()}
@@ -341,11 +539,8 @@ class PanelManager extends PureComponent {
         enable={resizableEnableOptions}
         key={this.waitingUsers}
         size={{ width: waitingWidth }}
-        onResize={dispatchResizeEvent}
         onResizeStop={(e, direction, ref, d) => {
-          this.setState({
-            waitingWidth: waitingWidth + d.width,
-          });
+          this.waitingResizeStop(waitingWidth + d.width);
         }}
       >
         {this.renderWaitingUsersPanel()}
@@ -354,8 +549,15 @@ class PanelManager extends PureComponent {
   }
 
   renderBreakoutRoom() {
+    const { breakoutRoomWidth } = this.state;
     return (
-      <div className={styles.breakoutRoom} key={this.breakoutroomKey}>
+      <div
+        className={styles.breakoutRoom}
+        key={this.breakoutroomKey}
+        style={{
+          width: breakoutRoomWidth,
+        }}
+      >
         <BreakoutRoomContainer />
       </div>
     );
@@ -393,10 +595,8 @@ class PanelManager extends PureComponent {
         key={this.pollKey}
         size={{ width: pollWidth }}
         onResizeStop={(e, direction, ref, d) => {
-          window.dispatchEvent(new Event('resize'));
-          this.setState({
-            pollWidth: pollWidth + d.width,
-          });
+          // window.dispatchEvent(new Event('resize'));
+          this.pollResizeStop(pollWidth + d.width);
         }}
       >
         {this.renderPoll()}
@@ -408,6 +608,7 @@ class PanelManager extends PureComponent {
     const { enableResize, openPanel } = this.props;
     if (openPanel === '') return null;
     const panels = [];
+
     if (enableResize) {
       panels.push(
         this.renderUserListResizable(),
@@ -469,6 +670,6 @@ class PanelManager extends PureComponent {
   }
 }
 
-export default injectIntl(PanelManager);
+export default injectIntl(withLayoutConsumer(PanelManager));
 
 PanelManager.propTypes = propTypes;

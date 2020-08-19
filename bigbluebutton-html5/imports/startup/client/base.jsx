@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
@@ -18,6 +18,9 @@ import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import LayoutManager from '/imports/ui/components/layout/layout-manager';
+import { withLayoutContext } from '/imports/ui/components/layout/context';
+import VideoService from '/imports/ui/components/video-provider/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
@@ -101,11 +104,22 @@ class Base extends Component {
       ejected,
       isMeteorConnected,
       subscriptionsReady,
+      layoutContextDispatch,
+      usersVideo,
     } = this.props;
     const {
       loading,
       meetingExisted,
     } = this.state;
+
+    if (usersVideo !== prevProps.usersVideo) {
+      layoutContextDispatch(
+        {
+          type: 'setUsersVideo',
+          value: usersVideo.length,
+        },
+      );
+    }
 
     if (!prevProps.subscriptionsReady && subscriptionsReady) {
       logger.info({ logCode: 'startup_client_subscriptions_ready' }, 'Subscriptions are ready');
@@ -170,6 +184,7 @@ class Base extends Component {
     const {
       codeError,
       ejected,
+      ejectedReason,
       meetingExist,
       meetingHasEnded,
       meetingIsBreakout,
@@ -182,22 +197,21 @@ class Base extends Component {
     }
 
     if (ejected) {
-      return (<MeetingEnded code="403" />);
+      return (<MeetingEnded code="403" reason={ejectedReason} />);
     }
 
-    if ((meetingHasEnded || User.loggedOut) && meetingIsBreakout) {
+    if ((meetingHasEnded || User?.loggedOut) && meetingIsBreakout) {
       window.close();
       return null;
     }
 
-    if (((meetingHasEnded && !meetingIsBreakout)) || (codeError && (User && User.loggedOut))) {
+    if (((meetingHasEnded && !meetingIsBreakout)) || (codeError && User?.loggedOut)) {
       return (<MeetingEnded code={codeError} />);
     }
 
     if (codeError && !meetingHasEnded) {
       // 680 is set for the codeError when the user requests a logout
       if (codeError !== '680') {
-        logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${codeError}`);
         return (<ErrorScreen code={codeError} />);
       }
       return (<MeetingEnded code={codeError} />);
@@ -207,13 +221,20 @@ class Base extends Component {
   }
 
   render() {
-    const { meetingExist } = this.props;
+    const {
+      meetingExist,
+    } = this.props;
     const { meetingExisted } = this.state;
 
     return (
-      (!meetingExisted && !meetingExist && Auth.loggedIn)
-        ? <LoadingScreen />
-        : this.renderByState()
+      <Fragment>
+        <LayoutManager />
+        {
+          (!meetingExisted && !meetingExist && Auth.loggedIn)
+            ? <LoadingScreen />
+            : this.renderByState()
+        }
+      </Fragment>
     );
   }
 }
@@ -242,6 +263,7 @@ const BaseContainer = withTracker(() => {
     approved: 1,
     authed: 1,
     ejected: 1,
+    ejectedReason: 1,
     color: 1,
     effectiveConnectionType: 1,
     extId: 1,
@@ -251,6 +273,8 @@ const BaseContainer = withTracker(() => {
     loggedOut: 1,
     meetingId: 1,
     userId: 1,
+    inactivityCheck: 1,
+    responseDelay: 1,
   };
   const User = Users.findOne({ intId: credentials.requesterUserId }, { fields });
   const meeting = Meetings.findOne({ meetingId }, {
@@ -264,8 +288,10 @@ const BaseContainer = withTracker(() => {
     Session.set('codeError', '410');
   }
 
-  const approved = User && User.approved && User.guest;
-  const ejected = User && User.ejected;
+  const approved = User?.approved && User?.guest;
+  const ejected = User?.ejected;
+  const ejectedReason = User?.ejectedReason;
+
   let userSubscriptionHandler;
 
   Breakouts.find({}, { fields: { _id: 1 } }).observeChanges({
@@ -366,10 +392,12 @@ const BaseContainer = withTracker(() => {
   }
 
   const codeError = Session.get('codeError');
+  const usersVideo = VideoService.getVideoStreams();
 
   return {
     approved,
     ejected,
+    ejectedReason,
     userSubscriptionHandler,
     breakoutRoomSubscriptionHandler,
     meetingModeratorSubscriptionHandler,
@@ -382,7 +410,8 @@ const BaseContainer = withTracker(() => {
     subscriptionsReady: Session.get('subscriptionsReady'),
     loggedIn,
     codeError,
+    usersVideo,
   };
-})(Base);
+})(withLayoutContext(Base));
 
 export default BaseContainer;

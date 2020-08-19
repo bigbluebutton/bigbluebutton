@@ -64,6 +64,7 @@ class ActivityCheck extends Component {
 
     return setInterval(() => {
       const remainingTime = responseDelay - 1;
+
       this.setState({
         responseDelay: remainingTime,
       });
@@ -96,6 +97,7 @@ class ActivityCheck extends Component {
           <p>{intl.formatMessage(intlMessages.activityCheckLabel, { 0: responseDelay })}</p>
           <Button
             color="primary"
+            disabled={responseDelay <= 0}
             label={intl.formatMessage(intlMessages.activityCheckButton)}
             onClick={handleInactivityDismiss}
             role="button"

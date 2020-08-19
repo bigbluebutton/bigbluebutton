@@ -144,6 +144,7 @@
 .userListColumn {
   @extend %flex-column;
   min-height: 0;
+  flex-grow: 1;
 }
 
 .enter,
