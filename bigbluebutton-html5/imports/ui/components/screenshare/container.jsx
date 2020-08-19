@@ -2,6 +2,7 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Users from '/imports/api/users/';
 import Auth from '/imports/ui/services/auth';
+import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '/imports/ui/components/media/service';
 import {
   isVideoBroadcasting, presenterScreenshareHasEnded, unshareScreen,
   presenterScreenshareHasStarted,
@@ -24,5 +25,8 @@ export default withTracker(() => {
     isVideoBroadcasting,
     presenterScreenshareHasStarted,
     presenterScreenshareHasEnded,
+    getSwapLayout,
+    shouldEnableSwapLayout,
+    toggleSwapLayout: MediaService.toggleSwapLayout,
   };
 })(ScreenshareContainer);

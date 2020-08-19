@@ -20,20 +20,21 @@
 
 .message {
   margin: 0;
-  color: var(--color-gray-light);
-  font-size: 1.25rem;
+  color: var(--color-white);
+  font-size: 1.75rem;
   font-weight: 400;
+  margin-bottom: 1rem;
 }
 
 .sessionMessage {
   @extend .message;
-  font-size: var(--font-size-small);
-  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+  color: var(--color-white);
 }
 
 .codeError {
   margin: 0;
-  font-size: 5rem;
+  font-size: 1.5rem;
   color: var(--color-white);
 }
 
@@ -50,4 +51,3 @@
   min-width: 9rem;
   height: 2rem;
 }
-

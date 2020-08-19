@@ -35,6 +35,7 @@ require 'find'
 require 'rubygems'
 require 'net/http'
 require 'journald/logger'
+require 'fnv'
 
 module BigBlueButton
   class MissingDirectoryException < RuntimeError
@@ -200,7 +201,7 @@ module BigBlueButton
 
   def self.add_tag_to_xml(xml_filename, parent_xpath, tag, content)
     if File.exist? xml_filename
-      doc = Nokogiri::XML(File.open(xml_filename)) {|x| x.noblanks}
+      doc = Nokogiri::XML(File.read(xml_filename)) {|x| x.noblanks}
 
       node = doc.at_xpath("#{parent_xpath}/#{tag}")
       node.remove if not node.nil?
@@ -233,6 +234,11 @@ module BigBlueButton
 
   def self.record_id_to_timestamp(r)
     r.split("-")[1].to_i / 1000
+  end
+
+  # Notes id will be an 8-sized hash string based on the meeting id
+  def self.get_notes_id(meeting_id)
+    FNV.new.fnv1a_32(meeting_id).to_s(16).rjust(8, '0')
   end
 
   def self.done_to_timestamp(r)

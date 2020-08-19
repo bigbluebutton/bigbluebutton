@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
@@ -10,6 +10,7 @@ import Rating from './rating/component';
 import { styles } from './styles';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
+import AudioManager from '/imports/ui/services/audio-manager';
 
 const intlMessage = defineMessages({
   410: {
@@ -87,9 +88,10 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   code: PropTypes.string.isRequired,
+  reason: PropTypes.string.isRequired,
 };
 
-class MeetingEnded extends React.PureComponent {
+class MeetingEnded extends PureComponent {
   static getComment() {
     const textarea = document.getElementById('feedbackComment');
     const comment = textarea.value;
@@ -110,9 +112,8 @@ class MeetingEnded extends React.PureComponent {
     this.setSelectedStar = this.setSelectedStar.bind(this);
     this.sendFeedback = this.sendFeedback.bind(this);
     this.shouldShowFeedback = getFromUserSettings('bbb_ask_for_feedback_on_logout', Meteor.settings.public.app.askForFeedbackOnLogout);
-  }
 
-  componentDidMount() {
+    AudioManager.exitAudio();
     Meteor.disconnect();
   }
 
@@ -168,22 +169,20 @@ class MeetingEnded extends React.PureComponent {
   }
 
   render() {
-    const { intl, code } = this.props;
-    const {
-      selected,
-    } = this.state;
+    const { code, intl, reason } = this.props;
+    const { selected } = this.state;
 
     const noRating = selected <= 0;
 
-    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code } }, 'Meeting ended component');
+    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason } }, 'Meeting ended component');
 
     return (
       <div className={styles.parent}>
-        <div className={styles.modal}>
+        <div className={styles.modal} data-test="meetingEndedModal">
           <div className={styles.content}>
-            <h1 className={styles.title} data-test="meetingEndedModalTitle">
+            <h1 className={styles.title}>
               {
-                intl.formatMessage(intlMessage[code] || intlMessage[430])
+                intl.formatMessage(intlMessage[reason] || intlMessage[430])
               }
             </h1>
             <div className={styles.text}>
@@ -192,7 +191,7 @@ class MeetingEnded extends React.PureComponent {
                 : intl.formatMessage(intlMessage.messageEnded)}
             </div>
             {this.shouldShowFeedback ? (
-              <div>
+              <div data-test="rating">
                 <Rating
                   total="5"
                   onRate={this.setSelectedStar}

@@ -7,6 +7,7 @@ import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
@@ -29,6 +30,8 @@ const UnsentMessagesCollection = new Mongo.Collection(null);
 
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
+
+const POLL_MESSAGE_PREFIX = 'bbb-published-poll-<br/>';
 
 const getUser = userId => Users.findOne({ userId });
 
@@ -82,11 +85,15 @@ const reduceGroupMessages = (previous, current) => {
     return previous.concat(currentMessage);
   }
   // Check if the last message is from the same user and time discrepancy
-  // between the two messages exceeds window and then group current message
-  // with the last one
+  // between the two messages exceeds window and then group current
+  // message with the last one
   const timeOfLastMessage = lastMessage.content[lastMessage.content.length - 1].time;
+  const isOrWasPoll = currentMessage.message.includes(POLL_MESSAGE_PREFIX)
+    || lastMessage.message.includes(POLL_MESSAGE_PREFIX);
+  const groupingWindow = isOrWasPoll ? 0 : GROUPING_MESSAGES_WINDOW;
+
   if (lastMessage.sender === currentMessage.sender
-    && (currentMessage.timestamp - timeOfLastMessage) <= GROUPING_MESSAGES_WINDOW) {
+    && (currentMessage.timestamp - timeOfLastMessage) <= groupingWindow) {
     lastMessage.content.push(currentMessage.content.pop());
     return previous;
   }
@@ -136,14 +143,18 @@ const getPrivateGroupMessages = () => {
 
 const isChatLocked = (receiverID) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
-
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { 'lockSettingsProps.disablePublicChat': 1 } });
+    { fields: { 'lockSettingsProps.disablePublicChat': 1, 'lockSettingsProps.disablePrivateChat': 1 } });
   const user = Users.findOne({ meetingId: Auth.meetingID, userId: Auth.userID },
     { fields: { locked: 1, role: 1 } });
   const receiver = Users.findOne({ meetingId: Auth.meetingID, userId: receiverID },
     { fields: { role: 1 } });
   const isReceiverModerator = receiver && receiver.role === ROLE_MODERATOR;
+
+  // disable private chat in breakouts
+  if (meetingIsBreakout()) {
+    return !isPublic;
+  }
 
   if (meeting.lockSettingsProps !== undefined) {
     if (user.locked && user.role !== ROLE_MODERATOR) {

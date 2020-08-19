@@ -1,6 +1,7 @@
 @import '/imports/ui/stylesheets/mixins/focus';
 @import '/imports/ui/stylesheets/mixins/_indicators';
 @import '/imports/ui/stylesheets/variables/_all';
+@import '/imports/ui/components/loading-screen/styles';
 
 .title {
   color: var(--color-gray-dark);
@@ -120,5 +121,12 @@
 
   [dir="rtl"] & {
     margin: 0 1rem 0 0;
+  }
+}
+
+.spinnerOverlay {
+  @extend .spinner;
+  & > div {
+    background-color: black;
   }
 }
