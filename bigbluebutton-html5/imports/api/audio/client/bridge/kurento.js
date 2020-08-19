@@ -8,7 +8,7 @@ const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag.replace(/#/g, '');
 const GLOBAL_AUDIO_PREFIX = 'GLOBAL_AUDIO_';
-const RECONNECT_TIMEOUT_MS = 15000;
+const RECONNECT_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
 
 export default class KurentoAudioBridge extends BaseAudioBridge {
   constructor(userData) {

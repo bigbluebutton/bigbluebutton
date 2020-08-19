@@ -84,6 +84,7 @@ const intlMessages = defineMessages({
   },
 });
 
+const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 const MAX_CUSTOM_FIELDS = Meteor.settings.public.poll.max_custom;
 const MAX_INPUT_CHARS = 45;
 
@@ -315,7 +316,7 @@ class Poll extends Component {
       currentSlide,
     } = this.props;
 
-    if (!currentSlide) return this.renderNoSlidePanel();
+    if (!CHAT_ENABLED && !currentSlide) return this.renderNoSlidePanel();
 
     if (isPolling || (!isPolling && currentPoll)) {
       return this.renderActivePollOptions();

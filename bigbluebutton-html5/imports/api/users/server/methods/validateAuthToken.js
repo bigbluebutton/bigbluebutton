@@ -6,17 +6,24 @@ import Users from '/imports/api/users';
 import createDummyUser from '../modifiers/createDummyUser';
 import setConnectionIdAndAuthToken from '../modifiers/setConnectionIdAndAuthToken';
 import MeteorSyncConfirmation, { serverSynced } from '/imports/startup/server/meteorSyncComfirmation';
+import BannedUsers from '../store/bannedUsers';
 
-export default async function validateAuthToken(credentials) {
+export default function validateAuthToken(meetingId, requesterUserId, requesterToken, externalId) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'ValidateAuthTokenReqMsg';
   await serverSynced;
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
+  // Check if externalId is banned from the meeting
+  if (externalId) {
+    if (BannedUsers.has(meetingId, externalId)) {
+      Logger.warn(`A banned user with extId ${externalId} tried to enter in meeting ${meetingId}`);
+      return;
+    }
+  }
+
+  // Store reference of methodInvocationObject ( to postpone the connection userId definition )
   pendingAuthenticationsStore.add(meetingId, requesterUserId, requesterToken, this);
 
   const sessionId = `${meetingId}-${requesterUserId}`;
