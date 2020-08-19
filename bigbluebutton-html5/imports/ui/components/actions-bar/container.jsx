@@ -11,6 +11,7 @@ import ActionsBar from './component';
 import Service from './service';
 import UserListService from '/imports/ui/components/user-list/service';
 import ExternalVideoService from '/imports/ui/components/external-video-player/service';
+import RemoteDesktopService from '/imports/ui/components/remote-desktop/service';
 import CaptionsService from '/imports/ui/components/captions/service';
 import LayoutContext from '../layout/context';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
@@ -53,6 +54,7 @@ export default withTracker(() => ({
   amIPresenter: Service.amIPresenter(),
   amIModerator: Service.amIModerator(),
   stopExternalVideoShare: ExternalVideoService.stopWatching,
+  stopRemoteDesktop: RemoteDesktopService.stopWatching,
   enableVideo: getFromUserSettings('bbb_enable_video', Meteor.settings.public.kurento.enableVideo),
   isLayoutSwapped: getSwapLayout()&& shouldEnableSwapLayout(),
   toggleSwapLayout: MediaService.toggleSwapLayout,
@@ -61,6 +63,7 @@ export default withTracker(() => ({
   parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
   isSharingVideo: Service.isSharingVideo(),
   hasScreenshare: isVideoBroadcasting(),
+  isSharingDesktop: Service.isSharingDesktop(),
   isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
   isMeteorConnected: Meteor.status().connected,
   isPollingEnabled: POLLING_ENABLED,
@@ -72,4 +75,5 @@ export default withTracker(() => ({
     { fields: {} }),
   allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,
   setEmojiStatus: UserListService.setEmojiStatus,
+  allowRemoteDesktop: Meteor.settings.public.remoteDesktop.enabled,
 }))(injectIntl(ActionsBarContainer));

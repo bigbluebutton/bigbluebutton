@@ -23,6 +23,8 @@ class ActionsBar extends PureComponent {
       isSharingVideo,
       hasScreenshare,
       stopExternalVideoShare,
+      isSharingDesktop,
+      stopRemoteDesktop,
       isCaptionsAvailable,
       isMeteorConnected,
       isPollingEnabled,
@@ -37,6 +39,7 @@ class ActionsBar extends PureComponent {
       layoutContextDispatch,
       actionsBarStyle,
       isOldMinimizeButtonEnabled,
+      allowRemoteDesktop,
     } = this.props;
 
     return (
@@ -55,10 +58,13 @@ class ActionsBar extends PureComponent {
             isPollingEnabled,
             isSelectRandomUserEnabled,
             allowExternalVideo,
+            allowRemoteDesktop,
             handleTakePresenter,
             intl,
             isSharingVideo,
+            isSharingDesktop,
             stopExternalVideoShare,
+            stopRemoteDesktop,
             isMeteorConnected,
           }}
           />

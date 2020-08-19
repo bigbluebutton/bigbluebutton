@@ -24,6 +24,7 @@ import '/imports/api/users-persistent-data/server';
 import '/imports/api/connection-status/server';
 import '/imports/api/note/server';
 import '/imports/api/external-videos/server';
+import '/imports/api/remote-desktop/server';
 import '/imports/api/guest-users/server';
 import '/imports/api/local-settings/server';
 import '/imports/api/voice-call-states/server';

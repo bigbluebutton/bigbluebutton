@@ -204,6 +204,8 @@ public:
       - warning
   externalVideoPlayer:
     enabled: true
+  remoteDesktop:
+    enabled: true
   kurento:
     wsUrl: HOST
     # Valid for video-provider. Time (ms) before its WS connection times out

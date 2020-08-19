@@ -189,6 +189,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   const { selectedLayout } = AppSettings;
   const { viewScreenshare } = Settings.dataSaving;
   const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
+  const shouldShowRemoteDesktop = MediaService.shouldShowRemoteDesktop();
   const shouldShowScreenshare = MediaService.shouldShowScreenshare()
     && (viewScreenshare || MediaService.isUserPresenter());
   let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
@@ -223,8 +224,9 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     audioAlertEnabled: AppSettings.chatAudioAlerts,
     pushAlertEnabled: AppSettings.chatPushAlerts,
     shouldShowScreenshare,
-    shouldShowPresentation: !shouldShowScreenshare && !shouldShowExternalVideo,
+    shouldShowPresentation: !shouldShowScreenshare && !shouldShowExternalVideo && !shouldShowRemoteDesktop,
     shouldShowExternalVideo,
+    shouldShowRemoteDesktop,
     isLargeFont: Session.get('isLargeFont'),
     presentationRestoreOnUpdate: getFromUserSettings(
       'bbb_force_restore_presentation_on_new_events',

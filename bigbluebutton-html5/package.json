@@ -72,6 +72,7 @@
     "react-toggle": "~4.0.2",
     "react-transition-group": "^2.9.0",
     "react-virtualized": "^9.22.3",
+    "react-vnc-display": "latest",
     "reconnecting-websocket": "~v4.4.0",
     "redis": "^3.1.2",
     "sanitize-html": "2.3.3",

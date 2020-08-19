@@ -159,6 +159,7 @@ class App extends Component {
       autoSwapLayout,
       shouldShowScreenshare,
       shouldShowExternalVideo,
+      shouldShowRemoteDesktop,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -171,7 +172,7 @@ class App extends Component {
     });
 
     const presentationOpen = !(autoSwapLayout || hidePresentation)
-      || shouldShowExternalVideo || shouldShowScreenshare;
+      || shouldShowExternalVideo || shouldShowRemoteDesktop || shouldShowScreenshare;
 
     layoutContextDispatch({
       type: ACTIONS.SET_PRESENTATION_IS_OPEN,
@@ -465,6 +466,7 @@ class App extends Component {
       shouldShowPresentation,
       shouldShowScreenshare,
       shouldShowExternalVideo,
+      shouldShowRemoteDesktop,
       isPresenter,
     } = this.props;
 
@@ -493,6 +495,11 @@ class App extends Component {
           {
             shouldShowExternalVideo
               ? <ExternalVideoContainer isPresenter={isPresenter} />
+              : null
+          }
+          {
+            shouldShowRemoteDesktop
+              ? <RemoteDesktopContainer isPresenter={isPresenter} />
               : null
           }
           {this.renderCaptions()}
