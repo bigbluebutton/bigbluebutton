@@ -19,7 +19,6 @@ export default function removeGroupChat(meetingId, chatId) {
     }
 
     if (numChanged) {
-      // TODO: Clear group-chat-messages
       Logger.info(`Removed group-chat id=${chatId} meeting=${meetingId}`);
       clearGroupChatMsg(meetingId, chatId);
     }

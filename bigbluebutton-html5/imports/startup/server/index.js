@@ -78,7 +78,6 @@ Meteor.startup(() => {
     const currentTime = Date.now();
     Logger.info('Checking for inactive users');
     const users = Users.find({
-      connectionStatus: 'online',
       clientType: 'HTML5',
       lastPing: {
         $lt: (currentTime - INTERVAL_TIME), // get user who has not pinged in the last 10 seconds
@@ -192,7 +191,6 @@ WebApp.connectHandlers.use('/feedback', (req, res) => {
     const user = Users.findOne({
       meetingId,
       userId,
-      connectionStatus: 'offline',
       authToken,
     });
 
