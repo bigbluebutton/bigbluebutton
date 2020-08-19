@@ -26,7 +26,7 @@ const MIRROR_WEBCAM = Meteor.settings.public.app.mirrorOwnWebcam;
 const CAMERA_QUALITY_THRESHOLDS = Meteor.settings.public.kurento.cameraQualityThresholds.thresholds || [];
 const {
   enabled: PAGINATION_ENABLED,
-  pageSwitchTimeout: PAGE_SWITCH_TIMEOUT,
+  pageChangeLockTimeout: PAGE_CHANGE_LOCK_TIMEOUT,
   desktopPageSizes: DESKTOP_PAGE_SIZES,
   mobilePageSizes: MOBILE_PAGE_SIZES,
 } = Meteor.settings.public.kurento.pagination;
@@ -46,6 +46,7 @@ class VideoService {
     const BROWSER_RESULTS = browser();
     this.isMobile = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
     this.isSafari = BROWSER_RESULTS.name === 'safari';
+    this.pageChangeLocked = false;
 
     this.numberOfDevices = 0;
 
@@ -193,9 +194,19 @@ class VideoService {
     return this.numberOfPages;
   }
 
+  enablePageChangeLock () {
+    if (PAGE_CHANGE_LOCK_TIMEOUT > 0) {
+      this.pageChangeLocked = true;
+      this.pageChangeLockClearTimeout = setTimeout(() => {
+        this.pageChangeLocked = false;
+      }, PAGE_CHANGE_LOCK_TIMEOUT);
+    }
+  }
+
   setCurrentVideoPageIndex (newVideoPageIndex) {
     if (this.currentVideoPageIndex !== newVideoPageIndex) {
-     this.currentVideoPageIndex = newVideoPageIndex;
+      this.currentVideoPageIndex = newVideoPageIndex;
+      this.enablePageChangeLock();
     }
   }
 
@@ -204,6 +215,8 @@ class VideoService {
   }
 
   getNextVideoPage() {
+    if (this.pageChangeLocked) return;
+
     const nextVideoPageIndex = this.currentVideoPageIndex + 1;
 
     if (nextVideoPageIndex < this.numberOfPages)  {
@@ -214,6 +227,8 @@ class VideoService {
   }
 
   getPreviousVideoPage() {
+    if (this.pageChangeLocked) return;
+
     if (this.currentVideoPageIndex > 0) {
       const previousVideoPageIndex = this.currentVideoPageIndex - 1;
       this.setCurrentVideoPageIndex(previousVideoPageIndex);

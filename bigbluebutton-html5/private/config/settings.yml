@@ -198,6 +198,7 @@ public:
           profile: low-u30
     pagination:
       enabled: false
+      pageChangeLockTimeout: 5000
       desktopPageSizes:
         moderator: 0
         viewer: 5
