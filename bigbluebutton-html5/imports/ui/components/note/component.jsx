@@ -64,9 +64,10 @@ class Note extends Component {
               onClick={() => {
                 Session.set('openPanel', 'userlist');
               }}
+              data-test="hideNoteLabel"
               aria-label={intl.formatMessage(intlMessages.hideNoteLabel)}
               label={intl.formatMessage(intlMessages.title)}
-              icon={isRTL ? "right_arrow" : "left_arrow"}
+              icon={isRTL ? 'right_arrow' : 'left_arrow'}
               className={styles.hideBtn}
             />
           </div>

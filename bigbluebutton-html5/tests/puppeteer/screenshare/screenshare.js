@@ -15,12 +15,6 @@ class ShareScreen extends Page {
     const response = await util.getScreenShareContainer(this.page);
     return response;
   }
-
-  async toast(page) {
-    await util.startScreenshare(page);
-    const response = await utilNotifications.getLastToastValue(page);
-    return response;
-  }
 }
 
 module.exports = exports = ShareScreen;

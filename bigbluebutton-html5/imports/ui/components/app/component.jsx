@@ -18,11 +18,14 @@ import ChatAlertContainer from '../chat/alert/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import WaitingNotifierContainer from '/imports/ui/components/waiting-users/alert/container';
 import LockNotifier from '/imports/ui/components/lock-viewers/notify/container';
+import StatusNotifier from '/imports/ui/components/status-notifier/container';
 import PingPongContainer from '/imports/ui/components/ping-pong/container';
 import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
+import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
 import { styles } from './styles';
+import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -135,6 +138,8 @@ class App extends Component {
 
     this.handleWindowResize();
     window.addEventListener('resize', this.handleWindowResize, false);
+    window.ondragover = function (e) { e.preventDefault(); };
+    window.ondrop = function (e) { e.preventDefault(); };
 
     if (ENABLE_NETWORK_MONITORING) {
       if (navigator.connection) {
@@ -227,7 +232,12 @@ class App extends Component {
     if (!navbar) return null;
 
     return (
-      <header className={styles.navbar}>
+      <header
+        className={styles.navbar}
+        style={{
+          height: NAVBAR_HEIGHT,
+        }}
+      >
         {navbar}
       </header>
     );
@@ -338,6 +348,7 @@ class App extends Component {
           {this.renderPanel()}
           {this.renderSidebar()}
         </section>
+        <UploaderContainer />
         <BreakoutRoomInvitation />
         <PollingContainer />
         <ModalContainer />
@@ -346,6 +357,7 @@ class App extends Component {
         <ChatAlertContainer />
         <WaitingNotifierContainer />
         <LockNotifier />
+        <StatusNotifier status="raiseHand" />
         <PingPongContainer />
         <ManyWebcamsNotifier />
         {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}

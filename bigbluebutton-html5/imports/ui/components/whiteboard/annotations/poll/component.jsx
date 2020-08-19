@@ -1,8 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import PollService from '/imports/ui/components/poll/service';
-import { injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import styles from './styles';
+
+const intlMessages = defineMessages({
+  pollResultAria: {
+    id: 'app.whiteboard.annotations.pollResult',
+    description: 'aria label used in poll result string',
+  },
+});
 
 class PollDrawComponent extends Component {
   constructor(props) {
@@ -217,9 +224,10 @@ class PollDrawComponent extends Component {
 
       // first check if we can still increase the font-size
       if (fontSizeDirection === 1) {
-        if (keySizes.width < maxLineWidth && keySizes.height < maxLineHeight
+        if ((keySizes.width < maxLineWidth && keySizes.height < maxLineHeight
           && voteSizes.width < maxLineWidth && voteSizes.height < maxLineHeight
-          && percSizes.width < maxLineWidth && percSizes.height < maxLineHeight) {
+          && percSizes.width < maxLineWidth && percSizes.height < maxLineHeight)
+          && calcFontSize < 100) {
           return this.setState({
             calcFontSize: calcFontSize + fontSizeIncrement,
           });
@@ -232,9 +240,10 @@ class PollDrawComponent extends Component {
         });
       } if (fontSizeDirection === -1) {
         // check if the font-size is still bigger than allowed
-        if (keySizes.width > maxLineWidth || keySizes.height > maxLineHeight
+        if ((keySizes.width > maxLineWidth || keySizes.height > maxLineHeight
           || voteSizes.width > maxLineWidth || voteSizes.height > maxLineHeight
-          || percSizes.width > maxLineWidth || percSizes.height > maxLineHeight) {
+          || percSizes.width > maxLineWidth || percSizes.height > maxLineHeight)
+          && calcFontSize > 0) {
           return this.setState({
             calcFontSize: calcFontSize - fontSizeIncrement,
           });
@@ -422,7 +431,7 @@ class PollDrawComponent extends Component {
     }
 
     return (
-      <g>
+      <g aria-hidden>
         <rect
           x={outerRect.x}
           y={outerRect.y}
@@ -573,7 +582,7 @@ class PollDrawComponent extends Component {
       return this.renderLine(lineToMeasure);
     }
     return (
-      <g>
+      <g aria-hidden>
         {textArray.map(line => this.renderLine(line))}
         <text
           fontFamily="Arial"
@@ -589,9 +598,17 @@ class PollDrawComponent extends Component {
   }
 
   render() {
-    const { prepareToDisplay } = this.state;
+    const { intl } = this.props;
+    const { prepareToDisplay, textArray } = this.state;
+
+    let ariaResultLabel = `${intl.formatMessage(intlMessages.pollResultAria)}: `;
+    textArray.map((t, idx) => {
+      const pollLine = t.slice(0, -1);
+      ariaResultLabel += `${idx > 0 ? ' |' : ''} ${pollLine.join(' | ')}`;
+    });
+
     return (
-      <g>
+      <g aria-label={ariaResultLabel}>
         {prepareToDisplay
           ? this.renderTestStrings()
           : this.renderPoll()

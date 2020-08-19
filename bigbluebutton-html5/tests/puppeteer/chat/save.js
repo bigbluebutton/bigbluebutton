@@ -14,8 +14,9 @@ class Save extends Page {
 
     await this.click(e.chatOptions);
     await this.click(e.chatSave, true);
-    const clicked = await this.page.addListener('click', () => document.addEventListener('click'));
-    return clicked;
+    let clicked = '';
+    clicked = await this.page.addListener('click', () => document.addEventListener('click'));
+    return clicked !== '';
   }
 }
 

@@ -7,9 +7,9 @@ import LoadingScreen from '/imports/ui/components/loading-screen/component';
 const STATUS_CONNECTING = 'connecting';
 
 class AuthenticatedHandler extends Component {
-  static setError(codeError) {
-    Session.set('hasError', true);
-    if (codeError) Session.set('codeError', codeError);
+  static setError({ description, error }) {
+    if (error) Session.set('codeError', error);
+    Session.set('errorMessageDescription', description);
   }
 
   static shouldAuthenticate(status, lastStatus) {
@@ -46,7 +46,7 @@ class AuthenticatedHandler extends Component {
         extraInfo: { reason },
       }, 'Encountered error while trying to authenticate');
 
-      AuthenticatedHandler.setError(reason.error);
+      AuthenticatedHandler.setError(reason);
       callback();
     };
 

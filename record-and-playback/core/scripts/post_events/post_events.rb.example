@@ -1,0 +1,72 @@
+#!/usr/bin/ruby
+# encoding: UTF-8
+
+#
+# BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+#
+# Copyright (c) 2020 BigBlueButton Inc. and by respective authors (see below).
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 3.0 of the License, or (at your option)
+# any later version.
+#
+# BigBlueButton is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License along
+# with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+#
+
+require '../../core/lib/recordandplayback'
+require 'rubygems'
+require 'optparse'
+require 'yaml'
+
+require File.expand_path('../../../lib/recordandplayback', __FILE__)
+
+file = File.open('/var/log/bigbluebutton/post_events.log', File::WRONLY | File::APPEND | File::CREAT)
+logger = Logger.new(file, 'weekly' )
+logger.level = Logger::INFO
+BigBlueButton.logger = logger
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = 'Usage: ruby post_events/post_events.rb -m <meeting_id>'
+
+  opts.on('-m', '--meeting-id MEETING_ID', 'meeting_id (required)') do |m|
+    options[:meeting_id] = m
+  end
+end.parse!
+
+raise 'Missing required -m option.' if options[:meeting_id].nil?
+
+meeting_id = options[:meeting_id]
+
+# This script lives in scripts/post_events
+# while properties.yaml lives in scripts/
+props = YAML.safe_load(File.open('../../core/scripts/bigbluebutton.yml'))
+
+recording_dir = props['recording_dir']
+events_dir = props['events_dir']
+meeting_events_dir = "#{events_dir}/#{meeting_id}"
+process_dir = "#{recording_dir}/process/events/#{meeting_id}"
+
+#
+# Put your code here
+#
+BigBlueButton.logger.info("Post Events for [#{meeting_id}] starts")
+
+begin
+  raise 'events.xml file is missing from recording' unless File.exist?("#{meeting_events_dir}/events.xml")
+
+rescue => e
+    BigBlueButton.logger.info("Rescued")
+    BigBlueButton.logger.info(e.to_s)
+end
+
+BigBlueButton.logger.info("Post Events for [#{meeting_id}] ends")
+
+exit 0

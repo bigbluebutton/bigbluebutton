@@ -15,6 +15,7 @@ import da from 'react-intl/locale-data/da';
 import de from 'react-intl/locale-data/de';
 import el from 'react-intl/locale-data/el';
 import en from 'react-intl/locale-data/en';
+import eo from 'react-intl/locale-data/eo';
 import es from 'react-intl/locale-data/es';
 import et from 'react-intl/locale-data/et';
 import eu from 'react-intl/locale-data/eu';
@@ -46,6 +47,7 @@ import sk from 'react-intl/locale-data/sk';
 import sl from 'react-intl/locale-data/sl';
 import sr from 'react-intl/locale-data/sr';
 import sv from 'react-intl/locale-data/sv';
+import te from 'react-intl/locale-data/te';
 import th from 'react-intl/locale-data/th';
 import tr from 'react-intl/locale-data/tr';
 import uk from 'react-intl/locale-data/uk';
@@ -64,6 +66,7 @@ addLocaleData([
   ...el,
   ...et,
   ...en,
+  ...eo,
   ...es,
   ...eu,
   ...fa,
@@ -94,6 +97,7 @@ addLocaleData([
   ...sl,
   ...sr,
   ...sv,
+  ...te,
   ...th,
   ...tr,
   ...uk,

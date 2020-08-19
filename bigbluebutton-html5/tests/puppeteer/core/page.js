@@ -40,16 +40,13 @@ class Page {
       // this.page.on('console', async msg => console[msg._type](
       //   ...await Promise.all(msg.args().map(arg => arg.jsonValue()))
       // ));
-
+      await this.page.setExtraHTTPHeaders({
+        'Accept-Language': 'en-US',
+      });
       await this.setDownloadBehavior(`${this.parentDir}/downloads`);
-      this.logger('before create meeting', customParameter);
       this.meetingId = await helper.createMeeting(params, meetingId, customParameter);
-      this.logger('after create meeting', customParameter);
 
-      this.logger('before getJoinURL', customParameter);
       const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, isModerator, customParameter);
-      this.logger('after getJoinURL', customParameter);
-
       await this.page.goto(joinURL);
       const checkForGetMetrics = async () => {
         if (process.env.BBB_COLLECT_METRICS === 'true') {
@@ -57,9 +54,6 @@ class Page {
           await this.getMetrics(testFolderName);
         }
       };
-      // if (process.env.IS_AUDIO_TEST !== 'true') {
-      //   await this.closeAudioModal();
-      // }
       await checkForGetMetrics();
     } catch (e) {
       this.logger(e);
@@ -122,10 +116,24 @@ class Page {
   async getTestElements() {
   }
 
+  async waitForBreakoutElement(element, pageNumber) {
+    const pageTarget = await this.browser.pages();
+    await pageTarget[pageNumber].waitForSelector(element, { timeout: 0 });
+  }
+
+  async clickBreakoutElement(element, pageNumber) {
+    const pageTarget = await this.browser.pages();
+    await pageTarget[pageNumber].click(element);
+  }
+
+  async returnElement(element) {
+    return await document.querySelectorAll(element)[0];
+  }
+
   // Get the default arguments for creating a page
   static getArgs() {
-    const args = ['--no-sandbox', '--use-fake-ui-for-media-stream'];
-    return { headless: false, args };
+    const args = ['--no-sandbox', '--use-fake-ui-for-media-stream', '--lang=en-US'];
+    return { headless: true, args };
   }
 
   static getArgsWithAudio() {
@@ -133,10 +141,11 @@ class Page {
       const args = [
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
-        '--use-fake-device-for-media-stream'
+        '--use-fake-device-for-media-stream',
+        '--lang=en-US',
       ];
       return {
-        headless: false,
+        headless: true,
         args,
       };
     }
@@ -146,9 +155,10 @@ class Page {
       '--use-fake-device-for-media-stream',
       `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
       '--allow-file-access',
+      '--lang=en-US',
     ];
     return {
-      headless: false,
+      headless: true,
       args,
     };
   }
@@ -159,9 +169,10 @@ class Page {
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
+        '--lang=en-US',
       ];
       return {
-        headless: false,
+        headless: true,
         args,
       };
     }
@@ -171,9 +182,10 @@ class Page {
       '--use-fake-device-for-media-stream',
       `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
       '--allow-file-access',
+      '--lang=en-US',
     ];
     return {
-      headless: false,
+      headless: true,
       args,
     };
   }
