@@ -120,6 +120,8 @@ const messages = {
 
 export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ mountModal, intl, userLocks }) => {
   const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
+  const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
+  const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);
   const { userWebcam, userMic } = userLocks;
   const { joinedAudio } = getcookieData();
   const meetingIsBreakout = AppService.meetingIsBreakout();
@@ -148,7 +150,11 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
       if (Service.isUsingAudio() || joinedAudio) {
         return;
       }
-      setTimeout(() => openAudioModal(), 0);
+      setTimeout(() => openAudioModal().then(() => {
+         if (enableVideo && autoShareWebcam) {
+           openVideoPreviewModal();
+          }
+        }), 0);
     },
   });
 

@@ -108,7 +108,7 @@
   @extend %text-elipsis;
   @include highContrastOutline();
   outline-style: solid;
-  z-index: 2;
+  z-index: 3;
   overflow: visible;
   order: 1;
 
@@ -148,19 +148,19 @@
   order: 2;
   height: 100%;
   @include mq($small-only) {
-    z-index: 3;
+    z-index: 4;
     height: auto;
     top: var(--navbar-height);
     overflow: visible;
   }
 
   @include mq($medium-up) {
-    flex: 0 25vw;
+    // flex: 0 25vw;
     order: 1;
   }
 
   @include mq($xlarge-up) {
-    flex-basis: 20vw;
+    // flex-basis: 20vw;
   }
 }
 
@@ -172,10 +172,10 @@
 
 .breakoutRoom {
   height: 100%;
-  width: 20vw;
+  // width: 20vw;
   background-color: var(--color-white);
   @include mq($small-only) {
-    width: auto;
+    // width: auto;
     height: auto;
   }
 }
@@ -198,6 +198,7 @@
   position: relative;
   margin: 0 0 0 var(--panel-margin-right);
   overflow: hidden;
+  z-index: 0;
 
   [dir="rtl"] & {
     margin: 0 var(--panel-margin-right) 0 0;

@@ -10,8 +10,10 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
+import ConnectionStatusContainer from '/imports/ui/components/connection-status/modal/container';
 import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/container';
 import CaptionsService from '/imports/ui/components/captions/service';
+import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import { styles } from './styles';
@@ -70,6 +72,14 @@ const intlMessages = defineMessages({
     id: 'app.userList.userOptions.lockViewersDesc',
     description: 'Lock viewers description',
   },
+  connectionStatusLabel: {
+    id: 'app.userList.userOptions.connectionStatusLabel',
+    description: 'Connection status label',
+  },
+  connectionStatusDesc: {
+    id: 'app.userList.userOptions.connectionStatusDesc',
+    description: 'Connection status description',
+  },
   muteAllExceptPresenterLabel: {
     id: 'app.userList.userOptions.muteAllExceptPresenterLabel',
     description: 'Mute all except presenter label',
@@ -116,6 +126,7 @@ class UserOptions extends PureComponent {
     this.muteId = _.uniqueId('list-item-');
     this.muteAllId = _.uniqueId('list-item-');
     this.lockId = _.uniqueId('list-item-');
+    this.connectionStatusId = _.uniqueId('list-item-');
     this.createBreakoutId = _.uniqueId('list-item-');
     this.saveUsersNameId = _.uniqueId('list-item-');
     this.captionsId = _.uniqueId('list-item-');
@@ -213,7 +224,7 @@ class UserOptions extends PureComponent {
           onClick={toggleStatus}
         />) : null
       ),
-      (isMeteorConnected ? (
+      (!meetingIsBreakout && isMeteorConnected ? (
         <DropdownListItem
           key={this.muteAllId}
           icon={isMeetingMuted ? 'unmute' : 'mute'}
@@ -222,7 +233,7 @@ class UserOptions extends PureComponent {
           onClick={toggleMuteAllUsers}
         />) : null
       ),
-      (!isMeetingMuted && isMeteorConnected ? (
+      (!meetingIsBreakout && !isMeetingMuted && isMeteorConnected ? (
         <DropdownListItem
           key={this.muteId}
           icon="mute"
@@ -241,7 +252,7 @@ class UserOptions extends PureComponent {
           />)
         : null
       ),
-      (isMeteorConnected ? (
+      (!meetingIsBreakout && isMeteorConnected ? (
         <DropdownListItem
           key={this.lockId}
           icon="lock"
@@ -250,9 +261,19 @@ class UserOptions extends PureComponent {
           onClick={() => mountModal(<LockViewersContainer />)}
         />) : null
       ),
+      (ConnectionStatusService.isEnabled() && isMeteorConnected ? (
+        <DropdownListItem
+          key={this.connectionStatusId}
+          icon="warning"
+          label={intl.formatMessage(intlMessages.connectionStatusLabel)}
+          description={intl.formatMessage(intlMessages.connectionStatusDesc)}
+          onClick={() => mountModal(<ConnectionStatusContainer />)}
+        />) : null
+      ),
       (isMeteorConnected ? <DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
       (canCreateBreakout && isMeteorConnected ? (
         <DropdownListItem
+          data-test="createBreakoutRooms"
           key={this.createBreakoutId}
           icon="rooms"
           label={intl.formatMessage(intlMessages.createBreakoutRoom)}
@@ -262,6 +283,7 @@ class UserOptions extends PureComponent {
       ),
       (canInviteUsers && isMeteorConnected ? (
         <DropdownListItem
+          data-test="inviteBreakoutRooms"
           icon="rooms"
           label={intl.formatMessage(intlMessages.invitationItem)}
           key={this.createBreakoutId}
@@ -300,6 +322,7 @@ class UserOptions extends PureComponent {
         <DropdownTrigger tabIndex={0}>
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
+            data-test="manageUsers"
             icon="settings"
             ghost
             color="primary"

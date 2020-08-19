@@ -12,6 +12,7 @@ import setMinBrowserVersions from './minBrowserVersion';
 import userLeaving from '/imports/api/users/server/methods/userLeaving';
 
 const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
+let avaibleLocalesNames = [];
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
@@ -90,10 +91,9 @@ Meteor.startup(() => {
     Logger.info('Removing inactive users');
     users.forEach((user) => {
       Logger.info(`Detected inactive user, userId:${user.userId}, meetingId:${user.meetingId}`);
-      user.requesterUserId = user.userId;
-      return userLeaving(user, user.userId, user.connectionId);
+      return userLeaving(user.meetingId, user.userId, user.connectionId);
     });
-    return Logger.info('All inactive user have been removed');
+    return Logger.info('All inactive users have been removed');
   }, INTERVAL_TIME);
 
   Logger.warn(`SERVER STARTED.\nENV=${env},\nnodejs version=${process.version}\nCDN=${CDN_URL}\n`, APP_CONFIG);
@@ -111,7 +111,9 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
   const APP_CONFIG = Meteor.settings.public.app;
   const fallback = APP_CONFIG.defaultSettings.application.fallbackLocale;
   const override = APP_CONFIG.defaultSettings.application.overrideLocale;
-  const browserLocale = override ? override.split(/[-_]/g) : req.query.locale.split(/[-_]/g);
+  const browserLocale = override && req.query.init === 'true'
+    ? override.split(/[-_]/g) : req.query.locale.split(/[-_]/g);
+
   const localeList = [fallback];
 
   const usableLocales = AVAILABLE_LOCALES
@@ -149,22 +151,23 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
 });
 
 WebApp.connectHandlers.use('/locales', (req, res) => {
-  let locales = [];
-  try {
-    locales = AVAILABLE_LOCALES
-      .map(file => file.replace('.json', ''))
-      .map(file => file.replace('_', '-'))
-      .map(locale => ({
-        locale,
-        name: Langmap[locale].nativeName,
-      }));
-  } catch (e) {
-    Logger.warn(`'Could not process locales error: ${e}`);
+  if (!avaibleLocalesNames.length) {
+    try {
+      avaibleLocalesNames = AVAILABLE_LOCALES
+        .map(file => file.replace('.json', ''))
+        .map(file => file.replace('_', '-'))
+        .map(locale => ({
+          locale,
+          name: Langmap[locale].nativeName,
+        }));
+    } catch (e) {
+      Logger.warn(`'Could not process locales error: ${e}`);
+    }
   }
 
   res.setHeader('Content-Type', 'application/json');
   res.writeHead(200);
-  res.end(JSON.stringify(locales));
+  res.end(JSON.stringify(avaibleLocalesNames));
 });
 
 WebApp.connectHandlers.use('/feedback', (req, res) => {

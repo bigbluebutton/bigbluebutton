@@ -1,7 +1,7 @@
 import browser from 'browser-detect';
 import BaseAudioBridge from './base';
 import logger from '/imports/startup/client/logger';
-import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
+import { fetchStunTurnServers, getFallbackStun } from '/imports/utils/fetchStunTurnServers';
 import {
   isUnifiedPlan,
   toUnifiedPlan,
@@ -10,6 +10,10 @@ import {
   analyzeSdp,
   logSelectedCandidate,
 } from '/imports/utils/sdpUtils';
+import { Tracker } from 'meteor/tracker';
+import VoiceCallStates from '/imports/api/voice-call-states';
+import CallStateOptions from '/imports/api/voice-call-states/utils/callStates';
+import Auth from '/imports/ui/services/auth';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
@@ -47,14 +51,6 @@ class SIPSession {
     this.reconnectAttempt = reconnectAttempt;
   }
 
-  static parseDTMF(message) {
-    const parse = message.match(/Signal=(.)/);
-    if (parse && parse.length === 2) {
-      return parse[1];
-    }
-    return '';
-  }
-
   joinAudio({ isListenOnly, extension, inputStream }, managerCallback) {
     return new Promise((resolve, reject) => {
       const callExtension = extension ? `${extension}${this.userData.voiceBridge}` : this.userData.voiceBridge;
@@ -89,6 +85,23 @@ class SIPSession {
     });
   }
 
+  async getIceServers(sessionToken) {
+    try {
+      const iceServers = await fetchStunTurnServers(sessionToken);
+      return iceServers;
+    } catch (error) {
+      logger.error({
+        logCode: 'sip_js_fetchstunturninfo_error',
+        extraInfo: {
+          errorCode: error.code,
+          errorMessage: error.message,
+          callerIdName: this.user.callerIdName,
+        },
+      }, 'Full audio bridge failed to fetch STUN/TURN info');
+      return getFallbackStun();
+    }
+  }
+
   doCall(options) {
     const {
       isListenOnly,
@@ -109,7 +122,7 @@ class SIPSession {
     this.user.callerIdName = callerIdName;
     this.callOptions = options;
 
-    return fetchStunTurnServers(sessionToken)
+    return this.getIceServers(sessionToken)
       .then(this.createUserAgent.bind(this))
       .then(this.inviteUserAgent.bind(this))
       .then(this.setupEventHandlers.bind(this));
@@ -119,8 +132,10 @@ class SIPSession {
     return new Promise((resolve, reject) => {
       this.inEchoTest = false;
 
-      const timeout = setInterval(() => {
-        clearInterval(timeout);
+      let trackerControl = null;
+
+      const timeout = setTimeout(() => {
+        trackerControl.stop();
         logger.error({ logCode: 'sip_js_transfer_timed_out' }, 'Timeout on transferring from echo test to conference');
         this.callback({
           status: this.baseCallStates.failed,
@@ -136,15 +151,22 @@ class SIPSession {
       // This is is the call transfer code ask @chadpilkey
       this.currentSession.dtmf(1);
 
-      this.currentSession.on('dtmf', (event) => {
-        if (event.body && (typeof event.body === 'string')) {
-          const key = SIPSession.parseDTMF(event.body);
-          if (key === '7') {
-            clearInterval(timeout);
-            onTransferSuccess();
-            resolve();
-          }
-        }
+      Tracker.autorun((c) => {
+        trackerControl = c;
+        const selector = { meetingId: Auth.meetingID, userId: Auth.userID };
+        const query = VoiceCallStates.find(selector);
+
+        query.observeChanges({
+          changed: (id, fields) => {
+            if (fields.callState === CallStateOptions.IN_CONFERENCE) {
+              clearTimeout(timeout);
+              onTransferSuccess();
+
+              c.stop();
+              resolve();
+            }
+          },
+        });
       });
     });
   }
@@ -211,6 +233,7 @@ class SIPSession {
 
       const {
         callerIdName,
+        sessionToken,
       } = this.user;
 
       // WebView safari needs a transceiver to be added. Made it a SIP.js hack.
@@ -224,15 +247,15 @@ class SIPSession {
       // translation
       const isSafari = browser().name === 'safari';
 
-      logger.debug({ logCode: 'sip_js_creating_user_agent' }, 'Creating the user agent');
+      logger.debug({ logCode: 'sip_js_creating_user_agent', extraInfo: { callerIdName } }, 'Creating the user agent');
 
       if (this.userAgent && this.userAgent.isConnected()) {
         if (this.userAgent.configuration.hostPortParams === this.hostname) {
-          logger.debug({ logCode: 'sip_js_reusing_user_agent' }, 'Reusing the user agent');
+          logger.debug({ logCode: 'sip_js_reusing_user_agent', extraInfo: { callerIdName } }, 'Reusing the user agent');
           resolve(this.userAgent);
           return;
         }
-        logger.debug({ logCode: 'sip_js_different_host_name' }, 'Different host name. need to kill');
+        logger.debug({ logCode: 'sip_js_different_host_name', extraInfo: { callerIdName } }, 'Different host name. need to kill');
       }
 
       const localSdpCallback = (sdp) => {
@@ -250,10 +273,11 @@ class SIPSession {
       };
 
       let userAgentConnected = false;
+      const token = `sessionToken=${sessionToken}`;
 
       this.userAgent = new window.SIP.UA({
         uri: `sip:${encodeURIComponent(callerIdName)}@${hostname}`,
-        wsServers: `${(protocol === 'https:' ? 'wss://' : 'ws://')}${hostname}/ws`,
+        wsServers: `${(protocol === 'https:' ? 'wss://' : 'ws://')}${hostname}/ws?${token}`,
         displayName: callerIdName,
         register: false,
         traceSip: true,
@@ -386,7 +410,7 @@ class SIPSession {
       let iceNegotiationTimeout;
 
       const handleSessionAccepted = () => {
-        logger.info({ logCode: 'sip_js_session_accepted' }, 'Audio call session accepted');
+        logger.info({ logCode: 'sip_js_session_accepted', extraInfo: { callerIdName: this.user.callerIdName } }, 'Audio call session accepted');
         clearTimeout(callTimeout);
         currentSession.off('accepted', handleSessionAccepted);
 
@@ -406,7 +430,7 @@ class SIPSession {
       currentSession.on('accepted', handleSessionAccepted);
 
       const handleSessionProgress = (update) => {
-        logger.info({ logCode: 'sip_js_session_progress' }, 'Audio call session progress update');
+        logger.info({ logCode: 'sip_js_session_progress', extraInfo: { callerIdName: this.user.callerIdName } }, 'Audio call session progress update');
         clearTimeout(callTimeout);
         currentSession.off('progress', handleSessionProgress);
       };
@@ -415,7 +439,10 @@ class SIPSession {
       const handleConnectionCompleted = (peer) => {
         logger.info({
           logCode: 'sip_js_ice_connection_success',
-          extraInfo: { currentState: peer.iceConnectionState },
+          extraInfo: {
+            currentState: peer.iceConnectionState,
+            callerIdName: this.user.callerIdName,
+          },
         }, `ICE connection success. Current state - ${peer.iceConnectionState}`);
         clearTimeout(callTimeout);
         clearTimeout(iceNegotiationTimeout);
@@ -441,7 +468,7 @@ class SIPSession {
 
         logger.error({
           logCode: 'sip_js_call_terminated',
-          extraInfo: { cause },
+          extraInfo: { cause, callerIdName: this.user.callerIdName },
         }, `Audio call terminated. cause=${cause}`);
 
         let mappedCause;
@@ -461,9 +488,9 @@ class SIPSession {
 
       const handleIceNegotiationFailed = (peer) => {
         if (iceCompleted) {
-          logger.error({ logCode: 'sipjs_ice_failed_after' }, 'ICE connection failed after success');
+          logger.error({ logCode: 'sipjs_ice_failed_after', extraInfo: { callerIdName: this.user.callerIdName } }, 'ICE connection failed after success');
         } else {
-          logger.error({ logCode: 'sipjs_ice_failed_before' }, 'ICE connection failed before success');
+          logger.error({ logCode: 'sipjs_ice_failed_before', extraInfo: { callerIdName: this.user.callerIdName } }, 'ICE connection failed before success');
         }
         clearTimeout(callTimeout);
         clearTimeout(iceNegotiationTimeout);
@@ -479,7 +506,7 @@ class SIPSession {
       const handleIceConnectionTerminated = (peer) => {
         ['iceConnectionClosed'].forEach(e => mediaHandler.off(e, handleIceConnectionTerminated));
         if (!this.userRequestedHangup) {
-          logger.error({ logCode: 'sipjs_ice_closed' }, 'ICE connection closed');
+          logger.error({ logCode: 'sipjs_ice_closed', extraInfo: { callerIdName: this.user.callerIdName } }, 'ICE connection closed');
         }
         /*
         this.callback({
@@ -491,17 +518,22 @@ class SIPSession {
       };
       ['iceConnectionClosed'].forEach(e => mediaHandler.on(e, handleIceConnectionTerminated));
 
-      const inEchoDTMF = (event) => {
-        if (event.body && typeof event.body === 'string') {
-          const dtmf = SIPSession.parseDTMF(event.body);
-          if (dtmf === '0') {
-            fsReady = true;
-            checkIfCallReady();
-          }
-        }
-        currentSession.off('dtmf', inEchoDTMF);
-      };
-      currentSession.on('dtmf', inEchoDTMF);
+      Tracker.autorun((c) => {
+        const selector = { meetingId: Auth.meetingID, userId: Auth.userID };
+        const query = VoiceCallStates.find(selector);
+
+        query.observeChanges({
+          changed: (id, fields) => {
+            if ((this.inEchoTest && fields.callState === CallStateOptions.IN_ECHO_TEST)
+              || (!this.inEchoTest && fields.callState === CallStateOptions.IN_CONFERENCE)) {
+              fsReady = true;
+              checkIfCallReady();
+
+              c.stop();
+            }
+          },
+        });
+      });
     });
   }
 }
@@ -534,6 +566,9 @@ export default class SIPBridge extends BaseAudioBridge {
     window.toUnifiedPlan = toUnifiedPlan;
     window.toPlanB = toPlanB;
     window.stripMDnsCandidates = stripMDnsCandidates;
+
+    // No easy way to expose the client logger to sip.js code so we need to attach it globally
+    window.clientLogger = logger;
   }
 
   joinAudio({ isListenOnly, extension, inputStream }, managerCallback) {
@@ -559,7 +594,7 @@ export default class SIPBridge extends BaseAudioBridge {
             shouldTryReconnect = true;
           } else if (hasFallbackDomain === true && hostname !== IPV4_FALLBACK_DOMAIN) {
             message.silenceNotifications = true;
-            logger.info({ logCode: 'sip_js_attempt_ipv4_fallback' }, 'Attempting to fallback to IPv4 domain for audio');
+            logger.info({ logCode: 'sip_js_attempt_ipv4_fallback', extraInfo: { callerIdName: this.user.callerIdName } }, 'Attempting to fallback to IPv4 domain for audio');
             hostname = IPV4_FALLBACK_DOMAIN;
             shouldTryReconnect = true;
           }
@@ -675,7 +710,7 @@ export default class SIPBridge extends BaseAudioBridge {
       } catch (err) {
         logger.error({
           logCode: 'audio_sip_changeoutputdevice_error',
-          extraInfo: { error: err },
+          extraInfo: { error: err, callerIdName: this.user.callerIdName },
         }, 'Change Output Device error');
         throw new Error(this.baseErrorCodes.MEDIA_ERROR);
       }

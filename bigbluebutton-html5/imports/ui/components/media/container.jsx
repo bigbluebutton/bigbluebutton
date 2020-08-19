@@ -9,13 +9,13 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import Media from './component';
-import MediaService, { getSwapLayout, shouldEnableSwapLayout } from './service';
+import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '/imports/ui/components/media/service';
 import PresentationPodsContainer from '../presentation-pod/container';
 import ScreenshareContainer from '../screenshare/container';
 import DefaultContent from '../presentation/default-content/component';
 import ExternalVideoContainer from '../external-video-player/container';
 import Storage from '../../services/storage/session';
-import { withDraggableConsumer } from './webcam-draggable-overlay/context';
+import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
@@ -34,9 +34,9 @@ const intlMessages = defineMessages({
     id: 'app.media.screenshare.end',
     description: 'toast to show when a screenshare has ended',
   },
-  screenshareSafariNotSupportedError: {
-    id: 'app.media.screenshare.safariNotSupported',
-    description: 'Error message for screenshare not supported on Safari',
+  screenshareNotSupported: {
+    id: 'app.media.screenshare.notSupported',
+    description: 'Error message for screenshare not supported',
   },
   chromeExtensionError: {
     id: 'app.video.chromeExtensionError',
@@ -51,7 +51,7 @@ const intlMessages = defineMessages({
 class MediaContainer extends Component {
   componentWillMount() {
     document.addEventListener('installChromeExtension', this.installChromeExtension.bind(this));
-    document.addEventListener('safariScreenshareNotSupported', this.safariScreenshareNotSupported.bind(this));
+    document.addEventListener('screenshareNotSupported', this.screenshareNotSupported.bind(this));
   }
 
   componentWillReceiveProps(nextProps) {
@@ -71,7 +71,7 @@ class MediaContainer extends Component {
 
   componentWillUnmount() {
     document.removeEventListener('installChromeExtension', this.installChromeExtension.bind(this));
-    document.removeEventListener('safariScreenshareNotSupported', this.safariScreenshareNotSupported.bind(this));
+    document.removeEventListener('screenshareNotSupported', this.screenshareNotSupported.bind(this));
   }
 
   installChromeExtension() {
@@ -93,9 +93,9 @@ class MediaContainer extends Component {
     notify(chromeErrorElement, 'error', 'desktop');
   }
 
-  safariScreenshareNotSupported() {
+  screenshareNotSupported() {
     const { intl } = this.props;
-    notify(intl.formatMessage(intlMessages.screenshareSafariNotSupportedError), 'error', 'desktop');
+    notify(intl.formatMessage(intlMessages.screenshareNotSupported), 'error', 'desktop');
   }
 
   render() {
@@ -103,13 +103,14 @@ class MediaContainer extends Component {
   }
 }
 
-export default withDraggableConsumer(withModalMounter(withTracker(() => {
+export default withLayoutConsumer(withModalMounter(withTracker(() => {
   const { dataSaving } = Settings;
   const { viewParticipantsWebcams, viewScreenshare } = dataSaving;
   const hidePresentation = getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation);
+  const autoSwapLayout = getFromUserSettings('userdata-bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout);
   const { current_presentation: hasPresentation } = MediaService.getPresentationInfo();
   const data = {
-    children: <DefaultContent />,
+    children: <DefaultContent {...{ autoSwapLayout, hidePresentation }} />,
     audioModalIsOpen: Session.get('audioModalIsOpen'),
   };
 
@@ -149,7 +150,7 @@ export default withDraggableConsumer(withModalMounter(withTracker(() => {
     );
   }
 
-  data.webcamPlacement = Storage.getItem('webcamPlacement');
+  data.webcamsPlacement = Storage.getItem('webcamsPlacement');
 
   MediaContainer.propTypes = propTypes;
   return data;

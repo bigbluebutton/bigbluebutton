@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.phone.managers
   import org.bigbluebutton.modules.phone.models.WebRTCAudioStatus;
   import org.bigbluebutton.modules.phone.models.WebRTCModel;
   import org.bigbluebutton.util.i18n.ResourceUtil;
+  import org.bigbluebutton.util.browser.BrowserCheck;
 
   public class WebRTCCallManager
   {
@@ -47,7 +48,9 @@ package org.bigbluebutton.modules.phone.managers
       options = Options.getOptions(PhoneOptions) as PhoneOptions;
       
       // only show the warning if the admin has enabled WebRTC
-      if (options.useWebRTCIfAvailable && !isWebRTCSupported()) {
+      // and don't show it in Puffin Browser, because it is used
+      // when no other browsers are available
+      if (options.useWebRTCIfAvailable && !isWebRTCSupported() && !BrowserCheck.isPuffin()) {
         dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT, 
           ResourceUtil.getInstance().getString("bbb.clientstatus.webrtc.title"), 
           ResourceUtil.getInstance().getString("bbb.clientstatus.webrtc.message"),

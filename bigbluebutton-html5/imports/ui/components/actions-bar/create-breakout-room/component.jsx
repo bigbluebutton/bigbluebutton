@@ -544,6 +544,7 @@ class BreakoutRoom extends PureComponent {
             </div>
           </label>
           <Button
+            data-test="randomlyAssign"
             label={intl.formatMessage(intlMessages.randomlyAssign)}
             className={styles.randomlyAssignBtn}
             onClick={this.onAssignRandomly}

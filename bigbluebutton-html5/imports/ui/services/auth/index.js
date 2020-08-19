@@ -180,13 +180,16 @@ class Auth {
       return Promise.resolve();
     }
 
+
     return new Promise((resolve) => {
       resolve(this._logoutURL);
     });
   }
 
   authenticate(force) {
-    if (this.loggedIn && !force) return Promise.resolve();
+    if (this.loggedIn && !force) {
+      return Promise.resolve();
+    }
 
     if (!(this.meetingID && this.userID && this.token)) {
       return Promise.reject({
@@ -204,8 +207,7 @@ class Auth {
   }
 
   validateAuthToken() {
-    return new Promise((resolve, reject) => {
-      Meteor.connection.setUserId(`${this.meetingID}-${this.userID}`);
+    return new Promise(async (resolve, reject) => {
       let computation = null;
 
       const validationTimeout = setTimeout(() => {
@@ -216,9 +218,20 @@ class Auth {
         });
       }, CONNECTION_TIMEOUT);
 
+      const result = await makeCall('validateAuthToken', this.meetingID, this.userID, this.token, this.externUserID);
+
+      if (!result) {
+        clearTimeout(validationTimeout);
+        reject({
+          error: 401,
+          description: 'User has been banned.',
+        });
+        return;
+      }
+
       Tracker.autorun((c) => {
         computation = c;
-        Meteor.subscribe('current-user', this.credentials);
+        Meteor.subscribe('current-user');
 
         const selector = { meetingId: this.meetingID, userId: this.userID };
         const fields = {
@@ -228,11 +241,13 @@ class Auth {
         // Skip in case the user is not in the collection yet or is a dummy user
         if (!User || !('intId' in User)) {
           logger.info({ logCode: 'auth_service_resend_validateauthtoken' }, 're-send validateAuthToken for delayed authentication');
-          makeCall('validateAuthToken');
+          makeCall('validateAuthToken', this.meetingID, this.userID, this.token);
+
           return;
         }
 
         if (User.ejected) {
+          computation.stop();
           reject({
             error: 401,
             description: 'User has been ejected.',
@@ -250,7 +265,6 @@ class Auth {
           setTimeout(() => resolve(true), 100);
         }
       });
-      makeCall('validateAuthToken');
     });
   }
 

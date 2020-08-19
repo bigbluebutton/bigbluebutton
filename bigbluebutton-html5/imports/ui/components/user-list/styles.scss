@@ -86,7 +86,6 @@
   background-color: var(--user-list-bg);
   color: var(--user-list-text);
   height: 100%;
-  padding-top: var(--md-padding-x);
 }
 
 .lists {
@@ -145,6 +144,7 @@
 .userListColumn {
   @extend %flex-column;
   min-height: 0;
+  flex-grow: 1;
 }
 
 .enter,

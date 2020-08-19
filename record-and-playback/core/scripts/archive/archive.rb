@@ -21,7 +21,6 @@ require File.expand_path('../../../lib/recordandplayback', __FILE__)
 require 'logger'
 require 'trollop'
 require 'yaml'
-require 'fnv'
 
 AUDIO_ARCHIVE_FORMAT = {
   extension: 'opus',
@@ -50,7 +49,7 @@ def archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
   BigBlueButton.logger.info("Archiving notes for #{meeting_id}")
   notes_dir = "#{raw_archive_dir}/#{meeting_id}/notes"
   FileUtils.mkdir_p(notes_dir)
-  notes_id = FNV.new.fnv1a_32(meeting_id).to_s(16)
+  notes_id = BigBlueButton.get_notes_id(meeting_id)
 
   tmp_note = "#{notes_dir}/tmp_note.txt"
   BigBlueButton.try_download("#{notes_endpoint}/#{notes_id}/export/txt", tmp_note)
@@ -97,6 +96,13 @@ def archive_audio(meeting_id, audio_dir, raw_archive_dir)
       ret = BigBlueButton.exec_ret('rsync', '-stv', audio_file, audio_dest_dir)
       BigBlueButton.logger.warn("Failed to archive #{audio_file}") if ret != 0
     end
+  end
+end
+
+def delete_audio(meeting_id, audio_dir)
+  BigBlueButton.logger.info("Deleting audio #{audio_dir}/#{meeting_id}-*.*")
+  Dir.glob("#{audio_dir}/#{meeting_id}-*.*").each do |audio_file|
+    FileUtils.rm_f(audio_file)
   end
 end
 
@@ -187,18 +193,33 @@ BigBlueButton.logger = Logger.new("#{log_dir}/archive-#{meeting_id}.log", 'daily
 target_dir = "#{raw_archive_dir}/#{meeting_id}"
 FileUtils.mkdir_p target_dir
 archive_events(meeting_id, redis_host, redis_port, redis_password, raw_archive_dir, break_timestamp)
+# FreeSWITCH Audio files
 archive_audio(meeting_id, audio_dir, raw_archive_dir)
+# Etherpad notes
 archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
-archive_directory("#{presentation_dir}/#{meeting_id}/#{meeting_id}",
-                  "#{target_dir}/presentation")
-archive_directory("#{screenshare_dir}/#{meeting_id}",
-                  "#{target_dir}/deskshare")
-archive_directory("#{video_dir}/#{meeting_id}",
-                  "#{target_dir}/video/#{meeting_id}")
-archive_directory("#{kurento_screenshare_dir}/#{meeting_id}",
-                  "#{target_dir}/deskshare")
-archive_directory("#{kurento_video_dir}/#{meeting_id}",
-                  "#{target_dir}/video/#{meeting_id}")
+# Presentation files
+archive_directory("#{presentation_dir}/#{meeting_id}/#{meeting_id}", "#{target_dir}/presentation")
+# Red5 media
+archive_directory("#{screenshare_dir}/#{meeting_id}", "#{target_dir}/deskshare")
+archive_directory("#{video_dir}/#{meeting_id}", "#{target_dir}/video/#{meeting_id}")
+# Kurento media
+archive_directory("#{kurento_screenshare_dir}/#{meeting_id}", "#{target_dir}/deskshare")
+archive_directory("#{kurento_video_dir}/#{meeting_id}", "#{target_dir}/video/#{meeting_id}")
+
+# If this was the last (or only) segment in a recording, delete the original media files
+if break_timestamp.nil?
+  BigBlueButton.logger.info('Deleting originals of archived media files.')
+  # FreeSWITCH Audio files
+  delete_audio(meeting_id, audio_dir)
+  # Red5 media
+  # TODO: need to figure out how to set permissions used when red5 creates directories
+  # does this even matter? we're removing red5 soon...
+  # FileUtils.rm_rf("#{screenshare_dir}/#{meeting_id}")
+  # FileUtils.rm_rf("#{video_dir}/#{meeting_id}")
+  # Kurento media
+  FileUtils.rm_rf("#{kurento_screenshare_dir}/#{meeting_id}")
+  FileUtils.rm_rf("#{kurento_video_dir}/#{meeting_id}")
+end
 
 if not archive_has_recording_marks?(meeting_id, raw_archive_dir, break_timestamp)
   BigBlueButton.logger.info("There's no recording marks for #{meeting_id}, not processing recording.")

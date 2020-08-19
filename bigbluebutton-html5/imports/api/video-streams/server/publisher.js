@@ -1,14 +1,13 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import VideoStreams from '/imports/api/video-streams';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
-function videoStreams(credentials) {
-  const { meetingId, requesterUserId, requesterToken } = credentials;
-
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
+function videoStreams() {
+  if (!this.userId) {
+    return VideoStreams.find({ meetingId: '' });
+  }
+  const { meetingId } = extractCredentials(this.userId);
 
   Logger.debug(`video users of meeting id=${meetingId}`);
 

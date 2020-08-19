@@ -1,11 +1,14 @@
 ---
-name: Core Issue
+name: Server Core Issue
 about: Template for creating an issue with bbb-web, akka-apps, or other server component
 title: ''
 labels: ''
 assignees: ''
 
 ---
+
+<!--PLEASE DO NOT FILE ISSUES FOR GENERAL SUPPORT QUESTIONS.
+This issue tracker is only for bbb development related issues.-->
 
 **Describe the bug**
 A clear and concise description of what the bug is.

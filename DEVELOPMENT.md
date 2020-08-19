@@ -3,17 +3,17 @@ environment and work on the upcoming BBB 2.0 (tentative release version).
 
 ## Install BBB 1.1
 
-Follow the (install instructions)[http://docs.bigbluebutton.org/install/install.html] for 1.1.
+Follow the [install instructions](http://docs.bigbluebutton.org/install/install.html) for 1.1.
 
 Make sure you have a working BBB 1.1 before you proceed with the instructions below.
 
 ## Setup development environment
 
-Setup your development environment following these (instructions)[http://docs.bigbluebutton.org/dev/setup.html]
+Setup your development environment following these [instructions](http://docs.bigbluebutton.org/dev/setup.html)
 
 ## Checkout development branch
 
-Checkout the development branch `move-java-classes-from-bbb-web-to-bbb-common-web` from this (repository)[https://github.com/ritzalam/bigbluebutton]
+Checkout the development branch `move-java-classes-from-bbb-web-to-bbb-common-web` from this [repository](https://github.com/ritzalam/bigbluebutton)
 
 Open nine (9) terminal windows so you will dedicate one window for each bbb-component. 
 You can name them client, bbb-apps, apps-common, red5, akka-apps, akka-fsesl, bbb-web, common-web, and messages.
