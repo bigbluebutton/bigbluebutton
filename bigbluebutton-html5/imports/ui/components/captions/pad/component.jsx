@@ -46,6 +46,10 @@ const intlMessages = defineMessages({
     id: 'app.captions.pad.dictationOffDesc',
     description: 'Aria description for button that turns off speech recognition',
   },
+  poweredBy: {
+    id: 'app.captions.pad.poweredBy',
+    description: 'Credit text line',
+  },
 });
 
 const propTypes = {
@@ -251,6 +255,15 @@ class Pad extends PureComponent {
           src={url}
           aria-describedby="padEscapeHint"
         />
+        <div className={styles.poweredBy}>
+          {intl.formatMessage(intlMessages.poweredBy)}
+          <a
+            href="https://www.etherpad.org"
+            target="_blank"
+          >
+            Etherpad
+          </a>
+        </div>
         <span id="padEscapeHint" className={styles.hint} aria-hidden>
           {intl.formatMessage(intlMessages.tip)}
         </span>

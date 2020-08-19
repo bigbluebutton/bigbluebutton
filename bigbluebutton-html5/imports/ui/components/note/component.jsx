@@ -20,6 +20,10 @@ const intlMessages = defineMessages({
     id: 'app.note.tipLabel',
     description: 'Label for tip on how to escape iframe',
   },
+  poweredBy: {
+    id: 'app.note.poweredBy',
+    description: 'Credit text line',
+  },
 });
 
 const propTypes = {
@@ -66,6 +70,15 @@ const Note = (props) => {
         src={url}
         aria-describedby="sharedNotesEscapeHint"
       />
+      <div className={styles.poweredBy}>
+        {intl.formatMessage(intlMessages.poweredBy)}
+        <a
+          href="https://www.etherpad.org"
+          target="_blank"
+        >
+          Etherpad
+        </a>
+      </div>
       <span id="sharedNotesEscapeHint" className={styles.hint} aria-hidden>
         {intl.formatMessage(intlMessages.tipLabel)}
       </span>
