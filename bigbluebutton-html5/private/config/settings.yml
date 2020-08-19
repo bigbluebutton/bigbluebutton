@@ -27,6 +27,7 @@ public:
     ipv4FallbackDomain: ""
     allowLogout: true
     allowFullscreen: true
+    preloadNextSlides: 2
     mutedAlert:
       enabled: true
       interval: 200
