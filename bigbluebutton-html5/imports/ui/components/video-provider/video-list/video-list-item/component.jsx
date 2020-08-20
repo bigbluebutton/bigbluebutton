@@ -31,7 +31,7 @@ class VideoListItem extends Component {
       isFullscreen: false,
     };
 
-    this.mirrorOwnWebcam = VideoService.mirrorOwnWebcam(props.user);
+    this.mirrorOwnWebcam = VideoService.mirrorOwnWebcam(props.userId);
 
     this.setVideoIsReady = this.setVideoIsReady.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
