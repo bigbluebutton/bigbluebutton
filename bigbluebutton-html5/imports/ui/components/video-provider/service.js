@@ -26,7 +26,7 @@ const MIRROR_WEBCAM = Meteor.settings.public.app.mirrorOwnWebcam;
 const CAMERA_QUALITY_THRESHOLDS = Meteor.settings.public.kurento.cameraQualityThresholds.thresholds || [];
 const {
   enabled: PAGINATION_ENABLED,
-  pageChangeLockTimeout: PAGE_CHANGE_LOCK_TIMEOUT,
+  pageChangeDebounceTime: PAGE_CHANGE_DEBOUNCE_TIME,
   desktopPageSizes: DESKTOP_PAGE_SIZES,
   mobilePageSizes: MOBILE_PAGE_SIZES,
 } = Meteor.settings.public.kurento.pagination;
@@ -194,19 +194,9 @@ class VideoService {
     return this.numberOfPages;
   }
 
-  enablePageChangeLock () {
-    if (PAGE_CHANGE_LOCK_TIMEOUT > 0) {
-      this.pageChangeLocked = true;
-      this.pageChangeLockClearTimeout = setTimeout(() => {
-        this.pageChangeLocked = false;
-      }, PAGE_CHANGE_LOCK_TIMEOUT);
-    }
-  }
-
   setCurrentVideoPageIndex (newVideoPageIndex) {
     if (this.currentVideoPageIndex !== newVideoPageIndex) {
       this.currentVideoPageIndex = newVideoPageIndex;
-      this.enablePageChangeLock();
     }
   }
 
@@ -223,16 +213,12 @@ class VideoService {
   }
 
   getNextVideoPage() {
-    if (this.pageChangeLocked) return;
-
     this.setCurrentVideoPageIndex(this.calculateNextPage());
 
     return this.currentVideoPageIndex;
   }
 
   getPreviousVideoPage() {
-    if (this.pageChangeLocked) return;
-
     this.setCurrentVideoPageIndex(this.calculatePreviousPage());
 
     return this.currentVideoPageIndex;
@@ -695,4 +681,5 @@ export default {
   getCurrentVideoPageIndex: () => videoService.getCurrentVideoPageIndex(),
   getPreviousVideoPage: () => videoService.getPreviousVideoPage(),
   getNextVideoPage: () => videoService.getNextVideoPage(),
+  getPageChangeDebounceTime: () => { return PAGE_CHANGE_DEBOUNCE_TIME },
 };

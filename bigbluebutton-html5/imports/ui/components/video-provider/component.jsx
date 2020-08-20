@@ -10,6 +10,7 @@ import {
 } from '/imports/utils/fetchStunTurnServers';
 import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import logger from '/imports/startup/client/logger';
+import _ from 'lodash';
 
 // Default values and default empty object to be backwards compat with 2.2.
 // FIXME Remove hardcoded defaults 2.3.
@@ -81,6 +82,7 @@ const propTypes = {
   intl: PropTypes.objectOf(Object).isRequired,
   isUserLocked: PropTypes.bool.isRequired,
   swapLayout: PropTypes.bool.isRequired,
+  currentVideoPageIndex: PropTypes.number.isRequired,
 };
 
 class VideoProvider extends Component {
@@ -115,6 +117,11 @@ class VideoProvider extends Component {
     this.onBeforeUnload = this.onBeforeUnload.bind(this);
 
     this.updateStreams = this.updateStreams.bind(this);
+    this.debouncedConnectStreams = _.debounce(
+      this.connectStreams,
+      VideoService.getPageChangeDebounceTime(),
+      { leading: false, trailing: true, }
+    );
   }
 
   componentDidMount() {
@@ -130,9 +137,13 @@ class VideoProvider extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { isUserLocked, streams } = this.props;
+    const { isUserLocked, streams, currentVideoPageIndex } = this.props;
 
-    this.updateStreams(streams);
+    // Only debounce when page changes to avoid unecessary debouncing
+    const shouldDebounce = VideoService.isPaginationEnabled()
+      && prevProps.currentVideoPageIndex !== currentVideoPageIndex;
+
+    this.updateStreams(streams, shouldDebounce);
 
     if (!prevProps.isUserLocked && isUserLocked) VideoService.lockUser();
   }
@@ -259,10 +270,15 @@ class VideoProvider extends Component {
     streamsToDisconnect.forEach(cameraId => this.stopWebRTCPeer(cameraId));
   }
 
-  updateStreams(streams) {
+  updateStreams(streams, shouldDebounce = false) {
     const [streamsToConnect, streamsToDisconnect] = this.getStreamsToConnectAndDisconnect(streams);
 
-    this.connectStreams(streamsToConnect);
+    if(shouldDebounce) {
+      this.debouncedConnectStreams(streamsToConnect);
+    } else {
+      this.connectStreams(streamsToConnect);
+    }
+
     this.disconnectStreams(streamsToDisconnect);
 
     if (CAMERA_QUALITY_THRESHOLDS_ENABLED) {
@@ -863,7 +879,7 @@ class VideoProvider extends Component {
   }
 
   render() {
-    const { swapLayout } = this.props;
+    const { swapLayout, currentVideoPageIndex } = this.props;
     const { socketOpen } = this.state;
     if (!socketOpen) return null;
 
@@ -875,6 +891,7 @@ class VideoProvider extends Component {
         streams={streams}
         onMount={this.createVideoTag}
         swapLayout={swapLayout}
+        currentVideoPageIndex={currentVideoPageIndex}
       />
     );
   }
