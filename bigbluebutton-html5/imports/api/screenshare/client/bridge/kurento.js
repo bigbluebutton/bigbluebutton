@@ -125,7 +125,7 @@ export default class KurentoScreenshareBridge {
     }
   }
 
-  async kurentoViewScreen() {
+  async kurentoViewScreen(hasAudio) {
     const screenshareMediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG);
     let iceServers = [];
     let started = false;
@@ -161,7 +161,7 @@ export default class KurentoScreenshareBridge {
           KurentoScreenshareBridge.screenshareElementLoadAndPlay(
             stream,
             screenshareMediaElement,
-            true,
+            hasAudio,
           );
         }
       };
@@ -174,6 +174,7 @@ export default class KurentoScreenshareBridge {
         onFail,
         onSuccess,
         options,
+        hasAudio,
       );
     }
   }

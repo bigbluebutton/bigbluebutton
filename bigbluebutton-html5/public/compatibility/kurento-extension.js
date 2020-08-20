@@ -14,6 +14,7 @@ Kurento = function (
   onFail,
   onSuccess,
   options = {},
+  hasAudio = false,
 ) {
   this.ws = null;
   this.video = null;
@@ -25,6 +26,7 @@ Kurento = function (
   this.voiceBridge = voiceBridge;
   this.userId = userId;
   this.internalMeetingId = internalMeetingId;
+  this.hasAudio = hasAudio;
 
   // Optional parameters are: userName, caleeName, chromeExtension, wsUrl, iceServers,
   // chromeScreenshareSources, firefoxScreenshareSource, logger, stream
@@ -541,7 +543,7 @@ Kurento.prototype.viewer = function () {
   if (!this.webRtcPeer) {
     const options = {
       mediaConstraints: {
-        audio: false,
+        audio: self.hasAudio,
       },
       onicecandidate: (candidate) => {
         this.onIceCandidate(candidate, this.RECV_ROLE);

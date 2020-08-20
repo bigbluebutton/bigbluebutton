@@ -31,10 +31,10 @@ const presenterScreenshareHasEnded = () => {
   KurentoBridge.kurentoExitVideo();
 };
 
-const viewScreenshare = () => {
+const viewScreenshare = (hasAudio) => {
   const amIPresenter = UserListService.isUserPresenter(Auth.userID);
   if (!amIPresenter) {
-    KurentoBridge.kurentoViewScreen();
+    KurentoBridge.kurentoViewScreen(hasAudio);
   } else {
     KurentoBridge.kurentoViewLocalPreview();
   }
@@ -42,10 +42,14 @@ const viewScreenshare = () => {
 
 // if remote screenshare has been started connect and display the video stream
 const presenterScreenshareHasStarted = () => {
+  // KurentoBridge.kurentoWatchVideo: references a function in the global
+  // namespace inside kurento-extension.js that we load dynamically
+
+  const ds = Screenshare.findOne({});
   // WebRTC restrictions may need a capture device permission to release
   // useful ICE candidates on recvonly/no-gUM peers
   tryGenerateIceCandidates().then(() => {
-    viewScreenshare();
+    viewScreenshare(ds.screenshare.hasAudio);
   }).catch((error) => {
     logger.error({
       logCode: 'screenshare_no_valid_candidate_gum_failure',
@@ -55,7 +59,7 @@ const presenterScreenshareHasStarted = () => {
       },
     }, `Forced gUM to release additional ICE candidates failed due to ${error.name}.`);
     // The fallback gUM failed. Try it anyways and hope for the best.
-    viewScreenshare();
+    viewScreenshare(ds.screenshare.hasAudio);
   });
 };
 

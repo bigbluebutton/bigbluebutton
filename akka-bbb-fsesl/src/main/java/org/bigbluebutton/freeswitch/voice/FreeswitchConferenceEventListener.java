@@ -83,7 +83,7 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
           if (((ScreenshareRTMPBroadcastEvent) event).getBroadcast()) {
             ScreenshareRTMPBroadcastEvent evt = (ScreenshareRTMPBroadcastEvent) event;
             vcs.deskShareRTMPBroadcastStarted(evt.getRoom(), evt.getBroadcastingStreamUrl(),
-              evt.getVideoWidth(), evt.getVideoHeight(), evt.getTimestamp());
+              evt.getVideoWidth(), evt.getVideoHeight(), evt.getTimestamp(), evt.getHasAudio());
           } else {
             ScreenshareRTMPBroadcastEvent evt = (ScreenshareRTMPBroadcastEvent) event;
             vcs.deskShareRTMPBroadcastStopped(evt.getRoom(), evt.getBroadcastingStreamUrl(),
