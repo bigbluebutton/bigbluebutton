@@ -12,4 +12,5 @@ export default withTracker(props => ({
   swapLayout: props.swapLayout,
   streams: VideoService.getVideoStreams(),
   isUserLocked: VideoService.isUserLocked(),
+  currentVideoPageIndex: VideoService.getCurrentVideoPageIndex(),
 }))(VideoProviderContainer);
