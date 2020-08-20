@@ -214,7 +214,7 @@ class VideoList extends Component {
   renderNextPageButton() {
     const { intl, numberOfPages, currentVideoPageIndex } = this.props;
 
-    if (!VideoService.isPaginationEnabled() || numberOfPages === 1) return null;
+    if (!VideoService.isPaginationEnabled() || numberOfPages <= 1) return null;
 
     const currentPage = currentVideoPageIndex + 1;
     const nextPageLabel = intl.formatMessage(intlMessages.nextPageLabel);
@@ -238,7 +238,7 @@ class VideoList extends Component {
   renderPreviousPageButton() {
     const { intl, currentVideoPageIndex, numberOfPages } = this.props;
 
-    if (!VideoService.isPaginationEnabled() || numberOfPages === 1) return null;
+    if (!VideoService.isPaginationEnabled() || numberOfPages <= 1) return null;
 
     const currentPage = currentVideoPageIndex + 1;
     const prevPageLabel = intl.formatMessage(intlMessages.prevPageLabel);

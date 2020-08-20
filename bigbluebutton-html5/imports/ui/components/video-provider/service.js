@@ -170,6 +170,10 @@ class VideoService {
     return Auth.authenticateURL(SFU_URL);
   }
 
+  isPaginationEnabled () {
+    return PAGINATION_ENABLED && (this.getMyPageSize() > 0);
+  }
+
   setNumberOfPages (numberOfPublishers, numberOfSubscribers, pageSize) {
     // Page size 0 means no pagination, return itself
     if (pageSize === 0) return pageSize;
@@ -676,7 +680,7 @@ export default {
   updateNumberOfDevices: devices => videoService.updateNumberOfDevices(devices),
   applyCameraProfile: (peer, newProfile) => videoService.applyCameraProfile(peer, newProfile),
   getThreshold: (numberOfPublishers) => videoService.getThreshold(numberOfPublishers),
-  isPaginationEnabled: () => { return PAGINATION_ENABLED },
+  isPaginationEnabled: () => videoService.isPaginationEnabled(),
   getNumberOfPages: () => videoService.getNumberOfPages(),
   getCurrentVideoPageIndex: () => videoService.getCurrentVideoPageIndex(),
   getPreviousVideoPage: () => videoService.getPreviousVideoPage(),
