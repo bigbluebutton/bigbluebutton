@@ -277,9 +277,9 @@ class VideoService {
     };
   }
 
-  mirrorOwnWebcam(user) {
+  mirrorOwnWebcam(userId = null) {
     // only true if setting defined and video ids match
-    const isOwnWebcam = user ? this.userId() === user.userId : true;
+    const isOwnWebcam = userId ? Auth.userID === userId : true;
     const isEnabledMirroring = getFromUserSettings('bbb_mirror_own_webcam', MIRROR_WEBCAM);
     return isOwnWebcam && isEnabledMirroring;
   }
