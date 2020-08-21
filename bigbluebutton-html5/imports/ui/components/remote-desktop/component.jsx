@@ -7,25 +7,24 @@ const propTypes = {
   remoteDesktopUrl: PropTypes.string.isRequired,
 };
 
-function passwordFunc(rfb) {
-    rfb.sendPassword("Elgin2857");
-}
-
-// eslint-disable-next-line react/prefer-stateless-function
 class RemoteDesktop extends Component {
+
+  passwordFunc = (rfb) => {
+    rfb.sendPassword(this.vncPassword);
+  }
 
   render() {
     const { remoteDesktopUrl } = this.props;
 
+    const url = new URL(remoteDesktopUrl);
+    this.vncPassword = url.searchParams.get('password');
+
     return (
-      <div
-        id="video-player"
-        data-test="videoPlayer"
-      >
+      <div id="remote-desktop" data-test="remoteDesktop">
         <VncDisplay
           url={remoteDesktopUrl}
           forceAuthScheme={2}
-          onPasswordRequired={passwordFunc}
+          onPasswordRequired={this.passwordFunc}
           resize="scale"
           shared
         />
