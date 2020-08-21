@@ -50,6 +50,8 @@ class VideoService {
 
     this.numberOfDevices = 0;
 
+    this.record = null;
+
     this.updateNumberOfDevices = this.updateNumberOfDevices.bind(this);
     // Safari doesn't support ondevicechange
     if (!this.isSafari) {
@@ -332,6 +334,14 @@ class VideoService {
   getMyRole () {
     return Users.findOne({ userId: Auth.userID },
       { fields: { role: 1 } }).role;
+  }
+
+  getRecord() {
+    if (this.record === null) {
+      this.record = getFromUserSettings('bbb_record_video', true);
+    }
+
+    return this.record;
   }
 
   filterModeratorOnly(streams) {
@@ -669,6 +679,7 @@ export default {
   addCandidateToPeer: (peer, candidate, cameraId) => videoService.addCandidateToPeer(peer, candidate, cameraId),
   processInboundIceQueue: (peer, cameraId) => videoService.processInboundIceQueue(peer, cameraId),
   getRole: isLocal => videoService.getRole(isLocal),
+  getRecord: () => videoService.getRecord(),
   getSharedDevices: () => videoService.getSharedDevices(),
   getSkipVideoPreview: fromInterface => videoService.getSkipVideoPreview(fromInterface),
   getUserParameterProfile: () => videoService.getUserParameterProfile(),
