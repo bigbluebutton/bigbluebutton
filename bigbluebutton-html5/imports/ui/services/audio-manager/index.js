@@ -138,9 +138,8 @@ class AudioManager {
 
   joinScreenShareStream(stream){
 
-    //if listen only return empty destination stream
-    //the user said she only wants to listen not sending anything
     if(this.audioContext == null){
+      //mux screen sharing stream and microfone stream
       let audioContext = new AudioContext();
       this.audioContext = audioContext;
       let destination = audioContext.createMediaStreamDestination();
@@ -160,6 +159,7 @@ class AudioManager {
       };
       return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
     }else{
+      //reusing audiocontext and destination after the first time
       let shareNode = this.audioContext.createMediaStreamSource(stream)
       let shareGain = this.audioContext.createGain();
       shareNode.connect(shareGain)

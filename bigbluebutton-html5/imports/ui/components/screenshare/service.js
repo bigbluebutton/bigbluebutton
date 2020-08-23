@@ -60,6 +60,8 @@ const shareScreen = (onFail) => {
 
   BridgeService.getScreenStream().then((stream) => {
     window.screenShareStream = stream;
+    //splitting up the video and audio stream into separate stream objects
+    // because Kurento does not like getting both audio and video data.
     let videoStream = new MediaStream(stream.getVideoTracks())
     KurentoBridge.kurentoShareScreen(onFail, videoStream)
     if(typeof stream.getAudioTracks == "function" && stream.getAudioTracks().length > 0){
