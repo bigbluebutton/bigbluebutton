@@ -51,6 +51,7 @@ class VideoService {
     this.numberOfDevices = 0;
 
     this.record = null;
+    this.hackRecordViewer = null;
 
     this.updateNumberOfDevices = this.updateNumberOfDevices.bind(this);
     // Safari doesn't support ondevicechange
@@ -341,7 +342,24 @@ class VideoService {
       this.record = getFromUserSettings('bbb_record_video', true);
     }
 
-    return this.record;
+    // TODO: Remove this
+    // This is a hack to handle a missing piece at the backend of a particular deploy.
+    // If, at the time the video is shared, the user has a viewer role and
+    // meta_hack-record-viewer-video is 'false' this user won't have this video
+    // stream recorded.
+    if (this.hackRecordViewer === null) {
+      const prop = Meetings.findOne(
+        { meetingId: Auth.meetingID },
+        { fields: { 'metadataProp': 1 } },
+      ).metadataProp;
+
+      const value = prop.metadata ? prop.metadata['hack-record-viewer-video'] : null;
+      this.hackRecordViewer = value ? value.toLowerCase() === 'true' : true;
+    }
+
+    const hackRecord = this.getMyRole() === ROLE_MODERATOR || this.hackRecordViewer;
+
+    return this.record && hackRecord;
   }
 
   filterModeratorOnly(streams) {
