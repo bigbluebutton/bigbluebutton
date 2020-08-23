@@ -1,7 +1,5 @@
 package org.bigbluebutton.app.video.ffmpeg;
 
-import java.io.InputStream;
-
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import java.lang.reflect.Field;
@@ -35,14 +33,7 @@ public class ProcessMonitor implements Runnable {
         if (this.command == null || this.command.length == 0) {
             return "";
         }
-
-        StringBuffer result = new StringBuffer();
-        String delim = "";
-        for (String i : this.command) {
-        	result.append(delim).append(i);
-            delim = " ";
-        }
-        return result.toString();
+        return String.join("", this.command);
     }
 
     public void run() {
@@ -56,17 +47,13 @@ public class ProcessMonitor implements Runnable {
                 return;
             }
 
-            if (!this.alive){
+            if (!this.alive) {
                 log.debug("Process status was changed to 'not alive' between it's triggering and system execution. Killing it...");
                 this.forceDestroy();
                 return;
             }
-
-            InputStream is = this.process.getInputStream();
-            InputStream es = this.process.getErrorStream();
-
-            inputStreamMonitor = new ProcessStream(is);
-            errorStreamMonitor = new ProcessStream(es);
+            inputStreamMonitor = new ProcessStream(this.process.getInputStream());
+            errorStreamMonitor = new ProcessStream(this.process.getErrorStream());
 
             inputStreamMonitor.start();
             errorStreamMonitor.start();
@@ -77,21 +64,8 @@ public class ProcessMonitor implements Runnable {
             log.debug("Exit value: " + ret);
 
             destroy();
-        }
-        catch(SecurityException se) {
-            log.debug("Security Exception");
-        }
-        catch(IOException ioe) {
-            log.debug("IO Exception");
-        }
-        catch(NullPointerException npe) {
-            log.debug("NullPointer Exception");
-        }
-        catch(IllegalArgumentException iae) {
-            log.debug("IllegalArgument Exception");
-        }
-        catch(InterruptedException ie) {
-            log.debug("Interrupted Excetion");
+        } catch (Exception failure) {
+            log.debug(failure.getClass().getSimpleName());
         }
 
         log.debug("Exiting thread that executes FFmpeg");
@@ -99,18 +73,17 @@ public class ProcessMonitor implements Runnable {
     }
 
     public synchronized void start() {
-        if(this.thread == null){
+        if (this.thread == null) {
             this.thread = new Thread(this);
             this.alive = true;
             this.thread.start();
-        }else{
+        } else {
             log.debug("Can't start a new process monitor: It is already running.");
         }
     }
 
     public void destroy() {
-        if(this.inputStreamMonitor != null
-            && this.errorStreamMonitor != null) {
+        if(this.inputStreamMonitor != null && this.errorStreamMonitor != null) {
             this.inputStreamMonitor.close();
             this.errorStreamMonitor.close();
         }
@@ -122,7 +95,7 @@ public class ProcessMonitor implements Runnable {
         }
     }
 
-    public int getPid(){
+    public int getPid() {
         Field f;
         int pid;
         if (this.process == null) return -1;
@@ -131,8 +104,7 @@ public class ProcessMonitor implements Runnable {
            f.setAccessible(true);
            pid = (int)f.get(this.process);
            return pid;
-        } catch (IllegalArgumentException | IllegalAccessException
-               | NoSuchFieldException | SecurityException e) {
+        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
            log.debug("Error when obtaining {} PID",this.name);
            return -1;
         }
@@ -141,35 +113,36 @@ public class ProcessMonitor implements Runnable {
     public synchronized void forceDestroy(){
         if (this.thread != null) {
             try {
-               this.alive=false;
+               this.alive = false;
                int pid = getPid();
-               if (pid < 0){
+
+               if (pid < 0)
                    log.debug("Process doesn't exist. Not destroying it...");
-                   return;
-               }
                else
                    Runtime.getRuntime().exec("kill -9 "+ pid);
             } catch (IOException e) {
                log.debug("Failed to force-kill {} process",this.name);
                e.printStackTrace();
             }
-        }else
+        } else
            log.debug("Can't force-destroy this process monitor: There's no process running.");
     }
 
     private void notifyProcessMonitorObserverOnFinished() {
-        if(observer != null){
+        if (observer != null) {
             log.debug("Notifying ProcessMonitorObserver that {} successfully finished",this.name);
             observer.handleProcessFinishedWithSuccess(this.name,"");
-        }else {
-            log.debug("Cannot notify ProcessMonitorObserver that {} finished: ProcessMonitorObserver null",this.name);
+            return;
         }
+        log.debug("Cannot notify ProcessMonitorObserver that {} finished: ProcessMonitorObserver null",this.name);
     }
 
     public void setProcessMonitorObserver(ProcessMonitorObserver observer){
-        if (observer==null){
+        if (observer == null) {
             log.debug("Cannot assign observer: ProcessMonitorObserver null");
-        }else this.observer = observer;
+            return;
+        }
+        this.observer = observer;
     }
 
-    }
+}

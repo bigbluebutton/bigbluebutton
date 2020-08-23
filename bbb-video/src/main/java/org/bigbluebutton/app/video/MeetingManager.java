@@ -32,19 +32,19 @@ public class MeetingManager {
     }
 
     public void removeStream(String meetingId, String streamId) {
-			log.debug("Removing VideoStream {} to meeting {}", streamId, meetingId);
+        log.debug("Removing VideoStream {} to meeting {}", streamId, meetingId);
         Meeting m = meetings.get(meetingId);
         if (m != null) {
-					log.debug("Removed VideoStream {} to meeting {}", streamId, meetingId);
+            log.debug("Removed VideoStream {} to meeting {}", streamId, meetingId);
             m.removeStream(streamId);
         }
     }
 
     public void streamBroadcastClose(String meetingId, String streamId) {
-			log.debug("streamBroadcastClose VideoStream {} to meeting {}", streamId, meetingId);
+        log.debug("streamBroadcastClose VideoStream {} to meeting {}", streamId, meetingId);
         Meeting m = meetings.get(meetingId);
         if (m != null) {
-					log.debug("streamBroadcastClose 2 VideoStream {} to meeting {}", streamId, meetingId);
+            log.debug("streamBroadcastClose 2 VideoStream {} to meeting {}", streamId, meetingId);
             m.streamBroadcastClose(streamId);
             if (!m.hasVideoStreams()) {
                 remove(m.id);

@@ -3,9 +3,8 @@ package org.bigbluebutton.app.video.ffmpeg;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.stream.Collectors;
 
 public class FFmpegCommand {
 
@@ -14,8 +13,8 @@ public class FFmpegCommand {
      */
     public enum ROTATE { LEFT, RIGHT, UPSIDE_DOWN };
 
-    private HashMap args;
-    private HashMap x264Params;
+    private final HashMap<String, String> args;
+    private final HashMap<String, String> x264Params;
 
     private String[] command;
 
@@ -28,17 +27,15 @@ public class FFmpegCommand {
     private String analyzeDuration;
 
     public FFmpegCommand() {
-        this.args = new HashMap();
-        this.x264Params = new HashMap();
+        this.args = new HashMap<>();
+        this.x264Params = new HashMap<>();
 
         /* Prevent quality loss by default */
         try {
             this.setVideoQualityScale(1);
         } catch (InvalidParameterException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
-        };
-
+        }
         this.ffmpegPath = null;
         this.audioEnabled = false;
     }
@@ -51,7 +48,7 @@ public class FFmpegCommand {
     }
 
     public void buildFFmpegCommand() {
-        List comm = new ArrayList<String>();
+        List<String> comm = new ArrayList<>();
 
         if(this.ffmpegPath == null)
             this.ffmpegPath = "/usr/local/bin/ffmpeg";
@@ -67,12 +64,10 @@ public class FFmpegCommand {
         comm.add("-i");
         comm.add(input);
 
-        Iterator argsIter = this.args.entrySet().iterator();
-        while (argsIter.hasNext()) {
-            Map.Entry pairs = (Map.Entry)argsIter.next();
-            comm.add(pairs.getKey());
-            comm.add(pairs.getValue());
-        }
+        this.args.forEach((key, value) -> {
+            comm.add(key);
+            comm.add(value);
+        });
 
         if (!this.audioEnabled) {
             comm.add("-an");
@@ -80,17 +75,10 @@ public class FFmpegCommand {
 
         if(!x264Params.isEmpty()) {
             comm.add("-x264-params");
-            String params = "";
-            Iterator x264Iter = this.x264Params.entrySet().iterator();
-            while (x264Iter.hasNext()) {
-                Map.Entry pairs = (Map.Entry)x264Iter.next();
-                String argValue = pairs.getKey() + "=" + pairs.getValue();
-                params += argValue;
-                // x264-params are separated by ':'
-                params += ":";
-            }
-            // Remove trailing ':'
-            params.replaceAll(":+$", "");
+
+            String params = this.x264Params.entrySet().stream()
+                    .map((entry) -> entry.getKey() + '=' + entry.getValue())
+                    .collect(Collectors.joining(":")); // x264-params are separated by ':'
             comm.add(params);
         }
 

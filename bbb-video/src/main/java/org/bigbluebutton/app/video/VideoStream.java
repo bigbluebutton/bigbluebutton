@@ -2,9 +2,6 @@ package org.bigbluebutton.app.video;
 
 import com.google.gson.Gson;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.IConnection;
-import org.red5.server.api.Red5;
-import org.red5.server.api.scope.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.stream.ClientBroadcastStream;
 import org.slf4j.Logger;
@@ -31,23 +28,30 @@ public class VideoStream {
         return stream.getPublishedName();
     }
 
+    private Map<String, Object> createLogDataMap(String eventName, String description, boolean addRecordAttribute) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("broadcastStream", this.stream.getPublishedName());
+        map.put("recordStreamId", this.recordingStreamName);
+        map.put("event", eventName);
+        map.put("description", description);
+
+        if (addRecordAttribute)
+            map.put("recording", this.cstream.isRecording());
+
+        return map;
+    }
+
     public synchronized void startRecording() {
         long now = System.currentTimeMillis();
         recordingStreamName = stream.getPublishedName() + "-" + now;
+
         try {
             videoStreamListener.setStreamId(recordingStreamName);
             cstream.saveAs(recordingStreamName, false);
 
-					Map<String, Object> logData2 = new HashMap<String, Object>();
-					logData2.put("broadcastStream", stream.getPublishedName());
-					logData2.put("recordStreamId", recordingStreamName);
-					logData2.put("recording", cstream.isRecording());
-					logData2.put("event", "start_recording_stream");
-					logData2.put("description", "Start recording stream.");
-
-					Gson gson2 = new Gson();
-					String logStr2 =  gson2.toJson(logData2);
-					log.info(logStr2);
+            Map<String, Object> logData = this.createLogDataMap("start_recording_stream", "Start recording stream.", true);
+            String logString = new Gson().toJson(logData);
+            log.info(logString);
         } catch (Exception e) {
             log.error("ERROR while recording stream " + e.getMessage());
             e.printStackTrace();
@@ -57,19 +61,13 @@ public class VideoStream {
     public synchronized void stopRecording() {
     	log.debug("STOP RECORDING STREAM {} recording {}", stream.getPublishedName(), cstream.isRecording());
 
-			Map<String, Object> logData2 = new HashMap<String, Object>();
-			logData2.put("broadcastStream", stream.getPublishedName());
-			logData2.put("recordStreamId", recordingStreamName);
-			logData2.put("event", "stop_recording_stream");
-			logData2.put("description", "Stop recording stream.");
+        Map<String, Object> logData = this.createLogDataMap("stop_recording_stream", "Stop recording stream.", false);
+        String logString = new Gson().toJson(logData);
+        log.info(logString);
 
-			Gson gson2 = new Gson();
-			String logStr2 =  gson2.toJson(logData2);
-			log.info(logStr2);
-
-			cstream.stopRecording();
-			videoStreamListener.stopRecording();
-			videoStreamListener.reset();
+        cstream.stopRecording();
+        videoStreamListener.stopRecording();
+        videoStreamListener.reset();
     }
 
     public synchronized void stopStartRecording() {
@@ -80,7 +78,6 @@ public class VideoStream {
 
     public synchronized void streamBroadcastClose() {
         stopRecording();
-
         videoStreamListener.streamStopped();
         stream.removeStreamListener(videoStreamListener);
     }

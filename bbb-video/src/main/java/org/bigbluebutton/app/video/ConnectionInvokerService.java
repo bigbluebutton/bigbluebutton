@@ -133,7 +133,7 @@ public class ConnectionInvokerService {
 
   private IConnection getConnectionWithConnId(IScope scope, String connId) {
     for (IConnection conn : scope.getClientConnections()) {
-      String connID = (String) conn.getSessionId();
+      String connID = conn.getSessionId();
       if (connID != null && connID.equals(connId)) {
         return conn;
       }
