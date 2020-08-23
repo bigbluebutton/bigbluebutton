@@ -4,7 +4,7 @@ import { injectIntl } from 'react-intl';
 import VncDisplay from 'react-vnc-display';
 
 const propTypes = {
-  remoteDesktopUrl: PropTypes.string.isRequired,
+  remoteDesktopUrl: PropTypes.string,
 };
 
 class RemoteDesktop extends Component {
