@@ -75,9 +75,13 @@ const shareScreen = (onFail) => {
 const screenShareEndAlert = () => new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/ScreenshareOff.mp3`).play();
 
 const unshareScreen = () => {
-  let stream = window.screenShareStream;
+
   KurentoBridge.kurentoExitScreenShare();
-  stream.getTracks().forEach(stream=>stream.stop())
+  if(window.screenShareStream !== undefined){
+    let stream = window.screenShareStream;
+    stream.getTracks().forEach(stream=>stream.stop())
+  }
+
   screenShareEndAlert();
 };
 
