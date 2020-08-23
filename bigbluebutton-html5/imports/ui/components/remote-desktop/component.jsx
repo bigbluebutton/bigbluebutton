@@ -16,8 +16,12 @@ class RemoteDesktop extends Component {
   render() {
     const { remoteDesktopUrl } = this.props;
 
-    const url = new URL(remoteDesktopUrl);
-    this.vncPassword = url.searchParams.get('password');
+    if (remoteDesktopUrl) {
+      const url = new URL(remoteDesktopUrl);
+      this.vncPassword = url.searchParams.get('password');
+    } else {
+      this.vncPassword = ''
+    }
 
     return (
       <div id="remote-desktop" data-test="remoteDesktop">
