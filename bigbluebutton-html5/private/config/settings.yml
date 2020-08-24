@@ -197,14 +197,20 @@ public:
         - threshold: 30
           profile: low-u30
     pagination:
+      # whether to globally enable or disable pagination.
       enabled: false
+      # how long (in ms) the negotiation will be debounced after a page change.
       pageChangeDebounceTime: 2500
+      # video page sizes for DESKTOP endpoints. It stands for the number of SUBSCRIBER streams.
+      # PUBLISHERS aren't accounted for .
+      # A page size of 0 (zero) means that the page size is unlimited (disabled).
       desktopPageSizes:
         moderator: 0
         viewer: 5
+      # video page sizes for MOBILE endpoints
       mobilePageSizes:
-        moderator: 3
-        viewer: 3
+        moderator: 2
+        viewer: 2
   pingPong:
     clearUsersInSeconds: 180
     pongTimeInSeconds: 15
