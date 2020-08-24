@@ -83,7 +83,7 @@ export const shouldEnableSwapLayout = () => {
   if (!PRESENTATION_CONFIG.oldMinimizeButton) {
     return true;
   }
-  return !shouldShowScreenshare() && !shouldShowExternalVideo();
+  return !shouldShowScreenshare() && !shouldShowExternalVideo() && !shouldShowRemoteDesktop();
 };
 
 export const getSwapLayout = () => {
