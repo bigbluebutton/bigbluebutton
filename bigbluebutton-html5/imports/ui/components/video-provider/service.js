@@ -34,6 +34,32 @@ const {
 const TOKEN = '_';
 
 class VideoService {
+  static isUserPresenter(userId) {
+    const user = Users.findOne({ userId },
+      { fields: { presenter: 1 } });
+    return user ? user.presenter : false;
+  }
+
+  // Paginated streams: sort with following priority: local -> presenter -> alphabetic
+  static sortPaginatedStreams(s1, s2) {
+    if (VideoService.isUserPresenter(s1.userId) && !VideoService.isUserPresenter(s2.userId)) {
+      return -1;
+    } else if (VideoService.isUserPresenter(s2.userId) && !VideoService.isUserPresenter(s1.userId)) {
+      return 1;
+    } else {
+      return UserListService.sortUsersByName(s1, s2);
+    }
+  }
+
+  // Full mesh: sort with the following priority: local -> alphabetic
+  static sortMeshStreams(s1, s2) {
+    if (s1.userId === Auth.userID) {
+      return -1;
+    } else {
+      return UserListService.sortUsersByName(s1, s2);
+    }
+  }
+
   constructor() {
     this.defineProperties({
       isConnecting: false,
@@ -179,7 +205,7 @@ class VideoService {
 
   setNumberOfPages (numberOfPublishers, numberOfSubscribers, pageSize) {
     // Page size 0 means no pagination, return itself
-    if (pageSize === 0) return pageSize;
+    if (pageSize === 0) return 0;
 
     // Page size refers only to the number of subscribers. Publishers are always
     // shown, hence not accounted for
@@ -258,9 +284,13 @@ class VideoService {
     // Publishers are taken into account for the page size calculations. They
     // also appear on every page.
     const [mine, others] = _.partition(streams, (vs => { return Auth.userID === vs.userId; }));
+
     // Recalculate total number of pages
     this.setNumberOfPages(mine.length, others.length, pageSize);
-    const paginatedStreams = _.chunk(others, pageSize)[this.currentVideoPageIndex] || [];
+    const chunkIndex = this.currentVideoPageIndex * pageSize;
+    const paginatedStreams = others
+      .sort(VideoService.sortPaginatedStreams)
+      .slice(chunkIndex, (chunkIndex + pageSize)) || [];
     const streamsOnPage = [...mine, ...paginatedStreams];
 
     return streamsOnPage;
@@ -286,7 +316,7 @@ class VideoService {
       cameraId: vs.stream,
       userId: vs.userId,
       name: vs.name,
-    })).sort(UserListService.sortUsersByName);
+    }));
 
     const pageSize = this.getMyPageSize();
 
@@ -294,8 +324,11 @@ class VideoService {
     // is equivalent to disabling it), so return the mapped streams as they are
     // which produces the original non paginated behaviour
     if (!PAGINATION_ENABLED || pageSize === 0) {
-      return { streams: mappedStreams, totalNumberOfStreams: mappedStreams.length };
-    };
+      return {
+        streams: mappedStreams.sort(VideoService.sortMeshStreams),
+        totalNumberOfStreams: mappedStreams.length
+      };
+    }
 
     const paginatedStreams = this.getVideoPage(mappedStreams, pageSize);
     return { streams: paginatedStreams, totalNumberOfStreams: mappedStreams.length };
