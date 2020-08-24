@@ -209,21 +209,31 @@ class VideoService {
   }
 
   calculateNextPage () {
+    if (this.numberOfPages === 0) {
+      return 0;
+    }
+
     return ((this.currentVideoPageIndex + 1) % this.numberOfPages + this.numberOfPages) % this.numberOfPages;
   }
 
   calculatePreviousPage () {
+    if (this.numberOfPages === 0) {
+      return 0;
+    }
+
     return ((this.currentVideoPageIndex - 1) % this.numberOfPages + this.numberOfPages) % this.numberOfPages;
   }
 
   getNextVideoPage() {
-    this.setCurrentVideoPageIndex(this.calculateNextPage());
+    const nextPage = this.calculateNextPage();
+    this.setCurrentVideoPageIndex(nextPage);
 
     return this.currentVideoPageIndex;
   }
 
   getPreviousVideoPage() {
-    this.setCurrentVideoPageIndex(this.calculatePreviousPage());
+    const previousPage = this.calculatePreviousPage();
+    this.setCurrentVideoPageIndex(previousPage);
 
     return this.currentVideoPageIndex;
   }
