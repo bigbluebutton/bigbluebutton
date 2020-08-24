@@ -291,11 +291,11 @@ class VideoService {
     // is equivalent to disabling it), so return the mapped streams as they are
     // which produces the original non paginated behaviour
     if (!PAGINATION_ENABLED || pageSize === 0) {
-      return mappedStreams;
+      return { streams: mappedStreams, totalNumberOfStreams: mappedStreams.length };
     };
 
     const paginatedStreams = this.getVideoPage(mappedStreams, pageSize);
-    return paginatedStreams;
+    return { streams: paginatedStreams, totalNumberOfStreams: mappedStreams.length };
   }
 
   getConnectingStream(streams) {

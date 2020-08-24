@@ -122,7 +122,7 @@ export default withModalMounter(withTracker(() => {
     data.children = <ScreenshareContainer />;
   }
 
-  const usersVideo = VideoService.getVideoStreams();
+  const { streams: usersVideo } = VideoService.getVideoStreams();
   data.usersVideo = usersVideo;
 
   if (MediaService.shouldShowOverlay() && usersVideo.length && viewParticipantsWebcams) {

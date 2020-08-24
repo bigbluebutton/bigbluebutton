@@ -282,7 +282,7 @@ class VideoProvider extends Component {
     this.disconnectStreams(streamsToDisconnect);
 
     if (CAMERA_QUALITY_THRESHOLDS_ENABLED) {
-      this.updateThreshold(streams.length);
+      this.updateThreshold(this.props.totalNumberOfStreams);
     }
   }
 
