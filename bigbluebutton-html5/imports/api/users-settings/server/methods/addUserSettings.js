@@ -45,6 +45,7 @@ const currentParameters = [
   'bbb_preferred_camera_profile',
   'bbb_enable_screen_sharing',
   'bbb_enable_video',
+  'bbb_record_video',
   'bbb_skip_video_preview',
   'bbb_mirror_own_webcam',
   // PRESENTATION

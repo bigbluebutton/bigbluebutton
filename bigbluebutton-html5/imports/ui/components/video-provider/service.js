@@ -50,6 +50,9 @@ class VideoService {
 
     this.numberOfDevices = 0;
 
+    this.record = null;
+    this.hackRecordViewer = null;
+
     this.updateNumberOfDevices = this.updateNumberOfDevices.bind(this);
     // Safari doesn't support ondevicechange
     if (!this.isSafari) {
@@ -342,6 +345,31 @@ class VideoService {
   getMyRole () {
     return Users.findOne({ userId: Auth.userID },
       { fields: { role: 1 } }).role;
+  }
+
+  getRecord() {
+    if (this.record === null) {
+      this.record = getFromUserSettings('bbb_record_video', true);
+    }
+
+    // TODO: Remove this
+    // This is a hack to handle a missing piece at the backend of a particular deploy.
+    // If, at the time the video is shared, the user has a viewer role and
+    // meta_hack-record-viewer-video is 'false' this user won't have this video
+    // stream recorded.
+    if (this.hackRecordViewer === null) {
+      const prop = Meetings.findOne(
+        { meetingId: Auth.meetingID },
+        { fields: { 'metadataProp': 1 } },
+      ).metadataProp;
+
+      const value = prop.metadata ? prop.metadata['hack-record-viewer-video'] : null;
+      this.hackRecordViewer = value ? value.toLowerCase() === 'true' : true;
+    }
+
+    const hackRecord = this.getMyRole() === ROLE_MODERATOR || this.hackRecordViewer;
+
+    return this.record && hackRecord;
   }
 
   filterModeratorOnly(streams) {
@@ -679,6 +707,7 @@ export default {
   addCandidateToPeer: (peer, candidate, cameraId) => videoService.addCandidateToPeer(peer, candidate, cameraId),
   processInboundIceQueue: (peer, cameraId) => videoService.processInboundIceQueue(peer, cameraId),
   getRole: isLocal => videoService.getRole(isLocal),
+  getRecord: () => videoService.getRecord(),
   getSharedDevices: () => videoService.getSharedDevices(),
   getSkipVideoPreview: fromInterface => videoService.getSkipVideoPreview(fromInterface),
   getUserParameterProfile: () => videoService.getUserParameterProfile(),

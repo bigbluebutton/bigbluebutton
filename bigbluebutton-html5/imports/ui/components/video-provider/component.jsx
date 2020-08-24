@@ -550,6 +550,7 @@ class VideoProvider extends Component {
             userId: this.info.userId,
             userName: this.info.userName,
             bitrate,
+            record: VideoService.getRecord(),
           };
 
           logger.info({
