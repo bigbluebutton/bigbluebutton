@@ -138,6 +138,7 @@ class IntlStartup extends Component {
       messages: {},
       normalizedLocale: null,
       fetching: true,
+      init: true,
     };
 
     if (RTL_LANGUAGES.includes(props.locale)) {
@@ -153,13 +154,19 @@ class IntlStartup extends Component {
   }
 
   componentDidUpdate() {
-    const { fetching, normalizedLocale } = this.state;
+    const { fetching, normalizedLocale, init } = this.state;
     const { locale } = this.props;
 
     if (!fetching
       && normalizedLocale
-      && locale.toLowerCase() !== normalizedLocale.toLowerCase()) {
+      && ((locale.toLowerCase() !== normalizedLocale.toLowerCase())
+      && (!init && (DEFAULT_LANGUAGE && normalizedLocale.toLowerCase())))) {
       this.fetchLocalizedMessages(locale);
+    }
+    if (init && !normalizedLocale) {
+      this.setState({
+        init: false,
+      });
     }
   }
 
