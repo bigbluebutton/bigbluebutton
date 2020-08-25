@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import PropTypes from 'prop-types';
-import { injectIntl } from 'react-intl';
+import _ from 'lodash';
+import FullscreenService from '../fullscreen-button/service';
+import FullscreenButtonContainer from '../fullscreen-button/container';
+import { defineMessages, injectIntl } from 'react-intl';
 import VncDisplay from 'react-vnc-display';
 import Auth from '/imports/ui/services/auth';
 
@@ -11,13 +14,26 @@ const propTypes = {
   remoteDesktopUrl: PropTypes.string,
 };
 
+const intlMessages = defineMessages({
+  remoteDesktopLabel: {
+    id: 'app.remoteDesktop.remoteDesktopLabel',
+    description: 'remote desktop element label',
+  },
+});
+
+const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+
 class RemoteDesktop extends Component {
 
   constructor(props) {
     super(props);
+    this.state = {
+      isFullscreen: false,
+    };
 
     this.player = null;
     this.handleResize = this.handleResize.bind(this);
+    this.onFullscreenChange = this.onFullscreenChange.bind(this);
     this.resizeListener = () => {
       setTimeout(this.handleResize, 0);
     };
@@ -25,10 +41,12 @@ class RemoteDesktop extends Component {
 
   componentDidMount() {
     window.addEventListener('resize', this.resizeListener);
+    this.playerParent.addEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.resizeListener);
+    this.playerParent.removeEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
   handleResize() {
@@ -36,7 +54,13 @@ class RemoteDesktop extends Component {
       return;
     }
 
-    const par = this.playerParent.parentElement;
+    const { isFullscreen } = this.state;
+    var par;
+    if (isFullscreen) {
+	par = this.playerParent;
+    } else {
+        par = this.playerParent.parentElement;
+    }
     const w = par.clientWidth;
     const h = par.clientHeight;
     const idealW = h * 1024 / 768;
@@ -60,12 +84,38 @@ class RemoteDesktop extends Component {
 
     this.player.rfb._display.autoscale(style.width, style.height);
 
-    const styleStr = `width: ${style.width}px; height: ${style.height}px;`;
+    const styleStr = `width: ${style.width}px; height: ${style.height}px; display: flex; justify-content: center;`;
     this.playerParent.style = styleStr;
+  }
+
+  onFullscreenChange() {
+    const { isFullscreen } = this.state;
+    const newIsFullscreen = FullscreenService.isFullScreen(this.playerParent);
+    if (isFullscreen !== newIsFullscreen) {
+      this.setState({ isFullscreen: newIsFullscreen });
+    }
+    setTimeout(this.handleResize, 0);
   }
 
   passwordFunc = (rfb) => {
     rfb.sendPassword(this.vncPassword);
+  }
+
+  renderFullscreenButton() {
+    const { intl } = this.props;
+    const { isFullscreen } = this.state;
+
+    if (!ALLOW_FULLSCREEN) return null;
+
+    return (
+      <FullscreenButtonContainer
+        key={_.uniqueId('fullscreenButton-')}
+        elementName={intl.formatMessage(intlMessages.remoteDesktopLabel)}
+        fullscreenRef={this.playerParent}
+        isFullscreen={isFullscreen}
+        dark
+      />
+    );
   }
 
   render() {
@@ -86,6 +136,7 @@ class RemoteDesktop extends Component {
         data-test="remoteDesktop"
         ref={(ref) => { this.playerParent = ref; }}
       >
+        {this.renderFullscreenButton()}
         <VncDisplay
           className={styles.remoteDesktop}
           url={remoteDesktopUrl}

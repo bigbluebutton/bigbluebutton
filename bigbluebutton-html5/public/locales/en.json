@@ -368,6 +368,7 @@
     "app.actionsBar.actionsDropdown.minimizePresentationLabel": "Minimize presentation",
     "app.actionsBar.actionsDropdown.minimizePresentationDesc": "Button used to minimize presentation",
     "app.screenshare.screenShareLabel" : "Screen share",
+    "app.remoteDesktop.remoteDesktopLabel" : "Remote Desktop",
     "app.submenu.application.applicationSectionTitle": "Application",
     "app.submenu.application.animationsLabel": "Animations",
     "app.submenu.application.audioFilterLabel": "Audio Filters for Microphone",
