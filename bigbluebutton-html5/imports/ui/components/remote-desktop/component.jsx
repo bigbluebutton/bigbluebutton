@@ -3,6 +3,7 @@ import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrap
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import VncDisplay from 'react-vnc-display';
+import Auth from '/imports/ui/services/auth';
 
 import { styles } from './styles';
 
@@ -68,11 +69,13 @@ class RemoteDesktop extends Component {
   }
 
   render() {
-    const { remoteDesktopUrl } = this.props;
+    var { remoteDesktopUrl } = this.props;
 
     if (remoteDesktopUrl) {
       const url = new URL(remoteDesktopUrl);
       this.vncPassword = url.searchParams.get('password');
+
+      remoteDesktopUrl = remoteDesktopUrl.replace('{userID}', Auth.userID);
     } else {
       this.vncPassword = ''
     }
