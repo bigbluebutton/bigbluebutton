@@ -110,7 +110,7 @@ const propTypes = {
   children: PropTypes.element.isRequired,
 };
 
-const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.locale;
+const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.fallbackLocale;
 
 const RTL_LANGUAGES = ['ar', 'he', 'fa'];
 
@@ -138,7 +138,7 @@ class IntlStartup extends Component {
       messages: {},
       normalizedLocale: null,
       fetching: true,
-      init: true,
+      localeChanged: false,
     };
 
     if (RTL_LANGUAGES.includes(props.locale)) {
@@ -153,21 +153,19 @@ class IntlStartup extends Component {
     this.fetchLocalizedMessages(locale, true);
   }
 
-  componentDidUpdate() {
-    const { fetching, normalizedLocale, init } = this.state;
+  componentDidUpdate(prevProps) {
+    const { fetching, normalizedLocale, localeChanged } = this.state;
     const { locale } = this.props;
-
+    if (prevProps.locale !== locale) {
+      this.setState({
+        localeChanged: true,
+      });
+    }
     if (!fetching
       && normalizedLocale
-      && ((locale.toLowerCase() !== normalizedLocale.toLowerCase())
-      && (!init && (DEFAULT_LANGUAGE === normalizedLocale.toLowerCase())))) {
+      && ((locale.toLowerCase() !== normalizedLocale.toLowerCase()))) {
+      if (((DEFAULT_LANGUAGE === normalizedLocale.toLowerCase()) && !localeChanged)) return;
       this.fetchLocalizedMessages(locale);
-    }
-
-    if (init && !normalizedLocale) {
-      this.setState({
-        init: false,
-      });
     }
   }
 
