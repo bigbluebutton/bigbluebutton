@@ -190,10 +190,16 @@ public:
         name: High quality
         default: false
         bitrate: 500
+        constraints:
+          width: 1280
+          frameRate: 15
       - id: hd
         name: High definition
         default: false
         bitrate: 800
+        constraints:
+          width: 1280
+          frameRate: 30
     enableScreensharing: true
     enableVideo: true
     enableVideoMenu: true
