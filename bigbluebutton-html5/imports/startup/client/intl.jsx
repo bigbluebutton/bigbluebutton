@@ -160,9 +160,10 @@ class IntlStartup extends Component {
     if (!fetching
       && normalizedLocale
       && ((locale.toLowerCase() !== normalizedLocale.toLowerCase())
-      && (!init && (DEFAULT_LANGUAGE && normalizedLocale.toLowerCase())))) {
+      && (!init && (DEFAULT_LANGUAGE === normalizedLocale.toLowerCase())))) {
       this.fetchLocalizedMessages(locale);
     }
+
     if (init && !normalizedLocale) {
       this.setState({
         init: false,
