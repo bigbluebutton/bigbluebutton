@@ -64,6 +64,7 @@
 #   2019-07-08 GTR  Set IP for all recording formats
 #   2019-10-31 GTR  Set IP and shared secret for bbb-webhooks
 #   2019-11-09 GTR  Keep HTML5 client logs permissions when cleaning logs
+#   2020-05-20 NJH  Add port 443 to --Network and clean up tmp file.
 #   2020-06-23 JFS  Remove defaultGuestPolicy warning for HTML5 client
 
 #set -x
@@ -238,7 +239,7 @@ usage() {
     echo "   --check                          Check configuration files and processes for problems"
     echo "   --debug                          Scan the log files for error messages"
     echo "   --watch                          Scan the log files for error messages every 2 seconds"
-    echo "   --network                        View network connections on 80 and 1935 by IP address"
+    echo "   --network                        View network connections on 80, 443 and 1935 by IP address. 1935 is deprecated. You will need to modify bbb-conf if you have custom ports."
     echo "   --secret                         View the URL and shared secret for the server"
     echo "   --lti                            View the URL and secret for LTI (if installed)"
     echo
@@ -331,7 +332,7 @@ stop_bigbluebutton () {
       TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
-    systemctl stop $BBB_RED5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
+    systemctl stop $BBB_RED5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-resque-worker.service bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
 }
 
 start_bigbluebutton () {
@@ -388,7 +389,7 @@ start_bigbluebutton () {
     fi
 
 
-    systemctl start $BBB_RED5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
+    systemctl start $BBB_RED5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-resque-worker bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         systemctl start mongod
@@ -734,7 +735,7 @@ check_configuration() {
         fi
     fi
 
-    if [ "$IP" != "$NGINX_IP" ]; then
+    if [ "$IP" != "$NGINX_IP" ] && [ "_" != "$NGINX_IP" ]; then
         if [ "$IP" != "$HOSTS" ]; then
             echo "# IP does not match:"
             echo "#                           IP from ifconfig: $IP"
@@ -1227,7 +1228,7 @@ check_state() {
     COUNT=0
     while [ $COUNT -lt 80 ]; do
         let COUNT=COUNT+1
-        timeout 1s wget -qO- $PROTOCOL://$BBB_WEB/bigbluebutton/api | grep -q SUCCESS > /dev/null
+        timeout 1s curl -sS $PROTOCOL://$BBB_WEB/bigbluebutton/api | grep -q SUCCESS
         if [ $? -eq 0 ]; then
             let COUNT=80
         else
@@ -1237,7 +1238,7 @@ check_state() {
     done
     echo
 
-    if ! wget $PROTOCOL://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
+    if ! curl -sS $PROTOCOL://$BBB_WEB/bigbluebutton/api | grep -q SUCCESS; then
         echo "# Error: Could not connect to the configured hostname/IP address"
         echo "#"
         echo "#    $PROTOCOL://$BBB_WEB/"
@@ -1250,9 +1251,9 @@ check_state() {
     # Check that BigBlueButton can connect to port 1935
     #
     if [ -f /usr/share/red5/red5-server.jar ]; then
-      if [[ ! -z $NGINX_IP && $DISTRIB_ID != "centos" ]]; then
-        if ! nc -w 3 $NGINX_IP 1935 > /dev/null; then
-            echo "# Error: Unable to connect to port 1935 (RTMP) on $NGINX_IP"
+      if [[ ! -z $RED5_IP && $DISTRIB_ID != "centos" ]]; then
+        if ! nc -w 3 $RED5_IP 1935 > /dev/null; then
+            echo "# Error: Unable to connect to port 1935 (RTMP) on $RED5_IP"
             echo
         fi
       fi
@@ -1372,7 +1373,7 @@ check_state() {
     BBB_WEB=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
     DEFAULT_PDF=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^beans.presentationService.defaultUploadedPresentation/{s/.*=//;p}')
     if echo $DEFAULT_PDF | grep -q "bigbluebutton.web.serverURL"; then
-        if ! echo "$BBB_WEB$(echo $DEFAULT_PDF | sed 's/${bigbluebutton.web.serverURL}//g')" | xargs wget -q -O /dev/null; then
+        if ! echo "$BBB_WEB$(echo $DEFAULT_PDF | sed 's/${bigbluebutton.web.serverURL}//g')" | xargs curl -sS >/dev/null; then
             echo "# Error: Unable to reach default URL for presentation:"
             echo "#"
             echo "#    $BBB_WEB$(echo $DEFAULT_PDF | sed 's/${bigbluebutton.web.serverURL}//g')"
@@ -1381,7 +1382,7 @@ check_state() {
             echo "#   ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties"
         fi
     else
-        if ! echo "$DEFAULT_PDF" | xargs wget -q -O /dev/null; then
+        if ! echo "$DEFAULT_PDF" | xargs curl -sS >/dev/null; then
             echo "# Error: Unable to reach default URL for presentation"
             echo "#"
             echo "#    $DEFAULT_PDF"
@@ -1532,7 +1533,7 @@ check_state() {
      if [ "$FREESWITCH_SIP" != "$KURENTO_SIP" ]; then
       echo
       echo "#"
-      echo "# Kurento is will try to connect to $KURENTO_SIP but FreeSWITCH is listening on $FREESWITCH_SIP for port 5066"
+      echo "# Kurento will try to connect to $KURENTO_SIP but FreeSWITCH is listening on $FREESWITCH_SIP for port 5066"
       echo "#"
       echo "# To fix, run the commands"
       echo "#"
@@ -1720,8 +1721,9 @@ if [ $ZIP ]; then
     tar rf  $TMP_LOG_FILE /var/log/kurento-media-server > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/mongodb              > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/redis                > /dev/null 2>&1
-    tar rf  $TMP_LOG_FILE /var/log/nginx/error.log      > /dev/null 2>&1
-    tar rfh $TMP_LOG_FILE /opt/freeswitch/var/log/freeswitch/ > /dev/null 2>&1
+    tar rf  $TMP_LOG_FILE /var/log/nginx/error.log*     > /dev/null 2>&1
+	tar rf  $TMP_LOG_FILE /var/log/nginx/bigbluebutton.access.log*    > /dev/null 2>&1
+    tar rfh $TMP_LOG_FILE /opt/freeswitch/var/log/freeswitch/         > /dev/null 2>&1
 
     if [ -f /var/log/nginx/html5-client.log ]; then
         tar rf $TMP_LOG_FILE /var/log/nginx/html5-client.log* > /dev/null 2>&1
@@ -2051,6 +2053,7 @@ if [ $CLEAN ]; then
     # Clean out the log files for record and playback
     #
     rm -f /var/log/bigbluebutton/bbb-rap-worker.log*
+    rm -f /var/log/bigbluebutton/bbb-rap-resque.log*
     rm -f /var/log/bigbluebutton/archive.log*
     if [ -d /var/log/bigbluebutton/html5 ]; then
         rm -f /var/log/bigbluebutton/html5/*
@@ -2130,18 +2133,20 @@ if [ $CLEAN ]; then
 fi
 
 if [ $NETWORK ]; then
-    netstat -ant | egrep ":1935|:80\ " | egrep -v ":::|0.0.0.0" > /tmp/t_net
+    netstat -ant | egrep ":1935|:80|:443\ " | egrep -v ":::|0.0.0.0" > /tmp/t_net
     REMOTE=$(cat /tmp/t_net | cut -c 45-68 | cut -d ":" -f1 | sort | uniq)
 
     if [ "$REMOTE" != "" ]; then
-        echo -e "netstat\t\t\t80\t1935"
+        echo -e "netstat\t\t\t80\t443\t1935"
         for IP in $REMOTE ; do
             PORT_1935=$(cat /tmp/t_net | grep :1935 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l)
             PORT_80=$(cat /tmp/t_net | grep :80 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )
+	    PORT_443=$(cat /tmp/t_net | grep :443 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )
 
-            echo -e "$IP\t\t$PORT_80\t$PORT_1935"
+            echo -e "$IP\t\t$PORT_80\t$PORT_443\t$PORT_1935"
         done
     fi
+    rm /tmp/t_net
 fi
 
 if [ $WATCH ]; then

@@ -88,6 +88,7 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   code: PropTypes.string.isRequired,
+  reason: PropTypes.string.isRequired,
 };
 
 class MeetingEnded extends PureComponent {
@@ -168,22 +169,20 @@ class MeetingEnded extends PureComponent {
   }
 
   render() {
-    const { intl, code } = this.props;
-    const {
-      selected,
-    } = this.state;
+    const { code, intl, reason } = this.props;
+    const { selected } = this.state;
 
     const noRating = selected <= 0;
 
-    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code } }, 'Meeting ended component');
+    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason } }, 'Meeting ended component');
 
     return (
       <div className={styles.parent}>
-        <div className={styles.modal}>
+        <div className={styles.modal} data-test="meetingEndedModal">
           <div className={styles.content}>
-            <h1 className={styles.title} data-test="meetingEndedModalTitle">
+            <h1 className={styles.title}>
               {
-                intl.formatMessage(intlMessage[code] || intlMessage[430])
+                intl.formatMessage(intlMessage[reason] || intlMessage[430])
               }
             </h1>
             <div className={styles.text}>
@@ -192,7 +191,7 @@ class MeetingEnded extends PureComponent {
                 : intl.formatMessage(intlMessage.messageEnded)}
             </div>
             {this.shouldShowFeedback ? (
-              <div>
+              <div data-test="rating">
                 <Rating
                   total="5"
                   onRate={this.setSelectedStar}

@@ -2,7 +2,6 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 import Logger from '/imports/startup/server/logger';
 
 const allowRecentMessages = (eventName, message) => {
-
   const {
     userId,
     meetingId,

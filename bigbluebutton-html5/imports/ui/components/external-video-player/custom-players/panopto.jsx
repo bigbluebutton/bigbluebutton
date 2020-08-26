@@ -1,4 +1,4 @@
-const MATCH_URL = /https?\:\/\/(([a-zA-Z]+\.)?hosted\.panopto\.com\/Panopto)\/Pages\/Viewer\.aspx\?id=([-a-zA-Z0-9]+)/;
+const MATCH_URL = /https?\:\/\/(([a-zA-Z]+\.)?([a-zA-Z]+\.panopto\.[a-zA-Z]+\/Panopto))\/Pages\/Viewer\.aspx\?id=([-a-zA-Z0-9]+)/;
 
 export class Panopto {
 
@@ -8,7 +8,7 @@ export class Panopto {
 
   static getSocialUrl(url) {
     const m = url.match(MATCH_URL);
-    return 'https://' + m[1] + '/Podcast/Social/' + m[3] + '.mp4';
+    return 'https://' + m[1] + '/Podcast/Social/' + m[4] + '.mp4';
   }
 }
 

@@ -162,6 +162,15 @@ const sortChatsByIcon = (a, b) => {
   return 0;
 };
 
+const sortByRecentActivity = (a, b) => {
+  const _a = a.lastActivity;
+  const _b = b.lastActivity;
+  if (a.userId === 'public') return -1;
+  if (!_b || _a > _b) return -1;
+  if (!_a || _a < _b) return 1;
+  return 0;
+};
+
 const isPublicChat = chat => (
   chat.userId === 'public'
 );
@@ -173,7 +182,7 @@ const sortChats = (a, b) => {
     sort = sortChatsByName(a, b);
   }
 
-  return sort;
+  return sort = sortByRecentActivity(a, b);
 };
 
 const userFindSorting = {
@@ -226,8 +235,15 @@ const getActiveChats = (chatID) => {
 
   let activeChats = GroupChatMsg
     .find(filter)
-    .fetch()
-    .map(mapActiveChats);
+    .fetch();
+
+  const idsWithTimeStamp = {};
+
+  activeChats.map((chat) => {
+    idsWithTimeStamp[`${chat.sender}`] = chat.timestamp;
+  });
+
+  activeChats = activeChats.map(mapActiveChats);
 
   if (chatID) {
     activeChats.push(chatID);
@@ -242,6 +258,7 @@ const getActiveChats = (chatID) => {
       activeChat.unreadCounter = UnreadMessages.count(op.userId);
       activeChat.name = op.name;
       activeChat.isModerator = op.role === ROLE_MODERATOR;
+      activeChat.lastActivity = idsWithTimeStamp[`${op.userId}`];
       return activeChat;
     });
 
@@ -419,14 +436,30 @@ const muteAllExceptPresenter = (userId) => { makeCall('muteAllExceptPresenter', 
 
 const changeRole = (userId, role) => { makeCall('changeRole', userId, role); };
 
-const roving = (event, changeState, elementsList, element) => {
+const focusFirstDropDownItem = () => {
+  const dropdownContent = document.querySelector('div[data-test="dropdownContent"][style="visibility: visible;"]');
+  if (!dropdownContent) return;
+  const list = dropdownContent.getElementsByTagName('li');
+  list[0].focus();
+};
+
+const roving = (...args) => {
+  const [
+    event,
+    changeState,
+    elementsList,
+    element,
+  ] = args;
+
   this.selectedElement = element;
+  const numberOfChilds = elementsList.childElementCount;
   const menuOpen = Session.get('dropdownOpen') || false;
 
   if (menuOpen) {
     const menuChildren = document.activeElement.getElementsByTagName('li');
 
     if ([KEY_CODES.ESCAPE, KEY_CODES.ARROW_LEFT].includes(event.keyCode)) {
+      Session.set('dropdownOpen', false);
       document.activeElement.click();
     }
 
@@ -447,13 +480,15 @@ const roving = (event, changeState, elementsList, element) => {
   }
 
   if ([KEY_CODES.ESCAPE, KEY_CODES.TAB].includes(event.keyCode)) {
+    Session.set('dropdownOpen', false);
     document.activeElement.blur();
     changeState(null);
   }
 
   if (event.keyCode === KEY_CODES.ARROW_DOWN) {
     const firstElement = elementsList.firstChild;
-    let elRef = element ? element.nextSibling : firstElement;
+    let elRef = element && numberOfChilds > 1 ? element.nextSibling : firstElement;
+
     elRef = elRef || firstElement;
     changeState(elRef);
   }
@@ -466,7 +501,10 @@ const roving = (event, changeState, elementsList, element) => {
   }
 
   if ([KEY_CODES.ARROW_RIGHT, KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.keyCode)) {
-    document.activeElement.firstChild.click();
+    const tether = document.activeElement.firstChild;
+    const dropdownTrigger = tether.firstChild;
+    dropdownTrigger.click();
+    focusFirstDropDownItem();
   }
 };
 
@@ -494,7 +532,12 @@ export const getUserNamesLink = () => {
     .map(u => u.name)
     .join('\r\n');
   const link = document.createElement('a');
-  link.setAttribute('download', `save-users-list-${Date.now()}.txt`);
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
+    { fields: { 'meetingProp.name': 1 } });
+  const date = new Date();
+  const time = `${date.getHours()}-${date.getMinutes()}`;
+  const dateString = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}_${time}`;
+  link.setAttribute('download', `bbb-${meeting.meetingProp.name}[users-list]_${dateString}.txt`);
   link.setAttribute(
     'href',
     `data: ${mimeType} ;charset=utf-16,${encodeURIComponent(userNameListString)}`,
@@ -528,4 +571,5 @@ export default {
   hasPrivateChatBetweenUsers,
   toggleUserLock,
   requestUserInformation,
+  focusFirstDropDownItem,
 };

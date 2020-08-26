@@ -1,16 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import AnnotationHelpers from '../helpers';
+import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers';
 
 export default class RectangleDrawComponent extends Component {
-
   shouldComponentUpdate(nextProps) {
-    return this.props.version !== nextProps.version;
+    const { version } = this.props;
+    return version !== nextProps.version;
   }
 
   getCoordinates() {
-    const { points } = this.props.annotation;
-    const { slideWidth, slideHeight } = this.props;
+    const { slideWidth, slideHeight, annotation } = this.props;
+    const { points } = annotation;
+    /* eslint-disable prefer-destructuring */
     // x1 and y1 are the coordinates of the top left corner of the annotation
     // x2 and y2 are the coordinates of the bottom right corner of the annotation
     let x1 = points[0];
@@ -29,11 +30,11 @@ export default class RectangleDrawComponent extends Component {
       y1 = points[3];
       y2 = points[1];
     }
-
-    const x = (x1 / 100) * slideWidth;
-    const y = (y1 / 100) * slideHeight;
-    const width = ((x2 - x1) / 100) * slideWidth;
-    const height = ((y2 - y1) / 100) * slideHeight;
+    /* eslint-enable prefer-destructuring */
+    const x = denormalizeCoord(x1, slideWidth);
+    const y = denormalizeCoord(y1, slideHeight);
+    const width = denormalizeCoord((x2 - x1), slideWidth);
+    const height = denormalizeCoord((y2 - y1), slideHeight);
 
     return {
       x,
@@ -54,8 +55,8 @@ export default class RectangleDrawComponent extends Component {
         width={results.width}
         height={results.height}
         fill="none"
-        stroke={AnnotationHelpers.getFormattedColor(annotation.color)}
-        strokeWidth={AnnotationHelpers.getStrokeWidth(annotation.thickness, slideWidth)}
+        stroke={getFormattedColor(annotation.color)}
+        strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
       />
     );

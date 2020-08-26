@@ -9,7 +9,7 @@ public:
     skipCheck: false
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
-    bbbServerVersion: 2.2
+    bbbServerVersion: 2.3-dev
     copyright: "©2020 BigBlueButton Inc."
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
@@ -20,12 +20,19 @@ public:
     allowUserLookup: false
     enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
+    enableMultipleCameras: true
     enableTalkingIndicator: true
     mirrorOwnWebcam: false
     viewersInWebcam: 8
     ipv4FallbackDomain: ""
     allowLogout: true
     allowFullscreen: true
+    preloadNextSlides: 2
+    mutedAlert:
+      enabled: true
+      interval: 200
+      threshold: -50
+      duration: 4000
     remainingTimeThreshold: 30
     remainingTimeAlertThreshold: 1
     defaultSettings:
@@ -35,6 +42,8 @@ public:
         chatPushAlerts: false
         userJoinAudioAlerts: false
         userJoinPushAlerts: false
+        raiseHandAudioAlerts: true
+        raiseHandPushAlerts: true
         fallbackLocale: en
         overrideLocale: null
       audio:
@@ -72,7 +81,7 @@ public:
         accesskey: A
         descId: openActions
     branding:
-      displayBrandingArea: false
+      displayBrandingArea: true
     connectionTimeout: 60000
     showHelpButton: true
     effectiveConnection:
@@ -115,7 +124,60 @@ public:
         - window
         - screen
       firefoxScreenshareSource: window
+    # cameraProfiles is an array of:
+    # - id: profile identifier
+    #   name: human-readable profile name
+    #   bitrate
+    #   hidden: whether this profile will be hidden in the video preview dropdown
+    #   constraints: a video media constraints dictionary (without the video key)
     cameraProfiles:
+      # id: unique identifier of the profile
+      # name: name of the profile visible to users
+      # default: if this is the default profile which is pre-selected
+      # bitrate: the average bitrate for used for a webcam stream
+      # constraints:
+      #   # Optional constraints put on the requested video a browser MAY honor
+      #   # For a detailed list on possible values see:
+      #   # https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+      #   # Examples:
+      #   width: requested width of the camera stream
+      #   frameRate: requested framerate
+      - id: low-u30
+        name: low-u30
+        bitrate: 30
+        hidden: true
+        constraints:
+          frameRate: 3
+      - id: low-u25
+        name: low-u25
+        bitrate: 40
+        hidden: true
+        constraints:
+          frameRate: 3
+      - id: low-u20
+        name: low-u20
+        bitrate: 50
+        hidden: true
+        constraints:
+          frameRate: 5
+      - id: low-u15
+        name: low-u15
+        bitrate: 70
+        hidden: true
+        constraints:
+          frameRate: 8
+      - id: low-u12
+        name: low-u12
+        bitrate: 90
+        hidden: true
+        constraints:
+          frameRate: 10
+      - id: low-u8
+        name: low-u8
+        bitrate: 100
+        hidden: true
+        constraints:
+          frameRate: 10
       - id: low
         name: Low quality
         default: false
@@ -128,17 +190,41 @@ public:
         name: High quality
         default: false
         bitrate: 500
+        constraints:
+          width: 1280
+          frameRate: 15
       - id: hd
         name: High definition
         default: false
         bitrate: 800
+        constraints:
+          width: 1280
+          frameRate: 30
     enableScreensharing: true
     enableVideo: true
-    enableVideoStats: false
     enableVideoMenu: true
     enableListenOnly: true
     autoShareWebcam: false
     skipVideoPreview: false
+    # Entry `thresholds` is an array of:
+    # - threshold: minimum number of cameras being shared for profile to applied
+    #   profile: a camera profile id from the cameraProfiles configuration array
+    #            that will be applied to all cameras when threshold is hit
+    cameraQualityThresholds:
+      enabled: false
+      thresholds:
+        - threshold: 8
+          profile: low-u8
+        - threshold: 12
+          profile: low-u12
+        - threshold: 15
+          profile: low-u15
+        - threshold: 20
+          profile: low-u20
+        - threshold: 25
+          profile: low-u25
+        - threshold: 30
+          profile: low-u30
   pingPong:
     clearUsersInSeconds: 180
     pongTimeInSeconds: 15
@@ -190,6 +276,7 @@ public:
   layout:
     autoSwapLayout: false
     hidePresentation: false
+    webcamsDefaultPlacement: "top"
   media:
     stunTurnServersFetchAddress: "/bigbluebutton/api/stuns"
     cacheStunTurnServers: true
@@ -201,7 +288,26 @@ public:
     echoTestNumber: 'echo'
     relayOnlyOnReconnect: false
     listenOnlyCallTimeout: 15000
+  stats:
+    enabled: true
+    interval: 2000
+    length: 5
+    log: false
+    jitter:
+      - 10
+      - 20
+      - 30
+    loss:
+      - 0.05
+      - 0.1
+      - 0.2
+    level:
+      - warning
+      - danger
+      - critical
+    help: STATS_HELP_URL
   presentation:
+    allowDownloadable: true
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32
     restoreOnUpdate: false
@@ -329,9 +435,20 @@ public:
       - pencil
       - hand
   clientLog:
-    server: { enabled: true, level: info }
-    console: { enabled: true, level: debug }
-    external: { enabled: false, level: info, url: https://LOG_HOST/html5Log, method: POST, throttleInterval: 400, flushOnClose: true, logTag: "" }
+    server:
+      enabled: true
+      level: info
+    console:
+      enabled: true
+      level: debug
+    external:
+      enabled: false
+      level: info
+      url: https://LOG_HOST/html5Log
+      method: POST
+      throttleInterval: 400
+      flushOnClose: true
+      logTag: ""
 private:
   app:
     host: 127.0.0.1
@@ -375,22 +492,25 @@ private:
       enabled: false
   minBrowserVersions:
     - browser: chrome
-      version: 59
+      version: 72
     - browser: chromeMobileIOS
       version: Infinity
     - browser: firefox
-      version: 52
+      version: 63
     - browser: firefoxMobile
-      version: 52
+      version: 68
     - browser: edge
-      version: 17
+      version: 79
     - browser: ie
       version: Infinity
     - browser: safari
-      version: [11, 1]
+      version: [12, 1]
     - browser: mobileSafari
-      version: [11, 1]
+      version: [12, 1]
     - browser: opera
-      version: 46
+      version: 50
     - browser: electron
       version: [0, 36]
+    - browser: YandexBrowser
+      version: 19
+

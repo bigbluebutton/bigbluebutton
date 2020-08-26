@@ -54,6 +54,9 @@ class ReceivedJsonMsgHandlerActor(
       case CheckAlivePingSysMsg.NAME =>
         route[CheckAlivePingSysMsg](meetingManagerChannel, envelope, jsonNode)
 
+      case GetRunningMeetingsReqMsg.NAME =>
+        route[GetRunningMeetingsReqMsg](meetingManagerChannel, envelope, jsonNode)
+
       case CreateMeetingReqMsg.NAME =>
         route[CreateMeetingReqMsg](meetingManagerChannel, envelope, jsonNode)
       case ValidateAuthTokenReqMsg.NAME =>
@@ -82,6 +85,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetGuestsWaitingApprovalReqMsg](envelope, jsonNode)
       case GuestsWaitingApprovedMsg.NAME =>
         routeGenericMsg[GuestsWaitingApprovedMsg](envelope, jsonNode)
+      case GuestWaitingLeftMsg.NAME =>
+        routeGenericMsg[GuestWaitingLeftMsg](envelope, jsonNode)
       case SetGuestPolicyCmdMsg.NAME =>
         routeGenericMsg[SetGuestPolicyCmdMsg](envelope, jsonNode)
       case GetGuestPolicyReqMsg.NAME =>

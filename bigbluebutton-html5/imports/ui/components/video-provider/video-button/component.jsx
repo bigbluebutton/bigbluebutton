@@ -2,8 +2,10 @@ import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
+import VideoService from '../service';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { styles } from './styles';
+import { validIOSVersion } from '/imports/ui/components/app/service';
 
 const intlMessages = defineMessages({
   joinVideo: {
@@ -30,48 +32,46 @@ const intlMessages = defineMessages({
 
 const propTypes = {
   intl: intlShape.isRequired,
-  isSharingVideo: PropTypes.bool.isRequired,
+  hasVideoStream: PropTypes.bool.isRequired,
   isDisabled: PropTypes.bool.isRequired,
-  handleJoinVideo: PropTypes.func.isRequired,
-  handleCloseVideo: PropTypes.func.isRequired,
+  mountVideoPreview: PropTypes.func.isRequired,
 };
 
 const JoinVideoButton = ({
   intl,
-  isSharingVideo,
+  hasVideoStream,
   isDisabled,
-  handleJoinVideo,
-  handleCloseVideo,
-  notify,
-  validIOSVersion,
+  mountVideoPreview,
 }) => {
-  const verifyIOS = () => {
+  const exitVideo = () => hasVideoStream && !VideoService.isMultipleCamerasEnabled();
+
+  const handleOnClick = () => {
     if (!validIOSVersion()) {
-      return notify(
-        intl.formatMessage(intlMessages.iOSWarning),
-        'error',
-        'warning',
-      );
+      return VideoService.notify(intl.formatMessage(intlMessages.iOSWarning));
     }
-    handleJoinVideo();
+
+    if (exitVideo()) {
+      VideoService.exitVideo();
+    } else {
+      mountVideoPreview();
+    }
   };
 
-  const sharingVideoLabel = isSharingVideo
-    ? intl.formatMessage(intlMessages.leaveVideo) : intl.formatMessage(intlMessages.joinVideo);
-
-  const disabledLabel = isDisabled
-    ? intl.formatMessage(intlMessages.videoLocked) : sharingVideoLabel;
+  const label = exitVideo() ?
+    intl.formatMessage(intlMessages.leaveVideo) :
+    intl.formatMessage(intlMessages.joinVideo);
 
   return (
     <Button
-      label={disabledLabel}
-      className={cx(styles.button, isSharingVideo || styles.btn)}
-      onClick={isSharingVideo ? handleCloseVideo : verifyIOS}
+      data-test="joinVideo"
+      label={isDisabled ? intl.formatMessage(intlMessages.videoLocked) : label}
+      className={cx(styles.button, hasVideoStream || styles.btn)}
+      onClick={handleOnClick}
       hideLabel
       aria-label={intl.formatMessage(intlMessages.videoButtonDesc)}
-      color={isSharingVideo ? 'primary' : 'default'}
-      icon={isSharingVideo ? 'video' : 'video_off'}
-      ghost={!isSharingVideo}
+      color={hasVideoStream ? 'primary' : 'default'}
+      icon={hasVideoStream ? 'video' : 'video_off'}
+      ghost={!hasVideoStream}
       size="lg"
       circle
       disabled={isDisabled}
@@ -80,4 +80,5 @@ const JoinVideoButton = ({
 };
 
 JoinVideoButton.propTypes = propTypes;
+
 export default injectIntl(memo(JoinVideoButton));

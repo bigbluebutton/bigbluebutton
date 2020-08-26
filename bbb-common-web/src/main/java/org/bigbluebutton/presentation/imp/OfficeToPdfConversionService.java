@@ -20,6 +20,8 @@
 package org.bigbluebutton.presentation.imp;
 
 import java.io.File;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,9 +29,9 @@ import org.bigbluebutton.presentation.ConversionMessageConstants;
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.jodconverter.core.office.OfficeException;
-import org.jodconverter.core.office.OfficeManager;
+import org.jodconverter.core.office.OfficeUtils;
 import org.jodconverter.local.LocalConverter;
-import org.jodconverter.local.office.LocalOfficeManager;
+import org.jodconverter.local.office.ExternalOfficeManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,20 +41,15 @@ public class OfficeToPdfConversionService {
   private static Logger log = LoggerFactory.getLogger(OfficeToPdfConversionService.class);
 
   private OfficeDocumentValidator2 officeDocumentValidator;
-  private final OfficeManager officeManager;
-  private final LocalConverter documentConverter;
+  private final ArrayList<ExternalOfficeManager> officeManagers;
+  private ExternalOfficeManager currentManager = null;
   private boolean skipOfficePrecheck = false;
+  private int sofficeBasePort = 0;
+  private int sofficeManagers = 0;
+  private String sofficeWorkingDirBase = null;
 
   public OfficeToPdfConversionService() throws OfficeException {
-    officeManager = LocalOfficeManager
-      .builder()
-      .portNumbers(8100, 8101, 8102, 8103, 8104)
-      .build();
-    documentConverter = LocalConverter
-      .builder()
-      .officeManager(officeManager)
-      .filterChain(new OfficeDocumentConversionFilter())
-      .build();
+    officeManagers = new ArrayList<>();
   }
 
   /*
@@ -121,8 +118,39 @@ public class OfficeToPdfConversionService {
 
   private boolean convertOfficeDocToPdf(UploadedPresentation pres,
       File pdfOutput) {
-    Office2PdfPageConverter converter = new Office2PdfPageConverter();
-    return converter.convert(pres.getUploadedFile(), pdfOutput, 0, pres, documentConverter);
+    boolean success = false;
+    int attempts = 0;
+
+    while(!success) {
+      LocalConverter documentConverter = LocalConverter
+              .builder()
+              .officeManager(currentManager)
+              .filterChain(new OfficeDocumentConversionFilter())
+              .build();
+
+      success = Office2PdfPageConverter.convert(pres.getUploadedFile(), pdfOutput, 0, pres, documentConverter);
+
+      if(!success) {
+        // In case of failure, try with other open Office Manager
+
+        if(++attempts != officeManagers.size()) {
+          // Go to next Office Manager ( if the last retry with the first one )
+          int currentManagerIndex = officeManagers.indexOf(currentManager);
+
+          boolean isLastManager = ( currentManagerIndex == officeManagers.size()-1 );
+          if(isLastManager) {
+            currentManager = officeManagers.get(0);
+          } else {
+            currentManager = officeManagers.get(currentManagerIndex+1);
+          }
+        } else {
+          // We tried to use all our office managers and it's still failing
+          break;
+        }
+      }
+    }
+
+    return success;
   }
 
   private void makePdfTheUploadedFileAndSetStepAsSuccess(UploadedPresentation pres, File pdf) {
@@ -138,20 +166,66 @@ public class OfficeToPdfConversionService {
     this.skipOfficePrecheck = skipOfficePrecheck;
   }
 
+  public void setSofficeBasePort(int sofficeBasePort) {
+    this.sofficeBasePort = sofficeBasePort;
+  }
+
+  public void setSofficeManagers(int sofficeServiceManagers) {
+    this.sofficeManagers = sofficeServiceManagers;
+  }
+
+  public void setSofficeWorkingDirBase(String sofficeWorkingDirBase) {
+    this.sofficeWorkingDirBase = sofficeWorkingDirBase;
+  }
+
   public void start() {
-    try {
-      officeManager.start();
-    } catch (OfficeException e) {
-      log.error("Could not start Office Manager", e);
+    log.info("Starting LibreOffice pool with " + sofficeManagers + " managers, starting from port " + sofficeBasePort);
+
+    for(int managerIndex = 0; managerIndex < sofficeManagers; managerIndex ++) {
+      Integer instanceNumber = managerIndex + 1; // starts at 1
+
+      try {
+        final File workingDir = new File(sofficeWorkingDirBase + String.format("%02d", instanceNumber));
+
+        if(!workingDir.exists()) {
+          workingDir.mkdir();
+        }
+
+        ExternalOfficeManager officeManager = ExternalOfficeManager
+                .builder()
+                .connectTimeout(2000L)
+                .retryInterval(500L)
+                .portNumber(sofficeBasePort + managerIndex)
+                .connectOnStart(false) // If it's true and soffice is not available, exception is thrown here ( we don't want exception here - we want the manager alive trying to reconnect )
+                .workingDir(workingDir)
+                .build();
+
+        // Workaround for jodconverter not calling makeTempDir when connectOnStart=false (issue 211)
+        Method method = officeManager.getClass().getSuperclass().getDeclaredMethod("makeTempDir");
+        method.setAccessible(true);
+        method.invoke(officeManager);
+        // End of workaround for jodconverter not calling makeTempDir
+
+        officeManager.start();
+        officeManagers.add(officeManager);
+      } catch (Exception e) {
+        log.error("Could not start Office Manager " + instanceNumber + ". Details: " + e.getMessage());
+      }
     }
+
+    if (officeManagers.size() == 0) {
+      log.error("No office managers could be started");
+      return;
+    }
+
+    currentManager = officeManagers.get(0);
   }
 
   public void stop() {
     try {
-      officeManager.stop();
-    } catch (OfficeException e) {
+      officeManagers.forEach(officeManager -> officeManager.stop() );
+    } catch (Exception e) {
       log.error("Could not stop Office Manager", e);
     }
-
   }
 }

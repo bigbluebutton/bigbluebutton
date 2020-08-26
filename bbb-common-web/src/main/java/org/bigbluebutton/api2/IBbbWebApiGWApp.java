@@ -38,6 +38,7 @@ public interface IBbbWebApiGWApp {
                     Boolean guest, Boolean authed, String guestStatus);
   void ejectDuplicateUser(String meetingID, String internalUserId, String fullname,
                     String externUserID);
+  void guestWaitingLeft(String meetingID, String internalUserId);
 
   void destroyMeeting(DestroyMeetingMessage msg);
   void endMeeting(EndMeetingMessage msg);

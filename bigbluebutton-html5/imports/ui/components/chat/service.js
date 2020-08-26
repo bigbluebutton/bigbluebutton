@@ -31,6 +31,8 @@ const UnsentMessagesCollection = new Mongo.Collection(null);
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
+const POLL_MESSAGE_PREFIX = 'bbb-published-poll-<br/>';
+
 const getUser = userId => Users.findOne({ userId });
 
 const getWelcomeProp = () => Meetings.findOne({ meetingId: Auth.meetingID },
@@ -38,13 +40,13 @@ const getWelcomeProp = () => Meetings.findOne({ meetingId: Auth.meetingID },
 
 const mapGroupMessage = (message) => {
   const mappedMessage = {
-    id: message._id,
+    id: message._id || message.id,
     content: message.content,
-    time: message.timestamp,
+    time: message.timestamp || message.time,
     sender: null,
   };
 
-  if (message.sender !== SYSTEM_CHAT_TYPE) {
+  if (message.sender && message.sender !== SYSTEM_CHAT_TYPE) {
     const sender = Users.findOne({ userId: message.sender },
       {
         fields: {
@@ -83,11 +85,15 @@ const reduceGroupMessages = (previous, current) => {
     return previous.concat(currentMessage);
   }
   // Check if the last message is from the same user and time discrepancy
-  // between the two messages exceeds window and then group current message
-  // with the last one
+  // between the two messages exceeds window and then group current
+  // message with the last one
   const timeOfLastMessage = lastMessage.content[lastMessage.content.length - 1].time;
+  const isOrWasPoll = currentMessage.message.includes(POLL_MESSAGE_PREFIX)
+    || lastMessage.message.includes(POLL_MESSAGE_PREFIX);
+  const groupingWindow = isOrWasPoll ? 0 : GROUPING_MESSAGES_WINDOW;
+
   if (lastMessage.sender === currentMessage.sender
-    && (currentMessage.timestamp - timeOfLastMessage) <= GROUPING_MESSAGES_WINDOW) {
+    && (currentMessage.timestamp - timeOfLastMessage) <= groupingWindow) {
     lastMessage.content.push(currentMessage.content.pop());
     return previous;
   }
@@ -97,6 +103,9 @@ const reduceGroupMessages = (previous, current) => {
 
 const reduceAndMapGroupMessages = messages => (messages
   .reduce(reduceGroupMessages, []).map(mapGroupMessage));
+
+const reduceAndDontMapGroupMessages = messages => (messages
+  .reduce(reduceGroupMessages, []));
 
 const getPublicGroupMessages = () => {
   const publicGroupMessages = GroupChatMsg.find({
@@ -129,7 +138,7 @@ const getPrivateGroupMessages = () => {
     }, { sort: ['timestamp'] }).fetch();
   }
 
-  return reduceAndMapGroupMessages(messages, []);
+  return reduceAndDontMapGroupMessages(messages, []);
 };
 
 const isChatLocked = (receiverID) => {
@@ -327,7 +336,9 @@ const getLastMessageTimestampFromChatList = activeChats => activeChats
   .reduce(maxNumberReducer, 0);
 
 export default {
+  mapGroupMessage,
   reduceAndMapGroupMessages,
+  reduceAndDontMapGroupMessages,
   getPublicGroupMessages,
   getPrivateGroupMessages,
   getUser,

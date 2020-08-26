@@ -237,6 +237,11 @@ class BbbWebApiGWApp(
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
   }
 
+  def guestWaitingLeft(meetingId: String, intUserId: String): Unit = {
+    val event = MsgBuilder.buildGuestWaitingLeftMsg(meetingId, intUserId)
+    msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+  }
+
   def destroyMeeting(msg: DestroyMeetingMessage): Unit = {
     val event = MsgBuilder.buildDestroyMeetingSysCmdMsg(msg)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))

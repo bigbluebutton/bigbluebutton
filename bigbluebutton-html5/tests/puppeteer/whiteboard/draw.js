@@ -28,8 +28,7 @@ class Draw extends Page {
     console.log('\nShapes after drawing box:');
     console.log(shapes1);
 
-    // TODO: Check test
-    return true;
+    return shapes0 !== shapes1;
   }
 
   async getTestElements() {

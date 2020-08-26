@@ -14,9 +14,9 @@ const getScreenStream = async () => {
   const gDMCallback = (stream) => {
     if (typeof stream.getVideoTracks === 'function'
         && typeof constraints.video === 'object') {
-      stream.getVideoTracks().forEach(track => {
-        if (typeof track.applyConstraints  === 'function') {
-          track.applyConstraints(constraints.video).catch(error => {
+      stream.getVideoTracks().forEach((track) => {
+        if (typeof track.applyConstraints === 'function') {
+          track.applyConstraints(constraints.video).catch((error) => {
             logger.warn({
               logCode: 'screenshare_videoconstraint_failed',
               extraInfo: { errorName: error.name, errorCode: error.code },
@@ -29,9 +29,9 @@ const getScreenStream = async () => {
 
     if (typeof stream.getAudioTracks === 'function'
         && typeof constraints.audio === 'object') {
-      stream.getAudioTracks().forEach(track => {
-        if (typeof track.applyConstraints  === 'function') {
-          track.applyConstraints(constraints.audio).catch(error => {
+      stream.getAudioTracks().forEach((track) => {
+        if (typeof track.applyConstraints === 'function') {
+          track.applyConstraints(constraints.audio).catch((error) => {
             logger.warn({
               logCode: 'screenshare_audioconstraint_failed',
               extraInfo: { errorName: error.name, errorCode: error.code },
@@ -42,7 +42,7 @@ const getScreenStream = async () => {
     }
 
     return Promise.resolve(stream);
-  }
+  };
 
   const constraints = hasDisplayMedia ? GDM_CONSTRAINTS : null;
 
@@ -50,30 +50,29 @@ const getScreenStream = async () => {
   // constraint fetcher work its way on kurento-extension.js
   if (constraints == null) {
     return Promise.resolve();
-  } else  {
-    if (typeof navigator.getDisplayMedia === 'function') {
-      return navigator.getDisplayMedia(constraints)
-        .then(gDMCallback)
-        .catch(error => {
-          logger.error({
-            logCode: 'screenshare_getdisplaymedia_failed',
-            extraInfo: { errorName: error.name, errorCode: error.code },
-          }, 'getDisplayMedia call failed');
-          return Promise.resolve();
-        });
-    } else if (navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function') {
-      return navigator.mediaDevices.getDisplayMedia(constraints)
-        .then(gDMCallback)
-        .catch(error => {
-          logger.error({
-            logCode: 'screenshare_getdisplaymedia_failed',
-            extraInfo: { errorName: error.name, errorCode: error.code },
-          }, 'getDisplayMedia call failed');
-          return Promise.resolve();
-        });
-    }
   }
-}
+  if (typeof navigator.getDisplayMedia === 'function') {
+    return navigator.getDisplayMedia(constraints)
+      .then(gDMCallback)
+      .catch((error) => {
+        logger.error({
+          logCode: 'screenshare_getdisplaymedia_failed',
+          extraInfo: { errorName: error.name, errorCode: error.code },
+        }, 'getDisplayMedia call failed');
+        return Promise.resolve();
+      });
+  } if (navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function') {
+    return navigator.mediaDevices.getDisplayMedia(constraints)
+      .then(gDMCallback)
+      .catch((error) => {
+        logger.error({
+          logCode: 'screenshare_getdisplaymedia_failed',
+          extraInfo: { errorName: error.name, errorCode: error.code },
+        }, 'getDisplayMedia call failed');
+        return Promise.resolve();
+      });
+  }
+};
 
 
 export default {

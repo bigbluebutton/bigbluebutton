@@ -146,6 +146,7 @@ class LiveResult extends PureComponent {
       stopPoll,
       handleBackClick,
       currentPoll,
+      sendGroupMessage,
     } = this.props;
 
     const { userAnswers, pollStats } = this.state;
@@ -190,10 +191,26 @@ class LiveResult extends PureComponent {
             <Button
               disabled={!isMeteorConnected}
               onClick={() => {
+                Session.set('pollInitiated', false);
                 Service.publishPoll();
+                const { answers, numRespondents } = currentPoll;
+                let responded = 0;
+                let resultString = 'bbb-published-poll-\n';
+                answers.map((item) => {
+                  responded += item.numVotes;
+                  return item;
+                }).map((item) => {
+                  const numResponded = responded === numRespondents ? numRespondents : responded;
+                  const pct = Math.round(item.numVotes / numResponded * 100);
+                  const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
+                  resultString += `${item.key}: ${item.numVotes || 0} | ${pctFotmatted}\n`;
+                });
+
+                sendGroupMessage(resultString);
                 stopPoll();
               }}
               label={intl.formatMessage(intlMessages.publishLabel)}
+              data-test="publishLabel"
               color="primary"
               className={styles.btn}
             />

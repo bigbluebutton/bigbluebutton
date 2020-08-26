@@ -82,6 +82,7 @@ import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.bigbluebutton.common2.redis.RedisStorageService;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask;
+import org.bigbluebutton.web.services.WaitingGuestCleanupTimerTask;
 import org.bigbluebutton.web.services.callback.CallbackUrlService;
 import org.bigbluebutton.web.services.callback.MeetingEndedEvent;
 import org.bigbluebutton.web.services.turn.StunTurnService;
@@ -107,6 +108,7 @@ public class MeetingService implements MessageListener {
 
   private RecordingService recordingService;
   private RegisteredUserCleanupTimerTask registeredUserCleaner;
+  private WaitingGuestCleanupTimerTask waitingGuestCleaner;
   private StunTurnService stunTurnService;
   private RedisStorageService storeService;
   private CallbackUrlService callbackUrlService;
@@ -199,6 +201,38 @@ public class MeetingService implements MessageListener {
     }
   }
 
+  public void guestIsWaiting(String meetingId, String userId) {
+    Meeting m = getMeeting(meetingId);
+    if (m != null) {
+      m.guestIsWaiting(userId);
+    }
+  }
+
+  /**
+   * Remove registered waiting guest users who left the waiting page.
+   */
+  public void purgeWaitingGuestUsers() {
+    for (AbstractMap.Entry<String, Meeting> entry : this.meetings.entrySet()) {
+      Long now = System.currentTimeMillis();
+      Meeting meeting = entry.getValue();
+
+      ConcurrentMap<String, User> users = meeting.getUsersMap();
+
+      for (AbstractMap.Entry<String, RegisteredUser> registeredUser : meeting.getRegisteredUsers().entrySet()) {
+        String registeredUserID = registeredUser.getKey();
+        RegisteredUser ru = registeredUser.getValue();
+
+        long elapsedTime = now - ru.getGuestWaitedOn();
+        if (elapsedTime >= 15000 && ru.getGuestStatus() == GuestPolicy.WAIT) {
+          if (meeting.userUnregistered(registeredUserID) != null) {
+            gw.guestWaitingLeft(meeting.getInternalId(), registeredUserID);
+          };
+        }
+      }
+    }
+  }
+
+
   private void kickOffProcessingOfRecording(Meeting m) {
     if (m.isRecord() && m.getNumUsers() == 0) {
       processRecording(m);
@@ -243,8 +277,10 @@ public class MeetingService implements MessageListener {
 
   public synchronized boolean createMeeting(Meeting m) {
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(m.getExternalId());
-    Meeting existing = getNotEndedMeetingWithId(internalMeetingId);
-    if (existing == null) {
+    Meeting existingId = getNotEndedMeetingWithId(internalMeetingId);
+    Meeting existingTelVoice = getNotEndedMeetingWithTelVoice(m.getTelVoice());
+    Meeting existingWebVoice = getNotEndedMeetingWithWebVoice(m.getWebVoice());
+    if (existingId == null && existingTelVoice == null && existingWebVoice == null) {
       meetings.put(m.getInternalId(), m);
       handle(new CreateMeeting(m));
       return true;
@@ -396,6 +432,32 @@ public class MeetingService implements MessageListener {
           String key = entry.getKey();
           if (key.startsWith(meetingId)) {
               Meeting m = entry.getValue();
+              if (!m.isForciblyEnded())
+                  return m;
+          }
+      }
+      return null;
+  }
+
+  public Meeting getNotEndedMeetingWithTelVoice(String telVoice) {
+      if (telVoice == null)
+          return null;
+      for (Map.Entry<String, Meeting> entry : meetings.entrySet()) {
+          Meeting m = entry.getValue();
+          if (telVoice.equals(m.getTelVoice())) {
+              if (!m.isForciblyEnded())
+                  return m;
+          }
+      }
+      return null;
+  }
+
+  public Meeting getNotEndedMeetingWithWebVoice(String webVoice) {
+      if (webVoice == null)
+          return null;
+      for (Map.Entry<String, Meeting> entry : meetings.entrySet()) {
+          Meeting m = entry.getValue();
+          if (webVoice.equals(m.getWebVoice())) {
               if (!m.isForciblyEnded())
                   return m;
           }
@@ -1025,6 +1087,7 @@ public class MeetingService implements MessageListener {
   public void stop() {
     processMessage = false;
     registeredUserCleaner.stop();
+    waitingGuestCleaner.stop();
   }
 
   public void setRecordingService(RecordingService s) {
@@ -1043,6 +1106,11 @@ public class MeetingService implements MessageListener {
     this.gw = gw;
   }
 
+  public void setWaitingGuestCleanupTimerTask(WaitingGuestCleanupTimerTask c) {
+    waitingGuestCleaner = c;
+    waitingGuestCleaner.setMeetingService(this);
+    waitingGuestCleaner.start();
+  }
 
   public void setRegisteredUserCleanupTimerTask(
     RegisteredUserCleanupTimerTask c) {

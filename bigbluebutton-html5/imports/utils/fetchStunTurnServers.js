@@ -39,7 +39,7 @@ const fetchStunTurnServers = function (sessionToken) {
   const url = `${STUN_TURN_FETCH_URL}?sessionToken=${sessionToken}`;
   return fetch(url, { credentials: 'same-origin' })
     .then(res => res.json())
-    .then(handleStunTurnResponse)
+    .then(handleStunTurnResponse);
 };
 
 const mapStunTurn = ({ stun, turn }) => {
@@ -49,13 +49,11 @@ const mapStunTurn = ({ stun, turn }) => {
 };
 
 const getFallbackStun = () => {
-  const stun = FALLBACK_STUN_SERVER ? [FALLBACK_STUN_SERVER] : []
+  const stun = FALLBACK_STUN_SERVER ? [FALLBACK_STUN_SERVER] : [];
   return { stun, turn: [] };
-}
+};
 
-const getMappedFallbackStun = () => {
-  return FALLBACK_STUN_SERVER ? [{ urls: FALLBACK_STUN_SERVER }] : [];
-}
+const getMappedFallbackStun = () => (FALLBACK_STUN_SERVER ? [{ urls: FALLBACK_STUN_SERVER }] : []);
 
 const fetchWebRTCMappedStunTurnServers = function (sessionToken) {
   return new Promise(async (resolve, reject) => {
@@ -64,7 +62,7 @@ const fetchWebRTCMappedStunTurnServers = function (sessionToken) {
         return resolve(MAPPED_STUN_TURN_DICT);
       }
 
-      const stDictionary =  await fetchStunTurnServers(sessionToken);
+      const stDictionary = await fetchStunTurnServers(sessionToken);
 
       MAPPED_STUN_TURN_DICT = mapStunTurn(stDictionary);
       return resolve(MAPPED_STUN_TURN_DICT);

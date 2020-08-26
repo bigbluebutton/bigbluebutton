@@ -38,7 +38,7 @@ end
 meeting_id = opts[:meeting_id]
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
-props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
+props = BigBlueButton.read_props
 presentation_props = YAML::load(File.open('presentation.yml'))
 presentation_props['audio_offset'] = 0 if presentation_props['audio_offset'].nil?
 presentation_props['include_deskshare'] = false if presentation_props['include_deskshare'].nil?
