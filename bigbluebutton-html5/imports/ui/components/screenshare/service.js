@@ -40,16 +40,19 @@ const viewScreenshare = (hasAudio) => {
   }
 };
 
+const screenshareHasAudio = () => {
+  return Screenshare.findOne({ meetingId: Auth.meetingID },
+    { fields: { 'screenshare.hasAudio': 1 } }).screenshare.hasAudio;
+}
+
 // if remote screenshare has been started connect and display the video stream
 const presenterScreenshareHasStarted = () => {
-  // KurentoBridge.kurentoWatchVideo: references a function in the global
-  // namespace inside kurento-extension.js that we load dynamically
+  const hasAudio = screenshareHasAudio();
 
-  const ds = Screenshare.findOne({});
   // WebRTC restrictions may need a capture device permission to release
   // useful ICE candidates on recvonly/no-gUM peers
   tryGenerateIceCandidates().then(() => {
-    viewScreenshare(ds.screenshare.hasAudio);
+    viewScreenshare(hasAudio);
   }).catch((error) => {
     logger.error({
       logCode: 'screenshare_no_valid_candidate_gum_failure',
@@ -59,7 +62,7 @@ const presenterScreenshareHasStarted = () => {
       },
     }, `Forced gUM to release additional ICE candidates failed due to ${error.name}.`);
     // The fallback gUM failed. Try it anyways and hope for the best.
-    viewScreenshare(ds.screenshare.hasAudio);
+    viewScreenshare(hasAudio);
   });
 };
 

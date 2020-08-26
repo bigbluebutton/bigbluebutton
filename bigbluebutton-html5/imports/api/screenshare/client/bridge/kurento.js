@@ -144,6 +144,7 @@ export default class KurentoScreenshareBridge {
         iceServers,
         logger,
         userName: getUsername(),
+        hasAudio,
       };
 
       const onFail = (error) => {
@@ -161,7 +162,7 @@ export default class KurentoScreenshareBridge {
           KurentoScreenshareBridge.screenshareElementLoadAndPlay(
             stream,
             screenshareMediaElement,
-            hasAudio,
+            !hasAudio,
           );
         }
       };
@@ -193,6 +194,7 @@ export default class KurentoScreenshareBridge {
         'Screenshare bridge failed to fetch STUN/TURN info, using default');
       iceServers = getMappedFallbackStun();
     } finally {
+      const hasAudioTrack = stream.getAudioTracks().length >= 1;
       const options = {
         wsUrl: Auth.authenticateURL(SFU_URL),
         chromeExtension: CHROME_EXTENSION_KEY,
@@ -201,6 +203,7 @@ export default class KurentoScreenshareBridge {
         iceServers,
         logger,
         userName: getUsername(),
+        hasAudio: hasAudioTrack,
       };
 
       let started = false;
