@@ -41,8 +41,14 @@ const viewScreenshare = (hasAudio) => {
 };
 
 const screenshareHasAudio = () => {
-  return Screenshare.findOne({ meetingId: Auth.meetingID },
-    { fields: { 'screenshare.hasAudio': 1 } }).screenshare.hasAudio;
+  const screenshareEntry = Screenshare.findOne({ meetingId: Auth.meetingID },
+    { fields: { 'screenshare.hasAudio': 1 } });
+
+  if (!screenshareEntry) {
+    return false;
+  }
+
+  return !!screenshareEntry.screenshare.hasAudio;
 }
 
 // if remote screenshare has been started connect and display the video stream
