@@ -133,8 +133,10 @@ export default class KurentoScreenshareBridge {
     try {
       iceServers = await fetchWebRTCMappedStunTurnServers(getSessionToken());
     } catch (error) {
-      logger.error({ logCode: 'screenshare_viewer', extraInfo: { error } },
-        'Screenshare bridge failed to fetch STUN/TURN info, using default');
+      logger.error({
+        logCode: 'screenshare_viewer_fetchstunturninfo_error',
+        extraInfo: { error }
+      }, 'Screenshare bridge failed to fetch STUN/TURN info, using default');
       iceServers = getMappedFallbackStun();
     } finally {
       const options = {
