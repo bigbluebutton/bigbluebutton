@@ -880,12 +880,10 @@ class VideoProvider extends Component {
 
   render() {
     const { swapLayout, currentVideoPageIndex } = this.props;
-    const { socketOpen } = this.state;
-    if (!socketOpen) return null;
-
     const {
       streams,
     } = this.props;
+
     return (
       <VideoListContainer
         streams={streams}
