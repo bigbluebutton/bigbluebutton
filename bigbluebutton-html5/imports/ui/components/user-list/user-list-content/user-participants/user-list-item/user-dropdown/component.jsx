@@ -342,7 +342,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToMuteAudio && isMeteorConnected) {
+    if (allowedToMuteAudio && isMeteorConnected && !meetingIsBreakout) {
       actions.push(this.makeDropdownItem(
         'mute',
         intl.formatMessage(messages.MuteUserAudioLabel),
@@ -351,7 +351,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToUnmuteAudio && !userLocks.userMic && isMeteorConnected) {
+    if (allowedToUnmuteAudio && !userLocks.userMic && isMeteorConnected && !meetingIsBreakout) {
       actions.push(this.makeDropdownItem(
         'unmute',
         intl.formatMessage(messages.UnmuteUserAudioLabel),

@@ -41,8 +41,10 @@ function handleTextUpdate(meetingId, whiteboardId, userId, annotation) {
     id, status, annotationType, annotationInfo, wbId, position,
   } = annotation;
 
-  const { textBoxWidth, textBoxHeight } = annotationInfo;
-  const useDefaultSize = textBoxWidth === 0 && textBoxHeight === 0;
+  const { textBoxWidth, textBoxHeight, calcedFontSize } = annotationInfo;
+  const useDefaultSize = (textBoxWidth === 0 && textBoxHeight === 0)
+    || textBoxWidth < calcedFontSize
+    || textBoxHeight < calcedFontSize;
 
   if (useDefaultSize) {
     annotationInfo.textBoxWidth = DEFAULT_TEXT_WIDTH;
