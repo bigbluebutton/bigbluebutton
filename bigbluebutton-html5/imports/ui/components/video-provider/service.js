@@ -12,6 +12,7 @@ import { monitorVideoConnection } from '/imports/utils/stats';
 import browser from 'browser-detect';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import logger from '/imports/startup/client/logger';
+import _ from 'lodash';
 
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
 const MULTIPLE_CAMERAS = Meteor.settings.public.app.enableMultipleCameras;
@@ -23,22 +24,60 @@ const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 const MIRROR_WEBCAM = Meteor.settings.public.app.mirrorOwnWebcam;
 const CAMERA_QUALITY_THRESHOLDS = Meteor.settings.public.kurento.cameraQualityThresholds.thresholds || [];
+const {
+  enabled: PAGINATION_ENABLED,
+  pageChangeDebounceTime: PAGE_CHANGE_DEBOUNCE_TIME,
+  desktopPageSizes: DESKTOP_PAGE_SIZES,
+  mobilePageSizes: MOBILE_PAGE_SIZES,
+} = Meteor.settings.public.kurento.pagination;
 
 const TOKEN = '_';
 
 class VideoService {
+  static isUserPresenter(userId) {
+    const user = Users.findOne({ userId },
+      { fields: { presenter: 1 } });
+    return user ? user.presenter : false;
+  }
+
+  // Paginated streams: sort with following priority: local -> presenter -> alphabetic
+  static sortPaginatedStreams(s1, s2) {
+    if (VideoService.isUserPresenter(s1.userId) && !VideoService.isUserPresenter(s2.userId)) {
+      return -1;
+    } else if (VideoService.isUserPresenter(s2.userId) && !VideoService.isUserPresenter(s1.userId)) {
+      return 1;
+    } else {
+      return UserListService.sortUsersByName(s1, s2);
+    }
+  }
+
+  // Full mesh: sort with the following priority: local -> alphabetic
+  static sortMeshStreams(s1, s2) {
+    if (s1.userId === Auth.userID) {
+      return -1;
+    } else {
+      return UserListService.sortUsersByName(s1, s2);
+    }
+  }
+
   constructor() {
     this.defineProperties({
       isConnecting: false,
       isConnected: false,
+      currentVideoPageIndex: 0,
+      numberOfPages: 0,
     });
     this.skipVideoPreview = null;
     this.userParameterProfile = null;
     const BROWSER_RESULTS = browser();
     this.isMobile = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
     this.isSafari = BROWSER_RESULTS.name === 'safari';
+    this.pageChangeLocked = false;
 
     this.numberOfDevices = 0;
+
+    this.record = null;
+    this.hackRecordViewer = null;
 
     // If the page isn't served over HTTPS there won't be mediaDevices
     if (navigator.mediaDevices) {
@@ -163,6 +202,103 @@ class VideoService {
     return Auth.authenticateURL(SFU_URL);
   }
 
+  isPaginationEnabled () {
+    return PAGINATION_ENABLED && (this.getMyPageSize() > 0);
+  }
+
+  setNumberOfPages (numberOfPublishers, numberOfSubscribers, pageSize) {
+    // Page size 0 means no pagination, return itself
+    if (pageSize === 0) return 0;
+
+    // Page size refers only to the number of subscribers. Publishers are always
+    // shown, hence not accounted for
+    const nofPages = Math.ceil((numberOfSubscribers || numberOfPublishers) / pageSize);
+
+    if (nofPages !== this.numberOfPages) {
+      this.numberOfPages = nofPages;
+      // Check if we have to page back on the current video page index due to a
+      // page ceasing to exist
+      if ((this.currentVideoPageIndex + 1) > this.numberOfPages) {
+        this.getPreviousVideoPage();
+      }
+    }
+
+    return this.numberOfPages;
+  }
+
+  getNumberOfPages () {
+    return this.numberOfPages;
+  }
+
+  setCurrentVideoPageIndex (newVideoPageIndex) {
+    if (this.currentVideoPageIndex !== newVideoPageIndex) {
+      this.currentVideoPageIndex = newVideoPageIndex;
+    }
+  }
+
+  getCurrentVideoPageIndex () {
+    return this.currentVideoPageIndex;
+  }
+
+  calculateNextPage () {
+    if (this.numberOfPages === 0) {
+      return 0;
+    }
+
+    return ((this.currentVideoPageIndex + 1) % this.numberOfPages + this.numberOfPages) % this.numberOfPages;
+  }
+
+  calculatePreviousPage () {
+    if (this.numberOfPages === 0) {
+      return 0;
+    }
+
+    return ((this.currentVideoPageIndex - 1) % this.numberOfPages + this.numberOfPages) % this.numberOfPages;
+  }
+
+  getNextVideoPage() {
+    const nextPage = this.calculateNextPage();
+    this.setCurrentVideoPageIndex(nextPage);
+
+    return this.currentVideoPageIndex;
+  }
+
+  getPreviousVideoPage() {
+    const previousPage = this.calculatePreviousPage();
+    this.setCurrentVideoPageIndex(previousPage);
+
+    return this.currentVideoPageIndex;
+  }
+
+  getMyPageSize () {
+    const myRole = this.getMyRole();
+    const pageSizes = !this.isMobile ? DESKTOP_PAGE_SIZES : MOBILE_PAGE_SIZES;
+
+    switch (myRole) {
+      case ROLE_MODERATOR:
+        return pageSizes.moderator;
+      case ROLE_VIEWER:
+      default:
+        return pageSizes.viewer
+    }
+  }
+
+  getVideoPage (streams, pageSize) {
+    // Publishers are taken into account for the page size calculations. They
+    // also appear on every page.
+    const [mine, others] = _.partition(streams, (vs => { return Auth.userID === vs.userId; }));
+
+    // Recalculate total number of pages
+    this.setNumberOfPages(mine.length, others.length, pageSize);
+    const chunkIndex = this.currentVideoPageIndex * pageSize;
+    const paginatedStreams = others
+      .sort(VideoService.sortPaginatedStreams)
+      .slice(chunkIndex, (chunkIndex + pageSize)) || [];
+    const streamsOnPage = [...mine, ...paginatedStreams];
+
+    return streamsOnPage;
+  }
+
   getVideoStreams() {
     let streams = VideoStreams.find(
       { meetingId: Auth.meetingID },
@@ -179,11 +315,26 @@ class VideoService {
     const connectingStream = this.getConnectingStream(streams);
     if (connectingStream) streams.push(connectingStream);
 
-    return streams.map(vs => ({
+    const mappedStreams = streams.map(vs => ({
       cameraId: vs.stream,
       userId: vs.userId,
       name: vs.name,
-    })).sort(UserListService.sortUsersByName);
+    }));
+
+    const pageSize = this.getMyPageSize();
+
+    // Pagination is either explictly disabled or pagination is set to 0 (which
+    // is equivalent to disabling it), so return the mapped streams as they are
+    // which produces the original non paginated behaviour
+    if (!PAGINATION_ENABLED || pageSize === 0) {
+      return {
+        streams: mappedStreams.sort(VideoService.sortMeshStreams),
+        totalNumberOfStreams: mappedStreams.length
+      };
+    }
+
+    const paginatedStreams = this.getVideoPage(mappedStreams, pageSize);
+    return { streams: paginatedStreams, totalNumberOfStreams: mappedStreams.length };
   }
 
   getConnectingStream(streams) {
@@ -227,9 +378,38 @@ class VideoService {
     return streams.find(s => s.stream === stream);
   }
 
+  getMyRole () {
+    return Users.findOne({ userId: Auth.userID },
+      { fields: { role: 1 } })?.role;
+  }
+
+  getRecord() {
+    if (this.record === null) {
+      this.record = getFromUserSettings('bbb_record_video', true);
+    }
+
+    // TODO: Remove this
+    // This is a hack to handle a missing piece at the backend of a particular deploy.
+    // If, at the time the video is shared, the user has a viewer role and
+    // meta_hack-record-viewer-video is 'false' this user won't have this video
+    // stream recorded.
+    if (this.hackRecordViewer === null) {
+      const prop = Meetings.findOne(
+        { meetingId: Auth.meetingID },
+        { fields: { 'metadataProp': 1 } },
+      ).metadataProp;
+
+      const value = prop.metadata ? prop.metadata['hack-record-viewer-video'] : null;
+      this.hackRecordViewer = value ? value.toLowerCase() === 'true' : true;
+    }
+
+    const hackRecord = this.getMyRole() === ROLE_MODERATOR || this.hackRecordViewer;
+
+    return this.record && hackRecord;
+  }
+
   filterModeratorOnly(streams) {
-    const me = Users.findOne({ userId: Auth.userID });
-    const amIViewer = me?.role === ROLE_VIEWER;
+    const amIViewer = this.getMyRole() === ROLE_VIEWER;
 
     if (amIViewer) {
       const moderators = Users.find(
@@ -245,7 +425,7 @@ class VideoService {
         const { userId } = stream;
 
         const isModerator = moderators.includes(userId);
-        const isMe = me?.userId === userId;
+        const isMe = Auth.userID === userId;
 
         if (isModerator || isMe) result.push(stream);
 
@@ -565,6 +745,7 @@ export default {
   addCandidateToPeer: (peer, candidate, cameraId) => videoService.addCandidateToPeer(peer, candidate, cameraId),
   processInboundIceQueue: (peer, cameraId) => videoService.processInboundIceQueue(peer, cameraId),
   getRole: isLocal => videoService.getRole(isLocal),
+  getRecord: () => videoService.getRecord(),
   getSharedDevices: () => videoService.getSharedDevices(),
   getSkipVideoPreview: fromInterface => videoService.getSkipVideoPreview(fromInterface),
   getUserParameterProfile: () => videoService.getUserParameterProfile(),
@@ -576,4 +757,10 @@ export default {
   updateNumberOfDevices: devices => videoService.updateNumberOfDevices(devices),
   applyCameraProfile: (peer, newProfile) => videoService.applyCameraProfile(peer, newProfile),
   getThreshold: (numberOfPublishers) => videoService.getThreshold(numberOfPublishers),
+  isPaginationEnabled: () => videoService.isPaginationEnabled(),
+  getNumberOfPages: () => videoService.getNumberOfPages(),
+  getCurrentVideoPageIndex: () => videoService.getCurrentVideoPageIndex(),
+  getPreviousVideoPage: () => videoService.getPreviousVideoPage(),
+  getNextVideoPage: () => videoService.getNextVideoPage(),
+  getPageChangeDebounceTime: () => { return PAGE_CHANGE_DEBOUNCE_TIME },
 };
