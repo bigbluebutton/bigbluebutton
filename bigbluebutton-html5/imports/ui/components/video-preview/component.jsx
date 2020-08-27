@@ -62,6 +62,22 @@ const intlMessages = defineMessages({
     id: 'app.videoPreview.profileLabel',
     description: 'Quality dropdown label',
   },
+  low: {
+    id: 'app.videoPreview.quality.low',
+    description: 'Low quality option label',
+  },
+  medium: {
+    id: 'app.videoPreview.quality.medium',
+    description: 'Medium quality option label',
+  },
+  high: {
+    id: 'app.videoPreview.quality.high',
+    description: 'High quality option label',
+  },
+  hd: {
+    id: 'app.videoPreview.quality.hd',
+    description: 'High definition option label',
+  },
   cancelLabel: {
     id: 'app.videoPreview.cancelLabel',
     description: 'Cancel button label',
@@ -395,7 +411,7 @@ class VideoPreview extends Component {
 
   displayInitialPreview(deviceId) {
     const { changeWebcam } = this.props;
-    const availableProfiles = CAMERA_PROFILES;
+    const availableProfiles = CAMERA_PROFILES.filter(p => !p.hidden);
 
     this.setState({
       webcamDeviceId: deviceId,
@@ -540,11 +556,16 @@ class VideoPreview extends Component {
                     onChange={this.handleSelectProfile}
                     disabled={skipVideoPreview}
                   >
-                    {availableProfiles.map(profile => (
+                    {availableProfiles.map(profile => {
+                     const label = intlMessages[`${profile.id}`]
+                      ? intl.formatMessage(intlMessages[`${profile.id}`])
+                      : profile.name;
+
+                     return (
                       <option key={profile.id} value={profile.id}>
-                        {profile.name}
+                        {`${label} ${profile.id === 'hd' ? '' : intl.formatMessage(intlMessages.qualityLabel).toLowerCase()}`}
                       </option>
-                    ))}
+                    )})}
                   </select>
                 )
                 : (

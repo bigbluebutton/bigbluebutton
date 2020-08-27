@@ -64,7 +64,9 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
     renameThumbnails(thumbsDir, page);
 
     // Create blank thumbnails for pages that failed to generate a thumbnail.
-    createBlankThumbnail(thumbsDir, page);
+    if (!success) {
+      createBlankThumbnail(thumbsDir, page);
+    }
 
 
     return success;
@@ -117,9 +119,9 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
      * If more than 1 file, filename like 'temp-thumb-X.png' else filename is
      * 'temp-thumb.png'
      */
+    Matcher matcher;
     if (dir.list().length > 1) {
       File[] files = dir.listFiles();
-      Matcher matcher;
       for (File file : files) {
         matcher = PAGE_NUMBER_PATTERN.matcher(file.getAbsolutePath());
         if (matcher.matches()) {
@@ -144,6 +146,15 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
       File oldFilename = new File(
           dir.getAbsolutePath() + File.separatorChar + dir.list()[0]);
       String newFilename = "thumb-1.png";
+
+      // Might be the first thumbnail of a set and it might be out of order
+      // Avoid setting the second/third/... slide as thumb-1.png
+      matcher = PAGE_NUMBER_PATTERN.matcher(oldFilename.getAbsolutePath());
+      if (matcher.matches()) {
+        int pageNum = Integer.valueOf(matcher.group(2).trim()).intValue();
+        newFilename = "thumb-" + (pageNum) + ".png";
+      }
+
       File renamedFile = new File(
           oldFilename.getParent() + File.separatorChar + newFilename);
       oldFilename.renameTo(renamedFile);

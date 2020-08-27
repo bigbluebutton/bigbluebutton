@@ -1,8 +1,8 @@
 @import "/imports/ui/stylesheets/variables/_all";
-@import "/imports/ui/components/video-provider/video-list/styles";
+@import "/imports/ui/components/media/styles";
 
 .connecting {
-  @extend .connecting;
+  @extend .connectingSpinner;
   z-index: -1;
   background-color: transparent;
   color: var(--color-white);

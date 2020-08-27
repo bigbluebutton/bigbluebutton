@@ -45,6 +45,7 @@ const currentParameters = [
   'bbb_preferred_camera_profile',
   'bbb_enable_screen_sharing',
   'bbb_enable_video',
+  'bbb_record_video',
   'bbb_skip_video_preview',
   'bbb_mirror_own_webcam',
   // PRESENTATION
@@ -71,7 +72,7 @@ function valueParser(val) {
     const parsedValue = JSON.parse(val.toLowerCase());
     return parsedValue;
   } catch (error) {
-    logger.error('Parameter value could not ber parsed');
+    logger.warn(`addUserSettings:Parameter ${val} could not be parsed (was not json)`);
     return val;
   }
 }
