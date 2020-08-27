@@ -80,14 +80,18 @@ class RemoteDesktop extends Component {
     const fb_width = this.player.rfb._fb_width;
     const fb_height = this.player.rfb._fb_height;
 
+    if ((fb_width == 0) || (fb_height == 0)) {
+	return;
+    }
+
     const idealW = h * fb_width / fb_height;
 
     const style = {};
     if (idealW > w) {
       style.width = w;
-      style.height = w * fb_height / fb_width;
+      style.height = Math.floor(w * fb_height / fb_width);
     } else {
-      style.width = idealW;
+      style.width = Math.floor(idealW);
       style.height = h;
     }
 
