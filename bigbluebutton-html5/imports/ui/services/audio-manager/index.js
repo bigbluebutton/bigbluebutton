@@ -281,6 +281,22 @@ class AudioManager {
     return this.bridge.transferCall(this.onAudioJoin.bind(this));
   }
 
+  onVoiceUserChanges(fields) {
+    if (fields.muted !== undefined && fields.muted !== this.isMuted) {
+      this.isMuted = fields.muted;
+      const muteState = this.isMuted ? 'selfMuted' : 'selfUnmuted';
+      window.parent.postMessage({ response: muteState }, '*');
+    }
+
+    if (fields.talking !== undefined && fields.talking !== this.isTalking) {
+      this.isTalking = fields.talking;
+    }
+
+    if (this.isMuted) {
+      this.isTalking = false;
+    }
+  }
+
   onAudioJoin() {
     this.isConnecting = false;
     this.isConnected = true;
@@ -289,21 +305,8 @@ class AudioManager {
     if (!this.muteHandle) {
       const query = VoiceUsers.find({ intId: Auth.userID }, { fields: { muted: 1, talking: 1 } });
       this.muteHandle = query.observeChanges({
-        changed: (id, fields) => {
-          if (fields.muted !== undefined && fields.muted !== this.isMuted) {
-            this.isMuted = fields.muted;
-            const muteState = this.isMuted ? 'selfMuted' : 'selfUnmuted';
-            window.parent.postMessage({ response: muteState }, '*');
-          }
-
-          if (fields.talking !== undefined && fields.talking !== this.isTalking) {
-            this.isTalking = fields.talking;
-          }
-
-          if (this.isMuted) {
-            this.isTalking = false;
-          }
-        },
+        added: (id, fields) => this.onVoiceUserChanges(fields),
+        changed: (id, fields) => this.onVoiceUserChanges(fields),
       });
     }
 
