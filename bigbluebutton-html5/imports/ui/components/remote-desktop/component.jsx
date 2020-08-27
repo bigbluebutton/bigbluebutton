@@ -29,6 +29,7 @@ class RemoteDesktop extends Component {
     super(props);
     this.state = {
       isFullscreen: false,
+      resized: false,
     };
 
     this.player = null;
@@ -50,6 +51,18 @@ class RemoteDesktop extends Component {
   }
 
   handleResize() {
+
+    /* The first time through this code, it's likely that this.playerParent
+     * won't be set yet, and that means the full screen component won't
+     * work right.  The simplest way I've found to fix this is to set
+     * some kind of state variable here, which forces a re-render the
+     * first time it toggles from false to true, and that fixes the problem
+     * with the full screen component.
+     *
+     * Strictly speaking, this has nothing to do with a resize.
+     */
+    this.setState({resized: true});
+
     if (!this.player || !this.playerParent) {
       return;
     }
