@@ -83,6 +83,7 @@ const propTypes = {
   isUserLocked: PropTypes.bool.isRequired,
   swapLayout: PropTypes.bool.isRequired,
   currentVideoPageIndex: PropTypes.number.isRequired,
+  totalNumberOfStreams: PropTypes.number.isRequired,
 };
 
 class VideoProvider extends Component {
@@ -880,13 +881,8 @@ class VideoProvider extends Component {
   }
 
   render() {
-    const { swapLayout, currentVideoPageIndex } = this.props;
-    const { socketOpen } = this.state;
-    if (!socketOpen) return null;
+    const { swapLayout, currentVideoPageIndex, streams } = this.props;
 
-    const {
-      streams,
-    } = this.props;
     return (
       <VideoListContainer
         streams={streams}
