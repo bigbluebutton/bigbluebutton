@@ -12,13 +12,14 @@ import Auth from '/imports/ui/services/auth';
 // screensharing. If it has changed either trigger a call to receive video
 // and display it, or end the call and hide the video
 const isVideoBroadcasting = () => {
-  const ds = Screenshare.findOne({});
+  const screenshareEntry = Screenshare.findOne({ meetingId: Auth.meetingID },
+    { fields: { 'screenshare.stream': 1 } });
 
-  if (!ds) {
+  if (!screenshareEntry) {
     return false;
   }
 
-  return !!ds.screenshare.stream;
+  return !!screenshareEntry.screenshare.stream;
 };
 
 // if remote screenshare has been ended disconnect and hide the video stream
