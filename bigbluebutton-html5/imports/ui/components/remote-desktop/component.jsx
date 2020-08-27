@@ -122,6 +122,17 @@ class RemoteDesktop extends Component {
     rfb.sendPassword(this.vncPassword);
   }
 
+  updateState = (rfb, newState, oldState, msg) => {
+      /* We have to handshake a bit with the VNC server before
+       * we know the remote screen geometry.  Therefore, once
+       * the connection state transitions to 'normal', we
+       * should schedule a resize.
+       */
+      if (newState == 'normal') {
+	  setTimeout(this.handleResize, 0);
+      }
+  }
+
   renderFullscreenButton() {
     const { intl } = this.props;
     const { isFullscreen } = this.state;
@@ -163,6 +174,7 @@ class RemoteDesktop extends Component {
           url={remoteDesktopUrl}
           forceAuthScheme={2}
           onPasswordRequired={this.passwordFunc}
+          onUpdateState={this.updateState}
           resize="scale"
           shared
           ref={(ref) => { this.player = ref; }}
