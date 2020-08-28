@@ -44,6 +44,7 @@ public:
         chatPushAlerts: false
         userJoinAudioAlerts: false
         userJoinPushAlerts: false
+        paginationEnabled: false
         fallbackLocale: en
         overrideLocale: null
       audio:
@@ -210,7 +211,11 @@ public:
           profile: low-u30
     pagination:
       # whether to globally enable or disable pagination.
-      enabled: false
+      # WARNING: the pagination.enabled setting has moved to
+      # public.app.defaultSettings.application.paginationEnabled
+      #
+      # show a pagination toggle in settings for the user enable/disable it
+      paginationToggleEnabled: true
       # how long (in ms) the negotiation will be debounced after a page change.
       pageChangeDebounceTime: 2500
       # video page sizes for DESKTOP endpoints. It stands for the number of SUBSCRIBER streams.

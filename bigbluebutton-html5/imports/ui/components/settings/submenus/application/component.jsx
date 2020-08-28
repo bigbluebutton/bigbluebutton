@@ -5,6 +5,7 @@ import Toggle from '/imports/ui/components/switch/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import { styles } from '../styles';
+import VideoService from '/imports/ui/components/video-provider/service';
 
 const MIN_FONTSIZE = 0;
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
@@ -69,6 +70,10 @@ const intlMessages = defineMessages({
   noLocaleOptionLabel: {
     id: 'app.submenu.application.noLocaleOptionLabel',
     description: 'default change language option when no locales available',
+  },
+  paginationEnabledLabel: {
+    id: 'app.submenu.application.paginationEnabledLabel',
+    description: 'enable/disable video pagination',
   },
 });
 
@@ -156,6 +161,35 @@ class ApplicationMenu extends BaseMenu {
     const obj = this.state;
     obj.settings[fieldname] = e.target.value.toLowerCase().replace('_', '-');
     this.handleUpdateSettings('application', obj.settings);
+  }
+
+  renderPaginationToggle() {
+    // See VideoService's method for an explanation
+    if (!VideoService.shouldRenderPaginationToggle()) return;
+
+    const { intl } = this.props;
+
+    return (
+      <div className={styles.row}>
+        <div className={styles.col} aria-hidden="true">
+          <div className={styles.formElement}>
+            <label className={styles.label}>
+              {intl.formatMessage(intlMessages.paginationEnabledLabel)}
+            </label>
+          </div>
+        </div>
+        <div className={styles.col}>
+          <div className={cx(styles.formElement, styles.pullContentRight)}>
+            <Toggle
+              icons={false}
+              defaultChecked={this.state.settings.paginationEnabled}
+              onChange={() => this.handleToggle('paginationEnabled')}
+              ariaLabel={intl.formatMessage(intlMessages.paginationEnabledLabel)}
+            />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   render() {
@@ -287,6 +321,8 @@ class ApplicationMenu extends BaseMenu {
               </div>
             </div>
           </div>
+
+          {this.renderPaginationToggle()}
 
           <div className={styles.row}>
             <div className={styles.col} aria-hidden="true">
