@@ -304,6 +304,7 @@
     "app.submenu.application.languageLabel": "Application Language",
     "app.submenu.application.languageOptionLabel": "Choose language",
     "app.submenu.application.noLocaleOptionLabel": "No active locales",
+    "app.submenu.application.paginationEnabledLabel": "Video pagination",
     "app.submenu.audio.micSourceLabel": "Microphone source",
     "app.submenu.audio.speakerSourceLabel": "Speaker source",
     "app.submenu.audio.streamVolumeLabel": "Your audio stream volume",
