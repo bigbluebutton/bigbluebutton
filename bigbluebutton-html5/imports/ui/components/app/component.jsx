@@ -23,6 +23,7 @@ import PingPongContainer from '/imports/ui/components/ping-pong/container';
 import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
+import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
 import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
 import { styles } from './styles';
 import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
@@ -155,8 +156,10 @@ class App extends Component {
 
   componentDidUpdate(prevProps) {
     const {
-      meetingMuted, notify, currentUserEmoji, intl, hasPublishedPoll,
+      meetingMuted, notify, currentUserEmoji, intl, hasPublishedPoll, randomlySelectedUser, currentUserId, mountModal,
     } = this.props;
+
+    if (randomlySelectedUser === currentUserId) mountModal(<RandomUserSelectContainer isSelectedUser />);
 
     if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })

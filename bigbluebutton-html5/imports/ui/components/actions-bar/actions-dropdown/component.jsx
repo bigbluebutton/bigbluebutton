@@ -12,6 +12,7 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
+import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
 import cx from 'classnames';
 import { styles } from '../styles';
 
@@ -75,6 +76,14 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.stopShareExternalVideo',
     description: 'Stop sharing external video button',
   },
+  selectRandUserLabel: {
+    id: 'app.actionsBar.actionsDropdown.selectRandUserLabel',
+    description: 'Label for selecting a random user',
+  },
+  selectRandUserDesc: {
+    id: 'app.actionsBar.actionsDropdown.selectRandUserDesc',
+    description: 'Description for select random user option',
+  },
 });
 
 const handlePresentationClick = () => Session.set('showUploadPresentationView', true);
@@ -86,6 +95,7 @@ class ActionsDropdown extends PureComponent {
     this.presentationItemId = _.uniqueId('action-item-');
     this.pollId = _.uniqueId('action-item-');
     this.takePresenterId = _.uniqueId('action-item-');
+    this.selectUserRandId = _.uniqueId('action-item-');
 
     this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
     this.makePresentationItems = this.makePresentationItems.bind(this);
@@ -108,6 +118,7 @@ class ActionsDropdown extends PureComponent {
       isSharingVideo,
       isPollingEnabled,
       stopExternalVideoShare,
+      mountModal,
     } = this.props;
 
     const {
@@ -174,6 +185,17 @@ class ActionsDropdown extends PureComponent {
             description="External Video"
             key="external-video"
             onClick={isSharingVideo ? stopExternalVideoShare : this.handleExternalVideoClick}
+          />
+        )
+        : null),
+      (amIPresenter
+        ? (
+          <DropdownListItem
+            icon="user"
+            label={intl.formatMessage(intlMessages.selectRandUserLabel)}
+            description={intl.formatMessage(intlMessages.selectRandUserDesc)}
+            key={this.selectUserRandId}
+            onClick={() => mountModal(<RandomUserSelectContainer isSelectedUser={false} />)}
           />
         )
         : null),
