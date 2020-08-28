@@ -110,7 +110,8 @@ async function poll(test) {
 
 async function previousSlide(test) {
   try {
-    await test.page.evaluate(() => document.querySelectorAll('button[aria-describedby="prevSlideDesc"]')[0].click());
+    await test.waitForSelector('button[data-test="prevSlide"]');
+    await test.click('button[data-test="prevSlide"]', true);
     return true;
   } catch (e) {
     console.log(e);
@@ -120,7 +121,8 @@ async function previousSlide(test) {
 
 async function nextSlide(test) {
   try {
-    await test.page.evaluate(() => document.querySelectorAll('button[aria-describedby="nextSlideDesc"]')[0].click());
+    await test.waitForSelector('button[data-test="nextSlide"]');
+    await test.click('button[data-test="nextSlide"]', true);
     return true;
   } catch (e) {
     console.log(e);

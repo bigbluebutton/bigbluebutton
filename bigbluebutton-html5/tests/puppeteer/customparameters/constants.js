@@ -17,7 +17,7 @@ exports.presenterTools = 'userdata-bbb_presenter_tools=["pencil", "hand"]';
 exports.multiUserTools = 'userdata-bbb_multi_user_tools=["pencil", "hand"]';
 const cssCode = '.presentationTitle--1LT79g{display: none;}';
 exports.customStyle = `userdata-bbb_custom_style=${cssCode}`;
-exports.customStyleUrl = 'userdata-bbb_custom_style_url=https://develop.bigbluebutton.org/damine.css';
+exports.customStyleUrl = 'userdata-bbb_custom_style_url=https://develop.bigbluebutton.org/css-test-file.css';
 exports.autoSwapLayout = 'userdata-bbb_auto_swap_layout=true';
 exports.hidePresentation = 'userdata-bbb_hide_presentation=true';
 exports.outsideToggleSelfVoice = 'userdata-bbb_outside_toggle_self_voice=true';

@@ -5,7 +5,7 @@ const util = require('./customparameters/util');
 
 const customParametersTest = () => {
   beforeEach(() => {
-    jest.setTimeout(30000);
+    jest.setTimeout(50000);
   });
 
   // This test spec sets the userdata-autoJoin parameter to false
