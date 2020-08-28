@@ -73,5 +73,76 @@ module BigBlueButton
       return audio_edl
     end
 
+    def self.create_deskshare_audio_edl(events, deskshare_dir)
+      audio_edl = []
+
+      initial_timestamp = BigBlueButton::Events.first_event_timestamp(events)
+      final_timestamp = BigBlueButton::Events.last_event_timestamp(events)
+      filename = ""
+
+      # Initially start with silence
+      audio_edl << {
+        :timestamp => 0,
+        :audio => nil
+      }
+
+      deskshare_start = {	
+        :filename => "",	
+        :timestamp => 0	
+      }
+
+      events.xpath('/recording/event[@module="Deskshare" or (@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCDesktopShareEvent" or @eventname="StopWebRTCDesktopShareEvent"))]').each do |event|
+        # check if deskshare has audio
+        filename = event.at_xpath('filename').text
+        fileHasAudio = !BigBlueButton::EDL::Audio.audio_info(filename)[:audio].nil?
+        if (fileHasAudio)
+          timestamp = event['timestamp'].to_i - initial_timestamp
+          # Determine the audio filename
+          case event['eventname']
+          when 'DeskshareStartedEvent', 'DeskshareStoppedEvent'
+            filename = event.at_xpath('file').text
+            filename = "#{deskshare_dir}/#{File.basename(filename)}"
+          when 'StartWebRTCDesktopShareEvent', 'StopWebRTCDesktopShareEvent'
+            uri = event.at_xpath('filename').text
+            filename = "#{deskshare_dir}/#{File.basename(uri)}"
+          end
+          raise "Couldn't determine audio filename" if filename.nil?
+
+          # Add the audio to the EDL
+          case event['eventname']
+          when 'DeskshareStartedEvent', 'StartWebRTCDesktopShareEvent'
+            audio_edl << {
+              :timestamp => timestamp,
+              :audio => { :filename => filename, :timestamp => 0 }
+            }
+          when 'DeskshareStoppedEvent', 'StopWebRTCDesktopShareEvent'
+            if audio_edl.last[:audio] && audio_edl.last[:audio][:filename] == filename
+              # Fill in the original/expected audo duration when available
+              duration = event.at_xpath('duration')
+              if !duration.nil?
+                duration = duration.text.to_i
+                audio_edl.last[:original_duration] = duration * 1000
+              else
+                audio_edl.last[:original_duration] = timestamp - audio_edl.last[:timestamp]
+              end
+              audio_edl << {
+                :timestamp => timestamp,
+                :audio => nil
+              }
+            end
+          end
+        else
+          BigBlueButton.logger.debug " Screenshare without audio, ignoring..."
+        end
+      end
+
+      audio_edl << {
+        :timestamp => final_timestamp - initial_timestamp,
+        :audio => nil
+      }
+
+      return audio_edl
+    end
+
   end
 end

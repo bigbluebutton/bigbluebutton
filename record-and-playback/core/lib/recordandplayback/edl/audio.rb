@@ -41,6 +41,25 @@ module BigBlueButton
         end
       end
 
+      def self.mixer(inputs, output_basename)	
+        BigBlueButton.logger.debug "Mixing audio files"	
+
+        ffmpeg_cmd = [*FFMPEG]	
+        inputs.each do |input|	
+          ffmpeg_cmd += ['-i', input]	
+        end	
+        ffmpeg_cmd += ['-filter_complex', "amix"]	
+
+        output = "#{output_basename}.#{WF_EXT}"	
+        ffmpeg_cmd += [*FFMPEG_WF_ARGS, output]	
+
+        BigBlueButton.logger.info "Running audio mixer..."	
+        exitstatus = BigBlueButton.exec_ret(*ffmpeg_cmd)	
+        raise "ffmpeg failed, exit code #{exitstatus}" if exitstatus != 0	
+
+        output	
+      end
+
       def self.render(edl, output_basename)
         sections = []
         audioinfo = {}
@@ -109,7 +128,7 @@ module BigBlueButton
             filter = "[#{input_index}] "
             filter << "atempo=#{speed},atrim=start=#{ms_to_s(audio[:timestamp])},"
             filter << "asetpts=PTS-STARTPTS,"
-            filter << "#{FFMPEG_AFORMAT},apad,atrim=end=#{ms_to_s(duration)} [out#{output_index}]"
+            filter << "#{FFMPEG_AFORMAT},apad,atrim=end=#{ms_to_s(duration)} ,afifo[out#{output_index}]"
             ffmpeg_filters << filter
 
             ffmpeg_inputs << {
@@ -128,7 +147,7 @@ module BigBlueButton
             BigBlueButton.logger.info "  Using input #{audio[:filename]}"
 
             filter = "[#{input_index}] "
-            filter << "#{FFMPEG_AFORMAT},apad,atrim=end=#{ms_to_s(duration)} [out#{output_index}]"
+            filter << "#{FFMPEG_AFORMAT},apad,atrim=end=#{ms_to_s(duration)} ,afifo[out#{output_index}]"
             ffmpeg_filters << filter
 
             ffmpeg_inputs << {
@@ -155,6 +174,7 @@ module BigBlueButton
           if audioinfo[input[:filename]][:format][:format_name] == 'wav'
             ffmpeg_cmd += ['-ignore_length', '1']
           end
+          ffmpeg_cmd += ['-vsync', 'vfr']
           ffmpeg_cmd += ['-i', input[:filename]]
         end
         ffmpeg_filter = ffmpeg_filters.join(' ; ')
