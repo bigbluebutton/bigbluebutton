@@ -3,6 +3,8 @@ import Logger from '/imports/startup/server/logger';
 
 import { removeAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { removeCursorStreamer } from '/imports/api/cursor/server/streamer';
+import { removeExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
+import BannedUsers from '/imports/api/users/server/store/bannedUsers';
 
 import clearUsers from '/imports/api/users/server/modifiers/clearUsers';
 import clearUsersSettings from '/imports/api/users-settings/server/modifiers/clearUsersSettings';
@@ -23,9 +25,15 @@ import clearRecordMeeting from './clearRecordMeeting';
 import clearVoiceCallStates from '/imports/api/voice-call-states/server/modifiers/clearVoiceCallStates';
 import clearVideoStreams from '/imports/api/video-streams/server/modifiers/clearVideoStreams';
 
+
 export default function meetingHasEnded(meetingId) {
-  removeAnnotationsStreamer(meetingId);
-  removeCursorStreamer(meetingId);
+
+
+  if (!process.env.METEOR_ROLE || process.env.METEOR_ROLE === 'frontend') {
+    removeAnnotationsStreamer(meetingId);
+    removeCursorStreamer(meetingId);
+    removeExternalVideoStreamer(meetingId);
+  }
 
   return Meetings.remove({ meetingId }, () => {
     clearCaptions(meetingId);
@@ -46,6 +54,7 @@ export default function meetingHasEnded(meetingId) {
     clearRecordMeeting(meetingId);
     clearVoiceCallStates(meetingId);
     clearVideoStreams(meetingId);
+    BannedUsers.delete(meetingId);
 
     return Logger.info(`Cleared Meetings with id ${meetingId}`);
   });

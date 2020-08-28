@@ -331,6 +331,14 @@ class ReceivedJsonMsgHandlerActor(
       case CreateGroupChatReqMsg.NAME =>
         routeGenericMsg[CreateGroupChatReqMsg](envelope, jsonNode)
 
+      // ExternalVideo
+      case StartExternalVideoPubMsg.NAME =>
+        routeGenericMsg[StartExternalVideoPubMsg](envelope, jsonNode)
+      case UpdateExternalVideoPubMsg.NAME =>
+        routeGenericMsg[UpdateExternalVideoPubMsg](envelope, jsonNode)
+      case StopExternalVideoPubMsg.NAME =>
+        routeGenericMsg[StopExternalVideoPubMsg](envelope, jsonNode)
+
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)
       // do nothing

@@ -487,7 +487,7 @@ private:
       toThirdParty: to-third-party-redis-channel
     subscribeTo:
     - to-html5-redis-channel
-    - from-akka-apps-*
+    - from-akka-apps-[^f]*
     - from-third-party-redis-channel
     - from-etherpad-redis-channel
     async:

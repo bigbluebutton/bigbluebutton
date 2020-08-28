@@ -10,6 +10,7 @@ import createNote from '/imports/api/note/server/methods/createNote';
 import createCaptions from '/imports/api/captions/server/methods/createCaptions';
 import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
+import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
 import BannedUsers from '/imports/api/users/server/store/bannedUsers';
 
 export default function addMeeting(meeting) {
@@ -198,8 +199,12 @@ export default function addMeeting(meeting) {
     ...recordProp,
   }, cbRecord);
 
-  addAnnotationsStreamer(meetingId);
-  addCursorStreamer(meetingId);
+
+  if (!process.env.METEOR_ROLE || process.env.METEOR_ROLE === 'frontend') {
+    addAnnotationsStreamer(meetingId);
+    addCursorStreamer(meetingId);
+    addExternalVideoStreamer(meetingId);
+  }
 
   return Meetings.upsert(selector, modifier, cb);
 }

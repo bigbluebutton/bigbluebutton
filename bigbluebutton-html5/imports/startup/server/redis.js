@@ -134,11 +134,27 @@ class RedisPubSub {
 
     const channelsToSubscribe = this.config.subscribeTo;
 
-    channelsToSubscribe.forEach((channel) => {
+    /*channelsToSubscribe.forEach((channel) => {
       this.sub.psubscribe(channel);
     });
 
-    this.debug(`Subscribed to '${channelsToSubscribe}'`);
+   */
+
+   switch (process.env.METEOR_ROLE) {
+         case 'frontend':
+            this.sub.psubscribe('from-akka-apps-frontend-redis-channel');
+            this.debug(`Subscribed to from-akka-apps-frontend-redis-channel`);
+            break;
+         default:
+           const channelsToSubscribe = this.config.subscribeTo;
+           channelsToSubscribe.forEach((channel) => {
+             this.sub.psubscribe(channel);
+             this.debug(`Subscribed to '${channel}'`)
+            });
+
+           break;
+       }
+
   }
 
   updateConfig(config) {
