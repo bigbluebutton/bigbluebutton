@@ -61,6 +61,7 @@ public:
         raiseHandPushAlerts: true
         guestWaitingAudioAlerts: true
         guestWaitingPushAlerts: true
+        paginationEnabled: true
         fallbackLocale: en
         overrideLocale: null
         #Audio constraints for microphone. Use this to control browser's
@@ -268,8 +269,11 @@ public:
         - threshold: 30
           profile: low-u30
     pagination:
-      # whether to globally enable or disable pagination.
-      enabled: true
+      # WARNING: the pagination.enabled setting has moved to
+      # public.app.defaultSettings.application.paginationEnabled
+      # paginationToggleEnabled: show a pagination toggle in settings for the
+      # user to enable/disable it
+      paginationToggleEnabled: true
       # how long (in ms) the negotiation will be debounced after a page change.
       pageChangeDebounceTime: 2500
       # video page sizes for DESKTOP endpoints. It stands for the number of SUBSCRIBER streams.
