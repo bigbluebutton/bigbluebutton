@@ -235,7 +235,7 @@ while [ $# -gt 0 ]; do
 
         if [ "$1" = "-deletenorecord" -o "$1" = "--deletenorecord" ]; then
 		need_root
-                DELETEALL=1
+                DELETENORECORD=1
 		shift
                 continue
         fi
@@ -435,7 +435,7 @@ if [ $DELETEALL ]; then
   done
 fi
 
-if [ $DELETEALL ]; then
+if [ $DELETENORECORD ]; then
   # check for *.norecord files
   # if found call a new instance of bbb-record for deleting identified recordings.
 
