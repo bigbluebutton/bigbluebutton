@@ -94,6 +94,26 @@ class ActionsBar extends PureComponent {
             screenshareDataSavingSetting,
           }}
           />
+          <Button
+            icon='globe'
+            color='primary'
+            label='Activate Translation'
+            circle
+            hideLabel
+            size="lg"
+          />
+          <Button
+            className={cx(styles.button, autoArrangeLayout || styles.btn)}
+            icon={autoArrangeLayout ? 'lock' : 'unlock'}
+            color={autoArrangeLayout ? 'primary' : 'default'}
+            ghost={!autoArrangeLayout}
+            onClick={this.autoArrangeToggle}
+            label={autoArrangeLayout ? 'Disable Auto Arrange' : 'Enable Auto Arrange'}
+            aria-label="Auto Arrange test"
+            hideLabel
+            circle
+            size="lg"
+          />
         </div>
         <div className={styles.right}>
           {isLayoutSwapped
