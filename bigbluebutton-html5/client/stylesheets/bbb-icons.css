@@ -285,3 +285,6 @@
 .icon-bbb-closed_caption:before {
   content: "\e957";
 }
+.icon-bbb-globe:before {
+  content: "\1f310";
+}
