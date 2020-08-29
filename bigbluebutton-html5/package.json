@@ -8,8 +8,8 @@
     "generate-refs-visual-regression": "rm -rf tests/webdriverio/screenshots; npm run test-visual-regression",
     "test-visual-regression-desktop": "export BROWSER_NAME=firefox; wdio ./tests/webdriverio/wdio.vreg.conf.js; export BROWSER_NAME=chrome; wdio ./tests/webdriverio/wdio.vreg.conf.js",
     "generate-refs-visual-regression-desktop": "rm -rf tests/webdriverio/screenshots; npm run test-visual-regression-desktop",
-    "start:prod": "meteor reset && ROOT_URL=http://127.0.0.1/html5client NODE_ENV=production meteor --production",
-    "start:dev": "ROOT_URL=http://127.0.0.1/html5client NODE_ENV=development meteor",
+    "start:prod": "meteor reset && ROOT_URL=http://127.0.0.1/html5client NODE_ENV=production meteor --production --allow-superuser",
+    "start:dev": "ROOT_URL=http://127.0.0.1/html5client NODE_ENV=development meteor --allow-superuser",
     "start:dev-fast-mongo": "env ROOT_URL=http://127.0.0.1/html5client MONGO_OPLOG_URL=mongodb://127.0.1.1/local MONGO_URL=mongodb://127.0.1.1/meteor PORT=3000 ROOT_URL=http://127.0.0.1/html5client NODE_ENV=development meteor",
     "test": "wdio ./tests/webdriverio/wdio.conf.js",
     "lint": "eslint . --ext .jsx,.js"
