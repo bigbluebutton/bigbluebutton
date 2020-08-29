@@ -102,6 +102,18 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.captionsDesc',
     description: 'Captions menu toggle description',
   },
+  savedNamesListTitle: {
+    id: 'app.userList.userOptions.savedNames.title',
+    description: '',
+  },
+  sortedFirstNameHeading: {
+    id: 'app.userList.userOptions.sortedFirstName.heading',
+    description: '',
+  },
+  sortedLastNameHeading: {
+    id: 'app.userList.userOptions.sortedLastName.heading',
+    description: '',
+  },
 });
 
 class UserOptions extends PureComponent {
@@ -131,7 +143,21 @@ class UserOptions extends PureComponent {
   }
 
   onSaveUserNames() {
-    getUserNamesLink().dispatchEvent(new MouseEvent('click',
+    const { intl, meetingName } = this.props;
+    const date = new Date();
+    getUserNamesLink(
+      intl.formatMessage(intlMessages.savedNamesListTitle,
+        {
+          0: meetingName,
+          1: `${date.toLocaleDateString(
+            document.documentElement.lang,
+          )}:${date.toLocaleTimeString(
+            document.documentElement.lang,
+          )}`,
+        }),
+      intl.formatMessage(intlMessages.sortedFirstNameHeading),
+      intl.formatMessage(intlMessages.sortedLastNameHeading),
+    ).dispatchEvent(new MouseEvent('click',
       { bubbles: true, cancelable: true, view: window }));
   }
 

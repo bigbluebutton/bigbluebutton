@@ -529,10 +529,8 @@ export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
   const namesByLastName = userNamesObj.sort(sortUsersByLastName)
     .map(u => getUsernameString(u)).join('\r\n');
 
-  const namesListsString = `List of users in meeting XXX at Date:time
-    \r\n\r\nSorted by first name:\r\n${namesByFirstName}
-    \r\n\r\nSorted by last name:\r\n${namesByLastName}`
-    .replace(/ {2}/g, ' ');
+  const namesListsString = `${docTitle}\r\n\r\n${fnSortedLabel}\r\n${namesByFirstName}
+    \r\n\r\n${lnSortedLabel}\r\n${namesByLastName}`.replace(/ {2}/g, ' ');
 
   const link = document.createElement('a');
   link.setAttribute('download', `save-users-list-${Date.now()}.txt`);
