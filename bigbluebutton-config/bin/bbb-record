@@ -385,6 +385,7 @@ if [ $DELETE ]; then
   rm -rf /usr/share/red5/webapps/video-broadcast/streams/$MEETING_ID
   rm -f /var/bigbluebutton/screenshare/$MEETING_ID*.flv
   rm -f /var/freeswitch/meetings/$MEETING_ID*.wav
+  rm -f /var/freeswitch/meetings/$MEETING_ID*.opus
   rm -rf /var/bigbluebutton/$MEETING_ID
 fi
 
@@ -416,6 +417,7 @@ if [ $DELETEALL ]; then
   find /usr/share/red5/webapps/video-broadcast/streams -name "*.flv" -exec rm '{}' \;
   rm -f /var/bigbluebutton/screenshare/*.flv
   rm -f /var/freeswitch/meetings/*.wav
+  rm -f /var/freeswitch/meetings/*.opus
 
   for meeting in $(ls /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$"); do
     echo "deleting: $meeting"
