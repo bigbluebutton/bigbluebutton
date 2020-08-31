@@ -8,6 +8,7 @@ import ActionsDropdown from './actions-dropdown/container';
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
+import LockRemoteDesktopContainer from '../remote-desktop/lock-button/container';
 import PresentationOptionsContainer from './presentation-options/component';
 
 class ActionsBar extends PureComponent {
@@ -86,6 +87,11 @@ class ActionsBar extends PureComponent {
             isMeteorConnected,
           }}
           />
+          {isSharingDesktop
+            ? (
+              <LockRemoteDesktopContainer />
+            )
+            : null}
         </div>
         <div className={styles.right}>
           {!isOldMinimizeButtonEnabled ||

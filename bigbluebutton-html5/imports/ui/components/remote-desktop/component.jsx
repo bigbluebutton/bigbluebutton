@@ -43,11 +43,16 @@ class RemoteDesktop extends Component {
   componentDidMount() {
     window.addEventListener('resize', this.resizeListener);
     this.playerParent.addEventListener('fullscreenchange', this.onFullscreenChange);
+
+    // make this.player (a VncDisplay) globally accessible so that the lock button can access it
+    window.VncDisplay = this.player;
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.resizeListener);
     this.playerParent.removeEventListener('fullscreenchange', this.onFullscreenChange);
+
+    delete window.VncDisplay;
   }
 
   handleResize() {
