@@ -4,6 +4,8 @@ import Button from '/imports/ui/components/button/component';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { styles } from './styles';
 
+const START_VIEWONLY = Meteor.settings.public.remoteDesktop.startLocked;
+
 const intlMessages = defineMessages({
   lockDesktop: {
     id: 'app.remoteDesktop.lockDesktop',
@@ -43,7 +45,9 @@ class LockRemoteDesktopButton extends Component {
     super(props);
     this.handleOnClick = this.handleOnClick.bind(this);
     this.state = {
-      desktopLocked: ((window.VncDisplay !== undefined) && window.VncDisplay.rfb._view_only),
+      desktopLocked: ((window.VncDisplay === undefined)
+                      ? START_VIEWONLY
+                      : window.VncDisplay.rfb._view_only),
     };
   }
 

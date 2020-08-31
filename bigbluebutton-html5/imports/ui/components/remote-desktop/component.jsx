@@ -22,6 +22,7 @@ const intlMessages = defineMessages({
 });
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+const START_VIEWONLY = Meteor.settings.public.remoteDesktop.startLocked;
 
 class RemoteDesktop extends Component {
 
@@ -135,6 +136,8 @@ class RemoteDesktop extends Component {
        */
       if (newState == 'normal') {
 	  setTimeout(this.handleResize, 0);
+	  // should do this when VncDisplay is created, but it doesn't accept a suitable property
+	  rfb._view_only = START_VIEWONLY;
       }
   }
 

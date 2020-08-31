@@ -206,6 +206,7 @@ public:
     enabled: true
   remoteDesktop:
     enabled: true
+    startLocked: true
   kurento:
     wsUrl: HOST
     # Valid for video-provider. Time (ms) before its WS connection times out
