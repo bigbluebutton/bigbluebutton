@@ -439,8 +439,7 @@ if [ $DELETENORECORD ]; then
   # check for *.norecord files
   # if found call a new instance of bbb-record for deleting identified recordings.
 
-  for meetings in $STATUS/archived/*.norecord
-  do 
+  for meetings in $(ls $STATUS/archived/ | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}.norecord$"); do
     meeting=$(basename ${meetings%.norecord})
     /usr/bin/bbb-record --delete $meeting
   done
