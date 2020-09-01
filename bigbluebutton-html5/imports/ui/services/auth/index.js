@@ -8,6 +8,7 @@ import logger from '/imports/startup/client/logger';
 import { makeCall } from '/imports/ui/services/api';
 import { initAnnotationsStreamListener } from '/imports/ui/components/whiteboard/service';
 import { initCursorStreamListener } from '/imports/ui/components/cursor/service';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
@@ -218,6 +219,8 @@ class Auth {
         });
       }, CONNECTION_TIMEOUT);
 
+      Meteor.subscribe('auth-token-validation', { meetingId: this.meetingID, userId: this.userID });
+
       const result = await makeCall('validateAuthToken', this.meetingID, this.userID, this.token, this.externUserID);
 
       if (!result) {
@@ -265,6 +268,31 @@ class Auth {
           setTimeout(() => resolve(true), 100);
         }
       });
+
+      // Tracker.autorun((c) => {
+      //   const authenticationTokenValidation = AuthTokenValidation.findOne();
+
+      //   if (!authenticationTokenValidation) return;
+
+      //   switch (authenticationTokenValidation.validationStatus) {
+      //     case ValidationStates.INVALID:
+      //       c.stop();
+      //       reject({ error: 401, description: 'User has been ejected.' });
+      //       break;
+      //     case ValidationStates.VALIDATED:
+      //       initCursorStreamListener();
+      //       initAnnotationsStreamListener();
+      //       c.stop();
+      //       clearTimeout(validationTimeout);
+      //       resolve(true);
+      //       break;
+      //     case ValidationStates.VALIDATING:
+      //       break;
+      //     case ValidationStates.NOT_VALIDATED:
+      //       break;
+      //     default:
+      //   }
+      // });
     });
   }
 

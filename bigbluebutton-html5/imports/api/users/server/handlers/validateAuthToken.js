@@ -6,6 +6,11 @@ import pendingAuthenticationsStore from '../store/pendingAuthentications';
 import createDummyUser from '../modifiers/createDummyUser';
 import setConnectionIdAndAuthToken from '../modifiers/setConnectionIdAndAuthToken';
 
+import ClientConnections from '/imports/startup/server/ClientConnections';
+import upsertValidationState from '/imports/api/auth-token-validation/server/modifiers/upsertValidationState';
+import removeValidationState from '/imports/api/auth-token-validation/server/modifiers/removeValidationState';
+import { ValidationStates } from '/imports/api/auth-token-validation';
+
 const clearOtherSessions = (sessionUserId, current = false) => {
   const serverSessions = Meteor.server.sessions;
   Object.keys(serverSessions)
@@ -35,6 +40,8 @@ export default function handleValidateAuthToken({ body }, meetingId) {
         try {
           const { methodInvocationObject } = pendingAuth;
           const connectionId = methodInvocationObject.connection.id;
+
+          upsertValidationState(meetingId, userId, ValidationStates.INVALID, connectionId);
 
           // Schedule socket disconnection for this user, giving some time for client receiving the reason of disconnection
           Meteor.setTimeout(() => {
@@ -69,6 +76,8 @@ export default function handleValidateAuthToken({ body }, meetingId) {
         if (!User) {
           createDummyUser(meetingId, userId, authToken);
         }
+
+        upsertValidationState(meetingId, userId, ValidationStates.VALIDATED, methodInvocationObject.connection.id);
 
         setConnectionIdAndAuthToken(meetingId, userId, methodInvocationObject.connection.id, authToken);
         /* End of logic migrated from validateAuthToken */

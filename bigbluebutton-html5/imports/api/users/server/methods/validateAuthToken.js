@@ -3,6 +3,10 @@ import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import pendingAuthenticationsStore from '../store/pendingAuthentications';
 import BannedUsers from '../store/bannedUsers';
+import ClientConnections from '/imports/startup/server/ClientConnections';
+import userLeaving from './userLeaving';
+import upsertValidationState from '/imports/api/auth-token-validation/server/modifiers/upsertValidationState';
+import { ValidationStates } from '/imports/api/auth-token-validation';
 
 export default function validateAuthToken(meetingId, requesterUserId, requesterToken, externalId) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
@@ -17,8 +21,11 @@ export default function validateAuthToken(meetingId, requesterUserId, requesterT
     }
   }
 
+  ClientConnections.add(`${meetingId}--${requesterUserId}`, this.connection);
+
   // Store reference of methodInvocationObject ( to postpone the connection userId definition )
   pendingAuthenticationsStore.add(meetingId, requesterUserId, requesterToken, this);
+  upsertValidationState(meetingId, requesterUserId, ValidationStates.VALIDATING, this.connection.id);
 
   const payload = {
     userId: requesterUserId,

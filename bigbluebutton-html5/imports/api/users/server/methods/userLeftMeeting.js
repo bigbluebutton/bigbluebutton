@@ -1,6 +1,7 @@
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import { extractCredentials } from '/imports/api/common/server/helpers';
+import ClientConnections from '/imports/startup/server/ClientConnections';
 
 export default function userLeftMeeting() { // TODO-- spread the code to method/modifier/handler
   // so we don't update the db in a method
@@ -20,6 +21,8 @@ export default function userLeftMeeting() { // TODO-- spread the code to method/
       Logger.info(`user left id=${requesterUserId} meeting=${meetingId}`);
     }
   };
+
+  ClientConnections.removeClientConnection(this.userId, this.connection.id);
 
   return Users.update(
     selector,
