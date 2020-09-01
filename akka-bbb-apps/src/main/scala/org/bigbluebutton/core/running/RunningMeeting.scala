@@ -22,7 +22,6 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   private val wbModel = new WhiteboardModel()
   private val presModel = new PresentationModel()
   private val captionModel = new CaptionModel()
-  private val notesModel = new SharedNotesModel()
   private val registeredUsers = new RegisteredUsers
   private val meetingStatux2x = new MeetingStatus2x
   private val webcams = new Webcams
@@ -38,7 +37,7 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   // easy to test.
   private val liveMeeting = new LiveMeeting(props, meetingStatux2x, deskshareModel, chatModel, layouts,
     registeredUsers, polls2x, wbModel, presModel, captionModel,
-    notesModel, webcams, voiceUsers, users2x, guestsWaiting)
+    webcams, voiceUsers, users2x, guestsWaiting)
 
   GuestsWaiting.setGuestPolicy(
     liveMeeting.guestsWaiting,

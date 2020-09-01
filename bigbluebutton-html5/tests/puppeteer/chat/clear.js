@@ -3,39 +3,44 @@
 const Page = require('../core/page');
 const e = require('./elements');
 const util = require('./util');
+const { chatPushAlerts } = require('../notifications/elements');
 
 class Clear extends Page {
   constructor() {
     super('chat-clear');
   }
 
-  async test() {
+  async test(testName) {
     await util.openChat(this);
-
+    if (process.env.GENERATE_EVIDENCES === 'true') {
+      await this.screenshot(`${testName}`, `01-before-chat-message-send-[${testName}]`);
+    }
     // sending a message
     await this.type(e.chatBox, e.message);
     await this.click(e.sendButton);
-    await this.screenshot(true);
 
-    // const before = await util.getTestElements(this);
+    if (process.env.GENERATE_EVIDENCES === 'true') {
+      await this.screenshot(`${testName}`, `02-after-chat-message-send-[${testName}]`);
+    }
 
-    // 1 message
-    const chat0 = await this.page.$$(`${e.chatUserMessage} ${e.chatMessageText}`);
+    const chat0 = await this.page.evaluate(() => document.querySelectorAll('[data-test="chatUserMessage"]').length !== 0);
 
     // clear
     await this.click(e.chatOptions);
+    if (process.env.GENERATE_EVIDENCES === 'true') {
+      await this.screenshot(`${testName}`, `03-chat-options-clicked-[${testName}]`);
+    }
     await this.click(e.chatClear, true);
-    await this.screenshot(true);
+    await this.page.waitForFunction(
+      'document.querySelector("body").innerText.includes("The public chat history was cleared by a moderator")',
+    );
+    if (process.env.GENERATE_EVIDENCES === 'true') {
+      await this.screenshot(`${testName}`, `04-chat-cleared-[${testName}]`);
+    }
 
-    // const after = await util.getTestElements(this);
+    const chat1 = await this.page.evaluate(() => document.querySelectorAll('[data-test="chatUserMessage"]').length !== 0);
 
-    // 1 message
-    const chat1 = await this.page.$$(`${e.chatUserMessage} ${e.chatMessageText}`);
-
-    expect(await chat0[0].evaluate(n => n.innerText)).toBe(e.message);
-
-    const response = chat0.length === 1 && chat1.length === 0;
-
+    const response = chat0 === true && chat1 === false;
     return response;
   }
 }

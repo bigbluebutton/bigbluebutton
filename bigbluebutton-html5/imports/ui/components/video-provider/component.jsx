@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import VideoService from './service';
-import VideoList from './video-list/component';
+import VideoListContainer from './video-list/container';
 import { defineMessages, injectIntl } from 'react-intl';
 import {
   fetchWebRTCMappedStunTurnServers,
@@ -10,6 +10,7 @@ import {
 } from '/imports/utils/fetchStunTurnServers';
 import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import logger from '/imports/startup/client/logger';
+import _ from 'lodash';
 
 // Default values and default empty object to be backwards compat with 2.2.
 // FIXME Remove hardcoded defaults 2.3.
@@ -81,6 +82,7 @@ const propTypes = {
   intl: PropTypes.objectOf(Object).isRequired,
   isUserLocked: PropTypes.bool.isRequired,
   swapLayout: PropTypes.bool.isRequired,
+  currentVideoPageIndex: PropTypes.number.isRequired,
 };
 
 class VideoProvider extends Component {
@@ -117,6 +119,11 @@ class VideoProvider extends Component {
     this.onWsMessage = this.onWsMessage.bind(this);
 
     this.updateStreams = this.updateStreams.bind(this);
+    this.debouncedConnectStreams = _.debounce(
+      this.connectStreams,
+      VideoService.getPageChangeDebounceTime(),
+      { leading: false, trailing: true, }
+    );
   }
 
   componentDidMount() {
@@ -132,9 +139,13 @@ class VideoProvider extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { isUserLocked, streams } = this.props;
+    const { isUserLocked, streams, currentVideoPageIndex } = this.props;
 
-    this.updateStreams(streams);
+    // Only debounce when page changes to avoid unecessary debouncing
+    const shouldDebounce = VideoService.isPaginationEnabled()
+      && prevProps.currentVideoPageIndex !== currentVideoPageIndex;
+
+    this.updateStreams(streams, shouldDebounce);
 
     if (!prevProps.isUserLocked && isUserLocked) VideoService.lockUser();
   }
@@ -231,7 +242,7 @@ class VideoProvider extends Component {
     }
   }
 
-  updateStreams(streams) {
+  getStreamsToConnectAndDisconnect(streams) {
     const streamsCameraIds = streams.map(s => s.cameraId);
     const streamsConnected = Object.keys(this.webRtcPeers);
 
@@ -243,15 +254,33 @@ class VideoProvider extends Component {
       cameraId => !streamsCameraIds.includes(cameraId),
     );
 
+    return [streamsToConnect, streamsToDisconnect];
+  }
+
+  connectStreams(streamsToConnect) {
     streamsToConnect.forEach((cameraId) => {
       const isLocal = VideoService.isLocalStream(cameraId);
       this.createWebRTCPeer(cameraId, isLocal);
     });
+  }
 
+  disconnectStreams(streamsToDisconnect) {
     streamsToDisconnect.forEach(cameraId => this.stopWebRTCPeer(cameraId));
+  }
+
+  updateStreams(streams, shouldDebounce = false) {
+    const [streamsToConnect, streamsToDisconnect] = this.getStreamsToConnectAndDisconnect(streams);
+
+    if(shouldDebounce) {
+      this.debouncedConnectStreams(streamsToConnect);
+    } else {
+      this.connectStreams(streamsToConnect);
+    }
+
+    this.disconnectStreams(streamsToDisconnect);
 
     if (CAMERA_QUALITY_THRESHOLDS_ENABLED) {
-      this.updateThreshold(streamsCameraIds.length);
+      this.updateThreshold(this.props.totalNumberOfStreams);
     }
   }
 
@@ -519,6 +548,7 @@ class VideoProvider extends Component {
             userId: this.info.userId,
             userName: this.info.userName,
             bitrate,
+            record: VideoService.getRecord(),
           };
 
           logger.info({
@@ -849,7 +879,7 @@ class VideoProvider extends Component {
   }
 
   render() {
-    const { swapLayout } = this.props;
+    const { swapLayout, currentVideoPageIndex } = this.props;
     const { socketOpen } = this.state;
     if (!socketOpen) return null;
 
@@ -857,10 +887,11 @@ class VideoProvider extends Component {
       streams,
     } = this.props;
     return (
-      <VideoList
+      <VideoListContainer
         streams={streams}
         onMount={this.createVideoTag}
         swapLayout={swapLayout}
+        currentVideoPageIndex={currentVideoPageIndex}
       />
     );
   }
