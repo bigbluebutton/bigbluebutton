@@ -131,7 +131,7 @@ module.exports = class WebServer {
       msg +=   `<hookID>${hook.id}</hookID>`;
       msg +=   `<callbackURL><![CDATA[${hook.callbackURL}]]></callbackURL>`;
       if (!hook.isGlobal()) { msg +=   `<meetingID><![CDATA[${hook.externalMeetingID}]]></meetingID>`; }
-      if (hook.eventID) { msg +=   `<eventID>${hook.eventID.join()}</eventID>`; }
+      if (hook.eventID != null) { msg +=   `<eventID>${hook.eventID.join()}</eventID>`; }
       msg +=   `<permanentHook>${hook.permanent}</permanentHook>`;
       msg +=   `<rawData>${hook.getRaw}</rawData>`;
       msg += "</hook>";

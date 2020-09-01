@@ -84,7 +84,7 @@ module.exports = class Hook {
   // message might be processed instantly.
   enqueue(message) {
     // If the event is not in the hook's event list, skip it.
-    if ((this.eventID != null) && ((message == null) || (message.data == null) || (message.data.id == null) || (!this.eventID.some( ev => message.data.id.toLowerCase() )))) {
+    if ((this.eventID != null) && ((message == null) || (message.data == null) || (message.data.id == null) || (!this.eventID.some( ev => ev == message.data.id.toLowerCase() )))) {
       Logger.info(`[Hook] ${this.callbackURL} skipping message from queue because not in event list for hook:`, JSON.stringify(message));
     }
     else {
