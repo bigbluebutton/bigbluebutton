@@ -49,6 +49,7 @@ module.exports = class WebServer {
     const urlObj = url.parse(req.url, true);
     const callbackURL = urlObj.query["callbackURL"];
     const meetingID = urlObj.query["meetingID"];
+    const eventID = urlObj.query["eventID"];
     let getRaw = urlObj.query["getRaw"];
     if (getRaw){
       getRaw = JSON.parse(getRaw.toLowerCase());
@@ -59,7 +60,7 @@ module.exports = class WebServer {
     if (callbackURL == null) {
       respondWithXML(res, responses.missingParamCallbackURL);
     } else {
-      Hook.addSubscription(callbackURL, meetingID, getRaw, function(error, hook) {
+      Hook.addSubscription(callbackURL, meetingID, eventID, getRaw, function(error, hook) {
         let msg;
         if (error != null) { // the only error for now is for duplicated callbackURL
           msg = responses.createDuplicated(hook.id);
@@ -75,7 +76,7 @@ module.exports = class WebServer {
   // Create a permanent hook. Permanent hooks can't be deleted via API and will try to emit a message until it succeed
   createPermanents(callback) {
     for (let i = 0; i < config.get("hooks.permanentURLs").length; i++) {
-      Hook.addSubscription(config.get("hooks.permanentURLs")[i].url, null, config.get("hooks.permanentURLs")[i].getRaw, function(error, hook) {
+      Hook.addSubscription(config.get("hooks.permanentURLs")[i].url, null, null, config.get("hooks.permanentURLs")[i].getRaw, function(error, hook) {
         if (error != null) { // there probably won't be any errors here
           Logger.info("[WebServer] duplicated permanent hook", error);
         } else if (hook != null) {
@@ -130,6 +131,7 @@ module.exports = class WebServer {
       msg +=   `<hookID>${hook.id}</hookID>`;
       msg +=   `<callbackURL><![CDATA[${hook.callbackURL}]]></callbackURL>`;
       if (!hook.isGlobal()) { msg +=   `<meetingID><![CDATA[${hook.externalMeetingID}]]></meetingID>`; }
+      if (hook.eventID) { msg +=   `<eventID>${hook.eventID.join()}</eventID>`; }
       msg +=   `<permanentHook>${hook.permanent}</permanentHook>`;
       msg +=   `<rawData>${hook.getRaw}</rawData>`;
       msg += "</hook>";
