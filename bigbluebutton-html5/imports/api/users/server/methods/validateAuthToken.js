@@ -1,12 +1,12 @@
 import { Meteor } from 'meteor/meteor';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
-import pendingAuthenticationsStore from '../store/pendingAuthentications';
-import BannedUsers from '../store/bannedUsers';
 import ClientConnections from '/imports/startup/server/ClientConnections';
 import userLeaving from './userLeaving';
 import upsertValidationState from '/imports/api/auth-token-validation/server/modifiers/upsertValidationState';
 import { ValidationStates } from '/imports/api/auth-token-validation';
+import pendingAuthenticationsStore from '../store/pendingAuthentications';
+import BannedUsers from '../store/bannedUsers';
 
 export default function validateAuthToken(meetingId, requesterUserId, requesterToken, externalId) {
   const REDIS_CONFIG = Meteor.settings.private.redis;

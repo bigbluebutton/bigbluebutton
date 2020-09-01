@@ -79,7 +79,6 @@ export default function handleValidateAuthToken({ body }, meetingId) {
 
         upsertValidationState(meetingId, userId, ValidationStates.VALIDATED, methodInvocationObject.connection.id);
 
-        setConnectionIdAndAuthToken(meetingId, userId, methodInvocationObject.connection.id, authToken);
         /* End of logic migrated from validateAuthToken */
       },
     );

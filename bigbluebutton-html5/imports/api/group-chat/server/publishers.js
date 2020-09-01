@@ -2,23 +2,27 @@ import GroupChat from '/imports/api/group-chat';
 import { Meteor } from 'meteor/meteor';
 
 import Logger from '/imports/startup/server/logger';
-import { extractCredentials } from '/imports/api/common/server/helpers';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
 function groupChat() {
-  if (!this.userId) {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing GroupChat was requested by unauth connection ${this.connection.id}`);
     return GroupChat.find({ meetingId: '' });
   }
-  const { meetingId, requesterUserId } = extractCredentials(this.userId);
+
+  const { meetingId, userId } = tokenValidation;
 
   const CHAT_CONFIG = Meteor.settings.public.chat;
   const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 
-  Logger.debug(`Publishing group-chat for ${meetingId} ${requesterUserId}`);
+  Logger.debug(`Publishing group-chat for ${meetingId} ${userId}`);
 
   return GroupChat.find({
     $or: [
       { meetingId, access: PUBLIC_CHAT_TYPE },
-      { meetingId, users: { $all: [requesterUserId] } },
+      { meetingId, users: { $all: [userId] } },
     ],
 
   });

@@ -1,11 +1,11 @@
-import _ from 'lodash';
 import Users from '/imports/api/users';
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
 import userLeaving from './methods/userLeaving';
 import { extractCredentials } from '/imports/api/common/server/helpers';
+
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -52,10 +52,19 @@ function publishCurrentUser(...args) {
 Meteor.publish('current-user', publishCurrentUser);
 
 function users(role) {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing Users was requested by unauth connection ${this.connection.id}`);
+    return Users.find({ meetingId: '' });
+  }
+
   if (!this.userId) {
     return Users.find({ meetingId: '' });
   }
-  const { meetingId, requesterUserId } = extractCredentials(this.userId);
+  const { meetingId, userId } = tokenValidation;
+
+  Logger.debug(`Publishing Users for ${meetingId} ${userId}`);
 
   const selector = {
     $or: [
@@ -63,23 +72,21 @@ function users(role) {
     ],
   };
 
-  const User = Users.findOne({ userId: requesterUserId, meetingId }, { fields: { role: 1 } });
+  const User = Users.findOne({ userId, meetingId }, { fields: { role: 1 } });
   if (!!User && User.role === ROLE_MODERATOR) {
     selector.$or.push({
       'breakoutProps.isBreakoutUser': true,
       'breakoutProps.parentId': meetingId,
-      connectionStatus: 'online',
     });
   }
 
   const options = {
     fields: {
       authToken: false,
-      lastPing: false,
     },
   };
 
-  Logger.debug(`Publishing Users for ${meetingId} ${requesterUserId}`);
+  Logger.debug(`Publishing Users for ${meetingId} ${userId}`);
 
   return Users.find(selector, options);
 }

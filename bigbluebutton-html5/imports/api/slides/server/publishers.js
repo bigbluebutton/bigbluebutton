@@ -1,14 +1,19 @@
 import { Slides, SlidePositions } from '/imports/api/slides';
 import { Meteor } from 'meteor/meteor';
 import Logger from '/imports/startup/server/logger';
-import { extractCredentials } from '/imports/api/common/server/helpers';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
 function slides() {
-  if (!this.userId) {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing Slides was requested by unauth connection ${this.connection.id}`);
     return Slides.find({ meetingId: '' });
   }
-  const { meetingId, requesterUserId } = extractCredentials(this.userId);
-  Logger.debug(`Publishing Slides for ${meetingId} ${requesterUserId}`);
+
+  const { meetingId, userId } = tokenValidation;
+
+  Logger.debug(`Publishing Slides for ${meetingId} ${userId}`);
 
   return Slides.find({ meetingId });
 }
@@ -21,12 +26,16 @@ function publish(...args) {
 Meteor.publish('slides', publish);
 
 function slidePositions() {
-  if (!this.userId) {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing SlidePositions was requested by unauth connection ${this.connection.id}`);
     return SlidePositions.find({ meetingId: '' });
   }
-  const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  Logger.debug(`Publishing SlidePositions for ${meetingId} ${requesterUserId}`);
+  const { meetingId, userId } = tokenValidation;
+
+  Logger.debug(`Publishing SlidePositions for ${meetingId} ${userId}`);
 
   return SlidePositions.find({ meetingId });
 }
