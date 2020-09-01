@@ -92,7 +92,7 @@ begin
   # Check for missed "ended" .done files
   ended_done_files = Dir.glob("#{ended_status_dir}/*.done")
   ended_done_files.each do |ended_done_file|
-    keep_meeting_events(recording_id, ended_done_file)
+    keep_meeting_events(recording_dir, ended_done_file)
   end
 
   # Check for missed "recorded" .done files
