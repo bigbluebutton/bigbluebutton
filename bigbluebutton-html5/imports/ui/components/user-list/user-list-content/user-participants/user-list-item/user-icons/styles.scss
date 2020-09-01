@@ -1,7 +1,6 @@
-@import "/imports/ui/components/user-list/styles.scss";
-
 .userIconsContainer {
-  @extend %flex-column;
+  display: flex;
+  flex-flow: column;
   text-align: center;
   flex-basis: 1rem;
   justify-content: center;

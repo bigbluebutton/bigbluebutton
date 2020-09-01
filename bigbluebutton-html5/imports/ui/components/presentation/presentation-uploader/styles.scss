@@ -1,5 +1,6 @@
-@import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/_scrollable";
+@import "/imports/ui/stylesheets/variables/placeholders";
+@import "/imports/ui/stylesheets/variables/breakpoints";
 
 :root {
   --uploadIconSize: 2.286rem;

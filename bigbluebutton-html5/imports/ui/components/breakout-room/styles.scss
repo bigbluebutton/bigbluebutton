@@ -1,7 +1,7 @@
-@import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/_scrollable";
-@import "/imports/ui/components/user-list/styles";
-@import "/imports/ui/components/user-list/user-list-content/styles";
+@import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/mixins/_indicators";
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 .panel {
   @include scrollbox-vertical();
@@ -162,10 +162,29 @@
 }
 
 .breakoutColumn {
-  @extend .userListColumn;
+  display: flex;
+  flex-flow: column;
+  min-height: 0;
+  flex-grow: 1;
 }
 
 .breakoutScrollableList {
-  @extend .scrollableList;
+  @include elementFocus(var(--list-item-bg-hover));
+  @include scrollbox-vertical(var(--user-list-bg));
+  @extend %highContrastOutline;
+
+  &:focus-within,
+  &:focus {
+    outline-style: solid;
+  }
+
+  &:active {
+    box-shadow: none;
+    border-radius: none;
+  }
+
+  overflow-x: hidden;
+  outline-width: 1px !important;
+  outline-color: transparent !important;
   background: none;
 }

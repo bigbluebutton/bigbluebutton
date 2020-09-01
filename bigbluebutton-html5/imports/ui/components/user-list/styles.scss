@@ -1,46 +1,6 @@
-@import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/_scrollable";
 @import "/imports/ui/stylesheets/mixins/_indicators";
-
-/* Variables
- * ==========
- */
-
-// TODO: would be better to have those variables scoped and not global
-:root {
-  --unread-messages-bg: var(--color-danger);
-  --user-list-text: var(--color-gray);
-  --user-list-bg: var(--color-off-white);
-
-  --user-thumbnail-border: var(--color-gray-light);
-  --user-thumbnail-text: var(--user-thumbnail-border);
-
-  --voice-user-bg: var(--color-success);
-  --voice-user-text: var(--color-white);
-
-  --moderator-text: var(--color-white);
-  --moderator-bg: var(--color-primary);
-
-  --sub-name-color: var(--color-gray-light);
-
-  --user-icons-color: var(--color-gray-light);
-  --user-icons-color-hover: var(--color-gray);
-
-  --list-item-bg-hover: #dce4ed;
-  --item-focus-border: var(--color-blue-lighter);
-}
-
-/* classes for extending
- * ==========
- */
-%flex-column {
-  display: flex;
-  flex-flow: column;
-}
-
-%no-margin {
-  margin: 0;
-}
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 %list-item {
   display: flex;
@@ -63,13 +23,13 @@
   }
 
   &:hover {
-    @include highContrastOutline();
+    @extend %highContrastOutline;
     background-color: var(--list-item-bg-hover);
   }
 
   &:active,
   &:focus {
-    @include highContrastOutline();
+    @extend %highContrastOutline;
     outline-style: solid;
     background-color: var(--list-item-bg-hover);
     box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);

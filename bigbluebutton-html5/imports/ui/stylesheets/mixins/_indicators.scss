@@ -1,6 +1,3 @@
-@import "/imports/ui/stylesheets/variables/palette";
-@import "/imports/ui/stylesheets/variables/general";
-
 @mixin presenterIndicator() {
   &:before {
     opacity: 1;
