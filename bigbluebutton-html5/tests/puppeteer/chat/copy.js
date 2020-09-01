@@ -10,20 +10,28 @@ class Copy extends Page {
     super('chat-copy');
   }
 
-  async test() {
+  async test(testName) {
     await util.openChat(this);
-
+    if (process.env.GENERATE_EVIDENCES === 'true') {
+      await this.screenshot(`${testName}`, `01-before-sending-chat-message-[${testName}]`);
+    }
     // sending a message
     await this.type(e.chatBox, e.message);
     await this.click(e.sendButton);
-    await this.screenshot(true);
-
+    if (process.env.GENERATE_EVIDENCES === 'true') {
+      await this.screenshot(`${testName}`, `02-chat-message-sent-[${testName}]`);
+    }
     await this.click(e.chatOptions);
+    if (process.env.GENERATE_EVIDENCES === 'true') {
+      await this.screenshot(`${testName}`, `03-chat-options-clicked-[${testName}]`);
+    }
     await this.click(e.chatCopy, true);
 
-    const copiedChat = clipboardy.readSync();
-
-    return copiedChat.includes(`User1 : ${e.message}`);
+    // enable access to browser context clipboard
+    const context = await this.browser.defaultBrowserContext();
+    await context.overridePermissions(process.env.BBB_SERVER_URL, ['clipboard-read']);
+    const copiedText = await this.page.evaluate(async () => await navigator.clipboard.readText());
+    return copiedText.includes(`User1 : ${e.message}`);
   }
 }
 

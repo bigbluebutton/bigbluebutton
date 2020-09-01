@@ -229,3 +229,35 @@
 .voice {
   background-color: var(--color-success);
 }
+
+.nextPage,
+.previousPage{
+  color: var(--color-white);
+  width: var(--md-padding-x);
+
+  i {
+    [dir="rtl"] & {
+      -webkit-transform: scale(-1, 1);
+      -moz-transform: scale(-1, 1);
+      -ms-transform: scale(-1, 1);
+      -o-transform: scale(-1, 1);
+      transform: scale(-1, 1);
+    }
+  }
+}
+
+.nextPage {
+  margin-left: 1px;
+
+  @include mq($medium-up) {
+    margin-left: 2px;
+  }
+}
+
+.previousPage {
+  margin-right: 1px;
+
+  @include mq($medium-up) {
+    margin-right: 2px;
+  }
+}
