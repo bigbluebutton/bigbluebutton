@@ -1,4 +1,5 @@
-@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/breakpoints";
+@import "/imports/ui/stylesheets/variables/placeholders";
 @import "/imports/ui/stylesheets/mixins/_scrollable";
 
 input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button {
@@ -36,8 +37,7 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 }
 
 .content {
-  display: flex;
-  flex-direction: column;
+  @extend %flex-column;
 }
 
 .labelText {
@@ -160,7 +160,7 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 }
 
 .roomUserItem {
-  margin: 0;
+  @extend %no-margin;
   padding: .25rem 0 .25rem .25rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -181,14 +181,13 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 /* mobile */
 
 .listContainer {
-  display: flex;
+  @extend %flex-column;
   justify-content: flex-start;
-  flex-direction: column;
 }
 
 .itemTitle {
+  @extend %no-margin;
   color: var(--color-blue-light);
-  margin: 0;
 }
 
 .roomItem {
@@ -332,8 +331,7 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 }
 
 .checkBoxesContainer {
-  display: flex;
-  flex-direction: row;
+  @extend %flex-row;
   margin-top: 1rem;
 }
 

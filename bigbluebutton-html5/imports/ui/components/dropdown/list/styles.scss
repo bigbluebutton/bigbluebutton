@@ -1,5 +1,6 @@
-@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/breakpoints";
 @import '/imports/ui/stylesheets/mixins/_indicators';
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 %list {
   list-style: none;
@@ -81,7 +82,7 @@
 
   &:hover,
   &:focus {
-    @include highContrastOutline();
+    @extend %highContrastOutline;
     cursor: pointer;
     background-color: var(--color-primary);
     color: var(--color-white);

@@ -1,7 +1,7 @@
 @import '/imports/ui/stylesheets/mixins/focus';
 @import '/imports/ui/stylesheets/mixins/_indicators';
-@import '/imports/ui/stylesheets/variables/_all';
 @import '/imports/ui/components/loading-screen/styles';
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 .title {
   color: var(--color-gray-dark);
@@ -84,13 +84,9 @@
   height: 1.75rem;
   padding: 1px;
 
-  &:hover {
-    @include highContrastOutline();
-  }
-
+  &:hover,
   &:focus {
-    @include highContrastOutline();
-    outline-style: solid;
+    @extend %highContrastOutline;
   }
 }
 

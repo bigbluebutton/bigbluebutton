@@ -1,6 +1,5 @@
-@import "../../../stylesheets/variables/_all";
 @import '/imports/ui/stylesheets/mixins/_indicators';
-@import "../../../stylesheets/variables/typography";
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 .visuallyHidden {
   position: absolute;
@@ -99,13 +98,13 @@
 
 .recordingIndicator {
   &:hover {
-    @include highContrastOutline();
+    @extend %highContrastOutline;
   }
 
   &:active,
   &:focus,
   &:focus-within {
-    @include highContrastOutline();
+    @extend %highContrastOutline;
     outline-style: solid;
   }
 }

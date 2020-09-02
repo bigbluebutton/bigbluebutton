@@ -1,6 +1,6 @@
-@import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/components/modal/simple/styles";
 @import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 .header {
   margin: 0;
@@ -46,11 +46,11 @@
   padding: 1px;
 
   &:hover {
-    @include highContrastOutline();
+    @extend %highContrastOutline;
   }
 
   &:focus {
-    @include highContrastOutline();
+    @extend %highContrastOutline;
     outline-style: solid;
   }
 }
