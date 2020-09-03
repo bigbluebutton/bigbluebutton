@@ -1,9 +1,9 @@
-@import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/_indicators";
+@import "/imports/ui/stylesheets/variables/placeholders";
 @import "../base/styles";
 
 .modal {
-  @include highContrastOutline();
+  @extend %highContrastOutline;
   outline-style: solid;
   display: flex;
   flex-direction: column;
