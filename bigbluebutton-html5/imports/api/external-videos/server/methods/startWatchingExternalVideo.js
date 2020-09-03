@@ -13,13 +13,19 @@ export default function startWatchingExternalVideo(options) {
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
   const { externalVideoUrl } = options;
 
-  check(externalVideoUrl, String);
+  try {
+    check(meetingId, String);
+    check(requesterUserId, String);
+    check(externalVideoUrl, String);
 
-  Meetings.update({ meetingId }, { $set: { externalVideoUrl } });
+    Meetings.update({ meetingId }, { $set: { externalVideoUrl } });
 
-  const payload = { externalVideoUrl };
+    const payload = { externalVideoUrl };
 
-  Logger.info(`User id=${requesterUserId} sharing an external video: ${externalVideoUrl} for meeting ${meetingId}`);
+    Logger.info(`User id=${requesterUserId} sharing an external video: ${externalVideoUrl} for meeting ${meetingId}`);
 
-  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+    return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+  } catch (error) {
+    Logger.error(`Error on sharing an external video: ${externalVideoUrl} ${error}`);
+  }
 }
