@@ -9,19 +9,22 @@ export default function stopWatchingExternalVideo(options) {
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'StopExternalVideoMsg';
 
-  if (this.userId) {
-    options = extractCredentials(this.userId);
+  const { meetingId, requesterUserId } = this.userId ? extractCredentials(this.userId) : options;
+
+  try {
+    check(meetingId, String);
+    check(requesterUserId, String);
+
+    const meeting = Meetings.findOne({ meetingId });
+    if (!meeting || meeting.externalVideoUrl === null) return;
+
+    Meetings.update({ meetingId }, { $set: { externalVideoUrl: null } });
+    const payload = {};
+
+    Logger.info(`User id=${requesterUserId} stopped sharing an external video for meeting=${meetingId}`);
+
+    RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+  } catch (error) {
+    Logger.error(`Error on stop sharing an external video for meeting=${meetingId} ${error}`);
   }
-
-  const { meetingId, requesterUserId } = options;
-
-  const meeting = Meetings.findOne({ meetingId });
-  if (!meeting || meeting.externalVideoUrl === null) return;
-
-  Meetings.update({ meetingId }, { $set: { externalVideoUrl: null } });
-  const payload = {};
-
-  Logger.info(`User id=${requesterUserId} stopped sharing an external video for meeting=${meetingId}`);
-
-  RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }
