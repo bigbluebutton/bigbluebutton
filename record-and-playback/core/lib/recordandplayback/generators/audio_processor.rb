@@ -55,32 +55,7 @@ module BigBlueButton
 
       # getting users audio...
       @audio_file = BigBlueButton::EDL::Audio.render(
-        audio_edl, File.join(target_dir, 'recording'))
-
-      # and mixing it with deskshare audio	
-      if BigBlueButton::Events.screenshare_has_audio?(events_xml)	
-        BigBlueButton.logger.info("AudioProcessor.process: processing Deskshare audio...")	
-
-        deskshare_dir = "#{archive_dir}/deskshare"
-        mixed_dir = "#{archive_dir}/mixed"
-
-        deskshare_audio_edl = BigBlueButton::AudioEvents.create_deskshare_audio_edl(events, deskshare_dir)
-        BigBlueButton::EDL::Audio.dump(deskshare_audio_edl)	
-
-        BigBlueButton.logger.info "Applying recording start/stop events to Deskshare audio"
-        deskshare_audio_edl = BigBlueButton::Events.edl_match_recording_marks_audio(
-          deskshare_audio_edl, events, start_time, end_time)
-        BigBlueButton.logger.debug "Trimmed Deskshare Audio EDL:"
-        BigBlueButton::EDL::Audio.dump(deskshare_audio_edl)
-
-        audio_inputs = []	
-        audio_inputs << @audio_file	
-        audio_inputs << BigBlueButton::EDL::Audio.render(deskshare_audio_edl, deskshare_dir)	
-
-        @audio_file = BigBlueButton::EDL::Audio.mixer(audio_inputs, mixed_dir)	
-      else
-        BigBlueButton.logger.info("AudioProcessor.process: no Deskshare audio to process.")	
-      end
+        audio_edl, File.join(target_dir, 'recording'), false)
 
       ogg_format = {
         :extension => 'ogg',

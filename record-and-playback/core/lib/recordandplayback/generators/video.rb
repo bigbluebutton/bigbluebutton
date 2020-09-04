@@ -115,6 +115,28 @@ module BigBlueButton
     deskshare_video_file = BigBlueButton::EDL::Video.render(
       deskshare_video_edl, deskshare_layout, "#{target_dir}/deskshare")
 
+    # process deskshare audio
+    deskshare_audio_file = nil
+    if BigBlueButton::Events.screenshare_has_audio?(events)	
+      BigBlueButton.logger.info("Processing Deskshare audio...")	
+
+      deskshare_dir = "#{temp_dir}/#{meeting_id}/deskshare"
+
+      deskshare_audio_edl = BigBlueButton::AudioEvents.create_deskshare_audio_edl(events, deskshare_dir)
+      BigBlueButton::EDL::Audio.dump(deskshare_audio_edl)	
+
+      BigBlueButton.logger.info "Applying recording start/stop events to Deskshare audio"
+      deskshare_audio_edl = BigBlueButton::Events.edl_match_recording_marks_audio(
+        deskshare_audio_edl, events, start_time, end_time)
+      BigBlueButton.logger.debug "Trimmed Deskshare Audio EDL:"
+      BigBlueButton::EDL::Audio.dump(deskshare_audio_edl)
+
+      deskshare_audio_file = BigBlueButton::EDL::Audio.render(deskshare_audio_edl, deskshare_dir, true)	
+
+    else
+      BigBlueButton.logger.info("No Deskshare audio to process.")	
+    end
+
     formats = [
       {
         extension: 'webm',
@@ -153,7 +175,7 @@ module BigBlueButton
     formats.reject!{ |format| ! video_formats.include? format[:extension] }
     formats.each do |format|
       filename = BigBlueButton::EDL::encode(
-        nil, deskshare_video_file, format, "#{target_dir}/deskshare", 0)
+        deskshare_audio_file, deskshare_video_file, format, "#{target_dir}/deskshare", 0)
     end
   end
 
