@@ -486,17 +486,57 @@ const requestUserInformation = (userId) => {
   makeCall('requestUserInformation', userId);
 };
 
-export const getUserNamesLink = () => {
+const sortUsersByFirstName = (a, b) => {
+  const aName = a.firstName.toLowerCase();
+  const bName = b.firstName.toLowerCase();
+  if (aName < bName) return -1;
+  if (aName > bName) return 1;
+  return 0;
+};
+
+const sortUsersByLastName = (a, b) => {
+  if (a.lastName && !b.lastName) return -1;
+  if (!a.lastName && b.lastName) return 1;
+
+  const aName = a.lastName.toLowerCase();
+  const bName = b.lastName.toLowerCase();
+
+  if (aName < bName) return -1;
+  if (aName > bName) return 1;
+  return 0;
+};
+
+export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
   const mimeType = 'text/plain';
-  const userNamesObj = getUsers();
-  const userNameListString = userNamesObj
-    .map(u => u.name)
-    .join('\r\n');
+  const userNamesObj = getUsers()
+    .map((u) => {
+      const name = u.sortName.split(' ');
+      return ({
+        firstName: name[0],
+        middleNames: name.length > 2 ? name.slice(1, name.length - 1) : null,
+        lastName: name.length > 1 ? name[name.length - 1] : null,
+      });
+    });
+
+  const getUsernameString = (user) => {
+    const { firstName, middleNames, lastName } = user;
+    return `${firstName || ''} ${middleNames && middleNames.length > 0 ? middleNames.join(' ') : ''} ${lastName || ''}`;
+  };
+
+  const namesByFirstName = userNamesObj.sort(sortUsersByFirstName)
+    .map(u => getUsernameString(u)).join('\r\n');
+
+  const namesByLastName = userNamesObj.sort(sortUsersByLastName)
+    .map(u => getUsernameString(u)).join('\r\n');
+
+  const namesListsString = `${docTitle}\r\n\r\n${fnSortedLabel}\r\n${namesByFirstName}
+    \r\n\r\n${lnSortedLabel}\r\n${namesByLastName}`.replace(/ {2}/g, ' ');
+
   const link = document.createElement('a');
   link.setAttribute('download', `save-users-list-${Date.now()}.txt`);
   link.setAttribute(
     'href',
-    `data: ${mimeType} ;charset=utf-16,${encodeURIComponent(userNameListString)}`,
+    `data: ${mimeType} ;charset=utf-16,${encodeURIComponent(namesListsString)}`,
   );
   return link;
 };

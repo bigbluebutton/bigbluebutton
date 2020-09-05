@@ -48,6 +48,13 @@ const UserOptionsContainer = withTracker((props) => {
     return muteOnStart;
   };
 
+  const getMeetingName = () => {
+    const { meetingProp } = Meetings.findOne({ meetingId: Auth.meetingID },
+      { fields: { 'meetingProp.name': 1 } });
+    const { name } = meetingProp;
+    return name;
+  };
+
   return {
     toggleMuteAllUsers: () => {
       UserListService.muteAllUsers(Auth.userID);
@@ -78,6 +85,7 @@ const UserOptionsContainer = withTracker((props) => {
     isBreakoutRecordable: ActionsBarService.isBreakoutRecordable(),
     users: ActionsBarService.users(),
     isMeteorConnected: Meteor.status().connected,
+    meetingName: getMeetingName(),
   };
 })(UserOptions);
 
