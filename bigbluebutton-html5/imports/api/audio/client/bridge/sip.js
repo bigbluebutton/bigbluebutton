@@ -1035,13 +1035,16 @@ export default class SIPBridge extends BaseAudioBridge {
     });
   }
 
-  joinTranslationChannel(inputStream){
+  joinTranslationChannel(inputStream, managerCallback){
+    const callback = (message) => {
+      return managerCallback(message);
+    };
     let { hostname } = this;
     this.translationSession = new SIPSession(this.user, this.userData, this.protocol,
         hostname, this.baseCallStates, this.baseErrorCodes, true);
     let extension = {};
     let bool = false;
-    this.translationSession.joinAudio({bool,extension,inputStream}, () => {});
+    this.translationSession.joinAudio({bool,extension,inputStream}, callback);
     console.log("new translation")
   }
 

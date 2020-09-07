@@ -637,7 +637,7 @@ class AudioManager {
 
   openTranslationChannel(){
     this.exitAudio()
-    this.bridge.joinTranslationChannel(this.inputStream);
+    this.bridge.joinTranslationChannel(this.inputStream,this.callStateCallback.bind(this));
   }
 
 }
