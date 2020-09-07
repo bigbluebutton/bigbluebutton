@@ -8,8 +8,41 @@ import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
 import PresentationOptionsContainer from './presentation-options/component';
+import Button from '/imports/ui/components/button/component';
+import Storage from '/imports/ui/services/storage/session';
+import { ACTIONSBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
+import { withLayoutConsumer } from '/imports/ui/components/layout/context';
+import AudioManager from '/imports/ui/services/audio-manager';
 
 class ActionsBar extends PureComponent {
+  constructor(props) {
+    super(props);
+
+    this.autoArrangeToggle = this.autoArrangeToggle.bind(this);
+  }
+
+  componentDidUpdate(prevProps) {
+    const { layoutContextState } = this.props;
+    const { layoutContextState: prevLayoutContextState } = prevProps;
+    const { autoArrangeLayout } = layoutContextState;
+    const { autoArrangeLayout: prevAutoArrangeLayout } = prevLayoutContextState;
+    if (autoArrangeLayout !== prevAutoArrangeLayout) this.forceUpdate();
+  }
+
+  autoArrangeToggle() {
+    const { layoutContextDispatch } = this.props;
+    const autoArrangeLayout = Storage.getItem('autoArrangeLayout');
+    layoutContextDispatch(
+      {
+        type: 'setAutoArrangeLayout',
+        value: !autoArrangeLayout,
+      },
+    );
+    window.dispatchEvent(new Event('autoArrangeChanged'));
+  }
+  activateTranslation(){
+    AudioManager.openTranslationChannel();
+  }
   render() {
     const {
       amIPresenter,
@@ -101,6 +134,7 @@ class ActionsBar extends PureComponent {
             circle
             hideLabel
             size="lg"
+            onClick={this.activateTranslation}
           />
           <Button
             className={cx(styles.button, autoArrangeLayout || styles.btn)}

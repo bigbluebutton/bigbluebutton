@@ -634,6 +634,11 @@ class AudioManager {
 
     return audioAlert.play();
   }
+
+  openTranslationChannel(){
+    console.log("translation clicked")
+  }
+
 }
 
 const audioManager = new AudioManager();
