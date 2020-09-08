@@ -1,35 +1,43 @@
-@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/breakpoints";
 @import "/imports/ui/components/actions-bar/styles.scss";
 
 .container {
   display: flex;
   flex-flow: row;
 
-  > * {
-    margin: 0 var(--sm-padding-x);
+  .muteToggle {
+    margin-right: var(--sm-padding-x);
+    margin-left: 0;
 
     @include mq($small-only) {
-      margin: 0 var(--sm-padding-y);
+      margin-right: var(--sm-padding-y);
     }
-  }
-
-  > :first-child {
-    margin-left: 0;
-    margin-right: inherit;
 
     [dir="rtl"] & {
-      margin-left: inherit;
+      margin-left: var(--sm-padding-x);
       margin-right: 0;
+
+      @include mq($small-only) {
+        margin-left: var(--sm-padding-y);
+      }
     }
   }
-
+  
   > :last-child {
-      margin-left: inherit;
-      margin-right: 0;
+    margin-left: var(--sm-padding-x);
+    margin-right: 0;
+
+    @include mq($small-only) {
+      margin-left: var(--sm-padding-y);
+    }
 
     [dir="rtl"] & {
       margin-left: 0;
-      margin-right: inherit;
+      margin-right: var(--sm-padding-x);
+
+      @include mq($small-only) {
+        margin-right: var(--sm-padding-y);
+      }
     }
   }
 }

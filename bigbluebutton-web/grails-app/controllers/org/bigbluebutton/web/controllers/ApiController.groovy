@@ -2125,6 +2125,10 @@ class ApiController {
           uploadFailReasons.add("failed_to_download_file")
           uploadFailed = true
         }
+      } else {
+        log.error("Null presentation directory meeting=[${meetingId}], presentationDir=[${presentationDir}], presId=[${presId}]")
+        uploadFailReasons.add("null_presentation_dir")
+        uploadFailed = true
       }
     }
 

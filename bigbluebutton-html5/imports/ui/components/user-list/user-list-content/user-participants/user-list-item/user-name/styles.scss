@@ -1,7 +1,6 @@
-@import "/imports/ui/components/user-list/styles.scss";
-
 .userName {
-  @extend %flex-column;
+  display: flex;
+  flex-flow: column;
   min-width: 0;
   flex-grow: 1;
   margin: 0 0 0 var(--sm-padding-x);
@@ -14,7 +13,7 @@
 }
 
 .userNameMain {
-  @extend %no-margin;
+  margin: 0;
   font-size: 0.9rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -36,7 +35,7 @@
 }
 
 .userNameSub {
-  @extend %no-margin;
+  margin: 0;
   font-size: 0.75rem;
   font-weight: 200;
   color: var(--color-gray);

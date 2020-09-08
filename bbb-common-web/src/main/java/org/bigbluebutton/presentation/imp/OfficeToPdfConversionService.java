@@ -44,6 +44,9 @@ public class OfficeToPdfConversionService {
   private final ArrayList<ExternalOfficeManager> officeManagers;
   private ExternalOfficeManager currentManager = null;
   private boolean skipOfficePrecheck = false;
+  private int sofficeBasePort = 0;
+  private int sofficeManagers = 0;
+  private String sofficeWorkingDirBase = null;
 
   public OfficeToPdfConversionService() throws OfficeException {
     officeManagers = new ArrayList<>();
@@ -163,17 +166,36 @@ public class OfficeToPdfConversionService {
     this.skipOfficePrecheck = skipOfficePrecheck;
   }
 
+  public void setSofficeBasePort(int sofficeBasePort) {
+    this.sofficeBasePort = sofficeBasePort;
+  }
+
+  public void setSofficeManagers(int sofficeServiceManagers) {
+    this.sofficeManagers = sofficeServiceManagers;
+  }
+
+  public void setSofficeWorkingDirBase(String sofficeWorkingDirBase) {
+    this.sofficeWorkingDirBase = sofficeWorkingDirBase;
+  }
+
   public void start() {
-    for(int managerIndex = 0; managerIndex < 4; managerIndex ++) {
+    log.info("Starting LibreOffice pool with " + sofficeManagers + " managers, starting from port " + sofficeBasePort);
+
+    for(int managerIndex = 0; managerIndex < sofficeManagers; managerIndex ++) {
       Integer instanceNumber = managerIndex + 1; // starts at 1
 
       try {
-        final File workingDir = new File("/var/tmp/soffice_0" +instanceNumber);
+        final File workingDir = new File(sofficeWorkingDirBase + String.format("%02d", instanceNumber));
+
+        if(!workingDir.exists()) {
+          workingDir.mkdir();
+        }
+
         ExternalOfficeManager officeManager = ExternalOfficeManager
                 .builder()
                 .connectTimeout(2000L)
                 .retryInterval(500L)
-                .portNumber(8200 + instanceNumber)
+                .portNumber(sofficeBasePort + managerIndex)
                 .connectOnStart(false) // If it's true and soffice is not available, exception is thrown here ( we don't want exception here - we want the manager alive trying to reconnect )
                 .workingDir(workingDir)
                 .build();
@@ -189,9 +211,14 @@ public class OfficeToPdfConversionService {
       } catch (Exception e) {
         log.error("Could not start Office Manager " + instanceNumber + ". Details: " + e.getMessage());
       }
-
-      currentManager = officeManagers.get(0);
     }
+
+    if (officeManagers.size() == 0) {
+      log.error("No office managers could be started");
+      return;
+    }
+
+    currentManager = officeManagers.get(0);
   }
 
   public void stop() {

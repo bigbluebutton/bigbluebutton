@@ -1,10 +1,10 @@
-@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 :root {
   --systemMessage-background-color: #F9FBFC;
   --systemMessage-border-color: #C5CDD4;
   --systemMessage-font-color: var(--color-dark-grey);
-  --chat-poll-margin-sm: .25rem;
+  --chat-poll-margin-sm: .5rem;
 }
 
 .item {
@@ -159,42 +159,11 @@
   bottom: var(--border-size-large);
 }
 
-.pollLine {
-  overflow-wrap: break-word;
-  font-size: var(--font-size-large);
-  font-weight: 600;
-}
-
 .pollWrapper {
+  background: var(--systemMessage-background-color);
   border: solid 1px var(--color-gray-lighter);
   border-radius: var(--border-radius);
   padding: var(--chat-poll-margin-sm);
   padding-left: 1rem;
-  margin-top: .5rem;
-  background: var(--systemMessage-background-color);
-}
-
-.pollLegend {
-  display: flex;
-  flex-direction: row;
-  margin-top: var(--chat-poll-margin-sm);
-}
-
-.pollOption {
-  word-break: break-word;
-  margin-left: var(--md-padding-y);
-}
-
-.optionsTitle {
-  font-weight: bold;
-  margin-top: var(--md-padding-y);
-}
-
-.divider {
-  position: relative;
-  height: 1px;
-  width: 95%;
-  margin-right: auto;
-  margin-top: var(--md-padding-y);
-  border-bottom: solid 1px var(--color-gray-lightest);
+  margin-top: var(--chat-poll-margin-sm) !important;
 }

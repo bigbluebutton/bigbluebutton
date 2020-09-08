@@ -61,7 +61,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
 		<mate:Listener type="{ShortcutEvent.OPEN_SHORTCUT_WIN}" method="openShortcutHelpWindow" />
 		<mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
-		<mate:Listener type="{BBBEvent.INACTIVITY_WARNING_EVENT}" method="handleInactivityWarningEvent" />
 		<mate:Listener type="{BBBEvent.USER_INACTIVITY_INSPECT_EVENT}" method="handleUserInactivityInspectEvent" />
 		<mate:Listener type="{LockControlEvent.OPEN_LOCK_SETTINGS}" method="openLockSettingsWindow" />
 		<mate:Listener type="{BreakoutRoomEvent.OPEN_BREAKOUT_ROOMS_PANEL}" method="openBreakoutRoomsWindow" />
@@ -517,11 +516,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				inactivityWarning.duration = e.payload.responseDelay;
 			}
 			
-			private function handleInactivityWarningEvent(e:BBBEvent):void {
-				var inactivityWarning:InactivityWarningWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, InactivityWarningWindow, true) as InactivityWarningWindow;
-				inactivityWarning.duration = e.payload.duration;
-			}
-
 			private function handleFlashMicSettingsEvent(event:FlashMicSettingsEvent):void {
 				/**
 				 * There is a bug in Flex SDK 4.14 where the screen stays blurry if a

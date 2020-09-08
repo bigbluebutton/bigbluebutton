@@ -1,5 +1,5 @@
-@import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/_scrollable";
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 .messageListWrapper {
   display: flex;
@@ -33,6 +33,7 @@
   right: 0 var(--md-padding-x) 0 0;
   padding-top: 0;
   width: 100%;
+  outline-style: none;
 
   [dir="rtl"] & {
     margin: 0 0 0 auto;

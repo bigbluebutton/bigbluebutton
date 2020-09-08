@@ -2,7 +2,7 @@
 @import "/imports/ui/stylesheets/mixins/_scrollable";
 @import "/imports/ui/stylesheets/mixins/focus";
 @import "/imports/ui/stylesheets/mixins/_indicators";
-@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 .content {
   @extend %flex-column;
@@ -20,21 +20,52 @@
 .scrollableList {
   @include elementFocus(var(--list-item-bg-hover));
   @include scrollbox-vertical(var(--user-list-bg));
-  @include highContrastOutline();
 
-  &:focus-within,
-  &:focus {
-    outline-style: solid;
+  outline: none;
+  
+  &:hover {
+    @extend %highContrastOutline;
   }
 
+  &:focus,
   &:active {
     box-shadow: none;
     border-radius: none;
   }
 
   overflow-x: hidden;
-  outline-width: 1px !important;
-  outline-color: transparent !important;
+}
+
+.virtulizedScrollableList {
+  @include elementFocus(var(--list-item-bg-hover));
+  @include scrollbox-vertical(var(--user-list-bg));
+  
+
+  > div {
+    outline: none;
+  }
+
+
+  &:hover {
+    @extend %highContrastOutline;
+  }
+
+  &:focus,
+  &:active {
+    box-shadow: none;
+    border-radius: none;
+    outline-style: none;
+  }
+
+  flex-grow: 1;
+  flex-shrink: 1;
+
+  margin: 0 0 1px var(--md-padding-y);
+
+  [dir="rtl"] & {
+    margin: 0 var(--md-padding-y) 1px 0;
+  }
+  margin-left: 0;
 }
 
 .list {
@@ -150,6 +181,11 @@
   @extend .lists;
   overflow: hidden;
   flex-shrink: 1;
+}
+
+.scrollStyle {
+  @include scrollbox-vertical($bg-color: #f3f6f9);
+  outline: none;
 }
 
 .noteLock {

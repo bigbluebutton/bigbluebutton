@@ -446,7 +446,7 @@ start_bigbluebutton () {
 }
 
 display_bigbluebutton_status () {
-    units="nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
+    units="nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka"
 
     if [ -f /usr/share/red5/red5-server.jar ]; then
       units="$units red5"
@@ -1721,8 +1721,9 @@ if [ $ZIP ]; then
     tar rf  $TMP_LOG_FILE /var/log/kurento-media-server > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/mongodb              > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/redis                > /dev/null 2>&1
-    tar rf  $TMP_LOG_FILE /var/log/nginx/error.log      > /dev/null 2>&1
-    tar rfh $TMP_LOG_FILE /opt/freeswitch/var/log/freeswitch/ > /dev/null 2>&1
+    tar rf  $TMP_LOG_FILE /var/log/nginx/error.log*     > /dev/null 2>&1
+	tar rf  $TMP_LOG_FILE /var/log/nginx/bigbluebutton.access.log*    > /dev/null 2>&1
+    tar rfh $TMP_LOG_FILE /opt/freeswitch/var/log/freeswitch/         > /dev/null 2>&1
 
     if [ -f /var/log/nginx/html5-client.log ]; then
         tar rf $TMP_LOG_FILE /var/log/nginx/html5-client.log* > /dev/null 2>&1

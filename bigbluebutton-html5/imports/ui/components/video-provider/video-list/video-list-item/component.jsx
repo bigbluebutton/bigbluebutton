@@ -62,10 +62,6 @@ class VideoListItem extends Component {
             const tagFailedEvent = new CustomEvent('videoPlayFailed', { detail: { mediaTag: elem } });
             window.dispatchEvent(tagFailedEvent);
           }
-          logger.warn({
-            logCode: 'videolistitem_component_play_maybe_error',
-            extraInfo: { error },
-          }, `Could not play video tag due to ${error.name}`);
         });
       }
     };
@@ -161,8 +157,10 @@ class VideoListItem extends Component {
       })}
       >
         {
-          !videoIsReady
-          && <div data-test="webcamConnecting" className={styles.connecting} />
+          !videoIsReady &&
+            <div data-test="webcamConnecting" className={styles.connecting}>
+              <span className={styles.loadingText}>{name}</span>
+            </div>
         }
         <div
           className={styles.videoContainer}
@@ -185,7 +183,8 @@ class VideoListItem extends Component {
           />
           {videoIsReady && this.renderFullscreenButton()}
         </div>
-        <div className={styles.info}>
+        { videoIsReady &&
+          <div className={styles.info}>
           {enableVideoMenu && availableActions.length >= 3
             ? (
               <Dropdown className={isFirefox ? styles.dropdownFireFox : styles.dropdown}>
@@ -216,6 +215,7 @@ class VideoListItem extends Component {
           {voiceUser.muted && !voiceUser.listenOnly ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
           {voiceUser.listenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
         </div>
+        }
       </div>
     );
   }

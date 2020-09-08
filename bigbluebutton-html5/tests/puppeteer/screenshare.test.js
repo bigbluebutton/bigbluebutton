@@ -1,18 +1,3 @@
-const ShareScreen = require('./screenshare/screenshare');
-const Page = require('./core/page');
+const screenShareTest = require('./screenshare.obj');
 
-describe('Screen Share', () => {
-  test('Share screen', async () => {
-    const test = new ShareScreen();
-    let response;
-    try {
-      await test.init(Page.getArgsWithVideo());
-      response = await test.test();
-    } catch (e) {
-      console.log(e);
-    } finally {
-      await test.close();
-    }
-    expect(response).toBe(true);
-  });
-});
+describe('Screen Share', screenShareTest);

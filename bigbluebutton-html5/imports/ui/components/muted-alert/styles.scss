@@ -1,0 +1,28 @@
+@import "../../stylesheets/variables/breakpoints";
+
+.muteWarning {
+  position: absolute;
+  color: var(--color-white);
+  background-color: var(--color-tip-bg);
+  text-align: center;
+  line-height: 1;
+  font-size: var(--font-size-xl);
+  padding: var(--md-padding-x);
+  border-radius: var(--border-radius);
+  top: -50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+
+  > span {
+    white-space: nowrap;
+  }
+
+  @include mq($small-only) {
+    font-size: var(--font-size-md);;
+  }
+}
+
+.alignForMod {
+  left: 52.25%;
+}
