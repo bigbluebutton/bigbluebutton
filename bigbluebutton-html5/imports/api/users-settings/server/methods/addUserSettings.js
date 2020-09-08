@@ -31,6 +31,7 @@ const oldParametersKeys = Object.keys(oldParameters);
 const currentParameters = [
   // APP
   'bbb_ask_for_feedback_on_logout',
+  'bbb_override_default_locale',
   'bbb_auto_join_audio',
   'bbb_client_title',
   'bbb_force_listen_only',
