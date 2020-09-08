@@ -165,7 +165,9 @@ class RemoteDesktop extends Component {
       const url = new URL(remoteDesktopUrl);
       this.vncPassword = url.searchParams.get('password');
 
-      remoteDesktopUrl = remoteDesktopUrl.replace('{userID}', Auth.userID);
+      for (var id of ['meetingID', 'userID', 'fullname', 'confname', 'externUserID']) {
+          remoteDesktopUrl = remoteDesktopUrl.replace('{' + id + '}', encodeURIComponent(Auth[id]));
+      }
     } else {
       this.vncPassword = ''
     }
