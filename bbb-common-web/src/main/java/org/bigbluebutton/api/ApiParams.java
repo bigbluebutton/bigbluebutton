@@ -70,6 +70,16 @@ public class ApiParams {
     public static final String LOCK_SETTINGS_LOCK_ON_JOIN = "lockSettingsLockOnJoin";
     public static final String LOCK_SETTINGS_LOCK_ON_JOIN_CONFIGURABLE = "lockSettingsLockOnJoinConfigurable";
 
+    // New param passed on create call to callback when meeting ends.
+    // This is a duplicate of the endCallbackUrl meta param as we want this
+    // param to stay on the server and not propagated to client and recordings.
+    public static final String MEETING_ENDED_CALLBACK_URL = "meetingEndedURL";
+
+    // Param to end the meeting when there are no moderators after a certain period of time.
+    // Needed for classes where teacher gets disconnected and can't get back in. Prevents
+    // students from running amok.
+    public static final String END_WHEN_NO_MODERATOR = "endWhenNoModerator";
+
     private ApiParams() {
         throw new IllegalStateException("ApiParams is a utility class. Instanciation is forbidden.");
     }
