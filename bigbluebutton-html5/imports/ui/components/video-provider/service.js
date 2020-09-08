@@ -415,7 +415,6 @@ class VideoService {
       const moderators = Users.find(
         {
           meetingId: Auth.meetingID,
-          connectionStatus: 'online',
           role: ROLE_MODERATOR,
         },
         { fields: { userId: 1 } },

@@ -62,7 +62,6 @@ export default function addUser(meetingId, userData) {
     $set: Object.assign(
       {
         meetingId,
-        connectionStatus: 'online',
         sortName: user.name.trim().toLowerCase(),
         color,
         breakoutProps: {

@@ -31,16 +31,6 @@ export default function removeUser(meetingId, userId) {
     userId,
   };
 
-  const modifier = {
-    $set: {
-      connectionStatus: 'offline',
-      validated: false,
-      emoji: 'none',
-      presenter: false,
-      role: 'VIEWER',
-    },
-  };
-
   const cb = (err) => {
     if (err) {
       return Logger.error(`Removing user from collection: ${err}`);
@@ -57,5 +47,5 @@ export default function removeUser(meetingId, userId) {
     return Logger.info(`Removed user id=${userId} meeting=${meetingId}`);
   };
   VideoStreams.remove({ meetingId, userId });
-  return Users.update(selector, modifier, cb);
+  return Users.remove(selector, cb);
 }

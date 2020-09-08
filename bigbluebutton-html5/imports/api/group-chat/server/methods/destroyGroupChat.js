@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import RedisPubSub from '/imports/startup/server/redis';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
-export default function createGroupChat() {
+export default function destroyGroupChat() {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const { meetingId, requesterUserId } = extractCredentials(this.userId);

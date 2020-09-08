@@ -238,7 +238,7 @@ class Auth {
 
         const selector = { meetingId: this.meetingID, userId: this.userID };
         const fields = {
-          intId: 1, ejected: 1, validated: 1, connectionStatus: 1, userId: 1,
+          ejected: 1, intId: 1, validated: 1, userId: 1,
         };
         const User = Users.findOne(selector, { fields });
         // Skip in case the user is not in the collection yet or is a dummy user
@@ -290,31 +290,6 @@ class Auth {
           default:
         }
       });
-
-      // Tracker.autorun((c) => {
-      //   const authenticationTokenValidation = AuthTokenValidation.findOne();
-
-      //   if (!authenticationTokenValidation) return;
-
-      //   switch (authenticationTokenValidation.validationStatus) {
-      //     case ValidationStates.INVALID:
-      //       c.stop();
-      //       reject({ error: 401, description: 'User has been ejected.' });
-      //       break;
-      //     case ValidationStates.VALIDATED:
-      //       initCursorStreamListener();
-      //       initAnnotationsStreamListener();
-      //       c.stop();
-      //       clearTimeout(validationTimeout);
-      //       resolve(true);
-      //       break;
-      //     case ValidationStates.VALIDATING:
-      //       break;
-      //     case ValidationStates.NOT_VALIDATED:
-      //       break;
-      //     default:
-      //   }
-      // });
     });
   }
 
