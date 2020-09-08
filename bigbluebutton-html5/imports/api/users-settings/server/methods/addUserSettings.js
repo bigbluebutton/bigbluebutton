@@ -69,7 +69,7 @@ const currentParameters = [
 
 function valueParser(val) {
   try {
-    const parsedValue = JSON.parse(val.toLowerCase());
+    const parsedValue = JSON.parse(val.toLowerCase().trim());
     return parsedValue;
   } catch (error) {
     logger.warn(`addUserSettings:Parameter ${val} could not be parsed (was not json)`);
@@ -86,21 +86,22 @@ export default function addUserSettings(settings) {
 
   settings.forEach((el) => {
     const settingKey = Object.keys(el).shift();
+    const normalizedKey = settingKey.trim();
 
-    if (currentParameters.includes(settingKey)) {
-      if (!Object.keys(parameters).includes(settingKey)) {
+    if (currentParameters.includes(normalizedKey)) {
+      if (!Object.keys(parameters).includes(normalizedKey)) {
         parameters = {
-          [settingKey]: valueParser(el[settingKey]),
+          [normalizedKey]: valueParser(el[settingKey]),
           ...parameters,
         };
       } else {
-        parameters[settingKey] = el[settingKey];
+        parameters[normalizedKey] = el[settingKey];
       }
       return;
     }
 
-    if (oldParametersKeys.includes(settingKey)) {
-      const matchingNewKey = oldParameters[settingKey];
+    if (oldParametersKeys.includes(normalizedKey)) {
+      const matchingNewKey = oldParameters[normalizedKey];
       if (!Object.keys(parameters).includes(matchingNewKey)) {
         parameters = {
           [matchingNewKey]: valueParser(el[settingKey]),
@@ -110,7 +111,7 @@ export default function addUserSettings(settings) {
       return;
     }
 
-    logger.warn(`Parameter ${settingKey} not handled`);
+    logger.warn(`Parameter ${normalizedKey} not handled`);
   });
 
   const settingsAdded = [];
