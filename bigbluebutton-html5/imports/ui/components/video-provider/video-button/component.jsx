@@ -33,7 +33,7 @@ const intlMessages = defineMessages({
     description: 'video data saving label',
   },
   meteorDisconnected: {
-    id: 'app.meeting.disconnected',
+    id: 'app.video.clientDisconnected',
     description: 'Meteor disconnected label',
   },
   iOSWarning: {
