@@ -283,8 +283,17 @@ class AudioManager {
 
   onVoiceUserChanges(fields) {
     if (fields.muted !== undefined && fields.muted !== this.isMuted) {
+      let muteState;
       this.isMuted = fields.muted;
-      const muteState = this.isMuted ? 'selfMuted' : 'selfUnmuted';
+
+      if (this.isMuted) {
+        muteState = 'selfMuted';
+        this.mute();
+      } else {
+        muteState = 'selfUnmuted';
+        this.unmute();
+      }
+
       window.parent.postMessage({ response: muteState }, '*');
     }
 
@@ -565,6 +574,28 @@ class AudioManager {
       }, 'Prompting user for action to play listen only media');
       this.autoplayBlocked = true;
     }
+  }
+
+  mute () {
+    const bridge = (this.useKurento && this.isListenOnly) ? this.listenOnlyBridge : this.bridge;
+    const peer = bridge.getPeerConnection();
+    peer.getSenders().forEach(sender => {
+      const { track } = sender;
+      if (track && track.kind === 'audio') {
+        track.enabled = false;
+      }
+    });
+  }
+
+  unmute () {
+    const bridge = (this.useKurento && this.isListenOnly) ? this.listenOnlyBridge : this.bridge;
+    const peer = bridge.getPeerConnection();
+    peer.getSenders().forEach(sender => {
+      const { track } = sender;
+      if (track && track.kind === 'audio') {
+        track.enabled = true;
+      }
+    });
   }
 }
 
