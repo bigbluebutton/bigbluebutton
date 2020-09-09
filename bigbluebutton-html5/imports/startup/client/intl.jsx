@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { IntlProvider } from 'react-intl';
 import Settings from '/imports/ui/services/settings';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const propTypes = {
   locale: PropTypes.string,
@@ -20,7 +21,12 @@ const defaultProps = {
 
 class IntlStartup extends Component {
   static saveLocale(localeName) {
+    if (Settings.application.locale !== localeName) {
+      Settings.application.changedLocale = localeName;
+    }
+
     Settings.application.locale = localeName;
+
     if (RTL_LANGUAGES.includes(localeName.substring(0, 2))) {
       document.body.parentNode.setAttribute('dir', 'rtl');
       Settings.application.isRTL = true;
@@ -55,16 +61,32 @@ class IntlStartup extends Component {
 
   componentDidUpdate(prevProps) {
     const { fetching, normalizedLocale, localeChanged } = this.state;
-    const { locale } = this.props;
+    const { locale, overrideLocale, changedLocale } = this.props;
+
     if (prevProps.locale !== locale) {
       this.setState({
         localeChanged: true,
       });
     }
+
+    if (overrideLocale) {
+      if (!fetching
+        && (overrideLocale !== normalizedLocale.toLowerCase())
+        && !localeChanged
+        && !changedLocale) {
+        this.fetchLocalizedMessages(overrideLocale);
+      }
+
+      if (!localeChanged) {
+        return;
+      }
+    }
+
     if (!fetching
       && normalizedLocale
       && ((locale.toLowerCase() !== normalizedLocale.toLowerCase()))) {
       if (((DEFAULT_LANGUAGE === normalizedLocale.toLowerCase()) && !localeChanged)) return;
+
       this.fetchLocalizedMessages(locale);
     }
   }
@@ -109,10 +131,12 @@ class IntlStartup extends Component {
 }
 
 const IntlStartupContainer = withTracker(() => {
-  const { locale } = Settings.application;
-
+  const { locale, changedLocale } = Settings.application;
+  const overrideLocale = getFromUserSettings('bbb_override_default_locale', null);
   return {
     locale,
+    overrideLocale,
+    changedLocale,
   };
 })(IntlStartup);
 
