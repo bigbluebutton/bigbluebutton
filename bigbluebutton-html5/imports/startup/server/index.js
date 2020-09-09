@@ -8,10 +8,12 @@ import { lookup as lookupUserAgent } from 'useragent';
 import { check } from 'meteor/check';
 import Logger from './logger';
 import Redis from './redis';
+
 import setMinBrowserVersions from './minBrowserVersion';
 import userLeaving from '/imports/api/users/server/methods/userLeaving';
 
 const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
+const FALLBACK_LOCALES = JSON.parse(Assets.getText('config/fallbackLocales.json'));
 let avaibleLocalesNames = [];
 
 Meteor.startup(() => {
@@ -151,18 +153,22 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
 });
 
 WebApp.connectHandlers.use('/locales', (req, res) => {
-  if (!avaibleLocalesNames.length) {
-    try {
-      avaibleLocalesNames = AVAILABLE_LOCALES
-        .map(file => file.replace('.json', ''))
-        .map(file => file.replace('_', '-'))
-        .map(locale => ({
+  let locales = [];
+  try {
+    locales = AVAILABLE_LOCALES
+      .map(file => file.replace('.json', ''))
+      .map(file => file.replace('_', '-'))
+      .map((locale) => {
+        const localeName = (Langmap[locale] || {}).nativeName
+                           || (FALLBACK_LOCALES[locale] || {}).nativeName
+                           || locale;
+        return {
           locale,
-          name: Langmap[locale].nativeName,
-        }));
-    } catch (e) {
-      Logger.warn(`'Could not process locales error: ${e}`);
-    }
+          name: localeName,
+        };
+      });
+  } catch (e) {
+    Logger.warn(`'Could not process locales error: ${e}`);
   }
 
   res.setHeader('Content-Type', 'application/json');

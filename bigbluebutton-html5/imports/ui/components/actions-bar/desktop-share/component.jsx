@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import browser from 'browser-detect';
 import Button from '/imports/ui/components/button/component';
 import logger from '/imports/startup/client/logger';
@@ -12,7 +12,7 @@ import { styles } from '../styles';
 import ScreenshareBridgeService from '/imports/api/screenshare/client/bridge/service';
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   amIPresenter: PropTypes.bool.isRequired,
   handleShareScreen: PropTypes.func.isRequired,
   handleUnshareScreen: PropTypes.func.isRequired,
