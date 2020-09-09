@@ -51,14 +51,12 @@ const toggleMuteMicrophone = () => {
       extraInfo: { logType: 'user_action' },
     }, 'microphone unmuted by user');
     makeCall('toggleVoice');
-    AudioManager.unmute();
   } else {
     logger.info({
       logCode: 'audiomanager_mute_audio',
       extraInfo: { logType: 'user_action' },
     }, 'microphone muted by user');
     makeCall('toggleVoice');
-    AudioManager.mute();
   }
 };
 
