@@ -546,10 +546,17 @@ class VideoService {
     this.exitVideo();
   }
 
-  isDisabled() {
+  disableReason() {
     const { viewParticipantsWebcams } = Settings.dataSaving;
-
-    return this.isUserLocked() || this.isConnecting || !viewParticipantsWebcams;
+    const locks = {
+      videoLocked: this.isUserLocked(),
+      videoConnecting: this.isConnecting,
+      dataSaving: !viewParticipantsWebcams,
+      meteorDisconnected: !Meteor.status().connected
+    };
+    const locksKeys = Object.keys(locks);
+    const disableReason = locksKeys.filter( i => locks[i]).shift();
+    return disableReason ? disableReason : false;
   }
 
   getRole(isLocal) {
@@ -739,7 +746,7 @@ export default {
   getAuthenticatedURL: () => videoService.getAuthenticatedURL(),
   isLocalStream: cameraId => videoService.isLocalStream(cameraId),
   hasVideoStream: () => videoService.hasVideoStream(),
-  isDisabled: () => videoService.isDisabled(),
+  disableReason: () => videoService.disableReason(),
   playStart: cameraId => videoService.playStart(cameraId),
   getCameraProfile: () => videoService.getCameraProfile(),
   addCandidateToPeer: (peer, candidate, cameraId) => videoService.addCandidateToPeer(peer, candidate, cameraId),
