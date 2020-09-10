@@ -562,7 +562,7 @@
     "app.videoPreview.webcamNotFoundLabel": "Webcam not found",
     "app.videoPreview.profileNotFoundLabel": "No supported camera profile",
     "app.video.joinVideo": "Share webcam",
-    "app.video.connecting": "Webcam sharing is starting",
+    "app.video.connecting": "Webcam sharing is starting ...",
     "app.video.dataSaving": "Webcam sharing is disabled in Data Saving",
     "app.video.leaveVideo": "Stop sharing webcam",
     "app.video.iceCandidateError": "Error on adding ICE candidate",
