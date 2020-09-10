@@ -4,7 +4,7 @@ import { findDOMNode } from 'react-dom';
 import { isMobile } from 'react-device-detect';
 import TetherComponent from 'react-tether';
 import cx from 'classnames';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import screenreaderTrap from 'makeup-screenreader-trap';
 import { styles } from './styles';
@@ -52,7 +52,7 @@ const propTypes = {
   onHide: PropTypes.func,
   onShow: PropTypes.func,
   autoFocus: PropTypes.bool,
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   tethered: PropTypes.bool,
 };
 
@@ -300,4 +300,4 @@ class Dropdown extends Component {
 
 Dropdown.propTypes = propTypes;
 Dropdown.defaultProps = defaultProps;
-export default injectIntl(Dropdown);
+export default injectIntl(Dropdown, { forwardRef: true });
