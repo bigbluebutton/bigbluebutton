@@ -38,8 +38,7 @@ const generateLocaleOptions = () => {
   }
 };
 
-const aggregateLocales = JSON.stringify(generateLocaleOptions());
-
+let avaibleLocalesNamesJSON = JSON.stringify(generateLocaleOptions());
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
@@ -178,9 +177,13 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
 });
 
 WebApp.connectHandlers.use('/locales', (req, res) => {
+  if (!avaibleLocalesNamesJSON) {
+    avaibleLocalesNamesJSON = JSON.stringify(generateLocaleOptions());
+  }
+
   res.setHeader('Content-Type', 'application/json');
   res.writeHead(200);
-  res.end(aggregateLocales);
+  res.end(avaibleLocalesNamesJSON);
 });
 
 WebApp.connectHandlers.use('/feedback', (req, res) => {
