@@ -190,6 +190,34 @@ class Page {
     };
   }
 
+  static getArgsWithAudioAndVideo() {
+    if (process.env.BROWSERLESS_ENABLED === 'true') {
+      const args = [
+        '--no-sandbox',
+        '--use-fake-ui-for-media-stream',
+        '--use-fake-device-for-media-stream',
+        '--lang=en-US',
+      ];
+      return {
+        headless: true,
+        args,
+      };
+    }
+    const args = [
+      '--no-sandbox',
+      '--use-fake-ui-for-media-stream',
+      '--use-fake-device-for-media-stream',
+      `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
+      `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
+      '--allow-file-access',
+      '--lang=en-US',
+    ];
+    return {
+      headless: true,
+      args,
+    };
+  }
+
   // Returns a Promise that resolves when an element does not exist/is removed from the DOM
   elementRemoved(element) {
     return this.page.waitFor(element => !document.querySelector(element), {}, element);
