@@ -109,8 +109,9 @@ const intlMessages = defineMessages({
   },
 });
 
+const BREAKOUT_LIM = Meteor.settings.public.app.breakoutRoomLimit;
 const MIN_BREAKOUT_ROOMS = 2;
-const MAX_BREAKOUT_ROOMS = 8;
+const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
 
 const propTypes = {
   intl: intlShape.isRequired,
