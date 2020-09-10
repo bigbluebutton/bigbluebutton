@@ -46,6 +46,7 @@
     "flat": "~4.1.0",
     "hark": "^1.2.3",
     "immutability-helper": "~2.8.1",
+    "jssha": "^2.3.1",
     "langmap": "0.0.16",
     "lodash": "^4.17.19",
     "makeup-screenreader-trap": "0.0.5",
