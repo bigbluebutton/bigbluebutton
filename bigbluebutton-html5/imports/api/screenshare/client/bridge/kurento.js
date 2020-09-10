@@ -146,52 +146,6 @@ export default class KurentoScreenshareBridge {
         userName: getUsername(),
       };
 
-      const screenshareTag = document.getElementById(SCREENSHARE_VIDEO_TAG);
-
-      const playElement = () => {
-        const mediaTagPlayed = () => {
-          logger.info({
-            logCode: 'screenshare_viewer_media_play_success',
-          }, 'Screenshare viewer media played successfully');
-        };
-        if (screenshareTag.paused) {
-          // Tag isn't playing yet. Play it.
-          screenshareTag.play()
-            .then(mediaTagPlayed)
-            .catch((error) => {
-              // NotAllowedError equals autoplay issues, fire autoplay handling event.
-              // This will be handled in the screenshare react component.
-              if (error.name === 'NotAllowedError') {
-                logger.error({
-                  logCode: 'screenshare_viewer_error_autoplay',
-                  extraInfo: { errorName: error.name },
-                }, 'Screenshare viewer play failed due to autoplay error');
-                const tagFailedEvent = new CustomEvent('screensharePlayFailed',
-                  { detail: { mediaElement: screenshareTag } });
-                window.dispatchEvent(tagFailedEvent);
-              } else {
-                // Tag failed for reasons other than autoplay. Log the error and
-                // try playing again a few times until it works or fails for good
-                const played = playAndRetry(screenshareTag);
-                if (!played) {
-                  logger.error({
-                    logCode: 'screenshare_viewer_error_media_play_failed',
-                    extraInfo: { errorName: error.name },
-                  }, `Screenshare viewer media play failed due to ${error.name}`);
-                } else {
-                  mediaTagPlayed();
-                }
-              }
-            });
-        } else {
-          // Media tag is already playing, so log a success. This is really a
-          // logging fallback for a case that shouldn't happen. But if it does
-          // (ie someone re-enables the autoPlay prop in the element), then it
-          // means the stream is playing properly and it'll be logged.
-          mediaTagPlayed();
-        }
-      };
-
       const onFail = (error) => {
         KurentoScreenshareBridge.handleViewerFailure(error, started);
       };
