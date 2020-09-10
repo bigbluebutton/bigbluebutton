@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import ClientConnections from '/imports/startup/server/ClientConnections';
-import userLeaving from './userLeaving';
 import upsertValidationState from '/imports/api/auth-token-validation/server/modifiers/upsertValidationState';
 import { ValidationStates } from '/imports/api/auth-token-validation';
 import pendingAuthenticationsStore from '../store/pendingAuthentications';

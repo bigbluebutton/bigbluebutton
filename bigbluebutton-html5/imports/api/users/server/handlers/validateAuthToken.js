@@ -4,11 +4,8 @@ import Users from '/imports/api/users';
 import userJoin from './userJoin';
 import pendingAuthenticationsStore from '../store/pendingAuthentications';
 import createDummyUser from '../modifiers/createDummyUser';
-import setConnectionIdAndAuthToken from '../modifiers/setConnectionIdAndAuthToken';
 
-import ClientConnections from '/imports/startup/server/ClientConnections';
 import upsertValidationState from '/imports/api/auth-token-validation/server/modifiers/upsertValidationState';
-import removeValidationState from '/imports/api/auth-token-validation/server/modifiers/removeValidationState';
 import { ValidationStates } from '/imports/api/auth-token-validation';
 
 const clearOtherSessions = (sessionUserId, current = false) => {

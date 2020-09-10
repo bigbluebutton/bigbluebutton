@@ -2,10 +2,7 @@ import Users from '/imports/api/users';
 import { Meteor } from 'meteor/meteor';
 import Logger from '/imports/startup/server/logger';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
-
-import userLeaving from './methods/userLeaving';
 import { extractCredentials } from '/imports/api/common/server/helpers';
-
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -17,17 +14,6 @@ function currentUser() {
 
   check(meetingId, String);
   check(requesterUserId, String);
-
-  const connectionId = this.connection.id;
-  const onCloseConnection = Meteor.bindEnvironment(() => {
-    try {
-      userLeaving(meetingId, requesterUserId, connectionId);
-    } catch (e) {
-      Logger.error(`Exception while executing userLeaving: ${e}`);
-    }
-  });
-
-  this._session.socket.on('close', _.debounce(onCloseConnection, 100));
 
   const selector = {
     meetingId,

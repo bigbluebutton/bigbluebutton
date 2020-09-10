@@ -1,4 +1,5 @@
 import Logger from './logger';
+import userLeaving from '/imports/api/users/server/methods/userLeaving';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
 class ClientConnections {
@@ -7,7 +8,7 @@ class ClientConnections {
 
     setInterval(() => {
       this.print();
-    }, 20000);
+    }, 30000);
   }
 
   add(sessionId, connection) {
@@ -27,6 +28,10 @@ class ClientConnections {
 
       return false;
     }
+
+    connection.onClose(Meteor.bindEnvironment(() => {
+      userLeaving(meetingId, userId, connection.id);
+    }));
 
     if (!sessionConnections.has(userId)) {
       Logger.info(`Creating connections poll for ${userId}`);

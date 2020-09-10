@@ -258,15 +258,6 @@ class Auth {
           return;
         }
 
-        // if (User.validated === true && User.connectionStatus === 'online') {
-        //   logger.info({ logCode: 'auth_service_init_streamers', extraInfo: { userId: User.userId } }, 'Calling init streamers functions');
-        //   initCursorStreamListener();
-        //   initAnnotationsStreamListener();
-        //   computation.stop();
-        //   clearTimeout(validationTimeout);
-        //   // setTimeout to prevent race-conditions with subscription
-        //   setTimeout(() => resolve(true), 100);
-        // }
         const authenticationTokenValidation = AuthTokenValidation.findOne();
 
         if (!authenticationTokenValidation) return;
@@ -281,7 +272,7 @@ class Auth {
             initAnnotationsStreamListener();
             c.stop();
             clearTimeout(validationTimeout);
-            resolve(true);
+            setTimeout(() => resolve(true), 100);
             break;
           case ValidationStates.VALIDATING:
             break;

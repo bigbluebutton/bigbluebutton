@@ -2,8 +2,8 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
+import AuthTokenValidation from '/imports/api/auth-token-validation';
 import Users from '/imports/api/users';
-import ClientConnections from '/imports/startup/server/ClientConnections';
 
 export default function userLeaving(meetingId, userId, connectionId) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
@@ -23,8 +23,14 @@ export default function userLeaving(meetingId, userId, connectionId) {
     return Logger.info(`Skipping userLeaving. Could not find ${userId} in ${meetingId}`);
   }
 
+  const auth = AuthTokenValidation.findOne({
+    meetingId,
+    userId,
+    connectionId,
+  });
+
   // If the current user connection is not the same that triggered the leave we skip
-  if (User.connectionId !== connectionId) {
+  if (User.connectionId !== connectionId && !auth) {
     return false;
   }
 
@@ -32,8 +38,6 @@ export default function userLeaving(meetingId, userId, connectionId) {
     userId,
     sessionId: meetingId,
   };
-
-  ClientConnections.removeClientConnection(`${meetingId}--${userId}`, connectionId);
 
   Logger.info(`User '${userId}' is leaving meeting '${meetingId}'`);
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);
