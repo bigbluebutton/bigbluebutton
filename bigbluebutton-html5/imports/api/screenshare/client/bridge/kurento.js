@@ -63,15 +63,80 @@ export default class KurentoScreenshareBridge {
     return normalizedError;
   }
 
-  async kurentoWatchVideo() {
+  static playElement(screenshareMediaElement) {
+    const mediaTagPlayed = () => {
+      logger.info({
+        logCode: 'screenshare_media_play_success',
+      }, 'Screenshare media played successfully');
+    };
+
+    if (screenshareMediaElement.paused) {
+      // Tag isn't playing yet. Play it.
+      screenshareMediaElement.play()
+        .then(mediaTagPlayed)
+        .catch((error) => {
+          // NotAllowedError equals autoplay issues, fire autoplay handling event.
+          // This will be handled in the screenshare react component.
+          if (error.name === 'NotAllowedError') {
+            logger.error({
+              logCode: 'screenshare_error_autoplay',
+              extraInfo: { errorName: error.name },
+            }, 'Screenshare play failed due to autoplay error');
+            const tagFailedEvent = new CustomEvent('screensharePlayFailed',
+              { detail: { mediaElement: screenshareMediaElement } });
+            window.dispatchEvent(tagFailedEvent);
+          } else {
+            // Tag failed for reasons other than autoplay. Log the error and
+            // try playing again a few times until it works or fails for good
+            const played = playAndRetry(screenshareMediaElement);
+            if (!played) {
+              logger.error({
+                logCode: 'screenshare_error_media_play_failed',
+                extraInfo: { errorName: error.name },
+              }, `Screenshare media play failed due to ${error.name}`);
+            } else {
+              mediaTagPlayed();
+            }
+          }
+        });
+    } else {
+      // Media tag is already playing, so log a success. This is really a
+      // logging fallback for a case that shouldn't happen. But if it does
+      // (ie someone re-enables the autoPlay prop in the element), then it
+      // means the stream is playing properly and it'll be logged.
+      mediaTagPlayed();
+    }
+  };
+
+  static screenshareElementLoadAndPlay(stream, element, muted) {
+    element.muted = muted;
+    element.pause();
+    element.srcObject = stream;
+    KurentoScreenshareBridge.playElement(element);
+  }
+
+  kurentoViewLocalPreview() {
+    const screenshareMediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG);
+    const { webRtcPeer } = window.kurentoManager.kurentoScreenshare;
+
+    if (webRtcPeer) {
+      const stream = webRtcPeer.getLocalStream();
+      KurentoScreenshareBridge.screenshareElementLoadAndPlay(stream, screenshareMediaElement, true);
+    }
+  }
+
+  async kurentoViewScreen() {
+    const screenshareMediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG);
     let iceServers = [];
     let started = false;
 
     try {
       iceServers = await fetchWebRTCMappedStunTurnServers(getSessionToken());
     } catch (error) {
-      logger.error({ logCode: 'screenshare_viwer_fetchstunturninfo_error', extraInfo: { error } },
-        'Screenshare bridge failed to fetch STUN/TURN info, using default');
+      logger.error({
+        logCode: 'screenshare_viewer_fetchstunturninfo_error',
+        extraInfo: { error }
+      }, 'Screenshare bridge failed to fetch STUN/TURN info, using default');
       iceServers = getMappedFallbackStun();
     } finally {
       const options = {
@@ -79,52 +144,6 @@ export default class KurentoScreenshareBridge {
         iceServers,
         logger,
         userName: getUsername(),
-      };
-
-      const screenshareTag = document.getElementById(SCREENSHARE_VIDEO_TAG);
-
-      const playElement = () => {
-        const mediaTagPlayed = () => {
-          logger.info({
-            logCode: 'screenshare_viewer_media_play_success',
-          }, 'Screenshare viewer media played successfully');
-        };
-        if (screenshareTag.paused) {
-          // Tag isn't playing yet. Play it.
-          screenshareTag.play()
-            .then(mediaTagPlayed)
-            .catch((error) => {
-              // NotAllowedError equals autoplay issues, fire autoplay handling event.
-              // This will be handled in the screenshare react component.
-              if (error.name === 'NotAllowedError') {
-                logger.error({
-                  logCode: 'screenshare_viewer_error_autoplay',
-                  extraInfo: { errorName: error.name },
-                }, 'Screenshare viewer play failed due to autoplay error');
-                const tagFailedEvent = new CustomEvent('screensharePlayFailed',
-                  { detail: { mediaElement: screenshareTag } });
-                window.dispatchEvent(tagFailedEvent);
-              } else {
-                // Tag failed for reasons other than autoplay. Log the error and
-                // try playing again a few times until it works or fails for good
-                const played = playAndRetry(screenshareTag);
-                if (!played) {
-                  logger.error({
-                    logCode: 'screenshare_viewer_error_media_play_failed',
-                    extraInfo: { errorName: error.name },
-                  }, `Screenshare viewer media play failed due to ${error.name}`);
-                } else {
-                  mediaTagPlayed();
-                }
-              }
-            });
-        } else {
-          // Media tag is already playing, so log a success. This is really a
-          // logging fallback for a case that shouldn't happen. But if it does
-          // (ie someone re-enables the autoPlay prop in the element), then it
-          // means the stream is playing properly and it'll be logged.
-          mediaTagPlayed();
-        }
       };
 
       const onFail = (error) => {
@@ -139,10 +158,11 @@ export default class KurentoScreenshareBridge {
         const { webRtcPeer } = window.kurentoManager.kurentoVideo;
         if (webRtcPeer) {
           const stream = webRtcPeer.getRemoteStream();
-          screenshareTag.muted = true;
-          screenshareTag.pause();
-          screenshareTag.srcObject = stream;
-          playElement();
+          KurentoScreenshareBridge.screenshareElementLoadAndPlay(
+            stream,
+            screenshareMediaElement,
+            true,
+          );
         }
       };
 
