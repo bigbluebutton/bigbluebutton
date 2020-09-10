@@ -576,26 +576,23 @@ class AudioManager {
     }
   }
 
-  mute () {
-    const bridge = (this.useKurento && this.isListenOnly) ? this.listenOnlyBridge : this.bridge;
-    const peer = bridge.getPeerConnection();
+  setSenderTrackEnabled (shouldEnable) {
+    // Bridge -> SIP.js bridge, the only full audio capable one right now
+    const peer = this.bridge.getPeerConnection();
     peer.getSenders().forEach(sender => {
       const { track } = sender;
       if (track && track.kind === 'audio') {
-        track.enabled = false;
+        track.enabled = shouldEnable;
       }
     });
   }
 
+  mute () {
+    this.setSenderTrackEnabled(false);
+  }
+
   unmute () {
-    const bridge = (this.useKurento && this.isListenOnly) ? this.listenOnlyBridge : this.bridge;
-    const peer = bridge.getPeerConnection();
-    peer.getSenders().forEach(sender => {
-      const { track } = sender;
-      if (track && track.kind === 'audio') {
-        track.enabled = true;
-      }
-    });
+    this.setSenderTrackEnabled(true);
   }
 }
 
