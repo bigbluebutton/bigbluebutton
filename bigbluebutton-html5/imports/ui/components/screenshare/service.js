@@ -33,7 +33,7 @@ const presenterScreenshareHasEnded = () => {
 const viewScreenshare = () => {
   const amIPresenter = UserListService.isUserPresenter(Auth.userID);
   if (!amIPresenter) {
-    KurentoBridge.kurentoViewScreen(amIPresenter);
+    KurentoBridge.kurentoViewScreen();
   } else {
     KurentoBridge.kurentoViewLocalPreview();
   }
