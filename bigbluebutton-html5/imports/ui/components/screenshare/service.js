@@ -7,6 +7,7 @@ import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import { stopWatching } from '/imports/ui/components/external-video-player/service';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
+import UserListService from '/imports/ui/components/user-list/service';
 
 // when the meeting information has been updated check to see if it was
 // screensharing. If it has changed either trigger a call to receive video

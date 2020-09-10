@@ -34,17 +34,11 @@ const {
 const TOKEN = '_';
 
 class VideoService {
-  static isUserPresenter(userId) {
-    const user = Users.findOne({ userId },
-      { fields: { presenter: 1 } });
-    return user ? user.presenter : false;
-  }
-
   // Paginated streams: sort with following priority: local -> presenter -> alphabetic
   static sortPaginatedStreams(s1, s2) {
-    if (VideoService.isUserPresenter(s1.userId) && !VideoService.isUserPresenter(s2.userId)) {
+    if (UserListService.isUserPresenter(s1.userId) && !UserListService.isUserPresenter(s2.userId)) {
       return -1;
-    } else if (VideoService.isUserPresenter(s2.userId) && !VideoService.isUserPresenter(s1.userId)) {
+    } else if (UserListService.isUserPresenter(s2.userId) && !UserListService.isUserPresenter(s1.userId)) {
       return 1;
     } else {
       return UserListService.sortUsersByName(s1, s2);

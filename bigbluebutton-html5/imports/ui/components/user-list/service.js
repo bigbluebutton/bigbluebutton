@@ -506,6 +506,12 @@ const sortUsersByLastName = (a, b) => {
   return 0;
 };
 
+const isUserPresenter = (userId) => {
+  const user = Users.findOne({ userId },
+    { fields: { presenter: 1 } });
+  return user ? user.presenter : false;
+};
+
 export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
   const mimeType = 'text/plain';
   const userNamesObj = getUsers()
@@ -567,4 +573,5 @@ export default {
   hasPrivateChatBetweenUsers,
   toggleUserLock,
   requestUserInformation,
+  isUserPresenter,
 };
