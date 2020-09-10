@@ -30,7 +30,7 @@ const generateLocaleOptions = () => {
           name: localeName,
         };
       });
-    Logger.warn(`Total locales: ${tempAggregateLocales.length}`);
+    Logger.warn(`Total locales: ${tempAggregateLocales.length}`, tempAggregateLocales);
     return tempAggregateLocales;
   } catch (e) {
     Logger.error(`'Could not process locales error: ${e}`);
