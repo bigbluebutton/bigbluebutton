@@ -53,8 +53,10 @@ class VideoService {
 
   // Full mesh: sort with the following priority: local -> alphabetic
   static sortMeshStreams(s1, s2) {
-    if (s1.userId === Auth.userID) {
+    if (s1.userId === Auth.userID && s2.userId !== Auth.userID) {
       return -1;
+    } else if (s2.userId === Auth.userID && s1.userId !== Auth.userID) {
+      return 1;
     } else {
       return UserListService.sortUsersByName(s1, s2);
     }
