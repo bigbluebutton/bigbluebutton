@@ -635,11 +635,10 @@ class VideoProvider extends Component {
       return;
     }
 
-    const errorMessage = intlClientErrors[error.name]
-      || intlSFUErrors[error] || intlClientErrors.permissionError;
+    const errorMessage = intlClientErrors[error.name] || intlSFUErrors[error];
     // Only display WebRTC negotiation error toasts to sharers. The viewer streams
     // will try to autoreconnect silently, but the error will log nonetheless
-    if (isLocal) {
+    if (isLocal && errorMessage) {
       VideoService.notify(intl.formatMessage(errorMessage));
     } else {
       // If it's a viewer, set the reconnection timeout. There's a good chance
