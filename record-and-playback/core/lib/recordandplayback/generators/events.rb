@@ -693,7 +693,8 @@ module BigBlueButton
     end
 
     # Check if any screenshare files has audio
-    def self.screenshare_has_audio?(events)
+    def self.screenshare_has_audio?(events_xml)
+      events = Nokogiri::XML(File.open(events_xml))
       events.xpath('/recording/event[@eventname="StartWebRTCDesktopShareEvent"]').each do |event|
         filename = event.at_xpath('filename').text
         fileHasAudio = !BigBlueButton::EDL::Audio.audio_info(filename)[:audio].nil?

@@ -25,9 +25,9 @@ module BigBlueButton
       FFMPEG_AFORMAT_SCREENSHARE = "aresample=async=1000,aformat=sample_fmts=s16:sample_rates=48000:channel_layouts=stereo"
       FFMPEG_WF_CODEC = 'libvorbis'
       FFMPEG_WF_ARGS = ['-c:a', FFMPEG_WF_CODEC, '-q:a', '2', '-f', 'ogg']
-      WF_EXT = 'ogg'
       FFMPEG_WF_SCREENSHARE_CODEC = 'libopus'
       FFMPEG_WF_SCREENSHARE_ARGS = ['-c:a', FFMPEG_WF_SCREENSHARE_CODEC, '-b:a', '48K', '-f', 'opus']
+      WF_EXT = 'ogg'
 
       def self.dump(edl)
         BigBlueButton.logger.debug "EDL Dump:"
