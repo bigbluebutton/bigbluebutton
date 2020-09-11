@@ -147,7 +147,7 @@ class MessageList extends Component {
       handleScrollUpdate,
     } = this.props;
 
-    if (position !== null && position + target.offsetHeight === target.scrollHeight) {
+    if (position !== null && position + target?.offsetHeight === target?.scrollHeight) {
       // I used one because the null value is used to notify that
       // the user has sent a message and the message list should scroll to bottom
       handleScrollUpdate(1);
@@ -159,10 +159,10 @@ class MessageList extends Component {
 
   handleScrollChange(e) {
     const { scrollArea } = this.state;
-    const scrollCursorPosition = e.scrollTop + scrollArea.offsetHeight;
+    const scrollCursorPosition = e.scrollTop + scrollArea?.offsetHeight;
     const shouldScrollBottom = e.scrollTop === null
-      || scrollCursorPosition === scrollArea.scrollHeight
-      || (scrollArea.scrollHeight - scrollCursorPosition < 1);
+      || scrollCursorPosition === scrollArea?.scrollHeight
+      || (scrollArea?.scrollHeight - scrollCursorPosition < 1);
 
     if ((e.scrollTop < this.lastKnowScrollPosition) && !shouldScrollBottom) {
       this.setState({ shouldScrollToBottom: false });
