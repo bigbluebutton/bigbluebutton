@@ -577,6 +577,10 @@ class AudioManager {
   }
 
   setSenderTrackEnabled (shouldEnable) {
+    // If the bridge is set to listen only mode, nothing to do here. This method
+    // is solely for muting outbound tracks.
+    if (this.isListenOnly) return;
+
     // Bridge -> SIP.js bridge, the only full audio capable one right now
     const peer = this.bridge.getPeerConnection();
     peer.getSenders().forEach(sender => {
