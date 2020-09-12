@@ -125,6 +125,7 @@ class RedisPubSub {
 
     this.handleSubscribe = this.handleSubscribe.bind(this);
     this.handleMessage = this.handleMessage.bind(this);
+    this.requestRunningMeetings = this.requestRunningMeetings.bind(this);
     this.debug = makeDebugger(this.config.debug);
   }
 
@@ -159,9 +160,20 @@ class RedisPubSub {
     const body = {
       requesterId: 'nodeJSapp',
     };
-
+    this.requestRunningMeetings();
     this.publishSystemMessage(CHANNEL, EVENT_NAME, body);
     this.didSendRequestEvent = true;
+  }
+
+  requestRunningMeetings() {
+    const REDIS_CONFIG = Meteor.settings.private.redis;
+    const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+    const EVENT_NAME = 'GetRunningMeetingsReqMsg';
+    const body = {
+      requesterId: 'nodeJSapp',
+    };
+
+    this.publishSystemMessage(CHANNEL, EVENT_NAME, body);
   }
 
   handleMessage(pattern, channel, message) {

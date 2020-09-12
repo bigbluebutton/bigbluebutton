@@ -4,10 +4,11 @@ import Meetings from '/imports/api/meetings';
 import addVoiceUser from '../modifiers/addVoiceUser';
 import removeVoiceUser from '../modifiers/removeVoiceUser';
 import updateVoiceUser from '../modifiers/updateVoiceUser';
+import { resyncResolver } from '/imports/api/common/server/helpers';
+import { dependencies } from '/imports/startup/server/meteorSyncComfirmation';
 
 export default function handleGetVoiceUsers({ body }, meetingId) {
   const { users } = body;
-
   check(meetingId, String);
   check(users, Array);
 
@@ -25,6 +26,7 @@ export default function handleGetVoiceUsers({ body }, meetingId) {
       // user already exist, then update
       voiceUsersUpdated.push(updateVoiceUser(meetingId, {
         intId: user.intId,
+
         voiceUserId: user.voiceUserId,
         talking: user.talking,
         muted: user.muted,
@@ -58,6 +60,6 @@ export default function handleGetVoiceUsers({ body }, meetingId) {
     voiceUserId: user.voiceUserId,
     intId: user.intId,
   }));
-
+  resyncResolver(meetingId, dependencies.VOICE_USERS);
   return voiceUsersUpdated;
 }

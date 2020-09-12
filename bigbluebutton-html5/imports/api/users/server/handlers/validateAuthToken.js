@@ -1,7 +1,8 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
-import userJoin from './userJoin';
+import userJoin from '../methods/userJoin';
+import MeteorSyncConfirmation from '/imports/startup/server/meteorSyncComfirmation';
 import pendingAuthenticationsStore from '../store/pendingAuthentications';
 import createDummyUser from '../modifiers/createDummyUser';
 import setConnectionIdAndAuthToken from '../modifiers/setConnectionIdAndAuthToken';
@@ -88,7 +89,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
   if (!User) return;
 
   // Publish user join message
-  if (valid && !waitForApproval) {
+  if (valid && !waitForApproval && MeteorSyncConfirmation.isSynced()) {
     Logger.info('User=', User);
     userJoin(meetingId, userId, User.authToken);
   }

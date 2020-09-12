@@ -11,6 +11,7 @@ import Redis from './redis';
 
 import setMinBrowserVersions from './minBrowserVersion';
 import userLeaving from '/imports/api/users/server/methods/userLeaving';
+import { clearAllMeetingData } from '/imports/api/meetings/server/modifiers/meetingHasEnded';
 
 const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
 const FALLBACK_LOCALES = JSON.parse(Assets.getText('config/fallbackLocales.json'));
@@ -46,7 +47,7 @@ Meteor.startup(() => {
   const INTERVAL_TIME = INTERVAL_IN_SETTINGS < 10000 ? 10000 : INTERVAL_IN_SETTINGS;
   const env = Meteor.isDevelopment ? 'development' : 'production';
   const CDN_URL = APP_CONFIG.cdn;
-
+  clearAllMeetingData();
   // Commenting out in BBB 2.3 as node12 does not allow for `memwatch`.
   // We are looking for alternatives
 

@@ -1,6 +1,8 @@
 import Logger from '/imports/startup/server/logger';
 import Meetings from '/imports/api/meetings';
 import { check } from 'meteor/check';
+import { resyncResolver } from '/imports/api/common/server/helpers';
+import { dependencies } from '/imports/startup/server/meteorSyncComfirmation';
 
 export default function changeLockSettings(meetingId, payload) {
   check(meetingId, String);
@@ -59,7 +61,7 @@ export default function changeLockSettings(meetingId, payload) {
     if (!numChanged) {
       return Logger.info(`meeting={${meetingId}} lock settings were not updated`);
     }
-
+    resyncResolver(meetingId, dependencies.LOCK_SETTINGS);
     return Logger.info(`Changed meeting={${meetingId}} updated lock settings`);
   };
 

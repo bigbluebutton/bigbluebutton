@@ -19,34 +19,40 @@ import clearConnectionStatus from '/imports/api/connection-status/server/modifie
 import clearNote from '/imports/api/note/server/modifiers/clearNote';
 import clearNetworkInformation from '/imports/api/network-information/server/modifiers/clearNetworkInformation';
 import clearLocalSettings from '/imports/api/local-settings/server/modifiers/clearLocalSettings';
+import clearScreenshare from '/imports/api/screenshare/server/modifiers/clearScreenshare';
+import clearWhiteboardMultiUser from '/imports/api/whiteboard-multi-user/server/modifiers/clearWhiteboardMultiUser';
 import clearRecordMeeting from './clearRecordMeeting';
 import clearVoiceCallStates from '/imports/api/voice-call-states/server/modifiers/clearVoiceCallStates';
 import clearVideoStreams from '/imports/api/video-streams/server/modifiers/clearVideoStreams';
+
+export const clearAllMeetingData = (meetingId) => {
+  clearCaptions(meetingId);
+  clearGroupChat(meetingId);
+  clearPresentationPods(meetingId);
+  clearBreakouts(meetingId);
+  clearPolls(meetingId);
+  clearAnnotations(meetingId);
+  clearSlides(meetingId);
+  clearUsers(meetingId);
+  clearUsersSettings(meetingId);
+  clearVoiceUsers(meetingId);
+  clearUserInfo(meetingId);
+  clearNote(meetingId);
+  clearNetworkInformation(meetingId);
+  clearLocalSettings(meetingId);
+  clearRecordMeeting(meetingId);
+  clearScreenshare(meetingId);
+  clearWhiteboardMultiUser(meetingId);
+  clearVoiceCallStates(meetingId);
+  clearConnectionStatus(meetingId);
+  clearVideoStreams(meetingId);
+  return Logger.info(`Cleared Meetings with id ${meetingId}`);
+};
+
 
 export default function meetingHasEnded(meetingId) {
   removeAnnotationsStreamer(meetingId);
   removeCursorStreamer(meetingId);
 
-  return Meetings.remove({ meetingId }, () => {
-    clearCaptions(meetingId);
-    clearGroupChat(meetingId);
-    clearPresentationPods(meetingId);
-    clearBreakouts(meetingId);
-    clearPolls(meetingId);
-    clearAnnotations(meetingId);
-    clearSlides(meetingId);
-    clearUsers(meetingId);
-    clearUsersSettings(meetingId);
-    clearVoiceUsers(meetingId);
-    clearUserInfo(meetingId);
-    clearConnectionStatus(meetingId);
-    clearNote(meetingId);
-    clearNetworkInformation(meetingId);
-    clearLocalSettings(meetingId);
-    clearRecordMeeting(meetingId);
-    clearVoiceCallStates(meetingId);
-    clearVideoStreams(meetingId);
-
-    return Logger.info(`Cleared Meetings with id ${meetingId}`);
-  });
+  return Meetings.remove({ meetingId }, () => clearAllMeetingData(meetingId));
 }
