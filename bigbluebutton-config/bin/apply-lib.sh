@@ -6,7 +6,7 @@
 #   bbb-conf --restart
 #   bbb-conf --seitp ...
 #
-# The purpose of apply-config.sh is to make it easy to apply for your BigBlueButton server that get applied
+# The purpose of apply-config.sh is to make it easy to apply your configuration changes to a BigBlueButton server 
 # before BigBlueButton starts
 #
 
@@ -104,6 +104,123 @@ enableUFWRules() {
   ufw allow "Nginx Full"
   ufw allow 16384:32768/udp
   ufw --force enable
+}
+
+
+enableMultipleKurentos() {
+  echo "  - Configuring three Kurento Media Servers: one for listen only, webcam, and screeshare"
+
+  # Step 1.  Setup shared certificate between FreeSWITCH and Kurento
+
+  if [ ! -f /etc/kurento/dtls-srtp.pem ]; then
+    HOSTNAME=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1 | head -n 1)
+    openssl req -x509 -new -nodes -newkey rsa:2048 -sha256 -days 3650 -subj "/C=BR/ST=Ottawa/O=BigBlueButton Inc./OU=Live/CN=$HOSTNAME" -keyout /tmp/dtls-srtp-key.pem -out /tmp/dtls-srtp-cert.pem
+
+    cat /tmp/dtls-srtp-key.pem /tmp/dtls-srtp-cert.pem > /etc/kurento/dtls-srtp.pem
+    cat /tmp/dtls-srtp-key.pem /tmp/dtls-srtp-cert.pem > /opt/freeswitch/etc/freeswitch/tls/dtls-srtp.pem
+  fi
+
+  # Step 2.  Setup systemd unit files to launch three separate instances of Kurento
+
+  for i in `seq 8888 8890`; do
+
+    cat > /usr/lib/systemd/system/kurento-media-server-${i}.service << HERE
+  # /usr/lib/systemd/system/kurento-media-server-#{i}.service
+  [Unit]
+  Description=Kurento Media Server daemon (${i})
+  After=network.target
+  PartOf=kurento-media-server.service
+  After=kurento-media-server.service
+
+  [Service]
+  UMask=0002
+  Environment=KURENTO_LOGS_PATH=/var/log/kurento-media-server
+  Environment=KURENTO_CONF_FILE=/etc/kurento/kurento-${i}.conf.json
+  User=kurento
+  Group=kurento
+  LimitNOFILE=1000000
+  ExecStartPre=-/bin/rm -f /var/kurento/.cache/gstreamer-1.5/registry.x86_64.bin
+  ExecStart=/usr/bin/kurento-media-server --gst-debug-level=3 --gst-debug="3,Kurento*:4,kms*:4,KurentoWebSocketTransport:5"
+  Type=simple
+  PIDFile=/var/run/kurento-media-server-${i}.pid
+  Restart=always
+
+  [Install]
+  WantedBy=kurento-media-server.service
+
+HERE
+
+    # Make a new configuration file each instance of Kurento that binds to a different port
+    cp /etc/kurento/kurento.conf.json /etc/kurento/kurento-${i}.conf.json
+    sed -i "s/8888/${i}/g" /etc/kurento/kurento-${i}.conf.json
+
+  done
+
+  # Step 3. Override the main kurento-media-server unit to start/stop the three Kurento instances
+
+  cat > /etc/systemd/system/kurento-media-server.service << HERE
+  [Unit]
+  Description=Kurento Media Server
+
+  [Service]
+  Type=oneshot
+  ExecStart=/bin/true
+  RemainAfterExit=yes
+
+  [Install]
+  WantedBy=multi-user.target
+HERE
+
+  systemctl daemon-reload
+
+  for i in `seq 8888 8890`; do
+    systemctl enable kurento-media-server-${i}.service
+  done
+
+
+  # Step 4.  Modify bbb-webrtc-sfu config to use the three Kurento servers
+
+  KURENTO_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
+
+  MEDIA_TYPE=(main audio content)
+  IP=$(yq r /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml kurento[0].ip)
+
+  for i in `seq 0 2`; do
+    yq w -i $KURENTO_CONFIG "kurento[$i].ip" $IP
+    yq w -i $KURENTO_CONFIG "kurento[$i].url" "ws://127.0.0.1:$(($i + 8888))/kurento"
+    yq w -i $KURENTO_CONFIG "kurento[$i].mediaType" "${MEDIA_TYPE[$i]}"
+    yq w -i $KURENTO_CONFIG "kurento[$i].ipClassMappings.local" ""
+    yq w -i $KURENTO_CONFIG "kurento[$i].ipClassMappings.private" ""
+    yq w -i $KURENTO_CONFIG "kurento[$i].ipClassMappings.public" ""
+    yq w -i $KURENTO_CONFIG "kurento[$i].options.failAfter" 5
+    yq w -i $KURENTO_CONFIG "kurento[$i].options.request_timeout" 30000
+    yq w -i $KURENTO_CONFIG "kurento[$i].options.response_timeout" 30000
+  done
+
+  yq w -i $KURENTO_CONFIG balancing-strategy MEDIA_TYPE
+}
+
+disableMultipleKurentos() {
+  echo "  - Configuring a single Kurento Media Server for listen only, webcam, and screeshare"
+  systemctl stop kurento-media-server.service
+
+  for i in `seq 8888 8890`; do
+    systemctl disable kurento-media-server-${i}.service
+  done
+
+  # Remove the overrride (restoring the original kurento-media-server.service unit file)
+  rm -f /etc/systemd/system/kurento-media-server.service
+  systemctl daemon-reload
+
+  # Restore bbb-webrtc-sfu configuration to use a single instance of Kurento
+  KURENTO_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
+  yq d -i $KURENTO_CONFIG kurento[1]
+  yq d -i $KURENTO_CONFIG kurento[1]
+
+  yq w -i $KURENTO_CONFIG "kurento[0].url" "ws://127.0.0.1:8888/kurento"
+  yq w -i $KURENTO_CONFIG "kurento[0].mediaType" ""
+
+  yq w -i $KURENTO_CONFIG balancing-strategy ROUND_ROBIN
 }
 
 
