@@ -122,7 +122,7 @@ enableMultipleKurentos() {
 
   # Step 2.  Setup systemd unit files to launch three separate instances of Kurento
 
-  for i in `seq 3100 3102`; do
+  for i in `seq 8888 8890`; do
 
     cat > /usr/lib/systemd/system/kurento-media-server-${i}.service << HERE
   # /usr/lib/systemd/system/kurento-media-server-#{i}.service
@@ -173,7 +173,7 @@ HERE
 
   systemctl daemon-reload
 
-  for i in `seq 3100 3102`; do
+  for i in `seq 8888 8890`; do
     systemctl enable kurento-media-server-${i}.service
   done
 
@@ -187,7 +187,7 @@ HERE
 
   for i in `seq 0 2`; do
     yq w -i $KURENTO_CONFIG "kurento[$i].ip" $IP
-    yq w -i $KURENTO_CONFIG "kurento[$i].url" "ws://127.0.0.1:$(($i + 3100))/kurento"
+    yq w -i $KURENTO_CONFIG "kurento[$i].url" "ws://127.0.0.1:$(($i + 8888))/kurento"
     yq w -i $KURENTO_CONFIG "kurento[$i].mediaType" "${MEDIA_TYPE[$i]}"
     yq w -i $KURENTO_CONFIG "kurento[$i].ipClassMappings.local" ""
     yq w -i $KURENTO_CONFIG "kurento[$i].ipClassMappings.private" ""
@@ -204,7 +204,7 @@ disableMultipleKurentos() {
   echo "  - Configuring a single Kurento Media Server for listen only, webcam, and screeshare"
   systemctl stop kurento-media-server.service
 
-  for i in `seq 3100 3102`; do
+  for i in `seq 8888 8890`; do
     systemctl disable kurento-media-server-${i}.service
   done
 
