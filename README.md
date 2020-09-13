@@ -6,7 +6,7 @@ BigBlueButton supports real-time sharing of audio, video, slides (with whiteboar
 
 Presenters can record and playback content for later sharing with others.
 
-We designed BigBlueButton for online learning (though it can be used for many [other applications](http://www.c4isrnet.com/story/military-tech/disa/2015/02/11/disa-to-save-12m-defense-collaboration-services/23238997/)).  The educational use cases for BigBlueButton are
+We designed BigBlueButton for online learning (though it can be used for many [other applications](http://www.c4isrnet.com/story/military-tech/disa/2015/02/11/disa-to-save-12m-defense-collaboration-services/23238997/)).  The educational use cases for BigBlueButton are:
 
   * Online tutoring (one-to-one)
   * Flipped classrooms (recording content ahead of your session)
