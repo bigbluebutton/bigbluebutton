@@ -11,6 +11,7 @@ import { styles } from './styles';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import AudioManager from '/imports/ui/services/audio-manager';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
 const intlMessage = defineMessages({
   410: {
@@ -128,6 +129,7 @@ class MeetingEnded extends PureComponent {
     } = this.state;
 
     if (selected <= 0) {
+      if (meetingIsBreakout()) window.close();
       logoutRouteHandler();
       return;
     }
