@@ -14,6 +14,8 @@ const propTypes = {
   voice: PropTypes.bool,
   noVoice: PropTypes.bool,
   color: PropTypes.string,
+  emoji: PropTypes.bool,
+  avatar: PropTypes.string,
   className: PropTypes.string,
 };
 
@@ -26,6 +28,8 @@ const defaultProps = {
   voice: false,
   noVoice: false,
   color: '#000',
+  emoji: false,
+  avatar: '',
   className: null,
 };
 
@@ -38,6 +42,8 @@ const UserAvatar = ({
   listenOnly,
   color,
   voice,
+  emoji,
+  avatar,
   noVoice,
   className,
 }) => (
@@ -60,14 +66,27 @@ const UserAvatar = ({
   >
 
     <div className={cx({
-      [styles.talking]: (talking && !muted),
+      [styles.talking]: (talking && !muted && avatar.length === 0),
     })}
     />
 
-
-    <div className={styles.content}>
-      {children}
-    </div>
+    {avatar.length !== 0 && !emoji
+      ? (
+        <div className={styles.image}>
+          <img
+            className={cx(styles.img, {
+              [styles.circle]: !moderator,
+              [styles.square]: moderator,
+            })}
+            src={avatar}
+          />
+        </div>
+      ) : (
+        <div className={styles.content}>
+          {children}
+        </div>
+      )
+    }
   </div>
 );
 

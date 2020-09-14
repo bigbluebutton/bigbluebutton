@@ -13,7 +13,8 @@
 
 .avatar {
   position: relative;
-  padding-bottom: 2rem;
+  height: 2.25rem;
+  min-width: 2.25rem;
   border-radius: 50%;
   text-align: center;
   font-size: .85rem;
@@ -164,6 +165,25 @@
 .voice,
 .noVoice {
   @include indicatorStyles();
+}
+
+.image {
+  display: flex;
+  height: 2rem;
+  width: 2rem;
+
+  .img {
+    object-fit: cover;
+    overflow: hidden;
+  }
+
+  .circle {
+    border-radius: 50%;
+  }
+
+  .square {
+    border-radius: 3px;
+  }
 }
 
 .content {

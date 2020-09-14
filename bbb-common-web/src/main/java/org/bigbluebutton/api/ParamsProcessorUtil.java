@@ -78,6 +78,7 @@ public class ParamsProcessorUtil {
     private Boolean moderatorsJoinViaHTML5Client;
     private Boolean attendeesJoinViaHTML5Client;
     private Boolean allowRequestsWithoutSession;
+    private Boolean useDefaultAvatar = false;
     private String defaultAvatarURL;
     private String defaultConfigURL;
     private String defaultGuestPolicy;
@@ -454,6 +455,8 @@ public class ParamsProcessorUtil {
             externalMeetingId = externalHash + "-" + timeStamp;
         }
 
+        String avatarURL = useDefaultAvatar ? defaultAvatarURL : "";
+
         // Create the meeting with all passed in parameters.
         Meeting meeting = new Meeting.Builder(externalMeetingId,
                 internalMeetingId, createTime).withName(meetingName)
@@ -464,7 +467,7 @@ public class ParamsProcessorUtil {
                 .withBannerText(bannerText).withBannerColor(bannerColor)
                 .withTelVoice(telVoice).withWebVoice(webVoice)
                 .withDialNumber(dialNumber)
-                .withDefaultAvatarURL(defaultAvatarURL)
+                .withDefaultAvatarURL(avatarURL)
                 .withAutoStartRecording(autoStartRec)
                 .withAllowStartStopRecording(allowStartStoptRec)
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)
@@ -937,6 +940,10 @@ public class ParamsProcessorUtil {
         this.webcamsOnlyForModerator = webcamsOnlyForModerator;
     }
 	
+	public void setUseDefaultAvatar(Boolean value) {
+		this.useDefaultAvatar = value;
+	}
+
 	public void setdefaultAvatarURL(String url) {
 		this.defaultAvatarURL = url;
 	}

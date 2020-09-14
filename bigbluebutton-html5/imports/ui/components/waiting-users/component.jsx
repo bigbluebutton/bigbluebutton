@@ -66,13 +66,14 @@ const getNameInitials = (name) => {
   return nameInitials.replace(/^\w/, c => c.toUpperCase());
 }
 
-const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequence, userId, intl) => (
+const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequence, userId, avatar, intl) => (
   <div key={`userlist-item-${userId}`} className={styles.listItem}>
     <div key={`user-content-container-${userId}`} className={styles.userContentContainer}>
       <div key={`user-avatar-container-${userId}`} className={styles.userAvatar}>
         <UserAvatar
           key={`user-avatar-${userId}`}
           moderator={role === 'MODERATOR'}
+          avatar={avatar}
           color={color}
         >
           {getNameInitials(name)}
@@ -123,6 +124,7 @@ const renderPendingUsers = (message, usersArray, action, intl) => {
         user.role,
         idx + 1,
         user.intId,
+        user.avatar,
         intl,
       ))}
     </div>
