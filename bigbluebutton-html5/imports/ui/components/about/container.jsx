@@ -12,6 +12,7 @@ const AboutContainer = props => (
 const getClientBuildInfo = function () {
   return {
     clientBuild: Meteor.settings.public.app.html5ClientBuild,
+    serverVers: Meteor.settings.public.app.bbbServerVersion,
     copyright: Meteor.settings.public.app.copyright,
   };
 };
