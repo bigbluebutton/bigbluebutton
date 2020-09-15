@@ -83,6 +83,17 @@ setHTML5ClientAsDefault() {
 }
 
 
+enableHTML5CameraQualityThresholds() {
+  echo "  - Enable HTML5 cameraQualityThresholds"
+  yq w -i $HTML5_CONFIG public.kurento.cameraQualityThresholds.enabled true
+}
+
+enableHTML5WebcamPagination() {
+  echo "  - Enable HTML5 webcam pagination"
+  yq w -i $HTML5_CONFIG public.kurento.pagination.enabled true
+}
+
+
 #
 # Enable firewall rules to open only 
 #
@@ -247,6 +258,9 @@ source /etc/bigbluebutton/bbb-conf/apply-lib.sh
 #enableHTML5ClientLog
 #setHTML5ClientAsDefault
 #enableUFWRules
+
+#enableHTML5CameraQualityThresholds
+#enableHTML5WebcamPagination
 
 HERE
 chmod +x /etc/bigbluebutton/bbb-conf/apply-config.sh
