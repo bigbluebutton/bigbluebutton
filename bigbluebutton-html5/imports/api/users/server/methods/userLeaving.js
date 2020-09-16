@@ -26,11 +26,10 @@ export default function userLeaving(meetingId, userId, connectionId) {
   const auth = AuthTokenValidation.findOne({
     meetingId,
     userId,
-    connectionId,
-  });
+  }, { sort: { updatedAt: -1 } });
 
   // If the current user connection is not the same that triggered the leave we skip
-  if (User.connectionId !== connectionId && !auth) {
+  if (auth?.connectionId !== connectionId) {
     return false;
   }
 

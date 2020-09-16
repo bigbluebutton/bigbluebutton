@@ -11,8 +11,10 @@ export default function upsertValidationState(meetingId, userId, validationStatu
       userId,
       connectionId,
       validationStatus,
+      updatedAt: new Date().getTime(),
     },
   };
+
   const cb = (err, numChanged) => {
     if (err) {
       Logger.error(`Could not upsert to collection AuthTokenValidation: ${err}`);
