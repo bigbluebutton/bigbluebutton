@@ -129,9 +129,8 @@ enableMultipleKurentos() {
 
     cat /tmp/dtls-srtp-key.pem /tmp/dtls-srtp-cert.pem > /etc/kurento/dtls-srtp.pem
     cat /tmp/dtls-srtp-key.pem /tmp/dtls-srtp-cert.pem > /opt/freeswitch/etc/freeswitch/tls/dtls-srtp.pem
-
-    sed -i 's/;pemCertificateRSA=.*/pemCertificateRSA=\/etc\/kurento\/dtls-srtp.pem/g' /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini 
   fi
+  sed -i 's/;pemCertificateRSA=.*/pemCertificateRSA=\/etc\/kurento\/dtls-srtp.pem/g' /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini 
 
   # Step 2.  Setup systemd unit files to launch three separate instances of Kurento
 
