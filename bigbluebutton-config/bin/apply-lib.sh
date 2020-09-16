@@ -125,7 +125,6 @@ enableMultipleKurentos() {
 
   HOSTNAME=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1 | head -n 1)
   openssl req -x509 -new -nodes -newkey rsa:2048 -sha256 -days 3650 -subj "/C=BR/ST=Ottawa/O=BigBlueButton Inc./OU=Live/CN=$HOSTNAME" -keyout /tmp/dtls-srtp-key.pem -out /tmp/dtls-srtp-cert.pem
-
   cat /tmp/dtls-srtp-key.pem /tmp/dtls-srtp-cert.pem > /etc/kurento/dtls-srtp.pem
   cat /tmp/dtls-srtp-key.pem /tmp/dtls-srtp-cert.pem > /opt/freeswitch/etc/freeswitch/tls/dtls-srtp.pem
 
