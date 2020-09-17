@@ -179,7 +179,7 @@ const userFindSorting = {
   emojiTime: 1,
   role: 1,
   phoneUser: 1,
-  sortName: 1,
+  name: 1,
   userId: 1,
 };
 
@@ -516,7 +516,7 @@ export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
   const mimeType = 'text/plain';
   const userNamesObj = getUsers()
     .map((u) => {
-      const name = u.sortName.split(' ');
+      const name = u.name.split(' ');
       return ({
         firstName: name[0],
         middleNames: name.length > 2 ? name.slice(1, name.length - 1) : null,
