@@ -24,6 +24,18 @@ const intlMessages = defineMessages({
     id: 'app.video.videoLocked',
     description: 'video disabled label',
   },
+  videoConnecting: {
+    id: 'app.video.connecting',
+    description: 'video connecting label',
+  },
+  dataSaving: {
+    id: 'app.video.dataSaving',
+    description: 'video data saving label',
+  },
+  meteorDisconnected: {
+    id: 'app.video.clientDisconnected',
+    description: 'Meteor disconnected label',
+  },
   iOSWarning: {
     id: 'app.iOSWarning.label',
     description: 'message indicating to upgrade ios version',
@@ -33,14 +45,13 @@ const intlMessages = defineMessages({
 const propTypes = {
   intl: PropTypes.object.isRequired,
   hasVideoStream: PropTypes.bool.isRequired,
-  isDisabled: PropTypes.bool.isRequired,
   mountVideoPreview: PropTypes.func.isRequired,
 };
 
 const JoinVideoButton = ({
   intl,
   hasVideoStream,
-  isDisabled,
+  disableReason,
   mountVideoPreview,
 }) => {
   const exitVideo = () => hasVideoStream && !VideoService.isMultipleCamerasEnabled();
@@ -57,14 +68,14 @@ const JoinVideoButton = ({
     }
   };
 
-  const label = exitVideo() ?
-    intl.formatMessage(intlMessages.leaveVideo) :
-    intl.formatMessage(intlMessages.joinVideo);
+  const label = exitVideo()
+    ? intl.formatMessage(intlMessages.leaveVideo)
+    : intl.formatMessage(intlMessages.joinVideo);
 
   return (
     <Button
       data-test="joinVideo"
-      label={isDisabled ? intl.formatMessage(intlMessages.videoLocked) : label}
+      label={disableReason ? intl.formatMessage(intlMessages[disableReason]) : label}
       className={cx(styles.button, hasVideoStream || styles.btn)}
       onClick={handleOnClick}
       hideLabel
@@ -74,7 +85,7 @@ const JoinVideoButton = ({
       ghost={!hasVideoStream}
       size="lg"
       circle
-      disabled={isDisabled}
+      disabled={!!disableReason}
     />
   );
 };
