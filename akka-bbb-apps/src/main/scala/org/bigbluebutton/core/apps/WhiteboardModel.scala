@@ -152,10 +152,7 @@ class WhiteboardModel extends SystemConfiguration {
 
       val updatedAnnotation = annotation.copy(position = newPosition, annotationInfo = updatedAnnotationData)
 
-      var newUsersAnnotations: List[AnnotationVO] = oldAnnotationOption match {
-        case Some(annotation) => usersAnnotations.tail
-        case None             => usersAnnotations
-      }
+      var newUsersAnnotations: List[AnnotationVO] = usersAnnotations
 
       val newAnnotationsMap = wb.annotationsMap + (userId -> (updatedAnnotation :: newUsersAnnotations))
       //println("Annotation has position [" + usersAnnotations.head.position + "]")
