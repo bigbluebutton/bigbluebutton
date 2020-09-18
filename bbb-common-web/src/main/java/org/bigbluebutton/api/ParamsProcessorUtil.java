@@ -502,8 +502,6 @@ public class ParamsProcessorUtil {
         	meeting.setMeetingEndedCallbackURL(meetingEndedCallbackURL);
         }
 
-        meeting.setMaxInactivityTimeoutMinutes(maxInactivityTimeoutMinutes);
-        meeting.setWarnMinutesBeforeMax(warnMinutesBeforeMax);
         meeting.setMeetingExpireIfNoUserJoinedInMinutes(meetingExpireIfNoUserJoinedInMinutes);
 		meeting.setMeetingExpireWhenLastUserLeftInMinutes(meetingExpireWhenLastUserLeftInMinutes);
 		meeting.setUserInactivityInspectTimerInMinutes(userInactivityInspectTimerInMinutes);
