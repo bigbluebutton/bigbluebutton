@@ -3,7 +3,7 @@ import RecordingContainer from '/imports/ui/components/recording/container';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import Tooltip from '/imports/ui/components/tooltip/component';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -46,7 +46,7 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   amIModerator: PropTypes.bool,
   record: PropTypes.bool,
   recording: PropTypes.bool,

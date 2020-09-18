@@ -34,17 +34,11 @@ const {
 const TOKEN = '_';
 
 class VideoService {
-  static isUserPresenter(userId) {
-    const user = Users.findOne({ userId },
-      { fields: { presenter: 1 } });
-    return user ? user.presenter : false;
-  }
-
   // Paginated streams: sort with following priority: local -> presenter -> alphabetic
   static sortPaginatedStreams(s1, s2) {
-    if (VideoService.isUserPresenter(s1.userId) && !VideoService.isUserPresenter(s2.userId)) {
+    if (UserListService.isUserPresenter(s1.userId) && !UserListService.isUserPresenter(s2.userId)) {
       return -1;
-    } else if (VideoService.isUserPresenter(s2.userId) && !VideoService.isUserPresenter(s1.userId)) {
+    } else if (UserListService.isUserPresenter(s2.userId) && !UserListService.isUserPresenter(s1.userId)) {
       return 1;
     } else {
       return UserListService.sortUsersByName(s1, s2);
@@ -53,8 +47,10 @@ class VideoService {
 
   // Full mesh: sort with the following priority: local -> alphabetic
   static sortMeshStreams(s1, s2) {
-    if (s1.userId === Auth.userID) {
+    if (s1.userId === Auth.userID && s2.userId !== Auth.userID) {
       return -1;
+    } else if (s2.userId === Auth.userID && s1.userId !== Auth.userID) {
+      return 1;
     } else {
       return UserListService.sortUsersByName(s1, s2);
     }
@@ -545,10 +541,17 @@ class VideoService {
     this.exitVideo();
   }
 
-  isDisabled() {
+  disableReason() {
     const { viewParticipantsWebcams } = Settings.dataSaving;
-
-    return this.isUserLocked() || this.isConnecting || !viewParticipantsWebcams;
+    const locks = {
+      videoLocked: this.isUserLocked(),
+      videoConnecting: this.isConnecting,
+      dataSaving: !viewParticipantsWebcams,
+      meteorDisconnected: !Meteor.status().connected
+    };
+    const locksKeys = Object.keys(locks);
+    const disableReason = locksKeys.filter( i => locks[i]).shift();
+    return disableReason ? disableReason : false;
   }
 
   getRole(isLocal) {
@@ -738,7 +741,7 @@ export default {
   getAuthenticatedURL: () => videoService.getAuthenticatedURL(),
   isLocalStream: cameraId => videoService.isLocalStream(cameraId),
   hasVideoStream: () => videoService.hasVideoStream(),
-  isDisabled: () => videoService.isDisabled(),
+  disableReason: () => videoService.disableReason(),
   playStart: cameraId => videoService.playStart(cameraId),
   getCameraProfile: () => videoService.getCameraProfile(),
   addCandidateToPeer: (peer, candidate, cameraId) => videoService.addCandidateToPeer(peer, candidate, cameraId),

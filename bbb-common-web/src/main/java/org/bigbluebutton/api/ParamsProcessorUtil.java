@@ -114,6 +114,7 @@ public class ParamsProcessorUtil {
 	private Integer userInactivityThresholdInMinutes = 30;
     private Integer userActivitySignResponseDelayInMinutes = 5;
     private Boolean defaultAllowDuplicateExtUserid = true;
+	private Boolean defaultEndWhenNoModerator = false;
 
 	private String formatConfNum(String s) {
 		if (s.length() > 5) {
@@ -420,6 +421,15 @@ public class ParamsProcessorUtil {
             }
         }
 
+        boolean endWhenNoModerator = defaultEndWhenNoModerator;
+        if (!StringUtils.isEmpty(params.get(ApiParams.END_WHEN_NO_MODERATOR))) {
+          try {
+	          endWhenNoModerator = Boolean.parseBoolean(params.get(ApiParams.END_WHEN_NO_MODERATOR));
+          } catch (Exception ex) {
+            log.warn("Invalid param [endWhenNoModerator] for meeting=[{}]", internalMeetingId);
+          }
+        }
+
         String guestPolicy = defaultGuestPolicy;
         if (!StringUtils.isEmpty(params.get(ApiParams.GUEST_POLICY))) {
         	guestPolicy = params.get(ApiParams.GUEST_POLICY);
@@ -485,6 +495,11 @@ public class ParamsProcessorUtil {
             String moderatorOnlyMessage = substituteKeywords(moderatorOnlyMessageTemplate,
                     dialNumber, telVoice, meetingName);
             meeting.setModeratorOnlyMessage(moderatorOnlyMessage);
+        }
+
+        if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_ENDED_CALLBACK_URL))) {
+        	String meetingEndedCallbackURL = params.get(ApiParams.MEETING_ENDED_CALLBACK_URL);
+        	meeting.setMeetingEndedCallbackURL(meetingEndedCallbackURL);
         }
 
         meeting.setMeetingExpireIfNoUserJoinedInMinutes(meetingExpireIfNoUserJoinedInMinutes);
@@ -1115,4 +1130,10 @@ public class ParamsProcessorUtil {
 	public void setAllowDuplicateExtUserid(Boolean allow) {
 		this.defaultAllowDuplicateExtUserid = allow;
 	}
+
+	public void setEndWhenNoModerator(Boolean val) {
+		this.defaultEndWhenNoModerator = val;
+	}
+
+
 }

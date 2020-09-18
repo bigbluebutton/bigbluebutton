@@ -8,10 +8,36 @@ import { lookup as lookupUserAgent } from 'useragent';
 import { check } from 'meteor/check';
 import Logger from './logger';
 import Redis from './redis';
+
 import setMinBrowserVersions from './minBrowserVersion';
 
 const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
-let avaibleLocalesNames = [];
+const FALLBACK_LOCALES = JSON.parse(Assets.getText('config/fallbackLocales.json'));
+
+const generateLocaleOptions = () => {
+  try {
+    Logger.warn('Calculating aggregateLocales (heavy)');
+    const tempAggregateLocales = AVAILABLE_LOCALES
+      .map(file => file.replace('.json', ''))
+      .map(file => file.replace('_', '-'))
+      .map((locale) => {
+        const localeName = (Langmap[locale] || {}).nativeName
+          || (FALLBACK_LOCALES[locale] || {}).nativeName
+          || locale;
+        return {
+          locale,
+          name: localeName,
+        };
+      });
+    Logger.warn(`Total locales: ${tempAggregateLocales.length}`, tempAggregateLocales);
+    return tempAggregateLocales;
+  } catch (e) {
+    Logger.error(`'Could not process locales error: ${e}`);
+    return [];
+  }
+};
+
+let avaibleLocalesNamesJSON = JSON.stringify(generateLocaleOptions());
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
@@ -126,23 +152,13 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
 });
 
 WebApp.connectHandlers.use('/locales', (req, res) => {
-  if (!avaibleLocalesNames.length) {
-    try {
-      avaibleLocalesNames = AVAILABLE_LOCALES
-        .map(file => file.replace('.json', ''))
-        .map(file => file.replace('_', '-'))
-        .map(locale => ({
-          locale,
-          name: Langmap[locale].nativeName,
-        }));
-    } catch (e) {
-      Logger.warn(`'Could not process locales error: ${e}`);
-    }
+  if (!avaibleLocalesNamesJSON) {
+    avaibleLocalesNamesJSON = JSON.stringify(generateLocaleOptions());
   }
 
   res.setHeader('Content-Type', 'application/json');
   res.writeHead(200);
-  res.end(JSON.stringify(avaibleLocalesNames));
+  res.end(avaibleLocalesNamesJSON);
 });
 
 WebApp.connectHandlers.use('/feedback', (req, res) => {

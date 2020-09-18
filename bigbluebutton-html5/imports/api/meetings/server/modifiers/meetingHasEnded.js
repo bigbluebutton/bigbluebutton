@@ -1,6 +1,7 @@
 import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
+import BannedUsers from '/imports/api/users/server/store/bannedUsers';
 import { removeAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { removeCursorStreamer } from '/imports/api/cursor/server/streamer';
 
@@ -48,6 +49,7 @@ export default function meetingHasEnded(meetingId) {
     clearVoiceCallStates(meetingId);
     clearVideoStreams(meetingId);
     clearAuthTokenValidation(meetingId);
+    BannedUsers.delete(meetingId);
 
     return Logger.info(`Cleared Meetings with id ${meetingId}`);
   });

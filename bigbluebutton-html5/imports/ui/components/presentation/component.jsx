@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import CursorWrapperContainer from './cursor/cursor-wrapper-container/container';
@@ -31,8 +31,8 @@ const intlMessages = defineMessages({
     description: 'label displayed in toast when presentation switches',
   },
   downloadLabel: {
-  id: 'app.presentation.downloadLabel',
-  description: 'label for downloadable presentations',
+    id: 'app.presentation.downloadLabel',
+    description: 'label for downloadable presentations',
   },
   slideContentStart: {
     id: 'app.presentation.startSlideContent',
@@ -112,7 +112,14 @@ class PresentationArea extends PureComponent {
     window.addEventListener('webcamAreaResize', this.handleResize, false);
 
     const { slidePosition, layoutContextDispatch } = this.props;
-    const { width: currWidth, height: currHeight } = slidePosition;
+
+    let currWidth = 0;
+    let currHeight = 0;
+
+    if (slidePosition) {
+      currWidth = slidePosition.width;
+      currHeight = slidePosition.height;
+    }
 
     layoutContextDispatch({
       type: 'setPresentationSlideSize',
@@ -847,7 +854,7 @@ class PresentationArea extends PureComponent {
 export default injectIntl(withDraggableConsumer(withLayoutConsumer(PresentationArea)));
 
 PresentationArea.propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   podId: PropTypes.string.isRequired,
   // Defines a boolean value to detect whether a current user is a presenter
   userIsPresenter: PropTypes.bool.isRequired,

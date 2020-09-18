@@ -1,5 +1,3 @@
-@import "/imports/ui/stylesheets/variables/palette";
-@import "/imports/ui/stylesheets/variables/general";
 @import "/imports/ui/stylesheets/mixins/_indicators";
 
 /* Variables
@@ -10,7 +8,6 @@
   --user-avatar-text: var(--color-white);
   --user-indicator-voice-bg: var(--color-success);
   --user-indicator-muted-bg: var(--color-danger);
-  --user-list-bg: var(--color-off-white);
   --user-color: currentColor; //picks the current color reference in the class
 }
 

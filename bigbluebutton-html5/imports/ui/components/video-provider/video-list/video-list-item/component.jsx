@@ -151,7 +151,7 @@ class VideoListItem extends Component {
     const isFirefox = (result && result.name) ? result.name.includes('firefox') : false;
 
     return (
-      <div className={cx({
+      <div data-test={voiceUser.talking ? 'webcamItemTalkingUser' : 'webcamItem'} className={cx({
         [styles.content]: true,
         [styles.talking]: voiceUser.talking,
       })}
