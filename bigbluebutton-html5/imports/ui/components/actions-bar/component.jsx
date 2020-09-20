@@ -13,6 +13,7 @@ import Storage from '/imports/ui/services/storage/session';
 import { ACTIONSBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import AudioManager from '/imports/ui/services/audio-manager';
+import {makeCall} from "../../services/api";
 
 class ActionsBar extends PureComponent {
   constructor(props) {
@@ -42,6 +43,8 @@ class ActionsBar extends PureComponent {
   }
   activateTranslation(){
     AudioManager.openTranslationChannel();
+    console.log("making call createTranslationChannel")
+    makeCall("createTranslationChannel");
   }
   render() {
     const {

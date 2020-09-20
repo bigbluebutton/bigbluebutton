@@ -979,7 +979,7 @@ export default class SIPBridge extends BaseAudioBridge {
       let { hostname } = this;
 
       this.activeSession = new SIPSession(this.user, this.userData, this.protocol,
-        hostname, this.baseCallStates, this.baseErrorCodes, false)a;
+        hostname, this.baseCallStates, this.baseErrorCodes, false);
 
       const callback = (message) => {
         if (message.status === this.baseCallStates.failed) {
@@ -1036,16 +1036,9 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   joinTranslationChannel(inputStream, managerCallback){
-    const callback = (message) => {
-      return managerCallback(message);
-    };
     let { hostname } = this;
-    this.translationSession = new SIPSession(this.user, this.userData, this.protocol,
-        hostname, this.baseCallStates, this.baseErrorCodes, true);
-    let extension = {};
-    let bool = false;
-    this.translationSession.joinAudio({bool,extension,inputStream}, callback);
-    console.log("new translation")
+    this.activeSession = new SIPSession(this.user, this.userData, this.protocol,
+        hostname, this.baseCallStates, this.baseErrorCodes, false);
   }
 
   transferCall(onTransferSuccess) {
