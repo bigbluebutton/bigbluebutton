@@ -979,7 +979,7 @@ export default class SIPBridge extends BaseAudioBridge {
       let { hostname } = this;
 
       this.activeSession = new SIPSession(this.user, this.userData, this.protocol,
-        hostname, this.baseCallStates, this.baseErrorCodes, false);
+        hostname, this.baseCallStates, this.baseErrorCodes, false)a;
 
       const callback = (message) => {
         if (message.status === this.baseCallStates.failed) {
