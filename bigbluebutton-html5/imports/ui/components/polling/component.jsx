@@ -6,6 +6,8 @@ import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import { styles } from './styles.scss';
 
+const MAX_INPUT_CHARS = 45;
+
 const intlMessages = defineMessages({
   pollingTitleLabel: {
     id: 'app.polling.pollingTitle',
@@ -30,6 +32,12 @@ const intlMessages = defineMessages({
   },
 });
 
+const validateInput = (i) => {
+  let _input = i;
+  if (/^\s/.test(_input)) _input = '';
+  return _input;
+};
+
 class Polling extends Component {
   constructor(props) {
     super(props);
@@ -39,6 +47,7 @@ class Polling extends Component {
     };
 
     this.play = this.play.bind(this);
+    this.handleUpdateResponseInput = this.handleUpdateResponseInput.bind(this);
   }
 
   componentDidMount() {
@@ -48,6 +57,11 @@ class Polling extends Component {
   play() {
     this.alert = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/Poll.mp3`);
     this.alert.play();
+  }
+
+  handleUpdateResponseInput(e) {
+    this.responseInput.value = validateInput(e.target.value);
+    this.setState({ typedAns: this.responseInput.value });
   }
 
   render() {
@@ -86,8 +100,7 @@ class Polling extends Component {
               <div className={styles.qText}>{question}</div>
             </span>)
           }
-          { poll.pollType !== 'RP'
-            && (
+          { poll.pollType !== 'RP' && (
             <span>
               {question.length === 0
                 && (
@@ -138,16 +151,20 @@ class Polling extends Component {
                 })}
               </div>
             </span>
-            )
+          )
           }
           { poll.pollType === 'RP'
             && (
             <div className={styles.typedResponseWrapper}>
               <input
-                onChange={e => this.setState({ typedAns: e.target.value })}
+                onChange={(e) => {
+                  this.handleUpdateResponseInput(e);
+                }}
                 type="text"
                 className={styles.typedResponseInput}
                 placeholder={intl.formatMessage(intlMessages.responsePlaceholder)}
+                maxLength={MAX_INPUT_CHARS}
+                ref={(r) => { this.responseInput = r; }}
               />
               <Button
                 disabled={typedAns.length === 0}

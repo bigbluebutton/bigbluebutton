@@ -137,6 +137,12 @@ const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 const MAX_CUSTOM_FIELDS = Meteor.settings.public.poll.max_custom;
 const MAX_INPUT_CHARS = 45;
 
+const validateInput = (i) => {
+  let _input = i;
+  if (/^\s/.test(_input)) _input = '';
+  return _input;
+};
+
 class Poll extends Component {
   constructor(props) {
     super(props);
@@ -188,14 +194,13 @@ class Poll extends Component {
 
   handleInputChange(e, index) {
     const { optList } = this.state;
-    const { value } = e.target;
     const list = [...optList];
-    list[index] = { val: value };
+    list[index] = { val: validateInput(e.target.value).replace(/\s{2,}/g, ' ') };
     this.setState({ optList: list });
   }
 
   handleTextareaChange(e) {
-    this.setState({ question: e.target.value });
+    this.setState({ question: validateInput(e.target.value) });
   }
 
   handleRemoveOption(index) {
