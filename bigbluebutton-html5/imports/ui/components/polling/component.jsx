@@ -167,6 +167,7 @@ class Polling extends Component {
                 ref={(r) => { this.responseInput = r; }}
               />
               <Button
+                className={styles.submitVoteBtn}
                 disabled={typedAns.length === 0}
                 color="primary"
                 size="sm"

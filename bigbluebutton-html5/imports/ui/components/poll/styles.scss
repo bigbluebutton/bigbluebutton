@@ -11,6 +11,7 @@
 }
 
 .closeBtn {
+    font-size: var(--font-size-base);
     position: relative;
 	> i {
         color: var(--color-text);
@@ -53,10 +54,6 @@
         background-color: var(--color-white);
     }
   }
-
-.customBtn {
-    width: 100%;
-}
 
 .customInputWrapper {
   width: 100%;
@@ -130,7 +127,6 @@
     }
 }
 
-.customBtn:hover,
 .pollBtn:hover {
     box-shadow: 0 0 0 1px var(--poll-blue);
     background-color: var(--color-white);
@@ -142,7 +138,6 @@
     }
 }
 
-.customBtn,
 .pollBtn {
     margin-top: var(--sm-padding-y);
     margin-bottom: var(--sm-padding-y);
@@ -160,7 +155,6 @@
     }
 }
 
-.customBtn:active,
 .pollBtn:active {
     &:focus {
         box-shadow: 0 0 0 1px var(--poll-blue);
@@ -174,7 +168,6 @@
     }
 }
 
-.customBtn:focus,
 .pollBtn:focus {
     background-color: var(--color-white);
     box-shadow: 0 0 0 1px var(--poll-blue);
@@ -182,6 +175,17 @@
     > span {
         color: var(--poll-blue);
     }
+}
+
+.inputError {
+    color: var(--color-danger);
+    font-size: var(--font-size-small);
+}
+
+.inputError,
+.errorSpacer {
+    position: relative;
+    height: 1.25rem;
 }
 
 .input {
@@ -292,6 +296,7 @@
     width: var(--poll-addItem-width);
     padding-left: var(--md-padding-y);
     padding-right: var(--md-padding-y);
+    font-size: var(--font-size-base);
 
     &:hover {
         span {
@@ -305,6 +310,7 @@
     width: 100%;
     height: var(--poll-input-height);
     margin-top: 1rem;
+    font-size: var(--font-size-base);
 
     &:hover {
         span {
@@ -316,6 +322,7 @@
 .pBtn {
     border: solid var(--color-gray-light) 1px;
     height: var(--poll-input-height);
+    font-size: var(--font-size-base);
     span {
         &:hover {
             opacity: 1;
@@ -324,6 +331,7 @@
 }
 
 .deleteBtn {
+    font-size: var(--font-size-base);
     position: relative;
     i {
         font-size: 150%;
@@ -333,6 +341,7 @@
 .selectedBtn {
     background-color: var(--poll-blue);
     color: var(--color-white);
+    font-size: var(--font-size-base);
 
     &:hover,
     &:focus,

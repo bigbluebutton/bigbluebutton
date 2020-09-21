@@ -8,6 +8,7 @@
   --overlayOpacity: 0.349;
   --poll-index: 1016;
   --poll-width: 18rem;
+  --poll-bottom-offset: 4.5rem;
 }
 
 .overlay {
@@ -26,6 +27,7 @@
 .pollingContainer {
   pointer-events:auto;
   min-width: var(--poll-width);
+  max-width: var(--poll-width);
   position: absolute;
 
   z-index: var(--poll-index);
@@ -37,7 +39,7 @@
   font-weight: 600;
   padding: var(--md-padding-y);
   background-color: var(--color-white);
-  bottom: var(--jumbo-padding-x);
+  bottom: var(--poll-bottom-offset);
   right: var(--jumbo-padding-x);
 
   [dir="rtl"] & {
@@ -140,12 +142,18 @@
   color: var(--color-text);
   word-break: break-word;
   font-size: var(--font-size-large);
+  max-width: var(--poll-width);
+  padding-right: var(--sm-padding-x);
 }
 
 .typedResponseWrapper {
   margin: var(--jumbo-padding-y) .5rem .5rem .5rem;
   display: flex;
   flex-flow: column;
+}
+
+.submitVoteBtn {
+  font-size: var(--font-size-base);
 }
 
 .typedResponseInput {

@@ -23,18 +23,6 @@ const intlMessages = defineMessages({
     id: 'app.poll.hidePollDesc',
     description: 'aria label description for hide poll button',
   },
-  customPollLabel: {
-    id: 'app.poll.customPollLabel',
-    description: 'label for custom poll button',
-  },
-  startCustomLabel: {
-    id: 'app.poll.startCustomLabel',
-    description: 'label for button to start custom poll',
-  },
-  customPollInstruction: {
-    id: 'app.poll.customPollInstruction',
-    description: 'instructions for using custom poll',
-  },
   quickPollInstruction: {
     id: 'app.poll.quickPollInstruction',
     description: 'instructions for using pre configured polls',
@@ -58,6 +46,14 @@ const intlMessages = defineMessages({
   clickHereToSelect: {
     id: 'app.poll.clickHereToSelect',
     description: 'open uploader modal button label',
+  },
+  questionErr: {
+    id: 'app.poll.questionErr',
+    description: 'question text area error label',
+  },
+  optionErr: {
+    id: 'app.poll.optionErr',
+    description: 'poll input error label',
   },
   tf: {
     id: 'app.poll.tf',
@@ -151,6 +147,7 @@ class Poll extends Component {
       isPolling: false,
       question: '',
       optList: [],
+      error: null,
     };
 
     this.handleBackClick = this.handleBackClick.bind(this);
@@ -185,6 +182,7 @@ class Poll extends Component {
     const { stopPoll } = this.props;
     this.setState({
       isPolling: false,
+      error: null,
     }, () => {
       stopPoll();
       Session.set('resetPollPanel', false);
@@ -193,14 +191,19 @@ class Poll extends Component {
   }
 
   handleInputChange(e, index) {
-    const { optList } = this.state;
+    const { optList, type, error } = this.state;
     const list = [...optList];
-    list[index] = { val: validateInput(e.target.value).replace(/\s{2,}/g, ' ') };
-    this.setState({ optList: list });
+    const validatedVal = validateInput(e.target.value).replace(/\s{2,}/g, ' ');
+    const clearError = validatedVal.length > 0 && type !== 'RP';
+    list[index] = { val: validatedVal };
+    this.setState({ optList: list, error: clearError ? null : error });
   }
 
   handleTextareaChange(e) {
-    this.setState({ question: validateInput(e.target.value) });
+    const { type, error } = this.state;
+    const validatedQuestion = validateInput(e.target.value);
+    const clearError = validatedQuestion.length > 0 && type === 'RP';
+    this.setState({ question: validateInput(e.target.value), error: clearError ? null : error });
   }
 
   handleRemoveOption(index) {
@@ -243,40 +246,48 @@ class Poll extends Component {
 
   renderInputs() {
     const { intl } = this.props;
-    const { optList } = this.state;
+    const { optList, type, error } = this.state;
+    let hasVal = false;
     return optList.map((o, i) => {
+      if (o.val.length > 0) hasVal = true;
       const pollOptionKey = `poll-option-${i}`;
       return (
-        <div
-          key={pollOptionKey}
-          style={{
-            display: 'flex',
-            justifyContent: 'spaceBetween',
-            marginBottom: '1rem',
-          }}
-        >
-          <input
-            type="text"
-            value={o.val}
-            placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
-            className={styles.pollOption}
-            onChange={e => this.handleInputChange(e, i)}
-            maxLength={MAX_INPUT_CHARS}
-          />
-          { i > 1 ? (
-            <Button
-              className={styles.deleteBtn}
-              label={intl.formatMessage(intlMessages.delete)}
-              icon="delete"
-              hideLabel
-              circle
-              color="default"
-              onClick={() => {
-                this.handleRemoveOption(i);
-              }}
-            />) : <div style={{ width: '40px' }} />
+        <span>
+          <div
+            key={pollOptionKey}
+            style={{
+              display: 'flex',
+              justifyContent: 'spaceBetween',
+            }}
+          >
+            <input
+              type="text"
+              value={o.val}
+              placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
+              className={styles.pollOption}
+              onChange={e => this.handleInputChange(e, i)}
+              maxLength={MAX_INPUT_CHARS}
+            />
+            { i > 1 ? (
+              <Button
+                className={styles.deleteBtn}
+                label={intl.formatMessage(intlMessages.delete)}
+                icon="delete"
+                hideLabel
+                circle
+                color="default"
+                onClick={() => {
+                  this.handleRemoveOption(i);
+                }}
+              />) : <div style={{ width: '40px' }} />
         }
-        </div>
+          </div>
+          {!hasVal && type !== 'RP' && error ? (
+            <div className={styles.inputError}>{error}</div>
+          ) : (
+            <div className={styles.errorSpacer}>&nbsp;</div>
+          )}
+        </span>
       );
     });
   }
@@ -311,17 +322,11 @@ class Poll extends Component {
   }
 
   renderPollOptions() {
-    const { type, optList, question } = this.state;
+    const {
+      type, optList, question, error,
+    } = this.state;
     const { startPoll, startCustomPoll, intl } = this.props;
     const defaultPoll = type === 'TF' || type === 'A-';
-
-    let hasVal = false;
-    optList.forEach((o) => {
-      if (o.val.length > 0) hasVal = true;
-    });
-
-    const disableStartPoll = (type === 'RP' && question.length === 0) || (!hasVal && type !== 'RP');
-
     return (
       <div>
         <div className={styles.instructions}>
@@ -337,6 +342,11 @@ class Poll extends Component {
             cols="35"
             placeholder={intl.formatMessage(intlMessages.questionLabel)}
           />
+          {(type === 'RP' && question.length === 0 && error) ? (
+            <div className={styles.inputError}>{error}</div>
+          ) : (
+            <div className={styles.errorSpacer}>&nbsp;</div>
+          )}
         </div>
         <div>
           <h4>{intl.formatMessage(intlMessages.responseTypesLabel)}</h4>
@@ -421,9 +431,18 @@ class Poll extends Component {
                       <Button
                         className={styles.startPollBtn}
                         label={intl.formatMessage(intlMessages.startPollLabel)}
-                        disabled={disableStartPoll}
                         color="primary"
                         onClick={() => {
+                          let hasVal = false;
+                          optList.forEach((o) => {
+                            if (o.val.length > 0) hasVal = true;
+                          });
+
+                          let err = null;
+                          if (type === 'RP' && question.length === 0) err = intl.formatMessage(intlMessages.questionErr);
+                          if (!hasVal && type !== 'RP') err = intl.formatMessage(intlMessages.optionErr);
+                          if (err) return this.setState({ error: err });
+
                           this.setState({ isPolling: true }, () => {
                             const verifiedPollType = this.checkPollType();
                             const verifiedOptions = optList.map((o) => {
