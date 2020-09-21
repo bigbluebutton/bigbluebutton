@@ -5,6 +5,7 @@ import PresentationUploaderContainer from '/imports/ui/components/presentation/p
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
+import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import LiveResult from './live-result/component';
 import { styles } from './styles.scss';
@@ -62,25 +63,73 @@ const intlMessages = defineMessages({
     id: 'app.poll.tf',
     description: 'label for true / false poll',
   },
-  yn: {
-    id: 'app.poll.yn',
-    description: 'label for Yes / No poll',
-  },
-  a2: {
-    id: 'app.poll.a2',
-    description: 'label for A / B poll',
-  },
-  a3: {
-    id: 'app.poll.a3',
-    description: 'label for A / B / C poll',
-  },
   a4: {
     id: 'app.poll.a4',
     description: 'label for A / B / C / D poll',
   },
-  a5: {
-    id: 'app.poll.a5',
-    description: 'label for A / B / C / D / E poll',
+  delete: {
+    id: 'app.poll.optionDelete.label',
+    description: '',
+  },
+  pollPanelDesc: {
+    id: 'app.poll.panel.desc',
+    description: '',
+  },
+  questionLabel: {
+    id: 'app.poll.question.label',
+    description: '',
+  },
+  userResponse: {
+    id: 'app.poll.userResponse.label',
+    description: '',
+  },
+  responseChoices: {
+    id: 'app.poll.responseChoices.label',
+    description: '',
+  },
+  typedResponseDesc: {
+    id: 'app.poll.typedResponse.desc',
+    description: '',
+  },
+  responseTypesLabel: {
+    id: 'app.poll.responseTypes.label',
+    description: '',
+  },
+  addOptionLabel: {
+    id: 'app.poll.addItem.label',
+    description: '',
+  },
+  startPollLabel: {
+    id: 'app.poll.start.label',
+    description: '',
+  },
+  questionTitle: {
+    id: 'app.poll.question.title',
+    description: '',
+  },
+  true: {
+    id: 'app.poll.answer.true',
+    description: '',
+  },
+  false: {
+    id: 'app.poll.answer.false',
+    description: '',
+  },
+  a: {
+    id: 'app.poll.answer.a',
+    description: '',
+  },
+  b: {
+    id: 'app.poll.answer.b',
+    description: '',
+  },
+  c: {
+    id: 'app.poll.answer.c',
+    description: '',
+  },
+  d: {
+    id: 'app.poll.answer.d',
+    description: '',
   },
 });
 
@@ -93,19 +142,16 @@ class Poll extends Component {
     super(props);
 
     this.state = {
-      customPollReq: false,
       isPolling: false,
-      customPollValues: [],
+      question: '',
+      optList: [],
     };
 
-    this.inputEditor = [];
-
-    this.toggleCustomFields = this.toggleCustomFields.bind(this);
-    this.renderQuickPollBtns = this.renderQuickPollBtns.bind(this);
-    this.renderCustomView = this.renderCustomView.bind(this);
-    this.renderInputFields = this.renderInputFields.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
     this.handleBackClick = this.handleBackClick.bind(this);
+    this.handleAddOption = this.handleAddOption.bind(this);
+    this.handleRemoveOption = this.handleRemoveOption.bind(this);
+    this.handleTextareaChange = this.handleTextareaChange.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
   }
 
   componentDidMount() {
@@ -129,112 +175,105 @@ class Poll extends Component {
     }
   }
 
-  handleInputChange(index, event) {
-    // This regex will replace any instance of 2 or more consecutive white spaces
-    // with a single white space character.
-    const option = event.target.value.replace(/\s{2,}/g, ' ').trim();
-
-    this.inputEditor[index] = option === '' ? '' : option;
-
-    this.setState({ customPollValues: this.inputEditor });
-  }
-
   handleBackClick() {
     const { stopPoll } = this.props;
-    Session.set('resetPollPanel', false);
-
-    stopPoll();
-    this.inputEditor = [];
     this.setState({
       isPolling: false,
-      customPollValues: this.inputEditor,
-    }, document.activeElement.blur());
-  }
-
-  toggleCustomFields() {
-    const { customPollReq } = this.state;
-    return this.setState({ customPollReq: !customPollReq });
-  }
-
-  renderQuickPollBtns() {
-    const {
-      isMeteorConnected, pollTypes, startPoll, intl,
-    } = this.props;
-
-    const btns = pollTypes.map((type) => {
-      if (type === 'custom') return false;
-
-      const label = intl.formatMessage(
-        // regex removes the - to match the message id
-        intlMessages[type.replace(/-/g, '').toLowerCase()],
-      );
-
-      return (
-        <Button
-          disabled={!isMeteorConnected}
-          label={label}
-          color="default"
-          className={styles.pollBtn}
-          data-test="pollBtn"
-          key={_.uniqueId('quick-poll-')}
-          onClick={() => {
-            Session.set('pollInitiated', true);
-            this.setState({ isPolling: true }, () => startPoll(type));
-          }}
-        />);
+    }, () => {
+      stopPoll();
+      Session.set('resetPollPanel', false);
+      document.activeElement.blur();
     });
-
-    return btns;
   }
 
-  renderCustomView() {
-    const { intl, startCustomPoll } = this.props;
-    const isDisabled = _.compact(this.inputEditor).length < 1;
-
-    return (
-      <div className={styles.customInputWrapper}>
-        {this.renderInputFields()}
-        <Button
-          onClick={() => {
-            if (this.inputEditor.length > 0) {
-              Session.set('pollInitiated', true);
-              this.setState({ isPolling: true }, () => startCustomPoll('custom', _.compact(this.inputEditor)));
-            }
-          }}
-          label={intl.formatMessage(intlMessages.startCustomLabel)}
-          color="primary"
-          aria-disabled={isDisabled}
-          disabled={isDisabled}
-          className={styles.btn}
-        />
-      </div>
-    );
+  handleInputChange(e, index) {
+    const { optList } = this.state;
+    const { value } = e.target;
+    const list = [...optList];
+    list[index] = { val: value };
+    this.setState({ optList: list });
   }
 
-  renderInputFields() {
+  handleTextareaChange(e) {
+    this.setState({ question: e.target.value });
+  }
+
+  handleRemoveOption(index) {
+    const { optList } = this.state;
+    const list = [...optList];
+    list.splice(index, 1);
+    this.setState({ optList: list });
+  }
+
+  handleAddOption() {
+    const { optList } = this.state;
+    this.setState({ optList: [...optList, { val: '' }] });
+  }
+
+  checkPollType() {
+    const { type, optList } = this.state;
+    let _type = type;
+    let pollString = '';
+    let defaultMatch = null;
+    let isDefault = null;
+
+    switch (_type) {
+      case 'A-':
+        pollString = optList.map(x => x.val).sort().join('');
+        defaultMatch = pollString.match(/^(ABCDEFG)|(ABCDEF)|(ABCDE)|(ABCD)|(ABC)|(AB)$/gi);
+        isDefault = defaultMatch && pollString.length === defaultMatch[0].length;
+        _type = isDefault ? `${_type}${defaultMatch[0].length}` : 'custom';
+        break;
+      case 'TF':
+        pollString = optList.map(x => x.val).join('');
+        defaultMatch = pollString.match(/^(TRUEFALSE)|(FALSETRUE)$/gi);
+        isDefault = defaultMatch && pollString.length === defaultMatch[0].length;
+        if (!isDefault) _type = 'custom';
+        break;
+      default:
+        break;
+    }
+    return _type;
+  }
+
+  renderInputs() {
     const { intl } = this.props;
-    const { customPollValues } = this.state;
-    let items = [];
-
-    items = _.range(1, MAX_CUSTOM_FIELDS + 1).map((ele, index) => {
-      const id = index;
+    const { optList } = this.state;
+    return optList.map((o, i) => {
+      const pollOptionKey = `poll-option-${i}`;
       return (
-        <div key={`custom-poll-${id}`} className={styles.pollInput}>
+        <div
+          key={pollOptionKey}
+          style={{
+            display: 'flex',
+            justifyContent: 'spaceBetween',
+            marginBottom: '1rem',
+          }}
+        >
           <input
-            aria-label={intl.formatMessage(
-              intlMessages.ariaInputCount, { 0: id + 1, 1: MAX_CUSTOM_FIELDS },
-            )}
+            type="text"
+            value={o.val}
             placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
-            className={styles.input}
-            onChange={event => this.handleInputChange(id, event)}
-            defaultValue={customPollValues[id]}
+            className={styles.pollOption}
+            onChange={e => this.handleInputChange(e, i)}
             maxLength={MAX_INPUT_CHARS}
           />
+          { i > 1 ? (
+            <Button
+              className={styles.deleteBtn}
+              label={intl.formatMessage(intlMessages.delete)}
+              icon="delete"
+              hideLabel
+              circle
+              color="default"
+              onClick={() => {
+                this.handleRemoveOption(i);
+              }}
+            />) : <div style={{ width: '40px' }} />
+        }
         </div>
       );
     });
-
-    return items;
   }
 
   renderActivePollOptions() {
@@ -267,29 +306,143 @@ class Poll extends Component {
   }
 
   renderPollOptions() {
-    const { isMeteorConnected, intl } = this.props;
-    const { customPollReq } = this.state;
+    const { type, optList, question } = this.state;
+    const { startPoll, startCustomPoll, intl } = this.props;
+    const defaultPoll = type === 'TF' || type === 'A-';
+
+    let hasVal = false;
+    optList.forEach((o) => {
+      if (o.val.length > 0) hasVal = true;
+    });
+
+    const disableStartPoll = (type === 'RP' && question.length === 0) || (!hasVal && type !== 'RP');
 
     return (
       <div>
         <div className={styles.instructions}>
-          {intl.formatMessage(intlMessages.quickPollInstruction)}
+          {intl.formatMessage(intlMessages.pollPanelDesc)}
         </div>
-        <div className={styles.grid}>
-          {this.renderQuickPollBtns()}
+        <div>
+          <h4>{intl.formatMessage(intlMessages.questionTitle)}</h4>
+          <textarea
+            className={styles.pollQuestion}
+            value={question}
+            onChange={e => this.handleTextareaChange(e)}
+            rows="4"
+            cols="35"
+            placeholder={intl.formatMessage(intlMessages.questionLabel)}
+          />
         </div>
-        <div className={styles.instructions}>
-          {intl.formatMessage(intlMessages.customPollInstruction)}
+        <div>
+          <h4>{intl.formatMessage(intlMessages.responseTypesLabel)}</h4>
+          <div className={styles.responseType}>
+            <Button
+              label={intl.formatMessage(intlMessages.tf)}
+              color="default"
+              onClick={() => {
+                this.setState({
+                  type: 'TF',
+                  optList: [
+                    { val: intl.formatMessage(intlMessages.true) },
+                    { val: intl.formatMessage(intlMessages.false) },
+                  ],
+                });
+              }}
+              className={cx(styles.pBtn, { [styles.selectedBtn]: type === 'TF' })}
+            />
+            <Button
+              label={intl.formatMessage(intlMessages.a4)}
+              color="default"
+              onClick={() => {
+                this.setState({
+                  type: 'A-',
+                  optList: [
+                    { val: intl.formatMessage(intlMessages.a) },
+                    { val: intl.formatMessage(intlMessages.b) },
+                    { val: intl.formatMessage(intlMessages.c) },
+                    { val: intl.formatMessage(intlMessages.d) },
+                  ],
+                });
+              }}
+              className={cx(styles.pBtn, { [styles.selectedBtn]: type === 'A-' })}
+            />
+          </div>
+          <Button
+            label={intl.formatMessage(intlMessages.userResponse)}
+            color="default"
+            onClick={() => { this.setState({ type: 'RP' }); }}
+            className={cx(styles.pBtn, styles.fullWidth, { [styles.selectedBtn]: type === 'RP' })}
+          />
         </div>
-        <Button
-          disabled={!isMeteorConnected}
-          className={styles.customBtn}
-          color="default"
-          onClick={this.toggleCustomFields}
-          label={intl.formatMessage(intlMessages.customPollLabel)}
-          aria-expanded={customPollReq}
-        />
-        {!customPollReq ? null : this.renderCustomView()}
+        { type
+              && (
+              <div>
+                <h4>{intl.formatMessage(intlMessages.responseChoices)}</h4>
+                {
+                  type === 'RP'
+                    && (
+                    <div>
+                      <span>{intl.formatMessage(intlMessages.typedResponseDesc)}</span>
+                      <div className={styles.exampleResponse}>
+                        <div className={styles.exampleTitle} />
+                        <div className={styles.responseInput}>
+                          <div className={styles.rInput} />
+                        </div>
+                      </div>
+                    </div>
+                    )
+                }
+                {
+                  (defaultPoll || type === 'RP')
+                    && (
+                    <div style={{
+                      display: 'flex',
+                      flexFlow: 'column',
+                    }}
+                    >
+                      {defaultPoll && this.renderInputs()}
+                      {defaultPoll
+                        && (
+                        <Button
+                          className={styles.addItemBtn}
+                          label={intl.formatMessage(intlMessages.addOptionLabel)}
+                          color="default"
+                          icon="add"
+                          disabled={optList.length === MAX_CUSTOM_FIELDS}
+                          onClick={() => this.handleAddOption()}
+                        />
+                        )
+                      }
+                      <Button
+                        className={styles.startPollBtn}
+                        label={intl.formatMessage(intlMessages.startPollLabel)}
+                        disabled={disableStartPoll}
+                        color="primary"
+                        onClick={() => {
+                          this.setState({ isPolling: true }, () => {
+                            const verifiedPollType = this.checkPollType();
+                            const verifiedOptions = optList.map((o) => {
+                              if (o.val.length > 0) return o.val;
+                              return null;
+                            });
+                            if (verifiedPollType === 'custom') {
+                              startCustomPoll(
+                                verifiedPollType,
+                                question,
+                                _.compact(verifiedOptions),
+                              );
+                            } else {
+                              startPoll(verifiedPollType, question);
+                            }
+                          });
+                        }}
+                      />
+                    </div>
+                    )
+              }
+              </div>
+              )
+        }
       </div>
     );
   }
@@ -346,18 +499,13 @@ class Poll extends Component {
             icon="left_arrow"
             aria-label={intl.formatMessage(intlMessages.hidePollDesc)}
             className={styles.hideBtn}
-            onClick={() => {
-              Session.set('openPanel', 'userlist');
-            }}
+            onClick={() => { Session.set('openPanel', 'userlist'); }}
           />
-
           <Button
             label={intl.formatMessage(intlMessages.closeLabel)}
             aria-label={`${intl.formatMessage(intlMessages.closeLabel)} ${intl.formatMessage(intlMessages.pollPaneTitle)}`}
             onClick={() => {
-              if (currentPoll) {
-                stopPoll();
-              }
+              if (currentPoll) stopPoll();
               Session.set('openPanel', 'userlist');
               Session.set('forcePollOpen', false);
               Session.set('pollInitiated', false);
@@ -367,11 +515,8 @@ class Poll extends Component {
             size="sm"
             hideLabel
           />
-
         </header>
-        {
-          this.renderPollPanel()
-        }
+        {this.renderPollPanel()}
       </div>
     );
   }

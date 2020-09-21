@@ -11,7 +11,7 @@ import org.bigbluebutton.core.running.LiveMeeting
 
 object Polls {
 
-  def handleStartPollReqMsg(state: MeetingState2x, userId: String, pollId: String, pollType: String,
+  def handleStartPollReqMsg(state: MeetingState2x, userId: String, pollId: String, pollType: String, question: String,
                             lm: LiveMeeting): Option[SimplePollOutVO] = {
 
     def createPoll(stampedPollId: String): Option[Poll] = {
@@ -156,8 +156,18 @@ object Polls {
 
   }
 
+  def handleRespondToTypedPollReqMsg(requesterId: String, pollId: String, questionId: Int, answer: String,
+                                     lm: LiveMeeting): Option[(String, SimplePollResultOutVO)] = {
+    for {
+      poll <- getSimplePollResult(pollId, lm.polls)
+      pvo <- handleRespondToTypedPoll(poll, requesterId, pollId, questionId, answer, lm)
+    } yield {
+      (pollId, pvo)
+    }
+  }
+
   def handleStartCustomPollReqMsg(state: MeetingState2x, requesterId: String, pollId: String, pollType: String,
-                                  answers: Seq[String], lm: LiveMeeting): Option[SimplePollOutVO] = {
+                                  answers: Seq[String], question: String, lm: LiveMeeting): Option[SimplePollOutVO] = {
 
     def createPoll(stampedPollId: String): Option[Poll] = {
       val numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter
@@ -227,7 +237,17 @@ object Polls {
     } yield {
       updatedPoll
     }
+  }
 
+  private def handleRespondToTypedPoll(poll: SimplePollResultOutVO, requesterId: String, pollId: String, questionId: Int,
+                                       answer: String, lm: LiveMeeting): Option[SimplePollResultOutVO] = {
+
+    addQuestionResponse(poll.id, questionId, answer, lm.polls)
+    for {
+      updatedPoll <- getSimplePollResult(poll.id, lm.polls)
+    } yield {
+      updatedPoll
+    }
   }
 
   private def pollResultToWhiteboardShape(result: SimplePollResultOutVO): scala.collection.immutable.Map[String, Object] = {
@@ -363,6 +383,14 @@ object Polls {
     }
   }
 
+  def addQuestionResponse(pollId: String, questionID: Int, answer: String, polls: Polls) {
+    polls.polls.get(pollId) match {
+      case Some(p) => {
+        p.addQuestionResponse(questionID, answer)
+      }
+      case None =>
+    }
+  }
 }
 
 object PollType {
@@ -371,6 +399,7 @@ object PollType {
   val CustomPollType = "CUSTOM"
   val LetterPollType = "A-"
   val NumberPollType = "1-"
+  val ResponsePollType = "RP"
 }
 
 object PollFactory {
@@ -379,19 +408,19 @@ object PollFactory {
   val NumberArray = Array("1", "2", "3", "4", "5", "6")
 
   private def processYesNoPollType(qType: String): Question = {
-    val answers = new Array[Answer](2)
+    val answers = new ArrayBuffer[Answer];
 
-    answers(0) = new Answer(0, "Yes", Some("Yes"))
-    answers(1) = new Answer(1, "No", Some("No"))
+    answers += new Answer(0, "Yes", Some("Yes"))
+    answers += new Answer(1, "No", Some("No"))
 
     new Question(0, PollType.YesNoPollType, false, None, answers)
   }
 
   private def processTrueFalsePollType(qType: String): Question = {
-    val answers = new Array[Answer](2)
+    val answers = new ArrayBuffer[Answer];
 
-    answers(0) = new Answer(0, "True", Some("True"))
-    answers(1) = new Answer(1, "False", Some("False"))
+    answers += new Answer(0, "True", Some("True"))
+    answers += new Answer(1, "False", Some("False"))
 
     new Question(0, PollType.TrueFalsePollType, false, None, answers)
   }
@@ -403,10 +432,9 @@ object PollFactory {
     var questionOption: Option[Question] = None
 
     if (numQs > 0 && numQs <= 6) {
-      val answers = new Array[Answer](numQs)
-
+      val answers = new ArrayBuffer[Answer];
       for (i <- 0 until numQs) {
-        answers(i) = new Answer(i, LetterArray(i), Some(LetterArray(i)))
+        answers += new Answer(i, LetterArray(i), Some(LetterArray(i)))
         val question = new Question(0, PollType.LetterPollType, multiResponse, None, answers)
         questionOption = Some(question)
       }
@@ -422,9 +450,9 @@ object PollFactory {
     var questionOption: Option[Question] = None
 
     if (numQs > 0 && numQs <= 6) {
-      val answers = new Array[Answer](numQs)
+      val answers = new ArrayBuffer[Answer];
       for (i <- 0 until numQs) {
-        answers(i) = new Answer(i, NumberArray(i), Some(NumberArray(i)))
+        answers += new Answer(i, NumberArray(i), Some(NumberArray(i)))
         val question = new Question(0, PollType.NumberPollType, multiResponse, None, answers)
         questionOption = Some(question)
       }
@@ -432,10 +460,10 @@ object PollFactory {
     questionOption
   }
 
-  private def buildAnswers(answers: Seq[String]): Array[Answer] = {
-    val ans = new Array[Answer](answers.length)
+  private def buildAnswers(answers: Seq[String]): ArrayBuffer[Answer] = {
+    val ans = new ArrayBuffer[Answer]
     for (i <- 0 until answers.length) {
-      ans(i) = new Answer(i, answers(i), Some(answers(i)))
+      ans += new Answer(i, answers(i), Some(answers(i)))
     }
 
     ans
@@ -449,6 +477,16 @@ object PollFactory {
       val question = new Question(0, PollType.CustomPollType, multiResponse, None, someAnswers)
       questionOption = Some(question)
     }
+
+    questionOption
+  }
+
+  private def processResponsePollType(qType: String): Option[Question] = {
+    var questionOption: Option[Question] = None
+
+    val answers = new ArrayBuffer[Answer]
+    val question = new Question(0, PollType.ResponsePollType, false, None, answers)
+    questionOption = Some(question)
 
     questionOption
   }
@@ -468,6 +506,8 @@ object PollFactory {
       questionOption = processLetterPollType(qt, false)
     } else if (qt.startsWith(PollType.NumberPollType)) {
       questionOption = processNumberPollType(qt, false)
+    } else if (qt.startsWith(PollType.ResponsePollType)) {
+      questionOption = processResponsePollType(qt)
     }
 
     questionOption
@@ -530,6 +570,14 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
     })
   }
 
+  def addQuestionResponse(questionID: Int, answer: String) {
+    questions.foreach(q => {
+      if (q.id == questionID) {
+        q.addQuestionResponse(answer)
+      }
+    })
+  }
+
   def toPollVO(): PollVO = {
     val qvos = new ArrayBuffer[QuestionVO]
     questions.foreach(q => {
@@ -548,7 +596,10 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
   }
 }
 
-class Question(val id: Int, val questionType: String, val multiResponse: Boolean, val text: Option[String], val answers: Array[Answer]) {
+class Question(val id: Int, val questionType: String, val multiResponse: Boolean, val text: Option[String], val answers: ArrayBuffer[Answer]) {
+  def addAnswer(text: String) {
+    answers += new Answer(answers.size, text, Some(text))
+  }
 
   def clear() {
     answers.foreach(r => r.clear)
@@ -566,6 +617,10 @@ class Question(val id: Int, val questionType: String, val multiResponse: Boolean
     answers.foreach(r => {
       if (r.id == id) r.addResponder(responder)
     })
+  }
+
+  def addQuestionResponse(answer: String) {
+    addAnswer(answer)
   }
 
   def toQuestionVO(): QuestionVO = {

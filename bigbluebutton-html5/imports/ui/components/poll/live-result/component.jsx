@@ -186,7 +186,7 @@ class LiveResult extends PureComponent {
           {waiting
             ? <span className={styles.connectingAnimation} /> : null}
         </div>
-        {currentPoll
+        {currentPoll && currentPoll.answers.length > 0
           ? (
             <Button
               disabled={!isMeteorConnected}

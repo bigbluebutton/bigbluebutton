@@ -117,6 +117,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetCurrentPollReqMsg](envelope, jsonNode)
       case RespondToPollReqMsg.NAME =>
         routeGenericMsg[RespondToPollReqMsg](envelope, jsonNode)
+      case RespondToTypedPollReqMsg.NAME =>
+        routeGenericMsg[RespondToTypedPollReqMsg](envelope, jsonNode)
 
       // Webcam
       case UserBroadcastCamStartMsg.NAME =>

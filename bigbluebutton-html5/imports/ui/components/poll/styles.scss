@@ -6,6 +6,8 @@
     --poll-column-amount: 2;
     --poll-blue: #1A73D4;
     --poll-header-offset: -0.875rem;
+    --poll-addItem-width: 6rem;
+    --poll-input-height: 2.5rem;
 }
 
 .closeBtn {
@@ -91,7 +93,6 @@
 }
 
 .instructions {
-    margin-top: var(--lg-padding-x);
     margin-bottom: var(--lg-padding-x);
     color: var(--color-text);
 }
@@ -120,7 +121,7 @@
 }
 
 .pollBtn:nth-child(odd) {
-    margin-right: var(--sm-padding-y);
+    margin-right: 1rem;
     margin-left: inherit;
 
     [dir="rtl"] & {
@@ -201,16 +202,143 @@
     font-size: var(--font-size-small);
     border: 1px solid var(--color-gray-lighter);
     border-radius: var(--border-radius);
-    padding: .3rem * 1 .3rem * 0.25;
-    padding-left: var(--lg-padding-y);
-
-    [dir="rtl"] & {
-    	padding: .3rem * 1 .3rem * 0.25;
-        padding-right:var(--lg-padding-y);
-    }
 }
 
 .noSlidePanelContainer {
     color: var(--color-gray-drak);
     text-align: center;
+}
+
+.responseType {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    width: 100%;
+    height: var(--poll-input-height);
+    margin-bottom: var(--lg-padding-x);
+
+    button {
+        position: relative;
+        width: 47%;
+    }
+}
+
+.fullWidth {
+    width: 100%;
+}
+
+.pollQuestion {
+    resize: none;
+}
+
+.pollOption {
+    margin-right: 1rem;
+
+    [dir="rtl"] & {
+        margin-right: 0;
+        margin-left: 1rem;
+    }
+}
+
+.pollQuestion,
+.pollOption {
+    @include inputFocus(var(--color-blue-light));
+
+    width: 100%;
+    color: var(--color-text);
+    -webkit-appearance: none;
+    padding: calc(var(--sm-padding-y) * 2) calc(var(--sm-padding-x) * 1);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-base);
+    border: 1px solid var(--color-gray-lighter);
+    box-shadow: 0 0 0 1px var(--color-gray-lighter);
+}
+
+.exampleTitle {
+    background-color: var(--color-gray-lightest);
+    height: var(--sm-padding-x);
+    border-radius:  var(--border-radius);
+    width: 75%;
+}
+
+.exampleResponse {
+    border: var(--color-gray-light) solid 1px;
+    border-radius:  var(--border-radius);
+    padding: 1rem;
+    margin-top: 1rem;
+
+    .responseInput {
+        border: var(--color-gray-light) solid 1px;
+        border-radius: var(--border-radius);
+        margin-top: 1rem;
+        height: var(--poll-input-height);
+        padding-top: var(--sm-padding-x);
+        padding-left: var(--sm-padding-x);
+        position: relative;
+    }
+}
+
+.rInput {
+    background-color: var(--color-gray-lightest);
+    height: var(--lg-padding-y);
+    border-radius: var(--border-radius);
+    width: 75%;  
+}
+
+.addItemBtn {
+    top: 1px;
+    position: relative;
+    display: block;
+    width: var(--poll-addItem-width);
+    padding-left: var(--md-padding-y);
+    padding-right: var(--md-padding-y);
+
+    &:hover {
+        span {
+            opacity: 1;
+        }
+    }
+}
+
+.startPollBtn {
+    position: relative;
+    width: 100%;
+    height: var(--poll-input-height);
+    margin-top: 1rem;
+
+    &:hover {
+        span {
+            opacity: 1;
+        }
+    }
+}
+
+.pBtn {
+    border: solid var(--color-gray-light) 1px;
+    height: var(--poll-input-height);
+    span {
+        &:hover {
+            opacity: 1;
+        }
+    }
+}
+
+.deleteBtn {
+    position: relative;
+    i {
+        font-size: 150%;
+    }
+}
+
+.selectedBtn {
+    background-color: var(--poll-blue);
+    color: var(--color-white);
+
+    &:hover,
+    &:focus,
+    &:active {
+        background-color: var(--poll-blue) !important;
+        box-shadow: none !important;
+        color: var(--color-white) !important;
+    }
 }

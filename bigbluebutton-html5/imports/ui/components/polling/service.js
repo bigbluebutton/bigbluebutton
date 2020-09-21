@@ -26,12 +26,17 @@ const mapPolls = () => {
     poll: {
       answers: poll.answers,
       pollId: poll.id,
+      pollType: poll.pollType,
       stackOptions,
+      question: poll.question,
     },
     pollExists: true,
     amIRequester,
     handleVote(pollId, answerId) {
       makeCall('publishVote', pollId, answerId.id);
+    },
+    handleTypedVote(pollId, answer) {
+      makeCall('publishTypedVote', pollId, answer);
     },
   };
 };
