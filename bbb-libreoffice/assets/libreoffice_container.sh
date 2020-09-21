@@ -35,7 +35,7 @@ if (($INSTANCE_NUMBER >= 1)); then
 	iptables -C $FORWARD_RULE || iptables -I $FORWARD_RULE
 
 
-	docker run --network bbb-libreoffice --name bbb-libreoffice-${INSTANCE_NUMBER} -p $PORT:8000 -v${SOFFICE_WORK_DIR}:${SOFFICE_WORK_DIR} --rm bbb-libreoffice &
+	docker run --network bbb-libreoffice --user `id -u bigbluebutton` --name bbb-libreoffice-${INSTANCE_NUMBER} -p $PORT:8000 -v${SOFFICE_WORK_DIR}:${SOFFICE_WORK_DIR} --rm bbb-libreoffice &
 
 	wait $!
 else

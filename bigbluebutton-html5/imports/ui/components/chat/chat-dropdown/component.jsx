@@ -71,7 +71,9 @@ class ChatDropdown extends PureComponent {
   }
 
   getAvailableActions() {
-    const { intl, isMeteorConnected, amIModerator } = this.props;
+    const {
+      intl, isMeteorConnected, amIModerator, meetingIsBreakout, meetingName,
+    } = this.props;
 
     const clearIcon = 'delete';
     const saveIcon = 'download';
@@ -86,8 +88,11 @@ class ChatDropdown extends PureComponent {
         onClick={() => {
           const link = document.createElement('a');
           const mimeType = 'text/plain';
+          const date = new Date();
+          const time = `${date.getHours()}-${date.getMinutes()}`;
+          const dateString = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}_${time}`;
 
-          link.setAttribute('download', `public-chat-${Date.now()}.txt`);
+          link.setAttribute('download', `bbb-${meetingName}[public-chat]_${dateString}.txt`);
           link.setAttribute(
             'href',
             `data: ${mimeType} ;charset=utf-8,
@@ -103,7 +108,7 @@ class ChatDropdown extends PureComponent {
         label={intl.formatMessage(intlMessages.copy)}
         key={this.actionsKey[1]}
       />,
-      amIModerator && isMeteorConnected ? (
+      !meetingIsBreakout && amIModerator && isMeteorConnected ? (
         <DropdownListItem
           data-test="chatClear"
           icon={clearIcon}

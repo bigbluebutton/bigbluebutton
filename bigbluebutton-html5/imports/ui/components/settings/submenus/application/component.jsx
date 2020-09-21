@@ -90,7 +90,7 @@ class ApplicationMenu extends BaseMenu {
       // I used setTimout to create a smooth animation transition
       setTimeout(() => this.setState({
         showSelect: true,
-      }), 500);
+      }), 100);
     }
   }
 

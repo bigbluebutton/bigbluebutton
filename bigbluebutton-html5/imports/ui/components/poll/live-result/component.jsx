@@ -194,12 +194,15 @@ class LiveResult extends PureComponent {
                 Session.set('pollInitiated', false);
                 Service.publishPoll();
                 const { answers, numRespondents } = currentPoll;
-
+                let responded = 0;
                 let resultString = 'bbb-published-poll-\n';
-                answers.forEach((item) => {
-                  const pct = Math.round(item.numVotes / numRespondents * 100);
+                answers.map((item) => {
+                  responded += item.numVotes;
+                  return item;
+                }).map((item) => {
+                  const numResponded = responded === numRespondents ? numRespondents : responded;
+                  const pct = Math.round(item.numVotes / numResponded * 100);
                   const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
-
                   resultString += `${item.key}: ${item.numVotes || 0} | ${pctFotmatted}\n`;
                 });
 

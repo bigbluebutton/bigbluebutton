@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Session } from 'meteor/session';
 import PropTypes from 'prop-types';
+import SanitizeHTML from 'sanitize-html';
 import Auth from '/imports/ui/services/auth';
 import { setCustomLogoUrl, setModeratorOnlyMessage } from '/imports/ui/components/user-list/service';
 import { makeCall } from '/imports/ui/services/api';
@@ -141,7 +142,15 @@ class JoinHandler extends Component {
 
     const setModOnlyMessage = (resp) => {
       if (resp && resp.modOnlyMessage) {
-        setModeratorOnlyMessage(resp.modOnlyMessage);
+        const sanitizedModOnlyText = SanitizeHTML(resp.modOnlyMessage, {
+          allowedTags: ['a', 'b', 'br', 'i', 'img', 'li', 'small', 'span', 'strong', 'u', 'ul'],
+          allowedAttributes: {
+            a: ['href', 'name', 'target'],
+            img: ['src', 'width', 'height'],
+          },
+          allowedSchemes: ['https'],
+        });
+        setModeratorOnlyMessage(sanitizedModOnlyText);
       }
       return resp;
     };

@@ -58,7 +58,7 @@
 
     i++;
 
-    contentDiv.innerHTML = "<strong>" + options.name + ":</strong>" + options.message;
+    contentDiv.innerHTML = "<strong>" + options.name + ":</strong>" + nl2br(options.message);
 
     //If chat message contains a link, we add to it a target attribute
     //So when the user clicks on it, it opens in a new tab

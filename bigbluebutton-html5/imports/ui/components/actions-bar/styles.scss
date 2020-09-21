@@ -1,10 +1,5 @@
-@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/breakpoints";
 @import "/imports/ui/components/modal/simple/styles";
-
-:root {
-  --mobile-swap-offset: 3.5rem;
-  --min-modal-height: 20rem;
-}
 
 .modal {
   @extend .modal;

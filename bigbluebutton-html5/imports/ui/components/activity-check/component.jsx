@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, intlShape } from 'react-intl';
+import { defineMessages } from 'react-intl';
 
 import Button from '/imports/ui/components/button/component';
 import Modal from '/imports/ui/components/modal/simple/component';
@@ -9,7 +9,7 @@ import { makeCall } from '/imports/ui/services/api';
 import { styles } from './styles';
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   responseDelay: PropTypes.number.isRequired,
 };
 
@@ -64,6 +64,7 @@ class ActivityCheck extends Component {
 
     return setInterval(() => {
       const remainingTime = responseDelay - 1;
+
       this.setState({
         responseDelay: remainingTime,
       });
@@ -96,6 +97,7 @@ class ActivityCheck extends Component {
           <p>{intl.formatMessage(intlMessages.activityCheckLabel, { 0: responseDelay })}</p>
           <Button
             color="primary"
+            disabled={responseDelay <= 0}
             label={intl.formatMessage(intlMessages.activityCheckButton)}
             onClick={handleInactivityDismiss}
             role="button"

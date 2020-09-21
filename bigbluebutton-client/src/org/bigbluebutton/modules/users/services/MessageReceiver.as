@@ -137,12 +137,6 @@ package org.bigbluebutton.modules.users.services
         case "IsMeetingMutedRespMsg":
           handleIsMeetingMutedResp(message);
           break;
-        case "MeetingInactivityWarningEvtMsg":
-          handleInactivityWarning(message);
-          break;
-        case "MeetingIsActiveEvtMsg":
-          handleMeetingIsActive(message);
-          break;
         case "UserEmojiChangedEvtMsg":
           handleEmojiStatusHand(message);
           break;
@@ -755,19 +749,6 @@ package org.bigbluebutton.modules.users.services
         LiveMeeting.inst().meetingStatus.isMeetingMuted = body.muted as Boolean;
         dispatcher.dispatchEvent(new MeetingMutedEvent());
       }
-    }
-    
-    private function handleInactivityWarning(msg:Object):void {
-      var body:Object = msg.body as Object;
-      
-      var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.INACTIVITY_WARNING_EVENT);
-      bbbEvent.payload.duration = body.timeLeftInSec as Number;
-      globalDispatcher.dispatchEvent(bbbEvent);
-    }
-    
-    private function handleMeetingIsActive(msg:Object):void {
-      var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.MEETING_IS_ACTIVE_EVENT);
-      globalDispatcher.dispatchEvent(bbbEvent);
     }
     
     private function handleGetRecordingStatusReply(msg: Object):void {     

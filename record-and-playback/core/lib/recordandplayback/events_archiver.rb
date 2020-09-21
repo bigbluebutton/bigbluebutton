@@ -228,8 +228,13 @@ module BigBlueButton
 
     # Apply a cleanup that removes certain ranges of special
     # control characters from user-provided text
+    # Based on https://www.w3.org/TR/xml/#charsets
+    # Remove all Unicode characters not valid in XML, and also remove
+    # discouraged characters (includes control characters) in the U+0000-U+FFFF
+    # range (the higher values are just undefined characters, and are unlikely
+    # to cause issues).
     def strip_control_chars(str)
-      str.tr("\x00-\x08\x0B\x0C\x0E-\x1F\x7F", '')
+      str.scrub.tr("\x00-\x08\x0B\x0C\x0E-\x1F\x7F\uFDD0-\uFDEF\uFFFE\uFFFF", '')
     end
 
     def store_events(meeting_id, events_file, break_timestamp)
@@ -256,7 +261,7 @@ module BigBlueButton
       end
 
       meeting_metadata = @redis.metadata_for(meeting_id)
-      return if meeting_metadata.nil?
+      return if meeting_metadata.nil? || meeting_metadata.empty?
 
       # Fill in/update the top-level meeting element
       if meeting.nil?

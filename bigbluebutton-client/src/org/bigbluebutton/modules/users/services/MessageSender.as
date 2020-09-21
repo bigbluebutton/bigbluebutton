@@ -306,27 +306,6 @@ package org.bigbluebutton.modules.users.services
 			}, message);
 		}
 
-    public function activityResponse():void {
-      var message:Object = {
-        header: {name: "MeetingActivityResponseCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
-          userId: UsersUtil.getMyUserID()},
-        body: {respondedBy: UsersUtil.getMyUserID()}
-      };
-      
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage2x(
-        function(result:String):void { // On successful result
-        },
-        function(status:String):void { // status - On error occurred
-                var logData:Object = UsersUtil.initLogData();
-                logData.tags = ["apps"];
-								logData.logCode = "error_sending_meeting_activity_response";
-                LOGGER.info(JSON.stringify(logData));
-        },
-        message
-      ); //_netConnection.call
-    }
-		
 		public function userActivitySignResponse():void {
 			var message:Object = {
 				header: {name: "UserActivitySignCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 

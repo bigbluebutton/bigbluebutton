@@ -9,7 +9,7 @@ import VideoService from '../service';
 const JoinVideoOptionsContainer = (props) => {
   const {
     hasVideoStream,
-    isDisabled,
+    disableReason,
     intl,
     mountModal,
     ...restProps
@@ -19,7 +19,7 @@ const JoinVideoOptionsContainer = (props) => {
 
   return (
     <JoinVideoButton {...{
-      mountVideoPreview, hasVideoStream, isDisabled, ...restProps,
+      mountVideoPreview, hasVideoStream, disableReason, ...restProps,
     }}
     />
   );
@@ -27,5 +27,5 @@ const JoinVideoOptionsContainer = (props) => {
 
 export default withModalMounter(injectIntl(withTracker(() => ({
   hasVideoStream: VideoService.hasVideoStream(),
-  isDisabled: VideoService.isDisabled() || !Meteor.status().connected,
+  disableReason: VideoService.disableReason(),
 }))(JoinVideoOptionsContainer)));

@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
 import { ENTER } from '/imports/utils/keyCodes';
+import toastStyles from '/imports/ui/components/toast/styles';
 import { styles } from './styles';
 
 const messages = defineMessages({
@@ -71,7 +72,7 @@ class StatusNotifier extends Component {
             autoClose: false,
             closeOnClick: false,
             closeButton: false,
-            className: styles.raisedHandsToast,
+            className: toastStyles.actionToast,
           });
         }
         break;
@@ -161,7 +162,7 @@ class StatusNotifier extends Component {
           <div>{intl.formatMessage(messages.raisedHandsTitle)}</div>
           {formattedRaisedHands}
         </div>
-        <div className={styles.separator} />
+        <div className={toastStyles.separator} />
         <Button
           className={styles.clearBtn}
           label={intl.formatMessage(messages.lowerHandsLabel)}

@@ -27,6 +27,7 @@ public:
     ipv4FallbackDomain: ""
     allowLogout: true
     allowFullscreen: true
+    preloadNextSlides: 2
     mutedAlert:
       enabled: true
       interval: 200
@@ -34,6 +35,10 @@ public:
       duration: 4000
     remainingTimeThreshold: 30
     remainingTimeAlertThreshold: 1
+    # Warning: increasing the limit of breakout rooms per meeting
+    # can generate excessive overhead to the server. We recommend
+    # this value to be kept under 12.
+    breakoutRoomLimit: 8
     defaultSettings:
       application:
         animations: true
@@ -94,6 +99,16 @@ public:
     packetLostThreshold: 10
   kurento:
     wsUrl: HOST
+    # Valid for video-provider. Time (ms) before its WS connection times out
+    # and tries to reconnect.
+    wsConnectionTimeout: 4000
+    cameraTimeouts:
+      # Base camera timeout: used as the camera *sharing* timeout and
+      # as the minimum camera subscribe reconnection timeout
+      baseTimeout: 15000
+      # Max timeout: used as the max camera subscribe reconnection timeout. Each
+      # subscribe reattempt increases the reconnection timer up to this
+      maxTimeout: 60000
     chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc
     chromeDefaultExtensionLink: https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc
     chromeExtensionKey: KEY
@@ -113,6 +128,12 @@ public:
         - window
         - screen
       firefoxScreenshareSource: window
+    # cameraProfiles is an array of:
+    # - id: profile identifier
+    #   name: human-readable profile name
+    #   bitrate
+    #   hidden: whether this profile will be hidden in the video preview dropdown
+    #   constraints: a video media constraints dictionary (without the video key)
     cameraProfiles:
       # id: unique identifier of the profile
       # name: name of the profile visible to users
@@ -125,28 +146,104 @@ public:
       #   # Examples:
       #   width: requested width of the camera stream
       #   frameRate: requested framerate
+      - id: low-u30
+        name: low-u30
+        bitrate: 30
+        hidden: true
+        constraints:
+          frameRate: 3
+      - id: low-u25
+        name: low-u25
+        bitrate: 40
+        hidden: true
+        constraints:
+          frameRate: 3
+      - id: low-u20
+        name: low-u20
+        bitrate: 50
+        hidden: true
+        constraints:
+          frameRate: 5
+      - id: low-u15
+        name: low-u15
+        bitrate: 70
+        hidden: true
+        constraints:
+          frameRate: 8
+      - id: low-u12
+        name: low-u12
+        bitrate: 90
+        hidden: true
+        constraints:
+          frameRate: 10
+      - id: low-u8
+        name: low-u8
+        bitrate: 100
+        hidden: true
+        constraints:
+          frameRate: 10
       - id: low
-        name: Low quality
+        name: Low
         default: false
         bitrate: 100
       - id: medium
-        name: Medium quality
+        name: Medium
         default: true
         bitrate: 200
       - id: high
-        name: High quality
+        name: High
         default: false
         bitrate: 500
+        constraints:
+          width: 1280
+          frameRate: 15
       - id: hd
         name: High definition
         default: false
         bitrate: 800
+        constraints:
+          width: 1280
+          frameRate: 30
     enableScreensharing: true
     enableVideo: true
     enableVideoMenu: true
     enableListenOnly: true
     autoShareWebcam: false
     skipVideoPreview: false
+    # Entry `thresholds` is an array of:
+    # - threshold: minimum number of cameras being shared for profile to applied
+    #   profile: a camera profile id from the cameraProfiles configuration array
+    #            that will be applied to all cameras when threshold is hit
+    cameraQualityThresholds:
+      enabled: false
+      thresholds:
+        - threshold: 8
+          profile: low-u8
+        - threshold: 12
+          profile: low-u12
+        - threshold: 15
+          profile: low-u15
+        - threshold: 20
+          profile: low-u20
+        - threshold: 25
+          profile: low-u25
+        - threshold: 30
+          profile: low-u30
+    pagination:
+      # whether to globally enable or disable pagination.
+      enabled: false
+      # how long (in ms) the negotiation will be debounced after a page change.
+      pageChangeDebounceTime: 2500
+      # video page sizes for DESKTOP endpoints. It stands for the number of SUBSCRIBER streams.
+      # PUBLISHERS aren't accounted for .
+      # A page size of 0 (zero) means that the page size is unlimited (disabled).
+      desktopPageSizes:
+        moderator: 0
+        viewer: 5
+      # video page sizes for MOBILE endpoints
+      mobilePageSizes:
+        moderator: 2
+        viewer: 2
   pingPong:
     clearUsersInSeconds: 180
     pongTimeInSeconds: 15
@@ -209,6 +306,7 @@ public:
     callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
     relayOnlyOnReconnect: false
+    listenOnlyCallTimeout: 15000
   stats:
     enabled: true
     interval: 2000
@@ -356,9 +454,20 @@ public:
       - pencil
       - hand
   clientLog:
-    server: { enabled: true, level: info }
-    console: { enabled: true, level: debug }
-    external: { enabled: false, level: info, url: https://LOG_HOST/html5Log, method: POST, throttleInterval: 400, flushOnClose: true, logTag: "" }
+    server:
+      enabled: true
+      level: info
+    console:
+      enabled: true
+      level: debug
+    external:
+      enabled: false
+      level: info
+      url: https://LOG_HOST/html5Log
+      method: POST
+      throttleInterval: 400
+      flushOnClose: true
+      logTag: ""
 private:
   app:
     host: 127.0.0.1
