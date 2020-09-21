@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
-  defineMessages, injectIntl, intlShape, FormattedMessage,
+  defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 // import { notify } from '/imports/ui/services/notification';
@@ -21,7 +21,7 @@ const VIEW_STATES = {
 };
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   closeModal: PropTypes.func.isRequired,
   startSharing: PropTypes.func.isRequired,
   stopSharing: PropTypes.func.isRequired,
@@ -61,6 +61,22 @@ const intlMessages = defineMessages({
   qualityLabel: {
     id: 'app.videoPreview.profileLabel',
     description: 'Quality dropdown label',
+  },
+  low: {
+    id: 'app.videoPreview.quality.low',
+    description: 'Low quality option label',
+  },
+  medium: {
+    id: 'app.videoPreview.quality.medium',
+    description: 'Medium quality option label',
+  },
+  high: {
+    id: 'app.videoPreview.quality.high',
+    description: 'High quality option label',
+  },
+  hd: {
+    id: 'app.videoPreview.quality.hd',
+    description: 'High definition option label',
   },
   cancelLabel: {
     id: 'app.videoPreview.cancelLabel',
@@ -540,11 +556,16 @@ class VideoPreview extends Component {
                     onChange={this.handleSelectProfile}
                     disabled={skipVideoPreview}
                   >
-                    {availableProfiles.map(profile => (
+                    {availableProfiles.map(profile => {
+                     const label = intlMessages[`${profile.id}`]
+                      ? intl.formatMessage(intlMessages[`${profile.id}`])
+                      : profile.name;
+
+                     return (
                       <option key={profile.id} value={profile.id}>
-                        {profile.name}
+                        {`${label} ${profile.id === 'hd' ? '' : intl.formatMessage(intlMessages.qualityLabel).toLowerCase()}`}
                       </option>
-                    ))}
+                    )})}
                   </select>
                 )
                 : (
@@ -602,7 +623,7 @@ class VideoPreview extends Component {
                 : (
                   <video
                     id="preview"
-                    data-test="videoPreview"
+                    data-test={this.mirrorOwnWebcam ? 'mirroredVideoPreview' : 'videoPreview'}
                     className={cx({
                       [styles.preview]: true,
                       [styles.mirroredVideo]: this.mirrorOwnWebcam,

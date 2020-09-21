@@ -50,10 +50,10 @@
     "app.note.title": "Notas compartidas",
     "app.note.label": "Nota",
     "app.note.hideNoteLabel": "Nota oculta",
+    "app.note.tipLabel": "Presionar 'Esc' para situarse en la barra de herramientas del editor",
     "app.user.activityCheck": "Comprobación de la actividad del usuario",
     "app.user.activityCheck.label": "Comprobar si el usuario continúa en la reunión ({0})",
     "app.user.activityCheck.check": "Comprobar",
-    "app.note.tipLabel": "Presionar 'Esc' para situarse en la barra de herramientas del editor",
     "app.userList.usersTitle": "Usuarios",
     "app.userList.participantsTitle": "Participantes",
     "app.userList.messagesTitle": "Mensajes",
@@ -274,10 +274,6 @@
     "app.screenshare.screenShareLabel" : "Compartir pantalla",
     "app.submenu.application.applicationSectionTitle": "Aplicación",
     "app.submenu.application.animationsLabel": "Animaciones",
-    "app.submenu.application.audioAlertLabel": "Alertas sonoras para el chat",
-    "app.submenu.application.pushAlertLabel": "Alertas visuales para el chat",
-    "app.submenu.application.userJoinAudioAlertLabel": "Alertas sonoras por usuarios que se unen",
-    "app.submenu.application.userJoinPushAlertLabel": "Alertas visuales por usuarios que se unen",
     "app.submenu.application.fontSizeControlLabel": "Tamaño de fuente",
     "app.submenu.application.increaseFontBtnLabel": "Aumentar tamaño de fuente de la aplicación",
     "app.submenu.application.decreaseFontBtnLabel": "Reducir tamaño de fuente de la aplicación",
@@ -547,7 +543,6 @@
     "app.video.chromeExtensionErrorLink": "esta extensión de Chrome",
     "app.fullscreenButton.label": "Hacer {0} pantalla completa",
     "app.meeting.endNotification.ok.label": "OK",
-    "app.whiteboard.annotations.poll": "Los resultados de la encuesta fueron publicados",
     "app.whiteboard.toolbar.tools": "Herramientas",
     "app.whiteboard.toolbar.tools.hand": "Expandir",
     "app.whiteboard.toolbar.tools.pencil": "Lápiz",
@@ -628,13 +623,12 @@
     "app.externalVideo.autoPlayWarning": "Reproduzca el video para habilitar la sincronización de medios",
     "app.network.connection.effective.slow": "Estamos notando problemas de conectividad.",
     "app.network.connection.effective.slow.help": "Más información",
-    "app.externalVideo.noteLabel": "Nota: los videos externos compartidos no aparecerán en la grabación. Se admiten las URL de YouTube, Vimeo,  Instructure Media, Twitch y Daily Motion.",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Compartir un video externo",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Detener compartir video externo",
     "app.iOSWarning.label": "Por favor, actualice a iOS 12.2 o mayor",
     "app.legacy.unsupportedBrowser": "Parece que estás usando un navegador que no es compatible. Utilice {0} o {1} para obtener soporte completo.",
     "app.legacy.upgradeBrowser": "Parece que está usando una versión antigua no soportada del navegador. Por favor, actualice su navegador para soporte total.",
-    "app.legacy.criosBrowser": "En iOS, use Safari para obtener soporte completo."
+    "app.legacy.criosBrowser": "En iOS use Safari para obtener soporte completo."
 
 }
 

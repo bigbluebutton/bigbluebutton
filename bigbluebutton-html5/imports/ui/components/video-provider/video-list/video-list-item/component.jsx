@@ -62,10 +62,6 @@ class VideoListItem extends Component {
             const tagFailedEvent = new CustomEvent('videoPlayFailed', { detail: { mediaTag: elem } });
             window.dispatchEvent(tagFailedEvent);
           }
-          logger.warn({
-            logCode: 'videolistitem_component_play_maybe_error',
-            extraInfo: { error },
-          }, `Could not play video tag due to ${error.name}`);
         });
       }
     };
@@ -155,7 +151,7 @@ class VideoListItem extends Component {
     const isFirefox = (result && result.name) ? result.name.includes('firefox') : false;
 
     return (
-      <div className={cx({
+      <div data-test={voiceUser.talking ? 'webcamItemTalkingUser' : 'webcamItem'} className={cx({
         [styles.content]: true,
         [styles.talking]: voiceUser.talking,
       })}
@@ -172,7 +168,7 @@ class VideoListItem extends Component {
         >
           <video
             muted
-            data-test="videoContainer"
+            data-test={this.mirrorOwnWebcam ? 'mirroredVideoContainer' : 'videoContainer'}
             className={cx({
               [styles.media]: true,
               [styles.cursorGrab]: !webcamDraggableState.dragging

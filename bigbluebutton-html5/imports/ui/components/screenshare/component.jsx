@@ -1,5 +1,5 @@
 import React from 'react';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import FullscreenService from '../fullscreen-button/service';
@@ -48,11 +48,11 @@ class ScreenshareComponent extends React.Component {
     window.addEventListener('screensharePlayFailed', this.handlePlayElementFailed);
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(prevProps) {
     const {
       isPresenter, unshareScreen,
     } = this.props;
-    if (isPresenter && !nextProps.isPresenter) {
+    if (isPresenter && !prevProps.isPresenter) {
       unshareScreen();
     }
   }
@@ -191,7 +191,7 @@ class ScreenshareComponent extends React.Component {
 export default injectIntl(ScreenshareComponent);
 
 ScreenshareComponent.propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   isPresenter: PropTypes.bool.isRequired,
   unshareScreen: PropTypes.func.isRequired,
   presenterScreenshareHasEnded: PropTypes.func.isRequired,

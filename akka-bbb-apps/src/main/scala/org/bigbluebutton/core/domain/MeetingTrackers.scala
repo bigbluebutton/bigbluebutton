@@ -1,43 +1,5 @@
 package org.bigbluebutton.core.domain
 
-case class MeetingInactivityTracker(
-    val maxInactivityTimeoutInMs: Long,
-    val warningBeforeMaxInMs:     Long,
-    lastActivityTimestampInMs:    Long,
-    warningSent:                  Boolean,
-    warningSentOnTimestampInMs:   Long
-) {
-  def setWarningSentAndTimestamp(nowInMs: Long): MeetingInactivityTracker = {
-    copy(warningSent = true, warningSentOnTimestampInMs = nowInMs)
-  }
-
-  def resetWarningSentAndTimestamp(): MeetingInactivityTracker = {
-    copy(warningSent = false, warningSentOnTimestampInMs = 0L)
-  }
-
-  def updateLastActivityTimestamp(nowInMs: Long): MeetingInactivityTracker = {
-    copy(lastActivityTimestampInMs = nowInMs)
-  }
-
-  def hasRecentActivity(nowInMs: Long): Boolean = {
-    val left = nowInMs - lastActivityTimestampInMs
-    val right = maxInactivityTimeoutInMs - warningBeforeMaxInMs
-    left < right
-  }
-
-  def isMeetingInactive(nowInMs: Long): Boolean = {
-    if (maxInactivityTimeoutInMs > 0) {
-      warningSent && (nowInMs - lastActivityTimestampInMs) > maxInactivityTimeoutInMs
-    } else {
-      false
-    }
-  }
-
-  def timeLeftInMs(nowInMs: Long): Long = {
-    lastActivityTimestampInMs + maxInactivityTimeoutInMs - nowInMs
-  }
-}
-
 case class MeetingExpiryTracker(
     startedOnInMs:                     Long,
     userHasJoined:                     Boolean,

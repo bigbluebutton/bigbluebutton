@@ -78,6 +78,7 @@ public class ParamsProcessorUtil {
     private Boolean moderatorsJoinViaHTML5Client;
     private Boolean attendeesJoinViaHTML5Client;
     private Boolean allowRequestsWithoutSession;
+    private Boolean useDefaultAvatar = false;
     private String defaultAvatarURL;
     private String defaultConfigURL;
     private String defaultGuestPolicy;
@@ -107,15 +108,14 @@ public class ParamsProcessorUtil {
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
 
-    private Integer maxInactivityTimeoutMinutes = 120;
     private Integer clientLogoutTimerInMinutes = 0;
-	private Integer warnMinutesBeforeMax = 5;
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
 	private Integer userInactivityInspectTimerInMinutes = 120;
 	private Integer userInactivityThresholdInMinutes = 30;
     private Integer userActivitySignResponseDelayInMinutes = 5;
     private Boolean defaultAllowDuplicateExtUserid = true;
+	private Boolean defaultEndWhenNoModerator = false;
 
 	private String formatConfNum(String s) {
 		if (s.length() > 5) {
@@ -422,6 +422,15 @@ public class ParamsProcessorUtil {
             }
         }
 
+        boolean endWhenNoModerator = defaultEndWhenNoModerator;
+        if (!StringUtils.isEmpty(params.get(ApiParams.END_WHEN_NO_MODERATOR))) {
+          try {
+	          endWhenNoModerator = Boolean.parseBoolean(params.get(ApiParams.END_WHEN_NO_MODERATOR));
+          } catch (Exception ex) {
+            log.warn("Invalid param [endWhenNoModerator] for meeting=[{}]", internalMeetingId);
+          }
+        }
+
         String guestPolicy = defaultGuestPolicy;
         if (!StringUtils.isEmpty(params.get(ApiParams.GUEST_POLICY))) {
         	guestPolicy = params.get(ApiParams.GUEST_POLICY);
@@ -456,6 +465,8 @@ public class ParamsProcessorUtil {
             externalMeetingId = externalHash + "-" + timeStamp;
         }
 
+        String avatarURL = useDefaultAvatar ? defaultAvatarURL : "";
+
         // Create the meeting with all passed in parameters.
         Meeting meeting = new Meeting.Builder(externalMeetingId,
                 internalMeetingId, createTime).withName(meetingName)
@@ -466,7 +477,7 @@ public class ParamsProcessorUtil {
                 .withBannerText(bannerText).withBannerColor(bannerColor)
                 .withTelVoice(telVoice).withWebVoice(webVoice)
                 .withDialNumber(dialNumber)
-                .withDefaultAvatarURL(defaultAvatarURL)
+                .withDefaultAvatarURL(avatarURL)
                 .withAutoStartRecording(autoStartRec)
                 .withAllowStartStopRecording(allowStartStoptRec)
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)
@@ -489,8 +500,11 @@ public class ParamsProcessorUtil {
             meeting.setModeratorOnlyMessage(moderatorOnlyMessage);
         }
 
-        meeting.setMaxInactivityTimeoutMinutes(maxInactivityTimeoutMinutes);
-        meeting.setWarnMinutesBeforeMax(warnMinutesBeforeMax);
+        if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_ENDED_CALLBACK_URL))) {
+        	String meetingEndedCallbackURL = params.get(ApiParams.MEETING_ENDED_CALLBACK_URL);
+        	meeting.setMeetingEndedCallbackURL(meetingEndedCallbackURL);
+        }
+
         meeting.setMeetingExpireIfNoUserJoinedInMinutes(meetingExpireIfNoUserJoinedInMinutes);
 		meeting.setMeetingExpireWhenLastUserLeftInMinutes(meetingExpireWhenLastUserLeftInMinutes);
 		meeting.setUserInactivityInspectTimerInMinutes(userInactivityInspectTimerInMinutes);
@@ -941,6 +955,10 @@ public class ParamsProcessorUtil {
         this.webcamsOnlyForModerator = webcamsOnlyForModerator;
     }
 	
+	public void setUseDefaultAvatar(Boolean value) {
+		this.useDefaultAvatar = value;
+	}
+
 	public void setdefaultAvatarURL(String url) {
 		this.defaultAvatarURL = url;
 	}
@@ -949,24 +967,8 @@ public class ParamsProcessorUtil {
 		this.defaultGuestPolicy =  guestPolicy;
 	}
 
-	public void setMaxInactivityTimeoutMinutes(Integer value) {
-		maxInactivityTimeoutMinutes = value;
-	}
-
 	public void setClientLogoutTimerInMinutes(Integer value) {
 		clientLogoutTimerInMinutes = value;
-	}
-
-	public void setWarnMinutesBeforeMax(Integer value) {
-		warnMinutesBeforeMax = value;
-	}
-
-	public Integer getMaxInactivityTimeoutMinutes() {
-		return maxInactivityTimeoutMinutes;
-	}
-
-	public Integer getWarnMinutesBeforeMax() {
-		return warnMinutesBeforeMax;
 	}
 
 	public void setMeetingExpireWhenLastUserLeftInMinutes(Integer value) {
@@ -1135,4 +1137,10 @@ public class ParamsProcessorUtil {
 	public void setAllowDuplicateExtUserid(Boolean allow) {
 		this.defaultAllowDuplicateExtUserid = allow;
 	}
+
+	public void setEndWhenNoModerator(Boolean val) {
+		this.defaultEndWhenNoModerator = val;
+	}
+
+
 }
