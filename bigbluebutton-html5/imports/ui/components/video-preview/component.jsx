@@ -623,7 +623,7 @@ class VideoPreview extends Component {
                 : (
                   <video
                     id="preview"
-                    data-test="videoPreview"
+                    data-test={this.mirrorOwnWebcam ? 'mirroredVideoPreview' : 'videoPreview'}
                     className={cx({
                       [styles.preview]: true,
                       [styles.mirroredVideo]: this.mirrorOwnWebcam,
