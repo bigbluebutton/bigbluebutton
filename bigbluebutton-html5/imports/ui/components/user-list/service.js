@@ -256,6 +256,7 @@ const getActiveChats = (chatID) => {
       const activeChat = op;
       activeChat.unreadCounter = UnreadMessages.count(op.userId);
       activeChat.name = op.name;
+      activeChat.avatar = op.avatar;
       activeChat.isModerator = op.role === ROLE_MODERATOR;
       activeChat.lastActivity = idsWithTimeStamp[`${op.userId}`];
       return activeChat;
