@@ -27,3 +27,7 @@ exports.forceRestorePresentationOnNewEvents = 'userdata-bbb_force_restore_presen
 exports.bannerText = 'bannerText=some text';
 exports.color = 'FFFF00';
 exports.bannerColor = `bannerColor=%23${this.color}`;
+exports.recordMeeting = 'userdata-bbb_record_video=false';
+exports.skipVideoPreview = 'userdata-bbb_skip_video_preview=true';
+exports.mirrorOwnWebcam = 'userdata-bbb_mirror_own_webcam=true';
+exports.showParticipantsOnLogin = 'userdata-bbb_show_participants_on_login=false';
