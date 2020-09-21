@@ -168,7 +168,7 @@ class VideoListItem extends Component {
         >
           <video
             muted
-            data-test="videoContainer"
+            data-test={this.mirrorOwnWebcam ? 'mirroredVideoContainer' : 'videoContainer'}
             className={cx({
               [styles.media]: true,
               [styles.cursorGrab]: !webcamDraggableState.dragging
