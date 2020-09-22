@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Logger from '/imports/startup/client/logger';
+import Storage from '/imports/ui/services/storage/session';
 
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
 const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
+const PALM_REJECTION_MODE = 'palmRejectionMode';
 
 // maximum value of z-index to prevent other things from overlapping
 const MAX_Z_INDEX = (2 ** 31) - 1;
@@ -48,6 +50,7 @@ export default class TextPointerListener extends Component {
     // https://github.com/facebook/react/issues/9809
     // Check it to figure if you can add onTouchStart in render(), or should use raw DOM api
     this.hasBeenTouchedRecently = false;
+    this.palmRejectionActivated = Storage.getItem(PALM_REJECTION_MODE);
 
     this.handlePointerDown = this.handlePointerDown.bind(this);
     this.handlePointerUp = this.handlePointerUp.bind(this);
@@ -370,36 +373,39 @@ export default class TextPointerListener extends Component {
   }
 
   handlePointerDown(event) {
+    this.palmRejectionActivated = Storage.getItem(PALM_REJECTION_MODE);
     switch (event.pointerType) {
       case 'mouse': {
-        const {
-          isDrawing,
-          isWritingText,
-        } = this.state;
+        if (!this.palmRejectionActivated) {
+          const {
+            isDrawing,
+            isWritingText,
+          } = this.state;
 
-        const isLeftClick = event.button === 0;
-        const isRightClick = event.button === 2;
+          const isLeftClick = event.button === 0;
+          const isRightClick = event.button === 2;
 
-        if (this.hasBeenTouchedRecently) {
-          return;
-        }
-
-        // if our current drawing state is not drawing the box and not writing the text
-        if (!isDrawing && !isWritingText) {
-          if (isLeftClick) {
-            window.addEventListener('pointerup', this.handlePointerUp);
-            window.addEventListener('pointermove', this.handlePointerMove);
-
-            const { clientX, clientY } = event;
-            this.commonDrawStartHandler(clientX, clientY);
+          if (this.hasBeenTouchedRecently) {
+            return;
           }
 
-        // second case is when a user finished writing the text and publishes the final result
-        } else if (isRightClick) {
-          this.discardAnnotation();
-        } else {
-          // publishing the final shape and resetting the state
-          this.sendLastMessage();
+          // if our current drawing state is not drawing the box and not writing the text
+          if (!isDrawing && !isWritingText) {
+            if (isLeftClick) {
+              window.addEventListener('pointerup', this.handlePointerUp);
+              window.addEventListener('pointermove', this.handlePointerMove);
+
+              const { clientX, clientY } = event;
+              this.commonDrawStartHandler(clientX, clientY);
+            }
+
+          // second case is when a user finished writing the text and publishes the final result
+          } else if (isRightClick) {
+            this.discardAnnotation();
+          } else {
+            // publishing the final shape and resetting the state
+            this.sendLastMessage();
+          }
         }
         break;
       }
@@ -408,7 +414,9 @@ export default class TextPointerListener extends Component {
         break;
       }
       case 'touch': {
-        this.touchPenDownHandler(event);
+        if (!this.palmRejectionActivated) {
+          this.touchPenDownHandler(event);
+        }
         break;
       }
       default: {
@@ -450,9 +458,11 @@ export default class TextPointerListener extends Component {
   handlePointerUp(event) {
     switch (event.pointerType) {
       case 'mouse': {
-        window.removeEventListener('pointerup', this.handlePointerUp);
-        window.removeEventListener('pointermove', this.handlePointerMove);
-        this.commonDrawEndHandler();
+        if (!this.palmRejectionActivated) {
+          window.removeEventListener('pointerup', this.handlePointerUp);
+          window.removeEventListener('pointermove', this.handlePointerMove);
+          this.commonDrawEndHandler();
+        }
         break;
       }
       case 'pen': {
@@ -460,7 +470,9 @@ export default class TextPointerListener extends Component {
         break;
       }
       case 'touch': {
-        this.touchPenEndHandler();
+        if (!this.palmRejectionActivated) {
+          this.touchPenEndHandler();
+        }
         break;
       }
       default: {
@@ -479,8 +491,10 @@ export default class TextPointerListener extends Component {
   handlePointerMove(event) {
     switch (event.pointerType) {
       case 'mouse': {
-        const { clientX, clientY } = event;
-        this.commonDrawMoveHandler(clientX, clientY);
+        if (!this.palmRejectionActivated) {
+          const { clientX, clientY } = event;
+          this.commonDrawMoveHandler(clientX, clientY);
+        }
         break;
       }
       case 'pen': {
@@ -490,9 +504,11 @@ export default class TextPointerListener extends Component {
         break;
       }
       case 'touch': {
-        event.preventDefault();
-        const { clientX, clientY } = event;
-        this.commonDrawMoveHandler(clientX, clientY);
+        if (!this.palmRejectionActivated) {
+          event.preventDefault();
+          const { clientX, clientY } = event;
+          this.commonDrawMoveHandler(clientX, clientY);
+        }
         break;
       }
       default: {
@@ -508,7 +524,9 @@ export default class TextPointerListener extends Component {
         break;
       }
       case 'touch': {
-        this.touchPenEndHandler();
+        if (!this.palmRejectionActivated) {
+          this.touchPenEndHandler();
+        }
         break;
       }
       default: {

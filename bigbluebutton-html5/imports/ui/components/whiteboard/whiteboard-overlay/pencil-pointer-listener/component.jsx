@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Logger from '/imports/startup/client/logger';
+import Storage from '/imports/ui/services/storage/session';
 
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
 const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
+const PALM_REJECTION_MODE = 'palmRejectionMode';
 
 // maximum value of z-index to prevent other things from overlapping
 const MAX_Z_INDEX = (2 ** 31) - 1;
@@ -17,6 +19,7 @@ export default class PencilPointerListener extends Component {
 
     // to track the status of drawing
     this.isDrawing = false;
+    this.palmRejectionActivated = Storage.getItem(PALM_REJECTION_MODE);
     this.points = [];
 
     this.handlePointerDown = this.handlePointerDown.bind(this);
@@ -198,24 +201,27 @@ export default class PencilPointerListener extends Component {
   }
 
   handlePointerDown(event) {
+    this.palmRejectionActivated = Storage.getItem(PALM_REJECTION_MODE);
     switch (event.pointerType) {
       case 'mouse': {
-        const isLeftClick = event.button === 0;
-        const isRightClick = event.button === 2;
+        if (!this.palmRejectionActivated) {
+          const isLeftClick = event.button === 0;
+          const isRightClick = event.button === 2;
 
-        if (!this.isDrawing) {
-          if (isLeftClick) {
-            window.addEventListener('pointerup', this.handlePointerUp);
-            window.addEventListener('pointermove', this.handlePointerMove);
+          if (!this.isDrawing) {
+            if (isLeftClick) {
+              window.addEventListener('pointerup', this.handlePointerUp);
+              window.addEventListener('pointermove', this.handlePointerMove);
 
-            const { clientX, clientY } = event;
-            this.commonDrawStartHandler(clientX, clientY);
+              const { clientX, clientY } = event;
+              this.commonDrawStartHandler(clientX, clientY);
+            }
+
+          // if you switch to a different window using Alt+Tab while mouse is down and release it
+          // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
+          } else if (isRightClick) {
+            this.discardAnnotation();
           }
-
-        // if you switch to a different window using Alt+Tab while mouse is down and release it
-        // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
-        } else if (isRightClick) {
-          this.discardAnnotation();
         }
         break;
       }
@@ -224,7 +230,9 @@ export default class PencilPointerListener extends Component {
         break;
       }
       case 'touch': {
-        this.touchPenDownHandler(event);
+        if (!this.palmRejectionActivated) {
+          this.touchPenDownHandler(event);
+        }
         break;
       }
       default: {
@@ -253,7 +261,9 @@ export default class PencilPointerListener extends Component {
   handlePointerUp(event) {
     switch (event.pointerType) {
       case 'mouse': {
-        this.sendLastMessage();
+        if (!this.palmRejectionActivated) {
+          this.sendLastMessage();
+        }
         break;
       }
       case 'pen': {
@@ -261,7 +271,9 @@ export default class PencilPointerListener extends Component {
         break;
       }
       case 'touch': {
-        this.sendLastMessage();
+        if (!this.palmRejectionActivated) {
+          this.sendLastMessage();
+        }
         break;
       }
       default: {
@@ -273,8 +285,10 @@ export default class PencilPointerListener extends Component {
   handlePointerMove(event) {
     switch (event.pointerType) {
       case 'mouse': {
-        const { clientX, clientY } = event;
-        this.commonDrawMoveHandler(clientX, clientY);
+        if (!this.palmRejectionActivated) {
+          const { clientX, clientY } = event;
+          this.commonDrawMoveHandler(clientX, clientY);
+        }
         break;
       }
       case 'pen': {
@@ -284,9 +298,11 @@ export default class PencilPointerListener extends Component {
         break;
       }
       case 'touch': {
-        event.preventDefault();
-        const { clientX, clientY } = event;
-        this.commonDrawMoveHandler(clientX, clientY);
+        if (!this.palmRejectionActivated) {
+          event.preventDefault();
+          const { clientX, clientY } = event;
+          this.commonDrawMoveHandler(clientX, clientY);
+        }
         break;
       }
       default: {
@@ -302,7 +318,9 @@ export default class PencilPointerListener extends Component {
         break;
       }
       case 'touch': {
-        this.sendLastMessage();
+        if (!this.palmRejectionActivated) {
+          this.sendLastMessage();
+        }
         break;
       }
       default: {
