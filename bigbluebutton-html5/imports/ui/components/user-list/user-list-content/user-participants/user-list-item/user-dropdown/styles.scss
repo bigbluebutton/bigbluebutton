@@ -146,7 +146,7 @@
   flex-grow: 0;
   display: flex;
   flex-flow: row;
-
+  margin: 0 0 1px var(--lg-padding-y);
   padding: var(--lg-padding-y) 0 var(--lg-padding-y) var(--lg-padding-y);
 
   [dir="rtl"] & {
@@ -156,7 +156,6 @@
 
 .dropdown {
   position: static;
-  margin: 0 0 1px var(--lg-padding-y);
 }
 
 .dropdownContent {

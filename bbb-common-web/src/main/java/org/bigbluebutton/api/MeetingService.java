@@ -40,6 +40,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.bigbluebutton.api.domain.GuestPolicy;
 import org.bigbluebutton.api.domain.Meeting;
@@ -778,24 +779,35 @@ public class MeetingService implements MessageListener {
 
       String endCallbackUrl = "endCallbackUrl".toLowerCase();
       Map<String, String> metadata = m.getMetadata();
-      if (!m.isBreakout() && metadata.containsKey(endCallbackUrl)) {
-        String callbackUrl = metadata.get(endCallbackUrl);
-        try {
+      if (!m.isBreakout()) {
+        if (metadata.containsKey(endCallbackUrl)) {
+          String callbackUrl = metadata.get(endCallbackUrl);
+          try {
             callbackUrl = new URIBuilder(new URI(callbackUrl))
-                    .addParameter("recordingmarks", m.haveRecordingMarks() ? "true" : "false")
-                    .addParameter("meetingID", m.getExternalId()).build().toURL().toString();
-            callbackUrlService.handleMessage(new MeetingEndedEvent(m.getInternalId(), m.getExternalId(), m.getName(), callbackUrl));
-        } catch (MalformedURLException e) {
-            log.error("Malformed URL in callback url=[{}]", callbackUrl, e);
-        } catch (URISyntaxException e) {
-            log.error("URI Syntax error in callback url=[{}]", callbackUrl, e);
-        } catch (Exception e) {
-          log.error("Error in callback url=[{}]", callbackUrl, e);
+              .addParameter("recordingmarks", m.haveRecordingMarks() ? "true" : "false")
+              .addParameter("meetingID", m.getExternalId()).build().toURL().toString();
+            MeetingEndedEvent event = new MeetingEndedEvent(m.getInternalId(), m.getExternalId(), m.getName(), callbackUrl);
+            processMeetingEndedCallback(event);
+          } catch (Exception e) {
+            log.error("Error in callback url=[{}]", callbackUrl, e);
+          }
         }
 
+        if (! StringUtils.isEmpty(m.getMeetingEndedCallbackURL())) {
+          String meetingEndedCallbackURL = m.getMeetingEndedCallbackURL();
+          callbackUrlService.handleMessage(new MeetingEndedEvent(m.getInternalId(), m.getExternalId(), m.getName(), meetingEndedCallbackURL));
+        }
       }
 
       processRemoveEndedMeeting(message);
+    }
+  }
+
+  private void processMeetingEndedCallback(MeetingEndedEvent event) {
+    try {
+      callbackUrlService.handleMessage(event);
+    } catch (Exception e) {
+      log.error("Error in callback url=[{}]", event.getCallbackUrl(), e);
     }
   }
 
@@ -911,7 +923,7 @@ public class MeetingService implements MessageListener {
       } else {
         if (message.userId.startsWith("v_")) {
           // A dial-in user joined the meeting. Dial-in users by convention has userId that starts with "v_".
-                    User vuser = new User(message.userId, message.userId, message.name, "DIAL-IN-USER", "no-avatar-url",
+                    User vuser = new User(message.userId, message.userId, message.name, "DIAL-IN-USER", "",
                             true, GuestPolicy.ALLOW, "DIAL-IN");
           vuser.setVoiceJoined(true);
           m.userJoined(vuser);

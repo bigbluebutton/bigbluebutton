@@ -280,6 +280,31 @@ class AudioManager {
     return this.bridge.transferCall(this.onAudioJoin.bind(this));
   }
 
+  onVoiceUserChanges(fields) {
+    if (fields.muted !== undefined && fields.muted !== this.isMuted) {
+      let muteState;
+      this.isMuted = fields.muted;
+
+      if (this.isMuted) {
+        muteState = 'selfMuted';
+        this.mute();
+      } else {
+        muteState = 'selfUnmuted';
+        this.unmute();
+      }
+
+      window.parent.postMessage({ response: muteState }, '*');
+    }
+
+    if (fields.talking !== undefined && fields.talking !== this.isTalking) {
+      this.isTalking = fields.talking;
+    }
+
+    if (this.isMuted) {
+      this.isTalking = false;
+    }
+  }
+
   onAudioJoin() {
     this.isConnecting = false;
     this.isConnected = true;
@@ -288,21 +313,8 @@ class AudioManager {
     if (!this.muteHandle) {
       const query = VoiceUsers.find({ intId: Auth.userID }, { fields: { muted: 1, talking: 1 } });
       this.muteHandle = query.observeChanges({
-        changed: (id, fields) => {
-          if (fields.muted !== undefined && fields.muted !== this.isMuted) {
-            this.isMuted = fields.muted;
-            const muteState = this.isMuted ? 'selfMuted' : 'selfUnmuted';
-            window.parent.postMessage({ response: muteState }, '*');
-          }
-
-          if (fields.talking !== undefined && fields.talking !== this.isTalking) {
-            this.isTalking = fields.talking;
-          }
-
-          if (this.isMuted) {
-            this.isTalking = false;
-          }
-        },
+        added: (id, fields) => this.onVoiceUserChanges(fields),
+        changed: (id, fields) => this.onVoiceUserChanges(fields),
       });
     }
 
@@ -561,6 +573,29 @@ class AudioManager {
       }, 'Prompting user for action to play listen only media');
       this.autoplayBlocked = true;
     }
+  }
+
+  setSenderTrackEnabled(shouldEnable) {
+    // If the bridge is set to listen only mode, nothing to do here. This method
+    // is solely for muting outbound tracks.
+    if (this.isListenOnly) return;
+
+    // Bridge -> SIP.js bridge, the only full audio capable one right now
+    const peer = this.bridge.getPeerConnection();
+    peer.getSenders().forEach((sender) => {
+      const { track } = sender;
+      if (track && track.kind === 'audio') {
+        track.enabled = shouldEnable;
+      }
+    });
+  }
+
+  mute() {
+    this.setSenderTrackEnabled(false);
+  }
+
+  unmute() {
+    this.setSenderTrackEnabled(true);
   }
 }
 

@@ -538,6 +538,8 @@ class UserDropdown extends PureComponent {
         voice={voiceUser.isVoiceUser}
         noVoice={!voiceUser.isVoiceUser}
         color={user.color}
+        emoji={user.emoji !== 'none'}
+        avatar={user.avatar}
       >
         {
         userInBreakout
@@ -593,6 +595,7 @@ class UserDropdown extends PureComponent {
       <div
         data-test={isMe(user.userId) ? 'userListItemCurrent' : 'userListItem'}
         className={!actions.length ? styles.userListItem : null}
+        style={{ direction: document.documentElement.dir }}
       >
         <div className={styles.userItemContents}>
           <div className={styles.userAvatar}>

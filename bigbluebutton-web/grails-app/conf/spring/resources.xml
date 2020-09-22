@@ -133,6 +133,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="autoStartRecording" value="${autoStartRecording}"/>
         <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
         <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
+        <property name="useDefaultAvatar" value="${useDefaultAvatar}"/>
         <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
         <property name="defaultConfigURL" value="${defaultConfigURL}"/>
         <property name="defaultGuestPolicy" value="${defaultGuestPolicy}"/>
@@ -158,6 +159,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="lockSettingsLockOnJoin" value="${lockSettingsLockOnJoin}"/>
         <property name="lockSettingsLockOnJoinConfigurable" value="${lockSettingsLockOnJoinConfigurable}"/>
         <property name="allowDuplicateExtUserid" value="${allowDuplicateExtUserid}"/>
+        <property name="endWhenNoModerator" value="${endWhenNoModerator}"/>
     </bean>
 
     <import resource="doc-conversion.xml"/>
