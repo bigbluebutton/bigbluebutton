@@ -26,6 +26,11 @@ endpoints:
     jmx:
         enabled: true
 
+server:
+    session:
+        cookie:
+            secure: true
+
 ---
 grails:
     mime:
