@@ -60,6 +60,7 @@ class AudioManager {
 
   init(userData) {
     this.bridge = new SIPBridge(userData); // no alternative as of 2019-03-08
+    this.translationBridge = new SIPBridge(userData);
     if (this.useKurento) {
       this.listenOnlyBridge = new KurentoBridge(userData);
     }
@@ -636,8 +637,12 @@ class AudioManager {
   }
 
   openTranslationChannel(){
-    this.exitAudio()
-    this.bridge.joinTranslationChannel(this.inputStream,this.callStateCallback.bind(this));
+    const callOptions = {
+      isListenOnly: false,
+      extension: null,
+      inputStream: this.inputStream,
+    };
+    this.translationBridge.joinAudio(callOptions,this.callStateCallback.bind(this));
   }
 
 }
