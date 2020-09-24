@@ -563,7 +563,7 @@ class VideoPreview extends Component {
 
                       return (
                        <option key={profile.id} value={profile.id}>
-                          {`${label} ${profile.id === 'hd' ? '' : intl.formatMessage(intlMessages.qualityLabel).toLowerCase()}`}
+                          {`${label}`}
                        </option>
                      )})}
                    </select>
