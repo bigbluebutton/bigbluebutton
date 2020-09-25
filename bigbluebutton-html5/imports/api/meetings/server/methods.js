@@ -4,7 +4,6 @@ import toggleRecording from './methods/toggleRecording';
 import transferUser from './methods/transferUser';
 import toggleLockSettings from './methods/toggleLockSettings';
 import toggleWebcamsOnlyForModerator from './methods/toggleWebcamsOnlyForModerator';
-import setRandomUser from './methods/setRandomUser';
 
 Meteor.methods({
   endMeeting,
@@ -12,5 +11,4 @@ Meteor.methods({
   toggleLockSettings,
   transferUser,
   toggleWebcamsOnlyForModerator,
-  setRandomUser,
 });

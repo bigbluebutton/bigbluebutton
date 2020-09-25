@@ -156,10 +156,17 @@ class App extends Component {
 
   componentDidUpdate(prevProps) {
     const {
-      meetingMuted, notify, currentUserEmoji, intl, hasPublishedPoll, randomlySelectedUser, currentUserId, mountModal,
+      meetingMuted,
+      notify,
+      currentUserEmoji,
+      intl,
+      hasPublishedPoll,
+      randomlySelectedUser,
+      currentUserId,
+      mountModal,
     } = this.props;
 
-    if (randomlySelectedUser === currentUserId) mountModal(<RandomUserSelectContainer isSelectedUser />);
+    if (randomlySelectedUser === currentUserId) mountModal(<RandomUserSelectContainer />);
 
     if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })

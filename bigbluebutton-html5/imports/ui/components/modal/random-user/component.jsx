@@ -34,37 +34,23 @@ const propTypes = {
   }).isRequired,
   mountModal: PropTypes.func.isRequired,
   numAvailableViewers: PropTypes.number.isRequired,
-  setRandomUser: PropTypes.func.isRequired,
-  isSelectedUser: PropTypes.bool.isRequired,
-  getActiveRandomUser: PropTypes.func.isRequired,
-  getRandomUser: PropTypes.func.isRequired,
+  randomUserReq: PropTypes.func.isRequired,
 };
 
 class RandomUserSelect extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      selectedUser: props.getRandomUser(),
-    };
-
-    this.findNewUser = this.findNewUser.bind(this);
-  }
-
-  componentDidMount() {
-    const { setRandomUser, isSelectedUser } = this.props;
-    const { selectedUser } = this.state;
-    if (!isSelectedUser && selectedUser) setRandomUser(selectedUser.userId);
-  }
-
-  findNewUser() {
-    const { selectedUser } = this.state;
-    const { getRandomUser, numAvailableViewers } = this.props;
-    const user = getRandomUser();
-    if (user.userId === selectedUser.userId && numAvailableViewers > 1) {
-      return this.findNewUser();
+    if (props.currentUser.presenter) {
+      props.randomUserReq();
     }
-    return user;
+  }
+
+  componentDidUpdate() {
+    const { selectedUser, currentUser, mountModal } = this.props;
+    if (selectedUser.userId !== currentUser.userId && !currentUser.presenter) {
+      mountModal(null);
+    }
   }
 
   render() {
@@ -72,25 +58,16 @@ class RandomUserSelect extends Component {
       intl,
       mountModal,
       numAvailableViewers,
-      setRandomUser,
-      isSelectedUser,
-      getActiveRandomUser,
+      randomUserReq,
+      selectedUser,
+      currentUser,
     } = this.props;
 
-    const { selectedUser } = this.state;
+    if (!selectedUser) return null;
 
-    let viewElement = null;
-    let userData = null;
-    let avatarColor = selectedUser ? selectedUser.color : null;
-    let userName = selectedUser ? selectedUser.name : null;
+    const isSelectedUser = currentUser.userId === selectedUser.userId;
 
-    if (isSelectedUser) {
-      userData = getActiveRandomUser();
-      avatarColor = userData.color;
-      userName = userData.name;
-    }
-
-    viewElement = numAvailableViewers < 1 ? (
+    const viewElement = numAvailableViewers < 1 ? (
       <div className={styles.modalViewContainer}>
         <div className={styles.modalViewTitle}>
           {intl.formatMessage(messages.randUserTitle)}
@@ -105,11 +82,11 @@ class RandomUserSelect extends Component {
             : `${intl.formatMessage(messages.randUserTitle)}`
           }
         </div>
-        <div aria-hidden className={styles.modalAvatar} style={{ backgroundColor: `${avatarColor}` }}>
-          {userName.slice(0, 2)}
+        <div aria-hidden className={styles.modalAvatar} style={{ backgroundColor: `${selectedUser.color}` }}>
+          {selectedUser.name.slice(0, 2)}
         </div>
         <div className={styles.selectedUserName}>
-          {userName}
+          {selectedUser.name}
         </div>
         {!isSelectedUser
           && (
@@ -118,14 +95,7 @@ class RandomUserSelect extends Component {
             color="primary"
             size="md"
             className={styles.selectBtn}
-            onClick={() => {
-              this.setState({
-                selectedUser: this.findNewUser(),
-              }, () => {
-                const { selectedUser: updatedUser } = this.state;
-                return setRandomUser(updatedUser.userId);
-              });
-            }}
+            onClick={() => randomUserReq()}
           />
           )
         }
@@ -135,10 +105,7 @@ class RandomUserSelect extends Component {
     return (
       <Modal
         hideBorder
-        onRequestClose={() => {
-          if (isSelectedUser) setRandomUser('');
-          mountModal(null);
-        }}
+        onRequestClose={() => { mountModal(null); }}
         contentLabel={intl.formatMessage(messages.ariaModalTitle)}
       >
         {viewElement}

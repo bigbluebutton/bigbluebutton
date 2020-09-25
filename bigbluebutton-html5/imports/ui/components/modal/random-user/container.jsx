@@ -9,8 +9,8 @@ import RandomUserSelect from './component';
 
 const RandomUserSelectContainer = props => <RandomUserSelect {...props} />;
 
-export default withModalMounter(withTracker(({ mountModal, isSelectedUser }) => {
-  const randomUserPool = Users.find({
+export default withModalMounter(withTracker(({ mountModal }) => {
+  const viewerPool = Users.find({
     meetingId: Auth.meetingID,
     presenter: { $ne: true },
     connectionStatus: 'online',
@@ -18,46 +18,39 @@ export default withModalMounter(withTracker(({ mountModal, isSelectedUser }) => 
   }, {
     fields: {
       userId: 1,
+    },
+  }).fetch();
+
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, {
+    fields: {
+      randomlySelectedUser: 1,
+    },
+  });
+
+  const selectedUser = Users.findOne({
+    meetingId: Auth.meetingID,
+    userId: meeting.randomlySelectedUser,
+  }, {
+    fields: {
+      userId: 1,
       avatar: 1,
       color: 1,
       name: 1,
     },
-  }).fetch();
+  });
 
-  const getRandomUser = () => {
-    const { length } = randomUserPool;
-    const randomIndex = Math.floor(Math.random() * Math.floor(length));
-    return length > 0 ? randomUserPool[randomIndex] : null;
-  };
+  const currentUser = Users.findOne(
+    { userId: Auth.userID },
+    { fields: { userId: 1, presenter: 1 } },
+  );
 
-  const getActiveRandomUser = () => {
-    const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, {
-      fields: {
-        randomlySelectedUser: 1,
-      },
-    });
-
-    return Users.findOne({
-      meetingId: Auth.meetingID,
-      userId: meeting.randomlySelectedUser,
-    }, {
-      fields: {
-        userId: 1,
-        avatar: 1,
-        color: 1,
-        name: 1,
-      },
-    });
-  };
-
-  const setRandomUser = userId => makeCall('setRandomUser', userId);
+  const randomUserReq = () => makeCall('setRandomUser');
 
   return ({
     closeModal: () => mountModal(null),
-    getRandomUser,
-    numAvailableViewers: randomUserPool.length,
-    setRandomUser,
-    getActiveRandomUser,
-    isSelectedUser,
+    numAvailableViewers: viewerPool.length,
+    randomUserReq,
+    selectedUser,
+    currentUser,
   });
 })(RandomUserSelectContainer));
