@@ -12814,6 +12814,21 @@ class Session {
         this._sessionDescriptionHandlerOptionsReInvite = Object.assign({}, options);
     }
     /**
+     * SDH modifiers for the initial INVITE transaction, after ice gathering
+     * is complete.
+     * @remarks
+     * Used in all cases when handling the initial INVITE transaction as either UAC or UAS.
+     * May be set directly at anytime.
+     * May optionally be set via constructor option.
+     * May optionally be set via options passed to Inviter.invite() or Invitation.accept().
+     */
+    get sessionDescriptionHandlerModifiersPostICEGathering() {
+        return this._sessionDescriptionHandlerModifiersPostICEGathering || [];
+    }
+    set sessionDescriptionHandlerModifiersPostICEGathering(modifiers) {
+        this._sessionDescriptionHandlerModifiersPostICEGathering = modifiers.slice();
+    }
+    /**
      * Session state.
      */
     get state() {
@@ -13606,10 +13621,11 @@ class Session {
         const sdh = this.setupSessionDescriptionHandler();
         const sdhOptions = options.sessionDescriptionHandlerOptions;
         const sdhModifiers = options.sessionDescriptionHandlerModifiers;
+        const sdhPostICEGatheringModifiers = options.sessionDescriptionHandlerModifiersPostICEGathering;
         // This is intentionally written very defensively. Don't trust SDH to behave.
         try {
             return sdh
-                .getDescription(sdhOptions, sdhModifiers)
+                .getDescription(sdhOptions, sdhModifiers, sdhPostICEGatheringModifiers)
                 .then((bodyAndContentType) => Object(_core__WEBPACK_IMPORTED_MODULE_0__["fromBodyLegacy"])(bodyAndContentType))
                 .catch((error) => {
                 // don't trust SDH to reject with Error
@@ -13699,6 +13715,7 @@ class Session {
         const sdh = this.setupSessionDescriptionHandler();
         const sdhOptions = options.sessionDescriptionHandlerOptions;
         const sdhModifiers = options.sessionDescriptionHandlerModifiers;
+        const sdhModifiersPostICEGathering = options.sessionDescriptionHandlerModifiersPostICEGathering;
         // This is intentionally written very defensively. Don't trust SDH to behave.
         try {
             if (!sdh.hasDescription(offer.contentType)) {
@@ -13714,7 +13731,7 @@ class Session {
         try {
             return sdh
                 .setDescription(offer.content, sdhOptions, sdhModifiers)
-                .then(() => sdh.getDescription(sdhOptions, sdhModifiers))
+                .then(() => sdh.getDescription(sdhOptions, sdhModifiers, sdhModifiersPostICEGathering))
                 .then((bodyAndContentType) => Object(_core__WEBPACK_IMPORTED_MODULE_0__["fromBodyLegacy"])(bodyAndContentType))
                 .catch((error) => {
                 // don't trust SDH to reject with Error
@@ -14273,6 +14290,9 @@ class Inviter extends _session__WEBPACK_IMPORTED_MODULE_2__["Session"] {
         if (options.sessionDescriptionHandlerOptionsReInvite) {
             this.sessionDescriptionHandlerOptionsReInvite = options.sessionDescriptionHandlerOptionsReInvite;
         }
+        if (options.sessionDescriptionHandlerModifiersPostICEGathering) {
+            this.sessionDescriptionHandlerModifiersPostICEGathering = options.sessionDescriptionHandlerModifiersPostICEGathering;
+        }
         // Identifier
         this._id = this.outgoingRequestMessage.callId + this.fromTag;
         // Add to the user agent's session collection.
@@ -14482,6 +14502,9 @@ class Inviter extends _session__WEBPACK_IMPORTED_MODULE_2__["Session"] {
         if (options.sessionDescriptionHandlerOptions) {
             this.sessionDescriptionHandlerOptions = options.sessionDescriptionHandlerOptions;
         }
+        if (options.sessionDescriptionHandlerModifiersPostICEGathering) {
+            this.sessionDescriptionHandlerModifiersPostICEGathering = options.sessionDescriptionHandlerModifiersPostICEGathering;
+        }
         // just send an INVITE with no sdp...
         if (options.withoutSdp || this.inviteWithoutSdp) {
             if (this._renderbody && this._rendertype) {
@@ -14494,7 +14517,8 @@ class Inviter extends _session__WEBPACK_IMPORTED_MODULE_2__["Session"] {
         // get an offer and send it in an INVITE
         const offerOptions = {
             sessionDescriptionHandlerModifiers: this.sessionDescriptionHandlerModifiers,
-            sessionDescriptionHandlerOptions: this.sessionDescriptionHandlerOptions
+            sessionDescriptionHandlerOptions: this.sessionDescriptionHandlerOptions,
+            sessionDescriptionHandlerModifiersPostICEGathering: this.sessionDescriptionHandlerModifiersPostICEGathering
         };
         return this.getOffer(offerOptions)
             .then((body) => {
@@ -15047,7 +15071,7 @@ class Inviter extends _session__WEBPACK_IMPORTED_MODULE_2__["Session"] {
                     this.earlyMediaSessionDescriptionHandlers.set(session.id, sdh);
                     return sdh
                         .setDescription(response.body, this.sessionDescriptionHandlerOptions, this.sessionDescriptionHandlerModifiers)
-                        .then(() => sdh.getDescription(this.sessionDescriptionHandlerOptions, this.sessionDescriptionHandlerModifiers))
+                        .then(() => sdh.getDescription(this.sessionDescriptionHandlerOptions, this.sessionDescriptionHandlerModifiers, this.sessionDescriptionHandlerModifiersPostICEGathering))
                         .then((description) => {
                         const body = {
                             contentDisposition: "session",
@@ -18263,7 +18287,7 @@ class SessionDescriptionHandler {
      * @param options - Options bucket.
      * @param modifiers - Modifiers.
      */
-    getDescription(options, modifiers) {
+    getDescription(options, modifiers, postICEGatheringModifiers) {
         var _a, _b;
         this.logger.debug("SessionDescriptionHandler.getDescription");
         if (this._peerConnection === undefined) {
@@ -18283,6 +18307,7 @@ class SessionDescriptionHandler {
             .then((sessionDescription) => this.setLocalSessionDescription(sessionDescription))
             .then(() => this.waitForIceGatheringComplete(iceRestart, iceTimeout))
             .then(() => this.getLocalSessionDescription())
+            .then((sessionDescription) => this.applyPostICEGatheringModifiers(sessionDescription, postICEGatheringModifiers))
             .then((sessionDescription) => {
             return {
                 body: sessionDescription.sdp,
@@ -18378,6 +18403,16 @@ class SessionDescriptionHandler {
             }
             return { sdp: modified.sdp, type: modified.type };
         });
+    }
+    /**
+     * Applies modifiers to SDP after ICE Gathering collection is done.
+     * This modifier is applied to local SDP, only.
+     * @param sdp - SDP to modify.
+     * @param modifiers - Modifiers to apply.
+     */
+    applyPostICEGatheringModifiers(sdp, modifiers) {
+        this.logger.debug("SessionDescriptionHandler.applyPostICEGatheringModifiers");
+        return this.applyModifiers(sdp, modifiers);
     }
     /**
      * Create a data channel.
