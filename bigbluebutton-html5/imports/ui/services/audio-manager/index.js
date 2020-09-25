@@ -17,7 +17,7 @@ const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
 const MAX_LISTEN_ONLY_RETRIES = 1;
-const LISTEN_ONLY_CALL_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
+const LISTEN_ONLY_CALL_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 25000;
 
 const CALL_STATES = {
   STARTED: 'started',
@@ -131,7 +131,7 @@ class AudioManager {
           extension: null,
           inputStream: this.inputStream,
         };
-        return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
+        return this.joinAudio(callOptions, this.callStateCallback.bind(this));
       });
   }
 
@@ -148,8 +148,29 @@ class AudioManager {
           inputStream: this.inputStream,
         };
         logger.info({ logCode: 'audiomanager_join_echotest', extraInfo: { logType: 'user_action' } }, 'User requested to join audio conference with mic');
-        return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
+        return this.joinAudio(callOptions, this.callStateCallback.bind(this));
       });
+  }
+
+  joinAudio(callOptions, callStateCallback) {
+    return this.bridge.joinAudio(callOptions,
+      callStateCallback.bind(this)).catch((error) => {
+      if (error.name === 'NotAllowedError') {
+        logger.error({
+          logCode: 'audiomanager_error_getting_device',
+          extraInfo: {
+            errorName: error.name,
+            errorMessage: error.message,
+          },
+        }, `Error getting microphone - {${error.name}: ${error.message}}`);
+
+        throw {
+          type: 'MEDIA_ERROR'
+        };
+      } else {
+        throw error;
+      }
+    });
   }
 
   async joinListenOnly(r = 0) {
@@ -408,31 +429,25 @@ class AudioManager {
   }
 
   createListenOnlyStream() {
-    if (this.listenOnlyAudioContext) {
-      this.listenOnlyAudioContext.close();
-    }
-
-    const { AudioContext, webkitAudioContext } = window;
-
-    this.listenOnlyAudioContext = AudioContext
-      ? new AudioContext()
-      : new webkitAudioContext();
-
-    const dest = this.listenOnlyAudioContext.createMediaStreamDestination();
-
     const audio = document.querySelector(MEDIA_TAG);
 
     // Play bogus silent audio to try to circumvent autoplay policy on Safari
-    audio.src = 'resources/sounds/silence.mp3';
+    if (!audio.src) {
+      audio.src = 'resources/sounds/silence.mp3';
+    }
 
     audio.play().catch((e) => {
+      if (e.name === 'AbortError') {
+        return;
+      }
+
       logger.warn({
         logCode: 'audiomanager_error_test_audio',
         extraInfo: { error: e },
       }, 'Error on playing test audio');
     });
 
-    return dest.stream;
+    return {};
   }
 
   isUsingAudio() {
@@ -449,43 +464,8 @@ class AudioManager {
   }
 
   changeInputDevice(deviceId) {
-    const handleChangeInputDeviceSuccess = (inputDevice) => {
-      this.inputDevice = inputDevice;
-      return Promise.resolve(inputDevice);
-    };
-
-    const handleChangeInputDeviceError = (error) => {
-      logger.error({
-        logCode: 'audiomanager_error_getting_device',
-        extraInfo: {
-          errorName: error.name,
-          errorMessage: error.message,
-        },
-      }, `Error getting microphone - {${error.name}: ${error.message}}`);
-
-      const { MIC_ERROR } = AudioErrors;
-      const disabledSysSetting = error.message.includes('Permission denied by system');
-      const isMac = navigator.platform.indexOf('Mac') !== -1;
-
-      let code = MIC_ERROR.NO_PERMISSION;
-      if (isMac && disabledSysSetting) code = MIC_ERROR.MAC_OS_BLOCK;
-
-      return Promise.reject({
-        type: 'MEDIA_ERROR',
-        message: this.messages.error.MEDIA_ERROR,
-        code,
-      });
-    };
-
-    if (!deviceId) {
-      return this.bridge.setDefaultInputDevice()
-        .then(handleChangeInputDeviceSuccess)
-        .catch(handleChangeInputDeviceError);
-    }
-
-    return this.bridge.changeInputDevice(deviceId)
-      .then(handleChangeInputDeviceSuccess)
-      .catch(handleChangeInputDeviceError);
+    // kept for compatibility
+    return Promise.resolve();
   }
 
   async changeOutputDevice(deviceId) {
@@ -583,6 +563,11 @@ class AudioManager {
 
     // Bridge -> SIP.js bridge, the only full audio capable one right now
     const peer = this.bridge.getPeerConnection();
+
+    if (!peer) {
+      return;
+    }
+
     peer.getSenders().forEach(sender => {
       const { track } = sender;
       if (track && track.kind === 'audio') {

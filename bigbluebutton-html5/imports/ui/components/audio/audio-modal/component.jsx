@@ -275,6 +275,13 @@ class AudioModal extends Component {
           disableActions: false,
         });
       }
+
+      if (err.type === 'CONNECTION_ERROR') {
+        this.setState({
+          errCode: 0,
+          disableActions: false,
+        });
+      }
     });
   }
 
