@@ -649,11 +649,15 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
       shape[:type] == 'ellipse' or shape[:type] == 'triangle' or
       shape[:type] == 'line'
     shape[:color] = color_to_hex(event.at_xpath('color').text)
-    thickness = event.at_xpath('thickness').text
+    thickness = event.at_xpath('thickness')
+    unless thickness
+      BigBlueButton.logger.warn("Draw #{shape[:shape_id]} Shape #{shape[:shape_unique_id]} ID #{shape[:id]} is missing thickness")
+      return
+    end
     if $version_atleast_2_0_0
-      shape[:thickness_percent] = thickness.to_f
+      shape[:thickness_percent] = thickness.text.to_f
     else
-      shape[:thickness] = thickness.to_i
+      shape[:thickness] = thickness.text.to_i
     end
   end
   if shape[:type] == 'rectangle'
