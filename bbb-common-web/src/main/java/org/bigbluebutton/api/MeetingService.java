@@ -82,7 +82,8 @@ import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.bigbluebutton.common2.redis.RedisStorageService;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
-import org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask;
+import org.bigbluebutton.web.services.UserCleanupTimerTask;
+import org.bigbluebutton.web.services.EnteredUserCleanupTimerTask;
 import org.bigbluebutton.web.services.callback.CallbackUrlService;
 import org.bigbluebutton.web.services.callback.MeetingEndedEvent;
 import org.bigbluebutton.web.services.turn.StunTurnService;
@@ -107,11 +108,15 @@ public class MeetingService implements MessageListener {
   private final ConcurrentMap<String, UserSession> sessions;
 
   private RecordingService recordingService;
-  private RegisteredUserCleanupTimerTask registeredUserCleaner;
+  private UserCleanupTimerTask userCleaner;
+  private EnteredUserCleanupTimerTask enteredUserCleaner;
   private StunTurnService stunTurnService;
   private RedisStorageService storeService;
   private CallbackUrlService callbackUrlService;
   private boolean keepEvents;
+
+  private long usersTimeout;
+  private long enteredUsersTimeout;
 
   private ParamsProcessorUtil paramsProcessorUtil;
   private PresentationUrlDownloadService presDownloadService;
@@ -179,22 +184,63 @@ public class MeetingService implements MessageListener {
   }
 
   /**
-   * Remove registered users who did not successfully joined the meeting.
+   * Remove users who did not successfully reconnected to the meeting.
    */
-  public void purgeRegisteredUsers() {
+  public void purgeUsers() {
     for (AbstractMap.Entry<String, Meeting> entry : this.meetings.entrySet()) {
       Long now = System.currentTimeMillis();
       Meeting meeting = entry.getValue();
 
-      ConcurrentMap<String, User> users = meeting.getUsersMap();
+      for (AbstractMap.Entry<String, User> userEntry : meeting.getUsersMap().entrySet()) {
+        String userId = userEntry.getKey();
+        User user = userEntry.getValue();
 
-      for (AbstractMap.Entry<String, RegisteredUser> registeredUser : meeting.getRegisteredUsers().entrySet()) {
-        String registeredUserID = registeredUser.getKey();
-        RegisteredUser registeredUserDate = registeredUser.getValue();
+        if (!user.hasLeft()) continue;
 
-        long elapsedTime = now - registeredUserDate.registeredOn;
-        if (elapsedTime >= 60000 && !users.containsKey(registeredUserID)) {
-          meeting.userUnregistered(registeredUserID);
+        long elapsedTime = now - user.getLeftOn();
+        if (elapsedTime >= usersTimeout) {
+          meeting.removeUser(userId);
+
+          Map<String, Object> logData = new HashMap<>();
+          logData.put("meetingId", meeting.getInternalId());
+          logData.put("userId", userId);
+          logData.put("logCode", "removed_user");
+          logData.put("description", "User left and was removed from the meeting.");
+
+          Gson gson = new Gson();
+          String logStr = gson.toJson(logData);
+
+          log.info(" --analytics-- data={}", logStr);
+        }
+      }
+    }
+  }
+
+  /**
+   * Remove entered users who did not join.
+   */
+  public void purgeEnteredUsers() {
+    for (AbstractMap.Entry<String, Meeting> entry : this.meetings.entrySet()) {
+      Long now = System.currentTimeMillis();
+      Meeting meeting = entry.getValue();
+
+      for (AbstractMap.Entry<String, Long> enteredUser : meeting.getEnteredUsers().entrySet()) {
+        String userId = enteredUser.getKey();
+
+        long elapsedTime = now - enteredUser.getValue();
+        if (elapsedTime >= enteredUsersTimeout) {
+          meeting.removeEnteredUser(userId);
+
+          Map<String, Object> logData = new HashMap<>();
+          logData.put("meetingId", meeting.getInternalId());
+          logData.put("userId", userId);
+          logData.put("logCode", "purged_entered_user");
+          logData.put("description", "Purged user that called ENTER from the API but never joined");
+
+          Gson gson = new Gson();
+          String logStr = gson.toJson(logData);
+
+          log.info(" --analytics-- data={}", logStr);
         }
       }
     }
@@ -817,13 +863,6 @@ public class MeetingService implements MessageListener {
           // the meeting ended.
           m.setEndTime(System.currentTimeMillis());
         }
-
-        RegisteredUser userRegistered = m.userUnregistered(message.userId);
-        if (userRegistered != null) {
-          log.info("User unregistered from meeting");
-        } else {
-          log.info("User was not unregistered from meeting because it was not found");
-        }
       }
     }
   }
@@ -1036,7 +1075,8 @@ public class MeetingService implements MessageListener {
 
   public void stop() {
     processMessage = false;
-    registeredUserCleaner.stop();
+    userCleaner.stop();
+    enteredUserCleaner.stop();
   }
 
   public void setRecordingService(RecordingService s) {
@@ -1055,12 +1095,16 @@ public class MeetingService implements MessageListener {
     this.gw = gw;
   }
 
+  public void setEnteredUserCleanupTimerTask(EnteredUserCleanupTimerTask c) {
+    enteredUserCleaner = c;
+    enteredUserCleaner.setMeetingService(this);
+    enteredUserCleaner.start();
+  }
 
-  public void setRegisteredUserCleanupTimerTask(
-    RegisteredUserCleanupTimerTask c) {
-    registeredUserCleaner = c;
-    registeredUserCleaner.setMeetingService(this);
-    registeredUserCleaner.start();
+  public void setUserCleanupTimerTask(UserCleanupTimerTask c) {
+    userCleaner = c;
+    userCleaner.setMeetingService(this);
+    userCleaner.start();
   }
 
   public void setStunTurnService(StunTurnService s) {
@@ -1069,5 +1113,13 @@ public class MeetingService implements MessageListener {
 
   public void setKeepEvents(boolean value) {
     keepEvents = value;
+  }
+
+  public void setUsersTimeout(long value) {
+    usersTimeout = value;
+  }
+
+  public void setEnteredUsersTimeout(long value) {
+    enteredUsersTimeout = value;
   }
 }
