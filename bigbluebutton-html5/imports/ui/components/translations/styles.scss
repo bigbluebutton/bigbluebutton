@@ -1,0 +1,26 @@
+.translationPanel{
+  min-width: 300px;
+  height: 100%;
+  background-color: var(--color-white);
+  padding-left: 14px;
+}
+
+.addLanguage{
+  font-family: Source Sans Pro;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 15px;
+  cursor: pointer;
+
+  color: #6096D6;
+}
+
+.languageForm{
+  background: #E8ECF0;
+  border: 1px solid #8B9AA8;
+  box-sizing: border-box;
+  border-radius: 3px;
+  width: 160px;
+  height: 33px;
+}

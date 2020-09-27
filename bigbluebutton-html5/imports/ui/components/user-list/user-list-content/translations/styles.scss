@@ -1,3 +1,5 @@
+@import "../styles.scss";
+
 .smallTitle {
   font-size: 0.85rem;
   font-weight: 600;
@@ -19,5 +21,19 @@
 }
 
 .translationContainer {
-
+  @extend %list-item;
+  cursor: pointer;
+  text-decoration: none;
+  flex-grow: 1;
+  line-height: 2;
+  color: var(--color-gray-dark);
+  background-color: var(--color-off-white);
+  padding-top: var(--lg-padding-y);
+  padding-bottom: var(--lg-padding-y);
+  padding-left: var(--lg-padding-y);
+  padding-right: 0;
+  margin-left: var(--border-size);
+  margin-top: var(--border-size);
+  margin-bottom: var(--border-size);
+  margin-right: 0;
 }

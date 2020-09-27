@@ -11,6 +11,14 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Resizable from 're-resizable';
 import { styles } from '/imports/ui/components/app/styles';
 import _ from 'lodash';
+import { withLayoutConsumer } from '/imports/ui/components/layout/context';
+import {
+  USERLIST_MIN_WIDTH,
+  USERLIST_MAX_WIDTH,
+  CHAT_MIN_WIDTH,
+  CHAT_MAX_WIDTH,
+} from '/imports/ui/components/layout/layout-manager';
+import Translations from "../translations/component";
 
 const intlMessages = defineMessages({
   chatLabel: {
@@ -361,6 +369,15 @@ class PanelManager extends PureComponent {
     );
   }
 
+  renderTranslationPanel(){
+    return (
+        <div key={"translation-container"}>
+          <Translations/>
+        </div>
+
+    )
+  }
+
   renderPoll() {
     return (
       <div className={styles.poll} key={this.pollKey}>
@@ -405,7 +422,9 @@ class PanelManager extends PureComponent {
   }
 
   render() {
+
     const { enableResize, openPanel } = this.props;
+    console.log("render panel "+openPanel)
     if (openPanel === '') return null;
     const panels = [];
     if (enableResize) {
@@ -424,7 +443,9 @@ class PanelManager extends PureComponent {
         panels.push(this.renderChat());
       }
     }
-
+    if(openPanel === "translations"){
+      panels.push(this.renderTranslationPanel())
+    }
     if (openPanel === 'note') {
       if (enableResize) {
         panels.push(this.renderNoteResizable());
