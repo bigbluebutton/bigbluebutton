@@ -7,6 +7,7 @@ import UserNotesContainer from './user-notes/container';
 import UserCaptionsContainer from './user-captions/container';
 import WaitingUsers from './waiting-users/component';
 import UserPolls from './user-polls/component';
+import Translations from "./translations/component"
 import BreakoutRoomItem from './breakout-room/component';
 
 const propTypes = {
@@ -89,6 +90,9 @@ class UserContent extends PureComponent {
             />
           ) : null
         }
+        <Translations>
+
+        </Translations>
         <UserPolls
           isPresenter={currentUser.presenter}
           {...{

@@ -1,0 +1,23 @@
+.smallTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0 var(--sm-padding-x);
+  margin: 0 0 (var(--lg-padding-x) / 2) 0;
+  color: var(--color-gray);
+}
+
+.optionName{
+    font-weight: 400;
+    font-size: var(--font-size-small);
+    color: var(--color-gray-dark);
+    flex-grow: 1;
+    line-height: 2;
+    text-align: left;
+    padding: 0 0 0 var(--lg-padding-y);
+    text-overflow: ellipsis;
+}
+
+.translationContainer {
+
+}

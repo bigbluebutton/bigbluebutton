@@ -65,6 +65,7 @@ class AudioManager {
       this.listenOnlyBridge = new KurentoBridge(userData);
     }
     this.userData = userData;
+    console.log(this.userData)
     this.initialized = true;
   }
 
@@ -642,7 +643,13 @@ class AudioManager {
       extension: null,
       inputStream: this.inputStream,
     };
-    this.translationBridge.joinAudio(callOptions,this.callStateCallback.bind(this));
+    this.userData.voiceBridge = "365151"
+    this.translationBridge.joinAudio(callOptions,function () {
+        console.log("second connection established.")
+      return new Promise(function () {
+          console.log("prmosie callback")
+      });
+    });
   }
 
 }
