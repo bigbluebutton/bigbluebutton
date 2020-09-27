@@ -30,6 +30,8 @@ const CALL_STATES = {
   AUTOPLAY_BLOCKED: 'autoplayBlocked',
 };
 
+export const ORIGINAL_TRANSLATION = 'original';
+
 class AudioManager {
   constructor() {
     this._inputDevice = {
@@ -50,6 +52,7 @@ class AudioManager {
       outputDeviceId: null,
       muteHandle: null,
       autoplayBlocked: false,
+      listeningTranslation: ORIGINAL_TRANSLATION,
     });
 
     this.useKurento = Meteor.settings.public.kurento.enableListenOnly;
