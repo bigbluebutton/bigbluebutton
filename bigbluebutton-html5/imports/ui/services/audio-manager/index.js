@@ -653,18 +653,18 @@ class AudioManager {
       const translationBreakoutRoom = breakoutRooms[0];
       const translationVoiceBridge = languageBreakoutRoom.voiceProp.voiceConf;
 
-      const callOptions = {
-        isListenOnly: true,
+      /*const callOptions = {
+        isListenOnly: false,
         extension: null,
         inputStream: this.inputStream,
       };
-      this.translationBridge.userData.voiceBridge = translationVoiceBridge;
+      this.translationBridge.userData.voiceBridge = "365151"
       this.translationBridge.joinAudio(callOptions,function () {
-        console.log("second connection established.");
+          console.log("second connection established.")
         return new Promise(function () {
-          console.log("prmosie callback");
+            console.log("prmosie callback")
         });
-      });
+      });*/
     }
   }
 

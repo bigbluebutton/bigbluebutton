@@ -4,13 +4,13 @@ import Language from "./LanguageField/component";
 import React, { Component } from 'react';
 
 class Translations extends Component{
-    createTranslationChannel = () => {
+    createEditForm = () => {
         this.state.languages.push({name:"?", edit:"true"})
         this.setState(this.state)
     }
 
     state ={
-        languages: []
+        languages: [{name:"English", edit:false}]
     }
     render() {
         return (
@@ -24,7 +24,7 @@ class Translations extends Component{
                     }
                 })}
                 <div>
-                    <span className={styles.addLanguage} onClick={this.createTranslationChannel}>+ Add Language</span>
+                    {/*<span className={styles.addLanguage} onClick={this.createEditForm}>+ Add Language</span> */}
                 </div>
             </div>
         );
