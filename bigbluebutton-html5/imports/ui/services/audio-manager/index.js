@@ -647,9 +647,7 @@ class AudioManager {
       "breakoutProps.parentId": { $eq: Auth.meetingID}
     });
 
-    breakoutRooms.forEach(breakoutRoom => {
-      console.log(breakoutRoom.meetingProp.name);
-    });
+    breakoutRooms.forEach(breakoutRoom => console.log(breakoutRoom.meetingProp.name));
 
     const callOptions = {
       isListenOnly: false,
