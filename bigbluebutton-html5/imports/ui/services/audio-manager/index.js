@@ -645,13 +645,10 @@ class AudioManager {
     const breakoutRooms = Meetings.find({
       "meetingProp.isBreakout": { $eq: true},
       "breakoutProps.parentId": { $eq: Auth.meetingID}
-    });
+    }).fetch();
 
-    breakoutRooms.forEach(breakoutRoom => console.debug(breakoutRoom.meetingProp.name));
-    let rooms = breakoutRooms.fetch()
-
-    if( rooms.length > 0 ) {
-      const translationBreakoutRoom = rooms[0];
+    if( breakoutRooms.length > 0 ) {
+      const translationBreakoutRoom = breakoutRooms[0];
       const translationVoiceBridge = translationBreakoutRoom.voiceProp.voiceConf;
 
       /*const callOptions = {
