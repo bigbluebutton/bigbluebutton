@@ -3,7 +3,7 @@ import KurentoBridge from '/imports/api/audio/client/bridge/kurento';
 
 import Auth from '/imports/ui/services/auth';
 import VoiceUsers from '/imports/api/voice-users';
-import Meetings from 'imports/api/meetings';
+import Meetings from '/imports/api/meetings';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
