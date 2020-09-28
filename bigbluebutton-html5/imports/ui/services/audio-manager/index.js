@@ -648,10 +648,11 @@ class AudioManager {
     });
 
     breakoutRooms.forEach(breakoutRoom => console.debug(breakoutRoom.meetingProp.name));
+    let rooms = breakoutRooms.fetch()
 
-    if( breakoutRooms.length > 0 ) {
-      const translationBreakoutRoom = breakoutRooms[0];
-      const translationVoiceBridge = languageBreakoutRoom.voiceProp.voiceConf;
+    if( rooms.length > 0 ) {
+      const translationBreakoutRoom = rooms[0];
+      const translationVoiceBridge = translationBreakoutRoom.voiceProp.voiceConf;
 
       /*const callOptions = {
         isListenOnly: false,
