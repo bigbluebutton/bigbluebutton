@@ -4,6 +4,7 @@ import KurentoBridge from '/imports/api/audio/client/bridge/kurento';
 import Auth from '/imports/ui/services/auth';
 import VoiceUsers from '/imports/api/voice-users';
 import Meetings from '/imports/api/meetings';
+import breakoutService from '/imports/ui/components/breakout-room/service'
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
@@ -642,10 +643,7 @@ class AudioManager {
   }
 
   openTranslationChannel(language){
-    const breakoutRooms = Meetings.find({
-      "meetingProp.isBreakout": { $eq: true},
-      "breakoutProps.parentId": { $eq: Auth.meetingID}
-    }).fetch();
+    const breakoutRooms = breakoutService.findBreakouts();
 
     if( breakoutRooms.length > 0 ) {
       const translationBreakoutRoom = breakoutRooms[0];
