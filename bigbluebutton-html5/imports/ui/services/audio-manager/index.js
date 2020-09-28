@@ -644,8 +644,8 @@ class AudioManager {
   openTranslationChannel(language){
     let breakoutRooms = Meetings.find({
       "meetingProp.isBreakout": { $eq: true},
-      "breakoutProps.parentId": { $eq: Auth.meetingID}}
-    );
+      "breakoutProps.parentId": { $eq: Auth.meetingID}
+    });
 
     breakoutRooms.forEach(breakoutRoom => {
       console.log(breakoutRoom.meetingProp.name);
