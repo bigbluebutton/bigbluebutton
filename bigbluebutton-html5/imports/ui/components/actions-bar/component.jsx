@@ -44,7 +44,7 @@ class ActionsBar extends PureComponent {
   activateTranslation(){
     AudioManager.openTranslationChannel();
     console.log("making call createTranslationChannel")
-    makeCall("createTranslationChannel");
+    //makeCall("createTranslationChannel");
   }
   render() {
     const {

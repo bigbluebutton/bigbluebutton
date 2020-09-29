@@ -13,6 +13,7 @@ import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills
 import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import { monitorAudioConnection } from '/imports/utils/stats';
 import AudioErrors from './error-codes';
+import {makeCall} from "../api";
 
 const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 
@@ -643,24 +644,28 @@ class AudioManager {
   }
 
   openTranslationChannel(language){
-    const breakoutRooms = breakoutService.findBreakouts();
+    makeCall("createTranslationChannel");
+    const breakoutRooms = Meetings.find({
+      "meetingProp.isBreakout": { $eq: true},
+      "breakoutProps.parentId": { $eq: Auth.meetingID}
+    }).fetch();
 
     if( breakoutRooms.length > 0 ) {
       const translationBreakoutRoom = breakoutRooms[0];
       const translationVoiceBridge = translationBreakoutRoom.voiceProp.voiceConf;
 
-      /*const callOptions = {
+      const callOptions = {
         isListenOnly: false,
         extension: null,
         inputStream: this.inputStream,
       };
-      this.translationBridge.userData.voiceBridge = "365151"
+      this.translationBridge.userData.voiceBridge += "1";
       this.translationBridge.joinAudio(callOptions,function () {
           console.log("second connection established.")
         return new Promise(function () {
             console.log("prmosie callback")
         });
-      });*/
+      });
     }
   }
 
