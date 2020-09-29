@@ -9,7 +9,7 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
-function currentUser() {
+function currentUser(registerCallback) {
   if (!this.userId) {
     return Users.find({ meetingId: '' });
   }
@@ -27,7 +27,9 @@ function currentUser() {
     }
   });
 
-  this._session.socket.on('close', _.debounce(onCloseConnection, 100));
+  if (registerCallback) {
+    this._session.socket.on('close', _.debounce(onCloseConnection, 100));
+  }
 
   const selector = {
     meetingId,
