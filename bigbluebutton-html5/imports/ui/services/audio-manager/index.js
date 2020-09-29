@@ -644,11 +644,8 @@ class AudioManager {
   }
 
   openTranslationChannel(language){
-    makeCall("createTranslationChannel");
-    const breakoutRooms = Meetings.find({
-      "meetingProp.isBreakout": { $eq: true},
-      "breakoutProps.parentId": { $eq: Auth.meetingID}
-    }).fetch();
+    //makeCall("createTranslationChannel");
+    const breakoutRooms = breakoutService.findBreakouts();
 
     if( breakoutRooms.length > 0 ) {
       const translationBreakoutRoom = breakoutRooms[0];
