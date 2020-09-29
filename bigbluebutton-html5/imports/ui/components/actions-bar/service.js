@@ -13,6 +13,10 @@ const getBreakouts = () => Breakouts.find({ parentMeetingId: Auth.meetingID })
   .fetch()
   .sort((a, b) => a.sequence - b.sequence);
 
+const hasBreakouts = () => Breakouts
+  .find( { parentMeetingId: Auth.meetingID }, { fields: {} })
+  .count() > 0;
+
 const currentBreakoutUsers = user => !Breakouts.findOne({
   'joinedUsers.userId': new RegExp(`^${user.userId}`),
 });
@@ -43,6 +47,7 @@ export default {
   createBreakoutRoom: (numberOfRooms, durationInMinutes, record = false) => makeCall('createBreakoutRoom', numberOfRooms, durationInMinutes, record),
   sendInvitation: (breakoutId, userId) => makeCall('requestJoinURL', { breakoutId, userId }),
   getBreakouts,
+  hasBreakouts,
   getUsersNotAssigned,
   takePresenterRole,
   isSharingVideo: () => getVideoUrl(),
