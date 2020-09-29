@@ -45,15 +45,11 @@ class RemoteDesktop extends Component {
     window.addEventListener('resize', this.resizeListener);
     this.playerParent.addEventListener('fullscreenchange', this.onFullscreenChange);
 
-    // make this.player (a VncDisplay) globally accessible so that the lock button can access it
-    window.VncDisplay = this.player;
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.resizeListener);
     this.playerParent.removeEventListener('fullscreenchange', this.onFullscreenChange);
-
-    delete window.VncDisplay;
   }
 
   handleResize() {
@@ -187,8 +183,12 @@ class RemoteDesktop extends Component {
           onUpdateState={this.updateState}
           resize="scale"
           shared
-          ref={(ref) => { this.player = ref; }}
-        />
+          ref={(ref) => {
+	      this.player = ref;
+	      /* window.VncDisplay is globally accessible so that the lock button can access it */
+	      window.VncDisplay = ref;
+	  }}
+        />}
       </div>
     );
   }
