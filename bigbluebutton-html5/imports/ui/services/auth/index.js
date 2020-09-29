@@ -229,11 +229,10 @@ class Auth {
         return;
       }
 
-      let registerCallback = true;
+      Meteor.subscribe('current-user');
 
       Tracker.autorun((c) => {
         computation = c;
-        Meteor.subscribe('current-user', registerCallback);
 
         const selector = { meetingId: this.meetingID, userId: this.userID };
         const fields = {
@@ -244,7 +243,7 @@ class Auth {
         if (!User || !('intId' in User)) {
           logger.info({ logCode: 'auth_service_resend_validateauthtoken' }, 're-send validateAuthToken for delayed authentication');
           makeCall('validateAuthToken', this.meetingID, this.userID, this.token);
-          registerCallback = false;
+
           return;
         }
 

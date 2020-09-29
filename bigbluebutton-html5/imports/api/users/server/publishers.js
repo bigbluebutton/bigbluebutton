@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import Users from '/imports/api/users';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
@@ -9,7 +8,7 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
-function currentUser(registerCallback) {
+function currentUser() {
   if (!this.userId) {
     return Users.find({ meetingId: '' });
   }
@@ -27,9 +26,7 @@ function currentUser(registerCallback) {
     }
   });
 
-  if (registerCallback) {
-    this._session.socket.on('close', _.debounce(onCloseConnection, 100));
-  }
+  this._session.socket.on('close', onCloseConnection);
 
   const selector = {
     meetingId,
