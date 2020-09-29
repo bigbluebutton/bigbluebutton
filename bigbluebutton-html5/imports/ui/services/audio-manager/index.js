@@ -665,6 +665,28 @@ class AudioManager {
       });
     }
   }
+  openTranslatorChannel(language){
+    //makeCall("createTranslationChannel");
+    const breakoutRooms = breakoutService.findBreakouts();
+
+    if( breakoutRooms.length > 0 ) {
+      const translationBreakoutRoom = breakoutRooms[0];
+      const translationVoiceBridge = translationBreakoutRoom.voiceProp.voiceConf;
+
+      const callOptions = {
+        isListenOnly: false,
+        extension: null,
+        inputStream: this.inputStream,
+      };
+      this.translationBridge.userData.voiceBridge += "1";
+      this.translationBridge.joinAudio(callOptions,function () {
+        console.log("second connection established.");
+        return new Promise(function () {
+          console.log("prmosie callback");
+        });
+      });
+    }
+  }
 
 }
 
