@@ -20,13 +20,13 @@ const MEDIA_TAG = MEDIA.mediaTag;
 const CALL_TRANSFER_TIMEOUT = MEDIA.callTransferTimeout;
 const CALL_HANGUP_TIMEOUT = MEDIA.callHangupTimeout;
 const CALL_HANGUP_MAX_RETRIES = MEDIA.callHangupMaximumRetries;
-const RELAY_ONLY_ON_RECONNECT = MEDIA.relayOnlyOnReconnect;
 const IPV4_FALLBACK_DOMAIN = Meteor.settings.public.app.ipv4FallbackDomain;
-const ICE_NEGOTIATION_FAILED = ['iceConnectionFailed'];
 const CALL_CONNECT_TIMEOUT = 20000;
 const ICE_NEGOTIATION_TIMEOUT = 20000;
 const AUDIO_SESSION_NUM_KEY = 'AudioSessionNumber';
-
+const USER_AGENT_RECONNECTION_ATTEMPTS = 3;
+const USER_AGENT_RECONNECTION_DELAY_MS = 5000;
+const USER_AGENT_CONNECTION_TIMEOUT_MS = 5000;
 
 const getAudioSessionNumber = () => {
   let currItem = parseInt(sessionStorage.getItem(AUDIO_SESSION_NUM_KEY), 10);
@@ -49,6 +49,11 @@ class SIPSession {
     this.baseCallStates = baseCallStates;
     this.baseErrorCodes = baseErrorCodes;
     this.reconnectAttempt = reconnectAttempt;
+    this.currentSession = null;
+    this.remoteStream = null;
+    this._hangupFlag = false;
+    this._reconnecting = false;
+    this._currentSessionState = null;
   }
 
   joinAudio({ isListenOnly, extension, inputStream }, managerCallback) {
@@ -124,8 +129,7 @@ class SIPSession {
 
     return this.getIceServers(sessionToken)
       .then(this.createUserAgent.bind(this))
-      .then(this.inviteUserAgent.bind(this))
-      .then(this.setupEventHandlers.bind(this));
+      .then(this.inviteUserAgent.bind(this));
   }
 
   transferCall(onTransferSuccess) {
@@ -149,7 +153,18 @@ class SIPSession {
       }, CALL_TRANSFER_TIMEOUT);
 
       // This is is the call transfer code ask @chadpilkey
-      this.currentSession.dtmf(1);
+      if (this.sessionSupportRTPPayloadDtmf(this.currentSession)) {
+        this.currentSession.sessionDescriptionHandler.sendDtmf(1);
+      } else {
+        // RFC4733 not supported , sending DTMF through INFO
+        logger.debug({
+          logCode: 'sip_js_rtp_payload_dtmf_not_supported',
+          extraInfo: {
+            callerIdName: this.user.callerIdName,
+          },
+        }, 'Browser do not support payload dtmf, using INFO instead');
+        this.sendDtmf(1);
+      }
 
       Tracker.autorun((c) => {
         trackerControl = c;
@@ -171,28 +186,75 @@ class SIPSession {
     });
   }
 
+  /**
+    *
+    * sessionSupportRTPPayloadDtmf
+    * tells if browser support RFC4733 DTMF.
+    * Safari 13 doens't support it yet
+    */
+  sessionSupportRTPPayloadDtmf(session) {
+    try {
+      const sessionDescriptionHandler = session
+        ? session.sessionDescriptionHandler
+        : this.currentSession.sessionDescriptionHandler;
+
+      const senders = sessionDescriptionHandler.peerConnection.getSenders();
+      return !!(senders[0].dtmf);
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+    * sendDtmf - send DTMF Tones using INFO message
+    *
+    * same as SimpleUser's dtmf
+    */
+  sendDtmf(tone) {
+    const dtmf = tone;
+    const duration = 2000;
+    const body = {
+      contentDisposition: 'render',
+      contentType: 'application/dtmf-relay',
+      content: `Signal=${dtmf}\r\nDuration=${duration}`,
+    };
+    const requestOptions = { body };
+    return this.currentSession.info({ requestOptions });
+  }
+
   exitAudio() {
     return new Promise((resolve, reject) => {
       let hangupRetries = 0;
-      let hangup = false;
+      this._hangupFlag = false;
 
       this.userRequestedHangup = true;
 
-      if (this.currentSession) {
-        const { mediaHandler } = this.currentSession;
-
-        // Removing termination events to avoid triggering an error
-        ICE_NEGOTIATION_FAILED.forEach(e => mediaHandler.off(e));
-      }
       const tryHangup = () => {
-        if ((this.currentSession && this.currentSession.endTime)
-          || (this.userAgent && this.userAgent.status === SIP.UA.C.STATUS_USER_CLOSED)) {
-          hangup = true;
+        if (this._hangupFlag) {
+          resolve();
+        }
+
+        if ((this.currentSession
+          && (this.currentSession.state === SIP.SessionState.Terminated))
+          || (this.userAgent && (!this.userAgent.isConnected()))) {
+          this._hangupFlag = true;
           return resolve();
         }
 
-        if (this.currentSession) this.currentSession.bye();
-        if (this.userAgent) this.userAgent.stop();
+        if (this.currentSession
+          && ((this.currentSession.state === SIP.SessionState.Establishing)
+          || (this.currentSession.state === SIP.SessionState.Established))) {
+
+          this.currentSession.bye().then(() => {
+            this._hangupFlag = true;
+            return resolve();
+          });
+        }
+
+        if (this.userAgent && this.userAgent.isConnected()) {
+          this.userAgent.stop();
+        }
+
 
         hangupRetries += 1;
 
@@ -206,17 +268,10 @@ class SIPSession {
             return reject(this.baseErrorCodes.REQUEST_TIMEOUT);
           }
 
-          if (!hangup) return tryHangup();
+          if (!this._hangupFlag) return tryHangup();
           return resolve();
         }, CALL_HANGUP_TIMEOUT);
       };
-
-      if (this.currentSession) {
-        this.currentSession.on('bye', () => {
-          hangup = true;
-          resolve();
-        });
-      }
 
       return tryHangup();
     });
@@ -235,17 +290,6 @@ class SIPSession {
         callerIdName,
         sessionToken,
       } = this.user;
-
-      // WebView safari needs a transceiver to be added. Made it a SIP.js hack.
-      // Don't like the UA picking though, we should straighten everything to user
-      // transceivers - prlanzarin 2019/05/21
-      const browserUA = window.navigator.userAgent.toLocaleLowerCase();
-      const isSafariWebview = ((browserUA.indexOf('iphone') > -1
-        || browserUA.indexOf('ipad') > -1) && browserUA.indexOf('safari') === -1);
-
-      // Second UA check to get all Safari browsers to enable Unified Plan <-> PlanB
-      // translation
-      const isSafari = browser().name === 'safari';
 
       logger.debug({ logCode: 'sip_js_creating_user_agent', extraInfo: { callerIdName } }, 'Creating the user agent');
 
@@ -275,21 +319,16 @@ class SIPSession {
       let userAgentConnected = false;
       const token = `sessionToken=${sessionToken}`;
 
-      this.userAgent = new window.SIP.UA({
-        uri: `sip:${encodeURIComponent(callerIdName)}@${hostname}`,
-        wsServers: `${(protocol === 'https:' ? 'wss://' : 'ws://')}${hostname}/ws?${token}`,
+      this.userAgent = new SIP.UserAgent({
+        uri: SIP.UserAgent.makeURI(`sip:${encodeURIComponent(callerIdName)}@${hostname}`),
+        transportOptions: {
+          server: `${(protocol === 'https:' ? 'wss://' : 'ws://')}${hostname}/ws?${token}`,
+          connectionTimeout: USER_AGENT_CONNECTION_TIMEOUT_MS,
+        },
         displayName: callerIdName,
         register: false,
-        traceSip: true,
-        autostart: false,
         userAgentString: 'BigBlueButton',
-        stunServers: stun,
-        turnServers: turn,
-        hackPlanBUnifiedPlanTranslation: isSafari,
-        hackAddAudioTransceiver: isSafariWebview,
-        relayOnlyOnReconnect: this.reconnectAttempt && RELAY_ONLY_ON_RECONNECT,
-        localSdpCallback,
-        remoteSdpCallback,
+        iceServers: stun ? stun.concat(turn || []) : turn,
       });
 
       const handleUserAgentConnection = () => {
@@ -299,87 +338,211 @@ class SIPSession {
 
       const handleUserAgentDisconnection = () => {
         if (this.userAgent) {
-          this.userAgent.removeAllListeners();
-          this.userAgent.stop();
+          if (this.userRequestedHangup) return;
+
+          let error;
+          let bridgeError;
+
+          if (!this._reconnecting) {
+            if (userAgentConnected) {
+              error = 1001;
+              bridgeError = 'Websocket disconnected';
+            } else {
+              error = 1002;
+              bridgeError = 'Websocket failed to connect';
+            }
+
+            this.callback({
+              status: this.baseCallStates.failed,
+              error,
+              bridgeError,
+            });
+          }
+
+          logger.info({
+            logCode: 'sip_js_session_ua_disconnected',
+            extraInfo: {
+              callerIdName: this.user.callerIdName,
+            },
+          }, 'User agent disconnected: trying to reconnect...'
+            + `${this.userRequestedHangup}`);
+
+          logger.info({
+            logCode: 'sip_js_session_ua_reconnecting',
+            extraInfo: {
+              callerIdName: this.user.callerIdName,
+            },
+          }, 'User agent failed to connect, reconnecting');
+
+          this.userAgent.reconnect().then(() => {
+            logger.info({
+              logCode: 'sip_js_session_ua_reconnected',
+              extraInfo: {
+                callerIdName: this.user.callerIdName,
+              },
+            }, 'User agent succesfully reconnected');
+          }).catch(() => {
+            reject(this.baseErrorCodes.CONNECTION_ERROR);
+          });
         }
-
-        let error;
-        let bridgeError;
-
-        if (this.userRequestedHangup) return;
-
-        if (userAgentConnected) {
-          error = 1001;
-          bridgeError = 'Websocket disconnected';
-        } else {
-          error = 1002;
-          bridgeError = 'Websocket failed to connect';
-        }
-
-        this.callback({
-          status: this.baseCallStates.failed,
-          error,
-          bridgeError,
-        });
-        reject(this.baseErrorCodes.CONNECTION_ERROR);
       };
 
-      this.userAgent.on('connected', handleUserAgentConnection);
-      this.userAgent.on('disconnected', handleUserAgentDisconnection);
+      this.userAgent.transport.onConnect = handleUserAgentConnection;
+      this.userAgent.transport.onDisconnect = handleUserAgentDisconnection;
 
-      this.userAgent.start();
+      const preturn = this.userAgent.start().then(() => {
+        logger.info({
+          logCode: 'sip_js_session_ua_connected',
+          extraInfo: {
+            callerIdName: this.user.callerIdName,
+          },
+        }, 'User agent succesfully connected');
+        resolve();
+      }).catch(() => {
+        logger.info({
+          logCode: 'sip_js_session_ua_reconnecting',
+          extraInfo: {
+            callerIdName: this.user.callerIdName,
+          },
+        }, 'User agent failed to connect, reconnecting');
+
+
+        this.reconnect().then(() => {
+          logger.info({
+            logCode: 'sip_js_session_ua_reconnected',
+            extraInfo: {
+              callerIdName: this.user.callerIdName,
+            },
+          }, 'User agent succesfully reconnected');
+
+          resolve();
+        }).catch(() => {
+          logger.info({
+            logCode: 'sip_js_session_ua_disconnected',
+            extraInfo: {
+              callerIdName: this.user.callerIdName,
+            },
+          }, 'User agent failed to reconnect after'
+            + ` ${USER_AGENT_RECONNECTION_ATTEMPTS} attemps`);
+
+          this.callback({
+            status: this.baseCallStates.failed,
+            error: 1002,
+            bridgeError: 'Websocket failed to connect',
+          });
+
+          reject({
+            type: this.baseErrorCodes.CONNECTION_ERROR,
+          });
+        });
+      });
+
+      return preturn;
+    });
+  }
+
+  reconnect(attempts = 1) {
+    return new Promise((resolve, reject) => {
+      if (this._reconnecting) {
+        return resolve();
+      }
+
+      if (attempts > USER_AGENT_RECONNECTION_ATTEMPTS) {
+        return reject({
+          type: this.baseErrorCodes.CONNECTION_ERROR,
+        });
+      }
+
+      this._reconnecting = true;
+
+      setTimeout(() => {
+        this.userAgent.reconnect().then(() => {
+          this._reconnecting = false;
+          resolve();
+        }).catch(() => {
+          this._reconnecting = false;
+          this.reconnect(++attempts).then(() => {
+            resolve();
+          }).catch((error) => {
+            reject(error);
+          });
+        });
+      }, USER_AGENT_RECONNECTION_DELAY_MS);
     });
   }
 
   inviteUserAgent(userAgent) {
-    if (this.userRequestedHangup === true) Promise.reject();
+    return new Promise((resolve, reject) => {
+      if (this.userRequestedHangup === true) reject();
+      const {
+        hostname,
+      } = this;
 
-    const {
-      hostname,
-    } = this;
+      const {
+        callExtension,
+        isListenOnly,
+      } = this.callOptions;
 
-    const {
-      inputStream,
-      callExtension,
-    } = this.callOptions;
 
-    const options = {
-      media: {
-        stream: inputStream,
-        constraints: {
-          audio: true,
-          video: false,
+      const target = SIP.UserAgent.makeURI(`sip:${callExtension}@${hostname}`);
+
+      const inviterOptions = {
+        sessionDescriptionHandlerOptions: {
+          constraints: {
+            audio: !isListenOnly,
+            video: false,
+          },
         },
-        render: {
-          remote: document.querySelector(MEDIA_TAG),
-        },
-      },
-      RTCConstraints: {
-        offerToReceiveAudio: true,
-        offerToReceiveVideo: false,
-      },
-    };
+        sessionDescriptionHandlerModifiersPostICEGathering:
+          [stripMDnsCandidates],
+      };
 
-    return userAgent.invite(`sip:${callExtension}@${hostname}`, options);
+
+      if (isListenOnly) {
+        inviterOptions.sessionDescriptionHandlerOptions.offerOptions = {
+          offerToReceiveAudio: true,
+        };
+      }
+
+      const inviter = new SIP.Inviter(userAgent, target, inviterOptions);
+      this.currentSession = inviter;
+
+      this.setupEventHandlers(inviter).then(() => {
+        inviter.invite().then(() => {
+          resolve();
+        }).catch(e => reject(e));
+      });
+    });
   }
 
   setupEventHandlers(currentSession) {
     return new Promise((resolve, reject) => {
       if (this.userRequestedHangup === true) reject();
 
-      const { mediaHandler } = currentSession;
-
       let iceCompleted = false;
       let fsReady = false;
 
-      this.currentSession = currentSession;
+      const setupRemoteMedia = () => {
+        const mediaElement = document.querySelector(MEDIA_TAG);
 
-      let connectionCompletedEvents = ['iceConnectionCompleted', 'iceConnectionConnected'];
-      // Edge sends a connected first and then a completed, but the call isn't ready until
-      // the completed comes in. Due to the way that we have the listeners set up, the only
-      // way to ignore one status is to not listen for it.
-      if (browser().name === 'edge') {
-        connectionCompletedEvents = ['iceConnectionCompleted'];
+        this.remoteStream = new MediaStream();
+
+        this.currentSession.sessionDescriptionHandler
+          .peerConnection.getReceivers().forEach((receiver) => {
+            if (receiver.track) {
+              this.remoteStream.addTrack(receiver.track);
+            }
+          });
+
+        logger.info({
+          logCode: 'sip_js_session_playing_remote_media',
+          extraInfo: {
+            callerIdName: this.user.callerIdName,
+          },
+        }, 'Audio call - playing remote media');
+
+        mediaElement.srcObject = this.remoteStream;
+        mediaElement.play();
       }
 
       const checkIfCallReady = () => {
@@ -388,8 +551,28 @@ class SIPSession {
           resolve();
         }
 
+        logger.info({
+          logCode: 'sip_js_session_check_if_call_ready',
+          extraInfo: {
+            iceCompleted,
+            fsReady,
+          },
+        }, 'Audio call - check if ICE is finished and FreeSWITCH is ready');
         if (iceCompleted && fsReady) {
           this.webrtcConnected = true;
+          setupRemoteMedia();
+
+          const { sdp } = this.currentSession.sessionDescriptionHandler
+            .peerConnection.remoteDescription;
+
+          logger.info({
+            logCode: 'sip_js_session_setup_remote_media',
+            extraInfo: {
+              callerIdName: this.user.callerIdName,
+              sdp,
+            },
+          }, 'Audio call - setup remote media');
+
           this.callback({ status: this.baseCallStates.started });
           resolve();
         }
@@ -412,7 +595,6 @@ class SIPSession {
       const handleSessionAccepted = () => {
         logger.info({ logCode: 'sip_js_session_accepted', extraInfo: { callerIdName: this.user.callerIdName } }, 'Audio call session accepted');
         clearTimeout(callTimeout);
-        currentSession.off('accepted', handleSessionAccepted);
 
         // If ICE isn't connected yet then start timeout waiting for ICE to finish
         if (!iceCompleted) {
@@ -420,51 +602,124 @@ class SIPSession {
             this.callback({
               status: this.baseCallStates.failed,
               error: 1010,
-              bridgeError: `ICE negotiation timeout after ${ICE_NEGOTIATION_TIMEOUT / 1000}s`,
+              bridgeError: 'ICE negotiation timeout after '
+                + `${ICE_NEGOTIATION_TIMEOUT / 1000}s`,
             });
 
             this.exitAudio();
+
+            reject({
+              type: this.baseErrorCodes.CONNECTION_ERROR
+            });
           }, ICE_NEGOTIATION_TIMEOUT);
         }
-      };
-      currentSession.on('accepted', handleSessionAccepted);
-
-      const handleSessionProgress = (update) => {
-        logger.info({ logCode: 'sip_js_session_progress', extraInfo: { callerIdName: this.user.callerIdName } }, 'Audio call session progress update');
-        clearTimeout(callTimeout);
-        currentSession.off('progress', handleSessionProgress);
-      };
-      currentSession.on('progress', handleSessionProgress);
-
-      const handleConnectionCompleted = (peer) => {
-        logger.info({
-          logCode: 'sip_js_ice_connection_success',
-          extraInfo: {
-            currentState: peer.iceConnectionState,
-            callerIdName: this.user.callerIdName,
-          },
-        }, `ICE connection success. Current state - ${peer.iceConnectionState}`);
-        clearTimeout(callTimeout);
-        clearTimeout(iceNegotiationTimeout);
-        connectionCompletedEvents.forEach(e => mediaHandler.off(e, handleConnectionCompleted));
-        iceCompleted = true;
-
-        logSelectedCandidate(peer, this.protocolIsIpv6);
-
         checkIfCallReady();
       };
-      connectionCompletedEvents.forEach(e => mediaHandler.on(e, handleConnectionCompleted));
+
+      const handleIceNegotiationFailed = (peer) => {
+        if (iceCompleted) {
+          logger.error({
+            logCode: 'sipjs_ice_failed_after',
+            extraInfo: {
+              callerIdName: this.user.callerIdName,
+            },
+          }, 'ICE connection failed after success');
+        } else {
+          logger.error({
+            logCode: 'sipjs_ice_failed_before',
+            extraInfo: {
+              callerIdName: this.user.callerIdName,
+            },
+          }, 'ICE connection failed before success');
+        }
+        clearTimeout(callTimeout);
+        clearTimeout(iceNegotiationTimeout);
+        this.callback({
+          status: this.baseCallStates.failed,
+          error: 1007,
+          bridgeError: 'ICE negotiation failed. Current state '
+            + `- ${peer.iceConnectionState}`,
+        });
+      };
+
+      const handleIceConnectionTerminated = (peer) => {
+        if (!this.userRequestedHangup) {
+          logger.error({
+            logCode: 'sipjs_ice_closed',
+            extraInfo: {
+              callerIdName: this.user.callerIdName,
+            },
+          }, 'ICE connection closed');
+        }
+
+        this.callback({
+          status: this.baseCallStates.failed,
+          error: 1012,
+          bridgeError: 'ICE connection closed. Current state -'
+            + `${peer.iceConnectionState}`,
+        });
+      };
+
+      const handleSessionProgress = (update) => {
+        logger.info({
+          logCode: 'sip_js_session_progress',
+          extraInfo: {
+            callerIdName: this.user.callerIdName,
+            update,
+          },
+        }, 'Audio call session progress update');
+
+        this.currentSession.sessionDescriptionHandler.peerConnectionDelegate = {
+          onconnectionstatechange: (event) => {
+            const peer = event.target;
+
+            switch (peer.connectionState) {
+              case 'connected':
+                logger.info({
+                  logCode: 'sip_js_ice_connection_success',
+                  extraInfo: {
+                    currentState: peer.connectionState,
+                    callerIdName: this.user.callerIdName,
+                  },
+                }, 'ICE connection success. Current state - '
+                    + `${peer.iceConnectionState}`);
+
+                clearTimeout(callTimeout);
+                clearTimeout(iceNegotiationTimeout);
+
+                iceCompleted = true;
+
+                logSelectedCandidate(peer, this.protocolIsIpv6);
+
+                checkIfCallReady();
+                break;
+              case 'failed':
+                handleIceNegotiationFailed(peer);
+                break;
+
+              case 'closed':
+                handleIceConnectionTerminated(peer);
+                break;
+              default:
+                break;
+            }
+          },
+        };
+      };
 
       const handleSessionTerminated = (message, cause) => {
         clearTimeout(callTimeout);
         clearTimeout(iceNegotiationTimeout);
-        currentSession.off('terminated', handleSessionTerminated);
 
         if (!message && !cause && !!this.userRequestedHangup) {
           return this.callback({
             status: this.baseCallStates.ended,
           });
         }
+
+        // if session hasn't even started, we let audio-modal to handle
+        // any possile errors
+        if (!this._currentSessionState) return false;
 
         logger.error({
           logCode: 'sip_js_call_terminated',
@@ -484,39 +739,33 @@ class SIPSession {
           bridgeError: cause,
         });
       };
-      currentSession.on('terminated', handleSessionTerminated);
 
-      const handleIceNegotiationFailed = (peer) => {
-        if (iceCompleted) {
-          logger.error({ logCode: 'sipjs_ice_failed_after', extraInfo: { callerIdName: this.user.callerIdName } }, 'ICE connection failed after success');
-        } else {
-          logger.error({ logCode: 'sipjs_ice_failed_before', extraInfo: { callerIdName: this.user.callerIdName } }, 'ICE connection failed before success');
+      currentSession.stateChange.addListener((state) => {
+        switch (state) {
+          case SIP.SessionState.Initial:
+            break;
+          case SIP.SessionState.Establishing:
+            handleSessionProgress();
+            break;
+          case SIP.SessionState.Established:
+            handleSessionAccepted();
+            break;
+          case SIP.SessionState.Terminating:
+            break;
+          case SIP.SessionState.Terminated:
+            handleSessionTerminated();
+            break;
+          default:
+            logger.error({
+              logCode: 'sipjs_ice_session_unknown_state',
+              extraInfo: {
+                callerIdName: this.user.callerIdName,
+              },
+            }, 'SIP.js unknown session state');
+            break;
         }
-        clearTimeout(callTimeout);
-        clearTimeout(iceNegotiationTimeout);
-        ICE_NEGOTIATION_FAILED.forEach(e => mediaHandler.off(e, handleIceNegotiationFailed));
-        this.callback({
-          status: this.baseCallStates.failed,
-          error: 1007,
-          bridgeError: `ICE negotiation failed. Current state - ${peer.iceConnectionState}`,
-        });
-      };
-      ICE_NEGOTIATION_FAILED.forEach(e => mediaHandler.on(e, handleIceNegotiationFailed));
-
-      const handleIceConnectionTerminated = (peer) => {
-        ['iceConnectionClosed'].forEach(e => mediaHandler.off(e, handleIceConnectionTerminated));
-        if (!this.userRequestedHangup) {
-          logger.error({ logCode: 'sipjs_ice_closed', extraInfo: { callerIdName: this.user.callerIdName } }, 'ICE connection closed');
-        }
-        /*
-        this.callback({
-          status: this.baseCallStates.failed,
-          error: 1012,
-          bridgeError: "ICE connection closed. Current state - " + peer.iceConnectionState,
-        });
-        */
-      };
-      ['iceConnectionClosed'].forEach(e => mediaHandler.on(e, handleIceConnectionTerminated));
+        this._currentSessionState = state;
+      });
 
       Tracker.autorun((c) => {
         const selector = { meetingId: Auth.meetingID, userId: Auth.userID };
@@ -534,6 +783,8 @@ class SIPSession {
           },
         });
       });
+
+      resolve();
     });
   }
 }
@@ -630,8 +881,8 @@ export default class SIPBridge extends BaseAudioBridge {
 
   getPeerConnection() {
     const { currentSession } = this.activeSession;
-    if (currentSession && currentSession.mediaHandler) {
-      return currentSession.mediaHandler.peerConnection;
+    if (currentSession && currentSession.sessionDescriptionHandler) {
+      return currentSession.sessionDescriptionHandler.peerConnection;
     }
     return null;
   }
@@ -641,16 +892,8 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   setDefaultInputDevice() {
-    const handleMediaSuccess = (mediaStream) => {
-      const deviceLabel = mediaStream.getAudioTracks()[0].label;
-      window.defaultInputStream = mediaStream.getTracks();
-      return navigator.mediaDevices.enumerateDevices().then((mediaDevices) => {
-        const device = mediaDevices.find(d => d.label === deviceLabel);
-        return this.changeInputDevice(device.deviceId, deviceLabel);
-      });
-    };
-
-    return navigator.mediaDevices.getUserMedia({ audio: true }).then(handleMediaSuccess);
+    // kept for compatibility
+    return Promise.resolve();
   }
 
   changeInputDevice(deviceId, deviceLabel) {
