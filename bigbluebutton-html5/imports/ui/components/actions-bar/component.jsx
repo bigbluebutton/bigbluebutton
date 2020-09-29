@@ -114,6 +114,15 @@ class ActionsBar extends PureComponent {
         </div>
         <div className={cx(actionBarClasses)}>
           <AudioControlsContainer />
+          <Button
+              icon='translation'
+              color='primary'
+              label='Become Translator'
+              circle
+              hideLabel
+              size="lg"
+              onClick={this.activateTranslation}
+          />
           {enableVideo
             ? (
               <JoinVideoOptionsContainer />
