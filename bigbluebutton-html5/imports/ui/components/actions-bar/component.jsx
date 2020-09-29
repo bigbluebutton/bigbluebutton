@@ -73,6 +73,7 @@ class ActionsBar extends PureComponent {
       isPollingEnabled,
       isThereCurrentPresentation,
       allowExternalVideo,
+      hasBreakouts,
     } = this.props;
 
     const actionBarClasses = {};
@@ -142,15 +143,19 @@ class ActionsBar extends PureComponent {
             screenshareDataSavingSetting,
           }}
           />
-          <Button
-            icon='globe'
-            color='primary'
-            label='Activate Translation'
-            circle
-            hideLabel
-            size="lg"
-            onClick={this.activateTranslation}
-          />
+          {hasBreakouts() ?
+            (
+              <Button
+                icon='globe'
+                color='primary'
+                label={ hasBreakouts() ? 'Activate Translation' : 'No Translation Available' }
+                circle
+                hideLabel
+                size="lg"
+                onClick={this.activateTranslation}
+              />
+            )
+            : null }
           <Button
             className={cx(styles.button, autoArrangeLayout || styles.btn)}
             icon={autoArrangeLayout ? 'lock' : 'unlock'}
