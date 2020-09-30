@@ -238,7 +238,7 @@ public class Bezier {
      * @param digitizedPoints Digitized points 
      * @param maxAngle maximal angle in radians between the current point and its
      * predecessor and successor up to which the point does not break the
-     * digitized list into segments. Recommended value 0.768 deg = 44 rad * 180d / Math.PI
+     * digitized list into segments. Recommended value 44 deg = 0.768 rad * 180d / Math.PI
      * @return Segments of digitized points, each segment having less than maximal
      * angle between points.
      */
