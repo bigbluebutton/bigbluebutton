@@ -648,8 +648,6 @@ class AudioManager {
     const breakoutRooms = breakoutService.findBreakouts();
 
     if( breakoutRooms.length > 0 ) {
-      const translationBreakoutRoom = breakoutRooms[0];
-      const translationVoiceBridge = translationBreakoutRoom.voiceProp.voiceConf;
 
       const callOptions = {
         isListenOnly: false,
@@ -667,12 +665,11 @@ class AudioManager {
   }
   openTranslatorChannel(language){
     //makeCall("createTranslationChannel");
+    console.log("become translator")
     const breakoutRooms = breakoutService.findBreakouts();
 
     if( breakoutRooms.length > 0 ) {
-      const translationBreakoutRoom = breakoutRooms[0];
-      const translationVoiceBridge = translationBreakoutRoom.voiceProp.voiceConf;
-
+      const englishRoom = breakoutRooms[0];
       const callOptions = {
         isListenOnly: false,
         extension: null,

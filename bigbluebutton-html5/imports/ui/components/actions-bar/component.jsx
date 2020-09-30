@@ -125,7 +125,7 @@ class ActionsBar extends PureComponent {
               circle
               hideLabel
               size="lg"
-              onClick={this.activateTranslation}
+              onClick={this.becomeTranslator}
           />
           {enableVideo
             ? (
