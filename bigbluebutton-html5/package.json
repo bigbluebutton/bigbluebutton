@@ -102,9 +102,7 @@
     "wdio-jasmine-framework": "^0.3.8",
     "wdio-junit-reporter": "~0.4.4",
     "wdio-spec-reporter": "^0.1.5",
-    "wdio-visual-regression-service": "~0.9.0",
-    "webdriver-manager": "^12.1.5",
-    "webdriverio": "^4.14.4"
+    "webdriver-manager": "^12.1.5"
   },
   "cssModules": {
     "cssClassNamingConvention": {
