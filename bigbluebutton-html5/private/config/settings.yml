@@ -530,6 +530,8 @@ private:
       version: 50
     - browser: electron
       version: [0, 36]
+    - browser: SamsungInternet
+      version: 10
     - browser: YandexBrowser
       version: 19
 
