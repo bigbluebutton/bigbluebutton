@@ -66,7 +66,7 @@ class AudioManager {
 
   init(userData) {
     this.bridge = new SIPBridge(userData); // no alternative as of 2019-03-08
-    this.translationBridge = new SIPBridge(userData);
+    this.translationBridge = new SIPBridge(userData, "#translation-media");
     if (this.useKurento) {
       this.listenOnlyBridge = new KurentoBridge(userData);
     }
