@@ -218,7 +218,7 @@ class Auth {
         });
       }, CONNECTION_TIMEOUT);
 
-      const result = await makeCall('checkSessionToken', this.meetingID, this.userID, this.token, this.externUserID);
+      const result = await makeCall('validateAuthToken', this.meetingID, this.userID, this.token, this.externUserID);
 
       if (result && result.invalid) {
         clearTimeout(validationTimeout);
