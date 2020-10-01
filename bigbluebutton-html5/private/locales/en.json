@@ -581,7 +581,6 @@
     "app.video.swapCam": "Swap",
     "app.video.swapCamDesc": "swap the direction of webcams",
     "app.video.videoLocked": "Webcam sharing locked",
-    "app.video.videoButtonDesc": "Share webcam",
     "app.video.videoMenu": "Video menu",
     "app.video.videoMenuDisabled": "Video menu Webcam is disabled in settings",
     "app.video.videoMenuDesc": "Open video menu dropdown",
