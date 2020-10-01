@@ -936,7 +936,7 @@ class SIPSession {
 }
 
 export default class SIPBridge extends BaseAudioBridge {
-  constructor(userData) {
+  constructor(userData, mediaTag = MEDIA_TAG ) {
     super(userData);
 
     const {
@@ -954,6 +954,8 @@ export default class SIPBridge extends BaseAudioBridge {
     this.media = {
       inputDevice: {},
     };
+
+    this.mediaTag = mediaTag;
 
     this.protocol = window.document.location.protocol;
     this.hostname = window.document.location.hostname;
@@ -1071,7 +1073,7 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   async changeOutputDevice(value) {
-    const audioContext = document.querySelector(MEDIA_TAG);
+    const audioContext = document.querySelector(this.mediaTag);
 
     if (audioContext.setSinkId) {
       try {
