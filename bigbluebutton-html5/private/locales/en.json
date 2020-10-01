@@ -488,6 +488,7 @@
     "app.modal.newTab": "(opens new tab)",
     "app.modal.confirm.description": "Saves changes and closes the modal",
     "app.dropdown.close": "Close",
+    "app.dropdown.list.item.activeLabel": "Active",
     "app.error.400": "Bad Request",
     "app.error.401": "Unauthorized",
     "app.error.403": "You have been removed from the meeting",
