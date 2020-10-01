@@ -143,19 +143,15 @@ class ActionsBar extends PureComponent {
             screenshareDataSavingSetting,
           }}
           />
-          {hasBreakouts() ?
-            (
-              <Button
-                icon='globe'
-                color='primary'
-                label={ hasBreakouts() ? 'Activate Translation' : 'No Translation Available' }
-                circle
-                hideLabel
-                size="lg"
-                onClick={this.activateTranslation}
-              />
-            )
-            : null }
+          <Button
+            icon='globe'
+            color='primary'
+            label={ hasBreakouts() ? 'Activate Translation' : 'No Translation Available' }
+            circle
+            hideLabel
+            size="lg"
+            onClick={this.activateTranslation}
+          />
           <Button
             className={cx(styles.button, autoArrangeLayout || styles.btn)}
             icon={autoArrangeLayout ? 'lock' : 'unlock'}
