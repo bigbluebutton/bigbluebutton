@@ -178,7 +178,7 @@ class RemoteDesktop extends Component {
         <VncDisplay
           className={styles.remoteDesktop}
           url={remoteDesktopUrl}
-          forceAuthScheme={2}
+          forceAuthScheme={1}
           onPasswordRequired={this.passwordFunc}
           onUpdateState={this.updateState}
           resize="scale"
