@@ -1,7 +1,10 @@
 import browser from 'browser-detect';
 import BaseAudioBridge from './base';
 import logger from '/imports/startup/client/logger';
-import { fetchStunTurnServers, getFallbackStun } from '/imports/utils/fetchStunTurnServers';
+import {
+  fetchWebRTCMappedStunTurnServers,
+  getFallbackStun,
+} from '/imports/utils/fetchStunTurnServers';
 import {
   isUnifiedPlan,
   toUnifiedPlan,
@@ -92,7 +95,7 @@ class SIPSession {
 
   async getIceServers(sessionToken) {
     try {
-      const iceServers = await fetchStunTurnServers(sessionToken);
+      const iceServers = await fetchWebRTCMappedStunTurnServers(sessionToken);
       return iceServers;
     } catch (error) {
       logger.error({
@@ -244,7 +247,6 @@ class SIPSession {
         if (this.currentSession
           && ((this.currentSession.state === SIP.SessionState.Establishing)
           || (this.currentSession.state === SIP.SessionState.Established))) {
-
           this.currentSession.bye().then(() => {
             this._hangupFlag = true;
             return resolve();
@@ -277,7 +279,7 @@ class SIPSession {
     });
   }
 
-  createUserAgent({ stun, turn }) {
+  createUserAgent(iceServers) {
     return new Promise((resolve, reject) => {
       if (this.userRequestedHangup === true) reject();
 
@@ -325,10 +327,14 @@ class SIPSession {
           server: `${(protocol === 'https:' ? 'wss://' : 'ws://')}${hostname}/ws?${token}`,
           connectionTimeout: USER_AGENT_CONNECTION_TIMEOUT_MS,
         },
+        sessionDescriptionHandlerFactoryOptions: {
+          peerConnectionConfiguration: {
+            iceServers,
+          },
+        },
         displayName: callerIdName,
         register: false,
         userAgentString: 'BigBlueButton',
-        iceServers: stun ? stun.concat(turn || []) : turn,
       });
 
       const handleUserAgentConnection = () => {
@@ -543,7 +549,7 @@ class SIPSession {
 
         mediaElement.srcObject = this.remoteStream;
         mediaElement.play();
-      }
+      };
 
       const checkIfCallReady = () => {
         if (this.userRequestedHangup === true) {
@@ -609,7 +615,7 @@ class SIPSession {
             this.exitAudio();
 
             reject({
-              type: this.baseErrorCodes.CONNECTION_ERROR
+              type: this.baseErrorCodes.CONNECTION_ERROR,
             });
           }, ICE_NEGOTIATION_TIMEOUT);
         }
