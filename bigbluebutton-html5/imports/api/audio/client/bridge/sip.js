@@ -3,7 +3,7 @@ import BaseAudioBridge from './base';
 import logger from '/imports/startup/client/logger';
 import {
   fetchWebRTCMappedStunTurnServers,
-  getFallbackStun,
+  getMappedFallbackStun,
 } from '/imports/utils/fetchStunTurnServers';
 import {
   isUnifiedPlan,
@@ -106,7 +106,7 @@ class SIPSession {
           callerIdName: this.user.callerIdName,
         },
       }, 'Full audio bridge failed to fetch STUN/TURN info');
-      return getFallbackStun();
+      return getMappedFallbackStun();
     }
   }
 
