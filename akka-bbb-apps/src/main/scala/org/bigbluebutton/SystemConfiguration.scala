@@ -41,6 +41,8 @@ trait SystemConfiguration {
 
   lazy val voiceConfRecordPath = Try(config.getString("voiceConf.recordPath")).getOrElse("/var/freeswitch/meetings")
   lazy val voiceConfRecordCodec = Try(config.getString("voiceConf.recordCodec")).getOrElse("wav")
+  lazy val voiceConfRecordEnableFileSplitter = Try(config.getBoolean("voiceConf.recordEnableFileSplitter")).getOrElse(false)
+  lazy val voiceConfRecordFileSplitterIntervalInMinutes = Try(config.getInt("voiceConf.recordFileSplitterIntervalInMinutes")).getOrElse(15)
   lazy val checkVoiceRecordingInterval = Try(config.getInt("voiceConf.checkRecordingInterval")).getOrElse(19)
   lazy val syncVoiceUsersStatusInterval = Try(config.getInt("voiceConf.syncUserStatusInterval")).getOrElse(43)
   lazy val ejectRogueVoiceUsers = Try(config.getBoolean("voiceConf.ejectRogueVoiceUsers")).getOrElse(true)
