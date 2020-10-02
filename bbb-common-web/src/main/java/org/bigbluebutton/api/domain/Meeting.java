@@ -68,6 +68,7 @@ public class Meeting {
 	private String defaultAvatarURL;
 	private String defaultConfigToken;
 	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
+	private String guestLobbyMessage = "";
 	private Boolean authenticatedGuest = false;
 	private boolean userHasJoined = false;
 	private Map<String, String> pads;
@@ -374,6 +375,14 @@ public class Meeting {
 
 	public String getGuestPolicy() {
     	return guestPolicy;
+	}
+
+	public void setGuestLobbyMessage(String message) {
+		guestLobbyMessage = message;
+	}
+
+	public String getGuestLobbyMessage() {
+		return guestLobbyMessage;
 	}
 
 	public void setAuthenticatedGuest(Boolean authGuest) {
