@@ -121,7 +121,7 @@ class ActionsBar extends PureComponent {
           <AudioControlsContainer />
           <div id={"translatorButton"}>
                 <Button
-                    icon={
+                    customIcon={
                       React.createElement(
                         'img',
                         {src : 'https://dev.fairteaching.net/html5client/svgs/bbb_languages_icon.svg'}
