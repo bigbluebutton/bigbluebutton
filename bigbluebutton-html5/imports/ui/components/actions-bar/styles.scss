@@ -107,3 +107,25 @@
     border-color: var(--color-white) !important;
   }
 }
+
+.presentationItem {
+  span {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 10rem;
+  }
+}
+
+.isCurrent {
+  i,
+  span {
+    color: var(--color-primary);
+  }
+}
+
+.translatorLanguageOverlay{
+  position: fixed;
+  --anchor-bottom: #translatorButton verticalCenter;
+  --anchor-verticalCenter: #translatorButton verticalCenter;
+}

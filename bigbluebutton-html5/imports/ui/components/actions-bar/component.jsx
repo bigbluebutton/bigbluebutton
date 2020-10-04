@@ -14,6 +14,7 @@ import { ACTIONSBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager'
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import AudioManager from '/imports/ui/services/audio-manager';
 import {makeCall} from "../../services/api";
+import LanguageOverlay from '/imports/ui/components/LanguageOverlay/component'
 
 class ActionsBar extends PureComponent {
   constructor(props) {
@@ -118,20 +119,22 @@ class ActionsBar extends PureComponent {
         </div>
         <div className={cx(actionBarClasses)}>
           <AudioControlsContainer />
-          <Button
-              icon={
-                React.createElement(
-                  'img',
-                  {src : 'https://dev.fairteaching.net/html5client/svgs/bbb_languages_icon.svg'}
-                )
-              }
-              color='primary'
-              label='Become Translator'
-              circle
-              hideLabel
-              size="lg"
-              onClick={this.becomeTranslator}
-          />
+          <div id={"translatorButton"}>
+                <Button
+                    icon={
+                      React.createElement(
+                        'img',
+                        {src : 'https://dev.fairteaching.net/html5client/svgs/bbb_languages_icon.svg'}
+                      )
+                    }
+                    color='primary'
+                    label='Become Translator'
+                    circle
+                    hideLabel
+                    size="lg"
+                    onClick={this.becomeTranslator}
+                />
+          </div>
           {enableVideo
             ? (
               <JoinVideoOptionsContainer />
