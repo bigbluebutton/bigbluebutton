@@ -54,6 +54,7 @@ export default withTracker((params) => {
     currentSlidHasContent: PresentationService.currentSlidHasContent(),
     parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
     startPoll,
+    allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,
   };
 })(PresentationToolbarContainer);
 
@@ -73,4 +74,6 @@ PresentationToolbarContainer.propTypes = {
   nextSlide: PropTypes.func.isRequired,
   previousSlide: PropTypes.func.isRequired,
   skipToSlide: PropTypes.func.isRequired,
+  
+  allowExternalVideo: PropTypes.bool.isRequired,
 };
