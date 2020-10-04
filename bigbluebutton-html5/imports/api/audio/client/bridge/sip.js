@@ -68,7 +68,7 @@ const getErrorCode = (error) => {
 
 class SIPSession {
   constructor(user, userData, protocol, hostname,
-    baseCallStates, baseErrorCodes, reconnectAttempt) {
+    baseCallStates, baseErrorCodes, reconnectAttempt, mediaTag = MEDIA_TAG) {
     this.user = user;
     this.userData = userData;
     this.protocol = protocol;
@@ -82,6 +82,7 @@ class SIPSession {
     this._hangupFlag = false;
     this._reconnecting = false;
     this._currentSessionState = null;
+    this.mediaTag = mediaTag;
   }
 
   joinAudio({ isListenOnly, extension, inputDeviceId }, managerCallback) {
@@ -623,7 +624,7 @@ class SIPSession {
       let fsReady = false;
 
       const setupRemoteMedia = () => {
-        const mediaElement = document.querySelector(MEDIA_TAG);
+        const mediaElement = document.querySelector(this.mediaTag);
 
         this.remoteStream = new MediaStream();
 
