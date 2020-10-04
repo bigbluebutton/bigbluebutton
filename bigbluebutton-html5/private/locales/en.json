@@ -607,6 +607,7 @@
     "app.video.stats.encodeUsagePercent": "Encode usage",
     "app.video.stats.currentDelay": "Current delay",
     "app.fullscreenButton.label": "Make {0} fullscreen",
+    "app.fullscreenUndoButton.label": "Undo {0} fullscreen",
     "app.deskshare.iceConnectionStateError": "Connection failed when sharing screen (ICE error 1108)",
     "app.sfu.mediaServerConnectionError2000": "Unable to connect to media server (error 2000)",
     "app.sfu.mediaServerOffline2001": "Media server is offline. Please try again later (error 2001)",
