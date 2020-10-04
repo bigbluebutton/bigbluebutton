@@ -119,7 +119,12 @@ class ActionsBar extends PureComponent {
         <div className={cx(actionBarClasses)}>
           <AudioControlsContainer />
           <Button
-              icon='translation'
+              icon={
+                React.createElement(
+                  'img',
+                  {src : 'https://dev.fairteaching.net/html5client/svgs/bbb_languages_icon.svg'}
+                )
+              }
               color='primary'
               label='Become Translator'
               circle
