@@ -60,7 +60,7 @@ function getCustomCssAttribute(element, attribut){
     const value = style.getPropertyValue(attribut);
     return value
 }
-function render(){
+function harborRender(){
     let list = document.getElementsByClassName("sailingShip");
     let anchors = ["--anchor-left", "--anchor-right", "--anchor-bottom", "--anchor-top", "--anchor-verticalCenter", "--anchor-horizontalCenter"];
     for(let element of list) {
@@ -79,5 +79,5 @@ function render(){
     }
 }
 
-document.addEventListener('DOMContentLoaded', render);
-setInterval(render,1000)
+document.addEventListener('DOMContentLoaded', harborRender);
+setInterval(harborRender,1000)
