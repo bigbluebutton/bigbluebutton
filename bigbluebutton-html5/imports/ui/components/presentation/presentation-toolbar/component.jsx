@@ -11,6 +11,7 @@ import ZoomTool from './zoom-tool/component';
 import FullscreenButtonContainer from '../../fullscreen-button/container';
 import TooltipContainer from '/imports/ui/components/tooltip/container';
 import QuickPollDropdownContainer from '/imports/ui/components/actions-bar/quick-poll-dropdown/container';
+import QuickLinksDropdown from './quick-links-dropdown/component';
 import KEY_CODES from '/imports/utils/keyCodes';
 
 const intlMessages = defineMessages({
@@ -218,6 +219,8 @@ class PresentationToolbar extends PureComponent {
       parseCurrentSlideContent,
       startPoll,
       currentSlide,
+      allowExternalVideo,
+      screenSharingCheck,
     } = this.props;
 
     const BROWSER_RESULTS = browser();
@@ -254,6 +257,23 @@ class PresentationToolbar extends PureComponent {
                   className={styles.presentationBtn}
                 />
               ) : null
+          }
+          </div>
+        }
+        {
+          <div>
+          {
+              <QuickLinksDropdown
+                {...{
+                  intl,
+                  amIPresenter,
+                  parseCurrentSlideContent,
+                  allowExternalVideo,
+                  screenSharingCheck,
+                  isFullscreen,
+                  fullscreenRef,
+                }}
+              />
           }
           </div>
         }
