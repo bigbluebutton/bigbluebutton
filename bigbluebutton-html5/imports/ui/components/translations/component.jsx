@@ -13,8 +13,8 @@ class Translations extends Component{
         breakouts = breakouts.map((room)=>{
             return {name: room.name, edit:false}
         });
-        console.log(breakouts)
-        this.setState({languages: breakouts })
+        let active = breakouts.length > 0;
+        this.setState({languages: breakouts, active: active })
     }
 
     createEditForm = () => {
@@ -24,48 +24,85 @@ class Translations extends Component{
         }
 
     }
-    createTranslationChannel(name){
-        let param1 = [{
+    createTranslationChannel(name,sequence){
+        return {
             name: name,
             freeJoin: true,
-            sequence: 1,
+            sequence: sequence,
             users: []
-        }];
-        makeCall('createBreakoutRoom', param1, 999, false)
+        };
     }
     creationHandler = (name, index) =>{
         if(!name.length)
             return
-        this.state.languages[index].name = name
+        this.state.languages[index].name = name;
         this.state.languages[index].edit = false;
         this.setState(this.state)
-        //this.createTranslationChannel(name)
     }
 
     deletionHandler = (index)=>{
         this.state.languages.splice(index,1)
+        this.setState(this.state)
+    }
+
+    startTranslation = () => {
+        let inedit = this.state.languages.filter((language)=>{
+            return language.edit
+        });
+        if(inedit.length){
+            this.state.warning = "Please confirm all languages."
+            this.setState(this.state)
+            return
+        }
+        let i = 0;
+        let val = this.state.languages.map((language)=>{
+            return this.createTranslationChannel(language.name,i++)
+        })
+        if(!val.length){
+            this.state.warning = "Please add a language."
+            this.setState(this.state)
+            return
+        }
+        makeCall('createBreakoutRoom', val, 999, false)
+        this.state.active = true
+        this.setState(this.state)
+    }
+
+    endTranslation = () =>{
+        makeCall('endAllBreakouts');
+        this.state.languages = [];
+        this.state.active = false
+        this.state.warning = ""
+        this.setState(this.state)
     }
 
     state ={
-        languages: []
+        languages: [],
+        active: false,
+        warning: ""
     }
     render() {
+        let button;
+        let add = ""
+        if(!this.state.active){
+            button =  <button  onClick={this.startTranslation}> Start Translation</button>;
+            add =     <div> <span className={styles.addLanguage} onClick={this.createEditForm}>+ Add Language</span></div>
+        }else{
+            button =  <button  onClick={this.endTranslation}> End Translation</button>;
+        }
         return (
             <div key={"translation"} className={styles.translationPanel}>
                 <span>Translations</span>
                 {this.state.languages.map(function (language, index) {
                     if(language.edit){
-                        return <NewLanguage key={index} index={index} creationHandler={this.creationHandler}/>
+                        return <NewLanguage  key={index} index={index} creationHandler={this.creationHandler}/>
                     }else{
-                        return <Language name={language.name} key={index} index={index} deletionHandler={this.deletionHandler}/>
+                        return <Language active={this.state.active} name={language.name} key={index} index={index} deletionHandler={this.deletionHandler}/>
                     }
                 }, this)}
-                <div>
-                    <span className={styles.addLanguage} onClick={this.createEditForm}>+ Add Language</span>
-                </div>
-                <div className={styles.buttonContainer}>
-
-                </div>
+                {add}
+                {button}
+                <p>{this.state.warning}</p>
             </div>
         );
     }

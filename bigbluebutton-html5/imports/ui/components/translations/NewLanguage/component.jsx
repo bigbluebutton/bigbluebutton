@@ -16,7 +16,7 @@ class NewLanguage extends Component{
         return(
             <div className={styles.languageContainer}>
                 <input placeholder={"New Language"} value={this.state.name} onChange={this.handleChange}/>
-                <span className={styles.check} onClick={this.creationHandler}>✓</span>
+                <button className={styles.check} onClick={this.creationHandler}>confirm</button>
             </div>
         );
     }
