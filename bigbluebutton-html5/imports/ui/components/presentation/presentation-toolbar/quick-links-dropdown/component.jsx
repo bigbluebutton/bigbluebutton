@@ -55,7 +55,7 @@ const handleClickQuickVideo = (videoUrl, isFullscreen, fullscreenRef) => {
 
 const handleClickQuickUrl = (url, isFullscreen, fullscreenRef) => {
   if (isFullscreen) {
-    // may not be necessary, a slide change stops fullscreen
+    // may not be necessary; presentation automatically becomes small when the slide is moved on (but depending on browser..) 
     FullscreenService.toggleFullScreen(fullscreenRef);
   }
   window.open(url, null, 'menubar,toolbar,location,resizable');
