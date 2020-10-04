@@ -135,6 +135,9 @@ class ActionsBar extends PureComponent {
                     onClick={this.becomeTranslator}
                 />
           </div>
+          <div className={"sailingShip "+styles.translatorLanguageOverlay}>
+            <LanguageOverlay/>
+          </div>
           {enableVideo
             ? (
               <JoinVideoOptionsContainer />
