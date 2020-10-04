@@ -23,3 +23,15 @@
   width: 160px;
   height: 33px;
 }
+
+.buttonContainer{
+  background: #E8ECF0;
+  border: 1px solid #8B9AA8;
+  box-sizing: border-box;
+  border-radius: 3px;
+  width: 95%;
+  position: relative;
+  p{
+    text-align: center;
+  }
+}
