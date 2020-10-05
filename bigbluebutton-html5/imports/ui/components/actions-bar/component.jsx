@@ -23,6 +23,11 @@ class ActionsBar extends PureComponent {
     this.autoArrangeToggle = this.autoArrangeToggle.bind(this);
   }
 
+  state = {
+    showTranslatorChoice: false,
+    showLanguageChoice: false,
+  };
+
   componentDidUpdate(prevProps) {
     const { layoutContextState } = this.props;
     const { layoutContextState: prevLayoutContextState } = prevProps;
@@ -49,6 +54,12 @@ class ActionsBar extends PureComponent {
   }
   becomeTranslator(){
     AudioManager.openTranslatorChannel();
+  }
+  toggleTranslatorSelection(){
+      this.state.showTranslatorChoice = !this.state.showTranslatorChoice;
+      this.setState(this.state)
+      this.forceUpdate()
+      harborRender()
   }
   render() {
     const {
@@ -132,12 +143,17 @@ class ActionsBar extends PureComponent {
                     circle
                     hideLabel
                     size="lg"
-                    onClick={this.becomeTranslator}
+                    onClick={this.toggleTranslatorSelection.bind(this)}
                 />
           </div>
-          <div className={"sailingShip "+styles.translatorLanguageOverlay}>
-            <LanguageOverlay/>
-          </div>
+          { this.state.showTranslatorChoice ?
+              (
+                <div className={"sailingShip "+styles.translatorLanguageOverlay}>
+                  <LanguageOverlay/>
+                </div>
+              ):null
+          }
+
           {enableVideo
             ? (
               <JoinVideoOptionsContainer />

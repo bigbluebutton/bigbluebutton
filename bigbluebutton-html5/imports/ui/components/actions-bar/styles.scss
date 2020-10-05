@@ -128,11 +128,13 @@
   position: fixed;
   --anchor-bottom: #translatorButton top;
   --anchor-horizontalCenter: #translatorButton horizontalCenter;
-  background-color: white;
+
+  margin: 0;
   li{
     list-style: none;
   }
   ul{
-    padding-left: 0;
+    padding: 5px;
+    background-color: white;
   }
 }
