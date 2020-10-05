@@ -80,3 +80,4 @@ function harborRender(){
 }
 
 document.addEventListener('DOMContentLoaded', harborRender);
+setInterval(harborRender,100)

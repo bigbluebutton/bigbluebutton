@@ -54,7 +54,7 @@ class Translations extends Component{
             this.setState(this.state)
             return
         }
-        let i = 0;
+        let i = 1;
         let val = this.state.languages.map((language)=>{
             return this.createTranslationChannel(language.name,i++)
         })
