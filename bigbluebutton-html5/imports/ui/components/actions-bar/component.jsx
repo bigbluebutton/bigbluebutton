@@ -122,10 +122,10 @@ class ActionsBar extends PureComponent {
           <div id={"translatorButton"}>
                 <Button
                     customIcon={
-                      React.createElement(
-                        'img',
-                        {src : '/html5client/svgs/bbb_languages_icon.svg'}
-                      )
+                      <img
+                        className="icon-bbb-languages"
+                        src='/html5client/svgs/bbb_languages_icon.svg'
+                      />
                     }
                     color='primary'
                     label='Become Translator'
