@@ -129,22 +129,26 @@ class ActionsBar extends PureComponent {
         </div>
         <div className={cx(actionBarClasses)}>
           <AudioControlsContainer />
-          <div id={"translatorButton"}>
+          { amIModerator ?
+            (
+              <div id={"translatorButton"}>
                 <Button
-                    customIcon={
-                      <img
-                        className="icon-bbb-languages"
-                        src='/html5client/svgs/bbb_languages_icon.svg'
-                      />
-                    }
-                    color='primary'
-                    label='Become Translator'
-                    circle
-                    hideLabel
-                    size="lg"
-                    onClick={this.toggleTranslatorSelection.bind(this)}
+                  customIcon={
+                    <img
+                      className="icon-bbb-languages"
+                      src='/html5client/svgs/bbb_languages_icon.svg'
+                    />
+                  }
+                  color='primary'
+                  label='Become Translator'
+                  circle
+                  hideLabel
+                  size="lg"
+                  onClick={this.toggleTranslatorSelection.bind(this)}
                 />
-          </div>
+              </div>
+            ) :null
+          }
           { this.state.showTranslatorChoice ?
               (
                 <div className={"sailingShip "+styles.translatorLanguageOverlay}>
