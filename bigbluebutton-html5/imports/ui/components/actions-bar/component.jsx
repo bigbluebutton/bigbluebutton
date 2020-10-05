@@ -155,7 +155,12 @@ class ActionsBar extends PureComponent {
           }}
           />
           <Button
-            icon='globe'
+            customIcon={
+              <img
+                className="icon-bbb-translation"
+                src='/html5client/svgs/bbb_translations_icon.svg'
+              />
+            }
             color='primary'
             label={ hasBreakouts() ? 'Activate Translation' : 'No Translation Available' }
             circle
