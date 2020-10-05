@@ -59,7 +59,6 @@ class ActionsBar extends PureComponent {
       this.state.showTranslatorChoice = !this.state.showTranslatorChoice;
       this.setState(this.state)
       this.forceUpdate()
-      harborRender()
   }
   render() {
     const {

@@ -10,6 +10,9 @@ class LanguageOverlay extends Component{
             </ul>
         </div>);
     }
+    componentDidMount() {
+        harborRender()
+    }
 }
 
 export default LanguageOverlay
