@@ -124,7 +124,7 @@ class ActionsBar extends PureComponent {
                     customIcon={
                       React.createElement(
                         'img',
-                        {src : 'https://dev.fairteaching.net/html5client/svgs/bbb_languages_icon.svg'}
+                        {src : '/html5client/svgs/bbb_languages_icon.svg'}
                       )
                     }
                     color='primary'
