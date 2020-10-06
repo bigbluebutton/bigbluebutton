@@ -54,12 +54,13 @@ class SIPSession {
     this.reconnectAttempt = reconnectAttempt;
     this.currentSession = null;
     this.remoteStream = null;
+    this.inputDeviceId = null;
     this._hangupFlag = false;
     this._reconnecting = false;
     this._currentSessionState = null;
   }
 
-  joinAudio({ isListenOnly, extension, inputStream }, managerCallback) {
+  joinAudio({ isListenOnly, extension, inputDeviceId }, managerCallback) {
     return new Promise((resolve, reject) => {
       const callExtension = extension ? `${extension}${this.userData.voiceBridge}` : this.userData.voiceBridge;
 
@@ -86,7 +87,7 @@ class SIPSession {
       // If there's an extension passed it means that we're joining the echo test first
       this.inEchoTest = !!extension;
 
-      return this.doCall({ callExtension, isListenOnly, inputStream })
+      return this.doCall({ callExtension, isListenOnly, inputDeviceId })
         .catch((reason) => {
           reject(reason);
         });
@@ -113,7 +114,10 @@ class SIPSession {
   doCall(options) {
     const {
       isListenOnly,
+      inputDeviceId,
     } = options;
+
+    this.inputDeviceId = inputDeviceId;
 
     const {
       userId,
@@ -492,10 +496,16 @@ class SIPSession {
 
       const target = SIP.UserAgent.makeURI(`sip:${callExtension}@${hostname}`);
 
+      const audioDeviceConstraint = this.inputDeviceId
+        ? { deviceId: { exact: this.inputDeviceId } }
+        : true;
+
       const inviterOptions = {
         sessionDescriptionHandlerOptions: {
           constraints: {
-            audio: !isListenOnly,
+            audio: isListenOnly
+              ? false
+              : audioDeviceConstraint,
             video: false,
           },
         },
@@ -828,7 +838,11 @@ export default class SIPBridge extends BaseAudioBridge {
     window.clientLogger = logger;
   }
 
-  joinAudio({ isListenOnly, extension, inputStream }, managerCallback) {
+  get inputDeviceId () {
+    return this.media.inputDevice ? this.media.inputDevice.inputDeviceId : null;
+  }
+
+  joinAudio({ isListenOnly, extension }, managerCallback) {
     const hasFallbackDomain = typeof IPV4_FALLBACK_DOMAIN === 'string' && IPV4_FALLBACK_DOMAIN !== '';
 
     return new Promise((resolve, reject) => {
@@ -860,7 +874,12 @@ export default class SIPBridge extends BaseAudioBridge {
             const fallbackExtension = this.activeSession.inEchoTest ? extension : undefined;
             this.activeSession = new SIPSession(this.user, this.userData, this.protocol,
               hostname, this.baseCallStates, this.baseErrorCodes, true);
-            this.activeSession.joinAudio({ isListenOnly, extension: fallbackExtension, inputStream }, callback)
+            const { inputDeviceId } = this.media.inputDevice;
+            this.activeSession.joinAudio({
+              isListenOnly,
+              extension: fallbackExtension,
+              inputDeviceId,
+            }, callback)
               .then((value) => {
                 resolve(value);
               }).catch((reason) => {
@@ -872,7 +891,12 @@ export default class SIPBridge extends BaseAudioBridge {
         return managerCallback(message);
       };
 
-      this.activeSession.joinAudio({ isListenOnly, extension, inputStream }, callback)
+      const { inputDeviceId } = this.media.inputDevice;
+      this.activeSession.joinAudio({
+        isListenOnly,
+        extension,
+        inputDeviceId,
+      }, callback)
         .then((value) => {
           resolve(value);
         }).catch((reason) => {
@@ -898,54 +922,16 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   setDefaultInputDevice() {
-    // kept for compatibility
-    return Promise.resolve();
+    this.media.inputDevice.inputDeviceId = DEFAULT_INPUT_DEVICE_ID;
   }
 
-  changeInputDevice(deviceId, deviceLabel) {
-    const {
-      media,
-    } = this;
-    if (media.inputDevice.audioContext) {
-      const handleAudioContextCloseSuccess = () => {
-        media.inputDevice.audioContext = null;
-        media.inputDevice.scriptProcessor = null;
-        media.inputDevice.source = null;
-        return this.changeInputDevice(deviceId);
-      };
-
-      return media.inputDevice.audioContext.close().then(handleAudioContextCloseSuccess);
+  async changeInputDeviceId(inputDeviceId) {
+    if (!inputDeviceId) {
+      throw new Error();
     }
 
-    if ('AudioContext' in window) {
-      media.inputDevice.audioContext = new window.AudioContext();
-    } else {
-      media.inputDevice.audioContext = new window.webkitAudioContext();
-    }
-
-    media.inputDevice.id = deviceId;
-    media.inputDevice.label = deviceLabel;
-    media.inputDevice.scriptProcessor = media.inputDevice.audioContext
-      .createScriptProcessor(2048, 1, 1);
-    media.inputDevice.source = null;
-
-    const constraints = {
-      audio: {
-        deviceId,
-      },
-    };
-
-    const handleMediaSuccess = (mediaStream) => {
-      media.inputDevice.stream = mediaStream;
-      media.inputDevice.source = media.inputDevice.audioContext
-        .createMediaStreamSource(mediaStream);
-      media.inputDevice.source.connect(media.inputDevice.scriptProcessor);
-      media.inputDevice.scriptProcessor.connect(media.inputDevice.audioContext.destination);
-
-      return this.media.inputDevice;
-    };
-
-    return navigator.mediaDevices.getUserMedia(constraints).then(handleMediaSuccess);
+    this.media.inputDevice.inputDeviceId = inputDeviceId;
+    return inputDeviceId;
   }
 
   async changeOutputDevice(value) {

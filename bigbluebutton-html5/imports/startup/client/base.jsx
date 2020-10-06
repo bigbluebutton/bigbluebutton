@@ -333,8 +333,9 @@ const BaseContainer = withTracker(() => {
       changed: (newDocument) => {
         if (newDocument.validated && newDocument.name && newDocument.userId !== localUserId) {
           if (userJoinAudioAlerts) {
-            const audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/userJoin.mp3`);
-            audio.play();
+            AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
+              + Meteor.settings.public.app.basename}`
+              + '/resources/sounds/userJoin.mp3');
           }
 
           if (userJoinPushAlerts) {
