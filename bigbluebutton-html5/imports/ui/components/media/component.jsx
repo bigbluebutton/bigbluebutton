@@ -60,7 +60,8 @@ export default class Media extends Component {
     });
 
     const { viewParticipantsWebcams } = Settings.dataSaving;
-    const fullHeight = usersVideo.length < 1 || (webcamPlacement === 'floating') || !viewParticipantsWebcams;
+    const showVideo = usersVideo.length > 0 && viewParticipantsWebcams;
+    const fullHeight = !showVideo || (webcamPlacement === 'floating');
 
     return (
       <div
@@ -77,7 +78,7 @@ export default class Media extends Component {
         >
           {children}
         </div>
-        {usersVideo.length > 0 ? (
+        {showVideo ? (
           <WebcamDraggable
             refMediaContainer={this.refContainer}
             swapLayout={swapLayout}
