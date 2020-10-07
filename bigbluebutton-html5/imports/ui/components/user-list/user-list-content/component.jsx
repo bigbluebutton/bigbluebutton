@@ -46,6 +46,7 @@ class UserContent extends PureComponent {
       hasBreakoutRoom,
       pendingUsers,
       requestUserInformation,
+      amIModerator,
     } = this.props;
 
     return (
@@ -90,9 +91,15 @@ class UserContent extends PureComponent {
             />
           ) : null
         }
-        <Translations>
 
-        </Translations>
+        {amIModerator
+          ? (
+            <Translations>
+
+            </Translations>
+          ) : null
+        }
+
         <UserPolls
           isPresenter={currentUser.presenter}
           {...{
