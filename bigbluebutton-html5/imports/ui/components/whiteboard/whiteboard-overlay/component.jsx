@@ -8,9 +8,19 @@ import CursorListener from './cursor-listener/component';
 export default class WhiteboardOverlay extends Component {
   // a function to transform a screen point to svg point
   // accepts and returns a point of type SvgPoint and an svg object
+  // if unable to get the screen CTM, returns an out
+  // of bounds (-1, -1) svg point
   static coordinateTransform(screenPoint, someSvgObject) {
     const CTM = someSvgObject.getScreenCTM();
-    return screenPoint.matrixTransform(CTM.inverse());
+    if (CTM !== null) {
+      return screenPoint.matrixTransform(CTM.inverse());
+    }
+
+    const outOfBounds = someSvgObject.createSVGPoint();
+    outOfBounds.x = -1;
+    outOfBounds.y = -1;
+
+    return outOfBounds;
   }
 
   // Removes selection from all selected elements
