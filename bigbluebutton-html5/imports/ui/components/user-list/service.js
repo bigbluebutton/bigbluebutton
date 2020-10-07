@@ -549,6 +549,7 @@ export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
 };
 
 export default {
+  amIModerator: () => Users.findOne({ userId: Auth.userID }, { fields: { role: 1 } }).role === ROLE_MODERATOR,
   sortUsersByName,
   sortUsers,
   setEmojiStatus,
