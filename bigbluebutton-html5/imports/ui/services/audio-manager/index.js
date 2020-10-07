@@ -66,7 +66,7 @@ class AudioManager {
 
   init(userData) {
     this.bridge = new SIPBridge(userData); // no alternative as of 2019-03-08
-    this.translationBridge = new SIPBridge(userData, "#translation-media");
+    this.translationBridge = new SIPBridge({...userData}, "#translation-media");
     if (this.useKurento) {
       this.listenOnlyBridge = new KurentoBridge(userData);
     }
@@ -663,9 +663,7 @@ class AudioManager {
       });
     }
   }
-  openTranslatorChannel(language){
-    //makeCall("createTranslationChannel");
-    console.log("become translator")
+  openTranslatorChannel(sequence){
     const breakoutRooms = breakoutService.findBreakouts();
 
     if( breakoutRooms.length > 0 ) {
@@ -675,7 +673,7 @@ class AudioManager {
         extension: null,
         inputStream: this.inputStream,
       };
-      this.translationBridge.userData.voiceBridge += "1";
+      this.translationBridge.userData.voiceBridge = this.bridge.userData.voiceBridge+""+sequence;
       this.translationBridge.joinAudio(callOptions,function () {
         console.log("second connection established.");
         return new Promise(function () {

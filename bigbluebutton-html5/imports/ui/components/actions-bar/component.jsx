@@ -52,9 +52,6 @@ class ActionsBar extends PureComponent {
     console.log("making call createTranslationChannel")
     //makeCall("createTranslationChannel");
   }
-  becomeTranslator(){
-    AudioManager.openTranslatorChannel();
-  }
   toggleTranslatorSelection(){
       this.state.showTranslatorChoice = !this.state.showTranslatorChoice;
       this.setState(this.state)

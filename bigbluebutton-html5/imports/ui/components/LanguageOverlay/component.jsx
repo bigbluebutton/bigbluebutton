@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import MeetingService from "../../services/Meetings";
+import AudioManager from '/imports/ui/services/audio-manager';
 
 class LanguageOverlay extends Component{
 
@@ -12,7 +13,7 @@ class LanguageOverlay extends Component{
         <div>
             <ul>
                 {this.state.language.map(function (language) {
-                    return <li>{language}</li>
+                    return <li onClick={() => AudioManager.openTranslatorChannel(language.sequence)}> {language.name} </li>
                 })}
             </ul>
         </div>);
@@ -20,9 +21,6 @@ class LanguageOverlay extends Component{
     componentDidMount() {
         const service = new MeetingService();
         let breakouts = service.findBreakouts()
-        breakouts = breakouts.map((room)=>{
-            return room.name
-        })
         this.state.language = breakouts
         this.setState(this.state)
         harborRender()
