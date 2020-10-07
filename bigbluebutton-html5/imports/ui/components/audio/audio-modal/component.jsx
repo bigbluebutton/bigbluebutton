@@ -245,8 +245,6 @@ class AudioModal extends Component {
     }
 
     const {
-      inputDeviceId,
-      outputDeviceId,
       joinEchoTest,
     } = this.props;
 
@@ -271,7 +269,7 @@ class AudioModal extends Component {
       if (err.type === 'MEDIA_ERROR') {
         this.setState({
           content: 'help',
-          errCode: err.code,
+          errCode: 0,
           disableActions: false,
         });
       }
