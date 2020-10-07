@@ -221,13 +221,12 @@ class BreakoutRoom extends PureComponent {
               (
                 <Button
                   label={
-                    moderatorJoinedAudio
-                      && stateBreakoutId === breakoutId
-                      && joinedAudioOnly
+                      stateBreakoutId === breakoutId && joinedAudioOnly
                       ? intl.formatMessage(intlMessages.breakoutReturnAudio)
                       : intl.formatMessage(intlMessages.breakoutJoinAudio)
                   }
                   className={styles.button}
+                  disabled={stateBreakoutId !== breakoutId && joinedAudioOnly}
                   key={`join-audio-${breakoutId}`}
                   onClick={audioAction}
                 />
