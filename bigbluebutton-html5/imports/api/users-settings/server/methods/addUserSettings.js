@@ -36,6 +36,7 @@ const currentParameters = [
   'bbb_force_listen_only',
   'bbb_listen_only_mode',
   'bbb_skip_check_audio',
+  'bbb_enable_audio',
   // BRANDING
   'bbb_display_branding_area',
   // SHORTCUTS
