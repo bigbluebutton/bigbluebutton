@@ -18,6 +18,7 @@ const UserListContainer = props => <UserList {...props} />;
 UserListContainer.propTypes = propTypes;
 
 export default withTracker(({ chatID, compact }) => ({
+  amIModerator: Service.amIModerator(),
   hasBreakoutRoom: Service.hasBreakoutRoom(),
   activeChats: Service.getActiveChats(chatID),
   isPublicChat: Service.isPublicChat,
