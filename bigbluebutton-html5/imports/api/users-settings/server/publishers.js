@@ -4,6 +4,13 @@ import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import User from '/imports/api/users';
 
+const otherUsersExportSettings = [
+  'bbb_magic_cap_user',
+  'bbb_magic_cap_user_visible_for_moderator',
+  'bbb_magic_cap_user_visible_for_herself',
+];
+
+// eslint-disable-next-line consistent-return
 function userSettings() {
   if (!this.userId) {
     return UserSettings.find({ meetingId: '' });
@@ -28,19 +35,54 @@ function userSettings() {
       const selector = {
         meetingId,
         setting: doc.setting,
+        userId: requesterUserId,
       };
 
       UserSettings.upsert(selector, doc);
     });
-
-    Logger.debug(`Publishing user settings for user=${requesterUserId}`);
-
-    return UserSettings.find({ meetingId, userId: requesterUserId });
   }
 
   Logger.debug(`Publishing user settings for user=${requesterUserId}`);
 
-  return UserSettings.find({ meetingId, userId: requesterUserId });
+  function transformUserSetting(uSetting) {
+    if (uSetting.userId === requesterUserId) {
+      return uSetting;
+    }
+    if (otherUsersExportSettings.includes(uSetting.setting)) {
+      return {
+        meetingId,
+        userId: uSetting.userId,
+        setting: uSetting.setting,
+        value: uSetting.value,
+      };
+    }
+    return {
+      meetingId: '',
+      userId: '',
+      setting: '',
+    };
+  }
+
+  const self = this;
+
+  const observer = UserSettings.find({ meetingId }).observe({
+    added(document) {
+      self.added('users-settings', document._id, transformUserSetting(document));
+    },
+    // eslint-disable-next-line no-unused-vars
+    changed(newDocument, oldDocument) {
+      self.changed('users-settings', newDocument._id, transformUserSetting(newDocument));
+    },
+    removed(oldDocument) {
+      self.removed('users-settings', oldDocument._id);
+    },
+  });
+
+  self.onStop(() => {
+    observer.stop();
+  });
+
+  self.ready();
 }
 
 function publish(...args) {

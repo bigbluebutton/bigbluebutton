@@ -66,6 +66,10 @@ const currentParameters = [
   // OUTSIDE COMMANDS
   'bbb_outside_toggle_self_voice',
   'bbb_outside_toggle_recording',
+  // USER / ROLE
+  'bbb_magic_cap_user',
+  'bbb_magic_cap_user_visible_for_moderator',
+  'bbb_magic_cap_user_visible_for_herself',
 ];
 
 function valueParser(val) {

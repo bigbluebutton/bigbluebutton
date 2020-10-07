@@ -9,6 +9,7 @@ import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
+import { hiddenByMagicCap } from '/imports/ui/services/users-settings';
 import { Session } from 'meteor/session';
 import { FormattedMessage } from 'react-intl';
 import Meetings, { RecordMeetings } from '../../api/meetings';
@@ -358,24 +359,32 @@ const BaseContainer = withTracker(() => {
     Users.find({}, { fields: { validated: 1, name: 1, userId: 1 } }).observe({
       changed: (newDocument) => {
         if (newDocument.validated && newDocument.name && newDocument.userId !== localUserId) {
-          if (userJoinAudioAlerts) {
-            const audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/userJoin.mp3`);
-            audio.play();
-          }
+          setTimeout(() => {
+            // We need the timeout here just to be ~safe any UserSettings (i.e.:bbb_magic_cap_user)
+            // associated with the new user (newDocument) joining, if present at all, will already
+            // have been published by Meteor prior to calling isMagicCapUser(newDocument)
+            // in the following line...
+            if (!hiddenByMagicCap(newDocument)) {
+              if (userJoinAudioAlerts) {
+                const audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/userJoin.mp3`);
+                audio.play();
+              }
 
-          if (userJoinPushAlerts) {
-            notify(
-              <FormattedMessage
-                id="app.notification.userJoinPushAlert"
-                description="Notification for a user joins the meeting"
-                values={{
-                  0: newDocument.name,
-                }}
-              />,
-              'info',
-              'user',
-            );
-          }
+              if (userJoinPushAlerts) {
+                notify(
+                  <FormattedMessage
+                    id="app.notification.userJoinPushAlert"
+                    description="Notification for a user joins the meeting"
+                    values={{
+                      0: newDocument.name,
+                    }}
+                  />,
+                  'info',
+                  'user',
+                );
+              }
+            }
+          }, 2000);
         }
       },
     });

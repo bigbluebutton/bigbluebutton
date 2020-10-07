@@ -5,7 +5,8 @@ import Button from '/imports/ui/components/button/component';
 import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
 import { styles } from './styles';
-import BreakoutRoomContainer from './breakout-remaining-time/container';
+import BreakoutRoomContainer from './breakout-remaining-time/container';1
+import {hiddenByMagicCap} from "../../services/users-settings";
 import VideoService from '/imports/ui/components/video-provider/service';
 
 const intlMessages = defineMessages({
@@ -283,6 +284,7 @@ class BreakoutRoom extends PureComponent {
           {breakout.joinedUsers
             .sort(BreakoutRoom.sortById)
             .filter((value, idx, arr) => !(value.userId === (arr[idx + 1] || {}).userId))
+            .filter(value => !hiddenByMagicCap({ userId: value.userId.split('-')[0] }))
             .sort(BreakoutRoom.sortUsersByName)
             .map(u => u.name)
             .join(', ')}

@@ -5,6 +5,7 @@ import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import Breakouts from '/imports/api/breakouts/';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
+import { hiddenByMagicCap } from '/imports/ui/services/users-settings';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
@@ -209,8 +210,8 @@ const getUsers = () => {
       users = users.filter(moderatorOrCurrentUser);
     }
   }
-
-  return users.sort(sortUsers);
+  const notAMagicCapUser = u => !hiddenByMagicCap(u);
+  return users.filter(notAMagicCapUser).sort(sortUsers);
 };
 
 const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID },
