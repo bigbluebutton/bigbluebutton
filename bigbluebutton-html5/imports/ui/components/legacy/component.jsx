@@ -68,7 +68,7 @@ addLocaleData([
 const FETCHING = 'fetching';
 const FALLBACK = 'fallback';
 const READY = 'ready';
-const supportedBrowsers = ['chrome', 'firefox', 'safari', 'opera', 'edge'];
+const supportedBrowsers = ['chrome', 'firefox', 'safari', 'opera', 'edge', 'yandex'];
 
 export default class Legacy extends Component {
   constructor(props) {
