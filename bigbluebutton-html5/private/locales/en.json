@@ -473,6 +473,7 @@
     "app.error.401": "Unauthorized",
     "app.error.403": "You have been removed from the meeting",
     "app.error.404": "Not found",
+    "app.error.408": "Error while logging in",
     "app.error.410": "Meeting has ended",
     "app.error.500": "Ops, something went wrong",
     "app.error.leaveLabel": "Log in again",

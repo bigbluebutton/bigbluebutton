@@ -178,6 +178,7 @@ class JoinHandler extends Component {
     const { response } = parseToJson;
 
     setLogoutURL(response);
+    logUserInfo();
 
     if (response.returncode !== 'FAILED') {
       await setAuth(response);
@@ -185,7 +186,6 @@ class JoinHandler extends Component {
       setBannerProps(response);
       setLogoURL(response);
       setModOnlyMessage(response);
-      logUserInfo();
 
       Tracker.autorun(async (cd) => {
         const user = Users.findOne({ userId: Auth.userID, approved: true }, { fields: { _id: 1 } });

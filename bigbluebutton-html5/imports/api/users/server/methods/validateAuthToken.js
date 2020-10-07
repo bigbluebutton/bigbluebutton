@@ -28,7 +28,7 @@ export default function validateAuthToken(meetingId, requesterUserId, requesterT
 
   if (isUserInvalid) {
     Logger.warn(`An invalid sessionToken tried to validateAuthToken meetingId=${meetingId} authToken=${requesterToken}`);
-    return { invalid: true, reason: 'User has an invalid sessionToken' };
+    return { invalid: true, reason: `User has an invalid sessionToken due to ${isUserInvalid.ejected ? 'ejection' : 'log out'}` };
   }
 
   // Store reference of methodInvocationObject ( to postpone the connection userId definition )
