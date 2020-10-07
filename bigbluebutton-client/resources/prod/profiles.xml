@@ -4,6 +4,7 @@
         <locale>
             <en_US>Low quality</en_US>
             <pt_BR>Baixa qualidade</pt_BR>
+            <ru_RU>Низкое качество</ru_RU>
         </locale>
         <width>160</width>
         <height>120</height>
@@ -19,6 +20,7 @@
         <locale>
             <en_US>Medium quality</en_US>
             <pt_BR>Média qualidade</pt_BR>
+            <ru_RU>Среднее качество</ru_RU>
         </locale>
         <width>320</width>
         <height>240</height>
@@ -34,6 +36,7 @@
         <locale>
             <en_US>High quality</en_US>
             <pt_BR>Alta qualidade</pt_BR>
+            <ru_RU>Высокое качество</ru_RU>
         </locale>
         <width>640</width>
         <height>480</height>
@@ -49,6 +52,7 @@
         <locale>
             <en_US>Widescreen</en_US>
             <pt_BR>Panorâmico</pt_BR>
+            <ru_RU>Широкоэкранный</ru_RU>
         </locale>
         <width>1280</width>
         <height>720</height>
@@ -64,6 +68,7 @@
         <locale>
             <en_US>Low Latency</en_US>
             <pt_BR>Baixa Latência</pt_BR>
+            <ru_RU>Низкая задержка</ru_RU>
         </locale>
         <width>640</width>
         <height>480</height>

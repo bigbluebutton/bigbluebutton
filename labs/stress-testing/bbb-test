@@ -46,6 +46,7 @@ while [ -n "$1" ]; do
                 --h|-h) shift; HOST="$1" ;;
                 --n|-n) shift; NUMBER="$1" ;;
                 --b|-b) shift; BROWSER="$1" ;;
+		--p|-p) shift; BROWSER_PARAM="$1" ;;
                 --m|-m) shift; NEWOBJ="$1" ;;
                 --s|-s) shift; SLEEP="$1" ;;
                 *)		echo "$0: Unrecognized option: $1" >&2; exit 1 ;;
@@ -63,6 +64,7 @@ if [ -z "$HOST" ] || [ -z "$NUMBER" ]; then
         echo "   -h remote_bigbluebutton_host"
         echo "   -n number_of_clients"
         echo "   -b web_browser_command (optional, Firefox and Chromium/Chrome are supported, Firefox is default)"
+	echo "   -p web_browser parameters (optional, example -P test1-profile)"
         echo "   -m tab|window (Open new tabs or new windows in the browser, default is tabs)"
         echo "   -s Sleep time in seconds between opening new connections, default is 5"
         echo
@@ -89,7 +91,7 @@ SLEEP="${SLEEP:-5}"
 
 case "$BROWSER" in
 	firefox*|newmoon*|palemoon* )
-		BROWSER_ARGS="-new-${NEWOBJ} -url"
+		BROWSER_ARGS="-new-${NEWOBJ} ${BROWSER_PARAM} -url"
 		;;
 	*chrome*|chromium*|opera*|vivaldi*|yandex* )
 		BROWSER_ARGS="--new-${NEWOBJ}"
