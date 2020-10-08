@@ -45,7 +45,7 @@ export default withTracker(() => ({
   screenshareDataSavingSetting: dataSavingSetting(),
   isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
   isMeteorConnected: Meteor.status().connected,
-  isPollingEnabled: POLLING_ENABLED,
+  isPollingEnabled: getFromUserSettings('bbb_enable_polling', POLLING_ENABLED),
   isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
     { fields: {} }),
   allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,
