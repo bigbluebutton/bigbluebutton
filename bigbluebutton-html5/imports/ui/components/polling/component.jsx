@@ -44,6 +44,9 @@ class Polling extends Component {
       handleVote,
       pollAnswerIds,
     } = this.props;
+
+    if (!poll) return null;
+
     const { stackOptions, answers } = poll;
     const pollAnswerStyles = {
       [styles.pollingAnswers]: true,
