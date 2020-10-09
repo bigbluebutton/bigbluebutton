@@ -36,7 +36,6 @@ export default function changePresenter(presenter, userId, meetingId, changedBy)
     Logger.info(`ChangePresenter:There is external video being shared. Stopping it due to presenter change, ${meeting.externalVideoUrl}`);
     stopWatchingExternalVideo({ meetingId, requesterUserId: userId });
   }
-  return Users.update(selector, modifier, cb);
   
   const currentSlide = Slides.findOne({
     podId: 'DEFAULT_PRESENTATION_POD',
@@ -51,5 +50,7 @@ export default function changePresenter(presenter, userId, meetingId, changedBy)
   if (currentSlide) {
     modifyWhiteboardAccess(meetingId, currentSlide.id, 1);
   }
+  
+  return Users.update(selector, modifier, cb);
 
 }
