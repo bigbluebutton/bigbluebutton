@@ -26,6 +26,8 @@ class ActionsBar extends PureComponent {
   state = {
     showTranslatorChoice: false,
     showLanguageChoice: false,
+    translatorLanguage: null,
+    translationLanguage: null,
   };
 
   componentDidUpdate(prevProps) {
@@ -48,15 +50,25 @@ class ActionsBar extends PureComponent {
     window.dispatchEvent(new Event('autoArrangeChanged'));
   }
   activateTranslation(){
-    AudioManager.openTranslationChannel();
-    console.log("making call createTranslationChannel")
-    //makeCall("createTranslationChannel");
+    AudioManager.openTranslationChannel();;
   }
   toggleTranslatorSelection(){
       this.state.showTranslatorChoice = !this.state.showTranslatorChoice;
       this.setState(this.state)
       this.forceUpdate()
   }
+  toggleTranslationSelection(){
+    this.state.showLanguageChoice = !this.state.showLanguageChoice;
+    this.setState(this.state)
+    this.forceUpdate()
+  }
+
+  handleLanguageSelection(name){
+    this.state.translatorLanguage = name
+    this.setState(this.state)
+    this.forceUpdate()
+  }
+
   render() {
     const {
       amIPresenter,
@@ -137,7 +149,7 @@ class ActionsBar extends PureComponent {
                     />
                   }
                   color='primary'
-                  label='Become Translator'
+                  label={hasBreakouts() ? 'Become Translator' : 'No Translation available'}
                   circle
                   hideLabel
                   size="lg"
@@ -149,7 +161,7 @@ class ActionsBar extends PureComponent {
           { this.state.showTranslatorChoice ?
               (
                 <div className={"sailingShip "+styles.translatorLanguageOverlay}>
-                  <LanguageOverlay/>
+                  <LanguageOverlay current={this.state.translatorLanguage}  clickHandler={this.handleLanguageSelection.bind(this) }/>
                 </div>
               ):null
           }

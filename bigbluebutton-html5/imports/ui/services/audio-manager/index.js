@@ -56,6 +56,8 @@ class AudioManager {
       muteHandle: null,
       autoplayBlocked: false,
       listeningTranslation: ORIGINAL_TRANSLATION,
+      translatorChannelOpen:false,
+      translationChannelOpen:false
     });
 
     this.useKurento = Meteor.settings.public.kurento.enableListenOnly;
@@ -71,7 +73,6 @@ class AudioManager {
       this.listenOnlyBridge = new KurentoBridge(userData);
     }
     this.userData = userData;
-    console.log(this.userData)
     this.initialized = true;
   }
 
@@ -643,27 +644,36 @@ class AudioManager {
     return audioAlert.play();
   }
 
-  openTranslationChannel(language){
-    //makeCall("createTranslationChannel");
+  openTranslationChannel(sequence){
+    if(this.translationBridge.activeSession){
+      this.translationBridge.exitAudio()
+    }
+    if(sequence<0){
+      return
+    }
     const breakoutRooms = breakoutService.findBreakouts();
 
     if( breakoutRooms.length > 0 ) {
 
       const callOptions = {
-        isListenOnly: false,
+        isListenOnly: true,
         extension: null,
         inputStream: this.inputStream,
       };
-      this.translationBridge.userData.voiceBridge += "1";
+      this.translationBridge.userData.voiceBridge = this.bridge.userData.voiceBridge+""+sequence;
       this.translationBridge.joinAudio(callOptions,function () {
-          console.log("second connection established.")
         return new Promise(function () {
-            console.log("prmosie callback")
         });
       });
     }
   }
   openTranslatorChannel(sequence){
+    if(this.translationBridge.activeSession){
+      this.translationBridge.exitAudio()
+    }
+    if(sequence<0){
+      return
+    }
     const breakoutRooms = breakoutService.findBreakouts();
 
     if( breakoutRooms.length > 0 ) {
@@ -675,9 +685,7 @@ class AudioManager {
       };
       this.translationBridge.userData.voiceBridge = this.bridge.userData.voiceBridge+""+sequence;
       this.translationBridge.joinAudio(callOptions,function () {
-        console.log("second connection established.");
         return new Promise(function () {
-          console.log("prmosie callback");
         });
       });
     }
