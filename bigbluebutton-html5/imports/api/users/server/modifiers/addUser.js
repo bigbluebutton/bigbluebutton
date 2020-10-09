@@ -73,6 +73,7 @@ export default function addUser(meetingId, user) {
       voiceUserId: '',
       intId: userId,
       callerName: user.name,
+      whiteboardAccess: user.presenter,
       callerNum: '',
       muted: false,
       talking: false,
