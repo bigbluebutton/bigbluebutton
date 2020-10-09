@@ -1,7 +1,7 @@
 import loadScript from 'load-script';
 import React, { Component } from 'react'
 
-const MATCH_URL = new RegExp("https?:\/\/(\\w+)\.(instructuremedia.com)(\/embed)?\/([-abcdef0-9]+)");
+const MATCH_URL = new RegExp("https?:\/\/(.*)(instructuremedia.com)(\/embed)?\/([-abcdef0-9]+)");
 
 const SDK_URL = 'https://files.instructuremedia.com/instructure-media-script/instructure-media-1.1.0.js';
 
