@@ -4,6 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
 import Auth from '/imports/ui/services/auth';
 import Button from '/imports/ui/components/button/component';
+import allowRedirectToLogoutURL from './service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
 import Rating from './rating/component';
@@ -102,6 +103,7 @@ class MeetingEnded extends PureComponent {
     super(props);
     this.state = {
       selected: 0,
+      dispatched: false,
     };
 
     const user = Users.findOne({ userId: Auth.userID });
@@ -110,8 +112,9 @@ class MeetingEnded extends PureComponent {
     }
 
     this.setSelectedStar = this.setSelectedStar.bind(this);
+    this.confirmRedirect = this.confirmRedirect.bind(this);
     this.sendFeedback = this.sendFeedback.bind(this);
-    this.shouldShowFeedback = getFromUserSettings('bbb_ask_for_feedback_on_logout', Meteor.settings.public.app.askForFeedbackOnLogout);
+    this.shouldShowFeedback = this.shouldShowFeedback.bind(this);
 
     AudioManager.exitAudio();
     Meteor.disconnect();
@@ -123,16 +126,26 @@ class MeetingEnded extends PureComponent {
     });
   }
 
-  sendFeedback() {
+  shouldShowFeedback() {
+    const { dispatched } = this.state;
+    return getFromUserSettings('bbb_ask_for_feedback_on_logout', Meteor.settings.public.app.askForFeedbackOnLogout) && !dispatched;
+  }
+
+  confirmRedirect() {
     const {
       selected,
     } = this.state;
 
     if (selected <= 0) {
       if (meetingIsBreakout()) window.close();
-      logoutRouteHandler();
-      return;
+      if (allowRedirectToLogoutURL()) logoutRouteHandler();
     }
+  }
+
+  sendFeedback() {
+    const {
+      selected,
+    } = this.state;
 
     const { fullname } = Auth.credentials;
 
@@ -157,27 +170,70 @@ class MeetingEnded extends PureComponent {
     // client logger
     logger.info({ logCode: 'feedback_functionality', extraInfo: { feedback: message } }, 'Feedback component');
 
-    const FEEDBACK_WAIT_TIME = 500;
-    setTimeout(() => {
-      fetch(url, options)
-        .then(() => {
-          logoutRouteHandler();
-        })
-        .catch(() => {
-          logoutRouteHandler();
-        });
-    }, FEEDBACK_WAIT_TIME);
+    this.setState({
+      dispatched: true,
+    });
+
+    if (allowRedirectToLogoutURL()) {
+      const FEEDBACK_WAIT_TIME = 500;
+      setTimeout(() => {
+        fetch(url, options)
+          .then(() => {
+            logoutRouteHandler();
+          })
+          .catch(() => {
+            logoutRouteHandler();
+          });
+      }, FEEDBACK_WAIT_TIME);
+    }
   }
 
-  render() {
+  renderNoFeedback() {
+    const { intl, code } = this.props;
+
+    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code } }, 'Meeting ended component, no feedback configured');
+
+    return (
+      <div className={styles.parent}>
+        <div className={styles.modal}>
+          <div className={styles.content}>
+            <h1 className={styles.title} data-test="meetingEndedModalTitle">
+              {
+                intl.formatMessage(intlMessage[code] || intlMessage[430])
+              }
+            </h1>
+            {!allowRedirectToLogoutURL() ? null : (
+              <div>
+                <div className={styles.text}>
+                  {intl.formatMessage(intlMessage.messageEnded)}
+                </div>
+
+                <Button
+                  color="primary"
+                  onClick={this.confirmRedirect}
+                  className={styles.button}
+                  label={intl.formatMessage(intlMessage.buttonOkay)}
+                  description={intl.formatMessage(intlMessage.confirmDesc)}
+                />
+              </div>
+
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  renderFeedback() {
     const { intl, code } = this.props;
     const {
       selected,
+      dispatched,
     } = this.state;
 
     const noRating = selected <= 0;
 
-    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code } }, 'Meeting ended component');
+    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code } }, 'Meeting ended component, feedback allowed');
 
     return (
       <div className={styles.parent}>
@@ -189,11 +245,12 @@ class MeetingEnded extends PureComponent {
               }
             </h1>
             <div className={styles.text}>
-              {this.shouldShowFeedback
+              {this.shouldShowFeedback()
                 ? intl.formatMessage(intlMessage.subtitle)
                 : intl.formatMessage(intlMessage.messageEnded)}
             </div>
-            {this.shouldShowFeedback ? (
+
+            {this.shouldShowFeedback() ? (
               <div>
                 <Rating
                   total="5"
@@ -210,21 +267,34 @@ class MeetingEnded extends PureComponent {
                 ) : null}
               </div>
             ) : null }
-            <Button
-              color="primary"
-              onClick={this.sendFeedback}
-              className={styles.button}
-              label={noRating
-                ? intl.formatMessage(intlMessage.buttonOkay)
-                : intl.formatMessage(intlMessage.sendLabel)}
-              description={noRating
-                ? intl.formatMessage(intlMessage.confirmDesc)
-                : intl.formatMessage(intlMessage.sendDesc)}
-            />
+            {noRating && allowRedirectToLogoutURL() ? (
+              <Button
+                color="primary"
+                onClick={this.confirmRedirect}
+                className={styles.button}
+                label={intl.formatMessage(intlMessage.buttonOkay)}
+                description={intl.formatMessage(intlMessage.confirmDesc)}
+              />
+            ) : null}
+
+            {!noRating && !dispatched ? (
+              <Button
+                color="primary"
+                onClick={this.sendFeedback}
+                className={styles.button}
+                label={intl.formatMessage(intlMessage.sendLabel)}
+                description={intl.formatMessage(intlMessage.sendDesc)}
+              />
+            ) : null}
           </div>
         </div>
       </div>
     );
+  }
+
+  render() {
+    if (this.shouldShowFeedback()) return this.renderFeedback();
+    return this.renderNoFeedback();
   }
 }
 

@@ -7,6 +7,7 @@ import Users from '/imports/api/users';
 import logger from '/imports/startup/client/logger';
 import { makeCall } from '/imports/ui/services/api';
 import { initAnnotationsStreamListener } from '/imports/ui/components/whiteboard/service';
+import allowRedirectToLogoutURL from '/imports/ui/components/meeting-ended/service';
 import { initCursorStreamListener } from '/imports/ui/components/cursor/service';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
@@ -182,7 +183,12 @@ class Auth {
 
 
     return new Promise((resolve) => {
-      resolve(this._logoutURL);
+      if (allowRedirectToLogoutURL()) {
+        resolve(this._logoutURL);
+      }
+
+      // do not redirect
+      resolve();
     });
   }
 
