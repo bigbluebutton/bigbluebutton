@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import CursorService from './service';
+import CursorWrapperService from './cursor-wrapper-container/service';
 
 export default class Cursor extends Component {
   static scale(attribute, widthRatio, physicalWidthRatio) {
@@ -162,6 +164,8 @@ export default class Cursor extends Component {
       cursorId,
       userName,
       isRTL,
+      whiteboardId,
+      podId,
     } = this.props;
 
     const {
@@ -182,62 +186,71 @@ export default class Cursor extends Component {
 
     const boxX = x + cursorLabelBox.xOffset;
     const boxY = y + cursorLabelBox.yOffset;
-
-    return (
-      <g
-        x={x}
-        y={y}
-      >
-        <circle
-          cx={x}
-          cy={y}
-          r={finalRadius === Infinity ? 0 : finalRadius}
-          fill={fill}
-          fillOpacity="0.6"
-        />
-        {this.displayLabel
-          ? (
-            <g>
-              <rect
-                fill="white"
-                fillOpacity="0.8"
-                x={boxX}
-                y={boxY}
-                width={cursorLabelBox.width}
-                height={cursorLabelBox.height}
-                strokeWidth={cursorLabelBox.strokeWidth}
-                stroke={fill}
-                strokeOpacity="0.8"
-              />
-              <text
-                ref={(ref) => { this.cursorLabelRef = ref; }}
-                x={x}
-                y={y}
-                dy={cursorLabelText.textDY}
-                dx={cursorLabelText.textDX}
-                fontFamily="Arial"
-                fontWeight="600"
-                fill={fill}
-                fillOpacity="0.8"
-                fontSize={cursorLabelText.fontSize}
-                clipPath={`url(#${cursorId})`}
-                textAnchor={isRTL ? 'end' : 'start'}
-              >
-                {userName}
-              </text>
-              <clipPath id={cursorId}>
+    const isPresenter = CursorService.isPresenter();
+    const modeMultiUser = CursorService.getMultiUserStatus(whiteboardId);
+    const currentUserID = CursorService.currentUserID();
+    const cursorIds = CursorWrapperService.getCurrentCursorIds(podId, whiteboardId);
+    const { presenterCursorId } = cursorIds;
+    const myCursorId = CursorWrapperService.getPresenterCursorId(whiteboardId, currentUserID);
+    if (modeMultiUser == 2 && !isPresenter && presenterCursorId && presenterCursorId._id != cursorId && myCursorId._id != cursorId) {
+      return null;
+    } else {
+      return (
+        <g
+          x={x}
+          y={y}
+        >
+          <circle
+            cx={x}
+            cy={y}
+            r={finalRadius === Infinity ? 0 : finalRadius}
+            fill={fill}
+            fillOpacity="0.6"
+          />
+          {this.displayLabel
+            ? (
+              <g>
                 <rect
+                  fill="white"
+                  fillOpacity="0.8"
                   x={boxX}
                   y={boxY}
                   width={cursorLabelBox.width}
                   height={cursorLabelBox.height}
+                  strokeWidth={cursorLabelBox.strokeWidth}
+                  stroke={fill}
+                  strokeOpacity="0.8"
                 />
-              </clipPath>
-            </g>
-          )
-          : null }
-      </g>
-    );
+                <text
+                  ref={(ref) => { this.cursorLabelRef = ref; }}
+                  x={x}
+                  y={y}
+                  dy={cursorLabelText.textDY}
+                  dx={cursorLabelText.textDX}
+                  fontFamily="Arial"
+                  fontWeight="600"
+                  fill={fill}
+                  fillOpacity="0.8"
+                  fontSize={cursorLabelText.fontSize}
+                  clipPath={`url(#${cursorId})`}
+                  textAnchor={isRTL ? 'end' : 'start'}
+                >
+                  {userName}
+                </text>
+                <clipPath id={cursorId}>
+                  <rect
+                    x={boxX}
+                    y={boxY}
+                    width={cursorLabelBox.width}
+                    height={cursorLabelBox.height}
+                  />
+                </clipPath>
+              </g>
+            )
+            : null }
+        </g>
+      );
+    }
   }
 }
 
@@ -249,7 +262,7 @@ Cursor.propTypes = {
   // Current presenter status
   presenter: PropTypes.bool.isRequired,
   // Current multi-user status
-  isMultiUser: PropTypes.bool.isRequired,
+  isMultiUser: PropTypes.number.isRequired,
 
   // Defines the id of the current cursor
   cursorId: PropTypes.string.isRequired,
