@@ -245,7 +245,6 @@
     "app.video.enable": "Omogući",
     "app.video.cancel": "Odustani",
     "app.video.swapCam": "Zamijeni",
-    "app.video.videoButtonDesc": "Podijeli web-kameru",
     "app.video.videoMenu": "Video izbornik",
     "app.video.chromeExtensionError": "Morate instalirati",
     "app.meeting.endNotification.ok.label": "U redu",
