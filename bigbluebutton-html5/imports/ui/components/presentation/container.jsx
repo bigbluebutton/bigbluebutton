@@ -39,8 +39,7 @@ export default withTracker(({ podId }) => {
     slidePosition,
     downloadPresentationUri: PresentationAreaService.downloadPresentationUri(podId),
     userIsPresenter: PresentationAreaService.isPresenter(podId) && !layoutSwapped,
-    multiUser: PresentationAreaService.getMultiUserStatus(currentSlide && currentSlide.id)
-      && !layoutSwapped,
+    multiUser: PresentationAreaService.getMultiUserStatus(currentSlide && currentSlide.id) * (layoutSwapped ? 0 : 1),
     presentationIsDownloadable,
     mountPresentationArea: !!currentSlide,
     currentPresentation: PresentationAreaService.getCurrentPresentation(podId),
