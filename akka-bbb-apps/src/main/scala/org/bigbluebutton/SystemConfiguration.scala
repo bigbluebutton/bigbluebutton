@@ -50,7 +50,7 @@ trait SystemConfiguration {
 
   lazy val endMeetingWhenNoMoreAuthedUsers = Try(config.getBoolean("apps.endMeetingWhenNoMoreAuthedUsers")).getOrElse(false)
   lazy val endMeetingWhenNoMoreAuthedUsersAfterMinutes = Try(config.getInt("apps.endMeetingWhenNoMoreAuthedUsersAfterMinutes")).getOrElse(2)
-  lazy val multiUserWhiteboardDefault = Try(config.getBoolean("whiteboard.multiUserDefault")).getOrElse(false)
+  lazy val multiUserWhiteboardDefault = Try(config.getInt("whiteboard.multiUserDefault")).getOrElse(0)
 
   // Redis server configuration
   lazy val redisHost = Try(config.getString("redis.host")).getOrElse("127.0.0.1")
