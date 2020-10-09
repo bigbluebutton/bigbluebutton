@@ -10,7 +10,6 @@ class LanguageOverlay extends Component{
     }
 
     clickHandler = (language) => {
-        AudioManager.openTranslatorChannel(language.sequence)
         let handler = this.props.clickHandler;
         handler(language);
         this.forceUpdate()

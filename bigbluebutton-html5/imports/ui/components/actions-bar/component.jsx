@@ -60,8 +60,16 @@ class ActionsBar extends PureComponent {
     this.forceUpdate()
   }
 
-  handleLanguageSelection(name){
-    this.state.translatorLanguage = name
+  handleTranslatorLanguageSelection(language){
+    this.state.translatorLanguage = language
+    AudioManager.openTranslatorChannel(language.sequence)
+    this.setState(this.state)
+    this.forceUpdate()
+  }
+
+  handleLanguageSelection(language){
+    this.state.translationLanguage = language
+    AudioManager.openTranslationChannel(language.sequence)
     this.setState(this.state)
     this.forceUpdate()
   }
@@ -158,7 +166,7 @@ class ActionsBar extends PureComponent {
           { this.state.showTranslatorChoice ?
               (
                 <div className={"sailingShip "+styles.translatorLanguageOverlay}>
-                  <LanguageOverlay current={this.state.translatorLanguage}  clickHandler={this.handleLanguageSelection.bind(this) }/>
+                  <LanguageOverlay current={this.state.translatorLanguage}  clickHandler={this.handleTranslatorLanguageSelection.bind(this) }/>
                 </div>
               ):null
           }
@@ -182,11 +190,11 @@ class ActionsBar extends PureComponent {
           { this.state.showLanguageChoice ?
               (
                   <div className={"sailingShip "+styles.languageOverlay}>
-                    <LanguageOverlay current={this.state.translatorLanguage}  clickHandler={this.handleLanguageSelection.bind(this) }/>
+                    <LanguageOverlay current={this.state.translationLanguage}  clickHandler={this.handleLanguageSelection.bind(this) }/>
                   </div>
               ):null
           }
-          <div id"translationButton">
+          <div id={"translationButton"}>
             <Button
               customIcon={
                 <img
@@ -199,7 +207,7 @@ class ActionsBar extends PureComponent {
               circle
               hideLabel
               size="lg"
-              clickHandler={this.toggleTranslationSelection}
+              onClick={this.toggleTranslationSelection.bind(this)}
             />
           </div>
           <Button
