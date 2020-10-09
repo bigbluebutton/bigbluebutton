@@ -138,3 +138,17 @@
     background-color: white;
   }
 }
+.languageOverlay{
+  position: fixed;
+  --anchor-bottom: #translatorButton top;
+  --anchor-horizontalCenter: #translatorButton horizontalCenter;
+
+  margin: 0;
+  li{
+    list-style: none;
+  }
+  ul{
+    padding: 5px;
+    background-color: white;
+  }
+}

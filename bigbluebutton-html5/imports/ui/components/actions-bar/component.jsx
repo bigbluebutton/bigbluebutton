@@ -49,9 +49,6 @@ class ActionsBar extends PureComponent {
     );
     window.dispatchEvent(new Event('autoArrangeChanged'));
   }
-  activateTranslation(){
-    AudioManager.openTranslationChannel();;
-  }
   toggleTranslatorSelection(){
       this.state.showTranslatorChoice = !this.state.showTranslatorChoice;
       this.setState(this.state)
@@ -182,20 +179,29 @@ class ActionsBar extends PureComponent {
             screenshareDataSavingSetting,
           }}
           />
-          <Button
-            customIcon={
-              <img
-                className="icon-bbb-translation"
-                src='/html5client/svgs/bbb_translations_icon.svg'
-              />
-            }
-            color='primary'
-            label={ hasBreakouts() ? 'Activate Translation' : 'No Translation Available' }
-            circle
-            hideLabel
-            size="lg"
-            onClick={this.activateTranslation}
-          />
+          { this.state.showLanguageChoice ?
+              (
+                  <div className={"sailingShip "+styles.languageOverlay}>
+                    <LanguageOverlay current={this.state.translatorLanguage}  clickHandler={this.handleLanguageSelection.bind(this) }/>
+                  </div>
+              ):null
+          }
+          <div id"translationButton">
+            <Button
+              customIcon={
+                <img
+                  className="icon-bbb-translation"
+                  src='/html5client/svgs/bbb_translations_icon.svg'
+                />
+              }
+              color='primary'
+              label={ hasBreakouts() ? 'Activate Translation' : 'No Translation Available' }
+              circle
+              hideLabel
+              size="lg"
+              clickHandler={this.toggleTranslationSelection}
+            />
+          </div>
           <Button
             className={cx(styles.button, autoArrangeLayout || styles.btn)}
             icon={autoArrangeLayout ? 'lock' : 'unlock'}
