@@ -1,4 +1,5 @@
 @import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/palette";
 @import "/imports/ui/components/modal/simple/styles";
 
 :root {
@@ -129,26 +130,49 @@
   --anchor-bottom: #translatorButton top;
   --anchor-horizontalCenter: #translatorButton horizontalCenter;
 
+  box-sizing: border-box;
+  border-radius: 1em;
+
   margin: 0;
   li{
+    padding-left: 1em;
+    padding-right: 2em;
+    min-width: 8em;
     list-style: none;
+
+    &:hover {
+      background-color: var(--color-primary);
+      color: var(--color-white);
+    }
   }
   ul{
     padding: 5px;
-    background-color: white;
+    background-color: var(--color-off-white);
   }
 }
+
 .languageOverlay{
   position: fixed;
   --anchor-bottom: #translationButton top;
   --anchor-horizontalCenter: #translationButton horizontalCenter;
 
+  box-sizing: border-box;
+  border-radius: 1em;
+
   margin: 0;
   li{
+    padding-left: 1em;
+    padding-right: 2em;
+    min-width: 8em;
     list-style: none;
+
+    &:hover {
+      background-color: var(--color-primary);
+      color: var(--color-white);
+    }
   }
   ul{
     padding: 5px;
-    background-color: white;
+    background-color: var(--color-off-white);
   }
 }
