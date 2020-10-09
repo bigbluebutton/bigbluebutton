@@ -759,7 +759,7 @@ PresentationArea.propTypes = {
     viewBoxHeight: PropTypes.number.isRequired,
   }),
   // current multi-user status
-  multiUser: PropTypes.bool.isRequired,
+  multiUser: PropTypes.number.isRequired,
 };
 
 PresentationArea.defaultProps = {
