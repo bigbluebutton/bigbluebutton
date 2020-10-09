@@ -5,6 +5,8 @@ const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
 const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
+const DEFAULT_TEXT_WIDTH = 30;
+const DEFAULT_TEXT_HEIGHT = 20;
 
 // maximum value of z-index to prevent other things from overlapping
 const MAX_Z_INDEX = (2 ** 31) - 1;
@@ -363,6 +365,7 @@ export default class TextDrawListener extends Component {
       actions,
       slideWidth,
       slideHeight,
+      drawSettings,
     } = this.props;
 
     const {
@@ -383,14 +386,34 @@ export default class TextDrawListener extends Component {
       generateNewShapeId,
       getCurrentShapeId,
       setTextShapeActiveId,
+      normalizeFont,
     } = actions;
+
+    const {
+      textFontSize,
+    } = drawSettings;
+
+    const calcedFontSize = normalizeFont(textFontSize);
+    let calcedTextBoxWidth = (textBoxWidth / slideWidth) * 100;
+    let calcedTextBoxHeight = (textBoxHeight / slideHeight) * 100;
+    const useDefaultSize = (textBoxWidth === 0 && textBoxHeight === 0)
+    || calcedTextBoxWidth < calcedFontSize
+    || calcedTextBoxHeight < calcedFontSize;
 
     // coordinates and width/height of the textarea in percentages of the current slide
     // saving them in the class since they will be used during all updates
     this.currentX = (textBoxX / slideWidth) * 100;
     this.currentY = (textBoxY / slideHeight) * 100;
-    this.currentWidth = (textBoxWidth / slideWidth) * 100;
-    this.currentHeight = (textBoxHeight / slideHeight) * 100;
+
+    if (useDefaultSize) {
+      calcedTextBoxWidth = DEFAULT_TEXT_WIDTH;
+      calcedTextBoxHeight = DEFAULT_TEXT_HEIGHT;
+      if (100 - this.currentX < calcedTextBoxWidth) calcedTextBoxWidth = 100 - this.currentX;
+      if (100 - this.currentY < calcedTextBoxHeight) calcedTextBoxHeight = 100 - this.currentY;
+    }
+
+    this.currentWidth = calcedTextBoxWidth;
+    this.currentHeight = calcedTextBoxHeight;
     this.currentStatus = DRAW_START;
     this.handleDrawText(
       { x: this.currentX, y: this.currentY },
