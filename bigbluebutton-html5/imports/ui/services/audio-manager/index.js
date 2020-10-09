@@ -69,6 +69,7 @@ class AudioManager {
   init(userData) {
     this.bridge = new SIPBridge(userData); // no alternative as of 2019-03-08
     this.translationBridge = new SIPBridge({...userData}, "#translation-media");
+    this.translatorBridge = new SIPBridge({...userData}, "#translator-media");
     if (this.useKurento) {
       this.listenOnlyBridge = new KurentoBridge(userData);
     }
@@ -667,30 +668,29 @@ class AudioManager {
       });
     }
   }
-  openTranslatorChannel(sequence){
-    if(this.translationBridge.activeSession){
-      this.translationBridge.exitAudio()
-    }
-    if(sequence<0){
-      return
-    }
-    const breakoutRooms = breakoutService.findBreakouts();
 
-    if( breakoutRooms.length > 0 ) {
-      const englishRoom = breakoutRooms[0];
-      const callOptions = {
-        isListenOnly: false,
-        extension: null,
-        inputStream: this.inputStream,
-      };
-      this.translationBridge.userData.voiceBridge = this.bridge.userData.voiceBridge+""+sequence;
-      this.translationBridge.joinAudio(callOptions,function () {
-        return new Promise(function () {
+  openTranslatorChannel(sequence) {
+    if( this.translatorBridge.activeSession ) {
+      this.translatorBridge.exitAudio()
+    }
+
+    if( sequence >= 0 ) {    
+      const breakoutRooms = breakoutService.findBreakouts();
+
+      if( breakoutRooms.length > 0 ) {
+        const callOptions = {
+          isListenOnly: false,
+          extension: null,
+          inputStream: this.inputStream,
+        };
+        this.translatorBridge.userData.voiceBridge = this.userData.voiceBridge.toString()+sequence;
+        this.translatorBridge.joinAudio(callOptions,function () {
+          return new Promise(function () {
+          });
         });
-      });
+      }
     }
   }
-
 }
 
 const audioManager = new AudioManager();
