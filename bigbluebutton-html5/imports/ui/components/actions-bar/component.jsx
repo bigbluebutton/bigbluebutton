@@ -51,11 +51,13 @@ class ActionsBar extends PureComponent {
   }
   toggleTranslatorSelection(){
       this.state.showTranslatorChoice = !this.state.showTranslatorChoice;
+      this.state.showLanguageChoice = false;
       this.setState(this.state)
       this.forceUpdate()
   }
   toggleTranslationSelection(){
     this.state.showLanguageChoice = !this.state.showLanguageChoice;
+    this.state.showTranslatorChoice = false;
     this.setState(this.state)
     this.forceUpdate()
   }
