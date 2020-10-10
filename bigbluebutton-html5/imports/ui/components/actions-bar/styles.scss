@@ -142,7 +142,7 @@
     cursor: pointer;
 
     padding-left: 1em;
-    padding-right: 2em;
+    padding-right: 1em;
     min-width: 8em;
     list-style: none;
 
@@ -167,8 +167,14 @@
 
   margin: 0;
   li{
+    box-sizing: unset;
+    display: flex;
+    justify-content: space-between;
+
+    cursor: pointer;
+
     padding-left: 1em;
-    padding-right: 2em;
+    padding-right: 1em;
     min-width: 8em;
     list-style: none;
 
