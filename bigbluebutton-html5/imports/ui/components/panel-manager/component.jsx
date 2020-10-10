@@ -14,9 +14,6 @@ import _ from 'lodash';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import {
   USERLIST_MIN_WIDTH,
-  USERLIST_MAX_WIDTH,
-  CHAT_MIN_WIDTH,
-  CHAT_MAX_WIDTH,
 } from '/imports/ui/components/layout/layout-manager';
 import Translations from "../translations/component";
 
