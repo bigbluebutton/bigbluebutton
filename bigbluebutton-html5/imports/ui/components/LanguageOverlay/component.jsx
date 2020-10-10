@@ -31,6 +31,9 @@ class LanguageOverlay extends Component{
     componentDidMount() {
         const service = new MeetingService();
         let breakouts = service.findBreakouts()
+        breakouts = breakouts.filter((c)=>{
+           return ! (c.breakoutId === this.props.other.breakoutId)
+        });
         this.state.language = breakouts
         this.state.language.push({name: "None", sequence:-1})
         this.setState(this.state)
