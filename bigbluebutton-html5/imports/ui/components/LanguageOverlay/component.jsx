@@ -23,7 +23,7 @@ class LanguageOverlay extends Component{
                 {this.state.language.map(function (language) {
                     return <li className={styles.languageOption} onClick={() => {
                         this.clickHandler(language)
-                    }}> {language.name}  {this.props.current && language.name === this.props.current.name && <span>&#x2713;</span> } </li>
+                    }}> <span>{language.name}</span>  {this.props.current && language.name === this.props.current.name && <span>&#x2713;</span> } </li>
                 },this)}
             </ul>
         </div>);
