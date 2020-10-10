@@ -48,7 +48,7 @@ export default function changePresenter(presenter, userId, meetingId, changedBy)
   });
 
   if (currentSlide) {
-    modifyWhiteboardAccess(meetingId, currentSlide.id, 1);
+    modifyWhiteboardAccess(meetingId, currentSlide.id, 0);
   }
   
   return Users.update(selector, modifier, cb);
