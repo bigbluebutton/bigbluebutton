@@ -73,7 +73,6 @@ export default function addUser(meetingId, user) {
       voiceUserId: '',
       intId: userId,
       callerName: user.name,
-      whiteboardAccess: user.presenter,
       callerNum: '',
       muted: false,
       talking: false,
@@ -81,6 +80,8 @@ export default function addUser(meetingId, user) {
       listenOnly: false,
       voiceConf: '',
       joined: false,
+      //whiteboardAccess: user.presenter, // toolbar not shown when non-presenter joins later..
+      whiteboardAccess: true, // mutiuser decides show/hide of toolbar anyway
     });
   }
 
