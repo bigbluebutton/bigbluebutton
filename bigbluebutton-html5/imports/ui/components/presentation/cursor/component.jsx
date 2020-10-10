@@ -192,7 +192,7 @@ export default class Cursor extends Component {
     const cursorIds = CursorWrapperService.getCurrentCursorIds(podId, whiteboardId);
     const { presenterCursorId } = cursorIds;
     const myCursorId = CursorWrapperService.getPresenterCursorId(whiteboardId, currentUserID);
-    if (modeMultiUser == 2 && !isPresenter && presenterCursorId && presenterCursorId._id != cursorId && myCursorId._id != cursorId) {
+    if (modeMultiUser == 2 && !isPresenter && (!presenterCursorId || presenterCursorId._id != cursorId) && (!myCursorId || myCursorId._id != cursorId)) {
       return null;
     } else {
       return (
