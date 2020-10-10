@@ -13,7 +13,10 @@ class Translations extends Component{
             <div key={"translation-options"}>
                 <h2 className={styles.smallTitle}>Translations</h2>
                 <div className={styles.translationContainer}>
-                    <span className={styles.optionName} onClick={this.toggleLanguagesPanel}>Languages</span>
+                    <img
+                        className="icon-bbb-languages"
+                        src='/html5client/svgs/translations.svg'
+                    /><span className={styles.optionName} onClick={this.toggleLanguagesPanel}>Languages</span>
                 </div>
             </div>
         );
