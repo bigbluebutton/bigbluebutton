@@ -1,7 +1,7 @@
 import Cursor from '/imports/ui/components/cursor/service';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
+import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
 
 const getCurrentCursor = (cursorId) => {
   const cursor = Cursor.findOne({ _id: cursorId });
