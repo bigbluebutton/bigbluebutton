@@ -283,7 +283,7 @@ export default class Cursor extends Component {
           : null }
       </g>
     );
-  }
+    }
   }
 }
 
