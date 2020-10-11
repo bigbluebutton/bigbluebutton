@@ -272,34 +272,6 @@ export default class Cursor extends Component {
               </text>
               <clipPath id={cursorId}>
                 <rect
-                  fill="white"
-                  fillOpacity="0.8"
-                  x={boxX}
-                  y={boxY}
-                  width={cursorLabelBox.width}
-                  height={cursorLabelBox.height}
-                  strokeWidth={cursorLabelBox.strokeWidth}
-                  stroke={fill}
-                  strokeOpacity="0.8"
-                />
-                <text
-                  ref={(ref) => { this.cursorLabelRef = ref; }}
-                  x={x}
-                  y={y}
-                  dy={cursorLabelText.textDY}
-                  dx={cursorLabelText.textDX}
-                  fontFamily="Arial"
-                  fontWeight="600"
-                  fill={fill}
-                  fillOpacity="0.8"
-                  fontSize={cursorLabelText.fontSize}
-                  clipPath={`url(#${cursorId})`}
-                  textAnchor={isRTL ? 'end' : 'start'}
-                >
-                  {userName}
-                </text>
-                <clipPath id={cursorId}>
-                  <rect
                     x={boxX}
                     y={boxY}
                     width={cursorLabelBox.width}
