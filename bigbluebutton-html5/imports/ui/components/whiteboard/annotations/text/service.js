@@ -26,9 +26,18 @@ const isPresenter = () => {
   return currentUser ? currentUser.presenter : false;
 };
 
+const isHePresenter = (somebody) => {
+  const he = Users.findOne({ userId: somebody }, { fields: { presenter: 1 } });
+  return he ? he.presenter : false;
+};
+
+const currentUserID = () => {
+  return Auth.userID ;
+};
+
 const getMultiUserStatus = (whiteboardId) => {
   const data = WhiteboardMultiUser.findOne({ meetingId: Auth.meetingID, whiteboardId });
-  return data ? data.multiUser : false;
+  return data ? data.multiUser : 0;
 };
 
 const activeTextShapeId = () => {
@@ -42,4 +51,6 @@ export default {
   isPresenter,
   resetTextShapeActiveId,
   getMultiUserStatus,
+  isHePresenter,
+  currentUserID,
 };
