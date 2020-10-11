@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers';
+import LineService from '../commonservice';
 
 export default class LineDrawComponent extends Component {
   shouldComponentUpdate(nextProps) {
@@ -27,10 +28,16 @@ export default class LineDrawComponent extends Component {
 
   render() {
     const results = this.getCoordinates();
-    const { annotation, slideWidth } = this.props;
+    const { annotation, slideWidth, whiteboardId } = this.props;
     const {
       x1, y1, x2, y2,
     } = results;
+    const isPresenter = LineService.isPresenter();
+    const modeMultiUser = LineService.getMultiUserStatus(whiteboardId);
+    const currentUserID = LineService.currentUserID();
+    const drawerID = annotation.id.replace(/-.*$/,'');
+    const isDrawerPresenter = LineService.isHePresenter(drawerID);
+    const visibility = modeMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? {visibility: "hidden"} : {};
 
     return (
       <line
@@ -42,6 +49,7 @@ export default class LineDrawComponent extends Component {
         strokeLinejoin="round"
         strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
+        {...visibility}
       />
     );
   }
