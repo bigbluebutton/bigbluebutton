@@ -46,6 +46,14 @@ export const setModeratorOnlyMessage = msg => Storage.setItem('ModeratorOnlyMess
 
 const getCustomLogoUrl = () => Storage.getItem(CUSTOM_LOGO_URL_KEY);
 
+const sortByWhiteboardAccess = (a, b) => {
+  const _a = a.whiteboardAccess;
+  const _b = b.whiteboardAccess;
+  if (!_b && _a) return -1;
+  if (!_a && _b) return 1;
+  return 0;
+};
+
 const sortUsersByName = (a, b) => {
   const aName = a.name.toLowerCase();
   const bName = b.name.toLowerCase();
@@ -128,6 +136,10 @@ const sortUsers = (a, b) => {
     sort = sortUsersByPhoneUser(a, b);
   }
 
+  if (sort === 0) {
+    sort = sortByWhiteboardAccess(a, b);
+  }
+  
   if (sort === 0) {
     sort = sortUsersByName(a, b);
   }
