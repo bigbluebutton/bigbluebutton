@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers';
+import PencilService from '../commonservice';
 
 export default class PencilDrawComponent extends Component {
   static getInitialCoordinates(annotation, slideWidth, slideHeight) {
@@ -142,7 +143,14 @@ export default class PencilDrawComponent extends Component {
   }
 
   render() {
-    const { annotation, slideWidth } = this.props;
+    const { annotation, slideWidth, whiteboardId } = this.props;
+    const isPresenter = PencilService.isPresenter();
+    const modeMultiUser = PencilService.getMultiUserStatus(whiteboardId);
+    const currentUserID = PencilService.currentUserID();
+    const drawerID = annotation.id.replace(/-.*$/,'');
+    const isDrawerPresenter = PencilService.isHePresenter(drawerID);
+    const visibility = modeMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? {visibility: "hidden"} : {};
+  
     return (
       <path
         fill="none"
@@ -152,6 +160,7 @@ export default class PencilDrawComponent extends Component {
         strokeLinejoin="round"
         strokeLinecap="round"
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
+        {...visibility}
       />
     );
   }
