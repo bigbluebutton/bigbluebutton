@@ -6,6 +6,7 @@ import Icon from '/imports/ui/components/icon/component';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import cx from 'classnames';
 import Message from './message/component';
+import UploadService from '/imports/ui/components/upload/service';
 
 import { styles } from './styles';
 
@@ -76,25 +77,33 @@ class MessageListItem extends Component {
       messages,
       chatAreaId,
       handleReadMessage,
+      intl,
     } = this.props;
 
     return (
-      <div className={styles.item}>
-        <div className={styles.messages}>
-          {messages.map(message => (
-            message.text !== ''
-              ? (
-                <Message
-                  className={(message.id ? styles.systemMessage : styles.systemMessageNoBorder)}
-                  key={message.id ? message.id : _.uniqueId('id-')}
-                  text={message.text}
-                  time={message.time}
-                  chatAreaId={chatAreaId}
-                  handleReadMessage={handleReadMessage}
-                />
-              ) : null
-          ))}
-        </div>
+      <div className={styles.messages}>
+        {messages.map(message => {
+          const {
+            id,
+            time,
+            upload,
+          } = message;
+
+          const text = upload ? UploadService.getNotification(upload, intl) : message.text;
+
+          if (text === '') return null;
+
+          return (
+            <Message
+              className={(id ? styles.systemMessage : null)}
+              key={_.uniqueId('id-')}
+              text={text}
+              time={time}
+              chatAreaId={chatAreaId}
+              handleReadMessage={handleReadMessage}
+            />
+          );
+        })}
       </div>
     );
   }

@@ -167,6 +167,7 @@ audio_dir = props['raw_audio_src']
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw"
 deskshare_dir = props['raw_deskshare_src']
+upload_dir = props['raw_upload_src']
 screenshare_dir = props['raw_screenshare_src']
 redis_host = props['redis_host']
 redis_port = props['redis_port']
@@ -197,6 +198,8 @@ archive_events(meeting_id, redis_host, redis_port, redis_password, raw_archive_d
 archive_audio(meeting_id, audio_dir, raw_archive_dir)
 # Etherpad notes
 archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
+archive_directory("#{upload_dir}/#{meeting_id}",
+                  "#{target_dir}/upload")
 # Presentation files
 archive_directory("#{presentation_dir}/#{meeting_id}/#{meeting_id}", "#{target_dir}/presentation")
 # Red5 media

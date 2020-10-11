@@ -82,11 +82,14 @@ const mapGroupMessage = (message) => {
 const reduceGroupMessages = (previous, current) => {
   const lastMessage = previous[previous.length - 1];
   const currentMessage = current;
-  currentMessage.content = [{
+  const content = {
     id: current.id,
     text: current.message,
     time: current.timestamp,
-  }];
+  };
+  // I do not like this
+  if (current.upload) content['upload'] = current.upload;
+  currentMessage.content = [content];
   if (!lastMessage || !currentMessage.chatId === PUBLIC_GROUP_CHAT_ID) {
     return previous.concat(currentMessage);
   }
