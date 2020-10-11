@@ -18,7 +18,7 @@ import { Session } from 'meteor/session';
 import { styles } from './styles';
 import UserName from '../user-name/component';
 import UserIcons from '../user-icons/component';
-import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
+import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
 import PresentationAreaService from '/imports/ui/components/presentation/service';
 
 const messages = defineMessages({
