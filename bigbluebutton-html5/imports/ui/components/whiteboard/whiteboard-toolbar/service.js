@@ -28,13 +28,14 @@ const changeWhiteboardMode = (multiUser, whiteboardId) => {
   makeCall('changeWhiteboardAccess', multiUser, whiteboardId);
 };
 
-const setInitialWhiteboardToolbarValues = (tool, thickness, color, fontSize, textShape) => {
+const setInitialWhiteboardToolbarValues = (tool, multiuser, thickness, color, fontSize, textShape) => {
   const _drawSettings = Storage.getItem(DRAW_SETTINGS);
   if (!_drawSettings) {
     const drawSettings = {
       whiteboardAnnotationTool: tool,
       whiteboardAnnotationThickness: thickness,
       whiteboardAnnotationColor: color,
+      whiteboardAnnotationMultiUser: multiuser,
       textFontSize: fontSize,
       textShape,
     };
@@ -54,6 +55,8 @@ const setColor = makeSetter('whiteboardAnnotationColor');
 
 const setTextShapeObject = makeSetter('textShape');
 
+const setMultiuser = makeSetter('whiteboardAnnotationMultiUser');
+
 const getTextShapeActiveId = () => {
   const drawSettings = Storage.getItem(DRAW_SETTINGS);
   return drawSettings ? drawSettings.textShape.textShapeActiveId : '';
@@ -61,7 +64,7 @@ const getTextShapeActiveId = () => {
 
 const getMultiUserStatus = (whiteboardId) => {
   const data = WhiteboardMultiUser.findOne({ meetingId: Auth.meetingID, whiteboardId });
-  return data ? data.multiUser : false;
+  return data ? data.multiUser : 0;
 };
 
 const isPresenter = () => {
@@ -108,6 +111,7 @@ export default {
   setColor,
   setTextShapeObject,
   getTextShapeActiveId,
+  setMultiuser,
   getMultiUserStatus,
   isPresenter,
   filterAnnotationList,
