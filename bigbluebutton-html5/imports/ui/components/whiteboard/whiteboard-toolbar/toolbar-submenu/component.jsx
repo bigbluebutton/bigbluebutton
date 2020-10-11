@@ -83,6 +83,21 @@ const intlMessages = defineMessages({
     id: 'app.whiteboard.toolbar.color.silver',
     description: 'Color submenu silver color',
   },
+  multi0: {
+    //id: 'app.whiteboard.toolbar.multimode.multiUserOff',
+    id: 'app.whiteboard.toolbar.multiUserOff',
+  description: 'Whiteboard toolbar turn multi-user on menu',
+  },
+  multi1: {
+    //id: 'app.whiteboard.toolbar.multimode.multiUserOn',
+    id: 'app.whiteboard.toolbar.multiUserOn',
+    description: 'Whiteboard toolbar turn multi-user on menu',
+  },
+  multi2: {
+    //id: 'app.whiteboard.toolbar.multimode.multiUserIsolatedOn',
+    id: 'app.whiteboard.toolbar.multiUserIsoOn',
+    description: 'Whiteboard toolbar turn isolated multi-user on menu',
+  },
 });
 
 class ToolbarSubmenu extends Component {
@@ -91,6 +106,12 @@ class ToolbarSubmenu extends Component {
       return (
         <svg className={styles.customSvgIcon}>
           <rect x="20%" y="20%" width="60%" height="60%" fill={obj.value} />
+        </svg>
+      );
+    } if (type === 'multi-user') {
+      return (
+        <svg className={styles.customSvgIcon}>
+          <circle cx="50%" cy="50%" r={obj.value} />
         </svg>
       );
     } if (type === 'thickness') {
@@ -115,6 +136,7 @@ class ToolbarSubmenu extends Component {
       return cx(styles.fontSizeList, styles.toolbarList);
     } if (
       type === 'annotations'
+        || type === 'multi-user'
         || type === 'thickness'
         || type === 'color'
     ) {
@@ -155,6 +177,19 @@ class ToolbarSubmenu extends Component {
         });
       }
 
+      if (type === 'multi-user') {
+        this.submenuItems.childNodes.forEach((element) => {
+          const node = this.findCurrentElement(element.childNodes[0]);
+          const classname = node.getAttribute('class');
+          if (classname) {
+            const name = classname.split('-');
+            if (name[name.length - 1] === objectSelected.icon) {
+              element.firstChild.focus();
+            }
+          }
+        });
+      }
+      
       if (type === 'thickness') {
         this.submenuItems.childNodes.forEach((element) => {
           const node = this.findCurrentElement(element.childNodes[0]);
@@ -231,6 +266,11 @@ class ToolbarSubmenu extends Component {
       return intl.formatMessage(intlMessages[intlLabel]);
     }
 
+    if (type === 'multi-user') {
+      const intlLabel = `multi${_.upperFirst(obj.value)}`;
+      return intl.formatMessage(intlMessages[intlLabel]);
+    }
+    
     if (type === 'color') {
       const intlLabel = `color${_.upperFirst(obj.label)}`;
       return intl.formatMessage(intlMessages[intlLabel]);
