@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers';
+import TriangleService from '../commonservice';
 
 export default class TriangleDrawComponent extends Component {
   shouldComponentUpdate(nextProps) {
@@ -34,7 +35,14 @@ export default class TriangleDrawComponent extends Component {
 
   render() {
     const path = this.getCoordinates();
-    const { annotation, slideWidth } = this.props;
+    const { annotation, slideWidth, whiteboardId } = this.props;
+    const isPresenter = TriangleService.isPresenter();
+    const modeMultiUser = TriangleService.getMultiUserStatus(whiteboardId);
+    const currentUserID = TriangleService.currentUserID();
+    const drawerID = annotation.id.replace(/-.*$/,'');
+    const isDrawerPresenter = TriangleService.isHePresenter(drawerID);
+    const visibility = modeMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? {visibility: "hidden"} : {};
+  
     return (
       <path
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
@@ -43,6 +51,7 @@ export default class TriangleDrawComponent extends Component {
         d={path}
         strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         strokeLinejoin="miter"
+        {...visibility}
       />
     );
   }
