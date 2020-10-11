@@ -84,17 +84,14 @@ const intlMessages = defineMessages({
     description: 'Color submenu silver color',
   },
   multi0: {
-    //id: 'app.whiteboard.toolbar.multimode.multiUserOff',
     id: 'app.whiteboard.toolbar.multiUserOff',
   description: 'Whiteboard toolbar turn multi-user on menu',
   },
   multi1: {
-    //id: 'app.whiteboard.toolbar.multimode.multiUserOn',
     id: 'app.whiteboard.toolbar.multiUserOn',
     description: 'Whiteboard toolbar turn multi-user on menu',
   },
   multi2: {
-    //id: 'app.whiteboard.toolbar.multimode.multiUserIsolatedOn',
     id: 'app.whiteboard.toolbar.multiUserIsoOn',
     description: 'Whiteboard toolbar turn isolated multi-user on menu',
   },
