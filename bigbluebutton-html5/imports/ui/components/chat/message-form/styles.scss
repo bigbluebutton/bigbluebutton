@@ -1,6 +1,6 @@
 @import "/imports/ui/stylesheets/mixins/focus";
 @import "/imports/ui/stylesheets/mixins/_indicators";
-@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 :root {
   --max-chat-input-msg-height: .93rem;
@@ -78,14 +78,10 @@
     background-color: rgba(167,179,189,0.25);
   }
 
-  &:hover {
-    @include highContrastOutline();
-  }
-
+  &:hover,
   &:active,
   &:focus {
-    @include highContrastOutline();
-    outline-style: solid;
+    @extend %highContrastOutline;
   }
 }
 

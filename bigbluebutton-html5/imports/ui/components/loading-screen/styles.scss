@@ -1,15 +1,6 @@
-@import "/imports/ui/stylesheets/variables/_all";
-
 /* Variables
  * ==========
  */
-
-:root {
-  --loader-bg: var(--color-gray-dark);
-  --loader-bullet: var(--color-white);
-  --loader-message-color: var(--color-white);
-}
-
 .background {
   position: fixed;
   display: flex;

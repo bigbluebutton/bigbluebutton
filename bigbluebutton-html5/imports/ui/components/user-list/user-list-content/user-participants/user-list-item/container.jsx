@@ -4,7 +4,6 @@ import BreakoutService from '/imports/ui/components/breakout-room/service';
 import Meetings from '/imports/api/meetings';
 import Slides from '/imports/api/slides';
 import Auth from '/imports/ui/services/auth';
-import Settings from '/imports/ui/services/settings';
 import UserListItem from './component';
 import UserListService from '/imports/ui/components/user-list/service';
 import { notify } from '/imports/ui/services/notification';
@@ -19,7 +18,6 @@ export default withTracker(({ user }) => {
   const breakoutSequence = (findUserInBreakout || {}).sequence;
   const Meeting = Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { lockSettingsProps: 1 } });
-  const AppSettings = Settings.application;
 
   onst currentSlide = PresentationAreaService.getCurrentSlide('DEFAULT_PRESENTATION_POD');
 

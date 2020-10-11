@@ -129,8 +129,7 @@ class BbbWebApiGWApp(
                     freeJoin: java.lang.Boolean,
                     metadata: java.util.Map[String, String], guestPolicy: String,
                     welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMessage: String,
-                    dialNumber: String, maxUsers: java.lang.Integer, maxInactivityTimeoutMinutes: java.lang.Integer,
-                    warnMinutesBeforeMax:                   java.lang.Integer,
+                    dialNumber: String, maxUsers: java.lang.Integer,
                     meetingExpireIfNoUserJoinedInMinutes:   java.lang.Integer,
                     meetingExpireWhenLastUserLeftInMinutes: java.lang.Integer,
                     userInactivityInspectTimerInMinutes:    java.lang.Integer,
@@ -147,8 +146,6 @@ class BbbWebApiGWApp(
     val durationProps = DurationProps(
       duration = duration.intValue(),
       createdTime = createTime.longValue(), createDate,
-      maxInactivityTimeoutMinutes = maxInactivityTimeoutMinutes.intValue(),
-      warnMinutesBeforeMax = warnMinutesBeforeMax.intValue(),
       meetingExpireIfNoUserJoinedInMinutes = meetingExpireIfNoUserJoinedInMinutes.intValue(),
       meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes.intValue(),
       userInactivityInspectTimerInMinutes = userInactivityInspectTimerInMinutes.intValue(),

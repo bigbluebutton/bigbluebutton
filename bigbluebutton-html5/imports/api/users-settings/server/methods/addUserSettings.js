@@ -31,6 +31,7 @@ const oldParametersKeys = Object.keys(oldParameters);
 const currentParameters = [
   // APP
   'bbb_ask_for_feedback_on_logout',
+  'bbb_override_default_locale',
   'bbb_auto_join_audio',
   'bbb_client_title',
   'bbb_force_listen_only',
@@ -45,6 +46,7 @@ const currentParameters = [
   'bbb_preferred_camera_profile',
   'bbb_enable_screen_sharing',
   'bbb_enable_video',
+  'bbb_record_video',
   'bbb_skip_video_preview',
   'bbb_mirror_own_webcam',
   // PRESENTATION
@@ -68,10 +70,10 @@ const currentParameters = [
 
 function valueParser(val) {
   try {
-    const parsedValue = JSON.parse(val.toLowerCase());
+    const parsedValue = JSON.parse(val.toLowerCase().trim());
     return parsedValue;
   } catch (error) {
-    logger.error('Parameter value could not ber parsed');
+    logger.warn(`addUserSettings:Parameter ${val} could not be parsed (was not json)`);
     return val;
   }
 }
@@ -85,21 +87,22 @@ export default function addUserSettings(settings) {
 
   settings.forEach((el) => {
     const settingKey = Object.keys(el).shift();
+    const normalizedKey = settingKey.trim();
 
-    if (currentParameters.includes(settingKey)) {
-      if (!Object.keys(parameters).includes(settingKey)) {
+    if (currentParameters.includes(normalizedKey)) {
+      if (!Object.keys(parameters).includes(normalizedKey)) {
         parameters = {
-          [settingKey]: valueParser(el[settingKey]),
+          [normalizedKey]: valueParser(el[settingKey]),
           ...parameters,
         };
       } else {
-        parameters[settingKey] = el[settingKey];
+        parameters[normalizedKey] = el[settingKey];
       }
       return;
     }
 
-    if (oldParametersKeys.includes(settingKey)) {
-      const matchingNewKey = oldParameters[settingKey];
+    if (oldParametersKeys.includes(normalizedKey)) {
+      const matchingNewKey = oldParameters[normalizedKey];
       if (!Object.keys(parameters).includes(matchingNewKey)) {
         parameters = {
           [matchingNewKey]: valueParser(el[settingKey]),
@@ -109,7 +112,7 @@ export default function addUserSettings(settings) {
       return;
     }
 
-    logger.warn(`Parameter ${settingKey} not handled`);
+    logger.warn(`Parameter ${normalizedKey} not handled`);
   });
 
   const settingsAdded = [];

@@ -11,6 +11,7 @@ import { styles } from './styles';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import AudioManager from '/imports/ui/services/audio-manager';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
 const intlMessage = defineMessages({
   410: {
@@ -88,6 +89,7 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   code: PropTypes.string.isRequired,
+  reason: PropTypes.string.isRequired,
 };
 
 class MeetingEnded extends PureComponent {
@@ -128,6 +130,7 @@ class MeetingEnded extends PureComponent {
     } = this.state;
 
     if (selected <= 0) {
+      if (meetingIsBreakout()) window.close();
       logoutRouteHandler();
       return;
     }
@@ -168,14 +171,12 @@ class MeetingEnded extends PureComponent {
   }
 
   render() {
-    const { intl, code } = this.props;
-    const {
-      selected,
-    } = this.state;
+    const { code, intl, reason } = this.props;
+    const { selected } = this.state;
 
     const noRating = selected <= 0;
 
-    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code } }, 'Meeting ended component');
+    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason } }, 'Meeting ended component');
 
     return (
       <div className={styles.parent}>
@@ -183,7 +184,7 @@ class MeetingEnded extends PureComponent {
           <div className={styles.content}>
             <h1 className={styles.title}>
               {
-                intl.formatMessage(intlMessage[code] || intlMessage[430])
+                intl.formatMessage(intlMessage[reason] || intlMessage[430])
               }
             </h1>
             <div className={styles.text}>

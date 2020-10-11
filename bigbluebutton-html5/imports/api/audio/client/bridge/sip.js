@@ -233,6 +233,7 @@ class SIPSession {
 
       const {
         callerIdName,
+        sessionToken,
       } = this.user;
 
       // WebView safari needs a transceiver to be added. Made it a SIP.js hack.
@@ -272,10 +273,11 @@ class SIPSession {
       };
 
       let userAgentConnected = false;
+      const token = `sessionToken=${sessionToken}`;
 
       this.userAgent = new window.SIP.UA({
         uri: `sip:${encodeURIComponent(callerIdName)}@${hostname}`,
-        wsServers: `${(protocol === 'https:' ? 'wss://' : 'ws://')}${hostname}/ws`,
+        wsServers: `${(protocol === 'https:' ? 'wss://' : 'ws://')}${hostname}/ws?${token}`,
         displayName: callerIdName,
         register: false,
         traceSip: true,

@@ -66,8 +66,13 @@ async function clickTestElement(element) {
   document.querySelectorAll(element)[0].click();
 }
 
+async function countTestElements(element) {
+  return await document.querySelectorAll(element).length;
+}
+
 exports.startAndCheckForWebcams = startAndCheckForWebcams;
 exports.webcamContentCheck = webcamContentCheck;
 exports.evaluateCheck = evaluateCheck;
 exports.getFullScreenWebcamButton = getFullScreenWebcamButton;
 exports.enableWebcam = enableWebcam;
+exports.countTestElements = countTestElements;
