@@ -82,6 +82,7 @@ export default function addUser(meetingId, user) {
       joined: false,
       whiteboardAccess: user.presenter, // toolbar not shown when non-presenter joins later
       //whiteboardAccess: true, // This would be OK because the variable mutiuser decides show/hide of toolbar anyway
+      //whiteboardAccess: user.presenter || multiUser, // This would also be a solution
     });
   }
 
