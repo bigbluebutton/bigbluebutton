@@ -272,18 +272,18 @@ export default class Cursor extends Component {
               </text>
               <clipPath id={cursorId}>
                 <rect
-                    x={boxX}
-                    y={boxY}
-                    width={cursorLabelBox.width}
-                    height={cursorLabelBox.height}
-                  />
-                </clipPath>
-              </g>
-            )
-            : null }
-        </g>
-      );
-    }
+                  x={boxX}
+                  y={boxY}
+                  width={cursorLabelBox.width}
+                  height={cursorLabelBox.height}
+                />
+              </clipPath>
+            </g>
+          )
+          : null }
+      </g>
+    );
+  }
   }
 }
 
