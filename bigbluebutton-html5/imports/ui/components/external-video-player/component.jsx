@@ -55,7 +55,9 @@ class VideoPlayer extends Component {
       },
       file: {
         attributes: {
-          controls: true,
+          controls: 'controls',
+          autoplay: 'autoplay',
+          playsinline: 'playsinline',
         },
       },
       dailymotion: {
@@ -102,6 +104,7 @@ class VideoPlayer extends Component {
 
   componentDidMount() {
     window.addEventListener('resize', this.resizeListener);
+    window.addEventListener('layoutSizesSets', this.resizeListener);
     window.addEventListener('beforeunload', this.onBeforeUnload);
 
     clearInterval(this.syncInterval);

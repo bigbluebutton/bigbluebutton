@@ -4,12 +4,12 @@ import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/icon/component';
-import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+import Dropdown from '/imports/ui/components/dropdown/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import RemoveUserModal from '/imports/ui/components/modal/remove-user/component';
@@ -18,6 +18,7 @@ import { Session } from 'meteor/session';
 import { styles } from './styles';
 import UserName from '../user-name/component';
 import UserIcons from '../user-icons/component';
+import Service from '../../../../service';
 
 const messages = defineMessages({
   presenter: {
@@ -100,10 +101,6 @@ const messages = defineMessages({
     id: 'app.userList.menu.directoryLookup.label',
     description: 'Directory lookup',
   },
-  handAlertLabel: {
-    id: 'app.userList.handAlert',
-    description: 'text displayed in raise hand toast',
-  },
   yesLabel: {
     id: 'app.endMeeting.yesLabel',
     description: 'confirm button label',
@@ -135,7 +132,6 @@ const propTypes = {
 };
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-const MAX_ALERT_RANGE = 550;
 
 class UserDropdown extends PureComponent {
   /**
@@ -160,8 +156,6 @@ class UserDropdown extends PureComponent {
       showNestedOptions: false,
     };
 
-    this.audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/bbb-handRaise.mp3`);
-
     this.handleScroll = this.handleScroll.bind(this);
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
@@ -169,9 +163,7 @@ class UserDropdown extends PureComponent {
     this.renderUserAvatar = this.renderUserAvatar.bind(this);
     this.resetMenuState = this.resetMenuState.bind(this);
     this.makeDropdownItem = this.makeDropdownItem.bind(this);
-  }
 
-  componentWillMount() {
     this.title = _.uniqueId('dropdown-title-');
     this.seperator = _.uniqueId('action-separator-');
   }
@@ -312,7 +304,10 @@ class UserDropdown extends PureComponent {
           {
             showNestedOptions: true,
             isActionsOpen: true,
-          }, Session.set('dropdownOpen', true),
+          }, () => {
+            Session.set('dropdownOpen', true);
+            Service.focusFirstDropDownItem();
+          },
         ),
         'user',
         'right_arrow',
@@ -347,7 +342,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToMuteAudio && isMeteorConnected) {
+    if (allowedToMuteAudio && isMeteorConnected && !meetingIsBreakout) {
       actions.push(this.makeDropdownItem(
         'mute',
         intl.formatMessage(messages.MuteUserAudioLabel),
@@ -356,7 +351,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToUnmuteAudio && !userLocks.userMic && isMeteorConnected) {
+    if (allowedToUnmuteAudio && !userLocks.userMic && isMeteorConnected && !meetingIsBreakout) {
       actions.push(this.makeDropdownItem(
         'unmute',
         intl.formatMessage(messages.UnmuteUserAudioLabel),
@@ -475,26 +470,24 @@ class UserDropdown extends PureComponent {
    * Check if the dropdown is visible, if so, check if should be draw on top or bottom direction.
    */
   checkDropdownDirection() {
-    const { getScrollContainerRef } = this.props;
+    const { scrollArea } = this.props;
     if (this.isDropdownActivedByUser()) {
       const dropdown = this.getDropdownMenuParent();
       const dropdownTrigger = dropdown.children[0];
-      const dropdownContent = dropdown.children[1];
-
-      const scrollContainer = getScrollContainerRef();
-
       const nextState = {
         dropdownVisible: true,
       };
+      const dropdownContent = findDOMNode(this.dropdownContent);
+      const dropdownBoundaries = dropdownContent.getBoundingClientRect();
 
       const isDropdownVisible = UserDropdown.checkIfDropdownIsVisible(
-        dropdownContent.offsetTop,
-        dropdownContent.offsetHeight,
+        dropdownBoundaries.y,
+        dropdownBoundaries.height,
       );
 
-      if (!isDropdownVisible) {
+      if (!isDropdownVisible && scrollArea) {
         const { offsetTop, offsetHeight } = dropdownTrigger;
-        const offsetPageTop = (offsetTop + offsetHeight) - scrollContainer.scrollTop;
+        const offsetPageTop = (offsetTop + offsetHeight) - scrollArea.scrollTop;
 
         nextState.dropdownOffset = window.innerHeight - offsetPageTop;
         nextState.dropdownDirection = 'bottom';
@@ -517,17 +510,12 @@ class UserDropdown extends PureComponent {
 
   renderUserAvatar() {
     const {
-      intl,
       normalizeEmojiName,
       user,
-      currentUser,
       userInBreakout,
       breakoutSequence,
       meetingIsBreakout,
       voiceUser,
-      notify,
-      raiseHandAudioAlert,
-      raiseHandPushAlert,
     } = this.props;
 
     const { clientType } = user;
@@ -539,18 +527,6 @@ class UserDropdown extends PureComponent {
 
     const iconVoiceOnlyUser = (<Icon iconName="audio_on" />);
     const userIcon = isVoiceOnly ? iconVoiceOnlyUser : iconUser;
-    const shouldAlert = user.emoji === 'raiseHand'
-      && currentUser.userId !== user.userId
-      && new Date() - user.emojiTime < MAX_ALERT_RANGE;
-
-    if (shouldAlert) {
-      if (raiseHandAudioAlert) this.audio.play();
-      if (raiseHandPushAlert) {
-        notify(
-          `${user.name} ${intl.formatMessage(messages.handAlertLabel)}`, 'info', 'hand',
-        );
-      }
-    }
 
     return (
       <UserAvatar
@@ -562,6 +538,8 @@ class UserDropdown extends PureComponent {
         voice={voiceUser.isVoiceUser}
         noVoice={!voiceUser.isVoiceUser}
         color={user.color}
+        emoji={user.emoji !== 'none'}
+        avatar={user.avatar}
       >
         {
         userInBreakout
@@ -617,6 +595,7 @@ class UserDropdown extends PureComponent {
       <div
         data-test={isMe(user.userId) ? 'userListItemCurrent' : 'userListItem'}
         className={!actions.length ? styles.userListItem : null}
+        style={{ direction: document.documentElement.dir }}
       >
         <div className={styles.userItemContents}>
           <div className={styles.userAvatar}>
@@ -644,7 +623,7 @@ class UserDropdown extends PureComponent {
     );
 
     if (!actions.length) return contents;
-
+    const placement = `right ${dropdownDirection}`;
     return (
       <Dropdown
         ref={(ref) => { this.dropdown = ref; }}
@@ -656,6 +635,9 @@ class UserDropdown extends PureComponent {
         aria-haspopup="true"
         aria-live="assertive"
         aria-relevant="additions"
+        placement={placement}
+        getContent={dropdownContent => this.dropdownContent = dropdownContent}
+        tethered
       >
         <DropdownTrigger>
           {contents}
@@ -663,10 +645,9 @@ class UserDropdown extends PureComponent {
         <DropdownContent
           style={{
             visibility: dropdownVisible ? 'visible' : 'hidden',
-            [dropdownDirection]: `${dropdownOffset}px`,
           }}
           className={styles.dropdownContent}
-          placement={`right ${dropdownDirection}`}
+          placement={placement}
         >
           <DropdownList
             ref={(ref) => { this.list = ref; }}

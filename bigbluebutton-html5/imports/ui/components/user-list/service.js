@@ -256,6 +256,7 @@ const getActiveChats = (chatID) => {
       const activeChat = op;
       activeChat.unreadCounter = UnreadMessages.count(op.userId);
       activeChat.name = op.name;
+      activeChat.avatar = op.avatar;
       activeChat.isModerator = op.role === ROLE_MODERATOR;
       activeChat.lastActivity = idsWithTimeStamp[`${op.userId}`];
       return activeChat;
@@ -435,14 +436,30 @@ const muteAllExceptPresenter = (userId) => { makeCall('muteAllExceptPresenter', 
 
 const changeRole = (userId, role) => { makeCall('changeRole', userId, role); };
 
-const roving = (event, changeState, elementsList, element) => {
+const focusFirstDropDownItem = () => {
+  const dropdownContent = document.querySelector('div[data-test="dropdownContent"][style="visibility: visible;"]');
+  if (!dropdownContent) return;
+  const list = dropdownContent.getElementsByTagName('li');
+  list[0].focus();
+};
+
+const roving = (...args) => {
+  const [
+    event,
+    changeState,
+    elementsList,
+    element,
+  ] = args;
+
   this.selectedElement = element;
+  const numberOfChilds = elementsList.childElementCount;
   const menuOpen = Session.get('dropdownOpen') || false;
 
   if (menuOpen) {
     const menuChildren = document.activeElement.getElementsByTagName('li');
 
     if ([KEY_CODES.ESCAPE, KEY_CODES.ARROW_LEFT].includes(event.keyCode)) {
+      Session.set('dropdownOpen', false);
       document.activeElement.click();
     }
 
@@ -463,13 +480,15 @@ const roving = (event, changeState, elementsList, element) => {
   }
 
   if ([KEY_CODES.ESCAPE, KEY_CODES.TAB].includes(event.keyCode)) {
+    Session.set('dropdownOpen', false);
     document.activeElement.blur();
     changeState(null);
   }
 
   if (event.keyCode === KEY_CODES.ARROW_DOWN) {
     const firstElement = elementsList.firstChild;
-    let elRef = element ? element.nextSibling : firstElement;
+    let elRef = element && numberOfChilds > 1 ? element.nextSibling : firstElement;
+
     elRef = elRef || firstElement;
     changeState(elRef);
   }
@@ -482,7 +501,10 @@ const roving = (event, changeState, elementsList, element) => {
   }
 
   if ([KEY_CODES.ARROW_RIGHT, KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.keyCode)) {
-    document.activeElement.firstChild.click();
+    const tether = document.activeElement.firstChild;
+    const dropdownTrigger = tether.firstChild;
+    dropdownTrigger.click();
+    focusFirstDropDownItem();
   }
 };
 
@@ -503,17 +525,68 @@ const requestUserInformation = (userId) => {
   makeCall('requestUserInformation', userId);
 };
 
-export const getUserNamesLink = () => {
+const sortUsersByFirstName = (a, b) => {
+  const aName = a.firstName.toLowerCase();
+  const bName = b.firstName.toLowerCase();
+  if (aName < bName) return -1;
+  if (aName > bName) return 1;
+  return 0;
+};
+
+const sortUsersByLastName = (a, b) => {
+  if (a.lastName && !b.lastName) return -1;
+  if (!a.lastName && b.lastName) return 1;
+
+  const aName = a.lastName.toLowerCase();
+  const bName = b.lastName.toLowerCase();
+
+  if (aName < bName) return -1;
+  if (aName > bName) return 1;
+  return 0;
+};
+
+const isUserPresenter = (userId) => {
+  const user = Users.findOne({ userId },
+    { fields: { presenter: 1 } });
+  return user ? user.presenter : false;
+};
+
+export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
   const mimeType = 'text/plain';
-  const userNamesObj = getUsers();
-  const userNameListString = userNamesObj
-    .map(u => u.name)
-    .join('\r\n');
+  const userNamesObj = getUsers()
+    .map((u) => {
+      const name = u.sortName.split(' ');
+      return ({
+        firstName: name[0],
+        middleNames: name.length > 2 ? name.slice(1, name.length - 1) : null,
+        lastName: name.length > 1 ? name[name.length - 1] : null,
+      });
+    });
+
+  const getUsernameString = (user) => {
+    const { firstName, middleNames, lastName } = user;
+    return `${firstName || ''} ${middleNames && middleNames.length > 0 ? middleNames.join(' ') : ''} ${lastName || ''}`;
+  };
+
+  const namesByFirstName = userNamesObj.sort(sortUsersByFirstName)
+    .map(u => getUsernameString(u)).join('\r\n');
+
+  const namesByLastName = userNamesObj.sort(sortUsersByLastName)
+    .map(u => getUsernameString(u)).join('\r\n');
+
+  const namesListsString = `${docTitle}\r\n\r\n${fnSortedLabel}\r\n${namesByFirstName}
+    \r\n\r\n${lnSortedLabel}\r\n${namesByLastName}`.replace(/ {2}/g, ' ');
+
   const link = document.createElement('a');
-  link.setAttribute('download', `save-users-list-${Date.now()}.txt`);
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
+    { fields: { 'meetingProp.name': 1 } });
+  const date = new Date();
+  const time = `${date.getHours()}-${date.getMinutes()}`;
+  const dateString = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}_${time}`;
+  link.setAttribute('download', `bbb-${meeting.meetingProp.name}[users-list]_${dateString}.txt`);
   link.setAttribute(
     'href',
-    `data: ${mimeType} ;charset=utf-16,${encodeURIComponent(userNameListString)}`,
+    `data: ${mimeType} ;charset=utf-16,${encodeURIComponent(namesListsString)}`,
   );
   return link;
 };
@@ -544,4 +617,6 @@ export default {
   hasPrivateChatBetweenUsers,
   toggleUserLock,
   requestUserInformation,
+  focusFirstDropDownItem,
+  isUserPresenter,
 };

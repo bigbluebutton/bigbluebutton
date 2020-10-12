@@ -190,10 +190,6 @@ package org.bigbluebutton.main.model.users
 		}
 	}
 
-		public function activityResponse():void {
-			sender.activityResponse();
-		}
-		
 		public function userActivitySignResponse():void {
 			sender.userActivitySignResponse();
 		}

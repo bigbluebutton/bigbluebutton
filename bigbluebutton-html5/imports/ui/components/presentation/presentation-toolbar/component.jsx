@@ -12,6 +12,7 @@ import FullscreenButtonContainer from '../../fullscreen-button/container';
 import TooltipContainer from '/imports/ui/components/tooltip/container';
 import QuickPollDropdownContainer from '/imports/ui/components/actions-bar/quick-poll-dropdown/container';
 import QuickLinksDropdown from './quick-links-dropdown/component';
+import FullscreenService from '/imports/ui/components/fullscreen-button/service';
 import KEY_CODES from '/imports/utils/keyCodes';
 
 const intlMessages = defineMessages({
@@ -102,6 +103,7 @@ class PresentationToolbar extends PureComponent {
   switchSlide(event) {
     const { target, which } = event;
     const isBody = target.nodeName === 'BODY';
+    const { fullscreenRef } = this.props;
 
     if (isBody) {
       switch (which) {
@@ -112,6 +114,9 @@ class PresentationToolbar extends PureComponent {
         case KEY_CODES.ARROW_RIGHT:
         case KEY_CODES.PAGE_DOWN:
           this.nextSlideHandler();
+          break;
+        case KEY_CODES.ENTER:
+          FullscreenService.toggleFullScreen(fullscreenRef);
           break;
         default:
       }
