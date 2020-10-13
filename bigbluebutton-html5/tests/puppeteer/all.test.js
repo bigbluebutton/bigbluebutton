@@ -10,6 +10,7 @@ const userTest = require('./user.obj');
 const virtualizedListTest = require('./virtualizedlist.obj');
 const webcamTest = require('./webcam.obj');
 const whiteboardTest = require('./whiteboard.obj');
+const webcamLayout = require('./webcamlayout.obj');
 
 process.setMaxListeners(Infinity);
 
@@ -25,3 +26,4 @@ describe('User', userTest);
 describe('Virtualized List', virtualizedListTest);
 describe('Webcam', webcamTest);
 describe('Whiteboard', whiteboardTest);
+describe('Webcam Layout', webcamLayout);

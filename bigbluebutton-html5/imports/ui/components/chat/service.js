@@ -50,9 +50,10 @@ const mapGroupMessage = (message) => {
   };
 
   if (message.sender && message.sender.id !== SYSTEM_CHAT_TYPE) {
-    const sender = Users.findOne({ userId: message.sender.id }, { fields: { role: 1 } });
+    const sender = Users.findOne({ userId: message.sender.id }, { fields: { avatar: 1, role: 1 } });
 
     const mappedSender = {
+      avatar: sender?.avatar,
       color: message.color,
       isModerator: sender?.role === ROLE_MODERATOR,
       name: message.sender.name,

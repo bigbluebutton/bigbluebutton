@@ -11,6 +11,7 @@ import Redis from './redis';
 
 import setMinBrowserVersions from './minBrowserVersion';
 
+let guestWaitHtml = '';
 const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
 const FALLBACK_LOCALES = JSON.parse(Assets.getText('config/fallbackLocales.json'));
 
@@ -216,6 +217,21 @@ WebApp.connectHandlers.use('/useragent', (req, res) => {
   res.writeHead(200);
   res.end(response);
 });
+
+WebApp.connectHandlers.use('/guestWait', (req, res) => {
+  if (!guestWaitHtml) {
+    try {
+      guestWaitHtml = Assets.getText('static/guest-wait/guest-wait.html');
+    } catch (e) {
+      Logger.warn(`Could not process guest wait html file: ${e}`);
+    }
+  }
+
+  res.setHeader('Content-Type', 'text/html');
+  res.writeHead(200);
+  res.end(guestWaitHtml);
+});
+
 
 export const eventEmitter = Redis.emitter;
 

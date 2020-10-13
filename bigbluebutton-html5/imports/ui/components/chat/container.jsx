@@ -116,7 +116,7 @@ export default injectIntl(withTracker(({ intl }) => {
 
     const messagesFormated = messagesBeforeWelcomeMsg
       .concat(welcomeMsg)
-      .concat((amIModerator && modOnlyMessage) || [])
+      .concat((amIModerator && modOnlyMessage) ? moderatorMsg : [])
       .concat(messagesAfterWelcomeMsg);
 
     messages = messagesFormated.sort((a, b) => (a.time - b.time));
