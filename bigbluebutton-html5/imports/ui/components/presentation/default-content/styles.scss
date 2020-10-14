@@ -53,3 +53,10 @@
     transition: opacity 700ms ease-in;
   }
 }
+
+.name-initial-wrapper{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: -webkit-fill-available;
+}
