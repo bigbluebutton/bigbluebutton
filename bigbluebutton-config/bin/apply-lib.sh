@@ -147,6 +147,10 @@ HERE
     # Make a new configuration file each instance of Kurento that binds to a different port
     cp /etc/kurento/kurento.conf.json /etc/kurento/kurento-${i}.conf.json
     sed -i "s/8888/${i}/g" /etc/kurento/kurento-${i}.conf.json
+    
+    # let Kurento start before bbb-webrtc-sfu is started
+    sed -i -e "/^After/s/kurento-media-server.service/kurento-media-server-8888.service\ kurento-media-server-8889.service\ kurento-media-server-8890.service/" /usr/lib/systemd/system/bbb-webrtc-sfu.service
+
 
   done
 
@@ -204,6 +208,8 @@ disableMultipleKurentos() {
 
   # Remove the overrride (restoring the original kurento-media-server.service unit file)
   rm -f /etc/systemd/system/kurento-media-server.service
+  sed -i -e "/^After/s/kurento-media-server-8888.service\ kurento-media-server-8889.service\ kurento-media-server-8890.service/kurento-media-server.service/" /usr/lib/systemd/system/bbb-webrtc-sfu.service
+
   systemctl daemon-reload
 
   # Restore bbb-webrtc-sfu configuration to use a single instance of Kurento
