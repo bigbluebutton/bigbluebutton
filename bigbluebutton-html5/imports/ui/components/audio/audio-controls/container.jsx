@@ -7,6 +7,7 @@ import lockContextContainer from '/imports/ui/components/lock-viewers/context/co
 import logger from '/imports/startup/client/logger';
 import AudioControls from './component';
 import AudioModalContainer from '../audio-modal/container';
+import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
 import Service from '../service';
 
 const AudioControlsContainer = props => <AudioControls {...props} />;
@@ -66,4 +67,5 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
   handleToggleMuteMicrophone: () => toggleMuteMicrophone(),
   handleJoinAudio: () => (isConnected() ? joinListenOnly() : mountModal(<AudioModalContainer />)),
   handleLeaveAudio,
+  handleCustomLogout: () => (mountModal(<EndMeetingConfirmationContainer />))
 }))(AudioControlsContainer)));
