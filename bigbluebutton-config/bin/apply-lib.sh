@@ -148,7 +148,7 @@ HERE
     cp /etc/kurento/kurento.conf.json /etc/kurento/kurento-${i}.conf.json
     sed -i "s/8888/${i}/g" /etc/kurento/kurento-${i}.conf.json
     
-    # let Kurento start before bbb-webrtc-sfu is started
+    # let Kurentos start before bbb-webrtc-sfu is started
     sed -i -e "/^After/s/kurento-media-server.service/kurento-media-server-8888.service\ kurento-media-server-8889.service\ kurento-media-server-8890.service/" /usr/lib/systemd/system/bbb-webrtc-sfu.service
 
 
@@ -208,6 +208,8 @@ disableMultipleKurentos() {
 
   # Remove the overrride (restoring the original kurento-media-server.service unit file)
   rm -f /etc/systemd/system/kurento-media-server.service
+  
+  # Change bbb-webrtc-sfu.service back to wait for single Kurento service.
   sed -i -e "/^After/s/kurento-media-server-8888.service\ kurento-media-server-8889.service\ kurento-media-server-8890.service/kurento-media-server.service/" /usr/lib/systemd/system/bbb-webrtc-sfu.service
 
   systemctl daemon-reload
