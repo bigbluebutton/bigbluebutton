@@ -218,10 +218,23 @@
   z-index: 2;
 }
 
+// .actionsbar {
+//   flex: 1;
+//   padding: var(--bars-padding);
+//   position: relative;
+//   order: 3;
+//   background-color: red;
+// }
+// Edit by Aman
 .actionsbar {
   flex: 1;
-  padding: var(--bars-padding);
+  padding: calc(var(--bars-padding) + .2rem);
   position: relative;
   order: 3;
-  background-color: red;
+  background-color: #fff;
+  box-shadow: 0px -7px 6px #00000029;
+  margin: 3px 0 0 0;
 }
+// End
+
+
