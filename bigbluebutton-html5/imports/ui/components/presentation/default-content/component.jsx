@@ -30,7 +30,7 @@ export default (props) => {
               <FormattedMessage
                 id="app.home.greeting"
                 description="Message to greet the user."
-                defaultMessage="Your presentation will begin shortly..."
+                defaultMessage="Presenting..."
               />
               <br />
             </p>
