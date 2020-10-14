@@ -111,6 +111,13 @@ class AudioControls extends PureComponent {
           circle
           accessKey={inAudio ? shortcuts.leaveaudio : shortcuts.joinaudio}
         />
+        <Button
+          className={cx(styles.btn)}
+          color={'primary'}
+          icon={'audio_off'}
+          size="lg"
+          circle
+        />
       </span>);
   }
 }
