@@ -114,7 +114,7 @@ class AudioControls extends PureComponent {
           accessKey={inAudio ? shortcuts.leaveaudio : shortcuts.joinaudio}
         />
         <Button
-          className={cx(styles.btn)}
+          className={cx(styles.button, inAudio || styles.btn)}
           onClick={handleCustomLogout}
           color={'primary'}
           icon={'audio_off'}

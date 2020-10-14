@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormattedMessage } from 'react-intl';
+// import { FormattedMessage } from 'react-intl';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import cx from 'classnames';
 import { styles } from './styles.scss';
@@ -26,14 +26,16 @@ export default (props) => {
             [styles.hideContent]: autoSwapLayout && hidePresentation,
           })}
           >
-            <p>
-              <FormattedMessage
-                id="app.home.greeting"
-                description="Message to greet the user."
-                defaultMessage="Your presentation will begin shortly..."
-              />
-              <br />
-            </p>
+            <div className="name-initial-wrapper">
+              <p>
+                {/* <FormattedMessage
+                  id="app.home.greeting"
+                  description="Message to greet the user."
+                  defaultMessage="Presenting..."
+                /> */}
+                Aman
+              </p>
+            </div>            
           </div>
         </div>
       </CSSTransition>

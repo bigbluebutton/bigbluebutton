@@ -29,8 +29,10 @@
   left: 0;
 
   padding: var(--line-height-computed);
-  border: 0.25rem dashed;
-  border-radius: 1.5rem;
+  // Edit by Aman
+  // border: 0.25rem dashed;
+  // border-radius: 1.5rem;
+  // End
   color: rgba(255, 255, 255, .5);
   text-align: center;
   overflow: auto;
@@ -50,4 +52,11 @@
   :global(.animationsEnabled) & {
     transition: opacity 700ms ease-in;
   }
+}
+
+.name-initial-wrapper{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: -webkit-fill-available;
 }

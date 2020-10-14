@@ -276,9 +276,14 @@
 }
 
 .ghost {
+  // &.default {
+  //   @include button-ghost-variant(var(--btn-default-bg), var(--btn-default-color));
+  // }
+  // Edit by Aman
   &.default {
-    @include button-ghost-variant(var(--btn-default-bg), var(--btn-default-color));
+    @include button-ghost-variant(var(--btn-default-color), var(--btn-default-color));
   }
+  // End
 
   &.primary {
     @include button-ghost-variant(var(--btn-primary-bg), var(--btn-primary-color));
