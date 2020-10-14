@@ -107,14 +107,3 @@
     border-color: var(--color-white) !important;
   }
 }
-
-// Edit by Aman
-.actionsbar{
-  .btn {
-    span {
-      border-color: calc(var(--border-size-large) - 1px ) solid  var(--color-primary) !important;
-      color: var(--color-primary) !important;
-    }
-  }
-}
-// End
