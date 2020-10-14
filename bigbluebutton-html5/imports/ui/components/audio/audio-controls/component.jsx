@@ -31,6 +31,7 @@ const propTypes = {
   handleToggleMuteMicrophone: PropTypes.func.isRequired,
   handleJoinAudio: PropTypes.func.isRequired,
   handleLeaveAudio: PropTypes.func.isRequired,
+  handleCustomLogout: PropTypes.func.isRequired,
   disable: PropTypes.bool.isRequired,
   muted: PropTypes.bool.isRequired,
   showMute: PropTypes.bool.isRequired,
@@ -63,6 +64,7 @@ class AudioControls extends PureComponent {
       intl,
       shortcuts,
       isVoiceUser,
+      handleCustomLogout
     } = this.props;
 
     let joinIcon = 'audio_off';
@@ -113,6 +115,7 @@ class AudioControls extends PureComponent {
         />
         <Button
           className={cx(styles.btn)}
+          onClick={handleCustomLogout}
           color={'primary'}
           icon={'audio_off'}
           size="lg"
