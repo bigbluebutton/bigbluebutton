@@ -5,7 +5,10 @@
  */
 
 :root {
-  --loader-bg: var(--color-gray-dark);
+  // Edit by Aman
+  // --loader-bg: var(--color-gray-dark);
+  // End
+  --loader-bg: var(--color-primary);
   --loader-bullet: var(--color-white);
   --loader-message-color: var(--color-white);
 }
