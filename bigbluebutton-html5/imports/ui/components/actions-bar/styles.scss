@@ -100,19 +100,21 @@
   }
 }
 
-// .btn {
-//   span {
-//     box-shadow: none;
-//     background-color: transparent !important;
-//     border-color: var(--color-white) !important;
-//   }
-// }
-
 .btn {
   span {
     box-shadow: none;
     background-color: transparent !important;
-    border-color: var(--color-primary) !important;
-    color: var(--color-primary) !important;
+    border-color: var(--color-white) !important;
   }
 }
+
+// Edit by Aman
+.actionsbar{
+  .btn {
+    span {
+      border-color: calc(var(--border-size-large) - 1px ) solid  var(--color-primary) !important;
+      color: var(--color-primary) !important;
+    }
+  }
+}
+// End
