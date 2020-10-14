@@ -113,7 +113,7 @@ class AudioControls extends PureComponent {
         />
         <Button
           className={cx(styles.button, inAudio || styles.btn)}
-          color={'danger'}
+          color={'primary'}
           icon={'audio_off'}
           size="lg"
           circle
