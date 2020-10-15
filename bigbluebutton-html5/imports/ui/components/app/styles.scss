@@ -3,6 +3,7 @@
 @import "/imports/ui/stylesheets/variables/palette";
 @import "/imports/ui/stylesheets/variables/typography";
 @import '/imports/ui/stylesheets/mixins/_indicators';
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
 
 :root {
   --navbar-height: 3.9375rem; // TODO: Change to NavBar real height
@@ -11,6 +12,10 @@
   --userlist-handle-width: 5px; // 5px so user-list and chat resize handle render as the same size
   --poll-pane-min-width: 20em;
   --panel-margin-left: 0.1em;
+}
+
+body{
+  font-family: 'Ubuntu', sans-serif;
 }
 
 .main {
