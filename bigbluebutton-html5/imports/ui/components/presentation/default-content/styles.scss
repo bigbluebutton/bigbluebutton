@@ -1,4 +1,7 @@
 @import "../../../stylesheets/variables/_all";
+// Add by Aman
+@import "../../../stylesheets/variables/palette.scss"
+// End
 
 .contentRatio {
   position: relative;
@@ -73,6 +76,7 @@
     font-size: 5rem;
     box-shadow: 0 0 0 0 rgba(255, 82, 82, 1);
     animation: pulse-red 2s infinite;
+    border-radius: 50%;
   }
 }
 

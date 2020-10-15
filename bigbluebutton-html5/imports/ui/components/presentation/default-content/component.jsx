@@ -33,7 +33,7 @@ export default (props) => {
                   description="Message to greet the user."
                   defaultMessage="Presenting..."
                 /> */}
-                Aman
+                A
               </p>
             </div>            
           </div>
