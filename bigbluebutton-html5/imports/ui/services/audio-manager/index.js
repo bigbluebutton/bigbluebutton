@@ -96,8 +96,7 @@ class AudioManager {
     this.isListenOnly = false;
     this.isEchoTest = false;
 
-    return this.askDevicesPermissions()
-      .then(this.onAudioJoining.bind(this))
+    return this.onAudioJoining.bind(this)()
       .then(() => {
         const callOptions = {
           isListenOnly: false,
