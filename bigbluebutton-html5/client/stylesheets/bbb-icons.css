@@ -286,7 +286,7 @@
   content: "\e957";
 }
 
-/* @font-face {
+@font-face {
   font-family: 'bbb-icons';
   src:  url('/fonts/BbbCustomIcons/bbb-icons.eot?te9zqa');
   src:  url('/fonts/BbbCustomIcons/bbb-icons.eot?te9zqa#iefix') format('embedded-opentype'),
@@ -295,7 +295,6 @@
     url('/fonts/BbbCustomIcons/bbb-icons.svg?te9zqa#bbb-icons') format('svg');
   font-weight: normal;
   font-style: normal;
-  font-display: block;
 }
 
 .icon-bbb-voice-mic:before {
@@ -309,4 +308,4 @@
 }
 .icon-bbb-turn-video-off-button:before {
   content: "\e1503";
-} */
+}
