@@ -58,10 +58,10 @@ module BigBlueButton
         audio_edl, File.join(target_dir, 'recording'), false)
 
       # and mixing it with deskshare audio	
-      if BigBlueButton::Events.screenshare_has_audio?(events_xml)	
+      deskshare_dir = "#{archive_dir}/deskshare"
+      if BigBlueButton::Events.screenshare_has_audio?(events_xml, deskshare_dir)
         BigBlueButton.logger.info("AudioProcessor.process: processing Deskshare audio...")	
 
-        deskshare_dir = "#{archive_dir}/deskshare"
         mixed_dir = "#{archive_dir}/mixed"
 
         deskshare_audio_edl = BigBlueButton::AudioEvents.create_deskshare_audio_edl(events, deskshare_dir)

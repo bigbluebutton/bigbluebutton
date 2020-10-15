@@ -86,28 +86,22 @@ module BigBlueButton
         :audio => nil
       }
 
-      deskshare_start = {	
-        :filename => "",	
-        :timestamp => 0	
-      }
-
       events.xpath('/recording/event[@module="Deskshare" or (@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCDesktopShareEvent" or @eventname="StopWebRTCDesktopShareEvent"))]').each do |event|
-        # check if deskshare has audio
         filename = event.at_xpath('filename').text
+        # Determine the audio filename
+        case event['eventname']
+        when 'DeskshareStartedEvent', 'DeskshareStoppedEvent'
+          filename = event.at_xpath('file').text
+          filename = "#{deskshare_dir}/#{File.basename(filename)}"
+        when 'StartWebRTCDesktopShareEvent', 'StopWebRTCDesktopShareEvent'
+          uri = event.at_xpath('filename').text
+          filename = "#{deskshare_dir}/#{File.basename(uri)}"
+        end
+        raise "Couldn't determine audio filename" if filename.nil?
+        # check if deskshare has audio
         fileHasAudio = !BigBlueButton::EDL::Audio.audio_info(filename)[:audio].nil?
         if (fileHasAudio)
           timestamp = event['timestamp'].to_i - initial_timestamp
-          # Determine the audio filename
-          case event['eventname']
-          when 'DeskshareStartedEvent', 'DeskshareStoppedEvent'
-            filename = event.at_xpath('file').text
-            filename = "#{deskshare_dir}/#{File.basename(filename)}"
-          when 'StartWebRTCDesktopShareEvent', 'StopWebRTCDesktopShareEvent'
-            uri = event.at_xpath('filename').text
-            filename = "#{deskshare_dir}/#{File.basename(uri)}"
-          end
-          raise "Couldn't determine audio filename" if filename.nil?
-
           # Add the audio to the EDL
           case event['eventname']
           when 'DeskshareStartedEvent', 'StartWebRTCDesktopShareEvent'
