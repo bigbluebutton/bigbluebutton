@@ -117,7 +117,7 @@ class AudioControls extends PureComponent {
           className={cx(styles.button, inAudio || styles.btn)}
           onClick={handleCustomLogout}
           color={'primary'}
-          icon={'audio_off'}
+          icon={'turn-video-off-button'}
           size="lg"
           circle
         />
