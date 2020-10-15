@@ -26,7 +26,7 @@ export default (props) => {
             [styles.hideContent]: autoSwapLayout && hidePresentation,
           })}
           >
-            <div className={styles.name-initial-wrapper}>
+            <div className={styles.nameInitialWrapper}>
               <p>
                 {/* <FormattedMessage
                   id="app.home.greeting"
