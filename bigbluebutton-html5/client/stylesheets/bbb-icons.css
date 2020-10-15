@@ -286,7 +286,7 @@
   content: "\e957";
 }
 
-@font-face {
+/* @font-face {
   font-family: 'bbb-icons';
   src:  url('/fonts/BbbCustomIcons/bbb-icons.eot?te9zqa');
   src:  url('/fonts/BbbCustomIcons/bbb-icons.eot?te9zqa#iefix') format('embedded-opentype'),
@@ -309,4 +309,4 @@
 }
 .icon-bbb-turn-video-off-button:before {
   content: "\e1503";
-}
+} */
