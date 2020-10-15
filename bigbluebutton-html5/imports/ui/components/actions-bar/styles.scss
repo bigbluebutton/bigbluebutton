@@ -111,9 +111,8 @@
 // Edit by Aman
 .button {
   span:first-child {
-    border: 1px solid #BABABA;
+    border: 1px solid #BABABA !important;
     box-shadow: none;
-    color: #393939;
     &:hover, &:focus{
       box-shadow: 0 1px 3px 0 rgba(60, 64, 67, 0.302), 0 4px 8px 3px rgba(60, 64, 67, 0.149);
     }
@@ -124,6 +123,9 @@
   span {
     box-shadow: none;
     background-color: transparent !important;
-    border-color: var(--color-white) !important;
+    // border-color: var(--color-white) !important;
+    border-color:  #BABABA !important;
   }
 }
+
+// End
