@@ -42,6 +42,24 @@ const getAudioSessionNumber = () => {
   return currItem;
 };
 
+
+/**
+  * Get error code from SIP.js websocket messages.
+ */
+const getErrorCode = (error) => {
+  try {
+    if (!error) return error;
+
+    const match = error.message.match(/code: \d+/g);
+
+    const _codeArray = match[0].split(':');
+
+    return parseInt(_codeArray[1].trim(), 10);
+  } catch (e) {
+    return 0;
+  }
+};
+
 class SIPSession {
   constructor(user, userData, protocol, hostname,
     baseCallStates, baseErrorCodes, reconnectAttempt) {
@@ -249,8 +267,15 @@ class SIPSession {
         }
 
         if (this.currentSession
-          && ((this.currentSession.state === SIP.SessionState.Establishing)
-          || (this.currentSession.state === SIP.SessionState.Established))) {
+          && ((this.currentSession.state === SIP.SessionState.Establishing))) {
+          this.currentSession.cancel().then(() => {
+            this._hangupFlag = true;
+            return resolve();
+          });
+        }
+
+        if (this.currentSession
+          && ((this.currentSession.state === SIP.SessionState.Established))) {
           this.currentSession.bye().then(() => {
             this._hangupFlag = true;
             return resolve();
@@ -259,6 +284,7 @@ class SIPSession {
 
         if (this.userAgent && this.userAgent.isConnected()) {
           this.userAgent.stop();
+          window.removeEventListener('beforeunload', this.onBeforeUnload);
         }
 
 
@@ -281,6 +307,14 @@ class SIPSession {
 
       return tryHangup();
     });
+  }
+
+  onBeforeUnload() {
+    if (this.userAgent) {
+      return this.userAgent.stop();
+    }
+
+    return Promise.resolve();
   }
 
   createUserAgent(iceServers) {
@@ -342,58 +376,62 @@ class SIPSession {
       });
 
       const handleUserAgentConnection = () => {
-        userAgentConnected = true;
-        resolve(this.userAgent);
+        if (!userAgentConnected) {
+          userAgentConnected = true;
+          resolve(this.userAgent);
+        }
       };
 
       const handleUserAgentDisconnection = () => {
         if (this.userAgent) {
-          if (this.userRequestedHangup) return;
+          if (this.userRequestedHangup) {
+            userAgentConnected = false;
+            return;
+          }
 
           let error;
           let bridgeError;
 
           if (!this._reconnecting) {
-            if (userAgentConnected) {
-              error = 1001;
-              bridgeError = 'Websocket disconnected';
-            } else {
-              error = 1002;
-              bridgeError = 'Websocket failed to connect';
-            }
 
-            this.callback({
-              status: this.baseCallStates.failed,
-              error,
-              bridgeError,
-            });
-          }
-
-          logger.info({
-            logCode: 'sip_js_session_ua_disconnected',
-            extraInfo: {
-              callerIdName: this.user.callerIdName,
-            },
-          }, 'User agent disconnected: trying to reconnect...'
-            + `${this.userRequestedHangup}`);
-
-          logger.info({
-            logCode: 'sip_js_session_ua_reconnecting',
-            extraInfo: {
-              callerIdName: this.user.callerIdName,
-            },
-          }, 'User agent failed to connect, reconnecting');
-
-          this.userAgent.reconnect().then(() => {
             logger.info({
-              logCode: 'sip_js_session_ua_reconnected',
+              logCode: 'sip_js_session_ua_disconnected',
               extraInfo: {
                 callerIdName: this.user.callerIdName,
               },
-            }, 'User agent succesfully reconnected');
-          }).catch(() => {
-            reject(this.baseErrorCodes.CONNECTION_ERROR);
-          });
+            }, 'User agent disconnected: trying to reconnect...'
+              + ` (userHangup = ${!!this.userRequestedHangup})`);
+
+            logger.info({
+              logCode: 'sip_js_session_ua_reconnecting',
+              extraInfo: {
+                callerIdName: this.user.callerIdName,
+              },
+            }, 'User agent disconnected, reconnecting');
+
+            this.reconnect().then(() => {
+              logger.info({
+                logCode: 'sip_js_session_ua_reconnected',
+                extraInfo: {
+                  callerIdName: this.user.callerIdName,
+                },
+              }, 'User agent succesfully reconnected');
+            }).catch(() => {
+              if (userAgentConnected) {
+                error = 1001;
+                bridgeError = 'Websocket disconnected';
+              } else {
+                error = 1002;
+                bridgeError = 'Websocket failed to connect';
+              }
+              this.callback({
+                status: this.baseCallStates.failed,
+                error,
+                bridgeError,
+              });
+              reject(this.baseErrorCodes.CONNECTION_ERROR);
+            });
+          }
         }
       };
 
@@ -407,8 +445,11 @@ class SIPSession {
             callerIdName: this.user.callerIdName,
           },
         }, 'User agent succesfully connected');
+
+        window.addEventListener('beforeunload', this.onBeforeUnload.bind(this));
+
         resolve();
-      }).catch(() => {
+      }).catch((error) => {
         logger.info({
           logCode: 'sip_js_session_ua_reconnecting',
           extraInfo: {
@@ -416,6 +457,19 @@ class SIPSession {
           },
         }, 'User agent failed to connect, reconnecting');
 
+        const code = getErrorCode(error);
+
+
+        if (code === 1006) {
+          this.callback({
+            status: this.baseCallStates.failed,
+            error: 1006,
+            bridgeError: 'Websocket failed to connect',
+          });
+          return reject({
+            type: this.baseErrorCodes.CONNECTION_ERROR,
+          });
+        }
 
         this.reconnect().then(() => {
           logger.info({
