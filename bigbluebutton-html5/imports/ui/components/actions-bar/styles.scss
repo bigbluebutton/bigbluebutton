@@ -131,6 +131,11 @@
 .endMeetingButton{
   span:first-child{
     background-color: var(--color-white);
+    border: 1px solid #BABABA !important;
+    box-shadow: none;
+    &:hover, &:focus{
+      box-shadow: 0 1px 3px 0 rgba(60, 64, 67, 0.302), 0 4px 8px 3px rgba(60, 64, 67, 0.149);
+    }
     i{
       color: #FF2D0C;
     }
