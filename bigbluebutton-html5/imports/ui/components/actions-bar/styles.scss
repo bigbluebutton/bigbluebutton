@@ -129,8 +129,12 @@
 }
 
 .endMeetingButton{
-  background-color: var(--color-white);
-  color: #FF2D0C;
+  span:first-child{
+    background-color: var(--color-white);
+    i{
+      color: #FF2D0C;
+    }
+  }
 }
 
 // End
