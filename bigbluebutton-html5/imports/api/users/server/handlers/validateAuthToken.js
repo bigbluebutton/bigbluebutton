@@ -60,7 +60,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
         /* Logic migrated from validateAuthToken method ( postponed to only run in case of success response ) - Begin */
         const sessionId = `${meetingId}--${userId}`;
 
-        if (!methodInvocationObject.userId) methodInvocationObject.setUserId(sessionId);
+        methodInvocationObject.setUserId(sessionId);
 
         const User = Users.findOne({
           meetingId,
