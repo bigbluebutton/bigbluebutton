@@ -231,6 +231,7 @@ class Auth {
         reject({
           error: 403,
           description: result.reason,
+          type: result.error_type,
         });
         return;
       }

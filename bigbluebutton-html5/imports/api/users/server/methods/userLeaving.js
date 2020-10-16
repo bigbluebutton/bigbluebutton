@@ -24,6 +24,7 @@ export default function userLeaving(meetingId, userId, connectionId) {
 
   // If the current user connection is not the same that triggered the leave we skip
   if (User.connectionId !== connectionId) {
+    Logger.info(`Skipping userLeaving. User connectionId=${User.connectionId} is different from requester connectionId=${connectionId}`);
     return false;
   }
 
