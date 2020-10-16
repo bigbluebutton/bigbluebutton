@@ -10,34 +10,49 @@
   font-display: block;
 }
 
-@font-face {
-  font-family: 'bbb-icons';
-  src: url('/fonts/BbbIcons/bbb-icons.woff?j1ntjp') format('woff');
-  font-weight: normal;
-  font-style: normal;
-}
-
 [class^="icon-bbb-"], [class*=" icon-bbb-"] {
   /* use !important to prevent issues with browser extensions that change fonts */
   font-family: 'bbb-icons' !important;
-  speak: none;
-  position: relative;
-  /*top: 1px;*/
-  display: inline-block;
+  speak: never;
   font-style: normal;
-  font-weight: 400;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
   line-height: 1;
-  -webkit-font-smoothing: antialiased;
-  width: 1em;
-  text-align: center;
-  vertical-align: middle;
 
   /* Better Font Rendering =========== */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-bbb-mute:before {
+/* @font-face {
+  font-family: 'bbb-icons';
+  src: url('/fonts/BbbIcons/bbb-icons.woff?j1ntjp') format('woff');
+  font-weight: normal;
+  font-style: normal;
+} */
+
+/* [class^="icon-bbb-"], [class*=" icon-bbb-"] { */
+  /* use !important to prevent issues with browser extensions that change fonts */
+  /* font-family: 'bbb-icons' !important;
+  speak: none;
+  position: relative; */
+  /*top: 1px;*/
+  /* display: inline-block;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  width: 1em;
+  text-align: center;
+  vertical-align: middle; */
+
+  /* Better Font Rendering =========== */
+  /* -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+} */
+
+/* .icon-bbb-mute:before {
   content: "\e932";
 }
 .icon-bbb-unmute:before {
@@ -170,10 +185,10 @@
 }
 .icon-bbb-audio_off:before {
   content: "\e91b";
-}
+} */
 
 /* Aliases for emoji status */
-.icon-bbb-time:before {
+/* .icon-bbb-time:before {
   content: "\e908";
 }
 .icon-bbb-hand:before {
@@ -296,7 +311,7 @@
 }
 .icon-bbb-closed_caption:before {
   content: "\e957";
-}
+} */
 
 
 /* Icon added by Aman */
