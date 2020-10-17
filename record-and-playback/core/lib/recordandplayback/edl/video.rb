@@ -185,8 +185,12 @@ module BigBlueButton
         BigBlueButton.execute("/usr/lib/libreoffice/program/soffice.bin --headless --norestore --writer --convert-to pdf --outdir #{bdir} -env:UserInstallation=file://#{sofficedir} #{bdir+id}.html", false)
         pdffont = NAME_DEF
         if File.exist?("#{bdir+id}.pdf")
-          pdffonts_res = BigBlueButton.execute("/usr/bin/pdffonts #{bdir+id}.pdf | tail -n 1 | awk '{print$1}'")
-          pdffont = pdffonts_res.output[0].sub(/^.*\+(\S+).*/,'\1').chomp
+          #Since the commit https://github.com/bigbluebutton/bigbluebutton/commit/1268753519d9b6ea403bd632216c0199a5b9e20c, execute method no longer returns output.
+          #pdffonts_res = BigBlueButton.execute("/usr/bin/pdffonts #{bdir+id}.pdf | tail -n 1 | awk '{print$1}'")
+          #pdffont = pdffonts_res.output[0].sub(/^.*\+(\S+).*/,'\1').chomp
+          IO.popen("/usr/bin/pdffonts #{bdir+id}.pdf | tail -n 1 | awk '{print$1}'") do |io|
+            pdffont = io.gets.sub(/^.*\+(\S+).*/,'\1').chomp
+          end
         end
         f_ngram = []
         flist.each do |h,v|
@@ -308,9 +312,15 @@ module BigBlueButton
 
           uf = BigBlueButton.execute("/usr/bin/fc-match -f '%{file}' unifont") if NAME_UNIFONT
           fclist = Hash.new
-          fclist_res = BigBlueButton.execute("/usr/bin/fc-list -f '%{file}\\n'")
-          fclist_res.output.each do |s|
-            fclist[File.basename(s, ".*")] = s.chomp
+          #Since the commit https://github.com/bigbluebutton/bigbluebutton/commit/1268753519d9b6ea403bd632216c0199a5b9e20c, execute method no longer returns output.
+          #fclist_res = BigBlueButton.execute("/usr/bin/fc-list -f '%{file}\\n'")
+          #fclist_res.output.each do |s|
+          #  fclist[File.basename(s, ".*")] = s.chomp
+          #end
+          IO.popen("/usr/bin/fc-list -f '%{file}\\n'") do |io|
+            io.each_line do |s|
+              fclist[File.basename(s, ".*")] = s.chomp
+            end
           end
           
           uids.each do |h,v|
@@ -329,7 +339,7 @@ module BigBlueButton
             warn 'Skipping 0-length edl entry'
             next
           end
-          composite_cut(render, edl[i], layout, videoinfo)
+          composite_cut(render, edl[i], layout, videoinfo, uids, fonts)
         end
 
         return render
@@ -441,7 +451,7 @@ module BigBlueButton
         [pad_x, pad_y]
       end
 
-      def self.composite_cut(output, cut, layout, videoinfo)
+      def self.composite_cut(output, cut, layout, videoinfo, id_names, id_fonts)
         duration = cut[:next_timestamp] - cut[:timestamp]
         BigBlueButton.logger.info "  Cut start time #{cut[:timestamp]}, duration #{duration}"
 
