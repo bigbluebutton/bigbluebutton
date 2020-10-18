@@ -119,7 +119,7 @@ enableUFWRules() {
 
 
 enableMultipleKurentos() {
-  echo "  - Configuring three Kurento Media Servers: one for listen only, webcam, and screeshare"
+  echo "  - Configuring three Kurento Media Servers (listen only, webcam, and screeshare)"
 
   # Step 1.  Setup shared certificate between FreeSWITCH and Kurento
 
@@ -135,50 +135,57 @@ enableMultipleKurentos() {
   for i in `seq 8888 8890`; do
 
     cat > /usr/lib/systemd/system/kurento-media-server-${i}.service << HERE
-  # /usr/lib/systemd/system/kurento-media-server-#{i}.service
-  [Unit]
-  Description=Kurento Media Server daemon (${i})
-  After=network.target
-  PartOf=kurento-media-server.service
-  After=kurento-media-server.service
+# /usr/lib/systemd/system/kurento-media-server-#{i}.service
+[Unit]
+Description=Kurento Media Server daemon (${i})
+After=network.target
+PartOf=kurento-media-server.service
+After=kurento-media-server.service
 
-  [Service]
-  UMask=0002
-  Environment=KURENTO_LOGS_PATH=/var/log/kurento-media-server
-  Environment=KURENTO_CONF_FILE=/etc/kurento/kurento-${i}.conf.json
-  User=kurento
-  Group=kurento
-  LimitNOFILE=1000000
-  ExecStartPre=-/bin/rm -f /var/kurento/.cache/gstreamer-1.5/registry.x86_64.bin
-  ExecStart=/usr/bin/kurento-media-server --gst-debug-level=3 --gst-debug="3,Kurento*:4,kms*:4,KurentoWebSocketTransport:5"
-  Type=simple
-  PIDFile=/var/run/kurento-media-server-${i}.pid
-  Restart=always
+[Service]
+UMask=0002
+Environment=KURENTO_LOGS_PATH=/var/log/kurento-media-server
+Environment=KURENTO_CONF_FILE=/etc/kurento/kurento-${i}.conf.json
+User=kurento
+Group=kurento
+LimitNOFILE=1000000
+ExecStartPre=-/bin/rm -f /var/kurento/.cache/gstreamer-1.5/registry.x86_64.bin
+ExecStart=/usr/bin/kurento-media-server --gst-debug-level=3 --gst-debug="3,Kurento*:4,kms*:4,KurentoWebSocketTransport:5"
+Type=simple
+PIDFile=/var/run/kurento-media-server-${i}.pid
+Restart=always
 
-  [Install]
-  WantedBy=kurento-media-server.service
-
+[Install]
+WantedBy=kurento-media-server.service
 HERE
 
     # Make a new configuration file each instance of Kurento that binds to a different port
     cp /etc/kurento/kurento.conf.json /etc/kurento/kurento-${i}.conf.json
     sed -i "s/8888/${i}/g" /etc/kurento/kurento-${i}.conf.json
-
   done
 
   # Step 3. Override the main kurento-media-server unit to start/stop the three Kurento instances
 
   cat > /etc/systemd/system/kurento-media-server.service << HERE
-  [Unit]
-  Description=Kurento Media Server
+[Unit]
+Description=Kurento Media Server
 
-  [Service]
-  Type=oneshot
-  ExecStart=/bin/true
-  RemainAfterExit=yes
+[Service]
+Type=oneshot
+ExecStart=/bin/true
+RemainAfterExit=yes
 
-  [Install]
-  WantedBy=multi-user.target
+[Install]
+WantedBy=multi-user.target
+HERE
+
+  # Step 4. Extend bbb-webrtc-sfu unit to wait for all three KMS servers to start
+
+  mkdir -p /etc/systemd/system/bbb-webrtc-sfu.service.d
+  cat > /etc/systemd/system/bbb-webrtc-sfu.service.d/override.conf << HERE
+[Unit]
+After=
+After=syslog.target network.target freeswitch.service kurento-media-server-8888.service kurento-media-server-8889.service kurento-media-server-8890.service
 HERE
 
   systemctl daemon-reload
@@ -188,7 +195,7 @@ HERE
   done
 
 
-  # Step 4.  Modify bbb-webrtc-sfu config to use the three Kurento servers
+  # Step 5.  Modify bbb-webrtc-sfu config to use the three Kurento servers
 
   KURENTO_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
 
@@ -220,6 +227,8 @@ disableMultipleKurentos() {
 
   # Remove the overrride (restoring the original kurento-media-server.service unit file)
   rm -f /etc/systemd/system/kurento-media-server.service
+  rm -f /etc/systemd/system/bbb-webrtc-sfu.service.d/override.conf
+
   systemctl daemon-reload
 
   # Restore bbb-webrtc-sfu configuration to use a single instance of Kurento
@@ -260,6 +269,8 @@ source /etc/bigbluebutton/bbb-conf/apply-lib.sh
 
 #enableHTML5CameraQualityThresholds
 #enableHTML5WebcamPagination
+
+#enableMultipleKurentos
 
 HERE
 chmod +x /etc/bigbluebutton/bbb-conf/apply-config.sh
