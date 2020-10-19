@@ -33,9 +33,10 @@ trait SelectRandomViewerReqMsgHdlr extends RightsManagementTrait {
     } else {
       val users = Users2x.findViewers(liveMeeting.users2x)
       val randNum = new scala.util.Random
-      val selectedUser = users(randNum.nextInt(users.size));
 
-      broadcastEvent(msg, selectedUser)
+      if (users.size > 0) {
+        broadcastEvent(msg, users(randNum.nextInt(users.size)))
+      }
     }
   }
 }

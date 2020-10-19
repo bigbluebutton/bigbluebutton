@@ -46,11 +46,14 @@ export default withModalMounter(withTracker(({ mountModal }) => {
 
   const randomUserReq = () => makeCall('setRandomUser');
 
+  const clearRandomlySelectedUser = () => makeCall('clearRandomlySelectedUser');
+
   return ({
     closeModal: () => mountModal(null),
     numAvailableViewers: viewerPool.length,
     randomUserReq,
     selectedUser,
     currentUser,
+    clearRandomlySelectedUser,
   });
 })(RandomUserSelectContainer));

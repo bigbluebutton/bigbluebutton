@@ -48,7 +48,7 @@ class RandomUserSelect extends Component {
 
   componentDidUpdate() {
     const { selectedUser, currentUser, mountModal } = this.props;
-    if (selectedUser.userId !== currentUser.userId && !currentUser.presenter) {
+    if (selectedUser && selectedUser.userId !== currentUser.userId && !currentUser.presenter) {
       mountModal(null);
     }
   }
@@ -61,6 +61,7 @@ class RandomUserSelect extends Component {
       randomUserReq,
       selectedUser,
       currentUser,
+      clearRandomlySelectedUser,
     } = this.props;
 
     if (!selectedUser) return null;
@@ -105,7 +106,10 @@ class RandomUserSelect extends Component {
     return (
       <Modal
         hideBorder
-        onRequestClose={() => { mountModal(null); }}
+        onRequestClose={() => {
+          if (currentUser.presenter) clearRandomlySelectedUser();
+          mountModal(null);
+        }}
         contentLabel={intl.formatMessage(messages.ariaModalTitle)}
       >
         {viewElement}
