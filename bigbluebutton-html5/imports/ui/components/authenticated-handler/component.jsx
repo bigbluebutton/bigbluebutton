@@ -82,7 +82,6 @@ class AuthenticatedHandler extends Component {
     const {
       authenticated,
     } = this.state;
-
     Session.set('isMeetingEnded', false);
     Session.set('isPollOpen', false);
     // TODO: breakoutRoomIsOpen doesn't seem used

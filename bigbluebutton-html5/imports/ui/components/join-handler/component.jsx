@@ -82,7 +82,6 @@ class JoinHandler extends Component {
 
   async fetchToken() {
     if (!this._isMounted) return;
-
     const urlParams = new URLSearchParams(window.location.search);
     const sessionToken = urlParams.get('sessionToken');
 
