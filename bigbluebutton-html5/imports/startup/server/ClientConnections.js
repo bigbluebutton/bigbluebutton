@@ -4,15 +4,28 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 
 class ClientConnections {
   constructor() {
+    Logger.debug('Initializing client connections structure', { logCode: 'client_connections_init' });
     this.connections = new Map();
 
     setInterval(() => {
       this.print();
     }, 30000);
+
+    // setTimeout(() => {
+    //   this.syncConnectionsWithServer();
+    // }, 10000);
+
   }
 
   add(sessionId, connection) {
-    Logger.info(`Adding new connection for sessionId=${sessionId} connection=${connection}`);
+    Logger.info('Client connections add called', { logCode: 'client_connections_add', extraInfo: { sessionId, connection } });
+    if (!sessionId || !connection) {
+      Logger.error(`Error on add new client connection. sessionId=${sessionId} connection=${connection.id}`,
+        { logCode: 'client_connections_add_error', extraInfo: { sessionId, connection } }
+      );
+
+      return;
+    }
 
     const { meetingId, requesterUserId: userId } = extractCredentials(sessionId);
 
@@ -32,6 +45,8 @@ class ClientConnections {
     connection.onClose(Meteor.bindEnvironment(() => {
       userLeaving(meetingId, userId, connection.id);
     }));
+
+    Logger.info(`Adding new connection for sessionId=${sessionId} connection=${connection.id}`);
 
     if (!sessionConnections.has(userId)) {
       Logger.info(`Creating connections poll for ${userId}`);
@@ -61,17 +76,16 @@ class ClientConnections {
   }
 
   print() {
-    console.group('Active connections');
+    const mapConnectionsObj = {};
     this.connections.forEach((value, key) => {
-      console.group(key);
+      mapConnectionsObj[key] = {};
 
       value.forEach((v, k) => {
-        console.log(`${k}: [ ${v} ]`);
+        mapConnectionsObj[key][k] = v;
       });
 
-      console.groupEnd();
-    })
-    console.groupEnd();
+    });
+    Logger.info('Active connections', mapConnectionsObj);
   }
 
   removeClientConnection(sessionId, connectionId = null) {
@@ -93,6 +107,11 @@ class ClientConnections {
     Logger.debug(`Removing connections for meeting=${meetingId}`);
     return this.connections.delete(meetingId);
   }
+
+  syncConnectionsWithServer() {
+    console.error('syncConnectionsWithServer', Array.from(Meteor.server.sessions.keys()), Meteor.server);
+  }
+
 }
 
 const ClientConnectionsSingleton = new ClientConnections();
