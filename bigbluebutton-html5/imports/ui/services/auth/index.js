@@ -7,6 +7,7 @@ import Users from '/imports/api/users';
 import logger from '/imports/startup/client/logger';
 import { makeCall } from '/imports/ui/services/api';
 import { initAnnotationsStreamListener } from '/imports/ui/components/whiteboard/service';
+import allowRedirectToLogoutURL from '/imports/ui/components/meeting-ended/service';
 import { initCursorStreamListener } from '/imports/ui/components/cursor/service';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
@@ -183,7 +184,12 @@ class Auth {
 
 
     return new Promise((resolve) => {
-      resolve(this._logoutURL);
+      if (allowRedirectToLogoutURL()) {
+        resolve(this._logoutURL);
+      }
+
+      // do not redirect
+      resolve();
     });
   }
 
@@ -195,7 +201,7 @@ class Auth {
     if (!(this.meetingID && this.userID && this.token)) {
       return Promise.reject({
         error: 401,
-        description: 'Authentication failed due to missing credentials.',
+        description: Session.get('errorMessageDescription') ? Session.get('errorMessageDescription') : 'Authentication failed due to missing credentials',
       });
     }
 
@@ -214,8 +220,8 @@ class Auth {
       const validationTimeout = setTimeout(() => {
         computation.stop();
         reject({
-          error: 401,
-          description: 'Authentication timeout.',
+          error: 408,
+          description: 'Authentication timeout',
         });
       }, CONNECTION_TIMEOUT);
 
@@ -223,18 +229,20 @@ class Auth {
 
       const result = await makeCall('validateAuthToken', this.meetingID, this.userID, this.token, this.externUserID);
 
-      if (!result) {
+      if (result && result.invalid) {
         clearTimeout(validationTimeout);
         reject({
-          error: 401,
-          description: 'User has been banned.',
+          error: 403,
+          description: result.reason,
+          type: result.error_type,
         });
         return;
       }
 
+      Meteor.subscribe('current-user');
+
       Tracker.autorun((c) => {
         computation = c;
-        Meteor.subscribe('current-user');
 
         const selector = { meetingId: this.meetingID, userId: this.userID };
         const fields = {
@@ -252,7 +260,7 @@ class Auth {
         if (User.ejected) {
           computation.stop();
           reject({
-            error: 401,
+            error: 403,
             description: 'User has been ejected.',
           });
           return;
