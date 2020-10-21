@@ -12,6 +12,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
 import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
+import logger from '/imports/startup/client/logger';
 
 import {
   getFontSize,
@@ -72,9 +73,9 @@ const currentUserEmoji = currentUser => (currentUser ? {
   status: currentUser.emoji,
   changedAt: currentUser.emojiTime,
 } : {
-  status: 'none',
-  changedAt: null,
-});
+    status: 'none',
+    changedAt: null,
+  });
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { approved: 1, emoji: 1 } });
@@ -91,7 +92,18 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     changed(id, fields) {
       const hasNewConnection = 'connectionId' in fields && (fields.connectionId !== Meteor.connection._lastSessionId);
 
-      if (fields.ejected || hasNewConnection) {
+      if (hasNewConnection) {
+        logger.info({
+          logCode: 'user_connection_id_changed',
+          extraInfo: {
+            currentConnectionId: fields.connectionId,
+            previousConnectionId: Meteor.connection._lastSessionId,
+          },
+        }, 'User connectionId changed ');
+        endMeeting('401');
+      }
+
+      if (fields.ejected) {
         endMeeting('403');
       }
     },

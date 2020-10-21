@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import PropTypes from 'prop-types';
+import AudioService from '/imports/ui/components/audio/service';
 
 const propTypes = {
   play: PropTypes.bool.isRequired,
@@ -8,17 +9,16 @@ const propTypes = {
 class ChatAudioAlert extends Component {
   constructor(props) {
     super(props);
-    this.audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/notify.mp3`);
     this.handleAudioLoaded = this.handleAudioLoaded.bind(this);
     this.playAudio = this.playAudio.bind(this);
   }
 
   componentDidMount() {
-    this.audio.addEventListener('loadedmetadata', this.handleAudioLoaded);
+    this.handleAudioLoaded();
   }
 
   componentWillUnmount() {
-    this.audio.removeEventListener('loadedmetadata', this.handleAudioLoaded);
+    this.handleAudioLoaded();
   }
 
   handleAudioLoaded() {
@@ -28,7 +28,9 @@ class ChatAudioAlert extends Component {
   playAudio() {
     const { play } = this.props;
     if (!play) return;
-    this.audio.play();
+    AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
+      + Meteor.settings.public.app.basename}`
+      + '/resources/sounds/notify.mp3');
   }
 
   render() {
