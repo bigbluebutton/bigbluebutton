@@ -1,14 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
-const TabsPanel = () => (
-  <aside className="secondary-nav w-3/12 bg-gray-100 flex flex-col">
-    <div className="bg-gray-200 w-full px-2 py-4 flex justify-between items-center">
-      <h2 className="p-2 text-xl font-medium">Documents</h2>
-      <button type="button" className="bg-transparent p-2">
-        <img src="images/times.svg" className="fill-current" alt="" />
-      </button>
-    </div>
-    <div className="w-full py-3 flex flex-col overflow-y-scroll">
+const TabContentPpt = ({ activeKey, contentKey }) => {
+  const contentShow = activeKey ? 'block' : 'hidden';
+
+  return (
+    <div className={`w-full py-3 flex flex-col overflow-y-scroll ${contentShow}`} id={`link${contentKey}`}>
       <span className="rounded-md mx-4 shadow-sm mb-3">
         <button type="button" className="inline-flex items-center w-full rounded-md p-4 bg-white text-sm leading-5 font-medium text-gray-700 hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-gray-50 active:text-gray-800 transition ease-in-out duration-150 font-bold text-lg" id="options-menu" aria-haspopup="true" aria-expanded="true">
           <img src="images/ppt.svg" className="w-1/12" alt="" />
@@ -29,35 +26,46 @@ const TabsPanel = () => (
           <img src="images/active-right.svg" className="h-12 w-24 p-1 bg-gray-100 rounded" alt="" />
         </button>
       </span>
+
       <ul>
         <li className="p-3">
           <a href="/#">
-            Slide 1
+                        Slide 1
             <img src="images/slide-1.png" alt="" />
           </a>
         </li>
         <li className="p-3">
           <a href="/#">
-            Slide 2
+                        Slide 2
             <img src="images/slide-2.png" alt="" />
           </a>
         </li>
         <li className="bg-gray-300 p-3">
           <a href="/#">
-            Slide 3
+                        Slide 3
             <img src="images/r-side.png" alt="" />
           </a>
         </li>
         <li className="p-3">
           <a href="/#">
-            Slide 4
+                        Slide 4
             <img src="images/l-side.png" alt="" />
           </a>
         </li>
       </ul>
     </div>
-  </aside>
 
-);
+  );
+};
 
-export default TabsPanel;
+TabContentPpt.defaultProps = {
+  activeKey: 0,
+  contentKey: 1,
+};
+
+TabContentPpt.propTypes = {
+  activeKey: PropTypes.number,
+  contentKey: PropTypes.number,
+};
+
+export default TabContentPpt;

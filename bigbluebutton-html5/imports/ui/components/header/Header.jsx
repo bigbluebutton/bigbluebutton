@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '../common';
 
 const Header = () => (
   <div id="topBar" className="flex w-full">
@@ -19,7 +20,14 @@ const Header = () => (
       <img src="images/company_logo.png" className="w-24" alt="" />
     </div>
     <div className="w-5/12 p-2 flex items-center justify-end">
-      <button type="button" className="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded-md">END MEETING</button>
+      <Button
+        size="md"
+        color="secondary"
+        variant="outlined"
+        fontWeight="semibold"
+      >
+        END MEETING
+      </Button>
     </div>
   </div>
 );

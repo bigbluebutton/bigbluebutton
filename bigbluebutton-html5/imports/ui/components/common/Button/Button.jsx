@@ -1,0 +1,86 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+import cx from 'classnames';
+
+const COLOR_TYPE = {
+  PRIMARY: 'primary',
+  SECONDARY: 'secondary',
+};
+
+const SIZE_VARIANT_TYPE = {
+  SMALL: 'sm',
+  MEDIUM: 'md',
+};
+
+const VARIANT_TYPE = {
+  CONATINED: 'contained',
+  OUTLINED: 'outlined',
+};
+
+const WEIGHT_VARIANT_TYPE = {
+  BOLD: 'bold',
+  SEMIBOLD: 'semibold',
+};
+
+const Button = ({
+  size,
+  color,
+  variant,
+  fontWeight,
+  children,
+}) => {
+  let buttonColor = 'bg-white hover:bg-gray-200';
+  let buttonSize = 'py-2 px-4 text-md rounded-md';
+  let buttonFontWeight;
+
+  if (color === COLOR_TYPE.PRIMARY && variant === VARIANT_TYPE.OUTLINED) {
+    buttonColor = 'text-gray-700 hover:bg-gray-500 hover:text-white border border-gray-500 bg-transparent hover:border-transparent';
+  }
+
+  if (color === COLOR_TYPE.SECONDARY && variant === VARIANT_TYPE.CONATINED) {
+    buttonColor = 'bg-red-100 hover:bg-red-300';
+  }
+
+  if (color === COLOR_TYPE.SECONDARY && variant === VARIANT_TYPE.OUTLINED) {
+    buttonColor = 'text-red-700 hover:bg-red-500 hover:text-white border border-red-500';
+  }
+
+  if (size === SIZE_VARIANT_TYPE.SMALL) {
+    buttonSize = 'py-1 px-2 rounded-sm';
+  }
+
+  if (fontWeight === WEIGHT_VARIANT_TYPE.BOLD) {
+    buttonFontWeight = 'font-bold';
+  }
+
+  if (fontWeight === WEIGHT_VARIANT_TYPE.SEMIBOLD) {
+    buttonFontWeight = 'font-semibold';
+  }
+
+  return (
+    <button
+      type="button"
+      className={cx('inline-flex items-center', buttonColor, buttonSize, buttonFontWeight)}
+    >
+      {children}
+    </button>
+  );
+};
+
+Button.defaultProps = {
+  size: SIZE_VARIANT_TYPE.MEDIUM,
+  color: COLOR_TYPE.PRIMARY,
+  variant: VARIANT_TYPE.CONATINED,
+  fontWeight: '',
+  children: '',
+};
+
+Button.propTypes = {
+  size: PropTypes.string,
+  color: PropTypes.string,
+  variant: PropTypes.string,
+  fontWeight: PropTypes.string,
+  children: PropTypes.node,
+};
+
+export default Button;
