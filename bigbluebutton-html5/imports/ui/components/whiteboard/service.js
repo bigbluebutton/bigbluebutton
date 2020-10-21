@@ -3,6 +3,7 @@ import Auth from '/imports/ui/services/auth';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import addAnnotationQuery from '/imports/api/annotations/addAnnotation';
 import { makeCall } from '/imports/ui/services/api';
+import logger from '/imports/startup/client/logger';
 
 const Annotations = new Mongo.Collection(null);
 const UnsentAnnotations = new Mongo.Collection(null);

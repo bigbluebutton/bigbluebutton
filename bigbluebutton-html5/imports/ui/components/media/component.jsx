@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
+import Settings from '/imports/ui/services/settings';
 import { isMobile, isIPad13 } from 'react-device-detect';
 import WebcamDraggable from './webcam-draggable-overlay/component';
 import { styles } from './styles';
@@ -67,7 +68,7 @@ export default class Media extends Component {
     });
     const { viewParticipantsWebcams } = Settings.dataSaving;
     const showVideo = usersVideo.length > 0 && viewParticipantsWebcams;
-    const fullHeight = !showVideo || (webcamPlacement === 'floating');
+    const fullHeight = !showVideo || (webcamsPlacement === 'floating');
 
     return (
       <div
