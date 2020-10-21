@@ -312,25 +312,43 @@ class LayoutManager extends Component {
       };
     }
 
-    if (openPanel === 'userlist') {
-      newChatSize = {
-        width: 0,
-      };
-      newBreakoutRoomSize = {
-        width: 0,
-      };
-    }
-
-    if (openPanel === '') {
-      newUserListSize = {
-        width: 0,
-      };
-      newChatSize = {
-        width: 0,
-      };
-      newBreakoutRoomSize = {
-        width: 0,
-      };
+    switch (openPanel) {
+      case 'userlist': {
+        newChatSize = {
+          width: 0,
+        };
+        newBreakoutRoomSize = {
+          width: 0,
+        };
+        break;
+      }
+      case 'chat': {
+        newBreakoutRoomSize = {
+          width: 0,
+        };
+        break;
+      }
+      case 'breakoutroom': {
+        newChatSize = {
+          width: 0,
+        };
+        break;
+      }
+      case '': {
+        newUserListSize = {
+          width: 0,
+        };
+        newChatSize = {
+          width: 0,
+        };
+        newBreakoutRoomSize = {
+          width: 0,
+        };
+        break;
+      }
+      default: {
+        throw new Error('Unexpected openPanel value');
+      }
     }
 
     return {

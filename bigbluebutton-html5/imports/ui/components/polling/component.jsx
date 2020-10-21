@@ -5,6 +5,7 @@ import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrap
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import { styles } from './styles.scss';
+import AudioService from '/imports/ui/components/audio/service';
 
 const MAX_INPUT_CHARS = 45;
 
@@ -55,8 +56,9 @@ class Polling extends Component {
   }
 
   play() {
-    this.alert = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/Poll.mp3`);
-    this.alert.play();
+    AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
+      + Meteor.settings.public.app.basename}`
+      + '/resources/sounds/Poll.mp3');
   }
 
   handleUpdateResponseInput(e) {
@@ -78,7 +80,10 @@ class Polling extends Component {
       typedAns,
     } = this.state;
 
+    if (!poll) return null;
+
     const { stackOptions, answers, question } = poll;
+
     const pollAnswerStyles = {
       [styles.pollingAnswers]: true,
       [styles.removeColumns]: answers.length === 1,

@@ -16,7 +16,9 @@ const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
 const MAX_LISTEN_ONLY_RETRIES = 1;
-const LISTEN_ONLY_CALL_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
+const LISTEN_ONLY_CALL_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 25000;
+const DEFAULT_INPUT_DEVICE_ID = 'default';
+const DEFAULT_OUTPUT_DEVICE_ID = 'default';
 
 const CALL_STATES = {
   STARTED: 'started',
@@ -29,7 +31,7 @@ const CALL_STATES = {
 class AudioManager {
   constructor() {
     this._inputDevice = {
-      value: 'default',
+      value: DEFAULT_INPUT_DEVICE_ID,
       tracker: new Tracker.Dependency(),
     };
 
@@ -89,48 +91,18 @@ class AudioManager {
     });
   }
 
-  askDevicesPermissions() {
-    // Check to see if the stream has already been retrieved becasue then we don't need to
-    // request. This is a fix for an issue with the input device selector.
-    if (this.inputStream) {
-      return Promise.resolve();
-    }
-
-    // Only change the isWaitingPermissions for the case where the user didnt allowed it yet
-    const permTimeout = setTimeout(() => {
-      if (!this.devicesInitialized) { this.isWaitingPermissions = true; }
-    }, 100);
-
-    this.isWaitingPermissions = false;
-    this.devicesInitialized = false;
-
-    return Promise.all([
-      this.setDefaultInputDevice(),
-      this.setDefaultOutputDevice(),
-    ]).then(() => {
-      this.devicesInitialized = true;
-      this.isWaitingPermissions = false;
-    }).catch((err) => {
-      clearTimeout(permTimeout);
-      this.isConnecting = false;
-      this.isWaitingPermissions = false;
-      throw err;
-    });
-  }
-
   joinMicrophone() {
     this.isListenOnly = false;
     this.isEchoTest = false;
 
-    return this.askDevicesPermissions()
-      .then(this.onAudioJoining.bind(this))
+    return this.onAudioJoining.bind(this)()
       .then(() => {
         const callOptions = {
           isListenOnly: false,
           extension: null,
           inputStream: this.inputStream,
         };
-        return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
+        return this.joinAudio(callOptions, this.callStateCallback.bind(this));
       });
   }
 
@@ -138,8 +110,7 @@ class AudioManager {
     this.isListenOnly = false;
     this.isEchoTest = true;
 
-    return this.askDevicesPermissions()
-      .then(this.onAudioJoining.bind(this))
+    return this.onAudioJoining.bind(this)()
       .then(() => {
         const callOptions = {
           isListenOnly: false,
@@ -147,8 +118,50 @@ class AudioManager {
           inputStream: this.inputStream,
         };
         logger.info({ logCode: 'audiomanager_join_echotest', extraInfo: { logType: 'user_action' } }, 'User requested to join audio conference with mic');
-        return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
+        return this.joinAudio(callOptions, this.callStateCallback.bind(this));
       });
+  }
+
+  joinAudio(callOptions, callStateCallback) {
+    return this.bridge.joinAudio(callOptions,
+      callStateCallback.bind(this)).catch((error) => {
+      const { name } = error;
+
+      if (!name) {
+        throw error;
+      }
+
+      switch (name) {
+        case 'NotAllowedError':
+          logger.error({
+            logCode: 'audiomanager_error_getting_device',
+            extraInfo: {
+              errorName: error.name,
+              errorMessage: error.message,
+            },
+          }, `Error getting microphone - {${error.name}: ${error.message}}`);
+          break;
+        case 'NotFoundError':
+          logger.error({
+            logCode: 'audiomanager_error_device_not_found',
+            extraInfo: {
+              errorName: error.name,
+              errorMessage: error.message,
+            },
+          }, `Error getting microphone - {${error.name}: ${error.message}}`);
+          break;
+
+        default:
+          break;
+      }
+
+      this.isConnecting = false;
+      this.isWaitingPermissions = false;
+
+      throw {
+        type: 'MEDIA_ERROR',
+      };
+    });
   }
 
   async joinListenOnly(r = 0) {
@@ -280,6 +293,31 @@ class AudioManager {
     return this.bridge.transferCall(this.onAudioJoin.bind(this));
   }
 
+  onVoiceUserChanges(fields) {
+    if (fields.muted !== undefined && fields.muted !== this.isMuted) {
+      let muteState;
+      this.isMuted = fields.muted;
+
+      if (this.isMuted) {
+        muteState = 'selfMuted';
+        this.mute();
+      } else {
+        muteState = 'selfUnmuted';
+        this.unmute();
+      }
+
+      window.parent.postMessage({ response: muteState }, '*');
+    }
+
+    if (fields.talking !== undefined && fields.talking !== this.isTalking) {
+      this.isTalking = fields.talking;
+    }
+
+    if (this.isMuted) {
+      this.isTalking = false;
+    }
+  }
+
   onAudioJoin() {
     this.isConnecting = false;
     this.isConnected = true;
@@ -288,21 +326,8 @@ class AudioManager {
     if (!this.muteHandle) {
       const query = VoiceUsers.find({ intId: Auth.userID }, { fields: { muted: 1, talking: 1 } });
       this.muteHandle = query.observeChanges({
-        changed: (id, fields) => {
-          if (fields.muted !== undefined && fields.muted !== this.isMuted) {
-            this.isMuted = fields.muted;
-            const muteState = this.isMuted ? 'selfMuted' : 'selfUnmuted';
-            window.parent.postMessage({ response: muteState }, '*');
-          }
-
-          if (fields.talking !== undefined && fields.talking !== this.isTalking) {
-            this.isTalking = fields.talking;
-          }
-
-          if (this.isMuted) {
-            this.isTalking = false;
-          }
-        },
+        added: (id, fields) => this.onVoiceUserChanges(fields),
+        changed: (id, fields) => this.onVoiceUserChanges(fields),
       });
     }
 
@@ -395,31 +420,25 @@ class AudioManager {
   }
 
   createListenOnlyStream() {
-    if (this.listenOnlyAudioContext) {
-      this.listenOnlyAudioContext.close();
-    }
-
-    const { AudioContext, webkitAudioContext } = window;
-
-    this.listenOnlyAudioContext = AudioContext
-      ? new AudioContext()
-      : new webkitAudioContext();
-
-    const dest = this.listenOnlyAudioContext.createMediaStreamDestination();
-
     const audio = document.querySelector(MEDIA_TAG);
 
     // Play bogus silent audio to try to circumvent autoplay policy on Safari
-    audio.src = 'resources/sounds/silence.mp3';
+    if (!audio.src) {
+      audio.src = 'resources/sounds/silence.mp3';
+    }
 
     audio.play().catch((e) => {
+      if (e.name === 'AbortError') {
+        return;
+      }
+
       logger.warn({
         logCode: 'audiomanager_error_test_audio',
         extraInfo: { error: e },
       }, 'Error on playing test audio');
     });
 
-    return dest.stream;
+    return {};
   }
 
   isUsingAudio() {
@@ -436,9 +455,13 @@ class AudioManager {
   }
 
   changeInputDevice(deviceId) {
-    const handleChangeInputDeviceSuccess = (inputDevice) => {
-      this.inputDevice = inputDevice;
-      return Promise.resolve(inputDevice);
+    if (!deviceId) {
+      return Promise.resolve();
+    }
+
+    const handleChangeInputDeviceSuccess = (inputDeviceId) => {
+      this.inputDevice.id = inputDeviceId;
+      return Promise.resolve(inputDeviceId);
     };
 
     const handleChangeInputDeviceError = (error) => {
@@ -464,19 +487,15 @@ class AudioManager {
       });
     };
 
-    if (!deviceId) {
-      return this.bridge.setDefaultInputDevice()
-        .then(handleChangeInputDeviceSuccess)
-        .catch(handleChangeInputDeviceError);
-    }
-
-    return this.bridge.changeInputDevice(deviceId)
+    return this.bridge.changeInputDeviceId(deviceId)
       .then(handleChangeInputDeviceSuccess)
       .catch(handleChangeInputDeviceError);
   }
 
   async changeOutputDevice(deviceId) {
-    this.outputDeviceId = await this.bridge.changeOutputDevice(deviceId);
+    this.outputDeviceId = await this
+      .bridge
+      .changeOutputDevice(deviceId || DEFAULT_OUTPUT_DEVICE_ID);
   }
 
   set inputDevice(value) {
@@ -489,9 +508,13 @@ class AudioManager {
     return this._inputDevice.value.stream;
   }
 
+  get inputDevice() {
+    return this._inputDevice;
+  }
+
   get inputDeviceId() {
-    this._inputDevice.tracker.depend();
-    return this._inputDevice.value.id;
+    return (this.bridge && this.bridge.inputDeviceId)
+      ? this.bridge.inputDeviceId : DEFAULT_INPUT_DEVICE_ID;
   }
 
   set userData(value) {
@@ -503,8 +526,9 @@ class AudioManager {
   }
 
   playHangUpSound() {
-    this.alert = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/LeftCall.mp3`);
-    this.alert.play();
+    this.playAlertSound(`${Meteor.settings.public.app.cdn
+      + Meteor.settings.public.app.basename}`
+      + '/resources/sounds/LeftCall.mp3');
   }
 
   notify(message, error = false, icon = 'unmute') {
@@ -561,6 +585,50 @@ class AudioManager {
       }, 'Prompting user for action to play listen only media');
       this.autoplayBlocked = true;
     }
+  }
+
+  setSenderTrackEnabled(shouldEnable) {
+    // If the bridge is set to listen only mode, nothing to do here. This method
+    // is solely for muting outbound tracks.
+    if (this.isListenOnly) return;
+
+    // Bridge -> SIP.js bridge, the only full audio capable one right now
+    const peer = this.bridge.getPeerConnection();
+
+    if (!peer) {
+      return;
+    }
+
+    peer.getSenders().forEach(sender => {
+      const { track } = sender;
+      if (track && track.kind === 'audio') {
+        track.enabled = shouldEnable;
+      }
+    });
+  }
+
+  mute() {
+    this.setSenderTrackEnabled(false);
+  }
+
+  unmute() {
+    this.setSenderTrackEnabled(true);
+  }
+
+  playAlertSound (url) {
+    if (!url) {
+      return Promise.resolve();
+    }
+
+    const audioAlert = new Audio(url);
+
+    if (this.outputDeviceId && (typeof audioAlert.setSinkId === 'function')) {
+      return audioAlert
+        .setSinkId(this.outputDeviceId)
+        .then(() => audioAlert.play());
+    }
+
+    return audioAlert.play();
   }
 }
 

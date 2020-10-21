@@ -5,7 +5,7 @@ const util = require('./customparameters/util');
 
 const customParametersTest = () => {
   beforeEach(() => {
-    jest.setTimeout(30000);
+    jest.setTimeout(50000);
   });
 
   // This test spec sets the userdata-autoJoin parameter to false
@@ -15,10 +15,10 @@ const customParametersTest = () => {
     const page = new Page();
     let response;
     try {
-      page.logger('before');
       const testName = 'autoJoin';
+      page.logger('before ', testName);
       response = await test.autoJoin(testName, Page.getArgs(), undefined, c.autoJoin);
-      page.logger('after');
+      page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
     } finally {
@@ -34,10 +34,10 @@ const customParametersTest = () => {
     const page = new Page();
     let response;
     try {
-      page.logger('before');
       const testName = 'listenOnlyMode';
+      page.logger('before ', testName);
       response = await test.listenOnlyMode(testName, Page.getArgsWithAudio(), undefined, c.listenOnlyMode);
-      page.logger('after');
+      page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
     } finally {
@@ -53,10 +53,10 @@ const customParametersTest = () => {
     const page = new Page();
     let response;
     try {
-      page.logger('before');
       const testName = 'forceListenOnly';
+      page.logger('before ', testName);
       response = await test.forceListenOnly(testName, Page.getArgsWithAudio(), undefined, c.forceListenOnly);
-      page.logger('after');
+      page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
     } finally {
@@ -72,10 +72,10 @@ const customParametersTest = () => {
     const page = new Page();
     let response;
     try {
-      page.logger('before');
       const testName = 'skipCheck';
+      page.logger('before ', testName);
       response = await test.skipCheck(testName, Page.getArgsWithAudio(), undefined, c.skipCheck);
-      page.logger('after');
+      page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
     } finally {
@@ -91,10 +91,10 @@ const customParametersTest = () => {
     const page = new Page();
     let response;
     try {
-      page.logger('before');
       const testName = 'clientTitle';
+      page.logger('before ', testName);
       response = await test.clientTitle(testName, Page.getArgs(), undefined, c.clientTitle);
-      page.logger('after');
+      page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
     } finally {
@@ -110,10 +110,10 @@ const customParametersTest = () => {
     const page = new Page();
     let response;
     try {
-      page.logger('before');
       const testName = 'askForFeedbackOnLogout';
+      page.logger('before ', testName);
       response = await test.askForFeedbackOnLogout(testName, Page.getArgs(), undefined, c.askForFeedbackOnLogout);
-      page.logger('after');
+      page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
     } finally {
@@ -129,11 +129,11 @@ const customParametersTest = () => {
     const page = new Page();
     let response;
     try {
-      page.logger('before');
       const testName = 'displayBrandingArea';
+      page.logger('before ', testName);
       const parameterWithLogo = `${c.displayBrandingArea}&${c.logo}`;
       response = await test.displayBrandingArea(testName, Page.getArgs(), undefined, parameterWithLogo);
-      page.logger('after');
+      page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
     } finally {
@@ -149,10 +149,10 @@ const customParametersTest = () => {
     const page = new Page();
     let response;
     try {
-      page.logger('before');
       const testName = 'shortcuts';
+      page.logger('before ', testName);
       response = await test.shortcuts(testName, Page.getArgs(), undefined, encodeURI(c.shortcuts));
-      page.logger('after');
+      page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
     } finally {
@@ -168,10 +168,10 @@ const customParametersTest = () => {
     const page = new Page();
     let response;
     try {
-      page.logger('before');
       const testName = 'enableScreensharing';
+      page.logger('before ', testName);
       response = await test.enableScreensharing(testName, Page.getArgs(), undefined, c.enableScreensharing);
-      page.logger('after');
+      page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
     } finally {
@@ -187,10 +187,10 @@ const customParametersTest = () => {
     const page = new Page();
     let response;
     try {
-      page.logger('before');
       const testName = 'enableVideo';
+      page.logger('before ', testName);
       response = await test.enableVideo(testName, Page.getArgsWithVideo(), undefined, c.enableVideo);
-      page.logger('after');
+      page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
     } finally {
@@ -206,10 +206,10 @@ const customParametersTest = () => {
     const page = new Page();
     let response;
     try {
-      page.logger('before');
       const testName = 'autoShareWebcam';
+      page.logger('before ', testName);
       response = await test.autoShareWebcam(testName, Page.getArgsWithVideo(), undefined, c.autoShareWebcam);
-      page.logger('after');
+      page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
     } finally {
@@ -225,10 +225,10 @@ const customParametersTest = () => {
     const page = new Page();
     let response;
     try {
-      page.logger('before');
       const testName = 'multiUserPenOnly';
+      page.logger('before ', testName);
       response = await test.multiUserPenOnly(testName, Page.getArgs(), undefined, c.multiUserPenOnly);
-      page.logger('after');
+      page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
     } finally {
@@ -244,10 +244,10 @@ const customParametersTest = () => {
     const page = new Page();
     let response;
     try {
-      page.logger('before');
       const testName = 'presenterTools';
+      page.logger('before ', testName);
       response = await test.presenterTools(testName, Page.getArgs(), undefined, encodeURI(c.presenterTools));
-      page.logger('after');
+      page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
     } finally {
@@ -263,10 +263,10 @@ const customParametersTest = () => {
     const page = new Page();
     let response;
     try {
-      page.logger('before');
       const testName = 'multiUserTools';
+      page.logger('before ', testName);
       response = await test.multiUserTools(testName, Page.getArgs(), undefined, encodeURI(c.multiUserTools));
-      page.logger('after');
+      page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
     } finally {
@@ -282,10 +282,10 @@ const customParametersTest = () => {
     const page = new Page();
     let response;
     try {
-      page.logger('before');
       const testName = 'customStyle';
-      response = await test.customStyle(testName, Page.getArgs(), undefined, encodeURIComponent(c.customStyle));
-      page.logger('after');
+      page.logger('before ', testName);
+      response = await test.customStyle(testName, Page.getArgs(), undefined, encodeURI(c.customStyle));
+      page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
     } finally {
@@ -301,10 +301,10 @@ const customParametersTest = () => {
     const page = new Page();
     let response;
     try {
-      page.logger('before');
       const testName = 'customStyleUrl';
+      page.logger('before ', testName);
       response = await test.customStyleUrl(testName, Page.getArgs(), undefined, encodeURI(c.customStyleUrl));
-      page.logger('after');
+      page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
     } finally {
@@ -321,10 +321,10 @@ const customParametersTest = () => {
     const page = new Page();
     let response;
     try {
-      page.logger('before');
       const testName = 'autoSwapLayout';
+      page.logger('before ', testName);
       response = await test.autoSwapLayout(testName, Page.getArgs(), undefined, encodeURI(c.autoSwapLayout));
-      page.logger('after');
+      page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
     } finally {
@@ -340,10 +340,10 @@ const customParametersTest = () => {
     const page = new Page();
     let response;
     try {
-      page.logger('before');
       const testName = 'hidePresentation';
+      page.logger('before ', testName);
       response = await test.hidePresentation(testName, Page.getArgs(), undefined, encodeURI(c.hidePresentation));
-      page.logger('after');
+      page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
     } finally {
@@ -359,10 +359,10 @@ const customParametersTest = () => {
     const page = new Page();
     let response;
     try {
-      page.logger('before');
       const testName = 'bannerText';
-      response = await test.bannerText(testName, Page.getArgs(), undefined, c.bannerText);
-      page.logger('after');
+      page.logger('before ', testName);
+      response = await test.bannerText(testName, Page.getArgs(), undefined, encodeURI(c.bannerText));
+      page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
     } finally {
@@ -378,11 +378,11 @@ const customParametersTest = () => {
     const page = new Page();
     let response;
     try {
-      page.logger('before');
       const testName = 'bannerColor';
+      page.logger('before ', testName);
       const colorToRGB = util.hexToRgb(c.color);
       response = await test.bannerColor(testName, Page.getArgs(), undefined, `${c.bannerColor}&${encodeURI(c.bannerText)}`, colorToRGB);
-      page.logger('after');
+      page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
     } finally {
@@ -398,10 +398,10 @@ const customParametersTest = () => {
     const page = new Page();
     let response;
     try {
-      page.logger('before');
       const testName = 'showPublicChatOnLogin';
+      page.logger('before ', testName);
       response = await test.showPublicChatOnLogin(testName, Page.getArgs(), undefined, `${c.showPublicChatOnLogin}`);
-      page.logger('after');
+      page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
     } finally {
@@ -418,10 +418,10 @@ const customParametersTest = () => {
     const page = new Page();
     let response;
     try {
-      page.logger('before');
       const testName = 'forceRestorePresentationOnNewEvents';
+      page.logger('before ', testName);
       response = await test.forceRestorePresentationOnNewEvents(testName, Page.getArgs(), undefined, `${c.forceRestorePresentationOnNewEvents}`);
-      page.logger('after');
+      page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
     } finally {

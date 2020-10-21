@@ -6,7 +6,7 @@ usage() {
 BBB Health Check
 
 OPTIONS:
-  -t <test name: whiteboard/webcam/virtualizedlist/user/sharednotes/screenshare/presentation/notifications/customparameters/chat/breakout/audio/all>
+  -t <test name: webcamlayout/whiteboard/webcam/virtualizedlist/user/sharednotes/screenshare/presentation/notifications/customparameters/chat/breakout/audio/all>
   -h <hostname name of BigBlueButton server>
   -s <Shared secret>
 

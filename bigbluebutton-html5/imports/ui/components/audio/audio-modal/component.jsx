@@ -5,7 +5,7 @@ import Modal from '/imports/ui/components/modal/simple/component';
 import Button from '/imports/ui/components/button/component';
 import { Session } from 'meteor/session';
 import {
-  defineMessages, injectIntl, intlShape, FormattedMessage,
+  defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
 import { styles } from './styles';
 import PermissionsOverlay from '../permissions-overlay/component';
@@ -16,7 +16,7 @@ import AudioDial from '../audio-dial/component';
 import AudioAutoplayPrompt from '../autoplay/component';
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   closeModal: PropTypes.func.isRequired,
   joinMicrophone: PropTypes.func.isRequired,
   joinListenOnly: PropTypes.func.isRequired,
@@ -245,8 +245,6 @@ class AudioModal extends Component {
     }
 
     const {
-      inputDeviceId,
-      outputDeviceId,
       joinEchoTest,
     } = this.props;
 
@@ -268,12 +266,27 @@ class AudioModal extends Component {
         disableActions: false,
       });
     }).catch((err) => {
-      if (err.type === 'MEDIA_ERROR') {
-        this.setState({
-          content: 'help',
-          errCode: err.code,
-          disableActions: false,
-        });
+      const { type } = err;
+      switch (type) {
+        case 'MEDIA_ERROR':
+          this.setState({
+            content: 'help',
+            errCode: 0,
+            disableActions: false,
+          });
+          break;
+        case 'CONNECTION_ERROR':
+          this.setState({
+            errCode: 0,
+            disableActions: false,
+          });
+          break;
+        default:
+          this.setState({
+            errCode: 0,
+            disableActions: false,
+          });
+          break;
       }
     });
   }

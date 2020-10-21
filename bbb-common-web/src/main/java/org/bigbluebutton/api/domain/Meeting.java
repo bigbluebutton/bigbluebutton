@@ -73,6 +73,7 @@ public class Meeting {
 	private Map<String, Object> userCustomData;
 	private final ConcurrentMap<String, User> users;
 	private final ConcurrentMap<String, RegisteredUser> registeredUsers;
+	private final ConcurrentMap<String, Long> enteredUsers;
 	private final ConcurrentMap<String, Config> configs;
 	private final Boolean isBreakout;
 	private final List<String> breakoutRooms = new ArrayList<>();
@@ -91,6 +92,11 @@ public class Meeting {
 	public final LockSettingsParams lockSettingsParams;
 
 	public final Boolean allowDuplicateExtUserid;
+
+	private String meetingEndedCallbackURL = "";
+
+	public final Boolean endWhenNoModerator;
+
 
     public Meeting(Meeting.Builder builder) {
         name = builder.name;
@@ -120,12 +126,14 @@ public class Meeting {
         guestPolicy = builder.guestPolicy;
         breakoutRoomsParams = builder.breakoutRoomsParams;
         lockSettingsParams = builder.lockSettingsParams;
-		allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
+        allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
+        endWhenNoModerator = builder.endWhenNoModerator;
 
         userCustomData = new HashMap<>();
 
         users = new ConcurrentHashMap<>();
         registeredUsers = new ConcurrentHashMap<>();
+        enteredUsers = new  ConcurrentHashMap<>();;
 
         configs = new ConcurrentHashMap<>();
     }
@@ -448,12 +456,28 @@ public class Meeting {
 	}
 
 	public void userJoined(User user) {
-	    userHasJoined = true;
-	    this.users.put(user.getInternalUserId(), user);
+		User u = getUserById(user.getInternalUserId());
+		if (u != null) {
+			u.joined();
+		} else {
+			if (!userHasJoined) userHasJoined = true;
+			this.users.put(user.getInternalUserId(), user);
+			// Clean this user up from the entered user's list
+			removeEnteredUser(user.getInternalUserId());
+		}
 	}
 
-	public User userLeft(String userid){
-		return users.remove(userid);	
+	public User userLeft(String userId) {
+		User user = getUserById(userId);
+		if (user != null) {
+			user.left();
+		}
+
+		return user;
+	}
+
+	public User removeUser(String userId) {
+		return this.users.remove(userId);
 	}
 
 	public User getUserById(String id){
@@ -563,6 +587,14 @@ public class Meeting {
         this.userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes;
     }
 
+    public String getMeetingEndedCallbackURL() {
+    	return meetingEndedCallbackURL;
+    }
+
+    public void setMeetingEndedCallbackURL(String meetingEndedCallbackURL) {
+    	this.meetingEndedCallbackURL = meetingEndedCallbackURL;
+    }
+
 	public Map<String, Object> getUserCustomData(String userID){
 		return (Map<String, Object>) userCustomData.get(userID);
 	}
@@ -577,6 +609,29 @@ public class Meeting {
 
     public ConcurrentMap<String, RegisteredUser> getRegisteredUsers() {
         return registeredUsers;
+    }
+
+    public ConcurrentMap<String, Long> getEnteredUsers() {
+        return this.enteredUsers;
+    }
+
+    public void userEntered(String userId) {
+        // Skip if user already joined
+        User u = getUserById(userId);
+        if (u != null) return;
+
+        if (!enteredUsers.containsKey(userId)) {
+            Long time = System.currentTimeMillis();
+            this.enteredUsers.put(userId, time);
+        }
+    }
+
+    public Long removeEnteredUser(String userId) {
+        return this.enteredUsers.remove(userId);
+    }
+
+    public Long getEnteredUserById(String userId) {
+        return this.enteredUsers.get(userId);
     }
 
     /***
@@ -612,6 +667,7 @@ public class Meeting {
     	private BreakoutRoomsParams breakoutRoomsParams;
     	private LockSettingsParams lockSettingsParams;
 		private Boolean allowDuplicateExtUserid;
+		private Boolean endWhenNoModerator;
 
     	public Builder(String externalId, String internalId, long createTime) {
     		this.externalId = externalId;
@@ -741,6 +797,11 @@ public class Meeting {
 
 		public Builder withAllowDuplicateExtUserid(Boolean allowDuplicateExtUserid) {
     		this.allowDuplicateExtUserid = allowDuplicateExtUserid;
+    		return this;
+		}
+
+		public Builder withEndWhenNoModerator(Boolean endWhenNoModerator) {
+    		this.endWhenNoModerator = endWhenNoModerator;
     		return this;
 		}
     
