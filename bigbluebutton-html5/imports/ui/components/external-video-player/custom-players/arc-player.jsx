@@ -120,7 +120,7 @@ export class ArcPlayer extends Component {
   getHostUrl() {
     const { url } = this.props;
     const m = url.match(MATCH_URL);
-    return m && 'https://' + m[1] + '.' + m[2];
+    return m && 'https://' + m[1] + m[2];
   }
 
   getEmbedUrl() {
