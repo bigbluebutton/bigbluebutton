@@ -8,6 +8,7 @@ import { stopWatching } from '/imports/ui/components/external-video-player/servi
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UserListService from '/imports/ui/components/user-list/service';
+import AudioService from '/imports/ui/components/audio/service';
 
 // when the meeting information has been updated check to see if it was
 // screensharing. If it has changed either trigger a call to receive video
@@ -70,7 +71,10 @@ const shareScreen = (onFail) => {
   }).catch(onFail);
 };
 
-const screenShareEndAlert = () => new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/ScreenshareOff.mp3`).play();
+const screenShareEndAlert = () => AudioService
+  .playAlertSound(`${Meteor.settings.public.app.cdn
+    + Meteor.settings.public.app.basename}`
+    + '/resources/sounds/ScreenshareOff.mp3');
 
 const unshareScreen = () => {
   KurentoBridge.kurentoExitScreenShare();

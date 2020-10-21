@@ -1,7 +1,7 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 *
-* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+* Copyright (c) 2020 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
@@ -25,11 +25,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.bigbluebutton.api.MeetingService;
 
-public class RegisteredUserCleanupTimerTask {
+public class EnteredUserCleanupTimerTask {
 
     private MeetingService service;
     private ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1);
-    private long runEvery = 60000;
+    private long runEvery = 30000;
 
     public void setMeetingService(MeetingService svc) {
         this.service = svc;
@@ -50,7 +50,7 @@ public class RegisteredUserCleanupTimerTask {
     private class CleanupTask implements Runnable {
         @Override
         public void run() {
-            service.purgeRegisteredUsers();
+            service.purgeEnteredUsers();
         }
     }
 }

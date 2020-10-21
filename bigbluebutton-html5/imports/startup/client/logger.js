@@ -71,7 +71,8 @@ class MeteorStream {
         'logClient',
         nameFromLevel[this.rec.level],
         this.rec.msg,
-        { clientURL },
+        this.rec.logCode,
+        { ...rec.extraInfo, clientURL },
       );
     }
   }

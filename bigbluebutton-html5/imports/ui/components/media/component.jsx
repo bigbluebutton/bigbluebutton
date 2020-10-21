@@ -65,6 +65,9 @@ export default class Media extends Component {
       [styles.containerV]: webcamsPlacement === 'top' || webcamsPlacement === 'bottom' || webcamsPlacement === 'floating',
       [styles.containerH]: webcamsPlacement === 'left' || webcamsPlacement === 'right',
     });
+    const { viewParticipantsWebcams } = Settings.dataSaving;
+    const showVideo = usersVideo.length > 0 && viewParticipantsWebcams;
+    const fullHeight = !showVideo || (webcamPlacement === 'floating');
 
     return (
       <div
@@ -103,22 +106,18 @@ export default class Media extends Component {
         >
           {children}
         </div>
-        {
-          usersVideo.length > 0
-            ? (
-              <WebcamDraggable
-                refMediaContainer={this.refContainer}
-                swapLayout={swapLayout}
-                singleWebcam={singleWebcam}
-                usersVideoLenght={usersVideo.length}
-                hideOverlay={hideOverlay}
-                disableVideo={disableVideo}
-                audioModalIsOpen={audioModalIsOpen}
-                usersVideo={usersVideo}
-              />
-            )
-            : null
-        }
+        {showVideo ? (
+          <WebcamDraggable
+            refMediaContainer={this.refContainer}
+            swapLayout={swapLayout}
+            singleWebcam={singleWebcam}
+            usersVideoLenght={usersVideo.length}
+            hideOverlay={hideOverlay}
+            disableVideo={disableVideo}
+            audioModalIsOpen={audioModalIsOpen}
+            usersVideo={usersVideo}
+          />
+        ) : null}
       </div>
     );
   }
