@@ -2,7 +2,7 @@
 #
 # BlueButton open source conferencing system - http://www.bigbluebutton.org/
 #
-# Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+# Copyright (c) 2020 BigBlueButton Inc. and by respective authors (see below).
 #
 # This program is free software; you can redistribute it and/or modify it under the
 # terms of the GNU Lesser General Public License as published by the Free Software
@@ -66,6 +66,7 @@
 #   2019-11-09 GTR  Keep HTML5 client logs permissions when cleaning logs
 #   2020-05-20 NJH  Add port 443 to --Network and clean up tmp file.
 #   2020-06-23 JFS  Remove defaultGuestPolicy warning for HTML5 client
+#   2020-10-22 AGG  Removing Flash/Red5 related code
 
 #set -x
 #set -e
@@ -120,9 +121,6 @@ FREESWITCH_EXTERNAL=/opt/freeswitch/etc/freeswitch/sip_profiles/external.xml
 FREESWITCH_PID=/opt/freeswitch/var/run/freeswitch/freeswitch.pid
 FREESWITCH_EVENT_SOCKET=/opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
 
-RED5=red5
-RED5_DIR=/usr/share/$RED5
-
 LTI_DIR=/usr/share/bbb-lti
 
 if [ -f /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties ]; then
@@ -138,7 +136,6 @@ if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
         PROTOCOL=https
     fi
 fi
-PROTOCOL_RTMP=rtmp
 
 RECORD_CONFIG=/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
 
@@ -308,10 +305,6 @@ stop_bigbluebutton () {
         WEBHOOKS=bbb-webhooks
     fi
 
-    if [ -f /lib/systemd/system/bbb-transcode-akka.service ]; then
-        BBB_TRANSCODE_AKKA=bbb-transcode-akka
-    fi
-
     if [ -f /usr/share/etherpad-lite/settings.json ]; then
         ETHERPAD=etherpad
     fi
@@ -324,15 +317,11 @@ stop_bigbluebutton () {
         BBB_LTI=bbb-lti
     fi
 
-    if [ -f /usr/share/red5/red5-server.jar ]; then
-	BBB_RED5="red5"
-    fi
-
     if [ -d $TOMCAT_DIR ]; then
       TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
-    systemctl stop $BBB_RED5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-resque-worker.service bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
+    systemctl stop $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker.service bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
 }
 
 start_bigbluebutton () {
@@ -354,11 +343,6 @@ start_bigbluebutton () {
         fi
     fi
 
-    # Clear any previous registration errors
-    if [ -f /usr/share/red5/log/sip.log ]; then
-        sed -i 's/Failed to register with Sip Server/Failed to register with Sip server/g' /usr/share/red5/log/sip.log
-    fi
-
     echo "Starting BigBlueButton"
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         HTML5="mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
@@ -366,10 +350,6 @@ start_bigbluebutton () {
 
     if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
         WEBHOOKS=bbb-webhooks
-    fi
-
-    if [ -f /lib/systemd/system/bbb-transcode-akka.service ]; then
-        BBB_TRANSCODE_AKKA=bbb-transcode-akka
     fi
 
     if [ -f /usr/share/etherpad-lite/settings.json ]; then
@@ -384,73 +364,18 @@ start_bigbluebutton () {
         BBB_LTI=bbb-lti
     fi
 
-    if [ -f /usr/share/red5/red5-server.jar ]; then
-        BBB_RED5="red5"
-    fi
 
-
-    systemctl start $BBB_RED5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-resque-worker bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
+    systemctl start $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         systemctl start mongod
         sleep 3
         systemctl start bbb-html5
     fi
-
-    #
-    # Look for Starting up context to be recently added to the log files
-    #
-    if [ -f /usr/share/red5/red5-server.jar ]; then
-      COUNT=0
-      while [ $COUNT -lt 20 ]; do
-        let COUNT=COUNT+1
-        if [ -f $RED5_DIR/log/sip.log ] && [ -f $RED5_DIR/log/bigbluebutton.log ] && [ -f $RED5_DIR/log/red5.log ] && [ -f $RED5_DIR/log/video.log ] && [ -f $RED5_DIR/log/screenshare-slf.log ]; then
-            let COUNT=20
-        else
-            echo -n "."
-            sleep 1
-        fi
-      done
-
-
-     #
-     # All the log files exist, now check for the text "Starting up context"
-     #
-      COUNT=0
-      while [ $COUNT -lt 20 ]; do
-         let COUNT=COUNT+1
-         if [ -f $RED5_DIR/log/video.log ]; then
-             if ! cat $RED5_DIR/log/video.log | tail -n100 | grep -q "Starting up context"; then
-                 echo -n "."
-                 sleep 1
-             else
-                 let COUNT=20
-            fi
-         fi
-      done
-
-      if [ -f /usr/share/red5/red5-server.jar ]; then
-       echo
-       BBB_APPS="sip video bigbluebutton screenshare-slf"
-       for bbb_app in $BBB_APPS ; do
-        if [ -a $RED5_DIR/log/$bbb_app.log ]; then
-            if ! grep -q "Starting up context" $RED5_DIR/log/$bbb_app.log; then
-                echo "#    $bbb_app may not have started properly"
-            fi
-        else
-            echo "#    $RED5_DIR/log/$bbb_app.log not found"
-        fi
-       done
-      fi
-    fi
 }
 
 display_bigbluebutton_status () {
     units="nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka"
-
-    if [ -f /usr/share/red5/red5-server.jar ]; then
-      units="$units red5"
-    fi
 
     if [ -d $TOMCAT_DIR ]; then
       units="$units $TOMCAT_USER"
@@ -672,22 +597,6 @@ check_configuration() {
     if [ -f $FREESWITCH_EVENT_SOCKET ]; then
         FREESWITCH_ESL_IP=$(cat $FREESWITCH_EVENT_SOCKET | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
         check_no_value event_socket $FREESWITCH_EVENT_SOCKET $FREESWITCH_ESL_IP
-
-        if [ -f /usr/share/red5/red5-server.jar ]; then
-          ESL_HOST=$(cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | grep -v '#' | grep esl.host | sed 's/freeswitch.esl.host=//g')
-          check_no_value esl.host /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties $ESL_HOST
-
-          if [ "$FREESWITCH_ESL_IP" != "::" ]; then
-            if [ "$FREESWITCH_ESL_IP" != "$ESL_HOST" ]; then
-               echo
-               echo "# The values for listen-ip in   "
-               echo "#     $FREESWITCH_EVENT_SOCKET"
-               echo "# do not match the settings for esl.host in"
-               echo "#     /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
-               echo
-            fi
-         fi
-       fi
     fi
 
     #
@@ -701,10 +610,6 @@ check_configuration() {
     #
     # Look for properties with no values set
     #
-    #CONFIG_FILES="$RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties \
-    #${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties"
-    # \
-    # $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
     CONFIG_FILES="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
 
     for file in $CONFIG_FILES ; do
@@ -846,20 +751,6 @@ check_configuration() {
         fi
     fi
 
-    if [ -f /usr/share/red5/red5-server.jar ]; then
-      if [ "$(ls -ld /var/bigbluebutton/screenshare | cut -d' ' -f3)" != "red5" ]; then
-        echo "# Warning: Detected the directory"
-        echo "#    /var/bigbluebutton/screenshare"
-        echo "# is not owned by red5"
-      fi
-
-      if [ "$(ls -ld /usr/share/red5/webapps/video/streams | cut -d' ' -f3)" != "red5" ]; then
-        echo "# Warning: Detected the directory"
-        echo "#    /usr/share/red5/webapps/video/streams"
-        echo "# is not owned by red5"
-      fi
-    fi
-
     if [ "$(ls -ld /var/freeswitch/meetings | cut -d' ' -f3)" != "freeswitch" ]; then
         echo "# Warning: Detected the directory"
         echo "#    /var/freeswitch/meetings"
@@ -870,16 +761,6 @@ check_configuration() {
         echo "# Warning: Detected the directory"
         echo "#    /var/bigbluebutton"
         echo "# is not owned by $BBB_USER"
-    fi
-
-    if [ $PROTOCOL == "https" ]; then
-      if [ -f /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties ]; then
-        if ! grep jnlpUrl /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties | grep -q https; then
-            echo "# Warning: Detected the value for jnlpUrl is not configured for HTTPS"
-            echo "#    /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties"
-            echo "#"
-        fi
-      fi
     fi
 
     if [ -f $HTML5_CONFIG ]; then
@@ -895,15 +776,6 @@ check_configuration() {
             echo "# sed -i 's/^svgImagesRequired=.*/svgImagesRequired=true/' $BBB_WEB_CONFIG "
             echo "#"
         fi
-    fi
-
-    if [ -f /usr/share/red5/red5-server.jar ]; then
-      if find /usr/share /var/lib/red5 -name "*bbb-common-message*" | sed 's/\([^_]*_\).*/\1/g' | sort | uniq -c | grep -v 1 > /dev/null; then echo
-        echo
-        echo "# Warning: detected multiple bbb-common-message in the same directory"
-        find /usr/share /var/lib/red5 -name "*bbb-common-message*" | sed 's/\([^_]*_\).*/\1/g' | sort | uniq -c | grep -v 1
-        echo
-      fi
     fi
 }
 
@@ -939,15 +811,6 @@ check_state() {
 
     RUNNING_APPS=""
     NOT_RUNNING_APPS=""
-
-    if [ -f /usr/share/red5/red5-server.jar ]; then
-      if ! ps aux | grep -v grep | grep 'org.red5.server.Bootstrap' > /dev/null; then
-        print_header
-        NOT_RUNNING_APPS="${NOT_RUNNING_APPS} red5"
-      else
-        RUNNING_APPS="${RUNNING_APPS} red5"
-      fi
-    fi
 
     if [[ -a $FREESWITCH_PID ]]; then
         if ! ps aux | grep -v grep | grep '[/]opt/freeswitch/bin/freeswitch' > /dev/null; then
@@ -1000,32 +863,6 @@ check_state() {
     #
     # Check if running development environment
     #
-
-    if [ -f /etc/bigbluebutton/nginx/client.nginx ]; then
-      if ! grep /var/www/bigbluebutton /etc/bigbluebutton/nginx/client.nginx > /dev/null; then
-        NEW_LOCATION=$(cat  /etc/bigbluebutton/nginx/client.nginx  | grep -v '#' | sed -n '/root/{s/[ \t]*root[ \t]*//;s/;//;p}' | head -n 1)
-        echo "# Warning: nginx is not serving the client from /var/www/bigbluebutton/."
-        echo "# Instead, it's being served from"
-        echo "#"
-        echo "#    $NEW_LOCATION"
-        echo "#"
-        echo "# (This is OK if you have setup a development environment.) "
-        echo
-
-        if [ ! -d $NEW_LOCATION ]; then
-            echo "# Warning: The directory"
-            echo "#"
-            echo "#    $NEW_LOCATION"
-            echo "#"
-            echo "# does not exist.  The BigBlueButton client will not load."
-            echo
-        fi
-      fi
-    fi
-
-    #
-    # Check if running development environment
-    #
     if ! grep 8090 /etc/bigbluebutton/nginx/web.nginx > /dev/null; then
         echo "# Warning: nginx is not serving BigBlueButton's web application"
         echo "# from port 8090"
@@ -1034,62 +871,6 @@ check_state() {
         echo
     fi
 
-
-    #
-    # Check red5 applications
-    #
-    if [ -f /usr/share/red5/red5-server.jar ]; then
-      AVAIL_RED5_APPS=""
-      UNAVAIL_RED5_APPS=""
-      DIRECTORIES="bigbluebutton sip video screenshare video-broadcast"
-      for dir in $DIRECTORIES ; do
-        if [ ! -d $RED5_DIR/webapps/$dir ]; then
-            UNAVAIL_RED5_APPS="${UNAVAIL_RED5_APPS} $dir"
-        else
-            AVAIL_RED5_APPS="${AVAIL_RED5_APPS} $dir"
-        fi
-      done
-
-      if [ "$UNAVAIL_RED5_APPS" != "" ]; then
-        echo "# Unavailable red5 apps ($RED5_DIR/webapps/): ${UNAVAIL_RED5_APPS}"
-      fi
-    fi
-
-    #
-    # Checking red5 apps log
-    #
-
-    if [ -f /usr/share/red5/red5-server.jar ]; then
-      # Give the files a chance to be created (in case we got started with a clean)
-      COUNT=0
-      while [ $COUNT -lt 20 ]; do
-        let COUNT=COUNT+1
-        if [ -f $RED5_DIR/log/sip.log ] && [ -f $RED5_DIR/log/bigbluebutton.log ] && [ -f $RED5_DIR/log/red5.log ] && [ -f $RED5_DIR/log/video.log ] && [ -f $RED5_DIR/log/screenshare-slf.log ]; then
-            let COUNT=20
-        else
-            echo -n "."
-            sleep 1
-        fi
-      done
-
-      RED5_LOG_FILES="bigbluebutton red5 sip video screenshare-slf"
-      AVAIL_RED5_LOG=""
-      UNAVAIL_RED5_LOG=""
-      for file in $RED5_LOG_FILES ; do
-        if [ ! -f $RED5_DIR/log/$file.log ]; then
-            UNAVAIL_RED5_LOG="${UNAVAIL_RED5_LOG} $file.log"
-        else
-            AVAIL_RED5_LOG="${AVAIL_RED5_LOG} $file.log"
-        fi
-      done
-
-      if [ "$UNAVAIL_RED5_LOG" != "" ]; then
-        echo "# Error: Red5 log files not found"
-        echo
-        echo "# Unavailable red5 logs ($RED5_DIR/log): $UNAVAIL_RED5_LOG"
-        echo
-      fi
-    fi
 
     #
     # Check FreeSWITCH
@@ -1154,56 +935,12 @@ check_state() {
     esac
 
 
-    if [ -f /usr/share/red5/red5-server.jar ]; then
-      if [[ -f /usr/share/red5/log/sip.log ]]; then
-        #
-        # Checking if voice app registered successfully
-        #
-        if cat /usr/share/red5/log/sip.log | grep -q "Failed to register with Sip Server"; then
-            echo "# Warning: The voice application may not have registered with the sip server."
-            echo "#   Try running: "
-            echo "#"
-            echo "#     $SUDO bbb-conf --clean"
-            echo "#"
-            echo
-        fi
-
-        #
-        # check if sip.log has warnings where the user is not registered.
-        #
-
-        if cat /usr/share/red5/log/sip.log | tail -n1 | grep -q "Call request for default but not registered"; then
-            echo "# Error: The voice app is not registered with SIP server. Audio might not be working correctly."
-            echo
-        fi
-      else
-        echo "# Error: The following log file was not found"
-        echo "#   /usr/share/red5/log/sip.log "
-        echo
-      fi
-    fi
-
     #
     # Check that the servlet container has started properly and has created log files
     #
     if [ -d $TOMCAT_DIR ]; then
       if [ -z "$(ls -A $SERVLET_LOGS)" ]; then
         echo "#                     empty directory: $SERVLET_LOGS contains no logs"
-      fi
-    fi
-
-    #
-    # Check that bigbluebutton in red5 has started properly (less than 100 lines indicates that it
-    # didn't start)
-    #
-    if [ -f /usr/share/red5/red5-server.jar ]; then
-      if [ -f $RED5_DIR/log/bigbluebutton.log ]; then
-        BBB_RED5_LOG=$(stat -c%s $RED5_DIR/log/bigbluebutton.log)
-        if [ $BBB_RED5_LOG -lt 100 ]; then
-            echo "#       Log file too short (less than 100 lines): $RED5_DIR/log/bigbluebutton.log (red5)"
-        fi
-      else
-        echo "#      No $RED5_DIR/log/bigbluebutton.log"
       fi
     fi
 
@@ -1245,48 +982,6 @@ check_state() {
         echo "#"
         echo "# If your BigBlueButton server is behind a firewall, see FAQ."
         echo
-    fi
-
-    #
-    # Check that BigBlueButton can connect to port 1935
-    #
-    if [ -f /usr/share/red5/red5-server.jar ]; then
-      if [[ ! -z $RED5_IP && $DISTRIB_ID != "centos" ]]; then
-        if ! nc -w 3 $RED5_IP 1935 > /dev/null; then
-            echo "# Error: Unable to connect to port 1935 (RTMP) on $RED5_IP"
-            echo
-        fi
-      fi
-    fi
-
-
-    if [ -f /usr/share/red5/red5-server.jar ]; then
-      BBB_SIP_APP_IP=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | grep -v '#' | sed -n '/^bbb.sip.app.ip=/{s/.*=//;s/;//;p}')
-      if [ $BBB_SIP_APP_IP != "127.0.0.1" ]; then
-        if [ "$BBB_SIP_APP_IP" != $IP ]; then
-            echo "# Warning: The setting of $BBB_SIP_APP_IP for bbb.sip.app.ip in"
-            echo "#"
-            echo "#    /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
-            echo "#"
-            echo "# does not match the local IP address ($IP)."
-            echo "# (This is OK if you've manually changed the values to an external "
-            echo "# FreeSWITCH server.)"
-            echo
-        fi
-
-        SIP_IP=$(netstat -ant | grep 5060 | head -n1 | awk -F" " '{print $4}' | cut -d: -f1)
-        if [ -z $SIP_IP ]; then
-            echo "# Error: Could not detect FreeSWITCH listening on port 5060"
-            echo
-        else
-            if [ "$BBB_SIP_APP_IP" != $SIP_IP ]; then
-                echo "# Error: FreeSWITCH is listening on IP address $SIP_IP for SIP calls, but "
-                echo "# The IP address ($BBB_SIP_APP_IP) set bbb.sip.app.ip."
-                echo "#"
-                echo
-            fi
-        fi
-      fi
     fi
 
     if [ "$SIP_NGINX_IP" != $IP ]; then
@@ -1348,16 +1043,6 @@ check_state() {
         echo
     fi
 
-    if [ -f /var/www/bigbluebutton/check/conf/config.xml ]; then
-        CHECK_HOST=$(cat /var/www/bigbluebutton/check/conf/config.xml  | grep "<uri>rtmp" | head -1 | sed  's/.*rtmp[s]*:\/\///g' | sed 's/\/.*//g' | tr -d '\015')
-        BBB_WEB_URL=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
-        echo "# Warning: The client self check is installed and accessible from:"
-        echo "#"
-        echo "#    $BBB_WEB_URL/check"
-        echo "#"
-        echo
-    fi
-
     if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
         LTI_URL="${PROTOCOL}://"$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
         echo "# Warning: The IMS Learning Tools Integration (LTI) is accessible from:"
@@ -1392,29 +1077,6 @@ check_state() {
         fi
     fi
 
-    if [ -f /var/run/red5.pid ]; then
-        RED5_PID_PS=$(ps -u red5 | grep java | sed 's/^[ ]*//g' | cut -d" " -f1)
-        RED5_PID_FILE=$(cat /var/run/red5.pid)
-        if [[ "$RED5_PID_PS" != "$RED5_PID_FILE" ]]; then
-            if [ "$(ps -aef | grep "su -p -s /bin/sh red5 " | wc --lines)" == "2" ]; then
-                RED5_PID_PS=$(ps -aef | grep "su -p -s /bin/sh red5 " | head -n 1 | awk '{print $2}')
-                if [[ "$RED5_PID_PS" != "$RED5_PID_FILE" ]]; then
-                    echo "# Error: red5 process ID does not match value in PID file"
-                    echo "#"
-                    echo "#         pid from top: $RED5_PID_PS"
-                    echo "#    /var/run/red5.pid: $RED5_PID_FILE"
-                    echo "#"
-                fi
-            else
-                echo "# Error: red5 process ID does not match value in PID file"
-                echo "#"
-                echo "#         pid from top: $RED5_PID_PS"
-                echo "#    /var/run/red5.pid: $RED5_PID_FILE"
-                echo "#"
-            fi
-        fi
-   fi
-
     if [ "$(cat /usr/share/bbb-apps-akka/conf/application.conf | sed -n '/sharedSecret.*/{s/[^"]*"//;s/".*//;p}')" == "changeme" ]; then
         BBB_WEB_IP=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
         echo "# Error: Detected that /usr/share/bbb-apps-akka/conf/application.conf has the default"
@@ -1422,15 +1084,6 @@ check_state() {
         echo "#"
         echo "#   $SUDO bbb-conf --setip $BBB_WEB_IP"
         echo "#"
-    fi
-
-    if [ -f /usr/share/red5/red5-server.jar ]; then
-      if [ -z $(cat /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties | tr -d '\r' | sed -n "/useH264[ ]*=[ ]*/{s/useH264[ ]*=[ ]*//;p}") ]; then
-        echo "# Error: Detected there is no value set for useH264 in"
-        echo "#"
-        echo "#   /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties"
-        echo "#"
-      fi
     fi
 
     if bbb-conf --status | grep -q inactive; then
@@ -1594,21 +1247,6 @@ if [ $CHECK ]; then
         echo "                              port: 443 ssl"
     fi
 
-    if [ -f /etc/bigbluebutton/nginx/client.nginx ]; then
-      BBB_CLIENT_DOC_ROOT=$(cat /etc/bigbluebutton/nginx/client.nginx | grep -v '#' | grep \/client -A 1 | head -n 2 | grep root | sed -n '{s/[ \t]*root[ ]*//;s/;//;p}')
-      echo "                    bbb-client dir: $BBB_CLIENT_DOC_ROOT"
-
-      echo
-      echo "/var/www/bigbluebutton/client/conf/config.xml (bbb-client)"
-      PORT_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/porttest /{s/.*host="//;s/".*//;p}')
-      echo "                Port test (tunnel): $PORT_IP"
-
-      RED5_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp[s]*:\/\///;s/\/.*//;p}')
-      WEBRTC_ENABLED_CLIENT=$(xmlstarlet sel -t -m "config/modules/module[@name='PhoneModule']" -v @useWebRTCIfAvailable /var/www/bigbluebutton/client/conf/config.xml)
-      echo "                              red5: $RED5_IP"
-      echo "              useWebrtcIfAvailable: $WEBRTC_ENABLED_CLIENT"
-    fi
-
     echo
     echo "$FREESWITCH_VARS (FreeSWITCH)"
     echo "                       local_ip_v4: $(xmlstarlet sel -t -m '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "local_ip_v4=")]' -v @data $FREESWITCH_VARS | sed 's/local_ip_v4=//g')"
@@ -1635,13 +1273,6 @@ if [ $CHECK ]; then
 #          echo "${LTI_DIR}/WEB-INF/classes/lti-config.properties (LTI integration)"
 #          echo "                           api url: $LTI_URL"
 #     fi
-
-    if [ -f /var/www/bigbluebutton/check/conf/config.xml ]; then
-        CHECK_URL=$(cat /var/www/bigbluebutton/check/conf/config.xml  | grep "<uri>rtmp" | head -1 | sed  's/.*rtmp[s]*:\/\///g' | sed 's/\/.*//g' | tr -d '\015')
-        echo
-        echo "/var/www/bigbluebutton/check/conf/config.xml (client check)"
-        echo "                      client check: $CHECK_URL"
-    fi
 
     if [ -f $RECORD_CONFIG ]; then
         echo
@@ -1711,11 +1342,9 @@ if [ $ZIP ]; then
 
     touch /tmp/empty
     tar cf  $TMP_LOG_FILE /tmp/empty               > /dev/null 2>&1
-    tar rfh $TMP_LOG_FILE $RED5_DIR/log            > /dev/null 2>&1
     tar rfh $TMP_LOG_FILE $SERVLET_LOGS            > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/bigbluebutton/* > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/bbb-apps-akka   > /dev/null 2>&1
-    tar rf  $TMP_LOG_FILE /var/log/bbb-transcode-akka     > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/bbb-fsesl-akka         > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/bbb-webrtc-sfu         > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/kurento-media-server > /dev/null 2>&1
@@ -1764,16 +1393,6 @@ if [ $DEBUG ]; then
         echo "  -- ERRORS found in /var/log/bigbluebutton/* -- "
         cat /tmp/t
         echo
-    fi
-
-    rm -rf /tmp/t
-    if [ -d /var/log/red5 ]; then
-      find /var/log/red5 -type f -exec grep -H ERROR  '{}' \; >> /tmp/t
-      if [ -s /tmp/t ]; then
-        echo "   -- ERRORS found in $RED5_DIR/log/* -- "
-        cat /tmp/t
-        echo
-      fi
     fi
 
     if [ -d $SERVLET_LOGS ]; then
@@ -1844,39 +1463,6 @@ if [ -n "$HOST" ]; then
     need_root
 
     #
-    # Just use the IP for port test in /var/www/bigbluebutton/client/conf/config.xml
-    #
-    if [ -f /var/www/bigbluebutton/client/conf/config.xml ]; then
-      echo "Assigning $HOST for testing for firewall in /var/www/bigbluebutton/client/conf/config.xml"
-      $SUDO sed -i "s/porttest host=\(\"[^\"]*\"\)/porttest host=\"$PROTOCOL_RTMP:\/\/$HOST\"/g" /var/www/bigbluebutton/client/conf/config.xml
-
-      echo "Assigning $HOST for rtmp:// in /var/www/bigbluebutton/client/conf/config.xml"
-      $SUDO sed -i "s/rtmp[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_RTMP:\/\/$HOST\2/g" /var/www/bigbluebutton/client/conf/config.xml
-
-      echo "Assigning $HOST for servername in /etc/nginx/sites-available/bigbluebutton"
-      $SUDO sed -i "s/server_name  .*/server_name  $HOST;/g" /etc/nginx/sites-available/bigbluebutton
-
-      #
-      # Update configuration for BigBlueButton client (and preserve hostname for chromeExtensionLink if exists)
-      #
-
-      # Extract the chrome store URL before updating config.xml. We will be able to restore it.
-      chromeExtensionLinkURL=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/chromeExtensionLink/{s/.*https*:\/\///;s/\/.*//;p}')
-
-      echo "Assigning $HOST for http[s]:// in /var/www/bigbluebutton/client/conf/config.xml"
-      $SUDO sed -i "s/http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL:\/\/$HOST\2/g" \
-        /var/www/bigbluebutton/client/conf/config.xml
-
-      if ! echo "$chromeExtensionLinkURL" | grep -q '""'; then
-        $SUDO sed -i "s/chromeExtensionLink=\"https:\/\/[^\/]*/chromeExtensionLink=\"https:\/\/$chromeExtensionLinkURL/g" \
-        /var/www/bigbluebutton/client/conf/config.xml
-      fi
-
-      echo "Assigning $HOST for publishURI in /var/www/bigbluebutton/client/conf/config.xml"
-      $SUDO sed -i "s/publishURI=\"[^\"]*\"/publishURI=\"$HOST\"/" /var/www/bigbluebutton/client/conf/config.xml
-    fi
-
-    #
     # Update configuration for BigBlueButton web app
     #
     echo "Assigning $HOST for web application URL in ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties"
@@ -1886,12 +1472,6 @@ if [ -n "$HOST" ]; then
 
     $SUDO sed -i "s/screenshareRtmpServer=.*/screenshareRtmpServer=$HOST/g" \
             ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties
-
-    if [ -f /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties ]; then
-      change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties streamBaseUrl rtmp://$HOST/screenshare
-      change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties jnlpUrl $PROTOCOL://$HOST/screenshare
-      change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties jnlpFile $PROTOCOL://$HOST/screenshare/screenshare.jnlp
-    fi
 
     if ! grep -q server_names_hash_bucket_size /etc/nginx/nginx.conf; then
         $SUDO sed -i "s/gzip  on;/gzip  on;\n    server_names_hash_bucket_size  64;/g" /etc/nginx/nginx.conf
@@ -1968,12 +1548,6 @@ if [ -n "$HOST" ]; then
         sed -i "s/<image width=\"\([0-9]*\)\" height=\"\([0-9]*\)\" alt=\"\([^\"]*\)\">\(http[s]*\):\/\/[^\/]*\/\(.*\)/<image width=\"\1\" height=\"\2\" alt=\"\3\">\4:\/\/$HOST\/\5/g" $metadata
     done
     echo
-
-    if [ -f /var/www/bigbluebutton/check/conf/config.xml ]; then
-        echo "Assigning $HOST for client self check to /var/www/bigbluebutton/check/conf/config.xml"
-        sed -i "s/rtmp[s]*:\/\/\([^\"\/]*\)\//$PROTOCOL_RTMP:\/\/$HOST\//g" /var/www/bigbluebutton/check/conf/config.xml
-        sed -i "s/rtmpt:\/\/\([^\"\/]*\)\//rtmpt:\/\/$HOST\//g" /var/www/bigbluebutton/check/conf/config.xml
-    fi
 
     #
     # Update HTML5 client
@@ -2068,14 +1642,6 @@ if [ $CLEAN ]; then
         rm -f /var/log/bigbluebutton/presentation/*
     fi
 
-    if [ -d /var/log/bigbluebutton/screenshare ]; then
-        rm -f /var/log/bigbluebutton/screenshare/*
-    fi
-
-    if [[ $RED5_DIR ]]; then
-        rm -rf $RED5_DIR/log/*
-    fi
-
     if [[ $SERVLET_LOGS ]]; then
         rm -rf $SERVLET_LOGS/*
     fi
@@ -2107,10 +1673,6 @@ if [ $CLEAN ]; then
 
 	if [ -d /var/log/bbb-apps-akka ]; then
         rm -f /var/log/bbb-apps-akka/*
-    fi
-
-    if [ -d /var/log/bbb-transcode-akka ]; then
-        rm -f /var/log/bbb-transcode-akka/*
     fi
 
     if [ -d /var/log/bbb-webrtc-sfu ]; then
