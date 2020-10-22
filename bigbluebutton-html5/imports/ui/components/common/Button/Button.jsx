@@ -7,7 +7,7 @@ const COLOR_TYPE = {
   SECONDARY: 'secondary',
 };
 
-const SIZE_VARIANT_TYPE = {
+const SIZE_TYPE = {
   SMALL: 'sm',
   MEDIUM: 'md',
 };
@@ -17,7 +17,7 @@ const VARIANT_TYPE = {
   OUTLINED: 'outlined',
 };
 
-const WEIGHT_VARIANT_TYPE = {
+const FONT_WEIGHT_TYPE = {
   BOLD: 'bold',
   SEMIBOLD: 'semibold',
 };
@@ -45,15 +45,15 @@ const Button = ({
     buttonColor = 'text-red-700 hover:bg-red-500 hover:text-white border border-red-500';
   }
 
-  if (size === SIZE_VARIANT_TYPE.SMALL) {
+  if (size === SIZE_TYPE.SMALL) {
     buttonSize = 'py-1 px-2 rounded-sm';
   }
 
-  if (fontWeight === WEIGHT_VARIANT_TYPE.BOLD) {
+  if (fontWeight === FONT_WEIGHT_TYPE.BOLD) {
     buttonFontWeight = 'font-bold';
   }
 
-  if (fontWeight === WEIGHT_VARIANT_TYPE.SEMIBOLD) {
+  if (fontWeight === FONT_WEIGHT_TYPE.SEMIBOLD) {
     buttonFontWeight = 'font-semibold';
   }
 
@@ -68,7 +68,7 @@ const Button = ({
 };
 
 Button.defaultProps = {
-  size: SIZE_VARIANT_TYPE.MEDIUM,
+  size: SIZE_TYPE.MEDIUM,
   color: COLOR_TYPE.PRIMARY,
   variant: VARIANT_TYPE.CONATINED,
   fontWeight: '',

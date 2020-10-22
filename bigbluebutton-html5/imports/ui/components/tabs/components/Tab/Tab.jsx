@@ -1,25 +1,27 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import Icon from '/imports/ui/components/Icon';
+
 const Tab = ({
   index,
   icon,
   activeKey,
   tabArea,
-  onClickEvent,
+  onClick,
 }) => {
   let tabClass = 'w-full';
 
   if (index === activeKey) {
-    tabClass += 'bg-gray-100 border-l-8 border-blue-600';
+    tabClass += ' bg-gray-100 border-l-8 border-blue-600';
   } else {
-    tabClass += 'border-b-2 border-gray-200';
+    tabClass += ' border-b-2 border-gray-200';
   }
 
   return (
-    <li className={tabClass} onClick={onClickEvent} aria-hidden="true">
+    <li className={tabClass} onClick={onClick} aria-hidden="true">
       <a href={tabArea} className="p-8 block justify-center flex">
-        <img src={`images/${icon}.svg`} className="fill-current" alt="" />
+        <Icon icon={icon} />
       </a>
     </li>
   );
@@ -36,7 +38,7 @@ Tab.propTypes = {
   icon: PropTypes.string,
   activeKey: PropTypes.number,
   tabArea: PropTypes.string,
-  onClickEvent: PropTypes.func.isRequired,
+  onClick: PropTypes.func.isRequired,
 };
 
 export default Tab;

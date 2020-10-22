@@ -6,7 +6,7 @@ import Auth from '/imports/ui/services/auth';
 import { setCustomLogoUrl, setModeratorOnlyMessage } from '/imports/ui/components/user-list/service';
 import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
-import LoadingScreen from '/imports/ui/components/loading-screen/component';
+import LoadingScreen from '/imports/ui/components/LoadingScreen';
 import Users from '/imports/api/users';
 
 const propTypes = {

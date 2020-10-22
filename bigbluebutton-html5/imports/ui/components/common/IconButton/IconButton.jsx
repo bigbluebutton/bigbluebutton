@@ -2,38 +2,43 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 
-const COLOR_VARIANT_TYPE = {
+import Icon from '/imports/ui/components/Icon';
+
+const COLOR_TYPE = {
   PRIMARY: 'primary',
   SECONDARY: 'secondary',
 };
 
-const SIZE_VARIANT_TYPE = {
+const SIZE_TYPE = {
   SMALL: 'sm',
   MEDIUM: 'md',
 };
 
-const Button = ({
+const IconButton = ({
   size,
-  colorVariant,
+  color,
   icon,
+  transparent,
+  miscClass,
   noMargin,
   children,
 }) => {
+  let buttonClass = 'inline-flex items-center';
   let buttonColor = 'bg-white hover:bg-gray-200';
   let buttonSize = 'p-5 rounded-lg';
   let buttonMargin = ' mr-3';
   let iconSize = ' w-6 h-6';
   let buttonTransparent;
 
-  if (colorVariant === COLOR_VARIANT_TYPE.SECONDARY) {
+  if (color === COLOR_TYPE.SECONDARY) {
     buttonColor = 'bg-gray-100 hover:bg-gray-300';
   }
 
-  if (colorVariant === COLOR_VARIANT_TYPE.ERROR) {
+  if (color === COLOR_TYPE.ERROR) {
     buttonColor = 'bg-gray-100 hover:bg-gray-300';
   }
 
-  if (size === SIZE_VARIANT_TYPE.SMALL) {
+  if (size === SIZE_TYPE.SMALL) {
     buttonSize = 'p-3 rounded-md';
     buttonMargin = ' mr-2';
     iconSize = ' w-4 h-4';
@@ -43,32 +48,52 @@ const Button = ({
     buttonMargin = '';
   }
 
+  if (transparent) {
+    buttonClass = '';
+    buttonColor = '';
+    buttonSize = '';
+    iconSize = '';
+    buttonTransparent = 'bg-transparent';
+  }
+
   return (
     <button
       type="button"
-      className={cx('inline-flex items-center', buttonColor, buttonSize, buttonMargin, buttonTransparent)}
+      className={
+        cx(
+          buttonClass,
+          buttonColor,
+          buttonSize,
+          buttonMargin,
+          buttonTransparent,
+          miscClass,
+        )
+      }
     >
       {children}
-
-      {icon && <img src={`images/${icon}.svg`} className={cx('fill-current', iconSize)} alt="" />}
+      {icon && <Icon icon={icon} className={iconSize} />}
     </button>
   );
 };
 
-Button.defaultProps = {
-  size: SIZE_VARIANT_TYPE.MEDIUM,
-  colorVariant: COLOR_VARIANT_TYPE.PRIMARY,
+IconButton.defaultProps = {
+  size: SIZE_TYPE.MEDIUM,
+  color: COLOR_TYPE.PRIMARY,
   icon: '',
+  transparent: false,
   noMargin: false,
+  miscClass: '',
   children: '',
 };
 
-Button.propTypes = {
+IconButton.propTypes = {
   size: PropTypes.string,
-  colorVariant: PropTypes.string,
+  color: PropTypes.string,
   icon: PropTypes.string,
+  transparent: PropTypes.bool,
   noMargin: PropTypes.bool,
+  miscClass: PropTypes.string,
   children: PropTypes.node,
 };
 
-export default Button;
+export default IconButton;

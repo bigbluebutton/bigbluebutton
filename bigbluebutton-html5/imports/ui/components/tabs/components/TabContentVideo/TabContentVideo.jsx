@@ -1,8 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import TabPositionButtonGroup from '../TabPositionButtonGroup';
+import Slide from '../Slide';
+
 const TabContentVideo = ({ activeKey, contentKey }) => {
-  const contentShow = activeKey ? 'block' : 'hidden';
+  const contentShow = activeKey === 3 ? 'block' : 'hidden';
 
   return (
     <div className={`w-full py-3 flex flex-col overflow-y-scroll ${contentShow}`} id={`link${contentKey}`}>
@@ -15,43 +18,13 @@ const TabContentVideo = ({ activeKey, contentKey }) => {
           </svg>
         </button>
       </span>
-      <span className="rounded-md mx-4 bg-white py-2 px-3 flex justify-between mb-3">
-        <button type="button" className="bg-transparent">
-          <img src="images/active-full.svg" className="h-12 w-24 p-1 bg-gray-100 rounded" alt="" />
-        </button>
-        <button type="button" className="bg-transparent">
-          <img src="images/active-left.svg" className="h-12 w-24 p-1 bg-gray-100 rounded border border-blue-500" alt="" />
-        </button>
-        <button type="button" className="bg-transparent">
-          <img src="images/active-right.svg" className="h-12 w-24 p-1 bg-gray-100 rounded" alt="" />
-        </button>
-      </span>
+      <TabPositionButtonGroup />
 
       <ul>
-        <li className="p-3">
-          <a href="/#">
-                        Video 1
-            <img src="images/slide-1.png" alt="" />
-          </a>
-        </li>
-        <li className="p-3">
-          <a href="/#">
-                        Video 2
-            <img src="images/slide-2.png" alt="" />
-          </a>
-        </li>
-        <li className="bg-gray-300 p-3">
-          <a href="/#">
-                        Video 3
-            <img src="images/r-side.png" alt="" />
-          </a>
-        </li>
-        <li className="p-3">
-          <a href="/#">
-                        Video 4
-            <img src="images/l-side.png" alt="" />
-          </a>
-        </li>
+        <Slide name="Video 1" image="images/slide-1.png" />
+        <Slide name="Video 2" image="images/slide-2.png" />
+        <Slide name="Video 3" image="images/slide-3.png" />
+        <Slide name="Video 4" image="images/slide-4.png" />
       </ul>
     </div>
 

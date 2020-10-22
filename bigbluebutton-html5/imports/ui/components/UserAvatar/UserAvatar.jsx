@@ -1,7 +1,6 @@
 import React from 'react';
 import PropsType from 'prop-types';
 
-
 const defaultAvatar = '';
 
 const UserAvatar = ({ avatar }) => (
