@@ -4,7 +4,7 @@ import TabPositionButtonGroup from '../TabPositionButtonGroup';
 import Slide from '../Slide';
 
 const TabContentVideo = () => (
-  <div className="w-full py-3 flex flex-col overflow-y-scroll">
+  <div className="w-full py-3 flex flex-col overflow-y-scroll" id="#Link3">
     <span className="rounded-md mx-4 shadow-sm mb-3">
       <button type="button" className="inline-flex items-center w-full rounded-md p-4 bg-white text-sm leading-5 font-medium text-gray-700 hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-gray-50 active:text-gray-800 transition ease-in-out duration-150 font-bold text-lg" id="options-menu" aria-haspopup="true" aria-expanded="true">
         <img src="images/ppt.svg" className="w-1/12" alt="" />

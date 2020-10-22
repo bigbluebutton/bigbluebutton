@@ -7,6 +7,7 @@ const Tab = ({
   index,
   icon,
   activeKey,
+  tabArea,
   onClick,
 }) => {
   let tabClass = 'w-full';
@@ -19,7 +20,7 @@ const Tab = ({
 
   return (
     <li className={tabClass} onClick={onClick} aria-hidden="true">
-      <a href="/#" className="p-8 block justify-center flex">
+      <a href={tabArea} className="p-8 block justify-center flex">
         <Icon icon={icon} />
       </a>
     </li>
@@ -28,6 +29,7 @@ const Tab = ({
 
 Tab.defaultProps = {
   icon: '',
+  tabArea: '#Link1',
   activeKey: 0,
 };
 
@@ -35,6 +37,7 @@ Tab.propTypes = {
   index: PropTypes.number.isRequired,
   icon: PropTypes.string,
   activeKey: PropTypes.number,
+  tabArea: PropTypes.string,
   onClick: PropTypes.func.isRequired,
 };
 

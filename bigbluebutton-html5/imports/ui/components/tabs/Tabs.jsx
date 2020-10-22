@@ -11,8 +11,7 @@ import IconButton from '/imports/ui/components/common/IconButton';
 const Tabs = () => {
   const [key, setKey] = useState(1);
 
-  const handleTabClick = (event, tabIndex) => {
-    event.preventDefault();
+  const handleTabClick = (tabIndex) => {
     setKey(tabIndex);
   };
 
@@ -40,24 +39,28 @@ const Tabs = () => {
             index={1}
             icon="ppt"
             activeKey={key}
+            tabArea="#Link1"
             onClick={() => handleTabClick(1)}
           />
           <Tab
             index={2}
             icon="pdf"
             activeKey={key}
+            tabArea="#Link2"
             onClick={() => handleTabClick(2)}
           />
           <Tab
             index={3}
             icon="video"
             activeKey={key}
+            tabArea="#Link3"
             onClick={() => handleTabClick(3)}
           />
           <Tab
             index={4}
             icon="www"
             activeKey={key}
+            tabArea="#Link4"
             onClick={() => handleTabClick(4)}
           />
           <li className="w-full">
