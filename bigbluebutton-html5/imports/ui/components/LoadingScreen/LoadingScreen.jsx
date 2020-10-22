@@ -15,8 +15,12 @@ const LoadingScreen = ({ children }) => (
   </div>
 );
 
+LoadingScreen.defaultProps = {
+  children: '',
+};
+
 LoadingScreen.propTypes = {
-  children: PropTypes.node.isRequired,
+  children: PropTypes.node,
 };
 
 export default LoadingScreen;

@@ -7,7 +7,9 @@ const UserAvatar = ({ avatar }) => (
   </div>
 );
 
-UserAvatar.defaultProps = '';
+UserAvatar.defaultProps = {
+  avatar: '',
+};
 
 UserAvatar.propTypes = {
   avatar: PropsType.string,
