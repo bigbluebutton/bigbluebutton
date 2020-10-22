@@ -8,7 +8,6 @@ import TabContentWeb from './components/TabContentWeb';
 import Icon from '/imports/ui/components/Icon';
 import IconButton from '/imports/ui/components/common/IconButton';
 
-
 const Tabs = () => {
   const [key, setKey] = useState(1);
 
