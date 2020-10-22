@@ -22,8 +22,8 @@ const TabContentPdf = ({ activeKey, contentKey }) => {
       <ul>
         <Slide name="PDF 1" image="images/slide-1.png" />
         <Slide name="PDF 2" image="images/slide-2.png" />
-        <Slide name="PDF 3" image="images/slide-3.png" />
-        <Slide name="PDF 4" image="images/slide-4.png" />
+        <Slide name="PDF 3" image="images/r-side.png" />
+        <Slide name="PDF 4" image="images/l-side.png" />
       </ul>
     </div>
 

@@ -23,8 +23,8 @@ const TabContentVideo = ({ activeKey, contentKey }) => {
       <ul>
         <Slide name="Video 1" image="images/slide-1.png" />
         <Slide name="Video 2" image="images/slide-2.png" />
-        <Slide name="Video 3" image="images/slide-3.png" />
-        <Slide name="Video 4" image="images/slide-4.png" />
+        <Slide name="Video 3" image="images/r-side.png" />
+        <Slide name="Video 4" image="images/l-side.png" />
       </ul>
     </div>
 
