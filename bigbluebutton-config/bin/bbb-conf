@@ -545,11 +545,21 @@ while [ $# -gt 0 ]; do
     exit 1
 done
 
+print_bigbluebutton_version() {
+    echo
+    if [ $DISTRIB_ID == "centos" ]; then
+        echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE ($(rpm -qa | grep bbb | grep -v bbb-demo | grep -v bbb-lti | grep -v bbb-redis | grep -v bbb-tomcat | grep -v freeswitch | sed 's/.*[0-9].[0-9].[0-9]-//g' | sed 's/\..*//g' | awk '{ sum+=$1} END {print sum}'))"
+    else
+        echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE ($(dpkg -l | grep bbb | grep -v bbb-demo | grep -v bbb-lti | sed -n '/[0-9].[0-9].[0-9]-/{s/.*[0-9].[0-9].[0-9]-//;s/;//;p}' | awk '{ sum+=$1} END {print sum}'))"
+    fi
+}
+
 
 #
 # Version
 #
 if [[ $VERSION ]]; then
+    print_bigbluebutton_version
     echo
     dpkg -l | grep bbb
     exit 0
@@ -798,7 +808,6 @@ update_gstreamer() {
         fi
     fi
 }
-
 
 check_state() {
     echo
@@ -1199,12 +1208,7 @@ check_state() {
 if [ $CHECK ]; then
     need_root
 
-    echo
-    if [ $DISTRIB_ID == "centos" ]; then
-        echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE ($(rpm -qa | grep bbb | grep -v bbb-demo | grep -v bbb-lti | grep -v bbb-redis | grep -v bbb-tomcat | grep -v freeswitch | sed 's/.*[0-9].[0-9].[0-9]-//g' | sed 's/\..*//g' | awk '{ sum+=$1} END {print sum}'))"
-    else
-        echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE ($(dpkg -l | grep bbb | grep -v bbb-demo | grep -v bbb-lti | sed -n '/[0-9].[0-9].[0-9]-/{s/.*[0-9].[0-9].[0-9]-//;s/;//;p}' | awk '{ sum+=$1} END {print sum}'))"
-    fi
+    print_bigbluebutton_version
 
     echo "                    Kernel version:" $(uname -r)
 
