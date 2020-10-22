@@ -8,6 +8,7 @@ const TabPositionButtonGroup = () => {
   const handleButtonClick = (newPosition) => {
     setPosition(newPosition);
   };
+
   return (
     <span className="rounded-md mx-4 bg-white py-2 px-3 flex justify-between mb-3">
       <button

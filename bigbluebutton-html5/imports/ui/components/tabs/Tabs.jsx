@@ -63,23 +63,14 @@ const Tabs = () => {
           <IconButton icon="times" transparent noMargin miscClass="p-2" />
         </div>
 
-        <TabContentPpt
-          activeKey={key}
-          contentKey={1}
-        />
+        {key === 1 && <TabContentPpt />}
 
-        <TabContentPdf
-          activeKey={key}
-          contentKey={2}
-        />
-        <TabContentVideo
-          activeKey={key}
-          contentKey={3}
-        />
-        <TabContentWeb
-          activeKey={key}
-          contentKey={4}
-        />
+        {key === 2 && <TabContentPdf />}
+
+        {key === 3 && <TabContentVideo />}
+
+        {key === 4 && <TabContentWeb />}
+
       </aside>
     </Fragment>
   );
