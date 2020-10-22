@@ -1,0 +1,5 @@
+{
+    "map": {
+        "client/assets/images/": "images/"
+    }
+}
