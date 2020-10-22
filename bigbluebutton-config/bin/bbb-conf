@@ -743,7 +743,7 @@ check_configuration() {
         libreoffice_version=$(dpkg-query -W --showformat='${Version}\n' libreoffice | sed 's/.*://g' | sed 's/\.[^\.]*$//g')
         if [[ "$libreoffice_version" > 1.0 ]]; then
             if [[ "$libreoffice_version" < 4.4 ]]; then
-                echo "# Warning: Detected your running an older version of LibreOffice: $libreoffice_version"
+                echo "# Warning: Detected you are running an older version of LibreOffice: $libreoffice_version"
                 echo "#"
                 echo "# Recommend updated to the latest version of LibreOffice 4.x (4.4 or later)"
                 echo
@@ -839,13 +839,6 @@ check_state() {
         else
             RUNNING_APPS="${RUNNING_APPS} ${TOMCAT_USER}"
         fi
-    fi
-
-    if ! netstat -ant | grep '8100' > /dev/null; then
-        print_header
-        NOT_RUNNING_APPS="${NOT_RUNNING_APPS} LibreOffice"
-    else
-        RUNNING_APPS="${RUNNING_APPS} LibreOffice"
     fi
 
     if ! ps aux | grep -v grep | grep '[/]usr/[s]*bin/redis-server' > /dev/null; then
