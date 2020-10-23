@@ -1,11 +1,19 @@
 import React, { Component } from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
+import { withModalMounter } from '../modal/service';
 
 import AppView from './AppView';
 
-export default class AppContainer extends Component {
+class AppContainer extends Component {
+  componentDidMount() {
+    console.log(this.props);
+  }
+
   render() {
     return (
-      <AppView />
+      <AppView {...this.props} />
     );
   }
 }
+
+export default withModalMounter(withTracker(() => ({}))(AppContainer));

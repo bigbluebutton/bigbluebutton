@@ -76,51 +76,61 @@ const currentUserEmoji = currentUser => (currentUser ? {
   changedAt: null,
 });
 
-export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
-  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { approved: 1, emoji: 1 } });
-  const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { publishedPoll: 1, voiceProp: 1 } });
-  const { publishedPoll, voiceProp } = currentMeeting;
+export default injectIntl(
+  withModalMounter(
+    withTracker(({ intl, baseControls }) => {
+      const currentUser = Users.findOne(
+        { userId: Auth.userID },
+        { fields: { approved: 1, emoji: 1 } },
+      );
+      const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
+        { fields: { publishedPoll: 1, voiceProp: 1 } });
+      const { publishedPoll, voiceProp } = currentMeeting;
 
-  if (!currentUser.approved) {
-    baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
-  }
-
-  // Check if user is removed out of the session
-  Users.find({ userId: Auth.userID }, { fields: { connectionId: 1, ejected: 1 } }).observeChanges({
-    changed(id, fields) {
-      const hasNewConnection = 'connectionId' in fields && (fields.connectionId !== Meteor.connection._lastSessionId);
-
-      if (fields.ejected || hasNewConnection) {
-        endMeeting('403');
+      if (!currentUser.approved) {
+        baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
       }
-    },
-  });
 
-  const UserInfo = UserInfos.find({
-    meetingId: Auth.meetingID,
-    requesterUserId: Auth.userID,
-  }).fetch();
+      // Check if user is removed out of the session
+      Users.find(
+        { userId: Auth.userID },
+        { fields: { connectionId: 1, ejected: 1 } },
+      ).observeChanges({
+        changed(id, fields) {
+          const hasNewConnection = 'connectionId' in fields && (fields.connectionId !== Meteor.connection._lastSessionId);
 
-  return {
-    captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
-    fontSize: getFontSize(),
-    hasBreakoutRooms: getBreakoutRooms().length > 0,
-    customStyle: getFromUserSettings('bbb_custom_style', false),
-    customStyleUrl: getFromUserSettings('bbb_custom_style_url', false),
-    openPanel: Session.get('openPanel'),
-    UserInfo,
-    notify,
-    validIOSVersion,
-    isPhone: deviceInfo.type().isPhone,
-    isRTL: document.documentElement.getAttribute('dir') === 'rtl',
-    meetingMuted: voiceProp.muteOnStart,
-    currentUserEmoji: currentUserEmoji(currentUser),
-    hasPublishedPoll: publishedPoll,
-    startBandwidthMonitoring,
-    handleNetworkConnection: () => updateNavigatorConnection(navigator.connection),
-  };
-})(AppContainer)));
+          if (fields.ejected || hasNewConnection) {
+            endMeeting('403');
+          }
+        },
+      });
+
+      const UserInfo = UserInfos.find({
+        meetingId: Auth.meetingID,
+        requesterUserId: Auth.userID,
+      }).fetch();
+
+      return {
+        captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
+        fontSize: getFontSize(),
+        hasBreakoutRooms: getBreakoutRooms().length > 0,
+        customStyle: getFromUserSettings('bbb_custom_style', false),
+        customStyleUrl: getFromUserSettings('bbb_custom_style_url', false),
+        openPanel: Session.get('openPanel'),
+        UserInfo,
+        notify,
+        validIOSVersion,
+        isPhone: deviceInfo.type().isPhone,
+        isRTL: document.documentElement.getAttribute('dir') === 'rtl',
+        meetingMuted: voiceProp.muteOnStart,
+        currentUserEmoji: currentUserEmoji(currentUser),
+        hasPublishedPoll: publishedPoll,
+        startBandwidthMonitoring,
+        handleNetworkConnection: () => updateNavigatorConnection(navigator.connection),
+      };
+    })(AppContainer),
+  ),
+);
 
 AppContainer.defaultProps = defaultProps;
 AppContainer.propTypes = propTypes;

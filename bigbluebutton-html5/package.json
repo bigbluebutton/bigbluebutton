@@ -124,10 +124,5 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/bigbluebutton/bigbluebutton.git"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   }
 }
