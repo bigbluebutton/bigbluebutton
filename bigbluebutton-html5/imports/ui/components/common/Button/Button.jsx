@@ -27,6 +27,7 @@ const Button = ({
   color,
   variant,
   fontWeight,
+  onClick,
   children,
 }) => {
   let buttonColor = 'bg-white hover:bg-gray-200';
@@ -61,6 +62,7 @@ const Button = ({
     <button
       type="button"
       className={cx('inline-flex items-center', buttonColor, buttonSize, buttonFontWeight)}
+      onClick={onClick}
     >
       {children}
     </button>
@@ -72,6 +74,7 @@ Button.defaultProps = {
   color: COLOR_TYPE.PRIMARY,
   variant: VARIANT_TYPE.CONATINED,
   fontWeight: '',
+  onClick: undefined,
   children: '',
 };
 
@@ -80,6 +83,7 @@ Button.propTypes = {
   color: PropTypes.string,
   variant: PropTypes.string,
   fontWeight: PropTypes.string,
+  onClick: PropTypes.func,
   children: PropTypes.node,
 };
 
