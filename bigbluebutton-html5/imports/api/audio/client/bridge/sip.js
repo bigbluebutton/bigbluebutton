@@ -30,6 +30,7 @@ const AUDIO_SESSION_NUM_KEY = 'AudioSessionNumber';
 const USER_AGENT_RECONNECTION_ATTEMPTS = 3;
 const USER_AGENT_RECONNECTION_DELAY_MS = 5000;
 const USER_AGENT_CONNECTION_TIMEOUT_MS = 5000;
+const ICE_GATHERING_TIMEOUT = MEDIA.iceGatheringTimeout || 15000;
 
 const getAudioSessionNumber = () => {
   let currItem = parseInt(sessionStorage.getItem(AUDIO_SESSION_NUM_KEY), 10);
@@ -562,6 +563,7 @@ class SIPSession {
               : audioDeviceConstraint,
             video: false,
           },
+          iceGatheringTimeout: ICE_GATHERING_TIMEOUT,
         },
         sessionDescriptionHandlerModifiersPostICEGathering:
           [stripMDnsCandidates],
@@ -791,11 +793,11 @@ class SIPSession {
         };
       };
 
-      const handleSessionTerminated = (message, cause) => {
+      const handleSessionTerminated = (message) => {
         clearTimeout(callTimeout);
         clearTimeout(iceNegotiationTimeout);
 
-        if (!message && !cause && !!this.userRequestedHangup) {
+        if (!message && !!this.userRequestedHangup) {
           return this.callback({
             status: this.baseCallStates.ended,
           });
@@ -805,17 +807,21 @@ class SIPSession {
         // any possile errors
         if (!this._currentSessionState) return false;
 
+
+        let mappedCause;
+        let cause;
+        if (!iceCompleted) {
+          mappedCause = '1004';
+          cause = 'ICE error';
+        } else {
+          cause = 'Audio Conference Error';
+          mappedCause = '1005';
+        }
+
         logger.error({
           logCode: 'sip_js_call_terminated',
           extraInfo: { cause, callerIdName: this.user.callerIdName },
         }, `Audio call terminated. cause=${cause}`);
-
-        let mappedCause;
-        if (!iceCompleted) {
-          mappedCause = '1004';
-        } else {
-          mappedCause = '1005';
-        }
 
         return this.callback({
           status: this.baseCallStates.failed,

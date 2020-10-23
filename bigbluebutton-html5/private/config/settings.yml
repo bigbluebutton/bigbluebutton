@@ -284,6 +284,11 @@ public:
     echoTestNumber: 'echo'
     relayOnlyOnReconnect: false
     listenOnlyCallTimeout: 25000
+    #Timeout (ms) for gathering ICE candidates. When this timeout expires
+    #the SDP is sent to the server with the candidates the browser gathered
+    #so far. Increasing this value might help avoiding 1004 error when
+    #user activates microphone.
+    iceGatheringTimeout: 15000
   presentation:
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32
