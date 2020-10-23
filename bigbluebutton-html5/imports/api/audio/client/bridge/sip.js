@@ -745,6 +745,20 @@ class SIPSession {
 
             switch (peer.connectionState) {
               case 'connected':
+                if (iceCompleted) {
+                  logger.info({
+                    logCode: 'sip_js_ice_connection_success_after_success',
+                    extraInfo: {
+                      currentState: peer.connectionState,
+                      callerIdName: this.user.callerIdName,
+                    },
+                  }, 'ICE connection success, but user is already connected'
+                      + 'ignoring it...'
+                      + `${peer.iceConnectionState}`);
+
+                  return;
+                }
+
                 logger.info({
                   logCode: 'sip_js_ice_connection_success',
                   extraInfo: {
