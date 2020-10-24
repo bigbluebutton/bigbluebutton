@@ -30,7 +30,7 @@ const AUDIO_SESSION_NUM_KEY = 'AudioSessionNumber';
 const USER_AGENT_RECONNECTION_ATTEMPTS = 3;
 const USER_AGENT_RECONNECTION_DELAY_MS = 5000;
 const USER_AGENT_CONNECTION_TIMEOUT_MS = 5000;
-const ICE_GATHERING_TIMEOUT = MEDIA.iceGatheringTimeout || 15000;
+const ICE_GATHERING_TIMEOUT = MEDIA.iceGatheringTimeout || 5000;
 
 const getAudioSessionNumber = () => {
   let currItem = parseInt(sessionStorage.getItem(AUDIO_SESSION_NUM_KEY), 10);
