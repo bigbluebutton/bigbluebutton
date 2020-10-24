@@ -3,7 +3,7 @@ import NewLanguage from  "./NewLanguage/component"
 import Language from "./LanguageField/component";
 import React, { Component } from 'react';
 import { makeCall } from '/imports/ui/services/api';
-import MeetingService from "../../services/Meetings";
+import MeetingService from "/imports/ui/services/meeting";
 
 class Translations extends Component{
 
