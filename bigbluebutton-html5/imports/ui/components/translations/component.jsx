@@ -3,12 +3,12 @@ import NewLanguage from  "./NewLanguage/component"
 import Language from "./LanguageField/component";
 import React, { Component } from 'react';
 import { makeCall } from '/imports/ui/services/api';
-import MeetingService from "/imports/ui/services/meeting";
+import Meeting from "/imports/ui/services/meeting";
 
 class Translations extends Component{
 
     componentDidMount() {
-        let breakouts = MeetingService.findBreakouts()
+        let breakouts = Meeting.findBreakouts()
         breakouts = breakouts.map((room)=>{
             return {name: room.name, edit:false}
         });
