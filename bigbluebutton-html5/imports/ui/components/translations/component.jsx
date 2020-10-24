@@ -8,8 +8,7 @@ import MeetingService from "../../services/Meetings";
 class Translations extends Component{
 
     componentDidMount() {
-        const service = new MeetingService();
-        let breakouts = service.findBreakouts()
+        let breakouts = MeetingService.findBreakouts()
         breakouts = breakouts.map((room)=>{
             return {name: room.name, edit:false}
         });

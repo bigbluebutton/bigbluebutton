@@ -16,5 +16,5 @@ class MeetingService {
     };
 }
 
-export default MeetingService
-
+const MeetingSingleton = new MeetingService();
+export default MeetingSingleton;
