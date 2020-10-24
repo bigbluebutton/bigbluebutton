@@ -4,7 +4,8 @@ import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import Meetings from '/imports/api/meetings';
 
-export default function addLanguages() {
+export default function addLanguages(meetings) {
     const credentials = extractCredentials(this.userId);
     Meetings.insert({ text: 'Hello, world!' });
+    return meetings;
 }
