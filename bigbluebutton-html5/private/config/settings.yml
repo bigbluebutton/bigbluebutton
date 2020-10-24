@@ -288,7 +288,7 @@ public:
     #the SDP is sent to the server with the candidates the browser gathered
     #so far. Increasing this value might help avoiding 1004 error when
     #user activates microphone.
-    iceGatheringTimeout: 15000
+    iceGatheringTimeout: 5000
   presentation:
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32
