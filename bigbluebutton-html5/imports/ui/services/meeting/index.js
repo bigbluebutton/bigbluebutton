@@ -14,6 +14,10 @@ class MeetingService {
 
         return BreakoutRooms;
     };
+
+    createLanguages( languageDesignations ) {
+        makeCall('addLanguages', languageDesignations)
+    }
 }
 
 const MeetingSingleton = new MeetingService();
