@@ -47,6 +47,7 @@ class UserContent extends PureComponent {
       pendingUsers,
       requestUserInformation,
       amIModerator,
+      meetingIsBreakout,
     } = this.props;
 
     return (
@@ -92,7 +93,7 @@ class UserContent extends PureComponent {
           ) : null
         }
 
-        {amIModerator
+        {amIModerator && !meetingIsBreakout
           ? (
             <Translations>
 

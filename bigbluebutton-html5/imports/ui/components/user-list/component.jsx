@@ -38,6 +38,7 @@ class UserList extends PureComponent {
       hasBreakoutRoom,
       requestUserInformation,
       amIModerator,
+      meetingIsBreakout,
     } = this.props;
 
     return (
@@ -59,6 +60,7 @@ class UserList extends PureComponent {
             hasBreakoutRoom,
             requestUserInformation,
             amIModerator,
+            meetingIsBreakout,
           }
           }
         />}
