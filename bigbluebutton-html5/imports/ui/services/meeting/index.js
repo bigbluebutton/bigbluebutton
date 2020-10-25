@@ -21,7 +21,9 @@ class MeetingService {
 
     getLanguages () {
         let returningMeetingLanguages = []
-        let currentMeeting = this.getCurrentMeeting();
+        const meeting = Meetings.findOne(
+            { meetingId: Auth.meetingID },
+            { fields: { 'languages': 1 } });
         if('languages' in currentMeeting) {
             returningMeetingLanguages = currentMeeting.languages;
         }
