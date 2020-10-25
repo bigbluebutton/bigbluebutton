@@ -20,12 +20,12 @@ class MeetingService {
     getCurrentMeeting = () => Meetings.findOne({ meetingId: Auth.meetingID });
 
     getLanguages () {
-        let returningMeetingLanguages = []
+        let meetingLanguages = []
         const meeting = Meetings.findOne(
             { meetingId: Auth.meetingID },
             { fields: { 'languages': 1 } });
-        if('languages' in currentMeeting) {
-            returningMeetingLanguages = currentMeeting.languages;
+        if('languages' in meeting) {
+            meetingLanguages = meeting.languages;
         }
 
         return returningMeetingLanguages;
