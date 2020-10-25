@@ -32,6 +32,13 @@ class MeetingService {
     setLanguages( languageDesignations ) {
         makeCall('setLanguages', languageDesignations)
     }
+
+    isBreakout() {
+        const meeting = Meetings.findOne(
+            { meetingId: Auth.meetingID },
+            { fields: { 'meetingProp.isBreakout': 1 } });
+        return (meeting && meeting.meetingProp.isBreakout);
+    }
 }
 
 const MeetingSingleton = new MeetingService();
