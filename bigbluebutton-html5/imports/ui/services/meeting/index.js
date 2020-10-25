@@ -19,6 +19,16 @@ class MeetingService {
 
     getCurrentMeeting = () => Meetings.findOne({ meetingId: Auth.meetingID });
 
+    getLanguages () {
+        let returningMeetingLanguages = []
+        let currentMeeting = this.getCurrentMeeting();
+        if('languages' in currentMeeting) {
+            returningMeetingLanguages = currentMeeting.languages;
+        }
+
+        return returningMeetingLanguages;
+    }
+
     setLanguages( languageDesignations ) {
         makeCall('setLanguages', languageDesignations)
     }
