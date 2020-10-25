@@ -62,7 +62,9 @@ class Translations extends Component{
             this.setState(this.state)
             return
         }
-        makeCall('createBreakoutRoom', val, 999, false)
+        Meeting.setLanguages(this.state.languages.map(language => {
+            return language.name;
+        }))
         this.state.active = true
         this.setState(this.state)
     }
