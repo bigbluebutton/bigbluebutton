@@ -9,9 +9,10 @@ export default function setLanguages(languages) {
     const meeting = Meetings.findOne({
         meetingId: meetingId
     })
-    languages = meetings.map(function (element,index){
+    languages = languages.map(function (element,index){
         return {name:element, extension: 100+index}
     })
-    Meetings.update({ meetingId }, { $set: { languages: languages } });
+    meeting.languages = languages
+    Meetings.update({ meetingId: meetingId }, meeting);
     return meeting;
 }
