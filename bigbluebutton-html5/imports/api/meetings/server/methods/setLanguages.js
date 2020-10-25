@@ -4,8 +4,14 @@ import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import Meetings from '/imports/api/meetings';
 
-export default function setLanguages(meetings) {
-    const credentials = extractCredentials(this.userId);
-    Meetings.insert({ text: 'Hello, world!' });
-    return credentials;
+export default function setLanguages(languages) {
+    const { meetingId, requesterUserId } = extractCredentials(this.userId);
+    const meeting = Meetings.findOne({
+        meetingId: meetingId
+    })
+    languages = meetings.map(function (element,index){
+        return {name:element, extension: 100+index}
+    })
+    Meetings.update({ meetingId }, { $set: { languages: languages } });
+    return meeting;
 }
