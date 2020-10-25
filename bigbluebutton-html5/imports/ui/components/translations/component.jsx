@@ -23,14 +23,7 @@ class Translations extends Component{
         }
 
     }
-    createTranslationChannel(name,sequence){
-        return {
-            name: name,
-            freeJoin: true,
-            sequence: sequence,
-            users: []
-        };
-    }
+
     creationHandler = (name, index) =>{
         if(!name.length)
             return
@@ -53,18 +46,15 @@ class Translations extends Component{
             this.setState(this.state)
             return
         }
-        let i = 1;
-        let val = this.state.languages.map((language)=>{
-            return this.createTranslationChannel(language.name,i++)
+        let languages = this.state.languages.map(language => {
+            return language.name;
         })
-        if(!val.length){
+        if(!languages.length){
             this.state.warning = "Please add a language."
             this.setState(this.state)
             return
         }
-        Meeting.setLanguages(this.state.languages.map(language => {
-            return language.name;
-        }))
+        Meeting.setLanguages(languages);
         this.state.active = true
         this.setState(this.state)
     }
