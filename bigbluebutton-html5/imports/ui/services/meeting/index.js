@@ -15,8 +15,8 @@ class MeetingService {
         return BreakoutRooms;
     };
 
-    createLanguages( languageDesignations ) {
-        makeCall('addLanguages', languageDesignations)
+    setLanguages( languageDesignations ) {
+        makeCall('setLanguages', languageDesignations)
     }
 }
 
