@@ -311,6 +311,7 @@ class SIPSession {
   }
 
   onBeforeUnload() {
+    this.userRequestedHangup = true;
     if (this.userAgent) {
       return this.userAgent.stop();
     }
