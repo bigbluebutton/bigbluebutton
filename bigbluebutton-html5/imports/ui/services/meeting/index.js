@@ -28,7 +28,7 @@ class MeetingService {
             meetingLanguages = meeting.languages;
         }
 
-        return returningMeetingLanguages;
+        return meetingLanguages;
     }
 
     setLanguages( languageDesignations ) {
