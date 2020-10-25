@@ -1,6 +1,7 @@
 import Breakouts from '/imports/api/breakouts';
 import Auth from '/imports/ui/services/auth';
 import Language from "../../components/translations/LanguageField/component";
+import { makeCall } from '/imports/ui/services/api';
 
 class MeetingService {
     findBreakouts = () => {
