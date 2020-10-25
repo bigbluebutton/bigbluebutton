@@ -31,6 +31,10 @@ class MeetingService {
         return meetingLanguages;
     }
 
+    clearLanguages () {
+        setLanguages([]);
+    }
+
     setLanguages( languageDesignations ) {
         makeCall('setLanguages', languageDesignations)
     }
