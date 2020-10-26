@@ -108,7 +108,7 @@ class UserContent extends PureComponent {
             forcePollOpen,
           }}
         />
-        {/*<BreakoutRoomItem isPresenter={currentUser.presenter} hasBreakoutRoom={hasBreakoutRoom} />*/}
+        <BreakoutRoomItem isPresenter={currentUser.presenter} hasBreakoutRoom={hasBreakoutRoom} />
         <UserParticipantsContainer
           {...{
             compact,

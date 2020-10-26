@@ -277,7 +277,7 @@ class UserOptions extends PureComponent {
         />) : null
       ),
       (isMeteorConnected ? <DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
-      (canCreateBreakout && isMeteorConnected && false ? (
+      (canCreateBreakout && isMeteorConnected ? (
         <DropdownListItem
           key={this.createBreakoutId}
           icon="rooms"
