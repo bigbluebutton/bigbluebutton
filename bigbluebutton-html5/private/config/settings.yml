@@ -32,7 +32,7 @@ public:
     allowFullscreen: true
     preloadNextSlides: 2
     mutedAlert:
-      enabled: true
+      enabled: false
       interval: 200
       threshold: -50
       duration: 4000
