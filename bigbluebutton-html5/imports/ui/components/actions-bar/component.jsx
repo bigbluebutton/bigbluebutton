@@ -64,14 +64,14 @@ class ActionsBar extends PureComponent {
 
   handleTranslatorLanguageSelection(language){
     this.state.translatorLanguage = language
-    AudioManager.openTranslatorChannel(language.sequence)
+    AudioManager.openTranslatorChannel(language.extension)
     this.setState(this.state)
     this.forceUpdate()
   }
 
   handleLanguageSelection(language){
     this.state.translationLanguage = language
-    AudioManager.openTranslationChannel(language.sequence)
+    AudioManager.openTranslationChannel(language.extension)
     this.setState(this.state)
     this.forceUpdate()
   }
@@ -168,7 +168,7 @@ class ActionsBar extends PureComponent {
           { this.state.showTranslatorChoice ?
               (
                 <div className={"sailingShip "+styles.translatorLanguageOverlay}>
-                  <LanguageOverlay current={this.state.translatorLanguage} other={this.state.translationLanguage} clickHandler={this.handleTranslatorLanguageSelection.bind(this) }/>
+                  <LanguageOverlay current={this.state.translatorLanguage} filteredLanguages={this.state.translationLanguage ? [this.state.translationLanguage] : []} clickHandler={this.handleTranslatorLanguageSelection.bind(this) }/>
                 </div>
               ):null
           }
@@ -192,7 +192,7 @@ class ActionsBar extends PureComponent {
           { this.state.showLanguageChoice ?
               (
                   <div className={"sailingShip "+styles.languageOverlay}>
-                    <LanguageOverlay current={this.state.translationLanguage} other={this.state.translatorLanguage}  clickHandler={this.handleLanguageSelection.bind(this) }/>
+                    <LanguageOverlay current={this.state.translationLanguage} filteredLanguages={this.state.translatorLanguage ? [this.state.translatorLanguage] : []}  clickHandler={this.handleLanguageSelection.bind(this) }/>
                   </div>
               ):null
           }

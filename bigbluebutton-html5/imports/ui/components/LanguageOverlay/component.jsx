@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import Meeting from "../../services/Meetings";
+import Meeting from "/imports/ui/services/meeting";
 import AudioManager from '/imports/ui/services/audio-manager';
 import styles from "./styles.scss"
 
 class LanguageOverlay extends Component{
 
     state = {
-        language: [{name:"None", sequence:-1}]
+        languages: [{name: "None", extension:-1}],
     }
 
     clickHandler = (language) => {
@@ -20,8 +20,8 @@ class LanguageOverlay extends Component{
        return(
         <div>
             <ul>
-                {this.state.language.map(function (language) {
-                    return <li className={styles.languageOption} onClick={() => {
+                {this.state.languages.map(function (language) {
+                    return <li className={styles.languageOption} key={language.extension} onClick={() => {
                         this.clickHandler(language)
                     }}> <span>{language.name}</span>  {this.props.current && language.extension === this.props.current.extension && <span>&#x2713;</span> } </li>
                 },this)}
@@ -29,15 +29,14 @@ class LanguageOverlay extends Component{
         </div>);
     }
     componentDidMount() {
-        const service = new MeetingService();
-        let breakouts = service.getLanguages()
-        if(this.props.other){
-            breakouts = breakouts.filter((c)=>{
-                return !(c.extension === this.props.other.extension)
-            });
+        let languages = Meeting.getLanguages();
+        if(this.props.filteredLanguages) {
+            let filteredLanguageExtensions = new Set(this.props.filteredLanguages
+                .map(language => language.extension));
+            languages = languages.filter(language => !filteredLanguageExtensions.has(language.extension));
         }
-        this.state.language = breakouts
-        this.state.language.push({name: "None", sequence:-1})
+        this.state.languages = languages
+        this.state.languages.push({name: "None", extension:-1})
         this.setState(this.state)
         harborRender()
     }
