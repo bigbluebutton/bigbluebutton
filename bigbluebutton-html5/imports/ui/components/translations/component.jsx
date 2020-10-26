@@ -8,7 +8,8 @@ import Meeting from "/imports/ui/services/meeting";
 class Translations extends Component{
 
     componentDidMount() {
-        let breakouts = Meeting.findBreakouts()
+        let breakouts = Meeting.getLanguages()
+        console.log(breakouts)
         breakouts = breakouts.map((room)=>{
             return {name: room.name, edit:false}
         });

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import MeetingService from "../../services/Meetings";
+import Meeting from "../../services/Meetings";
 import AudioManager from '/imports/ui/services/audio-manager';
 import styles from "./styles.scss"
 
@@ -23,17 +23,17 @@ class LanguageOverlay extends Component{
                 {this.state.language.map(function (language) {
                     return <li className={styles.languageOption} onClick={() => {
                         this.clickHandler(language)
-                    }}> <span>{language.name}</span>  {this.props.current && language.breakoutId === this.props.current.breakoutId && <span>&#x2713;</span> } </li>
+                    }}> <span>{language.name}</span>  {this.props.current && language.extension === this.props.current.extension && <span>&#x2713;</span> } </li>
                 },this)}
             </ul>
         </div>);
     }
     componentDidMount() {
         const service = new MeetingService();
-        let breakouts = service.findBreakouts()
+        let breakouts = service.getLanguages()
         if(this.props.other){
             breakouts = breakouts.filter((c)=>{
-                return !(c.breakoutId === this.props.other.breakoutId)
+                return !(c.extension === this.props.other.extension)
             });
         }
         this.state.language = breakouts
