@@ -645,50 +645,41 @@ class AudioManager {
     return audioAlert.play();
   }
 
-  openTranslationChannel(sequence){
-    if(this.translationBridge.activeSession){
+  openTranslationChannel(languageExtension) {
+    if(this.translationBridge.activeSession) {
       this.translationBridge.exitAudio()
     }
-    if(sequence<0){
-      return
-    }
-    const breakoutRooms = breakoutService.findBreakouts();
 
-    if( breakoutRooms.length > 0 ) {
-
+    if( languageExtension >= 0 ) {
       const callOptions = {
         isListenOnly: true,
         extension: null,
         inputStream: this.inputStream,
       };
-      this.translationBridge.userData.voiceBridge = this.bridge.userData.voiceBridge+""+sequence;
-      this.translationBridge.joinAudio(callOptions,function () {
+      this.translationBridge.userData.voiceBridge = this.userData.voiceBridge.toString()+languageExtension;
+      this.translationBridge.joinAudio(callOptions, function () {
         return new Promise(function () {
         });
       });
     }
   }
 
-  openTranslatorChannel(sequence) {
+  openTranslatorChannel(languageExtension) {
     if( this.translatorBridge.activeSession ) {
       this.translatorBridge.exitAudio()
     }
 
-    if( sequence >= 0 ) {    
-      const breakoutRooms = breakoutService.findBreakouts();
-
-      if( breakoutRooms.length > 0 ) {
-        const callOptions = {
-          isListenOnly: false,
-          extension: null,
-          inputStream: this.inputStream,
-        };
-        this.translatorBridge.userData.voiceBridge = this.userData.voiceBridge.toString()+sequence;
-        this.translatorBridge.joinAudio(callOptions,function () {
-          return new Promise(function () {
-          });
+    if( languageExtension >= 0 ) {
+      const callOptions = {
+        isListenOnly: false,
+        extension: null,
+        inputStream: this.inputStream,
+      };
+      this.translatorBridge.userData.voiceBridge = this.userData.voiceBridge.toString()+languageExtension;
+      this.translatorBridge.joinAudio(callOptions, function () {
+        return new Promise(function () {
         });
-      }
+      });
     }
   }
 }
