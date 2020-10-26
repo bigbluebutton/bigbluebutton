@@ -32,7 +32,7 @@ class MeetingService {
     }
 
     clearLanguages () {
-        setLanguages([]);
+        this.setLanguages([]);
     }
 
     setLanguages( languageDesignations ) {

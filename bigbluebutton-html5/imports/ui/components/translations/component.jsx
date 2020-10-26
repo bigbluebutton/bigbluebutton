@@ -61,7 +61,7 @@ class Translations extends Component{
     }
 
     endTranslation = () =>{
-        makeCall('endAllBreakouts');
+        Meeting.clearLanguages()
         this.state.languages = [];
         this.state.active = false
         this.state.warning = ""
