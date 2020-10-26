@@ -18,7 +18,7 @@ module.exports = {
       "import/no-absolute-path": 0,
       "import/no-unresolved": 0,
       "import/no-extraneous-dependencies": 1,
-      "react/prop-types": 1,
+      "react/prop-types": 0,
     },
     "globals": {
       "browser": "writable",

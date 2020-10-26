@@ -33,7 +33,7 @@ const Tabs = () => {
   return (
     <Fragment>
       <aside className="primary-nav w-1/12">
-        <div className="h-24 bg-green-900 rounded-lg text-white font-bold text-3xl justify-center items-center flex m-3">SeeIT</div>
+        <div className="h-24 bg-green-900 rounded-lg text-white font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl justify-center items-center flex m-3">SeeIT</div>
         <ul className="flex flex-col justify-center items-center">
           <Tab
             index={1}

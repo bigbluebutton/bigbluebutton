@@ -29,6 +29,10 @@ const IconButton = ({
   let buttonMargin = ' mr-3';
   let iconSize = ' w-6 h-6';
   let buttonTransparent;
+  let iconMinVh = {
+    minWidth: '20px',
+    minHeight: '20px',
+  };
 
   if (color === COLOR_TYPE.SECONDARY) {
     buttonColor = 'bg-gray-100 hover:bg-gray-300';
@@ -42,6 +46,10 @@ const IconButton = ({
     buttonSize = 'p-3 rounded-md';
     buttonMargin = ' mr-2';
     iconSize = ' w-4 h-4';
+    iconMinVh = {
+      minWidth: '15px',
+      minHeight: '15px',
+    };
   }
 
   if (noMargin) {
@@ -71,7 +79,7 @@ const IconButton = ({
       }
     >
       {children}
-      {icon && <Icon icon={icon} className={iconSize} />}
+      {icon && <Icon icon={icon} className={iconSize} iconvh={iconMinVh} />}
     </button>
   );
 };

@@ -11,7 +11,10 @@ const Tab = ({
   onClick,
 }) => {
   let tabClass = 'w-full';
-
+  const iconMinVh = {
+    minWidth: '20px',
+    minHeight: '20px',
+  };
   if (index === activeKey) {
     tabClass += ' bg-gray-100 border-l-8 border-blue-600';
   } else {
@@ -21,7 +24,7 @@ const Tab = ({
   return (
     <li className={tabClass} onClick={onClick} aria-hidden="true">
       <a href={tabArea} className="p-8 block justify-center flex">
-        <Icon icon={icon} />
+        <Icon icon={icon} iconvh={iconMinVh} />
       </a>
     </li>
   );
