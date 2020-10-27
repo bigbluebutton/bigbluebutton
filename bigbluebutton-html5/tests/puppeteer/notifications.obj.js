@@ -74,7 +74,7 @@ const notificationsTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.005,
+        failureThreshold: 0.6,
         failureThresholdType: 'percent',
       });
     }
@@ -97,7 +97,7 @@ const notificationsTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.005,
+        failureThreshold: 0.6,
         failureThresholdType: 'percent',
       });
     }

@@ -153,6 +153,7 @@ class ScreenshareComponent extends React.Component {
           <div
             key={_.uniqueId('screenshareArea-')}
             className={styles.connecting}
+            data-test="screenshareConnecting"
           />
         )
         : null,

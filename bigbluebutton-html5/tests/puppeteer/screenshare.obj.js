@@ -26,7 +26,7 @@ const screenShareTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.005,
+        failureThreshold: 1.37,
         failureThresholdType: 'percent',
       });
     }

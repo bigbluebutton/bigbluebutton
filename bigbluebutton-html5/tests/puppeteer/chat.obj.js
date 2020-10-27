@@ -19,6 +19,7 @@ const chatTest = () => {
     let screenshot;
     try {
       const testName = 'sendChat';
+      console.log(testName);
       await test.init(Page.getArgs());
       await test.closeAudioModal();
       response = await test.test(testName);
@@ -31,7 +32,7 @@ const chatTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.005,
+        failureThreshold: 0.9,
         failureThresholdType: 'percent',
       });
     }
@@ -43,6 +44,7 @@ const chatTest = () => {
     let screenshot;
     try {
       const testName = 'clearChat';
+      console.log(testName);
       await test.init(Page.getArgs());
       await test.closeAudioModal();
       response = await test.test(testName);
@@ -55,7 +57,7 @@ const chatTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.005,
+        failureThreshold: 0.9,
         failureThresholdType: 'percent',
       });
     }
@@ -67,6 +69,7 @@ const chatTest = () => {
     let screenshot;
     try {
       const testName = 'copyChat';
+      console.log(testName);
       await test.init(Page.getArgs());
       await test.closeAudioModal();
       response = await test.test(testName);
@@ -78,7 +81,7 @@ const chatTest = () => {
     }
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.005,
+        failureThreshold: 0.9,
         failureThresholdType: 'percent',
       });
     }
@@ -90,6 +93,7 @@ const chatTest = () => {
     let screenshot;
     try {
       const testName = 'saveChat';
+      console.log(testName);
       await test.init(Page.getArgs());
       await test.closeAudioModal();
       response = await test.test(testName);
@@ -102,7 +106,7 @@ const chatTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.005,
+        failureThreshold: 0.9,
         failureThresholdType: 'percent',
       });
     }
@@ -114,6 +118,7 @@ const chatTest = () => {
     let screenshot;
     try {
       const testName = 'sendPrivateChat';
+      console.log(testName);
       await test.init();
       await test.page1.closeAudioModal();
       await test.page2.closeAudioModal();
@@ -127,7 +132,7 @@ const chatTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.005,
+        failureThreshold: 0.9,
         failureThresholdType: 'percent',
       });
     }
@@ -139,6 +144,7 @@ const chatTest = () => {
     let screenshot;
     try {
       const testName = 'sendPublicChat';
+      console.log(testName);
       await test.init();
       await test.page1.closeAudioModal();
       await test.page2.closeAudioModal();
@@ -152,7 +158,7 @@ const chatTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.005,
+        failureThreshold: 0.9,
         failureThresholdType: 'percent',
       });
     }
