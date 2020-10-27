@@ -1,0 +1,140 @@
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/components/modal/simple/styles";
+
+:root {
+  --mobile-swap-offset: 3.5rem;
+  --min-modal-height: 20rem;
+}
+
+.modal {
+  @extend .modal;
+  padding: var(--jumbo-padding-y);
+  min-height: var(--min-modal-height);
+  text-align: center;
+}
+
+.overlay {
+  @extend .overlay;
+}
+
+.title {
+  font-weight: var(--headings-font-weight);
+  font-size: var(--font-size-large);
+  color: var(--color-background);
+  white-space: normal;
+  padding-bottom: var(--md-padding-x);
+}
+
+.actionsbar,
+.center,
+.right {
+  display: flex;
+  flex-direction: row;
+}
+
+.center,
+.right {
+  flex: 1;
+  justify-content: center;
+}
+
+.left,
+.center,
+.right {
+  > * {
+    margin: 0 var(--sm-padding-x);
+
+    @include mq($small-only) {
+      margin: 0 var(--sm-padding-y);
+    }
+  }
+}
+
+.left {
+  display: inherit;
+  flex: 0;
+  @include mq($small-only) {
+    bottom: var(--sm-padding-x);
+    left: var(--sm-padding-x);
+    right: auto;
+
+    [dir="rtl"] & {
+      left: auto;
+      right: var(--sm-padding-x);
+    }
+  }
+}
+
+.right {
+  position: absolute;
+  bottom: var(--sm-padding-x);
+  right: var(--sm-padding-x);
+  left: auto;
+
+  [dir="rtl"] & {
+    right: auto;
+    left: var(--sm-padding-x);
+  }
+}
+
+.centerWithActions {
+  @include mq($xsmall-only) {
+    justify-content: flex-end;
+  }
+}
+
+.mobileLayoutSwapped {
+  @include mq($xsmall-only) {
+    padding-right: var(--mobile-swap-offset);
+
+    [dir="rtl"] & {
+      padding-right: 0;
+      padding-left: var(--mobile-swap-offset);
+    }
+  }
+}
+
+.quickPollBtn {
+  padding: var(--whiteboard-toolbar-padding);
+  background-color: var(--color-off-white) !important;
+  box-shadow: none !important;
+
+  span:first-child {
+    border: 1px solid var(--toolbar-button-color);
+    border-radius: var(--border-size-large);
+    color: var(--toolbar-button-color);
+    font-size: small;
+    font-weight: var(--headings-font-weight);
+    opacity: 1;
+    padding-right: var(--border-size-large);
+    padding-left: var(--border-size-large);
+  }
+
+  span:first-child:hover {
+    opacity: 1 !important;
+  }
+}
+
+.btn {
+  span {
+    box-shadow: none;
+    background-color: transparent !important;
+    border-color: var(--color-white) !important;
+  }
+}
+
+.presentationItem {
+  span {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 10rem;
+  }
+}
+
+.isCurrent {
+  i,
+  span {
+    color: var(--color-primary);
+  }
+}

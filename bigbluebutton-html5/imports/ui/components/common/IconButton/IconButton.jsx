@@ -7,6 +7,7 @@ import Icon from '/imports/ui/components/Icon';
 const COLOR_TYPE = {
   PRIMARY: 'primary',
   SECONDARY: 'secondary',
+  ERROR: 'error',
 };
 
 const SIZE_TYPE = {
@@ -21,6 +22,8 @@ const IconButton = ({
   transparent,
   miscClass,
   noMargin,
+  disabled,
+  onClick,
   children,
 }) => {
   let buttonClass = 'inline-flex items-center';
@@ -39,7 +42,7 @@ const IconButton = ({
   }
 
   if (color === COLOR_TYPE.ERROR) {
-    buttonColor = 'bg-gray-100 hover:bg-gray-300';
+    buttonColor = 'bg-red-200 hover:bg-red-400';
   }
 
   if (size === SIZE_TYPE.SMALL) {
@@ -77,6 +80,8 @@ const IconButton = ({
           miscClass,
         )
       }
+      onClick={onClick}
+      disabled={disabled}
     >
       {children}
       {icon && <Icon icon={icon} className={iconSize} iconvh={iconMinVh} />}
@@ -90,6 +95,7 @@ IconButton.defaultProps = {
   icon: '',
   transparent: false,
   noMargin: false,
+  disabled: false,
   miscClass: '',
   children: '',
 };
@@ -100,6 +106,7 @@ IconButton.propTypes = {
   icon: PropTypes.string,
   transparent: PropTypes.bool,
   noMargin: PropTypes.bool,
+  disabled: PropTypes.bool,
   miscClass: PropTypes.string,
   children: PropTypes.node,
 };

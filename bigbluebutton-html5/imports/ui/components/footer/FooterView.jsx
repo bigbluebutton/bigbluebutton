@@ -1,9 +1,19 @@
 import React from 'react';
 
+import DesktopShare from './DesktopShare';
 import { IconButton } from '../common';
 import UserAvatar from '../UserAvatar';
 
-const Footer = () => (
+const FooterView = ({
+  amIPresenter,
+  handleShareScreen,
+  handleUnshareScreen,
+  isVideoBroadcasting,
+  screenSharingCheck,
+  screenShareEndAlert,
+  screenshareDataSavingSetting,
+  isMeteorConnected,
+}) => (
   <div id="footerBar" className="flex w-full">
     <div className="w-1/2 p-2 flex items-center">
       <IconButton
@@ -18,10 +28,22 @@ const Footer = () => (
         color="secondary"
         icon="record"
       />
-      <IconButton
+      {/* <IconButton
         color="secondary"
         icon="full-screen"
         noMargin
+        onClick={onScreenShare}
+      /> */}
+      <DesktopShare {...{
+        handleShareScreen,
+        handleUnshareScreen,
+        isVideoBroadcasting,
+        amIPresenter,
+        screenSharingCheck,
+        screenShareEndAlert,
+        isMeteorConnected,
+        screenshareDataSavingSetting,
+      }}
       />
     </div>
     <div className="w-1/2 p-2 flex justify-end">
@@ -41,4 +63,5 @@ const Footer = () => (
   </div>
 );
 
-export default Footer;
+
+export default FooterView;
