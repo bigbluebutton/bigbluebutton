@@ -749,7 +749,7 @@ check_configuration() {
         fi
     fi
 
-    if [ $DISTRIB_ID != "centos" ]; then
+    if [ $DISTRIB_ID == "xenial" ]; then
         libreoffice_version=$(dpkg-query -W --showformat='${Version}\n' libreoffice | sed 's/.*://g' | sed 's/\.[^\.]*$//g')
         if [[ "$libreoffice_version" > 1.0 ]]; then
             if [[ "$libreoffice_version" < 4.4 ]]; then
