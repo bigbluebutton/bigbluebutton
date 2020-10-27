@@ -2,24 +2,29 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import PresentationUploadToken from '/imports/api/presentation-upload-token';
 import Logger from '/imports/startup/server/logger';
-import { extractCredentials } from '/imports/api/common/server/helpers';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
 function presentationUploadToken(podId, filename) {
-  if (!this.userId) {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing PresentationUploadToken was requested by unauth connection ${this.connection.id}`);
     return PresentationUploadToken.find({ meetingId: '' });
   }
-  const { meetingId, requesterUserId } = extractCredentials(this.userId);
+
+  const { meetingId, userId } = tokenValidation;
+
   check(podId, String);
   check(filename, String);
 
   const selector = {
     meetingId,
     podId,
-    userId: requesterUserId,
+    userId,
     filename,
   };
 
-  Logger.debug(`Publishing PresentationUploadToken for ${meetingId} ${requesterUserId}`);
+  Logger.debug(`Publishing PresentationUploadToken for ${meetingId} ${userId}`);
 
   return PresentationUploadToken.find(selector);
 }

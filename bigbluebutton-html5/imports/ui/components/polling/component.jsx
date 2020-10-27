@@ -5,6 +5,7 @@ import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrap
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import { styles } from './styles.scss';
+import AudioService from '/imports/ui/components/audio/service';
 
 const intlMessages = defineMessages({
   pollingTitleLabel: {
@@ -30,8 +31,9 @@ class Polling extends Component {
   }
 
   play() {
-    this.alert = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/Poll.mp3`);
-    this.alert.play();
+    AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
+      + Meteor.settings.public.app.basename}`
+      + '/resources/sounds/Poll.mp3');
   }
 
   render() {
@@ -42,6 +44,9 @@ class Polling extends Component {
       handleVote,
       pollAnswerIds,
     } = this.props;
+
+    if (!poll) return null;
+
     const { stackOptions, answers } = poll;
     const pollAnswerStyles = {
       [styles.pollingAnswers]: true,
