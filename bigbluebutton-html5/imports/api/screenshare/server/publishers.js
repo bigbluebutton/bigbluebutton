@@ -1,15 +1,19 @@
 import Screenshare from '/imports/api/screenshare';
 import { Meteor } from 'meteor/meteor';
 import Logger from '/imports/startup/server/logger';
-import { extractCredentials } from '/imports/api/common/server/helpers';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
 function screenshare() {
-  if (!this.userId) {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing Screenshare was requested by unauth connection ${this.connection.id}`);
     return Screenshare.find({ meetingId: '' });
   }
-  const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  Logger.debug(`Publishing Screenshare for ${meetingId} ${requesterUserId}`);
+  const { meetingId, userId } = tokenValidation;
+
+  Logger.debug(`Publishing Screenshare for ${meetingId} ${userId}`);
 
   return Screenshare.find({ meetingId });
 }

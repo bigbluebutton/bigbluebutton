@@ -9,6 +9,7 @@ import { makeCall } from '/imports/ui/services/api';
 import { initAnnotationsStreamListener } from '/imports/ui/components/whiteboard/service';
 import allowRedirectToLogoutURL from '/imports/ui/components/meeting-ended/service';
 import { initCursorStreamListener } from '/imports/ui/components/cursor/service';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
@@ -224,6 +225,8 @@ class Auth {
         });
       }, CONNECTION_TIMEOUT);
 
+      Meteor.subscribe('auth-token-validation', { meetingId: this.meetingID, userId: this.userID });
+
       const result = await makeCall('validateAuthToken', this.meetingID, this.userID, this.token, this.externUserID);
 
       if (result && result.invalid) {
@@ -243,7 +246,7 @@ class Auth {
 
         const selector = { meetingId: this.meetingID, userId: this.userID };
         const fields = {
-          intId: 1, ejected: 1, validated: 1, connectionStatus: 1, userId: 1,
+          ejected: 1, intId: 1, validated: 1, userId: 1,
         };
         const User = Users.findOne(selector, { fields });
         // Skip in case the user is not in the collection yet or is a dummy user
@@ -263,14 +266,27 @@ class Auth {
           return;
         }
 
-        if (User.validated === true && User.connectionStatus === 'online') {
-          logger.info({ logCode: 'auth_service_init_streamers', extraInfo: { userId: User.userId } }, 'Calling init streamers functions');
-          initCursorStreamListener();
-          initAnnotationsStreamListener();
-          computation.stop();
-          clearTimeout(validationTimeout);
-          // setTimeout to prevent race-conditions with subscription
-          setTimeout(() => resolve(true), 100);
+        const authenticationTokenValidation = AuthTokenValidation.findOne();
+
+        if (!authenticationTokenValidation) return;
+
+        switch (authenticationTokenValidation.validationStatus) {
+          case ValidationStates.INVALID:
+            c.stop();
+            reject({ error: 401, description: 'User has been ejected.' });
+            break;
+          case ValidationStates.VALIDATED:
+            initCursorStreamListener();
+            initAnnotationsStreamListener();
+            c.stop();
+            clearTimeout(validationTimeout);
+            setTimeout(() => resolve(true), 100);
+            break;
+          case ValidationStates.VALIDATING:
+            break;
+          case ValidationStates.NOT_VALIDATED:
+            break;
+          default:
         }
       });
     });

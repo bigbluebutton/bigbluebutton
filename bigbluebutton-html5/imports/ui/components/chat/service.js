@@ -35,6 +35,9 @@ const POLL_MESSAGE_PREFIX = 'bbb-published-poll-<br/>';
 
 const getUser = userId => Users.findOne({ userId });
 
+const getPrivateChatByUsers = userId => GroupChat
+  .findOne({ users: { $all: [userId, Auth.userID] } });
+
 const getWelcomeProp = () => Meetings.findOne({ meetingId: Auth.meetingID },
   { fields: { welcomeProp: 1 } });
 
@@ -46,31 +49,15 @@ const mapGroupMessage = (message) => {
     sender: null,
   };
 
-  if (message.sender && message.sender !== SYSTEM_CHAT_TYPE) {
-    const sender = Users.findOne({ userId: message.sender },
-      {
-        fields: {
-          color: 1,
-          role: 1,
-          name: 1,
-          avatar: 1,
-          connectionStatus: 1,
-        },
-      });
-    const {
-      color,
-      role,
-      name,
-      avatar,
-      connectionStatus,
-    } = sender;
+  if (message.sender && message.sender.id !== SYSTEM_CHAT_TYPE) {
+    const sender = Users.findOne({ userId: message.sender.id }, { fields: { avatar: 1, role: 1 } });
 
     const mappedSender = {
-      color,
-      isModerator: role === ROLE_MODERATOR,
-      name,
-      avatar,
-      isOnline: connectionStatus === CONNECTION_STATUS_ONLINE,
+      avatar: sender?.avatar,
+      color: message.color,
+      isModerator: sender?.role === ROLE_MODERATOR,
+      name: message.sender.name,
+      isOnline: !!sender,
     };
 
     mappedMessage.sender = mappedSender;
@@ -86,6 +73,7 @@ const reduceGroupMessages = (previous, current) => {
     id: current.id,
     text: current.message,
     time: current.timestamp,
+    color: current.color,
   }];
   if (!lastMessage || !currentMessage.chatId === PUBLIC_GROUP_CHAT_ID) {
     return previous.concat(currentMessage);
@@ -98,7 +86,7 @@ const reduceGroupMessages = (previous, current) => {
     || lastMessage.message.includes(POLL_MESSAGE_PREFIX);
   const groupingWindow = isOrWasPoll ? 0 : GROUPING_MESSAGES_WINDOW;
 
-  if (lastMessage.sender === currentMessage.sender
+  if (lastMessage.sender.id === currentMessage.sender.id
     && (currentMessage.timestamp - timeOfLastMessage) <= groupingWindow) {
     lastMessage.content.push(currentMessage.content.pop());
     return previous;
@@ -208,8 +196,10 @@ const sendGroupMessage = (message) => {
     }
   }
 
+  const userAvatarColor = Users.findOne({ userId: senderUserId }, { fields: { color: 1 } });
+
   const payload = {
-    color: '0',
+    color: userAvatarColor?.color || '0',
     correlationId: `${senderUserId}-${Date.now()}`,
     sender: {
       id: senderUserId,
@@ -292,7 +282,10 @@ const exportChat = (messageList) => {
       timestamp: loginTime,
       message: welcomeMsg,
       type: SYSTEM_CHAT_TYPE,
-      sender: PUBLIC_CHAT_USER_ID,
+      sender: {
+        id: PUBLIC_CHAT_USER_ID,
+        name: ''
+      },
     });
   }
 
@@ -306,16 +299,16 @@ const exportChat = (messageList) => {
     if (message.type === SYSTEM_CHAT_TYPE) {
       return `${hourMin} ${message.message}`;
     }
-    const userName = message.sender === PUBLIC_CHAT_USER_ID
+    const userName = message.sender.id === PUBLIC_CHAT_USER_ID
       ? ''
-      : `${getUser(message.sender).name} :`;
+      : `${message.sender.name} :`;
     return `${hourMin} ${userName} ${htmlDecode(message.message)}`;
   }).join('\n');
 };
 
 const getAllMessages = (chatID) => {
   const filter = {
-    sender: { $ne: Auth.userID },
+    'sender.id': { $ne: Auth.userID },
   };
   if (chatID === PUBLIC_GROUP_CHAT_ID) {
     filter.chatId = { $eq: chatID };
@@ -348,6 +341,7 @@ export default {
   getPublicGroupMessages,
   getPrivateGroupMessages,
   getUser,
+  getPrivateChatByUsers,
   getWelcomeProp,
   getScrollPosition,
   hasUnreadMessages,

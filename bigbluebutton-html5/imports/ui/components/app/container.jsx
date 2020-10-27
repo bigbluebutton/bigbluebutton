@@ -3,6 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
+import AuthTokenValidation from '/imports/api/auth-token-validation';
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import { notify } from '/imports/ui/services/notification';
@@ -78,6 +79,18 @@ const currentUserEmoji = currentUser => (currentUser ? {
   });
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
+  const authTokenValidation = AuthTokenValidation.findOne({}, { sort: { updatedAt: -1 } });
+
+  if (authTokenValidation.connectionId !== Meteor.connection._lastSessionId) {
+    endMeeting('403');
+  }
+
+  Users.find({ userId: Auth.userID }).observe({
+    removed() {
+      endMeeting('403');
+    },
+  });
+
   const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { approved: 1, emoji: 1 } });
   const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { publishedPoll: 1, voiceProp: 1 } });
@@ -86,28 +99,6 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   if (!currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
   }
-
-  // Check if user is removed out of the session
-  Users.find({ userId: Auth.userID }, { fields: { connectionId: 1, ejected: 1 } }).observeChanges({
-    changed(id, fields) {
-      const hasNewConnection = 'connectionId' in fields && (fields.connectionId !== Meteor.connection._lastSessionId);
-
-      if (hasNewConnection) {
-        logger.info({
-          logCode: 'user_connection_id_changed',
-          extraInfo: {
-            currentConnectionId: fields.connectionId,
-            previousConnectionId: Meteor.connection._lastSessionId,
-          },
-        }, 'User connectionId changed ');
-        endMeeting('401');
-      }
-
-      if (fields.ejected) {
-        endMeeting('403');
-      }
-    },
-  });
 
   const UserInfo = UserInfos.find({
     meetingId: Auth.meetingID,
