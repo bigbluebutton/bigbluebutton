@@ -118,6 +118,22 @@ const intlMessages = defineMessages({
     id: 'app.video.permissionError',
     description: 'Error message for webcam permission',
   },
+  AbortError: {
+    id: 'app.video.abortError',
+    description: 'Some problem occurred which prevented the device from being used',
+  },
+  OverconstrainedError: {
+    id: 'app.video.overconstrainedError',
+    description: 'No candidate devices which met the criteria requested',
+  },
+  SecurityError: {
+    id: 'app.video.securityError',
+    description: 'Media support is disabled on the Document',
+  },
+  TypeError: {
+    id: 'app.video.typeError',
+    description: 'List of constraints specified is empty, or has all constraints set to false',
+  },
   NotFoundError: {
     id: 'app.video.notFoundError',
     description: 'error message when can not get webcam video',
