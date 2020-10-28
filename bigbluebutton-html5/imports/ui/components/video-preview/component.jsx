@@ -256,43 +256,13 @@ class VideoPreview extends Component {
                 });
               }
             }).catch((error) => {
-              logger.warn({
-                logCode: 'video_preview_enumerate_error',
-                extraInfo: {
-                  errorName: error.name,
-                  errorMessage: error.message,
-                },
-              }, 'Error enumerating devices');
-              this.setState({
-                viewState: VIEW_STATES.error,
-                deviceError: this.handleGUMError(error),
-              });
+              this.handleDeviceError('enumerate_error', error, 'enumerating devices');
             });
           }).catch((error) => {
-            logger.warn({
-              logCode: 'video_preview_initial_device_error',
-              extraInfo: {
-                errorName: error.name,
-                errorMessage: error.message,
-              },
-            }, 'Error getting initial device');
-            this.setState({
-              viewState: VIEW_STATES.error,
-              deviceError: this.handleGUMError(error),
-            });
+            this.handleDeviceError('initial_device_error', error, 'getting initial device');
           });
       } catch (error) {
-        logger.warn({
-          logCode: 'video_preview_grabbing_error',
-          extraInfo: {
-            errorName: error.name,
-            errorMessage: error.message,
-          },
-        }, 'Error grabbing initial video stream');
-        this.setState({
-          viewState: VIEW_STATES.error,
-          deviceError: this.handleGUMError(error),
-        });
+        this.handleDeviceError('grabbing_error', error, 'grabbing initial video stream');
       }
     } else {
       // TODO: Add an error message when media is globablly disabled
@@ -366,6 +336,20 @@ class VideoPreview extends Component {
     this.stopTracks();
     closeModal();
     if (resolve) resolve();
+  }
+
+  handleDeviceError(logCode, error, description) {
+    logger.warn({
+      logCode: `video_preview_${logCode}`,
+      extraInfo: {
+        errorName: error.name,
+        errorMessage: error.message,
+      },
+    }, `Error ${description}`);
+    this.setState({
+      viewState: VIEW_STATES.error,
+      deviceError: this.handleGUMError(error),
+    });
   }
 
   handleGUMError(error) {
