@@ -143,7 +143,7 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
       messages = Object.assign(messages, JSON.parse(data));
       normalizedLocale = locale;
     } catch (e) {
-      Logger.warn(`'Could not process locale ${locale}:${e}`);
+      Logger.info(`'Could not process locale ${locale}:${e}`);
       // Getting here means the locale is not available in the current locale files.
     }
   });
