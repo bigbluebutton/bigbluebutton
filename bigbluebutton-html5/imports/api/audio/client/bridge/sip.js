@@ -27,7 +27,7 @@ const IPV4_FALLBACK_DOMAIN = Meteor.settings.public.app.ipv4FallbackDomain;
 const CALL_CONNECT_TIMEOUT = 20000;
 const ICE_NEGOTIATION_TIMEOUT = 20000;
 const AUDIO_SESSION_NUM_KEY = 'AudioSessionNumber';
-const USER_AGENT_RECONNECTION_ATTEMPTS = 3;
+const USER_AGENT_RECONNECTION_ATTEMPTS = 7;
 const USER_AGENT_RECONNECTION_DELAY_MS = 5000;
 const USER_AGENT_CONNECTION_TIMEOUT_MS = 5000;
 const ICE_GATHERING_TIMEOUT = MEDIA.iceGatheringTimeout || 5000;
@@ -310,13 +310,16 @@ class SIPSession {
     });
   }
 
-  onBeforeUnload() {
-    this.userRequestedHangup = true;
-    if (this.userAgent) {
+  stopUserAgent() {
+    if (this.userAgent && (typeof this.userAgent.stop === 'function')) {
       return this.userAgent.stop();
     }
-
     return Promise.resolve();
+  }
+
+  onBeforeUnload() {
+    this.userRequestedHangup = true;
+    return this.stopUserAgent();
   }
 
   createUserAgent(iceServers) {
@@ -426,6 +429,9 @@ class SIPSession {
                 error = 1002;
                 bridgeError = 'Websocket failed to connect';
               }
+
+              this.stopUserAgent();
+
               this.callback({
                 status: this.baseCallStates.failed,
                 error,
@@ -463,6 +469,8 @@ class SIPSession {
 
 
         if (code === 1006) {
+          this.stopUserAgent();
+
           this.callback({
             status: this.baseCallStates.failed,
             error: 1006,
@@ -483,6 +491,8 @@ class SIPSession {
 
           resolve();
         }).catch(() => {
+          this.stopUserAgent();
+
           logger.info({
             logCode: 'sip_js_session_ua_disconnected',
             extraInfo: {
@@ -520,6 +530,13 @@ class SIPSession {
       }
 
       this._reconnecting = true;
+
+      logger.info({
+        logCode: 'sip_js_session_ua_reconnection_attempt',
+        extraInfo: {
+          callerIdName: this.user.callerIdName,
+        },
+      }, `User agent reconnection attempt ${attempts}`);
 
       setTimeout(() => {
         this.userAgent.reconnect().then(() => {
