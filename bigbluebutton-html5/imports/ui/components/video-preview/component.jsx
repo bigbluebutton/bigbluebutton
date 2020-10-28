@@ -215,12 +215,12 @@ class VideoPreview extends Component {
     // skipped then we get devices with no labels
     if (hasMediaDevices) {
       try {
+        let firstAllowedDeviceId;
         navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: 'user' } })
           .then((stream) => {
             if (!this._isMounted) return;
             this.deviceStream = stream;
             // try and get the deviceId for the initial stream
-            let firstAllowedDeviceId;
             if (stream.getVideoTracks) {
               const videoTracks = stream.getVideoTracks();
               if (videoTracks.length > 0 && videoTracks[0].getSettings) {
@@ -228,7 +228,9 @@ class VideoPreview extends Component {
                 firstAllowedDeviceId = trackSettings.deviceId;
               }
             }
-
+          }).catch((error) => {
+            this.handleDeviceError('initial_device', error, 'getting initial device');
+          }).finally(() => {
             navigator.mediaDevices.enumerateDevices().then((devices) => {
               const webcams = [];
               let initialDeviceId;
@@ -272,13 +274,11 @@ class VideoPreview extends Component {
                 });
               }
             }).catch((error) => {
-              this.handleDeviceError('enumerate_error', error, 'enumerating devices');
+              this.handleDeviceError('enumerate', error, 'enumerating devices');
             });
-          }).catch((error) => {
-            this.handleDeviceError('initial_device_error', error, 'getting initial device');
           });
       } catch (error) {
-        this.handleDeviceError('grabbing_error', error, 'grabbing initial video stream');
+        this.handleDeviceError('grabbing', error, 'grabbing initial video stream');
       }
     } else {
       // TODO: Add an error message when media is globablly disabled
@@ -369,7 +369,7 @@ class VideoPreview extends Component {
 
   handleDeviceError(logCode, error, description) {
     logger.warn({
-      logCode: `video_preview_${logCode}`,
+      logCode: `video_preview_${logCode}_error`,
       extraInfo: {
         errorName: error.name,
         errorMessage: error.message,
