@@ -8,11 +8,20 @@ export default function publishVote(pollId, pollAnswerId) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'RespondToPollReqMsg';
-
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
   check(pollAnswerId, Number);
   check(pollId, String);
+
+  const waitingFor = Polls.findOne({ id: pollId }, {
+    feilds: {
+      users: 1,
+    },
+  });
+
+  const userResponded = !waitingFor.users.includes(requesterUserId);
+
+  if (userResponded) return null;
 
   const selector = {
     users: requesterUserId,
@@ -43,11 +52,11 @@ export default function publishVote(pollId, pollAnswerId) {
       return Logger.error(`Removing responded user from Polls collection: ${err}`);
     }
 
-    return Logger.info(`Removed responded user=${requesterUserId} from poll (meetingId: ${meetingId}, `
+    Logger.info(`Removed responded user=${requesterUserId} from poll (meetingId: ${meetingId}, `
       + `pollId: ${pollId}!)`);
+
+    return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   };
 
   Polls.update(selector, modifier, cb);
-
-  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }
