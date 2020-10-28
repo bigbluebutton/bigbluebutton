@@ -152,12 +152,12 @@ export default class ShapeDrawListener extends Component {
     this.commonDrawMoveHandler(clientX, clientY);
   }
 
-  handleTouchEnd() {
+  handleTouchEnd(event) {
     this.isFilled = event.ctrlKey;
     this.sendLastMessage();
   }
 
-  handleTouchCancel() {
+  handleTouchCancel(event) {
     this.isFilled = event.ctrlKey;
     this.sendLastMessage();
   }
