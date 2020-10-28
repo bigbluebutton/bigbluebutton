@@ -649,12 +649,14 @@ class AudioManager {
     if(this.translationBridge.activeSession) {
       this.translationBridge.exitAudio()
     }
-
+    //create a dummy stream that does nothing at all
+    let ac = new AudioContext();
+    let  dest =  ac.createMediaStreamDestination();
     if( languageExtension >= 0 ) {
       const callOptions = {
         isListenOnly: true,
         extension: null,
-        inputStream: this.inputStream,
+        inputStream: dest.stream,
       };
       this.translationBridge.userData.voiceBridge = this.userData.voiceBridge.toString()+languageExtension;
       this.translationBridge.joinAudio(callOptions, function () {
