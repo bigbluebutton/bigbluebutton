@@ -354,6 +354,19 @@ class VideoPreview extends Component {
     if (resolve) resolve();
   }
 
+  handlePreviewError(logCode, error, description) {
+    logger.warn({
+      logCode: `video_preview_${logCode}_error`,
+      extraInfo: {
+        errorName: error.name,
+        errorMessage: error.message,
+      },
+    }, `Error ${description}`);
+    this.setState({
+      previewError: this.handleGUMError(error),
+    });
+  }
+
   handleDeviceError(logCode, error, description) {
     logger.warn({
       logCode: `video_preview_${logCode}`,
@@ -444,14 +457,7 @@ class VideoPreview extends Component {
       this.video.srcObject = stream;
       this.deviceStream = stream;
     }).catch((error) => {
-      logger.warn({
-        logCode: 'video_preview_do_gum_preview_error',
-        extraInfo: {
-          errorName: error.name,
-          errorMessage: error.message,
-        },
-      }, 'Error displaying final selection.');
-      this.setState({ previewError: this.handleGUMError(error) });
+      this.handlePreviewError('do_gum_preview', error, 'displaying final selection');
     });
   }
 
