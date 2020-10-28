@@ -140,8 +140,7 @@ export default class ShapeDrawListener extends Component {
     // if you switch to a different window using Alt+Tab while mouse is down and release it
     // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
     } else {
-      const key_ctrl = event.ctrlKey;
-      this.isFilled = key_ctrl;
+      this.isFilled = event.ctrlKey;
       this.sendLastMessage();
     }
   }
