@@ -1,0 +1,18 @@
+@import "/imports/ui/stylesheets/variables/_all";
+
+.autoplayPrompt {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.button {
+  &:focus {
+    outline: none !important;
+  }
+
+  span:last-child {
+    color: black;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+}

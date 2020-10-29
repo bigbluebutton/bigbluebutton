@@ -185,7 +185,7 @@ const DesktopShare = ({
       <IconButton
         disabled={(!isMeteorConnected && !isVideoBroadcasting) || !screenshareDataSavingSetting}
         color={isVideoBroadcasting ? 'error' : 'secondary'}
-        icon="full-screen"
+        icon={isVideoBroadcasting ? 'screen' : 'screen-off'}
         noMargin
         onClick={
           isVideoBroadcasting

@@ -1,0 +1,193 @@
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/components/modal/simple/styles";
+
+:root {
+  --audioDial-margin-left: 2rem;
+}
+
+.header {
+  margin: 0;
+  padding: 0;
+  border: none;
+  line-height: 2rem;
+}
+
+.content {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+  margin-top: auto;
+  margin-bottom: auto;
+  padding: 0.5rem 0;
+
+  .audioBtn:first-child {
+    margin: 0 3rem 0 0;
+
+    [dir="rtl"] & {
+      margin: 0 0 0 3rem;
+    }
+
+    @include mq($small-only) {
+      margin: 0 1rem 0 0;
+
+      [dir="rtl"] & {
+        margin: 0 0 0 1rem;
+      }
+    }
+  }
+
+  .audioBtn:only-child {
+    margin: inherit 0 inherit inherit;
+
+    [dir="rtl"] & {
+      margin: inherit!important inherit!important inherit!important 0;
+    }
+  }
+}
+
+.audioOptions {
+  margin-top: auto;
+  margin-bottom: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.browserWarning {
+  padding: 0.5rem;
+  border-width: 3px;
+  border-style: solid;
+  border-radius: 0.25rem;
+}
+
+.overlay {
+  @extend .overlay;
+}
+
+.modal {
+  @extend .modal;
+  padding: 1.5rem;
+  min-height: 20rem;
+}
+
+.closeBtn {
+  position: relative;
+  background-color: var(--color-white);
+
+  i {
+    color: var(--color-gray-light);
+  }
+
+  &:focus,
+  &:hover {
+    background-color: var(--color-gray-lighter);
+    i {
+      color: var(--color-gray);
+    }
+  }
+}
+.warning {
+  text-align: center;
+  font-weight: var(--headings-font-weight);
+  font-size: 5rem;
+  white-space: normal;
+}
+.text {
+  margin: var(--line-height-computed);
+  text-align: center;
+}
+
+.main {
+  margin: var(--line-height-computed);
+  text-align: center;
+  font-size: var(--font-size-large);
+}
+
+.audioBtn {
+  i {
+    color: #3c5764;
+  }
+}
+
+.audioDial {
+  margin: 0 auto;
+  margin-top: var(--md-padding-y);
+  display: block;
+}
+
+// Modifies the audio button icon colour
+.audioBtn span:first-child {
+  color: #1b3c4b;
+  background-color: #f1f8ff;
+  box-shadow: none;
+  border: 5px solid #f1f8ff;
+  font-size: 3.5rem;
+
+  @include mq($small-only) {
+    font-size: 2.5rem;
+  }
+}
+
+// When hovering over a button of class audioBtn, change the border colour of first span-child
+.audioBtn:hover span:first-child,
+.audioBtn:focus span:first-child {
+  border: 5px solid var(--color-primary);
+  background-color: #f1f8ff;
+}
+
+// Modifies the button label text
+.audioBtn span:last-child {
+  color: black;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.title {
+  text-align: center;
+  font-weight: 400;
+  font-size: 1.3rem;
+  color: var(--color-background);
+  white-space: normal;
+
+  @include mq($small-only) {
+    font-size: 1rem;
+    padding: 0 1rem;
+  }
+}
+
+.connecting {
+  margin-top: auto;
+  margin-bottom: auto;
+  font-size: 2rem;
+}
+
+.connectingAnimation {
+  margin: auto;
+  display: inline-block;
+  width: 1.5em;
+
+  &:after {
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: bottom;
+    content: "\2026"; /* ascii code for the ellipsis character */
+    width: 0;
+    margin-left: 0.25em;
+
+    :global(.animationsEnabled) & {
+      animation: ellipsis steps(4, end) 900ms infinite;
+    }
+  }
+}
+
+@keyframes ellipsis {
+  to {
+    width: 1.5em;
+  }
+}
+
+.audioNote {
+  color: var(--color-text);
+  display: inline-block;
+  font-size: 0.9rem;
+}

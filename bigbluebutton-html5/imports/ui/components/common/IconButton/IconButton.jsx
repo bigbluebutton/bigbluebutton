@@ -37,6 +37,10 @@ const IconButton = ({
     minHeight: '20px',
   };
 
+  if (color === COLOR_TYPE.PRIMARY) {
+    buttonColor = 'bg-blue-100 hover:bg-blue-300';
+  }
+
   if (color === COLOR_TYPE.SECONDARY) {
     buttonColor = 'bg-gray-100 hover:bg-gray-300';
   }

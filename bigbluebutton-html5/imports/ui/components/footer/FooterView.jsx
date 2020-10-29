@@ -1,6 +1,7 @@
 import React from 'react';
 
 import DesktopShare from './DesktopShare';
+import AudioControlsContainer from '../audio/audio-controls/AudioControlsContainer';
 import { IconButton } from '../common';
 import UserAvatar from '../UserAvatar';
 
@@ -18,22 +19,13 @@ const FooterView = ({
     <div className="w-1/2 p-2 flex items-center">
       <IconButton
         color="secondary"
-        icon="camera"
+        icon="camera-off"
       />
-      <IconButton
-        color="secondary"
-        icon="mic"
-      />
+      <AudioControlsContainer />
       <IconButton
         color="secondary"
         icon="record"
       />
-      {/* <IconButton
-        color="secondary"
-        icon="full-screen"
-        noMargin
-        onClick={onScreenShare}
-      /> */}
       <DesktopShare {...{
         handleShareScreen,
         handleUnshareScreen,
