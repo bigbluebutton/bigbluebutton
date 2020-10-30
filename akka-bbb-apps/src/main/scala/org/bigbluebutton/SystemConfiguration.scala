@@ -37,6 +37,7 @@ trait SystemConfiguration {
   lazy val fromAkkaAppsJsonChannel = Try(config.getString("eventBus.fromAkkaAppsChannel")).getOrElse("from-akka-apps-json-channel")
 
   lazy val applyPermissionCheck = Try(config.getBoolean("apps.checkPermissions")).getOrElse(false)
+  lazy val ejectOnViolation = Try(config.getBoolean("apps.ejectOnViolation")).getOrElse(false)
 
   lazy val voiceConfRecordPath = Try(config.getString("voiceConf.recordPath")).getOrElse("/var/freeswitch/meetings")
   lazy val voiceConfRecordCodec = Try(config.getString("voiceConf.recordCodec")).getOrElse("wav")

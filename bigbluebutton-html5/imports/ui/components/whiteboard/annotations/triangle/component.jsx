@@ -52,6 +52,7 @@ export default class TriangleDrawComponent extends Component {
         strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         strokeLinejoin="miter"
         {...visibility}
+        data-test="drawnTriangle"
       />
     );
   }

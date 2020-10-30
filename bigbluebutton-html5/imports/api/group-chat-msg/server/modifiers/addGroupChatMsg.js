@@ -34,7 +34,6 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
     meetingId,
     chatId,
     message: parseMessage(msg.message),
-    sender: msg.sender.id,
   };
 
   const selector = {
@@ -44,7 +43,7 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
   };
 
   const modifier = {
-    $set: flat(msgDocument, { safe: true }),
+    $set: msgDocument,
   };
 
   const cb = (err, numChanged) => {

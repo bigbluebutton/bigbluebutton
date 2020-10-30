@@ -16,10 +16,6 @@ const intlMessages = defineMessages({
     id: 'app.video.leaveVideo',
     description: 'Leave video button label',
   },
-  videoButtonDesc: {
-    id: 'app.video.videoButtonDesc',
-    description: 'video button description',
-  },
   videoLocked: {
     id: 'app.video.videoLocked',
     description: 'video disabled label',
@@ -68,18 +64,19 @@ const JoinVideoButton = ({
     }
   };
 
-  const label = exitVideo()
+  let label = exitVideo()
     ? intl.formatMessage(intlMessages.leaveVideo)
     : intl.formatMessage(intlMessages.joinVideo);
 
+  if (disableReason) label = intl.formatMessage(intlMessages[disableReason]);
+
   return (
     <Button
+      label={label}
       data-test="joinVideo"
-      label={disableReason ? intl.formatMessage(intlMessages[disableReason]) : label}
       className={cx(styles.button, hasVideoStream || styles.btn)}
       onClick={handleOnClick}
       hideLabel
-      aria-label={intl.formatMessage(intlMessages.videoButtonDesc)}
       color={hasVideoStream ? 'primary' : 'default'}
       icon={hasVideoStream ? 'video' : 'video_off'}
       ghost={!hasVideoStream}

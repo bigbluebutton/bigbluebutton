@@ -27,13 +27,12 @@ const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const mapActiveChats = (chat) => {
   const currentUserId = Auth.userID;
 
-  if (chat.sender !== currentUserId) {
-    return chat.sender;
-  }
-
   const { chatId } = chat;
 
-  const userId = GroupChat.findOne({ chatId }).users.filter(user => user !== currentUserId);
+  const userId = GroupChat
+    .findOne({ chatId })
+    .participants
+    .filter(user => user.id !== currentUserId);
 
   return userId[0];
 };
@@ -193,14 +192,14 @@ const sortChats = (a, b) => {
     sort = sortChatsByName(a, b);
   }
 
-  return sort = sortByRecentActivity(a, b);
+  return sortByRecentActivity(a, b);
 };
 
 const userFindSorting = {
   emojiTime: 1,
   role: 1,
   phoneUser: 1,
-  sortName: 1,
+  name: 1,
   userId: 1,
 };
 
@@ -208,7 +207,7 @@ const getUsers = () => {
   let users = Users
     .find({
       meetingId: Auth.meetingID,
-      connectionStatus: 'online',
+      authed: true,
     }, userFindSorting)
     .fetch();
 
@@ -251,7 +250,7 @@ const getActiveChats = (chatID) => {
   const idsWithTimeStamp = {};
 
   activeChats.map((chat) => {
-    idsWithTimeStamp[`${chat.sender}`] = chat.timestamp;
+    idsWithTimeStamp[`${chat.sender.id}`] = chat.timestamp;
   });
 
   activeChats = activeChats.map(mapActiveChats);
@@ -260,19 +259,20 @@ const getActiveChats = (chatID) => {
     activeChats.push(chatID);
   }
 
-  activeChats = _.uniq(_.compact(activeChats));
+  activeChats = _.uniqBy(_.compact(activeChats), 'id');
 
-  activeChats = Users
-    .find({ userId: { $in: activeChats } })
-    .map((op) => {
-      const activeChat = op;
-      activeChat.unreadCounter = UnreadMessages.count(op.userId);
-      activeChat.name = op.name;
-      activeChat.avatar = op.avatar;
-      activeChat.isModerator = op.role === ROLE_MODERATOR;
-      activeChat.lastActivity = idsWithTimeStamp[`${op.userId}`];
-      return activeChat;
-    });
+  activeChats = activeChats.map(({ id, name }) => {
+    const user = Users.findOne({ userId: id }, { fields: { color: 1, role: 1 } });
+
+    return {
+      color: user?.color || '#7b1fa2',
+      isModerator: user?.role === ROLE_MODERATOR,
+      lastActivity: idsWithTimeStamp[id],
+      name,
+      unreadCounter: UnreadMessages.count(id),
+      userId: id,
+    };
+  });
 
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
   const filteredChatList = [];
@@ -546,6 +546,7 @@ const sortUsersByFirstName = (a, b) => {
 };
 
 const sortUsersByLastName = (a, b) => {
+  if (!a.lastName && !b.lastName) return 0;
   if (a.lastName && !b.lastName) return -1;
   if (!a.lastName && b.lastName) return 1;
 
@@ -567,7 +568,7 @@ export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
   const mimeType = 'text/plain';
   const userNamesObj = getUsers()
     .map((u) => {
-      const name = u.sortName.split(' ');
+      const name = u.name.split(' ');
       return ({
         firstName: name[0],
         middleNames: name.length > 2 ? name.slice(1, name.length - 1) : null,

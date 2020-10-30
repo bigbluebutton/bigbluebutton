@@ -4,6 +4,7 @@ import VideoStreams from '/imports/api/video-streams';
 import Logger from '/imports/startup/server/logger';
 import stopWatchingExternalVideo from '/imports/api/external-videos/server/methods/stopWatchingExternalVideo';
 import clearUserInfoForRequester from '/imports/api/users-infos/server/modifiers/clearUserInfoForRequester';
+import ClientConnections from '/imports/startup/server/ClientConnections';
 
 const clearAllSessions = (sessionUserId) => {
   const serverSessions = Meteor.server.sessions;
@@ -30,22 +31,15 @@ export default function removeUser(meetingId, userId) {
     userId,
   };
 
-  const modifier = {
-    $set: {
-      connectionStatus: 'offline',
-      validated: false,
-      emoji: 'none',
-      presenter: false,
-      role: 'VIEWER',
-    },
-  };
-
   const cb = (err) => {
     if (err) {
       return Logger.error(`Removing user from collection: ${err}`);
     }
 
     const sessionUserId = `${meetingId}-${userId}`;
+
+    ClientConnections.removeClientConnection(`${meetingId}--${userId}`);
+
     clearAllSessions(sessionUserId);
 
     clearUserInfoForRequester(meetingId, userId);
@@ -53,5 +47,5 @@ export default function removeUser(meetingId, userId) {
     return Logger.info(`Removed user id=${userId} meeting=${meetingId}`);
   };
   VideoStreams.remove({ meetingId, userId });
-  return Users.update(selector, modifier, cb);
+  return Users.remove(selector, cb);
 }
