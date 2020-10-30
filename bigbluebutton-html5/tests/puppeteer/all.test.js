@@ -14,16 +14,16 @@ const webcamLayout = require('./webcamlayout.obj');
 
 process.setMaxListeners(Infinity);
 
-describe('Audio', audioTest);
+// describe('Audio', audioTest);
 describe('Chat', chatTest);
-describe('Breakout', breakoutTest);
-describe('Custom Parameters', customParametersTest);
-describe('Notifications', notificationsTest);
-describe('Presentation', presentationTest);
-describe('Screen Share', screenShareTest);
-describe('Shared Notes ', sharedNotesTest);
-describe('User', userTest);
-// describe('Virtualized List', virtualizedListTest);
-describe('Webcam', webcamTest);
-describe('Whiteboard', whiteboardTest);
-describe('Webcam Layout', webcamLayout);
+// describe('Breakout', breakoutTest);
+// describe('Custom Parameters', customParametersTest);
+// describe('Notifications', notificationsTest);
+// describe('Presentation', presentationTest);
+// describe('Screen Share', screenShareTest);
+// describe('Shared Notes ', sharedNotesTest);
+// describe('User', userTest);
+// // describe('Virtualized List', virtualizedListTest);
+// describe('Webcam', webcamTest);
+// describe('Whiteboard', whiteboardTest);
+// describe('Webcam Layout', webcamLayout);

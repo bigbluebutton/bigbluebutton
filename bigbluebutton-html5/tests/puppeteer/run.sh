@@ -24,20 +24,20 @@ err() {
 main() {
   export DEBIAN_FRONTEND=noninteractive
 
-  while builtin getopts "uh:s:t:" opt "${@}"; do
+  while builtin getopts "ut:" opt "${@}"; do
 
     case $opt in
       t)
 	TEST=$OPTARG
 	;;
 
-      h)
-        HOST=$OPTARG
-        ;;
+      # h)
+      #   HOST=$OPTARG
+      #   ;;
 
-      s)
-        SECRET=$OPTARG
-        ;;
+      # s)
+      #   SECRET=$OPTARG
+      #   ;;
         
       u)
         usage
@@ -62,17 +62,17 @@ main() {
     exit 1
   fi
 
-  if [ -z "$HOST" ]; then
-    err "No host provided";
-    usage
-    exit 1
-  fi
+  # if [ -z "$HOST" ]; then
+  #   err "No host provided";
+  #   usage
+  #   exit 1
+  # fi
 
-  if [ -z "$SECRET" ]; then
-    err "No scret provided";
-    usage
-    exit 1
-  fi
+  # if [ -z "$SECRET" ]; then
+  #   err "No scret provided";
+  #   usage
+  #   exit 1
+  # fi
 
   IS_AUDIO_TEST=false
 

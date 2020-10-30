@@ -134,7 +134,7 @@ class MessageListItem extends Component {
           <div className={styles.content}>
             <div className={styles.meta}>
               <div className={user.isOnline ? styles.name : styles.logout}>
-                <span>{user.name}</span>
+                <span data-test="chatUserMessage">{user.name}</span>
                 {user.isOnline
                   ? null
                   : (
@@ -147,7 +147,7 @@ class MessageListItem extends Component {
                 <FormattedTime value={dateTime} />
               </time>
             </div>
-            <div className={styles.messages} data-test="chatUserMessage">
+            <div className={styles.messages}>
               {messages.map(message => (
                 <Message
                   className={(regEx.test(message.text) ? styles.hyperlink : styles.message)}
@@ -183,7 +183,7 @@ class MessageListItem extends Component {
     const dateTime = new Date(time);
 
     return messages ? (
-      <div className={styles.item} key={_.uniqueId('message-poll-item-')}>
+      <div data-test="pollingResultMessage" className={styles.item} key={_.uniqueId('message-poll-item-')}>
         <div className={styles.wrapper} ref={(ref) => { this.item = ref; }}>
           <div className={styles.avatarWrapper}>
             <UserAvatar

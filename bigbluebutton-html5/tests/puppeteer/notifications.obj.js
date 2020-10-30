@@ -17,10 +17,12 @@ const notificationsTest = () => {
     let screenshot;
     try {
       const testName = 'saveSettingsNotification';
+      await test.page1.logger('begin of ', testName);
       response = await test.saveSettingsNotification(testName);
       screenshot = await test.page1.page.screenshot();
+      await test.page1.logger('end of ', testName);
     } catch (e) {
-      console.log(e);
+      await test.page1.logger(e);
     } finally {
       await test.close(test.page1, test.page2);
       await test.page1.logger('Save Setting notification !');
@@ -28,7 +30,7 @@ const notificationsTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.005,
+        failureThreshold: 1.56,
         failureThresholdType: 'percent',
       });
     }
@@ -40,10 +42,12 @@ const notificationsTest = () => {
     let screenshot;
     try {
       const testName = 'publicChatNotification';
+      await test.page1.logger('begin of ', testName);
       response = await test.publicChatNotification(testName);
       screenshot = await test.page1.page.screenshot();
+      await test.page1.logger('end of ', testName);
     } catch (e) {
-      console.log(e);
+      await test.page1.logger(e);
     } finally {
       await test.close(test.page1, test.page2);
       await test.page1.logger('Public Chat notification !');
@@ -51,7 +55,7 @@ const notificationsTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.005,
+        failureThreshold: 1,
         failureThresholdType: 'percent',
       });
     }
@@ -63,10 +67,12 @@ const notificationsTest = () => {
     let screenshot;
     try {
       const testName = 'privateChatNotification';
+      await test.page1.logger('begin of ', testName);
       response = await test.privateChatNotification(testName);
       screenshot = await test.page1.page.screenshot();
+      await test.page1.logger('end of ', testName);
     } catch (e) {
-      console.log(e);
+      await test.page1.logger(e);
     } finally {
       await test.close(test.page1, test.page2);
       await test.page1.logger('Private Chat notification !');
@@ -86,10 +92,12 @@ const notificationsTest = () => {
     let screenshot;
     try {
       const testName = 'userJoinNotification';
+      await test.page1.logger('begin of ', testName);
       response = await test.getUserJoinPopupResponse(testName);
       screenshot = await test.page3.page.screenshot();
+      await test.page1.logger('end of ', testName);
     } catch (e) {
-      console.log(e);
+      await test.page1.logger(e);
     } finally {
       await test.closePages();
       await test.page1.logger('User join notification !');
@@ -109,10 +117,12 @@ const notificationsTest = () => {
     let screenshot;
     try {
       const testName = 'uploadPresentationNotification';
+      await test.page1.logger('begin of ', testName);
       response = await test.fileUploaderNotification(testName);
       screenshot = await test.page3.page.screenshot();
+      await test.page1.logger('end of ', testName);
     } catch (e) {
-      console.log(e);
+      await test.page1.logger(e);
     } finally {
       await test.closePage(test.page3);
       await test.page3.logger('Presentation upload notification !');
@@ -120,7 +130,7 @@ const notificationsTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.005,
+        failureThreshold: 2.64,
         failureThresholdType: 'percent',
       });
     }
@@ -132,15 +142,17 @@ const notificationsTest = () => {
     let screenshot;
     try {
       const testName = 'pollResultsNotification';
+      await test.page1.logger('begin of ', testName);
       response = await test.publishPollResults(testName);
       screenshot = await test.page3.page.screenshot();
+      await test.page1.logger('end of ', testName);
     } catch (e) {
-      console.log(e);
+      await test.page1.logger(e);
     } finally {
       await test.closePage(test.page3);
       await test.page3.logger('Poll results notification !');
     }
-    expect(response).toContain('Poll results were published to Public Chat and Whiteboard');
+    expect(response).toContain('Poll results were published');
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
         failureThreshold: 0.005,
@@ -155,10 +167,12 @@ const notificationsTest = () => {
     let screenshot;
     try {
       const testName = 'screenShareNotification';
+      await page.page1.logger('begin of ', testName);
       response = await page.screenshareToast(testName);
       screenshot = await page.page3.page.screenshot();
+      await page.page1.logger('end of ', testName);
     } catch (e) {
-      console.log(e);
+      await page.page1.logger(e);
     } finally {
       await page.closePage(page.page3);
       await page.page3.logger('Screenshare notification !');
@@ -178,10 +192,12 @@ const notificationsTest = () => {
     let screenshot;
     try {
       const testName = 'audioNotification';
+      await test.page1.logger('begin of ', testName);
       response = await test.audioNotification(testName);
       screenshot = await test.page3.page.screenshot();
+      await test.page1.logger('end of ', testName);
     } catch (e) {
-      console.log(e);
+      await test.page1.logger(e);
     } finally {
       await test.closePage(test.page3);
       await test.page3.logger('Audio notification !');

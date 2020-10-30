@@ -6,7 +6,7 @@ expect.extend({ toMatchImageSnapshot });
 
 const audioTest = () => {
   beforeEach(() => {
-    jest.setTimeout(30000);
+    jest.setTimeout(50000);
   });
 
   test('Join audio with Listen Only', async () => {
@@ -14,9 +14,12 @@ const audioTest = () => {
     let response;
     let screenshot;
     try {
+      const testName = 'joinWithListenOnly';
+      await test.logger('begin of ', testName);
       await test.init(Page.getArgsWithAudio());
       response = await test.test();
       screenshot = await test.page.screenshot();
+      await test.logger('end of ', testName);
     } catch (e) {
       console.log(e);
     } finally {
@@ -36,9 +39,12 @@ const audioTest = () => {
     let response;
     let screenshot;
     try {
+      const testName = 'joinWithMicrophone';
+      await test.logger('begin of ', testName);
       await test.init(Page.getArgsWithAudio());
       response = await test.microphone();
       screenshot = await test.page.screenshot();
+      await test.logger('end of ', testName);
     } catch (e) {
       console.log(e);
     } finally {

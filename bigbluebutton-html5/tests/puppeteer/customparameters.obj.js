@@ -113,7 +113,7 @@ const customParametersTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.5,
+        failureThreshold: 53.18,
         failureThresholdType: 'percent',
       });
     }

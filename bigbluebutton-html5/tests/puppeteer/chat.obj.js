@@ -19,13 +19,14 @@ const chatTest = () => {
     let screenshot;
     try {
       const testName = 'sendChat';
-      console.log(testName);
+      await test.logger('begin of ', testName);
       await test.init(Page.getArgs());
       await test.closeAudioModal();
       response = await test.test(testName);
       screenshot = await test.page.screenshot();
+      await test.logger('end of ', testName);
     } catch (e) {
-      console.log(e);
+      await test.logger(e);
     } finally {
       await test.close();
     }
@@ -44,13 +45,14 @@ const chatTest = () => {
     let screenshot;
     try {
       const testName = 'clearChat';
-      console.log(testName);
+      await test.logger('begin of ', testName);
       await test.init(Page.getArgs());
       await test.closeAudioModal();
       response = await test.test(testName);
       screenshot = await test.page.screenshot();
+      await test.logger('end of ', testName);
     } catch (e) {
-      console.log(e);
+      await test.logger(e);
     } finally {
       await test.close();
     }
@@ -69,13 +71,14 @@ const chatTest = () => {
     let screenshot;
     try {
       const testName = 'copyChat';
-      console.log(testName);
+      await test.logger('begin of ', testName);
       await test.init(Page.getArgs());
       await test.closeAudioModal();
       response = await test.test(testName);
       screenshot = await test.page.screenshot();
+      await test.logger('end of ', testName);
     } catch (e) {
-      console.log(e);
+      await test.logger(e);
     } finally {
       await test.close();
     }
@@ -93,13 +96,14 @@ const chatTest = () => {
     let screenshot;
     try {
       const testName = 'saveChat';
-      console.log(testName);
+      await test.logger('begin of ', testName);
       await test.init(Page.getArgs());
       await test.closeAudioModal();
       response = await test.test(testName);
       screenshot = await test.page.screenshot();
+      await test.logger('end of ', testName);
     } catch (e) {
-      console.log(e);
+      await test.logger(e);
     } finally {
       await test.close();
     }
@@ -118,14 +122,15 @@ const chatTest = () => {
     let screenshot;
     try {
       const testName = 'sendPrivateChat';
-      console.log(testName);
+      await test.page1.logger('begin of ', testName);
       await test.init();
       await test.page1.closeAudioModal();
       await test.page2.closeAudioModal();
       response = await test.multiUsersPrivateChat(testName);
       screenshot = await test.page1.page.screenshot();
+      await test.page1.logger('end of ', testName);
     } catch (e) {
-      console.log(e);
+      await test.page1.logger(e);
     } finally {
       await test.close(test.page1, test.page2);
     }
@@ -144,14 +149,15 @@ const chatTest = () => {
     let screenshot;
     try {
       const testName = 'sendPublicChat';
-      console.log(testName);
+      await test.page1.logger('begin of ', testName);
       await test.init();
       await test.page1.closeAudioModal();
       await test.page2.closeAudioModal();
       response = await test.multiUsersPublicChat(testName);
       screenshot = await test.page1.page.screenshot();
+      await test.page1.logger('end of ', testName);
     } catch (e) {
-      console.log(e);
+      await test.page1.logger(e);
     } finally {
       await test.close(test.page1, test.page2);
     }

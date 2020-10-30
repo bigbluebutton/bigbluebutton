@@ -12,7 +12,7 @@ class Upload extends Page {
     await this.waitForSelector(we.whiteboard);
     await this.waitForSelector(e.skipSlide);
 
-    const slides0 = await this.getTestElements();
+    const slides0 = await this.page.evaluate(async() => await document.querySelector('svg g g g').outerHTML);
 
     await this.click(ce.actions);
     await this.click(e.uploadPresentation);
@@ -40,7 +40,7 @@ class Upload extends Page {
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await this.screenshot(`${testName}`, `02-after-presentation-upload-[${testName}]`);
     }
-    const slides1 = await this.getTestElements();
+    const slides1 = await this.page.evaluate(async() => await document.querySelector('svg g g g').outerHTML);
 
     console.log('\nSlides before presentation upload:');
     console.log(slides0);

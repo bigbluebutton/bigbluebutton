@@ -8,35 +8,27 @@ class Slide extends Page {
   }
 
   async test() {
+        
     await this.waitForSelector(we.whiteboard);
     await this.waitForSelector(e.presentationToolbarWrapper);
+    
+    const svg0 = await this.page.evaluate(async() => await document.querySelector('svg g g g').outerHTML.indexOf('/svg/1') !== -1);
 
-    await this.screenshot(true);
-    const svg0 = await this.getTestElements();
-
+    await this.waitForSelector(e.nextSlide);
     await this.click(e.nextSlide, true);
+    await this.waitForSelector(we.whiteboard);
+    await this.page.waitFor(1000)
+    
+    const svg1 = await this.page.evaluate(async() => await document.querySelector('svg g g g').outerHTML.indexOf('/svg/2') !== -1);
 
-    await this.screenshot(true);
-    const svg1 = await this.getTestElements();
-
+    await this.waitForSelector(e.prevSlide);
     await this.click(e.prevSlide, true);
+    await this.waitForSelector(we.whiteboard);
+    await this.page.waitFor(1000)
 
-    await this.screenshot(true);
-    const svg2 = await this.getTestElements();
+    const svg2 = await this.page.evaluate(async() => await document.querySelector('svg g g g').outerHTML.indexOf('/svg/1') !== -1);
 
-    console.log('\nStarting slide:');
-    console.log(svg0);
-    console.log('\nAfter next slide:');
-    console.log(svg1);
-    console.log('\nAfter previous slide:');
-    console.log(svg2);
-
-    return svg0 !== svg1 && svg1 !== svg2;
-  }
-
-  async getTestElements() {
-    const svg = await this.page.evaluate(() => document.querySelector('svg g g g').outerHTML);
-    return svg;
+    return svg0 === true && svg1 === true && svg2 === true;
   }
 }
 
