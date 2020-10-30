@@ -556,7 +556,7 @@ class PresentationUploader extends Component {
     };
 
     const hideRemove = this.isDefault(item);
-    const formattedDownloadableLabel = item.isDownloadable
+    const formattedDownloadableLabel = !item.isDownloadable
       ? intl.formatMessage(intlMessages.isDownloadable)
       : intl.formatMessage(intlMessages.isNotDownloadable);
 
