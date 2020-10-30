@@ -46,8 +46,8 @@ class LockRemoteDesktopButton extends Component {
     this.handleOnClick = this.handleOnClick.bind(this);
     this.state = {
       desktopLocked: (((window.VncDisplay === undefined) || (window.VncDisplay === null))
-                      ? START_VIEWONLY
-                      : window.VncDisplay.rfb._view_only),
+        ? START_VIEWONLY
+        : window.VncDisplay.rfb._view_only),
     };
   }
 

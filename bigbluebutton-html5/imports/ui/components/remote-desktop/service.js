@@ -3,9 +3,7 @@ import Auth from '/imports/ui/services/auth';
 
 import { makeCall } from '/imports/ui/services/api';
 
-const isUrlValid = (url) => {
-  return (typeof(url) == 'string' && url.startsWith('wss:'));
-}
+const isUrlValid = url => (typeof (url) === 'string' && url.startsWith('wss:'));
 
 const startWatching = (remoteDesktopUrl) => {
   makeCall('startWatchingRemoteDesktop', { remoteDesktopUrl });
