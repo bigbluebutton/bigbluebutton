@@ -20,9 +20,15 @@ class MeetingService {
     getCurrentMeeting = () => Meetings.findOne({ meetingId: Auth.meetingID });
 
     getLanguages () {
+        let meetingId = Auth.meetingID;
+        if(this.isBreakout()){
+            let meeting = this.getCurrentMeeting()
+            let parentId = meeting.breakoutProps.parentId;
+            meetingId = parentId;
+        }
         let meetingLanguages = []
         const meeting = Meetings.findOne(
-            { meetingId: Auth.meetingID },
+            { meetingId: meetingId },
             { fields: { 'languages': 1 } });
         if('languages' in meeting) {
             meetingLanguages = meeting.languages;
