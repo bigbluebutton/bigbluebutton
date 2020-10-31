@@ -64,6 +64,7 @@ class AudioManager {
     this.failedMediaElements = [];
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.monitor = this.monitor.bind(this);
+    this.translatorVolumeGainNode = new AudioContext().createGain();
   }
 
   init(userData) {
@@ -672,10 +673,19 @@ class AudioManager {
     }
 
     if( languageExtension >= 0 ) {
+
+      let audioContext = this.translatorVolumeGainNode.context;
+      let microDestinationNode = audioContext.createMediaStreamDestination();
+      let microAudioNode = audioContext.createMediaStreamSource(this.inputStream);
+      microAudioNode.connect(this.translatorVolumeGainNode)
+      this.translatorVolumeGainNode.connect(microDestinationNode);
+
+      let inputStream = microDestinationNode.stream;
+
       const callOptions = {
         isListenOnly: false,
         extension: null,
-        inputStream: this.inputStream,
+        inputStream: inputStream,
       };
       this.translatorBridge.userData.voiceBridge = this.userData.voiceBridge.toString()+languageExtension;
       this.translatorBridge.joinAudio(callOptions, function () {
@@ -683,6 +693,10 @@ class AudioManager {
         });
       });
     }
+  }
+
+  setTranslatorVolume(translatorVolume) {
+    this.translatorVolumeGainNode.gain.value = translatorVolume;
   }
 }
 
