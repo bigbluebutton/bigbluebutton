@@ -26,7 +26,12 @@ const defaultProps = {
   breakouts: [],
 };
 
-const openBreakoutJoinConfirmation = (breakout, breakoutName, mountModal) => {};
+const openBreakoutJoinConfirmation = (breakout, breakoutName, mountModal) => mountModal(
+  <BreakoutJoinConfirmation
+    breakout={breakout}
+    breakoutName={breakoutName}
+  />,
+);
 
 const closeBreakoutJoinConfirmation = mountModal => mountModal(null);
 
