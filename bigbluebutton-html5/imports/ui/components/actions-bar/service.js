@@ -1,5 +1,6 @@
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
+import VoiceUsers from '/imports/api/users';
 import { makeCall } from '/imports/ui/services/api';
 import Meetings from '/imports/api/meetings';
 import Breakouts from '/imports/api/breakouts';
@@ -27,6 +28,16 @@ const getUsersNotAssigned = filterBreakoutUsers(currentBreakoutUsers);
 
 const takePresenterRole = () => makeCall('assignPresenter', Auth.userID);
 
+const muteMicrophone = () => {
+  const user = VoiceUsers.findOne(
+    { meetingId: Auth.meetingID, intId: Auth.userID, },
+    { fields: { muted: 1 } });
+
+  if (!user.muted) {
+    makeCall('toggleVoice');
+  }
+}
+
 export default {
   amIPresenter: () => Users.findOne({ userId: Auth.userID },
     { fields: { presenter: 1 } }).presenter,
@@ -51,4 +62,5 @@ export default {
   getUsersNotAssigned,
   takePresenterRole,
   isSharingVideo: () => getVideoUrl(),
+  muteMicrophone,
 };
