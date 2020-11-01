@@ -29,16 +29,18 @@ class LanguageOverlay extends Component{
         </div>);
     }
     componentDidMount() {
-        let languages = Meeting.getLanguages();
-        if(this.props.filteredLanguages) {
-            let filteredLanguageExtensions = new Set(this.props.filteredLanguages
-                .map(language => language.extension));
-            languages = languages.filter(language => !filteredLanguageExtensions.has(language.extension));
-        }
-        this.state.languages = languages
-        this.state.languages.push({name: "Original", extension:-1})
-        this.setState(this.state)
-        harborRender()
+        Meeting.getLanguages().then(languages => {
+            if(this.props.filteredLanguages) {
+                let filteredLanguageExtensions = new Set(this.props.filteredLanguages
+                    .map(language => language.extension));
+                languages = languages.filter(language => !filteredLanguageExtensions.has(language.extension));
+            }
+            this.state.languages = languages
+            this.state.languages.push({name: "None", extension:-1})
+            this.setState(this.state)
+            harborRender()
+        });
+
     }
 }
 

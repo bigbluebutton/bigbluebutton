@@ -1,7 +1,7 @@
 import Breakouts from '/imports/api/breakouts';
 import Auth from '/imports/ui/services/auth';
 import Language from "../../components/translations/LanguageField/component";
-import { makeCall } from '/imports/ui/services/api';
+import {makeCall} from '/imports/ui/services/api';
 import Meetings from '/imports/api/meetings/index.js'
 
 class MeetingService {
@@ -17,38 +17,40 @@ class MeetingService {
         return BreakoutRooms;
     };
 
-    getCurrentMeeting = () => Meetings.findOne({ meetingId: Auth.meetingID });
+    getCurrentMeeting = () => Meetings.findOne({meetingId: Auth.meetingID});
 
-    getLanguages () {
+    async getLanguages() {
         let meetingId = Auth.meetingID;
-        if(this.isBreakout()){
-            let meeting = this.getCurrentMeeting()
-            let parentId = meeting.breakoutProps.parentId;
-            meetingId = parentId;
-        }
+        let meeting;
         let meetingLanguages = []
-        const meeting = Meetings.findOne(
-            { meetingId: meetingId },
-            { fields: { 'languages': 1 } });
-        if('languages' in meeting) {
+        if (this.isBreakout()) {
+            meeting = await makeCall("getParentMeeting")
+        } else {
+            meeting = Meetings.findOne(
+                {meetingId: meetingId},
+                {fields: {'languages': 1}});
+        }
+
+
+        if (meeting && 'languages' in meeting) {
             meetingLanguages = meeting.languages;
         }
 
         return meetingLanguages;
     }
 
-    clearLanguages () {
+    clearLanguages() {
         this.setLanguages([]);
     }
 
-    setLanguages( languageDesignations ) {
+    setLanguages(languageDesignations) {
         makeCall('setLanguages', languageDesignations)
     }
 
     isBreakout() {
         const meeting = Meetings.findOne(
-            { meetingId: Auth.meetingID },
-            { fields: { 'meetingProp.isBreakout': 1 } });
+            {meetingId: Auth.meetingID},
+            {fields: {'meetingProp.isBreakout': 1}});
         return (meeting && meeting.meetingProp.isBreakout);
     }
 }
