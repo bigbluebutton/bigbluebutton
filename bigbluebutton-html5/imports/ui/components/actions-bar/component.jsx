@@ -15,6 +15,7 @@ import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import AudioManager from '/imports/ui/services/audio-manager';
 import {makeCall} from "../../services/api";
 import LanguageOverlay from '/imports/ui/components/LanguageOverlay/component'
+import Service from './service';
 
 class ActionsBar extends PureComponent {
   constructor(props) {
@@ -65,6 +66,7 @@ class ActionsBar extends PureComponent {
   handleTranslatorLanguageSelection(language){
     this.state.translatorLanguage = language
     AudioManager.openTranslatorChannel(language.extension)
+    Service.muteMicrophone();
     this.setState(this.state)
     this.forceUpdate()
   }
