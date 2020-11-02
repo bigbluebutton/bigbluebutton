@@ -40,12 +40,12 @@ class VideoListItem extends Component {
   componentDidMount() {
     const { onMount, webcamDraggableDispatch } = this.props;
 
-    // webcamDraggableDispatch(
-    //   {
-    //     type: 'setVideoRef',
-    //     value: this.videoTag,
-    //   },
-    // );
+    webcamDraggableDispatch(
+      {
+        type: 'setVideoRef',
+        value: this.videoTag,
+      },
+    );
 
     onMount(this.videoTag);
 
@@ -143,7 +143,6 @@ class VideoListItem extends Component {
       numOfStreams,
       webcamDraggableState,
       swapLayout,
-      users,
     } = this.props;
     const availableActions = this.getAvailableActions();
     const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
@@ -158,12 +157,10 @@ class VideoListItem extends Component {
       })}
       >
         {
-          !videoIsReady
-            && (
+          !videoIsReady &&
             <div data-test="webcamConnecting" className={styles.connecting}>
               <span className={styles.loadingText}>{name}</span>
             </div>
-            )
         }
         <div
           className={styles.videoContainer}
@@ -174,10 +171,10 @@ class VideoListItem extends Component {
             data-test="videoContainer"
             className={cx({
               [styles.media]: true,
-              // [styles.cursorGrab]: !webcamDraggableState.dragging
-              //   && !isFullscreen && !swapLayout,
-              // [styles.cursorGrabbing]: webcamDraggableState.dragging
-              //   && !isFullscreen && !swapLayout,
+              [styles.cursorGrab]: !webcamDraggableState.dragging
+                && !isFullscreen && !swapLayout,
+              [styles.cursorGrabbing]: webcamDraggableState.dragging
+                && !isFullscreen && !swapLayout,
               [styles.mirroredVideo]: this.mirrorOwnWebcam,
             })}
             ref={(ref) => { this.videoTag = ref; }}
@@ -186,40 +183,38 @@ class VideoListItem extends Component {
           />
           {videoIsReady && this.renderFullscreenButton()}
         </div>
-        { videoIsReady
-          && (
+        { videoIsReady &&
           <div className={styles.info}>
-            {enableVideoMenu && availableActions.length >= 3
-              ? (
-                <Dropdown className={isFirefox ? styles.dropdownFireFox : styles.dropdown}>
-                  <DropdownTrigger className={styles.dropdownTrigger}>
-                    <span>{name}</span>
-                  </DropdownTrigger>
-                  <DropdownContent placement="top left" className={styles.dropdownContent}>
-                    <DropdownList className={styles.dropdownList}>
-                      {availableActions}
-                    </DropdownList>
-                  </DropdownContent>
-                </Dropdown>
-              )
-              : (
-                <div className={isFirefox ? styles.dropdownFireFox
-                  : styles.dropdown}
+          {enableVideoMenu && availableActions.length >= 3
+            ? (
+              <Dropdown className={isFirefox ? styles.dropdownFireFox : styles.dropdown}>
+                <DropdownTrigger className={styles.dropdownTrigger}>
+                  <span>{name}</span>
+                </DropdownTrigger>
+                <DropdownContent placement="top left" className={styles.dropdownContent}>
+                  <DropdownList className={styles.dropdownList}>
+                    {availableActions}
+                  </DropdownList>
+                </DropdownContent>
+              </Dropdown>
+            )
+            : (
+              <div className={isFirefox ? styles.dropdownFireFox
+                : styles.dropdown}
+              >
+                <span className={cx({
+                  [styles.userName]: true,
+                  [styles.noMenu]: numOfStreams < 3,
+                })}
                 >
-                  <span className={cx({
-                    [styles.userName]: true,
-                    [styles.noMenu]: numOfStreams < 3,
-                  })}
-                  >
-                    {name}
-                  </span>
-                </div>
-              )
+                  {name}
+                </span>
+              </div>
+            )
           }
-            {voiceUser.muted && !voiceUser.listenOnly ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
-            {voiceUser.listenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
-          </div>
-          )
+          {voiceUser.muted && !voiceUser.listenOnly ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
+          {voiceUser.listenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
+        </div>
         }
       </div>
     );

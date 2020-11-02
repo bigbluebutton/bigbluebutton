@@ -28,4 +28,5 @@ export default withTracker(() => ({
   screenShareEndAlert,
   isMeteorConnected: Meteor.status().connected,
   screenshareDataSavingSetting: dataSavingSetting(),
+  enableVideo: getFromUserSettings('bbb_enable_video', Meteor.settings.public.kurento.enableVideo),
 }))(FooterContainer);

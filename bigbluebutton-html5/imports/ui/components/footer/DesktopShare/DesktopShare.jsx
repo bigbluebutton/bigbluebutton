@@ -182,6 +182,7 @@ const DesktopShare = ({
 
   return shouldAllowScreensharing
     ? (
+
       <IconButton
         disabled={(!isMeteorConnected && !isVideoBroadcasting) || !screenshareDataSavingSetting}
         color={isVideoBroadcasting ? 'error' : 'secondary'}

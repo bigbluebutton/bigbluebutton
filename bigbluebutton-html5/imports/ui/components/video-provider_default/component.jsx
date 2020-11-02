@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
 import VideoService from './service';
 import VideoListContainer from './video-list/container';
+import { defineMessages, injectIntl } from 'react-intl';
 import {
   fetchWebRTCMappedStunTurnServers,
   getMappedFallbackStun,
 } from '/imports/utils/fetchStunTurnServers';
 import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import logger from '/imports/startup/client/logger';
+import _ from 'lodash';
 
 // Default values and default empty object to be backwards compat with 2.2.
 // FIXME Remove hardcoded defaults 2.3.
@@ -122,7 +122,7 @@ class VideoProvider extends Component {
     this.debouncedConnectStreams = _.debounce(
       this.connectStreams,
       VideoService.getPageChangeDebounceTime(),
-      { leading: false, trailing: true },
+      { leading: false, trailing: true, }
     );
   }
 
@@ -229,15 +229,15 @@ class VideoProvider extends Component {
     this.setState({ socketOpen: true });
   }
 
-  updateThreshold(numberOfPublishers) {
+  updateThreshold (numberOfPublishers) {
     const { threshold, profile } = VideoService.getThreshold(numberOfPublishers);
     if (profile) {
       const publishers = Object.values(this.webRtcPeers)
         .filter(peer => peer.isPublisher)
-        .forEach((peer) => {
+        .forEach(peer => {
           // 0 means no threshold in place. Reapply original one if needed
-          const profileToApply = (threshold === 0) ? peer.originalProfileId : profile;
-          VideoService.applyCameraProfile(peer, profileToApply);
+          let profileToApply = (threshold === 0) ? peer.originalProfileId : profile;
+          VideoService.applyCameraProfile(peer, profileToApply)
         });
     }
   }
@@ -271,7 +271,7 @@ class VideoProvider extends Component {
   updateStreams(streams, shouldDebounce = false) {
     const [streamsToConnect, streamsToDisconnect] = this.getStreamsToConnectAndDisconnect(streams);
 
-    if (shouldDebounce) {
+    if(shouldDebounce) {
       this.debouncedConnectStreams(streamsToConnect);
     } else {
       this.connectStreams(streamsToConnect);
@@ -679,7 +679,7 @@ class VideoProvider extends Component {
 
       this.restartTimeout[cameraId] = setTimeout(
         this._getWebRTCStartTimeout(cameraId, isLocal),
-        this.restartTimer[cameraId],
+        this.restartTimer[cameraId]
       );
     }
   }

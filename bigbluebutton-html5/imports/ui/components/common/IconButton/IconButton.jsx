@@ -38,7 +38,7 @@ const IconButton = ({
   };
 
   if (color === COLOR_TYPE.PRIMARY) {
-    buttonColor = 'bg-blue-100 hover:bg-blue-300';
+    buttonColor = 'bg-white hover:bg-gray-200';
   }
 
   if (color === COLOR_TYPE.SECONDARY) {
