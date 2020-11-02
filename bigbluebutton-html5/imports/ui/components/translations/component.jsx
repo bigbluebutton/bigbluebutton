@@ -4,6 +4,8 @@ import Language from "./LanguageField/component";
 import React, { Component } from 'react';
 import { makeCall } from '/imports/ui/services/api';
 import Meeting from "/imports/ui/services/meeting";
+import Button from '/imports/ui/components/button/component';
+
 
 class Translations extends Component{
 
@@ -84,7 +86,17 @@ class Translations extends Component{
         }
         return (
             <div key={"translation"} className={styles.translationPanel}>
-                <span>Translations</span>
+                <Button
+                    onClick={() => {
+                        Session.set('idChatOpen', '');
+                        Session.set('openPanel', 'userlist');
+                        window.dispatchEvent(new Event('panelChanged'));
+                    }}
+                    aria-label=""
+                    label="Translations"
+                    icon="left_arrow"
+                    className={styles.hideBtn}
+                />
                 {this.state.languages.map(function (language, index) {
                     if(language.edit){
                         return <NewLanguage  key={index} index={index} creationHandler={this.creationHandler}/>
