@@ -181,7 +181,7 @@ module BigBlueButton
         f = File.open("#{bdir+id}.html", 'w')
         f.puts "<span STYLE=\"font-family: 'sans-serif';\">#{nm.gsub(/&/,"&amp;").gsub(/</,"&lt;").gsub(/>/,"&gt;")}</span>"
         f.close
-        BigBlueButton.execute("/usr/lib/libreoffice/program/soffice.bin --terminate_after_init -env:UserInstallation=file://#{sofficedir}") unless File.exist?(sofficedir)
+        BigBlueButton.execute("/usr/lib/libreoffice/program/soffice.bin --terminate_after_init -env:UserInstallation=file://#{sofficedir}", false) unless File.exist?(sofficedir)
         BigBlueButton.execute("/usr/lib/libreoffice/program/soffice.bin --headless --norestore --writer --convert-to pdf --outdir #{bdir} -env:UserInstallation=file://#{sofficedir} #{bdir+id}.html", false)
         pdffont = NAME_DEF
         if File.exist?("#{bdir+id}.pdf")
