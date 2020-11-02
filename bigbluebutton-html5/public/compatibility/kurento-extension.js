@@ -357,6 +357,11 @@ Kurento.prototype.startResponse = function (message) {
 
         return this.onFail(error);
       }
+
+      this.logger.info({
+        logCode: 'kurentoextension_process_answer',
+      }, `Answer processed with success`);
+
       // Mark the peer as negotiated and flush the ICE queue
       this.webRtcPeer.negotiated = true;
       this.processIceQueue();

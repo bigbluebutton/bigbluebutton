@@ -88,4 +88,5 @@ export default {
   isVoiceUser,
   autoplayBlocked: () => AudioManager.autoplayBlocked,
   handleAllowAutoplay: () => AudioManager.handleAllowAutoplay(),
+  playAlertSound: url => AudioManager.playAlertSound(url),
 };

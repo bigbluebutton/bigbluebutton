@@ -42,6 +42,7 @@ export default class LineDrawComponent extends Component {
         strokeLinejoin="round"
         strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
+        data-test="drawnLine"
       />
     );
   }

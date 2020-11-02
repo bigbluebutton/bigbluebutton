@@ -27,7 +27,7 @@ import java.util.*;
  * Source:<br>
  * Phoenix: An Interactive Curve Design System Based on the Automatic Fitting
  * of Hand-Sketched Curves.<br>
- * © Copyright by Philip J. Schneider 1988.<br>
+ * Copyright (c) by Philip J. Schneider 1988.<br>
  * A thesis submitted in partial fulfillment of the requirements for the degree
  * of Master of Science, University of Washington.
  * <p>
@@ -238,7 +238,7 @@ public class Bezier {
      * @param digitizedPoints Digitized points 
      * @param maxAngle maximal angle in radians between the current point and its
      * predecessor and successor up to which the point does not break the
-     * digitized list into segments. Recommended value 44° = 44 * 180d / Math.PI
+     * digitized list into segments. Recommended value 44 deg = 44 * 180d / Math.PI
      * @return Segments of digitized points, each segment having less than maximal
      * angle between points.
      */

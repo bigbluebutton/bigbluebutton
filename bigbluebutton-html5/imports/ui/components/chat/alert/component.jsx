@@ -83,7 +83,7 @@ class ChatAlert extends PureComponent {
         const thisChatUnreadMessages = UnreadMessages.getUnreadMessages(chatId);
 
         unalertedMessagesByChatId[chatId] = thisChatUnreadMessages.filter((msg) => {
-          const messageChatId = (msg.chatId === 'MAIN-PUBLIC-GROUP-CHAT') ? msg.chatId : msg.sender;
+          const messageChatId = (msg.chatId === 'MAIN-PUBLIC-GROUP-CHAT') ? msg.chatId : msg.sender.id;
           const retorno = (msg
             && msg.timestamp > alertEnabledTimestamp
             && msg.timestamp > joinTimestamp

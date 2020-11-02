@@ -35,10 +35,7 @@ export function publishCursorUpdate(payload) {
 }
 
 export function initCursorStreamListener() {
-  logger.info({
-    logCode: 'init_cursor_stream_listener',
-    extraInfo: { meetingId: Auth.meetingID, userId: Auth.userID },
-  }, 'initCursorStreamListener called');
+  logger.info({ logCode: 'init_cursor_stream_listener' }, 'initCursorStreamListener called');
 
   /**
   * We create a promise to add the handlers after a ddp subscription stop.
@@ -60,9 +57,7 @@ export function initCursorStreamListener() {
   });
 
   startStreamHandlersPromise.then(() => {
-    logger.debug({
-      logCode: 'init_cursor_stream_listener',
-    }, 'initCursorStreamListener called');
+    logger.debug({ logCode: 'cursor_stream_handler_attach' }, 'Attaching handlers for cursor stream');
 
     cursorStreamListener.on('message', ({ cursors }) => {
       Object.keys(cursors).forEach((userId) => {

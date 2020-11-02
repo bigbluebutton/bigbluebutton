@@ -116,7 +116,7 @@ export default injectIntl(withTracker(({ intl }) => {
 
     const messagesFormated = messagesBeforeWelcomeMsg
       .concat(welcomeMsg)
-      .concat((amIModerator && modOnlyMessage) || [])
+      .concat((amIModerator && modOnlyMessage) ? moderatorMsg : [])
       .concat(messagesAfterWelcomeMsg);
 
     messages = messagesFormated.sort((a, b) => (a.time - b.time));
@@ -124,12 +124,15 @@ export default injectIntl(withTracker(({ intl }) => {
     messages = ChatService.getPrivateGroupMessages();
 
     const receiverUser = ChatService.getUser(chatID);
-    chatName = receiverUser.name;
-    systemMessageIntl = { 0: receiverUser.name };
-    title = intl.formatMessage(intlMessages.titlePrivate, systemMessageIntl);
-    partnerIsLoggedOut = receiverUser.connectionStatus !== CONNECTION_STATUS;
+    const privateChat = ChatService.getPrivateChatByUsers(chatID);
 
-    if (partnerIsLoggedOut) {
+    chatName = receiverUser?.name || privateChat.participants.filter(u => u.id === chatID).pop().name;
+
+    systemMessageIntl = { 0: chatName };
+    title = intl.formatMessage(intlMessages.titlePrivate, systemMessageIntl);
+    partnerIsLoggedOut = !!receiverUser;
+
+    if (!partnerIsLoggedOut) {
       const time = Date.now();
       const id = `partner-disconnected-${time}`;
       const messagePartnerLoggedOut = {
@@ -154,7 +157,7 @@ export default injectIntl(withTracker(({ intl }) => {
   }
 
   messages = messages.map((message) => {
-    if (message.sender && message.sender !== SYSTEM_CHAT_TYPE) return message;
+    if (message.sender && message.sender.id !== SYSTEM_CHAT_TYPE) return message;
 
     return {
       ...message,

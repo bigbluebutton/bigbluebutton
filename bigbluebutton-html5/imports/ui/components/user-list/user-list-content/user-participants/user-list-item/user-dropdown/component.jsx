@@ -53,9 +53,9 @@ const messages = defineMessages({
     id: 'app.audio.backLabel',
     description: 'label for option to hide emoji menu',
   },
-  ChatLabel: {
+  StartPrivateChat: {
     id: 'app.userList.menu.chat.label',
-    description: 'Save the changes and close the settings menu',
+    description: 'label for option to start a new private chat',
   },
   ClearStatusLabel: {
     id: 'app.userList.menu.clearStatus.label',
@@ -332,7 +332,7 @@ class UserDropdown extends PureComponent {
     if (showChatOption) {
       actions.push(this.makeDropdownItem(
         'activeChat',
-        intl.formatMessage(messages.ChatLabel),
+        intl.formatMessage(messages.StartPrivateChat),
         () => {
           getGroupChatPrivate(currentUser.userId, user);
           Session.set('openPanel', 'chat');
