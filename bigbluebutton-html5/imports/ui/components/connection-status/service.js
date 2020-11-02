@@ -87,6 +87,7 @@ const getConnectionStatus = () => {
         userId: 1,
         name: 1,
         role: 1,
+        avatar: 1,
         color: 1,
         connectionStatus: 1,
       },
@@ -96,6 +97,7 @@ const getConnectionStatus = () => {
       userId,
       name,
       role,
+      avatar,
       color,
       connectionStatus: userStatus,
     } = user;
@@ -105,6 +107,7 @@ const getConnectionStatus = () => {
     if (status) {
       result.push({
         name,
+        avatar,
         offline: userStatus === 'offline',
         you: Auth.userID === userId,
         moderator: role === ROLE_MODERATOR,

@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import PollService from '/imports/ui/components/poll/service';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { injectIntl, defineMessages } from 'react-intl';
 import styles from './styles';
+import { prototype } from 'clipboard';
 
 const intlMessages = defineMessages({
   pollResultAria: {
@@ -608,7 +609,7 @@ class PollDrawComponent extends Component {
     });
 
     return (
-      <g aria-label={ariaResultLabel}>
+      <g aria-label={ariaResultLabel} data-test="pollResultAria">
         {prepareToDisplay
           ? this.renderTestStrings()
           : this.renderPoll()
@@ -621,7 +622,7 @@ class PollDrawComponent extends Component {
 export default injectIntl(PollDrawComponent);
 
 PollDrawComponent.propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   // Defines an annotation object, which contains all the basic info we need to draw a line
   annotation: PropTypes.shape({
     id: PropTypes.string.isRequired,

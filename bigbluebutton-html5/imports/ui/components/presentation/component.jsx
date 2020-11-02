@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import CursorWrapperContainer from './cursor/cursor-wrapper-container/container';
@@ -33,6 +33,18 @@ const intlMessages = defineMessages({
   downloadLabel: {
     id: 'app.presentation.downloadLabel',
     description: 'label for downloadable presentations',
+  },
+  slideContentStart: {
+    id: 'app.presentation.startSlideContent',
+    description: 'Indicate the slide content start',
+  },
+  slideContentEnd: {
+    id: 'app.presentation.endSlideContent',
+    description: 'Indicate the slide content end',
+  },
+  noSlideContent: {
+    id: 'app.presentation.emptySlideContent',
+    description: 'No content available for slide',
   },
 });
 
@@ -100,7 +112,14 @@ class PresentationArea extends PureComponent {
     window.addEventListener('webcamAreaResize', this.handleResize, false);
 
     const { slidePosition, layoutContextDispatch } = this.props;
-    const { width: currWidth, height: currHeight } = slidePosition;
+
+    let currWidth = 0;
+    let currHeight = 0;
+
+    if (slidePosition) {
+      currWidth = slidePosition.width;
+      currHeight = slidePosition.height;
+    }
 
     layoutContextDispatch({
       type: 'setPresentationSlideSize',
@@ -494,6 +513,7 @@ class PresentationArea extends PureComponent {
   // renders the whole presentation area
   renderPresentationArea(svgDimensions, viewBoxDimensions) {
     const {
+      intl,
       podId,
       currentSlide,
       slidePosition,
@@ -517,6 +537,7 @@ class PresentationArea extends PureComponent {
 
     const {
       imageUri,
+      content,
     } = currentSlide;
 
     let viewBoxPosition;
@@ -544,6 +565,10 @@ class PresentationArea extends PureComponent {
     const svgViewBox = `${viewBoxPosition.x} ${viewBoxPosition.y} `
       + `${viewBoxDimensions.width} ${Number.isNaN(viewBoxDimensions.height) ? 0 : viewBoxDimensions.height}`;
 
+    const slideContent = content ? `${intl.formatMessage(intlMessages.slideContentStart)}
+      ${content}
+      ${intl.formatMessage(intlMessages.slideContentEnd)}` : intl.formatMessage(intlMessages.noSlideContent);
+
     return (
       <div
         style={{
@@ -554,6 +579,7 @@ class PresentationArea extends PureComponent {
           display: layoutSwapped ? 'none' : 'block',
         }}
       >
+        <span id="currentSlideText" className={styles.visuallyHidden}>{slideContent}</span>
         {this.renderPresentationClose()}
         {this.renderPresentationDownload()}
         {this.renderPresentationFullscreen()}
@@ -828,7 +854,7 @@ class PresentationArea extends PureComponent {
 export default injectIntl(withDraggableConsumer(withLayoutConsumer(PresentationArea)));
 
 PresentationArea.propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   podId: PropTypes.string.isRequired,
   // Defines a boolean value to detect whether a current user is a presenter
   userIsPresenter: PropTypes.bool.isRequired,

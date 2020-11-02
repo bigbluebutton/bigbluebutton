@@ -96,6 +96,7 @@ const ChatListItem = (props) => {
               <ChatAvatar
                 isModerator={chat.isModerator}
                 color={chat.color}
+                avatar={chat.avatar}
                 name={chat.name.toLowerCase().slice(0, 2)}
               />
             )}

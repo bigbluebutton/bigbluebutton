@@ -98,27 +98,6 @@ class PanelManager extends Component {
     this.setUserListWidth = this.setUserListWidth.bind(this);
   }
 
-  shouldComponentUpdate(prevProps) {
-    const { layoutContextState } = this.props;
-    const { layoutContextState: prevLayoutContextState } = prevProps;
-    const {
-      userListSize,
-      chatSize,
-      breakoutRoomSize,
-    } = layoutContextState;
-    const {
-      userListSize: prevUserListSize,
-      chatSize: prevChatSize,
-      breakoutRoomSize: prevBreakoutRoomSize,
-    } = prevLayoutContextState;
-
-    if ((layoutContextState !== prevLayoutContextState)
-      && (userListSize.width === prevUserListSize.width
-        && chatSize.width === prevChatSize.width
-        && breakoutRoomSize.width === prevBreakoutRoomSize.width)) return false;
-    return true;
-  }
-
   componentDidUpdate(prevProps) {
     const {
       userlistWidth,

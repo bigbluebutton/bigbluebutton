@@ -31,7 +31,6 @@ export default {
   meetingName: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'meetingProp.name': 1 } }).meetingProp.name,
   users: () => Users.find({
-    connectionStatus: 'online',
     meetingId: Auth.meetingID,
     clientType: { $ne: DIAL_IN_USER },
   }).fetch(),

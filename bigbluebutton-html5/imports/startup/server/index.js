@@ -8,16 +8,40 @@ import { lookup as lookupUserAgent } from 'useragent';
 import { check } from 'meteor/check';
 import Logger from './logger';
 import Redis from './redis';
-import setMinBrowserVersions from './minBrowserVersion';
-import userLeaving from '/imports/api/users/server/methods/userLeaving';
 
+import setMinBrowserVersions from './minBrowserVersion';
+
+let guestWaitHtml = '';
 const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
-let avaibleLocalesNames = [];
+const FALLBACK_LOCALES = JSON.parse(Assets.getText('config/fallbackLocales.json'));
+
+const generateLocaleOptions = () => {
+  try {
+    Logger.warn('Calculating aggregateLocales (heavy)');
+    const tempAggregateLocales = AVAILABLE_LOCALES
+      .map(file => file.replace('.json', ''))
+      .map(file => file.replace('_', '-'))
+      .map((locale) => {
+        const localeName = (Langmap[locale] || {}).nativeName
+          || (FALLBACK_LOCALES[locale] || {}).nativeName
+          || locale;
+        return {
+          locale,
+          name: localeName,
+        };
+      });
+    Logger.warn(`Total locales: ${tempAggregateLocales.length}`, tempAggregateLocales);
+    return tempAggregateLocales;
+  } catch (e) {
+    Logger.error(`'Could not process locales error: ${e}`);
+    return [];
+  }
+};
+
+let avaibleLocalesNamesJSON = JSON.stringify(generateLocaleOptions());
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
-  const INTERVAL_IN_SETTINGS = (Meteor.settings.public.pingPong.clearUsersInSeconds) * 1000;
-  const INTERVAL_TIME = INTERVAL_IN_SETTINGS < 10000 ? 10000 : INTERVAL_IN_SETTINGS;
   const env = Meteor.isDevelopment ? 'development' : 'production';
   const CDN_URL = APP_CONFIG.cdn;
 
@@ -74,28 +98,6 @@ Meteor.startup(() => {
 
   setMinBrowserVersions();
 
-  Meteor.setInterval(() => {
-    const currentTime = Date.now();
-    Logger.info('Checking for inactive users');
-    const users = Users.find({
-      connectionStatus: 'online',
-      clientType: 'HTML5',
-      lastPing: {
-        $lt: (currentTime - INTERVAL_TIME), // get user who has not pinged in the last 10 seconds
-      },
-      loginTime: {
-        $lt: (currentTime - INTERVAL_TIME),
-      },
-    }).fetch();
-    if (!users.length) return Logger.info('No inactive users');
-    Logger.info('Removing inactive users');
-    users.forEach((user) => {
-      Logger.info(`Detected inactive user, userId:${user.userId}, meetingId:${user.meetingId}`);
-      return userLeaving(user.meetingId, user.userId, user.connectionId);
-    });
-    return Logger.info('All inactive users have been removed');
-  }, INTERVAL_TIME);
-
   Logger.warn(`SERVER STARTED.\nENV=${env},\nnodejs version=${process.version}\nCDN=${CDN_URL}\n`, APP_CONFIG);
 });
 
@@ -141,7 +143,7 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
       messages = Object.assign(messages, JSON.parse(data));
       normalizedLocale = locale;
     } catch (e) {
-      Logger.warn(`'Could not process locale ${locale}:${e}`);
+      Logger.info(`'Could not process locale ${locale}:${e}`);
       // Getting here means the locale is not available in the current locale files.
     }
   });
@@ -151,23 +153,13 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
 });
 
 WebApp.connectHandlers.use('/locales', (req, res) => {
-  if (!avaibleLocalesNames.length) {
-    try {
-      avaibleLocalesNames = AVAILABLE_LOCALES
-        .map(file => file.replace('.json', ''))
-        .map(file => file.replace('_', '-'))
-        .map(locale => ({
-          locale,
-          name: Langmap[locale].nativeName,
-        }));
-    } catch (e) {
-      Logger.warn(`'Could not process locales error: ${e}`);
-    }
+  if (!avaibleLocalesNamesJSON) {
+    avaibleLocalesNamesJSON = JSON.stringify(generateLocaleOptions());
   }
 
   res.setHeader('Content-Type', 'application/json');
   res.writeHead(200);
-  res.end(JSON.stringify(avaibleLocalesNames));
+  res.end(avaibleLocalesNamesJSON);
 });
 
 WebApp.connectHandlers.use('/feedback', (req, res) => {
@@ -192,7 +184,6 @@ WebApp.connectHandlers.use('/feedback', (req, res) => {
     const user = Users.findOne({
       meetingId,
       userId,
-      connectionStatus: 'offline',
       authToken,
     });
 
@@ -226,6 +217,21 @@ WebApp.connectHandlers.use('/useragent', (req, res) => {
   res.writeHead(200);
   res.end(response);
 });
+
+WebApp.connectHandlers.use('/guestWait', (req, res) => {
+  if (!guestWaitHtml) {
+    try {
+      guestWaitHtml = Assets.getText('static/guest-wait/guest-wait.html');
+    } catch (e) {
+      Logger.warn(`Could not process guest wait html file: ${e}`);
+    }
+  }
+
+  res.setHeader('Content-Type', 'text/html');
+  res.writeHead(200);
+  res.end(guestWaitHtml);
+});
+
 
 export const eventEmitter = Redis.emitter;
 

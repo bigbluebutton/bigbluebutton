@@ -17,6 +17,9 @@ public:
     cdn: ""
     basename: "/html5client"
     askForFeedbackOnLogout: false
+    # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
+    # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
+    allowDefaultLogoutUrl: true
     allowUserLookup: false
     enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
@@ -27,13 +30,18 @@ public:
     ipv4FallbackDomain: ""
     allowLogout: true
     allowFullscreen: true
+    preloadNextSlides: 2
     mutedAlert:
-      enabled: true
+      enabled: false
       interval: 200
       threshold: -50
       duration: 4000
     remainingTimeThreshold: 30
     remainingTimeAlertThreshold: 1
+    # Warning: increasing the limit of breakout rooms per meeting
+    # can generate excessive overhead to the server. We recommend
+    # this value to be kept under 12.
+    breakoutRoomLimit: 8
     defaultSettings:
       application:
         animations: true
@@ -178,21 +186,27 @@ public:
         constraints:
           frameRate: 10
       - id: low
-        name: Low quality
+        name: Low
         default: false
         bitrate: 100
       - id: medium
-        name: Medium quality
+        name: Medium
         default: true
         bitrate: 200
       - id: high
-        name: High quality
+        name: High
         default: false
         bitrate: 500
+        constraints:
+          width: 1280
+          frameRate: 15
       - id: hd
         name: High definition
         default: false
         bitrate: 800
+        constraints:
+          width: 1280
+          frameRate: 30
     enableScreensharing: true
     enableVideo: true
     enableVideoMenu: true
@@ -218,6 +232,21 @@ public:
           profile: low-u25
         - threshold: 30
           profile: low-u30
+    pagination:
+      # whether to globally enable or disable pagination.
+      enabled: false
+      # how long (in ms) the negotiation will be debounced after a page change.
+      pageChangeDebounceTime: 2500
+      # video page sizes for DESKTOP endpoints. It stands for the number of SUBSCRIBER streams.
+      # PUBLISHERS aren't accounted for .
+      # A page size of 0 (zero) means that the page size is unlimited (disabled).
+      desktopPageSizes:
+        moderator: 0
+        viewer: 5
+      # video page sizes for MOBILE endpoints
+      mobilePageSizes:
+        moderator: 2
+        viewer: 2
   pingPong:
     clearUsersInSeconds: 180
     pongTimeInSeconds: 15
@@ -280,7 +309,7 @@ public:
     callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
     relayOnlyOnReconnect: false
-    listenOnlyCallTimeout: 15000
+    listenOnlyCallTimeout: 25000
   stats:
     enabled: true
     interval: 2000
@@ -428,9 +457,20 @@ public:
       - pencil
       - hand
   clientLog:
-    server: { enabled: true, level: info }
-    console: { enabled: true, level: debug }
-    external: { enabled: false, level: info, url: https://LOG_HOST/html5Log, method: POST, throttleInterval: 400, flushOnClose: true, logTag: "" }
+    server:
+      enabled: true
+      level: info
+    console:
+      enabled: true
+      level: debug
+    external:
+      enabled: false
+      level: info
+      url: https://LOG_HOST/html5Log
+      method: POST
+      throttleInterval: 400
+      flushOnClose: true
+      logTag: ""
 private:
   app:
     host: 127.0.0.1
@@ -493,6 +533,8 @@ private:
       version: 50
     - browser: electron
       version: [0, 36]
+    - browser: SamsungInternet
+      version: 10
     - browser: YandexBrowser
       version: 19
 

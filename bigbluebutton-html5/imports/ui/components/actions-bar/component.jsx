@@ -118,7 +118,7 @@ class ActionsBar extends PureComponent {
           }}
           />
           <Button
-            className={cx(styles.button, autoArrangeLayout || styles.btn)}
+            className={cx(styles.btn, autoArrangeLayout || styles.btn)}
             icon={autoArrangeLayout ? 'lock' : 'unlock'}
             color={autoArrangeLayout ? 'primary' : 'default'}
             ghost={!autoArrangeLayout}

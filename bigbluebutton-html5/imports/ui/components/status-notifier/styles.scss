@@ -1,11 +1,8 @@
-@import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/_indicators";
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 :root {
-  --iconWrapperSize: 40px;
-  --innerToastWidth: 17rem;
   --toast-margin: .5rem;
-  --toast-icon-side: 40px;
   --avatar-side: 34px;
   --avatar-wrapper-offset: 14px;
   --avatar-inset: -7px;
@@ -75,7 +72,7 @@
 
 .avatarsExtra,
 .avatar {
-  @include highContrastOutline();
+  @extend %highContrastOutline;
   width: var(--avatar-side);
   height: var(--avatar-side);
   color: var(--color-white);
