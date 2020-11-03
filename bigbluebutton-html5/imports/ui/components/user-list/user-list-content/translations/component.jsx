@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { styles } from './styles.scss';
 import { defineMessages, injectIntl } from 'react-intl';
+import cx from 'classnames';
 
 class Translations extends Component{
     toggleLanguagesPanel = () => {
@@ -19,11 +20,22 @@ class Translations extends Component{
             },200);
         }
     };
+    componentDidMount() {
+        window.addEventListener('panelChanged',()=>{
+           this.forceUpdate()
+        });
+    }
+
+
     render() {
+        let active = ""
+        if(Session.get("openPanel") ===  "translations"){
+            active = styles.active
+        }
         return (
             <div key={"translation-options"}>
                 <h2 className={styles.smallTitle}>Translations</h2>
-                <div className={styles.translationContainer}>
+                <div className={cx(styles.translationContainer, active)}>
                     <img
                         className="icon-bbb-languages"
                         src='/html5client/svgs/translations.svg'
