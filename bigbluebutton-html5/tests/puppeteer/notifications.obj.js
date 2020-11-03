@@ -155,7 +155,7 @@ const notificationsTest = () => {
     expect(response).toContain('Poll results were published');
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.005,
+        failureThreshold: 7.26,
         failureThresholdType: 'percent',
       });
     }
@@ -180,7 +180,7 @@ const notificationsTest = () => {
     expect(response).toBe('Screenshare has started');
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.005,
+        failureThreshold: 7.25,
         failureThresholdType: 'percent',
       });
     }
@@ -205,7 +205,7 @@ const notificationsTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.005,
+        failureThreshold: 1.05,
         failureThresholdType: 'percent',
       });
     }

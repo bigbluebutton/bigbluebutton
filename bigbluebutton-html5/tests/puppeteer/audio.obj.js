@@ -28,7 +28,7 @@ const audioTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.005,
+        failureThreshold: 0.65,
         failureThresholdType: 'percent',
       });
     }
@@ -53,7 +53,7 @@ const audioTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.005,
+        failureThreshold: 0.52,
         failureThresholdType: 'percent',
       });
     }

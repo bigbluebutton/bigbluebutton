@@ -15,13 +15,8 @@ class Share extends Page {
   async webcamLayoutTest() {
     await this.page.waitForSelector(wle.webcamConnecting);
     await this.page.waitForSelector(wle.webcamVideo);
+    await this.page.waitForSelector(wle.stopSharingWebcam);
     return await this.page.evaluate(util.countTestElements, wle.webcamItemTalkingUser) !== 0;
-  }
-
-  async test() {
-    await util.enableWebcam(this);
-    const response = await util.evaluateCheck(this);
-    return response;
   }
 }
 

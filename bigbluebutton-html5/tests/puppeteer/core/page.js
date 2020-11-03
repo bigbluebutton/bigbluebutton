@@ -69,6 +69,7 @@ class Page {
     await this.waitForSelector(e.connectingStatus);
     await this.waitForSelector(e.echoYes);
     await this.click(e.echoYes, true);
+    await this.waitForSelector(e.isTalking);
   }
 
   // Joining audio with microphone
@@ -134,7 +135,7 @@ class Page {
   // Get the default arguments for creating a page
   static getArgs() {
     const args = ['--no-sandbox', '--use-fake-ui-for-media-stream', '--lang=en-US'];
-    return { headless: false, args };
+    return { headless: true, args };
   }
 
   static getArgsWithAudio() {
@@ -159,7 +160,7 @@ class Page {
       '--lang=en-US',
     ];
     return {
-      headless: false,
+      headless: true,
       args,
     };
   }
@@ -186,7 +187,7 @@ class Page {
       '--lang=en-US',
     ];
     return {
-      headless: false,
+      headless: true,
       args,
     };
   }
@@ -214,7 +215,7 @@ class Page {
       '--lang=en-US',
     ];
     return {
-      headless: false,
+      headless: true,
       args,
     };
   }

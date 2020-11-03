@@ -15,11 +15,14 @@ const webcamTest = () => {
     let response;
     let screenshot;
     try {
+      const testName = 'shareWebcam';
+      await test.logger('begin of ', testName);
       await test.init(Page.getArgsWithVideo());
       response = await test.test();
       screenshot = await test.page.screenshot();
+      await test.logger('end of ', testName);
     } catch (e) {
-      console.log(e);
+      await test.logger(e);
     } finally {
       await test.close();
     }
@@ -37,11 +40,14 @@ const webcamTest = () => {
     let response;
     let screenshot;
     try {
+      const testName = 'checkWebcamContent';
+      await test.logger('begin of ', testName);
       await test.init(Page.getArgsWithVideo());
       response = await test.test();
       screenshot = await test.page.screenshot();
+      await test.logger('end of ', testName);
     } catch (e) {
-      console.log(e);
+      await test.logger(e);
     } finally {
       await test.close();
     }

@@ -15,13 +15,14 @@ const whiteboardTest = () => {
     let screenshot;
     try {
       const testName = 'drawRectangle';
+      await test.logger('begin of ', testName);
       await test.init(Page.getArgs());
       await test.logger('Test Name: ', testName);
       await test.closeAudioModal();
       response = await test.test();
       screenshot = await test.page.screenshot();
     } catch (e) {
-      console.log(e);
+      await test.logger(e);
     } finally {
       await test.close();
     }

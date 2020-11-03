@@ -7,6 +7,8 @@ async function enableWebcam(test) {
   await test.waitForSelector(we.videoPreview);
   await test.waitForSelector(we.startSharingWebcam);
   await test.page.evaluate(clickTestElement, we.startSharingWebcam);
+  await test.waitForSelector(we.webcamConnecting);
+  await test.waitForSelector(we.webcamVideo);
 }
 
 async function getFullScreenWebcamButton(element) {

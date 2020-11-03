@@ -9,11 +9,14 @@ const virtualizedListTest = () => {
     let response;
     let screenshot;
     try {
+      const testName = 'virtualizedUserList';
+      await test.page1.logger('begin of ', testName);
       await test.init();
       response = await test.test();
       screenshot = await test.page1.page.screenshot();
+      await test.page1.logger('end of ', testName);
     } catch (e) {
-      console.log(e);
+      await test.page1.logger(e);
     } finally {
       await test.close();
     }
