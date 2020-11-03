@@ -26,9 +26,9 @@ const IconButton = ({
   onClick,
   children,
 }) => {
-  let buttonClass = 'inline-flex items-center';
+  let buttonClass = 'inline-flex items-center justify-center';
   let buttonColor = 'bg-white hover:bg-gray-200';
-  let buttonSize = 'p-5 rounded-lg';
+  let buttonSize = 'min-h-64 min-w-64 rounded-lg';
   let buttonMargin = ' mr-3';
   let iconSize = ' w-6 h-6';
   let buttonTransparent;
@@ -50,7 +50,7 @@ const IconButton = ({
   }
 
   if (size === SIZE_TYPE.SMALL) {
-    buttonSize = 'p-3 rounded-md';
+    buttonSize = 'min-h-40 min-w-40 rounded-md';
     buttonMargin = ' mr-2';
     iconSize = ' w-4 h-4';
     iconMinVh = {

@@ -3,12 +3,11 @@ import React, { Component } from 'react';
 import DesktopShare from './DesktopShare';
 import AudioControlsContainer from '../audio/audio-controls/AudioControlsContainer';
 import JoinVideoOptionsContainer from '../video-provider/video-button/VideoButtonContainer';
-import { IconButton } from '../common';
-import UserAvatar from '../UserAvatar';
 import VideoProviderContainer from '../video-provider/container';
-import RecordingIndicatorContainer from '../RecordIndicator';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import RecordIndicatorContainer from '../RecordIndicator';
+import UserListContainer from '../UserList';
 
 
 class FooterView extends Component {
@@ -53,11 +52,7 @@ class FooterView extends Component {
             )
             : null}
           <AudioControlsContainer />
-          {/* <IconButton
-        color="secondary"
-        icon="record"
-      /> */}
-          <RecordingIndicatorContainer
+          <RecordIndicatorContainer
             mountModal={mountModal}
             amIModerator={amIModerator}
           />
@@ -75,7 +70,8 @@ class FooterView extends Component {
         </div>
         <div className="w-1/2 p-2 flex justify-end">
           <VideoProviderContainer swapLayout={false} />
-          <UserAvatar
+          <UserListContainer />
+          {/* <UserAvatar
             avatar="images/user_1.png"
           />
           <UserAvatar
@@ -86,7 +82,7 @@ class FooterView extends Component {
           />
           <UserAvatar
             avatar="images/user_4.png"
-          />
+          /> */}
         </div>
       </div>
     );

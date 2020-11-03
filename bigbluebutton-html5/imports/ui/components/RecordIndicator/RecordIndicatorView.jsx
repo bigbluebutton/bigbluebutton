@@ -4,7 +4,7 @@ import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import Tooltip from '/imports/ui/components/tooltip/component';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
-// import { styles } from './styles';
+import { IconButton } from '../common';
 
 const intlMessages = defineMessages({
   notificationRecordingStart: {
@@ -112,18 +112,6 @@ class RecordIndicator extends PureComponent {
       this.interval = setInterval(this.incrementTime, 1000);
     }
 
-    const title = intl.formatMessage(recording ? intlMessages.recordingIndicatorOn
-      : intlMessages.recordingIndicatorOff);
-
-    let recordTitle = '';
-    if (!recording) {
-      recordTitle = time > 0
-        ? intl.formatMessage(intlMessages.resumeTitle)
-        : intl.formatMessage(intlMessages.startTitle);
-    } else {
-      recordTitle = intl.formatMessage(intlMessages.stopTitle);
-    }
-
     const recordingToggle = () => {
       if (!micUser && !recording) {
         notify(intl.formatMessage(intlMessages.emptyAudioBrdige), 'error', 'warning');
@@ -132,56 +120,27 @@ class RecordIndicator extends PureComponent {
       document.activeElement.blur();
     };
 
-    const recordingIndicatorIcon = (
-      <span className="">
-        <svg xmlns="http://www.w3.org/2000/svg" height="100%" version="1" viewBox="0 0 20 20">
-          <g stroke="#FFF" fill="#FFF" strokeLinecap="square">
-            <circle
-              fill="none"
-              strokeWidth="1"
-              r="9"
-              cx="10"
-              cy="10"
-            />
-            <circle
-              stroke={recording ? '#F00' : '#FFF'}
-              fill={recording ? '#F00' : '#FFF'}
-              r="4"
-              cx="10"
-              cy="10"
-            />
-          </g>
-        </svg>
-      </span>
-    );
-
     const showButton = amIModerator && allowStartStopRecording;
 
-    const recordMeetingButton = (
-      <div
-        aria-label={title}
-        // className={recording ? styles.recordingControlON : styles.recordingControlOFF}
-        role="button"
-        tabIndex={0}
-        key="recording-toggle"
-        onClick={recordingToggle}
-        onKeyPress={recordingToggle}
-      >
-        {recordingIndicatorIcon}
+    const recordMeetingButton = recording
+      ? (
+        <IconButton
+          color="error"
+          onClick={recordingToggle}
+          onKeyPress={recordingToggle}
+        >
+          { humanizeSeconds(time) }
+        </IconButton>
+      )
+      : (
+        <IconButton
+          color="secondary"
+          icon="record"
+          onClick={recordingToggle}
+          onKeyPress={recordingToggle}
+        />
+      );
 
-        <div className="">
-          {recording
-            ? (
-              <span className="">
-                {`${intl.formatMessage(intlMessages.recordingAriaLabel)} ${humanizeSeconds(time)}`}
-              </span>
-            ) : null
-          }
-          {recording
-            ? <span aria-hidden>{humanizeSeconds(time)}</span> : <span>{recordTitle}</span>}
-        </div>
-      </div>
-    );
 
     const recordMeetingButtonWithTooltip = (
       <Tooltip title={intl.formatMessage(intlMessages.stopTitle)}>
@@ -191,33 +150,7 @@ class RecordIndicator extends PureComponent {
 
     const recordingButton = recording ? recordMeetingButtonWithTooltip : recordMeetingButton;
 
-    return (
-      <div className="">
-        {showButton
-          ? recordingButton
-          : null}
-
-        {showButton ? null : (
-          <Tooltip
-            title={`${intl.formatMessage(recording
-              ? intlMessages.notificationRecordingStart
-              : intlMessages.notificationRecordingStop)}`}
-          >
-            <div
-              aria-label={`${intl.formatMessage(recording
-                ? intlMessages.notificationRecordingStart
-                : intlMessages.notificationRecordingStop)}`}
-              className=""
-            >
-              {recordingIndicatorIcon}
-
-              {recording
-                ? <div className="">{humanizeSeconds(time)}</div> : null}
-            </div>
-          </Tooltip>
-        )}
-      </div>
-    );
+    return showButton ? recordingButton : null;
   }
 }
 

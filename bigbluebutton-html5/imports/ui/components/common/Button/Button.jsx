@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
+// import styles from './styles';
 
 const COLOR_TYPE = {
   PRIMARY: 'primary',

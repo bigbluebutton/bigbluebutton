@@ -3,6 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import VideoProvider from './component';
 import VideoService from './service';
 import { withLayoutContext } from '/imports/ui/components/layout/context';
+import UserListService from '/imports/ui/components/user-list/service';
 
 const VideoProviderContainer = ({ children, ...props }) => {
   const { streams } = props;
@@ -26,5 +27,6 @@ export default withTracker((props) => {
     totalNumberOfStreams,
     isUserLocked: VideoService.isUserLocked(),
     currentVideoPageIndex: VideoService.getCurrentVideoPageIndex(),
+    users: UserListService.getUsers(),
   };
 })(withLayoutContext(VideoProviderContainer));
