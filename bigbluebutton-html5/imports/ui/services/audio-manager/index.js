@@ -667,7 +667,7 @@ class AudioManager {
     }
   }
 
-  openTranslatorChannel(languageExtension) {
+  async openTranslatorChannel(languageExtension) {
     if( this.translatorBridge.activeSession ) {
       this.translatorBridge.exitAudio()
     }
@@ -676,6 +676,9 @@ class AudioManager {
 
       let audioContext = this.translatorVolumeGainNode.context;
       let microDestinationNode = audioContext.createMediaStreamDestination();
+      if(this.inputStream === undefined){
+        await this.joinMicrophone()
+      }
       let microAudioNode = audioContext.createMediaStreamSource(this.inputStream);
       microAudioNode.connect(this.translatorVolumeGainNode)
       this.translatorVolumeGainNode.connect(microDestinationNode);
