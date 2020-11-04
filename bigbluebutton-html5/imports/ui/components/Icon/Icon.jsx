@@ -6,7 +6,7 @@ const Icon = ({
   icon,
   iconvh,
 }) => (
-  <img src={`images/${icon}.svg`} className={cx('fill-current', className)} style={iconvh} alt="" />
+  <img src={`images/${icon}.svg`} className={cx('fill-current', iconvh, className)} alt="" />
 );
 
 export default Icon;

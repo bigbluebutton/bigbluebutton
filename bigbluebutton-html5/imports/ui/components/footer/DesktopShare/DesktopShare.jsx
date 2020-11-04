@@ -1,6 +1,5 @@
 import React, { memo } from 'react';
-import PropTypes from 'prop-types';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import browser from 'browser-detect';
 import IconButton from '/imports/ui/components/common/IconButton';
 import logger from '/imports/startup/client/logger';
@@ -9,18 +8,6 @@ import Modal from '/imports/ui/components/modal/simple/component';
 import { withModalMounter } from '../../modal/service';
 import { styles } from '../styles';
 import ScreenshareBridgeService from '/imports/api/screenshare/client/bridge/service';
-
-const propTypes = {
-  intl: intlShape.isRequired,
-  amIPresenter: PropTypes.bool.isRequired,
-  handleShareScreen: PropTypes.func.isRequired,
-  handleUnshareScreen: PropTypes.func.isRequired,
-  isVideoBroadcasting: PropTypes.bool.isRequired,
-  screenSharingCheck: PropTypes.bool.isRequired,
-  screenShareEndAlert: PropTypes.func.isRequired,
-  isMeteorConnected: PropTypes.bool.isRequired,
-  screenshareDataSavingSetting: PropTypes.bool.isRequired,
-};
 
 const intlMessages = defineMessages({
   desktopShareLabel: {
@@ -182,7 +169,6 @@ const DesktopShare = ({
 
   return shouldAllowScreensharing
     ? (
-
       <IconButton
         disabled={(!isMeteorConnected && !isVideoBroadcasting) || !screenshareDataSavingSetting}
         color={isVideoBroadcasting ? 'error' : 'secondary'}
@@ -198,5 +184,4 @@ const DesktopShare = ({
     ) : null;
 };
 
-DesktopShare.propTypes = propTypes;
 export default withModalMounter(injectIntl(memo(DesktopShare)));

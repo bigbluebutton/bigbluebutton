@@ -1,8 +1,7 @@
 import React, { memo } from 'react';
-import PropTypes from 'prop-types';
 import { IconButton } from '/imports/ui/components/common';
 import VideoService from '../service';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import { validIOSVersion } from '/imports/ui/components/app/service';
 
 const intlMessages = defineMessages({
@@ -27,13 +26,6 @@ const intlMessages = defineMessages({
     description: 'message indicating to upgrade ios version',
   },
 });
-
-const propTypes = {
-  intl: intlShape.isRequired,
-  hasVideoStream: PropTypes.bool.isRequired,
-  isDisabled: PropTypes.bool.isRequired,
-  mountVideoPreview: PropTypes.func.isRequired,
-};
 
 const VideoButtonView = ({
   intl,
@@ -63,23 +55,7 @@ const VideoButtonView = ({
       disabled={isDisabled}
       onClick={handleOnClick}
     />
-    // <Button
-    //   data-test="joinVideo"
-    //   label={isDisabled ? intl.formatMessage(intlMessages.videoLocked) : label}
-    //   className={cx(styles.button, hasVideoStream || styles.btn)}
-    //   onClick={handleOnClick}
-    //   hideLabel
-    //   aria-label={intl.formatMessage(intlMessages.videoButtonDesc)}
-    //   color={hasVideoStream ? 'primary' : 'default'}
-    //   icon={hasVideoStream ? 'video' : 'video_off'}
-    //   ghost={!hasVideoStream}
-    //   size="lg"
-    //   circle
-    //   disabled={isDisabled}
-    // />
   );
 };
-
-VideoButtonView.propTypes = propTypes;
 
 export default injectIntl(memo(VideoButtonView));

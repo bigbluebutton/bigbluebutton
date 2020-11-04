@@ -2,7 +2,6 @@ import React from 'react';
 import ModalContainer from '../modal/container';
 import AudioContainer from '../audio/container';
 import Tabs from '../tabs';
-// import Header from '../header';
 import HeaderContainer from '../header';
 import FooterConatiner from '../footer';
 import Content from '../content';

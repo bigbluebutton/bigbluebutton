@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import browser from 'browser-detect';
 import { Meteor } from 'meteor/meteor';
-import PropTypes from 'prop-types';
 import _ from 'lodash';
 import cx from 'classnames';
 import Dropdown from '/imports/ui/components/dropdown/component';
@@ -12,7 +11,6 @@ import DropdownListTitle from '/imports/ui/components/dropdown/list/title/compon
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import Icon from '/imports/ui/components/icon/component';
-import logger from '/imports/startup/client/logger';
 import FullscreenService from '/imports/ui/components/fullscreen-button/service';
 import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
 import { styles } from '../styles';
@@ -38,17 +36,8 @@ class VideoListItem extends Component {
   }
 
   componentDidMount() {
-    const { onMount, webcamDraggableDispatch } = this.props;
-
-    // webcamDraggableDispatch(
-    //   {
-    //     type: 'setVideoRef',
-    //     value: this.videoTag,
-    //   },
-    // );
-
+    const { onMount } = this.props;
     onMount(this.videoTag);
-
     this.videoTag.addEventListener('loadeddata', this.setVideoIsReady);
     this.videoContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
   }
@@ -135,15 +124,11 @@ class VideoListItem extends Component {
   render() {
     const {
       videoIsReady,
-      isFullscreen,
     } = this.state;
     const {
       name,
       voiceUser,
       numOfStreams,
-      webcamDraggableState,
-      swapLayout,
-      users,
     } = this.props;
     const availableActions = this.getAvailableActions();
     const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
@@ -174,10 +159,6 @@ class VideoListItem extends Component {
             data-test="videoContainer"
             className={cx({
               [styles.media]: true,
-              // [styles.cursorGrab]: !webcamDraggableState.dragging
-              //   && !isFullscreen && !swapLayout,
-              // [styles.cursorGrabbing]: webcamDraggableState.dragging
-              //   && !isFullscreen && !swapLayout,
               [styles.mirroredVideo]: this.mirrorOwnWebcam,
             })}
             ref={(ref) => { this.videoTag = ref; }}
@@ -227,14 +208,3 @@ class VideoListItem extends Component {
 }
 
 export default withDraggableConsumer(VideoListItem);
-
-VideoListItem.defaultProps = {
-  numOfStreams: 0,
-};
-
-VideoListItem.propTypes = {
-  actions: PropTypes.arrayOf(PropTypes.object).isRequired,
-  cameraId: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  numOfStreams: PropTypes.number,
-};

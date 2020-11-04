@@ -2,8 +2,7 @@ import React, { PureComponent } from 'react';
 import RecordingContainer from '/imports/ui/components/recording/container';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import Tooltip from '/imports/ui/components/tooltip/component';
-import PropTypes from 'prop-types';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import { IconButton } from '../common';
 
 const intlMessages = defineMessages({
@@ -44,23 +43,6 @@ const intlMessages = defineMessages({
     description: 'message for notification when recording starts with no users in audio bridge',
   },
 });
-
-const propTypes = {
-  intl: intlShape.isRequired,
-  amIModerator: PropTypes.bool,
-  record: PropTypes.bool,
-  recording: PropTypes.bool,
-  mountModal: PropTypes.func.isRequired,
-  time: PropTypes.number,
-  allowStartStopRecording: PropTypes.bool.isRequired,
-};
-
-const defaultProps = {
-  amIModerator: false,
-  record: false,
-  recording: false,
-  time: 0,
-};
 
 class RecordIndicator extends PureComponent {
   constructor(props) {
@@ -153,8 +135,5 @@ class RecordIndicator extends PureComponent {
     return showButton ? recordingButton : null;
   }
 }
-
-RecordIndicator.propTypes = propTypes;
-RecordIndicator.defaultProps = defaultProps;
 
 export default injectIntl(RecordIndicator);

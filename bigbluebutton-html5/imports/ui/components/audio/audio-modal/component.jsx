@@ -262,7 +262,6 @@ class AudioModal extends Component {
     });
 
     return joinEchoTest().then(() => {
-      // console.log(inputDeviceId, outputDeviceId);
       this.setState({
         content: 'echoTest',
         disableActions: false,

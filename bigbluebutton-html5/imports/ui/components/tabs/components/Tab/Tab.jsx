@@ -1,6 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-
 import Icon from '/imports/ui/components/Icon';
 
 const Tab = ({
@@ -11,10 +9,7 @@ const Tab = ({
   onClick,
 }) => {
   let tabClass = 'w-full';
-  const iconMinVh = {
-    minWidth: '20px',
-    minHeight: '20px',
-  };
+  const iconMinVh = 'min-w-20 min-h-20';
   if (index === activeKey) {
     tabClass += ' bg-gray-100 border-l-8 border-blue-600';
   } else {
@@ -28,20 +23,6 @@ const Tab = ({
       </a>
     </li>
   );
-};
-
-Tab.defaultProps = {
-  icon: '',
-  tabArea: '#Link1',
-  activeKey: 0,
-};
-
-Tab.propTypes = {
-  index: PropTypes.number.isRequired,
-  icon: PropTypes.string,
-  activeKey: PropTypes.number,
-  tabArea: PropTypes.string,
-  onClick: PropTypes.func.isRequired,
 };
 
 export default Tab;

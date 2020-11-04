@@ -1,7 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-// import styles from './styles';
 
 const COLOR_TYPE = {
   PRIMARY: 'primary',
@@ -68,24 +66,6 @@ const Button = ({
       {children}
     </button>
   );
-};
-
-Button.defaultProps = {
-  size: SIZE_TYPE.MEDIUM,
-  color: COLOR_TYPE.PRIMARY,
-  variant: VARIANT_TYPE.CONATINED,
-  fontWeight: '',
-  onClick: undefined,
-  children: '',
-};
-
-Button.propTypes = {
-  size: PropTypes.string,
-  color: PropTypes.string,
-  variant: PropTypes.string,
-  fontWeight: PropTypes.string,
-  onClick: PropTypes.func,
-  children: PropTypes.node,
 };
 
 export default Button;

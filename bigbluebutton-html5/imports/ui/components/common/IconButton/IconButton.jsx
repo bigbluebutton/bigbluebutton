@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
 
 import Icon from '/imports/ui/components/Icon';
@@ -32,10 +31,7 @@ const IconButton = ({
   let buttonMargin = ' mr-3';
   let iconSize = ' w-6 h-6';
   let buttonTransparent;
-  let iconMinVh = {
-    minWidth: '20px',
-    minHeight: '20px',
-  };
+  let iconMinVh = 'min-w-20 min-h-20';
 
   if (color === COLOR_TYPE.PRIMARY) {
     buttonColor = 'bg-white hover:bg-gray-200';
@@ -53,10 +49,7 @@ const IconButton = ({
     buttonSize = 'min-h-40 min-w-40 rounded-md';
     buttonMargin = ' mr-2';
     iconSize = ' w-4 h-4';
-    iconMinVh = {
-      minWidth: '15px',
-      minHeight: '15px',
-    };
+    iconMinVh = 'min-w-15 min-h-15';
   }
 
   if (noMargin) {
@@ -91,28 +84,6 @@ const IconButton = ({
       {icon && <Icon icon={icon} className={iconSize} iconvh={iconMinVh} />}
     </button>
   );
-};
-
-IconButton.defaultProps = {
-  size: SIZE_TYPE.MEDIUM,
-  color: COLOR_TYPE.PRIMARY,
-  icon: '',
-  transparent: false,
-  noMargin: false,
-  disabled: false,
-  miscClass: '',
-  children: '',
-};
-
-IconButton.propTypes = {
-  size: PropTypes.string,
-  color: PropTypes.string,
-  icon: PropTypes.string,
-  transparent: PropTypes.bool,
-  noMargin: PropTypes.bool,
-  disabled: PropTypes.bool,
-  miscClass: PropTypes.string,
-  children: PropTypes.node,
 };
 
 export default IconButton;

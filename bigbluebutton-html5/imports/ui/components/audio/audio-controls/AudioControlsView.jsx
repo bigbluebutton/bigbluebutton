@@ -1,22 +1,8 @@
 import React, { PureComponent, Fragment } from 'react';
-import PropTypes from 'prop-types';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import MutedAlert from '/imports/ui/components/muted-alert/component';
 import { IconButton } from '/imports/ui/components/common';
-
-const propTypes = {
-  processToggleMuteFromOutside: PropTypes.func.isRequired,
-  handleToggleMuteMicrophone: PropTypes.func.isRequired,
-  handleJoinAudio: PropTypes.func.isRequired,
-  handleLeaveAudio: PropTypes.func.isRequired,
-  disable: PropTypes.bool.isRequired,
-  muted: PropTypes.bool.isRequired,
-  showMute: PropTypes.bool.isRequired,
-  inAudio: PropTypes.bool.isRequired,
-  listenOnly: PropTypes.bool.isRequired,
-  talking: PropTypes.bool.isRequired,
-};
 
 class AudioControlsView extends PureComponent {
   componentDidMount() {
@@ -41,7 +27,6 @@ class AudioControlsView extends PureComponent {
       isViewer,
       isPresenter,
     } = this.props;
-
     let joinIcon = 'telephone-off';
     if (inAudio) {
       if (listenOnly) {
@@ -72,7 +57,5 @@ class AudioControlsView extends PureComponent {
     );
   }
 }
-
-AudioControlsView.propTypes = propTypes;
 
 export default withShortcutHelper(AudioControlsView, ['joinAudio', 'leaveAudio', 'toggleMute']);

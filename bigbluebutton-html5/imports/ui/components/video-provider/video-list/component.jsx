@@ -11,11 +11,12 @@ import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import VideoService from '/imports/ui/components/video-provider/service';
 import Button from '/imports/ui/components/button/component';
+import ListItemWrapper from '../ListItemWrapper/ListItemWrapper';
+import UserAvatar from '../../UserAvatar';
 
 const propTypes = {
   streams: PropTypes.arrayOf(PropTypes.object).isRequired,
   onMount: PropTypes.func.isRequired,
-  // webcamDraggableDispatch: PropTypes.func.isRequired,
   intl: PropTypes.objectOf(Object).isRequired,
   swapLayout: PropTypes.bool.isRequired,
   numberOfPages: PropTypes.number.isRequired,
@@ -78,11 +79,6 @@ class VideoList extends Component {
 
     this.state = {
       focusedId: false,
-      optimalGrid: {
-        cols: 1,
-        rows: 1,
-        filledArea: 0,
-      },
       autoplayBlocked: false,
     };
 
@@ -102,14 +98,6 @@ class VideoList extends Component {
   }
 
   componentDidMount() {
-    // const { webcamDraggableDispatch } = this.props;
-    // webcamDraggableDispatch(
-    //   {
-    //     type: 'setVideoListRef',
-    //     value: this.grid,
-    //   },
-    // );
-
     this.handleCanvasResize();
     window.addEventListener('resize', this.handleCanvasResize, false);
     window.addEventListener('layoutSizesSets', this.handleCanvasResize, false);
@@ -123,7 +111,7 @@ class VideoList extends Component {
   }
 
   setOptimalGrid() {
-    const { streams, webcamDraggableDispatch } = this.props;
+    const { streams } = this.props;
     let numItems = streams.length;
     if (numItems < 1 || !this.canvas || !this.grid) {
       return;
@@ -149,12 +137,6 @@ class VideoList extends Component {
         const betterThanCurrent = testGrid.filledArea > currentGrid.filledArea;
         return focusedConstraint && betterThanCurrent ? testGrid : currentGrid;
       }, { filledArea: 0 });
-    // webcamDraggableDispatch(
-    //   {
-    //     type: 'setOptimalGrid',
-    //     value: optimalGrid,
-    //   },
-    // );
     this.setState({
       optimalGrid,
     });
@@ -267,6 +249,71 @@ class VideoList extends Component {
     );
   }
 
+  renderUserList() {
+    const {
+      streams,
+      users,
+    } = this.props;
+
+    return users.map((user) => {
+      const {
+        _id, userId, color, name,
+      } = user;
+      const userTitle = name.toUpperCase().slice(0, 2);
+      const streamAvailable = streams.find(stream => stream.userId === userId);
+
+      return (
+        <ListItemWrapper key={_id}>
+          {
+          streamAvailable
+            ? this.renderVideoListItem(streamAvailable)
+            : (
+              <UserAvatar
+                key={_id}
+                color={color}
+              >
+                {userTitle}
+              </UserAvatar>
+            )
+        }
+        </ListItemWrapper>
+      );
+    });
+  }
+
+  renderVideoListItem(stream) {
+    const {
+      onMount,
+      swapLayout,
+    } = this.props;
+    const { focusedId } = this.state;
+
+    const { cameraId, userId, name } = stream;
+    const actions = [];
+
+    return (
+      <div
+        key={cameraId}
+        className={cx({
+          [styles.videoListItem]: true,
+          [styles.focused]: focusedId === cameraId,
+        }, 'w-full h-full rounded-md')}
+      >
+        <VideoListItemContainer
+          cameraId={cameraId}
+          userId={userId}
+          name={name}
+          actions={actions}
+          onMount={(videoRef) => {
+            this.handleCanvasResize();
+            onMount(cameraId, videoRef);
+          }}
+          swapLayout={swapLayout}
+        />
+      </div>
+    );
+  }
+
   renderVideoList() {
     const {
       intl,
@@ -317,15 +364,11 @@ class VideoList extends Component {
   }
 
   render() {
-    const { streams, intl } = this.props;
-    const { optimalGrid, autoplayBlocked } = this.state;
+    const { intl } = this.props;
+    const { autoplayBlocked } = this.state;
 
     const canvasClassName = cx({
       [styles.videoCanvas]: true,
-    });
-
-    const videoListClassName = cx({
-      [styles.videoList]: true,
     });
 
     return (
@@ -338,22 +381,14 @@ class VideoList extends Component {
 
         {this.renderPreviousPageButton()}
 
-        {!streams.length ? null : (
-          <div
-            ref={(ref) => {
-              this.grid = ref;
-            }}
-            className={videoListClassName}
-            style={{
-              width: `${optimalGrid.width}px`,
-              height: `${optimalGrid.height}px`,
-              gridTemplateColumns: `repeat(${optimalGrid.columns}, 1fr)`,
-              gridTemplateRows: `repeat(${optimalGrid.rows}, 1fr)`,
-            }}
-          >
-            {this.renderVideoList()}
-          </div>
-        )}
+        <div
+          ref={(ref) => {
+            this.grid = ref;
+          }}
+          className="flex"
+        >
+          {this.renderUserList()}
+        </div>
         { !autoplayBlocked ? null : (
           <AutoplayOverlay
             autoplayBlockedDesc={intl.formatMessage(intlMessages.autoplayBlockedDesc)}

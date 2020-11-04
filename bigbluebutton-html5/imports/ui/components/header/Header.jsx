@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import { Button } from '../common';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
@@ -47,19 +46,6 @@ const Header = ({
       </div>
     </div>
   );
-};
-
-
-Header.propTypes = {
-  mountModal: PropTypes.func.isRequired,
-  amIModerator: PropTypes.bool,
-  isBreakoutRoom: PropTypes.bool,
-  isMeteorConnected: PropTypes.bool.isRequired,
-};
-
-Header.defaultProps = {
-  amIModerator: false,
-  isBreakoutRoom: false,
 };
 
 export default Header;
