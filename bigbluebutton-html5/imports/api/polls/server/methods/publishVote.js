@@ -13,15 +13,15 @@ export default function publishVote(pollId, pollAnswerId) {
   check(pollAnswerId, Number);
   check(pollId, String);
 
-  const waitingFor = Polls.findOne({ id: pollId }, {
-    feilds: {
+  const allowedToVote = Polls.findOne({ id: pollId, users: { $in: [requesterUserId] } }, {
+    fields: {
       users: 1,
     },
   });
 
-  const userResponded = !waitingFor.users.includes(requesterUserId);
-
-  if (userResponded) return null;
+  if (!allowedToVote) {
+    return Logger.info(`Poll User={${requesterUserId}} has already voted in PollId={${pollId}}`);
+  }
 
   const selector = {
     users: requesterUserId,
