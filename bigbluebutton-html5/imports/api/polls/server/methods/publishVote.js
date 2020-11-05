@@ -20,7 +20,8 @@ export default function publishVote(pollId, pollAnswerId) {
   });
 
   if (!allowedToVote) {
-    return Logger.info(`Poll User={${requesterUserId}} has already voted in PollId={${pollId}}`);
+    Logger.info(`Poll User={${requesterUserId}} has already voted in PollId={${pollId}}`);
+    return null;
   }
 
   const selector = {
