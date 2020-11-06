@@ -118,6 +118,11 @@
   }
 }
 
+.dropdown,
+.btn {
+  z-index: 3;
+}
+
 .presentationItem {
   span {
     text-overflow: ellipsis;
