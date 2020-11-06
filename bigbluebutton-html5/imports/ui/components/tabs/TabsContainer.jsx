@@ -3,6 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Service from './service';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import ExternalVideoService from '/imports/ui/components/external-video-player/service';
+import PresentationService from '../presentation/presentation-uploader/service';
 
 import TabsView from './TabsView';
 
@@ -20,4 +21,5 @@ export default withModalMounter(withTracker(() => ({
   isSharingVideo: Service.isSharingVideo(),
   stopExternalVideoShare: ExternalVideoService.stopWatching,
   isMeteorConnected: Meteor.status().connected,
+  presentations: PresentationService.getPresentations(),
 }))(TabsContainer));

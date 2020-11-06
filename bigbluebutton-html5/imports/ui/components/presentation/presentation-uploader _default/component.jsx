@@ -215,8 +215,7 @@ class PresentationUploader extends Component {
     super(props);
 
     this.state = {
-      // presentations: [],
-      presentations: props.presentations,
+      presentations: [],
       disableActions: false,
       toUploadCount: 0,
     };
@@ -355,6 +354,56 @@ class PresentationUploader extends Component {
     }
   }
 
+  renderToastItem(item) {
+    const isUploading = !item.upload.done && item.upload.progress > 0;
+    const isConverting = !item.conversion.done && item.upload.done;
+    const hasError = item.conversion.error || item.upload.error;
+    const isProcessing = (isUploading || isConverting) && !hasError;
+
+    const {
+      intl, selectedToBeNextCurrent,
+    } = this.props;
+
+    const itemClassName = {
+      [styles.done]: !isProcessing && !hasError,
+      [styles.err]: hasError,
+      [styles.loading]: isProcessing,
+    };
+
+    const statusInfoStyle = {
+      [styles.textErr]: hasError,
+      [styles.textInfo]: !hasError,
+    };
+
+    let icon = isProcessing ? 'blank' : 'check';
+    if (hasError) icon = 'circle_close';
+
+    return (
+      <div
+        key={item.id}
+        className={styles.uploadRow}
+        onClick={() => {
+          if (hasError || isProcessing) Session.set('showUploadPresentationView', true);
+        }}
+      >
+        <div className={styles.fileLine}>
+          <span className={styles.fileIcon}>
+            <Icon iconName="file" />
+          </span>
+          <span className={styles.toastFileName}>
+            <span>{item.filename}</span>
+          </span>
+          <span className={styles.statusIcon}>
+            <Icon iconName={icon} className={cx(itemClassName)} />
+          </span>
+        </div>
+        <div className={styles.statusInfo}>
+          <span className={cx(statusInfoStyle)}>{this.renderPresentationItemStatus(item)}</span>
+        </div>
+      </div>
+    );
+  }
+
   handleToggleDownloadable(item) {
     const { dispatchTogglePresentationDownloadable } = this.props;
     const { presentations } = this.state;
@@ -435,12 +484,11 @@ class PresentationUploader extends Component {
         },
       });
     }
+
     if (this.toastId) Session.set('UploadPresentationToastId', this.toastId);
 
     if (!disableActions) {
-      if (!hasNewUpload) {
-        Session.set('showUploadPresentationView', false);
-      }
+      Session.set('showUploadPresentationView', false);
       return handleSave(presentationsToSave)
         .then(() => {
           const hasError = presentations.some(p => p.upload.error || p.conversion.error);
@@ -548,56 +596,6 @@ class PresentationUploader extends Component {
         this.setState({ presentations: updatedCurrent });
       }
     });
-  }
-
-  renderToastItem(item) {
-    const isUploading = !item.upload.done && item.upload.progress > 0;
-    const isConverting = !item.conversion.done && item.upload.done;
-    const hasError = item.conversion.error || item.upload.error;
-    const isProcessing = (isUploading || isConverting) && !hasError;
-
-    const {
-      intl, selectedToBeNextCurrent,
-    } = this.props;
-
-    const itemClassName = {
-      [styles.done]: !isProcessing && !hasError,
-      [styles.err]: hasError,
-      [styles.loading]: isProcessing,
-    };
-
-    const statusInfoStyle = {
-      [styles.textErr]: hasError,
-      [styles.textInfo]: !hasError,
-    };
-
-    let icon = isProcessing ? 'blank' : 'check';
-    if (hasError) icon = 'circle_close';
-
-    return (
-      <div
-        key={item.id}
-        className={styles.uploadRow}
-        onClick={() => {
-          if (hasError || isProcessing) Session.set('showUploadPresentationView', true);
-        }}
-      >
-        <div className={styles.fileLine}>
-          <span className={styles.fileIcon}>
-            <Icon iconName="file" />
-          </span>
-          <span className={styles.toastFileName}>
-            <span>{item.filename}</span>
-          </span>
-          <span className={styles.statusIcon}>
-            <Icon iconName={icon} className={cx(itemClassName)} />
-          </span>
-        </div>
-        <div className={styles.statusInfo}>
-          <span className={cx(statusInfoStyle)}>{this.renderPresentationItemStatus(item)}</span>
-        </div>
-      </div>
-    );
   }
 
   renderPresentationList() {
