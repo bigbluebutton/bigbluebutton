@@ -760,6 +760,18 @@ class SIPSession {
         }, 'Audio call session progress update');
 
         this.currentSession.sessionDescriptionHandler.peerConnectionDelegate = {
+          oniceconnectionstatechange: (event) => {
+            const peer = event.target;
+
+            logger.info({
+              logCode: 'sip_js_ice_connection_state_change',
+              extraInfo: {
+                iceConnectionStateChange: peer.iceConnectionState,
+                callerIdName: this.user.callerIdName,
+              },
+            }, 'ICE connection state change - Current ICE Connection state - '
+                + `${peer.iceConnectionState}`);
+          },
           onconnectionstatechange: (event) => {
             const peer = event.target;
 
@@ -785,7 +797,7 @@ class SIPSession {
                     currentState: peer.connectionState,
                     callerIdName: this.user.callerIdName,
                   },
-                }, 'ICE connection success. Current state - '
+                }, 'ICE connection success. Current ICE Connection state - '
                     + `${peer.iceConnectionState}`);
 
                 clearTimeout(callTimeout);
