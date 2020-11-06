@@ -313,7 +313,10 @@ object Polls {
   def respondToQuestion(pollId: String, questionID: Int, responseID: Int, responder: Responder, polls: Polls) {
     polls.polls.get(pollId) match {
       case Some(p) => {
-        p.respondToQuestion(questionID, responseID, responder)
+        if (!p.getResponders().exists(_ == responder)) {
+          p.addResponder(responder)
+          p.respondToQuestion(questionID, responseID, responder)
+        }
       }
       case None =>
     }
@@ -455,6 +458,7 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
   private var _stopped: Boolean = false
   private var _showResult: Boolean = false
   private var _numResponders: Int = 0
+  private var _responders = new ArrayBuffer[Responder]()
 
   def showingResult() { _showResult = true }
   def showResult(): Boolean = { _showResult }
@@ -468,6 +472,9 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
     _started = false
     _stopped = false
   }
+
+  def addResponder(responder: Responder) { _responders += (responder) }
+  def getResponders(): ArrayBuffer[Responder] = { return _responders }
 
   def hasResponses(): Boolean = {
     questions.foreach(q => {
