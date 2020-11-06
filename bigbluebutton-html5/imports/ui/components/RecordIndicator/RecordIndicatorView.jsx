@@ -47,6 +47,7 @@ const intlMessages = defineMessages({
 class RecordIndicator extends PureComponent {
   constructor(props) {
     super(props);
+
     this.state = {
       time: (props.time ? props.time : 0),
     };
@@ -56,6 +57,7 @@ class RecordIndicator extends PureComponent {
 
   componentDidUpdate() {
     const { recording } = this.props;
+
     if (!recording) {
       clearInterval(this.interval);
       this.interval = null;

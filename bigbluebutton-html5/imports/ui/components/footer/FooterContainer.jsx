@@ -9,6 +9,7 @@ import {
   screenShareEndAlert,
   dataSavingSetting,
 } from '../screenshare/service';
+import ExternalVideoService from '/imports/ui/components/external-video-player/service';
 
 import FooterView from './FooterView';
 
@@ -29,4 +30,8 @@ export default withTracker(() => ({
   isMeteorConnected: Meteor.status().connected,
   screenshareDataSavingSetting: dataSavingSetting(),
   enableVideo: getFromUserSettings('bbb_enable_video', Meteor.settings.public.kurento.enableVideo),
+  allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,
+  handleTakePresenter: Service.takePresenterRole,
+  isSharingVideo: Service.isSharingVideo(),
+  stopExternalVideoShare: ExternalVideoService.stopWatching,
 }))(FooterContainer);

@@ -1,3 +1,3 @@
-import Tabs from './Tabs';
+import TabsContainer from './TabsContainer';
 
-export default Tabs;
+export default TabsContainer;

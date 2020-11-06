@@ -7,8 +7,9 @@ import TabContentVideo from './components/TabContentVideo';
 import TabContentWeb from './components/TabContentWeb';
 import Icon from '/imports/ui/components/Icon';
 import IconButton from '/imports/ui/components/common/IconButton';
+import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 
-const Tabs = () => {
+const TabsView = (props) => {
   const [key, setKey] = useState(1);
 
   const handleTabClick = (tabIndex) => {
@@ -28,6 +29,13 @@ const Tabs = () => {
       default:
         return <TabContentPpt />;
     }
+  };
+
+  const { mountModal } = props;
+
+  const handlePresentationClick = () => {
+    Session.set('showUploadPresentationView', true);
+    mountModal(<PresentationUploaderContainer />);
   };
 
   return (
@@ -64,9 +72,9 @@ const Tabs = () => {
             onClick={() => handleTabClick(4)}
           />
           <li className="w-full">
-            <a href="/#" className="p-8 block justify-center flex">
-              <Icon icon="plus" />
-            </a>
+            <button type="button" onClick={handlePresentationClick} className="p-8 block justify-center flex">
+              <Icon icon="plus" iconvh="min-w-20 min-h-20" />
+            </button>
           </li>
         </ul>
       </aside>
@@ -81,4 +89,4 @@ const Tabs = () => {
   );
 };
 
-export default Tabs;
+export default TabsView;
