@@ -27,7 +27,7 @@ const IPV4_FALLBACK_DOMAIN = Meteor.settings.public.app.ipv4FallbackDomain;
 const CALL_CONNECT_TIMEOUT = 20000;
 const ICE_NEGOTIATION_TIMEOUT = 20000;
 const AUDIO_SESSION_NUM_KEY = 'AudioSessionNumber';
-const USER_AGENT_RECONNECTION_ATTEMPTS = 7;
+const USER_AGENT_RECONNECTION_ATTEMPTS = 3;
 const USER_AGENT_RECONNECTION_DELAY_MS = 5000;
 const USER_AGENT_CONNECTION_TIMEOUT_MS = 5000;
 const ICE_GATHERING_TIMEOUT = MEDIA.iceGatheringTimeout || 5000;
@@ -467,13 +467,13 @@ class SIPSession {
 
         const code = getErrorCode(error);
 
-
+        //Websocket's 1006 is currently mapped to BBB's 1002
         if (code === 1006) {
           this.stopUserAgent();
 
           this.callback({
             status: this.baseCallStates.failed,
-            error: 1006,
+            error: 1002,
             bridgeError: 'Websocket failed to connect',
           });
           return reject({
@@ -760,6 +760,18 @@ class SIPSession {
         }, 'Audio call session progress update');
 
         this.currentSession.sessionDescriptionHandler.peerConnectionDelegate = {
+          oniceconnectionstatechange: (event) => {
+            const peer = event.target;
+
+            logger.info({
+              logCode: 'sip_js_ice_connection_state_change',
+              extraInfo: {
+                iceConnectionStateChange: peer.iceConnectionState,
+                callerIdName: this.user.callerIdName,
+              },
+            }, 'ICE connection state change - Current ICE Connection state - '
+                + `${peer.iceConnectionState}`);
+          },
           onconnectionstatechange: (event) => {
             const peer = event.target;
 
@@ -785,7 +797,7 @@ class SIPSession {
                     currentState: peer.connectionState,
                     callerIdName: this.user.callerIdName,
                   },
-                }, 'ICE connection success. Current state - '
+                }, 'ICE connection success. Current ICE Connection state - '
                     + `${peer.iceConnectionState}`);
 
                 clearTimeout(callTimeout);
