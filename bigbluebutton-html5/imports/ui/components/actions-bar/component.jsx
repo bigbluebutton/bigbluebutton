@@ -29,6 +29,7 @@ class ActionsBar extends PureComponent {
     showLanguageChoice: false,
     translatorLanguage: null,
     translationLanguage: null,
+    translationMuted: false
   };
 
   componentDidUpdate(prevProps) {
@@ -73,6 +74,13 @@ class ActionsBar extends PureComponent {
         this.forceUpdate()
     })
 
+  }
+
+  handleMuteTranslator(){
+    let vol = this.state.translationMuted ? 0:100;
+    this.state.translationMuted = !this.state.translationMuted
+    this.setState(this.state)
+    AudioManager.setTranslatorVolume(vol)
   }
 
   handleLanguageSelection(language){
@@ -170,6 +178,22 @@ class ActionsBar extends PureComponent {
                 />
               </div>
             ) :null
+          }
+          { amIModerator ?
+              (
+                  <Button
+                      className={"hallo welt"}
+                      onClick={this.handleMuteTranslator}
+                      hideLabel
+                      label="Mute Translation"
+                      aria-label="Mute Translation"
+                      color={!this.state.translationMuted ? 'primary' : 'default'}
+                      ghost={this.state.translationMuted}
+                      icon={this.state.translationMuted ? 'mute' : 'unmute'}
+                      size="lg"
+                      circle
+                  />
+              ) :null
           }
           { this.state.showTranslatorChoice ?
               (
