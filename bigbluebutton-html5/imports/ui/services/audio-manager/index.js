@@ -1,4 +1,5 @@
 import { Tracker } from 'meteor/tracker';
+import hark from 'hark';
 import KurentoBridge from '/imports/api/audio/client/bridge/kurento';
 
 import Auth from '/imports/ui/services/auth';
@@ -684,6 +685,16 @@ class AudioManager {
       this.translatorVolumeGainNode.connect(microDestinationNode);
 
       let inputStream = microDestinationNode.stream;
+
+      let speechEventsOptions = {
+        interval: 200,
+        threshold: -50
+      }
+
+      this.translatorSpeechEvents = hark(inputStream, speechEventsOptions);
+      this.translatorSpeechEvents.on('speaking', () => {
+        console.log("Halt die fresse");
+      });
 
       const callOptions = {
         isListenOnly: false,
