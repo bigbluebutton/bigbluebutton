@@ -1928,7 +1928,6 @@ class ApiController {
     if (requestBody == null) {
       downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), true /* default presentation */, '');
     } else {
-      log.debug "Request body: \n" + requestBody;
       def xml = new XmlSlurper().parseText(requestBody);
       xml.children().each { module ->
         log.debug("module config found: [${module.@name}]");
