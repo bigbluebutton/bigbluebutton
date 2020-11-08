@@ -20,7 +20,7 @@ import Service from './service';
 class ActionsBar extends PureComponent {
   constructor(props) {
     super(props);
-    this.audioContext = null;
+
     this.autoArrangeToggle = this.autoArrangeToggle.bind(this);
   }
 
@@ -56,10 +56,6 @@ class ActionsBar extends PureComponent {
       this.setState(this.state)
       this.forceUpdate()
   }
-
-
-
-
   toggleTranslationSelection(){
     this.state.showLanguageChoice = !this.state.showLanguageChoice;
     this.state.showTranslatorChoice = false;
@@ -84,36 +80,6 @@ class ActionsBar extends PureComponent {
     AudioManager.openTranslationChannel(language.extension)
     this.setState(this.state)
     this.forceUpdate()
-
-    this.audioContext = this.audioContext === null? new AudioContext(): this.audioContext;
-    let processor = this.audioContext.createScriptProcessor()
-    function getAverageVolume(array) {
-      let values = 0;
-      let average;
-
-      const length = array.length;
-
-      // get all the frequency amplitudes
-      for (let i = 0; i < length; i++) {
-        values += array[i];
-      }
-
-      average = values / length;
-      return average;
-    }
-
-    processor.onaudioprocess = function() {
-      // get the average, bincount is fftsize / 2
-      const array = new Uint8Array(processor.frequencyBinCount);
-      processor.getByteFrequencyData(array);
-      const average = getAverageVolume(array);
-      console.log('VOLUME:' + average); //here's the volume
-    }
-
-    let audio  = document.getElementById("translation-media")
-    let mediaSource = this.audioContext.createMediaElementSource(audio)
-    mediaSource.connect(this.audioContext)
-    processor.connect(this.audioContext.destination)
   }
 
   render() {
@@ -196,7 +162,7 @@ class ActionsBar extends PureComponent {
                     />
                   }
                   color='primary'
-                  label= "Translation channels."
+                  label={hasBreakouts() ? 'Become Translator' : 'No Translation available'}
                   circle
                   hideLabel
                   size="lg"
@@ -245,7 +211,7 @@ class ActionsBar extends PureComponent {
                 />
               }
               color='primary'
-              label= "Translation channels."
+              label={ hasBreakouts() ? 'Activate Translation' : 'No Translation Available' }
               circle
               hideLabel
               size="lg"
