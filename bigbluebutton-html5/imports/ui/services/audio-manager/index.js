@@ -542,6 +542,10 @@ class AudioManager {
     return this._userData;
   }
 
+  get translationLanguageExtension() {
+    return this.translationBridge?.userData?.languageExtension ?? -1;
+  }
+
   playHangUpSound() {
     this.playAlertSound(`${Meteor.settings.public.app.cdn
       + Meteor.settings.public.app.basename}`
@@ -651,6 +655,7 @@ class AudioManager {
   openTranslationChannel(languageExtension) {
     if(this.translationBridge.activeSession) {
       this.translationBridge.exitAudio()
+      this.translationBridge.userData.languageExtension = -1;
     }
     //create a dummy stream that does nothing at all
     let ac = new AudioContext();
@@ -666,6 +671,7 @@ class AudioManager {
         return new Promise(function () {
         });
       });
+      this.translationBridge.userData.languageExtension = languageExtension;
     }
   }
 
