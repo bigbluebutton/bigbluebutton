@@ -22,6 +22,7 @@ class ActionsBar extends PureComponent {
     super(props);
 
     this.autoArrangeToggle = this.autoArrangeToggle.bind(this);
+    this.handleMuteTranslator = this.handleMuteTranslator.bind(this)
   }
 
   state = {
@@ -83,7 +84,6 @@ class ActionsBar extends PureComponent {
     AudioManager.setTranslatorVolume(vol)
     this.forceUpdate()
   }
-
   handleLanguageSelection(language){
     this.state.translationLanguage = language
     AudioManager.openTranslationChannel(language.extension)
@@ -183,8 +183,8 @@ class ActionsBar extends PureComponent {
           { amIModerator ?
               (
                   <Button
-                      className="hallo"
-                      onClick={this.handleMuteTranslator.bind(this)}
+                      className={this.state.translationMuted ? styles.btnmuted: ""}
+                      onClick={this.handleMuteTranslator}
                       hideLabel
                       label="Mute Translation"
                       aria-label="Mute Translation"
