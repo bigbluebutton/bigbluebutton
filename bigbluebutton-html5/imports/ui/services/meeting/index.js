@@ -57,6 +57,13 @@ class MeetingService {
             {fields: {'meetingProp.isBreakout': 1}});
         return (meeting && meeting.meetingProp.isBreakout);
     }
+
+    isTranslatorSpeaking(languageExtension) {
+        meeting = Meetings.findOne(
+            {meetingId: meetingId},
+            {fields: {'languages': 1}});
+        return meeting.languages.find(language => language.extension === languageExtension).translatorIsSpeaking;
+    }
 }
 
 const MeetingSingleton = new MeetingService();
