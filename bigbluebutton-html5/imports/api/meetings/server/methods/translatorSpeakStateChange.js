@@ -7,6 +7,11 @@ export default function translatorSpeakStateChange(languageExtension, isSpeaking
 
     Meetings.update(
         { meetingId: meetingId, "languages.extension": languageExtension },
-        { $set: {"languages.$.translatorIsSpeaking": isSpeaking}}
+        { $set: {"languages.$.translatorIsSpeaking": isSpeaking}},
+        (error) => {
+            if(error) {
+                Logger.error("Translator for language="+languageExtension+" is speaking="+isSpeaking+".",  error);
+            }
+        }
     );
 }
