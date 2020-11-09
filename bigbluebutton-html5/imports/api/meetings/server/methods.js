@@ -5,6 +5,7 @@ import transferUser from './methods/transferUser';
 import toggleLockSettings from './methods/toggleLockSettings';
 import toggleWebcamsOnlyForModerator from './methods/toggleWebcamsOnlyForModerator';
 import setLanguages from "./methods/setLanguages";
+import translatorSpeakStateChange from './methods/translatorSpeakStateChange';
 
 Meteor.methods({
   endMeeting,
@@ -12,5 +13,6 @@ Meteor.methods({
   toggleLockSettings,
   transferUser,
   toggleWebcamsOnlyForModerator,
-  setLanguages
+  setLanguages,
+  translatorSpeakStateChange,
 });
