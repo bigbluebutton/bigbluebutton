@@ -60,7 +60,7 @@ class MeetingService {
 
     isTranslatorSpeaking(languageExtension) {
         meeting = Meetings.findOne(
-            {meetingId: meetingId},
+            {meetingId: Auth.meetingID},
             {fields: {'languages': 1}});
         return meeting.languages.find(language => language.extension === languageExtension).translatorIsSpeaking;
     }
