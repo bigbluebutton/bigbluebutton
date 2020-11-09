@@ -10,7 +10,7 @@ export default function setLanguages(languages) {
         meetingId: meetingId
     })
     languages = languages.map(function (element,index){
-        return {name:element, extension: 100+index}
+        return {name:element, extension: 100+index, translatorIsSpeaking: false}
     })
     meeting.languages = languages
     Meetings.update({ meetingId: meetingId }, meeting);
