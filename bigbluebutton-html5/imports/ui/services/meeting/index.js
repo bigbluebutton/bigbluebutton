@@ -47,6 +47,10 @@ class MeetingService {
         makeCall('setLanguages', languageDesignations)
     }
 
+    changeTranslatorSpeackState(languageExtension, isSpeaking) {
+        makeCall('translatorSpeakStateChange', languageExtension, isSpeaking);
+    }
+
     isBreakout() {
         const meeting = Meetings.findOne(
             {meetingId: Auth.meetingID},

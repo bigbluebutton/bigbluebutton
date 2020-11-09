@@ -5,6 +5,7 @@ import KurentoBridge from '/imports/api/audio/client/bridge/kurento';
 import Auth from '/imports/ui/services/auth';
 import VoiceUsers from '/imports/api/voice-users';
 import Meetings from '/imports/api/meetings';
+import Meeting from '/imports/ui/services/meeting';
 import breakoutService from '/imports/ui/components/breakout-room/service'
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
 import logger from '/imports/startup/client/logger';
@@ -670,8 +671,8 @@ class AudioManager {
 
   async openTranslatorChannel(languageExtension) {
     if( this.translatorBridge.activeSession ) {
-      this.translatorBridge.exitAudio()
-      this.translatorSpeechEvents?.stop();
+      this.translatorBridge.exitAudio();
+      this.translatorSpeechEvents.stop();
     }
 
     if( languageExtension >= 0 ) {
@@ -689,12 +690,18 @@ class AudioManager {
 
       let speechEventsOptions = {
         interval: 200,
-        threshold: -50
-      }
+        threshold: -50,
+        play: false,
+        audioContext: audioContext,
+      };
 
       this.translatorSpeechEvents = hark(inputStream, speechEventsOptions);
       this.translatorSpeechEvents.on('speaking', () => {
-        console.log("Halt die fresse");
+        Meeting.changeTranslatorSpeackState(languageExtension, true);
+      });
+
+      this.translatorSpeechEvents.on('stopped_speaking', () => {
+        Meeting.changeTranslatorSpeackState(languageExtension, false);
       });
 
       const callOptions = {
@@ -702,6 +709,7 @@ class AudioManager {
         extension: null,
         inputStream: inputStream,
       };
+
       this.translatorBridge.userData.voiceBridge = this.userData.voiceBridge.toString()+languageExtension;
       this.translatorBridge.joinAudio(callOptions, function () {
         return new Promise(function () {
