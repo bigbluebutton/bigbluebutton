@@ -78,7 +78,7 @@ class ActionsBar extends PureComponent {
   }
 
   handleMuteTranslator(){
-    let vol = this.state.translationMuted ? 0:100;
+    let vol = !this.state.translationMuted ? 0:100;
     this.state.translationMuted = !this.state.translationMuted
     this.setState(this.state)
     AudioManager.setTranslatorVolume(vol)
