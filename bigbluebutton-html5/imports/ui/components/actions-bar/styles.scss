@@ -125,6 +125,21 @@
   }
 }
 
+.glow {
+  border-radius: 50%;
+  
+  :global(.animationsEnabled) & {
+    animation: pulse 1s infinite ease-in;
+  }
+
+  :global(.animationsDisabled) & span {
+    content: '';
+    outline: none !important;
+    background-clip: padding-box;
+    box-shadow: 0 0 0 4px rgba(255,255,255,.5);
+  }
+}
+
 .translatorLanguageOverlay{
   position: fixed;
   --anchor-bottom: #translatorButton top;

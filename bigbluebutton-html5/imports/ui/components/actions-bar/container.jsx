@@ -50,4 +50,5 @@ export default withTracker(() => ({
     { fields: {} }),
   allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,
   hasBreakouts: Service.hasBreakouts,
+  isTranslatorTalking: Service.isTranslatorTalking(),
 }))(injectIntl(ActionsBarContainer));

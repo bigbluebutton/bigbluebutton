@@ -116,6 +116,7 @@ class ActionsBar extends PureComponent {
       isThereCurrentPresentation,
       allowExternalVideo,
       hasBreakouts,
+      isTranslatorTalking,
     } = this.props;
 
     const actionBarClasses = {};

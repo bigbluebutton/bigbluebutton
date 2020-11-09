@@ -2,6 +2,7 @@ import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import { makeCall } from '/imports/ui/services/api';
 import Meetings from '/imports/api/meetings';
+import Meeting from '/imports/ui/services/meeting';
 import Breakouts from '/imports/api/breakouts';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
@@ -34,6 +35,15 @@ const muteMicrophone = () => {
   }
 }
 
+const isTranslatorTalking = () => {
+  const translationLanguageExtension = AudioManager.translationLanguageExtension;
+  let isTranslatorTalking = false;
+  if(translationLanguageExtension >= 0) {
+    isTranslatorTalking = Meeting.isTranslatorSpeaking(translationLanguageExtension);
+  }
+  return isTranslatorTalking;
+}
+
 export default {
   amIPresenter: () => Users.findOne({ userId: Auth.userID },
     { fields: { presenter: 1 } }).presenter,
@@ -59,4 +69,5 @@ export default {
   takePresenterRole,
   isSharingVideo: () => getVideoUrl(),
   muteMicrophone,
+  isTranslatorTalking,
 };
