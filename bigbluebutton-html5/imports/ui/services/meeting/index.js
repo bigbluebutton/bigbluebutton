@@ -59,7 +59,7 @@ class MeetingService {
     }
 
     isTranslatorSpeaking(languageExtension) {
-        meeting = Meetings.findOne(
+        const meeting = Meetings.findOne(
             {meetingId: Auth.meetingID},
             {fields: {'languages': 1}});
         return meeting.languages.find(language => language.extension === languageExtension).translatorIsSpeaking;
