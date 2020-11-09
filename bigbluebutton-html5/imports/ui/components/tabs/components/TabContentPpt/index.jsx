@@ -1,3 +1,3 @@
-import TabContentPpt from './TabContentPpt';
+import TabContentPptContainer from './TabContentPptContainer';
 
-export default TabContentPpt;
+export default TabContentPptContainer;

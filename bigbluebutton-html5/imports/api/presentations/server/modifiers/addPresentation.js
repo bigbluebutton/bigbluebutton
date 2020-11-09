@@ -5,6 +5,7 @@ import Logger from '/imports/startup/server/logger';
 import flat from 'flat';
 import addSlide from '/imports/api/slides/server/modifiers/addSlide';
 import setCurrentPresentation from './setCurrentPresentation';
+import { getFileType } from '/imports/utils/file';
 
 const getSlideText = async (url) => {
   let content = '';
@@ -27,9 +28,16 @@ const addSlides = (meetingId, podId, presentationId, slides) => {
 };
 
 export default function addPresentation(meetingId, podId, presentation) {
+  const newPresentation = {
+    ...presentation,
+    fileType: getFileType(presentation.name),
+  };
+
+  Logger.info(JSON.stringify(newPresentation));
+
   check(meetingId, String);
   check(podId, String);
-  check(presentation, {
+  check(newPresentation, {
     id: String,
     name: String,
     current: Boolean,
@@ -49,6 +57,7 @@ export default function addPresentation(meetingId, podId, presentation) {
       },
     ],
     downloadable: Boolean,
+    fileType: String,
   });
 
   const selector = {
@@ -57,15 +66,17 @@ export default function addPresentation(meetingId, podId, presentation) {
     id: presentation.id,
   };
 
+
   const modifier = {
     $set: Object.assign({
       meetingId,
       podId,
       'conversion.done': true,
       'conversion.error': false,
-    }, flat(presentation, { safe: true })),
+    }, flat(newPresentation, { safe: true })),
   };
 
+  Logger.info(`presentation =${JSON.stringify(presentation)}`);
   const cb = (err, numChanged) => {
     if (err) {
       return Logger.error(`Adding presentation to collection: ${err}`);

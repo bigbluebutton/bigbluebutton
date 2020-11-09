@@ -3,14 +3,13 @@ import Select from 'react-select';
 import TabPositionButtonGroup from '../TabPositionButtonGroup';
 import Slide from '../Slide';
 
-
-const TabContentPpt = ({
-  options, selectedOption, Slides, NoOptionMessage, onChange,
+const TabContent = ({
+  options, selectedOption, Pages, NoOptionMessage, onChange, SlideType,
 }) => (
   <Fragment>
-    <div className="w-full py-3 flex flex-col overflow-y-scroll" id="#Link1">
+    <div className="w-full py-3 flex flex-col" id="#Link2">
       <TabPositionButtonGroup />
-      <span className="rounded-md mx-4 shadow-sm mb-3">
+      <div className="rounded-md mx-4 shadow-sm mb-3">
         <Select
           className="font-semibold"
           options={options}
@@ -18,21 +17,21 @@ const TabContentPpt = ({
           noOptionsMessage={() => NoOptionMessage}
           onChange={e => onChange(e)}
         />
-      </span>
+      </div>
+    </div>
+    <div className="overflow-y-scroll">
       {
-          Slides ? (
+          Pages ? (
             <ul>
               {
-                Slides.map(({ id, thumbUri }, k) => (
-                  <Slide key={id} name={`Slide ${k + 1}`} image={thumbUri} />
+                Pages.map(({ id, thumbUri }, k) => (
+                  <Slide key={id} name={`${SlideType} ${k + 1}`} image={thumbUri} />
                 ))
               }
             </ul>
           ) : null
       }
-
     </div>
   </Fragment>
 );
-
-export default TabContentPpt;
+export default TabContent;

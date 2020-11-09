@@ -247,9 +247,41 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint, podId) =
     .then(removePresentations.bind(null, presentationsToRemove, podId));
 };
 
+const getPresentationsByFileType = fileType => Presentations
+  .find({
+    'conversion.error': false,
+    fileType,
+  })
+  .fetch()
+  .map((presentation) => {
+    const {
+      pages,
+      conversion,
+      current,
+      downloadable,
+      id,
+      name,
+      _id,
+    } = presentation;
+
+    const uploadTimestamp = id.split('-').pop();
+
+    return {
+      id: _id,
+      filename: name,
+      isCurrent: current || false,
+      upload: { done: true, error: false },
+      isDownloadable: downloadable,
+      conversion: conversion || { done: true, error: false },
+      pages,
+      uploadTimestamp,
+    };
+  });
+
 export default {
   getPresentations,
   persistPresentationChanges,
   dispatchTogglePresentationDownloadable,
   setPresentation,
+  getPresentationsByFileType,
 };
