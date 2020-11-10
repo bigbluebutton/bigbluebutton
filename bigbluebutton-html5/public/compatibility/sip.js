@@ -3831,6 +3831,7 @@ class OutgoingRequestMessage {
             fromTag: "",
             forceRport: false,
             hackViaTcp: false,
+            hackViaWs: false,
             optionTags: ["outbound"],
             routeSet: [],
             userAgentString: "sip.js",
@@ -3937,6 +3938,8 @@ class OutgoingRequestMessage {
         // FIXME: Hack
         if (this.options.hackViaTcp) {
             transport = "TCP";
+        } else if (this.options.hackViaWs) {
+            transport = "WS";
         }
         let via = "SIP/2.0/" + transport;
         via += " " + this.options.viaHost + ";branch=" + branch;
@@ -9812,6 +9815,7 @@ class UserAgentCore {
         const fromDisplayName = this.configuration.displayName;
         const forceRport = this.configuration.viaForceRport;
         const hackViaTcp = this.configuration.hackViaTcp;
+        const hackViaWs = this.configuration.hackViaWs;
         const optionTags = this.configuration.supportedOptionTags.slice();
         if (method === _messages__WEBPACK_IMPORTED_MODULE_0__["C"].REGISTER) {
             optionTags.push("path", "gruu");
@@ -9827,6 +9831,7 @@ class UserAgentCore {
             forceRport,
             fromDisplayName,
             hackViaTcp,
+            hackViaWs,
             optionTags,
             routeSet,
             userAgentString,
@@ -17303,6 +17308,7 @@ class UserAgent {
             hackAllowUnregisteredOptionTags: false,
             hackIpInContact: false,
             hackViaTcp: false,
+            hackViaWs: false,
             hackWssInTransport: false,
             logBuiltinEnabled: true,
             logConfiguration: true,
@@ -17657,6 +17663,7 @@ class UserAgent {
             displayName: this.options.displayName,
             loggerFactory: this.loggerFactory,
             hackViaTcp: this.options.hackViaTcp,
+            hackViaWs: this.options.hackViaWs,
             routeSet: this.options.preloadedRouteSet,
             supportedOptionTags,
             supportedOptionTagsResponse,
