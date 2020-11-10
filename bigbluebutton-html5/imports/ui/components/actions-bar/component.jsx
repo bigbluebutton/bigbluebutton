@@ -14,8 +14,10 @@ import { ACTIONSBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager'
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import AudioManager from '/imports/ui/services/audio-manager';
 import {makeCall} from "../../services/api";
+import Meetings from '/imports/api/meetings';
 import LanguageOverlay from '/imports/ui/components/LanguageOverlay/component'
 import Service from './service';
+import Auth from '/imports/ui/services/auth';
 
 class ActionsBar extends PureComponent {
   constructor(props) {
@@ -39,6 +41,31 @@ class ActionsBar extends PureComponent {
     const { autoArrangeLayout } = layoutContextState;
     const { autoArrangeLayout: prevAutoArrangeLayout } = prevLayoutContextState;
     if (autoArrangeLayout !== prevAutoArrangeLayout) this.forceUpdate();
+  }
+
+  componentDidMount() {
+    setInterval(()=>{
+      let mainaudio = document.getElementById("remote-media")
+      let transaudio = document.getElementById("translation-media")
+
+      let result = false;
+      const languageExtension = AudioManager.translationLanguageExtension;
+      const meeting = Meetings.findOne(
+          {meetingId: Auth.meetingID},
+          {fields: {'languages': 1}});
+      let meeting1 = meeting.languages.find(language => language.extension === languageExtension);
+      if(meeting1 !== undefined && meeting1.hasOwnProperty("translatorIsSpeaking")){
+        result = meeting1.translatorIsSpeaking;
+      }
+      if(result){
+        mainaudio.vol = 0.4
+        transaudio.vol = 100
+      }else{
+        mainaudio.vol = 0.8
+      }
+
+    },500);
+    console.log("easy to find")
   }
 
   autoArrangeToggle() {

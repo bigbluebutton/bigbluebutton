@@ -696,7 +696,7 @@ class AudioManager {
 
       let speechEventsOptions = {
         interval: 200,
-        threshold: -50,
+        threshold: -70,
         play: false,
         audioContext: audioContext,
       };
@@ -721,6 +721,9 @@ class AudioManager {
         return new Promise(function () {
         });
       });
+    }else{
+      let mainaudio = document.getElementById("remote-media")
+      mainaudio.vol = 100
     }
   }
 

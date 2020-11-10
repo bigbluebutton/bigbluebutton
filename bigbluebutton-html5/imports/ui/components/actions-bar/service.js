@@ -36,6 +36,7 @@ const muteMicrophone = () => {
 }
 
 const isTranslatorTalking = () => {
+  console.log("translator talking!")
   const translationLanguageExtension = AudioManager.translationLanguageExtension;
   let isTranslatorTalking = false;
   if(translationLanguageExtension >= 0) {
