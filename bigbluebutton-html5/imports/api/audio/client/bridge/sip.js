@@ -373,6 +373,7 @@ class SIPSession {
         sessionDescriptionHandlerFactoryOptions: {
           peerConnectionConfiguration: {
             iceServers,
+            sdpSemantics: 'plan-b',
           },
         },
         displayName: callerIdName,
