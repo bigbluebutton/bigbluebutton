@@ -289,6 +289,7 @@ public:
     #so far. Increasing this value might help avoiding 1004 error when
     #user activates microphone.
     iceGatheringTimeout: 5000
+    sipjsHackViaWs: false
   presentation:
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32
