@@ -44,27 +44,37 @@ class ActionsBar extends PureComponent {
   }
 
   componentDidMount() {
-    setInterval(()=>{
-      let mainaudio = document.getElementById("remote-media")
-      let transaudio = document.getElementById("translation-media")
-
-      let result = false;
-      const languageExtension = AudioManager.translationLanguageExtension;
+    setInterval(() => {
       const meeting = Meetings.findOne(
-          {meetingId: Auth.meetingID},
-          {fields: {'languages': 1}});
-      let meeting1 = meeting.languages.find(language => language.extension === languageExtension);
-      if(meeting1 !== undefined && meeting1.hasOwnProperty("translatorIsSpeaking")){
-        result = meeting1.translatorIsSpeaking;
-      }
-      if(result){
-        mainaudio.volume = 0
-        transaudio.volume = 1
-      }else{
-        mainaudio.volume = 0.8
-      }
+        { meetingId: Auth.meetingID },
+        { fields: { 'languages': 1 } });
 
-    },500);
+      if (meeting.languages) {
+
+        let mainaudio = document.getElementById("remote-media")
+        let transaudio = document.getElementById("translation-media")
+
+        let result = false;
+        const languageExtension = AudioManager.translationLanguageExtension;
+        let meeting1 = meeting.languages.find(language => language.extension === languageExtension);
+        if (meeting1 !== undefined) {
+          if (meeting1.hasOwnProperty("translatorIsSpeaking")) {
+            result = meeting1.translatorIsSpeaking;
+            if (meeting1.hasOwnProperty("translatorSpeakingUtcTimestamp")) {
+              if (meeting1.translatorSpeakingUtcTimestamp + 60000 < Date.now()) {
+                result = false;
+              }
+            }
+          }
+        }
+        if (result) {
+          mainaudio.volume = 0
+          transaudio.volume = 1
+        } else {
+          mainaudio.volume = 0.8
+        }
+      }
+    }, 500);
     console.log("easy to find")
   }
 
