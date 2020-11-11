@@ -58,10 +58,10 @@ class ActionsBar extends PureComponent {
         result = meeting1.translatorIsSpeaking;
       }
       if(result){
-        mainaudio.vol = 0.4
-        transaudio.vol = 100
+        mainaudio.volume = 0
+        transaudio.volume = 1
       }else{
-        mainaudio.vol = 0.8
+        mainaudio.volume = 0.8
       }
 
     },500);
