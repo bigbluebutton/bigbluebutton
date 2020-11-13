@@ -277,6 +277,7 @@ public:
     stunTurnServersFetchAddress: "/bigbluebutton/api/stuns"
     cacheStunTurnServers: true
     fallbackStunServer:  ''
+    recvonlyIceGatheringCheck: true
     mediaTag: "#remote-media"
     callTransferTimeout: 5000
     callHangupTimeout: 2000
