@@ -27,17 +27,12 @@ const makeEnvelope = (channel, eventName, header, body, routing) => {
   return JSON.stringify(envelope);
 };
 
-const makeDebugger = enabled => (message) => {
-  if (!enabled) return;
-  Logger.debug(`REDIS: ${message}`);
-};
-
 class MeetingMessageQueue {
-  constructor(eventEmitter, asyncMessages = [], debug = () => { }) {
+  constructor(eventEmitter, asyncMessages = [], redisDebugEnabled = false) {
     this.asyncMessages = asyncMessages;
     this.emitter = eventEmitter;
     this.queue = new PowerQueue();
-    this.debug = debug;
+    this.redisDebugEnabled = redisDebugEnabled;
 
     this.handleTask = this.handleTask.bind(this);
     this.queue.taskHandler = this.handleTask;
@@ -60,11 +55,13 @@ class MeetingMessageQueue {
 
     const callNext = () => {
       if (called) return;
-      this.debug(`${eventName} completed ${isAsync ? 'async' : 'sync'}`);
+      if (this.redisDebugEnabled) {
+        Logger.debug(`Redis: ${eventName} completed ${isAsync ? 'async' : 'sync'}`);
+      }
       called = true;
       const queueLength = this.queue.length();
-      if (queueLength > 100) {
-        Logger.error(`prev queue size=${queueLength} `);
+      if (queueLength > 0) {
+        Logger.warn(`Redis: MeetingMessageQueue for meetingId=${meetingId} has queue size=${queueLength} `);
       }
       next();
     };
@@ -75,7 +72,9 @@ class MeetingMessageQueue {
     };
 
     try {
-      this.debug(`${JSON.stringify(data.parsedMessage.core)} emitted`);
+      if (this.redisDebugEnabled) {
+        Logger.debug(`Redis: ${JSON.stringify(data.parsedMessage.core)} emitted`);
+      }
 
       if (isAsync) {
         callNext();
@@ -125,7 +124,6 @@ class RedisPubSub {
 
     this.handleSubscribe = this.handleSubscribe.bind(this);
     this.handleMessage = this.handleMessage.bind(this);
-    this.debug = makeDebugger(this.config.debug);
   }
 
   init() {
@@ -138,12 +136,14 @@ class RedisPubSub {
       this.sub.psubscribe(channel);
     });
 
-    this.debug(`Subscribed to '${channelsToSubscribe}'`);
+    if (this.redisDebugEnabled) {
+      Logger.debug(`Redis: Subscribed to '${channelsToSubscribe}'`);
+    }
   }
 
   updateConfig(config) {
     this.config = Object.assign({}, this.config, config);
-    this.debug = makeDebugger(this.config.debug);
+    this.redisDebugEnabled = this.config.debug;
   }
 
 
@@ -174,14 +174,16 @@ class RedisPubSub {
       if (eventName === 'CheckAlivePongSysMsg') {
         return;
       }
-      this.debug(`${eventName} skipped`);
+      if (this.redisDebugEnabled) {
+        Logger.debug(`Redis: ${eventName} skipped`);
+      }
       return;
     }
 
     const queueId = meetingId || NO_MEETING_ID;
 
     if (!(queueId in this.mettingsQueues)) {
-      this.mettingsQueues[meetingId] = new MeetingMessageQueue(this.emitter, async, this.debug);
+      this.mettingsQueues[meetingId] = new MeetingMessageQueue(this.emitter, async, this.redisDebugEnabled);
     }
 
     this.mettingsQueues[meetingId].add({
