@@ -183,7 +183,7 @@ class Dropdown extends Component {
     } = this.props;
 
     const { isOpen } = this.state;
-    
+
     const placements = placement && placement.replace(' ', '-');
     const test = isMobile ? {
       width: '100%',
@@ -233,19 +233,19 @@ class Dropdown extends Component {
         tabIndex={-1}
       >
         {
-          tethered ?
-            (
+          tethered
+            ? (
               <TetherComponent
                 style={{
-                  zIndex: isOpen ? 15 : '',
+                  zIndex: isOpen ? 15 : 1,
                   ...test,
                 }}
                 attachment={
-                  isMobile ? 'middle bottom'
+                  isMobile ? 'middle center'
                     : attachments[placements]
                 }
                 targetAttachment={
-                  isMobile ? ''
+                  isMobile ? 'auto auto'
                     : targetAttachments[placements]
                 }
                 constraints={[
