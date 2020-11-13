@@ -1373,7 +1373,7 @@ class ApiController {
     UserSession us = getUserSession(sessionToken);
     Meeting meeting = null;
 
-    String respMessage = "Session " + sessionToken + " not found."
+    String respMessage = "Session not found."
 
     if (!hasValidSession(sessionToken)) {
       reject = true;
@@ -1381,7 +1381,7 @@ class ApiController {
       meeting = meetingService.getMeeting(us.meetingID);
       if (meeting == null || meeting.isForciblyEnded()) {
         reject = true
-        respMessage = "Meeting not found or ended for session " + sessionToken + "."
+        respMessage = "Meeting not found or ended for session."
       } else {
         if (hasReachedMaxParticipants(meeting, us)) {
           reject = true;
@@ -1391,7 +1391,7 @@ class ApiController {
         }
       }
       if (us.guestStatus.equals(GuestPolicy.DENY)) {
-        respMessage = "User denied for user with session " + sessionToken + "."
+        respMessage = "User denied for user with session."
         reject = true
       }
     }
@@ -1411,6 +1411,7 @@ class ApiController {
           builder.response {
             returncode RESP_CODE_FAILED
             message respMessage
+            sessionToken
             logoutURL logoutUrl
           }
           render(contentType: "application/json", text: builder.toPrettyString())
