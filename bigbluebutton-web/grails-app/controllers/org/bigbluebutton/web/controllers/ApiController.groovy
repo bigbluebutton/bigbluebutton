@@ -245,6 +245,8 @@ class ApiController {
     // Do we have a name for the user joining? If none, complain.
     if (!StringUtils.isEmpty(params.fullName)) {
       params.fullName = StringUtils.strip(params.fullName);
+      // remove control characters ( sanitize )
+      params.fullName = params.fullName.replaceAll("\\p{Cntrl}", "");
       if (StringUtils.isEmpty(params.fullName)) {
         errors.missingParamError("fullName");
       }
