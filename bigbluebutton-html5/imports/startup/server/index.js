@@ -23,6 +23,52 @@ Meteor.startup(() => {
   const CDN_URL = APP_CONFIG.cdn;
   let heapDumpMbThreshold = 100;
 
+  const newHeartbeat = function heartbeat() {
+    const currentTime = new Date().getTime();
+
+    // Skipping heartbeat, because websocket is sending data
+    if (currentTime - this.ws.lastSentFrameTimestamp < 10000) {
+      Logger.info('Skipping heartbeat, because websocket is sending data', {
+        currentTime,
+        lastSentFrameTimestamp: this.ws.lastSentFrameTimestamp,
+        userId: this.session.connection._meteorSession.userId,
+      });
+      return;
+    }
+
+    const supportsHeartbeats = this.ws.ping(null, () => clearTimeout(this.hto_ref));
+    if (supportsHeartbeats) {
+      this.hto_ref = setTimeout(() => {
+        Logger.info('Heartbeat timeout', { userId: this.session.connection._meteorSession.userId, sentAt: currentTime, now: new Date().getTime() });
+      }, Meteor.server.options.heartbeatTimeout);
+    } else {
+      Logger.error('Unexpected error supportsHeartbeats=false');
+    }
+  };
+
+  const newSend = function send(data) {
+    this.lastSentFrameTimestamp = new Date().getTime();
+
+    if (this.readyState > 1/* API.OPEN = 1 */) return false;
+    if (!(data instanceof Buffer)) data = String(data);
+    return this._driver.messages.write(data);
+  };
+
+  Meteor.setInterval(() => {
+    for (const session of Meteor.server.sessions.values()) {
+      const { socket } = session;
+      const recv = socket._session.recv;
+
+      if (session.bbbFixApplied || !recv || !recv.ws) {
+        continue;
+      }
+
+      recv.__proto__.heartbeat = newHeartbeat;
+      recv.ws.__proto__.send = newSend;
+      session.bbbFixApplied = true;
+    }
+  }, 5000);
+
   const memoryMonitoringSettings = Meteor.settings.private.memoryMonitoring;
   if (memoryMonitoringSettings.stat.enabled) {
     memwatch.on('stats', (stats) => {
