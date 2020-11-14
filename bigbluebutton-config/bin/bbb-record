@@ -141,6 +141,7 @@ usage() {
         echo "   --rebuildall			        rebuild every recording"
 	echo "   --delete <internal meetingID>	delete one meeting and recording"
         echo "   --deleteall                      	delete all meetings and recordings"
+        echo "   --deletenorecord			delete all meetings and recordings which have no recording marks"
         echo "   --debug                          	check for recording errors"
         echo "   --check                          	check for configuration errors"
         echo "   --enable <workflow>              	enable a recording workflow"
@@ -229,6 +230,13 @@ while [ $# -gt 0 ]; do
         if [ "$1" = "-deleteall" -o "$1" = "--deleteall" ]; then
 		need_root
                 DELETEALL=1
+		shift
+                continue
+        fi
+
+        if [ "$1" = "-deletenorecord" -o "$1" = "--deletenorecord" ]; then
+		need_root
+                DELETENORECORD=1
 		shift
                 continue
         fi
@@ -425,6 +433,17 @@ if [ $DELETEALL ]; then
     rm -rf /var/bigbluebutton/captions/$meeting
   done
 fi
+
+if [ $DELETENORECORD ]; then
+  # check for *.norecord files
+  # if found call a new instance of bbb-record for deleting identified recordings.
+
+  for meetings in $(ls $STATUS/archived/ | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}.norecord$"); do
+    meeting=$(basename ${meetings%.norecord})
+    /usr/bin/bbb-record --delete $meeting
+  done
+fi
+
 
 if [ $LIST ]; then
 
