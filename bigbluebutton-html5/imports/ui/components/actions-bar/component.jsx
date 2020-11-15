@@ -214,6 +214,7 @@ class ActionsBar extends PureComponent {
                   hideLabel
                   size="lg"
                   onClick={this.toggleTranslatorSelection.bind(this)}
+                  className={ styles.translatorBtn }
                 />
               </div>
             ) :null
@@ -221,7 +222,7 @@ class ActionsBar extends PureComponent {
           { amIModerator ?
               (
                   <Button
-                      className={this.state.translationMuted ? styles.btnmuted: ""}
+                      className={[this.state.translationMuted ? styles.btnmuted: "", styles.translatorBtn ].join(" ")}
                       onClick={this.handleMuteTranslator}
                       hideLabel
                       label="Translation on/off"
