@@ -66,6 +66,7 @@ class RedisRecorderActor(
       case m: SendWhiteboardAnnotationEvtMsg        => handleSendWhiteboardAnnotationEvtMsg(m)
       case m: SendCursorPositionEvtMsg              => handleSendCursorPositionEvtMsg(m)
       case m: ClearWhiteboardEvtMsg                 => handleClearWhiteboardEvtMsg(m)
+      case m: ReloadWhiteboardEvtMsg                => handleReloadWhiteboardEvtMsg(m)
       case m: UndoWhiteboardEvtMsg                  => handleUndoWhiteboardEvtMsg(m)
 
       // User
@@ -293,6 +294,17 @@ class RedisRecorderActor(
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
+    
+  private def handleReloadWhiteboardEvtMsg(msg: ReloadWhiteboardEvtMsg) {
+    val ev = new ReloadWhiteboardRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setPresentation(getPresentationId(msg.body.whiteboardId))
+    ev.setPageNumber(getPageNum(msg.body.whiteboardId))
+    ev.setWhiteboardId(msg.body.whiteboardId)
+    ev.setUserId(msg.body.userId)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  } 
 
   private def handleUndoWhiteboardEvtMsg(msg: UndoWhiteboardEvtMsg) {
     val ev = new UndoAnnotationRecordEvent()
