@@ -64,6 +64,8 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
         msgSender.send(fromAkkaAppsWbRedisChannel, json)
       case ClearWhiteboardEvtMsg.NAME =>
         msgSender.send(fromAkkaAppsWbRedisChannel, json)
+      case ReloadWhiteboardEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsWbRedisChannel, json)
       case UndoWhiteboardEvtMsg.NAME =>
         msgSender.send(fromAkkaAppsWbRedisChannel, json)
 
