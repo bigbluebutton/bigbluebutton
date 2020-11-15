@@ -192,6 +192,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ModifyWhiteboardAccessPubMsg](envelope, jsonNode)
       case ClearWhiteboardPubMsg.NAME =>
         routeGenericMsg[ClearWhiteboardPubMsg](envelope, jsonNode)
+      case ReloadWhiteboardPubMsg.NAME =>
+        routeGenericMsg[ReloadWhiteboardPubMsg](envelope, jsonNode)
       case UndoWhiteboardPubMsg.NAME =>
         routeGenericMsg[UndoWhiteboardPubMsg](envelope, jsonNode)
       case SendWhiteboardAnnotationPubMsg.NAME =>
