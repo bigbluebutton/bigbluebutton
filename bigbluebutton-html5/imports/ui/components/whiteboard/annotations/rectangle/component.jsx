@@ -53,9 +53,9 @@ export default class RectangleDrawComponent extends Component {
     const currentUserID = RectangleService.currentUserID();
     const drawerID = annotation.id.replace(/-.*$/,'');
     const isDrawerPresenter = RectangleService.isHePresenter(drawerID);
-    const visibility = modeMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? {visibility: "hidden"} : {};
 
     return (
+      modeMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? null :
       <rect
         x={results.x}
         y={results.y}
@@ -65,7 +65,6 @@ export default class RectangleDrawComponent extends Component {
         stroke={getFormattedColor(annotation.color)}
         strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
-        {...visibility}
         data-test="drawnRectangle"
       />
     );
