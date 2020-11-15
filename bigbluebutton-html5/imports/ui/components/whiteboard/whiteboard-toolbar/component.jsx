@@ -143,26 +143,6 @@ class WhiteboardToolbar extends Component {
     this.panOn = this.panOn.bind(this);
     this.panOff = this.panOff.bind(this);
   }
-
-  toggleVisibility(toShow){
-    var annotations = [];
-    annotations = Array.prototype.concat.apply(annotations, document.getElementsByTagName('path'));
-    annotations = Array.prototype.concat.apply(annotations, document.getElementsByTagName('ellipse'));
-    annotations = Array.prototype.concat.apply(annotations, document.getElementsByTagName('line'));
-    annotations = Array.prototype.concat.apply(annotations, document.getElementsByTagName('rect'));
-    annotations = Array.prototype.concat.apply(annotations, document.getElementsByTagName('foreignObject'));
-    for (var i = 0; i < annotations.length; i++) {
-      if (toShow) {
-        if (annotations[i].getAttribute("visibility") == "hidden") {
-          annotations[i].setAttribute("visibility", "visible");
-        }
-      } else {
-        if (annotations[i].getAttribute("visibility") == "visible") {
-          annotations[i].setAttribute("visibility", "hidden");
-        }
-      }
-    }
-  }
   
   componentDidMount() {
     const { actions, multiUser, isPresenter } = this.props;
@@ -213,12 +193,6 @@ class WhiteboardToolbar extends Component {
     const { annotations, multiUser } = this.props;
     const { annotationSelected } = prevState;
     const hadInAnnotations = annotations.some(el => el.value === annotationSelected.value);
-
-    if (multiUser == 1) {
-      this.toggleVisibility(true);
-    } else if (multiUser == 2) {
-      this.toggleVisibility(false);
-    }
     
     // if color or thickness were changed
     // we might need to trigger svg animation for Color and Thickness icons
@@ -234,7 +208,6 @@ class WhiteboardToolbar extends Component {
   }
 
   componentWillUnmount() {
-    this.toggleVisibility(true);
     document.removeEventListener('keydown', this.panOn);
     document.removeEventListener('keyup', this.panOff);
   }
