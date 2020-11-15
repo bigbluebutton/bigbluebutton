@@ -50,8 +50,8 @@ export default class EllipseDrawComponent extends Component {
     const currentUserID = EllipseService.currentUserID();
     const drawerID = annotation.id.replace(/-.*$/,'');
     const isDrawerPresenter = EllipseService.isHePresenter(drawerID);
-    const visibility = modeMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? {visibility: "hidden"} : {};
     return (
+      modeMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? null :
       <ellipse
         cx={cx}
         cy={cy}
@@ -61,7 +61,6 @@ export default class EllipseDrawComponent extends Component {
         stroke={getFormattedColor(annotation.color)}
         strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
-        {...visibility}
         data-test="drawnEllipse"
       />
     );
