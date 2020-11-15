@@ -11,6 +11,7 @@ case class Whiteboard(id: String, multiUser: Number, changedModeOn: Long, annota
 class WhiteboardApp2x(implicit val context: ActorContext)
   extends SendCursorPositionPubMsgHdlr
   with ClearWhiteboardPubMsgHdlr
+  with ReloadWhiteboardPubMsgHdlr
   with UndoWhiteboardPubMsgHdlr
   with ModifyWhiteboardAccessPubMsgHdlr
   with SendWhiteboardAnnotationPubMsgHdlr
