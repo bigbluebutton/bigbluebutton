@@ -149,9 +149,9 @@ export default class PencilDrawComponent extends Component {
     const currentUserID = PencilService.currentUserID();
     const drawerID = annotation.id.replace(/-.*$/,'');
     const isDrawerPresenter = PencilService.isHePresenter(drawerID);
-    const visibility = modeMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? {visibility: "hidden"} : {};
   
     return (
+      modeMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? null :
       <path
         fill="none"
         stroke={getFormattedColor(annotation.color)}
@@ -160,7 +160,6 @@ export default class PencilDrawComponent extends Component {
         strokeLinejoin="round"
         strokeLinecap="round"
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
-        {...visibility}
         data-test="pencilDraw"
       />
     );
