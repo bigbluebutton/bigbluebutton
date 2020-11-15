@@ -152,9 +152,9 @@ export default class TextDrawComponent extends Component {
     const currentUserID = TextShapeService.currentUserID();
     const drawerID = annotation.id.replace(/-.*$/,'');
     const isDrawerPresenter = TextShapeService.isHePresenter(drawerID);
-    const visibility = modeMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? {visibility: "hidden"} : {};
-
+   
     return (
+      modeMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? null :
       <g>
         <RenderInBrowser only firefox>
           <clipPath id={annotation.id}>
@@ -172,7 +172,6 @@ export default class TextDrawComponent extends Component {
           y={results.y}
           width={results.width}
           height={results.height}
-          {...visibility}
         >
           <p style={styles}>
             {results.text}
