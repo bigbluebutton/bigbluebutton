@@ -37,9 +37,9 @@ export default class LineDrawComponent extends Component {
     const currentUserID = LineService.currentUserID();
     const drawerID = annotation.id.replace(/-.*$/,'');
     const isDrawerPresenter = LineService.isHePresenter(drawerID);
-    const visibility = modeMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? {visibility: "hidden"} : {};
 
     return (
+      modeMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? null :
       <line
         x1={x1}
         y1={y1}
@@ -49,7 +49,6 @@ export default class LineDrawComponent extends Component {
         strokeLinejoin="round"
         strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
-        {...visibility}
         data-test="drawnLine"
       />
     );
