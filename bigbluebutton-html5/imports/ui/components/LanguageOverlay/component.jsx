@@ -36,7 +36,7 @@ class LanguageOverlay extends Component{
             languages = languages.filter(language => !filteredLanguageExtensions.has(language.extension));
         }
         this.state.languages = languages
-        this.state.languages.push({name: "None", extension:-1})
+        this.state.languages.push({name: "Original", extension:-1})
         this.setState(this.state)
         harborRender()
     }
