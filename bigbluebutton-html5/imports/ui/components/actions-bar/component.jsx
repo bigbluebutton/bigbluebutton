@@ -224,8 +224,8 @@ class ActionsBar extends PureComponent {
                       className={this.state.translationMuted ? styles.btnmuted: ""}
                       onClick={this.handleMuteTranslator}
                       hideLabel
-                      label="Mute Translation"
-                      aria-label="Mute Translation"
+                      label="Translation on/off"
+                      aria-label="Translation on/off"
                       color={!this.state.translationMuted ? 'primary' : 'default'}
                       ghost={this.state.translationMuted}
                       icon={this.state.translationMuted ? 'mute' : 'unmute'}
