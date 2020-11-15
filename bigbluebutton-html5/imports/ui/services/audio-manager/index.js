@@ -723,7 +723,7 @@ class AudioManager {
       });
     }else{
       let mainaudio = document.getElementById("remote-media")
-      mainaudio.vol = 100
+      mainaudio.vol = 1
     }
   }
 
