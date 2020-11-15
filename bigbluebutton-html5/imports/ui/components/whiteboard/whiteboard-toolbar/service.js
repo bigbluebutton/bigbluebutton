@@ -24,8 +24,25 @@ const clearWhiteboard = (whiteboardId) => {
   makeCall('clearWhiteboard', whiteboardId);
 };
 
+const reloadWhiteboard = (whiteboardId) => {
+  makeCall('reloadWhiteboard', whiteboardId);
+};
+
 const changeWhiteboardMode = (multiUser, whiteboardId) => {
-  makeCall('changeWhiteboardAccess', multiUser, whiteboardId);
+  const whiteboardMultiuserData = WhiteboardMultiUser.findOne({ meetingId: Auth.meetingID, whiteboardId });
+  const multiUser_p = whiteboardMultiuserData ? whiteboardMultiuserData.multiUser : 0;
+  
+  if ( (multiUser_p == 2 && (multiUser   == 1 || multiUser   == 0)) ||
+       (multiUser   == 2 && (multiUser_p == 1 || multiUser_p == 0)) ) {
+    async function syncChangeWhiteboardAccess () {
+      await makeCall('changeWhiteboardAccess', multiUser, whiteboardId);
+      // In rare cases, drawing still starts before the multiUser change reaches...
+      reloadWhiteboard(whiteboardId);
+    }
+    syncChangeWhiteboardAccess ();
+  } else {
+    makeCall('changeWhiteboardAccess', multiUser, whiteboardId);
+  }
 };
 
 const setInitialWhiteboardToolbarValues = (tool, multiuser, thickness, color, fontSize, textShape) => {
@@ -102,6 +119,7 @@ const filterAnnotationList = () => {
 export default {
   undoAnnotation,
   clearWhiteboard,
+  reloadWhiteboard,
   changeWhiteboardMode,
   setInitialWhiteboardToolbarValues,
   getCurrentDrawSettings,
