@@ -41,9 +41,9 @@ export default class TriangleDrawComponent extends Component {
     const currentUserID = TriangleService.currentUserID();
     const drawerID = annotation.id.replace(/-.*$/,'');
     const isDrawerPresenter = TriangleService.isHePresenter(drawerID);
-    const visibility = modeMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? {visibility: "hidden"} : {};
-  
+   
     return (
+      modeMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? null :
       <path
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
         fill="none"
@@ -51,7 +51,6 @@ export default class TriangleDrawComponent extends Component {
         d={path}
         strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         strokeLinejoin="miter"
-        {...visibility}
         data-test="drawnTriangle"
       />
     );
