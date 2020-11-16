@@ -66,6 +66,7 @@ class AudioManager {
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.monitor = this.monitor.bind(this);
     this.translatorVolumeGainNode = new AudioContext().createGain();
+    this.muteHandels = new Set();
   }
 
   init(userData) {
@@ -730,6 +731,30 @@ class AudioManager {
 
   setTranslatorVolume(translatorVolume) {
     this.translatorVolumeGainNode.gain.value = translatorVolume;
+  }
+
+  getTranslatorVolume() {
+    return this.translatorVolumeGainNode.gain.value;
+  }
+
+  muteTranslator(muteHandle) {
+    this.translatorVolumeGainNode.gain.value = 0.0;
+    this.muteHandels.add(muteHandle);
+  }
+
+  unmuteTranslator(muteHandle) {
+    this.muteHandels.delete(muteHandle);
+    if(this.muteHandels.size === 0) {
+      this.translatorVolumeGainNode.gain.value = 1;
+    }
+  }
+
+  isTranslatorMuted(muteHandle = null) {
+    if(muteHandle === null) {
+      return this.muteHandles.size !== 0;
+    } else {
+      return this.muteHandels.has(muteHandle);
+    }
   }
 }
 
