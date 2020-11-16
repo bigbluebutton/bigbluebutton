@@ -51,6 +51,12 @@ Meteor.startup(() => {
   const newSend = function send(data) {
     this.lastSentFrameTimestamp = new Date().getTime();
 
+    // Call https://github.com/meteor/meteor/blob/1e7e56eec8414093cd0c1c70750b894069fc972a/packages/ddp-common/heartbeat.js#L80-L88
+    this.meteorHeartbeat._seenPacket = true;
+    if (this.meteorHeartbeat._heartbeatTimeoutHandle) {
+      this.meteorHeartbeat._clearHeartbeatTimeoutTimer();
+    }
+
     if (this.readyState > 1/* API.OPEN = 1 */) return false;
     if (!(data instanceof Buffer)) data = String(data);
     return this._driver.messages.write(data);
@@ -65,6 +71,7 @@ Meteor.startup(() => {
         continue;
       }
 
+      recv.ws.meteorHeartbeat = session.heartbeat;
       recv.__proto__.heartbeat = newHeartbeat;
       recv.ws.__proto__.send = newSend;
       session.bbbFixApplied = true;
