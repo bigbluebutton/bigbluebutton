@@ -33,13 +33,6 @@ class ActionsBar extends PureComponent {
     translationMuted: false
   };
 
-  componentDidUpdate(prevProps) {
-    const { layoutContextState } = this.props;
-    const { layoutContextState: prevLayoutContextState } = prevProps;
-    const { autoArrangeLayout } = layoutContextState;
-    const { autoArrangeLayout: prevAutoArrangeLayout } = prevLayoutContextState;
-    if (autoArrangeLayout !== prevAutoArrangeLayout) this.forceUpdate();
-  }
 
   componentDidMount() {
     setInterval(() => {
