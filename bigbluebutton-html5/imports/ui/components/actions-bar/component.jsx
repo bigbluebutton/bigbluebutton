@@ -273,18 +273,7 @@ class ActionsBar extends PureComponent {
               onClick={this.toggleTranslationSelection.bind(this)}
             />
           </div>
-          <Button
-            className={cx(styles.button, autoArrangeLayout || styles.btn)}
-            icon={autoArrangeLayout ? 'lock' : 'unlock'}
-            color={autoArrangeLayout ? 'primary' : 'default'}
-            ghost={!autoArrangeLayout}
-            onClick={this.autoArrangeToggle}
-            label={autoArrangeLayout ? 'Disable Auto Arrange' : 'Enable Auto Arrange'}
-            aria-label="Auto Arrange test"
-            hideLabel
-            circle
-            size="lg"
-          />
+
         </div>
         <div className={styles.right}>
           {isLayoutSwapped
