@@ -699,7 +699,7 @@ class AudioManager {
         play: false,
         audioContext: audioContext,
       };
-      let hark = window.kurentoUtils.hark;
+      let hark = window.kurentoUtils.WebRtcPeer.hark;
       this.translatorSpeechEvents = hark(inputStream, speechEventsOptions);
       this.translatorSpeechEvents.on('speaking', () => {
         Meeting.changeTranslatorSpeackState(languageExtension, true);
