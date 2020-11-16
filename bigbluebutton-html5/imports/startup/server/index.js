@@ -23,6 +23,7 @@ Meteor.startup(() => {
   const CDN_URL = APP_CONFIG.cdn;
   let heapDumpMbThreshold = 100;
 
+  // https://github.com/sockjs/sockjs-node/blob/1ef08901f045aae7b4df0f91ef598d7a11e82897/lib/transport/websocket.js#L74-L82
   const newHeartbeat = function heartbeat() {
     const currentTime = new Date().getTime();
 
@@ -46,6 +47,7 @@ Meteor.startup(() => {
     }
   };
 
+  // https://github.com/davhani/hagty/blob/6a5c78e9ae5a5e4ade03e747fb4cc8ea2df4be0c/faye-websocket/lib/faye/websocket/api.js#L84-L88
   const newSend = function send(data) {
     this.lastSentFrameTimestamp = new Date().getTime();
 
