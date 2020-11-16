@@ -106,11 +106,18 @@ class ActionsBar extends PureComponent {
   }
 
   handleMuteTranslator(){
-    let vol = !this.state.translationMuted ? 0:1;
-    this.state.translationMuted = !this.state.translationMuted
-    this.setState(this.state)
-    AudioManager.setTranslatorVolume(vol)
-    this.forceUpdate()
+    const muteKey = 'mute-button';
+
+    let isTranslatorMuted = AudioManager.isTranslatorMuted(muteKey);
+
+    if(isTranslatorMuted) {
+      AudioManager.unmuteTranslator(muteKey);
+    } else {
+      AudioManager.muteTranslator(muteKey);
+    }
+
+    this.setState({translationMuted : AudioManager.isTranslatorMuted(muteKey)});
+    this.forceUpdate();
   }
   handleLanguageSelection(language){
     this.state.translationLanguage = language
