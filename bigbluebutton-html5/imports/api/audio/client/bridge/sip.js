@@ -145,10 +145,13 @@ class SIPSession {
       sessionToken,
     } = this.user;
 
+    const encodedName =
+      btoa && name ? btoa(name) : name;
+
     const callerIdName = [
       `${userId}_${getAudioSessionNumber()}`,
       'bbbID',
-      isListenOnly ? `LISTENONLY-${name}` : name,
+      isListenOnly ? `LISTENONLY-${encodedName}` : encodedName,
     ].join('-').replace(/"/g, "'");
 
     this.user.callerIdName = callerIdName;
