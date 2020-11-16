@@ -112,6 +112,13 @@ need_root() {
         fi
 }
 
+need_root_or_bigbluebutton() {
+	if [ $EUID != 0 -a "$USER" != 'bigbluebutton']; then
+		echo "Need to be user root or bigbluebutton to run this option"
+      exit 1
+   fi
+}
+
 print_header() {
         if [ ! $HEADER ]; then
                 echo
@@ -212,7 +219,7 @@ while [ $# -gt 0 ]; do
         fi
 		
 	if [ "$1" = "-delete" -o "$1" = "--delete" ]; then
-                need_root
+                need_root_or_bigbluebutton
                 if [ ! -z "${2}" ]; then
                         MEETING_ID="${2}"
                         shift
