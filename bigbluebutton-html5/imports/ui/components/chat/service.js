@@ -87,7 +87,7 @@ const reduceGroupMessages = (previous, current) => {
     text: current.message,
     time: current.timestamp,
   }];
-  if (!lastMessage || !currentMessage.chatId === PUBLIC_GROUP_CHAT_ID) {
+  if (!lastMessage) {
     return previous.concat(currentMessage);
   }
   // Check if the last message is from the same user and time discrepancy
@@ -105,6 +105,39 @@ const reduceGroupMessages = (previous, current) => {
   }
 
   return previous.concat(currentMessage);
+};
+
+const getChatMessages = (chatId) => {
+  console.log('alontra', PUBLIC_CHAT_ID, chatId, chatId === PUBLIC_CHAT_ID, Auth.meetingID);
+  if (chatId === PUBLIC_CHAT_ID) {
+    return GroupChatMsg.find({
+      meetingId: Auth.meetingID,
+      chatId: PUBLIC_GROUP_CHAT_ID,
+
+    }, { sort: ['timestamp'] }).fetch();
+  }
+  const senderId = Auth.userID;
+  
+  const privateChat = GroupChat.findOne({
+    meetingId: Auth.meetingID,
+    users: { $all: [chatId, senderId] },
+    access: PRIVATE_CHAT_TYPE,
+  });
+  
+  if (privateChat) {
+    const {
+      chatId: id,
+    } = privateChat;
+    console.log('ratibum', GroupChatMsg.find({
+      meetingId: Auth.meetingID,
+      chatId: id,
+    }, { sort: ['timestamp'] }).fetch());
+
+    return GroupChatMsg.find({
+      meetingId: Auth.meetingID,
+      chatId: id,
+    }, { sort: ['timestamp'] }).fetch();
+  }
 };
 
 const reduceAndMapGroupMessages = messages => (messages
@@ -345,6 +378,7 @@ export default {
   mapGroupMessage,
   reduceAndMapGroupMessages,
   reduceAndDontMapGroupMessages,
+  getChatMessages,
   getPublicGroupMessages,
   getPrivateGroupMessages,
   getUser,

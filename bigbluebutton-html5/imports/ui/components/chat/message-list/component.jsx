@@ -9,6 +9,10 @@ import {
 } from 'react-virtualized';
 import { styles } from './styles';
 import MessageListItemContainer from './message-list-item/container';
+import { ChatContext } from '../chat-context/context';
+
+
+const PUBLIC_CHAT_KEY = Meteor.settings.public.chat.public_id;
 
 const propTypes = {
   messages: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -27,6 +31,11 @@ const propTypes = {
 const defaultProps = {
   scrollPosition: null,
   lastReadMessageTime: 0,
+  contextChat: {
+    messageGroups:{},
+    preJoinMessages:{},
+    posJoinMessages:{},
+  }
 };
 
 const intlMessages = defineMessages({
@@ -63,6 +72,8 @@ class MessageList extends Component {
       shouldScrollToBottom: true,
       shouldScrollToPosition: false,
       scrollPosition: 0,
+      lastMessage: {},
+      messsagesIds: [],
     };
 
     this.listRef = null;
@@ -101,6 +112,7 @@ class MessageList extends Component {
       scrollPosition: prevScrollPosition,
       messages: prevMessages,
       chatId: prevChatId,
+      contextChat,
     } = prevProps;
 
     const {
@@ -108,6 +120,7 @@ class MessageList extends Component {
       shouldScrollToPosition,
       scrollPosition: scrollPositionState,
       shouldScrollToBottom,
+      lastMessage: stateLastMsg,
     } = this.state;
 
     if (prevChatId !== chatId) {
@@ -139,6 +152,28 @@ class MessageList extends Component {
     if (prevMessages.length < messages.length) {
       // this.resizeRow(prevMessages.length - 1);
       // messages.forEach((i, idx) => this.resizeRow(idx));
+    }
+    const chat = contextChat;
+    const lastTimeWindow = contextChat.lastTimewindow
+    console.log('contextChat', contextChat);
+    const lastMsg = chatId === PUBLIC_CHAT_KEY 
+      ? contextChat.preJoinMessages[lastTimeWindow] || contextChat.posJoinMessages[lastTimeWindow]
+      : contextChat.messageGroups[lastTimeWindow];
+
+    if (!_.isEqualWith(lastMsg, stateLastMsg) && lastMsg) {
+      console.log('messsagesIds', this.state.messsagesIds, lastMsg, stateLastMsg);
+      this.setState({
+        lastMessage: { ...lastMsg },
+        messsagesIds: chatId === PUBLIC_CHAT_KEY 
+        ? [...Object.keys(contextChat.preJoinMessages), /*TODO: put welcome messa if*/ ...Object.keys(contextChat.posJoinMessages)]
+        : [...Object.keys(contextChat.messageGroups)],
+      }, ()=> this.listRef.forceUpdateGrid());
+    }
+
+    if (lastMsg && (lastMsg.id === stateLastMsg?.id)) {
+      if (lastMsg.content.length !== stateLastMsg.content.length){
+        this.listRef.forceUpdateGrid();
+      }
     }
   }
 
@@ -211,9 +246,15 @@ class MessageList extends Component {
       handleReadMessage,
       lastReadMessageTime,
       id,
+      contextChat,
+      chatId,
     } = this.props;
-    const { scrollArea } = this.state;
-    const message = messages[index];
+    const { scrollArea, messsagesIds } = this.state;
+    const messageId = messsagesIds[index];
+    const message = chatId === PUBLIC_CHAT_KEY 
+    ? contextChat.preJoinMessages[messageId] || contextChat.posJoinMessages[messageId]
+    : contextChat.messageGroups[messageId];
+    console.log('message', message);
 
     // it's to get an accurate size of the welcome message because it changes after initial render
 
@@ -280,12 +321,14 @@ class MessageList extends Component {
   render() {
     const {
       messages,
+      contextChat,
     } = this.props;
     const {
       scrollArea,
       shouldScrollToBottom,
       shouldScrollToPosition,
       scrollPosition,
+      messsagesIds,
     } = this.state;
 
     return (
@@ -296,7 +339,7 @@ class MessageList extends Component {
               this.lastWidth = width;
               this.cache.clearAll();
             }
-
+            
             return (
               <List
                 ref={(ref) => {
@@ -308,10 +351,11 @@ class MessageList extends Component {
                     }
                   }
                 }}
+                v={contextChat}
                 rowHeight={this.cache.rowHeight}
                 className={styles.messageList}
                 rowRenderer={this.rowRender}
-                rowCount={messages.length}
+                rowCount={messsagesIds.length}
                 height={height}
                 width={width}
                 overscanRowCount={5}

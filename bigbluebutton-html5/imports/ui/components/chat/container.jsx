@@ -1,15 +1,17 @@
-import React, { PureComponent } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
+import { ChatContext } from './chat-context/context';
 import Chat from './component';
 import ChatService from './service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
+const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
 const CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -34,29 +36,28 @@ const intlMessages = defineMessages({
   },
 });
 
-class ChatContainer extends PureComponent {
-  componentDidMount() {
-    // in case of reopening a chat, need to make sure it's removed from closed list
+const ChatContainer = (props) => {
+  useEffect(() => {
     ChatService.removeFromClosedChatsSession();
+  }, []);
+
+  const usingChatContext = useContext(ChatContext);
+  const {
+    children,
+    unmounting,
+    chatID,
+  } = props;
+  if (unmounting === true) {
+    return null;
   }
 
-  render() {
-    const {
-      children,
-      unmounting,
-    } = this.props;
-
-    if (unmounting === true) {
-      return null;
-    }
-
-    return (
-      <Chat {...this.props}>
-        {children}
-      </Chat>
-    );
-  }
-}
+  const contextChat = usingChatContext.chats[chatID === PUBLIC_CHAT_KEY ? PUBLIC_GROUP_CHAT_KEY : chatID];
+  return (
+    <Chat {...{ ...props, chatID, contextChat }}>
+      {children}
+    </Chat>
+  );
+};
 
 export default injectIntl(withTracker(({ intl }) => {
   const chatID = Session.get('idChatOpen');

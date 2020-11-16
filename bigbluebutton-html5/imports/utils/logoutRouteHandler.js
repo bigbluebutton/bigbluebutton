@@ -13,3 +13,4 @@ const logoutRouteHandler = () => {
 };
 
 export default logoutRouteHandler;
+ 
