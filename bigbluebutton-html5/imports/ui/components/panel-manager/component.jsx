@@ -11,10 +11,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Resizable from 're-resizable';
 import { styles } from '/imports/ui/components/app/styles';
 import _ from 'lodash';
-import { withLayoutConsumer } from '/imports/ui/components/layout/context';
-import {
-  USERLIST_MIN_WIDTH,
-} from '/imports/ui/components/layout/layout-manager';
 import Translations from "../translations/component";
 
 const intlMessages = defineMessages({

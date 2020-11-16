@@ -1,5 +1,4 @@
 import { Tracker } from 'meteor/tracker';
-import hark from 'hark';
 import KurentoBridge from '/imports/api/audio/client/bridge/kurento';
 
 import Auth from '/imports/ui/services/auth';
@@ -700,7 +699,7 @@ class AudioManager {
         play: false,
         audioContext: audioContext,
       };
-
+      let hark = window.kurentoUtils.hark;
       this.translatorSpeechEvents = hark(inputStream, speechEventsOptions);
       this.translatorSpeechEvents.on('speaking', () => {
         Meeting.changeTranslatorSpeackState(languageExtension, true);

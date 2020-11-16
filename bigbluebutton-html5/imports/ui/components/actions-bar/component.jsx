@@ -10,8 +10,6 @@ import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions
 import PresentationOptionsContainer from './presentation-options/component';
 import Button from '/imports/ui/components/button/component';
 import Storage from '/imports/ui/services/storage/session';
-import { ACTIONSBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
-import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import AudioManager from '/imports/ui/services/audio-manager';
 import {makeCall} from "../../services/api";
 import Meetings from '/imports/api/meetings';
