@@ -27,6 +27,7 @@ import Subscriptions from '/imports/ui/components/subscriptions/component';
 import IntlStartup from '/imports/startup/client/intl';
 import ContextProviders from '/imports/ui/components/context-providers/component';
 import ChatAdapter from '/imports/ui/components/chat/chat-context/adapter';
+
 Meteor.startup(() => {
   // Logs all uncaught exceptions to the client logger
   window.addEventListener('error', (e) => {

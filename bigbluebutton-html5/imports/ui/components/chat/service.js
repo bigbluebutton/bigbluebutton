@@ -117,13 +117,13 @@ const getChatMessages = (chatId) => {
     }, { sort: ['timestamp'] }).fetch();
   }
   const senderId = Auth.userID;
-  
+
   const privateChat = GroupChat.findOne({
     meetingId: Auth.meetingID,
     users: { $all: [chatId, senderId] },
     access: PRIVATE_CHAT_TYPE,
   });
-  
+
   if (privateChat) {
     const {
       chatId: id,

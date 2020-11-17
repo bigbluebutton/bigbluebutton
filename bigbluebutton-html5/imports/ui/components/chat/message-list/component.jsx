@@ -73,7 +73,7 @@ class MessageList extends Component {
       shouldScrollToPosition: false,
       scrollPosition: 0,
       lastMessage: {},
-      messsagesIds: [],
+      timeWindowIds: [],
     };
 
     this.listRef = null;
@@ -121,6 +121,7 @@ class MessageList extends Component {
       scrollPosition: scrollPositionState,
       shouldScrollToBottom,
       lastMessage: stateLastMsg,
+      timeWindowIds
     } = this.state;
 
     if (prevChatId !== chatId) {
@@ -160,21 +161,17 @@ class MessageList extends Component {
       ? contextChat.preJoinMessages[lastTimeWindow] || contextChat.posJoinMessages[lastTimeWindow]
       : contextChat.messageGroups[lastTimeWindow];
 
+
     if (!_.isEqualWith(lastMsg, stateLastMsg) && lastMsg) {
-      console.log('messsagesIds', this.state.messsagesIds, lastMsg, stateLastMsg);
+      console.log('timeWindowIds', this.state.timeWindowIds, lastMsg, stateLastMsg);
       this.setState({
         lastMessage: { ...lastMsg },
-        messsagesIds: chatId === PUBLIC_CHAT_KEY 
+        timeWindowIds: chatId === PUBLIC_CHAT_KEY 
         ? [...Object.keys(contextChat.preJoinMessages), /*TODO: put welcome messa if*/ ...Object.keys(contextChat.posJoinMessages)]
         : [...Object.keys(contextChat.messageGroups)],
-      }, ()=> this.listRef.forceUpdateGrid());
+      });
     }
-
-    if (lastMsg && (lastMsg.id === stateLastMsg?.id)) {
-      if (lastMsg.content.length !== stateLastMsg.content.length){
-        this.listRef.forceUpdateGrid();
-      }
-    }
+    if (lastMsg && (lastMsg.id === stateLastMsg?.id)) this.resizeRow(timeWindowIds.length - 1);
   }
 
   handleScrollUpdate(position, target) {
@@ -249,12 +246,11 @@ class MessageList extends Component {
       contextChat,
       chatId,
     } = this.props;
-    const { scrollArea, messsagesIds } = this.state;
-    const messageId = messsagesIds[index];
+    const { scrollArea, timeWindowIds } = this.state;
+    const messageId = timeWindowIds[index];
     const message = chatId === PUBLIC_CHAT_KEY 
     ? contextChat.preJoinMessages[messageId] || contextChat.posJoinMessages[messageId]
     : contextChat.messageGroups[messageId];
-    console.log('message', message);
 
     // it's to get an accurate size of the welcome message because it changes after initial render
 
@@ -328,7 +324,7 @@ class MessageList extends Component {
       shouldScrollToBottom,
       shouldScrollToPosition,
       scrollPosition,
-      messsagesIds,
+      timeWindowIds,
     } = this.state;
 
     return (
@@ -351,11 +347,10 @@ class MessageList extends Component {
                     }
                   }
                 }}
-                v={contextChat}
                 rowHeight={this.cache.rowHeight}
                 className={styles.messageList}
                 rowRenderer={this.rowRender}
-                rowCount={messsagesIds.length}
+                rowCount={timeWindowIds.length}
                 height={height}
                 width={width}
                 overscanRowCount={5}

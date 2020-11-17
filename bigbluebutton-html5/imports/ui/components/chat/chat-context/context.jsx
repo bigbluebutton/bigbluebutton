@@ -94,7 +94,13 @@ const formatMsg = (msg, state) => {
   } else {
     if (groupMessage) {
       if (groupMessage.sender === stateMessages.lastSender) {
-        groupMessage.content.push({ id: msg.id, text: msg.message, time: msg.timestamp });
+        messageGroups[keyName + '-' + stateMessages.chatIndexes[keyName]] = {
+          ...groupMessage,
+          content: [
+            ...groupMessage.content,
+            { id: msg.id, text: msg.message, time: msg.timestamp }
+          ],
+        };
       }
     }
   }
@@ -128,7 +134,10 @@ const reducer = (state, action) => {
     }
     case ACTIONS.REMOVED: {
       console.log(ACTIONS.REMOVED);
-      delete state[msg.chatId];
+
+      if (state[msg.chatId]){
+        delete state[msg.chatId];
+      }
       return state;
     }
     case ACTIONS.USER_STATUS_CHANGED: {

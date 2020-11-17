@@ -7,8 +7,8 @@ const providersList = [
 ];
 
 const ContextProvidersComponent = props => providersList.reduce((acc, Component) => (
-    <Component>
-      {acc}
-    </Component>), props.children);
+  <Component>
+    {acc}
+  </Component>), props.children);
 
 export default ContextProvidersComponent;

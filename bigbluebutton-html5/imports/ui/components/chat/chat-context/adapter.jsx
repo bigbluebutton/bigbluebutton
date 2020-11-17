@@ -3,7 +3,6 @@ import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import { ChatContext, ACTIONS } from './context';
 
 
-
 const Adapter = () => {
   const usingChatContext = useContext(ChatContext);
   const { dispatch } = usingChatContext;
