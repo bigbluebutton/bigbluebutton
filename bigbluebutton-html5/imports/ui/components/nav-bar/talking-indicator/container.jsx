@@ -1,6 +1,7 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import VoiceUsers from '/imports/api/voice-users';
+import Users from '/imports/api/users'
 import Auth from '/imports/ui/services/auth';
 import { debounce } from 'lodash';
 import TalkingIndicator from './component';
@@ -36,12 +37,16 @@ export default withTracker(() => {
         callerName, talking, color, voiceUserId, muted, intId,
       } = usersTalking[i];
 
+      const user = Users.findOne({ userId: voiceUserId });
+
+      const _name = user ? user.name : 'USER';
+
       talkers[`${intId}`] = {
         color,
         talking,
         voiceUserId,
         muted,
-        callerName,
+        callerName: _name,
       };
     }
   }
