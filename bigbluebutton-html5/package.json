@@ -72,7 +72,7 @@
     "react-toggle": "~4.0.2",
     "react-transition-group": "^2.9.0",
     "react-virtualized": "^9.22.3",
-    "react-vnc-display": "latest",
+    "react-vnc-display": "BrentBaccala/react-vnc-display",
     "reconnecting-websocket": "~v4.4.0",
     "redis": "^3.1.2",
     "sanitize-html": "2.3.3",
@@ -102,7 +102,6 @@
     "sha1": "^1.1.1"
   },
   "resolutions": {
-    "novnc-node": "BrentBaccala/noVNC-node",
     "trim-newlines": "^4.0.1"
   },
   "cssModules": {
