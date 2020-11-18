@@ -61,6 +61,10 @@ class PollDrawComponent extends Component {
     const { points, result } = annotation;
     const { slideWidth, slideHeight, intl } = this.props;
 
+    for (const r of result) {
+      r.key = r.key.slice(0,10);
+    }
+    
     // x1 and y1 - coordinates of the top left corner of the annotation
     // initial width and height are the width and height of the annotation
     // all the points are given as percentages of the slide
