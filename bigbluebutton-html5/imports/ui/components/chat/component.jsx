@@ -105,6 +105,7 @@ const Chat = (props) => {
           hasUnreadMessages,
           scrollPosition,
           messages,
+          currentUserIsModerator: amIModerator,
         }}
       />
       <MessageForm

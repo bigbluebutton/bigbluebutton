@@ -9,10 +9,14 @@ import {
 } from 'react-virtualized';
 import { styles } from './styles';
 import MessageListItemContainer from './message-list-item/container';
-import { ChatContext } from '../chat-context/context';
+import { getLoginTime } from '../chat-context/context';
+import Storage from '/imports/ui/services/storage/session';
+import ChatService from '../service';
 
 
-const PUBLIC_CHAT_KEY = Meteor.settings.public.chat.public_id;
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
+const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 
 const propTypes = {
   messages: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -49,6 +53,13 @@ const intlMessages = defineMessages({
   },
 });
 
+
+
+const sysMessagesIds = {
+  welcomeId: `${SYSTEM_CHAT_TYPE}-welcome-msg`,
+  moderatorId: `${SYSTEM_CHAT_TYPE}-moderator-msg`
+ };
+
 class MessageList extends Component {
   constructor(props) {
     super(props);
@@ -81,6 +92,9 @@ class MessageList extends Component {
 
     this.lastWidth = 0;
   }
+
+  
+   
 
   componentDidMount() {
     const {
@@ -121,7 +135,8 @@ class MessageList extends Component {
       scrollPosition: scrollPositionState,
       shouldScrollToBottom,
       lastMessage: stateLastMsg,
-      timeWindowIds
+      timeWindowIds,
+      currentUserIsModerator,
     } = this.state;
 
     if (prevChatId !== chatId) {
@@ -164,10 +179,18 @@ class MessageList extends Component {
 
     if (!_.isEqualWith(lastMsg, stateLastMsg) && lastMsg) {
       console.log('timeWindowIds', this.state.timeWindowIds, lastMsg, stateLastMsg);
+      const modOnlyMessage = Storage.getItem('ModeratorOnlyMessage');
+      const welcomeId = sysMessagesIds.welcomeId;
+      const moderatorId = sysMessagesIds.moderatorId;
+      const systemMessagesIds = [
+        welcomeId,
+        currentUserIsModerator && modOnlyMessage && moderatorId,
+      ].filter((i)=> i);
+
       this.setState({
         lastMessage: { ...lastMsg },
         timeWindowIds: chatId === PUBLIC_CHAT_KEY 
-        ? [...Object.keys(contextChat.preJoinMessages), /*TODO: put welcome messa if*/ ...Object.keys(contextChat.posJoinMessages)]
+        ? [...Object.keys(contextChat.preJoinMessages), ...systemMessagesIds, ...Object.keys(contextChat.posJoinMessages)]
         : [...Object.keys(contextChat.messageGroups)],
       });
     }
@@ -245,12 +268,44 @@ class MessageList extends Component {
       id,
       contextChat,
       chatId,
+      loginTime,
     } = this.props;
+    
+    const { welcomeProp } = ChatService.getWelcomeProp();
+    const modOnlyMessage = Storage.getItem('ModeratorOnlyMessage');
+
     const { scrollArea, timeWindowIds } = this.state;
     const messageId = timeWindowIds[index];
-    const message = chatId === PUBLIC_CHAT_KEY 
-    ? contextChat.preJoinMessages[messageId] || contextChat.posJoinMessages[messageId]
-    : contextChat.messageGroups[messageId];
+
+    const userMessage = chatId === PUBLIC_CHAT_KEY
+      ? contextChat.preJoinMessages[messageId] || contextChat.posJoinMessages[messageId]
+      : contextChat.messageGroups[messageId];
+
+
+    const systemMessages = {
+      [sysMessagesIds.welcomeId]:{
+        id: sysMessagesIds.welcomeId,
+        content: [{
+          id: sysMessagesIds.welcomeId,
+          text: welcomeProp.welcomeMsg,
+          time: loginTime,
+        }],
+        time: loginTime,
+        sender: null,
+      },
+      [sysMessagesIds.moderatorId]: {
+        id: sysMessagesIds.moderatorId,
+        content: [{
+          id: sysMessagesIds.moderatorId,
+          text: modOnlyMessage,
+          time: loginTime+1,
+        }],
+        time: loginTime+1,
+        sender: null,
+      }
+    };
+
+    const message = messageId.startsWith(SYSTEM_CHAT_TYPE) ? systemMessages[messageId] : userMessage;
 
     // it's to get an accurate size of the welcome message because it changes after initial render
 

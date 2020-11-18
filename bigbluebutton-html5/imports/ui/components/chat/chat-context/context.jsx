@@ -16,9 +16,9 @@ export const ACTIONS = {
   USER_STATUS_CHANGED: 'user_status_changed',
 };
 
-const getGroupingTime = () => Meteor.settings.public.chat.grouping_messages_window;
-const getGroupChatId = () => Meteor.settings.public.chat.public_group_id;
-const getLoginTime = () => (Users.findOne({ userId: Auth.userID }) || {}).loginTime || 0;
+export const getGroupingTime = () => Meteor.settings.public.chat.grouping_messages_window;
+export const getGroupChatId = () => Meteor.settings.public.chat.public_group_id;
+export const getLoginTime = () => (Users.findOne({ userId: Auth.userID }) || {}).loginTime || 0;
 
 const generateTimeWindow = (timestamp) => {
   const groupingTime = getGroupingTime();
