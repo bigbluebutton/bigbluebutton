@@ -40,30 +40,33 @@ const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
 };
 
-const handleClickQuickPoll = (slideId, poll) => {
+const handleClickQuickPoll = (slideId, poll, label) => {
   const { type } = poll;
   Session.set('openPanel', 'poll');
   Session.set('forcePollOpen', true);
   Session.set('pollInitiated', true);
 
-  makeCall('startPoll', type, slideId);
+  makeCall('startPoll', type, slideId, label.options);
 };
 
 const getAvailableQuickPolls = (slideId, parsedSlides) => {
   const pollItemElements = parsedSlides.map((poll) => {
     const { poll: label, type } = poll;
     let itemLabel = label;
-
     if (type !== 'YN' && type !== 'TF') {
       const { options } = itemLabel;
-      itemLabel = options.join('/').replace(/[\n.)]/g, '');
+      if (type == 'custom') {
+        itemLabel = Array.from({length: options.length}, (_, i) => i + 1).join('/');
+      } else {
+        itemLabel = options.join('/').replace(/[\n.)]/g, '');
+      }
     }
 
     // removes any whitespace from the label
     itemLabel = itemLabel.replace(/\s+/g, '').toUpperCase();
 
     const numChars = {
-      1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E',
+      1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F',
     };
     itemLabel = itemLabel.split('').map((c) => {
       if (numChars[c]) return numChars[c];
@@ -74,7 +77,7 @@ const getAvailableQuickPolls = (slideId, parsedSlides) => {
       <DropdownListItem
         label={itemLabel}
         key={_.uniqueId('quick-poll-item')}
-        onClick={() => handleClickQuickPoll(slideId, poll)}
+        onClick={() => handleClickQuickPoll(slideId, poll, label)}
       />
     );
   });
@@ -130,7 +133,7 @@ class QuickPollDropdown extends Component {
         className={styles.quickPollBtn}
         label={quickPollLabel}
         tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
-        onClick={() => startPoll(singlePollType, currentSlide.id)}
+        onClick={() => startPoll(singlePollType, currentSlide.id, quickPollOptions[0].poll.options)}
         size="lg"
         disabled={!!activePoll}
       />
