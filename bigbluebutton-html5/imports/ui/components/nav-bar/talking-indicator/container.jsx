@@ -37,7 +37,7 @@ export default withTracker(() => {
         callerName, talking, color, voiceUserId, muted, intId,
       } = usersTalking[i];
 
-      const user = Users.findOne({ userId: voiceUserId });
+      const user = Users.findOne({ userId: voiceUserId }, { fields: { name: 1 } });
 
       const _name = user ? user.name : 'USER';
 
