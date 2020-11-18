@@ -628,7 +628,7 @@ class AudioManager {
   }
 
   mute () {
-    this.setSenderTrackEnabled(false);
+    //this.setSenderTrackEnabled(false);
   }
 
   unmute () {
