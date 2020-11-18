@@ -1,7 +1,8 @@
 import React, { memo, Component } from 'react';
+import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles';
 
 const START_VIEWONLY = Meteor.settings.public.remoteDesktop.startLocked;
@@ -37,7 +38,7 @@ const intlMessages = defineMessages({
  */
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
 };
 
 class LockRemoteDesktopButton extends Component {
