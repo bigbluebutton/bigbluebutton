@@ -510,6 +510,11 @@ class ApiController {
       }
     }
 
+
+    String meetingInstance = meeting.getMetadata()["bbb-meetinginstance"];
+    meetingInstance = (meetingInstance == null) ? "1" : meetingInstance;
+    clientURL = clientURL.replaceAll("%%INSTANCEID%%", meetingInstance);
+
     if (!StringUtils.isEmpty(params.redirect)) {
       try {
         redirectClient = Boolean.parseBoolean(params.redirect);

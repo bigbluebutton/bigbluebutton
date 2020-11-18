@@ -108,6 +108,9 @@ class RedisPubSub {
     this.didSendRequestEvent = false;
     const host = process.env.REDIS_HOST || Meteor.settings.private.redis.host;
     const redisConf = Meteor.settings.private.redis;
+    this.instanceMax = parseInt(process.env.INSTANCE_MAX || "1");
+    this.instanceId = process.env.INSTANCE_ID || "1";
+
     const { password, port } = redisConf;
 
     if (password) {
@@ -122,6 +125,7 @@ class RedisPubSub {
 
     this.emitter = new EventEmitter2();
     this.mettingsQueues = {};
+    this.mettingsQueues[NO_MEETING_ID] = new MeetingMessageQueue(this.emitter, this.config.async, this.config.debug);
 
     this.handleSubscribe = this.handleSubscribe.bind(this);
     this.handleMessage = this.handleMessage.bind(this);
@@ -180,16 +184,33 @@ class RedisPubSub {
 
     const queueId = meetingId || NO_MEETING_ID;
 
-    if (!(queueId in this.mettingsQueues)) {
-      this.mettingsQueues[meetingId] = new MeetingMessageQueue(this.emitter, async, this.debug);
+    if (eventName === 'MeetingCreatedEvtMsg'){
+      const newIntId = parsedMessage.core.body.props.meetingProp.intId;
+      const metadata = parsedMessage.core.body.props.metadataProp.metadata;
+      const instanceId = metadata['bbb-meetinginstance'];
+
+      Logger.info("MeetingCreatedEvtMsg received with meetingInstance: " + instanceId + " -- this is instance: " + this.instanceId);
+
+      if (instanceId === this.instanceId){
+        this.mettingsQueues[newIntId] = new MeetingMessageQueue(this.emitter, async, this.debug);
+      } else {
+        // Logger.error('THIS NODEJS IS **NOT** PROCESSING EVENTS FOR THIS MEETING')
+      }
     }
 
-    this.mettingsQueues[meetingId].add({
-      pattern,
-      channel,
-      eventName,
-      parsedMessage,
-    });
+    if (queueId in this.mettingsQueues) {
+      this.mettingsQueues[queueId].add({
+        pattern,
+        channel,
+        eventName,
+        parsedMessage,
+      });
+    }
+    //else {
+    //Logger.info("Skipping redis message for " + queueId);
+    //}
+
+
   }
 
   destroyMeetingQueue(id) {
@@ -258,3 +279,4 @@ Meteor.startup(() => {
 });
 
 export default RedisPubSubSingleton;
+
