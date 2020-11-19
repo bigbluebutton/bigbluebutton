@@ -699,14 +699,16 @@ class AudioManager {
         play: false,
         audioContext: audioContext,
       };
-      let hark = window.kurentoUtils.WebRtcPeer.hark;
+      let hark = window.hark;
       this.translatorSpeechEvents = hark(inputStream, speechEventsOptions);
       this.translatorSpeechEvents.on('speaking', () => {
+        console.log("Speaking")
         Meeting.changeTranslatorSpeackState(languageExtension, true);
       });
 
       this.translatorSpeechEvents.on('stopped_speaking', () => {
         Meeting.changeTranslatorSpeackState(languageExtension, false);
+        console.log("stopped speaking")
       });
 
       const callOptions = {
