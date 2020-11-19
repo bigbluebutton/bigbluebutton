@@ -627,6 +627,19 @@ class AudioManager {
       }
     });
   }
+  setSenderTrackEnabledTranslator (shouldEnable) {
+
+    if(this.translatorBridge.activeSession) {
+      // Bridge -> SIP.js bridge, the only full audio capable one right now
+      const peer = this.translatorBridge.getPeerConnection();
+      peer.getSenders().forEach(sender => {
+        const { track } = sender;
+        if (track && track.kind === 'audio') {
+          track.enabled = shouldEnable;
+        }
+      });
+    }
+  }
 
   mute () {
     this.setSenderTrackEnabled(false);
@@ -698,7 +711,7 @@ class AudioManager {
           play: false,
         };
         let hark = window.hark;
-        this.transL
+        this.translatorStream = inputStream
         this.translatorSpeechEvents = hark(inputStream, speechEventsOptions);
         this.translatorSpeechEvents.on('speaking', () => {
           console.log("Speaking")
@@ -738,14 +751,14 @@ class AudioManager {
   }
 
   muteTranslator(muteHandle) {
-    this.translatorVolumeGainNode.gain.value = 0.0;
+    this.setSenderTrackEnabledTranslator(false)
     this.muteHandels.add(muteHandle);
   }
 
   unmuteTranslator(muteHandle) {
     this.muteHandels.delete(muteHandle);
     if(this.muteHandels.size === 0) {
-      this.translatorVolumeGainNode.gain.value = 1;
+      this.setSenderTrackEnabledTranslator(true);
     }
   }
 
