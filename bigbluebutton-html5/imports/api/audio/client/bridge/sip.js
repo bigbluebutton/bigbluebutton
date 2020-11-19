@@ -743,7 +743,7 @@ class SIPSession {
               callerIdName: this.user.callerIdName,
             },
           }, 'ICE connection closed');
-        }
+        } else return;
 
         this.callback({
           status: this.baseCallStates.failed,
