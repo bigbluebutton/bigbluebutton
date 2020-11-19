@@ -108,8 +108,8 @@ class RedisPubSub {
     this.didSendRequestEvent = false;
     const host = process.env.REDIS_HOST || Meteor.settings.private.redis.host;
     const redisConf = Meteor.settings.private.redis;
-    this.instanceMax = parseInt(process.env.INSTANCE_MAX || "1");
-    this.instanceId = process.env.INSTANCE_ID || "1";
+    this.instanceMax = parseInt(process.env.INSTANCE_MAX || 1);
+    this.instanceId = parseInt(process.env.INSTANCE_ID) || 1;
 
     const { password, port } = redisConf;
 
@@ -187,14 +187,14 @@ class RedisPubSub {
     if (eventName === 'MeetingCreatedEvtMsg'){
       const newIntId = parsedMessage.core.body.props.meetingProp.intId;
       const metadata = parsedMessage.core.body.props.metadataProp.metadata;
-      const instanceId = metadata['bbb-meetinginstance'];
+      const instanceId = parseInt(metadata['bbb-meetinginstance']) || 1;
 
-      Logger.info("MeetingCreatedEvtMsg received with meetingInstance: " + instanceId + " -- this is instance: " + this.instanceId);
+      Logger.warn("MeetingCreatedEvtMsg received with meetingInstance: " + instanceId + " -- this is instance: " + this.instanceId);
 
       if (instanceId === this.instanceId){
         this.mettingsQueues[newIntId] = new MeetingMessageQueue(this.emitter, async, this.debug);
       } else {
-        // Logger.error('THIS NODEJS IS **NOT** PROCESSING EVENTS FOR THIS MEETING')
+        // Logger.error('THIS NODEJS ' + this.instanceId + ' IS **NOT** PROCESSING EVENTS FOR THIS MEETING ' + instanceId)
       }
     }
 
