@@ -78,13 +78,16 @@ class MessageList extends Component {
     this.systemMessagesResized = {};
 
     this.scrollToBottom = this.scrollToBottom.bind(this);
+    const modOnlyMessage = Storage.getItem('ModeratorOnlyMessage');
     this.state = {
       scrollArea: null,
       shouldScrollToBottom: true,
       shouldScrollToPosition: false,
       scrollPosition: 0,
       lastMessage: {},
-      timeWindowIds: [],
+      timeWindowIds: props.chatId === PUBLIC_CHAT_KEY 
+      ?  [sysMessagesIds.welcomeId,  props.currentUserIsModerator && modOnlyMessage && sysMessagesIds.moderatorId].filter(i=>i)
+      : [],
     };
 
     this.listRef = null;
