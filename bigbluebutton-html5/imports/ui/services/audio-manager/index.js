@@ -42,7 +42,7 @@ class AudioManager {
       value: DEFAULT_INPUT_DEVICE_ID,
       tracker: new Tracker.Dependency(),
     };
-
+    this.translatorStream = null
     this.defineProperties({
       isMuted: false,
       isConnected: false,
@@ -628,7 +628,7 @@ class AudioManager {
   }
 
   mute () {
-    //this.setSenderTrackEnabled(false);
+    this.setSenderTrackEnabled(false);
   }
 
   unmute () {
@@ -682,46 +682,46 @@ class AudioManager {
 
     if( languageExtension >= 0 ) {
 
-      let audioContext = this.translatorVolumeGainNode.context;
+      /*let audioContext = this.translatorVolumeGainNode.context;
       let microDestinationNode = audioContext.createMediaStreamDestination();
       if(this.inputStream === undefined){
         await this.joinMicrophone()
       }
       let microAudioNode = audioContext.createMediaStreamSource(this.inputStream);
       microAudioNode.connect(this.translatorVolumeGainNode)
-      this.translatorVolumeGainNode.connect(microDestinationNode);
-
-      let inputStream = microDestinationNode.stream;
-
-      let speechEventsOptions = {
-        interval: 200,
-        threshold: -70,
-        play: false,
-        audioContext: audioContext,
-      };
-      let hark = window.hark;
-      this.translatorSpeechEvents = hark(inputStream, speechEventsOptions);
-      this.translatorSpeechEvents.on('speaking', () => {
-        console.log("Speaking")
-        Meeting.changeTranslatorSpeackState(languageExtension, true);
-      });
-
-      this.translatorSpeechEvents.on('stopped_speaking', () => {
-        Meeting.changeTranslatorSpeackState(languageExtension, false);
-        console.log("stopped speaking")
-      });
-
-      const callOptions = {
-        isListenOnly: false,
-        extension: null,
-        inputStream: inputStream,
-      };
-
-      this.translatorBridge.userData.voiceBridge = this.userData.voiceBridge.toString()+languageExtension;
-      this.translatorBridge.joinAudio(callOptions, function () {
-        return new Promise(function () {
+      this.translatorVolumeGainNode.connect(microDestinationNode);*/
+      let success = function (inputStream) {
+        let speechEventsOptions = {
+          interval: 200,
+          threshold: -70,
+          play: false,
+        };
+        let hark = window.hark;
+        this.transL
+        this.translatorSpeechEvents = hark(inputStream, speechEventsOptions);
+        this.translatorSpeechEvents.on('speaking', () => {
+          console.log("Speaking")
+          Meeting.changeTranslatorSpeackState(languageExtension, true);
         });
-      });
+
+        this.translatorSpeechEvents.on('stopped_speaking', () => {
+          Meeting.changeTranslatorSpeackState(languageExtension, false);
+          console.log("stopped speaking")
+        });
+
+        const callOptions = {
+          isListenOnly: false,
+          extension: null,
+          inputStream: inputStream,
+        };
+
+        this.translatorBridge.userData.voiceBridge = this.userData.voiceBridge.toString()+languageExtension;
+        this.translatorBridge.joinAudio(callOptions, function () {
+          return new Promise(function () {
+          });
+        });
+      }
+      navigator.mediaDevices.getUserMedia({ audio: true }).then(success.bind(this));
     }else{
       let mainaudio = document.getElementById("remote-media")
       mainaudio.vol = 1
