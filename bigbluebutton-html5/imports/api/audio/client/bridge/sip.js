@@ -145,13 +145,10 @@ class SIPSession {
       sessionToken,
     } = this.user;
 
-    const encodedName =
-      btoa && name ? btoa(name) : name;
-
     const callerIdName = [
       `${userId}_${getAudioSessionNumber()}`,
       'bbbID',
-      isListenOnly ? `LISTENONLY-${encodedName}` : encodedName,
+      isListenOnly ? `LISTENONLY-${name}` : name,
     ].join('-').replace(/"/g, "'");
 
     this.user.callerIdName = callerIdName;
@@ -746,7 +743,7 @@ class SIPSession {
               callerIdName: this.user.callerIdName,
             },
           }, 'ICE connection closed');
-        }
+        } else return;
 
         this.callback({
           status: this.baseCallStates.failed,
