@@ -207,7 +207,7 @@ class ActionsBar extends PureComponent {
                     />
                   }
                   color='primary'
-                  label={'Become Translator'}
+                  label={'Translate to'}
                   circle
                   hideLabel
                   size="lg"
@@ -223,8 +223,8 @@ class ActionsBar extends PureComponent {
                       className={[this.state.translationMuted ? styles.btnmuted: "", styles.translatorBtn ].join(" ")}
                       onClick={this.handleMuteTranslator}
                       hideLabel
-                      label="Translation on/off"
-                      aria-label="Translation on/off"
+                      label="Translator mic"
+                      aria-label="Translator mic"
                       color={!this.state.translationMuted ? 'primary' : 'default'}
                       ghost={this.state.translationMuted}
                       icon={this.state.translationMuted ? 'mute' : 'unmute'}
@@ -273,7 +273,7 @@ class ActionsBar extends PureComponent {
                 />
               }
               color='primary'
-              label={'Activate Translation' }
+              label={'Available languages'}
               circle
               hideLabel
               size="lg"
