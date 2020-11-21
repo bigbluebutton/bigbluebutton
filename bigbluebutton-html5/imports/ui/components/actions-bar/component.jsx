@@ -207,7 +207,7 @@ class ActionsBar extends PureComponent {
                     />
                   }
                   color='primary'
-                  label={hasBreakouts() ? 'Become Translator' : 'No Translation available'}
+                  label={'Become Translator'}
                   circle
                   hideLabel
                   size="lg"
@@ -273,7 +273,7 @@ class ActionsBar extends PureComponent {
                 />
               }
               color='primary'
-              label={ hasBreakouts() ? 'Activate Translation' : 'No Translation Available' }
+              label={'Activate Translation' }
               circle
               hideLabel
               size="lg"
