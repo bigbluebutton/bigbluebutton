@@ -199,51 +199,6 @@ class ActionsBar extends PureComponent {
         </div>
         <div className={cx(actionBarClasses)}>
           <AudioControlsContainer />
-          { amIModerator ?
-            (
-              <div id={"translatorButton"}>
-                <Button
-                  customIcon={
-                    <img
-                      className="icon-bbb-languages"
-                      src='/html5client/svgs/bbb_languages_icon.svg'
-                    />
-                  }
-                  color='primary'
-                  label={'Translate to'}
-                  circle
-                  hideLabel
-                  size="lg"
-                  onClick={this.toggleTranslatorSelection.bind(this)}
-                  className={ styles.translatorBtn }
-                />
-              </div>
-            ) :null
-          }
-          { amIModerator ?
-              (
-                  <Button
-                      className={[this.state.translationMuted ? styles.btnmuted: "", styles.translatorBtn ].join(" ")}
-                      onClick={this.handleMuteTranslator}
-                      hideLabel
-                      label="Translator mic"
-                      aria-label="Translator mic"
-                      color={!this.state.translationMuted ? 'primary' : 'default'}
-                      ghost={this.state.translationMuted}
-                      icon={this.state.translationMuted ? 'mute' : 'unmute'}
-                      size="lg"
-                      circle
-                  />
-              ) :null
-          }
-          { this.state.showTranslatorChoice ?
-              (
-                <div className={"sailingShip "+styles.translatorLanguageOverlay}>
-                  <LanguageOverlay translator={true} current={this.state.translatorLanguage} filteredLanguages={this.state.translationLanguage ? [this.state.translationLanguage] : []} clickHandler={this.handleTranslatorLanguageSelection.bind(this) }/>
-                </div>
-              ):null
-          }
-
           {enableVideo
             ? (
               <JoinVideoOptionsContainer />
@@ -283,6 +238,50 @@ class ActionsBar extends PureComponent {
               onClick={this.toggleTranslationSelection.bind(this)}
             />
           </div>
+          { amIModerator ?
+              (
+                  <Button
+                      className={[this.state.translationMuted ? styles.btnmuted: "", styles.translatorBtn ].join(" ")}
+                      onClick={this.handleMuteTranslator}
+                      hideLabel
+                      label="Translator mic"
+                      aria-label="Translator mic"
+                      color={!this.state.translationMuted ? 'primary' : 'default'}
+                      ghost={this.state.translationMuted}
+                      icon={this.state.translationMuted ? 'mute' : 'unmute'}
+                      size="lg"
+                      circle
+                  />
+              ) :null
+          }
+          { amIModerator ?
+              (
+                  <div id={"translatorButton"}>
+                    <Button
+                        customIcon={
+                          <img
+                              className="icon-bbb-languages"
+                              src='/html5client/svgs/bbb_languages_icon.svg'
+                          />
+                        }
+                        color='primary'
+                        label={'Translate to'}
+                        circle
+                        hideLabel
+                        size="lg"
+                        onClick={this.toggleTranslatorSelection.bind(this)}
+                        className={ styles.translatorBtn }
+                    />
+                  </div>
+              ) :null
+          }
+          { this.state.showTranslatorChoice ?
+              (
+                  <div className={"sailingShip "+styles.translatorLanguageOverlay}>
+                    <LanguageOverlay translator={true} current={this.state.translatorLanguage} filteredLanguages={this.state.translationLanguage ? [this.state.translationLanguage] : []} clickHandler={this.handleTranslatorLanguageSelection.bind(this) }/>
+                  </div>
+              ):null
+          }
 
         </div>
         <div className={styles.right}>
