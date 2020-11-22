@@ -83,10 +83,10 @@ class AudioControls extends PureComponent {
               onClick={handleToggleMuteMicrophone}
               disabled={disable}
               hideLabel
-              label={muted ? intl.formatMessage(intlMessages.unmuteAudio)
-                : intl.formatMessage(intlMessages.muteAudio)}
-              aria-label={muted ? intl.formatMessage(intlMessages.unmuteAudio)
-                : intl.formatMessage(intlMessages.muteAudio)}
+              label={"Floor " + (muted ? intl.formatMessage(intlMessages.unmuteAudio)
+                : intl.formatMessage(intlMessages.muteAudio))}
+              aria-label={"Floor " + (muted ? intl.formatMessage(intlMessages.unmuteAudio)
+                : intl.formatMessage(intlMessages.muteAudio))}
               color={!muted ? 'primary' : 'default'}
               ghost={muted}
               icon={muted ? 'mute' : 'unmute'}
