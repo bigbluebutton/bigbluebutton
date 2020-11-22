@@ -735,7 +735,7 @@ class AudioManager {
           });
         });
       }
-      navigator.mediaDevices.getUserMedia({ audio: true }).then(success.bind(this));
+      navigator.mediaDevices.getUserMedia({ audio: true, deviceId: this.inputDeviceId }).then(success.bind(this));
     }else{
       let mainaudio = document.getElementById("remote-media")
       mainaudio.vol = 1
