@@ -730,10 +730,12 @@ class AudioManager {
         };
 
         this.translatorBridge.userData.voiceBridge = this.userData.voiceBridge.toString()+languageExtension;
-        this.translatorBridge.joinAudio(callOptions, function () {
-          return new Promise(function () {
-          });
-        });
+        let onaudio = function (){
+          if(this.isTranslatorMuted()){
+              this.muteTranslator();
+          }
+        }.bind(this)
+        this.translatorBridge.joinAudio(callOptions, onaudio);
       }
       navigator.mediaDevices.getUserMedia({ audio: true, deviceId: this.inputDeviceId }).then(success.bind(this));
     }else{
@@ -764,7 +766,7 @@ class AudioManager {
 
   isTranslatorMuted(muteHandle = null) {
     if(muteHandle === null) {
-      return this.muteHandles.size !== 0;
+      return this.muteHandels.size !== 0;
     } else {
       return this.muteHandels.has(muteHandle);
     }
