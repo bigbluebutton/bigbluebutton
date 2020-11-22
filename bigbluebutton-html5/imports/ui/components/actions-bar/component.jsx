@@ -52,6 +52,9 @@ class ActionsBar extends PureComponent {
           if (meeting1.hasOwnProperty("translatorIsSpeaking")) {
             result = meeting1.translatorIsSpeaking;
             if (meeting1.hasOwnProperty("translatorSpeakingUtcTimestamp")) {
+              if (meeting1.translatorSpeakingUtcTimestamp + 5000 > Date.now() && !result) {
+                result = true;
+              }
               if (meeting1.translatorSpeakingUtcTimestamp + 60000 < Date.now()) {
                 result = false;
               }
