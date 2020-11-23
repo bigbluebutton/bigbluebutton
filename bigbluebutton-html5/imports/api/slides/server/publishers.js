@@ -8,7 +8,7 @@ function slides() {
     return Slides.find({ meetingId: '' });
   }
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
-  Logger.debug(`Publishing Slides for ${meetingId} ${requesterUserId}`);
+  Logger.debug('Publishing Slides', { meetingId, requesterUserId });
 
   return Slides.find({ meetingId });
 }
@@ -26,7 +26,7 @@ function slidePositions() {
   }
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  Logger.debug(`Publishing SlidePositions for ${meetingId} ${requesterUserId}`);
+  Logger.debug('Publishing SlidePositions', { meetingId, requesterUserId });
 
   return SlidePositions.find({ meetingId });
 }

@@ -33,12 +33,12 @@ function userSettings() {
       UserSettings.upsert(selector, doc);
     });
 
-    Logger.debug(`Publishing user settings for user=${requesterUserId}`);
+    Logger.debug('Publishing user settings', { requesterUserId });
 
     return UserSettings.find({ meetingId, userId: requesterUserId });
   }
 
-  Logger.debug(`Publishing user settings for user=${requesterUserId}`);
+  Logger.debug('Publishing user settings', { requesterUserId });
 
   return UserSettings.find({ meetingId, userId: requesterUserId });
 }

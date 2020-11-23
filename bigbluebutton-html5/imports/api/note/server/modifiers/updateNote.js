@@ -18,10 +18,10 @@ export default function updateNote(noteId, revs) {
 
   const cb = (err) => {
     if (err) {
-      return Logger.error(`Updating note pad: ${err}`);
+      return Logger.error('Notes: error when updating note pad', { err });
     }
 
-    return Logger.verbose(`Update note pad=${noteId} revs=${revs}`);
+    return Logger.verbose('Notes: update note pad', { pad: noteId, revs });
   };
 
   return Note.update(selector, modifier, { multi: true }, cb);

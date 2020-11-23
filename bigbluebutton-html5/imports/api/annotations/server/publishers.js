@@ -10,7 +10,7 @@ function annotations() {
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  Logger.debug(`Publishing Annotations for ${meetingId} ${requesterUserId}`);
+  Logger.debug('Publishing Annotations', { meetingId, requesterUserId });
 
   return Annotations.find({ meetingId });
 }

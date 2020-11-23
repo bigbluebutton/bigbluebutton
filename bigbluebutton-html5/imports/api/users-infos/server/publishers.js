@@ -9,7 +9,7 @@ function userInfos() {
   }
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  Logger.debug(`Publishing user infos requested by user=${requesterUserId}`);
+  Logger.debug('Publishing user infos requested', { requesterUserId });
 
   return UserInfos.find({ meetingId, requesterUserId });
 }

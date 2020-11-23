@@ -9,7 +9,7 @@ function voiceCallStates() {
   }
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  Logger.debug(`Publishing Voice Call States for ${meetingId} ${requesterUserId}`);
+  Logger.debug('Publishing Voice Call States', { meetingId, requesterUserId });
 
   return VoiceCallStates.find({ meetingId, userId: requesterUserId });
 }

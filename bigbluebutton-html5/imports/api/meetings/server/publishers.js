@@ -12,7 +12,7 @@ function meetings(role) {
   }
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  Logger.debug(`Publishing meeting =${meetingId} ${requesterUserId}`);
+  Logger.debug('Publishing meeting', { meetingId, requesterUserId });
 
   const selector = {
     $or: [
