@@ -7,7 +7,9 @@ class Draw extends Page {
   }
 
   async test() {
+    await this.waitForSelector(e.tools);
     await this.click(e.tools);
+    await this.waitForSelector(e.rectangle);
     await this.click(e.rectangle);
     await this.waitForSelector(e.whiteboard);
 
@@ -21,6 +23,7 @@ class Draw extends Page {
     await this.page.mouse.up();
 
     await this.screenshot(true);
+    await this.waitForSelector(e.drawnRectangle);
     const shapes1 = await this.getTestElements();
 
     console.log('\nShapes before drawing box:');
@@ -32,6 +35,7 @@ class Draw extends Page {
   }
 
   async getTestElements() {
+    await this.waitForSelector('g[clip-path="url(#viewBox)"]');
     const shapes = await this.page.evaluate(() => document.querySelector('svg g[clip-path]').children[1].outerHTML);
     return shapes;
   }

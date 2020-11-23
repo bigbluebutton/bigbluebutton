@@ -609,7 +609,7 @@ class PollDrawComponent extends Component {
     });
 
     return (
-      <g aria-label={ariaResultLabel}>
+      <g aria-label={ariaResultLabel} data-test="pollResultAria">
         {prepareToDisplay
           ? this.renderTestStrings()
           : this.renderPoll()
