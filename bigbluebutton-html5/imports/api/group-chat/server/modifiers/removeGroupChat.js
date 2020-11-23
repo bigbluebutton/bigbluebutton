@@ -25,5 +25,9 @@ export default function removeGroupChat(meetingId, chatId) {
     }
   };
 
-  return GroupChat.remove(selector, cb);
+  let a = GroupChat.remove(selector);
+
+  console.log('a', a);
+
+  // return GroupChat.remove(selector, cb);
 }

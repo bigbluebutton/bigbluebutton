@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import { RecordMeetings } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
-export default function handleRecordingStatusChange({ body }, meetingId) {
+export default function handleRecordingTimerChange({ body }, meetingId) {
   const { time } = body;
 
   check(meetingId, String);

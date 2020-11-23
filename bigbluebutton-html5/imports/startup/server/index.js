@@ -63,6 +63,7 @@ Meteor.startup(() => {
   };
 
   Meteor.setInterval(() => {
+    console.log('interval', Meteor.server.sessions.values());
     for (const session of Meteor.server.sessions.values()) {
       const { socket } = session;
       const recv = socket._session.recv;

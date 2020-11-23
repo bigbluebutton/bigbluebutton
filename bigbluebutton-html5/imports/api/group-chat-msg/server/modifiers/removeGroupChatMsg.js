@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import GroupChatMsg from '/imports/api/group-chat-msg';
 
-export default function removeGroupChat(meetingId, chatId) {
+export default function removeGroupChatMsg(meetingId, chatId) {
   check(meetingId, String);
   check(chatId, String);
 

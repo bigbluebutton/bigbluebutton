@@ -95,18 +95,15 @@ export default function addUser(meetingId, userData) {
     });
   }
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Adding user to collection: ${err}`);
-    }
+  try {
+    const { insertedId } = Users.upsert(selector, modifier);
 
-    const { insertedId } = numChanged;
     if (insertedId) {
-      return Logger.info(`Added user id=${userId} meeting=${meetingId}`);
+      Logger.info(`Added user id=${userId} meeting=${meetingId}`);
+    } else {
+      Logger.info(`Upserted user id=${userId} meeting=${meetingId}`);
     }
-
-    return Logger.info(`Upserted user id=${userId} meeting=${meetingId}`);
-  };
-
-  return Users.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Adding user to collection: ${err}`);
+  }
 }

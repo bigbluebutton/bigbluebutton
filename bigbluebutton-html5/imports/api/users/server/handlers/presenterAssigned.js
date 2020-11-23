@@ -61,5 +61,5 @@ export default function handlePresenterAssigned({ body }, meetingId) {
     return true;
   }
 
-  return changePresenter(false, prevPresenter.userId, meetingId, assignedBy);
+  changePresenter(false, prevPresenter.userId, meetingId, assignedBy);
 }
