@@ -904,6 +904,17 @@ check_configuration() {
         echo
       fi
     fi
+
+    CHECK_STUN=$(xmlstarlet sel -t -m '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "external_rtp_ip=")]' -v @data $FREESWITCH_VARS | sed 's/external_rtp_ip=stun://g')
+    if [ "$CHECK_STUN" == "stun.freeswitch.org" ]; then
+       echo
+       echo "# Warning: Detected FreeSWITCH is using default stun.freeswitch.org server.  See"
+       echo "#"
+       echo "#     http://docs.bigbluebutton.org/2.2/troubleshooting.html#freeswitch-using-default-stun-server"
+       echo "#"
+       echo
+    fi  
+
 }
 
 update_gstreamer() {
