@@ -44,7 +44,7 @@ export default function startTyping(meetingId, userId, chatId) {
     Meteor.setTimeout(() => {
       stopTyping(meetingId, userId);
     }, TYPING_TIMEOUT);
-    return Logger.debug(`Typing indicator update for userId={${userId}} chatId={${chatId}}`);
+    return Logger.debug('Typing indicator update', { userId, chatId });
   };
 
   return UsersTyping.upsert(selector, mod, cb);

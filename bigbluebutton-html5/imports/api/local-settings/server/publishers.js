@@ -9,7 +9,7 @@ function localSettings() {
   }
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  Logger.debug(`Publishing local settings for user=${requesterUserId}`);
+  Logger.debug('Publishing local settings', { requesterUserId });
 
   return LocalSettings.find({ meetingId, userId: requesterUserId });
 }

@@ -33,10 +33,10 @@ export default function addCaption(meetingId, padId, locale) {
 
     const { insertedId } = numChanged;
     if (insertedId) {
-      return Logger.verbose(`Added caption locale=${locale.locale} meeting=${meetingId}`);
+      return Logger.verbose('Captions: added locale', { locale: locale.locale, meetingId });
     }
 
-    return Logger.verbose(`Upserted caption locale=${locale.locale} meeting=${meetingId}`);
+    return Logger.verbose('Captions: upserted locale', { locale: locale.locale, meetingId });
   };
 
   return Captions.upsert(selector, modifier, cb);

@@ -13,7 +13,7 @@ function groupChat() {
   const CHAT_CONFIG = Meteor.settings.public.chat;
   const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 
-  Logger.debug(`Publishing group-chat for ${meetingId} ${requesterUserId}`);
+  Logger.debug('Publishing group-chat', { meetingId, requesterUserId });
 
   return GroupChat.find({
     $or: [

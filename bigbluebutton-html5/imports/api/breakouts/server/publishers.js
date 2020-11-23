@@ -12,7 +12,7 @@ function breakouts(role) {
   }
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
-  Logger.debug(`Publishing Breakouts for ${meetingId} ${requesterUserId}`);
+  Logger.debug('Publishing Breakouts', { meetingId, requesterUserId });
 
   const User = Users.findOne({ userId: requesterUserId, meetingId }, { fields: { role: 1 } });
   if (!!User && User.role === ROLE_MODERATOR) {

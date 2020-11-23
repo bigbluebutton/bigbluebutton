@@ -18,10 +18,10 @@ export default function updateReadOnlyPadId(padId, readOnlyPadId) {
 
   const cb = (err) => {
     if (err) {
-      return Logger.error(`Adding readOnlyPadId captions pad: ${err}`);
+      return Logger.error('Captions: error when adding readOnlyPadId', { err });
     }
 
-    return Logger.verbose(`Added readOnlyPadId captions pad=${padId} readOnlyPadId=${readOnlyPadId}`);
+    return Logger.verbose('Captions: added readOnlyPadId', { padId, readOnlyPadId });
   };
 
   return Captions.update(selector, modifier, { multi: true }, cb);

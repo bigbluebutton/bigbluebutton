@@ -13,7 +13,7 @@ function groupChatMsg(chatsIds) {
   const CHAT_CONFIG = Meteor.settings.public.chat;
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
-  Logger.debug(`Publishing group-chat-msg for ${meetingId} ${requesterUserId}`);
+  Logger.debug('Publishing group-chat-msg', { meetingId, requesterUserId });
 
   return GroupChatMsg.find({
     $or: [
@@ -37,7 +37,7 @@ function usersTyping() {
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  Logger.debug(`Publishing users-typing for ${meetingId} ${requesterUserId}`);
+  Logger.debug('Publishing users-typing', { meetingId, requesterUserId });
 
   return UsersTyping.find({ meetingId });
 }
