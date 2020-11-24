@@ -20,7 +20,7 @@ export default function stopTyping(meetingId, userId, sendMsgInitiated = false) 
     if (err) {
       return Logger.error(`Stop user=${userId} typing indicator error: ${err}`);
     }
-    return Logger.debug(`Stopped typing indicator for user=${userId}`);
+    return Logger.debug('Stopped typing indicator', { userId });
   };
 
   UsersTyping.remove(selector, cb);

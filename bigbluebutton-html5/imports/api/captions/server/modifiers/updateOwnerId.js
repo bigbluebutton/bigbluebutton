@@ -21,10 +21,10 @@ export default function updateOwnerId(meetingId, userId, padId) {
 
   const cb = (err) => {
     if (err) {
-      return Logger.error(`Updating captions pad: ${err}`);
+      return Logger.error('Captions: error while updating pad', { err });
     }
     updateOwner(meetingId, userId, padId);
-    return Logger.verbose(`Update captions pad=${padId} ownerId=${userId}`);
+    return Logger.verbose('Captions: updated caption', { padId, ownerId: userId });
   };
 
   return Captions.update(selector, modifier, { multi: true }, cb);

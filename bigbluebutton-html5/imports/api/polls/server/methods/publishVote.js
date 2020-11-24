@@ -8,11 +8,21 @@ export default function publishVote(pollId, pollAnswerId) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'RespondToPollReqMsg';
-
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
   check(pollAnswerId, Number);
   check(pollId, String);
+
+  const allowedToVote = Polls.findOne({ id: pollId, users: { $in: [requesterUserId] } }, {
+    fields: {
+      users: 1,
+    },
+  });
+
+  if (!allowedToVote) {
+    Logger.info(`Poll User={${requesterUserId}} has already voted in PollId={${pollId}}`);
+    return null;
+  }
 
   const selector = {
     users: requesterUserId,
@@ -43,11 +53,11 @@ export default function publishVote(pollId, pollAnswerId) {
       return Logger.error(`Removing responded user from Polls collection: ${err}`);
     }
 
-    return Logger.info(`Removed responded user=${requesterUserId} from poll (meetingId: ${meetingId}, `
+    Logger.info(`Removed responded user=${requesterUserId} from poll (meetingId: ${meetingId}, `
       + `pollId: ${pollId}!)`);
+
+    return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   };
 
   Polls.update(selector, modifier, cb);
-
-  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

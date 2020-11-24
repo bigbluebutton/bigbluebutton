@@ -1,24 +1,40 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
+import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
   title: {
-    id: 'app.error.fallback.presentation.title',
+    id: 'app.error.fallback.view.title',
     description: 'title for presentation when fallback is showed',
   },
   description: {
-    id: 'app.error.fallback.presentation.description',
+    id: 'app.error.fallback.view.description',
     description: 'description for presentation when fallback is showed',
   },
   reloadButton: {
-    id: 'app.error.fallback.presentation.reloadButton',
+    id: 'app.error.fallback.view.reloadButton',
     description: 'Button label when fallback is showed',
   },
 });
 
-const FallbackPresentation = ({ error, intl }) => (
+const propTypes = {
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  error: PropTypes.shape({
+    message: PropTypes.string.isRequired,
+  }),
+};
+
+const defaultProps = {
+  error: {
+    message: '',
+  },
+};
+
+const FallbackView = ({ error, intl }) => (
   <div className={styles.background}>
     <h1 className={styles.codeError}>
       {intl.formatMessage(intlMessages.title)}
@@ -42,4 +58,7 @@ const FallbackPresentation = ({ error, intl }) => (
   </div>
 );
 
-export default injectIntl(FallbackPresentation);
+FallbackView.propTypes = propTypes;
+FallbackView.defaultProps = defaultProps;
+
+export default injectIntl(FallbackView);

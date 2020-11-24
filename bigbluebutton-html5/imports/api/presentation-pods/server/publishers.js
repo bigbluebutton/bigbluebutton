@@ -12,7 +12,7 @@ function presentationPods() {
   }
 
   const { meetingId, userId } = tokenValidation;
-  Logger.debug(`Publishing PresentationPods for ${meetingId} ${userId}`);
+  Logger.debug('Publishing presentation-pods', { meetingId, userId });
 
   return PresentationPods.find({ meetingId });
 }
