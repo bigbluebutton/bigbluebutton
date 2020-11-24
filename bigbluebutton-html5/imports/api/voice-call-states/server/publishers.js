@@ -13,7 +13,7 @@ function voiceCallStates() {
 
   const { meetingId, userId } = tokenValidation;
 
-  Logger.debug(`Publishing VoiceCallStates for ${meetingId} ${userId}`);
+  Logger.debug('Publishing Voice Call States', { meetingId, userId });
 
   return VoiceCallStates.find({ meetingId, userId });
 }

@@ -36,7 +36,7 @@ export default function updateCursor(meetingId, whiteboardId, userId, x = -1, y 
     }
 
     if (numChanged) {
-      Logger.debug(`Updated cursor meeting=${meetingId}`);
+      Logger.debug('Updated cursor ', { meetingId });
     }
   };
 

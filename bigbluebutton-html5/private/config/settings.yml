@@ -303,6 +303,7 @@ public:
     stunTurnServersFetchAddress: "/bigbluebutton/api/stuns"
     cacheStunTurnServers: true
     fallbackStunServer:  ''
+    recvonlyIceGatheringCheck: true
     mediaTag: "#remote-media"
     callTransferTimeout: 5000
     callHangupTimeout: 2000
@@ -328,6 +329,12 @@ public:
       - danger
       - critical
     help: STATS_HELP_URL
+    #Timeout (ms) for gathering ICE candidates. When this timeout expires
+    #the SDP is sent to the server with the candidates the browser gathered
+    #so far. Increasing this value might help avoiding 1004 error when
+    #user activates microphone.
+    iceGatheringTimeout: 5000
+    sipjsHackViaWs: false
   presentation:
     allowDownloadable: true
     defaultPresentationFile: default.pdf

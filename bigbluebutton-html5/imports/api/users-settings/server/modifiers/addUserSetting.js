@@ -27,7 +27,7 @@ export default function addUserSetting(meetingId, userId, setting, value) {
       return Logger.error(`Adding user setting to collection: ${err}`);
     }
 
-    return Logger.verbose(`Upserted user setting for meetingId=${meetingId} userId=${userId} setting=${setting}`);
+    return Logger.verbose('Upserted user setting', { meetingId, userId, setting });
   };
 
   return UserSettings.upsert(selector, modifier, cb);

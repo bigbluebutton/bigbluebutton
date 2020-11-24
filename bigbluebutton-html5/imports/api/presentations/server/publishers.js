@@ -13,7 +13,7 @@ function presentations() {
 
   const { meetingId, userId } = tokenValidation;
 
-  Logger.debug(`Publishing Presentations for ${meetingId} ${userId}`);
+  Logger.debug('Publishing Presentations', { meetingId, userId });
 
   return Presentations.find({ meetingId });
 }

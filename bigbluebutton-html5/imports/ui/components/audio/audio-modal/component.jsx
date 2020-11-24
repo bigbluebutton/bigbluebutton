@@ -183,6 +183,7 @@ class AudioModal extends Component {
 
   componentDidUpdate(prevProps) {
     const { autoplayBlocked, closeModal } = this.props;
+
     if (autoplayBlocked !== prevProps.autoplayBlocked) {
       autoplayBlocked ? this.setState({ content: 'autoplayBlocked' }) : closeModal();
     }
@@ -246,13 +247,14 @@ class AudioModal extends Component {
 
     const {
       joinEchoTest,
+      isConnecting,
     } = this.props;
 
     const {
       disableActions,
     } = this.state;
 
-    if (disableActions) return;
+    if (disableActions && isConnecting) return;
 
     this.setState({
       hasError: false,

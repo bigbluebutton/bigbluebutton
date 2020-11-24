@@ -981,6 +981,11 @@ public class MeetingService implements MessageListener {
           User vuser = m.userLeft(message.userId);
         } else {
           user.setVoiceJoined(false);
+          // userLeftVoice is also used when user leaves Global (listenonly)
+          // audio. Also tetting listenOnly to false is not a problem,
+          // once user can't join both voice/mic and global/listenonly
+          // at the same time.
+          user.setListeningOnly(false);
         }
       }
     }

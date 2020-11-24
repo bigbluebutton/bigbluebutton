@@ -54,7 +54,7 @@ export default function resizeSlide(meetingId, slide) {
       }
 
       if (numChanged) {
-        return Logger.debug(`Resized slide positions id=${pageId}`);
+        return true;
       }
 
       return Logger.info(`No slide positions found with id=${pageId}`);

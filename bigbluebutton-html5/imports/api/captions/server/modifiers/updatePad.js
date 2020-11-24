@@ -27,7 +27,7 @@ export default function updatePad(padId, data, revs) {
       return Logger.error(`Updating captions pad: ${err}`);
     }
     editCaptions(padId, data, revs);
-    return Logger.verbose(`Update captions pad=${padId} revs=${revs}`);
+    return Logger.verbose('Captions: updated pad', { padId, revs });
   };
 
   return Captions.update(selector, modifier, { multi: true }, cb);

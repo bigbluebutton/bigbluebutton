@@ -21,7 +21,7 @@ export default function setUserEffectiveConnectionType(effectiveConnectionType) 
 
   setEffectiveConnectionType(meetingId, requesterUserId, effectiveConnectionType);
 
-  Logger.verbose(`User ${requesterUserId} effective connection updated to ${effectiveConnectionType}`);
+  Logger.verbose('Updated user effective connection', { requesterUserId, effectiveConnectionType });
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

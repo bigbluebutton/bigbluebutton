@@ -13,7 +13,7 @@ function videoStreams() {
 
   const { meetingId, userId } = tokenValidation;
 
-  Logger.debug(`Publishing VideoStreams for ${meetingId} ${userId}`);
+  Logger.debug('Publishing VideoStreams', { meetingId, userId });
 
   const selector = {
     meetingId,
