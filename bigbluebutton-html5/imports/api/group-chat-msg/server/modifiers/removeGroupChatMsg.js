@@ -11,17 +11,13 @@ export default function removeGroupChatMsg(meetingId, chatId) {
     meetingId,
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      Logger.error(`Removing group-chat-msg from collection: ${err}`);
-      return;
-    }
+  try {
+    const numberAffected = GroupChatMsg.remove(selector);
 
-    if (numChanged) {
-      // TODO: Clear group-chat-msg-messages
+    if (numberAffected) {
       Logger.info(`Removed group-chat-msg id=${chatId} meeting=${meetingId}`);
     }
-  };
-
-  return GroupChatMsg.remove(selector, cb);
+  } catch (err) {
+    Logger.error(`Removing group-chat-msg from collection: ${err}`);
+  }
 }

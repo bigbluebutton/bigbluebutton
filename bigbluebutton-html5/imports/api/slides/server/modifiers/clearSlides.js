@@ -3,20 +3,36 @@ import Logger from '/imports/startup/server/logger';
 
 export default function clearSlides(meetingId) {
   if (meetingId) {
-    SlidePositions.remove({ meetingId }, () => {
-      Logger.info(`Cleared SlidePositions (${meetingId})`);
-    });
+    try {
+      const numberAffectedSlidePositions = SlidePositions.remove({ meetingId });
 
-    return Slides.remove({ meetingId }, () => {
-      Logger.info(`Cleared Slides (${meetingId})`);
-    });
+      const numberAffected = Slides.remove({ meetingId });
+
+      if (numberAffectedSlidePositions) {
+        Logger.info(`Cleared SlidePositions (${meetingId})`);
+      }
+
+      if (numberAffected) {
+        Logger.info(`Cleared Slides (${meetingId})`);
+      }
+    } catch (err) {
+      Logger.error(`Error on cleaning Slides (${meetingId}). ${err}`);
+    }
+  } else {
+    try {
+      const numberAffectedSlidePositions = SlidePositions.remove({ meetingId });
+
+      const numberAffected = Slides.remove({ meetingId });
+
+      if (numberAffectedSlidePositions) {
+        Logger.info(`Cleared SlidePositions (${meetingId})`);
+      }
+
+      if (numberAffected) {
+        Logger.info('Cleared Slides (all)');
+      }
+    } catch (err) {
+      Logger.error(`Error on cleaning Slides (all). ${err}`);
+    }
   }
-
-  SlidePositions.remove({}, () => {
-    Logger.info('Cleared SlidePositions (all)');
-  });
-
-  return Slides.remove({}, () => {
-    Logger.info('Cleared Slides (all)');
-  });
 }

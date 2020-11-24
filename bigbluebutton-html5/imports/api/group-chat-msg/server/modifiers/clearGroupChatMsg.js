@@ -9,30 +9,48 @@ export default function clearGroupChatMsg(meetingId, chatId) {
   const CHAT_CLEAR_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_clear;
 
   if (chatId) {
-    GroupChatMsg.remove({ meetingId, chatId }, () => {
-      Logger.info(`Cleared GroupChatMsg (${meetingId}, ${chatId})`);
-      const clearMsg = {
-        color: '0',
-        timestamp: Date.now(),
-        correlationId: `${PUBLIC_CHAT_SYSTEM_ID}-${Date.now()}`,
-        sender: {
-          id: PUBLIC_CHAT_SYSTEM_ID,
-          name: '',
-        },
-        message: CHAT_CLEAR_MESSAGE,
-      };
-      addGroupChatMsg(meetingId, PUBLIC_GROUP_CHAT_ID, clearMsg);
-    });
+    try {
+      const numberAffected = GroupChatMsg.remove({ meetingId, chatId });
+
+      if (numberAffected) {
+        Logger.info(`Cleared GroupChatMsg (${meetingId}, ${chatId})`);
+        const clearMsg = {
+          color: '0',
+          timestamp: Date.now(),
+          correlationId: `${PUBLIC_CHAT_SYSTEM_ID}-${Date.now()}`,
+          sender: {
+            id: PUBLIC_CHAT_SYSTEM_ID,
+            name: '',
+          },
+          message: CHAT_CLEAR_MESSAGE,
+        };
+        addGroupChatMsg(meetingId, PUBLIC_GROUP_CHAT_ID, clearMsg);
+      }
+    } catch (err) {
+      Logger.error(`Error on clearing GroupChat (${meetingId}, ${chatId}). ${err}`);
+    }
     return true;
   }
 
   if (meetingId) {
-    return GroupChatMsg.remove({ meetingId }, () => {
-      Logger.info(`Cleared GroupChatMsg (${meetingId})`);
-    });
-  }
+    try {
+      const numberAffected = GroupChatMsg.remove({ meetingId });
 
-  return GroupChatMsg.remove({ chatId: { $eq: PUBLIC_GROUP_CHAT_ID } }, () => {
-    Logger.info('Cleared GroupChatMsg (all)');
-  });
+      if (numberAffected) {
+        Logger.info(`Cleared GroupChatMsg (${meetingId})`);
+      }
+    } catch (err) {
+      Logger.error(`Error on clearing GroupChatMsg (${meetingId}). ${err}`);
+    }
+  } else {
+    try {
+      const numberAffected = GroupChatMsg.remove({ chatId: { $eq: PUBLIC_GROUP_CHAT_ID } });
+
+      if (numberAffected) {
+        Logger.info('Cleared GroupChatMsg (all)');
+      }
+    } catch (err) {
+      Logger.error(`Error on clearing GroupChatMsg (all). ${err}`);
+    }
+  }
 }
