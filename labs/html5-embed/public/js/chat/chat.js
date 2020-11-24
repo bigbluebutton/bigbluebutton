@@ -29,6 +29,11 @@ socket.on('connect', function () {
   socket.on('msg', function (name, msg) {
     msgbox.innerHTML += '<div>' + name + ': ' + msg + '</div>';
     msgbox.scrollTop = msgbox.scrollHeight;
+    Notification.requestPermission().then(function (permission) {
+        if (permission == 'granted') {
+            new Notification(name + ': ' + msg);
+        }
+    });
   });
 
   /**
