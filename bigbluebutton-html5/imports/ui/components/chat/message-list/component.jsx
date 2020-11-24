@@ -197,7 +197,8 @@ class MessageList extends Component {
         : [...Object.keys(contextChat.messageGroups)],
       });
     }
-    if (lastMsg && (lastMsg.id === stateLastMsg?.id)) this.resizeRow(timeWindowIds.length - 1);
+   this.resizeRow(timeWindowIds.length - 1);
+
   }
 
   handleScrollUpdate(position, target) {
