@@ -324,7 +324,7 @@ stop_bigbluebutton () {
     fi
 
     if [ -f /usr/share/red5/red5-server.jar ]; then
-	BBB_RED5="red5"
+      BBB_RED5="red5"
     fi
 
     if [ -d $TOMCAT_DIR ]; then
@@ -904,6 +904,26 @@ check_configuration() {
         echo
       fi
     fi
+
+    CHECK_STUN=$(xmlstarlet sel -t -m '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "external_rtp_ip=")]' -v @data $FREESWITCH_VARS | sed 's/external_rtp_ip=stun://g')
+    if [ "$CHECK_STUN" == "stun.freeswitch.org" ]; then
+       echo
+       echo "# Warning: Detected FreeSWITCH is using default stun.freeswitch.org server.  See"
+       echo "#"
+       echo "#     http://docs.bigbluebutton.org/2.2/troubleshooting.html#freeswitch-using-default-stun-server"
+       echo "#"
+       echo
+    fi  
+
+    if ! which ufw; then
+       echo
+       echo "# Warning: No firewall detected.  Recommend using setting up a firewall for your server"
+       echo "#"
+       echo "#     http://docs.bigbluebutton.org/2.2/troubleshooting.html#freeswitch-using-default-stun-server"
+       echo "#"
+       echo
+    fi
+
 }
 
 update_gstreamer() {
@@ -1455,28 +1475,30 @@ check_state() {
         echo "#"
     fi
 
-    if [ "$PROTOCOL" == "https" ]; then
-      if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep -q https; then
-        echo "# Warning: You have this server defined for https, but in"
-        echo "#"
-        echo "#   $SIP_CONFIG"
-        echo "#"
-        echo "#  did not find the use of https in definition for proxy_pass"
-        echo "#"
-        echo "#    $(cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1)"
-        echo "#"
-      fi
+    if [ "$(yq r /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml public.media.sipjsHackViaWs)" != "true" ]; then
+      if [ "$PROTOCOL" == "https" ]; then
+        if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep -q https; then
+          echo "# Warning: You have this server defined for https, but in"
+          echo "#"
+          echo "#   $SIP_CONFIG"
+          echo "#"
+          echo "#  did not find the use of https in definition for proxy_pass"
+          echo "#"
+          echo "#    $(cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1)"
+          echo "#"
+        fi
 
-      if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep -q 7443; then
-        echo
-        echo "# Warning: You have this server defined for https, but in"
-        echo "#"
-        echo "#   $SIP_CONFIG"
-        echo "#"
-        echo "#  did not find the use of port 7443 in definition for proxy_pass"
-        echo "#"
-        echo "#    $(cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1)"
-        echo "#"
+        if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep -q 7443; then
+          echo
+          echo "# Warning: You have this server defined for https, but in"
+          echo "#"
+          echo "#   $SIP_CONFIG"
+          echo "#"
+          echo "#  did not find the use of port 7443 in definition for proxy_pass"
+          echo "#"
+          echo "#    $(cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1)"
+          echo "#"
+        fi
       fi
     fi
 
@@ -1721,7 +1743,7 @@ if [ $ZIP ]; then
     tar rf  $TMP_LOG_FILE /var/log/mongodb              > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/redis                > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/nginx/error.log*     > /dev/null 2>&1
-	tar rf  $TMP_LOG_FILE /var/log/nginx/bigbluebutton.access.log*    > /dev/null 2>&1
+    tar rf  $TMP_LOG_FILE /var/log/nginx/bigbluebutton.access.log*    > /dev/null 2>&1
     tar rfh $TMP_LOG_FILE /opt/freeswitch/var/log/freeswitch/         > /dev/null 2>&1
 
     if [ -f /var/log/nginx/html5-client.log ]; then
@@ -2103,7 +2125,7 @@ if [ $CLEAN ]; then
         rm -f /var/log/bbb-fsesl-akka/*
     fi
 
-	if [ -d /var/log/bbb-apps-akka ]; then
+  if [ -d /var/log/bbb-apps-akka ]; then
         rm -f /var/log/bbb-apps-akka/*
     fi
 

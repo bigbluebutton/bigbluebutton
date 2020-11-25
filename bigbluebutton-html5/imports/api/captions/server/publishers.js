@@ -8,7 +8,7 @@ function captions() {
     return Captions.find({ meetingId: '' });
   }
   const { meetingId } = extractCredentials(this.userId);
-  Logger.debug(`Publishing Captions for ${meetingId}`);
+  Logger.debug('Publishing Captions', { meetingId });
 
   return Captions.find({ meetingId });
 }

@@ -24,7 +24,7 @@ function voiceUser() {
     }
   });
 
-  Logger.debug(`Publishing Voice User for ${meetingId} ${requesterUserId}`);
+  Logger.debug('Publishing Voice User', { meetingId, requesterUserId });
 
   this._session.socket.on('close', _.debounce(onCloseConnection, 100));
   return VoiceUsers.find({ meetingId });

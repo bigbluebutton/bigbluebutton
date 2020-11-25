@@ -2,7 +2,6 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 import Logger from '/imports/startup/server/logger';
 
 const allowRecentMessages = (eventName, message) => {
-
   const {
     userId,
     meetingId,
@@ -11,7 +10,14 @@ const allowRecentMessages = (eventName, message) => {
     state,
   } = message;
 
-  Logger.debug(`ExternalVideo Streamer auth allowed userId: ${userId}, meetingId: ${meetingId}, event: ${eventName}, time: ${time} rate: ${rate}, state: ${state}`);
+  Logger.debug('ExternalVideo Streamer auth allowed', {
+    userId,
+    meetingId,
+    eventName,
+    time,
+    rate,
+    state,
+  });
   return true;
 };
 
@@ -26,6 +32,6 @@ export default function initializeExternalVideo() {
     streamer.allowEmit(allowRecentMessages);
     Logger.info(`Created External Video streamer for ${streamName}`);
   } else {
-    Logger.debug(`External Video streamer is already created for ${streamName}`);
+    Logger.debug('`External Video streamer is already created', { streamName });
   }
 }

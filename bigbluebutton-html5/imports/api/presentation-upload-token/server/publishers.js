@@ -19,7 +19,7 @@ function presentationUploadToken(podId, filename) {
     filename,
   };
 
-  Logger.debug(`Publishing PresentationUploadToken for ${meetingId} ${requesterUserId}`);
+  Logger.debug('Publishing PresentationUploadToken', { meetingId, requesterUserId });
 
   return PresentationUploadToken.find(selector);
 }

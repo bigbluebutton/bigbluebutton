@@ -9,7 +9,7 @@ function videoStreams() {
   }
   const { meetingId } = extractCredentials(this.userId);
 
-  Logger.debug(`video users of meeting id=${meetingId}`);
+  Logger.debug('Publishing video users', { meetingId });
 
   const selector = {
     meetingId,

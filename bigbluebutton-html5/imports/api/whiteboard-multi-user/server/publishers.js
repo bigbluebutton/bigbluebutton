@@ -9,7 +9,7 @@ function whiteboardMultiUser() {
   }
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  Logger.debug(`Publishing whiteboard-multi-user for ${meetingId} ${requesterUserId}`);
+  Logger.debug('Publishing whiteboard-multi-user', { meetingId, requesterUserId });
 
   return WhiteboardMultiUser.find({ meetingId });
 }

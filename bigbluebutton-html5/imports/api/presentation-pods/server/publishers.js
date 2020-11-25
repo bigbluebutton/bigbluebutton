@@ -8,7 +8,7 @@ function presentationPods() {
     return PresentationPods.find({ meetingId: '' });
   }
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
-  Logger.debug(`Publishing presentation-pods for ${meetingId} ${requesterUserId}`);
+  Logger.debug('Publishing presentation-pods', { meetingId, requesterUserId });
 
   return PresentationPods.find({ meetingId });
 }

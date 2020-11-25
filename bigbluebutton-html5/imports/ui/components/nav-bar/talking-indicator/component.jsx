@@ -22,8 +22,9 @@ const intlMessages = defineMessages({
 
 class TalkingIndicator extends PureComponent {
   handleMuteUser(id) {
-    const { muteUser, amIModerator } = this.props;
-    if (!amIModerator) return;
+    const { muteUser, amIModerator, isBreakoutRoom } = this.props;
+    // only allow moderator muting anyone in non-breakout
+    if (!amIModerator || isBreakoutRoom) return;
     muteUser(id);
   }
 
