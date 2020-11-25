@@ -9,7 +9,7 @@ function screenshare() {
   }
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  Logger.debug(`Publishing Screenshare for ${meetingId} ${requesterUserId}`);
+  Logger.debug('Publishing Screenshare', { meetingId, requesterUserId });
 
   return Screenshare.find({ meetingId });
 }

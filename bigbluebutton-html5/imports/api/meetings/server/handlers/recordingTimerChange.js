@@ -19,11 +19,9 @@ export default function handleRecordingTimerChange({ body }, meetingId) {
     $set: { time },
   };
 
-  const cb = (err) => {
-    if (err) {
-      Logger.error(`Changing recording time: ${err}`);
-    }
-  };
-
-  return RecordMeetings.upsert(selector, modifier, cb);
+  try {
+    RecordMeetings.upsert(selector, modifier);
+  } catch (err) {
+    Logger.error(`Changing recording time: ${err}`);
+  }
 }

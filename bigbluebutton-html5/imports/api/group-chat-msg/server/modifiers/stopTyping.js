@@ -20,7 +20,7 @@ export default function stopTyping(meetingId, userId, sendMsgInitiated = false) 
     const numberAffected = UsersTyping.remove(selector);
 
     if (numberAffected) {
-      Logger.debug(`Stopped typing indicator for user=${userId}`);
+      Logger.debug('Stopped typing indicator', { userId });
     }
   } catch (err) {
     Logger.error(`Stop user=${userId} typing indicator error: ${err}`);

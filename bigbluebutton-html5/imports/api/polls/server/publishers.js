@@ -13,7 +13,7 @@ function currentPoll() {
     meetingId,
   };
 
-  Logger.debug(`Publishing poll for meeting=${meetingId}`);
+  Logger.debug('Publishing poll', { meetingId });
 
   return Polls.find(selector);
 }
@@ -33,7 +33,7 @@ function polls() {
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  Logger.debug(`Publishing polls =${meetingId} ${requesterUserId}`);
+  Logger.debug('Publishing polls', { meetingId, requesterUserId });
 
   const selector = {
     meetingId,

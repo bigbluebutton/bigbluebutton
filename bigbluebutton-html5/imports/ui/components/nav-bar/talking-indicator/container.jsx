@@ -1,11 +1,11 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import VoiceUsers from '/imports/api/voice-users';
-import Users from '/imports/api/users'
 import Auth from '/imports/ui/services/auth';
 import { debounce } from 'lodash';
 import TalkingIndicator from './component';
 import { makeCall } from '/imports/ui/services/api';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import Service from './service';
 
 const APP_CONFIG = Meteor.settings.public.app;
@@ -37,16 +37,12 @@ export default withTracker(() => {
         callerName, talking, color, voiceUserId, muted, intId,
       } = usersTalking[i];
 
-      const user = Users.findOne({ userId: voiceUserId }, { fields: { name: 1 } });
-
-      const _name = user ? user.name : 'USER';
-
       talkers[`${intId}`] = {
         color,
         talking,
         voiceUserId,
         muted,
-        callerName: _name,
+        callerName,
       };
     }
   }
@@ -65,5 +61,6 @@ export default withTracker(() => {
     talkers,
     muteUser: id => debounce(muteUser(id), 500, { leading: true, trailing: false }),
     openPanel: Session.get('openPanel'),
+    isBreakoutRoom: meetingIsBreakout(),
   };
 })(TalkingIndicatorContainer);

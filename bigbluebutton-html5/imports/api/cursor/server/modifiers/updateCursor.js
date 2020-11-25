@@ -30,7 +30,7 @@ export default function updateCursor(meetingId, whiteboardId, userId, x = -1, y 
     if (insertedId) {
       Logger.info(`Initialized cursor meeting=${meetingId}`);
     } else {
-      Logger.debug(`Updated cursor meeting=${meetingId}`);
+      Logger.debug('Updated cursor ', { meetingId });
     }
   } catch (err) {
     Logger.error(`Upserting cursor to collection: ${err}`);
