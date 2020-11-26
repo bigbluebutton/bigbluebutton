@@ -181,7 +181,7 @@ class SIPSession {
 
       // This is is the call transfer code ask @chadpilkey
       logger.debug({
-        logCode: 'sip_js_rtp_payload_dtmf_send',
+        logCode: 'sip_js_rtp_payload_send_dtmf',
         extraInfo: {
           callerIdName: this.user.callerIdName,
         },
