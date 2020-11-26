@@ -4,7 +4,7 @@ import Logger from '/imports/startup/server/logger';
 export default function clearNetworkInformation(meetingId) {
   if (meetingId) {
     try {
-      const numberAffected = NetworkInformation.remove(selector);
+      const numberAffected = NetworkInformation.remove({ meetingId });
 
       if (numberAffected) {
         Logger.info(`Cleared Network Information (${meetingId})`);
