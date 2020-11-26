@@ -6,6 +6,7 @@ import { sendMessage, onMessage, removeAllListeners } from './service';
 import logger from '/imports/startup/client/logger';
 
 import ArcPlayer from './custom-players/arc-player';
+import PeerTubePlayer from './custom-players/peertube';
 
 import { styles } from './styles';
 
@@ -20,6 +21,7 @@ const SYNC_INTERVAL_SECONDS = 5;
 const THROTTLE_INTERVAL_SECONDS = 0.5;
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
 
+ReactPlayer.addCustomPlayer(PeerTubePlayer);
 ReactPlayer.addCustomPlayer(ArcPlayer);
 
 class VideoPlayer extends Component {
@@ -74,6 +76,9 @@ class VideoPlayer extends Component {
           ecver: 2,
           controls: isPresenter ? 1 : 2,
         },
+      },
+      peertube: {
+        isPresenter,
       },
       twitch: {
         options: {
