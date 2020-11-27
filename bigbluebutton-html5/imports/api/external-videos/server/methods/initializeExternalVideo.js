@@ -10,14 +10,7 @@ const allowRecentMessages = (eventName, message) => {
     state,
   } = message;
 
-  Logger.debug('ExternalVideo Streamer auth allowed', {
-    userId,
-    meetingId,
-    eventName,
-    time,
-    rate,
-    state,
-  });
+  Logger.debug('ExternalVideo Streamer auth allowed', {userId, meetingId, eventName, time, rate, state});
   return true;
 };
 
@@ -32,6 +25,6 @@ export default function initializeExternalVideo() {
     streamer.allowEmit(allowRecentMessages);
     Logger.info(`Created External Video streamer for ${streamName}`);
   } else {
-    Logger.debug('`External Video streamer is already created', { streamName });
+    Logger.debug('External Video streamer is already created', { streamName });
   }
 }

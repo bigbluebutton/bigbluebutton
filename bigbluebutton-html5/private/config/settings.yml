@@ -36,6 +36,7 @@ public:
     # can generate excessive overhead to the server. We recommend
     # this value to be kept under 12.
     breakoutRoomLimit: 8
+    customHeartbeat: false
     defaultSettings:
       application:
         animations: true
@@ -419,7 +420,7 @@ public:
       - pencil
       - hand
   clientLog:
-    server: { enabled: true, level: info }
+    server: { enabled: false, level: info }
     console: { enabled: true, level: debug }
     external: { enabled: false, level: info, url: https://LOG_HOST/html5Log, method: POST, throttleInterval: 400, flushOnClose: true, logTag: "" }
 private:

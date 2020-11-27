@@ -180,18 +180,13 @@ class SIPSession {
       }, CALL_TRANSFER_TIMEOUT);
 
       // This is is the call transfer code ask @chadpilkey
-      if (this.sessionSupportRTPPayloadDtmf(this.currentSession)) {
-        this.currentSession.sessionDescriptionHandler.sendDtmf(1);
-      } else {
-        // RFC4733 not supported , sending DTMF through INFO
-        logger.debug({
-          logCode: 'sip_js_rtp_payload_dtmf_not_supported',
-          extraInfo: {
-            callerIdName: this.user.callerIdName,
-          },
-        }, 'Browser do not support payload dtmf, using INFO instead');
-        this.sendDtmf(1);
-      }
+      logger.debug({
+        logCode: 'sip_js_rtp_payload_send_dtmf',
+        extraInfo: {
+          callerIdName: this.user.callerIdName,
+        },
+      }, 'Sending DTMF INFO to transfer user');
+      this.sendDtmf(1);
 
       Tracker.autorun((c) => {
         trackerControl = c;
