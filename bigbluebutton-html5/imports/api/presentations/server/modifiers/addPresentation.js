@@ -66,24 +66,20 @@ export default function addPresentation(meetingId, podId, presentation) {
     }, flat(presentation, { safe: true })),
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Adding presentation to collection: ${err}`);
-    }
+  try {
+    const { insertedId } = Presentations.upsert(selector, modifier);
 
     addSlides(meetingId, podId, presentation.id, presentation.pages);
-
-    const { insertedId } = numChanged;
+    
     if (insertedId) {
       if (presentation.current) {
         setCurrentPresentation(meetingId, podId, presentation.id);
+        Logger.info(`Added presentation id=${presentation.id} meeting=${meetingId}`);
+      } else {
+        Logger.info(`Upserted presentation id=${presentation.id} meeting=${meetingId}`);
       }
-
-      return Logger.info(`Added presentation id=${presentation.id} meeting=${meetingId}`);
     }
-
-    return Logger.info(`Upserted presentation id=${presentation.id} meeting=${meetingId}`);
-  };
-
-  return Presentations.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Adding presentation to collection: ${err}`);
+  }
 }

@@ -3,12 +3,24 @@ import VideoStreams from '/imports/api/video-streams';
 
 export default function clearVideoStreams(meetingId) {
   if (meetingId) {
-    return VideoStreams.remove({ meetingId }, () => {
-      Logger.info(`Cleared VideoStreams in (${meetingId})`);
-    });
-  }
+    try {
+      const numberAffected = VideoStreams.remove({ meetingId });
 
-  return VideoStreams.remove({}, () => {
-    Logger.info('Cleared VideoStreams in all meetings');
-  });
+      if (numberAffected) {
+        Logger.info(`Cleared VideoStreams in (${meetingId})`);
+      }
+    } catch (err) {
+      Logger.error(`Error on clearing VideoStreams (${ meetingId }). ${err}`);
+    }
+  } else {
+    try {
+      const numberAffected = VideoStreams.remove({});
+
+      if (numberAffected) {
+        Logger.info('Cleared VideoStreams in all meetings');
+      }
+    } catch (err) {
+      Logger.error(`Error on clearing VideoStreams (all). ${err}`);
+    }
+  }
 }

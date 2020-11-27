@@ -16,11 +16,9 @@ export default function ping() {
     },
   };
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Error updating lastPing for ${requesterUserId}: ${err}`);
-    }
-  };
-
-  return Users.update(selector, modifier, cb);
+  try {
+    Users.update(selector, modifier);
+  } catch (err) {
+    Logger.error(`Error updating lastPing for ${requesterUserId}: ${err}`);
+  }
 }

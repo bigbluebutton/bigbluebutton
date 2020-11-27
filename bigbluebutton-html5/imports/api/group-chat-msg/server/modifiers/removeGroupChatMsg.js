@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import GroupChatMsg from '/imports/api/group-chat-msg';
 
-export default function removeGroupChat(meetingId, chatId) {
+export default function removeGroupChatMsg(meetingId, chatId) {
   check(meetingId, String);
   check(chatId, String);
 
@@ -11,17 +11,13 @@ export default function removeGroupChat(meetingId, chatId) {
     meetingId,
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      Logger.error(`Removing group-chat-msg from collection: ${err}`);
-      return;
-    }
+  try {
+    const numberAffected = GroupChatMsg.remove(selector);
 
-    if (numChanged) {
-      // TODO: Clear group-chat-msg-messages
+    if (numberAffected) {
       Logger.info(`Removed group-chat-msg id=${chatId} meeting=${meetingId}`);
     }
-  };
-
-  return GroupChatMsg.remove(selector, cb);
+  } catch (err) {
+    Logger.error(`Removing group-chat-msg from collection: ${err}`);
+  }
 }

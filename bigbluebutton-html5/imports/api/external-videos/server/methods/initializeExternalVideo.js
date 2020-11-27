@@ -10,9 +10,7 @@ const allowRecentMessages = (eventName, message) => {
     state,
   } = message;
 
-  Logger.debug('ExternalVideo Streamer auth allowed', {
-    userId, meetingId, eventName, time, rate, state,
-  });
+  Logger.debug('ExternalVideo Streamer auth allowed', {userId, meetingId, eventName, time, rate, state});
   return true;
 };
 

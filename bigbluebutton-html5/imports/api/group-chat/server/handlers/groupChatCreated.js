@@ -5,5 +5,5 @@ export default function handleGroupChatCreated({ body }, meetingId) {
   check(meetingId, String);
   check(body, Object);
 
-  return addGroupChat(meetingId, body);
+  addGroupChat(meetingId, body);
 }

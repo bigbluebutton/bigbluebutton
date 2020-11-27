@@ -40,18 +40,19 @@ export default function removeUser(meetingId, userId) {
     },
   };
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Removing user from collection: ${err}`);
+  try {
+    VideoStreams.remove({ meetingId, userId });
+    const numberAffected = Users.update(selector, modifier);
+
+    if (numberAffected) {
+      const sessionUserId = `${meetingId}-${userId}`;
+      clearAllSessions(sessionUserId);
+
+      clearUserInfoForRequester(meetingId, userId);
+
+      return Logger.info(`Removed user id=${userId} meeting=${meetingId}`);
     }
-
-    const sessionUserId = `${meetingId}-${userId}`;
-    clearAllSessions(sessionUserId);
-
-    clearUserInfoForRequester(meetingId, userId);
-
-    return Logger.info(`Removed user id=${userId} meeting=${meetingId}`);
-  };
-  VideoStreams.remove({ meetingId, userId });
-  return Users.update(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Removing user from collection: ${err}`);
+  }
 }

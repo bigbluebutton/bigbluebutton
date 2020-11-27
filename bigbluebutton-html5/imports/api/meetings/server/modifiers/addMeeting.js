@@ -150,15 +150,23 @@ export default function addMeeting(meeting) {
     })),
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      Logger.error(`Adding meeting to collection: ${err}`);
-      return;
-    }
+  try {
+    const { insertedId, numberAffected } = RecordMeetings.upsert(selector, { meetingId, ...recordProp });
 
-    const {
-      insertedId,
-    } = numChanged;
+    if (insertedId) {
+      Logger.info(`Added record prop id=${meetingId}`);
+    } else if (numberAffected) {
+      Logger.info(`Upserted record prop id=${meetingId}`);
+    }
+  } catch (err) {
+    Logger.error(`Adding record prop to collection: ${err}`);
+  }
+
+  try {
+    const { insertedId, numberAffected } = Meetings.upsert(selector, modifier);
+
+    addAnnotationsStreamer(meetingId);
+    addCursorStreamer(meetingId);
 
     if (insertedId) {
       Logger.info(`Added meeting id=${meetingId}`);
@@ -167,39 +175,10 @@ export default function addMeeting(meeting) {
       createNote(meetingId);
       createCaptions(meetingId);
       BannedUsers.init(meetingId);
-    }
-
-    if (numChanged) {
+    } else if (numberAffected) {
       Logger.info(`Upserted meeting id=${meetingId}`);
     }
-  };
-
-  const cbRecord = (err, numChanged) => {
-    if (err) {
-      Logger.error(`Adding record prop to collection: ${err}`);
-      return;
-    }
-
-    const {
-      insertedId,
-    } = numChanged;
-
-    if (insertedId) {
-      Logger.info(`Added record prop id=${meetingId}`);
-    }
-
-    if (numChanged) {
-      Logger.info(`Upserted record prop id=${meetingId}`);
-    }
-  };
-
-  RecordMeetings.upsert(selector, {
-    meetingId,
-    ...recordProp,
-  }, cbRecord);
-
-  addAnnotationsStreamer(meetingId);
-  addCursorStreamer(meetingId);
-
-  return Meetings.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Adding meeting to collection: ${err}`);
+  }
 }

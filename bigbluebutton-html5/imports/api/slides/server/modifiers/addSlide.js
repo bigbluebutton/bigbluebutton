@@ -91,22 +91,6 @@ export default function addSlide(meetingId, podId, presentationId, slide) {
     ),
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Adding slide to collection: ${err}`);
-    }
-
-    const { insertedId } = numChanged;
-
-    requestWhiteboardHistory(meetingId, slideId);
-
-    if (insertedId) {
-      return Logger.info(`Added slide id=${slideId} pod=${podId} presentation=${presentationId}`);
-    }
-
-    return Logger.info(`Upserted slide id=${slideId} pod=${podId} presentation=${presentationId}`);
-  };
-
   const imageSizeUri = (loadSlidesFromHttpAlways ? imageUri.replace(/^https/i, 'http') : imageUri);
 
   return fetchImageSizes(imageSizeUri)
@@ -129,7 +113,20 @@ export default function addSlide(meetingId, podId, presentationId, slide) {
         addSlidePositions(meetingId, podId, presentationId, slideId, slidePosition);
       }
 
-      return Slides.upsert(selector, modifier, cb);
+      try {
+        const { insertedId, numberAffected } = Slides.upsert(selector, modifier);
+
+        requestWhiteboardHistory(meetingId, slideId);
+
+        if (insertedId) {
+          Logger.info(`Added slide id=${slideId} pod=${podId} presentation=${presentationId}`);
+        } else if (numberAffected) {
+          Logger.info(`Upserted slide id=${slideId} pod=${podId} presentation=${presentationId}`);
+        }
+
+      } catch (err) {
+        Logger.error(`Error on adding slide to collection: ${err}`);
+      }
     })
     .catch(reason => Logger.error(`Error parsing image size. ${reason}. slide=${slideId} uri=${imageUri}`));
 }
