@@ -383,13 +383,14 @@ const BaseContainer = withTracker(() => {
   }
 
   if (getFromUserSettings('bbb_show_participants_on_login', true) && !deviceInfo.type().isPhone) {
-    Session.set('openPanel', 'userlist');
     if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
-      Session.set('openPanel', 'chat');
-      Session.set('idChatOpen', PUBLIC_CHAT_ID);
+      Session.setDefault('openPanel', 'chat');
+      Session.setDefault('idChatOpen', PUBLIC_CHAT_ID);
+    } else {
+      Session.setDefault('openPanel', 'userlist');
     }
   } else {
-    Session.set('openPanel', '');
+    Session.setDefault('openPanel', '');
   }
 
   const codeError = Session.get('codeError');
