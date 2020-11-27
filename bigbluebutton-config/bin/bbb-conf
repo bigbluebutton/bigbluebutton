@@ -915,7 +915,7 @@ check_configuration() {
        echo
     fi  
 
-    if ! which ufw; then
+    if ! which ufw > /dev/null 2>&1; then
        echo
        echo "# Warning: No firewall detected.  Recommend using setting up a firewall for your server"
        echo "#"
