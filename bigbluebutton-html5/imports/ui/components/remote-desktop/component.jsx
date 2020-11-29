@@ -42,13 +42,12 @@ class RemoteDesktop extends Component {
   }
 
   componentDidMount() {
-    window.addEventListener('resize', this.resizeListener);
+    window.addEventListener('layoutSizesSets', this.resizeListener);
     this.playerParent.addEventListener('fullscreenchange', this.onFullscreenChange);
-
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.resizeListener);
+    window.removeEventListener('layoutSizesSets', this.resizeListener);
     this.playerParent.removeEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
