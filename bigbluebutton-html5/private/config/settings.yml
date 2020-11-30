@@ -244,7 +244,7 @@ public:
     time: 5000
   chat:
     enabled: true
-    bufferChatInsertsMs: 100
+    bufferChatInsertsMs: 0
     startClosed: false
     min_message_length: 1
     max_message_length: 5000
