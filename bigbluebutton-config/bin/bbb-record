@@ -113,7 +113,7 @@ need_root() {
 }
 
 need_root_or_bigbluebutton() {
-	if [ $EUID != 0 -a "$USER" != 'bigbluebutton']; then
+	if [ $EUID != 0 -a "$USER" != 'bigbluebutton' ]; then
 		echo "Need to be user root or bigbluebutton to run this option"
       exit 1
    fi
