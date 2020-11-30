@@ -25,6 +25,7 @@ export default function clearSlidesPresentation(meetingId, presentationId) {
       Logger.info(`Removed Slides where presentationId=${presentationId}`);
     }
   } catch (err) {
-    return Logger.error(`Removing Slides from collection: ${err}`);
+    Logger.error(`Removing Slides from collection: ${err}`);
+    return;
   }
 }

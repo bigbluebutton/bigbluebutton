@@ -47,6 +47,7 @@ export default function meetingHasEnded(meetingId) {
     clearVideoStreams(meetingId);
     BannedUsers.delete(meetingId);
 
-    return Logger.info(`Cleared Meetings with id ${meetingId}`);
+    Logger.info(`Cleared Meetings with id ${meetingId}`);
+    return;
   });
 }

@@ -18,10 +18,12 @@ export default function setCurrentPresentation(meetingId, podId, presentationId)
     },
     callback: (err) => {
       if (err) {
-        return Logger.error(`Unsetting the current presentation: ${err}`);
+        Logger.error(`Unsetting the current presentation: ${err}`);
+        return;
       }
 
-      return Logger.info('Unsetted as current presentation');
+      Logger.info('Unsetted as current presentation');
+      return;
     },
   };
 
@@ -36,10 +38,12 @@ export default function setCurrentPresentation(meetingId, podId, presentationId)
     },
     callback: (err) => {
       if (err) {
-        return Logger.error(`Setting as current presentation id=${presentationId}: ${err}`);
+        Logger.error(`Setting as current presentation id=${presentationId}: ${err}`);
+        return;
       }
 
-      return Logger.info(`Setted as current presentation id=${presentationId}`);
+      Logger.info(`Setted as current presentation id=${presentationId}`);
+      return;
     },
   };
 
