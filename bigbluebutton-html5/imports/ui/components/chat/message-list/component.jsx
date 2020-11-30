@@ -231,8 +231,9 @@ class MessageList extends Component {
       hasUnreadMessages,
       scrollPosition,
     } = this.props;
+    const { userScrolledBack } = this.state;
 
-    if (hasUnreadMessages && scrollPosition !== null) {
+    if (hasUnreadMessages && userScrolledBack) {
       return (
         <Button
           aria-hidden="true"
