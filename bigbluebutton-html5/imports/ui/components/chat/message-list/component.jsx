@@ -66,7 +66,7 @@ class MessageList extends Component {
 
     this.lastWidth = 0;
 
-    this.setInterval = null;
+    this.scrollInterval = null;
   }
 
   componentDidMount() {
@@ -82,7 +82,7 @@ class MessageList extends Component {
       this.virualRef.style.direction = document.documentElement.dir;
     }
   
-    this.setInterval = setInterval(() => {
+    this.scrollInterval = setInterval(() => {
       const {
         scrollArea,
       } = this.state;
@@ -132,8 +132,6 @@ class MessageList extends Component {
       }
     }
 
-    if (messages.length > prevMessages.length) console.log('nova mensagem');
-
     if (prevMessages.length < messages.length) {
       // this.resizeRow(prevMessages.length - 1);
       // messages.forEach((i, idx) => this.resizeRow(idx));
@@ -141,7 +139,7 @@ class MessageList extends Component {
   }
 
   componentWillUnmount() {
-    clearInterval(this.setInterval);
+    clearInterval(this.scrollInterval);
   }
 
   handleScrollUpdate(position, target) {
