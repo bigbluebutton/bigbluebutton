@@ -19,13 +19,14 @@ export default function updateOwnerId(meetingId, userId, padId) {
     },
   };
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error('Captions: error while updating pad', { err });
-    }
-    updateOwner(meetingId, userId, padId);
-    return Logger.verbose('Captions: updated caption', { padId, ownerId: userId });
-  };
+  try {
+    const numberAffected = Captions.update(selector, modifier, { multi: true });
 
-  return Captions.update(selector, modifier, { multi: true }, cb);
+    if (numberAffected) {
+      updateOwner(meetingId, userId, padId);
+      Logger.verbose('Captions: updated caption', { padId, ownerId: userId });
+    }
+  } catch (err) {
+    Logger.error('Captions: error while updating pad', { err });
+  }
 }

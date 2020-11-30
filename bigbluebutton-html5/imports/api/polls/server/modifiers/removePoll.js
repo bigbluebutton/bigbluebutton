@@ -11,13 +11,14 @@ export default function removePoll(meetingId, id) {
     id,
   };
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Removing Poll from collection: ${err}`);
+  try {
+    const numberAffected = Polls.remove(selector);
+
+    if (numberAffected) {
+      Logger.info(`Removed Poll id=${id}`);
     }
 
-    return Logger.info(`Removed Poll id=${id}`);
-  };
-
-  return Polls.remove(selector, cb);
+  } catch (err) {
+    Logger.error(`Removing Poll from collection: ${err}`);
+  }
 }

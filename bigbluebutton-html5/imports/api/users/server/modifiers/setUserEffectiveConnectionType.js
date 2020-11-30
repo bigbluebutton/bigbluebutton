@@ -19,15 +19,13 @@ export default function setUserEffectiveConnectionType(meetingId, userId, effect
     },
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      Logger.error(`Updating user ${userId}: ${err}`);
-    }
+  try {
+    const numberAffected = Users.update(selector, modifier);
 
-    if (numChanged) {
+    if (numberAffected) {
       Logger.info(`Updated user ${userId} effective connection to ${effectiveConnectionType} in meeting ${meetingId}`);
     }
-  };
-
-  return Users.update(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Updating user ${userId}: ${err}`);
+  }
 }

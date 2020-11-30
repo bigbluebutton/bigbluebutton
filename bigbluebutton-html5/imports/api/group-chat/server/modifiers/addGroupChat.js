@@ -34,19 +34,15 @@ export default function addGroupChat(meetingId, chat) {
     $set: flat(chatDocument, { safe: true }),
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Adding group-chat to collection: ${err}`);
-    }
-
-    const { insertedId } = numChanged;
+  try {
+    const { insertedId } = GroupChat.upsert(selector, modifier);
 
     if (insertedId) {
-      return Logger.info(`Added group-chat name=${chat.name} meetingId=${meetingId}`);
+      Logger.info(`Added group-chat name=${chat.name} meetingId=${meetingId}`);
+    } else {
+      Logger.info(`Upserted group-chat name=${chat.name} meetingId=${meetingId}`);
     }
-
-    return Logger.info(`Upserted group-chat name=${chat.name} meetingId=${meetingId}`);
-  };
-
-  return GroupChat.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Adding group-chat to collection: ${err}`);
+  }
 }

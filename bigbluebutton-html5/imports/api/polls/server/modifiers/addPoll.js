@@ -40,18 +40,16 @@ export default function addPoll(meetingId, requesterId, poll) {
     flat(poll, { safe: true }),
   );
 
-  const cb = (err, numChanged) => {
-    if (err != null) {
-      return Logger.error(`Adding Poll to collection: ${poll.id}`);
-    }
 
-    const { insertedId } = numChanged;
+  try {
+    const { insertedId } = Polls.upsert(selector, modifier);
+
     if (insertedId) {
-      return Logger.info(`Added Poll id=${poll.id}`);
+      Logger.info(`Added Poll id=${poll.id}`);
+    } else {
+      Logger.info(`Upserted Poll id=${poll.id}`);
     }
-
-    return Logger.info(`Upserted Poll id=${poll.id}`);
-  };
-
-  return Polls.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Adding Poll to collection: ${poll.id}`);
+  }
 }

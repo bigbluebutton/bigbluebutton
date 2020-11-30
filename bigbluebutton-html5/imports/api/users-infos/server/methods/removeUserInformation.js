@@ -8,11 +8,14 @@ export default function removeUserInformation() {
     meetingId,
     requesterUserId,
   };
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Removing user information from collection: ${err}`);
+
+  try {
+    const numberAffected = UserInfos.remove(selector);
+
+    if (numberAffected) {
+      Logger.info(`Removed user information: requester id=${requesterUserId} meeting=${meetingId}`);
     }
-    return Logger.info(`Removed user information: requester id=${requesterUserId} meeting=${meetingId}`);
-  };
-  return UserInfos.remove(selector, cb);
+  } catch (err) {
+    Logger.error(`Removing user information from collection: ${err}`);
+  }
 }
