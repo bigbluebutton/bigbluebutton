@@ -19,7 +19,8 @@ export default function userLeaving(meetingId, userId, connectionId) {
   const User = Users.findOne(selector);
 
   if (!User) {
-    return Logger.info(`Skipping userLeaving. Could not find ${userId} in ${meetingId}`);
+    Logger.info(`Skipping userLeaving. Could not find ${userId} in ${meetingId}`);
+    return;
   }
 
   // If the current user connection is not the same that triggered the leave we skip

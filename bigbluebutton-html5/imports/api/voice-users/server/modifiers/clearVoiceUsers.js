@@ -7,20 +7,20 @@ export default function clearVoiceUser(meetingId) {
       const numberAffected = VoiceUsers.remove({ meetingId });
 
       if (numberAffected) {
-        return Logger.info(`Cleared VoiceUsers in (${meetingId})`);
+        Logger.info(`Cleared VoiceUsers in (${meetingId})`);
       }
     } catch (err) {
-      return Logger.error(`Error on clearing VoiceUsers in ${meetingId}. ${err}`);
+      Logger.error(`Error on clearing VoiceUsers in ${meetingId}. ${err}`);
     }
-  }
+  } else {
+    try {
+      const numberAffected = VoiceUsers.remove({});
 
-  try {
-    const numberAffected = VoiceUsers.remove({});
-
-    if (numberAffected) {
-      return Logger.info('Cleared VoiceUsers in all meetings');
+      if (numberAffected) {
+        Logger.info('Cleared VoiceUsers in all meetings');
+      }
+    } catch (err) {
+      Logger.error(`Error on clearing VoiceUsers. ${err}`);
     }
-  } catch (err) {
-    return Logger.error(`Error on clearing VoiceUsers. ${err}`);
   }
 }

@@ -20,10 +20,12 @@ export default function changeCurrentSlide(meetingId, podId, presentationId, sli
     },
     callback: (err) => {
       if (err) {
-        return Logger.error(`Unsetting the current slide: ${err}`);
+        Logger.error(`Unsetting the current slide: ${err}`);
+        return;
       }
 
-      return Logger.info('Unsetted the current slide');
+      Logger.info('Unsetted the current slide');
+      return;
     },
   };
 
@@ -39,10 +41,12 @@ export default function changeCurrentSlide(meetingId, podId, presentationId, sli
     },
     callback: (err) => {
       if (err) {
-        return Logger.error(`Setting as current slide id=${slideId}: ${err}`);
+        Logger.error(`Setting as current slide id=${slideId}: ${err}`);
+        return;
       }
 
-      return Logger.info(`Setted as current slide id=${slideId}`);
+      Logger.info(`Setted as current slide id=${slideId}`);
+      return;
     },
   };
 

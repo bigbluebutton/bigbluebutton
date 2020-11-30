@@ -24,6 +24,6 @@ export default function addScreenshare(meetingId, body) {
       Logger.info(`Upserted screenshare id=${body.screenshareConf}`);
     }
   } catch (err) {
-    return Logger.error(`Adding screenshare to collection: ${err}`);
+    Logger.error(`Adding screenshare to collection: ${err}`);
   }
 }
