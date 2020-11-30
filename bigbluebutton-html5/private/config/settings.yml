@@ -481,7 +481,6 @@ public:
 private:
   app:
     host: 127.0.0.1
-    port: 3000
     localesUrl: /locales
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false

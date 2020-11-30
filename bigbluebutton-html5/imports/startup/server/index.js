@@ -135,7 +135,7 @@ Meteor.startup(() => {
     BrowserPolicy.content.allowImageDataUrl(CDN_URL);
     BrowserPolicy.content.allowFontDataUrl(CDN_URL);
     BrowserPolicy.content.allowOriginForAll(CDN_URL);
-    WebAppInternals.setBundledJsCssPrefix(CDN_URL + APP_CONFIG.basename);
+    WebAppInternals.setBundledJsCssPrefix(CDN_URL + APP_CONFIG.basename + Meteor.settings.public.app.instanceId);
 
     const fontRegExp = /\.(eot|ttf|otf|woff|woff2)$/;
 

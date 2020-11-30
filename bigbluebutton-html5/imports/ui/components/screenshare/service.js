@@ -9,6 +9,7 @@ import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UserListService from '/imports/ui/components/user-list/service';
 import AudioService from '/imports/ui/components/audio/service';
+import {Meteor} from "meteor/meteor";
 
 // when the meeting information has been updated check to see if it was
 // screensharing. If it has changed either trigger a call to receive video
@@ -73,7 +74,8 @@ const shareScreen = (onFail) => {
 
 const screenShareEndAlert = () => AudioService
   .playAlertSound(`${Meteor.settings.public.app.cdn
-    + Meteor.settings.public.app.basename}`
+    + Meteor.settings.public.app.basename
+    + Meteor.settings.public.app.instanceId}`
     + '/resources/sounds/ScreenshareOff.mp3');
 
 const unshareScreen = () => {
