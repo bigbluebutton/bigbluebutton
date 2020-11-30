@@ -27,12 +27,12 @@ export default function clearAnnotations(meetingId, whiteboardId, userId) {
 
       if (whiteboardId) {
         Logger.info(`Cleared Annotations for whiteboard=${whiteboardId}`);
-        return
+        return;
       }
 
       if (meetingId) {
         Logger.info(`Cleared Annotations (${meetingId})`);
-        return
+        return;
       }
 
       Logger.info('Cleared Annotations (all)');
