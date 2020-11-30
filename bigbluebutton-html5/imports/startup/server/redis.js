@@ -107,8 +107,8 @@ class RedisPubSub {
     this.didSendRequestEvent = false;
     const host = process.env.REDIS_HOST || Meteor.settings.private.redis.host;
     const redisConf = Meteor.settings.private.redis;
-    this.instanceMax = parseInt(process.env.INSTANCE_MAX || 1);
-    this.instanceId = parseInt(process.env.INSTANCE_ID) || 1;
+    this.instanceMax = parseInt(process.env.INSTANCE_MAX, 10) || 1;
+    this.instanceId = parseInt(process.env.INSTANCE_ID, 10) || 1;
 
     const { password, port } = redisConf;
 
