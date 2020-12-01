@@ -1267,6 +1267,10 @@ begin
           FileUtils.cp("#{$process_dir}/presentation_text.json", package_dir)
         end
 
+        if File.exist?("#{$process_dir}/notes/notes.html")
+          FileUtils.cp("#{$process_dir}/notes/notes.html", package_dir)
+        end
+
         processing_time = File.read("#{$process_dir}/processing_time")
 
         @doc = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
