@@ -48,16 +48,15 @@ export default function publishVote(pollId, pollAnswerId) {
     },
   };
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Removing responded user from Polls collection: ${err}`);
+  try {
+    const numberAffected = Polls.update(selector, modifier);
+
+    if (numberAffected) {
+      Logger.info(`Removed responded user=${requesterUserId} from poll (meetingId: ${meetingId}, pollId: ${pollId}!)`);
+
+      RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
     }
-
-    Logger.info(`Removed responded user=${requesterUserId} from poll (meetingId: ${meetingId}, `
-      + `pollId: ${pollId}!)`);
-
-    return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
-  };
-
-  Polls.update(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Removing responded user from Polls collection: ${err}`);
+  }
 }

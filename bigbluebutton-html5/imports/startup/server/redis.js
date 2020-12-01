@@ -60,7 +60,7 @@ class MeetingMessageQueue {
       }
       called = true;
       const queueLength = this.queue.length();
-      if (queueLength > 0) {
+      if (queueLength > 100) {
         Logger.warn(`Redis: MeetingMessageQueue for meetingId=${meetingId} has queue size=${queueLength} `);
       }
       next();

@@ -16,7 +16,11 @@ export default function editCaptions(padId, data) {
 
   const pad = Captions.findOne({ padId });
 
-  if (!pad) return Logger.error(`Editing captions history: ${padId}`);
+  if (!pad) {
+    Logger.error(`Editing captions history: ${padId}`);
+    return;
+  }
+
 
   const {
     meetingId,

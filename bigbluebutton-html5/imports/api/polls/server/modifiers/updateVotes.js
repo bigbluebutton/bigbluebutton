@@ -29,13 +29,13 @@ export default function updateVotes(poll, meetingId) {
     $set: flat(poll, { safe: true }),
   };
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Updating Polls collection: ${err}`);
+  try {
+    const numberAffected = Polls.update(selector, modifier);
+
+    if (numberAffected) {
+      Logger.info(`Updating Polls collection (meetingId: ${meetingId}, pollId: ${id}!)`);
     }
-
-    return Logger.info(`Updating Polls collection (meetingId: ${meetingId}, pollId: ${id}!)`);
-  };
-
-  return Polls.update(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Updating Polls collection: ${err}`);
+  }
 }
