@@ -16,25 +16,28 @@ export default function clearAnnotations(meetingId, whiteboardId, userId) {
     selector.userId = userId;
   }
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Removing Annotations from collection: ${err}`);
+  try {
+    const numberAffected = Annotations.remove(selector);
+
+    if (numberAffected) {
+      if (userId) {
+        Logger.info(`Cleared Annotations for userId=${userId} where whiteboard=${whiteboardId}`);
+        return;
+      }
+
+      if (whiteboardId) {
+        Logger.info(`Cleared Annotations for whiteboard=${whiteboardId}`);
+        return;
+      }
+
+      if (meetingId) {
+        Logger.info(`Cleared Annotations (${meetingId})`);
+        return;
+      }
+
+      Logger.info('Cleared Annotations (all)');
     }
-
-    if (userId) {
-      return Logger.info(`Cleared Annotations for userId=${userId} where whiteboard=${whiteboardId}`);
-    }
-
-    if (whiteboardId) {
-      return Logger.info(`Cleared Annotations for whiteboard=${whiteboardId}`);
-    }
-
-    if (meetingId) {
-      return Logger.info(`Cleared Annotations (${meetingId})`);
-    }
-
-    return Logger.info('Cleared Annotations (all)');
-  };
-
-  return Annotations.remove(selector, cb);
+  } catch (err) {
+    Logger.error(`Removing Annotations from collection: ${err}`);
+  }
 }

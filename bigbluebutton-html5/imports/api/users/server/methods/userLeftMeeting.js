@@ -12,25 +12,24 @@ export default function userLeftMeeting() { // TODO-- spread the code to method/
     userId: requesterUserId,
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      Logger.error(`leaving dummy user to collection: ${err}`);
-      return;
-    }
-    if (numChanged) {
+  try {
+    const numberAffected = Users.update(selector, { $set: { loggedOut: true } });
+
+    if (numberAffected) {
       Logger.info(`user left id=${requesterUserId} meeting=${meetingId}`);
     }
-  };
+    ClientConnections.removeClientConnection(this.userId, this.connection.id);
 
-  ClientConnections.removeClientConnection(this.userId, this.connection.id);
-
-  return Users.update(
-    selector,
-    {
-      $set: {
-        loggedOut: true,
+    Users.update(
+      selector,
+      {
+        $set: {
+          loggedOut: true,
+        },
       },
-    },
-    cb,
-  );
+      cb,
+    );
+  } catch (err) {
+    Logger.error(`leaving dummy user to collection: ${err}`);
+  }
 }

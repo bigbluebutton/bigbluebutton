@@ -3,12 +3,24 @@ import VoiceUsers from '/imports/api/voice-users';
 
 export default function clearVoiceUser(meetingId) {
   if (meetingId) {
-    return VoiceUsers.remove({ meetingId }, () => {
-      Logger.info(`Cleared VoiceUsers in (${meetingId})`);
-    });
-  }
+    try {
+      const numberAffected = VoiceUsers.remove({ meetingId });
 
-  return VoiceUsers.remove({}, () => {
-    Logger.info('Cleared VoiceUsers in all meetings');
-  });
+      if (numberAffected) {
+        Logger.info(`Cleared VoiceUsers in (${meetingId})`);
+      }
+    } catch (err) {
+      Logger.error(`Error on clearing VoiceUsers in ${meetingId}. ${err}`);
+    }
+  } else {
+    try {
+      const numberAffected = VoiceUsers.remove({});
+
+      if (numberAffected) {
+        Logger.info('Cleared VoiceUsers in all meetings');
+      }
+    } catch (err) {
+      Logger.error(`Error on clearing VoiceUsers. ${err}`);
+    }
+  }
 }

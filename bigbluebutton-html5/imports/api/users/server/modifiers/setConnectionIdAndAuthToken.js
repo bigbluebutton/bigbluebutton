@@ -20,16 +20,13 @@ export default function setConnectionIdAndAuthToken(meetingId, userId, connectio
     },
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      Logger.error(`Updating connectionId user=${userId}: ${err}`);
-      return;
-    }
+  try {
+    const numberAffected = Users.update(selector, modifier);
 
-    if (numChanged) {
+    if (numberAffected) {
       Logger.info(`Updated connectionId and authToken user=${userId} connectionId=${connectionId} meeting=${meetingId} authToken=${authToken}`);
     }
-  };
-
-  return Users.update(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Updating connectionId user=${userId}: ${err}`);
+  }
 }
