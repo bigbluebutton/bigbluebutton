@@ -184,7 +184,6 @@ HERE
   mkdir -p /etc/systemd/system/bbb-webrtc-sfu.service.d
   cat > /etc/systemd/system/bbb-webrtc-sfu.service.d/override.conf << HERE
 [Unit]
-After=
 After=syslog.target network.target freeswitch.service kurento-media-server-8888.service kurento-media-server-8889.service kurento-media-server-8890.service
 HERE
 
