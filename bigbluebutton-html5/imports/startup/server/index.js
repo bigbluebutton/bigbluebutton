@@ -15,6 +15,11 @@ import userLeaving from '/imports/api/users/server/methods/userLeaving';
 
 const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
 
+process.on('uncaughtException', (err) => {
+  Logger.error(`uncaughtException: ${err}`);
+  process.exit(1);
+});
+
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
   const INTERVAL_IN_SETTINGS = (Meteor.settings.public.pingPong.clearUsersInSeconds) * 1000;
@@ -44,7 +49,11 @@ Meteor.startup(() => {
       const supportsHeartbeats = this.ws.ping(null, () => clearTimeout(this.hto_ref));
       if (supportsHeartbeats) {
         this.hto_ref = setTimeout(() => {
-          Logger.info('Heartbeat timeout', { userId: this.session.connection._meteorSession.userId, sentAt: currentTime, now: new Date().getTime() });
+          try {
+            Logger.info('Heartbeat timeout', { userId: this.session.connection._meteorSession.userId, sentAt: currentTime, now: new Date().getTime() });
+          } catch (err) {
+            Logger.error(`Heartbeat timeout error: ${err}`);
+          }
         }, Meteor.server.options.heartbeatTimeout);
       } else {
         Logger.error('Unexpected error supportsHeartbeats=false');
