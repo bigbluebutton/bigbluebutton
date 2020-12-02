@@ -68,6 +68,7 @@
   margin-bottom: var(--border-size);
   padding-left: 0;
   padding-right: inherit;
+  z-index: 3;
 
   [dir="rtl"] & {
     padding-left: inherit;

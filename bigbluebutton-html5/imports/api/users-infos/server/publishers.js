@@ -13,7 +13,7 @@ function userInfos() {
 
   const { meetingId, userId: requesterUserId } = tokenValidation;
 
-  Logger.debug(`Publishing UserInfos for ${meetingId} ${requesterUserId}`);
+  Logger.debug('Publishing UserInfos requested', { meetingId, requesterUserId });
 
   return UserInfos.find({ meetingId, requesterUserId });
 }

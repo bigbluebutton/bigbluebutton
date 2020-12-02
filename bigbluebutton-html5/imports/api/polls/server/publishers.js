@@ -13,7 +13,7 @@ function currentPoll() {
 
   const { meetingId, userId } = tokenValidation;
 
-  Logger.debug(`Publishing Polls for ${meetingId} ${userId}`);
+  Logger.debug('Publishing Polls', { meetingId, userId });
 
   const selector = {
     meetingId,
@@ -40,7 +40,7 @@ function polls() {
 
   const { meetingId, userId } = tokenValidation;
 
-  Logger.debug(`Publishing Polls for ${meetingId} ${userId}`);
+  Logger.debug('Publishing polls', { meetingId, userId });
 
   const selector = {
     meetingId,

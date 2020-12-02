@@ -37,12 +37,12 @@ function userSettings() {
       UserSettings.upsert(selector, doc);
     });
 
-    Logger.debug(`Publishing UserSettings for ${meetingId} ${userId}`);
+    Logger.debug('Publishing UserSettings', { meetingId, userId });
 
     return UserSettings.find({ meetingId, userId });
   }
 
-  Logger.debug(`Publishing UserSettings for ${meetingId} ${userId}`);
+  Logger.debug('Publishing UserSettings', { meetingId, userId });
 
   return UserSettings.find({ meetingId, userId });
 }

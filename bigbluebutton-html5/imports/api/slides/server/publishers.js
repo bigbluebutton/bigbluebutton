@@ -13,7 +13,7 @@ function slides() {
 
   const { meetingId, userId } = tokenValidation;
 
-  Logger.debug(`Publishing Slides for ${meetingId} ${userId}`);
+  Logger.debug('Publishing Slides', { meetingId, userId });
 
   return Slides.find({ meetingId });
 }
@@ -35,7 +35,7 @@ function slidePositions() {
 
   const { meetingId, userId } = tokenValidation;
 
-  Logger.debug(`Publishing SlidePositions for ${meetingId} ${userId}`);
+  Logger.debug('Publishing SlidePositions', { meetingId, userId });
 
   return SlidePositions.find({ meetingId });
 }

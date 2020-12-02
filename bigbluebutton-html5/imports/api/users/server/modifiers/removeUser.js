@@ -31,11 +31,8 @@ export default function removeUser(meetingId, userId) {
     userId,
   };
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Removing user from collection: ${err}`);
-    }
-
+  try {
+    VideoStreams.remove({ meetingId, userId });
     const sessionUserId = `${meetingId}-${userId}`;
 
     ClientConnections.removeClientConnection(`${meetingId}--${userId}`);
@@ -44,8 +41,10 @@ export default function removeUser(meetingId, userId) {
 
     clearUserInfoForRequester(meetingId, userId);
 
-    return Logger.info(`Removed user id=${userId} meeting=${meetingId}`);
-  };
-  VideoStreams.remove({ meetingId, userId });
-  return Users.remove(selector, cb);
+    Users.remove(selector, cb);
+
+    Logger.info(`Removed user id=${userId} meeting=${meetingId}`);
+  } catch (err) {
+    Logger.error(`Removing user from Users collection: ${err}`);
+  }
 }

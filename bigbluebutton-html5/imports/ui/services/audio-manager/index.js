@@ -10,6 +10,7 @@ import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills
 import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import { monitorAudioConnection } from '/imports/utils/stats';
 import AudioErrors from './error-codes';
+import {Meteor} from "meteor/meteor";
 
 const STATS = Meteor.settings.public.stats;
 const MEDIA = Meteor.settings.public.media;
@@ -424,7 +425,8 @@ class AudioManager {
 
     // Play bogus silent audio to try to circumvent autoplay policy on Safari
     if (!audio.src) {
-      audio.src = 'resources/sounds/silence.mp3';
+      audio.src = `${Meteor.settings.public.app.cdn
+      + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}` + 'resources/sounds/silence.mp3';
     }
 
     audio.play().catch((e) => {
@@ -527,7 +529,7 @@ class AudioManager {
 
   playHangUpSound() {
     this.playAlertSound(`${Meteor.settings.public.app.cdn
-      + Meteor.settings.public.app.basename}`
+      + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}`
       + '/resources/sounds/LeftCall.mp3');
   }
 

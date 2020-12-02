@@ -6,6 +6,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import { styles } from './styles.scss';
 import AudioService from '/imports/ui/components/audio/service';
+import {Meteor} from "meteor/meteor";
 
 const intlMessages = defineMessages({
   pollingTitleLabel: {
@@ -32,7 +33,8 @@ class Polling extends Component {
 
   play() {
     AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-      + Meteor.settings.public.app.basename}`
+      + Meteor.settings.public.app.basename
+      + Meteor.settings.public.app.instanceId}`
       + '/resources/sounds/Poll.mp3');
   }
 

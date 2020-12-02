@@ -28,15 +28,14 @@ export default function removeVoiceUser(meetingId, voiceUser) {
     },
   };
 
-  clearSpokeTimeout(meetingId, intId);
+  try {
+    clearSpokeTimeout(meetingId, intId);
+    const numberAffected = VoiceUsers.update(selector, modifier);
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Remove voiceUser=${intId}: ${err}`);
+    if (numberAffected) {
+      Logger.info(`Remove voiceUser=${intId} meeting=${meetingId}`);
     }
-
-    return Logger.info(`Remove voiceUser=${intId} meeting=${meetingId}`);
-  };
-
-  return VoiceUsers.update(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Remove voiceUser=${intId}: ${err}`);
+  }
 }
