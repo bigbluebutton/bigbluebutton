@@ -29,10 +29,10 @@ const intlMessages = defineMessages({
  * accessing that reference that we determine the lock state of the
  * desktop and toggle it back and forth.  Also, VncDisplay does not
  * expose any methods to manipulate its lock state, so we dig down
- * into its internals to access the _view_only variable on its rfb
+ * into its internals to access the viewOnly variable on its rfb
  * object.
  *
- * We keep a local version of _view_only in this.state.desktopLocked
+ * We keep a local version of viewOnly in this.state.desktopLocked
  * because changing this.state triggers a re-render of the component,
  * and that's how we make the button change its visible state.
  */
@@ -48,14 +48,14 @@ class LockRemoteDesktopButton extends Component {
     this.state = {
       desktopLocked: (((window.VncDisplay === undefined) || (window.VncDisplay === null))
         ? START_VIEWONLY
-        : window.VncDisplay.rfb._view_only),
+        : window.VncDisplay.rfb.viewOnly),
     };
   }
 
   handleOnClick() {
     if ((window.VncDisplay !== undefined) && (window.VncDisplay !== null)) {
-      window.VncDisplay.rfb._view_only = !window.VncDisplay.rfb._view_only;
-      this.setState({ desktopLocked: window.VncDisplay.rfb._view_only });
+      window.VncDisplay.rfb.viewOnly = !window.VncDisplay.rfb.viewOnly;
+      this.setState({ desktopLocked: window.VncDisplay.rfb.viewOnly });
     }
   }
 

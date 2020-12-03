@@ -78,8 +78,8 @@ class RemoteDesktop extends Component {
     const w = par.clientWidth;
     const h = par.clientHeight;
 
-    const fb_width = this.player.rfb._fb_width;
-    const fb_height = this.player.rfb._fb_height;
+    const fb_width = this.player.rfb._display.width;
+    const fb_height = this.player.rfb._display.height;
 
     if ((fb_width == 0) || (fb_height == 0)) {
 	return;
@@ -119,21 +119,12 @@ class RemoteDesktop extends Component {
     setTimeout(this.handleResize, 0);
   }
 
-  passwordFunc = (rfb) => {
-    rfb.sendPassword(this.vncPassword);
-  }
-
-  updateState = (rfb, newState, oldState, msg) => {
+  onConnect = () => {
       /* We have to handshake a bit with the VNC server before
        * we know the remote screen geometry.  Therefore, once
-       * the connection state transitions to 'normal', we
-       * should schedule a resize.
+       * we finish connecting, schedule a resize.
        */
-      if (newState == 'normal') {
-	  setTimeout(this.handleResize, 0);
-	  // should do this when VncDisplay is created, but it doesn't accept a suitable property
-	  rfb._view_only = START_VIEWONLY;
-      }
+      setTimeout(this.handleResize, 0);
   }
 
   renderFullscreenButton() {
@@ -176,11 +167,12 @@ class RemoteDesktop extends Component {
         {this.renderFullscreenButton()}
         <VncDisplay
           className={styles.remoteDesktop}
+          width={null}
+          height={null}
           url={remoteDesktopUrl}
-          forceAuthScheme={1}
-          onPasswordRequired={this.passwordFunc}
-          onUpdateState={this.updateState}
-          resize="scale"
+          credentials={{password: this.vncPassword}}
+          onConnect={this.onConnect}
+          viewOnly={START_VIEWONLY}
           shared
           ref={(ref) => {
 	      this.player = ref;
