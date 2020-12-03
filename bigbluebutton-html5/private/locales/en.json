@@ -352,7 +352,7 @@
     "app.talkingIndicator.isTalking" : "{0} is talking",
     "app.talkingIndicator.wasTalking" : "{0} stopped talking",
     "app.actionsBar.actionsDropdown.actionsLabel": "Actions",
-    "app.actionsBar.actionsDropdown.presentationLabel": "Upload a presentation",
+    "app.actionsBar.actionsDropdown.presentationLabel": "Manage presentations",
     "app.actionsBar.actionsDropdown.initPollLabel": "Initiate a poll",
     "app.actionsBar.actionsDropdown.desktopShareLabel": "Share your screen",
     "app.actionsBar.actionsDropdown.lockedDesktopShareLabel": "Screenshare locked",
