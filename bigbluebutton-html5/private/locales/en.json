@@ -262,7 +262,7 @@
     "app.navBar.settingsDropdown.fullscreenLabel": "Make fullscreen",
     "app.navBar.settingsDropdown.settingsLabel": "Settings",
     "app.navBar.settingsDropdown.aboutLabel": "About",
-    "app.navBar.settingsDropdown.leaveSessionLabel": "Logout",
+    "app.navBar.settingsDropdown.leaveSessionLabel": "Leave meeting",
     "app.navBar.settingsDropdown.exitFullscreenLabel": "Exit fullscreen",
     "app.navBar.settingsDropdown.fullscreenDesc": "Make the settings menu fullscreen",
     "app.navBar.settingsDropdown.settingsDesc": "Change the general settings",
