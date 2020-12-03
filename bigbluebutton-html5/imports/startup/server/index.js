@@ -66,17 +66,24 @@ Meteor.startup(() => {
 
     // https://github.com/davhani/hagty/blob/6a5c78e9ae5a5e4ade03e747fb4cc8ea2df4be0c/faye-websocket/lib/faye/websocket/api.js#L84-L88
     const newSend = function send(data) {
-      this.lastSentFrameTimestamp = new Date().getTime();
+      try {
+        this.lastSentFrameTimestamp = new Date().getTime();
 
-      // Call https://github.com/meteor/meteor/blob/1e7e56eec8414093cd0c1c70750b894069fc972a/packages/ddp-common/heartbeat.js#L80-L88
-      this.meteorHeartbeat._seenPacket = true;
-      if (this.meteorHeartbeat._heartbeatTimeoutHandle) {
-        this.meteorHeartbeat._clearHeartbeatTimeoutTimer();
+        if (this.meteorHeartbeat) {
+          // Call https://github.com/meteor/meteor/blob/1e7e56eec8414093cd0c1c70750b894069fc972a/packages/ddp-common/heartbeat.js#L80-L88
+          this.meteorHeartbeat._seenPacket = true;
+          if (this.meteorHeartbeat._heartbeatTimeoutHandle) {
+            this.meteorHeartbeat._clearHeartbeatTimeoutTimer();
+          }
+        }
+
+        if (this.readyState > 1/* API.OPEN = 1 */) return false;
+        if (!(data instanceof Buffer)) data = String(data);
+        return this._driver.messages.write(data);
+      } catch (err) {
+        console.error('Error on send data', err);
+        return false;
       }
-
-      if (this.readyState > 1/* API.OPEN = 1 */) return false;
-      if (!(data instanceof Buffer)) data = String(data);
-      return this._driver.messages.write(data);
     };
 
     Meteor.setInterval(() => {
