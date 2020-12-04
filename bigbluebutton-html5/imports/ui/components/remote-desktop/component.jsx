@@ -31,6 +31,8 @@ class RemoteDesktop extends Component {
     this.state = {
       isFullscreen: false,
       resized: false,
+      remoteDesktopUrl: remoteDesktopUrl,
+      viewOnly: START_VIEWONLY,
     };
 
     this.player = null;
@@ -39,6 +41,9 @@ class RemoteDesktop extends Component {
     this.resizeListener = () => {
       setTimeout(this.handleResize, 0);
     };
+
+    /* window.remoteDesktop is globally accessible so that the lock button can access it */
+    window.remoteDesktop = this;
   }
 
   componentDidMount() {
@@ -49,6 +54,7 @@ class RemoteDesktop extends Component {
   componentWillUnmount() {
     window.removeEventListener('layoutSizesSets', this.resizeListener);
     this.playerParent.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    delete window.remoteDesktop;
   }
 
   handleResize() {
@@ -145,7 +151,7 @@ class RemoteDesktop extends Component {
   }
 
   render() {
-    var { remoteDesktopUrl } = this.props;
+    var { remoteDesktopUrl, viewOnly } = this.state;
 
     if (remoteDesktopUrl) {
       const url = new URL(remoteDesktopUrl);
@@ -172,12 +178,10 @@ class RemoteDesktop extends Component {
           url={remoteDesktopUrl}
           credentials={{password: this.vncPassword}}
           onConnect={this.onConnect}
-          viewOnly={START_VIEWONLY}
+          viewOnly={viewOnly}
           shared
           ref={(ref) => {
 	      this.player = ref;
-	      /* window.VncDisplay is globally accessible so that the lock button can access it */
-	      window.VncDisplay = ref;
 	  }}
         />}
       </div>

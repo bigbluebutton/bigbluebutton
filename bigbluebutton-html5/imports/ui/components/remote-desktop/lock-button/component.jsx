@@ -25,12 +25,9 @@ const intlMessages = defineMessages({
 /* There's some serious violation of component isolation in the design
  * here, but "it works for now".  The remote desktop component (well
  * removed from this button component in the inheritance hierarchy)
- * saves a reference to itself in window.VncDisplay, and it's by
+ * saves a reference to itself in window.remoteDesktop, and it's by
  * accessing that reference that we determine the lock state of the
- * desktop and toggle it back and forth.  Also, VncDisplay does not
- * expose any methods to manipulate its lock state, so we dig down
- * into its internals to access the viewOnly variable on its rfb
- * object.
+ * desktop and toggle it back and forth.
  *
  * We keep a local version of viewOnly in this.state.desktopLocked
  * because changing this.state triggers a re-render of the component,
@@ -46,16 +43,17 @@ class LockRemoteDesktopButton extends Component {
     super(props);
     this.handleOnClick = this.handleOnClick.bind(this);
     this.state = {
-      desktopLocked: (((window.VncDisplay === undefined) || (window.VncDisplay === null))
+      desktopLocked: ((window.remoteDesktop === undefined)
         ? START_VIEWONLY
-        : window.VncDisplay.rfb.viewOnly),
+        : window.remoteDesktop.state.viewOnly),
     };
   }
 
   handleOnClick() {
-    if ((window.VncDisplay !== undefined) && (window.VncDisplay !== null)) {
-      window.VncDisplay.rfb.viewOnly = !window.VncDisplay.rfb.viewOnly;
-      this.setState({ desktopLocked: window.VncDisplay.rfb.viewOnly });
+    if (window.remoteDesktop !== undefined) {
+      const newLockState = ! this.state.desktopLocked;
+      window.remoteDesktop.setState({ viewOnly : newLockState });
+      this.setState({ desktopLocked: newLockState });
     }
   }
 
