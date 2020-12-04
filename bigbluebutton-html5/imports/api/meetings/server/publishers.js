@@ -16,7 +16,7 @@ function meetings(role) {
 
   const { meetingId, userId } = tokenValidation;
 
-  Logger.debug(`Publishing meeting =${meetingId} ${userId}`);
+  Logger.debug('Publishing meeting', { meetingId, userId });
 
   const selector = {
     $or: [

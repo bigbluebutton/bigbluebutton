@@ -14,28 +14,27 @@ export default function handleGuestsWaitingForApproval({ body }, meetingId) {
   check(guests, Array);
   check(meetingId, String);
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Adding guest user to collection: ${err}`);
+  return guests.map((guest) => {
+    try {
+      const { insertedId, numberAffected } = GuestUsers.upsert({
+        meetingId,
+        intId: guest.intId,
+      }, {
+        approved: false,
+        denied: false,
+        ...guest,
+        meetingId,
+        loginTime: new Date().getTime(),
+        color: COLOR_LIST[stringHash(guest.intId) % COLOR_LIST.length],
+      });
+
+      if (insertedId) {
+        Logger.info(`Added guest user meeting=${meetingId}`);
+      } else if (numberAffected) {
+        Logger.info(`Upserted guest user meeting=${meetingId}`);
+      }
+    } catch (err) {
+      Logger.error(`Adding guest user to collection: ${err}`);
     }
-
-    const { insertedId } = numChanged;
-    if (insertedId) {
-      return Logger.info(`Added guest user meeting=${meetingId}`);
-    }
-
-    return Logger.info(`Upserted guest user meeting=${meetingId}`);
-  };
-
-  return guests.map(guest => GuestUsers.upsert({
-    meetingId,
-    intId: guest.intId,
-  }, {
-    approved: false,
-    denied: false,
-    ...guest,
-    meetingId,
-    loginTime: new Date().getTime(),
-    color: COLOR_LIST[stringHash(guest.intId) % COLOR_LIST.length],
-  }, cb));
+  });
 }

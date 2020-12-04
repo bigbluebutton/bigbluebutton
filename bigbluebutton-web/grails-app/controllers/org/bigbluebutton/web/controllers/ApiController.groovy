@@ -93,6 +93,11 @@ class ApiController {
     log.debug CONTROLLER_NAME + "#${API_CALL}"
     log.debug request.getParameterMap().toMapString()
 
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
+
     // BEGIN - backward compatibility
     if (StringUtils.isEmpty(params.checksum)) {
       invalid("checksumError", "You did not pass the checksum security check")
@@ -197,6 +202,11 @@ class ApiController {
     log.debug CONTROLLER_NAME + "#${API_CALL}"
     ApiErrors errors = new ApiErrors()
 
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
+
     // BEGIN - backward compatibility
     if (StringUtils.isEmpty(params.checksum)) {
       invalid("checksumError", "You did not pass the checksum security check", REDIRECT_RESPONSE)
@@ -266,7 +276,6 @@ class ApiController {
 
     // Do we have a name for the user joining? If none, complain.
     if (!StringUtils.isEmpty(params.fullName)) {
-      params.fullName = StringUtils.strip(params.fullName);
       if (StringUtils.isEmpty(params.fullName)) {
         errors.missingParamError("fullName");
       }
@@ -510,6 +519,11 @@ class ApiController {
       }
     }
 
+
+    String meetingInstance = meeting.getMetadata()["bbb-meetinginstance"];
+    meetingInstance = (meetingInstance == null) ? "1" : meetingInstance;
+    clientURL = clientURL.replaceAll("%%INSTANCEID%%", meetingInstance);
+
     if (!StringUtils.isEmpty(params.redirect)) {
       try {
         redirectClient = Boolean.parseBoolean(params.redirect);
@@ -577,6 +591,11 @@ class ApiController {
   def isMeetingRunning = {
     String API_CALL = 'isMeetingRunning'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
 
     // BEGIN - backward compatibility
     if (StringUtils.isEmpty(params.checksum)) {
@@ -654,8 +673,12 @@ class ApiController {
    ************************************/
   def end = {
     String API_CALL = "end"
-
     log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
 
     // BEGIN - backward compatibility
     if (StringUtils.isEmpty(params.checksum)) {
@@ -779,6 +802,11 @@ class ApiController {
     String API_CALL = "getMeetingInfo"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
+
     // BEGIN - backward compatibility
     if (StringUtils.isEmpty(params.checksum)) {
       invalid("checksumError", "You did not pass the checksum security check")
@@ -862,6 +890,11 @@ class ApiController {
     String API_CALL = "getMeetings"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
+
     // BEGIN - backward compatibility
     if (StringUtils.isEmpty(params.checksum)) {
       invalid("checksumError", "You did not pass the checksum security check")
@@ -919,6 +952,11 @@ class ApiController {
   def getSessionsHandler = {
     String API_CALL = "getSessions"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
 
     // BEGIN - backward compatibility
     if (StringUtils.isEmpty(params.checksum)) {
@@ -994,6 +1032,11 @@ class ApiController {
   def setPollXML = {
     String API_CALL = "setPollXML"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
 
     if (StringUtils.isEmpty(params.checksum)) {
       invalid("checksumError", "You did not pass the checksum security check")
@@ -1081,6 +1124,11 @@ class ApiController {
     String API_CALL = "setConfigXML"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
+
     if (StringUtils.isEmpty(params.checksum)) {
       invalid("checksumError", "You did not pass the checksum security check")
       return
@@ -1160,6 +1208,11 @@ class ApiController {
     String API_CALL = "getDefaultConfigXML"
     ApiErrors errors = new ApiErrors();
 
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
+
     // BEGIN - backward compatibility
     if (StringUtils.isEmpty(params.checksum)) {
       invalid("checksumError", "You did not pass the checksum security check")
@@ -1198,6 +1251,11 @@ class ApiController {
   def configXML = {
     String API_CALL = 'configXML'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
 
     String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
     boolean reject = false
@@ -1246,6 +1304,12 @@ class ApiController {
   def guestWaitHandler = {
     String API_CALL = 'guestWait'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
+
     ApiErrors errors = new ApiErrors()
     boolean reject = false;
     String sessionToken = sanitizeSessionToken(params.sessionToken)
@@ -1390,13 +1454,21 @@ class ApiController {
    * ENTER API
    ***********************************************/
   def enter = {
+    String API_CALL = 'enter'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
+
     boolean reject = false;
 
     String sessionToken = sanitizeSessionToken(params.sessionToken)
     UserSession us = getUserSession(sessionToken);
     Meeting meeting = null;
 
-    String respMessage = "Session " + sessionToken + " not found."
+    String respMessage = "Session not found."
 
     if (!hasValidSession(sessionToken)) {
       reject = true;
@@ -1404,7 +1476,7 @@ class ApiController {
       meeting = meetingService.getMeeting(us.meetingID);
       if (meeting == null || meeting.isForciblyEnded()) {
         reject = true
-        respMessage = "Meeting not found or ended for session " + sessionToken + "."
+        respMessage = "Meeting not found or ended for session."
       } else {
         if (hasReachedMaxParticipants(meeting, us)) {
           reject = true;
@@ -1414,7 +1486,7 @@ class ApiController {
         }
       }
       if (us.guestStatus.equals(GuestPolicy.DENY)) {
-        respMessage = "User denied for user with session " + sessionToken + "."
+        respMessage = "User denied for user with session."
         reject = true
       }
     }
@@ -1434,6 +1506,7 @@ class ApiController {
           builder.response {
             returncode RESP_CODE_FAILED
             message respMessage
+            sessionToken
             logoutURL logoutUrl
           }
           render(contentType: "application/json", text: builder.toPrettyString())
@@ -1532,6 +1605,14 @@ class ApiController {
    * STUN/TURN API
    ***********************************************/
   def stuns = {
+    String API_CALL = 'stuns'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
+
     boolean reject = false;
 
     String sessionToken = sanitizeSessionToken(params.sessionToken)
@@ -1603,6 +1684,13 @@ class ApiController {
    * SIGNOUT API
    *************************************************/
   def signOut = {
+    String API_CALL = 'signOut'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
 
     String sessionToken = sanitizeSessionToken(params.sessionToken)
 
@@ -1648,6 +1736,11 @@ class ApiController {
   def getRecordingsHandler = {
     String API_CALL = "getRecordings"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
 
     // BEGIN - backward compatibility
     if (StringUtils.isEmpty(params.checksum)) {
@@ -1722,6 +1815,11 @@ class ApiController {
   def publishRecordings = {
     String API_CALL = "publishRecordings"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
 
     // BEGIN - backward compatibility
     if (StringUtils.isEmpty(params.checksum)) {
@@ -1804,6 +1902,11 @@ class ApiController {
     String API_CALL = "deleteRecordings"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
+
     // BEGIN - backward compatibility
     if (StringUtils.isEmpty(params.checksum)) {
       invalid("checksumError", "You did not pass the checksum security check")
@@ -1873,6 +1976,11 @@ class ApiController {
   def updateRecordingsHandler = {
     String API_CALL = "updateRecordings"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
 
     // BEGIN - backward compatibility
     if (StringUtils.isEmpty(params.checksum)) {
@@ -1945,13 +2053,17 @@ class ApiController {
   def uploadDocuments(conf) { //
     log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
 
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
+
     String requestBody = request.inputStream == null ? null : request.inputStream.text;
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
 
     if (requestBody == null) {
       downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), true /* default presentation */, '');
     } else {
-      log.debug "Request body: \n" + requestBody;
       def xml = new XmlSlurper().parseText(requestBody);
       xml.children().each { module ->
         log.debug("module config found: [${module.@name}]");
@@ -2136,6 +2248,16 @@ class ApiController {
     }
 
     return us
+  }
+
+  private def sanitizeInput (input) {
+    if(input == null)
+      return
+
+    if(!("java.lang.String".equals(input.getClass().getName())))
+      return input
+
+    StringUtils.strip(input.replaceAll("\\p{Cntrl}", ""));
   }
 
   def sanitizeSessionToken(param) {

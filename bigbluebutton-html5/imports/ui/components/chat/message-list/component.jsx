@@ -47,28 +47,26 @@ class MessageList extends Component {
       fixedWidth: true,
       minHeight: 18,
     });
-
-    this.shouldScrollBottom = false;
-    this.lastKnowScrollPosition = 0;
-    this.ticking = false;
-    this.handleScrollChange = _.debounce(this.handleScrollChange.bind(this), 150);
+    
+    this.userScrolledBack = false;
     this.handleScrollUpdate = _.debounce(this.handleScrollUpdate.bind(this), 150);
     this.rowRender = this.rowRender.bind(this);
     this.resizeRow = this.resizeRow.bind(this);
     this.systemMessagesResized = {};
 
-    this.scrollToBottom = this.scrollToBottom.bind(this);
     this.state = {
       scrollArea: null,
-      shouldScrollToBottom: true,
       shouldScrollToPosition: false,
       scrollPosition: 0,
+      userScrolledBack: false,
     };
 
     this.listRef = null;
     this.virualRef = null;
 
     this.lastWidth = 0;
+
+    this.scrollInterval = null;
   }
 
   componentDidMount() {
@@ -83,6 +81,19 @@ class MessageList extends Component {
     if (this.virualRef) {
       this.virualRef.style.direction = document.documentElement.dir;
     }
+  
+    this.scrollInterval = setInterval(() => {
+      const {
+        scrollArea,
+      } = this.state;
+
+      if (scrollArea.scrollTop + scrollArea.offsetHeight === scrollArea.scrollHeight) {
+        this.setState({
+          userScrolledBack: false,
+        });
+      }
+    }, 100);
+
   }
 
   componentDidUpdate(prevProps) {
@@ -103,13 +114,6 @@ class MessageList extends Component {
       chatId: prevChatId,
     } = prevProps;
 
-    const {
-      scrollArea,
-      shouldScrollToPosition,
-      scrollPosition: scrollPositionState,
-      shouldScrollToBottom,
-    } = this.state;
-
     if (prevChatId !== chatId) {
       this.cache.clearAll();
       setTimeout(() => this.scrollTo(scrollPosition), 300);
@@ -128,18 +132,14 @@ class MessageList extends Component {
       }
     }
 
-    if (!shouldScrollToBottom && !scrollPosition && prevScrollPosition) {
-      this.scrollToBottom();
-    }
-
-    if (shouldScrollToPosition && scrollArea.scrollTop === scrollPositionState) {
-      this.setState({ shouldScrollToPosition: false });
-    }
-
     if (prevMessages.length < messages.length) {
       // this.resizeRow(prevMessages.length - 1);
       // messages.forEach((i, idx) => this.resizeRow(idx));
     }
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.scrollInterval);
   }
 
   handleScrollUpdate(position, target) {
@@ -157,31 +157,6 @@ class MessageList extends Component {
     handleScrollUpdate(position || 1);
   }
 
-  handleScrollChange(e) {
-    const { scrollArea } = this.state;
-    const scrollCursorPosition = e.scrollTop + scrollArea?.offsetHeight;
-    const shouldScrollBottom = e.scrollTop === null
-      || scrollCursorPosition === scrollArea?.scrollHeight
-      || (scrollArea?.scrollHeight - scrollCursorPosition < 1);
-
-    if ((e.scrollTop < this.lastKnowScrollPosition) && !shouldScrollBottom) {
-      this.setState({ shouldScrollToBottom: false });
-    }
-    this.lastKnowScrollPosition = e.scrollTop;
-
-    if (!this.ticking) {
-      window.requestAnimationFrame(() => {
-        const position = this.lastKnowScrollPosition;
-        if (scrollArea) {
-          this.handleScrollUpdate(position, scrollArea);
-        }
-        this.ticking = false;
-      });
-    }
-
-    this.ticking = true;
-  }
-
   resizeRow(idx) {
     this.cache.clear(idx);
     if (this.listRef) {
@@ -194,7 +169,6 @@ class MessageList extends Component {
     if (position) {
       setTimeout(() => this.setState({
         shouldScrollToPosition: true,
-        shouldScrollToBottom: false,
         scrollPosition: position,
       }), 200);
     }
@@ -249,18 +223,15 @@ class MessageList extends Component {
     );
   }
 
-  scrollToBottom() {
-    this.setState({ shouldScrollToBottom: true });
-  }
-
   renderUnreadNotification() {
     const {
       intl,
       hasUnreadMessages,
       scrollPosition,
     } = this.props;
+    const { userScrolledBack } = this.state;
 
-    if (hasUnreadMessages && scrollPosition !== null) {
+    if (hasUnreadMessages && userScrolledBack) {
       return (
         <Button
           aria-hidden="true"
@@ -269,7 +240,9 @@ class MessageList extends Component {
           size="sm"
           key="unread-messages"
           label={intl.formatMessage(intlMessages.moreMessages)}
-          onClick={this.scrollToBottom}
+          onClick={()=> this.setState({
+            userScrolledBack: false,
+          })}
         />
       );
     }
@@ -283,13 +256,30 @@ class MessageList extends Component {
     } = this.props;
     const {
       scrollArea,
-      shouldScrollToBottom,
-      shouldScrollToPosition,
-      scrollPosition,
+      userScrolledBack,
     } = this.state;
-
+ 
     return (
-      [<div className={styles.messageListWrapper} key="chat-list" data-test="chatMessages" ref={node => this.messageListWrapper = node}>
+      [<div 
+        onMouseDown={()=> {
+          this.setState({
+            userScrolledBack: true,
+          });
+        }}
+        onWheel={(e) => {
+          console.log('caiu aqui');
+          if (e.deltaY < 0) {
+            this.setState({
+              userScrolledBack: true,
+            });
+            this.userScrolledBack = true
+          }
+        }}
+        className={styles.messageListWrapper}
+        key="chat-list"
+        data-test="chatMessages"
+        ref={node => this.messageListWrapper = node}
+      >
         <AutoSizer>
           {({ height, width }) => {
             if (width !== this.lastWidth) {
@@ -308,6 +298,7 @@ class MessageList extends Component {
                     }
                   }
                 }}
+                isScrolling={true}
                 rowHeight={this.cache.rowHeight}
                 className={styles.messageList}
                 rowRenderer={this.rowRender}
@@ -316,14 +307,7 @@ class MessageList extends Component {
                 width={width}
                 overscanRowCount={5}
                 deferredMeasurementCache={this.cache}
-                onScroll={this.handleScrollChange}
-                scrollToIndex={shouldScrollToBottom ? messages.length - 1 : undefined}
-                scrollTop={
-                    (shouldScrollToPosition && scrollPosition)
-                    && (scrollArea && scrollArea.scrollHeight >= scrollPosition)
-                      ? scrollPosition : undefined
-                  }
-                scrollToAlignment="end"
+                scrollToIndex={!userScrolledBack ? messages.length - 1 : undefined}
               />
             );
           }}

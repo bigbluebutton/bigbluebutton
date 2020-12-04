@@ -46,19 +46,15 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
     $set: msgDocument,
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Adding group-chat-msg to collection: ${err}`);
-    }
-
-    const { insertedId } = numChanged;
+  try {
+    const { insertedId } = GroupChatMsg.upsert(selector, modifier);
 
     if (insertedId) {
-      return Logger.info(`Added group-chat-msg msgId=${msg.id} chatId=${chatId} meetingId=${meetingId}`);
+      Logger.info(`Added group-chat-msg msgId=${msg.id} chatId=${chatId} meetingId=${meetingId}`);
+    } else {
+      Logger.info(`Upserted group-chat-msg msgId=${msg.id} chatId=${chatId} meetingId=${meetingId}`);
     }
-
-    return Logger.info(`Upserted group-chat-msg msgId=${msg.id} chatId=${chatId} meetingId=${meetingId}`);
-  };
-
-  return GroupChatMsg.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Adding group-chat-msg to collection: ${err}`);
+  }
 }

@@ -13,7 +13,7 @@ function annotations() {
 
   const { meetingId, userId } = tokenValidation;
 
-  Logger.debug(`Publishing Annotations for ${meetingId} ${userId}`);
+  Logger.debug('Publishing Annotations', { meetingId, userId });
 
   return Annotations.find({ meetingId });
 }

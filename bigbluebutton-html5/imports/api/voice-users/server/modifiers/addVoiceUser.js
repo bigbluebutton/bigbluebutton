@@ -41,13 +41,13 @@ export default function addVoiceUser(meetingId, voiceUser) {
 
   if (user) modifier.$set.color = user.color;
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Add voice user=${intId}: ${err}`);
+  try {
+    const { numberAffected } = VoiceUsers.upsert(selector, modifier);
+
+    if (numberAffected) {
+      Logger.info(`Add voice user=${intId} meeting=${meetingId}`);
     }
-
-    return Logger.info(`Add voice user=${intId} meeting=${meetingId}`);
-  };
-
-  return VoiceUsers.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Add voice user=${intId}: ${err}`);
+  }
 }

@@ -20,11 +20,9 @@ export default function handleTimeRemainingUpdate({ body }, meetingId) {
     },
   };
 
-  const cb = (err) => {
-    if (err) {
-      Logger.error(`Changing recording time: ${err}`);
-    }
-  };
-
-  return MeetingTimeRemaining.upsert(selector, modifier, cb);
+  try {
+    MeetingTimeRemaining.upsert(selector, modifier);
+  } catch (err) {
+    Logger.error(`Changing recording time: ${err}`);
+  }
 }

@@ -1,11 +1,9 @@
 import loadScript from 'load-script';
 import React, { Component } from 'react'
 
-const MATCH_URL = new RegExp("https?:\/\/(.*)(instructuremedia.com)(\/embed)?\/([-abcdef0-9]+)");
+const MATCH_URL = new RegExp("(https?)://(.*)/videos/watch/(.*)");
 
-const SDK_URL = 'https://files.instructuremedia.com/instructure-media-script/instructure-media-1.1.0.js';
-
-const EMBED_PATH = "/embed/";
+const SDK_URL = 'https://unpkg.com/@peertube/embed-api/build/player.min.js';
 
 // Util function to load an external SDK or return the SDK if it is already loaded
 // From https://github.com/CookPete/react-player/blob/master/src/utils.js
@@ -45,8 +43,8 @@ export function getSDK (url, sdkGlobal, sdkReady = null, isLoaded = () => true, 
   })
 }
 
-export class ArcPlayer extends Component {
-  static displayName = 'ArcPlayer';
+export class PeerTubePlayer extends Component {
+  static displayName = 'PeerTubePlayer';
 
   static canPlay = url => {
     return MATCH_URL.test(url)
@@ -55,98 +53,84 @@ export class ArcPlayer extends Component {
   constructor(props) {
     super(props);
 
+    this.player = this;
+    this._player = null;
+
     this.currentTime = 0;
-    this.updateCurrentTime = this.updateCurrentTime.bind(this);
+    this.playbackRate = 1;
     this.getCurrentTime = this.getCurrentTime.bind(this);
     this.getEmbedUrl = this.getEmbedUrl.bind(this);
-    this.onStateChange = this.onStateChange.bind(this);
+    this.setupEvents = this.setupEvents.bind(this);
   }
 
   componentDidMount () {
     this.props.onMount && this.props.onMount(this)
   }
 
+  getEmbedUrl = () => {
+    const { config, url } = this.props;
+    const m = MATCH_URL.exec(url);
+
+    const isPresenter = config && config.peertube && config.peertube.isPresenter;
+
+    return `${m[1]}://${m[2]}/videos/embed/${m[3]}?api=1&controls=${true}`;
+  };
+
   load() {
     new Promise((resolve, reject) => {
       this.render();
       resolve();
     })
-    .then(() => { return getSDK(SDK_URL, 'ArcPlayer') })
+    .then(() => { return getSDK(SDK_URL, 'PeerTube') })
     .then(() => {
-      this.player = new InstructureMedia.Player('arcPlayerContainer', {
-        height: '100%',
-        width: '100%',
-        embedUrl: this.getEmbedUrl(),
-        events: {
-          onStateChange: this.onStateChange,
-        }
+      this._player = new window['PeerTubePlayer'](this.container);
+
+      this.setupEvents();
+
+      return this._player.ready.then(() => {
+        return this.props.onReady();
       });
-      this.player.playVideo();
     });
   }
 
-  onStateChange(event) {
-    if (!this.player) {
+  setupEvents(event) {
+    const player = this._player;
+
+    if (!player) {
       return;
     }
 
-    this.player.getCurrentTime().then((t) => {
-      this.updateCurrentTime(t.data);
+    player.addEventListener("playbackStatusUpdate", (data) => {
+      this.currentTime = data.position;
+    });
+    player.addEventListener("playbackStatusChange", (data) => {
+      if (data === 'playing') {
+        this.props.onPlay();
+      } else {
+        this.props.onPause();
+      }
     });
 
-    if (event.data === "CUED") {
-      this.props.onReady();
-    } else if (event.data === "PLAYING") {
-      this.props.onPlay && this.props.onPlay();
-    } else if (event.data === "PAUSED") {
-      this.props.onPause && this.props.onPause();
-    } else if (event.data === "SEEKED") {
-      // TODO
-    } else if (event.data === "SEEKING") {
-      // TODO
-    }
-  }
-
-  updateCurrentTime(e) {
-    this.currentTime = e;
-  }
-
-  getVideoId() {
-    const { url } = this.props;
-    const m = url.match(MATCH_URL);
-    return m && m[4];
-  }
-
-  getHostUrl() {
-    const { url } = this.props;
-    const m = url.match(MATCH_URL);
-    return m && 'https://' + m[1] + m[2];
-  }
-
-  getEmbedUrl() {
-    let url = this.getHostUrl() + EMBED_PATH + this.getVideoId();
-    return url;
   }
 
   play() {
-    if (this.player) {
-      this.player.playVideo();
+    if (this._player) {
+      this._player.play();
     }
   }
 
   pause() {
-    if (this.player) {
-      this.player.pauseVideo();
+    if (this._player) {
+      this._player.pause();
     }
   }
 
   stop() {
-    // TODO: STOP
   }
 
   seekTo(seconds) {
-    if (this.player) {
-      this.player.seekTo(seconds);
+    if (this._player) {
+      this._player.seek(seconds);
     }
   }
 
@@ -171,38 +155,57 @@ export class ArcPlayer extends Component {
   }
 
   getCurrentTime () {
-    if (this.player) {
-      this.player.getCurrentTime().then((t) => {
-        this.updateCurrentTime(t.data);
-      });
-    }
-
     return this.currentTime;
   }
 
   getSecondsLoaded () {
   }
 
+  getPlaybackRate () {
+
+    if (this._player) {
+      this._player.getPlaybackRate().then((rate) => {
+        this.playbackRate = rate;
+      });
+    }
+
+    return this.playbackRate;
+  }
+
+  setPlaybackRate (rate) {
+
+    if (this._player) {
+      this._player.setPlaybackRate(rate);
+    }
+  }
+
   render () {
     const style = {
       width: '100%',
       height: '100%',
+      margin: 0,
+      padding: 0,
+      border: 0,
       overflow: 'hidden',
-      backgroundColor: 'black'
     };
+    const { url } = this.props;
+
     return (
-      <div
-        key={this.props.url}
+      <iframe
+        key={url}
         style={style}
-        id={"arcPlayerContainer"}
+        src={this.getEmbedUrl(url)}
+        id={"peerTubeContainer"}
+        allow="autoplay; fullscreen"
+        sandbox="allow-same-origin allow-scripts allow-popups"
         ref={(container) => {
           this.container = container;
         }}
       >
-      </div>
+      </iframe>
     )
   }
 }
 
-export default ArcPlayer;
+export default PeerTubePlayer;
 

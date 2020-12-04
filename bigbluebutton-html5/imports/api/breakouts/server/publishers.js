@@ -14,9 +14,10 @@ function breakouts(role) {
     return Breakouts.find({ meetingId: '' });
   }
   const { meetingId, userId } = tokenValidation;
-  Logger.debug(`Publishing Breakouts for ${meetingId} ${userId}`);
 
   const User = Users.findOne({ userId, meetingId }, { fields: { role: 1 } });
+  Logger.debug('Publishing Breakouts', { meetingId, userId });
+
   if (!!User && User.role === ROLE_MODERATOR) {
     const presenterSelector = {
       $or: [
