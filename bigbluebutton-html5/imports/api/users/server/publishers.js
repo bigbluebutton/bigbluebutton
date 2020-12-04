@@ -72,7 +72,7 @@ function users(role) {
     },
   };
 
-  Logger.debug(`Publishing Users for ${meetingId} ${userId}`);
+  Logger.debug('Publishing Users', { meetingId, userId });
 
   return Users.find(selector, options);
 }

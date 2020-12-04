@@ -13,7 +13,7 @@ function localSettings() {
 
   const { meetingId, userId } = tokenValidation;
 
-  Logger.debug(`Publishing local settings for user=${userId}`);
+  Logger.debug('Publishing local settings', { userId });
 
   return LocalSettings.find({ meetingId, userId });
 }

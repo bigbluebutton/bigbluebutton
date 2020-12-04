@@ -3,12 +3,24 @@ import Logger from '/imports/startup/server/logger';
 
 export default function clearNetworkInformation(meetingId) {
   if (meetingId) {
-    return NetworkInformation.remove({ meetingId }, () => {
-      Logger.info(`Cleared Network Information (${meetingId})`);
-    });
-  }
+    try {
+      const numberAffected = NetworkInformation.remove({ meetingId });
 
-  return NetworkInformation.remove({}, () => {
-    Logger.info('Cleared Network Information (all)');
-  });
+      if (numberAffected) {
+        Logger.info(`Cleared Network Information (${meetingId})`);
+      }
+    } catch (err) {
+      Logger.error(`Error on clearing Network Information (${meetingId}). ${err}`);
+    }
+  } else {
+    try {
+      const numberAffected = NetworkInformation.remove({});
+
+      if (numberAffected) {
+        Logger.info('Cleared Network Information (all)');
+      }
+    } catch (err) {
+      Logger.error(`Error on clearing Network Information (all). ${err}`);
+    }
+  }
 }

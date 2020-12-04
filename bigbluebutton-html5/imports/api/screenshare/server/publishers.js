@@ -13,7 +13,7 @@ function screenshare() {
 
   const { meetingId, userId } = tokenValidation;
 
-  Logger.debug(`Publishing Screenshare for ${meetingId} ${userId}`);
+  Logger.debug('Publishing Screenshare', { meetingId, userId });
 
   return Screenshare.find({ meetingId });
 }
