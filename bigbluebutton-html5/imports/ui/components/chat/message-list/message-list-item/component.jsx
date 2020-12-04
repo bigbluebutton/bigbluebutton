@@ -89,6 +89,7 @@ class MessageListItem extends Component {
                   key={message.id ? message.id : _.uniqueId('id-')}
                   text={message.text}
                   time={message.time}
+                  isSystemMessage={message.id ? true : false}
                   chatAreaId={chatAreaId}
                   handleReadMessage={handleReadMessage}
                 />
@@ -109,6 +110,7 @@ class MessageListItem extends Component {
       scrollArea,
       intl,
       messages,
+      chatUserMessageItem,
     } = this.props;
 
     if (messages && messages[0].text.includes('bbb-published-poll-<br/>')) {
@@ -147,7 +149,7 @@ class MessageListItem extends Component {
                 <FormattedTime value={dateTime} />
               </time>
             </div>
-            <div className={styles.messages} data-test="chatUserMessage">
+            <div className={styles.messages}>
               {messages.map(message => (
                 <Message
                   className={(regEx.test(message.text) ? styles.hyperlink : styles.message)}
@@ -155,6 +157,7 @@ class MessageListItem extends Component {
                   text={message.text}
                   time={message.time}
                   chatAreaId={chatAreaId}
+                  chatUserMessageItem={true}
                   lastReadMessageTime={lastReadMessageTime}
                   handleReadMessage={handleReadMessage}
                   scrollArea={scrollArea}
