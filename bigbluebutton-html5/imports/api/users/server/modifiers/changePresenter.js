@@ -25,6 +25,20 @@ export default function changePresenter(presenter, userId, meetingId, changedBy)
       stopWatchingExternalVideo({ meetingId, requesterUserId: userId });
     }
 
+    const currentSlide = Slides.findOne({
+      podId: 'DEFAULT_PRESENTATION_POD',
+      meetingId,
+      current: true,
+    }, {
+      fields: {
+        id: 1,
+      },
+    });
+
+    if (currentSlide) {
+      modifyWhiteboardAccess(meetingId, currentSlide.id, 0);
+    }
+    
     const numberAffected = Users.update(selector, modifier);
 
     if (numberAffected) {
