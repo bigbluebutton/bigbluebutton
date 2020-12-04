@@ -27,13 +27,12 @@ const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const mapActiveChats = (chat) => {
   const currentUserId = Auth.userID;
 
-  if (chat.sender !== currentUserId) {
-    return chat.sender;
-  }
-
   const { chatId } = chat;
 
-  const userId = GroupChat.findOne({ chatId }).users.filter(user => user !== currentUserId);
+  const userId = GroupChat
+    .findOne({ chatId })
+    .participants
+    .filter(user => user.id !== currentUserId);
 
   return userId[0];
 };
@@ -41,6 +40,8 @@ const mapActiveChats = (chat) => {
 const CUSTOM_LOGO_URL_KEY = 'CustomLogoUrl';
 
 export const setCustomLogoUrl = path => Storage.setItem(CUSTOM_LOGO_URL_KEY, path);
+
+export const setModeratorOnlyMessage = msg => Storage.setItem('ModeratorOnlyMessage', msg);
 
 const getCustomLogoUrl = () => Storage.getItem(CUSTOM_LOGO_URL_KEY);
 
@@ -179,14 +180,14 @@ const sortChats = (a, b) => {
     sort = sortChatsByName(a, b);
   }
 
-  return sort = sortByRecentActivity(a, b);
+  return sortByRecentActivity(a, b);
 };
 
 const userFindSorting = {
   emojiTime: 1,
   role: 1,
   phoneUser: 1,
-  sortName: 1,
+  name: 1,
   userId: 1,
 };
 
@@ -194,7 +195,7 @@ const getUsers = () => {
   let users = Users
     .find({
       meetingId: Auth.meetingID,
-      connectionStatus: 'online',
+      authed: true,
     }, userFindSorting)
     .fetch();
 
@@ -237,7 +238,7 @@ const getActiveChats = (chatID) => {
   const idsWithTimeStamp = {};
 
   activeChats.map((chat) => {
-    idsWithTimeStamp[`${chat.sender}`] = chat.timestamp;
+    idsWithTimeStamp[`${chat.sender.id}`] = chat.timestamp;
   });
 
   activeChats = activeChats.map(mapActiveChats);
@@ -246,18 +247,20 @@ const getActiveChats = (chatID) => {
     activeChats.push(chatID);
   }
 
-  activeChats = _.uniq(_.compact(activeChats));
+  activeChats = _.uniqBy(_.compact(activeChats), 'id');
 
-  activeChats = Users
-    .find({ userId: { $in: activeChats } })
-    .map((op) => {
-      const activeChat = op;
-      activeChat.unreadCounter = UnreadMessages.count(op.userId);
-      activeChat.name = op.name;
-      activeChat.isModerator = op.role === ROLE_MODERATOR;
-      activeChat.lastActivity = idsWithTimeStamp[`${op.userId}`];
-      return activeChat;
-    });
+  activeChats = activeChats.map(({ id, name }) => {
+    const user = Users.findOne({ userId: id }, { fields: { color: 1, role: 1 } });
+
+    return {
+      color: user?.color || '#7b1fa2',
+      isModerator: user?.role === ROLE_MODERATOR,
+      lastActivity: idsWithTimeStamp[id],
+      name,
+      unreadCounter: UnreadMessages.count(id),
+      userId: id,
+    };
+  });
 
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
   const filteredChatList = [];
@@ -303,8 +306,7 @@ const isMeetingLocked = (id) => {
     if (lockSettings.disableCam
       || lockSettings.disableMic
       || lockSettings.disablePrivateChat
-      || lockSettings.disablePublicChat
-      || lockSettings.disableNote) {
+      || lockSettings.disablePublicChat) {
       isLocked = true;
     }
   }
@@ -408,11 +410,11 @@ const setEmojiStatus = (userId, emoji) => {
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
 
-const removeUser = (userId) => {
+const removeUser = (userId, banUser) => {
   if (isVoiceOnlyUser(userId)) {
     makeCall('ejectUserFromVoice', userId);
   } else {
-    makeCall('removeUser', userId);
+    makeCall('removeUser', userId, banUser);
   }
 };
 
@@ -422,8 +424,8 @@ const toggleVoice = (userId) => {
   } else {
     makeCall('toggleVoice', userId);
     logger.info({
-      logCode: 'usermenu_option_mute_audio',
-      extraInfo: { logType: 'moderator_action' },
+      logCode: 'usermenu_option_mute_toggle_audio',
+      extraInfo: { logType: 'moderator_action', userId },
     }, 'moderator muted user microphone');
   }
 };
@@ -434,14 +436,30 @@ const muteAllExceptPresenter = (userId) => { makeCall('muteAllExceptPresenter', 
 
 const changeRole = (userId, role) => { makeCall('changeRole', userId, role); };
 
-const roving = (event, changeState, elementsList, element) => {
+const focusFirstDropDownItem = () => {
+  const dropdownContent = document.querySelector('div[data-test="dropdownContent"][style="visibility: visible;"]');
+  if (!dropdownContent) return;
+  const list = dropdownContent.getElementsByTagName('li');
+  list[0].focus();
+};
+
+const roving = (...args) => {
+  const [
+    event,
+    changeState,
+    elementsList,
+    element,
+  ] = args;
+
   this.selectedElement = element;
+  const numberOfChilds = elementsList.childElementCount;
   const menuOpen = Session.get('dropdownOpen') || false;
 
   if (menuOpen) {
     const menuChildren = document.activeElement.getElementsByTagName('li');
 
     if ([KEY_CODES.ESCAPE, KEY_CODES.ARROW_LEFT].includes(event.keyCode)) {
+      Session.set('dropdownOpen', false);
       document.activeElement.click();
     }
 
@@ -462,13 +480,15 @@ const roving = (event, changeState, elementsList, element) => {
   }
 
   if ([KEY_CODES.ESCAPE, KEY_CODES.TAB].includes(event.keyCode)) {
+    Session.set('dropdownOpen', false);
     document.activeElement.blur();
     changeState(null);
   }
 
   if (event.keyCode === KEY_CODES.ARROW_DOWN) {
     const firstElement = elementsList.firstChild;
-    let elRef = element ? element.nextSibling : firstElement;
+    let elRef = element && numberOfChilds > 1 ? element.nextSibling : firstElement;
+
     elRef = elRef || firstElement;
     changeState(elRef);
   }
@@ -481,7 +501,10 @@ const roving = (event, changeState, elementsList, element) => {
   }
 
   if ([KEY_CODES.ARROW_RIGHT, KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.keyCode)) {
-    document.activeElement.firstChild.click();
+    const tether = document.activeElement.firstChild;
+    const dropdownTrigger = tether.firstChild;
+    dropdownTrigger.click();
+    focusFirstDropDownItem();
   }
 };
 
@@ -502,17 +525,69 @@ const requestUserInformation = (userId) => {
   makeCall('requestUserInformation', userId);
 };
 
-export const getUserNamesLink = () => {
+const sortUsersByFirstName = (a, b) => {
+  const aName = a.firstName.toLowerCase();
+  const bName = b.firstName.toLowerCase();
+  if (aName < bName) return -1;
+  if (aName > bName) return 1;
+  return 0;
+};
+
+const sortUsersByLastName = (a, b) => {
+  if (!a.lastName && !b.lastName) return 0;
+  if (a.lastName && !b.lastName) return -1;
+  if (!a.lastName && b.lastName) return 1;
+
+  const aName = a.lastName.toLowerCase();
+  const bName = b.lastName.toLowerCase();
+
+  if (aName < bName) return -1;
+  if (aName > bName) return 1;
+  return 0;
+};
+
+const isUserPresenter = (userId) => {
+  const user = Users.findOne({ userId },
+    { fields: { presenter: 1 } });
+  return user ? user.presenter : false;
+};
+
+export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
   const mimeType = 'text/plain';
-  const userNamesObj = getUsers();
-  const userNameListString = userNamesObj
-    .map(u => u.name)
-    .join('\r\n');
+  const userNamesObj = getUsers()
+    .map((u) => {
+      const name = u.name.split(' ');
+      return ({
+        firstName: name[0],
+        middleNames: name.length > 2 ? name.slice(1, name.length - 1) : null,
+        lastName: name.length > 1 ? name[name.length - 1] : null,
+      });
+    });
+
+  const getUsernameString = (user) => {
+    const { firstName, middleNames, lastName } = user;
+    return `${firstName || ''} ${middleNames && middleNames.length > 0 ? middleNames.join(' ') : ''} ${lastName || ''}`;
+  };
+
+  const namesByFirstName = userNamesObj.sort(sortUsersByFirstName)
+    .map(u => getUsernameString(u)).join('\r\n');
+
+  const namesByLastName = userNamesObj.sort(sortUsersByLastName)
+    .map(u => getUsernameString(u)).join('\r\n');
+
+  const namesListsString = `${docTitle}\r\n\r\n${fnSortedLabel}\r\n${namesByFirstName}
+    \r\n\r\n${lnSortedLabel}\r\n${namesByLastName}`.replace(/ {2}/g, ' ');
+
   const link = document.createElement('a');
-  link.setAttribute('download', `save-users-list-${Date.now()}.txt`);
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
+    { fields: { 'meetingProp.name': 1 } });
+  const date = new Date();
+  const time = `${date.getHours()}-${date.getMinutes()}`;
+  const dateString = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}_${time}`;
+  link.setAttribute('download', `bbb-${meeting.meetingProp.name}[users-list]_${dateString}.txt`);
   link.setAttribute(
     'href',
-    `data: ${mimeType} ;charset=utf-16,${encodeURIComponent(userNameListString)}`,
+    `data: ${mimeType} ;charset=utf-16,${encodeURIComponent(namesListsString)}`,
   );
   return link;
 };
@@ -543,4 +618,6 @@ export default {
   hasPrivateChatBetweenUsers,
   toggleUserLock,
   requestUserInformation,
+  focusFirstDropDownItem,
+  isUserPresenter,
 };

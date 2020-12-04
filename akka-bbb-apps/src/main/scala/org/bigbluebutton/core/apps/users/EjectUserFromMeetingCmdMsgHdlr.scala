@@ -16,6 +16,7 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
     val meetingId = liveMeeting.props.meetingProp.intId
     val userId = msg.body.userId
     val ejectedBy = msg.body.ejectedBy
+    val banUser = msg.body.banUser
 
     if (permissionFailed(
       PermissionCheck.MOD_LEVEL,
@@ -33,6 +34,8 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
         ejectedByUser <- RegisteredUsers.findWithUserId(ejectedBy, liveMeeting.registeredUsers)
       } yield {
         if (registeredUser.externId != ejectedByUser.externId) {
+          val ban = banUser
+
           // Eject users
           //println("****************** User " + ejectedBy + " ejecting user " + userId)
           // User might have joined using multiple browsers.
@@ -40,7 +43,18 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
           // ralam april 21, 2020
           RegisteredUsers.findAllWithExternUserId(registeredUser.externId, liveMeeting.registeredUsers) foreach { ru =>
             //println("****************** User " + ejectedBy + " ejecting other user " + ru.id)
-            UsersApp.ejectUserFromMeeting(outGW, liveMeeting, ru.id, ejectedBy, reason, EjectReasonCode.EJECT_USER)
+            UsersApp.ejectUserFromMeeting(
+              outGW,
+              liveMeeting,
+              ru.id,
+              ejectedBy,
+              reason,
+              EjectReasonCode.EJECT_USER,
+              ban
+            )
+
+            log.info("Eject userId=" + userId + " by " + ejectedBy + " and ban=" + banUser)
+
             // send a system message to force disconnection
             Sender.sendDisconnectClientSysMsg(meetingId, ru.id, ejectedBy, EjectReasonCode.EJECT_USER, outGW)
           }
@@ -48,7 +62,15 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
           // User is ejecting self, so just eject this userid not all sessions if joined using multiple
           // browsers. ralam april 23, 2020
           //println("****************** User " + ejectedBy + " ejecting self " + userId)
-          UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, ejectedBy, reason, EjectReasonCode.EJECT_USER)
+          UsersApp.ejectUserFromMeeting(
+            outGW,
+            liveMeeting,
+            userId,
+            ejectedBy,
+            reason,
+            EjectReasonCode.EJECT_USER,
+            ban = false
+          )
           // send a system message to force disconnection
           Sender.sendDisconnectClientSysMsg(meetingId, userId, ejectedBy, EjectReasonCode.EJECT_USER, outGW)
         }
@@ -70,7 +92,15 @@ trait EjectUserFromMeetingSysMsgHdlr {
     val ejectedBy = msg.body.ejectedBy
 
     val reason = "user ejected by a component on system"
-    UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, ejectedBy, reason, EjectReasonCode.SYSTEM_EJECT_USER)
+    UsersApp.ejectUserFromMeeting(
+      outGW,
+      liveMeeting,
+      userId,
+      ejectedBy,
+      reason,
+      EjectReasonCode.SYSTEM_EJECT_USER,
+      ban = false
+    )
     // send a system message to force disconnection
     Sender.sendDisconnectClientSysMsg(meetingId, userId, ejectedBy, EjectReasonCode.SYSTEM_EJECT_USER, outGW)
   }

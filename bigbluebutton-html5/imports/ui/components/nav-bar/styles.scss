@@ -1,14 +1,16 @@
-@import "../../stylesheets/variables/_all";
+@import "../../stylesheets/variables/breakpoints";
 
 :root {
   --mobile-nav-height: 5rem;
   --mobile-margin-top: .25rem;
+  --arrow-l-left: 	1.1rem;
+  --arrow-r-left: 2.5rem;
+  --arrow-size: 40%;
 }
 
 .navbar {
   display: flex;
   flex-direction: column;
-  height:var(--mobile-nav-height);
 }
 
 .top,
@@ -73,6 +75,31 @@
   }
 }
 
+.arrowRight,
+.arrowLeft {
+  position: absolute;
+  font-size: var(--arrow-size);
+  color: var(--color-white);
+}
+
+.arrowLeft {
+  width: var(--lg-padding-y);
+  left: var(--arrow-l-left);
+  [dir="rtl"] & {
+    right: var(--arrow-r-left);
+    left: 0;
+  }
+}
+
+.arrowRight {
+  width: var(--md-padding-x);
+  left: var(--arrow-r-left);
+  [dir="rtl"] & {
+    right: .5rem;
+    left: 0;
+  }
+}
+
 .btn {
   margin: 0;
 
@@ -80,6 +107,8 @@
     border: none;
     box-shadow: none;
   }
+
+  z-index: 3;
 
   &:hover,
   &:focus {

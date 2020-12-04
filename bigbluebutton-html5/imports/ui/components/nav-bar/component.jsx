@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
 import cx from 'classnames';
@@ -6,12 +6,12 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { defineMessages, injectIntl } from 'react-intl';
+import Icon from '../icon/component';
 import { styles } from './styles.scss';
-import Button from '../button/component';
+import Button from '/imports/ui/components/button/component';
 import RecordingIndicator from './recording-indicator/container';
 import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
 import SettingsDropdownContainer from './settings-dropdown/container';
-
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -40,7 +40,7 @@ const defaultProps = {
   shortcuts: '',
 };
 
-class NavBar extends PureComponent {
+class NavBar extends Component {
   static handleToggleUserList() {
     Session.set(
       'openPanel',
@@ -49,6 +49,8 @@ class NavBar extends PureComponent {
         : 'userlist',
     );
     Session.set('idChatOpen', '');
+
+    window.dispatchEvent(new Event('panelChanged'));
   }
 
   componentDidMount() {
@@ -88,9 +90,14 @@ class NavBar extends PureComponent {
     ariaLabel += hasUnreadMessages ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
 
     return (
-      <div className={styles.navbar}>
+      <div
+        className={styles.navbar}
+      >
         <div className={styles.top}>
           <div className={styles.left}>
+            {!isExpanded ? null
+              : <Icon iconName="left_arrow" className={styles.arrowLeft} />
+            }
             <Button
               data-test="userListToggleButton"
               onClick={NavBar.handleToggleUserList}
@@ -105,6 +112,9 @@ class NavBar extends PureComponent {
               aria-expanded={isExpanded}
               accessKey={TOGGLE_USERLIST_AK}
             />
+            {isExpanded ? null
+              : <Icon iconName="right_arrow" className={styles.arrowRight} />
+            }
           </div>
           <div className={styles.center}>
             <h1 className={styles.presentationTitle}>{presentationTitle}</h1>

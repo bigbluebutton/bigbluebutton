@@ -21,7 +21,7 @@ object Dependencies {
     val apacheHttpAsync = "4.1.4"
 
     // Office and document conversion
-    val jodConverter = "4.2.1"
+    val jodConverter = "4.3.0"
     val apachePoi = "4.1.2"
     val nuProcess = "1.2.4"
     val libreOffice = "5.4.2"

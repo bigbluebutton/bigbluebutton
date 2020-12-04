@@ -1,6 +1,6 @@
 import BaseAudioBridge from './base';
 import Auth from '/imports/ui/services/auth';
-import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
+import { fetchWebRTCMappedStunTurnServers, getMappedFallbackStun } from '/imports/utils/fetchStunTurnServers';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import logger from '/imports/startup/client/logger';
 
@@ -8,7 +8,7 @@ const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag.replace(/#/g, '');
 const GLOBAL_AUDIO_PREFIX = 'GLOBAL_AUDIO_';
-const RECONNECT_TIMEOUT_MS = 15000;
+const RECONNECT_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
 
 export default class KurentoAudioBridge extends BaseAudioBridge {
   constructor(userData) {
@@ -60,13 +60,22 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
       let iceServers = [];
 
       try {
+        logger.info({
+          logCode: 'sfuaudiobridge_stunturn_fetch_start',
+          extraInfo: { iceServers },
+        }, 'SFU audio bridge starting STUN/TURN fetch');
+
         iceServers = await fetchWebRTCMappedStunTurnServers(this.user.sessionToken);
       } catch (error) {
         logger.error({ logCode: 'sfuaudiobridge_stunturn_fetch_failed' },
           'SFU audio bridge failed to fetch STUN/TURN info, using default servers');
+        iceServers = getMappedFallbackStun();
       } finally {
-        logger.debug({ logCode: 'sfuaudiobridge_stunturn_fetch_sucess', extraInfo: { iceServers } },
-          'SFU audio bridge got STUN/TURN servers');
+        logger.info({
+          logCode: 'sfuaudiobridge_stunturn_fetch_sucess',
+          extraInfo: { iceServers },
+        }, 'SFU audio bridge got STUN/TURN servers');
+
         const options = {
           wsUrl: Auth.authenticateURL(SFU_URL),
           userName: this.user.name,
@@ -130,12 +139,25 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
 
           this.hasSuccessfullyStarted = true;
           if (webRtcPeer) {
+            logger.info({
+              logCode: 'sfuaudiobridge_audio_negotiation_success',
+            }, 'SFU audio bridge negotiated audio with success');
+
             const stream = webRtcPeer.getRemoteStream();
+
             audioTag.pause();
             audioTag.srcObject = stream;
             audioTag.muted = false;
+            logger.info({
+              logCode: 'sfuaudiobridge_audio_ready_to_play',
+            }, 'SFU audio bridge is ready to play');
+
             playElement();
           } else {
+            logger.info({
+              logCode: 'sfuaudiobridge_audio_negotiation_failed',
+            }, 'SFU audio bridge failed to negotiate audio');
+
             this.callback({
               status: this.baseCallStates.failed,
               error: this.baseErrorCodes.CONNECTION_ERROR,
@@ -217,6 +239,9 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
           return reject(new Error('Invalid bridge option'));
         }
 
+        logger.info({
+          logCode: 'sfuaudiobridge_ready_to_join_audio',
+        }, 'SFU audio bridge is ready to join audio');
         window.kurentoJoinAudio(
           MEDIA_TAG,
           this.voiceBridge,

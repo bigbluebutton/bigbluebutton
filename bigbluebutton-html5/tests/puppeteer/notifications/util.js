@@ -7,19 +7,23 @@ async function clickTestElement(element) {
   await document.querySelectorAll(element)[0].click();
 }
 
-async function popupMenu(page) {
-  await page.page.evaluate(clickTestElement, e.options);
-  await page.page.evaluate(clickTestElement, ne.settings);
+async function popupMenu(test) {
+  await test.page.evaluate(clickTestElement, e.options);
+  await test.page.evaluate(clickTestElement, ne.settings);
 }
 
 async function enableChatPopup(test) {
+  await test.waitForSelector(ne.notificationsTab);
+  await test.page.evaluate(clickTestElement, ne.notificationsTab);
   await test.waitForSelector(ne.chatPushAlerts);
-  await test.page.evaluate(() => document.querySelector('[data-test="chatPushAlerts"]').children[0].click());
+  await test.page.evaluate(clickTestElement, ne.chatPushAlerts);
 }
 
 async function enableUserJoinPopup(test) {
+  await test.waitForSelector(ne.notificationsTab);
+  await test.page.evaluate(clickTestElement, ne.notificationsTab);
   await test.waitForSelector(ne.userJoinPushAlerts);
-  await test.page.evaluate(() => document.querySelector('[data-test="userJoinPushAlerts"]').children[0].click());
+  await test.page.evaluate(clickTestElement, ne.userJoinPushAlerts);
 }
 
 async function saveSettings(page) {
@@ -35,8 +39,8 @@ async function waitForToast(test) {
 
 async function getLastToastValue(test) {
   await test.waitForSelector(ne.smallToastMsg);
-  const toast = test.page.evaluate(() => {
-    const lastToast = document.querySelectorAll('[data-test="toastSmallMsg"]')[0].innerText;
+  const toast = test.page.evaluate(async () => {
+    const lastToast = await document.querySelectorAll('div[data-test="toastSmallMsg"]')[0].innerText;
     return lastToast;
   });
   return toast;
@@ -44,8 +48,8 @@ async function getLastToastValue(test) {
 
 async function getOtherToastValue(test) {
   await test.waitForSelector(ne.smallToastMsg);
-  const toast = test.page.evaluate(() => {
-    const lastToast = document.querySelectorAll('[data-test="toastSmallMsg"]')[1].innerText;
+  const toast = test.page.evaluate(async () => {
+    const lastToast = await document.querySelectorAll('div[data-test="toastSmallMsg"]')[1].innerText;
     return lastToast;
   });
   return toast;
@@ -93,19 +97,14 @@ async function getFileItemStatus(element, value) {
   document.querySelectorAll(element)[1].innerText.includes(value);
 }
 
-async function clickRandomPollOption(element) {
-  document.querySelector(element).click();
-}
-
 async function startPoll(test) {
   await test.page.evaluate(clickOnElement, ne.dropdownContent);
   await test.page.evaluate(clickOnElement, ne.polling);
   await test.waitForSelector(ne.hidePollDesc);
   await test.waitForSelector(ne.pollBtn);
-  await test.page.evaluate(clickRandomPollOption, ne.pollBtn);
+  await test.page.evaluate(clickOnElement, ne.pollBtn);
   await test.waitForSelector(ne.publishLabel);
   await test.page.evaluate(clickOnElement, ne.publishLabel);
-  await test.waitForSelector(ne.smallToastMsg);
 }
 
 exports.getFileItemStatus = getFileItemStatus;

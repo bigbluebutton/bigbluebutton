@@ -27,7 +27,7 @@ const updateSettings = (obj, msg) => {
   }
 };
 
-const getAvailableLocales = () => fetch('/html5client/locales').then(locales => locales.json());
+const getAvailableLocales = () => fetch('./locales').then(locales => locales.json());
 
 export {
   getUserRoles,

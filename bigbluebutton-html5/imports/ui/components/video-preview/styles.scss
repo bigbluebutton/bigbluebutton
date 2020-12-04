@@ -1,5 +1,4 @@
-@import "/imports/ui/stylesheets/variables/_all";
-@import '/imports/ui/stylesheets/mixins/focus';
+@import "/imports/ui/stylesheets/variables/breakpoints";
 @import "/imports/ui/components/modal/simple/styles";
 
 .warning {
@@ -36,6 +35,26 @@
     [dir="rtl"] & {
       margin-right: inherit;
       margin-left: 3px;
+    }
+  }
+}
+
+.extraActions {
+  margin-right: auto;
+  margin-left: 3px;
+
+  [dir="rtl"] & {
+    margin-left: auto;
+    margin-right: 3px;
+  }
+
+  :first-child {
+    margin-left: 3px;
+    margin-right: inherit;
+
+    [dir="rtl"] & {
+      margin-left: inherit;
+      margin-right: 3px;
     }
   }
 }
@@ -121,6 +140,10 @@
   @include mq($small-only) {
     height: 10rem;
   }
+}
+
+.mirroredVideo {
+  transform: scale(-1, 1);
 }
 
 .row {

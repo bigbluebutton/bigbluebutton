@@ -2,9 +2,6 @@ const e = require('./elements');
 const ule = require('../user/elements');
 
 async function openChat(test) {
-  // TODO: Check this if it's open before click
-  // await test.click(ce.userList);
-  // await test.click(e.chatButton, true);
   await test.waitForSelector(e.chatBox);
   await test.waitForSelector(e.chatMessages);
 }
@@ -28,14 +25,6 @@ async function openPrivateChatMessage(page1, page2) {
   await page2.page.evaluate(clickThePrivateChatButton, e.activeChat);
 }
 
-async function clickOnTheOtherUser(element) {
-  await document.querySelectorAll(element)[0].click();
-}
-
-async function clickThePrivateChatButton(element) {
-  await document.querySelectorAll(element)[0].click();
-}
-
 async function sendPrivateChatMessage(page1, page2) {
   // send a private message
   await page1.page.$$('[aria-label="Hide Private Chat with User2]');
@@ -49,15 +38,12 @@ async function sendPrivateChatMessage(page1, page2) {
   await page2.page.screenshot(true);
 }
 
-async function checkForPrivateMessageReception(page1, page2) {
-  const privateChat1 = await page1.page.$$(`${e.chatUserMessage} ${e.chatMessageText}`);
-  const privateChat2 = await page2.page.$$(`${e.chatUserMessage} ${e.chatMessageText}`);
+async function clickOnTheOtherUser(element) {
+  await document.querySelectorAll(element)[0].click();
+}
 
-  const checkPrivateMessage1 = await privateChat1[0].evaluate(n => n.innerText);
-  const checkPrivateMessage2 = await privateChat2[1].evaluate(n => n.innerText);
-
-  const response = checkPrivateMessage1 == e.message1 && checkPrivateMessage2 == e.message2;
-  return response;
+async function clickThePrivateChatButton(element) {
+  await document.querySelectorAll(element)[0].click();
 }
 
 async function checkForPublicMessageReception(page1, page2) {
@@ -68,6 +54,17 @@ async function checkForPublicMessageReception(page1, page2) {
   const checkPublicMessage2 = await publicChat2[1].evaluate(n => n.innerText);
 
   const response = checkPublicMessage1 == e.publicMessage1 && checkPublicMessage2 == e.publicMessage2;
+  return response;
+}
+
+async function checkForPrivateMessageReception(page1, page2) {
+  const privateChat1 = await page1.page.$$(`${e.chatUserMessage} ${e.chatMessageText}`);
+  const privateChat2 = await page2.page.$$(`${e.chatUserMessage} ${e.chatMessageText}`);
+
+  const checkPrivateMessage1 = await privateChat1[0].evaluate(n => n.innerText);
+  const checkPrivateMessage2 = await privateChat2[1].evaluate(n => n.innerText);
+
+  const response = checkPrivateMessage1 == e.message1 && checkPrivateMessage2 == e.message2;
   return response;
 }
 

@@ -3,20 +3,20 @@ const we = require('./elements');
 async function enableWebcam(test) {
   // Enabling webcam
   await test.waitForSelector(we.joinVideo);
-  await test.click(we.joinVideo);
+  await test.page.evaluate(clickTestElement, we.joinVideo);
   await test.waitForSelector(we.videoPreview);
   await test.waitForSelector(we.startSharingWebcam);
-  await test.click(we.startSharingWebcam);
+  await test.page.evaluate(clickTestElement, we.startSharingWebcam);
 }
 
-async function getTestElement(element) {
-  (await document.querySelectorAll(element)[0]) !== null;
+async function getFullScreenWebcamButton(element) {
+  return await document.querySelectorAll(element)[1] !== null;
 }
 
 async function evaluateCheck(test) {
   await test.waitForSelector(we.videoContainer);
-  const videoContainer = await test.evaluate(getTestElement, we.presentationFullscreenButton);
-  const response = videoContainer !== null;
+  const videoContainer = await test.page.evaluate(getFullScreenWebcamButton, we.presentationFullscreenButton);
+  const response = videoContainer !== false;
   return response;
 }
 
@@ -28,8 +28,7 @@ async function startAndCheckForWebcams(test) {
 
 async function webcamContentCheck(test) {
   await test.waitForSelector(we.videoContainer);
-  await test.waitForFunction(() => !document.querySelector('[data-test="webcamConnecting"]'));
-
+  await test.elementRemoved(we.webcamConnecting);
   const repeats = 5;
   let check;
   for (let i = repeats; i >= 1; i--) {
@@ -57,14 +56,23 @@ async function webcamContentCheck(test) {
       }
     };
 
-    check = await test.evaluate(checkCameras, i);
-    await test.waitFor(parseInt(process.env.LOOP_INTERVAL));
+    check = await test.page.evaluate(checkCameras, i);
+    await test.page.waitFor(parseInt(process.env.LOOP_INTERVAL));
   }
   return check === true;
+}
+
+async function clickTestElement(element) {
+  document.querySelectorAll(element)[0].click();
+}
+
+async function countTestElements(element) {
+  return await document.querySelectorAll(element).length;
 }
 
 exports.startAndCheckForWebcams = startAndCheckForWebcams;
 exports.webcamContentCheck = webcamContentCheck;
 exports.evaluateCheck = evaluateCheck;
-exports.getTestElement = getTestElement;
+exports.getFullScreenWebcamButton = getFullScreenWebcamButton;
 exports.enableWebcam = enableWebcam;
+exports.countTestElements = countTestElements;

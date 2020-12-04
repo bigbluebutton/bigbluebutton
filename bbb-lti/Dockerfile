@@ -2,7 +2,7 @@ FROM java:8-jdk AS builder
 
 RUN mkdir -p /root/tools \
  && cd /root/tools \
- && wget http://services.gradle.org/distributions/gradle-2.12-bin.zip \
+ && wget https://services.gradle.org/distributions/gradle-2.12-bin.zip \
  && unzip gradle-2.12-bin.zip \
  && ln -s gradle-2.12 gradle
 

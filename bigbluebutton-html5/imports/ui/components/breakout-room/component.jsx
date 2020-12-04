@@ -6,6 +6,7 @@ import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
 import { styles } from './styles';
 import BreakoutRoomContainer from './breakout-remaining-time/container';
+import VideoService from '/imports/ui/components/video-provider/service';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -208,6 +209,7 @@ class BreakoutRoom extends PureComponent {
                   logCode: 'breakoutroom_join',
                   extraInfo: { logType: 'user_action' },
                 }, 'joining breakout room closed audio in the main room');
+                VideoService.exitVideo();
               }
               }
               disabled={disable}
@@ -222,13 +224,12 @@ class BreakoutRoom extends PureComponent {
               (
                 <Button
                   label={
-                    moderatorJoinedAudio
-                      && stateBreakoutId === breakoutId
-                      && joinedAudioOnly
+                      stateBreakoutId === breakoutId && joinedAudioOnly
                       ? intl.formatMessage(intlMessages.breakoutReturnAudio)
                       : intl.formatMessage(intlMessages.breakoutJoinAudio)
                   }
                   className={styles.button}
+                  disabled={stateBreakoutId !== breakoutId && joinedAudioOnly}
                   key={`join-audio-${breakoutId}`}
                   onClick={audioAction}
                 />
@@ -259,7 +260,7 @@ class BreakoutRoom extends PureComponent {
       >
         <div className={styles.content} key={`breakoutRoomList-${breakout.breakoutId}`}>
           <span aria-hidden>
-            {intl.formatMessage(intlMessages.breakoutRoom, breakout.sequence.toString())}
+            {intl.formatMessage(intlMessages.breakoutRoom, { 0: breakout.sequence })}
             <span className={styles.usersAssignedNumberLabel}>
               (
               {breakout.joinedUsers.length}

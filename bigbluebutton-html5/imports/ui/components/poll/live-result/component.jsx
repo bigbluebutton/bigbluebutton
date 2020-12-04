@@ -38,6 +38,7 @@ const getResponseString = (obj) => {
   if (typeof children !== 'string') {
     return getResponseString(children[1]);
   }
+
   return children;
 };
 
@@ -58,9 +59,8 @@ class LiveResult extends PureComponent {
       : [...users];
 
     userAnswers = userAnswers.map(id => Service.getUser(id))
-      .filter(user => user.connectionStatus === 'online')
       .map((user) => {
-        let answer = '-';
+        let answer = '';
 
         if (responses) {
           const response = responses.find(r => r.userId === user.userId);
@@ -158,7 +158,7 @@ class LiveResult extends PureComponent {
       userCount = userAnswers.length;
       userAnswers.map((user) => {
         const response = getResponseString(user);
-        if (response === '-') return user;
+        if (response === '') return user;
         respondedCount += 1;
         return user;
       });
@@ -193,12 +193,15 @@ class LiveResult extends PureComponent {
                 Session.set('pollInitiated', false);
                 Service.publishPoll();
                 const { answers, numRespondents } = currentPoll;
-
+                let responded = 0;
                 let resultString = 'bbb-published-poll-\n';
-                answers.forEach((item) => {
-                  const pct = Math.round(item.numVotes / numRespondents * 100);
+                answers.map((item) => {
+                  responded += item.numVotes;
+                  return item;
+                }).map((item) => {
+                  const numResponded = responded === numRespondents ? numRespondents : responded;
+                  const pct = Math.round(item.numVotes / numResponded * 100);
                   const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
-
                   resultString += `${item.key}: ${item.numVotes || 0} | ${pctFotmatted}\n`;
                 });
 

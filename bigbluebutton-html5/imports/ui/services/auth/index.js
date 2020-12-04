@@ -7,7 +7,9 @@ import Users from '/imports/api/users';
 import logger from '/imports/startup/client/logger';
 import { makeCall } from '/imports/ui/services/api';
 import { initAnnotationsStreamListener } from '/imports/ui/components/whiteboard/service';
+import allowRedirectToLogoutURL from '/imports/ui/components/meeting-ended/service';
 import { initCursorStreamListener } from '/imports/ui/components/cursor/service';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
@@ -182,7 +184,12 @@ class Auth {
 
 
     return new Promise((resolve) => {
-      resolve(this._logoutURL);
+      if (allowRedirectToLogoutURL()) {
+        resolve(this._logoutURL);
+      }
+
+      // do not redirect
+      resolve();
     });
   }
 
@@ -194,7 +201,7 @@ class Auth {
     if (!(this.meetingID && this.userID && this.token)) {
       return Promise.reject({
         error: 401,
-        description: 'Authentication failed due to missing credentials.',
+        description: Session.get('errorMessageDescription') ? Session.get('errorMessageDescription') : 'Authentication failed due to missing credentials',
       });
     }
 
@@ -207,25 +214,39 @@ class Auth {
   }
 
   validateAuthToken() {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       let computation = null;
 
       const validationTimeout = setTimeout(() => {
         computation.stop();
         reject({
-          error: 401,
-          description: 'Authentication timeout.',
+          error: 408,
+          description: 'Authentication timeout',
         });
       }, CONNECTION_TIMEOUT);
 
+      Meteor.subscribe('auth-token-validation', { meetingId: this.meetingID, userId: this.userID });
+
+      const result = await makeCall('validateAuthToken', this.meetingID, this.userID, this.token, this.externUserID);
+
+      if (result && result.invalid) {
+        clearTimeout(validationTimeout);
+        reject({
+          error: 403,
+          description: result.reason,
+          type: result.error_type,
+        });
+        return;
+      }
+
+      Meteor.subscribe('current-user');
+
       Tracker.autorun((c) => {
         computation = c;
-        makeCall('validateAuthToken', this.meetingID, this.userID, this.token);
-        Meteor.subscribe('current-user');
 
         const selector = { meetingId: this.meetingID, userId: this.userID };
         const fields = {
-          intId: 1, ejected: 1, validated: 1, connectionStatus: 1, userId: 1,
+          ejected: 1, intId: 1, validated: 1, userId: 1,
         };
         const User = Users.findOne(selector, { fields });
         // Skip in case the user is not in the collection yet or is a dummy user
@@ -237,21 +258,35 @@ class Auth {
         }
 
         if (User.ejected) {
+          computation.stop();
           reject({
-            error: 401,
+            error: 403,
             description: 'User has been ejected.',
           });
           return;
         }
 
-        if (User.validated === true && User.connectionStatus === 'online') {
-          logger.info({ logCode: 'auth_service_init_streamers', extraInfo: { userId: User.userId } }, 'Calling init streamers functions');
-          initCursorStreamListener();
-          initAnnotationsStreamListener();
-          computation.stop();
-          clearTimeout(validationTimeout);
-          // setTimeout to prevent race-conditions with subscription
-          setTimeout(() => resolve(true), 100);
+        const authenticationTokenValidation = AuthTokenValidation.findOne();
+
+        if (!authenticationTokenValidation) return;
+
+        switch (authenticationTokenValidation.validationStatus) {
+          case ValidationStates.INVALID:
+            c.stop();
+            reject({ error: 401, description: 'User has been ejected.' });
+            break;
+          case ValidationStates.VALIDATED:
+            initCursorStreamListener();
+            initAnnotationsStreamListener();
+            c.stop();
+            clearTimeout(validationTimeout);
+            setTimeout(() => resolve(true), 100);
+            break;
+          case ValidationStates.VALIDATING:
+            break;
+          case ValidationStates.NOT_VALIDATED:
+            break;
+          default:
         }
       });
     });

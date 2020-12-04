@@ -3,12 +3,14 @@ import {
   check,
   Match,
 } from 'meteor/check';
+import SanitizeHTML from 'sanitize-html';
 import Meetings, { RecordMeetings } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 import createNote from '/imports/api/note/server/methods/createNote';
 import createCaptions from '/imports/api/captions/server/methods/createCaptions';
 import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
+import BannedUsers from '/imports/api/users/server/store/bannedUsers';
 
 export default function addMeeting(meeting) {
   const meetingId = meeting.meetingProp.intId;
@@ -40,8 +42,6 @@ export default function addMeeting(meeting) {
       createdTime: Number,
       duration: Number,
       createdDate: String,
-      maxInactivityTimeoutMinutes: Number,
-      warnMinutesBeforeMax: Number,
       meetingExpireIfNoUserJoinedInMinutes: Number,
       meetingExpireWhenLastUserLeftInMinutes: Number,
       userInactivityInspectTimerInMinutes: Number,
@@ -103,21 +103,40 @@ export default function addMeeting(meeting) {
 
   const meetingEnded = false;
 
-  newMeeting.welcomeProp.welcomeMsg = newMeeting.welcomeProp.welcomeMsg.replace(
+  let { welcomeMsg } = newMeeting.welcomeProp;
+
+  const sanitizeTextInChat = original => SanitizeHTML(original, {
+    allowedTags: ['a', 'b', 'br', 'i', 'img', 'li', 'small', 'span', 'strong', 'u', 'ul'],
+    allowedAttributes: {
+      a: ['href', 'name', 'target'],
+      img: ['src', 'width', 'height'],
+    },
+    allowedSchemes: ['https'],
+  });
+
+  const sanitizedWelcomeText = sanitizeTextInChat(welcomeMsg);
+  welcomeMsg = sanitizedWelcomeText.replace(
     'href="event:',
     'href="',
   );
 
   const insertBlankTarget = (s, i) => `${s.substr(0, i)} target="_blank"${s.substr(i)}`;
   const linkWithoutTarget = new RegExp('<a href="(.*?)">', 'g');
-  linkWithoutTarget.test(newMeeting.welcomeProp.welcomeMsg);
+  linkWithoutTarget.test(welcomeMsg);
 
   if (linkWithoutTarget.lastIndex > 0) {
-    newMeeting.welcomeProp.welcomeMsg = insertBlankTarget(
-      newMeeting.welcomeProp.welcomeMsg,
+    welcomeMsg = insertBlankTarget(
+      welcomeMsg,
       linkWithoutTarget.lastIndex - 1,
     );
   }
+
+  newMeeting.welcomeProp.welcomeMsg = welcomeMsg;
+
+  // note: as of July 2020 `modOnlyMessage` is not published to the client side.
+  // We are sanitizing this data simply to prevent future potential usage
+  // At the moment `modOnlyMessage` is obtained from client side as a response to Enter API
+  newMeeting.welcomeProp.modOnlyMessage = sanitizeTextInChat(newMeeting.welcomeProp.modOnlyMessage);
 
   const modifier = {
     $set: Object.assign({
@@ -129,15 +148,23 @@ export default function addMeeting(meeting) {
     })),
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      Logger.error(`Adding meeting to collection: ${err}`);
-      return;
-    }
+  try {
+    const { insertedId, numberAffected } = RecordMeetings.upsert(selector, { meetingId, ...recordProp });
 
-    const {
-      insertedId,
-    } = numChanged;
+    if (insertedId) {
+      Logger.info(`Added record prop id=${meetingId}`);
+    } else if (numberAffected) {
+      Logger.info(`Upserted record prop id=${meetingId}`);
+    }
+  } catch (err) {
+    Logger.error(`Adding record prop to collection: ${err}`);
+  }
+
+  try {
+    const { insertedId, numberAffected } = Meetings.upsert(selector, modifier);
+
+    addAnnotationsStreamer(meetingId);
+    addCursorStreamer(meetingId);
 
     if (insertedId) {
       Logger.info(`Added meeting id=${meetingId}`);
@@ -145,39 +172,11 @@ export default function addMeeting(meeting) {
       // better place we can run this post-creation routine?
       createNote(meetingId);
       createCaptions(meetingId);
-    }
-
-    if (numChanged) {
+      BannedUsers.init(meetingId);
+    } else if (numberAffected) {
       Logger.info(`Upserted meeting id=${meetingId}`);
     }
-  };
-
-  const cbRecord = (err, numChanged) => {
-    if (err) {
-      Logger.error(`Adding record prop to collection: ${err}`);
-      return;
-    }
-
-    const {
-      insertedId,
-    } = numChanged;
-
-    if (insertedId) {
-      Logger.info(`Added record prop id=${meetingId}`);
-    }
-
-    if (numChanged) {
-      Logger.info(`Upserted record prop id=${meetingId}`);
-    }
-  };
-
-  RecordMeetings.upsert(selector, {
-    meetingId,
-    ...recordProp,
-  }, cbRecord);
-
-  addAnnotationsStreamer(meetingId);
-  addCursorStreamer(meetingId);
-
-  return Meetings.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Adding meeting to collection: ${err}`);
+  }
 }

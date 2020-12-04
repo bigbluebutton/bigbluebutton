@@ -3,6 +3,8 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
+import Storage from '/imports/ui/services/storage/session';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import Chat from './component';
 import ChatService from './service';
 
@@ -88,7 +90,8 @@ export default injectIntl(withTracker(({ intl }) => {
     };
 
     let moderatorMsg;
-    if (amIModerator && welcomeProp.modOnlyMessage) {
+    const modOnlyMessage = Storage.getItem('ModeratorOnlyMessage');
+    if (amIModerator && modOnlyMessage) {
       const moderatorTime = time + 1;
       const moderatorId = `moderator-msg-${moderatorTime}`;
 
@@ -96,7 +99,7 @@ export default injectIntl(withTracker(({ intl }) => {
         id: moderatorId,
         content: [{
           id: moderatorId,
-          text: welcomeProp.modOnlyMessage,
+          text: modOnlyMessage,
           time: moderatorTime,
         }],
         time: moderatorTime,
@@ -113,7 +116,7 @@ export default injectIntl(withTracker(({ intl }) => {
 
     const messagesFormated = messagesBeforeWelcomeMsg
       .concat(welcomeMsg)
-      .concat(moderatorMsg || [])
+      .concat((amIModerator && modOnlyMessage) ? moderatorMsg : [])
       .concat(messagesAfterWelcomeMsg);
 
     messages = messagesFormated.sort((a, b) => (a.time - b.time));
@@ -121,12 +124,15 @@ export default injectIntl(withTracker(({ intl }) => {
     messages = ChatService.getPrivateGroupMessages();
 
     const receiverUser = ChatService.getUser(chatID);
-    chatName = receiverUser.name;
-    systemMessageIntl = { 0: receiverUser.name };
-    title = intl.formatMessage(intlMessages.titlePrivate, systemMessageIntl);
-    partnerIsLoggedOut = receiverUser.connectionStatus !== CONNECTION_STATUS;
+    const privateChat = ChatService.getPrivateChatByUsers(chatID);
 
-    if (partnerIsLoggedOut) {
+    chatName = receiverUser?.name || privateChat.participants.filter(u => u.id === chatID).pop().name;
+
+    systemMessageIntl = { 0: chatName };
+    title = intl.formatMessage(intlMessages.titlePrivate, systemMessageIntl);
+    partnerIsLoggedOut = !!receiverUser;
+
+    if (!partnerIsLoggedOut) {
       const time = Date.now();
       const id = `partner-disconnected-${time}`;
       const messagePartnerLoggedOut = {
@@ -151,15 +157,15 @@ export default injectIntl(withTracker(({ intl }) => {
   }
 
   messages = messages.map((message) => {
-    if (message.sender && message.sender !== SYSTEM_CHAT_TYPE) return message;
+    if (message.sender && message.sender.id !== SYSTEM_CHAT_TYPE) return message;
 
     return {
       ...message,
-      content: message.content.map(content => ({
+      content: message.content ? message.content.map(content => ({
         ...content,
         text: content.text in intlMessages
           ? `<b><i>${intl.formatMessage(intlMessages[content.text], systemMessageIntl)}</i></b>` : content.text,
-      })),
+      })) : [],
     };
   });
 
@@ -174,6 +180,7 @@ export default injectIntl(withTracker(({ intl }) => {
     isChatLocked,
     isMeteorConnected,
     amIModerator,
+    meetingIsBreakout: meetingIsBreakout(),
     actions: {
       handleClosePrivateChat: ChatService.closePrivateChat,
     },
