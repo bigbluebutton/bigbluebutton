@@ -74,46 +74,10 @@ class RemoteDesktop extends Component {
       return;
     }
 
-    const { isFullscreen } = this.state;
-    var par;
-    if (isFullscreen) {
-	par = this.playerParent;
-    } else {
-        par = this.playerParent.parentElement;
-    }
-    const w = par.clientWidth;
-    const h = par.clientHeight;
-
-    const fb_width = this.player.rfb._display.width;
-    const fb_height = this.player.rfb._display.height;
-
-    if ((fb_width == 0) || (fb_height == 0)) {
-	return;
-    }
-
-    const idealW = h * fb_width / fb_height;
-
-    const style = {};
-    if (idealW > w) {
-      style.width = w;
-      style.height = Math.floor(w * fb_height / fb_width);
-    } else {
-      style.width = Math.floor(idealW);
-      style.height = h;
-    }
-
-    // some violation of component isolation here
-    //
-    // this.player is a VncDisplay, and we dig down into its internals
-    // to resize the component.  This is necessary because not only
-    // do we want to resize the drawing canvas, but the scaling factor
-    // for translating mouse events also needs to be recomputed,
-    // and VncDisplay doesn't currently export a method to do that.
-
-    this.player.rfb._display.autoscale(style.width, style.height);
-
-    const styleStr = `width: ${style.width}px; height: ${style.height}px; display: flex; justify-content: center;`;
-    this.playerParent.style = styleStr;
+    // There's currently a "FIXME: Use ResizeObserver" comment in the noVNC code.
+    // Until noVNC can listen for resize events, this is how we tell it its geometry has changed.
+    // Once that's fixed, there should be no need for a componentDidUpdate function at all.
+    this.player.rfb._windowResize();
   }
 
   onFullscreenChange() {
@@ -168,18 +132,21 @@ class RemoteDesktop extends Component {
       <div
         id="remote-desktop"
         data-test="remoteDesktop"
+        style={{width: '100%', height: '100%', display: 'flex', 'justify-content': 'center'}}
         ref={(ref) => { this.playerParent = ref; }}
       >
         {this.renderFullscreenButton()}
         <VncDisplay
           className={styles.remoteDesktop}
-          width={null}
-          height={null}
+          width='100%'
+          height='100%'
+          background="transparent"
           url={remoteDesktopUrl}
           credentials={{password: this.vncPassword}}
           onConnect={this.onConnect}
           viewOnly={viewOnly}
           shared
+          scaleViewport
           ref={(ref) => {
 	      this.player = ref;
 	  }}
