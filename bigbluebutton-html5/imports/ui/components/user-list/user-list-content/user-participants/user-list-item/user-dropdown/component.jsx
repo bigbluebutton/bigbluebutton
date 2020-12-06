@@ -330,6 +330,11 @@ class UserDropdown extends PureComponent {
       && user.clientType !== 'dial-in-user'
       && !meetingIsBreakout
       && isMeteorConnected;
+    
+    const currentSlide = PresentationAreaService.getCurrentSlide('DEFAULT_PRESENTATION_POD');
+    const whiteboardId = currentSlide.id;
+    const wbdata = WhiteboardMultiUser.findOne({ meetingId: user.meetingId, whiteboardId });
+    const multiUser = wbdata ? wbdata.multiUser : 0;
 
     if (showChatOption) {
       actions.push(this.makeDropdownItem(
@@ -378,11 +383,6 @@ class UserDropdown extends PureComponent {
         label = intl.formatMessage(messages.removeWBAccess);
       }
 
-      const currentSlide = PresentationAreaService.getCurrentSlide('DEFAULT_PRESENTATION_POD');
-      const whiteboardId = currentSlide.id;
-      const wbdata = WhiteboardMultiUser.findOne({ meetingId: user.meetingId, whiteboardId });
-      const multiUser = wbdata ? wbdata.multiUser : 0;
-
       actions.push(this.makeDropdownItem(
         'giveIndividualAccess',
         label,
@@ -397,7 +397,7 @@ class UserDropdown extends PureComponent {
         isMe(user.userId)
           ? intl.formatMessage(messages.takePresenterLabel)
           : intl.formatMessage(messages.makePresenterLabel),
-        () => { this.onActionsHide(assignPresenter(user.userId)); },
+        () => { this.onActionsHide(assignPresenter(user.userId, whiteboardId)); },
         'presentation',
       ));
     }
