@@ -420,7 +420,10 @@ const setEmojiStatus = (userId, emoji) => {
     : makeCall('setEmojiStatus', userId, 'none');
 };
 
-const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
+const assignPresenter = (userId, whiteboardId) => {
+  makeCall('assignPresenter', userId);
+  makeCall('reloadWhiteboard', whiteboardId, 0);
+};
 
 const removeUser = (userId, banUser) => {
   if (isVoiceOnlyUser(userId)) {
