@@ -14,7 +14,7 @@ trait ReloadWhiteboardPubMsgHdlr extends RightsManagementTrait {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(ReloadWhiteboardEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(ReloadWhiteboardEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
-      val body = ReloadWhiteboardEvtMsgBody(msg.body.whiteboardId, msg.header.userId)
+      val body = ReloadWhiteboardEvtMsgBody(msg.body.whiteboardId, msg.header.userId, msg.body.multiUser)
       val event = ReloadWhiteboardEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
