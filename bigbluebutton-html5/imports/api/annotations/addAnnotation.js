@@ -4,7 +4,7 @@ const ANNOTATION_TYPE_TEXT = 'text';
 const ANNOTATION_TYPE_PENCIL = 'pencil';
 
 // line, triangle, ellipse, rectangle
-function handleCommonAnnotation(meetingId, whiteboardId, userId, annotation) {
+function handleCommonAnnotation(meetingId, whiteboardId, userId, annotation, multiUser) {
   const {
     id, status, annotationType, annotationInfo, wbId, position,
   } = annotation;
@@ -24,6 +24,7 @@ function handleCommonAnnotation(meetingId, whiteboardId, userId, annotation) {
       annotationType,
       annotationInfo,
       wbId,
+      currentMultiUser: multiUser,
     },
     $setOnInsert: {
       position,
@@ -34,7 +35,7 @@ function handleCommonAnnotation(meetingId, whiteboardId, userId, annotation) {
   return { selector, modifier };
 }
 
-function handleTextUpdate(meetingId, whiteboardId, userId, annotation) {
+function handleTextUpdate(meetingId, whiteboardId, userId, annotation, multiUser) {
   const {
     id, status, annotationType, annotationInfo, wbId, position,
   } = annotation;
@@ -56,6 +57,7 @@ function handleTextUpdate(meetingId, whiteboardId, userId, annotation) {
       annotationType,
       annotationInfo,
       wbId,
+      currentMultiUser: multiUser,
     },
     $setOnInsert: {
       position,
@@ -66,7 +68,7 @@ function handleTextUpdate(meetingId, whiteboardId, userId, annotation) {
   return { selector, modifier };
 }
 
-function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
+function handlePencilUpdate(meetingId, whiteboardId, userId, annotation, multiUser) {
   const DRAW_START = 'DRAW_START';
   const DRAW_UPDATE = 'DRAW_UPDATE';
   const DRAW_END = 'DRAW_END';
@@ -127,6 +129,7 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
           annotationInfo,
           wbId,
           position,
+          currentMultiUser: multiUser,
         },
         $inc: { version: 1 },
       };
@@ -138,17 +141,17 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
   return { selector: baseSelector, modifier: baseModifier };
 }
 
-export default function addAnnotation(meetingId, whiteboardId, userId, annotation) {
+export default function addAnnotation(meetingId, whiteboardId, userId, annotation, multiUser) {
   check(meetingId, String);
   check(whiteboardId, String);
   check(annotation, Object);
 
   switch (annotation.annotationType) {
     case ANNOTATION_TYPE_TEXT:
-      return handleTextUpdate(meetingId, whiteboardId, userId, annotation);
+      return handleTextUpdate(meetingId, whiteboardId, userId, annotation, multiUser);
     case ANNOTATION_TYPE_PENCIL:
-      return handlePencilUpdate(meetingId, whiteboardId, userId, annotation);
+      return handlePencilUpdate(meetingId, whiteboardId, userId, annotation, multiUser);
     default:
-      return handleCommonAnnotation(meetingId, whiteboardId, userId, annotation);
+      return handleCommonAnnotation(meetingId, whiteboardId, userId, annotation, multiUser);
   }
 }
