@@ -35,15 +35,14 @@ export default class TriangleDrawComponent extends Component {
 
   render() {
     const path = this.getCoordinates();
-    const { annotation, slideWidth, whiteboardId } = this.props;
+    const { annotation, slideWidth, whiteboardId, currentMultiUser } = this.props;
     const isPresenter = TriangleService.isPresenter();
-    const modeMultiUser = TriangleService.getMultiUserStatus(whiteboardId);
     const currentUserID = TriangleService.currentUserID();
     const drawerID = annotation.id.replace(/-.*$/,'');
     const isDrawerPresenter = TriangleService.isHePresenter(drawerID);
    
     return (
-      modeMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? null :
+      currentMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? null :
       <path
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
         fill="none"
