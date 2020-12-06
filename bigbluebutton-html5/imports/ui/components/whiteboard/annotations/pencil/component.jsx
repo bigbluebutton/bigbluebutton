@@ -143,15 +143,14 @@ export default class PencilDrawComponent extends Component {
   }
 
   render() {
-    const { annotation, slideWidth, whiteboardId } = this.props;
+    const { annotation, slideWidth, whiteboardId, currentMultiUser } = this.props;
     const isPresenter = PencilService.isPresenter();
-    const modeMultiUser = PencilService.getMultiUserStatus(whiteboardId);
     const currentUserID = PencilService.currentUserID();
     const drawerID = annotation.id.replace(/-.*$/,'');
     const isDrawerPresenter = PencilService.isHePresenter(drawerID);
   
     return (
-      modeMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? null :
+      currentMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? null :
       <path
         fill="none"
         stroke={getFormattedColor(annotation.color)}
