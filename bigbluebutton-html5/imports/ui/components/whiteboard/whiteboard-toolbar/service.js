@@ -24,8 +24,8 @@ const clearWhiteboard = (whiteboardId) => {
   makeCall('clearWhiteboard', whiteboardId);
 };
 
-const reloadWhiteboard = (whiteboardId) => {
-  makeCall('reloadWhiteboard', whiteboardId);
+const reloadWhiteboard = (whiteboardId, multiUser) => {
+  makeCall('reloadWhiteboard', whiteboardId, multiUser);
 };
 
 const changeWhiteboardMode = (multiUser, whiteboardId) => {
@@ -34,12 +34,8 @@ const changeWhiteboardMode = (multiUser, whiteboardId) => {
   
   if ( (multiUser_p == 2 && (multiUser   == 1 || multiUser   == 0)) ||
        (multiUser   == 2 && (multiUser_p == 1 || multiUser_p == 0)) ) {
-    async function syncChangeWhiteboardAccess () {
-      await makeCall('changeWhiteboardAccess', multiUser, whiteboardId);
-      // In rare cases, drawing still starts before the multiUser change reaches...
-      reloadWhiteboard(whiteboardId);
-    }
-    syncChangeWhiteboardAccess ();
+    makeCall('changeWhiteboardAccess', multiUser, whiteboardId);
+    reloadWhiteboard(whiteboardId, multiUser);
   } else {
     makeCall('changeWhiteboardAccess', multiUser, whiteboardId);
   }
