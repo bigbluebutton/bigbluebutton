@@ -14,7 +14,7 @@ case class ClearWhiteboardPubMsgBody(whiteboardId: String)
 
 object ReloadWhiteboardPubMsg { val NAME = "ReloadWhiteboardPubMsg" }
 case class ReloadWhiteboardPubMsg(header: BbbClientMsgHeader, body: ReloadWhiteboardPubMsgBody) extends StandardMsg
-case class ReloadWhiteboardPubMsgBody(whiteboardId: String)
+case class ReloadWhiteboardPubMsgBody(whiteboardId: String, multiUser: Number)
 
 object GetWhiteboardAnnotationsReqMsg { val NAME = "GetWhiteboardAnnotationsReqMsg" }
 case class GetWhiteboardAnnotationsReqMsg(header: BbbClientMsgHeader, body: GetWhiteboardAnnotationsReqMsgBody) extends StandardMsg
@@ -52,7 +52,7 @@ case class ClearWhiteboardEvtMsgBody(whiteboardId: String, userId: String, fullC
 
 object ReloadWhiteboardEvtMsg { val NAME = "ReloadWhiteboardEvtMsg" }
 case class ReloadWhiteboardEvtMsg(header: BbbClientMsgHeader, body: ReloadWhiteboardEvtMsgBody) extends BbbCoreMsg
-case class ReloadWhiteboardEvtMsgBody(whiteboardId: String, userId: String)
+case class ReloadWhiteboardEvtMsgBody(whiteboardId: String, userId: String, multiUser: Number)
 
 object GetWhiteboardAnnotationsRespMsg { val NAME = "GetWhiteboardAnnotationsRespMsg" }
 case class GetWhiteboardAnnotationsRespMsg(header: BbbClientMsgHeader, body: GetWhiteboardAnnotationsRespMsgBody) extends BbbCoreMsg
