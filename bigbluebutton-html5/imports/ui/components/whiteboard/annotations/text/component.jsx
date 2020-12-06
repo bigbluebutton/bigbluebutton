@@ -145,16 +145,15 @@ export default class TextDrawComponent extends Component {
   }
 
   renderViewerTextShape(results) {
-    const { annotation, whiteboardId } = this.props;
+    const { annotation, whiteboardId, currentMultiUser } = this.props;
     const styles = TextDrawComponent.getViewerStyles(results);
     const isPresenter = TextShapeService.isPresenter();
-    const modeMultiUser = TextShapeService.getMultiUserStatus(whiteboardId);
     const currentUserID = TextShapeService.currentUserID();
     const drawerID = annotation.id.replace(/-.*$/,'');
     const isDrawerPresenter = TextShapeService.isHePresenter(drawerID);
    
     return (
-      modeMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? null :
+      currentMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? null :
       <g>
         <RenderInBrowser only firefox>
           <clipPath id={annotation.id}>
