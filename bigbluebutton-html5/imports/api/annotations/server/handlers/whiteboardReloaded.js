@@ -25,9 +25,10 @@ export default function handleWhiteboardReloaded({ body }, meetingId) {
   check(body, {
     userId: String,
     whiteboardId: String,
+    multiUser: Number,
   });
 
-  const { whiteboardId, userId } = body;
+  const { whiteboardId, userId, multiUser } = body;
 
   const cur_annotations = Annotations.find(
     {
@@ -43,7 +44,7 @@ export default function handleWhiteboardReloaded({ body }, meetingId) {
   }
   
   for (const annotation of cur_annotations) {
-    annotationsQueue[meetingId].push({ meetingId, whiteboardId, userId, annotation });
+    annotationsQueue[meetingId].push({ meetingId, whiteboardId, userId, annotation, multiUser });
   }
   if (!annotationsRecieverIsRunning) proccess();
 
