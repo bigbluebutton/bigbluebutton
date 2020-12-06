@@ -40,18 +40,17 @@ export default class EllipseDrawComponent extends Component {
 
   render() {
     const results = this.getCoordinates();
-    const { annotation, slideWidth, whiteboardId } = this.props;
+    const { annotation, slideWidth, whiteboardId, currentMultiUser } = this.props;
     const {
       cx, cy, rx, ry,
     } = results;
 
     const isPresenter = EllipseService.isPresenter();
-    const modeMultiUser = EllipseService.getMultiUserStatus(whiteboardId);
     const currentUserID = EllipseService.currentUserID();
     const drawerID = annotation.id.replace(/-.*$/,'');
     const isDrawerPresenter = EllipseService.isHePresenter(drawerID);
     return (
-      modeMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? null :
+      currentMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? null :
       <ellipse
         cx={cx}
         cy={cy}
