@@ -28,18 +28,17 @@ export default class LineDrawComponent extends Component {
 
   render() {
     const results = this.getCoordinates();
-    const { annotation, slideWidth, whiteboardId } = this.props;
+    const { annotation, slideWidth, whiteboardId, currentMultiUser } = this.props;
     const {
       x1, y1, x2, y2,
     } = results;
     const isPresenter = LineService.isPresenter();
-    const modeMultiUser = LineService.getMultiUserStatus(whiteboardId);
     const currentUserID = LineService.currentUserID();
     const drawerID = annotation.id.replace(/-.*$/,'');
     const isDrawerPresenter = LineService.isHePresenter(drawerID);
 
     return (
-      modeMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? null :
+      currentMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? null :
       <line
         x1={x1}
         y1={y1}
