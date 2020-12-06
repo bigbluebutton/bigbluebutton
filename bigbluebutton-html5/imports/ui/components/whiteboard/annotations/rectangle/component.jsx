@@ -47,15 +47,14 @@ export default class RectangleDrawComponent extends Component {
 
   render() {
     const results = this.getCoordinates();
-    const { annotation, slideWidth, whiteboardId } = this.props;
+    const { annotation, slideWidth, whiteboardId, currentMultiUser } = this.props;
     const isPresenter = RectangleService.isPresenter();
-    const modeMultiUser = RectangleService.getMultiUserStatus(whiteboardId);
     const currentUserID = RectangleService.currentUserID();
     const drawerID = annotation.id.replace(/-.*$/,'');
     const isDrawerPresenter = RectangleService.isHePresenter(drawerID);
 
     return (
-      modeMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? null :
+      currentMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? null :
       <rect
         x={results.x}
         y={results.y}
