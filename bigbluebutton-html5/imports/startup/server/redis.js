@@ -3,10 +3,19 @@ import Redis from 'redis';
 import { Meteor } from 'meteor/meteor';
 import { EventEmitter2 } from 'eventemitter2';
 import { check } from 'meteor/check';
+import fs from 'fs';
 import Logger from './logger';
 
 // Fake meetingId used for messages that have no meetingId
 const NO_MEETING_ID = '_';
+
+const metrics = {};
+
+const {
+  metricsDumpIntervalMs,
+  metricsFolderPath,
+  queueMetrics,
+} = Meteor.settings.private.redis.metrics;
 
 const makeEnvelope = (channel, eventName, header, body, routing) => {
   const envelope = {
@@ -33,6 +42,15 @@ class MeetingMessageQueue {
     this.emitter = eventEmitter;
     this.queue = new PowerQueue();
     this.redisDebugEnabled = redisDebugEnabled;
+
+    Meteor.setInterval(() => {
+      try {
+        fs.writeFileSync(`${metricsFolderPath}/${new Date().getTime()}-metrics.json`, JSON.stringify(metrics));
+        Logger.info('Metric file successfully writen');
+      } catch (err) {
+        Logger.error('Error on writing metrics to disk.', err);
+      }
+    }, metricsDumpIntervalMs);
 
     this.handleTask = this.handleTask.bind(this);
     this.queue.taskHandler = this.handleTask;
@@ -74,6 +92,35 @@ class MeetingMessageQueue {
     try {
       if (this.redisDebugEnabled) {
         Logger.debug(`Redis: ${JSON.stringify(data.parsedMessage.core)} emitted`);
+      }
+
+      if (queueMetrics) {
+        const queueId = meetingId || NO_MEETING_ID;
+
+        const dataLength = JSON.stringify(data).length;
+        if (!metrics[queueId].wasInQueue.hasOwnProperty(eventName)) {
+          metrics[queueId].wasInQueue[eventName] = {
+            count: 1,
+            payloadSize: {
+              min: dataLength,
+              max: dataLength,
+              last: dataLength,
+              total: dataLength,
+              avg: dataLength,
+            },
+          }
+        } else {
+          metrics[queueId].currentlyInQueue[eventName].count -= 1;
+
+          metrics[queueId].wasInQueue[eventName].count += 1;
+
+          metrics[queueId].wasInQueue[eventName].payloadSize.last = dataLength;
+          metrics[queueId].wasInQueue[eventName].payloadSize.total += dataLength;
+          metrics[queueId].wasInQueue[eventName].payloadSize.min > dataLength ? metrics[queueId].wasInQueue[eventName].payloadSize.min = dataLength : null
+          metrics[queueId].wasInQueue[eventName].payloadSize.max < dataLength ? metrics[queueId].wasInQueue[eventName].payloadSize.max = dataLength : null
+
+          metrics[queueId].wasInQueue[eventName].payloadSize.avg = metrics[queueId].wasInQueue[eventName].payloadSize.total / metrics[queueId].wasInQueue[eventName].count;
+        }
       }
 
       if (isAsync) {
@@ -181,6 +228,25 @@ class RedisPubSub {
     }
 
     const queueId = meetingId || NO_MEETING_ID;
+
+    if (queueMetrics) {
+      if (!metrics.hasOwnProperty(queueId)) {
+        metrics[queueId] = {
+          currentlyInQueue: {},
+          wasInQueue: {},
+        };
+      }
+
+      if (!metrics[queueId].currentlyInQueue.hasOwnProperty(eventName)) {
+        metrics[queueId].currentlyInQueue[eventName] = {
+          count: 1,
+          payloadSize: message.length,
+        };
+      } else {
+        metrics[queueId].currentlyInQueue[eventName].count += 1;
+        metrics[queueId].currentlyInQueue[eventName].payloadSize += message.length;
+      }
+    }
 
     if (!(queueId in this.mettingsQueues)) {
       this.mettingsQueues[meetingId] = new MeetingMessageQueue(this.emitter, async, this.redisDebugEnabled);

@@ -442,6 +442,10 @@ private:
     timeout: 5000
     password: null
     debug: false
+    metrics:
+      queueMetrics: true
+      metricsDumpIntervalMs: 30000
+      metricsFolderPath: "/tmp/metrics"
     channels:
       toAkkaApps: to-akka-apps-redis-channel
       toThirdParty: to-third-party-redis-channel
