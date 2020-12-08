@@ -47,6 +47,7 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
         true,
         externalMeetingId,
         user.avatar,
+        user.role,
         liveMeeting.props.password.moderatorPass
       )
       // We generate a first url with redirect -> true
