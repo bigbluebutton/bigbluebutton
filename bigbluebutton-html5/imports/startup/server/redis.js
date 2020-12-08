@@ -68,22 +68,6 @@ class MeetingMessageQueue {
         Logger.debug(`Redis: ${eventName} completed ${isAsync ? 'async' : 'sync'}`);
       }
       called = true;
-      const queueLength = this.queue.length();
-      if (queueLength > 100) {
-        Logger.warn(`Redis: MeetingMessageQueue for meetingId=${meetingId} has queue size=${queueLength} `);
-      }
-      next();
-    };
-
-    const onError = (reason) => {
-      Logger.error(`${eventName}: ${reason.stack ? reason.stack : reason}`);
-      callNext();
-    };
-
-    try {
-      if (this.redisDebugEnabled) {
-        Logger.debug(`Redis: ${JSON.stringify(data.parsedMessage.core)} emitted`);
-      }
 
       if (queueMetrics) {
         const queueId = meetingId || NO_MEETING_ID;
@@ -125,6 +109,23 @@ class MeetingMessageQueue {
 
           processedEventMetrics.payloadSize.avg = processedEventMetrics.payloadSize.total / processedEventMetrics.count;
         }
+      }
+
+      const queueLength = this.queue.length();
+      if (queueLength > 100) {
+        Logger.warn(`Redis: MeetingMessageQueue for meetingId=${meetingId} has queue size=${queueLength} `);
+      }
+      next();
+    };
+
+    const onError = (reason) => {
+      Logger.error(`${eventName}: ${reason.stack ? reason.stack : reason}`);
+      callNext();
+    };
+
+    try {
+      if (this.redisDebugEnabled) {
+        Logger.debug(`Redis: ${JSON.stringify(data.parsedMessage.core)} emitted`);
       }
 
       if (isAsync) {
