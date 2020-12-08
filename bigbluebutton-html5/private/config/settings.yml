@@ -443,8 +443,8 @@ private:
     password: null
     debug: false
     metrics:
-      queueMetrics: true
-      metricsDumpIntervalMs: 30000
+      queueMetrics: false
+      metricsDumpIntervalMs: 60000
       metricsFolderPath: "/tmp/metrics"
     channels:
       toAkkaApps: to-akka-apps-redis-channel

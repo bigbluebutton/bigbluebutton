@@ -43,15 +43,6 @@ class MeetingMessageQueue {
     this.queue = new PowerQueue();
     this.redisDebugEnabled = redisDebugEnabled;
 
-    Meteor.setInterval(() => {
-      try {
-        fs.writeFileSync(`${metricsFolderPath}/${new Date().getTime()}-metrics.json`, JSON.stringify(metrics));
-        Logger.info('Metric file successfully writen');
-      } catch (err) {
-        Logger.error('Error on writing metrics to disk.', err);
-      }
-    }, metricsDumpIntervalMs);
-
     this.handleTask = this.handleTask.bind(this);
     this.queue.taskHandler = this.handleTask;
   }
@@ -108,18 +99,31 @@ class MeetingMessageQueue {
               total: dataLength,
               avg: dataLength,
             },
-          }
+          };
+          metrics[queueId].currentlyInQueue[eventName].count -= 1;
+
+          if (!metrics[queueId].currentlyInQueue[eventName].count) delete metrics[queueId].currentlyInQueue[eventName];
         } else {
           metrics[queueId].currentlyInQueue[eventName].count -= 1;
 
-          metrics[queueId].wasInQueue[eventName].count += 1;
+          if (!metrics[queueId].currentlyInQueue[eventName].count) delete metrics[queueId].currentlyInQueue[eventName];
 
-          metrics[queueId].wasInQueue[eventName].payloadSize.last = dataLength;
-          metrics[queueId].wasInQueue[eventName].payloadSize.total += dataLength;
-          metrics[queueId].wasInQueue[eventName].payloadSize.min > dataLength ? metrics[queueId].wasInQueue[eventName].payloadSize.min = dataLength : null
-          metrics[queueId].wasInQueue[eventName].payloadSize.max < dataLength ? metrics[queueId].wasInQueue[eventName].payloadSize.max = dataLength : null
+          const processedEventMetrics = metrics[queueId].wasInQueue[eventName];
 
-          metrics[queueId].wasInQueue[eventName].payloadSize.avg = metrics[queueId].wasInQueue[eventName].payloadSize.total / metrics[queueId].wasInQueue[eventName].count;
+          processedEventMetrics.count += 1;
+
+          processedEventMetrics.payloadSize.last = dataLength;
+          processedEventMetrics.payloadSize.total += dataLength;
+
+          if (processedEventMetrics.payloadSize.min > dataLength) {
+            processedEventMetrics.payloadSize.min = dataLength;
+          }
+
+          if (processedEventMetrics.payloadSize.max < dataLength) {
+            processedEventMetrics.payloadSize.max = dataLength;
+          }
+
+          processedEventMetrics.payloadSize.avg = processedEventMetrics.payloadSize.total / processedEventMetrics.count;
         }
       }
 
@@ -164,6 +168,17 @@ class RedisPubSub {
     } else {
       this.pub = Redis.createClient({ host, port });
       this.sub = Redis.createClient({ host, port });
+    }
+
+    if (queueMetrics) {
+      Meteor.setInterval(() => {
+        try {
+          fs.writeFileSync(`${metricsFolderPath}/${new Date().getTime()}-metrics.json`, JSON.stringify(metrics));
+          Logger.info('Metric file successfully writen');
+        } catch (err) {
+          Logger.error('Error on writing metrics to disk.', err);
+        }
+      }, metricsDumpIntervalMs || 10000);
     }
 
     this.emitter = new EventEmitter2();
