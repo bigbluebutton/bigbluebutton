@@ -445,7 +445,7 @@ private:
     metrics:
       queueMetrics: false
       metricsDumpIntervalMs: 60000
-      metricsFolderPath: "/tmp/metrics"
+      metricsFolderPath: METRICS_FOLDER
     channels:
       toAkkaApps: to-akka-apps-redis-channel
       toThirdParty: to-third-party-redis-channel
