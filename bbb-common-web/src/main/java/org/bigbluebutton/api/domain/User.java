@@ -38,6 +38,7 @@ public class User {
 	private Boolean voiceJoined = false;
 	private String clientType;
 	private List<String> streams;
+	private Long leftOn = null;
 
 	public User(String internalUserId,
 							String externalUserId,
@@ -90,6 +91,22 @@ public class User {
 		return this.guestStatus;
 	}
 	
+	public Boolean hasLeft() {
+		return leftOn != null;
+	}
+
+	public void joined() {
+		this.leftOn = null;
+	}
+
+	public void left() {
+		this.leftOn = System.currentTimeMillis();
+	}
+
+	public Long getLeftOn() {
+		return this.leftOn;
+	}
+
 	public String getFullname() {
 		return fullname;
 	}

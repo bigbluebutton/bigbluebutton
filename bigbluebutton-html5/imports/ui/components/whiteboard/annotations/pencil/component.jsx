@@ -152,6 +152,7 @@ export default class PencilDrawComponent extends Component {
         strokeLinejoin="round"
         strokeLinecap="round"
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
+        data-test="pencilDraw"
       />
     );
   }

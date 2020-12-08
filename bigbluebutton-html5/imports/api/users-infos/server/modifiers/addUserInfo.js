@@ -7,12 +7,14 @@ export default function addUserInfo(userInfo, requesterUserId, meetingId) {
     requesterUserId,
     userInfo,
   };
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Adding user information to collection: ${err}`);
-    }
-    return Logger.info(`Added user information: requester id=${requesterUserId} meeting=${meetingId}`);
-  };
 
-  return UserInfos.insert(info, cb);
+  try {
+    const numberAffected = UserInfos.insert(info);
+
+    if (numberAffected) {
+      Logger.info(`Added user information: requester id=${requesterUserId} meeting=${meetingId}`);
+    }
+  } catch (err) {
+    Logger.error(`Adding user information to collection: ${err}`);
+  }
 }

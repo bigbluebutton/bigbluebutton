@@ -10,13 +10,16 @@ public:
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: 2.3-dev
-    copyright: "©2020 BigBlueButton Inc."
+    copyright: '©2020 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     lockOnJoin: true
-    cdn: ""
-    basename: "/html5client"
+    cdn: ''
+    basename: '/html5client'
     askForFeedbackOnLogout: false
+    # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
+    # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
+    allowDefaultLogoutUrl: true
     allowUserLookup: false
     enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
@@ -24,12 +27,12 @@ public:
     enableTalkingIndicator: true
     mirrorOwnWebcam: false
     viewersInWebcam: 8
-    ipv4FallbackDomain: ""
+    ipv4FallbackDomain: ''
     allowLogout: true
     allowFullscreen: true
     preloadNextSlides: 2
     mutedAlert:
-      enabled: true
+      enabled: false
       interval: 200
       threshold: -50
       duration: 4000
@@ -40,6 +43,7 @@ public:
     # can generate excessive overhead to the server. We recommend
     # this value to be kept under 12.
     breakoutRoomLimit: 8
+    customHeartbeat: false
     defaultSettings:
       application:
         animations: true
@@ -260,8 +264,8 @@ public:
   captions:
     enabled: true
     enableDictation: false
-    backgroundColor: "#000000"
-    fontColor: "#FFFFFF"
+    backgroundColor: '#000000'
+    fontColor: '#FFFFFF'
     fontFamily: Calibri
     fontSize: 24px
     takeOwnership: true
@@ -299,18 +303,19 @@ public:
   layout:
     autoSwapLayout: false
     hidePresentation: false
-    webcamsDefaultPlacement: "top"
+    webcamsDefaultPlacement: 'top'
   media:
-    stunTurnServersFetchAddress: "/bigbluebutton/api/stuns"
+    stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
-    fallbackStunServer:  ''
-    mediaTag: "#remote-media"
+    fallbackStunServer: ''
+    recvonlyIceGatheringCheck: true
+    mediaTag: '#remote-media'
     callTransferTimeout: 5000
     callHangupTimeout: 2000
     callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
     relayOnlyOnReconnect: false
-    listenOnlyCallTimeout: 15000
+    listenOnlyCallTimeout: 25000
   stats:
     enabled: true
     interval: 2000
@@ -329,51 +334,57 @@ public:
       - danger
       - critical
     help: STATS_HELP_URL
+    #Timeout (ms) for gathering ICE candidates. When this timeout expires
+    #the SDP is sent to the server with the candidates the browser gathered
+    #so far. Increasing this value might help avoiding 1004 error when
+    #user activates microphone.
+    iceGatheringTimeout: 5000
+    sipjsHackViaWs: false
   presentation:
     allowDownloadable: true
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32
     restoreOnUpdate: false
-    uploadEndpoint: "/bigbluebutton/presentation/upload"
+    uploadEndpoint: '/bigbluebutton/presentation/upload'
     uploadSizeMin: 0
     uploadSizeMax: 50000000
     uploadValidMimeTypes:
-    - extension: .pdf
-      mime: application/pdf
-    - extension: .doc
-      mime: application/msword
-    - extension: .docx
-      mime: application/vnd.openxmlformats-officedocument.wordprocessingml.document
-    - extension: .xls
-      mime: application/vnd.ms-excel
-    - extension: .xlsx
-      mime: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-    - extension: .ppt
-      mime: application/vnd.ms-powerpoint
-    - extension: .pptx
-      mime: application/vnd.openxmlformats-officedocument.presentationml.presentation
-    - extension: .txt
-      mime: text/plain
-    - extension: .rtf
-      mime: application/rtf
-    - extension: .odt
-      mime: application/vnd.oasis.opendocument.text
-    - extension: .ods
-      mime: application/vnd.oasis.opendocument.spreadsheet
-    - extension: .odp
-      mime: application/vnd.oasis.opendocument.presentation
-    - extension: .odg
-      mime: application/vnd.oasis.opendocument.graphics
-    - extension: .odc
-      mime: application/vnd.oasis.opendocument.chart
-    - extension: .odi
-      mime: application/vnd.oasis.opendocument.image
-    - extension: .jpg
-      mime: image/jpeg
-    - extension: .jpeg
-      mime: image/jpeg
-    - extension: .png
-      mime: image/png
+      - extension: .pdf
+        mime: application/pdf
+      - extension: .doc
+        mime: application/msword
+      - extension: .docx
+        mime: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+      - extension: .xls
+        mime: application/vnd.ms-excel
+      - extension: .xlsx
+        mime: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      - extension: .ppt
+        mime: application/vnd.ms-powerpoint
+      - extension: .pptx
+        mime: application/vnd.openxmlformats-officedocument.presentationml.presentation
+      - extension: .txt
+        mime: text/plain
+      - extension: .rtf
+        mime: application/rtf
+      - extension: .odt
+        mime: application/vnd.oasis.opendocument.text
+      - extension: .ods
+        mime: application/vnd.oasis.opendocument.spreadsheet
+      - extension: .odp
+        mime: application/vnd.oasis.opendocument.presentation
+      - extension: .odg
+        mime: application/vnd.oasis.opendocument.graphics
+      - extension: .odc
+        mime: application/vnd.oasis.opendocument.chart
+      - extension: .odi
+        mime: application/vnd.oasis.opendocument.image
+      - extension: .jpg
+        mime: image/jpeg
+      - extension: .jpeg
+        mime: image/jpeg
+      - extension: .png
+        mime: image/png
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
@@ -386,80 +397,80 @@ public:
     toolbar:
       multiUserPenOnly: false
       colors:
-      - label: black
-        value: "#000000"
-      - label: white
-        value: "#ffffff"
-      - label: red
-        value: "#ff0000"
-      - label: orange
-        value: "#ff8800"
-      - label: eletricLime
-        value: "#ccff00"
-      - label: Lime
-        value: "#00ff00"
-      - label: Cyan
-        value: "#00ffff"
-      - label: dodgerBlue
-        value: "#0088ff"
-      - label: blue
-        value: "#0000ff"
-      - label: violet
-        value: "#8800ff"
-      - label: magenta
-        value: "#ff00ff"
-      - label: silver
-        value: "#c0c0c0"
+        - label: black
+          value: '#000000'
+        - label: white
+          value: '#ffffff'
+        - label: red
+          value: '#ff0000'
+        - label: orange
+          value: '#ff8800'
+        - label: eletricLime
+          value: '#ccff00'
+        - label: Lime
+          value: '#00ff00'
+        - label: Cyan
+          value: '#00ffff'
+        - label: dodgerBlue
+          value: '#0088ff'
+        - label: blue
+          value: '#0000ff'
+        - label: violet
+          value: '#8800ff'
+        - label: magenta
+          value: '#ff00ff'
+        - label: silver
+          value: '#c0c0c0'
       thickness:
-      - value: 14
-      - value: 12
-      - value: 10
-      - value: 8
-      - value: 6
-      - value: 4
-      - value: 2
-      - value: 1
+        - value: 14
+        - value: 12
+        - value: 10
+        - value: 8
+        - value: 6
+        - value: 4
+        - value: 2
+        - value: 1
       font_sizes:
-      - value: 36
-      - value: 32
-      - value: 28
-      - value: 24
-      - value: 20
-      - value: 16
+        - value: 36
+        - value: 32
+        - value: 28
+        - value: 24
+        - value: 20
+        - value: 16
       tools:
-      - icon: text_tool
-        value: text
-      - icon: line_tool
-        value: line
-      - icon: circle_tool
-        value: ellipse
-      - icon: triangle_tool
-        value: triangle
-      - icon: rectangle_tool
-        value: rectangle
-      - icon: pen_tool
-        value: pencil
-      - icon: hand
-        value: hand
+        - icon: text_tool
+          value: text
+        - icon: line_tool
+          value: line
+        - icon: circle_tool
+          value: ellipse
+        - icon: triangle_tool
+          value: triangle
+        - icon: rectangle_tool
+          value: rectangle
+        - icon: pen_tool
+          value: pencil
+        - icon: hand
+          value: hand
       presenterTools:
-      - text
-      - line
-      - ellipse
-      - triangle
-      - rectangle
-      - pencil
-      - hand
+        - text
+        - line
+        - ellipse
+        - triangle
+        - rectangle
+        - pencil
+        - hand
       multiUserTools:
-      - text
-      - line
-      - ellipse
-      - triangle
-      - rectangle
-      - pencil
-      - hand
+        - text
+        - line
+        - ellipse
+        - triangle
+        - rectangle
+        - pencil
+        - hand
   clientLog:
     server:
-      enabled: true
+      enabled: false
       level: info
     console:
       enabled: true
@@ -471,11 +482,10 @@ public:
       method: POST
       throttleInterval: 400
       flushOnClose: true
-      logTag: ""
+      logTag: ''
 private:
   app:
     host: 127.0.0.1
-    port: 3000
     localesUrl: /locales
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
@@ -494,15 +504,15 @@ private:
       toAkkaApps: to-akka-apps-redis-channel
       toThirdParty: to-third-party-redis-channel
     subscribeTo:
-    - to-html5-redis-channel
-    - from-akka-apps-*
-    - from-third-party-redis-channel
-    - from-etherpad-redis-channel
+      - to-html5-redis-channel
+      - from-akka-apps-*
+      - from-third-party-redis-channel
+      - from-etherpad-redis-channel
     async:
-    - from-akka-apps-wb-redis-channel
+      - from-akka-apps-wb-redis-channel
     ignored:
-    - CheckAlivePongSysMsg
-    - DoLatencyTracerMsg
+      - CheckAlivePongSysMsg
+      - DoLatencyTracerMsg
   serverLog:
     level: info
     streamerLog: false
@@ -534,6 +544,7 @@ private:
       version: 50
     - browser: electron
       version: [0, 36]
+    - browser: SamsungInternet
+      version: 10
     - browser: YandexBrowser
       version: 19
-

@@ -6,6 +6,7 @@ import Auth from '/imports/ui/services/auth';
 import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
 
+const ICE_GATHERING_CHECK_ENABLED = Meteor.settings.public.media.recvonlyIceGatheringCheck;
 const getSessionToken = () => Auth.sessionToken;
 
 export async function getIceServersList() {
@@ -43,13 +44,13 @@ export function canGenerateIceCandidates() {
       pc.onicegatheringstatechange = function (e) {
         if (e.currentTarget.iceGatheringState === 'complete' && countIceCandidates === 0) {
           logger.warn({ logCode: 'no_valid_candidate' }, 'No useful ICE candidate found. Will request gUM permission.');
-          reject();
+          reject(new Error('No valid candidate'));
         }
       };
 
       setTimeout(() => {
         pc.close();
-        if (!countIceCandidates) reject();
+        if (!countIceCandidates) reject(new Error('Gathering check timeout'));
       }, 5000);
 
       const p = pc.createOffer({ offerToReceiveVideo: true });
@@ -66,11 +67,20 @@ export function canGenerateIceCandidates() {
  * generate at least srflx candidates.
  * This is a workaround due to a behaviour some browsers display (mainly Safari)
  * where they won't generate srflx or relay candidates if no gUM permission is
- * given. Since our media servers aren't able to make it work by prflx
- * candidates, we need to do this.
+ * given.
+ *
+ *
+ * UPDATE:
+ * This used to be valid when Kurento wasn't treating prflx candidates properly.
+ * It is now, so this workaround is being revisited. I've put it under a flag
+ * so that we can field trial it disabled and gauge the impact of removing it.
+ * Hopelly we can get rid of it.
+ *
+ * prlanzarin 11-11-20
  */
 export function tryGenerateIceCandidates() {
   return new Promise((resolve, reject) => {
+    if (!ICE_GATHERING_CHECK_ENABLED) return resolve();
     canGenerateIceCandidates().then(() => {
       resolve();
     }).catch(() => {

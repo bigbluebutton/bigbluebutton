@@ -8,6 +8,7 @@ async function joinAudio(test) {
   await test.waitForSelector(ae.connectingStatus);
   await test.elementRemoved(ae.connectingStatus);
   await test.waitForSelector(ae.leaveAudio);
+  await test.waitForSelector(ae.whiteboard);
   const resp = await test.page.evaluate(getTestElement, ae.leaveAudio);
   return resp;
 }
@@ -20,6 +21,8 @@ async function joinMicrophone(test) {
   await test.waitForSelector(ae.connectingStatus);
   await test.elementRemoved(ae.connectingStatus);
   await test.waitForSelector(ae.audioAudible);
+  await test.click(ae.audioAudible, true);
+  await test.waitForSelector(ae.whiteboard);
   const resp = await test.page.evaluate(getTestElement, ae.audioAudible);
   return resp;
 }

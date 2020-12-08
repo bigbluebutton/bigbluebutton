@@ -10,6 +10,10 @@ const intlMessages = defineMessages({
     id: 'app.fullscreenButton.label',
     description: 'Fullscreen label',
   },
+  fullscreenUndoButton: {
+    id: 'app.fullscreenUndoButton.label',
+    description: 'Undo fullscreen label',
+  },
 });
 
 const propTypes = {
@@ -47,10 +51,17 @@ const FullscreenButtonComponent = ({
 }) => {
   if (isIphone) return null;
 
-  const formattedLabel = intl.formatMessage(
-    intlMessages.fullscreenButton,
-    ({ 0: elementName || '' }),
-  );
+  const formattedLabel = (isFullscreen) => {
+    return(isFullscreen ?
+      intl.formatMessage(
+        intlMessages.fullscreenUndoButton,
+        ({ 0: elementName || '' }),
+      ) :
+      intl.formatMessage(
+        intlMessages.fullscreenButton,
+        ({ 0: elementName || '' }),
+      ));
+  };
 
   const wrapperClassName = cx({
     [styles.wrapper]: true,
@@ -67,7 +78,7 @@ const FullscreenButtonComponent = ({
         icon={!isFullscreen ? 'fullscreen' : 'exit_fullscreen'}
         size="sm"
         onClick={() => handleToggleFullScreen(fullscreenRef)}
-        label={formattedLabel}
+        label={formattedLabel(isFullscreen)}
         hideLabel
         className={cx(styles.button, styles.fullScreenButton, className)}
         data-test="presentationFullscreenButton"

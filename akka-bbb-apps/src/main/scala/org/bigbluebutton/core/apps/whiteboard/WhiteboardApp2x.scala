@@ -18,7 +18,7 @@ class WhiteboardApp2x(implicit val context: ActorContext)
 
   val log = Logging(context.system, getClass)
 
-  def sendWhiteboardAnnotation(annotation: AnnotationVO, liveMeeting: LiveMeeting): AnnotationVO = {
+  def sendWhiteboardAnnotation(annotation: AnnotationVO, drawEndOnly: Boolean, liveMeeting: LiveMeeting): AnnotationVO = {
     //    println("Received whiteboard annotation. status=[" + status + "], annotationType=[" + annotationType + "]")
     var rtnAnnotation: AnnotationVO = annotation
 
@@ -32,7 +32,7 @@ class WhiteboardApp2x(implicit val context: ActorContext)
       }
     } else if (WhiteboardKeyUtil.DRAW_END_STATUS == annotation.status) {
       if (WhiteboardKeyUtil.PENCIL_TYPE == annotation.annotationType) {
-        rtnAnnotation = liveMeeting.wbModel.endAnnotationPencil(annotation.wbId, annotation.userId, annotation)
+        rtnAnnotation = liveMeeting.wbModel.endAnnotationPencil(annotation.wbId, annotation.userId, annotation, drawEndOnly)
       } else {
         rtnAnnotation = liveMeeting.wbModel.updateAnnotation(annotation.wbId, annotation.userId, annotation)
       }

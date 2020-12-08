@@ -8,5 +8,5 @@ export default function handleGroupChatMsgBroadcast({ body }, meetingId) {
   check(chatId, String);
   check(msg, Object);
 
-  return addGroupChatMsg(meetingId, chatId, msg);
+  addGroupChatMsg(meetingId, chatId, msg);
 }

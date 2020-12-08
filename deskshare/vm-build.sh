@@ -1,1 +1,0 @@
-gradle copyToLib war deploy
