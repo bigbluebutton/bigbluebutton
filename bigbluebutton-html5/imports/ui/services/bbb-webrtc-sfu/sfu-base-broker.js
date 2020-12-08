@@ -25,6 +25,9 @@ class BaseBroker {
     this.started = false;
     this.signallingTransportOpen = false;
     this.logCodePrefix = `${this.sfuComponent}_broker`;
+
+    this.onbeforeunload = this.onbeforeunload.bind(this);
+    window.addEventListener('beforeunload', this.onbeforeunload);
   }
 
   set started (val) {
@@ -33,6 +36,10 @@ class BaseBroker {
 
   get started () {
     return this._started;
+  }
+
+  onbeforeunload () {
+    return this.stop();
   }
 
   onstart () {
@@ -143,7 +150,6 @@ class BaseBroker {
     if (this.webRtcPeer) {
       const { peerConnection } = this.webRtcPeer;
       const connectionState = peerConnection.connectionState;
-
       if (eventIdentifier) {
         notifyStreamStateChange(eventIdentifier, connectionState);
       }
@@ -209,6 +215,7 @@ class BaseBroker {
   stop () {
     this.onstart = function(){};
     this.onerror = function(){};
+    window.removeEventListener('beforeunload', this.onbeforeunload);
 
     if (this.webRtcPeer) {
       this.webRtcPeer.peerConnection.onconnectionstatechange = null;
