@@ -71,7 +71,8 @@ class MeetingMessageQueue {
 
       if (queueMetrics) {
         const queueId = meetingId || NO_MEETING_ID;
-
+        const currentTimestamp = new Date().getTime();
+        const processTime = currentTimestamp - envelope.timestamp;
         const dataLength = JSON.stringify(data).length;
         if (!metrics[queueId].wasInQueue.hasOwnProperty(eventName)) {
           metrics[queueId].wasInQueue[eventName] = {
@@ -83,14 +84,25 @@ class MeetingMessageQueue {
               total: dataLength,
               avg: dataLength,
             },
+            processingTime: {
+              min: processTime,
+              max: processTime,
+              last: processTime,
+              total: processTime,
+              avg: processTime,
+            },
           };
           metrics[queueId].currentlyInQueue[eventName].count -= 1;
 
-          if (!metrics[queueId].currentlyInQueue[eventName].count) delete metrics[queueId].currentlyInQueue[eventName];
+          if (!metrics[queueId].currentlyInQueue[eventName].count) {
+            delete metrics[queueId].currentlyInQueue[eventName];
+          }
         } else {
           metrics[queueId].currentlyInQueue[eventName].count -= 1;
 
-          if (!metrics[queueId].currentlyInQueue[eventName].count) delete metrics[queueId].currentlyInQueue[eventName];
+          if (!metrics[queueId].currentlyInQueue[eventName].count) {
+            delete metrics[queueId].currentlyInQueue[eventName];
+          }
 
           const processedEventMetrics = metrics[queueId].wasInQueue[eventName];
 
@@ -108,6 +120,18 @@ class MeetingMessageQueue {
           }
 
           processedEventMetrics.payloadSize.avg = processedEventMetrics.payloadSize.total / processedEventMetrics.count;
+
+          if (processedEventMetrics.processingTime.min > processTime) {
+            processedEventMetrics.processingTime.min = processTime;
+          }
+
+          if (processedEventMetrics.processingTime.max < processTime) {
+            processedEventMetrics.processingTime.max = processTime;
+          }
+
+          processedEventMetrics.processingTime.last = processTime;
+          processedEventMetrics.processingTime.total += processTime;
+          processedEventMetrics.processingTime.avg = processedEventMetrics.processingTime.total / processedEventMetrics.count;
         }
       }
 
