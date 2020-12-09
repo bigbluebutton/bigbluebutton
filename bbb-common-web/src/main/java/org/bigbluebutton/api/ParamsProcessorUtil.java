@@ -74,9 +74,6 @@ public class ParamsProcessorUtil {
     private int defaultNumDigitsForTelVoice;
     private String defaultClientUrl;
     private String defaultGuestWaitURL;
-    private String html5ClientUrl;
-    private Boolean moderatorsJoinViaHTML5Client;
-    private Boolean attendeesJoinViaHTML5Client;
     private Boolean allowRequestsWithoutSession;
     private Boolean useDefaultAvatar = false;
     private String defaultAvatarURL;
@@ -557,18 +554,6 @@ public class ParamsProcessorUtil {
 		return defaultGuestWaitURL;
         }
 
-	public String getHTML5ClientUrl() {
-		return html5ClientUrl;
-	}
-
-	public Boolean getAttendeesJoinViaHTML5Client() {
-		return attendeesJoinViaHTML5Client;
-	}
-
-	public Boolean getModeratorsJoinViaHTML5Client() {
-		return moderatorsJoinViaHTML5Client;
-	}
-
 	public Boolean getAllowRequestsWithoutSession() {
 		return allowRequestsWithoutSession;
 	}
@@ -919,20 +904,8 @@ public class ParamsProcessorUtil {
 		this.defaultGuestWaitURL = url;
         }
 
-	public void setHtml5ClientUrl(String html5ClientUrl) {
-		this.html5ClientUrl = html5ClientUrl;
-	}
-
-	public void setModeratorsJoinViaHTML5Client(Boolean moderatorsJoinViaHTML5Client) {
-		this.moderatorsJoinViaHTML5Client = moderatorsJoinViaHTML5Client;
-	}
-
 	public void setAllowRequestsWithoutSession(Boolean allowRequestsWithoutSession) {
 		this.allowRequestsWithoutSession = allowRequestsWithoutSession;
-	}
-
-	public void setAttendeesJoinViaHTML5Client(Boolean attendeesJoinViaHTML5Client) {
-		this.attendeesJoinViaHTML5Client = attendeesJoinViaHTML5Client;
 	}
 
 	public void setDefaultMeetingDuration(int defaultMeetingDuration) {

@@ -269,11 +269,6 @@ class ApiController {
       authenticated = Boolean.parseBoolean(params.auth)
     }
 
-    Boolean joinViaHtml5 = false;
-    if (!StringUtils.isEmpty(params.joinViaHtml5)) {
-      joinViaHtml5 = Boolean.parseBoolean(params.joinViaHtml5)
-    }
-
     // Do we have a name for the user joining? If none, complain.
     if (!StringUtils.isEmpty(params.fullName)) {
       if (StringUtils.isEmpty(params.fullName)) {
@@ -497,28 +492,6 @@ class ApiController {
     //check if exists the param redirect
     boolean redirectClient = true;
     String clientURL = paramsProcessorUtil.getDefaultClientUrl();
-
-    // server-wide configuration:
-    // Depending on configuration, prefer the HTML5 client over Flash for moderators
-    if (paramsProcessorUtil.getModeratorsJoinViaHTML5Client() && role == ROLE_MODERATOR) {
-      joinViaHtml5 = true
-    }
-
-    // Depending on configuration, prefer the HTML5 client over Flash for attendees
-    if (paramsProcessorUtil.getAttendeesJoinViaHTML5Client() && role == ROLE_ATTENDEE) {
-      joinViaHtml5 = true
-    }
-
-    // single client join configuration:
-    // Depending on configuration, prefer the HTML5 client over Flash client
-    if (joinViaHtml5) {
-      clientURL = paramsProcessorUtil.getHTML5ClientUrl();
-    } else {
-      if (!StringUtils.isEmpty(params.clientURL)) {
-        clientURL = params.clientURL;
-      }
-    }
-
 
     String meetingInstance = meeting.getMetadata()["bbb-meetinginstance"];
     meetingInstance = (meetingInstance == null) ? "1" : meetingInstance;
