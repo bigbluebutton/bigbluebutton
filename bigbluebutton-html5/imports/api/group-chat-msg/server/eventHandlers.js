@@ -1,5 +1,4 @@
 import RedisPubSub from '/imports/startup/server/redis';
-import handleGroupChatsMsgs from './handlers/groupChatsMsgs';
 import handleGroupChatMsgBroadcast from './handlers/groupChatMsgBroadcast';
 import handleClearPublicGroupChat from './handlers/clearPublicGroupChat';
 import handleUserTyping from './handlers/userTyping';

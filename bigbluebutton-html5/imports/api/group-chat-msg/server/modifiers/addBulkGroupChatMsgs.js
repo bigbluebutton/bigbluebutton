@@ -1,10 +1,11 @@
-import { Match, check } from 'meteor/check';
 import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import Logger from '/imports/startup/server/logger';
 import flat from 'flat';
 import { parseMessage } from './addGroupChatMsg';
 
 export default async function addBulkGroupChatMsgs(msgs) {
+  if (!msgs.length) return;
+
   const mappedMsgs = msgs
     .map(({ chatId, meetingId, msg }) => ({
       _id: new Mongo.ObjectID()._str,

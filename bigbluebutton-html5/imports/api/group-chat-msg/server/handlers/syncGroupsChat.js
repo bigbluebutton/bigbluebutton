@@ -1,5 +1,5 @@
 import { Match, check } from 'meteor/check';
-import addBulkGroupChatMsgs from '../modifiers/addBulkGroupChatMsgs';
+import syncMeetingChatMsgs from '../modifiers/syncMeetingChatMsgs';
 
 export default function handleSyncGroupChat({ body }, meetingId) {
   const { chatId, msgs } = body;
@@ -8,5 +8,5 @@ export default function handleSyncGroupChat({ body }, meetingId) {
   check(chatId, String);
   check(msgs, Match.Maybe(Array));
 
-  addBulkGroupChatMsgs(msgs);
+  syncMeetingChatMsgs(meetingId, chatId, msgs);
 }
