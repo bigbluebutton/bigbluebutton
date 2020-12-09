@@ -10,15 +10,20 @@ import Modal from '/imports/ui/components/modal/simple/component';
 import { withModalMounter } from '../../modal/service';
 import { styles } from '../styles';
 import ScreenshareBridgeService from '/imports/api/screenshare/client/bridge/service';
+import {
+  shareScreen,
+  stop,
+  screenshareHasEnded,
+  screenShareEndAlert,
+  isVideoBroadcasting,
+} from '/imports/ui/components/screenshare/service';
+
 
 const propTypes = {
   intl: intlShape.isRequired,
+  enabled: PropTypes.bool.isRequired,
   amIPresenter: PropTypes.bool.isRequired,
-  handleShareScreen: PropTypes.func.isRequired,
-  handleUnshareScreen: PropTypes.func.isRequired,
   isVideoBroadcasting: PropTypes.bool.isRequired,
-  screenSharingCheck: PropTypes.bool.isRequired,
-  screenShareEndAlert: PropTypes.func.isRequired,
   isMeteorConnected: PropTypes.bool.isRequired,
   screenshareDataSavingSetting: PropTypes.bool.isRequired,
 };
@@ -72,6 +77,10 @@ const intlMessages = defineMessages({
     id: 'app.deskshare.iceConnectionStateError',
     description: 'Error message for ice connection state failure',
   },
+  1120: {
+    id: 'app.deskshare.mediaFlowTimeout',
+    description: 'Error message for screenshare media flow timeout',
+  },
   2000: {
     id: 'app.sfu.mediaServerConnectionError2000',
     description: 'Error message fired when the SFU cannot connect to the media server',
@@ -117,14 +126,12 @@ const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false)
     : false);
 const IS_SAFARI = BROWSER_RESULTS.name === 'safari';
 
-const DesktopShare = ({
+
+const ScreenshareButton = ({
   intl,
-  handleShareScreen,
-  handleUnshareScreen,
+  enabled,
   isVideoBroadcasting,
   amIPresenter,
-  screenSharingCheck,
-  screenShareEndAlert,
   isMeteorConnected,
   screenshareDataSavingSetting,
   mountModal,
@@ -136,7 +143,7 @@ const DesktopShare = ({
     const error = errorCode || errorMessage || errorReason;
     // We have a properly mapped error for this. Exit screenshare and show  a toast notification
     if (intlMessages[error]) {
-      window.kurentoExitScreenShare();
+      screenshareHasEnded();
       notify(intl.formatMessage(intlMessages[error]), 'error', 'desktop');
     } else {
       // Unmapped error. Log it (so we can infer what's going on), close screenSharing
@@ -147,13 +154,30 @@ const DesktopShare = ({
           errorCode, errorMessage, errorReason,
         },
       }, 'Default error handler for screenshare');
-      window.kurentoExitScreenShare();
+      screenshareHasEnded();
       notify(intl.formatMessage(intlMessages.genericError), 'error', 'desktop');
     }
     // Don't trigger the screen share end alert if presenter click to cancel on screen share dialog
     if (error !== 'NotAllowedError') {
       screenShareEndAlert();
     }
+  };
+
+  const renderScreenshareUnavailableModal = () => {
+    return mountModal(
+      <Modal
+        overlayClassName={styles.overlay}
+        className={styles.modal}
+        onRequestClose={() => mountModal(null)}
+        hideBorder
+        contentLabel={intl.formatMessage(intlMessages.screenShareUnavailable)}
+      >
+        <h3 className={styles.title}>
+          {intl.formatMessage(intlMessages.screenShareUnavailable)}
+        </h3>
+        <p>{intl.formatMessage(intlMessages.screenShareNotSupported)}</p>
+      </Modal>
+    )
   };
 
   const screenshareLocked = screenshareDataSavingSetting
@@ -165,7 +189,7 @@ const DesktopShare = ({
   const vDescr = isVideoBroadcasting
     ? intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc;
 
-  const shouldAllowScreensharing = screenSharingCheck
+  const shouldAllowScreensharing = enabled
     && !isMobileBrowser
     && amIPresenter;
 
@@ -182,28 +206,20 @@ const DesktopShare = ({
         hideLabel
         circle
         size="lg"
-        onClick={isVideoBroadcasting ? handleUnshareScreen : () => {
-          if (IS_SAFARI && !ScreenshareBridgeService.hasDisplayMedia) {
-            return mountModal(<Modal
-              overlayClassName={styles.overlay}
-              className={styles.modal}
-              onRequestClose={() => mountModal(null)}
-              hideBorder
-              contentLabel={intl.formatMessage(intlMessages.screenShareUnavailable)}
-            >
-              <h3 className={styles.title}>
-                {intl.formatMessage(intlMessages.screenShareUnavailable)}
-              </h3>
-              <p>{intl.formatMessage(intlMessages.screenShareNotSupported)}</p>
-                              </Modal>);
+        onClick={isVideoBroadcasting
+          ? screenshareHasEnded
+          : () => {
+            if (IS_SAFARI && !ScreenshareBridgeService.hasDisplayMedia) {
+              renderScreenshareUnavailableModal();
+            } else {
+              shareScreen(onFail);
+            }
           }
-          handleShareScreen(onFail);
-        }
         }
         id={isVideoBroadcasting ? 'unshare-screen-button' : 'share-screen-button'}
       />
     ) : null;
 };
 
-DesktopShare.propTypes = propTypes;
-export default withModalMounter(injectIntl(memo(DesktopShare)));
+ScreenshareButton.propTypes = propTypes;
+export default withModalMounter(injectIntl(memo(ScreenshareButton)));

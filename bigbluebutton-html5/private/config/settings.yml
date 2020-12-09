@@ -110,6 +110,14 @@ public:
     chromeExtensionKey: KEY
     chromeExtensionLink: LINK
     screenshare:
+      mediaTimeouts:
+        maxConnectionAttempts: 2
+        # Base screen media timeout (send|recv)
+        baseTimeout: 15000
+        # Max timeout: used as the max camera subscribe reconnection timeout. Each
+        # subscribe reattempt increases the reconnection timer up to this
+        maxTimeout: 35000
+        timeoutIncreaseFactor: 1.5
       constraints:
         video:
           frameRate:
@@ -120,10 +128,6 @@ public:
           height:
             max: 1600
         audio: false
-      chromeScreenshareSources:
-        - window
-        - screen
-      firefoxScreenshareSource: window
     # cameraProfiles is an array of:
     # - id: profile identifier
     #   name: human-readable profile name

@@ -11,12 +11,8 @@ import Service from './service';
 import ExternalVideoService from '/imports/ui/components/external-video-player/service';
 import CaptionsService from '/imports/ui/components/captions/service';
 import {
-  shareScreen,
-  unshareScreen,
   isVideoBroadcasting,
-  screenShareEndAlert,
-  dataSavingSetting,
-} from '../screenshare/service';
+} from '/imports/ui/components/screenshare/service';
 
 import MediaService, {
   getSwapLayout,
@@ -30,10 +26,6 @@ export default withTracker(() => ({
   amIPresenter: Service.amIPresenter(),
   amIModerator: Service.amIModerator(),
   stopExternalVideoShare: ExternalVideoService.stopWatching,
-  handleShareScreen: onFail => shareScreen(onFail),
-  handleUnshareScreen: () => unshareScreen(),
-  isVideoBroadcasting: isVideoBroadcasting(),
-  screenSharingCheck: getFromUserSettings('bbb_enable_screen_sharing', Meteor.settings.public.kurento.enableScreensharing),
   enableVideo: getFromUserSettings('bbb_enable_video', Meteor.settings.public.kurento.enableVideo),
   isLayoutSwapped: getSwapLayout() && shouldEnableSwapLayout(),
   toggleSwapLayout: MediaService.toggleSwapLayout,
@@ -41,8 +33,6 @@ export default withTracker(() => ({
   currentSlidHasContent: PresentationService.currentSlidHasContent(),
   parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
   isSharingVideo: Service.isSharingVideo(),
-  screenShareEndAlert,
-  screenshareDataSavingSetting: dataSavingSetting(),
   isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
   isMeteorConnected: Meteor.status().connected,
   isPollingEnabled: POLLING_ENABLED,

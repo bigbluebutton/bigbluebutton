@@ -10,35 +10,42 @@ import Auth from '/imports/ui/services/auth';
 import UserListService from '/imports/ui/components/user-list/service';
 import AudioService from '/imports/ui/components/audio/service';
 
+const SCREENSHARE_MEDIA_ELEMENT_NAME = 'screenshareVideo';
+
+let _isSharingScreen = false;
+const _sharingScreenDep = {
+  value: false,
+  tracker: new Tracker.Dependency(),
+};
+
+const isSharingScreen = () => {
+  _sharingScreenDep.tracker.depend();
+  return _sharingScreenDep.value;
+};
+
+const setSharingScreen = (isSharingScreen) => {
+  if (_sharingScreenDep.value !== isSharingScreen) {
+    _sharingScreenDep.value = isSharingScreen;
+    _sharingScreenDep.tracker.changed();
+  }
+};
+
 // when the meeting information has been updated check to see if it was
 // screensharing. If it has changed either trigger a call to receive video
 // and display it, or end the call and hide the video
 const isVideoBroadcasting = () => {
+  const sharing = isSharingScreen();
   const screenshareEntry = Screenshare.findOne({ meetingId: Auth.meetingID },
     { fields: { 'screenshare.stream': 1 } });
+  const screenIsShared = !screenshareEntry ? false : !!screenshareEntry.screenshare.stream;
 
-  if (!screenshareEntry) {
-    return false;
+  if (screenIsShared && isSharingScreen) {
+    setSharingScreen(false);
   }
 
-  return !!screenshareEntry.screenshare.stream;
+  return sharing || screenIsShared;
 };
 
-// if remote screenshare has been ended disconnect and hide the video stream
-const presenterScreenshareHasEnded = () => {
-  // references a function in the global namespace inside kurento-extension.js
-  // that we load dynamically
-  KurentoBridge.kurentoExitVideo();
-};
-
-const viewScreenshare = (hasAudio) => {
-  const amIPresenter = UserListService.isUserPresenter(Auth.userID);
-  if (!amIPresenter) {
-    KurentoBridge.kurentoViewScreen(hasAudio);
-  } else {
-    KurentoBridge.kurentoViewLocalPreview();
-  }
-};
 
 const screenshareHasAudio = () => {
   const screenshareEntry = Screenshare.findOne({ meetingId: Auth.meetingID },
@@ -51,37 +58,66 @@ const screenshareHasAudio = () => {
   return !!screenshareEntry.screenshare.hasAudio;
 }
 
-// if remote screenshare has been started connect and display the video stream
-const presenterScreenshareHasStarted = () => {
-  const hasAudio = screenshareHasAudio();
+const screenshareHasEnded = () => {
+  const amIPresenter = UserListService.isUserPresenter(Auth.userID);
 
-  // WebRTC restrictions may need a capture device permission to release
-  // useful ICE candidates on recvonly/no-gUM peers
-  tryGenerateIceCandidates().then(() => {
-    viewScreenshare(hasAudio);
-  }).catch((error) => {
-    logger.error({
-      logCode: 'screenshare_no_valid_candidate_gum_failure',
-      extraInfo: {
-        errorName: error.name,
-        errorMessage: error.message,
-      },
-    }, `Forced gUM to release additional ICE candidates failed due to ${error.name}.`);
-    // The fallback gUM failed. Try it anyways and hope for the best.
-    viewScreenshare(hasAudio);
-  });
+  if (amIPresenter) {
+    setSharingScreen(false);
+  }
+
+  KurentoBridge.stop();
+  screenShareEndAlert();
 };
 
-const shareScreen = (onFail) => {
+const getMediaElement = () => {
+  return document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
+}
+
+const attachLocalPreviewStream = (mediaElement) => {
+  const stream = KurentoBridge.gdmStream;
+  if (stream && mediaElement) {
+    // Always muted, presenter preview.
+    BridgeService.screenshareLoadAndPlayMediaStream(stream, mediaElement, true);
+  }
+}
+
+const screenshareHasStarted = () => {
+  const amIPresenter = UserListService.isUserPresenter(Auth.userID);
+
+  // Presenter's screen preview is local, so skip
+  if (!amIPresenter) {
+    viewScreenshare();
+  }
+};
+
+const shareScreen = async (onFail) => {
   // stop external video share if running
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+
   if (meeting && meeting.externalVideoUrl) {
     stopWatching();
   }
 
-  BridgeService.getScreenStream().then(stream => {
-    KurentoBridge.kurentoShareScreen(onFail, stream);
-  }).catch(onFail);
+  try {
+    const stream = await BridgeService.getScreenStream();
+    await KurentoBridge.share(stream, onFail);
+    setSharingScreen(true);
+  } catch (error) {
+    return onFail(error);
+  }
+};
+
+const viewScreenshare = () => {
+  const hasAudio = screenshareHasAudio();
+  KurentoBridge.view(hasAudio).catch((error) => {
+    logger.error({
+      logCode: 'screenshare_view_failed',
+      extraInfo: {
+        errorName: error.name,
+        errorMessage: error.message,
+      },
+    }, `Screenshare viewer failure`);
+  });
 };
 
 const screenShareEndAlert = () => AudioService
@@ -89,19 +125,18 @@ const screenShareEndAlert = () => AudioService
     + Meteor.settings.public.app.basename}`
     + '/resources/sounds/ScreenshareOff.mp3');
 
-const unshareScreen = () => {
-  KurentoBridge.kurentoExitScreenShare();
-  screenShareEndAlert();
-};
-
 const dataSavingSetting = () => Settings.dataSaving.viewScreenshare;
 
 export {
+  SCREENSHARE_MEDIA_ELEMENT_NAME,
   isVideoBroadcasting,
-  presenterScreenshareHasEnded,
-  presenterScreenshareHasStarted,
+  screenshareHasEnded,
+  screenshareHasStarted,
   shareScreen,
   screenShareEndAlert,
-  unshareScreen,
   dataSavingSetting,
+  isSharingScreen,
+  setSharingScreen,
+  getMediaElement,
+  attachLocalPreviewStream,
 };

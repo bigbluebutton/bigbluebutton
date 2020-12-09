@@ -7,7 +7,20 @@ import FullscreenButtonContainer from '../fullscreen-button/container';
 import { styles } from './styles';
 import AutoplayOverlay from '../media/autoplay-overlay/component';
 import logger from '/imports/startup/client/logger';
+import cx from 'classnames';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
+import {
+  SCREENSHARE_MEDIA_ELEMENT_NAME,
+  screenshareHasEnded,
+  screenshareHasStarted,
+  getMediaElement,
+  attachLocalPreviewStream,
+} from '/imports/ui/components/screenshare/service';
+import {
+  isStreamStateHealthy,
+  subscribeToStreamStateChange,
+  unsubscribeFromStreamStateChange,
+} from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 
 const intlMessages = defineMessages({
   screenShareLabel: {
@@ -31,49 +44,63 @@ class ScreenshareComponent extends React.Component {
       loaded: false,
       isFullscreen: false,
       autoplayBlocked: false,
+      isStreamHealthy: false,
     };
 
-    this.onVideoLoad = this.onVideoLoad.bind(this);
+    this.onLoadedData = this.onLoadedData.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
     this.handleAllowAutoplay = this.handleAllowAutoplay.bind(this);
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.failedMediaElements = [];
+    this.onStreamStateChange = this.onStreamStateChange.bind(this);
   }
 
   componentDidMount() {
-    const { presenterScreenshareHasStarted } = this.props;
-    presenterScreenshareHasStarted();
-
+    screenshareHasStarted();
     this.screenshareContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
+    // Autoplay failure handling
     window.addEventListener('screensharePlayFailed', this.handlePlayElementFailed);
+    // Stream health state tracker to propagate UI changes on reconnections
+    subscribeToStreamStateChange('screenshare', this.onStreamStateChange);
+    // Attaches the local stream if it exists to serve as the local presenter preview
+    attachLocalPreviewStream(getMediaElement());
   }
 
   componentWillReceiveProps(nextProps) {
     const {
-      isPresenter, unshareScreen,
+      isPresenter,
     } = this.props;
     if (isPresenter && !nextProps.isPresenter) {
-      unshareScreen();
+      screenshareHasEnded();
     }
   }
 
   componentWillUnmount() {
     const {
-      presenterScreenshareHasEnded,
-      unshareScreen,
       getSwapLayout,
       shouldEnableSwapLayout,
       toggleSwapLayout,
     } = this.props;
     const layoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
     if (layoutSwapped) toggleSwapLayout();
-    presenterScreenshareHasEnded();
-    unshareScreen();
+    screenshareHasEnded();
     this.screenshareContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
+    unsubscribeFromStreamStateChange('screenshare', this.onStreamStateChange);
   }
 
-  onVideoLoad() {
+  onStreamStateChange (event) {
+    const { streamState } = event.detail;
+    const { isStreamHealthy } = this.state;
+
+    const newHealthState = isStreamStateHealthy(streamState);
+    event.stopPropagation();
+    if (newHealthState !== isStreamHealthy) {
+      this.setState({ isStreamHealthy: newHealthState });
+    }
+  }
+
+  onLoadedData() {
     this.setState({ loaded: true });
   }
 
@@ -143,12 +170,26 @@ class ScreenshareComponent extends React.Component {
     );
   }
 
-  render() {
-    const { loaded, autoplayBlocked } = this.state;
+  renderAutoplayOverlay() {
     const { intl } = this.props;
 
     return (
-      [!loaded
+      <AutoplayOverlay
+        key={_.uniqueId('screenshareAutoplayOverlay')}
+        autoplayBlockedDesc={intl.formatMessage(intlMessages.autoplayBlockedDesc)}
+        autoplayAllowLabel={intl.formatMessage(intlMessages.autoplayAllowLabel)}
+        handleAllowAutoplay={this.handleAllowAutoplay}
+      />
+    );
+  }
+
+  render() {
+    const { loaded, autoplayBlocked, isStreamHealthy } = this.state;
+    const { intl } = this.props;
+    const shouldRenderReconnect = !isStreamHealthy && loaded;
+
+    return (
+      [(!loaded || shouldRenderReconnect)
         ? (
           <div
             key={_.uniqueId('screenshareArea-')}
@@ -158,28 +199,26 @@ class ScreenshareComponent extends React.Component {
         : null,
       !autoplayBlocked
         ? null
-        : (
-          <AutoplayOverlay
-            key={_.uniqueId('screenshareAutoplayOverlay')}
-            autoplayBlockedDesc={intl.formatMessage(intlMessages.autoplayBlockedDesc)}
-            autoplayAllowLabel={intl.formatMessage(intlMessages.autoplayAllowLabel)}
-            handleAllowAutoplay={this.handleAllowAutoplay}
-          />
-        ),
+        : (this.renderAutoplayOverlay()),
       (
         <div
           className={styles.screenshareContainer}
           key="screenshareContainer"
           ref={(ref) => { this.screenshareContainer = ref; }}
         >
+
           {loaded && this.renderFullscreenButton()}
+
           <video
-            id="screenshareVideo"
-            key="screenshareVideo"
+            id={SCREENSHARE_MEDIA_ELEMENT_NAME}
+            key={SCREENSHARE_MEDIA_ELEMENT_NAME}
             style={{ maxHeight: '100%', width: '100%', height: '100%' }}
             playsInline
-            onLoadedData={this.onVideoLoad}
+            onLoadedData={this.onLoadedData}
             ref={(ref) => { this.videoTag = ref; }}
+            className={cx({
+              [styles.unhealthyStream]: !isStreamHealthy,
+            })}
             muted
           />
         </div>
@@ -193,7 +232,4 @@ export default injectIntl(ScreenshareComponent);
 ScreenshareComponent.propTypes = {
   intl: intlShape.isRequired,
   isPresenter: PropTypes.bool.isRequired,
-  unshareScreen: PropTypes.func.isRequired,
-  presenterScreenshareHasEnded: PropTypes.func.isRequired,
-  presenterScreenshareHasStarted: PropTypes.func.isRequired,
 };
