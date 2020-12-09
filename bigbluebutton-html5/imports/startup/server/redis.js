@@ -57,6 +57,7 @@ class MeetingMessageQueue {
     const isAsync = this.asyncMessages.includes(channel)
       || this.asyncMessages.includes(eventName);
 
+    const beginHandleTimestamp = Date.now();
     let called = false;
 
     check(eventName, String);
@@ -72,7 +73,7 @@ class MeetingMessageQueue {
       if (queueMetrics) {
         const queueId = meetingId || NO_MEETING_ID;
         const currentTimestamp = new Date().getTime();
-        const processTime = currentTimestamp - envelope.timestamp;
+        const processTime = currentTimestamp - beginHandleTimestamp;
         const dataLength = JSON.stringify(data).length;
         if (!metrics[queueId].wasInQueue.hasOwnProperty(eventName)) {
           metrics[queueId].wasInQueue[eventName] = {
