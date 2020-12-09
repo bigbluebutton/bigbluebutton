@@ -457,7 +457,7 @@ public class MeetingService implements MessageListener {
           return null;
       for (Map.Entry<String, Meeting> entry : meetings.entrySet()) {
           Meeting m = entry.getValue();
-          if (m.getTelVoice() == telVoice) {
+          if (telVoice.equals(m.getTelVoice())) {
               if (!m.isForciblyEnded())
                   return m;
           }
@@ -470,7 +470,7 @@ public class MeetingService implements MessageListener {
           return null;
       for (Map.Entry<String, Meeting> entry : meetings.entrySet()) {
           Meeting m = entry.getValue();
-          if (m.getWebVoice() == webVoice) {
+          if (webVoice.equals(m.getWebVoice())) {
               if (!m.isForciblyEnded())
                   return m;
           }
