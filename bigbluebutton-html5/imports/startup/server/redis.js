@@ -5,6 +5,7 @@ import { EventEmitter2 } from 'eventemitter2';
 import { check } from 'meteor/check';
 import fs from 'fs';
 import Logger from './logger';
+import Metrics from './metrics';
 
 // Fake meetingId used for messages that have no meetingId
 const NO_MEETING_ID = '_';
@@ -72,68 +73,9 @@ class MeetingMessageQueue {
 
       if (queueMetrics) {
         const queueId = meetingId || NO_MEETING_ID;
-        const currentTimestamp = new Date().getTime();
-        const processTime = currentTimestamp - beginHandleTimestamp;
         const dataLength = JSON.stringify(data).length;
-        if (!metrics[queueId].wasInQueue.hasOwnProperty(eventName)) {
-          metrics[queueId].wasInQueue[eventName] = {
-            count: 1,
-            payloadSize: {
-              min: dataLength,
-              max: dataLength,
-              last: dataLength,
-              total: dataLength,
-              avg: dataLength,
-            },
-            processingTime: {
-              min: processTime,
-              max: processTime,
-              last: processTime,
-              total: processTime,
-              avg: processTime,
-            },
-          };
-          metrics[queueId].currentlyInQueue[eventName].count -= 1;
 
-          if (!metrics[queueId].currentlyInQueue[eventName].count) {
-            delete metrics[queueId].currentlyInQueue[eventName];
-          }
-        } else {
-          metrics[queueId].currentlyInQueue[eventName].count -= 1;
-
-          if (!metrics[queueId].currentlyInQueue[eventName].count) {
-            delete metrics[queueId].currentlyInQueue[eventName];
-          }
-
-          const processedEventMetrics = metrics[queueId].wasInQueue[eventName];
-
-          processedEventMetrics.count += 1;
-
-          processedEventMetrics.payloadSize.last = dataLength;
-          processedEventMetrics.payloadSize.total += dataLength;
-
-          if (processedEventMetrics.payloadSize.min > dataLength) {
-            processedEventMetrics.payloadSize.min = dataLength;
-          }
-
-          if (processedEventMetrics.payloadSize.max < dataLength) {
-            processedEventMetrics.payloadSize.max = dataLength;
-          }
-
-          processedEventMetrics.payloadSize.avg = processedEventMetrics.payloadSize.total / processedEventMetrics.count;
-
-          if (processedEventMetrics.processingTime.min > processTime) {
-            processedEventMetrics.processingTime.min = processTime;
-          }
-
-          if (processedEventMetrics.processingTime.max < processTime) {
-            processedEventMetrics.processingTime.max = processTime;
-          }
-
-          processedEventMetrics.processingTime.last = processTime;
-          processedEventMetrics.processingTime.total += processTime;
-          processedEventMetrics.processingTime.avg = processedEventMetrics.processingTime.total / processedEventMetrics.count;
-        }
+        Metrics.processEvent(queueId, eventName, dataLength, beginHandleTimestamp);
       }
 
       const queueLength = this.queue.length();
@@ -197,14 +139,7 @@ class RedisPubSub {
     }
 
     if (queueMetrics) {
-      Meteor.setInterval(() => {
-        try {
-          fs.writeFileSync(`${metricsFolderPath}/${new Date().getTime()}-metrics.json`, JSON.stringify(metrics));
-          Logger.info('Metric file successfully writen');
-        } catch (err) {
-          Logger.error('Error on writing metrics to disk.', err);
-        }
-      }, metricsDumpIntervalMs || 10000);
+      Metrics.startDumpFile();
     }
 
     this.emitter = new EventEmitter2();
@@ -271,22 +206,7 @@ class RedisPubSub {
     const queueId = meetingId || NO_MEETING_ID;
 
     if (queueMetrics) {
-      if (!metrics.hasOwnProperty(queueId)) {
-        metrics[queueId] = {
-          currentlyInQueue: {},
-          wasInQueue: {},
-        };
-      }
-
-      if (!metrics[queueId].currentlyInQueue.hasOwnProperty(eventName)) {
-        metrics[queueId].currentlyInQueue[eventName] = {
-          count: 1,
-          payloadSize: message.length,
-        };
-      } else {
-        metrics[queueId].currentlyInQueue[eventName].count += 1;
-        metrics[queueId].currentlyInQueue[eventName].payloadSize += message.length;
-      }
+      Metrics.addEvent(queueId, eventName, message.length);
     }
 
     if (!(queueId in this.mettingsQueues)) {

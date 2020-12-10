@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import AnnotationsStreamer from '/imports/api/annotations/server/streamer';
 import addAnnotation from '../modifiers/addAnnotation';
+import Metrics from '/imports/startup/server/metrics';
 
 const ANNOTATION_PROCCESS_INTERVAL = 60;
 
@@ -36,6 +37,7 @@ export default function handleWhiteboardSend({ header, body }, meetingId) {
   }
 
   annotationsQueue[meetingId].push({ meetingId, whiteboardId, userId, annotation });
+  Metrics.setAnnotationQueueLength(meetingId, annotationsQueue[meetingId].length);
   if (!annotationsRecieverIsRunning) proccess();
 
   return addAnnotation(meetingId, whiteboardId, userId, annotation);
