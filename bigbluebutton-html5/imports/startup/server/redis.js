@@ -10,13 +10,7 @@ import Metrics from './metrics';
 // Fake meetingId used for messages that have no meetingId
 const NO_MEETING_ID = '_';
 
-const metrics = {};
-
-const {
-  metricsDumpIntervalMs,
-  metricsFolderPath,
-  queueMetrics,
-} = Meteor.settings.private.redis.metrics;
+const { queueMetrics } = Meteor.settings.private.redis.metrics;
 
 const makeEnvelope = (channel, eventName, header, body, routing) => {
   const envelope = {
