@@ -91,7 +91,6 @@ class Metrics {
   }
 
   setAnnotationQueueLength(meetingId, size) {
-    console.error('setAnnotationQueueLength', { meetingId, size });
     this.metrics[meetingId].annotationQueueLength = size;
   }
 
