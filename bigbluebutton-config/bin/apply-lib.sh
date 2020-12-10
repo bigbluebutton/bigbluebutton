@@ -217,7 +217,7 @@ HERE
 }
 
 disableMultipleKurentos() {
-  echo "  - Configuring a single Kurento Media Server for listen only, webcam, and screeshare"
+  echo "  - Configuring a single Kurento Media Server for listen only, webcam, and screenshare"
   systemctl stop kurento-media-server.service
 
   for i in `seq 8888 8890`; do
