@@ -293,6 +293,16 @@ public:
     #user activates microphone.
     iceGatheringTimeout: 5000
     sipjsHackViaWs: false
+    #Websocket keepAlive interval (seconds). You may set this to prevent
+    #websocket disconnection in some environments. When set, BBB will send
+    #'\r\n\r\n' string through SIP.js's websocket. If not set, default value
+    #is 0.
+    websocketKeepAliveInterval: 30
+    #Debounce time (seconds) for sending SIP.js's websocket keep alive message.
+    #If not set, default value is 10.
+    websocketKeepAliveDebounce: 10
+    #Trace sip/audio messages in browser. If not set, default value is false.
+    traceSip: false
   presentation:
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32
