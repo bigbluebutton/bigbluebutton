@@ -113,6 +113,7 @@ public class ParamsProcessorUtil {
     private Integer userActivitySignResponseDelayInMinutes = 5;
     private Boolean defaultAllowDuplicateExtUserid = true;
 	private Boolean defaultEndWhenNoModerator = false;
+	private Integer defaultHtml5InstanceId = 1;
 
 	private String formatConfNum(String s) {
 		if (s.length() > 5) {
@@ -464,6 +465,8 @@ public class ParamsProcessorUtil {
 
         String avatarURL = useDefaultAvatar ? defaultAvatarURL : "";
 
+        int html5InstanceId = processHtml5InstanceId(params.get(ApiParams.HTML5_INSTANCE_ID));
+
         // Create the meeting with all passed in parameters.
         Meeting meeting = new Meeting.Builder(externalMeetingId,
                 internalMeetingId, createTime).withName(meetingName)
@@ -485,6 +488,7 @@ public class ParamsProcessorUtil {
 				.withBreakoutRoomsParams(breakoutParams)
 				.withLockSettingsParams(lockSettingsParams)
 				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
+                .withHTML5InstanceId(html5InstanceId)
                 .build();
 
         String configXML = getDefaultConfigXML();
@@ -507,6 +511,7 @@ public class ParamsProcessorUtil {
 		meeting.setUserInactivityInspectTimerInMinutes(userInactivityInspectTimerInMinutes);
 		meeting.setUserActivitySignResponseDelayInMinutes(userActivitySignResponseDelayInMinutes);
 		meeting.setUserInactivityThresholdInMinutes(userInactivityThresholdInMinutes);
+//		meeting.setHtml5InstanceId(html5InstanceId);
 
         // Add extra parameters for breakout room
         if (isBreakout) {
@@ -673,6 +678,17 @@ public class ParamsProcessorUtil {
 		}
 		
 		return rec;
+	}
+
+	public int processHtml5InstanceId(String instanceId) {
+		int html5InstanceId = 1;
+		try {
+            html5InstanceId = Integer.parseInt(instanceId);
+		} catch(Exception ex) {
+            html5InstanceId = defaultHtml5InstanceId;
+		}
+
+		return html5InstanceId;
 	}
 		
 	public int processMaxUser(String maxUsers) {

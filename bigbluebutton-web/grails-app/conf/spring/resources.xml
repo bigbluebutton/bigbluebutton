@@ -106,6 +106,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultTextTrackUrl" value="${defaultTextTrackUrl}"/>
     </bean>
 
+    <bean id="html5LoadBalancingService" class="org.bigbluebutton.api.HTML5LoadBalancingService" init-method="init" />
+    
     <bean id="configServiceHelper" class="org.bigbluebutton.api.ClientConfigServiceHelperImp"/>
 
     <bean id="configService" class="org.bigbluebutton.api.ClientConfigService" init-method="init">

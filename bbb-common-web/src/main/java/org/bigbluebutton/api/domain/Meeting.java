@@ -97,6 +97,7 @@ public class Meeting {
 
 	public final Boolean endWhenNoModerator;
 
+	private Integer html5InstanceId;
 
     public Meeting(Meeting.Builder builder) {
         name = builder.name;
@@ -128,6 +129,7 @@ public class Meeting {
         lockSettingsParams = builder.lockSettingsParams;
         allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
         endWhenNoModerator = builder.endWhenNoModerator;
+        html5InstanceId = builder.html5InstanceId;
 
         userCustomData = new HashMap<>();
 
@@ -228,7 +230,11 @@ public class Meeting {
 		return GuestPolicy.DENY;
 	}
 
-	public long getStartTime() {
+	public int getHtml5InstanceId() { return html5InstanceId; }
+
+    public void setHtml5InstanceId(int instanceId) { html5InstanceId = instanceId; }
+
+    public long getStartTime() {
 		return startTime;
 	}
 	
@@ -668,6 +674,7 @@ public class Meeting {
     	private LockSettingsParams lockSettingsParams;
 		private Boolean allowDuplicateExtUserid;
 		private Boolean endWhenNoModerator;
+		private int html5InstanceId;
 
     	public Builder(String externalId, String internalId, long createTime) {
     		this.externalId = externalId;
@@ -802,6 +809,11 @@ public class Meeting {
 
 		public Builder withEndWhenNoModerator(Boolean endWhenNoModerator) {
     		this.endWhenNoModerator = endWhenNoModerator;
+    		return this;
+		}
+
+		public Builder withHTML5InstanceId(int instanceId) {
+    		html5InstanceId = instanceId;
     		return this;
 		}
     

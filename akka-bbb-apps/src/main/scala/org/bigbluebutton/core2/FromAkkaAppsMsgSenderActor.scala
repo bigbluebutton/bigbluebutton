@@ -21,13 +21,22 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
   def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     val json = JsonUtil.toJson(msg)
 
+    if (msg.envelope.routing.contains("html5InstanceId")) {
+      val html5InstanceId = msg.envelope.routing.get("html5InstanceId")
+      html5InstanceId match {
+        case Some(id) => {
+//          log.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~AAAAAA " + id)
+          msgSender.send(toHTML5RedisChannel.concat(id), json)
+        }
+        case _ => log.info("1 no html5InstanceId for " + msg.envelope.name)
+      }
+      //      log.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~AAAAAA " + html5InstanceId)
+      //      msgSender.send(toHTML5RedisChannel.concat(html5InstanceId), json)
+    } else {
+//      log.info("2 no html5InstanceId for " + msg.envelope.name + "   " + msg.envelope.routing)
+    }
+
     msg.envelope.name match {
-      case SyncGetPresentationPodsRespMsg.NAME => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetMeetingInfoRespMsg.NAME      => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetUsersMeetingRespMsg.NAME     => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetGroupChatsRespMsg.NAME       => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetGroupChatMsgsRespMsg.NAME    => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetVoiceUsersRespMsg.NAME       => msgSender.send(toHTML5RedisChannel, json)
 
       // Sent to FreeSWITCH
       case ScreenshareStartRtmpBroadcastVoiceConfMsg.NAME =>

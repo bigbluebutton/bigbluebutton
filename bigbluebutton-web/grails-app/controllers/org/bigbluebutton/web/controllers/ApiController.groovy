@@ -58,6 +58,7 @@ class ApiController {
   ClientConfigService configService
   PresentationUrlDownloadService presDownloadService
   StunTurnService stunTurnService
+  HTML5LoadBalancingService html5LoadBalancingService
   ResponseBuilder responseBuilder = initResponseBuilder()
 
   def initResponseBuilder = {
@@ -149,6 +150,8 @@ class ApiController {
       }
       // Still no unique voiceBridge found? Let createMeeting handle it.
     }
+
+    params.html5InstanceId = html5LoadBalancingService.findSuitableHTML5Process().toString()
 
     Meeting newMeeting = paramsProcessorUtil.processCreateParams(params)
 
@@ -493,7 +496,7 @@ class ApiController {
     boolean redirectClient = true;
     String clientURL = paramsProcessorUtil.getDefaultClientUrl();
 
-    String meetingInstance = meeting.getMetadata()["bbb-meetinginstance"];
+    String meetingInstance = meeting.getHtml5InstanceId();
     meetingInstance = (meetingInstance == null) ? "1" : meetingInstance;
     clientURL = clientURL.replaceAll("%%INSTANCEID%%", meetingInstance);
 

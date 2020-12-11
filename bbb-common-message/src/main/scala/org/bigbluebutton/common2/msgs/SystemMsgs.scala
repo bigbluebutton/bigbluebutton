@@ -35,7 +35,7 @@ case class GetAllMeetingsReqMsg(
     header: BbbCoreBaseHeader,
     body:   GetAllMeetingsReqMsgBody
 ) extends BbbCoreMsg
-case class GetAllMeetingsReqMsgBody(requesterId: String)
+case class GetAllMeetingsReqMsgBody(requesterId: String, html5InstanceId: Int)
 
 object GetRunningMeetingsReqMsg { val NAME = "GetRunningMeetingsReqMsg" }
 case class GetRunningMeetingsReqMsg(

@@ -12,7 +12,7 @@ trait SyncGetPresentationPodsMsgHdlr {
   def handleSyncGetPresentationPods(state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
 
     def buildSyncGetPresentationPodsRespMsg(pods: Vector[PresentationPodVO]): BbbCommonEnvCoreMsg = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, liveMeeting.props.meetingProp.intId, "nodeJSapp")
+      val routing = Routing.addMsgToHtml5InstanceIdRouting(liveMeeting.props.meetingProp.intId, liveMeeting.props.systemProps.html5InstanceId.toString)
       val envelope = BbbCoreEnvelope(SyncGetPresentationPodsRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(SyncGetPresentationPodsRespMsg.NAME, liveMeeting.props.meetingProp.intId, "nodeJSapp")
 
