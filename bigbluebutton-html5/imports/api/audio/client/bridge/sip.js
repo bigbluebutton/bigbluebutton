@@ -35,6 +35,7 @@ const ICE_GATHERING_TIMEOUT = MEDIA.iceGatheringTimeout || 5000;
 const BRIDGE_NAME = 'sip';
 const WEBSOCKET_KEEP_ALIVE_INTERVAL = MEDIA.websocketKeepAliveInterval || 0;
 const WEBSOCKET_KEEP_ALIVE_DEBOUNCE = MEDIA.websocketKeepAliveDebounce || 10;
+const TRACE_SIP = MEDIA.traceSip || false;
 
 const getAudioSessionNumber = () => {
   let currItem = parseInt(sessionStorage.getItem(AUDIO_SESSION_NUM_KEY), 10);
@@ -372,6 +373,7 @@ class SIPSession {
           connectionTimeout: USER_AGENT_CONNECTION_TIMEOUT_MS,
           keepAliveInterval: WEBSOCKET_KEEP_ALIVE_INTERVAL,
           keepAliveDebounce: WEBSOCKET_KEEP_ALIVE_DEBOUNCE,
+          traceSip: TRACE_SIP,
         },
         sessionDescriptionHandlerFactoryOptions: {
           peerConnectionConfiguration: {

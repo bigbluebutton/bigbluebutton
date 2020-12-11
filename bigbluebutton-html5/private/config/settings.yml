@@ -301,6 +301,8 @@ public:
     #Debounce time (seconds) for sending SIP.js's websocket keep alive message.
     #If not set, default value is 10.
     websocketKeepAliveDebounce: 10
+    #Trace sip/audio messages in browser. If not set, default value is false.
+    traceSip: false
   presentation:
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32
