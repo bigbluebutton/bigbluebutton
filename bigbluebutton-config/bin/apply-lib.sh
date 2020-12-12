@@ -271,6 +271,9 @@ source /etc/bigbluebutton/bbb-conf/apply-lib.sh
 
 #enableMultipleKurentos
 
+# Shorten the FreeSWITCH "you have been muted" and "you have been unmuted" prompts
+# cp -r /etc/bigbluebutton/bbb-conf/sounds /opt/freeswitch/share/freeswitch
+
 HERE
 chmod +x /etc/bigbluebutton/bbb-conf/apply-config.sh
 ## Stop Copying HERE
