@@ -1713,8 +1713,6 @@ if [ $CHECK ]; then
         echo "$TURN (STUN Server)"
         echo "                              $(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m "_:beans/_:bean[@id=\"$STUN\"]/_:constructor-arg[@index=\"0\"]" -v @value $TURN)"
      fi
-fi
-
 
      if [ "$DISTRIB_CODENAME" == "xenial" ]; then
        if ! java -version 2>&1 | grep -q "1.8.0"; then
