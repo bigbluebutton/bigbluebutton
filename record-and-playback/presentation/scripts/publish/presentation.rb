@@ -219,6 +219,38 @@ def svg_render_shape_line(g, slide, shape)
   g << line
 end
 
+def svg_render_shape_eraser(g, slide, shape)
+  g['shape'] = "eraser#{shape[:shape_unique_id]}"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  if $version_atleast_2_0_0
+    g['style'] += ";stroke-linejoin:miter"
+  else
+    g['style'] += ";stroke-linejoin:round"
+  end
+
+  doc = g.document
+  data_points = shape[:data_points]
+  x1 = shape_scale_width(slide, data_points[0])
+  y1 = shape_scale_height(slide, data_points[1])
+  x2 = shape_scale_width(slide, data_points[2])
+  y2 = shape_scale_height(slide, data_points[3])
+
+  width = (x2 - x1).abs
+  height = (y2 - y1).abs
+
+  clip_path = doc.create_element('clipPath', id: g['id']+'-clip')
+  path = doc.create_element('path',
+          d: "M#{x1} #{y1}L#{x2} #{y1}L#{x2} #{y2}L#{x1} #{y2}Z")
+  clip_path << path
+
+  use = doc.create_element('use',
+          'clip-path': "url(##{g['id']+'-clip'})",
+          'xlink:href': "##{g['id'].sub(/-.*/,'')}")
+
+  g << clip_path
+  g << use
+end
+
 def svg_render_shape_rect(g, slide, shape)
   g['shape'] = "rect#{shape[:shape_unique_id]}"
   g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
@@ -417,6 +449,8 @@ def svg_render_shape(canvas, slide, shape, image_id)
     svg_render_shape_ellipse(g, slide, shape)
   when 'text'
     svg_render_shape_text(g, slide, shape)
+  when 'eraser'
+    svg_render_shape_eraser(g, slide, shape)
   when 'poll_result'
     svg_render_shape_poll(g, slide, shape)
   else
