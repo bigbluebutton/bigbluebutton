@@ -17,6 +17,9 @@ import LanguageOverlay from '/imports/ui/components/LanguageOverlay/component'
 import Service from './service';
 import Auth from '/imports/ui/services/auth';
 
+const TRANSLATION_SETTINGS = Meteor.settings.public.media.translation;
+const ORIGIN_TRANSLATION_VOLUME = TRANSLATION_SETTINGS.origineVolume;
+
 class ActionsBar extends PureComponent {
   constructor(props) {
     super(props);
@@ -62,7 +65,7 @@ class ActionsBar extends PureComponent {
           }
         }
         if (result) {
-          mainaudio.volume = 0
+          mainaudio.volume = ORIGIN_TRANSLATION_VOLUME;
           transaudio.volume = 1
         } else {
           mainaudio.volume = 0.8
