@@ -304,9 +304,10 @@ public:
     websocketKeepAliveDebounce: 10
     #Trace sip/audio messages in browser. If not set, default value is false.
     traceSip: false
-    translator:
-      speakDetection:
-        threshold: -70
+    translation:
+      translator:
+        speakDetection:
+          threshold: -70
   presentation:
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32
