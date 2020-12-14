@@ -17,7 +17,7 @@ export default function startTyping(meetingId, userId, chatId) {
 
   const user = Users.findOne(selector);
 
-  const mod = {
+  const modifier = {
     meetingId,
     userId,
     name: user.name,
@@ -33,19 +33,19 @@ export default function startTyping(meetingId, userId, chatId) {
   });
 
   if (typingUser) {
-    if (mod.time - typingUser.time <= TYPING_TIMEOUT - 100) return;
+    if (modifier.time - typingUser.time <= TYPING_TIMEOUT - 100) return;
   }
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Typing indicator update error: ${err}`);
+  try {
+    const { numberAffected } = UsersTyping.upsert(selector, modifier);
+
+    if (numberAffected) {
+      Logger.debug('Typing indicator update', { userId, chatId });
+      Meteor.setTimeout(() => {
+        stopTyping(meetingId, userId);
+      }, TYPING_TIMEOUT);
     }
-
-    Meteor.setTimeout(() => {
-      stopTyping(meetingId, userId);
-    }, TYPING_TIMEOUT);
-    return Logger.debug(`Typing indicator update for userId={${userId}} chatId={${chatId}}`);
-  };
-
-  return UsersTyping.upsert(selector, mod, cb);
+  } catch (err) {
+    Logger.error(`Typing indicator update error: ${err}`);
+  }
 }

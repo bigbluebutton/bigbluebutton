@@ -86,6 +86,8 @@ class UserNotes extends Component {
 
     return (
       <div
+        aria-label={intl.formatMessage(intlMessages.sharedNotes)}
+        aria-describedby="lockedNote"
         role="button"
         tabIndex={0}
         className={styles.listItem}
@@ -100,7 +102,7 @@ class UserNotes extends Component {
             ? (
               <div className={styles.noteLock}>
                 <Icon iconName="lock" />
-                <span>{`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}</span>
+                <span id="lockedNote">{`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}</span>
               </div>
             ) : null
           }

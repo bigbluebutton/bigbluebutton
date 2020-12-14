@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import cx from 'classnames';
 import browser from 'browser-detect';
@@ -109,11 +109,12 @@ const intlMessages = defineMessages({
   },
 });
 
+const BREAKOUT_LIM = Meteor.settings.public.app.breakoutRoomLimit;
 const MIN_BREAKOUT_ROOMS = 2;
-const MAX_BREAKOUT_ROOMS = 8;
+const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   isInvitation: PropTypes.bool.isRequired,
   meetingName: PropTypes.string.isRequired,
   users: PropTypes.arrayOf(PropTypes.object).isRequired,

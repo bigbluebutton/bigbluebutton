@@ -16,13 +16,13 @@ export default function updateNote(noteId, revs) {
     },
   };
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Updating note pad: ${err}`);
+  try {
+    const numberAffected = Note.update(selector, modifier, { multi: true });
+
+    if (numberAffected) {
+      Logger.verbose('Notes: update note pad', { pad: noteId, revs });
     }
-
-    return Logger.verbose(`Update note pad=${noteId} revs=${revs}`);
-  };
-
-  return Note.update(selector, modifier, { multi: true }, cb);
+  } catch (err) {
+    Logger.error('Notes: error when updating note pad', { err });
+  }
 }

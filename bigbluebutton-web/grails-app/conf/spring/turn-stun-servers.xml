@@ -25,7 +25,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             ">
 
     <bean id="stun1" class="org.bigbluebutton.web.services.turn.StunServer">
-        <constructor-arg index="0" value="stun:stun.freeswitch.org"/>
+        <constructor-arg index="0" value="stun:stun.l.google.com:19302"/>
     </bean>
 
     <!--bean id="stun2" class="org.bigbluebutton.web.services.turn.StunServer">
