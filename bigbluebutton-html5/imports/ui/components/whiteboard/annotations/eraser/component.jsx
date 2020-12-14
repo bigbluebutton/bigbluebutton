@@ -46,7 +46,7 @@ export default class EraserComponent extends Component {
 
   render() {
     const results = this.getCoordinates();
-    const { annotation, slideWidth} = this.props;
+    const { annotation } = this.props;
     const clipId = "clip-" + annotation.id ;
     return (
       <g>
