@@ -19,6 +19,7 @@ import Auth from '/imports/ui/services/auth';
 
 const TRANSLATION_SETTINGS = Meteor.settings.public.media.translation;
 const ORIGIN_TRANSLATION_VOLUME = TRANSLATION_SETTINGS.origineVolume;
+const TRANSLATOR_SPEAKING_DELAY = TRANSLATION_SETTINGS.translator.delay;
 
 class ActionsBar extends PureComponent {
   constructor(props) {
@@ -55,7 +56,7 @@ class ActionsBar extends PureComponent {
           if (meeting1.hasOwnProperty("translatorIsSpeaking")) {
             result = meeting1.translatorIsSpeaking;
             if (meeting1.hasOwnProperty("translatorSpeakingUtcTimestamp")) {
-              if (meeting1.translatorSpeakingUtcTimestamp + 5000 > Date.now() && !result) {
+              if (meeting1.translatorSpeakingUtcTimestamp + TRANSLATOR_SPEAKING_DELAY > Date.now() && !result) {
                 result = true;
               }
               if (meeting1.translatorSpeakingUtcTimestamp + 60000 < Date.now()) {

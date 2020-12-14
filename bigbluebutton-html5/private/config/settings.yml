@@ -308,6 +308,7 @@ public:
       origineVolume: 0.8
       translator:
         speakDetection:
+          delay: 5000
           threshold: -70
   presentation:
     defaultPresentationFile: default.pdf
