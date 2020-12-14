@@ -19,8 +19,8 @@ import Auth from '/imports/ui/services/auth';
 
 const TRANSLATION_SETTINGS = Meteor.settings.public.media.translation;
 const ORIGIN_TRANSLATION_VOLUME = TRANSLATION_SETTINGS.origineVolume;
-const TRANSLATOR_SPEAKING_DELAY = TRANSLATION_SETTINGS.translator.delay;
-const TRANSLATOR_SPEAKING_TIMEOUT = TRANSLATION_SETTINGS.translator.timeout;
+const TRANSLATOR_SPEAKING_DELAY = TRANSLATION_SETTINGS.translator.speakDetection.delay;
+const TRANSLATOR_SPEAKING_TIMEOUT = TRANSLATION_SETTINGS.translator.speakDetection.timeout;
 
 class ActionsBar extends PureComponent {
   constructor(props) {
