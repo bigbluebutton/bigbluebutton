@@ -20,6 +20,7 @@ import Auth from '/imports/ui/services/auth';
 const TRANSLATION_SETTINGS = Meteor.settings.public.media.translation;
 const ORIGIN_TRANSLATION_VOLUME = TRANSLATION_SETTINGS.origineVolume;
 const TRANSLATOR_SPEAKING_DELAY = TRANSLATION_SETTINGS.translator.delay;
+const TRANSLATOR_SPEAKING_TIMEOUT = TRANSLATION_SETTINGS.translator.timeout;
 
 class ActionsBar extends PureComponent {
   constructor(props) {
@@ -59,7 +60,7 @@ class ActionsBar extends PureComponent {
               if (meeting1.translatorSpeakingUtcTimestamp + TRANSLATOR_SPEAKING_DELAY > Date.now() && !result) {
                 result = true;
               }
-              if (meeting1.translatorSpeakingUtcTimestamp + 60000 < Date.now()) {
+              if (meeting1.translatorSpeakingUtcTimestamp + TRANSLATOR_SPEAKING_TIMEOUT < Date.now()) {
                 result = false;
               }
             }
