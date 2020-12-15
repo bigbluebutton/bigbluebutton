@@ -35,7 +35,6 @@ class WhiteboardApp2x(implicit val context: ActorContext)
       if (WhiteboardKeyUtil.PENCIL_TYPE == annotation.annotationType ||
         WhiteboardKeyUtil.MARKER_TYPE == annotation.annotationType) {
         rtnAnnotation = liveMeeting.wbModel.endAnnotationPencil(annotation.wbId, annotation.userId, annotation, drawEndOnly)
-
       } else {
         rtnAnnotation = liveMeeting.wbModel.updateAnnotation(annotation.wbId, annotation.userId, annotation)
       }
