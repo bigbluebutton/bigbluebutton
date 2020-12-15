@@ -138,29 +138,20 @@ const ScreenshareButton = ({
 }) => {
   // This is the failure callback that will be passed to the /api/screenshare/kurento.js
   // script on the presenter's call
-  const onFail = (normalizedError) => {
-    const { errorCode, errorMessage, errorReason } = normalizedError;
-    const error = errorCode || errorMessage || errorReason;
-    // We have a properly mapped error for this. Exit screenshare and show  a toast notification
-    if (intlMessages[error]) {
-      screenshareHasEnded();
-      notify(intl.formatMessage(intlMessages[error]), 'error', 'desktop');
-    } else {
-      // Unmapped error. Log it (so we can infer what's going on), close screenSharing
-      // session and display generic error message
-      logger.error({
-        logCode: 'screenshare_default_error',
-        extraInfo: {
-          errorCode, errorMessage, errorReason,
-        },
-      }, 'Default error handler for screenshare');
-      screenshareHasEnded();
-      notify(intl.formatMessage(intlMessages.genericError), 'error', 'desktop');
-    }
+  const onFail = (error) => {
+    const { errorCode, errorMessage, errorReason } = error;
+    const errorLocale = errorCode || errorMessage || errorReason;
+    logger.error({
+      logCode: 'screenshare_failed',
+      extraInfo: { errorCode, errorMessage, errorReason },
+    }, 'Screenshare failed');
+
+    const localizedError = intlMessages[error] || intlMessages.genericError;
+    notify(intl.formatMessage(localizedError), 'error', 'desktop');
+    screenshareHasEnded();
+
     // Don't trigger the screen share end alert if presenter click to cancel on screen share dialog
-    if (error !== 'NotAllowedError') {
-      screenShareEndAlert();
-    }
+    if (error !== 'NotAllowedError') screenShareEndAlert();
   };
 
   const renderScreenshareUnavailableModal = () => {
