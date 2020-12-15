@@ -38,6 +38,8 @@ import org.bigbluebutton.api.util.HTML5ProcessLine;
 public class HTML5LoadBalancingService {
     private static Logger log = LoggerFactory.getLogger(HTML5LoadBalancingService.class);
     private ArrayList<HTML5ProcessLine> list = new ArrayList<HTML5ProcessLine>();
+    private final int MAX_NUMBER_OF_HTML5_INSTANCES = 20;
+    private int lastSelectedInstanceId = 0;
 
     public void init() {
         log.info("HTML5LoadBalancingService initialised");
@@ -62,7 +64,16 @@ public class HTML5LoadBalancingService {
         }
     }
 
-    public int findSuitableHTML5Process() {
+    private boolean listItemWithIdExists(int id) {
+        for (HTML5ProcessLine line : this.list) {
+            if (line.instanceId == id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int findSuitableHTML5ProcessByLookingAtCPU() {
         this.scanHTML5processes();
         if (list.isEmpty()) {
             log.warn("Did not find any instances of html5 process running");
@@ -78,6 +89,23 @@ public class HTML5LoadBalancingService {
             }
         }
         return instanceIDofSmallestCPUValue;
+    }
+
+    public int findSuitableHTML5ProcessByRoundRobin() {
+        this.scanHTML5processes();
+        if (list.isEmpty()) {
+            log.warn("Did not find any instances of html5 process running");
+            return 1;
+        }
+
+        for (int i = lastSelectedInstanceId + 1; i <= MAX_NUMBER_OF_HTML5_INSTANCES + lastSelectedInstanceId; i++) {
+            int k = i % (MAX_NUMBER_OF_HTML5_INSTANCES + 1);
+            if (this.listItemWithIdExists(k)) {
+                this.lastSelectedInstanceId = k;
+                return k;
+            }
+        }
+        return 1;
     }
 
 }

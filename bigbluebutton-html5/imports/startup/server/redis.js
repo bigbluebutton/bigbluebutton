@@ -136,7 +136,7 @@ class RedisPubSub {
 
     const channelsToSubscribe = this.config.subscribeTo;
 
-    channelsToSubscribe.push(this.customRedisChannel)
+    channelsToSubscribe.push(this.customRedisChannel);
 
     channelsToSubscribe.forEach((channel) => {
       this.sub.psubscribe(channel);
@@ -193,7 +193,7 @@ class RedisPubSub {
       const newIntId = parsedMessage.core.body.props.meetingProp.intId;
       const instanceId = parsedMessage.core.body.props.systemProps.html5InstanceId;
 
-      Logger.warn(`MeetingCreatedEvtMsg (name=${parsedMessage.core.body.props.meetingProp.name})received with meetingInstance: ${instanceId} -- this is instance: ${this.instanceId}`);
+      Logger.warn(`${eventName} (name=${parsedMessage.core.body.props.meetingProp.name}) received with meetingInstance: ${instanceId} -- this is instance: ${this.instanceId}`);
 
       if (instanceId === this.instanceId) {
         this.mettingsQueues[newIntId] = new MeetingMessageQueue(this.emitter, async, this.redisDebugEnabled);
@@ -203,7 +203,8 @@ class RedisPubSub {
     }
 
     if (channel !== this.customRedisChannel && queueId in this.mettingsQueues) {
-      Logger.error("Consider routing " + eventName + " to " + this.customRedisChannel);
+      Logger.error(`Consider routing ${eventName} to ${this.customRedisChannel}` );
+      // Logger.error(`Consider routing ${eventName} to ${this.customRedisChannel}` + message);
     }
 
     if (channel === this.customRedisChannel || queueId in this.mettingsQueues) {

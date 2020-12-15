@@ -151,7 +151,7 @@ class ApiController {
       // Still no unique voiceBridge found? Let createMeeting handle it.
     }
 
-    params.html5InstanceId = html5LoadBalancingService.findSuitableHTML5Process().toString()
+    params.html5InstanceId = html5LoadBalancingService.findSuitableHTML5ProcessByRoundRobin().toString()
 
     Meeting newMeeting = paramsProcessorUtil.processCreateParams(params)
 
