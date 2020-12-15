@@ -37,6 +37,31 @@ HTML5_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings
 
 
 #
+# Set CPUSchedulingPolicy=fifo and Nice=19 for HTML5 Client's node.js process.
+#  This should avoid user disconnects or interrupts in situations of high load on server
+#
+# Enabled by default. Call "disableNodeFifo" in /etc/bigbluebutton/bbb-conf/apply-config.sh to disable.
+#
+enableNodeFifo() {
+  if [ ! "$noNodeFifo" ]; then
+    [ -d /etc/systemd/system/bbb-html5.service.d/ ] || mkdir -p /etc/systemd/system/bbb-html5.service.d/
+    echo -e '[Service]\nCPUSchedulingPolicy=fifo\nNice=19' > /etc/systemd/system/bbb-html5.service.d/override.conf
+    systemctl daemon-reload
+  fi
+}
+
+#
+# Disable CPUSchedulingPolicy and Nice for HTML5 Client's node.js process
+#
+disableNodeFifo() {
+  noNodeFilo=true
+  [ -f /etc/systemd/system/bbb-html5.service.d/override.conf ] && rm -f /etc/systemd/system/bbb-html5.service.d/override.conf
+  [ -d /etc/systemd/system/bbb-html5.service.d/ ] && rmdir /etc/systemd/system/bbb-html5.service.d/ && systemctl daemon-reload
+}
+enableNodeFifo
+
+
+#
 # Enable Looging of the HTML5 client for debugging
 #
 enableHTML5ClientLog() {
@@ -278,4 +303,5 @@ HERE
 chmod +x /etc/bigbluebutton/bbb-conf/apply-config.sh
 ## Stop Copying HERE
 }
+
 
