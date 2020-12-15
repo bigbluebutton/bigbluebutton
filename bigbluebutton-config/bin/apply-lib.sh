@@ -304,4 +304,3 @@ chmod +x /etc/bigbluebutton/bbb-conf/apply-config.sh
 ## Stop Copying HERE
 }
 
-
