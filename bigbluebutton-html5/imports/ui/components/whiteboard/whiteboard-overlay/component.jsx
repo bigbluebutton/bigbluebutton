@@ -166,7 +166,7 @@ export default class WhiteboardOverlay extends Component {
           whiteboardId={whiteboardId}
         />
       );
-    } if (tool === 'pencil') {
+    } if (tool === 'pencil' || tool === 'marker') {
       return (
         <PencilDrawListener
           userId={userId}
