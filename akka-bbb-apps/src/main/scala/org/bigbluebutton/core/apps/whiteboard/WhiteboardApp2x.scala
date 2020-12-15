@@ -6,7 +6,6 @@ import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.WhiteboardKeyUtil
 
-
 case class Whiteboard(id: String, multiUser: Boolean, changedModeOn: Long, annotationCount: Int, annotationsMap: scala.collection.immutable.Map[String, scala.collection.immutable.List[AnnotationVO]])
 
 class WhiteboardApp2x(implicit val context: ActorContext)
