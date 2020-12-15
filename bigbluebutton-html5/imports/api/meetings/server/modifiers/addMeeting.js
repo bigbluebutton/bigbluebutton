@@ -86,6 +86,9 @@ export default function addMeeting(meeting) {
       lockOnJoinConfigurable: Boolean,
       lockedLayout: Boolean,
     },
+    systemProps: {
+      html5InstanceId: Number,
+    },
   });
 
   const {
