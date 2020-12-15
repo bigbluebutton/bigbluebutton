@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { WebAppInternals } from 'meteor/webapp';
 import Langmap from 'langmap';
 import fs from 'fs';
+import path from 'path';
 import heapdump from 'heapdump';
 import Users from '/imports/api/users';
 import './settings';
@@ -124,6 +125,14 @@ Meteor.startup(() => {
     memwatch.on('leak', (info) => {
       Logger.info('memwatch leak', info);
     });
+  }
+
+  if (memoryMonitoringSettings.heapdump.enabled) {
+    const { heapdumpFolderPath, heapdumpIntervalMs } = memoryMonitoringSettings.heapdump;
+    Meteor.setInterval(() => {
+      heapdump.writeSnapshot(path.join(heapdumpFolderPath, `${new Date().toISOString()}.heapsnapshot`));
+      Logger.info('Heapsnapshot file successfully written');
+    }, heapdumpIntervalMs);
   }
 
   if (CDN_URL.trim()) {

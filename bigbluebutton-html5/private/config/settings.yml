@@ -457,6 +457,7 @@ private:
       queueMetrics: false
       metricsDumpIntervalMs: 60000
       metricsFolderPath: METRICS_FOLDER
+      removeMeetingOnEnd: true
     channels:
       toAkkaApps: to-akka-apps-redis-channel
       toThirdParty: to-third-party-redis-channel
@@ -480,6 +481,8 @@ private:
       enabled: false
     heapdump:
       enabled: false
+      heapdumpFolderPath: HEAPDUMP_FOLDER
+      heapdumpIntervalMs: 3600000
   minBrowserVersions:
     - browser: chrome
       version: 72
