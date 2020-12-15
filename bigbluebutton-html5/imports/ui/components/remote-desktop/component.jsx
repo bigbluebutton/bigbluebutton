@@ -7,6 +7,7 @@ import FullscreenButtonContainer from '../fullscreen-button/container';
 import { defineMessages, injectIntl } from 'react-intl';
 import VncDisplay from 'react-vnc-display';
 import Auth from '/imports/ui/services/auth';
+import { notify } from '/imports/ui/services/notification';
 
 import { styles } from './styles';
 
@@ -35,29 +36,23 @@ class RemoteDesktop extends Component {
       viewOnly: START_VIEWONLY,
     };
 
-    this.player = null;
-    this.handleResize = this.handleResize.bind(this);
-    this.onFullscreenChange = this.onFullscreenChange.bind(this);
-    this.resizeListener = () => {
-      setTimeout(this.handleResize, 0);
-    };
-
     /* window.remoteDesktop is globally accessible so that the lock button can access it */
     window.remoteDesktop = this;
   }
 
-  componentDidMount() {
-    window.addEventListener('layoutSizesSets', this.resizeListener);
+  async componentDidMount() {
+    window.addEventListener('layoutSizesSets', this.handleResize);
     this.playerParent.addEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('layoutSizesSets', this.resizeListener);
+    window.removeEventListener('layoutSizesSets', this.handleResize);
     this.playerParent.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    this.unmounting = true;
     delete window.remoteDesktop;
   }
 
-  handleResize() {
+  handleResize = () => {
 
     /* The first time through this code, it's likely that this.playerParent
      * won't be set yet, and that means the full screen component won't
@@ -80,21 +75,27 @@ class RemoteDesktop extends Component {
     this.player.rfb._windowResize();
   }
 
-  onFullscreenChange() {
+  onFullscreenChange = () => {
     const { isFullscreen } = this.state;
     const newIsFullscreen = FullscreenService.isFullScreen(this.playerParent);
     if (isFullscreen !== newIsFullscreen) {
       this.setState({ isFullscreen: newIsFullscreen });
     }
-    setTimeout(this.handleResize, 0);
+    this.handleResize();
   }
 
-  onConnect = () => {
-      /* We have to handshake a bit with the VNC server before
-       * we know the remote screen geometry.  Therefore, once
-       * we finish connecting, schedule a resize.
-       */
-      setTimeout(this.handleResize, 0);
+  onSecurityFailure = () => {
+      notify('VNC security failure');
+  }
+
+  onCredentialsRequired = () => {
+      notify('VNC authentication failure');
+  }
+
+  onDisconnect = () => {
+      if (! this.unmounting) {
+          notify('VNC disconnect');
+      }
   }
 
   renderFullscreenButton() {
@@ -132,7 +133,7 @@ class RemoteDesktop extends Component {
       <div
         id="remote-desktop"
         data-test="remoteDesktop"
-        style={{width: '100%', height: '100%', display: 'flex', 'justify-content': 'center'}}
+        style={{width: '100%', height: '100%', display: 'flex'}}
         ref={(ref) => { this.playerParent = ref; }}
       >
         {this.renderFullscreenButton()}
@@ -143,7 +144,14 @@ class RemoteDesktop extends Component {
           background="transparent"
           url={remoteDesktopUrl}
           credentials={{password: this.vncPassword}}
-          onConnect={this.onConnect}
+	 /* We have to handshake a bit with the VNC server before
+	  * we know the remote screen geometry.  Therefore, once
+	  * we finish connecting, process a resize.
+	  */
+          onConnect={this.handleResize}
+          onSecurityFailure={this.onSecurityFailure}
+          onCredentialsRequired={this.onCredentialsRequired}
+          onDisconnect={this.onDisconnect}
           viewOnly={viewOnly}
           shared
           scaleViewport
