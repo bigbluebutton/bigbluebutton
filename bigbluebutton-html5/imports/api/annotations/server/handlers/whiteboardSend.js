@@ -18,6 +18,7 @@ const proccess = () => {
   annotationsRecieverIsRunning = true;
   Object.keys(annotationsQueue).forEach((meetingId) => {
     AnnotationsStreamer(meetingId).emit('added', { meetingId, annotations: annotationsQueue[meetingId] });
+    Metrics.setAnnotationQueueLength(meetingId, 0);
   });
   annotationsQueue = {};
 

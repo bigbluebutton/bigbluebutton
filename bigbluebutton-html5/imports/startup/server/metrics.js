@@ -5,7 +5,11 @@ import path from 'path';
 import { Meteor } from 'meteor/meteor';
 import Logger from './logger';
 
-const { metricsDumpIntervalMs, metricsFolderPath } = Meteor.settings.private.redis.metrics;
+const {
+  metricsDumpIntervalMs,
+  metricsFolderPath,
+  removeMeetingOnEnd,
+} = Meteor.settings.private.redis.metrics;
 
 class Metrics {
   constructor() {
@@ -123,6 +127,15 @@ class Metrics {
         Logger.error('Error on writing metrics to disk.', err);
       }
     }, metricsDumpIntervalMs);
+  }
+
+  removeMeeting(meetingId) {
+    if (removeMeetingOnEnd) {
+      Logger.info(`Removing meeting ${meetingId} from metrics`);
+      delete this.metrics[meetingId];
+    } else {
+      Logger.info(`Skipping remove of meeting ${meetingId} from metrics`);
+    }
   }
 }
 
