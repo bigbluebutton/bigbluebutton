@@ -269,7 +269,7 @@ def svg_render_shape_marker(g, slide, shape)
     path = path.join('')
     bg_path = doc.create_element('path', d: path, style: "stroke:##{shape[:color]};stroke-linecap:square;stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};fill:none")
     mask = doc.create_element('mask', id: g['id']+'-mask')
-    mask_path = doc.create_element('path', d: path, style: "stroke:#a0a0a0;stroke-linecap:square;stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};fill:none")
+    mask_path = doc.create_element('path', d: path, style: "stroke:##{shape[:color] == "ffffff" ? "ffffff" : "a0a0a0"};stroke-linecap:square;stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};fill:none")
     mask << mask_path
     use = doc.create_element('use',
             'mask': "url(##{g['id']+'-mask'})",
