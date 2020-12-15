@@ -36,7 +36,8 @@ public:
     # can generate excessive overhead to the server. We recommend
     # this value to be kept under 12.
     breakoutRoomLimit: 8
-    customHeartbeat: false
+    # https://github.com/bigbluebutton/bigbluebutton/pull/10826
+    customHeartbeat: true
     defaultSettings:
       application:
         animations: true
