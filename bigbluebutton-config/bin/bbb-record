@@ -713,6 +713,7 @@ fi
 #fi
 
 if [ $CHECK ]; then
+
    if [ -f /var/bigbluebutton/recording/process/slides ]; then
       if [ ! -w  /var/bigbluebutton/recording/process/slides ]; then
          print_header

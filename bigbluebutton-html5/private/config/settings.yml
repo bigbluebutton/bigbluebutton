@@ -38,6 +38,7 @@ public:
       duration: 4000
     remainingTimeThreshold: 30
     remainingTimeAlertThreshold: 1
+    enableDebugWindow: true
     # Warning: increasing the limit of breakout rooms per meeting
     # can generate excessive overhead to the server. We recommend
     # this value to be kept under 12.
@@ -88,6 +89,9 @@ public:
       openActions:
         accesskey: A
         descId: openActions
+      openDebugWindow:
+        accesskey: K
+        descId: openDebugWindow
     branding:
       displayBrandingArea: true
     connectionTimeout: 60000

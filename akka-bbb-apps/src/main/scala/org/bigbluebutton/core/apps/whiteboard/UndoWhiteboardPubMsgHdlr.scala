@@ -11,7 +11,7 @@ trait UndoWhiteboardPubMsgHdlr extends RightsManagementTrait {
   def handle(msg: UndoWhiteboardPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     def broadcastEvent(msg: UndoWhiteboardPubMsg, removedAnnotationId: String): Unit = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
+      val routing = Routing.addMsgToHtml5InstanceIdRouting(liveMeeting.props.meetingProp.intId, liveMeeting.props.systemProps.html5InstanceId.toString)
       val envelope = BbbCoreEnvelope(UndoWhiteboardEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(UndoWhiteboardEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 

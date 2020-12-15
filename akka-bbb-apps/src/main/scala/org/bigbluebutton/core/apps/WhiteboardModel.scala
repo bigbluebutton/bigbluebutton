@@ -154,7 +154,7 @@ class WhiteboardModel extends SystemConfiguration {
 
       var newUsersAnnotations: List[AnnotationVO] = oldAnnotationOption match {
         //As part of the whiteboard improvments for the HTML5 client it no longer sends
-        //DRAW_START and DRAW_UPDATE events (#9019). Client now sends drawEndOnly in the 
+        //DRAW_START and DRAW_UPDATE events (#9019). Client now sends drawEndOnly in the
         //SendWhiteboardAnnotationPubMsg so akka knows not to expect usersAnnotations to be accumulating.
         case Some(annotation) if (drawEndOnly == true) => usersAnnotations
         case Some(annotation)                          => usersAnnotations.tail

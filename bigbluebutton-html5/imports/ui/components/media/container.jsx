@@ -64,7 +64,7 @@ class MediaContainer extends Component {
     } = prevProps;
 
     if (isScreensharing !== wasScreenSharing) {
-      if (wasScreenSharing) {
+      if (!wasScreenSharing) {
         notify(intl.formatMessage(intlMessages.screenshareStarted), 'info', 'desktop');
       } else {
         notify(intl.formatMessage(intlMessages.screenshareEnded), 'info', 'desktop');
