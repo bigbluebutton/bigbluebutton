@@ -21,9 +21,6 @@ class ScreenshareBroker extends BaseBroker {
     this.ws = null;
     this.webRtcPeer = null;
     this.hasAudio = false;
-    this.userName;
-    this.caleeName;
-    this.iceServers;
 
     // Optional parameters are: userName, caleeName, iceServers, hasAudio
     Object.assign(this, options);

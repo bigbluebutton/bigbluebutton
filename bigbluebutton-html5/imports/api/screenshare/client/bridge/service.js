@@ -101,46 +101,6 @@ const getScreenStream = async () => {
   }
 }
 
-const normalizeError = (error = {}) => {
-  const errorMessage = error.errorMessage || error.name || error.message || error.reason || 'Unknown error';
-  const errorCode = error.errorCode || error.code || undefined;
-  const errorReason = error.reason || error.id || 'Undefined reason';
-
-  return { errorMessage, errorCode, errorReason };
-}
-
-const handlePresenterFailure = (error, started = false) => {
-  const normalizedError = normalizeError(error);
-  if (!started) {
-    logger.error({
-      logCode: 'screenshare_presenter_error_failed_to_connect',
-      extraInfo: { ...normalizedError },
-    }, `Screenshare presenter failed when trying to start due to ${normalizedError.errorMessage}`);
-  } else {
-    logger.error({
-      logCode: 'screenshare_presenter_error_failed_after_success',
-      extraInfo: { ...normalizedError },
-    }, `Screenshare presenter failed during working session due to ${normalizedError.errorMessage}`);
-  }
-  return normalizedError;
-}
-
-const handleViewerFailure = (error, started = false) => {
-  const normalizedError = normalizeError(error);
-  if (!started) {
-    logger.error({
-      logCode: 'screenshare_viewer_error_failed_to_connect',
-      extraInfo: { ...normalizedError },
-    }, `Screenshare viewer failed when trying to start due to ${normalizedError.errorMessage}`);
-  } else {
-    logger.error({
-      logCode: 'screenshare_viewer_error_failed_after_success',
-      extraInfo: { ...normalizedError },
-    }, `Screenshare viewer failed during working session due to ${normalizedError.errorMessage}`);
-  }
-  return normalizedError;
-}
-
 const getIceServers = (sessionToken) => {
   return fetchWebRTCMappedStunTurnServers(sessionToken).catch(error => {
     logger.error({
@@ -194,9 +154,6 @@ export default {
   hasDisplayMedia,
   getConferenceBridge,
   getScreenStream,
-  normalizeError,
-  handlePresenterFailure,
-  handleViewerFailure,
   getIceServers,
   getNextReconnectionInterval,
   streamHasAudioTrack,

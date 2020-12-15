@@ -32,6 +32,7 @@ export default class KurentoScreenshareBridge {
     this.role;
     this.broker;
     this._gdmStream;
+    this.hasAudio = false;
     this.connectionAttempts = 0;
     this.reconnecting = false;
     this.reconnectionTimeout;
@@ -51,7 +52,12 @@ export default class KurentoScreenshareBridge {
     const stream = this.gdmStream;
 
     logger.warn({
-      logCode: 'screenshare_presenter_reconnect'
+      logCode: 'screenshare_presenter_reconnect',
+      extraInfo: {
+        reconnecting: this.reconnecting,
+        role: this.role,
+        bridge: BRIDGE_NAME
+      },
     }, `Screenshare presenter session is reconnecting`);
 
     this.stop();
@@ -77,12 +83,18 @@ export default class KurentoScreenshareBridge {
 
     logger.warn({
       logCode: 'screenshare_viewer_reconnect',
+      extraInfo: {
+        reconnecting: this.reconnecting,
+        role: this.role,
+        bridge: BRIDGE_NAME
+      },
     }, `Screenshare viewer session is reconnecting`);
+
     // Cleanly stop everything before triggering a reconnect
     this.stop();
     // Create new reconnect interval time
     this.restartIntervalMs = BridgeService.getNextReconnectionInterval(currentRestartIntervalMs);
-    this.view(stream, this.onerror).then(() => {
+    this.view(this.hasAudio).then(() => {
       this.clearReconnectionTimeout();
     }).catch(error => {
       // Error handling is a no-op because it will be "handled" in handleViewerFailure
@@ -151,16 +163,31 @@ export default class KurentoScreenshareBridge {
 
   handleBrokerFailure(error) {
     mapErrorCode(error);
-    BridgeService.handleViewerFailure(error, this.broker.started);
+    const { errorMessage, errorCause, errorCode } = error;
+
+    logger.error({
+      logCode: 'screenshare_failure',
+      extraInfo: {
+        errorMessage, errorCode, errorCause,
+        role: this.broker.role,
+        started: this.broker.started,
+        reconnecting: this.reconnecting,
+        bridge: BRIDGE_NAME
+      },
+    }, 'Screenshare broker failure');
+
     // Screensharing was already successfully negotiated and error occurred during
     // during call; schedule a reconnect
     // If the session has not yet started, a reconnect should already be scheduled
     if (this.broker.started) {
       this.scheduleReconnect();
     }
+
+    return error;
   }
 
   async view(hasAudio = false) {
+    this.hasAudio = hasAudio;
     this.role = RECV_ROLE;
     const iceServers = await BridgeService.getIceServers(Auth.sessionToken);
     const options = {
@@ -180,7 +207,6 @@ export default class KurentoScreenshareBridge {
 
     this.broker.onstart = this.handleViewerStart.bind(this);
     this.broker.onerror = this.handleBrokerFailure.bind(this);
-    this.broker.onstreamended = this.stop.bind(this);
     return this.broker.view().finally(this.scheduleReconnect.bind(this));
   }
 
@@ -193,54 +219,54 @@ export default class KurentoScreenshareBridge {
     this.connectionAttempts = 0;
   }
 
-  async share(stream, onFailure) {
-    this.onerror = onFailure;
-    this.connectionAttempts += 1;
-    this.role = SEND_ROLE;
-    this.gdmStream = stream;
+  share(stream, onFailure) {
+    return new Promise(async (resolve, reject) => {
+      this.onerror = onFailure;
+      this.connectionAttempts += 1;
+      this.role = SEND_ROLE;
+      this.hasAudio = BridgeService.streamHasAudioTrack(stream);
+      this.gdmStream = stream;
 
-    const onerror = (error) => {
-      mapErrorCode(error);
-      const normalizedError = BridgeService.handlePresenterFailure(error, this.broker.started);
+      const onerror = (error) => {
+        const normalizedError = this.handleBrokerFailure(error);
+        if (this.maxConnectionAttemptsReached()) {
+          this.clearReconnectionTimeout();
+          this.connectionAttempts = 0;
+          onFailure({
+            errorCode: 1120,
+            errorMessage: `MAX_CONNECTION_ATTEMPTS_REACHED`,
+          });
 
-      // Gracious mid call reconnects aren't yet implemented, so stop it.
-      if (this.broker.started) {
-        return onFailure(normalizedError);
-      }
+          return reject({ errorCode: 1120, errorMessage: "MAX_CONNECTION_ATTEMPTS_REACHED" });
+        }
+      };
 
-      // Otherwise, sharing attempts have a finite amount of attempts for it
-      // to work (configurable). If expired, error out.
-      if (this.maxConnectionAttemptsReached()) {
-        this.clearReconnectionTimeout();
-        this.connectionAttempts = 0;
-        return onFailure({
-          errorCode: 1120,
-          errorMessage: `MAX_CONNECTION_ATTEMPTS_REACHED`,
-        });
-      }
-    };
+      const iceServers = await BridgeService.getIceServers(Auth.sessionToken);
+      const options = {
+        iceServers,
+        userName: Auth.fullname,
+        stream,
+        hasAudio: this.hasAudio,
+      };
 
-    const iceServers = await BridgeService.getIceServers(Auth.sessionToken);
-    const options = {
-      iceServers,
-      userName: Auth.fullname,
-      stream,
-      hasAudio: BridgeService.streamHasAudioTrack(stream),
-    };
+      this.broker = new ScreenshareBroker(
+        Auth.authenticateURL(SFU_URL),
+        BridgeService.getConferenceBridge(),
+        Auth.userID,
+        Auth.meetingID,
+        this.role,
+        options,
+      );
 
-    this.broker = new ScreenshareBroker(
-      Auth.authenticateURL(SFU_URL),
-      BridgeService.getConferenceBridge(),
-      Auth.userID,
-      Auth.meetingID,
-      this.role,
-      options,
-    );
+      this.broker.onerror = onerror.bind(this);
+      this.broker.onstreamended = this.stop.bind(this);
+      this.broker.onstart = this.handlePresenterStart.bind(this);
 
-    this.broker.onstart = this.handlePresenterStart.bind(this);
-    this.broker.onerror = onerror.bind(this);
-    this.broker.onstreamended = this.stop.bind(this);
-    return this.broker.share().finally(this.scheduleReconnect.bind(this));
+      this.broker.share().then(() => {
+          this.scheduleReconnect();
+          return resolve();
+        }).catch(reject);
+    });
   };
 
   stop() {
