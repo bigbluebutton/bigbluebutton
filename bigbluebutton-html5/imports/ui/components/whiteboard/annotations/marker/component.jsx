@@ -156,7 +156,7 @@ export default class MarkerComponent extends Component {
       <mask id = {maskId}>
         <path
           fill="none"
-          stroke="#a0a0a0"
+          stroke={annotation.color == 16777215 ? "#ffffff" : "#a0a0a0"}
           d={this.getCurrentPath()}
           strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
           strokeLinejoin="round"
