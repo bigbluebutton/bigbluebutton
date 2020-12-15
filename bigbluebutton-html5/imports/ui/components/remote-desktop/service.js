@@ -5,8 +5,8 @@ import { makeCall } from '/imports/ui/services/api';
 
 const isUrlValid = url => (typeof (url) === 'string' && url.startsWith('wss:'));
 
-const startWatching = (remoteDesktopUrl) => {
-  makeCall('startWatchingRemoteDesktop', { remoteDesktopUrl });
+const startWatching = (remoteDesktopUrl, remoteDesktopPassword) => {
+  makeCall('startWatchingRemoteDesktop', { remoteDesktopUrl, remoteDesktopPassword });
 };
 
 const stopWatching = () => {
@@ -20,8 +20,16 @@ const getRemoteDesktopUrl = () => {
   return meeting && meeting.remoteDesktopUrl;
 };
 
+const getRemoteDesktopPassword = () => {
+  const meetingId = Auth.meetingID;
+  const meeting = Meetings.findOne({ meetingId }, { fields: { remoteDesktopPassword: 1 } });
+
+  return meeting && meeting.remoteDesktopPassword;
+};
+
 export {
   getRemoteDesktopUrl,
+  getRemoteDesktopPassword,
   isUrlValid,
   startWatching,
   stopWatching,

@@ -117,17 +117,7 @@ class RemoteDesktop extends Component {
 
   render() {
     var { remoteDesktopUrl, viewOnly } = this.state;
-
-    if (remoteDesktopUrl) {
-      const url = new URL(remoteDesktopUrl);
-      this.vncPassword = url.searchParams.get('password');
-
-      for (var id of ['meetingID', 'userID', 'fullname', 'confname', 'externUserID']) {
-          remoteDesktopUrl = remoteDesktopUrl.replace('{' + id + '}', encodeURIComponent(Auth[id]));
-      }
-    } else {
-      this.vncPassword = ''
-    }
+    var { remoteDesktopPassword } = this.props;
 
     return (
       <div
@@ -143,7 +133,7 @@ class RemoteDesktop extends Component {
           height='100%'
           background="transparent"
           url={remoteDesktopUrl}
-          credentials={{password: this.vncPassword}}
+          credentials={{password: remoteDesktopPassword}}
 	 /* We have to handshake a bit with the VNC server before
 	  * we know the remote screen geometry.  Therefore, once
 	  * we finish connecting, process a resize.

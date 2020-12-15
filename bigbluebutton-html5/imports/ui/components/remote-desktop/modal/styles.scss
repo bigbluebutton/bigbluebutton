@@ -32,7 +32,7 @@
 .modal {
   @extend .modal;
   padding: 1.5rem;
-  min-height: 23rem;
+  min-height: 30rem;
 }
 
 .closeBtn {
@@ -107,12 +107,13 @@
     display: block;
   }
 
-  input {
+  input, select {
     @include inputFocus(var(--color-blue-light));
     display: block;
     margin: 10px 0 10px 0;
     padding: 0.4em;
     color: var(--color-text);
+    background-color: rgb(232, 240, 254);
     line-height: 2rem;
     width: 100%;
     font-family: inherit;

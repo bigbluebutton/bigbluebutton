@@ -31,6 +31,10 @@ const intlMessages = defineMessages({
     id: 'app.remoteDesktop.input',
     description: 'Remote desktop URL',
   },
+  password: {
+    id: 'app.remoteDesktop.password',
+    description: 'Remote desktop password',
+  },
   urlInput: {
     id: 'app.remoteDesktop.urlInput',
     description: 'URL input field placeholder',
@@ -58,6 +62,8 @@ class RemoteDesktopModal extends Component {
     this.state = {
       url: remoteDesktopUrl,
       sharing: remoteDesktopUrl,
+      password: null,
+      operators: 'all',
     };
 
     this.startWatchingHandler = this.startWatchingHandler.bind(this);
@@ -72,14 +78,22 @@ class RemoteDesktopModal extends Component {
       closeModal,
     } = this.props;
 
-    const { url } = this.state;
+    const { url, password } = this.state;
 
-    startWatching(url.trim());
+    startWatching(url.trim(), password.trim());
     closeModal();
   }
 
   updateRemoteDesktopUrlHandler(ev) {
     this.setState({ url: ev.target.value });
+  }
+
+  updateRemoteDesktopPassword = ev => {
+    this.setState({ password: ev.target.value });
+  }
+
+  updateRemoteDesktopOperators = ev => {
+    this.setState({ operators: ev.target.value });
   }
 
   renderUrlError() {
@@ -130,9 +144,34 @@ class RemoteDesktopModal extends Component {
                 aria-describedby="remote-desktop-note"
               />
             </label>
-            <div className={styles.remoteDesktopNote} id="remote-desktop-note">
-              {intl.formatMessage(intlMessages.note)}
-            </div>
+          </div>
+
+          <div className={styles.remoteDesktopUrl}>
+            <label htmlFor="remote-desktop-modal-password" id="remote-desktop-modal-password">
+              {intl.formatMessage(intlMessages.password)}
+              <input
+                id="remote-desktop-modal-password"
+                onChange={this.updateRemoteDesktopPassword}
+                name="remote-desktop-modal-password"
+                type="password"
+              />
+            </label>
+          </div>
+
+          <div className={styles.remoteDesktopUrl}>
+            <label htmlFor="remote-desktop-modal-operators" id="remote-desktop-modal-operators">
+              <select
+                id="remote-desktop-modal-operators"
+                name="remote-desktop-modal-operators"
+                onChange={this.updateRemoteDesktopOperators}
+                value={this.state.operators}
+              >
+                <option value="all">All users can operate desktop</option>
+                <option value="moderators">Only moderators can operate desktop</option>
+                <option value="presenter">Only the presenter can operate desktop</option>
+                <option value="I">Only I can operate desktop</option>
+              </select>
+            </label>
           </div>
 
           <div>

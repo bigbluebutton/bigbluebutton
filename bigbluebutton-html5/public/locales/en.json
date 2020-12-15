@@ -891,6 +891,7 @@
     "app.remoteDesktop.start": "Share a remote desktop",
     "app.remoteDesktop.title": "Share a remote desktop",
     "app.remoteDesktop.input": "Remote Desktop URL",
+    "app.remoteDesktop.password": "Remote Desktop Password",
     "app.remoteDesktop.urlInput": "Add Remote Desktop URL",
     "app.remoteDesktop.urlError": "This remote desktop URL isn't supported",
     "app.remoteDesktop.close": "Close",

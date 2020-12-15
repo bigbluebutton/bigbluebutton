@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
+import { check, Match } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Meetings from '/imports/api/meetings';
 import RedisPubSub from '/imports/startup/server/redis';
@@ -11,11 +11,12 @@ export default function startWatchingRemoteDesktop(options) {
   const EVENT_NAME = 'StartRemoteDesktopMsg';
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
-  const { remoteDesktopUrl } = options;
+  const { remoteDesktopUrl, remoteDesktopPassword } = options;
 
   check(remoteDesktopUrl, String);
+  check(remoteDesktopPassword, Match.Maybe(String));
 
-  Meetings.update({ meetingId }, { $set: { remoteDesktopUrl } });
+  Meetings.update({ meetingId }, { $set: { remoteDesktopUrl, remoteDesktopPassword } });
 
   const payload = { remoteDesktopUrl };
 
