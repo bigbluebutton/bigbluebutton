@@ -54,7 +54,7 @@ enableNodeFifo() {
 # Disable CPUSchedulingPolicy and Nice for HTML5 Client's node.js process
 #
 disableNodeFifo() {
-  noNodeFilo=true
+  noNodeFifo=true
   [ -f /etc/systemd/system/bbb-html5.service.d/override.conf ] && rm -f /etc/systemd/system/bbb-html5.service.d/override.conf
   [ -d /etc/systemd/system/bbb-html5.service.d/ ] && rmdir /etc/systemd/system/bbb-html5.service.d/ && systemctl daemon-reload
 }
