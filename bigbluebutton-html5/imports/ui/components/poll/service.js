@@ -59,7 +59,7 @@ const sendGroupMessage = (message) => {
     color: '0',
     correlationId: `${PUBLIC_CHAT_SYSTEM_ID}-${Date.now()}`,
     sender: {
-      id: PUBLIC_CHAT_SYSTEM_ID,
+      id: Auth.userID,
       name: '',
     },
     message,
@@ -69,9 +69,11 @@ const sendGroupMessage = (message) => {
 };
 
 export default {
-  amIPresenter: () => Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } }).presenter,
+  amIPresenter: () => Users.findOne(
+    { userId: Auth.userID },
+    { fields: { presenter: 1 } },
+  ).presenter,
   pollTypes,
-  stopPoll: () => makeCall('stopPoll', Auth.userId),
   currentPoll: () => Polls.findOne({ meetingId: Auth.meetingID }),
   pollAnswerIds,
   sendGroupMessage,

@@ -13,13 +13,13 @@ export default function removeAnnotation(meetingId, whiteboardId, shapeId) {
     id: shapeId,
   };
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Removing annotation from collection: ${err}`);
+  try {
+    const numberAffected = Annotations.remove(selector);
+
+    if (numberAffected) {
+      Logger.info(`Removed annotation id=${shapeId} whiteboard=${whiteboardId}`);
     }
-
-    return Logger.info(`Removed annotation id=${shapeId} whiteboard=${whiteboardId}`);
-  };
-
-  return Annotations.remove(selector, cb);
+  } catch (err) {
+    Logger.error(`Removing annotation from collection: ${err}`);
+  }
 }

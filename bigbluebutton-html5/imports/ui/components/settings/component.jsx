@@ -3,7 +3,7 @@ import Modal from '/imports/ui/components/modal/fullscreen/component';
 import {
   Tab, Tabs, TabList, TabPanel,
 } from 'react-tabs';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import DataSaving from '/imports/ui/components/settings/submenus/data-saving/component';
 import Application from '/imports/ui/components/settings/submenus/application/component';
 import Notification from '/imports/ui/components/settings/submenus/notification/component';
@@ -62,7 +62,7 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   dataSaving: PropTypes.shape({
     viewParticipantsWebcams: PropTypes.bool,
     viewScreenshare: PropTypes.bool,
@@ -109,7 +109,7 @@ class Settings extends Component {
     this.handleSelectTab = this.handleSelectTab.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const { availableLocales } = this.props;
     availableLocales.then((locales) => {
       this.setState({ availableLocales: locales });
@@ -131,6 +131,7 @@ class Settings extends Component {
   renderModalContent() {
     const {
       intl,
+      isModerator,
     } = this.props;
 
     const {
@@ -194,6 +195,7 @@ class Settings extends Component {
           <Notification
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
+            {...{ isModerator }}
           />
         </TabPanel>
         {/* <TabPanel className={styles.tabPanel}> */}
