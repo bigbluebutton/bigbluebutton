@@ -2,6 +2,7 @@ import { check } from 'meteor/check';
 
 const ANNOTATION_TYPE_TEXT = 'text';
 const ANNOTATION_TYPE_PENCIL = 'pencil';
+const ANNOTATION_TYPE_MARKER = 'marker';
 const DEFAULT_TEXT_WIDTH = 30;
 const DEFAULT_TEXT_HEIGHT = 20;
 
@@ -128,6 +129,7 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
         },
         $set: {
           status,
+          annotationType,
         },
         $inc: { version: 1 },
       };
@@ -164,6 +166,7 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
     case ANNOTATION_TYPE_TEXT:
       return handleTextUpdate(meetingId, whiteboardId, userId, annotation);
     case ANNOTATION_TYPE_PENCIL:
+    case ANNOTATION_TYPE_MARKER:
       return handlePencilUpdate(meetingId, whiteboardId, userId, annotation);
     default:
       return handleCommonAnnotation(meetingId, whiteboardId, userId, annotation);
