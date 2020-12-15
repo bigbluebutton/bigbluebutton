@@ -13,8 +13,7 @@ const makeEnvelope = (channel, eventName, header, body, routing) => {
     envelope: {
       name: eventName,
       routing: routing || {
-        sender: 'bbb-apps-akka',
-        // sender: 'html5-server', // TODO
+        sender: 'html5-server',
       },
       timestamp: Date.now(),
     },
@@ -108,7 +107,8 @@ class RedisPubSub {
     const host = process.env.REDIS_HOST || Meteor.settings.private.redis.host;
     const redisConf = Meteor.settings.private.redis;
     this.instanceMax = parseInt(process.env.INSTANCE_MAX, 10) || 1;
-    this.instanceId = parseInt(process.env.INSTANCE_ID, 10) || 1;
+    this.instanceId = parseInt(process.env.INSTANCE_ID, 10) || 1; // 1 also handles running in dev mode
+    this.customRedisChannel = `to-html5-redis-channel${this.instanceId}`;
 
     const { password, port } = redisConf;
 
@@ -136,6 +136,8 @@ class RedisPubSub {
 
     const channelsToSubscribe = this.config.subscribeTo;
 
+    channelsToSubscribe.push(this.customRedisChannel);
+
     channelsToSubscribe.forEach((channel) => {
       this.sub.psubscribe(channel);
     });
@@ -162,6 +164,7 @@ class RedisPubSub {
 
     const body = {
       requesterId: 'nodeJSapp',
+      html5InstanceId: this.instanceId,
     };
 
     this.publishSystemMessage(CHANNEL, EVENT_NAME, body);
@@ -186,12 +189,11 @@ class RedisPubSub {
 
     const queueId = meetingId || NO_MEETING_ID;
 
-    if (eventName === 'MeetingCreatedEvtMsg') {
+    if (eventName === 'MeetingCreatedEvtMsg' || eventName === 'SyncGetMeetingInfoRespMsg') {
       const newIntId = parsedMessage.core.body.props.meetingProp.intId;
-      const metadata = parsedMessage.core.body.props.metadataProp.metadata;
-      const instanceId = parseInt(metadata['bbb-meetinginstance']) || 1;
+      const instanceId = parsedMessage.core.body.props.systemProps.html5InstanceId;
 
-      Logger.warn(`MeetingCreatedEvtMsg received with meetingInstance: ${instanceId} -- this is instance: ${this.instanceId}`);
+      Logger.warn(`${eventName} (name=${parsedMessage.core.body.props.meetingProp.name}) received with meetingInstance: ${instanceId} -- this is instance: ${this.instanceId}`);
 
       if (instanceId === this.instanceId) {
         this.mettingsQueues[newIntId] = new MeetingMessageQueue(this.emitter, async, this.redisDebugEnabled);
@@ -200,7 +202,12 @@ class RedisPubSub {
       }
     }
 
-    if (queueId in this.mettingsQueues) {
+    if (channel !== this.customRedisChannel && queueId in this.mettingsQueues) {
+      Logger.error(`Consider routing ${eventName} to ${this.customRedisChannel}` );
+      // Logger.error(`Consider routing ${eventName} to ${this.customRedisChannel}` + message);
+    }
+
+    if (channel === this.customRedisChannel || queueId in this.mettingsQueues) {
       this.mettingsQueues[queueId].add({
         pattern,
         channel,
@@ -208,9 +215,6 @@ class RedisPubSub {
         parsedMessage,
       });
     }
-    // else {
-    // Logger.info("Skipping redis message for " + queueId);
-    // }
   }
 
   destroyMeetingQueue(id) {

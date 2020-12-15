@@ -41,7 +41,7 @@ export default function removeUser(meetingId, userId) {
 
     clearUserInfoForRequester(meetingId, userId);
 
-    Users.remove(selector, cb);
+    Users.remove(selector);
 
     Logger.info(`Removed user id=${userId} meeting=${meetingId}`);
   } catch (err) {
