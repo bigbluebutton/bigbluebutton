@@ -75,6 +75,11 @@ class Translations extends Component{
         active: false,
         warning: ""
     }
+
+    componentWillUnmount() {
+        window.dispatchEvent(new Event('panelChanged'));
+    }
+
     render() {
         let button;
         let add = ""

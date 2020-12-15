@@ -5,21 +5,14 @@ import cx from 'classnames';
 
 class Translations extends Component{
     toggleLanguagesPanel = () => {
-        if(Session.get("openPanel") === "userlist"){
-            Session.set('openPanel', "translations" )
+        if (Session.get("openPanel") === "translations") {
+            Session.set('openPanel', "userlist")
             window.dispatchEvent(new Event('panelChanged'));
-        }else if(Session.get("openPanel") ===  "translations"){
-            Session.set('openPanel', 'userlist' );
+        } else {
+            Session.set('openPanel', 'translations');
             window.dispatchEvent(new Event('panelChanged'));
-        }else {
-            Session.set('openPanel', 'userlist' );
-            window.dispatchEvent(new Event('panelChanged'));
-            setTimeout(function (){
-                Session.set('openPanel', 'translations' );
-                window.dispatchEvent(new Event('panelChanged'));
-            },200);
         }
-    };
+    }
     componentDidMount() {
         window.addEventListener('panelChanged',()=>{
            this.forceUpdate()
