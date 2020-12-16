@@ -61,7 +61,7 @@ disableNodeFifo() {
 }
 #
 # do not enable by default in containerized or chroot env
-systemd-detect-virt -c || systemd-detect-virt -r || enableNodeFifo
+systemd-detect-virt -qc || systemd-detect-virt -qr || enableNodeFifo
 
 
 #
