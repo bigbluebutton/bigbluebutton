@@ -40,7 +40,8 @@ HTML5_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings
 # Set CPUSchedulingPolicy=fifo and Nice=19 for HTML5 Client's node.js process.
 #  This should avoid user disconnects or interrupts in situations of high load on server
 #
-# Enabled by default. Call "disableNodeFifo" in /etc/bigbluebutton/bbb-conf/apply-config.sh to disable.
+# Enabled by default if instance is not in containerized or chroot env. 
+# Call "disableNodeFifo" in /etc/bigbluebutton/bbb-conf/apply-config.sh to disable.
 #
 enableNodeFifo() {
   if [ ! "$noNodeFifo" ]; then
@@ -58,7 +59,9 @@ disableNodeFifo() {
   [ -f /etc/systemd/system/bbb-html5.service.d/override.conf ] && rm -f /etc/systemd/system/bbb-html5.service.d/override.conf
   [ -d /etc/systemd/system/bbb-html5.service.d/ ] && rmdir /etc/systemd/system/bbb-html5.service.d/ && systemctl daemon-reload
 }
-enableNodeFifo
+#
+# do not enable by default in containerized or chroot env
+systemd-detect-virt -c || systemd-detect-virt -r || enableNodeFifo
 
 
 #
