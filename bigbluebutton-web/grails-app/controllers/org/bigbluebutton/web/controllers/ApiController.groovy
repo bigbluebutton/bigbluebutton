@@ -494,7 +494,7 @@ class ApiController {
 
     //check if exists the param redirect
     boolean redirectClient = true;
-    String clientURL = paramsProcessorUtil.getDefaultClientUrl();
+    String clientURL = paramsProcessorUtil.getDefaultHTML5ClientUrl();
 
     String meetingInstance = meeting.getHtml5InstanceId();
     meetingInstance = (meetingInstance == null) ? "1" : meetingInstance;

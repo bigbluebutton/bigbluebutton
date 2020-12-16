@@ -72,7 +72,7 @@ public class ParamsProcessorUtil {
     private String defaultLogoutUrl;
     private String defaultServerUrl;
     private int defaultNumDigitsForTelVoice;
-    private String defaultClientUrl;
+    private String defaultHTML5ClientUrl;
     private String defaultGuestWaitURL;
     private Boolean allowRequestsWithoutSession;
     private Boolean useDefaultAvatar = false;
@@ -551,8 +551,8 @@ public class ParamsProcessorUtil {
 		return serviceEnabled;
 	}
 	
-	public String getDefaultClientUrl() {
-		return defaultClientUrl;
+	public String getDefaultHTML5ClientUrl() {
+		return defaultHTML5ClientUrl;
 	}
 
 	public String getDefaultGuestWaitURL() {
@@ -912,8 +912,8 @@ public class ParamsProcessorUtil {
 		this.defaultNumDigitsForTelVoice = defaultNumDigitsForTelVoice;
 	}
 
-	public void setDefaultClientUrl(String defaultClientUrl) {
-		this.defaultClientUrl = defaultClientUrl;
+	public void setDefaultHTML5ClientUrl(String defaultHTML5ClientUrl) {
+		this.defaultHTML5ClientUrl = defaultHTML5ClientUrl;
 	}
 
 	public void setDefaultGuestWaitURL(String url) {
