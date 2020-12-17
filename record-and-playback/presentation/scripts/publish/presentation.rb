@@ -209,6 +209,7 @@ def svg_render_shape_marker(g, slide, shape)
     return
   end
 
+  line_cap = ""
   if shape[:data_points].length == 2
     BigBlueButton.logger.info("Marker #{shape[:shape_unique_id]}: Drawing single point")
     path = []
@@ -217,6 +218,7 @@ def svg_render_shape_marker(g, slide, shape)
     y = shape_scale_height(slide, data_points.next)
     path.push("M#{x} #{y}")
     path.push("L#{x} #{y}")
+    line_cap = "square"
   else
     path = []
     data_points = shape[:data_points].each
@@ -265,11 +267,12 @@ def svg_render_shape_marker(g, slide, shape)
       rescue StopIteration
       end
     end
+    line_cap == "butt"
   end
     path = path.join('')
-    bg_path = doc.create_element('path', d: path, style: "stroke:##{shape[:color]};stroke-linecap:square;stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};fill:none")
+    bg_path = doc.create_element('path', d: path, style: "stroke:##{shape[:color]};stroke-linecap:#{line_cap};stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};fill:none")
     mask = doc.create_element('mask', id: g['id']+'-mask')
-    mask_path = doc.create_element('path', d: path, style: "stroke:##{shape[:color] == "ffffff" ? "ffffff" : "a0a0a0"};stroke-linecap:square;stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};fill:none")
+    mask_path = doc.create_element('path', d: path, style: "stroke:##{shape[:color] == "ffffff" ? "ffffff" : "a0a0a0"};stroke-linecap:#{line_cap};stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};fill:none")
     mask << mask_path
     use = doc.create_element('use',
             'mask': "url(##{g['id']+'-mask'})",
