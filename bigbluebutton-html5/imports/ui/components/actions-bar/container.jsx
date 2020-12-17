@@ -64,6 +64,7 @@ export default withTracker(() => ({
   isSharingVideo: Service.isSharingVideo(),
   hasScreenshare: isVideoBroadcasting(),
   isSharingDesktop: Service.isSharingDesktop(),
+  canIOperateDesktop: Service.canIOperateDesktop(),
   isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
   isMeteorConnected: Meteor.status().connected,
   isPollingEnabled: POLLING_ENABLED,

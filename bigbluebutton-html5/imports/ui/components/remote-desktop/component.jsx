@@ -29,11 +29,22 @@ class RemoteDesktop extends Component {
 
   constructor(props) {
     super(props);
+
+    var { remoteDesktopUrl, remoteDesktopCanOperate } = props;
+
+    /* If the remote desktop URL includes the string "{jwt}", delay
+     * opening the connection until we've obtained a JSON Web Token
+     * and inserted it into the URL.
+     */
+    if (remoteDesktopUrl && remoteDesktopUrl.includes('{jwt}')) {
+      remoteDesktopUrl = '';
+    }
+
     this.state = {
       isFullscreen: false,
       resized: false,
       remoteDesktopUrl: remoteDesktopUrl,
-      viewOnly: START_VIEWONLY,
+      viewOnly: !remoteDesktopCanOperate || START_VIEWONLY,
     };
 
     /* window.remoteDesktop is globally accessible so that the lock button can access it */

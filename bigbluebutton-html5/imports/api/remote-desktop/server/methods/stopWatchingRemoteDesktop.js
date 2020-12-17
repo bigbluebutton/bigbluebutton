@@ -14,7 +14,10 @@ export default function stopWatchingRemoteDesktop() {
   const meeting = Meetings.findOne({ meetingId });
   if (!meeting || meeting.remoteDesktopUrl === null) return;
 
-  Meetings.update({ meetingId }, { $set: { remoteDesktopUrl: null } });
+  Meetings.update({ meetingId }, { $set: { remoteDesktopUrl: null,
+					   remoteDesktopPassword: null,
+					   remoteDesktopOperators: null,
+					 } });
   const payload = {};
 
   Logger.info(`User id=${requesterUserId} stopped sharing a remote desktop for meeting=${meetingId}`);

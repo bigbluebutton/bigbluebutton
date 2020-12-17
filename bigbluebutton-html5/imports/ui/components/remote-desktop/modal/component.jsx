@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import Modal from '/imports/ui/components/modal/simple/component';
 import Button from '/imports/ui/components/button/component';
+import Auth from '/imports/ui/services/auth';
 
 import { defineMessages, injectIntl } from 'react-intl';
 import { isUrlValid } from '../service';
@@ -78,9 +79,13 @@ class RemoteDesktopModal extends Component {
       closeModal,
     } = this.props;
 
-    const { url, password } = this.state;
+    var { url, password, operators } = this.state;
 
-    startWatching(url.trim(), password.trim());
+    if (operators === 'I') {
+      operators = Auth.userID;
+    }
+
+    startWatching(url.trim(), password.trim(), operators.trim());
     closeModal();
   }
 

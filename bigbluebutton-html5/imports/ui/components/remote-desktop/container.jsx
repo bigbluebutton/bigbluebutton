@@ -1,7 +1,7 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
-import { getRemoteDesktopUrl, getRemoteDesktopPassword } from './service';
+import { getRemoteDesktopUrl, getRemoteDesktopPassword, getRemoteDesktopCanOperate } from './service';
 import RemoteDesktop from './component';
 
 const RemoteDesktopContainer = props => (
@@ -15,5 +15,6 @@ export default withTracker(({ isPresenter }) => {
     isPresenter,
     remoteDesktopUrl: getRemoteDesktopUrl(),
     remoteDesktopPassword: getRemoteDesktopPassword(),
+    remoteDesktopCanOperate: getRemoteDesktopCanOperate(),
   };
 })(RemoteDesktopContainer);

@@ -23,6 +23,8 @@ class ActionsBar extends PureComponent {
       intl,
       isSharingVideo,
       hasScreenshare,
+      isSharingDesktop,
+      canIOperateDesktop,
       stopExternalVideoShare,
       isSharingDesktop,
       stopRemoteDesktop,
@@ -87,7 +89,7 @@ class ActionsBar extends PureComponent {
             isMeteorConnected,
           }}
           />
-          {isSharingDesktop
+          {canIOperateDesktop
             ? (
               <LockRemoteDesktopContainer />
             )

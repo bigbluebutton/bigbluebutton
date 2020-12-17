@@ -11,12 +11,16 @@ export default function startWatchingRemoteDesktop(options) {
   const EVENT_NAME = 'StartRemoteDesktopMsg';
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
-  const { remoteDesktopUrl, remoteDesktopPassword } = options;
+  const { remoteDesktopUrl, remoteDesktopPassword, remoteDesktopOperators } = options;
 
   check(remoteDesktopUrl, String);
   check(remoteDesktopPassword, Match.Maybe(String));
+  check(remoteDesktopOperators, String);
 
-  Meetings.update({ meetingId }, { $set: { remoteDesktopUrl, remoteDesktopPassword } });
+  Meetings.update({ meetingId }, { $set: { remoteDesktopUrl,
+					   remoteDesktopPassword,
+					   remoteDesktopOperators,
+					 } });
 
   const payload = { remoteDesktopUrl };
 
