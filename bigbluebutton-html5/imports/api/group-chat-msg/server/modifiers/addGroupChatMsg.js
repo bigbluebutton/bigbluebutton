@@ -28,7 +28,6 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
     message: String,
     correlationId: Match.Maybe(String),
   });
-
   const msgDocument = {
     ...msg,
     meetingId,
@@ -36,10 +35,8 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
     message: parseMessage(msg.message),
   };
 
-  const modifier = flat(msgDocument, { safe: true });
-
   try {
-    const insertedId = GroupChatMsg.insert(modifier);
+    const insertedId = GroupChatMsg.insert(msgDocument);
 
     if (insertedId) {
       Logger.info(`Added group-chat-msg msgId=${msg.id} chatId=${chatId} meetingId=${meetingId}`);

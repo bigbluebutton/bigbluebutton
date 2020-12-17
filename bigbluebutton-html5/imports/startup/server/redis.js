@@ -219,10 +219,10 @@ class RedisPubSub {
       }
     }
 
-    if (channel !== this.customRedisChannel && queueId in this.mettingsQueues) {
-      Logger.error(`Consider routing ${eventName} to ${this.customRedisChannel}` );
-      // Logger.error(`Consider routing ${eventName} to ${this.customRedisChannel}` + message);
-    }
+    // if (channel !== this.customRedisChannel && queueId in this.mettingsQueues) {
+    //   Logger.error(`Consider routing ${eventName} to ${this.customRedisChannel}` );
+    //   // Logger.error(`Consider routing ${eventName} to ${this.customRedisChannel}` + message);
+    // }
 
     if (channel === this.customRedisChannel || queueId in this.mettingsQueues) {
       this.mettingsQueues[queueId].add({
