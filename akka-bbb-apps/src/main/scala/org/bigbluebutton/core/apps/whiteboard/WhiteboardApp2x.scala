@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.whiteboard
 
+
 import akka.actor.ActorContext
 import akka.event.Logging
 import org.bigbluebutton.core.running.LiveMeeting
