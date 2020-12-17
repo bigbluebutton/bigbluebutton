@@ -143,6 +143,8 @@ export default class MarkerComponent extends Component {
   render() {
     const { annotation, slideWidth } = this.props;
     const maskId = "mask-" + annotation.id;
+    const coord = this.getCurrentPath().replace(/^\s+/,'').split(' ').map(x => parseFloat(x.replace(/[ML]/,'')));
+    const lineCap = coord.length == 4 && coord[0] == coord[2] && coord[1] == coord[3] ? "square" : "butt";
     return (
       <g>
       <path
@@ -151,7 +153,7 @@ export default class MarkerComponent extends Component {
         d={this.getCurrentPath()}
         strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         strokeLinejoin="round"
-        strokeLinecap="square"
+        strokeLinecap={lineCap}
       />
       <mask id = {maskId}>
         <path
@@ -160,7 +162,7 @@ export default class MarkerComponent extends Component {
           d={this.getCurrentPath()}
           strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
           strokeLinejoin="round"
-          strokeLinecap="square"
+          strokeLinecap={lineCap}
         />
       </mask>
       <use mask={`url(#${maskId})`}
