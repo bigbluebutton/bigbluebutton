@@ -42,6 +42,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
+import org.bigbluebutton.api.HTML5LoadBalancingService;
 import org.bigbluebutton.api.domain.GuestPolicy;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Recording;
@@ -115,6 +116,7 @@ public class MeetingService implements MessageListener {
   private StunTurnService stunTurnService;
   private RedisStorageService storeService;
   private CallbackUrlService callbackUrlService;
+  private HTML5LoadBalancingService html5LoadBalancingService;
   private boolean keepEvents;
 
   private long usersTimeout;
@@ -400,7 +402,7 @@ public class MeetingService implements MessageListener {
             m.getUserInactivityInspectTimerInMinutes(), m.getUserInactivityThresholdInMinutes(),
             m.getUserActivitySignResponseDelayInMinutes(), m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), keepEvents,
             m.breakoutRoomsParams,
-            m.lockSettingsParams);
+            m.lockSettingsParams, m.getHtml5InstanceId());
   }
 
   private String formatPrettyDate(Long timestamp) {

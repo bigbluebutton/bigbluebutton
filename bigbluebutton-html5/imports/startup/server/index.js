@@ -15,31 +15,6 @@ let guestWaitHtml = '';
 const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
 const FALLBACK_LOCALES = JSON.parse(Assets.getText('config/fallbackLocales.json'));
 
-const generateLocaleOptions = () => {
-  try {
-    Logger.warn('Calculating aggregateLocales (heavy)');
-    const tempAggregateLocales = AVAILABLE_LOCALES
-      .map(file => file.replace('.json', ''))
-      .map(file => file.replace('_', '-'))
-      .map((locale) => {
-        const localeName = (Langmap[locale] || {}).nativeName
-          || (FALLBACK_LOCALES[locale] || {}).nativeName
-          || locale;
-        return {
-          locale,
-          name: localeName,
-        };
-      });
-    Logger.warn(`Total locales: ${tempAggregateLocales.length}`, tempAggregateLocales);
-    return tempAggregateLocales;
-  } catch (e) {
-    Logger.error(`'Could not process locales error: ${e}`);
-    return [];
-  }
-};
-
-let avaibleLocalesNamesJSON = JSON.stringify(generateLocaleOptions());
-
 process.on('uncaughtException', (err) => {
   Logger.error(`uncaughtException: ${err}`);
   process.exit(1);
@@ -49,6 +24,9 @@ Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
   const env = Meteor.isDevelopment ? 'development' : 'production';
   const CDN_URL = APP_CONFIG.cdn;
+  const instanceId = APP_CONFIG.instanceId.slice(1); // remove the leading '/' character
+
+  Logger.warn('Started bbb-html5 process with instanceId=' + instanceId);
 
   const { customHeartbeat } = APP_CONFIG;
 
@@ -152,6 +130,32 @@ Meteor.startup(() => {
     Logger.warn(`SERVER STARTED.\nENV=${env},\nnodejs version=${process.version}\nCDN=${CDN_URL}\n`, APP_CONFIG);
   }
 });
+
+
+const generateLocaleOptions = () => {
+  try {
+    Logger.warn('Calculating aggregateLocales (heavy)');
+    const tempAggregateLocales = AVAILABLE_LOCALES
+      .map(file => file.replace('.json', ''))
+      .map(file => file.replace('_', '-'))
+      .map((locale) => {
+        const localeName = (Langmap[locale] || {}).nativeName
+          || (FALLBACK_LOCALES[locale] || {}).nativeName
+          || locale;
+        return {
+          locale,
+          name: localeName,
+        };
+      });
+    Logger.warn(`Total locales: ${tempAggregateLocales.length}`, tempAggregateLocales);
+    return tempAggregateLocales;
+  } catch (e) {
+    Logger.error(`'Could not process locales error: ${e}`);
+    return [];
+  }
+};
+
+let avaibleLocalesNamesJSON = JSON.stringify(generateLocaleOptions());
 
 WebApp.connectHandlers.use('/check', (req, res) => {
   const payload = { html5clientStatus: 'running' };
