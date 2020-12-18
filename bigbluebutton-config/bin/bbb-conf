@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# BlueButton open source conferencing system - http://www.bigbluebutton.org/
+# BlueButton open source conferencing system - https://www.bigbluebutton.org/
 #
 # Copyright (c) 2020 BigBlueButton Inc. and by respective authors (see below).
 #
@@ -14,7 +14,7 @@
 # PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public License along
-# with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+# with BigBlueButton; if not, see <https://www.gnu.org/licenses/>.
 #
 # Author(s):
 #   Fred Dixon <ffdixon@bigbluebutton.org>
@@ -337,7 +337,7 @@ start_bigbluebutton () {
 
     if [ -f /opt/freeswitch/var/log/freeswitch/freeswitch.log ]; then
         if grep -q "Failure to connect to CORE_DB sofia_reg_external" /opt/freeswitch/var/log/freeswitch/freeswitch.log; then
-            # See: http://docs.bigbluebutton.org/install/install.html#freeswitch-fails-to-bind-to-ipv4
+            # See: https://docs.bigbluebutton.org/install/install.html#freeswitch-fails-to-bind-to-ipv4
             echo "Clearing the FreeSWITCH database."
             rm -rf /opt/freeswitch/var/lib/freeswitch/db/*
         fi
