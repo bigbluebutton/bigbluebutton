@@ -318,6 +318,22 @@ public:
     echoTestNumber: 'echo'
     relayOnlyOnReconnect: false
     listenOnlyCallTimeout: 25000
+    #Timeout (ms) for gathering ICE candidates. When this timeout expires
+    #the SDP is sent to the server with the candidates the browser gathered
+    #so far. Increasing this value might help avoiding 1004 error when
+    #user activates microphone.
+    iceGatheringTimeout: 5000
+    sipjsHackViaWs: false
+    #Websocket keepAlive interval (seconds). You may set this to prevent
+    #websocket disconnection in some environments. When set, BBB will send
+    #'\r\n\r\n' string through SIP.js's websocket. If not set, default value
+    #is 0.
+    websocketKeepAliveInterval: 30
+    #Debounce time (seconds) for sending SIP.js's websocket keep alive message.
+    #If not set, default value is 10.
+    websocketKeepAliveDebounce: 10
+    #Trace sip/audio messages in browser. If not set, default value is false.
+    traceSip: false
   stats:
     enabled: true
     interval: 2000
@@ -336,22 +352,6 @@ public:
       - danger
       - critical
     help: STATS_HELP_URL
-    #Timeout (ms) for gathering ICE candidates. When this timeout expires
-    #the SDP is sent to the server with the candidates the browser gathered
-    #so far. Increasing this value might help avoiding 1004 error when
-    #user activates microphone.
-    iceGatheringTimeout: 5000
-    sipjsHackViaWs: false
-    #Websocket keepAlive interval (seconds). You may set this to prevent
-    #websocket disconnection in some environments. When set, BBB will send
-    #'\r\n\r\n' string through SIP.js's websocket. If not set, default value
-    #is 0.
-    websocketKeepAliveInterval: 30
-    #Debounce time (seconds) for sending SIP.js's websocket keep alive message.
-    #If not set, default value is 10.
-    websocketKeepAliveDebounce: 10
-    #Trace sip/audio messages in browser. If not set, default value is false.
-    traceSip: false
   presentation:
     allowDownloadable: true
     defaultPresentationFile: default.pdf
