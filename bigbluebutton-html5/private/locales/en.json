@@ -668,6 +668,8 @@
     "app.feedback.textarea": "How can we make BigBlueButton better?",
     "app.feedback.sendFeedback": "Send Feedback",
     "app.feedback.sendFeedbackDesc": "Send a feedback and leave the meeting",
+    "app.videoDock.webcamMirrorLabel": "Mirror",
+    "app.videoDock.webcamMirrorDesc": "Mirror the selected webcam",
     "app.videoDock.webcamFocusLabel": "Focus",
     "app.videoDock.webcamFocusDesc": "Focus the selected webcam",
     "app.videoDock.webcamUnfocusLabel": "Unfocus",
