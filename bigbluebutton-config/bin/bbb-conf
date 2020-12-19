@@ -317,7 +317,7 @@ stop_bigbluebutton () {
         BBB_LTI=bbb-lti
     fi
 
-    if [ -d $TOMCAT_DIR ]; then
+    if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
       TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
@@ -364,6 +364,9 @@ start_bigbluebutton () {
         BBB_LTI=bbb-lti
     fi
 
+    if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
+      TOMCAT_SERVICE=$TOMCAT_USER
+    fi
 
     systemctl start $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
 
@@ -399,6 +402,10 @@ display_bigbluebutton_status () {
 
     if [ -f /lib/systemd/system/bbb-lti.service ]; then
         units="$units bbb-lti"
+    fi
+
+    if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
+      TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
     line='——————————————————————►'
@@ -650,17 +657,8 @@ check_configuration() {
         fi
     fi
 
-    # Depreciated: BigBlueButton must be installed with a valid hostname, so comparing a hostnae to IP address
-    # does not provide any useful information.
-    #if [ "$IP" != "$NGINX_IP" ]; then
-    #    if [ "$IP" != "$HOSTS" ]; then
-    #        echo "# IP does not match:"
-    #        echo "#                           IP from ifconfig: $IP"
-    #        echo "#   /etc/nginx/sites-available/bigbluebutton: $NGINX_IP"
-    #    fi
-    #fi
 
-    if [ -f /var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp ]; then
+    if [ -f /var/lib/$TOMCAT_USER/webapps/demo/bbb_api_conf.jsp ]; then
         #
         # Make sure the shared secret for the API matches the server
         #
@@ -672,7 +670,7 @@ check_configuration() {
             echo "# Warning: API Shared Secret mismatch: "
             echo "#"
             echo "#  ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties  = $SECRET_PROPERTIES"
-            echo "#  /var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp               = $SECRET_DEMO"
+            echo "#  /var/lib/$TOMCAT_USER/webapps/demo/bbb_api_conf.jsp               = $SECRET_DEMO"
             echo "#"
             echo "# You need to edit bbb_api_conf.jsp to have the same shared secret defined in bigbluebutton.properties"
             echo "#"
@@ -747,18 +745,6 @@ check_configuration() {
                 echo "# and add a line that enables ws-binding on port 5066."
                 echo
                 fi
-            fi
-        fi
-    fi
-
-    if [ $DISTRIB_ID == "xenial" ]; then
-        libreoffice_version=$(dpkg-query -W --showformat='${Version}\n' libreoffice | sed 's/.*://g' | sed 's/\.[^\.]*$//g')
-        if [[ "$libreoffice_version" > 1.0 ]]; then
-            if [[ "$libreoffice_version" < 4.4 ]]; then
-                echo "# Warning: Detected you are running an older version of LibreOffice: $libreoffice_version"
-                echo "#"
-                echo "# Recommend updated to the latest version of LibreOffice 4.x (4.4 or later)"
-                echo
             fi
         fi
     fi
@@ -1695,12 +1681,6 @@ if [ $CLEAN ]; then
         chmod 640 /var/log/nginx/html5-client.log
     fi
 
-    #if [ $DISTRO == "ubuntu" ]; then
-    #  mv /var/log/syslog /tmp/syslog.$$
-    #  echo "" > /var/log/syslog
-    #  chown syslog:adm /var/log/syslog
-    #fi
-
     if [ -d /var/log/bbb-fsesl-akka ]; then
         rm -f /var/log/bbb-fsesl-akka/*
     fi
@@ -1730,17 +1710,16 @@ if [ $CLEAN ]; then
 fi
 
 if [ $NETWORK ]; then
-    netstat -ant | egrep ":1935|:80|:443\ " | egrep -v ":::|0.0.0.0" > /tmp/t_net
+    netstat -ant | egrep ":80|:443\ " | egrep -v ":::|0.0.0.0" > /tmp/t_net
     REMOTE=$(cat /tmp/t_net | cut -c 45-68 | cut -d ":" -f1 | sort | uniq)
 
     if [ "$REMOTE" != "" ]; then
-        echo -e "netstat\t\t\t80\t443\t1935"
+        echo -e "netstat\t\t\t80\t443"
         for IP in $REMOTE ; do
-            PORT_1935=$(cat /tmp/t_net | grep :1935 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l)
             PORT_80=$(cat /tmp/t_net | grep :80 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )
 	    PORT_443=$(cat /tmp/t_net | grep :443 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )
 
-            echo -e "$IP\t\t$PORT_80\t$PORT_443\t$PORT_1935"
+            echo -e "$IP\t\t$PORT_80\t$PORT_443"
         done
     fi
     rm /tmp/t_net
