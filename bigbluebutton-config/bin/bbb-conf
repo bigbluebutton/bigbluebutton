@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# BlueButton open source conferencing system - http://www.bigbluebutton.org/
+# BlueButton open source conferencing system - https://www.bigbluebutton.org/
 #
 # Copyright (c) 2020 BigBlueButton Inc. and by respective authors (see below).
 #
@@ -14,7 +14,7 @@
 # PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public License along
-# with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+# with BigBlueButton; if not, see <https://www.gnu.org/licenses/>.
 #
 # Author(s):
 #   Fred Dixon <ffdixon@bigbluebutton.org>
@@ -337,7 +337,7 @@ start_bigbluebutton () {
 
     if [ -f /opt/freeswitch/var/log/freeswitch/freeswitch.log ]; then
         if grep -q "Failure to connect to CORE_DB sofia_reg_external" /opt/freeswitch/var/log/freeswitch/freeswitch.log; then
-            # See: http://docs.bigbluebutton.org/install/install.html#freeswitch-fails-to-bind-to-ipv4
+            # See: https://docs.bigbluebutton.org/install/install.html#freeswitch-fails-to-bind-to-ipv4
             echo "Clearing the FreeSWITCH database."
             rm -rf /opt/freeswitch/var/lib/freeswitch/db/*
         fi
@@ -650,20 +650,22 @@ check_configuration() {
         fi
     fi
 
-    if [ "$IP" != "$NGINX_IP" ] && [ "_" != "$NGINX_IP" ]; then
-        if [ "$IP" != "$HOSTS" ]; then
-            echo "# IP does not match:"
-            echo "#                           IP from ifconfig: $IP"
-            echo "#   /etc/nginx/sites-available/bigbluebutton: $NGINX_IP"
-        fi
-    fi
+    # Depreciated: BigBlueButton must be installed with a valid hostname, so comparing a hostnae to IP address
+    # does not provide any useful information.
+    #if [ "$IP" != "$NGINX_IP" ]; then
+    #    if [ "$IP" != "$HOSTS" ]; then
+    #        echo "# IP does not match:"
+    #        echo "#                           IP from ifconfig: $IP"
+    #        echo "#   /etc/nginx/sites-available/bigbluebutton: $NGINX_IP"
+    #    fi
+    #fi
 
     if [ -f /var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp ]; then
         #
         # Make sure the shared secret for the API matches the server
         #
         SECRET_PROPERTIES=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
-        SECRET_DEMO=$(cat /var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp | grep -v '^//' | tr -d '\r' | sed -n '/salt[ ]*=/{s/.*=[ ]*"//;s/".*//g;p}')
+        SECRET_DEMO=$(cat ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp | grep -v '^//' | tr -d '\r' | sed -n '/salt[ ]*=/{s/.*=[ ]*"//;s/".*//g;p}')
 
         if [ "$SECRET_PROPERTIES" != "$SECRET_DEMO" ]; then
             echo "#"
@@ -677,12 +679,12 @@ check_configuration() {
             echo
         fi
 
-        API_IP=$(cat /var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp | grep -v '^//' | sed -n '/String BigBlueButtonURL/{s/.*http[s]*:\/\///;s/\/.*//;p}' | tr -d '\015')
-        if [ "$IP" != "$API_IP" ]; then
-            echo "# Warning: API URL IPs do not match host:"
+        if ! grep -q https ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp; then
+            echo
+            echo "# Warning: Did not detect https for API demos in "
             echo "#"
-            echo "#                                IP from ifconfig: $IP"
-            echo "#  ${TOMCAT_DIR}/demo/bbb_api_conf.jsp: $API_IP"
+            echo "#    ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp"
+            echo "#"
             echo
         fi
     fi
@@ -793,7 +795,7 @@ check_configuration() {
        echo
        echo "# Warning: Detected FreeSWITCH is using default stun.freeswitch.org server.  See"
        echo "#"
-       echo "#     http://docs.bigbluebutton.org/2.2/troubleshooting.html#freeswitch-using-default-stun-server"
+       echo "#     https://docs.bigbluebutton.org/2.2/troubleshooting.html#freeswitch-using-default-stun-server"
        echo "#"
        echo
     fi
@@ -802,7 +804,7 @@ check_configuration() {
        echo
        echo "# Warning: No firewall detected.  Recommend using setting up a firewall for your server"
        echo "#"
-       echo "#     http://docs.bigbluebutton.org/2.2/troubleshooting.html#freeswitch-using-default-stun-server"
+       echo "#     https://docs.bigbluebutton.org/2.2/troubleshooting.html#freeswitch-using-default-stun-server"
        echo "#"
        echo
     fi
@@ -1006,7 +1008,8 @@ check_state() {
         echo
     fi
 
-    if [ "$SIP_NGINX_IP" != $IP ]; then
+    if [ "$(yq r /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml public.media.sipjsHackViaWs)" == "false" ]; then
+      if [ "$SIP_NGINX_IP" != $IP ]; then
         if [ "$SIP_NGINX_IP" != "\$freeswitch_addr" ]; then
             echo "# Warning: The setting of $SIP_NGINX_IP for proxy_pass in"
             echo "#"
@@ -1016,6 +1019,7 @@ check_state() {
             echo "# (This is OK if you've manually changed the values)"
             echo
         fi
+      fi
     fi
 
     VARS_IP=$(cat $FREESWITCH_VARS | sed -n '/"local_ip_v4/{s/.*local_ip_v4=//;s/".*//;p}')
@@ -1118,7 +1122,7 @@ check_state() {
     if systemctl status freeswitch | grep -q SETSCHEDULER; then
         echo "# Error: FreeSWITCH failed to start with SETSCHEDULER error, see"
         echo "#"
-        echo "#   http://docs.bigbluebutton.org/2.2/troubleshooting.html#freeswitch-fails-to-start-with-a-setscheduler-error"
+        echo "#   https://docs.bigbluebutton.org/2.2/troubleshooting.html#freeswitch-fails-to-start-with-a-setscheduler-error"
         echo "#"
     fi
 
@@ -1258,7 +1262,7 @@ if [ $CHECK ]; then
 
     echo
     echo "/etc/nginx/sites-available/bigbluebutton (nginx)"
-    echo "                       server name: $NGINX_IP"
+    echo "                       server_name: $NGINX_IP"
 
     PORT=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}' | grep -v ssl | tr --delete '\n' | sed 's/\[/, \[/g' | sed 's/0$/0\n/g')
     echo "                              port: $PORT"
@@ -1305,6 +1309,7 @@ if [ $CHECK ]; then
         echo
         echo "$SIP_CONFIG (sip.nginx)"
         echo "                        proxy_pass: $SIP_NGINX_IP"
+        echo "                          protocol: $(cat /etc/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)"
     fi
 
     if [ -f $KURENTO_CONFIG ]; then
@@ -1326,6 +1331,16 @@ if [ $CHECK ]; then
         echo "                             build: $(yq r $HTML5_CONFIG public.app.html5ClientBuild)"
         echo "                        kurentoUrl: $(yq r $HTML5_CONFIG public.kurento.wsUrl)"
         echo "                  enableListenOnly: $(yq r $HTML5_CONFIG public.kurento.enableListenOnly)"
+        echo "                    sipjsHackViaWs: $(yq r $HTML5_CONFIG public.media.sipjsHackViaWs)"
+     fi
+
+     TURN=/usr/share/bbb-web/WEB-INF/classes/spring/turn-stun-servers.xml
+     STUN="$(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m '_:beans/_:bean[@class="org.bigbluebutton.web.services.turn.StunTurnService"]/_:property[@name="stunServers"]/_:set/_:ref' -v @bean $TURN)"
+
+     if [ ! -z "$STUN" ]; then
+        echo
+        echo "$TURN (STUN Server)"
+        echo "                              $(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m "_:beans/_:bean[@id=\"$STUN\"]/_:constructor-arg[@index=\"0\"]" -v @value $TURN)"
      fi
 
      if [ "$DISTRIB_CODENAME" == "xenial" ]; then

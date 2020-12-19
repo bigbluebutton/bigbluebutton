@@ -178,8 +178,6 @@
     "app.presentationUploder.conversion.pdfHasBigPage": "Neizdevās konvertēt PDF failu. Lūdzu, mēģiniet to optimizēt",
     "app.presentationUploder.conversion.timeout": "Konvertēšana notika pārāk ilgi...",
     "app.presentationUploder.conversion.pageCountFailed": "Neizdevās noteikt lapu skaitu",
-    "app.presentationUploder.isDownloadableLabel": "Liegt prezentācijas lejupielādi",
-    "app.presentationUploder.isNotDownloadableLabel": "Ļaut prezentācijas lejupielādi",
     "app.presentationUploder.removePresentationLabel": "Noņemt/dzēst prezentāciju",
     "app.presentationUploder.setAsCurrentPresentation": "Iestatīt prezentāciju kā tekošo/pašreizējo",
     "app.presentationUploder.tableHeading.filename": "Faila nosaukums",
@@ -334,7 +332,6 @@
     "app.actionsBar.emojiMenu.statusTriggerLabel": "Iestatīt statusu",
     "app.actionsBar.emojiMenu.awayLabel": "prombūtnē",
     "app.actionsBar.emojiMenu.awayDesc": "nomainīt statusu uz 'prombūtnē'",
-    "app.actionsBar.emojiMenu.raiseHandLabel": "pacelt",
     "app.actionsBar.emojiMenu.raiseHandDesc": "pacelt roku, lai izteiktu jautājumu, repliku, komentāru",
     "app.actionsBar.emojiMenu.neutralLabel": "svārstīgs/neizlēmis",
     "app.actionsBar.emojiMenu.neutralDesc": "nomainīt statusu uz 'svārstīgs/neizlēmis'",
@@ -655,7 +652,7 @@
     "app.iOSWarning.label": "Lūdzu, augstiniet uz iOS 12.2 vai augstāku versiju",
     "app.legacy.unsupportedBrowser": "Izskatās, ka izmantojat neatbalstītu pārlūku. Pilnīga atbalsta iegūšanai izmantojiet {0} vai {1}.",
     "app.legacy.upgradeBrowser": "Izskatās, ka izmantojat atbalstīta pārlūka novecojušu versiju. Lai iegūtu pilnīgu atbalstu, lūdzu, aktualizējiet savu pārlūkprogrammu.",
-    "app.legacy.criosBrowser": "IOS ierīcē pilna atbalsta nodrošināšānai lūdzu, izmantojiet Safari."
+    "app.legacy.criosBrowser": "IOS ierīcē pilna atbalsta nodrošināšānai, lūdzu, izmantojiet Safari."
 
 }
 

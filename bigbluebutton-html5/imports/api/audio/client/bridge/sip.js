@@ -32,6 +32,10 @@ const USER_AGENT_RECONNECTION_ATTEMPTS = 3;
 const USER_AGENT_RECONNECTION_DELAY_MS = 5000;
 const USER_AGENT_CONNECTION_TIMEOUT_MS = 5000;
 const ICE_GATHERING_TIMEOUT = MEDIA.iceGatheringTimeout || 5000;
+const BRIDGE_NAME = 'sip';
+const WEBSOCKET_KEEP_ALIVE_INTERVAL = MEDIA.websocketKeepAliveInterval || 0;
+const WEBSOCKET_KEEP_ALIVE_DEBOUNCE = MEDIA.websocketKeepAliveDebounce || 10;
+const TRACE_SIP = MEDIA.traceSip || false;
 
 const getAudioSessionNumber = () => {
   let currItem = parseInt(sessionStorage.getItem(AUDIO_SESSION_NUM_KEY), 10);
@@ -172,6 +176,7 @@ class SIPSession {
           status: this.baseCallStates.failed,
           error: 1008,
           bridgeError: 'Timeout on call transfer',
+          bridge: BRIDGE_NAME,
         });
 
         this.exitAudio();
@@ -293,6 +298,7 @@ class SIPSession {
               status: this.baseCallStates.failed,
               error: 1006,
               bridgeError: 'Timeout on call hangup',
+              bridge: BRIDGE_NAME,
             });
             return reject(this.baseErrorCodes.REQUEST_TIMEOUT);
           }
@@ -365,6 +371,9 @@ class SIPSession {
         transportOptions: {
           server: `${(protocol === 'https:' ? 'wss://' : 'ws://')}${hostname}/ws?${token}`,
           connectionTimeout: USER_AGENT_CONNECTION_TIMEOUT_MS,
+          keepAliveInterval: WEBSOCKET_KEEP_ALIVE_INTERVAL,
+          keepAliveDebounce: WEBSOCKET_KEEP_ALIVE_DEBOUNCE,
+          traceSip: TRACE_SIP,
         },
         sessionDescriptionHandlerFactoryOptions: {
           peerConnectionConfiguration: {
@@ -433,6 +442,7 @@ class SIPSession {
                 status: this.baseCallStates.failed,
                 error,
                 bridgeError,
+                bridge: BRIDGE_NAME,
               });
               reject(this.baseErrorCodes.CONNECTION_ERROR);
             });
@@ -472,6 +482,7 @@ class SIPSession {
             status: this.baseCallStates.failed,
             error: 1002,
             bridgeError: 'Websocket failed to connect',
+            bridge: BRIDGE_NAME,
           });
           return reject({
             type: this.baseErrorCodes.CONNECTION_ERROR,
@@ -502,6 +513,7 @@ class SIPSession {
             status: this.baseCallStates.failed,
             error: 1002,
             bridgeError: 'Websocket failed to connect',
+            bridge: BRIDGE_NAME,
           });
 
           reject({
@@ -660,7 +672,7 @@ class SIPSession {
             },
           }, 'Audio call - setup remote media');
 
-          this.callback({ status: this.baseCallStates.started });
+          this.callback({ status: this.baseCallStates.started, bridge: BRIDGE_NAME });
           resolve();
         }
       };
@@ -672,6 +684,7 @@ class SIPSession {
           status: this.baseCallStates.failed,
           error: 1006,
           bridgeError: `Call timed out on start after ${CALL_CONNECT_TIMEOUT / 1000}s`,
+          bridge: BRIDGE_NAME,
         });
 
         this.exitAudio();
@@ -691,6 +704,7 @@ class SIPSession {
               error: 1010,
               bridgeError: 'ICE negotiation timeout after '
                 + `${ICE_NEGOTIATION_TIMEOUT / 1000}s`,
+              bridge: BRIDGE_NAME,
             });
 
             this.exitAudio();
@@ -726,6 +740,7 @@ class SIPSession {
           error: 1007,
           bridgeError: 'ICE negotiation failed. Current state '
             + `- ${peer.iceConnectionState}`,
+          bridge: BRIDGE_NAME,
         });
       };
 
@@ -744,6 +759,7 @@ class SIPSession {
           error: 1012,
           bridgeError: 'ICE connection closed. Current state -'
             + `${peer.iceConnectionState}`,
+          bridge: BRIDGE_NAME,
         });
       };
 
@@ -837,6 +853,7 @@ class SIPSession {
         if (!message && !!this.userRequestedHangup) {
           return this.callback({
             status: this.baseCallStates.ended,
+            bridge: BRIDGE_NAME,
           });
         }
 
@@ -864,6 +881,7 @@ class SIPSession {
           status: this.baseCallStates.failed,
           error: mappedCause,
           bridgeError: cause,
+          bridge: BRIDGE_NAME,
         });
       };
 
@@ -972,7 +990,7 @@ export default class SIPBridge extends BaseAudioBridge {
           if (this.activeSession.webrtcConnected) {
             // webrtc was able to connect so just try again
             message.silenceNotifications = true;
-            callback({ status: this.baseCallStates.reconnecting });
+            callback({ status: this.baseCallStates.reconnecting, bridge: BRIDGE_NAME, });
             shouldTryReconnect = true;
           } else if (hasFallbackDomain === true && hostname !== IPV4_FALLBACK_DOMAIN) {
             message.silenceNotifications = true;
