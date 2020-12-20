@@ -102,18 +102,16 @@ class ActionsBar extends PureComponent {
   }
 
   handleTranslatorLanguageSelection(language) {
-    this.state.translatorLanguage = language
-    AudioManager.openTranslatorChannel(language.extension).then(()=>{
-        if (language.extension > 0 ) {
-          Service.muteMicrophone();
-        }
-        this.setState(this.state)
-        if(!AudioManager.isTranslatorMuted()){
-          this.handleMuteTranslator()
-        }
-        this.forceUpdate()
-    })
-
+    AudioManager.openTranslatorChannel(language.extension).then( () => {
+      if( language.extension > 0 ) {
+        Service.muteMicrophone();
+      }
+      if( !this.state.translatorLanguage && !AudioManager.isTranslatorMuted() ) {
+        this.handleMuteTranslator()
+      }
+      this.setState({translatorLanguage : language})
+      this.forceUpdate()
+    });
   }
 
   handleMuteTranslator(){
