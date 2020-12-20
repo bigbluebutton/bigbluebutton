@@ -46,7 +46,6 @@ export default function handleWhiteboardSend({ header, body }, meetingId) {
   }
 
   annotationsQueue[meetingId].push({ meetingId, whiteboardId, userId, annotation, multiUser });
-
   if (queueMetrics) {
     Metrics.setAnnotationQueueLength(meetingId, annotationsQueue[meetingId].length);
   }
