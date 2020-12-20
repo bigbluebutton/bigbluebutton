@@ -45,9 +45,6 @@ export default withTracker(({ user }) => {
     getEmojiList: UserListService.getEmojiList(),
     getEmoji: UserListService.getEmoji(),
     hasPrivateChatBetweenUsers: UserListService.hasPrivateChatBetweenUsers,
-    notify,
-    raiseHandAudioAlert: AppSettings.raiseHandAudioAlerts,
-    raiseHandPushAlert: AppSettings.raiseHandPushAlerts,
     changeWhiteboardMode,
   };
 })(UserListItemContainer);
