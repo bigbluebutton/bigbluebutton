@@ -19,7 +19,7 @@ export default withTracker(({ user }) => {
   const Meeting = Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { lockSettingsProps: 1 } });
 
-  onst currentSlide = PresentationAreaService.getCurrentSlide('DEFAULT_PRESENTATION_POD');
+  const currentSlide = PresentationAreaService.getCurrentSlide('DEFAULT_PRESENTATION_POD');
 
   const changeWhiteboardMode = (multiUser, userId) => {
     makeCall('changeWhiteboardAccess', multiUser, currentSlide.id, userId);
