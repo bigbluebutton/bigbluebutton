@@ -55,7 +55,7 @@ module BigBlueButton
           # These settings are appropriate for 640x480 medium quality, and should be tweaked for other resolutions
           # See https://developers.google.com/media/vp9/settings/vod/
           # Increase -threads to max of 4 or increase -speed to max of 4 to speed up processing
-          %w[-c:v libvpx-vp9 -b:v 750K -minrate 375K -maxrate 1088K -crf 33 -quality realtime -speed 5 -tile-columns 2 -threads 4
+          %w[-c:v libvpx-vp9 -b:v 750K -minrate 375K -maxrate 1088K -crf 33 -quality realtime -speed 5 -tile-columns 2 -threads 2
              -c:a libopus -b:a 48K
              -f webm]
           # Google recommends doing a 2-pass encode for better quality, but it's a lot slower. If you want to do this,
@@ -121,7 +121,7 @@ module BigBlueButton
           # These settings are appropriate for 1280x720 medium quality, and should be tweaked for other resolutions
           # See https://developers.google.com/media/vp9/settings/vod/
           # Increase -threads to max of 8 or increase -speed to max of 4 to speed up processing
-          %w[-c:v libvpx-vp9 -b:v 1024K -minrate 512K -maxrate 1485K -crf 32 -quality realtime -speed 5 -tile-columns 2 -threads 4
+          %w[-c:v libvpx-vp9 -b:v 1024K -minrate 512K -maxrate 1485K -crf 32 -quality realtime -speed 5 -tile-columns 2 -threads 2
              -c:a libopus -b:a 48K
              -f webm]
           # Google recommends doing a 2-pass encode for better quality, but it's a lot slower. If you want to do this,
