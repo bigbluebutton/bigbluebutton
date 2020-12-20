@@ -92,6 +92,9 @@ export default function addUser(meetingId, userData) {
         inactivityCheck: false,
         responseDelay: 0,
         loggedOut: false,
+        //whiteboardAccess: user.presenter, // toolbar not shown when non-presenter joins later
+        //whiteboardAccess: true, // This would be OK because the variable mutiuser decides show/hide of toolbar anyway
+        whiteboardAccess: user.presenter || isEnabled.multiUser > 0, 
       },
       flat(user),
     ),
@@ -111,9 +114,6 @@ export default function addUser(meetingId, userData) {
       listenOnly: false,
       voiceConf: '',
       joined: false,
-      //whiteboardAccess: user.presenter, // toolbar not shown when non-presenter joins later
-      //whiteboardAccess: true, // This would be OK because the variable mutiuser decides show/hide of toolbar anyway
-      whiteboardAccess: user.presenter || isEnabled.multiUser > 0, 
     });
   }
 
