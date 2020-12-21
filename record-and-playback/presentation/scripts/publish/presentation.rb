@@ -1268,7 +1268,7 @@ begin
         metadata_with_playback = Nokogiri::XML::Builder.with(metadata.at('recording')) do |xml|
             xml.playback {
               xml.format("presentation")
-              xml.link("#{playback_protocol}://#{playback_host}/playback/presentation/2.0/playback.html?meetingId=#{$meeting_id}")
+              xml.link("#{playback_protocol}://#{playback_host}/playback/presentation/2.3/#{$meeting_id}")
               xml.processing_time("#{processing_time}")
               xml.duration("#{recording_time}")
               unless presentation.empty?
@@ -1370,4 +1370,3 @@ rescue Exception => e
 
   exit 1
 end
-
