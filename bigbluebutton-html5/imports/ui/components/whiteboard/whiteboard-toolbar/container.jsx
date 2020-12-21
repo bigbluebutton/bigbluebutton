@@ -15,7 +15,7 @@ export default withTracker((params) => {
   const withAccessNum = Users.find({
     meetingId: Auth.meetingID,
     whiteboardAccess: true,
-    connectionStatus: 'online',
+    //connectionStatus: 'online',
     presenter: false,
   }, {
     fields: {
