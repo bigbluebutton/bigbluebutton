@@ -579,6 +579,7 @@
     "app.video.notAllowed": "Missing permission for share webcam, please make sure your browser permissions",
     "app.video.notSupportedError": "Can share webcam video only with safe sources, make sure your SSL certificate is valid",
     "app.video.notReadableError": "Could not get webcam video. Please make sure another program is not using the webcam ",
+    "app.video.timeoutError": "Error: Browser did not respond in time.",
     "app.video.mediaFlowTimeout1020": "Media could not reach the server (error 1020)",
     "app.video.suggestWebcamLock": "Enforce lock setting to viewers webcams?",
     "app.video.suggestWebcamLockReason": "(this will improve the stability of the meeting)",

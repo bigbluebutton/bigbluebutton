@@ -7,12 +7,14 @@ import Button from '/imports/ui/components/button/component';
 // import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
 import Modal from '/imports/ui/components/modal/simple/component';
+import Service from './service';
 import browser from 'browser-detect';
 import VideoService from '../video-provider/service';
 import cx from 'classnames';
 import { styles } from './styles';
 
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
+const GUM_TIMEOUT = Meteor.settings.public.kurento.gUMTimeout;
 
 const VIEW_STATES = {
   finding: 'finding',
@@ -150,6 +152,10 @@ const intlMessages = defineMessages({
     id: 'app.video.notReadableError',
     description: 'error message When the webcam is being used by other software',
   },
+  TimeoutError: {
+    id: 'app.video.timeoutError',
+    description: 'error message when promise did not return',
+  },
   iOSError: {
     id: 'app.audioModal.iOSBrowser',
     description: 'Audio/Video Not supported warning',
@@ -216,7 +222,15 @@ class VideoPreview extends Component {
     if (hasMediaDevices) {
       try {
         let firstAllowedDeviceId;
-        navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: 'user' } })
+
+        const constraints = {
+          audio: false,
+          video: {
+            facingMode: 'user',
+          },
+        };
+
+        Service.promiseTimeout(GUM_TIMEOUT, navigator.mediaDevices.getUserMedia(constraints))
           .then((stream) => {
             if (!this._isMounted) return;
             this.deviceStream = stream;
@@ -431,7 +445,7 @@ class VideoPreview extends Component {
     }
     this.deviceStream = null;
 
-    return navigator.mediaDevices.getUserMedia(constraints);
+    return Service.promiseTimeout(GUM_TIMEOUT, navigator.mediaDevices.getUserMedia(constraints));
   }
 
   displayPreview(deviceId, profile) {
@@ -539,8 +553,8 @@ class VideoPreview extends Component {
                      onChange={this.handleSelectProfile}
                      disabled={skipVideoPreview}
                    >
-                     {availableProfiles.map(profile => { 
-                      const label = intlMessages[`${profile.id}`] 
+                     {availableProfiles.map(profile => {
+                      const label = intlMessages[`${profile.id}`]
                         ? intl.formatMessage(intlMessages[`${profile.id}`])
                         : profile.name;
 
