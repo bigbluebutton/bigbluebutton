@@ -466,7 +466,7 @@ class PresentationArea extends PureComponent {
       fitToWidth,
     } = this.state;
 
-    if (!userIsPresenter && !multiUser) {
+    if (!userIsPresenter && multiUser == 0) {
       return null;
     }
 
