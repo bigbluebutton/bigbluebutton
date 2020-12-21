@@ -60,7 +60,7 @@ export default function changeWhiteboardAccess(multiUser, whiteboardId, userId =
     const usersWithAccess = Users.find({
       meetingId,
       whiteboardAccess: true,
-      connectionStatus: 'online',
+      //connectionStatus: 'online',
       presenter: { $ne: true },
     }, {
       fields: {
