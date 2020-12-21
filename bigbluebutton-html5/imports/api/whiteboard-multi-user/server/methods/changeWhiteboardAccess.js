@@ -23,7 +23,7 @@ export default function changeWhiteboardAccess(multiUser, whiteboardId, userId =
   
   const selector = {
     meetingId,
-    connectionStatus: 'online',
+    //connectionStatus: 'online',
   };
 
   const mod = {
