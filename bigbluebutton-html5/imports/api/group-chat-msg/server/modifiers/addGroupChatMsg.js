@@ -4,7 +4,7 @@ import Logger from '/imports/startup/server/logger';
 import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import { BREAK_LINE } from '/imports/utils/lineEndings';
 
-const parseMessage = (message) => {
+export function parseMessage(message) {
   let parsedMessage = message || '';
 
   // Replace \r and \n to <br/>
@@ -15,7 +15,7 @@ const parseMessage = (message) => {
   parsedMessage = parsedMessage.split('<a href="event:').join('<a target="_blank" href="');
 
   return parsedMessage;
-};
+}
 
 export default function addGroupChatMsg(meetingId, chatId, msg) {
   check(meetingId, String);
@@ -28,7 +28,6 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
     message: String,
     correlationId: Match.Maybe(String),
   });
-
   const msgDocument = {
     ...msg,
     meetingId,
@@ -36,25 +35,13 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
     message: parseMessage(msg.message),
   };
 
-  const selector = {
-    meetingId,
-    chatId,
-    id: msg.id,
-  };
-
-  const modifier = {
-    $set: msgDocument,
-  };
-
   try {
-    const { insertedId } = GroupChatMsg.upsert(selector, modifier);
+    const insertedId = GroupChatMsg.insert(msgDocument);
 
     if (insertedId) {
       Logger.info(`Added group-chat-msg msgId=${msg.id} chatId=${chatId} meetingId=${meetingId}`);
-    } else {
-      Logger.info(`Upserted group-chat-msg msgId=${msg.id} chatId=${chatId} meetingId=${meetingId}`);
     }
   } catch (err) {
-    Logger.error(`Adding group-chat-msg to collection: ${err}`);
+    Logger.error(`Error on adding group-chat-msg to collection: ${err}`);
   }
 }
