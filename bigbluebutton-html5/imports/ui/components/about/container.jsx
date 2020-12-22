@@ -11,8 +11,8 @@ const AboutContainer = props => (
 
 const getClientBuildInfo = function () {
   return {
-    clientBuild: Meteor.settings.public.app.html5ClientBuild,
-    copyright: Meteor.settings.public.app.copyright,
+    clientBuild: "Fairblue  01/2020",
+    copyright: "LGPL",
   };
 };
 
