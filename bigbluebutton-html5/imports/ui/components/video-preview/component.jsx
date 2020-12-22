@@ -7,12 +7,14 @@ import Button from '/imports/ui/components/button/component';
 // import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
 import Modal from '/imports/ui/components/modal/simple/component';
+import Service from './service';
 import browser from 'browser-detect';
 import VideoService from '../video-provider/service';
 import cx from 'classnames';
 import { styles } from './styles';
 
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
+const GUM_TIMEOUT = Meteor.settings.public.kurento.gUMTimeout;
 
 const VIEW_STATES = {
   finding: 'finding',
@@ -118,6 +120,22 @@ const intlMessages = defineMessages({
     id: 'app.video.permissionError',
     description: 'Error message for webcam permission',
   },
+  AbortError: {
+    id: 'app.video.abortError',
+    description: 'Some problem occurred which prevented the device from being used',
+  },
+  OverconstrainedError: {
+    id: 'app.video.overconstrainedError',
+    description: 'No candidate devices which met the criteria requested',
+  },
+  SecurityError: {
+    id: 'app.video.securityError',
+    description: 'Media support is disabled on the Document',
+  },
+  TypeError: {
+    id: 'app.video.typeError',
+    description: 'List of constraints specified is empty, or has all constraints set to false',
+  },
   NotFoundError: {
     id: 'app.video.notFoundError',
     description: 'error message when can not get webcam video',
@@ -134,6 +152,10 @@ const intlMessages = defineMessages({
     id: 'app.video.notReadableError',
     description: 'error message When the webcam is being used by other software',
   },
+  TimeoutError: {
+    id: 'app.video.timeoutError',
+    description: 'error message when promise did not return',
+  },
   iOSError: {
     id: 'app.audioModal.iOSBrowser',
     description: 'Audio/Video Not supported warning',
@@ -146,54 +168,13 @@ const intlMessages = defineMessages({
     id: 'app.audioModal.iOSErrorRecommendation',
     description: 'Audio/Video recommended action',
   },
+  genericError: {
+    id: 'app.video.genericError',
+    description: 'error message for when the webcam sharing fails with unknown error',
+  },
 });
 
 class VideoPreview extends Component {
-  static handleGUMError(error) {
-    // logger.error(error);
-    // logger.error(error.id);
-    // logger.error(error.name);
-    // console.log(error);
-    // console.log(error.name)
-    // console.log(error.message)
-
-    // let convertedError;
-
-    /* switch (error.name) {
-      case 'SourceUnavailableError':
-      case 'NotReadableError':
-        // hardware failure with the device
-        // NotReadableError: Could not start video source
-        break;
-      case 'NotAllowedError':
-        // media was disallowed
-        // NotAllowedError: Permission denied
-        convertedError = intlMessages.NotAllowedError;
-        break;
-      case 'AbortError':
-        // generic error occured
-        // AbortError: Starting video failed (FF when there's a hardware failure)
-        break;
-      case 'NotFoundError':
-        // no webcam found
-        // NotFoundError: The object can not be found here.
-        // NotFoundError: Requested device not found
-        convertedError = intlMessages.NotFoundError;
-        break;
-      case 'SecurityError':
-        // user media support is disabled on the document
-        break;
-      case 'TypeError':
-        // issue with constraints or maybe Chrome with HTTP
-        break;
-      default:
-        // default error message handling
-        break;
-    } */
-
-    return `${error.name}: ${error.message}`;
-  }
-
   constructor(props) {
     super(props);
 
@@ -240,12 +221,20 @@ class VideoPreview extends Component {
     // skipped then we get devices with no labels
     if (hasMediaDevices) {
       try {
-        navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: 'user' } })
+        let firstAllowedDeviceId;
+
+        const constraints = {
+          audio: false,
+          video: {
+            facingMode: 'user',
+          },
+        };
+
+        Service.promiseTimeout(GUM_TIMEOUT, navigator.mediaDevices.getUserMedia(constraints))
           .then((stream) => {
             if (!this._isMounted) return;
             this.deviceStream = stream;
             // try and get the deviceId for the initial stream
-            let firstAllowedDeviceId;
             if (stream.getVideoTracks) {
               const videoTracks = stream.getVideoTracks();
               if (videoTracks.length > 0 && videoTracks[0].getSettings) {
@@ -253,7 +242,9 @@ class VideoPreview extends Component {
                 firstAllowedDeviceId = trackSettings.deviceId;
               }
             }
-
+          }).catch((error) => {
+            this.handleDeviceError('initial_device', error, 'getting initial device');
+          }).finally(() => {
             navigator.mediaDevices.enumerateDevices().then((devices) => {
               const webcams = [];
               let initialDeviceId;
@@ -297,43 +288,11 @@ class VideoPreview extends Component {
                 });
               }
             }).catch((error) => {
-              logger.warn({
-                logCode: 'video_preview_enumerate_error',
-                extraInfo: {
-                  errorName: error.name,
-                  errorMessage: error.message,
-                },
-              }, 'Error enumerating devices');
-              this.setState({
-                viewState: VIEW_STATES.error,
-                deviceError: VideoPreview.handleGUMError(error),
-              });
-            });
-          }).catch((error) => {
-            logger.warn({
-              logCode: 'video_preview_initial_device_error',
-              extraInfo: {
-                errorName: error.name,
-                errorMessage: error.message,
-              },
-            }, 'Error getting initial device');
-            this.setState({
-              viewState: VIEW_STATES.error,
-              deviceError: VideoPreview.handleGUMError(error),
+              this.handleDeviceError('enumerate', error, 'enumerating devices');
             });
           });
       } catch (error) {
-        logger.warn({
-          logCode: 'video_preview_grabbing_error',
-          extraInfo: {
-            errorName: error.name,
-            errorMessage: error.message,
-          },
-        }, 'Error grabbing initial video stream');
-        this.setState({
-          viewState: VIEW_STATES.error,
-          deviceError: VideoPreview.handleGUMError(error),
-        });
+        this.handleDeviceError('grabbing', error, 'grabbing initial video stream');
       }
     } else {
       // TODO: Add an error message when media is globablly disabled
@@ -409,6 +368,51 @@ class VideoPreview extends Component {
     if (resolve) resolve();
   }
 
+  handlePreviewError(logCode, error, description) {
+    logger.warn({
+      logCode: `video_preview_${logCode}_error`,
+      extraInfo: {
+        errorName: error.name,
+        errorMessage: error.message,
+      },
+    }, `Error ${description}`);
+    this.setState({
+      previewError: this.handleGUMError(error),
+    });
+  }
+
+  handleDeviceError(logCode, error, description) {
+    logger.warn({
+      logCode: `video_preview_${logCode}_error`,
+      extraInfo: {
+        errorName: error.name,
+        errorMessage: error.message,
+      },
+    }, `Error ${description}`);
+    this.setState({
+      viewState: VIEW_STATES.error,
+      deviceError: this.handleGUMError(error),
+    });
+  }
+
+  handleGUMError(error) {
+    const { intl } = this.props;
+
+    logger.error({
+      logCode: 'video_preview_gum_failure',
+      extraInfo: {
+        errorName: error.name, errorMessage: error.message,
+      },
+    }, 'getUserMedia failed in video-preview');
+
+    if (intlMessages[error.name]) {
+      return intl.formatMessage(intlMessages[error.name]);
+    }
+
+    return intl.formatMessage(intlMessages.genericError,
+      { 0: `${error.name}: ${error.message}` });
+  }
+
   displayInitialPreview(deviceId) {
     const { changeWebcam } = this.props;
     const availableProfiles = CAMERA_PROFILES.filter(p => !p.hidden);
@@ -441,7 +445,7 @@ class VideoPreview extends Component {
     }
     this.deviceStream = null;
 
-    return navigator.mediaDevices.getUserMedia(constraints);
+    return Service.promiseTimeout(GUM_TIMEOUT, navigator.mediaDevices.getUserMedia(constraints));
   }
 
   displayPreview(deviceId, profile) {
@@ -467,14 +471,7 @@ class VideoPreview extends Component {
       this.video.srcObject = stream;
       this.deviceStream = stream;
     }).catch((error) => {
-      logger.warn({
-        logCode: 'video_preview_do_gum_preview_error',
-        extraInfo: {
-          errorName: error.name,
-          errorMessage: error.message,
-        },
-      }, 'Error displaying final selection.');
-      this.setState({ previewError: VideoPreview.handleGUMError(error) });
+      this.handlePreviewError('do_gum_preview', error, 'displaying final selection');
     });
   }
 
@@ -556,8 +553,8 @@ class VideoPreview extends Component {
                      onChange={this.handleSelectProfile}
                      disabled={skipVideoPreview}
                    >
-                     {availableProfiles.map(profile => { 
-                      const label = intlMessages[`${profile.id}`] 
+                     {availableProfiles.map(profile => {
+                      const label = intlMessages[`${profile.id}`]
                         ? intl.formatMessage(intlMessages[`${profile.id}`])
                         : profile.name;
 
