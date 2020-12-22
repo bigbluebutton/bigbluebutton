@@ -99,8 +99,8 @@ public:
     # Valid for video-provider. Time (ms) before its WS connection times out
     # and tries to reconnect.
     wsConnectionTimeout: 4000
-    # Time in milis to wait for the browser to return a gUM call
-    gUMTimeout: 5000
+    # Time in milis to wait for the browser to return a gUM call (used in video-preview)
+    gUMTimeout: 20000
     cameraTimeouts:
       # Base camera timeout: used as the camera *sharing* timeout and
       # as the minimum camera subscribe reconnection timeout
