@@ -44,7 +44,8 @@ export default function handleWhiteboardReloaded({ body }, meetingId) {
   }
   
   for (const annotation of cur_annotations) {
-    annotationsQueue[meetingId].push({ meetingId, whiteboardId, userId, annotation, multiUser });
+    //annotationsQueue[meetingId].push({ meetingId, whiteboardId, userId, annotation, multiUser });
+    annotationsQueue[meetingId].push({ meetingId, whiteboardId, userId: annotation.userId, annotation, multiUser });
   }
   if (!annotationsRecieverIsRunning) proccess();
 
