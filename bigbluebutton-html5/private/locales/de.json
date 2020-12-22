@@ -691,7 +691,9 @@
     "app.iOSWarning.label": "Bitte aktualisieren Sie auf iOS 12.2 oder höher",
     "app.legacy.unsupportedBrowser": "Es scheint, dass Ihr verwendeter Browser nicht unterstützt wird. Bitte verwenden Sie {0} oder {1} für volle Unterstützung.",
     "app.legacy.upgradeBrowser": "Es sieht so aus, als ob Sie eine veraltete Version eines unterstützten Browsers verwenden. Bitte aktualisieren Sie den Browser für volle Unterstützung.",
-    "app.legacy.criosBrowser": "Unter iOS verwenden Sie für optimale Unterstützung bitte Safari."
+    "app.legacy.criosBrowser": "Unter iOS verwenden Sie für optimale Unterstützung bitte Safari.",
+    "app.translation.translation.title": "Übersetzung",
+    "app.translation.languages.title": "Sprachen"
 
 }
 

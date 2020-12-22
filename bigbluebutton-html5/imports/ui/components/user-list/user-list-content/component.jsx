@@ -95,9 +95,11 @@ class UserContent extends PureComponent {
 
         {amIModerator && !meetingIsBreakout
           ? (
-            <Translations>
-
-            </Translations>
+            <Translations
+              {...{
+                intl,
+              }}
+            />
           ) : null
         }
 
