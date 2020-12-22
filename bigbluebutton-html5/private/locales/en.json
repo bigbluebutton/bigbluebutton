@@ -580,6 +580,7 @@
     "app.video.notSupportedError": "Can share webcam video only with safe sources, make sure your SSL certificate is valid",
     "app.video.notReadableError": "Could not get webcam video. Please make sure another program is not using the webcam ",
     "app.video.timeoutError": "Browser did not respond in time.",
+    "app.video.genericError": "An unknown error has occurred with the device (Error {0})",
     "app.video.mediaFlowTimeout1020": "Media could not reach the server (error 1020)",
     "app.video.suggestWebcamLock": "Enforce lock setting to viewers webcams?",
     "app.video.suggestWebcamLockReason": "(this will improve the stability of the meeting)",
