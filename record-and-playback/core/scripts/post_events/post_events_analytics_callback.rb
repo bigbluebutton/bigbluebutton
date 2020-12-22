@@ -166,8 +166,8 @@ begin
     data_version_format = "1.0"
 
     payload = { version: data_version_format,
-      ext_meeting_id: external_meeting_id,
-      meeting_id: meeting_id,
+      meeting_id: external_meeting_id,
+      internal_meeting_id: meeting_id,
       data: data
     }
 

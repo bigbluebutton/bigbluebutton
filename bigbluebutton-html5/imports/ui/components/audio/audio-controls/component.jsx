@@ -98,9 +98,11 @@ class AudioControls extends PureComponent {
       />
     );
 
+    const MUTE_ALERT_CONFIG = Meteor.settings.public.app.mutedAlert;
+    const { enabled: muteAlertEnabled } = MUTE_ALERT_CONFIG;
     return (
       <span className={styles.container}>
-        {muted ? <MutedAlert {...{ inputStream, isViewer, isPresenter }} /> : null}
+        {muted && muteAlertEnabled ? <MutedAlert {...{ inputStream, isViewer, isPresenter }} /> : null}
         {showMute && isVoiceUser ? toggleMuteBtn : null}
         <Button
           className={cx(inAudio || styles.btn)}

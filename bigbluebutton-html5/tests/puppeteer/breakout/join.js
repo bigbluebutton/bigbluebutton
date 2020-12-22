@@ -71,7 +71,12 @@ class Join extends Create {
       this.page2.logger('logged in to breakout with screenshare');
 
       const page2 = await this.page2.browser.pages();
+      const page3 = await this.page3.browser.pages();
+      // await page2[2].waitForSelector(pe.screenshareConnecting);
+      // await page3[2].waitForSelector(pe.screenshareConnecting);
       await page2[2].waitForSelector(pe.screenShareVideo);
+      await page3[2].waitForSelector(pe.screenShareVideo);
+      await page3[2].waitForSelector(pe.stopScreenSharing);
       if (process.env.GENERATE_EVIDENCES === 'true') {
         await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/05-breakout-page02-user-joined-webcam-after-check-${testName}.png`) });
       }

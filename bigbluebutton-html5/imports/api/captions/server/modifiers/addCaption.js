@@ -26,18 +26,15 @@ export default function addCaption(meetingId, padId, locale) {
     length: 0,
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Adding caption to collection: ${err}`);
-    }
+  try {
+    const { insertedId, numberAffected } = Captions.upsert(selector, modifier);
 
-    const { insertedId } = numChanged;
     if (insertedId) {
-      return Logger.verbose(`Added caption locale=${locale.locale} meeting=${meetingId}`);
+      Logger.verbose('Captions: added locale', { locale: locale.locale, meetingId });
+    } else if (numberAffected) {
+      Logger.verbose('Captions: upserted locale', { locale: locale.locale, meetingId });
     }
-
-    return Logger.verbose(`Upserted caption locale=${locale.locale} meeting=${meetingId}`);
-  };
-
-  return Captions.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Adding caption to collection: ${err}`);
+  }
 }

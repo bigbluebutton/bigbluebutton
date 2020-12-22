@@ -46,7 +46,7 @@ const toUnifiedPlan = (planBSDP) => {
 };
 
 const stripMDnsCandidates = (sdp) => {
-  const parsedSDP = transform.parse(sdp);
+  const parsedSDP = transform.parse(sdp.sdp);
   let strippedCandidates = 0;
   parsedSDP.media.forEach((media) => {
     if (media.candidates) {
@@ -62,7 +62,7 @@ const stripMDnsCandidates = (sdp) => {
   if (strippedCandidates > 0) {
     logger.info({ logCode: 'sdp_utils_mdns_candidate_strip' }, `Stripped ${strippedCandidates} mDNS candidates`);
   }
-  return transform.write(parsedSDP);
+  return { sdp: transform.write(parsedSDP), type: sdp.type };
 };
 
 const isPublicIpv4 = (ip) => {

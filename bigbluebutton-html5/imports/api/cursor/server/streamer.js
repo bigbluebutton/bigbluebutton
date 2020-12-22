@@ -11,12 +11,12 @@ export function removeCursorStreamer(meetingId) {
 export function addCursorStreamer(meetingId) {
   const streamer = new Meteor.Streamer(`cursor-${meetingId}`, { retransmit: false });
   if (streamerLog) {
-    Logger.debug(`Cursor streamer created for meeting ${meetingId}`);
+    Logger.debug('Cursor streamer created', { meetingId });
   }
 
   streamer.allowRead(function allowRead() {
     if (streamerLog) {
-      Logger.debug(`Cursor streamer called allowRead for user ${this.userId} in meeting ${meetingId}`);
+      Logger.debug('Cursor streamer called allowRead', { userId: this.userId, meetingId });
     }
     return this.userId && this.userId.includes(meetingId);
   });
