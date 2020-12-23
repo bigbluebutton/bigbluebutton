@@ -4,6 +4,7 @@ import Meetings from '/imports/api/meetings';
 import { Slides } from '/imports/api/slides';
 import stopWatchingExternalVideo from '/imports/api/external-videos/server/methods/stopWatchingExternalVideo';
 import modifyWhiteboardAccess from '/imports/api/whiteboard-multi-user/server/modifiers/modifyWhiteboardAccess';
+import RedisPubSub from '/imports/startup/server/redis';
 
 export default function changePresenter(presenter, userId, meetingId, changedBy) {
   const selector = {
@@ -37,6 +38,7 @@ export default function changePresenter(presenter, userId, meetingId, changedBy)
 
     if (currentSlide) {
       modifyWhiteboardAccess(meetingId, currentSlide.id, 0);
+      RedisPubSub.publishUserMessage(Meteor.settings.private.redis.channels.toAkkaApps, 'ModifyWhiteboardAccessPubMsg', meetingId, userId, {multiUser: 0, whiteboardId: currentSlide.id});
     }
     
     const numberAffected = Users.update(selector, modifier);
