@@ -32,12 +32,11 @@ const changeWhiteboardMode = (multiUser, whiteboardId) => {
   const whiteboardMultiuserData = WhiteboardMultiUser.findOne({ meetingId: Auth.meetingID, whiteboardId });
   const multiUser_p = whiteboardMultiuserData ? whiteboardMultiuserData.multiUser : 0;
   
+  makeCall('changeWhiteboardAccess', multiUser, whiteboardId);
+  
   if ( (multiUser_p == 2 && (multiUser   == 1 || multiUser   == 0)) ||
        (multiUser   == 2 && (multiUser_p == 1 || multiUser_p == 0)) ) {
-    makeCall('changeWhiteboardAccess', multiUser, whiteboardId);
     reloadWhiteboard(whiteboardId, multiUser);
-  } else {
-    makeCall('changeWhiteboardAccess', multiUser, whiteboardId);
   }
 };
 
