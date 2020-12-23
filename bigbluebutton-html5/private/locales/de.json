@@ -693,7 +693,15 @@
     "app.legacy.upgradeBrowser": "Es sieht so aus, als ob Sie eine veraltete Version eines unterstützten Browsers verwenden. Bitte aktualisieren Sie den Browser für volle Unterstützung.",
     "app.legacy.criosBrowser": "Unter iOS verwenden Sie für optimale Unterstützung bitte Safari.",
     "app.translation.translation.title": "Übersetzung",
-    "app.translation.languages.title": "Sprachen"
+    "app.translation.translations.title": "Übersetzungen",
+    "app.translation.languages.title": "Sprachen",
+    "app.translation.warning.confirmAllLanguages": "Bitte bestätigen sie alle Sprachen.",
+    "app.translation.warning.addLanguages": "Bitte füge eine Sprache hinzu.",
+    "app.translation.startTranslation": "Beginne Übersetzung",
+    "app.translation.addLanguage": "+ Sprache hinzufügen",
+    "app.translation.endTranslation": "Übersetzungen beenden",
+    "app.translation.newLanguage": "Neue Sprache",
+    "app.translation.confirmLanguage": "bestätigen"
 
 }
 
