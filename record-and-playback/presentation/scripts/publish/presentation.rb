@@ -698,13 +698,13 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
       shape[:square] = (square.text == 'true')
     end
   end
-  if shape[:type] == 'ellipse' or shape[:type] == 'marker'
+  if shape[:type] == 'ellipse'
     circle = event.at_xpath('circle')
     if !circle.nil?
       shape[:circle] = (circle.text == 'true')
     end
   end
-  if shape[:type] == 'pencil'
+  if shape[:type] == 'pencil' or shape[:type] == 'marker'
     commands = event.at_xpath('commands')
     if !commands.nil?
       shape[:commands] = commands.text.split(',').map { |c| c.to_i }
