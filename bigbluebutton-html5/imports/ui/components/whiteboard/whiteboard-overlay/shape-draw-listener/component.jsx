@@ -186,13 +186,13 @@ export default class ShapeDrawListener extends Component {
   // main mouse move handler
   handleMouseMove(event) {
     const { clientX, clientY } = event;
-    this.isFilled = key_ctrl;
+    this.isFilled = event.ctrlKey;
     this.commonDrawMoveHandler(clientX, clientY);
   }
 
   // main mouse up handler
   handleMouseUp(event) {
-    this.isFilled = key_ctrl;
+    this.isFilled = event.ctrlKey;
     this.sendLastMessage();
   }
 
