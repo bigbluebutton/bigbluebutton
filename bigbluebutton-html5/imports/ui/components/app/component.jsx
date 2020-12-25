@@ -498,7 +498,7 @@ class App extends Component {
               : null
           }
           {
-            shouldShowRemoteDesktop
+            (shouldShowRemoteDesktop && !MediaService.getSwapLayout())
               ? <RemoteDesktopContainer isPresenter={isPresenter} />
               : null
           }

@@ -1,0 +1,17 @@
+
+.button {
+  z-index: 1;
+  position: absolute;
+  background-color: var(--color-transparent);
+  color: var(--color-white);
+  top: 0;
+  right: auto;
+  left: 0;
+  cursor: pointer;
+  border: thin solid;
+
+  [dir="rtl"] & {
+    right: auto;
+    left :0;
+  }
+}

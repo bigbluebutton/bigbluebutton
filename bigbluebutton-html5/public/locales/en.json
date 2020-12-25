@@ -899,6 +899,7 @@
     "app.remoteDesktop.lockDesktop": "Lock remote desktop",
     "app.remoteDesktop.unlockDesktop": "Unlock remote desktop",
     "app.remoteDesktop.lockDesktopButtonDesc": "Lock remote desktop",
+    "app.remoteDesktop.hide": "Hide remote desktop",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Share an external video",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Stop sharing external video",
     "app.actionsBar.actionsDropdown.shareRemoteDesktop": "Share a remote desktop",
