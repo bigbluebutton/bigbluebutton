@@ -46,6 +46,7 @@ const handleClickQuickPoll = (slideId, poll, label) => {
   Session.set('forcePollOpen', true);
 
   makeCall('startPoll', type, slideId, label.options);
+  //makeCall('startPoll', type, slideId, "", label.options); // in case PR #10500 has been merged.
 };
 
 const getAvailableQuickPolls = (slideId, parsedSlides) => {
