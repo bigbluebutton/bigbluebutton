@@ -12,7 +12,7 @@ export default function changeWhiteboardAccess(multiUser, whiteboardId, userId =
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  check(multiUser, Number);
+  check(multiUser, Number); //In this method multiUser does not need to be a number actually (only 0 or not matters)
   check(whiteboardId, String);
   check(userId, String);
 
