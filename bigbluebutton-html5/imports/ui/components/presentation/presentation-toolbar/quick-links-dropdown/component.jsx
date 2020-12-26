@@ -66,6 +66,7 @@ function getAvailableVideos(slideId, parsedUrls, label, isFullscreen, fullscreen
     return urls.concat(parsedUrls.map(parsedUrl => (
               <DropdownListItem
                 label={parsedUrl}
+                key={parsedUrl}
                 onClick={() => handleClickQuickVideo(parsedUrl, isFullscreen, fullscreenRef)}
               />
             )));
@@ -84,6 +85,7 @@ function getAvailableUrls(slideId, parsedUrls, label, isFullscreen, fullscreenRe
     return urls.concat(parsedUrls.map(parsedUrl => (
       <DropdownListItem
         label={parsedUrl}
+        key={parsedUrl}
         onClick={() => handleClickQuickUrl(parsedUrl, isFullscreen, fullscreenRef)}
       />
     )));
