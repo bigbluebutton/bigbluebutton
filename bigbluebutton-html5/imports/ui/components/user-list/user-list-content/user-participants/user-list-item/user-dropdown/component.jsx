@@ -332,10 +332,7 @@ class UserDropdown extends PureComponent {
       && isMeteorConnected;
     
     const currentSlide = PresentationAreaService.getCurrentSlide('DEFAULT_PRESENTATION_POD');
-    const whiteboardId = currentSlide.id;
-    const wbdata = WhiteboardMultiUser.findOne({ meetingId: user.meetingId, whiteboardId });
-    const multiUser = wbdata ? wbdata.multiUser : 0;
-
+    
     if (showChatOption) {
       actions.push(this.makeDropdownItem(
         'activeChat',
@@ -386,12 +383,13 @@ class UserDropdown extends PureComponent {
       actions.push(this.makeDropdownItem(
         'giveIndividualAccess',
         label,
-        () => changeWhiteboardMode(user.whiteboardAccess ? 0 : (multiUser == 0 ? 1 : multiUser), user.userId),
+        () => changeWhiteboardMode(user.whiteboardAccess ? 0 : 1, user.userId),
         'pen_tool',
       ));
     }
     
-    if (allowedToSetPresenter && isMeteorConnected) {
+    if (allowedToSetPresenter && isMeteorConnected && currentSlide) {
+      const whiteboardId = currentSlide.id;
       actions.push(this.makeDropdownItem(
         'setPresenter',
         isMe(user.userId)
