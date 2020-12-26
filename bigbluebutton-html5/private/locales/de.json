@@ -701,7 +701,10 @@
     "app.translation.addLanguage": "+ Sprache hinzufügen",
     "app.translation.endTranslation": "Übersetzungen beenden",
     "app.translation.newLanguage": "Neue Sprache",
-    "app.translation.confirmLanguage": "bestätigen"
+    "app.translation.confirmLanguage": "bestätigen",
+    "app.translation.translator.microphone": "Übersetzer Micro",
+    "app.translation.translator.selectLanguage": "Sprache Übersetzen",
+    "app.translation.selectTranslation": "Verfügbare Sprachen"
 
 }
 

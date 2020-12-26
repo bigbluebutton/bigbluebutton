@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import cx from 'classnames';
 import { styles } from './styles.scss';
+import { defineMessages } from 'react-intl';
 import DesktopShare from './desktop-share/component';
 import ActionsDropdown from './actions-dropdown/component';
 import QuickPollDropdown from './quick-poll-dropdown/component';
@@ -21,6 +22,24 @@ const TRANSLATION_SETTINGS = Meteor.settings.public.media.translation;
 const ORIGIN_TRANSLATION_VOLUME = TRANSLATION_SETTINGS.origineVolume;
 const TRANSLATOR_SPEAKING_DELAY = TRANSLATION_SETTINGS.translator.speakDetection.delay;
 const TRANSLATOR_SPEAKING_TIMEOUT = TRANSLATION_SETTINGS.translator.speakDetection.timeout;
+
+const intlMessages = defineMessages({
+  translatorMicrophoneLabel: {
+    id: 'app.translation.translator.microphone',
+    description: 'Label for translator microphone button',
+    defaultMessage: 'Translator mic',
+  },
+  translatorSelectLanguageLabel: {
+    id: 'app.translation.translator.selectLanguage',
+    description: 'Label for translator select language button',
+    defaultMessage: 'Translate to',
+  },
+  selectTranslationLabel: {
+      id: 'app.translation.selectTranslation',
+      description: 'Label for select translation button',
+      defaultMessage: 'Available languages',
+  },
+});
 
 class ActionsBar extends PureComponent {
   constructor(props) {
@@ -237,7 +256,7 @@ class ActionsBar extends PureComponent {
                 />
               }
               color='primary'
-              label={'Available languages'}
+              label={intl.formatMessage(intlMessages.selectTranslationLabel)}
               circle
               hideLabel
               size="lg"
@@ -250,8 +269,8 @@ class ActionsBar extends PureComponent {
                       className={[this.state.translationMuted ? styles.btnmuted: "", styles.translatorBtn ].join(" ")}
                       onClick={this.handleMuteTranslator}
                       hideLabel
-                      label="Translator mic"
-                      aria-label="Translator mic"
+                      label={intl.formatMessage(intlMessages.translatorMicrophoneLabel)}
+                      aria-label={intl.formatMessage(intlMessages.translatorMicrophoneLabel)}
                       color={!this.state.translationMuted ? 'primary' : 'default'}
                       ghost={this.state.translationMuted}
                       icon={this.state.translationMuted ? 'mute' : 'unmute'}
@@ -271,7 +290,7 @@ class ActionsBar extends PureComponent {
                           />
                         }
                         color='primary'
-                        label={'Translate to'}
+                        label={intl.formatMessage(intlMessages.translatorSelectLanguageLabel)}
                         circle
                         hideLabel
                         size="lg"

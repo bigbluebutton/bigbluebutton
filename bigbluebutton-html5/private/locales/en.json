@@ -703,6 +703,9 @@
     "app.translation.addLanguage": "+ Add Language",
     "app.translation.endTranslation": "End Translation",
     "app.translation.newLanguage": "New Language",
-    "app.translation.confirmLanguage": "confirm"
+    "app.translation.confirmLanguage": "confirm",
+    "app.translation.translator.microphone": "Translator mic",
+    "app.translation.translator.selectLanguage": "Translate to",
+    "app.translation.selectTranslation": "Available languages"
 
 }
