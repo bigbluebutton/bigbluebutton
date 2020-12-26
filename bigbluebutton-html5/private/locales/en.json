@@ -706,6 +706,8 @@
     "app.translation.confirmLanguage": "confirm",
     "app.translation.translator.microphone": "Translator mic",
     "app.translation.translator.selectLanguage": "Translate to",
-    "app.translation.selectTranslation": "Available languages"
+    "app.translation.selectTranslation": "Available languages",
+    "app.translation.language.origin": "Floor",
+    "app.translation.language.none": "None"
 
 }

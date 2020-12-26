@@ -243,7 +243,12 @@ class ActionsBar extends PureComponent {
           { this.state.showLanguageChoice ?
               (
                   <div className={"sailingShip "+styles.languageOverlay}>
-                    <LanguageOverlay current={this.state.translationLanguage} filteredLanguages={this.state.translatorLanguage ? [this.state.translatorLanguage] : []}  clickHandler={this.handleLanguageSelection.bind(this) }/>
+                    <LanguageOverlay
+                      current={this.state.translationLanguage}
+                      filteredLanguages={this.state.translatorLanguage ? [this.state.translatorLanguage] : []}
+                      clickHandler={this.handleLanguageSelection.bind(this)}
+                      intl={intl}
+                    />
                   </div>
               ):null
           }
@@ -303,7 +308,13 @@ class ActionsBar extends PureComponent {
           { this.state.showTranslatorChoice ?
               (
                   <div className={"sailingShip "+styles.translatorLanguageOverlay}>
-                    <LanguageOverlay translator={true} current={this.state.translatorLanguage} filteredLanguages={this.state.translationLanguage ? [this.state.translationLanguage] : []} clickHandler={this.handleTranslatorLanguageSelection.bind(this) }/>
+                    <LanguageOverlay
+                      translator={true}
+                      current={this.state.translatorLanguage}
+                      filteredLanguages={this.state.translationLanguage ? [this.state.translationLanguage] : []}
+                      clickHandler={this.handleTranslatorLanguageSelection.bind(this)}
+                      intl={intl}
+                    />
                   </div>
               ):null
           }

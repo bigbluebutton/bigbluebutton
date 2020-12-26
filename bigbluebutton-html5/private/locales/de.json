@@ -704,7 +704,9 @@
     "app.translation.confirmLanguage": "bestätigen",
     "app.translation.translator.microphone": "Übersetzer Micro",
     "app.translation.translator.selectLanguage": "Sprache Übersetzen",
-    "app.translation.selectTranslation": "Verfügbare Sprachen"
+    "app.translation.selectTranslation": "Verfügbare Sprachen",
+    "app.translation.language.origin": "Original",
+    "app.translation.language.none": "Keine"
 
 }
 

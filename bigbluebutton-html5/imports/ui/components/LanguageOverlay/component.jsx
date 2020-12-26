@@ -1,7 +1,21 @@
 import React, { Component } from 'react';
+import { defineMessages } from 'react-intl';
 import Meeting from "/imports/ui/services/meeting";
 import AudioManager from '/imports/ui/services/audio-manager';
 import styles from "./styles.scss"
+
+const intlMessages = defineMessages({
+    originLanguage: {
+      id: 'app.translation.language.origin',
+      description: 'Name of origin language',
+      defaultMessage: 'Floor',
+    },
+    noneLanguage: {
+      id: 'app.translation.language.none',
+      description: 'Name of none language',
+      defaultMessage: 'None',
+    },
+});
 
 class LanguageOverlay extends Component{
 
@@ -29,23 +43,25 @@ class LanguageOverlay extends Component{
         </div>);
     }
     componentDidMount() {
+        const {
+            intl,
+        } = this.props;
+
         Meeting.getLanguages().then(languages => {
             if(this.props.filteredLanguages) {
                 let filteredLanguageExtensions = new Set(this.props.filteredLanguages
                     .map(language => language.extension));
                 languages = languages.filter(language => !filteredLanguageExtensions.has(language.extension));
             }
-            this.state.languages = languages
             if(this.props.hasOwnProperty("translator") && this.props.translator){
-                this.state.languages.push({name: "None", extension:-1})
+                languages.push({name: intl.formatMessage(intlMessages.noneLanguage), extension:-1})
             }else{
-                this.state.languages.push({name: "Floor", extension:-1})
+                languages.push({name: intl.formatMessage(intlMessages.originLanguage), extension:-1})
             }
 
-            this.setState(this.state)
+            this.setState({languages: languages})
             harborRender()
         });
-
     }
 }
 
