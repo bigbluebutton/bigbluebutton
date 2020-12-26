@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, intlShape } from 'react-intl';
+import { defineMessages } from 'react-intl';
 import _ from 'lodash';
 import { makeCall } from '/imports/ui/services/api';
 import browser from 'browser-detect';
@@ -38,7 +38,6 @@ const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false)
     : false);
 
 const propTypes = {
-  intl: intlShape.isRequired,
   parseCurrentSlideContent: PropTypes.func.isRequired,
   amIPresenter: PropTypes.bool.isRequired,
   allowExternalVideo: PropTypes.bool.isRequired,
