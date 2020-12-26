@@ -89,8 +89,10 @@ class Translations extends Component{
             return
         }
         Meeting.setLanguages(languages);
-        this.state.active = true
-        this.setState(this.state)
+        this.setState({
+            active: true,
+            warning: null,
+        });
     }
 
     endTranslation = () =>{
