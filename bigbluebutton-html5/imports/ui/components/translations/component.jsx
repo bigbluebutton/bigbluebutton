@@ -74,25 +74,21 @@ class Translations extends Component{
     }
 
     startTranslation = () => {
-        let inedit = this.state.languages.filter((language)=>{
-            return language.edit
-        });
-        if(inedit.length){
-            this.setState({warning : intlMessages.confirmAllLangugagesWarning});
-            return
+        let inedit = this.state.languages.filter(language => language.edit);
+        if (!inedit.length) {
+            let languages = this.state.languages.map(language => language.name);
+            if (languages.length) {
+                Meeting.setLanguages(languages);
+                this.setState({
+                    active: true,
+                    warning: null,
+                });
+            } else {
+                this.setState({ warning: intlMessages.addLangugagesWarning });
+            }
+        } else {
+            this.setState({ warning: intlMessages.confirmAllLangugagesWarning });
         }
-        let languages = this.state.languages.map(language => {
-            return language.name;
-        })
-        if(!languages.length){
-            this.setState({warning: intlMessages.addLangugagesWarning});
-            return
-        }
-        Meeting.setLanguages(languages);
-        this.setState({
-            active: true,
-            warning: null,
-        });
     }
 
     endTranslation = () =>{
