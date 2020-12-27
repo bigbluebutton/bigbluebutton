@@ -60,6 +60,10 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.openActions',
     description: 'describes the open actions shortcut',
   },
+  opendebugwindow: {
+    id: 'app.shortcut-help.openDebugWindow',
+    description: 'describes the open debug window shortcut',
+  },
   openstatus: {
     id: 'app.shortcut-help.openStatus',
     description: 'describes the open status shortcut',
