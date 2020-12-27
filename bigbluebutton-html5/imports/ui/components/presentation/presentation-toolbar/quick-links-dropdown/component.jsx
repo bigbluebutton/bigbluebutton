@@ -60,38 +60,35 @@ const handleClickQuickUrl = (url, isFullscreen, fullscreenRef) => {
   window.open(url, null, 'menubar,toolbar,location,resizable');
 };
 
-function getAvailableVideos(slideId, parsedUrls, label, isFullscreen, fullscreenRef, allowEV) {
-  if (allowEV && parsedUrls && parsedUrls.length ) {
-    const urls = [<DropdownListTitle key='dropvideotitle'>{label}</DropdownListTitle>];
-    return urls.concat(parsedUrls.map(parsedUrl => (
-              <DropdownListItem
-                label={parsedUrl}
-                key={parsedUrl}
-                onClick={() => handleClickQuickVideo(parsedUrl, isFullscreen, fullscreenRef)}
-              />
-            )));
-  } else {
-    return [];
+function getAvailableLinks(slideId, videoUrls, urls, videoLabel, urlLabel, isFullscreen, fullscreenRef, allowEV){
+  const linkItems = [];
+  if (allowEV && videoUrls && videoUrls.length ) {
+    linkItems.push(<DropdownListTitle key='dropvideotitle'>{videoLabel}</DropdownListTitle>);
+    videoUrls.forEach(url => {
+              linkItems.push(
+                <DropdownListItem
+                  label={url}
+                  onClick={() => handleClickQuickVideo(url, isFullscreen, fullscreenRef)}
+                  key={url}
+                />);
+            });
   }
-}
-
-function getAvailableUrls(slideId, parsedUrls, label, isFullscreen, fullscreenRef, separator) {
-  if (parsedUrls && parsedUrls.length ) {
-    const urls = [];
-    if (separator) {
-      urls.push(<DropdownListSeparator key='quickurllinkseparator' />);
+  
+  if (urls && urls.length ) {
+    if (videoUrls && videoUrls.length) {
+      linkItems.push(<DropdownListSeparator key='quickurllinkseparator' />);
     }
-    urls.push(<DropdownListTitle key='dropurltitle'>{label}</DropdownListTitle>);
-    return urls.concat(parsedUrls.map(parsedUrl => (
-      <DropdownListItem
-        label={parsedUrl}
-        key={parsedUrl}
-        onClick={() => handleClickQuickUrl(parsedUrl, isFullscreen, fullscreenRef)}
-      />
-    )));
-  } else {
-    return [];
+    linkItems.push(<DropdownListTitle key='dropurltitle'>{urlLabel}</DropdownListTitle>);
+    urls.forEach(url => {
+              linkItems.push(
+                <DropdownListItem
+                  label={url}
+                  onClick={() => handleClickQuickUrl(url, isFullscreen, fullscreenRef)}
+                  key={url}
+                />);
+            });
   }
+  return(linkItems);
 }
 
 const QuickLinksDropdown = (props) => {
@@ -120,8 +117,7 @@ const QuickLinksDropdown = (props) => {
       </DropdownTrigger>
       <DropdownContent placement="top left">
         <DropdownList>
-          {getAvailableVideos(slideId, videoUrls, intl.formatMessage(intlMessages.quickLinksVideoLabel), isFullscreen, fullscreenRef, allowExternalVideo)}
-          {getAvailableUrls(slideId, urls, intl.formatMessage(intlMessages.quickLinksUrlLabel), isFullscreen, fullscreenRef, videoUrls.length && urls.length)}
+          {getAvailableLinks(slideId, videoUrls, urls, intl.formatMessage(intlMessages.quickLinksVideoLabel), intl.formatMessage(intlMessages.quickLinksUrlLabel), isFullscreen, fullscreenRef, allowExternalVideo)}
         </DropdownList>
       </DropdownContent>
     </Dropdown>
