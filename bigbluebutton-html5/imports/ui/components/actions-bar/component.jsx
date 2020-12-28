@@ -22,6 +22,7 @@ const TRANSLATION_SETTINGS = Meteor.settings.public.media.translation;
 const ORIGIN_TRANSLATION_VOLUME = TRANSLATION_SETTINGS.origineVolume;
 const TRANSLATOR_SPEAKING_DELAY = TRANSLATION_SETTINGS.translator.speakDetection.delay;
 const TRANSLATOR_SPEAKING_TIMEOUT = TRANSLATION_SETTINGS.translator.speakDetection.timeout;
+const TRANSLATOR_SPEAKING_ENABLED = TRANSLATION_SETTINGS.translator.speakDetection.enabled;
 
 const intlMessages = defineMessages({
   translatorMicrophoneLabel: {
@@ -59,41 +60,43 @@ class ActionsBar extends PureComponent {
 
 
   componentDidMount() {
-    setInterval(() => {
-      const meeting = Meetings.findOne(
-        { meetingId: Auth.meetingID },
-        { fields: { 'languages': 1 } });
+    if (TRANSLATOR_SPEAKING_ENABLED) {
+      setInterval(() => {
+        const meeting = Meetings.findOne(
+          { meetingId: Auth.meetingID },
+          { fields: { 'languages': 1 } });
 
-      if (meeting.languages) {
+        if (meeting.languages) {
 
-        let mainaudio = document.getElementById("remote-media")
-        let transaudio = document.getElementById("translation-media")
+          let mainaudio = document.getElementById("remote-media")
+          let transaudio = document.getElementById("translation-media")
 
-        let result = false;
-        const languageExtension = AudioManager.translationLanguageExtension;
-        let meeting1 = meeting.languages.find(language => language.extension === languageExtension);
-        if (meeting1 !== undefined) {
-          if (meeting1.hasOwnProperty("translatorIsSpeaking")) {
-            result = meeting1.translatorIsSpeaking;
-            if (meeting1.hasOwnProperty("translatorSpeakingUtcTimestamp")) {
-              if (meeting1.translatorSpeakingUtcTimestamp + TRANSLATOR_SPEAKING_DELAY > Date.now() && !result) {
-                result = true;
-              }
-              if (meeting1.translatorSpeakingUtcTimestamp + TRANSLATOR_SPEAKING_TIMEOUT < Date.now()) {
-                result = false;
+          let result = false;
+          const languageExtension = AudioManager.translationLanguageExtension;
+          let meeting1 = meeting.languages.find(language => language.extension === languageExtension);
+          if (meeting1 !== undefined) {
+            if (meeting1.hasOwnProperty("translatorIsSpeaking")) {
+              result = meeting1.translatorIsSpeaking;
+              if (meeting1.hasOwnProperty("translatorSpeakingUtcTimestamp")) {
+                if (meeting1.translatorSpeakingUtcTimestamp + TRANSLATOR_SPEAKING_DELAY > Date.now() && !result) {
+                  result = true;
+                }
+                if (meeting1.translatorSpeakingUtcTimestamp + TRANSLATOR_SPEAKING_TIMEOUT < Date.now()) {
+                  result = false;
+                }
               }
             }
           }
+          if (result) {
+            mainaudio.volume = ORIGIN_TRANSLATION_VOLUME;
+            transaudio.volume = 1
+          } else {
+            mainaudio.volume = 0.8
+          }
         }
-        if (result) {
-          mainaudio.volume = ORIGIN_TRANSLATION_VOLUME;
-          transaudio.volume = 1
-        } else {
-          mainaudio.volume = 0.8
-        }
-      }
-    }, 500);
-    console.log("easy to find")
+      }, 500);
+      console.log("easy to find")
+    }
   }
 
   autoArrangeToggle() {
@@ -150,6 +153,15 @@ class ActionsBar extends PureComponent {
   handleLanguageSelection(language){
     this.state.translationLanguage = language
     AudioManager.openTranslationChannel(language.extension)
+      .then((languageExtension) => {
+        if (!TRANSLATOR_SPEAKING_ENABLED) {
+          if (languageExtension === -1) {
+            AudioManager.setOrigineOutputVolume(1.0);
+          } else {
+            AudioManager.setOrigineOutputVolume(ORIGIN_TRANSLATION_VOLUME);
+          }
+        }
+      });
     this.setState(this.state)
     this.forceUpdate()
   }

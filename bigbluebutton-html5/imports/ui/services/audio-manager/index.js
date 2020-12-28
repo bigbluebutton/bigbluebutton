@@ -672,7 +672,7 @@ class AudioManager {
     return audioAlert.play();
   }
 
-  openTranslationChannel(languageExtension) {
+  async openTranslationChannel(languageExtension) {
     if(this.translationBridge.activeSession) {
       this.translationBridge.exitAudio()
       this.translationBridge.userData.languageExtension = -1;
@@ -692,6 +692,9 @@ class AudioManager {
         });
       });
       this.translationBridge.userData.languageExtension = languageExtension;
+      return languageExtension;
+    } else {
+      return -1
     }
   }
 

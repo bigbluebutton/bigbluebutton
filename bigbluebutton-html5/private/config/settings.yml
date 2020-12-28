@@ -308,6 +308,7 @@ public:
       origineVolume: 0.8
       translator:
         speakDetection:
+          enabled: true
           timeout: 60000
           delay: 5000
           threshold: -70
