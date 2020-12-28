@@ -95,7 +95,6 @@ class ActionsBar extends PureComponent {
           }
         }
       }, 500);
-      console.log("easy to find")
     }
   }
 
