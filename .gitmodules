@@ -1,0 +1,9 @@
+[submodule "bbb-webrtc-sfu"]
+	path = bbb-webrtc-sfu
+	url = https://github.com/bigbluebutton/bbb-webrtc-sfu
+[submodule "etherpad-lite"]
+	path = etherpad-lite
+	url = https://github.com/bigbluebutton/etherpad-lite
+[submodule "freeswitch"]
+	path = freeswitch
+	url = https://github.com/signalwire/freeswitch
