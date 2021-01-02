@@ -630,7 +630,8 @@ class AudioManager {
     });
   }
   setSenderTrackEnabledTranslator (shouldEnable) {
-    this.translatorStream.getTracks().forEach(track=>{
+
+    this.translatorStream && this.translatorStream.getTracks().forEach(track=>{
       if (track && track.kind === 'audio') {
         track.enabled = shouldEnable;
       }
