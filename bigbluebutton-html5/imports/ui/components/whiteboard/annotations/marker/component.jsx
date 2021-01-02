@@ -154,7 +154,7 @@ export default class MarkerComponent extends Component {
         strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         strokeLinejoin="round"
         strokeLinecap={lineCap}
-        display={annotation.color == 16777215 ? "none" : ""}
+        shape-rendering="crispEdges"
       />
       <mask id = {maskId}>
         <path
@@ -164,6 +164,7 @@ export default class MarkerComponent extends Component {
           strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
           strokeLinejoin="round"
           strokeLinecap={lineCap}
+          shape-rendering="crispEdges"
         />
       </mask>
       <use mask={`url(#${maskId})`}
