@@ -7,6 +7,10 @@ import cx from 'classnames';
 import { styles } from './styles.scss';
 import AudioService from '/imports/ui/components/audio/service';
 import {Meteor} from "meteor/meteor";
+import MediaService, {
+  getSwapLayout,
+  shouldEnableSwapLayout,
+} from '../media/service';
 
 const intlMessages = defineMessages({
   pollingTitleLabel: {
@@ -28,6 +32,8 @@ class Polling extends Component {
   }
 
   componentDidMount() {
+    const isLayoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
+    if (isLayoutSwapped) MediaService.toggleSwapLayout();
     this.play();
   }
 
