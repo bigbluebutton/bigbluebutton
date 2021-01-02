@@ -630,7 +630,11 @@ class AudioManager {
     });
   }
   setSenderTrackEnabledTranslator (shouldEnable) {
-
+    this.translatorStream.getTracks().forEach(track=>{
+      if (track && track.kind === 'audio') {
+        track.enabled = shouldEnable;
+      }
+    })
     if(this.translatorBridge.activeSession) {
       // Bridge -> SIP.js bridge, the only full audio capable one right now
       const peer = this.translatorBridge.getPeerConnection();
@@ -697,15 +701,6 @@ class AudioManager {
     }
 
     if( languageExtension >= 0 ) {
-
-      /*let audioContext = this.translatorVolumeGainNode.context;
-      let microDestinationNode = audioContext.createMediaStreamDestination();
-      if(this.inputStream === undefined){
-        await this.joinMicrophone()
-      }
-      let microAudioNode = audioContext.createMediaStreamSource(this.inputStream);
-      microAudioNode.connect(this.translatorVolumeGainNode)
-      this.translatorVolumeGainNode.connect(microDestinationNode);*/
       let success = function (inputStream) {
         let speechEventsOptions = {
           interval: 200,
@@ -732,12 +727,7 @@ class AudioManager {
         };
 
         this.translatorBridge.userData.voiceBridge = this.userData.voiceBridge.toString()+languageExtension;
-        let onaudio = function (){
-          if(this.isTranslatorMuted()){
-              this.muteTranslator();
-          }
-        }.bind(this)
-        this.translatorBridge.joinAudio(callOptions, onaudio);
+        this.translatorBridge.joinAudio(callOptions);
       }
       navigator.mediaDevices.getUserMedia({ audio: true, deviceId: this.inputDeviceId }).then(success.bind(this));
     }else{
