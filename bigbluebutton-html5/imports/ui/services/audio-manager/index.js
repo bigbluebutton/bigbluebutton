@@ -636,15 +636,19 @@ class AudioManager {
         track.enabled = shouldEnable;
       }
     })
-    if(this.translatorBridge.activeSession) {
-      // Bridge -> SIP.js bridge, the only full audio capable one right now
-      const peer = this.translatorBridge.getPeerConnection();
-      peer.getSenders().forEach(sender => {
-        const { track } = sender;
-        if (track && track.kind === 'audio') {
-          track.enabled = shouldEnable;
-        }
-      });
+    try {
+      if (this.translatorBridge.activeSession) {
+        // Bridge -> SIP.js bridge, the only full audio capable one right now
+        const peer = this.translatorBridge.getPeerConnection();
+        peer.getSenders().forEach(sender => {
+          const {track} = sender;
+          if (track && track.kind === 'audio') {
+            track.enabled = shouldEnable;
+          }
+        });
+      }
+    }catch (e) {
+      //ignore it is muted two times anyway
     }
   }
 
@@ -733,10 +737,11 @@ class AudioManager {
         this.translatorBridge.userData.voiceBridge = this.userData.voiceBridge.toString()+languageExtension;
         this.translatorBridge.joinAudio(callOptions);
       }
-      navigator.mediaDevices.getUserMedia({ audio: true, deviceId: this.inputDeviceId }).then(success.bind(this));
+      return navigator.mediaDevices.getUserMedia({ audio: true, deviceId: this.inputDeviceId }).then(success.bind(this));
     }else{
       let mainaudio = document.getElementById("remote-media")
       mainaudio.vol = 1
+
     }
   }
 
