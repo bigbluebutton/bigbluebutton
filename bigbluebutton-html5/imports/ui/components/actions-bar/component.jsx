@@ -91,7 +91,7 @@ class ActionsBar extends PureComponent {
             mainaudio.volume = ORIGIN_TRANSLATION_VOLUME;
             transaudio.volume = 1
           } else {
-            mainaudio.volume = 0.8
+            mainaudio.volume = 1.0
           }
         }
       }, 500);
