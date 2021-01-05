@@ -195,7 +195,6 @@ const getUsers = () => {
   let users = Users
     .find({
       meetingId: Auth.meetingID,
-      authed: true,
     }, userFindSorting)
     .fetch();
 
