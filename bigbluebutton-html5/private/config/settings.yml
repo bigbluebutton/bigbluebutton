@@ -105,10 +105,6 @@ public:
       # Max timeout: used as the max camera subscribe reconnection timeout. Each
       # subscribe reattempt increases the reconnection timer up to this
       maxTimeout: 60000
-    chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc
-    chromeDefaultExtensionLink: https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc
-    chromeExtensionKey: KEY
-    chromeExtensionLink: LINK
     screenshare:
       mediaTimeouts:
         maxConnectionAttempts: 2
