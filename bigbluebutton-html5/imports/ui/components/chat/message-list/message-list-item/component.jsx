@@ -119,6 +119,7 @@ class MessageListItem extends Component {
 
     const dateTime = new Date(time);
     const regEx = /<a[^>]+>/i;
+    const defaultAvatarString = user?.name?.toLowerCase().slice(0, 2) || "  ";
 
     return (
       <div className={styles.item} key={_.uniqueId('message-list-item-')}>
@@ -130,7 +131,7 @@ class MessageListItem extends Component {
               moderator={user.isModerator}
               avatar={user.avatar}
             >
-              {user.name.toLowerCase().slice(0, 2)}
+              {defaultAvatarString}
             </UserAvatar>
           </div>
           <div className={styles.content}>
