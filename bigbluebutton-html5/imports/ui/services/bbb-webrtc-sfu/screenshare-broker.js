@@ -118,11 +118,6 @@ class ScreenshareBroker extends BaseBroker {
       hasAudio: !!this.hasAudio,
     };
 
-    logger.info({
-      logCode: `${this.logCodePrefix}_offer_generated`,
-      extraInfo: { sfuComponent: this.sfuComponent, role: this.role },
-    }, `SFU screenshare offer generated`);
-
     this.sendMessage(message);
   }
 
@@ -178,11 +173,6 @@ class ScreenshareBroker extends BaseBroker {
   }
 
   onIceCandidate (candidate, role) {
-    logger.debug({
-      logCode: `${this.logCodePrefix}_client_candidate`,
-      extraInfo: { sfuComponent: this.sfuComponent, candidate, role: this.role }
-    }, `Screenshare candidate generated: ${JSON.stringify(candidate)}`);
-
     const message = {
       id: ON_ICE_CANDIDATE_MSG,
       role,

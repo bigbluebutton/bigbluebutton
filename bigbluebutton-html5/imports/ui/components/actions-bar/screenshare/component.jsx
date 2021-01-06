@@ -18,7 +18,6 @@ import {
   isVideoBroadcasting,
 } from '/imports/ui/components/screenshare/service';
 
-
 const propTypes = {
   intl: intlShape.isRequired,
   enabled: PropTypes.bool.isRequired,
