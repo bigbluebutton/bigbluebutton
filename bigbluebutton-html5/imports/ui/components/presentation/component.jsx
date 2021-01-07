@@ -263,6 +263,7 @@ class PresentationArea extends PureComponent {
     if (isFullscreen !== newIsFullscreen) {
       this.setState({ isFullscreen: newIsFullscreen });
       layoutContextDispatch({ type: 'setPresentationFullscreen', value: newIsFullscreen });
+      window.dispatchEvent(new Event('slideChanged'));
     }
   }
 

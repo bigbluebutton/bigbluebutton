@@ -195,7 +195,6 @@ const getUsers = () => {
   let users = Users
     .find({
       meetingId: Auth.meetingID,
-      authed: true,
     }, userFindSorting)
     .fetch();
 
@@ -526,6 +525,10 @@ const requestUserInformation = (userId) => {
 };
 
 const sortUsersByFirstName = (a, b) => {
+  if (!a.firstName && !b.firstName) return 0;
+  if (a.firstName && !b.firstName) return -1;
+  if (!a.firstName && b.firstName) return 1;
+
   const aName = a.firstName.toLowerCase();
   const bName = b.firstName.toLowerCase();
   if (aName < bName) return -1;

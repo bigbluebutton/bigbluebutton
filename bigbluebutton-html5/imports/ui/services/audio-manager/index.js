@@ -429,7 +429,7 @@ class AudioManager {
     // Play bogus silent audio to try to circumvent autoplay policy on Safari
     if (!audio.src) {
       audio.src = `${Meteor.settings.public.app.cdn
-      + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}` + 'resources/sounds/silence.mp3';
+      + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}` + '/resources/sounds/silence.mp3';
     }
 
     audio.play().catch((e) => {
