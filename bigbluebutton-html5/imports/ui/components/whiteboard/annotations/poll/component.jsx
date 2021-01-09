@@ -450,26 +450,21 @@ class PollDrawComponent extends Component {
           fill={backgroundColor}
           strokeWidth={thickness}
         />
-        <text
-          x={innerRect.x}
-          y={innerRect.y}
-          fill="#333333"
-          fontFamily="Arial"
-          fontSize={calcFontSize}
-          textAnchor={isRTL ? 'end' : 'start'}
-        >
-          {extendedTextArray.map(line => (
-            <tspan
-              x={line.keyColumn.xLeft}
-              y={line.keyColumn.yLeft}
-              dy={maxLineHeight / 2}
-              key={`${line.key}_key`}
-              className={styles.outline}
-            >
-              {line.keyColumn.keyString}
-            </tspan>
-          ))}
-        </text>
+        {extendedTextArray.map(line => (
+          <text
+            x={line.keyColumn.xLeft}
+            y={line.keyColumn.yLeft}
+            dy={maxLineHeight / 2}
+            key={`${line.key}_key`}
+            fill="#333333"
+            fontFamily="Arial"
+            fontSize={calcFontSize}
+            textAnchor={isRTL ? 'end' : 'start'}
+            className={styles.outline}
+          >
+            {line.keyColumn.keyString}
+          </text>
+        ))}
         {extendedTextArray.map(line => (
           <rect
             key={`${line.key}_bar`}
