@@ -19,10 +19,10 @@ import Service from './service';
 import Auth from '/imports/ui/services/auth';
 
 const TRANSLATION_SETTINGS = Meteor.settings.public.media.translation;
-const FLOOR_TRANSLATION_VOLUME = TRANSLATION_SETTINGS.floorVolume;
-const TRANSLATOR_SPEAKING_DELAY = TRANSLATION_SETTINGS.translator.speakDetection.delay;
-const TRANSLATOR_SPEAKING_TIMEOUT = TRANSLATION_SETTINGS.translator.speakDetection.timeout;
-const TRANSLATOR_SPEAKING_ENABLED = TRANSLATION_SETTINGS.translator.speakDetection.enabled;
+const FLOOR_TRANSLATION_VOLUME = TRANSLATION_SETTINGS.floorVolume || 0.4;
+const TRANSLATOR_SPEAKING_DELAY = TRANSLATION_SETTINGS.translator.speakDetection.delay || 0;
+const TRANSLATOR_SPEAKING_TIMEOUT = TRANSLATION_SETTINGS.translator.speakDetection.timeout || 60000;
+const TRANSLATOR_SPEAKING_ENABLED = TRANSLATION_SETTINGS.translator.speakDetection.enabled || true;
 
 const intlMessages = defineMessages({
   translatorMicrophoneLabel: {
