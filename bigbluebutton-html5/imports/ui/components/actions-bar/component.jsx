@@ -68,7 +68,6 @@ class ActionsBar extends PureComponent {
 
         if (meeting.languages) {
 
-          let mainaudio = document.getElementById("remote-media")
           let transaudio = document.getElementById("translation-media")
 
           let result = false;
@@ -88,10 +87,10 @@ class ActionsBar extends PureComponent {
             }
           }
           if (result) {
-            mainaudio.volume = FLOOR_TRANSLATION_VOLUME;
+            AudioManager.setFloorOutputVolume(FLOOR_TRANSLATION_VOLUME);
             transaudio.volume = 1
           } else {
-            mainaudio.volume = 1.0
+            AudioManager.setFloorOutputVolume(1.0);
           }
         }
       }, 500);
