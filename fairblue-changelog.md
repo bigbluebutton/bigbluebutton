@@ -1,5 +1,7 @@
 # Changelog of Fairblue development
 ## Next
+* rename origne volume to floor volume
+* replace direct setting of floor volume with central floor volume control
 ## 01/2021
 * added changelog
 * made threshold, delay and timeout of speech detection configurable   
