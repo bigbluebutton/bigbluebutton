@@ -155,9 +155,9 @@ class ActionsBar extends PureComponent {
       .then((languageExtension) => {
         if (!TRANSLATOR_SPEAKING_ENABLED) {
           if (languageExtension === -1) {
-            AudioManager.setOrigineOutputVolume(1.0);
+            AudioManager.setFloorOutputVolume(1.0);
           } else {
-            AudioManager.setOrigineOutputVolume(FLOOR_TRANSLATION_VOLUME);
+            AudioManager.setFloorOutputVolume(FLOOR_TRANSLATION_VOLUME);
           }
         }
       });

@@ -745,9 +745,9 @@ class AudioManager {
     }
   }
 
-  setOrigineOutputVolume(volume) {
-    const originMediaElement = document.querySelector(MEDIA_TAG);
-    originMediaElement.volume = volume;
+  setFloorOutputVolume(volume) {
+    const floorMediaElement = document.querySelector(MEDIA_TAG);
+    floorMediaElement.volume = volume;
   }
 
   setTranslatorVolume(translatorVolume) {
