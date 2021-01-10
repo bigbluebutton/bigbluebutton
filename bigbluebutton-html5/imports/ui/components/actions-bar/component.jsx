@@ -19,7 +19,7 @@ import Service from './service';
 import Auth from '/imports/ui/services/auth';
 
 const TRANSLATION_SETTINGS = Meteor.settings.public.media.translation;
-const ORIGIN_TRANSLATION_VOLUME = TRANSLATION_SETTINGS.origineVolume;
+const FLOOR_TRANSLATION_VOLUME = TRANSLATION_SETTINGS.floorVolume;
 const TRANSLATOR_SPEAKING_DELAY = TRANSLATION_SETTINGS.translator.speakDetection.delay;
 const TRANSLATOR_SPEAKING_TIMEOUT = TRANSLATION_SETTINGS.translator.speakDetection.timeout;
 const TRANSLATOR_SPEAKING_ENABLED = TRANSLATION_SETTINGS.translator.speakDetection.enabled;
@@ -88,7 +88,7 @@ class ActionsBar extends PureComponent {
             }
           }
           if (result) {
-            mainaudio.volume = ORIGIN_TRANSLATION_VOLUME;
+            mainaudio.volume = FLOOR_TRANSLATION_VOLUME;
             transaudio.volume = 1
           } else {
             mainaudio.volume = 1.0
@@ -157,7 +157,7 @@ class ActionsBar extends PureComponent {
           if (languageExtension === -1) {
             AudioManager.setOrigineOutputVolume(1.0);
           } else {
-            AudioManager.setOrigineOutputVolume(ORIGIN_TRANSLATION_VOLUME);
+            AudioManager.setOrigineOutputVolume(FLOOR_TRANSLATION_VOLUME);
           }
         }
       });

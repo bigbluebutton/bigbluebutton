@@ -305,7 +305,7 @@ public:
     #Trace sip/audio messages in browser. If not set, default value is false.
     traceSip: false
     translation:
-      origineVolume: 0.2
+      floorVolume: 0.2
       translator:
         speakDetection:
           enabled: true
