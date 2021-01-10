@@ -226,8 +226,19 @@ module BigBlueButton
       @redis = redis
     end
 
+    # Apply a cleanup that removes certain ranges of special
+    # control characters from user-provided text
+    # Based on https://www.w3.org/TR/xml/#charsets
+    # Remove all Unicode characters not valid in XML, and also remove
+    # discouraged characters (includes control characters) in the U+0000-U+FFFF
+    # range (the higher values are just undefined characters, and are unlikely
+    # to cause issues).
+    def strip_control_chars(str)
+      str.scrub.tr("\x00-\x08\x0B\x0C\x0E-\x1F\x7F\uFDD0-\uFDEF\uFFFE\uFFFF", '')
+    end
+
     def store_events(meeting_id, events_file, break_timestamp)
-      version = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))["bbb_version"]
+      version = BigBlueButton.read_props["bbb_version"]
 
       if File.exist?(events_file)
         io = File.open(events_file, 'rb')
@@ -250,7 +261,7 @@ module BigBlueButton
       end
 
       meeting_metadata = @redis.metadata_for(meeting_id)
-      return if meeting_metadata.nil?
+      return if meeting_metadata.nil? || meeting_metadata.empty?
 
       # Fill in/update the top-level meeting element
       if meeting.nil?
@@ -258,9 +269,9 @@ module BigBlueButton
         recording << meeting
       end
       meeting['id'] = meeting_id
-      meeting['externalId'] = meeting_metadata[MEETINGID]
-      meeting['name'] = meeting_metadata[MEETINGNAME]
-      meeting['breakout'] = meeting_metadata[ISBREAKOUT]
+      meeting['externalId'] = strip_control_chars(meeting_metadata[MEETINGID])
+      meeting['name'] = strip_control_chars(meeting_metadata[MEETINGNAME])
+      meeting['breakout'] = strip_control_chars(meeting_metadata[ISBREAKOUT])
 
       # Fill in/update the top-level metadata element
       if metadata.nil?
@@ -268,7 +279,7 @@ module BigBlueButton
         recording << metadata
       end
       meeting_metadata.each do |k, v|
-        metadata[k] = v
+        metadata[strip_control_chars(k)] = strip_control_chars(v)
       end
 
       # Fill in/update the top-level breakout element
@@ -279,7 +290,7 @@ module BigBlueButton
         end
         breakout_metadata = @redis.breakout_metadata_for(meeting_id)
         breakout_metadata.each do |k, v|
-          breakout[k] = v
+          breakout[strip_control_chars(k)] = strip_control_chars(v)
         end
       end
 
@@ -315,9 +326,7 @@ module BigBlueButton
               # directly into the event
               event << v
             else
-              # Apply a cleanup that removes certain ranges of special
-              # control characters from user-provided text
-              event << events_doc.create_element(k, v.tr("\x00-\x08\x0B\x0C\x0E-\x1F\x7F",''))
+              event << events_doc.create_element(k, strip_control_chars(v))
             end
           end
         end

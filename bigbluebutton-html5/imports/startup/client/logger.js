@@ -36,6 +36,7 @@ class ServerLoggerStream extends ServerStream {
       this.rec.userInfo = fullInfo;
     }
     this.rec.clientBuild = Meteor.settings.public.app.html5ClientBuild;
+    this.rec.connectionId = Meteor.connection._lastSessionId;
     if (this.logTagString) {
       this.rec.logTag = this.logTagString;
     }
@@ -47,22 +48,36 @@ class ServerLoggerStream extends ServerStream {
 class MeteorStream {
   write(rec) {
     const { fullInfo } = Auth;
+    const clientURL = window.location.href;
 
     this.rec = rec;
     if (fullInfo.meetingId != null) {
+      if (!this.rec.extraInfo) {
+        this.rec.extraInfo = {};
+      }
+
+      this.rec.extraInfo.clientURL = clientURL;
+
       Meteor.call(
         'logClient',
         nameFromLevel[this.rec.level],
         this.rec.msg,
         this.rec.logCode,
-        this.rec.extraInfo || {},
+        this.rec.extraInfo,
         fullInfo,
       );
     } else {
-      Meteor.call('logClient', nameFromLevel[this.rec.level], this.rec.msg);
+      Meteor.call(
+        'logClient',
+        nameFromLevel[this.rec.level],
+        this.rec.msg,
+        this.rec.logCode,
+        { ...rec.extraInfo, clientURL },
+      );
     }
   }
 }
+
 
 function createStreamForTarget(target, options) {
   const TARGET_EXTERNAL = 'external';

@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import {
-  defineMessages, injectIntl, intlShape, FormattedMessage,
+  defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
 import browser from 'browser-detect';
 import PropTypes from 'prop-types';
@@ -8,7 +8,7 @@ import cx from 'classnames';
 import { styles } from '../styles.scss';
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   typingUsers: PropTypes.arrayOf(Object).isRequired,
 };
 
@@ -94,16 +94,19 @@ class TypingIndicator extends PureComponent {
   render() {
     const {
       error,
+      indicatorEnabled,
     } = this.props;
+
+    const typingElement = indicatorEnabled ? this.renderTypingElement() : null;
 
     const style = {};
     style[styles.error] = !!error;
     style[styles.info] = !error;
-    style[styles.spacer] = !!this.renderTypingElement();
+    style[styles.spacer] = !!typingElement;
 
     return (
       <div className={cx(style)}>
-        <span className={styles.typingIndicator}>{error || this.renderTypingElement()}</span>
+        <span className={styles.typingIndicator}>{error || typingElement}</span>
       </div>
     );
   }

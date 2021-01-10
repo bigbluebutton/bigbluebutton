@@ -31,6 +31,8 @@ class AnalyticsActor extends Actor with ActorLogging {
 
     msg.core match {
       case m: GetAllMeetingsReqMsg                           => logMessage(msg)
+      case m: GetRunningMeetingsRespMsg                      => logMessage(msg)
+      case m: GetRunningMeetingsReqMsg                       => logMessage(msg)
 
       case m: RegisterUserReqMsg                             => logMessage(msg)
       case m: RegisteredUserJoinTimeoutMsg                   => logMessage(msg)
@@ -47,7 +49,6 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: UserLeftMeetingEvtMsg                          => logMessage(msg)
       case m: PresenterUnassignedEvtMsg                      => logMessage(msg)
       case m: PresenterAssignedEvtMsg                        => logMessage(msg)
-      case m: MeetingIsActiveEvtMsg                          => logMessage(msg)
       case m: UserEjectedFromMeetingEvtMsg                   => logMessage(msg)
       case m: EjectUserFromVoiceConfSysMsg                   => logMessage(msg)
       case m: CreateBreakoutRoomSysCmdMsg                    => logMessage(msg)
@@ -74,7 +75,6 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: ScreenshareStopRtmpBroadcastVoiceConfMsg       => logMessage(msg)
       case m: ScreenshareRtmpBroadcastStartedEvtMsg          => logMessage(msg)
       case m: ScreenshareRtmpBroadcastStoppedEvtMsg          => logMessage(msg)
-      case m: MeetingInactivityWarningEvtMsg                 => logMessage(msg)
       case m: StartRecordingVoiceConfSysMsg                  => logMessage(msg)
       case m: StopRecordingVoiceConfSysMsg                   => logMessage(msg)
       //case m: UpdateRecordingTimerEvtMsg => logMessage(msg)
@@ -93,17 +93,33 @@ class AnalyticsActor extends Actor with ActorLogging {
       // Voice
       case m: UserMutedVoiceEvtMsg =>
         logMessage(msg)
+      case m: VoiceConfCallStateEvtMsg => logMessage(msg)
+      case m: VoiceCallStateEvtMsg => logMessage(msg)
 
       // Breakout
       case m: BreakoutRoomEndedEvtMsg => logMessage(msg)
 
       // Presentation
-      case m: PresentationConversionCompletedSysPubMsg => logMessage(msg)
+      //case m: PresentationConversionCompletedSysPubMsg => logMessage(msg)
       case m: PdfConversionInvalidErrorSysPubMsg => logMessage(msg)
       case m: SetCurrentPresentationPubMsg => logMessage(msg)
       case m: SetCurrentPresentationEvtMsg => logMessage(msg)
       case m: SetPresentationDownloadablePubMsg => logMessage(msg)
       case m: SetPresentationDownloadableEvtMsg => logMessage(msg)
+      //case m: PresentationPageConvertedSysMsg => logMessage(msg)
+      //case m: PresentationPageConvertedEventMsg => logMessage(msg)
+      case m: PresentationPageConversionStartedSysMsg => logMessage(msg)
+      case m: PresentationConversionEndedSysMsg => logMessage(msg)
+      case m: PresentationConversionRequestReceivedSysMsg => logMessage(msg)
+      //case m: PresentationConversionCompletedEvtMsg => logMessage(msg)
+      case m: GetAllPresentationPodsReqMsg => logMessage(msg)
+      //case m: PresentationPageGeneratedSysPubMsg => logMessage(msg)
+      //case m: PresentationPageGeneratedEvtMsg => logMessage(msg)
+      //case m: ResizeAndMovePagePubMsg => logMessage(msg)
+      case m: PresentationConversionUpdateSysPubMsg => logMessage(msg)
+      case m: PresentationConversionUpdateEvtMsgBody => logMessage(msg)
+      case m: PresentationPageCountErrorSysPubMsg => logMessage(msg)
+      case m: PresentationPageCountErrorEvtMsg => logMessage(msg)
 
       // Group Chats
       case m: SendGroupChatMessageMsg => logMessage(msg)
@@ -118,6 +134,8 @@ class AnalyticsActor extends Actor with ActorLogging {
       // Guest Management
       case m: GuestsWaitingApprovedMsg => logMessage(msg)
       case m: GuestsWaitingApprovedEvtMsg => logMessage(msg)
+      case m: GuestWaitingLeftMsg => logMessage(msg)
+      case m: GuestWaitingLeftEvtMsg => logMessage(msg)
       case m: GuestsWaitingForApprovalEvtMsg => logMessage(msg)
       case m: SetGuestPolicyCmdMsg => logMessage(msg)
       case m: GuestPolicyChangedEvtMsg => logMessage(msg)

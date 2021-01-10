@@ -21,6 +21,10 @@ export default class BaseAudioBridge {
     };
   }
 
+  getPeerConnection() {
+    console.error('The Bridge must implement getPeerConnection');
+  }
+
   exitAudio() {
     console.error('The Bridge must implement exitAudio');
   }

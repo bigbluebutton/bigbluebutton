@@ -2,28 +2,31 @@ import { Meteor } from 'meteor/meteor';
 import Breakouts from '/imports/api/breakouts';
 import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
-function breakouts(credentials, moderator = false) {
-  const {
-    meetingId,
-    requesterUserId,
-  } = credentials;
-  Logger.debug(`Publishing Breakouts for ${meetingId} ${requesterUserId}`);
+function breakouts(role) {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
-  if (moderator) {
-    const User = Users.findOne({ userId: requesterUserId });
-    if (!!User && User.role === ROLE_MODERATOR) {
-      const presenterSelector = {
-        $or: [
-          { parentMeetingId: meetingId },
-          { breakoutId: meetingId },
-        ],
-      };
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing Breakouts was requested by unauth connection ${this.connection.id}`);
+    return Breakouts.find({ meetingId: '' });
+  }
+  const { meetingId, userId } = tokenValidation;
 
-      return Breakouts.find(presenterSelector);
-    }
+  const User = Users.findOne({ userId, meetingId }, { fields: { role: 1 } });
+  Logger.debug('Publishing Breakouts', { meetingId, userId });
+
+  if (!!User && User.role === ROLE_MODERATOR) {
+    const presenterSelector = {
+      $or: [
+        { parentMeetingId: meetingId },
+        { breakoutId: meetingId },
+      ],
+    };
+
+    return Breakouts.find(presenterSelector);
   }
 
   const selector = {
@@ -34,7 +37,7 @@ function breakouts(credentials, moderator = false) {
       },
       {
         parentMeetingId: meetingId,
-        'users.userId': requesterUserId,
+        'users.userId': userId,
       },
       {
         breakoutId: meetingId,

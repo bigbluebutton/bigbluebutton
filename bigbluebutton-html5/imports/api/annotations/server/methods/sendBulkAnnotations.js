@@ -1,9 +1,8 @@
-import { check } from 'meteor/check';
-import sendAnnotation from './sendAnnotation';
+import { extractCredentials } from '/imports/api/common/server/helpers';
+import sendAnnotationHelper from './sendAnnotationHelper';
 
-export default function sendBulkAnnotations(credentials, payload) {
-  check(credentials, Object);
-  check(payload, [Object]);
+export default function sendBulkAnnotations(payload) {
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  payload.forEach(annotation => sendAnnotation(credentials, annotation));
+  payload.forEach(annotation => sendAnnotationHelper(annotation, meetingId, requesterUserId));
 }

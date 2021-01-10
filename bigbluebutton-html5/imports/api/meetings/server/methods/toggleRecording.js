@@ -1,20 +1,16 @@
-import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import { Meteor } from 'meteor/meteor';
 import RedisPubSub from '/imports/startup/server/redis';
 import { RecordMeetings } from '/imports/api/meetings';
 import Users from '/imports/api/users';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
-export default function toggleRecording(credentials) {
+export default function toggleRecording() {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-  const { meetingId, requesterUserId, requesterToken } = credentials;
 
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
-
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
   const EVENT_NAME = 'SetRecordingStatusCmdMsg';
 
   let meetingRecorded;
@@ -30,7 +26,7 @@ export default function toggleRecording(credentials) {
     } = recordObject;
 
     meetingRecorded = recording;
-    allowedToRecord = record && allowStartStopRecording;
+    allowedToRecord = record && allowStartStopRecording; // TODO-- remove some day
   }
 
   const payload = {

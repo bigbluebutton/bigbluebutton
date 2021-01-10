@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import Tooltip from '/imports/ui/components/tooltip/component';
+import TooltipContainer from '/imports/ui/components/tooltip/container';
 import { styles } from './styles';
 import Icon from '../icon/component';
 import BaseButton from './base/component';
@@ -109,6 +109,21 @@ export default class Button extends BaseButton {
     return propClassNames;
   }
 
+  _cleanProps(otherProps) {
+    const remainingProps = Object.assign({}, otherProps);
+    delete remainingProps.icon;
+    delete remainingProps.customIcon;
+    delete remainingProps.size;
+    delete remainingProps.color;
+    delete remainingProps.ghost;
+    delete remainingProps.circle;
+    delete remainingProps.block;
+    delete remainingProps.hideLabel;
+    delete remainingProps.tooltipLabel;
+
+    return remainingProps;
+  }
+
   render() {
     const {
       circle,
@@ -116,7 +131,6 @@ export default class Button extends BaseButton {
       label,
       'aria-label': ariaLabel,
       'aria-expanded': ariaExpanded,
-      tooltipDistance,
       tooltipLabel,
     } = this.props;
 
@@ -125,12 +139,11 @@ export default class Button extends BaseButton {
     if ((hideLabel && !ariaExpanded) || tooltipLabel) {
       const buttonLabel = label || ariaLabel;
       return (
-        <Tooltip
-          tooltipDistance={tooltipDistance}
+        <TooltipContainer
           title={tooltipLabel || buttonLabel}
         >
           {this[renderFuncName]()}
-        </Tooltip>
+        </TooltipContainer>
       );
     }
 
@@ -144,17 +157,7 @@ export default class Button extends BaseButton {
       ...otherProps
     } = this.props;
 
-    const remainingProps = Object.assign({}, otherProps);
-    delete remainingProps.icon;
-    delete remainingProps.customIcon;
-    delete remainingProps.size;
-    delete remainingProps.color;
-    delete remainingProps.ghost;
-    delete remainingProps.circle;
-    delete remainingProps.block;
-    delete remainingProps.hideLabel;
-    delete remainingProps.tooltipDistance;
-    delete remainingProps.tooltipLabel;
+    const remainingProps = this._cleanProps(otherProps);
 
     /* TODO: We can change this and make the button with flexbox to avoid html
       changes */
@@ -180,15 +183,7 @@ export default class Button extends BaseButton {
       ...otherProps
     } = this.props;
 
-    const remainingProps = Object.assign({}, otherProps);
-    delete remainingProps.icon;
-    delete remainingProps.color;
-    delete remainingProps.ghost;
-    delete remainingProps.circle;
-    delete remainingProps.block;
-    delete remainingProps.hideLabel;
-    delete remainingProps.tooltipDistance;
-    delete remainingProps.tooltipLabel;
+    const remainingProps = this._cleanProps(otherProps);
 
     return (
       <BaseButton

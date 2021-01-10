@@ -4,7 +4,7 @@ import Logger from '/imports/startup/server/logger';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 
-export default function editCaptions(meetingId, userId, padId) {
+export default function editCaptions(meetingId, userId, padId) { // TODO
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'UpdateCaptionOwnerPubMsg';
@@ -15,7 +15,10 @@ export default function editCaptions(meetingId, userId, padId) {
 
   const pad = Captions.findOne({ meetingId, padId });
 
-  if (!pad) return Logger.error(`Editing captions owner: ${padId}`);
+  if (!pad) {
+    Logger.error(`Editing captions owner: ${padId}`);
+    return;
+  }
 
   const { locale } = pad;
 

@@ -42,12 +42,21 @@ public class SwfSlidesGenerationProgressNotifier {
   }
 
 
-  public void sendConversionUpdateMessage(int slidesCompleted, UploadedPresentation pres) {
-    DocPageGeneratedProgress progress = new DocPageGeneratedProgress(pres.getPodId(), pres.getMeetingId(),
-      pres.getId(), pres.getId(),
-      pres.getName(), "notUsedYet", "notUsedYet",
-      pres.isDownloadable(), ConversionMessageConstants.GENERATED_SLIDE_KEY,
-      pres.getNumberOfPages(), slidesCompleted);
+  public void sendConversionUpdateMessage(int slidesCompleted, UploadedPresentation pres, int pageGenerated) {
+    DocPageGeneratedProgress progress = new DocPageGeneratedProgress(pres.getPodId(),
+            pres.getMeetingId(),
+            pres.getId(),
+            pres.getId(),
+            pres.getName(),
+            "notUsedYet",
+            "notUsedYet",
+            pres.isDownloadable(),
+            ConversionMessageConstants.GENERATED_SLIDE_KEY,
+            pres.getNumberOfPages(),
+            slidesCompleted,
+            generateBasePresUrl(pres),
+            pageGenerated,
+            (pageGenerated == 1));
     messagingService.sendDocConversionMsg(progress);
   }
 

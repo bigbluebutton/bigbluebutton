@@ -21,6 +21,18 @@ object UsersApp {
     outGW.send(msgEvent)
   }
 
+  def guestWaitingLeft(liveMeeting: LiveMeeting, userId: String, outGW: OutMsgRouter): Unit = {
+    for {
+      u <- RegisteredUsers.findWithUserId(userId, liveMeeting.registeredUsers)
+    } yield {
+
+      RegisteredUsers.eject(u.id, liveMeeting.registeredUsers, false)
+
+      val event = MsgBuilder.buildGuestWaitingLeftEvtMsg(liveMeeting.props.meetingProp.intId, u.id)
+      outGW.send(event)
+    }
+  }
+
   def approveOrRejectGuest(liveMeeting: LiveMeeting, outGW: OutMsgRouter,
                            guest: GuestApprovedVO, approvedBy: String): Unit = {
     for {
@@ -87,13 +99,14 @@ object UsersApp {
   }
 
   def ejectUserFromMeeting(outGW: OutMsgRouter, liveMeeting: LiveMeeting,
-                           userId: String, ejectedBy: String, reason: String, reasonCode: String): Unit = {
+                           userId: String, ejectedBy: String, reason: String,
+                           reasonCode: String, ban: Boolean): Unit = {
 
     val meetingId = liveMeeting.props.meetingProp.intId
 
     for {
       user <- Users2x.ejectFromMeeting(liveMeeting.users2x, userId)
-      reguser <- RegisteredUsers.remove(userId, liveMeeting.registeredUsers)
+      reguser <- RegisteredUsers.eject(userId, liveMeeting.registeredUsers, ban)
     } yield {
       sendUserEjectedMessageToClient(outGW, meetingId, userId, ejectedBy, reason, reasonCode)
       sendUserLeftMeetingToAllClients(outGW, meetingId, userId)
@@ -127,7 +140,6 @@ class UsersApp(
   with ChangeUserRoleCmdMsgHdlr
   with SyncGetUsersMeetingRespMsgHdlr
   with LogoutAndEndMeetingCmdMsgHdlr
-  with MeetingActivityResponseCmdMsgHdlr
   with SetRecordingStatusCmdMsgHdlr
   with RecordAndClearPreviousMarkersCmdMsgHdlr
   with SendRecordingTimerInternalMsgHdlr

@@ -1,15 +1,17 @@
 package org.bigbluebutton.freeswitch
 
-import scala.collection.JavaConverters._
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.common2.msgs
 import org.bigbluebutton.freeswitch.voice.IVoiceConferenceService
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.common2.redis.RedisPublisher
-import org.bigbluebutton.freeswitch.voice.events.{ ConfMember, ConfRecording }
+import org.bigbluebutton.freeswitch.voice.events.{ConfMember, ConfRecording}
+import org.bigbluebutton.service.HealthzService
+import scala.collection.JavaConverters._
 
-class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceService with SystemConfiguration {
+class VoiceConferenceService(healthz: HealthzService,
+                              sender: RedisPublisher,
+                            ) extends IVoiceConferenceService with SystemConfiguration {
 
   val FROM_VOICE_CONF_SYSTEM_CHAN = "bigbluebutton:from-voice-conf:system"
 
@@ -273,4 +275,52 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
     sender.publish(fromVoiceConfRedisChannel, json)
   }
 
+  def voiceCallStateEvent(
+      conf:             String,
+      callSession:      String,
+      clientSession:    String,
+      userId:           String,
+      callerName:       String,
+      callState:        String,
+      origCallerIdName: String,
+      origCalledDest:   String
+  ): Unit = {
+    val header = BbbCoreVoiceConfHeader(VoiceConfCallStateEvtMsg.NAME, conf)
+    val body = VoiceConfCallStateEvtMsgBody(
+      voiceConf = conf,
+      callSession = callSession,
+      clientSession = clientSession,
+      userId = userId,
+      callerName = callerName,
+      callState = callState,
+      origCallerIdName = origCallerIdName,
+      origCalledDest = origCalledDest
+    )
+    val envelope = BbbCoreEnvelope(VoiceConfCallStateEvtMsg.NAME, Map("voiceConf" -> conf))
+
+    val msg = new VoiceConfCallStateEvtMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, msg)
+
+    val json = JsonUtil.toJson(msgEvent)
+    sender.publish(fromVoiceConfRedisChannel, json)
+  }
+
+  def freeswitchStatusReplyEvent(
+      sendCommandTimestamp:      java.lang.Long,
+      status:                      java.util.List[String],
+      receivedResponseTimestamp: java.lang.Long
+  ): Unit = {
+    //println("***** >>>> " + sendCommandTimestamp)
+    //println(json)
+    //println("<<<< ***** " + receivedResponsTimestatmp)
+    val seq = status.asScala.toVector
+    healthz.setFreeswitchStatus(seq)
+  }
+
+  def freeswitchHeartbeatEvent(heartbeat: java.util.Map[String, String]): Unit = {
+    //println("***** >>>> ")
+    //println(json)
+    //println("<<<< ***** ")
+    healthz.setFreeswitchHeartbeat(heartbeat.asScala.toMap)
+  }
 }

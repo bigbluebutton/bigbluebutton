@@ -1,24 +1,20 @@
 import React, { Component } from 'react';
 import { Session } from 'meteor/session';
 import PropTypes from 'prop-types';
+import SanitizeHTML from 'sanitize-html';
 import Auth from '/imports/ui/services/auth';
-import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
+import { setCustomLogoUrl, setModeratorOnlyMessage } from '/imports/ui/components/user-list/service';
 import { makeCall } from '/imports/ui/services/api';
-import deviceInfo from '/imports/utils/deviceInfo';
 import logger from '/imports/startup/client/logger';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
+import Users from '/imports/api/users';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
 };
 
-const APP_CONFIG = Meteor.settings.public.app;
-const { showParticipantsOnLogin } = APP_CONFIG;
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
-
 class JoinHandler extends Component {
   static setError(codeError) {
-    Session.set('hasError', true);
     if (codeError) Session.set('codeError', codeError);
   }
 
@@ -43,9 +39,12 @@ class JoinHandler extends Component {
         status,
       } = Meteor.status();
 
+      if (status === 'connecting') {
+        this.setState({ joined: false });
+      }
+
       logger.debug(`Initial connection status change. status: ${status}, connected: ${connected}`);
       if (connected) {
-        c.stop();
 
         const msToConnect = (new Date() - this.firstJoinTime) / 1000;
         const secondsToConnect = parseFloat(msToConnect).toFixed(2);
@@ -144,14 +143,27 @@ class JoinHandler extends Component {
       return resp;
     };
 
+    const setModOnlyMessage = (resp) => {
+      if (resp && resp.modOnlyMessage) {
+        const sanitizedModOnlyText = SanitizeHTML(resp.modOnlyMessage, {
+          allowedTags: ['a', 'b', 'br', 'i', 'img', 'li', 'small', 'span', 'strong', 'u', 'ul'],
+          allowedAttributes: {
+            a: ['href', 'name', 'target'],
+            img: ['src', 'width', 'height'],
+          },
+          allowedSchemes: ['https'],
+        });
+        setModeratorOnlyMessage(sanitizedModOnlyText);
+      }
+      return resp;
+    };
+
     const setCustomData = (resp) => {
-      const {
-        meetingID, internalUserID, customdata,
-      } = resp;
+      const { customdata } = resp;
 
       return new Promise((resolve) => {
         if (customdata.length) {
-          makeCall('addUserSettings', meetingID, internalUserID, customdata).then(r => resolve(r));
+          makeCall('addUserSettings', customdata).then(r => resolve(r));
         }
         resolve(true);
       });
@@ -169,25 +181,23 @@ class JoinHandler extends Component {
     const { response } = parseToJson;
 
     setLogoutURL(response);
+    logUserInfo();
 
     if (response.returncode !== 'FAILED') {
       await setAuth(response);
 
       setBannerProps(response);
       setLogoURL(response);
-      logUserInfo();
+      setModOnlyMessage(response);
 
-      await setCustomData(response);
+      Tracker.autorun(async (cd) => {
+        const user = Users.findOne({ userId: Auth.userID, approved: true }, { fields: { _id: 1 } });
 
-      if (showParticipantsOnLogin && !deviceInfo.type().isPhone) {
-        Session.set('openPanel', 'userlist');
-        if (CHAT_ENABLED) {
-          Session.set('openPanel', 'chat');
-          Session.set('idChatOpen', '');
+        if (user) {
+          await setCustomData(response);
+          cd.stop();
         }
-      } else {
-        Session.set('openPanel', '');
-      }
+      });
 
       logger.info({
         logCode: 'joinhandler_component_joinroutehandler_success',

@@ -1,6 +1,10 @@
 @import "/imports/ui/stylesheets/mixins/focus";
 @import "/imports/ui/stylesheets/mixins/_indicators";
-@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/placeholders";
+
+:root {
+  --max-chat-input-msg-height: .93rem;
+}
 
 .form {
   flex-grow: 0;
@@ -74,14 +78,10 @@
     background-color: rgba(167,179,189,0.25);
   }
 
-  &:hover {
-    @include highContrastOutline();
-  }
-
+  &:hover,
   &:active,
   &:focus {
-    @include highContrastOutline();
-    outline-style: solid;
+    @extend %highContrastOutline;
   }
 }
 
@@ -106,20 +106,14 @@
   color: var(--color-gray-dark);
   text-align: left;
   padding: var(--border-size) 0;
-
-  [dir="rtl"] & {
-    text-align: right;
-  }
-
-  &:before {
-    content: "\00a0"; // non-breaking space
-  }
+  position: relative;
 }
 
-.spacer {
-  &:before {
-    content: none;
-  }
+.error,
+.info,
+.space {
+  height: var(--max-chat-input-msg-height);
+  max-height: var(--max-chat-input-msg-height);
 }
 
 .coupleTyper,
@@ -144,10 +138,14 @@
   flex-direction: row;
 
   > span {
-    display: flex;
-    flex-direction: row;
+    display: block;
     width: 100%;
     line-height: var(--font-size-md);
+  }
+
+  text-align: left;
+  [dir="rtl"] & {
+    text-align: right;
   }
 }
 

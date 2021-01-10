@@ -1,74 +1,74 @@
 import React, { Component } from 'react';
 import { IntlProvider, FormattedMessage, addLocaleData } from 'react-intl';
-import browser from 'browser-detect';
+import { browserName } from 'react-device-detect';
 import './styles.css';
 
 
 // currently supported locales.
-import ar from 'react-intl/locale-data/ar';
-import bg from 'react-intl/locale-data/bg';
-import cs from 'react-intl/locale-data/cs';
-import de from 'react-intl/locale-data/de';
-import el from 'react-intl/locale-data/el';
-import en from 'react-intl/locale-data/en';
-import es from 'react-intl/locale-data/es';
-import eu from 'react-intl/locale-data/eu';
-import fa from 'react-intl/locale-data/fa';
-import fi from 'react-intl/locale-data/fi';
-import fr from 'react-intl/locale-data/fr';
-import he from 'react-intl/locale-data/he';
-import hi from 'react-intl/locale-data/hi';
-import hu from 'react-intl/locale-data/hu';
-import id from 'react-intl/locale-data/id';
-import it from 'react-intl/locale-data/it';
-import ja from 'react-intl/locale-data/ja';
-import km from 'react-intl/locale-data/km';
-import pl from 'react-intl/locale-data/pl';
-import pt from 'react-intl/locale-data/pt';
-import ru from 'react-intl/locale-data/ru';
-import sv from 'react-intl/locale-data/sv';
-import tr from 'react-intl/locale-data/tr';
-import uk from 'react-intl/locale-data/uk';
-import vi from 'react-intl/locale-data/vi';
-import zh from 'react-intl/locale-data/zh';
+// import ar from 'react-intl/locale-data/ar';
+// import bg from 'react-intl/locale-data/bg';
+// import cs from 'react-intl/locale-data/cs';
+// import de from 'react-intl/locale-data/de';
+// import el from 'react-intl/locale-data/el';
+// import en from 'react-intl/locale-data/en';
+// import es from 'react-intl/locale-data/es';
+// import eu from 'react-intl/locale-data/eu';
+// import fa from 'react-intl/locale-data/fa';
+// import fi from 'react-intl/locale-data/fi';
+// import fr from 'react-intl/locale-data/fr';
+// import he from 'react-intl/locale-data/he';
+// import hi from 'react-intl/locale-data/hi';
+// import hu from 'react-intl/locale-data/hu';
+// import id from 'react-intl/locale-data/id';
+// import it from 'react-intl/locale-data/it';
+// import ja from 'react-intl/locale-data/ja';
+// import km from 'react-intl/locale-data/km';
+// import pl from 'react-intl/locale-data/pl';
+// import pt from 'react-intl/locale-data/pt';
+// import ru from 'react-intl/locale-data/ru';
+// import sv from 'react-intl/locale-data/sv';
+// import tr from 'react-intl/locale-data/tr';
+// import uk from 'react-intl/locale-data/uk';
+// import vi from 'react-intl/locale-data/vi';
+// import zh from 'react-intl/locale-data/zh';
 
-// This class is the only component loaded on legacy (unsupported) browsers.
-// What is included here needs to be minimal and carefully considered because some
-// things can't be polyfilled.
+// // This class is the only component loaded on legacy (unsupported) browsers.
+// // What is included here needs to be minimal and carefully considered because some
+// // things can't be polyfilled.
 
-addLocaleData([
-  ...ar,
-  ...bg,
-  ...cs,
-  ...de,
-  ...el,
-  ...en,
-  ...es,
-  ...eu,
-  ...fa,
-  ...fi,
-  ...fr,
-  ...he,
-  ...hi,
-  ...hu,
-  ...id,
-  ...it,
-  ...ja,
-  ...km,
-  ...pl,
-  ...pt,
-  ...ru,
-  ...sv,
-  ...tr,
-  ...uk,
-  ...vi,
-  ...zh,
-]);
+// addLocaleData([
+//   ...ar,
+//   ...bg,
+//   ...cs,
+//   ...de,
+//   ...el,
+//   ...en,
+//   ...es,
+//   ...eu,
+//   ...fa,
+//   ...fi,
+//   ...fr,
+//   ...he,
+//   ...hi,
+//   ...hu,
+//   ...id,
+//   ...it,
+//   ...ja,
+//   ...km,
+//   ...pl,
+//   ...pt,
+//   ...ru,
+//   ...sv,
+//   ...tr,
+//   ...uk,
+//   ...vi,
+//   ...zh,
+// ]);
 
 const FETCHING = 'fetching';
 const FALLBACK = 'fallback';
 const READY = 'ready';
-const supportedBrowsers = ['chrome', 'firefox', 'safari', 'opera', 'edge'];
+const supportedBrowsers = ['chrome', 'firefox', 'safari', 'opera', 'edge', 'yandex'];
 
 export default class Legacy extends Component {
   constructor(props) {
@@ -78,7 +78,7 @@ export default class Legacy extends Component {
       || navigator.language
       || Meteor.settings.public.app.defaultSettings.application.fallbackLocale;
 
-    const url = `/html5client/locale?locale=${locale}`;
+    const url = `./locale?locale=${locale}`;
 
     const that = this;
     this.state = { viewState: FETCHING };
@@ -101,8 +101,8 @@ export default class Legacy extends Component {
 
   render() {
     const { messages, normalizedLocale, viewState } = this.state;
-    const isSupportedBrowser = supportedBrowsers.includes(browser().name);
-    const isChromeIos = browser().name === 'crios';
+    const isSupportedBrowser = supportedBrowsers.includes(browserName);
+    const isChromeIos = browserName === 'crios';
 
     let messageId = isSupportedBrowser ? 'app.legacy.upgradeBrowser' : 'app.legacy.unsupportedBrowser';
     if (isChromeIos) messageId = 'app.legacy.criosBrowser';

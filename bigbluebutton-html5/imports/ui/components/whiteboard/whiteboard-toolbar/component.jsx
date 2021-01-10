@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { HEXToINTColor, INTToHEXColor } from '/imports/utils/hexInt';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import browser from 'browser-detect';
 import { noop } from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
@@ -115,6 +115,7 @@ class WhiteboardToolbar extends Component {
 
     this.displaySubMenu = this.displaySubMenu.bind(this);
     this.closeSubMenu = this.closeSubMenu.bind(this);
+    this.handleClose = this.handleClose.bind(this);
     this.handleUndo = this.handleUndo.bind(this);
     this.handleClearAll = this.handleClearAll.bind(this);
     this.handleSwitchWhiteboardMode = this.handleSwitchWhiteboardMode.bind(this);
@@ -400,6 +401,13 @@ class WhiteboardToolbar extends Component {
     });
   }
 
+  handleClose() {
+    this.setState({
+      onBlurEnabled: true,
+      currentSubmenuOpen: '',
+    });
+  }
+
   handleFontSizeChange(fontSize) {
     const { actions } = this.props;
     actions.setFontSize(fontSize.value);
@@ -475,6 +483,7 @@ class WhiteboardToolbar extends Component {
                 objectSelected={annotationSelected}
                 handleMouseEnter={this.handleMouseEnter}
                 handleMouseLeave={this.handleMouseLeave}
+                handleClose={this.handleClose}
               />
             )
             : null}
@@ -507,6 +516,7 @@ class WhiteboardToolbar extends Component {
               objectSelected={fontSizeSelected}
               handleMouseEnter={this.handleMouseEnter}
               handleMouseLeave={this.handleMouseLeave}
+              handleClose={this.handleClose}
             />
           )
           : null}
@@ -569,6 +579,7 @@ class WhiteboardToolbar extends Component {
               objectSelected={thicknessSelected}
               handleMouseEnter={this.handleMouseEnter}
               handleMouseLeave={this.handleMouseLeave}
+              handleClose={this.handleClose}
             />
           )
           : null}
@@ -671,6 +682,7 @@ class WhiteboardToolbar extends Component {
               objectSelected={colorSelected}
               handleMouseEnter={this.handleMouseEnter}
               handleMouseLeave={this.handleMouseLeave}
+              handleClose={this.handleClose}
             />
           )
           : null}
@@ -784,7 +796,7 @@ WhiteboardToolbar.defaultProps = {
   colors: ANNOTATION_COLORS,
   thicknessRadiuses: THICKNESS_RADIUSES,
   fontSizes: FONT_SIZES,
-  intl: intlShape,
+  intl: {},
 };
 
 WhiteboardToolbar.propTypes = {
@@ -821,7 +833,7 @@ WhiteboardToolbar.propTypes = {
     value: PropTypes.number.isRequired,
   }).isRequired),
 
-  intl: intlShape,
+  intl: PropTypes.object.isRequired,
 
 };
 

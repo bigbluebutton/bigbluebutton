@@ -1,12 +1,10 @@
 import { check } from 'meteor/check';
 import NetworkInformation from '/imports/api/network-information';
 import Logger from '/imports/startup/server/logger';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
-export default function userInstabilityDetected(credentials, sender) {
-  const { meetingId, requesterUserId: receiver } = credentials;
-
-  check(meetingId, String);
-  check(receiver, String);
+export default function userInstabilityDetected(sender) {
+  const { meetingId, requesterUserId: receiver } = extractCredentials(this.userId);
   check(sender, String);
 
   const payload = {
@@ -16,7 +14,7 @@ export default function userInstabilityDetected(credentials, sender) {
     sender,
   };
 
-  Logger.debug(`Receiver ${receiver} reported a network instability in meeting ${meetingId}`);
+  Logger.debug('Receiver reported a network instability', { receiver, meetingId });
 
   return NetworkInformation.insert(payload);
 }

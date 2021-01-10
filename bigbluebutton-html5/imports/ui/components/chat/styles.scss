@@ -1,5 +1,6 @@
 @import "/imports/ui/stylesheets/mixins/focus";
-@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/breakpoints";
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 :root {
   --toast-content-width: 98%; 
@@ -31,7 +32,14 @@
   justify-content: space-around;
   overflow: hidden;
   height: 100vh;
-  transform: translateZ(0);
+
+  :global(.browser-chrome) & {
+    transform: translateZ(0);
+  }
+    
+  @include mq($small-only) {
+    transform: none !important;
+  }
 }
 
 .header {
@@ -60,6 +68,7 @@
   margin-bottom: var(--border-size);
   padding-left: 0;
   padding-right: inherit;
+  z-index: 3;
 
   [dir="rtl"] & {
     padding-left: inherit;

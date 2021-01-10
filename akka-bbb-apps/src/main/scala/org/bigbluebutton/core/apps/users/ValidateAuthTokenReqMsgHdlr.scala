@@ -5,7 +5,7 @@ import org.bigbluebutton.core.bus.InternalEventBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
 trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
   this: UsersApp =>
@@ -17,33 +17,70 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
   def handleValidateAuthTokenReqMsg(msg: ValidateAuthTokenReqMsg, state: MeetingState2x): MeetingState2x = {
     log.debug("RECEIVED ValidateAuthTokenReqMsg msg {}", msg)
 
+    var failReason = "Invalid auth token."
+    var failReasonCode = EjectReasonCode.VALIDATE_TOKEN
+
     val regUser = RegisteredUsers.getRegisteredUserWithToken(msg.body.authToken, msg.body.userId,
       liveMeeting.registeredUsers)
 
     regUser match {
       case Some(u) =>
-        if (u.guestStatus == GuestStatus.ALLOW) {
+        // Check if banned user is rejoining.
+        // Fail validation if ejected user is rejoining.
+        // ralam april 21, 2020
+        if (u.guestStatus == GuestStatus.ALLOW && !u.banned) {
           userValidated(u, state)
         } else {
-          validateTokenFailed(outGW, meetingId = liveMeeting.props.meetingProp.intId,
-            userId = msg.header.userId, authToken = msg.body.authToken,
-            valid = false, waitForApproval = false, state)
+          if (u.banned) {
+            failReason = "Ejected user rejoining"
+            failReasonCode = EjectReasonCode.EJECTED_USER_REJOINING
+          }
+          validateTokenFailed(
+            outGW,
+            meetingId = liveMeeting.props.meetingProp.intId,
+            userId = msg.header.userId,
+            authToken = msg.body.authToken,
+            valid = false,
+            waitForApproval = false,
+            failReason,
+            failReasonCode,
+            state
+          )
         }
 
       case None =>
-        validateTokenFailed(outGW, meetingId = liveMeeting.props.meetingProp.intId,
-          userId = msg.header.userId, authToken = msg.body.authToken,
-          valid = false, waitForApproval = false, state)
+        validateTokenFailed(
+          outGW,
+          meetingId = liveMeeting.props.meetingProp.intId,
+          userId = msg.header.userId,
+          authToken = msg.body.authToken,
+          valid = false,
+          waitForApproval = false,
+          failReason,
+          failReasonCode,
+          state
+        )
 
     }
   }
 
-  def validateTokenFailed(outGW: OutMsgRouter, meetingId: String, userId: String, authToken: String,
-                          valid: Boolean, waitForApproval: Boolean, state: MeetingState2x): MeetingState2x = {
+  def validateTokenFailed(
+      outGW:           OutMsgRouter,
+      meetingId:       String,
+      userId:          String,
+      authToken:       String,
+      valid:           Boolean,
+      waitForApproval: Boolean,
+      reason:          String,
+      reasonCode:      String,
+      state:           MeetingState2x
+  ): MeetingState2x = {
     val event = MsgBuilder.buildValidateAuthTokenRespMsg(meetingId, userId, authToken, valid, waitForApproval)
     outGW.send(event)
 
-    UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, SystemUser.ID, "Invalid auth token.", EjectReasonCode.VALIDATE_TOKEN)
+    // send a system message to force disconnection
+    // Comment out as meteor will disconnect the client. Requested by Tiago (ralam apr 28, 2020)
+    //Sender.sendDisconnectClientSysMsg(meetingId, userId, SystemUser.ID, reasonCode, outGW)
 
     state
   }

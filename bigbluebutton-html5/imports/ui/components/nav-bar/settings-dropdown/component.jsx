@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { withModalMounter } from '/imports/ui/components/modal/service';
@@ -92,7 +92,7 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   handleToggleFullscreen: PropTypes.func.isRequired,
   mountModal: PropTypes.func.isRequired,
   noIOSFullscreen: PropTypes.bool,
@@ -189,8 +189,6 @@ class SettingsDropdown extends PureComponent {
   }
 
   leaveSession() {
-    document.dispatchEvent(new Event('exitVideo'));
-
     makeCall('userLeftMeeting');
     // we don't check askForFeedbackOnLogout here,
     // it is checked in meeting-ended component
@@ -214,6 +212,7 @@ class SettingsDropdown extends PureComponent {
     const logoutOption = (
       <DropdownListItem
         key="list-item-logout"
+        data-test="logout"
         icon="logout"
         label={intl.formatMessage(intlMessages.leaveSessionLabel)}
         description={intl.formatMessage(intlMessages.leaveSessionDesc)}
@@ -230,6 +229,7 @@ class SettingsDropdown extends PureComponent {
       (<DropdownListItem
         key="list-item-settings"
         icon="settings"
+        data-test="settings"
         label={intl.formatMessage(intlMessages.settingsLabel)}
         description={intl.formatMessage(intlMessages.settingsDesc)}
         onClick={() => mountModal(<SettingsMenuContainer />)}

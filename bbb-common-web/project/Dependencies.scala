@@ -8,7 +8,8 @@ object Dependencies {
   object Versions {
     // Scala
     val scala = "2.12.10"
-    val junit = "5.6.0-M1"
+    val junit = "4.13.1"
+    val junitInterface = "0.11"
     val scalactic = "3.1.0"
 
     // Libraries
@@ -20,8 +21,8 @@ object Dependencies {
     val apacheHttpAsync = "4.1.4"
 
     // Office and document conversion
-    val jodConverter = "4.2.2"
-    val apachePoi = "4.1.1"
+    val jodConverter = "4.3.0"
+    val apachePoi = "4.1.2"
     val nuProcess = "1.2.4"
     val libreOffice = "6.3.2"
 
@@ -31,7 +32,7 @@ object Dependencies {
     // Apache Commons
     val lang = "3.9"
     val io = "2.6"
-    val pool = "2.7.0"
+    val pool = "2.8.0"
 
     // BigBlueButton
     val bbbCommons = "0.0.20-SNAPSHOT"
@@ -55,7 +56,8 @@ object Dependencies {
     val apacheHttpAsync = "org.apache.httpcomponents" % "httpasyncclient" % Versions.apacheHttpAsync
 
     val poiXml = "org.apache.poi" % "poi-ooxml" % Versions.apachePoi
-    val jodConverter = "org.jodconverter" % "jodconverter-local" % Versions.jodConverter
+    val jodConverterCore = "org.jodconverter" % "jodconverter-core" % Versions.jodConverter
+    val jodConverterLocal = "org.jodconverter" % "jodconverter-local" % Versions.jodConverter
     val nuProcess = "com.zaxxer" % "nuprocess" % Versions.nuProcess
 
     val officeUnoil = "org.libreoffice" % "unoil" % Versions.libreOffice
@@ -69,18 +71,21 @@ object Dependencies {
     val apacheIo = "commons-io" % "commons-io" % Versions.io
     val apachePool2 = "org.apache.commons" % "commons-pool2" % Versions.pool
 
-    val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.12" % Versions.bbbCommons
+    val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.12" % Versions.bbbCommons excludeAll (
+      ExclusionRule(organization = "org.red5"))
   }
 
   object Test {
     val scalaTest = "org.scalatest" %% "scalatest" % Versions.scalaTest % "test"
-    val junit = "org.junit.jupiter" % "junit-jupiter-api" % Versions.junit % "test"
+    val junit = "junit" % "junit" % Versions.junit % "test"
+    val junitInteface = "com.novocode" % "junit-interface" % Versions.junitInterface % "test"
     val scalactic = "org.scalactic" % "scalactic_2.12" % Versions.scalactic % "test"
   }
 
   val testing = Seq(
     Test.scalaTest,
     Test.junit,
+    Test.junitInteface,
     Test.scalactic)
 
   val runtime = Seq(
@@ -95,7 +100,8 @@ object Dependencies {
     Compile.apacheHttp,
     Compile.apacheHttpAsync,
     Compile.poiXml,
-    Compile.jodConverter,
+    Compile.jodConverterCore,
+    Compile.jodConverterLocal,
     Compile.nuProcess,
     Compile.servletApi,
     Compile.apacheLang,

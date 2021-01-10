@@ -1,26 +1,42 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Meetings from '/imports/api/meetings';
+import Users from '/imports/api/users';
 import RedisPubSub from '/imports/startup/server/redis';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
-export default function stopWatchingExternalVideo(credentials) {
+export default function stopWatchingExternalVideo(options) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'StopExternalVideoMsg';
 
-  const { meetingId, requesterUserId } = credentials;
+  const { meetingId, requesterUserId } = this.userId ? extractCredentials(this.userId) : options;
 
-  check(meetingId, String);
-  check(requesterUserId, String);
+  try {
+    check(meetingId, String);
+    check(requesterUserId, String);
 
-  const meeting = Meetings.findOne({ meetingId });
-  if (!meeting || meeting.externalVideoUrl === null) return;
+    const user = Users.findOne({
+      meetingId,
+      userId: requesterUserId,
+      presenter: true,
+    }, { presenter: 1 });
 
-  Meetings.update({ meetingId }, { $set: { externalVideoUrl: null } });
-  const payload = {};
+    if (this.userId && !user) {
+      Logger.error(`Only presenters are allowed to stop external video for a meeting. meeting=${meetingId} userId=${requesterUserId}`);
+      return;
+    }
 
-  Logger.info(`User id=${requesterUserId} stopped sharing an external video for meeting=${meetingId}`);
+    const meeting = Meetings.findOne({ meetingId });
+    if (!meeting || meeting.externalVideoUrl === null) return;
 
-  RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+    Meetings.update({ meetingId }, { $set: { externalVideoUrl: null } });
+    const payload = {};
+
+    Logger.info(`User id=${requesterUserId} stopped sharing an external video for meeting=${meetingId}`);
+
+    RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+  } catch (error) {
+    Logger.error(`Error on stop sharing an external video for meeting=${meetingId} ${error}`);
+  }
 }

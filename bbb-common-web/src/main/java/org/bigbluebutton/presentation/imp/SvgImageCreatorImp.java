@@ -31,17 +31,17 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     private long pathsThreshold;
     private String convTimeout = "7s";
     private int WAIT_FOR_SEC = 7;
+	private String BLANK_SVG;
 
     @Override
-    public boolean createSvgImages(UploadedPresentation pres) {
+    public boolean createSvgImage(UploadedPresentation pres, int page) {
         boolean success = false;
         File svgImagesPresentationDir = determineSvgImagesDirectory(pres.getUploadedFile());
         if (!svgImagesPresentationDir.exists())
             svgImagesPresentationDir.mkdir();
 
         try {
-            FileUtils.cleanDirectory(svgImagesPresentationDir);
-            success = generateSvgImages(svgImagesPresentationDir, pres);
+            success = generateSvgImage(svgImagesPresentationDir, pres, page);
         } catch (Exception e) {
             log.error("Interrupted Exception while generating images {}", pres.getName(), e);
             success = false;
@@ -50,18 +50,18 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         return success;
     }
 
-    private boolean generateSvgImages(File imagePresentationDir, UploadedPresentation pres)
+    private boolean generateSvgImage(File imagePresentationDir, UploadedPresentation pres, int page)
             throws InterruptedException {
         String source = pres.getUploadedFile().getAbsolutePath();
         String dest;
-        int numSlides;
+
+        int numSlides = 1;
         boolean done = false;
-        int slidesCompleted = 0;
-        
+
         // Convert single image file
         if (SupportedFileTypes.isImageFile(pres.getFileType())) {
-            numSlides = 1;
-            dest = imagePresentationDir.getAbsolutePath() + File.separator + "slide1.pdf";
+
+            dest = imagePresentationDir.getAbsolutePath() + File.separator + "slide-1.pdf";
 
             NuProcessBuilder convertImgToSvg = new NuProcessBuilder(
                     Arrays.asList("timeout", convTimeout, "convert", source, "-auto-orient", dest));
@@ -78,133 +78,137 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 log.error("InterruptedException while converting to SVG {}", dest, e);
             }
 
-            source = imagePresentationDir.getAbsolutePath() + File.separator + "slide1.pdf";
-        } else {
-            numSlides = pres.getNumberOfPages();
+            // Use the intermediate PDF file as source
+            source = dest;
         }
 
-        // Continue image processing
-        for (int i = 1; i <= numSlides; i++) {
-            File destsvg = new File(imagePresentationDir.getAbsolutePath() + File.separatorChar + "slide" + i + ".svg");
+        //System.out.println("******** CREATING SVG page ");
 
-            NuProcessBuilder convertPdfToSvg = createConversionProcess("-svg", i, source, destsvg.getAbsolutePath(),
+        // Continue image processing
+        long startConv = System.currentTimeMillis();
+
+        File destsvg = new File(imagePresentationDir.getAbsolutePath() + File.separatorChar + "slide" + page + ".svg");
+
+        NuProcessBuilder convertPdfToSvg = createConversionProcess("-svg", page, source, destsvg.getAbsolutePath(),
                     true);
 
-            SvgConversionHandler pHandler = new SvgConversionHandler();
-            convertPdfToSvg.setProcessListener(pHandler);
+        SvgConversionHandler pHandler = new SvgConversionHandler();
+        convertPdfToSvg.setProcessListener(pHandler);
 
-            NuProcess process = convertPdfToSvg.start();
+        NuProcess process = convertPdfToSvg.start();
+        try {
+            process.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
+            done = true;
+        } catch (InterruptedException e) {
+            log.error("Interrupted Exception while generating SVG slides {}", pres.getName(), e);
+        }
+
+        if (!done) {
+            return done;
+        }
+
+        if (destsvg.length() == 0 || pHandler.numberOfImageTags() > imageTagThreshold
+                || pHandler.numberOfPaths() > pathsThreshold) {
+            // We need t delete the destination file as we are starting a
+            // new conversion process
+            if (destsvg.exists()) {
+                destsvg.delete();
+            }
+
+            done = false;
+
+            Map<String, Object> logData = new HashMap<String, Object>();
+            logData.put("meetingId", pres.getMeetingId());
+            logData.put("presId", pres.getId());
+            logData.put("filename", pres.getName());
+            logData.put("page", page);
+            logData.put("convertSuccess", pHandler.isCommandSuccessful());
+            logData.put("fileExists", destsvg.exists());
+            logData.put("numberOfImages", pHandler.numberOfImageTags());
+            logData.put("numberOfPaths", pHandler.numberOfPaths());
+            logData.put("logCode", "potential_problem_with_svg");
+            logData.put("message", "Potential problem with generated SVG");
+            Gson gson = new Gson();
+            String logStr = gson.toJson(logData);
+
+            log.warn(" --analytics-- data={}", logStr);
+
+            File tempPng = null;
+            String basePresentationame = UUID.randomUUID().toString();
             try {
-                process.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
-                done = true;
-            } catch (InterruptedException e) {
-                log.error("Interrupted Exception while generating SVG slides {}", pres.getName(), e);
-            }
-            if (!done) {
-                break;
-            }
-
-            if (destsvg.length() == 0 || pHandler.numberOfImageTags() > imageTagThreshold
-                    || pHandler.numberOfPaths() > pathsThreshold) {
-                // We need t delete the destination file as we are starting a
-                // new conversion process
-                if (destsvg.exists()) {
-                    destsvg.delete();
-                }
-
-                done = false;
-
-                Map<String, Object> logData = new HashMap<String, Object>();
+                tempPng = File.createTempFile(basePresentationame + "-" + page, ".png");
+            } catch (IOException ioException) {
+                // We should never fall into this if the server is correctly
+                // configured
+                logData = new HashMap<String, Object>();
                 logData.put("meetingId", pres.getMeetingId());
                 logData.put("presId", pres.getId());
                 logData.put("filename", pres.getName());
-                logData.put("page", i);
-                logData.put("convertSuccess", pHandler.isCommandSuccessful());
-                logData.put("fileExists", destsvg.exists());
-                logData.put("numberOfImages", pHandler.numberOfImageTags());
-                logData.put("numberOfPaths", pHandler.numberOfPaths());
-                logData.put("logCode", "potential_problem_with_svg");
-                logData.put("message", "Potential problem with generated SVG");
-                Gson gson = new Gson();
-                String logStr = gson.toJson(logData);
+                logData.put("logCode", "problem_with_creating_svg");
+                logData.put("message", "Unable to create temporary files");
+                gson = new Gson();
+                logStr = gson.toJson(logData);
+                log.error(" --analytics-- data={}", logStr, ioException);
+            }
 
-                log.warn(" --analytics-- data={}", logStr);
-
-                File tempPng = null;
-                String basePresentationame = UUID.randomUUID().toString();
-                try {
-                    tempPng = File.createTempFile(basePresentationame + "-" + i, ".png");
-                } catch (IOException ioException) {
-                    // We should never fall into this if the server is correctly
-                    // configured
-                    logData = new HashMap<String, Object>();
-                    logData.put("meetingId", pres.getMeetingId());
-                    logData.put("presId", pres.getId());
-                    logData.put("filename", pres.getName());
-                    logData.put("logCode", "problem_with_creating_svg");
-                    logData.put("message", "Unable to create temporary files");
-                    gson = new Gson();
-                    logStr = gson.toJson(logData);
-                    log.error(" --analytics-- data={}", logStr, ioException);
-                }
-
-                // Step 1: Convert a PDF page to PNG using a raw pdftocairo
-                NuProcessBuilder convertPdfToPng = createConversionProcess("-png", i, source,
+            // Step 1: Convert a PDF page to PNG using a raw pdftocairo
+            NuProcessBuilder convertPdfToPng = createConversionProcess("-png", page, source,
                         tempPng.getAbsolutePath().substring(0, tempPng.getAbsolutePath().lastIndexOf('.')), false);
 
-                Pdf2PngPageConverterHandler pngHandler = new Pdf2PngPageConverterHandler();
-                convertPdfToPng.setProcessListener(pngHandler);
-                NuProcess pngProcess = convertPdfToPng.start();
-                try {
-                    pngProcess.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
-                } catch (InterruptedException e) {
-                    log.error("Interrupted Exception while generating PNG image {}", pres.getName(), e);
-                }
+            Pdf2PngPageConverterHandler pngHandler = new Pdf2PngPageConverterHandler();
+            convertPdfToPng.setProcessListener(pngHandler);
+            NuProcess pngProcess = convertPdfToPng.start();
+            try {
+                pngProcess.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                log.error("Interrupted Exception while generating PNG image {}", pres.getName(), e);
+            }
 
-                // Step 2: Convert a PNG image to SVG
-                NuProcessBuilder convertPngToSvg = new NuProcessBuilder(Arrays.asList("timeout", convTimeout, "convert",
+            // Step 2: Convert a PNG image to SVG
+            NuProcessBuilder convertPngToSvg = new NuProcessBuilder(Arrays.asList("timeout", convTimeout, "convert",
                         tempPng.getAbsolutePath(), destsvg.getAbsolutePath()));
 
-                Png2SvgConversionHandler svgHandler = new Png2SvgConversionHandler();
-                convertPngToSvg.setProcessListener(svgHandler);
-                NuProcess svgProcess = convertPngToSvg.start();
-                try {
-                    svgProcess.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
-                } catch (InterruptedException e) {
-                    log.error("Interrupted Exception while generating SVG image {}", pres.getName(), e);
-                }
+            Png2SvgConversionHandler svgHandler = new Png2SvgConversionHandler();
+            convertPngToSvg.setProcessListener(svgHandler);
+            NuProcess svgProcess = convertPngToSvg.start();
+            try {
+                svgProcess.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                log.error("Interrupted Exception while generating SVG image {}", pres.getName(), e);
+            }
 
-                done = svgHandler.isCommandSuccessful();
+            done = svgHandler.isCommandSuccessful();
 
-                // Delete the temporary PNG after finishing the image conversion
-                tempPng.delete();
+            // Delete the temporary PNG after finishing the image conversion
+            tempPng.delete();
 
-                // Step 3: Add SVG namespace to the destionation file
-                // Check : https://phabricator.wikimedia.org/T43174
-                NuProcessBuilder addNameSpaceToSVG = new NuProcessBuilder(Arrays.asList("timeout", convTimeout,
+            // Step 3: Add SVG namespace to the destionation file
+            // Check : https://phabricator.wikimedia.org/T43174
+            NuProcessBuilder addNameSpaceToSVG = new NuProcessBuilder(Arrays.asList("timeout", convTimeout,
                         "/bin/sh", "-c",
                         "sed -i "
                                 + "'4s|>| xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.2\">|' "
                                 + destsvg.getAbsolutePath()));
 
-                AddNamespaceToSvgHandler namespaceHandler = new AddNamespaceToSvgHandler();
-                addNameSpaceToSVG.setProcessListener(namespaceHandler);
-                NuProcess namespaceProcess = addNameSpaceToSVG.start();
-                try {
-                    namespaceProcess.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
-                } catch (InterruptedException e) {
-                    log.error("Interrupted Exception while adding SVG namespace {}", pres.getName(), e);
-                }
+            AddNamespaceToSvgHandler namespaceHandler = new AddNamespaceToSvgHandler();
+            addNameSpaceToSVG.setProcessListener(namespaceHandler);
+            NuProcess namespaceProcess = addNameSpaceToSVG.start();
+            try {
+                namespaceProcess.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                log.error("Interrupted Exception while adding SVG namespace {}", pres.getName(), e);
             }
-            
-            slidesCompleted++;
-            notifier.sendConversionUpdateMessage(slidesCompleted, pres);
-
         }
+
+        long endConv = System.currentTimeMillis();
+
+        //System.out.println("******** CREATING SVG page " + page + " " + (endConv - startConv));
 
         if (done) {
             return true;
         }
+
+        copyBlankSvgs(imagePresentationDir, pres.getNumberOfPages());
 
         Map<String, Object> logData = new HashMap<String, Object>();
         logData.put("meetingId", pres.getMeetingId());
@@ -234,6 +238,33 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     private File determineSvgImagesDirectory(File presentationFile) {
         return new File(presentationFile.getParent() + File.separatorChar + "svgs");
     }
+
+    private void copyBlankSvgs(File svgssDir, int pageCount) {
+    	File[] svgs = svgssDir.listFiles();
+
+		if (svgs.length != pageCount) {
+			for (int i = 1; i <= pageCount; i++) {
+				File svg = new File(svgssDir.getAbsolutePath() + File.separator + "slide" + i + ".svg");
+				if (!svg.exists()) {
+					log.info("Copying blank svg for slide {}", i);
+					copyBlankSvg(svg);
+				}
+			}
+		}
+    }
+
+	private void copyBlankSvg(File svg) {
+		try {
+			FileUtils.copyFile(new File(BLANK_SVG), svg);
+		} catch (IOException e) {
+			log.error("IOException while copying blank SVG.");
+		}
+	}
+
+
+	public void setBlankSvg(String blankSvg) {
+		BLANK_SVG = blankSvg;
+	}
 
     public void setImageTagThreshold(long threshold) {
         imageTagThreshold = threshold;

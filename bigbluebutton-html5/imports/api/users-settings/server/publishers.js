@@ -1,17 +1,50 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import UserSettings from '/imports/api/users-settings';
 import Logger from '/imports/startup/server/logger';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
+import User from '/imports/api/users';
 
-function userSettings(credentials) {
-  const { meetingId, requesterUserId } = credentials;
+function userSettings() {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
-  check(meetingId, String);
-  check(requesterUserId, String);
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing UserSettings was requested by unauth connection ${this.connection.id}`);
+    return UserSettings.find({ meetingId: '' });
+  }
 
-  Logger.debug(`Publishing user settings for user=${requesterUserId}`);
+  const { meetingId, userId } = tokenValidation;
 
-  return UserSettings.find({ meetingId, userId: requesterUserId });
+  const currentUser = User.findOne({ userId });
+
+  if (currentUser && currentUser.breakoutProps.isBreakoutUser) {
+    const { parentId } = currentUser.breakoutProps;
+
+    const [externalId] = currentUser.extId.split('-');
+
+    const mainRoomUserSettings = UserSettings.find({ meetingId: parentId, userId: externalId });
+
+    mainRoomUserSettings.map(({ setting, value }) => ({
+      meetingId,
+      setting,
+      userId,
+      value,
+    })).forEach((doc) => {
+      const selector = {
+        meetingId,
+        setting: doc.setting,
+      };
+
+      UserSettings.upsert(selector, doc);
+    });
+
+    Logger.debug('Publishing UserSettings', { meetingId, userId });
+
+    return UserSettings.find({ meetingId, userId });
+  }
+
+  Logger.debug('Publishing UserSettings', { meetingId, userId });
+
+  return UserSettings.find({ meetingId, userId });
 }
 
 function publish(...args) {

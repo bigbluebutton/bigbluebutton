@@ -72,6 +72,7 @@ public class Meeting {
 	private Map<String, Object> userCustomData;
 	private final ConcurrentMap<String, User> users;
 	private final ConcurrentMap<String, RegisteredUser> registeredUsers;
+	private final ConcurrentMap<String, Long> enteredUsers;
 	private final ConcurrentMap<String, Config> configs;
 	private final Boolean isBreakout;
 	private final List<String> breakoutRooms = new ArrayList<>();
@@ -80,8 +81,6 @@ public class Meeting {
 	private Boolean muteOnStart = false;
 	private Boolean allowModsToUnmuteUsers = false;
 
-	private Integer maxInactivityTimeoutMinutes = 120;
-	private Integer warnMinutesBeforeMax = 5;
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
 	private Integer userInactivityInspectTimerInMinutes = 120;
@@ -92,6 +91,12 @@ public class Meeting {
 	public final LockSettingsParams lockSettingsParams;
 
 	public final Boolean allowDuplicateExtUserid;
+
+	private String meetingEndedCallbackURL = "";
+
+	public final Boolean endWhenNoModerator;
+
+	private Integer html5InstanceId;
 
     public Meeting(Meeting.Builder builder) {
         name = builder.name;
@@ -121,12 +126,15 @@ public class Meeting {
         guestPolicy = builder.guestPolicy;
         breakoutRoomsParams = builder.breakoutRoomsParams;
         lockSettingsParams = builder.lockSettingsParams;
-		allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
+        allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
+        endWhenNoModerator = builder.endWhenNoModerator;
+        html5InstanceId = builder.html5InstanceId;
 
         userCustomData = new HashMap<>();
 
         users = new ConcurrentHashMap<>();
         registeredUsers = new ConcurrentHashMap<>();
+        enteredUsers = new  ConcurrentHashMap<>();;
 
         configs = new ConcurrentHashMap<>();
     }
@@ -182,6 +190,13 @@ public class Meeting {
 	    return users;
 	}
 
+	public void guestIsWaiting(String userId) {
+		RegisteredUser ruser = registeredUsers.get(userId);
+		if (ruser != null) {
+			ruser.updateGuestWaitedOn();
+		}
+	}
+
 	public void setGuestStatusWithId(String userId, String guestStatus) {
     	User user = getUserById(userId);
     	if (user != null) {
@@ -214,7 +229,11 @@ public class Meeting {
 		return GuestPolicy.DENY;
 	}
 
-	public long getStartTime() {
+	public int getHtml5InstanceId() { return html5InstanceId; }
+
+    public void setHtml5InstanceId(int instanceId) { html5InstanceId = instanceId; }
+
+    public long getStartTime() {
 		return startTime;
 	}
 	
@@ -442,12 +461,28 @@ public class Meeting {
 	}
 
 	public void userJoined(User user) {
-	    userHasJoined = true;
-	    this.users.put(user.getInternalUserId(), user);
+		User u = getUserById(user.getInternalUserId());
+		if (u != null) {
+			u.joined();
+		} else {
+			if (!userHasJoined) userHasJoined = true;
+			this.users.put(user.getInternalUserId(), user);
+			// Clean this user up from the entered user's list
+			removeEnteredUser(user.getInternalUserId());
+		}
 	}
 
-	public User userLeft(String userid){
-		return users.remove(userid);	
+	public User userLeft(String userId) {
+		User user = getUserById(userId);
+		if (user != null) {
+			user.left();
+		}
+
+		return user;
+	}
+
+	public User removeUser(String userId) {
+		return this.users.remove(userId);
 	}
 
 	public User getUserById(String id){
@@ -516,22 +551,6 @@ public class Meeting {
 		userCustomData.put(userID, data);
 	}
 
-	public void setMaxInactivityTimeoutMinutes(Integer value) {
-		maxInactivityTimeoutMinutes = value;
-	}
-
-	public void setWarnMinutesBeforeMax(Integer value) {
-		warnMinutesBeforeMax = value;
-	}
-
-	public Integer getMaxInactivityTimeoutMinutes() {
-		return maxInactivityTimeoutMinutes;
-	}
-
-	public Integer getWarnMinutesBeforeMax() {
-		return warnMinutesBeforeMax;
-	}
-
 	public void setMeetingExpireWhenLastUserLeftInMinutes(Integer value) {
 		meetingExpireWhenLastUserLeftInMinutes = value;
 	}
@@ -573,6 +592,14 @@ public class Meeting {
         this.userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes;
     }
 
+    public String getMeetingEndedCallbackURL() {
+    	return meetingEndedCallbackURL;
+    }
+
+    public void setMeetingEndedCallbackURL(String meetingEndedCallbackURL) {
+    	this.meetingEndedCallbackURL = meetingEndedCallbackURL;
+    }
+
 	public Map<String, Object> getUserCustomData(String userID){
 		return (Map<String, Object>) userCustomData.get(userID);
 	}
@@ -587,6 +614,29 @@ public class Meeting {
 
     public ConcurrentMap<String, RegisteredUser> getRegisteredUsers() {
         return registeredUsers;
+    }
+
+    public ConcurrentMap<String, Long> getEnteredUsers() {
+        return this.enteredUsers;
+    }
+
+    public void userEntered(String userId) {
+        // Skip if user already joined
+        User u = getUserById(userId);
+        if (u != null) return;
+
+        if (!enteredUsers.containsKey(userId)) {
+            Long time = System.currentTimeMillis();
+            this.enteredUsers.put(userId, time);
+        }
+    }
+
+    public Long removeEnteredUser(String userId) {
+        return this.enteredUsers.remove(userId);
+    }
+
+    public Long getEnteredUserById(String userId) {
+        return this.enteredUsers.get(userId);
     }
 
     /***
@@ -622,6 +672,8 @@ public class Meeting {
     	private BreakoutRoomsParams breakoutRoomsParams;
     	private LockSettingsParams lockSettingsParams;
 		private Boolean allowDuplicateExtUserid;
+		private Boolean endWhenNoModerator;
+		private int html5InstanceId;
 
     	public Builder(String externalId, String internalId, long createTime) {
     		this.externalId = externalId;
@@ -751,6 +803,16 @@ public class Meeting {
 
 		public Builder withAllowDuplicateExtUserid(Boolean allowDuplicateExtUserid) {
     		this.allowDuplicateExtUserid = allowDuplicateExtUserid;
+    		return this;
+		}
+
+		public Builder withEndWhenNoModerator(Boolean endWhenNoModerator) {
+    		this.endWhenNoModerator = endWhenNoModerator;
+    		return this;
+		}
+
+		public Builder withHTML5InstanceId(int instanceId) {
+    		html5InstanceId = instanceId;
     		return this;
 		}
     

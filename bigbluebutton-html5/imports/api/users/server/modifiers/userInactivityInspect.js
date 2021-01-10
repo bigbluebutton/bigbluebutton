@@ -18,17 +18,13 @@ export default function userInactivityInspect(userId, responseDelay) {
     },
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Inactivity check for user ${userId}: ${err}`);
+  try {
+    const { numberAffected } = Users.update(selector, modifier);
+
+    if (numberAffected) {
+      Logger.info(`Updated user ${userId} with inactivity inspect`);
     }
-
-    if (numChanged) {
-      return Logger.info(`Updated user ${userId} with inactivity inspect`);
-    }
-
-    return null;
-  };
-
-  return Users.update(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Inactivity check for user ${userId}: ${err}`);
+  }
 }

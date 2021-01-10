@@ -21,7 +21,7 @@ object Dependencies {
 
     // Apache Commons
     val lang = "3.9"
-    val codec = "1.13"
+    val codec = "1.14"
 
     // BigBlueButton
     val bbbCommons = "0.0.20-SNAPSHOT"

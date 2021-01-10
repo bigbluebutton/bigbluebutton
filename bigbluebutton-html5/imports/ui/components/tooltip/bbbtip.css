@@ -1,0 +1,12 @@
+.tippy-tooltip.bbbtip-theme{
+    color:#fff;
+    background-color:#333333;
+    padding: .25rem;
+    border-radius: 4px;
+}
+
+.tippy-tooltip.bbbtip-theme>.tippy-svg-arrow{
+    fill: #333333;
+    background-color: transparent;
+    background: transparent;
+}

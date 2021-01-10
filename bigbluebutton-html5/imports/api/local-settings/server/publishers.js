@@ -1,17 +1,21 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import LocalSettings from '/imports/api/local-settings';
 import Logger from '/imports/startup/server/logger';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
-function localSettings(credentials) {
-  const { meetingId, requesterUserId } = credentials;
+function localSettings() {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
-  check(meetingId, String);
-  check(requesterUserId, String);
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing LocalSettings was requested by unauth connection ${this.connection.id}`);
+    return LocalSettings.find({ meetingId: '' });
+  }
 
-  Logger.debug(`Publishing local settings for user=${requesterUserId}`);
+  const { meetingId, userId } = tokenValidation;
 
-  return LocalSettings.find({ meetingId, userId: requesterUserId });
+  Logger.debug('Publishing local settings', { userId });
+
+  return LocalSettings.find({ meetingId, userId });
 }
 
 function publish(...args) {

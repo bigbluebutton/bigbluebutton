@@ -7,11 +7,5 @@ export default function handleGroupChats({ body }, meetingId) {
   check(meetingId, String);
   check(chats, Array);
 
-  const chatsAdded = [];
-
-  chats.forEach((chat) => {
-    chatsAdded.push(addGroupChat(meetingId, chat));
-  });
-
-  return chatsAdded;
+  chats.forEach(chat => addGroupChat(meetingId, chat));
 }

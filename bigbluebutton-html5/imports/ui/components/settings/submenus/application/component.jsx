@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import Toggle from '/imports/ui/components/switch/component';
@@ -7,7 +7,6 @@ import BaseMenu from '../base/component';
 import { styles } from '../styles';
 
 const MIN_FONTSIZE = 0;
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 const intlMessages = defineMessages({
   applicationSectionTitle: {
@@ -17,22 +16,6 @@ const intlMessages = defineMessages({
   animationsLabel: {
     id: 'app.submenu.application.animationsLabel',
     description: 'animations label',
-  },
-  audioAlertLabel: {
-    id: 'app.submenu.application.audioAlertLabel',
-    description: 'audio notification label',
-  },
-  pushAlertLabel: {
-    id: 'app.submenu.application.pushAlertLabel',
-    description: 'push notifiation label',
-  },
-  userJoinAudioAlertLabel: {
-    id: 'app.submenu.application.userJoinAudioAlertLabel',
-    description: 'audio notification when a user joins',
-  },
-  userJoinPushAlertLabel: {
-    id: 'app.submenu.application.userJoinPushAlertLabel',
-    description: 'push notification when a user joins',
   },
   fontSizeControlLabel: {
     id: 'app.submenu.application.fontSizeControlLabel',
@@ -85,6 +68,7 @@ class ApplicationMenu extends BaseMenu {
       settings: props.settings,
       isLargestFontSize: false,
       isSmallestFontSize: false,
+      showSelect: false,
       fontSizes: [
         '12px',
         '14px',
@@ -97,6 +81,17 @@ class ApplicationMenu extends BaseMenu {
 
   componentDidMount() {
     this.setInitialFontSize();
+  }
+
+  componentDidUpdate() {
+    const { availableLocales } = this.props;
+
+    if (availableLocales && availableLocales.length > 0) {
+      // I used setTimout to create a smooth animation transition
+      setTimeout(() => this.setState({
+        showSelect: true,
+      }), 100);
+    }
   }
 
   setInitialFontSize() {
@@ -160,7 +155,7 @@ class ApplicationMenu extends BaseMenu {
 
   render() {
     const { availableLocales, intl } = this.props;
-    const { isLargestFontSize, isSmallestFontSize, settings } = this.state;
+    const { isLargestFontSize, isSmallestFontSize, settings, showSelect } = this.state;
 
     // conversions can be found at http://pxtoem.com
     const pixelPercentage = {
@@ -204,90 +199,6 @@ class ApplicationMenu extends BaseMenu {
             </div>
           </div>
 
-          {CHAT_ENABLED
-            ? (<Fragment>
-              <div className={styles.row}>
-                <div className={styles.col} aria-hidden="true">
-                  <div className={styles.formElement}>
-                    <label className={styles.label}>
-                      {intl.formatMessage(intlMessages.audioAlertLabel)}
-                    </label>
-                  </div>
-                </div>
-                <div className={styles.col}>
-                  <div className={cx(styles.formElement, styles.pullContentRight)}>
-                    <Toggle
-                      icons={false}
-                      defaultChecked={this.state.settings.chatAudioAlerts}
-                      onChange={() => this.handleToggle('chatAudioAlerts')}
-                      ariaLabel={intl.formatMessage(intlMessages.audioAlertLabel)}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className={styles.row}>
-                <div className={styles.col} aria-hidden="true">
-                  <div className={styles.formElement}>
-                    <label className={styles.label}>
-                      {intl.formatMessage(intlMessages.pushAlertLabel)}
-                    </label>
-                  </div>
-                </div>
-                <div className={styles.col}>
-                  <div className={cx(styles.formElement, styles.pullContentRight)}>
-                    <Toggle
-                      icons={false}
-                      defaultChecked={this.state.settings.chatPushAlerts}
-                      onChange={() => this.handleToggle('chatPushAlerts')}
-                      ariaLabel={intl.formatMessage(intlMessages.pushAlertLabel)}
-                    />
-                  </div>
-                </div>
-              </div>
-            </Fragment>
-            ) : null
-          }
-
-          <div className={styles.row}>
-            <div className={styles.col} aria-hidden="true">
-              <div className={styles.formElement}>
-                <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.userJoinAudioAlertLabel)}
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
-                <Toggle
-                  icons={false}
-                  defaultChecked={this.state.settings.userJoinAudioAlerts}
-                  onChange={() => this.handleToggle('userJoinAudioAlerts')}
-                  ariaLabel={intl.formatMessage(intlMessages.userJoinAudioAlertLabel)}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.row}>
-            <div className={styles.col} aria-hidden="true">
-              <div className={styles.formElement}>
-                <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.userJoinPushAlertLabel)}
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
-                <Toggle
-                  icons={false}
-                  defaultChecked={this.state.settings.userJoinPushAlerts}
-                  onChange={() => this.handleToggle('userJoinPushAlerts')}
-                  ariaLabel={intl.formatMessage(intlMessages.userJoinPushAlertLabel)}
-                />
-              </div>
-            </div>
-          </div>
-
           <div className={styles.row}>
             <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
@@ -302,7 +213,7 @@ class ApplicationMenu extends BaseMenu {
             </div>
             <div className={styles.col}>
               <span className={cx(styles.formElement, styles.pullContentRight)}>
-                {availableLocales && availableLocales.length > 0 ? (
+                {showSelect ? (
                   <select
                     id="langSelector"
                     defaultValue={this.state.settings.locale}
@@ -317,7 +228,15 @@ class ApplicationMenu extends BaseMenu {
                       </option>
                     ))}
                   </select>
-                ) : null}
+                )
+                  : (
+                    <div className={styles.spinnerOverlay}>
+                      <div className={styles.bounce1} />
+                      <div className={styles.bounce2} />
+                      <div />
+                    </div>
+                  )
+                }
               </span>
             </div>
           </div>

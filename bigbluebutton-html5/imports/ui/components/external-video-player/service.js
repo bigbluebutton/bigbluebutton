@@ -1,14 +1,26 @@
 import Meetings from '/imports/api/meetings';
+import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
+import Logger from '/imports/startup/client/logger';
+
 import { getStreamer } from '/imports/api/external-videos';
 import { makeCall } from '/imports/ui/services/api';
 
 import ReactPlayer from 'react-player';
 
-const isUrlValid = url => ReactPlayer.canPlay(url);
+import Panopto from './custom-players/panopto';
+
+const isUrlValid = (url) => {
+  return ReactPlayer.canPlay(url) || Panopto.canPlay(url);
+}
 
 const startWatching = (url) => {
-  const externalVideoUrl = url;
+  let externalVideoUrl = url;
+
+  if (Panopto.canPlay(url)) {
+    externalVideoUrl = Panopto.getSocialUrl(url);
+  }
+
   makeCall('startWatchingExternalVideo', { externalVideoUrl });
 };
 
@@ -17,13 +29,10 @@ const stopWatching = () => {
 };
 
 const sendMessage = (event, data) => {
-  const streamer = getStreamer(Auth.meetingID);
+  const meetingId = Auth.meetingID;
+  const userId = Auth.userID;
 
-  streamer.emit(event, {
-    ...data,
-    meetingId: Auth.meetingID,
-    userId: Auth.userID,
-  });
+  makeCall('emitExternalVideoEvent', event, { ...data, meetingId, userId });
 };
 
 const onMessage = (message, func) => {

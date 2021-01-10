@@ -9,10 +9,10 @@ const VideoListItemContainer = props => (
 
 export default withTracker((props) => {
   const {
-    user,
+    userId,
   } = props;
 
   return {
-    voiceUser: VoiceUsers.findOne({ intId: user.userId }),
+    voiceUser: VoiceUsers.findOne({ intId: userId }),
   };
 })(VideoListItemContainer);

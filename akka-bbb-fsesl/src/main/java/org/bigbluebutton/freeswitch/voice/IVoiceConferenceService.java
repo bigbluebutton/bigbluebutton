@@ -3,6 +3,9 @@ package org.bigbluebutton.freeswitch.voice;
 import org.bigbluebutton.freeswitch.voice.events.ConfMember;
 import org.bigbluebutton.freeswitch.voice.events.ConfRecording;
 
+import java.util.List;
+import java.util.Map;
+
 public interface IVoiceConferenceService {
   void voiceConfRecordingStarted(String voiceConfId,
                                  String recordStream,
@@ -65,4 +68,18 @@ public interface IVoiceConferenceService {
                                     Boolean isRecording,
                                     java.util.List<ConfRecording> confRecording);
 
+  void voiceCallStateEvent(String conf,
+                           String callSession,
+                           String clientSession,
+                           String userId,
+                           String callerName,
+                           String callState,
+                           String origCallerIdName,
+                           String origCalledDest);
+
+  void freeswitchStatusReplyEvent(Long sendCommandTimestamp,
+                                  List<String> status,
+                                  Long receivedResponseTimestamp);
+
+  void freeswitchHeartbeatEvent(Map<String, String> heartbeat);
 }

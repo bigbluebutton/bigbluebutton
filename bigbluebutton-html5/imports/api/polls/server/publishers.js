@@ -1,33 +1,50 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Polls from '/imports/api/polls';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
-Meteor.publish('current-poll', (meetingId) => {
-  check(meetingId, String);
+function currentPoll() {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing Polls was requested by unauth connection ${this.connection.id}`);
+    return Polls.find({ meetingId: '' });
+  }
+
+  const { meetingId, userId } = tokenValidation;
+
+  Logger.debug('Publishing Polls', { meetingId, userId });
 
   const selector = {
     meetingId,
   };
 
-  Logger.debug(`Publishing poll for meeting=${meetingId}`);
-
   return Polls.find(selector);
-});
+}
+
+function publishCurrentPoll(...args) {
+  const boundPolls = currentPoll.bind(this);
+  return boundPolls(...args);
+}
+
+Meteor.publish('current-poll', publishCurrentPoll);
 
 
-function polls(credentials) {
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+function polls() {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing Polls was requested by unauth connection ${this.connection.id}`);
+    return Polls.find({ meetingId: '' });
+  }
 
-  Logger.debug(`Publishing polls =${meetingId} ${requesterUserId} ${requesterToken}`);
+  const { meetingId, userId } = tokenValidation;
+
+  Logger.debug('Publishing polls', { meetingId, userId });
 
   const selector = {
     meetingId,
-    users: requesterUserId,
+    users: userId,
   };
 
   return Polls.find(selector);

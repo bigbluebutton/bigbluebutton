@@ -7,10 +7,10 @@ import {
 import {
   appendTextURL,
 } from '/imports/api/note/server/helpers';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
-export default function appendText(body, text, locale) {
-  const { meetingId } = body;
-
+export default function appendText(text, locale) {
+  const { meetingId } = extractCredentials(this.userId);
   check(meetingId, String);
   check(text, String);
   check(locale, String);
@@ -24,7 +24,7 @@ export default function appendText(body, text, locale) {
   }).then((response) => {
     const { status } = response;
     if (status === 200) {
-      Logger.verbose(`Appended text for padId:${padId}`);
+      Logger.verbose('Captions: appended text', { padId });
     }
   }).catch(error => Logger.error(`Could not append captions for padId=${padId}: ${error}`));
 }

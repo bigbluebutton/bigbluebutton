@@ -75,9 +75,11 @@ class UserCaptions extends Component {
 
     return (
       <div className={styles.messages}>
-        <h2 className={styles.smallTitle}>
-          {intl.formatMessage(intlMessages.title)}
-        </h2>
+        <div className={styles.container}>
+          <h2 className={styles.smallTitle}>
+            {intl.formatMessage(intlMessages.title)}
+          </h2>
+        </div>
         <div
           role="tabpanel"
           tabIndex={0}

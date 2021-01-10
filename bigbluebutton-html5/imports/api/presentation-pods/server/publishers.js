@@ -1,16 +1,18 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import PresentationPods from '/imports/api/presentation-pods';
 import Logger from '/imports/startup/server/logger';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
-function presentationPods(credentials) {
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+function presentationPods() {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing PresentationPods was requested by unauth connection ${this.connection.id}`);
+    return PresentationPods.find({ meetingId: '' });
+  }
 
-  Logger.debug(`Publishing presentation-pods for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  const { meetingId, userId } = tokenValidation;
+  Logger.debug('Publishing presentation-pods', { meetingId, userId });
 
   return PresentationPods.find({ meetingId });
 }

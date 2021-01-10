@@ -24,7 +24,7 @@ public class OfficeDocumentValidator2 {
 
       log.info("Running pres check " + COMMAND);
 
-      boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);
+      boolean done = new ExternalProcessExecutor().exec(COMMAND, 25000);
 
       if (done) {
         return true;
