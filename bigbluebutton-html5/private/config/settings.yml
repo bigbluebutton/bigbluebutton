@@ -356,7 +356,7 @@ public:
     label:
       moderator: false
       mobile: true
-      guest: false
+      guest: true
   whiteboard:
     annotations:
       status:
