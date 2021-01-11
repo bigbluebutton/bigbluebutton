@@ -400,6 +400,10 @@ public:
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
+    label:
+      moderator: false
+      mobile: true
+      guest: false
   whiteboard:
     annotations:
       status:
