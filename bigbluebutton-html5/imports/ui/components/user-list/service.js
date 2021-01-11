@@ -296,13 +296,23 @@ const isMeetingLocked = (id) => {
   return isLocked;
 };
 
-const areUsersUnmutable = () => {
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { 'usersProp.allowModsToUnmuteUsers': 1 } });
-  if (meeting.usersProp) {
-    return meeting.usersProp.allowModsToUnmuteUsers;
+const getUsersProp = () => {
+  const meeting = Meetings.findOne(
+    { meetingId: Auth.meetingID },
+    {
+      fields: {
+        'usersProp.allowModsToUnmuteUsers': 1,
+        'usersProp.authenticatedGuest': 1,
+      },
+    }
+  );
+
+  if (meeting.usersProp) return meeting.usersProp;
+
+  return {
+    allowModsToUnmuteUsers: false,
+    authenticatedGuest: false,
   }
-  return false;
 };
 
 const curatedVoiceUser = (intId) => {
@@ -315,10 +325,11 @@ const curatedVoiceUser = (intId) => {
   };
 };
 
-const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectVoiceUser) => {
+const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectVoiceUser, usersProp) => {
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId) || subjectUser.phone_user;
   const amISubjectUser = isMe(subjectUser.userId);
   const isSubjectUserModerator = subjectUser.role === ROLE_MODERATOR;
+  const isSubjectUserGuest = subjectUser.guest;
 
   const hasAuthority = amIModerator || amISubjectUser;
   const allowedToChatPrivately = !amISubjectUser && !isDialInUser;
@@ -331,7 +342,7 @@ const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectV
     && subjectVoiceUser.isVoiceUser
     && !subjectVoiceUser.isListenOnly
     && subjectVoiceUser.isMuted
-    && (amISubjectUser || areUsersUnmutable());
+    && (amISubjectUser || usersProp.allowedToUnmuteAudio);
 
   const allowedToResetStatus = hasAuthority
     && subjectUser.emoji !== EMOJI_STATUSES.none
@@ -350,13 +361,15 @@ const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectV
     && !amISubjectUser
     && !isSubjectUserModerator
     && !isDialInUser
-    && !isBreakoutRoom;
+    && !isBreakoutRoom
+    && !(isSubjectUserGuest && usersProp.authenticatedGuest);
 
   const allowedToDemote = amIModerator
     && !amISubjectUser
     && isSubjectUserModerator
     && !isDialInUser
-    && !isBreakoutRoom;
+    && !isBreakoutRoom
+    && !(isSubjectUserGuest && usersProp.authenticatedGuest);
 
   const allowedToChangeStatus = amISubjectUser;
 
@@ -575,4 +588,5 @@ export default {
   toggleUserLock,
   requestUserInformation,
   isUserPresenter,
+  getUsersProp,
 };
