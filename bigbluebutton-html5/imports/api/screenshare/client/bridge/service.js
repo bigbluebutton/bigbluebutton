@@ -2,12 +2,12 @@ import Meetings from '/imports/api/meetings';
 import logger from '/imports/startup/client/logger';
 import { fetchWebRTCMappedStunTurnServers, getMappedFallbackStun } from '/imports/utils/fetchStunTurnServers';
 import loadAndPlayMediaStream from '/imports/ui/services/bbb-webrtc-sfu/load-play';
+import { SCREENSHARING_ERRORS } from './errors';
 
 const {
   constraints: GDM_CONSTRAINTS,
   mediaTimeouts: MEDIA_TIMEOUTS,
 } = Meteor.settings.public.kurento.screenshare;
-
 const {
   baseTimeout: BASE_MEDIA_TIMEOUT,
   maxTimeout: MAX_MEDIA_TIMEOUT,
@@ -15,10 +15,14 @@ const {
   timeoutIncreaseFactor: TIMEOUT_INCREASE_FACTOR,
 } = MEDIA_TIMEOUTS;
 
-const hasDisplayMedia = (typeof navigator.getDisplayMedia === 'function'
+const HAS_DISPLAY_MEDIA = (typeof navigator.getDisplayMedia === 'function'
   || (navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function'));
 
 const getConferenceBridge = () => Meetings.findOne().voiceProp.voiceConf;
+
+const normalizeGetDisplayMediaError = (error) => {
+  return SCREENSHARING_ERRORS[error.name] || SCREENSHARING_ERRORS.GetDisplayMediaGenericError;
+};
 
 const getBoundGDM = () => {
   if (typeof navigator.getDisplayMedia === 'function') {
@@ -34,11 +38,7 @@ const getScreenStream = async () => {
     // a promise rejection AND not generating a valid input screen stream, need to
     // work around that manually for now - prlanzarin
     if (stream == null) {
-      return Promise.reject({
-        errorMessage: 'NotSupportedError',
-        errorName: 'NotSupportedError',
-        errorCode: 9,
-      });
+      return Promise.reject(SCREENSHARING_ERRORS.NotSupportedError);
     }
 
     if (typeof stream.getVideoTracks === 'function'
@@ -79,19 +79,16 @@ const getScreenStream = async () => {
     return getDisplayMedia(GDM_CONSTRAINTS)
       .then(gDMCallback)
       .catch(error => {
+        const normalizedError = normalizeGetDisplayMediaError(error);
         logger.error({
           logCode: 'screenshare_getdisplaymedia_failed',
-          extraInfo: { errorName: error.name, errorCode: error.code },
+          extraInfo: { errorCode: normalizedError.errorCode, errorMessage: normalizedError.errorMessage },
         }, 'getDisplayMedia call failed');
-        return Promise.reject({ errorCode: error.code, errorMessage: error.name || error.message });
+        return Promise.reject(normalizedError);
       });
   } else {
     // getDisplayMedia isn't supported, error its way out
-    return Promise.reject({
-      errorMessage: 'NotSupportedError',
-      errorName: 'NotSupportedError',
-      errorCode: 9,
-    });
+    return Promise.reject(SCREENSHARING_ERRORS.NotSupportedError);
   }
 }
 
@@ -135,17 +132,16 @@ const screenshareLoadAndPlayMediaStream = (stream, mediaElement, muted) => {
       }, 'Screen share media play failed: autoplay error');
       dispatchAutoplayHandlingEvent(mediaElement);
     } else {
-      const normalizedError = {
-        errorCode: 1104,
-        errorMessage: error.message || 'SCREENSHARE_PLAY_FAILED',
+      throw {
+        errorCode: SCREENSHARING_ERRORS.SCREENSHARE_PLAY_FAILED.errorCode,
+        errorMessage: error.message || SCREENSHARING_ERRORS.SCREENSHARE_PLAY_FAILED.errorMessage,
       };
-      throw normalizedError;
     }
   });
 }
 
 export default {
-  hasDisplayMedia,
+  HAS_DISPLAY_MEDIA,
   getConferenceBridge,
   getScreenStream,
   getIceServers,

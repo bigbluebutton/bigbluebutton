@@ -17,6 +17,14 @@ import {
   screenShareEndAlert,
   isVideoBroadcasting,
 } from '/imports/ui/components/screenshare/service';
+import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
+
+const BROWSER_RESULTS = browser();
+const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false)
+  || (BROWSER_RESULTS && BROWSER_RESULTS.os
+    ? BROWSER_RESULTS.os.includes('Android') // mobile flag doesn't always work
+    : false);
+const IS_SAFARI = BROWSER_RESULTS.name === 'safari';
 
 const propTypes = {
   intl: intlShape.isRequired,
@@ -48,18 +56,6 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.stopDesktopShareDesc',
     description: 'adds context to stop desktop share option',
   },
-  genericError: {
-    id: 'app.screenshare.genericError',
-    description: 'error message for when screensharing fails with unknown error',
-  },
-  NotAllowedError: {
-    id: 'app.screenshare.notAllowed',
-    description: 'error message when screen access was not granted',
-  },
-  NotSupportedError: {
-    id: 'app.screenshare.notSupportedError',
-    description: 'error message when trying to share screen in unsafe environments',
-  },
   screenShareNotSupported: {
     id: 'app.media.screenshare.notSupported',
     descriptions: 'error message when trying share screen on unsupported browsers',
@@ -68,63 +64,61 @@ const intlMessages = defineMessages({
     id: 'app.media.screenshare.unavailable',
     descriptions: 'title for unavailable screen share modal',
   },
-  NotReadableError: {
-    id: 'app.screenshare.notReadableError',
-    description: 'error message when the browser failed to capture the screen',
+  finalError: {
+    id: 'app.screenshare.screenshareFinalError',
+    description: 'Screen sharing failures with no recovery procedure',
   },
-  1108: {
-    id: 'app.deskshare.iceConnectionStateError',
-    description: 'Error message for ice connection state failure',
+  retryError: {
+    id: 'app.screenshare.screenshareRetryError',
+    description: 'Screen sharing failures where a retry is recommended',
   },
-  1120: {
-    id: 'app.deskshare.mediaFlowTimeout',
-    description: 'Error message for screenshare media flow timeout',
+  retryOtherEnvError: {
+    id: 'app.screenshare.screenshareRetryOtherEnvError',
+    description: 'Screen sharing failures where a retry in another environment is recommended',
   },
-  2000: {
-    id: 'app.sfu.mediaServerConnectionError2000',
-    description: 'Error message fired when the SFU cannot connect to the media server',
+  unsupportedEnvError: {
+    id: 'app.screenshare.screenshareUnsupportedEnv',
+    description: 'Screen sharing is not supported, changing browser or device is recommended',
   },
-  2001: {
-    id: 'app.sfu.mediaServerOffline2001',
-    description: 'error message when SFU is offline',
-  },
-  2002: {
-    id: 'app.sfu.mediaServerNoResources2002',
-    description: 'Error message fired when the media server lacks disk, CPU or FDs',
-  },
-  2003: {
-    id: 'app.sfu.mediaServerRequestTimeout2003',
-    description: 'Error message fired when requests are timing out due to lack of resources',
-  },
-  2021: {
-    id: 'app.sfu.serverIceGatheringFailed2021',
-    description: 'Error message fired when the server cannot enact ICE gathering',
-  },
-  2022: {
-    id: 'app.sfu.serverIceStateFailed2022',
-    description: 'Error message fired when the server endpoint transitioned to a FAILED ICE state',
-  },
-  2200: {
-    id: 'app.sfu.mediaGenericError2200',
-    description: 'Error message fired when the SFU component generated a generic error',
-  },
-  2202: {
-    id: 'app.sfu.invalidSdp2202',
-    description: 'Error message fired when the clients provides an invalid SDP',
-  },
-  2203: {
-    id: 'app.sfu.noAvailableCodec2203',
-    description: 'Error message fired when the server has no available codec for the client',
+  permissionError: {
+    id: 'app.screenshare.screensharePermissionError',
+    description: 'Screen sharing failure due to lack of permission',
   },
 });
 
-const BROWSER_RESULTS = browser();
-const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false)
-  || (BROWSER_RESULTS && BROWSER_RESULTS.os
-    ? BROWSER_RESULTS.os.includes('Android') // mobile flag doesn't always work
-    : false);
-const IS_SAFARI = BROWSER_RESULTS.name === 'safari';
-
+const getErrorLocale = (errorCode) => {
+  switch (errorCode) {
+    // Denied getDisplayMedia permission error
+    case SCREENSHARING_ERRORS.NotAllowedError.errorCode:
+      return intlMessages.permissionError;
+    // Browser is supposed to be supported, but a browser-related error happening.
+    // Suggest retrying in another device/browser/env
+    case SCREENSHARING_ERRORS.AbortError.errorCode:
+    case SCREENSHARING_ERRORS.InvalidStateError.errorCode:
+    case SCREENSHARING_ERRORS.OverconstrainedError.errorCode:
+    case SCREENSHARING_ERRORS.TypeError.errorCode:
+    case SCREENSHARING_ERRORS.NotFoundError.errorCode:
+    case SCREENSHARING_ERRORS.NotReadableError.errorCode:
+    case SCREENSHARING_ERRORS.PEER_NEGOTIATION_FAILED.errorCode:
+    case SCREENSHARING_ERRORS.SCREENSHARE_PLAY_FAILED.errorCode:
+    case SCREENSHARING_ERRORS.MEDIA_NO_AVAILABLE_CODEC.errorCode:
+    case SCREENSHARING_ERRORS.MEDIA_INVALID_SDP.errorCode:
+      return intlMessages.retryOtherEnvError;
+    // Fatal errors where a retry isn't warranted. This probably means the server
+    // is misconfigured somehow or the provider is utterly botched, so nothing
+    // the end user can do besides requesting support
+    case SCREENSHARING_ERRORS.SIGNALLING_TRANSPORT_CONNECTION_FAILED.errorCode:
+    case SCREENSHARING_ERRORS.MEDIA_SERVER_CONNECTION_ERROR.errorCode:
+    case SCREENSHARING_ERRORS.SFU_INVALID_REQUEST.errorCode:
+      return intlMessages.finalError;
+    // Unsupported errors
+    case SCREENSHARING_ERRORS.NotSupportedError.errorCode:
+      return intlMessages.unsupportedEnvError;
+    // Fall through: everything else is an error which might be solved with a retry
+    default:
+      return intlMessages.retryError;
+  }
+}
 
 const ScreenshareButton = ({
   intl,
@@ -137,20 +131,20 @@ const ScreenshareButton = ({
 }) => {
   // This is the failure callback that will be passed to the /api/screenshare/kurento.js
   // script on the presenter's call
-  const onFail = (error) => {
-    const { errorCode, errorMessage, errorReason } = error;
-    const errorLocale = errorCode || errorMessage || errorReason;
+  const handleFailure = (error) => {
+    const {
+      errorCode = SCREENSHARING_ERRORS.UNKNOWN_ERROR.errorCode,
+      errorMessage
+    } = error;
+
     logger.error({
       logCode: 'screenshare_failed',
-      extraInfo: { errorCode, errorMessage, errorReason },
+      extraInfo: { errorCode, errorMessage },
     }, 'Screenshare failed');
 
-    const localizedError = intlMessages[error] || intlMessages.genericError;
-    notify(intl.formatMessage(localizedError), 'error', 'desktop');
+    const localizedError = getErrorLocale(errorCode);
+    notify(intl.formatMessage(localizedError, { 0: errorCode }), 'error', 'desktop');
     screenshareHasEnded();
-
-    // Don't trigger the screen share end alert if presenter click to cancel on screen share dialog
-    if (error !== 'NotAllowedError') screenShareEndAlert();
   };
 
   const renderScreenshareUnavailableModal = () => {
@@ -199,10 +193,10 @@ const ScreenshareButton = ({
         onClick={isVideoBroadcasting
           ? screenshareHasEnded
           : () => {
-            if (IS_SAFARI && !ScreenshareBridgeService.hasDisplayMedia) {
+            if (IS_SAFARI && !ScreenshareBridgeService.HAS_DISPLAY_MEDIA) {
               renderScreenshareUnavailableModal();
             } else {
-              shareScreen(onFail);
+              shareScreen(handleFailure);
             }
           }
         }

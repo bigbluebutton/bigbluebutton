@@ -3,6 +3,7 @@ import logger from '/imports/startup/client/logger';
 import BridgeService from './service';
 import ScreenshareBroker from '/imports/ui/services/bbb-webrtc-sfu/screenshare-broker';
 import { setSharingScreen } from '/imports/ui/components/screenshare/service';
+import { SCREENSHARING_ERRORS } from './errors';
 
 const SFU_CONFIG = Meteor.settings.public.kurento;
 const SFU_URL = SFU_CONFIG.wsUrl;
@@ -12,18 +13,23 @@ const SCREENSHARE_VIDEO_TAG = 'screenshareVideo';
 const SEND_ROLE = 'send';
 const RECV_ROLE = 'recv';
 
-const errorCodeMap = {
-  1301: 1101,
-  1302: 1102,
-  1305: 1105,
-  1307: 1108, // This should be 1107, but I'm preserving the existing locales - prlanzarin
+// the error-code mapping is bridge specific; that's why it's not in the errors util
+const ERROR_MAP = {
+  1301: SCREENSHARING_ERRORS.SIGNALLING_TRANSPORT_DISCONNECTED,
+  1302: SCREENSHARING_ERRORS.SIGNALLING_TRANSPORT_CONNECTION_FAILED,
+  1305: SCREENSHARING_ERRORS.PEER_NEGOTIATION_FAILED,
+  1307: SCREENSHARING_ERRORS.ICE_STATE_FAILED,
 }
 
 const mapErrorCode = (error) => {
   const { errorCode } = error;
-  const mappedErrorCode = errorCodeMap[errorCode];
-  if (errorCode == null || mappedErrorCode == null) return error;
-  error.errorCode = mappedErrorCode;
+  const mappedError = ERROR_MAP[errorCode];
+
+  if (errorCode == null || mappedError == null) return error;
+  error.errorCode = mappedError.errorCode;
+  error.errorMessage = mappedError.errorMessage;
+  error.message = mappedError.errorMessage;
+
   return error;
 }
 
@@ -69,6 +75,7 @@ export default class KurentoScreenshareBridge {
       logger.debug({
         logCode: 'screenshare_reconnect_failed',
         extraInfo: {
+          errorCode: error.errorCode,
           errorMessage: error.errorMessage,
           reconnecting: this.reconnecting,
           role: this.role,
@@ -101,6 +108,7 @@ export default class KurentoScreenshareBridge {
       logger.debug({
         logCode: 'screenshare_reconnect_failed',
         extraInfo: {
+          errorCode: error.errorCode,
           errorMessage: error.errorMessage,
           reconnecting: this.reconnecting,
           role: this.role,
@@ -163,12 +171,12 @@ export default class KurentoScreenshareBridge {
 
   handleBrokerFailure(error) {
     mapErrorCode(error);
-    const { errorMessage, errorCause, errorCode } = error;
+    const { errorMessage, errorCode } = error;
 
     logger.error({
-      logCode: 'screenshare_failure',
+      logCode: 'screenshare_broker_failure',
       extraInfo: {
-        errorMessage, errorCode, errorCause,
+        errorCode, errorMessage,
         role: this.broker.role,
         started: this.broker.started,
         reconnecting: this.reconnecting,
@@ -232,12 +240,9 @@ export default class KurentoScreenshareBridge {
         if (this.maxConnectionAttemptsReached()) {
           this.clearReconnectionTimeout();
           this.connectionAttempts = 0;
-          onFailure({
-            errorCode: 1120,
-            errorMessage: `MAX_CONNECTION_ATTEMPTS_REACHED`,
-          });
+          onFailure(SCREENSHARING_ERRORS.MEDIA_TIMEOUT);
 
-          return reject({ errorCode: 1120, errorMessage: "MAX_CONNECTION_ATTEMPTS_REACHED" });
+          return reject(SCREENSHARING_ERRORS.MEDIA_TIMEOUT);
         }
       };
 
