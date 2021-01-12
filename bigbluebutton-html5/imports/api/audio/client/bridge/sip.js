@@ -36,6 +36,7 @@ const BRIDGE_NAME = 'sip';
 const WEBSOCKET_KEEP_ALIVE_INTERVAL = MEDIA.websocketKeepAliveInterval || 0;
 const WEBSOCKET_KEEP_ALIVE_DEBOUNCE = MEDIA.websocketKeepAliveDebounce || 10;
 const TRACE_SIP = MEDIA.traceSip || false;
+const AUDIO_MICROPHONE_CONSTRAINTS = MEDIA.audioMicrophoneConstraints;
 
 const getAudioSessionNumber = () => {
   let currItem = parseInt(sessionStorage.getItem(AUDIO_SESSION_NUM_KEY), 10);
@@ -579,16 +580,31 @@ class SIPSession {
 
       const target = SIP.UserAgent.makeURI(`sip:${callExtension}@${hostname}`);
 
-      const audioDeviceConstraint = this.inputDeviceId
-        ? { deviceId: { exact: this.inputDeviceId } }
-        : true;
+      const supportedConstraints = navigator
+        .mediaDevices.getSupportedConstraints() || [];
+
+      const audioDeviceConstraints = AUDIO_MICROPHONE_CONSTRAINTS || {};
+
+      const matchConstraints = {};
+
+      Object.entries(audioDeviceConstraints).forEach(
+        ([constraintName, constraintValue]) => {
+          if (supportedConstraints[constraintName]) {
+            matchConstraints[constraintName] = constraintValue;
+          }
+        }
+      );
+
+      if (this.inputDeviceId) {
+        matchConstraints.deviceId = { exact: this.inputDeviceId };
+      }
 
       const inviterOptions = {
         sessionDescriptionHandlerOptions: {
           constraints: {
             audio: isListenOnly
               ? false
-              : audioDeviceConstraint,
+              : matchConstraints,
             video: false,
           },
           iceGatheringTimeout: ICE_GATHERING_TIMEOUT,

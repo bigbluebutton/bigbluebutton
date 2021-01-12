@@ -306,6 +306,20 @@ public:
     websocketKeepAliveDebounce: 10
     #Trace sip/audio messages in browser. If not set, default value is false.
     traceSip: false
+    #Audio constraints for microphone. Use this to control browser's filters,
+    #such as AGC (Auto Gain Control) , Echo Cancellation, Noise Supression, etc.
+    #See https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackSettings#Properties_of_audio_tracks
+    #for more details. Currently, google chrome sets {ideal: true}
+    #for autoGainControl, echoCancellation and noiseSuppression, if not set.
+    #The accepted value for each constraint is an object of type
+    #https://developer.mozilla.org/en-US/docs/Web/API/ConstrainBoolean
+    # audioMicrophoneConstraints:
+    #     autoGainControl:
+    #       ideal: true
+    #     echoCancellation:
+    #       ideal: true
+    #     noiseSuppression:
+    #       ideal: true
   presentation:
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32
