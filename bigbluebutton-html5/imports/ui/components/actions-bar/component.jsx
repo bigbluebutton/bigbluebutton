@@ -12,17 +12,42 @@ import PresentationOptionsContainer from './presentation-options/component';
 import Button from '/imports/ui/components/button/component';
 import Storage from '/imports/ui/services/storage/session';
 import AudioManager from '/imports/ui/services/audio-manager';
-import {makeCall} from "../../services/api";
+import { makeCall } from "../../services/api";
 import Meetings from '/imports/api/meetings';
 import LanguageOverlay from '/imports/ui/components/LanguageOverlay/component'
 import Service from './service';
 import Auth from '/imports/ui/services/auth';
 
 const TRANSLATION_SETTINGS = Meteor.settings.public.media.translation;
-const FLOOR_TRANSLATION_VOLUME = TRANSLATION_SETTINGS.floorVolume || 0.4;
-const TRANSLATOR_SPEAKING_DELAY = TRANSLATION_SETTINGS.translator.speakDetection.delay || 0;
-const TRANSLATOR_SPEAKING_TIMEOUT = TRANSLATION_SETTINGS.translator.speakDetection.timeout || 60000;
-const TRANSLATOR_SPEAKING_ENABLED = TRANSLATION_SETTINGS.translator.speakDetection.enabled || true;
+var FLOOR_TRANSLATION_VOLUME = 0.4;
+var TRANSLATOR_SPEAKING_DELAY = 0;
+var TRANSLATOR_SPEAKING_TIMEOUT = 60000;
+var TRANSLATOR_SPEAKING_ENABLED = true;
+
+if (TRANSLATION_SETTINGS) {
+
+  if (TRANSLATION_SETTINGS.hasOwnProperty('floorVolume')) {
+    FLOOR_TRANSLATION_VOLUME = TRANSLATION_SETTINGS.floorVolume
+  }
+
+  if (TRANSLATION_SETTINGS.hasOwnProperty('translator')) {
+    const TRANSLATOR_SETTINGS = TRANSLATION_SETTINGS.translator;
+    if (TRANSLATOR_SETTINGS && TRANSLATOR_SETTINGS.hasOwnProperty('speakDetection')) {
+      const SPEAK_DETECTION_SETTINGS = TRANSLATOR_SETTINGS.speakDetection;
+      if (SPEAK_DETECTION_SETTINGS) {
+        if (SPEAK_DETECTION_SETTINGS.hasOwnProperty('delay')) {
+          TRANSLATOR_SPEAKING_DELAY = SPEAK_DETECTION_SETTINGS.delay;
+        }
+        if (SPEAK_DETECTION_SETTINGS.hasOwnProperty('timeout')) {
+          TRANSLATOR_SPEAKING_TIMEOUT = SPEAK_DETECTION_SETTINGS.timeout;
+        }
+        if (SPEAK_DETECTION_SETTINGS.hasOwnProperty('enabled')) {
+          TRANSLATOR_SPEAKING_ENABLED = SPEAK_DETECTION_SETTINGS.enabled;
+        }
+      }
+    }
+  }
+}
 
 const intlMessages = defineMessages({
   translatorMicrophoneLabel: {
