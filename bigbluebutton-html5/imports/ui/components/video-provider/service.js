@@ -164,11 +164,18 @@ class VideoService {
         meetingId: Auth.meetingID,
         userId: Auth.userID,
       }, { fields: { stream: 1 } },
-    ).fetch().length;
-    this.sendUserUnshareWebcam(cameraId);
-    if (streams < 2) {
-      // If the user had less than 2 streams, set as a full disconnection
-      this.exitedVideo();
+    ).fetch();
+
+    const hasStream = streams.some(s => s.stream === cameraId);
+
+    if (hasStream) {
+      this.sendUserUnshareWebcam(cameraId);
+
+      const hasOtherStream = streams.some(s => s.stream !== cameraId);
+      if (!hasOtherStream) {
+        // Was the last stream this user had. Set as a full disconnection
+        this.exitedVideo();
+      }
     }
   }
 
