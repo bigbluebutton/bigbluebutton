@@ -20,6 +20,14 @@ const hasDisplayMedia = (typeof navigator.getDisplayMedia === 'function'
 
 const getConferenceBridge = () => Meetings.findOne().voiceProp.voiceConf;
 
+const getBoundGDM = () => {
+  if (typeof navigator.getDisplayMedia === 'function') {
+    return navigator.getDisplayMedia.bind(navigator);
+  } else if (navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function') {
+    return navigator.mediaDevices.getDisplayMedia.bind(navigator.mediaDevices);
+  }
+}
+
 const getScreenStream = async () => {
   const gDMCallback = (stream) => {
     // Some older Chromium variants choke on gDM when audio: true by NOT generating
@@ -34,10 +42,10 @@ const getScreenStream = async () => {
     }
 
     if (typeof stream.getVideoTracks === 'function'
-      && typeof constraints.video === 'object') {
+      && typeof GDM_CONSTRAINTS.video === 'object') {
       stream.getVideoTracks().forEach(track => {
         if (typeof track.applyConstraints  === 'function') {
-          track.applyConstraints(constraints.video).catch(error => {
+          track.applyConstraints(GDM_CONSTRAINTS.video).catch(error => {
             logger.warn({
               logCode: 'screenshare_videoconstraint_failed',
               extraInfo: { errorName: error.name, errorCode: error.code },
@@ -49,10 +57,10 @@ const getScreenStream = async () => {
     }
 
     if (typeof stream.getAudioTracks === 'function'
-      && typeof constraints.audio === 'object') {
+      && typeof GDM_CONSTRAINTS.audio === 'object') {
       stream.getAudioTracks().forEach(track => {
         if (typeof track.applyConstraints  === 'function') {
-          track.applyConstraints(constraints.audio).catch(error => {
+          track.applyConstraints(GDM_CONSTRAINTS.audio).catch(error => {
             logger.warn({
               logCode: 'screenshare_audioconstraint_failed',
               extraInfo: { errorName: error.name, errorCode: error.code },
@@ -65,32 +73,18 @@ const getScreenStream = async () => {
     return Promise.resolve(stream);
   }
 
-  const constraints = hasDisplayMedia ? GDM_CONSTRAINTS : null;
+  const getDisplayMedia = getBoundGDM();
 
-  if (hasDisplayMedia) {
-    // The double checks here is to detect whether gDM is in navigator or mediaDevices
-    // because it can be on either of them depending on the browser+version
-    if (typeof navigator.getDisplayMedia === 'function') {
-      return navigator.getDisplayMedia(constraints)
-        .then(gDMCallback)
-        .catch(error => {
-          logger.error({
-            logCode: 'screenshare_getdisplaymedia_failed',
-            extraInfo: { errorName: error.name, errorCode: error.code },
-          }, 'getDisplayMedia call failed');
-          return Promise.reject({ errorCode: error.code, errorMessage: error.name || error.message });
-        });
-    } else if (navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function') {
-      return navigator.mediaDevices.getDisplayMedia(constraints)
-        .then(gDMCallback)
-        .catch(error => {
-          logger.error({
-            logCode: 'screenshare_getdisplaymedia_failed',
-            extraInfo: { errorName: error.name, errorCode: error.code },
-          }, 'getDisplayMedia call failed');
-          return Promise.reject({ errorCode: error.code, errorMessage: error.name || error.message });
-        });
-    }
+  if (typeof getDisplayMedia === 'function') {
+    return getDisplayMedia(GDM_CONSTRAINTS)
+      .then(gDMCallback)
+      .catch(error => {
+        logger.error({
+          logCode: 'screenshare_getdisplaymedia_failed',
+          extraInfo: { errorName: error.name, errorCode: error.code },
+        }, 'getDisplayMedia call failed');
+        return Promise.reject({ errorCode: error.code, errorMessage: error.name || error.message });
+      });
   } else {
     // getDisplayMedia isn't supported, error its way out
     return Promise.reject({
