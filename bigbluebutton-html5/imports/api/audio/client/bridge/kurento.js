@@ -6,7 +6,7 @@ import ListenOnlyBroker from '/imports/ui/services/bbb-webrtc-sfu/listenonly-bro
 import loadAndPlayMediaStream from '/imports/ui/services/bbb-webrtc-sfu/load-play';
 import {
   fetchWebRTCMappedStunTurnServers,
-  getMappedFallbackStun
+  getMappedFallbackStun,
 } from '/imports/utils/fetchStunTurnServers';
 
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
@@ -26,14 +26,14 @@ const errorCodeMap = {
   1302: 1002,
   1305: 1005,
   1307: 1007,
-}
+};
 const mapErrorCode = (error) => {
   const { errorCode } = error;
   const mappedErrorCode = errorCodeMap[errorCode];
   if (errorCode == null || mappedErrorCode == null) return error;
   error.errorCode = mappedErrorCode;
   return error;
-}
+};
 
 export default class KurentoAudioBridge extends BaseAudioBridge {
   constructor(userData) {
@@ -59,7 +59,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
       } catch (error) {
         logger.error({
           logCode: 'listenonly_changeoutputdevice_error',
-          extraInfo: { error, bridge: BRIDGE_NAME }
+          extraInfo: { error, bridge: BRIDGE_NAME },
         }, 'Audio bridge failed to change output device');
         throw new Error(this.baseErrorCodes.MEDIA_ERROR);
       }
@@ -106,14 +106,14 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
 
     this.joinAudio({ isListenOnly: true }, this.callback).then(() => {
       this.clearReconnectionTimeout();
-    }).catch(error => {
+    }).catch((error) => {
       // Error handling is a no-op because it will be "handled" in handleBrokerFailure
       logger.debug({
         logCode: 'listenonly_reconnect_failed',
         extraInfo: {
           errorMessage: error.errorMessage,
           reconnecting: this.reconnecting,
-          bridge: BRIDGE_NAME
+          bridge: BRIDGE_NAME,
         },
       }, 'Listen only reconnect failed');
     });
@@ -127,37 +127,40 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
       if (this.broker.started && !this.reconnecting) {
         logger.error({
           logCode: 'listenonly_error_try_to_reconnect',
-          extraInfo: { errorMessage, errorCode, errorCause, bridge: BRIDGE_NAME },
+          extraInfo: {
+            errorMessage, errorCode, errorCause, bridge: BRIDGE_NAME,
+          },
         }, 'Listen only failed, try to reconnect');
         this.reconnect();
         return resolve();
-      } else {
-        // Already tried reconnecting once OR the user handn't succesfully
-        // connected firsthand. Just finish the session and reject with error
-        logger.error({
-          logCode: 'listenonly_error',
-          extraInfo: {
-            errorMessage, errorCode, errorCause,
-            reconnecting: this.reconnecting,
-            bridge: BRIDGE_NAME
-          },
-        }, 'Listen only failed');
-        this.clearReconnectionTimeout();
-        this.broker.stop();
-        this.callback({
-          status: this.baseCallStates.failed,
-          error: errorCode,
-          bridgeError: errorMessage,
-          bridge: BRIDGE_NAME,
-        });
-        return reject(error);
       }
+      // Already tried reconnecting once OR the user handn't succesfully
+      // connected firsthand. Just finish the session and reject with error
+      logger.error({
+        logCode: 'listenonly_error',
+        extraInfo: {
+          errorMessage,
+          errorCode,
+          errorCause,
+          reconnecting: this.reconnecting,
+          bridge: BRIDGE_NAME,
+        },
+      }, 'Listen only failed');
+      this.clearReconnectionTimeout();
+      this.broker.stop();
+      this.callback({
+        status: this.baseCallStates.failed,
+        error: errorCode,
+        bridgeError: errorMessage,
+        bridge: BRIDGE_NAME,
+      });
+      return reject(error);
     });
   }
 
   dispatchAutoplayHandlingEvent(mediaElement) {
     const tagFailedEvent = new CustomEvent('audioPlayFailed', {
-      detail: { mediaElement }
+      detail: { mediaElement },
     });
     window.dispatchEvent(tagFailedEvent);
     this.callback({ status: this.baseCallStates.autoplayBlocked, bridge: BRIDGE_NAME });
@@ -167,9 +170,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
     const stream = this.broker.webRtcPeer.getRemoteStream();
     const mediaElement = document.getElementById(MEDIA_TAG);
 
-    return loadAndPlayMediaStream(stream, mediaElement, false).then(() => {
-      return this.callback({ status: this.baseCallStates.started, bridge: BRIDGE_NAME });
-    }).catch(error => {
+    return loadAndPlayMediaStream(stream, mediaElement, false).then(() => this.callback({ status: this.baseCallStates.started, bridge: BRIDGE_NAME })).catch((error) => {
       // NotAllowedError equals autoplay issues, fire autoplay handling event.
       // This will be handled in audio-manager.
       if (error.name === 'NotAllowedError') {
@@ -188,7 +189,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
           error: normalizedError.errorCode,
           bridgeError: normalizedError.errorMessage,
           bridge: BRIDGE_NAME,
-        })
+        });
         throw normalizedError;
       }
     });
@@ -225,12 +226,12 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
         this.broker.onended = this.handleTermination.bind(this);
         this.broker.onerror = (error) => {
           this.handleBrokerFailure(error).catch(reject);
-        }
+        };
         this.broker.onstart = () => {
           this.handleStart().then(resolve).catch(reject);
         };
 
-       this.broker.listen().catch(reject);
+        this.broker.listen().catch(reject);
       }
     });
   }

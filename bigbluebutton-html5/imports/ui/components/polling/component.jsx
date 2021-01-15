@@ -4,9 +4,9 @@ import Button from '/imports/ui/components/button/component';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
+import { Meteor } from 'meteor/meteor';
 import { styles } from './styles.scss';
 import AudioService from '/imports/ui/components/audio/service';
-import {Meteor} from "meteor/meteor";
 
 const intlMessages = defineMessages({
   pollingTitleLabel: {

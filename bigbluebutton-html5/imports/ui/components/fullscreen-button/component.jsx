@@ -51,17 +51,15 @@ const FullscreenButtonComponent = ({
 }) => {
   if (isIphone) return null;
 
-  const formattedLabel = (isFullscreen) => {
-    return(isFullscreen ?
-      intl.formatMessage(
-        intlMessages.fullscreenUndoButton,
-        ({ 0: elementName || '' }),
-      ) :
-      intl.formatMessage(
-        intlMessages.fullscreenButton,
-        ({ 0: elementName || '' }),
-      ));
-  };
+  const formattedLabel = isFullscreen => (isFullscreen
+    ? intl.formatMessage(
+      intlMessages.fullscreenUndoButton,
+      ({ 0: elementName || '' }),
+    )
+    : intl.formatMessage(
+      intlMessages.fullscreenButton,
+      ({ 0: elementName || '' }),
+    ));
 
   const wrapperClassName = cx({
     [styles.wrapper]: true,

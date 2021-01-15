@@ -31,7 +31,7 @@ Meteor.startup(() => {
   const CDN_URL = APP_CONFIG.cdn;
   const instanceId = APP_CONFIG.instanceId.slice(1); // remove the leading '/' character
 
-  Logger.warn('Started bbb-html5 process with instanceId=' + instanceId);
+  Logger.warn(`Started bbb-html5 process with instanceId=${instanceId}`);
 
   const { customHeartbeat } = APP_CONFIG;
 
