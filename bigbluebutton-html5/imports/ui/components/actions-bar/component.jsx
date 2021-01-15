@@ -18,7 +18,7 @@ import LanguageOverlay from '/imports/ui/components/LanguageOverlay/component'
 import Service from './service';
 import Auth from '/imports/ui/services/auth';
 
-const TRANSLATION_SETTINGS = Meteor.settings.public.media.translation;
+const TRANSLATION_SETTINGS = Meteor.settings.public.media.translation || {};
 var FLOOR_TRANSLATION_VOLUME = 0.4;
 var TRANSLATOR_SPEAKING_DELAY = 0;
 var TRANSLATOR_SPEAKING_TIMEOUT = 60000;
