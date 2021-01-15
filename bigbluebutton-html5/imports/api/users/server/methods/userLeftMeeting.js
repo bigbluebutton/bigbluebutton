@@ -27,7 +27,6 @@ export default function userLeftMeeting() { // TODO-- spread the code to method/
           loggedOut: true,
         },
       },
-      cb,
     );
   } catch (err) {
     Logger.error(`leaving dummy user to collection: ${err}`);

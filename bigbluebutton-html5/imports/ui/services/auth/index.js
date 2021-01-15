@@ -225,8 +225,6 @@ class Auth {
         });
       }, CONNECTION_TIMEOUT);
 
-      Meteor.subscribe('auth-token-validation', { meetingId: this.meetingID, userId: this.userID });
-
       const result = await makeCall('validateAuthToken', this.meetingID, this.userID, this.token, this.externUserID);
 
       if (result && result.invalid) {
@@ -239,6 +237,7 @@ class Auth {
         return;
       }
 
+      Meteor.subscribe('auth-token-validation', { meetingId: this.meetingID, userId: this.userID });
       Meteor.subscribe('current-user');
 
       Tracker.autorun((c) => {
@@ -273,7 +272,7 @@ class Auth {
         switch (authenticationTokenValidation.validationStatus) {
           case ValidationStates.INVALID:
             c.stop();
-            reject({ error: 401, description: 'User has been ejected.' });
+            reject({ error: 401, description: 'User is invalid' });
             break;
           case ValidationStates.VALIDATED:
             initCursorStreamListener();
@@ -285,6 +284,10 @@ class Auth {
           case ValidationStates.VALIDATING:
             break;
           case ValidationStates.NOT_VALIDATED:
+            break;
+          case ValidationStates.EJECTED:
+            c.stop();
+            reject({ error: 401, description: 'User has been ejected.' });
             break;
           default:
         }
