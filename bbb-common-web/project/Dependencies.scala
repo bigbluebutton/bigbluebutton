@@ -7,46 +7,48 @@ object Dependencies {
 
   object Versions {
     // Scala
-    val scala = "2.12.10"
-    val junit = "4.13.1"
+    val scala = "2.13.4"
+    val scalaXml = "2.0.0-M3"
+    val junit = "5.7.0"
     val junitInterface = "0.11"
-    val scalactic = "3.1.0"
+    val scalactic = "3.2.3"
 
     // Libraries
-    val akkaVersion = "2.6.0"
+    val akkaVersion = "2.6.10"
     val gson = "2.8.6"
-    val jackson = "2.10.1"
-    val freeMarker = "2.3.29"
-    val apacheHttp = "4.5.10"
+    val jackson = "2.12.1"
+    val freeMarker = "2.3.30"
+    val apacheHttp = "4.5.13"
     val apacheHttpAsync = "4.1.4"
 
     // Office and document conversion
     val jodConverter = "4.3.0"
     val apachePoi = "4.1.2"
     val nuProcess = "1.2.4"
-    val libreOffice = "6.3.2"
+    val libreOffice = "7.0.4"
 
     // Server
     val servlet = "3.1.0"
 
     // Apache Commons
-    val lang = "3.9"
-    val io = "2.6"
-    val pool = "2.8.0"
+    val lang = "3.11"
+    val io = "2.8.0"
+    val pool = "2.9.0"
 
     // BigBlueButton
-    val bbbCommons = "0.0.20-SNAPSHOT"
+    val bbbCommons = "0.0.21-SNAPSHOT"
 
     // Test
-    val scalaTest = "3.1.0"
+    val scalaTest = "3.2.3"
   }
 
   object Compile {
     val scalaLibrary = "org.scala-lang" % "scala-library" % Versions.scala
     val scalaCompiler = "org.scala-lang" % "scala-compiler" % Versions.scala
+    val scalaXml = "org.scala-lang.modules" %% "scala-xml" % Versions.scalaXml
 
-    val akkaActor = "com.typesafe.akka" % "akka-actor_2.12" % Versions.akkaVersion
-    val akkaSl4fj = "com.typesafe.akka" % "akka-slf4j_2.12" % Versions.akkaVersion % "runtime"
+    val akkaActor = "com.typesafe.akka" % "akka-actor_2.13" % Versions.akkaVersion
+    val akkaSl4fj = "com.typesafe.akka" % "akka-slf4j_2.13" % Versions.akkaVersion % "runtime"
 
     val googleGson = "com.google.code.gson" % "gson" % Versions.gson
     val jacksonModule = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
@@ -71,15 +73,15 @@ object Dependencies {
     val apacheIo = "commons-io" % "commons-io" % Versions.io
     val apachePool2 = "org.apache.commons" % "commons-pool2" % Versions.pool
 
-    val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.12" % Versions.bbbCommons excludeAll (
+    val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.13" % Versions.bbbCommons excludeAll (
       ExclusionRule(organization = "org.red5"))
   }
 
   object Test {
     val scalaTest = "org.scalatest" %% "scalatest" % Versions.scalaTest % "test"
-    val junit = "junit" % "junit" % Versions.junit % "test"
+    val junit = "org.junit.jupiter" % "junit-jupiter-api" % Versions.junit % "test"
     val junitInteface = "com.novocode" % "junit-interface" % Versions.junitInterface % "test"
-    val scalactic = "org.scalactic" % "scalactic_2.12" % Versions.scalactic % "test"
+    val scalactic = "org.scalactic" % "scalactic_2.13" % Versions.scalactic % "test"
   }
 
   val testing = Seq(
@@ -91,6 +93,7 @@ object Dependencies {
   val runtime = Seq(
     Compile.scalaLibrary,
     Compile.scalaCompiler,
+    Compile.scalaXml,
     Compile.akkaActor,
     Compile.akkaSl4fj,
     Compile.googleGson,

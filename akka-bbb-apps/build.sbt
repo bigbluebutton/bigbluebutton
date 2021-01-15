@@ -7,7 +7,7 @@ enablePlugins(JavaServerAppPackaging)
 enablePlugins(UniversalPlugin)
 enablePlugins(DebianPlugin)
 
-version := "0.0.4"
+version := "0.0.5"
 
 val compileSettings = Seq(
   organization := "org.bigbluebutton",
@@ -18,7 +18,7 @@ val compileSettings = Seq(
     "-Xlint",
     "-Ywarn-dead-code",
     "-language:_",
-    "-target:jvm-1.8",
+    "-target:jvm-11",
     "-encoding", "UTF-8"
   ),
   javacOptions ++= List(
@@ -40,6 +40,8 @@ testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/sc
 
 Seq(Revolver.settings: _*)
 lazy val bbbAppsAkka = (project in file(".")).settings(name := "bbb-apps-akka", libraryDependencies ++= Dependencies.runtime).settings(compileSettings)
+
+scalaVersion := "2.13.4"
 
 // See https://github.com/scala-ide/scalariform
 // Config file is in ./.scalariform.conf
@@ -72,4 +74,4 @@ daemonGroup in Linux := group
 
 javaOptions in Universal ++= Seq("-J-Xms130m", "-J-Xmx256m", "-Dconfig.file=conf/application.conf", "-Dlogback.configurationFile=conf/logback.xml")
 
-debianPackageDependencies in Debian ++= Seq("java8-runtime-headless", "bash")
+debianPackageDependencies in Debian ++= Seq("java11-runtime-headless", "bash")

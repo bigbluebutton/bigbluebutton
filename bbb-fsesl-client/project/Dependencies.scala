@@ -7,14 +7,14 @@ object Dependencies {
 
   object Versions {
     // Scala
-    val scala = "2.12.10"
+    val scala = "2.13.4"
 
     // Libraries
     val netty = "3.2.10.Final"
     val logback = "1.2.3"
 
     // Test
-    val junit = "5.6.0-M1"
+    val junit = "5.7.0"
   }
 
   object Compile {

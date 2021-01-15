@@ -7,7 +7,7 @@ enablePlugins(JavaServerAppPackaging)
 enablePlugins(UniversalPlugin)
 enablePlugins(DebianPlugin)
 
-version := "0.0.2"
+version := "0.0.3"
 
 val compileSettings = Seq(
   organization := "org.bigbluebutton",
@@ -18,7 +18,7 @@ val compileSettings = Seq(
     "-Xlint",
     "-Ywarn-dead-code",
     "-language:_",
-    "-target:jvm-1.8",
+    "-target:jvm-11",
     "-encoding", "UTF-8"
   ),
   javacOptions ++= List(
@@ -28,8 +28,8 @@ val compileSettings = Seq(
 )
 
 resolvers ++= Seq(
-  "spray repo" at "http://repo.spray.io/",
-  "blindside-repos" at "http://blindside.googlecode.com/svn/repository/"
+  "spray repo" at "https://repo.spray.io/",
+  "blindside-repos" at "https://blindside.googlecode.com/svn/repository/"
 )
 
 resolvers += Resolver.sonatypeRepo("releases")
@@ -48,9 +48,11 @@ testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/sc
 Seq(Revolver.settings: _*)
 lazy val bbbFseslAkka = (project in file(".")).settings(name := "bbb-fsesl-akka", libraryDependencies ++= Dependencies.runtime).settings(compileSettings)
 
+scalaVersion := "2.13.4"
+
 // See https://github.com/scala-ide/scalariform
 // Config file is in ./.scalariform.conf
-scalariformAutoformat := true
+scalariformAutoformat := false
 
 //-----------
 // Packaging
@@ -79,4 +81,4 @@ daemonGroup in Linux := group
 
 javaOptions in Universal ++= Seq("-J-Xms130m", "-J-Xmx256m", "-Dconfig.file=conf/application.conf", "-Dlogback.configurationFile=conf/logback.xml")
 
-debianPackageDependencies in Debian ++= Seq("java8-runtime-headless", "bash")
+debianPackageDependencies in Debian ++= Seq("java11-runtime-headless", "bash")

@@ -7,31 +7,31 @@ object Dependencies {
 
   object Versions {
     // Scala
-    val scala = "2.12.10"
-    val junit = "5.6.0-M1"
-    val scalactic = "3.1.0"
+    val scala = "2.13.4"
+    val junit = "5.7.0"
+    val scalactic = "3.2.3"
 
     // Libraries
-    val akkaVersion = "2.6.0"
+    val akkaVersion = "2.6.10"
     val gson = "2.8.6"
-    val jackson = "2.10.1"
-    val sl4j = "1.7.29"
-    val pool = "2.7.0"
-    val codec = "1.13"
+    val jackson = "2.12.1"
+    val sl4j = "1.7.30"
+    val pool = "2.9.0"
+    val codec = "1.15"
 
     // Redis
-    val lettuce = "5.2.1.RELEASE"
+    val lettuce = "6.0.1.RELEASE"
 
     // Test
-    val scalaTest = "3.1.0"
+    val scalaTest = "3.2.3"
   }
 
   object Compile {
     val scalaLibrary = "org.scala-lang" % "scala-library" % Versions.scala
     val scalaCompiler = "org.scala-lang" % "scala-compiler" % Versions.scala
 
-    val akkaActor = "com.typesafe.akka" % "akka-actor_2.12" % Versions.akkaVersion
-    val akkaSl4fj = "com.typesafe.akka" % "akka-slf4j_2.12" % Versions.akkaVersion % "runtime"
+    val akkaActor = "com.typesafe.akka" % "akka-actor_2.13" % Versions.akkaVersion
+    val akkaSl4fj = "com.typesafe.akka" % "akka-slf4j_2.13" % Versions.akkaVersion % "runtime"
 
     val googleGson = "com.google.code.gson" % "gson" % Versions.gson
     val jacksonModule = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
