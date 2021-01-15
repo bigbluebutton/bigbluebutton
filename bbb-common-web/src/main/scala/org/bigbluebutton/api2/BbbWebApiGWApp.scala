@@ -139,7 +139,8 @@ class BbbWebApiGWApp(
                     allowModsToUnmuteUsers:                 java.lang.Boolean,
                     keepEvents:                             java.lang.Boolean,
                     breakoutParams:                         BreakoutRoomsParams,
-                    lockSettingsParams:                     LockSettingsParams): Unit = {
+                    lockSettingsParams:                     LockSettingsParams,
+                    html5InstanceId:                        java.lang.Integer): Unit = {
 
     val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
       isBreakout = isBreakout.booleanValue())
@@ -191,6 +192,10 @@ class BbbWebApiGWApp(
       lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue()
     )
 
+    val systemProps = SystemProps(
+      html5InstanceId
+    )
+
     val defaultProps = DefaultProps(
       meetingProp,
       breakoutProps,
@@ -202,7 +207,8 @@ class BbbWebApiGWApp(
       usersProp,
       metadataProp,
       screenshareProps,
-      lockSettingsProps
+      lockSettingsProps,
+      systemProps
     )
 
     //meetingManagerActorRef ! new CreateMeetingMsg(defaultProps)

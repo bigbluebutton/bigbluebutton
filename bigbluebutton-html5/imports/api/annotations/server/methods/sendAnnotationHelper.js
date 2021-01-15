@@ -59,6 +59,7 @@ export default function sendAnnotationHelper(annotation, meetingId, requesterUse
 
   const payload = {
     annotation,
+    drawEndOnly: true,
   };
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);

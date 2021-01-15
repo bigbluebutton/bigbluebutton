@@ -242,7 +242,7 @@ class ActionsDropdown extends PureComponent {
     }
 
     return (
-      <Dropdown ref={(ref) => { this._dropdown = ref; }}>
+      <Dropdown className={styles.dropdown} ref={(ref) => { this._dropdown = ref; }}>
         <DropdownTrigger tabIndex={0} accessKey={OPEN_ACTIONS_AK}>
           <Button
             hideLabel

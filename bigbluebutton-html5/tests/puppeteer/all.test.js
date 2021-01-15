@@ -7,9 +7,10 @@ const presentationTest = require('./presentation.obj');
 const screenShareTest = require('./screenshare.obj');
 const sharedNotesTest = require('./sharednotes.obj');
 const userTest = require('./user.obj');
-const virtualizedListTest = require('./virtualizedlist.obj');
+// const virtualizedListTest = require('./virtualizedlist.obj');
 const webcamTest = require('./webcam.obj');
 const whiteboardTest = require('./whiteboard.obj');
+const webcamLayout = require('./webcamlayout.obj');
 
 process.setMaxListeners(Infinity);
 
@@ -22,6 +23,7 @@ describe('Presentation', presentationTest);
 describe('Screen Share', screenShareTest);
 describe('Shared Notes ', sharedNotesTest);
 describe('User', userTest);
-describe('Virtualized List', virtualizedListTest);
+// describe('Virtualized List', virtualizedListTest);
 describe('Webcam', webcamTest);
 describe('Whiteboard', whiteboardTest);
+describe('Webcam Layout', webcamLayout);

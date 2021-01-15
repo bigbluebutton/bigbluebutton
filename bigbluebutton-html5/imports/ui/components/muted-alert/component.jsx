@@ -56,8 +56,6 @@ class MutedAlert extends Component {
   }
 
   render() {
-    const { enabled } = MUTE_ALERT_CONFIG;
-    if (!enabled) return null;
     const { isViewer, isPresenter } = this.props;
     const { visible } = this.state;
     const style = {};

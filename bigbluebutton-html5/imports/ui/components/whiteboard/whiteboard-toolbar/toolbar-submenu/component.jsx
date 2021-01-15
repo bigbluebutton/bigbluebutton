@@ -198,6 +198,7 @@ class ToolbarSubmenu extends Component {
 
   handleMouseDown(e) {
     const { handleClose } = this.props;
+    if (e.path === undefined) return false;
     for (let i = 0; i < e.path.length; i += 1) {
       const p = e.path[i];
       if (p && p.className && typeof p.className === 'string') {

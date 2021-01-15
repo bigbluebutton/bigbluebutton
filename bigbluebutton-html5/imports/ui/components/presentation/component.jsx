@@ -168,12 +168,21 @@ class PresentationArea extends PureComponent {
       this.onResize();
     }
 
-    if (prevProps.slidePosition.id !== slidePosition.id) {
-      window.dispatchEvent(new Event('slideChanged'));
-    }
-
     const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;
     const { width: currWidth, height: currHeight } = slidePosition;
+
+    if (prevProps.slidePosition.id !== slidePosition.id) {
+      if ((prevWidth > prevHeight && currHeight > currWidth)
+        || (prevHeight > prevWidth && currWidth > currHeight)) {
+        layoutContextDispatch(
+          {
+            type: 'setAutoArrangeLayout',
+            value: true,
+          },
+        );
+      }
+      window.dispatchEvent(new Event('slideChanged'));
+    }
 
     if (prevWidth !== currWidth || prevHeight !== currHeight) {
       layoutContextDispatch({
@@ -254,6 +263,7 @@ class PresentationArea extends PureComponent {
     if (isFullscreen !== newIsFullscreen) {
       this.setState({ isFullscreen: newIsFullscreen });
       layoutContextDispatch({ type: 'setPresentationFullscreen', value: newIsFullscreen });
+      window.dispatchEvent(new Event('slideChanged'));
     }
   }
 

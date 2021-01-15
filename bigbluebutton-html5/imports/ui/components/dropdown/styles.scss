@@ -17,6 +17,7 @@
 
 .dropdown {
   position: relative;
+  z-index: 3;
 
   &:focus {
     outline: none;
