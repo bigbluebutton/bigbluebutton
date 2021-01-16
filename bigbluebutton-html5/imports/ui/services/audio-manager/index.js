@@ -25,7 +25,6 @@ const MAX_LISTEN_ONLY_RETRIES = 1;
 const LISTEN_ONLY_CALL_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 25000;
 const DEFAULT_INPUT_DEVICE_ID = 'default';
 const DEFAULT_OUTPUT_DEVICE_ID = 'default';
-const TRANSLATOR_SPEAK_DETECTION_THRESHOLD = MEDIA.translator.speakDetection.threshold;
 const TRANSLATOR_SPEAK_DETECTION_THRESHOLD = MEDIA.translation.translator.speakDetection.threshold || -70;
 
 const CALL_STATES = {

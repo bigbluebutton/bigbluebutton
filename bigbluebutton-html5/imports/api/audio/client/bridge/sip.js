@@ -1038,12 +1038,6 @@ export default class SIPBridge extends BaseAudioBridge {
     });
   }
 
-  joinTranslationChannel(inputStream, managerCallback){
-    let { hostname } = this;
-    this.activeSession = new SIPSession(this.user, this.userData, this.protocol,
-        hostname, this.baseCallStates, this.baseErrorCodes, false);
-  }
-
   transferCall(onTransferSuccess) {
     return this.activeSession.transferCall(onTransferSuccess);
   }
