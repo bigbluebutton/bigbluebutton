@@ -11,7 +11,7 @@ public:
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: 2.2
     copyright: "©2020 BigBlueButton Inc."
-    html5ClientBuild: HTML5_CLIENT_VERSION
+    html5ClientBuild: 1114
     helpLink: https://bigbluebutton.org/html5/
     lockOnJoin: true
     cdn: ""
@@ -86,16 +86,16 @@ public:
     connectionTimeout: 60000
     showHelpButton: true
     effectiveConnection:
-      - critical
-      - danger
-      - warning
+    - critical
+    - danger
+    - warning
   externalVideoPlayer:
     enabled: true
   networkMonitoring:
     enableNetworkMonitoring: false
     packetLostThreshold: 10
   kurento:
-    wsUrl: wss://translation.meet-modular.com/bbb-webrtc-sfu
+    wsUrl: wss://bbb80.wechange.de/bbb-webrtc-sfu
     # Valid for video-provider. Time (ms) before its WS connection times out
     # and tries to reconnect.
     wsConnectionTimeout: 4000
@@ -122,8 +122,8 @@ public:
             max: 1600
         audio: false
       chromeScreenshareSources:
-        - window
-        - screen
+      - window
+      - screen
       firefoxScreenshareSource: window
     # cameraProfiles is an array of:
     # - id: profile identifier
@@ -132,58 +132,58 @@ public:
     #   hidden: whether this profile will be hidden in the video preview dropdown
     #   constraints: a video media constraints dictionary (without the video key)
     cameraProfiles:
-      - id: low-u30
-        name: low-u30
-        bitrate: 30
-        hidden: true
-        constraints:
-          frameRate: 3
-      - id: low-u25
-        name: low-u25
-        bitrate: 40
-        hidden: true
-        constraints:
-          frameRate: 3
-      - id: low-u20
-        name: low-u20
-        bitrate: 50
-        hidden: true
-        constraints:
-          frameRate: 5
-      - id: low-u15
-        name: low-u15
-        bitrate: 70
-        hidden: true
-        constraints:
-          frameRate: 8
-      - id: low-u12
-        name: low-u12
-        bitrate: 90
-        hidden: true
-        constraints:
-          frameRate: 10
-      - id: low-u8
-        name: low-u8
-        bitrate: 100
-        hidden: true
-        constraints:
-          frameRate: 10
-      - id: low
-        name: Low
-        default: false
-        bitrate: 100
-      - id: medium
-        name: Medium
-        default: true
-        bitrate: 200
-      - id: high
-        name: High
-        default: false
-        bitrate: 500
-      - id: hd
-        name: High definition
-        default: false
-        bitrate: 800
+    - id: low-u30
+      name: low-u30
+      bitrate: 30
+      hidden: true
+      constraints:
+        frameRate: 3
+    - id: low-u25
+      name: low-u25
+      bitrate: 40
+      hidden: true
+      constraints:
+        frameRate: 3
+    - id: low-u20
+      name: low-u20
+      bitrate: 50
+      hidden: true
+      constraints:
+        frameRate: 5
+    - id: low-u15
+      name: low-u15
+      bitrate: 70
+      hidden: true
+      constraints:
+        frameRate: 8
+    - id: low-u12
+      name: low-u12
+      bitrate: 90
+      hidden: true
+      constraints:
+        frameRate: 10
+    - id: low-u8
+      name: low-u8
+      bitrate: 100
+      hidden: true
+      constraints:
+        frameRate: 10
+    - id: low
+      name: Low
+      default: false
+      bitrate: 100
+    - id: medium
+      name: Medium
+      default: true
+      bitrate: 200
+    - id: high
+      name: High
+      default: false
+      bitrate: 500
+    - id: hd
+      name: High definition
+      default: false
+      bitrate: 800
     enableScreensharing: true
     enableVideo: true
     enableVideoMenu: true
@@ -197,18 +197,18 @@ public:
     cameraQualityThresholds:
       enabled: false
       thresholds:
-        - threshold: 8
-          profile: low-u8
-        - threshold: 12
-          profile: low-u12
-        - threshold: 15
-          profile: low-u15
-        - threshold: 20
-          profile: low-u20
-        - threshold: 25
-          profile: low-u25
-        - threshold: 30
-          profile: low-u30
+      - threshold: 8
+        profile: low-u8
+      - threshold: 12
+        profile: low-u12
+      - threshold: 15
+        profile: low-u15
+      - threshold: 20
+        profile: low-u20
+      - threshold: 25
+        profile: low-u25
+      - threshold: 30
+        profile: low-u30
     pagination:
       # whether to globally enable or disable pagination.
       enabled: false
@@ -265,8 +265,8 @@ public:
     typingIndicator:
       enabled: true
   note:
-    enabled: false
-    url: ETHERPAD_HOST
+    enabled: true
+    url: https://bbb80.wechange.de/pad
     config:
       showLineNumbers: false
       showChat: false
@@ -279,7 +279,7 @@ public:
   media:
     stunTurnServersFetchAddress: "/bigbluebutton/api/stuns"
     cacheStunTurnServers: true
-    fallbackStunServer:  ''
+    fallbackStunServer: ''
     recvonlyIceGatheringCheck: true
     mediaTag: "#remote-media"
     callTransferTimeout: 5000
@@ -293,7 +293,7 @@ public:
     #so far. Increasing this value might help avoiding 1004 error when
     #user activates microphone.
     iceGatheringTimeout: 5000
-    sipjsHackViaWs: false
+    sipjsHackViaWs: true
     #Websocket keepAlive interval (seconds). You may set this to prevent
     #websocket disconnection in some environments. When set, BBB will send
     #'\r\n\r\n' string through SIP.js's websocket. If not set, default value
@@ -440,9 +440,10 @@ public:
       - pencil
       - hand
   clientLog:
-    server: { enabled: false, level: info }
-    console: { enabled: true, level: debug }
-    external: { enabled: false, level: info, url: https://LOG_HOST/html5Log, method: POST, throttleInterval: 400, flushOnClose: true, logTag: "" }
+    server: {enabled: false, level: info}
+    console: {enabled: true, level: debug}
+    external: {enabled: false, level: info, url: 'https://LOG_HOST/html5Log', method: POST,
+      throttleInterval: 400, flushOnClose: true, logTag: ""}
 private:
   app:
     host: 127.0.0.1
@@ -451,7 +452,7 @@ private:
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
   etherpad:
-    apikey: ETHERPAD_APIKEY
+    apikey: Q5Z4aME99T605jIs0O0BrHZBP4ltsJJozI8aaWbRRec4nNdumXUnSfQuORcJXqH
     version: 1.2.13
     host: 127.0.0.1
     port: 9001
@@ -492,27 +493,27 @@ private:
       heapdumpFolderPath: HEAPDUMP_FOLDER
       heapdumpIntervalMs: 3600000
   minBrowserVersions:
-    - browser: chrome
-      version: 72
-    - browser: chromeMobileIOS
-      version: Infinity
-    - browser: firefox
-      version: 63
-    - browser: firefoxMobile
-      version: 68
-    - browser: edge
-      version: 79
-    - browser: ie
-      version: Infinity
-    - browser: safari
-      version: [12, 1]
-    - browser: mobileSafari
-      version: [12, 1]
-    - browser: opera
-      version: 50
-    - browser: electron
-      version: [0, 36]
-    - browser: SamsungInternet
-      version: 10
-    - browser: YandexBrowser
-      version: 19
+  - browser: chrome
+    version: 72
+  - browser: chromeMobileIOS
+    version: Infinity
+  - browser: firefox
+    version: 63
+  - browser: firefoxMobile
+    version: 68
+  - browser: edge
+    version: 79
+  - browser: ie
+    version: Infinity
+  - browser: safari
+    version: [12, 1]
+  - browser: mobileSafari
+    version: [12, 1]
+  - browser: opera
+    version: 50
+  - browser: electron
+    version: [0, 36]
+  - browser: SamsungInternet
+    version: 10
+  - browser: YandexBrowser
+    version: 19
