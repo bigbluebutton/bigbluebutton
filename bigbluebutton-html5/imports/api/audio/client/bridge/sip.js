@@ -621,7 +621,7 @@ class SIPSession {
       if (this.userRequestedHangup === true) reject();
 
       let iceCompleted = false;
-      let fsReady = false;
+      let fsReady = true;
 
       const setupRemoteMedia = () => {
         const mediaElement = document.querySelector(this.mediaTag);
