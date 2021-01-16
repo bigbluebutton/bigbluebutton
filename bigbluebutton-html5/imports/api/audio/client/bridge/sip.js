@@ -982,7 +982,7 @@ export default class SIPBridge extends BaseAudioBridge {
       let { hostname } = this;
 
       this.activeSession = new SIPSession(this.user, this.userData, this.protocol,
-        hostname, this.baseCallStates, this.baseErrorCodes, false);
+        hostname, this.baseCallStates, this.baseErrorCodes, false, this.mediaTag);
 
       const callback = (message) => {
         if (message.status === this.baseCallStates.failed) {
@@ -1006,7 +1006,7 @@ export default class SIPBridge extends BaseAudioBridge {
           if (shouldTryReconnect) {
             const fallbackExtension = this.activeSession.inEchoTest ? extension : undefined;
             this.activeSession = new SIPSession(this.user, this.userData, this.protocol,
-              hostname, this.baseCallStates, this.baseErrorCodes, true);
+              hostname, this.baseCallStates, this.baseErrorCodes, true, this.mediaTag);
             const { inputDeviceId } = this.media.inputDevice;
             this.activeSession.joinAudio({
               isListenOnly,
