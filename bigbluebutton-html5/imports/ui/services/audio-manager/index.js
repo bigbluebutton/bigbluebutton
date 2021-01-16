@@ -722,6 +722,15 @@ class AudioManager {
           Meeting.changeTranslatorSpeackState(languageExtension, true);
         });
 
+        this.translatorSpeechEvents.on('volume_change', () => {
+          if (!this.translatorSpeechEvents.lastTimestamp || Date.now() - this.translatorSpeechEvents.lastTimestamp > 2000) {
+            console.log("Check is translator speaking");
+            this.translatorSpeechEvents.lastTimestamp = Date.now();
+            let isSpeaking = this.translatorSpeechEvents.speaking;
+            Meeting.changeTranslatorSpeackState(languageExtension, isSpeaking);
+          }
+        });
+
         this.translatorSpeechEvents.on('stopped_speaking', () => {
           Meeting.changeTranslatorSpeackState(languageExtension, false);
           console.log("stopped speaking")
