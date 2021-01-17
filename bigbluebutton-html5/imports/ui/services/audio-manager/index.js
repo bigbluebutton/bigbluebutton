@@ -734,7 +734,14 @@ class AudioManager {
         };
 
         this.translatorBridge.userData.voiceBridge = this.userData.voiceBridge.toString()+languageExtension;
-        this.translatorBridge.joinAudio(callOptions);
+        let callback = function (x){
+
+          if(this.isTranslatorMuted){
+            this.muteTranslator('mute-button')
+          }
+          return new Promise(function () {})
+        }.bind(this);
+        this.translatorBridge.joinAudio(callOptions, callback);
       }
       return navigator.mediaDevices.getUserMedia({ audio: true, deviceId: this.inputDeviceId }).then(success.bind(this));
     }else{
