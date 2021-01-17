@@ -53,11 +53,10 @@ class LanguageOverlay extends Component{
                     .map(language => language.extension));
                 languages = languages.filter(language => !filteredLanguageExtensions.has(language.extension));
             }
-            if(this.props.hasOwnProperty("translator") && this.props.translator){
-                languages.push({name: intl.formatMessage(intlMessages.noneLanguage), extension:-1})
-            }else{
-                languages.push({name: intl.formatMessage(intlMessages.originLanguage), extension:-1})
-            }
+            languages.push({
+                name: intl.formatMessage(this.props.translator ? intlMessages.noneLanguage : intlMessages.originLanguage),
+                extension: -1,
+            });
 
             this.setState({languages: languages})
             harborRender()
