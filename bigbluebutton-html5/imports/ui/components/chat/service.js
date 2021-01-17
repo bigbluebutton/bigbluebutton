@@ -43,31 +43,33 @@ const mapGroupMessage = (message) => {
     time: message.timestamp,
     sender: null,
   };
+  try {
+    if (message.sender !== SYSTEM_CHAT_TYPE) {
+      const sender = Users.findOne({ userId: message.sender },
+          {
+            fields: {
+              color: 1, role: 1, name: 1, connectionStatus: 1,
+            },
+          });
+      const {
+        color,
+        role,
+        name,
+        connectionStatus,
+      } = sender;
 
-  if (message.sender !== SYSTEM_CHAT_TYPE) {
-    const sender = Users.findOne({ userId: message.sender },
-      {
-        fields: {
-          color: 1, role: 1, name: 1, connectionStatus: 1,
-        },
-      });
-    const {
-      color,
-      role,
-      name,
-      connectionStatus,
-    } = sender;
+      const mappedSender = {
+        color,
+        isModerator: role === ROLE_MODERATOR,
+        name,
+        isOnline: connectionStatus === CONNECTION_STATUS_ONLINE,
+      };
 
-    const mappedSender = {
-      color,
-      isModerator: role === ROLE_MODERATOR,
-      name,
-      isOnline: connectionStatus === CONNECTION_STATUS_ONLINE,
-    };
-
-    mappedMessage.sender = mappedSender;
+      mappedMessage.sender = mappedSender;
+    }
+  }catch (e) {
+    
   }
-
   return mappedMessage;
 };
 
