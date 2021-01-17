@@ -37,7 +37,7 @@ class LanguageOverlay extends Component{
                 {this.state.languages.map(function (language) {
                     return <li className={styles.languageOption} key={language.extension} onClick={() => {
                         this.clickHandler(language)
-                    }}> <span>{language.name}</span>{ this.props.current && language.extension === this.props.current.extension && <span>&#x2713;</span> }</li>
+                    }}> <span>{language.name}</span>{((this.props.current && language.extension === this.props.current.extension) || (this.props.current === null && language.extension === -1)) && <span>&#x2713;</span>}</li>
                 },this)}
             </ul>
         </div>);
