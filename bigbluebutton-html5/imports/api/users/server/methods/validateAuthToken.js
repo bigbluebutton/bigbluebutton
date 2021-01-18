@@ -21,18 +21,27 @@ export default function validateAuthToken(meetingId, requesterUserId, requesterT
   }
 
   // Prevent users who have left or been ejected to use the same sessionToken again.
-  const isUserEjected = AuthTokenValidation.findOne({ meetingId, userId: requesterUserId, validationStatus: ValidationStates.EJECTED });
+  const hasUserEjectedOrLoggedOut = AuthTokenValidation.findOne(
+    {
+      meetingId,
+      userId: requesterUserId,
+      validationStatus: { $in: [ValidationStates.LOGGED_OUT, ValidationStates.EJECTED] },
+    },
+    { sort: { updatedAt: -1 } },
+  );
 
-  if (isUserEjected) {
+  if (hasUserEjectedOrLoggedOut) {
     Logger.warn(`An invalid sessionToken tried to validateAuthToken meetingId=${meetingId} authToken=${requesterToken}`);
     return {
       invalid: true,
-      reason: `User has an invalid sessionToken due to ${isUserEjected.validationStatus === ValidationStates.EJECTED ? 'ejection' : 'log out'}`,
-      error_type: `invalid_session_token_due_to_${isUserEjected.validationStatus === ValidationStates.EJECTED ? 'eject' : 'log_out'}`,
+      reason: `User has an invalid sessionToken due to ${hasUserEjectedOrLoggedOut.validationStatus === ValidationStates.EJECTED ? 'ejection' : 'log out'}`,
+      error_type: `invalid_session_token_due_to_${hasUserEjectedOrLoggedOut.validationStatus === ValidationStates.EJECTED ? 'eject' : 'log_out'}`,
     };
   }
 
-  ClientConnections.add(`${meetingId}--${requesterUserId}`, this.connection);
+  if (meetingId) {
+    ClientConnections.add(`${meetingId}--${requesterUserId}`, this.connection);
+  }
 
   // Store reference of methodInvocationObject ( to postpone the connection userId definition )
   pendingAuthenticationsStore.add(meetingId, requesterUserId, requesterToken, this);

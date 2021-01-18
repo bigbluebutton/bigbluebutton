@@ -244,24 +244,13 @@ class Auth {
         computation = c;
 
         const selector = { meetingId: this.meetingID, userId: this.userID };
-        const fields = {
-          ejected: 1, intId: 1, validated: 1, userId: 1,
-        };
+        const fields = { intId: 1, validated: 1, userId: 1 };
         const User = Users.findOne(selector, { fields });
         // Skip in case the user is not in the collection yet or is a dummy user
         if (!User || !('intId' in User)) {
           logger.info({ logCode: 'auth_service_resend_validateauthtoken' }, 're-send validateAuthToken for delayed authentication');
           makeCall('validateAuthToken', this.meetingID, this.userID, this.token);
 
-          return;
-        }
-
-        if (User.ejected) {
-          computation.stop();
-          reject({
-            error: 403,
-            description: 'User has been ejected.',
-          });
           return;
         }
 

@@ -12,6 +12,7 @@ export const ValidationStates = Object.freeze({
   VALIDATED: 3,
   INVALID: 4,
   EJECTED: 5,
+  LOGGED_OUT: 6,
 });
 
 export default AuthTokenValidation;

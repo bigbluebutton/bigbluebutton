@@ -2,6 +2,8 @@ import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import ClientConnections from '/imports/startup/server/ClientConnections';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
+import upsertValidationState from '/imports/api/auth-token-validation/server/modifiers/upsertValidationState';
 
 export default function userLeftMeeting() { // TODO-- spread the code to method/modifier/handler
   // so we don't update the db in a method
@@ -28,6 +30,14 @@ export default function userLeftMeeting() { // TODO-- spread the code to method/
         },
       },
     );
+
+    Meteor.setTimeout(() => {
+      const lastAuthToken = AuthTokenValidation.findOne(
+        { meetingId, userId: requesterUserId },
+        { fields: { connectionId: 1 }, sort: { updatedAt: -1 } },
+      );
+      upsertValidationState(meetingId, requesterUserId, ValidationStates.LOGGED_OUT, lastAuthToken.connectionId);
+    }, 2000);
   } catch (err) {
     Logger.error(`leaving dummy user to collection: ${err}`);
   }
