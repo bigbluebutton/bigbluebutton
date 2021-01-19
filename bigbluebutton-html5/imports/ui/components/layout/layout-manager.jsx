@@ -68,6 +68,7 @@ class LayoutManager extends Component {
   }
 
   componentDidMount() {
+    this._isMounted = true;
     this.setLayoutSizes();
     window.addEventListener('resize', _.throttle(() => this.setLayoutSizes(), 200));
 
@@ -111,11 +112,15 @@ class LayoutManager extends Component {
     }
   }
 
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
+
   setLayoutSizes(panelChanged = false, autoarrangeChanged = false, placementChanged = false) {
     const { layoutContextDispatch, layoutContextState } = this.props;
     const { autoArrangeLayout } = layoutContextState;
 
-    if (autoarrangeChanged && !autoArrangeLayout && !placementChanged) return;
+    if ((autoarrangeChanged && !autoArrangeLayout && !placementChanged) || !this._isMounted) return;
 
     const layoutSizes = this.calculatesLayout(panelChanged);
 
@@ -221,7 +226,7 @@ class LayoutManager extends Component {
     const { autoArrangeLayout } = layoutContextState;
     const isScreenShare = isVideoBroadcasting();
 
-    if (!autoArrangeLayout) return;
+    if (!autoArrangeLayout || !this._isMounted) return;
 
     if (isScreenShare) {
       layoutContextDispatch(
