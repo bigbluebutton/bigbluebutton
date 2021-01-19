@@ -94,6 +94,13 @@ class ApplicationMenu extends BaseMenu {
     }
   }
 
+  componentWillUnmount() {
+    // fix Warning: Can't perform a React state update on an unmounted component
+    this.setState = (state, callback) => {
+
+    };
+  }
+
   setInitialFontSize() {
     const { fontSizes } = this.state;
     const clientFont = document.getElementsByTagName('html')[0].style.fontSize;
@@ -155,7 +162,9 @@ class ApplicationMenu extends BaseMenu {
 
   render() {
     const { availableLocales, intl } = this.props;
-    const { isLargestFontSize, isSmallestFontSize, settings, showSelect } = this.state;
+    const {
+      isLargestFontSize, isSmallestFontSize, settings, showSelect,
+    } = this.state;
 
     // conversions can be found at http://pxtoem.com
     const pixelPercentage = {
