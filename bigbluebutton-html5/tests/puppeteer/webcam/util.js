@@ -60,7 +60,7 @@ async function webcamContentCheck(test) {
     };
 
     check = await test.page.evaluate(checkCameras, i);
-    await test.page.waitFor(parseInt(LOOP_INTERVAL));
+    await test.page.waitFor(LOOP_INTERVAL);
   }
   return check === true;
 }

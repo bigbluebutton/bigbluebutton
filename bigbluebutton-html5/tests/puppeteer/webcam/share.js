@@ -13,9 +13,9 @@ class Share extends Page {
   }
 
   async webcamLayoutTest() {
-    await this.page.waitForSelector(wle.webcamConnecting);
-    await this.page.waitForSelector(wle.webcamVideo);
-    await this.page.waitForSelector(wle.stopSharingWebcam);
+    await this.page.waitForSelector(wle.webcamConnecting, { timeout: 5000 });
+    await this.page.waitForSelector(wle.webcamVideo, { timeout: 15000 });
+    await this.page.waitForSelector(wle.stopSharingWebcam, { timeout: 5000 });
     return await this.page.evaluate(util.countTestElements, wle.webcamItemTalkingUser) !== 0;
   }
 }
