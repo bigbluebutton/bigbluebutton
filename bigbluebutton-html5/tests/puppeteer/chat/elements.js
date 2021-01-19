@@ -8,7 +8,11 @@ exports.chatCopy = '[data-test="chatCopy"]';
 exports.chatSave = '[data-test="chatSave"]';
 
 exports.chatUserMessage = 'span[data-test="chatUserMessage"]';
-exports.chatMessageText = 'p[data-test="chatMessageText"]';
+exports.chatUserMessageText = 'p[data-test="chatUserMessageText"]';
+exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
+exports.chatPollMessageText = 'p[data-test="chatPollMessageText"]';
+exports.chatWelcomeMessageText = 'p[data-test="chatWelcomeMessageText"]';
+
 
 exports.activeChat = '[data-test="activeChat"]';
 exports.publicChat = '[data-test="publicChat"]';

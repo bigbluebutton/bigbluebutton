@@ -3,6 +3,7 @@ const Send = require('./chat/send');
 const Clear = require('./chat/clear');
 const Copy = require('./chat/copy');
 const Save = require('./chat/save');
+const Poll = require('./chat/poll');
 const MultiUsers = require('./user/multiusers');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
 
@@ -13,6 +14,7 @@ const chatTest = () => {
     jest.setTimeout(30000);
   });
 
+  // Send public chat message and check if it appears
   test('Send message', async () => {
     const test = new Send();
     let response;
@@ -39,6 +41,7 @@ const chatTest = () => {
     }
   });
 
+  // Clear chat box and make sure that no chat public messages appear in chat box
   test('Clear chat', async () => {
     const test = new Clear();
     let response;
@@ -65,6 +68,7 @@ const chatTest = () => {
     }
   });
 
+  // Check if clipboard copied content contains the expected copied text
   test('Copy chat', async () => {
     const test = new Copy();
     let response;
@@ -90,6 +94,7 @@ const chatTest = () => {
     }
   });
 
+  // Wait for chat history to start downloading
   test('Save chat', async () => {
     const test = new Save();
     let response;
@@ -116,6 +121,35 @@ const chatTest = () => {
     }
   });
 
+  // Check for public chat message and return true when it appears
+  test('Send public chat', async () => {
+    const test = new MultiUsers();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'sendPublicChat';
+      await test.page1.logger('begin of ', testName);
+      await test.init();
+      await test.page1.closeAudioModal();
+      await test.page2.closeAudioModal();
+      response = await test.multiUsersPublicChat(testName);
+      screenshot = await test.page1.page.screenshot();
+      await test.page1.logger('end of ', testName);
+    } catch (e) {
+      await test.page1.logger(e);
+    } finally {
+      await test.close(test.page1, test.page2);
+    }
+    expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.9,
+        failureThresholdType: 'percent',
+      });
+    }
+  });
+
+  // Check for private chat message and return true when it appears
   test('Send private chat to other User', async () => {
     const test = new MultiUsers();
     let response;
@@ -143,23 +177,22 @@ const chatTest = () => {
     }
   });
 
-  test('Send public chat', async () => {
-    const test = new MultiUsers();
+  // Check for Poll Results chat message and return true when it appears
+  test('Poll Results chat message', async () => {
+    const test = new Poll();
     let response;
     let screenshot;
     try {
-      const testName = 'sendPublicChat';
-      await test.page1.logger('begin of ', testName);
-      await test.init();
-      await test.page1.closeAudioModal();
-      await test.page2.closeAudioModal();
-      response = await test.multiUsersPublicChat(testName);
-      screenshot = await test.page1.page.screenshot();
-      await test.page1.logger('end of ', testName);
+      const testName = 'pollResultsChatMessage';
+      await test.page3.logger('begin of ', testName);
+      await test.initUser3(Page.getArgs(), undefined);
+      response = await test.test(testName);
+      screenshot = await test.page3.page.screenshot();
+      await test.page3.logger('end of ', testName);
     } catch (e) {
-      await test.page1.logger(e);
+      await test.page3.logger(e);
     } finally {
-      await test.close(test.page1, test.page2);
+      await test.closePage(test.page3);
     }
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {

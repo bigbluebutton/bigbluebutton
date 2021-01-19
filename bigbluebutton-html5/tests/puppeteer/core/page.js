@@ -314,8 +314,8 @@ class Page {
     await this.page.keyboard.up('ControlLeft');
   }
 
-  async waitForSelector(element) {
-    await this.page.waitForSelector(element, { timeout: 0 });
+  async waitForSelector(element, timeout) {
+    await this.page.waitForSelector(element, { timeout });
   }
 
   async getMetrics(testFolderName) {
