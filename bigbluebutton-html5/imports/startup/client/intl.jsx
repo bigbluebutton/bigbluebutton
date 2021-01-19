@@ -5,6 +5,7 @@ import { IntlProvider } from 'react-intl';
 import Settings from '/imports/ui/services/settings';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import _ from 'lodash';
 
 const propTypes = {
   locale: PropTypes.string,
@@ -21,12 +22,7 @@ const defaultProps = {
 
 class IntlStartup extends Component {
   static saveLocale(localeName) {
-    if (Settings.application.locale !== localeName) {
-      Settings.application.changedLocale = localeName;
-    }
-
     Settings.application.locale = localeName;
-
     if (RTL_LANGUAGES.includes(localeName.substring(0, 2))) {
       document.body.parentNode.setAttribute('dir', 'rtl');
       Settings.application.isRTL = true;
@@ -44,7 +40,6 @@ class IntlStartup extends Component {
       messages: {},
       normalizedLocale: null,
       fetching: true,
-      localeChanged: false,
     };
 
     if (RTL_LANGUAGES.includes(props.locale)) {
@@ -55,40 +50,15 @@ class IntlStartup extends Component {
   }
 
   componentDidMount() {
-    const { locale } = this.props;
-    this.fetchLocalizedMessages(locale, true);
+    const { locale, overrideLocaleFromPassedParameter } = this.props;
+    this.fetchLocalizedMessages(overrideLocaleFromPassedParameter || locale, true);
   }
 
   componentDidUpdate(prevProps) {
-    const { fetching, normalizedLocale, localeChanged } = this.state;
-    const { locale, overrideLocale, changedLocale } = this.props;
-
-    if (prevProps.locale !== locale) {
-      this.setState({
-        localeChanged: true,
-      });
-    }
-
-    if (overrideLocale) {
-      if (!fetching
-        && (overrideLocale !== normalizedLocale.toLowerCase())
-        && !localeChanged
-        && !changedLocale) {
-        this.fetchLocalizedMessages(overrideLocale);
-      }
-
-      if (!localeChanged) {
-        return;
-      }
-    }
-
-    if (!fetching
-      && normalizedLocale
-      && ((locale.toLowerCase() !== normalizedLocale.toLowerCase()))) {
-      if (((DEFAULT_LANGUAGE === normalizedLocale.toLowerCase()) && !localeChanged)) return;
-
-      this.fetchLocalizedMessages(locale);
-    }
+    const { fetching, messages } = this.state;
+    const { locale } = this.props;
+    const shouldFetch = (!fetching && _.isEmpty(messages)) || (locale !== prevProps.locale);
+    if (shouldFetch) this.fetchLocalizedMessages(locale);
   }
 
   fetchLocalizedMessages(locale, init = false) {
@@ -117,7 +87,6 @@ class IntlStartup extends Component {
     });
   }
 
-
   render() {
     const { fetching, normalizedLocale, messages } = this.state;
     const { children } = this.props;
@@ -131,12 +100,11 @@ class IntlStartup extends Component {
 }
 
 const IntlStartupContainer = withTracker(() => {
-  const { locale, changedLocale } = Settings.application;
-  const overrideLocale = getFromUserSettings('bbb_override_default_locale', null);
+  const { locale } = Settings.application;
+  const overrideLocaleFromPassedParameter = getFromUserSettings('bbb_override_default_locale', null);
   return {
     locale,
-    overrideLocale,
-    changedLocale,
+    overrideLocaleFromPassedParameter,
   };
 })(IntlStartup);
 
