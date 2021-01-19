@@ -1,13 +1,14 @@
 const Join = require('./breakout/join');
 const Create = require('./breakout/create');
 const Page = require('./core/page');
+const { CAMERA_SHARE_FAILED_WAIT_TIME } = require('./core/constants');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
 
 expect.extend({ toMatchImageSnapshot });
 
 const breakoutTest = () => {
   beforeEach(() => {
-    jest.setTimeout(150000);
+    jest.setTimeout(CAMERA_SHARE_FAILED_WAIT_TIME);
   });
 
   // // Create Breakout Room
@@ -50,7 +51,7 @@ const breakoutTest = () => {
       await test.init(undefined);
       await test.create(testName);
       await test.join(testName);
-      response = await test.testJoined(testName);      
+      response = await test.testJoined(testName);
       const page2 = await test.page2.browser.pages();
       await page2[2].bringToFront();
       screenshot = await page2[2].screenshot();

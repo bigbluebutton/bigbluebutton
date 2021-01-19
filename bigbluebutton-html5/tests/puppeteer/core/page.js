@@ -300,7 +300,7 @@ class Page {
 
   async logger() {
     if (process.env.DEBUG === 'true') {
-      const date = `${new Date().getDate()}.${new Date().getMonth()}.${new Date().getFullYear()} / ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`;
+      const date = moment(new Date()).format('DD-MMM-YYYY HH:mm:ss');
       const args = Array.prototype.slice.call(arguments);
       args.unshift(`${date} `);
       console.log(...args);

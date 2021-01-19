@@ -1,4 +1,5 @@
 const we = require('./elements');
+const { LOOP_INTERVAL } = require('../core/constants');
 
 async function enableWebcam(test) {
   // Enabling webcam
@@ -59,7 +60,7 @@ async function webcamContentCheck(test) {
     };
 
     check = await test.page.evaluate(checkCameras, i);
-    await test.page.waitFor(parseInt(process.env.LOOP_INTERVAL));
+    await test.page.waitFor(parseInt(LOOP_INTERVAL));
   }
   return check === true;
 }
