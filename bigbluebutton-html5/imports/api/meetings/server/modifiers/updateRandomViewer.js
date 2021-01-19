@@ -17,13 +17,12 @@ export default function updateRandomUser(meetingId, userId, requesterId) {
     },
   };
 
-  const cb = (err) => {
-    if (err != null) {
-      return Logger.error(`Setting randomly selected userId=${userId} by requesterId=${requesterId} in meetingId=${meetingId}`);
+  try {
+    const { insertedId } = Meetings.upsert(selector, modifier);
+    if (insertedId) {
+      Logger.info(`Set randomly selected userId=${userId} by requesterId=${requesterId} in meeitingId=${meetingId}`);
     }
-
-    return Logger.info(`Set randomly selected userId=${userId} by requesterId=${requesterId} in meeitingId=${meetingId}`);
-  };
-
-  return Meetings.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Setting randomly selected userId=${userId} by requesterId=${requesterId} in meetingId=${meetingId}`);
+  }
 }

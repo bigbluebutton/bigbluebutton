@@ -9,18 +9,18 @@ export default function clearRandomlySelectedUser() {
     meetingId,
   };
 
-  const cb = (err) => {
-    if (err) return Logger.error(`Clearing randomly selected user : ${err}`);
-    Logger.info(`Cleared randomly selected user from meeting=${meetingId} by id=${requesterUserId}`);
+  const modifier = {
+    $set: {
+      randomlySelectedUser: '',
+    },
   };
 
-  return Meetings.update(
-    selector,
-    {
-      $set: {
-        randomlySelectedUser: '',
-      },
-    },
-    cb,
-  );
+  try {
+    const { insertedId } = Meetings.update(selector, modifier);
+    if (insertedId) {
+      Logger.info(`Cleared randomly selected user from meeting=${meetingId} by id=${requesterUserId}`);
+    }
+  } catch (err) {
+    Logger.error(`Clearing randomly selected user : ${err}`);
+  }
 }
