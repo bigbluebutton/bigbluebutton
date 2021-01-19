@@ -10,7 +10,7 @@
     "generate-refs-visual-regression-desktop": "rm -rf tests/webdriverio/screenshots; npm run test-visual-regression-desktop",
     "start:prod": "meteor reset && ROOT_URL=http://127.0.0.1/html5client/1 meteor run --production --port=4000",
     "start:dev": "ROOT_URL=http://127.0.0.1/html5client/1 meteor run --port=4000",
-    "start:dev-fast-mongo": "env ROOT_URL=http://127.0.0.1/html5client/1 MONGO_OPLOG_URL=mongodb://127.0.1.1/local MONGO_URL=mongodb://127.0.1.1/meteor ROOT_URL=http://127.0.0.1/html5client/1 NODE_ENV=development meteor run --port=4000",
+    "start:dev-fast-mongo": "env ROOT_URL=http://127.0.0.1/html5client/1 MONGO_OPLOG_URL=mongodb://127.0.1.1/local MONGO_URL=mongodb://127.0.1.1/meteor NODE_ENV=development SERVER_WEBSOCKET_COMPRESSION=0 meteor run --port=4000 --allow-superuser",
     "test": "wdio ./tests/webdriverio/wdio.conf.js",
     "lint": "eslint . --ext .jsx,.js"
   },

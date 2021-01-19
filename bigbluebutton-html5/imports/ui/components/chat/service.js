@@ -28,10 +28,19 @@ const ScrollCollection = new Mongo.Collection(null);
 
 const UnsentMessagesCollection = new Mongo.Collection(null);
 
+export const UserSentMessageCollection = new Mongo.Collection(null);
+
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
 const POLL_MESSAGE_PREFIX = 'bbb-published-poll-<br/>';
+
+const setUserSentMessage = (bool) => {
+  UserSentMessageCollection.upsert(
+    { userId: Auth.userID },
+    { $set: { sent: bool } },
+  );
+}
 
 const getUser = userId => Users.findOne({ userId });
 
@@ -47,6 +56,7 @@ const mapGroupMessage = (message) => {
     content: message.content,
     time: message.timestamp || message.time,
     sender: null,
+    key: message.key
   };
 
   if (message.sender && message.sender.id !== SYSTEM_CHAT_TYPE) {
@@ -75,7 +85,7 @@ const reduceGroupMessages = (previous, current) => {
     time: current.timestamp,
     color: current.color,
   }];
-  if (!lastMessage || !currentMessage.chatId === PUBLIC_GROUP_CHAT_ID) {
+  if (!lastMessage) {
     return previous.concat(currentMessage);
   }
   // Check if the last message is from the same user and time discrepancy
@@ -93,6 +103,34 @@ const reduceGroupMessages = (previous, current) => {
   }
 
   return previous.concat(currentMessage);
+};
+
+const getChatMessages = (chatId) => {
+  if (chatId === PUBLIC_CHAT_ID) {
+    return GroupChatMsg.find({
+      meetingId: Auth.meetingID,
+      chatId: PUBLIC_GROUP_CHAT_ID,
+
+    }, { sort: ['timestamp'] }).fetch();
+  }
+  const senderId = Auth.userID;
+
+  const privateChat = GroupChat.findOne({
+    meetingId: Auth.meetingID,
+    users: { $all: [chatId, senderId] },
+    access: PRIVATE_CHAT_TYPE,
+  });
+
+  if (privateChat) {
+    const {
+      chatId: id,
+    } = privateChat;
+
+    return GroupChatMsg.find({
+      meetingId: Auth.meetingID,
+      chatId: id,
+    }, { sort: ['timestamp'] }).fetch();
+  }
 };
 
 const reduceAndMapGroupMessages = messages => (messages
@@ -230,6 +268,7 @@ const updateScrollPosition = position => ScrollCollection.upsert(
 );
 
 const updateUnreadMessage = (timestamp) => {
+  return 0;
   const chatID = Session.get('idChatOpen');
   const isPublic = chatID === PUBLIC_CHAT_ID;
   const chatType = isPublic ? PUBLIC_GROUP_CHAT_ID : chatID;
@@ -335,9 +374,11 @@ const getLastMessageTimestampFromChatList = activeChats => activeChats
   .reduce(maxNumberReducer, 0);
 
 export default {
+  setUserSentMessage,
   mapGroupMessage,
   reduceAndMapGroupMessages,
   reduceAndDontMapGroupMessages,
+  getChatMessages,
   getPublicGroupMessages,
   getPrivateGroupMessages,
   getUser,

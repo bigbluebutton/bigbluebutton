@@ -7,7 +7,7 @@ import { Session } from 'meteor/session';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from './styles.scss';
 import MessageForm from './message-form/container';
-import MessageList from './message-list/container';
+import TimeWindowList from './time-window-list/container';
 import ChatDropdownContainer from './chat-dropdown/container';
 
 const ELEMENT_ID = 'chat-messages';
@@ -22,6 +22,7 @@ const intlMessages = defineMessages({
     description: 'aria-label for hiding chat button',
   },
 });
+
 const Chat = (props) => {
   const {
     chatID,
@@ -42,8 +43,10 @@ const Chat = (props) => {
     maxMessageLength,
     amIModerator,
     meetingIsBreakout,
+    timeWindowsValues,
+    dispatch,
+    count,
   } = props;
-
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
   const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
 
@@ -93,7 +96,7 @@ const Chat = (props) => {
             : <ChatDropdownContainer {...{ meetingIsBreakout, isMeteorConnected, amIModerator }} />
         }
       </header>
-      <MessageList
+      <TimeWindowList
         id={ELEMENT_ID}
         chatId={chatID}
         handleScrollUpdate={actions.handleScrollUpdate}
@@ -104,6 +107,10 @@ const Chat = (props) => {
           hasUnreadMessages,
           scrollPosition,
           messages,
+          currentUserIsModerator: amIModerator,
+          timeWindowsValues,
+          dispatch,
+          count,
         }}
       />
       <MessageForm
