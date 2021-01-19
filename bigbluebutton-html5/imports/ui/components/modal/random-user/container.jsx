@@ -13,7 +13,6 @@ export default withModalMounter(withTracker(({ mountModal }) => {
   const viewerPool = Users.find({
     meetingId: Auth.meetingID,
     presenter: { $ne: true },
-    connectionStatus: 'online',
     role: { $eq: 'VIEWER' },
   }, {
     fields: {
