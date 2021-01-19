@@ -268,7 +268,6 @@ const updateScrollPosition = position => ScrollCollection.upsert(
 );
 
 const updateUnreadMessage = (timestamp) => {
-  return 0;
   const chatID = Session.get('idChatOpen');
   const isPublic = chatID === PUBLIC_CHAT_ID;
   const chatType = isPublic ? PUBLIC_GROUP_CHAT_ID : chatID;
