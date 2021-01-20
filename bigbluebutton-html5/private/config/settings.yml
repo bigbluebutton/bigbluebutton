@@ -368,6 +368,8 @@ public:
     role_moderator: MODERATOR
     role_viewer: VIEWER
   whiteboard:
+    annotationsQueueProcessInterval: 60
+    cursorInterval: 40
     annotations:
       status:
         start: DRAW_START
