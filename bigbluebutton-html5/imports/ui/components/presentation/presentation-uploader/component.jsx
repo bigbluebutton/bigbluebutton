@@ -22,7 +22,6 @@ const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false)
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
-  mountModal: PropTypes.func.isRequired,
   defaultFileName: PropTypes.string.isRequired,
   fileSizeMin: PropTypes.number.isRequired,
   fileSizeMax: PropTypes.number.isRequired,
