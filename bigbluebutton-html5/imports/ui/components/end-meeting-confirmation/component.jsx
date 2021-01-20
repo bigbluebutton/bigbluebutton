@@ -4,7 +4,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import Modal from '/imports/ui/components/modal/simple/component';
 import { styles } from './styles';
-import EndMeetingUserList from './user-list/component';
 
 const intlMessages = defineMessages({
   endMeetingTitle: {
@@ -26,16 +25,19 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   closeModal: PropTypes.func.isRequired,
   endMeeting: PropTypes.func.isRequired,
+  meetingTitle: PropTypes.func.isRequired,
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 class EndMeetingComponent extends React.PureComponent {
   render() {
     const {
-      users, intl, closeModal, endMeeting,
+      users, intl, closeModal, endMeeting, meetingTitle,
     } = this.props;
 
     return (
@@ -44,14 +46,11 @@ class EndMeetingComponent extends React.PureComponent {
         className={styles.modal}
         onRequestClose={closeModal}
         hideBorder
-        title={intl.formatMessage(intlMessages.endMeetingTitle)}
+        title={intl.formatMessage(intlMessages.endMeetingTitle, { 0: meetingTitle })}
       >
         <div className={styles.container}>
           <div className={styles.description}>
-            <EndMeetingUserList
-              users={users}
-            />
-            {intl.formatMessage(intlMessages.endMeetingDescription)}
+            {intl.formatMessage(intlMessages.endMeetingDescription, { 0: users.length })}
           </div>
           <div className={styles.footer}>
             <Button

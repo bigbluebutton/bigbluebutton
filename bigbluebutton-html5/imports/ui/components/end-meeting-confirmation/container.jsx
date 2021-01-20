@@ -21,6 +21,6 @@ export default withModalMounter(withTracker(({ mountModal }) => ({
     makeCall('endMeeting');
     mountModal(null);
   },
-
+  meetingTitle: Service.getMeetingTitle(),
   users: Service.getUsers(),
 }))(EndMeetingContainer));

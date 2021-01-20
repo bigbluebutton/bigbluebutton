@@ -1,5 +1,6 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
+import Meetings from '/imports/api/meetings';
 
 const USERS_TO_DISPLAY = Meteor.settings.public.app.maxUsersForConfirmation;
 
@@ -11,16 +12,20 @@ const userFindSorting = {
   userId: 1,
 };
 
+const getMeetingTitle = () => {
+  const meeting = Meetings.findOne({
+    meetingId: Auth.meetingID,
+  }, { fields: { 'meetingProp.name': 1, 'breakoutProps.sequence': 1 } });
+
+  return meeting.meetingProp.name;
+};
+
 const getUsers = () => {
-  let users = Users
+  const users = Users
     .find({
       meetingId: Auth.meetingID,
-      connectionStatus: 'online',
     }, userFindSorting)
     .fetch();
-
-  // user shouldn't see themselves in the list
-  users = users.filter(u => u.userId !== Auth.userID);
 
   return users;
 };
@@ -33,4 +38,5 @@ const getUsersToDisplay = (users) => {
 export default {
   getUsers,
   getUsersToDisplay,
+  getMeetingTitle,
 };
