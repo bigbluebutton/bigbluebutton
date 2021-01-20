@@ -54,25 +54,3 @@
   line-height: var(--title-position-left);
   margin-bottom: var(--lg-padding-y);
 }
-
-.warningItem {
-  display: flex;
-  flex-grow: 1;
-  align-items: center;
-  text-decoration: none;
-  font-weight: bold;
-  width: 100%;
-}
-
-.warningIcon{
-  flex: 0 0 2.2rem;
-  padding-right: var(--lg-padding-y);
-}
-
-.userListItemText {
-  text-overflow: ellipsis;
-}
-
-.userListText {
-  text-align: left;
-}

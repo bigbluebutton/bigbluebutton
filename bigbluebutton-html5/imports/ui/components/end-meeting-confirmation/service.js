@@ -2,8 +2,6 @@ import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 
-const USERS_TO_DISPLAY = Meteor.settings.public.app.maxUsersForConfirmation;
-
 const userFindSorting = {
   emojiTime: 1,
   role: 1,
@@ -30,13 +28,7 @@ const getUsers = () => {
   return users;
 };
 
-const getUsersToDisplay = (users) => {
-  const diff = users.length - USERS_TO_DISPLAY;
-  return { displayUsers: users.slice(0, USERS_TO_DISPLAY), remainder: diff <= 0 ? false : diff };
-};
-
 export default {
   getUsers,
-  getUsersToDisplay,
   getMeetingTitle,
 };
