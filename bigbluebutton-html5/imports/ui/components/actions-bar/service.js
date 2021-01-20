@@ -27,7 +27,7 @@ const amIPresenter = () => {
   const currentUser = Users.findOne({ userId: Auth.userID },
     { fields: { presenter: 1 } });
 
-  if(!currentUser){
+  if (!currentUser) {
     return false;
   }
 
@@ -38,7 +38,7 @@ const amIModerator = () => {
   const currentUser = Users.findOne({ userId: Auth.userID },
     { fields: { role: 1 } });
 
-  if(!currentUser){
+  if (!currentUser) {
     return false;
   }
 
