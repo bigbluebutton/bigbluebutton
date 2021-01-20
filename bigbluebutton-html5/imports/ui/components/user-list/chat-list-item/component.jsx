@@ -56,6 +56,7 @@ const handleClickToggleChat = (id) => {
   } else {
     Session.set('idChatOpen', '');
   }
+  window.dispatchEvent(new Event('panelChanged'));
 };
 
 const ChatListItem = (props) => {
@@ -95,6 +96,7 @@ const ChatListItem = (props) => {
               <ChatAvatar
                 isModerator={chat.isModerator}
                 color={chat.color}
+                avatar={chat.avatar}
                 name={chat.name.toLowerCase().slice(0, 2)}
               />
             )}

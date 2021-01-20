@@ -2,19 +2,17 @@ import React, { PureComponent } from 'react';
 import cx from 'classnames';
 import { styles } from './styles.scss';
 import DesktopShare from './desktop-share/component';
-import ActionsDropdown from './actions-dropdown/component';
-import QuickPollDropdown from './quick-poll-dropdown/component';
+import ActionsDropdown from './actions-dropdown/container';
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
 import PresentationOptionsContainer from './presentation-options/component';
+import { ACTIONSBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
 
 class ActionsBar extends PureComponent {
   render() {
     const {
       amIPresenter,
-      handleExitVideo,
-      handleJoinVideo,
       handleShareScreen,
       handleUnshareScreen,
       isVideoBroadcasting,
@@ -25,8 +23,6 @@ class ActionsBar extends PureComponent {
       toggleSwapLayout,
       handleTakePresenter,
       intl,
-      currentSlidHasContent,
-      parseCurrentSlideContent,
       isSharingVideo,
       screenShareEndAlert,
       stopExternalVideoShare,
@@ -45,7 +41,12 @@ class ActionsBar extends PureComponent {
     actionBarClasses[styles.mobileLayoutSwapped] = isLayoutSwapped && amIPresenter;
 
     return (
-      <div className={styles.actionsbar}>
+      <div
+        className={styles.actionsbar}
+        style={{
+          height: ACTIONSBAR_HEIGHT,
+        }}
+      >
         <div className={styles.left}>
           <ActionsDropdown {...{
             amIPresenter,
@@ -59,18 +60,6 @@ class ActionsBar extends PureComponent {
             isMeteorConnected,
           }}
           />
-          {isPollingEnabled
-            ? (
-              <QuickPollDropdown
-                {...{
-                  currentSlidHasContent,
-                  intl,
-                  amIPresenter,
-                  parseCurrentSlideContent,
-                }}
-              />
-            ) : null
-          }
           {isCaptionsAvailable
             ? (
               <CaptionsButtonContainer {...{ intl }} />
@@ -82,10 +71,7 @@ class ActionsBar extends PureComponent {
           <AudioControlsContainer />
           {enableVideo
             ? (
-              <JoinVideoOptionsContainer
-                handleJoinVideo={handleJoinVideo}
-                handleCloseVideo={handleExitVideo}
-              />
+              <JoinVideoOptionsContainer />
             )
             : null}
           <DesktopShare {...{

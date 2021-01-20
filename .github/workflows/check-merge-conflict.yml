@@ -1,0 +1,21 @@
+name: Merge conflict check
+on:
+  push:
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for dirty pull requests
+        uses: eps1lon/actions-label-merge-conflict@releases/2.x
+        with:
+          dirtyLabel: has-conflicts
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          commentOnDirty: |
+              This pull request has conflicts ☹
+              Please resolve those so we can review the pull request.
+              Thanks.

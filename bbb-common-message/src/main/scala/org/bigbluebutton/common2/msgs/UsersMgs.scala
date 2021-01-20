@@ -199,13 +199,6 @@ case class AssignPresenterReqMsg(header: BbbClientMsgHeader, body: AssignPresent
 case class AssignPresenterReqMsgBody(requesterId: String, newPresenterId: String, newPresenterName: String, assignedBy: String)
 
 /**
- * Sent from client as a response to inactivity notifaction from server.
- */
-object MeetingActivityResponseCmdMsg { val NAME = "MeetingActivityResponseCmdMsg" }
-case class MeetingActivityResponseCmdMsg(header: BbbClientMsgHeader, body: MeetingActivityResponseCmdMsgBody) extends StandardMsg
-case class MeetingActivityResponseCmdMsgBody(respondedBy: String)
-
-/**
  * Sent from client to change the role of the user in the meeting.
  */
 object ChangeUserRoleCmdMsg { val NAME = "ChangeUserRoleCmdMsg" }

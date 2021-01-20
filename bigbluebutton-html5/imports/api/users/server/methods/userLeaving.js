@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
+import AuthTokenValidation from '/imports/api/auth-token-validation';
 import Users from '/imports/api/users';
 
 export default function userLeaving(meetingId, userId, connectionId) {
@@ -19,11 +20,18 @@ export default function userLeaving(meetingId, userId, connectionId) {
   const User = Users.findOne(selector);
 
   if (!User) {
-    return Logger.info(`Skipping userLeaving. Could not find ${userId} in ${meetingId}`);
+    Logger.info(`Skipping userLeaving. Could not find ${userId} in ${meetingId}`);
+    return;
   }
 
+  const auth = AuthTokenValidation.findOne({
+    meetingId,
+    userId,
+  }, { sort: { updatedAt: -1 } });
+
   // If the current user connection is not the same that triggered the leave we skip
-  if (User.connectionId !== connectionId) {
+  if (auth?.connectionId !== connectionId) {
+    Logger.info(`Skipping userLeaving. User connectionId=${User.connectionId} is different from requester connectionId=${connectionId}`);
     return false;
   }
 

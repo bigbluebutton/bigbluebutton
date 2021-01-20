@@ -3,7 +3,7 @@ bbb-webhooks
 
 This is a node.js application that listens for all events on BigBlueButton and sends POST requests with details about these events to hooks registered via an API. A hook is any external URL that can receive HTTP POST requests.
 
-You can read the full documentation at: http://docs.bigbluebutton.org/labs/webhooks.html
+You can read the full documentation at: https://docs.bigbluebutton.org/dev/webhooks.html
 
 
 Development

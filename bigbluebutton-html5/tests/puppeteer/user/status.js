@@ -1,6 +1,5 @@
 const Page = require('../core/page');
 const e = require('./elements');
-const ce = require('../core/elements');
 const util = require('./util');
 
 class Status extends Page {
@@ -10,7 +9,7 @@ class Status extends Page {
 
   async test() {
     // TODO: Check this if it's open before click
-    await this.click(ce.userList);
+    // await this.click(ce.userList);
 
     await this.screenshot(true);
     const status0 = await util.getTestElements(this);
@@ -31,8 +30,8 @@ class Status extends Page {
     await this.screenshot(true);
     const status3 = await util.getTestElements(this);
 
-    // TODO: Check test
-    return true;
+    // status0 and status3 are equal as initial and last status
+    return status0 !== status1 && status1 !== status2 && status2 !== status3 && status2 !== status0 && status3 !== status1;
   }
 }
 

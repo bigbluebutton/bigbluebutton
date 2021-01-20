@@ -38,7 +38,7 @@ end
 meeting_id = opts[:meeting_id]
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
-props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
+props = BigBlueButton.read_props
 presentation_props = YAML::load(File.open('presentation.yml'))
 presentation_props['audio_offset'] = 0 if presentation_props['audio_offset'].nil?
 presentation_props['include_deskshare'] = false if presentation_props['include_deskshare'].nil?
@@ -195,7 +195,7 @@ if not FileTest.directory?(target_dir)
       end
 
       # Copy thumbnails from raw files
-      FileUtils.cp_r("#{pres_dir}/thumbnails", "#{target_pres_dir}/thumbnails")
+      FileUtils.cp_r("#{pres_dir}/thumbnails", "#{target_pres_dir}/thumbnails") if File.exist?("#{pres_dir}/thumbnails")
     end
 
     BigBlueButton.logger.info("Generating closed captions")
@@ -235,6 +235,11 @@ if not FileTest.directory?(target_dir)
       deskshare_width = presentation_props['deskshare_output_width']
       deskshare_height = presentation_props['deskshare_output_height']
       BigBlueButton.process_deskshare_videos(target_dir, temp_dir, meeting_id, deskshare_width, deskshare_height, presentation_props['video_formats'])
+    end
+
+    # Copy shared notes from raw files
+    if !Dir["#{raw_archive_dir}/notes/*"].empty?
+      FileUtils.cp_r("#{raw_archive_dir}/notes", target_dir)
     end
 
     process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-presentation.done", "w")

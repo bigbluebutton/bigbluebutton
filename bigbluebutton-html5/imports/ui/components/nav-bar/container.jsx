@@ -7,6 +7,7 @@ import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import userListService from '../user-list/service';
+import NoteService from '/imports/ui/components/note/service';
 import Service from './service';
 import NavBar from './component';
 
@@ -44,7 +45,10 @@ export default withTracker(() => {
     const hasUnreadMessages = activeChats
       .filter(chat => chat.userId !== Session.get('idChatOpen'))
       .some(chat => chat.unreadCounter > 0);
-    return hasUnreadMessages;
+
+    const hasUnreadNotes = NoteService.hasUnreadNotes();
+
+    return hasUnreadMessages || hasUnreadNotes;
   };
 
   const { connectRecordingObserver, processOutsideToggleRecording } = Service;

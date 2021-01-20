@@ -129,8 +129,7 @@ class BbbWebApiGWApp(
                     freeJoin: java.lang.Boolean,
                     metadata: java.util.Map[String, String], guestPolicy: String,
                     welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMessage: String,
-                    dialNumber: String, maxUsers: java.lang.Integer, maxInactivityTimeoutMinutes: java.lang.Integer,
-                    warnMinutesBeforeMax:                   java.lang.Integer,
+                    dialNumber: String, maxUsers: java.lang.Integer,
                     meetingExpireIfNoUserJoinedInMinutes:   java.lang.Integer,
                     meetingExpireWhenLastUserLeftInMinutes: java.lang.Integer,
                     userInactivityInspectTimerInMinutes:    java.lang.Integer,
@@ -140,15 +139,14 @@ class BbbWebApiGWApp(
                     allowModsToUnmuteUsers:                 java.lang.Boolean,
                     keepEvents:                             java.lang.Boolean,
                     breakoutParams:                         BreakoutRoomsParams,
-                    lockSettingsParams:                     LockSettingsParams): Unit = {
+                    lockSettingsParams:                     LockSettingsParams,
+                    html5InstanceId:                        java.lang.Integer): Unit = {
 
     val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
       isBreakout = isBreakout.booleanValue())
     val durationProps = DurationProps(
       duration = duration.intValue(),
       createdTime = createTime.longValue(), createDate,
-      maxInactivityTimeoutMinutes = maxInactivityTimeoutMinutes.intValue(),
-      warnMinutesBeforeMax = warnMinutesBeforeMax.intValue(),
       meetingExpireIfNoUserJoinedInMinutes = meetingExpireIfNoUserJoinedInMinutes.intValue(),
       meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes.intValue(),
       userInactivityInspectTimerInMinutes = userInactivityInspectTimerInMinutes.intValue(),
@@ -194,6 +192,10 @@ class BbbWebApiGWApp(
       lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue()
     )
 
+    val systemProps = SystemProps(
+      html5InstanceId
+    )
+
     val defaultProps = DefaultProps(
       meetingProp,
       breakoutProps,
@@ -205,7 +207,8 @@ class BbbWebApiGWApp(
       usersProp,
       metadataProp,
       screenshareProps,
-      lockSettingsProps
+      lockSettingsProps,
+      systemProps
     )
 
     //meetingManagerActorRef ! new CreateMeetingMsg(defaultProps)
@@ -234,6 +237,11 @@ class BbbWebApiGWApp(
 
   def ejectDuplicateUser(meetingId: String, intUserId: String, name: String, extUserId: String): Unit = {
     val event = MsgBuilder.buildEjectDuplicateUserRequestToAkkaApps(meetingId, intUserId, name, extUserId)
+    msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+  }
+
+  def guestWaitingLeft(meetingId: String, intUserId: String): Unit = {
+    val event = MsgBuilder.buildGuestWaitingLeftMsg(meetingId, intUserId)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
   }
 
