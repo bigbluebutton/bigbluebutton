@@ -429,6 +429,18 @@ const toggleVoice = (userId) => {
   }
 };
 
+const getEmoji = () => {
+  const currentUser = Users.findOne({ userId: Auth.userID },
+    { fields: { emoji: 1 } });
+
+  if (!currentUser) {
+    return false;
+  }
+
+  return currentUser.emoji;
+};
+
+
 const muteAllUsers = (userId) => { makeCall('muteAllUsers', userId); };
 
 const muteAllExceptPresenter = (userId) => { makeCall('muteAllExceptPresenter', userId); };
@@ -617,7 +629,7 @@ export default {
   getGroupChatPrivate,
   hasBreakoutRoom,
   getEmojiList: () => EMOJI_STATUSES,
-  getEmoji: () => Users.findOne({ userId: Auth.userID }, { fields: { emoji: 1 } }).emoji,
+  getEmoji,
   hasPrivateChatBetweenUsers,
   toggleUserLock,
   requestUserInformation,
