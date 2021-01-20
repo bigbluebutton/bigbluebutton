@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import PollService from '/imports/ui/components/poll/service';
 import { injectIntl, defineMessages } from 'react-intl';
-import styles from './styles';
 import { prototype } from 'clipboard';
+import styles from './styles';
 
 const intlMessages = defineMessages({
   pollResultAria: {

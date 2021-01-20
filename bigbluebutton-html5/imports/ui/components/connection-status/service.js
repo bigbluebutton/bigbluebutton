@@ -66,7 +66,7 @@ const sortLevel = (a, b) => {
 const getConnectionStatus = () => {
   const connectionStatus = ConnectionStatus.find(
     { meetingId: Auth.meetingID },
-  ).fetch().map(status => {
+  ).fetch().map((status) => {
     const {
       userId,
       level,
@@ -82,7 +82,8 @@ const getConnectionStatus = () => {
 
   return Users.find(
     { meetingId: Auth.meetingID },
-    { fields:
+    {
+      fields:
       {
         userId: 1,
         name: 1,

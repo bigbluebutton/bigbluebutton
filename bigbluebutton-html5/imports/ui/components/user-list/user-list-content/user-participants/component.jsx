@@ -94,7 +94,7 @@ class UserParticipants extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { compact } = this.props;
-    const { selectedUser,  scrollArea } = this.state;
+    const { selectedUser, scrollArea } = this.state;
     if (!compact && (!prevState.scrollArea && scrollArea)) {
       scrollArea.addEventListener(
         'keydown',
@@ -244,7 +244,7 @@ class UserParticipants extends Component {
                     this.listRef = ref;
                   }
 
-                  if (ref !== null && !scrollArea) {                    
+                  if (ref !== null && !scrollArea) {
                     this.setState({ scrollArea: findDOMNode(ref) });
                   }
                 }}

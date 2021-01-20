@@ -6,8 +6,8 @@ import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
 import { ENTER } from '/imports/utils/keyCodes';
 import toastStyles from '/imports/ui/components/toast/styles';
+import { Meteor } from 'meteor/meteor';
 import { styles } from './styles';
-import {Meteor} from "meteor/meteor";
 
 const messages = defineMessages({
   lowerHandsLabel: {

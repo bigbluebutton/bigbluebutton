@@ -7,8 +7,8 @@ import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
 const BROWSER_RESULTS = browser();
 const isSafari = BROWSER_RESULTS.name === 'safari';
-const isIphone = (navigator.userAgent.match(/iPhone/i)) ? true : false;
-const noIOSFullscreen = ((isSafari && BROWSER_RESULTS.versionNumber < 12) || isIphone) ? true : false;
+const isIphone = !!(navigator.userAgent.match(/iPhone/i));
+const noIOSFullscreen = !!(((isSafari && BROWSER_RESULTS.versionNumber < 12) || isIphone));
 
 const SettingsDropdownContainer = props => (
   <SettingsDropdown {...props} />

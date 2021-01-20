@@ -8,8 +8,8 @@ import Button from '/imports/ui/components/button/component';
 import logger from '/imports/startup/client/logger';
 import Modal from '/imports/ui/components/modal/simple/component';
 import browser from 'browser-detect';
-import VideoService from '../video-provider/service';
 import cx from 'classnames';
+import VideoService from '../video-provider/service';
 import { styles } from './styles';
 
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
@@ -310,18 +310,18 @@ class VideoPreview extends Component {
               });
             });
           }).catch((error) => {
-          logger.warn({
-            logCode: 'video_preview_initial_device_error',
-            extraInfo: {
-              errorName: error.name,
-              errorMessage: error.message,
-            },
-          }, 'Error getting initial device');
-          this.setState({
-            viewState: VIEW_STATES.error,
-            deviceError: VideoPreview.handleGUMError(error),
+            logger.warn({
+              logCode: 'video_preview_initial_device_error',
+              extraInfo: {
+                errorName: error.name,
+                errorMessage: error.message,
+              },
+            }, 'Error getting initial device');
+            this.setState({
+              viewState: VIEW_STATES.error,
+              deviceError: VideoPreview.handleGUMError(error),
+            });
           });
-        });
       } catch (error) {
         logger.warn({
           logCode: 'video_preview_grabbing_error',
@@ -539,14 +539,14 @@ class VideoPreview extends Component {
         { shared
           ? (
             <span className={styles.label}>
-               {intl.formatMessage(intlMessages.sharedCameraLabel)}
-             </span>
+              {intl.formatMessage(intlMessages.sharedCameraLabel)}
+            </span>
           )
           : (
             <span>
-               <label className={styles.label} htmlFor="setQuality">
-                 {intl.formatMessage(intlMessages.qualityLabel)}
-               </label>
+              <label className={styles.label} htmlFor="setQuality">
+                {intl.formatMessage(intlMessages.qualityLabel)}
+              </label>
               { availableProfiles && availableProfiles.length > 0
                 ? (
                   <select
@@ -556,7 +556,7 @@ class VideoPreview extends Component {
                     onChange={this.handleSelectProfile}
                     disabled={skipVideoPreview}
                   >
-                    {availableProfiles.map(profile => {
+                    {availableProfiles.map((profile) => {
                       const label = intlMessages[`${profile.id}`]
                         ? intl.formatMessage(intlMessages[`${profile.id}`])
                         : profile.name;
@@ -565,13 +565,14 @@ class VideoPreview extends Component {
                         <option key={profile.id} value={profile.id}>
                           {`${label}`}
                         </option>
-                      )})}
+                      );
+                    })}
                   </select>
                 )
                 : (
                   <span>
-                     {intl.formatMessage(intlMessages.profileNotFoundLabel)}
-                   </span>
+                    {intl.formatMessage(intlMessages.profileNotFoundLabel)}
+                  </span>
                 )
               }
             </span>
@@ -681,15 +682,17 @@ class VideoPreview extends Component {
         {this.renderContent()}
 
         <div className={styles.footer}>
-          {hasVideoStream ?
-            (<div className={styles.extraActions}>
-              <Button
-                color="danger"
-                label={intl.formatMessage(intlMessages.stopSharingAllLabel)}
-                onClick={this.handleStopSharingAll}
-                disabled={shouldDisableButtons}
-              />
-            </div>)
+          {hasVideoStream
+            ? (
+              <div className={styles.extraActions}>
+                <Button
+                  color="danger"
+                  label={intl.formatMessage(intlMessages.stopSharingAllLabel)}
+                  onClick={this.handleStopSharingAll}
+                  disabled={shouldDisableButtons}
+                />
+              </div>
+            )
             : null
           }
           <div className={styles.actions}>

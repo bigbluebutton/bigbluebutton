@@ -74,9 +74,9 @@ const currentUserEmoji = currentUser => (currentUser ? {
   status: currentUser.emoji,
   changedAt: currentUser.emojiTime,
 } : {
-    status: 'none',
-    changedAt: null,
-  });
+  status: 'none',
+  changedAt: null,
+});
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   const authTokenValidation = AuthTokenValidation.findOne({}, { sort: { updatedAt: -1 } });

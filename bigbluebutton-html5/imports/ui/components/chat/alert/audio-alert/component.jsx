@@ -1,7 +1,7 @@
 import { Component } from 'react';
 import PropTypes from 'prop-types';
 import AudioService from '/imports/ui/components/audio/service';
-import {Meteor} from "meteor/meteor";
+import { Meteor } from 'meteor/meteor';
 
 const propTypes = {
   play: PropTypes.bool.isRequired,

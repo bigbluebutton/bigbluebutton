@@ -47,7 +47,7 @@ const breakoutTest = () => {
   //     await test.init(undefined);
   //     await test.create(testName);
   //     await test.join(testName);
-  //     response = await test.testJoined(testName);      
+  //     response = await test.testJoined(testName);
   //     const page2 = await test.page2.browser.pages();
   //     await page2[2].bringToFront();
   //     screenshot = await page2[2].screenshot();

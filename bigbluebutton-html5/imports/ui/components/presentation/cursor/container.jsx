@@ -6,7 +6,6 @@ import Cursor from './component';
 
 
 class CursorContainer extends Component {
-
   render() {
     const { cursorX, cursorY } = this.props;
 

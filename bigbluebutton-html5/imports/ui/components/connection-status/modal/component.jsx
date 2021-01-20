@@ -137,7 +137,8 @@ class ConnectionStatusComponent extends PureComponent {
             </h2>
           </div>
           <div className={styles.description}>
-            {intl.formatMessage(intlMessages.description)}{' '}
+            {intl.formatMessage(intlMessages.description)}
+            {' '}
             <a href={STATS.help} target="_blank" rel="noopener noreferrer">
               {`(${intl.formatMessage(intlMessages.more)})`}
             </a>
