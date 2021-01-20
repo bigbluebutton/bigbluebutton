@@ -410,6 +410,7 @@ const setEmojiStatus = (userId, emoji) => {
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
 
 const removeUser = (userId, banUser) => {
+  // get the presenter role when removing the current presenter
   if (isUserPresenter(userId)) {
     assignPresenter(Auth.userID);
   }
