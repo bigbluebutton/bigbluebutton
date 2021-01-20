@@ -1,9 +1,0 @@
-{
-  "env": {
-    "production": {
-      "plugins": [
-        "react-remove-properties"
-      ]
-    }
-  }
-}

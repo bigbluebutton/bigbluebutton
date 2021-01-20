@@ -25,6 +25,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-bbb-alert:before {
+  content: "\e958";
+}
 .icon-bbb-mute:before {
   content: "\e932";
 }

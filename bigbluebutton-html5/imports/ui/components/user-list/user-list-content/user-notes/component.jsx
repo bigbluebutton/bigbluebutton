@@ -48,7 +48,9 @@ class UserNotes extends Component {
   componentDidMount() {
     const { revs } = this.props;
 
-    if (revs !== 0) this.setState({ unread: true });
+    const lastRevs = NoteService.getLastRevs();
+
+    if (revs !== 0 && revs > lastRevs) this.setState({ unread: true });
   }
 
   componentDidUpdate(prevProps) {
@@ -84,6 +86,8 @@ class UserNotes extends Component {
 
     return (
       <div
+        aria-label={intl.formatMessage(intlMessages.sharedNotes)}
+        aria-describedby="lockedNote"
         role="button"
         tabIndex={0}
         className={styles.listItem}
@@ -91,14 +95,14 @@ class UserNotes extends Component {
       >
         <Icon iconName="copy" />
         <div aria-hidden>
-          <div className={styles.noteTitle}>
+          <div className={styles.noteTitle} data-test="sharedNotes">
             {intl.formatMessage(intlMessages.sharedNotes)}
           </div>
           {disableNote
             ? (
               <div className={styles.noteLock}>
                 <Icon iconName="lock" />
-                <span>{`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}</span>
+                <span id="lockedNote">{`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}</span>
               </div>
             ) : null
           }

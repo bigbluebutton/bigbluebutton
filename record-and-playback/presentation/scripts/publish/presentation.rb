@@ -21,7 +21,7 @@
 
 performance_start = Time.now
 
-require '../../core/lib/recordandplayback'
+require File.expand_path('../../../lib/recordandplayback', __FILE__)
 require 'rubygems'
 require 'trollop'
 require 'yaml'
@@ -30,8 +30,8 @@ require 'fastimage' # require fastimage to get the image size of the slides (gem
 
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
-bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
-$presentation_props = YAML::load(File.open('presentation.yml'))
+bbb_props = BigBlueButton.read_props
+$presentation_props = YAML::load(File.read('presentation.yml'))
 
 # There's a couple of places where stuff is mysteriously divided or multiplied
 # by 2. This is just here to call out how spooky that is.
@@ -366,75 +366,23 @@ def svg_render_shape_poll(g, slide, shape)
   width = shape_scale_width(slide, data_points[2])
   height = shape_scale_height(slide, data_points[3])
 
-  result = JSON.load(shape[:result])
+  result = shape[:result]
   num_responders = shape[:num_responders]
   presentation = slide[:presentation]
-  max_num_votes = result.map{ |r| r['num_votes'] }.max
 
-  dat_file = "#{$process_dir}/poll_result#{poll_id}.dat"
-  gpl_file = "#{$process_dir}/poll_result#{poll_id}.gpl"
-  pdf_file = "#{$process_dir}/poll_result#{poll_id}.pdf"
+  json_file = "#{$process_dir}/poll_result#{poll_id}.json"
   svg_file = "#{$process_dir}/presentation/#{presentation}/poll_result#{poll_id}.svg"
 
-  # Use gnuplot to generate an SVG image for the graph
-  File.open(dat_file, 'w') do |d|
-    result.each do |r|
-      d.puts("#{r['id']} #{r['num_votes']}")
-    end
-  end
-  File.open(dat_file, 'r') do |d|
-    BigBlueButton.logger.debug("gnuplot data:")
-    BigBlueButton.logger.debug(d.readlines(nil)[0])
-  end
-  File.open(gpl_file, 'w') do |g|
-    g.puts('reset')
-    g.puts("set term pdfcairo size #{height / 72}, #{width / 72} font \"Arial,48\" noenhanced")
-    g.puts('set lmargin 0.5')
-    g.puts('set rmargin 0.5')
-    g.puts('unset key')
-    g.puts('set style data boxes')
-    g.puts('set style fill solid border -1')
-    g.puts('set boxwidth 0.9 relative')
-    g.puts('set yrange [0:*]')
-    g.puts('unset border')
-    g.puts('unset ytics')
-    xtics = result.map{ |r| "#{r['key'].gsub(/[`<|@{}^_]/, '').gsub('%', '%%').inspect} #{r['id']}" }.join(', ')
-    g.puts("set xtics rotate by 90 scale 0 right (#{xtics})")
-    if num_responders > 0
-      x2tics = result.map{ |r| "\"#{(r['num_votes'].to_f / num_responders * 100).to_i}%%\" #{r['id']}" }.join(', ')
-      g.puts("set x2tics rotate by 90 scale 0 left (#{x2tics})")
-    end
-    g.puts('set linetype 1 linewidth 1 linecolor rgb "black"')
-    result.each do |r|
-      if r['num_votes'] == 0 or r['num_votes'].to_f / max_num_votes <= 0.5
-        g.puts("set label \"#{r['num_votes']}\" at #{r['id']},#{r['num_votes']} left rotate by 90 offset 0,character 0.5 front")
-      else
-        g.puts("set label \"#{r['num_votes']}\" at #{r['id']},#{r['num_votes']} right rotate by 90 offset 0,character -0.5 textcolor rgb \"white\" front")
-      end
-    end
-    g.puts("set output \"#{pdf_file}\"")
-    g.puts("plot \"#{dat_file}\"")
-  end
-  File.open(gpl_file, 'r') do |d|
-    BigBlueButton.logger.debug("gnuplot script:")
-    BigBlueButton.logger.debug(d.readlines(nil)[0])
-  end
-  # gnuplot svg rendering has issues, so we render to pdf...
-  ret = BigBlueButton.exec_ret('gnuplot', '-d', gpl_file)
-  raise "Failed to generate plot pdf" if ret != 0
-  # then use pdftocairo to turn it into svg
-  ret = BigBlueButton.exec_ret('pdftocairo', '-svg', pdf_file, svg_file)
-  raise "Failed to convert poll to svg" if ret != 0
+  # Save the poll json to a temp file
+  IO.write(json_file, result)
+  # Render the poll svg
+  ret = BigBlueButton.exec_ret('utils/gen_poll_svg', '-i', json_file, '-w', "#{width.round}", '-h', "#{height.round}", '-n', "#{num_responders}", '-o', svg_file)
+  raise "Failed to generate poll svg" if ret != 0
 
-  # Outer box to act as a poll result backdrop
-  g << doc.create_element('rect',
-          x: x + 2, y: y + 2, width: width - 4, height: height - 4,
-          fill: 'white', stroke: 'black', 'stroke-width' => 4)
-  # Poll image (note that the image is sideways and has to be rotated)
+  # Poll image
   g << doc.create_element('image',
           'xlink:href' => "presentation/#{presentation}/poll_result#{poll_id}.svg",
-          height: width, width: height, x: slide[:width], y: y,
-          transform: "rotate(90, #{slide[:width]}, #{y})")
+          width: width, height: height, x: x, y: y)
 end
 
 def svg_render_shape(canvas, slide, shape, image_id)
@@ -649,11 +597,15 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
       shape[:type] == 'ellipse' or shape[:type] == 'triangle' or
       shape[:type] == 'line'
     shape[:color] = color_to_hex(event.at_xpath('color').text)
-    thickness = event.at_xpath('thickness').text
+    thickness = event.at_xpath('thickness')
+    unless thickness
+      BigBlueButton.logger.warn("Draw #{shape[:shape_id]} Shape #{shape[:shape_unique_id]} ID #{shape[:id]} is missing thickness")
+      return
+    end
     if $version_atleast_2_0_0
-      shape[:thickness_percent] = thickness.to_f
+      shape[:thickness_percent] = thickness.text.to_f
     else
-      shape[:thickness] = thickness.to_i
+      shape[:thickness] = thickness.text.to_i
     end
   end
   if shape[:type] == 'rectangle'
@@ -857,17 +809,20 @@ def events_get_image_info(slide)
     slide[:text] = "presentation/#{slide[:presentation]}/textfiles/slide-#{slide[:slide] + 1}.txt"
   end
   image_path = "#{$process_dir}/#{slide[:src]}"
-  if !File.exist?(image_path)
+
+  unless File.exist?(image_path)
     BigBlueButton.logger.warn("Missing image file #{image_path}!")
     # Emergency last-ditch blank image creation
     FileUtils.mkdir_p(File.dirname(image_path))
-    if slide[:deskshare]
-      command = "convert -size #{$presentation_props['deskshare_output_width']}x#{$presentation_props['deskshare_output_height']} xc:transparent -background transparent #{image_path}"
-    else
-      command = "convert -size 1600x1200 xc:transparent -background transparent -quality 90 +dither -depth 8 -colors 256 #{image_path}"
-    end
-    BigBlueButton.execute(command)
+    command = \
+      if slide[:deskshare]
+        ['convert', '-size', "#{$presentation_props['deskshare_output_width']}x#{$presentation_props['deskshare_output_height']}", 'xc:transparent', '-background', 'transparent', image_path]
+      else
+        ['convert', '-size', '1600x1200', 'xc:transparent', '-background', 'transparent', '-quality', '90', '+dither', '-depth', '8', '-colors', '256', image_path]
+      end
+    BigBlueButton.exec_ret(*command) || raise("Unable to generate blank image for #{image_path}")
   end
+
   slide[:width], slide[:height] = FastImage.size(image_path)
   BigBlueButton.logger.info("Image size is #{slide[:width]}x#{slide[:height]}")
 end
@@ -919,7 +874,7 @@ def processPresentation(package_dir)
   # Iterate through the events.xml and store the events, building the
   # xml files as we go
   last_timestamp = 0.0
-  events_xml = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
+  events_xml = Nokogiri::XML(File.read("#{$process_dir}/events.xml"))
   events_xml.xpath('/recording/event').each do |event|
     eventname = event['eventname']
     last_timestamp = timestamp =
@@ -1260,9 +1215,13 @@ begin
           FileUtils.cp("#{$process_dir}/presentation_text.json", package_dir)
         end
 
+        if File.exist?("#{$process_dir}/notes/notes.html")
+          FileUtils.cp("#{$process_dir}/notes/notes.html", package_dir)
+        end
+
         processing_time = File.read("#{$process_dir}/processing_time")
 
-        @doc = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
+        @doc = Nokogiri::XML(File.read("#{$process_dir}/events.xml"))
 
         # Retrieve record events and calculate total recording duration.
         $rec_events = BigBlueButton::Events.match_start_and_stop_rec_events(
@@ -1293,7 +1252,7 @@ begin
 
         # Update state and add playback to metadata.xml
         ## Load metadata.xml
-        metadata = Nokogiri::XML(File.open("#{package_dir}/metadata.xml"))
+        metadata = Nokogiri::XML(File.read("#{package_dir}/metadata.xml"))
         ## Update state
         recording = metadata.root
         state = recording.at_xpath("state")
@@ -1309,7 +1268,7 @@ begin
         metadata_with_playback = Nokogiri::XML::Builder.with(metadata.at('recording')) do |xml|
             xml.playback {
               xml.format("presentation")
-              xml.link("#{playback_protocol}://#{playback_host}/playback/presentation/2.0/playback.html?meetingId=#{$meeting_id}")
+              xml.link("#{playback_protocol}://#{playback_host}/playback/presentation/2.3/#{$meeting_id}")
               xml.processing_time("#{processing_time}")
               xml.duration("#{recording_time}")
               unless presentation.empty?
@@ -1411,4 +1370,3 @@ rescue Exception => e
 
   exit 1
 end
-

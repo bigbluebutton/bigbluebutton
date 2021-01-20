@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import ErrorBoundary from '/imports/ui/components/error-boundary/component';
-import FallbackPresentation from '/imports/ui/components/fallback-errors/fallback-presentation/component';
+import FallbackView from '/imports/ui/components/fallback-errors/fallback-view/component';
 import PresentationPodService from './service';
 import PresentationPods from './component';
 
@@ -12,7 +12,7 @@ import PresentationPods from './component';
 const PresentationPodsContainer = ({ presentationPodIds, ...props }) => {
   if (presentationPodIds && presentationPodIds.length > 0) {
     return (
-      <ErrorBoundary Fallback={FallbackPresentation}>
+      <ErrorBoundary Fallback={FallbackView}>
         <PresentationPods presentationPodIds={presentationPodIds} {...props} />
       </ErrorBoundary>
     );
@@ -22,7 +22,7 @@ const PresentationPodsContainer = ({ presentationPodIds, ...props }) => {
 };
 
 export default withTracker(() => ({
-  presentationPodIds: PresentationPodService.getPresentationPodIds()
+  presentationPodIds: PresentationPodService.getPresentationPodIds(),
 }))(PresentationPodsContainer);
 
 PresentationPodsContainer.propTypes = {

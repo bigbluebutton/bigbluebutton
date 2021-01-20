@@ -1,5 +1,5 @@
 @import "/imports/ui/stylesheets/mixins/focus";
-@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 .panel {
   background-color: #fff;
@@ -7,7 +7,7 @@
   display: flex;
   flex-grow: 1;
   flex-direction: column;
-  overflow: hidden;
+  overflow: scroll;
   height: 100vh;
 }
 
@@ -81,7 +81,7 @@
 }
 
 .userAvatar {
-  width: 2rem;
+  min-width: 2.25rem;
   margin: .5rem;
 }
 
@@ -150,7 +150,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: 100%;
 }
 
 .rememberContainer {

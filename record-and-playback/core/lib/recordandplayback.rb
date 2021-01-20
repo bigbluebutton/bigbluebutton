@@ -19,9 +19,7 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
 
-
-path = File.expand_path(File.join(File.dirname(__FILE__), '../lib'))
-$LOAD_PATH << path
+require_relative 'boot'
 
 require 'recordandplayback/events_archiver'
 require 'recordandplayback/generators/events'
@@ -36,7 +34,10 @@ require 'logger'
 require 'find'
 require 'rubygems'
 require 'net/http'
+require 'journald/logger'
 require 'fnv'
+require 'shellwords'
+require 'English'
 
 module BigBlueButton
   class MissingDirectoryException < RuntimeError
@@ -83,7 +84,8 @@ module BigBlueButton
   # @return [Logger]
   def self.logger
     return @logger if @logger
-    logger = Logger.new(STDOUT)
+
+    logger = Journald::Logger.new('bbb-rap')
     logger.level = Logger::INFO
     @logger = logger
   end
@@ -97,40 +99,28 @@ module BigBlueButton
   end
 
   def self.execute(command, fail_on_error = true)
-    status = ExecutionStatus.new
-    status.detailedStatus = Open4::popen4(command) do |pid, stdin, stdout, stderr|
-      BigBlueButton.logger.info("Executing: #{command}")
-
-      status.output = stdout.readlines
-      BigBlueButton.logger.info("Output: #{Array(status.output).join} ") unless status.output.empty?
-
-      status.errors = stderr.readlines
-      unless status.errors.empty?
-        BigBlueButton.logger.error("Error: stderr: #{Array(status.errors).join}")
+    BigBlueButton.logger.info("Executing: #{command.respond_to?(:to_ary) ? Shellwords.join(command) : command}")
+    IO.popen(command, err: %i[child out]) do |io|
+      io.each_line do |line|
+        BigBlueButton.logger.info(line.chomp)
       end
     end
+    status = $CHILD_STATUS
+
     BigBlueButton.logger.info("Success?: #{status.success?}")
     BigBlueButton.logger.info("Process exited? #{status.exited?}")
     BigBlueButton.logger.info("Exit status: #{status.exitstatus}")
-    if status.success? == false and fail_on_error
-      raise "Execution failed"
-    end
+    raise 'Execution failed' if status.success? == false && fail_on_error
+
     status
   end
 
   def self.exec_ret(*command)
-    BigBlueButton.logger.info "Executing: #{command.join(' ')}"
-    IO.popen([*command, :err => [:child, :out]]) do |io|
-      io.each_line do |line|
-        BigBlueButton.logger.info line.chomp
-      end
-    end
-    BigBlueButton.logger.info "Exit status: #{$?.exitstatus}"
-    return $?.exitstatus
+    execute(command, false).exitstatus
   end
 
   def self.exec_redirect_ret(outio, *command)
-    BigBlueButton.logger.info "Executing: #{command.join(' ')}"
+    BigBlueButton.logger.info "Executing: #{Shellwords.join(command)}"
     BigBlueButton.logger.info "Sending output to #{outio}"
     IO.pipe do |r, w|
       pid = spawn(*command, :out => outio, :err => w)
@@ -243,5 +233,28 @@ module BigBlueButton
 
   def self.done_to_timestamp(r)
     BigBlueButton.record_id_to_timestamp(File.basename(r, ".done"))
+  end
+
+  def self.rap_core_path
+    File.expand_path('../../', __FILE__)
+  end
+
+  def self.rap_scripts_path
+    File.join(BigBlueButton.rap_core_path, 'scripts')
+  end
+
+  def self.read_props
+    return @props if @props
+
+    filepath = File.join(BigBlueButton.rap_scripts_path, 'bigbluebutton.yml')
+    @props = YAML::load(File.open(filepath))
+  end
+
+  def self.create_redis_publisher
+    props = BigBlueButton.read_props
+    redis_host = props['redis_host']
+    redis_port = props['redis_port']
+    redis_password = props['redis_password']
+    BigBlueButton.redis_publisher = BigBlueButton::RedisWrapper.new(redis_host, redis_port, redis_password)
   end
 end

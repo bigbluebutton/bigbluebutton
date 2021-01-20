@@ -8,8 +8,9 @@
   "dependencies": {
     "axios": "^0.18.0",
     "dotenv": "^6.0.0",
-    "jest": "^23.5.0",
-    "puppeteer": "^1.7.0",
+    "jest": "^26.6.1",
+    "moment": "^2.24.0",
+    "puppeteer": "3.0.2",
     "sha1": "^1.1.1"
   }
 }
