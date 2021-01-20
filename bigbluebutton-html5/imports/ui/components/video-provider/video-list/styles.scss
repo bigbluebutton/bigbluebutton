@@ -1,5 +1,6 @@
 @import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/variables/video";
+@import "/imports/ui/components/media/styles";
 
 :root {
   --color-white-with-transparency: #ffffff40;
@@ -260,4 +261,14 @@
   @include mq($medium-up) {
     margin-right: 2px;
   }
+}
+
+.unhealthyStream {
+  filter: grayscale(50%) opacity(50%);
+}
+
+.reconnecting {
+  @extend .connectingSpinner;
+  background-color: transparent;
+  color: var(--color-white);
 }
