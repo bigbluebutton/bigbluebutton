@@ -727,7 +727,7 @@ class AudioManager {
           if (translatorIsSpeaking && (!this.translatorSpeechEvents.lastTimestamp || Date.now() - this.translatorSpeechEvents.lastTimestamp > 2000)) {
             console.log("Check is translator speaking");
             this.translatorSpeechEvents.lastTimestamp = Date.now();
-            Meeting.changeTranslatorSpeackState(languageExtension, isSpeaking);
+            Meeting.changeTranslatorSpeackState(languageExtension, translatorIsSpeaking);
           }
         });
 
