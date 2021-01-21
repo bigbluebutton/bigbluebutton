@@ -6,6 +6,7 @@ import ChatForm from './component';
 import ChatService from '../service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
+const START_TYPING_THROTTLE_INTERVAL = 2000;
 
 class ChatContainer extends PureComponent {
   render() {
@@ -26,7 +27,7 @@ export default withTracker(() => {
   const stopUserTyping = () => makeCall('stopUserTyping');
 
   return {
-    startUserTyping: _.throttle(startUserTyping, 2000),
+    startUserTyping: _.throttle(startUserTyping, START_TYPING_THROTTLE_INTERVAL),
     stopUserTyping,
     UnsentMessagesCollection: ChatService.UnsentMessagesCollection,
     minMessageLength: CHAT_CONFIG.min_message_length,
