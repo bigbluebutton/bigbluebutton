@@ -4,9 +4,15 @@ import Meetings from '/imports/api/meetings';
 
 export default function translatorSpeakStateChange(languageExtension, isSpeaking) {
     const { meetingId } = extractCredentials(this.userId);
-
+    let query = {
+        meetingId: meetingId,
+        "languages.extension": languageExtension
+    };
+    if(isSpeaking === false){
+        query["languages.translatorIsSpeaking"] =  true;
+    }
     Meetings.update(
-        { meetingId: meetingId, "languages.extension": languageExtension },
+        query,
         { $set: {
             "languages.$.translatorIsSpeaking": isSpeaking,
             "languages.$.translatorSpeakingUtcTimestamp": Date.now()}},
