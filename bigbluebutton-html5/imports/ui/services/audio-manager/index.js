@@ -635,6 +635,10 @@ class AudioManager {
 
     return audioAlert.play();
   }
+
+  async updateAudioConstraints(constraints) {
+    await this.bridge.updateAudioConstraints(constraints);
+  }
 }
 
 const audioManager = new AudioManager();

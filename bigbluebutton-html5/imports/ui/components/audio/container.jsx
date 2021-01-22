@@ -11,6 +11,7 @@ import VideoPreviewContainer from '/imports/ui/components/video-preview/containe
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import Service from './service';
 import AudioModalContainer from './audio-modal/container';
+import Settings from '/imports/ui/services/settings';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
@@ -105,6 +106,7 @@ const messages = {
 };
 
 export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ mountModal, intl, userLocks }) => {
+  const { microphoneConstraints } = Settings.application;
   const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
   const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
   const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);
@@ -117,12 +119,14 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
     if (userWebcam) return resolve();
     mountModal(<VideoPreviewContainer resolve={resolve} />);
   });
-  if (userMic
-    && Service.isConnected()
-    && !Service.isListenOnly()
-    && !Service.isMuted()) {
-    Service.toggleMuteMicrophone();
-    notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'audio_on');
+
+  if (Service.isConnected() && !Service.isListenOnly()) {
+    Service.updateAudioConstraints(microphoneConstraints);
+
+    if (userMic && !Service.isMuted()) {
+      Service.toggleMuteMicrophone();
+      notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'audio_on');
+    }
   }
 
   Breakouts.find().observeChanges({
