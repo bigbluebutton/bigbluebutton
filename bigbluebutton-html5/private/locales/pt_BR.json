@@ -289,6 +289,7 @@
     "app.submenu.application.applicationSectionTitle": "Aplicação",
     "app.submenu.application.animationsLabel": "Animações",
     "app.submenu.application.audioAlertLabel": "Alertas de áudio para bate-papo",
+    "app.submenu.application.audioFilterLabel": "Filtros de áudio para o microfone",
     "app.submenu.application.pushAlertLabel": "Alertas de pop-up para bate-papo",
     "app.submenu.application.userJoinAudioAlertLabel": "Alertas de áudio quando novos participantes entram na sala",
     "app.submenu.application.userJoinPushAlertLabel": "Alertas de pop-up quando novos participantes entram na sala",
@@ -674,4 +675,3 @@
     "app.legacy.criosBrowser": "No iOS, use o Safari para obter suporte total."
 
 }
-

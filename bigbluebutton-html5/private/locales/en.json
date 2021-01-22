@@ -294,6 +294,7 @@
     "app.submenu.application.applicationSectionTitle": "Application",
     "app.submenu.application.animationsLabel": "Animations",
     "app.submenu.application.audioAlertLabel": "Audio Alerts for Chat",
+    "app.submenu.application.audioFilterLabel": "Audio Filters for Microphone",
     "app.submenu.application.pushAlertLabel": "Popup Alerts for Chat",
     "app.submenu.application.userJoinAudioAlertLabel": "Audio Alerts for User Join",
     "app.submenu.application.userJoinPushAlertLabel": "Popup Alerts for User Join",
