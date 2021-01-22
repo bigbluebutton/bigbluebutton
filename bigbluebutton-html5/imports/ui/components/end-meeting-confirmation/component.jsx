@@ -30,8 +30,8 @@ const propTypes = {
   }).isRequired,
   closeModal: PropTypes.func.isRequired,
   endMeeting: PropTypes.func.isRequired,
-  meetingTitle: PropTypes.func.isRequired,
-  users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  meetingTitle: PropTypes.string.isRequired,
+  users: PropTypes.number.isRequired,
 };
 
 class EndMeetingComponent extends React.PureComponent {
@@ -50,7 +50,7 @@ class EndMeetingComponent extends React.PureComponent {
       >
         <div className={styles.container}>
           <div className={styles.description}>
-            {intl.formatMessage(intlMessages.endMeetingDescription, { 0: users.length })}
+            {intl.formatMessage(intlMessages.endMeetingDescription, { 0: users })}
           </div>
           <div className={styles.footer}>
             <Button

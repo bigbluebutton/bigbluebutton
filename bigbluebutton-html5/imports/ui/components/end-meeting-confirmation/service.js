@@ -2,14 +2,6 @@ import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 
-const userFindSorting = {
-  emojiTime: 1,
-  role: 1,
-  phoneUser: 1,
-  sortName: 1,
-  userId: 1,
-};
-
 const getMeetingTitle = () => {
   const meeting = Meetings.findOne({
     meetingId: Auth.meetingID,
@@ -19,13 +11,11 @@ const getMeetingTitle = () => {
 };
 
 const getUsers = () => {
-  const users = Users
-    .find({
-      meetingId: Auth.meetingID,
-    }, userFindSorting)
-    .fetch();
+  const numUsers = Users.find({
+    meetingId: Auth.meetingID,
+  }, { fields: { _id: 1 } }).count();
 
-  return users;
+  return numUsers;
 };
 
 export default {
