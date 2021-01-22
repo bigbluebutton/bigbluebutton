@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {Meteor} from "meteor/meteor";
+import { Meteor } from 'meteor/meteor';
 
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
@@ -51,6 +51,7 @@ export default class TextDrawListener extends Component {
     // Check it to figure if you can add onTouchStart in render(), or should use raw DOM api
     this.hasBeenTouchedRecently = false;
 
+    this.handleClick = this.handleClick.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleMouseMove = this.handleMouseMove.bind(this);
     this.handleMouseUp = this.handleMouseUp.bind(this);
@@ -65,8 +66,8 @@ export default class TextDrawListener extends Component {
 
   componentDidMount() {
     window.addEventListener('beforeunload', this.sendLastMessage);
+    window.addEventListener('click', this.handleClick);
   }
-
 
   // If the activeId suddenly became empty - this means the shape was deleted
   // While the user was drawing it. So we are resetting the state.
@@ -113,9 +114,15 @@ export default class TextDrawListener extends Component {
 
   componentWillUnmount() {
     window.removeEventListener('beforeunload', this.sendLastMessage);
+    window.removeEventListener('click', this.handleClick);
     // sending the last message on componentDidUnmount
     // for example in case when you switched a tool while drawing text shape
     this.sendLastMessage();
+  }
+
+  handleClick() {
+    const { isWritingText } = this.state;
+    if (isWritingText) this.sendLastMessage();
   }
 
   // checks if the input textarea is focused or not, and if not - moves focus there
@@ -510,8 +517,9 @@ export default class TextDrawListener extends Component {
     } = this.state;
 
     const { contextMenuHandler } = actions;
-
-    const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId;
+    const { settings } = Meteor;
+    const { public: _public } = settings;
+    const baseName = _public.app.cdn + _public.app.basename + _public.app.instanceId;
     const textDrawStyle = {
       width: '100%',
       height: '100%',
