@@ -326,6 +326,7 @@ object Polls {
 
 object PollType {
   val YesNoPollType = "YN"
+  val YesNoAbstentionPollType = "YNA"
   val TrueFalsePollType = "TF"
   val CustomPollType = "CUSTOM"
   val LetterPollType = "A-"
@@ -344,6 +345,16 @@ object PollFactory {
     answers(1) = new Answer(1, "No", Some("No"))
 
     new Question(0, PollType.YesNoPollType, false, None, answers)
+  }
+
+  private def processYesNoAbstentionPollType(qType: String): Question = {
+    val answers = new Array[Answer](3)
+
+    answers(0) = new Answer(0, "Yes", Some("Yes"))
+    answers(1) = new Answer(1, "No", Some("No"))
+    answers(2) = new Answer(2, "Abstention", Some("Abstention"))
+
+    new Question(0, PollType.YesNoAbstentionPollType, false, None, answers)
   }
 
   private def processTrueFalsePollType(qType: String): Question = {
@@ -419,6 +430,8 @@ object PollFactory {
 
     if (qt.matches(PollType.YesNoPollType)) {
       questionOption = Some(processYesNoPollType(qt))
+    } else if (qt.matches(PollType.YesNoAbstentionPollType)) {
+      questionOption = Some(processYesNoAbstentionPollType(qt))
     } else if (qt.matches(PollType.TrueFalsePollType)) {
       questionOption = Some(processTrueFalsePollType(qt))
     } else if (qt.matches(PollType.CustomPollType)) {
