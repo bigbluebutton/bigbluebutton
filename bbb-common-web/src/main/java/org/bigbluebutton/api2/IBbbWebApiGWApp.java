@@ -21,7 +21,6 @@ public interface IBbbWebApiGWApp {
                      String createDate, Boolean isBreakout, Integer sequence, Boolean freejoin, Map<String, String> metadata,
                      String guestPolicy, String welcomeMsgTemplate, String welcomeMsg, String modOnlyMessage,
                      String dialNumber, Integer maxUsers,
-                     Integer maxInactivityTimeoutMinutes, Integer warnMinutesBeforeMax,
                      Integer meetingExpireIfNoUserJoinedInMinutes,
                      Integer meetingExpireWhenLastUserLeftInMinutes,
                      Integer userInactivityInspectTimerInMinutes,
@@ -31,7 +30,8 @@ public interface IBbbWebApiGWApp {
                      Boolean allowModsToUnmuteUsers,
                      Boolean keepEvents,
                      BreakoutRoomsParams breakoutParams,
-                     LockSettingsParams lockSettingsParams);
+                     LockSettingsParams lockSettingsParams,
+                     Integer html5InstanceId);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
                     String externUserID, String authToken, String avatarURL,

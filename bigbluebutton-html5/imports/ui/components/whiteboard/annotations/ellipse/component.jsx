@@ -54,6 +54,7 @@ export default class EllipseDrawComponent extends Component {
         stroke={getFormattedColor(annotation.color)}
         strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
+        data-test="drawnEllipse"
       />
     );
   }

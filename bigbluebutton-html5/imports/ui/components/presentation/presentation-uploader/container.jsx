@@ -1,15 +1,21 @@
 import React from 'react';
+import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-
+import ErrorBoundary from '/imports/ui/components/error-boundary/component';
+import FallbackModal from '/imports/ui/components/fallback-errors/fallback-modal/component';
 import Service from './service';
+import PresentationService from '../service';
 import PresentationUploader from './component';
 
+const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
+
 const PresentationUploaderContainer = props => (
-  <PresentationUploader {...props} />
+  <ErrorBoundary Fallback={() => <FallbackModal />}>
+    <PresentationUploader {...props} />
+  </ErrorBoundary>
 );
 
 export default withTracker(() => {
-  const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
   const currentPresentations = Service.getPresentations();
   const {
     dispatchDisableDownloadable,
@@ -23,7 +29,6 @@ export default withTracker(() => {
     fileSizeMin: PRESENTATION_CONFIG.uploadSizeMin,
     fileSizeMax: PRESENTATION_CONFIG.uploadSizeMax,
     fileValidMimeTypes: PRESENTATION_CONFIG.uploadValidMimeTypes,
-    allowDownloadable: PRESENTATION_CONFIG.allowDownloadable,
     handleSave: presentations => Service.persistPresentationChanges(
       currentPresentations,
       presentations,
@@ -33,5 +38,8 @@ export default withTracker(() => {
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
     dispatchTogglePresentationDownloadable,
+    isOpen: Session.get('showUploadPresentationView') || false,
+    selectedToBeNextCurrent: Session.get('selectedToBeNextCurrent') || null,
+    isPresenter: PresentationService.isPresenter('DEFAULT_PRESENTATION_POD'),
   };
 })(PresentationUploaderContainer);

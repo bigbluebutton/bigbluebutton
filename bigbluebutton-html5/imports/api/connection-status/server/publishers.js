@@ -2,19 +2,22 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import ConnectionStatus from '/imports/api/connection-status';
-import { extractCredentials } from '/imports/api/common/server/helpers';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
 function connectionStatus() {
-  if (!this.userId) {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing ConnectionStatus was requested by unauth connection ${this.connection.id}`);
     return ConnectionStatus.find({ meetingId: '' });
   }
 
-  const { meetingId, requesterUserId } = extractCredentials(this.userId);
+  const { meetingId, userId } = tokenValidation;
 
   check(meetingId, String);
-  check(requesterUserId, String);
+  check(userId, String);
 
-  Logger.info(`Publishing connection status for ${meetingId} ${requesterUserId}`);
+  Logger.info(`Publishing connection status for ${meetingId} ${userId}`);
 
   return ConnectionStatus.find({ meetingId });
 }

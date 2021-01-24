@@ -33,8 +33,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         </property>
     </bean>
 
-    <bean id="registeredUserCleanupTimerTask" class="org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask"/>
     <bean id="waitingGuestCleanupTimerTask" class="org.bigbluebutton.web.services.WaitingGuestCleanupTimerTask"/>
+    <bean id="userCleanupTimerTask" class="org.bigbluebutton.web.services.UserCleanupTimerTask"/>
+    <bean id="enteredUserCleanupTimerTask" class="org.bigbluebutton.web.services.EnteredUserCleanupTimerTask"/>
 
     <bean id="keepAliveService" class="org.bigbluebutton.web.services.KeepAliveService"
           init-method="start" destroy-method="stop">
@@ -48,11 +49,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="presDownloadService" ref="presDownloadService"/>
         <property name="paramsProcessorUtil" ref="paramsProcessorUtil"/>
         <property name="stunTurnService" ref="stunTurnService"/>
-        <property name="registeredUserCleanupTimerTask" ref="registeredUserCleanupTimerTask"/>
         <property name="waitingGuestCleanupTimerTask" ref="waitingGuestCleanupTimerTask"/>
+        <property name="userCleanupTimerTask" ref="userCleanupTimerTask"/>
+        <property name="enteredUserCleanupTimerTask" ref="enteredUserCleanupTimerTask"/>
         <property name="gw" ref="bbbWebApiGWApp"/>
         <property name="callbackUrlService" ref="callbackUrlService"/>
         <property name="keepEvents" value="${keepEvents}"/>
+        <property name="usersTimeout" value="${usersTimeout}"/>
+        <property name="enteredUsersTimeout" value="${enteredUsersTimeout}"/>
     </bean>
 
     <bean id="oldMessageReceivedGW" class="org.bigbluebutton.api2.bus.OldMessageReceivedGW">
@@ -102,6 +106,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultTextTrackUrl" value="${defaultTextTrackUrl}"/>
     </bean>
 
+    <bean id="html5LoadBalancingService" class="org.bigbluebutton.api.HTML5LoadBalancingService" init-method="init" />
+    
     <bean id="configServiceHelper" class="org.bigbluebutton.api.ClientConfigServiceHelperImp"/>
 
     <bean id="configService" class="org.bigbluebutton.api.ClientConfigService" init-method="init">
@@ -122,22 +128,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultLogoutUrl" value="${bigbluebutton.web.logoutURL}"/>
         <property name="defaultServerUrl" value="${bigbluebutton.web.serverURL}"/>
         <property name="defaultNumDigitsForTelVoice" value="${defaultNumDigitsForTelVoice}"/>
-        <property name="defaultClientUrl" value="${defaultClientUrl}"/>
+        <property name="defaultHTML5ClientUrl" value="${defaultHTML5ClientUrl}"/>
         <property name="defaultGuestWaitURL" value="${defaultGuestWaitURL}"/>
-        <property name="html5ClientUrl" value="${html5ClientUrl}"/>
-        <property name="allowRequestsWithoutSession" value="${allowRequestsWithoutSession}"/>
-        <property name="moderatorsJoinViaHTML5Client" value="${moderatorsJoinViaHTML5Client}"/>
-        <property name="attendeesJoinViaHTML5Client" value="${attendeesJoinViaHTML5Client}"/>
         <property name="defaultMeetingDuration" value="${defaultMeetingDuration}"/>
         <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
         <property name="autoStartRecording" value="${autoStartRecording}"/>
         <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
         <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
+        <property name="useDefaultAvatar" value="${useDefaultAvatar}"/>
         <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
         <property name="defaultConfigURL" value="${defaultConfigURL}"/>
         <property name="defaultGuestPolicy" value="${defaultGuestPolicy}"/>
-        <property name="maxInactivityTimeoutMinutes" value="${maxInactivityTimeoutMinutes}"/>
-        <property name="warnMinutesBeforeMax" value="${warnMinutesBeforeMax}"/>
         <property name="meetingExpireIfNoUserJoinedInMinutes" value="${meetingExpireIfNoUserJoinedInMinutes}"/>
         <property name="meetingExpireWhenLastUserLeftInMinutes" value="${meetingExpireWhenLastUserLeftInMinutes}"/>
         <property name="userInactivityInspectTimerInMinutes" value="${userInactivityInspectTimerInMinutes}"/>
@@ -160,6 +161,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="lockSettingsLockOnJoin" value="${lockSettingsLockOnJoin}"/>
         <property name="lockSettingsLockOnJoinConfigurable" value="${lockSettingsLockOnJoinConfigurable}"/>
         <property name="allowDuplicateExtUserid" value="${allowDuplicateExtUserid}"/>
+        <property name="endWhenNoModerator" value="${endWhenNoModerator}"/>
     </bean>
 
     <import resource="doc-conversion.xml"/>

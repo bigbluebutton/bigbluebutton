@@ -7,7 +7,7 @@ class BannedUsers {
   }
 
   init(meetingId) {
-    Logger.debug('BannedUsers :: init', meetingId);
+    Logger.debug('BannedUsers :: init', { meetingId });
 
     if (!this.store[meetingId]) this.store[meetingId] = new Set();
   }
@@ -20,7 +20,7 @@ class BannedUsers {
   }
 
   delete(meetingId) {
-    Logger.debug('BannedUsers :: delete', meetingId);
+    Logger.debug('BannedUsers :: delete', { meetingId });
     delete this.store[meetingId];
   }
 

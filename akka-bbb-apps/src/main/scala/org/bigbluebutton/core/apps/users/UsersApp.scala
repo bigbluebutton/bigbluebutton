@@ -140,12 +140,12 @@ class UsersApp(
   with ChangeUserRoleCmdMsgHdlr
   with SyncGetUsersMeetingRespMsgHdlr
   with LogoutAndEndMeetingCmdMsgHdlr
-  with MeetingActivityResponseCmdMsgHdlr
   with SetRecordingStatusCmdMsgHdlr
   with RecordAndClearPreviousMarkersCmdMsgHdlr
   with SendRecordingTimerInternalMsgHdlr
   with UpdateWebcamsOnlyForModeratorCmdMsgHdlr
   with GetRecordingStatusReqMsgHdlr
+  with SelectRandomViewerReqMsgHdlr
   with GetWebcamsOnlyForModeratorReqMsgHdlr
   with AssignPresenterReqMsgHdlr
   with EjectDuplicateUserReqMsgHdlr

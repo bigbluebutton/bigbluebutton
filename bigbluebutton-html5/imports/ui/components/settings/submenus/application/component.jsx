@@ -68,6 +68,7 @@ class ApplicationMenu extends BaseMenu {
       settings: props.settings,
       isLargestFontSize: false,
       isSmallestFontSize: false,
+      showSelect: false,
       fontSizes: [
         '12px',
         '14px',
@@ -80,6 +81,24 @@ class ApplicationMenu extends BaseMenu {
 
   componentDidMount() {
     this.setInitialFontSize();
+  }
+
+  componentDidUpdate() {
+    const { availableLocales } = this.props;
+
+    if (availableLocales && availableLocales.length > 0) {
+      // I used setTimout to create a smooth animation transition
+      setTimeout(() => this.setState({
+        showSelect: true,
+      }), 100);
+    }
+  }
+
+  componentWillUnmount() {
+    // fix Warning: Can't perform a React state update on an unmounted component
+    this.setState = (state, callback) => {
+
+    };
   }
 
   setInitialFontSize() {
@@ -143,7 +162,9 @@ class ApplicationMenu extends BaseMenu {
 
   render() {
     const { availableLocales, intl } = this.props;
-    const { isLargestFontSize, isSmallestFontSize, settings } = this.state;
+    const {
+      isLargestFontSize, isSmallestFontSize, settings, showSelect,
+    } = this.state;
 
     // conversions can be found at http://pxtoem.com
     const pixelPercentage = {
@@ -201,7 +222,7 @@ class ApplicationMenu extends BaseMenu {
             </div>
             <div className={styles.col}>
               <span className={cx(styles.formElement, styles.pullContentRight)}>
-                {availableLocales && availableLocales.length > 0 ? (
+                {showSelect ? (
                   <select
                     id="langSelector"
                     defaultValue={this.state.settings.locale}
@@ -216,7 +237,15 @@ class ApplicationMenu extends BaseMenu {
                       </option>
                     ))}
                   </select>
-                ) : null}
+                )
+                  : (
+                    <div className={styles.spinnerOverlay}>
+                      <div className={styles.bounce1} />
+                      <div className={styles.bounce2} />
+                      <div />
+                    </div>
+                  )
+                }
               </span>
             </div>
           </div>
