@@ -108,6 +108,7 @@ class App extends Component {
 
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
+    this.renderMedia = withDraggableContext(this.renderMedia.bind(this));
   }
 
   componentDidMount() {

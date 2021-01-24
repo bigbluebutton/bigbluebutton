@@ -372,7 +372,7 @@ public class Meeting {
 		return authenticatedGuest;
 	}
 
-  private String getUnauthenticatedGuestStatus(Boolean guest) {
+	private String getUnauthenticatedGuestStatus(Boolean guest) {
 		if (guest) {
 			switch(guestPolicy) {
 				case GuestPolicy.ALWAYS_ACCEPT:
@@ -391,7 +391,6 @@ public class Meeting {
 	}
 
 	public String calcGuestStatus(String role, Boolean guest, Boolean authned) {
-		// Good ol' Mconf guest status
 		if (!authenticatedGuest) return getUnauthenticatedGuestStatus(guest);
 
 		// Allow moderators all the time.
