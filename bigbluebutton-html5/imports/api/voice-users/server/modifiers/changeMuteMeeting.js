@@ -19,17 +19,13 @@ export default function changeMuteMeeting(meetingId, payload) {
     },
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      Logger.error(`Changing meeting mute status meeting={${meetingId}} ${err}`);
-      return;
-    }
+  try {
+    const { numberAffected } = Meetings.upsert(selector, modifier);
 
-    if (numChanged) {
+    if (numberAffected) {
       Logger.info(`Changed meeting mute status meeting=${meetingId}`);
     }
-  };
-
-
-  return Meetings.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Changing meeting mute status meeting={${meetingId}} ${err}`);
+  }
 }

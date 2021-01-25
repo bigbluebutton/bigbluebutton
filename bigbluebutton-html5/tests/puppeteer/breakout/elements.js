@@ -10,3 +10,4 @@ exports.breakoutJoin = '[data-test="breakoutJoin"]';
 exports.userJoined = 'div[aria-label^="Moderator3"]';
 exports.breakoutRoomsButton = 'div[aria-label="Breakout Rooms"]';
 exports.joinRoom1 = 'button[aria-label="Join room 1"]';
+exports.chatButton = 'div[data-test="chatButton"]';

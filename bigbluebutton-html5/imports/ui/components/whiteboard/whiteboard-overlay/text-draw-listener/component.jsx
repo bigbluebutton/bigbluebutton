@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Meteor } from 'meteor/meteor';
 
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
 const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
+const DEFAULT_TEXT_WIDTH = 30;
+const DEFAULT_TEXT_HEIGHT = 20;
 
 // maximum value of z-index to prevent other things from overlapping
 const MAX_Z_INDEX = (2 ** 31) - 1;
@@ -48,6 +51,7 @@ export default class TextDrawListener extends Component {
     // Check it to figure if you can add onTouchStart in render(), or should use raw DOM api
     this.hasBeenTouchedRecently = false;
 
+    this.handleClick = this.handleClick.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleMouseMove = this.handleMouseMove.bind(this);
     this.handleMouseUp = this.handleMouseUp.bind(this);
@@ -62,6 +66,7 @@ export default class TextDrawListener extends Component {
 
   componentDidMount() {
     window.addEventListener('beforeunload', this.sendLastMessage);
+    window.addEventListener('click', this.handleClick);
   }
 
   componentDidUpdate(prevProps) {
@@ -103,9 +108,15 @@ export default class TextDrawListener extends Component {
 
   componentWillUnmount() {
     window.removeEventListener('beforeunload', this.sendLastMessage);
+    window.removeEventListener('click', this.handleClick);
     // sending the last message on componentDidUnmount
     // for example in case when you switched a tool while drawing text shape
     this.sendLastMessage();
+  }
+
+  handleClick() {
+    const { isWritingText } = this.state;
+    if (isWritingText) this.sendLastMessage();
   }
 
   // checks if the input textarea is focused or not, and if not - moves focus there
@@ -355,6 +366,7 @@ export default class TextDrawListener extends Component {
       actions,
       slideWidth,
       slideHeight,
+      drawSettings,
     } = this.props;
 
     const {
@@ -375,14 +387,34 @@ export default class TextDrawListener extends Component {
       generateNewShapeId,
       getCurrentShapeId,
       setTextShapeActiveId,
+      normalizeFont,
     } = actions;
+
+    const {
+      textFontSize,
+    } = drawSettings;
+
+    const calcedFontSize = normalizeFont(textFontSize);
+    let calcedTextBoxWidth = (textBoxWidth / slideWidth) * 100;
+    let calcedTextBoxHeight = (textBoxHeight / slideHeight) * 100;
+    const useDefaultSize = (textBoxWidth === 0 && textBoxHeight === 0)
+    || calcedTextBoxWidth < calcedFontSize
+    || calcedTextBoxHeight < calcedFontSize;
 
     // coordinates and width/height of the textarea in percentages of the current slide
     // saving them in the class since they will be used during all updates
     this.currentX = (textBoxX / slideWidth) * 100;
     this.currentY = (textBoxY / slideHeight) * 100;
-    this.currentWidth = (textBoxWidth / slideWidth) * 100;
-    this.currentHeight = (textBoxHeight / slideHeight) * 100;
+
+    if (useDefaultSize) {
+      calcedTextBoxWidth = DEFAULT_TEXT_WIDTH;
+      calcedTextBoxHeight = DEFAULT_TEXT_HEIGHT;
+      if (100 - this.currentX < calcedTextBoxWidth) calcedTextBoxWidth = 100 - this.currentX;
+      if (100 - this.currentY < calcedTextBoxHeight) calcedTextBoxHeight = 100 - this.currentY;
+    }
+
+    this.currentWidth = calcedTextBoxWidth;
+    this.currentHeight = calcedTextBoxHeight;
     this.currentStatus = DRAW_START;
     this.handleDrawText(
       { x: this.currentX, y: this.currentY },
@@ -479,8 +511,9 @@ export default class TextDrawListener extends Component {
     } = this.state;
 
     const { contextMenuHandler } = actions;
-
-    const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
+    const { settings } = Meteor;
+    const { public: _public } = settings;
+    const baseName = _public.app.cdn + _public.app.basename + _public.app.instanceId;
     const textDrawStyle = {
       width: '100%',
       height: '100%',

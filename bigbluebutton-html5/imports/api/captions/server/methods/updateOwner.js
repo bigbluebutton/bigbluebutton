@@ -15,7 +15,10 @@ export default function editCaptions(meetingId, userId, padId) { // TODO
 
   const pad = Captions.findOne({ meetingId, padId });
 
-  if (!pad) return Logger.error(`Editing captions owner: ${padId}`);
+  if (!pad) {
+    Logger.error(`Editing captions owner: ${padId}`);
+    return;
+  }
 
   const { locale } = pad;
 

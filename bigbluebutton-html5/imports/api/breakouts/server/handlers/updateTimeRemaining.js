@@ -24,14 +24,13 @@ export default function handleUpdateTimeRemaining({ body }, meetingId) {
     multi: true,
   };
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Updating breakouts: ${err}`);
+  try {
+    const numberAffected = Breakouts.update(selector, modifier, options);
+
+    if (numberAffected) {
+      Logger.info(`Updated breakout time remaining for breakouts where parentMeetingId=${meetingId}`);
     }
-
-    return Logger.info('Updated breakout time remaining for breakouts ' +
-      `where parentMeetingId=${meetingId}`);
-  };
-
-  return Breakouts.update(selector, modifier, options, cb);
+  } catch (err) {
+    Logger.error(`Updating breakouts: ${err}`);
+  }
 }

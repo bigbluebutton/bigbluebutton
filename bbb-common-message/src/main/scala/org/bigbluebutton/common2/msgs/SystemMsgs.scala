@@ -35,7 +35,7 @@ case class GetAllMeetingsReqMsg(
     header: BbbCoreBaseHeader,
     body:   GetAllMeetingsReqMsgBody
 ) extends BbbCoreMsg
-case class GetAllMeetingsReqMsgBody(requesterId: String)
+case class GetAllMeetingsReqMsgBody(requesterId: String, html5InstanceId: Int)
 
 object GetRunningMeetingsReqMsg { val NAME = "GetRunningMeetingsReqMsg" }
 case class GetRunningMeetingsReqMsg(
@@ -158,20 +158,6 @@ case class MeetingTimeRemainingUpdateEvtMsg(
     body:   MeetingTimeRemainingUpdateEvtMsgBody
 ) extends BbbCoreMsg
 case class MeetingTimeRemainingUpdateEvtMsgBody(timeLeftInSec: Long)
-
-object MeetingInactivityWarningEvtMsg { val NAME = "MeetingInactivityWarningEvtMsg" }
-case class MeetingInactivityWarningEvtMsg(
-    header: BbbClientMsgHeader,
-    body:   MeetingInactivityWarningEvtMsgBody
-) extends BbbCoreMsg
-case class MeetingInactivityWarningEvtMsgBody(timeLeftInSec: Long)
-
-object MeetingIsActiveEvtMsg { val NAME = "MeetingIsActiveEvtMsg" }
-case class MeetingIsActiveEvtMsg(
-    header: BbbClientMsgHeader,
-    body:   MeetingIsActiveEvtMsgBody
-) extends BbbCoreMsg
-case class MeetingIsActiveEvtMsgBody(meetingId: String)
 
 object CheckAlivePingSysMsg { val NAME = "CheckAlivePingSysMsg" }
 case class CheckAlivePingSysMsg(

@@ -3,6 +3,7 @@ import Auth from '/imports/ui/services/auth';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import addAnnotationQuery from '/imports/api/annotations/addAnnotation';
 import { makeCall } from '/imports/ui/services/api';
+import logger from '/imports/startup/client/logger';
 
 const Annotations = new Mongo.Collection(null);
 const UnsentAnnotations = new Mongo.Collection(null);
@@ -53,6 +54,7 @@ function handleRemovedAnnotation({
 }
 
 export function initAnnotationsStreamListener() {
+  logger.info({ logCode: 'init_annotations_stream_listener' }, 'initAnnotationsStreamListener called');
   /**
    * We create a promise to add the handlers after a ddp subscription stop.
    * The problem was caused because we add handlers to stream before the onStop event happens,
@@ -73,6 +75,8 @@ export function initAnnotationsStreamListener() {
   });
 
   startStreamHandlersPromise.then(() => {
+    logger.debug({ logCode: 'annotations_stream_handler_attach' }, 'Attaching handlers for annotations stream');
+
     annotationsStreamListener.on('removed', handleRemovedAnnotation);
 
     annotationsStreamListener.on('added', ({ annotations }) => {

@@ -5,6 +5,7 @@ const params = require('../params');
 const util = require('./util');
 const utilScreenShare = require('../screenshare/util'); // utils imported from screenshare folder
 const ne = require('./elements');
+const pe = require('../presentation/elements');
 const we = require('../whiteboard/elements');
 
 class Notifications extends MultiUsers {
@@ -28,7 +29,7 @@ class Notifications extends MultiUsers {
   }
 
   async initUser4() {
-    await this.page4.init(Page.getArgs(), this.page3.meetingId, { ...params, fullName: 'User4' });
+    await this.page4.init(Page.getArgs(), this.page3.meetingId, { ...params, fullName: 'User' }, undefined, undefined);
   }
 
   // Save Settings toast notification
@@ -96,12 +97,19 @@ class Notifications extends MultiUsers {
     await this.page3.screenshot(`${testName}`, `02-page03-audio-modal-closed-${testName}`);
     await this.userJoinNotification(this.page3);
     await this.page3.screenshot(`${testName}`, `03-page03-after-user-join-notification-activation-${testName}`);
-    await this.initUser4(undefined);
+    await this.initUser4();
     await this.page4.closeAudioModal();
     await this.page3.waitForSelector(ne.smallToastMsg);
-    const response = await util.getOtherToastValue(this.page3);
-    await this.page3.screenshot(`${testName}`, `04-page03-user-join-toast-${testName}`);
-    return response;
+    try {
+      await this.page3.page.waitForFunction(
+        'document.querySelector("body").innerText.includes("User joined the session")',
+      );
+      await this.page3.screenshot(`${testName}`, `04-page03-user-join-toast-${testName}`);
+      return true;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
   }
 
   // File upload notification
@@ -112,17 +120,31 @@ class Notifications extends MultiUsers {
     await this.page3.screenshot(`${testName}`, `02-page03-audio-modal-closed-${testName}`);
     await util.uploadFileMenu(this.page3);
     await this.page3.screenshot(`${testName}`, `03-page03-upload-file-menu-${testName}`);
-    await this.page3.waitForSelector(ne.fileUploadDropZone);
-    const inputUploadHandle = await this.page3.page.$('input[type=file]');
-    await inputUploadHandle.uploadFile(path.join(__dirname, '../media/DifferentSizes.pdf'));
-    await this.page3.page.evaluate(util.clickTestElement, ne.modalConfirmButton);
+    await this.page3.waitForSelector(pe.fileUpload);
+    const fileUpload = await this.page3.page.$(pe.fileUpload);
+    await fileUpload.uploadFile(path.join(__dirname, '../media/DifferentSizes.pdf'));
+    await this.page3.page.waitForFunction(
+      'document.querySelector("body").innerText.includes("To be uploaded ...")',
+    );
+    await this.page3.page.waitForSelector(pe.upload);
+    await this.page3.page.click(pe.upload);
+    await this.page3.page.waitForFunction(
+      'document.querySelector("body").innerText.includes("Converting file")',
+    );
     await this.page3.screenshot(`${testName}`, `04-page03-file-uploaded-and-ready-${testName}`);
     await this.page3.waitForSelector(ne.smallToastMsg);
     await this.page3.waitForSelector(we.whiteboard);
     await this.page3.screenshot(`${testName}`, `05-page03-presentation-changed-${testName}`);
-    const resp = await util.getLastToastValue(this.page3);
-    await this.page3.screenshot(`${testName}`, `06-page03-presentation-change-toast-${testName}`);
-    return resp;
+    try {
+      await this.page3.page.waitForFunction(
+        'document.querySelector("body").innerText.includes("Current presentation")',
+      );
+      await this.page3.screenshot(`${testName}`, `06-page03-presentation-change-toast-${testName}`);
+      return true;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
   }
 
   // Publish Poll Results notification

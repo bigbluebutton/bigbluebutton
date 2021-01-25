@@ -4,6 +4,7 @@ import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Icon from '/imports/ui/components/icon/component';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
+import cx from 'classnames';
 import Message from './message/component';
 
 import { styles } from './styles';
@@ -41,10 +42,6 @@ const intlMessages = defineMessages({
   pollResult: {
     id: 'app.chat.pollResult',
     description: 'used in place of user name who published poll to chat',
-  },
-  legendTitle: {
-    id: 'app.polling.pollingTitle',
-    description: 'heading for chat poll legend',
   },
 });
 
@@ -92,6 +89,7 @@ class MessageListItem extends Component {
                   key={message.id ? message.id : _.uniqueId('id-')}
                   text={message.text}
                   time={message.time}
+                  isSystemMessage={message.id ? true : false}
                   chatAreaId={chatAreaId}
                   handleReadMessage={handleReadMessage}
                 />
@@ -111,14 +109,17 @@ class MessageListItem extends Component {
       handleReadMessage,
       scrollArea,
       intl,
-      chats,
+      messages,
+      chatUserMessageItem,
     } = this.props;
 
-    if (chats.length < 1) return null;
+    if (messages && messages[0].text.includes('bbb-published-poll-<br/>')) {
+      return this.renderPollItem();
+    }
 
     const dateTime = new Date(time);
-
     const regEx = /<a[^>]+>/i;
+    const defaultAvatarString = user?.name?.toLowerCase().slice(0, 2) || "  ";
 
     return (
       <div className={styles.item} key={_.uniqueId('message-list-item-')}>
@@ -128,8 +129,9 @@ class MessageListItem extends Component {
               className={styles.avatar}
               color={user.color}
               moderator={user.isModerator}
+              avatar={user.avatar}
             >
-              {user.name.toLowerCase().slice(0, 2)}
+              {defaultAvatarString}
             </UserAvatar>
           </div>
           <div className={styles.content}>
@@ -148,14 +150,15 @@ class MessageListItem extends Component {
                 <FormattedTime value={dateTime} />
               </time>
             </div>
-            <div className={styles.messages} data-test="chatUserMessage">
-              {chats.map(message => (
+            <div className={styles.messages}>
+              {messages.map(message => (
                 <Message
                   className={(regEx.test(message.text) ? styles.hyperlink : styles.message)}
                   key={message.id}
                   text={message.text}
                   time={message.time}
                   chatAreaId={chatAreaId}
+                  chatUserMessageItem={true}
                   lastReadMessageTime={lastReadMessageTime}
                   handleReadMessage={handleReadMessage}
                   scrollArea={scrollArea}
@@ -173,53 +176,17 @@ class MessageListItem extends Component {
       user,
       time,
       intl,
-      polls,
       isDefaultPoll,
+      messages,
+      scrollArea,
+      chatAreaId,
+      lastReadMessageTime,
+      handleReadMessage,
     } = this.props;
-
-    if (polls.length < 1) return null;
 
     const dateTime = new Date(time);
 
-    let pollText = [];
-    const pollElement = [];
-    const legendElements = [
-      (<div
-        className={styles.optionsTitle}
-        key={_.uniqueId('chat-poll-options-')}
-      >
-        {intl.formatMessage(intlMessages.legendTitle)}
-      </div>),
-    ];
-
-    let isDefault = true;
-    polls.forEach((poll) => {
-      isDefault = isDefaultPoll(poll.text);
-      pollText = poll.text.split('<br/>');
-      pollElement.push(pollText.map((p, index) => {
-        if (!isDefault) {
-          legendElements.push(
-            <div key={_.uniqueId('chat-poll-legend-')} className={styles.pollLegend}>
-              <span>{`${index + 1}: `}</span>
-              <span className={styles.pollOption}>{p.split(':')[0]}</span>
-            </div>,
-          );
-        }
-
-        return (
-          <div key={_.uniqueId('chat-poll-result-')} className={styles.pollLine}>
-            {!isDefault ? p.replace(p.split(':')[0], index + 1) : p}
-          </div>
-        );
-      }));
-    });
-
-    if (!isDefault) {
-      pollElement.push(<div key={_.uniqueId('chat-poll-separator-')} className={styles.divider} />);
-      pollElement.push(legendElements);
-    }
-
-    return polls ? (
+    return messages ? (
       <div className={styles.item} key={_.uniqueId('message-poll-item-')}>
         <div className={styles.wrapper} ref={(ref) => { this.item = ref; }}>
           <div className={styles.avatarWrapper}>
@@ -240,15 +207,19 @@ class MessageListItem extends Component {
                 <FormattedTime value={dateTime} />
               </time>
             </div>
-            <div className={styles.messages}>
-              {polls[0] ? (
-                <div className={styles.pollWrapper} style={{ borderLeft: `3px ${user.color} solid` }}>
-                  {
-                  pollElement
-                }
-                </div>
-              ) : null}
-            </div>
+            <Message
+              type="poll"
+              className={cx(styles.message, styles.pollWrapper)}
+              key={messages[0].id}
+              text={messages[0].text}
+              time={messages[0].time}
+              chatAreaId={chatAreaId}
+              lastReadMessageTime={lastReadMessageTime}
+              handleReadMessage={handleReadMessage}
+              scrollArea={scrollArea}
+              color={user.color}
+              isDefaultPoll={isDefaultPoll(messages[0].text.replace('bbb-published-poll-<br/>', ''))}
+            />
           </div>
         </div>
       </div>
@@ -266,10 +237,7 @@ class MessageListItem extends Component {
 
     return (
       <div className={styles.item}>
-        {[
-          this.renderPollItem(),
-          this.renderMessageItem(),
-        ]}
+        {this.renderMessageItem()}
       </div>
     );
   }

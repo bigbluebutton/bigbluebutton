@@ -1,7 +1,7 @@
 import loadScript from 'load-script';
 import React, { Component } from 'react'
 
-const MATCH_URL = new RegExp("https?:\/\/(\\w+)\.(instructuremedia.com)(\/embed)?\/([-abcdef0-9]+)");
+const MATCH_URL = new RegExp("https?:\/\/(.*)(instructuremedia.com)(\/embed)?\/([-abcdef0-9]+)");
 
 const SDK_URL = 'https://files.instructuremedia.com/instructure-media-script/instructure-media-1.1.0.js';
 
@@ -120,7 +120,7 @@ export class ArcPlayer extends Component {
   getHostUrl() {
     const { url } = this.props;
     const m = url.match(MATCH_URL);
-    return m && 'https://' + m[1] + '.' + m[2];
+    return m && 'https://' + m[1] + m[2];
   }
 
   getEmbedUrl() {

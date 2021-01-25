@@ -3,6 +3,8 @@ import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import VoiceUsers from '/imports/api/voice-users/';
+import _ from 'lodash';
+import SanitizeHTML from 'sanitize-html';
 
 import stringHash from 'string-hash';
 import flat from 'flat';
@@ -15,7 +17,17 @@ const COLOR_LIST = [
   '#0d47a1', '#0277bd', '#01579b',
 ];
 
-export default function addUser(meetingId, user) {
+export default function addUser(meetingId, userData) {
+  const user = userData;
+  const sanitizedName = SanitizeHTML(userData.name, {
+    allowedTags: [],
+    allowedAttributes: {},
+  });
+  // if user typed only tags
+  user.name = sanitizedName.length === 0
+    ? _.escape(userData.name)
+    : sanitizedName;
+
   check(meetingId, String);
 
   check(user, {
@@ -50,7 +62,6 @@ export default function addUser(meetingId, user) {
     $set: Object.assign(
       {
         meetingId,
-        connectionStatus: 'online',
         sortName: user.name.trim().toLowerCase(),
         color,
         breakoutProps: {
@@ -83,18 +94,15 @@ export default function addUser(meetingId, user) {
     });
   }
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Adding user to collection: ${err}`);
-    }
+  try {
+    const { insertedId } = Users.upsert(selector, modifier);
 
-    const { insertedId } = numChanged;
     if (insertedId) {
-      return Logger.info(`Added user id=${userId} meeting=${meetingId}`);
+      Logger.info(`Added user id=${userId} meeting=${meetingId}`);
+    } else {
+      Logger.info(`Upserted user id=${userId} meeting=${meetingId}`);
     }
-
-    return Logger.info(`Upserted user id=${userId} meeting=${meetingId}`);
-  };
-
-  return Users.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Adding user to collection: ${err}`);
+  }
 }

@@ -1,13 +1,19 @@
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
+import ErrorBoundary from '/imports/ui/components/error-boundary/component';
+import FallbackModal from '/imports/ui/components/fallback-errors/fallback-modal/component';
 import Service from './service';
 import PresentationService from '../service';
-import Uploader from './component';
+import PresentationUploader from './component';
 
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
-const UploaderContainer = props => <Uploader {...props} />;
+const PresentationUploaderContainer = props => (
+  <ErrorBoundary Fallback={() => <FallbackModal />}>
+    <PresentationUploader {...props} />
+  </ErrorBoundary>
+);
 
 export default withTracker(() => {
   const currentPresentations = Service.getPresentations();
@@ -36,4 +42,4 @@ export default withTracker(() => {
     selectedToBeNextCurrent: Session.get('selectedToBeNextCurrent') || null,
     isPresenter: PresentationService.isPresenter('DEFAULT_PRESENTATION_POD'),
   };
-})(UploaderContainer);
+})(PresentationUploaderContainer);

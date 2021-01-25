@@ -1,7 +1,4 @@
 @import "/imports/ui/stylesheets/variables/_all";
-@import "/imports/ui/stylesheets/variables/general";
-@import "/imports/ui/stylesheets/variables/palette";
-@import "/imports/ui/stylesheets/variables/typography";
 @import '/imports/ui/stylesheets/mixins/_indicators';
 
 :root {
@@ -14,37 +11,34 @@
 }
 
 .main {
+  @extend %flex-column;
   position: relative;
   height: 100%;
-  display: flex;
-  flex-direction: column;
 }
 
 .navbar {
   position: relative;
   text-align: center;
-
   font-size: 1.5rem;
   padding: var(--bars-padding) var(--bars-padding) 0 var(--bars-padding);
   height: 7rem;
 }
 
 .wrapper {
+  @extend %flex-column;
   position: relative;
-  display: flex;
   flex: 1;
-  flex-direction: column;
   overflow: hidden;
 
   @include mq($medium-up) {
-    flex-direction: row;
+    flex-flow: row;
   }
 }
 
 %full-page {
   position: absolute;
   display: flex;
-  flex-direction: column;
+  flex-flow: column;
   overflow-y: auto;
   overflow-x: hidden;
 
@@ -106,7 +100,7 @@
 .userList {
   @extend %full-page;
   @extend %text-elipsis;
-  @include highContrastOutline();
+  @extend %highContrastOutline;
   outline-style: solid;
   z-index: 3;
   overflow: visible;
@@ -143,7 +137,7 @@
 .captions,
 .chat {
   @extend %full-page;
-  @include highContrastOutline();
+  @extend %highContrastOutline;
   outline-style: solid;
   order: 2;
   height: 100%;

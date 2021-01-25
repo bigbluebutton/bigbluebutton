@@ -17,13 +17,13 @@ export default function addScreenshare(meetingId, body) {
     },
   };
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Adding screenshare to collection: ${err}`);
+  try {
+    const { numberAffected } = Screenshare.upsert(selector, modifier);
+
+    if (numberAffected) {
+      Logger.info(`Upserted screenshare id=${body.screenshareConf}`);
     }
-
-    return Logger.info(`Upserted screenshare id=${body.screenshareConf}`);
-  };
-
-  return Screenshare.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Adding screenshare to collection: ${err}`);
+  }
 }

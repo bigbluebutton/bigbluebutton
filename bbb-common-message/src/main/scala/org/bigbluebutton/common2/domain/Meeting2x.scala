@@ -3,7 +3,6 @@ package org.bigbluebutton.common2.domain
 case class ConfigProps(defaultConfigToken: String, config: String)
 
 case class DurationProps(duration: Int, createdTime: Long, createdDate: String,
-                         maxInactivityTimeoutMinutes: Int, warnMinutesBeforeMax: Int,
                          meetingExpireIfNoUserJoinedInMinutes: Int, meetingExpireWhenLastUserLeftInMinutes: Int,
                          userInactivityInspectTimerInMinutes: Int, userInactivityThresholdInMinutes: Int, userActivitySignResponseDelayInMinutes: Int)
 
@@ -45,6 +44,10 @@ case class LockSettingsProps(
     lockOnJoinConfigurable: Boolean
 )
 
+case class SystemProps(
+    html5InstanceId: Int
+)
+
 case class DefaultProps(
     meetingProp:       MeetingProp,
     breakoutProps:     BreakoutProps,
@@ -56,7 +59,8 @@ case class DefaultProps(
     usersProp:         UsersProp,
     metadataProp:      MetadataProp,
     screenshareProps:  ScreenshareProps,
-    lockSettingsProps: LockSettingsProps
+    lockSettingsProps: LockSettingsProps,
+    systemProps:       SystemProps
 )
 
 case class StartEndTimeStatus(startTime: Long, endTime: Long)
