@@ -37,7 +37,7 @@ class LanguageOverlay extends Component{
                 {this.state.languages.map(function (language) {
                     return <li className={styles.languageOption} key={language.extension} onClick={() => {
                         this.clickHandler(language)
-                    }}> <span>{language.name}</span>{ this.props.current && language.extension === this.props.current.extension && <span>&#x2713;</span> }</li>
+                    }}> <span>{language.name}</span>{((this.props.current && language.extension === this.props.current.extension) || (this.props.current === null && language.extension === -1)) && <span>&#x2713;</span>}</li>
                 },this)}
             </ul>
         </div>);
@@ -53,11 +53,10 @@ class LanguageOverlay extends Component{
                     .map(language => language.extension));
                 languages = languages.filter(language => !filteredLanguageExtensions.has(language.extension));
             }
-            if(this.props.hasOwnProperty("translator") && this.props.translator){
-                languages.push({name: intl.formatMessage(intlMessages.noneLanguage), extension:-1})
-            }else{
-                languages.push({name: intl.formatMessage(intlMessages.originLanguage), extension:-1})
-            }
+            languages.push({
+                name: intl.formatMessage(this.props.translator ? intlMessages.noneLanguage : intlMessages.originLanguage),
+                extension: -1,
+            });
 
             this.setState({languages: languages})
             harborRender()
