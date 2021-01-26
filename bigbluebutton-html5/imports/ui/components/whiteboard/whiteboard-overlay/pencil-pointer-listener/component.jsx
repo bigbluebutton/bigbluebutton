@@ -180,10 +180,10 @@ export default class PencilPointerListener extends Component {
     // resetting the current info
     this.points = [];
     this.isDrawing = false;
-
+    // remove event listener
     window.removeEventListener('pointerup', this.handlePointerUp);
     window.removeEventListener('pointermove', this.handlePointerMove);
-    window.removeEventListener('pointercancle', this.handlePointerCancle);
+    window.removeEventListener('pointercancle', this.handlePointerCancle, true);
   }
 
   discardAnnotation() {
@@ -204,24 +204,22 @@ export default class PencilPointerListener extends Component {
     this.palmRejectionActivated = Storage.getItem(PALM_REJECTION_MODE);
     switch (event.pointerType) {
       case 'mouse': {
-        if (!this.palmRejectionActivated) {
-          const isLeftClick = event.button === 0;
-          const isRightClick = event.button === 2;
+        const isLeftClick = event.button === 0;
+        const isRightClick = event.button === 2;
 
-          if (!this.isDrawing) {
-            if (isLeftClick) {
-              window.addEventListener('pointerup', this.handlePointerUp);
-              window.addEventListener('pointermove', this.handlePointerMove);
+        if (!this.isDrawing) {
+          if (isLeftClick) {
+            window.addEventListener('pointerup', this.handlePointerUp);
+            window.addEventListener('pointermove', this.handlePointerMove);
 
-              const { clientX, clientY } = event;
-              this.commonDrawStartHandler(clientX, clientY);
-            }
-
-          // if you switch to a different window using Alt+Tab while mouse is down and release it
-          // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
-          } else if (isRightClick) {
-            this.discardAnnotation();
+            const { clientX, clientY } = event;
+            this.commonDrawStartHandler(clientX, clientY);
           }
+
+        // if you switch to a different window using Alt+Tab while mouse is down and release it
+        // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
+        } else if (isRightClick) {
+          this.discardAnnotation();
         }
         break;
       }
@@ -241,6 +239,7 @@ export default class PencilPointerListener extends Component {
     }
   }
 
+  // handler for finger touch and pencil touch
   touchPenDownHandler(event) {
     event.preventDefault();
     if (!this.isDrawing) {
@@ -261,9 +260,7 @@ export default class PencilPointerListener extends Component {
   handlePointerUp(event) {
     switch (event.pointerType) {
       case 'mouse': {
-        if (!this.palmRejectionActivated) {
-          this.sendLastMessage();
-        }
+        this.sendLastMessage();
         break;
       }
       case 'pen': {
@@ -285,10 +282,8 @@ export default class PencilPointerListener extends Component {
   handlePointerMove(event) {
     switch (event.pointerType) {
       case 'mouse': {
-        if (!this.palmRejectionActivated) {
-          const { clientX, clientY } = event;
-          this.commonDrawMoveHandler(clientX, clientY);
-        }
+        const { clientX, clientY } = event;
+        this.commonDrawMoveHandler(clientX, clientY);
         break;
       }
       case 'pen': {
