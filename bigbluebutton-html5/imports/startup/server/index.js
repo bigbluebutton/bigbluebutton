@@ -14,13 +14,13 @@ import setMinBrowserVersions from './minBrowserVersion';
 
 let guestWaitHtml = '';
 
-const meteorRoot = fs.realpathSync(`${process.cwd()}/../`);
-let applicationRoot = fs.realpathSync(`${meteorRoot}/../`);
+const env = Meteor.isDevelopment ? 'development' : 'production';
 
-// if running on dev mode
-if (path.basename(fs.realpathSync(`${meteorRoot}/../../../`)) === '.meteor') {
-  applicationRoot = fs.realpathSync(`${meteorRoot}'/../../../../`);
-}
+const meteorRoot = fs.realpathSync(`${process.cwd()}/../`);
+
+const applicationRoot = (env === 'development')
+  ? fs.realpathSync(`${meteorRoot}'/../../../../`)
+  : fs.realpathSync(`${meteorRoot}/../`);
 
 const AVAILABLE_LOCALES = fs.readdirSync(`${applicationRoot}/public/locales`);
 const FALLBACK_LOCALES = JSON.parse(Assets.getText('config/fallbackLocales.json'));
@@ -37,7 +37,6 @@ process.on('uncaughtException', (err) => {
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
-  const env = Meteor.isDevelopment ? 'development' : 'production';
   const CDN_URL = APP_CONFIG.cdn;
   const instanceId = APP_CONFIG.instanceId.slice(1); // remove the leading '/' character
 
