@@ -253,9 +253,8 @@ public:
       mobilePageSizes:
         moderator: 2
         viewer: 2
-  pingPong:
-    clearUsersInSeconds: 180
-    pongTimeInSeconds: 15
+  syncUsers:
+    syncInterval: 60000
   allowOutsideCommands:
     toggleRecording: false
     toggleSelfVoice: false

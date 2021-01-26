@@ -1,6 +1,10 @@
 import Logger from './logger';
 import userLeaving from '/imports/api/users/server/methods/userLeaving';
 import { extractCredentials } from '/imports/api/common/server/helpers';
+import AuthTokenValidation from '/imports/api/auth-token-validation';
+import Users from '/imports/api/users';
+
+const { syncInterval } = Meteor.settings.public.syncUsers;
 
 class ClientConnections {
   constructor() {
@@ -11,10 +15,13 @@ class ClientConnections {
       this.print();
     }, 30000);
 
-    // setTimeout(() => {
-    //   this.syncConnectionsWithServer();
-    // }, 10000);
+    const syncConnections = Meteor.bindEnvironment(() => {
+      this.syncConnectionsWithServer();
+    });
 
+    setInterval(() => {
+      syncConnections();
+    }, syncInterval);
   }
 
   add(sessionId, connection) {
@@ -28,6 +35,13 @@ class ClientConnections {
     }
 
     const { meetingId, requesterUserId: userId } = extractCredentials(sessionId);
+
+    if (!meetingId) {
+      Logger.error('Error on add new client connection. sessionId=${sessionId} connection=${connection.id}',
+        { logCode: 'client_connections_add_error_meeting_id_null', extraInfo: { meetingId, userId } }
+      );
+      return false;
+    }
 
     if (!this.exists(meetingId)) {
       Logger.info(`Meeting not found in connections: meetingId=${meetingId}`);
@@ -92,7 +106,7 @@ class ClientConnections {
     Logger.info(`Removing connectionId for user. sessionId=${sessionId} connectionId=${connectionId}`);
     const { meetingId, requesterUserId: userId } = extractCredentials(sessionId);
 
-    const meetingConnections = this.connections.get(meetingId)
+    const meetingConnections = this.connections.get(meetingId);
 
     if (meetingConnections?.has(userId)) {
       const filteredConnections = meetingConnections.get(userId).filter(c => c !== connectionId);
@@ -109,7 +123,38 @@ class ClientConnections {
   }
 
   syncConnectionsWithServer() {
-    console.error('syncConnectionsWithServer', Array.from(Meteor.server.sessions.keys()), Meteor.server);
+    Logger.info('Syncing ClientConnections with server');
+    const activeConnections = Array.from(Meteor.server.sessions.keys());
+
+    Logger.debug(`Found ${activeConnections.length} active connections in server`);
+
+    const onlineUsers = AuthTokenValidation
+      .find(
+        { connectionId: { $in: activeConnections } },
+        { fields: { meetingId: 1, userId: 1 } }
+      )
+      .fetch();
+
+    const onlineUsersId = onlineUsers.map(({ userId }) => userId);
+
+    const usersQuery = { userId: { $nin: onlineUsersId } };
+
+    const userWithoutConnectionIds = Users.find(usersQuery, { fields: { meetingId: 1, userId: 1 } }).fetch();
+
+    const removedUsersWithoutConnection = Users.remove(usersQuery);
+
+    if (removedUsersWithoutConnection) {
+      Logger.info(`Removed ${removedUsersWithoutConnection} users that are not connected`);
+      Logger.info(`Clearing connections`);
+      try {
+        userWithoutConnectionIds
+          .forEach(({ meetingId, userId }) => {
+            this.removeClientConnection(`${meetingId}--${userId}`);
+          });
+      } catch (err) {
+        Logger.error('Error on sync ClientConnections', err);
+      }
+    }
   }
 
 }
