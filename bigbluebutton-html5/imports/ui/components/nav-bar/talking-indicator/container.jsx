@@ -10,6 +10,7 @@ import Service from './service';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const { enableTalkingIndicator } = APP_CONFIG;
+const TALKING_INDICATOR_MUTE_INTERVAL = 500;
 
 const TalkingIndicatorContainer = (props) => {
   if (!enableTalkingIndicator) return null;
@@ -47,7 +48,7 @@ export default withTracker(() => {
     }
   }
 
-  const muteUser = (id) => {
+  const muteUser = debounce((id) => {
     const user = VoiceUsers.findOne({ meetingId, voiceUserId: id }, {
       fields: {
         muted: 1,
@@ -55,11 +56,11 @@ export default withTracker(() => {
     });
     if (user.muted) return;
     makeCall('toggleVoice', id);
-  };
+  }, TALKING_INDICATOR_MUTE_INTERVAL, { leading: true, trailing: false });
 
   return {
     talkers,
-    muteUser: id => debounce(muteUser(id), 500, { leading: true, trailing: false }),
+    muteUser,
     openPanel: Session.get('openPanel'),
     isBreakoutRoom: meetingIsBreakout(),
   };
