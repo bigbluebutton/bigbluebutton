@@ -77,6 +77,8 @@ const findOptimalGrid = (canvasWidth, canvasHeight, gutter, aspectRatio, numItem
 };
 
 const ASPECT_RATIO = 4 / 3;
+const ACTION_NAME_FOCUS = 'focus';
+const ACTION_NAME_MIRROR = 'mirror';
 
 class VideoList extends Component {
   constructor(props) {
@@ -300,6 +302,7 @@ class VideoList extends Component {
       const isFocusedIntlKey = !isFocused ? 'focus' : 'unfocus';
       const isMirrored = this.cameraIsMirrored(cameraId);
       let actions = [{
+        actionName: ACTION_NAME_MIRROR,
         label: intl.formatMessage(intlMessages['mirrorLabel']),
         description: intl.formatMessage(intlMessages['mirrorDesc']),
         onClick: () => this.mirrorCamera(cameraId),
@@ -307,6 +310,7 @@ class VideoList extends Component {
 
       if (numOfStreams > 2) {
         actions.push({
+          actionName: ACTION_NAME_FOCUS,
           label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
           description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
           onClick: () => this.handleVideoFocus(cameraId),
