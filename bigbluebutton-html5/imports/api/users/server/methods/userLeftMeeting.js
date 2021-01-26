@@ -17,19 +17,9 @@ export default function userLeftMeeting() { // TODO-- spread the code to method/
 
     if (numberAffected) {
       Logger.info(`user left id=${requesterUserId} meeting=${meetingId}`);
+      ClientConnections.removeClientConnection(this.userId, this.connection.id);
     }
-    ClientConnections.removeClientConnection(this.userId, this.connection.id);
-
-    Users.update(
-      selector,
-      {
-        $set: {
-          loggedOut: true,
-        },
-      },
-      cb,
-    );
   } catch (err) {
-    Logger.error(`leaving dummy user to collection: ${err}`);
+    Logger.error(`Error on user left: ${err}`);
   }
 }

@@ -17,9 +17,9 @@ export default function userLeaving(meetingId, userId, connectionId) {
     userId,
   };
 
-  const User = Users.findOne(selector);
+  const user = Users.findOne(selector);
 
-  if (!User) {
+  if (!user) {
     Logger.info(`Skipping userLeaving. Could not find ${userId} in ${meetingId}`);
     return;
   }
@@ -31,13 +31,14 @@ export default function userLeaving(meetingId, userId, connectionId) {
 
   // If the current user connection is not the same that triggered the leave we skip
   if (auth?.connectionId !== connectionId) {
-    Logger.info(`Skipping userLeaving. User connectionId=${User.connectionId} is different from requester connectionId=${connectionId}`);
+    Logger.info(`Skipping userLeaving. User connectionId=${user.connectionId} is different from requester connectionId=${connectionId}`);
     return false;
   }
 
   const payload = {
     userId,
     sessionId: meetingId,
+    loggedOut: user.loggedOut,
   };
 
   Logger.info(`User '${userId}' is leaving meeting '${meetingId}'`);
