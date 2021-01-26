@@ -988,6 +988,8 @@ class SIPSession {
    */
   async updateAudioConstraints(constraints) {
     try {
+      if (typeof constraints !== 'object') return;
+
       logger.info({
         logCode: 'sipjs_update_audio_constraint',
         extraInfo: {
