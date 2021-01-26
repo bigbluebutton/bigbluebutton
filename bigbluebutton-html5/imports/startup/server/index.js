@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { WebAppInternals } from 'meteor/webapp';
 import Langmap from 'langmap';
 import fs from 'fs';
+import path from 'path';
 import Users from '/imports/api/users';
 import './settings';
 import { lookup as lookupUserAgent } from 'useragent';
@@ -12,7 +13,16 @@ import Redis from './redis';
 import setMinBrowserVersions from './minBrowserVersion';
 
 let guestWaitHtml = '';
-const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
+
+const meteorRoot = fs.realpathSync(`${process.cwd()}/../`);
+let applicationRoot = fs.realpathSync(`${meteorRoot}/../`);
+
+// if running on dev mode
+if (path.basename(fs.realpathSync(`${meteorRoot}/../../../`)) === '.meteor') {
+  applicationRoot = fs.realpathSync(`${meteorRoot}'/../../../../`);
+}
+
+const AVAILABLE_LOCALES = fs.readdirSync(`${applicationRoot}/public/locales`);
 const FALLBACK_LOCALES = JSON.parse(Assets.getText('config/fallbackLocales.json'));
 
 process.on('uncaughtException', (err) => {
@@ -31,7 +41,7 @@ Meteor.startup(() => {
   const CDN_URL = APP_CONFIG.cdn;
   const instanceId = APP_CONFIG.instanceId.slice(1); // remove the leading '/' character
 
-  Logger.warn('Started bbb-html5 process with instanceId=' + instanceId);
+  Logger.warn(`Started bbb-html5 process with instanceId=${instanceId}`);
 
   const { customHeartbeat } = APP_CONFIG;
 
@@ -177,7 +187,7 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
   const browserLocale = override && req.query.init === 'true'
     ? override.split(/[-_]/g) : req.query.locale.split(/[-_]/g);
 
-  const localeList = [fallback];
+  let localeFile = fallback;
 
   const usableLocales = AVAILABLE_LOCALES
     .map(file => file.replace('.json', ''))
@@ -185,32 +195,26 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
       ? [...locales, locale]
       : locales), []);
 
-  const regionDefault = usableLocales.find(locale => browserLocale[0] === locale);
-
-  if (regionDefault) localeList.push(regionDefault);
-  if (!regionDefault && usableLocales.length) localeList.push(usableLocales[0]);
-
   let normalizedLocale;
-  let messages = {};
 
   if (browserLocale.length > 1) {
     normalizedLocale = `${browserLocale[0]}_${browserLocale[1].toUpperCase()}`;
-    localeList.push(normalizedLocale);
+
+    const normDefault = usableLocales.find(locale => normalizedLocale === locale);
+    if (normDefault) localeFile = normDefault;
   }
 
-  localeList.forEach((locale) => {
-    try {
-      const data = Assets.getText(`locales/${locale}.json`);
-      messages = Object.assign(messages, JSON.parse(data));
-      normalizedLocale = locale;
-    } catch (e) {
-      Logger.info(`'Could not process locale ${locale}:${e}`);
-      // Getting here means the locale is not available in the current locale files.
-    }
-  });
+  const regionDefault = usableLocales.find(locale => browserLocale[0] === locale);
+
+  if (localeFile === fallback && regionDefault !== localeFile) {
+    localeFile = regionDefault;
+  }
 
   res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify({ normalizedLocale, messages }));
+  res.end(JSON.stringify({
+    normalizedLocale: localeFile,
+    filePath: `locales/${localeFile}.json`,
+  }));
 });
 
 WebApp.connectHandlers.use('/locales', (req, res) => {

@@ -73,11 +73,25 @@ class IntlStartup extends Component {
 
           return response.json();
         })
-        .then(({ messages, normalizedLocale }) => {
-          const dasherizedLocale = normalizedLocale.replace('_', '-');
-          this.setState({ messages, fetching: false, normalizedLocale: dasherizedLocale }, () => {
-            IntlStartup.saveLocale(dasherizedLocale);
-          });
+        .then(({ filePath, normalizedLocale }) => {
+          fetch(filePath)
+            .then((response) => {
+              if (!response.ok) {
+                return Promise.reject();
+              }
+              return response.json();
+            })
+            .then((messages) => {
+              const dasherizedLocale = normalizedLocale.replace('_', '-');
+              this.setState({ messages, fetching: false, normalizedLocale: dasherizedLocale }, () => {
+                IntlStartup.saveLocale(dasherizedLocale);
+              });
+            })
+            .catch(() => {
+              this.setState({ fetching: false, normalizedLocale: null }, () => {
+                IntlStartup.saveLocale(DEFAULT_LANGUAGE);
+              });
+            });
         })
         .catch(() => {
           this.setState({ fetching: false, normalizedLocale: null }, () => {

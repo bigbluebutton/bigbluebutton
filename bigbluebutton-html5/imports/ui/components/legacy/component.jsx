@@ -90,9 +90,22 @@ export default class Legacy extends Component {
 
         return response.json();
       })
-      .then(({ messages, normalizedLocale }) => {
-        const dasherizedLocale = normalizedLocale.replace('_', '-');
-        that.setState({ messages, normalizedLocale: dasherizedLocale, viewState: READY });
+      .then(({ filePath, normalizedLocale }) => {
+        fetch(filePath)
+          .then((response) => {
+            if (!response.ok) {
+              return Promise.reject();
+            }
+
+            return response.json();
+          })
+          .then((messages) => {
+            const dasherizedLocale = normalizedLocale.replace('_', '-');
+            this.setState({ messages, normalizedLocale: dasherizedLocale, viewState: READY });
+          })
+          .catch(() => {
+            that.setState({ viewState: FALLBACK });
+          });
       })
       .catch(() => {
         that.setState({ viewState: FALLBACK });
