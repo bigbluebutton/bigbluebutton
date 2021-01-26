@@ -4,7 +4,6 @@ import ShapeDrawListener from './shape-draw-listener/component';
 import TextDrawListener from './text-draw-listener/component';
 import PencilDrawListener from './pencil-draw-listener/component';
 import ShapePointerListener from './shape-pointer-listener/component';
-import TextPointerListener from './text-pointer-listener/component';
 import PencilPointerListener from './pencil-pointer-listener/component';
 import CursorListener from './cursor-listener/component';
 
@@ -214,19 +213,6 @@ export default class WhiteboardOverlay extends Component {
         />
       );
     } if (tool === 'text') {
-      if (window.PointerEvent) {
-        return (
-          <TextPointerListener
-            userId={userId}
-            whiteboardId={whiteboardId}
-            drawSettings={drawSettings}
-            actions={actions}
-            slideWidth={slideWidth}
-            slideHeight={slideHeight}
-          />
-        );
-      }
-
       return (
         <TextDrawListener
           userId={userId}
