@@ -1,4 +1,5 @@
 const VirtualizedList = require('./virtualizedlist/virtualize');
+const { TEST_DURATION_TIME } = require('./core/constants');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
 
 expect.extend({ toMatchImageSnapshot });
@@ -27,6 +28,6 @@ const virtualizedListTest = () => {
         failureThresholdType: 'percent',
       });
     }
-  }, parseInt(process.env.TEST_DURATION_TIME));
+  }, parseInt(TEST_DURATION_TIME));
 };
 module.exports = exports = virtualizedListTest;

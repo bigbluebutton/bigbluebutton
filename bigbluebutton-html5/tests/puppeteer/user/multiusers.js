@@ -26,17 +26,17 @@ class MultiUsers {
   }
 
   async multiUsersPublicChat() {
-    const chat0 = await this.page1.page.evaluate(()=> document.querySelectorAll('span[data-test="chatUserMessage"]').length);
+    const chat0 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
     await util.sendPublicChatMessage(this.page1, this.page2);
-    const chat1 = await this.page1.page.evaluate(()=> document.querySelectorAll('span[data-test="chatUserMessage"]').length);
+    const chat1 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
     return chat0 !== chat1;
   }
 
   async multiUsersPrivateChat() {
     await util.openPrivateChatMessage(this.page1, this.page2);
-    const chat0 = await this.page1.page.evaluate(()=> document.querySelectorAll('span[data-test="chatUserMessage"]').length);
+    const chat0 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
     await util.sendPrivateChatMessage(this.page1, this.page2);
-    const chat1 = await this.page1.page.evaluate(()=> document.querySelectorAll('span[data-test="chatUserMessage"]').length);
+    const chat1 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
     return chat0 !== chat1;
   }
 

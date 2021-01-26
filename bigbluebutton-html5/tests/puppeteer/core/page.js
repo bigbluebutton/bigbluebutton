@@ -300,7 +300,7 @@ class Page {
 
   async logger() {
     if (process.env.DEBUG === 'true') {
-      const date = `${new Date().getDate()}.${new Date().getMonth()}.${new Date().getFullYear()} / ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`;
+      const date = moment(new Date()).format('DD-MMM-YYYY HH:mm:ss');
       const args = Array.prototype.slice.call(arguments);
       args.unshift(`${date} `);
       console.log(...args);
@@ -314,8 +314,8 @@ class Page {
     await this.page.keyboard.up('ControlLeft');
   }
 
-  async waitForSelector(element) {
-    await this.page.waitForSelector(element, { timeout: 0 });
+  async waitForSelector(element, timeout) {
+    await this.page.waitForSelector(element, { timeout });
   }
 
   async getMetrics(testFolderName) {
