@@ -3,7 +3,6 @@ import KurentoBridge from '/imports/api/screenshare/client/bridge';
 import BridgeService from '/imports/api/screenshare/client/bridge/service';
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
-import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import { stopWatching } from '/imports/ui/components/external-video-player/service';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
