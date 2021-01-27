@@ -66,6 +66,10 @@ const intlMessages = defineMessages({
     id: 'app.poll.yn',
     description: 'label for Yes / No poll',
   },
+  yna: {
+    id: 'app.poll.yna',
+    description: 'label for Yes / No / Abstention poll',
+  },
   a2: {
     id: 'app.poll.a2',
     description: 'label for A / B poll',
