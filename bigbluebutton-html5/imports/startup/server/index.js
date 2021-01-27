@@ -27,7 +27,6 @@ Meteor.startup(() => {
   const INTERVAL_TIME = INTERVAL_IN_SETTINGS < 10000 ? 10000 : INTERVAL_IN_SETTINGS;
   const env = Meteor.isDevelopment ? 'development' : 'production';
   const CDN_URL = APP_CONFIG.cdn;
-  let heapDumpMbThreshold = 100;
 
   const { customHeartbeat } = APP_CONFIG;
 
@@ -105,6 +104,9 @@ Meteor.startup(() => {
   }
 
   const memoryMonitoringSettings = Meteor.settings.private.memoryMonitoring;
+  let heapDumpMbThreshold = memoryMonitoringSettings.heapdump.thresholdMb;
+  const { heapdumpFolderPath } = memoryMonitoringSettings.heapdump;
+
   if (memoryMonitoringSettings.stat.enabled) {
     memwatch.on('stats', (stats) => {
       let heapDumpTriggered = false;
@@ -112,28 +114,28 @@ Meteor.startup(() => {
       if (memoryMonitoringSettings.heapdump.enabled) {
         heapDumpTriggered = (stats.current_base / 1048576) > heapDumpMbThreshold;
       }
-      Logger.info('memwatch stats', { ...stats, heapDumpEnabled: memoryMonitoringSettings.heapdump.enabled, heapDumpTriggered });
+      Logger.info('memwatch stats', { ...stats });
 
       if (heapDumpTriggered) {
-        heapdump.writeSnapshot(`./heapdump-stats-${Date.now()}.heapsnapshot`);
-        heapDumpMbThreshold += 100;
+        heapdump.writeSnapshot(path.join(heapdumpFolderPath, `heapdump-stats-${Date.now()}.heapsnapshot`));
+        heapDumpMbThreshold += memoryMonitoringSettings.heapdump.thresholdMb;
       }
     });
   }
 
-  if (memoryMonitoringSettings.leak.enabled) {
-    memwatch.on('leak', (info) => {
-      Logger.info('memwatch leak', info);
-    });
-  }
+  // if (memoryMonitoringSettings.leak.enabled) {
+  //   memwatch.on('leak', (info) => {
+  //     Logger.info('memwatch leak', info);
+  //   });
+  // }
 
-  if (memoryMonitoringSettings.heapdump.enabled) {
-    const { heapdumpFolderPath, heapdumpIntervalMs } = memoryMonitoringSettings.heapdump;
-    Meteor.setInterval(() => {
-      heapdump.writeSnapshot(path.join(heapdumpFolderPath, `${new Date().toISOString()}.heapsnapshot`));
-      Logger.info('Heapsnapshot file successfully written');
-    }, heapdumpIntervalMs);
-  }
+  // if (memoryMonitoringSettings.heapdump.enabled) {
+  //   const { heapdumpFolderPath, heapdumpIntervalMs } = memoryMonitoringSettings.heapdump;
+  //   Meteor.setInterval(() => {
+  //     heapdump.writeSnapshot(path.join(heapdumpFolderPath, `${new Date().toISOString()}.heapsnapshot`));
+  //     Logger.info('Heapsnapshot file successfully written');
+  //   }, heapdumpIntervalMs);
+  // }
 
   if (CDN_URL.trim()) {
     // Add CDN
