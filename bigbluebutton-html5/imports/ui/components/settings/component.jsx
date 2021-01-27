@@ -62,7 +62,9 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   dataSaving: PropTypes.shape({
     viewParticipantsWebcams: PropTypes.bool,
     viewScreenshare: PropTypes.bool,
@@ -111,9 +113,26 @@ class Settings extends Component {
 
   componentDidMount() {
     const { availableLocales } = this.props;
+
     availableLocales.then((locales) => {
-      this.setState({ availableLocales: locales });
+      this.setState({ allLocales: locales });
     });
+  }
+
+  // returns an array with the base language list + variations of currently selected language
+  filterLocaleVariations(value) {
+    const { allLocales } = this.state;
+
+    if (allLocales) {
+      if (Meteor.settings.public.app.showAllAvailableLocales) {
+        return allLocales;
+      }
+
+      return allLocales.filter(
+        locale => (!locale.locale.includes('-') || locale.locale.split('-')[0] === value.split('-')[0]),
+      );
+    }
+    return [];
   }
 
   handleUpdateSettings(key, newSettings) {
@@ -136,9 +155,10 @@ class Settings extends Component {
 
     const {
       selectedTab,
-      availableLocales,
       current,
     } = this.state;
+
+    const availableLocales = this.filterLocaleVariations(current.application.locale);
 
     return (
       <Tabs

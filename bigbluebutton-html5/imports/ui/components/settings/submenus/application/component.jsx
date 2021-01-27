@@ -83,17 +83,6 @@ class ApplicationMenu extends BaseMenu {
     this.setInitialFontSize();
   }
 
-  componentDidUpdate() {
-    const { availableLocales } = this.props;
-
-    if (availableLocales && availableLocales.length > 0) {
-      // I used setTimout to create a smooth animation transition
-      setTimeout(() => this.setState({
-        showSelect: true,
-      }), 100);
-    }
-  }
-
   componentWillUnmount() {
     // fix Warning: Can't perform a React state update on an unmounted component
     this.setState = (state, callback) => {
@@ -156,14 +145,14 @@ class ApplicationMenu extends BaseMenu {
 
   handleSelectChange(fieldname, options, e) {
     const obj = this.state;
-    obj.settings[fieldname] = e.target.value.toLowerCase().replace('_', '-');
+    obj.settings[fieldname] = e.target.value;
     this.handleUpdateSettings('application', obj.settings);
   }
 
   render() {
     const { availableLocales, intl } = this.props;
     const {
-      isLargestFontSize, isSmallestFontSize, settings, showSelect,
+      isLargestFontSize, isSmallestFontSize, settings,
     } = this.state;
 
     // conversions can be found at http://pxtoem.com
@@ -178,6 +167,8 @@ class ApplicationMenu extends BaseMenu {
     };
 
     const ariaValueLabel = intl.formatMessage(intlMessages.currentValue, { 0: `${pixelPercentage[settings.fontSize]}` });
+
+    const showSelect = availableLocales && availableLocales.length > 0;
 
     return (
       <div>
@@ -225,14 +216,13 @@ class ApplicationMenu extends BaseMenu {
                 {showSelect ? (
                   <select
                     id="langSelector"
-                    defaultValue={this.state.settings.locale}
-                    lang={this.state.settings.locale}
+                    value={this.state.settings.locale}
                     className={styles.select}
-                    onChange={this.handleSelectChange.bind(this, 'locale', availableLocales)}
+                    onChange={e => this.handleSelectChange('locale', availableLocales, e)}
                   >
                     <option disabled>{intl.formatMessage(intlMessages.languageOptionLabel)}</option>
-                    {availableLocales.map((locale, index) => (
-                      <option key={index} value={locale.locale} lang={locale.locale}>
+                    {availableLocales.map((locale) => (
+                      <option key={locale.locale} value={locale.locale}>
                         {locale.name}
                       </option>
                     ))}
