@@ -505,6 +505,7 @@ private:
     leak:
       enabled: false
     heapdump:
+      thresholdMb: 1024
       enabled: false
       heapdumpFolderPath: HEAPDUMP_FOLDER
       heapdumpIntervalMs: 3600000
