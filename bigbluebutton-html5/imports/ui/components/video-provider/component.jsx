@@ -568,6 +568,7 @@ class VideoProvider extends Component {
           }, `Camera offer generated. Role: ${role}`);
 
           this.sendMessage(message);
+          this.setReconnectionTimeout(cameraId, isLocal, false);
 
           return false;
         });
@@ -700,10 +701,6 @@ class VideoProvider extends Component {
     return (candidate) => {
       const peer = this.webRtcPeers[cameraId];
       const role = VideoService.getRole(isLocal);
-      // Setup a timeout only when the first candidate is generated and if the peer wasn't
-      // marked as started already (which is done on handlePlayStart after
-      // it was verified that media could circle through the server)
-      this.setReconnectionTimeout(cameraId, isLocal, false);
 
       if (peer && !peer.didSDPAnswered) {
         this.outboundIceQueues[cameraId].push(candidate);
