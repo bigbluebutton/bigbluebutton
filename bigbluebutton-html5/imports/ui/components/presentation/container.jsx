@@ -2,6 +2,7 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '/imports/ui/components/media/service';
 import { notify } from '/imports/ui/services/notification';
+import { Session } from 'meteor/session';
 import PresentationAreaService from './service';
 import { Slides } from '/imports/api/slides';
 import PresentationArea from './component';
@@ -47,7 +48,9 @@ export default withTracker(({ podId }) => {
     const currentSlideNum = currentSlide.num;
     const presentation = fetchedpresentation[presentationId];
 
-    if (PRELOAD_NEXT_SLIDE && !presentation.fetchedSlide[currentSlide.num + PRELOAD_NEXT_SLIDE] && presentation.canFetch) {
+    if (PRELOAD_NEXT_SLIDE
+      && !presentation.fetchedSlide[currentSlide.num + PRELOAD_NEXT_SLIDE]
+      && presentation.canFetch) {
       const slidesToFetch = Slides.find({
         podId,
         presentationId,
@@ -65,9 +68,13 @@ export default withTracker(({ podId }) => {
             presentation.fetchedSlide[slide.num] = true;
           }
         });
-      Promise.all(promiseImageGet).then(() => presentation.canFetch = true);
+      Promise.all(promiseImageGet).then(() => {
+        presentation.canFetch = true;
+      });
     }
   }
+
+  const layoutManagerLoaded = Session.get('layoutManagerLoaded');
   return {
     currentSlide,
     slidePosition,
@@ -94,5 +101,6 @@ export default withTracker(({ podId }) => {
       'bbb_force_restore_presentation_on_new_events',
       Meteor.settings.public.presentation.restoreOnUpdate,
     ),
+    layoutManagerLoaded,
   };
 })(PresentationAreaContainer);

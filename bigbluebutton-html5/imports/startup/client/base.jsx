@@ -22,7 +22,7 @@ import LayoutManager from '/imports/ui/components/layout/layout-manager';
 import { withLayoutContext } from '/imports/ui/components/layout/context';
 import VideoService from '/imports/ui/components/video-provider/service';
 import DebugWindow from '/imports/ui/components/debug-window/component'
-import {Meteor} from "meteor/meteor";
+import { Meteor } from "meteor/meteor";
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
@@ -81,6 +81,8 @@ class Base extends Component {
 
     if (animations) HTML.classList.add('animationsEnabled');
     if (!animations) HTML.classList.add('animationsDisabled');
+
+    Session.set('layoutManagerLoaded', 'legacy');
 
     if (getFromUserSettings('bbb_show_participants_on_login', true) && !deviceInfo.type().isPhone) {
       Session.set('openPanel', 'userlist');
@@ -225,13 +227,14 @@ class Base extends Component {
   render() {
     const {
       meetingExist,
+      layoutManagerLoaded,
     } = this.props;
     const { meetingExisted } = this.state;
 
     return (
       <Fragment>
         {meetingExist && Auth.loggedIn && <DebugWindow />}
-        {meetingExist && Auth.loggedIn && <LayoutManager />}
+        {meetingExist && Auth.loggedIn && <LayoutManager layoutManagerLoaded={layoutManagerLoaded} />}
         {
           (!meetingExisted && !meetingExist && Auth.loggedIn)
             ? <LoadingScreen />
@@ -417,6 +420,7 @@ const BaseContainer = withTracker(() => {
     loggedIn,
     codeError,
     usersVideo,
+    layoutManagerLoaded: Session.get('layoutManagerLoaded'),
   };
 })(withLayoutContext(Base));
 

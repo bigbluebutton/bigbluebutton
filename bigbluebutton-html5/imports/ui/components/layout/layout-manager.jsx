@@ -5,8 +5,6 @@ import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 import _ from 'lodash';
 
-const windowWidth = () => window.innerWidth;
-const windowHeight = () => window.innerHeight;
 const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 
@@ -98,7 +96,7 @@ class LayoutManager extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { layoutContextState } = this.props;
+    const { layoutContextState, layoutManagerLoaded } = this.props;
     const { layoutContextState: prevLayoutContextState } = prevProps;
     const {
       numUsersVideo,
@@ -107,7 +105,8 @@ class LayoutManager extends Component {
       numUsersVideo: prevNumUsersVideo,
     } = prevLayoutContextState;
 
-    if (numUsersVideo !== prevNumUsersVideo) {
+    if (numUsersVideo !== prevNumUsersVideo
+      || prevProps.layoutManagerLoaded !== layoutManagerLoaded) {
       setTimeout(() => this.setLayoutSizes(), 500);
     }
   }
@@ -128,8 +127,8 @@ class LayoutManager extends Component {
       {
         type: 'setWindowSize',
         value: {
-          width: windowWidth(),
-          height: windowHeight(),
+          width: this.windowWidth(),
+          height: this.windowHeight(),
         },
       },
     );
@@ -189,8 +188,8 @@ class LayoutManager extends Component {
 
     const newLayoutData = {
       windowSize: {
-        width: windowWidth(),
-        height: windowHeight(),
+        width: this.windowWidth(),
+        height: this.windowHeight(),
       },
       mediaBounds: {
         width: layoutSizes.mediaBounds.width,
@@ -219,6 +218,24 @@ class LayoutManager extends Component {
 
     Storage.setItem('layoutData', newLayoutData);
     window.dispatchEvent(new Event('layoutSizesSets'));
+  }
+
+  windowWidth() {
+    const { layoutManagerLoaded } = this.props;
+    return (
+      layoutManagerLoaded !== 'both'
+        ? window.document.documentElement.clientWidth
+        : window.document.documentElement.clientWidth * 0.5
+    );
+  }
+
+  windowHeight() {
+    const { layoutManagerLoaded } = this.props;
+    return (
+      layoutManagerLoaded !== 'both'
+        ? window.document.documentElement.clientHeight
+        : window.document.documentElement.clientHeight * 0.5
+    );
   }
 
   defineWebcamPlacement(mediaAreaWidth, mediaAreaHeight, presentationWidth, presentationHeight) {
@@ -285,7 +302,7 @@ class LayoutManager extends Component {
       newUserListSize = userListSizeContext;
     } else if (!storageUserListWidth) {
       newUserListSize = {
-        width: min(max((windowWidth() * 0.1), USERLIST_MIN_WIDTH), USERLIST_MAX_WIDTH),
+        width: min(max((this.windowWidth() * 0.1), USERLIST_MIN_WIDTH), USERLIST_MAX_WIDTH),
       };
     } else {
       newUserListSize = {
@@ -297,7 +314,7 @@ class LayoutManager extends Component {
       newChatSize = chatSizeContext;
     } else if (!storageChatWidth) {
       newChatSize = {
-        width: min(max((windowWidth() * 0.2), CHAT_MIN_WIDTH), CHAT_MAX_WIDTH),
+        width: min(max((this.windowWidth() * 0.2), CHAT_MIN_WIDTH), CHAT_MAX_WIDTH),
       };
     } else {
       newChatSize = {
@@ -309,7 +326,7 @@ class LayoutManager extends Component {
       newBreakoutRoomSize = breakoutRoomSizeContext;
     } else if (!storageBreakoutRoomWidth) {
       newBreakoutRoomSize = {
-        width: min(max((windowWidth() * 0.2), CHAT_MIN_WIDTH), CHAT_MAX_WIDTH),
+        width: min(max((this.windowWidth() * 0.2), CHAT_MIN_WIDTH), CHAT_MAX_WIDTH),
       };
     } else {
       newBreakoutRoomSize = {
@@ -498,8 +515,8 @@ class LayoutManager extends Component {
       secondPanel = newBreakoutRoomSize;
     }
 
-    const mediaAreaHeight = windowHeight() - (NAVBAR_HEIGHT + ACTIONSBAR_HEIGHT) - 10;
-    const mediaAreaWidth = windowWidth() - (firstPanel.width + secondPanel.width);
+    const mediaAreaHeight = this.windowHeight() - (NAVBAR_HEIGHT + ACTIONSBAR_HEIGHT) - 10;
+    const mediaAreaWidth = this.windowWidth() - (firstPanel.width + secondPanel.width);
     const newMediaBounds = {
       width: mediaAreaWidth,
       height: mediaAreaHeight,
@@ -535,8 +552,8 @@ class LayoutManager extends Component {
       };
     } else {
       newPresentationAreaSize = {
-        width: windowWidth(),
-        height: windowHeight(),
+        width: this.windowWidth(),
+        height: this.windowHeight(),
       };
     }
 

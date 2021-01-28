@@ -13,7 +13,16 @@
 .main {
   @extend %flex-column;
   position: relative;
-  height: 100%;
+  height: 50%;
+  width: 50%;
+  border: 1px solid red;
+}
+
+.newLayout{
+  height: 50%;
+  width: 50%;
+  border: 1px solid green;
+  background-color: red;
 }
 
 .navbar {

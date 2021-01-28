@@ -13,7 +13,6 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
 import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
-import logger from '/imports/startup/client/logger';
 
 import {
   getFontSize,
@@ -70,13 +69,16 @@ const AppContainer = (props) => {
   );
 };
 
-const currentUserEmoji = currentUser => (currentUser ? {
-  status: currentUser.emoji,
-  changedAt: currentUser.emojiTime,
-} : {
+const currentUserEmoji = currentUser => (currentUser
+  ? {
+    status: currentUser.emoji,
+    changedAt: currentUser.emojiTime,
+  }
+  : {
     status: 'none',
     changedAt: null,
-  });
+  }
+);
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   const authTokenValidation = AuthTokenValidation.findOne({}, { sort: { updatedAt: -1 } });
@@ -105,6 +107,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     requesterUserId: Auth.userID,
   }).fetch();
 
+  const layoutManagerLoaded = Session.get('layoutManagerLoaded');
+
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
     fontSize: getFontSize(),
@@ -122,6 +126,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     hasPublishedPoll: publishedPoll,
     startBandwidthMonitoring,
     handleNetworkConnection: () => updateNavigatorConnection(navigator.connection),
+    layoutManagerLoaded,
   };
 })(AppContainer)));
 

@@ -156,6 +156,7 @@ class PresentationArea extends PureComponent {
       layoutContextDispatch,
       layoutContextState,
       userIsPresenter,
+      layoutManagerLoaded,
     } = this.props;
 
     const { numUsersVideo } = layoutContextState;
@@ -248,6 +249,8 @@ class PresentationArea extends PureComponent {
         toggleSwapLayout();
       }
     }
+
+    if (prevProps.layoutManagerLoaded !== layoutManagerLoaded) this.onResize();
   }
 
   componentWillUnmount() {
@@ -864,7 +867,6 @@ class PresentationArea extends PureComponent {
 export default injectIntl(withDraggableConsumer(withLayoutConsumer(PresentationArea)));
 
 PresentationArea.propTypes = {
-  intl: PropTypes.object.isRequired,
   podId: PropTypes.string.isRequired,
   // Defines a boolean value to detect whether a current user is a presenter
   userIsPresenter: PropTypes.bool.isRequired,

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { throttle } from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -25,6 +25,7 @@ import UploaderContainer from '/imports/ui/components/presentation/presentation-
 import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
 import { styles } from './styles';
 import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
+import { Session } from 'meteor/session';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -82,7 +83,6 @@ const propTypes = {
   actionsbar: PropTypes.element,
   captions: PropTypes.element,
   locale: PropTypes.string,
-  intl: PropTypes.object.isRequired,
 };
 
 const defaultProps = {
@@ -159,7 +159,7 @@ class App extends Component {
 
     if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
-      || currentUserEmoji.status;
+        || currentUserEmoji.status;
 
       notify(
         currentUserEmoji.status === 'none'
@@ -330,37 +330,51 @@ class App extends Component {
 
   render() {
     const {
-      customStyle, customStyleUrl, openPanel,
+      customStyle, customStyleUrl, openPanel, layoutManagerLoaded,
     } = this.props;
     return (
-      <main className={styles.main}>
-        {this.renderActivityCheck()}
-        {this.renderUserInformation()}
-        <BannerBarContainer />
-        <NotificationsBarContainer />
-        <section className={styles.wrapper}>
-          <div className={openPanel ? styles.content : styles.noPanelContent}>
-            {this.renderNavBar()}
-            {this.renderMedia()}
-            {this.renderActionsBar()}
-          </div>
-          {this.renderPanel()}
-          {this.renderSidebar()}
-        </section>
-        <UploaderContainer />
-        <BreakoutRoomInvitation />
-        <PollingContainer />
-        <ModalContainer />
-        <AudioContainer />
-        <ToastContainer rtl />
-        <ChatAlertContainer />
-        <WaitingNotifierContainer />
-        <LockNotifier />
-        <StatusNotifier status="raiseHand" />
-        <ManyWebcamsNotifier />
-        {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
-        {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
-      </main>
+      <Fragment>
+        {(layoutManagerLoaded === 'legacy' || layoutManagerLoaded === 'both')
+          && (
+            <main
+              className={styles.main}
+              style={{
+                width: layoutManagerLoaded !== 'both' ? '100%' : '50%',
+                height: layoutManagerLoaded !== 'both' ? '100%' : '50%',
+              }}
+            >
+              {this.renderActivityCheck()}
+              {this.renderUserInformation()}
+              <BannerBarContainer />
+              <NotificationsBarContainer />
+              <section className={styles.wrapper}>
+                <div className={openPanel ? styles.content : styles.noPanelContent}>
+                  {this.renderNavBar()}
+                  {this.renderMedia()}
+                  {this.renderActionsBar()}
+                </div>
+                {this.renderPanel()}
+                {this.renderSidebar()}
+              </section>
+              <UploaderContainer />
+              <BreakoutRoomInvitation />
+              <PollingContainer />
+              <ModalContainer />
+              <AudioContainer />
+              <ToastContainer rtl />
+              <ChatAlertContainer />
+              <WaitingNotifierContainer />
+              <LockNotifier />
+              <StatusNotifier status="raiseHand" />
+              <ManyWebcamsNotifier />
+              {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
+              {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
+            </main>
+          )
+        }
+        {(layoutManagerLoaded === 'new' || layoutManagerLoaded === 'both')
+          && <div className={styles.newLayout} />}
+      </Fragment>
     );
   }
 }

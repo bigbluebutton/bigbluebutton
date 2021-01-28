@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Draggable from 'react-draggable';
 import Resizable from 're-resizable';
+import { Session } from 'meteor/session';
 import { styles } from './styles.scss';
 import { defineMessages, injectIntl } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
@@ -44,6 +45,10 @@ const DEBUG_WINDOW_ENABLED = Meteor.settings.public.app.enableDebugWindow;
 const SHOW_DEBUG_WINDOW_ACCESSKEY = Meteor.settings.public.app.shortcuts.openDebugWindow.accesskey;
 
 class DebugWindow extends Component {
+  static setLayoutManagerToLoad(event) {
+    Session.set('layoutManagerLoaded', event.target.value);
+  }
+
   constructor(props) {
     super(props);
 
@@ -188,6 +193,30 @@ class DebugWindow extends Component {
                         ariaLabel={intl.formatMessage(intlMessages.enableAutoarrangeLayoutLabel)}
                       />
                       <p>{`${intl.formatMessage(intlMessages.enableAutoarrangeLayoutDescription)}`}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.row}>
+                  <div className={styles.cell}>
+                    Layout
+                  </div>
+                  <div className={styles.cell}>
+                    <div className={styles.cellContent}>
+                      {/* <Toggle
+                        className={styles.autoArrangeToggle}
+                        icons={false}
+                        defaultChecked
+                        ariaLabel="teste"
+                      /> */}
+                      <select
+                        value={Session.get('layoutManagerLoaded')}
+                        onChange={DebugWindow.setLayoutManagerToLoad}
+                      >
+                        <option value="legacy">Legacy</option>
+                        <option value="new">New Layout Manager</option>
+                        <option value="both">Both</option>
+                      </select>
+
                     </div>
                   </div>
                 </div>
