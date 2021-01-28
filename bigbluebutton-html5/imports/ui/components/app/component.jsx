@@ -383,7 +383,15 @@ class App extends Component {
           )
         }
         {(layoutManagerLoaded === 'new' || layoutManagerLoaded === 'both')
-          && <div className={styles.newLayout} />}
+          && (
+            <div
+              className={styles.newLayout}
+              style={{
+                width: layoutManagerLoaded !== 'both' ? '100%' : '50%',
+                height: layoutManagerLoaded !== 'both' ? '100%' : '50%',
+              }}
+            />
+          )}
       </Fragment>
     );
   }
