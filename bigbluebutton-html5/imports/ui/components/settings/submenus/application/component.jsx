@@ -318,26 +318,6 @@ class ApplicationMenu extends BaseMenu {
             </div>
           </div>
 
-          <div className={styles.row}>
-            <div className={styles.col} aria-hidden="true">
-              <div className={styles.formElement}>
-                <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.audioFilterLabel)}
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
-                <Toggle
-                  icons={false}
-                  defaultChecked={this.state.audioFilterEnabled}
-                  onChange={() => this.handleAudioFilterChange()}
-                  ariaLabel={intl.formatMessage(intlMessages.audioFilterLabel)}
-                />
-              </div>
-            </div>
-          </div>
-
           <hr className={styles.separator} />
           <div className={styles.row}>
             <div className={styles.col}>
@@ -392,4 +372,3 @@ class ApplicationMenu extends BaseMenu {
 }
 
 export default injectIntl(ApplicationMenu);
-
