@@ -266,8 +266,6 @@
     "app.navBar.emptyAudioBrdige": "Няма активен микрофон. Включете микрофона за да има звук към този запис.",
     "app.leaveConfirmation.confirmLabel": "Напусни",
     "app.leaveConfirmation.confirmDesc": "Напускане на срещата",
-    "app.endMeeting.title": "Край на срещата",
-    "app.endMeeting.description": "Сигурни ли сте че желаете да приключите срещата за всички (всички потребители ще бъдат разкачени)?",
     "app.endMeeting.yesLabel": "Да",
     "app.endMeeting.noLabel": "Не",
     "app.about.title": "Относно",

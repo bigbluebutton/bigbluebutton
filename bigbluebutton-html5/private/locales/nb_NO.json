@@ -260,7 +260,6 @@
     "app.navBar.emptyAudioBrdige": "Ingen aktive mikrofoner. Del mikrofonen for å kunne bruke audio i dette møtet",
     "app.leaveConfirmation.confirmLabel": "Gå ut",
     "app.leaveConfirmation.confirmDesc": "Logger deg ut av møtet",
-    "app.endMeeting.title": "Avslutt møtet",
     "app.endMeeting.yesLabel": "Ja",
     "app.endMeeting.noLabel": "Nei",
     "app.about.title": "Om",

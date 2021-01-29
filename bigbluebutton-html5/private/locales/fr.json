@@ -284,8 +284,6 @@
     "app.navBar.emptyAudioBrdige": "Pas de microphone actif. Partagez votre microphone pour ajouter du son à cet enregistrement.",
     "app.leaveConfirmation.confirmLabel": "Quitter",
     "app.leaveConfirmation.confirmDesc": "Vous déconnecte de la conférence",
-    "app.endMeeting.title": "Mettre fin à la réunion",
-    "app.endMeeting.description": "Voulez-vous vraiment fermer cette conférence pour tout le monde (tous les utilisateurs seront déconnectés) ?",
     "app.endMeeting.yesLabel": "Oui",
     "app.endMeeting.noLabel": "Non",
     "app.about.title": "À propos",
@@ -541,6 +539,7 @@
     "app.shortcut-help.hidePrivateChat": "Masquer la discussion privée",
     "app.shortcut-help.closePrivateChat": "Fermer la discussion privée",
     "app.shortcut-help.openActions": "Ouvrir le menu des actions",
+    "app.shortcut-help.openDebugWindow": "Ouvrir la fenêtre de débogage",
     "app.shortcut-help.openStatus": "Ouvrir le menu de statut",
     "app.shortcut-help.togglePan": "Activer l'outil panoramique (présentateur)",
     "app.shortcut-help.nextSlideDesc": "Diapositive suivante (présentateur)",
@@ -668,6 +667,8 @@
     "app.feedback.textarea": "Comment pouvons-nous améliorer BigBlueButton ?",
     "app.feedback.sendFeedback": "Envoyer l'avis",
     "app.feedback.sendFeedbackDesc": "Envoyer une évaluation et quitter la réunion",
+    "app.videoDock.webcamMirrorLabel": "Miroir",
+    "app.videoDock.webcamMirrorDesc": "Refléter la webcam sélectionnée",
     "app.videoDock.webcamFocusLabel": "Focus",
     "app.videoDock.webcamFocusDesc": "Focus sur la webcam sélectionnée",
     "app.videoDock.webcamUnfocusLabel": "Arrêt du focus",
@@ -720,7 +721,12 @@
     "app.iOSWarning.label": "Veuillez mettre à jour vers iOS 12.2 ou supérieur",
     "app.legacy.unsupportedBrowser": "Il semblerait que vous utilisiez un navigateur qui n'est pas supporté. Veuillez utiliser {0} ou {1} pour un support complet.",
     "app.legacy.upgradeBrowser": "Il semblerait que vous utilisiez une ancienne version d'un navigateur supporté. Veuillez mettre à jour votre navigateur pour un support complet.",
-    "app.legacy.criosBrowser": "Sur iOS, veuillez utiliser Safari pour un support complet."
+    "app.legacy.criosBrowser": "Sur iOS, veuillez utiliser Safari pour un support complet.",
+    "app.debugWindow.windowTitle": "Debug",
+    "app.debugWindow.form.userAgentLabel": "User Agent",
+    "app.debugWindow.form.button.copy": "copier",
+    "app.debugWindow.form.enableAutoarrangeLayoutLabel": "Activer la mise en page automatique",
+    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(il sera désactivé si vous faites glisser ou redimensionnez la zone des webcams)"
 
 }
 

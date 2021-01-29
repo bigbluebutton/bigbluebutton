@@ -267,7 +267,6 @@
     "app.navBar.emptyAudioBrdige": "Нет активных микрофонов. Активируйте свой микрофон, чтобы добавить звук в запись.",
     "app.leaveConfirmation.confirmLabel": "Выйти",
     "app.leaveConfirmation.confirmDesc": "Выйти из конференции",
-    "app.endMeeting.title": "Закончить конференцию",
     "app.endMeeting.yesLabel": "Да",
     "app.endMeeting.noLabel": "Нет",
     "app.about.title": "О программе",

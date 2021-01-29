@@ -250,7 +250,6 @@
     "app.navBar.emptyAudioBrdige": "ไม่มีไมโครโฟนที่ใช้งานอยู่ แชร์ไมโครโฟนของคุณเพื่อเพิ่มเสียงในการบันทึกนี้",
     "app.leaveConfirmation.confirmLabel": "ออกจาก",
     "app.leaveConfirmation.confirmDesc": "นำคุณออกจากการประชุม",
-    "app.endMeeting.title": "สิ้นสุดการประชุม",
     "app.endMeeting.yesLabel": "ใช่",
     "app.endMeeting.noLabel": "ไม่ใช่",
     "app.about.title": "เกี่ยวกับ",
