@@ -119,22 +119,6 @@ class Settings extends Component {
     });
   }
 
-  // returns an array with the base language list + variations of currently selected language
-  filterLocaleVariations(value) {
-    const { allLocales } = this.state;
-
-    if (allLocales) {
-      if (Meteor.settings.public.app.showAllAvailableLocales) {
-        return allLocales;
-      }
-
-      return allLocales.filter(
-        locale => (!locale.locale.includes('-') || locale.locale.split('-')[0] === value.split('-')[0]),
-      );
-    }
-    return [];
-  }
-
   handleUpdateSettings(key, newSettings) {
     const settings = this.state;
     settings.current[key] = newSettings;
@@ -156,9 +140,8 @@ class Settings extends Component {
     const {
       selectedTab,
       current,
+      allLocales,
     } = this.state;
-
-    const availableLocales = this.filterLocaleVariations(current.application.locale);
 
     return (
       <Tabs
@@ -206,7 +189,7 @@ class Settings extends Component {
         </TabList>
         <TabPanel className={styles.tabPanel}>
           <Application
-            availableLocales={availableLocales}
+            allLocales={allLocales}
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
           />

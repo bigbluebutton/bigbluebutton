@@ -2,6 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import Toggle from '/imports/ui/components/switch/component';
+import LocalesDropdown from '/imports/ui/components/locales-dropdown/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import { styles } from '../styles';
@@ -150,7 +151,7 @@ class ApplicationMenu extends BaseMenu {
   }
 
   render() {
-    const { availableLocales, intl } = this.props;
+    const { allLocales, intl } = this.props;
     const {
       isLargestFontSize, isSmallestFontSize, settings,
     } = this.state;
@@ -168,7 +169,7 @@ class ApplicationMenu extends BaseMenu {
 
     const ariaValueLabel = intl.formatMessage(intlMessages.currentValue, { 0: `${pixelPercentage[settings.fontSize]}` });
 
-    const showSelect = availableLocales && availableLocales.length > 0;
+    const showSelect = allLocales && allLocales.length > 0;
 
     return (
       <div>
@@ -214,19 +215,14 @@ class ApplicationMenu extends BaseMenu {
             <div className={styles.col}>
               <span className={cx(styles.formElement, styles.pullContentRight)}>
                 {showSelect ? (
-                  <select
-                    id="langSelector"
+                  <LocalesDropdown
+                    allLocales={allLocales}
+                    handleChange={e => this.handleSelectChange('locale', allLocales, e)}
                     value={this.state.settings.locale}
-                    className={styles.select}
-                    onChange={e => this.handleSelectChange('locale', availableLocales, e)}
-                  >
-                    <option disabled>{intl.formatMessage(intlMessages.languageOptionLabel)}</option>
-                    {availableLocales.map((locale) => (
-                      <option key={locale.locale} value={locale.locale}>
-                        {locale.name}
-                      </option>
-                    ))}
-                  </select>
+                    elementId="langSelector"
+                    elementClass={styles.select}
+                    selectMessage={intl.formatMessage(intlMessages.languageOptionLabel)}
+                  />
                 )
                   : (
                     <div className={styles.spinnerOverlay}>
