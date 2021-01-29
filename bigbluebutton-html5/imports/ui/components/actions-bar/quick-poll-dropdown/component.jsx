@@ -107,7 +107,7 @@ class QuickPollDropdown extends Component {
     const parsedSlide = parseCurrentSlideContent(
       intl.formatMessage(intlMessages.yesOptionLabel),
       intl.formatMessage(intlMessages.noOptionLabel),
-      intl.formatMessage(intlMessages.abstentionOptionLabel)
+      intl.formatMessage(intlMessages.abstentionOptionLabel),
       intl.formatMessage(intlMessages.trueOptionLabel),
       intl.formatMessage(intlMessages.falseOptionLabel),
     );
