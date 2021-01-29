@@ -68,8 +68,6 @@ class VideoService {
     const BROWSER_RESULTS = browser();
     this.isMobile = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
     this.isSafari = BROWSER_RESULTS.name === 'safari';
-    this.pageChangeLocked = false;
-
     this.numberOfDevices = 0;
 
     this.record = null;
@@ -167,11 +165,28 @@ class VideoService {
         meetingId: Auth.meetingID,
         userId: Auth.userID,
       }, { fields: { stream: 1 } },
-    ).fetch().length;
-    this.sendUserUnshareWebcam(cameraId);
-    if (streams < 2) {
-      // If the user had less than 2 streams, set as a full disconnection
+    ).fetch();
+
+    const hasTargetStream = streams.some(s => s.stream === cameraId);
+    const hasOtherStream = streams.some(s => s.stream !== cameraId);
+
+    // Check if the target (cameraId) stream exists in the remote collection.
+    // If it does, means it was successfully shared. So do the full stop procedure.
+    if (hasTargetStream) {
+      this.sendUserUnshareWebcam(cameraId);
+    }
+
+    if (!hasOtherStream) {
+      // There's no other remote stream, meaning (OR)
+      // a) This was effectively the last webcam being unshared
+      // b) This was a connecting stream timing out (not effectively shared)
+      // For both cases, we clean everything up.
       this.exitedVideo();
+    } else {
+      // It was not the last webcam the user had successfully shared,
+      // nor was cameraId present in the server collection.
+      // Hence it's a connecting stream (not effectively shared) which timed out
+      this.stopConnectingStream();
     }
   }
 
@@ -333,6 +348,11 @@ class VideoService {
     return { streams: paginatedStreams, totalNumberOfStreams: mappedStreams.length };
   }
 
+  stopConnectingStream () {
+    this.deviceId = null;
+    this.isConnecting = false;
+  }
+
   getConnectingStream(streams) {
     let connectingStream;
 
@@ -347,8 +367,7 @@ class VideoService {
           };
         } else {
           // Connecting stream is already stored at database
-          this.deviceId = null;
-          this.isConnecting = false;
+          this.stopConnectingStream();
         }
       } else {
         logger.error({
