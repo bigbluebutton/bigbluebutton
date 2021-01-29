@@ -278,8 +278,6 @@
     "app.navBar.emptyAudioBrdige": "Neniu ŝaltita mikrofono. Kundividu vian mikrofonon por aldoni sonon al ĉi tiu registraĵo.",
     "app.leaveConfirmation.confirmLabel": "Forlasi",
     "app.leaveConfirmation.confirmDesc": "Elsalutigas vin el la kunsido",
-    "app.endMeeting.title": "Fini kunsidon",
-    "app.endMeeting.description": "Ĉu vi certas, ke vi volas fini ĉi tiun seancon?",
     "app.endMeeting.yesLabel": "Jes",
     "app.endMeeting.noLabel": "Ne",
     "app.about.title": "Pri",
