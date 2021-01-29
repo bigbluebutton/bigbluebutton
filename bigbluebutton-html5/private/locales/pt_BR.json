@@ -283,6 +283,7 @@
     "app.screenshare.screenShareLabel" : "Compartilhamento de tela",
     "app.submenu.application.applicationSectionTitle": "Aplicação",
     "app.submenu.application.animationsLabel": "Animações",
+    "app.submenu.application.audioFilterLabel": "Filtros de áudio para o microfone",
     "app.submenu.application.fontSizeControlLabel": "Tamanho da fonte",
     "app.submenu.application.increaseFontBtnLabel": "Aumentar o tamanho da fonte da aplicação",
     "app.submenu.application.decreaseFontBtnLabel": "Diminuir o tamanho da fonte da aplicação",

@@ -56,6 +56,25 @@ public:
         raiseHandPushAlerts: true
         fallbackLocale: en
         overrideLocale: null
+        #Audio constraints for microphone. Use this to control browser's
+        #filters, such as AGC (Auto Gain Control) , Echo Cancellation,
+        #Noise Supression, etc.
+        #For more deails, see:
+        # https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+        #Currently, google chrome sets {ideal: true} for autoGainControl,
+        #echoCancellation and noiseSuppression, if not set.
+        #The accepted value for each constraint is an object of type
+        #https://developer.mozilla.org/en-US/docs/Web/API/ConstrainBoolean
+        #These values are used as initial constraints for every new participant,
+        #and can be changed by user in: Settings > Application > Microphone
+        #Audio Filters.
+        # microphoneConstraints:
+        #   autoGainControl:
+        #     ideal: true
+        #   echoCancellation:
+        #     ideal: true
+        #   noiseSuppression:
+        #     ideal: true
       audio:
         inputDeviceId: undefined
         outputDeviceId: undefined

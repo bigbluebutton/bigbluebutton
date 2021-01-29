@@ -306,6 +306,7 @@
     "app.screenshare.screenShareLabel" : "Screen share",
     "app.submenu.application.applicationSectionTitle": "Application",
     "app.submenu.application.animationsLabel": "Animations",
+    "app.submenu.application.audioFilterLabel": "Audio Filters for Microphone",
     "app.submenu.application.fontSizeControlLabel": "Font size",
     "app.submenu.application.increaseFontBtnLabel": "Increase application font size",
     "app.submenu.application.decreaseFontBtnLabel": "Decrease application font size",
