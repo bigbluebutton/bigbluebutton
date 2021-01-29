@@ -11,6 +11,8 @@ export default function validateAuthToken(meetingId, requesterUserId, requesterT
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'ValidateAuthTokenReqMsg';
 
+  Logger.debug('ValidateAuthToken method called', { meetingId, requesterUserId, requesterToken, externalId });
+
   // Check if externalId is banned from the meeting
   if (externalId) {
     if (BannedUsers.has(meetingId, externalId)) {

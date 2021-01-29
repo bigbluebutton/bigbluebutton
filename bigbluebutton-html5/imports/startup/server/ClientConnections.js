@@ -4,7 +4,7 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 import AuthTokenValidation from '/imports/api/auth-token-validation';
 import Users from '/imports/api/users';
 
-const { syncInterval } = Meteor.settings.public.syncUsers;
+const { enabled, syncInterval } = Meteor.settings.public.syncUsersWithConnectionManager;
 
 class ClientConnections {
   constructor() {
@@ -15,13 +15,15 @@ class ClientConnections {
       this.print();
     }, 30000);
 
-    const syncConnections = Meteor.bindEnvironment(() => {
-      this.syncConnectionsWithServer();
-    });
+    if (enabled) {
+      const syncConnections = Meteor.bindEnvironment(() => {
+        this.syncConnectionsWithServer();
+      });
 
-    setInterval(() => {
-      syncConnections();
-    }, syncInterval);
+      setInterval(() => {
+        syncConnections();
+      }, syncInterval);
+    }
   }
 
   add(sessionId, connection) {

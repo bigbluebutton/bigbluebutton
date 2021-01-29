@@ -253,7 +253,8 @@ public:
       mobilePageSizes:
         moderator: 2
         viewer: 2
-  syncUsers:
+  syncUsersWithConnectionManager:
+    enabled: false
     syncInterval: 60000
   allowOutsideCommands:
     toggleRecording: false
