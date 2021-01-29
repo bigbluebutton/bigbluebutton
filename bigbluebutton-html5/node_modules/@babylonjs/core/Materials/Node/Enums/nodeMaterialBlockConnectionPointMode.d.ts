@@ -1,0 +1,13 @@
+/**
+ * Enum defining the mode of a NodeMaterialBlockConnectionPoint
+ */
+export declare enum NodeMaterialBlockConnectionPointMode {
+    /** Value is an uniform */
+    Uniform = 0,
+    /** Value is a mesh attribute */
+    Attribute = 1,
+    /** Value is a varying between vertex and fragment shaders */
+    Varying = 2,
+    /** Mode is undefined */
+    Undefined = 3
+}

@@ -1,0 +1,15 @@
+/**
+ * Enum defining the mode of a NodeMaterialBlockConnectionPoint
+ */
+export var NodeMaterialBlockConnectionPointMode;
+(function (NodeMaterialBlockConnectionPointMode) {
+    /** Value is an uniform */
+    NodeMaterialBlockConnectionPointMode[NodeMaterialBlockConnectionPointMode["Uniform"] = 0] = "Uniform";
+    /** Value is a mesh attribute */
+    NodeMaterialBlockConnectionPointMode[NodeMaterialBlockConnectionPointMode["Attribute"] = 1] = "Attribute";
+    /** Value is a varying between vertex and fragment shaders */
+    NodeMaterialBlockConnectionPointMode[NodeMaterialBlockConnectionPointMode["Varying"] = 2] = "Varying";
+    /** Mode is undefined */
+    NodeMaterialBlockConnectionPointMode[NodeMaterialBlockConnectionPointMode["Undefined"] = 3] = "Undefined";
+})(NodeMaterialBlockConnectionPointMode || (NodeMaterialBlockConnectionPointMode = {}));
+//# sourceMappingURL=nodeMaterialBlockConnectionPointMode.js.map

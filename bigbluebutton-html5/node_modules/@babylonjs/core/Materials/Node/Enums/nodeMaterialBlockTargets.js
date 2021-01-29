@@ -1,0 +1,15 @@
+/**
+ * Enum used to define the target of a block
+ */
+export var NodeMaterialBlockTargets;
+(function (NodeMaterialBlockTargets) {
+    /** Vertex shader */
+    NodeMaterialBlockTargets[NodeMaterialBlockTargets["Vertex"] = 1] = "Vertex";
+    /** Fragment shader */
+    NodeMaterialBlockTargets[NodeMaterialBlockTargets["Fragment"] = 2] = "Fragment";
+    /** Neutral */
+    NodeMaterialBlockTargets[NodeMaterialBlockTargets["Neutral"] = 4] = "Neutral";
+    /** Vertex and Fragment */
+    NodeMaterialBlockTargets[NodeMaterialBlockTargets["VertexAndFragment"] = 3] = "VertexAndFragment";
+})(NodeMaterialBlockTargets || (NodeMaterialBlockTargets = {}));
+//# sourceMappingURL=nodeMaterialBlockTargets.js.map

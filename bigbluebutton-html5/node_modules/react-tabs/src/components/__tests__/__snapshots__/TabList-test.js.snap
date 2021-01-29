@@ -1,0 +1,234 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<TabList /> should accept className 1`] = `
+<ul
+  className="foobar"
+  role="tablist"
+/>
+`;
+
+exports[`<TabList /> should allow for higher order components 1`] = `
+<div
+  className="react-tabs"
+  data-tabs={true}
+  onClick={[Function]}
+  onKeyDown={[Function]}
+>
+  <ul
+    className="react-tabs__tab-list"
+    role="tablist"
+  >
+    <li
+      aria-controls="react-tabs-13"
+      aria-disabled="false"
+      aria-selected="true"
+      className="react-tabs__tab react-tabs__tab--selected"
+      id="react-tabs-12"
+      role="tab"
+      tabIndex="0"
+    >
+      Foo
+    </li>
+    <li
+      aria-controls="react-tabs-15"
+      aria-disabled="false"
+      aria-selected="false"
+      className="react-tabs__tab"
+      id="react-tabs-14"
+      role="tab"
+      tabIndex={null}
+    >
+      Bar
+    </li>
+  </ul>
+  <div
+    aria-labelledby="react-tabs-12"
+    className="react-tabs__tab-panel react-tabs__tab-panel--selected"
+    id="react-tabs-13"
+    role="tabpanel"
+  >
+    Foo
+  </div>
+  <div
+    aria-labelledby="react-tabs-14"
+    className="react-tabs__tab-panel"
+    id="react-tabs-15"
+    role="tabpanel"
+  />
+</div>
+`;
+
+exports[`<TabList /> should display the custom classnames for selected and disabled tab 1`] = `
+<div
+  className="react-tabs"
+  data-tabs={true}
+  onClick={[Function]}
+  onKeyDown={[Function]}
+>
+  <ul
+    className="react-tabs__tab-list"
+    role="tablist"
+  >
+    <li
+      aria-controls="react-tabs-9"
+      aria-disabled="false"
+      aria-selected="true"
+      className="react-tabs__tab active"
+      id="react-tabs-8"
+      role="tab"
+      tabIndex="0"
+    >
+      Foo
+    </li>
+    <li
+      aria-controls="react-tabs-11"
+      aria-disabled="true"
+      aria-selected="false"
+      className="react-tabs__tab disabled"
+      id="react-tabs-10"
+      role="tab"
+      tabIndex={null}
+    >
+      Bar
+    </li>
+  </ul>
+  <div
+    aria-labelledby="react-tabs-8"
+    className="react-tabs__tab-panel react-tabs__tab-panel--selected"
+    id="react-tabs-9"
+    role="tabpanel"
+  >
+    Foo
+  </div>
+  <div
+    aria-labelledby="react-tabs-10"
+    className="react-tabs__tab-panel"
+    id="react-tabs-11"
+    role="tabpanel"
+  />
+</div>
+`;
+
+exports[`<TabList /> should display the custom classnames for selected and disabled tab specified on tabs 1`] = `
+<div
+  className="react-tabs"
+  data-tabs={true}
+  onClick={[Function]}
+  onKeyDown={[Function]}
+>
+  <ul
+    className="react-tabs__tab-list"
+    role="tablist"
+  >
+    <li
+      aria-controls="react-tabs-5"
+      aria-disabled="false"
+      aria-selected="true"
+      className="react-tabs__tab active"
+      id="react-tabs-4"
+      role="tab"
+      tabIndex="0"
+    >
+      Foo
+    </li>
+    <li
+      aria-controls="react-tabs-7"
+      aria-disabled="true"
+      aria-selected="false"
+      className="react-tabs__tab disabled"
+      id="react-tabs-6"
+      role="tab"
+      tabIndex={null}
+    >
+      Bar
+    </li>
+  </ul>
+  <div
+    aria-labelledby="react-tabs-4"
+    className="react-tabs__tab-panel react-tabs__tab-panel--selected"
+    id="react-tabs-5"
+    role="tabpanel"
+  >
+    Foo
+  </div>
+  <div
+    aria-labelledby="react-tabs-6"
+    className="react-tabs__tab-panel"
+    id="react-tabs-7"
+    role="tabpanel"
+  />
+</div>
+`;
+
+exports[`<TabList /> should have sane defaults 1`] = `
+<ul
+  className="react-tabs__tab-list"
+  role="tablist"
+/>
+`;
+
+exports[`<TabList /> should not allow overriding all default properties 1`] = `
+<ul
+  className="react-tabs__tab-list"
+  role="tablist"
+/>
+`;
+
+exports[`<TabList /> should pass through custom properties 1`] = `
+<ul
+  className="react-tabs__tab-list"
+  data-tooltip="Tooltip contents"
+  role="tablist"
+/>
+`;
+
+exports[`<TabList /> should retain the default classnames for active and disabled tab 1`] = `
+<div
+  className="react-tabs"
+  data-tabs={true}
+  onClick={[Function]}
+  onKeyDown={[Function]}
+>
+  <ul
+    className="react-tabs__tab-list"
+    role="tablist"
+  >
+    <li
+      aria-controls="react-tabs-1"
+      aria-disabled="false"
+      aria-selected="true"
+      className="react-tabs__tab react-tabs__tab--selected"
+      id="react-tabs-0"
+      role="tab"
+      tabIndex="0"
+    >
+      Foo
+    </li>
+    <li
+      aria-controls="react-tabs-3"
+      aria-disabled="true"
+      aria-selected="false"
+      className="react-tabs__tab react-tabs__tab--disabled"
+      id="react-tabs-2"
+      role="tab"
+      tabIndex={null}
+    >
+      Bar
+    </li>
+  </ul>
+  <div
+    aria-labelledby="react-tabs-0"
+    className="react-tabs__tab-panel react-tabs__tab-panel--selected"
+    id="react-tabs-1"
+    role="tabpanel"
+  >
+    Foo
+  </div>
+  <div
+    aria-labelledby="react-tabs-2"
+    className="react-tabs__tab-panel"
+    id="react-tabs-3"
+    role="tabpanel"
+  />
+</div>
+`;

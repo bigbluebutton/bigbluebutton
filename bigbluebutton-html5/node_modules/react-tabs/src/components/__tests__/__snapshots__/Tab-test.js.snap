@@ -1,0 +1,126 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Tab /> override the tabIndex if it was provided 1`] = `
+<li
+  aria-controls={null}
+  aria-disabled="false"
+  aria-selected="false"
+  className="react-tabs__tab"
+  id={null}
+  role="tab"
+  tabIndex="0"
+>
+  Hello
+</li>
+`;
+
+exports[`<Tab /> should accept className 1`] = `
+<li
+  aria-controls={null}
+  aria-disabled="false"
+  aria-selected="false"
+  className="foobar"
+  id={null}
+  role="tab"
+  tabIndex={null}
+/>
+`;
+
+exports[`<Tab /> should allow to be wrapped in higher-order-component 1`] = `
+<li
+  aria-controls={null}
+  aria-disabled="false"
+  aria-selected="false"
+  className="react-tabs__tab"
+  id={null}
+  role="tab"
+  tabIndex={null}
+/>
+`;
+
+exports[`<Tab /> should have sane defaults 1`] = `
+<li
+  aria-controls={null}
+  aria-disabled="false"
+  aria-selected="false"
+  className="react-tabs__tab"
+  id={null}
+  role="tab"
+  tabIndex={null}
+/>
+`;
+
+exports[`<Tab /> should not allow overriding all default properties 1`] = `
+<li
+  aria-controls={null}
+  aria-disabled="false"
+  aria-selected="false"
+  className="react-tabs__tab"
+  id={null}
+  role="tab"
+  tabIndex={null}
+/>
+`;
+
+exports[`<Tab /> should pass through custom properties 1`] = `
+<li
+  aria-controls={null}
+  aria-disabled="false"
+  aria-selected="false"
+  className="react-tabs__tab"
+  data-tooltip="Tooltip contents"
+  id={null}
+  role="tab"
+  tabIndex={null}
+/>
+`;
+
+exports[`<Tab /> should support being disabled 1`] = `
+<li
+  aria-controls={null}
+  aria-disabled="true"
+  aria-selected="false"
+  className="react-tabs__tab react-tabs__tab--disabled"
+  id={null}
+  role="tab"
+  tabIndex={null}
+/>
+`;
+
+exports[`<Tab /> should support being disabled with custom class name 1`] = `
+<li
+  aria-controls={null}
+  aria-disabled="true"
+  aria-selected="false"
+  className="react-tabs__tab coolDisabled"
+  id={null}
+  role="tab"
+  tabIndex={null}
+/>
+`;
+
+exports[`<Tab /> should support being selected 1`] = `
+<li
+  aria-controls="1234"
+  aria-disabled="false"
+  aria-selected="true"
+  className="react-tabs__tab react-tabs__tab--selected"
+  id="abcd"
+  role="tab"
+  tabIndex="0"
+>
+  Hello
+</li>
+`;
+
+exports[`<Tab /> should support being selected with custom class 1`] = `
+<li
+  aria-controls={null}
+  aria-disabled="false"
+  aria-selected="true"
+  className="react-tabs__tab cool"
+  id={null}
+  role="tab"
+  tabIndex="0"
+/>
+`;

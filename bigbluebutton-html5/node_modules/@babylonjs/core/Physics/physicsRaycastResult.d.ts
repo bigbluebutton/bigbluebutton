@@ -1,0 +1,76 @@
+import { Vector3 } from "../Maths/math.vector";
+/**
+ * Holds the data for the raycast result
+ * @see https://doc.babylonjs.com/how_to/using_the_physics_engine
+ */
+export declare class PhysicsRaycastResult {
+    private _hasHit;
+    private _hitDistance;
+    private _hitNormalWorld;
+    private _hitPointWorld;
+    private _rayFromWorld;
+    private _rayToWorld;
+    /**
+     * Gets if there was a hit
+     */
+    get hasHit(): boolean;
+    /**
+     * Gets the distance from the hit
+     */
+    get hitDistance(): number;
+    /**
+     * Gets the hit normal/direction in the world
+     */
+    get hitNormalWorld(): Vector3;
+    /**
+     * Gets the hit point in the world
+     */
+    get hitPointWorld(): Vector3;
+    /**
+     * Gets the ray "start point" of the ray in the world
+     */
+    get rayFromWorld(): Vector3;
+    /**
+     * Gets the ray "end point" of the ray in the world
+     */
+    get rayToWorld(): Vector3;
+    /**
+     * Sets the hit data (normal & point in world space)
+     * @param hitNormalWorld defines the normal in world space
+     * @param hitPointWorld defines the point in world space
+     */
+    setHitData(hitNormalWorld: IXYZ, hitPointWorld: IXYZ): void;
+    /**
+     * Sets the distance from the start point to the hit point
+     * @param distance
+     */
+    setHitDistance(distance: number): void;
+    /**
+     * Calculates the distance manually
+     */
+    calculateHitDistance(): void;
+    /**
+     * Resets all the values to default
+     * @param from The from point on world space
+     * @param to The to point on world space
+     */
+    reset(from?: Vector3, to?: Vector3): void;
+}
+/**
+ * Interface for the size containing width and height
+ */
+interface IXYZ {
+    /**
+     * X
+     */
+    x: number;
+    /**
+     * Y
+     */
+    y: number;
+    /**
+     * Z
+     */
+    z: number;
+}
+export {};

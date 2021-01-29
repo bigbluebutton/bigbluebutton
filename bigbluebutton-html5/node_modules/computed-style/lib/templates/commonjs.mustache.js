@@ -1,0 +1,2 @@
+{{{computedStyle}}}
+module.exports = computedStyle;

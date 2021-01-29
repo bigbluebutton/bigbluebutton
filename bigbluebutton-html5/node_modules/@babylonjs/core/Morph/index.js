@@ -1,0 +1,3 @@
+export * from "./morphTarget";
+export * from "./morphTargetManager";
+//# sourceMappingURL=index.js.map

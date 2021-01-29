@@ -1,0 +1,1 @@
+cmd_Release/obj.target/memwatch.node := g++ -shared -pthread -rdynamic -m64  -Wl,-soname=memwatch.node -o Release/obj.target/memwatch.node -Wl,--start-group Release/obj.target/memwatch/src/heapdiff.o Release/obj.target/memwatch/src/init.o Release/obj.target/memwatch/src/memwatch.o Release/obj.target/memwatch/src/util.o -Wl,--end-group 

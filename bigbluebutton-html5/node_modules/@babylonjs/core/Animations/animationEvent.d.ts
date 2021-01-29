@@ -1,0 +1,30 @@
+/**
+ * Composed of a frame, and an action function
+ */
+export declare class AnimationEvent {
+    /** The frame for which the event is triggered **/
+    frame: number;
+    /** The event to perform when triggered **/
+    action: (currentFrame: number) => void;
+    /** Specifies if the event should be triggered only once**/
+    onlyOnce?: boolean | undefined;
+    /**
+     * Specifies if the animation event is done
+     */
+    isDone: boolean;
+    /**
+     * Initializes the animation event
+     * @param frame The frame for which the event is triggered
+     * @param action The event to perform when triggered
+     * @param onlyOnce Specifies if the event should be triggered only once
+     */
+    constructor(
+    /** The frame for which the event is triggered **/
+    frame: number, 
+    /** The event to perform when triggered **/
+    action: (currentFrame: number) => void, 
+    /** Specifies if the event should be triggered only once**/
+    onlyOnce?: boolean | undefined);
+    /** @hidden */
+    _clone(): AnimationEvent;
+}

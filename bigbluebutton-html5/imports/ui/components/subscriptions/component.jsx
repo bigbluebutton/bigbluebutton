@@ -106,11 +106,13 @@ export default withTracker(() => {
     ...subscriptionErrorHandler,
   });
 
+
   subscriptionsHandlers = subscriptionsHandlers.filter(obj => obj);
   const ready = subscriptionsHandlers.every(handler => handler.ready());
 
   return {
     subscriptionsReady: ready,
     subscriptionsHandlers,
+
   };
 })(Subscriptions);

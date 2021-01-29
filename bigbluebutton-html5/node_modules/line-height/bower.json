@@ -1,0 +1,11 @@
+{
+  "name": "line-height",
+  "main": "dist/line-height.js",
+  "version": "0.1.1",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "lib",
+    "test"
+  ]
+}

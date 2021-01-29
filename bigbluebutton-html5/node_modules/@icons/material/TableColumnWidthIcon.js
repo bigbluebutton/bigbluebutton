@@ -1,0 +1,38 @@
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
+var DEFAULT_SIZE = 24;
+
+exports.default = function (_ref) {
+  var _ref$fill = _ref.fill,
+      fill = _ref$fill === undefined ? 'currentColor' : _ref$fill,
+      _ref$width = _ref.width,
+      width = _ref$width === undefined ? DEFAULT_SIZE : _ref$width,
+      _ref$height = _ref.height,
+      height = _ref$height === undefined ? DEFAULT_SIZE : _ref$height,
+      _ref$style = _ref.style,
+      style = _ref$style === undefined ? {} : _ref$style,
+      props = _objectWithoutProperties(_ref, ['fill', 'width', 'height', 'style']);
+
+  return _react2.default.createElement(
+    'svg',
+    _extends({
+      viewBox: '0 0 ' + DEFAULT_SIZE + ' ' + DEFAULT_SIZE,
+      style: _extends({ fill: fill, width: width, height: height }, style)
+    }, props),
+    _react2.default.createElement('path', { d: 'M5,8H19C20.1,8 21,8.9 21,10V20C21,21.1 20.1,22 19,22H5C3.9,22 3,21.1 3,20V10C3,8.9 3.9,8 5,8M5,12V15H11V12H5M13,12V15H19V12H13M5,17V20H11V17H5M13,17V20H19V17H13M11,2H21V6H19V4H13V6H11V2Z' })
+  );
+};

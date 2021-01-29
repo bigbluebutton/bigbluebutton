@@ -1,0 +1,10 @@
+/**
+ * Helper class used to generate session unique ID
+ */
+export declare class UniqueIdGenerator {
+    private static _UniqueIdCounter;
+    /**
+     * Gets an unique (relatively to the current scene) Id
+     */
+    static get UniqueId(): number;
+}

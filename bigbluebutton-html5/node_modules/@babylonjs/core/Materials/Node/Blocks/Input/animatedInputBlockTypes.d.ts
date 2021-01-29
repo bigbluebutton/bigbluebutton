@@ -1,0 +1,9 @@
+/**
+ * Enum defining the type of animations supported by InputBlock
+ */
+export declare enum AnimatedInputBlockTypes {
+    /** No animation */
+    None = 0,
+    /** Time based animation. Will only work for floats */
+    Time = 1
+}

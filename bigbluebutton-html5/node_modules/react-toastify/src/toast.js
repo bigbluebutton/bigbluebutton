@@ -1,0 +1,134 @@
+import eventManager from './utils/eventManager';
+import { POSITION, TYPE, ACTION } from './utils/constant';
+
+let container = null;
+let queue = [];
+const noop = () => false;
+
+/**
+ * Merge provided options with the defaults settings and generate the toastId
+ */
+function mergeOptions(options, type) {
+  return { ...options, type, toastId: getToastId(options) };
+}
+
+/**
+ * Generate a random toastId
+ */
+function generateToastId() {
+  return (Math.random().toString(36) + Date.now().toString(36)).substr(2, 10);
+}
+
+/**
+ * Generate the toastId either automatically or by provided toastId
+ */
+function getToastId(options) {
+  if (
+    options &&
+    (typeof options.toastId === 'string' ||
+      (typeof options.toastId === 'number' && !isNaN(options.toastId)))
+  ) {
+    return options.toastId;
+  }
+
+  return generateToastId();
+}
+
+/**
+ * Dispatch toast. If the container is not mounted, the toast is enqueued
+ */
+function emitEvent(content, options) {
+  if (container !== null) {
+    eventManager.emit(ACTION.SHOW, content, options);
+  } else {
+    queue.push({ action: ACTION.SHOW, content, options });
+  }
+
+  return options.toastId;
+}
+
+const toast = Object.assign(
+  (content, options) =>
+    emitEvent(
+      content,
+      mergeOptions(options, (options && options.type) || TYPE.DEFAULT)
+    ),
+  {
+    success: (content, options) =>
+      emitEvent(content, mergeOptions(options, TYPE.SUCCESS)),
+    info: (content, options) =>
+      emitEvent(content, mergeOptions(options, TYPE.INFO)),
+    warn: (content, options) =>
+      emitEvent(content, mergeOptions(options, TYPE.WARNING)),
+    warning: (content, options) =>
+      emitEvent(content, mergeOptions(options, TYPE.WARNING)),
+    error: (content, options) =>
+      emitEvent(content, mergeOptions(options, TYPE.ERROR)),
+    dismiss: (id = null) => container && eventManager.emit(ACTION.CLEAR, id),
+    isActive: noop,
+    update(toastId, options) {
+      setTimeout(() => {
+        if (container && typeof container.collection[toastId] !== 'undefined') {
+          const {
+            options: oldOptions,
+            content: oldContent
+          } = container.collection[toastId];
+
+          const nextOptions = {
+            ...oldOptions,
+            ...options,
+            toastId: options.toastId || toastId
+          };
+
+          if (!options.toastId || options.toastId === toastId) {
+            nextOptions.updateId = generateToastId();
+          } else {
+            nextOptions.staleToastId = toastId;
+          }
+
+          const content =
+            typeof nextOptions.render !== 'undefined'
+              ? nextOptions.render
+              : oldContent;
+          delete nextOptions.render;
+          emitEvent(content, nextOptions);
+        }
+      }, 0);
+    },
+    done(id, progress = 1) {
+      toast.update(id, {
+        progress,
+        isProgressDone: true
+      });
+    },
+    onChange(callback) {
+      if (typeof callback === 'function') {
+        eventManager.on(ACTION.ON_CHANGE, callback);
+      }
+    },
+    POSITION,
+    TYPE
+  }
+);
+
+/**
+ * Wait until the ToastContainer is mounted to dispatch the toast
+ * and attach isActive method
+ */
+eventManager
+  .on(ACTION.DID_MOUNT, containerInstance => {
+    container = containerInstance;
+    toast.isActive = id => container.isToastActive(id);
+
+    queue.forEach(item => {
+      eventManager.emit(item.action, item.content, item.options);
+    });
+
+    queue = [];
+  })
+  .on(ACTION.WILL_UNMOUNT, () => {
+    container = null;
+    toast.isActive = noop;
+  });
+
+export default toast;

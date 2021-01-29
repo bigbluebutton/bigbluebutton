@@ -1,0 +1,29 @@
+/**
+ * Represents the range of an animation
+ */
+export declare class AnimationRange {
+    /**The name of the animation range**/
+    name: string;
+    /**The starting frame of the animation */
+    from: number;
+    /**The ending frame of the animation*/
+    to: number;
+    /**
+     * Initializes the range of an animation
+     * @param name The name of the animation range
+     * @param from The starting frame of the animation
+     * @param to The ending frame of the animation
+     */
+    constructor(
+    /**The name of the animation range**/
+    name: string, 
+    /**The starting frame of the animation */
+    from: number, 
+    /**The ending frame of the animation*/
+    to: number);
+    /**
+     * Makes a copy of the animation range
+     * @returns A copy of the animation range
+     */
+    clone(): AnimationRange;
+}

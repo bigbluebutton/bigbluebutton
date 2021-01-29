@@ -1,0 +1,24 @@
+sudo: false
+language: node_js
+node_js:
+  - "6"
+  - "5"
+  - "4"
+matrix:
+  allow_failures:
+    - node_js: "5"
+
+addons:
+  # Install Firefox for Karma tests
+  # https://docs.travis-ci.com/user/firefox/#Version-aliases
+  firefox: latest
+
+before_install:
+  - curl --location http://rawgit.com/twolfson/fix-travis-ci/master/lib/install.sh | bash -s
+
+notifications:
+  email:
+    recipients:
+      - todd@twolfson.com
+    on_success: change
+    on_failure: change

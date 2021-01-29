@@ -1,0 +1,50 @@
+/**
+ * Gather the list of clipboard event types as constants.
+ */
+export declare class ClipboardEventTypes {
+    /**
+     * The clipboard event is fired when a copy command is active (pressed).
+     */
+    static readonly COPY = 1;
+    /**
+     *  The clipboard event is fired when a cut command is active (pressed).
+     */
+    static readonly CUT = 2;
+    /**
+     * The clipboard event is fired when a paste command is active (pressed).
+     */
+    static readonly PASTE = 3;
+}
+/**
+ * This class is used to store clipboard related info for the onClipboardObservable event.
+ */
+export declare class ClipboardInfo {
+    /**
+     * Defines the type of event (BABYLON.ClipboardEventTypes)
+     */
+    type: number;
+    /**
+     * Defines the related dom event
+     */
+    event: ClipboardEvent;
+    /**
+     *Creates an instance of ClipboardInfo.
+     * @param type Defines the type of event (BABYLON.ClipboardEventTypes)
+     * @param event Defines the related dom event
+     */
+    constructor(
+    /**
+     * Defines the type of event (BABYLON.ClipboardEventTypes)
+     */
+    type: number, 
+    /**
+     * Defines the related dom event
+     */
+    event: ClipboardEvent);
+    /**
+     *  Get the clipboard event's type from the keycode.
+     * @param keyCode Defines the keyCode for the current keyboard event.
+     * @return {number}
+     */
+    static GetTypeFromCharacter(keyCode: number): number;
+}

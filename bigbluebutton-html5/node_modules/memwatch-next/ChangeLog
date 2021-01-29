@@ -1,0 +1,26 @@
+v0.2.2 -
+	* don't crash when a user accidentally allocates a HeapDiff without new (ala new require('memwatch').HeapDiff()) #30
+
+v0.2.1 -
+	* 0.10.0 support (thanks @rvagg and @tmuellerleile)
+	* improved windows build support (no longer requires sed in path, thanks @mscdex)
+	* work around a windows specific crash due to upstream "bug"  in libuv (https://github.com/joyent/libuv/pull/629)
+
+v0.2.0 -
+	* fix memory leak of snapshots in HeapDiff #15
+	* HeapDiff.end() throws an exception if invoked more than once.
+	* aggressively clean up snapshots, at end() rather than next gc
+
+v0.1.5 -
+	* compiles on windows (thanks @jmatthewsr-ms! sorry to make you wait)
+
+v0.1.4 -
+	* migrate to node-gyp (thanks @jhaynie for getting it started)
+
+v0.1.3 -
+	* node 0.8 support
+
+v0.1.2 -
+
+	* Addition of unit tests (running on travis)
+	* fix bug whereby events would not be emitted when listeners use .once()

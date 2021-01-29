@@ -1,0 +1,64 @@
+/**
+ * Interface for a data buffer
+ */
+export interface IDataBuffer {
+    /**
+     * Reads bytes from the data buffer.
+     * @param byteOffset The byte offset to read
+     * @param byteLength The byte length to read
+     * @returns A promise that resolves when the bytes are read
+     */
+    readAsync(byteOffset: number, byteLength: number): Promise<ArrayBufferView>;
+    /**
+     * The byte length of the buffer.
+     */
+    readonly byteLength: number;
+}
+/**
+ * Utility class for reading from a data buffer
+ */
+export declare class DataReader {
+    /**
+     * The data buffer associated with this data reader.
+     */
+    readonly buffer: IDataBuffer;
+    /**
+     * The current byte offset from the beginning of the data buffer.
+     */
+    byteOffset: number;
+    private _dataView;
+    private _dataByteOffset;
+    /**
+     * Constructor
+     * @param buffer The buffer to read
+     */
+    constructor(buffer: IDataBuffer);
+    /**
+     * Loads the given byte length.
+     * @param byteLength The byte length to load
+     * @returns A promise that resolves when the load is complete
+     */
+    loadAsync(byteLength: number): Promise<void>;
+    /**
+     * Read a unsigned 32-bit integer from the currently loaded data range.
+     * @returns The 32-bit integer read
+     */
+    readUint32(): number;
+    /**
+     * Read a byte array from the currently loaded data range.
+     * @param byteLength The byte length to read
+     * @returns The byte array read
+     */
+    readUint8Array(byteLength: number): Uint8Array;
+    /**
+     * Read a string from the currently loaded data range.
+     * @param byteLength The byte length to read
+     * @returns The string read
+     */
+    readString(byteLength: number): string;
+    /**
+     * Skips the given byte length the currently loaded data range.
+     * @param byteLength The byte length to skip
+     */
+    skipBytes(byteLength: number): void;
+}

@@ -1,0 +1,28 @@
+{
+  "name": "react-draggable",
+  "version": "3.3.2",
+  "homepage": "https://github.com/mzabriskie/react-draggable",
+  "authors": [
+    "Matt Zabriskie",
+    "Samuel Reed"
+  ],
+  "description": "React draggable component",
+  "main": "./dist/react-draggable.js",
+  "keywords": [
+    "react",
+    "draggable"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "example",
+    "lib",
+    "node_modules",
+    "script",
+    "specs",
+    "index.js",
+    "karma.conf.js",
+    "webpack.config.js",
+    "package.json"
+  ]
+}

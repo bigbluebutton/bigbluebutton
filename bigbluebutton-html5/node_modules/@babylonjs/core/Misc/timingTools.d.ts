@@ -1,0 +1,10 @@
+/**
+ * Class used to provide helper for timing
+ */
+export declare class TimingTools {
+    /**
+     * Polyfill for setImmediate
+     * @param action defines the action to execute after the current execution block
+     */
+    static SetImmediate(action: () => void): void;
+}

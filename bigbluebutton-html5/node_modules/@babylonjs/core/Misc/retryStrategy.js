@@ -1,0 +1,26 @@
+/**
+ * Class used to define a retry strategy when error happens while loading assets
+ */
+var RetryStrategy = /** @class */ (function () {
+    function RetryStrategy() {
+    }
+    /**
+     * Function used to defines an exponential back off strategy
+     * @param maxRetries defines the maximum number of retries (3 by default)
+     * @param baseInterval defines the interval between retries
+     * @returns the strategy function to use
+     */
+    RetryStrategy.ExponentialBackoff = function (maxRetries, baseInterval) {
+        if (maxRetries === void 0) { maxRetries = 3; }
+        if (baseInterval === void 0) { baseInterval = 500; }
+        return function (url, request, retryIndex) {
+            if (request.status !== 0 || retryIndex >= maxRetries || url.indexOf("file:") !== -1) {
+                return -1;
+            }
+            return Math.pow(2, retryIndex) * baseInterval;
+        };
+    };
+    return RetryStrategy;
+}());
+export { RetryStrategy };
+//# sourceMappingURL=retryStrategy.js.map

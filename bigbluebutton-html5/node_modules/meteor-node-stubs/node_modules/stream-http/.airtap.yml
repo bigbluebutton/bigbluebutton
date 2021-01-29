@@ -1,0 +1,22 @@
+sauce_connect: true
+browsers:
+  - name: chrome
+    version: 39..latest
+  - name: firefox
+    version: 34..latest
+  - name: safari
+    version: 8..latest
+  - name: MicrosoftEdge
+    version: 13..latest
+  - name: ie
+    version: 11
+  - name: iphone
+    version: '9.3..latest'
+  - name: android
+    version: '6.0..6.0' # TODO: change this back to latest once https://github.com/airtap/browsers/issues/3 is fixed
+server: ./test/server/index.js
+scripts:
+  - "/test-polyfill.js"
+browserify:
+  - options:
+      dedupe: false

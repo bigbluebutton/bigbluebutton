@@ -1,0 +1,20 @@
+{
+  "name": "computedStyle",
+  "repo": "twolfson/computedStyle",
+  "description": "Cross-browser currentStyle/getComputedStyle implementation",
+  "version": "0.1.4",
+  "keywords": [
+    "cross-browser",
+    "getComputedStyle",
+    "currentStyle",
+    "css",
+    "style"
+  ],
+  "dependencies": {},
+  "development": {},
+  "license": "MIT",
+  "scripts": [
+    "dist/computedStyle.commonjs.js"
+  ],
+  "main": "dist/computedStyle.commonjs.js"
+}

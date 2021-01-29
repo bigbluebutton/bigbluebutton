@@ -1,0 +1,49 @@
+#!/usr/bin/env node
+"use strict";
+var fs = require('fs');
+global.Fiber = require('../fibers');
+global.Future = require('../future');
+
+// Start the repl
+var vm = require('vm');
+var domain = require('domain');
+var repl = require('repl').start('node> ', null, fiberEval, true, true);
+function fiberEval(code, context, file, cb) {
+	if (/^\([ \r\n\t+]\)$/.test(code)) {
+		return cb(false, undefined);
+	}
+	// Parses?
+	try {
+		new Function(code);
+	} catch (err) {
+		return cb(err, false);
+	}
+
+	// Run in fiber
+	Future.task(function() {
+		// Save history
+		var last;
+		repl.rli.history = repl.rli.history.slice(0, 50).filter(function(item) {
+			try {
+				return item !== last;
+			} finally {
+				last = item;
+			}
+		});
+		fs.writeFile(process.env.HOME+ '/.node-history', JSON.stringify(repl.rli.history), function(){});
+
+		// Run user code
+		var d = domain.create();
+		d.run(function() {
+			cb(null, vm.runInThisContext(code, file));
+		});
+		d.on('error', function(err) {
+			console.error('\nUnhandled error: '+ err.stack);
+		});
+	}).resolve(cb);
+}
+
+// Load history
+try {
+	repl.rli.history = JSON.parse(fs.readFileSync(process.env.HOME+ '/.node-history', 'utf-8'));
+} catch (err) {}

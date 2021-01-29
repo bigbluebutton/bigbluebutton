@@ -1,0 +1,19 @@
+/**
+ * Class for holding and downloading glTF file data
+ */
+export declare class GLTFData {
+    /**
+     * Object which contains the file name as the key and its data as the value
+     */
+    glTFFiles: {
+        [fileName: string]: string | Blob;
+    };
+    /**
+     * Initializes the glTF file object
+     */
+    constructor();
+    /**
+     * Downloads the glTF data as files based on their names and data
+     */
+    downloadFiles(): void;
+}

@@ -1,0 +1,250 @@
+import { Observable } from "../Misc/observable";
+import { Gamepad } from "../Gamepads/gamepad";
+/**
+ * Defines supported buttons for XBox360 compatible gamepads
+ */
+export declare enum Xbox360Button {
+    /** A */
+    A = 0,
+    /** B */
+    B = 1,
+    /** X */
+    X = 2,
+    /** Y */
+    Y = 3,
+    /** Left button */
+    LB = 4,
+    /** Right button */
+    RB = 5,
+    /** Back */
+    Back = 8,
+    /** Start */
+    Start = 9,
+    /** Left stick */
+    LeftStick = 10,
+    /** Right stick */
+    RightStick = 11
+}
+/** Defines values for XBox360 DPad  */
+export declare enum Xbox360Dpad {
+    /** Up */
+    Up = 12,
+    /** Down */
+    Down = 13,
+    /** Left */
+    Left = 14,
+    /** Right */
+    Right = 15
+}
+/**
+ * Defines a XBox360 gamepad
+ */
+export declare class Xbox360Pad extends Gamepad {
+    private _leftTrigger;
+    private _rightTrigger;
+    private _onlefttriggerchanged;
+    private _onrighttriggerchanged;
+    private _onbuttondown;
+    private _onbuttonup;
+    private _ondpaddown;
+    private _ondpadup;
+    /** Observable raised when a button is pressed */
+    onButtonDownObservable: Observable<Xbox360Button>;
+    /** Observable raised when a button is released */
+    onButtonUpObservable: Observable<Xbox360Button>;
+    /** Observable raised when a pad is pressed */
+    onPadDownObservable: Observable<Xbox360Dpad>;
+    /** Observable raised when a pad is released */
+    onPadUpObservable: Observable<Xbox360Dpad>;
+    private _buttonA;
+    private _buttonB;
+    private _buttonX;
+    private _buttonY;
+    private _buttonBack;
+    private _buttonStart;
+    private _buttonLB;
+    private _buttonRB;
+    private _buttonLeftStick;
+    private _buttonRightStick;
+    private _dPadUp;
+    private _dPadDown;
+    private _dPadLeft;
+    private _dPadRight;
+    private _isXboxOnePad;
+    /**
+     * Creates a new XBox360 gamepad object
+     * @param id defines the id of this gamepad
+     * @param index defines its index
+     * @param gamepad defines the internal HTML gamepad object
+     * @param xboxOne defines if it is a XBox One gamepad
+     */
+    constructor(id: string, index: number, gamepad: any, xboxOne?: boolean);
+    /**
+     * Defines the callback to call when left trigger is pressed
+     * @param callback defines the callback to use
+     */
+    onlefttriggerchanged(callback: (value: number) => void): void;
+    /**
+     * Defines the callback to call when right trigger is pressed
+     * @param callback defines the callback to use
+     */
+    onrighttriggerchanged(callback: (value: number) => void): void;
+    /**
+     * Gets the left trigger value
+     */
+    get leftTrigger(): number;
+    /**
+     * Sets the left trigger value
+     */
+    set leftTrigger(newValue: number);
+    /**
+     * Gets the right trigger value
+     */
+    get rightTrigger(): number;
+    /**
+     * Sets the right trigger value
+     */
+    set rightTrigger(newValue: number);
+    /**
+     * Defines the callback to call when a button is pressed
+     * @param callback defines the callback to use
+     */
+    onbuttondown(callback: (buttonPressed: Xbox360Button) => void): void;
+    /**
+     * Defines the callback to call when a button is released
+     * @param callback defines the callback to use
+     */
+    onbuttonup(callback: (buttonReleased: Xbox360Button) => void): void;
+    /**
+     * Defines the callback to call when a pad is pressed
+     * @param callback defines the callback to use
+     */
+    ondpaddown(callback: (dPadPressed: Xbox360Dpad) => void): void;
+    /**
+     * Defines the callback to call when a pad is released
+     * @param callback defines the callback to use
+     */
+    ondpadup(callback: (dPadReleased: Xbox360Dpad) => void): void;
+    private _setButtonValue;
+    private _setDPadValue;
+    /**
+     * Gets the value of the `A` button
+     */
+    get buttonA(): number;
+    /**
+     * Sets the value of the `A` button
+     */
+    set buttonA(value: number);
+    /**
+     * Gets the value of the `B` button
+     */
+    get buttonB(): number;
+    /**
+     * Sets the value of the `B` button
+     */
+    set buttonB(value: number);
+    /**
+     * Gets the value of the `X` button
+     */
+    get buttonX(): number;
+    /**
+     * Sets the value of the `X` button
+     */
+    set buttonX(value: number);
+    /**
+     * Gets the value of the `Y` button
+     */
+    get buttonY(): number;
+    /**
+     * Sets the value of the `Y` button
+     */
+    set buttonY(value: number);
+    /**
+     * Gets the value of the `Start` button
+     */
+    get buttonStart(): number;
+    /**
+     * Sets the value of the `Start` button
+     */
+    set buttonStart(value: number);
+    /**
+     * Gets the value of the `Back` button
+     */
+    get buttonBack(): number;
+    /**
+     * Sets the value of the `Back` button
+     */
+    set buttonBack(value: number);
+    /**
+     * Gets the value of the `Left` button
+     */
+    get buttonLB(): number;
+    /**
+     * Sets the value of the `Left` button
+     */
+    set buttonLB(value: number);
+    /**
+     * Gets the value of the `Right` button
+     */
+    get buttonRB(): number;
+    /**
+     * Sets the value of the `Right` button
+     */
+    set buttonRB(value: number);
+    /**
+     * Gets the value of the Left joystick
+     */
+    get buttonLeftStick(): number;
+    /**
+     * Sets the value of the Left joystick
+     */
+    set buttonLeftStick(value: number);
+    /**
+     * Gets the value of the Right joystick
+     */
+    get buttonRightStick(): number;
+    /**
+     * Sets the value of the Right joystick
+     */
+    set buttonRightStick(value: number);
+    /**
+     * Gets the value of D-pad up
+     */
+    get dPadUp(): number;
+    /**
+     * Sets the value of D-pad up
+     */
+    set dPadUp(value: number);
+    /**
+     * Gets the value of D-pad down
+     */
+    get dPadDown(): number;
+    /**
+     * Sets the value of D-pad down
+     */
+    set dPadDown(value: number);
+    /**
+     * Gets the value of D-pad left
+     */
+    get dPadLeft(): number;
+    /**
+     * Sets the value of D-pad left
+     */
+    set dPadLeft(value: number);
+    /**
+     * Gets the value of D-pad right
+     */
+    get dPadRight(): number;
+    /**
+     * Sets the value of D-pad right
+     */
+    set dPadRight(value: number);
+    /**
+     * Force the gamepad to synchronize with device values
+     */
+    update(): void;
+    /**
+     * Disposes the gamepad
+     */
+    dispose(): void;
+}

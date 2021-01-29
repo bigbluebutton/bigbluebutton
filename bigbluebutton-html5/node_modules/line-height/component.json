@@ -1,0 +1,21 @@
+{
+  "name": "line-height",
+  "repo": "twolfson/line-height",
+  "version": "0.3.1",
+  "description": "Calculate line-height of an HTML element (IE6 compatible)",
+  "dependencies": {
+    "computed-style": "0.1.3"
+  },
+  "development": {},
+  "license": "MIT",
+  "main": "lib/line-height.js",
+  "keywords": [
+    "line-height",
+    "lineHeight",
+    "getComputedStyle",
+    "css"
+  ],
+  "scripts": [
+    "lib/line-height.js"
+  ]
+}

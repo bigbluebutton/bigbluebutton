@@ -1,0 +1,11 @@
+/**
+ * Helper class that provides a small promise polyfill
+ */
+export declare class PromisePolyfill {
+    /**
+     * Static function used to check if the polyfill is required
+     * If this is the case then the function will inject the polyfill to window.Promise
+     * @param force defines a boolean used to force the injection (mostly for testing purposes)
+     */
+    static Apply(force?: boolean): void;
+}

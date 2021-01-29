@@ -1,0 +1,33 @@
+/**
+ * Composed of a frame, and an action function
+ */
+var AnimationEvent = /** @class */ (function () {
+    /**
+     * Initializes the animation event
+     * @param frame The frame for which the event is triggered
+     * @param action The event to perform when triggered
+     * @param onlyOnce Specifies if the event should be triggered only once
+     */
+    function AnimationEvent(
+    /** The frame for which the event is triggered **/
+    frame, 
+    /** The event to perform when triggered **/
+    action, 
+    /** Specifies if the event should be triggered only once**/
+    onlyOnce) {
+        this.frame = frame;
+        this.action = action;
+        this.onlyOnce = onlyOnce;
+        /**
+         * Specifies if the animation event is done
+         */
+        this.isDone = false;
+    }
+    /** @hidden */
+    AnimationEvent.prototype._clone = function () {
+        return new AnimationEvent(this.frame, this.action, this.onlyOnce);
+    };
+    return AnimationEvent;
+}());
+export { AnimationEvent };
+//# sourceMappingURL=animationEvent.js.map

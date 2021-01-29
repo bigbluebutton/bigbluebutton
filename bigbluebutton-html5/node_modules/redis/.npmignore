@@ -1,0 +1,10 @@
+examples/
+benchmarks/
+test/
+.nyc_output/
+coverage/
+.tern-port
+*.log
+*.rdb
+*.out
+*.yml

@@ -1,0 +1,11 @@
+/**
+ * Enum defining the type of animations supported by InputBlock
+ */
+export var AnimatedInputBlockTypes;
+(function (AnimatedInputBlockTypes) {
+    /** No animation */
+    AnimatedInputBlockTypes[AnimatedInputBlockTypes["None"] = 0] = "None";
+    /** Time based animation. Will only work for floats */
+    AnimatedInputBlockTypes[AnimatedInputBlockTypes["Time"] = 1] = "Time";
+})(AnimatedInputBlockTypes || (AnimatedInputBlockTypes = {}));
+//# sourceMappingURL=animatedInputBlockTypes.js.map

@@ -1,0 +1,59 @@
+/**
+ * Class used to represent a viewport on screen
+ */
+var Viewport = /** @class */ (function () {
+    /**
+     * Creates a Viewport object located at (x, y) and sized (width, height)
+     * @param x defines viewport left coordinate
+     * @param y defines viewport top coordinate
+     * @param width defines the viewport width
+     * @param height defines the viewport height
+     */
+    function Viewport(
+    /** viewport left coordinate */
+    x, 
+    /** viewport top coordinate */
+    y, 
+    /**viewport width */
+    width, 
+    /** viewport height */
+    height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+    /**
+     * Creates a new viewport using absolute sizing (from 0-> width, 0-> height instead of 0->1)
+     * @param renderWidth defines the rendering width
+     * @param renderHeight defines the rendering height
+     * @returns a new Viewport
+     */
+    Viewport.prototype.toGlobal = function (renderWidth, renderHeight) {
+        return new Viewport(this.x * renderWidth, this.y * renderHeight, this.width * renderWidth, this.height * renderHeight);
+    };
+    /**
+     * Stores absolute viewport value into a target viewport (from 0-> width, 0-> height instead of 0->1)
+     * @param renderWidth defines the rendering width
+     * @param renderHeight defines the rendering height
+     * @param ref defines the target viewport
+     * @returns the current viewport
+     */
+    Viewport.prototype.toGlobalToRef = function (renderWidth, renderHeight, ref) {
+        ref.x = this.x * renderWidth;
+        ref.y = this.y * renderHeight;
+        ref.width = this.width * renderWidth;
+        ref.height = this.height * renderHeight;
+        return this;
+    };
+    /**
+     * Returns a new Viewport copied from the current one
+     * @returns a new Viewport
+     */
+    Viewport.prototype.clone = function () {
+        return new Viewport(this.x, this.y, this.width, this.height);
+    };
+    return Viewport;
+}());
+export { Viewport };
+//# sourceMappingURL=math.viewport.js.map

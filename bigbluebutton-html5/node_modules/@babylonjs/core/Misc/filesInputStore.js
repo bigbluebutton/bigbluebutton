@@ -1,0 +1,15 @@
+/**
+ * Class used to help managing file picking and drag'n'drop
+ * File Storage
+ */
+var FilesInputStore = /** @class */ (function () {
+    function FilesInputStore() {
+    }
+    /**
+     * List of files ready to be loaded
+     */
+    FilesInputStore.FilesToLoad = {};
+    return FilesInputStore;
+}());
+export { FilesInputStore };
+//# sourceMappingURL=filesInputStore.js.map

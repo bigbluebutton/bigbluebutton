@@ -1,0 +1,27 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+  </head>
+  <body>
+    <!-- Load in mocha, chai, and testem-->
+    <div id="mocha"></div>
+    <script src="../node_modules/mocha/mocha.js"></script>
+    <script src="/testem.js"></script>
+
+    <!-- Configure mocha -->
+    <script>
+      mocha.setup('bdd');
+    </script>
+
+    <!-- Load in computedStyle -->
+    <script src="../dist/computedStyle.js"></script>
+
+    <!-- Load in and run the tests -->
+    <script src="computedStyle_test.js"></script>
+    <script>
+      if (window.mochaPhantomJS) { mochaPhantomJS.run(); }
+      else { mocha.run(); }
+    </script>
+  </body>
+</html>

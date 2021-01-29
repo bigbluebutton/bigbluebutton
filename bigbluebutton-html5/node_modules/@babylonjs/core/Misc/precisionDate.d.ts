@@ -1,0 +1,9 @@
+/**
+ * Class containing a set of static utilities functions for precision date
+ */
+export declare class PrecisionDate {
+    /**
+     * Gets either window.performance.now() if supported or Date.now() else
+     */
+    static get Now(): number;
+}

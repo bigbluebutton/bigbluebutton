@@ -1,0 +1,10 @@
+{
+  "name": "computedStyle",
+  "version": "0.1.4",
+  "main": "dist/computedStyle.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components"
+  ]
+}

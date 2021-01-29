@@ -1,0 +1,7 @@
+import { InputText } from "./inputText";
+/**
+ * Class used to create a password control
+ */
+export declare class InputPassword extends InputText {
+    protected _beforeRenderText(text: string): string;
+}

@@ -1,0 +1,17 @@
+/**
+ * Class used to override all child animations of a given target
+ */
+export declare class AnimationPropertiesOverride {
+    /**
+     * Gets or sets a value indicating if animation blending must be used
+     */
+    enableBlending: boolean;
+    /**
+     * Gets or sets the blending speed to use when enableBlending is true
+     */
+    blendingSpeed: number;
+    /**
+     * Gets or sets the default loop mode to use
+     */
+    loopMode: number;
+}

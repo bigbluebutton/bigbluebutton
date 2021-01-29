@@ -1,0 +1,213 @@
+import { Observable } from "../Misc/observable";
+/**
+ * Represents a gamepad control stick position
+ */
+export declare class StickValues {
+    /**
+     * The x component of the control stick
+     */
+    x: number;
+    /**
+     * The y component of the control stick
+     */
+    y: number;
+    /**
+     * Initializes the gamepad x and y control stick values
+     * @param x The x component of the gamepad control stick value
+     * @param y The y component of the gamepad control stick value
+     */
+    constructor(
+    /**
+     * The x component of the control stick
+     */
+    x: number, 
+    /**
+     * The y component of the control stick
+     */
+    y: number);
+}
+/**
+ * An interface which manages callbacks for gamepad button changes
+ */
+export interface GamepadButtonChanges {
+    /**
+     * Called when a gamepad has been changed
+     */
+    changed: boolean;
+    /**
+     * Called when a gamepad press event has been triggered
+     */
+    pressChanged: boolean;
+    /**
+     * Called when a touch event has been triggered
+     */
+    touchChanged: boolean;
+    /**
+     * Called when a value has changed
+     */
+    valueChanged: boolean;
+}
+/**
+ * Represents a gamepad
+ */
+export declare class Gamepad {
+    /**
+     * The id of the gamepad
+     */
+    id: string;
+    /**
+     * The index of the gamepad
+     */
+    index: number;
+    /**
+     * The browser gamepad
+     */
+    browserGamepad: any;
+    /**
+     * Specifies what type of gamepad this represents
+     */
+    type: number;
+    private _leftStick;
+    private _rightStick;
+    /** @hidden */
+    _isConnected: boolean;
+    private _leftStickAxisX;
+    private _leftStickAxisY;
+    private _rightStickAxisX;
+    private _rightStickAxisY;
+    /**
+     * Triggered when the left control stick has been changed
+     */
+    private _onleftstickchanged;
+    /**
+     * Triggered when the right control stick has been changed
+     */
+    private _onrightstickchanged;
+    /**
+     * Represents a gamepad controller
+     */
+    static GAMEPAD: number;
+    /**
+     * Represents a generic controller
+     */
+    static GENERIC: number;
+    /**
+     * Represents an XBox controller
+     */
+    static XBOX: number;
+    /**
+     * Represents a pose-enabled controller
+     */
+    static POSE_ENABLED: number;
+    /**
+     * Represents an Dual Shock controller
+     */
+    static DUALSHOCK: number;
+    /**
+     * Specifies whether the left control stick should be Y-inverted
+     */
+    protected _invertLeftStickY: boolean;
+    /**
+     * Specifies if the gamepad has been connected
+     */
+    get isConnected(): boolean;
+    /**
+     * Initializes the gamepad
+     * @param id The id of the gamepad
+     * @param index The index of the gamepad
+     * @param browserGamepad The browser gamepad
+     * @param leftStickX The x component of the left joystick
+     * @param leftStickY The y component of the left joystick
+     * @param rightStickX The x component of the right joystick
+     * @param rightStickY The y component of the right joystick
+     */
+    constructor(
+    /**
+     * The id of the gamepad
+     */
+    id: string, 
+    /**
+     * The index of the gamepad
+     */
+    index: number, 
+    /**
+     * The browser gamepad
+     */
+    browserGamepad: any, leftStickX?: number, leftStickY?: number, rightStickX?: number, rightStickY?: number);
+    /**
+     * Callback triggered when the left joystick has changed
+     * @param callback
+     */
+    onleftstickchanged(callback: (values: StickValues) => void): void;
+    /**
+     * Callback triggered when the right joystick has changed
+     * @param callback
+     */
+    onrightstickchanged(callback: (values: StickValues) => void): void;
+    /**
+     * Gets the left joystick
+     */
+    get leftStick(): StickValues;
+    /**
+     * Sets the left joystick values
+     */
+    set leftStick(newValues: StickValues);
+    /**
+     * Gets the right joystick
+     */
+    get rightStick(): StickValues;
+    /**
+     * Sets the right joystick value
+     */
+    set rightStick(newValues: StickValues);
+    /**
+     * Updates the gamepad joystick positions
+     */
+    update(): void;
+    /**
+     * Disposes the gamepad
+     */
+    dispose(): void;
+}
+/**
+ * Represents a generic gamepad
+ */
+export declare class GenericPad extends Gamepad {
+    private _buttons;
+    private _onbuttondown;
+    private _onbuttonup;
+    /**
+     * Observable triggered when a button has been pressed
+     */
+    onButtonDownObservable: Observable<number>;
+    /**
+     * Observable triggered when a button has been released
+     */
+    onButtonUpObservable: Observable<number>;
+    /**
+     * Callback triggered when a button has been pressed
+     * @param callback Called when a button has been pressed
+     */
+    onbuttondown(callback: (buttonPressed: number) => void): void;
+    /**
+     * Callback triggered when a button has been released
+     * @param callback Called when a button has been released
+     */
+    onbuttonup(callback: (buttonReleased: number) => void): void;
+    /**
+     * Initializes the generic gamepad
+     * @param id The id of the generic gamepad
+     * @param index The index of the generic gamepad
+     * @param browserGamepad The browser gamepad
+     */
+    constructor(id: string, index: number, browserGamepad: any);
+    private _setButtonValue;
+    /**
+     * Updates the generic gamepad
+     */
+    update(): void;
+    /**
+     * Disposes the generic gamepad
+     */
+    dispose(): void;
+}

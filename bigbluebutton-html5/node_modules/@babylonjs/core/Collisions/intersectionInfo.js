@@ -1,0 +1,15 @@
+/**
+ * @hidden
+ */
+var IntersectionInfo = /** @class */ (function () {
+    function IntersectionInfo(bu, bv, distance) {
+        this.bu = bu;
+        this.bv = bv;
+        this.distance = distance;
+        this.faceId = 0;
+        this.subMeshId = 0;
+    }
+    return IntersectionInfo;
+}());
+export { IntersectionInfo };
+//# sourceMappingURL=intersectionInfo.js.map
