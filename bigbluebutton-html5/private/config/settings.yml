@@ -130,10 +130,12 @@ public:
     # Valid for video-provider. Time (ms) before its WS connection times out
     # and tries to reconnect.
     wsConnectionTimeout: 4000
+    # Time in milis to wait for the browser to return a gUM call (used in video-preview)
+    gUMTimeout: 20000
     cameraTimeouts:
       # Base camera timeout: used as the camera *sharing* timeout and
       # as the minimum camera subscribe reconnection timeout
-      baseTimeout: 15000
+      baseTimeout: 30000
       # Max timeout: used as the max camera subscribe reconnection timeout. Each
       # subscribe reattempt increases the reconnection timer up to this
       maxTimeout: 60000
@@ -343,6 +345,8 @@ public:
     #user activates microphone.
     iceGatheringTimeout: 5000
     sipjsHackViaWs: false
+    # Mute/umute toggle throttle time
+    toggleMuteThrottleTime: 300
     #Websocket keepAlive interval (seconds). You may set this to prevent
     #websocket disconnection in some environments. When set, BBB will send
     #'\r\n\r\n' string through SIP.js's websocket. If not set, default value
@@ -420,6 +424,8 @@ public:
     role_moderator: MODERATOR
     role_viewer: VIEWER
   whiteboard:
+    annotationsQueueProcessInterval: 60
+    cursorInterval: 40
     annotations:
       status:
         start: DRAW_START
@@ -558,6 +564,7 @@ private:
     leak:
       enabled: false
     heapdump:
+      thresholdMb: 1024
       enabled: false
       heapdumpFolderPath: HEAPDUMP_FOLDER
       heapdumpIntervalMs: 3600000

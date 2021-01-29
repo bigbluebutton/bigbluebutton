@@ -38,7 +38,7 @@ const WEBSOCKET_KEEP_ALIVE_INTERVAL = MEDIA.websocketKeepAliveInterval || 0;
 const WEBSOCKET_KEEP_ALIVE_DEBOUNCE = MEDIA.websocketKeepAliveDebounce || 10;
 const TRACE_SIP = MEDIA.traceSip || false;
 const AUDIO_MICROPHONE_CONSTRAINTS = Meteor.settings.public.app.defaultSettings
-  .audio.microphoneConstraints;
+  .application.microphoneConstraints;
 
 const getAudioSessionNumber = () => {
   let currItem = parseInt(sessionStorage.getItem(AUDIO_SESSION_NUM_KEY), 10);
@@ -581,7 +581,7 @@ class SIPSession {
 
       const target = SIP.UserAgent.makeURI(`sip:${callExtension}@${hostname}`);
 
-      const userSettingsConstraints = Settings.audio.microphoneConstraints;
+      const userSettingsConstraints = Settings.application.microphoneConstraints;
       const audioDeviceConstraints = userSettingsConstraints
         || AUDIO_MICROPHONE_CONSTRAINTS || {};
 
@@ -987,6 +987,8 @@ class SIPSession {
    */
   async updateAudioConstraints(constraints) {
     try {
+      if (typeof constraints !== 'object') return;
+
       logger.info({
         logCode: 'sipjs_update_audio_constraint',
         extraInfo: {
