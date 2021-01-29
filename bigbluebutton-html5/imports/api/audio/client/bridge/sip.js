@@ -87,6 +87,13 @@ class SIPSession {
     this._currentSessionState = null;
   }
 
+  get inputStream() {
+    if (this.currentSession && this.currentSession.sessionDescriptionHandler) {
+      return this.currentSession.sessionDescriptionHandler.localMediaStream;
+    }
+    return null;
+  }
+
   joinAudio({ isListenOnly, extension, inputDeviceId }, managerCallback) {
     return new Promise((resolve, reject) => {
       const callExtension = extension ? `${extension}${this.userData.voiceBridge}` : this.userData.voiceBridge;
@@ -1062,6 +1069,10 @@ export default class SIPBridge extends BaseAudioBridge {
 
   get inputDeviceId() {
     return this.media.inputDevice ? this.media.inputDevice.inputDeviceId : null;
+  }
+
+  get inputStream() {
+    return this.activeSession ? this.activeSession.inputStream : null;
   }
 
   joinAudio({ isListenOnly, extension }, managerCallback) {
