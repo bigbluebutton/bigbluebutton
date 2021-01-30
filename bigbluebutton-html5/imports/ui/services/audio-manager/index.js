@@ -505,9 +505,16 @@ class AudioManager {
       });
     };
 
-    return this.bridge.changeInputDeviceId(deviceId)
-      .then(handleChangeInputDeviceSuccess)
-      .catch(handleChangeInputDeviceError);
+    return Promise.all(
+      [
+        this.bridge.changeInputDeviceId(deviceId)
+          .then(handleChangeInputDeviceSuccess)
+          .catch(handleChangeInputDeviceError),
+        this.translatorBridge.changeInputDeviceId(deviceId)
+          .then(handleChangeInputDeviceSuccess)
+          .catch(handleChangeInputDeviceError),
+      ]
+    );
   }
 
   async changeOutputDevice(deviceId) {
