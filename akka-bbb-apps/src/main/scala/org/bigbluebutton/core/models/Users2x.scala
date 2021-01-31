@@ -59,6 +59,10 @@ object Users2x {
     users.toVector.filter(u => !u.presenter)
   }
 
+  def findNotPresentersNorModerators(users: Users2x): Vector[UserState] = {
+    users.toVector.filter(u => !u.presenter && u.role != Roles.MODERATOR_ROLE)
+  }
+
   def findViewers(users: Users2x): Vector[UserState] = {
     users.toVector.filter(u => u.role == Roles.VIEWER_ROLE)
   }
