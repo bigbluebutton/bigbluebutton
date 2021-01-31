@@ -27,15 +27,13 @@ export default function sharedWebcam(meetingId, userId, stream) {
     },
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Error setting stream: ${err}`);
-    }
+  try {
+    const { insertedId } = VideoStreams.upsert(selector, modifier);
 
-    if (numChanged) {
-      return Logger.info(`Updated stream=${stream} meeting=${meetingId}`);
+    if (insertedId) {
+      Logger.info(`Updated stream=${stream} meeting=${meetingId}`);
     }
-  };
-
-  return VideoStreams.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Error setting stream: ${err}`);
+  }
 }

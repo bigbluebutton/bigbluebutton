@@ -17,8 +17,7 @@ export default function transferUser(fromMeetingId, toMeetingId) {
     userId: requesterUserId,
   };
 
-  Logger.verbose(`userId ${requesterUserId} was transferred from 
-  meeting ${fromMeetingId}' to meeting '${toMeetingId}`);
+  Logger.verbose('User was transferred from one meting to another', { requesterUserId, fromMeetingId, toMeetingId });
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

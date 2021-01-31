@@ -16,15 +16,11 @@ export default function unsharedWebcam(meetingId, userId, stream) {
     deviceId,
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Error removing stream: ${err}`);
-    }
+  try {
+    VideoStreams.remove(selector);
 
-    if (numChanged) {
-      return Logger.info(`Removed stream=${stream} meeting=${meetingId}`);
-    }
-  };
-
-  return VideoStreams.remove(selector, cb);
+    Logger.info(`Removed stream=${stream} meeting=${meetingId}`);
+  } catch (err) {
+    Logger.error(`Error removing stream: ${err}`);
+  }
 }

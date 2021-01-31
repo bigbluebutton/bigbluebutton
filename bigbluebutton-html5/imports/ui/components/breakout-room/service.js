@@ -27,7 +27,10 @@ const breakoutRoomUser = (breakoutId) => {
   return breakoutUser;
 };
 
-const closeBreakoutPanel = () => Session.set('openPanel', 'userlist');
+const closeBreakoutPanel = () => {
+  Session.set('openPanel', 'userlist');
+  window.dispatchEvent(new Event('panelChanged'));
+};
 
 const endAllBreakouts = () => {
   makeCall('endAllBreakouts');

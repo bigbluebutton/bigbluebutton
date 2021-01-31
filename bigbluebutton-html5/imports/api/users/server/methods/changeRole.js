@@ -20,7 +20,9 @@ export default function changeRole(userId, role) {
     changedBy: requesterUserId,
   };
 
-  Logger.verbose(`User '${userId}' set as '${role} role by '${requesterUserId}' from meeting '${meetingId}'`);
+  Logger.verbose('Changed user role', {
+    userId, role, changedBy: requesterUserId, meetingId,
+  });
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

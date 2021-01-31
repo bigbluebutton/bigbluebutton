@@ -17,6 +17,10 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.animationsLabel',
     description: 'animations label',
   },
+  audioFilterLabel: {
+    id: 'app.submenu.application.audioFilterLabel',
+    description: 'audio filters label',
+  },
   fontSizeControlLabel: {
     id: 'app.submenu.application.fontSizeControlLabel',
     description: 'label for font size ontrol',
@@ -68,6 +72,7 @@ class ApplicationMenu extends BaseMenu {
       settings: props.settings,
       isLargestFontSize: false,
       isSmallestFontSize: false,
+      showSelect: false,
       fontSizes: [
         '12px',
         '14px',
@@ -75,11 +80,31 @@ class ApplicationMenu extends BaseMenu {
         '18px',
         '20px',
       ],
+      audioFilterEnabled: ApplicationMenu.isAudioFilterEnabled(props
+        .settings.microphoneConstraints),
     };
   }
 
   componentDidMount() {
     this.setInitialFontSize();
+  }
+
+  componentDidUpdate() {
+    const { availableLocales } = this.props;
+
+    if (availableLocales && availableLocales.length > 0) {
+      // I used setTimout to create a smooth animation transition
+      setTimeout(() => this.setState({
+        showSelect: true,
+      }), 100);
+    }
+  }
+
+  componentWillUnmount() {
+    // fix Warning: Can't perform a React state update on an unmounted component
+    this.setState = (state, callback) => {
+
+    };
   }
 
   setInitialFontSize() {
@@ -97,6 +122,49 @@ class ApplicationMenu extends BaseMenu {
       isLargestFontSize: fontIndex >= (fontSizes.length - 1),
       fontSizes,
     });
+  }
+
+  static isAudioFilterEnabled(_constraints) {
+    if (typeof _constraints === 'undefined') return true;
+
+    const _isConstraintEnabled = (constraintValue) => {
+      switch (typeof constraintValue) {
+        case 'boolean':
+          return constraintValue;
+        case 'string':
+          return constraintValue === 'true';
+        case 'object':
+          return !!(constraintValue.exact || constraintValue.ideal);
+        default:
+          return false;
+      }
+    };
+
+    let isAnyFilterEnabled = true;
+
+    const constraints = _constraints && (typeof _constraints.advanced === 'object')
+      ? _constraints.advanced
+      : _constraints || {};
+
+    isAnyFilterEnabled = Object.values(constraints).find(
+      constraintValue => _isConstraintEnabled(constraintValue),
+    );
+
+    return isAnyFilterEnabled;
+  }
+
+  handleAudioFilterChange() {
+    const _audioFilterEnabled = !ApplicationMenu.isAudioFilterEnabled(this
+      .state.settings.microphoneConstraints);
+    const _newConstraints = {
+      autoGainControl: _audioFilterEnabled,
+      echoCancellation: _audioFilterEnabled,
+      noiseSuppression: _audioFilterEnabled,
+    };
+
+    const obj = this.state;
+    obj.settings.microphoneConstraints = _newConstraints;
+    this.handleUpdateSettings(this.state.settings, obj.settings);
   }
 
   handleUpdateFontSize(size) {
@@ -143,7 +211,9 @@ class ApplicationMenu extends BaseMenu {
 
   render() {
     const { availableLocales, intl } = this.props;
-    const { isLargestFontSize, isSmallestFontSize, settings } = this.state;
+    const {
+      isLargestFontSize, isSmallestFontSize, settings, showSelect,
+    } = this.state;
 
     // conversions can be found at http://pxtoem.com
     const pixelPercentage = {
@@ -190,6 +260,25 @@ class ApplicationMenu extends BaseMenu {
           <div className={styles.row}>
             <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
+                <label className={styles.label}>
+                  {intl.formatMessage(intlMessages.audioFilterLabel)}
+                </label>
+              </div>
+            </div>
+            <div className={styles.col}>
+              <div className={cx(styles.formElement, styles.pullContentRight)}>
+                <Toggle
+                  icons={false}
+                  defaultChecked={this.state.audioFilterEnabled}
+                  onChange={() => this.handleAudioFilterChange()}
+                  ariaLabel={intl.formatMessage(intlMessages.audioFilterLabel)}
+                />
+              </div>
+            </div>
+          </div>
+          <div className={styles.row}>
+            <div className={styles.col} aria-hidden="true">
+              <div className={styles.formElement}>
                 <label
                   className={styles.label}
                   htmlFor="langSelector"
@@ -201,7 +290,7 @@ class ApplicationMenu extends BaseMenu {
             </div>
             <div className={styles.col}>
               <span className={cx(styles.formElement, styles.pullContentRight)}>
-                {availableLocales && availableLocales.length > 0 ? (
+                {showSelect ? (
                   <select
                     id="langSelector"
                     defaultValue={this.state.settings.locale}
@@ -216,10 +305,19 @@ class ApplicationMenu extends BaseMenu {
                       </option>
                     ))}
                   </select>
-                ) : null}
+                )
+                  : (
+                    <div className={styles.spinnerOverlay}>
+                      <div className={styles.bounce1} />
+                      <div className={styles.bounce2} />
+                      <div />
+                    </div>
+                  )
+                }
               </span>
             </div>
           </div>
+
           <hr className={styles.separator} />
           <div className={styles.row}>
             <div className={styles.col}>

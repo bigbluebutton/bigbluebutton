@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Guest Lobby</title>
+  <meta charset="UTF-8">
+  <style>
+  :root{
+    --enableAnimation: 1;
+  }
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #06172A;
+    height: 100vh;
+    margin: 0;
+  }
+  #content {
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    font-size: 24px;
+    font-family: arial, sans-serif;
+  }
+  .spinner {
+    margin: 20px auto;
+  }
+  .spinner .bounce1 {
+    animation-delay: -0.32s;
+  }
+  .spinner .bounce2 {
+    animation-delay: -0.16s;
+  }
+  .spinner > div {
+    width: 30px;
+    height: 30px;
+    background-color: rgb(255, 255, 255);
+    display: inline-block;
+    border-radius: 100%;
+    animation: sk-bouncedelay calc(var(--enableAnimation) * 1.4s) infinite ease-in-out both;
+  }
+  @-webkit-keyframes sk-bouncedelay {
+      0%, 80%, 100% {
+          -webkit-transform: scale(0)
+      }
+      40% {
+          -webkit-transform: scale(1.0)
+      }
+  }
+
+  @keyframes sk-bouncedelay {
+      0%, 80%, 100% {
+          -webkit-transform: scale(0);
+          transform: scale(0);
+      }
+      40% {
+          -webkit-transform: scale(1.0);
+          transform: scale(1.0);
+      }
+  }
+  </style>
+  
+  <script type="text/javascript">
+    function updateMessage(message) {
+      document.querySelector('#content > p').innerHTML = message;
+    }
+
+    function findSessionToken() {
+      return location.search
+        .substr(1)
+        .split('&')
+        .find(function(item) {
+          return item.split('=')[0] === 'sessionToken'
+        });
+    };
+
+    function fetchGuestWait(sessionToken) {
+      const GUEST_WAIT_ENDPOINT = '/bigbluebutton/api/guestWait';      
+      const urlTest = new URL(`${window.location.origin}${GUEST_WAIT_ENDPOINT}`);
+      const concatedParams = sessionToken.concat('&redirect=false');
+      urlTest.search = concatedParams;
+      return fetch(urlTest, {method: 'get'});
+    };
+
+    function pollGuestStatus(token, attempt, limit, everyMs) {
+      setTimeout(function() {
+        var REDIRECT_STATUSES = ['ALLOW', 'DENY'];
+
+        if (attempt >= limit) {
+          disableAnimation();
+          updateMessage('No respons from Moderator');
+          return;
+        }
+
+        fetchGuestWait(token)
+        .then(async (resp) => await resp.json())
+        .then((data) => {
+          console.log("data=" + JSON.stringify(data));
+          var status = data.response.guestStatus;
+
+          if (REDIRECT_STATUSES.includes(status)) {
+            disableAnimation();
+            window.location = data.response.url;
+            return;
+          }
+
+          return pollGuestStatus(token, attempt + 1, limit, everyMs);
+        });
+      }, everyMs);
+    };
+
+    function enableAnimation(){
+      document.documentElement.style.setProperty('--enableAnimation', 1);
+    }
+
+    function disableAnimation() {
+      document.documentElement.style.setProperty('--enableAnimation', 0);
+    }
+
+    window.onload = function() {
+      enableAnimation();
+      try {
+        var ATTEMPT_EVERY_MS = 5000;
+        var ATTEMPT_LIMIT = 100;
+
+        var sessionToken = findSessionToken();
+
+        if(!sessionToken) {
+          disableAnimation()
+          updateMessage('No session Token received');
+          return;
+        }
+
+        pollGuestStatus(sessionToken, 0, ATTEMPT_LIMIT, ATTEMPT_EVERY_MS);
+      } catch (e) {
+        disableAnimation();
+        console.error(e);
+        updateMessage('Error: more details in the console');
+      }
+    };
+  </script>
+</head>
+
+<body>
+  <div id="content">
+    <div class="spinner">
+      <div class="bounce1"></div>
+      <div class="bounce2"></div>
+      <div class="bounce3"></div>
+    </div>
+    <p>Please wait for a moderator to approve you joining the meeting.</p>
+  </div>
+</body>
+
+</html>

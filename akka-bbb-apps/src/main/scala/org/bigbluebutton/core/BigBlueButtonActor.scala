@@ -159,7 +159,7 @@ class BigBlueButtonActor(
   }
 
   private def handleGetAllMeetingsReqMsg(msg: GetAllMeetingsReqMsg): Unit = {
-    RunningMeetings.meetings(meetings).foreach(m => {
+    RunningMeetings.meetings(meetings).filter(_.props.systemProps.html5InstanceId == msg.body.html5InstanceId).foreach(m => {
       m.actorRef ! msg
     })
   }
