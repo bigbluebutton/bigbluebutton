@@ -757,7 +757,8 @@ class AudioManager {
           }
           return new Promise(function () {})
         }.bind(this);
-        this.translatorBridge.joinAudio(callOptions, callback);
+        this.translatorBridge.changeInputDeviceId(this.inputDevice.id)
+          .then(() => this.translatorBridge.joinAudio(callOptions, callback));
       }
       return navigator.mediaDevices.getUserMedia({ audio: true, deviceId: this.inputDeviceId }).then(success.bind(this));
     }else{
