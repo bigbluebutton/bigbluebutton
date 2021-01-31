@@ -482,6 +482,12 @@ class AudioManager {
       return Promise.resolve(inputDeviceId);
     };
 
+    const reconnectTranslator = (inputDeviceId) => {
+      if (this.translatorBridge.activeSession) {
+        this.openTranslatorChannel(this.translationLanguageExtension);
+      }
+    };
+
     const handleChangeInputDeviceError = (error) => {
       logger.error({
         logCode: 'audiomanager_error_getting_device',
@@ -512,6 +518,7 @@ class AudioManager {
           .catch(handleChangeInputDeviceError),
         this.translatorBridge.changeInputDeviceId(deviceId)
           .then(handleChangeInputDeviceSuccess)
+          .then(reconnectTranslator.bind(this))
           .catch(handleChangeInputDeviceError),
       ]
     );
