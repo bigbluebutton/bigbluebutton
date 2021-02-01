@@ -71,4 +71,5 @@ export default {
   isSharingVideo: () => getVideoUrl(),
   muteMicrophone,
   isTranslatorTalking,
+  isTranslatorMuted: () => AudioManager.isTranslatorMuted(),
 };

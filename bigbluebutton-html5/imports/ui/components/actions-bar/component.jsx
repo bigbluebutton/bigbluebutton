@@ -85,6 +85,9 @@ class ActionsBar extends PureComponent {
 
 
   componentDidMount() {
+
+    AudioManager.registerMuteStateListener(() => this.forceUpdate());
+
     if (TRANSLATOR_SPEAKING_ENABLED) {
       setInterval(() => {
         const meeting = Meetings.findOne(
@@ -170,7 +173,6 @@ class ActionsBar extends PureComponent {
       AudioManager.muteTranslator(muteKey);
     }
 
-    this.setState({translationMuted : AudioManager.isTranslatorMuted(muteKey)});
     this.forceUpdate();
   }
   handleLanguageSelection(language){
@@ -215,8 +217,10 @@ class ActionsBar extends PureComponent {
       allowExternalVideo,
       hasBreakouts,
       isTranslatorTalking,
+      isTranslatorMuted,
     } = this.props;
 
+    const amIAsTranslatorMuted = isTranslatorMuted();
     const actionBarClasses = {};
 
     actionBarClasses[styles.centerWithActions] = amIPresenter;
@@ -306,14 +310,14 @@ class ActionsBar extends PureComponent {
           { amIModerator ?
               (
                   <Button
-                      className={[this.state.translationMuted ? styles.btnmuted: "", styles.translatorBtn ].join(" ")}
+                      className={[amIAsTranslatorMuted ? styles.btnmuted: "", styles.translatorBtn ].join(" ")}
                       onClick={this.handleMuteTranslator}
                       hideLabel
                       label={intl.formatMessage(intlMessages.translatorMicrophoneLabel)}
                       aria-label={intl.formatMessage(intlMessages.translatorMicrophoneLabel)}
-                      color={!this.state.translationMuted ? 'primary' : 'default'}
-                      ghost={this.state.translationMuted}
-                      icon={this.state.translationMuted ? 'mute' : 'unmute'}
+                      color={!amIAsTranslatorMuted ? 'primary' : 'default'}
+                      ghost={amIAsTranslatorMuted}
+                      icon={amIAsTranslatorMuted ? 'mute' : 'unmute'}
                       size="lg"
                       circle
                   />

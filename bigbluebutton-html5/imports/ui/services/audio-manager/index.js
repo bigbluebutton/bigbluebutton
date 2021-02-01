@@ -68,6 +68,7 @@ class AudioManager {
     this.monitor = this.monitor.bind(this);
     this.translatorVolumeGainNode = new AudioContext().createGain();
     this.muteHandels = new Set();
+    this.muteStateCallbacks = new Set();
   }
 
   init(userData) {
@@ -795,6 +796,7 @@ class AudioManager {
   muteTranslator(muteHandle) {
     this.setSenderTrackEnabledTranslator(false)
     this.muteHandels.add(muteHandle);
+    this.notifyMuteStateListener();
   }
 
   unmuteTranslator(muteHandle) {
@@ -802,6 +804,7 @@ class AudioManager {
     if(this.muteHandels.size === 0) {
       this.setSenderTrackEnabledTranslator(true);
     }
+    this.notifyMuteStateListener();
   }
 
   isTranslatorMuted(muteHandle = null) {
@@ -810,6 +813,14 @@ class AudioManager {
     } else {
       return this.muteHandels.has(muteHandle);
     }
+  }
+
+  registerMuteStateListener( callback ) {
+    this.muteStateCallbacks.add(callback);
+  }
+
+  async notifyMuteStateListener() {
+    this.muteStateCallbacks.forEach(callback => callback());
   }
 }
 
