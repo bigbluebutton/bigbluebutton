@@ -240,6 +240,7 @@ public:
     enableListenOnly: true
     autoShareWebcam: false
     skipVideoPreview: false
+    skipVideoPreviewOnFirstJoin: false
     # Entry `thresholds` is an array of:
     # - threshold: minimum number of cameras being shared for profile to applied
     #   profile: a camera profile id from the cameraProfiles configuration array
