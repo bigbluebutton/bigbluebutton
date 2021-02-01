@@ -64,11 +64,9 @@ class RandomUserSelect extends Component {
       clearRandomlySelectedUser,
     } = this.props;
 
-    if (!selectedUser) return null;
+    const isSelectedUser = selectedUser ? (currentUser.userId === selectedUser.userId) : false;
 
-    const isSelectedUser = currentUser.userId === selectedUser.userId;
-
-    const viewElement = numAvailableViewers < 1 ? (
+    const viewElement = (numAvailableViewers < 1 || !selectedUser) ? (
       <div className={styles.modalViewContainer}>
         <div className={styles.modalViewTitle}>
           {intl.formatMessage(messages.randUserTitle)}
