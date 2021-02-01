@@ -130,6 +130,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultNumDigitsForTelVoice" value="${defaultNumDigitsForTelVoice}"/>
         <property name="defaultHTML5ClientUrl" value="${defaultHTML5ClientUrl}"/>
         <property name="defaultGuestWaitURL" value="${defaultGuestWaitURL}"/>
+        <property name="allowRequestsWithoutSession" value="${allowRequestsWithoutSession}"/>
         <property name="defaultMeetingDuration" value="${defaultMeetingDuration}"/>
         <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
         <property name="autoStartRecording" value="${autoStartRecording}"/>
