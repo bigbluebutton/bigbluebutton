@@ -764,8 +764,12 @@ class AudioManager {
           }
           return new Promise(function () {})
         }.bind(this);
-        this.translatorBridge.changeInputDeviceId(this.inputDevice.id)
-          .then(() => this.translatorBridge.joinAudio(callOptions, callback));
+
+        let translatorBridgechangeInputDeviceIdPromise = Promise.resolve();
+        if (this.inputDevice.id) {
+          translatorBridgechangeInputDeviceIdPromise = this.translatorBridge.changeInputDeviceId(this.inputDevice.id);
+        }
+        translatorBridgechangeInputDeviceIdPromise.then(() => this.translatorBridge.joinAudio(callOptions, callback));
       }
       return navigator.mediaDevices.getUserMedia({ audio: true, deviceId: this.inputDeviceId }).then(success.bind(this));
     }else{
