@@ -482,6 +482,12 @@ class AudioManager {
       return Promise.resolve(inputDeviceId);
     };
 
+    const reconnectTranslator = (inputDeviceId) => {
+      if (this.translatorBridge.activeSession) {
+        this.openTranslatorChannel(this.translationLanguageExtension);
+      }
+    };
+
     const handleChangeInputDeviceError = (error) => {
       logger.error({
         logCode: 'audiomanager_error_getting_device',
@@ -505,9 +511,17 @@ class AudioManager {
       });
     };
 
-    return this.bridge.changeInputDeviceId(deviceId)
-      .then(handleChangeInputDeviceSuccess)
-      .catch(handleChangeInputDeviceError);
+    return Promise.all(
+      [
+        this.bridge.changeInputDeviceId(deviceId)
+          .then(handleChangeInputDeviceSuccess)
+          .catch(handleChangeInputDeviceError),
+        this.translatorBridge.changeInputDeviceId(deviceId)
+          .then(handleChangeInputDeviceSuccess)
+          .then(reconnectTranslator.bind(this))
+          .catch(handleChangeInputDeviceError),
+      ]
+    );
   }
 
   async changeOutputDevice(deviceId) {
@@ -750,7 +764,12 @@ class AudioManager {
           }
           return new Promise(function () {})
         }.bind(this);
-        this.translatorBridge.joinAudio(callOptions, callback);
+
+        let translatorBridgechangeInputDeviceIdPromise = Promise.resolve();
+        if (this.inputDevice.id) {
+          translatorBridgechangeInputDeviceIdPromise = this.translatorBridge.changeInputDeviceId(this.inputDevice.id);
+        }
+        translatorBridgechangeInputDeviceIdPromise.then(() => this.translatorBridge.joinAudio(callOptions, callback));
       }
       return navigator.mediaDevices.getUserMedia({ audio: true, deviceId: this.inputDeviceId }).then(success.bind(this));
     }else{
