@@ -28,6 +28,7 @@ import IntlStartup from '/imports/startup/client/intl';
 import ContextProviders from '/imports/ui/components/context-providers/component';
 import ChatAdapter from '/imports/ui/components/components-data/chat-context/adapter';
 import UsersAdapter from '/imports/ui/components/components-data/users-context/adapter';
+import GroupChatAdapter from '/imports/ui/components/components-data/group-chat-context/adapter';
 
 Meteor.startup(() => {
   // Logs all uncaught exceptions to the client logger
@@ -67,6 +68,7 @@ Meteor.startup(() => {
         </JoinHandler>
         <UsersAdapter />
         <ChatAdapter />
+        <GroupChatAdapter />
       </React.Fragment>
     </ContextProviders>,
     document.getElementById('app'),

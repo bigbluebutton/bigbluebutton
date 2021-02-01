@@ -15,7 +15,7 @@
   margin-right: calc(-1 * var(--md-padding-y));
   padding-bottom: var(--md-padding-x);
   margin-bottom: calc(-1 * var(--md-padding-x));
-
+  z-index: 2;
   [dir="rtl"] & {
     padding-right: var(--md-padding-x);
     margin-right: calc(-1 * var(--md-padding-x));
@@ -52,5 +52,6 @@
   width: 100%;
   text-transform: uppercase;
   margin-bottom: .25rem;
+  z-index: 3;
   @extend %text-elipsis;
 }

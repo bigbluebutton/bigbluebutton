@@ -216,82 +216,77 @@ const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID }
 
 const isMe = userId => userId === Auth.userID;
 
-const getActiveChats = (chatID) => {
-  const privateChat = GroupChat
-    .find({ users: { $all: [Auth.userID] } })
-    .fetch()
-    .map(chat => chat.chatId);
 
-  const filter = {
-    chatId: { $ne: PUBLIC_GROUP_CHAT_ID },
-  };
+const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
 
-  if (privateChat) {
-    filter.chatId = { $in: privateChat };
-  }
+  if (_.isEmpty(groupChats) || _.isEmpty(users)) return [];
+  
+  const chatIds = Object.keys(groupChats);
+  const lastTimeWindows = chatIds.reduce((acc, chatId) => {
+    const chat = groupChatsMessages[chatId];
+    const lastTimewindowKey = chat?.lastTimewindow;
+    const lastTimeWindow = lastTimewindowKey?.split('-')[1];
+    return {
+      ...acc,
+      chatId: lastTimeWindow,
+    }
+  }, {});
 
-  let activeChats = GroupChatMsg
-    .find(filter)
-    .fetch();
-
-  const idsWithTimeStamp = {};
-
-  activeChats.map((chat) => {
-    idsWithTimeStamp[`${chat.sender.id}`] = chat.timestamp;
+  chatIds.sort((a,b) => { 
+    if (a === PUBLIC_GROUP_CHAT_ID) {
+      return -1;
+    }
+  
+    if (lastTimeWindows[a] === lastTimeWindows[b]){
+      return 0;
+    }
+    
+    return 1;
   });
+  
+  const chatInfo = chatIds.map((chatId) => {
+    const contextChat = groupChatsMessages[chatId];
+    let unreadMessagesCount = 0;
+    if (contextChat) {
+      const unreadTimewindows = contextChat.unreadTimeWindows;
+  
+      for (const unreadTimeWindowId of unreadTimewindows) {
+        const timeWindow = (isPublicChat 
+          ? contextChat.preJoinMessages[unreadTimeWindowId] || contextChat.posJoinMessages[unreadTimeWindowId]
+          : contextChat.messageGroups[unreadTimeWindowId]);
+        unreadMessagesCount += timeWindow.content.length;
+      }
+    }
 
-  activeChats = activeChats.map(mapActiveChats);
-
-  if (chatID) {
-    activeChats.push(chatID);
-  }
-
-  activeChats = _.uniqBy(_.compact(activeChats), 'id');
-
-  activeChats = activeChats.map(({ id, name }) => {
-    const user = Users.findOne({ userId: id }, { fields: { color: 1, role: 1 } });
+    if (chatId !== PUBLIC_GROUP_CHAT_ID) {
+      const groupChatsParticipants = groupChats[chatId].participants;
+    const otherParticipant = groupChatsParticipants.filter((user)=> user.id !== Auth.userID)[0];
+    const user = users[otherParticipant.id];
+    // console.log('chatInfo::user', otherParticipant, otherParticipant.id, users, );    
 
     return {
       color: user?.color || '#7b1fa2',
       isModerator: user?.role === ROLE_MODERATOR,
-      lastActivity: idsWithTimeStamp[id],
-      name,
-      unreadCounter: UnreadMessages.count(id),
-      userId: id,
+      name: user?.name || otherParticipant.name,
+      chatId,
+      unreadCounter: unreadMessagesCount,
+      userId: user?.userId || otherParticipant.id,
+    };
+    }
+
+    return {
+      userId: 'public',
+      name: 'Public Chat',
+      icon: 'group_chat',
+      chatId: 'public',
+      unreadCounter: unreadMessagesCount,
     };
   });
+  
 
-  const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
-  const filteredChatList = [];
+  return chatInfo;
+}
 
-  activeChats.forEach((op) => {
-    // When a new private chat message is received, ensure the conversation view is restored.
-    if (op.unreadCounter > 0) {
-      if (_.indexOf(currentClosedChats, op.userId) > -1) {
-        Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, op.userId));
-      }
-    }
-
-    // Compare activeChats with session and push it into filteredChatList
-    // if one of the activeChat is not in session.
-    // It will pass to activeChats.
-    if (_.indexOf(currentClosedChats, op.userId) < 0) {
-      filteredChatList.push(op);
-    }
-  });
-
-  activeChats = filteredChatList;
-
-  activeChats.push({
-    userId: 'public',
-    name: 'Public Chat',
-    icon: 'group_chat',
-    unreadCounter: UnreadMessages.count(PUBLIC_GROUP_CHAT_ID),
-  });
-
-  return activeChats
-    .sort(sortChats);
-};
 
 const isVoiceOnlyUser = userId => userId.toString().startsWith('v_');
 

@@ -6,9 +6,9 @@ import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { ChatContext, getLoginTime } from '../components-data/chat-context/context';
+import { GroupChatContext } from '../components-data/group-chat-context/context';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import Chat from './component';
-import _ from 'lodash';
 import ChatService from './service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -44,17 +44,8 @@ const intlMessages = defineMessages({
   },
 });
 
-let lastExecution = 0;
-let applyPropsToState = ()=> {};
-
-const applyPropsToStateDebounced = _.debounce(()=> {
-  const now = Date.now();
-  ChatLogger.trace('lastExecution', lastExecution, now - lastExecution);
-  lastExecution = now;
-
-  applyPropsToState();
-}, DEBOUNCE_TIME);
-
+let previousChatId = null;
+let debounceTimeout = null;
 const ChatContainer = (props) => {
   useEffect(() => {
     ChatService.removeFromClosedChatsSession();
@@ -67,9 +58,10 @@ const ChatContainer = (props) => {
     chatID,
     amIModerator,
     loginTime,
+    intl,
   } = props;
   
-
+  const isPublicChat = chatID === PUBLIC_CHAT_KEY;
   const systemMessages = {
     [sysMessagesIds.welcomeId]:{
       id: sysMessagesIds.welcomeId,
@@ -96,36 +88,59 @@ const ChatContainer = (props) => {
   };
 
   const systemMessagesIds = [sysMessagesIds.welcomeId, amIModerator && modOnlyMessage && sysMessagesIds.moderatorId].filter(i=>i);
-
-  const usingChatContext = useContext(ChatContext);
-  const [stateLastMsg, setLastMsg] = useState(null);
-  const [stateTimeWindows, setTimeWindows] = useState(chatID === PUBLIC_CHAT_KEY ? [...systemMessagesIds.map((item)=> systemMessages[item])]: [] );
   
+  const usingChatContext = useContext(ChatContext);
+  const usingGroupChatContext = useContext(GroupChatContext);
+  const [stateLastMsg, setLastMsg] = useState(null);
+  const [stateTimeWindows, setTimeWindows] = useState(isPublicChat ? [...systemMessagesIds.map((item)=> systemMessages[item])]: [] );
+  
+  const { groupChat } = usingGroupChatContext;
+  const participants = groupChat[chatID]?.participants;
+  const chatName = participants?.filter((user)=> user.id !== Auth.userID)[0]?.name;
+  const title = chatName || intl.formatMessage(intlMessages.titlePublic);
   
   if (unmounting === true) {
     return null;
   }
-
-  const contextChat = usingChatContext?.chats[chatID === PUBLIC_CHAT_KEY ? PUBLIC_GROUP_CHAT_KEY : chatID];
+  
+  const contextChat = usingChatContext?.chats[isPublicChat ? PUBLIC_GROUP_CHAT_KEY : chatID];
   const lastTimeWindow = contextChat?.lastTimewindow;
-  const lastMsg = contextChat && (chatID === PUBLIC_CHAT_KEY 
+  const lastMsg = contextChat && (isPublicChat 
   ? contextChat.preJoinMessages[lastTimeWindow] || contextChat.posJoinMessages[lastTimeWindow]
   : contextChat.messageGroups[lastTimeWindow]);
-  
   let timeWindowsValues = [];
   
-  applyPropsToState = ()=> {
-      if (!_.isEqualWith(lastMsg, stateLastMsg) && lastMsg) {
-        timeWindowsValues = chatID === PUBLIC_CHAT_KEY
-        ? [...Object.values(contextChat.preJoinMessages), ...systemMessagesIds.map((item)=> systemMessages[item]), ...Object.values(contextChat.posJoinMessages)]
-        : [...Object.values(contextChat.messageGroups)];
-        setLastMsg({ ...lastMsg });
-        setTimeWindows(timeWindowsValues);
-      }
+  applyPropsToState = ()=> { 
+        if ((!_.isEqualWith(lastMsg, stateLastMsg) && lastMsg)) {
+          if (contextChat) {
+            timeWindowsValues = isPublicChat
+          ? [...Object.values(contextChat.preJoinMessages), ...systemMessagesIds.map((item)=> systemMessages[item]),
+          ...Object.values(contextChat?.posJoinMessages)]
+          : [...Object.values(contextChat.messageGroups)];
+          setLastMsg({ ...lastMsg });
+          setTimeWindows(timeWindowsValues);
+          } 
+        }else if ((!isPublicChat && chatID !== previousChatId && !lastMsg)) {
+          previousChatId = chatID;
+          setLastMsg({});
+          setTimeWindows([]);
+        }
     }
-  applyPropsToStateDebounced();
+
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(applyPropsToState, DEBOUNCE_TIME); 
+
   return (
-    <Chat {...{ ...props, chatID, amIModerator, count: 1, timeWindowsValues: stateTimeWindows, dispatch: usingChatContext?.dispatch }}>
+    <Chat {...{ ...props,
+    chatID,
+    amIModerator,
+    count: (contextChat?.unreadTimeWindows.size || 0),
+    timeWindowsValues: stateTimeWindows,
+    dispatch: usingChatContext?.dispatch,
+    title,
+    chatName,
+    contextChat,
+    }}>
       {children}
     </Chat>
   );
@@ -134,8 +149,8 @@ const ChatContainer = (props) => {
 export default injectIntl(withTracker(({ intl }) => {
   const chatID = Session.get('idChatOpen');
   let isChatLocked = ChatService.isChatLocked(chatID);
-  let title = intl.formatMessage(intlMessages.titlePublic);
-  let chatName = title;
+  
+  // let chatName = title;
   let partnerIsLoggedOut = false;
 
   const currentUser = ChatService.getUser(Auth.userID);
@@ -154,8 +169,7 @@ export default injectIntl(withTracker(({ intl }) => {
 
   return {
     chatID,
-    chatName,
-    title,
+    intl,
     messages: [],
     partnerIsLoggedOut,
     isChatLocked,

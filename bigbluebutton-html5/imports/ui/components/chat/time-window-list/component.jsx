@@ -10,6 +10,7 @@ import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import TimeWindowChatItem from './time-window-chat-item/container';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
+const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 
 const propTypes = {
   scrollPosition: PropTypes.number,
@@ -65,6 +66,7 @@ class TimeWindowList extends PureComponent {
       userScrolledBack: false,
       lastMessage: {},
     };
+    this.welcomeMessageIndex = -1;
 
     this.listRef = null;
     this.virualRef = null;
@@ -89,7 +91,19 @@ class TimeWindowList extends PureComponent {
     const {
       userSentMessage,
       setUserSentMessage,
+      timeWindowsValues,
     } = this.props;
+
+    const {timeWindowsValues: prevTimeWindowsValues} = prevProps;
+
+    const prevTimeWindowsLength = prevTimeWindowsValues.length;
+    const timeWindowsValuesLength = timeWindowsValues.length;
+    if (prevTimeWindowsValues[prevTimeWindowsLength - 1]?.content.length !== timeWindowsValues[timeWindowsValuesLength - 1]?.content.length) {
+      if (this.listRef) {
+        this.cache.clear(timeWindowsValuesLength-1);
+        this.listRef.recomputeRowHeights(timeWindowsValuesLength-1);
+      }  
+    }
 
     if (userSentMessage && !prevProps.userSentMessage){
       this.setState({
@@ -139,8 +153,23 @@ class TimeWindowList extends PureComponent {
       chatId,
     } = this.props;
     
-    const { scrollArea, } = this.state;
+    const { scrollArea } = this.state;
     const message = timeWindowsValues[index];
+
+    if (message.key === `${SYSTEM_CHAT_TYPE}-welcome-msg`) {
+      if (index !== this.welcomeMessageIndex) {
+        this.welcomeMessageIndex = index;
+        [500, 1000, 2000, 3000, 4000, 5000].forEach((i)=>{
+          setTimeout(() => {
+            if (this.listRef) {
+              this.cache.clear(index);
+              this.listRef.recomputeRowHeights(index);
+            }
+          }, i);
+        })
+      }
+    }
+
     ChatLogger.debug('TimeWindowList::rowRender', this.props);
     return (
       <CellMeasurer
@@ -254,6 +283,14 @@ class TimeWindowList extends PureComponent {
                 scrollToIndex={
                   !userScrolledBack ? timeWindowsValues.length - 1 : undefined
                 }
+                onScroll={({ clientHeight, scrollHeight, scrollTop })=> {
+                  const scrollSize = scrollTop + clientHeight;
+                  if (scrollSize >= scrollHeight) {
+                    this.setState({
+                      userScrolledBack: false,
+                    });
+                  }
+                }}
               />
             );
           }}

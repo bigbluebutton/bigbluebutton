@@ -215,7 +215,11 @@ const lastReadMessageTime = (receiverID) => {
 };
 
 const sendGroupMessage = (message) => {
-  const chatID = Session.get('idChatOpen');
+  // TODO: Refactor to use chatId directly
+  const chatIdToSent = Session.get('idChatOpen') === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : Session.get('idChatOpen')
+  const chat = GroupChat.findOne({ chatId: chatIdToSent },
+  { fields: { users: 1 } });
+  const chatID = Session.get('idChatOpen') === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chat.users.filter(id => id !== Auth.userID)[0];
   const isPublicChat = chatID === PUBLIC_CHAT_ID;
 
   let destinationChatId = PUBLIC_GROUP_CHAT_ID;

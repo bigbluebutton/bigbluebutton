@@ -1,6 +1,4 @@
 import React, {
-  useEffect,
-  useContext,
   createContext,
   useReducer,
 } from 'react';
@@ -8,6 +6,7 @@ import React, {
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
+import { _ } from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -20,6 +19,7 @@ export const ACTIONS = {
   REMOVED: 'removed',
   USER_STATUS_CHANGED: 'user_status_changed',
   LAST_READ_MESSAGE_TIMESTAMP_CHANGED: 'last_read_message_timestamp_changed',
+  INIT: 'initial_structure',
 };
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -83,17 +83,23 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
   if (!stateMessages) {
     if (msg.chatId === getGroupChatId()) {
       state[msg.chatId] = {
+        closed: false,
         count: 0,
         chatIndexes: {},
         preJoinMessages: {},
         posJoinMessages: {},
+        unreadTimeWindows: new Set(),
+        unreadCount: 0,
       };
     } else {
       state[msg.chatId] = {
+        closed: false,
         count: 0,
         lastSender: '',
         chatIndexes: {},
         messageGroups: {},
+        unreadTimeWindows: new Set(),
+        unreadCount: 0,
       };
       stateMessages = state[msg.chatId];
     }
@@ -109,35 +115,43 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
 
   if (!groupMessage || (groupMessage && groupMessage.sender.id !== stateMessages.lastSender.id)) {
     const [tempGroupMessage, sender, newIndex] = msgBuilder({msg, senderData}, stateMessages);
+    stateMessages.closed = false;
     stateMessages.lastSender = sender;
     stateMessages.chatIndexes[keyName] = newIndex;
     stateMessages.lastTimewindow = keyName + '-' + newIndex;
     ChatLogger.trace('ChatContext::formatMsg::msgBuilder::tempGroupMessage', tempGroupMessage);
     
     const messageGroupsKeys = Object.keys(tempGroupMessage);
-    messageGroupsKeys.forEach(key => messageGroups[key] = tempGroupMessage[key]);
-    stateMessages.count = (stateMessages.count + 1);
+    messageGroupsKeys.forEach(key => {
+      messageGroups[key] = tempGroupMessage[key];
+
+      if (tempGroupMessage[key].sender.id !== Auth.userID) {
+        stateMessages.unreadTimeWindows.add(key);
+      }
+    });
   } else {
     if (groupMessage) {
       if (groupMessage.sender.id === stateMessages.lastSender.id) {
-        messageGroups[keyName + '-' + stateMessages.chatIndexes[keyName]] = {
+        const previousMessage = msg.chatId === PUBLIC_CHAT_KEY && msg.timestamp <= getLoginTime();
+        const timeWindowKey = keyName + '-' + stateMessages.chatIndexes[keyName];
+        messageGroups[timeWindowKey] = {
           ...groupMessage,
           lastTimestamp: msg.timestamp,
-
-          read: msg.chatId === PUBLIC_CHAT_KEY && msg.timestamp <= getLoginTime() ? true : false,
+          read: previousMessage ? true : false,
           content: [
             ...groupMessage.content,
             { id: msg.id, text: msg.message, time: msg.timestamp }
           ],
         };
+        if (!previousMessage && groupMessage.sender.id !== Auth.userID) {
+          stateMessages.unreadTimeWindows.add(timeWindowKey);
+        }
       }
     }
   }
 
   return state;
 }
-
-
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -161,8 +175,8 @@ const reducer = (state, action) => {
     }
     case ACTIONS.REMOVED: {
       ChatLogger.debug(ACTIONS.REMOVED);
-      if (state[msg.chatId]){
-        delete state[msg.chatId];
+      if (state[PUBLIC_GROUP_CHAT_KEY]){
+        delete state[PUBLIC_GROUP_CHAT_KEY];
       }
       return state;
     }
@@ -214,13 +228,16 @@ const reducer = (state, action) => {
             if(timeWindow) {
               if (!timeWindow.read) {
                 if (timeWindow.lastTimestamp <= timestamp){
+                  newState[selectedChatId].unreadTimeWindows.delete(timeWindowId);
+
                   newState[selectedChatId][messageGroupName][timeWindowId] = {
                     ...timeWindow,
                     read: true,
                   };
+
+                  
                   newState[selectedChatId] = {
                     ...newState[selectedChatId],
-                    count: (newState[selectedChatId].count - 1) < 0 ? 0 : (newState[selectedChatId].count - 1),
                   };
                   newState[selectedChatId][messageGroupName] = {
                     ...newState[selectedChatId][messageGroupName],
@@ -233,9 +250,26 @@ const reducer = (state, action) => {
             }
           });
         }
-
       });
       return newState;
+    }
+    case ACTIONS.INIT: {
+      ChatLogger.debug(ACTIONS.INIT);
+      const { chatId } = action;
+      const newState = { ...state };
+
+      if (!newState[chatId]){
+        newState[chatId] = {
+          closed: false,
+          count: 0,
+          lastSender: '',
+          chatIndexes: {},
+          messageGroups: {},
+          unreadTimeWindows: new Set(),
+          unreadCount: 0,
+        };
+      }
+      return state;
     }
     default: {
       throw new Error(`Unexpected action: ${JSON.stringify(action)}`);

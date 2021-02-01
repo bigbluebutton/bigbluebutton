@@ -26,7 +26,6 @@ const Adapter = () => {
         const chatCursor = GroupChatMsg.find({}, { reactive: false, sort: { timestamp: 1 } }).fetch();
         const notDispatched = chatCursor.filter(objMsg => !alreadyDispatched.has(objMsg._id));
         notDispatchedCount.count = notDispatched.length;
-        
         notDispatched.forEach((msg) => {
           dispatch({
             type: ACTIONS.ADDED,
