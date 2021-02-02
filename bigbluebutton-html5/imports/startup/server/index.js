@@ -31,7 +31,7 @@ Meteor.startup(() => {
   const CDN_URL = APP_CONFIG.cdn;
   const instanceId = APP_CONFIG.instanceId.slice(1); // remove the leading '/' character
 
-  Logger.warn('Started bbb-html5 process with instanceId=' + instanceId);
+  Logger.warn(`Started bbb-html5 process with instanceId=${instanceId}`);
 
   const { customHeartbeat } = APP_CONFIG;
 
@@ -140,6 +140,9 @@ Meteor.startup(() => {
 const generateLocaleOptions = () => {
   try {
     Logger.warn('Calculating aggregateLocales (heavy)');
+
+
+    // remove duplicated locales (always remove more generic if same name)
     const tempAggregateLocales = AVAILABLE_LOCALES
       .map(file => file.replace('.json', ''))
       .map(file => file.replace('_', '-'))
@@ -151,8 +154,14 @@ const generateLocaleOptions = () => {
           locale,
           name: localeName,
         };
-      });
+      }).reverse()
+      .filter((item, index, self) => index === self.findIndex(i => (
+        i.name === item.name
+      )))
+      .reverse();
+
     Logger.warn(`Total locales: ${tempAggregateLocales.length}`, tempAggregateLocales);
+
     return tempAggregateLocales;
   } catch (e) {
     Logger.error(`'Could not process locales error: ${e}`);

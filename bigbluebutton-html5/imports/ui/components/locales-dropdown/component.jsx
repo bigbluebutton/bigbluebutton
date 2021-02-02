@@ -30,8 +30,17 @@ class LocalesDropdown extends PureComponent {
       // splits value if not empty
       const splitValue = (value) ? value.split('-')[0] : '';
 
+      const allLocaleCodes = [];
+      allLocales.map(item => allLocaleCodes.push(item.locale));
+
+      /*
+        locales show if:
+        1. it is a general version of a locale with no specific locales
+        2. it is a specific version of a selected locale with many specific versions
+        3. it is a specific version of a locale with no general locale
+      */
       return allLocales.filter(
-        locale => (!locale.locale.includes('-') || locale.locale.split('-')[0] === splitValue),
+        locale => (!locale.locale.includes('-') || locale.locale.split('-')[0] === splitValue || !allLocaleCodes.includes(locale.locale.split('-')[0])),
       );
     }
     return [];
