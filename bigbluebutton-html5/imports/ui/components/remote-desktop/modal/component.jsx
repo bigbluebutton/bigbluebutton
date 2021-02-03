@@ -85,7 +85,7 @@ class RemoteDesktopModal extends Component {
       operators = Auth.userID;
     }
 
-    startWatching(url.trim(), password.trim(), operators.trim());
+    startWatching(url.trim(), password, operators);
     closeModal();
   }
 
