@@ -184,6 +184,10 @@ class AudioModal extends Component {
         return this.handleJoinMicrophone();
       }
     }
+
+    if (skipCheck || skipCheckOnJoin && !useEchoTest) {
+      return this.handleJoinMicrophone();
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -349,6 +353,7 @@ class AudioModal extends Component {
     const {
       isConnecting,
       forceListenOnlyAttendee,
+      useEchoTest,
       skipCheck,
       skipCheckOnJoin,
     } = this.props;
@@ -363,7 +368,7 @@ class AudioModal extends Component {
       isConnecting
       || forceListenOnlyAttendee
       || skipCheck
-      || skipCheckOnJoin
+      || skipCheckOnJoin && !useEchoTest
     ) && !content && !hasError;
   }
 
