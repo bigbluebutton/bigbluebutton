@@ -24,6 +24,7 @@ const oldParameters = {
   presenterTools: 'bbb_presenter_tools',
   shortcuts: 'bbb_shortcuts',
   skipCheck: 'bbb_skip_check_audio',
+  skipCheckOnJoin: 'bbb_skip_check_audio_on_first_join',
 };
 
 const oldParametersKeys = Object.keys(oldParameters);
@@ -37,6 +38,7 @@ const currentParameters = [
   'bbb_force_listen_only',
   'bbb_listen_only_mode',
   'bbb_skip_check_audio',
+  'bbb_skip_check_audio_on_first_join',
   // BRANDING
   'bbb_display_branding_area',
   // SHORTCUTS

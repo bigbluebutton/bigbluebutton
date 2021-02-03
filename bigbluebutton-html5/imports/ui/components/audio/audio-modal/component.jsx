@@ -33,9 +33,8 @@ const propTypes = {
   formattedDialNum: PropTypes.string.isRequired,
   showPermissionsOvelay: PropTypes.bool.isRequired,
   listenOnlyMode: PropTypes.bool.isRequired,
-  skipCheck: PropTypes.bool.isRequired,
-  joinFullAudioImmediately: PropTypes.bool.isRequired,
-  joinFullAudioEchoTest: PropTypes.bool.isRequired,
+  skipCheck: PropTypes.bool,
+  skipCheckOnJoin: PropTypes.bool,
   forceListenOnlyAttendee: PropTypes.bool.isRequired,
   audioLocked: PropTypes.bool.isRequired,
   resolve: PropTypes.func,
@@ -52,6 +51,8 @@ const defaultProps = {
   inputDeviceId: null,
   outputDeviceId: null,
   resolve: null,
+  skipCheck: false,
+  skipCheckOnJoin: false,
 };
 
 const intlMessages = defineMessages({
@@ -162,22 +163,26 @@ class AudioModal extends Component {
 
   componentDidMount() {
     const {
-      joinFullAudioImmediately,
-      joinFullAudioEchoTest,
       forceListenOnlyAttendee,
       audioLocked,
+      autoJoin,
+      skipCheck,
+      skipCheckOnJoin,
+      useEchoTest,
     } = this.props;
 
-    if (joinFullAudioImmediately) {
-      this.handleJoinMicrophone();
-    }
+    if (autoJoin) {
+      if (forceListenOnlyAttendee || audioLocked) {
+        return this.handleJoinListenOnly();
+      }
 
-    if (joinFullAudioEchoTest) {
-      this.handleGoToEchoTest();
-    }
+      if (useEchoTest) {
+        return this.handleGoToEchoTest();
+      }
 
-    if (forceListenOnlyAttendee || audioLocked) {
-      this.handleJoinListenOnly();
+      if (skipCheck || skipCheckOnJoin) {
+        return this.handleJoinMicrophone();
+      }
     }
   }
 
@@ -221,14 +226,10 @@ class AudioModal extends Component {
   }
 
   handleRetryGoToEchoTest() {
-    const { joinFullAudioImmediately } = this.props;
-
     this.setState({
       hasError: false,
       content: null,
     });
-
-    if (joinFullAudioImmediately) return this.joinMicrophone();
 
     return this.handleGoToEchoTest();
   }
@@ -262,7 +263,7 @@ class AudioModal extends Component {
     });
 
     return joinEchoTest().then(() => {
-      //console.log(inputDeviceId, outputDeviceId);
+      // console.log(inputDeviceId, outputDeviceId);
       this.setState({
         content: 'echoTest',
         disableActions: false,
@@ -347,9 +348,9 @@ class AudioModal extends Component {
   skipAudioOptions() {
     const {
       isConnecting,
-      joinFullAudioImmediately,
-      joinFullAudioEchoTest,
       forceListenOnlyAttendee,
+      skipCheck,
+      skipCheckOnJoin,
     } = this.props;
 
     const {
@@ -361,8 +362,8 @@ class AudioModal extends Component {
     return (
       isConnecting
       || forceListenOnlyAttendee
-      || joinFullAudioImmediately
-      || joinFullAudioEchoTest
+      || skipCheck
+      || skipCheckOnJoin
     ) && !content && !hasError;
   }
 
