@@ -106,6 +106,7 @@ const reduceGroupMessages = (previous, current) => {
 };
 
 const getChatMessages = (chatId) => {
+  return []
   if (chatId === PUBLIC_CHAT_ID) {
     return GroupChatMsg.find({
       meetingId: Auth.meetingID,
@@ -140,6 +141,7 @@ const reduceAndDontMapGroupMessages = messages => (messages
   .reduce(reduceGroupMessages, []));
 
 const getPublicGroupMessages = () => {
+  return [];
   const publicGroupMessages = GroupChatMsg.find({
     meetingId: Auth.meetingID,
     chatId: PUBLIC_GROUP_CHAT_ID,
@@ -148,6 +150,7 @@ const getPublicGroupMessages = () => {
 };
 
 const getPrivateGroupMessages = () => {
+  return [];
   const chatID = Session.get('idChatOpen');
   const senderId = Auth.userID;
 
@@ -349,6 +352,7 @@ const exportChat = (messageList) => {
 };
 
 const getAllMessages = (chatID) => {
+  return [];
   const filter = {
     'sender.id': { $ne: Auth.userID },
   };

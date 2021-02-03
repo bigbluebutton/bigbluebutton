@@ -153,7 +153,7 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
   return state;
 }
 
-const reducer = (state, action) => {
+const reducer = (state, action) => {  
   switch (action.type) {
     case ACTIONS.TEST: {
       ChatLogger.debug(ACTIONS.TEST);

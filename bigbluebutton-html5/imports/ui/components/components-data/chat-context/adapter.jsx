@@ -18,28 +18,47 @@ const Adapter = () => {
 
   useEffect(() => {
     const alreadyDispatched = new Set();
-    const notDispatchedCount = { count: 100 };
     // TODO: hadle removed Messages
     // TODO: listen to websocket message to avoid full list comparsion
-    const diffAndDispatch = () => {
-      setTimeout(() => {
-        const chatCursor = GroupChatMsg.find({}, { reactive: false, sort: { timestamp: 1 } }).fetch();
-        const notDispatched = chatCursor.filter(objMsg => !alreadyDispatched.has(objMsg._id));
-        notDispatchedCount.count = notDispatched.length;
-        notDispatched.forEach((msg) => {
-          dispatch({
-            type: ACTIONS.ADDED,
-            value: {
-              msg,
-              senderData: usersData[msg.sender.id],
-            },
-          });
-          alreadyDispatched.add(msg._id);
-        });
-        diffAndDispatch();
-      }, notDispatchedCount.count >= 10 ? 1000 : 500);
-    };
-    diffAndDispatch();
+    Meteor.connection._stream.socket.addEventListener('message', (msg) => {
+      if (msg.data.indexOf('{"msg":"added","collection":"group-chat-msg"') != -1) {
+        const parsedMsg = JSON.parse(msg.data);
+        if (parsedMsg.msg === 'added') {
+          setTimeout(() => {
+            dispatch({
+              type: ACTIONS.ADDED,
+              value: {
+                msg: parsedMsg.fields,
+                senderData: usersData[parsedMsg.fields.sender.id],
+              },
+            });
+          }, 0);
+        }
+      }
+    });
+    // const diffAndDispatch = () => {
+    //   setTimeout(() => {
+
+        
+
+
+    //     // const chatCursor = GroupChatMsg.find({}, { reactive: false, sort: { timestamp: 1 } }).fetch();
+    //     // const notDispatched = chatCursor.filter(objMsg => !alreadyDispatched.has(objMsg._id));
+    //     // notDispatched.forEach((msg) => {
+    //     //   console.log('dispatch');
+    //     //   dispatch({
+    //     //     type: ACTIONS.ADDED,
+    //     //     value: {
+    //     //       msg,
+    //     //       senderData: usersData[msg.sender.id],
+    //     //     },
+    //     //   });
+    //     //   alreadyDispatched.add(msg._id);
+    //     // });
+    //     // diffAndDispatch();
+    //   }, 500);
+    // };
+    // diffAndDispatch();
   }, []);
 
   return null;

@@ -19,7 +19,7 @@ const CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const CONNECTION_STATUS = 'online';
-const DEBOUNCE_TIME = 100;
+const DEBOUNCE_TIME = 1000;
 
 const sysMessagesIds = {
   welcomeId: `${SYSTEM_CHAT_TYPE}-welcome-msg`,
@@ -47,6 +47,13 @@ const intlMessages = defineMessages({
 
 let previousChatId = null;
 let debounceTimeout = null;
+
+let globalAppplyStateToProps = ()=>{}
+
+const throttledFunc = _.throttle(()=> {
+  globalAppplyStateToProps();
+}, DEBOUNCE_TIME, { trailing: true, leading: false});
+
 const ChatContainer = (props) => {
   useEffect(() => {
     ChatService.removeFromClosedChatsSession();
@@ -127,9 +134,8 @@ const ChatContainer = (props) => {
           setTimeWindows([]);
         }
     }
-
-    clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(applyPropsToState, DEBOUNCE_TIME); 
+    globalAppplyStateToProps = applyPropsToState;
+    throttledFunc();
 
   return (
     <Chat {...{ ...props,
