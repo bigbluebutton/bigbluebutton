@@ -3,6 +3,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Modal from '/imports/ui/components/modal/simple/component';
 import Button from '/imports/ui/components/button/component';
+import AudioService from '/imports/ui/components/audio/service';
 import { styles } from './styles';
 
 const messages = defineMessages({
@@ -17,6 +18,10 @@ const messages = defineMessages({
   randUserTitle: {
     id: 'app.modal.randomUser.title',
     description: 'Modal title label',
+  },
+  whollbeSelected: {
+    id: 'app.modal.randomUser.who',
+    description: 'Label shown during the selection',
   },
   reselect: {
     id: 'app.modal.randomUser.reselect.label',
@@ -44,13 +49,54 @@ class RandomUserSelect extends Component {
     if (props.currentUser.presenter) {
       props.randomUserReq();
     }
+    
+    this.state = {
+      count: 0,
+    };
+    
+    this.play = this.play.bind(this);
+  }
+
+  iterateSelection() {
+    if (this.props.mappedRandomlySelectedUsers.length > 1){
+      let that = this;
+      setTimeout(delay(that.props.mappedRandomlySelectedUsers, 1), that.props.mappedRandomlySelectedUsers[1][1]);
+      function delay(arr, num) {
+        that.setState({
+          count: num,
+        });
+        if (num < that.props.mappedRandomlySelectedUsers.length-1){
+          setTimeout(function() { delay(arr, num+1); }, arr[num+1][1]);
+        }
+      }
+    }
+  }
+
+  componentDidMount() {
+    if (!this.props.currentUser.presenter) {
+      this.iterateSelection();
+    }
   }
 
   componentDidUpdate() {
-    const { selectedUser, currentUser, mountModal } = this.props;
-    if (selectedUser && selectedUser.userId !== currentUser.userId && !currentUser.presenter) {
-      mountModal(null);
+    if (this.props.currentUser.presenter && this.state.count == 0) {
+      this.iterateSelection();
     }
+  }
+
+  play() {
+    AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
+      + Meteor.settings.public.app.basename
+      + Meteor.settings.public.app.instanceId}`
+      + '/resources/sounds/Poll.mp3');
+  }
+
+
+  reselect() {
+    this.setState({
+      count: 0,
+    });
+    this.props.randomUserReq();
   }
 
   render() {
@@ -59,16 +105,23 @@ class RandomUserSelect extends Component {
       mountModal,
       numAvailableViewers,
       randomUserReq,
-      selectedUser,
       currentUser,
       clearRandomlySelectedUser,
+      mappedRandomlySelectedUsers,
     } = this.props;
 
+    if (mappedRandomlySelectedUsers.length < this.state.count+1) return null;
+    
+    const selectedUser = mappedRandomlySelectedUsers[this.state.count][0];
+    const countDown = mappedRandomlySelectedUsers.length - this.state.count -1;
+
     if (!selectedUser) return null;
+    
+    this.play();
 
     const isSelectedUser = currentUser.userId === selectedUser.userId;
 
-    const viewElement = numAvailableViewers < 1 ? (
+    const viewElement = numAvailableViewers < 1 || (currentUser.presenter && isSelectedUser) ? (
       <div className={styles.modalViewContainer}>
         <div className={styles.modalViewTitle}>
           {intl.formatMessage(messages.randUserTitle)}
@@ -77,10 +130,15 @@ class RandomUserSelect extends Component {
       </div>
     ) : (
       <div className={styles.modalViewContainer}>
+      <div className={countDown == 0
+                       ? styles.modalViewFinalContainer
+                       : styles.modalViewContainer}>
         <div className={styles.modalViewTitle}>
-          {isSelectedUser
-            ? `${intl.formatMessage(messages.selected)}`
-            : `${intl.formatMessage(messages.randUserTitle)}`
+          {countDown == 0
+            ?  isSelectedUser
+               ? `${intl.formatMessage(messages.selected)}`
+               : `${intl.formatMessage(messages.randUserTitle)}`
+            : `${intl.formatMessage(messages.whollbeSelected)} ${countDown}`
           }
         </div>
         <div aria-hidden className={styles.modalAvatar} style={{ backgroundColor: `${selectedUser.color}` }}>
@@ -89,14 +147,15 @@ class RandomUserSelect extends Component {
         <div className={styles.selectedUserName}>
           {selectedUser.name}
         </div>
-        {!isSelectedUser
+        {currentUser.presenter
+          && countDown == 0
           && (
           <Button
             label={intl.formatMessage(messages.reselect)}
             color="primary"
             size="md"
             className={styles.selectBtn}
-            onClick={() => randomUserReq()}
+            onClick={() => this.reselect()}
           />
           )
         }
