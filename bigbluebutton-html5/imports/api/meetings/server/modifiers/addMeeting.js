@@ -146,7 +146,7 @@ export default function addMeeting(meeting) {
       meetingId,
       meetingEnded,
       publishedPoll: false,
-      randomlySelectedUser: '',
+      randomlySelectedUser: [],
     }, flat(newMeeting, {
       safe: true,
     })),
