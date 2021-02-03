@@ -47,6 +47,7 @@ export default class Media extends Component {
       audioModalIsOpen,
       usersVideo,
       webcamPlacement,
+      isMeteorConnected,
     } = this.props;
 
     const contentClassName = cx({
@@ -60,7 +61,7 @@ export default class Media extends Component {
     });
 
     const { viewParticipantsWebcams } = Settings.dataSaving;
-    const showVideo = usersVideo.length > 0 && viewParticipantsWebcams;
+    const showVideo = usersVideo.length > 0 && viewParticipantsWebcams && isMeteorConnected;
     const fullHeight = !showVideo || (webcamPlacement === 'floating');
 
     return (
