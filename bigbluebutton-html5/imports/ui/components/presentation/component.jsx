@@ -168,43 +168,44 @@ class PresentationArea extends PureComponent {
       this.onResize();
     }
 
-    const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;
-    const { width: currWidth, height: currHeight } = slidePosition;
+    if(prevProps?.slidePosition && slidePosition){
+      const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;
+      const { width: currWidth, height: currHeight } = slidePosition;
 
-    if (prevProps.slidePosition.id !== slidePosition.id) {
-      if ((prevWidth > prevHeight && currHeight > currWidth)
-        || (prevHeight > prevWidth && currWidth > currHeight)) {
-        layoutContextDispatch(
-          {
-            type: 'setAutoArrangeLayout',
-            value: true,
+      if (prevProps.slidePosition.id !== slidePosition.id) {
+        if ((prevWidth > prevHeight && currHeight > currWidth)
+          || (prevHeight > prevWidth && currWidth > currHeight)) {
+          layoutContextDispatch(
+            {
+              type: 'setAutoArrangeLayout',
+              value: true,
+            },
+          );
+        }
+        window.dispatchEvent(new Event('slideChanged'));
+      }
+
+      if (prevWidth !== currWidth || prevHeight !== currHeight) {
+        layoutContextDispatch({
+          type: 'setPresentationSlideSize',
+          value: {
+            width: currWidth,
+            height: currHeight,
           },
-        );
-      }
-      window.dispatchEvent(new Event('slideChanged'));
-    }
-
-    if (prevWidth !== currWidth || prevHeight !== currHeight) {
-      layoutContextDispatch({
-        type: 'setPresentationSlideSize',
-        value: {
-          width: currWidth,
-          height: currHeight,
-        },
-      });
-      if (currWidth > currHeight || currWidth === currHeight) {
-        layoutContextDispatch({
-          type: 'setPresentationOrientation',
-          value: 'landscape',
         });
+        if (currWidth > currHeight || currWidth === currHeight) {
+          layoutContextDispatch({
+            type: 'setPresentationOrientation',
+            value: 'landscape',
+          });
+        }
+        if (currHeight > currWidth) {
+          layoutContextDispatch({
+            type: 'setPresentationOrientation',
+            value: 'portrait',
+          });
+        }
       }
-      if (currHeight > currWidth) {
-        layoutContextDispatch({
-          type: 'setPresentationOrientation',
-          value: 'portrait',
-        });
-      }
-    }
 
     const downloadableOn = !prevProps.currentPresentation.downloadable
       && currentPresentation.downloadable;
@@ -248,6 +249,7 @@ class PresentationArea extends PureComponent {
         toggleSwapLayout();
       }
     }
+  }
   }
 
   componentWillUnmount() {

@@ -55,21 +55,11 @@ const getCurrentSlide = (podId) => {
   });
 };
 
-const getSlidePosition = (podId, presentationId, slideId) => {
-  const positions = SlidePositions.findOne({
-    podId,
-    presentationId,
-    id: slideId,
-  });
-
-  if (!positions) {
-    return {
-      width: 1000, height: 1000, x: 0, y: 0, viewBoxWidth: 1000, viewBoxHeight: 1000,
-    };
-  }
-
-  return positions;
-};
+const getSlidePosition = (podId, presentationId, slideId) => SlidePositions.findOne({
+  podId,
+  presentationId,
+  id: slideId,
+});
 
 const currentSlidHasContent = () => {
   const currentSlide = getCurrentSlide('DEFAULT_PRESENTATION_POD');
