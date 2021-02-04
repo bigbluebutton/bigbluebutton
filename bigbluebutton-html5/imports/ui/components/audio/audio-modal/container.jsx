@@ -26,7 +26,7 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
   const skipCheckOnJoin = getFromUserSettings('bbb_skip_check_audio_on_first_join', APP_CONFIG.skipCheckOnJoin);
   const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { voiceProp: 1 } });
-  const getEchoTest = Storage.getItem('getEchoTest', false);
+  const getEchoTest = Storage.getItem('getEchoTest');
 
   let formattedDialNum = '';
   let formattedTelVoice = '';
