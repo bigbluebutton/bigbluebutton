@@ -45,9 +45,13 @@ const amIModerator = () => {
   return currentUser.role === ROLE_MODERATOR;
 };
 
+const isMe = intId => intId === Auth.userID;
+
+
 export default {
   amIPresenter,
   amIModerator,
+  isMe,
   meetingName: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'meetingProp.name': 1 } }).meetingProp.name,
   users: () => Users.find({
