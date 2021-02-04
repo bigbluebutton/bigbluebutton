@@ -213,6 +213,7 @@
     "app.presentationUploder.clearErrors": "Fehler löschen",
     "app.presentationUploder.clearErrorsDesc": "Löscht fehlgeschlagene Präsentationsuploads",
     "app.poll.pollPaneTitle": "Umfrage",
+    "app.poll.enableMultipleChoiceLabel": "Multiple-Choice?",
     "app.poll.quickPollTitle": "Schnellumfrage",
     "app.poll.hidePollDesc": "Versteckt das Umfragemenü",
     "app.poll.customPollInstruction": "Um eine benutzerdefinierte Umfrage zu erstellen, wählen Sie die Schaltfläche unten und geben Sie Ihre Optionen ein.",
