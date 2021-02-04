@@ -1,97 +1,72 @@
-bbb-webhooks
-============
+# bbb-webhooks
 
 This is a node.js application that listens for all events on BigBlueButton and sends POST requests with details about these events to hooks registered via an API. A hook is any external URL that can receive HTTP POST requests.
 
-You can read the full documentation at: https://docs.bigbluebutton.org/dev/webhooks.html
+You can read the full documentation at: http://docs.bigbluebutton.org/labs/webhooks.html
 
 
-Development
------------
+## Development
 
-1. Install node. You can use [NVM](https://github.com/creationix/nvm) if you need multiple versions of node or install it from source. To install from source, first check the exact version you need on `package.json` and replace the all `vX.X.X` by the correct version when running the commands below.
+With a [working development](https://docs.bigbluebutton.org/2.2/dev.html#setup-a-development-environment) environment, follow the commands below from within the `bigbluebutton/bbb-webhooks` directory.
 
-~~~
-wget http://nodejs.org/dist/vX.X.X/node-vX.X.X.tar.gz
-tar -xvf node-vX.X.X.tar.gz
-cd node-vX.X.X/
-./configure
-make
-sudo make install
-~~~
+1. Install the node dependencies:
+    - `npm install`
 
-2. Install the dependencies: `npm install`
+2. Copy the configuration file:
+    - `cp config/default.example.yml config/default.yml`
+    - Update the `serverDomain` and `sharedSecret` values to match your BBB server configuration in the newly copied `config/default.yml`.
 
-3. Copy and edit the configuration file: `cp config_local.coffee.example config_local.coffee`
+3. Stop the bbb-webhook service:
+    - `sudo service bbb-webhooks stop`
 
-4. Run the application with:
+4. Run the application:
+    - `node app.js`
+    - **Note:** If the `node app.js` script stops, it's likely an issue with the configuration, or the `bbb-webhooks` service may have not been terminated.
 
-~~~
-node app.js
-~~~
 
-5. To test it you can use the test application `post_catcher.js`. It starts a node app that
-  registers a hook on the webhooks app and prints all the events it receives. Open the file
-  at `extra/post_catcher.js` and edit the salt and domain/IP of your server and then run it
-  with `node extra/post_catcher.js`. Create meetings and do things on your BigBlueButton server
-  and the events should be shown in the post_catcher.
+### Persistent Hooks
 
-  Another option is to create hooks with the [API Mate](http://mconf.github.io/api-mate/) and
-  catch the callbacks with [PostCatcher](http://postcatcher.in/).
+If you want all webhooks from a BBB server to post to your 3rd party application/s, you can modify the configuration file to include `permanentURLs` and define one or more server urls which you would like the webhooks to post back to.
 
-Production
-----------
+To add these permanent urls, do the follow:
+ - `sudo nano config/default.yml`
+ - Add the configuration similar to this example:
+    - ```
+        permanentURLs: [
+            {
+                url: 'https://staging.example.com/webhook-post-route',
+                getRaw: false
+            },
+            {
+                url: 'https://app.example.com/webhook-post-route',
+                getRaw: false
+            }
+        ]
+      ```
 
-1. Install node. First check the exact version you need on `package.json` and replace the all `vX.X.X` by the correct version in the commands below.
+Once you have adjusted your configuration file, you will need to restart your development/app server to adapt to the new configuration.
 
-~~~
-wget http://nodejs.org/dist/vX.X.X/node-vX.X.X.tar.gz
-tar -xvf node-vX.X.X.tar.gz
-cd node-vX.X.X/
-./configure
-make
-sudo make install
-~~~
+If you are editing these permanent urls after they have already been committed to the application once, you may need to flush the redis database in order for adjustments to these permanent hooks to get picked up by your application. Use the following command to do so:
+ - `redis-cli flushall`
 
-2. Copy the entire webhooks directory to `/usr/local/bigbluebutton/bbb-webhooks` and cd into it.
 
-3. Install the dependencies: `npm install`
+## Production
 
-4. Copy and edit the configuration file to adapt to your server: `cp config_local.coffee.example config_local.coffee`.
+Follow the commands below starting within the `bigbluebutton/bbb-webhooks` directory.
 
-5. Drop the nginx configuration file in its place: `cp config/webhooks.nginx /etc/bigbluebutton/nginx/`.
-   If you changed the port of the web server on your configuration file, you will have to edit it in `webhooks.nginx` as well.
+1. Copy the entire webhooks directory: 
+    - `sudo cp -r . /usr/local/bigbluebutton/bbb-webhooks`
+ 
+2. Move into the directory we just copied the files to: 
+    - `cd /usr/local/bigbluebutton/bbb-webhooks`
 
-6. Copy upstart's configuration file and make sure its permissions are ok:
+3. Install the dependencies:
+    - `npm install`
 
-~~~
-sudo cp config/upstart-bbb-webhooks.conf /etc/init/bbb-webhooks.conf
-sudo chown root:root /etc/init/bbb-webhooks.conf
-~~~
+4. Copy the configuration file:
+    - `sudo cp config/default.example.yml config/default.yml`
+    - Update the `serverDomain` and `sharedSecret` values to match your BBB server configuration:
+        - `sudo nano config/default.yml`
 
-    Open the file and edit it. You might need to change things like the user used to run the application.
-
-7. Copy monit's configuration file and make sure its permissions are ok:
-
-~~~
-sudo cp config/monit-bbb-webhooks /etc/monit/conf.d/bbb-webhooks
-sudo chown root:root /etc/monit/conf.d/bbb-webhooks
-~~~
-
-    Open the file and edit it. You might need to change things like the port used by the application.
-
-8. Copy logrotate's configuration file and install it:
-
-~~~
-sudo cp config/bbb-webhooks.logrotate /etc/logrotate.d/bbb-webhooks
-sudo chown root:root /etc/logrotate.d/bbb-webhooks
-sudo chmod 644 /etc/logrotate.d/bbb-webhooks
-sudo logrotate -s /var/lib/logrotate/status /etc/logrotate.d/bbb-webhooks
-~~~
-
-9. Start the application:
-
-~~~
-sudo service bbb-webhooks start
-sudo service bbb-webhooks stop
-~~~
+9. Start the bbb-webhooks service:
+    - `sudo service bbb-webhooks restart`

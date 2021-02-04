@@ -5,3 +5,4 @@ node_modules/
 config_local.coffee
 config_local.js
 log/*
+config/default.yml
