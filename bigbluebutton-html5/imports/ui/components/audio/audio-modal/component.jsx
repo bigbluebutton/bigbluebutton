@@ -34,7 +34,8 @@ const propTypes = {
   showPermissionsOvelay: PropTypes.bool.isRequired,
   listenOnlyMode: PropTypes.bool.isRequired,
   skipCheck: PropTypes.bool,
-  skipCheckOnJoin: PropTypes.bool,
+  joinFullAudioImmediately: PropTypes.bool,
+  joinFullAudioEchoTest: PropTypes.bool,
   forceListenOnlyAttendee: PropTypes.bool.isRequired,
   audioLocked: PropTypes.bool.isRequired,
   resolve: PropTypes.func,
@@ -52,7 +53,8 @@ const defaultProps = {
   outputDeviceId: null,
   resolve: null,
   skipCheck: false,
-  skipCheckOnJoin: false,
+  joinFullAudioImmediately: false,
+  joinFullAudioEchoTest: false,
 };
 
 const intlMessages = defineMessages({
@@ -165,29 +167,13 @@ class AudioModal extends Component {
     const {
       forceListenOnlyAttendee,
       audioLocked,
-      autoJoin,
-      skipCheck,
-      skipCheckOnJoin,
-      useEchoTest,
+      joinFullAudioImmediately,
+      joinFullAudioEchoTest,
     } = this.props;
 
-    if (autoJoin) {
-      if (forceListenOnlyAttendee || audioLocked) {
-        return this.handleJoinListenOnly();
-      }
-
-      if (useEchoTest) {
-        return this.handleGoToEchoTest();
-      }
-
-      if (skipCheck || skipCheckOnJoin) {
-        return this.handleJoinMicrophone();
-      }
-    }
-
-    if (skipCheck || skipCheckOnJoin && !useEchoTest) {
-      return this.handleJoinMicrophone();
-    }
+    if (forceListenOnlyAttendee) return this.handleJoinListenOnly();
+    if (joinFullAudioEchoTest) return this.handleGoToEchoTest();
+    if (joinFullAudioImmediately) return this.handleJoinMicrophone();
   }
 
   componentDidUpdate(prevProps) {
@@ -353,9 +339,8 @@ class AudioModal extends Component {
     const {
       isConnecting,
       forceListenOnlyAttendee,
-      useEchoTest,
-      skipCheck,
-      skipCheckOnJoin,
+      joinFullAudioEchoTest,
+      joinFullAudioImmediately,
     } = this.props;
 
     const {
@@ -363,12 +348,11 @@ class AudioModal extends Component {
       hasError,
     } = this.state;
 
-
     return (
       isConnecting
       || forceListenOnlyAttendee
-      || skipCheck
-      || skipCheckOnJoin && !useEchoTest
+      || joinFullAudioImmediately
+      || joinFullAudioEchoTest
     ) && !content && !hasError;
   }
 

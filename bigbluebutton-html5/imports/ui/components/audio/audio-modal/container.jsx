@@ -26,7 +26,7 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
   const skipCheckOnJoin = getFromUserSettings('bbb_skip_check_audio_on_first_join', APP_CONFIG.skipCheckOnJoin);
   const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { voiceProp: 1 } });
-  const useEchoTest = Storage.getItem('getEchoTest', false);
+  const getEchoTest = Storage.getItem('getEchoTest', false);
 
   let formattedDialNum = '';
   let formattedTelVoice = '';
@@ -39,6 +39,13 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
       combinedDialInNum = `${dialNumber.replace(/\D+/g, '')},,,${telVoice.replace(/\D+/g, '')}`;
     }
   }
+
+  const joinFullAudioImmediately = (autoJoin && (skipCheck || skipCheckOnJoin))
+    || (skipCheck || skipCheckOnJoin && !getEchoTest);
+
+  const joinFullAudioEchoTest = joinFullAudioImmediately && getEchoTest;
+
+  const forceListenOnlyAttendee = forceListenOnly && !Service.isUserModerator();
 
   return ({
     closeModal: () => {
@@ -96,15 +103,15 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
     outputDeviceId: Service.outputDeviceId(),
     showPermissionsOvelay: Service.isWaitingPermissions(),
     listenOnlyMode,
-    autoJoin,
-    useEchoTest,
     skipCheck,
     skipCheckOnJoin,
     formattedDialNum,
     formattedTelVoice,
     combinedDialInNum,
     audioLocked: userLocks.userMic,
-    forceListenOnlyAttendee: forceListenOnly && !Service.isUserModerator(),
+    joinFullAudioImmediately,
+    joinFullAudioEchoTest,
+    forceListenOnlyAttendee,
     isIOSChrome: browser().name === 'crios',
     isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
     isIEOrEdge: browser().name === 'edge' || browser().name === 'ie',
