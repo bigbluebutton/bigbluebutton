@@ -34,7 +34,7 @@ export default function publishVote(pollId, pollAnswerId) {
     requesterId: requesterUserId,
     pollId,
     questionId: 0,
-    answerId: pollAnswerId,
+    answerIds: [pollAnswerId],
   };
 
   /*

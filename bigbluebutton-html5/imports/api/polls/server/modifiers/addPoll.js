@@ -15,6 +15,7 @@ export default function addPoll(meetingId, requesterId, poll) {
         key: String,
       },
     ],
+    isMultipleChoice: Boolean
   });
 
   const userSelector = {
