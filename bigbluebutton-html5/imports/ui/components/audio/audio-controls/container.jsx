@@ -41,7 +41,8 @@ const processToggleMuteFromOutside = (e) => {
 };
 
 const handleLeaveAudio = () => {
-  if (getFromUserSettings('bbb_skip_check_audio_on_first_join', APP_CONFIG.skipCheckOnJoin)) {
+  const skipOnFistJoin = getFromUserSettings('bbb_skip_check_audio_on_first_join', APP_CONFIG.skipCheckOnJoin);
+  if (skipOnFistJoin && !Storage.getItem('getEchoTest')) {
     Storage.setItem('getEchoTest', true);
   }
 
