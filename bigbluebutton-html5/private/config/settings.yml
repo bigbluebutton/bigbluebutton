@@ -7,6 +7,7 @@ public:
     listenOnlyMode: true
     forceListenOnly: false
     skipCheck: false
+    skipCheckOnJoin: false
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: 2.3-dev
