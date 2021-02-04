@@ -18,7 +18,7 @@ export default function userResponded({ body }) {
       users: userId,
     },
     $push: {
-      responses: { userId, answerId: answerIds[0] },
+      responses: { userId, answerIds: answerIds },
     },
   };
 

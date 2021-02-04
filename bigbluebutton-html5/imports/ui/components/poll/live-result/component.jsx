@@ -64,7 +64,13 @@ class LiveResult extends PureComponent {
 
         if (responses) {
           const response = responses.find(r => r.userId === user.userId);
-          if (response) answer = answers[response.answerId].key;
+          if (response) {
+            let answerKeys = [];
+            response.answerIds.forEach((answerId) => {
+              answerKeys.push(answers[answerId].key);
+            })
+            answer = answerKeys.join(', ');
+          }
         }
 
         return {

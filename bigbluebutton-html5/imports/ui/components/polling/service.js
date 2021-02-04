@@ -4,8 +4,8 @@ import { debounce } from 'lodash';
 
 const MAX_CHAR_LENGTH = 5;
 
-const handleVote = (pollId, answerId) => {
-  makeCall('publishVote', pollId, answerId.id);
+const handleVote = (pollId, answerIds) => {
+  makeCall('publishVote', pollId, answerIds);
 };
 
 const mapPolls = () => {

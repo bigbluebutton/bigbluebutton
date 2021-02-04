@@ -88,7 +88,7 @@ class Polling extends Component {
                     size="md"
                     label={label}
                     key={pollAnswer.key}
-                    onClick={() => handleVote(poll.pollId, pollAnswer)}
+                    onClick={() => handleVote(poll.pollId, [pollAnswer.id])}
                     aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
                     aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
                   />
