@@ -510,7 +510,7 @@ class RedisRecorderActor(
     val ev = new UserRespondedToPollRecordEvent()
     ev.setPollId(msg.body.pollId)
     ev.setUserId(msg.header.userId)
-    ev.setAnswerId(msg.body.answerId)
+    ev.setAnswerId(msg.body.answerIds.toArray)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }

@@ -17,7 +17,7 @@ export default function startPoll(pollType, pollId, isMultipleChoice, answers) {
     requesterId: requesterUserId,
     pollId: `${pollId}/${new Date().getTime()}`,
     pollType,
-    //isMultipleChoice,
+    isMultipleChoice,
   };
 
   if (pollType === 'custom') {
