@@ -213,6 +213,7 @@
     "app.presentationUploder.clearErrors": "Clear errors",
     "app.presentationUploder.clearErrorsDesc": "Clears failed presentation uploads",
     "app.poll.pollPaneTitle": "Polling",
+    "app.poll.enableMultipleChoiceLabel": "Multiple response?",
     "app.poll.quickPollTitle": "Quick Poll",
     "app.poll.hidePollDesc": "Hides the poll menu pane",
     "app.poll.customPollInstruction": "To create a custom poll, select the button below and input your options.",
