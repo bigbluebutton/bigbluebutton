@@ -64,42 +64,51 @@ class RandomUserSelect extends Component {
       clearRandomlySelectedUser,
     } = this.props;
 
-    const isSelectedUser = selectedUser ? (currentUser.userId === selectedUser.userId) : false;
+    let viewElement;
 
-    const viewElement = (numAvailableViewers < 1 || !selectedUser) ? (
-      <div className={styles.modalViewContainer}>
-        <div className={styles.modalViewTitle}>
-          {intl.formatMessage(messages.randUserTitle)}
+    if (numAvailableViewers < 1) { // there's no viewers to select from
+      // display modal informing presenter that there's no viewers to select from
+      viewElement = (
+        <div className={styles.modalViewContainer}>
+          <div className={styles.modalViewTitle}>
+            {intl.formatMessage(messages.randUserTitle)}
+          </div>
+          <div>{intl.formatMessage(messages.noViewers)}</div>
         </div>
-        <div>{intl.formatMessage(messages.noViewers)}</div>
-      </div>
-    ) : (
-      <div className={styles.modalViewContainer}>
-        <div className={styles.modalViewTitle}>
-          {isSelectedUser
-            ? `${intl.formatMessage(messages.selected)}`
-            : `${intl.formatMessage(messages.randUserTitle)}`
+      );
+    } else { // viewers are available
+      if (!selectedUser) return null; // rendering triggered before selectedUser is available
+
+      // display modal with random user selection
+      const amISelectedUser = currentUser.userId === selectedUser.userId;
+      viewElement = (
+        <div className={styles.modalViewContainer}>
+          <div className={styles.modalViewTitle}>
+            {amISelectedUser
+              ? `${intl.formatMessage(messages.selected)}`
+              : `${intl.formatMessage(messages.randUserTitle)}`
+            }
+          </div>
+          <div aria-hidden className={styles.modalAvatar} style={{ backgroundColor: `${selectedUser.color}` }}>
+            {selectedUser.name.slice(0, 2)}
+          </div>
+          <div className={styles.selectedUserName}>
+            {selectedUser.name}
+          </div>
+          {!amISelectedUser
+            && (
+            <Button
+              label={intl.formatMessage(messages.reselect)}
+              color="primary"
+              size="md"
+              className={styles.selectBtn}
+              onClick={() => randomUserReq()}
+            />
+            )
           }
         </div>
-        <div aria-hidden className={styles.modalAvatar} style={{ backgroundColor: `${selectedUser.color}` }}>
-          {selectedUser.name.slice(0, 2)}
-        </div>
-        <div className={styles.selectedUserName}>
-          {selectedUser.name}
-        </div>
-        {!isSelectedUser
-          && (
-          <Button
-            label={intl.formatMessage(messages.reselect)}
-            color="primary"
-            size="md"
-            className={styles.selectBtn}
-            onClick={() => randomUserReq()}
-          />
-          )
-        }
-      </div>
-    );
+      );
+    }
 
     return (
       <Modal
