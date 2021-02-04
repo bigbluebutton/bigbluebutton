@@ -31,6 +31,7 @@ const mapPolls = () => {
     poll: {
       answers: poll.answers,
       pollId: poll.id,
+      isMultipleChoice: poll.isMultipleChoice,
       stackOptions,
     },
     pollExists: true,
