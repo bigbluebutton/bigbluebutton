@@ -27,8 +27,11 @@ import clearAuthTokenValidation from '/imports/api/auth-token-validation/server/
 import Metrics from '/imports/startup/server/metrics';
 
 export default function meetingHasEnded(meetingId) {
-  removeAnnotationsStreamer(meetingId);
-  removeCursorStreamer(meetingId);
+  if (!process.env.METEOR_ROLE || process.env.METEOR_ROLE === 'frontend') {
+    removeAnnotationsStreamer(meetingId);
+    removeCursorStreamer(meetingId);
+    // TODO add removeExternalVideoStreamer(meetingId);
+  }
 
   return Meetings.remove({ meetingId }, () => {
     clearCaptions(meetingId);

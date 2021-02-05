@@ -10,9 +10,11 @@ export default function handleMeetingDestruction({ body }) {
   const { meetingId } = body;
   check(meetingId, String);
 
-  destroyExternalVideo(meetingId);
-  removeAnnotationsStreamer(meetingId);
-  removeCursorStreamer(meetingId);
+  if (!process.env.METEOR_ROLE || process.env.METEOR_ROLE === 'frontend') {
+    destroyExternalVideo(meetingId);
+    removeAnnotationsStreamer(meetingId);
+    removeCursorStreamer(meetingId);
+  }
 
   return RedisPubSub.destroyMeetingQueue(meetingId);
 }

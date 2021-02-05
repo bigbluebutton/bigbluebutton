@@ -70,13 +70,13 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
 
       // Whiteboard
       case SendWhiteboardAnnotationEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsWbRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
       case SendCursorPositionEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsWbRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
       case ClearWhiteboardEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsWbRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
       case UndoWhiteboardEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsWbRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
 
       // Chat
       case SendPublicMessageEvtMsg.NAME =>
@@ -117,6 +117,22 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       // Poll Record Event
       case UserRespondedToPollRecordMsg.NAME =>
       //==================================================================
+
+      case ValidateAuthTokenRespMsg.NAME =>
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
+      // Message duplicated for frontend and backend processes
+      case MeetingCreatedEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
+      case MeetingEndingEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
+      case MeetingDestroyedEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
 
       case _ =>
         msgSender.send(fromAkkaAppsRedisChannel, json)

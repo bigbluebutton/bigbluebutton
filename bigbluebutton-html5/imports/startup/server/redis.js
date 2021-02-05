@@ -155,12 +155,23 @@ class RedisPubSub {
 
     channelsToSubscribe.push(this.customRedisChannel);
 
-    channelsToSubscribe.forEach((channel) => {
-      this.sub.psubscribe(channel);
-    });
 
-    if (this.redisDebugEnabled) {
-      Logger.debug(`Redis: Subscribed to '${channelsToSubscribe}'`);
+    switch (process.env.METEOR_ROLE) {
+      case 'frontend':
+        this.sub.psubscribe('from-akka-apps-frontend-redis-channel');
+        if (this.redisDebugEnabled) {
+          Logger.debug(`Redis: NodeJSPool:${this.instanceId} Role: frontend. Subscribed to 'from-akka-apps-frontend-redis-channel'`);
+        }
+        break;
+      default:
+        channelsToSubscribe.forEach((channel) => {
+          this.sub.psubscribe(channel);
+          if (this.redisDebugEnabled) {
+            Logger.debug(`Redis: NodeJSPool:${this.instanceId} Role: backend. Subscribed to '${channelsToSubscribe}'`);
+          }
+        });
+
+        break;
     }
   }
 

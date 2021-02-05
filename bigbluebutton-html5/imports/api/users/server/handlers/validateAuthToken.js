@@ -32,6 +32,9 @@ export default function handleValidateAuthToken({ body }, meetingId) {
 
   const pendingAuths = pendingAuthenticationsStore.take(meetingId, userId, authToken);
 
+  Logger.info(`PendingAuths length [${pendingAuths.length}]`);
+  if (pendingAuths.length === 0) return;
+
   if (!valid) {
     pendingAuths.forEach(
       (pendingAuth) => {

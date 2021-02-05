@@ -167,8 +167,11 @@ export default function addMeeting(meeting) {
   try {
     const { insertedId, numberAffected } = Meetings.upsert(selector, modifier);
 
-    addAnnotationsStreamer(meetingId);
-    addCursorStreamer(meetingId);
+    if (!process.env.METEOR_ROLE || process.env.METEOR_ROLE === 'frontend') {
+      addAnnotationsStreamer(meetingId);
+      addCursorStreamer(meetingId);
+      // TODO add addExternalVideoStreamer(meetingId);
+    }
 
     if (insertedId) {
       Logger.info(`Added meeting id=${meetingId}`);

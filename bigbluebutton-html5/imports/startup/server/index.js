@@ -132,7 +132,7 @@ Meteor.startup(() => {
 
     setMinBrowserVersions();
 
-    Logger.warn(`SERVER STARTED.\nENV=${env},\nnodejs version=${process.version}\nCDN=${CDN_URL}\n`, APP_CONFIG);
+    Logger.warn(`SERVER STARTED.\nENV=${env},\nnodejs version=${process.version}\nMETEOR_ROLE=${process.env.METEOR_ROLE}\nCDN=${CDN_URL}\n`, APP_CONFIG);
   }
 });
 
