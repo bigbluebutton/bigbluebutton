@@ -25,8 +25,13 @@ import UploaderContainer from '/imports/ui/components/presentation/presentation-
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
 import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
 import { styles } from './styles';
-import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
-import { Session } from 'meteor/session';
+import { DEVICE_TYPE, ACTIONS } from '../layout/enums';
+import {
+  isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
+} from '../layout/utils';
+import NewLayoutContext from '../layout/context/context';
+import CustomLayout from '../layout/layout-manager/customLayout';
+import NavBarContainer from '../nav-bar/container';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -99,8 +104,8 @@ const LAYERED_BREAKPOINT = 640;
 const isLayeredView = window.matchMedia(`(max-width: ${LAYERED_BREAKPOINT}px)`);
 
 class App extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       enableResize: !window.matchMedia(MOBILE_MEDIA).matches,
     };
@@ -108,6 +113,9 @@ class App extends Component {
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
     this.renderMedia = withDraggableContext(this.renderMedia.bind(this));
+
+    this.throttledSetDeviceType = throttle(() => this.throttledSetDeviceType(),
+      50, { trailing: true, leading: true });
   }
 
   componentDidMount() {
@@ -138,8 +146,8 @@ class App extends Component {
 
     this.handleWindowResize();
     window.addEventListener('resize', this.handleWindowResize, false);
-    window.ondragover = function (e) { e.preventDefault(); };
-    window.ondrop = function (e) { e.preventDefault(); };
+    window.ondragover = (e) => { e.preventDefault(); };
+    window.ondrop = (e) => { e.preventDefault(); };
 
     if (ENABLE_NETWORK_MONITORING) {
       if (navigator.connection) {
@@ -151,6 +159,9 @@ class App extends Component {
     }
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
+
+    window.addEventListener('resize', this.throttledSetDeviceType);
+    this.throttledSetDeviceType();
   }
 
   componentDidUpdate(prevProps) {
@@ -163,6 +174,7 @@ class App extends Component {
       randomlySelectedUser,
       currentUserId,
       mountModal,
+      deviceType,
     } = this.props;
 
     if (randomlySelectedUser === currentUserId) mountModal(<RandomUserSelectContainer />);
@@ -196,6 +208,8 @@ class App extends Component {
         intl.formatMessage(intlMessages.pollPublishedLabel), 'info', 'polling',
       );
     }
+
+    if (prevProps.deviceType !== deviceType) this.throttledsetDeviceType();
   }
 
   componentWillUnmount() {
@@ -203,6 +217,22 @@ class App extends Component {
     window.removeEventListener('resize', this.handleWindowResize, false);
     if (navigator.connection) {
       navigator.connection.addEventListener('change', handleNetworkConnection, false);
+    }
+  }
+
+  setDeviceType() {
+    const { newLayoutContextState, newLayoutContextDispatch } = this.props;
+    let deviceType = null;
+    if (isMobile()) deviceType = DEVICE_TYPE.MOBILE;
+    if (isTablet()) deviceType = DEVICE_TYPE.TABLET;
+    if (isTabletPortrait()) deviceType = DEVICE_TYPE.TABLET_PORTRAIT;
+    if (isTabletLandscape()) deviceType = DEVICE_TYPE.TABLET_LANDSCAPE;
+    if (isDesktop()) deviceType = DEVICE_TYPE.DESKTOP;
+    if (deviceType !== newLayoutContextState.deviceType) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_DEVICE_TYPE,
+        value: deviceType,
+      });
     }
   }
 
@@ -232,23 +262,6 @@ class App extends Component {
         }}
         shouldAriaHide={this.shouldAriaHide}
       />
-    );
-  }
-
-  renderNavBar() {
-    const { navbar } = this.props;
-
-    if (!navbar) return null;
-
-    return (
-      <header
-        className={styles.navbar}
-        style={{
-          height: NAVBAR_HEIGHT,
-        }}
-      >
-        {navbar}
-      </header>
     );
   }
 
@@ -344,6 +357,7 @@ class App extends Component {
     } = this.props;
     return (
       <Fragment>
+        <CustomLayout />
         {(layoutManagerLoaded === 'legacy' || layoutManagerLoaded === 'both')
           && (
             <main
@@ -359,7 +373,7 @@ class App extends Component {
               <NotificationsBarContainer />
               <section className={styles.wrapper}>
                 <div className={openPanel ? styles.content : styles.noPanelContent}>
-                  {this.renderNavBar()}
+                  <NavBarContainer />
                   {this.renderMedia()}
                   {this.renderActionsBar()}
                 </div>
@@ -384,13 +398,17 @@ class App extends Component {
         }
         {(layoutManagerLoaded === 'new' || layoutManagerLoaded === 'both')
           && (
-            <div
-              className={styles.newLayout}
-              style={{
-                width: layoutManagerLoaded !== 'both' ? '100%' : '50%',
-                height: layoutManagerLoaded !== 'both' ? '100%' : '50%',
-              }}
-            />
+            <Fragment>
+              <div
+                className={styles.newLayout}
+                style={{
+                  width: layoutManagerLoaded !== 'both' ? '100%' : '50%',
+                  height: layoutManagerLoaded !== 'both' ? '100%' : '50%',
+                }}
+              >
+                <NavBarContainer />
+              </div>
+            </Fragment>
           )}
       </Fragment>
     );
@@ -400,4 +418,4 @@ class App extends Component {
 App.propTypes = propTypes;
 App.defaultProps = defaultProps;
 
-export default injectIntl(App);
+export default NewLayoutContext.withConsumer(injectIntl(App));

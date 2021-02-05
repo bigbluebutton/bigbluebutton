@@ -13,6 +13,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
 import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
+import NewLayoutContext from '../layout/context/context';
 
 import {
   getFontSize,
@@ -23,18 +24,15 @@ import {
 import { withModalMounter } from '../modal/service';
 
 import App from './component';
-import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
 
 const propTypes = {
-  navbar: PropTypes.node,
   actionsbar: PropTypes.node,
   media: PropTypes.node,
 };
 
 const defaultProps = {
-  navbar: <NavBarContainer />,
   actionsbar: <ActionsBarContainer />,
   media: <MediaContainer />,
 };
@@ -53,17 +51,20 @@ const endMeeting = (code) => {
 
 const AppContainer = (props) => {
   const {
-    navbar,
     actionsbar,
     media,
+    newLayoutContextState,
     ...otherProps
   } = props;
+  const { layoutType, deviceType } = newLayoutContextState;
+
 
   return (
     <App
-      navbar={navbar}
       actionsbar={actionsbar}
       media={media}
+      layoutType={layoutType}
+      deviceType={deviceType}
       {...otherProps}
     />
   );
@@ -93,7 +94,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     },
   });
 
-  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { approved: 1, emoji: 1, userId: 1 } });
+  const currentUser = Users.findOne({ userId: Auth.userID },
+    { fields: { approved: 1, emoji: 1, userId: 1 } });
   const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { publishedPoll: 1, voiceProp: 1, randomlySelectedUser: 1 } });
   const { publishedPoll, voiceProp, randomlySelectedUser } = currentMeeting;
@@ -130,7 +132,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     randomlySelectedUser,
     currentUserId: currentUser.userId,
   };
-})(AppContainer)));
+})(NewLayoutContext.withConsumer(AppContainer))));
 
 AppContainer.defaultProps = defaultProps;
 AppContainer.propTypes = propTypes;

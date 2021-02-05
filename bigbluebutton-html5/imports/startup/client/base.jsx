@@ -19,7 +19,9 @@ import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import LayoutManager from '/imports/ui/components/layout/layout-manager';
-import { withLayoutContext } from '/imports/ui/components/layout/context';
+import CustomLayout from '../../ui/components/layout/layout-manager/customLayout';
+import LayoutContext from '/imports/ui/components/layout/context';
+import NewLayoutContext from '../../ui/components/layout/context/context';
 import VideoService from '/imports/ui/components/video-provider/service';
 import DebugWindow from '/imports/ui/components/debug-window/component'
 import { Meteor } from "meteor/meteor";
@@ -422,6 +424,6 @@ const BaseContainer = withTracker(() => {
     usersVideo,
     layoutManagerLoaded: Session.get('layoutManagerLoaded'),
   };
-})(withLayoutContext(Base));
+})(LayoutContext.withLayoutContext(NewLayoutContext.withProvider(Base)));
 
 export default BaseContainer;

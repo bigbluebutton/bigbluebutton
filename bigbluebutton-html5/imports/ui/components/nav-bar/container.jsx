@@ -10,14 +10,25 @@ import userListService from '../user-list/service';
 import NoteService from '/imports/ui/components/note/service';
 import Service from './service';
 import NavBar from './component';
+import NewLayoutContext from '../layout/context/context';
 
 const PUBLIC_CONFIG = Meteor.settings.public;
 const ROLE_MODERATOR = PUBLIC_CONFIG.user.role_moderator;
-const NavBarContainer = ({ children, ...props }) => (
-  <NavBar {...props}>
-    {children}
-  </NavBar>
-);
+const NavBarContainer = ({ children, ...props }) => {
+  const {
+    newLayoutContextDispatch,
+    newLayoutContextState,
+    layoutManagerLoaded,
+    ...rest
+  } = props;
+  const { output } = newLayoutContextState;
+  const { navBar } = output;
+  return (
+    <NavBar {...rest} style={{ ...navBar }} layoutManagerLoaded={layoutManagerLoaded}>
+      {children}
+    </NavBar>
+  );
+};
 
 export default withTracker(() => {
   const CLIENT_TITLE = getFromUserSettings('bbb_client_title', PUBLIC_CONFIG.app.clientTitle);
@@ -58,6 +69,8 @@ export default withTracker(() => {
   const amIModerator = currentUser.role === ROLE_MODERATOR;
   const hasUnreadMessages = checkUnreadMessages();
 
+  const layoutManagerLoaded = Session.get('layoutManagerLoaded');
+
   return {
     amIModerator,
     isExpanded,
@@ -67,5 +80,6 @@ export default withTracker(() => {
     meetingId,
     presentationTitle: meetingTitle,
     hasUnreadMessages,
+    layoutManagerLoaded,
   };
-})(NavBarContainer);
+})(NewLayoutContext.withConsumer(NavBarContainer));

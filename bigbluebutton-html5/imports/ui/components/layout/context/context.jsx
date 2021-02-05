@@ -1,9 +1,8 @@
 import React, { createContext, useReducer } from 'react';
 import PropTypes from 'prop-types';
-import logger from 'use-reducer-logger';
 import { ACTIONS } from '../enums';
 import DEFAULT_VALUES from '../defaultValues';
-import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from '../initState';
+import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
 
 const providerPropTypes = {
   children: PropTypes.oneOfType([
@@ -884,13 +883,12 @@ const reducer = (state, action) => {
 };
 
 const ContextProvider = (props) => {
-  const [contextState, contextDispatch] = useReducer(logger(reducer), initState);
+  const [newLayoutContextState, newLayoutContextDispatch] = useReducer(reducer, initState);
   const { children } = props;
   return (
     <Context.Provider value={{
-      contextState,
-      contextDispatch,
-      ...props,
+      newLayoutContextState,
+      newLayoutContextDispatch,
     }}
     >
       {children}
@@ -899,20 +897,20 @@ const ContextProvider = (props) => {
 };
 ContextProvider.propTypes = providerPropTypes;
 
+const withProvider = Component => props => (
+  <ContextProvider>
+    <Component {...props} />
+  </ContextProvider>
+);
+
+const withConsumer = Component => props => (
+  <Context.Consumer>
+    {contexts => <Component {...props} {...contexts} />}
+  </Context.Consumer>
+);
+
 export default {
-  withProvider: Component => props => (
-    <ContextProvider {...props}>
-      <Component />
-    </ContextProvider>
-  ),
-  withConsumer: Component => props => (
-    <Context.Consumer>
-      {contexts => <Component {...props} {...contexts} />}
-    </Context.Consumer>
-  ),
-  withConsumerDispatch: Component => props => (
-    <Context.Consumer>
-      {contexts => <Component {...props} contextDispatch={contexts.contextDispatch} />}
-    </Context.Consumer>
-  ),
+  withProvider,
+  withConsumer,
+  withLayoutContext: Component => withProvider(withConsumer(Component)),
 };

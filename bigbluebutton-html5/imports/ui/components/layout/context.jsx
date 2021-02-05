@@ -260,7 +260,6 @@ const ContextProvider = (props) => {
     <LayoutContext.Provider value={{
       layoutContextState,
       layoutContextDispatch,
-      ...props,
     }}
     >
       {children}
@@ -269,8 +268,8 @@ const ContextProvider = (props) => {
 };
 
 const withProvider = Component => props => (
-  <ContextProvider {...props}>
-    <Component />
+  <ContextProvider>
+    <Component {...props} />
   </ContextProvider>
 );
 

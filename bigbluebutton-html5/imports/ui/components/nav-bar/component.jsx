@@ -79,8 +79,9 @@ class NavBar extends Component {
       mountModal,
       presentationTitle,
       amIModerator,
+      style,
+      layoutManagerLoaded,
     } = this.props;
-
 
     const toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
@@ -90,8 +91,24 @@ class NavBar extends Component {
     ariaLabel += hasUnreadMessages ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
 
     return (
-      <div
+      <header
         className={styles.navbar}
+        style={
+          layoutManagerLoaded === 'new'
+            ? {
+              position: 'absolute',
+              top: style.top,
+              left: style.left,
+              height: style.height,
+              width: style.width,
+              zIndex: style.zIndex,
+            }
+            : {
+              position: 'relative',
+              height: style.height,
+              width: '100%',
+            }
+        }
       >
         <div className={styles.top}>
           <div className={styles.left}>
@@ -131,7 +148,7 @@ class NavBar extends Component {
         <div className={styles.bottom}>
           <TalkingIndicatorContainer amIModerator={amIModerator} />
         </div>
-      </div>
+      </header>
     );
   }
 }

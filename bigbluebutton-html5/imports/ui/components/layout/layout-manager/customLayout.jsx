@@ -4,7 +4,7 @@ import LayoutContext from '../context/context';
 import DEFAULT_VALUES from '../defaultValues';
 import { INITIAL_INPUT_STATE } from '../context/initState';
 import { DEVICE_TYPE, ACTIONS, CAMERADOCK_POSITION } from '../enums';
-import slides from '../../presentation/slides-mock';
+// import slides from '../../presentation/slides-mock';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -22,8 +22,8 @@ const usePrevious = (value) => {
   return ref.current;
 };
 
-const CustomLayout = ({ contextState, contextDispatch }) => {
-  const prevDeviceType = usePrevious(contextState.deviceType);
+const CustomLayout = ({ newLayoutContextState, newLayoutContextDispatch }) => {
+  const prevDeviceType = usePrevious(newLayoutContextState.deviceType);
 
   const calculatesNavbarBounds = mediaAreaBounds => ({
     width: windowWidth() - mediaAreaBounds.left,
@@ -34,7 +34,7 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
   });
 
   const calculatesActionbarBounds = (mediaAreaBounds) => {
-    const { input } = contextState;
+    const { input } = newLayoutContextState;
     return {
       display: input.actionBar.hasActionBar,
       width: windowWidth() - mediaAreaBounds.left,
@@ -46,7 +46,7 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
   };
 
   const calculatesSidebarNavWidth = () => {
-    const { deviceType, input } = contextState;
+    const { deviceType, input } = newLayoutContextState;
     const {
       sidebarNavMinWidth,
       sidebarNavMaxWidth,
@@ -77,7 +77,7 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
   };
 
   const calculatesSidebarNavHeight = () => {
-    const { input } = contextState;
+    const { input } = newLayoutContextState;
     let sidebarNavHeight = 0;
     if (input.sidebarNavigation.isOpen) {
       sidebarNavHeight = windowHeight();
@@ -86,7 +86,7 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
   };
 
   const calculatesSidebarNavBounds = () => {
-    const { deviceType } = contextState;
+    const { deviceType } = newLayoutContextState;
     return {
       top: DEFAULT_VALUES.sidebarNavTop,
       left: DEFAULT_VALUES.sidebarNavLeft,
@@ -95,7 +95,7 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
   };
 
   const calculatesSidebarContentWidth = () => {
-    const { deviceType, input } = contextState;
+    const { deviceType, input } = newLayoutContextState;
     const {
       sidebarContentMinWidth,
       sidebarContentMaxWidth,
@@ -128,7 +128,7 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
   };
 
   const calculatesSidebarContentHeight = (cameraDockHeight) => {
-    const { input } = contextState;
+    const { input } = newLayoutContextState;
     let sidebarContentHeight = 0;
     if (input.sidebarContent.isOpen) {
       if (input.cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM) {
@@ -141,7 +141,7 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
   };
 
   const calculatesSidebarContentBounds = (sidebarNavWidth) => {
-    const { deviceType } = contextState;
+    const { deviceType } = newLayoutContextState;
     return {
       top: 0,
       left: deviceType === DEVICE_TYPE.MOBILE
@@ -151,7 +151,7 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
   };
 
   const calculatesMediaAreaBounds = (sidebarNavWidth, sidebarContentWidth) => {
-    const { deviceType, input } = contextState;
+    const { deviceType, input } = newLayoutContextState;
     const { sidebarContent } = input;
     let left = 0;
     let width = 0;
@@ -180,7 +180,7 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
   };
 
   const calculatesCameraDockBounds = (sidebarNavWidth, sidebarContentWidth, mediaAreaBounds) => {
-    const { input } = contextState;
+    const { input } = newLayoutContextState;
 
     const cameraDockBounds = {};
 
@@ -402,7 +402,7 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
   };
 
   const calculatesPresentationBounds = (sidebarNavWidth, sidebarContentWidth, cameraDockBounds) => {
-    const { input } = contextState;
+    const { input } = newLayoutContextState;
     const mediaAreaHeight = windowHeight() - (
       DEFAULT_VALUES.navBarHeight + DEFAULT_VALUES.actionBarHeight
     );
@@ -466,7 +466,7 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
   };
 
   const calculatesLayout = () => {
-    const { deviceType, input } = contextState;
+    const { deviceType, input } = newLayoutContextState;
 
     const sidebarNavWidth = calculatesSidebarNavWidth();
     const sidebarNavHeight = calculatesSidebarNavHeight();
@@ -487,7 +487,7 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
     const presentationBounds = calculatesPresentationBounds(sidebarNavWidth.width,
       sidebarContentWidth.width, cameraDockBounds);
 
-    contextDispatch({
+    newLayoutContextDispatch({
       type: ACTIONS.SET_NAVBAR_OUTPUT,
       value: {
         display: input.navBar.hasNavBar,
@@ -500,7 +500,7 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
       },
     });
 
-    contextDispatch({
+    newLayoutContextDispatch({
       type: ACTIONS.SET_ACTIONBAR_OUTPUT,
       value: {
         display: input.actionBar.hasActionBar,
@@ -513,7 +513,7 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
       },
     });
 
-    contextDispatch({
+    newLayoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_NAVIGATION_OUTPUT,
       value: {
         display: input.sidebarNavigation.isOpen,
@@ -530,7 +530,7 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
       },
     });
 
-    contextDispatch({
+    newLayoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_NAVIGATION_RESIZABLE_EDGE,
       value: {
         top: false,
@@ -540,7 +540,7 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
       },
     });
 
-    contextDispatch({
+    newLayoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_OUTPUT,
       value: {
         display: input.sidebarContent.isOpen,
@@ -558,7 +558,7 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
       },
     });
 
-    contextDispatch({
+    newLayoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_RESIZABLE_EDGE,
       value: {
         top: false,
@@ -568,7 +568,7 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
       },
     });
 
-    contextDispatch({
+    newLayoutContextDispatch({
       type: ACTIONS.SET_MEDIA_AREA_SIZE,
       value: {
         width: windowWidth() - sidebarNavWidth.width - sidebarContentWidth.width,
@@ -576,7 +576,7 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
       },
     });
 
-    contextDispatch({
+    newLayoutContextDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_OUTPUT,
       value: {
         display: input.cameraDock.numCameras > 0,
@@ -597,7 +597,7 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
       },
     });
 
-    contextDispatch({
+    newLayoutContextDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_RESIZABLE_EDGE,
       value: {
         top: input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM
@@ -608,12 +608,12 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
       },
     });
 
-    contextDispatch({
+    newLayoutContextDispatch({
       type: ACTIONS.SET_DROP_AREAS,
       value: dropZoneAreas,
     });
 
-    contextDispatch({
+    newLayoutContextDispatch({
       type: ACTIONS.SET_PRESENTATION_OUTPUT,
       value: {
         display: input.presentation.isOpen,
@@ -629,10 +629,10 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
   };
 
   const init = () => {
-    const { input } = contextState;
-    const { deviceType } = contextState;
+    const { input } = newLayoutContextState;
+    const { deviceType } = newLayoutContextState;
     if (deviceType === DEVICE_TYPE.MOBILE) {
-      contextDispatch({
+      newLayoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: _.defaultsDeep({
           sidebarNavigation: {
@@ -654,7 +654,7 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
       });
     }
     if (deviceType !== DEVICE_TYPE.MOBILE) {
-      contextDispatch({
+      newLayoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: _.defaultsDeep({
           sidebarNavigation: {
@@ -679,37 +679,41 @@ const CustomLayout = ({ contextState, contextDispatch }) => {
     throttledCalculatesLayout(calculatesLayout);
   };
 
+  const resizeEventFunction = () => {
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_BROWSER_SIZE,
+      value: {
+        width: window.document.documentElement.clientWidth,
+        height: window.document.documentElement.clientHeight,
+      },
+    });
+  };
+
   useEffect(() => {
     init();
-    window.addEventListener('resize', () => {
-      contextDispatch({
-        type: ACTIONS.SET_BROWSER_SIZE,
-        value: {
-          width: window.document.documentElement.clientWidth,
-          height: window.document.documentElement.clientHeight,
-        },
-      });
-    });
-    contextDispatch({
-      type: ACTIONS.SET_PRESENTATION_SLIDES_LENGTH,
-      value: slides.length,
-    });
+    window.addEventListener('resize', resizeEventFunction);
+    // newLayoutContextDispatch({
+    //   type: ACTIONS.SET_PRESENTATION_SLIDES_LENGTH,
+    //   value: slides.length,
+    // });
 
-    return () => window.removeEventListener('resize');
+    return () => window.removeEventListener('resize', resizeEventFunction);
   }, []);
 
   useEffect(() => {
-    if (prevDeviceType !== contextState.deviceType) {
+    if (prevDeviceType !== newLayoutContextState.deviceType) {
       init();
     } else {
       throttledCalculatesLayout(calculatesLayout);
     }
-  }, [contextState]);
+  }, [newLayoutContextState]);
+
+  return null;
 };
 
 const MemoCustomLayout = memo(CustomLayout, (props, nextProps) => (
-  props.contextState.input !== nextProps.contextState.input
-  || props.contextState.deviceType !== nextProps.contextState.deviceType
+  props.newLayoutContextState.input !== nextProps.newLayoutContextState.input
+  || props.newLayoutContextState.deviceType !== nextProps.newLayoutContextState.deviceType
 ));
 
 export default LayoutContext.withConsumer(MemoCustomLayout);
