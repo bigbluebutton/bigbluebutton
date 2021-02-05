@@ -73,7 +73,7 @@ const JoinVideoButton = ({
   return (
     <Button
       label={label}
-      data-test="joinVideo"
+      data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
       className={cx(hasVideoStream || styles.btn)}
       onClick={handleOnClick}
       hideLabel

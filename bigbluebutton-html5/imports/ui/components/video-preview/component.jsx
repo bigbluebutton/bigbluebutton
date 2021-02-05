@@ -515,7 +515,6 @@ class VideoPreview extends Component {
               value={webcamDeviceId || ''}
               className={styles.select}
               onChange={this.handleSelectWebcam}
-              disabled={this.skipVideoPreview}
             >
               {availableWebcams.map(webcam => (
                 <option key={webcam.deviceId} value={webcam.deviceId}>
@@ -548,7 +547,6 @@ class VideoPreview extends Component {
                     value={selectedProfile || ''}
                     className={styles.select}
                     onChange={this.handleSelectProfile}
-                    disabled={this.skipVideoPreview}
                   >
                     {availableProfiles.map((profile) => {
                       const label = intlMessages[`${profile.id}`]
@@ -716,6 +714,10 @@ class VideoPreview extends Component {
 
     if (isCamLocked === true) {
       this.handleProceed();
+      return null;
+    }
+
+    if (this.skipVideoPreview) {
       return null;
     }
 
