@@ -3,6 +3,8 @@ import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import Polls from '/imports/api/polls';
 
+const POLL_AVATAR_COLOR = '#3B48A9';
+
 // 'YN' = Yes,No
 // 'YNA' = Yes,No,Abstention
 // 'TF' = True,False
@@ -82,4 +84,5 @@ export default {
   currentPoll: () => Polls.findOne({ meetingId: Auth.meetingID }),
   pollAnswerIds,
   sendGroupMessage,
+  POLL_AVATAR_COLOR,
 };
