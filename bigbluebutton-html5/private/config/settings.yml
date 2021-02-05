@@ -425,6 +425,10 @@ public:
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
+    label:
+      moderator: false
+      mobile: true
+      guest: true
   whiteboard:
     annotationsQueueProcessInterval: 60
     cursorInterval: 40

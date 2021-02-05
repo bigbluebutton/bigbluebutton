@@ -79,6 +79,7 @@ public class ParamsProcessorUtil {
     private String defaultAvatarURL;
     private String defaultConfigURL;
     private String defaultGuestPolicy;
+    private Boolean authenticatedGuest;
     private int defaultMeetingDuration;
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
@@ -493,6 +494,7 @@ public class ParamsProcessorUtil {
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
                 .withGuestPolicy(guestPolicy)
+                .withAuthenticatedGuest(authenticatedGuest)
 				.withBreakoutRoomsParams(breakoutParams)
 				.withLockSettingsParams(lockSettingsParams)
 				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
@@ -962,6 +964,10 @@ public class ParamsProcessorUtil {
 
 	public void setDefaultGuestPolicy(String guestPolicy) {
 		this.defaultGuestPolicy =  guestPolicy;
+	}
+
+	public void setAuthenticatedGuest(Boolean value) {
+		this.authenticatedGuest = value;
 	}
 
 	public void setClientLogoutTimerInMinutes(Integer value) {
