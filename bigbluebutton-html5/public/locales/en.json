@@ -328,6 +328,8 @@
     "app.navBar.settingsDropdown.aboutDesc": "Show information about the client",
     "app.navBar.settingsDropdown.leaveSessionDesc": "Leave the meeting",
     "app.navBar.settingsDropdown.exitFullscreenDesc": "Exit fullscreen mode",
+    "app.navBar.settingsDropdown.clipboardLabel": "Enable clipboard",
+    "app.navBar.settingsDropdown.clipboardDesc": "Enable clipboard access for remote desktop",
     "app.navBar.settingsDropdown.hotkeysLabel": "Keyboard shortcuts",
     "app.navBar.settingsDropdown.hotkeysDesc": "Listing of available keyboard shortcuts",
     "app.navBar.settingsDropdown.helpLabel": "Help",
