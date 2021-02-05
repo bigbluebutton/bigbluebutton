@@ -30,6 +30,16 @@ const setSharingScreen = (isSharingScreen) => {
   }
 };
 
+// A simplified, trackable version of isVideoBroadcasting that DOES NOT
+// account for the presenter's local sharing state.
+// It reflects the GLOBAL screen sharing state (akka-apps)
+const isGloballyBroadcasting = () => {
+  const screenshareEntry = Screenshare.findOne({ meetingId: Auth.meetingID },
+    { fields: { 'screenshare.stream': 1 } });
+
+  return (!screenshareEntry ? false : !!screenshareEntry.screenshare.stream);
+}
+
 // when the meeting information has been updated check to see if it was
 // screensharing. If it has changed either trigger a call to receive video
 // and display it, or end the call and hide the video
@@ -139,4 +149,5 @@ export {
   setSharingScreen,
   getMediaElement,
   attachLocalPreviewStream,
+  isGloballyBroadcasting,
 };

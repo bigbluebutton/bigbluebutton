@@ -17,7 +17,7 @@ import {
   attachLocalPreviewStream,
 } from '/imports/ui/components/screenshare/service';
 import {
-  isStreamStateHealthy,
+  isStreamStateUnhealthy,
   subscribeToStreamStateChange,
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
@@ -93,7 +93,7 @@ class ScreenshareComponent extends React.Component {
     const { streamState } = event.detail;
     const { isStreamHealthy } = this.state;
 
-    const newHealthState = isStreamStateHealthy(streamState);
+    const newHealthState = !isStreamStateUnhealthy(streamState);
     event.stopPropagation();
     if (newHealthState !== isStreamHealthy) {
       this.setState({ isStreamHealthy: newHealthState });
@@ -185,11 +185,20 @@ class ScreenshareComponent extends React.Component {
 
   render() {
     const { loaded, autoplayBlocked, isStreamHealthy } = this.state;
-    const { intl } = this.props;
-    const shouldRenderReconnect = !isStreamHealthy && loaded;
+    const { intl, isPresenter, isGloballyBroadcasting } = this.props;
+
+    // Conditions to render the (re)connecting spinner and the unhealthy stream
+    // grayscale:
+    // 1 - The local media tag has not received any stream data yet
+    // 2 - The user is a presenter and the stream wasn't globally broadcasted yet
+    // 3 - The media was loaded, the stream was globally broadcasted BUT the stream
+    // state transitioned to an unhealthy stream. tl;dr: screen sharing reconnection
+    const shouldRenderConnectingState = !loaded
+      || (isPresenter && !isGloballyBroadcasting)
+      || !isStreamHealthy && loaded && isGloballyBroadcasting;
 
     return (
-      [(!loaded || shouldRenderReconnect)
+      [(shouldRenderConnectingState)
         ? (
           <div
             key={_.uniqueId('screenshareArea-')}
@@ -217,7 +226,7 @@ class ScreenshareComponent extends React.Component {
             onLoadedData={this.onLoadedData}
             ref={(ref) => { this.videoTag = ref; }}
             className={cx({
-              [styles.unhealthyStream]: !isStreamHealthy,
+              [styles.unhealthyStream]: shouldRenderConnectingState,
             })}
             muted
           />
