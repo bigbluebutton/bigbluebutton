@@ -289,7 +289,7 @@ class MessageList extends Component {
           }
         }}
         className={styles.messageListWrapper}
-        key="chat-list"
+        key={_.uniqueId('chat-list-')}
         data-test="chatMessages"
         ref={node => this.messageListWrapper = node}
       >
