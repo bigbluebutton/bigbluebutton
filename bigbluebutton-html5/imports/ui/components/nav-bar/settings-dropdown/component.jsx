@@ -260,6 +260,7 @@ class SettingsDropdown extends PureComponent {
         onClick={() => mountModal(<ShortcutHelpComponent />)}
       />),
       (isMeteorConnected ? <DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
+      shouldRenderLogoutOption,
       allowedToEndMeeting && isMeteorConnected
         ? (<DropdownListItem
           key="list-item-end-meeting"
@@ -270,7 +271,6 @@ class SettingsDropdown extends PureComponent {
         />
         )
         : null,
-      shouldRenderLogoutOption,
     ]);
   }
 
