@@ -256,7 +256,6 @@
     "app.navBar.emptyAudioBrdige": "Brak aktywnego mikrofonu. Udostępnij mikrofon, by umożliwić nagrywanie dźwięku.",
     "app.leaveConfirmation.confirmLabel": "Wyjdź",
     "app.leaveConfirmation.confirmDesc": "Wylogowuje Cię ze spotkania",
-    "app.endMeeting.title": "Zakończ spotkanie",
     "app.endMeeting.yesLabel": "Tak",
     "app.endMeeting.noLabel": "Nie",
     "app.about.title": "O kliencie",

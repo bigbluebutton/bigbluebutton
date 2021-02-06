@@ -29,11 +29,35 @@ const takePresenterRole = () => {
   makeCall('reloadWhiteboard', whiteboardId, 0);
 }
 
+const amIPresenter = () => {
+  const currentUser = Users.findOne({ userId: Auth.userID },
+    { fields: { presenter: 1 } });
+
+  if (!currentUser) {
+    return false;
+  }
+
+  return currentUser.presenter;
+};
+
+const amIModerator = () => {
+  const currentUser = Users.findOne({ userId: Auth.userID },
+    { fields: { role: 1 } });
+
+  if (!currentUser) {
+    return false;
+  }
+
+  return currentUser.role === ROLE_MODERATOR;
+};
+
+const isMe = intId => intId === Auth.userID;
+
+
 export default {
-  amIPresenter: () => Users.findOne({ userId: Auth.userID },
-    { fields: { presenter: 1 } }).presenter || false,
-  amIModerator: () => Users.findOne({ userId: Auth.userID },
-    { fields: { role: 1 } }).role === ROLE_MODERATOR || false,
+  amIPresenter,
+  amIModerator,
+  isMe,
   meetingName: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'meetingProp.name': 1 } }).meetingProp.name,
   users: () => Users.find({

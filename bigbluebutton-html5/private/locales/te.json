@@ -279,8 +279,6 @@
     "app.navBar.emptyAudioBrdige": "మైక్రోఫోన్ ఆన్ లో లేదు. ఈ రికార్డింగ్‌కు ఆడియోను జోడించడానికి మీ మైక్రోఫోన్‌ను షేర్ చేయండి.",
     "app.leaveConfirmation.confirmLabel": "వదిలివేయండి",
     "app.leaveConfirmation.confirmDesc": "మిమ్మల్ని సమావేశం నుండి లాగ్ అవుట్ చేస్తుంది",
-    "app.endMeeting.title": "సమావేశం ముగించండి",
-    "app.endMeeting.description": "మీరు ప్రతి ఒక్కరి కోసం ఈ సమావేశాన్ని ముగించాలనుకుంటున్నారా? (వినియోగదారులందరూ డిస్కనెక్ట్ చేయబడతారు)?",
     "app.endMeeting.yesLabel": "అవును",
     "app.endMeeting.noLabel": "కాదు",
     "app.about.title": "గురించి",

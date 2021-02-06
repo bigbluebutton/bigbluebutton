@@ -22,8 +22,10 @@ import StatusNotifier from '/imports/ui/components/status-notifier/container';
 import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
+import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
 import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
 import { styles } from './styles';
+import { makeCall } from '/imports/ui/services/api';
 import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
@@ -149,13 +151,24 @@ class App extends Component {
       startBandwidthMonitoring();
     }
 
+    if (isMobileBrowser) makeCall('setMobileUser');
+
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
 
   componentDidUpdate(prevProps) {
     const {
-      meetingMuted, notify, currentUserEmoji, intl, hasPublishedPoll,
+      meetingMuted,
+      notify,
+      currentUserEmoji,
+      intl,
+      hasPublishedPoll,
+      randomlySelectedUser,
+      currentUserId,
+      mountModal,
     } = this.props;
+
+    if (randomlySelectedUser === currentUserId) mountModal(<RandomUserSelectContainer />);
 
     if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })

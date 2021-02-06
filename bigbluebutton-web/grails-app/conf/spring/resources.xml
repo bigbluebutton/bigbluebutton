@@ -130,6 +130,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultNumDigitsForTelVoice" value="${defaultNumDigitsForTelVoice}"/>
         <property name="defaultHTML5ClientUrl" value="${defaultHTML5ClientUrl}"/>
         <property name="defaultGuestWaitURL" value="${defaultGuestWaitURL}"/>
+        <property name="allowRequestsWithoutSession" value="${allowRequestsWithoutSession}"/>
         <property name="defaultMeetingDuration" value="${defaultMeetingDuration}"/>
         <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
         <property name="autoStartRecording" value="${autoStartRecording}"/>
@@ -139,6 +140,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
         <property name="defaultConfigURL" value="${defaultConfigURL}"/>
         <property name="defaultGuestPolicy" value="${defaultGuestPolicy}"/>
+        <property name="authenticatedGuest" value="${authenticatedGuest}"/>
         <property name="meetingExpireIfNoUserJoinedInMinutes" value="${meetingExpireIfNoUserJoinedInMinutes}"/>
         <property name="meetingExpireWhenLastUserLeftInMinutes" value="${meetingExpireWhenLastUserLeftInMinutes}"/>
         <property name="userInactivityInspectTimerInMinutes" value="${userInactivityInspectTimerInMinutes}"/>

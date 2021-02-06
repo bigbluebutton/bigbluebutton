@@ -103,6 +103,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetPresenterGroupReqMsg](envelope, jsonNode)
       case UserActivitySignCmdMsg.NAME =>
         routeGenericMsg[UserActivitySignCmdMsg](envelope, jsonNode)
+      case SelectRandomViewerReqMsg.NAME =>
+        routeGenericMsg[SelectRandomViewerReqMsg](envelope, jsonNode)
 
       // Poll
       case StartCustomPollReqMsg.NAME =>

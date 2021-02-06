@@ -282,8 +282,6 @@
     "app.navBar.emptyAudioBrdige": "アクティブなマイクがありません。この録画に音声を追加するには、マイクを使用してください。",
     "app.leaveConfirmation.confirmLabel": "退室",
     "app.leaveConfirmation.confirmDesc": "自分を会議からログアウトさせる",
-    "app.endMeeting.title": "会議を終了する",
-    "app.endMeeting.description": "本当にこの会議を終了（すべての参加者の接続を切断）してよろしいですか？",
     "app.endMeeting.yesLabel": "はい",
     "app.endMeeting.noLabel": "いいえ",
     "app.about.title": "製品情報",

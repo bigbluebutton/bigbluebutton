@@ -279,8 +279,6 @@
     "app.navBar.emptyAudioBrdige": "無啟用的麥克風。 共享您的麥克風以進行錄音。",
     "app.leaveConfirmation.confirmLabel": "離開",
     "app.leaveConfirmation.confirmDesc": "將您登出會議",
-    "app.endMeeting.title": "結束會議",
-    "app.endMeeting.description": "您確定要結束會議（所有用戶都將斷開連接）嗎？",
     "app.endMeeting.yesLabel": "是",
     "app.endMeeting.noLabel": "否",
     "app.about.title": "關於",

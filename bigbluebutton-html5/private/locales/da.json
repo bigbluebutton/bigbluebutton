@@ -284,8 +284,6 @@
     "app.navBar.emptyAudioBrdige": "Ingen aktiv Mikrofon. Del din Mikrofon for at tilføje lyd til denne optagelse.",
     "app.leaveConfirmation.confirmLabel": "Forlad",
     "app.leaveConfirmation.confirmDesc": "Logger dig ud af mødet",
-    "app.endMeeting.title": "Afslut møde",
-    "app.endMeeting.description": "Er du sikker på, at du vil afslutte dette møde for alle (alle brugere afbrydes)?",
     "app.endMeeting.yesLabel": "Ja",
     "app.endMeeting.noLabel": "Nej",
     "app.about.title": "Om",

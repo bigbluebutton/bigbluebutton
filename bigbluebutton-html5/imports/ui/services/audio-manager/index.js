@@ -354,7 +354,6 @@ class AudioManager {
     this.failedMediaElements = [];
 
     if (this.inputStream) {
-      window.defaultInputStream.forEach(track => track.stop());
       this.inputStream.getTracks().forEach(track => track.stop());
       this.inputDevice = { id: 'default' };
     }
@@ -429,7 +428,7 @@ class AudioManager {
     // Play bogus silent audio to try to circumvent autoplay policy on Safari
     if (!audio.src) {
       audio.src = `${Meteor.settings.public.app.cdn
-      + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}` + 'resources/sounds/silence.mp3';
+      + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}` + '/resources/sounds/silence.mp3';
     }
 
     audio.play().catch((e) => {
@@ -510,7 +509,7 @@ class AudioManager {
 
   get inputStream() {
     this._inputDevice.tracker.depend();
-    return this._inputDevice.value.stream;
+    return (this.bridge ? this.bridge.inputStream : null);
   }
 
   get inputDevice() {
@@ -634,6 +633,10 @@ class AudioManager {
     }
 
     return audioAlert.play();
+  }
+
+  async updateAudioConstraints(constraints) {
+    await this.bridge.updateAudioConstraints(constraints);
   }
 }
 

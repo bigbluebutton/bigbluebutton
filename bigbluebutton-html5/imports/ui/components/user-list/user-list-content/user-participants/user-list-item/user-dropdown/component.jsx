@@ -34,10 +34,6 @@ const messages = defineMessages({
     id: 'app.userList.locked',
     description: 'Text for identifying locked user',
   },
-  guest: {
-    id: 'app.userList.guest',
-    description: 'Text for identifying guest user',
-  },
   menuTitleContext: {
     id: 'app.userList.menuTitleContext',
     description: 'adds context to userListItem menu title',
@@ -247,11 +243,12 @@ class UserDropdown extends PureComponent {
       meetingIsBreakout,
       mountModal,
       changeWhiteboardMode,
+      usersProp,
     } = this.props;
     const { showNestedOptions } = this.state;
 
     const amIModerator = currentUser.role === ROLE_MODERATOR;
-    const actionPermissions = getAvailableActions(amIModerator, meetingIsBreakout, user, voiceUser);
+    const actionPermissions = getAvailableActions(amIModerator, meetingIsBreakout, user, voiceUser, usersProp);
     const actions = [];
 
     const {
@@ -399,7 +396,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToPromote && !user.guest && isMeteorConnected) {
+    if (allowedToPromote && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'promote',
         intl.formatMessage(messages.PromoteUserLabel),
@@ -408,7 +405,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToDemote && !user.guest && isMeteorConnected) {
+    if (allowedToDemote && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'demote',
         intl.formatMessage(messages.DemoteUserLabel),
