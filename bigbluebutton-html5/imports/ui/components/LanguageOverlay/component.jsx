@@ -15,21 +15,50 @@ const intlMessages = defineMessages({
       description: 'Name of none language',
       defaultMessage: 'None',
     },
+    connectionSettingUp: {
+        id: 'app.translation.language.connection.settingUp',
+        description: 'Symbol when connection to translation/translator channel is setting up',
+        defaultMessage: '...',
+    },
+    connectionEstablished: {
+        id: 'app.translation.language.connection.established',
+        description: 'Symbol when connection to translation/translator channel is established',
+        defaultMessage: '✓',
+    },
 });
 
 class LanguageOverlay extends Component{
 
     state = {
         languages: [{name: "Floor", extension:-1}],
+        isConnecting: false,
     }
 
     clickHandler = (language) => {
+        if (language.extension > 0) {
+            this.setState({ isConnecting: true });
+        } else {
+            this.setState({ isConnecting: false });
+        }
+
         let handler = this.props.clickHandler;
-        handler(language);
-        this.forceUpdate()
+        handler(language, (message) => {
+            if (message.status == 'started') {
+                this.setState({ isConnecting: false });
+            }
+        });
     }
 
     render() {
+        const {
+            isConnecting,
+        } = this.state;
+
+        const {
+            intl,
+        } = this.props;
+
+        const connectionMessage = intl.formatMessage(isConnecting ? intlMessages.connectionSettingUp : intlMessages.connectionEstablished);
 
        return(
         <div>
@@ -37,7 +66,7 @@ class LanguageOverlay extends Component{
                 {this.state.languages.map(function (language) {
                     return <li className={styles.languageOption} key={language.extension} onClick={() => {
                         this.clickHandler(language)
-                    }}> <span>{language.name}</span>{((this.props.current && language.extension === this.props.current.extension) || (this.props.current === null && language.extension === -1)) && <span>&#x2713;</span>}</li>
+                    }}> <span>{language.name}</span>{((this.props.current && language.extension === this.props.current.extension) || (this.props.current === null && language.extension === -1)) && <span>{connectionMessage}</span>}</li>
                 },this)}
             </ul>
         </div>);
