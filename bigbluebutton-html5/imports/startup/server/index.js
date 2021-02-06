@@ -20,6 +20,11 @@ process.on('uncaughtException', (err) => {
   process.exit(1);
 });
 
+process.on('uncaughtException', (err) => {
+  Logger.error(`uncaughtException: ${err}`);
+  process.exit(1);
+});
+
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
   const env = Meteor.isDevelopment ? 'development' : 'production';

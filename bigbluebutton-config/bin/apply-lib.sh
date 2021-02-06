@@ -201,7 +201,7 @@ HERE
 }
 
 disableMultipleKurentos() {
-  echo "  - Configuring a single Kurento Media Server for listen only, webcam, and screeshare"
+  echo "  - Configuring a single Kurento Media Server for listen only, webcam, and screenshare"
   systemctl stop kurento-media-server.service
 
   for i in `seq 8888 8890`; do
@@ -269,6 +269,8 @@ source /etc/bigbluebutton/bbb-conf/apply-lib.sh
 
 #setNumberOfHTML5Processes 2
 
+# Shorten the FreeSWITCH "you have been muted" and "you have been unmuted" prompts
+# cp -r /etc/bigbluebutton/bbb-conf/sounds /opt/freeswitch/share/freeswitch
 
 HERE
 chmod +x /etc/bigbluebutton/bbb-conf/apply-config.sh

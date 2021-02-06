@@ -207,7 +207,6 @@ const getUsers = () => {
   let users = Users
     .find({
       meetingId: Auth.meetingID,
-      authed: true,
     }, userFindSorting)
     .fetch();
 
@@ -326,13 +325,23 @@ const isMeetingLocked = (id) => {
   return isLocked;
 };
 
-const areUsersUnmutable = () => {
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { 'usersProp.allowModsToUnmuteUsers': 1 } });
-  if (meeting.usersProp) {
-    return meeting.usersProp.allowModsToUnmuteUsers;
+const getUsersProp = () => {
+  const meeting = Meetings.findOne(
+    { meetingId: Auth.meetingID },
+    {
+      fields: {
+        'usersProp.allowModsToUnmuteUsers': 1,
+        'usersProp.authenticatedGuest': 1,
+      },
+    }
+  );
+
+  if (meeting.usersProp) return meeting.usersProp;
+
+  return {
+    allowModsToUnmuteUsers: false,
+    authenticatedGuest: false,
   }
-  return false;
 };
 
 const curatedVoiceUser = (intId) => {
@@ -345,10 +354,11 @@ const curatedVoiceUser = (intId) => {
   };
 };
 
-const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectVoiceUser) => {
+const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectVoiceUser, usersProp) => {
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId) || subjectUser.phone_user;
   const amISubjectUser = isMe(subjectUser.userId);
   const isSubjectUserModerator = subjectUser.role === ROLE_MODERATOR;
+  const isSubjectUserGuest = subjectUser.guest;
 
   const hasAuthority = amIModerator || amISubjectUser;
   const allowedToChatPrivately = !amISubjectUser && !isDialInUser;
@@ -361,7 +371,7 @@ const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectV
     && subjectVoiceUser.isVoiceUser
     && !subjectVoiceUser.isListenOnly
     && subjectVoiceUser.isMuted
-    && (amISubjectUser || areUsersUnmutable());
+    && (amISubjectUser || usersProp.allowedToUnmuteAudio);
 
   const allowedToResetStatus = hasAuthority
     && subjectUser.emoji !== EMOJI_STATUSES.none
@@ -380,13 +390,15 @@ const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectV
     && !amISubjectUser
     && !isSubjectUserModerator
     && !isDialInUser
-    && !isBreakoutRoom;
+    && !isBreakoutRoom
+    && !(isSubjectUserGuest && usersProp.authenticatedGuest);
 
   const allowedToDemote = amIModerator
     && !amISubjectUser
     && isSubjectUserModerator
     && !isDialInUser
-    && !isBreakoutRoom;
+    && !isBreakoutRoom
+    && !(isSubjectUserGuest && usersProp.authenticatedGuest);
 
   const allowedToChangeStatus = amISubjectUser;
 
@@ -441,6 +453,18 @@ const toggleVoice = (userId) => {
     }, 'moderator muted user microphone');
   }
 };
+
+const getEmoji = () => {
+  const currentUser = Users.findOne({ userId: Auth.userID },
+    { fields: { emoji: 1 } });
+
+  if (!currentUser) {
+    return false;
+  }
+
+  return currentUser.emoji;
+};
+
 
 const muteAllUsers = (userId) => { makeCall('muteAllUsers', userId); };
 
@@ -538,6 +562,10 @@ const requestUserInformation = (userId) => {
 };
 
 const sortUsersByFirstName = (a, b) => {
+  if (!a.firstName && !b.firstName) return 0;
+  if (a.firstName && !b.firstName) return -1;
+  if (!a.firstName && b.firstName) return 1;
+
   const aName = a.firstName.toLowerCase();
   const bName = b.firstName.toLowerCase();
   if (aName < bName) return -1;
@@ -626,10 +654,11 @@ export default {
   getGroupChatPrivate,
   hasBreakoutRoom,
   getEmojiList: () => EMOJI_STATUSES,
-  getEmoji: () => Users.findOne({ userId: Auth.userID }, { fields: { emoji: 1 } }).emoji,
+  getEmoji,
   hasPrivateChatBetweenUsers,
   toggleUserLock,
   requestUserInformation,
   focusFirstDropDownItem,
   isUserPresenter,
+  getUsersProp,
 };

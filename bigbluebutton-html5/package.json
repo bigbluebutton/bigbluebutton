@@ -34,7 +34,7 @@
     "@browser-bunyan/server-stream": "^1.5.3",
     "@jitsi/sdp-interop": "0.1.14",
     "autoprefixer": "~9.3.1",
-    "axios": "^0.19.1",
+    "axios": "^0.21.1",
     "babel-runtime": "~6.26.0",
     "browser-bunyan": "^1.5.3",
     "browser-detect": "^0.2.28",

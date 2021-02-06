@@ -62,6 +62,44 @@ async function webcamContentCheck(test) {
   return check === true;
 }
 
+async function compareWebcamsContents(page1, page2) {
+  await page1.waitForSelector(we.videoContainer);
+  await page1.elementRemoved(we.webcamConnecting);
+  await page2.waitForSelector(we.videoContainer);
+  await page2.elementRemoved(we.webcamConnecting);
+  const repeats = 5;
+  let check;
+  for (let i = repeats; i >= 1; i--) {
+    console.log(`loop ${i}`);
+    const checkCameras = function (i) {
+      const videos = document.querySelectorAll('video');
+      const lastVideoColor = document.lastVideoColor || {};
+      document.lastVideoColor = lastVideoColor;
+
+      for (let v = 0; v < videos.length; v++) {
+        const video = videos[v];
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+        const pixel = context.getImageData(50, 50, 1, 1).data;
+        const pixelString = new Array(pixel).join(' ').toString();
+
+        if (lastVideoColor[v]) {
+          if (lastVideoColor[v] == pixelString) {
+            return false;
+          }
+        }
+        lastVideoColor[v] = pixelString;
+        return true;
+      }
+    };
+
+    check = await test.page.evaluate(checkCameras, i);
+    await test.page.waitFor(parseInt(process.env.LOOP_INTERVAL));
+  }
+  return check === true;
+}
+
 async function clickTestElement(element) {
   document.querySelectorAll(element)[0].click();
 }

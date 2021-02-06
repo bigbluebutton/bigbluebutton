@@ -72,7 +72,7 @@ const currentSlidHasContent = () => {
   return !!content.length;
 };
 
-const parseCurrentSlideContent = (yesValue, noValue, trueValue, falseValue) => {
+const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue, falseValue) => {
   const currentSlide = getCurrentSlide('DEFAULT_PRESENTATION_POD');
   const quickPollOptions = [];
   if (!currentSlide) return quickPollOptions;
@@ -89,6 +89,10 @@ const parseCurrentSlideContent = (yesValue, noValue, trueValue, falseValue) => {
   const ynPollString = `(${excludePatt}${yesValue}\\s*\\/\\s*${noValue})|(${excludePatt}${noValue}\\s*\\/\\s*${yesValue})`;
   const ynOptionsRegex = new RegExp(ynPollString, 'gi');
   const ynPoll = content.match(ynOptionsRegex) || [];
+
+  const ynaPollString = `(${excludePatt}${yesValue}\\s*\\/\\s*${noValue}\\s*\\/\\s*${abstentionValue})|(${excludePatt}${yesValue}\\s*\\/\\s*${abstentionValue}\\s*\\/\\s*${noValue})|(${excludePatt}${abstentionValue}\\s*\\/\\s*${yesValue}\\s*\\/\\s*${noValue})|(${excludePatt}${abstentionValue}\\s*\\/\\s*${noValue}\\s*\\/\\s*${yesValue})|(${excludePatt}${noValue}\\s*\\/\\s*${yesValue}\\s*\\/\\s*${abstentionValue})|(${excludePatt}${noValue}\\s*\\/\\s*${abstentionValue}\\s*\\/\\s*${yesValue})`;
+  const ynaOptionsRegex = new RegExp(ynaPollString, 'gi');
+  const ynaPoll = content.match(ynaOptionsRegex) || [];
 
   const tfPollString = `(${excludePatt}${trueValue}\\s*\\/\\s*${falseValue})|(${excludePatt}${falseValue}\\s*\\/\\s*${trueValue})`;
   const tgOptionsRegex = new RegExp(tfPollString, 'gi');
@@ -136,6 +140,11 @@ const parseCurrentSlideContent = (yesValue, noValue, trueValue, falseValue) => {
 
   ynPoll.forEach(poll => quickPollOptions.push({
     type: 'YN',
+    poll,
+  }));
+
+  ynaPoll.forEach(poll => quickPollOptions.push({
+    type: 'YNA',
     poll,
   }));
 
