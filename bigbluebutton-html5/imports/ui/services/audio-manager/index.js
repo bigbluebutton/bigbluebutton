@@ -716,7 +716,7 @@ class AudioManager {
     }
   }
 
-  async openTranslatorChannel(languageExtension) {
+  async openTranslatorChannel(languageExtension, onConnected) {
     if( this.translatorBridge.activeSession ) {
       this.translatorBridge.exitAudio();
       this.translatorSpeechEvents.stop();
@@ -757,9 +757,11 @@ class AudioManager {
           inputStream: inputStream,
         };
 
-        this.translatorBridge.userData.voiceBridge = this.userData.voiceBridge.toString()+languageExtension;
-        let callback = function (x){
-
+        this.translatorBridge.userData.voiceBridge = this.userData.voiceBridge.toString() + languageExtension;
+        let callback = function (message) {
+          if (onConnected) {
+            onConnected(message);
+          }
           if(this.isTranslatorMuted){
             this.muteTranslator('mute-button')
           }
