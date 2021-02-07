@@ -35,11 +35,7 @@ trait SelectRandomViewerReqMsgHdlr extends RightsManagementTrait {
       val randNum = new scala.util.Random
 
       val userIds = users.map { case (v) => v.intId }
-      if (users.size > 0) {
-        broadcastEvent(msg, userIds, randNum.nextInt(users.size))
-      } else if (users.size == 0) {
-        broadcastEvent(msg, userIds, -1)
-      }
+      broadcastEvent(msg, userIds, if (users.size == 0) -1 else randNum.nextInt(users.size))
     }
   }
 }
