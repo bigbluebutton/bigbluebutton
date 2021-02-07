@@ -141,7 +141,7 @@ class RandomUserSelect extends Component {
           {countDown == 0
             ?  isSelectedUser
                ? `${intl.formatMessage(messages.selected)}`
-               : numAvailableViewers == 1
+               : numAvailableViewers == 1 && currentUser.presenter
                   ? `${intl.formatMessage(messages.onlyOneViewerTobeSelected)}`
                   : `${intl.formatMessage(messages.randUserTitle)}`
             : `${intl.formatMessage(messages.whollbeSelected)} ${countDown}`
