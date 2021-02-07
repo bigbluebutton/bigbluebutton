@@ -35,6 +35,7 @@ export default function addMeeting(meeting) {
     usersProp: {
       webcamsOnlyForModerator: Boolean,
       guestPolicy: String,
+      authenticatedGuest: Boolean,
       maxUsers: Number,
       allowModsToUnmuteUsers: Boolean,
     },

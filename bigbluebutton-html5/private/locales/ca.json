@@ -284,8 +284,6 @@
     "app.navBar.emptyAudioBrdige": "No hi ha cap micròfon actiu. Compartiu el micròfon per a afegir so a aquest enregistrament",
     "app.leaveConfirmation.confirmLabel": "Abandona",
     "app.leaveConfirmation.confirmDesc": "Desconnecta de la reunió",
-    "app.endMeeting.title": "Finalitza la reunió",
-    "app.endMeeting.description": "Esteu segur que voleu acabar aquesta reunió per a tothom (tots els usuaris es desconnectaran)?",
     "app.endMeeting.yesLabel": "Sí",
     "app.endMeeting.noLabel": "No",
     "app.about.title": "Quant a...",

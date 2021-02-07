@@ -277,8 +277,6 @@
     "app.navBar.emptyAudioBrdige": "Nėra aktyvaus mikrofono. Dalinkitės mikrofonu, kad pridėtumėte garsą šiam įrašui. ",
     "app.leaveConfirmation.confirmLabel": "Palikti",
     "app.leaveConfirmation.confirmDesc": "Atjungia jus nuo susitikimo",
-    "app.endMeeting.title": "Baigti susitikimą ",
-    "app.endMeeting.description": "Ar tikrai norite baigti šį susitikimą visiems (visi naudotojai bus atjungti)?",
     "app.endMeeting.yesLabel": "Taip",
     "app.endMeeting.noLabel": "Ne",
     "app.about.title": "Apie",

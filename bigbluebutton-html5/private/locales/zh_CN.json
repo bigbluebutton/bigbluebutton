@@ -282,8 +282,6 @@
     "app.navBar.emptyAudioBrdige": "没有活动麦克风。分享麦克风可将音频添加到录像中。",
     "app.leaveConfirmation.confirmLabel": "退出",
     "app.leaveConfirmation.confirmDesc": "您将从会议退出",
-    "app.endMeeting.title": "结束会议",
-    "app.endMeeting.description": "真的要结束会议吗（所有用户都将断开连接）？",
     "app.endMeeting.yesLabel": "是",
     "app.endMeeting.noLabel": "否",
     "app.about.title": "关于",

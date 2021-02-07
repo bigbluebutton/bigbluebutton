@@ -269,8 +269,6 @@
     "app.navBar.emptyAudioBrdige": "Puudub aktiivne mikrofon. Salvestisele heli lisamiseks jaga oma mikrofoni.",
     "app.leaveConfirmation.confirmLabel": "Lahku",
     "app.leaveConfirmation.confirmDesc": "Logib sind ruumist välja",
-    "app.endMeeting.title": "Lõpeta sessioon",
-    "app.endMeeting.description": "Kas oled kindel, et soovid selle sessiooni kõigi jaoks lõpetada (kõigi kasutajate ühendused katkestatakse)?",
     "app.endMeeting.yesLabel": "Jah",
     "app.endMeeting.noLabel": "Ei",
     "app.about.title": "Meist",

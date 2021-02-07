@@ -266,8 +266,6 @@
     "app.navBar.emptyAudioBrdige": "Ez dago mikrofono aktiborik. Partekatu zure mikrofonoa grabazio honi audioa gehitzeko.",
     "app.leaveConfirmation.confirmLabel": "Irten",
     "app.leaveConfirmation.confirmDesc": "Bileratik kanporatzen zaitu",
-    "app.endMeeting.title": "Amaitu bilera",
-    "app.endMeeting.description": "Ziur zaude bilera hau partaide guztientzako amaitu nahi duzula? Partaide guztiak deskonektatuko dira.",
     "app.endMeeting.yesLabel": "Bai",
     "app.endMeeting.noLabel": "Ez",
     "app.about.title": "Honi buruz",

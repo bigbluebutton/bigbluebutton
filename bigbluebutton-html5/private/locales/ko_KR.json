@@ -279,8 +279,6 @@
     "app.navBar.emptyAudioBrdige": "활성화된 마이크 없음. 녹음하려면 마이크를 공유하세요.",
     "app.leaveConfirmation.confirmLabel": "떠나기",
     "app.leaveConfirmation.confirmDesc": "미팅에서 로그 아웃",
-    "app.endMeeting.title": "미팅 끝",
-    "app.endMeeting.description": "모든이들과 함께 이 미팅을 끝내시겠습니까 ? ( 모든 사용자는 접속해제 됩니다 )",
     "app.endMeeting.yesLabel": "예",
     "app.endMeeting.noLabel": "아니요",
     "app.about.title": "개요",

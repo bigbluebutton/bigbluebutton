@@ -266,8 +266,6 @@
     "app.navBar.emptyAudioBrdige": "Tidak ada mikrofon aktif. Bagikan mikrofon Anda untuk menambah audio ke rekaman ini.",
     "app.leaveConfirmation.confirmLabel": "Keluar",
     "app.leaveConfirmation.confirmDesc": "Anda keluar dari meeting",
-    "app.endMeeting.title": "Akhir pertemuan",
-    "app.endMeeting.description": "Anda yakin ingin mengakhiri pertemuan ini untuk setiap orang (semua pengguna akan diputus)?",
     "app.endMeeting.yesLabel": "Ya",
     "app.endMeeting.noLabel": "Tidak",
     "app.about.title": "Tentang",

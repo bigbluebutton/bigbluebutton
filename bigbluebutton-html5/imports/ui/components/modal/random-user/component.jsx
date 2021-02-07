@@ -115,58 +115,64 @@ class RandomUserSelect extends Component {
     } = this.props;
 
     if (mappedRandomlySelectedUsers.length < this.state.count+1) return null;
-    
+
     const selectedUser = mappedRandomlySelectedUsers[this.state.count][0];
     const countDown = mappedRandomlySelectedUsers.length - this.state.count -1;
-
-    if (!selectedUser) return null;
     
     this.play();
+    
+    let viewElement;
 
-    const isSelectedUser = currentUser.userId === selectedUser.userId;
-
-    const viewElement = numAvailableViewers < 1 || (currentUser.presenter && isSelectedUser) ? (
-      <div className={styles.modalViewContainer}>
-        <div className={styles.modalViewTitle}>
-          {intl.formatMessage(messages.randUserTitle)}
+    const amISelectedUser = currentUser.userId === selectedUser.userId;
+    if (numAvailableViewers < 1 || (currentUser.presenter && amISelectedUser)) { // there's no viewers to select from
+      // display modal informing presenter that there's no viewers to select from
+      viewElement = (
+        <div className={styles.modalViewContainer}>
+          <div className={styles.modalViewTitle}>
+            {intl.formatMessage(messages.randUserTitle)}
+          </div>
+          <div>{intl.formatMessage(messages.noViewers)}</div>
         </div>
-        <div>{intl.formatMessage(messages.noViewers)}</div>
-      </div>
-    ) : (
-      <div className={styles.modalViewContainer}>
-      <div className={countDown == 0
-                       ? styles.modalViewFinalContainer
-                       : styles.modalViewContainer}>
-        <div className={styles.modalViewTitle}>
-          {countDown == 0
-            ?  isSelectedUser
-               ? `${intl.formatMessage(messages.selected)}`
-               : numAvailableViewers == 1 && currentUser.presenter
-                  ? `${intl.formatMessage(messages.onlyOneViewerTobeSelected)}`
-                  : `${intl.formatMessage(messages.randUserTitle)}`
-            : `${intl.formatMessage(messages.whollbeSelected)} ${countDown}`
+      );
+    } else { // viewers are available
+      if (!selectedUser) return null; // rendering triggered before selectedUser is available
+
+      // display modal with random user selection
+      viewElement = (
+        <div className={countDown == 0
+                         ? styles.modalViewFinalContainer
+                         : styles.modalViewContainer}>
+          <div className={styles.modalViewTitle}>
+            {countDown == 0
+              ? amISelectedUser
+                 ? `${intl.formatMessage(messages.selected)}`
+                 : numAvailableViewers == 1 && currentUser.presenter
+                    ? `${intl.formatMessage(messages.onlyOneViewerTobeSelected)}`
+                    : `${intl.formatMessage(messages.randUserTitle)}`
+              : `${intl.formatMessage(messages.whollbeSelected)} ${countDown}`
+            }
+          </div>
+          <div aria-hidden className={styles.modalAvatar} style={{ backgroundColor: `${selectedUser.color}` }}>
+            {selectedUser.name.slice(0, 2)}
+          </div>
+          <div className={styles.selectedUserName}>
+            {selectedUser.name}
+          </div>
+          {currentUser.presenter
+            && countDown == 0
+            && (
+            <Button
+              label={intl.formatMessage(messages.reselect)}
+              color="primary"
+              size="md"
+              className={styles.selectBtn}
+              onClick={() => this.reselect()}
+            />
+            )
           }
         </div>
-        <div aria-hidden className={styles.modalAvatar} style={{ backgroundColor: `${selectedUser.color}` }}>
-          {selectedUser.name.slice(0, 2)}
-        </div>
-        <div className={styles.selectedUserName}>
-          {selectedUser.name}
-        </div>
-        {currentUser.presenter
-          && countDown == 0
-          && (
-          <Button
-            label={intl.formatMessage(messages.reselect)}
-            color="primary"
-            size="md"
-            className={styles.selectBtn}
-            onClick={() => this.reselect()}
-          />
-          )
-        }
-      </div>
-    );
+      );
+    }
 
     return (
       <Modal
