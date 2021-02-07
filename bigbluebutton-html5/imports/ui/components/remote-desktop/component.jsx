@@ -51,6 +51,13 @@ class RemoteDesktop extends Component {
 
     /* window.remoteDesktop is globally accessible so that the lock button can access it */
     window.remoteDesktop = this;
+
+    /* window.allowClipboard is globally accessible so that the clipboard enable option can access it */
+    const queryOpts = { name: 'clipboard-read', allowWithoutGesture: false };
+    navigator.permissions.query(queryOpts).then(permissionStatus => {
+      window.allowClipboard = (permissionStatus.state == 'granted');
+    });
+
   }
 
   transferClipboardText = (ev) => {
@@ -73,6 +80,8 @@ class RemoteDesktop extends Component {
   }
 
   componentWillUnmount() {
+    document.removeEventListener('copy', this.transferClipboardText);
+    document.removeEventListener('cut', this.transferClipboardText);
     window.removeEventListener('layoutSizesSets', this.handleResize);
     this.playerParent.removeEventListener('fullscreenchange', this.onFullscreenChange);
     this.unmounting = true;
