@@ -159,7 +159,7 @@ class RemoteDesktopModal extends Component {
                 onChange={this.updateRemoteDesktopPassword}
                 name="remote-desktop-modal-password"
                 type="password"
-                required="false"
+                required={false}
               />
             </label>
           </div>
