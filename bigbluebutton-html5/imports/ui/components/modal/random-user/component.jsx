@@ -124,7 +124,9 @@ class RandomUserSelect extends Component {
     let viewElement;
 
     const amISelectedUser = currentUser.userId === selectedUser.userId;
-    if (numAvailableViewers < 1 || (currentUser.presenter && amISelectedUser)) { // there's no viewers to select from
+    if (numAvailableViewers < 1 || (currentUser.presenter && amISelectedUser)) { // there's no viewers to select from,
+                                   //or when you are the presenter but selected, which happens when the presenter ability is passed to somebody
+                                   // and people are entering and leaving the meeting
       // display modal informing presenter that there's no viewers to select from
       viewElement = (
         <div className={styles.modalViewContainer}>
