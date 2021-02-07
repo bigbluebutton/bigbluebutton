@@ -2,7 +2,7 @@ import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 
-export default function updateRandomUser(meetingId, userId, choice, requesterId) {
+export default function updateRandomUser(meetingId, userIds, choice, requesterId) {
   check(meetingId, String);
   check(userIds, Array);
   check(choice, Number);
