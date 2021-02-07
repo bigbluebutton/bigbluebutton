@@ -23,9 +23,9 @@ const messages = defineMessages({
     id: 'app.modal.randomUser.who',
     description: 'Label shown during the selection',
   },
-  onlyOnePersonTobeSelected: {
+  onlyOneViewerTobeSelected: {
     id: 'app.modal.randomUser.alone',
-    description: 'Label shown when only one person to be selected',
+    description: 'Label shown when only one viewer to be selected',
   },
   reselect: {
     id: 'app.modal.randomUser.reselect.label',
@@ -142,7 +142,7 @@ class RandomUserSelect extends Component {
             ?  isSelectedUser
                ? `${intl.formatMessage(messages.selected)}`
                : numAvailableViewers == 1
-                  ? `${intl.formatMessage(messages.onlyOnePersonTobeSelected)}`
+                  ? `${intl.formatMessage(messages.onlyOneViewerTobeSelected)}`
                   : `${intl.formatMessage(messages.randUserTitle)}`
             : `${intl.formatMessage(messages.whollbeSelected)} ${countDown}`
           }
