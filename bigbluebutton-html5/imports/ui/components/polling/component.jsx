@@ -142,12 +142,13 @@ class Polling extends Component {
                   key={pollAnswer.id}
                 >
                   <Checkbox
-                      disabled={!isMeteorConnected}
-                      id={`answerInput${pollAnswer.key}`}
-                      onChange={() => this.handleCheckboxChange(poll.pollId, pollAnswer.id)}
-                      className={styles.checkbox}
-                      aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
-                      aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
+                    disabled={!isMeteorConnected}
+                    id={`answerInput${pollAnswer.key}`}
+                    onChange={() => this.handleCheckboxChange(poll.pollId, pollAnswer.id)}
+                    checked={checkedAnswers.includes(pollAnswer.id)}
+                    className={styles.checkbox}
+                    ariaLabelledBy={`pollAnswerLabel${pollAnswer.key}`}
+                    ariaDescribedBy={`pollAnswerDesc${pollAnswer.key}`}
                   />
                   <label id={`pollAnswerLabel${pollAnswer.key}`}>
                     {label}
