@@ -340,7 +340,7 @@ class App extends Component {
 
   render() {
     const {
-      customStyle, customStyleUrl, openPanel,
+      customStyle, customStyleUrl, openPanel, isFullscreen
     } = this.props;
     return (
       <main className={styles.main}>
@@ -359,7 +359,7 @@ class App extends Component {
         </section>
         <UploaderContainer />
         <BreakoutRoomInvitation />
-        <PollingContainer />
+        {!isFullscreen && <PollingContainer />}
         <ModalContainer />
         <AudioContainer />
         <ToastContainer rtl />

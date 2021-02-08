@@ -1,7 +1,6 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
-import PollingContainer from '/imports/ui/components/polling/container';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import { styles } from './styles';
@@ -73,22 +72,18 @@ const FullscreenButtonComponent = ({
   });
 
   return (
-    <>
-      {isFullscreen && <PollingContainer />}
-
-      <div className={wrapperClassName}>
-        <Button
-          color="default"
-          icon={!isFullscreen ? 'fullscreen' : 'exit_fullscreen'}
-          size="sm"
-          onClick={() => handleToggleFullScreen(fullscreenRef)}
-          label={formattedLabel(isFullscreen)}
-          hideLabel
-          className={cx(styles.button, styles.fullScreenButton, className)}
-          data-test="presentationFullscreenButton"
-        />
-      </div>
-    </>
+    <div className={wrapperClassName}>
+      <Button
+        color="default"
+        icon={!isFullscreen ? 'fullscreen' : 'exit_fullscreen'}
+        size="sm"
+        onClick={() => handleToggleFullScreen(fullscreenRef)}
+        label={formattedLabel(isFullscreen)}
+        hideLabel
+        className={cx(styles.button, styles.fullScreenButton, className)}
+        data-test="presentationFullscreenButton"
+      />
+    </div>
   );
 };
 
