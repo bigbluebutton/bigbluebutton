@@ -65,10 +65,10 @@ class LiveResult extends PureComponent {
         if (responses) {
           const response = responses.find(r => r.userId === user.userId);
           if (response) {
-            let answerKeys = [];
+            const answerKeys = [];
             response.answerIds.forEach((answerId) => {
               answerKeys.push(answers[answerId].key);
-            })
+            });
             answer = answerKeys.join(', ');
           }
         }
@@ -198,14 +198,14 @@ class LiveResult extends PureComponent {
               onClick={() => {
                 Session.set('pollInitiated', false);
                 Service.publishPoll();
-                const { answers, numRespondents } = currentPoll;
+                const { answers, numResponders } = currentPoll;
                 let responded = 0;
                 let resultString = 'bbb-published-poll-\n';
                 answers.map((item) => {
                   responded += item.numVotes;
                   return item;
-                }).map((item) => {
-                  const numResponded = responded === numRespondents ? numRespondents : responded;
+                }).forEach((item) => {
+                  const numResponded = numResponders || responded;
                   const pct = Math.round(item.numVotes / numResponded * 100);
                   const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
                   resultString += `${item.key}: ${item.numVotes || 0} | ${pctFotmatted}\n`;

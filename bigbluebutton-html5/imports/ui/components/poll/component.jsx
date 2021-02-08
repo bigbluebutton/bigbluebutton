@@ -86,10 +86,10 @@ const intlMessages = defineMessages({
     id: 'app.poll.a5',
     description: 'label for A / B / C / D / E poll',
   },
-  enableMultipleChoiceLabel : {
-    id: 'app.poll.enableMultipleChoiceLabel',
+  enableMultipleResponseLabel: {
+    id: 'app.poll.enableMultipleResponseLabel',
     description: 'label for checkbox to enable multiple choice',
-  }
+  },
 });
 
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
@@ -104,13 +104,13 @@ class Poll extends Component {
       customPollReq: false,
       isPolling: false,
       customPollValues: [],
-      isMultipleChoice: false,
+      isMultipleResponse: false,
     };
 
     this.inputEditor = [];
 
     this.toggleCustomFields = this.toggleCustomFields.bind(this);
-    this.toggleIsMultipleChoice = this.toggleIsMultipleChoice.bind(this);
+    this.toggleIsMultipleResponse = this.toggleIsMultipleResponse.bind(this);
     this.renderQuickPollBtns = this.renderQuickPollBtns.bind(this);
     this.renderCustomView = this.renderCustomView.bind(this);
     this.renderInputFields = this.renderInputFields.bind(this);
@@ -166,16 +166,16 @@ class Poll extends Component {
     return this.setState({ customPollReq: !customPollReq });
   }
 
-  toggleIsMultipleChoice() {
-    const { isMultipleChoice } = this.state;
-    return this.setState({ isMultipleChoice: !isMultipleChoice });
+  toggleIsMultipleResponse() {
+    const { isMultipleResponse } = this.state;
+    return this.setState({ isMultipleResponse: !isMultipleResponse });
   }
 
   renderQuickPollBtns() {
     const {
       isMeteorConnected, pollTypes, startPoll, intl,
     } = this.props;
-    const { isMultipleChoice } = this.state;
+    const { isMultipleResponse } = this.state;
 
     const btns = pollTypes.map((type) => {
       if (type === 'custom') return false;
@@ -195,7 +195,7 @@ class Poll extends Component {
           key={_.uniqueId('quick-poll-')}
           onClick={() => {
             Session.set('pollInitiated', true);
-            this.setState({ isPolling: true }, () => startPoll(type, isMultipleChoice));
+            this.setState({ isPolling: true }, () => startPoll(type, isMultipleResponse));
           }}
         />);
     });
@@ -205,7 +205,7 @@ class Poll extends Component {
 
   renderCustomView() {
     const { intl, startCustomPoll } = this.props;
-    const { isMultipleChoice } = this.state;
+    const { isMultipleResponse } = this.state;
     const isDisabled = _.compact(this.inputEditor).length < 1;
 
     return (
@@ -215,7 +215,7 @@ class Poll extends Component {
           onClick={() => {
             if (this.inputEditor.length > 0) {
               Session.set('pollInitiated', true);
-              this.setState({ isPolling: true }, () => startCustomPoll('custom', isMultipleChoice, _.compact(this.inputEditor)));
+              this.setState({ isPolling: true }, () => startCustomPoll('custom', isMultipleResponse, _.compact(this.inputEditor)));
             }
           }}
           label={intl.formatMessage(intlMessages.startCustomLabel)}
@@ -285,19 +285,19 @@ class Poll extends Component {
 
   renderPollOptions() {
     const { isMeteorConnected, intl } = this.props;
-    const { customPollReq, isMultipleChoice } = this.state;
+    const { customPollReq, isMultipleResponse } = this.state;
 
     return (
       <div>
         <div>
           <input
-              id="multipleChoiceCheckboxId"
-              type="checkbox"
-              onChange={this.toggleIsMultipleChoice}
-              checked={isMultipleChoice}
+            id="multipleResponseCheckboxId"
+            type="checkbox"
+            onChange={this.toggleIsMultipleResponse}
+            checked={isMultipleResponse}
           />
-          <label htmlFor="multipleChoiceCheckboxId">
-            {intl.formatMessage(intlMessages.enableMultipleChoiceLabel)}
+          <label htmlFor="multipleResponseCheckboxId">
+            {intl.formatMessage(intlMessages.enableMultipleResponseLabel)}
           </label>
         </div>
         <div className={styles.instructions}>

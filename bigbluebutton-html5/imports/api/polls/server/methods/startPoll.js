@@ -2,7 +2,7 @@ import RedisPubSub from '/imports/startup/server/redis';
 import { check } from 'meteor/check';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
-export default function startPoll(pollType, pollId, isMultipleChoice, answers) {
+export default function startPoll(pollType, pollId, isMultipleResponse, answers) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
 
@@ -17,7 +17,7 @@ export default function startPoll(pollType, pollId, isMultipleChoice, answers) {
     requesterId: requesterUserId,
     pollId: `${pollId}/${new Date().getTime()}`,
     pollType,
-    isMultipleChoice,
+    isMultipleResponse,
   };
 
   if (pollType === 'custom') {

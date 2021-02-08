@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import PollService from '/imports/ui/components/poll/service';
 import { injectIntl, defineMessages } from 'react-intl';
 import styles from './styles';
-import { prototype } from 'clipboard';
 
 const intlMessages = defineMessages({
   pollResultAria: {
@@ -66,7 +65,7 @@ class PollDrawComponent extends Component {
     // rendering / rerendering the text objects
 
     const { annotation } = this.props;
-    const { points, result } = annotation;
+    const { points, result, numResponders } = annotation;
     const { slideWidth, slideHeight, intl } = this.props;
 
     // x1 and y1 - coordinates of the top left corner of the annotation
@@ -84,18 +83,14 @@ class PollDrawComponent extends Component {
     const width = ((initialWidth - 0.001) / 100) * slideWidth;
     const height = ((initialHeight - 0.001) / 100) * slideHeight;
 
-    let votesTotal = 0;
-    let maxNumVotes = 0;
     const textArray = [];
 
     // counting the total number of votes, finding the biggest number of votes
-    result.reduce((previousValue, currentValue) => {
-      votesTotal = previousValue + currentValue.numVotes;
-      if (maxNumVotes < currentValue.numVotes) {
-        maxNumVotes = currentValue.numVotes;
+    const maxNumVotes = result.reduce((previousValue, currentValue) => {
+      if (previousValue < currentValue.numVotes) {
+        return currentValue.numVotes;
       }
-
-      return votesTotal;
+      return previousValue;
     }, 0);
 
     // filling the textArray with data to display
@@ -129,11 +124,11 @@ class PollDrawComponent extends Component {
       }
 
       _tempArray.push(_result.key, `${_result.numVotes}`);
-      if (votesTotal === 0) {
+      if (numResponders === 0) {
         _tempArray.push('0%');
         _tempArray.push(i);
       } else {
-        const percResult = (_result.numVotes / votesTotal) * 100;
+        const percResult = (_result.numVotes / numResponders) * 100;
         _tempArray.push(`${Math.round(percResult)}%`);
         _tempArray.push(i);
       }
@@ -604,7 +599,7 @@ class PollDrawComponent extends Component {
     const { prepareToDisplay, textArray } = this.state;
 
     let ariaResultLabel = `${intl.formatMessage(intlMessages.pollResultAria)}: `;
-    textArray.map((t, idx) => {
+    textArray.forEach((t, idx) => {
       const pollLine = t.slice(0, -1);
       ariaResultLabel += `${idx > 0 ? ' |' : ''} ${pollLine.join(' | ')}`;
     });

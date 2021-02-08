@@ -29,7 +29,7 @@ trait StartCustomPollReqMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       for {
-        pvo <- Polls.handleStartCustomPollReqMsg(state, msg.header.userId, msg.body.pollId, msg.body.pollType, msg.body.isMultipleChoice, msg.body.answers, liveMeeting)
+        pvo <- Polls.handleStartCustomPollReqMsg(state, msg.header.userId, msg.body.pollId, msg.body.pollType, msg.body.isMultipleResponse, msg.body.answers, liveMeeting)
       } yield {
         broadcastEvent(msg, pvo)
       }
