@@ -59,6 +59,10 @@ object Users2x {
     users.toVector.filter(u => !u.presenter)
   }
 
+  def findViewers(users: Users2x): Vector[UserState] = {
+    users.toVector.filter(u => u.role == Roles.VIEWER_ROLE)
+  }
+
   def updateLastUserActivity(users: Users2x, u: UserState): UserState = {
     val newUserState = modify(u)(_.lastActivityTime).setTo(TimeUtil.timeNowInMs())
     users.save(newUserState)
@@ -241,6 +245,7 @@ class Users2x {
       }
     }
   }
+
 }
 
 case class OldPresenter(userId: String, changedPresenterOn: Long)
