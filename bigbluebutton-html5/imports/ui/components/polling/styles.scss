@@ -124,3 +124,8 @@
 .hidden {
   display: none;
 }
+
+.checkbox {
+  display: inline-block;
+  margin-right: var(--poll-sm-margin);
+}
