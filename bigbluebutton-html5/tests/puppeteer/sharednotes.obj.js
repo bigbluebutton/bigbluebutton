@@ -1,11 +1,12 @@
 const SharedNotes = require('./notes/sharednotes');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
+const { MAX_SHARED_NOTES_TEST_TIMEOUT } = require('./core/constants'); // core constants (Timeouts vars imported)
 
 expect.extend({ toMatchImageSnapshot });
 
 const sharedNotesTest = () => {
   beforeEach(() => {
-    jest.setTimeout(30000);
+    jest.setTimeout(MAX_SHARED_NOTES_TEST_TIMEOUT);
   });
 
   test('Open Shared notes', async () => {

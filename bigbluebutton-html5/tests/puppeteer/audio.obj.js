@@ -1,12 +1,13 @@
 const Audio = require('./audio/audio');
 const Page = require('./core/page');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
+const { MAX_AUDIO_TEST_TIMEOUT } = require('./core/constants');
 
 expect.extend({ toMatchImageSnapshot });
 
 const audioTest = () => {
   beforeEach(() => {
-    jest.setTimeout(50000);
+    jest.setTimeout(MAX_AUDIO_TEST_TIMEOUT);
   });
 
   test('Join audio with Listen Only', async () => {

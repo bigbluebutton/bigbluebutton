@@ -6,12 +6,13 @@ const Save = require('./chat/save');
 const Poll = require('./chat/poll');
 const MultiUsers = require('./user/multiusers');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
+const { MAX_CHAT_TEST_TIMEOUT } = require('./core/constants'); // core constants (Timeouts vars imported)
 
 expect.extend({ toMatchImageSnapshot });
 
 const chatTest = () => {
   beforeEach(() => {
-    jest.setTimeout(30000);
+    jest.setTimeout(MAX_CHAT_TEST_TIMEOUT);
   });
 
   // Send public chat message and check if it appears

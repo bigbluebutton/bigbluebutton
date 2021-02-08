@@ -1,11 +1,14 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
+const yaml = require('js-yaml');
 const fs = require('fs');
 const moment = require('moment');
 const path = require('path');
 const helper = require('./helper');
 const params = require('../params');
+const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const e = require('./elements');
+const ue = require('../user/elements');
 
 class Page {
   constructor(name) {
@@ -19,6 +22,15 @@ class Page {
     const tmp = dir.split('/');
     tmp.pop();
     return tmp.join('/');
+  }
+
+  async getSettingsYaml() {
+    try {
+      const settings = yaml.load(fs.readFileSync(path.join(__dirname, '../../../private/config/settings.yml'), 'utf8'));
+      return settings;
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   // Join BigBlueButton meeting
@@ -51,7 +63,7 @@ class Page {
       await this.page.goto(joinURL);
       const checkForGetMetrics = async () => {
         if (process.env.BBB_COLLECT_METRICS === 'true') {
-          await this.page.waitForSelector('[data-test^="userListItem"]');
+          await this.waitForSelector(ue.anyUser, ELEMENT_WAIT_TIME);
           await this.getMetrics(testFolderName);
         }
       };
@@ -63,28 +75,38 @@ class Page {
 
   // Joining audio with microphone
   async joinMicrophone() {
-    await this.waitForSelector(e.audioDialog);
-    await this.waitForSelector(e.microphoneButton);
+    await this.waitForSelector(e.audioDialog, ELEMENT_WAIT_TIME);
+    await this.waitForSelector(e.microphoneButton, ELEMENT_WAIT_TIME);
     await this.click(e.microphoneButton, true);
-    await this.waitForSelector(e.connectingStatus);
-    await this.waitForSelector(e.echoYes);
+    await this.waitForSelector(e.connectingStatus, ELEMENT_WAIT_TIME);
+    const parsedSettings = await this.getSettingsYaml();
+    const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
+    await this.waitForSelector(e.echoYes, listenOnlyCallTimeout);
     await this.click(e.echoYes, true);
-    await this.waitForSelector(e.isTalking);
+    await this.waitForSelector(e.isTalking, ELEMENT_WAIT_TIME);
   }
-
+  
   // Joining audio with microphone
   async joinMicrophoneWithoutEchoTest() {
-    await this.waitForSelector(e.audioDialog);
-    await this.waitForSelector(e.microphoneButton);
-    await this.click(e.microphoneButton, true);
-    await this.waitForSelector(e.connectingStatus);
+    await this.waitForSelector(e.joinAudio, ELEMENT_WAIT_TIME);
+    await this.click(e.joinAudio, true);
+    const parsedSettings = await this.getSettingsYaml();
+    const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
+    await this.waitForSelector(e.leaveAudio, listenOnlyCallTimeout);
   }
-
+  
+  // Leave audio
+  async leaveAudio() {
+    await this.waitForSelector(e.leaveAudio, ELEMENT_WAIT_TIME);
+    await this.click(e.leaveAudio, true);
+    await this.waitForSelector(e.joinAudio, ELEMENT_WAIT_TIME);
+  }
+  
   // Logout from meeting
   async logoutFromMeeting() {
-    await this.waitForSelector(e.options);
+    await this.waitForSelector(e.options, ELEMENT_WAIT_TIME);
     await this.click(e.options, true);
-    await this.waitForSelector(e.logout);
+    await this.waitForSelector(e.logout, ELEMENT_WAIT_TIME);
     await this.click(e.logout, true);
   }
 
@@ -96,7 +118,7 @@ class Page {
   }
 
   async closeAudioModal() {
-    await this.waitForSelector(e.audioDialog);
+    await this.waitForSelector(e.audioDialog, ELEMENT_WAIT_TIME);
     await this.click(e.closeAudio, true);
   }
 
@@ -135,7 +157,7 @@ class Page {
   // Get the default arguments for creating a page
   static getArgs() {
     const args = ['--no-sandbox', '--use-fake-ui-for-media-stream', '--lang=en-US'];
-    return { headless: true, args };
+    return { headless: false, args };
   }
 
   static getArgsWithAudio() {
@@ -148,6 +170,7 @@ class Page {
       ];
       return {
         headless: true,
+        slowMo: 650,
         args,
       };
     }
@@ -160,7 +183,7 @@ class Page {
       '--lang=en-US',
     ];
     return {
-      headless: true,
+      headless: false,
       args,
     };
   }
@@ -187,7 +210,8 @@ class Page {
       '--lang=en-US',
     ];
     return {
-      headless: true,
+      headless: false,
+      slowMo: 650,
       args,
     };
   }
@@ -215,7 +239,7 @@ class Page {
       '--lang=en-US',
     ];
     return {
-      headless: true,
+      headless: false,
       args,
     };
   }
@@ -266,13 +290,13 @@ class Page {
 
   async click(element, relief = false) {
     if (relief) await helper.sleep(1000);
-    await this.waitForSelector(element);
-    await this.page.click(element);
+    await this.waitForSelector(element, ELEMENT_WAIT_TIME);
+    await this.page.click(element, true);
   }
 
   async type(element, text, relief = false) {
     if (relief) await helper.sleep(1000);
-    await this.waitForSelector(element);
+    await this.waitForSelector(element, ELEMENT_WAIT_TIME);
     await this.page.type(element, text);
   }
 
@@ -333,7 +357,7 @@ class Page {
     if (!fs.existsSync(metricsFolder)) {
       fs.mkdirSync(metricsFolder);
     }
-    await this.waitForSelector('[data-test^="userListItem"]');
+    await this.waitForSelector('[data-test^="userListItem"]', ELEMENT_WAIT_TIME);
     const totalNumberOfUsersMongo = await this.page.evaluate(() => {
       const collection = require('/imports/api/users/index.js');
       const users = collection.default._collection.find({ connectionStatus: 'online' }).count();

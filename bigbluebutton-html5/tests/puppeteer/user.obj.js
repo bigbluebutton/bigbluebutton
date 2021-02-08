@@ -2,12 +2,13 @@ const Page = require('./core/page');
 const Status = require('./user/status');
 const MultiUsers = require('./user/multiusers');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
+const { MAX_MULTIUSERS_TEST_TIMEOUT } = require('./core/constants'); // core constants (Timeouts vars imported)
 
 expect.extend({ toMatchImageSnapshot });
 
 const userTest = () => {
   beforeEach(() => {
-    jest.setTimeout(30000);
+    jest.setTimeout(MAX_MULTIUSERS_TEST_TIMEOUT);
   });
 
   test('Change status', async () => {

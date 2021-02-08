@@ -3,12 +3,13 @@ const ShareScreen = require('./screenshare/screenshare');
 const Audio = require('./audio/audio');
 const Page = require('./core/page');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
+const { MAX_NOTIFICATIONS_TEST_TIMEOUT } = require('./core/constants'); // core constants (Timeouts vars imported)
 
 expect.extend({ toMatchImageSnapshot });
 
 const notificationsTest = () => {
   beforeEach(() => {
-    jest.setTimeout(80000);
+    jest.setTimeout(MAX_NOTIFICATIONS_TEST_TIMEOUT);
   });
 
   test('Save settings notification', async () => {

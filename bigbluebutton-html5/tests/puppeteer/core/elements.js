@@ -8,8 +8,8 @@ exports.alerts = '.toastify-content';
 
 exports.isTalking = '[data-test="isTalking"]';
 exports.wasTalking = '[data-test="wasTalking"]';
-exports.joinAudio = 'button[aria-label="Join Audio"]';
-exports.leaveAudio = 'button[aria-label="Leave Audio"]';
+exports.joinAudio = 'button[data-test="joinAudio"]';
+exports.leaveAudio = 'button[data-test="leaveAudio"]';
 
 exports.actions = 'button[aria-label="Actions"]';
 exports.options = 'button[aria-label="Options"]';

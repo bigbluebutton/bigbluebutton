@@ -1,12 +1,13 @@
 const Page = require('./core/page');
 const Share = require('./webcam/share');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
+const { MAX_WEBCAM_LAYOUT_TEST_TIMEOUT } = require('./core/constants');
 
 expect.extend({ toMatchImageSnapshot });
 
 const webcamLayoutTest = () => {
   beforeEach(() => {
-    jest.setTimeout(80000);
+    jest.setTimeout(MAX_WEBCAM_LAYOUT_TEST_TIMEOUT);
   });
 
   test('Join Webcam and microphone', async () => {

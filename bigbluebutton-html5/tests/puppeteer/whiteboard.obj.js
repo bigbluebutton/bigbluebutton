@@ -1,12 +1,13 @@
 const Page = require('./core/page');
 const Draw = require('./whiteboard/draw');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
+const { MAX_WHITEBOARD_TEST_TIMEOUT } = require('./core/constants');
 
 expect.extend({ toMatchImageSnapshot });
 
 const whiteboardTest = () => {
   beforeEach(() => {
-    jest.setTimeout(80000);
+    jest.setTimeout(MAX_WHITEBOARD_TEST_TIMEOUT);
   });
 
   test('Draw rectangle', async () => {
