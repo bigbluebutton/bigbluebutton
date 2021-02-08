@@ -220,11 +220,11 @@ public:
       # PUBLISHERS aren't accounted for .
       # A page size of 0 (zero) means that the page size is unlimited (disabled).
       desktopPageSizes:
-        moderator: 50
-        viewer: 25
+        moderator: 0
+        viewer: 0
       # video page sizes for MOBILE endpoints
       mobilePageSizes:
-        moderator: 8
+        moderator: 6
         viewer: 4
   pingPong:
     clearUsersInSeconds: 180
