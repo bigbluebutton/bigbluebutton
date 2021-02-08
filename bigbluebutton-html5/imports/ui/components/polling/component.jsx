@@ -111,6 +111,7 @@ class Polling extends Component {
       checkedAnswers.push(answerId);
     }
     checkedAnswers.sort();
+    this.setState({checkedAnswers: checkedAnswers})
   }
 
   handleSubmit(pollId) {
@@ -126,6 +127,7 @@ class Polling extends Component {
       poll,
       pollAnswerIds,
     } = this.props;
+    const { checkedAnswers } = this.state;
     return (
       <div>
         <div className={cx(pollAnswerStyles)}>
