@@ -284,8 +284,6 @@
     "app.navBar.emptyAudioBrdige": "Etkin bir mikrofon yok. Bu kayıda ses eklemek için mikrofonunuzu paylaşın.",
     "app.leaveConfirmation.confirmLabel": "Ayrıl",
     "app.leaveConfirmation.confirmDesc": "Sizi görüşmeden çıkarır",
-    "app.endMeeting.title": "Toplantıyı bitir",
-    "app.endMeeting.description": "Bu oturumu herkes için sonlandırmak istediğinize emin misiniz (tüm kullanıcıların bağlantısı kesilecek)?",
     "app.endMeeting.yesLabel": "Evet",
     "app.endMeeting.noLabel": "Hayır",
     "app.about.title": "Hakkında",

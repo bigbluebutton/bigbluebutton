@@ -269,8 +269,6 @@
     "app.navBar.emptyAudioBrdige": "Nemáte aktívny mikrofón. Zdieľajte Váš mikrofón pre doplnenie zvuku k tekto nahrávke.",
     "app.leaveConfirmation.confirmLabel": "Opustiť",
     "app.leaveConfirmation.confirmDesc": "Opustenie tejto konferencie",
-    "app.endMeeting.title": "Ukončiť konferenciu",
-    "app.endMeeting.description": "Určite chcete ukončiť túto konferenciu (všetci účastníci budú odpojení!) ?",
     "app.endMeeting.yesLabel": "Áno",
     "app.endMeeting.noLabel": "Nie",
     "app.about.title": "O aplikácii",

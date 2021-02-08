@@ -284,8 +284,6 @@
     "app.navBar.emptyAudioBrdige": "Ni zaznanega dejavnega mikrofona. Za snemanje zvoka ga je treba omogočiti.",
     "app.leaveConfirmation.confirmLabel": "Zapusti",
     "app.leaveConfirmation.confirmDesc": "Odjava od srečanja",
-    "app.endMeeting.title": "Končaj srečanje",
-    "app.endMeeting.description": "Ali ste prepričani, da želite končati srečanje za vse udeležence (povezava bo za vse prekinjena)?",
     "app.endMeeting.yesLabel": "Da",
     "app.endMeeting.noLabel": "Ne",
     "app.about.title": "O programu",

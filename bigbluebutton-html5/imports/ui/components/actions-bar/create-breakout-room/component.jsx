@@ -107,6 +107,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.numberOfRoomsError',
     description: 'Label an error message',
   },
+  you: {
+    id: 'app.userList.you',
+    description: 'Text for identifying your user',
+  },
 });
 
 const BREAKOUT_LIM = Meteor.settings.public.app.breakoutRoomLimit;
@@ -114,8 +118,11 @@ const MIN_BREAKOUT_ROOMS = 2;
 const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   isInvitation: PropTypes.bool.isRequired,
+  isMe: PropTypes.bool.isRequired,
   meetingName: PropTypes.string.isRequired,
   users: PropTypes.arrayOf(PropTypes.object).isRequired,
   createBreakoutRoom: PropTypes.func.isRequired,
@@ -629,6 +636,9 @@ class BreakoutRoom extends PureComponent {
       valid,
       seletedId,
     } = this.state;
+
+    const { intl, isMe } = this.props;
+
     const dragStart = (ev) => {
       ev.dataTransfer.setData('text', ev.target.id);
       this.setState({ seletedId: ev.target.id });
@@ -658,6 +668,7 @@ class BreakoutRoom extends PureComponent {
           onDragEnd={dragEnd}
         >
           {user.userName}
+          <i>{(isMe(user.userId)) ? ` (${intl.formatMessage(intlMessages.you)})` : ''}</i>
         </p>));
   }
 
