@@ -8,6 +8,7 @@ import { Session } from 'meteor/session';
 import Button from '/imports/ui/components/button/component';
 import LiveResult from './live-result/component';
 import { styles } from './styles.scss';
+import DragAndDrop from './dragAndDrop/component';
 
 const intlMessages = defineMessages({
   pollPaneTitle: {
@@ -41,6 +42,10 @@ const intlMessages = defineMessages({
   activePollInstruction: {
     id: 'app.poll.activePollInstruction',
     description: 'instructions displayed when a poll is active',
+  },
+  dragDropPollInstruction: {
+    id: 'app.poll.dragDropPollInstruction',
+    description: 'instructions for upload poll options via drag and drop',
   },
   ariaInputCount: {
     id: 'app.poll.ariaInputCount',
@@ -101,7 +106,9 @@ class Poll extends Component {
       customPollValues: [],
     };
 
-    this.inputEditor = [];
+    this.input = [];
+    _.range(0, MAX_CUSTOM_FIELDS).map(() => this.input.push(React.createRef()));
+
 
     this.toggleCustomFields = this.toggleCustomFields.bind(this);
     this.renderQuickPollBtns = this.renderQuickPollBtns.bind(this);
@@ -133,13 +140,20 @@ class Poll extends Component {
   }
 
   handleInputChange(index, event) {
+    this.handleInputTextChange(index, event.target.value);
+  }
+
+  handleInputTextChange(index, text) {
+    const { customPollValues } = this.state;
     // This regex will replace any instance of 2 or more consecutive white spaces
     // with a single white space character.
-    const option = event.target.value.replace(/\s{2,}/g, ' ').trim();
+    const option = text.replace(/\s{2,}/g, ' ').trim();
 
-    this.inputEditor[index] = option === '' ? '' : option;
+    customPollValues[index] = option === '' ? '' : option;
 
-    this.setState({ customPollValues: this.inputEditor });
+    this.input[index].current.value = customPollValues[index];
+
+    this.setState({ customPollValues });
   }
 
   handleBackClick() {
@@ -147,16 +161,33 @@ class Poll extends Component {
     Session.set('resetPollPanel', false);
 
     stopPoll();
-    this.inputEditor = [];
     this.setState({
       isPolling: false,
-      customPollValues: this.inputEditor,
+      customPollValues: [],
     }, document.activeElement.blur());
   }
 
   toggleCustomFields() {
     const { customPollReq } = this.state;
     return this.setState({ customPollReq: !customPollReq });
+  }
+
+  pushToCustomPollValues(text) {
+    const lines = text.split('\n');
+    for (let i = 0; i < MAX_CUSTOM_FIELDS; i += 1) {
+      let line = '';
+      if (i < lines.length) {
+        line = lines[i];
+        line = line.length > MAX_INPUT_CHARS ? line.substring(0, MAX_INPUT_CHARS) : line;
+      }
+      this.handleInputTextChange(i, line);
+    }
+  }
+
+  handlePollValuesText(text) {
+    if (text && text.length > 0) {
+      this.pushToCustomPollValues(text);
+    }
   }
 
   renderQuickPollBtns() {
@@ -191,16 +222,17 @@ class Poll extends Component {
 
   renderCustomView() {
     const { intl, startCustomPoll } = this.props;
-    const isDisabled = _.compact(this.inputEditor).length < 1;
+    const { customPollValues } = this.state;
+    const isDisabled = _.compact(customPollValues).length < 1;
 
     return (
       <div className={styles.customInputWrapper}>
         {this.renderInputFields()}
         <Button
           onClick={() => {
-            if (this.inputEditor.length > 0) {
+            if (customPollValues.length > 0) {
               Session.set('pollInitiated', true);
-              this.setState({ isPolling: true }, () => startCustomPoll('custom', _.compact(this.inputEditor)));
+              this.setState({ isPolling: true }, () => startCustomPoll('custom', _.compact(customPollValues)));
             }
           }}
           label={intl.formatMessage(intlMessages.startCustomLabel)}
@@ -209,13 +241,16 @@ class Poll extends Component {
           disabled={isDisabled}
           className={styles.btn}
         />
+        {
+          this.renderDragDrop()
+        }
       </div>
     );
   }
 
   renderInputFields() {
     const { intl } = this.props;
-    const { customPollValues } = this.state;
+    // const { customPollValues } = this.state;
     let items = [];
 
     items = _.range(1, MAX_CUSTOM_FIELDS + 1).map((ele, index) => {
@@ -229,7 +264,9 @@ class Poll extends Component {
             placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
             className={styles.input}
             onChange={event => this.handleInputChange(id, event)}
-            defaultValue={customPollValues[id]}
+            // defaultValue={customPollValues[id]}
+            // value={customPollValues[id]}
+            ref={this.input[id]}
             maxLength={MAX_INPUT_CHARS}
           />
         </div>
@@ -324,6 +361,25 @@ class Poll extends Component {
 
     return this.renderPollOptions();
   }
+
+
+  renderDragDrop() {
+    const { intl } = this.props;
+    return (
+      <div>
+        <div className={styles.instructions}>
+          {intl.formatMessage(intlMessages.dragDropPollInstruction)}
+        </div>
+        <DragAndDrop
+          {...{ intl, MAX_INPUT_CHARS }}
+          handlePollValuesText={e => this.handlePollValuesText(e)}
+        >
+          <div className={styles.dragAndDropPollContainer} />
+        </DragAndDrop>
+      </div>
+    );
+  }
+
 
   render() {
     const {
