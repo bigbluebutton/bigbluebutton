@@ -38,7 +38,7 @@ class DragAndDrop extends Component {
     const div = this.dropRef.current;
     div.addEventListener('dragenter', e => this.handleDragIn(e));
     div.addEventListener('dragleave', e => this.handleDragOut(e));
-    div.addEventListener('dragover', e => this.handleDrag(e));
+    div.addEventListener('dragover', e => DragAndDrop.handleDrag(e));
     div.addEventListener('drop', e => this.handleDrop(e));
   }
 
@@ -46,7 +46,7 @@ class DragAndDrop extends Component {
     const div = this.dropRef.current;
     div.removeEventListener('dragenter', e => this.handleDragIn(e));
     div.removeEventListener('dragleave', e => this.handleDragOut(e));
-    div.removeEventListener('dragover', e => this.handleDrag(e));
+    div.removeEventListener('dragover', e => DragAndDrop.handleDrag(e));
     div.removeEventListener('drop', e => this.handleDrop(e));
   }
 
@@ -82,8 +82,7 @@ class DragAndDrop extends Component {
 
 
   handleDragIn(e) {
-    e.preventDefault();
-    e.stopPropagation();
+    DragAndDrop.handleDrag(e);
     this.dragCounter += 1;
     if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
       this.setState({ drag: true });
@@ -91,16 +90,14 @@ class DragAndDrop extends Component {
   }
 
   handleDragOut(e) {
-    e.preventDefault();
-    e.stopPropagation();
+    DragAndDrop.handleDrag(e);
     this.dragCounter -= 1;
     if (this.dragCounter > 0) return;
     this.setState({ drag: false });
   }
 
   handleDrop(e) {
-    e.preventDefault();
-    e.stopPropagation();
+    DragAndDrop.handleDrag(e);
     this.setState({ drag: false });
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       this.setPollValuesFromFile(e.dataTransfer.files[0]);
