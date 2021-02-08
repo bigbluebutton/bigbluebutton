@@ -145,6 +145,7 @@ class UsersApp(
   with SendRecordingTimerInternalMsgHdlr
   with UpdateWebcamsOnlyForModeratorCmdMsgHdlr
   with GetRecordingStatusReqMsgHdlr
+  with SelectRandomViewerReqMsgHdlr
   with GetWebcamsOnlyForModeratorReqMsgHdlr
   with AssignPresenterReqMsgHdlr
   with EjectDuplicateUserReqMsgHdlr

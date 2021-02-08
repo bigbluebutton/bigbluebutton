@@ -323,14 +323,12 @@ class CustomParameters {
     await this.page1.closeAudioModal();
     await this.page1.waitForSelector(cpe.whiteboard);
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
-    const isHidden = await this.page1.page.$eval('[class="presentationTitle--1LT79g"]', (elem) => {
-      return elem.offsetHeight == 0
-    });
+    const isHidden = await this.page1.page.$eval('[class="presentationTitle--1LT79g"]', elem => elem.offsetHeight == 0);
     if (isHidden === false) {
       await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
       this.page1.logger(testName, ' failed');
       return false;
-    } else if (isHidden === true) {
+    } if (isHidden === true) {
       await this.page1.screenshot(`${testName}`, `03-success-${testName}`);
       const resp = isHidden;
       this.page1.logger(testName, ' passed');
@@ -345,15 +343,13 @@ class CustomParameters {
     this.page1.logger('after init ', testName);
     await this.page1.closeAudioModal();
     await this.page1.waitForSelector(cpe.whiteboard);
-    await this.page1.screenshot(`${testName}`, `02-${testName}`); 
-    const isHidden = await this.page1.page.$eval('[class="presentationTitle--1LT79g"]', (elem) => {
-      return elem.offsetHeight == 0
-    });
+    await this.page1.screenshot(`${testName}`, `02-${testName}`);
+    const isHidden = await this.page1.page.$eval('[class="presentationTitle--1LT79g"]', elem => elem.offsetHeight == 0);
     if (isHidden === false) {
       await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
       this.page1.logger(testName, ' failed');
       return false;
-    } else if (isHidden === true) {
+    } if (isHidden === true) {
       await this.page1.screenshot(`${testName}`, `03-success-${testName}`);
       const resp = isHidden;
       this.page1.logger(testName, ' passed');
@@ -369,15 +365,13 @@ class CustomParameters {
     await this.page1.closeAudioModal();
     await this.page1.waitForSelector(cpe.container);
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
-    const isNotHidden = await this.page1.page.$eval(cpe.restorePresentation, (elem) => {
-      return elem.offsetHeight !== 0
-    });
+    const isNotHidden = await this.page1.page.$eval(cpe.restorePresentation, elem => elem.offsetHeight !== 0);
     console.log(isNotHidden);
     if (isNotHidden === false) {
       await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
       this.page1.logger(testName, ' failed');
       return false;
-    } else if (isNotHidden === true) {
+    } if (isNotHidden === true) {
       await this.page1.screenshot(`${testName}`, `03-success-${testName}`);
       const resp = isNotHidden;
       this.page1.logger(testName, ' passed');
@@ -431,16 +425,14 @@ class CustomParameters {
     await this.page1.closeAudioModal();
     await this.page1.waitForSelector(cpe.notificationBar);
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
-    const notificationBarColor = await this.page1.page.$eval('div[class^="notificationsBar--"]', (elem) => {
-      return getComputedStyle(elem).backgroundColor
-    });
-    console.log('colorToRGB => ', colorToRGB)
-    console.log('notificationBarColor => ', notificationBarColor)
+    const notificationBarColor = await this.page1.page.$eval('div[class^="notificationsBar--"]', elem => getComputedStyle(elem).backgroundColor);
+    console.log('colorToRGB => ', colorToRGB);
+    console.log('notificationBarColor => ', notificationBarColor);
     if (notificationBarColor !== colorToRGB) {
       await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
       this.page1.logger(testName, ' failed');
       return false;
-    } else if (notificationBarColor === colorToRGB) {
+    } if (notificationBarColor === colorToRGB) {
       await this.page1.screenshot(`${testName}`, `03-success-${testName}`);
       this.page1.logger(testName, ' passed');
       return true;
@@ -526,6 +518,85 @@ class CustomParameters {
     await this.page2.screenshot(`${testName}`, `08-page2-success-${testName}`);
     this.page1.logger(testName, ' passed');
     return true;
+  }
+
+  async recordMeeting(testName, args, meetingId, customParameter) {
+    this.page1.logger('before init ', testName);
+    await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
+    await this.page1.closeAudioModal();
+    await this.page1.screenshot(`${testName}`, `01-${testName}`);
+    this.page1.logger('after init ', testName);
+    if (await this.page1.page.evaluate(util.getTestElement, cpe.recordingIndicator) === false) {
+      await this.page1.screenshot(`${testName}`, `02-fail-${testName}`);
+      this.page1.logger(testName, ' failed');
+      return false;
+    }
+    const resp = await this.page1.page.evaluate(util.getTestElement, cpe.recordingIndicator) === true;
+    await this.page1.screenshot(`${testName}`, `02-success-${testName}`);
+    this.page1.logger(testName, ' passed');
+    return resp === true;
+  }
+
+  async skipVideoPreview(testName, args, meetingId, customParameter) {
+    this.page1.logger('before init ', testName);
+    await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
+    await this.page1.screenshot(`${testName}`, `01-${testName}`);
+    this.page1.logger('after init ', testName);
+    await this.page1.closeAudioModal();
+    await this.page1.screenshot(`${testName}`, `02-${testName}`);
+    await this.page1.waitForSelector(cpe.shareWebcamButton);
+    await this.page1.click(cpe.shareWebcamButton, true);
+    if (await this.page1.page.evaluate(util.getTestElement, cpe.webcamSettingsModal) === false) {
+      await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
+      this.page1.logger(testName, ' failed');
+      return false;
+    }
+    const resp = await this.page1.page.evaluate(util.getTestElement, cpe.webcamSettingsModal) === true;
+    await this.page1.screenshot(`${testName}`, `03-success-${testName}`);
+    this.page1.logger(testName, ' passed');
+    return resp === true;
+  }
+
+  async mirrorOwnWebcam(testName, args, meetingId, customParameter) {
+    this.page1.logger('before init ', testName);
+    await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
+    await this.page1.screenshot(`${testName}`, `01-${testName}`);
+    this.page1.logger('after init ', testName);
+    await this.page1.closeAudioModal();
+    await this.page1.screenshot(`${testName}`, `02-${testName}`);
+    await this.page1.waitForSelector(cpe.shareWebcamButton);
+    await this.page1.click(cpe.shareWebcamButton, true);
+    await this.page1.waitForSelector(cpe.webcamMirroredVideoPreview);
+    await this.page1.waitForSelector(cpe.startSharingWebcamButton);
+    await this.page1.click(cpe.startSharingWebcamButton, true);
+    if (await this.page1.page.evaluate(util.getTestElement, cpe.webcamMirroredVideoContainer) === true) {
+      await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
+      this.page1.logger(testName, ' failed');
+      return false;
+    }
+    const resp = await this.page1.page.evaluate(util.getTestElement, cpe.webcamMirroredVideoContainer) === false;
+    await this.page1.screenshot(`${testName}`, `03-success-${testName}`);
+    this.page1.logger(testName, ' passed');
+    return resp === true;
+  }
+
+  async showParticipantsOnLogin(testName, args, meetingId, customParameter) {
+    this.page1.logger('before init ', testName);
+    await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
+    await this.page1.screenshot(`${testName}`, `01-${testName}`);
+    this.page1.logger('after init ', testName);
+    await this.page1.closeAudioModal();
+    await this.page1.screenshot(`${testName}`, `02-${testName}`);
+    await this.page1.waitForSelector(cpe.whiteboard);
+    if (await this.page1.page.evaluate(util.getTestElement, cpe.userslistContainer) === false) {
+      await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
+      this.page1.logger(testName, ' failed');
+      return false;
+    }
+    const resp = await this.page1.page.evaluate(util.getTestElement, cpe.userslistContainer) === true;
+    await this.page1.screenshot(`${testName}`, `03-success-${testName}`);
+    this.page1.logger(testName, ' passed');
+    return resp === true;
   }
 
   async closePage(page) {

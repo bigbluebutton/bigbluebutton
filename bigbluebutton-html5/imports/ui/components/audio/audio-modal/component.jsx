@@ -33,9 +33,9 @@ const propTypes = {
   formattedDialNum: PropTypes.string.isRequired,
   showPermissionsOvelay: PropTypes.bool.isRequired,
   listenOnlyMode: PropTypes.bool.isRequired,
-  skipCheck: PropTypes.bool.isRequired,
-  joinFullAudioImmediately: PropTypes.bool.isRequired,
-  joinFullAudioEchoTest: PropTypes.bool.isRequired,
+  skipCheck: PropTypes.bool,
+  joinFullAudioImmediately: PropTypes.bool,
+  joinFullAudioEchoTest: PropTypes.bool,
   forceListenOnlyAttendee: PropTypes.bool.isRequired,
   audioLocked: PropTypes.bool.isRequired,
   resolve: PropTypes.func,
@@ -52,6 +52,9 @@ const defaultProps = {
   inputDeviceId: null,
   outputDeviceId: null,
   resolve: null,
+  skipCheck: false,
+  joinFullAudioImmediately: false,
+  joinFullAudioEchoTest: false,
 };
 
 const intlMessages = defineMessages({
@@ -162,27 +165,20 @@ class AudioModal extends Component {
 
   componentDidMount() {
     const {
-      joinFullAudioImmediately,
-      joinFullAudioEchoTest,
       forceListenOnlyAttendee,
       audioLocked,
+      joinFullAudioImmediately,
+      joinFullAudioEchoTest,
     } = this.props;
 
-    if (joinFullAudioImmediately) {
-      this.handleJoinMicrophone();
-    }
-
-    if (joinFullAudioEchoTest) {
-      this.handleGoToEchoTest();
-    }
-
-    if (forceListenOnlyAttendee || audioLocked) {
-      this.handleJoinListenOnly();
-    }
+    if (forceListenOnlyAttendee) return this.handleJoinListenOnly();
+    if (joinFullAudioEchoTest) return this.handleGoToEchoTest();
+    if (joinFullAudioImmediately || audioLocked) return this.handleJoinMicrophone();
   }
 
   componentDidUpdate(prevProps) {
     const { autoplayBlocked, closeModal } = this.props;
+
     if (autoplayBlocked !== prevProps.autoplayBlocked) {
       autoplayBlocked ? this.setState({ content: 'autoplayBlocked' }) : closeModal();
     }
@@ -220,14 +216,10 @@ class AudioModal extends Component {
   }
 
   handleRetryGoToEchoTest() {
-    const { joinFullAudioImmediately } = this.props;
-
     this.setState({
       hasError: false,
       content: null,
     });
-
-    if (joinFullAudioImmediately) return this.joinMicrophone();
 
     return this.handleGoToEchoTest();
   }
@@ -246,13 +238,14 @@ class AudioModal extends Component {
 
     const {
       joinEchoTest,
+      isConnecting,
     } = this.props;
 
     const {
       disableActions,
     } = this.state;
 
-    if (disableActions) return;
+    if (disableActions && isConnecting) return;
 
     this.setState({
       hasError: false,
@@ -260,7 +253,7 @@ class AudioModal extends Component {
     });
 
     return joinEchoTest().then(() => {
-      //console.log(inputDeviceId, outputDeviceId);
+      // console.log(inputDeviceId, outputDeviceId);
       this.setState({
         content: 'echoTest',
         disableActions: false,
@@ -345,16 +338,15 @@ class AudioModal extends Component {
   skipAudioOptions() {
     const {
       isConnecting,
-      joinFullAudioImmediately,
-      joinFullAudioEchoTest,
       forceListenOnlyAttendee,
+      joinFullAudioEchoTest,
+      joinFullAudioImmediately,
     } = this.props;
 
     const {
       content,
       hasError,
     } = this.state;
-
 
     return (
       isConnecting

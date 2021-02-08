@@ -13,7 +13,10 @@ export default function createBreakoutRoom(rooms, durationInMinutes, record = fa
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
   const eventName = 'CreateBreakoutRoomsCmdMsg';
-  if (rooms.length > MAX_BREAKOUT_ROOMS) return Logger.info(`Attempt to create breakout rooms with invalid number of rooms in meeting id=${meetingId}`);
+  if (rooms.length > MAX_BREAKOUT_ROOMS) {
+    Logger.info(`Attempt to create breakout rooms with invalid number of rooms in meeting id=${meetingId}`);
+    return;
+  }
   const payload = {
     record,
     durationInMinutes,

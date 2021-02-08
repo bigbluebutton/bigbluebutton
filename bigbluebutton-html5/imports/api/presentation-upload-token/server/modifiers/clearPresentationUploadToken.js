@@ -3,19 +3,39 @@ import Logger from '/imports/startup/server/logger';
 
 export default function clearPresentationUploadToken(meetingId, podId) {
   if (meetingId && podId) {
-    return PresentationUploadToken.remove({ meetingId, podId }, () => {
-      Logger.info(`Cleared Presentations Upload Token (${meetingId}, ${podId})`);
-    });
+    try {
+      const numberAffected = PresentationUploadToken.remove({ meetingId, podId });
+
+      if (numberAffected) {
+        Logger.info(`Cleared Presentations Upload Token (${meetingId}, ${podId})`);
+        return true;
+      }
+    } catch (err) {
+      Logger.info(`Error on clearing Presentations Upload Token (${meetingId}, ${podId}). ${err}`);
+      return false;
+    }
   }
 
   if (meetingId) {
-    return PresentationUploadToken.remove({ meetingId }, () => {
-      Logger.info(`Cleared Presentations Upload Token (${meetingId})`);
-    });
-  }
+    try {
+      const numberAffected = PresentationUploadToken.remove({ meetingId });
 
-  // clearing presentations for the whole server
-  return PresentationUploadToken.remove({}, () => {
-    Logger.info('Cleared Presentations Upload Token (all)');
-  });
+      if (numberAffected) {
+        Logger.info(`Cleared Presentations Upload Token (${meetingId})`);
+      }
+    } catch (err) {
+      Logger.info(`Error on clearing Presentations Upload Token (${meetingId}). ${err}`);
+    }
+  } else {
+    try {
+      // clearing presentations for the whole server
+      const numberAffected = PresentationUploadToken.remove({});
+
+      if (numberAffected) {
+        Logger.info('Cleared Presentations Upload Token (all)');
+      }
+    } catch (err) {
+      Logger.info(`Error on clearing Presentations Upload Token (all). ${err}`);
+    }
+  }
 }

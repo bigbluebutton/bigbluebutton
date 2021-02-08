@@ -178,8 +178,6 @@
     "app.presentationUploder.conversion.pdfHasBigPage": "ვერ ვქმნით PDF ფაილს, გთხოვთ სცადოთ მისი ოპტიმიზაცია",
     "app.presentationUploder.conversion.timeout": "კონვერტაციას მოულოდნელად დიდი დრო სჭირდება",
     "app.presentationUploder.conversion.pageCountFailed": "გვერდების რაოდენობის განსაზღვრა ვერ მოხერხდა",
-    "app.presentationUploder.isDownloadableLabel": "პრეზენტაციის ჩამოტვირთვის შესაძლებლობის შეზღუდვა",
-    "app.presentationUploder.isNotDownloadableLabel": "პრეზენტაციის ჩამოტვირთვის შესაძლებლობის დაშვება",
     "app.presentationUploder.removePresentationLabel": "პრეზენტაციის წაშლა",
     "app.presentationUploder.setAsCurrentPresentation": "აქციე პრეზენტაცია მიმდინარედ",
     "app.presentationUploder.tableHeading.filename": "ფაილის სახელი",
@@ -234,7 +232,6 @@
     "app.navBar.settingsDropdown.fullscreenLabel": "სრულეკრანიან რეჟიმზე გადასვლა",
     "app.navBar.settingsDropdown.settingsLabel": "პარამეტრები",
     "app.navBar.settingsDropdown.aboutLabel": "შესახებ",
-    "app.navBar.settingsDropdown.leaveSessionLabel": "სისტემიდან გამოსვლა",
     "app.navBar.settingsDropdown.exitFullscreenLabel": "სრულეკრანიანი რეჟიმიდან გამოსვლა",
     "app.navBar.settingsDropdown.fullscreenDesc": "აჩვენე პარამეტრების მენიუ მთელს ეკრანზე",
     "app.navBar.settingsDropdown.settingsDesc": "ზოგადი პარამეტრების შეცვლა",
@@ -256,7 +253,6 @@
     "app.navBar.emptyAudioBrdige": "მიკროფონები არ არის აქტიური. გააზიარეთ თქვენი მიკროფონი ჩანაწერში აუდიო კომპონენტის დასამატებლად.",
     "app.leaveConfirmation.confirmLabel": "დატოვება",
     "app.leaveConfirmation.confirmDesc": "გამოყავხართ შეხვედრიდან",
-    "app.endMeeting.title": "შეხვედრის დასრულება",
     "app.endMeeting.yesLabel": "დიახ",
     "app.endMeeting.noLabel": "არა",
     "app.about.title": "შესახებ",
@@ -313,7 +309,6 @@
     "app.talkingIndicator.isTalking" : "{0} საუბრობს",
     "app.talkingIndicator.wasTalking" : "{0} საუბარი შეწყვიტა",
     "app.actionsBar.actionsDropdown.actionsLabel": "მოქმედებები",
-    "app.actionsBar.actionsDropdown.presentationLabel": "პრეზენტაციის ატვირთვა",
     "app.actionsBar.actionsDropdown.initPollLabel": "გამოკითხვის ინიცირება",
     "app.actionsBar.actionsDropdown.desktopShareLabel": "გააზიარეთ თქვენი ეკრანი",
     "app.actionsBar.actionsDropdown.lockedDesktopShareLabel": "ეკრანის გაზიარება ჩაკეტილია",
@@ -334,7 +329,6 @@
     "app.actionsBar.emojiMenu.statusTriggerLabel": "სტატუსის დაყენება",
     "app.actionsBar.emojiMenu.awayLabel": "გასულია",
     "app.actionsBar.emojiMenu.awayDesc": "შეცვალეთ სტატუსი როგორც 'გასულია'",
-    "app.actionsBar.emojiMenu.raiseHandLabel": "ხელის აწევა",
     "app.actionsBar.emojiMenu.raiseHandDesc": "აიწიეთ ხელი კითხვის დასასმელად",
     "app.actionsBar.emojiMenu.neutralLabel": "გადაუწყვეტელი",
     "app.actionsBar.emojiMenu.neutralDesc": "აქციეთ თქვენი სტატუსი 'გადაუწყვეტლად'",
@@ -655,7 +649,7 @@
     "app.iOSWarning.label": "გთხოვთ, განაახლოთ iOS 12.2-ნდე  ან უფრო ახალ ვერსიამდე",
     "app.legacy.unsupportedBrowser": "როგორც ჩანს, იყენებთ ბრაუზერს, რომელიც არ არის მხარდაჭერილი. სრული მხარდაჭერისთვის გთხოვთ გამოიყენოთ ან {0} ან {1}",
     "app.legacy.upgradeBrowser": "როგორც ჩანს, იყენებთ ბრაუზერის ძველი ვერსიას. სრული მხარდაჭერისთვის გთხოვთ განაახლოთ თქვენი ბრაუზერი",
-    "app.legacy.criosBrowser": "სრული მხარდაჭრისთვის გთხოვთ, IOS- ზე Safari გამოიყენოთ"
+    "app.legacy.criosBrowser": "სრული მხარდაჭრისთვის, გთხოვთ, IOS- ზე Safari გამოიყენოთ"
 
 }
 

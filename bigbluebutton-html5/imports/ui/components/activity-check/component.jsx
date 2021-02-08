@@ -7,6 +7,7 @@ import Modal from '/imports/ui/components/modal/simple/component';
 import { makeCall } from '/imports/ui/services/api';
 
 import { styles } from './styles';
+import {Meteor} from "meteor/meteor";
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
@@ -76,7 +77,7 @@ class ActivityCheck extends Component {
   }
 
   playAudioAlert() {
-    this.alert = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/notify.mp3`);
+    this.alert = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}/resources/sounds/notify.mp3`);
     this.alert.play();
   }
 

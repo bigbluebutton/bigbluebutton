@@ -59,7 +59,6 @@ class LiveResult extends PureComponent {
       : [...users];
 
     userAnswers = userAnswers.map(id => Service.getUser(id))
-      .filter(user => user.connectionStatus === 'online')
       .map((user) => {
         let answer = '';
 

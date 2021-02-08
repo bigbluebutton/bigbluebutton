@@ -16,12 +16,13 @@ export default function stopTyping(meetingId, userId, sendMsgInitiated = false) 
   const stillTyping = !sendMsgInitiated && user && (new Date()) - user.time < 3000;
   if (stillTyping) return;
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Stop user=${userId} typing indicator error: ${err}`);
-    }
-    return Logger.debug(`Stopped typing indicator for user=${userId}`);
-  };
+  try {
+    const numberAffected = UsersTyping.remove(selector);
 
-  UsersTyping.remove(selector, cb);
+    if (numberAffected) {
+      Logger.debug('Stopped typing indicator', { userId });
+    }
+  } catch (err) {
+    Logger.error(`Stop user=${userId} typing indicator error: ${err}`);
+  }
 }

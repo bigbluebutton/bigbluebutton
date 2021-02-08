@@ -13,18 +13,15 @@ export default function removePresentationPod(meetingId, podId) {
     podId,
   };
 
-  const cb = (err) => {
-    if (err) {
-      Logger.error(`Removing presentation pod from collection: ${err}`);
-      return;
-    }
+  try {
+    const numberAffected = PresentationPods.remove(selector);
 
-    if (podId) {
+    if (numberAffected && podId) {
       Logger.info(`Removed presentation pod id=${podId} meeting=${meetingId}`);
       clearPresentations(meetingId, podId);
       clearPresentationUploadToken(meetingId, podId);
     }
-  };
-
-  return PresentationPods.remove(selector, cb);
+  } catch (err) {
+    Logger.error(`Error on removing presentation pod from collection: ${err}`);
+  }
 }

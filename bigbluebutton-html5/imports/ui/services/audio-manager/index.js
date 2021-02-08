@@ -1,5 +1,6 @@
 import { Tracker } from 'meteor/tracker';
 import KurentoBridge from '/imports/api/audio/client/bridge/kurento';
+
 import Auth from '/imports/ui/services/auth';
 import VoiceUsers from '/imports/api/voice-users';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
@@ -10,6 +11,7 @@ import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills
 import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import { monitorAudioConnection } from '/imports/utils/stats';
 import AudioErrors from './error-codes';
+import {Meteor} from "meteor/meteor";
 
 const STATS = Meteor.settings.public.stats;
 const MEDIA = Meteor.settings.public.media;
@@ -208,7 +210,7 @@ class AudioManager {
 
     const exitKurentoAudio = () => {
       if (this.useKurento) {
-        window.kurentoExitAudio();
+        bridge.exitAudio();
         const audio = document.querySelector(MEDIA_TAG);
         audio.muted = false;
       }
@@ -229,7 +231,7 @@ class AudioManager {
           audioBridge: bridgeInUse,
           retries,
         },
-      }, `Listen only error - ${err} - bridge: ${bridgeInUse}`);
+      }, `Listen only error - ${errorReason} - bridge: ${bridgeInUse}`);
     };
 
     logger.info({ logCode: 'audiomanager_join_listenonly', extraInfo: { logType: 'user_action' } }, 'user requested to connect to audio conference as listen only');
@@ -352,7 +354,6 @@ class AudioManager {
     this.failedMediaElements = [];
 
     if (this.inputStream) {
-      window.defaultInputStream.forEach(track => track.stop());
       this.inputStream.getTracks().forEach(track => track.stop());
       this.inputDevice = { id: 'default' };
     }
@@ -383,6 +384,7 @@ class AudioManager {
         error,
         bridgeError,
         silenceNotifications,
+        bridge,
       } = response;
 
       if (status === STARTED) {
@@ -400,6 +402,7 @@ class AudioManager {
           extraInfo: {
             errorCode: error,
             cause: bridgeError,
+            bridge,
           },
         }, `Audio error - errorCode=${error}, cause=${bridgeError}`);
         if (silenceNotifications !== true) {
@@ -424,7 +427,8 @@ class AudioManager {
 
     // Play bogus silent audio to try to circumvent autoplay policy on Safari
     if (!audio.src) {
-      audio.src = 'resources/sounds/silence.mp3';
+      audio.src = `${Meteor.settings.public.app.cdn
+      + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}` + '/resources/sounds/silence.mp3';
     }
 
     audio.play().catch((e) => {
@@ -505,7 +509,7 @@ class AudioManager {
 
   get inputStream() {
     this._inputDevice.tracker.depend();
-    return this._inputDevice.value.stream;
+    return (this.bridge ? this.bridge.inputStream : null);
   }
 
   get inputDevice() {
@@ -527,7 +531,7 @@ class AudioManager {
 
   playHangUpSound() {
     this.playAlertSound(`${Meteor.settings.public.app.cdn
-      + Meteor.settings.public.app.basename}`
+      + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}`
       + '/resources/sounds/LeftCall.mp3');
   }
 
@@ -629,6 +633,10 @@ class AudioManager {
     }
 
     return audioAlert.play();
+  }
+
+  async updateAudioConstraints(constraints) {
+    await this.bridge.updateAudioConstraints(constraints);
   }
 }
 

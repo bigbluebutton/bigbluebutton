@@ -18,7 +18,7 @@ const SUBSCRIPTIONS = [
   'users', 'meetings', 'polls', 'presentations', 'slides', 'slide-positions', 'captions',
   'voiceUsers', 'whiteboard-multi-user', 'screenshare', 'group-chat',
   'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'note', 'meeting-time-remaining',
-  'network-information', 'ping-pong', 'local-settings', 'users-typing', 'record-meetings', 'video-streams',
+  'network-information', 'local-settings', 'users-typing', 'record-meetings', 'video-streams',
   'connection-status', 'voice-call-states',
 ];
 

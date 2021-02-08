@@ -21,13 +21,14 @@ export default function setGuestStatus(meetingId, intId, status, approvedBy = nu
       approvedBy,
     },
   };
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Updating status=${status} user=${intId}: ${err}`);
+
+  try {
+    const numberAffected = GuestUsers.update(selector, modifier);
+
+    if (numberAffected) {
+      Logger.info(`Updated status=${status} user=${intId} meeting=${meetingId}`);
     }
-
-    return Logger.info(`Updated status=${status} user=${intId} meeting=${meetingId}`);
-  };
-
-  return GuestUsers.update(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Updating status=${status} user=${intId}: ${err}`);
+  }
 }

@@ -6,7 +6,7 @@ import Icon from '/imports/ui/components/icon/component';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import cx from 'classnames';
 import Message from './message/component';
-
+import PollService from '/imports/ui/components/poll/service';
 import { styles } from './styles';
 
 const propTypes = {
@@ -89,6 +89,7 @@ class MessageListItem extends Component {
                   key={message.id ? message.id : _.uniqueId('id-')}
                   text={message.text}
                   time={message.time}
+                  isSystemMessage={message.id ? true : false}
                   chatAreaId={chatAreaId}
                   handleReadMessage={handleReadMessage}
                 />
@@ -109,6 +110,7 @@ class MessageListItem extends Component {
       scrollArea,
       intl,
       messages,
+      chatUserMessageItem,
     } = this.props;
 
     if (messages && messages[0].text.includes('bbb-published-poll-<br/>')) {
@@ -117,6 +119,7 @@ class MessageListItem extends Component {
 
     const dateTime = new Date(time);
     const regEx = /<a[^>]+>/i;
+    const defaultAvatarString = user?.name?.toLowerCase().slice(0, 2) || "  ";
 
     return (
       <div className={styles.item} key={_.uniqueId('message-list-item-')}>
@@ -128,7 +131,7 @@ class MessageListItem extends Component {
               moderator={user.isModerator}
               avatar={user.avatar}
             >
-              {user.name.toLowerCase().slice(0, 2)}
+              {defaultAvatarString}
             </UserAvatar>
           </div>
           <div className={styles.content}>
@@ -147,7 +150,7 @@ class MessageListItem extends Component {
                 <FormattedTime value={dateTime} />
               </time>
             </div>
-            <div className={styles.messages} data-test="chatUserMessage">
+            <div className={styles.messages}>
               {messages.map(message => (
                 <Message
                   className={(regEx.test(message.text) ? styles.hyperlink : styles.message)}
@@ -155,6 +158,7 @@ class MessageListItem extends Component {
                   text={message.text}
                   time={message.time}
                   chatAreaId={chatAreaId}
+                  chatUserMessageItem={true}
                   lastReadMessageTime={lastReadMessageTime}
                   handleReadMessage={handleReadMessage}
                   scrollArea={scrollArea}
@@ -188,7 +192,7 @@ class MessageListItem extends Component {
           <div className={styles.avatarWrapper}>
             <UserAvatar
               className={styles.avatar}
-              color={user.color}
+              color={PollService.POLL_AVATAR_COLOR}
               moderator={user.isModerator}
             >
               {<Icon className={styles.isPoll} iconName="polling" />}
@@ -213,7 +217,7 @@ class MessageListItem extends Component {
               lastReadMessageTime={lastReadMessageTime}
               handleReadMessage={handleReadMessage}
               scrollArea={scrollArea}
-              color={user.color}
+              color={PollService.POLL_AVATAR_COLOR}
               isDefaultPoll={isDefaultPoll(messages[0].text.replace('bbb-published-poll-<br/>', ''))}
             />
           </div>

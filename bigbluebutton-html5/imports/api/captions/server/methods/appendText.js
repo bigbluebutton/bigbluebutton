@@ -24,7 +24,7 @@ export default function appendText(text, locale) {
   }).then((response) => {
     const { status } = response;
     if (status === 200) {
-      Logger.verbose(`Appended text for padId:${padId}`);
+      Logger.verbose('Captions: appended text', { padId });
     }
   }).catch(error => Logger.error(`Could not append captions for padId=${padId}: ${error}`));
 }

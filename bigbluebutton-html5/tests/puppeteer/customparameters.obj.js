@@ -2,6 +2,9 @@ const Page = require('./core/page');
 const CustomParameters = require('./customparameters/customparameters');
 const c = require('./customparameters/constants');
 const util = require('./customparameters/util');
+const { toMatchImageSnapshot } = require('jest-image-snapshot');
+
+expect.extend({ toMatchImageSnapshot });
 
 const customParametersTest = () => {
   beforeEach(() => {
@@ -14,10 +17,12 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'autoJoin';
       page.logger('before ', testName);
       response = await test.autoJoin(testName, Page.getArgs(), undefined, c.autoJoin);
+      screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
@@ -25,6 +30,12 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
   });
 
   // This test spec sets the userdata-listenOnlyMode parameter to false
@@ -33,10 +44,12 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'listenOnlyMode';
       page.logger('before ', testName);
       response = await test.listenOnlyMode(testName, Page.getArgsWithAudio(), undefined, c.listenOnlyMode);
+      screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
@@ -44,6 +57,12 @@ const customParametersTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
   });
 
   // This test spec sets the userdata-forceListenOnly parameter to false
@@ -52,10 +71,12 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'forceListenOnly';
       page.logger('before ', testName);
       response = await test.forceListenOnly(testName, Page.getArgsWithAudio(), undefined, c.forceListenOnly);
+      screenshot = await test.page2.page.screenshot();
       page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
@@ -63,6 +84,12 @@ const customParametersTest = () => {
       await test.closePage(test.page2);
     }
     expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
   });
 
   // This test spec sets the userdata-skipCheck parameter to true
@@ -71,10 +98,12 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'skipCheck';
       page.logger('before ', testName);
       response = await test.skipCheck(testName, Page.getArgsWithAudio(), undefined, c.skipCheck);
+      screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
@@ -82,6 +111,12 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
   });
 
   // This test spec sets the userdata-clientTitle parameter to some value
@@ -90,10 +125,12 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'clientTitle';
       page.logger('before ', testName);
       response = await test.clientTitle(testName, Page.getArgs(), undefined, c.clientTitle);
+      screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
@@ -101,6 +138,12 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
   });
 
   // This test spec sets the userdata-askForFeedbackOnLogout parameter to true
@@ -109,10 +152,12 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'askForFeedbackOnLogout';
       page.logger('before ', testName);
       response = await test.askForFeedbackOnLogout(testName, Page.getArgs(), undefined, c.askForFeedbackOnLogout);
+      screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
@@ -120,6 +165,12 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
   });
 
   // This test spec sets the userdata-displayBrandingArea parameter to true and add a logo link
@@ -128,11 +179,13 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'displayBrandingArea';
       page.logger('before ', testName);
       const parameterWithLogo = `${c.displayBrandingArea}&${c.logo}`;
       response = await test.displayBrandingArea(testName, Page.getArgs(), undefined, parameterWithLogo);
+      screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
@@ -140,6 +193,12 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
   });
 
   // This test spec sets the userdata-shortcuts parameter to one or a list of shortcuts parameters
@@ -148,10 +207,12 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'shortcuts';
       page.logger('before ', testName);
       response = await test.shortcuts(testName, Page.getArgs(), undefined, encodeURI(c.shortcuts));
+      screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
@@ -159,6 +220,12 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
   });
 
   // This test spec sets the userdata-enableScreensharing parameter to false
@@ -167,10 +234,12 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'enableScreensharing';
       page.logger('before ', testName);
       response = await test.enableScreensharing(testName, Page.getArgs(), undefined, c.enableScreensharing);
+      screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
@@ -178,6 +247,12 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
   });
 
   // This test spec sets the userdata-enableVideo parameter to false
@@ -186,10 +261,12 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'enableVideo';
       page.logger('before ', testName);
       response = await test.enableVideo(testName, Page.getArgsWithVideo(), undefined, c.enableVideo);
+      screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
@@ -197,6 +274,12 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
   });
 
   // This test spec sets the userdata-autoShareWebcam parameter to true
@@ -205,10 +288,12 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'autoShareWebcam';
       page.logger('before ', testName);
       response = await test.autoShareWebcam(testName, Page.getArgsWithVideo(), undefined, c.autoShareWebcam);
+      screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
@@ -216,6 +301,12 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
   });
 
   // This test spec sets the userdata-multiUserPenOnly parameter to true
@@ -224,10 +315,12 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'multiUserPenOnly';
       page.logger('before ', testName);
       response = await test.multiUserPenOnly(testName, Page.getArgs(), undefined, c.multiUserPenOnly);
+      screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
@@ -235,6 +328,12 @@ const customParametersTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
   });
 
   // This test spec sets the userdata-presenterTools parameter to an interval of parameters
@@ -243,10 +342,12 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'presenterTools';
       page.logger('before ', testName);
       response = await test.presenterTools(testName, Page.getArgs(), undefined, encodeURI(c.presenterTools));
+      screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
@@ -254,6 +355,12 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
   });
 
   // This test spec sets the userdata-multiUserTools parameter to an interval of parameters
@@ -262,10 +369,12 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'multiUserTools';
       page.logger('before ', testName);
       response = await test.multiUserTools(testName, Page.getArgs(), undefined, encodeURI(c.multiUserTools));
+      screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
@@ -273,6 +382,12 @@ const customParametersTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
   });
 
   // This test spec sets the userdata-customStyle parameter to an interval of styles
@@ -281,10 +396,12 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'customStyle';
       page.logger('before ', testName);
       response = await test.customStyle(testName, Page.getArgs(), undefined, encodeURI(c.customStyle));
+      screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
@@ -292,6 +409,12 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
   });
 
   // This test spec sets the userdata-customStyleUrl parameter to a styles URL
@@ -300,10 +423,12 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'customStyleUrl';
       page.logger('before ', testName);
       response = await test.customStyleUrl(testName, Page.getArgs(), undefined, encodeURI(c.customStyleUrl));
+      screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
@@ -311,6 +436,12 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
   });
 
   // This test spec sets the userdata-autoSwapLayout parameter to true
@@ -320,10 +451,12 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'autoSwapLayout';
       page.logger('before ', testName);
       response = await test.autoSwapLayout(testName, Page.getArgs(), undefined, encodeURI(c.autoSwapLayout));
+      screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
@@ -331,6 +464,12 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
   });
 
   // This test spec sets the userdata-hidePresentation parameter to true
@@ -339,10 +478,12 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'hidePresentation';
       page.logger('before ', testName);
       response = await test.hidePresentation(testName, Page.getArgs(), undefined, encodeURI(c.hidePresentation));
+      screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
@@ -350,6 +491,12 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
   });
 
   // This test spec sets the userdata-bannerText parameter to some text
@@ -358,10 +505,12 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'bannerText';
       page.logger('before ', testName);
       response = await test.bannerText(testName, Page.getArgs(), undefined, encodeURI(c.bannerText));
+      screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
@@ -369,6 +518,12 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
   });
 
   // This test spec sets the userdata-bannerColor parameter to some hex color value
@@ -377,11 +532,13 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'bannerColor';
       page.logger('before ', testName);
       const colorToRGB = util.hexToRgb(c.color);
       response = await test.bannerColor(testName, Page.getArgs(), undefined, `${c.bannerColor}&${encodeURI(c.bannerText)}`, colorToRGB);
+      screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
@@ -389,6 +546,12 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
   });
 
   // This test spec sets the userdata-bbb_show_public_chat_on_login parameter to false
@@ -397,10 +560,12 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'showPublicChatOnLogin';
       page.logger('before ', testName);
       response = await test.showPublicChatOnLogin(testName, Page.getArgs(), undefined, `${c.showPublicChatOnLogin}`);
+      screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
@@ -408,6 +573,12 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
   });
 
   // This test spec sets the userdata-bbb_force_restore_presentation_on_new_events parameter to true
@@ -417,10 +588,12 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'forceRestorePresentationOnNewEvents';
       page.logger('before ', testName);
       response = await test.forceRestorePresentationOnNewEvents(testName, Page.getArgs(), undefined, `${c.forceRestorePresentationOnNewEvents}`);
+      screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
     } catch (e) {
       page.logger(e);
@@ -428,6 +601,90 @@ const customParametersTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
+  });
+
+  // This test spec sets the userdata-bbb_record_video parameter to false
+  // and makes sure that the meeting recording button should not be available
+  test('Record Meeting', async () => {
+    const test = new CustomParameters();
+    const page = new Page();
+    let response;
+    try {
+      const testName = 'recordMeeting';
+      page.logger('before ', testName);
+      response = await test.recordMeeting(testName, Page.getArgs(), undefined, `${c.recordMeeting}`);
+      page.logger('after ', testName);
+    } catch (e) {
+      page.logger(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
+
+  // This test spec sets the userdata-bbb_skip_video_preview parameter to true
+  // and makes sure that the webcam video preview modal should not appear
+  test('Skip Video Preview', async () => {
+    const test = new CustomParameters();
+    const page = new Page();
+    let response;
+    try {
+      const testName = 'skipVideoPreview';
+      page.logger('before ', testName);
+      response = await test.skipVideoPreview(testName, Page.getArgsWithVideo(), undefined, `${c.skipVideoPreview}`);
+      page.logger('after ', testName);
+    } catch (e) {
+      page.logger(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
+
+  // This test spec sets the userdata-bbb_mirror_own_webcam parameter to true
+  // and makes sure that the webcam video preview and the container
+  // should both appear with mirrored Tag
+  test('Mirror Own Webcam', async () => {
+    const test = new CustomParameters();
+    const page = new Page();
+    let response;
+    try {
+      const testName = 'mirrorOwnWebcam';
+      page.logger('before ', testName);
+      response = await test.mirrorOwnWebcam(testName, Page.getArgsWithVideo(), undefined, `${c.mirrorOwnWebcam}`);
+      page.logger('after ', testName);
+    } catch (e) {
+      page.logger(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
+
+  // This test spec sets the userdata-bbb_show_participants_on_login parameter to false
+  // and makes sure that the user list won't appear on login
+  test('Show Participants on Login', async () => {
+    const test = new CustomParameters();
+    const page = new Page();
+    let response;
+    try {
+      const testName = 'showParticipantsOnLogin';
+      page.logger('before ', testName);
+      response = await test.showParticipantsOnLogin(testName, Page.getArgsWithVideo(), undefined, `${c.showParticipantsOnLogin}`);
+      page.logger('after ', testName);
+    } catch (e) {
+      page.logger(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
   });
 };
+
 module.exports = exports = customParametersTest;

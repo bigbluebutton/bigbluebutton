@@ -78,7 +78,7 @@ export default class Legacy extends Component {
       || navigator.language
       || Meteor.settings.public.app.defaultSettings.application.fallbackLocale;
 
-    const url = `/html5client/locale?locale=${locale}`;
+    const url = `./locale?locale=${locale}`;
 
     const that = this;
     this.state = { viewState: FETCHING };

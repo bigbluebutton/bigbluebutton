@@ -27,13 +27,12 @@ const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const mapActiveChats = (chat) => {
   const currentUserId = Auth.userID;
 
-  if (chat.sender !== currentUserId) {
-    return chat.sender;
-  }
-
   const { chatId } = chat;
 
-  const userId = GroupChat.findOne({ chatId }).users.filter(user => user !== currentUserId);
+  const userId = GroupChat
+    .findOne({ chatId })
+    .participants
+    .filter(user => user.id !== currentUserId);
 
   return userId[0];
 };
@@ -181,7 +180,7 @@ const sortChats = (a, b) => {
     sort = sortChatsByName(a, b);
   }
 
-  return sort = sortByRecentActivity(a, b);
+  return sortByRecentActivity(a, b);
 };
 
 const userFindSorting = {
@@ -196,7 +195,6 @@ const getUsers = () => {
   let users = Users
     .find({
       meetingId: Auth.meetingID,
-      connectionStatus: 'online',
     }, userFindSorting)
     .fetch();
 
@@ -239,7 +237,7 @@ const getActiveChats = (chatID) => {
   const idsWithTimeStamp = {};
 
   activeChats.map((chat) => {
-    idsWithTimeStamp[`${chat.sender}`] = chat.timestamp;
+    idsWithTimeStamp[`${chat.sender.id}`] = chat.timestamp;
   });
 
   activeChats = activeChats.map(mapActiveChats);
@@ -248,19 +246,20 @@ const getActiveChats = (chatID) => {
     activeChats.push(chatID);
   }
 
-  activeChats = _.uniq(_.compact(activeChats));
+  activeChats = _.uniqBy(_.compact(activeChats), 'id');
 
-  activeChats = Users
-    .find({ userId: { $in: activeChats } })
-    .map((op) => {
-      const activeChat = op;
-      activeChat.unreadCounter = UnreadMessages.count(op.userId);
-      activeChat.name = op.name;
-      activeChat.avatar = op.avatar;
-      activeChat.isModerator = op.role === ROLE_MODERATOR;
-      activeChat.lastActivity = idsWithTimeStamp[`${op.userId}`];
-      return activeChat;
-    });
+  activeChats = activeChats.map(({ id, name }) => {
+    const user = Users.findOne({ userId: id }, { fields: { color: 1, role: 1 } });
+
+    return {
+      color: user?.color || '#7b1fa2',
+      isModerator: user?.role === ROLE_MODERATOR,
+      lastActivity: idsWithTimeStamp[id],
+      name,
+      unreadCounter: UnreadMessages.count(id),
+      userId: id,
+    };
+  });
 
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
   const filteredChatList = [];
@@ -314,13 +313,23 @@ const isMeetingLocked = (id) => {
   return isLocked;
 };
 
-const areUsersUnmutable = () => {
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { 'usersProp.allowModsToUnmuteUsers': 1 } });
-  if (meeting.usersProp) {
-    return meeting.usersProp.allowModsToUnmuteUsers;
+const getUsersProp = () => {
+  const meeting = Meetings.findOne(
+    { meetingId: Auth.meetingID },
+    {
+      fields: {
+        'usersProp.allowModsToUnmuteUsers': 1,
+        'usersProp.authenticatedGuest': 1,
+      },
+    }
+  );
+
+  if (meeting.usersProp) return meeting.usersProp;
+
+  return {
+    allowModsToUnmuteUsers: false,
+    authenticatedGuest: false,
   }
-  return false;
 };
 
 const curatedVoiceUser = (intId) => {
@@ -333,10 +342,11 @@ const curatedVoiceUser = (intId) => {
   };
 };
 
-const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectVoiceUser) => {
+const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectVoiceUser, usersProp) => {
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId) || subjectUser.phone_user;
   const amISubjectUser = isMe(subjectUser.userId);
   const isSubjectUserModerator = subjectUser.role === ROLE_MODERATOR;
+  const isSubjectUserGuest = subjectUser.guest;
 
   const hasAuthority = amIModerator || amISubjectUser;
   const allowedToChatPrivately = !amISubjectUser && !isDialInUser;
@@ -349,7 +359,7 @@ const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectV
     && subjectVoiceUser.isVoiceUser
     && !subjectVoiceUser.isListenOnly
     && subjectVoiceUser.isMuted
-    && (amISubjectUser || areUsersUnmutable());
+    && (amISubjectUser || usersProp.allowedToUnmuteAudio);
 
   const allowedToResetStatus = hasAuthority
     && subjectUser.emoji !== EMOJI_STATUSES.none
@@ -368,13 +378,15 @@ const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectV
     && !amISubjectUser
     && !isSubjectUserModerator
     && !isDialInUser
-    && !isBreakoutRoom;
+    && !isBreakoutRoom
+    && !(isSubjectUserGuest && usersProp.authenticatedGuest);
 
   const allowedToDemote = amIModerator
     && !amISubjectUser
     && isSubjectUserModerator
     && !isDialInUser
-    && !isBreakoutRoom;
+    && !isBreakoutRoom
+    && !(isSubjectUserGuest && usersProp.authenticatedGuest);
 
   const allowedToChangeStatus = amISubjectUser;
 
@@ -429,6 +441,18 @@ const toggleVoice = (userId) => {
     }, 'moderator muted user microphone');
   }
 };
+
+const getEmoji = () => {
+  const currentUser = Users.findOne({ userId: Auth.userID },
+    { fields: { emoji: 1 } });
+
+  if (!currentUser) {
+    return false;
+  }
+
+  return currentUser.emoji;
+};
+
 
 const muteAllUsers = (userId) => { makeCall('muteAllUsers', userId); };
 
@@ -526,6 +550,10 @@ const requestUserInformation = (userId) => {
 };
 
 const sortUsersByFirstName = (a, b) => {
+  if (!a.firstName && !b.firstName) return 0;
+  if (a.firstName && !b.firstName) return -1;
+  if (!a.firstName && b.firstName) return 1;
+
   const aName = a.firstName.toLowerCase();
   const bName = b.firstName.toLowerCase();
   if (aName < bName) return -1;
@@ -614,10 +642,11 @@ export default {
   getGroupChatPrivate,
   hasBreakoutRoom,
   getEmojiList: () => EMOJI_STATUSES,
-  getEmoji: () => Users.findOne({ userId: Auth.userID }, { fields: { emoji: 1 } }).emoji,
+  getEmoji,
   hasPrivateChatBetweenUsers,
   toggleUserLock,
   requestUserInformation,
   focusFirstDropDownItem,
   isUserPresenter,
+  getUsersProp,
 };

@@ -21,6 +21,8 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import LayoutManager from '/imports/ui/components/layout/layout-manager';
 import { withLayoutContext } from '/imports/ui/components/layout/context';
 import VideoService from '/imports/ui/components/video-provider/service';
+import DebugWindow from '/imports/ui/components/debug-window/component'
+import {Meteor} from "meteor/meteor";
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
@@ -228,7 +230,8 @@ class Base extends Component {
 
     return (
       <Fragment>
-        <LayoutManager />
+        {meetingExist && Auth.loggedIn && <DebugWindow />}
+        {meetingExist && Auth.loggedIn && <LayoutManager />}
         {
           (!meetingExisted && !meetingExist && Auth.loggedIn)
             ? <LoadingScreen />
@@ -265,6 +268,7 @@ const BaseContainer = withTracker(() => {
     ejected: 1,
     ejectedReason: 1,
     color: 1,
+    mobile: 1,
     effectiveConnectionType: 1,
     extId: 1,
     guest: 1,
@@ -360,7 +364,8 @@ const BaseContainer = withTracker(() => {
         if (newDocument.validated && newDocument.name && newDocument.userId !== localUserId) {
           if (userJoinAudioAlerts) {
             AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-              + Meteor.settings.public.app.basename}`
+              + Meteor.settings.public.app.basename
+              + Meteor.settings.public.app.instanceId}`
               + '/resources/sounds/userJoin.mp3');
           }
 
@@ -383,13 +388,14 @@ const BaseContainer = withTracker(() => {
   }
 
   if (getFromUserSettings('bbb_show_participants_on_login', true) && !deviceInfo.type().isPhone) {
-    Session.set('openPanel', 'userlist');
     if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
-      Session.set('openPanel', 'chat');
-      Session.set('idChatOpen', PUBLIC_CHAT_ID);
+      Session.setDefault('openPanel', 'chat');
+      Session.setDefault('idChatOpen', PUBLIC_CHAT_ID);
+    } else {
+      Session.setDefault('openPanel', 'userlist');
     }
   } else {
-    Session.set('openPanel', '');
+    Session.setDefault('openPanel', '');
   }
 
   const codeError = Session.get('codeError');

@@ -1,7 +1,16 @@
 import { makeCall } from '/imports/ui/services/api';
 import Polls from '/imports/api/polls';
+import { debounce } from 'lodash';
 
 const MAX_CHAR_LENGTH = 5;
+
+const handleVote = (pollId, answerId) => {
+  makeCall('publishVote', pollId, answerId.id);
+};
+
+const handleTypedVote = (pollId, answer) => {
+  makeCall('publishTypedVote', pollId, answer);
+},
 
 const mapPolls = () => {
   const poll = Polls.findOne({});
@@ -32,12 +41,8 @@ const mapPolls = () => {
     },
     pollExists: true,
     amIRequester,
-    handleVote(pollId, answerId) {
-      makeCall('publishVote', pollId, answerId.id);
-    },
-    handleTypedVote(pollId, answer) {
-      makeCall('publishTypedVote', pollId, answer);
-    },
+    handleVote: debounce(handleVote, 500, { leading: true, trailing: false }),
+    handleTypedVote: debounce(handleTypedVote, 500, { leading: true, trailing: false }),
   };
 };
 

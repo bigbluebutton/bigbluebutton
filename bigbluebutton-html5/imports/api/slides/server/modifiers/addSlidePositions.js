@@ -42,19 +42,15 @@ export default function addSlidePositions(
     ),
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Adding slide position to collection: ${err}`);
-    }
-
-    const { insertedId } = numChanged;
+  try {
+    const { insertedId } = SlidePositions.upsert(selector, modifier);
 
     if (insertedId) {
-      return Logger.info(`Added slide position id=${slideId} pod=${podId} presentation=${presentationId}`);
+      Logger.info(`Added slide position id=${slideId} pod=${podId} presentation=${presentationId}`);
+    } else {
+      Logger.info(`Upserted slide position id=${slideId} pod=${podId} presentation=${presentationId}`);
     }
-
-    return Logger.info(`Upserted slide position id=${slideId} pod=${podId} presentation=${presentationId}`);
-  };
-
-  return SlidePositions.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Adding slide position to collection: ${err}`);
+  }
 }
