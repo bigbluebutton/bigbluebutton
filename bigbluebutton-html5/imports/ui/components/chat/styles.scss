@@ -75,7 +75,7 @@
   }
 
   > i {
-    color: var(--color-btn-hide-chat);
+      color: var(--color-btn-hide-chat);
       font-size: smaller;
 
       [dir="rtl"] & {
