@@ -9,6 +9,7 @@ import Auth from '/imports/ui/services/auth';
 import deviceInfo from '/imports/utils/deviceInfo';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import AudioError from '/imports/ui/services/audio-manager/error-codes';
+import Storage from '/imports/ui/services/storage/session';
 import Service from '../service';
 
 const AudioModalContainer = props => <AudioModal {...props} />;
@@ -22,7 +23,11 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
   const listenOnlyMode = getFromUserSettings('bbb_listen_only_mode', APP_CONFIG.listenOnlyMode);
   const forceListenOnly = getFromUserSettings('bbb_force_listen_only', APP_CONFIG.forceListenOnly);
   const skipCheck = getFromUserSettings('bbb_skip_check_audio', APP_CONFIG.skipCheck);
+  const skipCheckOnJoin = getFromUserSettings('bbb_skip_check_audio_on_first_join', APP_CONFIG.skipCheckOnJoin);
+  const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { voiceProp: 1 } });
+  const getEchoTest = Storage.getItem('getEchoTest');
+
   let formattedDialNum = '';
   let formattedTelVoice = '';
   let combinedDialInNum = '';
@@ -35,13 +40,20 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
     }
   }
 
+  const joinFullAudioImmediately = (autoJoin && (skipCheck || skipCheckOnJoin))
+    || (skipCheck || skipCheckOnJoin && !getEchoTest);
+
+  const joinFullAudioEchoTest = joinFullAudioImmediately && getEchoTest;
+
+  const forceListenOnlyAttendee = forceListenOnly && !Service.isUserModerator();
+
   return ({
     closeModal: () => {
       if (!Service.isConnecting()) mountModal(null);
     },
     joinMicrophone: () => {
       const call = new Promise((resolve, reject) => {
-        if (skipCheck) {
+        if (skipCheck || skipCheckOnJoin) {
           resolve(Service.joinMicrophone());
         } else {
           resolve(Service.transferCall());
@@ -92,13 +104,14 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
     showPermissionsOvelay: Service.isWaitingPermissions(),
     listenOnlyMode,
     skipCheck,
+    skipCheckOnJoin,
     formattedDialNum,
     formattedTelVoice,
     combinedDialInNum,
     audioLocked: userLocks.userMic,
-    joinFullAudioImmediately: !listenOnlyMode && skipCheck,
-    joinFullAudioEchoTest: !listenOnlyMode && !skipCheck,
-    forceListenOnlyAttendee: listenOnlyMode && forceListenOnly && !Service.isUserModerator(),
+    joinFullAudioImmediately,
+    joinFullAudioEchoTest,
+    forceListenOnlyAttendee,
     isIOSChrome: browser().name === 'crios',
     isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
     isIEOrEdge: browser().name === 'edge' || browser().name === 'ie',
