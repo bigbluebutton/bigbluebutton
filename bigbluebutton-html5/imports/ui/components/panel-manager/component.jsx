@@ -66,8 +66,8 @@ const CAPTIONS_MIN_WIDTH = DEFAULT_PANEL_WIDTH;
 const CAPTIONS_MAX_WIDTH = 400;
 
 // Variables for resizing waiting users.
-const WAITING_MIN_WIDTH = DEFAULT_PANEL_WIDTH;
-const WAITING_MAX_WIDTH = 800;
+const WAITING_MIN_WIDTH = 300;
+const WAITING_MAX_WIDTH = 350;
 
 class PanelManager extends Component {
   constructor(props) {
@@ -96,27 +96,6 @@ class PanelManager extends Component {
     };
 
     this.setUserListWidth = this.setUserListWidth.bind(this);
-  }
-
-  shouldComponentUpdate(prevProps) {
-    const { layoutContextState } = this.props;
-    const { layoutContextState: prevLayoutContextState } = prevProps;
-    const {
-      userListSize,
-      chatSize,
-      breakoutRoomSize,
-    } = layoutContextState;
-    const {
-      userListSize: prevUserListSize,
-      chatSize: prevChatSize,
-      breakoutRoomSize: prevBreakoutRoomSize,
-    } = prevLayoutContextState;
-
-    if ((layoutContextState !== prevLayoutContextState)
-      && (userListSize.width === prevUserListSize.width
-        && chatSize.width === prevChatSize.width
-        && breakoutRoomSize.width === prevBreakoutRoomSize.width)) return false;
-    return true;
   }
 
   componentDidUpdate(prevProps) {

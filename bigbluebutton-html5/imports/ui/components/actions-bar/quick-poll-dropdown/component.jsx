@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, intlShape } from 'react-intl';
+import { defineMessages } from 'react-intl';
 import _ from 'lodash';
 import { makeCall } from '/imports/ui/services/api';
 import Button from '/imports/ui/components/button/component';
@@ -32,10 +32,14 @@ const intlMessages = defineMessages({
     id: 'app.poll.n',
     description: 'Poll no option value',
   },
+  abstentionOptionLabel: {
+    id: 'app.poll.abstention',
+    description: 'Poll Abstention option value',
+  },
 });
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   parseCurrentSlideContent: PropTypes.func.isRequired,
   amIPresenter: PropTypes.bool.isRequired,
 };
@@ -54,7 +58,7 @@ const getAvailableQuickPolls = (slideId, parsedSlides) => {
     const { poll: label, type } = poll;
     let itemLabel = label;
 
-    if (type !== 'YN' && type !== 'TF') {
+    if (type !== 'YN' && type !== 'YNA' && type !== 'TF') {
       const { options } = itemLabel;
       itemLabel = options.join('/').replace(/[\n.)]/g, '');
     }
@@ -103,6 +107,7 @@ class QuickPollDropdown extends Component {
     const parsedSlide = parseCurrentSlideContent(
       intl.formatMessage(intlMessages.yesOptionLabel),
       intl.formatMessage(intlMessages.noOptionLabel),
+      intl.formatMessage(intlMessages.abstentionOptionLabel),
       intl.formatMessage(intlMessages.trueOptionLabel),
       intl.formatMessage(intlMessages.falseOptionLabel),
     );

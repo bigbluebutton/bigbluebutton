@@ -8,7 +8,7 @@ import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from './styles.scss';
 import MessageForm from './message-form/container';
 import MessageList from './message-list/container';
-import ChatDropdown from './chat-dropdown/component';
+import ChatDropdownContainer from './chat-dropdown/container';
 
 const ELEMENT_ID = 'chat-messages';
 
@@ -41,6 +41,7 @@ const Chat = (props) => {
     minMessageLength,
     maxMessageLength,
     amIModerator,
+    meetingIsBreakout,
   } = props;
 
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
@@ -89,7 +90,7 @@ const Chat = (props) => {
                 accessKey={CLOSE_CHAT_AK}
               />
             )
-            : <ChatDropdown isMeteorConnected={isMeteorConnected} amIModerator={amIModerator} />
+            : <ChatDropdownContainer {...{ meetingIsBreakout, isMeteorConnected, amIModerator }} />
         }
       </header>
       <MessageList

@@ -45,6 +45,7 @@ class Page {
       });
       await this.setDownloadBehavior(`${this.parentDir}/downloads`);
       this.meetingId = await helper.createMeeting(params, meetingId, customParameter);
+      this.logger('Meeting ID: ', this.meetingId);
 
       const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, isModerator, customParameter);
       await this.page.goto(joinURL);
@@ -133,7 +134,7 @@ class Page {
   // Get the default arguments for creating a page
   static getArgs() {
     const args = ['--no-sandbox', '--use-fake-ui-for-media-stream', '--lang=en-US'];
-    return { headless: true, args };
+    return { headless: false, args };
   }
 
   static getArgsWithAudio() {
@@ -158,7 +159,7 @@ class Page {
       '--lang=en-US',
     ];
     return {
-      headless: true,
+      headless: false,
       args,
     };
   }
@@ -185,7 +186,35 @@ class Page {
       '--lang=en-US',
     ];
     return {
-      headless: true,
+      headless: false,
+      args,
+    };
+  }
+
+  static getArgsWithAudioAndVideo() {
+    if (process.env.BROWSERLESS_ENABLED === 'true') {
+      const args = [
+        '--no-sandbox',
+        '--use-fake-ui-for-media-stream',
+        '--use-fake-device-for-media-stream',
+        '--lang=en-US',
+      ];
+      return {
+        headless: true,
+        args,
+      };
+    }
+    const args = [
+      '--no-sandbox',
+      '--use-fake-ui-for-media-stream',
+      '--use-fake-device-for-media-stream',
+      `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
+      `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
+      '--allow-file-access',
+      '--lang=en-US',
+    ];
+    return {
+      headless: false,
       args,
     };
   }

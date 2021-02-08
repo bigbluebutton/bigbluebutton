@@ -1,4 +1,4 @@
-@import "../../stylesheets/variables/_all";
+@import "../../stylesheets/variables/breakpoints";
 
 :root {
   --toast-default-color: var(--color-white);
@@ -144,25 +144,40 @@
   }
 }
 
-.toast {
+.toast ,
+.actionToast {
   position: relative;
   margin-bottom: var(--sm-padding-x);
-  padding: var(--md-padding-x);
+  padding: var(--sm-padding-x);
   border-radius: var(--border-radius);
   box-shadow: 0 var(--border-size-small) 10px 0 rgba(0, 0, 0, 0.1), 0 var(--border-size) 15px 0 rgba(0, 0, 0, 0.05);
   display: flex;
   justify-content: space-between;
-  cursor: pointer;
   color: var(--color-text);
-  background-color: var(--background);
+  -webkit-animation-duration: 0.75s;
   animation-duration: 0.75s;
+  -webkit-animation-fill-mode: both;
   animation-fill-mode: both;
   max-width: var(--toast-max-width);
+  min-width: var(--toast-max-width);
   width: var(--toast-max-width);
+}
+
+.toast {
+  cursor: pointer;
+  background-color: var(--background);
 
   &:hover,
   &:focus {
     background-color: var(--background-active);
+  }
+}
+
+.actionToast {
+  background-color: var(--color-white);
+
+  i.close {
+    left: none !important;
   }
 }
 

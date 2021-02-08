@@ -10,5 +10,5 @@ export default function handleUserInactivityInspect({ header, body }, meetingId)
   check(meetingId, String);
 
 
-  return userInactivityInspect(userId, responseDelay);
+  userInactivityInspect(userId, responseDelay);
 }

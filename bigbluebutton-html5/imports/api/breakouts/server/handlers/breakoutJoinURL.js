@@ -25,20 +25,15 @@ export default function handleBreakoutJoinURL({ body }) {
     },
   };
 
-  const cb = (cbErr, numChanged) => {
-    if (cbErr) {
-      return Logger.error(`Adding breakout to collection: ${cbErr}`);
-    }
+  try {
+    const { insertedId, numberAffected } = Breakouts.upsert(selector, modifier);
 
-    const {
-      insertedId,
-    } = numChanged;
     if (insertedId) {
-      return Logger.info(`Added breakout id=${breakoutId}`);
+      Logger.info(`Added breakout id=${breakoutId}`);
+    } else if (numberAffected) {
+      Logger.info(`Upserted breakout id=${breakoutId}`);
     }
-
-    return Logger.info(`Upserted breakout id=${breakoutId}`);
-  };
-
-  return Breakouts.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Adding breakout to collection: ${err}`);
+  }
 }
