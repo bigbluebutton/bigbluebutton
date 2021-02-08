@@ -2,7 +2,6 @@ import { GroupChatMsg, UsersTyping } from '/imports/api/group-chat-msg';
 import { Meteor } from 'meteor/meteor';
 
 import Logger from '/imports/startup/server/logger';
-import Users from '/imports/api/users';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
 function groupChatMsg(chatsIds) {
@@ -19,19 +18,13 @@ function groupChatMsg(chatsIds) {
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
   Logger.debug('Publishing group-chat-msg', { meetingId, userId });
-  const User = Users.findOne({ userId });
-  console.log('user', User);
 
   const selector = {
-    timestamp: {
-      $gte: User.loginTime,
-    },
     $or: [
       { meetingId, chatId: { $eq: PUBLIC_GROUP_CHAT_ID } },
       { chatId: { $in: chatsIds } },
     ],
   };
-  console.log('selector', JSON.stringify(selector));
   return GroupChatMsg.find(selector);
 }
 
