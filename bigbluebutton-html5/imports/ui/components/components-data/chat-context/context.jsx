@@ -39,10 +39,10 @@ const generateTimeWindow = (timestamp) => {
 export const ChatContext = createContext();
 
 const generateStateWithNewMessage = ({ msg, senderData }, state) => {
+  
   const timeWindow = generateTimeWindow(msg.timestamp);
   const userId = msg.sender.id;
   const keyName = userId + '-' + timeWindow;
-
   const msgBuilder = ({msg, senderData}, chat) => {
     const msgTimewindow = generateTimeWindow(msg.timestamp);
     const key = msg.sender.id + '-' + msgTimewindow;
@@ -79,7 +79,7 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
   };
 
   let stateMessages = state[msg.chatId];
-
+  
   if (!stateMessages) {
     if (msg.chatId === getGroupChatId()) {
       state[msg.chatId] = {
@@ -106,14 +106,15 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
 
     stateMessages = state[msg.chatId];
   }
-
+  
   const forPublicChat = msg.timestamp < getLoginTime() ? stateMessages.preJoinMessages : stateMessages.posJoinMessages;
   const forPrivateChat = stateMessages.messageGroups;
   const messageGroups = msg.chatId === getGroupChatId() ? forPublicChat : forPrivateChat;
   const timewindowIndex = stateMessages.chatIndexes[keyName];
   const groupMessage = messageGroups[keyName + '-' + timewindowIndex];
-
+  
   if (!groupMessage || (groupMessage && groupMessage.sender.id !== stateMessages.lastSender.id)) {
+
     const [tempGroupMessage, sender, newIndex] = msgBuilder({msg, senderData}, stateMessages);
     stateMessages.closed = false;
     stateMessages.lastSender = sender;
@@ -164,7 +165,11 @@ const reducer = (state, action) => {
     }
     case ACTIONS.ADDED: {
       ChatLogger.debug(ACTIONS.ADDED);
-      const newState = generateStateWithNewMessage(action.value, state);
+      const batchMsgs = action.value;
+      const newState = batchMsgs.reduce((acc, i)=> {
+        return generateStateWithNewMessage(i, acc);
+      }, state);
+      // const newState = generateStateWithNewMessage(action.value, state);
       return {...newState};
     }
     case ACTIONS.CHANGED: {
