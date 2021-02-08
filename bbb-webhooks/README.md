@@ -2,7 +2,7 @@
 
 This is a node.js application that listens for all events on BigBlueButton and sends POST requests with details about these events to hooks registered via an API. A hook is any external URL that can receive HTTP POST requests.
 
-You can read the full documentation at: http://docs.bigbluebutton.org/labs/webhooks.html
+You can read the full documentation at: https://docs.bigbluebutton.org/dev/webhooks.html
 
 
 ## Development
@@ -30,24 +30,21 @@ If you want all webhooks from a BBB server to post to your 3rd party application
 
 To add these permanent urls, do the follow:
  - `sudo nano config/default.yml`
- - Add the configuration similar to this example:
+ - Locate `hooks.permanentURLs` in your config/default.yml and modify it as follows:
     - ```
-        permanentURLs: [
-            {
-                url: 'https://staging.example.com/webhook-post-route',
-                getRaw: false
-            },
-            {
-                url: 'https://app.example.com/webhook-post-route',
-                getRaw: false
-            }
-        ]
+      hooks:
+         permanentURLs: 
+            - url: 'https://staging.example.com/webhook-post-route',
+              getRaw: false
+            - url: 'https://app.example.com/webhook-post-route',
+              getRaw: false
       ```
 
 Once you have adjusted your configuration file, you will need to restart your development/app server to adapt to the new configuration.
 
 If you are editing these permanent urls after they have already been committed to the application once, you may need to flush the redis database in order for adjustments to these permanent hooks to get picked up by your application. Use the following command to do so:
  - `redis-cli flushall`
+ - **_IMPORTANT:_** Running the above command clears the redis database entirely. This will result in all meetings, processing or not, to be cleared from the database, and may result in broken meetings currently processing.
 
 
 ## Production
