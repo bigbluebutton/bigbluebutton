@@ -6,7 +6,7 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 export default function createBreakoutRoom(rooms, durationInMinutes, record = false) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
-  const BREAKOUT_LIM = Meteor.settings.public.app.breakoutRoomLimit;
+  const BREAKOUT_LIM = Meteor.settings.public.app.breakouts.breakoutRoomLimit;
   const MIN_BREAKOUT_ROOMS = 2;
   const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
 

@@ -113,7 +113,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const BREAKOUT_LIM = Meteor.settings.public.app.breakoutRoomLimit;
+const BREAKOUT_LIM = Meteor.settings.public.app.breakouts.breakoutRoomLimit;
 const MIN_BREAKOUT_ROOMS = 2;
 const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
 
@@ -122,7 +122,7 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   isInvitation: PropTypes.bool.isRequired,
-  isMe: PropTypes.bool.isRequired,
+  isMe: PropTypes.func.isRequired,
   meetingName: PropTypes.string.isRequired,
   users: PropTypes.arrayOf(PropTypes.object).isRequired,
   createBreakoutRoom: PropTypes.func.isRequired,
