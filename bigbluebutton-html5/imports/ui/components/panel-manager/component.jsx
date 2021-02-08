@@ -66,8 +66,8 @@ const CAPTIONS_MIN_WIDTH = DEFAULT_PANEL_WIDTH;
 const CAPTIONS_MAX_WIDTH = 400;
 
 // Variables for resizing waiting users.
-const WAITING_MIN_WIDTH = DEFAULT_PANEL_WIDTH;
-const WAITING_MAX_WIDTH = 800;
+const WAITING_MIN_WIDTH = 300;
+const WAITING_MAX_WIDTH = 350;
 
 class PanelManager extends Component {
   constructor(props) {
