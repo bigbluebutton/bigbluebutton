@@ -59,7 +59,7 @@
 .customInputWrapper {
   width: 100%;
   margin-top: var(--md-padding-y);
-  
+
   > Button {
     width: 100%;
     margin-top: var(--sm-padding-y);
@@ -185,7 +185,7 @@
 
 .input {
     @include inputFocus(var(--color-blue-light));
- 
+
     &:hover,
     &:focus {
         @extend %highContrastOutline;
@@ -194,7 +194,7 @@
     &:focus {
         outline-style: solid !important;
     }
-    
+
     margin: 0;
     color: var(--color-text);
     background: var(--color-white);
@@ -213,4 +213,9 @@
 .noSlidePanelContainer {
     color: var(--color-gray-drak);
     text-align: center;
+}
+
+.checkbox {
+    display: inline-block;
+    margin-right: var(--poll-sm-margin);
 }

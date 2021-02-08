@@ -6,6 +6,7 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
 import Button from '/imports/ui/components/button/component';
+import Checkbox from '/imports/ui/components/checkbox/component';
 import LiveResult from './live-result/component';
 import { styles } from './styles.scss';
 
@@ -290,13 +291,13 @@ class Poll extends Component {
     return (
       <div>
         <div>
-          <input
-            id="multipleResponseCheckboxId"
-            type="checkbox"
-            onChange={this.toggleIsMultipleResponse}
-            checked={isMultipleResponse}
+          <Checkbox
+              onChange={this.toggleIsMultipleResponse}
+              checked={isMultipleResponse}
+              className={styles.checkbox}
+              ariaLabelledBy="multipleResponseCheckboxLabel"
           />
-          <label htmlFor="multipleResponseCheckboxId">
+          <label id="multipleResponseCheckboxLabel" className={styles.instructions}>
             {intl.formatMessage(intlMessages.enableMultipleResponseLabel)}
           </label>
         </div>
