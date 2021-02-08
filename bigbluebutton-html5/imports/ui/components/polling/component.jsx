@@ -130,7 +130,7 @@ class Polling extends Component {
     const { checkedAnswers } = this.state;
     return (
       <div>
-        <div className={cx(pollAnswerStyles)}>
+        {/*<div className={cx(pollAnswerStyles)}>*/}
           <div>
             {poll.answers.map((pollAnswer) => {
               const formattedMessageIndex = pollAnswer.key.toLowerCase();
@@ -142,6 +142,7 @@ class Polling extends Component {
               return (
                 <div
                   key={pollAnswer.id}
+                  className={styles.checkboxContainer}
                 >
                   <Checkbox
                     disabled={!isMeteorConnected}
@@ -165,7 +166,7 @@ class Polling extends Component {
               );
             })}
           </div>
-        </div>
+        {/*</div>*/}
         <div>
           <Button
             disabled={!isMeteorConnected || checkedAnswers.length === 0}
