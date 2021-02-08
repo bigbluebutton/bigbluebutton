@@ -96,6 +96,7 @@
 }
 
 .content{
+  background-color:var(--color-background);
   margin:0 0 0 var(--panel-margin-left);
 
   [dir="rtl"] & {
