@@ -267,7 +267,6 @@ class MessageList extends Component {
           });
         }}
         onWheel={(e) => {
-          console.log('caiu aqui');
           if (e.deltaY < 0) {
             this.setState({
               userScrolledBack: true,

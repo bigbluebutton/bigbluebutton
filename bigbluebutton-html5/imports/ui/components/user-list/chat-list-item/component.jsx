@@ -1,13 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Session } from 'meteor/session';
+import _ from 'lodash';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from './styles';
 import ChatAvatar from './chat-avatar/component';
 import ChatIcon from './chat-icon/component';
 import ChatUnreadCounter from './chat-unread-messages/component';
+
+const DEBOUNCE_TIME = 1000;
+
+let globalAppplyStateToProps = ()=>{};
+
+const throttledFunc = _.debounce(() => {
+  globalAppplyStateToProps();
+}, DEBOUNCE_TIME, { trailing: true, leading: false });
 
 const intlMessages = defineMessages({
   titlePublic: {
@@ -75,6 +84,17 @@ const ChatListItem = (props) => {
   const linkClasses = {};
   linkClasses[styles.active] = isCurrentChat;
 
+  const [stateUreadCount, setStateUreadCount] = useState(0);
+
+  if (chat.unreadCounter !== stateUreadCount && (stateUreadCount < chat.unreadCounter)) {
+    globalAppplyStateToProps = () => {
+      setStateUreadCount(chat.unreadCounter);
+    };
+    throttledFunc();
+  } else if (chat.unreadCounter !== stateUreadCount && (stateUreadCount > chat.unreadCounter)) {
+    setStateUreadCount(chat.unreadCounter);
+  }
+
   return (
     <div
       data-test="chatButton"
@@ -110,10 +130,10 @@ const ChatListItem = (props) => {
               </span>
             ) : null}
         </div>
-        {(chat.unreadCounter > 0)
+        {(stateUreadCount > 0)
           ? (
             <ChatUnreadCounter
-              counter={chat.unreadCounter}
+              counter={stateUreadCount}
             />
           )
           : null}

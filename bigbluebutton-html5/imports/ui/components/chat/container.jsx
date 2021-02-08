@@ -47,12 +47,12 @@ const intlMessages = defineMessages({
 
 let previousChatId = null;
 let debounceTimeout = null;
-
+let messages = null;
 let globalAppplyStateToProps = ()=>{}
 
 const throttledFunc = _.throttle(()=> {
   globalAppplyStateToProps();
-}, DEBOUNCE_TIME, { trailing: true, leading: false});
+}, DEBOUNCE_TIME, { trailing: true, leading: true});
 
 const ChatContainer = (props) => {
   useEffect(() => {
@@ -116,22 +116,18 @@ const ChatContainer = (props) => {
   const lastMsg = contextChat && (isPublicChat 
   ? contextChat.preJoinMessages[lastTimeWindow] || contextChat.posJoinMessages[lastTimeWindow]
   : contextChat.messageGroups[lastTimeWindow]);
-  let timeWindowsValues = [];
-  
-  applyPropsToState = ()=> { 
-        if ((!_.isEqualWith(lastMsg, stateLastMsg) && lastMsg)) {
-          if (contextChat) {
-            timeWindowsValues = isPublicChat
-          ? [...Object.values(contextChat.preJoinMessages), ...systemMessagesIds.map((item)=> systemMessages[item]),
-          ...Object.values(contextChat?.posJoinMessages)]
-          : [...Object.values(contextChat.messageGroups)];
-          setLastMsg({ ...lastMsg });
+  applyPropsToState = ()=> {
+        if (!_.isEqualWith(lastMsg, stateLastMsg) || previousChatId !== chatID) {
+          const timeWindowsValues = isPublicChat
+          ? [...Object.values(contextChat?.preJoinMessages || {}), ...systemMessagesIds.map((item)=> systemMessages[item]),
+          ...Object.values(contextChat?.posJoinMessages || {})]
+          : [...Object.values(contextChat?.messageGroups || {})];
+          if (previousChatId !== chatID) {
+            previousChatId = chatID;
+          }
+          
+          setLastMsg(lastMsg ? { ...lastMsg }: lastMsg);
           setTimeWindows(timeWindowsValues);
-          } 
-        }else if ((!isPublicChat && chatID !== previousChatId && !lastMsg)) {
-          previousChatId = chatID;
-          setLastMsg({});
-          setTimeWindows([]);
         }
     }
     globalAppplyStateToProps = applyPropsToState;

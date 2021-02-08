@@ -49,6 +49,7 @@ class TimeWindowList extends PureComponent {
       keyMapper: (rowIndex, columnIndex) => {
         const { timeWindowsValues } = this.props;
         const timewindow = timeWindowsValues[rowIndex];
+
         const key = timewindow.key;
         const contentCount = timewindow.content.length;
         return `${key}-${contentCount}`;
@@ -92,17 +93,25 @@ class TimeWindowList extends PureComponent {
       userSentMessage,
       setUserSentMessage,
       timeWindowsValues,
+      chatId,
     } = this.props;
 
-    const {timeWindowsValues: prevTimeWindowsValues} = prevProps;
+    const {timeWindowsValues: prevTimeWindowsValues, chatId: prevChatId} = prevProps;
 
     const prevTimeWindowsLength = prevTimeWindowsValues.length;
     const timeWindowsValuesLength = timeWindowsValues.length;
-    if (prevTimeWindowsValues[prevTimeWindowsLength - 1]?.content.length !== timeWindowsValues[timeWindowsValuesLength - 1]?.content.length) {
+    const prevLastTimeWindow = prevTimeWindowsValues[prevTimeWindowsLength - 1];
+    const lastTimeWindow = timeWindowsValues[prevTimeWindowsLength - 1];
+
+    if ((lastTimeWindow && (prevLastTimeWindow?.content.length !== lastTimeWindow?.content.length))) {
       if (this.listRef) {
         this.cache.clear(timeWindowsValuesLength-1);
         this.listRef.recomputeRowHeights(timeWindowsValuesLength-1);
       }  
+    }
+
+    if (lastTimeWindow && (chatId !== prevChatId)) {
+      this.listRef.recomputeGridSize();
     }
 
     if (userSentMessage && !prevProps.userSentMessage){
@@ -233,6 +242,7 @@ class TimeWindowList extends PureComponent {
       userScrolledBack,
     } = this.state;
     ChatLogger.debug('TimeWindowList::render', {...this.props},  {...this.state}, new Date());
+
     return (
       [<div 
         onMouseDown={()=> {

@@ -246,10 +246,10 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
   
   const chatInfo = chatIds.map((chatId) => {
     const contextChat = groupChatsMessages[chatId];
+    const isPublicChat = chatId === PUBLIC_GROUP_CHAT_ID;
     let unreadMessagesCount = 0;
     if (contextChat) {
       const unreadTimewindows = contextChat.unreadTimeWindows;
-  
       for (const unreadTimeWindowId of unreadTimewindows) {
         const timeWindow = (isPublicChat 
           ? contextChat.preJoinMessages[unreadTimeWindowId] || contextChat.posJoinMessages[unreadTimeWindowId]
@@ -261,8 +261,7 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
     if (chatId !== PUBLIC_GROUP_CHAT_ID) {
       const groupChatsParticipants = groupChats[chatId].participants;
     const otherParticipant = groupChatsParticipants.filter((user)=> user.id !== Auth.userID)[0];
-    const user = users[otherParticipant.id];
-    // console.log('chatInfo::user', otherParticipant, otherParticipant.id, users, );    
+    const user = users[otherParticipant.id]; 
 
     return {
       color: user?.color || '#7b1fa2',
