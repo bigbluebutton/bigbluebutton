@@ -59,7 +59,7 @@
   padding: var(--sm-padding-y);
   margin-top: var(--poll-sm-margin);
   margin-bottom: var(--poll-sm-margin);
-  color: var(--color-text);
+  color: var(--color-btn-hide-text);
 }
 
 .left,
@@ -110,6 +110,7 @@
 }
 
 .theading {
+  color:var(--color-btn-hide-text);
   text-align: left;
 
   [dir="rtl"] & {
@@ -128,11 +129,13 @@
 
 .resultRight,
 .resultLeft {
+  color:var(--color-btn-hide-text);
   padding-bottom: .25rem;
   word-break: break-all;
 }
 
 .status {
+  color:var(--color-btn-hide-text);
   margin-top: .5rem;
   margin-bottom: .5rem;
 }

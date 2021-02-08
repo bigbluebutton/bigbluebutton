@@ -129,7 +129,7 @@
 }
 
 .userlistPad {
-  background-color: var(--color-off-white);
+  background-color: var(--color-userlistPad);
   width: var(--userlist-handle-width);
 }
 
@@ -165,7 +165,7 @@
 }
 
 .poll {
-  background-color: var(--color-white);
+  background-color: var(--color-chat);
   min-width: var(--poll-pane-min-width);
   padding: 1rem;
 }

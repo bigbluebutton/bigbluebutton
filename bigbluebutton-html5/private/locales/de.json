@@ -300,6 +300,7 @@
     "app.submenu.application.pushAlertLabel": "Popupwarnungen für Chat",
     "app.submenu.application.userJoinAudioAlertLabel": "Audiowarnton, wenn neue Teilnehmer den Raum betreten",
     "app.submenu.application.userJoinPushAlertLabel": "Popupnachricht, wenn neue Teilnehmer den Raum betreten",
+    "app.submenu.application.darkModeLabel": "Nacht Modus",
     "app.submenu.application.fontSizeControlLabel": "Schriftgröße",
     "app.submenu.application.increaseFontBtnLabel": "Schriftgröße erhöhen",
     "app.submenu.application.decreaseFontBtnLabel": "Schriftgröße verringern",

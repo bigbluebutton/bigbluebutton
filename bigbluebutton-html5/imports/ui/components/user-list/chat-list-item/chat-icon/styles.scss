@@ -3,7 +3,7 @@
 
 .chatThumbnail {
   @extend %flex-column;
-  color: var(--color-gray-light);
+  color: var(--color-chat-thumbnail);
   justify-content: center;
   font-size: 175%;
 }

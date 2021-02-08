@@ -19,8 +19,8 @@
 
 .scrollableList {
   @include elementFocus(var(--list-item-bg-hover));
-  @include scrollbox-vertical(var(--user-list-bg));
   @include highContrastOutline();
+  background: var(--color-background-scrollablelist);
 
   &:focus-within,
   &:focus {
@@ -58,8 +58,8 @@
   padding-left: var(--lg-padding-y);
   text-decoration: none;
   width: 100%;
-  color: var(--color-gray-dark);
-  background-color: var(--color-off-white);
+  color: var(--color-small-title);
+  background-color: var(--color-background-listItem);
 
   [dir="rtl"]  & {
     padding-right: var(--lg-padding-y);
@@ -81,7 +81,7 @@
   > span {
     font-weight: 400;
     font-size: var(--font-size-small);
-    color: var(--color-gray-dark);
+    color: var(--color-btn-hide-text);
     position: relative;
     flex-grow: 1;
     line-height: 2;

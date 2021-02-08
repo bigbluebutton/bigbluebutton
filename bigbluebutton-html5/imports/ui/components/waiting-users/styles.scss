@@ -47,7 +47,8 @@
 
 .hideBtn {
   position: relative;
-  background-color: var(--color-white);
+  color: var(--color-btn-hide-text);
+  background-color: var(--color-hide-chat);
   display: block;
   margin: 4px;
   margin-bottom: 2px;

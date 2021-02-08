@@ -45,7 +45,8 @@
 
 .hideBtn {
   position: relative;
-  background-color: var(--color-white);
+  color: var(--color-btn-hide-text);
+  background-color: var(--color-hide-chat);
   display: block;
   margin: var(--border-size-large);
   margin-bottom: var(--border-size);
@@ -58,7 +59,7 @@
   }
 
   > i {
-    color: var(--color-gray-dark);
+    color: var(--color-btn-hide-chat);
     font-size: smaller;
 
     [dir="rtl"] & {

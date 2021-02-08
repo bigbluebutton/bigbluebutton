@@ -295,6 +295,7 @@
     "app.actionsBar.actionsDropdown.restorePresentationDesc": "Button to restore presentation after it has been closed",
     "app.screenshare.screenShareLabel" : "Screen share",
     "app.submenu.application.applicationSectionTitle": "Application",
+    "app.submenu.application.darkModeLabel": "Dark Mode",
     "app.submenu.application.animationsLabel": "Animations",
     "app.submenu.application.audioAlertLabel": "Audio Alerts for Chat",
     "app.submenu.application.audioFilterLabel": "Audio Filters for Microphone",
