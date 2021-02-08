@@ -168,7 +168,7 @@ class Polling extends Component {
         </div>
         <div>
           <Button
-            disabled={!isMeteorConnected}
+            disabled={!isMeteorConnected || checkedAnswers.length === 0}
             className={styles.pollingButton}
             color="primary"
             size="md"
