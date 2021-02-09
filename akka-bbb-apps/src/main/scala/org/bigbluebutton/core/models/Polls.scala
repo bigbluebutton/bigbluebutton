@@ -421,11 +421,11 @@ object PollFactory {
   }
 
   private def processYesNoAbstentionPollType(qType: String): Question = {
-    val answers = new Array[Answer](3)
+    val answers = new ArrayBuffer[Answer]
 
-    answers(0) = new Answer(0, "Yes", Some("Yes"))
-    answers(1) = new Answer(1, "No", Some("No"))
-    answers(2) = new Answer(2, "Abstention", Some("Abstention"))
+    answers += new Answer(0, "Yes", Some("Yes"))
+    answers += new Answer(1, "No", Some("No"))
+    answers += new Answer(2, "Abstention", Some("Abstention"))
 
     new Question(0, PollType.YesNoAbstentionPollType, false, None, answers)
   }
