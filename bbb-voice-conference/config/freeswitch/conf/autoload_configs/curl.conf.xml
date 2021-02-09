@@ -1,0 +1,5 @@
+<configuration name="curl.conf" description="cURL module">
+  <settings>
+    <param name="max-bytes" value="64000"/>
+  </settings>
+</configuration>

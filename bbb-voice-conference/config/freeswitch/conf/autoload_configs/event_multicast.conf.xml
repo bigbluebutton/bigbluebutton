@@ -1,0 +1,14 @@
+<configuration name="event_multicast.conf" description="Multicast Event">
+  <settings>
+    <param name="address" value="225.1.1.1"/>
+    <param name="port" value="4242"/>
+    <param name="bindings" value="all"/>
+    <param name="ttl" value="1"/>
+    <!-- <param name="loopback" value="no"/>-->
+    <!-- Uncomment this to enable pre-shared key encryption on the packets. -->
+    <!-- For this option to work, you'll need to have the openssl development -->
+    <!-- headers installed when you ran ./configure -->
+    <!-- <param name="psk" value="ClueCon"/> -->
+  </settings>
+</configuration>
+
