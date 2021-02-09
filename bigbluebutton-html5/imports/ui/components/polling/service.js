@@ -10,7 +10,7 @@ const handleVote = (pollId, answerId) => {
 
 const handleTypedVote = (pollId, answer) => {
   makeCall('publishTypedVote', pollId, answer);
-},
+};
 
 const mapPolls = () => {
   const poll = Polls.findOne({});
