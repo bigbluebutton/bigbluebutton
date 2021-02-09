@@ -123,7 +123,6 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     startBandwidthMonitoring,
     handleNetworkConnection: () => updateNavigatorConnection(navigator.connection),
     randomlySelectedUser,
-    isFullscreen: Session.get('isFullscreen'),
     currentUserId: currentUser.userId,
   };
 })(AppContainer)));
