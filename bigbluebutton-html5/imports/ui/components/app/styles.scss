@@ -63,6 +63,7 @@
 .content, .noPanelContent {
   @extend %full-page;
   order: 3;
+  background-color: var(--color-background);
 
   &:before,
   &:after {
