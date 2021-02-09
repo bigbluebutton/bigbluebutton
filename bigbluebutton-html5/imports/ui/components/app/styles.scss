@@ -1,4 +1,4 @@
-@import "/imports/ui/stylesheets/variables/_all";
+e@import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/variables/general";
 @import "/imports/ui/stylesheets/variables/palette";
 @import "/imports/ui/stylesheets/variables/typography";
@@ -63,6 +63,7 @@
 .content, .noPanelContent {
   @extend %full-page;
   order: 3;
+  background-color: var(--color-background);
 
   &:before,
   &:after {
