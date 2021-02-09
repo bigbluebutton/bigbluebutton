@@ -6,7 +6,7 @@ const CAPTIONS_CONFIG = Meteor.settings.public.captions;
 const BASENAME = Meteor.settings.public.app.basename;
 const APP = Meteor.settings.private.app;
 const INSTANCE_ID = Meteor.settings.public.app.instanceId;
-const LOCALES_URL = `http://${APP.host}:${APP.port}${BASENAME}${INSTANCE_ID}${APP.localesUrl} `;
+const LOCALES_URL = `http://${APP.host}:${process.env.PORT}${BASENAME}${INSTANCE_ID}${APP.localesUrl} `;
 const CAPTIONS = '_captions_';
 const TOKEN = '$';
 

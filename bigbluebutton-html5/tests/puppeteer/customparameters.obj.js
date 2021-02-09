@@ -608,5 +608,83 @@ const customParametersTest = () => {
       });
     }
   });
+
+  // This test spec sets the userdata-bbb_record_video parameter to false
+  // and makes sure that the meeting recording button should not be available
+  test('Record Meeting', async () => {
+    const test = new CustomParameters();
+    const page = new Page();
+    let response;
+    try {
+      const testName = 'recordMeeting';
+      page.logger('before ', testName);
+      response = await test.recordMeeting(testName, Page.getArgs(), undefined, `${c.recordMeeting}`);
+      page.logger('after ', testName);
+    } catch (e) {
+      page.logger(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
+
+  // This test spec sets the userdata-bbb_skip_video_preview parameter to true
+  // and makes sure that the webcam video preview modal should not appear
+  test('Skip Video Preview', async () => {
+    const test = new CustomParameters();
+    const page = new Page();
+    let response;
+    try {
+      const testName = 'skipVideoPreview';
+      page.logger('before ', testName);
+      response = await test.skipVideoPreview(testName, Page.getArgsWithVideo(), undefined, `${c.skipVideoPreview}`);
+      page.logger('after ', testName);
+    } catch (e) {
+      page.logger(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
+
+  // This test spec sets the userdata-bbb_mirror_own_webcam parameter to true
+  // and makes sure that the webcam video preview and the container
+  // should both appear with mirrored Tag
+  test('Mirror Own Webcam', async () => {
+    const test = new CustomParameters();
+    const page = new Page();
+    let response;
+    try {
+      const testName = 'mirrorOwnWebcam';
+      page.logger('before ', testName);
+      response = await test.mirrorOwnWebcam(testName, Page.getArgsWithVideo(), undefined, `${c.mirrorOwnWebcam}`);
+      page.logger('after ', testName);
+    } catch (e) {
+      page.logger(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
+
+  // This test spec sets the userdata-bbb_show_participants_on_login parameter to false
+  // and makes sure that the user list won't appear on login
+  test('Show Participants on Login', async () => {
+    const test = new CustomParameters();
+    const page = new Page();
+    let response;
+    try {
+      const testName = 'showParticipantsOnLogin';
+      page.logger('before ', testName);
+      response = await test.showParticipantsOnLogin(testName, Page.getArgsWithVideo(), undefined, `${c.showParticipantsOnLogin}`);
+      page.logger('after ', testName);
+    } catch (e) {
+      page.logger(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
 };
+
 module.exports = exports = customParametersTest;

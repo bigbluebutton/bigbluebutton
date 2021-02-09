@@ -79,6 +79,7 @@ public class ParamsProcessorUtil {
     private String defaultAvatarURL;
     private String defaultConfigURL;
     private String defaultGuestPolicy;
+    private Boolean authenticatedGuest;
     private int defaultMeetingDuration;
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
@@ -142,13 +143,21 @@ public class ParamsProcessorUtil {
 
         for (String keyword : keywordList) {
             if (keyword.equals(DIAL_NUM)) {
-                welcomeMessage = welcomeMessage.replaceAll(DIAL_NUM, dialNumber);
+                welcomeMessage = welcomeMessage.replaceAll(
+                        Pattern.quote(DIAL_NUM),
+                        Matcher.quoteReplacement(dialNumber));
             } else if (keyword.equals(CONF_NUM)) {
-                welcomeMessage = welcomeMessage.replaceAll(CONF_NUM, formatConfNum(telVoice));
+                welcomeMessage = welcomeMessage.replaceAll(
+                        Pattern.quote(CONF_NUM),
+                        Matcher.quoteReplacement(formatConfNum(telVoice)));
             } else if (keyword.equals(CONF_NAME)) {
-                welcomeMessage = welcomeMessage.replaceAll(CONF_NAME, meetingName);
+                welcomeMessage = welcomeMessage.replaceAll(
+                        Pattern.quote(CONF_NAME),
+                        Matcher.quoteReplacement(meetingName));
             } else if (keyword.equals(SERVER_URL)) {
-                welcomeMessage = welcomeMessage.replaceAll(SERVER_URL, defaultServerUrl);
+                welcomeMessage = welcomeMessage.replaceAll(
+                        Pattern.quote(SERVER_URL),
+                        Matcher.quoteReplacement(defaultServerUrl));
             }
         }
         return  welcomeMessage;
@@ -485,6 +494,7 @@ public class ParamsProcessorUtil {
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
                 .withGuestPolicy(guestPolicy)
+                .withAuthenticatedGuest(authenticatedGuest)
 				.withBreakoutRoomsParams(breakoutParams)
 				.withLockSettingsParams(lockSettingsParams)
 				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
@@ -954,6 +964,10 @@ public class ParamsProcessorUtil {
 
 	public void setDefaultGuestPolicy(String guestPolicy) {
 		this.defaultGuestPolicy =  guestPolicy;
+	}
+
+	public void setAuthenticatedGuest(Boolean value) {
+		this.authenticatedGuest = value;
 	}
 
 	public void setClientLogoutTimerInMinutes(Integer value) {

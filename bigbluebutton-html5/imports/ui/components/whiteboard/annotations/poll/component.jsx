@@ -111,6 +111,7 @@ class PollDrawComponent extends Component {
         case 'false':
         case 'yes':
         case 'no':
+        case 'abstention':
         case 'a':
         case 'b':
         case 'c':

@@ -354,7 +354,6 @@ class AudioManager {
     this.failedMediaElements = [];
 
     if (this.inputStream) {
-      window.defaultInputStream.forEach(track => track.stop());
       this.inputStream.getTracks().forEach(track => track.stop());
       this.inputDevice = { id: 'default' };
     }
@@ -510,7 +509,7 @@ class AudioManager {
 
   get inputStream() {
     this._inputDevice.tracker.depend();
-    return this._inputDevice.value.stream;
+    return (this.bridge ? this.bridge.inputStream : null);
   }
 
   get inputDevice() {
@@ -634,6 +633,10 @@ class AudioManager {
     }
 
     return audioAlert.play();
+  }
+
+  async updateAudioConstraints(constraints) {
+    await this.bridge.updateAudioConstraints(constraints);
   }
 }
 

@@ -17,6 +17,7 @@ import { Tracker } from 'meteor/tracker';
 import VoiceCallStates from '/imports/api/voice-call-states';
 import CallStateOptions from '/imports/api/voice-call-states/utils/callStates';
 import Auth from '/imports/ui/services/auth';
+import Settings from '/imports/ui/services/settings';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
@@ -36,6 +37,8 @@ const BRIDGE_NAME = 'sip';
 const WEBSOCKET_KEEP_ALIVE_INTERVAL = MEDIA.websocketKeepAliveInterval || 0;
 const WEBSOCKET_KEEP_ALIVE_DEBOUNCE = MEDIA.websocketKeepAliveDebounce || 10;
 const TRACE_SIP = MEDIA.traceSip || false;
+const AUDIO_MICROPHONE_CONSTRAINTS = Meteor.settings.public.app.defaultSettings
+  .application.microphoneConstraints;
 
 const getAudioSessionNumber = () => {
   let currItem = parseInt(sessionStorage.getItem(AUDIO_SESSION_NUM_KEY), 10);
@@ -82,6 +85,13 @@ class SIPSession {
     this._hangupFlag = false;
     this._reconnecting = false;
     this._currentSessionState = null;
+  }
+
+  get inputStream() {
+    if (this.currentSession && this.currentSession.sessionDescriptionHandler) {
+      return this.currentSession.sessionDescriptionHandler.localMediaStream;
+    }
+    return null;
   }
 
   joinAudio({ isListenOnly, extension, inputDeviceId }, managerCallback) {
@@ -578,16 +588,24 @@ class SIPSession {
 
       const target = SIP.UserAgent.makeURI(`sip:${callExtension}@${hostname}`);
 
-      const audioDeviceConstraint = this.inputDeviceId
-        ? { deviceId: { exact: this.inputDeviceId } }
-        : true;
+      const userSettingsConstraints = Settings.application.microphoneConstraints;
+      const audioDeviceConstraints = userSettingsConstraints
+        || AUDIO_MICROPHONE_CONSTRAINTS || {};
+
+      const matchConstraints = this.filterSupportedConstraints(
+        audioDeviceConstraints,
+      );
+
+      if (this.inputDeviceId) {
+        matchConstraints.deviceId = { exact: this.inputDeviceId };
+      }
 
       const inviterOptions = {
         sessionDescriptionHandlerOptions: {
           constraints: {
             audio: isListenOnly
               ? false
-              : audioDeviceConstraint,
+              : matchConstraints,
             video: false,
           },
           iceGatheringTimeout: ICE_GATHERING_TIMEOUT,
@@ -932,6 +950,88 @@ class SIPSession {
       resolve();
     });
   }
+
+  /**
+   * Filter constraints set in audioDeviceConstraints, based on
+   * constants supported by browser. This avoids setting a constraint
+   * unsupported by browser. In currently safari version (13+), for example,
+   * setting an unsupported constraint crashes the audio.
+   * @param  {Object} audioDeviceConstraints Constraints to be set
+   * see: https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+   * @return {Object}                        A new Object of the same type as
+   * input, containing only the supported constraints.
+   */
+  filterSupportedConstraints(audioDeviceConstraints) {
+    try {
+      const matchConstraints = {};
+      const supportedConstraints = navigator
+        .mediaDevices.getSupportedConstraints() || {};
+      Object.entries(audioDeviceConstraints).forEach(
+        ([constraintName, constraintValue]) => {
+          if (supportedConstraints[constraintName]) {
+            matchConstraints[constraintName] = constraintValue;
+          }
+        }
+      );
+
+      return matchConstraints;
+    } catch (error) {
+      logger.error({
+        logCode: 'sipjs_unsupported_audio_constraint_error',
+        extraInfo: {
+          callerIdName: this.user.callerIdName,
+        },
+      }, 'SIP.js unsupported constraint error');
+      return {};
+    }
+  }
+
+  /**
+   * Update audio constraints for current local MediaStream (microphone)
+   * @param  {Object}  constraints MediaTrackConstraints object. See:
+   * https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+   * @return {Promise}             A Promise for this process
+   */
+  async updateAudioConstraints(constraints) {
+    try {
+      if (typeof constraints !== 'object') return;
+
+      logger.info({
+        logCode: 'sipjs_update_audio_constraint',
+        extraInfo: {
+          callerIdName: this.user.callerIdName,
+        },
+      }, 'SIP.js updating audio constraint');
+
+      const matchConstraints = this.filterSupportedConstraints(constraints);
+
+      //Chromium bug - see: https://bugs.chromium.org/p/chromium/issues/detail?id=796964&q=applyConstraints&can=2
+      if (browser().name === 'chrome') {
+        matchConstraints.deviceId = this.inputDeviceId;
+
+        const stream = await navigator.mediaDevices.getUserMedia(
+          { audio: matchConstraints },
+        );
+
+        this.currentSession.sessionDescriptionHandler
+          .setLocalMediaStream(stream);
+      } else {
+        const { localMediaStream } = this.currentSession
+          .sessionDescriptionHandler;
+
+        localMediaStream.getAudioTracks().forEach(
+          track => track.applyConstraints(matchConstraints),
+        );
+      }
+    } catch (error) {
+      logger.error({
+        logCode: 'sipjs_audio_constraint_error',
+        extraInfo: {
+          callerIdName: this.user.callerIdName,
+        },
+      }, 'SIP.js failed to update audio constraint');
+    }
+  }
 }
 
 export default class SIPBridge extends BaseAudioBridge {
@@ -969,6 +1069,10 @@ export default class SIPBridge extends BaseAudioBridge {
 
   get inputDeviceId() {
     return this.media.inputDevice ? this.media.inputDevice.inputDeviceId : null;
+  }
+
+  get inputStream() {
+    return this.activeSession ? this.activeSession.inputStream : null;
   }
 
   joinAudio({ isListenOnly, extension }, managerCallback) {
@@ -1081,5 +1185,9 @@ export default class SIPBridge extends BaseAudioBridge {
     }
 
     return this.media.outputDeviceId || value;
+  }
+
+  async updateAudioConstraints(constraints) {
+    return this.activeSession.updateAudioConstraints(constraints);
   }
 }
