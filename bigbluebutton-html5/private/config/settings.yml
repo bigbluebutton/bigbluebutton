@@ -7,10 +7,11 @@ public:
     listenOnlyMode: true
     forceListenOnly: false
     skipCheck: false
+    skipCheckOnJoin: false
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: 2.3-dev
-    copyright: '©2020 BigBlueButton Inc.'
+    copyright: '©2021 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     lockOnJoin: true
@@ -240,6 +241,7 @@ public:
     enableListenOnly: true
     autoShareWebcam: false
     skipVideoPreview: false
+    skipVideoPreviewOnFirstJoin: false
     # Entry `thresholds` is an array of:
     # - threshold: minimum number of cameras being shared for profile to applied
     #   profile: a camera profile id from the cameraProfiles configuration array
@@ -423,9 +425,13 @@ public:
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
+    label:
+      moderator: false
+      mobile: true
+      guest: true
   whiteboard:
     annotationsQueueProcessInterval: 60
-    cursorInterval: 40
+    cursorInterval: 150
     annotations:
       status:
         start: DRAW_START
