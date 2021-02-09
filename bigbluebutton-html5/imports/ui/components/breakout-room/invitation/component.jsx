@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/container';
+import BreakoutService from '../service';
 
 const BREAKOUT_MODAL_DELAY = 200;
 
@@ -60,7 +61,6 @@ class BreakoutRoomInvitation extends Component {
       currentBreakoutUser,
       getBreakoutByUser,
       breakoutUserIsIn,
-      amIModerator,
     } = this.props;
 
     const {
@@ -73,7 +73,7 @@ class BreakoutRoomInvitation extends Component {
       closeBreakoutJoinConfirmation(mountModal);
     }
 
-    if (hasBreakouts && !breakoutUserIsIn && !amIModerator) {
+    if (hasBreakouts && !breakoutUserIsIn && BreakoutService.checkInviteModerators()) {
       // Have to check for freeJoin breakouts first because currentBreakoutUser will
       // populate after a room has been joined
       const breakoutRoom = getBreakoutByUser(currentBreakoutUser);
