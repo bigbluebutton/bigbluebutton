@@ -22,7 +22,6 @@ const propTypes = {
   }).isRequired,
   id: PropTypes.string.isRequired,
   lastReadMessageTime: PropTypes.number,
-  handleReadMessage: PropTypes.func.isRequired,
 };
 
 const defaultProps = {

@@ -6,7 +6,6 @@ import Service from './service';
 import UserList from './component';
 
 const propTypes = {
-  activeChats: PropTypes.arrayOf(String).isRequired,
   isPublicChat: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,

@@ -26,7 +26,6 @@ const intlMessages = defineMessages({
 const Chat = (props) => {
   const {
     chatID,
-    chatName,
     title,
     messages,
     partnerIsLoggedOut,
@@ -100,7 +99,6 @@ const Chat = (props) => {
         id={ELEMENT_ID}
         chatId={chatID}
         handleScrollUpdate={actions.handleScrollUpdate}
-        handleReadMessage={actions.handleReadMessage}
         {...{
           partnerIsLoggedOut,
           lastReadMessageTime,
@@ -116,7 +114,7 @@ const Chat = (props) => {
       <MessageForm
         {...{
           UnsentMessagesCollection,
-          chatName,
+          title,
           minMessageLength,
           maxMessageLength,
         }}
@@ -137,7 +135,6 @@ export default withShortcutHelper(injectWbResizeEvent(injectIntl(memo(Chat))), [
 
 const propTypes = {
   chatID: PropTypes.string.isRequired,
-  chatName: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   messages: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.oneOfType([
     PropTypes.array,
