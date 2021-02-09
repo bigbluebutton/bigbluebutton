@@ -25,6 +25,7 @@ export default function createCaptions(meetingId) {
     const { status } = response;
     if (status !== 200) {
       Logger.error(`Could not get locales info for ${meetingId} ${status}`);
+      return;
     }
     const locales = response.data;
     locales.forEach((locale) => {

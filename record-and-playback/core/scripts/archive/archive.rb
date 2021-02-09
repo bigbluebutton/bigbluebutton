@@ -45,11 +45,11 @@ def archive_events(meeting_id, redis_host, redis_port, redis_password, raw_archi
   end
 end
 
-def archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
+def archive_notes(meeting_id, notes_endpoint, notes_formats, notes_apikey, raw_archive_dir)
   BigBlueButton.logger.info("Archiving notes for #{meeting_id}")
   notes_dir = "#{raw_archive_dir}/#{meeting_id}/notes"
   FileUtils.mkdir_p(notes_dir)
-  notes_id = BigBlueButton.get_notes_id(meeting_id)
+  notes_id = BigBlueButton.get_notes_id(meeting_id, notes_apikey)
 
   tmp_note = "#{notes_dir}/tmp_note.txt"
   BigBlueButton.try_download("#{notes_endpoint}/#{notes_id}/export/txt", tmp_note)
@@ -180,6 +180,7 @@ kurento_screenshare_dir = props['kurento_screenshare_src']
 log_dir = props['log_dir']
 notes_endpoint = props['notes_endpoint']
 notes_formats = props['notes_formats']
+notes_apikey = props['notes_apikey']
 
 # Determine the filenames for the done and fail files
 if !break_timestamp.nil?
@@ -198,7 +199,7 @@ archive_events(meeting_id, redis_host, redis_port, redis_password, raw_archive_d
 # FreeSWITCH Audio files
 archive_audio(meeting_id, audio_dir, raw_archive_dir)
 # Etherpad notes
-archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
+archive_notes(meeting_id, notes_endpoint, notes_formats, notes_apikey, raw_archive_dir)
 # Presentation files
 archive_directory("#{presentation_dir}/#{meeting_id}/#{meeting_id}", "#{target_dir}/presentation")
 # Red5 media
