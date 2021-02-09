@@ -18,6 +18,7 @@ import clearPresentationPods from '/imports/api/presentation-pods/server/modifie
 import clearVoiceUsers from '/imports/api/voice-users/server/modifiers/clearVoiceUsers';
 import clearUserInfo from '/imports/api/users-infos/server/modifiers/clearUserInfo';
 import clearConnectionStatus from '/imports/api/connection-status/server/modifiers/clearConnectionStatus';
+import clearScreenshare from '/imports/api/screenshare/server/modifiers/clearScreenshare';
 import clearNote from '/imports/api/note/server/modifiers/clearNote';
 import clearNetworkInformation from '/imports/api/network-information/server/modifiers/clearNetworkInformation';
 import clearMeetingTimeRemaining from '/imports/api/meetings/server/modifiers/clearMeetingTimeRemaining';
@@ -56,6 +57,7 @@ export default function meetingHasEnded(meetingId) {
     clearVideoStreams(meetingId);
     clearAuthTokenValidation(meetingId);
     clearWhiteboardMultiUser(meetingId);
+    clearScreenshare(meetingId);
     BannedUsers.delete(meetingId);
     Metrics.removeMeeting(meetingId);
 
