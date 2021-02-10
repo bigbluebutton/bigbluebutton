@@ -84,7 +84,6 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
   if (!stateMessages) {
     if (msg.chatId === getGroupChatId()) {
       state[msg.chatId] = {
-        closed: false,
         count: 0,
         chatIndexes: {},
         preJoinMessages: {},
@@ -94,7 +93,6 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
       };
     } else {
       state[msg.chatId] = {
-        closed: false,
         count: 0,
         lastSender: '',
         chatIndexes: {},
@@ -117,7 +115,6 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
   if (!groupMessage || (groupMessage && groupMessage.sender.id !== stateMessages.lastSender.id)) {
 
     const [tempGroupMessage, sender, newIndex] = msgBuilder({msg, senderData}, stateMessages);
-    stateMessages.closed = false;
     stateMessages.lastSender = sender;
     stateMessages.chatIndexes[keyName] = newIndex;
     stateMessages.lastTimewindow = keyName + '-' + newIndex;
@@ -183,7 +180,6 @@ const reducer = (state, action) => {
       ChatLogger.debug(ACTIONS.REMOVED);
       if (state[PUBLIC_GROUP_CHAT_KEY]){
         state[PUBLIC_GROUP_CHAT_KEY] = {
-          closed: false,
           count: 0,
           lastSender: '',
           chatIndexes: {},
@@ -275,7 +271,6 @@ const reducer = (state, action) => {
 
       if (!newState[chatId]){
         newState[chatId] = {
-          closed: false,
           count: 0,
           lastSender: '',
           chatIndexes: {},
