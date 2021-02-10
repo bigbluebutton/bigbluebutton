@@ -75,6 +75,8 @@ class MeetingActor(
   with MuteMeetingCmdMsgHdlr
   with IsMeetingMutedReqMsgHdlr
   with GetGlobalAudioPermissionReqMsgHdlr
+  with GetScreenBroadcastPermissionReqMsgHdlr
+  with GetScreenSubscribePermissionReqMsgHdlr
 
   with EjectUserFromVoiceCmdMsgHdlr
   with EndMeetingSysCmdMsgHdlr
@@ -481,6 +483,8 @@ class MeetingActor(
       case m: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
       case m: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
       case m: GetScreenshareStatusReqMsg                     => screenshareApp2x.handle(m, liveMeeting, msgBus)
+      case m: GetScreenBroadcastPermissionReqMsg             => handleGetScreenBroadcastPermissionReqMsg(m)
+      case m: GetScreenSubscribePermissionReqMsg             => handleGetScreenSubscribePermissionReqMsg(m)
 
       // GroupChat
       case m: CreateGroupChatReqMsg =>

@@ -317,6 +317,10 @@ class ReceivedJsonMsgHandlerActor(
         routeVoiceMsg[ScreenshareStartedVoiceConfEvtMsg](envelope, jsonNode)
       case ScreenshareStoppedVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[ScreenshareStoppedVoiceConfEvtMsg](envelope, jsonNode)
+      case GetScreenBroadcastPermissionReqMsg.NAME =>
+        routeGenericMsg[GetScreenBroadcastPermissionReqMsg](envelope, jsonNode)
+      case GetScreenSubscribePermissionReqMsg.NAME =>
+        routeGenericMsg[GetScreenSubscribePermissionReqMsg](envelope, jsonNode)
 
       // GroupChats
       case GetGroupChatsReqMsg.NAME =>

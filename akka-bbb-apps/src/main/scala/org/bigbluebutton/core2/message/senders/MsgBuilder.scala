@@ -344,4 +344,51 @@ object MsgBuilder {
     val event = RegisteredUserJoinTimeoutMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
+
+  def buildGetScreenSubscribePermissionRespMsg(
+      meetingId:    String,
+      voiceConf:    String,
+      userId:       String,
+      streamId:     String,
+      sfuSessionId: String,
+      allowed:      Boolean
+  ): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
+    val envelope = BbbCoreEnvelope(GetScreenSubscribePermissionRespMsg.NAME, routing)
+    val header = BbbClientMsgHeader(GetScreenSubscribePermissionRespMsg.NAME, meetingId, userId)
+    val body = GetScreenSubscribePermissionRespMsgBody(
+      meetingId,
+      voiceConf,
+      userId,
+      streamId,
+      sfuSessionId,
+      allowed
+    )
+    val event = GetScreenSubscribePermissionRespMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildGetScreenBroadcastPermissionRespMsg(
+      meetingId:    String,
+      voiceConf:    String,
+      userId:       String,
+      sfuSessionId: String,
+      allowed:      Boolean
+  ): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
+    val envelope = BbbCoreEnvelope(GetScreenBroadcastPermissionRespMsg.NAME, routing)
+    val header = BbbClientMsgHeader(GetScreenBroadcastPermissionRespMsg.NAME, meetingId, userId)
+
+    val body = GetScreenBroadcastPermissionRespMsgBody(
+      meetingId,
+      voiceConf,
+      userId,
+      sfuSessionId,
+      allowed
+    )
+    val event = GetScreenBroadcastPermissionRespMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
 }
