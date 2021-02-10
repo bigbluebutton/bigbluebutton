@@ -470,3 +470,31 @@ case class VoiceCallStateEvtMsgBody(
     callerName:    String,
     callState:     String
 )
+
+/* Sent by bbb-webrtc-sfu to ask permission for adding a listener to the global
+ * audio bridge
+ */
+object GetGlobalAudioPermissionReqMsg { val NAME = "GetGlobalAudioPermissionReqMsg" }
+case class GetGlobalAudioPermissionReqMsg(
+    header: BbbClientMsgHeader,
+    body:   GetGlobalAudioPermissionReqMsgBody
+) extends StandardMsg
+case class GetGlobalAudioPermissionReqMsgBody(
+    meetingId:    String,
+    voiceConf:    String,
+    userId:       String,
+    sfuSessionId: String
+)
+
+object GetGlobalAudioPermissionRespMsg { val NAME = "GetGlobalAudioPermissionRespMsg" }
+case class GetGlobalAudioPermissionRespMsg(
+    header: BbbClientMsgHeader,
+    body:   GetGlobalAudioPermissionRespMsgBody
+) extends StandardMsg
+case class GetGlobalAudioPermissionRespMsgBody(
+    meetingId:    String,
+    voiceConf:    String,
+    userId:       String,
+    sfuSessionId: String,
+    allowed:      Boolean
+)

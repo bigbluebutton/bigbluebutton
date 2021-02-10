@@ -74,6 +74,7 @@ class MeetingActor(
   with MuteAllExceptPresentersCmdMsgHdlr
   with MuteMeetingCmdMsgHdlr
   with IsMeetingMutedReqMsgHdlr
+  with GetGlobalAudioPermissionReqMsgHdlr
 
   with EjectUserFromVoiceCmdMsgHdlr
   with EndMeetingSysCmdMsgHdlr
@@ -405,6 +406,8 @@ class MeetingActor(
         handleCheckRunningAndRecordingVoiceConfEvtMsg(m)
       case m: UserStatusVoiceConfEvtMsg =>
         handleUserStatusVoiceConfEvtMsg(m)
+      case m: GetGlobalAudioPermissionReqMsg =>
+        handleGetGlobalAudioPermissionReqMsg(m)
 
       // Layout
       case m: GetCurrentLayoutReqMsg => handleGetCurrentLayoutReqMsg(m)

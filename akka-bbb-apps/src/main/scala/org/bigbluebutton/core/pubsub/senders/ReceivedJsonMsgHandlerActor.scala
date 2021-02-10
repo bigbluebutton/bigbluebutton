@@ -154,6 +154,8 @@ class ReceivedJsonMsgHandlerActor(
         routeVoiceMsg[UserStatusVoiceConfEvtMsg](envelope, jsonNode)
       case VoiceConfCallStateEvtMsg.NAME =>
         routeVoiceMsg[VoiceConfCallStateEvtMsg](envelope, jsonNode)
+      case GetGlobalAudioPermissionReqMsg.NAME =>
+        routeGenericMsg[GetGlobalAudioPermissionReqMsg](envelope, jsonNode)
 
       // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>
