@@ -6,6 +6,7 @@ import {
   getLocalesURL,
 } from '/imports/api/captions/server/helpers';
 import addCaption from '/imports/api/captions/server/modifiers/addCaption';
+import addCaptionsPads from '/imports/api/captions/server/methods/addCaptionsPads';
 import axios from 'axios';
 
 export default function createCaptions(meetingId) {
@@ -27,10 +28,13 @@ export default function createCaptions(meetingId) {
       Logger.error(`Could not get locales info for ${meetingId} ${status}`);
       return;
     }
+    const padIds = [];
     const locales = response.data;
     locales.forEach((locale) => {
       const padId = generatePadId(meetingId, locale.locale);
       addCaption(meetingId, padId, locale);
+      padIds.push(padId);
     });
+    addCaptionsPads(meetingId, padIds);
   }).catch(error => Logger.error(`Could not create captions for ${meetingId}: ${error}`));
 }

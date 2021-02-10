@@ -25,6 +25,8 @@ const getLang = () => {
 
 const getNoteParams = () => {
   let config = {};
+  const User = Users.findOne({ userId: Auth.userID }, { fields: { name: 1 } });
+  config.userName = User.name;
   config.lang = getLang();
   config.rtl = document.documentElement.getAttribute('dir') === 'rtl';
 
