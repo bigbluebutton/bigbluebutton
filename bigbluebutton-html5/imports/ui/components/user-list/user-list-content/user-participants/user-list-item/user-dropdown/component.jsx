@@ -631,6 +631,7 @@ class UserDropdown extends PureComponent {
         autoFocus={false}
         aria-haspopup="true"
         aria-live="assertive"
+        aria-label={userAriaLabel}
         aria-relevant="additions"
         placement={placement}
         getContent={dropdownContent => this.dropdownContent = dropdownContent}
