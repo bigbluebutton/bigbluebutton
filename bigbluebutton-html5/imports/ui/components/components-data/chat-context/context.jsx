@@ -11,6 +11,7 @@ import { _ } from 'lodash';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
+const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 
 export const ACTIONS = {
   TEST: 'test',
@@ -125,8 +126,8 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
     const messageGroupsKeys = Object.keys(tempGroupMessage);
     messageGroupsKeys.forEach(key => {
       messageGroups[key] = tempGroupMessage[key];
-
-      if (tempGroupMessage[key].sender.id !== Auth.userID) {
+      const message = tempGroupMessage[key];
+      if (message.sender.id !== Auth.userID && !message.id.startsWith(SYSTEM_CHAT_TYPE)) {
         stateMessages.unreadTimeWindows.add(key);
       }
     });
@@ -181,7 +182,16 @@ const reducer = (state, action) => {
     case ACTIONS.REMOVED: {
       ChatLogger.debug(ACTIONS.REMOVED);
       if (state[PUBLIC_GROUP_CHAT_KEY]){
-        delete state[PUBLIC_GROUP_CHAT_KEY];
+        state[PUBLIC_GROUP_CHAT_KEY] = {
+          closed: false,
+          count: 0,
+          lastSender: '',
+          chatIndexes: {},
+          preJoinMessages: {},
+          posJoinMessages: {},
+          unreadTimeWindows: new Set(),
+          unreadCount: 0,
+        };
       }
       return state;
     }

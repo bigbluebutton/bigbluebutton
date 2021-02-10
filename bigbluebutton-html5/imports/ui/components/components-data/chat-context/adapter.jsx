@@ -18,7 +18,6 @@ const Adapter = () => {
   }, [usingUsersContext]);
 
   useEffect(() => {
-    // TODO: hadle removed Messages
     // TODO: listen to websocket message to avoid full list comparsion
     const throttledDispatch = _.throttle(() => {
       const dispatchedMessageQueue = [...messageQueue];
@@ -39,6 +38,11 @@ const Adapter = () => {
           });
           throttledDispatch();
         }
+      }
+      if (msg.data.indexOf('{"msg":"removed","collection":"group-chat-msg"') != -1) {
+        dispatch({
+          type: ACTIONS.REMOVED,
+        });
       }
     });
   }, []);

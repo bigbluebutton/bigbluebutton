@@ -7,8 +7,10 @@ import UserAvatar from '/imports/ui/components/user-avatar/component';
 import cx from 'classnames';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import MessageChatItem from './message-chat-item/component';
-
 import { styles } from './styles';
+
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CLEAR_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_clear;
 
 const propTypes = {
   user: PropTypes.shape({
@@ -44,6 +46,10 @@ const intlMessages = defineMessages({
     id: 'app.chat.pollResult',
     description: 'used in place of user name who published poll to chat',
   },
+  [CHAT_CLEAR_MESSAGE]: {
+    id: 'app.chat.clearPublicChatMessage',
+    description: 'message of when clear the public chat',
+  }
 });
 
 class TimeWindowChatItem extends PureComponent {
@@ -62,7 +68,8 @@ class TimeWindowChatItem extends PureComponent {
       messages,
       chatAreaId,
       handleReadMessage,
-      messageKey
+      messageKey,
+      intl,
     } = this.props;
 
     return (
@@ -74,7 +81,7 @@ class TimeWindowChatItem extends PureComponent {
                 <MessageChatItem
                   className={(message.id ? styles.systemMessage : styles.systemMessageNoBorder)}
                   key={message.id ? message.id : _.uniqueId('id-')}
-                  text={message.text}
+                  text={intlMessages[message.text] ? intl.formatMessage(intlMessages[message.text]) : message.text }
                   time={message.time}
                   isSystemMessage={message.id ? true : false}
                   chatAreaId={chatAreaId}
@@ -109,7 +116,6 @@ class TimeWindowChatItem extends PureComponent {
     const regEx = /<a[^>]+>/i;
     ChatLogger.debug('TimeWindowChatItem::renderMessageItem', this.props);
     const defaultAvatarString = user?.name?.toLowerCase().slice(0, 2) || "  ";
-
     return (
       <div className={styles.item} key={`time-window-${messageKey}`}>
         <div className={styles.wrapper}>
@@ -228,9 +234,10 @@ class TimeWindowChatItem extends PureComponent {
   render() {
     const {
       user,
+      systemMessage,
     } = this.props;
     ChatLogger.debug('TimeWindowChatItem::render', {...this.props});
-    if (!user) {
+    if (systemMessage) {
       return this.renderSystemMessage();
     }
 

@@ -4,6 +4,9 @@ import TimeWindowChatItem from './component';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import ChatService from '../../service';
 
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
+
 const isDefaultPoll = (pollText) => {
   const pollValue = pollText.replace(/<br\/>|[ :|%\n\d+]/g, '');
   switch (pollValue) {
@@ -22,6 +25,7 @@ export default class TimeWindowChatItemContainer extends PureComponent {
     const user = this.props.message.sender;
     const messageKey = this.props.message.key;
     const time = this.props.message.time;
+
     return (
       <TimeWindowChatItem
         {
@@ -31,6 +35,7 @@ export default class TimeWindowChatItemContainer extends PureComponent {
           isDefaultPoll,
           user,
           time,
+          systemMessage: this.props.messageId.startsWith(SYSTEM_CHAT_TYPE) || !user,
           messageKey,
           handleReadMessage: ChatService.updateUnreadMessage,
           ...this.props,
