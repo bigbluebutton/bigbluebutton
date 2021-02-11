@@ -75,12 +75,12 @@ const reduceGroupMessages = (previous, current) => {
     time: current.timestamp,
     color: current.color,
   };
-  if (!lastMessage || !currentMessage.chatId === PUBLIC_GROUP_CHAT_ID) {
-    return previous.concat(currentMessage);
-  }
   // I do not like this
   if (current.upload) content['upload'] = current.upload;
   currentMessage.content = [content];
+  if (!lastMessage || !currentMessage.chatId === PUBLIC_GROUP_CHAT_ID) {
+    return previous.concat(currentMessage);
+  }
   // Check if the last message is from the same user and time discrepancy
   // between the two messages exceeds window and then group current
   // message with the last one
