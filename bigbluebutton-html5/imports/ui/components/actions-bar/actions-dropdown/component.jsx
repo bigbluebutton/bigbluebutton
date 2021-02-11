@@ -8,6 +8,7 @@ import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
+import MediaUploadContainer from '/imports/ui/components/upload/media/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
@@ -24,6 +25,7 @@ const propTypes = {
   shortcuts: PropTypes.string,
   handleTakePresenter: PropTypes.func.isRequired,
   allowExternalVideo: PropTypes.bool.isRequired,
+  isMediaUploadEnabled: PropTypes.bool.isRequired,
   stopExternalVideoShare: PropTypes.func.isRequired,
 };
 
@@ -43,6 +45,14 @@ const intlMessages = defineMessages({
   presentationDesc: {
     id: 'app.actionsBar.actionsDropdown.presentationDesc',
     description: 'adds context to upload presentation option',
+  },
+  uploadMediaLabel: {
+    id: 'app.actionsBar.actionsDropdown.uploadMediaLabel',
+    description: 'Upload media option label',
+  },
+  uploadMediaDesc: {
+    id: 'app.actionsBar.actionsDropdown.uploadMediaDesc',
+    description: 'adds context to upload media option',
   },
   desktopShareDesc: {
     id: 'app.actionsBar.actionsDropdown.desktopShareDesc',
@@ -93,12 +103,14 @@ class ActionsDropdown extends PureComponent {
     super(props);
 
     this.presentationItemId = _.uniqueId('action-item-');
+    this.uploadMediaId = _.uniqueId('action-item-');
     this.pollId = _.uniqueId('action-item-');
     this.takePresenterId = _.uniqueId('action-item-');
     this.selectUserRandId = _.uniqueId('action-item-');
 
     this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
     this.makePresentationItems = this.makePresentationItems.bind(this);
+    this.handleUploadMediaClick = this.handleUploadMediaClick.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -114,6 +126,7 @@ class ActionsDropdown extends PureComponent {
       intl,
       amIPresenter,
       allowExternalVideo,
+      isMediaUploadEnabled,
       handleTakePresenter,
       isSharingVideo,
       isPollingEnabled,
@@ -128,6 +141,8 @@ class ActionsDropdown extends PureComponent {
       presentationDesc,
       takePresenter,
       takePresenterDesc,
+      uploadMediaLabel,
+      uploadMediaDesc,
     } = intlMessages;
 
     const {
@@ -199,6 +214,17 @@ class ActionsDropdown extends PureComponent {
           />
         )
         : null),
+      (amIPresenter && isMediaUploadEnabled
+        ? (
+          <DropdownListItem
+            icon="upload"
+            label={formatMessage(uploadMediaLabel)}
+            description={formatMessage(uploadMediaDesc)}
+            key={this.uploadMediaId}
+            onClick={this.handleUploadMediaClick}
+          />
+        )
+        : null),
     ]);
   }
 
@@ -241,6 +267,11 @@ class ActionsDropdown extends PureComponent {
   handleExternalVideoClick() {
     const { mountModal } = this.props;
     mountModal(<ExternalVideoModal />);
+  }
+
+  handleUploadMediaClick() {
+    const { mountModal } = this.props;
+    mountModal(<MediaUploadContainer />);
   }
 
   render() {
