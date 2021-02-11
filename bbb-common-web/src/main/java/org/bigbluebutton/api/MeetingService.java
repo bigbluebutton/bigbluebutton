@@ -657,13 +657,6 @@ public class MeetingService implements MessageListener {
     handle(new EndMeeting(meetingId));
   }
 
-  private void processUploadRequest(UploadRequest message) {
-    Meeting m = getMeeting(message.meetingId);
-    if (m != null) {
-      m.addUploadRequest(message.source, message.filename, message.userId, message.token);
-    }
-  }
-  
   private void processCreateBreakoutRoom(CreateBreakoutRoom message) {
     Meeting parentMeeting = getMeeting(message.parentMeetingId);
     if (parentMeeting != null) {
@@ -773,6 +766,13 @@ public class MeetingService implements MessageListener {
 
   }
 
+  private void processUploadRequest(UploadRequest message) {
+    Meeting m = getMeeting(message.meetingId);
+    if (m != null) {
+      m.addUploadRequest(message.source, message.filename, message.userId, message.token);
+    }
+  }
+  
   private void processPresentationUploadToken(PresentationUploadToken message) {
     uploadAuthzTokens.put(message.authzToken, message);
   }
