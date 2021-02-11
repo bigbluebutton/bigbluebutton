@@ -13,6 +13,7 @@ import _ from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
@@ -349,7 +350,7 @@ const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectV
   const isSubjectUserGuest = subjectUser.guest;
 
   const hasAuthority = amIModerator || amISubjectUser;
-  const allowedToChatPrivately = !amISubjectUser && !isDialInUser;
+  const allowedToChatPrivately = !amISubjectUser && !isDialInUser && getFromUserSettings('bbb_enable_private_chat', true);
   const allowedToMuteAudio = hasAuthority
     && subjectVoiceUser.isVoiceUser
     && !subjectVoiceUser.isMuted

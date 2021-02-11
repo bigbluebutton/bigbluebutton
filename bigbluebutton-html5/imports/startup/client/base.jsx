@@ -26,7 +26,6 @@ import DebugWindow from '/imports/ui/components/debug-window/component'
 import {Meteor} from "meteor/meteor";
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
-const CHAT_ENABLED = CHAT_CONFIG.enabled;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 
 const BREAKOUT_END_NOTIFY_DELAY = 50;
@@ -83,16 +82,6 @@ class Base extends Component {
     if (animations) HTML.classList.add('animationsEnabled');
     if (!animations) HTML.classList.add('animationsDisabled');
 
-    if (getFromUserSettings('bbb_show_participants_on_login', true) && !deviceInfo.type().isPhone) {
-      Session.set('openPanel', 'userlist');
-      if (CHAT_ENABLED) {
-        Session.set('openPanel', 'chat');
-        Session.set('idChatOpen', PUBLIC_CHAT_ID);
-      }
-    } else {
-      Session.set('openPanel', '');
-    }
-
     fullscreenChangedEvents.forEach((event) => {
       document.addEventListener(event, Base.handleFullscreenChange);
     });
@@ -131,6 +120,7 @@ class Base extends Component {
 
     if (!prevProps.subscriptionsReady && subscriptionsReady) {
       logger.info({ logCode: 'startup_client_subscriptions_ready' }, 'Subscriptions are ready');
+      this.initPanels();
     }
 
     if (prevProps.meetingExist && !meetingExist && !meetingExisted) {
@@ -166,6 +156,19 @@ class Base extends Component {
     } else if (!animations && animations !== prevProps.animations) {
       if (enabled) HTML.classList.remove('animationsEnabled');
       HTML.classList.add('animationsDisabled');
+    }
+  }
+
+  // This must be called after meteor is sufficiently initialized that getFromUserSettings can actually return results
+  initPanels() {
+    if (getFromUserSettings('bbb_show_participants_on_login', true) && !deviceInfo.type().isPhone) {
+      Session.set('openPanel', 'userlist');
+      if (getFromUserSettings('bbb_enable_chat', CHAT_CONFIG.enabled) && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
+        Session.set('openPanel', 'chat');
+        Session.set('idChatOpen', PUBLIC_CHAT_ID);
+      }
+    } else {
+      Session.set('openPanel', '');
     }
   }
 
@@ -393,16 +396,7 @@ const BaseContainer = withTracker(() => {
     });
   }
 
-  if (getFromUserSettings('bbb_show_participants_on_login', true) && !deviceInfo.type().isPhone) {
-    if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
-      Session.setDefault('openPanel', 'chat');
-      Session.setDefault('idChatOpen', PUBLIC_CHAT_ID);
-    } else {
-      Session.setDefault('openPanel', 'userlist');
-    }
-  } else {
-    Session.setDefault('openPanel', '');
-  }
+  Session.setDefault('openPanel', '');
 
   const codeError = Session.get('codeError');
   const usersVideo = VideoService.getVideoStreams();

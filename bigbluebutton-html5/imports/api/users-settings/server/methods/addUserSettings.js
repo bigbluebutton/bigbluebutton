@@ -38,6 +38,9 @@ const currentParameters = [
   'bbb_listen_only_mode',
   'bbb_skip_check_audio',
   'bbb_skip_check_audio_on_first_join',
+  'bbb_enable_chat',
+  'bbb_enable_private_chat',
+  'bbb_enable_notes',
   // BRANDING
   'bbb_display_branding_area',
   // SHORTCUTS

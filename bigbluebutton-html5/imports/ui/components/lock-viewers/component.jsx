@@ -7,8 +7,7 @@ import Modal from '/imports/ui/components/modal/simple/component';
 import NoteService from '/imports/ui/components/note/service';
 import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
-
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const intlMessages = defineMessages({
   lockViewersTitle: {
@@ -249,7 +248,7 @@ class LockViewersComponent extends Component {
               </div>
             </div>
 
-            {CHAT_ENABLED ? (
+            {getFromUserSettings('bbb_enable_chat', Meteor.settings.public.chat.enabled) ? (
               <Fragment>
                 <div className={styles.row}>
                   <div className={styles.col} aria-hidden="true">
@@ -275,30 +274,33 @@ class LockViewersComponent extends Component {
                     </div>
                   </div>
                 </div>
-                <div className={styles.row}>
-                  <div className={styles.col} aria-hidden="true">
-                    <div className={styles.formElement}>
-                      <div className={styles.label}>
-                        {intl.formatMessage(intlMessages.privateChatLable)}
+                {getFromUserSettings('bbb_enable_private_chat', true) ? (
+                  <div className={styles.row}>
+                    <div className={styles.col} aria-hidden="true">
+                      <div className={styles.formElement}>
+                        <div className={styles.label}>
+                          {intl.formatMessage(intlMessages.privateChatLable)}
+                        </div>
+                      </div>
+                    </div>
+                    <div className={styles.col}>
+                      <div className={cx(styles.formElement, styles.pullContentRight)}>
+                        {this.displayLockStatus(lockSettingsProps.disablePrivateChat)}
+                        <Toggle
+                          icons={false}
+                          defaultChecked={lockSettingsProps.disablePrivateChat}
+                          onChange={() => {
+                            this.toggleLockSettings('disablePrivateChat');
+                          }}
+                          ariaLabel={intl.formatMessage(intlMessages.privateChatLable)}
+                          showToggleLabel={showToggleLabel}
+                          invertColors={invertColors}
+                        />
                       </div>
                     </div>
                   </div>
-                  <div className={styles.col}>
-                    <div className={cx(styles.formElement, styles.pullContentRight)}>
-                      {this.displayLockStatus(lockSettingsProps.disablePrivateChat)}
-                      <Toggle
-                        icons={false}
-                        defaultChecked={lockSettingsProps.disablePrivateChat}
-                        onChange={() => {
-                          this.toggleLockSettings('disablePrivateChat');
-                        }}
-                        ariaLabel={intl.formatMessage(intlMessages.privateChatLable)}
-                        showToggleLabel={showToggleLabel}
-                        invertColors={invertColors}
-                      />
-                    </div>
-                  </div>
-                </div>
+                ) : null
+                }
               </Fragment>
             ) : null
             }

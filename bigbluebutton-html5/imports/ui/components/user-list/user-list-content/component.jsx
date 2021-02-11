@@ -8,6 +8,7 @@ import UserCaptionsContainer from './user-captions/container';
 import WaitingUsers from './waiting-users/component';
 import UserPolls from './user-polls/component';
 import BreakoutRoomItem from './breakout-room/component';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const propTypes = {
   activeChats: PropTypes.arrayOf(String).isRequired,
@@ -27,7 +28,6 @@ const propTypes = {
 const defaultProps = {
   compact: false,
 };
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 class UserContent extends PureComponent {
@@ -53,7 +53,7 @@ class UserContent extends PureComponent {
         className={styles.content}
         role="complementary"
       >
-        {CHAT_ENABLED
+        {getFromUserSettings('bbb_enable_chat', Meteor.settings.public.chat.enabled)
           ? (<UserMessages
             {...{
               isPublicChat,

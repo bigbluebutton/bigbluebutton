@@ -4,8 +4,7 @@ import Toggle from '/imports/ui/components/switch/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import { styles } from '../styles';
-
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const intlMessages = defineMessages({
   notificationSectionTitle: {
@@ -72,7 +71,7 @@ class NotificationMenu extends BaseMenu {
             </div>
           </div>
 
-          {CHAT_ENABLED ? (
+          {getFromUserSettings('bbb_enable_chat', Meteor.settings.public.chat.enabled) ? (
             <div className={styles.row}>
               <div className={styles.col}>
                 <label className={styles.label}>

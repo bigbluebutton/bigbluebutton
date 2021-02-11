@@ -7,10 +7,9 @@ import Annotations from '/imports/api/annotations';
 import Users from '/imports/api/users';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
 import { Annotations as AnnotationsLocal } from '/imports/ui/components/whiteboard/service';
-
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
-const CHAT_ENABLED = CHAT_CONFIG.enabled;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
@@ -59,7 +58,7 @@ export default withTracker(() => {
 
   let subscriptionsHandlers = SUBSCRIPTIONS.map((name) => {
     if ((!TYPING_INDICATOR_ENABLED && name.indexOf('typing') !== -1)
-      || (!CHAT_ENABLED && name.indexOf('chat') !== -1)) return;
+      || (!getFromUserSettings('bbb_enable_chat', CHAT_CONFIG.enabled) && name.indexOf('chat') !== -1)) return;
 
     return Meteor.subscribe(name, subscriptionErrorHandler);
   });
@@ -72,7 +71,7 @@ export default withTracker(() => {
 
   let groupChatMessageHandler = {};
 
-  if (CHAT_ENABLED) {
+  if (getFromUserSettings('bbb_enable_chat', CHAT_CONFIG.enabled)) {
     const chats = GroupChat.find({
       $or: [
         {
