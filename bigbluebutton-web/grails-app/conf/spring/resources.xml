@@ -147,6 +147,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="userInactivityThresholdInMinutes" value="${userInactivityThresholdInMinutes}"/>
         <property name="userActivitySignResponseDelayInMinutes" value="${userActivitySignResponseDelayInMinutes}"/>
         <property name="maxPresentationFileUpload" value="${maxFileSizeUpload}"/>
+        <property name="maxUploadSize" value="${maxUploadSize}"/>
+        <property name="uploadDir" value="${uploadDir}"/>
         <property name="clientLogoutTimerInMinutes" value="${clientLogoutTimerInMinutes}"/>
         <property name="muteOnStart" value="${muteOnStart}"/>
         <property name="allowModsToUnmuteUsers" value="${allowModsToUnmuteUsers}"/>
