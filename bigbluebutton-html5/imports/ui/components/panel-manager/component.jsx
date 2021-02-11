@@ -18,6 +18,8 @@ import {
   CHAT_MIN_WIDTH,
   CHAT_MAX_WIDTH,
 } from '/imports/ui/components/layout/layout-manager';
+import getFromUserSettings from '/imports/ui/services/users-settings';
+import ChatService from '/imports/ui/components/chat/service';
 
 const intlMessages = defineMessages({
   chatLabel: {
@@ -96,6 +98,13 @@ class PanelManager extends Component {
     };
 
     this.setUserListWidth = this.setUserListWidth.bind(this);
+  }
+  
+  componentDidMount() {
+    if (Meteor.settings.public.allowOutsideCommands.clearPublicChat
+        || getFromUserSettings('bbb_outside_clear_public_chat', false)) {
+      window.addEventListener('message', ChatService.processClearPublicChatFromOutside);
+    }
   }
 
   componentDidUpdate(prevProps) {

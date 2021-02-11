@@ -12,7 +12,7 @@ public:
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: 2.3-dev
     copyright: '©2021 BigBlueButton Inc.'
-    html5ClientBuild: HTML5_CLIENT_VERSION
+    html5ClientBuild: 1353
     helpLink: https://bigbluebutton.org/html5/
     lockOnJoin: true
     cdn: ''
@@ -28,7 +28,7 @@ public:
     enableTalkingIndicator: true
     mirrorOwnWebcam: false
     viewersInWebcam: 8
-    ipv4FallbackDomain: ''
+    ipv4FallbackDomain: "app-helpful-sodium-ipv4.bbb-pdx-dev.ftclive.org"
     allowLogout: true
     allowFullscreen: true
     preloadNextSlides: 2
@@ -129,7 +129,7 @@ public:
     enableNetworkMonitoring: false
     packetLostThreshold: 10
   kurento:
-    wsUrl: HOST
+    wsUrl: wss://app-helpful-sodium.bbb-pdx-dev.ftclive.org/bbb-webrtc-sfu
     # Valid for video-provider. Time (ms) before its WS connection times out
     # and tries to reconnect.
     wsConnectionTimeout: 4000
@@ -249,7 +249,7 @@ public:
     #   profile: a camera profile id from the cameraProfiles configuration array
     #            that will be applied to all cameras when threshold is hit
     cameraQualityThresholds:
-      enabled: false
+      enabled: true
       thresholds:
         - threshold: 8
           profile: low-u8
@@ -265,7 +265,7 @@ public:
           profile: low-u30
     pagination:
       # whether to globally enable or disable pagination.
-      enabled: false
+      enabled: true
       # how long (in ms) the negotiation will be debounced after a page change.
       pageChangeDebounceTime: 2500
       # video page sizes for DESKTOP endpoints. It stands for the number of SUBSCRIBER streams.
@@ -282,6 +282,7 @@ public:
     enabled: false
     syncInterval: 60000
   allowOutsideCommands:
+    clearPublicChat: true
     toggleRecording: false
     toggleSelfVoice: false
   poll:
@@ -319,8 +320,8 @@ public:
     typingIndicator:
       enabled: true
   note:
-    enabled: false
-    url: ETHERPAD_HOST
+    enabled: true
+    url: https://app-helpful-sodium.bbb-pdx-dev.ftclive.org/pad
     config:
       showLineNumbers: false
       showChat: false
@@ -348,7 +349,7 @@ public:
     #so far. Increasing this value might help avoiding 1004 error when
     #user activates microphone.
     iceGatheringTimeout: 5000
-    sipjsHackViaWs: false
+    sipjsHackViaWs: true
     # Mute/umute toggle throttle time
     toggleMuteThrottleTime: 300
     #Websocket keepAlive interval (seconds). You may set this to prevent
@@ -535,7 +536,7 @@ private:
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
   etherpad:
-    apikey: ETHERPAD_APIKEY
+    apikey: yyrLS6M0rG73dzJ2rLmFY3zfYgRshyGwFP9os7rlsjyOUZVOwlBbZgykCZd7b
     version: 1.2.13
     host: 127.0.0.1
     port: 9001

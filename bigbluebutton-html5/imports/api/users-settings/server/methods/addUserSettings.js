@@ -66,6 +66,7 @@ const currentParameters = [
   'bbb_show_participants_on_login',
   'bbb_show_public_chat_on_login',
   // OUTSIDE COMMANDS
+  'bbb_outside_clear_public_chat',
   'bbb_outside_toggle_self_voice',
   'bbb_outside_toggle_recording',
 ];
