@@ -13,6 +13,7 @@ import AudioControls from './component';
 import AudioModalContainer from '../audio-modal/container';
 import { invalidateCookie } from '../audio-modal/service';
 import Service from '../service';
+import AppService from '/imports/ui/components/app/service';
 
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 const APP_CONFIG = Meteor.settings.public.app;
@@ -41,7 +42,9 @@ const processToggleMuteFromOutside = (e) => {
   }
 };
 
-const handleLeaveAudio = (meetingIsBreakout = false) => {
+const handleLeaveAudio = () => {
+  const meetingIsBreakout = AppService.meetingIsBreakout();
+
   if (!meetingIsBreakout) {
     invalidateCookie('joinedAudio');
   }

@@ -6,7 +6,6 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioModal from './component';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
-import deviceInfo from '/imports/utils/deviceInfo';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import AudioError from '/imports/ui/services/audio-manager/error-codes';
 import AppService from '/imports/ui/components/app/service';
@@ -51,7 +50,7 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
 
   const meetingIsBreakout = AppService.meetingIsBreakout();
   const { joinedAudio } = getcookieData();
-  
+
   const joinFullAudioImmediately = (autoJoin && (skipCheck || skipCheckOnJoin))
     || (skipCheck || skipCheckOnJoin && !getEchoTest);
 
@@ -89,7 +88,6 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
     isIOSChrome: browser().name === 'crios',
     isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
     isIEOrEdge: browser().name === 'edge' || browser().name === 'ie',
-    hasMediaDevices: deviceInfo.hasMediaDevices,
     autoplayBlocked: Service.autoplayBlocked(),
     handleAllowAutoplay: () => Service.handleAllowAutoplay(),
     isRTL,
