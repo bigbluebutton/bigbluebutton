@@ -46,6 +46,13 @@ class MessageList extends Component {
     this.cache = new CellMeasurerCache({
       fixedWidth: true,
       minHeight: 18,
+      keyMapper: (rowIndex, columnIndex) => {
+        const { messages } = this.props;
+        const message = messages[rowIndex];
+        const key = message.id;
+        const contentCount = message.content.length;
+        return `${key}-${contentCount}`;
+      },
     });
     
     this.userScrolledBack = false;
@@ -190,9 +197,15 @@ class MessageList extends Component {
     const message = messages[index];
 
     // it's to get an accurate size of the welcome message because it changes after initial render
-
-    if (message.sender === null && !this.systemMessagesResized[index]) {
-      setTimeout(() => this.resizeRow(index), 500);
+    if (message.id.startsWith('welcome-msg') && !this.systemMessagesResized[index]) {
+      [500, 1000, 2000, 3000, 4000, 5000].forEach((i)=>{
+        setTimeout(() => {
+          if (this.listRef) {
+            this.cache.clear(index);
+            this.listRef.recomputeRowHeights(index);
+          }
+        }, i);
+      });
       this.systemMessagesResized[index] = true;
     }
 
@@ -276,7 +289,7 @@ class MessageList extends Component {
           }
         }}
         className={styles.messageListWrapper}
-        key="chat-list"
+        key={_.uniqueId('chat-list-')}
         data-test="chatMessages"
         ref={node => this.messageListWrapper = node}
       >

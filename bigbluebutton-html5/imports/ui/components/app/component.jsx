@@ -25,6 +25,7 @@ import UploaderContainer from '/imports/ui/components/presentation/presentation-
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
 import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
 import { styles } from './styles';
+import { makeCall } from '/imports/ui/services/api';
 import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
@@ -149,6 +150,8 @@ class App extends Component {
 
       startBandwidthMonitoring();
     }
+
+    if (isMobileBrowser) makeCall('setMobileUser');
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
@@ -340,7 +343,7 @@ class App extends Component {
 
   render() {
     const {
-      customStyle, customStyleUrl, openPanel,
+      customStyle, customStyleUrl, openPanel, layoutContextState
     } = this.props;
     return (
       <main className={styles.main}>
@@ -359,7 +362,7 @@ class App extends Component {
         </section>
         <UploaderContainer />
         <BreakoutRoomInvitation />
-        <PollingContainer />
+        {!layoutContextState.presentationIsFullscreen && <PollingContainer />}
         <ModalContainer />
         <AudioContainer />
         <ToastContainer rtl />

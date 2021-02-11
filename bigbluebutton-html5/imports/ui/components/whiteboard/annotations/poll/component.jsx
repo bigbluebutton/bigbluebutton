@@ -203,7 +203,7 @@ class PollDrawComponent extends Component {
     const { annotation } = this.props;
     const { points, result } = annotation;
     const { slideWidth, slideHeight, intl } = this.props;
-    
+ 
     for (const r of result) {
       r.key = r.key.slice(0,10); //To make poll text visible.
     }
@@ -244,6 +244,30 @@ class PollDrawComponent extends Component {
     for (let i = 0; i < arrayLength; i += 1) {
       const _tempArray = [];
       const _result = result[i];
+
+      let isDefaultPoll;
+      switch (_result.key.toLowerCase()) {
+        case 'true':
+        case 'false':
+        case 'yes':
+        case 'no':
+        case 'abstention':
+        case 'a':
+        case 'b':
+        case 'c':
+        case 'd':
+        case 'e':
+          isDefaultPoll = true;
+          break;
+        default:
+          isDefaultPoll = false;
+          break;
+      }
+
+      if (isDefaultPoll) {
+        _result.key = intl.formatMessage({ id: `app.poll.answer.${_result.key.toLowerCase()}` });
+      }
+
       _tempArray.push(_result.key, `${_result.numVotes}`);
       if (votesTotal === 0) {
         _tempArray.push('0%');

@@ -11,12 +11,13 @@ import { notify } from '/imports/ui/services/notification';
 import { monitorVideoConnection } from '/imports/utils/stats';
 import browser from 'browser-detect';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import VideoPreviewService from '../video-preview/service';
+import Storage from '/imports/ui/services/storage/session';
 import logger from '/imports/startup/client/logger';
 import _ from 'lodash';
 
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
 const MULTIPLE_CAMERAS = Meteor.settings.public.app.enableMultipleCameras;
-const SKIP_VIDEO_PREVIEW = Meteor.settings.public.kurento.skipVideoPreview;
 
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -63,7 +64,6 @@ class VideoService {
       currentVideoPageIndex: 0,
       numberOfPages: 0,
     });
-    this.skipVideoPreview = null;
     this.userParameterProfile = null;
     const BROWSER_RESULTS = browser();
     this.isMobile = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
@@ -130,6 +130,7 @@ class VideoService {
   joinVideo(deviceId) {
     this.deviceId = deviceId;
     this.isConnecting = true;
+    Storage.setItem('isFirstJoin', false);
   }
 
   joinedVideo() {
@@ -577,14 +578,6 @@ class VideoService {
     return isLocal ? 'share' : 'viewer';
   }
 
-  getSkipVideoPreview(fromInterface = false) {
-    if (this.skipVideoPreview === null) {
-      this.skipVideoPreview = getFromUserSettings('bbb_skip_video_preview', false) || SKIP_VIDEO_PREVIEW;
-    }
-
-    return this.skipVideoPreview && !fromInterface;
-  }
-
   getUserParameterProfile() {
     if (this.userParameterProfile === null) {
       this.userParameterProfile = getFromUserSettings(
@@ -601,7 +594,7 @@ class VideoService {
     // Mobile shouldn't be able to share more than one camera at the same time
     // Safari needs to implement devicechange event for safe device control
     return MULTIPLE_CAMERAS
-      && !this.getSkipVideoPreview()
+      && !VideoPreviewService.getSkipVideoPreview()
       && !this.isMobile
       && !this.isSafari
       && this.numberOfDevices > 1;
@@ -768,7 +761,6 @@ export default {
   getRole: isLocal => videoService.getRole(isLocal),
   getRecord: () => videoService.getRecord(),
   getSharedDevices: () => videoService.getSharedDevices(),
-  getSkipVideoPreview: fromInterface => videoService.getSkipVideoPreview(fromInterface),
   getUserParameterProfile: () => videoService.getUserParameterProfile(),
   isMultipleCamerasEnabled: () => videoService.isMultipleCamerasEnabled(),
   monitor: conn => videoService.monitor(conn),

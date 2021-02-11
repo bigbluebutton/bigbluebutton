@@ -1,3 +1,6 @@
+import Storage from '/imports/ui/services/storage/session';
+import getFromUserSettings from '/imports/ui/services/users-settings';
+
 const promiseTimeout = (ms, promise) => {
   const timeout = new Promise((resolve, reject) => {
     const id = setTimeout(() => {
@@ -18,6 +21,24 @@ const promiseTimeout = (ms, promise) => {
   ]);
 };
 
+const getSkipVideoPreview = () => {
+  const KURENTO_CONFIG = Meteor.settings.public.kurento;
+
+  const skipVideoPreviewOnFirstJoin = getFromUserSettings(
+    'bbb_skip_video_preview_on_first_join',
+    KURENTO_CONFIG.skipVideoPreviewOnFirstJoin,
+  );
+  const skipVideoPreview = getFromUserSettings(
+    'bbb_skip_video_preview',
+    KURENTO_CONFIG.skipVideoPreview,
+  );
+
+  return (
+    (Storage.getItem('isFirstJoin') !== false && skipVideoPreviewOnFirstJoin)
+    || skipVideoPreview
+  );
+};
+
 export default {
   promiseTimeout,
   changeWebcam: (deviceId) => {
@@ -27,4 +48,5 @@ export default {
   changeProfile: (profileId) => {
     Session.set('WebcamProfileId', profileId);
   },
+  getSkipVideoPreview,
 };

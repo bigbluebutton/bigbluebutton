@@ -20,6 +20,7 @@ import FullscreenButtonContainer from '../fullscreen-button/container';
 import { withDraggableConsumer } from '../media/webcam-draggable-overlay/context';
 import Icon from '/imports/ui/components/icon/component';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
+import PollingContainer from '/imports/ui/components/polling/container';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -781,6 +782,7 @@ class PresentationArea extends PureComponent {
       showSlide,
       // fitToWidth,
       // presentationAreaWidth,
+      isFullscreen,
       localPosition,
     } = this.state;
 
@@ -819,6 +821,8 @@ class PresentationArea extends PureComponent {
         ref={(ref) => { this.refPresentationContainer = ref; }}
         className={styles.presentationContainer}
       >
+        {isFullscreen && <PollingContainer />}
+        
         <div
           ref={(ref) => { this.refPresentationArea = ref; }}
           className={styles.presentationArea}
