@@ -7,5 +7,5 @@ export default function handleChangeRole(payload, meetingId) {
 
   const { userId, role, changedBy } = payload.body;
 
-  return changeRole(role, userId, meetingId, changedBy);
+  changeRole(role, userId, meetingId, changedBy);
 }

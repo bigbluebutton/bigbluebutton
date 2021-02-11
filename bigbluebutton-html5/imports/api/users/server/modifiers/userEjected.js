@@ -20,18 +20,14 @@ export default function userEjected(meetingId, userId, ejectedReason) {
     },
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Ejecting user from collection: ${err}`);
-    }
+  try {
+    const numberAffected = Users.update(selector, modifier);
 
-    if (numChanged) {
+    if (numberAffected) {
       clearUserInfoForRequester(meetingId, userId);
-      return Logger.info(`Ejected user id=${userId} meeting=${meetingId} reason=${ejectedReason}`);
+      Logger.info(`Ejected user id=${userId} meeting=${meetingId} reason=${ejectedReason}`);
     }
-
-    return null;
-  };
-
-  return Users.update(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Ejecting user from collection: ${err}`);
+  }
 }

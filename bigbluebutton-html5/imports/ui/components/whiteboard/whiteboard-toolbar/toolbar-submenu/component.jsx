@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import { styles } from '../styles';
 import ToolbarSubmenuItem from '../toolbar-submenu-item/component';
@@ -198,6 +198,7 @@ class ToolbarSubmenu extends Component {
 
   handleMouseDown(e) {
     const { handleClose } = this.props;
+    if (e.path === undefined) return false;
     for (let i = 0; i < e.path.length; i += 1) {
       const p = e.path[i];
       if (p && p.className && typeof p.className === 'string') {
@@ -307,7 +308,7 @@ ToolbarSubmenu.propTypes = {
     }),
   ]).isRequired,
   customIcon: PropTypes.bool.isRequired,
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
 };
 
 export default injectIntl(ToolbarSubmenu);

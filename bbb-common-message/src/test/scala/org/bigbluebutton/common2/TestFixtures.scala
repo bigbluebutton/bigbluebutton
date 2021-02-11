@@ -12,8 +12,6 @@ trait TestFixtures {
   val voiceConfId = "85115"
   val durationInMinutes = 10
 
-  val maxInactivityTimeoutMinutes = 120
-  val warnMinutesBeforeMax = 30
   val meetingExpireIfNoUserJoinedInMinutes = 5
   val meetingExpireWhenLastUserLeftInMinutes = 10
   val userInactivityInspectTimerInMinutes = 60
@@ -37,13 +35,14 @@ trait TestFixtures {
   val allowModsToUnmuteUsers = false
   val keepEvents = false
   val guestPolicy = "ALWAYS_ASK"
+  val authenticatedGuest = false
   val metadata: collection.immutable.Map[String, String] = Map("foo" -> "bar", "bar" -> "baz", "baz" -> "foo")
 
   val meetingProp = MeetingProp(name = meetingName, extId = externalMeetingId, intId = meetingId,
     isBreakout = isBreakout.booleanValue())
   val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, freeJoin = false, breakoutRooms = Vector())
 
-  val durationProps = DurationProps(duration = durationInMinutes, createdTime = createTime, createdDate = createDate, maxInactivityTimeoutMinutes = maxInactivityTimeoutMinutes, warnMinutesBeforeMax = warnMinutesBeforeMax,
+  val durationProps = DurationProps(duration = durationInMinutes, createdTime = createTime, createdDate = createDate,
     meetingExpireIfNoUserJoinedInMinutes = meetingExpireIfNoUserJoinedInMinutes, meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes,
     userInactivityInspectTimerInMinutes = userInactivityInspectTimerInMinutes, userInactivityThresholdInMinutes = userInactivityInspectTimerInMinutes, userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes)
   val password = PasswordProp(moderatorPass = moderatorPassword, viewerPass = viewerPassword)
@@ -53,7 +52,7 @@ trait TestFixtures {
     modOnlyMessage = modOnlyMessage)
   val voiceProp = VoiceProp(telVoice = voiceConfId, voiceConf = voiceConfId, dialNumber = dialNumber, muteOnStart = muteOnStart)
   val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
-    guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers)
+    guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, authenticatedGuest = authenticatedGuest)
   val metadataProp = new MetadataProp(metadata)
   val screenshareProps = ScreenshareProps(screenshareConf = "FixMe!", red5ScreenshareIp = "fixMe!",
     red5ScreenshareApp = "fixMe!")

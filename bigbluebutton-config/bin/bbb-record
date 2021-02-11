@@ -37,6 +37,7 @@
 #   2017-04-28 FFD  Updated references to systemd processing units
 #   2019-05-13 GTR  Delete caption files
 #   2019-08-30 GTR  Count SVG slides fallaback
+#   2020-10-22 AGG  Remove traces of red5 apps
 
 
 #set -e
@@ -58,810 +59,773 @@ RAW_PRESENTATION_SRC=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.y
 TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g)
 
 mark_for_rebuild() {
-	MEETING_ID=$1
-	echo "Marking for rebuild $MEETING_ID"
-	if [[ ! -d $BASE/raw/$MEETING_ID ]]; then
-		echo "Raw files for $MEETING_ID do not exist, can't rebuild"
-		exit 1
-	fi
+   MEETING_ID=$1
+   echo "Marking for rebuild $MEETING_ID"
+   if [[ ! -d $BASE/raw/$MEETING_ID ]]; then
+      echo "Raw files for $MEETING_ID do not exist, can't rebuild"
+      exit 1
+   fi
 
-	# Clear out the relevant done files
-	rm -vf $STATUS/archived/$MEETING_ID.norecord
-	rm -vf $STATUS/sanity/$MEETING_ID*
-	rm -vf $STATUS/processed/$MEETING_ID*
-	rm -vf $STATUS/published/$MEETING_ID*
+  # Clear out the relevant done files
+  rm -vf $STATUS/archived/$MEETING_ID.norecord
+  rm -vf $STATUS/sanity/$MEETING_ID*
+  rm -vf $STATUS/processed/$MEETING_ID*
+  rm -vf $STATUS/published/$MEETING_ID*
 
-	# Remove the existing 'published' recording files
-	for type in $TYPES; do
-		rm -rf /var/bigbluebutton/published/$type/$MEETING_ID
-		rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID
-		rm -rf /var/bigbluebutton/deleted/$type/$MEETING_ID
-	done
+  # Remove the existing 'published' recording files
+  for type in $TYPES; do
+     rm -rf /var/bigbluebutton/published/$type/$MEETING_ID
+     rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID
+     rm -rf /var/bigbluebutton/deleted/$type/$MEETING_ID
+  done
 
-	# touch the file so rap-starter starts the process
-	touch $STATUS/recorded/$MEETING_ID.done
-	# In the future it could simply schedule a job on resque
-	# redis-cli rpush resque:queue:rap:sanity "{\"class\":\"BigBlueButton::Resque::SanityWorker\",\"args\":[{\"meeting_id\":\"$MEETING_ID\"}]}"
+  # touch the file so rap-starter starts the process
+  touch $STATUS/recorded/$MEETING_ID.done
+  # In the future it could simply schedule a job on resque
+  # redis-cli rpush resque:queue:rap:sanity "{\"class\":\"BigBlueButton::Resque::SanityWorker\",\"args\":[{\"meeting_id\":\"$MEETING_ID\"}]}"
 }
 
-mark_for_republish() { 
-	MEETING_ID=$1
-	echo "Marking for republish $MEETING_ID"
+mark_for_republish() {
+   MEETING_ID=$1
+   echo "Marking for republish $MEETING_ID"
 
-	for type in $TYPES; do
-		if [[ ! -d $BASE/process/$type/$MEETING_ID ]]; then
-			echo "Processed files for $MEETING_ID ($type) do not exist, can't republish"
-			echo "Try rebuilding the recording instead."
-			continue
-		fi
+   for type in $TYPES; do
+      if [[ ! -d $BASE/process/$type/$MEETING_ID ]]; then
+         echo "Processed files for $MEETING_ID ($type) do not exist, can't republish"
+         echo "Try rebuilding the recording instead."
+         continue
+      fi
 
-		# Clear out the publish done files
-		rm -vf $STATUS/published/$MEETING_ID*
+      # Clear out the publish done files
+      rm -vf $STATUS/published/$MEETING_ID*
 
-		# Remove the existing 'published' recording files
-		rm -rf /var/bigbluebutton/published/$type/$MEETING_ID
-		rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID
-		rm -rf /var/bigbluebutton/deleted/$type/$MEETING_ID
+      # Remove the existing 'published' recording files
+      rm -rf /var/bigbluebutton/published/$type/$MEETING_ID
+      rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID
+      rm -rf /var/bigbluebutton/deleted/$type/$MEETING_ID
 
-		# Restart processing at the 'publish' step
-		redis-cli rpush resque:queue:rap:publish "{\"class\":\"BigBlueButton::Resque::PublishWorker\",\"args\":[{\"meeting_id\":\"$MEETING_ID\",\"format_name\":\"$type\"}]}"
-	done
+      # Restart processing at the 'publish' step
+      redis-cli rpush resque:queue:rap:publish "{\"class\":\"BigBlueButton::Resque::PublishWorker\",\"args\":[{\"meeting_id\":\"$MEETING_ID\",\"format_name\":\"$type\"}]}"
+   done
 }
 
 need_root() {
-        if [ $EUID != 0 ]; then
-                echo "Need to be root to run this option"
-                exit 1
-        fi
+   if [ $EUID != 0 ]; then
+      echo "Need to be root to run this option"
+      exit 1
+   fi
+}
+
+need_root_or_bigbluebutton() {
+	if [ $EUID != 0 -a "$USER" != 'bigbluebutton' ]; then
+		echo "Need to be user root or bigbluebutton to run this option"
+      exit 1
+   fi
 }
 
 print_header() {
-        if [ ! $HEADER ]; then
-                echo
-                echo "** Potential problems described below **"
-                HEADER=1
-        fi
+   if [ ! $HEADER ]; then
+      echo
+      echo "** Potential problems described below **"
+      HEADER=1
+   fi
 }
 
 usage() {
-        echo "BigBlueButton Recording Diagnostic Utility (BigBlueButton Version $BIGBLUEBUTTON_RELEASE)"
-        echo
-        echo "   bbb-record [options]"
-        echo
-        echo "Reporting:"
-        echo "   --list                          	List all recordings"
-	echo
-        echo "Monitoring:"
-        echo "   --watch                          	Watch processing of recordings"
-	echo "   --watch --withDesc               	Watch processing of recordings and show their description"
-	echo
-        echo "Administration:"
-        echo "   --rebuild <internal meetingID>       rebuild the output for the given internal meetingID"
-        echo "   --rebuildall			        rebuild every recording"
-	echo "   --delete <internal meetingID>	delete one meeting and recording"
-        echo "   --deleteall                      	delete all meetings and recordings"
-        echo "   --debug                          	check for recording errors"
-        echo "   --check                          	check for configuration errors"
-        echo "   --enable <workflow>              	enable a recording workflow"
-        echo "   --disable <workflow>             	disable a recording workflow"
-        echo "   --tointernal <external meetingId>	get the internal meeting ids for the given external meetingId"
-        echo "   --toexternal <internal meetingId>	get the external meeting id for the given internal meetingId"
-        echo "   --republish <internal meetingID>	republish the recording for meetingID. (Only for Matterhorn Integration)"
-        #echo "   --rearchive [meetingId]		rearchive the recording (created before a restart)"
-	echo
+   echo "BigBlueButton Recording Diagnostic Utility (BigBlueButton Version $BIGBLUEBUTTON_RELEASE)"
+   echo
+   echo "   bbb-record [options]"
+   echo
+   echo "Reporting:"
+   echo "   --list                             List all recordings"
+   echo
+   echo "Monitoring:"
+   echo "   --watch                            Watch processing of recordings"
+   echo "   --watch --withDesc                 Watch processing of recordings and show their description"
+   echo
+   echo "Administration:"
+   echo "   --rebuild <internal meetingID>     rebuild the output for the given internal meetingID"
+   echo "   --rebuildall                       rebuild every recording"
+   echo "   --delete <internal meetingID>      delete one meeting and recording"
+   echo "   --deleteall                        delete all meetings and recordings"
+   echo "   --debug                            check for recording errors"
+   echo "   --check                            check for configuration errors"
+   echo "   --enable <workflow>                enable a recording workflow"
+   echo "   --disable <workflow>               disable a recording workflow"
+   echo "   --tointernal <external meetingId>  get the internal meeting ids for the given external meetingId"
+   echo "   --toexternal <internal meetingId>  get the external meeting id for the given internal meetingId"
+   echo "   --republish <internal meetingID>   republish the recording for meetingID. (Only for Matterhorn Integration)"
+   #echo "   --rearchive [meetingId]            rearchive the recording (created before a restart)"
+   echo
 }
 
 if [ $# -eq 0 ]; then
-        usage
-        exit 1
+   usage
+   exit 1
 fi
 
 # Parse the parameters
 while [ $# -gt 0 ]; do
-        if [ "$1" = "-watch" -o "$1" = "--watch" ]; then
-                WATCH=1
-                if [ "$2" = "--withDesc" ]; then
-                        WITHDESC=1
-                        shift
-                fi
-		shift
-                continue
-        fi
-        if [ "$1" = "-list" -o "$1" = "--list" ]; then
-                LIST=1
-		shift
-                continue
-        fi
-        if [ "$1" = "--list-recent" ]; then
-                LIST=1
-		HEAD=10
-                if [ "$2" ]; then
-                        WITHDESC=1
-                        shift
-                fi
-		shift
-                continue
-        fi
-        if [ "$1" = "-rebuild" -o "$1" = "--rebuild" ]; then
-		need_root
-		if [ ! -z "${2}" ]; then
-                	MEETING_ID="${2}"
-			shift
-		fi
-                REBUILD=1
-		shift
-                continue
-        fi
-        if [ "$1" = "-rebuildall" -o "$1" = "--rebuildall" ]; then
-		need_root
-		if [ ! -z "${2}" ]; then
-                	MEETING_ID="${2}"
-			shift
-		fi
-                REBUILDALL=1
-		shift
-                continue
-        fi
+   if [ "$1" = "-watch" -o "$1" = "--watch" ]; then
+      WATCH=1
+      if [ "$2" = "--withDesc" ]; then
+         WITHDESC=1
+         shift
+      fi
+      shift
+      continue
+   fi
+   if [ "$1" = "-list" -o "$1" = "--list" ]; then
+      LIST=1
+      shift
+      continue
+   fi
+   if [ "$1" = "--list-recent" ]; then
+      LIST=1
+      HEAD=10
+      if [ "$2" ]; then
+         WITHDESC=1
+         shift
+      fi
+      shift
+      continue
+   fi
+   if [ "$1" = "-rebuild" -o "$1" = "--rebuild" ]; then
+      need_root
+      if [ ! -z "${2}" ]; then
+         MEETING_ID="${2}"
+         shift
+      fi
+      REBUILD=1
+      shift
+      continue
+   fi
+   if [ "$1" = "-rebuildall" -o "$1" = "--rebuildall" ]; then
+      need_root
+      if [ ! -z "${2}" ]; then
+         MEETING_ID="${2}"
+         shift
+      fi
+      REBUILDALL=1
+      shift
+      continue
+   fi
 
-	if [ "$1" = "-republish" -o "$1" = "--republish" ]; then
-		need_root
-		if [ ! -z "${2}" ]; then
-                	MEETING_ID="${2}"
-			shift
-		fi
-                REPUBLISH=1
-		shift
-                continue
-        fi
-		
-	if [ "$1" = "-delete" -o "$1" = "--delete" ]; then
-                need_root
-                if [ ! -z "${2}" ]; then
-                        MEETING_ID="${2}"
-                        shift
-                fi
-                DELETE=1
-                shift
-                continue
-        fi
+   if [ "$1" = "-republish" -o "$1" = "--republish" ]; then
+      need_root
+      if [ ! -z "${2}" ]; then
+         MEETING_ID="${2}"
+         shift
+      fi
+      REPUBLISH=1
+      shift
+      continue
+   fi
 
-        if [ "$1" = "-deleteall" -o "$1" = "--deleteall" ]; then
-		need_root
-                DELETEALL=1
-		shift
-                continue
-        fi
-        if [ "$1" = "-check" -o "$1" = "--check" ]; then
-		need_root
-                CHECK=1
-		shift
-                continue
-        fi
+   if [ "$1" = "-delete" -o "$1" = "--delete" ]; then
+      need_root_or_bigbluebutton
+      if [ ! -z "${2}" ]; then
+         MEETING_ID="${2}"
+         shift
+      fi
+      DELETE=1
+      shift
+      continue
+   fi
 
-        if [ "$1" = "-debug" -o "$1" = "--debug" ]; then
-		need_root
-                DEBUG=1
-		shift
-                continue
-        fi
+   if [ "$1" = "-deleteall" -o "$1" = "--deleteall" ]; then
+      need_root
+      DELETEALL=1
+      shift
+      continue
+   fi
+   if [ "$1" = "-check" -o "$1" = "--check" ]; then
+      need_root
+      CHECK=1
+      shift
+      continue
+   fi
 
-        if [ "$1" = "-clean" -o "$1" = "--clean" ]; then
-		need_root
-                CLEAN=1
-		shift
-                continue
-        fi
+   if [ "$1" = "-debug" -o "$1" = "--debug" ]; then
+      need_root
+      DEBUG=1
+      shift
+      continue
+   fi
 
-        if [ "$1" = "-disable" -o "$1" = "--disable" ]; then
-		need_root
-                if [ ! -z "${2}" ]; then
-                        WORKFLOW="${2}"
-                        shift
-                fi
-                DISABLE=1
-		shift
-                continue
-        fi
+   if [ "$1" = "-clean" -o "$1" = "--clean" ]; then
+      need_root
+      CLEAN=1
+      shift
+      continue
+   fi
 
-        if [ "$1" = "-enable" -o "$1" = "--enable" ]; then
-		need_root
-                if [ ! -z "${2}" ]; then
-                        WORKFLOW="${2}"
-                        shift
-                fi
-                ENABLE=1
-		shift
-                continue
-        fi
+   if [ "$1" = "-disable" -o "$1" = "--disable" ]; then
+      need_root
+      if [ ! -z "${2}" ]; then
+         WORKFLOW="${2}"
+         shift
+      fi
+      DISABLE=1
+      shift
+      continue
+   fi
 
-        if [ "$1" = "-toexternal" -o "$1" = "--toexternal" ]; then
-		need_root
-                if [ ! -z "${2}" ]; then
-                        INTERNAL_MEETINGID="${2}"
-                        shift
-                fi
-                TOEXTERNAL=1
-		shift
-                continue
-        fi
+   if [ "$1" = "-enable" -o "$1" = "--enable" ]; then
+      need_root
+      if [ ! -z "${2}" ]; then
+         WORKFLOW="${2}"
+         shift
+      fi
+      ENABLE=1
+      shift
+      continue
+   fi
 
-        if [ "$1" = "-tointernal" -o "$1" = "--tointernal" ]; then
-		need_root
-                if [ ! -z "${2}" ]; then
-                        EXTERNAL_MEETINGID="${2}"
-                        shift
-                fi
-                TOINTERNAL=1
-		shift
-                continue
-        fi
+   if [ "$1" = "-toexternal" -o "$1" = "--toexternal" ]; then
+      need_root
+      if [ ! -z "${2}" ]; then
+         INTERNAL_MEETINGID="${2}"
+         shift
+      fi
+      TOEXTERNAL=1
+      shift
+      continue
+   fi
 
-#	if [ "$1" = "-rearchive" -o "$1" = "--rearchive" ]; then
-#                need_root
-#                if [ ! -z "${2}" ]; then
-#                        MEETING_ID="${2}"
-#                        shift
-#                fi
-#                REARCHIVE=1
-#                shift
-#                continue
-#        fi
+   if [ "$1" = "-tointernal" -o "$1" = "--tointernal" ]; then
+      need_root
+      if [ ! -z "${2}" ]; then
+         EXTERNAL_MEETINGID="${2}"
+         shift
+      fi
+      TOINTERNAL=1
+      shift
+      continue
+   fi
 
-	usage
-	exit 1
+   usage
+   exit 1
 done
 
 if [ $REBUILD ]; then
-    if [ -z "$MEETING_ID" ]; then
-	echo "Pass an internal meeting id as parameter."
-    else
-	mark_for_rebuild $MEETING_ID
-    fi
-fi 
+   if [ -z "$MEETING_ID" ]; then
+      echo "Pass an internal meeting id as parameter."
+   else
+      mark_for_rebuild $MEETING_ID
+   fi
+fi
 
 if [ $REBUILDALL ]; then
-	echo "Rebuilding all recordings"
-	for recording in $(dir $BASE/raw); do
-		[[ ! -e $STATUS/archived/$recording.norecord ]] && mark_for_rebuild $recording
-	done
-fi 
+   echo "Rebuilding all recordings"
+   for recording in $(dir $BASE/raw); do
+      [[ ! -e $STATUS/archived/$recording.norecord ]] && mark_for_rebuild $recording
+   done
+fi
 
 if [ $REPUBLISH ]; then
-    if [ -z "$MEETING_ID" ]; then
-	#
-	# Republish all meetings
-	#
-	for recording in $(dir $BASE/raw); do
-		echo "Marking for republish: $recording"
-		mark_for_republish $recording
-	done
-    else
-	echo "Marking for republish: $MEETING_ID"
-	mark_for_republish $MEETING_ID
-    fi
-fi 
+   if [ -z "$MEETING_ID" ]; then
+      #
+      # Republish all meetings
+      #
+      for recording in $(dir $BASE/raw); do
+         echo "Marking for republish: $recording"
+         mark_for_republish $recording
+      done
+   else
+      echo "Marking for republish: $MEETING_ID"
+      mark_for_republish $MEETING_ID
+   fi
+fi
 
 if [ $CLEAN ]; then
-	sudo /etc/init.d/bbb-record-core stop
-	for type in $TYPES; do
-		echo " clearning logs in /var/log/bigbluebutton/$type"
-		find /var/log/bigbluebutton/$type -name "*.log" -exec sudo rm '{}' \;
-	done
-	sudo /etc/init.d/bbb-record-core start
+   sudo /etc/init.d/bbb-record-core stop
+   for type in $TYPES; do
+      echo " clearning logs in /var/log/bigbluebutton/$type"
+      find /var/log/bigbluebutton/$type -name "*.log" -exec sudo rm '{}' \;
+   done
+   sudo /etc/init.d/bbb-record-core start
 fi
 
 if [ $DELETE ]; then
-  if [[ -z $MEETING_ID ]]; then
-    echo "No meeting id given"
-    exit 1
-  fi
+   if [[ -z $MEETING_ID ]]; then
+      echo "No meeting id given"
+      exit 1
+   fi
 
-  echo "deleting: $MEETING_ID"
-  # Remove the status files first to avoid issues with concurrent
-  # recording processing
-  rm -f /var/bigbluebutton/recording/status/ended/$MEETING_ID*
-  rm -f /var/bigbluebutton/recording/status/recorded/$MEETING_ID*
-  rm -f /var/bigbluebutton/recording/status/archived/$MEETING_ID*
-  rm -f /var/bigbluebutton/recording/status/sanity/$MEETING_ID*
-  rm -f /var/bigbluebutton/recording/status/processed/$MEETING_ID*
-  rm -f /var/bigbluebutton/recording/status/published/$MEETING_ID*
-  
-  # Remove all of the related files
-  for type in $TYPES; do
-    rm -rf /var/bigbluebutton/published/$type/$MEETING_ID*
-    rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID*
-	rm -rf /var/bigbluebutton/deleted/$type/$MEETING_ID*
+   echo "deleting: $MEETING_ID"
+   # Remove the status files first to avoid issues with concurrent
+   # recording processing
+   rm -f /var/bigbluebutton/recording/status/ended/$MEETING_ID*
+   rm -f /var/bigbluebutton/recording/status/recorded/$MEETING_ID*
+   rm -f /var/bigbluebutton/recording/status/archived/$MEETING_ID*
+   rm -f /var/bigbluebutton/recording/status/sanity/$MEETING_ID*
+   rm -f /var/bigbluebutton/recording/status/processed/$MEETING_ID*
+   rm -f /var/bigbluebutton/recording/status/published/$MEETING_ID*
 
-    rm -rf /var/bigbluebutton/recording/process/$type/$MEETING_ID*
-    rm -rf /var/bigbluebutton/recording/publish/$type/$MEETING_ID*
+   # Remove all of the related files
+   for type in $TYPES; do
+      rm -rf /var/bigbluebutton/published/$type/$MEETING_ID*
+      rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID*
+      rm -rf /var/bigbluebutton/deleted/$type/$MEETING_ID*
 
-    rm -rf /var/log/bigbluebutton/$type/*$MEETING_ID*
-  done
+      rm -rf /var/bigbluebutton/recording/process/$type/$MEETING_ID*
+      rm -rf /var/bigbluebutton/recording/publish/$type/$MEETING_ID*
 
-  rm -rf /var/bigbluebutton/captions/$MEETING_ID*
-  rm -f /var/bigbluebutton/inbox/$MEETING_ID*.json
-  rm -f /var/bigbluebutton/inbox/$MEETING_ID*.txt
+      rm -rf /var/log/bigbluebutton/$type/*$MEETING_ID*
+   done
 
-  rm -rf /var/bigbluebutton/recording/raw/$MEETING_ID*
+   rm -rf /var/bigbluebutton/captions/$MEETING_ID*
+   rm -f /var/bigbluebutton/inbox/$MEETING_ID*.json
+   rm -f /var/bigbluebutton/inbox/$MEETING_ID*.txt
 
-  rm -rf /usr/share/red5/webapps/video/streams/$MEETING_ID
-  rm -rf /usr/share/red5/webapps/video-broadcast/streams/$MEETING_ID
-  rm -f /var/bigbluebutton/screenshare/$MEETING_ID*.flv
-  rm -f /var/freeswitch/meetings/$MEETING_ID*.wav
-  rm -rf /var/bigbluebutton/$MEETING_ID
+   rm -rf /var/bigbluebutton/recording/raw/$MEETING_ID*
+
+   rm -f /var/bigbluebutton/screenshare/$MEETING_ID*.flv
+   rm -f /var/freeswitch/meetings/$MEETING_ID*.wav
+   rm -f /var/freeswitch/meetings/$MEETING_ID*.opus
+   rm -rf /var/bigbluebutton/$MEETING_ID
 fi
 
 if [ $DELETEALL ]; then
-  # Remove the status files first to avoid issues with concurrent
-  # recording processing
-  rm -f /var/bigbluebutton/recording/status/recorded/*
-  rm -f /var/bigbluebutton/recording/status/archived/*
-  rm -f /var/bigbluebutton/recording/status/sanity/*
-  rm -f /var/bigbluebutton/recording/status/processed/*
-  rm -f /var/bigbluebutton/recording/status/published/*
+   # Remove the status files first to avoid issues with concurrent
+   # recording processing
+   rm -f /var/bigbluebutton/recording/status/recorded/*
+   rm -f /var/bigbluebutton/recording/status/archived/*
+   rm -f /var/bigbluebutton/recording/status/sanity/*
+   rm -f /var/bigbluebutton/recording/status/processed/*
+   rm -f /var/bigbluebutton/recording/status/published/*
 
-  for type in $TYPES; do
-    rm -rf /var/bigbluebutton/published/$type/*
-    rm -rf /var/bigbluebutton/unpublished/$type/*
-    rm -rf /var/bigbluebutton/deleted/$type/*
+   for type in $TYPES; do
+      rm -rf /var/bigbluebutton/published/$type/*
+      rm -rf /var/bigbluebutton/unpublished/$type/*
+      rm -rf /var/bigbluebutton/deleted/$type/*
 
-    rm -rf /var/bigbluebutton/recording/process/$type/*
-    rm -rf /var/bigbluebutton/recording/publish/$type/*
+      rm -rf /var/bigbluebutton/recording/process/$type/*
+      rm -rf /var/bigbluebutton/recording/publish/$type/*
 
-    rm -rf /var/log/bigbluebutton/$type/*
-  done
+      rm -rf /var/log/bigbluebutton/$type/*
+   done
 
-  rm -rf /var/bigbluebutton/recording/raw/*
+   rm -rf /var/bigbluebutton/recording/raw/*
 
-  rm -f /var/bigbluebutton/captions/inbox/*
+   rm -f /var/bigbluebutton/captions/inbox/*
 
-  find /usr/share/red5/webapps/video/streams -name "*.flv" -exec rm '{}' \;
-  find /usr/share/red5/webapps/video-broadcast/streams -name "*.flv" -exec rm '{}' \;
-  rm -f /var/bigbluebutton/screenshare/*.flv
-  rm -f /var/freeswitch/meetings/*.wav
+   rm -f /var/bigbluebutton/screenshare/*.flv
+   rm -f /var/freeswitch/meetings/*.wav
+   rm -f /var/freeswitch/meetings/*.opus
 
-  for meeting in $(ls /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$"); do
-    echo "deleting: $meeting"
-    rm -rf /var/bigbluebutton/$meeting
-    rm -rf /var/bigbluebutton/captions/$meeting
-  done
+   for meeting in $(ls /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$"); do
+      echo "deleting: $meeting"
+      rm -rf /var/bigbluebutton/$meeting
+      rm -rf /var/bigbluebutton/captions/$meeting
+   done
 fi
 
 if [ $LIST ]; then
 
-# Does the meeting contain:
-#	A -- Audio
-#	P -- Presentation
-#	V -- Video
-#	D -- Desktop 
-#	
-# Does the archive contain
-#	A -- Audio
-#	P -- Presentation
-#	V -- Video
-#	D -- Desktop 
-#	E -- Events
-#	
-# Is there a done flag (trigger rap-worker.rb to process) for
-#	R -- Recording
-# 	A -- Archiving
-#
+   # Does the meeting contain:
+   #  A -- Audio
+   #  P -- Presentation
+   #  V -- Video
+   #  D -- Desktop
+   #
+   # Does the archive contain
+   #  A -- Audio
+   #  P -- Presentation
+   #  V -- Video
+   #  D -- Desktop
+   #  E -- Events
+   #
+   # Is there a done flag (trigger rap-worker.rb to process) for
+   #  R -- Recording
+   #  A -- Archiving
+   #
 
-if [ $WITHDESC ]; then
-	echo "Internal MeetingID                                               Time                APVD APVDE RAS Slides Processed            Published           External MeetingID  Description"
-	echo "------------------------------------------------------  ---------------------------- ---- ----- --- ------ -------------------- ------------------  ------------------- -----------"
-else
-	echo "Internal MeetingID                                               Time                APVD APVDE RAS Slides Processed            Published           External MeetingID"
-	echo "------------------------------------------------------  ---------------------------- ---- ----- --- ------ -------------------- ------------------  -------------------"
-fi 
+   if [ $WITHDESC ]; then
+      echo "Internal MeetingID                                               Time                APVD APVDE RAS Slides Processed            Published           External MeetingID  Description"
+      echo "------------------------------------------------------  ---------------------------- ---- ----- --- ------ -------------------- ------------------  ------------------- -----------"
+   else
+      echo "Internal MeetingID                                               Time                APVD APVDE RAS Slides Processed            Published           External MeetingID"
+      echo "------------------------------------------------------  ---------------------------- ---- ----- --- ------ -------------------- ------------------  -------------------"
+   fi
 
-if [ -z $HEAD ]; then
-	# If we're not called with --list-recent, show all recordings
-	HEAD=99999
-fi
+   if [ -z $HEAD ]; then
+      # If we're not called with --list-recent, show all recordings
+      HEAD=99999
+   fi
 
-tmp_file=$(mktemp)
-ls -t /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$" | head -n $HEAD > $tmp_file
-ls -t /var/bigbluebutton/recording/raw | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$" | head -n $HEAD >> $tmp_file
-                                                 
-#for meeting in $(ls -t /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$" | head -n $HEAD); do
-for meeting in $(cat $tmp_file | sort -t - -k 2 -r| uniq); do
-	echo -n "$meeting"
-	timestamp=$(echo $meeting | sed s/.*-//g)
-	epoc=$(($timestamp/1000))
-	echo -n "  "
-	echo -n $(date --date "Jan 1, 1970 00:00:00 +0000 + $epoc seconds") | awk '{ printf("%-28s",$0) }'
-	echo -n " "
-     
-	#
-	# Monitor the live recordings
-	#
- 
-	#
-	# Check if there is any recorded audio
-	if ls -A $RAW_AUDIO_SRC/$meeting-*.wav &> /dev/null; then
-		echo -n "X"
-	else
-		echo -n " "
-	fi
+   tmp_file=$(mktemp)
+   ls -t /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$" | head -n $HEAD > $tmp_file
+   ls -t /var/bigbluebutton/recording/raw | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$" | head -n $HEAD >> $tmp_file
 
-	#
-	# Check if there is any uploaded presentations 
-	if [ -d $RAW_PRESENTATION_SRC/$meeting/$meeting ]; then
-		if [ "$(ls -A $RAW_PRESENTATION_SRC/$meeting/$meeting)" ]; then 
-			echo -n "X"
-		else
-			echo -n " "
-		fi
-	else 
-		echo -n " "
-	fi
+   #for meeting in $(ls -t /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$" | head -n $HEAD); do
+   for meeting in $(cat $tmp_file | sort -t - -k 2 -r| uniq); do
+      echo -n "$meeting"
+      timestamp=$(echo $meeting | sed s/.*-//g)
+      epoc=$(($timestamp/1000))
+      echo -n "  "
+      echo -n $(date --date "Jan 1, 1970 00:00:00 +0000 + $epoc seconds") | awk '{ printf("%-28s",$0) }'
+      echo -n " "
 
+      #
+      # Monitor the live recordings
+      #
 
-	#
-	# Check if there is any recorded videos
-	if [ -d $RAW_VIDEO_SRC/$meeting ]; then
-		if [ "$(ls -A $RAW_VIDEO_SRC/$meeting)" ]; then 
-			echo -n "X"
-		else
-			echo -n " "
-		fi
-	else
-		echo -n " "
-	fi
+      #
+      # Check if there is any recorded audio
+      if ls -A $RAW_AUDIO_SRC/$meeting-*.wav &> /dev/null; then
+         echo -n "X"
+      else
+         echo -n " "
+      fi
 
-#echo "## $RAW_SCREENSHARE_SRC/$meeting-*.flv"
-#exit
-	#
-	# Check if there is any recorded desktop sharing
-	if ls -A $RAW_SCREENSHARE_SRC/$meeting/*.flv &> /dev/null; then
-		echo -n "X"
-	else
-		echo -n " "
-	fi
+      #
+      # Check if there is any uploaded presentations
+      if [ -d $RAW_PRESENTATION_SRC/$meeting/$meeting ]; then
+         if [ "$(ls -A $RAW_PRESENTATION_SRC/$meeting/$meeting)" ]; then
+            echo -n "X"
+         else
+            echo -n " "
+         fi
+      else
+         echo -n " "
+      fi
 
 
-	#
-	# Monitor the archived files
-	#
-	RAW_DIR=$RAW_PRESENTATION_SRC/recording/raw/$meeting
-	echo -n " "
+      #
+      # Check if there is any recorded videos
+      if [ -d $RAW_VIDEO_SRC/$meeting ]; then
+         if [ "$(ls -A $RAW_VIDEO_SRC/$meeting)" ]; then
+            echo -n "X"
+         else
+            echo -n " "
+         fi
+      else
+         echo -n " "
+      fi
 
-	# Check if there area uploaded presentations 
-	#echo "$RAW/audio"
-	DIRS="audio presentation video deskshare"
-	for dir in $DIRS; do
-		if [ -d $RAW_DIR/$dir ]; then
-			if [ "$(ls -A $RAW_DIR/$dir)" ]; then 
-				echo -n "X"
-			else
-				echo -n " "
-			fi
-		else 
-			echo -n " "
-		fi
-	done
-
-	if [ -f $RAW_DIR/events.xml ]; then
-		echo -n "X"
-	else
-		echo -n " "
-	fi
-
-	#
-	# Check the status files
-	#
-	echo -n " "
-	STATUS_DIR=$RAW_PRESENTATION_SRC/recording/status
-	DIRS="recorded archived sanity"
-	for dir in $DIRS; do
-		if [ -f $STATUS_DIR/$dir/$meeting.done ]; then
-			echo -n "X"
-		else 
-			echo -n " "
-		fi
-	done
-
-	#
-	# Number of slides
-	if [ -d /var/bigbluebutton/$meeting/$meeting ]; then
-		SLIDES_COUNT=$(find /var/bigbluebutton/$meeting/$meeting -name "*.swf" | wc -l)
-		if [ $SLIDES_COUNT -eq 0 ]; then
-			SLIDES_COUNT=$(find /var/bigbluebutton/$meeting/$meeting -name "*.svg" | wc -l)
-		fi
-		printf "%7s" $SLIDES_COUNT
-	else
-		SLIDES_COUNT=$(find /var/bigbluebutton/recording/raw/$meeting -name "*.swf" | wc -l)
-		if [ $SLIDES_COUNT -eq 0 ]; then
-			SLIDES_COUNT=$(find /var/bigbluebutton/recording/raw/$meeting -name "*.svg" | wc -l)
-		fi
-		printf "%7s" $SLIDES_COUNT
-	fi
+      #echo "## $RAW_SCREENSHARE_SRC/$meeting-*.flv"
+      #exit
+      #
+      # Check if there is any recorded desktop sharing
+      if ls -A $RAW_SCREENSHARE_SRC/$meeting/*.flv &> /dev/null; then
+         echo -n "X"
+      else
+         echo -n " "
+      fi
 
 
-	echo -n " "
-	#echo $BASE/raw/$meeting 
-	if [ -d $BASE/raw/$meeting ]; then
-		recording=$meeting
+      #
+      # Monitor the archived files
+      #
+      RAW_DIR=$RAW_PRESENTATION_SRC/recording/raw/$meeting
+      echo -n " "
 
-	#
-	# Check processed 
-	processed=""
-	for type in $TYPES; do
-		if [ -f $STATUS/processed/$recording-$type.done ]; then
-			if [ ! -z "$processed" ]; then
-				processed="$processed,"
-			fi
-			processed="$processed$type"
-		fi	
-	done
-        printf "%-21s" $processed
+      # Check if there area uploaded presentations
+      #echo "$RAW/audio"
+      DIRS="audio presentation video deskshare"
+      for dir in $DIRS; do
+         if [ -d $RAW_DIR/$dir ]; then
+            if [ "$(ls -A $RAW_DIR/$dir)" ]; then
+               echo -n "X"
+            else
+               echo -n " "
+            fi
+         else
+            echo -n " "
+         fi
+      done
 
-	#
-	# Check archived
-	published=""
-	for type in $TYPES; do
-		if [ -f /var/bigbluebutton/published/$type/$recording/metadata.xml ]; then
-			if [ ! -z "$published" ]; then
-				published="$published,"
-			fi
-			published="$published$type"
-		fi	
-	done
-        printf "%-17s" $published
+      if [ -f $RAW_DIR/events.xml ]; then
+         echo -n "X"
+      else
+         echo -n " "
+      fi
+
+      #
+      # Check the status files
+      #
+      echo -n " "
+      STATUS_DIR=$RAW_PRESENTATION_SRC/recording/status
+      DIRS="recorded archived sanity"
+      for dir in $DIRS; do
+         if [ -f $STATUS_DIR/$dir/$meeting.done ]; then
+            echo -n "X"
+         else
+            echo -n " "
+         fi
+      done
+
+      #
+      # Number of slides
+      if [ -d /var/bigbluebutton/$meeting/$meeting ]; then
+         SLIDES_COUNT=$(find /var/bigbluebutton/$meeting/$meeting -name "*.swf" | wc -l)
+         if [ $SLIDES_COUNT -eq 0 ]; then
+            SLIDES_COUNT=$(find /var/bigbluebutton/$meeting/$meeting -name "*.svg" | wc -l)
+         fi
+         printf "%7s" $SLIDES_COUNT
+      else
+         SLIDES_COUNT=$(find /var/bigbluebutton/recording/raw/$meeting -name "*.swf" | wc -l)
+         if [ $SLIDES_COUNT -eq 0 ]; then
+            SLIDES_COUNT=$(find /var/bigbluebutton/recording/raw/$meeting -name "*.svg" | wc -l)
+         fi
+         printf "%7s" $SLIDES_COUNT
+      fi
 
 
-	if [ -f /var/bigbluebutton/recording/raw/$recording/events.xml ]; then
-		echo -n "   "
-		echo -n $(head -n 5 /var/bigbluebutton/recording/raw/$recording/events.xml | grep meetingId | sed s/.*meetingId=\"//g | sed s/\".*//g) | sed -e 's/<[^>]*>//g' -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&amp;/\&/g' -e 's/ \{1,\}/ /g' | tr -d '\n'
-		if [ $WITHDESC ]; then
-			echo -n "         "
-			echo -n $(head -n 5 /var/bigbluebutton/recording/raw/$recording/events.xml | grep description | sed s/.*description=\"//g | sed s/\".*//g) | sed -e 's/<[^>]*>//g' -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&amp;/\&/g' -e 's/ \{1,\}/ /g' | tr -d '\n'
-		fi
-	fi
+      echo -n " "
+      #echo $BASE/raw/$meeting
+      if [ -d $BASE/raw/$meeting ]; then
+         recording=$meeting
 
-fi
-	echo
-done
-	if [ -f $tmp_file ]; then
-		rm $tmp_file
-	fi
-	echo
-	echo "--"
-	systemctl --all --no-pager list-timers bbb-record-core.timer
-	echo "--"
-	systemctl --no-pager status bbb-rap-starter.service bbb-rap-resque-worker.service
-	echo "--"
+         #
+         # Check processed
+         processed=""
+         for type in $TYPES; do
+            if [ -f $STATUS/processed/$recording-$type.done ]; then
+               if [ ! -z "$processed" ]; then
+                  processed="$processed,"
+               fi
+               processed="$processed$type"
+            fi
+         done
+         printf "%-21s" $processed
 
-	if tail -n 20 /var/log/bigbluebutton/bbb-web.log | grep -q "is recorded. Process it."; then
-		echo -n "Last meeting processed (bbb-web.log): "
-		tail -n 20 /var/log/bigbluebutton/bbb-web.log | grep "is recorded. Process it." | sed "s/.*\[//g" | sed "s/\].*//g"
-	fi
+         #
+         # Check archived
+         published=""
+         for type in $TYPES; do
+            if [ -f /var/bigbluebutton/published/$type/$recording/metadata.xml ]; then
+               if [ ! -z "$published" ]; then
+                  published="$published,"
+               fi
+               published="$published$type"
+            fi
+         done
+         printf "%-17s" $published
+
+
+         if [ -f /var/bigbluebutton/recording/raw/$recording/events.xml ]; then
+            echo -n "   "
+            echo -n $(head -n 5 /var/bigbluebutton/recording/raw/$recording/events.xml | grep meetingId | sed s/.*meetingId=\"//g | sed s/\".*//g) | sed -e 's/<[^>]*>//g' -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&amp;/\&/g' -e 's/ \{1,\}/ /g' | tr -d '\n'
+            if [ $WITHDESC ]; then
+               echo -n "         "
+               echo -n $(head -n 5 /var/bigbluebutton/recording/raw/$recording/events.xml | grep description | sed s/.*description=\"//g | sed s/\".*//g) | sed -e 's/<[^>]*>//g' -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&amp;/\&/g' -e 's/ \{1,\}/ /g' | tr -d '\n'
+            fi
+         fi
+
+      fi
+      echo
+   done
+   if [ -f $tmp_file ]; then
+      rm $tmp_file
+   fi
+   echo
+   echo "--"
+   systemctl --all --no-pager list-timers bbb-record-core.timer
+   echo "--"
+   systemctl --no-pager status bbb-rap-starter.service bbb-rap-resque-worker.service
+   echo "--"
+
+   if tail -n 20 /var/log/bigbluebutton/bbb-web.log | grep -q "is recorded. Process it."; then
+      echo -n "Last meeting processed (bbb-web.log): "
+      tail -n 20 /var/log/bigbluebutton/bbb-web.log | grep "is recorded. Process it." | sed "s/.*\[//g" | sed "s/\].*//g"
+   fi
 
 
 fi
 
 if [ $WATCH ]; then
-	watch -n 2 "bbb-record --list-recent $WITHDESC"
+   watch -n 2 "bbb-record --list-recent $WITHDESC"
 fi
 
 if [ $ENABLE ]; then
-	SCRIPTS_DIR=/usr/local/bigbluebutton/core/scripts
-	PROCESS_SCRIPT=$SCRIPTS_DIR/process/$WORKFLOW
-	PUBLISH_SCRIPT=$SCRIPTS_DIR/publish/$WORKFLOW
-	if [ -f $PROCESS_SCRIPT.rb.bk ]; then
-		echo "Enabling process script in workflow '$WORKFLOW'"
-		mv $PROCESS_SCRIPT.rb.bk $PROCESS_SCRIPT.rb
-		echo "Enabling publish script in workflow '$WORKFLOW'"
-		mv $PUBLISH_SCRIPT.rb.bk $PUBLISH_SCRIPT.rb
-	elif [ -f $PROCESS_SCRIPT.rb ]; then
-		echo "Workflow '$WORKFLOW' is already enabled."
-	else
-		echo "Workflow '$WORKFLOW' does not exist or is not installed"
-	fi
+   SCRIPTS_DIR=/usr/local/bigbluebutton/core/scripts
+   PROCESS_SCRIPT=$SCRIPTS_DIR/process/$WORKFLOW
+   PUBLISH_SCRIPT=$SCRIPTS_DIR/publish/$WORKFLOW
+   if [ -f $PROCESS_SCRIPT.rb.bk ]; then
+      echo "Enabling process script in workflow '$WORKFLOW'"
+      mv $PROCESS_SCRIPT.rb.bk $PROCESS_SCRIPT.rb
+      echo "Enabling publish script in workflow '$WORKFLOW'"
+      mv $PUBLISH_SCRIPT.rb.bk $PUBLISH_SCRIPT.rb
+   elif [ -f $PROCESS_SCRIPT.rb ]; then
+      echo "Workflow '$WORKFLOW' is already enabled."
+   else
+      echo "Workflow '$WORKFLOW' does not exist or is not installed"
+   fi
 fi
 
 if [ $DISABLE ]; then
-	SCRIPTS_DIR=/usr/local/bigbluebutton/core/scripts
-	PROCESS_SCRIPT=$SCRIPTS_DIR/process/$WORKFLOW
-	PUBLISH_SCRIPT=$SCRIPTS_DIR/publish/$WORKFLOW
-	if [ -f $PROCESS_SCRIPT.rb ]; then
-		echo "Disabling process script in workflow '$WORKFLOW'"
-		mv $PROCESS_SCRIPT.rb $PROCESS_SCRIPT.rb.bk
-		echo "Disabling publish script in workflow '$WORKFLOW'"
-		mv $PUBLISH_SCRIPT.rb $PUBLISH_SCRIPT.rb.bk
-	elif [ -f $PROCESS_SCRIPT.rb.bk ]; then
-		echo "Workflow '$WORKFLOW' is already disabled."
-	else
-		echo "Workflow '$WORKFLOW' does not exist or is not installed"
-	fi
+   SCRIPTS_DIR=/usr/local/bigbluebutton/core/scripts
+   PROCESS_SCRIPT=$SCRIPTS_DIR/process/$WORKFLOW
+   PUBLISH_SCRIPT=$SCRIPTS_DIR/publish/$WORKFLOW
+   if [ -f $PROCESS_SCRIPT.rb ]; then
+      echo "Disabling process script in workflow '$WORKFLOW'"
+      mv $PROCESS_SCRIPT.rb $PROCESS_SCRIPT.rb.bk
+      echo "Disabling publish script in workflow '$WORKFLOW'"
+      mv $PUBLISH_SCRIPT.rb $PUBLISH_SCRIPT.rb.bk
+   elif [ -f $PROCESS_SCRIPT.rb.bk ]; then
+      echo "Workflow '$WORKFLOW' is already disabled."
+   else
+      echo "Workflow '$WORKFLOW' does not exist or is not installed"
+   fi
 fi
 
 if [ $TOEXTERNAL ]; then
-	echo
-	echo "External meeting id related to the given internal meeting id:"
-	echo "-------------------------------------------------------------"
-	expr "$(grep meetingId /var/bigbluebutton/recording/raw/$INTERNAL_MEETINGID/events.xml 2> /dev/null)" : '.*meetingId="\(.*\)"' 
-	echo "-------------------------------------------------------------"
-	echo
+   echo
+   echo "External meeting id related to the given internal meeting id:"
+   echo "-------------------------------------------------------------"
+   expr "$(grep meetingId /var/bigbluebutton/recording/raw/$INTERNAL_MEETINGID/events.xml 2> /dev/null)" : '.*meetingId="\(.*\)"'
+   echo "-------------------------------------------------------------"
+   echo
 fi
 
 if [ $TOINTERNAL ]; then
-	echo
-	echo "Internal meeting ids related to the given external meeting id:"
-	echo "-------------------------------------------------------------"
-	grep  "meetingId=\"$EXTERNAL_MEETINGID\"" /var/bigbluebutton/recording/raw/*/events.xml  | cut -f6 -d'/'
-	echo "-------------------------------------------------------------"
-	echo
+   echo
+   echo "Internal meeting ids related to the given external meeting id:"
+   echo "-------------------------------------------------------------"
+   grep  "meetingId=\"$EXTERNAL_MEETINGID\"" /var/bigbluebutton/recording/raw/*/events.xml  | cut -f6 -d'/'
+   echo "-------------------------------------------------------------"
+   echo
 fi
 
 #if [ $REARCHIVE ]; then
-#        ARCHIVE_DONE_FILE=/var/bigbluebutton/recording/status/archived/$MEETING_ID.done
-#        SANITY_FAIL_FILE=/var/bigbluebutton/recording/status/sanity/$MEETING_ID.fail
-#        if [ -f $SANITY_FAIL_FILE ]; then
-#                max_days=$(expr "$(grep history= /etc/cron.daily/bigbluebutton)" : 'history=\(.*\)')
-#                # The recording has not been removed.
-#                still_exists=$(find /var/bigbluebutton/recording/status/recorded/*.done  -mtime -$max_days | grep $MEETING_ID)
-#                if [ -n "$still_exists" ]; then
-#                        if [ -f $ARCHIVE_DONE_FILE ]; then
-#                                echo "Removing archived .done file, sanity .fail fail,  and raw directory for meeting $MEETING_ID"
-#                                rm $ARCHIVE_DONE_FILE
-#                                rm -r /var/bigbluebutton/recording/raw/$MEETING_ID
-#                                rm $SANITY_FAIL_FILE
-#                        else
-#                                echo "$MEETING_ID is not archived."
-#                        fi
-#                fi
-#        else
-#               echo "The meeting you want to re archive has not failed in sanity check."
-#        fi
+#   ARCHIVE_DONE_FILE=/var/bigbluebutton/recording/status/archived/$MEETING_ID.done
+#   SANITY_FAIL_FILE=/var/bigbluebutton/recording/status/sanity/$MEETING_ID.fail
+#   if [ -f $SANITY_FAIL_FILE ]; then
+#      max_days=$(expr "$(grep history= /etc/cron.daily/bigbluebutton)" : 'history=\(.*\)')
+#      # The recording has not been removed.
+#      still_exists=$(find /var/bigbluebutton/recording/status/recorded/*.done  -mtime -$max_days | grep $MEETING_ID)
+#      if [ -n "$still_exists" ]; then
+#         if [ -f $ARCHIVE_DONE_FILE ]; then
+#            echo "Removing archived .done file, sanity .fail fail,  and raw directory for meeting $MEETING_ID"
+#            rm $ARCHIVE_DONE_FILE
+#            rm -r /var/bigbluebutton/recording/raw/$MEETING_ID
+#            rm $SANITY_FAIL_FILE
+#         else
+#            echo "$MEETING_ID is not archived."
+#         fi
+#      fi
+#   else
+#      echo "The meeting you want to re archive has not failed in sanity check."
+#   fi
 #fi
 
 if [ $CHECK ]; then
-	if [ -f /var/bigbluebutton/recording/process/slides ]; then 
-	    if [ ! -w  /var/bigbluebutton/recording/process/slides ]; then
-		print_header
-		echo "# Error: The output director for slides"
-		echo "#"
-		echo "# /var/bigbluebutton/recording/process/slides"
-		echo "#"
-		echo "# is not writeable."
-		echo
-	    fi
-	fi
 
-	#
-	# Check that the playback of slides have the proper URL
-	#
-	#set -x
-        for type in $TYPES; do
-		for recording in $(find $BASE/publish/$type -name metadata.xml); do
-			url_playback_http=$(cat $recording | grep "<link>" | sed 's/[ ]*<link>http:\/\/\([^\"\/]*\)[^>]*>/\1/g')
-			url_playback_https=$(cat $recording | grep "<link>" | sed 's/[ ]*<link>https:\/\/\([^\"\/]*\)[^>]*>/\1/g')
-			if [ "$BBB_WEB" != "$url_playback_http" ] && [ "$BBB_WEB" != "$url_playback_https" ]; then
-                                echo
-                                echo "# The hostname in <link> .. </link> ($url_playback_http)"
-                                echo "#     $recording"
-                                echo "# do not match the hostname for bigbluebutton.web.serverURL ($BBB_WEB)"
-                                echo "#     /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
-                                echo
-			fi
-		done
-		for recording in $(find /var/bigbluebutton/published/$type -name metadata.xml); do
-			url_playback_http=$(cat $recording | grep "<link>" | sed 's/[ ]*<link>http:\/\/\([^\"\/]*\)[^>]*>/\1/g')
-			url_playback_https=$(cat $recording | grep "<link>" | sed 's/[ ]*<link>https:\/\/\([^\"\/]*\)[^>]*>/\1/g')
-			if [ "$BBB_WEB" != "$url_playback_http" ] && [ "$BBB_WEB" != "$url_playback_https" ]; then
-                                echo
-                                echo "# The hostname in <link> .. </link> ($url_playback_http)"
-                                echo "#     $recording"
-                                echo "# do not match the hostname for bigbluebutton.web.serverURL ($BBB_WEB)"
-                                echo "#     /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
-                                echo
-			fi
-		done
-	done
+   if [ -f /var/bigbluebutton/recording/process/slides ]; then
+      if [ ! -w  /var/bigbluebutton/recording/process/slides ]; then
+         print_header
+         echo "# Error: The output director for slides"
+         echo "#"
+         echo "# /var/bigbluebutton/recording/process/slides"
+         echo "#"
+         echo "# is not writeable."
+         echo
+      fi
+   fi
 
 fi
 
 if [ $DEBUG ]; then
 
-	LOG_DIR=/var/log/bigbluebutton
+   LOG_DIR=/var/log/bigbluebutton
 
-	if [ -f /var/log/bigbluebutton/bbb-rap-worker.log ]; then
-		grep -i error /var/log/bigbluebutton/bbb-rap-worker.*
-	fi
+   if [ -f /var/log/bigbluebutton/bbb-rap-worker.log ]; then
+      grep -i error /var/log/bigbluebutton/bbb-rap-worker.*
+   fi
 
-	#
-	#Failures while archiving files
-	#
-        if [ -f $LOG_DIR/archive.log ]; then
-	  grep "Failed to" "$LOG_DIR/archive.log" > /tmp/t
-     	  if [ -s /tmp/t ]; then
-                  echo "  -- ERRORS found while archiving files -- "
-                  cat /tmp/t
-                  echo
-		  grep "on ASCII" /tmp/t > /tmp/u
-                  if [ -s /tmp/u ]; then
-                          echo "  -- events.xml was not created. There is a problem with the character encoding "
-                          echo
-                  fi 
-          fi
-	fi 
+   #
+   #Failures while archiving files
+   #
+   if [ -f $LOG_DIR/archive.log ]; then
+      grep "Failed to" "$LOG_DIR/archive.log" > /tmp/t
+      if [ -s /tmp/t ]; then
+         echo "  -- ERRORS found while archiving files -- "
+         cat /tmp/t
+         echo
+         grep "on ASCII" /tmp/t > /tmp/u
+         if [ -s /tmp/u ]; then
+            echo "  -- events.xml was not created. There is a problem with the character encoding "
+            echo
+         fi
+      fi
+   fi
 
-	#
-	# We're going to look through the output files for each of the processed types
-	#
-	STAGES="process publish"
-        for type in $TYPES; do
-                for stage in $STAGES; do
-                        LOC=$LOG_DIR/$type/$stage
-                        if ls -A $LOC-* &> /dev/null; then
-                                rm -rf /tmp/t
-                                grep -B 3 "ERROR -- : Error:" $LOC-* | egrep -w 'Error:' | grep -v "ffmpeg version" > /tmp/t
-                                if [ -s /tmp/t ]; then
-                                        echo "  -- ERRORS found while processing slides $LOC-* -- "
-                                        cat /tmp/t
-                                        echo
-                                fi
-                        fi
-                done
-        done
-
-
-	#
-	# Additional checks for record and playback
-	#
-	rm -rf /tmp/t
-	if ls /var/log/bigbluebutton/slides-process-* > /dev/null 2>&1; then
-		  sudo grep -i Error /var/log/bigbluebutton/slides-process-* > /tmp/t 
-		  if [ -s /tmp/t ]; then
-			echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/slides-process-*.log -- "
-			cat /tmp/t
-			echo
-		  fi
-	fi
-
-	rm -rf /tmp/t
-	if ls /var/log/bigbluebutton/slides-publish-* > /dev/null 2>&1; then
-		  sudo grep -i Error /var/log/bigbluebutton/slides-publish-* > /tmp/t 
-		  if [ -s /tmp/t ]; then
-			echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/slides-publish-*.log -- "
-			cat /tmp/t
-			echo
-		  fi
-	fi
-
-	rm -rf /tmp/t
-	if ls /var/log/bigbluebutton/slides-process-* > /dev/null 2>&1; then
-		for file in /var/log/bigbluebutton/slides-process-*; do 
-		  if [ ! -f $(echo $file | sed 's/process/publish/g') ]; then 
-			echo "  $file" >> /tmp/t
-                  fi 
-                done
-
-		  if [ -s /tmp/t ]; then
-			echo "   -- Ingest and Processing: found process file but not publish -- "
-			cat /tmp/t
-			echo
-		  fi
-	fi
+   #
+   # We're going to look through the output files for each of the processed types
+   #
+   STAGES="process publish"
+   for type in $TYPES; do
+      for stage in $STAGES; do
+         LOC=$LOG_DIR/$type/$stage
+         if ls -A $LOC-* &> /dev/null; then
+            rm -rf /tmp/t
+            grep -B 3 "ERROR -- : Error:" $LOC-* | egrep -w 'Error:' | grep -v "ffmpeg version" > /tmp/t
+            if [ -s /tmp/t ]; then
+               echo "  -- ERRORS found while processing slides $LOC-* -- "
+               cat /tmp/t
+               echo
+            fi
+         fi
+      done
+   done
 
 
-	rm -rf /tmp/t
-	if ls /var/bigbluebutton/recording/status/recorded/*.done > /dev/null 2>&1; then
-		for file in /var/bigbluebutton/recording/status/recorded/*.done; do 
-		  if [ ! -f $(echo $file | sed 's/recorded/archived/g') ]; then 
-			echo "  $file" >> /tmp/t
-                  fi 
-                done
+   #
+   # Additional checks for record and playback
+   #
+   rm -rf /tmp/t
+   if ls /var/log/bigbluebutton/slides-process-* > /dev/null 2>&1; then
+      sudo grep -i Error /var/log/bigbluebutton/slides-process-* > /tmp/t
+      if [ -s /tmp/t ]; then
+         echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/slides-process-*.log -- "
+         cat /tmp/t
+         echo
+      fi
+   fi
 
-		  if [ -s /tmp/t ]; then
-			echo "   -- Ingest and Processing: found recorded meeting but no archive files-- "
-			cat /tmp/t
-			echo
-		  fi
-	fi
-	
-	
-	exit 0
+   rm -rf /tmp/t
+   if ls /var/log/bigbluebutton/slides-publish-* > /dev/null 2>&1; then
+      sudo grep -i Error /var/log/bigbluebutton/slides-publish-* > /tmp/t
+      if [ -s /tmp/t ]; then
+         echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/slides-publish-*.log -- "
+         cat /tmp/t
+         echo
+      fi
+   fi
+
+   rm -rf /tmp/t
+   if ls /var/log/bigbluebutton/slides-process-* > /dev/null 2>&1; then
+      for file in /var/log/bigbluebutton/slides-process-*; do
+         if [ ! -f $(echo $file | sed 's/process/publish/g') ]; then
+            echo "  $file" >> /tmp/t
+         fi
+      done
+
+      if [ -s /tmp/t ]; then
+         echo "   -- Ingest and Processing: found process file but not publish -- "
+         cat /tmp/t
+         echo
+      fi
+   fi
+
+
+   rm -rf /tmp/t
+   if ls /var/bigbluebutton/recording/status/recorded/*.done > /dev/null 2>&1; then
+      for file in /var/bigbluebutton/recording/status/recorded/*.done; do
+         if [ ! -f $(echo $file | sed 's/recorded/archived/g') ]; then
+            echo "  $file" >> /tmp/t
+         fi
+      done
+
+      if [ -s /tmp/t ]; then
+         echo "   -- Ingest and Processing: found recorded meeting but no archive files-- "
+         cat /tmp/t
+         echo
+      fi
+   fi
+
+   exit 0
 fi

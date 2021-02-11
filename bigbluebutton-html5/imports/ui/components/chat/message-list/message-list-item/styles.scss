@@ -1,4 +1,4 @@
-@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 :root {
   --systemMessage-background-color: #F9FBFC;
@@ -10,6 +10,7 @@
 .item {
   padding: calc(var(--line-height-computed) / 4) 0 calc(var(--line-height-computed) / 2) 0;
   font-size: var(--font-size-base);
+  pointer-events: auto;
 }
 
 .wrapper {

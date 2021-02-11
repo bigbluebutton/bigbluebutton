@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import VideoService from './service';
-import VideoList from './video-list/component';
 import { defineMessages, injectIntl } from 'react-intl';
+import _ from 'lodash';
+import VideoService from './service';
+import VideoListContainer from './video-list/container';
 import {
   fetchWebRTCMappedStunTurnServers,
   getMappedFallbackStun,
@@ -81,6 +82,8 @@ const propTypes = {
   intl: PropTypes.objectOf(Object).isRequired,
   isUserLocked: PropTypes.bool.isRequired,
   swapLayout: PropTypes.bool.isRequired,
+  currentVideoPageIndex: PropTypes.number.isRequired,
+  totalNumberOfStreams: PropTypes.number.isRequired,
 };
 
 class VideoProvider extends Component {
@@ -117,6 +120,11 @@ class VideoProvider extends Component {
     this.onWsMessage = this.onWsMessage.bind(this);
 
     this.updateStreams = this.updateStreams.bind(this);
+    this.debouncedConnectStreams = _.debounce(
+      this.connectStreams,
+      VideoService.getPageChangeDebounceTime(),
+      { leading: false, trailing: true },
+    );
   }
 
   componentDidMount() {
@@ -132,9 +140,13 @@ class VideoProvider extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { isUserLocked, streams } = this.props;
+    const { isUserLocked, streams, currentVideoPageIndex } = this.props;
 
-    this.updateStreams(streams);
+    // Only debounce when page changes to avoid unecessary debouncing
+    const shouldDebounce = VideoService.isPaginationEnabled()
+      && prevProps.currentVideoPageIndex !== currentVideoPageIndex;
+
+    this.updateStreams(streams, shouldDebounce);
 
     if (!prevProps.isUserLocked && isUserLocked) VideoService.lockUser();
   }
@@ -218,20 +230,20 @@ class VideoProvider extends Component {
     this.setState({ socketOpen: true });
   }
 
-  updateThreshold (numberOfPublishers) {
+  updateThreshold(numberOfPublishers) {
     const { threshold, profile } = VideoService.getThreshold(numberOfPublishers);
     if (profile) {
       const publishers = Object.values(this.webRtcPeers)
         .filter(peer => peer.isPublisher)
-        .forEach(peer => {
+        .forEach((peer) => {
           // 0 means no threshold in place. Reapply original one if needed
-          let profileToApply = (threshold === 0) ? peer.originalProfileId : profile;
-          VideoService.applyCameraProfile(peer, profileToApply)
+          const profileToApply = (threshold === 0) ? peer.originalProfileId : profile;
+          VideoService.applyCameraProfile(peer, profileToApply);
         });
     }
   }
 
-  updateStreams(streams) {
+  getStreamsToConnectAndDisconnect(streams) {
     const streamsCameraIds = streams.map(s => s.cameraId);
     const streamsConnected = Object.keys(this.webRtcPeers);
 
@@ -243,15 +255,33 @@ class VideoProvider extends Component {
       cameraId => !streamsCameraIds.includes(cameraId),
     );
 
+    return [streamsToConnect, streamsToDisconnect];
+  }
+
+  connectStreams(streamsToConnect) {
     streamsToConnect.forEach((cameraId) => {
       const isLocal = VideoService.isLocalStream(cameraId);
       this.createWebRTCPeer(cameraId, isLocal);
     });
+  }
 
+  disconnectStreams(streamsToDisconnect) {
     streamsToDisconnect.forEach(cameraId => this.stopWebRTCPeer(cameraId));
+  }
+
+  updateStreams(streams, shouldDebounce = false) {
+    const [streamsToConnect, streamsToDisconnect] = this.getStreamsToConnectAndDisconnect(streams);
+
+    if (shouldDebounce) {
+      this.debouncedConnectStreams(streamsToConnect);
+    } else {
+      this.connectStreams(streamsToConnect);
+    }
+
+    this.disconnectStreams(streamsToDisconnect);
 
     if (CAMERA_QUALITY_THRESHOLDS_ENABLED) {
-      this.updateThreshold(streamsCameraIds.length);
+      this.updateThreshold(this.props.totalNumberOfStreams);
     }
   }
 
@@ -519,6 +549,7 @@ class VideoProvider extends Component {
             userId: this.info.userId,
             userName: this.info.userName,
             bitrate,
+            record: VideoService.getRecord(),
           };
 
           logger.info({
@@ -649,7 +680,7 @@ class VideoProvider extends Component {
 
       this.restartTimeout[cameraId] = setTimeout(
         this._getWebRTCStartTimeout(cameraId, isLocal),
-        this.restartTimer[cameraId]
+        this.restartTimer[cameraId],
       );
     }
   }
@@ -849,18 +880,14 @@ class VideoProvider extends Component {
   }
 
   render() {
-    const { swapLayout } = this.props;
-    const { socketOpen } = this.state;
-    if (!socketOpen) return null;
+    const { swapLayout, currentVideoPageIndex, streams } = this.props;
 
-    const {
-      streams,
-    } = this.props;
     return (
-      <VideoList
+      <VideoListContainer
         streams={streams}
         onMount={this.createVideoTag}
         swapLayout={swapLayout}
+        currentVideoPageIndex={currentVideoPageIndex}
       />
     );
   }

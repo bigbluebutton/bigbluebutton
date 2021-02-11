@@ -9,8 +9,22 @@ const VideoProviderContainer = ({ children, ...props }) => {
   return (!streams.length ? null : <VideoProvider {...props}>{children}</VideoProvider>);
 };
 
-export default withTracker(props => ({
-  swapLayout: props.swapLayout,
-  streams: VideoService.getVideoStreams(),
-  isUserLocked: VideoService.isUserLocked(),
-}))(withLayoutContext(VideoProviderContainer));
+export default withTracker(props => {
+  // getVideoStreams returns a dictionary consisting of:
+  // {
+  //  streams: array of mapped streams
+  //  totalNumberOfStreams: total number of shared streams in the server
+  // }
+  const {
+    streams,
+    totalNumberOfStreams
+  } = VideoService.getVideoStreams();
+
+  return {
+    swapLayout: props.swapLayout,
+    streams,
+    totalNumberOfStreams,
+    isUserLocked: VideoService.isUserLocked(),
+    currentVideoPageIndex: VideoService.getCurrentVideoPageIndex(),
+  };
+})( withLayoutContext(VideoProviderContainer));

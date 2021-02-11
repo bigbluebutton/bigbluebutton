@@ -24,21 +24,15 @@ export default function updateCursor(meetingId, whiteboardId, userId, x = -1, y 
     },
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      Logger.error(`Upserting cursor to collection: ${err}`);
-      return;
-    }
+  try {
+    const { insertedId } = Cursor.upsert(selector, modifier);
 
-    const { insertedId } = numChanged;
     if (insertedId) {
       Logger.info(`Initialized cursor meeting=${meetingId}`);
+    } else {
+      Logger.debug('Updated cursor ', { meetingId });
     }
-
-    if (numChanged) {
-      Logger.debug(`Updated cursor meeting=${meetingId}`);
-    }
-  };
-
-  return Cursor.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Upserting cursor to collection: ${err}`);
+  }
 }

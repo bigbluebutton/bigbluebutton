@@ -15,23 +15,20 @@ export default function changePresenter(presenter, userId, meetingId, changedBy)
     },
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Changed user role: ${err}`);
+  try {
+    const meeting = Meetings.findOne({ meetingId });
+    if (meeting && meeting.externalVideoUrl) {
+      Logger.info(`ChangePresenter:There is external video being shared. Stopping it due to presenter change, ${meeting.externalVideoUrl}`);
+      stopWatchingExternalVideo({ meetingId, requesterUserId: userId });
     }
 
-    if (numChanged) {
-      return Logger.info(`Changed presenter=${presenter} id=${userId} meeting=${meetingId}`
-      + `${changedBy ? ` changedBy=${changedBy}` : ''}`);
+    const numberAffected = Users.update(selector, modifier);
+
+    if (numberAffected) {
+      Logger.info(`Changed presenter=${presenter} id=${userId} meeting=${meetingId}`
+        + `${changedBy ? ` changedBy=${changedBy}` : ''}`);
     }
-
-    return null;
-  };
-
-  const meeting = Meetings.findOne({ meetingId });
-  if (meeting && meeting.externalVideoUrl) {
-    Logger.info(`ChangePresenter:There is external video being shared. Stopping it due to presenter change, ${meeting.externalVideoUrl}`);
-    stopWatchingExternalVideo({ meetingId, requesterUserId: userId });
+  } catch (err) {
+    Logger.error(`Changed user role: ${err}`);
   }
-  return Users.update(selector, modifier, cb);
 }

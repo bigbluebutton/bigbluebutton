@@ -103,6 +103,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetPresenterGroupReqMsg](envelope, jsonNode)
       case UserActivitySignCmdMsg.NAME =>
         routeGenericMsg[UserActivitySignCmdMsg](envelope, jsonNode)
+      case SelectRandomViewerReqMsg.NAME =>
+        routeGenericMsg[SelectRandomViewerReqMsg](envelope, jsonNode)
 
       // Poll
       case StartCustomPollReqMsg.NAME =>
@@ -255,20 +257,6 @@ class ReceivedJsonMsgHandlerActor(
       case SendCaptionHistoryReqMsg.NAME =>
         routeGenericMsg[SendCaptionHistoryReqMsg](envelope, jsonNode)
 
-      // Shared notes
-      case GetSharedNotesPubMsg.NAME =>
-        routeGenericMsg[GetSharedNotesPubMsg](envelope, jsonNode)
-      case SyncSharedNotePubMsg.NAME =>
-        routeGenericMsg[SyncSharedNotePubMsg](envelope, jsonNode)
-      case ClearSharedNotePubMsg.NAME =>
-        routeGenericMsg[ClearSharedNotePubMsg](envelope, jsonNode)
-      case UpdateSharedNoteReqMsg.NAME =>
-        routeGenericMsg[UpdateSharedNoteReqMsg](envelope, jsonNode)
-      case CreateSharedNoteReqMsg.NAME =>
-        routeGenericMsg[CreateSharedNoteReqMsg](envelope, jsonNode)
-      case DestroySharedNoteReqMsg.NAME =>
-        routeGenericMsg[DestroySharedNoteReqMsg](envelope, jsonNode)
-
       // Chat
       case GetChatHistoryReqMsg.NAME =>
         routeGenericMsg[GetChatHistoryReqMsg](envelope, jsonNode)
@@ -284,8 +272,6 @@ class ReceivedJsonMsgHandlerActor(
       // Meeting
       case EndMeetingSysCmdMsg.NAME =>
         routeGenericMsg[EndMeetingSysCmdMsg](envelope, jsonNode)
-      case MeetingActivityResponseCmdMsg.NAME =>
-        routeGenericMsg[MeetingActivityResponseCmdMsg](envelope, jsonNode)
       case LogoutAndEndMeetingCmdMsg.NAME =>
         routeGenericMsg[LogoutAndEndMeetingCmdMsg](envelope, jsonNode)
       case SetRecordingStatusCmdMsg.NAME =>

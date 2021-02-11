@@ -7,12 +7,15 @@ import lockContextContainer from '/imports/ui/components/lock-viewers/context/co
 import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
+import Storage from '/imports/ui/services/storage/session';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioControls from './component';
 import AudioModalContainer from '../audio-modal/container';
 import { invalidateCookie } from '../audio-modal/service';
 import Service from '../service';
 
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
+const APP_CONFIG = Meteor.settings.public.app;
 
 const AudioControlsContainer = props => <AudioControls {...props} />;
 
@@ -41,6 +44,11 @@ const processToggleMuteFromOutside = (e) => {
 const handleLeaveAudio = (meetingIsBreakout = false) => {
   if (!meetingIsBreakout) {
     invalidateCookie('joinedAudio');
+  }
+
+  const skipOnFistJoin = getFromUserSettings('bbb_skip_check_audio_on_first_join', APP_CONFIG.skipCheckOnJoin);
+  if (skipOnFistJoin && !Storage.getItem('getEchoTest')) {
+    Storage.setItem('getEchoTest', true);
   }
 
   Service.exitAudio();

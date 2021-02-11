@@ -27,13 +27,12 @@ const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const mapActiveChats = (chat) => {
   const currentUserId = Auth.userID;
 
-  if (chat.sender !== currentUserId) {
-    return chat.sender;
-  }
-
   const { chatId } = chat;
 
-  const userId = GroupChat.findOne({ chatId }).users.filter(user => user !== currentUserId);
+  const userId = GroupChat
+    .findOne({ chatId })
+    .participants
+    .filter(user => user.id !== currentUserId);
 
   return userId[0];
 };
@@ -181,14 +180,14 @@ const sortChats = (a, b) => {
     sort = sortChatsByName(a, b);
   }
 
-  return sort = sortByRecentActivity(a, b);
+  return sortByRecentActivity(a, b);
 };
 
 const userFindSorting = {
   emojiTime: 1,
   role: 1,
   phoneUser: 1,
-  sortName: 1,
+  name: 1,
   userId: 1,
 };
 
@@ -196,7 +195,6 @@ const getUsers = () => {
   let users = Users
     .find({
       meetingId: Auth.meetingID,
-      connectionStatus: 'online',
     }, userFindSorting)
     .fetch();
 
@@ -239,7 +237,7 @@ const getActiveChats = (chatID) => {
   const idsWithTimeStamp = {};
 
   activeChats.map((chat) => {
-    idsWithTimeStamp[`${chat.sender}`] = chat.timestamp;
+    idsWithTimeStamp[`${chat.sender.id}`] = chat.timestamp;
   });
 
   activeChats = activeChats.map(mapActiveChats);
@@ -248,18 +246,20 @@ const getActiveChats = (chatID) => {
     activeChats.push(chatID);
   }
 
-  activeChats = _.uniq(_.compact(activeChats));
+  activeChats = _.uniqBy(_.compact(activeChats), 'id');
 
-  activeChats = Users
-    .find({ userId: { $in: activeChats } })
-    .map((op) => {
-      const activeChat = op;
-      activeChat.unreadCounter = UnreadMessages.count(op.userId);
-      activeChat.name = op.name;
-      activeChat.isModerator = op.role === ROLE_MODERATOR;
-      activeChat.lastActivity = idsWithTimeStamp[`${op.userId}`];
-      return activeChat;
-    });
+  activeChats = activeChats.map(({ id, name }) => {
+    const user = Users.findOne({ userId: id }, { fields: { color: 1, role: 1 } });
+
+    return {
+      color: user?.color || '#7b1fa2',
+      isModerator: user?.role === ROLE_MODERATOR,
+      lastActivity: idsWithTimeStamp[id],
+      name,
+      unreadCounter: UnreadMessages.count(id),
+      userId: id,
+    };
+  });
 
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
   const filteredChatList = [];
@@ -313,13 +313,23 @@ const isMeetingLocked = (id) => {
   return isLocked;
 };
 
-const areUsersUnmutable = () => {
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { 'usersProp.allowModsToUnmuteUsers': 1 } });
-  if (meeting.usersProp) {
-    return meeting.usersProp.allowModsToUnmuteUsers;
+const getUsersProp = () => {
+  const meeting = Meetings.findOne(
+    { meetingId: Auth.meetingID },
+    {
+      fields: {
+        'usersProp.allowModsToUnmuteUsers': 1,
+        'usersProp.authenticatedGuest': 1,
+      },
+    }
+  );
+
+  if (meeting.usersProp) return meeting.usersProp;
+
+  return {
+    allowModsToUnmuteUsers: false,
+    authenticatedGuest: false,
   }
-  return false;
 };
 
 const curatedVoiceUser = (intId) => {
@@ -332,10 +342,11 @@ const curatedVoiceUser = (intId) => {
   };
 };
 
-const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectVoiceUser) => {
+const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectVoiceUser, usersProp) => {
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId) || subjectUser.phone_user;
   const amISubjectUser = isMe(subjectUser.userId);
   const isSubjectUserModerator = subjectUser.role === ROLE_MODERATOR;
+  const isSubjectUserGuest = subjectUser.guest;
 
   const hasAuthority = amIModerator || amISubjectUser;
   const allowedToChatPrivately = !amISubjectUser && !isDialInUser;
@@ -348,7 +359,7 @@ const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectV
     && subjectVoiceUser.isVoiceUser
     && !subjectVoiceUser.isListenOnly
     && subjectVoiceUser.isMuted
-    && (amISubjectUser || areUsersUnmutable());
+    && (amISubjectUser || usersProp.allowedToUnmuteAudio);
 
   const allowedToResetStatus = hasAuthority
     && subjectUser.emoji !== EMOJI_STATUSES.none
@@ -367,13 +378,15 @@ const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectV
     && !amISubjectUser
     && !isSubjectUserModerator
     && !isDialInUser
-    && !isBreakoutRoom;
+    && !isBreakoutRoom
+    && !(isSubjectUserGuest && usersProp.authenticatedGuest);
 
   const allowedToDemote = amIModerator
     && !amISubjectUser
     && isSubjectUserModerator
     && !isDialInUser
-    && !isBreakoutRoom;
+    && !isBreakoutRoom
+    && !(isSubjectUserGuest && usersProp.authenticatedGuest);
 
   const allowedToChangeStatus = amISubjectUser;
 
@@ -428,6 +441,18 @@ const toggleVoice = (userId) => {
     }, 'moderator muted user microphone');
   }
 };
+
+const getEmoji = () => {
+  const currentUser = Users.findOne({ userId: Auth.userID },
+    { fields: { emoji: 1 } });
+
+  if (!currentUser) {
+    return false;
+  }
+
+  return currentUser.emoji;
+};
+
 
 const muteAllUsers = (userId) => { makeCall('muteAllUsers', userId); };
 
@@ -524,12 +549,63 @@ const requestUserInformation = (userId) => {
   makeCall('requestUserInformation', userId);
 };
 
-export const getUserNamesLink = () => {
+const sortUsersByFirstName = (a, b) => {
+  if (!a.firstName && !b.firstName) return 0;
+  if (a.firstName && !b.firstName) return -1;
+  if (!a.firstName && b.firstName) return 1;
+
+  const aName = a.firstName.toLowerCase();
+  const bName = b.firstName.toLowerCase();
+  if (aName < bName) return -1;
+  if (aName > bName) return 1;
+  return 0;
+};
+
+const sortUsersByLastName = (a, b) => {
+  if (!a.lastName && !b.lastName) return 0;
+  if (a.lastName && !b.lastName) return -1;
+  if (!a.lastName && b.lastName) return 1;
+
+  const aName = a.lastName.toLowerCase();
+  const bName = b.lastName.toLowerCase();
+
+  if (aName < bName) return -1;
+  if (aName > bName) return 1;
+  return 0;
+};
+
+const isUserPresenter = (userId) => {
+  const user = Users.findOne({ userId },
+    { fields: { presenter: 1 } });
+  return user ? user.presenter : false;
+};
+
+export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
   const mimeType = 'text/plain';
-  const userNamesObj = getUsers();
-  const userNameListString = userNamesObj
-    .map(u => u.name)
-    .join('\r\n');
+  const userNamesObj = getUsers()
+    .map((u) => {
+      const name = u.name.split(' ');
+      return ({
+        firstName: name[0],
+        middleNames: name.length > 2 ? name.slice(1, name.length - 1) : null,
+        lastName: name.length > 1 ? name[name.length - 1] : null,
+      });
+    });
+
+  const getUsernameString = (user) => {
+    const { firstName, middleNames, lastName } = user;
+    return `${firstName || ''} ${middleNames && middleNames.length > 0 ? middleNames.join(' ') : ''} ${lastName || ''}`;
+  };
+
+  const namesByFirstName = userNamesObj.sort(sortUsersByFirstName)
+    .map(u => getUsernameString(u)).join('\r\n');
+
+  const namesByLastName = userNamesObj.sort(sortUsersByLastName)
+    .map(u => getUsernameString(u)).join('\r\n');
+
+  const namesListsString = `${docTitle}\r\n\r\n${fnSortedLabel}\r\n${namesByFirstName}
+    \r\n\r\n${lnSortedLabel}\r\n${namesByLastName}`.replace(/ {2}/g, ' ');
+
   const link = document.createElement('a');
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'meetingProp.name': 1 } });
@@ -539,7 +615,7 @@ export const getUserNamesLink = () => {
   link.setAttribute('download', `bbb-${meeting.meetingProp.name}[users-list]_${dateString}.txt`);
   link.setAttribute(
     'href',
-    `data: ${mimeType} ;charset=utf-16,${encodeURIComponent(userNameListString)}`,
+    `data: ${mimeType} ;charset=utf-16,${encodeURIComponent(namesListsString)}`,
   );
   return link;
 };
@@ -566,9 +642,11 @@ export default {
   getGroupChatPrivate,
   hasBreakoutRoom,
   getEmojiList: () => EMOJI_STATUSES,
-  getEmoji: () => Users.findOne({ userId: Auth.userID }, { fields: { emoji: 1 } }).emoji,
+  getEmoji,
   hasPrivateChatBetweenUsers,
   toggleUserLock,
   requestUserInformation,
   focusFirstDropDownItem,
+  isUserPresenter,
+  getUsersProp,
 };

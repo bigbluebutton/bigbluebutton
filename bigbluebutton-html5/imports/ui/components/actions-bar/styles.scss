@@ -1,10 +1,5 @@
-@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/breakpoints";
 @import "/imports/ui/components/modal/simple/styles";
-
-:root {
-  --mobile-swap-offset: 3.5rem;
-  --min-modal-height: 20rem;
-}
 
 .modal {
   @extend .modal;
@@ -121,6 +116,11 @@
     background-color: transparent !important;
     border-color: var(--color-white) !important;
   }
+}
+
+.dropdown,
+.btn {
+  z-index: 3;
 }
 
 .presentationItem {

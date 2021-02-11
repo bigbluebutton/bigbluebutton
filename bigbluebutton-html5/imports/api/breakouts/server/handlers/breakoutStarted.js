@@ -32,14 +32,14 @@ export default function handleBreakoutRoomStarted({ body }, meetingId) {
     ),
   };
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`updating breakout: ${err}`);
+  try {
+    const { numberAffected } = Breakouts.upsert(selector, modifier);
+
+    if (numberAffected) {
+      Logger.info('Updated timeRemaining and externalMeetingId '
+        + `for breakout id=${breakoutId}`);
     }
-
-    return Logger.info('Updated timeRemaining and externalMeetingId '
-      + `for breakout id=${breakoutId}`);
-  };
-
-  return Breakouts.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`updating breakout: ${err}`);
+  }
 }

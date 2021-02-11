@@ -5,19 +5,28 @@ import clearPresentationUploadToken from '/imports/api/presentation-upload-token
 
 export default function clearPresentationPods(meetingId) {
   if (meetingId) {
-    return PresentationPods.remove(
-      { meetingId },
-      () => {
+    try {
+      const numberAffected = PresentationPods.remove({ meetingId });
+
+      if (numberAffected) {
         clearPresentations(meetingId);
         clearPresentationUploadToken(meetingId);
         Logger.info(`Cleared Presentations Pods (${meetingId})`);
-      },
-    );
-  }
+      }
+    } catch (err) {
+      Logger.error(`Error on clearing Presentations Pods (${meetingId}). ${err}`);
+    }
+  } else {
+    try {
+      const numberAffected = PresentationPods.remove({});
 
-  return PresentationPods.remove({}, () => {
-    clearPresentations();
-    clearPresentationUploadToken();
-    Logger.info('Cleared Presentations Pods (all)');
-  });
+      if (numberAffected) {
+        clearPresentations();
+        clearPresentationUploadToken();
+        Logger.info('Cleared Presentations Pods (all)');
+      }
+    } catch (err) {
+      Logger.error(`Error on clearing Presentations Pods (all). ${err}`);
+    }
+  }
 }

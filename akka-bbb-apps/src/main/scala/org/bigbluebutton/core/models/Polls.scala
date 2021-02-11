@@ -357,7 +357,10 @@ object Polls {
   def respondToQuestion(pollId: String, questionID: Int, responseID: Int, responder: Responder, polls: Polls) {
     polls.polls.get(pollId) match {
       case Some(p) => {
-        p.respondToQuestion(questionID, responseID, responder)
+        if (!p.getResponders().exists(_ == responder)) {
+          p.addResponder(responder)
+          p.respondToQuestion(questionID, responseID, responder)
+        }
       }
       case None =>
     }
@@ -367,6 +370,7 @@ object Polls {
 
 object PollType {
   val YesNoPollType = "YN"
+  val YesNoAbstentionPollType = "YNA"
   val TrueFalsePollType = "TF"
   val CustomPollType = "CUSTOM"
   val LetterPollType = "A-"
@@ -385,6 +389,16 @@ object PollFactory {
     answers(1) = new Answer(1, "No", Some("No"))
 
     new Question(0, PollType.YesNoPollType, false, None, answers)
+  }
+
+  private def processYesNoAbstentionPollType(qType: String): Question = {
+    val answers = new Array[Answer](3)
+
+    answers(0) = new Answer(0, "Yes", Some("Yes"))
+    answers(1) = new Answer(1, "No", Some("No"))
+    answers(2) = new Answer(2, "Abstention", Some("Abstention"))
+
+    new Question(0, PollType.YesNoAbstentionPollType, false, None, answers)
   }
 
   private def processTrueFalsePollType(qType: String): Question = {
@@ -460,6 +474,8 @@ object PollFactory {
 
     if (qt.matches(PollType.YesNoPollType)) {
       questionOption = Some(processYesNoPollType(qt))
+    } else if (qt.matches(PollType.YesNoAbstentionPollType)) {
+      questionOption = Some(processYesNoAbstentionPollType(qt))
     } else if (qt.matches(PollType.TrueFalsePollType)) {
       questionOption = Some(processTrueFalsePollType(qt))
     } else if (qt.matches(PollType.CustomPollType)) {
@@ -499,6 +515,7 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
   private var _stopped: Boolean = false
   private var _showResult: Boolean = false
   private var _numResponders: Int = 0
+  private var _responders = new ArrayBuffer[Responder]()
 
   def showingResult() { _showResult = true }
   def showResult(): Boolean = { _showResult }
@@ -512,6 +529,9 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
     _started = false
     _stopped = false
   }
+
+  def addResponder(responder: Responder) { _responders += (responder) }
+  def getResponders(): ArrayBuffer[Responder] = { return _responders }
 
   def hasResponses(): Boolean = {
     questions.foreach(q => {

@@ -1,4 +1,4 @@
-@import "../../stylesheets/variables/_all";
+@import "../../stylesheets/variables/breakpoints";
 
 :root {
   --mobile-nav-height: 5rem;
@@ -107,6 +107,8 @@
     border: none;
     box-shadow: none;
   }
+
+  z-index: 3;
 
   &:hover,
   &:focus {

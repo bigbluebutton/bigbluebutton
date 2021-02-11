@@ -1,6 +1,7 @@
-@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/breakpoints";
 @import "/imports/ui/stylesheets/mixins/_scrollable";
 @import "/imports/ui/stylesheets/mixins/_indicators";
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 :root {
   --dropdown-bg: var(--color-white);
@@ -16,6 +17,7 @@
 
 .dropdown {
   position: relative;
+  z-index: 3;
 
   &:focus {
     outline: none;
@@ -23,7 +25,7 @@
 }
 
 .content {
-  @include highContrastOutline();
+  @extend %highContrastOutline;
   outline-style: solid;
   z-index: 9999;
   position: absolute;

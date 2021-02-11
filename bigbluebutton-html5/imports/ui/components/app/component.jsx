@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { throttle } from 'lodash';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import Modal from 'react-modal';
 import browser from 'browser-detect';
 import PanelManager from '/imports/ui/components/panel-manager/component';
@@ -19,12 +19,13 @@ import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import WaitingNotifierContainer from '/imports/ui/components/waiting-users/alert/container';
 import LockNotifier from '/imports/ui/components/lock-viewers/notify/container';
 import StatusNotifier from '/imports/ui/components/status-notifier/container';
-import PingPongContainer from '/imports/ui/components/ping-pong/container';
 import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
+import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
 import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
 import { styles } from './styles';
+import { makeCall } from '/imports/ui/services/api';
 import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
@@ -83,7 +84,7 @@ const propTypes = {
   actionsbar: PropTypes.element,
   captions: PropTypes.element,
   locale: PropTypes.string,
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
 };
 
 const defaultProps = {
@@ -150,13 +151,24 @@ class App extends Component {
       startBandwidthMonitoring();
     }
 
+    if (isMobileBrowser) makeCall('setMobileUser');
+
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
 
   componentDidUpdate(prevProps) {
     const {
-      meetingMuted, notify, currentUserEmoji, intl, hasPublishedPoll,
+      meetingMuted,
+      notify,
+      currentUserEmoji,
+      intl,
+      hasPublishedPoll,
+      randomlySelectedUser,
+      currentUserId,
+      mountModal,
     } = this.props;
+
+    if (randomlySelectedUser === currentUserId) mountModal(<RandomUserSelectContainer />);
 
     if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
@@ -331,7 +343,7 @@ class App extends Component {
 
   render() {
     const {
-      customStyle, customStyleUrl, openPanel,
+      customStyle, customStyleUrl, openPanel, layoutContextState
     } = this.props;
     return (
       <main className={styles.main}>
@@ -350,7 +362,7 @@ class App extends Component {
         </section>
         <UploaderContainer />
         <BreakoutRoomInvitation />
-        <PollingContainer />
+        {!layoutContextState.presentationIsFullscreen && <PollingContainer />}
         <ModalContainer />
         <AudioContainer />
         <ToastContainer rtl />
@@ -358,7 +370,6 @@ class App extends Component {
         <WaitingNotifierContainer />
         <LockNotifier />
         <StatusNotifier status="raiseHand" />
-        <PingPongContainer />
         <ManyWebcamsNotifier />
         {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
         {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}

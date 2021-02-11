@@ -7,6 +7,7 @@ import Button from '/imports/ui/components/button/component';
 import { ENTER } from '/imports/utils/keyCodes';
 import toastStyles from '/imports/ui/components/toast/styles';
 import { styles } from './styles';
+import {Meteor} from "meteor/meteor";
 
 const messages = defineMessages({
   lowerHandsLabel: {
@@ -35,7 +36,7 @@ class StatusNotifier extends Component {
 
     this.statusNotifierId = null;
 
-    this.audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/bbb-handRaise.mp3`);
+    this.audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}/resources/sounds/bbb-handRaise.mp3`);
 
     this.renderRaisedHands = this.renderRaisedHands.bind(this);
     this.getRaisedHandNames = this.getRaisedHandNames.bind(this);
