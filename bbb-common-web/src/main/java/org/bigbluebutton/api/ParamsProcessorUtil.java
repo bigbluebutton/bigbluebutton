@@ -85,6 +85,7 @@ public class ParamsProcessorUtil {
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
     private boolean webcamsOnlyForModerator;
+	private boolean defaultAllowViewersToTakePresenter;
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
 
@@ -243,84 +244,26 @@ public class ParamsProcessorUtil {
         return metas;
     }
 
-		private BreakoutRoomsParams processBreakoutRoomsParams(Map<String, String> params) {
-			Boolean breakoutRoomsEnabled = defaultBreakoutRoomsEnabled;
-			String breakoutRoomsEnabledParam = params.get(ApiParams.BREAKOUT_ROOMS_ENABLED);
-			if (!StringUtils.isEmpty(breakoutRoomsEnabledParam)) {
-				breakoutRoomsEnabled = Boolean.parseBoolean(breakoutRoomsEnabledParam);
-			}
-
-			Boolean breakoutRoomsRecord = defaultBreakoutRoomsRecord;
-			String breakoutRoomsRecordParam = params.get(ApiParams.BREAKOUT_ROOMS_RECORD);
-			if (!StringUtils.isEmpty(breakoutRoomsRecordParam)) {
-				breakoutRoomsRecord = Boolean.parseBoolean(breakoutRoomsRecordParam);
-			}
-
-			Boolean breakoutRoomsPrivateChatEnabled =  defaultbreakoutRoomsPrivateChatEnabled;
-			String breakoutRoomsPrivateChatEnabledParam = params.get(ApiParams.BREAKOUT_ROOMS_PRIVATE_CHAT_ENABLED);
-			if (!StringUtils.isEmpty(breakoutRoomsPrivateChatEnabledParam)) {
-				breakoutRoomsPrivateChatEnabled = Boolean.parseBoolean(breakoutRoomsPrivateChatEnabledParam);
-			}
+		private BreakoutRoomsParams processBreakoutRoomsParams(Map<String, String> params, String internalMeetingId) {
+			Boolean breakoutRoomsEnabled = parseBoolean(ApiParams.BREAKOUT_ROOMS_ENABLED, defaultBreakoutRoomsEnabled, params, internalMeetingId);
+			Boolean breakoutRoomsRecord = parseBoolean(ApiParams.BREAKOUT_ROOMS_RECORD, defaultBreakoutRoomsRecord, params, internalMeetingId);
+			Boolean breakoutRoomsPrivateChatEnabled = parseBoolean(ApiParams.BREAKOUT_ROOMS_PRIVATE_CHAT_ENABLED, defaultbreakoutRoomsPrivateChatEnabled, params, internalMeetingId);
 
 			return new BreakoutRoomsParams(breakoutRoomsEnabled,
 							breakoutRoomsRecord,
 							breakoutRoomsPrivateChatEnabled);
 		}
 
-		private LockSettingsParams processLockSettingsParams(Map<String, String> params) {
-			Boolean lockSettingsDisableCam = defaultLockSettingsDisableCam;
-			String lockSettingsDisableCamParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_CAM);
-			if (!StringUtils.isEmpty(lockSettingsDisableCamParam)) {
-				lockSettingsDisableCam = Boolean.parseBoolean(lockSettingsDisableCamParam);
-			}
-
-			Boolean lockSettingsDisableMic = defaultLockSettingsDisableMic;
-			String lockSettingsDisableMicParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_MIC);
-			if (!StringUtils.isEmpty(lockSettingsDisableMicParam)) {
-				lockSettingsDisableMic = Boolean.parseBoolean(lockSettingsDisableMicParam);
-			}
-
-			Boolean lockSettingsDisablePrivateChat = defaultLockSettingsDisablePrivateChat;
-			String lockSettingsDisablePrivateChatParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_PRIVATE_CHAT);
-			if (!StringUtils.isEmpty(lockSettingsDisablePrivateChatParam)) {
-				lockSettingsDisablePrivateChat = Boolean.parseBoolean(lockSettingsDisablePrivateChatParam);
-			}
-
-			Boolean lockSettingsDisablePublicChat = defaultLockSettingsDisablePublicChat;
-			String lockSettingsDisablePublicChatParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_PUBLIC_CHAT);
-			if (!StringUtils.isEmpty(lockSettingsDisablePublicChatParam)) {
-				lockSettingsDisablePublicChat = Boolean.parseBoolean(lockSettingsDisablePublicChatParam);
-			}
-
-			Boolean lockSettingsDisableNote = defaultLockSettingsDisableNote;
-			String lockSettingsDisableNoteParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_NOTE);
-			if (!StringUtils.isEmpty(lockSettingsDisableNoteParam)) {
-				lockSettingsDisableNote = Boolean.parseBoolean(lockSettingsDisableNoteParam);
-			}
-
-			Boolean lockSettingsHideUserList = defaultLockSettingsHideUserList;
-			String lockSettingsHideUserListParam = params.get(ApiParams.LOCK_SETTINGS_HIDE_USER_LIST);
-			if (!StringUtils.isEmpty(lockSettingsHideUserListParam)) {
-				lockSettingsHideUserList = Boolean.parseBoolean(lockSettingsHideUserListParam);
-			}
-
-			Boolean lockSettingsLockedLayout = defaultLockSettingsLockedLayout;
-			String lockSettingsLockedLayoutParam = params.get(ApiParams.LOCK_SETTINGS_LOCKED_LAYOUT);
-			if (!StringUtils.isEmpty(lockSettingsLockedLayoutParam)) {
-				lockSettingsLockedLayout = Boolean.parseBoolean(lockSettingsLockedLayoutParam);
-			}
-
-			Boolean lockSettingsLockOnJoin = defaultLockSettingsLockOnJoin;
-			String lockSettingsLockOnJoinParam = params.get(ApiParams.LOCK_SETTINGS_LOCK_ON_JOIN);
-			if (!StringUtils.isEmpty(lockSettingsLockOnJoinParam)) {
-				lockSettingsLockOnJoin = Boolean.parseBoolean(lockSettingsLockOnJoinParam);
-			}
-
-			Boolean lockSettingsLockOnJoinConfigurable = defaultLockSettingsLockOnJoinConfigurable;
-			String lockSettingsLockOnJoinConfigurableParam = params.get(ApiParams.LOCK_SETTINGS_LOCK_ON_JOIN_CONFIGURABLE);
-			if (!StringUtils.isEmpty(lockSettingsLockOnJoinConfigurableParam)) {
-				lockSettingsLockOnJoinConfigurable = Boolean.parseBoolean(lockSettingsLockOnJoinConfigurableParam);
-			}
+		private LockSettingsParams processLockSettingsParams(Map<String, String> params, String internalMeetingId) {
+			Boolean lockSettingsDisableCam = parseBoolean(ApiParams.LOCK_SETTINGS_DISABLE_CAM, defaultLockSettingsDisableCam, params, internalMeetingId);
+			Boolean lockSettingsDisableMic = parseBoolean(ApiParams.LOCK_SETTINGS_DISABLE_MIC, defaultLockSettingsDisableMic, params, internalMeetingId);
+			Boolean lockSettingsDisablePrivateChat = parseBoolean(ApiParams.LOCK_SETTINGS_DISABLE_PRIVATE_CHAT, defaultLockSettingsDisablePrivateChat, params, internalMeetingId);
+			Boolean lockSettingsDisablePublicChat = parseBoolean(ApiParams.LOCK_SETTINGS_DISABLE_PUBLIC_CHAT, defaultLockSettingsDisablePublicChat, params, internalMeetingId);
+			Boolean lockSettingsDisableNote = parseBoolean(ApiParams.LOCK_SETTINGS_DISABLE_NOTE, defaultLockSettingsDisableNote, params, internalMeetingId);
+			Boolean lockSettingsHideUserList = parseBoolean(ApiParams.LOCK_SETTINGS_HIDE_USER_LIST, defaultLockSettingsHideUserList, params, internalMeetingId);
+			Boolean lockSettingsLockedLayout = parseBoolean(ApiParams.LOCK_SETTINGS_LOCKED_LAYOUT, defaultLockSettingsLockedLayout, params, internalMeetingId);
+			Boolean lockSettingsLockOnJoin = parseBoolean(ApiParams.LOCK_SETTINGS_LOCK_ON_JOIN, defaultLockSettingsLockOnJoin, params, internalMeetingId);
+			Boolean lockSettingsLockOnJoinConfigurable = parseBoolean(ApiParams.LOCK_SETTINGS_LOCK_ON_JOIN_CONFIGURABLE, defaultLockSettingsLockOnJoinConfigurable, params, internalMeetingId);
 
 			return new LockSettingsParams(lockSettingsDisableCam,
 							lockSettingsDisableMic,
@@ -394,58 +337,18 @@ public class ParamsProcessorUtil {
             internalMeetingId = getIntMeetingIdForTestMeeting(telVoice);
         }
 
-        boolean autoStartRec = autoStartRecording;
-        if (!StringUtils.isEmpty(params.get(ApiParams.AUTO_START_RECORDING))) {
-            try {
-                autoStartRec = Boolean.parseBoolean(params
-                        .get(ApiParams.AUTO_START_RECORDING));
-            } catch (Exception ex) {
-                log.warn("Invalid param [autoStartRecording] for meeting=[{}]",
-                        internalMeetingId);
-            }
-        }
-
-        boolean allowStartStoptRec = allowStartStopRecording;
-        if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_START_STOP_RECORDING))) {
-            try {
-                allowStartStoptRec = Boolean.parseBoolean(params
-                        .get(ApiParams.ALLOW_START_STOP_RECORDING));
-            } catch (Exception ex) {
-                log.warn(
-                        "Invalid param [allowStartStopRecording] for meeting=[{}]",
-                        internalMeetingId);
-            }
-        }
-
-        boolean webcamsOnlyForMod = webcamsOnlyForModerator;
-        if (!StringUtils.isEmpty(params.get(ApiParams.WEBCAMS_ONLY_FOR_MODERATOR))) {
-            try {
-                webcamsOnlyForMod = Boolean.parseBoolean(params
-                        .get(ApiParams.WEBCAMS_ONLY_FOR_MODERATOR));
-            } catch (Exception ex) {
-                log.warn(
-                        "Invalid param [webcamsOnlyForModerator] for meeting=[{}]",
-                        internalMeetingId);
-            }
-        }
-
-        boolean endWhenNoModerator = defaultEndWhenNoModerator;
-        if (!StringUtils.isEmpty(params.get(ApiParams.END_WHEN_NO_MODERATOR))) {
-          try {
-	          endWhenNoModerator = Boolean.parseBoolean(params.get(ApiParams.END_WHEN_NO_MODERATOR));
-          } catch (Exception ex) {
-            log.warn("Invalid param [endWhenNoModerator] for meeting=[{}]", internalMeetingId);
-          }
-        }
+        boolean autoStartRec = parseBoolean(ApiParams.AUTO_START_RECORDING, autoStartRecording, params, internalMeetingId);
+        boolean allowStartStoptRec = parseBoolean(ApiParams.ALLOW_START_STOP_RECORDING, allowStartStopRecording, params, internalMeetingId);
+        boolean webcamsOnlyForMod = parseBoolean(ApiParams.WEBCAMS_ONLY_FOR_MODERATOR, webcamsOnlyForModerator, params, internalMeetingId);
+        boolean endWhenNoModerator = parseBoolean(ApiParams.END_WHEN_NO_MODERATOR, defaultEndWhenNoModerator, params, internalMeetingId);
+		boolean allowViewersToTakePresenter = parseBoolean(ApiParams.ALLOW_VIEWERS_TO_TAKE_PRESENTER, defaultAllowViewersToTakePresenter, params, internalMeetingId);
 
         String guestPolicy = defaultGuestPolicy;
         if (!StringUtils.isEmpty(params.get(ApiParams.GUEST_POLICY))) {
         	guestPolicy = params.get(ApiParams.GUEST_POLICY);
 		}
-        BreakoutRoomsParams breakoutParams = processBreakoutRoomsParams(params);
-        LockSettingsParams lockSettingsParams = processLockSettingsParams(params);
-
-
+        BreakoutRoomsParams breakoutParams = processBreakoutRoomsParams(params, internalMeetingId);
+        LockSettingsParams lockSettingsParams = processLockSettingsParams(params, internalMeetingId);
 
         // Collect metadata for this meeting that the third-party app wants to
         // store if meeting is recorded.
@@ -499,6 +402,7 @@ public class ParamsProcessorUtil {
 				.withLockSettingsParams(lockSettingsParams)
 				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
                 .withHTML5InstanceId(html5InstanceId)
+				.withAllowViewersToTakePresenter(allowViewersToTakePresenter)
                 .build();
 
         String configXML = getDefaultConfigXML();
@@ -537,17 +441,11 @@ public class ParamsProcessorUtil {
 		if (!StringUtils.isEmpty(params.get(ApiParams.COPYRIGHT))) {
 			meeting.setCustomCopyright(params.get(ApiParams.COPYRIGHT));
 		}
-		Boolean muteOnStart = defaultMuteOnStart;
-		if (!StringUtils.isEmpty(params.get(ApiParams.MUTE_ON_START))) {
-        	muteOnStart = Boolean.parseBoolean(params.get(ApiParams.MUTE_ON_START));
-        }
 
+		Boolean muteOnStart = parseBoolean(ApiParams.MUTE_ON_START, defaultMuteOnStart, params, internalMeetingId);
 		meeting.setMuteOnStart(muteOnStart);
 
-        Boolean allowModsToUnmuteUsers = defaultAllowModsToUnmuteUsers;
-        if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_MODS_TO_UNMUTE_USERS))) {
-            allowModsToUnmuteUsers = Boolean.parseBoolean(params.get(ApiParams.ALLOW_MODS_TO_UNMUTE_USERS));
-        }
+		Boolean allowModsToUnmuteUsers = parseBoolean(ApiParams.ALLOW_MODS_TO_UNMUTE_USERS, defaultAllowModsToUnmuteUsers, params, internalMeetingId);
         meeting.setAllowModsToUnmuteUsers(allowModsToUnmuteUsers);
 
         return meeting;
@@ -577,6 +475,18 @@ public class ParamsProcessorUtil {
 		defaultConfigXML = getConfig(defaultConfigURL);
 		
 		return defaultConfigXML;
+	}
+
+	private Boolean parseBoolean(String paramName, Boolean defaultValue, Map<String, String> params, String internalMeetingId) {
+		Boolean ret = defaultValue;
+		if (!StringUtils.isEmpty(params.get(paramName))) {
+			try {
+            	ret = Boolean.parseBoolean(params.get(paramName));
+			} catch (Exception ex) {
+            	log.warn("Invalid param [" + paramName + "] for meeting=[{}]", internalMeetingId);
+          	}
+        }
+		return ret;
 	}
 	
 	private String getConfig(String url) {
@@ -954,6 +864,10 @@ public class ParamsProcessorUtil {
         this.webcamsOnlyForModerator = webcamsOnlyForModerator;
     }
 	
+	public void setDefaultAllowViewersToTakePresenter(boolean defaultAllowViewersToTakePresenter) {
+		this.defaultAllowViewersToTakePresenter = defaultAllowViewersToTakePresenter;
+	}
+
 	public void setUseDefaultAvatar(Boolean value) {
 		this.useDefaultAvatar = value;
 	}

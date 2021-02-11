@@ -33,6 +33,7 @@ trait TestFixtures {
   val maxUsers = 25
   val muteOnStart = false
   val allowModsToUnmuteUsers = false
+  val allowViewersToTakePresenter = false
   val keepEvents = false
   val guestPolicy = "ALWAYS_ASK"
   val authenticatedGuest = false
@@ -52,7 +53,7 @@ trait TestFixtures {
     modOnlyMessage = modOnlyMessage)
   val voiceProp = VoiceProp(telVoice = voiceConfId, voiceConf = voiceConfId, dialNumber = dialNumber, muteOnStart = muteOnStart)
   val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
-    guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, authenticatedGuest = authenticatedGuest)
+    guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, authenticatedGuest = authenticatedGuest, allowViewersToTakePresenter = allowViewersToTakePresenter)
   val metadataProp = new MetadataProp(metadata)
   val screenshareProps = ScreenshareProps(screenshareConf = "FixMe!", red5ScreenshareIp = "fixMe!",
     red5ScreenshareApp = "fixMe!")

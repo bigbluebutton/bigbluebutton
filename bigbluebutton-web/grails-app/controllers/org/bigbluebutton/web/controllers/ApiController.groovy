@@ -1542,6 +1542,7 @@ class ApiController {
             isBreakout meeting.isBreakout()
             logoutTimer meeting.getLogoutTimer()
             allowStartStopRecording meeting.getAllowStartStopRecording()
+            allowViewersToTakePresenter meeting.getAllowViewersToTakePresenter()
             welcome us.welcome
             if (!StringUtils.isEmpty(meeting.moderatorOnlyMessage) && us.role.equals(ROLE_MODERATOR)) {
               modOnlyMessage meeting.moderatorOnlyMessage

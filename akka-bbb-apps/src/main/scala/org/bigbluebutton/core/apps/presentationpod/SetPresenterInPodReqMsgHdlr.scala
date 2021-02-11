@@ -33,7 +33,11 @@ object SetPresenterInPodActionHandler extends RightsManagementTrait {
       newPresenterId: String
   ): MeetingState2x = {
 
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, assignedBy)) {
+    var isForbidden = permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, assignedBy)
+    if (liveMeeting.props.usersProp.allowViewersToTakePresenter && assignedBy == newPresenterId) {
+      isForbidden = false
+    }
+    if (isForbidden) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to set presenter in presentation pod."
       PermissionCheck.ejectUserForFailedPermission(meetingId, assignedBy, reason, outGW, liveMeeting)
