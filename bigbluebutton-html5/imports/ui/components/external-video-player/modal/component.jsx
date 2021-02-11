@@ -187,12 +187,8 @@ class ExternalVideoModal extends Component {
             <div className={styles.externalVideoNote} id="external-video-note">
               {intl.formatMessage(intlMessages.note)}
             </div>
-          </div>
-
-          <div>
             {this.renderUrlError()}
           </div>
-
           {this.renderFiles()}
           <Button
             className={styles.startBtn}
