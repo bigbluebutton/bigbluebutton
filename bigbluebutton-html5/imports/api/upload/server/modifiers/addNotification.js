@@ -39,19 +39,15 @@ export default function addUploadedFileMsg(meetingId, userId, uploadId, source, 
     },
   };
   
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Adding group-chat-msg uploaded file to collection: ${err}`);
-    }
-
-    const { insertedId } = numChanged;
+  try {
+    const { insertedId, numberAffected } =  GroupChatMsg.upsert(selector, modifier);
 
     if (insertedId) {
-      return Logger.info(`Added group-chat-msg uploaded file meetingId=${meetingId}`);
+      Logger.info(`Added group-chat-msg uploaded file meetingId=${meetingId}`);
+    } else if (numberAffected){
+      Logger.info(`Upserted group-chat-msg uploaded file meetingId=${meetingId}`);
     }
-
-    return Logger.info(`Upserted group-chat-msg uploaded file meetingId=${meetingId}`);
-  };
-
-  return GroupChatMsg.upsert(selector, modifier, cb);
+  } catch (err) {
+      Logger.error(`Adding group-chat-msg uploaded file to collection: ${err}`);
+  }
 }
