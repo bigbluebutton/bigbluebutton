@@ -22,14 +22,12 @@ export default function addUploadedFile(meetingId, userId, uploadId, source, fil
     filename,
   };
 
-  const cb = (err) => {
-    if (err) {
-      Logger.error(`Upserting upload file: ${err}`);
-      return;
+  try {
+    const { numberAffected } = UploadedFile.upsert(selector, modifier);
+    if (numberAffected) {
+      Logger.debug(`Upserting uploaded file filename=${filename} meeting=${meetingId} source=${source}`);
     }
-
-    Logger.debug(`Upserting uploaded file filename=${filename} meeting=${meetingId} source=${source}`);
-  };
-
-  return UploadedFile.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Upserting upload file: ${err}`);
+  }
 }
