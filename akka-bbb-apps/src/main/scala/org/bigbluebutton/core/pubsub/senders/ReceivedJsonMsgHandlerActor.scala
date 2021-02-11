@@ -118,6 +118,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UserBroadcastCamStartMsg](envelope, jsonNode)
       case UserBroadcastCamStopMsg.NAME =>
         routeGenericMsg[UserBroadcastCamStopMsg](envelope, jsonNode)
+      case GetCamBroadcastPermissionReqMsg.NAME =>
+        routeGenericMsg[GetCamBroadcastPermissionReqMsg](envelope, jsonNode)
+      case GetCamSubscribePermissionReqMsg.NAME =>
+        routeGenericMsg[GetCamSubscribePermissionReqMsg](envelope, jsonNode)
 
       // Voice
       case RecordingStartedVoiceConfEvtMsg.NAME =>

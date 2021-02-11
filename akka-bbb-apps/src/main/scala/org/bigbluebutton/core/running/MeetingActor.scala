@@ -77,6 +77,8 @@ class MeetingActor(
   with GetGlobalAudioPermissionReqMsgHdlr
   with GetScreenBroadcastPermissionReqMsgHdlr
   with GetScreenSubscribePermissionReqMsgHdlr
+  with GetCamBroadcastPermissionReqMsgHdlr
+  with GetCamSubscribePermissionReqMsgHdlr
 
   with EjectUserFromVoiceCmdMsgHdlr
   with EndMeetingSysCmdMsgHdlr
@@ -319,6 +321,9 @@ class MeetingActor(
       case m: UserLeaveReqMsg                     => state = handleUserLeaveReqMsg(m, state)
       case m: UserBroadcastCamStartMsg            => handleUserBroadcastCamStartMsg(m)
       case m: UserBroadcastCamStopMsg             => handleUserBroadcastCamStopMsg(m)
+      case m: GetCamBroadcastPermissionReqMsg     => handleGetCamBroadcastPermissionReqMsg(m)
+      case m: GetCamSubscribePermissionReqMsg     => handleGetCamSubscribePermissionReqMsg(m)
+
       case m: UserJoinedVoiceConfEvtMsg           => handleUserJoinedVoiceConfEvtMsg(m)
       case m: MeetingActivityResponseCmdMsg =>
         state = usersApp.handleMeetingActivityResponseCmdMsg(m, state)

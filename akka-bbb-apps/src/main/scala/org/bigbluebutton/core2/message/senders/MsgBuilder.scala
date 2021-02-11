@@ -391,4 +391,47 @@ object MsgBuilder {
 
     BbbCommonEnvCoreMsg(envelope, event)
   }
+
+  def buildGetCamSubscribePermissionRespMsg(
+      meetingId:    String,
+      userId:       String,
+      streamId:     String,
+      sfuSessionId: String,
+      allowed:      Boolean
+  ): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
+    val envelope = BbbCoreEnvelope(GetCamSubscribePermissionRespMsg.NAME, routing)
+    val header = BbbClientMsgHeader(GetCamSubscribePermissionRespMsg.NAME, meetingId, userId)
+    val body = GetCamSubscribePermissionRespMsgBody(
+      meetingId,
+      userId,
+      streamId,
+      sfuSessionId,
+      allowed
+    )
+    val event = GetCamSubscribePermissionRespMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildGetCamBroadcastPermissionRespMsg(
+      meetingId:    String,
+      userId:       String,
+      sfuSessionId: String,
+      allowed:      Boolean
+  ): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
+    val envelope = BbbCoreEnvelope(GetCamBroadcastPermissionRespMsg.NAME, routing)
+    val header = BbbClientMsgHeader(GetCamBroadcastPermissionRespMsg.NAME, meetingId, userId)
+
+    val body = GetCamBroadcastPermissionRespMsgBody(
+      meetingId,
+      userId,
+      sfuSessionId,
+      allowed
+    )
+    val event = GetCamBroadcastPermissionRespMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
 }
