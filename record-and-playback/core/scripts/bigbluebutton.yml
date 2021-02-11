@@ -6,6 +6,7 @@ kurento_screenshare_src: /var/kurento/screenshare
 raw_screenshare_src: /usr/share/red5/webapps/screenshare/streams
 raw_webrtc_deskshare_src: /usr/share/red5/webapps/video-broadcast/streams
 raw_deskshare_src: /var/bigbluebutton/deskshare
+raw_upload_src: /var/bigbluebutton/meetings
 raw_presentation_src: /var/bigbluebutton
 notes_endpoint: http://localhost:9001/p
 # Specify the notes formats we archive
