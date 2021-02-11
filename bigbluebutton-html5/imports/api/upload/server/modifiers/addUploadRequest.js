@@ -31,14 +31,12 @@ export default function addUploadRequest(meetingId, source, filename, userId, su
     token,
   };
 
-  const cb = (err) => {
-    if (err) {
-      Logger.error(`Upserting upload request: ${err}`);
-      return;
+  try {
+    const { numberAffected } = UploadRequest.upsert(selector, modifier);
+    if (numberAffected) {
+      Logger.debug(`Upserting upload request filename=${filename} user=${userId} meeting=${meetingId}`);
     }
-
-    Logger.debug(`Upserting upload request filename=${filename} user=${userId} meeting=${meetingId}`);
-  };
-
-  return UploadRequest.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Upserting upload request: ${err}`);
+  }
 }
