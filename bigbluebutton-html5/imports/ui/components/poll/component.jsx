@@ -264,8 +264,6 @@ class Poll extends Component {
             placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
             className={styles.input}
             onChange={event => this.handleInputChange(id, event)}
-            // defaultValue={customPollValues[id]}
-            // value={customPollValues[id]}
             ref={this.input[id]}
             maxLength={MAX_INPUT_CHARS}
           />
