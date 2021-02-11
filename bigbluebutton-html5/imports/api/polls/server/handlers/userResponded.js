@@ -18,7 +18,7 @@ export default function userResponded({ body }) {
       users: userId,
     },
     $push: {
-      responses: { userId, answerIds: answerIds },
+      responses: { userId, answerIds },
     },
   };
 
@@ -26,7 +26,7 @@ export default function userResponded({ body }) {
     const numberAffected = Polls.update(selector, modifier);
 
     if (numberAffected) {
-      Logger.info(`Updating Poll response (userId: ${userId}, response: ${answerIds[0]}, pollId: ${pollId})`);
+      Logger.info(`Updating Poll response (userId: ${userId}, response: ${JSON.stringify(answerIds)}, pollId: ${pollId})`);
     }
   } catch (err) {
     Logger.error(`Updating Poll responses: ${err}`);
