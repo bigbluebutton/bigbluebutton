@@ -60,9 +60,6 @@ class VideoPlayer extends Component {
           controls: true,
           autoPlay: true,
           playsInline: true,
-          controls: true,
-          autoPlay: true,
-          playsInline: true,
         },
       },
       dailymotion: {
