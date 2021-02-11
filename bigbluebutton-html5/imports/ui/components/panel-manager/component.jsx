@@ -99,7 +99,7 @@ class PanelManager extends Component {
 
     this.setUserListWidth = this.setUserListWidth.bind(this);
   }
-  
+
   componentDidMount() {
     if (Meteor.settings.public.allowOutsideCommands.clearPublicChat
         || getFromUserSettings('bbb_outside_clear_public_chat', false)) {
