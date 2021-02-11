@@ -17,6 +17,7 @@ import Breakouts from '/imports/api/breakouts';
 import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { invalidateCookie } from '/imports/ui/components/audio/audio-modal/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import LayoutManager from '/imports/ui/components/layout/layout-manager';
 import { withLayoutContext } from '/imports/ui/components/layout/context';
@@ -106,6 +107,7 @@ class Base extends Component {
       ejected,
       isMeteorConnected,
       subscriptionsReady,
+      meetingIsBreakout,
       layoutContextDispatch,
       usersVideo,
     } = this.props;
@@ -113,6 +115,10 @@ class Base extends Component {
       loading,
       meetingExisted,
     } = this.state;
+
+    if (prevProps.meetingIsBreakout === undefined && !meetingIsBreakout) {
+      invalidateCookie('joinedAudio');
+    }
 
     if (usersVideo !== prevProps.usersVideo) {
       layoutContextDispatch(

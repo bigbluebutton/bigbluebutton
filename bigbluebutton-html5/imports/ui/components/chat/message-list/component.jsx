@@ -197,7 +197,7 @@ class MessageList extends Component {
     const message = messages[index];
 
     // it's to get an accurate size of the welcome message because it changes after initial render
-    if (message.id.startsWith('welcome-msg') && !this.systemMessagesResized[index]) {
+    if (message.id && message.id.startsWith('welcome-msg') && !this.systemMessagesResized[index]) {
       [500, 1000, 2000, 3000, 4000, 5000].forEach((i)=>{
         setTimeout(() => {
           if (this.listRef) {
