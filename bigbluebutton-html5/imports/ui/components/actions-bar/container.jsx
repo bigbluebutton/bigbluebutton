@@ -9,6 +9,7 @@ import Presentations from '/imports/api/presentations';
 import ActionsBar from './component';
 import Service from './service';
 import ExternalVideoService from '/imports/ui/components/external-video-player/service';
+import MediaUploadService from '/imports/ui/components/upload/media/service';
 import CaptionsService from '/imports/ui/components/captions/service';
 import {
   shareScreen,
@@ -48,5 +49,6 @@ export default withTracker(() => ({
   isPollingEnabled: POLLING_ENABLED,
   isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
     { fields: {} }),
+  isMediaUploadEnabled: MediaUploadService.isEnabled(),
   allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,
 }))(injectIntl(ActionsBarContainer));
