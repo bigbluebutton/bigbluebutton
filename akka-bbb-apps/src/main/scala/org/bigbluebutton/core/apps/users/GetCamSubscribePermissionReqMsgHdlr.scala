@@ -17,7 +17,6 @@ trait GetCamSubscribePermissionReqMsgHdlr {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
     } yield {
       if (!user.userLeftFlag.left
-        && user.authed
         && liveMeeting.props.meetingProp.intId == msg.body.meetingId) {
         Webcams.findWithStreamId(liveMeeting.webcams, msg.body.streamId) match {
           case Some(stream) => {
