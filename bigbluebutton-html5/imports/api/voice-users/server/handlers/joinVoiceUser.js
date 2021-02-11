@@ -29,7 +29,6 @@ export default function handleJoinVoiceUser({ body }, meetingId) {
   const User = Users.findOne({
     meetingId,
     intId,
-    connectionStatus: 'online',
   });
 
   if (!User) {

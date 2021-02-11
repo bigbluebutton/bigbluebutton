@@ -16,13 +16,13 @@ export default function setPublishedPoll(meetingId, isPublished) {
     },
   };
 
-  const cb = (err) => {
-    if (err != null) {
-      return Logger.error(`Setting publishedPoll=${isPublished} for meetingId=${meetingId}`);
+  try {
+    const { numberAffected } = Meetings.upsert(selector, modifier);
+
+    if (numberAffected) {
+      Logger.info(`Set publishedPoll=${isPublished} in meeitingId=${meetingId}`);
     }
-
-    return Logger.info(`Set publishedPoll=${isPublished} in meeitingId=${meetingId}`);
-  };
-
-  return Meetings.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Setting publishedPoll=${isPublished} for meetingId=${meetingId}`);
+  }
 }

@@ -11,6 +11,7 @@ class ShareScreen extends Page {
   async test() {
     await util.startScreenshare(this.page);
 
+    await this.page.waitForSelector(e.screenshareConnecting);
     await this.page.waitForSelector(e.screenShareVideo);
     const response = await util.getScreenShareContainer(this.page);
     return response;

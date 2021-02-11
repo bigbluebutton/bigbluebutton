@@ -199,13 +199,6 @@ case class AssignPresenterReqMsg(header: BbbClientMsgHeader, body: AssignPresent
 case class AssignPresenterReqMsgBody(requesterId: String, newPresenterId: String, newPresenterName: String, assignedBy: String)
 
 /**
- * Sent from client as a response to inactivity notifaction from server.
- */
-object MeetingActivityResponseCmdMsg { val NAME = "MeetingActivityResponseCmdMsg" }
-case class MeetingActivityResponseCmdMsg(header: BbbClientMsgHeader, body: MeetingActivityResponseCmdMsgBody) extends StandardMsg
-case class MeetingActivityResponseCmdMsgBody(respondedBy: String)
-
-/**
  * Sent from client to change the role of the user in the meeting.
  */
 object ChangeUserRoleCmdMsg { val NAME = "ChangeUserRoleCmdMsg" }
@@ -401,3 +394,17 @@ case class UserInactivityInspectMsgBody(meetingId: String, responseDelay: Long)
 object UserActivitySignCmdMsg { val NAME = "UserActivitySignCmdMsg" }
 case class UserActivitySignCmdMsg(header: BbbClientMsgHeader, body: UserActivitySignCmdMsgBody) extends StandardMsg
 case class UserActivitySignCmdMsgBody(userId: String)
+
+/**
+ * Sent from client to randomly select a viewer
+ */
+object SelectRandomViewerReqMsg { val NAME = "SelectRandomViewerReqMsg" }
+case class SelectRandomViewerReqMsg(header: BbbClientMsgHeader, body: SelectRandomViewerReqMsgBody) extends StandardMsg
+case class SelectRandomViewerReqMsgBody(requestedBy: String)
+
+/**
+ * Response to request for a random viewer
+ */
+object SelectRandomViewerRespMsg { val NAME = "SelectRandomViewerRespMsg" }
+case class SelectRandomViewerRespMsg(header: BbbClientMsgHeader, body: SelectRandomViewerRespMsgBody) extends StandardMsg
+case class SelectRandomViewerRespMsgBody(requestedBy: String, selectedUserId: String)

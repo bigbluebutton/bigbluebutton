@@ -1,1 +1,0 @@
-Internal classes so we can hide setters of these classes.
