@@ -124,7 +124,6 @@ class DragAndDrop extends Component {
           label={intl.formatMessage(intlMessages.customPollTextArea)}
           color="primary"
           disabled={pollValueText < 1}
-        // className={styles.btn}
         />
         {children}
       </div>
