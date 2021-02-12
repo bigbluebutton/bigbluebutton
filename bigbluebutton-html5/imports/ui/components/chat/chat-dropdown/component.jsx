@@ -48,18 +48,14 @@ class ChatDropdown extends PureComponent {
     ];
   }
 
-  componentDidMount() {
+  componentDidUpdate(prevProps, prevState) {
     const { timeWindowsValues } = this.props;
-    this.clipboard = new Clipboard('#clipboardButton', {
-      text: () => ChatService.exportChat(timeWindowsValues),
-    });
-  }
-
-  componentDidUpdate() {
-    const { timeWindowsValues } = this.props;
-    this.clipboard = new Clipboard('#clipboardButton', {
-      text: () => ChatService.exportChat(timeWindowsValues),
-    });
+    const { isSettingOpen } = this.state;
+    if (prevState.isSettingOpen !== isSettingOpen) {
+      this.clipboard = new Clipboard('#clipboardButton', {
+        text: () => ChatService.exportChat(timeWindowsValues),
+      });
+    }
   }
 
   componentWillUnmount() {
