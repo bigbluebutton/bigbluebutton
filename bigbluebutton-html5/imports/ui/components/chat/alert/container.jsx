@@ -12,7 +12,8 @@ const ChatAlertContainer = props => (
 
 export default withTracker(() => {
   const AppSettings = Settings.application;
-  const activeChats = UserListService.getActiveChats();
+  const activeChats = [];
+  // UserListService.getActiveChats();
   const { loginTime } = Users.findOne({ userId: Auth.userID }, { fields: { loginTime: 1 } });
 
   const openPanel = Session.get('openPanel');
