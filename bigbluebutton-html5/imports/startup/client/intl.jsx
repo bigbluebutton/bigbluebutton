@@ -91,10 +91,18 @@ class IntlStartup extends Component {
     const { fetching, normalizedLocale, messages } = this.state;
     const { children } = this.props;
 
-    return (fetching || !normalizedLocale) ? <LoadingScreen /> : (
-      <IntlProvider locale={normalizedLocale} messages={messages}>
-        {children}
-      </IntlProvider>
+    return (
+      <>
+        {(fetching || !normalizedLocale) && <LoadingScreen />}
+
+        {normalizedLocale
+          && (
+          <IntlProvider locale={normalizedLocale} messages={messages}>
+            {children}
+          </IntlProvider>
+          )
+        }
+      </>
     );
   }
 }
