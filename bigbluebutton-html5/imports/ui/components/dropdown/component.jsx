@@ -161,7 +161,7 @@ class Dropdown extends Component {
       if (parentElement) parentElement.focus();
     }
 
-    if (keepOpen !== false) return;
+    if (keepOpen === true) return;
     this.handleHide();
   }
 
