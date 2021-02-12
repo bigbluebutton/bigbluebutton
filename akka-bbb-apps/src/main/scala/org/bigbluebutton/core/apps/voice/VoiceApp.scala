@@ -141,7 +141,8 @@ object VoiceApp extends SystemConfiguration {
             // Purge voice users that don't have a matching user record
             // Avoid this if the meeting is a breakout room since might be real
             // voice users participating
-            if (ejectRogueVoiceUsers && !liveMeeting.props.meetingProp.isBreakout) {
+            // Also avoid ejecting if the user is dial-in (v_*)
+            if (ejectRogueVoiceUsers && !liveMeeting.props.meetingProp.isBreakout && !cvu.intId.startsWith("v_")) {
               Users2x.findWithIntId(liveMeeting.users2x, cvu.intId) match {
                 case Some(_) =>
                 case None =>
