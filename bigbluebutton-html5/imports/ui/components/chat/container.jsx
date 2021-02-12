@@ -107,7 +107,7 @@ const ChatContainer = (props) => {
   const { groupChat } = usingGroupChatContext;
   const participants = groupChat[chatID]?.participants;
   const chatName = participants?.filter((user) => user.id !== Auth.userID)[0]?.name;
-  const title = chatName || intl.formatMessage(intlMessages.titlePublic);
+  const title = chatName ? intl.formatMessage(intlMessages.titlePrivate, { 0: chatName}) : intl.formatMessage(intlMessages.titlePublic);
 
   if (unmounting === true) {
     return null;
