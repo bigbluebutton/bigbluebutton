@@ -7,8 +7,11 @@ class Share extends Page {
   constructor() {
     super('webcam-share-test');
   }
+
   async test() {
-    const response = await util.enableWebcam(this);
+    const parsedSettings = await this.getSettingsYaml();
+    const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
+    const response = await util.enableWebcam(this, videoPreviewTimeout);
     return response;
   }
 

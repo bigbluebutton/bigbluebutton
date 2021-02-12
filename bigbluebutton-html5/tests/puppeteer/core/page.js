@@ -79,8 +79,7 @@ class Page {
     await this.waitForSelector(e.microphoneButton, ELEMENT_WAIT_TIME);
     await this.click(e.microphoneButton, true);
     await this.waitForSelector(e.connectingStatus, ELEMENT_WAIT_TIME);
-    const parsedSettings = await this.getSettingsYaml();
-    const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
+    const listenOnlyCallTimeout = parseInt(this.parsedSettings.public.media.listenOnlyCallTimeout);
     await this.waitForSelector(e.echoYes, listenOnlyCallTimeout);
     await this.click(e.echoYes, true);
     await this.waitForSelector(e.isTalking, ELEMENT_WAIT_TIME);
@@ -90,8 +89,7 @@ class Page {
   async joinMicrophoneWithoutEchoTest() {
     await this.waitForSelector(e.joinAudio, ELEMENT_WAIT_TIME);
     await this.click(e.joinAudio, true);
-    const parsedSettings = await this.getSettingsYaml();
-    const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
+    const listenOnlyCallTimeout = parseInt(this.parsedSettings.public.media.listenOnlyCallTimeout);
     await this.waitForSelector(e.leaveAudio, listenOnlyCallTimeout);
   }
   
@@ -170,7 +168,6 @@ class Page {
       ];
       return {
         headless: true,
-        slowMo: 650,
         args,
       };
     }
@@ -211,7 +208,6 @@ class Page {
     ];
     return {
       headless: false,
-      slowMo: 650,
       args,
     };
   }
