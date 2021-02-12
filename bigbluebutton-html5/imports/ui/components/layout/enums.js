@@ -26,6 +26,8 @@ export const ACTIONS = {
   SET_LAYOUT_TYPE: 'setLayoutType',
   SET_DEVICE_TYPE: 'setDeviceType',
 
+  SET_LAYOUT_LOADED: 'setLayoutLoaded',
+
   SET_LAYOUT_INPUT: 'setLayoutInput',
 
   SET_BROWSER_SIZE: 'setBrowserSize',

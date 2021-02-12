@@ -16,6 +16,7 @@ const Context = createContext();
 const initState = {
   deviceType: null,
   layoutType: DEFAULT_VALUES.layoutType,
+  layoutLoaded: 'legacy',
   input: INITIAL_INPUT_STATE,
   output: INITIAL_OUTPUT_STATE,
 };
@@ -48,6 +49,16 @@ const reducer = (state, action) => {
       return {
         ...state,
         layoutType: action.value,
+      };
+    }
+
+    case ACTIONS.SET_LAYOUT_LOADED: {
+      console.log('SET_LAYOUT_LOADED', action.value);
+      const { layoutLoaded } = state;
+      if (layoutLoaded === action.value) return state;
+      return {
+        ...state,
+        layoutLoaded: action.value,
       };
     }
 
@@ -162,6 +173,7 @@ const reducer = (state, action) => {
     case ACTIONS.SET_SIDEBAR_NAVIGATION_SIZE: {
       const { width, browserWidth } = action.value;
       const { sidebarNavigation } = state.input;
+      console.log('action.value', action.value);
       if (sidebarNavigation.width === width
         && sidebarNavigation.browserWidth === browserWidth) {
         return state;

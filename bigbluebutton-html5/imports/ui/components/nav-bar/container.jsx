@@ -6,7 +6,7 @@ import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import userListService from '../user-list/service';
+import userListService from '/imports/ui/components/user-list/service';
 import NoteService from '/imports/ui/components/note/service';
 import Service from './service';
 import NavBar from './component';

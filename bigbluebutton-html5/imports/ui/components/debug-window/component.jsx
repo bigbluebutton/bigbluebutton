@@ -2,13 +2,15 @@ import React, { Component } from 'react';
 import Draggable from 'react-draggable';
 import Resizable from 're-resizable';
 import { Session } from 'meteor/session';
-import { styles } from './styles.scss';
 import { defineMessages, injectIntl } from 'react-intl';
+import { styles } from './styles.scss';
 import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
 import Toggle from '/imports/ui/components/switch/component';
 import Storage from '/imports/ui/services/storage/session';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
+import { ACTIONS } from '../layout/enums';
+import NewLayoutContext from '../layout/context/context';
 
 const intlMessages = defineMessages({
   modalClose: {
@@ -45,16 +47,14 @@ const DEBUG_WINDOW_ENABLED = Meteor.settings.public.app.enableDebugWindow;
 const SHOW_DEBUG_WINDOW_ACCESSKEY = Meteor.settings.public.app.shortcuts.openDebugWindow.accesskey;
 
 class DebugWindow extends Component {
-  static setLayoutManagerToLoad(event) {
-    Session.set('layoutManagerLoaded', event.target.value);
-  }
-
   constructor(props) {
     super(props);
 
     this.state = {
       showDebugWindow: false,
     };
+
+    this.setLayoutManagerToLoad = this.setLayoutManagerToLoad.bind(this);
   }
 
   componentDidMount() {
@@ -68,6 +68,15 @@ class DebugWindow extends Component {
 
   setShowDebugWindow(showDebugWindow) {
     this.setState({ showDebugWindow });
+  }
+
+  setLayoutManagerToLoad(event) {
+    const { newLayoutContextDispatch } = this.props;
+    Session.set('layoutManagerLoaded', event.target.value);
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_LAYOUT_LOADED,
+      value: event.target.value,
+    });
   }
 
   debugWindowToggle() {
@@ -210,7 +219,7 @@ class DebugWindow extends Component {
                       /> */}
                       <select
                         value={Session.get('layoutManagerLoaded')}
-                        onChange={DebugWindow.setLayoutManagerToLoad}
+                        onChange={this.setLayoutManagerToLoad}
                       >
                         <option value="legacy">Legacy</option>
                         <option value="new">New Layout Manager</option>
@@ -229,4 +238,4 @@ class DebugWindow extends Component {
   }
 }
 
-export default withLayoutConsumer(injectIntl(DebugWindow));
+export default withLayoutConsumer(injectIntl(NewLayoutContext.withConsumer(DebugWindow)));

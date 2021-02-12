@@ -32,6 +32,7 @@ import {
 import NewLayoutContext from '../layout/context/context';
 import CustomLayout from '../layout/layout-manager/customLayout';
 import NavBarContainer from '../nav-bar/container';
+import SidebarNavigationContainer from '../sidebar-navigation/container';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -265,18 +266,6 @@ class App extends Component {
     );
   }
 
-  renderSidebar() {
-    const { sidebar } = this.props;
-
-    if (!sidebar) return null;
-
-    return (
-      <aside className={styles.sidebar}>
-        {sidebar}
-      </aside>
-    );
-  }
-
   renderCaptions() {
     const { captions } = this.props;
 
@@ -373,12 +362,11 @@ class App extends Component {
               <NotificationsBarContainer />
               <section className={styles.wrapper}>
                 <div className={openPanel ? styles.content : styles.noPanelContent}>
-                  <NavBarContainer />
+                  <NavBarContainer main="legacy" />
                   {this.renderMedia()}
                   {this.renderActionsBar()}
                 </div>
                 {this.renderPanel()}
-                {this.renderSidebar()}
               </section>
               <UploaderContainer />
               <BreakoutRoomInvitation />
@@ -400,13 +388,15 @@ class App extends Component {
           && (
             <Fragment>
               <div
+                id="newLayout"
                 className={styles.newLayout}
                 style={{
                   width: layoutManagerLoaded !== 'both' ? '100%' : '50%',
                   height: layoutManagerLoaded !== 'both' ? '100%' : '50%',
                 }}
               >
-                <NavBarContainer />
+                <NavBarContainer main="new" />
+                <SidebarNavigationContainer />
               </div>
             </Fragment>
           )}

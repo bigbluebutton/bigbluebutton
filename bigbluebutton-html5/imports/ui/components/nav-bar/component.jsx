@@ -81,6 +81,7 @@ class NavBar extends Component {
       amIModerator,
       style,
       layoutManagerLoaded,
+      main,
     } = this.props;
 
     const toggleBtnClasses = {};
@@ -94,7 +95,7 @@ class NavBar extends Component {
       <header
         className={styles.navbar}
         style={
-          layoutManagerLoaded === 'new'
+          main === 'new'
             ? {
               position: 'absolute',
               top: style.top,
