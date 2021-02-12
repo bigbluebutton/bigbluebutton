@@ -621,7 +621,8 @@ class MeetingActor(
         if (authedUsers.isEmpty) {
           sendEndMeetingDueToExpiry(
             MeetingEndReason.ENDED_DUE_TO_NO_AUTHED_USER,
-            eventBus, outGW, liveMeeting
+            eventBus, outGW, liveMeeting,
+            "system"
           )
         }
       }

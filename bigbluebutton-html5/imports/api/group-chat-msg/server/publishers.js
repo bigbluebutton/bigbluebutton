@@ -19,12 +19,13 @@ function groupChatMsg(chatsIds) {
 
   Logger.debug('Publishing group-chat-msg', { meetingId, userId });
 
-  return GroupChatMsg.find({
+  const selector = {
     $or: [
       { meetingId, chatId: { $eq: PUBLIC_GROUP_CHAT_ID } },
       { chatId: { $in: chatsIds } },
     ],
-  });
+  };
+  return GroupChatMsg.find(selector);
 }
 
 function publish(...args) {
