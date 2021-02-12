@@ -9,7 +9,8 @@ const ae = require('../audio/elements'); // audio elements
 const ue = require('../user/elements'); // user elements
 const ce = require('../customparameters/elements'); // customparameters elements
 const e = require('../core/elements'); // page base elements
-const { ELEMENT_WAIT_TIME } = require('../core/constants'); // core constants (Timeouts vars imported)
+// core constants (Timeouts vars imported)
+const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const today = moment().format('DD-MM-YYYY');
 
 class Create {
@@ -17,8 +18,6 @@ class Create {
     this.page1 = new Page();
     this.page2 = new Page();
     this.page3 = new Page();
-    const parsedSettings = this.page1.getSettingsYaml();
-    const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
   }
 
   // Join BigBlueButton meeting
@@ -66,8 +65,8 @@ class Create {
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/03-breakout-page02-before-closing-audio-modal.png`) });
     }
-    await page2[2].waitForSelector(e.closeAudio, ELEMENT_WAIT_TIME);
-    await page2[2].click(e.closeAudio, true);
+    await page2[2].waitForSelector(e.closeAudio, { timeout: ELEMENT_WAIT_TIME });
+    await page2[2].click(e.closeAudio);
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/04-breakout-page02-after-closing-audio-modal.png`) });
     }
@@ -112,12 +111,14 @@ class Create {
         await page3[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/00-breakout-page03-user-joined-no-mic-before-check-${testName}.png`) });
       }
       await page3[2].bringToFront();
-      await page3[2].waitForSelector(ae.microphone, ELEMENT_WAIT_TIME);
-      await page3[2].click(ae.microphone, ELEMENT_WAIT_TIME);
-      await page3[2].waitForSelector(ae.connectingStatus, ELEMENT_WAIT_TIME);
-      await page3[2].waitForSelector(ae.audioAudible);
+      await page3[2].waitForSelector(ae.microphone, { timeout: ELEMENT_WAIT_TIME });
+      await page3[2].click(ae.microphone);
+      await page3[2].waitForSelector(ae.connectingStatus, { timeout: ELEMENT_WAIT_TIME });
+      const parsedSettings = await this.page1.getSettingsYaml();
+      const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
+      await page3[2].waitForSelector(ae.audioAudible, { timeout: listenOnlyCallTimeout });
       await page3[2].click(ae.audioAudible);
-      await page3[2].waitForSelector(e.whiteboard);
+      await page3[2].waitForSelector(e.whiteboard, { timeout: ELEMENT_WAIT_TIME });
 
       if (process.env.GENERATE_EVIDENCES === 'true') {
         await page3[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/00-breakout-page03-user-joined-with-mic-before-check-${testName}.png`) });
@@ -125,11 +126,11 @@ class Create {
     } else if (testName === 'joinBreakoutroomsWithVideo') {
       await this.page3.init(Page.getArgsWithVideo(), this.page1.meetingId, { ...params, fullName: 'Moderator3' }, undefined);
       await this.page3.closeAudioModal();
-      await this.page3.waitForSelector(be.breakoutRoomsButton);
+      await this.page3.waitForSelector(be.breakoutRoomsButton, ELEMENT_WAIT_TIME);
       await this.page3.click(be.breakoutRoomsButton, true);
-      await this.page3.waitForSelector(be.joinRoom1);
+      await this.page3.waitForSelector(be.joinRoom1, ELEMENT_WAIT_TIME);
       await this.page3.click(be.joinRoom1, true);
-      await this.page3.waitForSelector(be.alreadyConnected);
+      await this.page3.waitForSelector(be.alreadyConnected, ELEMENT_WAIT_TIME);
 
       const page3 = await this.page3.browser.pages();
 
@@ -137,14 +138,16 @@ class Create {
         await page3[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/00-breakout-page03-user-joined-no-webcam-before-check-${testName}.png`) });
       }
       await page3[2].bringToFront();
-      await page3[2].waitForSelector(e.audioDialog);
-      await page3[2].waitForSelector(e.closeAudio);
+      await page3[2].waitForSelector(e.audioDialog, { timeout: ELEMENT_WAIT_TIME });
+      await page3[2].waitForSelector(e.closeAudio, { timeout: ELEMENT_WAIT_TIME });
       await page3[2].click(e.closeAudio);
-      await page3[2].waitForSelector(we.joinVideo);
+      await page3[2].waitForSelector(we.joinVideo, { timeout: ELEMENT_WAIT_TIME });
       await page3[2].click(we.joinVideo);
-      await page3[2].waitForSelector(we.videoPreview);
+      const parsedSettings = await this.page3.getSettingsYaml();
+      const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
+      await page3[2].waitForSelector(we.videoPreview, { timeout: videoPreviewTimeout });
       await page3[2].click(we.videoPreview);
-      await page3[2].waitForSelector(we.startSharingWebcam);
+      await page3[2].waitForSelector(we.startSharingWebcam, { timeout: ELEMENT_WAIT_TIME });
       await page3[2].click(we.startSharingWebcam);
       if (process.env.GENERATE_EVIDENCES === 'true') {
         await page3[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/00-breakout-page03-user-joined-with-webcam-before-check-${testName}.png`) });
@@ -152,11 +155,11 @@ class Create {
     } else if (testName === 'joinBreakoutroomsAndShareScreen') {
       await this.page3.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Moderator3' }, undefined);
       await this.page3.closeAudioModal();
-      await this.page3.waitForSelector(be.breakoutRoomsButton);
+      await this.page3.waitForSelector(be.breakoutRoomsButton, ELEMENT_WAIT_TIME);
       await this.page3.click(be.breakoutRoomsButton, true);
-      await this.page3.waitForSelector(be.joinRoom1);
+      await this.page3.waitForSelector(be.joinRoom1, ELEMENT_WAIT_TIME);
       await this.page3.click(be.joinRoom1, true);
-      await this.page3.waitForSelector(be.alreadyConnected);
+      await this.page3.waitForSelector(be.alreadyConnected, ELEMENT_WAIT_TIME);
       const page3 = await this.page3.browser.pages();
 
       if (process.env.GENERATE_EVIDENCES === 'true') {
@@ -165,17 +168,17 @@ class Create {
       await page3[2].bringToFront();
       await page3[2].waitForSelector(e.audioDialog, { timeout: ELEMENT_WAIT_TIME });
       await page3[2].waitForSelector(e.closeAudio, { timeout: ELEMENT_WAIT_TIME });
-      await page3[2].click(e.closeAudio, true);
+      await page3[2].click(e.closeAudio);
 
       // Take Presenter
       await page3[2].waitForSelector(ue.firstUser, { timeout: ELEMENT_WAIT_TIME });
-      await page3[2].click(ue.firstUser, true);
+      await page3[2].click(ue.firstUser);
       await page3[2].waitForSelector(ue.setPresenter, { timeout: ELEMENT_WAIT_TIME });
-      await page3[2].click(ue.setPresenter, true);
+      await page3[2].click(ue.setPresenter);
 
       // Start Share Screen
       await page3[2].waitForSelector(ce.screenShareButton, { timeout: ELEMENT_WAIT_TIME });
-      await page3[2].click(ce.screenShareButton, true);
+      await page3[2].click(ce.screenShareButton);
       await page3[2].on('dialog', async (dialog) => {
         await dialog.accept();
       });

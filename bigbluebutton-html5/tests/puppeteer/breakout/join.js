@@ -55,7 +55,7 @@ class Join extends Create {
       this.page2.logger('logged in to breakout with video');
 
       const page2 = await this.page2.browser.pages();
-      await page2[2].waitForSelector(we.videoContainer, { timeout: ELEMENT_WAIT_TIME });
+      await page2[2].waitForSelector(we.videoContainer, { timeout: VIDEO_LOADING_WAIT_TIME });
       if (process.env.GENERATE_EVIDENCES === 'true') {
         await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/05-breakout-page02-user-joined-with-webcam-success-${testName}.png`) });
       }
@@ -94,7 +94,7 @@ class Join extends Create {
       return resp;
     } else {
       await this.page3.page.bringToFront();
-      await this.page3.waitForSelector(e.breakoutRoomsItem, ELEMENT_WAIT_TIME );
+      await this.page3.waitForSelector(e.breakoutRoomsItem, ELEMENT_WAIT_TIME);
       await this.page3.waitForSelector(e.chatButton, ELEMENT_WAIT_TIME);
       await this.page3.click(e.chatButton, true);
       await this.page3.click(e.breakoutRoomsItem, true);
