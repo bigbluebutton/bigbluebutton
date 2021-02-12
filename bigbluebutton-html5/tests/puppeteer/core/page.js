@@ -84,7 +84,7 @@ class Page {
     await this.click(e.echoYes, true);
     await this.waitForSelector(e.isTalking, ELEMENT_WAIT_TIME);
   }
-  
+
   // Joining audio with microphone
   async joinMicrophoneWithoutEchoTest() {
     await this.waitForSelector(e.joinAudio, ELEMENT_WAIT_TIME);
@@ -92,14 +92,14 @@ class Page {
     const listenOnlyCallTimeout = parseInt(this.parsedSettings.public.media.listenOnlyCallTimeout);
     await this.waitForSelector(e.leaveAudio, listenOnlyCallTimeout);
   }
-  
+
   // Leave audio
   async leaveAudio() {
     await this.waitForSelector(e.leaveAudio, ELEMENT_WAIT_TIME);
     await this.click(e.leaveAudio, true);
     await this.waitForSelector(e.joinAudio, ELEMENT_WAIT_TIME);
   }
-  
+
   // Logout from meeting
   async logoutFromMeeting() {
     await this.waitForSelector(e.options, ELEMENT_WAIT_TIME);

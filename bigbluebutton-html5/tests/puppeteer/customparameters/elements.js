@@ -12,7 +12,7 @@ exports.brandingAreaLogo = 'div[class^="branding--"]';
 exports.verticalListOptions = 'div[aria-expanded="true"] > div[class^="scrollable--"] > ul[class^="verticalList"]';
 exports.screenShareButton = 'button[aria-label="Share your screen"]';
 exports.shareWebcamButton = 'button[data-test="joinVideo"]';
-exports.stopWebcamButton = 'button[data-test="leaveVideo"]'
+exports.stopWebcamButton = 'button[data-test="leaveVideo"]';
 exports.webcamSettingsModal = 'div[aria-label="Webcam settings"]';
 exports.startWebcamSharingConfirm = 'button[aria-label="Start sharing"]';
 exports.multiUsersWhiteboard = 'button[aria-label="Turn multi-user whiteboard on"]';
@@ -31,3 +31,4 @@ exports.webcamMirroredVideoPreview = 'video[data-test="mirroredVideoPreview"]';
 exports.webcamVideoContainer = 'video[data-test="videoContainer"]';
 exports.webcamMirroredVideoContainer = 'video[data-test="mirroredVideoContainer"]';
 exports.userslistContainer = 'div[aria-label="User list"]';
+exports.userListContent = 'div[data-test="userListContent"]';
