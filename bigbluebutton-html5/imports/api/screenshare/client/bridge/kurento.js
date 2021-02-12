@@ -106,7 +106,7 @@ export default class KurentoScreenshareBridge {
       // means the stream is playing properly and it'll be logged.
       mediaTagPlayed();
     }
-  };
+  }
 
   static screenshareElementLoadAndPlay(stream, element, muted) {
     element.muted = muted;
@@ -135,7 +135,7 @@ export default class KurentoScreenshareBridge {
     } catch (error) {
       logger.error({
         logCode: 'screenshare_viewer_fetchstunturninfo_error',
-        extraInfo: { error }
+        extraInfo: { error },
       }, 'Screenshare bridge failed to fetch STUN/TURN info, using default');
       iceServers = getMappedFallbackStun();
     } finally {

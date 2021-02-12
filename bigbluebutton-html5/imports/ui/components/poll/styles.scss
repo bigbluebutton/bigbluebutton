@@ -1,6 +1,6 @@
-@import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/focus";
 @import "/imports/ui/stylesheets/mixins/_indicators";
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 :root {
     --poll-column-amount: 2;
@@ -188,7 +188,7 @@
  
     &:hover,
     &:focus {
-        @include highContrastOutline();
+        @extend %highContrastOutline;
     }
 
     &:focus {

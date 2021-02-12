@@ -23,6 +23,8 @@ Copy the `.env-template` file to a new file, and name it `.env`. In the `.env` f
 
 To run all the tests at once, run `npm test`. If you have Jest installed globally, you can run individual tests with `jest TEST [TEST...]`. The tests are found in the `.test.js` files, but you may choose to omit file extensions when running the tests.
 
+To run the tests and get their metrics, you will need to add inside `.env` file `METRICS_FOLDER="/tmp/bbb-metrics"` and `BBB_COLLECT_METRICS=true`; if `BBB_COLLECT_METRICS` receives `true`, the metrics will be generated at the end of the test inside `/tmp/bbb-metrics` folder.
+
 ## Running the tests in a Docker container
 
 Using this method, you can run the tests with the latest version of the HTML5 client, which you can find in this repository. You will need Docker to run tests this way. To run the tests, just run `./test-html5.sh` from the `bigbluebutton/bigbluebutton-html5` directory. The script will start a Docker container with a BigBlueButton server and the source code for the HTML5 client, and will run the tests with this server before stopping and removing the container.

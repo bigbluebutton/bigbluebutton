@@ -31,6 +31,8 @@ class AnalyticsActor extends Actor with ActorLogging {
 
     msg.core match {
       case m: GetAllMeetingsReqMsg                           => logMessage(msg)
+      case m: GetRunningMeetingsRespMsg                      => logMessage(msg)
+      case m: GetRunningMeetingsReqMsg                       => logMessage(msg)
 
       case m: RegisterUserReqMsg                             => logMessage(msg)
       case m: RegisteredUserJoinTimeoutMsg                   => logMessage(msg)
@@ -47,7 +49,6 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: UserLeftMeetingEvtMsg                          => logMessage(msg)
       case m: PresenterUnassignedEvtMsg                      => logMessage(msg)
       case m: PresenterAssignedEvtMsg                        => logMessage(msg)
-      case m: MeetingIsActiveEvtMsg                          => logMessage(msg)
       case m: UserEjectedFromMeetingEvtMsg                   => logMessage(msg)
       case m: EjectUserFromVoiceConfSysMsg                   => logMessage(msg)
       case m: CreateBreakoutRoomSysCmdMsg                    => logMessage(msg)
@@ -74,7 +75,6 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: ScreenshareStopRtmpBroadcastVoiceConfMsg       => logMessage(msg)
       case m: ScreenshareRtmpBroadcastStartedEvtMsg          => logMessage(msg)
       case m: ScreenshareRtmpBroadcastStoppedEvtMsg          => logMessage(msg)
-      case m: MeetingInactivityWarningEvtMsg                 => logMessage(msg)
       case m: StartRecordingVoiceConfSysMsg                  => logMessage(msg)
       case m: StopRecordingVoiceConfSysMsg                   => logMessage(msg)
       //case m: UpdateRecordingTimerEvtMsg => logMessage(msg)
@@ -134,6 +134,8 @@ class AnalyticsActor extends Actor with ActorLogging {
       // Guest Management
       case m: GuestsWaitingApprovedMsg => logMessage(msg)
       case m: GuestsWaitingApprovedEvtMsg => logMessage(msg)
+      case m: GuestWaitingLeftMsg => logMessage(msg)
+      case m: GuestWaitingLeftEvtMsg => logMessage(msg)
       case m: GuestsWaitingForApprovalEvtMsg => logMessage(msg)
       case m: SetGuestPolicyCmdMsg => logMessage(msg)
       case m: GuestPolicyChangedEvtMsg => logMessage(msg)

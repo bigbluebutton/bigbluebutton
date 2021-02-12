@@ -11,6 +11,7 @@ import ChatService from './service';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 const CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
+const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const CONNECTION_STATUS = 'online';
 
@@ -88,25 +89,28 @@ export default injectIntl(withTracker(({ intl }) => {
       sender: null,
     };
 
-    const moderatorTime = time + 1;
-    const moderatorId = `moderator-msg-${moderatorTime}`;
+    let moderatorMsg;
     const modOnlyMessage = Storage.getItem('ModeratorOnlyMessage');
+    if (amIModerator && modOnlyMessage) {
+      const moderatorTime = time + 1;
+      const moderatorId = `moderator-msg-${moderatorTime}`;
 
-    const moderatorMsg = {
-      id: moderatorId,
-      content: [{
+      moderatorMsg = {
         id: moderatorId,
-        text: modOnlyMessage,
+        content: [{
+          id: moderatorId,
+          text: modOnlyMessage,
+          time: moderatorTime,
+        }],
         time: moderatorTime,
-      }],
-      time: moderatorTime,
-      sender: null,
-    };
+        sender: null,
+      };
+    }
 
-    const messagesBeforeWelcomeMsg = ChatService.reduceAndMapGroupMessages(
+    const messagesBeforeWelcomeMsg = ChatService.reduceAndDontMapGroupMessages(
       messages.filter(message => message.timestamp < time),
     );
-    const messagesAfterWelcomeMsg = ChatService.reduceAndMapGroupMessages(
+    const messagesAfterWelcomeMsg = ChatService.reduceAndDontMapGroupMessages(
       messages.filter(message => message.timestamp >= time),
     );
 
@@ -120,12 +124,15 @@ export default injectIntl(withTracker(({ intl }) => {
     messages = ChatService.getPrivateGroupMessages();
 
     const receiverUser = ChatService.getUser(chatID);
-    chatName = receiverUser.name;
-    systemMessageIntl = { 0: receiverUser.name };
-    title = intl.formatMessage(intlMessages.titlePrivate, systemMessageIntl);
-    partnerIsLoggedOut = receiverUser.connectionStatus !== CONNECTION_STATUS;
+    const privateChat = ChatService.getPrivateChatByUsers(chatID);
 
-    if (partnerIsLoggedOut) {
+    chatName = receiverUser?.name || privateChat.participants.filter(u => u.id === chatID).pop().name;
+
+    systemMessageIntl = { 0: chatName };
+    title = intl.formatMessage(intlMessages.titlePrivate, systemMessageIntl);
+    partnerIsLoggedOut = !!receiverUser;
+
+    if (!partnerIsLoggedOut) {
       const time = Date.now();
       const id = `partner-disconnected-${time}`;
       const messagePartnerLoggedOut = {
@@ -150,15 +157,15 @@ export default injectIntl(withTracker(({ intl }) => {
   }
 
   messages = messages.map((message) => {
-    if (message.sender) return message;
+    if (message.sender && message.sender.id !== SYSTEM_CHAT_TYPE) return message;
 
     return {
       ...message,
-      content: message.content.map(content => ({
+      content: message.content ? message.content.map(content => ({
         ...content,
         text: content.text in intlMessages
           ? `<b><i>${intl.formatMessage(intlMessages[content.text], systemMessageIntl)}</i></b>` : content.text,
-      })),
+      })) : [],
     };
   });
 

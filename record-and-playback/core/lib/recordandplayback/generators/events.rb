@@ -68,13 +68,13 @@ module BigBlueButton
     # Get the timestamp of the first event.
     def self.first_event_timestamp(events)
       first_event = events.at_xpath('/recording/event[position() = 1]')
-      first_event['timestamp'].to_i
+      first_event['timestamp'].to_i if first_event && first_event.key?('timestamp')
     end
     
     # Get the timestamp of the last event.
     def self.last_event_timestamp(events)
       last_event = events.at_xpath('/recording/event[position() = last()]')
-      last_event['timestamp'].to_i
+      last_event['timestamp'].to_i if last_event && last_event.key?('timestamp')
     end  
     
     # Determine if the start and stop event matched.

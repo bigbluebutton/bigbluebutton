@@ -14,16 +14,13 @@ export default function handleRecordingStatusChange({ body }, meetingId) {
     $set: { recording },
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      Logger.error(`Changing record status: ${err}`);
-      return;
-    }
+  try {
+    const { numberAffected } = RecordMeetings.upsert(selector, modifier);
 
-    if (numChanged) {
+    if (numberAffected) {
       Logger.info(`Changed meeting record status id=${meetingId} recording=${recording}`);
     }
-  };
-
-  return RecordMeetings.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Changing record status: ${err}`);
+  }
 }

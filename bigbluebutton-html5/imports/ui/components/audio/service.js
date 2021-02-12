@@ -1,5 +1,6 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
+import { debounce, throttle } from 'lodash';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Meetings from '/imports/api/meetings';
 import { makeCall } from '/imports/ui/services/api';
@@ -7,6 +8,7 @@ import VoiceUsers from '/imports/api/voice-users';
 import logger from '/imports/startup/client/logger';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const TOGGLE_MUTE_THROTTLE_TIME = Meteor.settings.public.media.toggleMuteThrottleTime;
 
 const init = (messages, intl) => {
   AudioManager.setAudioMessages(messages, intl);
@@ -40,11 +42,10 @@ const isVoiceUser = () => {
   return voiceUser ? voiceUser.joined : false;
 };
 
-const toggleMuteMicrophone = () => {
+const toggleMuteMicrophone = throttle(() => {
   const user = VoiceUsers.findOne({
     meetingId: Auth.meetingID, intId: Auth.userID,
   }, { fields: { muted: 1 } });
-
   if (user.muted) {
     logger.info({
       logCode: 'audiomanager_unmute_audio',
@@ -58,7 +59,8 @@ const toggleMuteMicrophone = () => {
     }, 'microphone muted by user');
     makeCall('toggleVoice');
   }
-};
+}, TOGGLE_MUTE_THROTTLE_TIME);
+
 
 export default {
   init,
@@ -67,9 +69,13 @@ export default {
   joinListenOnly: () => AudioManager.joinListenOnly(),
   joinMicrophone: () => AudioManager.joinMicrophone(),
   joinEchoTest: () => AudioManager.joinEchoTest(),
-  toggleMuteMicrophone,
+  toggleMuteMicrophone: debounce(toggleMuteMicrophone, 500, { leading: true, trailing: false }),
   changeInputDevice: inputDeviceId => AudioManager.changeInputDevice(inputDeviceId),
-  changeOutputDevice: outputDeviceId => AudioManager.changeOutputDevice(outputDeviceId),
+  changeOutputDevice: (outputDeviceId) => {
+    if (AudioManager.outputDeviceId !== outputDeviceId) {
+      AudioManager.changeOutputDevice(outputDeviceId);
+    }
+  },
   isConnected: () => AudioManager.isConnected,
   isTalking: () => AudioManager.isTalking,
   isHangingUp: () => AudioManager.isHangingUp,
@@ -87,4 +93,7 @@ export default {
   isVoiceUser,
   autoplayBlocked: () => AudioManager.autoplayBlocked,
   handleAllowAutoplay: () => AudioManager.handleAllowAutoplay(),
+  playAlertSound: url => AudioManager.playAlertSound(url),
+  updateAudioConstraints:
+    constraints => AudioManager.updateAudioConstraints(constraints),
 };

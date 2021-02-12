@@ -111,7 +111,7 @@ class VideoListItem extends Component {
     return _.compact([
       <DropdownListTitle className={styles.hiddenDesktop} key="name">{name}</DropdownListTitle>,
       <DropdownListSeparator className={styles.hiddenDesktop} key="sep" />,
-      ...actions.map(action => (<DropdownListItem key={cameraId} {...action} />)),
+      ...actions.map(action => (<DropdownListItem key={`${cameraId}-${action.actionName}`} {...action} />)),
     ]);
   }
 
@@ -123,6 +123,7 @@ class VideoListItem extends Component {
 
     return (
       <FullscreenButtonContainer
+        data-test="presentationFullscreenButton"
         fullscreenRef={this.videoContainer}
         elementName={name}
         isFullscreen={isFullscreen}
@@ -142,6 +143,7 @@ class VideoListItem extends Component {
       numOfStreams,
       webcamDraggableState,
       swapLayout,
+      mirrored
     } = this.props;
     const availableActions = this.getAvailableActions();
     const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
@@ -150,14 +152,14 @@ class VideoListItem extends Component {
     const isFirefox = (result && result.name) ? result.name.includes('firefox') : false;
 
     return (
-      <div className={cx({
+      <div data-test={voiceUser.talking ? 'webcamItemTalkingUser' : 'webcamItem'} className={cx({
         [styles.content]: true,
         [styles.talking]: voiceUser.talking,
       })}
       >
         {
           !videoIsReady &&
-            <div className={styles.connecting}>
+            <div data-test="webcamConnecting" className={styles.connecting}>
               <span className={styles.loadingText}>{name}</span>
             </div>
         }
@@ -167,13 +169,14 @@ class VideoListItem extends Component {
         >
           <video
             muted
+            data-test={this.mirrorOwnWebcam ? 'mirroredVideoContainer' : 'videoContainer'}
             className={cx({
               [styles.media]: true,
               [styles.cursorGrab]: !webcamDraggableState.dragging
                 && !isFullscreen && !swapLayout,
               [styles.cursorGrabbing]: webcamDraggableState.dragging
                 && !isFullscreen && !swapLayout,
-              [styles.mirroredVideo]: this.mirrorOwnWebcam,
+              [styles.mirroredVideo]: (this.mirrorOwnWebcam && !mirrored) || (!this.mirrorOwnWebcam && mirrored),
             })}
             ref={(ref) => { this.videoTag = ref; }}
             autoPlay

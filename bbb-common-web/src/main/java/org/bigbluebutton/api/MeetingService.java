@@ -42,6 +42,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
+import org.bigbluebutton.api.HTML5LoadBalancingService;
 import org.bigbluebutton.api.domain.GuestPolicy;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Recording;
@@ -82,6 +83,7 @@ import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.bigbluebutton.common2.redis.RedisStorageService;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
+import org.bigbluebutton.web.services.WaitingGuestCleanupTimerTask;
 import org.bigbluebutton.web.services.UserCleanupTimerTask;
 import org.bigbluebutton.web.services.EnteredUserCleanupTimerTask;
 import org.bigbluebutton.web.services.callback.CallbackUrlService;
@@ -108,11 +110,13 @@ public class MeetingService implements MessageListener {
   private final ConcurrentMap<String, UserSession> sessions;
 
   private RecordingService recordingService;
+  private WaitingGuestCleanupTimerTask waitingGuestCleaner;
   private UserCleanupTimerTask userCleaner;
   private EnteredUserCleanupTimerTask enteredUserCleaner;
   private StunTurnService stunTurnService;
   private RedisStorageService storeService;
   private CallbackUrlService callbackUrlService;
+  private HTML5LoadBalancingService html5LoadBalancingService;
   private boolean keepEvents;
 
   private long usersTimeout;
@@ -246,6 +250,38 @@ public class MeetingService implements MessageListener {
     }
   }
 
+  public void guestIsWaiting(String meetingId, String userId) {
+    Meeting m = getMeeting(meetingId);
+    if (m != null) {
+      m.guestIsWaiting(userId);
+    }
+  }
+
+  /**
+   * Remove registered waiting guest users who left the waiting page.
+   */
+  public void purgeWaitingGuestUsers() {
+    for (AbstractMap.Entry<String, Meeting> entry : this.meetings.entrySet()) {
+      Long now = System.currentTimeMillis();
+      Meeting meeting = entry.getValue();
+
+      ConcurrentMap<String, User> users = meeting.getUsersMap();
+
+      for (AbstractMap.Entry<String, RegisteredUser> registeredUser : meeting.getRegisteredUsers().entrySet()) {
+        String registeredUserID = registeredUser.getKey();
+        RegisteredUser ru = registeredUser.getValue();
+
+        long elapsedTime = now - ru.getGuestWaitedOn();
+        if (elapsedTime >= 15000 && ru.getGuestStatus() == GuestPolicy.WAIT) {
+          if (meeting.userUnregistered(registeredUserID) != null) {
+            gw.guestWaitingLeft(meeting.getInternalId(), registeredUserID);
+          };
+        }
+      }
+    }
+  }
+
+
   private void kickOffProcessingOfRecording(Meeting m) {
     if (m.isRecord() && m.getNumUsers() == 0) {
       processRecording(m);
@@ -290,8 +326,10 @@ public class MeetingService implements MessageListener {
 
   public synchronized boolean createMeeting(Meeting m) {
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(m.getExternalId());
-    Meeting existing = getNotEndedMeetingWithId(internalMeetingId);
-    if (existing == null) {
+    Meeting existingId = getNotEndedMeetingWithId(internalMeetingId);
+    Meeting existingTelVoice = getNotEndedMeetingWithTelVoice(m.getTelVoice());
+    Meeting existingWebVoice = getNotEndedMeetingWithWebVoice(m.getWebVoice());
+    if (existingId == null && existingTelVoice == null && existingWebVoice == null) {
       meetings.put(m.getInternalId(), m);
       handle(new CreateMeeting(m));
       return true;
@@ -358,13 +396,13 @@ public class MeetingService implements MessageListener {
             m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
             m.getWebcamsOnlyForModerator(), m.getModeratorPassword(), m.getViewerPassword(), m.getCreateTime(),
             formatPrettyDate(m.getCreateTime()), m.isBreakout(), m.getSequence(), m.isFreeJoin(), m.getMetadata(),
-            m.getGuestPolicy(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(), m.getModeratorOnlyMessage(),
-            m.getDialNumber(), m.getMaxUsers(), m.getMaxInactivityTimeoutMinutes(), m.getWarnMinutesBeforeMax(),
+            m.getGuestPolicy(), m.getAuthenticatedGuest(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(), m.getModeratorOnlyMessage(),
+            m.getDialNumber(), m.getMaxUsers(),
             m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes(),
             m.getUserInactivityInspectTimerInMinutes(), m.getUserInactivityThresholdInMinutes(),
             m.getUserActivitySignResponseDelayInMinutes(), m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), keepEvents,
             m.breakoutRoomsParams,
-            m.lockSettingsParams);
+            m.lockSettingsParams, m.getHtml5InstanceId());
   }
 
   private String formatPrettyDate(Long timestamp) {
@@ -443,6 +481,32 @@ public class MeetingService implements MessageListener {
           String key = entry.getKey();
           if (key.startsWith(meetingId)) {
               Meeting m = entry.getValue();
+              if (!m.isForciblyEnded())
+                  return m;
+          }
+      }
+      return null;
+  }
+
+  public Meeting getNotEndedMeetingWithTelVoice(String telVoice) {
+      if (telVoice == null)
+          return null;
+      for (Map.Entry<String, Meeting> entry : meetings.entrySet()) {
+          Meeting m = entry.getValue();
+          if (telVoice.equals(m.getTelVoice())) {
+              if (!m.isForciblyEnded())
+                  return m;
+          }
+      }
+      return null;
+  }
+
+  public Meeting getNotEndedMeetingWithWebVoice(String webVoice) {
+      if (webVoice == null)
+          return null;
+      for (Map.Entry<String, Meeting> entry : meetings.entrySet()) {
+          Meeting m = entry.getValue();
+          if (webVoice.equals(m.getWebVoice())) {
               if (!m.isForciblyEnded())
                   return m;
           }
@@ -900,7 +964,7 @@ public class MeetingService implements MessageListener {
       } else {
         if (message.userId.startsWith("v_")) {
           // A dial-in user joined the meeting. Dial-in users by convention has userId that starts with "v_".
-                    User vuser = new User(message.userId, message.userId, message.name, "DIAL-IN-USER", "no-avatar-url",
+                    User vuser = new User(message.userId, message.userId, message.name, "DIAL-IN-USER", "",
                             true, GuestPolicy.ALLOW, "DIAL-IN");
           vuser.setVoiceJoined(true);
           m.userJoined(vuser);
@@ -919,6 +983,11 @@ public class MeetingService implements MessageListener {
           User vuser = m.userLeft(message.userId);
         } else {
           user.setVoiceJoined(false);
+          // userLeftVoice is also used when user leaves Global (listenonly)
+          // audio. Also tetting listenOnly to false is not a problem,
+          // once user can't join both voice/mic and global/listenonly
+          // at the same time.
+          user.setListeningOnly(false);
         }
       }
     }
@@ -1075,6 +1144,7 @@ public class MeetingService implements MessageListener {
 
   public void stop() {
     processMessage = false;
+    waitingGuestCleaner.stop();
     userCleaner.stop();
     enteredUserCleaner.stop();
   }
@@ -1093,6 +1163,12 @@ public class MeetingService implements MessageListener {
 
   public void setGw(IBbbWebApiGWApp gw) {
     this.gw = gw;
+  }
+
+  public void setWaitingGuestCleanupTimerTask(WaitingGuestCleanupTimerTask c) {
+    waitingGuestCleaner = c;
+    waitingGuestCleaner.setMeetingService(this);
+    waitingGuestCleaner.start();
   }
 
   public void setEnteredUserCleanupTimerTask(EnteredUserCleanupTimerTask c) {

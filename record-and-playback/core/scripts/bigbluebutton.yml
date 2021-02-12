@@ -19,6 +19,21 @@ redis_port: 6379
 # Uncomment and set password if redis require it.
 # redis_password: changeme
 
+# redis_workers_host: 127.0.0.1
+# redis_workers_port: 6379
+
+# Sequence of recording steps. Keys are the current step, values
+# are the next step(s). Examples:
+#   current_step: next_step
+#   "current_step-format": "next_step-format"
+#   current_step:
+#     - next_step
+#     - another_step-format
+steps:
+  archive: "sanity"
+  sanity: "captions"
+  captions: "process:presentation"
+  "process:presentation": "publish:presentation"
 
 # For PRODUCTION
 log_dir: /var/log/bigbluebutton

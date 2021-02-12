@@ -4,12 +4,12 @@ import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/icon/component';
-import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+import Dropdown from '/imports/ui/components/dropdown/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import RemoveUserModal from '/imports/ui/components/modal/remove-user/component';
@@ -18,6 +18,7 @@ import { Session } from 'meteor/session';
 import { styles } from './styles';
 import UserName from '../user-name/component';
 import UserIcons from '../user-icons/component';
+import Service from '../../../../service';
 
 const messages = defineMessages({
   presenter: {
@@ -31,10 +32,6 @@ const messages = defineMessages({
   locked: {
     id: 'app.userList.locked',
     description: 'Text for identifying locked user',
-  },
-  guest: {
-    id: 'app.userList.guest',
-    description: 'Text for identifying guest user',
   },
   menuTitleContext: {
     id: 'app.userList.menuTitleContext',
@@ -52,9 +49,9 @@ const messages = defineMessages({
     id: 'app.audio.backLabel',
     description: 'label for option to hide emoji menu',
   },
-  ChatLabel: {
+  StartPrivateChat: {
     id: 'app.userList.menu.chat.label',
-    description: 'Save the changes and close the settings menu',
+    description: 'label for option to start a new private chat',
   },
   ClearStatusLabel: {
     id: 'app.userList.menu.clearStatus.label',
@@ -162,9 +159,7 @@ class UserDropdown extends PureComponent {
     this.renderUserAvatar = this.renderUserAvatar.bind(this);
     this.resetMenuState = this.resetMenuState.bind(this);
     this.makeDropdownItem = this.makeDropdownItem.bind(this);
-  }
 
-  componentWillMount() {
     this.title = _.uniqueId('dropdown-title-');
     this.seperator = _.uniqueId('action-separator-');
   }
@@ -238,11 +233,12 @@ class UserDropdown extends PureComponent {
       isMe,
       meetingIsBreakout,
       mountModal,
+      usersProp,
     } = this.props;
     const { showNestedOptions } = this.state;
 
     const amIModerator = currentUser.role === ROLE_MODERATOR;
-    const actionPermissions = getAvailableActions(amIModerator, meetingIsBreakout, user, voiceUser);
+    const actionPermissions = getAvailableActions(amIModerator, meetingIsBreakout, user, voiceUser, usersProp);
     const actions = [];
 
     const {
@@ -305,7 +301,10 @@ class UserDropdown extends PureComponent {
           {
             showNestedOptions: true,
             isActionsOpen: true,
-          }, Session.set('dropdownOpen', true),
+          }, () => {
+            Session.set('dropdownOpen', true);
+            Service.focusFirstDropDownItem();
+          },
         ),
         'user',
         'right_arrow',
@@ -321,7 +320,7 @@ class UserDropdown extends PureComponent {
     if (showChatOption) {
       actions.push(this.makeDropdownItem(
         'activeChat',
-        intl.formatMessage(messages.ChatLabel),
+        intl.formatMessage(messages.StartPrivateChat),
         () => {
           getGroupChatPrivate(currentUser.userId, user);
           Session.set('openPanel', 'chat');
@@ -369,7 +368,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToPromote && !user.guest && isMeteorConnected) {
+    if (allowedToPromote && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'promote',
         intl.formatMessage(messages.PromoteUserLabel),
@@ -378,7 +377,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToDemote && !user.guest && isMeteorConnected) {
+    if (allowedToDemote && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'demote',
         intl.formatMessage(messages.DemoteUserLabel),
@@ -468,26 +467,24 @@ class UserDropdown extends PureComponent {
    * Check if the dropdown is visible, if so, check if should be draw on top or bottom direction.
    */
   checkDropdownDirection() {
-    const { getScrollContainerRef } = this.props;
+    const { scrollArea } = this.props;
     if (this.isDropdownActivedByUser()) {
       const dropdown = this.getDropdownMenuParent();
       const dropdownTrigger = dropdown.children[0];
-      const dropdownContent = dropdown.children[1];
-
-      const scrollContainer = getScrollContainerRef();
-
       const nextState = {
         dropdownVisible: true,
       };
+      const dropdownContent = findDOMNode(this.dropdownContent);
+      const dropdownBoundaries = dropdownContent.getBoundingClientRect();
 
       const isDropdownVisible = UserDropdown.checkIfDropdownIsVisible(
-        dropdownContent.offsetTop,
-        dropdownContent.offsetHeight,
+        dropdownBoundaries.y,
+        dropdownBoundaries.height,
       );
 
-      if (!isDropdownVisible) {
+      if (!isDropdownVisible && scrollArea) {
         const { offsetTop, offsetHeight } = dropdownTrigger;
-        const offsetPageTop = (offsetTop + offsetHeight) - scrollContainer.scrollTop;
+        const offsetPageTop = (offsetTop + offsetHeight) - scrollArea.scrollTop;
 
         nextState.dropdownOffset = window.innerHeight - offsetPageTop;
         nextState.dropdownDirection = 'bottom';
@@ -538,6 +535,8 @@ class UserDropdown extends PureComponent {
         voice={voiceUser.isVoiceUser}
         noVoice={!voiceUser.isVoiceUser}
         color={user.color}
+        emoji={user.emoji !== 'none'}
+        avatar={user.avatar}
       >
         {
         userInBreakout
@@ -591,8 +590,9 @@ class UserDropdown extends PureComponent {
 
     const contents = (
       <div
-        data-test={isMe(user.userId) ? 'userListItemCurrent' : null}
+        data-test={isMe(user.userId) ? 'userListItemCurrent' : 'userListItem'}
         className={!actions.length ? styles.userListItem : null}
+        style={{ direction: document.documentElement.dir }}
       >
         <div className={styles.userItemContents}>
           <div className={styles.userAvatar}>
@@ -620,7 +620,7 @@ class UserDropdown extends PureComponent {
     );
 
     if (!actions.length) return contents;
-
+    const placement = `right ${dropdownDirection}`;
     return (
       <Dropdown
         ref={(ref) => { this.dropdown = ref; }}
@@ -631,7 +631,11 @@ class UserDropdown extends PureComponent {
         autoFocus={false}
         aria-haspopup="true"
         aria-live="assertive"
+        aria-label={userAriaLabel}
         aria-relevant="additions"
+        placement={placement}
+        getContent={dropdownContent => this.dropdownContent = dropdownContent}
+        tethered
       >
         <DropdownTrigger>
           {contents}
@@ -639,10 +643,9 @@ class UserDropdown extends PureComponent {
         <DropdownContent
           style={{
             visibility: dropdownVisible ? 'visible' : 'hidden',
-            [dropdownDirection]: `${dropdownOffset}px`,
           }}
           className={styles.dropdownContent}
-          placement={`right ${dropdownDirection}`}
+          placement={placement}
         >
           <DropdownList
             ref={(ref) => { this.list = ref; }}

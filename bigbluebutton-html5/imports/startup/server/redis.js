@@ -3,18 +3,21 @@ import Redis from 'redis';
 import { Meteor } from 'meteor/meteor';
 import { EventEmitter2 } from 'eventemitter2';
 import { check } from 'meteor/check';
+import fs from 'fs';
 import Logger from './logger';
+import Metrics from './metrics';
 
 // Fake meetingId used for messages that have no meetingId
 const NO_MEETING_ID = '_';
+
+const { queueMetrics } = Meteor.settings.private.redis.metrics;
 
 const makeEnvelope = (channel, eventName, header, body, routing) => {
   const envelope = {
     envelope: {
       name: eventName,
       routing: routing || {
-        sender: 'bbb-apps-akka',
-        // sender: 'html5-server', // TODO
+        sender: 'html5-server',
       },
       timestamp: Date.now(),
     },
@@ -27,17 +30,12 @@ const makeEnvelope = (channel, eventName, header, body, routing) => {
   return JSON.stringify(envelope);
 };
 
-const makeDebugger = enabled => (message) => {
-  if (!enabled) return;
-  Logger.debug(`REDIS: ${message}`);
-};
-
 class MeetingMessageQueue {
-  constructor(eventEmitter, asyncMessages = [], debug = () => { }) {
+  constructor(eventEmitter, asyncMessages = [], redisDebugEnabled = false) {
     this.asyncMessages = asyncMessages;
     this.emitter = eventEmitter;
     this.queue = new PowerQueue();
-    this.debug = debug;
+    this.redisDebugEnabled = redisDebugEnabled;
 
     this.handleTask = this.handleTask.bind(this);
     this.queue.taskHandler = this.handleTask;
@@ -53,6 +51,7 @@ class MeetingMessageQueue {
     const isAsync = this.asyncMessages.includes(channel)
       || this.asyncMessages.includes(eventName);
 
+    const beginHandleTimestamp = Date.now();
     let called = false;
 
     check(eventName, String);
@@ -60,11 +59,21 @@ class MeetingMessageQueue {
 
     const callNext = () => {
       if (called) return;
-      this.debug(`${eventName} completed ${isAsync ? 'async' : 'sync'}`);
+      if (this.redisDebugEnabled) {
+        Logger.debug(`Redis: ${eventName} completed ${isAsync ? 'async' : 'sync'}`);
+      }
       called = true;
+
+      if (queueMetrics) {
+        const queueId = meetingId || NO_MEETING_ID;
+        const dataLength = JSON.stringify(data).length;
+
+        Metrics.processEvent(queueId, eventName, dataLength, beginHandleTimestamp);
+      }
+
       const queueLength = this.queue.length();
       if (queueLength > 100) {
-        Logger.error(`prev queue size=${queueLength} `);
+        Logger.warn(`Redis: MeetingMessageQueue for meetingId=${meetingId} has queue size=${queueLength} `);
       }
       next();
     };
@@ -75,7 +84,9 @@ class MeetingMessageQueue {
     };
 
     try {
-      this.debug(`${JSON.stringify(data.parsedMessage.core)} emitted`);
+      if (this.redisDebugEnabled) {
+        Logger.debug(`Redis: ${JSON.stringify(data.parsedMessage.core)} emitted`);
+      }
 
       if (isAsync) {
         callNext();
@@ -108,6 +119,10 @@ class RedisPubSub {
     this.didSendRequestEvent = false;
     const host = process.env.REDIS_HOST || Meteor.settings.private.redis.host;
     const redisConf = Meteor.settings.private.redis;
+    this.instanceMax = parseInt(process.env.INSTANCE_MAX, 10) || 1;
+    this.instanceId = parseInt(process.env.INSTANCE_ID, 10) || 1; // 1 also handles running in dev mode
+    this.customRedisChannel = `to-html5-redis-channel${this.instanceId}`;
+
     const { password, port } = redisConf;
 
     if (password) {
@@ -120,12 +135,16 @@ class RedisPubSub {
       this.sub = Redis.createClient({ host, port });
     }
 
+    if (queueMetrics) {
+      Metrics.startDumpFile();
+    }
+
     this.emitter = new EventEmitter2();
     this.mettingsQueues = {};
+    this.mettingsQueues[NO_MEETING_ID] = new MeetingMessageQueue(this.emitter, this.config.async, this.config.debug);
 
     this.handleSubscribe = this.handleSubscribe.bind(this);
     this.handleMessage = this.handleMessage.bind(this);
-    this.debug = makeDebugger(this.config.debug);
   }
 
   init() {
@@ -134,16 +153,20 @@ class RedisPubSub {
 
     const channelsToSubscribe = this.config.subscribeTo;
 
+    channelsToSubscribe.push(this.customRedisChannel);
+
     channelsToSubscribe.forEach((channel) => {
       this.sub.psubscribe(channel);
     });
 
-    this.debug(`Subscribed to '${channelsToSubscribe}'`);
+    if (this.redisDebugEnabled) {
+      Logger.debug(`Redis: Subscribed to '${channelsToSubscribe}'`);
+    }
   }
 
   updateConfig(config) {
     this.config = Object.assign({}, this.config, config);
-    this.debug = makeDebugger(this.config.debug);
+    this.redisDebugEnabled = this.config.debug;
   }
 
 
@@ -158,6 +181,7 @@ class RedisPubSub {
 
     const body = {
       requesterId: 'nodeJSapp',
+      html5InstanceId: this.instanceId,
     };
 
     this.publishSystemMessage(CHANNEL, EVENT_NAME, body);
@@ -174,22 +198,40 @@ class RedisPubSub {
       if (eventName === 'CheckAlivePongSysMsg') {
         return;
       }
-      this.debug(`${eventName} skipped`);
+      if (this.redisDebugEnabled) {
+        Logger.debug(`Redis: ${eventName} skipped`);
+      }
       return;
     }
 
     const queueId = meetingId || NO_MEETING_ID;
 
-    if (!(queueId in this.mettingsQueues)) {
-      this.mettingsQueues[meetingId] = new MeetingMessageQueue(this.emitter, async, this.debug);
+    if (eventName === 'MeetingCreatedEvtMsg' || eventName === 'SyncGetMeetingInfoRespMsg') {
+      const newIntId = parsedMessage.core.body.props.meetingProp.intId;
+      const instanceId = parsedMessage.core.body.props.systemProps.html5InstanceId;
+
+      Logger.warn(`${eventName} (name=${parsedMessage.core.body.props.meetingProp.name}) received with meetingInstance: ${instanceId} -- this is instance: ${this.instanceId}`);
+
+      if (instanceId === this.instanceId) {
+        this.mettingsQueues[newIntId] = new MeetingMessageQueue(this.emitter, async, this.redisDebugEnabled);
+      } else {
+        // Logger.error('THIS NODEJS ' + this.instanceId + ' IS **NOT** PROCESSING EVENTS FOR THIS MEETING ' + instanceId)
+      }
     }
 
-    this.mettingsQueues[meetingId].add({
-      pattern,
-      channel,
-      eventName,
-      parsedMessage,
-    });
+    // if (channel !== this.customRedisChannel && queueId in this.mettingsQueues) {
+    //   Logger.error(`Consider routing ${eventName} to ${this.customRedisChannel}` );
+    //   // Logger.error(`Consider routing ${eventName} to ${this.customRedisChannel}` + message);
+    // }
+
+    if (channel === this.customRedisChannel || queueId in this.mettingsQueues) {
+      this.mettingsQueues[queueId].add({
+        pattern,
+        channel,
+        eventName,
+        parsedMessage,
+      });
+    }
   }
 
   destroyMeetingQueue(id) {

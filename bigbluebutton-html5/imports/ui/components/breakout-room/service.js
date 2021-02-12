@@ -27,7 +27,10 @@ const breakoutRoomUser = (breakoutId) => {
   return breakoutUser;
 };
 
-const closeBreakoutPanel = () => Session.set('openPanel', 'userlist');
+const closeBreakoutPanel = () => {
+  Session.set('openPanel', 'userlist');
+  window.dispatchEvent(new Event('panelChanged'));
+};
 
 const endAllBreakouts = () => {
   makeCall('endAllBreakouts');
@@ -58,6 +61,12 @@ const transferToBreakout = (breakoutId) => {
 const amIModerator = () => {
   const User = Users.findOne({ intId: Auth.userID }, { fields: { role: 1 } });
   return User.role === ROLE_MODERATOR;
+};
+
+const checkInviteModerators = () => {
+  const BREAKOUTS_CONFIG = Meteor.settings.public.app.breakouts;
+
+  return !((amIModerator() && !BREAKOUTS_CONFIG.sendInvitationToIncludedModerators));
 };
 
 const getBreakoutByUserId = userId => Breakouts.find(
@@ -118,4 +127,5 @@ export default {
   getBreakoutByUserId,
   getBreakoutUserIsIn,
   isUserInBreakoutRoom,
+  checkInviteModerators,
 };

@@ -228,12 +228,17 @@ module BigBlueButton
 
     # Apply a cleanup that removes certain ranges of special
     # control characters from user-provided text
+    # Based on https://www.w3.org/TR/xml/#charsets
+    # Remove all Unicode characters not valid in XML, and also remove
+    # discouraged characters (includes control characters) in the U+0000-U+FFFF
+    # range (the higher values are just undefined characters, and are unlikely
+    # to cause issues).
     def strip_control_chars(str)
-      str.tr("\x00-\x08\x0B\x0C\x0E-\x1F\x7F", '')
+      str.scrub.tr("\x00-\x08\x0B\x0C\x0E-\x1F\x7F\uFDD0-\uFDEF\uFFFE\uFFFF", '')
     end
 
     def store_events(meeting_id, events_file, break_timestamp)
-      version = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))["bbb_version"]
+      version = BigBlueButton.read_props["bbb_version"]
 
       if File.exist?(events_file)
         io = File.open(events_file, 'rb')

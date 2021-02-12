@@ -66,6 +66,10 @@ const intlMessages = defineMessages({
     id: 'app.poll.yn',
     description: 'label for Yes / No poll',
   },
+  yna: {
+    id: 'app.poll.yna',
+    description: 'label for Yes / No / Abstention poll',
+  },
   a2: {
     id: 'app.poll.a2',
     description: 'label for A / B poll',
@@ -84,6 +88,7 @@ const intlMessages = defineMessages({
   },
 });
 
+const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 const MAX_CUSTOM_FIELDS = Meteor.settings.public.poll.max_custom;
 const MAX_INPUT_CHARS = 45;
 
@@ -174,6 +179,7 @@ class Poll extends Component {
           label={label}
           color="default"
           className={styles.pollBtn}
+          data-test="pollBtn"
           key={_.uniqueId('quick-poll-')}
           onClick={() => {
             Session.set('pollInitiated', true);
@@ -242,6 +248,7 @@ class Poll extends Component {
       stopPoll,
       currentPoll,
       pollAnswerIds,
+      sendGroupMessage,
     } = this.props;
 
     return (
@@ -255,6 +262,7 @@ class Poll extends Component {
             stopPoll,
             currentPoll,
             pollAnswerIds,
+            sendGroupMessage,
           }}
           handleBackClick={this.handleBackClick}
         />
@@ -312,7 +320,7 @@ class Poll extends Component {
       currentSlide,
     } = this.props;
 
-    if (!currentSlide) return this.renderNoSlidePanel();
+    if (!CHAT_ENABLED && !currentSlide) return this.renderNoSlidePanel();
 
     if (isPolling || (!isPolling && currentPoll)) {
       return this.renderActivePollOptions();
@@ -336,6 +344,7 @@ class Poll extends Component {
         <header className={styles.header}>
           <Button
             ref={(node) => { this.hideBtn = node; }}
+            data-test="hidePollDesc"
             tabIndex={0}
             label={intl.formatMessage(intlMessages.pollPaneTitle)}
             icon="left_arrow"
@@ -355,6 +364,7 @@ class Poll extends Component {
               }
               Session.set('openPanel', 'userlist');
               Session.set('forcePollOpen', false);
+              Session.set('pollInitiated', false);
             }}
             className={styles.closeBtn}
             icon="close"

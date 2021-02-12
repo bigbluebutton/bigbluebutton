@@ -1,15 +1,16 @@
 import React, { PureComponent } from 'react';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import TextareaAutosize from 'react-autosize-textarea';
 import browser from 'browser-detect';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import TypingIndicatorContainer from './typing-indicator/container';
 import { styles } from './styles.scss';
 import Button from '../../button/component';
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   chatId: PropTypes.string.isRequired,
   disabled: PropTypes.bool.isRequired,
   minMessageLength: PropTypes.number.isRequired,
@@ -67,7 +68,8 @@ const messages = defineMessages({
   },
 });
 
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_ENABLED = CHAT_CONFIG.enabled;
 
 class MessageForm extends PureComponent {
   constructor(props) {
@@ -85,6 +87,8 @@ class MessageForm extends PureComponent {
     this.handleMessageKeyDown = this.handleMessageKeyDown.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.setMessageHint = this.setMessageHint.bind(this);
+    this.handleUserTyping = _.throttle(this.handleUserTyping.bind(this), 2000, { trailing: false });
+    this.typingIndicator = CHAT_CONFIG.typingIndicator.enabled;
   }
 
   componentDidMount() {
@@ -193,12 +197,16 @@ class MessageForm extends PureComponent {
     }
   }
 
+  handleUserTyping(error) {
+    const { startUserTyping, chatId } = this.props;
+    if (error || !this.typingIndicator) return;
+    startUserTyping(chatId);
+  }
+
   handleMessageChange(e) {
     const {
       intl,
-      startUserTyping,
       maxMessageLength,
-      chatId,
     } = this.props;
 
     const message = e.target.value;
@@ -211,15 +219,10 @@ class MessageForm extends PureComponent {
       );
     }
 
-    const handleUserTyping = () => {
-      if (error) return;
-      startUserTyping(chatId);
-    };
-
     this.setState({
       message,
       error,
-    }, handleUserTyping);
+    }, this.handleUserTyping(error));
   }
 
   handleSubmit(e) {
@@ -249,12 +252,14 @@ class MessageForm extends PureComponent {
     div.appendChild(document.createTextNode(msg));
     msg = div.innerHTML;
 
+    const callback = this.typingIndicator ? stopUserTyping : null;
+
     return (
       handleSendMessage(msg),
       this.setState({
         message: '',
         hasErrors: false,
-      }, stopUserTyping)
+      }, callback)
     );
   }
 

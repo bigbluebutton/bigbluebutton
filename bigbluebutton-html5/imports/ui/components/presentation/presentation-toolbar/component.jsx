@@ -9,7 +9,9 @@ import cx from 'classnames';
 import { styles } from './styles.scss';
 import ZoomTool from './zoom-tool/component';
 import FullscreenButtonContainer from '../../fullscreen-button/container';
-import Tooltip from '/imports/ui/components/tooltip/component';
+import TooltipContainer from '/imports/ui/components/tooltip/container';
+import QuickPollDropdownContainer from '/imports/ui/components/actions-bar/quick-poll-dropdown/container';
+import FullscreenService from '/imports/ui/components/fullscreen-button/service';
 import KEY_CODES from '/imports/utils/keyCodes';
 
 const intlMessages = defineMessages({
@@ -100,6 +102,7 @@ class PresentationToolbar extends PureComponent {
   switchSlide(event) {
     const { target, which } = event;
     const isBody = target.nodeName === 'BODY';
+    const { fullscreenRef } = this.props;
 
     if (isBody) {
       switch (which) {
@@ -110,6 +113,9 @@ class PresentationToolbar extends PureComponent {
         case KEY_CODES.ARROW_RIGHT:
         case KEY_CODES.PAGE_DOWN:
           this.nextSlideHandler();
+          break;
+        case KEY_CODES.ENTER:
+          FullscreenService.toggleFullScreen(fullscreenRef);
           break;
         default:
       }
@@ -211,13 +217,17 @@ class PresentationToolbar extends PureComponent {
       isFullscreen,
       fullscreenRef,
       isMeteorConnected,
+      isPollingEnabled,
+      amIPresenter,
+      currentSlidHasContent,
+      parseCurrentSlideContent,
+      startPoll,
+      currentSlide,
     } = this.props;
 
     const BROWSER_RESULTS = browser();
     const isMobileBrowser = BROWSER_RESULTS.mobile
       || BROWSER_RESULTS.os.includes('Android');
-
-    const tooltipDistance = 35;
 
     const startOfSlides = !(currentSlideNum > 1);
     const endOfSlides = !(currentSlideNum < numberOfSlides);
@@ -233,7 +243,25 @@ class PresentationToolbar extends PureComponent {
     return (
       <div id="presentationToolbarWrapper" className={styles.presentationToolbarWrapper}>
         {this.renderAriaDescs()}
-        {<div />}
+        {
+          <div>
+            {isPollingEnabled
+              ? (
+                <QuickPollDropdownContainer
+                  {...{
+                    currentSlidHasContent,
+                    intl,
+                    amIPresenter,
+                    parseCurrentSlideContent,
+                    startPoll,
+                    currentSlide,
+                  }}
+                  className={styles.presentationBtn}
+                />
+              ) : null
+          }
+          </div>
+        }
         {
           <div className={styles.presentationSlideControls}>
             <Button
@@ -248,14 +276,10 @@ class PresentationToolbar extends PureComponent {
               label={intl.formatMessage(intlMessages.previousSlideLabel)}
               hideLabel
               className={cx(styles.prevSlide, styles.presentationBtn)}
-              tooltipDistance={tooltipDistance}
+              data-test="prevSlide"
             />
 
-            <Tooltip
-              tooltipDistance={tooltipDistance}
-              title={intl.formatMessage(intlMessages.selectLabel)}
-              className={styles.presentationBtn}
-            >
+            <TooltipContainer title={intl.formatMessage(intlMessages.selectLabel)}>
               <select
                 id="skipSlide"
                 aria-label={intl.formatMessage(intlMessages.skipSlideLabel)}
@@ -266,10 +290,11 @@ class PresentationToolbar extends PureComponent {
                 value={currentSlideNum}
                 onChange={this.handleSkipToSlideChange}
                 className={styles.skipSlideSelect}
+                data-test="skipSlide"
               >
                 {this.renderSkipSlideOpts(numberOfSlides)}
               </select>
-            </Tooltip>
+            </TooltipContainer>
             <Button
               role="button"
               aria-label={nextSlideAriaLabel}
@@ -282,7 +307,7 @@ class PresentationToolbar extends PureComponent {
               label={intl.formatMessage(intlMessages.nextSlideLabel)}
               hideLabel
               className={cx(styles.skipSlide, styles.presentationBtn)}
-              tooltipDistance={tooltipDistance}
+              data-test="nextSlide"
             />
           </div>
         }
@@ -291,15 +316,16 @@ class PresentationToolbar extends PureComponent {
             {
               !isMobileBrowser
                 ? (
-                  <ZoomTool
-                    zoomValue={zoom}
-                    change={this.change}
-                    minBound={HUNDRED_PERCENT}
-                    maxBound={MAX_PERCENT}
-                    step={STEP}
-                    tooltipDistance={tooltipDistance}
-                    isMeteorConnected={isMeteorConnected}
-                  />
+                  <TooltipContainer>
+                    <ZoomTool
+                      zoomValue={zoom}
+                      change={this.change}
+                      minBound={HUNDRED_PERCENT}
+                      maxBound={MAX_PERCENT}
+                      step={STEP}
+                      isMeteorConnected={isMeteorConnected}
+                    />
+                  </TooltipContainer>
                 )
                 : null
             }
@@ -322,7 +348,6 @@ class PresentationToolbar extends PureComponent {
               }
               hideLabel
               className={cx(styles.fitToWidth, styles.presentationBtn)}
-              tooltipDistance={tooltipDistance}
             />
             {
               ALLOW_FULLSCREEN
@@ -331,7 +356,6 @@ class PresentationToolbar extends PureComponent {
                     fullscreenRef={fullscreenRef}
                     isFullscreen={isFullscreen}
                     elementName={intl.formatMessage(intlMessages.presentationLabel)}
-                    tooltipDistance={tooltipDistance}
                     className={styles.presentationBtn}
                   />
                 )

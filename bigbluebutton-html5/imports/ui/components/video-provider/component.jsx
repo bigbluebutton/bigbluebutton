@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReconnectingWebSocket from 'reconnecting-websocket';
+import { defineMessages, injectIntl } from 'react-intl';
+import _ from 'lodash';
 import VideoService from './service';
 import VideoListContainer from './video-list/container';
-import { defineMessages, injectIntl } from 'react-intl';
 import {
   fetchWebRTCMappedStunTurnServers,
   getMappedFallbackStun,
 } from '/imports/utils/fetchStunTurnServers';
 import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import logger from '/imports/startup/client/logger';
-import _ from 'lodash';
 
 // Default values and default empty object to be backwards compat with 2.2.
 // FIXME Remove hardcoded defaults 2.3.
@@ -87,6 +87,10 @@ const propTypes = {
 };
 
 class VideoProvider extends Component {
+  static onBeforeUnload() {
+    VideoService.onBeforeUnload();
+  }
+
   constructor(props) {
     super(props);
 
@@ -115,13 +119,11 @@ class VideoProvider extends Component {
     this.onWsClose = this.onWsClose.bind(this);
     this.onWsMessage = this.onWsMessage.bind(this);
 
-    this.onBeforeUnload = this.onBeforeUnload.bind(this);
-
     this.updateStreams = this.updateStreams.bind(this);
     this.debouncedConnectStreams = _.debounce(
       this.connectStreams,
       VideoService.getPageChangeDebounceTime(),
-      { leading: false, trailing: true, }
+      { leading: false, trailing: true },
     );
   }
 
@@ -134,7 +136,7 @@ class VideoProvider extends Component {
 
     this.ws.onmessage = this.onWsMessage;
 
-    window.addEventListener('beforeunload', this.onBeforeUnload);
+    window.addEventListener('beforeunload', VideoProvider.onBeforeUnload);
   }
 
   componentDidUpdate(prevProps) {
@@ -157,7 +159,7 @@ class VideoProvider extends Component {
     window.removeEventListener('online', this.openWs);
     window.removeEventListener('offline', this.onWsClose);
 
-    window.removeEventListener('beforeunload', this.onBeforeUnload);
+    window.removeEventListener('beforeunload', VideoProvider.onBeforeUnload);
 
     VideoService.exitVideo();
 
@@ -228,19 +230,15 @@ class VideoProvider extends Component {
     this.setState({ socketOpen: true });
   }
 
-  onBeforeUnload() {
-    VideoService.onBeforeUnload();
-  }
-
-  updateThreshold (numberOfPublishers) {
+  updateThreshold(numberOfPublishers) {
     const { threshold, profile } = VideoService.getThreshold(numberOfPublishers);
     if (profile) {
       const publishers = Object.values(this.webRtcPeers)
         .filter(peer => peer.isPublisher)
-        .forEach(peer => {
+        .forEach((peer) => {
           // 0 means no threshold in place. Reapply original one if needed
-          let profileToApply = (threshold === 0) ? peer.originalProfileId : profile;
-          VideoService.applyCameraProfile(peer, profileToApply)
+          const profileToApply = (threshold === 0) ? peer.originalProfileId : profile;
+          VideoService.applyCameraProfile(peer, profileToApply);
         });
     }
   }
@@ -249,13 +247,13 @@ class VideoProvider extends Component {
     const streamsCameraIds = streams.map(s => s.cameraId);
     const streamsConnected = Object.keys(this.webRtcPeers);
 
-    const streamsToConnect = streamsCameraIds.filter(cameraId => {
-      return !streamsConnected.includes(cameraId);
-    });
+    const streamsToConnect = streamsCameraIds.filter(
+      cameraId => !streamsConnected.includes(cameraId),
+    );
 
-    const streamsToDisconnect = streamsConnected.filter(cameraId => {
-      return !streamsCameraIds.includes(cameraId);
-    });
+    const streamsToDisconnect = streamsConnected.filter(
+      cameraId => !streamsCameraIds.includes(cameraId),
+    );
 
     return [streamsToConnect, streamsToDisconnect];
   }
@@ -274,7 +272,7 @@ class VideoProvider extends Component {
   updateStreams(streams, shouldDebounce = false) {
     const [streamsToConnect, streamsToDisconnect] = this.getStreamsToConnectAndDisconnect(streams);
 
-    if(shouldDebounce) {
+    if (shouldDebounce) {
       this.debouncedConnectStreams(streamsToConnect);
     } else {
       this.connectStreams(streamsToConnect);
@@ -572,7 +570,8 @@ class VideoProvider extends Component {
       const peer = this.webRtcPeers[cameraId];
       if (peer && peer.peerConnection) {
         const conn = peer.peerConnection;
-        conn.oniceconnectionstatechange = this._getOnIceConnectionStateChangeCallback(cameraId, isLocal);
+        conn.oniceconnectionstatechange = this
+          ._getOnIceConnectionStateChangeCallback(cameraId, isLocal);
         VideoService.monitor(conn);
       }
     }
@@ -681,7 +680,7 @@ class VideoProvider extends Component {
 
       this.restartTimeout[cameraId] = setTimeout(
         this._getWebRTCStartTimeout(cameraId, isLocal),
-        this.restartTimer[cameraId]
+        this.restartTimer[cameraId],
       );
     }
   }

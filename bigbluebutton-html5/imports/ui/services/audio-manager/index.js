@@ -1,5 +1,6 @@
 import { Tracker } from 'meteor/tracker';
 import KurentoBridge from '/imports/api/audio/client/bridge/kurento';
+
 import Auth from '/imports/ui/services/auth';
 import VoiceUsers from '/imports/api/voice-users';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
@@ -10,14 +11,16 @@ import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills
 import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import { monitorAudioConnection } from '/imports/utils/stats';
 import AudioErrors from './error-codes';
+import {Meteor} from "meteor/meteor";
 
-const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
-
+const STATS = Meteor.settings.public.stats;
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
 const MAX_LISTEN_ONLY_RETRIES = 1;
 const LISTEN_ONLY_CALL_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 25000;
+const DEFAULT_INPUT_DEVICE_ID = 'default';
+const DEFAULT_OUTPUT_DEVICE_ID = 'default';
 
 const CALL_STATES = {
   STARTED: 'started',
@@ -30,7 +33,7 @@ const CALL_STATES = {
 class AudioManager {
   constructor() {
     this._inputDevice = {
-      value: 'default',
+      value: DEFAULT_INPUT_DEVICE_ID,
       tracker: new Tracker.Dependency(),
     };
 
@@ -90,41 +93,11 @@ class AudioManager {
     });
   }
 
-  askDevicesPermissions() {
-    // Check to see if the stream has already been retrieved becasue then we don't need to
-    // request. This is a fix for an issue with the input device selector.
-    if (this.inputStream) {
-      return Promise.resolve();
-    }
-
-    // Only change the isWaitingPermissions for the case where the user didnt allowed it yet
-    const permTimeout = setTimeout(() => {
-      if (!this.devicesInitialized) { this.isWaitingPermissions = true; }
-    }, 100);
-
-    this.isWaitingPermissions = false;
-    this.devicesInitialized = false;
-
-    return Promise.all([
-      this.setDefaultInputDevice(),
-      this.setDefaultOutputDevice(),
-    ]).then(() => {
-      this.devicesInitialized = true;
-      this.isWaitingPermissions = false;
-    }).catch((err) => {
-      clearTimeout(permTimeout);
-      this.isConnecting = false;
-      this.isWaitingPermissions = false;
-      throw err;
-    });
-  }
-
   joinMicrophone() {
     this.isListenOnly = false;
     this.isEchoTest = false;
 
-    return this.askDevicesPermissions()
-      .then(this.onAudioJoining.bind(this))
+    return this.onAudioJoining.bind(this)()
       .then(() => {
         const callOptions = {
           isListenOnly: false,
@@ -139,8 +112,7 @@ class AudioManager {
     this.isListenOnly = false;
     this.isEchoTest = true;
 
-    return this.askDevicesPermissions()
-      .then(this.onAudioJoining.bind(this))
+    return this.onAudioJoining.bind(this)()
       .then(() => {
         const callOptions = {
           isListenOnly: false,
@@ -155,21 +127,42 @@ class AudioManager {
   joinAudio(callOptions, callStateCallback) {
     return this.bridge.joinAudio(callOptions,
       callStateCallback.bind(this)).catch((error) => {
-      if (error.name === 'NotAllowedError') {
-        logger.error({
-          logCode: 'audiomanager_error_getting_device',
-          extraInfo: {
-            errorName: error.name,
-            errorMessage: error.message,
-          },
-        }, `Error getting microphone - {${error.name}: ${error.message}}`);
+      const { name } = error;
 
-        throw {
-          type: 'MEDIA_ERROR'
-        };
-      } else {
+      if (!name) {
         throw error;
       }
+
+      switch (name) {
+        case 'NotAllowedError':
+          logger.error({
+            logCode: 'audiomanager_error_getting_device',
+            extraInfo: {
+              errorName: error.name,
+              errorMessage: error.message,
+            },
+          }, `Error getting microphone - {${error.name}: ${error.message}}`);
+          break;
+        case 'NotFoundError':
+          logger.error({
+            logCode: 'audiomanager_error_device_not_found',
+            extraInfo: {
+              errorName: error.name,
+              errorMessage: error.message,
+            },
+          }, `Error getting microphone - {${error.name}: ${error.message}}`);
+          break;
+
+        default:
+          break;
+      }
+
+      this.isConnecting = false;
+      this.isWaitingPermissions = false;
+
+      throw {
+        type: 'MEDIA_ERROR',
+      };
     });
   }
 
@@ -217,7 +210,7 @@ class AudioManager {
 
     const exitKurentoAudio = () => {
       if (this.useKurento) {
-        window.kurentoExitAudio();
+        bridge.exitAudio();
         const audio = document.querySelector(MEDIA_TAG);
         audio.muted = false;
       }
@@ -238,7 +231,7 @@ class AudioManager {
           audioBridge: bridgeInUse,
           retries,
         },
-      }, `Listen only error - ${err} - bridge: ${bridgeInUse}`);
+      }, `Listen only error - ${errorReason} - bridge: ${bridgeInUse}`);
     };
 
     logger.info({ logCode: 'audiomanager_join_listenonly', extraInfo: { logType: 'user_action' } }, 'user requested to connect to audio conference as listen only');
@@ -344,7 +337,7 @@ class AudioManager {
       window.parent.postMessage({ response: 'joinedAudio' }, '*');
       this.notify(this.intl.formatMessage(this.messages.info.JOINED_AUDIO));
       logger.info({ logCode: 'audio_joined' }, 'Audio Joined');
-      if (ENABLE_NETWORK_MONITORING) this.monitor();
+      if (STATS.enabled) this.monitor();
     }
   }
 
@@ -361,7 +354,6 @@ class AudioManager {
     this.failedMediaElements = [];
 
     if (this.inputStream) {
-      window.defaultInputStream.forEach(track => track.stop());
       this.inputStream.getTracks().forEach(track => track.stop());
       this.inputDevice = { id: 'default' };
     }
@@ -392,6 +384,7 @@ class AudioManager {
         error,
         bridgeError,
         silenceNotifications,
+        bridge,
       } = response;
 
       if (status === STARTED) {
@@ -409,6 +402,7 @@ class AudioManager {
           extraInfo: {
             errorCode: error,
             cause: bridgeError,
+            bridge,
           },
         }, `Audio error - errorCode=${error}, cause=${bridgeError}`);
         if (silenceNotifications !== true) {
@@ -433,7 +427,8 @@ class AudioManager {
 
     // Play bogus silent audio to try to circumvent autoplay policy on Safari
     if (!audio.src) {
-      audio.src = 'resources/sounds/silence.mp3';
+      audio.src = `${Meteor.settings.public.app.cdn
+      + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}` + '/resources/sounds/silence.mp3';
     }
 
     audio.play().catch((e) => {
@@ -464,12 +459,47 @@ class AudioManager {
   }
 
   changeInputDevice(deviceId) {
-    // kept for compatibility
-    return Promise.resolve();
+    if (!deviceId) {
+      return Promise.resolve();
+    }
+
+    const handleChangeInputDeviceSuccess = (inputDeviceId) => {
+      this.inputDevice.id = inputDeviceId;
+      return Promise.resolve(inputDeviceId);
+    };
+
+    const handleChangeInputDeviceError = (error) => {
+      logger.error({
+        logCode: 'audiomanager_error_getting_device',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+        },
+      }, `Error getting microphone - {${error.name}: ${error.message}}`);
+
+      const { MIC_ERROR } = AudioErrors;
+      const disabledSysSetting = error.message.includes('Permission denied by system');
+      const isMac = navigator.platform.indexOf('Mac') !== -1;
+
+      let code = MIC_ERROR.NO_PERMISSION;
+      if (isMac && disabledSysSetting) code = MIC_ERROR.MAC_OS_BLOCK;
+
+      return Promise.reject({
+        type: 'MEDIA_ERROR',
+        message: this.messages.error.MEDIA_ERROR,
+        code,
+      });
+    };
+
+    return this.bridge.changeInputDeviceId(deviceId)
+      .then(handleChangeInputDeviceSuccess)
+      .catch(handleChangeInputDeviceError);
   }
 
   async changeOutputDevice(deviceId) {
-    this.outputDeviceId = await this.bridge.changeOutputDevice(deviceId);
+    this.outputDeviceId = await this
+      .bridge
+      .changeOutputDevice(deviceId || DEFAULT_OUTPUT_DEVICE_ID);
   }
 
   set inputDevice(value) {
@@ -479,12 +509,16 @@ class AudioManager {
 
   get inputStream() {
     this._inputDevice.tracker.depend();
-    return this._inputDevice.value.stream;
+    return (this.bridge ? this.bridge.inputStream : null);
+  }
+
+  get inputDevice() {
+    return this._inputDevice;
   }
 
   get inputDeviceId() {
-    this._inputDevice.tracker.depend();
-    return this._inputDevice.value.id;
+    return (this.bridge && this.bridge.inputDeviceId)
+      ? this.bridge.inputDeviceId : DEFAULT_INPUT_DEVICE_ID;
   }
 
   set userData(value) {
@@ -496,8 +530,9 @@ class AudioManager {
   }
 
   playHangUpSound() {
-    this.alert = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/LeftCall.mp3`);
-    this.alert.play();
+    this.playAlertSound(`${Meteor.settings.public.app.cdn
+      + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}`
+      + '/resources/sounds/LeftCall.mp3');
   }
 
   notify(message, error = false, icon = 'unmute') {
@@ -556,7 +591,7 @@ class AudioManager {
     }
   }
 
-  setSenderTrackEnabled (shouldEnable) {
+  setSenderTrackEnabled(shouldEnable) {
     // If the bridge is set to listen only mode, nothing to do here. This method
     // is solely for muting outbound tracks.
     if (this.isListenOnly) return;
@@ -576,12 +611,32 @@ class AudioManager {
     });
   }
 
-  mute () {
+  mute() {
     this.setSenderTrackEnabled(false);
   }
 
-  unmute () {
+  unmute() {
     this.setSenderTrackEnabled(true);
+  }
+
+  playAlertSound (url) {
+    if (!url) {
+      return Promise.resolve();
+    }
+
+    const audioAlert = new Audio(url);
+
+    if (this.outputDeviceId && (typeof audioAlert.setSinkId === 'function')) {
+      return audioAlert
+        .setSinkId(this.outputDeviceId)
+        .then(() => audioAlert.play());
+    }
+
+    return audioAlert.play();
+  }
+
+  async updateAudioConstraints(constraints) {
+    await this.bridge.updateAudioConstraints(constraints);
   }
 }
 
