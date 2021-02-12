@@ -72,7 +72,7 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
         lastTimestamp: msg.timestamp,
         read: msg.chatId === PUBLIC_CHAT_KEY && msg.timestamp <= getLoginTime() ? true : false,
         content: [
-          { id: msg.id, text: msg.message, time: msg.timestamp },
+          { id: msg.id, name: msg.sender.name, text: msg.message, time: msg.timestamp },
         ],
         sender: senderInfo,
       }
@@ -141,7 +141,7 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
           read: previousMessage ? true : false,
           content: [
             ...groupMessage.content,
-            { id: msg.id, text: msg.message, time: msg.timestamp }
+            { id: msg.id, name: groupMessage.sender.name, text: msg.message, time: msg.timestamp }
           ],
         };
         if (!previousMessage && groupMessage.sender.id !== Auth.userID) {

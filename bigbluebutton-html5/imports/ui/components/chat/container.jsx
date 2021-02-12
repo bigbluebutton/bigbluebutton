@@ -96,7 +96,7 @@ const ChatContainer = (props) => {
       sender: null,
     }
   };
-  console.log('props', props);
+
   const systemMessagesIds = [sysMessagesIds.welcomeId, amIModerator && modOnlyMessage && sysMessagesIds.moderatorId].filter(i => i);
 
   const usingChatContext = useContext(ChatContext);
@@ -108,9 +108,7 @@ const ChatContainer = (props) => {
   const participants = groupChat[chatID]?.participants;
   const chatName = participants?.filter((user) => user.id !== Auth.userID)[0]?.name;
   const title = chatName || intl.formatMessage(intlMessages.titlePublic);
-  console.log('groupChat', groupChat);
-  console.log('chatID', chatID);
-  console.log('participants', participants);
+
   if (unmounting === true) {
     return null;
   }

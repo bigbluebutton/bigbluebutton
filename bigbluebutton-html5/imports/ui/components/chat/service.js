@@ -312,43 +312,24 @@ const htmlDecode = (input) => {
 };
 
 // Export the chat as [Hour:Min] user: message
-const exportChat = (messageList) => {
-  const { welcomeProp } = getWelcomeProp();
-  const { loginTime } = Users.findOne({ userId: Auth.userID }, { fields: { loginTime: 1 } });
-  const { welcomeMsg } = welcomeProp;
+const exportChat = (timeWindowList) => {
+  const messageList = timeWindowList.reduce( (acc, timeWindow) => [...acc, ...timeWindow.content], []);
+  messageList.sort((a, b) => a.time - b.time);
 
-  const clearMessage = messageList.filter(message => message.message === PUBLIC_CHAT_CLEAR);
-
-  const hasClearMessage = clearMessage.length;
-
-  if (!hasClearMessage || (hasClearMessage && clearMessage[0].timestamp < loginTime)) {
-    messageList.push({
-      timestamp: loginTime,
-      message: welcomeMsg,
-      type: SYSTEM_CHAT_TYPE,
-      sender: {
-        id: PUBLIC_CHAT_USER_ID,
-        name: ''
-      },
-    });
-  }
-
-  messageList.sort((a, b) => a.timestamp - b.timestamp);
-
-  return messageList.map((message) => {
-    const date = new Date(message.timestamp);
+  return messageList.map(message => {
+    const date = new Date(message.time);
     const hour = date.getHours().toString().padStart(2, 0);
     const min = date.getMinutes().toString().padStart(2, 0);
     const hourMin = `[${hour}:${min}]`;
-    if (message.type === SYSTEM_CHAT_TYPE) {
-      return `${hourMin} ${message.message}`;
-    }
-    const userName = message.sender.id === PUBLIC_CHAT_USER_ID
+
+    const userName = message.id.endsWith('welcome-msg')
       ? ''
-      : `${message.sender.name} :`;
-    return `${hourMin} ${userName} ${htmlDecode(message.message)}`;
+      : `${message.name} :`;
+    return `${hourMin} ${userName} ${htmlDecode(message.text)}`;
   }).join('\n');
-};
+}
+
+
 
 const getAllMessages = (chatID) => {
   return [];

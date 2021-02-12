@@ -48,7 +48,6 @@ const Chat = (props) => {
   } = props;
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
   const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
-
   return (
     <div
       data-test={chatID !== 'public' ? 'privateChat' : 'publicChat'}
@@ -92,7 +91,7 @@ const Chat = (props) => {
                 accessKey={CLOSE_CHAT_AK}
               />
             )
-            : <ChatDropdownContainer {...{ meetingIsBreakout, isMeteorConnected, amIModerator }} />
+            : <ChatDropdownContainer {...{ meetingIsBreakout, isMeteorConnected, amIModerator, timeWindowsValues }} />
         }
       </header>
       <TimeWindowList

@@ -49,8 +49,16 @@ class ChatDropdown extends PureComponent {
   }
 
   componentDidMount() {
+    const { timeWindowsValues } = this.props;
     this.clipboard = new Clipboard('#clipboardButton', {
-      text: () => ChatService.exportChat(ChatService.getPublicGroupMessages()),
+      text: () => ChatService.exportChat(timeWindowsValues),
+    });
+  }
+
+  componentDidUpdate() {
+    const { timeWindowsValues } = this.props;
+    this.clipboard = new Clipboard('#clipboardButton', {
+      text: () => ChatService.exportChat(timeWindowsValues),
     });
   }
 
@@ -72,13 +80,12 @@ class ChatDropdown extends PureComponent {
 
   getAvailableActions() {
     const {
-      intl, isMeteorConnected, amIModerator, meetingIsBreakout, meetingName,
+      intl, isMeteorConnected, amIModerator, meetingIsBreakout, meetingName, timeWindowsValues,
     } = this.props;
 
     const clearIcon = 'delete';
     const saveIcon = 'download';
     const copyIcon = 'copy';
-
     return _.compact([
       <DropdownListItem
         data-test="chatSave"
@@ -91,12 +98,11 @@ class ChatDropdown extends PureComponent {
           const date = new Date();
           const time = `${date.getHours()}-${date.getMinutes()}`;
           const dateString = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}_${time}`;
-
           link.setAttribute('download', `bbb-${meetingName}[public-chat]_${dateString}.txt`);
           link.setAttribute(
             'href',
             `data: ${mimeType} ;charset=utf-8,
-            ${encodeURIComponent(ChatService.exportChat(ChatService.getPublicGroupMessages()))}`,
+            ${encodeURIComponent(ChatService.exportChat(timeWindowsValues))}`,
           );
           link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
         }}
