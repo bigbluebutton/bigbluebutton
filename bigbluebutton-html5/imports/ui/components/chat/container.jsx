@@ -24,7 +24,7 @@ const DEBOUNCE_TIME = 1000;
 const sysMessagesIds = {
   welcomeId: `${SYSTEM_CHAT_TYPE}-welcome-msg`,
   moderatorId: `${SYSTEM_CHAT_TYPE}-moderator-msg`
- };
+};
 
 const intlMessages = defineMessages({
   [CHAT_CLEAR]: {
@@ -48,18 +48,20 @@ const intlMessages = defineMessages({
 let previousChatId = null;
 let debounceTimeout = null;
 let messages = null;
-let globalAppplyStateToProps = ()=>{}
+let globalAppplyStateToProps = () => { }
 
-const throttledFunc = _.throttle(()=> {
+const throttledFunc = _.throttle(() => {
   globalAppplyStateToProps();
-}, DEBOUNCE_TIME, { trailing: true, leading: true});
+}, DEBOUNCE_TIME, { trailing: true, leading: true });
 
 const ChatContainer = (props) => {
   useEffect(() => {
     ChatService.removeFromClosedChatsSession();
   }, []);
+
   const modOnlyMessage = Storage.getItem('ModeratorOnlyMessage');
   const { welcomeProp } = ChatService.getWelcomeProp();
+
   const {
     children,
     unmounting,
@@ -68,10 +70,10 @@ const ChatContainer = (props) => {
     loginTime,
     intl,
   } = props;
-  
+
   const isPublicChat = chatID === PUBLIC_CHAT_KEY;
   const systemMessages = {
-    [sysMessagesIds.welcomeId]:{
+    [sysMessagesIds.welcomeId]: {
       id: sysMessagesIds.welcomeId,
       content: [{
         id: sysMessagesIds.welcomeId,
@@ -87,62 +89,65 @@ const ChatContainer = (props) => {
       content: [{
         id: sysMessagesIds.moderatorId,
         text: modOnlyMessage,
-        time: loginTime+1,
+        time: loginTime + 1,
       }],
       key: sysMessagesIds.moderatorId,
-      time: loginTime+1,
+      time: loginTime + 1,
       sender: null,
     }
   };
+  console.log('props', props);
+  const systemMessagesIds = [sysMessagesIds.welcomeId, amIModerator && modOnlyMessage && sysMessagesIds.moderatorId].filter(i => i);
 
-  const systemMessagesIds = [sysMessagesIds.welcomeId, amIModerator && modOnlyMessage && sysMessagesIds.moderatorId].filter(i=>i);
-  
   const usingChatContext = useContext(ChatContext);
   const usingGroupChatContext = useContext(GroupChatContext);
   const [stateLastMsg, setLastMsg] = useState(null);
-  const [stateTimeWindows, setTimeWindows] = useState(isPublicChat ? [...systemMessagesIds.map((item)=> systemMessages[item])]: [] );
-  
+  const [stateTimeWindows, setTimeWindows] = useState(isPublicChat ? [...systemMessagesIds.map((item) => systemMessages[item])] : []);
+
   const { groupChat } = usingGroupChatContext;
   const participants = groupChat[chatID]?.participants;
-  const chatName = participants?.filter((user)=> user.id !== Auth.userID)[0]?.name;
+  const chatName = participants?.filter((user) => user.id !== Auth.userID)[0]?.name;
   const title = chatName || intl.formatMessage(intlMessages.titlePublic);
-  
+  console.log('groupChat', groupChat);
+  console.log('chatID', chatID);
+  console.log('participants', participants);
   if (unmounting === true) {
     return null;
   }
-  
+
   const contextChat = usingChatContext?.chats[isPublicChat ? PUBLIC_GROUP_CHAT_KEY : chatID];
   const lastTimeWindow = contextChat?.lastTimewindow;
-  const lastMsg = contextChat && (isPublicChat 
-  ? contextChat.preJoinMessages[lastTimeWindow] || contextChat.posJoinMessages[lastTimeWindow]
-  : contextChat.messageGroups[lastTimeWindow]);
-  applyPropsToState = ()=> {
-        if (!_.isEqualWith(lastMsg, stateLastMsg) || previousChatId !== chatID) {
-          const timeWindowsValues = isPublicChat
-          ? [...Object.values(contextChat?.preJoinMessages || {}), ...systemMessagesIds.map((item)=> systemMessages[item]),
-          ...Object.values(contextChat?.posJoinMessages || {})]
-          : [...Object.values(contextChat?.messageGroups || {})];
-          if (previousChatId !== chatID) {
-            previousChatId = chatID;
-          }
-          
-          setLastMsg(lastMsg ? { ...lastMsg }: lastMsg);
-          setTimeWindows(timeWindowsValues);
-        }
+  const lastMsg = contextChat && (isPublicChat
+    ? contextChat.preJoinMessages[lastTimeWindow] || contextChat.posJoinMessages[lastTimeWindow]
+    : contextChat.messageGroups[lastTimeWindow]);
+  applyPropsToState = () => {
+    if (!_.isEqualWith(lastMsg, stateLastMsg) || previousChatId !== chatID) {
+      const timeWindowsValues = isPublicChat
+        ? [...Object.values(contextChat?.preJoinMessages || {}), ...systemMessagesIds.map((item) => systemMessages[item]),
+        ...Object.values(contextChat?.posJoinMessages || {})]
+        : [...Object.values(contextChat?.messageGroups || {})];
+      if (previousChatId !== chatID) {
+        previousChatId = chatID;
+      }
+
+      setLastMsg(lastMsg ? { ...lastMsg } : lastMsg);
+      setTimeWindows(timeWindowsValues);
     }
-    globalAppplyStateToProps = applyPropsToState;
-    throttledFunc();
+  }
+  globalAppplyStateToProps = applyPropsToState;
+  throttledFunc();
 
   return (
-    <Chat {...{ ...props,
-    chatID,
-    amIModerator,
-    count: (contextChat?.unreadTimeWindows.size || 0),
-    timeWindowsValues: stateTimeWindows,
-    dispatch: usingChatContext?.dispatch,
-    title,
-    chatName,
-    contextChat,
+    <Chat {...{
+      ...props,
+      chatID,
+      amIModerator,
+      count: (contextChat?.unreadTimeWindows.size || 0),
+      timeWindowsValues: stateTimeWindows,
+      dispatch: usingChatContext?.dispatch,
+      title,
+      chatName,
+      contextChat,
     }}>
       {children}
     </Chat>
@@ -152,7 +157,7 @@ const ChatContainer = (props) => {
 export default injectIntl(withTracker(({ intl }) => {
   const chatID = Session.get('idChatOpen');
   let isChatLocked = ChatService.isChatLocked(chatID);
-  
+
   // let chatName = title;
   let partnerIsLoggedOut = false;
 

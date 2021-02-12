@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -11,6 +11,8 @@ import ChatIcon from './chat-icon/component';
 import ChatUnreadCounter from './chat-unread-messages/component';
 
 const DEBOUNCE_TIME = 1000;
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
 let globalAppplyStateToProps = ()=>{};
 
@@ -80,6 +82,8 @@ const ChatListItem = (props) => {
     chatPanelOpen,
   } = props;
 
+  
+
   const isCurrentChat = chat.userId === activeChatId && chatPanelOpen;
   const linkClasses = {};
   linkClasses[styles.active] = isCurrentChat;
@@ -94,6 +98,12 @@ const ChatListItem = (props) => {
   } else if (chat.unreadCounter !== stateUreadCount && (stateUreadCount > chat.unreadCounter)) {
     setStateUreadCount(chat.unreadCounter);
   }
+
+  useEffect(() => {
+    if (chat.userId !== PUBLIC_CHAT_KEY && chat.userId === activeChatId) {
+      Session.set('idChatOpen', chat.chatId);
+    }
+  }, [activeChatId]);
 
   return (
     <div
