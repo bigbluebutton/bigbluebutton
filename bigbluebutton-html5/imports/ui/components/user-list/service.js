@@ -1,11 +1,9 @@
 import Users from '/imports/api/users';
 import VoiceUsers from '/imports/api/voice-users';
 import GroupChat from '/imports/api/group-chat';
-import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import Breakouts from '/imports/api/breakouts/';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
-import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import { makeCall } from '/imports/ui/services/api';
@@ -282,8 +280,8 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
     };
   });
   
-
-  return chatInfo;
+  const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
+  return chatInfo.filter(chat => !currentClosedChats.includes(chat.chatId));
 }
 
 
@@ -530,8 +528,14 @@ const hasPrivateChatBetweenUsers = (senderId, receiverId) => GroupChat
   .findOne({ users: { $all: [receiverId, senderId] } });
 
 const getGroupChatPrivate = (senderUserId, receiver) => {
-  if (!hasPrivateChatBetweenUsers(senderUserId, receiver.userId)) {
+  const chat = hasPrivateChatBetweenUsers(senderUserId, receiver.userId);
+  if (!chat) {
     makeCall('createGroupChat', receiver);
+  } else {
+    const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
+    if (_.indexOf(currentClosedChats, chat.chatId) > -1) {
+      Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, chat.chatId));
+    }
   }
 };
 

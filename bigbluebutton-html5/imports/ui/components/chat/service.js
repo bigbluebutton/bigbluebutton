@@ -283,12 +283,11 @@ const updateUnreadMessage = (timestamp) => {
 
 const clearPublicChatHistory = () => (makeCall('clearPublicChatHistory'));
 
-const closePrivateChat = () => {
-  const chatID = Session.get('idChatOpen');
+const closePrivateChat = (chatId) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
 
-  if (_.indexOf(currentClosedChats, chatID) < 0) {
-    currentClosedChats.push(chatID);
+  if (_.indexOf(currentClosedChats, chatId) < 0) {
+    currentClosedChats.push(chatId);
 
     Storage.setItem(CLOSED_CHAT_LIST_KEY, currentClosedChats);
   }

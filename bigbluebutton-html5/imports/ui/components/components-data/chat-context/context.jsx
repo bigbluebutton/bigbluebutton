@@ -5,6 +5,7 @@ import React, {
 
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
+import Storage from '/imports/ui/services/storage/session';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import { _ } from 'lodash';
 
@@ -12,6 +13,7 @@ const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
+const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
 export const ACTIONS = {
   TEST: 'test',
@@ -131,7 +133,7 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
   } else {
     if (groupMessage) {
       if (groupMessage.sender.id === stateMessages.lastSender.id) {
-        const previousMessage = msg.chatId === PUBLIC_CHAT_KEY && msg.timestamp <= getLoginTime();
+        const previousMessage = msg.timestamp <= getLoginTime();
         const timeWindowKey = keyName + '-' + stateMessages.chatIndexes[keyName];
         messageGroups[timeWindowKey] = {
           ...groupMessage,
@@ -163,10 +165,28 @@ const reducer = (state, action) => {
     }
     case ACTIONS.ADDED: {
       ChatLogger.debug(ACTIONS.ADDED);
+      
       const batchMsgs = action.value;
+      const closedChatsToOpen = new Set();
+      const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
+      const loginTime = getLoginTime();
       const newState = batchMsgs.reduce((acc, i)=> {
+        const message = i.msg;
+        const chatId = message.chatId;
+        if (
+            chatId !== PUBLIC_GROUP_CHAT_KEY 
+            && message.timestamp > loginTime
+            && currentClosedChats.includes(chatId) ){
+          closedChatsToOpen.add(chatId)
+        }
+
         return generateStateWithNewMessage(i, acc);
       }, state);
+
+      if (closedChatsToOpen.size) {
+        const closedChats = currentClosedChats.filter(chatId => !closedChatsToOpen.has(chatId));
+        Storage.setItem(CLOSED_CHAT_LIST_KEY, closedChats);
+      }
       // const newState = generateStateWithNewMessage(action.value, state);
       return {...newState};
     }
