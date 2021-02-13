@@ -19,9 +19,9 @@ const webcamLayoutTest = () => {
       await test.logger('begin of ', testName);
       await test.init(Page.getArgsWithAudioAndVideo());
       await test.webcamLayoutStart();
-      response = await test.webcamLayoutTest();
-      screenshot = await test.page.screenshot();
+      response = await test.webcamLayoutTest(testName);
       await test.logger('end of ', testName);
+      screenshot = await test.page.screenshot();
     } catch (e) {
       await test.logger(e);
     } finally {

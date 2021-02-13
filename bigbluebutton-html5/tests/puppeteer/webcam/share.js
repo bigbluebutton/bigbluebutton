@@ -17,14 +17,24 @@ class Share extends Page {
 
   async webcamLayoutStart() {
     await this.joinMicrophone();
-    await util.enableWebcam(this);
+    const parsedSettings = await this.getSettingsYaml();
+    const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
+    await util.enableWebcam(this, videoPreviewTimeout);
   }
 
-  async webcamLayoutTest() {
-    await this.page.waitForSelector(wle.webcamConnecting, { timeout: ELEMENT_WAIT_TIME });
-    await this.page.waitForSelector(wle.webcamVideo, { timeout: VIDEO_LOADING_WAIT_TIME });
-    await this.page.waitForSelector(wle.stopSharingWebcam, { timeout: ELEMENT_WAIT_TIME });
-    return await this.page.evaluate(util.countTestElements, wle.webcamItemTalkingUser) !== 0;
+  async webcamLayoutTest(testName) {
+    await this.waitForSelector(wle.webcamVideo, VIDEO_LOADING_WAIT_TIME);
+    await this.waitForSelector(wle.stopSharingWebcam, VIDEO_LOADING_WAIT_TIME);
+    const foundTestElement = await this.page.evaluate(util.countTestElements, wle.webcamItemTalkingUser) !== 0;
+    if (foundTestElement === true) {
+      await this.screenshot(`${testName}`, `success-${testName}`);
+      this.logger(testName, ' passed');
+      return true;
+    } else if (foundTestElement === false) {
+      await this.screenshot(`${testName}`, `fail-${testName}`);
+      this.logger(testName, ' failed');
+      return false;
+    }
   }
 }
 
