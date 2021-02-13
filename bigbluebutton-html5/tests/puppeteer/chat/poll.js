@@ -3,6 +3,7 @@
 const Notifications = require('../notifications/notifications');
 const Page = require('../core/page');
 const e = require('./elements');
+const { ELEMENT_WAIT_TIME } = require('../core/constants');
 
 class Poll extends Notifications {
   constructor() {
@@ -17,9 +18,9 @@ class Poll extends Notifications {
     }
     await this.publishPollResults(testName);
 
-    await this.page3.waitForSelector(e.chatButton, 1000);
+    await this.page3.waitForSelector(e.chatButton, ELEMENT_WAIT_TIME);
     await this.page3.click(e.chatButton, true);
-    await this.page3.waitForSelector(e.chatPollMessageText, 5000);
+    await this.page3.waitForSelector(e.chatPollMessageText, ELEMENT_WAIT_TIME);
 
     // 1 message
     const chat1 = await this.page3.page.evaluate(() => document.querySelectorAll('p[data-test="chatPollMessageText"]').length === 1);

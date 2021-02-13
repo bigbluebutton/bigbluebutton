@@ -1,9 +1,10 @@
 const e = require('./elements');
 const ule = require('../user/elements');
+const { ELEMENT_WAIT_TIME } = require('../core/constants');
 
 async function openChat(test) {
-  await test.waitForSelector(e.chatBox, 5000);
-  await test.waitForSelector(e.chatMessages, 5000);
+  await test.waitForSelector(e.chatBox, ELEMENT_WAIT_TIME);
+  await test.waitForSelector(e.chatMessages, ELEMENT_WAIT_TIME);
 }
 
 async function sendPublicChatMessage(page1, page2) {
@@ -18,7 +19,7 @@ async function sendPublicChatMessage(page1, page2) {
 
 async function openPrivateChatMessage(page1, page2) {
   // Open private Chat with the other User
-  Object.values(arguments).forEach(async argument => await argument.waitForSelector(ule.userListItem, 5000));
+  Object.values(arguments).forEach(async argument => await argument.waitForSelector(ule.userListItem, ELEMENT_WAIT_TIME));
   await page1.page.evaluate(clickOnTheOtherUser, ule.userListItem);
   await page2.page.evaluate(clickOnTheOtherUser, ule.userListItem);
   await page1.page.evaluate(clickThePrivateChatButton, e.activeChat);
