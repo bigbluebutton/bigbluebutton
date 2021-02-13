@@ -20,8 +20,8 @@ const notificationsTest = () => {
       const testName = 'saveSettingsNotification';
       await test.page1.logger('begin of ', testName);
       response = await test.saveSettingsNotification(testName);
-      screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end of ', testName);
+      screenshot = await test.page1.page.screenshot();
     } catch (e) {
       await test.page1.logger(e);
     } finally {
@@ -45,8 +45,8 @@ const notificationsTest = () => {
       const testName = 'publicChatNotification';
       await test.page1.logger('begin of ', testName);
       response = await test.publicChatNotification(testName);
-      screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end of ', testName);
+      screenshot = await test.page1.page.screenshot();
     } catch (e) {
       await test.page1.logger(e);
     } finally {
@@ -70,8 +70,8 @@ const notificationsTest = () => {
       const testName = 'privateChatNotification';
       await test.page1.logger('begin of ', testName);
       response = await test.privateChatNotification(testName);
-      screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end of ', testName);
+      screenshot = await test.page1.page.screenshot();
     } catch (e) {
       await test.page1.logger(e);
     } finally {
@@ -95,8 +95,8 @@ const notificationsTest = () => {
       const testName = 'userJoinNotification';
       await test.page1.logger('begin of ', testName);
       response = await test.getUserJoinPopupResponse(testName);
-      screenshot = await test.page3.page.screenshot();
       await test.page1.logger('end of ', testName);
+      screenshot = await test.page3.page.screenshot();
     } catch (e) {
       await test.page1.logger(e);
     } finally {
@@ -120,8 +120,8 @@ const notificationsTest = () => {
       const testName = 'uploadPresentationNotification';
       await test.page1.logger('begin of ', testName);
       response = await test.fileUploaderNotification(testName);
-      screenshot = await test.page3.page.screenshot();
       await test.page1.logger('end of ', testName);
+      screenshot = await test.page3.page.screenshot();
     } catch (e) {
       await test.page1.logger(e);
     } finally {
@@ -145,8 +145,8 @@ const notificationsTest = () => {
       const testName = 'pollResultsNotification';
       await test.page1.logger('begin of ', testName);
       response = await test.publishPollResults(testName);
-      screenshot = await test.page3.page.screenshot();
       await test.page1.logger('end of ', testName);
+      screenshot = await test.page3.page.screenshot();
     } catch (e) {
       await test.page1.logger(e);
     } finally {
@@ -170,8 +170,8 @@ const notificationsTest = () => {
       const testName = 'screenShareNotification';
       await page.page1.logger('begin of ', testName);
       response = await page.screenshareToast(testName);
-      screenshot = await page.page3.page.screenshot();
       await page.page1.logger('end of ', testName);
+      screenshot = await page.page3.page.screenshot();
     } catch (e) {
       await page.page1.logger(e);
     } finally {
@@ -195,8 +195,8 @@ const notificationsTest = () => {
       const testName = 'audioNotification';
       await test.page1.logger('begin of ', testName);
       response = await test.audioNotification(testName);
-      screenshot = await test.page3.page.screenshot();
       await test.page1.logger('end of ', testName);
+      screenshot = await test.page3.page.screenshot();
     } catch (e) {
       await test.page1.logger(e);
     } finally {
