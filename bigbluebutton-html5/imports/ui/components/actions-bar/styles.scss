@@ -211,7 +211,12 @@
 
 .translatorBtn{
   span{
+    background-color: mediumpurple;
+  }
+}
+
+.translatorBtn:not(.btnmuted):focus{
+  span{
     background-color: mediumpurple !important;
   }
-
 }
