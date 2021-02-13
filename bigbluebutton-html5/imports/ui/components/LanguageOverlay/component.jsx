@@ -61,7 +61,9 @@ class LanguageOverlay extends Component{
         const connectionMessage = intl.formatMessage(isConnecting ? intlMessages.connectionSettingUp : intlMessages.connectionEstablished);
 
        return(
-        <div>
+        <div
+            className={styles.languageOverlay}
+        >
             <ul>
                 {this.state.languages.map(function (language) {
                     return <li
