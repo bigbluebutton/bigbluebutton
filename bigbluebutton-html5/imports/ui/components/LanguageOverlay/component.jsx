@@ -61,12 +61,19 @@ class LanguageOverlay extends Component{
         const connectionMessage = intl.formatMessage(isConnecting ? intlMessages.connectionSettingUp : intlMessages.connectionEstablished);
 
        return(
-        <div>
+        <div
+            className={styles.languageOverlay}
+        >
             <ul>
                 {this.state.languages.map(function (language) {
-                    return <li className={styles.languageOption} key={language.extension} onClick={() => {
-                        this.clickHandler(language)
-                    }}> <span>{language.name}</span>{((this.props.current && language.extension === this.props.current.extension) || (this.props.current === null && language.extension === -1)) && <span>{connectionMessage}</span>}</li>
+                    return <li
+                                className={language.isFiltered? styles.filteredLanguageOption : styles.languageOption}
+                                key={language.extension}
+                                onClick={language.isFiltered? null : () => this.clickHandler(language)}
+                            >
+                                <span>{language.name}</span>
+                                {((this.props.current && language.extension === this.props.current.extension) || (this.props.current === null && language.extension === -1)) && <span>{connectionMessage}</span>}
+                           </li>
                 },this)}
             </ul>
         </div>);
@@ -80,7 +87,7 @@ class LanguageOverlay extends Component{
             if(this.props.filteredLanguages) {
                 let filteredLanguageExtensions = new Set(this.props.filteredLanguages
                     .map(language => language.extension));
-                languages = languages.filter(language => !filteredLanguageExtensions.has(language.extension));
+                languages = languages.map(language => Object.assign(language, {isFiltered: filteredLanguageExtensions.has(language.extension)}));
             }
             languages.push({
                 name: intl.formatMessage(this.props.translator ? intlMessages.noneLanguage : intlMessages.originLanguage),

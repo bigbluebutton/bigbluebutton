@@ -141,68 +141,24 @@
 }
 
 .translatorLanguageOverlay{
-  position: fixed;
   --anchor-bottom: #translatorButton top;
   --anchor-horizontalCenter: #translatorButton horizontalCenter;
-
-  box-sizing: border-box;
-  border-radius: 1em;
-
-  margin: 0;
-  li{
-    box-sizing: unset;
-    display: flex;
-    justify-content: space-between;
-
-    cursor: pointer;
-
-    padding-left: 1em;
-    padding-right: 1em;
-    min-width: 8em;
-    list-style: none;
-
-    &:hover {
-      background-color: var(--color-primary);
-      color: var(--color-white);
-    }
-  }
-  ul{
-    padding: 5px;
-    background-color: var(--color-off-white);
-  }
 }
 
-.languageOverlay{
-  position: fixed;
+.translationLanguageOverlay{
   --anchor-bottom: #translationButton top;
   --anchor-horizontalCenter: #translationButton horizontalCenter;
+}
+
+.languageOverlay {
+  position: fixed;
 
   box-sizing: border-box;
   border-radius: 1em;
 
   margin: 0;
-  li{
-    box-sizing: unset;
-    display: flex;
-    justify-content: space-between;
-
-    cursor: pointer;
-
-    padding-left: 1em;
-    padding-right: 1em;
-    min-width: 8em;
-    list-style: none;
-
-    &:hover {
-      background-color: var(--color-primary);
-      color: var(--color-white);
-    }
-  }
-  ul{
-    padding: 5px;
-    background-color: var(--color-off-white);
-  }
 }
+
 .btnmuted{
   span{
     border-color: white !important;

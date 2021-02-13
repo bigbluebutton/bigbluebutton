@@ -281,7 +281,7 @@ class ActionsBar extends PureComponent {
           />
           { this.state.showLanguageChoice ?
               (
-                  <div className={"sailingShip "+styles.languageOverlay}>
+                  <div className={["sailingShip", styles.languageOverlay, styles.translationLanguageOverlay].join(' ')}>
                     <LanguageOverlay
                       current={this.state.translationLanguage}
                       filteredLanguages={this.state.translatorLanguage ? [this.state.translatorLanguage] : []}
@@ -346,7 +346,7 @@ class ActionsBar extends PureComponent {
           }
           { this.state.showTranslatorChoice ?
               (
-                  <div className={"sailingShip "+styles.translatorLanguageOverlay}>
+                  <div className={["sailingShip", styles.languageOverlay, styles.translatorLanguageOverlay].join(' ')}>
                     <LanguageOverlay
                       translator={true}
                       current={this.state.translatorLanguage}
