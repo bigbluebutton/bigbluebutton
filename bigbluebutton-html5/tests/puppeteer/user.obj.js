@@ -21,8 +21,8 @@ const userTest = () => {
       await test.init(Page.getArgs());
       await test.closeAudioModal();
       response = await test.test();
-      screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
+      screenshot = await test.page.screenshot();
     } catch (e) {
       await test.logger(e);
     } finally {
