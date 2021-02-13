@@ -21,6 +21,7 @@ const whiteboardTest = () => {
       await test.logger('Test Name: ', testName);
       await test.closeAudioModal();
       response = await test.test();
+      await test.logger('end of ', testName);
       screenshot = await test.page.screenshot();
     } catch (e) {
       await test.logger(e);

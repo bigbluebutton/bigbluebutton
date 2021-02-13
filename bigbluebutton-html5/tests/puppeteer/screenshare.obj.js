@@ -20,8 +20,8 @@ const screenShareTest = () => {
       await test.init(Page.getArgsWithVideo());
       await test.closeAudioModal();
       response = await test.test();
-      screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
+      screenshot = await test.page.screenshot();
     } catch (e) {
       await test.logger(e);
     } finally {
