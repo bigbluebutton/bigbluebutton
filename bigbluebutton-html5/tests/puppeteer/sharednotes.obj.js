@@ -20,8 +20,8 @@ const sharedNotesTest = () => {
       await test.page1.closeAudioModal();
       await test.page2.closeAudioModal();
       response = await test.test();
-      screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end of ', testName);
+      screenshot = await test.page1.page.screenshot();
     } catch (e) {
       await test.page1.logger(e);
     } finally {
