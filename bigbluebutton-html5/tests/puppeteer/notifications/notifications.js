@@ -150,7 +150,6 @@ class Notifications extends MultiUsers {
 
   // Publish Poll Results notification
   async publishPollResults(testName) {
-    await this.initUser3(Page.getArgs(), undefined);
     await this.page3.screenshot(`${testName}`, `01-page03-initialized-${testName}`);
     await this.page3.closeAudioModal();
     await this.page3.screenshot(`${testName}`, `02-page03-audio-modal-closed-${testName}`);

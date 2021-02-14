@@ -72,7 +72,7 @@ class CustomParameters {
       this.page2.logger(testName, ' failed');
       return false;
     }
-    await this.page2.waitForSelector(cpe.audioNotification, ELEMENT_WAIT_TIME);
+    await this.page2.waitForSelector(cpe.toastContainer, ELEMENT_WAIT_TIME);
     await this.page2.screenshot(`${testName}`, `02-success-${testName}`);
     const resp = await util.forceListenOnly(this.page2);
     await this.page2.screenshot(`${testName}`, `03-success-${testName}`);
@@ -520,7 +520,7 @@ class CustomParameters {
     const zoomOutCase = await util.zoomOut(this.page1);
     await this.page1.screenshot(`${testName}`, `03-page1-${testName}`);
     await this.page2.screenshot(`${testName}`, `04-page2-${testName}`);
-    const pollCase = await util.poll(this.page1);
+    const pollCase = await util.poll(this.page1, this.page2);
     await this.page1.screenshot(`${testName}`, `03-page1-${testName}`);
     await this.page2.screenshot(`${testName}`, `04-page2-${testName}`);
     const previousSlideCase = await util.previousSlide(this.page1);
@@ -540,6 +540,36 @@ class CustomParameters {
     }
     await this.page2.page.evaluate(util.countTestElements, cpe.restorePresentation) === false;
     await this.page2.screenshot(`${testName}`, `08-page2-success-${testName}`);
+    this.page1.logger(testName, ' passed');
+    return true;
+  }
+
+  async forceRestorePresentationOnNewPollResult(testName, args, meetingId, customParameter) {
+    this.page1.logger('before init ', testName);
+    await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
+    await this.page2.init(args, this.page1.meetingId, { ...params, fullName: 'Viewer1', moderatorPW: '' }, customParameter, testName);
+    await this.page1.screenshot(`${testName}`, `01-page1-${testName}`);
+    await this.page2.screenshot(`${testName}`, `01-page2-${testName}`);
+    this.page1.logger('after init ', testName);
+    await this.page1.closeAudioModal();
+    await this.page1.screenshot(`${testName}`, `02-page1-${testName}`);
+    await this.page2.closeAudioModal();
+    await this.page2.screenshot(`${testName}`, `02-page2-${testName}`);
+    await this.page1.waitForSelector(cpe.container, ELEMENT_WAIT_TIME);
+    await this.page2.waitForSelector(cpe.hidePresentation, ELEMENT_WAIT_TIME);
+    await this.page2.click(cpe.hidePresentation, true);
+    await this.page2.screenshot(`${testName}`, `03-page2-${testName}`);
+    const pollCase = await util.poll(this.page1, this.page2);
+    await this.page1.screenshot(`${testName}`, `03-page1-${testName}`);
+    await this.page2.screenshot(`${testName}`, `04-page2-${testName}`);
+    if (pollCase === true
+       && await this.page2.page.evaluate(util.countTestElements, cpe.restorePresentation) === true) {
+      await this.page2.screenshot(`${testName}`, `05-page2-fail-${testName}`);
+      this.page1.logger(testName, ' failed');
+      return false;
+    }
+    await this.page2.page.evaluate(util.countTestElements, cpe.restorePresentation) === false;
+    await this.page2.screenshot(`${testName}`, `05-page2-success-${testName}`);
     this.page1.logger(testName, ' passed');
     return true;
   }

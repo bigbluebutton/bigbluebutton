@@ -144,6 +144,7 @@ const notificationsTest = () => {
     try {
       const testName = 'pollResultsNotification';
       await test.page1.logger('begin of ', testName);
+      await test.initUser3(Page.getArgs(), undefined);
       response = await test.publishPollResults(testName);
       await test.page1.logger('end of ', testName);
       screenshot = await test.page3.page.screenshot();

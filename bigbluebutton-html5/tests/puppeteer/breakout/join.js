@@ -74,8 +74,6 @@ class Join extends Create {
 
       const page2 = await this.page2.browser.pages();
       const page3 = await this.page3.browser.pages();
-      // await page2[2].waitForSelector(pe.screenshareConnecting);
-      // await page3[2].waitForSelector(pe.screenshareConnecting);
       await page2[2].waitForSelector(pe.screenShareVideo, { timeout: VIDEO_LOADING_WAIT_TIME });
       await page3[2].waitForSelector(pe.screenShareVideo, { timeout: VIDEO_LOADING_WAIT_TIME });
       await page3[2].waitForSelector(pe.stopScreenSharing, { timeout: ELEMENT_WAIT_TIME });

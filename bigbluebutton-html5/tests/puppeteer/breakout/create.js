@@ -10,7 +10,8 @@ const ue = require('../user/elements'); // user elements
 const ce = require('../customparameters/elements'); // customparameters elements
 const e = require('../core/elements'); // page base elements
 // core constants (Timeouts vars imported)
-const { ELEMENT_WAIT_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+
 const today = moment().format('DD-MM-YYYY');
 
 class Create {
@@ -103,7 +104,7 @@ class Create {
 
       await this.page3.waitForSelector(be.joinRoom1, ELEMENT_WAIT_TIME);
       await this.page3.click(be.joinRoom1, true);
-      await this.page3.waitForSelector(be.alreadyConnected, 10000);
+      await this.page3.waitForSelector(be.alreadyConnected, ELEMENT_WAIT_LONGER_TIME);
 
       const page3 = await this.page3.browser.pages();
 

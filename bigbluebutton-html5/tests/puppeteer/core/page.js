@@ -46,6 +46,7 @@ class Page {
         this.browser = await puppeteer.launch(args);
       }
       this.page = await this.browser.newPage();
+      await this.page.setViewport({ width: 1280, height: 720 });
       this.page.setDefaultTimeout(3600000);
 
       // Getting all page console logs
@@ -112,8 +113,8 @@ class Page {
 
   // Joining audio with Listen Only mode
   async listenOnly() {
-    await this.waitForSelector(e.audioDialog);
-    await this.waitForSelector(e.listenButton);
+    await this.waitForSelector(e.audioDialog, ELEMENT_WAIT_TIME);
+    await this.waitForSelector(e.listenButton, ELEMENT_WAIT_TIME);
     await this.click(e.listenButton);
   }
 
@@ -355,7 +356,7 @@ class Page {
     if (!fs.existsSync(metricsFolder)) {
       fs.mkdirSync(metricsFolder);
     }
-    await this.waitForSelector('[data-test^="userListItem"]', ELEMENT_WAIT_TIME);
+    await this.waitForSelector(ue.anyUser, ELEMENT_WAIT_TIME);
     const totalNumberOfUsersMongo = await this.page.evaluate(() => {
       const collection = require('/imports/api/users/index.js');
       const users = collection.default._collection.find({ connectionStatus: 'online' }).count();

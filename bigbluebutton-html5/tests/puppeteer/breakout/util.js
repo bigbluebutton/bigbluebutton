@@ -3,8 +3,8 @@ const pe = require('../core/elements');
 const { ELEMENT_WAIT_TIME } = require('../core/constants'); // core constants (Timeouts vars imported)
 
 async function waitForBreakoutElements(page1) {
-  await page1.waitForSelector(e.manageUsers);
-  await page1.waitForSelector(e.createBreakoutRooms);
+  await page1.waitForSelector(e.manageUsers, ELEMENT_WAIT_TIME);
+  await page1.waitForSelector(e.createBreakoutRooms, ELEMENT_WAIT_TIME);
 }
 
 async function createBreakoutRooms(page1, page2) {
