@@ -700,30 +700,46 @@ class AudioManager {
     return audioAlert.play();
   }
 
-  async openTranslationChannel(languageExtension) {
-    if(this.translationBridge.activeSession) {
-      this.translationBridge.exitAudio()
-      this.translationBridge.userData.languageExtension = -1;
-    }
-    //create a dummy stream that does nothing at all
-    let ac = new AudioContext();
-    let  dest =  ac.createMediaStreamDestination();
-    if( languageExtension >= 0 ) {
-      const callOptions = {
-        isListenOnly: true,
-        extension: null,
-        inputStream: dest.stream,
-      };
-      this.translationBridge.userData.voiceBridge = this.userData.voiceBridge.toString()+languageExtension;
-      this.translationBridge.joinAudio(callOptions, function () {
-        return new Promise(function () {
+  async handleTranslationChannelStateChange(languageExtension, message) {
+    this.translationState = message.status;
+    this.notifyTranslationChannelStateChange(languageExtension, message);
+  }
+
+  async notifyTranslationChannelStateChange(languageExtension, message) {
+    this.translationStateCallbacks.forEach(callback => callback(message, languageExtension));
+  }
+
+  onTranslationChannelStateChange(translationStateChangeCallback) {
+    this.translationStateCallbacks.add(translationStateChangeCallback);
+  }
+
+  openTranslationChannel(languageExtension) {
+    return new Promise((resolve, reject) => {
+      if (this.translationBridge.activeSession) {
+        this.translationBridge.exitAudio()
+        this.translationBridge.userData.languageExtension = -1;
+      }
+      //create a dummy stream that does nothing at all
+      let ac = new AudioContext();
+      let dest = ac.createMediaStreamDestination();
+      if (languageExtension >= 0) {
+        const callOptions = {
+          isListenOnly: true,
+          extension: null,
+          inputStream: dest.stream,
+        };
+        this.translationBridge.userData.voiceBridge = this.userData.voiceBridge.toString() + languageExtension;
+        this.translationBridge.joinAudio(callOptions, (message) => {
+          if (message.status == CALL_STATES.STARTED) {
+            resolve(languageExtension);
+          }
+          return this.handleTranslationChannelStateChange(languageExtension, message);
         });
-      });
-      this.translationBridge.userData.languageExtension = languageExtension;
-      return languageExtension;
-    } else {
-      return -1
-    }
+        this.translationBridge.userData.languageExtension = languageExtension;
+      } else {
+        resolve(-1);
+      }
+    });
   }
 
   async openTranslatorChannel(languageExtension, onConnected) {
