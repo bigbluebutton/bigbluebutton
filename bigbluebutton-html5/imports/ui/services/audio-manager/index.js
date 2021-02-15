@@ -69,12 +69,22 @@ class AudioManager {
     this.translatorVolumeGainNode = new AudioContext().createGain();
     this.muteHandels = new Set();
     this.muteStateCallbacks = new Set();
+    this.translationStateCallbacks = new Set();
+    this.translationState = null;
   }
 
   init(userData) {
     this.bridge = new SIPBridge(userData); // no alternative as of 2019-03-08
     this.translationBridge = new SIPBridge({...userData}, "#translation-media");
-    this.translatorBridge = new SIPBridge({...userData}, "#translator-media");
+    this.translatorBridge = new SIPBridge({...userData},
+      "#translator-media",
+      {
+        video: true,
+        audio: {
+          echoCancellation: false,
+        },
+      },
+    );
     if (this.useKurento) {
       this.listenOnlyBridge = new KurentoBridge(userData);
     }
