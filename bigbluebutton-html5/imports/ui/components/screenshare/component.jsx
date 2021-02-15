@@ -8,6 +8,7 @@ import { styles } from './styles';
 import AutoplayOverlay from '../media/autoplay-overlay/component';
 import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
+import PollingContainer from '/imports/ui/components/polling/container';
 
 const intlMessages = defineMessages({
   screenShareLabel: {
@@ -144,7 +145,7 @@ class ScreenshareComponent extends React.Component {
   }
 
   render() {
-    const { loaded, autoplayBlocked } = this.state;
+    const { loaded, autoplayBlocked, isFullscreen } = this.state;
     const { intl } = this.props;
 
     return (
@@ -173,6 +174,7 @@ class ScreenshareComponent extends React.Component {
           key="screenshareContainer"
           ref={(ref) => { this.screenshareContainer = ref; }}
         >
+          {isFullscreen && <PollingContainer />}
           {loaded && this.renderFullscreenButton()}
           <video
             id="screenshareVideo"
