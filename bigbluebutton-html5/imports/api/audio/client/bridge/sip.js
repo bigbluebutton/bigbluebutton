@@ -68,7 +68,7 @@ const getErrorCode = (error) => {
 
 class SIPSession {
   constructor(user, userData, protocol, hostname,
-    baseCallStates, baseErrorCodes, reconnectAttempt, mediaTag = MEDIA_TAG) {
+    baseCallStates, baseErrorCodes, reconnectAttempt, mediaTag = MEDIA_TAG, userMediaConstraints = {audio:true,video:true} ) {
     this.user = user;
     this.userData = userData;
     this.protocol = protocol;
@@ -83,6 +83,7 @@ class SIPSession {
     this._reconnecting = false;
     this._currentSessionState = null;
     this.mediaTag = mediaTag;
+    this.userMediaConstraints = userMediaConstraints;
   }
 
   joinAudio({ isListenOnly, extension, inputDeviceId }, managerCallback) {
@@ -381,6 +382,7 @@ class SIPSession {
             iceServers,
             sdpSemantics: 'plan-b',
           },
+          constraints: this.userMediaConstraints,
         },
         displayName: callerIdName,
         register: false,
@@ -937,7 +939,7 @@ class SIPSession {
 }
 
 export default class SIPBridge extends BaseAudioBridge {
-  constructor(userData, mediaTag = MEDIA_TAG ) {
+  constructor(userData, mediaTag = MEDIA_TAG, userMediaConstraints = {audio:true,video:true} ) {
     super(userData);
 
     const {
@@ -957,6 +959,7 @@ export default class SIPBridge extends BaseAudioBridge {
     };
 
     this.mediaTag = mediaTag;
+    this.userMediaConstraints = userMediaConstraints;
 
     this.protocol = window.document.location.protocol;
     this.hostname = window.document.location.hostname;
@@ -982,7 +985,7 @@ export default class SIPBridge extends BaseAudioBridge {
       let { hostname } = this;
 
       this.activeSession = new SIPSession(this.user, this.userData, this.protocol,
-        hostname, this.baseCallStates, this.baseErrorCodes, false, this.mediaTag);
+        hostname, this.baseCallStates, this.baseErrorCodes, false, this.mediaTag, this.userMediaConstraints);
 
       const callback = (message) => {
         if (message.status === this.baseCallStates.failed) {
