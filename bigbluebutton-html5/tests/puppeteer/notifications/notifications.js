@@ -7,6 +7,7 @@ const utilScreenShare = require('../screenshare/util'); // utils imported from s
 const ne = require('./elements');
 const pe = require('../presentation/elements');
 const we = require('../whiteboard/elements');
+const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 class Notifications extends MultiUsers {
   constructor() {
@@ -57,8 +58,8 @@ class Notifications extends MultiUsers {
     await this.page1.screenshot(`${testName}`, `04-page01-applied-settings-${testName}`);
     const expectedToastValue = await util.publicChatMessageToast(this.page1, this.page2);
     await this.page1.screenshot(`${testName}`, `05-page01-public-chat-message-sent-${testName}`);
-    await this.page1.waitForSelector(ne.smallToastMsg);
-    await this.page1.waitForSelector(ne.hasUnreadMessages);
+    await this.page1.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
+    await this.page1.waitForSelector(ne.hasUnreadMessages, ELEMENT_WAIT_TIME);
     const lastToast = await util.getOtherToastValue(this.page1);
     await this.page1.screenshot(`${testName}`, `06-page01-public-chat-toast-${testName}`);
     return expectedToastValue === lastToast;
@@ -76,8 +77,8 @@ class Notifications extends MultiUsers {
     await this.page1.screenshot(`${testName}`, `04-page01-applied-settings-${testName}`);
     const expectedToastValue = await util.privateChatMessageToast(this.page2);
     await this.page1.screenshot(`${testName}`, `05-page01-private-chat-message-sent-${testName}`);
-    await this.page1.waitForSelector(ne.smallToastMsg);
-    await this.page1.waitForSelector(ne.hasUnreadMessages);
+    await this.page1.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
+    await this.page1.waitForSelector(ne.hasUnreadMessages, ELEMENT_WAIT_TIME);
     const lastToast = await util.getOtherToastValue(this.page1);
     await this.page1.screenshot(`${testName}`, `06-page01-public-chat-toast-${testName}`);
     return expectedToastValue === lastToast;
@@ -99,7 +100,7 @@ class Notifications extends MultiUsers {
     await this.page3.screenshot(`${testName}`, `03-page03-after-user-join-notification-activation-${testName}`);
     await this.initUser4();
     await this.page4.closeAudioModal();
-    await this.page3.waitForSelector(ne.smallToastMsg);
+    await this.page3.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
     try {
       await this.page3.page.waitForFunction(
         'document.querySelector("body").innerText.includes("User joined the session")',
@@ -120,20 +121,20 @@ class Notifications extends MultiUsers {
     await this.page3.screenshot(`${testName}`, `02-page03-audio-modal-closed-${testName}`);
     await util.uploadFileMenu(this.page3);
     await this.page3.screenshot(`${testName}`, `03-page03-upload-file-menu-${testName}`);
-    await this.page3.waitForSelector(pe.fileUpload);
+    await this.page3.waitForSelector(pe.fileUpload, ELEMENT_WAIT_TIME);
     const fileUpload = await this.page3.page.$(pe.fileUpload);
     await fileUpload.uploadFile(path.join(__dirname, '../media/DifferentSizes.pdf'));
     await this.page3.page.waitForFunction(
       'document.querySelector("body").innerText.includes("To be uploaded ...")',
     );
-    await this.page3.page.waitForSelector(pe.upload);
-    await this.page3.page.click(pe.upload);
+    await this.page3.waitForSelector(pe.upload, ELEMENT_WAIT_TIME);
+    await this.page3.click(pe.upload, true);
     await this.page3.page.waitForFunction(
       'document.querySelector("body").innerText.includes("Converting file")',
     );
     await this.page3.screenshot(`${testName}`, `04-page03-file-uploaded-and-ready-${testName}`);
-    await this.page3.waitForSelector(ne.smallToastMsg);
-    await this.page3.waitForSelector(we.whiteboard);
+    await this.page3.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
+    await this.page3.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
     await this.page3.screenshot(`${testName}`, `05-page03-presentation-changed-${testName}`);
     try {
       await this.page3.page.waitForFunction(
@@ -149,14 +150,13 @@ class Notifications extends MultiUsers {
 
   // Publish Poll Results notification
   async publishPollResults(testName) {
-    await this.initUser3(Page.getArgs(), undefined);
     await this.page3.screenshot(`${testName}`, `01-page03-initialized-${testName}`);
     await this.page3.closeAudioModal();
     await this.page3.screenshot(`${testName}`, `02-page03-audio-modal-closed-${testName}`);
-    await this.page3.waitForSelector(we.whiteboard);
+    await this.page3.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
     await util.startPoll(this.page3);
     await this.page3.screenshot(`${testName}`, `03-page03-started-poll-${testName}`);
-    await this.page3.waitForSelector(ne.smallToastMsg);
+    await this.page3.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
     const resp = await util.getLastToastValue(this.page3);
     await this.page3.screenshot(`${testName}`, `04-page03-poll-toast-${testName}`);
     return resp;

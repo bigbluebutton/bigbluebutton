@@ -204,12 +204,14 @@ class BreakoutRoom extends PureComponent {
               aria-label={`${intl.formatMessage(intlMessages.breakoutJoin)} ${number}`}
               onClick={() => {
                 this.getBreakoutURL(breakoutId);
+                // leave main room's audio, and stops video and screenshare when joining a breakout room
                 exitAudio();
                 logger.debug({
                   logCode: 'breakoutroom_join',
                   extraInfo: { logType: 'user_action' },
                 }, 'joining breakout room closed audio in the main room');
                 VideoService.exitVideo();
+                window.kurentoExitScreenShare();
               }
               }
               disabled={disable}

@@ -43,7 +43,9 @@ public:
     # Warning: increasing the limit of breakout rooms per meeting
     # can generate excessive overhead to the server. We recommend
     # this value to be kept under 12.
-    breakoutRoomLimit: 8
+    breakouts:
+      breakoutRoomLimit: 8
+      sendInvitationToIncludedModerators: false
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
     customHeartbeat: true
     defaultSettings:
