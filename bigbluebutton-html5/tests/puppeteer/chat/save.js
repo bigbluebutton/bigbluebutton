@@ -14,7 +14,7 @@ class Save extends Page {
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await this.screenshot(`${testName}`, `01-before-chat-options-click-[${testName}]`);
     }
-    await this.click(e.chatOptions);
+    await this.click(e.chatOptions, true);
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await this.screenshot(`${testName}`, `02-chat-options-clicked-[${testName}]`);
     }
