@@ -44,7 +44,7 @@ object MsgBuilder {
     val envelope = BbbCoreEnvelope(GetGuestsWaitingApprovalRespMsg.NAME, routing)
     val header = BbbClientMsgHeader(GetGuestsWaitingApprovalRespMsg.NAME, meetingId, userId)
 
-    val guestsWaiting = guests.map(g => GuestWaitingVO(g.intId, g.name, g.role, g.guest, g.avatar, g.authenticated))
+    val guestsWaiting = guests.map(g => GuestWaitingVO(g.intId, g.name, g.role, g.guest, g.avatar, g.authenticated, g.registeredOn))
     val body = GetGuestsWaitingApprovalRespMsgBody(guestsWaiting)
     val event = GetGuestsWaitingApprovalRespMsg(header, body)
 
@@ -56,7 +56,7 @@ object MsgBuilder {
     val envelope = BbbCoreEnvelope(GuestsWaitingForApprovalEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(GuestsWaitingForApprovalEvtMsg.NAME, meetingId, userId)
 
-    val guestsWaiting = guests.map(g => GuestWaitingVO(g.intId, g.name, g.role, g.guest, g.avatar, g.authenticated))
+    val guestsWaiting = guests.map(g => GuestWaitingVO(g.intId, g.name, g.role, g.guest, g.avatar, g.authenticated, g.registeredOn))
     val body = GuestsWaitingForApprovalEvtMsgBody(guestsWaiting)
     val event = GuestsWaitingForApprovalEvtMsg(header, body)
 
@@ -74,11 +74,11 @@ object MsgBuilder {
   }
 
   def buildValidateAuthTokenRespMsg(meetingId: String, userId: String, authToken: String,
-                                    valid: Boolean, waitForApproval: Boolean): BbbCommonEnvCoreMsg = {
+                                    valid: Boolean, waitForApproval: Boolean, registeredOn: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
     val envelope = BbbCoreEnvelope(ValidateAuthTokenRespMsg.NAME, routing)
     val header = BbbClientMsgHeader(ValidateAuthTokenRespMsg.NAME, meetingId, userId)
-    val body = ValidateAuthTokenRespMsgBody(userId, authToken, valid, waitForApproval)
+    val body = ValidateAuthTokenRespMsgBody(userId, authToken, valid, waitForApproval, registeredOn)
     val event = ValidateAuthTokenRespMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }

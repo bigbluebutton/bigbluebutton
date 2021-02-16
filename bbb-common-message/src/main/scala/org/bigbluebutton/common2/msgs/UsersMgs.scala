@@ -22,7 +22,7 @@ case class UserRegisteredRespMsg(
     header: BbbCoreHeaderWithMeetingId,
     body:   UserRegisteredRespMsgBody
 ) extends BbbCoreMsg
-case class UserRegisteredRespMsgBody(meetingId: String, userId: String, name: String, role: String)
+case class UserRegisteredRespMsgBody(meetingId: String, userId: String, name: String, role: String, registeredOn: String)
 
 object RegisteredUserJoinTimeoutMsg { val NAME = "RegisteredUserJoinTimeoutMsg" }
 case class RegisteredUserJoinTimeoutMsg(
@@ -59,7 +59,7 @@ case class ValidateAuthTokenRespMsg(
     header: BbbClientMsgHeader,
     body:   ValidateAuthTokenRespMsgBody
 ) extends BbbCoreMsg
-case class ValidateAuthTokenRespMsgBody(userId: String, authToken: String, valid: Boolean, waitForApproval: Boolean)
+case class ValidateAuthTokenRespMsgBody(userId: String, authToken: String, valid: Boolean, waitForApproval: Boolean, registeredOn: String)
 
 object UserLeftMeetingEvtMsg {
   val NAME = "UserLeftMeetingEvtMsg"

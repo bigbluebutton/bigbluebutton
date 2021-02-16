@@ -13,11 +13,11 @@ trait RegisterUserReqMsgHdlr {
 
   def handleRegisterUserReqMsg(msg: RegisterUserReqMsg): Unit = {
 
-    def buildUserRegisteredRespMsg(meetingId: String, userId: String, name: String, role: String): BbbCommonEnvCoreMsg = {
+    def buildUserRegisteredRespMsg(meetingId: String, userId: String, name: String, role: String, registeredOn: String): BbbCommonEnvCoreMsg = {
       val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
       val envelope = BbbCoreEnvelope(UserRegisteredRespMsg.NAME, routing)
       val header = BbbCoreHeaderWithMeetingId(UserRegisteredRespMsg.NAME, meetingId)
-      val body = UserRegisteredRespMsgBody(meetingId, userId, name, role)
+      val body = UserRegisteredRespMsgBody(meetingId, userId, name, role, registeredOn)
       val event = UserRegisteredRespMsg(header, body)
       BbbCommonEnvCoreMsg(envelope, event)
     }
@@ -33,7 +33,7 @@ trait RegisterUserReqMsgHdlr {
     log.info("Register user success. meetingId=" + liveMeeting.props.meetingProp.intId
       + " userId=" + msg.body.extUserId + " user=" + regUser)
 
-    val event = buildUserRegisteredRespMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.name, regUser.role)
+    val event = buildUserRegisteredRespMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.name, regUser.role, regUser.getRegisteredOnAsIsoDatetime())
     outGW.send(event)
 
     def notifyModeratorsOfGuestWaiting(guests: Vector[GuestWaiting], users: Users2x, meetingId: String): Unit = {
@@ -56,7 +56,7 @@ trait RegisterUserReqMsgHdlr {
         val g = GuestApprovedVO(regUser.id, GuestStatus.ALLOW)
         UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, SystemUser.ID)
       case GuestStatus.WAIT =>
-        val guest = GuestWaiting(regUser.id, regUser.name, regUser.role, regUser.guest, regUser.avatarURL, regUser.authed)
+        val guest = GuestWaiting(regUser.id, regUser.name, regUser.role, regUser.guest, regUser.avatarURL, regUser.authed, regUser.getRegisteredOnAsIsoDatetime())
         addGuestToWaitingForApproval(guest, liveMeeting.guestsWaiting)
         notifyModeratorsOfGuestWaiting(Vector(guest), liveMeeting.users2x, liveMeeting.props.meetingProp.intId)
       case GuestStatus.DENY =>
