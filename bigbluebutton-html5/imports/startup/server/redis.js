@@ -140,9 +140,9 @@ class RedisPubSub {
     }
 
     this.emitter = new EventEmitter2();
-    this.mettingsQueues = {};
+    this.meetingsQueues = {};
     // We create this _ meeting queue because we need to be able to handle system messages (no meetingId in core.header)
-    this.mettingsQueues[NO_MEETING_ID] = new MeetingMessageQueue(this.emitter, this.config.async, this.config.debug);
+    this.meetingsQueues[NO_MEETING_ID] = new MeetingMessageQueue(this.emitter, this.config.async, this.config.debug);
 
     this.handleSubscribe = this.handleSubscribe.bind(this);
     this.handleMessage = this.handleMessage.bind(this);
@@ -235,13 +235,12 @@ class RedisPubSub {
 
         if (eventName === 'MeetingCreatedEvtMsg' || eventName === 'SyncGetMeetingInfoRespMsg') {
           const meetingIdFromMessageMeetingProp = parsedMessage.core.body.props.meetingProp.intId;
-          this.mettingsQueues[meetingIdFromMessageMeetingProp] = new MeetingMessageQueue(this.emitter, async, this.redisDebugEnabled);
-          return; // we don't want to process the create meeting message since it can lead to duplication of meetings in mongo.
+          this.meetingsQueues[meetingIdFromMessageMeetingProp] = new MeetingMessageQueue(this.emitter, async, this.redisDebugEnabled);
         }
       }
 
       // process the event - whether it's a system message or not, the meetingIdFromMessageCoreHeader value is adjusted
-      this.mettingsQueues[meetingIdFromMessageCoreHeader].add({
+      this.meetingsQueues[meetingIdFromMessageCoreHeader].add({
         pattern,
         channel,
         eventName,
@@ -256,9 +255,9 @@ class RedisPubSub {
         if (this.instanceId === instanceIdFromMessage) {
           // create queue or destroy queue
           if (eventName === 'MeetingCreatedEvtMsg' || eventName === 'SyncGetMeetingInfoRespMsg') {
-            this.mettingsQueues[meetingIdFromMessageMeetingProp] = new MeetingMessageQueue(this.emitter, async, this.redisDebugEnabled);
+            this.meetingsQueues[meetingIdFromMessageMeetingProp] = new MeetingMessageQueue(this.emitter, async, this.redisDebugEnabled);
           }
-          this.mettingsQueues[NO_MEETING_ID].add({
+          this.meetingsQueues[NO_MEETING_ID].add({
             pattern,
             channel,
             eventName,
@@ -270,8 +269,8 @@ class RedisPubSub {
             // but we still need to process it on the backend which is processing the rest of the events
             // for this meetingId (it does not contain instanceId either, so we cannot compare that)
             const meetingIdForMeetingEnded = parsedMessage.core.body.meetingId;
-            if (!!this.mettingsQueues[meetingIdForMeetingEnded]) {
-              this.mettingsQueues[NO_MEETING_ID].add({
+            if (!!this.meetingsQueues[meetingIdForMeetingEnded]) {
+              this.meetingsQueues[NO_MEETING_ID].add({
               pattern,
               channel,
               eventName,
@@ -283,9 +282,9 @@ class RedisPubSub {
         }
       } else {
         // add to existing queue
-        if (!!this.mettingsQueues[meetingIdFromMessageCoreHeader]) {
+        if (!!this.meetingsQueues[meetingIdFromMessageCoreHeader]) {
           // only handle message if we have a queue for the meeting. If we don't have a queue, it means it's for a different instanceId
-          this.mettingsQueues[meetingIdFromMessageCoreHeader].add({
+          this.meetingsQueues[meetingIdFromMessageCoreHeader].add({
             pattern,
             channel,
             eventName,
@@ -298,7 +297,7 @@ class RedisPubSub {
 
 
   destroyMeetingQueue(id) {
-    delete this.mettingsQueues[id];
+    delete this.meetingsQueues[id];
   }
 
   on(...args) {

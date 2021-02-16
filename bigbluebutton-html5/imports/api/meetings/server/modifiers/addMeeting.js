@@ -153,6 +153,17 @@ export default function addMeeting(meeting) {
     })),
   };
 
+  if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
+    addAnnotationsStreamer(meetingId);
+    addCursorStreamer(meetingId);
+    // TODO add addExternalVideoStreamer(meetingId);
+
+    // we don't want to fully process the create meeting message in frontend since it can lead to duplication of meetings in mongo.
+    if (process.env.BBB_HTML5_ROLE === 'frontend') {
+      return;
+    }
+  }
+
   try {
     const { insertedId, numberAffected } = RecordMeetings.upsert(selector, { meetingId, ...recordProp });
 
@@ -167,12 +178,6 @@ export default function addMeeting(meeting) {
 
   try {
     const { insertedId, numberAffected } = Meetings.upsert(selector, modifier);
-
-    if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
-      addAnnotationsStreamer(meetingId);
-      addCursorStreamer(meetingId);
-      // TODO add addExternalVideoStreamer(meetingId);
-    }
 
     if (insertedId) {
       Logger.info(`Added meeting id=${meetingId}`);
