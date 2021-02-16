@@ -153,6 +153,9 @@ NCPU=$(nproc --all)
 
 BBB_USER=bigbluebutton
 
+TURN=$SERVLET_DIR/WEB-INF/classes/spring/turn-stun-servers.xml
+STUN="$(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m '_:beans/_:bean[@class="org.bigbluebutton.web.services.turn.StunTurnService"]/_:property[@name="stunServers"]/_:set/_:ref' -v @bean $TURN)"
+
 #
 # We're going to give ^bigbluebutton.web.logoutURL a default value (if undefined) so bbb-conf does not give a warning
 #
@@ -1210,6 +1213,38 @@ check_state() {
      fi
     fi
 
+    if [ ! -z "$STUN" ]; then
+      STUN_SERVER="$(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m "_:beans/_:bean[@id=\"$STUN\"]/_:constructor-arg[@index=\"0\"]" -v @value $TURN | sed 's/stun://g')"
+      if echo $STUN_SERVER | grep -q ':'; then
+        STUN_SERVER="$(echo $STUN_SERVER | sed 's/:.*//g') $(echo $STUN_SERVER | sed 's/.*://g')"
+      else
+	STUN_SERVER="$STUN_SERVER 3478"
+      fi
+
+      if stunclient --mode full --localport 30000 $STUN_SERVER | grep -q fail; then
+        echo
+        echo "#"
+        echo "# Warning: Failed to verify STUN server at $STUN_SERVER with command"
+        echo "#"
+        echo "#    stunclient --mode full --localport 30000 $STUN_SERVER"
+        echo "#"
+      fi
+    fi
+
+    stunServerAddress=$(cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini | sed -n '/^stunServerAddress/{s/.*=//;p}')
+    stunServerPort=$(cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini | sed -n '/^stunServerPort/{s/.*=//;p}')
+    if [ ! -z "$stunServerAddress" ]; then
+      if stunclient --mode full --localport 30000 $stunServerAddress $stunServerPort | grep -q fail; then
+        echo
+        echo "#"
+        echo "# Warning: Failed to verify STUN server at $stunServerAddress:$stunServerPort with command"
+        echo "#"
+        echo "#    stunclient --mode full --localport 30000 $stunServerAddress $stunServerPort"
+        echo "#"
+      fi
+    fi
+
+
     exit 0
 }
 
@@ -1320,13 +1355,18 @@ if [ $CHECK ]; then
         echo "                    sipjsHackViaWs: $(yq r $HTML5_CONFIG public.media.sipjsHackViaWs)"
      fi
 
-     TURN=/usr/share/bbb-web/WEB-INF/classes/spring/turn-stun-servers.xml
-     STUN="$(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m '_:beans/_:bean[@class="org.bigbluebutton.web.services.turn.StunTurnService"]/_:property[@name="stunServers"]/_:set/_:ref' -v @bean $TURN)"
-
      if [ ! -z "$STUN" ]; then
         echo
         echo "$TURN (STUN Server)"
-        echo "                              $(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m "_:beans/_:bean[@id=\"$STUN\"]/_:constructor-arg[@index=\"0\"]" -v @value $TURN)"
+	echo "                              stun: $(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m "_:beans/_:bean[@id=\"$STUN\"]/_:constructor-arg[@index=\"0\"]" -v @value $TURN | sed 's/stun://g')"
+     fi
+
+     stunServerAddress=$(cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini | sed -n '/^stunServerAddress/{s/.*=//;p}')
+     stunServerPort=$(cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini | sed -n '/^stunServerPort/{s/.*=//;p}')
+     if [ ! -z "$stunServerAddress" ]; then
+        echo
+        echo "/etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini (STUN Server)"
+        echo "                              stun: $stunServerAddress:$stunServerPort"
      fi
 
      if [ "$DISTRIB_CODENAME" == "xenial" ]; then
