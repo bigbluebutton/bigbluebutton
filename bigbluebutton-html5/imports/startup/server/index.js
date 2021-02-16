@@ -29,7 +29,7 @@ Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
   const env = Meteor.isDevelopment ? 'development' : 'production';
   const CDN_URL = APP_CONFIG.cdn;
-  const instanceId = APP_CONFIG.instanceId.slice(1); // remove the leading '/' character
+  const instanceId = parseInt(process.env.INSTANCE_ID, 10) || 1;
 
   Logger.warn('Started bbb-html5 process with instanceId=' + instanceId);
 
@@ -132,7 +132,13 @@ Meteor.startup(() => {
 
     setMinBrowserVersions();
 
-    Logger.warn(`SERVER STARTED.\nENV=${env},\nnodejs version=${process.version}\nMETEOR_ROLE=${process.env.METEOR_ROLE}\nCDN=${CDN_URL}\n`, APP_CONFIG);
+    Logger.warn(`SERVER STARTED.
+    ENV=${env}
+    nodejs version=${process.version}
+    BBB_HTML5_ROLE=${process.env.BBB_HTML5_ROLE}
+    INSTANCE_ID=${instanceId}
+    PORT=${process.env.PORT}
+    CDN=${CDN_URL}\n`, APP_CONFIG);
   }
 });
 

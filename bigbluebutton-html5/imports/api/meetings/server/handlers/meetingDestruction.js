@@ -10,7 +10,7 @@ export default function handleMeetingDestruction({ body }) {
   const { meetingId } = body;
   check(meetingId, String);
 
-  if (!process.env.METEOR_ROLE || process.env.METEOR_ROLE === 'frontend') {
+  if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
     destroyExternalVideo(meetingId);
     removeAnnotationsStreamer(meetingId);
     removeCursorStreamer(meetingId);
