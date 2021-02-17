@@ -1,5 +1,6 @@
 # Changelog of Fairblue development
 ## Next
+## 21022021
 * we disabled some audio preprocessing of the browser, it seems some of this is going nuts when there are multiple streams
 * the input device used in the echo test is now made sure to be used as the translator microphone
 * made muted state of translator more obvious
