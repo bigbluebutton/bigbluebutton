@@ -34,7 +34,6 @@ const Adapter = () => {
         if (parsedMsg.msg === 'added') {
           messageQueue.push({
             msg: parsedMsg.fields,
-            senderData: usersData[parsedMsg.fields.sender.id],
           });
           throttledDispatch();
         }
