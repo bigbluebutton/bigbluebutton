@@ -30,7 +30,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
   check(authToken, String);
   check(valid, Boolean);
   check(waitForApproval, Boolean);
-  check(registeredOn, String);
+  check(registeredOn, Number);
 
   const pendingAuths = pendingAuthenticationsStore.take(meetingId, userId, authToken);
 
@@ -107,7 +107,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
     $set: {
       validated: valid,
       approved: !waitForApproval,
-      loginTime: new Date(registeredOn).getTime(),
+      loginTime: registeredOn,
       inactivityCheck: false,
     },
   };

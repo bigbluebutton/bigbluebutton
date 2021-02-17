@@ -13,7 +13,7 @@ trait AppsTestFixtures {
   val parentMeetingId = "testParentMeetingId"
   val sequence = 4
   val meetingName = "test meeting"
-  val record = false
+  val record = falsecore/apps/users/ValidateAuthTokenReqMsgHdlr.scala
   val voiceConfId = "85115"
   val muteOnStart = true
   val deskshareConfId = "85115-DESKSHARE"

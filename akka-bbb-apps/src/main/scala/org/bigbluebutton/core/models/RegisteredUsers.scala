@@ -2,9 +2,6 @@ package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
 
-import java.time.{Instant, ZoneId, ZonedDateTime}
-import java.time.format.DateTimeFormatter
-
 object RegisteredUsers {
   def create(userId: String, extId: String, name: String, roles: String,
              token: String, avatar: String, guest: Boolean, authenticated: Boolean,
@@ -168,13 +165,6 @@ case class RegisteredUser(
     registeredOn:       Long,
     joined:             Boolean,
     markAsJoinTimedOut: Boolean,
-    banned:             Boolean,
-) {
-  def getRegisteredOnAsIsoDatetime(): String = {
-    val instant = Instant.ofEpochMilli(this.registeredOn)
-    val zonedDateTimeUtc = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC"))
-
-    DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(zonedDateTimeUtc)
-  }
-}
+    banned:             Boolean
+)
 
