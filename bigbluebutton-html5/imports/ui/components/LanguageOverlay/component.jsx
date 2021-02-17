@@ -42,10 +42,8 @@ class LanguageOverlay extends Component{
         }
 
         let handler = this.props.clickHandler;
-        handler(language, (message) => {
-            if (message.status == 'started') {
-                this.setState({ isConnecting: false });
-            }
+        handler(language, () => {
+            this.setState({ isConnecting: false });
         });
     }
 

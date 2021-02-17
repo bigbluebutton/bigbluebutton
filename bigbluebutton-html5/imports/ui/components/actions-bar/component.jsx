@@ -150,7 +150,13 @@ class ActionsBar extends PureComponent {
   }
 
   handleTranslatorLanguageSelection(language, onConnected) {
-    AudioManager.openTranslatorChannel(language.extension, onConnected).then(() => {
+    let onInternalConnected = (message) => {
+      if (message.status == 'started') {
+        onConnected();
+      }
+    };
+
+    AudioManager.openTranslatorChannel(language.extension, onInternalConnected).then(() => {
       if( language.extension > 0 ) {
         Service.muteMicrophone();
       }
@@ -175,9 +181,13 @@ class ActionsBar extends PureComponent {
 
     this.forceUpdate();
   }
-  handleLanguageSelection(language){
+  handleLanguageSelection(language, onConnected) {
     this.state.translationLanguage = language
     AudioManager.openTranslationChannel(language.extension)
+      .then((languageExtension) => {
+        onConnected();
+        return languageExtension;
+      })
       .then((languageExtension) => {
         if (!TRANSLATOR_SPEAKING_ENABLED) {
           if (languageExtension === -1) {
