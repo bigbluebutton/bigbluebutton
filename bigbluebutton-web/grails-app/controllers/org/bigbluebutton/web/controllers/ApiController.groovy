@@ -496,10 +496,6 @@ class ApiController {
     boolean redirectClient = true;
     String clientURL = paramsProcessorUtil.getDefaultHTML5ClientUrl();
 
-    String meetingInstance = meeting.getHtml5InstanceId();
-    meetingInstance = (meetingInstance == null) ? "1" : meetingInstance;
-    clientURL = clientURL.replaceAll("%%INSTANCEID%%", meetingInstance);
-
     if (!StringUtils.isEmpty(params.redirect)) {
       try {
         redirectClient = Boolean.parseBoolean(params.redirect);
@@ -524,7 +520,6 @@ class ApiController {
     String destUrl = clientURL + "?sessionToken=" + sessionToken
     if (guestStatusVal.equals(GuestPolicy.WAIT)) {
       String guestWaitUrl = paramsProcessorUtil.getDefaultGuestWaitURL();
-      guestWaitUrl = guestWaitUrl.replaceAll("%%INSTANCEID%%", meetingInstance);
       destUrl = guestWaitUrl + "?sessionToken=" + sessionToken
       msgKey = "guestWait"
       msgValue = "Guest waiting for approval to join meeting."
@@ -1354,13 +1349,9 @@ class ApiController {
       String destUrl = clientURL
       log.debug("destUrl = " + destUrl)
 
-      String meetingInstance = meeting.getHtml5InstanceId();
-      meetingInstance = (meetingInstance == null) ? "1" : meetingInstance;
-
       if (guestWaitStatus.equals(GuestPolicy.WAIT)) {
         meetingService.guestIsWaiting(us.meetingID, us.internalUserId);
         clientURL = paramsProcessorUtil.getDefaultGuestWaitURL();
-        clientURL = clientURL.replaceAll("%%INSTANCEID%%", meetingInstance);
         destUrl = clientURL + "?sessionToken=" + sessionToken
         log.debug("GuestPolicy.WAIT - destUrl = " + destUrl)
         msgKey = "guestWait"
