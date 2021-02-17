@@ -239,14 +239,23 @@ class RedisPubSub {
         }
       }
 
-      // process the event - whether it's a system message or not, the meetingIdFromMessageCoreHeader value is adjusted
-      this.meetingsQueues[meetingIdFromMessageCoreHeader].add({
-        pattern,
-        channel,
-        eventName,
-        parsedMessage,
-      });
-
+      if (!this.meetingsQueues[meetingIdFromMessageCoreHeader]) {
+        Logger.warn(`Frontend meeting queue had not been initialized   ${message}`, { eventName, meetingIdFromMessageCoreHeader} )
+        this.meetingsQueues[NO_MEETING_ID].add({
+          pattern,
+          channel,
+          eventName,
+          parsedMessage,
+        });
+      } else {
+        // process the event - whether it's a system message or not, the meetingIdFromMessageCoreHeader value is adjusted
+        this.meetingsQueues[meetingIdFromMessageCoreHeader].add({
+          pattern,
+          channel,
+          eventName,
+          parsedMessage,
+        });
+      }
     } else {
       if (meetingIdFromMessageCoreHeader === NO_MEETING_ID) { // if this is a system message
         const meetingIdFromMessageMeetingProp = parsedMessage.core.body.props?.meetingProp?.intId;
