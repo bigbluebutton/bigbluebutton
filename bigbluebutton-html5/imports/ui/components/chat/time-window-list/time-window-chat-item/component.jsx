@@ -72,6 +72,10 @@ class TimeWindowChatItem extends PureComponent {
       intl,
     } = this.props;
 
+    if (messages && messages[0].text.includes('bbb-published-poll-<br/>')) {
+      return this.renderPollItem();
+    }
+
     return (
       <div className={styles.item} key={`time-window-chat-item-${messageKey}`}>
         <div className={styles.messages}>
@@ -102,15 +106,12 @@ class TimeWindowChatItem extends PureComponent {
       scrollArea,
       intl,
       messages,
+      color,
       messageKey,
       dispatch,
       chatId,
       read,
     } = this.props;
-
-    if (messages && messages[0].text.includes('bbb-published-poll-<br/>')) {
-      return this.renderPollItem();
-    }
 
     const dateTime = new Date(time);
     const regEx = /<a[^>]+>/i;
@@ -178,7 +179,6 @@ class TimeWindowChatItem extends PureComponent {
 
   renderPollItem() {
     const {
-      user,
       time,
       intl,
       isDefaultPoll,
@@ -194,15 +194,6 @@ class TimeWindowChatItem extends PureComponent {
     return messages ? (
       <div className={styles.item} key={_.uniqueId('message-poll-item-')}>
         <div className={styles.wrapper} ref={(ref) => { this.item = ref; }}>
-          <div className={styles.avatarWrapper}>
-            <UserAvatar
-              className={styles.avatar}
-              color={user.color}
-              moderator={user.isModerator}
-            >
-              {<Icon className={styles.isPoll} iconName="polling" />}
-            </UserAvatar>
-          </div>
           <div className={styles.content}>
             <div className={styles.meta}>
               <div className={styles.name}>
@@ -222,7 +213,6 @@ class TimeWindowChatItem extends PureComponent {
               lastReadMessageTime={lastReadMessageTime}
               handleReadMessage={handleReadMessage}
               scrollArea={scrollArea}
-              color={user.color}
               isDefaultPoll={isDefaultPoll(messages[0].text.replace('bbb-published-poll-<br/>', ''))}
             />
           </div>

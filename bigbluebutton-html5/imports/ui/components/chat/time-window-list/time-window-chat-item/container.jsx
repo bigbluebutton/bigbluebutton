@@ -21,6 +21,7 @@ export default class TimeWindowChatItemContainer extends PureComponent {
   render() {
     ChatLogger.debug('TimeWindowChatItemContainer::render', { ...this.props });
     const messages = this.props.message.content;
+    const color = this.props.message.color;
 
     const user = this.props.message.sender;
     const messageKey = this.props.message.key;
@@ -32,6 +33,7 @@ export default class TimeWindowChatItemContainer extends PureComponent {
         ...{
           read: this.props.message.read,
           messages,
+          color,
           isDefaultPoll,
           user,
           time,
