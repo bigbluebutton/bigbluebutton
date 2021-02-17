@@ -114,6 +114,7 @@ class AudioControls extends PureComponent {
           className={cx(inAudio || styles.btn)}
           onClick={inAudio ? handleLeaveAudio : handleJoinAudio}
           disabled={disable}
+          data-test={inAudio ? 'leaveAudio' : 'joinAudio'}
           hideLabel
           aria-label={inAudio ? intl.formatMessage(intlMessages.leaveAudio)
             : intl.formatMessage(intlMessages.joinAudio)}

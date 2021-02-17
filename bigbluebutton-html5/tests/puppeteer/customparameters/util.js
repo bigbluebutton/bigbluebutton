@@ -1,4 +1,9 @@
 const path = require('path');
+const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const ne = require('../notifications/elements');
+const pe = require('../presentation/elements');
+const ce = require('../customparameters/elements');
+const we = require('../whiteboard/elements');
 
 async function autoJoinTest(test) {
   const resp = await test.page.evaluate(async () => {
@@ -39,9 +44,9 @@ async function forceListenOnly(test) {
 
 async function skipCheck(test) {
   try {
-    await test.waitForSelector('div[class^="toastContainer--"]');
+    await test.waitForSelector(ce.toastContainer, ELEMENT_WAIT_TIME);
     const resp1 = await test.page.evaluate(async () => await document.querySelectorAll('div[class^="toastContainer--"]').length !== 0);
-    await test.waitForSelector('button[aria-label="Mute"]');
+    await test.waitForSelector(ce.muteBtn, ELEMENT_WAIT_TIME);
     const resp2 = await test.page.evaluate(async () => await document.querySelectorAll('button[aria-label="Mute"]').length !== 0);
     return resp1 === true && resp2 === true;
   } catch (e) {
@@ -92,15 +97,18 @@ async function zoomOut(test) {
   }
 }
 
-async function poll(test) {
+async function poll(page1, page2) {
   try {
-    await test.page.evaluate(async () => await document.querySelectorAll('button[aria-label="Actions"]')[0].click());
-    await test.waitForSelector('li[data-test="polling"]');
-    await test.click('li[data-test="polling"]', true);
-    await test.waitForSelector('button[aria-label="Yes / No"]');
-    await test.click('button[aria-label="Yes / No"]', true);
-    await test.waitForSelector('button[aria-label="Publish polling results"]');
-    await test.click('button[aria-label="Publish polling results"]', true);
+    await page1.page.waitForSelector(ce.whiteboard, { visible: true, timeout: ELEMENT_WAIT_LONGER_TIME });
+    await page1.page.evaluate(async () => await document.querySelectorAll('button[aria-label="Actions"]')[0].click());
+    await page1.waitForSelector(ne.polling, ELEMENT_WAIT_TIME);
+    await page1.click(ne.polling, true);
+    await page1.waitForSelector(ne.pollYesNoBtn, ELEMENT_WAIT_TIME);
+    await page1.click(ne.pollYesNoBtn, true);
+    await page2.waitForSelector(ne.yesBtn, ELEMENT_WAIT_TIME);
+    await page2.click(ne.yesBtn, true);
+    await page1.waitForSelector(ne.publishPollingResults, ELEMENT_WAIT_TIME);
+    await page1.click(ne.publishPollingResults, true);
     return true;
   } catch (e) {
     console.log(e);
@@ -110,8 +118,8 @@ async function poll(test) {
 
 async function previousSlide(test) {
   try {
-    await test.waitForSelector('button[data-test="prevSlide"]');
-    await test.click('button[data-test="prevSlide"]', true);
+    await test.waitForSelector(pe.prevSlide, ELEMENT_WAIT_TIME);
+    await test.click(pe.prevSlide, true);
     return true;
   } catch (e) {
     console.log(e);
@@ -121,8 +129,8 @@ async function previousSlide(test) {
 
 async function nextSlide(test) {
   try {
-    await test.waitForSelector('button[data-test="nextSlide"]');
-    await test.click('button[data-test="nextSlide"]', true);
+    await test.waitForSelector(pe.nextSlide, ELEMENT_WAIT_TIME);
+    await test.click(pe.nextSlide, true);
     return true;
   } catch (e) {
     console.log(e);
@@ -131,24 +139,24 @@ async function nextSlide(test) {
 }
 
 async function annotation(test) {
-  await test.waitForSelector('button[aria-label="Tools"]');
-  await test.click('button[aria-label="Tools"]', true);
-  await test.waitForSelector('button[aria-label="Pencil"]');
-  await test.click('button[aria-label="Pencil"]', true);
-  await test.click('svg[data-test="whiteboard"]', true);
+  await test.waitForSelector(ce.tools, ELEMENT_WAIT_TIME);
+  await test.click(ce.tools, true);
+  await test.waitForSelector(we.pencil, ELEMENT_WAIT_TIME);
+  await test.click(we.pencil, true);
+  await test.click(ce.whiteboard, true);
   const annoted = await test.page.evaluate(async () => await document.querySelectorAll('[data-test="whiteboard"] > g > g')[1].innerHTML !== '');
   return annoted;
 }
 
 async function presetationUpload(test) {
   try {
-    await test.waitForSelector('button[aria-label="Actions"]');
-    await test.click('button[aria-label="Actions"]', true);
-    await test.waitForSelector('li[data-test="uploadPresentation"]');
-    await test.click('li[data-test="uploadPresentation"]', true);
+    await test.waitForSelector(ce.actions, ELEMENT_WAIT_TIME);
+    await test.click(ce.actions, true);
+    await test.waitForSelector(pe.uploadPresentation, ELEMENT_WAIT_TIME);
+    await test.click(pe.uploadPresentation, true);
     const elementHandle = await test.page.$('input[type=file]');
     await elementHandle.uploadFile(path.join(__dirname, '../media/DifferentSizes.pdf'));
-    await test.click('button[aria-label="Confirm "]', true);
+    await test.click(ce.confirmBtn, true);
     return true;
   } catch (e) {
     console.log(e);

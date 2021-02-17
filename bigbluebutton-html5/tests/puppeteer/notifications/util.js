@@ -2,6 +2,7 @@ const ne = require('../notifications/elements');
 const ule = require('../user/elements');
 const ce = require('../chat/elements');
 const e = require('../core/elements');
+const { ELEMENT_WAIT_TIME } = require('../core/constants');
 
 async function clickTestElement(element) {
   await document.querySelectorAll(element)[0].click();
@@ -13,32 +14,32 @@ async function popupMenu(test) {
 }
 
 async function enableChatPopup(test) {
-  await test.waitForSelector(ne.notificationsTab);
+  await test.waitForSelector(ne.notificationsTab, ELEMENT_WAIT_TIME);
   await test.page.evaluate(clickTestElement, ne.notificationsTab);
-  await test.waitForSelector(ne.chatPushAlerts);
+  await test.waitForSelector(ne.chatPushAlerts, ELEMENT_WAIT_TIME);
   await test.page.evaluate(clickTestElement, ne.chatPushAlerts);
 }
 
 async function enableUserJoinPopup(test) {
-  await test.waitForSelector(ne.notificationsTab);
+  await test.waitForSelector(ne.notificationsTab, ELEMENT_WAIT_TIME);
   await test.page.evaluate(clickTestElement, ne.notificationsTab);
-  await test.waitForSelector(ne.userJoinPushAlerts);
+  await test.waitForSelector(ne.userJoinPushAlerts, ELEMENT_WAIT_TIME);
   await test.page.evaluate(clickTestElement, ne.userJoinPushAlerts);
 }
 
 async function saveSettings(page) {
-  await page.waitForSelector(ne.saveSettings);
+  await page.waitForSelector(ne.saveSettings, ELEMENT_WAIT_TIME);
   await page.click(ne.saveSettings, true);
 }
 
 async function waitForToast(test) {
-  await test.waitForSelector(ne.smallToastMsg);
+  await test.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
   const resp = await test.page.evaluate(getTestElement, ne.smallToastMsg) !== null;
   return resp;
 }
 
 async function getLastToastValue(test) {
-  await test.waitForSelector(ne.smallToastMsg);
+  await test.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
   const toast = test.page.evaluate(async () => {
     const lastToast = await document.querySelectorAll('div[data-test="toastSmallMsg"]')[0].innerText;
     return lastToast;
@@ -47,7 +48,7 @@ async function getLastToastValue(test) {
 }
 
 async function getOtherToastValue(test) {
-  await test.waitForSelector(ne.smallToastMsg);
+  await test.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
   const toast = test.page.evaluate(async () => {
     const lastToast = await document.querySelectorAll('div[data-test="toastSmallMsg"]')[1].innerText;
     return lastToast;
@@ -73,7 +74,7 @@ async function publicChatMessageToast(page1, page2) {
   await page1.page.evaluate(clickThePrivateChatButton, ce.activeChat);
   // send a public message
   await page2.page.type(ce.publicChat, ce.publicMessage1);
-  await page2.page.click(ce.sendButton, true);
+  await page2.click(ce.sendButton, true);
   return ne.publicChatToast;
 }
 
@@ -83,7 +84,7 @@ async function privateChatMessageToast(page2) {
   await page2.page.evaluate(clickThePrivateChatButton, ce.activeChat);
   // send a private message
   await page2.page.type(ce.privateChat, ce.message1);
-  await page2.page.click(ce.sendButton, true);
+  await page2.click(ce.sendButton, true);
   return ne.privateChatToast;
 }
 
@@ -100,10 +101,10 @@ async function getFileItemStatus(element, value) {
 async function startPoll(test) {
   await test.page.evaluate(clickOnElement, ne.dropdownContent);
   await test.page.evaluate(clickOnElement, ne.polling);
-  await test.waitForSelector(ne.hidePollDesc);
-  await test.waitForSelector(ne.pollBtn);
+  await test.waitForSelector(ne.hidePollDesc, ELEMENT_WAIT_TIME);
+  await test.waitForSelector(ne.pollBtn, ELEMENT_WAIT_TIME);
   await test.page.evaluate(clickOnElement, ne.pollBtn);
-  await test.waitForSelector(ne.publishLabel);
+  await test.waitForSelector(ne.publishLabel, ELEMENT_WAIT_TIME);
   await test.page.evaluate(clickOnElement, ne.publishLabel);
 }
 
