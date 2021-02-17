@@ -84,6 +84,7 @@ class TimeWindowChatItem extends PureComponent {
                   text={intlMessages[message.text] ? intl.formatMessage(intlMessages[message.text]) : message.text }
                   time={message.time}
                   isSystemMessage={message.id ? true : false}
+                  systemMessageType={message.text === 'PUBLIC_CHAT_CLEAR' ? 'chatClearMessageText' : 'chatWelcomeMessageText'}
                   chatAreaId={chatAreaId}
                   handleReadMessage={handleReadMessage}
                 />
@@ -155,6 +156,7 @@ class TimeWindowChatItem extends PureComponent {
                   chatAreaId={chatAreaId}
                   dispatch={dispatch}
                   read={message.read}
+                  chatUserMessageItem={true}
                   handleReadMessage={(timestamp) => {
                     if (!read) {
                       dispatch({

@@ -87,7 +87,6 @@ class MessageChatItem extends PureComponent {
   }
 
   handleMessageInViewport() {
-    
     if (!this.ticking) {
       fastdom.measure(() => {
         const node = this.text;
@@ -203,6 +202,7 @@ class MessageChatItem extends PureComponent {
       className,
       isSystemMessage,
       chatUserMessageItem,
+      systemMessageType,
     } = this.props;
     ChatLogger.debug('MessageChatItem::render', this.props);
     if (type === 'poll') return this.renderPollListItem();
@@ -212,7 +212,7 @@ class MessageChatItem extends PureComponent {
         className={className}
         ref={(ref) => { this.text = ref; }}
         dangerouslySetInnerHTML={{ __html: text }}
-        data-test={isSystemMessage ? 'chatWelcomeMessageText' : chatUserMessageItem ? 'chatUserMessageText' : 'chatClearMessageText'}
+        data-test={isSystemMessage ? systemMessageType : chatUserMessageItem ? 'chatUserMessageText' : ''}
       />
     );
   }
