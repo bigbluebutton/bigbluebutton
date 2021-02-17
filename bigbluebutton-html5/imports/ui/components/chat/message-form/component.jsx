@@ -17,7 +17,6 @@ const propTypes = {
   minMessageLength: PropTypes.number.isRequired,
   maxMessageLength: PropTypes.number.isRequired,
   chatTitle: PropTypes.string.isRequired,
-  chatName: PropTypes.string.isRequired,
   className: PropTypes.string,
   chatAreaId: PropTypes.string.isRequired,
   handleSendMessage: PropTypes.func.isRequired,
@@ -266,7 +265,7 @@ class MessageForm extends PureComponent {
     const {
       intl,
       chatTitle,
-      chatName,
+      title,
       disabled,
       className,
       chatAreaId,
@@ -285,7 +284,7 @@ class MessageForm extends PureComponent {
             className={styles.input}
             id="message-input"
             innerRef={(ref) => { this.textarea = ref; return this.textarea; }}
-            placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: chatName })}
+            placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: title })}
             aria-controls={chatAreaId}
             aria-label={intl.formatMessage(messages.inputLabel, { 0: chatTitle })}
             aria-invalid={hasErrors ? 'true' : 'false'}

@@ -6,6 +6,8 @@ const util = require('./util');
 const e = require('./elements');
 const pe = require('../core/elements');
 const we = require('../webcam/elements');
+const ae = require('../audio/elements');
+const { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } = require('../core/constants'); // core constants (Timeouts vars imported)
 
 const today = moment().format('DD-MM-YYYY');
 
@@ -31,7 +33,7 @@ class Join extends Create {
         await page2[2].bringToFront();
 
         // Talking indicator bar
-        await page2[2].waitForSelector('div[class^="isTalkingWrapper--"] > div[class^="speaking--"]');
+        await page2[2].waitForSelector(ae.talkingIndicator, { timeout: ELEMENT_WAIT_TIME });
 
         if (process.env.GENERATE_EVIDENCES === 'true') {
           await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/05-breakout-page02-user-joined-with-audio-before-check-${testName}.png`) });
@@ -53,7 +55,7 @@ class Join extends Create {
       this.page2.logger('logged in to breakout with video');
 
       const page2 = await this.page2.browser.pages();
-      await page2[2].waitForSelector(we.videoContainer);
+      await page2[2].waitForSelector(we.videoContainer, { timeout: VIDEO_LOADING_WAIT_TIME });
       if (process.env.GENERATE_EVIDENCES === 'true') {
         await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/05-breakout-page02-user-joined-with-webcam-success-${testName}.png`) });
       }
@@ -72,11 +74,9 @@ class Join extends Create {
 
       const page2 = await this.page2.browser.pages();
       const page3 = await this.page3.browser.pages();
-      // await page2[2].waitForSelector(pe.screenshareConnecting);
-      // await page3[2].waitForSelector(pe.screenshareConnecting);
-      await page2[2].waitForSelector(pe.screenShareVideo);
-      await page3[2].waitForSelector(pe.screenShareVideo);
-      await page3[2].waitForSelector(pe.stopScreenSharing);
+      await page2[2].waitForSelector(pe.screenShareVideo, { timeout: VIDEO_LOADING_WAIT_TIME });
+      await page3[2].waitForSelector(pe.screenShareVideo, { timeout: VIDEO_LOADING_WAIT_TIME });
+      await page3[2].waitForSelector(pe.stopScreenSharing, { timeout: ELEMENT_WAIT_TIME });
       if (process.env.GENERATE_EVIDENCES === 'true') {
         await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/05-breakout-page02-user-joined-webcam-after-check-${testName}.png`) });
       }
@@ -92,10 +92,10 @@ class Join extends Create {
       return resp;
     } else {
       await this.page3.page.bringToFront();
-      await this.page3.waitForSelector(e.breakoutRoomsItem);
-      await this.page3.waitForSelector(e.chatButton);
-      await this.page3.click(e.chatButton);
-      await this.page3.click(e.breakoutRoomsItem);
+      await this.page3.waitForSelector(e.breakoutRoomsItem, ELEMENT_WAIT_TIME);
+      await this.page3.waitForSelector(e.chatButton, ELEMENT_WAIT_TIME);
+      await this.page3.click(e.chatButton, true);
+      await this.page3.click(e.breakoutRoomsItem, true);
       const resp = await this.page3.page.evaluate(async () => await document.querySelectorAll('span[class^="alreadyConnected--"]') !== null);
       return resp;
     }
