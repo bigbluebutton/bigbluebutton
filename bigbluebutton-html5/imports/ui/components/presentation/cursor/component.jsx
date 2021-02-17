@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import CursorService from './service';
+import CursorWrapperService from './cursor-wrapper-container/service';
 
 export default class Cursor extends Component {
   static scale(attribute, widthRatio, physicalWidthRatio) {
@@ -194,6 +196,8 @@ export default class Cursor extends Component {
       cursorId,
       userName,
       isRTL,
+      whiteboardId,
+      podId,
     } = this.props;
     
     const {
@@ -215,7 +219,15 @@ export default class Cursor extends Component {
 
     const boxX = x + cursorLabelBox.xOffset;
     const boxY = y + cursorLabelBox.yOffset;
-
+    const isPresenter = CursorService.isPresenter();
+    const modeMultiUser = CursorService.getMultiUserStatus(whiteboardId);
+    const currentUserID = CursorService.currentUserID();
+    const cursorIds = CursorWrapperService.getCurrentCursorIds(podId, whiteboardId);
+    const { presenterCursorId } = cursorIds;
+    const myCursorId = CursorWrapperService.getPresenterCursorId(whiteboardId, currentUserID);
+    if (modeMultiUser == 2 && !isPresenter && (!presenterCursorId || presenterCursorId._id != cursorId) && (!myCursorId || myCursorId._id != cursorId)) {
+      return null;
+    } else {
     return (
       <g
         x={x}
@@ -271,6 +283,7 @@ export default class Cursor extends Component {
           : null }
       </g>
     );
+    }
   }
 }
 
@@ -282,7 +295,7 @@ Cursor.propTypes = {
   // Current presenter status
   presenter: PropTypes.bool.isRequired,
   // Current multi-user status
-  isMultiUser: PropTypes.bool.isRequired,
+  isMultiUser: PropTypes.number.isRequired,
 
   // Defines the id of the current cursor
   cursorId: PropTypes.string.isRequired,

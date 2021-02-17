@@ -24,17 +24,30 @@ const clearWhiteboard = (whiteboardId) => {
   makeCall('clearWhiteboard', whiteboardId);
 };
 
-const changeWhiteboardMode = (multiUser, whiteboardId) => {
-  makeCall('changeWhiteboardAccess', multiUser, whiteboardId);
+const reloadWhiteboard = (whiteboardId, multiUser) => {
+  makeCall('reloadWhiteboard', whiteboardId, multiUser);
 };
 
-const setInitialWhiteboardToolbarValues = (tool, thickness, color, fontSize, textShape) => {
+const changeWhiteboardMode = (multiUser, whiteboardId) => {
+  const whiteboardMultiuserData = WhiteboardMultiUser.findOne({ meetingId: Auth.meetingID, whiteboardId });
+  const multiUser_p = whiteboardMultiuserData ? whiteboardMultiuserData.multiUser : 0;
+  
+  makeCall('changeWhiteboardAccess', multiUser, whiteboardId);
+  
+  if ( (multiUser_p == 2 && (multiUser   == 1 || multiUser   == 0)) ||
+       (multiUser   == 2 && (multiUser_p == 1 || multiUser_p == 0)) ) {
+    reloadWhiteboard(whiteboardId, multiUser);
+  }
+};
+
+const setInitialWhiteboardToolbarValues = (tool, multiuser, thickness, color, fontSize, textShape) => {
   const _drawSettings = Storage.getItem(DRAW_SETTINGS);
   if (!_drawSettings) {
     const drawSettings = {
       whiteboardAnnotationTool: tool,
       whiteboardAnnotationThickness: thickness,
       whiteboardAnnotationColor: color,
+      whiteboardAnnotationMultiUser: multiuser,
       textFontSize: fontSize,
       textShape,
     };
@@ -54,6 +67,8 @@ const setColor = makeSetter('whiteboardAnnotationColor');
 
 const setTextShapeObject = makeSetter('textShape');
 
+const setMultiuser = makeSetter('whiteboardAnnotationMultiUser');
+
 const getTextShapeActiveId = () => {
   const drawSettings = Storage.getItem(DRAW_SETTINGS);
   return drawSettings ? drawSettings.textShape.textShapeActiveId : '';
@@ -61,7 +76,7 @@ const getTextShapeActiveId = () => {
 
 const getMultiUserStatus = (whiteboardId) => {
   const data = WhiteboardMultiUser.findOne({ meetingId: Auth.meetingID, whiteboardId });
-  return data ? data.multiUser : false;
+  return data ? data.multiUser : 0;
 };
 
 const isPresenter = () => {
@@ -99,6 +114,7 @@ const filterAnnotationList = () => {
 export default {
   undoAnnotation,
   clearWhiteboard,
+  reloadWhiteboard,
   changeWhiteboardMode,
   setInitialWhiteboardToolbarValues,
   getCurrentDrawSettings,
@@ -108,6 +124,7 @@ export default {
   setColor,
   setTextShapeObject,
   getTextShapeActiveId,
+  setMultiuser,
   getMultiUserStatus,
   isPresenter,
   filterAnnotationList,

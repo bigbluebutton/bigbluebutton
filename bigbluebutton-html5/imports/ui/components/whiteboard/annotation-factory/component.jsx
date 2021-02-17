@@ -14,7 +14,7 @@ const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 export default class AnnotationFactory extends Component {
-  static renderStaticAnnotation(annotationInfo, slideWidth, slideHeight, drawObject, whiteboardId) {
+  static renderStaticAnnotation(annotationInfo, slideWidth, slideHeight, drawObject, whiteboardId, currentMultiUser) {
     return (
       <StaticAnnotation
         key={annotationInfo._id}
@@ -23,6 +23,7 @@ export default class AnnotationFactory extends Component {
         slideWidth={slideWidth}
         slideHeight={slideHeight}
         whiteboardId={whiteboardId}
+        currentMultiUser={currentMultiUser}
       />
     );
   }
@@ -55,6 +56,7 @@ export default class AnnotationFactory extends Component {
         this.props.slideHeight,
         drawObject,
         this.props.whiteboardId,
+        this.props.currentMultiUser,
       );
     }
     return AnnotationFactory.renderReactiveAnnotation(

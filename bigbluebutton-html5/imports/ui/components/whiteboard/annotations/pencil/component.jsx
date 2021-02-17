@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers';
+import PencilService from '../commonservice';
 
 export default class PencilDrawComponent extends Component {
   static getInitialCoordinates(annotation, slideWidth, slideHeight) {
@@ -142,8 +143,14 @@ export default class PencilDrawComponent extends Component {
   }
 
   render() {
-    const { annotation, slideWidth } = this.props;
+    const { annotation, slideWidth, whiteboardId, currentMultiUser } = this.props;
+    const isPresenter = PencilService.isPresenter();
+    const currentUserID = PencilService.currentUserID();
+    const drawerID = annotation.id.replace(/-.*$/,'');
+    const isDrawerPresenter = PencilService.isHePresenter(drawerID);
+  
     return (
+      currentMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? null :
       <path
         fill="none"
         stroke={getFormattedColor(annotation.color)}

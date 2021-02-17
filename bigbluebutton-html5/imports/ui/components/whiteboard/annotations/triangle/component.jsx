@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers';
+import TriangleService from '../commonservice';
 
 export default class TriangleDrawComponent extends Component {
   shouldComponentUpdate(nextProps) {
@@ -34,8 +35,14 @@ export default class TriangleDrawComponent extends Component {
 
   render() {
     const path = this.getCoordinates();
-    const { annotation, slideWidth } = this.props;
+    const { annotation, slideWidth, whiteboardId, currentMultiUser } = this.props;
+    const isPresenter = TriangleService.isPresenter();
+    const currentUserID = TriangleService.currentUserID();
+    const drawerID = annotation.id.replace(/-.*$/,'');
+    const isDrawerPresenter = TriangleService.isHePresenter(drawerID);
+   
     return (
+      currentMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? null :
       <path
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
         fill="none"

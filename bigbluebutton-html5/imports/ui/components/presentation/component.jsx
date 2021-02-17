@@ -470,7 +470,7 @@ class PresentationArea extends PureComponent {
       fitToWidth,
     } = this.state;
 
-    if (!userIsPresenter && !multiUser) {
+    if (!userIsPresenter && multiUser == 0) {
       return null;
     }
 
@@ -890,7 +890,7 @@ PresentationArea.propTypes = {
     viewBoxHeight: PropTypes.number.isRequired,
   }),
   // current multi-user status
-  multiUser: PropTypes.bool.isRequired,
+  multiUser: PropTypes.number.isRequired,
 };
 
 PresentationArea.defaultProps = {

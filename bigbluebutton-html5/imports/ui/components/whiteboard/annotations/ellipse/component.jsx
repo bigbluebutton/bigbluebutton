@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers';
+import EllipseService from '../commonservice';
 
 export default class EllipseDrawComponent extends Component {
   shouldComponentUpdate(nextProps) {
@@ -39,12 +40,17 @@ export default class EllipseDrawComponent extends Component {
 
   render() {
     const results = this.getCoordinates();
-    const { annotation, slideWidth } = this.props;
+    const { annotation, slideWidth, whiteboardId, currentMultiUser } = this.props;
     const {
       cx, cy, rx, ry,
     } = results;
 
+    const isPresenter = EllipseService.isPresenter();
+    const currentUserID = EllipseService.currentUserID();
+    const drawerID = annotation.id.replace(/-.*$/,'');
+    const isDrawerPresenter = EllipseService.isHePresenter(drawerID);
     return (
+      currentMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? null :
       <ellipse
         cx={cx}
         cy={cy}

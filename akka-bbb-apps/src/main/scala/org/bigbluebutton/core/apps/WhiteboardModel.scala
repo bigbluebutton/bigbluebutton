@@ -184,7 +184,7 @@ class WhiteboardModel extends SystemConfiguration {
     if (hasWhiteboard(wbId)) {
       val wb = getWhiteboard(wbId)
 
-      if (wb.multiUser) {
+      if (wb.multiUser != 0) {
         if (wb.annotationsMap.contains(userId)) {
           val newWb = wb.copy(annotationsMap = wb.annotationsMap - userId)
           saveWhiteboard(newWb)
@@ -205,7 +205,7 @@ class WhiteboardModel extends SystemConfiguration {
     var last: Option[AnnotationVO] = None
     val wb = getWhiteboard(wbId)
 
-    if (wb.multiUser) {
+    if (wb.multiUser != 0) {
       val usersAnnotations = getAnnotationsByUserId(wb, userId)
 
       //not empty and head id equals annotation id
@@ -234,13 +234,13 @@ class WhiteboardModel extends SystemConfiguration {
     wb.copy(annotationsMap = newAnnotationsMap)
   }
 
-  def modifyWhiteboardAccess(wbId: String, multiUser: Boolean) {
+  def modifyWhiteboardAccess(wbId: String, multiUser: Number) {
     val wb = getWhiteboard(wbId)
     val newWb = wb.copy(multiUser = multiUser, changedModeOn = System.currentTimeMillis())
     saveWhiteboard(newWb)
   }
 
-  def getWhiteboardAccess(wbId: String): Boolean = getWhiteboard(wbId).multiUser
+  def getWhiteboardAccess(wbId: String): Number = getWhiteboard(wbId).multiUser
 
   def getChangedModeOn(wbId: String): Long = getWhiteboard(wbId).changedModeOn
 

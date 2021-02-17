@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import AnnotationsStreamer from '/imports/api/annotations/server/streamer';
 import addAnnotation from '../modifiers/addAnnotation';
+import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import Metrics from '/imports/startup/server/metrics';
 
 const { queueMetrics } = Meteor.settings.private.redis.metrics;
@@ -38,12 +39,15 @@ export default function handleWhiteboardSend({ header, body }, meetingId) {
 
   const whiteboardId = annotation.wbId;
   check(whiteboardId, String);
+  
+  const data = WhiteboardMultiUser.findOne({ meetingId, whiteboardId });
+  const multiUser = data ? data.multiUser : 0;
 
   if (!annotationsQueue.hasOwnProperty(meetingId)) {
     annotationsQueue[meetingId] = [];
   }
 
-  annotationsQueue[meetingId].push({ meetingId, whiteboardId, userId, annotation });
+  annotationsQueue[meetingId].push({ meetingId, whiteboardId, userId, annotation, multiUser });
   if (queueMetrics) {
     Metrics.setAnnotationQueueLength(meetingId, annotationsQueue[meetingId].length);
   }

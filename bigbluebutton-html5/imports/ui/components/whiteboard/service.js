@@ -25,10 +25,10 @@ function clearFakeAnnotations() {
 }
 
 function handleAddedAnnotation({
-  meetingId, whiteboardId, userId, annotation,
+  meetingId, whiteboardId, userId, annotation, multiUser,
 }) {
   const isOwn = Auth.meetingID === meetingId && Auth.userID === userId;
-  const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation);
+  const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation, multiUser);
 
   Annotations.upsert(query.selector, query.modifier);
 

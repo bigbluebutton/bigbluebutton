@@ -19,6 +19,7 @@ export default class StaticAnnotation extends React.Component {
         slideWidth={this.props.slideWidth}
         slideHeight={this.props.slideHeight}
         whiteboardId={this.props.whiteboardId}
+        currentMultiUser={annotation.currentMultiUser}
       />
     );
   }

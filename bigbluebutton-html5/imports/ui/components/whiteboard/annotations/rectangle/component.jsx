@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers';
+import RectangleService from '../commonservice';
 
 export default class RectangleDrawComponent extends Component {
   shouldComponentUpdate(nextProps) {
@@ -46,9 +47,14 @@ export default class RectangleDrawComponent extends Component {
 
   render() {
     const results = this.getCoordinates();
-    const { annotation, slideWidth } = this.props;
+    const { annotation, slideWidth, whiteboardId, currentMultiUser } = this.props;
+    const isPresenter = RectangleService.isPresenter();
+    const currentUserID = RectangleService.currentUserID();
+    const drawerID = annotation.id.replace(/-.*$/,'');
+    const isDrawerPresenter = RectangleService.isHePresenter(drawerID);
 
     return (
+      currentMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? null :
       <rect
         x={results.x}
         y={results.y}

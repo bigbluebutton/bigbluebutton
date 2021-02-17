@@ -46,6 +46,14 @@ const intlMessages = defineMessages({
     id: 'app.whiteboard.toolbar.clear',
     description: 'Whiteboard toolbar clear menu',
   },
+  toolbarMultiUserMode: {
+    id: 'app.whiteboard.toolbar.multiUserMode',
+    description: 'Whiteboard toolbar change multi-user mode on menu',
+  },
+  toolbarMultiUserIsolated: {
+    id: 'app.whiteboard.toolbar.multiUserIsoOn',
+    description: 'Whiteboard toolbar turn isolated multi-user on menu',
+  },
   toolbarMultiUserOn: {
     id: 'app.whiteboard.toolbar.multiUserOn',
     description: 'Whiteboard toolbar turn multi-user on menu',
@@ -78,6 +86,10 @@ class WhiteboardToolbar extends Component {
       value: 'hand',
     };
 
+    let multiUserSelected = {
+      value: multiUser,
+    };
+    
     if (multiUser && !isPresenter) {
       annotationSelected = {
         icon: 'pen_tool',
@@ -95,6 +107,7 @@ class WhiteboardToolbar extends Component {
 
       // variables to keep current selected draw settings
       annotationSelected,
+      multiUserSelected,
       prevAnnotationSelected: annotationSelected,
       thicknessSelected: { value: 1 },
       colorSelected: { value: '#ff0000' },
@@ -130,12 +143,12 @@ class WhiteboardToolbar extends Component {
     this.panOn = this.panOn.bind(this);
     this.panOff = this.panOff.bind(this);
   }
-
+  
   componentDidMount() {
     const { actions, multiUser, isPresenter } = this.props;
     const drawSettings = actions.getCurrentDrawSettings();
     const {
-      annotationSelected, thicknessSelected, colorSelected, fontSizeSelected,
+      annotationSelected, multiUserSelected, thicknessSelected, colorSelected, fontSizeSelected,
     } = this.state;
 
     document.addEventListener('keydown', this.panOn);
@@ -155,6 +168,7 @@ class WhiteboardToolbar extends Component {
       // setting default drawing settings if they haven't been set previously
       actions.setInitialWhiteboardToolbarValues(
         annotationSelected.value,
+        parseInt(multiUserSelected.value),
         thicknessSelected.value * 2,
         HEXToINTColor(colorSelected.value),
         fontSizeSelected.value,
@@ -176,10 +190,10 @@ class WhiteboardToolbar extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { annotations } = this.props;
+    const { annotations, multiUser } = this.props;
     const { annotationSelected } = prevState;
     const hadInAnnotations = annotations.some(el => el.value === annotationSelected.value);
-
+    
     // if color or thickness were changed
     // we might need to trigger svg animation for Color and Thickness icons
     this.animateSvgIcons(prevState);
@@ -201,6 +215,7 @@ class WhiteboardToolbar extends Component {
   setToolbarValues(drawSettings) {
     const {
       annotations,
+      multiUser,
     } = this.props;
 
     const {
@@ -213,6 +228,7 @@ class WhiteboardToolbar extends Component {
     const thicknessSelected = { value: whiteboardAnnotationThickness / 2 };
     const fontSizeSelected = { value: textFontSize };
     const colorSelected = { value: INTToHEXColor(whiteboardAnnotationColor) };
+    const multiUserSelected = { value: multiUser };
 
     let annotationSelected = {};
     for (let i = 0; i < annotations.length; i += 1) {
@@ -355,14 +371,22 @@ class WhiteboardToolbar extends Component {
     actions.clearWhiteboard(whiteboardId);
   }
 
-  handleSwitchWhiteboardMode() {
+  handleSwitchWhiteboardMode(multimode) {
     const {
-      multiUser,
       whiteboardId,
       actions,
     } = this.props;
 
-    actions.changeWhiteboardMode(!multiUser, whiteboardId);
+    const obj = {
+      multiUserSelected: multimode,
+      onBlurEnabled: true,
+      currentSubmenuOpen: '',
+      multiUser: parseInt(multimode.value),
+    };
+    
+    this.setState(obj);
+    actions.changeWhiteboardMode(parseInt(multimode.value), whiteboardId);
+    actions.setMultiuser(parseInt(multimode.value));
   }
 
   // changes a current selected annotation both in the state and in the session
@@ -758,19 +782,40 @@ class WhiteboardToolbar extends Component {
   }
 
   renderMultiUserItem() {
-    const { intl, multiUser, isMeteorConnected } = this.props;
-
+    const { intl, multiUser, isMeteorConnected, withAccessNum} = this.props;
+    const { currentSubmenuOpen } = this.state;
+    
+    const multiUserModes = [{icon: "multi_whiteboard_isolated", value: '2'}, {icon: "multi_whiteboard", value: '1'}, {icon: "whiteboard", value: '0'}];
+    
     return (
-      <ToolbarMenuItem
-        disabled={!isMeteorConnected}
-        label={multiUser
-          ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
-          : intl.formatMessage(intlMessages.toolbarMultiUserOn)
-        }
-        icon={multiUser ? 'multi_whiteboard' : 'whiteboard'}
-        onItemClick={this.handleSwitchWhiteboardMode}
-        className={styles.toolbarButton}
-      />
+      <span className={styles.multiUserToolItem}>
+        {withAccessNum > 0 && <span className={styles.multiUserTool}>{withAccessNum}</span>}
+        <ToolbarMenuItem
+          label={intl.formatMessage(intlMessages.toolbarMultiUserMode)}
+          icon={multiUserModes[2-multiUser].icon}
+          onItemClick={this.displaySubMenu}
+          objectToReturn="multiUserModeList"
+          onBlur={this.closeSubMenu}
+          className={cx(styles.toolbarButton, currentSubmenuOpen === 'multiUserModeList' ? styles.toolbarActive : null)}
+          showCornerTriangle
+        >
+          {currentSubmenuOpen === 'multiUserModeList'
+            ? (
+              <ToolbarSubmenu
+                type="multi-user"
+                customIcon={false}
+                label="Multi-user modes"
+                onItemClick={this.handleSwitchWhiteboardMode}
+                objectsToRender={multiUserModes}
+                objectSelected={multiUserModes[2-multiUser]}
+                handleMouseEnter={this.handleMouseEnter}
+                handleMouseLeave={this.handleMouseLeave}
+                handleClose={this.handleClose}
+              />
+           )
+           : null}
+        </ToolbarMenuItem>
+      </span>
     );
   }
 
@@ -801,7 +846,7 @@ WhiteboardToolbar.defaultProps = {
 
 WhiteboardToolbar.propTypes = {
   // defines a current mode of the whiteboard, multi/single user
-  multiUser: PropTypes.bool.isRequired,
+  multiUser: PropTypes.number.isRequired,
 
   // defines whether a current user is a presenter or not
   isPresenter: PropTypes.bool.isRequired,
