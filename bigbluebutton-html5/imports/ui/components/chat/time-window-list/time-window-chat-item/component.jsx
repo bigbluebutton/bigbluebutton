@@ -63,6 +63,11 @@ class TimeWindowChatItem extends PureComponent {
     ChatLogger.debug('TimeWindowChatItem::componentWillMount::state', { ...this.state });
   }
 
+  componentWillUnmount() {
+    ChatLogger.debug('TimeWindowChatItem::componentWillUnmount::props', { ...this.props });
+    ChatLogger.debug('TimeWindowChatItem::componentWillUnmount::state', { ...this.state });
+  }
+
   renderSystemMessage() {
     const {
       messages,
@@ -107,6 +112,11 @@ class TimeWindowChatItem extends PureComponent {
       dispatch,
       chatId,
       read,
+      name,
+      color,
+      isModerator,
+      avatar,
+      isOnline,
     } = this.props;
 
     if (messages && messages[0].text.includes('bbb-published-poll-<br/>')) {
@@ -116,25 +126,25 @@ class TimeWindowChatItem extends PureComponent {
     const dateTime = new Date(time);
     const regEx = /<a[^>]+>/i;
     ChatLogger.debug('TimeWindowChatItem::renderMessageItem', this.props);
-    const defaultAvatarString = user?.name?.toLowerCase().slice(0, 2) || "  ";
+    const defaultAvatarString = name?.toLowerCase().slice(0, 2) || "  ";
     return (
       <div className={styles.item} key={`time-window-${messageKey}`}>
         <div className={styles.wrapper}>
           <div className={styles.avatarWrapper}>
             <UserAvatar
               className={styles.avatar}
-              color={user.color}
-              moderator={user.isModerator}
-              avatar={user.avatar}
+              color={color}
+              moderator={isModerator}
+              avatar={avatar}
             >
               {defaultAvatarString}
             </UserAvatar>
           </div>
           <div className={styles.content}>
             <div className={styles.meta}>
-              <div className={user.isOnline ? styles.name : styles.logout}>
-                <span>{user.name}</span>
-                {user.isOnline
+              <div className={isOnline ? styles.name : styles.logout}>
+                <span>{name}</span>
+                {isOnline
                   ? null
                   : (
                     <span className={styles.offline}>
