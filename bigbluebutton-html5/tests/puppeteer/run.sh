@@ -52,7 +52,6 @@ main() {
     exit 1
   fi
 
-bash tests/puppeteer/import-tests-ci-resources.sh;
 echo "Test is starting in 5 seconds..." && sleep 5;echo $Test " Test has started."
 
 env $(cat tests/puppeteer/.env | xargs)  jest $TEST.test.js --color --detectOpenHandles --forceExit
