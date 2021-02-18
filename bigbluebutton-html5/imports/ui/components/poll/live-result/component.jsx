@@ -169,23 +169,23 @@ class LiveResult extends PureComponent {
     return (
       <div>
         <div className={styles.stats}>
+          <div className={styles.status}>
+            {waiting
+              ? (
+                <span>
+                  {`${intl.formatMessage(intlMessages.waitingLabel, {
+                    0: respondedCount,
+                    1: userCount,
+                  })} `}
+                </span>
+              )
+              : <span>{intl.formatMessage(intlMessages.doneLabel)}</span>}
+            {waiting
+              ? <span className={styles.connectingAnimation} /> : null}
+          </div>
           {pollStats}
         </div>
-        <div className={styles.status}>
-          {waiting
-            ? (
-              <span>
-                {`${intl.formatMessage(intlMessages.waitingLabel, {
-                  0: respondedCount,
-                  1: userCount,
-                })} `}
-              </span>
-            )
-            : <span>{intl.formatMessage(intlMessages.doneLabel)}</span>}
-          {waiting
-            ? <span className={styles.connectingAnimation} /> : null}
-        </div>
-        {currentPoll
+        {currentPoll && currentPoll.answers.length > 0
           ? (
             <Button
               disabled={!isMeteorConnected}
@@ -225,6 +225,7 @@ class LiveResult extends PureComponent {
             />
           )
         }
+        <div className={styles.separator} />
         <table>
           <tbody>
             <tr>
