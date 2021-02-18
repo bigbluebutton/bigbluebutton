@@ -58,13 +58,14 @@ class AudioManager {
     this.monitor = this.monitor.bind(this);
   }
 
-  init(userData) {
+  init(userData, audioEventHandler) {
     this.bridge = new SIPBridge(userData); // no alternative as of 2019-03-08
     if (this.useKurento) {
       this.listenOnlyBridge = new KurentoBridge(userData);
     }
     this.userData = userData;
     this.initialized = true;
+    this.audioEventHandler = audioEventHandler;
   }
 
   setAudioMessages(messages, intl) {
@@ -338,6 +339,7 @@ class AudioManager {
       this.notify(this.intl.formatMessage(this.messages.info.JOINED_AUDIO));
       logger.info({ logCode: 'audio_joined' }, 'Audio Joined');
       if (STATS.enabled) this.monitor();
+      this.audioEventHandler({ name: 'started' });
     }
   }
 
