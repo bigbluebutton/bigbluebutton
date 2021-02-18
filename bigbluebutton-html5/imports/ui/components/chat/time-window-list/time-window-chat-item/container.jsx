@@ -35,7 +35,6 @@ export default function TimeWindowChatItemContainer(props) {
   const messages = content;
   const user = users[sender?.id];
   const messageKey = key;
-  console.log(message);
   return (
     <TimeWindowChatItem
       {
