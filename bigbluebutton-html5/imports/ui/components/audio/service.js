@@ -6,7 +6,6 @@ import Meetings from '/imports/api/meetings';
 import { makeCall } from '/imports/ui/services/api';
 import VoiceUsers from '/imports/api/voice-users';
 import logger from '/imports/startup/client/logger';
-import { throttle } from 'lodash';
 import Storage from '../../services/storage/session';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
