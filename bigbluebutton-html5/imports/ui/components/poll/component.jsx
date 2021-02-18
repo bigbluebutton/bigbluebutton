@@ -127,6 +127,22 @@ const intlMessages = defineMessages({
     id: 'app.poll.answer.d',
     description: '',
   },
+  yna: {
+    id: 'app.poll.yna',
+    description: '',
+  },
+  yes: {
+    id: 'app.poll.y',
+    description: '',
+  },
+  no: {
+    id: 'app.poll.n',
+    description: '',
+  },
+  abstention: {
+    id: 'app.poll.abstention',
+    description: '',
+  },
 });
 
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
@@ -238,6 +254,12 @@ class Poll extends Component {
         isDefault = defaultMatch && pollString.length === defaultMatch[0].length;
         if (!isDefault) _type = 'custom';
         break;
+      case 'YNA':
+        pollString = optList.map(x => x.val).join('');
+        defaultMatch = pollString.match(/^(YesNoAbstention)$/gi);
+        isDefault = defaultMatch && pollString.length === defaultMatch[0].length;
+        if (!isDefault) _type = 'custom';
+        break;
       default:
         break;
     }
@@ -326,7 +348,7 @@ class Poll extends Component {
       type, optList, question, error,
     } = this.state;
     const { startPoll, startCustomPoll, intl } = this.props;
-    const defaultPoll = type === 'TF' || type === 'A-';
+    const defaultPoll = type === 'TF' || type === 'A-' || type === 'YNA';
     return (
       <div>
         <div className={styles.instructions}>
@@ -382,6 +404,21 @@ class Poll extends Component {
               className={cx(styles.pBtn, { [styles.selectedBtn]: type === 'A-' })}
             />
           </div>
+          <Button
+            label={intl.formatMessage(intlMessages.yna)}
+            color="default"
+            onClick={() => {
+              this.setState({
+                type: 'YNA',
+                optList: [
+                  { val: intl.formatMessage(intlMessages.yes) },
+                  { val: intl.formatMessage(intlMessages.no) },
+                  { val: intl.formatMessage(intlMessages.abstention) },
+                ],
+              });
+            }}
+            className={cx(styles.pBtn, styles.yna, { [styles.selectedBtn]: type === 'YNA' })}
+          />
           <Button
             label={intl.formatMessage(intlMessages.userResponse)}
             color="default"
