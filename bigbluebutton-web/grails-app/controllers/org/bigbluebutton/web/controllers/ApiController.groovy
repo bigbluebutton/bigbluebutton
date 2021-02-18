@@ -212,7 +212,12 @@ class ApiController {
 
     // BEGIN - backward compatibility
     if (StringUtils.isEmpty(params.checksum)) {
-      invalid("checksumError", "You did not pass the checksum security check", REDIRECT_RESPONSE)
+      invalid("checksumError", "You did not pass the checksum security check")
+      return
+    }
+
+    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      invalid("checksumError", "You did not pass the checksum security check")
       return
     }
 
@@ -241,11 +246,6 @@ class ApiController {
 
     if (StringUtils.isEmpty(params.password)) {
       invalid("invalidPassword", "You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference.", REDIRECT_RESPONSE);
-      return
-    }
-
-    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-      invalid("checksumError", "You did not pass the checksum security check", REDIRECT_RESPONSE)
       return
     }
 
