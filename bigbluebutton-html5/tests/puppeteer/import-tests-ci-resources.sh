@@ -4,7 +4,7 @@ testDir=$PWD/tests/puppeteer/;
 repoDir=bbb-ci-tests-resources/;
 
 echo "Cloning bbb-ci-tests-resources repo...";
-git clone https://github.com/daminebenq/bbb-ci-tests-resources.git;
+git clone https://github.com/bigbluebutton/bbb-ci-test-resources.git;
 echo "bbb-ci-tests-resources has been imported.";
 
 sleep 2;
