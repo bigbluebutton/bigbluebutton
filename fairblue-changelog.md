@@ -1,14 +1,21 @@
 # Changelog of Fairblue development
 ## Next
+* we disabled some audio preprocessing of the browser, it seems some of this is going nuts when there are multiple streams
+* the input device used in the echo test is now made sure to be used as the translator microphone
+* made muted state of translator more obvious
+* translation channels already used are now shown but inactivated
+* Floor/original now is selected from the start
+* there is now visual feedback when connecting to a translation channel
+
 ## 10012021
-* rename origne volume to floor volume
+* rename origin volume to floor volume
 * replace direct setting of floor volume with central floor volume control
-* Add standart values for translation configuration
+* Add standard values for translation configuration
   * floor volume: 0.4
   * speak detection of translator: on
-  * speal detection translator threshold: -70db
-  * delay till floor get full volume back after translator ended speaking: 0ms
-  * timeout if translator lost connection with aktive speaking state: 60,000ms
+  * speak detection translator threshold: -70db
+  * delay till floor get full volume back after a translator ended speaking: 0ms
+  * timeout if translator lost connection with active speaking state: 60,000ms
 ## 01/2021
 * added changelog
 * made threshold, delay and timeout of speech detection configurable   
