@@ -1,0 +1,10 @@
+case "$1" in
+  install|upgrade|1|2)
+
+    rm -f /tmp/application.conf
+    if [ -f /usr/share/bbb-apps-akka/conf/application.conf ]; then
+      cp /usr/share/bbb-apps-akka/conf/application.conf /tmp/application.conf
+    fi
+
+  ;;
+esac

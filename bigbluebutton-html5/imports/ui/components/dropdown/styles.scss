@@ -108,6 +108,14 @@
   }
 }
 
+// removes transform on tethered dropdown for small screen sizes.
+// prevents the user-list-item dropdown breaking on mobile.
+:global(.tether-out-of-bounds)  {
+  @include mq($small-only) {
+    transform: none !important;
+  }
+}
+
 /* Placements
  * ==========
  */

@@ -7,7 +7,6 @@ import UserList from './component';
 import NewLayoutContext from '../layout/context/context';
 
 const propTypes = {
-  activeChats: PropTypes.arrayOf(String).isRequired,
   isPublicChat: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
@@ -18,12 +17,11 @@ const UserListContainer = props => <UserList {...props} />;
 
 UserListContainer.propTypes = propTypes;
 
-export default withTracker(({ chatID, compact }) => {
+export default withTracker(({ compact }) => {
   const layoutManagerLoaded = Session.get('layoutManagerLoaded');
 
   return {
     hasBreakoutRoom: Service.hasBreakoutRoom(),
-    activeChats: Service.getActiveChats(chatID),
     isPublicChat: Service.isPublicChat,
     setEmojiStatus: Service.setEmojiStatus,
     roving: Service.roving,

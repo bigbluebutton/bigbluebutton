@@ -30,12 +30,12 @@ import { DEVICE_TYPE, ACTIONS, PANELS } from '../layout/enums';
 import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 } from '../layout/utils';
-import NewLayoutContext from '../layout/context/context';
 import CustomLayout from '../layout/layout-manager/customLayout';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import { makeCall } from '/imports/ui/services/api';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
@@ -171,6 +171,8 @@ class App extends Component {
 
       startBandwidthMonitoring();
     }
+
+    if (isMobileBrowser) makeCall('setMobileUser');
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
 

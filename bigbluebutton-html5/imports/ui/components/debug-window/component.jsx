@@ -11,6 +11,7 @@ import Storage from '/imports/ui/services/storage/session';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import { ACTIONS } from '../layout/enums';
 import NewLayoutContext from '../layout/context/context';
+import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 
 const intlMessages = defineMessages({
   modalClose: {
@@ -52,6 +53,7 @@ class DebugWindow extends Component {
 
     this.state = {
       showDebugWindow: false,
+      logLevel: ChatLogger.getLogLevel(),
     };
 
     this.setLayoutManagerToLoad = this.setLayoutManagerToLoad.bind(this);
@@ -101,7 +103,8 @@ class DebugWindow extends Component {
   }
 
   render() {
-    const { showDebugWindow } = this.state;
+    const { showDebugWindow, logLevel } = this.state;
+    const chatLoggerLevelsNames = Object.keys(ChatLogger.levels);
 
     if (!DEBUG_WINDOW_ENABLED || !showDebugWindow) return false;
 
@@ -207,7 +210,7 @@ class DebugWindow extends Component {
                 </div>
                 <div className={styles.row}>
                   <div className={styles.cell}>
-                    Layout
+                  Layout
                   </div>
                   <div className={styles.cell}>
                     <div className={styles.cellContent}>
@@ -225,7 +228,41 @@ class DebugWindow extends Component {
                         <option value="new">New Layout Manager</option>
                         <option value="both">Both</option>
                       </select>
-
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.row}>
+                  <div className={styles.cell}>
+                    testando o chatLogger levels:
+                  </div>
+                  <div className={styles.cell}>
+                    <div className={styles.cellContent}>
+                      <select
+                        style={{ marginRight: '1rem' }}
+                        onChange={(ev) => {
+                          this.setState({
+                            logLevel: ev.target.value,
+                          });
+                        }}
+                      >
+                        {
+                          chatLoggerLevelsNames.map((i, index) => {
+                            return (<option key={`${i}-${index}`}>{i}</option>);
+                          })
+                        }
+                      </select>
+                      <button
+                        type="button"
+                        disabled={logLevel === ChatLogger.getLogLevel()}
+                        onClick={() => {
+                          ChatLogger.setLogLevel(logLevel);
+                          this.setState({
+                            logLevel: ChatLogger.getLogLevel(),
+                          });
+                        }}
+                      >
+                        Aplicar
+                      </button>
                     </div>
                   </div>
                 </div>

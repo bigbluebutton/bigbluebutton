@@ -1,8 +1,10 @@
-exports.joinVideo = 'button[aria-label="Share webcam"]';
-exports.videoPreview = 'video[id="preview"]';
-exports.startSharingWebcam = 'button[aria-label="Start sharing"]';
+exports.joinVideo = 'button[data-test="joinVideo"]';
+exports.leaveVideo = 'button[data-test="leaveVideo"]';
+exports.videoPreview = 'video[data-test="videoPreview"]';
+exports.startSharingWebcam = 'button[data-test="startSharingWebcam"]';
+exports.stopSharingWebcam = 'button[aria-label="Stop sharing webcam"]';
 exports.videoContainer = 'div[class^="videoListItem"]';
-exports.webcamConnecting = '[class^="connecting-"]';
+exports.webcamConnecting = 'div[data-test="webcamConnecting"]';
 exports.presentationFullscreenButton = 'button[data-test="presentationFullscreenButton"]';
 exports.webcamItemTalkingUser = 'div[data-test="webcamItemTalkingUser"]';
 exports.webcamVideo = 'video[data-test="videoContainer"]';

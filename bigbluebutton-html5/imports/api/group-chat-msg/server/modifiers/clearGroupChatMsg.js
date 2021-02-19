@@ -7,6 +7,7 @@ export default function clearGroupChatMsg(meetingId, chatId) {
   const PUBLIC_CHAT_SYSTEM_ID = CHAT_CONFIG.system_userid;
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
   const CHAT_CLEAR_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_clear;
+  const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 
   if (chatId) {
     try {
@@ -15,6 +16,7 @@ export default function clearGroupChatMsg(meetingId, chatId) {
       if (numberAffected) {
         Logger.info(`Cleared GroupChatMsg (${meetingId}, ${chatId})`);
         const clearMsg = {
+          id: `${SYSTEM_CHAT_TYPE}-${CHAT_CLEAR_MESSAGE}`,
           color: '0',
           timestamp: Date.now(),
           correlationId: `${PUBLIC_CHAT_SYSTEM_ID}-${Date.now()}`,

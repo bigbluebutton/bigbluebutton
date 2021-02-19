@@ -34,8 +34,9 @@ class UnreadMessagesTracker {
 
     return this._unreadChats[chatID];
   }
-
+  
   getUnreadMessages(chatID) {
+    return [];
     const filter = {
       timestamp: {
         $gt: this.get(chatID),
@@ -55,7 +56,6 @@ class UnreadMessagesTracker {
       }
     }
     const messages = GroupChatMsg.find(filter).fetch();
-    return messages;
   }
 
   count(chatID) {

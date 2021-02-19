@@ -51,6 +51,10 @@ const intlMessages = defineMessages({
     id: 'app.settings.main.save.label.description',
     description: 'Settings modal save button label',
   },
+  notificationLabel: {
+    id: 'app.submenu.notification.SectionTitle', // set menu label identical to section title
+    description: 'label for notification tab',
+  },
   dataSavingLabel: {
     id: 'app.settings.dataSavingTab.label',
     description: 'label for data savings tab',
@@ -74,6 +78,7 @@ const propTypes = {
     fallbackLocale: PropTypes.string,
     fontSize: PropTypes.string,
     locale: PropTypes.string,
+    microphoneConstraints: PropTypes.objectOf(Object),
   }).isRequired,
   updateSettings: PropTypes.func.isRequired,
   availableLocales: PropTypes.objectOf(PropTypes.array).isRequired,
@@ -167,7 +172,7 @@ class Settings extends Component {
             selectedClassName={styles.selected}
           >
             <Icon iconName="alert" className={styles.icon} />
-            <span id="notificationTab">Notification</span>
+            <span id="notificationTab">{intl.formatMessage(intlMessages.notificationLabel)}</span>
           </Tab>
           <Tab
             className={styles.tabSelector}

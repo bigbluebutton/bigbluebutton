@@ -1,12 +1,13 @@
 const Audio = require('./audio/audio');
 const Page = require('./core/page');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
+const { MAX_AUDIO_TEST_TIMEOUT } = require('./core/constants');
 
 expect.extend({ toMatchImageSnapshot });
 
 const audioTest = () => {
   beforeEach(() => {
-    jest.setTimeout(30000);
+    jest.setTimeout(MAX_AUDIO_TEST_TIMEOUT);
   });
 
   test('Join audio with Listen Only', async () => {
@@ -14,9 +15,12 @@ const audioTest = () => {
     let response;
     let screenshot;
     try {
+      const testName = 'joinWithListenOnly';
+      await test.logger('begin of ', testName);
       await test.init(Page.getArgsWithAudio());
       response = await test.test();
       screenshot = await test.page.screenshot();
+      await test.logger('end of ', testName);
     } catch (e) {
       console.log(e);
     } finally {
@@ -25,7 +29,7 @@ const audioTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.005,
+        failureThreshold: 0.65,
         failureThresholdType: 'percent',
       });
     }
@@ -36,9 +40,12 @@ const audioTest = () => {
     let response;
     let screenshot;
     try {
+      const testName = 'joinWithMicrophone';
+      await test.logger('begin of ', testName);
       await test.init(Page.getArgsWithAudio());
       response = await test.microphone();
       screenshot = await test.page.screenshot();
+      await test.logger('end of ', testName);
     } catch (e) {
       console.log(e);
     } finally {
@@ -47,7 +54,7 @@ const audioTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.005,
+        failureThreshold: 0.52,
         failureThresholdType: 'percent',
       });
     }

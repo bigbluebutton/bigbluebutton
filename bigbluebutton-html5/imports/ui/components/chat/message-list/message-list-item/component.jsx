@@ -6,7 +6,7 @@ import Icon from '/imports/ui/components/icon/component';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import cx from 'classnames';
 import Message from './message/component';
-
+import PollService from '/imports/ui/components/poll/service';
 import { styles } from './styles';
 
 const propTypes = {
@@ -137,7 +137,7 @@ class MessageListItem extends Component {
           <div className={styles.content}>
             <div className={styles.meta}>
               <div className={user.isOnline ? styles.name : styles.logout}>
-                <span>{user.name}</span>
+                <span data-test="chatUserMessage">{user.name}</span>
                 {user.isOnline
                   ? null
                   : (
@@ -187,12 +187,12 @@ class MessageListItem extends Component {
     const dateTime = new Date(time);
 
     return messages ? (
-      <div className={styles.item} key={_.uniqueId('message-poll-item-')}>
+      <div data-test="pollingResultMessage" className={styles.item} key={_.uniqueId('message-poll-item-')}>
         <div className={styles.wrapper} ref={(ref) => { this.item = ref; }}>
           <div className={styles.avatarWrapper}>
             <UserAvatar
               className={styles.avatar}
-              color={user.color}
+              color={PollService.POLL_AVATAR_COLOR}
               moderator={user.isModerator}
             >
               {<Icon className={styles.isPoll} iconName="polling" />}
@@ -217,7 +217,7 @@ class MessageListItem extends Component {
               lastReadMessageTime={lastReadMessageTime}
               handleReadMessage={handleReadMessage}
               scrollArea={scrollArea}
-              color={user.color}
+              color={PollService.POLL_AVATAR_COLOR}
               isDefaultPoll={isDefaultPoll(messages[0].text.replace('bbb-published-poll-<br/>', ''))}
             />
           </div>
