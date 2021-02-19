@@ -21,7 +21,7 @@ const intlMessages = defineMessages({
     id: 'app.polling.pollAnswerDesc',
   },
   pollQestionTitle: {
-    id: 'app.polling.pollQestionTitle',
+    id: 'app.polling.pollQuestionTitle',
   },
   submitLabel: {
     id: 'app.polling.submitLabel',
