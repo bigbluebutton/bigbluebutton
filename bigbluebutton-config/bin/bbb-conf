@@ -592,8 +592,8 @@ if [[ $SECRET ]]; then
         sed -i "s|\(^[ \t]*var shared_secret[ =]*\)[^;]*|\1\"$SECRET\"|g" /usr/local/bigbluebutton/bbb-webhooks/extra/post_catcher.js
     fi
 
-    if [ -f /usr/share/bbb-apps-akka/conf/application.conf ]; then
-        sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" /usr/share/bbb-apps-akka/conf/application.conf
+    if [ -f /etc/bigbluebutton/bbb-apps-akka.conf ]; then
+        sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" /etc/bigbluebutton/bbb-apps-akka.conf
     fi
 
     if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
