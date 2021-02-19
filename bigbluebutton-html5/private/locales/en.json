@@ -264,7 +264,7 @@
     "app.poll.liveResult.usersTitle": "Users",
     "app.poll.liveResult.responsesTitle": "Response",
     "app.polling.pollingTitle": "Polling options",
-    "app.polling.pollQestionTitle": "Polling Qestion",
+    "app.polling.pollQuestionTitle": "Polling Question",
     "app.polling.submitLabel": "Submit",
     "app.polling.submitAriaLabel": "Submit poll response",
     "app.polling.responsePlaceholder": "Enter answer",
