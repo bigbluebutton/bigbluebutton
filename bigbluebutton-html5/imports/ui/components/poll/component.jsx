@@ -321,7 +321,6 @@ class Poll extends Component {
       stopPoll,
       currentPoll,
       pollAnswerIds,
-      sendGroupMessage,
     } = this.props;
 
     return (
@@ -335,7 +334,6 @@ class Poll extends Component {
             stopPoll,
             currentPoll,
             pollAnswerIds,
-            sendGroupMessage,
           }}
           handleBackClick={this.handleBackClick}
         />

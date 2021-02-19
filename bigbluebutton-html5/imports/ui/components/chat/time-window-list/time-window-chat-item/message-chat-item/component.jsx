@@ -177,11 +177,18 @@ class MessageChatItem extends PureComponent {
       const options = [];
       entries.map((e) => { options.push([e.slice(0, e.indexOf(':'))]); return e; });
       options.map((o, idx) => {
-        _text = formatBoldBlack(_text.replace(o, idx + 1));
+        if (o[0] !== '') {
+          _text = formatBoldBlack(_text.replace(o, idx + 1));
+        }
         return _text;
       });
       _text += formatBoldBlack(`<br/><br/>${intl.formatMessage(intlMessages.legendTitle)}`);
-      options.map((o, idx) => { _text += `<br/>${idx + 1}: ${o}`; return _text; });
+      options.map((o, idx) => {
+        if (o[0] !== '') {
+          _text += `<br/>${idx + 1}: ${o}`;
+        }
+        return _text;
+      });
     }
 
     return (
