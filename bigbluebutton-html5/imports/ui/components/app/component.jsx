@@ -10,6 +10,7 @@ import logger from '/imports/startup/client/logger';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
 import UserInfoContainer from '/imports/ui/components/user-info/container';
 import BreakoutRoomInvitation from '/imports/ui/components/breakout-room/invitation/container';
+import { Meteor } from 'meteor/meteor';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
@@ -25,7 +26,7 @@ import UploaderContainer from '/imports/ui/components/presentation/presentation-
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
 import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
 import { styles } from './styles';
-import { DEVICE_TYPE, ACTIONS } from '../layout/enums';
+import { DEVICE_TYPE, ACTIONS, PANELS } from '../layout/enums';
 import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 } from '../layout/utils';
@@ -33,6 +34,12 @@ import NewLayoutContext from '../layout/context/context';
 import CustomLayout from '../layout/layout-manager/customLayout';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
+import SidebarContentContainer from '../sidebar-content/container';
+import getFromUserSettings from '/imports/ui/services/users-settings';
+
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_ENABLED = CHAT_CONFIG.enabled;
+const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -115,13 +122,19 @@ class App extends Component {
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
     this.renderMedia = withDraggableContext(this.renderMedia.bind(this));
 
-    this.throttledSetDeviceType = throttle(() => this.throttledSetDeviceType(),
-      50, { trailing: true, leading: true });
+    this.throttledDeviceType = throttle(() => this.setDeviceType(),
+      50, { trailing: true, leading: true }).bind(this);
   }
 
   componentDidMount() {
     const {
-      locale, notify, intl, validIOSVersion, startBandwidthMonitoring, handleNetworkConnection,
+      locale,
+      notify,
+      intl,
+      validIOSVersion,
+      startBandwidthMonitoring,
+      handleNetworkConnection,
+      newLayoutContextDispatch,
     } = this.props;
     const BROWSER_RESULTS = browser();
     const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
@@ -161,8 +174,25 @@ class App extends Component {
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
 
-    window.addEventListener('resize', this.throttledSetDeviceType);
-    this.throttledSetDeviceType();
+    if (getFromUserSettings('bbb_show_participants_on_login', true)) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
+        value: PANELS.USERLIST,
+      });
+      if (CHAT_ENABLED) {
+        newLayoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+          value: PANELS.CHAT,
+        });
+        newLayoutContextDispatch({
+          type: ACTIONS.SET_ID_CHAT_OPEN,
+          value: PUBLIC_CHAT_ID,
+        });
+      }
+    }
+
+    window.addEventListener('resize', this.deviceType);
+    this.throttledDeviceType();
   }
 
   componentDidUpdate(prevProps) {
@@ -210,7 +240,7 @@ class App extends Component {
       );
     }
 
-    if (prevProps.deviceType !== deviceType) this.throttledsetDeviceType();
+    if (prevProps.deviceType !== deviceType) this.throttledDeviceType();
   }
 
   componentWillUnmount() {
@@ -222,17 +252,18 @@ class App extends Component {
   }
 
   setDeviceType() {
-    const { newLayoutContextState, newLayoutContextDispatch } = this.props;
-    let deviceType = null;
-    if (isMobile()) deviceType = DEVICE_TYPE.MOBILE;
-    if (isTablet()) deviceType = DEVICE_TYPE.TABLET;
-    if (isTabletPortrait()) deviceType = DEVICE_TYPE.TABLET_PORTRAIT;
-    if (isTabletLandscape()) deviceType = DEVICE_TYPE.TABLET_LANDSCAPE;
-    if (isDesktop()) deviceType = DEVICE_TYPE.DESKTOP;
-    if (deviceType !== newLayoutContextState.deviceType) {
+    const { deviceType, newLayoutContextDispatch } = this.props;
+    let newDeviceType = null;
+    if (isMobile()) newDeviceType = DEVICE_TYPE.MOBILE;
+    if (isTablet()) newDeviceType = DEVICE_TYPE.TABLET;
+    if (isTabletPortrait()) newDeviceType = DEVICE_TYPE.TABLET_PORTRAIT;
+    if (isTabletLandscape()) newDeviceType = DEVICE_TYPE.TABLET_LANDSCAPE;
+    if (isDesktop()) newDeviceType = DEVICE_TYPE.DESKTOP;
+
+    if (newDeviceType !== deviceType) {
       newLayoutContextDispatch({
         type: ACTIONS.SET_DEVICE_TYPE,
-        value: deviceType,
+        value: newDeviceType,
       });
     }
   }
@@ -397,6 +428,7 @@ class App extends Component {
               >
                 <NavBarContainer main="new" />
                 <SidebarNavigationContainer />
+                <SidebarContentContainer />
               </div>
             </Fragment>
           )}
@@ -408,4 +440,4 @@ class App extends Component {
 App.propTypes = propTypes;
 App.defaultProps = defaultProps;
 
-export default NewLayoutContext.withConsumer(injectIntl(App));
+export default injectIntl(App);

@@ -1,6 +1,6 @@
 import React, { createContext, useReducer } from 'react';
 import PropTypes from 'prop-types';
-import { ACTIONS } from '../enums';
+import { ACTIONS, PANELS } from '../enums';
 import DEFAULT_VALUES from '../defaultValues';
 import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
 
@@ -17,6 +17,9 @@ const initState = {
   deviceType: null,
   layoutType: DEFAULT_VALUES.layoutType,
   layoutLoaded: 'legacy',
+  sidebarNavPanel: PANELS.USERLIST,
+  sidebarContentPanel: PANELS.CHAT,
+  idChatOpen: null,
   input: INITIAL_INPUT_STATE,
   output: INITIAL_OUTPUT_STATE,
 };
@@ -53,12 +56,35 @@ const reducer = (state, action) => {
     }
 
     case ACTIONS.SET_LAYOUT_LOADED: {
-      console.log('SET_LAYOUT_LOADED', action.value);
       const { layoutLoaded } = state;
       if (layoutLoaded === action.value) return state;
       return {
         ...state,
         layoutLoaded: action.value,
+      };
+    }
+
+    case ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL: {
+      if (state.sidebarNavPanel === action.value) return state;
+      return {
+        ...state,
+        sidebarNavPanel: action.value,
+      };
+    }
+
+    case ACTIONS.SET_SIDEBAR_CONTENT_PANEL: {
+      if (state.sidebarContentPanel === action.value) return state;
+      return {
+        ...state,
+        sidebarContentPanel: action.value,
+      };
+    }
+
+    case ACTIONS.SET_ID_CHAT_OPEN: {
+      if (state.idChatOpen === action.value) return state;
+      return {
+        ...state,
+        idChatOpen: action.value,
       };
     }
 
@@ -173,7 +199,6 @@ const reducer = (state, action) => {
     case ACTIONS.SET_SIDEBAR_NAVIGATION_SIZE: {
       const { width, browserWidth } = action.value;
       const { sidebarNavigation } = state.input;
-      console.log('action.value', action.value);
       if (sidebarNavigation.width === width
         && sidebarNavigation.browserWidth === browserWidth) {
         return state;

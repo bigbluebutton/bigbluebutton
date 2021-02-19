@@ -142,7 +142,7 @@ class CustomLayout extends Component {
           sidebarContent: {
             isOpen: false,
           },
-          SidebarContentHorizontalResizer: {
+          sidebarContentHorizontalResizer: {
             isOpen: false,
           },
           presentation: {
@@ -165,7 +165,7 @@ class CustomLayout extends Component {
             isOpen: deviceType === DEVICE_TYPE.TABLET_LANDSCAPE
               || deviceType === DEVICE_TYPE.DESKTOP,
           },
-          SidebarContentHorizontalResizer: {
+          sidebarContentHorizontalResizer: {
             isOpen: false,
           },
           presentation: {
@@ -322,9 +322,14 @@ class CustomLayout extends Component {
 
   calculatesSidebarContentBounds(sidebarNavWidth) {
     const { newLayoutContextState } = this.props;
-    const { deviceType } = newLayoutContextState;
+    const { deviceType, layoutLoaded } = newLayoutContextState;
+
+    let top = 0;
+    if (layoutLoaded === 'both') top = windowHeight() / 2;
+    else top = DEFAULT_VALUES.sidebarNavTop;
+
     return {
-      top: 0,
+      top,
       left: deviceType === DEVICE_TYPE.MOBILE
         || deviceType === DEVICE_TYPE.TABLET_PORTRAIT ? 0 : sidebarNavWidth,
       zIndex: deviceType === DEVICE_TYPE.MOBILE ? 11 : 2,

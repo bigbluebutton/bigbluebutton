@@ -27,8 +27,12 @@ export const ACTIONS = {
   SET_DEVICE_TYPE: 'setDeviceType',
 
   SET_LAYOUT_LOADED: 'setLayoutLoaded',
-
   SET_LAYOUT_INPUT: 'setLayoutInput',
+
+  SET_SIDEBAR_NAVIGATION_PANEL: 'setSidebarNavigationPanel',
+  SET_SIDEBAR_CONTENT_PANEL: 'setSidebarcontentPanel',
+
+  SET_ID_CHAT_OPEN: 'setIdChatOpen',
 
   SET_BROWSER_SIZE: 'setBrowserSize',
 
@@ -78,4 +82,14 @@ export const ACTIONS = {
 
   SET_HAS_EXTERNAL_VIDEO: 'setHasExternalVideo',
   SET_EXTERNAL_VIDEO_SIZE: 'setExternalVideoSize',
+};
+
+export const PANELS = {
+  USERLIST: 'userlist',
+  CHAT: 'chat',
+  POLL: 'poll',
+  CAPTIONS: 'captions',
+  BREAKOUT: 'breakoutroom',
+  SHARED_NOTES: 'shared-notes',
+  WAITING_USERS: 'waiting-users',
 };

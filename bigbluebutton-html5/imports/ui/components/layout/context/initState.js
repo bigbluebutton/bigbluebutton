@@ -30,7 +30,7 @@ export const INITIAL_INPUT_STATE = {
     height: 0,
     browserWidth: 0,
   },
-  SidebarContentHorizontalResizer: {
+  sidebarContentHorizontalResizer: {
     isOpen: true,
     currentPanelType: DEFAULT_VALUES.panelType,
     width: 0,

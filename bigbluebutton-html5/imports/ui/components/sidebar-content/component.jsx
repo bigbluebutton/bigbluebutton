@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Resizable from 're-resizable';
-import { ACTIONS } from '../layout/enums';
-import UserListContainer from '../user-list/container';
+import { ACTIONS, PANELS } from '../layout/enums';
+import ChatContainer from '/imports/ui/components/chat/container';
+import NoteContainer from '/imports/ui/components/note/container';
+import PollContainer from '/imports/ui/components/poll/container';
+import CaptionsContainer from '/imports/ui/components/captions/pad/container';
+import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
+import WaitingUsersPanel from '/imports/ui/components/waiting-users/container';
 
 const propTypes = {
   top: PropTypes.number.isRequired,
@@ -17,7 +22,8 @@ const propTypes = {
   contextDispatch: PropTypes.func.isRequired,
 };
 
-const SidebarNavigation = (props) => {
+
+const SidebarContent = (props) => {
   const {
     // display,
     top,
@@ -30,6 +36,7 @@ const SidebarNavigation = (props) => {
     isResizable,
     resizableEdge,
     contextDispatch,
+    sidebarContentPanel,
   } = props;
 
   const [resizableWidth, setResizableWidth] = useState(width);
@@ -43,13 +50,13 @@ const SidebarNavigation = (props) => {
   useEffect(() => {
   }, [resizeStartWidth]);
 
-  const setSidebarNavWidth = (dWidth) => {
+  const setSidebarContentWidth = (dWidth) => {
     const newWidth = resizeStartWidth + dWidth;
 
     setResizableWidth(newWidth);
 
     contextDispatch({
-      type: ACTIONS.SET_SIDEBAR_NAVIGATION_SIZE,
+      type: ACTIONS.SET_SIDEBAR_CONTENT_SIZE,
       value: {
         width: newWidth,
         browserWidth: window.innerWidth,
@@ -72,12 +79,12 @@ const SidebarNavigation = (props) => {
         bottom: isResizable && resizableEdge.bottom,
         right: isResizable && resizableEdge.right,
       }}
-      handleWrapperClass="resizeSidebarNavWrapper"
+      handleWrapperClass="resizeSidebarContentWrapper"
       onResizeStart={() => {
         setIsResizing(true);
         setResizeStartWidth(resizableWidth);
       }}
-      onResize={(...[,,, delta]) => setSidebarNavWidth(delta.width)}
+      onResize={(...[, , , delta]) => setSidebarContentWidth(delta.width)}
       onResizeStop={() => {
         setIsResizing(false);
         setResizeStartWidth(0);
@@ -91,10 +98,15 @@ const SidebarNavigation = (props) => {
         height,
       }}
     >
-      <UserListContainer />
+      {sidebarContentPanel === PANELS.CHAT && <ChatContainer />}
+      {sidebarContentPanel === PANELS.SHARED_NOTES && <NoteContainer />}
+      {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer />}
+      {sidebarContentPanel === PANELS.POLL && <PollContainer />}
+      {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
+      {sidebarContentPanel === PANELS.WAITING_USERS && <WaitingUsersPanel />}
     </Resizable>
   );
 };
 
-SidebarNavigation.propTypes = propTypes;
-export default SidebarNavigation;
+SidebarContent.propTypes = propTypes;
+export default SidebarContent;

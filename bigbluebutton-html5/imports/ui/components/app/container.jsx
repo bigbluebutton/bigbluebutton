@@ -54,6 +54,7 @@ const AppContainer = (props) => {
     actionsbar,
     media,
     newLayoutContextState,
+    newLayoutContextDispatch,
     ...otherProps
   } = props;
   const { layoutType, deviceType } = newLayoutContextState;
@@ -65,6 +66,7 @@ const AppContainer = (props) => {
       media={media}
       layoutType={layoutType}
       deviceType={deviceType}
+      newLayoutContextDispatch={newLayoutContextDispatch}
       {...otherProps}
     />
   );

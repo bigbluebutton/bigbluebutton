@@ -7,7 +7,7 @@ const SidebarNavigationContainer = (props) => {
   const { output } = newLayoutContextState;
   const { sidebarNavigation } = output;
 
-  if (sidebarNavigation.width === 0) return null;
+  if (sidebarNavigation.display === false) return null;
 
   return (
     <SidebarNavigation
