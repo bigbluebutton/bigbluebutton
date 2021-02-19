@@ -20,7 +20,6 @@ export const ACTIONS = {
   ADDED: 'added',
   CHANGED: 'changed',
   REMOVED: 'removed',
-  USER_STATUS_CHANGED: 'user_status_changed',
   LAST_READ_MESSAGE_TIMESTAMP_CHANGED: 'last_read_message_timestamp_changed',
   INIT: 'initial_structure',
 };
@@ -54,14 +53,6 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
       _id,
       ...restMsg
     } = msg;
-    const senderInfo = {
-      id: senderData?.userId || msg.sender.id,
-      avatar: senderData?.avatar,
-      color: senderData?.color ,
-      isModerator: senderData?.role === ROLE_MODERATOR, // TODO: get isModerator from message
-      name: senderData?.name || msg.sender.name,
-      isOnline: !!senderData,
-    };
 
     const indexValue = chatIndex ? (chatIndex + 1) : 1;
     const messageKey = key + '-' + indexValue;
@@ -74,7 +65,6 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
         content: [
           { id: msg.id, name: msg.sender.name, text: msg.message, time: msg.timestamp },
         ],
-        sender: senderInfo,
       }
     };
   
@@ -210,37 +200,6 @@ const reducer = (state, action) => {
         };
       }
       return state;
-    }
-    case ACTIONS.USER_STATUS_CHANGED: {
-      ChatLogger.debug(ACTIONS.USER_STATUS_CHANGED);
-      const newState = {
-        ...state,
-      };
-      const affectedChats = [];
-      // select all groups of users
-      Object.keys(newState).forEach(chatId => {
-        const affectedGroups = Object.keys(newState[chatId])
-          .filter(groupId => groupId.startsWith(action.value.userId));
-        if (affectedGroups.length) {
-          affectedChats[chatId] = affectedGroups;
-        }
-      });
-
-      //Apply change to new state
-      Object.keys(affectedChats).forEach((chatId) => {
-        // force new reference
-        newState[chatId] = {
-          ...newState[chatId]
-        };
-        //Apply change
-        affectedChats[chatId].forEach(groupId => {
-          newState[chatId][groupId] = {
-            ...newState[chatId][groupId] //TODO: sort by time (for incromental loading)
-          };
-          newState[chatId][groupId].status = action.value.status;
-        });
-      });
-      return newState
     }
     case ACTIONS.LAST_READ_MESSAGE_TIMESTAMP_CHANGED: {
       ChatLogger.debug(ACTIONS.LAST_READ_MESSAGE_TIMESTAMP_CHANGED);

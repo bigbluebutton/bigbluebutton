@@ -1,15 +1,16 @@
 package org.bigbluebutton.core.apps.voice
 
+import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.LockSettingsUtil
 import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, ConfVoiceUser, MessageTypes, Routing, UserJoinedVoiceConfToClientEvtMsg, UserJoinedVoiceConfToClientEvtMsgBody, UserLeftVoiceConfToClientEvtMsg, UserLeftVoiceConfToClientEvtMsgBody, UserMutedVoiceEvtMsg, UserMutedVoiceEvtMsgBody }
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.bus.InternalEventBus
-import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
+import org.bigbluebutton.core.models.{ Users2x, VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
-object VoiceApp {
+object VoiceApp extends SystemConfiguration {
 
   def genRecordPath(
       recordDir:       String,
@@ -135,6 +136,20 @@ object VoiceApp {
             } else {
               // Update the user status to indicate they are still in the voice conference.
               VoiceUsers.setLastStatusUpdate(liveMeeting.voiceUsers, vu)
+            }
+
+            // Purge voice users that don't have a matching user record
+            // Avoid this if the meeting is a breakout room since might be real
+            // voice users participating
+            // Also avoid ejecting if the user is dial-in (v_*)
+            if (ejectRogueVoiceUsers && !liveMeeting.props.meetingProp.isBreakout && !cvu.intId.startsWith("v_")) {
+              Users2x.findWithIntId(liveMeeting.users2x, cvu.intId) match {
+                case Some(_) =>
+                case None =>
+                  println(s"Ejecting rogue voice user. meetingId=${liveMeeting.props.meetingProp.intId} userId=${cvu.intId}")
+                  val event = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf, cvu.voiceUserId)
+                  outGW.send(event)
+              }
             }
           case None =>
             handleUserJoinedVoiceConfEvtMsg(
