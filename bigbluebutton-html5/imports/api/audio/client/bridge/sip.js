@@ -583,12 +583,17 @@ class SIPSession {
 
       const target = SIP.UserAgent.makeURI(`sip:${callExtension}@${hostname}`);
 
-      if(this.inputDeviceId){
-        this.userMediaConstraints['deviceId'] = { exact: this.inputDeviceId };
+      let userMediaConstraints = { audio: false, video: false };
+      if (!isListenOnly) {
+        userMediaConstraints = this.userMediaConstraints;
+        if (this.inputDeviceId) {
+          userMediaConstraints['deviceId'] = { exact: this.inputDeviceId }
+        }
       }
+
       const inviterOptions = {
         sessionDescriptionHandlerOptions: {
-          constraints: listenOnly ? false :  this.userMediaConstraints,
+          constraints: userMediaConstraints,
           iceGatheringTimeout: ICE_GATHERING_TIMEOUT,
         },
         sessionDescriptionHandlerModifiersPostICEGathering:
