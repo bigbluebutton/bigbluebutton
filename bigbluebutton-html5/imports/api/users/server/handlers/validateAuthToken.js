@@ -33,6 +33,9 @@ export default function handleValidateAuthToken({ body }, meetingId) {
   check(registeredOn, Number);
 
   const pendingAuths = pendingAuthenticationsStore.take(meetingId, userId, authToken);
+  
+  Logger.info(`PendingAuths length [${pendingAuths.length}]`);
+  if (pendingAuths.length === 0) return;
 
   Logger.info(`PendingAuths length [${pendingAuths.length}]`);
   if (pendingAuths.length === 0) return;
