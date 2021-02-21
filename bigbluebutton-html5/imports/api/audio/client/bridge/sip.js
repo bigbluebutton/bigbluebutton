@@ -36,6 +36,7 @@ const BRIDGE_NAME = 'sip';
 const WEBSOCKET_KEEP_ALIVE_INTERVAL = MEDIA.websocketKeepAliveInterval || 0;
 const WEBSOCKET_KEEP_ALIVE_DEBOUNCE = MEDIA.websocketKeepAliveDebounce || 10;
 const TRACE_SIP = MEDIA.traceSip || false;
+const STANDARD_USER_MEDIA_CONSTRAINTS = { audio: true, video: false, };
 
 const getAudioSessionNumber = () => {
   let currItem = parseInt(sessionStorage.getItem(AUDIO_SESSION_NUM_KEY), 10);
@@ -68,7 +69,7 @@ const getErrorCode = (error) => {
 
 class SIPSession {
   constructor(user, userData, protocol, hostname,
-    baseCallStates, baseErrorCodes, reconnectAttempt, mediaTag = MEDIA_TAG, userMediaConstraints = {audio:true,video:false} ) {
+    baseCallStates, baseErrorCodes, reconnectAttempt, mediaTag = MEDIA_TAG, userMediaConstraints = STANDARD_USER_MEDIA_CONSTRAINTS) {
     this.user = user;
     this.userData = userData;
     this.protocol = protocol;
@@ -933,7 +934,7 @@ class SIPSession {
 }
 
 export default class SIPBridge extends BaseAudioBridge {
-  constructor(userData, mediaTag = MEDIA_TAG, userMediaConstraints = {audio:true,video:true} ) {
+  constructor(userData, mediaTag = MEDIA_TAG, userMediaConstraints = STANDARD_USER_MEDIA_CONSTRAINTS) {
     super(userData);
 
     const {
