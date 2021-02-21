@@ -68,7 +68,7 @@ const getErrorCode = (error) => {
 
 class SIPSession {
   constructor(user, userData, protocol, hostname,
-    baseCallStates, baseErrorCodes, reconnectAttempt, mediaTag = MEDIA_TAG, userMediaConstraints = {audio:true,video:true} ) {
+    baseCallStates, baseErrorCodes, reconnectAttempt, mediaTag = MEDIA_TAG, userMediaConstraints = {audio:true,video:false} ) {
     this.user = user;
     this.userData = userData;
     this.protocol = protocol;
@@ -582,18 +582,12 @@ class SIPSession {
 
       const target = SIP.UserAgent.makeURI(`sip:${callExtension}@${hostname}`);
 
-      const audioDeviceConstraint = this.inputDeviceId
-        ? { deviceId: { exact: this.inputDeviceId } }
-        : true;
-
+      if(this.inputDeviceId){
+        this.userMediaConstraints['deviceId'] = { exact: this.inputDeviceId };
+      }
       const inviterOptions = {
         sessionDescriptionHandlerOptions: {
-          constraints: {
-            audio: isListenOnly
-              ? false
-              : audioDeviceConstraint,
-            video: false,
-          },
+          constraints: listenOnly ? false :  this.userMediaConstraints,
           iceGatheringTimeout: ICE_GATHERING_TIMEOUT,
         },
         sessionDescriptionHandlerModifiersPostICEGathering:

@@ -79,7 +79,7 @@ class AudioManager {
     this.translatorBridge = new SIPBridge({...userData},
       "#translator-media",
       {
-        video: true,
+        video: false,
         audio: {
           echoCancellation: false,
         },
