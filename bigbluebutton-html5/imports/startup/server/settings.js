@@ -10,6 +10,9 @@ try {
     const SETTINGS = YAML.parse(fs.readFileSync(YAML_FILE_PATH, 'utf-8'));
 
     Meteor.settings = SETTINGS;
+    Meteor.settings.public.app.instanceId = ''; // no longer use instanceId in URLs. Likely permanent change
+    // Meteor.settings.public.app.instanceId = `/${INSTANCE_ID}`;
+
     __meteor_runtime_config__.PUBLIC_SETTINGS = SETTINGS.public;
   } else {
     throw new Error('File doesn\'t exists');

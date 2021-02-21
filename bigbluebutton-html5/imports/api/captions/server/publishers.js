@@ -12,7 +12,7 @@ function captions() {
   }
 
   const { meetingId, userId } = tokenValidation;
-  Logger.debug(`Publishing Captions for ${meetingId} requested by ${userId}`);
+  Logger.debug('Publishing Captions', { meetingId, requestedBy: userId });
 
   return Captions.find({ meetingId });
 }

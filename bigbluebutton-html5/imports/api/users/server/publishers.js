@@ -18,6 +18,7 @@ function currentUser() {
   const selector = {
     meetingId,
     userId: requesterUserId,
+    intId: { $exists: true }
   };
 
   const options = {
@@ -56,6 +57,7 @@ function users(role) {
     $or: [
       { meetingId },
     ],
+    intId: { $exists: true }
   };
 
   const User = Users.findOne({ userId, meetingId }, { fields: { role: 1 } });
@@ -72,7 +74,7 @@ function users(role) {
     },
   };
 
-  Logger.debug(`Publishing Users for ${meetingId} ${userId}`);
+  Logger.debug('Publishing Users', { meetingId, userId });
 
   return Users.find(selector, options);
 }

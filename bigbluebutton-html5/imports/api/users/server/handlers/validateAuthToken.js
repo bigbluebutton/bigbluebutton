@@ -4,6 +4,7 @@ import Users from '/imports/api/users';
 import userJoin from './userJoin';
 import pendingAuthenticationsStore from '../store/pendingAuthentications';
 import createDummyUser from '../modifiers/createDummyUser';
+import ClientConnections from '/imports/startup/server/ClientConnections';
 
 import upsertValidationState from '/imports/api/auth-token-validation/server/modifiers/upsertValidationState';
 import { ValidationStates } from '/imports/api/auth-token-validation';
@@ -22,14 +23,19 @@ export default function handleValidateAuthToken({ body }, meetingId) {
     valid,
     authToken,
     waitForApproval,
+    registeredOn,
   } = body;
 
   check(userId, String);
   check(authToken, String);
   check(valid, Boolean);
   check(waitForApproval, Boolean);
+  check(registeredOn, Number);
 
   const pendingAuths = pendingAuthenticationsStore.take(meetingId, userId, authToken);
+
+  Logger.info(`PendingAuths length [${pendingAuths.length}]`);
+  if (pendingAuths.length === 0) return;
 
   if (!valid) {
     pendingAuths.forEach(
@@ -75,6 +81,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
           createDummyUser(meetingId, userId, authToken);
         }
 
+        ClientConnections.add(sessionId, methodInvocationObject.connection);
         upsertValidationState(meetingId, userId, ValidationStates.VALIDATED, methodInvocationObject.connection.id);
 
         /* End of logic migrated from validateAuthToken */
@@ -103,28 +110,26 @@ export default function handleValidateAuthToken({ body }, meetingId) {
     $set: {
       validated: valid,
       approved: !waitForApproval,
-      loginTime: Date.now(),
+      loginTime: registeredOn,
       inactivityCheck: false,
     },
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Validating auth token: ${err}`);
-    }
+  try {
+    const numberAffected = Users.update(selector, modifier);
 
-    if (numChanged) {
+    if (numberAffected) {
       if (valid) {
         const sessionUserId = `${meetingId}-${userId}`;
         const currentConnectionId = User.connectionId ? User.connectionId : false;
         clearOtherSessions(sessionUserId, currentConnectionId);
       }
 
-      return Logger.info(`Validated auth token as ${valid} user=${userId} meeting=${meetingId}`);
+      Logger.info(`Validated auth token as ${valid} user=${userId} meeting=${meetingId}`);
+    } else {
+      Logger.info('No auth to validate');
     }
-
-    return Logger.info('No auth to validate');
-  };
-
-  Users.update(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Validating auth token: ${err}`);
+  }
 }

@@ -22,7 +22,7 @@ case class UserRegisteredRespMsg(
     header: BbbCoreHeaderWithMeetingId,
     body:   UserRegisteredRespMsgBody
 ) extends BbbCoreMsg
-case class UserRegisteredRespMsgBody(meetingId: String, userId: String, name: String, role: String)
+case class UserRegisteredRespMsgBody(meetingId: String, userId: String, name: String, role: String, registeredOn: Long)
 
 object RegisteredUserJoinTimeoutMsg { val NAME = "RegisteredUserJoinTimeoutMsg" }
 case class RegisteredUserJoinTimeoutMsg(
@@ -59,7 +59,7 @@ case class ValidateAuthTokenRespMsg(
     header: BbbClientMsgHeader,
     body:   ValidateAuthTokenRespMsgBody
 ) extends BbbCoreMsg
-case class ValidateAuthTokenRespMsgBody(userId: String, authToken: String, valid: Boolean, waitForApproval: Boolean)
+case class ValidateAuthTokenRespMsgBody(userId: String, authToken: String, valid: Boolean, waitForApproval: Boolean, registeredOn: Long)
 
 object UserLeftMeetingEvtMsg {
   val NAME = "UserLeftMeetingEvtMsg"
@@ -394,3 +394,17 @@ case class UserInactivityInspectMsgBody(meetingId: String, responseDelay: Long)
 object UserActivitySignCmdMsg { val NAME = "UserActivitySignCmdMsg" }
 case class UserActivitySignCmdMsg(header: BbbClientMsgHeader, body: UserActivitySignCmdMsgBody) extends StandardMsg
 case class UserActivitySignCmdMsgBody(userId: String)
+
+/**
+ * Sent from client to randomly select a viewer
+ */
+object SelectRandomViewerReqMsg { val NAME = "SelectRandomViewerReqMsg" }
+case class SelectRandomViewerReqMsg(header: BbbClientMsgHeader, body: SelectRandomViewerReqMsgBody) extends StandardMsg
+case class SelectRandomViewerReqMsgBody(requestedBy: String)
+
+/**
+ * Response to request for a random viewer
+ */
+object SelectRandomViewerRespMsg { val NAME = "SelectRandomViewerRespMsg" }
+case class SelectRandomViewerRespMsg(header: BbbClientMsgHeader, body: SelectRandomViewerRespMsgBody) extends StandardMsg
+case class SelectRandomViewerRespMsgBody(requestedBy: String, selectedUserId: String)

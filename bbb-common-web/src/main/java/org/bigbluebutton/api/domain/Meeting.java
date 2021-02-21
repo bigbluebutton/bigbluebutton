@@ -68,6 +68,7 @@ public class Meeting {
 	private String defaultAvatarURL;
 	private String defaultConfigToken;
 	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
+	private Boolean authenticatedGuest = false;
 	private boolean userHasJoined = false;
 	private Map<String, String> metadata;
 	private Map<String, Object> userCustomData;
@@ -97,6 +98,7 @@ public class Meeting {
 
 	public final Boolean endWhenNoModerator;
 
+	private Integer html5InstanceId;
 
     public Meeting(Meeting.Builder builder) {
         name = builder.name;
@@ -124,10 +126,12 @@ public class Meeting {
         createdTime = builder.createdTime;
         isBreakout = builder.isBreakout;
         guestPolicy = builder.guestPolicy;
+        authenticatedGuest = builder.authenticatedGuest;
         breakoutRoomsParams = builder.breakoutRoomsParams;
         lockSettingsParams = builder.lockSettingsParams;
         allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
         endWhenNoModerator = builder.endWhenNoModerator;
+        html5InstanceId = builder.html5InstanceId;
 
         userCustomData = new HashMap<>();
 
@@ -228,7 +232,11 @@ public class Meeting {
 		return GuestPolicy.DENY;
 	}
 
-	public long getStartTime() {
+	public int getHtml5InstanceId() { return html5InstanceId; }
+
+    public void setHtml5InstanceId(int instanceId) { html5InstanceId = instanceId; }
+
+    public long getStartTime() {
 		return startTime;
 	}
 	
@@ -356,8 +364,35 @@ public class Meeting {
     	return guestPolicy;
 	}
 
+	public void setAuthenticatedGuest(Boolean authGuest) {
+		authenticatedGuest = authGuest;
+	}
+
+	public Boolean getAuthenticatedGuest() {
+		return authenticatedGuest;
+	}
+
+	private String getUnauthenticatedGuestStatus(Boolean guest) {
+		if (guest) {
+			switch(guestPolicy) {
+				case GuestPolicy.ALWAYS_ACCEPT:
+				case GuestPolicy.ALWAYS_ACCEPT_AUTH:
+					return GuestPolicy.ALLOW;
+				case GuestPolicy.ASK_MODERATOR:
+					return GuestPolicy.WAIT;
+				case GuestPolicy.ALWAYS_DENY:
+					return GuestPolicy.DENY;
+				default:
+					return GuestPolicy.DENY;
+			}
+		} else {
+			return GuestPolicy.ALLOW;
+		}
+	}
 
 	public String calcGuestStatus(String role, Boolean guest, Boolean authned) {
+		if (!authenticatedGuest) return getUnauthenticatedGuestStatus(guest);
+
 		// Allow moderators all the time.
 		if (ROLE_MODERATOR.equals(role)) {
 			return GuestPolicy.ALLOW;
@@ -664,10 +699,12 @@ public class Meeting {
     	private long createdTime;
     	private boolean isBreakout;
     	private String guestPolicy;
+    	private Boolean authenticatedGuest;
     	private BreakoutRoomsParams breakoutRoomsParams;
     	private LockSettingsParams lockSettingsParams;
 		private Boolean allowDuplicateExtUserid;
 		private Boolean endWhenNoModerator;
+		private int html5InstanceId;
 
     	public Builder(String externalId, String internalId, long createTime) {
     		this.externalId = externalId;
@@ -784,6 +821,11 @@ public class Meeting {
     		guestPolicy = policy;
     		return  this;
 		}
+    
+    	public Builder withAuthenticatedGuest(Boolean authGuest) {
+    		authenticatedGuest = authGuest;
+    		return this;
+    	}
 
 		public Builder withBreakoutRoomsParams(BreakoutRoomsParams params) {
     		breakoutRoomsParams = params;
@@ -802,6 +844,11 @@ public class Meeting {
 
 		public Builder withEndWhenNoModerator(Boolean endWhenNoModerator) {
     		this.endWhenNoModerator = endWhenNoModerator;
+    		return this;
+		}
+
+		public Builder withHTML5InstanceId(int instanceId) {
+    		html5InstanceId = instanceId;
     		return this;
 		}
     

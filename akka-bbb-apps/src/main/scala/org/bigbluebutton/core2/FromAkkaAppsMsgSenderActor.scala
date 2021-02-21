@@ -18,16 +18,27 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
     case _                        => log.warning("Cannot handle message ")
   }
 
+  def sendToHTML5InstanceIdChannel(msg: BbbCommonEnvCoreMsg, json: String): Unit = {
+    msg.envelope.routing.get("html5InstanceId") match {
+      case Some(id) => {
+        msgSender.send(toHTML5RedisChannel.concat(id), json)
+      }
+      case _ => log.error("No html5InstanceId for " + msg.envelope.name)
+    }
+  }
+
   def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     val json = JsonUtil.toJson(msg)
 
     msg.envelope.name match {
-      case SyncGetPresentationPodsRespMsg.NAME => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetMeetingInfoRespMsg.NAME      => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetUsersMeetingRespMsg.NAME     => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetGroupChatsRespMsg.NAME       => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetGroupChatMsgsRespMsg.NAME    => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetVoiceUsersRespMsg.NAME       => msgSender.send(toHTML5RedisChannel, json)
+
+      // HTML5 sync messages
+      case SyncGetPresentationPodsRespMsg.NAME => sendToHTML5InstanceIdChannel(msg, json)
+      case SyncGetMeetingInfoRespMsg.NAME      => sendToHTML5InstanceIdChannel(msg, json)
+      case SyncGetUsersMeetingRespMsg.NAME     => sendToHTML5InstanceIdChannel(msg, json)
+      case SyncGetGroupChatsRespMsg.NAME       => sendToHTML5InstanceIdChannel(msg, json)
+      case SyncGetGroupChatMsgsRespMsg.NAME    => sendToHTML5InstanceIdChannel(msg, json)
+      case SyncGetVoiceUsersRespMsg.NAME       => sendToHTML5InstanceIdChannel(msg, json)
 
       // Sent to FreeSWITCH
       case ScreenshareStartRtmpBroadcastVoiceConfMsg.NAME =>
@@ -59,13 +70,13 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
 
       // Whiteboard
       case SendWhiteboardAnnotationEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsWbRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
       case SendCursorPositionEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsWbRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
       case ClearWhiteboardEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsWbRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
       case UndoWhiteboardEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsWbRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
 
       // Chat
       case SendPublicMessageEvtMsg.NAME =>
@@ -106,6 +117,31 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       // Poll Record Event
       case UserRespondedToPollRecordMsg.NAME =>
       //==================================================================
+
+      case ValidateAuthTokenRespMsg.NAME =>
+        msgSender.send(fromAkkaAppsRedisChannel, json) // needed for cases when single nodejs process is running (like in development)  
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
+      // Message duplicated for frontend and backend processes
+      case MeetingCreatedEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
+      case MeetingEndingEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
+      case MeetingDestroyedEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
+      case UserLeftMeetingEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
+      case UserLeftVoiceConfToClientEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
 
       case _ =>
         msgSender.send(fromAkkaAppsRedisChannel, json)

@@ -178,8 +178,6 @@
     "app.presentationUploder.conversion.pdfHasBigPage": "Neizdevās konvertēt PDF failu. Lūdzu, mēģiniet to optimizēt",
     "app.presentationUploder.conversion.timeout": "Konvertēšana notika pārāk ilgi...",
     "app.presentationUploder.conversion.pageCountFailed": "Neizdevās noteikt lapu skaitu",
-    "app.presentationUploder.isDownloadableLabel": "Liegt prezentācijas lejupielādi",
-    "app.presentationUploder.isNotDownloadableLabel": "Ļaut prezentācijas lejupielādi",
     "app.presentationUploder.removePresentationLabel": "Noņemt/dzēst prezentāciju",
     "app.presentationUploder.setAsCurrentPresentation": "Iestatīt prezentāciju kā tekošo/pašreizējo",
     "app.presentationUploder.tableHeading.filename": "Faila nosaukums",
@@ -188,13 +186,9 @@
     "app.poll.pollPaneTitle": "Balsošana/aptauja",
     "app.poll.quickPollTitle": "Zibaptauja",
     "app.poll.hidePollDesc": "Paslēpj balsošanas/aptaujas izvēlnes paneli",
-    "app.poll.customPollInstruction": "Lai izveidotu pielāgotu aptauju, spiediet zemāk esošo pogu un ievadiet izvēles.",
     "app.poll.quickPollInstruction": "Lai sāktu balsošanu/aptauju, izvēlieties zemāk redzamo opciju.",
-    "app.poll.customPollLabel": "Pielāgojama balsošana/aptauja",
-    "app.poll.startCustomLabel": "Sākt pielāgotu balsošanu/aptauju",
     "app.poll.activePollInstruction": "Lai nekavējoši redzētu atbildes uz šo aptauju/balsojumu, atstājiet šo paneli atvērtu. Kad esiet gatavi publiskot rezultātus un beigt balsojumu/aptauju, nospiediet “Publicēt balsošanas/aptaujas rezultātus”.",
     "app.poll.publishLabel": "Publiskot balsojuma/aptaujas rezultātus",
-    "app.poll.backLabel": "Atpakaļ pie balsošanas/aptaujas izvēlēm",
     "app.poll.closeLabel": "Aizvērt",
     "app.poll.waitingLabel": "Gaidām atbildes/balsojumu ({0}/{1})",
     "app.poll.ariaInputCount": "Pielāgotas aptaujas iespēja {0} no {1}",
@@ -234,7 +228,6 @@
     "app.navBar.settingsDropdown.fullscreenLabel": "Rādīt pilnekrānā",
     "app.navBar.settingsDropdown.settingsLabel": "Iestatījumi",
     "app.navBar.settingsDropdown.aboutLabel": "Par",
-    "app.navBar.settingsDropdown.leaveSessionLabel": "Izrakstīties",
     "app.navBar.settingsDropdown.exitFullscreenLabel": "Iziet no pilnekrāna režīma",
     "app.navBar.settingsDropdown.fullscreenDesc": "Iestatījumu izvēlni padarīt par pilnekrāna",
     "app.navBar.settingsDropdown.settingsDesc": "Koriģēt vispārējos iestatījumus",
@@ -256,7 +249,6 @@
     "app.navBar.emptyAudioBrdige": "Nav aktīva mikrofona. Kopīgojiet savu mikrofonu, lai šim ierakstam būtu skaņa.",
     "app.leaveConfirmation.confirmLabel": "Pamest",
     "app.leaveConfirmation.confirmDesc": "Jūs izliek no sapulces",
-    "app.endMeeting.title": "Beigt sapulci",
     "app.endMeeting.yesLabel": "Jā",
     "app.endMeeting.noLabel": "Nē",
     "app.about.title": "Par",
@@ -313,7 +305,6 @@
     "app.talkingIndicator.isTalking" : "{0} runā",
     "app.talkingIndicator.wasTalking" : "{0} beidza runāt",
     "app.actionsBar.actionsDropdown.actionsLabel": "Rīcība",
-    "app.actionsBar.actionsDropdown.presentationLabel": "augšuplādēt prezentāciju",
     "app.actionsBar.actionsDropdown.initPollLabel": "ierosināt balsojumu/aptauju",
     "app.actionsBar.actionsDropdown.desktopShareLabel": "kopīgot jūsu ekrānu",
     "app.actionsBar.actionsDropdown.lockedDesktopShareLabel": "Ekrānu kopīgošana bloķēta",
@@ -334,7 +325,6 @@
     "app.actionsBar.emojiMenu.statusTriggerLabel": "Iestatīt statusu",
     "app.actionsBar.emojiMenu.awayLabel": "prombūtnē",
     "app.actionsBar.emojiMenu.awayDesc": "nomainīt statusu uz 'prombūtnē'",
-    "app.actionsBar.emojiMenu.raiseHandLabel": "pacelt",
     "app.actionsBar.emojiMenu.raiseHandDesc": "pacelt roku, lai izteiktu jautājumu, repliku, komentāru",
     "app.actionsBar.emojiMenu.neutralLabel": "svārstīgs/neizlēmis",
     "app.actionsBar.emojiMenu.neutralDesc": "nomainīt statusu uz 'svārstīgs/neizlēmis'",
@@ -655,7 +645,7 @@
     "app.iOSWarning.label": "Lūdzu, augstiniet uz iOS 12.2 vai augstāku versiju",
     "app.legacy.unsupportedBrowser": "Izskatās, ka izmantojat neatbalstītu pārlūku. Pilnīga atbalsta iegūšanai izmantojiet {0} vai {1}.",
     "app.legacy.upgradeBrowser": "Izskatās, ka izmantojat atbalstīta pārlūka novecojušu versiju. Lai iegūtu pilnīgu atbalstu, lūdzu, aktualizējiet savu pārlūkprogrammu.",
-    "app.legacy.criosBrowser": "IOS ierīcē pilna atbalsta nodrošināšānai lūdzu, izmantojiet Safari."
+    "app.legacy.criosBrowser": "IOS ierīcē pilna atbalsta nodrošināšānai, lūdzu, izmantojiet Safari."
 
 }
 

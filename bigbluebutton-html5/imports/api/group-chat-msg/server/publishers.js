@@ -17,14 +17,15 @@ function groupChatMsg(chatsIds) {
   const CHAT_CONFIG = Meteor.settings.public.chat;
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
-  Logger.debug(`Publishing group-chat-msg for ${meetingId} ${userId}`);
+  Logger.debug('Publishing group-chat-msg', { meetingId, userId });
 
-  return GroupChatMsg.find({
+  const selector = {
     $or: [
       { meetingId, chatId: { $eq: PUBLIC_GROUP_CHAT_ID } },
       { chatId: { $in: chatsIds } },
     ],
-  });
+  };
+  return GroupChatMsg.find(selector);
 }
 
 function publish(...args) {
@@ -44,7 +45,7 @@ function usersTyping() {
 
   const { meetingId, userId } = tokenValidation;
 
-  Logger.debug(`Publishing users-typing for ${meetingId} ${userId}`);
+  Logger.debug('Publishing users-typing', { meetingId, userId });
 
   return UsersTyping.find({ meetingId });
 }

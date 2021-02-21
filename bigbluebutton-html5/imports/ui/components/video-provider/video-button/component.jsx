@@ -6,6 +6,7 @@ import VideoService from '../service';
 import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles';
 import { validIOSVersion } from '/imports/ui/components/app/service';
+import { debounce } from 'lodash';
 
 const intlMessages = defineMessages({
   joinVideo: {
@@ -38,6 +39,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const JOIN_VIDEO_DELAY_MILLISECONDS = 500;
+
 const propTypes = {
   intl: PropTypes.object.isRequired,
   hasVideoStream: PropTypes.bool.isRequired,
@@ -52,7 +55,7 @@ const JoinVideoButton = ({
 }) => {
   const exitVideo = () => hasVideoStream && !VideoService.isMultipleCamerasEnabled();
 
-  const handleOnClick = () => {
+  const handleOnClick = debounce(() => {
     if (!validIOSVersion()) {
       return VideoService.notify(intl.formatMessage(intlMessages.iOSWarning));
     }
@@ -62,7 +65,7 @@ const JoinVideoButton = ({
     } else {
       mountVideoPreview();
     }
-  };
+  }, JOIN_VIDEO_DELAY_MILLISECONDS);
 
   let label = exitVideo()
     ? intl.formatMessage(intlMessages.leaveVideo)
@@ -73,8 +76,8 @@ const JoinVideoButton = ({
   return (
     <Button
       label={label}
-      data-test="joinVideo"
-      className={cx(styles.button, hasVideoStream || styles.btn)}
+      data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
+      className={cx(hasVideoStream || styles.btn)}
       onClick={handleOnClick}
       hideLabel
       color={hasVideoStream ? 'primary' : 'default'}

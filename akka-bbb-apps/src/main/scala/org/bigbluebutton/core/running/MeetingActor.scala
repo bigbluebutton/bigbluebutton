@@ -278,9 +278,9 @@ class MeetingActor(
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
-      case m: ClientToServerLatencyTracerMsg          => handleClientToServerLatencyTracerMsg(m)
+      case m: ClientToServerLatencyTracerMsg => handleClientToServerLatencyTracerMsg(m)
       case m: CheckRunningAndRecordingVoiceConfEvtMsg => handleCheckRunningAndRecordingVoiceConfEvtMsg(m)
-      case _                                          => handleMessageThatAffectsInactivity(msg)
+      case _ => handleMessageThatAffectsInactivity(msg)
     }
   }
 
@@ -297,7 +297,7 @@ class MeetingActor(
       case m: UserBroadcastCamStartMsg            => handleUserBroadcastCamStartMsg(m)
       case m: UserBroadcastCamStopMsg             => handleUserBroadcastCamStopMsg(m)
       case m: UserJoinedVoiceConfEvtMsg           => handleUserJoinedVoiceConfEvtMsg(m)
-      case m: LogoutAndEndMeetingCmdMsg => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
+      case m: LogoutAndEndMeetingCmdMsg           => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
       case m: SetRecordingStatusCmdMsg =>
         state = usersApp.handleSetRecordingStatusCmdMsg(m, state)
         updateUserLastActivity(m.body.setBy)
@@ -308,6 +308,7 @@ class MeetingActor(
       case m: UpdateWebcamsOnlyForModeratorCmdMsg => usersApp.handleUpdateWebcamsOnlyForModeratorCmdMsg(m)
       case m: GetRecordingStatusReqMsg            => usersApp.handleGetRecordingStatusReqMsg(m)
       case m: ChangeUserEmojiCmdMsg               => handleChangeUserEmojiCmdMsg(m)
+      case m: SelectRandomViewerReqMsg            => usersApp.handleSelectRandomViewerReqMsg(m)
 
       // Client requested to eject user
       case m: EjectUserFromMeetingCmdMsg =>
@@ -344,6 +345,9 @@ class MeetingActor(
         updateUserLastActivity(m.body.requesterId)
       case m: GetCurrentPollReqMsg => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
       case m: RespondToPollReqMsg =>
+        pollApp.handle(m, liveMeeting, msgBus)
+        updateUserLastActivity(m.body.requesterId)
+      case m: RespondToTypedPollReqMsg =>
         pollApp.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.body.requesterId)
 
@@ -469,6 +473,7 @@ class MeetingActor(
   }
 
   def processGetRunningMeetingStateReqMsg(): Unit = {
+
     // sync all meetings
     handleSyncGetMeetingInfoRespMsg(liveMeeting.props)
 
@@ -619,7 +624,8 @@ class MeetingActor(
         if (authedUsers.isEmpty) {
           sendEndMeetingDueToExpiry(
             MeetingEndReason.ENDED_DUE_TO_NO_AUTHED_USER,
-            eventBus, outGW, liveMeeting
+            eventBus, outGW, liveMeeting,
+            "system"
           )
         }
       }

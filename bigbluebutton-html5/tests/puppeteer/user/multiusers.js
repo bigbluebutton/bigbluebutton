@@ -26,18 +26,18 @@ class MultiUsers {
   }
 
   async multiUsersPublicChat() {
+    const chat0 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
     await util.sendPublicChatMessage(this.page1, this.page2);
-    const responsePublicMessage = await util.checkForPublicMessageReception(this.page1, this.page2);
-    const checkPublicChat = responsePublicMessage == true;
-    return checkPublicChat == true;
+    const chat1 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
+    return chat0 !== chat1;
   }
 
   async multiUsersPrivateChat() {
     await util.openPrivateChatMessage(this.page1, this.page2);
+    const chat0 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
     await util.sendPrivateChatMessage(this.page1, this.page2);
-    const responsePrivateMessage = await util.checkForPrivateMessageReception(this.page1, this.page2);
-    const checkPrivateChat = responsePrivateMessage == true;
-    return checkPrivateChat == true;
+    const chat1 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
+    return chat0 !== chat1;
   }
 
   async test() {

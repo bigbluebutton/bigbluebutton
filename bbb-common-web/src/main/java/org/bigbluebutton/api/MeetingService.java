@@ -42,6 +42,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
+import org.bigbluebutton.api.HTML5LoadBalancingService;
 import org.bigbluebutton.api.domain.GuestPolicy;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Recording;
@@ -115,6 +116,7 @@ public class MeetingService implements MessageListener {
   private StunTurnService stunTurnService;
   private RedisStorageService storeService;
   private CallbackUrlService callbackUrlService;
+  private HTML5LoadBalancingService html5LoadBalancingService;
   private boolean keepEvents;
 
   private long usersTimeout;
@@ -394,13 +396,13 @@ public class MeetingService implements MessageListener {
             m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
             m.getWebcamsOnlyForModerator(), m.getModeratorPassword(), m.getViewerPassword(), m.getCreateTime(),
             formatPrettyDate(m.getCreateTime()), m.isBreakout(), m.getSequence(), m.isFreeJoin(), m.getMetadata(),
-            m.getGuestPolicy(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(), m.getModeratorOnlyMessage(),
+            m.getGuestPolicy(), m.getAuthenticatedGuest(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(), m.getModeratorOnlyMessage(),
             m.getDialNumber(), m.getMaxUsers(),
             m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes(),
             m.getUserInactivityInspectTimerInMinutes(), m.getUserInactivityThresholdInMinutes(),
             m.getUserActivitySignResponseDelayInMinutes(), m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), keepEvents,
             m.breakoutRoomsParams,
-            m.lockSettingsParams);
+            m.lockSettingsParams, m.getHtml5InstanceId());
   }
 
   private String formatPrettyDate(Long timestamp) {
@@ -981,6 +983,11 @@ public class MeetingService implements MessageListener {
           User vuser = m.userLeft(message.userId);
         } else {
           user.setVoiceJoined(false);
+          // userLeftVoice is also used when user leaves Global (listenonly)
+          // audio. Also tetting listenOnly to false is not a problem,
+          // once user can't join both voice/mic and global/listenonly
+          // at the same time.
+          user.setListeningOnly(false);
         }
       }
     }

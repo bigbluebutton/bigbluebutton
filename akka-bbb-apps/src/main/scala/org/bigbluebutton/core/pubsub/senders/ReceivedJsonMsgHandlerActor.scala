@@ -103,6 +103,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetPresenterGroupReqMsg](envelope, jsonNode)
       case UserActivitySignCmdMsg.NAME =>
         routeGenericMsg[UserActivitySignCmdMsg](envelope, jsonNode)
+      case SelectRandomViewerReqMsg.NAME =>
+        routeGenericMsg[SelectRandomViewerReqMsg](envelope, jsonNode)
 
       // Poll
       case StartCustomPollReqMsg.NAME =>
@@ -117,6 +119,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetCurrentPollReqMsg](envelope, jsonNode)
       case RespondToPollReqMsg.NAME =>
         routeGenericMsg[RespondToPollReqMsg](envelope, jsonNode)
+      case RespondToTypedPollReqMsg.NAME =>
+        routeGenericMsg[RespondToTypedPollReqMsg](envelope, jsonNode)
 
       // Webcam
       case UserBroadcastCamStartMsg.NAME =>

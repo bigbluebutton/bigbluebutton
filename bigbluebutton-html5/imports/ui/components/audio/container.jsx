@@ -5,12 +5,15 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import { injectIntl, defineMessages } from 'react-intl';
 import _ from 'lodash';
 import Breakouts from '/imports/api/breakouts';
+import AppService from '/imports/ui/components/app/service';
 import { notify } from '/imports/ui/services/notification';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
+import { getcookieData, joinMicrophone } from '/imports/ui/components/audio/audio-modal/service';
 import Service from './service';
 import AudioModalContainer from './audio-modal/container';
+import Settings from '/imports/ui/services/settings';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
@@ -70,7 +73,19 @@ class AudioContainer extends PureComponent {
   }
 
   componentDidMount() {
+    const { meetingIsBreakout, joinedAudio } = this.props;
     this.init();
+    if (meetingIsBreakout && joinedAudio) {
+      joinMicrophone(true, true);
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    const { hasBreakoutRooms, joinedAudio } = this.props;
+    const { hasBreakoutRooms: hadBreakoutRooms } = prevProps;    
+    if (hadBreakoutRooms && !hasBreakoutRooms && joinedAudio) {
+      joinMicrophone(true, true);
+    }
   }
 
   render() {
@@ -105,10 +120,14 @@ const messages = {
 };
 
 export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ mountModal, intl, userLocks }) => {
+  const { microphoneConstraints } = Settings.application;
   const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
   const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
   const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);
   const { userWebcam, userMic } = userLocks;
+  const { joinedAudio } = getcookieData();
+  const meetingIsBreakout = AppService.meetingIsBreakout();
+  const hasBreakoutRooms = AppService.getBreakoutRooms().length > 0;
   const openAudioModal = () => new Promise((resolve) => {
     mountModal(<AudioModalContainer resolve={resolve} />);
   });
@@ -117,12 +136,14 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
     if (userWebcam) return resolve();
     mountModal(<VideoPreviewContainer resolve={resolve} />);
   });
-  if (userMic
-    && Service.isConnected()
-    && !Service.isListenOnly()
-    && !Service.isMuted()) {
-    Service.toggleMuteMicrophone();
-    notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'audio_on');
+
+  if (Service.isConnected() && !Service.isListenOnly()) {
+    Service.updateAudioConstraints(microphoneConstraints);
+
+    if (userMic && !Service.isMuted()) {
+      Service.toggleMuteMicrophone();
+      notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'audio_on');
+    }
   }
 
   Breakouts.find().observeChanges({
@@ -130,7 +151,7 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
       // if the user joined a breakout room, the main room's audio was
       // programmatically dropped to avoid interference. On breakout end,
       // offer to rejoin main room audio only if the user is not in audio already
-      if (Service.isUsingAudio()) {
+      if (Service.isUsingAudio() || joinedAudio) {
         return;
       }
       setTimeout(() => openAudioModal().then(() => {
@@ -142,12 +163,15 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
   });
 
   return {
+    hasBreakoutRooms,
+    meetingIsBreakout,
+    joinedAudio,
     init: () => {
       Service.init(messages, intl);
       Service.changeOutputDevice(document.querySelector('#remote-media').sinkId);
       const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
       const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);
-      if (!autoJoin || didMountAutoJoin) {
+      if ((!autoJoin || didMountAutoJoin)) {
         if (enableVideo && autoShareWebcam) {
           openVideoPreviewModal();
         }
@@ -156,7 +180,7 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
       Session.set('audioModalIsOpen', true);
       if (enableVideo && autoShareWebcam) {
         openAudioModal().then(() => { openVideoPreviewModal(); didMountAutoJoin = true; });
-      } else {
+      } else if (!(joinedAudio && meetingIsBreakout)) {
         openAudioModal();
         didMountAutoJoin = true;
       }

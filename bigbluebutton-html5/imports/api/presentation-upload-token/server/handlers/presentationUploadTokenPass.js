@@ -20,7 +20,7 @@ export default function handlePresentationUploadTokenPass({ body, header }, meet
     filename,
   };
 
-  const doc = {
+  const modifier = {
     meetingId,
     podId,
     userId,
@@ -30,14 +30,13 @@ export default function handlePresentationUploadTokenPass({ body, header }, meet
     used: false,
   };
 
-  const cb = (err) => {
-    if (err) {
-      Logger.error(`Inserting presentationToken from collection: ${err}`);
-      return;
+  try {
+    const { insertedId } = PresentationUploadToken.upsert(selector, modifier);
+
+    if (insertedId) {
+      Logger.info(`Inserting presentationToken filename=${filename} podId=${podId} meeting=${meetingId}`);
     }
-
-    Logger.info(`Inserting presentationToken filename=${filename} podId=${podId} meeting=${meetingId}`);
-  };
-
-  return PresentationUploadToken.upsert(selector, doc, cb);
+  } catch (err) {
+    Logger.error(`Inserting presentationToken from collection: ${err}`);
+  }
 }

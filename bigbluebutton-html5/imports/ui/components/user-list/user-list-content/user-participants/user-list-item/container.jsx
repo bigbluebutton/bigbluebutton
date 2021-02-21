@@ -43,6 +43,7 @@ export default withTracker(({ user }) => {
     getGroupChatPrivate: UserListService.getGroupChatPrivate,
     getEmojiList: UserListService.getEmojiList(),
     getEmoji: UserListService.getEmoji(),
+    usersProp: UserListService.getUsersProp(),
     hasPrivateChatBetweenUsers: UserListService.hasPrivateChatBetweenUsers,
     changeWhiteboardMode,
   };

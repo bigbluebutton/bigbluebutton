@@ -19,7 +19,7 @@ public interface IBbbWebApiGWApp {
                      Boolean allowStartStopRecording, Boolean webcamsOnlyForModerator,
                      String moderatorPass, String viewerPass, Long createTime,
                      String createDate, Boolean isBreakout, Integer sequence, Boolean freejoin, Map<String, String> metadata,
-                     String guestPolicy, String welcomeMsgTemplate, String welcomeMsg, String modOnlyMessage,
+                     String guestPolicy, Boolean authenticatedGuest, String welcomeMsgTemplate, String welcomeMsg, String modOnlyMessage,
                      String dialNumber, Integer maxUsers,
                      Integer meetingExpireIfNoUserJoinedInMinutes,
                      Integer meetingExpireWhenLastUserLeftInMinutes,
@@ -30,7 +30,8 @@ public interface IBbbWebApiGWApp {
                      Boolean allowModsToUnmuteUsers,
                      Boolean keepEvents,
                      BreakoutRoomsParams breakoutParams,
-                     LockSettingsParams lockSettingsParams);
+                     LockSettingsParams lockSettingsParams,
+                     Integer html5InstanceId);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
                     String externUserID, String authToken, String avatarURL,

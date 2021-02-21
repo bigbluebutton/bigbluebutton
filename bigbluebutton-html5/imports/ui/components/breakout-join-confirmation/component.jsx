@@ -98,8 +98,8 @@ class BreakoutJoinConfirmation extends Component {
     const urlFromSelectedRoom = getURL(selectValue);
     const url = isFreeJoin ? urlFromSelectedRoom : breakoutURL;
 
+    // leave main room's audio, and stops video and screenshare when joining a breakout room
     if (voiceUserJoined) {
-      // leave main room's audio when joining a breakout room
       AudioService.exitAudio();
       logger.info({
         logCode: 'breakoutjoinconfirmation_ended_audio',
@@ -108,6 +108,7 @@ class BreakoutJoinConfirmation extends Component {
     }
 
     VideoService.exitVideo();
+    window.kurentoExitScreenShare();
     if (url === '') {
       logger.error({
         logCode: 'breakoutjoinconfirmation_redirecting_to_url',

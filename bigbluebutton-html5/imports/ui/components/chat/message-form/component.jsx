@@ -16,7 +16,6 @@ const propTypes = {
   minMessageLength: PropTypes.number.isRequired,
   maxMessageLength: PropTypes.number.isRequired,
   chatTitle: PropTypes.string.isRequired,
-  chatName: PropTypes.string.isRequired,
   className: PropTypes.string,
   chatAreaId: PropTypes.string.isRequired,
   handleSendMessage: PropTypes.func.isRequired,
@@ -68,7 +67,8 @@ const messages = defineMessages({
   },
 });
 
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_ENABLED = CHAT_CONFIG.enabled;
 
 class MessageForm extends PureComponent {
   constructor(props) {
@@ -87,6 +87,7 @@ class MessageForm extends PureComponent {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.setMessageHint = this.setMessageHint.bind(this);
     this.handleUserTyping = _.throttle(this.handleUserTyping.bind(this), 2000, { trailing: false });
+    this.typingIndicator = CHAT_CONFIG.typingIndicator.enabled;
   }
 
   componentDidMount() {
@@ -197,7 +198,7 @@ class MessageForm extends PureComponent {
 
   handleUserTyping(error) {
     const { startUserTyping, chatId } = this.props;
-    if (error) return;
+    if (error || !this.typingIndicator) return;
     startUserTyping(chatId);
   }
 
@@ -250,12 +251,14 @@ class MessageForm extends PureComponent {
     div.appendChild(document.createTextNode(msg));
     msg = div.innerHTML;
 
+    const callback = this.typingIndicator ? stopUserTyping : null;
+
     return (
       handleSendMessage(msg),
       this.setState({
         message: '',
         hasErrors: false,
-      }, stopUserTyping)
+      }, callback)
     );
   }
 
@@ -263,7 +266,7 @@ class MessageForm extends PureComponent {
     const {
       intl,
       chatTitle,
-      chatName,
+      title,
       disabled,
       className,
       chatAreaId,
@@ -282,7 +285,7 @@ class MessageForm extends PureComponent {
             className={styles.input}
             id="message-input"
             innerRef={(ref) => { this.textarea = ref; return this.textarea; }}
-            placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: chatName })}
+            placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: title })}
             aria-controls={chatAreaId}
             aria-label={intl.formatMessage(messages.inputLabel, { 0: chatTitle })}
             aria-invalid={hasErrors ? 'true' : 'false'}

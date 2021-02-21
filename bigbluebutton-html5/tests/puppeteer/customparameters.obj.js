@@ -3,12 +3,13 @@ const CustomParameters = require('./customparameters/customparameters');
 const c = require('./customparameters/constants');
 const util = require('./customparameters/util');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
+const { MAX_CUSTOM_PARAMETERS_TEST_TIMEOUT } = require('./core/constants'); // core constants (Timeouts vars imported)
 
 expect.extend({ toMatchImageSnapshot });
 
 const customParametersTest = () => {
   beforeEach(() => {
-    jest.setTimeout(50000);
+    jest.setTimeout(MAX_CUSTOM_PARAMETERS_TEST_TIMEOUT);
   });
 
   // This test spec sets the userdata-autoJoin parameter to false
@@ -54,7 +55,7 @@ const customParametersTest = () => {
     } catch (e) {
       page.logger(e);
     } finally {
-      await test.close(test.page1, test.page2);
+      await test.closePage(test.page1);
     }
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
@@ -92,7 +93,7 @@ const customParametersTest = () => {
     }
   });
 
-  // This test spec sets the userdata-skipCheck parameter to true
+  // This test spec sets the userdata-bbb_skip_check_audio parameter to true
   // and checks that the users automatically skip audio check when clicking on Microphone
   test('Skip audio check', async () => {
     const test = new CustomParameters();
@@ -113,7 +114,34 @@ const customParametersTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.5,
+        failureThreshold: 53.18,
+        failureThresholdType: 'percent',
+      });
+    }
+  });
+
+  // This test spec sets the userdata-bbb_skip_check_audio_on_first_join parameter to true
+  // and checks that the users automatically skip audio check when clicking on Microphone
+  test('Skip audio check on first join', async () => {
+    const test = new CustomParameters();
+    const page = new Page();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'skipCheckOnFirstJoin';
+      page.logger('before ', testName);
+      response = await test.skipCheckOnFirstJoin(testName, Page.getArgsWithAudio(), undefined, c.skipCheckOnFirstJoin);
+      screenshot = await test.page1.page.screenshot();
+      page.logger('after ', testName);
+    } catch (e) {
+      page.logger(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 53.18,
         failureThresholdType: 'percent',
       });
     }
@@ -608,5 +636,102 @@ const customParametersTest = () => {
       });
     }
   });
+
+  // This test spec sets the userdata-bbb_record_video parameter to false
+  // and makes sure that the meeting recording button should not be available
+  test('Record Meeting', async () => {
+    const test = new CustomParameters();
+    const page = new Page();
+    let response;
+    try {
+      const testName = 'recordMeeting';
+      page.logger('before ', testName);
+      response = await test.recordMeeting(testName, Page.getArgs(), undefined, `${c.recordMeeting}`);
+      page.logger('after ', testName);
+    } catch (e) {
+      page.logger(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
+
+  // This test spec sets the userdata-bbb_skip_video_preview parameter to true
+  // and makes sure that the webcam video preview modal should not appear
+  test('Skip Video Preview', async () => {
+    const test = new CustomParameters();
+    const page = new Page();
+    let response;
+    try {
+      const testName = 'skipVideoPreview';
+      page.logger('before ', testName);
+      response = await test.skipVideoPreview(testName, Page.getArgsWithVideo(), undefined, `${c.skipVideoPreview}`);
+      page.logger('after ', testName);
+    } catch (e) {
+      page.logger(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
+
+  // This test spec sets the userdata-bbb_skip_video_preview_on_first_join parameter to true
+  // and makes sure that the webcam video preview modal should not appear on first join only
+  test('Skip Video Preview on First Join', async () => {
+    const test = new CustomParameters();
+    const page = new Page();
+    let response;
+    try {
+      const testName = 'skipVideoPreviewOnFirstJoin';
+      page.logger('before ', testName);
+      response = await test.skipVideoPreviewOnFirstJoin(testName, Page.getArgsWithVideo(), undefined, `${c.skipVideoPreviewOnFirstJoin}`);
+      page.logger('after ', testName);
+    } catch (e) {
+      page.logger(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
+
+  // This test spec sets the userdata-bbb_mirror_own_webcam parameter to true
+  // and makes sure that the webcam video preview and the container
+  // should both appear with mirrored Tag
+  test('Mirror Own Webcam', async () => {
+    const test = new CustomParameters();
+    const page = new Page();
+    let response;
+    try {
+      const testName = 'mirrorOwnWebcam';
+      page.logger('before ', testName);
+      response = await test.mirrorOwnWebcam(testName, Page.getArgsWithVideo(), undefined, `${c.mirrorOwnWebcam}`);
+      page.logger('after ', testName);
+    } catch (e) {
+      page.logger(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
+
+  // This test spec sets the userdata-bbb_show_participants_on_login parameter to false
+  // and makes sure that the user list won't appear on login
+  test('Show Participants on Login', async () => {
+    const test = new CustomParameters();
+    const page = new Page();
+    let response;
+    try {
+      const testName = 'showParticipantsOnLogin';
+      page.logger('before ', testName);
+      response = await test.showParticipantsOnLogin(testName, Page.getArgsWithVideo(), undefined, `${c.showParticipantsOnLogin}`);
+      page.logger('after ', testName);
+    } catch (e) {
+      page.logger(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
 };
+
 module.exports = exports = customParametersTest;

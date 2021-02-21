@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# BlueButton open source conferencing system - http://www.bigbluebutton.org/
+# BlueButton open source conferencing system - https://www.bigbluebutton.org/
 #
 # Copyright (c) 2020 BigBlueButton Inc. and by respective authors (see below).
 #
@@ -14,7 +14,7 @@
 # PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public License along
-# with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+# with BigBlueButton; if not, see <https://www.gnu.org/licenses/>.
 #
 # Author(s):
 #   Fred Dixon <ffdixon@bigbluebutton.org>
@@ -153,6 +153,9 @@ NCPU=$(nproc --all)
 
 BBB_USER=bigbluebutton
 
+TURN=$SERVLET_DIR/WEB-INF/classes/spring/turn-stun-servers.xml
+STUN="$(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m '_:beans/_:bean[@class="org.bigbluebutton.web.services.turn.StunTurnService"]/_:property[@name="stunServers"]/_:set/_:ref' -v @bean $TURN)"
+
 #
 # We're going to give ^bigbluebutton.web.logoutURL a default value (if undefined) so bbb-conf does not give a warning
 #
@@ -169,7 +172,7 @@ fi
 if LANG=c ifconfig | grep -q 'venet0:0'; then
     IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | tail -1 | cut -d: -f2 | awk '{ print $1}')
 else
-    IP=$(hostname -I | cut -f1 -d' ')
+    IP=$(ifconfig $(route | grep ^default | sed "s/.* //") | awk '/inet /{ print $2}' | cut -d: -f2)
 fi
 
 if [ -z "$IP" ]; then
@@ -317,7 +320,7 @@ stop_bigbluebutton () {
         BBB_LTI=bbb-lti
     fi
 
-    if [ -d $TOMCAT_DIR ]; then
+    if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
       TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
@@ -337,7 +340,7 @@ start_bigbluebutton () {
 
     if [ -f /opt/freeswitch/var/log/freeswitch/freeswitch.log ]; then
         if grep -q "Failure to connect to CORE_DB sofia_reg_external" /opt/freeswitch/var/log/freeswitch/freeswitch.log; then
-            # See: http://docs.bigbluebutton.org/install/install.html#freeswitch-fails-to-bind-to-ipv4
+            # See: https://docs.bigbluebutton.org/install/install.html#freeswitch-fails-to-bind-to-ipv4
             echo "Clearing the FreeSWITCH database."
             rm -rf /opt/freeswitch/var/lib/freeswitch/db/*
         fi
@@ -364,6 +367,9 @@ start_bigbluebutton () {
         BBB_LTI=bbb-lti
     fi
 
+    if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
+      TOMCAT_SERVICE=$TOMCAT_USER
+    fi
 
     systemctl start $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
 
@@ -399,6 +405,10 @@ display_bigbluebutton_status () {
 
     if [ -f /lib/systemd/system/bbb-lti.service ]; then
         units="$units bbb-lti"
+    fi
+
+    if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
+      TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
     line='——————————————————————►'
@@ -650,39 +660,32 @@ check_configuration() {
         fi
     fi
 
-    if [ "$IP" != "$NGINX_IP" ] && [ "_" != "$NGINX_IP" ]; then
-        if [ "$IP" != "$HOSTS" ]; then
-            echo "# IP does not match:"
-            echo "#                           IP from ifconfig: $IP"
-            echo "#   /etc/nginx/sites-available/bigbluebutton: $NGINX_IP"
-        fi
-    fi
 
-    if [ -f /var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp ]; then
+    if [ -f /var/lib/$TOMCAT_USER/webapps/demo/bbb_api_conf.jsp ]; then
         #
         # Make sure the shared secret for the API matches the server
         #
         SECRET_PROPERTIES=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
-        SECRET_DEMO=$(cat /var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp | grep -v '^//' | tr -d '\r' | sed -n '/salt[ ]*=/{s/.*=[ ]*"//;s/".*//g;p}')
+        SECRET_DEMO=$(cat ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp | grep -v '^//' | tr -d '\r' | sed -n '/salt[ ]*=/{s/.*=[ ]*"//;s/".*//g;p}')
 
         if [ "$SECRET_PROPERTIES" != "$SECRET_DEMO" ]; then
             echo "#"
             echo "# Warning: API Shared Secret mismatch: "
             echo "#"
             echo "#  ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties  = $SECRET_PROPERTIES"
-            echo "#  /var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp               = $SECRET_DEMO"
+            echo "#  /var/lib/$TOMCAT_USER/webapps/demo/bbb_api_conf.jsp               = $SECRET_DEMO"
             echo "#"
             echo "# You need to edit bbb_api_conf.jsp to have the same shared secret defined in bigbluebutton.properties"
             echo "#"
             echo
         fi
 
-        API_IP=$(cat /var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp | grep -v '^//' | sed -n '/String BigBlueButtonURL/{s/.*http[s]*:\/\///;s/\/.*//;p}' | tr -d '\015')
-        if [ "$IP" != "$API_IP" ]; then
-            echo "# Warning: API URL IPs do not match host:"
+        if ! grep -q https ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp; then
+            echo
+            echo "# Warning: Did not detect https for API demos in "
             echo "#"
-            echo "#                                IP from ifconfig: $IP"
-            echo "#  ${TOMCAT_DIR}/demo/bbb_api_conf.jsp: $API_IP"
+            echo "#    ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp"
+            echo "#"
             echo
         fi
     fi
@@ -749,18 +752,6 @@ check_configuration() {
         fi
     fi
 
-    if [ $DISTRIB_ID == "xenial" ]; then
-        libreoffice_version=$(dpkg-query -W --showformat='${Version}\n' libreoffice | sed 's/.*://g' | sed 's/\.[^\.]*$//g')
-        if [[ "$libreoffice_version" > 1.0 ]]; then
-            if [[ "$libreoffice_version" < 4.4 ]]; then
-                echo "# Warning: Detected you are running an older version of LibreOffice: $libreoffice_version"
-                echo "#"
-                echo "# Recommend updated to the latest version of LibreOffice 4.x (4.4 or later)"
-                echo
-            fi
-        fi
-    fi
-
     if [ "$(ls -ld /var/freeswitch/meetings | cut -d' ' -f3)" != "freeswitch" ]; then
         echo "# Warning: Detected the directory"
         echo "#    /var/freeswitch/meetings"
@@ -787,6 +778,26 @@ check_configuration() {
             echo "#"
         fi
     fi
+
+    CHECK_STUN=$(xmlstarlet sel -t -m '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "external_rtp_ip=")]' -v @data $FREESWITCH_VARS | sed 's/external_rtp_ip=stun://g')
+    if [ "$CHECK_STUN" == "stun.freeswitch.org" ]; then
+       echo
+       echo "# Warning: Detected FreeSWITCH is using default stun.freeswitch.org server.  See"
+       echo "#"
+       echo "#     https://docs.bigbluebutton.org/2.2/troubleshooting.html#freeswitch-using-default-stun-server"
+       echo "#"
+       echo
+    fi
+
+    if ! which ufw > /dev/null 2>&1; then
+       echo
+       echo "# Warning: No firewall detected.  Recommend using setting up a firewall for your server"
+       echo "#"
+       echo "#     https://docs.bigbluebutton.org/2.2/troubleshooting.html#freeswitch-using-default-stun-server"
+       echo "#"
+       echo
+    fi
+
 }
 
 update_gstreamer() {
@@ -986,7 +997,8 @@ check_state() {
         echo
     fi
 
-    if [ "$SIP_NGINX_IP" != $IP ]; then
+    if [ "$(yq r /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml public.media.sipjsHackViaWs)" == "false" ]; then
+      if [ "$SIP_NGINX_IP" != $IP ]; then
         if [ "$SIP_NGINX_IP" != "\$freeswitch_addr" ]; then
             echo "# Warning: The setting of $SIP_NGINX_IP for proxy_pass in"
             echo "#"
@@ -996,6 +1008,7 @@ check_state() {
             echo "# (This is OK if you've manually changed the values)"
             echo
         fi
+      fi
     fi
 
     VARS_IP=$(cat $FREESWITCH_VARS | sed -n '/"local_ip_v4/{s/.*local_ip_v4=//;s/".*//;p}')
@@ -1098,7 +1111,7 @@ check_state() {
     if systemctl status freeswitch | grep -q SETSCHEDULER; then
         echo "# Error: FreeSWITCH failed to start with SETSCHEDULER error, see"
         echo "#"
-        echo "#   http://docs.bigbluebutton.org/2.2/troubleshooting.html#freeswitch-fails-to-start-with-a-setscheduler-error"
+        echo "#   https://docs.bigbluebutton.org/2.2/troubleshooting.html#freeswitch-fails-to-start-with-a-setscheduler-error"
         echo "#"
     fi
 
@@ -1111,28 +1124,30 @@ check_state() {
         echo "#"
     fi
 
-    if [ "$PROTOCOL" == "https" ]; then
-      if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep -q https; then
-        echo "# Warning: You have this server defined for https, but in"
-        echo "#"
-        echo "#   $SIP_CONFIG"
-        echo "#"
-        echo "#  did not find the use of https in definition for proxy_pass"
-        echo "#"
-        echo "#    $(cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1)"
-        echo "#"
-      fi
+    if [ "$(yq r /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml public.media.sipjsHackViaWs)" != "true" ]; then
+      if [ "$PROTOCOL" == "https" ]; then
+        if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep -q https; then
+          echo "# Warning: You have this server defined for https, but in"
+          echo "#"
+          echo "#   $SIP_CONFIG"
+          echo "#"
+          echo "#  did not find the use of https in definition for proxy_pass"
+          echo "#"
+          echo "#    $(cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1)"
+          echo "#"
+        fi
 
-      if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep -q 7443; then
-        echo
-        echo "# Warning: You have this server defined for https, but in"
-        echo "#"
-        echo "#   $SIP_CONFIG"
-        echo "#"
-        echo "#  did not find the use of port 7443 in definition for proxy_pass"
-        echo "#"
-        echo "#    $(cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1)"
-        echo "#"
+        if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep -q 7443; then
+          echo
+          echo "# Warning: You have this server defined for https, but in"
+          echo "#"
+          echo "#   $SIP_CONFIG"
+          echo "#"
+          echo "#  did not find the use of port 7443 in definition for proxy_pass"
+          echo "#"
+          echo "#    $(cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1)"
+          echo "#"
+        fi
       fi
     fi
 
@@ -1198,6 +1213,38 @@ check_state() {
      fi
     fi
 
+    if [ ! -z "$STUN" ]; then
+      STUN_SERVER="$(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m "_:beans/_:bean[@id=\"$STUN\"]/_:constructor-arg[@index=\"0\"]" -v @value $TURN | sed 's/stun://g')"
+      if echo $STUN_SERVER | grep -q ':'; then
+        STUN_SERVER="$(echo $STUN_SERVER | sed 's/:.*//g') $(echo $STUN_SERVER | sed 's/.*://g')"
+      else
+	STUN_SERVER="$STUN_SERVER 3478"
+      fi
+
+      if stunclient --mode full --localport 30000 $STUN_SERVER | grep -q fail; then
+        echo
+        echo "#"
+        echo "# Warning: Failed to verify STUN server at $STUN_SERVER with command"
+        echo "#"
+        echo "#    stunclient --mode full --localport 30000 $STUN_SERVER"
+        echo "#"
+      fi
+    fi
+
+    stunServerAddress=$(cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini | sed -n '/^stunServerAddress/{s/.*=//;p}')
+    stunServerPort=$(cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini | sed -n '/^stunServerPort/{s/.*=//;p}')
+    if [ ! -z "$stunServerAddress" ]; then
+      if stunclient --mode full --localport 30000 $stunServerAddress $stunServerPort | grep -q fail; then
+        echo
+        echo "#"
+        echo "# Warning: Failed to verify STUN server at $stunServerAddress:$stunServerPort with command"
+        echo "#"
+        echo "#    stunclient --mode full --localport 30000 $stunServerAddress $stunServerPort"
+        echo "#"
+      fi
+    fi
+
+
     exit 0
 }
 
@@ -1236,7 +1283,7 @@ if [ $CHECK ]; then
 
     echo
     echo "/etc/nginx/sites-available/bigbluebutton (nginx)"
-    echo "                       server name: $NGINX_IP"
+    echo "                       server_name: $NGINX_IP"
 
     PORT=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}' | grep -v ssl | tr --delete '\n' | sed 's/\[/, \[/g' | sed 's/0$/0\n/g')
     echo "                              port: $PORT"
@@ -1283,6 +1330,7 @@ if [ $CHECK ]; then
         echo
         echo "$SIP_CONFIG (sip.nginx)"
         echo "                        proxy_pass: $SIP_NGINX_IP"
+        echo "                          protocol: $(cat /etc/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)"
     fi
 
     if [ -f $KURENTO_CONFIG ]; then
@@ -1304,6 +1352,21 @@ if [ $CHECK ]; then
         echo "                             build: $(yq r $HTML5_CONFIG public.app.html5ClientBuild)"
         echo "                        kurentoUrl: $(yq r $HTML5_CONFIG public.kurento.wsUrl)"
         echo "                  enableListenOnly: $(yq r $HTML5_CONFIG public.kurento.enableListenOnly)"
+        echo "                    sipjsHackViaWs: $(yq r $HTML5_CONFIG public.media.sipjsHackViaWs)"
+     fi
+
+     if [ ! -z "$STUN" ]; then
+        echo
+        echo "$TURN (STUN Server)"
+	echo "                              stun: $(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m "_:beans/_:bean[@id=\"$STUN\"]/_:constructor-arg[@index=\"0\"]" -v @value $TURN | sed 's/stun://g')"
+     fi
+
+     stunServerAddress=$(cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini | sed -n '/^stunServerAddress/{s/.*=//;p}')
+     stunServerPort=$(cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini | sed -n '/^stunServerPort/{s/.*=//;p}')
+     if [ ! -z "$stunServerAddress" ]; then
+        echo
+        echo "/etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini (STUN Server)"
+        echo "                              stun: $stunServerAddress:$stunServerPort"
      fi
 
      if [ "$DISTRIB_CODENAME" == "xenial" ]; then
@@ -1348,7 +1411,7 @@ if [ $ZIP ]; then
     tar rf  $TMP_LOG_FILE /var/log/mongodb              > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/redis                > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/nginx/error.log*     > /dev/null 2>&1
-	tar rf  $TMP_LOG_FILE /var/log/nginx/bigbluebutton.access.log*    > /dev/null 2>&1
+    tar rf  $TMP_LOG_FILE /var/log/nginx/bigbluebutton.access.log*    > /dev/null 2>&1
     tar rfh $TMP_LOG_FILE /opt/freeswitch/var/log/freeswitch/         > /dev/null 2>&1
 
     if [ -f /var/log/nginx/html5-client.log ]; then
@@ -1658,17 +1721,11 @@ if [ $CLEAN ]; then
         chmod 640 /var/log/nginx/html5-client.log
     fi
 
-    #if [ $DISTRO == "ubuntu" ]; then
-    #  mv /var/log/syslog /tmp/syslog.$$
-    #  echo "" > /var/log/syslog
-    #  chown syslog:adm /var/log/syslog
-    #fi
-
     if [ -d /var/log/bbb-fsesl-akka ]; then
         rm -f /var/log/bbb-fsesl-akka/*
     fi
 
-	if [ -d /var/log/bbb-apps-akka ]; then
+  if [ -d /var/log/bbb-apps-akka ]; then
         rm -f /var/log/bbb-apps-akka/*
     fi
 
@@ -1693,17 +1750,16 @@ if [ $CLEAN ]; then
 fi
 
 if [ $NETWORK ]; then
-    netstat -ant | egrep ":1935|:80|:443\ " | egrep -v ":::|0.0.0.0" > /tmp/t_net
+    netstat -ant | egrep ":80|:443\ " | egrep -v ":::|0.0.0.0" > /tmp/t_net
     REMOTE=$(cat /tmp/t_net | cut -c 45-68 | cut -d ":" -f1 | sort | uniq)
 
     if [ "$REMOTE" != "" ]; then
-        echo -e "netstat\t\t\t80\t443\t1935"
+        echo -e "netstat\t\t\t80\t443"
         for IP in $REMOTE ; do
-            PORT_1935=$(cat /tmp/t_net | grep :1935 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l)
             PORT_80=$(cat /tmp/t_net | grep :80 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )
 	    PORT_443=$(cat /tmp/t_net | grep :443 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )
 
-            echo -e "$IP\t\t$PORT_80\t$PORT_443\t$PORT_1935"
+            echo -e "$IP\t\t$PORT_80\t$PORT_443"
         done
     fi
     rm /tmp/t_net

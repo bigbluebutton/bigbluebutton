@@ -13,6 +13,7 @@
   width: 100%;
   position: relative;
   margin-bottom: calc(-1 * var(--sm-padding-x));
+  margin-top: .2rem;
 }
 
 .wrapper {
@@ -139,7 +140,8 @@
 
   > span {
     display: block;
-    width: 100%;
+    margin-right: 0.05rem;
+    margin-left: 0.05rem;
     line-height: var(--font-size-md);
   }
 

@@ -8,6 +8,7 @@ import { removeCursorStreamer } from '/imports/api/cursor/server/streamer';
 import clearUsers from '/imports/api/users/server/modifiers/clearUsers';
 import clearUsersSettings from '/imports/api/users-settings/server/modifiers/clearUsersSettings';
 import clearGroupChat from '/imports/api/group-chat/server/modifiers/clearGroupChat';
+import clearGuestUsers from '/imports/api/guest-users/server/modifiers/clearGuestUsers';
 import clearBreakouts from '/imports/api/breakouts/server/modifiers/clearBreakouts';
 import clearAnnotations from '/imports/api/annotations/server/modifiers/clearAnnotations';
 import clearSlides from '/imports/api/slides/server/modifiers/clearSlides';
@@ -17,21 +18,29 @@ import clearPresentationPods from '/imports/api/presentation-pods/server/modifie
 import clearVoiceUsers from '/imports/api/voice-users/server/modifiers/clearVoiceUsers';
 import clearUserInfo from '/imports/api/users-infos/server/modifiers/clearUserInfo';
 import clearConnectionStatus from '/imports/api/connection-status/server/modifiers/clearConnectionStatus';
+import clearScreenshare from '/imports/api/screenshare/server/modifiers/clearScreenshare';
 import clearNote from '/imports/api/note/server/modifiers/clearNote';
 import clearNetworkInformation from '/imports/api/network-information/server/modifiers/clearNetworkInformation';
+import clearMeetingTimeRemaining from '/imports/api/meetings/server/modifiers/clearMeetingTimeRemaining';
 import clearLocalSettings from '/imports/api/local-settings/server/modifiers/clearLocalSettings';
 import clearRecordMeeting from './clearRecordMeeting';
 import clearVoiceCallStates from '/imports/api/voice-call-states/server/modifiers/clearVoiceCallStates';
 import clearVideoStreams from '/imports/api/video-streams/server/modifiers/clearVideoStreams';
 import clearAuthTokenValidation from '/imports/api/auth-token-validation/server/modifiers/clearAuthTokenValidation';
+import clearWhiteboardMultiUser from '/imports/api/whiteboard-multi-user/server/modifiers/clearWhiteboardMultiUser';
+import Metrics from '/imports/startup/server/metrics';
 
 export default function meetingHasEnded(meetingId) {
-  removeAnnotationsStreamer(meetingId);
-  removeCursorStreamer(meetingId);
+  if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
+    removeAnnotationsStreamer(meetingId);
+    removeCursorStreamer(meetingId);
+    // TODO add removeExternalVideoStreamer(meetingId);
+  }
 
   return Meetings.remove({ meetingId }, () => {
     clearCaptions(meetingId);
     clearGroupChat(meetingId);
+    clearGuestUsers(meetingId);
     clearPresentationPods(meetingId);
     clearBreakouts(meetingId);
     clearPolls(meetingId);
@@ -45,12 +54,16 @@ export default function meetingHasEnded(meetingId) {
     clearNote(meetingId);
     clearNetworkInformation(meetingId);
     clearLocalSettings(meetingId);
+    clearMeetingTimeRemaining(meetingId);
     clearRecordMeeting(meetingId);
     clearVoiceCallStates(meetingId);
     clearVideoStreams(meetingId);
     clearAuthTokenValidation(meetingId);
+    clearWhiteboardMultiUser(meetingId);
+    clearScreenshare(meetingId);
     BannedUsers.delete(meetingId);
+    Metrics.removeMeeting(meetingId);
 
-    return Logger.info(`Cleared Meetings with id ${meetingId}`);
+    Logger.info(`Cleared Meetings with id ${meetingId}`);
   });
 }

@@ -8,24 +8,6 @@ export default function modifyWhiteboardAccess(meetingId, whiteboardId, multiUse
   check(whiteboardId, String);
   check(multiUser, Boolean);
 
-  if (!multiUser) {
-    const usersSelector = { meetingId, presenter: { $ne: true } };
-
-    const mod = {
-      $set: {
-        whiteboardAccess: false,
-      },
-    };
-
-    Users.update(usersSelector, mod, { multi: true }, (err) => {
-      if (err) {
-        return Logger.error(`Error removing whiteboard access, User collection: ${err}`);
-      }
-
-      return Logger.info(`updated Users whiteboardAccess flag=${false} meetingId=${meetingId} whiteboardId=${whiteboardId}`);
-    });
-  }
-
   const selector = {
     meetingId,
     whiteboardId,
@@ -37,18 +19,31 @@ export default function modifyWhiteboardAccess(meetingId, whiteboardId, multiUse
     multiUser,
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Error while adding an entry to Multi-User collection: ${err}`);
+  try {
+    if (!multiUser) {
+      const usersSelector = { meetingId };
+  
+      const mod = {
+        $set: {
+          whiteboardAccess: false,
+        },
+      };
+  
+      Users.update(usersSelector, mod, { multi: true }, (err) => {
+        if (err) {
+          return Logger.error(`Error removing whiteboard access, User collection: ${err}`);
+        }
+        return Logger.info(`updated Users whiteboardAccess flag=${false} meetingId=${meetingId} whiteboardId=${whiteboardId}`);
+      });
     }
 
-    const { insertedId } = numChanged;
+    const { insertedId } = WhiteboardMultiUser.upsert(selector, modifier);
     if (insertedId) {
-      return Logger.info(`Added multiUser flag=${multiUser} meetingId=${meetingId} whiteboardId=${whiteboardId}`);
+      Logger.info(`Added multiUser flag=${multiUser} meetingId=${meetingId} whiteboardId=${whiteboardId}`);
+    } else {
+      Logger.info(`Upserted multiUser flag=${multiUser} meetingId=${meetingId} whiteboardId=${whiteboardId}`);
     }
-
-    return Logger.info(`Upserted multiUser flag=${multiUser} meetingId=${meetingId} whiteboardId=${whiteboardId}`);
-  };
-
-  return WhiteboardMultiUser.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Error while adding an entry to Multi-User collection: ${err}`);
+  }
 }

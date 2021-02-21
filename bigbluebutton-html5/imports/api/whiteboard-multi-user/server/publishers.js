@@ -13,7 +13,7 @@ function whiteboardMultiUser() {
 
   const { meetingId, userId } = tokenValidation;
 
-  Logger.debug(`Publishing WhiteboardMultiUser for ${meetingId} ${userId}`);
+  Logger.debug('Publishing WhiteboardMultiUser', { meetingId, userId });
 
   return WhiteboardMultiUser.find({ meetingId });
 }

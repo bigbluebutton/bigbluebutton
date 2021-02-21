@@ -23,7 +23,6 @@ export default function changeWhiteboardAccess(multiUser, whiteboardId, userId =
 
   const selector = {
     meetingId,
-    connectionStatus: 'online',
   };
 
   const mod = {
@@ -34,7 +33,7 @@ export default function changeWhiteboardAccess(multiUser, whiteboardId, userId =
 
   const withUserId = userId.length > 0;
 
-  if ((!multiUser || multiUser) && !withUserId) {
+  if (!withUserId) {
     if (!multiUser) {
       selector.whiteboardAccess = true;
       selector.presenter = { $ne: true };
@@ -50,7 +49,7 @@ export default function changeWhiteboardAccess(multiUser, whiteboardId, userId =
     });
   }
 
-  if ((multiUser || !multiUser) && withUserId) {
+  if (withUserId) {
     selector.userId = userId;
 
     if (multiUser) {
@@ -60,7 +59,6 @@ export default function changeWhiteboardAccess(multiUser, whiteboardId, userId =
     const usersWithAccess = Users.find({
       meetingId,
       whiteboardAccess: true,
-      connectionStatus: 'online',
       presenter: { $ne: true },
     }, {
       fields: {
