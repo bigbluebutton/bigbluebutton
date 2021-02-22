@@ -160,6 +160,22 @@
   content: "\e91b";
 }
 
+.icon-bbb-volume_down:before {
+  content: "\e808";
+}
+
+.icon-bbb-volume_mute:before {
+  content: "\e809";
+}
+
+.icon-bbb-volume_off:before {
+  content: "\e80a";
+}
+
+.icon-bbb-volume_up:before {
+  content: "\e80b";
+}
+
 /* Aliases for emoji status */
 .icon-bbb-time:before {
   content: "\e908";
