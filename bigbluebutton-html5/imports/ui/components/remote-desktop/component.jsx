@@ -53,11 +53,17 @@ class RemoteDesktop extends Component {
     window.remoteDesktop = this;
 
     /* window.allowClipboard is globally accessible so that the clipboard enable option can access it */
-    const queryOpts = { name: 'clipboard-read', allowWithoutGesture: false };
-    navigator.permissions.query(queryOpts).then(permissionStatus => {
-      window.allowClipboard = (permissionStatus.state == 'granted');
-    });
 
+    /* Safari doesn't currently (Feb 2021) support navigator.permissions, so it's important that we
+     * test to see if it exists before trying to use it.  If navigator.permissions isn't supported,
+     * then the user has to click on "enable clipboard" even if the clipboard is already enabled.
+     */
+    if (navigator.permissions) {
+      const queryOpts = { name: 'clipboard-read', allowWithoutGesture: false };
+      navigator.permissions.query(queryOpts).then(permissionStatus => {
+        window.allowClipboard = (permissionStatus.state == 'granted');
+      });
+    }
   }
 
   transferClipboardText = (ev) => {
