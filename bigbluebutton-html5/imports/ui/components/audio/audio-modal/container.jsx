@@ -62,7 +62,7 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
     joinedAudio,
     meetingIsBreakout,
     closeModal,
-    joinMicrophone: skipEchoTest => joinMicrophone(skipEchoTest || skipCheck),
+    joinMicrophone: skipEchoTest => joinMicrophone(skipEchoTest || skipCheck || skipCheckOnJoin),
     joinListenOnly,
     leaveEchoTest,
     changeInputDevice: inputDeviceId => Service.changeInputDevice(inputDeviceId),
