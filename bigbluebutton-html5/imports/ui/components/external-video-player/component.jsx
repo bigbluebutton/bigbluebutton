@@ -482,7 +482,7 @@ class VideoPlayer extends Component {
           onPause={this.handleOnPause}
           ref={(ref) => { this.player = ref; }}
         />
-	{ !isPresenter ?
+        { !isPresenter ?
             <VolumeSlider
               volume={volume}
               muted={muted || mutedByEchoTest}
