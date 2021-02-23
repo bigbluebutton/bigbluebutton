@@ -85,6 +85,7 @@ class CustomParameters {
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
     this.page1.logger('after init ', testName);
+    await this.page1.click(ae.microphone, true);
     await this.page1.waitForSelector(ae.connectingStatus, ELEMENT_WAIT_TIME);
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
     await this.page1.elementRemoved(ae.connectingStatus);

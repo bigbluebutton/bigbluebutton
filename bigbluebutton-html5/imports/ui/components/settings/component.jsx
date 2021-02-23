@@ -66,7 +66,9 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   dataSaving: PropTypes.shape({
     viewParticipantsWebcams: PropTypes.bool,
     viewScreenshare: PropTypes.bool,
@@ -116,8 +118,9 @@ class Settings extends Component {
 
   componentDidMount() {
     const { availableLocales } = this.props;
+
     availableLocales.then((locales) => {
-      this.setState({ availableLocales: locales });
+      this.setState({ allLocales: locales });
     });
   }
 
@@ -141,8 +144,8 @@ class Settings extends Component {
 
     const {
       selectedTab,
-      availableLocales,
       current,
+      allLocales,
     } = this.state;
 
     return (
@@ -191,7 +194,7 @@ class Settings extends Component {
         </TabList>
         <TabPanel className={styles.tabPanel}>
           <Application
-            availableLocales={availableLocales}
+            allLocales={allLocales}
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
           />

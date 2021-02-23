@@ -61,6 +61,7 @@ const initialState = {
   },
   presentationIsFullscreen: null,
   presentationOrientation: null,
+  screenShareIsFullscreen: null,
 };
 
 const reducer = (state, action) => {
@@ -226,6 +227,13 @@ const reducer = (state, action) => {
       return {
         ...state,
         presentationOrientation: action.value,
+      };
+    }
+    case 'setScreenShareFullscreen': {
+      // screenshareIsFullscreen: (true | false) boolean
+      return {
+        ...state,
+        screenShareIsFullscreen: action.value,
       };
     }
     default: {

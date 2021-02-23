@@ -90,7 +90,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     endMeeting('403');
   }
 
-  Users.find({ userId: Auth.userID }).observe({
+  Users.find({ userId: Auth.userID, meetingId: Auth.meetingID }).observe({
     removed() {
       endMeeting('403');
     },

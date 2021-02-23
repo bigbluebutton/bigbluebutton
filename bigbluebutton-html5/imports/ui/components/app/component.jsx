@@ -377,6 +377,7 @@ class App extends Component {
     const {
       customStyle, customStyleUrl, openPanel, layoutManagerLoaded,
     } = this.props;
+
     return (
       <Fragment>
         <CustomLayout />
