@@ -347,6 +347,9 @@ class MeetingActor(
       case m: RespondToPollReqMsg =>
         pollApp.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.body.requesterId)
+      case m: RespondToTypedPollReqMsg =>
+        pollApp.handle(m, liveMeeting, msgBus)
+        updateUserLastActivity(m.body.requesterId)
 
       // Breakout
       case m: BreakoutRoomsListMsg            => state = handleBreakoutRoomsListMsg(m, state)
@@ -621,7 +624,8 @@ class MeetingActor(
         if (authedUsers.isEmpty) {
           sendEndMeetingDueToExpiry(
             MeetingEndReason.ENDED_DUE_TO_NO_AUTHED_USER,
-            eventBus, outGW, liveMeeting
+            eventBus, outGW, liveMeeting,
+            "system"
           )
         }
       }

@@ -365,7 +365,7 @@ class App extends Component {
         </section>
         <UploaderContainer />
         <BreakoutRoomInvitation />
-        {!layoutContextState.presentationIsFullscreen && <PollingContainer />}
+        {!layoutContextState.presentationIsFullscreen && !layoutContextState.screenShareIsFullscreen && <PollingContainer />}
         <ModalContainer />
         { enableAudio ? <AudioContainer /> : ''}
         <ToastContainer rtl />

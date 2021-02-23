@@ -152,18 +152,18 @@ trait HandlerHelpers extends SystemConfiguration {
     newState
   }
 
-  def endMeeting(outGW: OutMsgRouter, liveMeeting: LiveMeeting, reason: String): Unit = {
-    def buildMeetingEndingEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
+  def endMeeting(outGW: OutMsgRouter, liveMeeting: LiveMeeting, reason: String, userId: String): Unit = {
+    def buildMeetingEndingEvtMsg(meetingId: String, userId: String): BbbCommonEnvCoreMsg = {
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
       val envelope = BbbCoreEnvelope(MeetingEndingEvtMsg.NAME, routing)
       val body = MeetingEndingEvtMsgBody(meetingId, reason)
-      val header = BbbClientMsgHeader(MeetingEndingEvtMsg.NAME, meetingId, "not-used")
+      val header = BbbClientMsgHeader(MeetingEndingEvtMsg.NAME, meetingId, userId)
       val event = MeetingEndingEvtMsg(header, body)
 
       BbbCommonEnvCoreMsg(envelope, event)
     }
 
-    val endingEvent = buildMeetingEndingEvtMsg(liveMeeting.props.meetingProp.intId)
+    val endingEvent = buildMeetingEndingEvtMsg(liveMeeting.props.meetingProp.intId, userId)
 
     // Broadcast users the meeting will end
     outGW.send(endingEvent)
@@ -217,8 +217,8 @@ trait HandlerHelpers extends SystemConfiguration {
     state.update(None)
   }
 
-  def sendEndMeetingDueToExpiry(reason: String, eventBus: InternalEventBus, outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
-    endMeeting(outGW, liveMeeting, reason)
+  def sendEndMeetingDueToExpiry(reason: String, eventBus: InternalEventBus, outGW: OutMsgRouter, liveMeeting: LiveMeeting, userId: String): Unit = {
+    endMeeting(outGW, liveMeeting, reason, userId)
     notifyParentThatBreakoutEnded(eventBus, liveMeeting)
     ejectAllUsersFromVoiceConf(outGW, liveMeeting)
     destroyMeeting(eventBus, liveMeeting.props.meetingProp.intId)

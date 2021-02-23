@@ -1,4 +1,3 @@
-import { makeCall } from '/imports/ui/services/api';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import Polls from '/imports/api/polls';
@@ -57,24 +56,6 @@ const pollAnswerIds = {
   },
 };
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
-const PUBLIC_CHAT_SYSTEM_ID = CHAT_CONFIG.system_userid;
-
-const sendGroupMessage = (message) => {
-  const payload = {
-    color: '0',
-    correlationId: `${PUBLIC_CHAT_SYSTEM_ID}-${Date.now()}`,
-    sender: {
-      id: Auth.userID,
-      name: '',
-    },
-    message,
-  };
-
-  return makeCall('sendGroupChatMsg', PUBLIC_GROUP_CHAT_ID, payload);
-};
-
 export default {
   amIPresenter: () => Users.findOne(
     { userId: Auth.userID },
@@ -83,6 +64,5 @@ export default {
   pollTypes,
   currentPoll: () => Polls.findOne({ meetingId: Auth.meetingID }),
   pollAnswerIds,
-  sendGroupMessage,
   POLL_AVATAR_COLOR,
 };

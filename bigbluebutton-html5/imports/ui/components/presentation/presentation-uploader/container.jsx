@@ -10,9 +10,12 @@ import PresentationUploader from './component';
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
 const PresentationUploaderContainer = props => (
+  props.isPresenter
+  && (
   <ErrorBoundary Fallback={() => <FallbackModal />}>
     <PresentationUploader {...props} />
   </ErrorBoundary>
+  )
 );
 
 export default withTracker(() => {

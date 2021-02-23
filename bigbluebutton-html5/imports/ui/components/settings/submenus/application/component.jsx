@@ -2,6 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import Toggle from '/imports/ui/components/switch/component';
+import LocalesDropdown from '/imports/ui/components/locales-dropdown/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import { styles } from '../styles';
@@ -87,17 +88,6 @@ class ApplicationMenu extends BaseMenu {
 
   componentDidMount() {
     this.setInitialFontSize();
-  }
-
-  componentDidUpdate() {
-    const { availableLocales } = this.props;
-
-    if (availableLocales && availableLocales.length > 0) {
-      // I used setTimout to create a smooth animation transition
-      setTimeout(() => this.setState({
-        showSelect: true,
-      }), 100);
-    }
   }
 
   componentWillUnmount() {
@@ -205,14 +195,14 @@ class ApplicationMenu extends BaseMenu {
 
   handleSelectChange(fieldname, options, e) {
     const obj = this.state;
-    obj.settings[fieldname] = e.target.value.toLowerCase().replace('_', '-');
+    obj.settings[fieldname] = e.target.value;
     this.handleUpdateSettings('application', obj.settings);
   }
 
   render() {
-    const { availableLocales, intl } = this.props;
+    const { allLocales, intl } = this.props;
     const {
-      isLargestFontSize, isSmallestFontSize, settings, showSelect,
+      isLargestFontSize, isSmallestFontSize, settings,
     } = this.state;
 
     // conversions can be found at http://pxtoem.com
@@ -227,6 +217,8 @@ class ApplicationMenu extends BaseMenu {
     };
 
     const ariaValueLabel = intl.formatMessage(intlMessages.currentValue, { 0: `${pixelPercentage[settings.fontSize]}` });
+
+    const showSelect = allLocales && allLocales.length > 0;
 
     return (
       <div>
@@ -291,20 +283,14 @@ class ApplicationMenu extends BaseMenu {
             <div className={styles.col}>
               <span className={cx(styles.formElement, styles.pullContentRight)}>
                 {showSelect ? (
-                  <select
-                    id="langSelector"
-                    defaultValue={this.state.settings.locale}
-                    lang={this.state.settings.locale}
-                    className={styles.select}
-                    onChange={this.handleSelectChange.bind(this, 'locale', availableLocales)}
-                  >
-                    <option disabled>{intl.formatMessage(intlMessages.languageOptionLabel)}</option>
-                    {availableLocales.map((locale, index) => (
-                      <option key={index} value={locale.locale} lang={locale.locale}>
-                        {locale.name}
-                      </option>
-                    ))}
-                  </select>
+                  <LocalesDropdown
+                    allLocales={allLocales}
+                    handleChange={e => this.handleSelectChange('locale', allLocales, e)}
+                    value={this.state.settings.locale}
+                    elementId="langSelector"
+                    elementClass={styles.select}
+                    selectMessage={intl.formatMessage(intlMessages.languageOptionLabel)}
+                  />
                 )
                   : (
                     <div className={styles.spinnerOverlay}>

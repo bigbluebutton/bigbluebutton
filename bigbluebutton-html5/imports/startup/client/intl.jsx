@@ -55,9 +55,9 @@ class IntlStartup extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { fetching, messages } = this.state;
+    const { fetching, messages, normalizedLocale } = this.state;
     const { locale } = this.props;
-    const shouldFetch = (!fetching && _.isEmpty(messages)) || (locale !== prevProps.locale);
+    const shouldFetch = (!fetching && _.isEmpty(messages)) || ((locale !== prevProps.locale) && (normalizedLocale && (locale !== normalizedLocale)));
     if (shouldFetch) this.fetchLocalizedMessages(locale);
   }
 
@@ -91,10 +91,18 @@ class IntlStartup extends Component {
     const { fetching, normalizedLocale, messages } = this.state;
     const { children } = this.props;
 
-    return (fetching || !normalizedLocale) ? <LoadingScreen /> : (
-      <IntlProvider locale={normalizedLocale} messages={messages}>
-        {children}
-      </IntlProvider>
+    return (
+      <>
+        {(fetching || !normalizedLocale) && <LoadingScreen />}
+
+        {normalizedLocale
+          && (
+          <IntlProvider locale={normalizedLocale} messages={messages}>
+            {children}
+          </IntlProvider>
+          )
+        }
+      </>
     );
   }
 }
