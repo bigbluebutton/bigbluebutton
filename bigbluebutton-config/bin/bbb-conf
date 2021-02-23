@@ -129,13 +129,31 @@ else
     SERVLET_DIR=/var/lib/tomcat7/webapps/bigbluebutton
 fi
 
-PROTOCOL=http
-if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
-    SERVER_URL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-    if cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep bigbluebutton.web.serverURL | grep -q https; then
-        PROTOCOL=https
+
+get_properties_value() {
+    key="$1"
+    file="$2"
+    if [[ -f $file ]]; then
+        val=$(grep "^$key" "$file"| cut -d = -f 2-)
+        echo "$val"
+        return 0
     fi
-fi
+    return 1
+}
+get_bbb_web_config_value() {
+    key="$1"
+    val="$(get_properties_value "$key" "$BBB_WEB_ETC_CONFIG")"
+    if [[ -n $val ]]; then
+        echo "$val"
+        return 0
+    fi
+    val="$(get_properties_value "$key" "$BBB_WEB_CONFIG")"
+    if [[ -n $val ]]; then
+        echo "$val"
+        return 0
+    fi
+    return 1
+}
 
 RECORD_CONFIG=/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
 
@@ -145,6 +163,7 @@ HTML5_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings
 KURENTO_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
 
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
+BBB_WEB_ETC_CONFIG="/etc/bigbluebutton/bbb-web.properties"
 NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1 | head -n 1)
 SIP_CONFIG=/etc/bigbluebutton/nginx/sip.nginx
 SIP_NGINX_IP=$(cat $SIP_CONFIG |  grep -v '#' | sed -n '/proxy_pass/{s/.*proxy_pass http[s]*:\/\///;s/:.*//;p}' | head -n 1)
@@ -156,12 +175,20 @@ BBB_USER=bigbluebutton
 TURN=$SERVLET_DIR/WEB-INF/classes/spring/turn-stun-servers.xml
 STUN="$(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m '_:beans/_:bean[@class="org.bigbluebutton.web.services.turn.StunTurnService"]/_:property[@name="stunServers"]/_:set/_:ref' -v @bean $TURN)"
 
+PROTOCOL=http
+if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
+    SERVER_URL=$(get_bbb_web_config_value bigbluebutton.web.serverURL | sed -n '{s/.*\///;p}')
+    if get_bbb_web_config_value bigbluebutton.web.serverURL | grep -q https; then
+        PROTOCOL=https
+    fi
+fi
+
 #
 # We're going to give ^bigbluebutton.web.logoutURL a default value (if undefined) so bbb-conf does not give a warning
 #
 if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
-    if cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -q ^bigbluebutton.web.logoutURL=$; then
-        $SUDO sed -i s/^bigbluebutton.web.logoutURL=$/bigbluebutton.web.logoutURL=default/g $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
+    if ! get_bbb_web_config_value bigbluebutton.web.logoutURL ; then
+        echo "bigbluebutton.web.logoutURL=default" >> BBB_WEB_ETC_CONFIG
     fi
 fi
 
@@ -514,8 +541,8 @@ while [ $# -gt 0 ]; do
     if [ "$1" = "--salt" -o "$1" = "-salt" -o "$1" = "--setsalt" -o "$1" = "--secret" -o "$1" = "-secret"  -o "$1" = "--setsecret" ]; then
         SECRET="${2}"
         if [ -z "$SECRET" ]; then
-            BBB_WEB_URL=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
-            SECRET=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
+            BBB_WEB_URL=$(get_bbb_web_config_value bigbluebutton.web.serverURL)
+            SECRET=$(get_bbb_web_config_value securitySalt)
             echo
             echo "    URL: $BBB_WEB_URL/bigbluebutton/"
             echo "    Secret: $SECRET"
@@ -582,7 +609,11 @@ fi
 
 if [[ $SECRET ]]; then
     need_root
-    change_var_salt ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties securitySalt $SECRET
+    if get_properties_value securitySalt "$BBB_WEB_ETC_CONFIG" > /dev/null ; then
+        change_var_salt "$BBB_WEB_ETC_CONFIG" securitySalt "$SECRET"
+    else
+        echo "securitySalt=$SECRET" >> "$BBB_WEB_ETC_CONFIG"
+    fi
 
     if [ -f /usr/local/bigbluebutton/bbb-webhooks/config/default.yml ]; then
         change_yml_value /usr/local/bigbluebutton/bbb-webhooks/config/default.yml sharedSecret $SECRET
@@ -643,7 +674,7 @@ check_configuration() {
         fi
     done
 
-    VARFolder=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep imageMagickDir | cut -d= -f2)
+    VARFolder="$(get_bbb_web_config_value imageMagickDir)"
     if [ ! -x $VARFolder/convert ]; then
         echo "# ImageMagick's convert is not installed in $VARFolder"
     fi
@@ -661,18 +692,19 @@ check_configuration() {
     fi
 
 
+    BBB_SECRET="$(get_bbb_web_config_value securitySalt)"
+
     if [ -f /var/lib/$TOMCAT_USER/webapps/demo/bbb_api_conf.jsp ]; then
         #
         # Make sure the shared secret for the API matches the server
         #
-        SECRET_PROPERTIES=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
         SECRET_DEMO=$(cat ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp | grep -v '^//' | tr -d '\r' | sed -n '/salt[ ]*=/{s/.*=[ ]*"//;s/".*//g;p}')
 
-        if [ "$SECRET_PROPERTIES" != "$SECRET_DEMO" ]; then
+        if [ "$BBB_SECRET" != "$SECRET_DEMO" ]; then
             echo "#"
             echo "# Warning: API Shared Secret mismatch: "
             echo "#"
-            echo "#  ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties  = $SECRET_PROPERTIES"
+            echo "#  $BBB_WEB_ETC_CONFIG = $BBB_SECRET"
             echo "#  /var/lib/$TOMCAT_USER/webapps/demo/bbb_api_conf.jsp               = $SECRET_DEMO"
             echo "#"
             echo "# You need to edit bbb_api_conf.jsp to have the same shared secret defined in bigbluebutton.properties"
@@ -689,8 +721,6 @@ check_configuration() {
             echo
         fi
     fi
-
-    BBB_SECRET=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
 
     if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
         WEBHOOKS_CONF=/usr/local/bigbluebutton/bbb-webhooks/config/default.yml
@@ -717,7 +747,6 @@ check_configuration() {
 
     if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
         LTI_SECRET=$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | tr -d '\r' | sed -n '/^bigbluebuttonSalt/{s/.*=//;p}')
-        BBB_SECRET=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
 
         if [ "$LTI_SECRET" != "$BBB_SECRET" ]; then
             echo "# Warning: LTI shared secret mismatch:"
@@ -972,7 +1001,7 @@ check_state() {
     # Check if the local server can access the API.  This is a common problem when setting up BigBlueButton behind
     # a firewall
     #
-    BBB_WEB=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\/\///;p}')
+    BBB_WEB="$(get_bbb_web_config_value bigbluebutton.web.serverURL|sed -n '{s/.*\///;p}')"
     check_no_value server_name /etc/nginx/sites-available/bigbluebutton $BBB_WEB
 
     COUNT=0
@@ -1040,15 +1069,15 @@ check_state() {
         echo
     fi
 
+    BBB_WEB="$(get_bbb_web_config_value bigbluebutton.web.serverURL)"
     if [ -f ${TOMCAT_DIR}/webapps/demo/demo1.jsp ]; then
-        BBB_WEB_URL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
         echo "# Warning: The API demos are installed and accessible from:"
         echo "#"
-        echo "#    $BBB_WEB_URL"
+        echo "#    $BBB_WEB"
         echo "#"
         echo "# and"
         echo "#"
-        echo "#    $BBB_WEB_URL/demo/demo1.jsp"
+        echo "#    $BBB_WEB/demo/demo1.jsp"
         echo "#"
         echo "# These API demos allow anyone to access your server without authentication"
         echo "# to create/manage meetings and recordings. They are for testing purposes only."
@@ -1070,8 +1099,7 @@ check_state() {
         echo
     fi
 
-    BBB_WEB=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
-    DEFAULT_PDF=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^beans.presentationService.defaultUploadedPresentation/{s/.*=//;p}')
+    DEFAULT_PDF="$(get_bbb_web_config_value beans.presentationService.defaultUploadedPresentation)"
     if echo $DEFAULT_PDF | grep -q "bigbluebutton.web.serverURL"; then
         if ! echo "$BBB_WEB$(echo $DEFAULT_PDF | sed 's/${bigbluebutton.web.serverURL}//g')" | xargs curl -sS >/dev/null; then
             echo "# Error: Unable to reach default URL for presentation:"
@@ -1079,7 +1107,7 @@ check_state() {
             echo "#    $BBB_WEB$(echo $DEFAULT_PDF | sed 's/${bigbluebutton.web.serverURL}//g')"
             echo "#"
             echo "# Check value for beans.presentationService.defaultUploadedPresentation in"
-            echo "#   ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties"
+            echo "#   $BBB_WEB_CONFIG and $BBB_WEB_ETC_CONFIG"
         fi
     else
         if ! echo "$DEFAULT_PDF" | xargs curl -sS >/dev/null; then
@@ -1088,12 +1116,12 @@ check_state() {
             echo "#    $DEFAULT_PDF"
             echo "#"
             echo "# Check value for beans.presentationService.defaultUploadedPresentation in"
-            echo "#   ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties"
+            echo "#   $BBB_WEB_CONFIG and $BBB_WEB_ETC_CONFIG"
         fi
     fi
 
     if [ "$(cat /etc/bigbluebutton/bbb-apps-akka.conf | sed -n '/sharedSecret.*/{s/[^"]*"//;s/".*//;p}')" == "changeme" ]; then
-        BBB_WEB_IP=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+        BBB_WEB_IP="$(get_bbb_web_config_value bigbluebutton.web.serverURL|sed -n '{s/.*\///;p}')"
         echo "# Error: Detected that /etc/bigbluebutton/bbb-apps-akka.conf has the default"
         echo "# configuration values.  To update, run"
         echo "#"
@@ -1151,7 +1179,7 @@ check_state() {
       fi
     fi
 
-    CHECK=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2 | sha1sum | cut -d' ' -f1)
+    CHECK="$(get_bbb_web_config_value securitySalt|sha1sum |cut -d' ' -f1)"
     if [ "$CHECK" == "55b727b294158a877212570c3c0524c2b902a62c" ]; then
       echo
       echo "#"
@@ -1277,9 +1305,9 @@ if [ $CHECK ]; then
 
     echo
     echo "$BBB_WEB_CONFIG (bbb-web)"
-    echo "       bigbluebutton.web.serverURL: $(cat $BBB_WEB_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')"
-    echo "                defaultGuestPolicy: $(cat $BBB_WEB_CONFIG | grep -v '#' | sed -n '/^defaultGuestPolicy/{s/.*=//;p}')"
-    echo "                 svgImagesRequired: $(cat $BBB_WEB_CONFIG | grep -v '#' | sed -n '/^svgImagesRequired/{s/.*=//;p}')"
+    echo "       bigbluebutton.web.serverURL: $(get_bbb_web_config_value bigbluebutton.web.serverURL)"
+    echo "                defaultGuestPolicy: $(get_bbb_web_config_value defaultGuestPolicy)"
+    echo "                 svgImagesRequired: $(get_bbb_web_config_value svgImagesRequired)"
 
     echo
     echo "/etc/nginx/sites-available/bigbluebutton (nginx)"
@@ -1525,13 +1553,13 @@ if [ -n "$HOST" ]; then
     #
     # Update configuration for BigBlueButton web app
     #
-    echo "Assigning $HOST for web application URL in ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties"
+    echo "Assigning $HOST for web application URL in $BBB_WEB_ETC_CONFIG"
+    if grep "bigbluebutton.web.serverURL" "$BBB_WEB_ETC_CONFIG" > /dev/null ; then
+        change_var_value "$BBB_WEB_ETC_CONFIG" bigbluebutton.web.serverURL "$PROTOCOL://$HOST"
+    else
+        echo "bigbluebutton.web.serverURL=$PROTOCOL://$HOST" > "$BBB_WEB_ETC_CONFIG"
+    fi
 
-    $SUDO sed -i "s/bigbluebutton.web.serverURL=http[s]*:\/\/.*/bigbluebutton.web.serverURL=$PROTOCOL:\/\/$HOST/g" \
-            ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties
-
-    $SUDO sed -i "s/screenshareRtmpServer=.*/screenshareRtmpServer=$HOST/g" \
-            ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties
 
     if ! grep -q server_names_hash_bucket_size /etc/nginx/nginx.conf; then
         $SUDO sed -i "s/gzip  on;/gzip  on;\n    server_names_hash_bucket_size  64;/g" /etc/nginx/nginx.conf
