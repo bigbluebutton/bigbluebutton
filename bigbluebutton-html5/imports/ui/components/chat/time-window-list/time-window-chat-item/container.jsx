@@ -1,11 +1,13 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import TimeWindowChatItem from './component';
+import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import ChatService from '../../service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const isDefaultPoll = (pollText) => {
   const pollValue = pollText.replace(/<br\/>|[ :|%\n\d+]/g, '');
@@ -17,31 +19,42 @@ const isDefaultPoll = (pollText) => {
       return false;
   }
 };
-export default class TimeWindowChatItemContainer extends PureComponent {
-  render() {
-    ChatLogger.debug('TimeWindowChatItemContainer::render', { ...this.props });
-    const messages = this.props.message.content;
+export default function TimeWindowChatItemContainer(props) {
+  ChatLogger.debug('TimeWindowChatItemContainer::render', { ...props });
+  const { message, messageId } = props;
+  const usingUsersContext = useContext(UsersContext);
+  const  { users } = usingUsersContext;
+  const {
+    sender,
+    key,
+    time,
+    content,
+    color,
+  } = message;
 
-    const user = this.props.message.sender;
-    const messageKey = this.props.message.key;
-    const time = this.props.message.time;
-
-    return (
-      <TimeWindowChatItem
-        {
-        ...{
-          read: this.props.message.read,
-          messages,
-          isDefaultPoll,
-          user,
-          time,
-          systemMessage: this.props.messageId.startsWith(SYSTEM_CHAT_TYPE) || !user,
-          messageKey,
-          handleReadMessage: ChatService.updateUnreadMessage,
-          ...this.props,
-        }
-        }
-      />
-    );
-  }
+  const messages = content;
+  const user = users[sender?.id];
+  const messageKey = key;
+  return (
+    <TimeWindowChatItem
+      {
+      ...{
+        color: user?.color || color,
+        isModerator: user?.role === ROLE_MODERATOR,
+        isOnline: !!user,
+        avatar: user?.avatar,
+        name: user?.name || sender?.name,
+        read: message.read,
+        messages,
+        isDefaultPoll,
+        user,
+        time,
+        systemMessage: messageId.startsWith(SYSTEM_CHAT_TYPE) || !sender,
+        messageKey,
+        handleReadMessage: ChatService.updateUnreadMessage,
+        ...props,
+      }
+      }
+    />
+  );
 }

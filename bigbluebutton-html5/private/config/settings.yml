@@ -48,6 +48,7 @@ public:
       sendInvitationToIncludedModerators: false
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
     customHeartbeat: true
+    showAllAvailableLocales: false
     defaultSettings:
       application:
         animations: true
@@ -249,7 +250,7 @@ public:
     #   profile: a camera profile id from the cameraProfiles configuration array
     #            that will be applied to all cameras when threshold is hit
     cameraQualityThresholds:
-      enabled: false
+      enabled: true
       thresholds:
         - threshold: 8
           profile: low-u8
@@ -265,7 +266,7 @@ public:
           profile: low-u30
     pagination:
       # whether to globally enable or disable pagination.
-      enabled: false
+      enabled: true
       # how long (in ms) the negotiation will be debounced after a page change.
       pageChangeDebounceTime: 2500
       # video page sizes for DESKTOP endpoints. It stands for the number of SUBSCRIBER streams.
@@ -273,11 +274,11 @@ public:
       # A page size of 0 (zero) means that the page size is unlimited (disabled).
       desktopPageSizes:
         moderator: 0
-        viewer: 5
+        viewer: 0
       # video page sizes for MOBILE endpoints
       mobilePageSizes:
-        moderator: 2
-        viewer: 2
+        moderator: 6
+        viewer: 4
   syncUsersWithConnectionManager:
     enabled: false
     syncInterval: 60000
@@ -316,6 +317,7 @@ public:
     storage_key: UNREAD_CHATS
     system_messages_keys:
       chat_clear: PUBLIC_CHAT_CLEAR
+      chat_poll_result: PUBLIC_CHAT_POLL_RESULT
     typingIndicator:
       enabled: true
   note:
@@ -330,6 +332,7 @@ public:
   layout:
     autoSwapLayout: false
     hidePresentation: false
+    showParticipantsOnLogin: true
     webcamsDefaultPlacement: 'top'
   media:
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
@@ -555,7 +558,7 @@ private:
       toThirdParty: to-third-party-redis-channel
     subscribeTo:
       - to-html5-redis-channel
-      - from-akka-apps-*
+      - from-akka-apps-[^f]*
       - from-third-party-redis-channel
       - from-etherpad-redis-channel
     async:
