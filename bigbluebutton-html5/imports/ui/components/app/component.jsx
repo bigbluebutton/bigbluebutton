@@ -345,6 +345,7 @@ class App extends Component {
     const {
       customStyle, customStyleUrl, openPanel, layoutContextState
     } = this.props;
+
     return (
       <main className={styles.main}>
         {this.renderActivityCheck()}
@@ -362,7 +363,7 @@ class App extends Component {
         </section>
         <UploaderContainer />
         <BreakoutRoomInvitation />
-        {!layoutContextState.presentationIsFullscreen && <PollingContainer />}
+        {!layoutContextState.presentationIsFullscreen && !layoutContextState.screenShareIsFullscreen && <PollingContainer />}
         <ModalContainer />
         <AudioContainer />
         <ToastContainer rtl />
