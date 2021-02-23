@@ -9,6 +9,7 @@ import AutoplayOverlay from '../media/autoplay-overlay/component';
 import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import PollingContainer from '/imports/ui/components/polling/container';
+import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 
 const intlMessages = defineMessages({
   screenShareLabel: {
@@ -79,10 +80,12 @@ class ScreenshareComponent extends React.Component {
   }
 
   onFullscreenChange() {
+    const { layoutContextDispatch } = this.props;
     const { isFullscreen } = this.state;
     const newIsFullscreen = FullscreenService.isFullScreen(this.screenshareContainer);
     if (isFullscreen !== newIsFullscreen) {
       this.setState({ isFullscreen: newIsFullscreen });
+      layoutContextDispatch({ type: 'setScreenShareFullscreen', value: newIsFullscreen });
     }
   }
 
@@ -191,7 +194,7 @@ class ScreenshareComponent extends React.Component {
   }
 }
 
-export default injectIntl(ScreenshareComponent);
+export default injectIntl(withLayoutConsumer(ScreenshareComponent));
 
 ScreenshareComponent.propTypes = {
   intl: PropTypes.object.isRequired,
