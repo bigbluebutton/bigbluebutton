@@ -212,7 +212,12 @@ class ApiController {
 
     // BEGIN - backward compatibility
     if (StringUtils.isEmpty(params.checksum)) {
-      invalid("checksumError", "You did not pass the checksum security check", REDIRECT_RESPONSE)
+      invalid("checksumError", "You did not pass the checksum security check")
+      return
+    }
+
+    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      invalid("checksumError", "You did not pass the checksum security check")
       return
     }
 
@@ -241,11 +246,6 @@ class ApiController {
 
     if (StringUtils.isEmpty(params.password)) {
       invalid("invalidPassword", "You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference.", REDIRECT_RESPONSE);
-      return
-    }
-
-    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-      invalid("checksumError", "You did not pass the checksum security check", REDIRECT_RESPONSE)
       return
     }
 
@@ -496,10 +496,6 @@ class ApiController {
     boolean redirectClient = true;
     String clientURL = paramsProcessorUtil.getDefaultHTML5ClientUrl();
 
-    String meetingInstance = meeting.getHtml5InstanceId();
-    meetingInstance = (meetingInstance == null) ? "1" : meetingInstance;
-    clientURL = clientURL.replaceAll("%%INSTANCEID%%", meetingInstance);
-
     if (!StringUtils.isEmpty(params.redirect)) {
       try {
         redirectClient = Boolean.parseBoolean(params.redirect);
@@ -524,7 +520,6 @@ class ApiController {
     String destUrl = clientURL + "?sessionToken=" + sessionToken
     if (guestStatusVal.equals(GuestPolicy.WAIT)) {
       String guestWaitUrl = paramsProcessorUtil.getDefaultGuestWaitURL();
-      guestWaitUrl = guestWaitUrl.replaceAll("%%INSTANCEID%%", meetingInstance);
       destUrl = guestWaitUrl + "?sessionToken=" + sessionToken
       msgKey = "guestWait"
       msgValue = "Guest waiting for approval to join meeting."
@@ -1354,13 +1349,9 @@ class ApiController {
       String destUrl = clientURL
       log.debug("destUrl = " + destUrl)
 
-      String meetingInstance = meeting.getHtml5InstanceId();
-      meetingInstance = (meetingInstance == null) ? "1" : meetingInstance;
-
       if (guestWaitStatus.equals(GuestPolicy.WAIT)) {
         meetingService.guestIsWaiting(us.meetingID, us.internalUserId);
         clientURL = paramsProcessorUtil.getDefaultGuestWaitURL();
-        clientURL = clientURL.replaceAll("%%INSTANCEID%%", meetingInstance);
         destUrl = clientURL + "?sessionToken=" + sessionToken
         log.debug("GuestPolicy.WAIT - destUrl = " + destUrl)
         msgKey = "guestWait"

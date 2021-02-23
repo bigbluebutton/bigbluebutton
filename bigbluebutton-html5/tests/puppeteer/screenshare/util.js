@@ -1,7 +1,8 @@
+const { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } = require('../core/constants');
 const e = require('../core/elements');
 
 async function startScreenshare(test) {
-  await test.waitForSelector(e.screenShare);
+  await test.waitForSelector(e.screenShare, ELEMENT_WAIT_TIME);
   await test.click(e.screenShare, true);
 }
 
@@ -10,7 +11,7 @@ async function getTestElement(element) {
 }
 
 async function getScreenShareContainer(test) {
-  await test.waitForSelector(e.screenShareVideo);
+  await test.waitForSelector(e.screenShareVideo, VIDEO_LOADING_WAIT_TIME);
   const screenShareContainer = await test.evaluate(getTestElement, e.screenShareVideo);
   const response = screenShareContainer !== null;
   return response;

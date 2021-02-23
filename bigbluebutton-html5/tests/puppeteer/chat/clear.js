@@ -17,16 +17,16 @@ class Clear extends Page {
     }
     // sending a message
     await this.type(e.chatBox, e.message);
-    await this.click(e.sendButton);
+    await this.click(e.sendButton, true);
 
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await this.screenshot(`${testName}`, `02-after-chat-message-send-[${testName}]`);
     }
 
-    const chat0 = await this.page.evaluate(() => document.querySelectorAll('[data-test="chatUserMessage"]').length !== 0);
+    const chat0 = await this.page.evaluate(() => document.querySelectorAll('p[data-test="chatClearMessageText"]').length === 0);
 
     // clear
-    await this.click(e.chatOptions);
+    await this.click(e.chatOptions, true);
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await this.screenshot(`${testName}`, `03-chat-options-clicked-[${testName}]`);
     }
@@ -38,10 +38,9 @@ class Clear extends Page {
       await this.screenshot(`${testName}`, `04-chat-cleared-[${testName}]`);
     }
 
-    const chat1 = await this.page.evaluate(() => document.querySelectorAll('[data-test="chatUserMessage"]').length !== 0);
+    const chat1 = await this.page.evaluate(() => document.querySelectorAll('p[data-test="chatClearMessageText"]').length === 1);
 
-    const response = chat0 === true && chat1 === false;
-    return response;
+    return chat0 === chat1;
   }
 }
 

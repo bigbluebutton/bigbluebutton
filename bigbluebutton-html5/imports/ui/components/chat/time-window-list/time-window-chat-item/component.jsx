@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
-import Icon from '/imports/ui/components/icon/component';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import cx from 'classnames';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
@@ -63,6 +62,11 @@ class TimeWindowChatItem extends PureComponent {
     ChatLogger.debug('TimeWindowChatItem::componentWillMount::state', { ...this.state });
   }
 
+  componentWillUnmount() {
+    ChatLogger.debug('TimeWindowChatItem::componentWillUnmount::props', { ...this.props });
+    ChatLogger.debug('TimeWindowChatItem::componentWillUnmount::state', { ...this.state });
+  }
+
   renderSystemMessage() {
     const {
       messages,
@@ -71,6 +75,10 @@ class TimeWindowChatItem extends PureComponent {
       messageKey,
       intl,
     } = this.props;
+
+    if (messages && messages[0].text.includes('bbb-published-poll-<br/>')) {
+      return this.renderPollItem();
+    }
 
     return (
       <div className={styles.item} key={`time-window-chat-item-${messageKey}`}>
@@ -84,6 +92,7 @@ class TimeWindowChatItem extends PureComponent {
                   text={intlMessages[message.text] ? intl.formatMessage(intlMessages[message.text]) : message.text }
                   time={message.time}
                   isSystemMessage={message.id ? true : false}
+                  systemMessageType={message.text === 'PUBLIC_CHAT_CLEAR' ? 'chatClearMessageText' : 'chatWelcomeMessageText'}
                   chatAreaId={chatAreaId}
                   handleReadMessage={handleReadMessage}
                 />
@@ -96,7 +105,6 @@ class TimeWindowChatItem extends PureComponent {
 
   renderMessageItem() {
     const {
-      user,
       time,
       chatAreaId,
       scrollArea,
@@ -106,34 +114,35 @@ class TimeWindowChatItem extends PureComponent {
       dispatch,
       chatId,
       read,
+      name,
+      color,
+      isModerator,
+      avatar,
+      isOnline,
     } = this.props;
-
-    if (messages && messages[0].text.includes('bbb-published-poll-<br/>')) {
-      return this.renderPollItem();
-    }
 
     const dateTime = new Date(time);
     const regEx = /<a[^>]+>/i;
     ChatLogger.debug('TimeWindowChatItem::renderMessageItem', this.props);
-    const defaultAvatarString = user?.name?.toLowerCase().slice(0, 2) || "  ";
+    const defaultAvatarString = name?.toLowerCase().slice(0, 2) || "  ";
     return (
       <div className={styles.item} key={`time-window-${messageKey}`}>
         <div className={styles.wrapper}>
           <div className={styles.avatarWrapper}>
             <UserAvatar
               className={styles.avatar}
-              color={user.color}
-              moderator={user.isModerator}
-              avatar={user.avatar}
+              color={color}
+              moderator={isModerator}
+              avatar={avatar}
             >
               {defaultAvatarString}
             </UserAvatar>
           </div>
           <div className={styles.content}>
             <div className={styles.meta}>
-              <div className={user.isOnline ? styles.name : styles.logout}>
-                <span>{user.name}</span>
-                {user.isOnline
+              <div className={isOnline ? styles.name : styles.logout}>
+                <span>{name}</span>
+                {isOnline
                   ? null
                   : (
                     <span className={styles.offline}>
@@ -155,6 +164,7 @@ class TimeWindowChatItem extends PureComponent {
                   chatAreaId={chatAreaId}
                   dispatch={dispatch}
                   read={message.read}
+                  chatUserMessageItem={true}
                   handleReadMessage={(timestamp) => {
                     if (!read) {
                       dispatch({
@@ -178,8 +188,8 @@ class TimeWindowChatItem extends PureComponent {
 
   renderPollItem() {
     const {
-      user,
       time,
+      color,
       intl,
       isDefaultPoll,
       messages,
@@ -194,15 +204,6 @@ class TimeWindowChatItem extends PureComponent {
     return messages ? (
       <div className={styles.item} key={_.uniqueId('message-poll-item-')}>
         <div className={styles.wrapper} ref={(ref) => { this.item = ref; }}>
-          <div className={styles.avatarWrapper}>
-            <UserAvatar
-              className={styles.avatar}
-              color={user.color}
-              moderator={user.isModerator}
-            >
-              {<Icon className={styles.isPoll} iconName="polling" />}
-            </UserAvatar>
-          </div>
           <div className={styles.content}>
             <div className={styles.meta}>
               <div className={styles.name}>
@@ -222,7 +223,7 @@ class TimeWindowChatItem extends PureComponent {
               lastReadMessageTime={lastReadMessageTime}
               handleReadMessage={handleReadMessage}
               scrollArea={scrollArea}
-              color={user.color}
+              color={color}
               isDefaultPoll={isDefaultPoll(messages[0].text.replace('bbb-published-poll-<br/>', ''))}
             />
           </div>
@@ -233,7 +234,6 @@ class TimeWindowChatItem extends PureComponent {
 
   render() {
     const {
-      user,
       systemMessage,
     } = this.props;
     ChatLogger.debug('TimeWindowChatItem::render', {...this.props});

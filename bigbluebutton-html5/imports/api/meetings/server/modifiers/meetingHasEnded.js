@@ -31,8 +31,11 @@ import clearWhiteboardMultiUser from '/imports/api/whiteboard-multi-user/server/
 import Metrics from '/imports/startup/server/metrics';
 
 export default function meetingHasEnded(meetingId) {
-  removeAnnotationsStreamer(meetingId);
-  removeCursorStreamer(meetingId);
+  if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
+    removeAnnotationsStreamer(meetingId);
+    removeCursorStreamer(meetingId);
+    // TODO add removeExternalVideoStreamer(meetingId);
+  }
 
   return Meetings.remove({ meetingId }, () => {
     clearCaptions(meetingId);

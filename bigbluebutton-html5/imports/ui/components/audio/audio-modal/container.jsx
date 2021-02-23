@@ -51,10 +51,8 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
   const meetingIsBreakout = AppService.meetingIsBreakout();
   const { joinedAudio } = getcookieData();
 
-  const joinFullAudioImmediately = (autoJoin && (skipCheck || skipCheckOnJoin))
+  const joinFullAudioImmediately = (autoJoin && (skipCheck || skipCheckOnJoin && !getEchoTest))
     || (skipCheck || skipCheckOnJoin && !getEchoTest);
-
-  const joinFullAudioEchoTest = joinFullAudioImmediately && getEchoTest;
 
   const forceListenOnlyAttendee = forceListenOnly && !Service.isUserModerator();
 
@@ -62,7 +60,7 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
     joinedAudio,
     meetingIsBreakout,
     closeModal,
-    joinMicrophone: skipEchoTest => joinMicrophone(skipEchoTest || skipCheck),
+    joinMicrophone: skipEchoTest => joinMicrophone(skipEchoTest || skipCheck || skipCheckOnJoin),
     joinListenOnly,
     leaveEchoTest,
     changeInputDevice: inputDeviceId => Service.changeInputDevice(inputDeviceId),
@@ -76,14 +74,11 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
     outputDeviceId: Service.outputDeviceId(),
     showPermissionsOvelay: Service.isWaitingPermissions(),
     listenOnlyMode,
-    skipCheck,
-    skipCheckOnJoin,
     formattedDialNum,
     formattedTelVoice,
     combinedDialInNum,
     audioLocked: userLocks.userMic,
     joinFullAudioImmediately,
-    joinFullAudioEchoTest,
     forceListenOnlyAttendee,
     isIOSChrome: browser().name === 'crios',
     isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
