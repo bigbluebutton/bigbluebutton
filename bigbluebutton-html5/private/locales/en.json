@@ -569,6 +569,7 @@
     "app.shortcut-help.openDebugWindow": "Open debug window",
     "app.shortcut-help.openStatus": "Open status menu",
     "app.shortcut-help.togglePan": "Activate Pan tool (Presenter)",
+    "app.shortcut-help.toggleFullscreen": "Toggle Full-screen (Presenter)",
     "app.shortcut-help.nextSlideDesc": "Next slide (Presenter)",
     "app.shortcut-help.previousSlideDesc": "Previous slide (Presenter)",
     "app.lock-viewers.title": "Lock viewers",
