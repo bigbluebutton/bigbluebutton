@@ -37,7 +37,7 @@ public:
     # this value to be kept under 12.
     breakoutRoomLimit: 8
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
-    customHeartbeat: true
+    customHeartbeat: false
     defaultSettings:
       application:
         animations: true
