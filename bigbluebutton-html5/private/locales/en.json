@@ -591,7 +591,7 @@
     "app.connection-status.ariaTitle": "Connection status modal",
     "app.connection-status.title": "Connection status",
     "app.connection-status.description": "View users' connection status",
-    "app.connection-status.empty": "There isn't any connectivity issue reported up to now",
+    "app.connection-status.empty": "There are currently no reported connection issues",
     "app.connection-status.more": "more",
     "app.connection-status.offline": "offline",
     "app.recording.startTitle": "Start recording",
