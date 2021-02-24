@@ -66,7 +66,7 @@ class TimeWindowList extends PureComponent {
       userScrolledBack: false,
       lastMessage: {},
     };
-    this.welcomeMessageIndex = -1;
+    this.systemMessageIndexes = [];
 
     this.listRef = null;
     this.virualRef = null;
@@ -170,8 +170,8 @@ class TimeWindowList extends PureComponent {
     ];
 
     if (needResizeMessages.includes(message.key)) {
-      if (index !== this.welcomeMessageIndex) {
-        this.welcomeMessageIndex = index;
+      if (!this.systemMessageIndexes.includes(index)) {
+        this.systemMessageIndexes.push(index);
         [500, 1000, 2000, 3000, 4000, 5000].forEach((i)=>{
           setTimeout(() => {
             if (this.listRef) {
