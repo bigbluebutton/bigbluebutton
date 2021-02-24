@@ -164,7 +164,12 @@ class TimeWindowList extends PureComponent {
     const { scrollArea } = this.state;
     const message = timeWindowsValues[index];
 
-    if (message.key === `${SYSTEM_CHAT_TYPE}-welcome-msg`) {
+    const needResizeMessages = [
+      `${SYSTEM_CHAT_TYPE}-welcome-msg`,
+      `${SYSTEM_CHAT_TYPE}-moderator-msg`
+    ];
+
+    if (needResizeMessages.includes(message.key)) {
       if (index !== this.welcomeMessageIndex) {
         this.welcomeMessageIndex = index;
         [500, 1000, 2000, 3000, 4000, 5000].forEach((i)=>{
