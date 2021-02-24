@@ -120,9 +120,8 @@ export default class TextDrawListener extends Component {
     this.sendLastMessage();
   }
 
-  handleClick() {
-    const { isWritingText } = this.state;
-    if (isWritingText) this.sendLastMessage();
+  handleClick(e) {
+    if (e.srcElement.getAttribute('role') !== 'presentation') this.sendLastMessage();
   }
 
   // checks if the input textarea is focused or not, and if not - moves focus there
