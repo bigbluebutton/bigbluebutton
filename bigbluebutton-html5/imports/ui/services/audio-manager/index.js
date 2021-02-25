@@ -37,6 +37,8 @@ class AudioManager {
       tracker: new Tracker.Dependency(),
     };
 
+    this._returningFromBreakoutAudioTransfer = false;
+
     this.defineProperties({
       isMuted: false,
       isConnected: false,
@@ -521,6 +523,14 @@ class AudioManager {
   get inputDeviceId() {
     return (this.bridge && this.bridge.inputDeviceId)
       ? this.bridge.inputDeviceId : DEFAULT_INPUT_DEVICE_ID;
+  }
+
+  get returningFromBreakoutAudioTransfer() {
+    return this._returningFromBreakoutAudioTransfer;
+  }
+
+  set returningFromBreakoutAudioTransfer(value) {
+    this._returningFromBreakoutAudioTransfer = value;
   }
 
   set userData(value) {
