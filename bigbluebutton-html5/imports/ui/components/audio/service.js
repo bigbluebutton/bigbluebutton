@@ -129,4 +129,10 @@ export default {
   playAlertSound: url => AudioManager.playAlertSound(url),
   updateAudioConstraints:
     constraints => AudioManager.updateAudioConstraints(constraints),
+  recoverMicState,
+  setReturningFromBreakoutAudioTransfer: (value) => {
+    AudioManager.returningFromBreakoutAudioTransfer = value;
+  },
+  isReturningFromBreakoutAudioTransfer:
+    () => AudioManager.returningFromBreakoutAudioTransfer,
 };

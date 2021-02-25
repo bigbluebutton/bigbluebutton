@@ -163,6 +163,7 @@ class BreakoutRoom extends PureComponent {
       intl,
       isUserInBreakoutRoom,
       exitAudio,
+      setReturningFromBreakoutAudioTransfer,
     } = this.props;
 
     const {
@@ -176,6 +177,7 @@ class BreakoutRoom extends PureComponent {
     const disable = waiting && requestedBreakoutId !== breakoutId;
     const audioAction = joinedAudioOnly
       ? () => {
+        setReturningFromBreakoutAudioTransfer(true);
         this.returnBackToMeeeting(breakoutId);
         return logger.debug({
           logCode: 'breakoutroom_return_main_audio',
