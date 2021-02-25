@@ -185,8 +185,11 @@ class Dropdown extends Component {
 
     const { isOpen } = this.state;
 
+    const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
+    const isSmall = window.matchMedia(MOBILE_MEDIA).matches;
+
     const placements = placement && placement.replace(' ', '-');
-    const test = isMobile && isPortrait ? {
+    const test = isMobile && isPortrait && isSmall ? {
       width: '100%',
       height: '100%',
       transform: 'translateY(0)',
@@ -242,11 +245,11 @@ class Dropdown extends Component {
                   ...test,
                 }}
                 attachment={
-                  isMobile && isPortrait ? 'middle center'
+                  isMobile && isPortrait && isSmall ? 'middle center'
                     : attachments[placements]
                 }
                 targetAttachment={
-                  isMobile && isPortrait ? 'auto auto'
+                  isMobile && isPortrait && isSmall ? 'auto auto'
                     : targetAttachments[placements]
                 }
                 constraints={[
