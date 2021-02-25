@@ -108,6 +108,11 @@ class RedisRecorderActor(
       case m: PollStoppedEvtMsg                     => handlePollStoppedEvtMsg(m)
       case m: PollShowResultEvtMsg                  => handlePollShowResultEvtMsg(m)
 
+      // ExternalVideo
+      case m: StartExternalVideoEvtMsg              => handleStartExternalVideoEvtMsg(m)
+      case m: UpdateExternalVideoEvtMsg             => handleUpdateExternalVideoEvtMsg(m)
+      case m: StopExternalVideoEvtMsg               => handleStopExternalVideoEvtMsg(m)
+
       case _                                        => // message not to be recorded.
     }
   }
@@ -455,6 +460,32 @@ class RedisRecorderActor(
     record(msg.header.meetingId, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
   }
   */
+
+  private def handleStartExternalVideoEvtMsg(msg: StartExternalVideoEvtMsg) {
+    val ev = new StartExternalVideoRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setExternalVideoUrl(msg.body.externalVideoUrl)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleUpdateExternalVideoEvtMsg(msg: UpdateExternalVideoEvtMsg) {
+    val ev = new UpdateExternalVideoRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setStatus(msg.body.status)
+    ev.setRate(msg.body.rate)
+    ev.setTime(msg.body.time)
+    ev.setState(msg.body.state)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleStopExternalVideoEvtMsg(msg: StopExternalVideoEvtMsg) {
+    val ev = new StopExternalVideoRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
 
   private def handleRecordingStatusChangedEvtMsg(msg: RecordingStatusChangedEvtMsg) {
     val ev = new RecordStatusRecordEvent()
