@@ -342,7 +342,10 @@ class AudioManager {
       this.notify(this.intl.formatMessage(this.messages.info.JOINED_AUDIO));
       logger.info({ logCode: 'audio_joined' }, 'Audio Joined');
       if (STATS.enabled) this.monitor();
-      this.audioEventHandler({ name: 'started' });
+      this.audioEventHandler({
+        name: 'started',
+        isListenOnly: this.isListenOnly,
+      });
     }
   }
 
