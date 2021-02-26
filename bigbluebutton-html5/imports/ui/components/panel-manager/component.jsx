@@ -18,6 +18,7 @@ import {
   CHAT_MIN_WIDTH,
   CHAT_MAX_WIDTH,
 } from '/imports/ui/components/layout/layout-manager';
+import { ACTIONS, PANELS } from '../layout/enums';
 
 const intlMessages = defineMessages({
   chatLabel: {
@@ -297,6 +298,7 @@ class PanelManager extends Component {
       shouldAriaHide,
     } = this.props;
 
+    // TODO Verify this condition
     const ariaHidden = shouldAriaHide() && openPanel !== 'userlist';
 
     return (
@@ -584,20 +586,28 @@ class PanelManager extends Component {
   }
 
   render() {
-    const { enableResize, openPanel } = this.props;
-    if (openPanel === '') return null;
+    const {
+      enableResize,
+      sidebarNavPanel,
+      sidebarContentPanel,
+    } = this.props;
+    if (sidebarNavPanel === PANELS.NONE && sidebarContentPanel === PANELS.NONE) return null;
     const panels = [];
 
-    if (enableResize) {
-      panels.push(
-        this.renderUserListResizable(),
-        <div className={styles.userlistPad} key={this.padKey} />,
-      );
-    } else {
-      panels.push(this.renderUserList());
+    console.log('sidebarNavPanel', sidebarNavPanel);
+
+    if (sidebarNavPanel === PANELS.USERLIST) {
+      if (enableResize) {
+        panels.push(
+          this.renderUserListResizable(),
+          <div className={styles.userlistPad} key={this.padKey} />,
+        );
+      } else {
+        panels.push(this.renderUserList());
+      }
     }
 
-    if (openPanel === 'chat') {
+    if (sidebarContentPanel === PANELS.CHAT) {
       if (enableResize) {
         panels.push(this.renderChatResizable());
       } else {
@@ -605,7 +615,7 @@ class PanelManager extends Component {
       }
     }
 
-    if (openPanel === 'note') {
+    if (sidebarContentPanel === PANELS.SHARED_NOTES) {
       if (enableResize) {
         panels.push(this.renderNoteResizable());
       } else {
@@ -613,7 +623,7 @@ class PanelManager extends Component {
       }
     }
 
-    if (openPanel === 'captions') {
+    if (sidebarContentPanel === PANELS.CAPTIONS) {
       if (enableResize) {
         panels.push(this.renderCaptionsResizable());
       } else {
@@ -621,7 +631,7 @@ class PanelManager extends Component {
       }
     }
 
-    if (openPanel === 'poll') {
+    if (sidebarContentPanel === PANELS.POLL) {
       if (enableResize) {
         panels.push(this.renderPollResizable());
       } else {
@@ -629,7 +639,7 @@ class PanelManager extends Component {
       }
     }
 
-    if (openPanel === 'breakoutroom') {
+    if (sidebarContentPanel === PANELS.BREAKOUT) {
       if (enableResize) {
         panels.push(this.renderBreakoutRoom());
       } else {
@@ -637,7 +647,7 @@ class PanelManager extends Component {
       }
     }
 
-    if (openPanel === 'waitingUsersPanel') {
+    if (sidebarContentPanel === PANELS.WAITING_USERS) {
       if (enableResize) {
         panels.push(this.renderWaitingUsersPanelResizable());
       } else {

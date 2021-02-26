@@ -4,7 +4,6 @@ import { withTracker } from 'meteor/react-meteor-data';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Service from '/imports/ui/components/user-list/service';
 import UserList from './component';
-import NewLayoutContext from '../layout/context/context';
 
 const propTypes = {
   isPublicChat: PropTypes.func.isRequired,
@@ -37,4 +36,4 @@ export default withTracker(({ compact }) => {
     requestUserInformation: Service.requestUserInformation,
     layoutManagerLoaded,
   };
-})(NewLayoutContext.withConsumer(UserListContainer));
+})(UserListContainer);

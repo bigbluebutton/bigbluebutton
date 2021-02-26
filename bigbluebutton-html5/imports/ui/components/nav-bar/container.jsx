@@ -36,17 +36,22 @@ const NavBarContainer = ({ children, ...props }) => {
   const { groupChat: groupChats } = usingGroupChatContext;
   const hasUnreadMessages = checkUnreadMessages({ groupChatsMessages, groupChats, users });
   const {
-    newLayoutContextDispatch,
     newLayoutContextState,
     layoutManagerLoaded,
     ...rest
   } = props;
-  const { output } = newLayoutContextState;
+  const { output, sidebarNavPanel, sidebarContentPanel } = newLayoutContextState;
   const { navBar } = output;
+
   return (
     <NavBar
-      {...{ hasUnreadMessages, layoutManagerLoaded }}
-      {...rest}
+      {...{
+        hasUnreadMessages,
+        layoutManagerLoaded,
+        sidebarNavPanel,
+        sidebarContentPanel,
+        ...rest,
+      }}
       style={{ ...navBar }}
     >
       {children}
@@ -77,8 +82,6 @@ export default withTracker(() => {
 
   const { connectRecordingObserver, processOutsideToggleRecording } = Service;
   const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1 } });
-  const openPanel = Session.get('openPanel');
-  const isExpanded = openPanel !== '';
   const amIModerator = currentUser.role === ROLE_MODERATOR;
   const hasUnreadNotes = NoteService.hasUnreadNotes();
 
@@ -87,14 +90,12 @@ export default withTracker(() => {
 
   return {
     amIModerator,
-    isExpanded,
     currentUserId: Auth.userID,
     processOutsideToggleRecording,
     connectRecordingObserver,
     meetingId,
     hasUnreadNotes,
     presentationTitle: meetingTitle,
-    hasUnreadMessages,
     layoutManagerLoaded,
   };
 })(NewLayoutContext.withConsumer(NavBarContainer));

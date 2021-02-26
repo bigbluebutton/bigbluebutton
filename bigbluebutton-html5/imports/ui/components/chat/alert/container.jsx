@@ -1,14 +1,19 @@
 import React, { memo } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import UserListService from '/imports/ui/components/user-list/service';
 import Settings from '/imports/ui/services/settings';
 import ChatAlert from './component';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
+import NewLayoutContext from '../../layout/context/context';
+import { PANELS } from '../../layout/enums';
 
-const ChatAlertContainer = props => (
-  <ChatAlert {...props} />
-);
+const ChatAlertContainer = (props) => {
+  const { newLayoutContextState, idChatOpen, ...rest } = props;
+  const { sidebarContentPanel } = newLayoutContextState;
+  let idChat = idChatOpen;
+  if (sidebarContentPanel !== PANELS.CHAT) idChat = '';
+  return <ChatAlert {...rest} idChatOpen={idChat} />;
+};
 
 export default withTracker(() => {
   const AppSettings = Settings.application;
@@ -16,15 +21,7 @@ export default withTracker(() => {
   // UserListService.getActiveChats();
   const { loginTime } = Users.findOne({ userId: Auth.userID }, { fields: { loginTime: 1 } });
 
-  const openPanel = Session.get('openPanel');
-  let idChatOpen = Session.get('idChatOpen');
-
-  // Currently the panel can switch from the chat panel to something else and the idChatOpen won't
-  // always reset. A better solution would be to make the openPanel Session variable an
-  // Object { panelType: <String>, panelOptions: <Object> } and then get rid of idChatOpen
-  if (openPanel !== 'chat') {
-    idChatOpen = '';
-  }
+  const idChatOpen = Session.get('idChatOpen');
 
   return {
     audioAlertDisabled: !AppSettings.chatAudioAlerts,
@@ -34,4 +31,4 @@ export default withTracker(() => {
     joinTimestamp: loginTime,
     idChatOpen,
   };
-})(memo(ChatAlertContainer));
+})(memo(NewLayoutContext.withConsumer(ChatAlertContainer)));

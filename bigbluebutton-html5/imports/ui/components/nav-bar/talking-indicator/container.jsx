@@ -7,6 +7,7 @@ import TalkingIndicator from './component';
 import { makeCall } from '/imports/ui/services/api';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import Service from './service';
+import NewLayoutContext from '../../layout/context/context';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const { enableTalkingIndicator } = APP_CONFIG;
@@ -14,7 +15,9 @@ const TALKING_INDICATOR_MUTE_INTERVAL = 500;
 
 const TalkingIndicatorContainer = (props) => {
   if (!enableTalkingIndicator) return null;
-  return (<TalkingIndicator {...props} />);
+  const { newLayoutContextState, newLayoutContextDispatch, ...rest } = props;
+  const { sidebarNavPanel, sidebarContentPanel } = newLayoutContextState;
+  return (<TalkingIndicator {...rest} {...{ sidebarNavPanel, sidebarContentPanel }} />);
 };
 
 export default withTracker(() => {
@@ -61,7 +64,6 @@ export default withTracker(() => {
   return {
     talkers,
     muteUser,
-    openPanel: Session.get('openPanel'),
     isBreakoutRoom: meetingIsBreakout(),
   };
-})(TalkingIndicatorContainer);
+})(NewLayoutContext.withConsumer(TalkingIndicatorContainer));

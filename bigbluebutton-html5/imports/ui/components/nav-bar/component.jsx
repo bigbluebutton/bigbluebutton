@@ -12,6 +12,7 @@ import Button from '/imports/ui/components/button/component';
 import RecordingIndicator from './recording-indicator/container';
 import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
 import SettingsDropdownContainer from './settings-dropdown/container';
+import { PANELS, ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -41,16 +42,10 @@ const defaultProps = {
 };
 
 class NavBar extends Component {
-  static handleToggleUserList() {
-    Session.set(
-      'openPanel',
-      Session.get('openPanel') !== ''
-        ? ''
-        : 'userlist',
-    );
-    Session.set('idChatOpen', '');
+  constructor(props) {
+    super(props);
 
-    window.dispatchEvent(new Event('panelChanged'));
+    this.handleToggleUserList = this.handleToggleUserList.bind(this);
   }
 
   componentDidMount() {
@@ -70,10 +65,26 @@ class NavBar extends Component {
     clearInterval(this.interval);
   }
 
+  handleToggleUserList() {
+    const { sidebarNavPanel, sidebarContentPanel, newLayoutContextDispatch } = this.props;
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
+      value: sidebarNavPanel === PANELS.NONE ? PANELS.USERLIST : PANELS.NONE,
+    });
+    if (sidebarContentPanel !== PANELS.NONE) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+        value: PANELS.NONE,
+      });
+    }
+    Session.set('idChatOpen', '');
+
+    window.dispatchEvent(new Event('panelChanged'));
+  }
+
   render() {
     const {
       hasUnreadMessages,
-      isExpanded,
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
       mountModal,
@@ -82,6 +93,7 @@ class NavBar extends Component {
       style,
       layoutManagerLoaded,
       main,
+      sidebarNavPanel,
     } = this.props;
 
     const toggleBtnClasses = {};
@@ -90,6 +102,8 @@ class NavBar extends Component {
 
     let ariaLabel = intl.formatMessage(intlMessages.toggleUserListAria);
     ariaLabel += hasUnreadMessages ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
+
+    const isExpanded = sidebarNavPanel !== PANELS.NONE;
 
     return (
       <header
@@ -118,7 +132,7 @@ class NavBar extends Component {
             }
             <Button
               data-test="userListToggleButton"
-              onClick={NavBar.handleToggleUserList}
+              onClick={this.handleToggleUserList}
               ghost
               circle
               hideLabel

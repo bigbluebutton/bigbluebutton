@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import injectNotify from '/imports/ui/components/toast/inject-notify/component';
 import { Session } from 'meteor/session';
-
+import { PANELS, ACTIONS } from '../../../layout/enums';
 
 const propTypes = {
   notify: PropTypes.func.isRequired,
@@ -14,7 +14,17 @@ const propTypes = {
 };
 
 class ChatPushAlert extends PureComponent {
-  static link(title, chatId) {
+  constructor(props) {
+    super(props);
+    this.showNotify = this.showNotify.bind(this);
+
+    this.componentDidMount = this.showNotify;
+    this.componentDidUpdate = this.showNotify;
+    this.link = this.link.bind(this);
+  }
+
+  link(title, chatId) {
+    const { newLayoutContextDispatch } = this.props;
     let chat = chatId;
 
     if (chat === 'MAIN-PUBLIC-GROUP-CHAT') {
@@ -29,6 +39,10 @@ class ChatPushAlert extends PureComponent {
         tabIndex={0}
         onClick={() => {
           Session.set('openPanel', 'chat');
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+            value: PANELS.CHAT,
+          });
           Session.set('idChatOpen', chat);
           window.dispatchEvent(new Event('panelChanged'));
         }}
@@ -37,14 +51,6 @@ class ChatPushAlert extends PureComponent {
         {title}
       </div>
     );
-  }
-
-  constructor(props) {
-    super(props);
-    this.showNotify = this.showNotify.bind(this);
-
-    this.componentDidMount = this.showNotify;
-    this.componentDidUpdate = this.showNotify;
   }
 
   showNotify() {
@@ -58,11 +64,11 @@ class ChatPushAlert extends PureComponent {
     } = this.props;
 
     return notify(
-      ChatPushAlert.link(title, chatId),
+      this.link(title, chatId),
       'info',
       'chat',
       { onOpen, autoClose: alertDuration },
-      ChatPushAlert.link(content, chatId),
+      this.link(content, chatId),
       true,
     );
   }

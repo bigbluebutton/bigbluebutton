@@ -35,9 +35,6 @@ export default withTracker((params) => {
   } = params;
 
   const startPoll = (type, id) => {
-    Session.set('openPanel', 'poll');
-    Session.set('forcePollOpen', true);
-
     makeCall('startPoll', type, id, '');
   };
 

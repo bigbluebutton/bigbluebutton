@@ -65,6 +65,7 @@ const reducer = (state, action) => {
     }
 
     case ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL: {
+      console.log('SET_SIDEBAR_NAVIGATION_PANEL', action.value);
       if (state.sidebarNavPanel === action.value) return state;
       return {
         ...state,

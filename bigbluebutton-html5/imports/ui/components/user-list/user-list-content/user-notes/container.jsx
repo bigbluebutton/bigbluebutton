@@ -5,10 +5,15 @@ import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import UserNotes from './component';
+import NewLayoutContext from '../../../layout/context/context';
 
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
-const UserNotesContainer = props => <UserNotes {...props} />;
+const UserNotesContainer = (props) => {
+  const { newLayoutContextState, ...rest } = props;
+  const { sidebarContentPanel } = newLayoutContextState;
+  return <UserNotes {...{ sidebarContentPanel }} {...rest} />;
+};
 
 export default withTracker(() => {
   const Meeting = Meetings.findOne({ meetingId: Auth.meetingID },
@@ -21,8 +26,7 @@ export default withTracker(() => {
   const shouldDisableNote = (Meeting.lockSettingsProps.disableNote) && isViewer;
 
   return {
-    isPanelOpened: NoteService.isPanelOpened(),
     revs: NoteService.getRevs(),
     disableNote: shouldDisableNote,
   };
-})(UserNotesContainer);
+})(NewLayoutContext.withConsumer(UserNotesContainer));

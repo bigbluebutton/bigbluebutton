@@ -18,7 +18,8 @@ import { Session } from 'meteor/session';
 import { styles } from './styles';
 import UserName from '../user-name/component';
 import UserIcons from '../user-icons/component';
-import Service from '../../../../service';
+import Service from '/imports/ui/components/user-list/service';
+import { PANELS, ACTIONS } from '../../../../../layout/enums';
 
 const messages = defineMessages({
   presenter: {
@@ -234,11 +235,14 @@ class UserDropdown extends PureComponent {
       meetingIsBreakout,
       mountModal,
       usersProp,
+      newLayoutContextDispatch,
     } = this.props;
     const { showNestedOptions } = this.state;
 
     const amIModerator = currentUser.role === ROLE_MODERATOR;
-    const actionPermissions = getAvailableActions(amIModerator, meetingIsBreakout, user, voiceUser, usersProp);
+    const actionPermissions = getAvailableActions(
+      amIModerator, meetingIsBreakout, user, voiceUser, usersProp,
+    );
     const actions = [];
 
     const {
@@ -324,6 +328,10 @@ class UserDropdown extends PureComponent {
         () => {
           getGroupChatPrivate(currentUser.userId, user);
           Session.set('openPanel', 'chat');
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+            value: PANELS.CAPTIONS,
+          });
           Session.set('idChatOpen', user.userId);
         },
         'chat',

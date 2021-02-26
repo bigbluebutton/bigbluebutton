@@ -5,11 +5,15 @@ import Presentations from '/imports/api/presentations';
 import PresentationAreaService from '/imports/ui/components/presentation/service';
 import Poll from '/imports/ui/components/poll/component';
 import Service from './service';
+import NewLayoutContext from '../layout/context/context';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
-const PollContainer = ({ ...props }) => <Poll {...props} />;
+const PollContainer = (props) => {
+  const { newLayoutContextState, ...rest } = props;
+  return <Poll {...rest} />;
+};
 
 export default withTracker(() => {
   Meteor.subscribe('current-poll');
@@ -41,4 +45,4 @@ export default withTracker(() => {
     pollAnswerIds: Service.pollAnswerIds,
     isMeteorConnected: Meteor.status().connected,
   };
-})(PollContainer);
+})(NewLayoutContext.withConsumer(PollContainer));

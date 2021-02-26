@@ -177,6 +177,7 @@ class ChatAlert extends PureComponent {
       idChatOpen,
       pushAlertDisabled,
       intl,
+      newLayoutContextDispatch,
     } = this.props;
 
     const {
@@ -227,6 +228,7 @@ class ChatAlert extends PureComponent {
                         this.setState({ pendingNotificationsByChat: pendingNotifications });
                       }}
                     alertDuration={ALERT_DURATION}
+                    newLayoutContextDispatch={newLayoutContextDispatch}
                   />
                 );
               })

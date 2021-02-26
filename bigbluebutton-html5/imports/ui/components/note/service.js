@@ -30,13 +30,8 @@ const getNoteParams = () => {
   config.userColor = User.color;
   config.lang = getLang();
 
-  const params = [];
-  for (const key in config) {
-    if (config.hasOwnProperty(key)) {
-      params.push(`${key}=${encodeURIComponent(config[key])}`);
-    }
-  }
-  return params.join('&');
+  const params = Object.keys(config).map(key => `${key}=${encodeURIComponent(config[key])}`).join('&');
+  return params;
 };
 
 const isLocked = () => {
@@ -67,6 +62,12 @@ const getRevs = () => {
   return note ? note.revs : 0;
 };
 
+const getLastRevs = () => {
+  const lastRevs = Session.get('noteLastRevs');
+  if (!lastRevs) return -1;
+  return lastRevs;
+};
+
 const setLastRevs = (revs) => {
   const lastRevs = getLastRevs();
 
@@ -75,12 +76,7 @@ const setLastRevs = (revs) => {
   }
 };
 
-const getLastRevs = () => {
-  const lastRevs = Session.get('noteLastRevs');
-
-  if (!lastRevs) return -1;
-  return lastRevs;
-};
+const isPanelOpened = () => Session.get('openPanel') === 'note';
 
 const hasUnreadNotes = () => {
   const opened = isPanelOpened();
@@ -103,8 +99,6 @@ const toggleNotePanel = () => {
     isPanelOpened() ? 'userlist' : 'note',
   );
 };
-
-const isPanelOpened = () => Session.get('openPanel') === 'note';
 
 export default {
   getNoteURL,

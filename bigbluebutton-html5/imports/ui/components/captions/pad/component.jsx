@@ -8,6 +8,7 @@ import logger from '/imports/startup/client/logger';
 import PadService from './service';
 import CaptionsService from '/imports/ui/components/captions/service';
 import { styles } from './styles';
+import { PANELS, ACTIONS } from '../../layout/enums';
 
 const intlMessages = defineMessages({
   hide: {
@@ -178,8 +179,10 @@ class Pad extends PureComponent {
       ownerId,
       name,
       amIModerator,
+      newLayoutContextDispatch,
     } = this.props;
 
+    // TODO change validation to the component call
     if (!amIModerator) {
       Session.set('openPanel', 'userlist');
       return null;
@@ -193,7 +196,13 @@ class Pad extends PureComponent {
         <header className={styles.header}>
           <div className={styles.title}>
             <Button
-              onClick={() => { Session.set('openPanel', 'userlist'); }}
+              onClick={() => {
+                newLayoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                  value: PANELS.NONE,
+                });
+                Session.set('openPanel', 'userlist');
+              }}
               aria-label={intl.formatMessage(intlMessages.hide)}
               label={name}
               icon="left_arrow"
@@ -259,6 +268,5 @@ class Pad extends PureComponent {
   }
 }
 
-export default injectWbResizeEvent(injectIntl(Pad));
-
 Pad.propTypes = propTypes;
+export default injectWbResizeEvent(injectIntl(Pad));

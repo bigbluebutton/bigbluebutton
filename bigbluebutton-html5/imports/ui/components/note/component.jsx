@@ -6,6 +6,7 @@ import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrap
 import Button from '/imports/ui/components/button/component';
 import NoteService from './service';
 import { styles } from './styles';
+import { PANELS, ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
   hideNoteLabel: {
@@ -47,6 +48,7 @@ class Note extends Component {
       isLocked,
       intl,
       isRTL,
+      newLayoutContextDispatch,
     } = this.props;
 
     const url = isLocked ? this.readOnlyURL : this.noteURL;
@@ -63,6 +65,10 @@ class Note extends Component {
             <Button
               onClick={() => {
                 Session.set('openPanel', 'userlist');
+                newLayoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                  value: PANELS.NONE,
+                });
               }}
               data-test="hideNoteLabel"
               aria-label={intl.formatMessage(intlMessages.hideNoteLabel)}

@@ -1,11 +1,14 @@
 import React from 'react';
-import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { injectIntl } from 'react-intl';
 import QuickPollDropdown from './component';
+import NewLayoutContext from '../../layout/context/context';
 
-const QuickPollDropdownContainer = props => <QuickPollDropdown {...props} />;
+const QuickPollDropdownContainer = (props) => {
+  const { newLayoutContextState, ...rest } = props;
+  return <QuickPollDropdown {...rest} />;
+};
 
 export default withTracker(() => ({
   activePoll: Session.get('pollInitiated') || false,
-}))(injectIntl(QuickPollDropdownContainer));
+}))(injectIntl(NewLayoutContext.withConsumer(QuickPollDropdownContainer)));

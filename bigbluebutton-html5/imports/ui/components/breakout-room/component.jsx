@@ -7,6 +7,7 @@ import logger from '/imports/startup/client/logger';
 import { styles } from './styles';
 import BreakoutRoomContainer from './breakout-remaining-time/container';
 import VideoService from '/imports/ui/components/video-provider/service';
+import { PANELS, ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -204,7 +205,8 @@ class BreakoutRoom extends PureComponent {
               aria-label={`${intl.formatMessage(intlMessages.breakoutJoin)} ${number}`}
               onClick={() => {
                 this.getBreakoutURL(breakoutId);
-                // leave main room's audio, and stops video and screenshare when joining a breakout room
+                // leave main room's audio,
+                // and stops video and screenshare when joining a breakout room
                 exitAudio();
                 logger.debug({
                   logCode: 'breakoutroom_join',
@@ -226,7 +228,7 @@ class BreakoutRoom extends PureComponent {
               (
                 <Button
                   label={
-                      stateBreakoutId === breakoutId && joinedAudioOnly
+                    stateBreakoutId === breakoutId && joinedAudioOnly
                       ? intl.formatMessage(intlMessages.breakoutReturnAudio)
                       : intl.formatMessage(intlMessages.breakoutJoinAudio)
                   }
@@ -314,7 +316,12 @@ class BreakoutRoom extends PureComponent {
 
   render() {
     const {
-      isMeteorConnected, intl, endAllBreakouts, amIModerator, closeBreakoutPanel,
+      isMeteorConnected,
+      intl,
+      endAllBreakouts,
+      amIModerator,
+      closeBreakoutPanel,
+      newLayoutContextDispatch,
     } = this.props;
     return (
       <div className={styles.panel}>
@@ -323,7 +330,13 @@ class BreakoutRoom extends PureComponent {
           label={intl.formatMessage(intlMessages.breakoutTitle)}
           aria-label={intl.formatMessage(intlMessages.breakoutAriaTitle)}
           className={styles.header}
-          onClick={closeBreakoutPanel}
+          onClick={() => {
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+              value: PANELS.NONE,
+            });
+            closeBreakoutPanel();
+          }}
         />
         {this.renderBreakoutRooms()}
         {this.renderDuration()}

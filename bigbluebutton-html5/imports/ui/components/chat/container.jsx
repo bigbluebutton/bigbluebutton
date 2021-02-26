@@ -11,6 +11,7 @@ import { GroupChatContext } from '../components-data/group-chat-context/context'
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import Chat from './component';
 import ChatService from './service';
+import NewLayoutContext from '../layout/context/context';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -61,6 +62,8 @@ const ChatContainer = (props) => {
 
   const modOnlyMessage = Storage.getItem('ModeratorOnlyMessage');
   const { welcomeProp } = ChatService.getWelcomeProp();
+
+  const { newLayoutContextState, ...rest } = props;
 
   const {
     children,
@@ -137,7 +140,7 @@ const ChatContainer = (props) => {
 
   return (
     <Chat {...{
-      ...props,
+      ...rest,
       chatID,
       amIModerator,
       count: (contextChat?.unreadTimeWindows.size || 0),
@@ -187,4 +190,4 @@ export default injectIntl(withTracker(({ intl }) => {
       handleClosePrivateChat: ChatService.closePrivateChat,
     },
   };
-})(ChatContainer));
+})(NewLayoutContext.withConsumer(ChatContainer)));

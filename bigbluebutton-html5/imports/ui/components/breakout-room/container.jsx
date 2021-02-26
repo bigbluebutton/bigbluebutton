@@ -4,8 +4,12 @@ import AudioService from '/imports/ui/components/audio/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import BreakoutComponent from './component';
 import Service from './service';
+import NewLayoutContext from '../layout/context/context';
 
-const BreakoutContainer = props => <BreakoutComponent {...props} />;
+const BreakoutContainer = (props) => {
+  const { newLayoutContextState, ...rest } = props;
+  return <BreakoutComponent {...rest} />;
+};
 
 
 export default withTracker((props) => {
@@ -42,4 +46,4 @@ export default withTracker((props) => {
     isUserInBreakoutRoom,
     exitAudio: () => AudioManager.exitAudio(),
   };
-})(BreakoutContainer);
+})(NewLayoutContext.withConsumer(BreakoutContainer));

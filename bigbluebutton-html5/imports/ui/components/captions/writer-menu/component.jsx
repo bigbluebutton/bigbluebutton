@@ -7,6 +7,7 @@ import Modal from '/imports/ui/components/modal/simple/component';
 import Button from '/imports/ui/components/button/component';
 import LocalesDropdown from '/imports/ui/components/locales-dropdown/component';
 import { styles } from './styles';
+import { PANELS, ACTIONS } from '../../layout/enums';
 
 const intlMessages = defineMessages({
   closeLabel: {
@@ -74,12 +75,17 @@ class WriterMenu extends PureComponent {
   }
 
   handleStart() {
-    const { closeModal, takeOwnership } = this.props;
+    const { closeModal, takeOwnership, newLayoutContextDispatch } = this.props;
     const { locale } = this.state;
 
     takeOwnership(locale);
     Session.set('captionsLocale', locale);
     Session.set('openPanel', 'captions');
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+      value: PANELS.CAPTIONS,
+    });
 
     closeModal();
   }

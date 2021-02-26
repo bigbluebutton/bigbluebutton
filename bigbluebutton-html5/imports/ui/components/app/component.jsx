@@ -279,18 +279,21 @@ class App extends Component {
   }
 
   shouldAriaHide() {
-    const { openPanel, isPhone } = this.props;
-    return openPanel !== '' && (isPhone || isLayeredView.matches);
+    const { sidebarNavPanel, sidebarContentPanel, isPhone } = this.props;
+    return sidebarContentPanel !== PANELS.NONE
+      && sidebarNavPanel !== PANELS.NONE
+      && (isPhone || isLayeredView.matches);
   }
 
   renderPanel() {
     const { enableResize } = this.state;
-    const { openPanel, isRTL } = this.props;
+    const { sidebarNavPanel, sidebarContentPanel, isRTL } = this.props;
 
     return (
       <PanelManager
         {...{
-          openPanel,
+          sidebarNavPanel,
+          sidebarContentPanel,
           enableResize,
           isRTL,
         }}
@@ -375,7 +378,11 @@ class App extends Component {
 
   render() {
     const {
-      customStyle, customStyleUrl, openPanel, layoutManagerLoaded,
+      customStyle,
+      customStyleUrl,
+      layoutManagerLoaded,
+      sidebarNavPanel,
+      sidebarContentPanel,
     } = this.props;
 
     return (
@@ -395,7 +402,13 @@ class App extends Component {
               <BannerBarContainer />
               <NotificationsBarContainer />
               <section className={styles.wrapper}>
-                <div className={openPanel ? styles.content : styles.noPanelContent}>
+                <div className={
+                  sidebarNavPanel !== PANELS.NONE
+                    && sidebarContentPanel !== PANELS.NONE
+                    ? styles.content
+                    : styles.noPanelContent
+                }
+                >
                   <NavBarContainer main="legacy" />
                   {this.renderMedia()}
                   {this.renderActionsBar()}

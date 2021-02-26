@@ -9,6 +9,7 @@ import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import LiveResult from './live-result/component';
 import { styles } from './styles.scss';
+import { PANELS, ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
   pollPaneTitle: {
@@ -188,6 +189,7 @@ class Poll extends Component {
       this.handleBackClick();
     }
 
+    // TODO change validation to the component call
     if (!amIPresenter) {
       Session.set('openPanel', 'userlist');
       Session.set('forcePollOpen', false);
@@ -543,6 +545,7 @@ class Poll extends Component {
       stopPoll,
       currentPoll,
       amIPresenter,
+      newLayoutContextDispatch,
     } = this.props;
 
     if (!amIPresenter) return null;
@@ -558,7 +561,13 @@ class Poll extends Component {
             icon="left_arrow"
             aria-label={intl.formatMessage(intlMessages.hidePollDesc)}
             className={styles.hideBtn}
-            onClick={() => { Session.set('openPanel', 'userlist'); }}
+            onClick={() => {
+              Session.set('openPanel', 'userlist');
+              newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                value: PANELS.NONE,
+              });
+            }}
           />
           <Button
             label={intl.formatMessage(intlMessages.closeLabel)}
@@ -566,6 +575,10 @@ class Poll extends Component {
             onClick={() => {
               if (currentPoll) stopPoll();
               Session.set('openPanel', 'userlist');
+              newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                value: PANELS.NONE,
+              });
               Session.set('forcePollOpen', false);
               Session.set('pollInitiated', false);
             }}

@@ -47,6 +47,7 @@ class UserCaptions extends Component {
   renderCaptions() {
     const {
       ownedLocales,
+      newLayoutContextDispatch,
     } = this.props;
 
     return ownedLocales.map(locale => (
@@ -60,7 +61,7 @@ class UserCaptions extends Component {
         className={styles.captionsList}
         key={locale.locale}
       >
-        <CaptionsListItem locale={locale} tabIndex={-1} />
+        <CaptionsListItem locale={locale} tabIndex={-1} newLayoutContextDispatch={newLayoutContextDispatch} />
       </CSSTransition>
     ));
   }

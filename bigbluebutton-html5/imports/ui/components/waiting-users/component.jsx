@@ -6,6 +6,7 @@ import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrap
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
+import { PANELS, ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
   waitingUsersTitle: {
@@ -50,7 +51,7 @@ const intlMessages = defineMessages({
   },
   accept: {
     id: 'app.userList.guest.acceptLabel',
-    description: 'Accept guest button label'
+    description: 'Accept guest button label',
   },
   deny: {
     id: 'app.userList.guest.denyLabel',
@@ -65,9 +66,11 @@ const getNameInitials = (name) => {
   const nameInitials = name.slice(0, 2);
 
   return nameInitials.replace(/^\w/, c => c.toUpperCase());
-}
+};
 
-const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequence, userId, avatar, intl) => (
+const renderGuestUserItem = (
+  name, color, handleAccept, handleDeny, role, sequence, userId, avatar, intl,
+) => (
   <div key={`userlist-item-${userId}`} className={styles.listItem}>
     <div key={`user-content-container-${userId}`} className={styles.userContentContainer}>
       <div key={`user-avatar-container-${userId}`} className={styles.userAvatar}>
@@ -81,7 +84,7 @@ const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequen
         </UserAvatar>
       </div>
       <p key={`user-name-${userId}`} className={styles.userName}>
-[
+        [
         {sequence}
 ]
         {name}
@@ -144,6 +147,8 @@ const WaitingUsers = (props) => {
       authenticatedUsers,
       guestUsers,
     } = props;
+
+    // TODO change validation to the component call
     if (!authenticatedUsers.length && !guestUsers.length) Session.set('openPanel', 'userlist');
   });
 
@@ -154,6 +159,7 @@ const WaitingUsers = (props) => {
     guestUsersCall,
     changeGuestPolicy,
     authenticatedGuest,
+    newLayoutContextDispatch,
   } = props;
 
   const onCheckBoxChange = (e) => {
@@ -212,7 +218,9 @@ const WaitingUsers = (props) => {
     },
   ];
 
-  const buttonsData = authenticatedGuest ? _.concat(authGuestButtonsData , guestButtonsData) : guestButtonsData;
+  const buttonsData = authenticatedGuest
+    ? _.concat(authGuestButtonsData, guestButtonsData)
+    : guestButtonsData;
 
   return (
     <div
@@ -227,6 +235,10 @@ const WaitingUsers = (props) => {
           <Button
             onClick={() => {
               Session.set('openPanel', 'userlist');
+              newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                value: PANELS.CAPTIONS,
+              });
             }}
             label={intl.formatMessage(intlMessages.title)}
             icon="left_arrow"

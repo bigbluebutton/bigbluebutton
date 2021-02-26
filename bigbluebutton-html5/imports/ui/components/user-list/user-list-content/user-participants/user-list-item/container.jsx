@@ -5,8 +5,12 @@ import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UserListItem from './component';
 import UserListService from '/imports/ui/components/user-list/service';
+import NewLayoutContext from '../../../../layout/context/context';
 
-const UserListItemContainer = props => <UserListItem {...props} />;
+const UserListItemContainer = (props) => {
+  const { newLayoutContextState, ...rest } = props;
+  return <UserListItem {...rest} />;
+};
 const isMe = intId => intId === Auth.userID;
 
 export default withTracker(({ user }) => {
@@ -37,4 +41,4 @@ export default withTracker(({ user }) => {
     usersProp: UserListService.getUsersProp(),
     hasPrivateChatBetweenUsers: UserListService.hasPrivateChatBetweenUsers,
   };
-})(UserListItemContainer);
+})(NewLayoutContext.withConsumer(UserListItemContainer));

@@ -1,20 +1,19 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import CaptionsService from '/imports/ui/components/captions/service';
 import Pad from './component';
 import Auth from '/imports/ui/services/auth';
+import NewLayoutContext from '../../layout/context/context';
 
-class PadContainer extends PureComponent {
-  render() {
-    const { children } = this.props;
-    return (
-      <Pad {...this.props}>
-        {children}
-      </Pad>
-    );
-  }
-}
+const PadContainer = (props) => {
+  const { newLayoutContextState, children, ...rest } = props;
+  return (
+    <Pad {...rest}>
+      {children}
+    </Pad>
+  );
+};
 
 export default withTracker(() => {
   const locale = Session.get('captionsLocale');
@@ -36,4 +35,4 @@ export default withTracker(() => {
     currentUserId: Auth.userID,
     amIModerator: CaptionsService.amIModerator(),
   };
-})(PadContainer);
+})(NewLayoutContext.withConsumer(PadContainer));

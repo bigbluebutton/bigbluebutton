@@ -9,6 +9,7 @@ import { styles } from './styles.scss';
 import MessageForm from './message-form/container';
 import TimeWindowList from './time-window-list/container';
 import ChatDropdownContainer from './chat-dropdown/container';
+import { PANELS, ACTIONS } from '../layout/enums';
 
 const ELEMENT_ID = 'chat-messages';
 
@@ -45,6 +46,7 @@ const Chat = (props) => {
     timeWindowsValues,
     dispatch,
     count,
+    newLayoutContextDispatch,
   } = props;
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
   const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
@@ -62,6 +64,10 @@ const Chat = (props) => {
             onClick={() => {
               Session.set('idChatOpen', '');
               Session.set('openPanel', 'userlist');
+              newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                value: PANELS.NONE,
+              });
               window.dispatchEvent(new Event('panelChanged'));
             }}
             aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
@@ -84,6 +90,10 @@ const Chat = (props) => {
                   actions.handleClosePrivateChat(chatID);
                   Session.set('idChatOpen', '');
                   Session.set('openPanel', 'userlist');
+                  newLayoutContextDispatch({
+                    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                    value: PANELS.NONE,
+                  });
                   window.dispatchEvent(new Event('panelChanged'));
                 }}
                 aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}

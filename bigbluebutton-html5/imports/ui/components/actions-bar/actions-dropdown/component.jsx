@@ -15,6 +15,7 @@ import ExternalVideoModal from '/imports/ui/components/external-video-player/mod
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
 import cx from 'classnames';
 import { styles } from '../styles';
+import { PANELS, ACTIONS } from '../../layout/enums';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -119,6 +120,7 @@ class ActionsDropdown extends PureComponent {
       isPollingEnabled,
       stopExternalVideoShare,
       mountModal,
+      newLayoutContextDispatch,
     } = this.props;
 
     const {
@@ -148,6 +150,10 @@ class ActionsDropdown extends PureComponent {
                 Session.set('resetPollPanel', true);
               }
               Session.set('openPanel', 'poll');
+              newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                value: PANELS.POLL,
+              });
               Session.set('forcePollOpen', true);
             }}
           />
