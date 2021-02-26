@@ -103,8 +103,8 @@ async function poll(page1, page2) {
     await page1.page.evaluate(async () => await document.querySelectorAll('button[aria-label="Actions"]')[0].click());
     await page1.waitForSelector(ne.polling, ELEMENT_WAIT_TIME);
     await page1.click(ne.polling, true);
-    await page1.waitForSelector(ne.pollYesNoBtn, ELEMENT_WAIT_TIME);
-    await page1.click(ne.pollYesNoBtn, true);
+    await page1.waitForSelector(ne.pollYesNoAbstentionBtn, ELEMENT_WAIT_TIME);
+    await page1.click(ne.pollYesNoAbstentionBtn, true);
     await page2.waitForSelector(ne.yesBtn, ELEMENT_WAIT_TIME);
     await page2.click(ne.yesBtn, true);
     await page1.waitForSelector(ne.publishPollingResults, ELEMENT_WAIT_TIME);

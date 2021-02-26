@@ -16,7 +16,7 @@ exports.uploadPresentation = '[data-test="uploadPresentation"]';
 exports.dropdownContent = '[data-test="dropdownContent"]';
 exports.fileUploadDropZone = '[data-test="fileUploadDropZone"]';
 exports.polling = 'li[data-test="polling"]';
-exports.pollYesNoBtn = 'button[aria-label="Yes / No"]';
+exports.pollYesNoAbstentionBtn = 'button[aria-label="Yes / No / Abstention"]';
 exports.yesBtn = 'button[aria-label="Yes"]';
 exports.publishPollingResults = 'button[aria-label="Publish polling results"]';
 exports.pollBtn = 'button[data-test="pollBtn"]';

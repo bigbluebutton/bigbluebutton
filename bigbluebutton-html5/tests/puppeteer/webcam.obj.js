@@ -18,8 +18,10 @@ const webcamTest = () => {
     try {
       const testName = 'shareWebcam';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgsWithVideo());
+      await test.init(Page.getArgsWithVideo(), undefined, undefined, undefined, testName);
+      await test.startRecording(testName);
       response = await test.test();
+      await test.stopRecording();
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
     } catch (e) {
@@ -43,8 +45,10 @@ const webcamTest = () => {
     try {
       const testName = 'checkWebcamContent';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgsWithVideo());
+      await test.init(Page.getArgsWithVideo(), undefined, undefined, undefined, testName);
+      await test.startRecording(testName);
       response = await test.test();
+      await test.stopRecording();
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
     } catch (e) {
