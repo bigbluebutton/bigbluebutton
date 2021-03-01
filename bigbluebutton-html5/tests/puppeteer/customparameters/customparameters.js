@@ -1,7 +1,7 @@
 const path = require('path');
 const Page = require('../core/page');
 const params = require('../params');
-const helper = require('../core/helper');
+const ne = require('../notifications/elements');
 const pe = require('../core/elements');
 const cpe = require('./elements');
 const we = require('../webcam/elements');
@@ -525,9 +525,8 @@ class CustomParameters {
     return true;
   }
 
-  async forceRestorePresentationOnNewPollResult(testName, args, meetingId, customParameter) {
+  async forceRestorePresentationOnNewPollResult(args, meetingId, customParameter, testName) {
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
-    await this.page1.startRecording(testName);
     await this.page2.init(args, this.page1.meetingId, { ...params, fullName: 'Viewer1', moderatorPW: '' }, customParameter, testName);
     await this.page2.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-page1-${testName}`);
@@ -541,17 +540,18 @@ class CustomParameters {
     await this.page2.click(cpe.hidePresentation, true);
     await this.page2.screenshot(`${testName}`, `03-page2-${testName}`);
     const pollCase = await util.poll(this.page1, this.page2);
+    await this.page2.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
     await this.page1.screenshot(`${testName}`, `03-page1-${testName}`);
     await this.page2.screenshot(`${testName}`, `04-page2-${testName}`);
     if (pollCase === true
        && await this.page2.page.evaluate(util.countTestElements, cpe.restorePresentation) === true) {
       await this.page2.screenshot(`${testName}`, `05-page2-fail-${testName}`);
-      this.page1.logger(testName, ' failed');
+      await this.page1.logger(testName, ' failed');
       return false;
     }
     await this.page2.page.evaluate(util.countTestElements, cpe.restorePresentation) === false;
     await this.page2.screenshot(`${testName}`, `05-page2-success-${testName}`);
-    this.page1.logger(testName, ' passed');
+    await this.page1.logger(testName, ' passed');
     return true;
   }
 

@@ -4,6 +4,7 @@ const ne = require('../notifications/elements');
 const pe = require('../presentation/elements');
 const ce = require('../customparameters/elements');
 const we = require('../whiteboard/elements');
+const poe = require('../polling/elemens');
 
 async function autoJoinTest(test) {
   const resp = await test.page.evaluate(async () => {
@@ -105,6 +106,9 @@ async function poll(page1, page2) {
     await page1.click(ne.polling, true);
     await page1.waitForSelector(ne.pollYesNoAbstentionBtn, ELEMENT_WAIT_TIME);
     await page1.click(ne.pollYesNoAbstentionBtn, true);
+    await page1.waitForSelector(ne.startPoll, ELEMENT_WAIT_TIME);
+    await page1.click(ne.startPoll, true);
+    await page2.waitForSelector(poe.pollingContainer, ELEMENT_WAIT_TIME);
     await page2.waitForSelector(ne.yesBtn, ELEMENT_WAIT_TIME);
     await page2.click(ne.yesBtn, true);
     await page1.waitForSelector(ne.publishPollingResults, ELEMENT_WAIT_TIME);

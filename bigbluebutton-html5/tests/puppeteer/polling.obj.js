@@ -80,9 +80,8 @@ const pollingTest = () => {
     try {
       const testName = 'forceRestorePresentationOnNewPollResult';
       await test.page1.logger('begin of ', testName);
-      response = await test.forceRestorePresentationOnNewPollResult(testName, Page.getArgs(), undefined, `${ce.forceRestorePresentationOnNewEvents}`);
+      response = await test.forceRestorePresentationOnNewPollResult(Page.getArgs(), undefined, `${ce.forceRestorePresentationOnNewEvents}`, testName);
       await test.page1.logger('end of ', testName);
-      await test.page1.stopRecording();
       await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
     } catch (e) {

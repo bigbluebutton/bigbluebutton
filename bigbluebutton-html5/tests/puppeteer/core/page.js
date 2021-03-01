@@ -324,6 +324,7 @@ class Page {
 
   async removeRecordingImages() {
     await fs.unlinkSync(`${this.testNameFolder}/recording/images.txt`);
+    await helper.sleep(5000);
     await fsExtra.removeSync(`${this.testNameFolder}/recording/images`);
   }
 
