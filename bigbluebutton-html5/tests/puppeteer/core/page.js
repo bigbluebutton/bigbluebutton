@@ -155,7 +155,7 @@ class Page {
 
   // Get the default arguments for creating a page
   static getArgs() {
-    const args = ['--no-sandbox', '--use-fake-ui-for-media-stream', '--lang=en-US'];
+    const args = ['--no-sandbox', '--use-fake-ui-for-media-stream', '--window-size=1280,720', '--lang=en-US'];
     return { headless: true, args };
   }
 
@@ -165,6 +165,7 @@ class Page {
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
+        '--window-size=1280,720',
         '--lang=en-US',
       ];
       return {
@@ -176,6 +177,7 @@ class Page {
       '--no-sandbox',
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
+      '--window-size=1280,720',
       `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
       '--allow-file-access',
       '--lang=en-US',
@@ -192,6 +194,7 @@ class Page {
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
+        '--window-size=1280,720',
         '--lang=en-US',
       ];
       return {
@@ -203,6 +206,7 @@ class Page {
       '--no-sandbox',
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
+      '--window-size=1280,720',
       `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
       '--allow-file-access',
       '--lang=en-US',
@@ -219,6 +223,7 @@ class Page {
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
+        '--window-size=1280,720',
         '--lang=en-US',
       ];
       return {
@@ -230,6 +235,7 @@ class Page {
       '--no-sandbox',
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
+      '--window-size=1280,720',
       `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
       `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
       '--allow-file-access',

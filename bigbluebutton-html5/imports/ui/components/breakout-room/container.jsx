@@ -25,6 +25,7 @@ export default withTracker((props) => {
   const breakoutRooms = findBreakouts();
   const isMicrophoneUser = AudioService.isConnected() && !AudioService.isListenOnly();
   const isMeteorConnected = Meteor.status().connected;
+  const isReconnecting = AudioService.isReconnecting();
   const { setReturningFromBreakoutAudioTransfer } = AudioService;
 
   return {
@@ -43,5 +44,6 @@ export default withTracker((props) => {
     isUserInBreakoutRoom,
     exitAudio: () => AudioManager.exitAudio(),
     setReturningFromBreakoutAudioTransfer,
+    isReconnecting,
   };
 })(BreakoutContainer);

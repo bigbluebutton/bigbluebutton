@@ -17,6 +17,7 @@ object RegisteredUsers {
       authenticated,
       guestStatus,
       System.currentTimeMillis(),
+      0,
       false,
       false,
       false
@@ -126,6 +127,12 @@ object RegisteredUsers {
     u
   }
 
+  def updateUserLastAuthTokenValidated(users: RegisteredUsers, user: RegisteredUser): RegisteredUser = {
+    val u = user.copy(lastAuthTokenValidatedOn = System.currentTimeMillis())
+    users.save(u)
+    u
+  }
+
   def markAsUserFailedToJoin(users: RegisteredUsers, user: RegisteredUser): RegisteredUser = {
     val u = user.copy(markAsJoinTimedOut = true)
     users.save(u)
@@ -153,18 +160,19 @@ class RegisteredUsers {
 }
 
 case class RegisteredUser(
-    id:                 String,
-    externId:           String,
-    name:               String,
-    role:               String,
-    authToken:          String,
-    avatarURL:          String,
-    guest:              Boolean,
-    authed:             Boolean,
-    guestStatus:        String,
-    registeredOn:       Long,
-    joined:             Boolean,
-    markAsJoinTimedOut: Boolean,
-    banned:             Boolean
+    id:                       String,
+    externId:                 String,
+    name:                     String,
+    role:                     String,
+    authToken:                String,
+    avatarURL:                String,
+    guest:                    Boolean,
+    authed:                   Boolean,
+    guestStatus:              String,
+    registeredOn:             Long,
+    lastAuthTokenValidatedOn: Long,
+    joined:                   Boolean,
+    markAsJoinTimedOut:       Boolean,
+    banned:                   Boolean
 )
 
