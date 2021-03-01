@@ -297,6 +297,7 @@ class MessageForm extends PureComponent {
             value={message}
             onChange={this.handleMessageChange}
             onKeyDown={this.handleMessageKeyDown}
+            async={true}
           />
           <Button
             hideLabel
