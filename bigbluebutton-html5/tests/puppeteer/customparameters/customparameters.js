@@ -26,11 +26,9 @@ class CustomParameters {
   }
 
   async autoJoin(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.waitForSelector('div[data-test="chatMessages"]', ELEMENT_WAIT_TIME);
     if (await this.page1.page.evaluate(util.getTestElement, cpe.audioModal) === false) {
       await this.page1.screenshot(`${testName}`, `02-fail-${testName}`);
@@ -44,7 +42,6 @@ class CustomParameters {
   }
 
   async listenOnlyMode(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.waitForSelector(pe.audioDialog, ELEMENT_WAIT_TIME);
@@ -65,11 +62,9 @@ class CustomParameters {
   }
 
   async forceListenOnly(testName, args, meetingId, customParameter) {
-    this.page2.logger('before init ', testName);
     await this.page2.init(args, meetingId, { ...params, fullName: 'Attendee', moderatorPW: '' }, customParameter, testName);
     await this.page2.startRecording(testName);
     await this.page2.screenshot(`${testName}`, `01-${testName}`);
-    this.page2.logger('after init ', testName);
     if (await this.page2.page.$('[data-test="audioModalHeader"]')) {
       await this.page2.screenshot(`${testName}`, `02-fail-${testName}`);
       this.page2.logger(testName, ' failed');
@@ -84,11 +79,9 @@ class CustomParameters {
   }
 
   async skipCheck(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.click(ae.microphone, true);
     await this.page1.waitForSelector(ae.connectingStatus, ELEMENT_WAIT_TIME);
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
@@ -108,11 +101,9 @@ class CustomParameters {
   async skipCheckOnFirstJoin(testName, args, meetingId, customParameter) {
     const parsedSettings = await this.page1.getSettingsYaml();
     const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.click(ae.microphone, true);
     const firstCheck = await this.page1.page.evaluate(util.getTestElement, ae.connecting) === false;
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
@@ -134,12 +125,9 @@ class CustomParameters {
   }
 
   async clientTitle(testName, args, meetingId, customParameter) {
-    testName = 'clientTitle';
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.waitForSelector(pe.whiteboard, ELEMENT_WAIT_TIME);
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
     if (await !(await this.page1.page.title()).includes(c.docTitle)) {
@@ -154,11 +142,9 @@ class CustomParameters {
   }
 
   async askForFeedbackOnLogout(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.closeAudioModal();
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
     await this.page1.logoutFromMeeting();
@@ -178,11 +164,9 @@ class CustomParameters {
   }
 
   async displayBrandingArea(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.closeAudioModal();
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
     this.page1.logger('audio modal closed');
@@ -199,11 +183,9 @@ class CustomParameters {
   }
 
   async shortcuts(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.closeAudioModal();
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
     this.page1.logger('audio modal closed');
@@ -222,12 +204,10 @@ class CustomParameters {
   }
 
   async enableScreensharing(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.closeAudioModal();
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     if (await this.page1.page.evaluate(util.getTestElement, cpe.screenShareButton) === false) {
       await this.page1.screenshot(`${testName}`, `02-fail-${testName}`);
       this.page1.logger(testName, ' failed');
@@ -240,12 +220,10 @@ class CustomParameters {
   }
 
   async enableVideo(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.closeAudioModal();
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     if (await this.page1.page.evaluate(util.getTestElement, cpe.shareWebcamButton) === false) {
       await this.page1.screenshot(`${testName}`, `02-fail-${testName}`);
       this.page1.logger(testName, ' failed');
@@ -258,11 +236,9 @@ class CustomParameters {
   }
 
   async autoShareWebcam(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.closeAudioModal();
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
     if (await this.page1.page.evaluate(util.getTestElement, cpe.webcamSettingsModal) === true) {
@@ -277,14 +253,12 @@ class CustomParameters {
   }
 
   async multiUserPenOnly(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page2.init(args, this.page1.meetingId, { ...params, fullName: 'Moderator2' }, customParameter, testName);
     await this.page2.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-page1-${testName}`);
     await this.page2.screenshot(`${testName}`, `01-page2-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.closeAudioModal();
     await this.page2.closeAudioModal();
     await this.page1.screenshot(`${testName}`, `02-page1-${testName}`);
@@ -307,11 +281,9 @@ class CustomParameters {
   }
 
   async presenterTools(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.closeAudioModal();
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
     await this.page1.waitForSelector(cpe.tools, ELEMENT_WAIT_TIME);
@@ -329,14 +301,12 @@ class CustomParameters {
   }
 
   async multiUserTools(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page2.init(args, this.page1.meetingId, { ...params, fullName: 'Moderator2' }, customParameter, testName);
     await this.page2.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-page1-${testName}`);
     await this.page2.screenshot(`${testName}`, `01-page2-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.closeAudioModal();
     await this.page2.closeAudioModal();
     await this.page1.screenshot(`${testName}`, `02-page1-${testName}`);
@@ -359,11 +329,9 @@ class CustomParameters {
   }
 
   async customStyle(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.closeAudioModal();
     await this.page1.waitForSelector(cpe.whiteboard, ELEMENT_WAIT_TIME);
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
@@ -381,11 +349,9 @@ class CustomParameters {
   }
 
   async customStyleUrl(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.closeAudioModal();
     await this.page1.waitForSelector(cpe.whiteboard, ELEMENT_WAIT_TIME);
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
@@ -403,11 +369,9 @@ class CustomParameters {
   }
 
   async autoSwapLayout(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.closeAudioModal();
     await this.page1.waitForSelector(cpe.container, ELEMENT_WAIT_TIME);
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
@@ -426,11 +390,9 @@ class CustomParameters {
   }
 
   async hidePresentation(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.closeAudioModal();
     await this.page1.waitForSelector(cpe.actions, ELEMENT_WAIT_TIME);
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
@@ -446,11 +408,9 @@ class CustomParameters {
   }
 
   async bannerText(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.closeAudioModal();
     await this.page1.waitForSelector(cpe.actions, ELEMENT_WAIT_TIME);
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
@@ -466,11 +426,9 @@ class CustomParameters {
   }
 
   async bannerColor(testName, args, meetingId, customParameter, colorToRGB) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.closeAudioModal();
     await this.page1.waitForSelector(cpe.notificationBar, ELEMENT_WAIT_TIME);
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
@@ -489,11 +447,9 @@ class CustomParameters {
   }
 
   async hideAndSwapPresentation(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.closeAudioModal();
     await this.page1.waitForSelector(cpe.container, ELEMENT_WAIT_TIME);
     if (await this.page1.page.evaluate(util.countTestElements, cpe.restorePresentation) === false && await this.page1.page.evaluate(util.countTestElements, cpe.defaultContent) === false) {
@@ -508,11 +464,9 @@ class CustomParameters {
   }
 
   async showPublicChatOnLogin(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.closeAudioModal();
     await this.page1.waitForSelector(cpe.container, ELEMENT_WAIT_TIME);
     if (await this.page1.page.evaluate(util.countTestElements, cpe.chat) === true) {
@@ -527,14 +481,12 @@ class CustomParameters {
   }
 
   async forceRestorePresentationOnNewEvents(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page2.init(args, this.page1.meetingId, { ...params, fullName: 'Viewer1', moderatorPW: '' }, customParameter, testName);
     await this.page2.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-page1-${testName}`);
     await this.page2.screenshot(`${testName}`, `01-page2-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.closeAudioModal();
     await this.page1.screenshot(`${testName}`, `02-page1-${testName}`);
     await this.page2.closeAudioModal();
@@ -574,14 +526,12 @@ class CustomParameters {
   }
 
   async forceRestorePresentationOnNewPollResult(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page2.init(args, this.page1.meetingId, { ...params, fullName: 'Viewer1', moderatorPW: '' }, customParameter, testName);
     await this.page2.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-page1-${testName}`);
     await this.page2.screenshot(`${testName}`, `01-page2-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.closeAudioModal();
     await this.page1.screenshot(`${testName}`, `02-page1-${testName}`);
     await this.page2.closeAudioModal();
@@ -606,12 +556,10 @@ class CustomParameters {
   }
 
   async recordMeeting(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.closeAudioModal();
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     if (await this.page1.page.evaluate(util.getTestElement, cpe.recordingIndicator) === false) {
       await this.page1.screenshot(`${testName}`, `02-fail-${testName}`);
       this.page1.logger(testName, ' failed');
@@ -624,11 +572,9 @@ class CustomParameters {
   }
 
   async skipVideoPreview(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.closeAudioModal();
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
     await this.page1.waitForSelector(cpe.shareWebcamButton, ELEMENT_WAIT_TIME);
@@ -645,11 +591,9 @@ class CustomParameters {
   }
 
   async skipVideoPreviewOnFirstJoin(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.closeAudioModal();
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
     await this.page1.waitForSelector(we.joinVideo, ELEMENT_WAIT_TIME);
@@ -681,11 +625,9 @@ class CustomParameters {
   }
 
   async mirrorOwnWebcam(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.closeAudioModal();
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
     await this.page1.waitForSelector(cpe.shareWebcamButton, ELEMENT_WAIT_TIME);
@@ -705,11 +647,9 @@ class CustomParameters {
   }
 
   async showParticipantsOnLogin(testName, args, meetingId, customParameter) {
-    this.page1.logger('before init ', testName);
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
-    this.page1.logger('after init ', testName);
     await this.page1.closeAudioModal();
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
     await this.page1.waitForSelector(cpe.whiteboard, ELEMENT_WAIT_TIME);
