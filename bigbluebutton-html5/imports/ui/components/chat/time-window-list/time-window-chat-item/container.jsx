@@ -27,7 +27,7 @@ export default function TimeWindowChatItemContainer(props) {
   const {
     sender,
     key,
-    time,
+    timestamp,
     content,
     color,
   } = message;
@@ -48,7 +48,7 @@ export default function TimeWindowChatItemContainer(props) {
         messages,
         isDefaultPoll,
         user,
-        time,
+        timestamp,
         systemMessage: messageId.startsWith(SYSTEM_CHAT_TYPE) || !sender,
         messageKey,
         handleReadMessage: ChatService.updateUnreadMessage,
