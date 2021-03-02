@@ -298,6 +298,8 @@ public:
     lines: 2
     time: 5000
   chat:
+    itemsPerPage: 100
+    timeBetweenFetchs: 1000
     enabled: true
     bufferChatInsertsMs: 0
     startClosed: false

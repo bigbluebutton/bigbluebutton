@@ -22,14 +22,12 @@ function groupChatMsg(chatsIds) {
 
   const User = Users.findOne({ userId });
   const selector = {
-    // change loginTime to lasJoinTime when available
-    timestamp: { $gte: User.loginTime },
+    timestamp: { $gte: User.authTokenValidatedTime },
     $or: [
       { meetingId, chatId: { $eq: PUBLIC_GROUP_CHAT_ID } },
       { chatId: { $in: chatsIds } },
     ],
   };
-  console.log('Users\n\n', selector, GroupChatMsg.find(selector).fetch());
   return GroupChatMsg.find(selector);
 }
 

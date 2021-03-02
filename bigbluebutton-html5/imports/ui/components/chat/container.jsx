@@ -23,7 +23,8 @@ const DEBOUNCE_TIME = 1000;
 
 const sysMessagesIds = {
   welcomeId: `${SYSTEM_CHAT_TYPE}-welcome-msg`,
-  moderatorId: `${SYSTEM_CHAT_TYPE}-moderator-msg`
+  moderatorId: `${SYSTEM_CHAT_TYPE}-moderator-msg`,
+  syncId: `${SYSTEM_CHAT_TYPE}-sync-msg`
 };
 
 const intlMessages = defineMessages({
@@ -42,6 +43,10 @@ const intlMessages = defineMessages({
   partnerDisconnected: {
     id: 'app.chat.partnerDisconnected',
     description: 'System chat message when the private chat partnet disconnect from the meeting',
+  },
+  loading: {
+    id: 'app.chat.loading',
+    description: 'loading message',
   },
 });
 
@@ -121,7 +126,23 @@ const ChatContainer = (props) => {
   applyPropsToState = () => {
     if (!_.isEqualWith(lastMsg, stateLastMsg) || previousChatId !== chatID) {
       const timeWindowsValues = isPublicChat
-        ? [...Object.values(contextChat?.preJoinMessages || {}), ...systemMessagesIds.map((item) => systemMessages[item]),
+        ? [
+          ...(
+            !contextChat?.syncing ? Object.values(contextChat?.preJoinMessages || {}) : [
+              {
+                id: sysMessagesIds.syncId,
+                content: [{
+                  id: 'synced',
+                  text: intl.formatMessage(intlMessages.loading, { 0: contextChat?.syncedPercent}),
+                  time: loginTime + 1,
+                }],
+                key: sysMessagesIds.syncId,
+                time: loginTime + 1,
+                sender: null,
+              }
+            ]
+          )
+          , ...systemMessagesIds.map((item) => systemMessages[item]),
         ...Object.values(contextChat?.posJoinMessages || {})]
         : [...Object.values(contextChat?.messageGroups || {})];
       if (previousChatId !== chatID) {
