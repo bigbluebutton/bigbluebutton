@@ -4,6 +4,7 @@ import Note from '/imports/api/note';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 import { Session } from 'meteor/session';
+import { ACTIONS, PANELS } from '../layout/enums';
 
 const NOTE_CONFIG = Meteor.settings.public.note;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -76,11 +77,8 @@ const setLastRevs = (revs) => {
   }
 };
 
-const isPanelOpened = () => Session.get('openPanel') === 'note';
-
-const hasUnreadNotes = () => {
-  const opened = isPanelOpened();
-  if (opened) return false;
+const hasUnreadNotes = (sidebarContentPanel) => {
+  if (sidebarContentPanel === PANELS.SHARED_NOTES) return false;
 
   const revs = getRevs();
   const lastRevs = getLastRevs();
@@ -93,11 +91,13 @@ const isEnabled = () => {
   return NOTE_CONFIG.enabled && note;
 };
 
-const toggleNotePanel = () => {
-  Session.set(
-    'openPanel',
-    isPanelOpened() ? 'userlist' : 'note',
-  );
+const toggleNotePanel = (sidebarContentPanel, newLayoutContextDispatch) => {
+  newLayoutContextDispatch({
+    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+    value: sidebarContentPanel === PANELS.SHARED_NOTES
+      ? PANELS.NONE
+      : PANELS.SHARED_NOTES,
+  });
 };
 
 export default {
@@ -106,7 +106,6 @@ export default {
   toggleNotePanel,
   isLocked,
   isEnabled,
-  isPanelOpened,
   getRevs,
   setLastRevs,
   getLastRevs,

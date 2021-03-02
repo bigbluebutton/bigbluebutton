@@ -5,9 +5,26 @@ import CaptionsService from '/imports/ui/components/captions/service';
 import Pad from './component';
 import Auth from '/imports/ui/services/auth';
 import NewLayoutContext from '../../layout/context/context';
+import { ACTIONS, PANELS } from '../../layout/enums';
+
 
 const PadContainer = (props) => {
-  const { newLayoutContextState, children, ...rest } = props;
+  const {
+    newLayoutContextState,
+    newLayoutContextDispatch,
+    amIModerator,
+    children,
+    ...rest
+  } = props;
+
+  if (!amIModerator) {
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+      value: PANELS.NONE,
+    });
+    return null;
+  }
+
   return (
     <Pad {...rest}>
       {children}

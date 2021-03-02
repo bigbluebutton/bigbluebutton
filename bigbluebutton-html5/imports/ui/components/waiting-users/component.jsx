@@ -146,10 +146,15 @@ const WaitingUsers = (props) => {
     const {
       authenticatedUsers,
       guestUsers,
+      newLayoutContextDispatch,
     } = props;
 
-    // TODO change validation to the component call
-    if (!authenticatedUsers.length && !guestUsers.length) Session.set('openPanel', 'userlist');
+    if (!authenticatedUsers.length && !guestUsers.length) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+        value: PANELS.NONE,
+      });
+    }
   });
 
   const {
@@ -234,10 +239,9 @@ const WaitingUsers = (props) => {
         >
           <Button
             onClick={() => {
-              Session.set('openPanel', 'userlist');
               newLayoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-                value: PANELS.CAPTIONS,
+                value: PANELS.NONE,
               });
             }}
             label={intl.formatMessage(intlMessages.title)}

@@ -4,6 +4,8 @@ import { Session } from 'meteor/session';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 import _ from 'lodash';
+import NewLayoutManager from './context/context';
+import { PANELS } from './enums';
 
 const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
@@ -276,13 +278,14 @@ class LayoutManager extends Component {
   }
 
   calculatesPanelsSize(panelChanged) {
-    const { layoutContextState } = this.props;
+    const { layoutContextState, newLayoutContextState } = this.props;
     const {
       userListSize: userListSizeContext,
       chatSize: chatSizeContext,
       breakoutRoomSize: breakoutRoomSizeContext,
     } = layoutContextState;
-    const openPanel = Session.get('openPanel');
+    const { sidebarContentPanel } = newLayoutContextState;
+    const openPanel = sidebarContentPanel;
     const storageLData = storageLayoutData();
 
     let storageUserListWidth;
@@ -335,7 +338,7 @@ class LayoutManager extends Component {
     }
 
     switch (openPanel) {
-      case 'userlist': {
+      case PANELS.USERLIST: {
         newChatSize = {
           width: 0,
         };
@@ -344,19 +347,19 @@ class LayoutManager extends Component {
         };
         break;
       }
-      case 'chat': {
+      case PANELS.CHAT: {
         newBreakoutRoomSize = {
           width: 0,
         };
         break;
       }
-      case 'breakoutroom': {
+      case PANELS.BREAKOUT: {
         newChatSize = {
           width: 0,
         };
         break;
       }
-      case '': {
+      case PANELS.NONE: {
         newUserListSize = {
           width: 0,
         };
@@ -573,7 +576,7 @@ class LayoutManager extends Component {
   }
 }
 
-export default withLayoutConsumer(LayoutManager);
+export default withLayoutConsumer(NewLayoutManager.withConsumer(LayoutManager));
 export {
   USERLIST_MIN_WIDTH,
   USERLIST_MAX_WIDTH,

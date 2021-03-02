@@ -320,7 +320,6 @@ class BreakoutRoom extends PureComponent {
       intl,
       endAllBreakouts,
       amIModerator,
-      closeBreakoutPanel,
       newLayoutContextDispatch,
     } = this.props;
     return (
@@ -335,7 +334,7 @@ class BreakoutRoom extends PureComponent {
               type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
               value: PANELS.NONE,
             });
-            closeBreakoutPanel();
+            window.dispatchEvent(new Event('panelChanged'));
           }}
         />
         {this.renderBreakoutRooms()}
@@ -349,7 +348,14 @@ class BreakoutRoom extends PureComponent {
                 size="lg"
                 label={intl.formatMessage(intlMessages.endAllBreakouts)}
                 className={styles.endButton}
-                onClick={endAllBreakouts}
+                onClick={() => {
+                  newLayoutContextDispatch({
+                    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                    value: PANELS.NONE,
+                  });
+                  window.dispatchEvent(new Event('panelChanged'));
+                  endAllBreakouts();
+                }}
               />
             ) : null
         }

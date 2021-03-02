@@ -44,7 +44,7 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   enableResize: PropTypes.bool.isRequired,
-  openPanel: PropTypes.string.isRequired,
+  // openPanel: PropTypes.string.isRequired,
 };
 
 
@@ -294,12 +294,12 @@ class PanelManager extends Component {
     const {
       intl,
       enableResize,
-      openPanel,
+      // openPanel,
       shouldAriaHide,
     } = this.props;
 
     // TODO Verify this condition
-    const ariaHidden = shouldAriaHide() && openPanel !== 'userlist';
+    const ariaHidden = shouldAriaHide(); //&& openPanel !== 'userlist';
 
     return (
       <div
@@ -593,8 +593,6 @@ class PanelManager extends Component {
     } = this.props;
     if (sidebarNavPanel === PANELS.NONE && sidebarContentPanel === PANELS.NONE) return null;
     const panels = [];
-
-    console.log('sidebarNavPanel', sidebarNavPanel);
 
     if (sidebarNavPanel === PANELS.USERLIST) {
       if (enableResize) {

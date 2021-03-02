@@ -6,7 +6,8 @@ import NewLayoutContext from '../../../layout/context/context';
 
 const UserCaptionsItemContainer = (props) => {
   const { newLayoutContextState, ...rest } = props;
-  return <UserCaptionsItem {...rest} />;
+  const { sidebarContentPanel } = newLayoutContextState;
+  return <UserCaptionsItem {...{ sidebarContentPanel, ...rest }} />;
 };
 
 export default withTracker(() => ({

@@ -9,12 +9,13 @@ import { styles } from './styles';
 import ChatAvatar from './chat-avatar/component';
 import ChatIcon from './chat-icon/component';
 import ChatUnreadCounter from './chat-unread-messages/component';
+import { ACTIONS, PANELS } from '../../layout/enums';
 
 const DEBOUNCE_TIME = 1000;
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
-let globalAppplyStateToProps = ()=>{};
+let globalAppplyStateToProps = () => {};
 
 const throttledFunc = _.debounce(() => {
   globalAppplyStateToProps();
@@ -48,7 +49,6 @@ const propTypes = {
   }).isRequired,
   tabIndex: PropTypes.number.isRequired,
   isPublicChat: PropTypes.func.isRequired,
-  chatPanelOpen: PropTypes.bool.isRequired,
   shortcuts: PropTypes.string,
 };
 
@@ -56,35 +56,23 @@ const defaultProps = {
   shortcuts: '',
 };
 
-const handleClickToggleChat = (id) => {
-  Session.set(
-    'openPanel',
-    Session.get('openPanel') === 'chat' && Session.get('idChatOpen') === id
-      ? 'userlist' : 'chat',
-  );
-  if (Session.equals('openPanel', 'chat')) {
-    Session.set('idChatOpen', id);
-  } else {
-    Session.set('idChatOpen', '');
-  }
-  window.dispatchEvent(new Event('panelChanged'));
-};
-
 const ChatListItem = (props) => {
   const {
     chat,
-    activeChatId,
+    // activeChatId,
+    idChatOpen,
     compact,
     intl,
     tabIndex,
     isPublicChat,
     shortcuts: TOGGLE_CHAT_PUB_AK,
-    chatPanelOpen,
+    sidebarContentPanel,
+    newLayoutContextDispatch,
   } = props;
 
-  
+  const chatPanelOpen = sidebarContentPanel === PANELS.CHAT;
 
-  const isCurrentChat = chat.userId === activeChatId && chatPanelOpen;
+  const isCurrentChat = chat.userId === idChatOpen && chatPanelOpen;
   const linkClasses = {};
   linkClasses[styles.active] = isCurrentChat;
 
@@ -100,10 +88,40 @@ const ChatListItem = (props) => {
   }
 
   useEffect(() => {
-    if (chat.userId !== PUBLIC_CHAT_KEY && chat.userId === activeChatId) {
-      Session.set('idChatOpen', chat.chatId);
+    if (chat.userId !== PUBLIC_CHAT_KEY && chat.userId === idChatOpen) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_ID_CHAT_OPEN,
+        value: chat.chatId,
+      });
     }
-  }, [activeChatId]);
+  }, [idChatOpen]);
+
+  const handleClickToggleChat = () => {
+    if (sidebarContentPanel === PANELS.CHAT && idChatOpen === chat.id) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+        value: PANELS.NONE,
+      });
+    } else {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+        value: PANELS.CHAT,
+      });
+    }
+
+    if (sidebarContentPanel === PANELS.CHAT) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_ID_CHAT_OPEN,
+        value: chat.id,
+      });
+    } else {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_ID_CHAT_OPEN,
+        value: '',
+      });
+    }
+    window.dispatchEvent(new Event('panelChanged'));
+  };
 
   return (
     <div
@@ -113,7 +131,7 @@ const ChatListItem = (props) => {
       aria-expanded={isCurrentChat}
       tabIndex={tabIndex}
       accessKey={isPublicChat(chat) ? TOGGLE_CHAT_PUB_AK : null}
-      onClick={() => handleClickToggleChat(chat.chatId)}
+      onClick={handleClickToggleChat}
       id="chat-toggle-button"
       aria-label={isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
     >

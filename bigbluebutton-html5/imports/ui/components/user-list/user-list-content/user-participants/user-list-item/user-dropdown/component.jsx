@@ -327,12 +327,14 @@ class UserDropdown extends PureComponent {
         intl.formatMessage(messages.StartPrivateChat),
         () => {
           getGroupChatPrivate(currentUser.userId, user);
-          Session.set('openPanel', 'chat');
           newLayoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-            value: PANELS.CAPTIONS,
+            value: PANELS.CHAT,
           });
-          Session.set('idChatOpen', user.userId);
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_ID_CHAT_OPEN,
+            value: user.userId,
+          });
         },
         'chat',
       ));

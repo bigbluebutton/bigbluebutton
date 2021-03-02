@@ -11,7 +11,7 @@ import { GroupChatContext } from '../components-data/group-chat-context/context'
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import Chat from './component';
 import ChatService from './service';
-import NewLayoutContext from '../layout/context/context';
+import { NLayoutContext } from '../layout/context/context';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -56,6 +56,9 @@ const throttledFunc = _.throttle(() => {
 }, DEBOUNCE_TIME, { trailing: true, leading: true });
 
 const ChatContainer = (props) => {
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextState } = newLayoutContext;
+  const { idChatOpen } = newLayoutContextState;
   useEffect(() => {
     ChatService.removeFromClosedChatsSession();
   }, []);
@@ -63,18 +66,16 @@ const ChatContainer = (props) => {
   const modOnlyMessage = Storage.getItem('ModeratorOnlyMessage');
   const { welcomeProp } = ChatService.getWelcomeProp();
 
-  const { newLayoutContextState, ...rest } = props;
-
   const {
     children,
-    unmounting,
-    chatID,
     amIModerator,
     loginTime,
     intl,
   } = props;
 
-  const isPublicChat = chatID === PUBLIC_CHAT_KEY;
+  if (!idChatOpen) return null;
+
+  const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
   const systemMessages = {
     [sysMessagesIds.welcomeId]: {
       id: sysMessagesIds.welcomeId,
@@ -108,27 +109,23 @@ const ChatContainer = (props) => {
   const [stateTimeWindows, setTimeWindows] = useState(isPublicChat ? [...systemMessagesIds.map((item) => systemMessages[item])] : []);
 
   const { groupChat } = usingGroupChatContext;
-  const participants = groupChat[chatID]?.participants;
+  const participants = groupChat[idChatOpen]?.participants;
   const chatName = participants?.filter((user) => user.id !== Auth.userID)[0]?.name;
   const title = chatName ? intl.formatMessage(intlMessages.titlePrivate, { 0: chatName}) : intl.formatMessage(intlMessages.titlePublic);
 
-  if (unmounting === true) {
-    return null;
-  }
-
-  const contextChat = usingChatContext?.chats[isPublicChat ? PUBLIC_GROUP_CHAT_KEY : chatID];
+  const contextChat = usingChatContext?.chats[isPublicChat ? PUBLIC_GROUP_CHAT_KEY : idChatOpen];
   const lastTimeWindow = contextChat?.lastTimewindow;
   const lastMsg = contextChat && (isPublicChat
     ? contextChat.preJoinMessages[lastTimeWindow] || contextChat.posJoinMessages[lastTimeWindow]
     : contextChat.messageGroups[lastTimeWindow]);
   applyPropsToState = () => {
-    if (!_.isEqualWith(lastMsg, stateLastMsg) || previousChatId !== chatID) {
+    if (!_.isEqualWith(lastMsg, stateLastMsg) || previousChatId !== idChatOpen) {
       const timeWindowsValues = isPublicChat
         ? [...Object.values(contextChat?.preJoinMessages || {}), ...systemMessagesIds.map((item) => systemMessages[item]),
         ...Object.values(contextChat?.posJoinMessages || {})]
         : [...Object.values(contextChat?.messageGroups || {})];
-      if (previousChatId !== chatID) {
-        previousChatId = chatID;
+      if (previousChatId !== idChatOpen) {
+        previousChatId = idChatOpen;
       }
 
       setLastMsg(lastMsg ? { ...lastMsg } : lastMsg);
@@ -138,10 +135,14 @@ const ChatContainer = (props) => {
   globalAppplyStateToProps = applyPropsToState;
   throttledFunc();
 
+  const isChatLocked = ChatService.isChatLocked(idChatOpen);
+
   return (
-    <Chat {...{
-      ...rest,
-      chatID,
+    <Chat 
+    chatID={idChatOpen}
+    {...{
+      ...props,
+      isChatLocked,
       amIModerator,
       count: (contextChat?.unreadTimeWindows.size || 0),
       timeWindowsValues: stateTimeWindows,
@@ -156,32 +157,17 @@ const ChatContainer = (props) => {
 };
 
 export default injectIntl(withTracker(({ intl }) => {
-  const chatID = Session.get('idChatOpen');
-  let isChatLocked = ChatService.isChatLocked(chatID);
-
   // let chatName = title;
   let partnerIsLoggedOut = false;
 
   const currentUser = ChatService.getUser(Auth.userID);
   const amIModerator = currentUser.role === ROLE_MODERATOR;
-
-  if (!chatID) {
-    // No chatID is set so the panel is closed, about to close, or wasn't opened correctly
-    return {
-      unmounting: true,
-    };
-  }
-
-
-
   const { connected: isMeteorConnected } = Meteor.status();
 
   return {
-    chatID,
     intl,
     messages: [],
     partnerIsLoggedOut,
-    isChatLocked,
     isMeteorConnected,
     amIModerator,
     meetingIsBreakout: meetingIsBreakout(),
@@ -190,4 +176,4 @@ export default injectIntl(withTracker(({ intl }) => {
       handleClosePrivateChat: ChatService.closePrivateChat,
     },
   };
-})(NewLayoutContext.withConsumer(ChatContainer)));
+})(ChatContainer));

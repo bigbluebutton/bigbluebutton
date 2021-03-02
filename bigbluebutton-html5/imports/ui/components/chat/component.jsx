@@ -62,8 +62,10 @@ const Chat = (props) => {
         >
           <Button
             onClick={() => {
-              Session.set('idChatOpen', '');
-              Session.set('openPanel', 'userlist');
+              newLayoutContextDispatch({
+                type: ACTIONS.SET_ID_CHAT_OPEN,
+                value: '',
+              });
               newLayoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                 value: PANELS.NONE,
@@ -88,8 +90,10 @@ const Chat = (props) => {
                 hideLabel
                 onClick={() => {
                   actions.handleClosePrivateChat(chatID);
-                  Session.set('idChatOpen', '');
-                  Session.set('openPanel', 'userlist');
+                  newLayoutContextDispatch({
+                    type: ACTIONS.SET_ID_CHAT_OPEN,
+                    value: '',
+                  });
                   newLayoutContextDispatch({
                     type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                     value: PANELS.NONE,

@@ -11,7 +11,7 @@ const providerPropTypes = {
   ]).isRequired,
 };
 
-const Context = createContext();
+export const NLayoutContext = createContext();
 
 const initState = {
   deviceType: null,
@@ -924,13 +924,13 @@ const ContextProvider = (props) => {
   const [newLayoutContextState, newLayoutContextDispatch] = useReducer(reducer, initState);
   const { children } = props;
   return (
-    <Context.Provider value={{
+    <NLayoutContext.Provider value={{
       newLayoutContextState,
       newLayoutContextDispatch,
     }}
     >
       {children}
-    </Context.Provider>
+    </NLayoutContext.Provider>
   );
 };
 ContextProvider.propTypes = providerPropTypes;
@@ -942,9 +942,9 @@ const withProvider = Component => props => (
 );
 
 const withConsumer = Component => props => (
-  <Context.Consumer>
+  <NLayoutContext.Consumer>
     {contexts => <Component {...props} {...contexts} />}
-  </Context.Consumer>
+  </NLayoutContext.Consumer>
 );
 
 export default {

@@ -13,7 +13,7 @@ import { UsersContext } from '/imports/ui/components/components-data/users-conte
 import NoteService from '/imports/ui/components/note/service';
 import Service from './service';
 import NavBar from './component';
-import NewLayoutContext from '../layout/context/context';
+import { NLayoutContext } from '../layout/context/context';
 
 const PUBLIC_CONFIG = Meteor.settings.public;
 const ROLE_MODERATOR = PUBLIC_CONFIG.user.role_moderator;
@@ -31,22 +31,24 @@ const NavBarContainer = ({ children, ...props }) => {
   const usingChatContext = useContext(ChatContext);
   const usingUsersContext = useContext(UsersContext);
   const usingGroupChatContext = useContext(GroupChatContext);
+  const newLayoutContext = useContext(NLayoutContext);
   const { chats: groupChatsMessages } = usingChatContext;
   const { users } = usingUsersContext;
   const { groupChat: groupChats } = usingGroupChatContext;
   const hasUnreadMessages = checkUnreadMessages({ groupChatsMessages, groupChats, users });
+  const { output, sidebarNavPanel, sidebarContentPanel } = newLayoutContext.newLayoutContextState;
+  const hasUnreadNotes = NoteService.hasUnreadNotes(sidebarContentPanel);
   const {
-    newLayoutContextState,
     layoutManagerLoaded,
     ...rest
   } = props;
-  const { output, sidebarNavPanel, sidebarContentPanel } = newLayoutContextState;
   const { navBar } = output;
 
   return (
     <NavBar
       {...{
         hasUnreadMessages,
+        hasUnreadNotes,
         layoutManagerLoaded,
         sidebarNavPanel,
         sidebarContentPanel,
@@ -83,7 +85,6 @@ export default withTracker(() => {
   const { connectRecordingObserver, processOutsideToggleRecording } = Service;
   const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1 } });
   const amIModerator = currentUser.role === ROLE_MODERATOR;
-  const hasUnreadNotes = NoteService.hasUnreadNotes();
 
 
   const layoutManagerLoaded = Session.get('layoutManagerLoaded');
@@ -94,8 +95,7 @@ export default withTracker(() => {
     processOutsideToggleRecording,
     connectRecordingObserver,
     meetingId,
-    hasUnreadNotes,
     presentationTitle: meetingTitle,
     layoutManagerLoaded,
   };
-})(NewLayoutContext.withConsumer(NavBarContainer));
+})(NavBarContainer);

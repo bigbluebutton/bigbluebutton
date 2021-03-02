@@ -64,7 +64,6 @@ class Note extends Component {
           >
             <Button
               onClick={() => {
-                Session.set('openPanel', 'userlist');
                 newLayoutContextDispatch({
                   type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                   value: PANELS.NONE,

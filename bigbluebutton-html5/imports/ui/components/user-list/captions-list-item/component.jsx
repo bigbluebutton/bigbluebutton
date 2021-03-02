@@ -22,37 +22,34 @@ const intlMessages = defineMessages({
   },
 });
 
-const handleClickToggleCaptions = (locale, newLayoutContextDispatch) => {
-  const panel = Session.get('openPanel');
-
-  if (panel !== 'captions') {
-    Session.set('captionsLocale', locale);
-    Session.set('openPanel', 'captions');
-    newLayoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-      value: PANELS.CAPTIONS,
-    });
-  } else {
-    const captionsLocale = Session.get('captionsLocale');
-    if (captionsLocale !== locale) {
-      Session.set('captionsLocale', locale);
-    } else {
-      Session.set('openPanel', 'userlist');
-      newLayoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-        value: PANELS.NONE,
-      });
-    }
-  }
-};
-
 const CaptionsListItem = (props) => {
   const {
     intl,
     locale,
     tabIndex,
+    sidebarContentPanel,
     newLayoutContextDispatch,
   } = props;
+
+  const handleClickToggleCaptions = () => {
+    if (sidebarContentPanel !== PANELS.CAPTIONS) {
+      Session.set('captionsLocale', locale);
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+        value: PANELS.CAPTIONS,
+      });
+    } else {
+      const captionsLocale = Session.get('captionsLocale');
+      if (captionsLocale !== locale) {
+        Session.set('captionsLocale', locale);
+      } else {
+        newLayoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+          value: PANELS.NONE,
+        });
+      }
+    }
+  };
 
   return (
     <div
@@ -60,8 +57,9 @@ const CaptionsListItem = (props) => {
       tabIndex={tabIndex}
       id={locale.locale}
       className={styles.listItem}
-      onClick={() => handleClickToggleCaptions(locale.locale, newLayoutContextDispatch)}
+      onClick={handleClickToggleCaptions}
       aria-label={`${locale.name} ${intl.formatMessage(intlMessages.captionLabel)}`}
+      onKeyPress={() => {}}
     >
       <Icon iconName="closed_caption" />
       <span aria-hidden>{locale.name}</span>

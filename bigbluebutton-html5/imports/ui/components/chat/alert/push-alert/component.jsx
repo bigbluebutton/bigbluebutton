@@ -25,11 +25,6 @@ class ChatPushAlert extends PureComponent {
 
   link(title, chatId) {
     const { newLayoutContextDispatch } = this.props;
-    let chat = chatId;
-
-    if (chat === 'MAIN-PUBLIC-GROUP-CHAT') {
-      chat = 'public';
-    }
 
     return (
       <div
@@ -38,12 +33,10 @@ class ChatPushAlert extends PureComponent {
         aria-label={title}
         tabIndex={0}
         onClick={() => {
-          Session.set('openPanel', 'chat');
           newLayoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
             value: PANELS.CHAT,
           });
-          Session.set('idChatOpen', chat);
           window.dispatchEvent(new Event('panelChanged'));
         }}
         onKeyPress={() => null}

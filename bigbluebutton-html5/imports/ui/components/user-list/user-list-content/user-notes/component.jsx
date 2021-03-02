@@ -72,7 +72,7 @@ class UserNotes extends Component {
   }
 
   renderNotes() {
-    const { intl, disableNote } = this.props;
+    const { intl, disableNote, sidebarContentPanel, newLayoutContextDispatch } = this.props;
     const { unread } = this.state;
 
     let notification = null;
@@ -96,7 +96,7 @@ class UserNotes extends Component {
         role="button"
         tabIndex={0}
         className={styles.listItem}
-        onClick={NoteService.toggleNotePanel}
+        onClick={() => NoteService.toggleNotePanel(sidebarContentPanel, newLayoutContextDispatch)}
       >
         <Icon iconName="copy" />
         <div aria-hidden>

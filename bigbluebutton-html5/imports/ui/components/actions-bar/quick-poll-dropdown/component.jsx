@@ -47,7 +47,6 @@ const propTypes = {
 
 const handleClickQuickPoll = (slideId, poll, newLayoutContextDispatch) => {
   const { type } = poll;
-  Session.set('openPanel', 'poll');
   newLayoutContextDispatch({
     type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
     value: PANELS.POLL,

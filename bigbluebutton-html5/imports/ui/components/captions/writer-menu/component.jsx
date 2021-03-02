@@ -80,7 +80,6 @@ class WriterMenu extends PureComponent {
 
     takeOwnership(locale);
     Session.set('captionsLocale', locale);
-    Session.set('openPanel', 'captions');
 
     newLayoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,

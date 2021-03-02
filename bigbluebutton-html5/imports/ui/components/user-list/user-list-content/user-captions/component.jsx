@@ -47,6 +47,7 @@ class UserCaptions extends Component {
   renderCaptions() {
     const {
       ownedLocales,
+      sidebarContentPanel,
       newLayoutContextDispatch,
     } = this.props;
 
@@ -61,7 +62,7 @@ class UserCaptions extends Component {
         className={styles.captionsList}
         key={locale.locale}
       >
-        <CaptionsListItem locale={locale} tabIndex={-1} newLayoutContextDispatch={newLayoutContextDispatch} />
+        <CaptionsListItem {...{ locale, newLayoutContextDispatch, sidebarContentPanel }} tabIndex={-1} />
       </CSSTransition>
     ));
   }

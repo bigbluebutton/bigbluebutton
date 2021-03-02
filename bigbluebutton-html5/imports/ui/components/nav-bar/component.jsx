@@ -77,7 +77,10 @@ class NavBar extends Component {
         value: PANELS.NONE,
       });
     }
-    Session.set('idChatOpen', '');
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_ID_CHAT_OPEN,
+      value: '',
+    });
 
     window.dispatchEvent(new Event('panelChanged'));
   }

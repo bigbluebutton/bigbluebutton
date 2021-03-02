@@ -183,16 +183,8 @@ class Poll extends Component {
   }
 
   componentDidUpdate() {
-    const { amIPresenter } = this.props;
-
     if (Session.equals('resetPollPanel', true)) {
       this.handleBackClick();
-    }
-
-    // TODO change validation to the component call
-    if (!amIPresenter) {
-      Session.set('openPanel', 'userlist');
-      Session.set('forcePollOpen', false);
     }
   }
 
@@ -544,11 +536,8 @@ class Poll extends Component {
       intl,
       stopPoll,
       currentPoll,
-      amIPresenter,
       newLayoutContextDispatch,
     } = this.props;
-
-    if (!amIPresenter) return null;
 
     return (
       <div>
@@ -562,7 +551,6 @@ class Poll extends Component {
             aria-label={intl.formatMessage(intlMessages.hidePollDesc)}
             className={styles.hideBtn}
             onClick={() => {
-              Session.set('openPanel', 'userlist');
               newLayoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                 value: PANELS.NONE,
@@ -574,7 +562,6 @@ class Poll extends Component {
             aria-label={`${intl.formatMessage(intlMessages.closeLabel)} ${intl.formatMessage(intlMessages.pollPaneTitle)}`}
             onClick={() => {
               if (currentPoll) stopPoll();
-              Session.set('openPanel', 'userlist');
               newLayoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                 value: PANELS.NONE,
@@ -600,7 +587,6 @@ Poll.propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  amIPresenter: PropTypes.bool.isRequired,
   pollTypes: PropTypes.instanceOf(Array).isRequired,
   startPoll: PropTypes.func.isRequired,
   startCustomPoll: PropTypes.func.isRequired,

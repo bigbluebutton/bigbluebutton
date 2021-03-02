@@ -149,7 +149,6 @@ class ActionsDropdown extends PureComponent {
               if (Session.equals('pollInitiated', true)) {
                 Session.set('resetPollPanel', true);
               }
-              Session.set('openPanel', 'poll');
               newLayoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                 value: PANELS.POLL,

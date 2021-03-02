@@ -56,7 +56,6 @@ const propTypes = {
   padId: PropTypes.string.isRequired,
   readOnlyPadId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  amIModerator: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -178,15 +177,8 @@ class Pad extends PureComponent {
       readOnlyPadId,
       ownerId,
       name,
-      amIModerator,
       newLayoutContextDispatch,
     } = this.props;
-
-    // TODO change validation to the component call
-    if (!amIModerator) {
-      Session.set('openPanel', 'userlist');
-      return null;
-    }
 
     const { listening } = this.state;
     const url = PadService.getPadURL(padId, readOnlyPadId, ownerId);
@@ -201,7 +193,6 @@ class Pad extends PureComponent {
                   type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                   value: PANELS.NONE,
                 });
-                Session.set('openPanel', 'userlist');
               }}
               aria-label={intl.formatMessage(intlMessages.hide)}
               label={name}
