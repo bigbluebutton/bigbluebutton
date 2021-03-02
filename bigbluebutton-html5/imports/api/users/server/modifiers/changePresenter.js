@@ -2,7 +2,7 @@ import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import { Slides } from '/imports/api/slides';
-import stopWatchingExternalVideo from '/imports/api/external-videos/server/methods/stopWatchingExternalVideo';
+import stopWatchingExternalVideoSystemCall from '/imports/api/external-videos/server/methods/stopWatchingExternalVideoSystemCall';
 import modifyWhiteboardAccess from '/imports/api/whiteboard-multi-user/server/modifiers/modifyWhiteboardAccess';
 import RedisPubSub from '/imports/startup/server/redis';
 
@@ -23,7 +23,7 @@ export default function changePresenter(presenter, userId, meetingId, changedBy)
     const meeting = Meetings.findOne({ meetingId });
     if (meeting && meeting.externalVideoUrl) {
       Logger.info(`ChangePresenter:There is external video being shared. Stopping it due to presenter change, ${meeting.externalVideoUrl}`);
-      stopWatchingExternalVideo({ meetingId, requesterUserId: userId });
+      stopWatchingExternalVideoSystemCall({ meetingId, requesterUserId: 'system-presenter-changed' });
     }
 
     const currentSlide = Slides.findOne({

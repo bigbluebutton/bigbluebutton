@@ -122,6 +122,8 @@ class ConnectionStatusComponent extends PureComponent {
       intl,
     } = this.props;
 
+    const isValidUrl = new RegExp(/^(http|https):\/\/[^ "]+$/).test(STATS.help);
+
     return (
       <Modal
         overlayClassName={styles.overlay}
@@ -138,9 +140,13 @@ class ConnectionStatusComponent extends PureComponent {
           </div>
           <div className={styles.description}>
             {intl.formatMessage(intlMessages.description)}{' '}
-            <a href={STATS.help} target="_blank" rel="noopener noreferrer">
-              {`(${intl.formatMessage(intlMessages.more)})`}
-            </a>
+            {isValidUrl
+              && (
+                <a href={STATS.help} target="_blank" rel="noopener noreferrer">
+                  {`(${intl.formatMessage(intlMessages.more)})`}
+                </a>
+              )
+            }
           </div>
           <div className={styles.content}>
             <div className={styles.wrapper}>

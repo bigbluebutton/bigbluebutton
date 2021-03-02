@@ -23,14 +23,21 @@ export default function handleValidateAuthToken({ body }, meetingId) {
     valid,
     authToken,
     waitForApproval,
+    registeredOn,
+    authTokenValidatedOn,
   } = body;
 
   check(userId, String);
   check(authToken, String);
   check(valid, Boolean);
   check(waitForApproval, Boolean);
+  check(registeredOn, Number);
+  check(authTokenValidatedOn, Number);
 
   const pendingAuths = pendingAuthenticationsStore.take(meetingId, userId, authToken);
+
+  Logger.info(`PendingAuths length [${pendingAuths.length}]`);
+  if (pendingAuths.length === 0) return;
 
   if (!valid) {
     pendingAuths.forEach(
@@ -105,7 +112,8 @@ export default function handleValidateAuthToken({ body }, meetingId) {
     $set: {
       validated: valid,
       approved: !waitForApproval,
-      loginTime: Date.now(),
+      loginTime: registeredOn,
+      authTokenValidatedTime: authTokenValidatedOn,
       inactivityCheck: false,
     },
   };

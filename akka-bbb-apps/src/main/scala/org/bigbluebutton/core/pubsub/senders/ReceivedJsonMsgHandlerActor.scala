@@ -119,6 +119,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetCurrentPollReqMsg](envelope, jsonNode)
       case RespondToPollReqMsg.NAME =>
         routeGenericMsg[RespondToPollReqMsg](envelope, jsonNode)
+      case RespondToTypedPollReqMsg.NAME =>
+        routeGenericMsg[RespondToTypedPollReqMsg](envelope, jsonNode)
 
       // Webcam
       case UserBroadcastCamStartMsg.NAME =>
@@ -316,6 +318,14 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetGroupChatMsgsReqMsg](envelope, jsonNode)
       case CreateGroupChatReqMsg.NAME =>
         routeGenericMsg[CreateGroupChatReqMsg](envelope, jsonNode)
+
+      // ExternalVideo
+      case StartExternalVideoPubMsg.NAME =>
+        routeGenericMsg[StartExternalVideoPubMsg](envelope, jsonNode)
+      case UpdateExternalVideoPubMsg.NAME =>
+        routeGenericMsg[UpdateExternalVideoPubMsg](envelope, jsonNode)
+      case StopExternalVideoPubMsg.NAME =>
+        routeGenericMsg[StopExternalVideoPubMsg](envelope, jsonNode)
 
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)

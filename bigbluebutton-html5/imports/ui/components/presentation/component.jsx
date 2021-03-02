@@ -20,6 +20,7 @@ import FullscreenButtonContainer from '../fullscreen-button/container';
 import { withDraggableConsumer } from '../media/webcam-draggable-overlay/context';
 import Icon from '/imports/ui/components/icon/component';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
+import PollingContainer from '/imports/ui/components/polling/container';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -168,43 +169,44 @@ class PresentationArea extends PureComponent {
       this.onResize();
     }
 
-    const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;
-    const { width: currWidth, height: currHeight } = slidePosition;
+    if(prevProps?.slidePosition && slidePosition){
+      const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;
+      const { width: currWidth, height: currHeight } = slidePosition;
 
-    if (prevProps.slidePosition.id !== slidePosition.id) {
-      if ((prevWidth > prevHeight && currHeight > currWidth)
-        || (prevHeight > prevWidth && currWidth > currHeight)) {
-        layoutContextDispatch(
-          {
-            type: 'setAutoArrangeLayout',
-            value: true,
+      if (prevProps.slidePosition.id !== slidePosition.id) {
+        if ((prevWidth > prevHeight && currHeight > currWidth)
+          || (prevHeight > prevWidth && currWidth > currHeight)) {
+          layoutContextDispatch(
+            {
+              type: 'setAutoArrangeLayout',
+              value: true,
+            },
+          );
+        }
+        window.dispatchEvent(new Event('slideChanged'));
+      }
+
+      if (prevWidth !== currWidth || prevHeight !== currHeight) {
+        layoutContextDispatch({
+          type: 'setPresentationSlideSize',
+          value: {
+            width: currWidth,
+            height: currHeight,
           },
-        );
-      }
-      window.dispatchEvent(new Event('slideChanged'));
-    }
-
-    if (prevWidth !== currWidth || prevHeight !== currHeight) {
-      layoutContextDispatch({
-        type: 'setPresentationSlideSize',
-        value: {
-          width: currWidth,
-          height: currHeight,
-        },
-      });
-      if (currWidth > currHeight || currWidth === currHeight) {
-        layoutContextDispatch({
-          type: 'setPresentationOrientation',
-          value: 'landscape',
         });
+        if (currWidth > currHeight || currWidth === currHeight) {
+          layoutContextDispatch({
+            type: 'setPresentationOrientation',
+            value: 'landscape',
+          });
+        }
+        if (currHeight > currWidth) {
+          layoutContextDispatch({
+            type: 'setPresentationOrientation',
+            value: 'portrait',
+          });
+        }
       }
-      if (currHeight > currWidth) {
-        layoutContextDispatch({
-          type: 'setPresentationOrientation',
-          value: 'portrait',
-        });
-      }
-    }
 
     const downloadableOn = !prevProps.currentPresentation.downloadable
       && currentPresentation.downloadable;
@@ -248,6 +250,7 @@ class PresentationArea extends PureComponent {
         toggleSwapLayout();
       }
     }
+  }
   }
 
   componentWillUnmount() {
@@ -781,6 +784,7 @@ class PresentationArea extends PureComponent {
       showSlide,
       // fitToWidth,
       // presentationAreaWidth,
+      isFullscreen,
       localPosition,
     } = this.state;
 
@@ -819,6 +823,8 @@ class PresentationArea extends PureComponent {
         ref={(ref) => { this.refPresentationContainer = ref; }}
         className={styles.presentationContainer}
       >
+        {isFullscreen && <PollingContainer />}
+        
         <div
           ref={(ref) => { this.refPresentationArea = ref; }}
           className={styles.presentationArea}

@@ -6,7 +6,6 @@ import Service from './service';
 import UserList from './component';
 
 const propTypes = {
-  activeChats: PropTypes.arrayOf(String).isRequired,
   isPublicChat: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
@@ -17,9 +16,8 @@ const UserListContainer = props => <UserList {...props} />;
 
 UserListContainer.propTypes = propTypes;
 
-export default withTracker(({ chatID, compact }) => ({
+export default withTracker(({ compact }) => ({
   hasBreakoutRoom: Service.hasBreakoutRoom(),
-  activeChats: Service.getActiveChats(chatID),
   isPublicChat: Service.isPublicChat,
   setEmojiStatus: Service.setEmojiStatus,
   roving: Service.roving,

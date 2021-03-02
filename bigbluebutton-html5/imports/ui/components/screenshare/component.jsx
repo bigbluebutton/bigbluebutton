@@ -8,6 +8,8 @@ import { styles } from './styles';
 import AutoplayOverlay from '../media/autoplay-overlay/component';
 import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
+import PollingContainer from '/imports/ui/components/polling/container';
+import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 
 const intlMessages = defineMessages({
   screenShareLabel: {
@@ -78,10 +80,12 @@ class ScreenshareComponent extends React.Component {
   }
 
   onFullscreenChange() {
+    const { layoutContextDispatch } = this.props;
     const { isFullscreen } = this.state;
     const newIsFullscreen = FullscreenService.isFullScreen(this.screenshareContainer);
     if (isFullscreen !== newIsFullscreen) {
       this.setState({ isFullscreen: newIsFullscreen });
+      layoutContextDispatch({ type: 'setScreenShareFullscreen', value: newIsFullscreen });
     }
   }
 
@@ -144,7 +148,7 @@ class ScreenshareComponent extends React.Component {
   }
 
   render() {
-    const { loaded, autoplayBlocked } = this.state;
+    const { loaded, autoplayBlocked, isFullscreen } = this.state;
     const { intl } = this.props;
 
     return (
@@ -173,6 +177,7 @@ class ScreenshareComponent extends React.Component {
           key="screenshareContainer"
           ref={(ref) => { this.screenshareContainer = ref; }}
         >
+          {isFullscreen && <PollingContainer />}
           {loaded && this.renderFullscreenButton()}
           <video
             id="screenshareVideo"
@@ -189,7 +194,7 @@ class ScreenshareComponent extends React.Component {
   }
 }
 
-export default injectIntl(ScreenshareComponent);
+export default injectIntl(withLayoutConsumer(ScreenshareComponent));
 
 ScreenshareComponent.propTypes = {
   intl: PropTypes.object.isRequired,
