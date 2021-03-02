@@ -4,6 +4,7 @@ import Logger from '/imports/startup/server/logger';
 import BannedUsers from '/imports/api/users/server/store/bannedUsers';
 import { removeAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { removeCursorStreamer } from '/imports/api/cursor/server/streamer';
+import { removeExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
 
 import clearUsers from '/imports/api/users/server/modifiers/clearUsers';
 import clearUsersSettings from '/imports/api/users-settings/server/modifiers/clearUsersSettings';
@@ -34,7 +35,7 @@ export default function meetingHasEnded(meetingId) {
   if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
     removeAnnotationsStreamer(meetingId);
     removeCursorStreamer(meetingId);
-    // TODO add removeExternalVideoStreamer(meetingId);
+    removeExternalVideoStreamer(meetingId);
   }
 
   return Meetings.remove({ meetingId }, () => {

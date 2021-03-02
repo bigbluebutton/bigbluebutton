@@ -225,6 +225,10 @@ class RedisPubSub {
       return;
     }
 
+    if (this.redisDebugEnabled) {
+      Logger.warn('Received event to handle', { date: new Date().toISOString(), eventName });
+    }
+
     // System messages like Create / Destroy Meeting, etc do not have core.header.meetingId.
     // Process them in MeetingQueue['_']  --- the NO_MEETING queueId
     const meetingIdFromMessageCoreHeader = parsedMessage.core.header.meetingId || NO_MEETING_ID;
@@ -236,6 +240,10 @@ class RedisPubSub {
         if (eventName === 'MeetingCreatedEvtMsg' || eventName === 'SyncGetMeetingInfoRespMsg') {
           const meetingIdFromMessageMeetingProp = parsedMessage.core.body.props.meetingProp.intId;
           this.meetingsQueues[meetingIdFromMessageMeetingProp] = new MeetingMessageQueue(this.emitter, async, this.redisDebugEnabled);
+          if (this.redisDebugEnabled) {
+            Logger.warn('Created frontend queue for meeting', { date: new Date().toISOString(), eventName, meetingIdFromMessageMeetingProp });
+          }
+
         }
       }
 
@@ -265,6 +273,9 @@ class RedisPubSub {
           // create queue or destroy queue
           if (eventName === 'MeetingCreatedEvtMsg' || eventName === 'SyncGetMeetingInfoRespMsg') {
             this.meetingsQueues[meetingIdFromMessageMeetingProp] = new MeetingMessageQueue(this.emitter, async, this.redisDebugEnabled);
+            if (this.redisDebugEnabled) {
+              Logger.warn('Created backend queue for meeting', { date: new Date().toISOString(), eventName, meetingIdFromMessageMeetingProp });
+            }
           }
           this.meetingsQueues[NO_MEETING_ID].add({
             pattern,
@@ -299,6 +310,8 @@ class RedisPubSub {
             eventName,
             parsedMessage,
           });
+        } else {
+          Logger.warn('Backend meeting queue had not been initialized', { eventName, meetingIdFromMessageCoreHeader })
         }
       }
     }

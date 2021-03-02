@@ -17,8 +17,10 @@ const audioTest = () => {
     try {
       const testName = 'joinWithListenOnly';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgsWithAudio());
+      await test.init(Page.getArgsWithAudio(), undefined, undefined, undefined, testName);
+      await test.startRecording(testName);
       response = await test.test();
+      await test.stopRecording();
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
     } catch (e) {
@@ -42,8 +44,10 @@ const audioTest = () => {
     try {
       const testName = 'joinWithMicrophone';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgsWithAudio());
+      await test.init(Page.getArgsWithAudio(), undefined, undefined, undefined, testName);
+      await test.startRecording(testName);
       response = await test.microphone();
+      await test.stopRecording();
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
     } catch (e) {

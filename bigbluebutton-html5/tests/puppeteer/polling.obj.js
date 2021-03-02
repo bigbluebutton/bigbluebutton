@@ -21,10 +21,12 @@ const pollingTest = () => {
     try {
       const testName = 'createPoll';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs());
+      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
+      await test.startRecording(testName);
       await test.closeAudioModal();
       response = await test.test();
       await test.logger('end of ', testName);
+      await test.stopRecording();
       screenshot = await test.page.screenshot();
     } catch (e) {
       await test.logger(e);
@@ -48,9 +50,11 @@ const pollingTest = () => {
     try {
       const testName = 'pollResultsChatMessage';
       await test.page3.logger('begin of ', testName);
-      await test.initUser3(Page.getArgs(), undefined);
+      await test.initUser3(Page.getArgs(), undefined, testName);
+      await test.page3.startRecording(testName);
       response = await test.test(testName);
       await test.page3.logger('end of ', testName);
+      await test.page3.stopRecording();
       screenshot = await test.page3.page.screenshot();
     } catch (e) {
       await test.page3.logger(e);
@@ -76,8 +80,9 @@ const pollingTest = () => {
     try {
       const testName = 'forceRestorePresentationOnNewPollResult';
       await test.page1.logger('begin of ', testName);
-      response = await test.forceRestorePresentationOnNewPollResult(testName, Page.getArgs(), undefined, `${ce.forceRestorePresentationOnNewEvents}`);
+      response = await test.forceRestorePresentationOnNewPollResult(Page.getArgs(), undefined, `${ce.forceRestorePresentationOnNewEvents}`, testName);
       await test.page1.logger('end of ', testName);
+      await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
     } catch (e) {
       await test.page1.logger(e);

@@ -12,11 +12,19 @@ async function getTestElement(element) {
 
 async function getScreenShareContainer(test) {
   await test.waitForSelector(e.screenShareVideo, VIDEO_LOADING_WAIT_TIME);
+  const screenShareContainer = await test.page.evaluate(getTestElement, e.screenShareVideo);
+  const response = screenShareContainer !== null;
+  return response;
+}
+async function getScreenShareBreakoutContainer(test) {
+  await test.waitForSelector(e.screenshareConnecting, { timeout: VIDEO_LOADING_WAIT_TIME });
+  await test.waitForSelector(e.screenShareVideo, { timeout: VIDEO_LOADING_WAIT_TIME });
   const screenShareContainer = await test.evaluate(getTestElement, e.screenShareVideo);
   const response = screenShareContainer !== null;
   return response;
 }
 
+exports.getScreenShareBreakoutContainer = getScreenShareBreakoutContainer;
 exports.getScreenShareContainer = getScreenShareContainer;
 exports.getTestElement = getTestElement;
 exports.startScreenshare = startScreenshare;

@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
-import { isMobile } from 'react-device-detect';
+import { isMobile, withOrientationChange } from 'react-device-detect';
 import TetherComponent from 'react-tether';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -179,13 +179,17 @@ class Dropdown extends Component {
       tethered,
       placement,
       getContent,
+      isPortrait,
       ...otherProps
     } = this.props;
 
     const { isOpen } = this.state;
 
+    const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
+    const isSmall = window.matchMedia(MOBILE_MEDIA).matches;
+
     const placements = placement && placement.replace(' ', '-');
-    const test = isMobile ? {
+    const test = isMobile && isPortrait && isSmall ? {
       width: '100%',
       height: '100%',
       transform: 'translateY(0)',
@@ -237,15 +241,15 @@ class Dropdown extends Component {
             ? (
               <TetherComponent
                 style={{
-                  zIndex: isOpen ? 15 : 1,
+                  zIndex: isOpen ? 15 : -1,
                   ...test,
                 }}
                 attachment={
-                  isMobile ? 'middle center'
+                  isMobile && isPortrait && isSmall ? 'middle center'
                     : attachments[placements]
                 }
                 targetAttachment={
-                  isMobile ? 'auto auto'
+                  isMobile && isPortrait && isSmall ? 'auto auto'
                     : targetAttachments[placements]
                 }
                 constraints={[
@@ -300,4 +304,4 @@ class Dropdown extends Component {
 
 Dropdown.propTypes = propTypes;
 Dropdown.defaultProps = defaultProps;
-export default injectIntl(Dropdown, { forwardRef: true });
+export default injectIntl(withOrientationChange(Dropdown), { forwardRef: true });

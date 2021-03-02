@@ -42,7 +42,7 @@ Test cases list: `webcamlayout/whiteboard/webcam/virtualizedlist/user/sharednote
 
 If you have Jest installed globally, you can run individual tests with `jest TEST [TEST...]`. The tests are found in the `.test.js` files, but you may choose to omit file extensions when running the tests.
 
-## Debugging, Metrics and Evidences
+## Debugging, Recording, Metrics and Evidences
 
 ### Debugging
 
@@ -54,6 +54,13 @@ Debugging output will look like below:
   console.log
     19-Jan-2021 13:03:30  Meeting ID:  random-6850458
 ```
+### Recording
+
+To record the tests, you will need to set `WITH_RECORD=true`; if `WITH_RECORD` receives `true`, all tests will be recorded to .mp4 files, to keep track on what's going on and to have a good approach to catch problems or to have a proof that there are no problems.
+
+Recording output will be saved under `data/test-date-testName/recording`; for example: `data/test-19-01-2021-pollResultsChatMessage/recording`.
+
+**PS:** Recordings are just for manual testing.
 
 ### Getting Metrics
 

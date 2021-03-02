@@ -34,10 +34,10 @@
   border-radius: var(--border-radius);
   font-weight: var(--btn-font-weight);
   padding: var(--font-size-base);
-  //margin-bottom: var(--line-height-computed);
   color: var(--systemMessage-font-color);
   margin-top: 0px;
   margin-bottom: 0px;
+  overflow-wrap: break-word;
 }
 
 .systemMessageNoBorder {

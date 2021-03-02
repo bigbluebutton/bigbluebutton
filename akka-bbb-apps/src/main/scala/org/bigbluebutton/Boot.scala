@@ -1,5 +1,9 @@
 package org.bigbluebutton
 
+import akka.actor.ActorSystem
+import akka.event.Logging
+import akka.http.scaladsl.Http
+import akka.stream.ActorMaterializer
 import org.bigbluebutton.common2.redis.{ MessageSender, RedisConfig, RedisPublisher }
 import org.bigbluebutton.core._
 import org.bigbluebutton.core.bus._
@@ -8,13 +12,13 @@ import org.bigbluebutton.core2.AnalyticsActor
 import org.bigbluebutton.core2.FromAkkaAppsMsgSenderActor
 import org.bigbluebutton.endpoint.redis.AppsRedisSubscriberActor
 import org.bigbluebutton.endpoint.redis.RedisRecorderActor
-import akka.actor.ActorSystem
-import akka.event.Logging
 import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
+import org.bigbluebutton.service.HealthzService
 
 object Boot extends App with SystemConfiguration {
 
   implicit val system = ActorSystem("bigbluebutton-apps-system")
+  implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val executor = system.dispatcher
 
   val logger = Logging(system, getClass)
@@ -75,4 +79,10 @@ object Boot extends App with SystemConfiguration {
     ),
     "redis-subscriber"
   )
+
+  val healthz = HealthzService(system)
+
+  val apiService = new ApiService(healthz)
+
+  val bindingFuture = Http().bindAndHandle(apiService.routes, httpHost, httpPort)
 }

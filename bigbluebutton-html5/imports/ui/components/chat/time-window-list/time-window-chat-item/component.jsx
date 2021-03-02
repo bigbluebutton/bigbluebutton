@@ -19,7 +19,7 @@ const propTypes = {
     name: PropTypes.string,
   }),
   messages: PropTypes.arrayOf(Object).isRequired,
-  time: PropTypes.number,
+  timestamp: PropTypes.number,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -33,7 +33,7 @@ const defaultProps = {
   user: null,
   scrollArea: null,
   lastReadMessageTime: 0,
-  time: 0,
+  timestamp: 0,
 };
 
 const intlMessages = defineMessages({
@@ -105,7 +105,7 @@ class TimeWindowChatItem extends PureComponent {
 
   renderMessageItem() {
     const {
-      time,
+      timestamp,
       chatAreaId,
       scrollArea,
       intl,
@@ -121,7 +121,7 @@ class TimeWindowChatItem extends PureComponent {
       isOnline,
     } = this.props;
 
-    const dateTime = new Date(time);
+    const dateTime = new Date(timestamp);
     const regEx = /<a[^>]+>/i;
     ChatLogger.debug('TimeWindowChatItem::renderMessageItem', this.props);
     const defaultAvatarString = name?.toLowerCase().slice(0, 2) || "  ";
@@ -188,7 +188,7 @@ class TimeWindowChatItem extends PureComponent {
 
   renderPollItem() {
     const {
-      time,
+      timestamp,
       color,
       intl,
       isDefaultPoll,
@@ -199,7 +199,7 @@ class TimeWindowChatItem extends PureComponent {
       handleReadMessage,
     } = this.props;
 
-    const dateTime = new Date(time);
+    const dateTime = new Date(timestamp);
 
     return messages ? (
       <div className={styles.item} key={_.uniqueId('message-poll-item-')}>
