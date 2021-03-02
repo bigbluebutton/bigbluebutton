@@ -26,6 +26,7 @@ import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.{ MeetingStatus2x, Permissions }
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.meeting._
+import org.bigbluebutton.core2.message.handlers.pads._
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.breakout._
 import org.bigbluebutton.core.apps.polls._
@@ -84,6 +85,8 @@ class MeetingActor(
   with SyncGetMeetingInfoRespMsgHdlr
   with ClientToServerLatencyTracerMsgHdlr
   with ValidateConnAuthTokenSysMsgHdlr
+  with AddPadSysMsgHdlr
+  with AddCaptionsPadsSysMsgHdlr
   with UserActivitySignCmdMsgHdlr {
 
   object CheckVoiceRecordingInternalMsg
@@ -490,6 +493,9 @@ class MeetingActor(
         updateUserLastActivity(m.body.msg.sender.id)
 
       case m: ValidateConnAuthTokenSysMsg => handleValidateConnAuthTokenSysMsg(m)
+
+      case m: AddPadSysMsg                => handleAddPadSysMsg(m)
+      case m: AddCaptionsPadsSysMsg       => handleAddCaptionsPadsSysMsg(m)
 
       case m: UserActivitySignCmdMsg      => handleUserActivitySignCmdMsg(m)
 

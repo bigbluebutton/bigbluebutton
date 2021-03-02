@@ -76,6 +76,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[EjectUserFromMeetingSysMsg](envelope, jsonNode)
       case ValidateConnAuthTokenSysMsg.NAME =>
         route[ValidateConnAuthTokenSysMsg](meetingManagerChannel, envelope, jsonNode)
+      case AddPadSysMsg.NAME =>
+        routeGenericMsg[AddPadSysMsg](envelope, jsonNode)
+      case AddCaptionsPadsSysMsg.NAME =>
+        routeGenericMsg[AddCaptionsPadsSysMsg](envelope, jsonNode)
 
       // Guests
       case GetGuestsWaitingApprovalReqMsg.NAME =>

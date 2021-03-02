@@ -7,7 +7,6 @@ GEM
     crass (1.0.5)
     fastimage (2.1.5)
     ffi (1.11.1)
-    fnv (0.2.0)
     jaro_winkler (1.5.2)
     java_properties (0.0.4)
     journald-logger (2.0.4)
@@ -48,7 +47,6 @@ DEPENDENCIES
   absolute_time
   builder
   fastimage
-  fnv
   java_properties
   journald-logger
   jwt

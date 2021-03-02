@@ -54,6 +54,8 @@ import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.PublishedRecordingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.UnpublishedRecordingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.DeletedRecordingMessage;
+import org.bigbluebutton.api.messaging.messages.AddPad;
+import org.bigbluebutton.api.messaging.messages.AddCaptionsPads;
 import org.bigbluebutton.api.messaging.messages.CreateBreakoutRoom;
 import org.bigbluebutton.api.messaging.messages.CreateMeeting;
 import org.bigbluebutton.api.messaging.messages.EndMeeting;
@@ -158,6 +160,20 @@ public class MeetingService implements MessageListener {
     if (m != null) {
       RegisteredUser ruser = new RegisteredUser(authToken, internalUserId, guestStatus);
       m.userRegistered(ruser);
+    }
+  }
+
+  public Boolean isPadValid(String padId, String sessionToken) {
+    UserSession us = getUserSessionWithAuthToken(sessionToken);
+    if (us == null) return false;
+
+    Meeting m = getMeeting(us.meetingID);
+    if (m == null) return false;
+
+    if (m.hasPad(padId)) {
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -1051,6 +1067,10 @@ public class MeetingService implements MessageListener {
           processGuestPolicyChanged((GuestPolicyChanged) message);
         } else if (message instanceof RecordChapterBreak) {
           processRecordingChapterBreak((RecordChapterBreak) message);
+        } else if (message instanceof AddPad) {
+          processAddPad((AddPad) message);
+        } else if (message instanceof AddCaptionsPads) {
+          processAddCaptionsPads((AddCaptionsPads) message);
         } else if (message instanceof MakePresentationDownloadableMsg) {
           processMakePresentationDownloadableMsg((MakePresentationDownloadableMsg) message);
         } else if (message instanceof UpdateRecordingStatus) {
@@ -1066,6 +1086,22 @@ public class MeetingService implements MessageListener {
     Meeting m = getMeeting(msg.meetingId);
     if (m != null) {
       m.setGuestPolicy(msg.policy);
+    }
+  }
+
+  public void processAddPad(AddPad msg) {
+    Meeting m = getMeeting(msg.meetingId);
+    if (m != null) {
+      m.addPad(msg.padId, msg.readOnlyId);
+    }
+  }
+
+  public void processAddCaptionsPads(AddCaptionsPads msg) {
+    Meeting m = getMeeting(msg.meetingId);
+    if (m != null) {
+      for (String padId : msg.padIds) {
+        m.addPad(padId, "undefined");
+      }
     }
   }
 

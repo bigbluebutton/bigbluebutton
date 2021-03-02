@@ -10,11 +10,9 @@ const getLang = () => {
 };
 
 const getPadParams = () => {
-  const { config } = NOTE_CONFIG;
-  const User = Users.findOne({ userId: Auth.userID }, { fields: { name: 1, color: 1 } });
-  config.userName = User.name;
-  config.userColor = User.color;
+  let config = {};
   config.lang = getLang();
+  config.rtl = document.documentElement.getAttribute('dir') === 'rtl';
 
   const params = [];
   Object.keys(config).forEach((k) => {
@@ -26,12 +24,12 @@ const getPadParams = () => {
 
 const getPadURL = (padId, readOnlyPadId, ownerId) => {
   const userId = Auth.userID;
+  const params = getPadParams();
   let url;
   if (!ownerId || (ownerId && userId === ownerId)) {
-    const params = getPadParams();
     url = Auth.authenticateURL(`${NOTE_CONFIG.url}/p/${padId}?${params}`);
   } else {
-    url = Auth.authenticateURL(`${NOTE_CONFIG.url}/p/${readOnlyPadId}`);
+    url = Auth.authenticateURL(`${NOTE_CONFIG.url}/p/${readOnlyPadId}?${params}`);
   }
   return url;
 };

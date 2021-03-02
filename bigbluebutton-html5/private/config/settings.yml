@@ -288,12 +288,6 @@ public:
   note:
     enabled: false
     url: ETHERPAD_HOST
-    config:
-      showLineNumbers: false
-      showChat: false
-      noColors: true
-      showControls: true
-      rtl: false
   layout:
     autoSwapLayout: false
     hidePresentation: false

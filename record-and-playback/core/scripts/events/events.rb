@@ -24,9 +24,9 @@ require 'logger'
 require 'trollop'
 require 'yaml'
 
-def keep_etherpad_events(meeting_id, events_etherpad, notes_endpoint)
+def keep_etherpad_events(meeting_id, events_etherpad, notes_endpoint, notes_apikey)
   BigBlueButton.logger.info("Keeping etherpad events for #{meeting_id}")
-  notes_id = BigBlueButton.get_notes_id(meeting_id)
+  notes_id = BigBlueButton.get_notes_id(meeting_id, notes_apikey)
 
   # Always fetch for the audit format
   BigBlueButton.try_download("#{notes_endpoint}/#{notes_id}/export/etherpad", events_etherpad)
@@ -61,6 +61,7 @@ redis_port = props['redis_port']
 redis_password = props['redis_password']
 log_dir = props['log_dir']
 notes_endpoint = props['notes_endpoint']
+notes_apikey = props['notes_apikey']
 
 raw_events_xml = "#{raw_archive_dir}/#{meeting_id}/events.xml"
 ended_done_file = "#{recording_dir}/status/ended/#{meeting_id}.done"
@@ -83,7 +84,7 @@ if not FileTest.directory?(target_dir)
   FileUtils.mkdir_p target_dir
 
   events_etherpad = "#{target_dir}/events.etherpad"
-  keep_etherpad_events(meeting_id, events_etherpad, notes_endpoint)
+  keep_etherpad_events(meeting_id, events_etherpad, notes_endpoint, notes_apikey)
 
   events_xml = "#{target_dir}/events.xml"
   if File.exist? raw_events_xml

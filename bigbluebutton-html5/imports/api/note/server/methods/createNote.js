@@ -22,6 +22,7 @@ export default function createNote(meetingId) {
   const noteId = generateNoteId(meetingId);
 
   const createURL = createPadURL(noteId);
+
   axios({
     method: 'get',
     url: createURL,
@@ -30,6 +31,7 @@ export default function createNote(meetingId) {
     const { status } = responseOuter;
     if (status !== 200) {
       Logger.error(`Could not get note info for ${meetingId} ${status}`);
+      return;
     }
     const readOnlyURL = getReadOnlyIdURL(noteId);
     axios({

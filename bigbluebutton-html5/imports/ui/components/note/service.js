@@ -24,18 +24,17 @@ const getLang = () => {
 };
 
 const getNoteParams = () => {
-  const { config } = NOTE_CONFIG;
-  const User = Users.findOne({ userId: Auth.userID }, { fields: { name: 1, color: 1 } });
+  let config = {};
+  const User = Users.findOne({ userId: Auth.userID }, { fields: { name: 1 } });
   config.userName = User.name;
-  config.userColor = User.color;
   config.lang = getLang();
+  config.rtl = document.documentElement.getAttribute('dir') === 'rtl';
 
   const params = [];
-  for (const key in config) {
-    if (config.hasOwnProperty(key)) {
-      params.push(`${key}=${encodeURIComponent(config[key])}`);
-    }
-  }
+  Object.keys(config).forEach((k) => {
+    params.push(`${k}=${encodeURIComponent(config[k])}`);
+  });
+
   return params.join('&');
 };
 
@@ -51,7 +50,8 @@ const isLocked = () => {
 
 const getReadOnlyURL = () => {
   const readOnlyNoteId = getReadOnlyNoteId();
-  const url = Auth.authenticateURL(`${NOTE_CONFIG.url}/p/${readOnlyNoteId}`);
+  const params = getNoteParams();
+  const url = Auth.authenticateURL(`${NOTE_CONFIG.url}/p/${readOnlyNoteId}?${params}`);
   return url;
 };
 

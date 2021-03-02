@@ -36,7 +36,7 @@ require 'logger'
 require 'find'
 require 'rubygems'
 require 'net/http'
-require 'fnv'
+require 'digest'
 require 'shellwords'
 require 'English'
 
@@ -226,9 +226,10 @@ module BigBlueButton
     r.split("-")[1].to_i / 1000
   end
 
-  # Notes id will be an 8-sized hash string based on the meeting id
-  def self.get_notes_id(meeting_id)
-    FNV.new.fnv1a_32(meeting_id).to_s(16).rjust(8, '0')
+  # Notes id will be a SHA1 hash string based on the meeting id and etherpad's apikey
+  def self.get_notes_id(meeting_id, notes_apikey)
+    value = meeting_id + notes_apikey
+    Digest::SHA1.hexdigest value
   end
 
   def self.done_to_timestamp(r)
