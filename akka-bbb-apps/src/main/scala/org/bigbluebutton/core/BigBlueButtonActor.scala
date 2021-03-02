@@ -1,7 +1,6 @@
 package org.bigbluebutton.core
 
 import java.io.{ PrintWriter, StringWriter }
-
 import akka.actor._
 import akka.actor.ActorLogging
 import akka.actor.SupervisorStrategy.Resume
@@ -11,27 +10,30 @@ import scala.concurrent.duration._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.SystemConfiguration
-import java.util.concurrent.TimeUnit
 
+import java.util.concurrent.TimeUnit
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.RunningMeeting
 import org.bigbluebutton.core2.RunningMeetings
 import org.bigbluebutton.core2.message.senders.MsgBuilder
+import org.bigbluebutton.service.HealthzService
 
 object BigBlueButtonActor extends SystemConfiguration {
   def props(
-      system:    ActorSystem,
-      eventBus:  InternalEventBus,
-      bbbMsgBus: BbbMsgRouterEventBus,
-      outGW:     OutMessageGateway
+      system:         ActorSystem,
+      eventBus:       InternalEventBus,
+      bbbMsgBus:      BbbMsgRouterEventBus,
+      outGW:          OutMessageGateway,
+      healthzService: HealthzService
   ): Props =
-    Props(classOf[BigBlueButtonActor], system, eventBus, bbbMsgBus, outGW)
+    Props(classOf[BigBlueButtonActor], system, eventBus, bbbMsgBus, outGW, healthzService)
 }
 
 class BigBlueButtonActor(
     val system:   ActorSystem,
     val eventBus: InternalEventBus, val bbbMsgBus: BbbMsgRouterEventBus,
-    val outGW: OutMessageGateway
+    val outGW:          OutMessageGateway,
+    val healthzService: HealthzService
 ) extends Actor
   with ActorLogging with SystemConfiguration {
 
@@ -166,6 +168,7 @@ class BigBlueButtonActor(
 
   private def handleCheckAlivePingSysMsg(msg: CheckAlivePingSysMsg): Unit = {
     val event = MsgBuilder.buildCheckAlivePingSysMsg(msg.body.system, msg.body.timestamp)
+    healthzService.sendReceiveStatusMessage(System.currentTimeMillis())
     outGW.send(event)
   }
 
