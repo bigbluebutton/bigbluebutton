@@ -13,7 +13,11 @@ export default function handleStartExternalVideo({ header, body }, meetingId) {
   const user = Users.findOne({ meetingId: meetingId, userId: userId })
 
   if (user && user.presenter) {
-      Logger.info(`User id=${userId} sharing an external video: ${externalVideoUrl} for meeting ${meetingId}`);
+    try {
       Meetings.update({ meetingId }, { $set: { externalVideoUrl } });
+      Logger.info(`User id=${userId} sharing an external video: ${externalVideoUrl} for meeting ${meetingId}`);
+    } catch (err) {
+      Logger.error(`Error on setting shared external video start in Meetings collection: ${err}`);
+    }
   }
 }
