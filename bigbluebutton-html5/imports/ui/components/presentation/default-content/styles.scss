@@ -1,4 +1,4 @@
-@import "../../../stylesheets/variables/_all";
+@import "../../../stylesheets/variables/breakpoints";
 
 .contentRatio {
   position: relative;
@@ -34,6 +34,10 @@
   color: rgba(255, 255, 255, .5);
   text-align: center;
   overflow: auto;
+}
+
+.hideContent {
+  visibility: hidden;
 }
 
 .appear {

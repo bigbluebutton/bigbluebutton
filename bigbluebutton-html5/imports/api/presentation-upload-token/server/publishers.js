@@ -2,24 +2,36 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import PresentationUploadToken from '/imports/api/presentation-upload-token';
 import Logger from '/imports/startup/server/logger';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
-Meteor.publish('presentation-upload-token', (credentials, podId, filename) => {
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+function presentationUploadToken(podId, filename) {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing PresentationUploadToken was requested by unauth connection ${this.connection.id}`);
+    return PresentationUploadToken.find({ meetingId: '' });
+  }
+
+  const { meetingId, userId } = tokenValidation;
+
   check(podId, String);
   check(filename, String);
 
   const selector = {
     meetingId,
     podId,
-    userId: requesterUserId,
+    userId,
     filename,
   };
 
-  Logger.debug(`Publishing PresentationUploadToken for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug('Publishing PresentationUploadToken', { meetingId, userId });
 
   return PresentationUploadToken.find(selector);
-});
+}
+
+function publish(...args) {
+  const boundPresentationUploadToken = presentationUploadToken.bind(this);
+  return boundPresentationUploadToken(...args);
+}
+
+Meteor.publish('presentation-upload-token', publish);

@@ -1,30 +1,26 @@
 import React, { Component } from 'react';
 import { Session } from 'meteor/session';
 import PropTypes from 'prop-types';
+import SanitizeHTML from 'sanitize-html';
 import Auth from '/imports/ui/services/auth';
-import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
+import { setCustomLogoUrl, setModeratorOnlyMessage } from '/imports/ui/components/user-list/service';
 import { makeCall } from '/imports/ui/services/api';
-import deviceInfo from '/imports/utils/deviceInfo';
 import logger from '/imports/startup/client/logger';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
+import Users from '/imports/api/users';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
 };
 
-const APP_CONFIG = Meteor.settings.public.app;
-const { showParticipantsOnLogin } = APP_CONFIG;
-
 class JoinHandler extends Component {
   static setError(codeError) {
-    Session.set('hasError', true);
     if (codeError) Session.set('codeError', codeError);
   }
 
   constructor(props) {
     super(props);
     this.fetchToken = this.fetchToken.bind(this);
-    this.changeToJoin = this.changeToJoin.bind(this);
 
     this.state = {
       joined: false,
@@ -32,14 +28,64 @@ class JoinHandler extends Component {
   }
 
   componentDidMount() {
-    this.fetchToken();
+    this._isMounted = true;
+
+    if (!this.firstJoinTime) {
+      this.firstJoinTime = new Date();
+    }
+    Tracker.autorun((c) => {
+      const {
+        connected,
+        status,
+      } = Meteor.status();
+
+      if (status === 'connecting') {
+        this.setState({ joined: false });
+      }
+
+      logger.debug(`Initial connection status change. status: ${status}, connected: ${connected}`);
+      if (connected) {
+
+        const msToConnect = (new Date() - this.firstJoinTime) / 1000;
+        const secondsToConnect = parseFloat(msToConnect).toFixed(2);
+
+        logger.info({
+          logCode: 'joinhandler_component_initial_connection_time',
+          extraInfo: {
+            attemptForUserInfo: Auth.fullInfo,
+            timeToConnect: secondsToConnect,
+          },
+        }, `Connection to Meteor took ${secondsToConnect}s`);
+
+        this.firstJoinTime = undefined;
+        this.fetchToken();
+      } else if (status === 'failed') {
+        c.stop();
+
+        const msToConnect = (new Date() - this.firstJoinTime) / 1000;
+        const secondsToConnect = parseFloat(msToConnect).toFixed(2);
+        logger.info({
+          logCode: 'joinhandler_component_initial_connection_failed',
+          extraInfo: {
+            attemptForUserInfo: Auth.fullInfo,
+            timeToConnect: secondsToConnect,
+          },
+        }, `Connection to Meteor failed, took ${secondsToConnect}s`);
+
+        JoinHandler.setError('400');
+        Session.set('errorMessageDescription', 'Failed to connect to server');
+        this.firstJoinTime = undefined;
+      }
+    });
   }
 
-  changeToJoin(bool) {
-    this.setState({ joined: bool });
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   async fetchToken() {
+    if (!this._isMounted) return;
+
     const urlParams = new URLSearchParams(window.location.search);
     const sessionToken = urlParams.get('sessionToken');
 
@@ -66,7 +112,11 @@ class JoinHandler extends Component {
         location: window.location.href,
       };
 
-      logger.info({ logCode: 'joinhandler_component_clientinfo' }, clientInfo);
+      logger.info({
+        logCode: 'joinhandler_component_clientinfo',
+        extraInfo: { clientInfo },
+      },
+      'Log information about the client');
     };
 
     const setAuth = (resp) => {
@@ -93,15 +143,27 @@ class JoinHandler extends Component {
       return resp;
     };
 
-    const setCustomData = (resp) => {
-      const {
-        meetingID, internalUserID, customdata,
-      } = resp;
+    const setModOnlyMessage = (resp) => {
+      if (resp && resp.modOnlyMessage) {
+        const sanitizedModOnlyText = SanitizeHTML(resp.modOnlyMessage, {
+          allowedTags: ['a', 'b', 'br', 'i', 'img', 'li', 'small', 'span', 'strong', 'u', 'ul'],
+          allowedAttributes: {
+            a: ['href', 'name', 'target'],
+            img: ['src', 'width', 'height'],
+          },
+          allowedSchemes: ['https'],
+        });
+        setModeratorOnlyMessage(sanitizedModOnlyText);
+      }
+      return resp;
+    };
 
+    const setCustomData = (resp) => {
+      const { customdata } = resp;
 
       return new Promise((resolve) => {
         if (customdata.length) {
-          makeCall('addUserSettings', meetingID, internalUserID, customdata).then(r => resolve(r));
+          makeCall('addUserSettings', customdata).then(r => resolve(r));
         }
         resolve(true);
       });
@@ -119,29 +181,42 @@ class JoinHandler extends Component {
     const { response } = parseToJson;
 
     setLogoutURL(response);
+    logUserInfo();
 
     if (response.returncode !== 'FAILED') {
       await setAuth(response);
-      await setCustomData(response);
 
       setBannerProps(response);
       setLogoURL(response);
-      logUserInfo();
+      setModOnlyMessage(response);
 
-      if (showParticipantsOnLogin && !deviceInfo.type().isPhone) {
-        Session.set('openPanel', 'chat');
-        Session.set('idChatOpen', '');
-      } else {
-        Session.set('openPanel', '');
-      }
+      Tracker.autorun(async (cd) => {
+        const user = Users.findOne({ userId: Auth.userID, approved: true }, { fields: { _id: 1 } });
 
-      logger.info({ logCode: 'joinhandler_component_joinroutehandler_success' }, `User successfully went through main.joinRouteHandler with [${JSON.stringify(response)}].`);
+        if (user) {
+          await setCustomData(response);
+          cd.stop();
+        }
+      });
+
+      logger.info({
+        logCode: 'joinhandler_component_joinroutehandler_success',
+        extraInfo: {
+          response,
+        },
+      }, 'User successfully went through main.joinRouteHandler');
     } else {
       const e = new Error(response.message);
       if (!Session.get('codeError')) Session.set('errorMessageDescription', response.message);
-      logger.error({ logCode: 'joinhandler_component_joinroutehandler_error' }, `User faced [${e}] on main.joinRouteHandler. Error was:`, JSON.stringify(response));
+      logger.error({
+        logCode: 'joinhandler_component_joinroutehandler_error',
+        extraInfo: {
+          response,
+          error: e,
+        },
+      }, 'User faced an error on main.joinRouteHandler.');
     }
-    this.changeToJoin(true);
+    this.setState({ joined: true });
   }
 
   render() {

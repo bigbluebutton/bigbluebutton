@@ -74,6 +74,7 @@ class BigBlueButtonActor(
       case m: RegisterUserReqMsg          => handleRegisterUserReqMsg(m)
       case m: EjectDuplicateUserReqMsg    => handleEjectDuplicateUserReqMsg(m)
       case m: GetAllMeetingsReqMsg        => handleGetAllMeetingsReqMsg(m)
+      case m: GetRunningMeetingsReqMsg    => handleGetRunningMeetingsReqMsg(m)
       case m: CheckAlivePingSysMsg        => handleCheckAlivePingSysMsg(m)
       case m: ValidateConnAuthTokenSysMsg => handleValidateConnAuthTokenSysMsg(m)
       case _                              => log.warning("Cannot handle " + msg.envelope.name)
@@ -121,7 +122,7 @@ class BigBlueButtonActor(
 
         val m = RunningMeeting(msg.body.props, outGW, eventBus)
 
-        /** Subscribe to meeting and voice events. **/
+        // Subscribe to meeting and voice events.
         eventBus.subscribe(m.actorRef, m.props.meetingProp.intId)
         eventBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
         eventBus.subscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
@@ -141,11 +142,24 @@ class BigBlueButtonActor(
       // do nothing
 
     }
+  }
 
+  private def handleGetRunningMeetingsReqMsg(msg: GetRunningMeetingsReqMsg): Unit = {
+    val liveMeetings = RunningMeetings.meetings(meetings)
+    val meetingIds = liveMeetings.map(m => m.props.meetingProp.intId)
+
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(GetRunningMeetingsRespMsg.NAME, routing)
+    val header = BbbCoreBaseHeader(GetRunningMeetingsRespMsg.NAME)
+
+    val body = GetRunningMeetingsRespMsgBody(meetingIds)
+    val event = GetRunningMeetingsRespMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
+    outGW.send(msgEvent)
   }
 
   private def handleGetAllMeetingsReqMsg(msg: GetAllMeetingsReqMsg): Unit = {
-    RunningMeetings.meetings(meetings).foreach(m => {
+    RunningMeetings.meetings(meetings).filter(_.props.systemProps.html5InstanceId == msg.body.html5InstanceId).foreach(m => {
       m.actorRef ! msg
     })
   }
@@ -161,7 +175,7 @@ class BigBlueButtonActor(
       m <- RunningMeetings.findWithId(meetings, msg.meetingId)
       m2 <- RunningMeetings.remove(meetings, msg.meetingId)
     } yield {
-      /** Unsubscribe to meeting and voice events. **/
+      // Unsubscribe to meeting and voice events.
       eventBus.unsubscribe(m.actorRef, m.props.meetingProp.intId)
       eventBus.unsubscribe(m.actorRef, m.props.voiceProp.voiceConf)
       eventBus.unsubscribe(m.actorRef, m.props.screenshareProps.screenshareConf)

@@ -3,10 +3,10 @@ package org.bigbluebutton.core.apps.voice
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
-import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
 
-trait UserLeftVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
-  this: BaseMeetingActor =>
+trait UserLeftVoiceConfEvtMsgHdlr {
+  this: MeetingActor =>
 
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
@@ -34,7 +34,7 @@ trait UserLeftVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
     }
 
     if (liveMeeting.props.meetingProp.isBreakout) {
-      updateParentMeetingWithUsers()
+      BreakoutHdlrHelpers.updateParentMeetingWithUsers(liveMeeting, eventBus)
     }
   }
 }

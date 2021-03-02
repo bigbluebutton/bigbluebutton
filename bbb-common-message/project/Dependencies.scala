@@ -18,7 +18,7 @@ object Dependencies {
     val jackson = "2.9.7"
     val sl4j = "1.7.25"
     val red5 = "1.0.10-M9"
-    val pool = "2.6.0"
+    val pool = "2.8.0"
 
     // Redis
     val lettuce = "5.1.3.RELEASE"

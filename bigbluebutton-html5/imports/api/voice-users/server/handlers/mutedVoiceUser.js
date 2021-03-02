@@ -7,5 +7,10 @@ export default function handleVoiceUpdate({ body }, meetingId) {
 
   check(meetingId, String);
 
+  // If a person is muted we have to force them to not talking
+  if (voiceUser.muted) {
+    voiceUser.talking = false;
+  }
+
   return updateVoiceUser(meetingId, voiceUser);
 }

@@ -22,10 +22,14 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-
 import org.bigbluebutton.freeswitch.voice.events.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class FreeswitchConferenceEventListener implements ConferenceEventListener {
+  private static Logger log = LoggerFactory.getLogger(FreeswitchConferenceEventListener.class);
+
   private static final int SENDERTHREADS = 1;
   private static final Executor msgSenderExec = Executors.newFixedThreadPool(SENDERTHREADS);
   private static final Executor runExec = Executors.newFixedThreadPool(SENDERTHREADS);
@@ -43,7 +47,7 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
       messages.offer(event, 5, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       // TODO Auto-generated catch block
-      e.printStackTrace();
+      log.error("Exception queueing message: ", e);
     }
   }
 
@@ -53,7 +57,7 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
         if (event instanceof VoiceUserJoinedEvent) {
           VoiceUserJoinedEvent evt = (VoiceUserJoinedEvent) event;
           vcs.userJoinedVoiceConf(evt.getRoom(), evt.getVoiceUserId(), evt.getUserId(), evt.getCallerIdName(),
-            evt.getCallerIdNum(), evt.getMuted(), evt.getSpeaking(), evt.getAvatarURL());
+            evt.getCallerIdNum(), evt.getMuted(), evt.getSpeaking(), evt.getCallingWith());
         } else if (event instanceof VoiceConfRunningEvent) {
           VoiceConfRunningEvent evt = (VoiceConfRunningEvent) event;
           vcs.voiceConfRunning(evt.getRoom(), evt.isRunning());
@@ -85,7 +89,38 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
             vcs.deskShareRTMPBroadcastStopped(evt.getRoom(), evt.getBroadcastingStreamUrl(),
               evt.getVideoWidth(), evt.getVideoHeight(), evt.getTimestamp());
           }
+        } else if (event instanceof VoiceConfRunningAndRecordingEvent) {
+          VoiceConfRunningAndRecordingEvent evt = (VoiceConfRunningAndRecordingEvent) event;
+          if (evt.running && ! evt.recording) {
+            log.warn("Voice conf running but not recording. conf=" + evt.getRoom()
+                    + ",running=" + evt.running
+                    + ",rec=" + evt.recording);
+          }
+
+          vcs.voiceConfRunningAndRecording(evt.getRoom(), evt.running, evt.recording, evt.confRecordings);
+        } else if (event instanceof VoiceUsersStatusEvent) {
+          VoiceUsersStatusEvent evt = (VoiceUsersStatusEvent) event;
+          vcs.voiceUsersStatus(evt.getRoom(), evt.confMembers, evt.confRecordings);
+        } else if (event instanceof VoiceCallStateEvent) {
+          VoiceCallStateEvent evt = (VoiceCallStateEvent) event;
+          vcs.voiceCallStateEvent(evt.getRoom(),
+                  evt.callSession,
+                  evt.clientSession,
+                  evt.userId,
+                  evt.callerName,
+                  evt.callState,
+                  evt.origCallerIdName,
+                  evt.origCalledDest);
+        } else if (event instanceof FreeswitchStatusReplyEvent) {
+          FreeswitchStatusReplyEvent evt = (FreeswitchStatusReplyEvent) event;
+          vcs.freeswitchStatusReplyEvent(evt.sendCommandTimestamp,
+                  evt.status,
+                  evt.receivedResponseTimestamp);
+        } else if (event instanceof FreeswitchHeartbeatEvent) {
+          FreeswitchHeartbeatEvent hbearEvt = (FreeswitchHeartbeatEvent) event;
+          vcs.freeswitchHeartbeatEvent(hbearEvt.heartbeat);
         }
+
       }
     };
 
@@ -103,7 +138,7 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
             sendMessageToBigBlueButton(message);
           } catch (InterruptedException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error("Exception taking message form queue: ", e);
           }
         }
       }

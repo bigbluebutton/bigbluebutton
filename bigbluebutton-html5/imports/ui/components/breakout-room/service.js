@@ -4,7 +4,9 @@ import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import { Session } from 'meteor/session';
 import Users from '/imports/api/users';
-import mapUser from '/imports/ui/services/user/mapUser';
+import fp from 'lodash/fp';
+
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const findBreakouts = () => {
   const BreakoutRooms = Breakouts.find({
@@ -25,7 +27,10 @@ const breakoutRoomUser = (breakoutId) => {
   return breakoutUser;
 };
 
-const closeBreakoutPanel = () => Session.set('openPanel', 'userlist');
+const closeBreakoutPanel = () => {
+  Session.set('openPanel', 'userlist');
+  window.dispatchEvent(new Event('panelChanged'));
+};
 
 const endAllBreakouts = () => {
   makeCall('endAllBreakouts');
@@ -49,27 +54,61 @@ const transferToBreakout = (breakoutId) => {
       { 'breakoutProps.parentId': breakoutRoom.parentMeetingId },
       { 'meetingProp.isBreakout': true },
     ],
-  });
+  }, { fields: { meetingId: 1 } });
   transferUserToMeeting(Auth.meetingID, breakoutMeeting.meetingId);
 };
 
-const isPresenter = () => {
-  const User = Users.findOne({ intId: Auth.userID });
-  const mappedUser = mapUser(User);
-  return mappedUser.isPresenter;
+const amIModerator = () => {
+  const User = Users.findOne({ intId: Auth.userID }, { fields: { role: 1 } });
+  return User.role === ROLE_MODERATOR;
 };
 
-const isModerator = () => {
-  const User = Users.findOne({ intId: Auth.userID });
-  const mappedUser = mapUser(User);
-  return mappedUser.isModerator;
+const checkInviteModerators = () => {
+  const BREAKOUTS_CONFIG = Meteor.settings.public.app.breakouts;
+
+  return !((amIModerator() && !BREAKOUTS_CONFIG.sendInvitationToIncludedModerators));
 };
 
-const getUsersByBreakoutId = breakoutId => Users.find({
-  meetingId: breakoutId,
-  connectionStatus: 'online',
-});
+const getBreakoutByUserId = userId => Breakouts.find(
+  { 'users.userId': userId },
+  { fields: { timeRemaining: 0 } },
+).fetch();
 
+const getBreakoutByUser = user => Breakouts.findOne({ users: user });
+
+const getUsersFromBreakouts = breakoutsArray => breakoutsArray
+  .map(breakout => breakout.users)
+  .reduce((acc, usersArray) => [...acc, ...usersArray], []);
+
+const filterUserURLs = userId => breakoutUsersArray => breakoutUsersArray
+  .filter(user => user.userId === userId);
+
+const getLastURLInserted = breakoutURLArray => breakoutURLArray
+  .sort((a, b) => a.insertedTime - b.insertedTime).pop();
+
+const getBreakoutUserByUserId = userId => fp.pipe(
+  getBreakoutByUserId,
+  getUsersFromBreakouts,
+  filterUserURLs(userId),
+  getLastURLInserted,
+)(userId);
+
+const getBreakouts = () => Breakouts.find({}, { sort: { sequence: 1 } }).fetch();
+const getBreakoutsNoTime = () => Breakouts.find(
+  {},
+  {
+    sort: { sequence: 1 },
+    fields: { timeRemaining: 0 },
+  },
+).fetch();
+
+const getBreakoutUserIsIn = userId => Breakouts.findOne({ 'joinedUsers.userId': new RegExp(`^${userId}`) }, { fields: { sequence: 1 } });
+
+const isUserInBreakoutRoom = (joinedUsers) => {
+  const userId = Auth.userID;
+
+  return !!joinedUsers.find(user => user.userId.startsWith(userId));
+};
 
 export default {
   findBreakouts,
@@ -79,8 +118,14 @@ export default {
   transferUserToMeeting,
   transferToBreakout,
   meetingId: () => Auth.meetingID,
-  isPresenter,
   closeBreakoutPanel,
-  isModerator,
-  getUsersByBreakoutId,
+  amIModerator,
+  getBreakoutUserByUserId,
+  getBreakoutByUser,
+  getBreakouts,
+  getBreakoutsNoTime,
+  getBreakoutByUserId,
+  getBreakoutUserIsIn,
+  isUserInBreakoutRoom,
+  checkInviteModerators,
 };

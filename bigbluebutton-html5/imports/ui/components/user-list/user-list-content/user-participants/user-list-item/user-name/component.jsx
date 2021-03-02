@@ -17,6 +17,14 @@ const messages = defineMessages({
     id: 'app.userList.locked',
     description: 'Text for identifying locked user',
   },
+  moderator: {
+    id: 'app.userList.moderator',
+    description: 'Text for identifying moderator user',
+  },
+  mobile: {
+    id: 'app.userList.mobile',
+    description: 'Text for identifying mobile user',
+  },
   guest: {
     id: 'app.userList.guest',
     description: 'Text for identifying guest user',
@@ -34,30 +42,29 @@ const messages = defineMessages({
 const propTypes = {
   user: PropTypes.shape({
     name: PropTypes.string.isRequired,
-    isPresenter: PropTypes.bool.isRequired,
-    isVoiceUser: PropTypes.bool.isRequired,
-    isModerator: PropTypes.bool.isRequired,
-    image: PropTypes.string,
   }).isRequired,
   compact: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  isMeetingLocked: PropTypes.func.isRequired,
+  isThisMeetingLocked: PropTypes.bool.isRequired,
+  isMe: PropTypes.func.isRequired,
   userAriaLabel: PropTypes.string.isRequired,
-  meetingId: PropTypes.string.isRequired,
   isActionsOpen: PropTypes.bool.isRequired,
 };
 
+const LABEL = Meteor.settings.public.user.label;
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+
 const UserName = (props) => {
   const {
-    user,
     intl,
     compact,
-    isMeetingLocked,
-    meetingId,
+    isThisMeetingLocked,
     userAriaLabel,
     isActionsOpen,
+    isMe,
+    user,
   } = props;
 
   if (compact) {
@@ -70,15 +77,25 @@ const UserName = (props) => {
     return null;
   }
 
-  if (isMeetingLocked(meetingId) && user.isLocked) {
-    userNameSub.push(<span>
-      <Icon iconName="lock" />
-      {intl.formatMessage(messages.locked)}
-    </span>);
+  if (isThisMeetingLocked && user.locked && user.role !== ROLE_MODERATOR) {
+    userNameSub.push(
+      <span>
+        <Icon iconName="lock" />
+        {intl.formatMessage(messages.locked)}
+      </span>,
+    );
   }
 
-  if (user.isGuest) {
-    userNameSub.push(intl.formatMessage(messages.guest));
+  if (user.role === ROLE_MODERATOR) {
+    if (LABEL.moderator) userNameSub.push(intl.formatMessage(messages.moderator));
+  }
+
+  if (user.mobile) {
+    if (LABEL.mobile) userNameSub.push(intl.formatMessage(messages.mobile));
+  }
+
+  if (user.guest) {
+    if (LABEL.guest) userNameSub.push(intl.formatMessage(messages.guest));
   }
 
   return (
@@ -88,14 +105,20 @@ const UserName = (props) => {
       aria-label={userAriaLabel}
       aria-expanded={isActionsOpen}
     >
-      <span className={styles.userNameMain}>
-        {user.name} <i>{(user.isCurrent) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
+      <span aria-hidden className={styles.userNameMain}>
+        <span>
+          {user.name}
+&nbsp;
+        </span>
+        <i>{(isMe(user.userId)) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
       </span>
       {
-        userNameSub.length ?
-          <span className={styles.userNameSub}>
-            {userNameSub.reduce((prev, curr) => [prev, ' | ', curr])}
-          </span>
+        userNameSub.length
+          ? (
+            <span aria-hidden className={styles.userNameSub}>
+              {userNameSub.reduce((prev, curr) => [prev, ' | ', curr])}
+            </span>
+          )
           : null
       }
     </div>

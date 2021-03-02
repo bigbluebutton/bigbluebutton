@@ -1,14 +1,22 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import { Session } from 'meteor/session';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { injectIntl, defineMessages } from 'react-intl';
 import _ from 'lodash';
 import Breakouts from '/imports/api/breakouts';
+import AppService from '/imports/ui/components/app/service';
 import { notify } from '/imports/ui/services/notification';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
+import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
+import { getcookieData, joinMicrophone } from '/imports/ui/components/audio/audio-modal/service';
 import Service from './service';
 import AudioModalContainer from './audio-modal/container';
+import Settings from '/imports/ui/services/settings';
+
+const APP_CONFIG = Meteor.settings.public.app;
+const KURENTO_CONFIG = Meteor.settings.public.kurento;
 
 const intlMessages = defineMessages({
   joinedAudio: {
@@ -22,6 +30,10 @@ const intlMessages = defineMessages({
   leftAudio: {
     id: 'app.audioManager.leftAudio',
     description: 'Left audio toast message',
+  },
+  reconnectingAudio: {
+    id: 'app.audioManager.reconnectingAudio',
+    description: 'Reconnecting audio toast message',
   },
   genericError: {
     id: 'app.audioManager.genericError',
@@ -53,8 +65,7 @@ const intlMessages = defineMessages({
   },
 });
 
-
-class AudioContainer extends React.Component {
+class AudioContainer extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -62,7 +73,20 @@ class AudioContainer extends React.Component {
   }
 
   componentDidMount() {
+    const { meetingIsBreakout, joinedAudio } = this.props;
     this.init();
+    if (meetingIsBreakout && joinedAudio) {
+      joinMicrophone(true, true);
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    const { hasBreakoutRooms, joinedAudio } = this.props;
+    const { hasBreakoutRooms: hadBreakoutRooms } = prevProps;
+    if (hadBreakoutRooms && !hasBreakoutRooms && joinedAudio
+      && !Service.isConnected()) {
+      joinMicrophone(true, true);
+    }
   }
 
   render() {
@@ -72,24 +96,55 @@ class AudioContainer extends React.Component {
 
 let didMountAutoJoin = false;
 
-export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) => {
-  const APP_CONFIG = Meteor.settings.public.app;
-  const KURENTO_CONFIG = Meteor.settings.public.kurento;
+const webRtcError = _.range(1001, 1011)
+  .reduce((acc, value) => ({
+    ...acc,
+    [value]: { id: `app.audioNotification.audioFailedError${value}` },
+  }), {});
 
-  const autoJoin = getFromUserSettings('autoJoin', APP_CONFIG.autoJoin);
-  const openAudioModal = mountModal.bind(
-    null,
-    <AudioModalContainer />,
-  );
+const messages = {
+  info: {
+    JOINED_AUDIO: intlMessages.joinedAudio,
+    JOINED_ECHO: intlMessages.joinedEcho,
+    LEFT_AUDIO: intlMessages.leftAudio,
+    RECONNECTING_AUDIO: intlMessages.reconnectingAudio,
+  },
+  error: {
+    GENERIC_ERROR: intlMessages.genericError,
+    CONNECTION_ERROR: intlMessages.connectionError,
+    REQUEST_TIMEOUT: intlMessages.requestTimeout,
+    INVALID_TARGET: intlMessages.invalidTarget,
+    MEDIA_ERROR: intlMessages.mediaError,
+    WEBRTC_NOT_SUPPORTED: intlMessages.BrowserNotSupported,
+    ...webRtcError,
+  },
+};
+
+export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ mountModal, intl, userLocks }) => {
+  const { microphoneConstraints } = Settings.application;
+  const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
+  const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
+  const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);
+  const { userWebcam, userMic } = userLocks;
+  const { joinedAudio } = getcookieData();
+  const meetingIsBreakout = AppService.meetingIsBreakout();
+  const hasBreakoutRooms = AppService.getBreakoutRooms().length > 0;
+  const openAudioModal = () => new Promise((resolve) => {
+    mountModal(<AudioModalContainer resolve={resolve} />);
+  });
+
   const openVideoPreviewModal = () => new Promise((resolve) => {
+    if (userWebcam) return resolve();
     mountModal(<VideoPreviewContainer resolve={resolve} />);
   });
-  if (Service.audioLocked()
-    && Service.isConnected()
-    && !Service.isListenOnly()
-    && !Service.isMuted()) {
-    Service.toggleMuteMicrophone();
-    notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'audio_on');
+
+  if (Service.isConnected() && !Service.isListenOnly()) {
+    Service.updateAudioConstraints(microphoneConstraints);
+
+    if (userMic && !Service.isMuted()) {
+      Service.toggleMuteMicrophone();
+      notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'audio_on');
+    }
   }
 
   Breakouts.find().observeChanges({
@@ -97,50 +152,39 @@ export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) =>
       // if the user joined a breakout room, the main room's audio was
       // programmatically dropped to avoid interference. On breakout end,
       // offer to rejoin main room audio only if the user is not in audio already
-      if (Service.isUsingAudio()) {
+      if (Service.isUsingAudio() || joinedAudio) {
         return;
       }
-      setTimeout(() => openAudioModal(), 0);
+      setTimeout(() => openAudioModal().then(() => {
+         if (enableVideo && autoShareWebcam) {
+           openVideoPreviewModal();
+          }
+        }), 0);
     },
   });
 
-  const webRtcError = _.range(1001, 1011)
-    .reduce((acc, value) => ({
-      ...acc,
-      [value]: { id: `app.audioNotification.audioFailedError${value}` },
-    }), {});
-
-  const messages = {
-    info: {
-      JOINED_AUDIO: intlMessages.joinedAudio,
-      JOINED_ECHO: intlMessages.joinedEcho,
-      LEFT_AUDIO: intlMessages.leftAudio,
-    },
-    error: {
-      GENERIC_ERROR: intlMessages.genericError,
-      CONNECTION_ERROR: intlMessages.connectionError,
-      REQUEST_TIMEOUT: intlMessages.requestTimeout,
-      INVALID_TARGET: intlMessages.invalidTarget,
-      MEDIA_ERROR: intlMessages.mediaError,
-      WEBRTC_NOT_SUPPORTED: intlMessages.BrowserNotSupported,
-      ...webRtcError,
-    },
-  };
-
   return {
+    hasBreakoutRooms,
+    meetingIsBreakout,
+    joinedAudio,
     init: () => {
       Service.init(messages, intl);
       Service.changeOutputDevice(document.querySelector('#remote-media').sinkId);
-      if (!autoJoin || didMountAutoJoin) return;
-
-      const enableVideo = getFromUserSettings('enableVideo', KURENTO_CONFIG.enableVideo);
-      const autoShareWebcam = getFromUserSettings('autoShareWebcam', KURENTO_CONFIG.autoShareWebcam);
+      const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
+      const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);
+      if ((!autoJoin || didMountAutoJoin)) {
+        if (enableVideo && autoShareWebcam) {
+          openVideoPreviewModal();
+        }
+        return;
+      }
+      Session.set('audioModalIsOpen', true);
       if (enableVideo && autoShareWebcam) {
-        openVideoPreviewModal().then(() => { openAudioModal(); didMountAutoJoin = true; });
-      } else {
+        openAudioModal().then(() => { openVideoPreviewModal(); didMountAutoJoin = true; });
+      } else if (!(joinedAudio && meetingIsBreakout)) {
         openAudioModal();
         didMountAutoJoin = true;
       }
     },
   };
-})(AudioContainer)));
+})(AudioContainer))));

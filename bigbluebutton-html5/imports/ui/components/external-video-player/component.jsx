@@ -1,234 +1,452 @@
 import React, { Component } from 'react';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import YouTube from 'react-youtube';
-import { sendMessage, onMessage } from './service';
+import { defineMessages, injectIntl } from 'react-intl';
+import ReactPlayer from 'react-player';
+import { sendMessage, onMessage, removeAllListeners } from './service';
+import logger from '/imports/startup/client/logger';
 
-const { PlayerState } = YouTube;
+import ArcPlayer from './custom-players/arc-player';
+import PeerTubePlayer from './custom-players/peertube';
+
+import { styles } from './styles';
+
+const intlMessages = defineMessages({
+  autoPlayWarning: {
+    id: 'app.externalVideo.autoPlayWarning',
+    description: 'Shown when user needs to interact with player to make it work',
+  },
+});
+
+const SYNC_INTERVAL_SECONDS = 5;
+const THROTTLE_INTERVAL_SECONDS = 0.5;
+const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
+
+ReactPlayer.addCustomPlayer(PeerTubePlayer);
+ReactPlayer.addCustomPlayer(ArcPlayer);
 
 class VideoPlayer extends Component {
   constructor(props) {
     super(props);
 
+    const { isPresenter } = props;
+
     this.player = null;
     this.syncInterval = null;
-    this.playerState = PlayerState.UNSTARTED;
-    this.presenterCommand = false;
-    this.preventStateChange = false;
+    this.autoPlayTimeout = null;
+    this.hasPlayedBefore = false;
+    this.playerIsReady = false;
+
+    this.lastMessage = null;
+    this.lastMessageTimestamp = Date.now();
+
+    this.throttleTimeout = null;
+
     this.state = {
       mutedByEchoTest: false,
+      playing: false,
+      autoPlayBlocked: false,
+      playbackRate: 1,
     };
 
     this.opts = {
-      playerVars: {
-        width: '100%',
-        height: '100%',
-        autoplay: 1,
-        modestbranding: true,
-        rel: 0,
-        ecver: 2,
+      // default option for all players, can be overwritten
+      playerOptions: {
+        autoplay: true,
+        playsinline: true,
+        controls: true,
       },
+      file: {
+        attributes: {
+          controls: true,
+          autoPlay: true,
+          playsInline: true,
+        },
+      },
+      dailymotion: {
+        params: {
+          controls: true,
+        },
+      },
+      youtube: {
+        playerVars: {
+          autoplay: 1,
+          modestbranding: 1,
+          autohide: 1,
+          rel: 0,
+          ecver: 2,
+          controls: isPresenter ? 1 : 2,
+        },
+      },
+      peertube: {
+        isPresenter,
+      },
+      twitch: {
+        options: {
+          controls: true,
+        },
+        playerId: 'externalVideoPlayerTwitch',
+      },
+      preload: true,
     };
 
-    this.keepSync = this.keepSync.bind(this);
+    this.registerVideoListeners = this.registerVideoListeners.bind(this);
+    this.autoPlayBlockDetected = this.autoPlayBlockDetected.bind(this);
+    this.clearVideoListeners = this.clearVideoListeners.bind(this);
+    this.handleFirstPlay = this.handleFirstPlay.bind(this);
     this.handleResize = this.handleResize.bind(this);
     this.handleOnReady = this.handleOnReady.bind(this);
-    this.handleStateChange = this.handleStateChange.bind(this);
-    this.changeState = this.changeState.bind(this);
+    this.handleOnPlay = this.handleOnPlay.bind(this);
+    this.handleOnPause = this.handleOnPause.bind(this);
+    this.sendSyncMessage = this.sendSyncMessage.bind(this);
+    this.getCurrentPlaybackRate = this.getCurrentPlaybackRate.bind(this);
+    this.getCurrentTime = this.getCurrentTime.bind(this);
+    this.setPlaybackRate = this.setPlaybackRate.bind(this);
     this.resizeListener = () => {
       setTimeout(this.handleResize, 0);
     };
+    this.onBeforeUnload = this.onBeforeUnload.bind(this);
   }
 
   componentDidMount() {
     window.addEventListener('resize', this.resizeListener);
+    window.addEventListener('layoutSizesSets', this.resizeListener);
+    window.addEventListener('beforeunload', this.onBeforeUnload);
+
+    clearInterval(this.syncInterval);
+    clearTimeout(this.autoPlayTimeout);
+
+    this.clearVideoListeners();
+    this.registerVideoListeners();
   }
 
-  componentDidUpdate(prevProps) {
-    const { inEchoTest } = this.props;
-    const {
-      mutedByEchoTest,
-    } = this.state;
+  onBeforeUnload() {
+    const { isPresenter } = this.props;
 
-    if (inEchoTest && !this.player.isMuted() && !mutedByEchoTest) {
-      this.player.mute();
-      this.changeState(true);
-    }
-
-    if (!inEchoTest && prevProps.inEchoTest && mutedByEchoTest) {
-      this.player.unMute();
-      this.changeState(false);
-    }
-
-    if (!prevProps.videoId) {
-      clearInterval(this.syncInterval);
+    if (isPresenter) {
+      this.sendSyncMessage('stop');
     }
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.resizeListener);
+    window.removeEventListener('beforeunload', this.onBeforeUnload);
+
+    this.clearVideoListeners();
 
     clearInterval(this.syncInterval);
+    clearTimeout(this.autoPlayTimeout);
+
     this.player = null;
-    this.refPlayer = null;
   }
 
-  changeState(booleanValue) {
-    this.setState({ mutedByEchoTest: booleanValue });
+  componentDidUpdate(prevProp, prevState) {
+    // Detect presenter change and redo the sync and listeners to reassign video to the new one
+    if (this.props.isPresenter !== prevProp.isPresenter) {
+      this.clearVideoListeners();
+
+      clearInterval(this.syncInterval);
+      clearTimeout(this.autoPlayTimeout);
+
+      this.registerVideoListeners();
+    }
   }
 
-  handleResize() {
-    if (!this.player || !this.refPlayer) {
+  shouldComponentUpdate(nextProps, nextState) {
+    const { isPresenter } = this.props;
+    const { playing } = this.state;
+
+    // If user is presenter we don't re-render playing state changes
+    // Because he's in control of the play/pause status
+    if (nextProps.isPresenter && isPresenter && nextState.playing !== playing) {
+      return false;
+    }
+
+    return true;
+  }
+
+  static getDerivedStateFromProps(props) {
+    const { inEchoTest } = props;
+
+    return { mutedByEchoTest: inEchoTest };
+  }
+
+  sendSyncMessage(msg, params) {
+    const timestamp = Date.now();
+
+    // If message is just a quick pause/un-pause just send nothing
+    const sinceLastMessage = (timestamp - this.lastMessageTimestamp) / 1000;
+    if ((msg === 'play' && this.lastMessage === 'stop'
+         || msg === 'stop' && this.lastMessage === 'play')
+         && sinceLastMessage < THROTTLE_INTERVAL_SECONDS) {
+      return clearTimeout(this.throttleTimeout);
+    }
+
+    // Ignore repeat presenter ready messages
+    if (this.lastMessage === msg && msg === 'presenterReady') {
+      logger.debug('Ignoring a repeated presenterReady message');
+    } else {
+      // Play/pause messages are sent with a delay, to permit cancelling it in case of
+      // quick sucessive play/pauses
+      const messageDelay = (msg === 'play' || msg === 'stop') ? THROTTLE_INTERVAL_SECONDS : 0;
+
+      this.throttleTimeout = setTimeout(() => {
+        sendMessage(msg, { ...params });
+      }, messageDelay * 1000);
+
+      this.lastMessage = msg;
+      this.lastMessageTimestamp = timestamp;
+    }
+  }
+
+  autoPlayBlockDetected() {
+    this.setState({ autoPlayBlocked: true });
+  }
+
+  handleFirstPlay() {
+    const { isPresenter } = this.props;
+    const { hasPlayedBefore } = this;
+
+    if (!hasPlayedBefore) {
+      this.hasPlayedBefore = true;
+      this.setState({ autoPlayBlocked: false });
+
+      clearTimeout(this.autoPlayTimeout);
+
+      if (isPresenter) {
+        this.sendSyncMessage('presenterReady');
+      }
+    }
+  }
+
+  getCurrentTime() {
+    if (this.player && this.player.getCurrentTime) {
+      return Math.round(this.player.getCurrentTime());
+    }
+  }
+
+  getCurrentPlaybackRate() {
+    const intPlayer = this.player && this.player.getInternalPlayer();
+
+    return (intPlayer && intPlayer.getPlaybackRate && intPlayer.getPlaybackRate()) || 1;
+  }
+
+  setPlaybackRate(rate) {
+    const intPlayer = this.player && this.player.getInternalPlayer();
+    const currentRate = this.getCurrentPlaybackRate();
+
+    if (currentRate === rate) {
       return;
     }
 
-    const el = this.refPlayer;
-    const parent = el.parentElement;
-    const w = parent.clientWidth;
-    const h = parent.clientHeight;
-    const idealW = h * 16 / 9;
-
-    if (idealW > w) {
-      this.player.setSize(w, w * 9 / 16);
-    } else {
-      this.player.setSize(idealW, h);
+    this.setState({ playbackRate: rate });
+    if (intPlayer && intPlayer.setPlaybackRate) {
+      intPlayer.setPlaybackRate(rate);
     }
   }
 
-  keepSync() {
+  handleResize() {
+    if (!this.player || !this.playerParent) {
+      return;
+    }
+
+    const par = this.playerParent.parentElement;
+    const w = par.clientWidth;
+    const h = par.clientHeight;
+    const idealW = h * 16 / 9;
+
+    const style = {};
+    if (idealW > w) {
+      style.width = w;
+      style.height = w * 9 / 16;
+    } else {
+      style.width = idealW;
+      style.height = h;
+    }
+
+    const styleStr = `width: ${style.width}px; height: ${style.height}px;`;
+    this.player.wrapper.style = styleStr;
+    this.playerParent.style = styleStr;
+  }
+
+  clearVideoListeners() {
+    removeAllListeners('play');
+    removeAllListeners('stop');
+    removeAllListeners('playerUpdate');
+    removeAllListeners('presenterReady');
+  }
+
+  registerVideoListeners() {
     const { isPresenter } = this.props;
 
     if (isPresenter) {
       this.syncInterval = setInterval(() => {
-        const curTime = this.player.getCurrentTime();
-        const rate = this.player.getPlaybackRate();
-        sendMessage('playerUpdate', { rate, time: curTime, state: this.playerState });
-      }, 2000);
+        const { playing } = this.state;
+        const curTime = this.getCurrentTime();
+        const rate = this.getCurrentPlaybackRate();
+
+        // Always pause video if presenter is has not started sharing, e.g., blocked by autoplay
+        const playingState = this.hasPlayedBefore ? playing : false;
+
+        this.sendSyncMessage('playerUpdate', { rate, time: curTime, state: playingState });
+      }, SYNC_INTERVAL_SECONDS * 1000);
     } else {
       onMessage('play', ({ time }) => {
-        this.presenterCommand = true;
-        if (this.player) {
-          this.player.seekTo(time, true);
-          this.playerState = PlayerState.PLAYING;
-          this.player.playVideo();
+        const { hasPlayedBefore, player } = this;
+
+        if (!player || !hasPlayedBefore) {
+          return;
         }
+        this.seekTo(time);
+        this.setState({ playing: true });
+
+        logger.debug({ logCode: 'external_video_client_play' }, 'Play external video');
       });
 
       onMessage('stop', ({ time }) => {
-        this.presenterCommand = true;
+        const { hasPlayedBefore, player } = this;
 
-        if (this.player) {
-          this.playerState = PlayerState.PAUSED;
-          this.player.seekTo(time, true);
-          this.player.pauseVideo();
+        if (!player || !hasPlayedBefore) {
+          return;
+        }
+        this.seekTo(time);
+        this.setState({ playing: false });
+
+        logger.debug({ logCode: 'external_video_client_stop' }, 'Stop external video');
+      });
+
+      onMessage('presenterReady', (data) => {
+        const { hasPlayedBefore } = this;
+
+        logger.debug({ logCode: 'external_video_presenter_ready' }, 'Presenter is ready to sync');
+
+        if (!hasPlayedBefore) {
+          this.setState({ playing: true });
         }
       });
 
       onMessage('playerUpdate', (data) => {
-        if (!this.player) {
+        const { hasPlayedBefore, player } = this;
+        const { playing } = this.state;
+        const { time, rate, state } = data;
+
+        if (!player || !hasPlayedBefore) {
           return;
         }
 
-        if (data.rate !== this.player.getPlaybackRate()) {
-          this.player.setPlaybackRate(data.rate);
+        if (rate !== this.getCurrentPlaybackRate()) {
+          this.setPlaybackRate(rate);
+          logger.debug({
+            logCode: 'external_video_client_update_rate',
+            extraInfo: {
+              newRate: rate,
+            },
+          }, 'Change external video playback rate.');
         }
 
-        if (Math.abs(this.player.getCurrentTime() - data.time) > 2) {
-          this.player.seekTo(data.time, true);
-        }
+        this.seekTo(time);
 
-        if (this.playerState !== data.state) {
-          this.presenterCommand = true;
-          this.playerState = data.state;
-          if (this.playerState === PlayerState.PLAYING) {
-            this.player.playVideo();
-          } else {
-            this.player.pauseVideo();
-          }
+        if (playing !== state) {
+          this.setState({ playing: state });
         }
-      });
-
-      onMessage('changePlaybackRate', (rate) => {
-        this.player.setPlaybackRate(rate);
       });
     }
   }
 
-  handleOnReady(event) {
-    const { isPresenter } = this.props;
+  seekTo(time) {
+    const { player } = this;
 
-    this.player = event.target;
-    this.player.pauseVideo();
-
-    this.keepSync();
-
-    if (!isPresenter) {
-      sendMessage('viewerJoined');
-    } else {
-      this.player.playVideo();
+    if (!player) {
+      return logger.error('No player on seek');
     }
+
+
+    // Seek if viewer has drifted too far away from presenter
+    if (Math.abs(this.getCurrentTime() - time) > SYNC_INTERVAL_SECONDS * 0.75) {
+      player.seekTo(time, true);
+      logger.debug({
+        logCode: 'external_video_client_update_seek',
+        extraInfo: { time },
+      }, `Seek external video to: ${time}`);
+    }
+  }
+
+  handleOnReady() {
+    const { hasPlayedBefore, playerIsReady } = this;
+
+    if (hasPlayedBefore || playerIsReady) {
+      return;
+    }
+
+    this.playerIsReady = true;
 
     this.handleResize();
+
+    this.autoPlayTimeout = setTimeout(this.autoPlayBlockDetected, AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS * 1000);
   }
 
-  handleStateChange(event) {
+  handleOnPlay() {
     const { isPresenter } = this.props;
-    const curTime = this.player.getCurrentTime();
+    const { playing } = this.state;
 
-    if (this.preventStateChange && [PlayerState.PLAYING, PlayerState.PAUSED].includes(event.data)) {
-      this.preventStateChange = false;
-      return;
-    }
+    const curTime = this.getCurrentTime();
 
-    if (this.playerState === event.data) {
-      return;
+    if (isPresenter && !playing) {
+      this.sendSyncMessage('play', { time: curTime });
     }
+    this.setState({ playing: true });
 
-    if (event.data === PlayerState.PLAYING) {
-      if (isPresenter) {
-        sendMessage('play', { time: curTime });
-        this.playerState = event.data;
-      } else if (!this.presenterCommand) {
-        this.player.seekTo(curTime, true);
-        this.preventStateChange = true;
-        this.player.pauseVideo();
-      } else {
-        this.playerState = event.data;
-        this.presenterCommand = false;
-      }
-    } else if (event.data === PlayerState.PAUSED) {
-      if (isPresenter) {
-        sendMessage('stop', { time: curTime });
-        this.playerState = event.data;
-      } else if (!this.presenterCommand) {
-        this.player.seekTo(curTime);
-        this.preventStateChange = true;
-        this.player.playVideo();
-      } else {
-        this.playerState = event.data;
-        this.presenterCommand = false;
-      }
+    this.handleFirstPlay();
+  }
+
+  handleOnPause() {
+    const { isPresenter } = this.props;
+    const { playing } = this.state;
+
+    const curTime = this.getCurrentTime();
+
+    if (isPresenter && playing) {
+      this.sendSyncMessage('stop', { time: curTime });
     }
+    this.setState({ playing: false });
+
+    this.handleFirstPlay();
   }
 
   render() {
-    const { videoId } = this.props;
-    const { opts, handleOnReady, handleStateChange } = this;
+    const { videoUrl, intl } = this.props;
+    const {
+      playing, playbackRate, mutedByEchoTest, autoPlayBlocked,
+    } = this.state;
 
     return (
       <div
-        id="youtube-video-player"
+        id="video-player"
         data-test="videoPlayer"
-        ref={(ref) => { this.refPlayer = ref; }}
+        ref={(ref) => { this.playerParent = ref; }}
       >
-        <YouTube
-          videoId={videoId}
-          opts={opts}
-          onReady={handleOnReady}
-          onStateChange={handleStateChange}
+        {autoPlayBlocked
+          ? (
+            <p className={styles.autoPlayWarning}>
+              {intl.formatMessage(intlMessages.autoPlayWarning)}
+            </p>
+          )
+          : ''
+        }
+        <ReactPlayer
+          className={styles.videoPlayer}
+          url={videoUrl}
+          config={this.opts}
+          muted={mutedByEchoTest}
+          playing={playing}
+          playbackRate={playbackRate}
+          onReady={this.handleOnReady}
+          onPlay={this.handleOnPlay}
+          onPause={this.handleOnPause}
+          ref={(ref) => { this.player = ref; }}
         />
       </div>
     );
   }
 }
 
-export default injectWbResizeEvent(VideoPlayer);
+export default injectIntl(injectWbResizeEvent(VideoPlayer));

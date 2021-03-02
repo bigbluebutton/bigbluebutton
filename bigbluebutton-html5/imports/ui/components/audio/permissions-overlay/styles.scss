@@ -1,5 +1,3 @@
-@import "../../../stylesheets/variables/_all";
-
 :root {
   --position-left-edge: 60%;
   --position-bottom-edge: 5%;
@@ -7,26 +5,29 @@
   --position-left-firefox: 22em;
   --position-top-chrome: 5.5em;
   --position-left-chrome: 18em;
-  --position-top-safari: 100px;
-  --position-left-safari-1280: 53em;
-  --position-left-safari-1440: 58em;
-  --position-left-safari-1680: 65em;
-  --position-left-safari-1920: 68em;
+  --position-top-safari: 150px;
   --arrow-top: -65px;
   --arrow-left: -20px;
   --arrow-top-edge: -2.5rem;
   --arrow-left-edge: -21rem;
+  --rtl-hint-top: 15rem;
 }
 
 @mixin arrowIconStyle() {
   &:after {
     top: var(--arrow-top);
     left: var(--arrow-left);
+    right: auto;
     font-size: 20px;
     display: block;
     font-family: 'bbb-icons';
     content: "\E906";
     position: relative;
+
+    [dir="rtl"] & {
+      left: auto;
+      right: var(--arrow-left);
+    }
 
     :global(.animationsEnabled) & {
       animation: bounce 2s infinite;
@@ -36,40 +37,60 @@
   :global(.browser-edge) &:after {
     top: var(--arrow-top-edge);
     left: var(--arrow-left-edge);
+    right: auto;
     font-size: 20px;
     :global(.animationsEnabled) & {
       animation: bounceRotate 2s infinite;
     }
+
+    [dir="rtl"] & {
+      left: auto;
+      right: var(--arrow-left-edge);
+    }
   }
+}
+
+@mixin useRTLPosition() {
+  right: none;
+  left: none;
+  top: var(--rtl-hint-top);
 }
 
 @mixin positionHint() {
   :global(.browser-edge) & {
     left: var(--position-left-edge);
+    right: auto;
     bottom: var(--position-bottom-edge);
+
+    [dir="rtl"] & {
+      left: auto;
+      right: var(--position-left-edge);
+    }
   }
   :global(.browser-firefox) & {
     top: var(--position-top-firefox);
     left: var(--position-left-firefox);
+    right: auto;
+
+    [dir="rtl"] & {
+      @include useRTLPosition();
+    }
   }
   :global(.browser-chrome) & {
     top: var(--position-top-chrome);
     left: var(--position-left-chrome);
+    right: auto;
+
+    [dir="rtl"] & {
+      @include useRTLPosition();
+    }
   }
   :global(.browser-safari) & {
     top: var(--position-top-safari);
-    @include mq($safari1280) {
-      left: var(--position-left-safari-1280);
-    }
-    @include mq($safari1440) {
-      left: var(--position-left-safari-1440);
-    }
-    @include mq($safari1680) {
-      left: var(--position-left-safari-1680);
-    }
-    @include mq($safari1920) {
-      left: var(--position-left-safari-1920);
-    }
+    left:0;
+    right:0;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 
@@ -93,15 +114,19 @@
 
 .hint {
   @include positionHint();
+  position: absolute;
   background: none;
   box-shadow: none;
-  position: absolute;
   color: #fff;
   font-size: 16px;
   font-weight: 400;
-  padding-left: var(--jumbo-padding-x);
+  padding: 0 0 0 var(--jumbo-padding-x);
   line-height: 18px;
   width: 340px;
+
+  [dir="rtl"] & {
+    padding: 0 var(--jumbo-padding-x) 0 0;
+  }
 
   small {
     display: block;

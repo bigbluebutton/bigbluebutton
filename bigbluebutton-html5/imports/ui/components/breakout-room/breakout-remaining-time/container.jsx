@@ -34,6 +34,8 @@ const intlMessages = defineMessages({
 });
 
 let timeRemaining = 0;
+let prevTimeRemaining = 0;
+
 const timeRemainingDep = new Tracker.Dependency();
 let timeRemainingInterval = null;
 
@@ -62,7 +64,7 @@ const getTimeRemaining = () => {
   return timeRemaining;
 };
 
-const setTimeRemaining = (sec = 0) => {
+const setTimeRemaining = (sec) => {
   if (sec !== timeRemaining) {
     timeRemaining = sec;
     timeRemainingDep.changed();
@@ -71,10 +73,9 @@ const setTimeRemaining = (sec = 0) => {
 
 const startCounter = (sec, set, get, interval) => {
   clearInterval(interval);
+  if (!sec) return;
   set(sec);
-  return setInterval(() => {
-    set(get() - 1);
-  }, 1000);
+  return setInterval(() => set(get() - 1), 1000);
 };
 
 
@@ -84,13 +85,18 @@ export default injectNotify(injectIntl(withTracker(({
   notify,
   messageDuration,
   timeEndedMessage,
-  alertMessageUnderOneMinute,
+  alertMessage,
+  alertUnderMinutes,
 }) => {
   const data = {};
   if (breakoutRoom) {
     const roomRemainingTime = breakoutRoom.timeRemaining;
+    const localRemainingTime = getTimeRemaining();
+    const shouldResync = prevTimeRemaining !== roomRemainingTime && roomRemainingTime !== localRemainingTime;
 
-    if (!timeRemainingInterval && roomRemainingTime) {
+    if ((!timeRemainingInterval || shouldResync) && roomRemainingTime) {
+      prevTimeRemaining = roomRemainingTime;
+
       timeRemainingInterval = startCounter(
         roomRemainingTime,
         setTimeRemaining,
@@ -102,10 +108,12 @@ export default injectNotify(injectIntl(withTracker(({
     clearInterval(timeRemainingInterval);
   }
 
-  if (timeRemaining !== null && timeRemaining >= 0) {
+  if (timeRemaining >= 0 && timeRemainingInterval) {
     if (timeRemaining > 0) {
       const time = getTimeRemaining();
-      if (time === (1 * 60) && alertMessageUnderOneMinute) notify(alertMessageUnderOneMinute, 'info', 'rooms');
+      if (time === (alertUnderMinutes * 60) && alertMessage) {
+        notify(alertMessage, 'info', 'rooms');
+      }
       data.message = intl.formatMessage(messageDuration, { 0: humanizeSeconds(time) });
     } else {
       clearInterval(timeRemainingInterval);

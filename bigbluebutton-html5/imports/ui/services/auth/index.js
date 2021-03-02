@@ -6,6 +6,10 @@ import Storage from '/imports/ui/services/storage/session';
 import Users from '/imports/api/users';
 import logger from '/imports/startup/client/logger';
 import { makeCall } from '/imports/ui/services/api';
+import { initAnnotationsStreamListener } from '/imports/ui/components/whiteboard/service';
+import allowRedirectToLogoutURL from '/imports/ui/components/meeting-ended/service';
+import { initCursorStreamListener } from '/imports/ui/components/cursor/service';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
@@ -135,6 +139,7 @@ class Auth {
       fullname: this.fullname,
       confname: this.confname,
       externUserID: this.externUserID,
+      uniqueClientSession: this.uniqueClientSession,
     };
   }
 
@@ -168,6 +173,7 @@ class Auth {
     this.fullname = null;
     this.externUserID = null;
     this.confname = null;
+    this.uniqueClientSession = null;
     return Promise.resolve(...args);
   }
 
@@ -176,70 +182,113 @@ class Auth {
       return Promise.resolve();
     }
 
+
     return new Promise((resolve) => {
-      resolve(this._logoutURL);
+      if (allowRedirectToLogoutURL()) {
+        resolve(this._logoutURL);
+      }
+
+      // do not redirect
+      resolve();
     });
   }
 
   authenticate(force) {
-    if (this.loggedIn && !force) return Promise.resolve();
+    if (this.loggedIn && !force) {
+      return Promise.resolve();
+    }
 
     if (!(this.meetingID && this.userID && this.token)) {
       return Promise.reject({
         error: 401,
-        description: 'Authentication failed due to missing credentials.',
+        description: Session.get('errorMessageDescription') ? Session.get('errorMessageDescription') : 'Authentication failed due to missing credentials',
       });
     }
 
     this.loggedIn = false;
     return this.validateAuthToken()
-      .then(() => { this.loggedIn = true; });
+      .then(() => {
+        this.loggedIn = true;
+        this.uniqueClientSession = `${this.sessionToken}-${Math.random().toString(36).substring(6)}`;
+      });
   }
 
   validateAuthToken() {
-    return new Promise((resolve, reject) => {
-      Meteor.connection.setUserId(`${this.meetingID}-${this.userID}`);
+    return new Promise(async (resolve, reject) => {
       let computation = null;
 
       const validationTimeout = setTimeout(() => {
         computation.stop();
         reject({
-          error: 401,
-          description: 'Authentication timeout.',
+          error: 408,
+          description: 'Authentication timeout',
         });
       }, CONNECTION_TIMEOUT);
 
+      Meteor.subscribe('auth-token-validation', { meetingId: this.meetingID, userId: this.userID });
+
+      const result = await makeCall('validateAuthToken', this.meetingID, this.userID, this.token, this.externUserID);
+
+      if (result && result.invalid) {
+        clearTimeout(validationTimeout);
+        reject({
+          error: 403,
+          description: result.reason,
+          type: result.error_type,
+        });
+        return;
+      }
+
+      Meteor.subscribe('current-user');
+
       Tracker.autorun((c) => {
         computation = c;
-        Meteor.subscribe('current-user', this.credentials);
 
         const selector = { meetingId: this.meetingID, userId: this.userID };
-        const User = Users.findOne(selector);
-
+        const fields = {
+          ejected: 1, intId: 1, validated: 1, userId: 1,
+        };
+        const User = Users.findOne(selector, { fields });
         // Skip in case the user is not in the collection yet or is a dummy user
         if (!User || !('intId' in User)) {
           logger.info({ logCode: 'auth_service_resend_validateauthtoken' }, 're-send validateAuthToken for delayed authentication');
-          makeCall('validateAuthToken');
+          makeCall('validateAuthToken', this.meetingID, this.userID, this.token);
+
           return;
         }
 
         if (User.ejected) {
+          computation.stop();
           reject({
-            error: 401,
+            error: 403,
             description: 'User has been ejected.',
           });
           return;
         }
 
-        if (User.validated === true && User.connectionStatus === 'online') {
-          computation.stop();
-          clearTimeout(validationTimeout);
-          // setTimeout to prevent race-conditions with subscription
-          setTimeout(() => resolve(true), 100);
+        const authenticationTokenValidation = AuthTokenValidation.findOne();
+
+        if (!authenticationTokenValidation) return;
+
+        switch (authenticationTokenValidation.validationStatus) {
+          case ValidationStates.INVALID:
+            c.stop();
+            reject({ error: 401, description: 'User has been ejected.' });
+            break;
+          case ValidationStates.VALIDATED:
+            initCursorStreamListener();
+            initAnnotationsStreamListener();
+            c.stop();
+            clearTimeout(validationTimeout);
+            setTimeout(() => resolve(true), 100);
+            break;
+          case ValidationStates.VALIDATING:
+            break;
+          case ValidationStates.NOT_VALIDATED:
+            break;
+          default:
         }
       });
-
-      makeCall('validateAuthToken');
     });
   }
 
@@ -247,9 +296,9 @@ class Auth {
     let authURL = url;
     if (authURL.indexOf('sessionToken=') === -1) {
       if (authURL.indexOf('?') !== -1) {
-        authURL = authURL + '&sessionToken=' + this.sessionToken;
+        authURL = `${authURL}&sessionToken=${this.sessionToken}`;
       } else {
-        authURL= authURL + '?sessionToken=' + this.sessionToken;
+        authURL = `${authURL}?sessionToken=${this.sessionToken}`;
       }
     }
     return authURL;

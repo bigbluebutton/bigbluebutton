@@ -1,4 +1,3 @@
-const config = require("./config.js");
 const Logger = require("./logger.js");
 const IDMapping = require("./id_mapping.js");
 const UserMapping = require("./userMapping.js");
@@ -144,18 +143,23 @@ module.exports = class MessageMapping {
         "user":{
           "internal-user-id": msgHeader.userId,
           "external-user-id": extId,
-          "sharing-mic": msgBody.muted,
           "name": msgBody.name,
           "role": msgBody.role,
           "presenter": msgBody.presenter,
-          "stream": msgBody.stream,
-          "listening-only": msgBody.listenOnly
+          "stream": msgBody.stream
         }
       },
       "event":{
         "ts": Date.now()
       }
     };
+    if (this.mappedObject.data["id"] === "user-audio-voice-enabled") {
+      this.mappedObject.data["attributes"]["user"]["listening-only"] = msgBody.listenOnly;
+      this.mappedObject.data["attributes"]["user"]["sharing-mic"] = ! msgBody.listenOnly;
+    } else if (this.mappedObject.data["id"] === "user-audio-voice-disabled") {
+      this.mappedObject.data["attributes"]["user"]["listening-only"] = false;
+      this.mappedObject.data["attributes"]["user"]["sharing-mic"] = false;
+    }
     this.mappedMessage = JSON.stringify(this.mappedObject);
     Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
   }

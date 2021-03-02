@@ -40,21 +40,65 @@ function deploy_format() {
 
 deploy_format "presentation"
 
-sudo mkdir -p /var/bigbluebutton/events/
-sudo mkdir -p /var/bigbluebutton/playback/
-sudo mkdir -p /var/bigbluebutton/recording/raw/
-sudo mkdir -p /var/bigbluebutton/recording/process/
-sudo mkdir -p /var/bigbluebutton/recording/publish/
-sudo mkdir -p /var/bigbluebutton/recording/status/ended/
-sudo mkdir -p /var/bigbluebutton/recording/status/recorded/
-sudo mkdir -p /var/bigbluebutton/recording/status/archived/
-sudo mkdir -p /var/bigbluebutton/recording/status/processed/
-sudo mkdir -p /var/bigbluebutton/recording/status/sanity/
+CAPTIONS_DIR=/var/bigbluebutton/captions/
+if [ ! -d "$CAPTIONS_DIR" ]; then
+  sudo mkdir -p $CAPTIONS_DIR
+fi
+
+EVENTS_DIR=/var/bigbluebutton/events/
+if [ ! -d "$EVENTS_DIR" ]; then
+  sudo mkdir -p $EVENTS_DIR
+fi
+
+PLAYBACK_DIR=/var/bigbluebutton/playback/
+if [ ! -d "$PLAYBACK_DIR" ]; then
+  sudo mkdir -p $PLAYBACK_DIR
+fi
+
+REC_RAW_DIR=/var/bigbluebutton/recording/raw/
+if [ ! -d "$REC_RAW_DIR" ]; then
+  sudo mkdir -p $REC_RAW_DIR
+fi
+
+REC_PROC_DIR=/var/bigbluebutton/recording/process/
+if [ ! -d "$REC_PROC_DIR" ]; then
+  sudo mkdir -p $REC_PROC_DIR
+fi
+
+REC_PUB_DIR=/var/bigbluebutton/recording/publish/
+if [ ! -d "$REC_PUB_DIR" ]; then
+  sudo mkdir -p $REC_PUB_DIR
+fi
+
+REC_STATUS_ENDED_DIR=/var/bigbluebutton/recording/status/ended/
+if [ ! -d "$REC_STATUS_ENDED_DIR" ]; then
+  sudo mkdir -p $REC_STATUS_ENDED_DIR
+fi
+
+REC_STATUS_RECORDED_DIR=/var/bigbluebutton/recording/status/recorded/
+if [ ! -d "$REC_STATUS_RECORDED_DIR" ]; then
+  sudo mkdir -p $REC_STATUS_RECORDED_DIR
+fi
+
+REC_STATUS_ARCHIVED_DIR=/var/bigbluebutton/recording/status/archived/
+if [ ! -d "$REC_STATUS_ARCHIVED_DIR" ]; then
+  sudo mkdir -p $REC_STATUS_ARCHIVED_DIR
+fi
+
+REC_STATUS_PROCESSED_DIR=/var/bigbluebutton/recording/status/processed/
+if [ ! -d "$REC_STATUS_PROCESSED_DIR" ]; then
+  sudo mkdir -p $REC_STATUS_PROCESSED_DIR
+fi
+
+REC_STATUS_SANITY_DIR=/var/bigbluebutton/recording/status/sanity/
+if [ ! -d "$REC_STATUS_SANITY_DIR" ]; then
+  sudo mkdir -p $REC_STATUS_SANITY_DIR
+fi
 
 sudo mv /usr/local/bigbluebutton/core/scripts/*.nginx /etc/bigbluebutton/nginx/
 sudo service nginx reload
 sudo chown -R bigbluebutton:bigbluebutton /var/bigbluebutton/ /var/log/bigbluebutton/
 sudo chown -R red5:red5 /var/bigbluebutton/screenshare/
 
-cd /usr/local/bigbluebutton/core/
-sudo bundle install
+#cd /usr/local/bigbluebutton/core/
+#sudo bundle install

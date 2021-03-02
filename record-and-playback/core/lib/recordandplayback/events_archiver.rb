@@ -1,7 +1,5 @@
-# Set encoding to utf-8
-# encoding: UTF-8
+# frozen_string_literal: true
 
-#
 # BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 #
 # Copyright (c) 2017 BigBlueButton Inc. and by respective authors (see below).
@@ -18,8 +16,6 @@
 #
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-#
-
 
 require 'rubygems'
 require 'redis'
@@ -28,7 +24,7 @@ require 'yaml'
 require 'fileutils'
 
 module BigBlueButton  
-  $bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
+  $bbb_props = YAML::load(File.open(File.expand_path('../../../scripts/bigbluebutton.yml', __FILE__)))
   $recording_dir = $bbb_props['recording_dir']
   $raw_recording_dir = "#{$recording_dir}/raw"
 
@@ -230,8 +226,19 @@ module BigBlueButton
       @redis = redis
     end
 
+    # Apply a cleanup that removes certain ranges of special
+    # control characters from user-provided text
+    # Based on https://www.w3.org/TR/xml/#charsets
+    # Remove all Unicode characters not valid in XML, and also remove
+    # discouraged characters (includes control characters) in the U+0000-U+FFFF
+    # range (the higher values are just undefined characters, and are unlikely
+    # to cause issues).
+    def strip_control_chars(str)
+      str.scrub.tr("\x00-\x08\x0B\x0C\x0E-\x1F\x7F\uFDD0-\uFDEF\uFFFE\uFFFF", '')
+    end
+
     def store_events(meeting_id, events_file, break_timestamp)
-      version = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))["bbb_version"]
+      version = BigBlueButton.read_props["bbb_version"]
 
       if File.exist?(events_file)
         io = File.open(events_file, 'rb')
@@ -254,7 +261,7 @@ module BigBlueButton
       end
 
       meeting_metadata = @redis.metadata_for(meeting_id)
-      return if meeting_metadata.nil?
+      return if meeting_metadata.nil? || meeting_metadata.empty?
 
       # Fill in/update the top-level meeting element
       if meeting.nil?
@@ -262,9 +269,9 @@ module BigBlueButton
         recording << meeting
       end
       meeting['id'] = meeting_id
-      meeting['externalId'] = meeting_metadata[MEETINGID]
-      meeting['name'] = meeting_metadata[MEETINGNAME]
-      meeting['breakout'] = meeting_metadata[ISBREAKOUT]
+      meeting['externalId'] = strip_control_chars(meeting_metadata[MEETINGID])
+      meeting['name'] = strip_control_chars(meeting_metadata[MEETINGNAME])
+      meeting['breakout'] = strip_control_chars(meeting_metadata[ISBREAKOUT])
 
       # Fill in/update the top-level metadata element
       if metadata.nil?
@@ -272,7 +279,7 @@ module BigBlueButton
         recording << metadata
       end
       meeting_metadata.each do |k, v|
-        metadata[k] = v
+        metadata[strip_control_chars(k)] = strip_control_chars(v)
       end
 
       # Fill in/update the top-level breakout element
@@ -283,7 +290,7 @@ module BigBlueButton
         end
         breakout_metadata = @redis.breakout_metadata_for(meeting_id)
         breakout_metadata.each do |k, v|
-          breakout[k] = v
+          breakout[strip_control_chars(k)] = strip_control_chars(v)
         end
       end
 
@@ -318,13 +325,8 @@ module BigBlueButton
               # The slidesInfo value is XML serialized info, just insert it
               # directly into the event
               event << v
-            elsif (res[MODULE] == 'CHAT' and res[EVENTNAME] == 'PublicChatEvent' and k == 'message') ||
-                  (res[MODULE] == 'WHITEBOARD' and res[EVENTNAME] == 'AddShapeEvent' and k == 'text')
-              # Apply a cleanup that removes certain ranges of special
-              # characters from user-provided text
-              event << events_doc.create_element(k, v.tr("\x00-\x09\x0B\x0C\x0E-\x19\x7F",''))
             else
-              event << events_doc.create_element(k, v)
+              event << events_doc.create_element(k, strip_control_chars(v))
             end
           end
         end
@@ -351,6 +353,10 @@ module BigBlueButton
           break
         end
       end
+
+      # Optionally let the caller do some post-processing on the events before
+      # they're written
+      yield events_doc if block_given?
 
       # Write the events file. Write to a temp file then rename so other
       # scripts running concurrently don't see a partially written file.

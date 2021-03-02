@@ -4,10 +4,10 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.BreakoutRoomCreatedInternalMsg
 import org.bigbluebutton.core.apps.BreakoutModel
 import org.bigbluebutton.core.domain.{ BreakoutRoom2x, MeetingState2x }
-import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
 
-trait BreakoutRoomCreatedMsgHdlr extends BreakoutHdlrHelpers {
-  this: BaseMeetingActor =>
+trait BreakoutRoomCreatedMsgHdlr {
+  this: MeetingActor =>
 
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
@@ -41,7 +41,14 @@ trait BreakoutRoomCreatedMsgHdlr extends BreakoutHdlrHelpers {
     breakoutModel.rooms.values.foreach { room =>
       log.debug("Sending invitations for room {} with num users {}", room.name, room.assignedUsers.toVector.length)
       room.assignedUsers.foreach { user =>
-        sendJoinURL(user, room.externalId, room.sequence.toString(), room.id)
+        BreakoutHdlrHelpers.sendJoinURL(
+          liveMeeting,
+          outGW,
+          user,
+          room.externalId,
+          room.sequence.toString(),
+          room.id
+        )
       }
     }
 

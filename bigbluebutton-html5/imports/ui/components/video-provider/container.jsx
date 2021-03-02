@@ -1,20 +1,30 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 import VideoProvider from './component';
 import VideoService from './service';
+import { withLayoutContext } from '/imports/ui/components/layout/context';
 
 const VideoProviderContainer = ({ children, ...props }) => {
-  const { users } = props;
-  return (!users.length ? null : <VideoProvider {...props}>{children}</VideoProvider>);
+  const { streams } = props;
+  return (!streams.length ? null : <VideoProvider {...props}>{children}</VideoProvider>);
 };
 
-export default withTracker(() => ({
-  meetingId: VideoService.meetingId(),
-  users: VideoService.getAllUsersVideo(),
-  userId: VideoService.userId(),
-  sessionToken: VideoService.sessionToken(),
-  userName: VideoService.userName(),
-  enableVideoStats: getFromUserSettings('enableVideoStats', Meteor.settings.public.kurento.enableVideoStats),
-  voiceBridge: VideoService.voiceBridge(),
-}))(VideoProviderContainer);
+export default withTracker(props => {
+  // getVideoStreams returns a dictionary consisting of:
+  // {
+  //  streams: array of mapped streams
+  //  totalNumberOfStreams: total number of shared streams in the server
+  // }
+  const {
+    streams,
+    totalNumberOfStreams
+  } = VideoService.getVideoStreams();
+
+  return {
+    swapLayout: props.swapLayout,
+    streams,
+    totalNumberOfStreams,
+    isUserLocked: VideoService.isUserLocked(),
+    currentVideoPageIndex: VideoService.getCurrentVideoPageIndex(),
+  };
+})( withLayoutContext(VideoProviderContainer));

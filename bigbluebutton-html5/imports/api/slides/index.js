@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 
 const Slides = new Mongo.Collection('slides');
+const SlidePositions = new Mongo.Collection('slide-positions');
 
 if (Meteor.isServer) {
   // types of queries for the slides:
@@ -15,6 +16,10 @@ if (Meteor.isServer) {
   Slides._ensureIndex({
     meetingId: 1, podId: 1, presentationId: 1, id: 1,
   });
+
+  SlidePositions._ensureIndex({
+    meetingId: 1, podId: 1, presentationId: 1, id: 1,
+  });
 }
 
-export default Slides;
+export { Slides, SlidePositions };

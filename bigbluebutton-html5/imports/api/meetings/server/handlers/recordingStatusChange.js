@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import Meetings from '/imports/api/meetings';
+import { RecordMeetings } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
 export default function handleRecordingStatusChange({ body }, meetingId) {
@@ -11,19 +11,16 @@ export default function handleRecordingStatusChange({ body }, meetingId) {
   };
 
   const modifier = {
-    $set: { 'recordProp.recording': recording },
+    $set: { recording },
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      Logger.error(`Changing record status: ${err}`);
-      return;
-    }
+  try {
+    const { numberAffected } = RecordMeetings.upsert(selector, modifier);
 
-    if (numChanged) {
+    if (numberAffected) {
       Logger.info(`Changed meeting record status id=${meetingId} recording=${recording}`);
     }
-  };
-
-  return Meetings.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Changing record status: ${err}`);
+  }
 }

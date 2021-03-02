@@ -1,8 +1,8 @@
-@import "../../stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/breakpoints";
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 .tabs {
-  display: flex;
-  flex-flow: row;
+  @extend %flex-row;
   justify-content: flex-start;
   @include mq($small-only) {
     width: 100%;
@@ -11,11 +11,10 @@
 }
 
 .tabList {
-  display: flex;
-  flex-flow: column;
+  @extend %flex-column;
+  @extend %no-margin;
   border: none;
   padding: 0;
-  margin: 0;
   width: calc(100% / 3);
 
   @include mq($small-only) {
@@ -27,14 +26,17 @@
 }
 
 .icon {
-  margin-right: .5rem;
+  margin: 0 .5rem 0 0;
   font-size: var(--font-size-large);
+
+  [dir="rtl"] & {
+     margin: 0 0 0 .5rem;
+  }
 }
 
 .tabSelector {
+  @extend %flex-row;
   font-size: 0.9rem;
-  display: flex;
-  flex-flow: row;
   flex: 0 0 auto;
   justify-content: flex-start;
   border: none !important;
@@ -52,9 +54,13 @@
 
   @include mq($small-only) {
     max-width: 100%;
-    margin-right: var(--sm-padding-x);
+    margin: 0 var(--sm-padding-x) 0 0;
     & > .icon {
       display: none;
+    }
+
+    [dir="rtl"] & {
+       margin: 0 0 0 var(--sm-padding-x);
     }
   }
 }
@@ -71,13 +77,23 @@
 
 .tabPanel {
   display: none;
-  margin-left: 1rem;
+  margin: 0 0 0 1rem;
   width: calc(100% / 3 * 2);
+
+  [dir="rtl"] & {
+    margin: 0 1rem 0 0;
+  }
 
   @include mq($small-only) {
     width: 100%;
-    margin-left: 0;
-    margin-top: 1rem;
+    margin-left: 1rem;
+    margin-right: inherit;
+
+   [dir="rtl"] & {
+     margin-left: inherit;
+     margin-right: 1rem;
+   }
+
   }
 }
 

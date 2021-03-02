@@ -5,6 +5,7 @@ import handlePresentationCurrentSet from './handlers/presentationCurrentSet';
 import handlePresentationConversionUpdate from './handlers/presentationConversionUpdate';
 import handlePresentationDownloadableSet from './handlers/presentationDownloadableSet';
 
+RedisPubSub.on('PdfConversionInvalidErrorEvtMsg', handlePresentationConversionUpdate);
 RedisPubSub.on('PresentationPageGeneratedEvtMsg', handlePresentationConversionUpdate);
 RedisPubSub.on('PresentationPageCountErrorEvtMsg', handlePresentationConversionUpdate);
 RedisPubSub.on('PresentationConversionUpdateEvtMsg', handlePresentationConversionUpdate);

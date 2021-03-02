@@ -1,5 +1,3 @@
-@import "/imports/ui/stylesheets/variables/_all";
-
 :root {
   --audioDial-font-size: 2rem;
  }
@@ -24,4 +22,14 @@
 
 .telvoice {
   margin-bottom: 0;
+}
+
+.tipBox {
+  background-color: var(--color-gray-lightest);
+  padding: 1.2rem;
+  margin-top: 2rem;
+}
+
+.tipIndicator {
+  font-weight: bold;
 }

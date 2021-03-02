@@ -5,7 +5,7 @@ import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
-trait RequestBreakoutJoinURLReqMsgHdlr extends BreakoutHdlrHelpers with RightsManagementTrait {
+trait RequestBreakoutJoinURLReqMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
 
   val outGW: OutMsgRouter
@@ -20,7 +20,14 @@ trait RequestBreakoutJoinURLReqMsgHdlr extends BreakoutHdlrHelpers with RightsMa
         model <- state.breakout
         room <- model.find(msg.body.breakoutId)
       } yield {
-        sendJoinURL(msg.body.userId, room.externalId, room.sequence.toString(), room.id)
+        BreakoutHdlrHelpers.sendJoinURL(
+          liveMeeting,
+          outGW,
+          msg.body.userId,
+          room.externalId,
+          room.sequence.toString(),
+          room.id
+        )
       }
     }
 

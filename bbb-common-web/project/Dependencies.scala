@@ -16,13 +16,13 @@ object Dependencies {
     val akkaVersion = "2.5.19"
     val gson = "2.8.5"
     val jackson = "2.9.7"
-    val freemaker = "2.3.28"
+    val freemarker = "2.3.28"
     val apacheHttp = "4.5.6"
     val apacheHttpAsync = "4.1.4"
 
     // Office and document conversion
-    val jodConverter = "4.2.1"
-    val apachePoi = "3.17"
+    val jodConverter = "4.3.0"
+    val apachePoi = "4.1.2"
     val nuProcess = "1.2.4"
     val libreOffice = "5.4.2"
 
@@ -30,9 +30,9 @@ object Dependencies {
     val servlet = "3.1.0"
     
     // Apache Commons
-    val lang = "3.8.1"
+    val lang = "3.9"
     val io = "2.6"
-    val pool = "2.6.0"
+    val pool = "2.8.0"
 
     // BigBlueButton
     val bbbCommons = "0.0.20-SNAPSHOT"
@@ -51,7 +51,7 @@ object Dependencies {
     val googleGson = "com.google.code.gson" % "gson" % Versions.gson
     val jacksonModule = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
     val jacksonXml = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-xml" % Versions.jackson
-    val freeMaker = "org.freemarker" % "freemarker" % Versions.freemaker
+    val freemarker = "org.freemarker" % "freemarker" % Versions.freemarker
     val apacheHttp = "org.apache.httpcomponents" % "httpclient" % Versions.apacheHttp
     val apacheHttpAsync = "org.apache.httpcomponents" % "httpasyncclient" % Versions.apacheHttpAsync
 
@@ -95,7 +95,7 @@ object Dependencies {
     Compile.googleGson,
     Compile.jacksonModule,
     Compile.jacksonXml,
-    Compile.freeMaker,
+    Compile.freemarker,
     Compile.apacheHttp,
     Compile.apacheHttpAsync,
     Compile.poiXml,

@@ -1,20 +1,16 @@
 import Presentations from '/imports/api/presentations';
-import Slides from '/imports/api/slides';
+import { Slides } from '/imports/api/slides';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
-export default function switchSlide(credentials, slideNumber, podId) {
+export default function switchSlide(slideNumber, podId) { // TODO-- send presentationId and SlideId
   const REDIS_CONFIG = Meteor.settings.private.redis;
 
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'SetCurrentPagePubMsg';
-
-  const { meetingId, requesterUserId, requesterToken } = credentials;
-
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
   check(slideNumber, Number);
 
   const selector = {

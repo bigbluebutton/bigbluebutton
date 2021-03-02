@@ -3,10 +3,10 @@ import Modal from '/imports/ui/components/modal/fullscreen/component';
 import {
   Tab, Tabs, TabList, TabPanel,
 } from 'react-tabs';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
-import ClosedCaptions from '/imports/ui/components/settings/submenus/closed-captions/component';
+import { defineMessages, injectIntl } from 'react-intl';
 import DataSaving from '/imports/ui/components/settings/submenus/data-saving/component';
 import Application from '/imports/ui/components/settings/submenus/application/component';
+import Notification from '/imports/ui/components/settings/submenus/notification/component';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 
@@ -26,10 +26,6 @@ const intlMessages = defineMessages({
   videoTabLabel: {
     id: 'app.settings.videoTab.label',
     description: 'label for video tab',
-  },
-  closecaptionTabLabel: {
-    id: 'app.settings.closedcaptionTab.label',
-    description: 'label for closed-captions tab',
   },
   usersTabLabel: {
     id: 'app.settings.usersTab.label',
@@ -55,6 +51,10 @@ const intlMessages = defineMessages({
     id: 'app.settings.main.save.label.description',
     description: 'Settings modal save button label',
   },
+  notificationLabel: {
+    id: 'app.submenu.notification.SectionTitle', // set menu label identical to section title
+    description: 'label for notification tab',
+  },
   dataSavingLabel: {
     id: 'app.settings.dataSavingTab.label',
     description: 'label for data savings tab',
@@ -66,7 +66,9 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   dataSaving: PropTypes.shape({
     viewParticipantsWebcams: PropTypes.bool,
     viewScreenshare: PropTypes.bool,
@@ -74,25 +76,11 @@ const propTypes = {
   application: PropTypes.shape({
     chatAudioAlerts: PropTypes.bool,
     chatPushAlerts: PropTypes.bool,
+    userJoinAudioAlerts: PropTypes.bool,
     fallbackLocale: PropTypes.string,
     fontSize: PropTypes.string,
     locale: PropTypes.string,
-  }).isRequired,
-  cc: PropTypes.shape({
-    backgroundColor: PropTypes.string,
-    enabled: PropTypes.bool,
-    fontColor: PropTypes.string,
-    fontFamily: PropTypes.string,
-    fontSize: PropTypes.string,
-    takeOwnership: PropTypes.bool,
-  }).isRequired,
-  participants: PropTypes.shape({
-    layout: PropTypes.bool,
-    lockAll: PropTypes.bool,
-    microphone: PropTypes.bool,
-    muteAll: PropTypes.bool,
-    privateChat: PropTypes.bool,
-    publicChat: PropTypes.bool,
+    microphoneConstraints: PropTypes.objectOf(Object),
   }).isRequired,
   updateSettings: PropTypes.func.isRequired,
   availableLocales: PropTypes.objectOf(PropTypes.array).isRequired,
@@ -108,21 +96,17 @@ class Settings extends Component {
     super(props);
 
     const {
-      dataSaving, participants, cc, application,
+      dataSaving, application,
     } = props;
 
     this.state = {
       current: {
         dataSaving: _.clone(dataSaving),
         application: _.clone(application),
-        cc: _.clone(cc),
-        participants: _.clone(participants),
       },
       saved: {
         dataSaving: _.clone(dataSaving),
         application: _.clone(application),
-        cc: _.clone(cc),
-        participants: _.clone(participants),
       },
       selectedTab: 0,
     };
@@ -132,10 +116,11 @@ class Settings extends Component {
     this.handleSelectTab = this.handleSelectTab.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const { availableLocales } = this.props;
+
     availableLocales.then((locales) => {
-      this.setState({ availableLocales: locales });
+      this.setState({ allLocales: locales });
     });
   }
 
@@ -154,13 +139,13 @@ class Settings extends Component {
   renderModalContent() {
     const {
       intl,
-      locales,
+      isModerator,
     } = this.props;
 
     const {
       selectedTab,
-      availableLocales,
       current,
+      allLocales,
     } = this.state;
 
     return (
@@ -184,14 +169,14 @@ class Settings extends Component {
           {/* <Icon iconName='video' className={styles.icon}/> */}
           {/* <span id="videoTab">{intl.formatMessage(intlMessages.videoTabLabel)}</span> */}
           {/* </Tab> */}
-          {/* <Tab */}
-          {/*   className={styles.tabSelector} */}
-          {/*   aria-labelledby="ccTab" */}
-          {/*   selectedClassName={styles.selected} */}
-          {/* > */}
-          {/*   <Icon iconName="user" className={styles.icon} /> */}
-          {/*   <span id="ccTab">{intl.formatMessage(intlMessages.closecaptionTabLabel)}</span> */}
-          {/* </Tab> */}
+          <Tab
+            className={styles.tabSelector}
+            // aria-labelledby="appTab"
+            selectedClassName={styles.selected}
+          >
+            <Icon iconName="alert" className={styles.icon} />
+            <span id="notificationTab">{intl.formatMessage(intlMessages.notificationLabel)}</span>
+          </Tab>
           <Tab
             className={styles.tabSelector}
             aria-labelledby="dataSavingTab"
@@ -209,9 +194,16 @@ class Settings extends Component {
         </TabList>
         <TabPanel className={styles.tabPanel}>
           <Application
-            availableLocales={availableLocales}
+            allLocales={allLocales}
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
+          />
+        </TabPanel>
+        <TabPanel className={styles.tabPanel}>
+          <Notification
+            handleUpdateSettings={this.handleUpdateSettings}
+            settings={current.application}
+            {...{ isModerator }}
           />
         </TabPanel>
         {/* <TabPanel className={styles.tabPanel}> */}
@@ -220,27 +212,12 @@ class Settings extends Component {
         {/* settings={this.state.current.video} */}
         {/* /> */}
         {/* </TabPanel> */}
-        {/* <TabPanel className={styles.tabPanel}> */}
-        {/*   <ClosedCaptions */}
-        {/*     settings={current.cc} */}
-        {/*     handleUpdateSettings={this.handleUpdateSettings} */}
-        {/*     locales={locales} */}
-        {/*   /> */}
-        {/* </TabPanel> */}
         <TabPanel className={styles.tabPanel}>
           <DataSaving
             settings={current.dataSaving}
             handleUpdateSettings={this.handleUpdateSettings}
           />
         </TabPanel>
-        {/* { isModerator ? */}
-        {/* <TabPanel className={styles.tabPanel}> */}
-        {/* <Participants */}
-        {/* settings={this.state.current.participants} */}
-        {/* handleUpdateSettings={this.handleUpdateSettings} */}
-        {/* /> */}
-        {/* </TabPanel> */}
-        {/* : null } */}
       </Tabs>
     );
   }
@@ -249,7 +226,6 @@ class Settings extends Component {
     const {
       intl,
       mountModal,
-      notify,
     } = this.props;
     const {
       current,
@@ -260,16 +236,11 @@ class Settings extends Component {
         title={intl.formatMessage(intlMessages.SettingsLabel)}
         confirm={{
           callback: () => {
-            this.updateSettings(current);
+            this.updateSettings(current, intl.formatMessage(intlMessages.savedAlertLabel));
             /* We need to use mountModal(null) here to prevent submenu state updates,
             *  from re-opening the modal.
             */
             mountModal(null);
-            notify(
-              intl.formatMessage(intlMessages.savedAlertLabel),
-              'info',
-              'settings',
-            );
           },
           label: intl.formatMessage(intlMessages.SaveLabel),
           description: intl.formatMessage(intlMessages.SaveLabelDesc),

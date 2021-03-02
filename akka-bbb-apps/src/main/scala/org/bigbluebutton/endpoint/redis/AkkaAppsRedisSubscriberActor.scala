@@ -1,7 +1,7 @@
 package org.bigbluebutton.endpoint.redis
 
 import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
-import org.bigbluebutton.common2.redis.{ RedisConfig, RedisSubscriber, RedisSubscriberProvider }
+import org.bigbluebutton.common2.redis.{ RedisConfig, RedisSubscriberProvider }
 import akka.actor.ActorSystem
 import akka.actor.Props
 

@@ -16,7 +16,13 @@ export default class BaseAudioBridge {
       started: 'started',
       ended: 'ended',
       failed: 'failed',
+      reconnecting: 'reconnecting',
+      autoplayBlocked: 'autoplayBlocked',
     };
+  }
+
+  getPeerConnection() {
+    console.error('The Bridge must implement getPeerConnection');
   }
 
   exitAudio() {

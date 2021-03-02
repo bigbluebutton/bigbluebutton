@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { log } from '/imports/ui/services/api';
+import logger from '/imports/startup/client/logger';
 
 const propTypes = {
   low: PropTypes.number,
@@ -38,7 +38,8 @@ class AudioStreamVolume extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.deviceId !== this.props.deviceId) {
+    const { deviceId: nextDeviceId } = this.props;
+    if (prevProps.deviceId !== nextDeviceId) {
       this.closeAudioContext().then(() => {
         this.setState({
           slow: 0,
@@ -102,13 +103,18 @@ class AudioStreamVolume extends Component {
   }
 
   handleError(error) {
-    log('error', JSON.stringify(error));
+    logger.error({
+      logCode: 'audiostreamvolume_handleError',
+      extraInfo: { error },
+    }, 'Encountered error while creating audio context');
   }
 
   render() {
     const {
       low, optimum, high, ...props
     } = this.props;
+
+    const { slow } = this.state;
 
     return (
       <meter
@@ -118,7 +124,7 @@ class AudioStreamVolume extends Component {
         low={low}
         optimum={optimum}
         high={high}
-        value={this.state.slow}
+        value={slow}
       />
     );
   }

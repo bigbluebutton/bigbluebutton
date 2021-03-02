@@ -1,4 +1,3 @@
-import { check } from 'meteor/check';
 import VoiceUsers from '/imports/api/voice-users/';
 import Meetings from '/imports/api/meetings';
 import addDialInUser from '/imports/api/users/server/modifiers/addDialInUser';
@@ -11,13 +10,13 @@ export default function handleVoiceUsers({ header, body }) {
   const { voiceUsers } = body;
   const { meetingId } = header;
 
-  const meeting = Meetings.findOne({ meetingId });
+  const meeting = Meetings.findOne({ meetingId }, { fields: { 'voiceProp.voiceConf': 1 } });
   const usersIds = voiceUsers.map(m => m.intId);
 
   const voiceUsersIdsToUpdate = VoiceUsers.find({
     meetingId,
     intId: { $in: usersIds },
-  }).fetch().map(m => m.intId);
+  }, { fields: { intId: 1 } }).fetch().map(m => m.intId);
 
   const voiceUsersUpdated = [];
   voiceUsers.forEach((voice) => {
@@ -54,7 +53,7 @@ export default function handleVoiceUsers({ header, body }) {
   const voiceUsersToRemove = VoiceUsers.find({
     meetingId,
     intId: { $nin: usersIds },
-  }).fetch();
+  }, { fields: { voiceUserId: 1, intId: 1 } }).fetch();
   voiceUsersToRemove.forEach(user => removeVoiceUser(meetingId, {
     voiceConf: meeting.voiceProp.voiceConf,
     voiceUserId: user.voiceUserId,

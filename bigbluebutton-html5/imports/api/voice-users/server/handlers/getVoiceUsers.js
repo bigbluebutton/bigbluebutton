@@ -11,17 +11,17 @@ export default function handleGetVoiceUsers({ body }, meetingId) {
   check(meetingId, String);
   check(users, Array);
 
-  const meeting = Meetings.findOne({ meetingId: meetingId });
+  const meeting = Meetings.findOne({ meetingId }, { fields: { 'voiceProp.voiceConf': 1 } });
   const usersIds = users.map(m => m.intId);
 
   const voiceUsersIdsToUpdate = VoiceUsers.find({
     meetingId,
     intId: { $in: usersIds },
-  }).fetch().map(m => m.intId);;
+  }, { fields: { intId: 1 } }).fetch().map(m => m.intId);
 
-  let voiceUsersUpdated = [];
-  users.forEach(user => {
-    if(voiceUsersIdsToUpdate.indexOf(user.intId) >= 0) {
+  const voiceUsersUpdated = [];
+  users.forEach((user) => {
+    if (voiceUsersIdsToUpdate.indexOf(user.intId) >= 0) {
       // user already exist, then update
       voiceUsersUpdated.push(updateVoiceUser(meetingId, {
         intId: user.intId,
@@ -29,7 +29,7 @@ export default function handleGetVoiceUsers({ body }, meetingId) {
         talking: user.talking,
         muted: user.muted,
         voiceConf: meeting.voiceProp.voiceConf,
-        joined: true
+        joined: true,
       }));
     } else {
       // user doesn't exist yet, then add it
@@ -43,7 +43,7 @@ export default function handleGetVoiceUsers({ body }, meetingId) {
         callingWith: user.callingWith,
         listenOnly: user.listenOnly,
         voiceConf: meeting.voiceProp.voiceConf,
-        joined: true
+        joined: true,
       });
     }
   });
@@ -56,7 +56,7 @@ export default function handleGetVoiceUsers({ body }, meetingId) {
   voiceUsersToRemove.forEach(user => removeVoiceUser(meetingId, {
     voiceConf: meeting.voiceProp.voiceConf,
     voiceUserId: user.voiceUserId,
-    intId: user.intId
+    intId: user.intId,
   }));
 
   return voiceUsersUpdated;

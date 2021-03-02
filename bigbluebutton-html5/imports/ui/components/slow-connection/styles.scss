@@ -1,0 +1,34 @@
+.sizingBox {
+  width: 27px;
+  height: 15px;
+  box-sizing: border-box;
+}
+
+.signalBars {
+  display: inline-block;
+}
+
+.signalBars .bar {
+  width: 4px;
+  margin-left: 1px;
+  display: inline-block;
+}
+.signalBars .bar.firstBar  { height: 25%; }
+.signalBars .bar.secondBar { height: 50%; }
+.signalBars .bar.thirdBar  { height: 75%; }
+.signalBars .bar.fourthBar { height: 100%; }
+
+.bad .bar {
+  background-color: #e74c3c;
+}
+.warning .bar {
+  background-color: #f1c40f;
+}
+
+.fourBars .bar.fifthBar,
+.threeBars .bar.fifthBar,
+.threeBars .bar.fourthBar,
+.oneBar .bar:not(.firstBar),
+.twoBars .bar:not(.firstBar):not(.secondBar) {
+  background-color: #c3c3c3;
+}

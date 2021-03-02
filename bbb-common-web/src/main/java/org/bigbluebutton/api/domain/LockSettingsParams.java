@@ -6,6 +6,7 @@ public class LockSettingsParams {
 	public final Boolean disablePrivateChat;
 	public final Boolean disablePublicChat;
 	public final Boolean disableNote;
+	public final Boolean hideUserList;
 	public final Boolean lockedLayout;
 	public final Boolean lockOnJoin;
 	public final Boolean lockOnJoinConfigurable;
@@ -15,6 +16,7 @@ public class LockSettingsParams {
 					Boolean disablePrivateChat,
 					Boolean disablePublicChat,
 					Boolean disableNote,
+					Boolean hideUserList,
 					Boolean lockedLayout,
 					Boolean lockOnJoin,
 					Boolean lockOnJoinConfigurable) {
@@ -23,6 +25,7 @@ public class LockSettingsParams {
 		this.disablePrivateChat = disablePrivateChat;
 		this.disablePublicChat = disablePublicChat;
 		this.disableNote = disableNote;
+		this.hideUserList = hideUserList;
 		this.lockedLayout = lockedLayout;
 		this.lockOnJoin = lockOnJoin;
 		this.lockOnJoinConfigurable = lockOnJoinConfigurable;

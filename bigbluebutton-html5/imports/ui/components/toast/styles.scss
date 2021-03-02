@@ -1,4 +1,4 @@
-@import "../../stylesheets/variables/_all";
+@import "../../stylesheets/variables/breakpoints";
 
 :root {
   --toast-default-color: var(--color-white);
@@ -52,13 +52,16 @@
 
 .icon {
   align-self: flex-start;
-  margin-bottom: auto;
-  margin-right: var(--sm-padding-x);
+  margin: 0 var(--sm-padding-x) auto 0;
   width: var(--toast-icon-md);
   height: var(--toast-icon-md);
   border-radius: 50%;
   position: relative;
   flex-shrink: 0;
+
+  [dir="rtl"]  & {
+    margin: 0 0 auto var(--sm-padding-x);
+  }
 
   > i {
     line-height: 0;
@@ -126,33 +129,55 @@
   max-width: var(--toast-container-max-width);
   box-sizing: border-box;
   right: var(--jumbo-padding-y);
+  left: auto;
   top: var(--toast-offset);
   max-height: 75vh;
   overflow: hidden;
+
+  [dir="rtl"] & {
+    right: auto;
+    left: var(--jumbo-padding-y);
+  }
 
   @include mq($small-only) {
     width: var(--toast-mobile-width);
   }
 }
 
-.toast {
+.toast ,
+.actionToast {
   position: relative;
   margin-bottom: var(--sm-padding-x);
-  padding: var(--md-padding-x);
+  padding: var(--sm-padding-x);
   border-radius: var(--border-radius);
   box-shadow: 0 var(--border-size-small) 10px 0 rgba(0, 0, 0, 0.1), 0 var(--border-size) 15px 0 rgba(0, 0, 0, 0.05);
   display: flex;
   justify-content: space-between;
-  cursor: pointer;
   color: var(--color-text);
-  background-color: var(--background);
+  -webkit-animation-duration: 0.75s;
   animation-duration: 0.75s;
+  -webkit-animation-fill-mode: both;
   animation-fill-mode: both;
   max-width: var(--toast-max-width);
+  min-width: var(--toast-max-width);
+  width: var(--toast-max-width);
+}
+
+.toast {
+  cursor: pointer;
+  background-color: var(--background);
 
   &:hover,
   &:focus {
     background-color: var(--background-active);
+  }
+}
+
+.actionToast {
+  background-color: var(--color-white);
+
+  i.close {
+    left: none !important;
   }
 }
 
@@ -175,13 +200,22 @@
   position: relative;
   font-size: 70%;
   left: var(--toast-offset-sm);
+  
+  [dir="rtl"] & {
+    left: auto;
+    right: var(--toast-offset-sm);
+  }
 
   :global(.animationsEnabled) & {
     transition: .3s ease;
   }
 
   &:before {
-    margin-left: -.4rem;
+    margin: inherit inherit inherit -.4rem;
+
+    [dir="rtl"] & {
+      margin: inherit -.4rem inherit inherit;
+    }
   }
 
   &:hover,
@@ -212,10 +246,17 @@
   position: absolute;
   bottom: 0;
   left: 0;
+  right: auto;
   width: 0;
   height: 5px;
   z-index: 9999;
   animation: track-progress linear 1;
   background-color: var(--color-gray-lighter);
   border-radius: var(--border-radius);
+
+  
+  [dir="rtl"] & {
+    left: auto;
+    right: 0;
+  }
 }

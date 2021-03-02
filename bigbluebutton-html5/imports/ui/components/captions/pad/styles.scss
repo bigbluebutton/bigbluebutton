@@ -1,0 +1,121 @@
+@import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/variables/breakpoints";
+@import "/imports/ui/stylesheets/variables/placeholders";
+
+:root {
+  --speech-results-width: 22.3rem;
+}
+
+.processing {
+  margin-top: var(--lg-padding-y);
+  margin-bottom: var(--lg-padding-y);
+  min-height: var(--jumbo-padding-x);
+  width: var(--speech-results-width);
+  border: solid var(--border-size-small) var(--color-gray);
+}
+
+.interimTitle {
+  margin-top: var(--lg-padding-y);
+}
+
+.pad {
+  background-color: var(--color-white);
+  padding:
+    var(--md-padding-x)
+    var(--md-padding-y)
+    var(--md-padding-x)
+    var(--md-padding-x);
+
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  justify-content: space-around;
+  overflow: hidden;
+  height: 100vh;
+
+  :global(.browser-chrome) & {
+    transform: translateZ(0);
+  }
+
+  @include mq($small-only) {
+    transform: none !important;
+  }
+}
+
+.header {
+  position: relative;
+  top: var(--poll-header-offset);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  @extend %text-elipsis;
+  flex: 1;
+
+  & > button, button:hover {
+    max-width: var(--toast-content-width);
+  }
+}
+
+.hideBtn {
+  position: relative;
+  background-color: var(--color-white);
+  display: block;
+  margin: var(--border-size-large);
+  margin-bottom: var(--border-size);
+  padding-left: 0;
+  padding-right: inherit;
+
+  [dir="rtl"] & {
+    padding-left: inherit;
+    padding-right: 0;
+  }
+
+  > i {
+    color: var(--color-gray-dark);
+    font-size: smaller;
+
+    [dir="rtl"] & {
+      -webkit-transform: scale(-1, 1);
+      -moz-transform: scale(-1, 1);
+      -ms-transform: scale(-1, 1);
+      -o-transform: scale(-1, 1);
+      transform: scale(-1, 1);
+    }
+  }
+
+  &:hover {
+    background-color: var(--color-white);
+  }
+}
+
+.hint {
+  visibility: hidden;
+  position: absolute;
+
+  @media (pointer: none) {
+    visibility: visible;
+    position: relative;
+    color: var(--color-gray);
+    font-size: var(--font-size-small);
+    font-style: italic;
+    padding-top: var(--sm-padding-x);
+    padding-left: var(--lg-padding-y);
+    text-align: left;
+  }
+}
+
+iframe {
+  display: flex;
+  flex-flow: column;
+  flex-grow: 1;
+  flex-shrink: 1;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-style: none;
+  border-bottom: 1px solid var(--color-gray-lightest);
+}

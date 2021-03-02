@@ -3,17 +3,18 @@ import Meetings from '/imports/api/meetings';
 import Note from '/imports/api/note';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
-import mapUser from '/imports/ui/services/user/mapUser';
+import { Session } from 'meteor/session';
 
 const NOTE_CONFIG = Meteor.settings.public.note;
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const getNoteId = () => {
-  const note = Note.findOne({ meetingId: Auth.meetingID });
+  const note = Note.findOne({ meetingId: Auth.meetingID }, { fields: { noteId: 1 } });
   return note ? note.noteId : '';
 };
 
 const getReadOnlyNoteId = () => {
-  const note = Note.findOne({ meetingId: Auth.meetingID });
+  const note = Note.findOne({ meetingId: Auth.meetingID }, { fields: { readOnlyNoteId: 1 } });
   return note ? note.readOnlyNoteId : '';
 };
 
@@ -22,14 +23,9 @@ const getLang = () => {
   return locale ? locale.toLowerCase() : '';
 };
 
-const getCurrentUser = () => {
-  const User = Users.findOne({ userId: Auth.userID });
-  return User;
-};
-
 const getNoteParams = () => {
   const { config } = NOTE_CONFIG;
-  const User = getCurrentUser();
+  const User = Users.findOne({ userId: Auth.userID }, { fields: { name: 1, color: 1 } });
   config.userName = User.name;
   config.userColor = User.color;
   config.lang = getLang();
@@ -37,17 +33,17 @@ const getNoteParams = () => {
   const params = [];
   for (const key in config) {
     if (config.hasOwnProperty(key)) {
-      params.push(key + '=' + encodeURIComponent(config[key]));
+      params.push(`${key}=${encodeURIComponent(config[key])}`);
     }
   }
   return params.join('&');
 };
 
 const isLocked = () => {
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
-  const user = getCurrentUser();
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { 'lockSettingsProps.disableNote': 1 } });
+  const user = Users.findOne({ userId: Auth.userID }, { fields: { locked: 1, role: 1 } });
 
-  if (meeting.lockSettingsProps && mapUser(user).isLocked) {
+  if (meeting.lockSettingsProps && user.role !== ROLE_MODERATOR) {
     return meeting.lockSettingsProps.disableNote;
   }
   return false;
@@ -55,15 +51,45 @@ const isLocked = () => {
 
 const getReadOnlyURL = () => {
   const readOnlyNoteId = getReadOnlyNoteId();
-  const url = Auth.authenticateURL(NOTE_CONFIG.url + '/p/' + readOnlyNoteId);
+  const url = Auth.authenticateURL(`${NOTE_CONFIG.url}/p/${readOnlyNoteId}`);
   return url;
 };
 
 const getNoteURL = () => {
   const noteId = getNoteId();
   const params = getNoteParams();
-  const url = Auth.authenticateURL(NOTE_CONFIG.url + '/p/' + noteId + '?' + params);
+  const url = Auth.authenticateURL(`${NOTE_CONFIG.url}/p/${noteId}?${params}`);
   return url;
+};
+
+const getRevs = () => {
+  const note = Note.findOne({ meetingId: Auth.meetingID }, { fields: { revs: 1 } });
+  return note ? note.revs : 0;
+};
+
+const setLastRevs = (revs) => {
+  const lastRevs = getLastRevs();
+
+  if (revs !== 0 && revs > lastRevs) {
+    Session.set('noteLastRevs', revs);
+  }
+};
+
+const getLastRevs = () => {
+  const lastRevs = Session.get('noteLastRevs');
+
+  if (!lastRevs) return -1;
+  return lastRevs;
+};
+
+const hasUnreadNotes = () => {
+  const opened = isPanelOpened();
+  if (opened) return false;
+
+  const revs = getRevs();
+  const lastRevs = getLastRevs();
+
+  return (revs !== 0 && revs > lastRevs);
 };
 
 const isEnabled = () => {
@@ -71,9 +97,24 @@ const isEnabled = () => {
   return NOTE_CONFIG.enabled && note;
 };
 
+const toggleNotePanel = () => {
+  Session.set(
+    'openPanel',
+    isPanelOpened() ? 'userlist' : 'note',
+  );
+};
+
+const isPanelOpened = () => Session.get('openPanel') === 'note';
+
 export default {
   getNoteURL,
   getReadOnlyURL,
+  toggleNotePanel,
   isLocked,
   isEnabled,
+  isPanelOpened,
+  getRevs,
+  setLastRevs,
+  getLastRevs,
+  hasUnreadNotes,
 };

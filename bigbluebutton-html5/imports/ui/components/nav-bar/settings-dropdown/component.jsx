@@ -1,10 +1,10 @@
 import React, { PureComponent } from 'react';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
-import MeetingEndedComponent from '/imports/ui/components/meeting-ended/component';
+import { makeCall } from '/imports/ui/services/api';
 import AboutContainer from '/imports/ui/components/about/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
 import Button from '/imports/ui/components/button/component';
@@ -16,6 +16,7 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
+import FullscreenService from '../../fullscreen-button/service';
 
 import { styles } from '../styles';
 
@@ -91,23 +92,24 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   handleToggleFullscreen: PropTypes.func.isRequired,
   mountModal: PropTypes.func.isRequired,
-  isFullscreen: PropTypes.bool,
   noIOSFullscreen: PropTypes.bool,
   amIModerator: PropTypes.bool,
   shortcuts: PropTypes.string,
   isBreakoutRoom: PropTypes.bool,
+  isMeteorConnected: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
-  isFullscreen: false,
   noIOSFullscreen: true,
   amIModerator: false,
   shortcuts: '',
   isBreakoutRoom: false,
 };
+
+const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
 class SettingsDropdown extends PureComponent {
   constructor(props) {
@@ -115,10 +117,24 @@ class SettingsDropdown extends PureComponent {
 
     this.state = {
       isSettingOpen: false,
+      isFullscreen: false,
     };
+
+    // Set the logout code to 680 because it's not a real code and can be matched on the other side
+    this.LOGOUT_CODE = '680';
 
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
+    this.leaveSession = this.leaveSession.bind(this);
+    this.onFullscreenChange = this.onFullscreenChange.bind(this);
+  }
+
+  componentDidMount() {
+    document.documentElement.addEventListener('fullscreenchange', this.onFullscreenChange);
+  }
+
+  componentWillUnmount() {
+    document.documentElement.removeEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
   onActionsShow() {
@@ -133,13 +149,23 @@ class SettingsDropdown extends PureComponent {
     });
   }
 
+  onFullscreenChange() {
+    const { isFullscreen } = this.state;
+    const newIsFullscreen = FullscreenService.isFullScreen(document.documentElement);
+    if (isFullscreen !== newIsFullscreen) {
+      this.setState({ isFullscreen: newIsFullscreen });
+    }
+  }
+
   getFullscreenItem() {
     const {
       intl,
-      isFullscreen,
       noIOSFullscreen,
       handleToggleFullscreen,
     } = this.props;
+    const { isFullscreen } = this.state;
+
+    if (noIOSFullscreen || !ALLOW_FULLSCREEN) return null;
 
     let fullscreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
     let fullscreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
@@ -150,8 +176,6 @@ class SettingsDropdown extends PureComponent {
       fullscreenDesc = intl.formatMessage(intlMessages.exitFullscreenDesc);
       fullscreenIcon = 'exit_fullscreen';
     }
-
-    if (noIOSFullscreen) return null;
 
     return (
       <DropdownListItem
@@ -165,28 +189,47 @@ class SettingsDropdown extends PureComponent {
   }
 
   leaveSession() {
-    document.dispatchEvent(new Event('exitVideo'));
-    const { mountModal } = this.props;
-    const LOGOUT_CODE = '430';
+    makeCall('userLeftMeeting');
     // we don't check askForFeedbackOnLogout here,
     // it is checked in meeting-ended component
-    mountModal(<MeetingEndedComponent code={LOGOUT_CODE} />);
+    Session.set('codeError', this.LOGOUT_CODE);
+    // mountModal(<MeetingEndedComponent code={LOGOUT_CODE} />);
   }
 
   renderMenuItems() {
     const {
-      intl, mountModal, amIModerator, isBreakoutRoom,
+      intl, mountModal, amIModerator, isBreakoutRoom, isMeteorConnected,
     } = this.props;
 
     const allowedToEndMeeting = amIModerator && !isBreakoutRoom;
 
-    const { showHelpButton: helpButton, helpLink } = Meteor.settings.public.app;
+    const {
+      showHelpButton: helpButton,
+      helpLink,
+      allowLogout: allowLogoutSetting,
+    } = Meteor.settings.public.app;
+
+    const logoutOption = (
+      <DropdownListItem
+        key="list-item-logout"
+        data-test="logout"
+        icon="logout"
+        label={intl.formatMessage(intlMessages.leaveSessionLabel)}
+        description={intl.formatMessage(intlMessages.leaveSessionDesc)}
+        onClick={() => this.leaveSession()}
+      />
+    );
+
+    const shouldRenderLogoutOption = (isMeteorConnected && allowLogoutSetting)
+      ? logoutOption
+      : null;
 
     return _.compact([
       this.getFullscreenItem(),
       (<DropdownListItem
         key="list-item-settings"
         icon="settings"
+        data-test="settings"
         label={intl.formatMessage(intlMessages.settingsLabel)}
         description={intl.formatMessage(intlMessages.settingsDesc)}
         onClick={() => mountModal(<SettingsMenuContainer />)}
@@ -216,8 +259,8 @@ class SettingsDropdown extends PureComponent {
         description={intl.formatMessage(intlMessages.hotkeysDesc)}
         onClick={() => mountModal(<ShortcutHelpComponent />)}
       />),
-      (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
-      allowedToEndMeeting
+      (isMeteorConnected ? <DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
+      allowedToEndMeeting && isMeteorConnected
         ? (<DropdownListItem
           key="list-item-end-meeting"
           icon="application"
@@ -227,13 +270,7 @@ class SettingsDropdown extends PureComponent {
         />
         )
         : null,
-      (<DropdownListItem
-        key="list-item-logout"
-        icon="logout"
-        label={intl.formatMessage(intlMessages.leaveSessionLabel)}
-        description={intl.formatMessage(intlMessages.leaveSessionDesc)}
-        onClick={() => this.leaveSession()}
-      />),
+      shouldRenderLogoutOption,
     ]);
   }
 

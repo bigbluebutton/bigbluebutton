@@ -51,8 +51,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
     private String convTimeout = "7s";
     private int WAIT_FOR_SEC = 7;
 
-  public boolean convert(File presentation, File output, int page,
-      UploadedPresentation pres) {
+  public boolean convert(File presentation, File output, int page, UploadedPresentation pres) {
     long convertStart = System.currentTimeMillis();
 
     String source = presentation.getAbsolutePath();
@@ -64,7 +63,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
     NuProcessBuilder pb = new NuProcessBuilder(Arrays.asList("timeout",
         convTimeout, "/bin/sh", "-c",
         SWFTOOLS_DIR + File.separatorChar + "pdf2swf" + " -vv " + AVM2SWF + " -F "
-            + fontsDir + " -p " + Integer.toString(page) + " " + source + " -o "
+            + fontsDir + " " + source + " -o "
             + dest
             + " | egrep  'shape id|Updating font|Drawing' | sed 's/  / /g' | cut -d' ' -f 1-3  | sort | uniq -cw 15"));
 
@@ -81,8 +80,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
     }
 
     long pdf2SwfEnd = System.currentTimeMillis();
-    log.debug("Pdf2Swf conversion duration: {} sec",
-        (pdf2SwfEnd - pdf2SwfStart) / 1000);
+    log.debug("Pdf2Swf conversion duration: {} sec", (pdf2SwfEnd - pdf2SwfStart) / 1000);
 
     boolean timedOut = pdf2SwfEnd
         - pdf2SwfStart >= Integer.parseInt(convTimeout.replaceFirst("s", ""))
@@ -93,6 +91,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
             + defineTextThreshold + imageTagThreshold) * 2;
 
     File destFile = new File(dest);
+
     if (pHandler.isCommandSuccessful() && destFile.exists()
         && pHandler.numberOfPlacements() < placementsThreshold
         && pHandler.numberOfTextTags() < defineTextThreshold
@@ -144,7 +143,6 @@ public class Pdf2SwfPageConverter implements PageConverter {
       NuProcessBuilder pbPng = new NuProcessBuilder(
           Arrays.asList("timeout", convTimeout, "pdftocairo", "-png",
               "-singlefile", "-r", timedOut || twiceTotalObjects ? "72" : "150",
-              "-f", String.valueOf(page), "-l", String.valueOf(page),
               presentation.getAbsolutePath(), tempPng.getAbsolutePath()
                   .substring(0, tempPng.getAbsolutePath().lastIndexOf('.'))));
 
@@ -176,6 +174,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
       } catch (InterruptedException e) {
           log.error("InterruptedException while creating SWF {}", pres.getName(), e);
       }
+
 
       //long png2swfEnd = System.currentTimeMillis();
       //log.debug("SwfTools conversion duration: {} sec",          (png2swfEnd - png2swfStart) / 1000);

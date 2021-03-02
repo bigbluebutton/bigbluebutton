@@ -1,6 +1,5 @@
 package org.bigbluebutton.core.models
 
-import org.bigbluebutton.common2.domain.UserVO
 import com.softwaremill.quicklens._
 
 object RegisteredUsers {
@@ -18,6 +17,8 @@ object RegisteredUsers {
       authenticated,
       guestStatus,
       System.currentTimeMillis(),
+      0,
+      false,
       false,
       false
     )
@@ -29,6 +30,14 @@ object RegisteredUsers {
 
   def findWithUserId(id: String, users: RegisteredUsers): Option[RegisteredUser] = {
     users.toVector.find(ru => id == ru.id)
+  }
+
+  def findWithExternUserId(id: String, users: RegisteredUsers): Option[RegisteredUser] = {
+    users.toVector.find(ru => id == ru.externId)
+  }
+
+  def findAllWithExternUserId(id: String, users: RegisteredUsers): Vector[RegisteredUser] = {
+    users.toVector.filter(ru => id == ru.externId)
   }
 
   def findUsersNotJoined(users: RegisteredUsers): Vector[RegisteredUser] = {
@@ -51,11 +60,51 @@ object RegisteredUsers {
   }
 
   def add(users: RegisteredUsers, user: RegisteredUser): Vector[RegisteredUser] = {
-    users.save(user)
+
+    findWithExternUserId(user.externId, users) match {
+      case Some(u) =>
+        if (u.banned) {
+          // Banned user is rejoining. Don't add so that validate token
+          // will fail and can't join.
+          // ralam april 21, 2020
+          val bannedUser = user.copy(banned = true)
+          users.save(bannedUser)
+        } else {
+          // If user hasn't been ejected, we allow user to join
+          // as the user might be joining using 2 browsers for
+          // better management of meeting.
+          // ralam april 21, 2020
+          users.save(user)
+        }
+      case None =>
+        users.save(user)
+    }
+
   }
 
-  def remove(id: String, users: RegisteredUsers): Option[RegisteredUser] = {
-    users.delete(id)
+  private def banOrEjectUser(ejectedUser: RegisteredUser, users: RegisteredUsers, ban: Boolean): RegisteredUser = {
+    // Some users join with multiple browser to manage the meeting.
+    // Don't black list a user ejecting oneself.
+    // ralam april 23, 2020
+    if (ban) {
+      // Set a flag that user has been ejected. We flag the user instead of
+      // removing so we can eject when user tries to rejoin with the same
+      // external userid.
+      // ralam april 21, 2020
+      val u = ejectedUser.modify(_.banned).setTo(true)
+      users.save(u)
+      u
+    } else {
+      users.delete(ejectedUser.id)
+      ejectedUser
+    }
+  }
+  def eject(id: String, users: RegisteredUsers, ban: Boolean): Option[RegisteredUser] = {
+    for {
+      ru <- findWithUserId(id, users)
+    } yield {
+      banOrEjectUser(ru, users, ban)
+    }
   }
 
   def setWaitingForApproval(users: RegisteredUsers, user: RegisteredUser,
@@ -74,6 +123,12 @@ object RegisteredUsers {
 
   def updateUserJoin(users: RegisteredUsers, user: RegisteredUser): RegisteredUser = {
     val u = user.copy(joined = true)
+    users.save(u)
+    u
+  }
+
+  def updateUserLastAuthTokenValidated(users: RegisteredUsers, user: RegisteredUser): RegisteredUser = {
+    val u = user.copy(lastAuthTokenValidatedOn = System.currentTimeMillis())
     users.save(u)
     u
   }
@@ -105,17 +160,19 @@ class RegisteredUsers {
 }
 
 case class RegisteredUser(
-    id:                 String,
-    externId:           String,
-    name:               String,
-    role:               String,
-    authToken:          String,
-    avatarURL:          String,
-    guest:              Boolean,
-    authed:             Boolean,
-    guestStatus:        String,
-    registeredOn:       Long,
-    joined:             Boolean,
-    markAsJoinTimedOut: Boolean
+    id:                       String,
+    externId:                 String,
+    name:                     String,
+    role:                     String,
+    authToken:                String,
+    avatarURL:                String,
+    guest:                    Boolean,
+    authed:                   Boolean,
+    guestStatus:              String,
+    registeredOn:             Long,
+    lastAuthTokenValidatedOn: Long,
+    joined:                   Boolean,
+    markAsJoinTimedOut:       Boolean,
+    banned:                   Boolean
 )
 

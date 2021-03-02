@@ -36,7 +36,7 @@ class UpdateExternalVideoRecordEvent extends AbstractExternalVideoRecordEvent {
     eventMap.put(TIME, time.toString)
   }
 
-  def setState(state: Int) {
+  def setState(state: Boolean) {
     eventMap.put(STATE, state.toString)
   }
 }

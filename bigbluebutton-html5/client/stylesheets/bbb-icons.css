@@ -25,6 +25,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-bbb-alert:before {
+  content: "\e958";
+}
 .icon-bbb-mute:before {
   content: "\e932";
 }
@@ -281,4 +284,7 @@
 }
 .icon-bbb-popout_window:before {
   content: "\e956";
+}
+.icon-bbb-closed_caption:before {
+  content: "\e957";
 }

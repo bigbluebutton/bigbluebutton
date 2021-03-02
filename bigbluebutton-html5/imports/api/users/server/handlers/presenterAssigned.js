@@ -1,15 +1,27 @@
 import Users from '/imports/api/users';
 import PresentationPods from '/imports/api/presentation-pods';
-import changeRole from '/imports/api/users/server/modifiers/changeRole';
-import setPresenterInPodReqMsg from '/imports/api/presentation-pods/server/methods/setPresenterInPodReqMsg';
+import changePresenter from '/imports/api/users/server/modifiers/changePresenter';
+import RedisPubSub from '/imports/startup/server/redis';
+
+function setPresenterInPodReqMsg(credentials) { // TODO-- switch to meetingId, etc
+  const REDIS_CONFIG = Meteor.settings.private.redis;
+  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+  const EVENT_NAME = 'SetPresenterInPodReqMsg';
+
+  const { meetingId, requesterUserId, presenterId } = credentials;
+
+  const payload = {
+    podId: 'DEFAULT_PRESENTATION_POD',
+    nextPresenterId: presenterId,
+  };
+
+  RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+}
 
 export default function handlePresenterAssigned({ body }, meetingId) {
-  const USER_CONFIG = Meteor.settings.public.user;
-  const ROLE_PRESENTER = USER_CONFIG.role_presenter;
-
   const { presenterId, assignedBy } = body;
 
-  changeRole(ROLE_PRESENTER, true, presenterId, meetingId, assignedBy);
+  changePresenter(true, presenterId, meetingId, assignedBy);
 
   const selector = {
     meetingId,
@@ -40,14 +52,14 @@ export default function handlePresenterAssigned({ body }, meetingId) {
       return setPresenterInPodReqMsg(setPresenterPayload);
     }
 
-    const oldPresenter = Users.findOne({ meetingId, userId: currentPresenterId, connectionStatus: 'offline' });
+    const oldPresenter = Users.findOne({ meetingId, userId: currentPresenterId });
 
-    if (oldPresenter) {
+    if (oldPresenter?.userId !== currentPresenterId) {
       return setPresenterInPodReqMsg(setPresenterPayload);
     }
 
     return true;
   }
 
-  return changeRole(ROLE_PRESENTER, false, prevPresenter.userId, meetingId, assignedBy);
+  changePresenter(false, prevPresenter.userId, meetingId, assignedBy);
 }

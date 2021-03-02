@@ -1,27 +1,34 @@
 import _ from 'lodash';
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, intlShape } from 'react-intl';
+import { defineMessages } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
+import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
+import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
+import cx from 'classnames';
 import { styles } from '../styles';
 
-import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
-
 const propTypes = {
-  isUserPresenter: PropTypes.bool.isRequired,
-  intl: intlShape.isRequired,
+  amIPresenter: PropTypes.bool.isRequired,
+  intl: PropTypes.object.isRequired,
   mountModal: PropTypes.func.isRequired,
-  isUserModerator: PropTypes.bool.isRequired,
-  shortcuts: PropTypes.string.isRequired,
+  amIModerator: PropTypes.bool.isRequired,
+  shortcuts: PropTypes.string,
   handleTakePresenter: PropTypes.func.isRequired,
+  allowExternalVideo: PropTypes.bool.isRequired,
+  stopExternalVideoShare: PropTypes.func.isRequired,
+};
+
+const defaultProps = {
+  shortcuts: '',
 };
 
 const intlMessages = defineMessages({
@@ -36,14 +43,6 @@ const intlMessages = defineMessages({
   presentationDesc: {
     id: 'app.actionsBar.actionsDropdown.presentationDesc',
     description: 'adds context to upload presentation option',
-  },
-  desktopShareLabel: {
-    id: 'app.actionsBar.actionsDropdown.desktopShareLabel',
-    description: 'Desktop Share option label',
-  },
-  stopDesktopShareLabel: {
-    id: 'app.actionsBar.actionsDropdown.stopDesktopShareLabel',
-    description: 'Stop Desktop Share option label',
   },
   desktopShareDesc: {
     id: 'app.actionsBar.actionsDropdown.desktopShareDesc',
@@ -77,24 +76,34 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.stopShareExternalVideo',
     description: 'Stop sharing external video button',
   },
+  selectRandUserLabel: {
+    id: 'app.actionsBar.actionsDropdown.selectRandUserLabel',
+    description: 'Label for selecting a random user',
+  },
+  selectRandUserDesc: {
+    id: 'app.actionsBar.actionsDropdown.selectRandUserDesc',
+    description: 'Description for select random user option',
+  },
 });
 
-class ActionsDropdown extends Component {
+const handlePresentationClick = () => Session.set('showUploadPresentationView', true);
+
+class ActionsDropdown extends PureComponent {
   constructor(props) {
     super(props);
 
     this.presentationItemId = _.uniqueId('action-item-');
-    this.recordId = _.uniqueId('action-item-');
     this.pollId = _.uniqueId('action-item-');
     this.takePresenterId = _.uniqueId('action-item-');
+    this.selectUserRandId = _.uniqueId('action-item-');
 
-    this.handlePresentationClick = this.handlePresentationClick.bind(this);
     this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
+    this.makePresentationItems = this.makePresentationItems.bind(this);
   }
 
-  componentWillUpdate(nextProps) {
-    const { isUserPresenter: isPresenter } = nextProps;
-    const { isUserPresenter: wasPresenter, mountModal } = this.props;
+  componentDidUpdate(prevProps) {
+    const { amIPresenter: wasPresenter } = prevProps;
+    const { amIPresenter: isPresenter, mountModal } = this.props;
     if (wasPresenter && !isPresenter) {
       mountModal(null);
     }
@@ -103,11 +112,13 @@ class ActionsDropdown extends Component {
   getAvailableActions() {
     const {
       intl,
-      isUserPresenter,
+      amIPresenter,
       allowExternalVideo,
       handleTakePresenter,
       isSharingVideo,
+      isPollingEnabled,
       stopExternalVideoShare,
+      mountModal,
     } = this.props;
 
     const {
@@ -124,10 +135,11 @@ class ActionsDropdown extends Component {
     } = intl;
 
     return _.compact([
-      (isUserPresenter
+      (amIPresenter && isPollingEnabled
         ? (
           <DropdownListItem
-            icon="user"
+            icon="polling"
+            data-test="polling"
             label={formatMessage(pollBtnLabel)}
             description={formatMessage(pollBtnDesc)}
             key={this.pollId}
@@ -140,7 +152,9 @@ class ActionsDropdown extends Component {
             }}
           />
         )
-        : (
+        : null),
+      (!amIPresenter
+        ? (
           <DropdownListItem
             icon="presentation"
             label={formatMessage(takePresenter)}
@@ -148,8 +162,9 @@ class ActionsDropdown extends Component {
             key={this.takePresenterId}
             onClick={() => handleTakePresenter()}
           />
-        )),
-      (isUserPresenter
+        )
+        : null),
+      (amIPresenter
         ? (
           <DropdownListItem
             data-test="uploadPresentation"
@@ -157,11 +172,11 @@ class ActionsDropdown extends Component {
             label={formatMessage(presentationLabel)}
             description={formatMessage(presentationDesc)}
             key={this.presentationItemId}
-            onClick={this.handlePresentationClick}
+            onClick={handlePresentationClick}
           />
         )
         : null),
-      (isUserPresenter && allowExternalVideo
+      (amIPresenter && allowExternalVideo
         ? (
           <DropdownListItem
             icon="video"
@@ -173,7 +188,54 @@ class ActionsDropdown extends Component {
           />
         )
         : null),
+      (amIPresenter
+        ? (
+          <DropdownListItem
+            icon="user"
+            label={intl.formatMessage(intlMessages.selectRandUserLabel)}
+            description={intl.formatMessage(intlMessages.selectRandUserDesc)}
+            key={this.selectUserRandId}
+            onClick={() => mountModal(<RandomUserSelectContainer isSelectedUser={false} />)}
+          />
+        )
+        : null),
     ]);
+  }
+
+  makePresentationItems() {
+    const {
+      presentations,
+      setPresentation,
+      podIds,
+    } = this.props;
+
+    if (!podIds || podIds.length < 1) return [];
+
+    // We still have code for other pods from the Flash client. This intentionally only cares
+    // about the first one because it's the default.
+    const { podId } = podIds[0];
+
+    const presentationItemElements = presentations.map((p) => {
+      const itemStyles = {};
+      itemStyles[styles.presentationItem] = true;
+      itemStyles[styles.isCurrent] = p.current;
+
+      return (<DropdownListItem
+        className={cx(itemStyles)}
+        icon="file"
+        iconRight={p.current ? 'check' : null}
+        label={p.name}
+        description="uploaded presentation file"
+        key={`uploaded-presentation-${p.id}`}
+        onClick={() => {
+          setPresentation(p.id, podId);
+        }}
+      />
+      );
+    });
+
+    presentationItemElements.push(<DropdownListSeparator key={_.uniqueId('list-separator-')} />);
+    return presentationItemElements;
   }
 
   handleExternalVideoClick() {
@@ -181,30 +243,32 @@ class ActionsDropdown extends Component {
     mountModal(<ExternalVideoModal />);
   }
 
-  handlePresentationClick() {
-    const { mountModal } = this.props;
-    mountModal(<PresentationUploaderContainer />);
-  }
-
   render() {
     const {
       intl,
-      isUserPresenter,
-      isUserModerator,
+      amIPresenter,
+      amIModerator,
       shortcuts: OPEN_ACTIONS_AK,
+      isMeteorConnected,
     } = this.props;
 
     const availableActions = this.getAvailableActions();
+    const availablePresentations = this.makePresentationItems();
+    const children = availablePresentations.length > 2 && amIPresenter
+      ? availablePresentations.concat(availableActions) : availableActions;
 
-    if ((!isUserPresenter && !isUserModerator) || availableActions.length === 0) return null;
+    if ((!amIPresenter && !amIModerator)
+      || availableActions.length === 0
+      || !isMeteorConnected) {
+      return null;
+    }
 
     return (
-      <Dropdown ref={(ref) => { this._dropdown = ref; }}>
+      <Dropdown className={styles.dropdown} ref={(ref) => { this._dropdown = ref; }}>
         <DropdownTrigger tabIndex={0} accessKey={OPEN_ACTIONS_AK}>
           <Button
             hideLabel
             aria-label={intl.formatMessage(intlMessages.actionsLabel)}
-            className={styles.button}
             label={intl.formatMessage(intlMessages.actionsLabel)}
             icon="plus"
             color="primary"
@@ -215,7 +279,7 @@ class ActionsDropdown extends Component {
         </DropdownTrigger>
         <DropdownContent placement="top left">
           <DropdownList>
-            {availableActions}
+            {children}
           </DropdownList>
         </DropdownContent>
       </Dropdown>
@@ -224,5 +288,6 @@ class ActionsDropdown extends Component {
 }
 
 ActionsDropdown.propTypes = propTypes;
+ActionsDropdown.defaultProps = defaultProps;
 
 export default withShortcutHelper(withModalMounter(ActionsDropdown), 'openActions');

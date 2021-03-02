@@ -1,13 +1,24 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Session } from 'meteor/session';
+import _ from 'lodash';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from './styles';
 import ChatAvatar from './chat-avatar/component';
 import ChatIcon from './chat-icon/component';
 import ChatUnreadCounter from './chat-unread-messages/component';
+
+const DEBOUNCE_TIME = 1000;
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
+
+let globalAppplyStateToProps = ()=>{};
+
+const throttledFunc = _.debounce(() => {
+  globalAppplyStateToProps();
+}, DEBOUNCE_TIME, { trailing: true, leading: true });
 
 const intlMessages = defineMessages({
   titlePublic: {
@@ -26,22 +37,22 @@ const intlMessages = defineMessages({
 
 const propTypes = {
   chat: PropTypes.shape({
-    id: PropTypes.string.isRequired,
+    userId: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     unreadCounter: PropTypes.number.isRequired,
   }).isRequired,
-  activeChat: PropTypes.string,
+  activeChatId: PropTypes.string.isRequired,
   compact: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   tabIndex: PropTypes.number.isRequired,
   isPublicChat: PropTypes.func.isRequired,
+  chatPanelOpen: PropTypes.bool.isRequired,
   shortcuts: PropTypes.string,
 };
 
 const defaultProps = {
-  activeChat: '',
   shortcuts: '',
 };
 
@@ -56,22 +67,43 @@ const handleClickToggleChat = (id) => {
   } else {
     Session.set('idChatOpen', '');
   }
+  window.dispatchEvent(new Event('panelChanged'));
 };
 
 const ChatListItem = (props) => {
   const {
     chat,
-    activeChat,
+    activeChatId,
     compact,
     intl,
     tabIndex,
     isPublicChat,
     shortcuts: TOGGLE_CHAT_PUB_AK,
+    chatPanelOpen,
   } = props;
 
-  const isCurrentChat = chat.id === activeChat;
+  
+
+  const isCurrentChat = chat.userId === activeChatId && chatPanelOpen;
   const linkClasses = {};
   linkClasses[styles.active] = isCurrentChat;
+
+  const [stateUreadCount, setStateUreadCount] = useState(0);
+
+  if (chat.unreadCounter !== stateUreadCount && (stateUreadCount < chat.unreadCounter)) {
+    globalAppplyStateToProps = () => {
+      setStateUreadCount(chat.unreadCounter);
+    };
+    throttledFunc();
+  } else if (chat.unreadCounter !== stateUreadCount && (stateUreadCount > chat.unreadCounter)) {
+    setStateUreadCount(chat.unreadCounter);
+  }
+
+  useEffect(() => {
+    if (chat.userId !== PUBLIC_CHAT_KEY && chat.userId === activeChatId) {
+      Session.set('idChatOpen', chat.chatId);
+    }
+  }, [activeChatId]);
 
   return (
     <div
@@ -81,7 +113,7 @@ const ChatListItem = (props) => {
       aria-expanded={isCurrentChat}
       tabIndex={tabIndex}
       accessKey={isPublicChat(chat) ? TOGGLE_CHAT_PUB_AK : null}
-      onClick={() => handleClickToggleChat(chat.id)}
+      onClick={() => handleClickToggleChat(chat.chatId)}
       id="chat-toggle-button"
       aria-label={isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
     >
@@ -94,6 +126,7 @@ const ChatListItem = (props) => {
               <ChatAvatar
                 isModerator={chat.isModerator}
                 color={chat.color}
+                avatar={chat.avatar}
                 name={chat.name.toLowerCase().slice(0, 2)}
               />
             )}
@@ -107,10 +140,10 @@ const ChatListItem = (props) => {
               </span>
             ) : null}
         </div>
-        {(chat.unreadCounter > 0)
+        {(stateUreadCount > 0)
           ? (
             <ChatUnreadCounter
-              counter={chat.unreadCounter}
+              counter={stateUreadCount}
             />
           )
           : null}

@@ -33,7 +33,7 @@ class ConnectionController {
 
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'plain/text'
-      if (userSession != null && userSession.authed) {
+      if (userSession != null) {
         response.setStatus(200)
         response.outputStream << 'authorized'
       } else {

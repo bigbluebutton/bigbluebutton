@@ -2,7 +2,7 @@ const _ = require("lodash");
 const async = require("async");
 const redis = require("redis");
 const request = require("request");
-const config = require("./config.js");
+const config = require("config");
 const Hook = require("./hook.js");
 const IDMapping = require("./id_mapping.js");
 const Logger = require("./logger.js");
@@ -14,7 +14,7 @@ const UserMapping = require("./userMapping.js");
 module.exports = class WebHooks {
 
   constructor() {
-    this.subscriberEvents = config.redis.pubSubClient;
+    this.subscriberEvents = Application.redisPubSubClient();
   }
 
   start(callback) {
@@ -73,10 +73,10 @@ module.exports = class WebHooks {
       }
     });
 
-    for (let k in config.hooks.channels) {
-      const channel = config.hooks.channels[k];
+    config.get("hooks.channels").forEach((channel) => {
       this.subscriberEvents.psubscribe(channel);
-    }
+    });
+
   }
 
   // Send raw data to hooks that are not expecting mapped messages
@@ -142,7 +142,7 @@ module.exports = class WebHooks {
     });
 
     const sendRaw = hooks.some(hook => { return hook.getRaw });
-    if (sendRaw && config.hooks.getRaw) {
+    if (sendRaw && config.get("hooks.getRaw")) {
       this._processRaw(raw);
     }
   }

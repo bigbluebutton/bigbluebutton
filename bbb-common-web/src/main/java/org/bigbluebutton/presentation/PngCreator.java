@@ -18,6 +18,8 @@
 
 package org.bigbluebutton.presentation;
 
+import java.io.File;
+
 public interface PngCreator {
-	public boolean createPng(UploadedPresentation pres);
+	public boolean createPng(UploadedPresentation pres, int page, File pageFile);
 }

@@ -5,10 +5,10 @@ import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrap
 import Button from '/imports/ui/components/button/component';
 import { Session } from 'meteor/session';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import { styles } from './styles';
-import MessageForm from './message-form/component';
-import MessageList from './message-list/component';
-import ChatDropdown from './chat-dropdown/component';
+import { styles } from './styles.scss';
+import MessageForm from './message-form/container';
+import TimeWindowList from './time-window-list/container';
+import ChatDropdownContainer from './chat-dropdown/container';
 
 const ELEMENT_ID = 'chat-messages';
 
@@ -26,28 +26,31 @@ const intlMessages = defineMessages({
 const Chat = (props) => {
   const {
     chatID,
-    chatName,
     title,
     messages,
-    scrollPosition,
-    hasUnreadMessages,
-    lastReadMessageTime,
     partnerIsLoggedOut,
     isChatLocked,
-    minMessageLength,
-    maxMessageLength,
     actions,
     intl,
     shortcuts,
+    isMeteorConnected,
+    lastReadMessageTime,
+    hasUnreadMessages,
+    scrollPosition,
     UnsentMessagesCollection,
+    minMessageLength,
+    maxMessageLength,
+    amIModerator,
+    meetingIsBreakout,
+    timeWindowsValues,
+    dispatch,
+    count,
   } = props;
-
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
   const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
-
   return (
     <div
-      data-test="publicChat"
+      data-test={chatID !== 'public' ? 'privateChat' : 'publicChat'}
       className={styles.chat}
     >
       <header className={styles.header}>
@@ -59,6 +62,7 @@ const Chat = (props) => {
             onClick={() => {
               Session.set('idChatOpen', '');
               Session.set('openPanel', 'userlist');
+              window.dispatchEvent(new Event('panelChanged'));
             }}
             aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
             accessKey={HIDE_CHAT_AK}
@@ -80,36 +84,47 @@ const Chat = (props) => {
                   actions.handleClosePrivateChat(chatID);
                   Session.set('idChatOpen', '');
                   Session.set('openPanel', 'userlist');
+                  window.dispatchEvent(new Event('panelChanged'));
                 }}
                 aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
                 label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
                 accessKey={CLOSE_CHAT_AK}
               />
             )
-            : <ChatDropdown />
+            : <ChatDropdownContainer {...{ meetingIsBreakout, isMeteorConnected, amIModerator, timeWindowsValues }} />
         }
       </header>
-      <MessageList
-        chatId={chatID}
-        messages={messages}
+      <TimeWindowList
         id={ELEMENT_ID}
-        scrollPosition={scrollPosition}
-        hasUnreadMessages={hasUnreadMessages}
+        chatId={chatID}
         handleScrollUpdate={actions.handleScrollUpdate}
-        handleReadMessage={actions.handleReadMessage}
-        lastReadMessageTime={lastReadMessageTime}
-        partnerIsLoggedOut={partnerIsLoggedOut}
+        {...{
+          partnerIsLoggedOut,
+          lastReadMessageTime,
+          hasUnreadMessages,
+          scrollPosition,
+          messages,
+          currentUserIsModerator: amIModerator,
+          timeWindowsValues,
+          dispatch,
+          count,
+        }}
       />
       <MessageForm
-        UnsentMessagesCollection={UnsentMessagesCollection}
+        {...{
+          UnsentMessagesCollection,
+          title,
+          minMessageLength,
+          maxMessageLength,
+        }}
         chatId={chatID}
-        disabled={isChatLocked}
-        chatAreaId={ELEMENT_ID}
         chatTitle={title}
-        chatName={chatName}
-        minMessageLength={minMessageLength}
-        maxMessageLength={maxMessageLength}
+        chatAreaId={ELEMENT_ID}
+        disabled={isChatLocked || !isMeteorConnected}
+        connected={isMeteorConnected}
+        locked={isChatLocked}
         handleSendMessage={actions.handleSendMessage}
+        partnerIsLoggedOut={partnerIsLoggedOut}
       />
     </div>
   );
@@ -119,7 +134,6 @@ export default withShortcutHelper(injectWbResizeEvent(injectIntl(memo(Chat))), [
 
 const propTypes = {
   chatID: PropTypes.string.isRequired,
-  chatName: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   messages: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.oneOfType([
     PropTypes.array,
@@ -127,19 +141,12 @@ const propTypes = {
     PropTypes.number,
     PropTypes.object,
   ])).isRequired).isRequired,
-  scrollPosition: PropTypes.number,
   shortcuts: PropTypes.objectOf(PropTypes.string),
-  hasUnreadMessages: PropTypes.bool.isRequired,
-  lastReadMessageTime: PropTypes.number.isRequired,
   partnerIsLoggedOut: PropTypes.bool.isRequired,
   isChatLocked: PropTypes.bool.isRequired,
-  minMessageLength: PropTypes.number.isRequired,
-  maxMessageLength: PropTypes.number.isRequired,
+  isMeteorConnected: PropTypes.bool.isRequired,
   actions: PropTypes.shape({
     handleClosePrivateChat: PropTypes.func.isRequired,
-    handleReadMessage: PropTypes.func.isRequired,
-    handleScrollUpdate: PropTypes.func.isRequired,
-    handleSendMessage: PropTypes.func.isRequired,
   }).isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -147,7 +154,7 @@ const propTypes = {
 };
 
 const defaultProps = {
-  scrollPosition: 0,
+  shortcuts: [],
 };
 
 Chat.propTypes = propTypes;

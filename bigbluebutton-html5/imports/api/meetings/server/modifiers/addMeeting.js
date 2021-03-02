@@ -3,9 +3,15 @@ import {
   check,
   Match,
 } from 'meteor/check';
-import Meetings from '/imports/api/meetings';
+import SanitizeHTML from 'sanitize-html';
+import Meetings, { RecordMeetings } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
-import createNote from '/imports/api/note/server/methods/createNote'
+import createNote from '/imports/api/note/server/methods/createNote';
+import createCaptions from '/imports/api/captions/server/methods/createCaptions';
+import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
+import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
+import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
+import BannedUsers from '/imports/api/users/server/store/bannedUsers';
 
 export default function addMeeting(meeting) {
   const meetingId = meeting.meetingProp.intId;
@@ -30,6 +36,7 @@ export default function addMeeting(meeting) {
     usersProp: {
       webcamsOnlyForModerator: Boolean,
       guestPolicy: String,
+      authenticatedGuest: Boolean,
       maxUsers: Number,
       allowModsToUnmuteUsers: Boolean,
     },
@@ -37,8 +44,6 @@ export default function addMeeting(meeting) {
       createdTime: Number,
       duration: Number,
       createdDate: String,
-      maxInactivityTimeoutMinutes: Number,
-      warnMinutesBeforeMax: Number,
       meetingExpireIfNoUserJoinedInMinutes: Number,
       meetingExpireWhenLastUserLeftInMinutes: Number,
       userInactivityInspectTimerInMinutes: Number,
@@ -78,13 +83,22 @@ export default function addMeeting(meeting) {
       disablePrivateChat: Boolean,
       disablePublicChat: Boolean,
       disableNote: Boolean,
+      hideUserList: Boolean,
       lockOnJoin: Boolean,
       lockOnJoinConfigurable: Boolean,
       lockedLayout: Boolean,
     },
+    systemProps: {
+      html5InstanceId: Number,
+    },
   });
 
-  const newMeeting = meeting;
+  const {
+    recordProp,
+    ...restProps
+  } = meeting;
+
+  const newMeeting = restProps;
 
   const selector = {
     meetingId,
@@ -94,52 +108,89 @@ export default function addMeeting(meeting) {
 
   const meetingEnded = false;
 
-  newMeeting.welcomeProp.welcomeMsg = newMeeting.welcomeProp.welcomeMsg.replace(
+  let { welcomeMsg } = newMeeting.welcomeProp;
+
+  const sanitizeTextInChat = original => SanitizeHTML(original, {
+    allowedTags: ['a', 'b', 'br', 'i', 'img', 'li', 'small', 'span', 'strong', 'u', 'ul'],
+    allowedAttributes: {
+      a: ['href', 'name', 'target'],
+      img: ['src', 'width', 'height'],
+    },
+    allowedSchemes: ['https'],
+  });
+
+  const sanitizedWelcomeText = sanitizeTextInChat(welcomeMsg);
+  welcomeMsg = sanitizedWelcomeText.replace(
     'href="event:',
     'href="',
   );
 
   const insertBlankTarget = (s, i) => `${s.substr(0, i)} target="_blank"${s.substr(i)}`;
   const linkWithoutTarget = new RegExp('<a href="(.*?)">', 'g');
-  linkWithoutTarget.test(newMeeting.welcomeProp.welcomeMsg);
+  linkWithoutTarget.test(welcomeMsg);
 
   if (linkWithoutTarget.lastIndex > 0) {
-    newMeeting.welcomeProp.welcomeMsg = insertBlankTarget(
-      newMeeting.welcomeProp.welcomeMsg,
+    welcomeMsg = insertBlankTarget(
+      welcomeMsg,
       linkWithoutTarget.lastIndex - 1,
     );
   }
+
+  newMeeting.welcomeProp.welcomeMsg = welcomeMsg;
+
+  // note: as of July 2020 `modOnlyMessage` is not published to the client side.
+  // We are sanitizing this data simply to prevent future potential usage
+  // At the moment `modOnlyMessage` is obtained from client side as a response to Enter API
+  newMeeting.welcomeProp.modOnlyMessage = sanitizeTextInChat(newMeeting.welcomeProp.modOnlyMessage);
 
   const modifier = {
     $set: Object.assign({
       meetingId,
       meetingEnded,
+      publishedPoll: false,
+      randomlySelectedUser: '',
     }, flat(newMeeting, {
       safe: true,
     })),
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      Logger.error(`Adding meeting to collection: ${err}`);
+  if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
+    addAnnotationsStreamer(meetingId);
+    addCursorStreamer(meetingId);
+    addExternalVideoStreamer(meetingId);
+
+    // we don't want to fully process the create meeting message in frontend since it can lead to duplication of meetings in mongo.
+    if (process.env.BBB_HTML5_ROLE === 'frontend') {
       return;
     }
+  }
 
-    const {
-      insertedId,
-    } = numChanged;
+  try {
+    const { insertedId, numberAffected } = RecordMeetings.upsert(selector, { meetingId, ...recordProp });
+
+    if (insertedId) {
+      Logger.info(`Added record prop id=${meetingId}`);
+    } else if (numberAffected) {
+      Logger.info(`Upserted record prop id=${meetingId}`);
+    }
+  } catch (err) {
+    Logger.error(`Adding record prop to collection: ${err}`);
+  }
+
+  try {
+    const { insertedId, numberAffected } = Meetings.upsert(selector, modifier);
 
     if (insertedId) {
       Logger.info(`Added meeting id=${meetingId}`);
       // TODO: Here we call Etherpad API to create this meeting notes. Is there a
       // better place we can run this post-creation routine?
       createNote(meetingId);
-    }
-
-    if (numChanged) {
+      createCaptions(meetingId);
+      BannedUsers.init(meetingId);
+    } else if (numberAffected) {
       Logger.info(`Upserted meeting id=${meetingId}`);
     }
-  };
-
-  return Meetings.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Adding meeting to collection: ${err}`);
+  }
 }

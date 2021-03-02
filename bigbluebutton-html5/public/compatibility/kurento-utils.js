@@ -127,6 +127,7 @@ function WebRtcPeer(mode, options, callback) {
     options = options || {};
     callback = (callback || noop).bind(this);
     var self = this;
+    const userAgent = window.navigator.userAgent.toLocaleLowerCase();
     var localVideo = options.localVideo;
     var remoteVideo = options.remoteVideo;
     var videoStream = options.videoStream;
@@ -195,7 +196,6 @@ function WebRtcPeer(mode, options, callback) {
         pc = new RTCPeerConnection(configuration);
 
         //Add Transceiver for Webview on IOS
-        const userAgent = window.navigator.userAgent.toLocaleLowerCase();
         if ((userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1) && userAgent.indexOf('safari') == -1) {
             try {
                 pc.addTransceiver('video');
@@ -277,7 +277,6 @@ function WebRtcPeer(mode, options, callback) {
             callback(null, localDescription.sdp, self.processAnswer.bind(self));
         }
 
-        const userAgent = window.navigator.userAgent.toLocaleLowerCase();
         const isSafari = ((userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1) || browser.name.toLowerCase() == 'safari');
 
         // Bind the SDP release to the gathering state on Safari-based envs
@@ -326,11 +325,20 @@ function WebRtcPeer(mode, options, callback) {
         const MAX_RETRIES = 5;
         let attempt = 0;
         const playVideo = () => {
-          if (!played && attempt < MAX_RETRIES) {
-            remoteVideo.play().catch(e => {
-                attempt++;
-                playVideo(remoteVideo);
-            }).then(() => { remoteVideo.muted = false; played = true; attempt = 0;});
+          if (!played) {
+            if (attempt < MAX_RETRIES) {
+              remoteVideo.play()
+                .then(() => { remoteVideo.muted = false; played = true; attempt = 0;})
+                .catch(e => {
+                  attempt++;
+                  setTimeout(() => {
+                    playVideo(remoteVideo);
+                  }, 500);
+                });
+            } else {
+              const tagFailedEvent = new CustomEvent('mediaTagPlayFailed', { detail: { mediaTag: remoteVideo } });
+              window.dispatchEvent(tagFailedEvent);
+            }
           }
         }
 
@@ -432,10 +440,20 @@ function WebRtcPeer(mode, options, callback) {
             self.showLocalVideo();
         }
         if (videoStream) {
-            videoStream.getTracks().forEach(track => pc.addTrack(track, videoStream));
+            if (typeof videoStream.getTracks === 'function'
+                  && typeof pc.addTrack === 'function') {
+                videoStream.getTracks().forEach(track => pc.addTrack(track, videoStream));
+            } else {
+                pc.addStream(videoStream);
+            }
         }
         if (audioStream) {
-            audioStream.getTracks().forEach(track => pc.addTrack(track, audioStream));
+            if (typeof audioStream.getTracks === 'function'
+                  && typeof pc.addTrack === 'function') {
+                audioStream.getTracks().forEach(track => pc.addTrack(track, audioStream));
+            } else {
+                pc.addStream(audioStream);
+            }
         }
         var browser = parser.getBrowser();
         if (mode === 'sendonly' && (browser.name === 'Chrome' || browser.name === 'Chromium') && browser.major === 39) {
@@ -1065,20 +1083,6 @@ var freeice = module.exports = function(opts) {
 
 },{"./stun.json":6,"./turn.json":7,"normalice":12}],6:[function(require,module,exports){
 module.exports=[
-  "stun.l.google.com:19302",
-  "stun1.l.google.com:19302",
-  "stun2.l.google.com:19302",
-  "stun3.l.google.com:19302",
-  "stun4.l.google.com:19302",
-  "stun.ekiga.net",
-  "stun.ideasip.com",
-  "stun.schlund.de",
-  "stun.stunprotocol.org:3478",
-  "stun.voiparound.com",
-  "stun.voipbuster.com",
-  "stun.voipstunt.com",
-  "stun.voxgratia.org",
-  "stun.services.mozilla.com"
 ]
 
 },{}],7:[function(require,module,exports){

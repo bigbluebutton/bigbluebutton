@@ -21,4 +21,9 @@ trait SystemConfiguration {
   lazy val fromFsAppsJsonChannel = Try(config.getString("eventBus.fromFsAppsChannel")).getOrElse("from-fs-apps-json-channel")
   lazy val toVoiceConfRedisChannel = Try(config.getString("redis.toVoiceConfRedisChannel")).getOrElse("to-voice-conf-redis-channel")
   lazy val fromVoiceConfRedisChannel = Try(config.getString("redis.fromVoiceConfRedisChannel")).getOrElse("from-voice-conf-redis-channel")
+
+  // Grab the "interface" parameter from the http config
+  val httpHost = config.getString("http.interface")
+  // Grab the "port" parameter from the http config
+  val httpPort = config.getInt("http.port")
 }

@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import Modal from '/imports/ui/components/modal/simple/component';
 import { styles } from './styles';
@@ -37,12 +37,13 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   closeModal: PropTypes.func.isRequired,
   toggleRecording: PropTypes.func.isRequired,
   recordingTime: PropTypes.number,
   recordingStatus: PropTypes.bool,
   amIModerator: PropTypes.bool,
+  isMeteorConnected: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -51,7 +52,7 @@ const defaultProps = {
   amIModerator: false,
 };
 
-class RecordingComponent extends React.PureComponent {
+class RecordingComponent extends PureComponent {
   render() {
     const {
       intl,
@@ -60,6 +61,7 @@ class RecordingComponent extends React.PureComponent {
       amIModerator,
       closeModal,
       toggleRecording,
+      isMeteorConnected,
     } = this.props;
 
     let title;
@@ -95,6 +97,7 @@ class RecordingComponent extends React.PureComponent {
             <Button
               color="primary"
               className={styles.button}
+              disabled={!isMeteorConnected}
               label={intl.formatMessage(intlMessages.yesLabel)}
               onClick={toggleRecording}
             />

@@ -13,11 +13,12 @@ object Dependencies {
 
     // Libraries
     val akkaVersion = "2.5.19"
+    val akkaHttpVersion = "10.1.4"
     val logback = "1.2.3"
 
     // Apache Commons
-    val lang = "3.8.1"
-    val codec = "1.11"
+    val lang = "3.9"
+    val codec = "1.14"
 
     // BigBlueButton
     val bbbCommons = "0.0.20-SNAPSHOT"
@@ -35,6 +36,10 @@ object Dependencies {
 
     val akkaActor = "com.typesafe.akka" % "akka-actor_2.12" % Versions.akkaVersion
     val akkaSl4fj = "com.typesafe.akka" % "akka-slf4j_2.12" % Versions.akkaVersion
+    val akkaStream = "com.typesafe.akka" %% "akka-stream" % Versions.akkaVersion
+
+    val akkaHttp = "com.typesafe.akka" %% "akka-http" % Versions.akkaHttpVersion
+    val akkaHttpSprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % Versions.akkaHttpVersion
 
     val logback = "ch.qos.logback" % "logback-classic" % Versions.logback
     val commonsCodec = "commons-codec" % "commons-codec" % Versions.codec
@@ -51,22 +56,30 @@ object Dependencies {
     val junit = "junit" % "junit" % Versions.junit % "test"
     val scalactic = "org.scalactic" % "scalactic_2.12" % Versions.scalactic % "test"
     val akkaTestKit = "com.typesafe.akka" %% "akka-testkit" % Versions.akkaTestKit % "test"
+
+    // https://mvnrepository.com/artifact/com.typesafe.akka/akka-http-testkit
+    val akkaHttpTestkit =  "com.typesafe.akka" %% "akka-http-testkit" % "10.1.4" % "test"
+
   }
 
   val testing = Seq(
     Test.scalaTest,
     Test.junit,
     Test.scalactic,
-    Test.akkaTestKit)
+    Test.akkaTestKit,
+    Test.akkaHttpTestkit)
 
   val runtime = Seq(
     Compile.scalaLibrary,
     Compile.scalaCompiler,
     Compile.akkaActor,
     Compile.akkaSl4fj,
+    Compile.akkaStream,
     Compile.logback,
     Compile.commonsCodec,
     Compile.apacheLang,
     Compile.bbbCommons,
-    Compile.bbbFseslClient) ++ testing
+    Compile.bbbFseslClient,
+    Compile.akkaHttp,
+    Compile.akkaHttpSprayJson) ++ testing
 }

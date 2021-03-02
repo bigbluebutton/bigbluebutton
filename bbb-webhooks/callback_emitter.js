@@ -3,7 +3,7 @@ const request = require("request");
 const url = require('url');
 const EventEmitter = require('events').EventEmitter;
 
-const config = require("./config.js");
+const config = require('config');
 const Logger = require("./logger.js");
 const Utils = require("./utils.js");
 
@@ -38,7 +38,7 @@ module.exports = class CallbackEmitter extends EventEmitter {
           this.emit("failure", error);
 
           // get the next interval we have to wait and schedule a new try
-          const interval = config.hooks.retryIntervals[this.nextInterval];
+          const interval = config.get("hooks.retryIntervals")[this.nextInterval];
           if (interval != null) {
             Logger.warn(`[Emitter] trying the callback again in ${interval/1000.0} secs`);
             this.nextInterval++;
@@ -46,7 +46,7 @@ module.exports = class CallbackEmitter extends EventEmitter {
 
           // no intervals anymore, time to give up
           } else {
-            this.nextInterval = config.hooks.permanentIntervalReset; // Reset interval to permanent hooks
+            this.nextInterval = config.get("hooks.permanentIntervalReset"); // Reset interval to permanent hooks
             if(this.permanent){
               this._scheduleNext(this.nextInterval);
             }
@@ -61,10 +61,11 @@ module.exports = class CallbackEmitter extends EventEmitter {
   }
 
   _emitMessage(callback) {
-    let data,requestOptions;
-    const serverDomain = process.env.SERVER_DOMAIN || config.bbb.serverDomain;
-    const sharedSecret = process.env.SHARED_SECRET || config.bbb.sharedSecret;
-    const bearerAuth = process.env.BEARER_AUTH || config.bbb.auth2_0;
+    let data, requestOptions;
+    const serverDomain = config.get("bbb.serverDomain");
+    const sharedSecret = config.get("bbb.sharedSecret");
+    const bearerAuth = config.get("bbb.auth2_0");
+    const timeout = config.get('hooks.requestTimeout');
 
     // data to be sent
     // note: keep keys in alphabetical order
@@ -85,7 +86,8 @@ module.exports = class CallbackEmitter extends EventEmitter {
         form: data,
         auth: {
           bearer: sharedSecret
-        }
+        },
+        timeout
       };
     }
     else {
@@ -103,13 +105,15 @@ module.exports = class CallbackEmitter extends EventEmitter {
         maxRedirects: 10,
         uri: callbackURL,
         method: "POST",
-        form: data
+        form: data,
+        timeout
       };
     }
 
     const responseFailed = (response) => {
         var statusCode = (response != null ? response.statusCode : undefined)
-        return !((statusCode >= 200) && (statusCode < 300))
+        // consider 401 as success, because the callback worked but was denied by the recipient
+        return !((statusCode >= 200 && statusCode < 300) || statusCode == 401)
     };
 
     request(requestOptions, function(error, response, body) {

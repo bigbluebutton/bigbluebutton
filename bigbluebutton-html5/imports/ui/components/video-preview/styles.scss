@@ -1,13 +1,61 @@
-@import "/imports/ui/stylesheets/variables/_all";
-@import '/imports/ui/stylesheets/mixins/focus';
+@import "/imports/ui/stylesheets/variables/breakpoints";
 @import "/imports/ui/components/modal/simple/styles";
+
+.warning {
+  text-align: center;
+  font-weight: var(--headings-font-weight);
+  font-size: 5rem;
+  white-space: normal;
+}
+.text {
+  margin: var(--line-height-computed);
+  text-align: center;
+}
+
+.main {
+  margin: var(--line-height-computed);
+  text-align: center;
+  font-size: var(--font-size-large);
+}
 
 .actions {
   margin-left: auto;
   margin-right: 3px;
 
+
+  [dir="rtl"] & {
+    margin-right: auto;
+    margin-left: 3px;
+  }
+
   :first-child {
     margin-right: 3px;
+    margin-left: inherit;
+
+    [dir="rtl"] & {
+      margin-right: inherit;
+      margin-left: 3px;
+    }
+  }
+}
+
+.extraActions {
+  margin-right: auto;
+  margin-left: 3px;
+
+  [dir="rtl"] & {
+    margin-left: auto;
+    margin-right: 3px;
+  }
+
+  :first-child {
+    margin-left: 3px;
+    margin-right: inherit;
+
+    [dir="rtl"] & {
+      margin-left: inherit;
+      margin-right: 3px;
+    }
   }
 }
 
@@ -15,29 +63,48 @@
   i {
     color: var(--color-gray-light);
   }
+
   margin-left: auto;
+  margin-right: 0;
+
+  [dir="rtl"] & {
+    margin-left: 0;
+    margin-right: auto;
+  }
 }
 
 .col {
   display: flex;
   flex-direction: column;
   height: 100%;
-  margin-right: 1.5rem;
   justify-content: center;
+  margin: 0 0.5rem 0 0.5rem;
 
-  //width: 50%;
+  width: 50%;
   @include mq($small-only) {
-    width: 100%;
+    width: 90%;
     height: unset;
   }
 }
 
+.videoCol {
+  @extend .col;
+  align-items: center;
+}
+
 .content {
   display: flex;
-  flex: 3;
+  height: 14rem;
+  max-height: 40vh;
+  justify-content: center;
+  align-items: center;
 
   @include mq($small-only) {
     flex-direction: column;
+    height: unset;
+    margin: 0;
+    min-height: 12rem;
+    max-height: unset;
   }
 }
 
@@ -67,11 +134,16 @@
 }
 
 .preview {
-  width: 12rem;
-  height: 9rem;
+  height: 100%;
+  width: 100%;
+
   @include mq($small-only) {
-    width: 100%;
+    height: 10rem;
   }
+}
+
+.mirroredVideo {
+  transform: scale(-1, 1);
 }
 
 .row {
@@ -103,4 +175,29 @@
   border-radius: 0.25rem;
   margin: var(--line-height-computed);
   text-align: center;
+}
+
+.fetchingAnimation {
+  margin: auto;
+  display: inline-block;
+  width: 1.5em;
+
+  &:after {
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: bottom;
+    content: "\2026"; /* ascii code for the ellipsis character */
+    width: 0;
+    margin-left: 0.25em;
+
+    :global(.animationsEnabled) & {
+      animation: ellipsis steps(4, end) 900ms infinite;
+    }
+  }
+}
+
+@keyframes ellipsis {
+  to {
+    width: 1.5em;
+  }
 }

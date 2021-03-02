@@ -15,6 +15,12 @@ const intlMessages = defineMessages({
   },
 });
 
+const propTypes = {
+  intl: PropTypes.object.isRequired,
+  onRate: PropTypes.func.isRequired,
+  total: PropTypes.string.isRequired,
+};
+
 class Rating extends Component {
   constructor(props) {
     super(props);
@@ -27,7 +33,8 @@ class Rating extends Component {
   }
 
   clickStar(e) {
-    this.props.onRate(e);
+    const { onRate } = this.props;
+    onRate(e);
   }
 
   renderStars(num) {
@@ -36,7 +43,7 @@ class Rating extends Component {
     return (
       <div className={styles.starRating}>
         <fieldset>
-          <legend>{intl.formatMessage(intlMessages.legendTitle)}</legend>
+          <legend className={styles.legend}>{intl.formatMessage(intlMessages.legendTitle)}</legend>
           {
             _.range(num)
               .map(i => [
@@ -54,9 +61,8 @@ class Rating extends Component {
                   <label
                     htmlFor={`${i + 1}star`}
                     key={_.uniqueId('star-')}
-                  >
-                    {`${i + 1} ${intl.formatMessage(intlMessages.starLabel)}`}
-                  </label>
+                    aria-label={`${i + 1} ${intl.formatMessage(intlMessages.starLabel)}`}
+                  />
                 ),
               ]).reverse()
           }
@@ -80,3 +86,5 @@ class Rating extends Component {
 }
 
 export default injectIntl(Rating);
+
+Rating.propTypes = propTypes;

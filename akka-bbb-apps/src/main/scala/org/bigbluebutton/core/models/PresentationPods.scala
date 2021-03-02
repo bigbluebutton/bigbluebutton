@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.models
 
 import org.bigbluebutton.common2.domain.PageVO
+import org.bigbluebutton.core.models.PresentationInPod
 import org.bigbluebutton.core.util.RandomStringGenerator
 
 object PresentationPodFactory {
@@ -18,8 +19,22 @@ object PresentationPodFactory {
   }
 }
 
-case class PresentationInPod(id: String, name: String, current: Boolean = false,
-                             pages: scala.collection.immutable.Map[String, PageVO], downloadable: Boolean) {
+case class PresentationPage(
+    id:          String,
+    num:         Int,
+    urls:        Map[String, String],
+    current:     Boolean             = false,
+    xOffset:     Double              = 0,
+    yOffset:     Double              = 0,
+    widthRatio:  Double              = 100D,
+    heightRatio: Double              = 100D
+)
+
+object PresentationInPod {
+  def addPage(pres: PresentationInPod, page: PresentationPage): PresentationInPod = {
+    val newPages = pres.pages + (page.id -> page)
+    pres.copy(pages = newPages)
+  }
 
   def makePageCurrent(pres: PresentationInPod, pageId: String): Option[PresentationInPod] = {
     pres.pages.get(pageId) match {
@@ -33,11 +48,19 @@ case class PresentationInPod(id: String, name: String, current: Boolean = false,
     }
   }
 
-  def getCurrentPage(pres: PresentationInPod): Option[PageVO] = {
+  def getCurrentPage(pres: PresentationInPod): Option[PresentationPage] = {
     pres.pages.values find (p => p.current)
   }
 
 }
+
+case class PresentationInPod(
+    id:           String,
+    name:         String,
+    current:      Boolean                                                  = false,
+    pages:        scala.collection.immutable.Map[String, PresentationPage],
+    downloadable: Boolean
+)
 
 object PresentationPod {
   val DEFAULT_PRESENTATION_POD = "DEFAULT_PRESENTATION_POD"
@@ -99,7 +122,7 @@ case class PresentationPod(id: String, currentPresenter: String,
   def setCurrentPage(presentationId: String, pageId: String): Option[PresentationPod] = {
     for {
       pres <- presentations.get(presentationId)
-      newPres <- pres.makePageCurrent(pres, pageId)
+      newPres <- PresentationInPod.makePageCurrent(pres, pageId)
     } yield {
       addPresentation(deactivateCurrentPage(newPres, pageId))
     }
@@ -129,7 +152,7 @@ case class PresentationPod(id: String, currentPresenter: String,
 
   def resizePage(presentationId: String, pageId: String,
                  xOffset: Double, yOffset: Double, widthRatio: Double,
-                 heightRatio: Double): Option[(PresentationPod, PageVO)] = {
+                 heightRatio: Double): Option[(PresentationPod, PresentationPage)] = {
     // Force coordinate that are out-of-bounds inside valid values
     // 0.25D is 400% zoom
     // 100D-checkedWidth is the maximum the page can be moved over

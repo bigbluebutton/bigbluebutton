@@ -27,8 +27,7 @@ def process_archived_meetings(recording_dir)
   sanity_done_files = Dir.glob("#{recording_dir}/status/sanity/*.done")
 
   FileUtils.mkdir_p("#{recording_dir}/status/processed")
-  # TODO sort by timestamp(s)
-  sanity_done_files.each do |sanity_done|
+  sanity_done_files.sort{ |a,b| BigBlueButton.done_to_timestamp(a) <=> BigBlueButton.done_to_timestamp(b) }.each do |sanity_done|
     done_base = File.basename(sanity_done, '.done')
     meeting_id = nil
     break_timestamp = nil
@@ -44,6 +43,12 @@ def process_archived_meetings(recording_dir)
     end
 
     step_succeeded = true
+
+    # Generate captions
+    ret = BigBlueButton.exec_ret('ruby', 'utils/captions.rb', '-m', meeting_id)
+    if ret != 0
+      BigBlueButton.logger.warn("Failed to generate caption files #{ret}")
+    end
 
     # Iterate over the list of recording processing scripts to find available
     # types. For now, we look for the ".rb" extension - TODO other scripting

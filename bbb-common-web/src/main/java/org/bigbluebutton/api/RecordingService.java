@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -46,6 +47,8 @@ import org.slf4j.LoggerFactory;
 public class RecordingService {
     private static Logger log = LoggerFactory.getLogger(RecordingService.class);
 
+    private static final Pattern PRESENTATION_ID_PATTERN = Pattern.compile("^[a-z0-9]{40}-[0-9]{13}\\.[0-9a-zA-Z]{3,4}$");
+    
     private static String processDir = "/var/bigbluebutton/recording/process";
     private static String publishedDir = "/var/bigbluebutton/published";
     private static String unpublishedDir = "/var/bigbluebutton/unpublished";
@@ -54,6 +57,8 @@ public class RecordingService {
     private String recordStatusDir;
     private String captionsDir;
     private String presentationBaseDir;
+    private String defaultServerUrl;
+    private String defaultTextTrackUrl;
 
     private void copyPresentationFile(File presFile, File dlownloadableFile) {
         try {
@@ -64,32 +69,42 @@ public class RecordingService {
     }
 
     public void processMakePresentationDownloadableMsg(MakePresentationDownloadableMsg msg) {
-        File presDir = Util.getPresentationDir(presentationBaseDir, msg.meetingId, msg.presId);
-        File downloadableFile = new File(presDir.getAbsolutePath() + File.separatorChar + msg.presFilename);
-
-        if (presDir != null) {
-            if (msg.downloadable) {
-                String fileExt = FilenameUtils.getExtension(msg.presFilename);
-                File presFile = new File(presDir.getAbsolutePath() + File.separatorChar + msg.presId + "." + fileExt);
-                log.info("Make file downloadable. {}", downloadableFile.getAbsolutePath());
-                copyPresentationFile(presFile, downloadableFile);
-            } else {
-                if (downloadableFile.exists()) {
-                    if(downloadableFile.delete()) {
-                        log.info("File deleted. {}", downloadableFile.getAbsolutePath());
-                    } else {
-                        log.warn("Failed to delete. {}", downloadableFile.getAbsolutePath());
-                    }
-                }
-            }
+        try {
+            File presDir = Util.getPresentationDir(presentationBaseDir, msg.meetingId, msg.presId);
+            Util.makePresentationDownloadable(presDir, msg.presId, msg.downloadable);
+        } catch (IOException e) {
+            log.error("Failed to make presentation downloadable: {}", e);
         }
     }
 
     public File getDownloadablePresentationFile(String meetingId, String presId, String presFilename) {
-    	log.info("Find downloadable presentation for meetingId={} presId={} filename={}", meetingId, presId, presFilename);
+        log.info("Find downloadable presentation for meetingId={} presId={} filename={}", meetingId, presId,
+          presFilename);
 
+        if (! Util.isPresFileIdValidFormat(presFilename)) {
+            log.error("Invalid presentation filename for meetingId={} presId={} filename={}", meetingId, presId,
+              presFilename);
+            return null;
+        }
+
+        String presFilenameExt = FilenameUtils.getExtension(presFilename);
         File presDir = Util.getPresentationDir(presentationBaseDir, meetingId, presId);
-        return new File(presDir.getAbsolutePath() + File.separatorChar + presFilename);
+        File downloadMarker = Util.getPresFileDownloadMarker(presDir, presId);
+        if (presDir != null && downloadMarker != null && downloadMarker.exists()) {
+            String safePresFilename = presId.concat(".").concat(presFilenameExt);
+            File presFile = new File(presDir.getAbsolutePath() + File.separatorChar + safePresFilename);
+            if (presFile.exists()) {
+                return presFile;
+            }
+
+            log.error("Presentation file missing for meetingId={} presId={} filename={}", meetingId, presId,
+              presFilename);
+            return null;
+        }
+
+        log.error("Invalid presentation directory for meetingId={} presId={} filename={}", meetingId, presId,
+          presFilename);
+        return null;
     }
 
     public void kickOffRecordingChapterBreak(String meetingId, Long timestamp) {
@@ -168,8 +183,12 @@ public class RecordingService {
         return recs;
     }
 
+    public Boolean validateTextTrackSingleUseToken(String recordId, String caption, String token) {
+        return recordingServiceHelper.validateTextTrackSingleUseToken(recordId, caption, token);
+    }
+
     public String getRecordingTextTracks(String recordId) {
-        return recordingServiceHelper.getRecordingTextTracks(recordId, captionsDir);
+        return recordingServiceHelper.getRecordingTextTracks(recordId, captionsDir, getCaptionFileUrlDirectory());
     }
 
     public String putRecordingTextTrack(UploadedTrack track) {
@@ -240,6 +259,16 @@ public class RecordingService {
         }
 
         return ids;
+    }
+
+    public boolean isRecordingExist(String recordId) {
+        List<String> publishList = getAllRecordingIds(publishedDir);
+        List<String> unpublishList = getAllRecordingIds(unpublishedDir);
+        if (publishList.contains(recordId) || unpublishList.contains(recordId)) {
+            return true;
+        }
+
+        return false;
     }
 
     public boolean existAnyRecording(List<String> idList) {
@@ -372,6 +401,14 @@ public class RecordingService {
 
     public void setPresentationBaseDir(String dir) {
         presentationBaseDir = dir;
+    }
+
+    public void setDefaultServerUrl(String url) {
+        defaultServerUrl = url;
+    }
+
+    public void setDefaultTextTrackUrl(String url) {
+        defaultTextTrackUrl = url;
     }
 
     public void setPublishedDir(String dir) {
@@ -662,7 +699,16 @@ public class RecordingService {
         return baseDir;
     }
 
-		public String getCaptionTrackInboxDir() {
-			return captionsDir + File.separatorChar + "inbox";
-		}
+    public String getCaptionTrackInboxDir() {
+        return captionsDir + File.separatorChar + "inbox";
+    }
+
+    public String getCaptionsDir() {
+      return captionsDir;
+    }
+
+    public String getCaptionFileUrlDirectory() {
+        return defaultTextTrackUrl + "/textTrack/";
+    }
+
 }

@@ -22,7 +22,7 @@ case class UserRegisteredRespMsg(
     header: BbbCoreHeaderWithMeetingId,
     body:   UserRegisteredRespMsgBody
 ) extends BbbCoreMsg
-case class UserRegisteredRespMsgBody(meetingId: String, userId: String, name: String, role: String)
+case class UserRegisteredRespMsgBody(meetingId: String, userId: String, name: String, role: String, registeredOn: Long)
 
 object RegisteredUserJoinTimeoutMsg { val NAME = "RegisteredUserJoinTimeoutMsg" }
 case class RegisteredUserJoinTimeoutMsg(
@@ -59,7 +59,7 @@ case class ValidateAuthTokenRespMsg(
     header: BbbClientMsgHeader,
     body:   ValidateAuthTokenRespMsgBody
 ) extends BbbCoreMsg
-case class ValidateAuthTokenRespMsgBody(userId: String, authToken: String, valid: Boolean, waitForApproval: Boolean)
+case class ValidateAuthTokenRespMsgBody(userId: String, authToken: String, valid: Boolean, waitForApproval: Boolean, registeredOn: Long, authTokenValidatedOn: Long)
 
 object UserLeftMeetingEvtMsg {
   val NAME = "UserLeftMeetingEvtMsg"
@@ -199,13 +199,6 @@ case class AssignPresenterReqMsg(header: BbbClientMsgHeader, body: AssignPresent
 case class AssignPresenterReqMsgBody(requesterId: String, newPresenterId: String, newPresenterName: String, assignedBy: String)
 
 /**
- * Sent from client as a response to inactivity notifaction from server.
- */
-object MeetingActivityResponseCmdMsg { val NAME = "MeetingActivityResponseCmdMsg" }
-case class MeetingActivityResponseCmdMsg(header: BbbClientMsgHeader, body: MeetingActivityResponseCmdMsgBody) extends StandardMsg
-case class MeetingActivityResponseCmdMsgBody(respondedBy: String)
-
-/**
  * Sent from client to change the role of the user in the meeting.
  */
 object ChangeUserRoleCmdMsg { val NAME = "ChangeUserRoleCmdMsg" }
@@ -221,7 +214,7 @@ case class UserRoleChangedEvtMsgBody(userId: String, role: String, changedBy: St
  */
 object EjectUserFromMeetingCmdMsg { val NAME = "EjectUserFromMeetingCmdMsg" }
 case class EjectUserFromMeetingCmdMsg(header: BbbClientMsgHeader, body: EjectUserFromMeetingCmdMsgBody) extends StandardMsg
-case class EjectUserFromMeetingCmdMsgBody(userId: String, ejectedBy: String)
+case class EjectUserFromMeetingCmdMsgBody(userId: String, ejectedBy: String, banUser: Boolean)
 
 /**
  * Sent from client to lock user in meeting.
@@ -253,7 +246,7 @@ case class ChangeLockSettingsInMeetingCmdMsg(
     body:   ChangeLockSettingsInMeetingCmdMsgBody
 ) extends StandardMsg
 case class ChangeLockSettingsInMeetingCmdMsgBody(disableCam: Boolean, disableMic: Boolean, disablePrivChat: Boolean,
-                                                 disablePubChat: Boolean, disableNote: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
+                                                 disablePubChat: Boolean, disableNote: Boolean, hideUserList: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
                                                  lockOnJoinConfigurable: Boolean, setBy: String)
 
 object LockSettingsInMeetingChangedEvtMsg { val NAME = "LockSettingsInMeetingChangedEvtMsg" }
@@ -262,7 +255,7 @@ case class LockSettingsInMeetingChangedEvtMsg(
     body:   LockSettingsInMeetingChangedEvtMsgBody
 ) extends BbbCoreMsg
 case class LockSettingsInMeetingChangedEvtMsgBody(disableCam: Boolean, disableMic: Boolean, disablePrivChat: Boolean,
-                                                  disablePubChat: Boolean, disableNote: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
+                                                  disablePubChat: Boolean, disableNote: Boolean, hideUserList: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
                                                   lockOnJoinConfigurable: Boolean, setBy: String)
 
 /**
@@ -278,7 +271,7 @@ case class GetLockSettingsReqMsgBody(requesterId: String)
 object GetLockSettingsRespMsg { val NAME = "GetLockSettingsRespMsg" }
 case class GetLockSettingsRespMsg(header: BbbClientMsgHeader, body: GetLockSettingsRespMsgBody) extends BbbCoreMsg
 case class GetLockSettingsRespMsgBody(disableCam: Boolean, disableMic: Boolean, disablePrivChat: Boolean,
-                                      disablePubChat: Boolean, disableNote: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
+                                      disablePubChat: Boolean, disableNote: Boolean, hideUserList: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
                                       lockOnJoinConfigurable: Boolean)
 
 object LockSettingsNotInitializedRespMsg { val NAME = "LockSettingsNotInitializedRespMsg" }
@@ -401,3 +394,17 @@ case class UserInactivityInspectMsgBody(meetingId: String, responseDelay: Long)
 object UserActivitySignCmdMsg { val NAME = "UserActivitySignCmdMsg" }
 case class UserActivitySignCmdMsg(header: BbbClientMsgHeader, body: UserActivitySignCmdMsgBody) extends StandardMsg
 case class UserActivitySignCmdMsgBody(userId: String)
+
+/**
+ * Sent from client to randomly select a viewer
+ */
+object SelectRandomViewerReqMsg { val NAME = "SelectRandomViewerReqMsg" }
+case class SelectRandomViewerReqMsg(header: BbbClientMsgHeader, body: SelectRandomViewerReqMsgBody) extends StandardMsg
+case class SelectRandomViewerReqMsgBody(requestedBy: String)
+
+/**
+ * Response to request for a random viewer
+ */
+object SelectRandomViewerRespMsg { val NAME = "SelectRandomViewerRespMsg" }
+case class SelectRandomViewerRespMsg(header: BbbClientMsgHeader, body: SelectRandomViewerRespMsgBody) extends StandardMsg
+case class SelectRandomViewerRespMsgBody(requestedBy: String, selectedUserId: String)

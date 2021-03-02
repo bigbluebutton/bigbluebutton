@@ -27,7 +27,7 @@ Kurento = function (
   this.internalMeetingId = internalMeetingId;
 
   // Optional parameters are: userName, caleeName, chromeExtension, wsUrl, iceServers,
-  // chromeScreenshareSources, firefoxScreenshareSource
+  // chromeScreenshareSources, firefoxScreenshareSource, logger, stream
 
   Object.assign(this, options);
 
@@ -66,13 +66,14 @@ Kurento = function (
 
   this.pingInterval = null;
 
-
+  // TODO FIXME we need to implement a handleError method to normalize errors
+  // generated in this script
   if (onFail != null) {
     this.onFail = Kurento.normalizeCallback(onFail);
   } else {
     const _this = this;
     this.onFail = function () {
-      _this.logError('Default error handler');
+      _this.logger.error('Default error handler');
     };
   }
 
@@ -81,7 +82,7 @@ Kurento = function (
   } else {
     const _this = this;
     this.onSuccess = function () {
-      _this.logger('Default success handler');
+      _this.logger.info('Default success handler');
     };
   }
 };
@@ -95,7 +96,8 @@ this.KurentoManager = function () {
 KurentoManager.prototype.exitScreenShare = function () {
   if (typeof this.kurentoScreenshare !== 'undefined' && this.kurentoScreenshare) {
     if (this.kurentoScreenshare.logger !== null) {
-      this.kurentoScreenshare.logger.info('  [exitScreenShare] Exiting screensharing');
+      this.kurentoScreenshare.logger.info({ logCode: 'kurentoextension_exit_screenshare_presenter' },
+        'Exiting screensharing as presenter');
     }
 
     if(this.kurentoScreenshare.webRtcPeer) {
@@ -124,7 +126,8 @@ KurentoManager.prototype.exitVideo = function () {
       }
 
       if (this.kurentoVideo.logger !== null) {
-        this.kurentoVideo.logger.info('  [exitScreenShare] Exiting screensharing viewing');
+        this.kurentoScreenshare.logger.info({ logCode: 'kurentoextension_exit_screenshare_viewer' },
+          'Exiting screensharing as viewer');
       }
 
       if (this.kurentoVideo.ws !== null) {
@@ -151,7 +154,12 @@ KurentoManager.prototype.exitVideo = function () {
 KurentoManager.prototype.exitAudio = function () {
   if (typeof this.kurentoAudio !== 'undefined' && this.kurentoAudio) {
     if (this.kurentoAudio.logger !== null) {
-      this.kurentoAudio.logger.info('  [exitAudio] Exiting listen only audio');
+      this.kurentoAudio.logger.info({ logCode: 'kurentoextension_exit_listen_only' },
+        'Exiting listen only');
+    }
+
+    if (this.kurentoAudio.webRtcPeer) {
+      this.kurentoAudio.webRtcPeer.peerConnection.oniceconnectionstatechange = null;
     }
 
     if (this.kurentoAudio.ws !== null) {
@@ -228,23 +236,31 @@ Kurento.prototype.downscaleResolution = function (oldWidth, oldHeight) {
 Kurento.prototype.init = function () {
   const self = this;
   if ('WebSocket' in window) {
-    this.logger.info('this browser supports websockets');
     this.ws = new WebSocket(this.wsUrl);
 
     this.ws.onmessage = this.onWSMessage.bind(this);
     this.ws.onclose = () => {
       kurentoManager.exitScreenShare();
+      this.logger.error({ logCode: 'kurentoextension_websocket_close' },
+        'WebSocket connection to SFU closed unexpectedly, screenshare/listen only will drop');
       self.onFail('Websocket connection closed');
     };
     this.ws.onerror = (error) => {
       kurentoManager.exitScreenShare();
+      this.logger.error({
+        logCode: 'kurentoextension_websocket_error',
+        extraInfo: { errorMessage: error.name || error.message || 'Unknown error' }
+      }, 'Error in the WebSocket connection to SFU, screenshare/listen only will drop');
       self.onFail('Websocket connection error');
     };
     this.ws.onopen = function () {
       self.pingInterval = setInterval(self.ping.bind(self), self.PING_INTERVAL);
       self.mediaCallback();
     };
-  } else { this.logger.info('this browser does not support websockets'); }
+  } else {
+    this.logger.info({ logCode: 'kurentoextension_websocket_unsupported'},
+      'Browser does not support websockets');
+  }
 };
 
 Kurento.prototype.onWSMessage = function (message) {
@@ -257,18 +273,22 @@ Kurento.prototype.onWSMessage = function (message) {
       kurentoManager.exitScreenShare();
       break;
     case 'iceCandidate':
-      this.webRtcPeer.addIceCandidate(parsedMessage.candidate);
+      this.handleIceCandidate(parsedMessage.candidate);
       break;
     case 'webRTCAudioSuccess':
       this.onSuccess(parsedMessage.success);
       break;
     case 'webRTCAudioError':
-      this.onFail(parsedMessage);
+    case 'error':
+      this.handleSFUError(parsedMessage);
       break;
     case 'pong':
       break;
     default:
-      this.logger.error('Unrecognized message', parsedMessage);
+      this.logger.error({
+        logCode: 'kurentoextension_unrecognized_sfu_message',
+        extraInfo: { sfuResponse: parsedMessage }
+      }, `Unrecognized SFU message: ${parsedMessage.id}`);
   }
 };
 
@@ -276,33 +296,120 @@ Kurento.prototype.setRenderTag = function (tag) {
   this.renderTag = tag;
 };
 
+Kurento.prototype.processIceQueue = function () {
+  const peer = this.webRtcPeer;
+  while (peer.iceQueue.length) {
+    const candidate = peer.iceQueue.shift();
+    peer.addIceCandidate(candidate, (error) => {
+      if (error) {
+        // Just log the error. We can't be sure if a candidate failure on add is
+        // fatal or not, so that's why we have a timeout set up for negotiations and
+        // listeners for ICE state transitioning to failures, so we won't act on it here
+        this.logger.error({
+          logCode: 'kurentoextension_addicecandidate_error',
+          extraInfo: { errorMessage: error.name || error.message || 'Unknown error' },
+        }, `Adding ICE candidate failed due to ${error.message}`);
+      }
+    });
+  }
+}
+
+Kurento.prototype.handleIceCandidate = function (candidate) {
+  const peer = this.webRtcPeer;
+  if (peer.negotiated) {
+    peer.addIceCandidate(candidate, (error) => {
+      if (error) {
+        // Just log the error. We can't be sure if a candidate failure on add is
+        // fatal or not, so that's why we have a timeout set up for negotiations and
+        // listeners for ICE state transitioning to failures, so we won't act on it here
+        this.logger.error({
+          logCode: 'kurentoextension_addicecandidate_error',
+          extraInfo: { errorMessage: error.name || error.message || 'Unknown error' },
+        }, `Adding ICE candidate failed due to ${error.message}`);
+      }
+    });
+  } else {
+    // ICE candidates are queued until a SDP answer has been processed.
+    // This was done due to a long term iOS/Safari quirk where it'd
+    // fail if candidates were added before the offer/answer cycle was completed.
+    // IT STILL HAPPENS - prlanzarin sept 2019
+    peer.iceQueue.push(candidate);
+  }
+}
+
 Kurento.prototype.startResponse = function (message) {
   if (message.response !== 'accepted') {
-    const errorMsg = message.message ? message.message : 'Unknow error';
-    this.logger.warn('Call not accepted for the following reason:', { error: errorMsg });
-    switch (message.type) {
-      case 'screenshare':
-        if (message.role === this.SEND_ROLE) {
-          kurentoManager.exitScreenShare();
-        } else if (message.role === this.RECV_ROLE) {
-          kurentoManager.exitVideo();
-        }
-        break;
-      case 'audio':
-        kurentoManager.exitAudio();
-        break;
-    }
+    this.handleSFUError(message);
   } else {
-    this.logger.debug(`Procedure for ${message.type} was accepted with SDP =>`, { sdpAnswer: message.sdpAnswer });
-    this.webRtcPeer.processAnswer(message.sdpAnswer);
+    this.logger.info({
+      logCode: 'kurentoextension_start_success',
+      extraInfo: { sfuResponse: message }
+    }, `Start request accepted for ${message.type}`);
+
+    this.webRtcPeer.processAnswer(message.sdpAnswer, (error) => {
+      if (error) {
+        this.logger.error({
+          logCode: 'kurentoextension_peerconnection_processanswer_error',
+          extraInfo: {
+            errorMessage: error.name || error.message || 'Unknown error',
+          },
+        }, `Processing SDP answer from SFU for failed due to ${error.message}`);
+
+        return this.onFail(error);
+      }
+
+      this.logger.info({
+        logCode: 'kurentoextension_process_answer',
+      }, `Answer processed with success`);
+
+      // Mark the peer as negotiated and flush the ICE queue
+      this.webRtcPeer.negotiated = true;
+      this.processIceQueue();
+      // audio calls gets their success callback in a subsequent step (@webRTCAudioSuccess)
+      // due to legacy messaging which I don't intend to break now - prlanzarin
+      if (message.type === 'screenshare') {
+        this.onSuccess()
+      }
+    });
   }
+};
+
+Kurento.prototype.handleSFUError = function (sfuResponse) {
+  const { type, code, reason, role } = sfuResponse;
+  switch (type) {
+    case 'screenshare':
+      this.logger.error({
+        logCode: 'kurentoextension_screenshare_start_rejected',
+        extraInfo: { sfuResponse }
+      }, `SFU screenshare rejected by SFU with error ${code} = ${reason}`);
+
+      if (role === this.SEND_ROLE) {
+        kurentoManager.exitScreenShare();
+      } else if (role === this.RECV_ROLE) {
+        kurentoManager.exitVideo();
+      }
+      break;
+    case 'audio':
+      this.logger.error({
+        logCode: 'kurentoextension_listenonly_start_rejected',
+        extraInfo: { sfuResponse }
+      }, `SFU listen only rejected by SFU with error ${code} = ${reason}`);
+
+      kurentoManager.exitAudio();
+      break;
+  }
+
+  this.onFail( { code, reason } );
 };
 
 Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
   const self = this;
 
   if (error) {
-    this.logger.info(`Kurento.prototype.onOfferPresenter Error ${error}`);
+    this.logger.error({
+      logCode: 'kurentoextension_screenshare_presenter_offer_failure',
+      extraInfo: { errorMessage: error.name || error.message || 'Unknown error' },
+    }, `Failed to generate peer connection offer for screenshare presenter with error ${error.message}`);
     this.onFail(error);
     return;
   }
@@ -317,20 +424,25 @@ Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
     sdpOffer: offerSdp,
     vh: this.height,
     vw: this.width,
+    userName: self.userName,
   };
 
-  this.logger.info('onOfferPresenter sending to screenshare server => ', { sdpOffer: message });
+  this.logger.info({
+    logCode: 'kurentoextension_screenshare_request_start_presenter' ,
+    extraInfo: { sfuRequest: message },
+  }, `Screenshare presenter offer generated. Sending start request to SFU`);
+
   this.sendMessage(message);
 };
 
 
 Kurento.prototype.startScreensharing = function () {
   if (window.chrome) {
-    if (this.chromeExtension == null) {
-      this.logError({
-        status: 'failed',
-        message: 'Missing Chrome Extension key',
-      });
+    if (this.chromeExtension == null && !hasDisplayMedia) {
+      this.logger.error({ logCode: "kurentoextension_screenshare_noextensionkey" },
+        'Screenshare hasnt got a Chrome extension key configured',
+      );
+      // TODO error handling here
       this.onFail();
       return;
     }
@@ -342,30 +454,34 @@ Kurento.prototype.startScreensharing = function () {
       this.onIceCandidate(candidate, this.SEND_ROLE);
     },
     sendSource: 'desktop',
+    videoStream: this.stream || undefined,
   };
 
-  this.logger.info(' Peer options =>', options);
-
   let resolution;
-  this.logger.debug(`Screenshare screen dimensions are ${this.width} x ${this.height}`);
+  this.logger.debug({ logCode: 'kurentoextension_screenshare_screen_dimensions'},
+    `Screenshare screen dimensions are ${this.width} x ${this.height}`);
   if (this.width > this.vid_max_width || this.height > this.vid_max_height) {
     resolution = this.downscaleResolution(this.width, this.height);
     this.width = resolution.width;
     this.height = resolution.height;
-    this.logger.debug('Screenshare track dimensions have been resized to', this.width, 'x', this.height);
+    this.logger.info({ logCode: 'kurentoextension_screenshare_track_resize' },
+      `Screenshare track dimensions have been resized to ${this.width} x ${this.height}`);
   }
 
   this.addIceServers(this.iceServers, options);
 
   this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options, (error) => {
     if (error) {
-      this.logger.error('WebRtcPeerSendonly constructor error:', { error });
+      this.logger.error({
+        logCode: 'kurentoextension_screenshare_peerconnection_create_error',
+        extraInfo: { errorMessage: error.name || error.message || 'Unknown error' },
+      }, `WebRTC peer constructor for screenshare (presenter) failed due to ${error.message}`);
       this.onFail(error);
       return kurentoManager.exitScreenShare();
     }
 
+    this.webRtcPeer.iceQueue = [];
     this.webRtcPeer.generateOffer(this.onOfferPresenter.bind(this));
-    this.logger.info('Generated peer offer w/ options:', { options });
 
     const localStream = this.webRtcPeer.peerConnection.getLocalStreams()[0];
     const _this = this;
@@ -380,10 +496,14 @@ Kurento.prototype.startScreensharing = function () {
   });
   this.webRtcPeer.peerConnection.oniceconnectionstatechange = () => {
     if (this.webRtcPeer) {
-      const connectionState = this.webRtcPeer.peerConnection.iceConnectionState;
-      if (connectionState === 'failed' || connectionState === 'closed') {
+      const iceConnectionState = this.webRtcPeer.peerConnection.iceConnectionState;
+      if (iceConnectionState === 'failed' || iceConnectionState === 'closed') {
         this.webRtcPeer.peerConnection.oniceconnectionstatechange = null;
-        this.onFail('ICE connection failed');
+        this.logger.error({
+          logCode: 'kurentoextension_screenshare_presenter_ice_failed',
+          extraInfo: { iceConnectionState }
+        }, `WebRTC peer for screenshare presenter failed due to ICE transitioning to ${iceConnectionState}`);
+        this.onFail({ message: 'iceConnectionStateError', code: 1108 });
       }
     }
   };
@@ -391,7 +511,10 @@ Kurento.prototype.startScreensharing = function () {
 
 Kurento.prototype.onIceCandidate = function (candidate, role) {
   const self = this;
-  this.logger.info('Local candidate:', { candidate });
+  this.logger.debug({
+    logCode: 'kurentoextension_screenshare_client_candidate',
+    extraInfo: { candidate }
+  }, `Screenshare client-side candidate generated: ${JSON.stringify(candidate)}`);
 
   const message = {
     id: this.ON_ICE_CANDIDATE_MSG,
@@ -420,7 +543,6 @@ Kurento.prototype.viewer = function () {
       mediaConstraints: {
         audio: false,
       },
-      remoteVideo: document.getElementById(this.renderTag),
       onicecandidate: (candidate) => {
         this.onIceCandidate(candidate, this.RECV_ROLE);
       },
@@ -432,15 +554,19 @@ Kurento.prototype.viewer = function () {
       if (error) {
         return self.onFail(error);
       }
-
+      self.webRtcPeer.iceQueue = [];
       this.generateOffer(self.onOfferViewer.bind(self));
     });
     self.webRtcPeer.peerConnection.oniceconnectionstatechange = () => {
       if (this.webRtcPeer) {
-        const connectionState = this.webRtcPeer.peerConnection.iceConnectionState;
-        if (connectionState === 'failed' || connectionState === 'closed') {
+        const iceConnectionState = this.webRtcPeer.peerConnection.iceConnectionState;
+        if (iceConnectionState === 'failed' || iceConnectionState === 'closed') {
           this.webRtcPeer.peerConnection.oniceconnectionstatechange = null;
-          this.onFail('ICE connection failed');
+          this.logger.error({
+            logCode: 'kurentoextension_screenshare_viewer_ice_failed',
+            extraInfo: { iceConnectionState }
+          }, `WebRTC peer for screenshare viewer failed due to ICE transitioning to ${iceConnectionState}`);
+          this.onFail({ message: 'iceConnectionStateError', code: 1108 });
         }
       }
     };
@@ -450,9 +576,14 @@ Kurento.prototype.viewer = function () {
 Kurento.prototype.onOfferViewer = function (error, offerSdp) {
   const self = this;
   if (error) {
-    this.logger.info(`Kurento.prototype.onOfferViewer Error ${error}`);
-    return this.onFail();
+    this.logger.error({
+      logCode: 'kurentoextension_screenshare_viewer_offer_failure',
+      extraInfo: { errorMessage: error.name || error.message || 'Unknown error' },
+    }, `Failed to generate peer connection offer for screenshare viewer with error ${error.message}`);
+
+    return this.onFail(error);
   }
+
   const message = {
     id: 'start',
     type: this.SFU_APP,
@@ -461,9 +592,14 @@ Kurento.prototype.onOfferViewer = function (error, offerSdp) {
     voiceBridge: self.voiceBridge,
     callerName: self.userId,
     sdpOffer: offerSdp,
+    userName: self.userName,
   };
 
-  this.logger.info('onOfferViewer sending to screenshare server: ', { sdpOffer: message.sdpOffer });
+  this.logger.info({
+    logCode: 'kurentoextension_screenshare_request_start_viewer',
+    extraInfo: { sfuRequest: message },
+  }, `Screenshare viewer offer generated. Sending start request to SFU`);
+
   this.sendMessage(message);
 };
 
@@ -481,7 +617,6 @@ Kurento.prototype.setAudio = function (tag) {
 };
 
 Kurento.prototype.listenOnly = function () {
-  const self = this;
   if (!this.webRtcPeer) {
     const options = {
       onicecandidate : this.onListenOnlyIceCandidate.bind(this),
@@ -493,19 +628,41 @@ Kurento.prototype.listenOnly = function () {
 
     this.addIceServers(this.iceServers, options);
 
-    self.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, function (error) {
+    this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, (error) => {
       if (error) {
-        return self.onFail(error);
+        return this.onFail(error);
       }
 
-      this.generateOffer(self.onOfferListenOnly.bind(self));
+      this.webRtcPeer.iceQueue = [];
+      this.webRtcPeer.peerConnection.oniceconnectionstatechange = () => {
+        if (this.webRtcPeer) {
+          const iceConnectionState = this.webRtcPeer.peerConnection.iceConnectionState;
+
+          if (iceConnectionState === 'failed' || iceConnectionState === 'closed') {
+            this.webRtcPeer.peerConnection.oniceconnectionstatechange = null;
+            this.logger.error({
+              logCode: 'kurentoextension_listenonly_ice_failed',
+              extraInfo: { iceConnectionState }
+            }, `WebRTC peer for listen only failed due to ICE transitioning to ${iceConnectionState}`);
+            this.onFail({
+              errorCode: 1007,
+              errorMessage: `ICE negotiation failed. Current state - ${iceConnectionState}`,
+            });
+          }
+        }
+      }
+
+      this.webRtcPeer.generateOffer(this.onOfferListenOnly.bind(this));
     });
   }
 };
 
 Kurento.prototype.onListenOnlyIceCandidate = function (candidate) {
   const self = this;
-  this.logger.debug('[onListenOnlyIceCandidate]', { candidate });
+  this.logger.debug({
+    logCode: 'kurentoextension_listenonly_client_candidate',
+    extraInfo: { candidate }
+  }, `Listen only client-side candidate generated: ${JSON.stringify(candidate)}`);
 
   const message = {
     id: this.ON_ICE_CANDIDATE_MSG,
@@ -520,7 +677,11 @@ Kurento.prototype.onListenOnlyIceCandidate = function (candidate) {
 Kurento.prototype.onOfferListenOnly = function (error, offerSdp) {
   const self = this;
   if (error) {
-    this.logger.error('[onOfferListenOnly]', error);
+    this.logger.error({
+      logCode: 'kurentoextension_listenonly_offer_failure',
+      extraInfo: { errorMessage: error.name || error.message || 'Unknown error' },
+    }, `Failed to generate peer connection offer for listen only with error ${error.message}`);
+
     return this.onFail(error);
   }
 
@@ -536,7 +697,10 @@ Kurento.prototype.onOfferListenOnly = function (error, offerSdp) {
     internalMeetingId: self.internalMeetingId,
   };
 
-  this.logger.debug('[onOfferListenOnly]', { message });
+  this.logger.info({
+    logCode: 'kurentoextension_listenonly_request_start',
+    extraInfo: { sfuRequest: message },
+  }, "Listen only offer generated. Sending start request to SFU");
   this.sendMessage(message);
 };
 
@@ -559,8 +723,12 @@ Kurento.prototype.resumeTrack = function (message) {
 };
 
 Kurento.prototype.addIceServers = function (iceServers, options) {
-  this.logger.debug('Adding iceServers', iceServers);
   if (iceServers && iceServers.length > 0) {
+    this.logger.debug({
+      logCode: 'kurentoextension_add_iceservers',
+      extraInfo: { iceServers }
+    }, `Injecting ICE servers into peer creation`);
+
     options.configuration = {};
     options.configuration.iceServers = iceServers;
   }
@@ -594,28 +762,18 @@ Kurento.prototype.ping = function () {
 
 Kurento.prototype.sendMessage = function (message) {
   const jsonMessage = JSON.stringify(message);
-  this.logger.info('Sending message:', { message });
   this.ws.send(jsonMessage);
 };
-
-Kurento.prototype.logger = function (obj) {
-  this.logger.info(obj);
-};
-
-Kurento.prototype.logError = function (obj) {
-  this.logger.error(obj);
-};
-
 
 Kurento.normalizeCallback = function (callback) {
   if (typeof callback === 'function') {
     return callback;
   }
-  this.logger.info(document.getElementById('BigBlueButton')[callback]);
   return function (args) {
     document.getElementById('BigBlueButton')[callback](args);
   };
 };
+
 
 /* Global methods */
 
@@ -682,7 +840,6 @@ window.getScreenConstraints = function (sendSource, callback) {
     screenConstraints.video.chromeMediaSourceId = sourceId;
     screenConstraints.optional = optionalConstraints;
 
-    console.log('getScreenConstraints for Chrome returns => ', screenConstraints);
     return callback(null, screenConstraints);
   }
 
@@ -709,7 +866,6 @@ window.getScreenConstraints = function (sendSource, callback) {
         screenConstraints.video.mandatory.chromeMediaSourceId = sourceId;
         screenConstraints.optional = optionalConstraints;
 
-        console.log('getScreenConstraints for Chrome returns => ', screenConstraints);
         return callback(null, screenConstraints);
       });
     } else {
@@ -720,19 +876,12 @@ window.getScreenConstraints = function (sendSource, callback) {
   if (isFirefox) {
     const firefoxScreenshareSource = kurentoManager.getFirefoxScreenshareSource();
     screenConstraints.video.mediaSource = firefoxScreenshareSource;
-
-    console.log('getScreenConstraints for Firefox returns => ', screenConstraints);
     return callback(null, screenConstraints);
   }
 
   // Falls back to getDisplayMedia if the browser supports it
   if (hasDisplayMedia) {
     return callback(null, getDisplayMediaConstraints());
-  }
-
-  if (isSafari) {
-    // At this time (version 11.1), Safari doesn't support screenshare.
-    return document.dispatchEvent(new Event('safariScreenshareNotSupported'));
   }
 };
 
@@ -772,41 +921,3 @@ window.kurentoExitAudio = function () {
   window.kurentoInitialize();
   window.kurentoManager.exitAudio();
 };
-
-// a function to check whether the browser (Chrome only) is in an isIncognito
-// session. Requires 1 mandatory callback that only gets called if the browser
-// session is incognito. The callback for not being incognito is optional.
-// Attempts to retrieve the chrome filesystem API.
-/* window.checkIfIncognito = function(isIncognito, isNotIncognito = function () {}) {
-  isIncognito = Kurento.normalizeCallback(isIncognito);
-  isNotIncognito = Kurento.normalizeCallback(isNotIncognito);
-
-  var fs = window.RequestFileSystem || window.webkitRequestFileSystem;
-  if (!fs) {
-    isNotIncognito();
-    return;
-  }
-  fs(window.TEMPORARY, 100, function(){isNotIncognito()}, function(){isIncognito()});
-};
-
-window.checkChromeExtInstalled = function (callback, chromeExtensionId) {
-  callback = Kurento.normalizeCallback(callback);
-
-  if (typeof chrome === "undefined" || !chrome || !chrome.runtime) {
-    // No API, so no extension for sure
-    callback(false);
-    return;
-  }
-  chrome.runtime.sendMessage(
-    chromeExtensionId,
-    { getVersion: true },
-    function (response) {
-      if (!response || !response.version) {
-        // Communication failure - assume that no endpoint exists
-        callback(false);
-        return;
-      }
-      callback(true);
-    }
-  );
-} */

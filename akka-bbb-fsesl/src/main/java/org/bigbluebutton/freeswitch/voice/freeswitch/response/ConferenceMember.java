@@ -32,6 +32,11 @@ public class ConferenceMember {
     protected String callerId;
     protected Integer joinTime;
     protected Integer lastTalking;
+    protected String memberType;
+
+    // For recording
+    protected String recordPath;
+    protected Long recordStartTime;
 
     public Integer getId() {
         return memberId;
@@ -69,6 +74,10 @@ public class ConferenceMember {
         this.uuid = tempVal;
     }
 
+    public String getUUID() {
+        return uuid;
+    }
+
     public void setCallerIdName(String tempVal) {
         this.callerIdName = tempVal;
     }
@@ -85,4 +94,27 @@ public class ConferenceMember {
         this.lastTalking = parseInt;
     }
 
+    public void setMemberType(String memberType) {
+        this.memberType = memberType;
+    }
+
+    public String getMemberType() {
+        return memberType;
+    }
+
+    public void setRecordPath(String path) {
+        this.recordPath = path;
+    }
+
+    public String getRecordPath() {
+        return recordPath;
+    }
+
+    public void setRecordStartTime(Long recordStartTime) {
+        this.recordStartTime = recordStartTime;
+    }
+
+    public Long getRecordStartTime() {
+        return recordStartTime;
+    }
 }

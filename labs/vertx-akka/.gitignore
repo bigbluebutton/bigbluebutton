@@ -49,3 +49,5 @@ lib_managed/
 bin/
 .vertx/
 target/
+src/main/resources/
+

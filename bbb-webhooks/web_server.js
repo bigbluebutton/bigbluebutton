@@ -2,10 +2,11 @@ const _ = require("lodash");
 const express = require("express");
 const url = require("url");
 
-const config = require("./config.js");
+const config = require("config");
 const Hook = require("./hook.js");
 const Logger = require("./logger.js");
 const Utils = require("./utils.js");
+const responses = require("./responses.js")
 
 // Web server that listens for API calls and process them.
 module.exports = class WebServer {
@@ -56,16 +57,16 @@ module.exports = class WebServer {
     }
 
     if (callbackURL == null) {
-      respondWithXML(res, config.api.responses.missingParamCallbackURL);
+      respondWithXML(res, responses.missingParamCallbackURL);
     } else {
       Hook.addSubscription(callbackURL, meetingID, getRaw, function(error, hook) {
         let msg;
         if (error != null) { // the only error for now is for duplicated callbackURL
-          msg = config.api.responses.createDuplicated(hook.id);
+          msg = responses.createDuplicated(hook.id);
         } else if (hook != null) {
-          msg = config.api.responses.createSuccess(hook.id, hook.permanent, hook.getRaw);
+          msg = responses.createSuccess(hook.id, hook.permanent, hook.getRaw);
         } else {
-          msg = config.api.responses.createFailure;
+          msg = responses.createFailure;
         }
         respondWithXML(res, msg);
       });
@@ -73,8 +74,8 @@ module.exports = class WebServer {
   }
   // Create a permanent hook. Permanent hooks can't be deleted via API and will try to emit a message until it succeed
   createPermanents(callback) {
-    for (let i = 0; i < config.hooks.permanentURLs.length; i++) {
-      Hook.addSubscription(config.hooks.permanentURLs[i].url, null, config.hooks.permanentURLs[i].getRaw, function(error, hook) {
+    for (let i = 0; i < config.get("hooks.permanentURLs").length; i++) {
+      Hook.addSubscription(config.get("hooks.permanentURLs")[i].url, null, config.get("hooks.permanentURLs")[i].getRaw, function(error, hook) {
         if (error != null) { // there probably won't be any errors here
           Logger.info("[WebServer] duplicated permanent hook", error);
         } else if (hook != null) {
@@ -92,16 +93,16 @@ module.exports = class WebServer {
     const hookID = urlObj.query["hookID"];
 
     if (hookID == null) {
-      respondWithXML(res, config.api.responses.missingParamHookID);
+      respondWithXML(res, responses.missingParamHookID);
     } else {
       Hook.removeSubscription(hookID, function(error, result) {
         let msg;
         if (error != null) {
-          msg = config.api.responses.destroyFailure;
+          msg = responses.destroyFailure;
         } else if (!result) {
-          msg = config.api.responses.destroyNoHook;
+          msg = responses.destroyNoHook;
         } else {
-          msg = config.api.responses.destroySuccess;
+          msg = responses.destroySuccess;
         }
         respondWithXML(res, msg);
       });
@@ -144,14 +145,14 @@ module.exports = class WebServer {
   _validateChecksum(req, res, next) {
     const urlObj = url.parse(req.url, true);
     const checksum = urlObj.query["checksum"];
-    const sharedSecret = process.env.SHARED_SECRET || config.bbb.sharedSecret;
+    const sharedSecret = config.get("bbb.sharedSecret");
 
     if (checksum === Utils.checksumAPI(req.url, sharedSecret)) {
       next();
     } else {
       Logger.info("[WebServer] checksum check failed, sending a checksumError response");
       res.setHeader("Content-Type", "text/xml");
-      res.send(cleanupXML(config.api.responses.checksumError));
+      res.send(cleanupXML(responses.checksumError));
     }
   }
 };

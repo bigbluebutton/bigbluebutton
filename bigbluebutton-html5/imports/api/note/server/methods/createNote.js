@@ -1,20 +1,14 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import {
-  generateNoteId, createPadURL, getReadOnlyIdURL, isEnabled,
+  generateNoteId,
+  createPadURL,
+  getReadOnlyIdURL,
+  isEnabled,
+  getDataFromResponse,
 } from '/imports/api/note/server/helpers';
 import addNote from '/imports/api/note/server/modifiers/addNote';
 import axios from 'axios';
-
-const getDataFromResponse = (data, key) => {
-  if (data) {
-    const innerData = data.data;
-    if (innerData && innerData[key]) {
-      return innerData[key];
-    }
-  }
-  return null;
-};
 
 export default function createNote(meetingId) {
   // Avoid note creation if this feature is disabled

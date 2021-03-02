@@ -3,16 +3,20 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
+import AuthTokenValidation from '/imports/api/auth-token-validation';
 import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
 import { notify } from '/imports/ui/services/notification';
-import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
+import CaptionsContainer from '/imports/ui/components/captions/container';
+import CaptionsService from '/imports/ui/components/captions/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-
+import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
+import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
+import logger from '/imports/startup/client/logger';
 
 import {
   getFontSize,
-  getCaptionsStatus,
   getBreakoutRooms,
   validIOSVersion,
 } from './service';
@@ -66,23 +70,35 @@ const AppContainer = (props) => {
   );
 };
 
+const currentUserEmoji = currentUser => (currentUser ? {
+  status: currentUser.emoji,
+  changedAt: currentUser.emojiTime,
+} : {
+    status: 'none',
+    changedAt: null,
+  });
+
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
-  const currentUser = Users.findOne({ userId: Auth.userID });
+  const authTokenValidation = AuthTokenValidation.findOne({}, { sort: { updatedAt: -1 } });
+
+  if (authTokenValidation.connectionId !== Meteor.connection._lastSessionId) {
+    endMeeting('403');
+  }
+
+  Users.find({ userId: Auth.userID, meetingId: Auth.meetingID }).observe({
+    removed() {
+      endMeeting('403');
+    },
+  });
+
+  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { approved: 1, emoji: 1, userId: 1 } });
+  const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
+    { fields: { publishedPoll: 1, voiceProp: 1, randomlySelectedUser: 1 } });
+  const { publishedPoll, voiceProp, randomlySelectedUser } = currentMeeting;
 
   if (!currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
   }
-
-  // Check if user is removed out of the session
-  Users.find({ userId: Auth.userID }).observeChanges({
-    changed(id, fields) {
-      const hasNewConnection = 'connectionId' in fields && (fields.connectionId !== Meteor.connection._lastSessionId);
-
-      if (fields.ejected || hasNewConnection) {
-        endMeeting('403');
-      }
-    },
-  });
 
   const UserInfo = UserInfos.find({
     meetingId: Auth.meetingID,
@@ -90,18 +106,24 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   }).fetch();
 
   return {
-    closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
+    captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
     fontSize: getFontSize(),
     hasBreakoutRooms: getBreakoutRooms().length > 0,
-    customStyle: getFromUserSettings('customStyle', false),
-    customStyleUrl: getFromUserSettings('customStyleUrl', false),
-    breakoutRoomIsOpen: Session.equals('openPanel', 'breakoutroom'),
-    chatIsOpen: Session.equals('openPanel', 'chat'),
+    customStyle: getFromUserSettings('bbb_custom_style', false),
+    customStyleUrl: getFromUserSettings('bbb_custom_style_url', false),
     openPanel: Session.get('openPanel'),
-    userListIsOpen: !Session.equals('openPanel', ''),
     UserInfo,
     notify,
     validIOSVersion,
+    isPhone: deviceInfo.type().isPhone,
+    isRTL: document.documentElement.getAttribute('dir') === 'rtl',
+    meetingMuted: voiceProp.muteOnStart,
+    currentUserEmoji: currentUserEmoji(currentUser),
+    hasPublishedPoll: publishedPoll,
+    startBandwidthMonitoring,
+    handleNetworkConnection: () => updateNavigatorConnection(navigator.connection),
+    randomlySelectedUser,
+    currentUserId: currentUser.userId,
   };
 })(AppContainer)));
 

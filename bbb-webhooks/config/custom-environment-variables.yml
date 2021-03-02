@@ -1,0 +1,14 @@
+bbb:
+  serverDomain: SERVER_DOMAIN
+  sharedSecret: SHARED_SECRET
+  auth2_0: BEARER_AUTH
+hooks:
+  permanentURLs:
+    __name: PERMANENT_HOOKS
+    __format: json
+  requestTimeout:
+    __name: REQUEST_TIMEOUT
+    __format: json
+redis:
+  host: REDIS_HOST
+  port: REDIS_PORT

@@ -39,7 +39,7 @@ module BigBlueButton
     # Determine the number pages in a presentation.
     def self.get_number_of_pages_for(presentation_dir)
       BigBlueButton.logger.info("Task: Getting number of pages in presentation")      
-      Dir.glob("#{presentation_dir}/*.swf").size
+      Dir.glob("#{presentation_dir}/thumbnails/*.png").size
     end
 
     # Extract a page from a pdf file as a png image

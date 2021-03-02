@@ -44,7 +44,7 @@ object MsgBuilder {
     val envelope = BbbCoreEnvelope(GetGuestsWaitingApprovalRespMsg.NAME, routing)
     val header = BbbClientMsgHeader(GetGuestsWaitingApprovalRespMsg.NAME, meetingId, userId)
 
-    val guestsWaiting = guests.map(g => GuestWaitingVO(g.intId, g.name, g.role, g.guest, g.authenticated))
+    val guestsWaiting = guests.map(g => GuestWaitingVO(g.intId, g.name, g.role, g.guest, g.avatar, g.authenticated, g.registeredOn))
     val body = GetGuestsWaitingApprovalRespMsgBody(guestsWaiting)
     val event = GetGuestsWaitingApprovalRespMsg(header, body)
 
@@ -56,7 +56,7 @@ object MsgBuilder {
     val envelope = BbbCoreEnvelope(GuestsWaitingForApprovalEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(GuestsWaitingForApprovalEvtMsg.NAME, meetingId, userId)
 
-    val guestsWaiting = guests.map(g => GuestWaitingVO(g.intId, g.name, g.role, g.guest, g.authenticated))
+    val guestsWaiting = guests.map(g => GuestWaitingVO(g.intId, g.name, g.role, g.guest, g.avatar, g.authenticated, g.registeredOn))
     val body = GuestsWaitingForApprovalEvtMsgBody(guestsWaiting)
     val event = GuestsWaitingForApprovalEvtMsg(header, body)
 
@@ -74,11 +74,11 @@ object MsgBuilder {
   }
 
   def buildValidateAuthTokenRespMsg(meetingId: String, userId: String, authToken: String,
-                                    valid: Boolean, waitForApproval: Boolean): BbbCommonEnvCoreMsg = {
+                                    valid: Boolean, waitForApproval: Boolean, registeredOn: Long, authTokenValidatedOn: Long): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
     val envelope = BbbCoreEnvelope(ValidateAuthTokenRespMsg.NAME, routing)
     val header = BbbClientMsgHeader(ValidateAuthTokenRespMsg.NAME, meetingId, userId)
-    val body = ValidateAuthTokenRespMsgBody(userId, authToken, valid, waitForApproval)
+    val body = ValidateAuthTokenRespMsgBody(userId, authToken, valid, waitForApproval, registeredOn, authTokenValidatedOn)
     val event = ValidateAuthTokenRespMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
@@ -208,6 +208,16 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildGuestWaitingLeftEvtMsg(meetingId: String, userId: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(GuestWaitingLeftEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(GuestWaitingLeftEvtMsg.NAME, meetingId, userId)
+    val body = GuestWaitingLeftEvtMsgBody(userId)
+    val event = GuestWaitingLeftEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildUserLeftMeetingEvtMsg(meetingId: String, userId: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
     val envelope = BbbCoreEnvelope(UserLeftMeetingEvtMsg.NAME, routing)
@@ -286,6 +296,24 @@ object MsgBuilder {
     val header = BbbCoreHeaderWithMeetingId(RecordingChapterBreakSysMsg.NAME, meetingId)
     val event = RecordingChapterBreakSysMsg(header, body)
 
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildLastcheckVoiceConfUsersStatus(meetingId: String, voiceConf: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(GetUsersStatusToVoiceConfSysMsg.NAME, routing)
+    val header = BbbCoreHeaderWithMeetingId(GetUsersStatusToVoiceConfSysMsg.NAME, meetingId)
+    val body = GetUsersStatusToVoiceConfSysMsgBody(voiceConf, meetingId)
+    val event = GetUsersStatusToVoiceConfSysMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildCheckRunningAndRecordingToVoiceConfSysMsg(meetingId: String, voiceConf: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(CheckRunningAndRecordingToVoiceConfSysMsg.NAME, routing)
+    val header = BbbCoreHeaderWithMeetingId(CheckRunningAndRecordingToVoiceConfSysMsg.NAME, meetingId)
+    val body = CheckRunningAndRecordingToVoiceConfSysMsgBody(voiceConf, meetingId)
+    val event = CheckRunningAndRecordingToVoiceConfSysMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
 

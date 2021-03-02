@@ -1,4 +1,5 @@
-@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/breakpoints";
+@import "/imports/ui/stylesheets/variables/placeholders";
 @import "/imports/ui/stylesheets/mixins/_scrollable";
 
 input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button {
@@ -27,7 +28,7 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
   grid-template-columns: 2fr 2fr 1fr; 
   grid-template-rows: 1fr;
   grid-gap: 1rem;
-  margin-bottom: 1rem;
+
   @include mq($small-only) {
     grid-template-columns: 1fr ;
     grid-template-rows: 1fr 1fr 1fr; 
@@ -36,8 +37,7 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 }
 
 .content {
-  display: flex;
-  flex-direction: column;
+  @extend %flex-column;
 }
 
 .labelText {
@@ -73,7 +73,10 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
   font-size: var(--font-size-large);
   @include mq($small-only) {
     font-size: 2rem;
-    margin-left: .5rem;
+    margin: 0 0 0 .5rem;
+    [dir="rtl"] & {
+      margin: 0 .5rem 0 0;
+    }
   }
 }
 
@@ -87,8 +90,12 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
   color: var(--color-primary);
   font-size: var(--font-size-small);
   white-space: nowrap;
-  margin-right: auto;
+  margin: 0 auto 0 0;
   align-self: flex-end;
+
+  [dir="rtl"] & {
+    margin: 0 0 0 auto;
+  }
 }
 
 .freeJoinCheckbox {
@@ -101,16 +108,21 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
   align-items: center;
   font-size: var(--font-size-small);
   & > * {
-    margin-right: .5rem;
+    margin: 0 .5rem 0 0;
+
+    [dir="rtl"] & {
+      margin: 0 0 0 .5rem;
+    }
   }
 }
 
 .boxContainer {
-  height: 50vh;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 33% 33% 33%;
+  grid-template-columns: repeat(3, minmax(4rem, 16rem));
+  grid-template-rows: repeat(auto-fill, minmax(4rem, 8rem));
   grid-gap: 1.5rem 1rem;
+  box-sizing: border-box;
+  padding-bottom: 1rem;
 }
 
 .changeToWarn {
@@ -149,16 +161,17 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 }
 
 .roomUserItem {
-  width: 11rem;
-  margin: 0;
-  padding-top: .25rem;
-  padding-bottom: .25rem;
-  padding-left: .25rem;
-  margin-right: 0;
+  @extend %no-margin;
+  padding: .25rem 0 .25rem .25rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: pointer;
+  border-bottom: solid .5px var(--color-gray-lighter);
+
+  [dir="rtl"] & {
+    padding: .25rem .25rem .25rem 0;
+  }
 }
 
 .selectedItem {
@@ -169,14 +182,13 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 /* mobile */
 
 .listContainer {
-  display: flex;
+  @extend %flex-column;
   justify-content: flex-start;
-  flex-direction: column;
 }
 
 .itemTitle {
+  @extend %no-margin;
   color: var(--color-blue-light);
-  margin: 0;
 }
 
 .roomItem {
@@ -254,15 +266,29 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
     cursor: pointer;
     height: 28px;
     left: 0;
+    right : auto;
     position: absolute;
     top: 0;
     width: 28px;
+
+    [dir="rtl"] & {
+      left : auto;
+      right: 0;
+    }
   }
 
   & label:after {
-    border: 2px solid #fff;
-    border-top: none;
-    border-right: none;
+    border: {
+      style: solid;
+      color:  #fff;
+      width: 2px;
+      right: {
+        style : none;
+      }
+      top: {
+        style: none;
+      }
+    }
     content: "";
     height: 6px;
     left: 7px;
@@ -271,6 +297,20 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
     top: 8px;
     transform: rotate(-45deg);
     width: 12px;
+
+    [dir="rtl"] & {
+      border: {
+        style: solid;
+        color:  #fff;
+        width: 2px;
+        left: {
+          style : none;
+        }
+        top: {
+          style: none;
+        }
+      }
+    }
   }
 
   & input[type="checkbox"] {
@@ -292,6 +332,34 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 }
 
 .checkBoxesContainer {
-  display: flex;
-  flex-direction: row;
+  @extend %flex-row;
+  margin-top: 1rem;
+}
+
+.withError {
+  color: var(--color-danger);
+}
+
+.errorBorder {
+  border-color: var(--color-danger) !important;
+}
+
+.disableItem {
+  cursor: not-allowed;
+  color: var(--color-gray-lighter);
+}
+
+.lockIcon {
+  float: right;
+  margin-right: 1rem;
+  @include mq($small-only) {
+    margin-left: .5rem;
+    margin-right: auto;
+    float: left;
+  }
+  &:after {
+    font-family: 'bbb-icons';
+    content: "\E926";
+    color: var(--color-gray-light);
+  }
 }

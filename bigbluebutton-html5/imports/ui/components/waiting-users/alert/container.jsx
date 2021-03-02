@@ -25,10 +25,12 @@ export default withTracker(() => {
   }).fetch();
   const managementPanelIsOpen = Session.get('openPanel') === 'waitingUsersPanel';
 
+  const currentUser = Users.findOne({ userId: Auth.userID },
+    { fields: { role: 1, loginTime: 1 } });
   return {
     managementPanelIsOpen,
     pendingUsers,
-    currentUserIsModerator: Users.findOne({ userId: Auth.userID }).role === ROLE_MODERATOR,
-    joinTime: Users.findOne({ userId: Auth.userID }).loginTime,
+    currentUserIsModerator: currentUser.role === ROLE_MODERATOR,
+    joinTime: currentUser.loginTime,
   };
 })(WaitingContainer);

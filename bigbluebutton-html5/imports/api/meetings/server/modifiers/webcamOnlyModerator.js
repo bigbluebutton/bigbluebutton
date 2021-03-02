@@ -2,7 +2,6 @@ import Logger from '/imports/startup/server/logger';
 import Meetings from '/imports/api/meetings';
 import { check } from 'meteor/check';
 
-
 export default function changeWebcamOnlyModerator(meetingId, payload) {
   check(meetingId, String);
   check(payload, {
@@ -21,17 +20,15 @@ export default function changeWebcamOnlyModerator(meetingId, payload) {
     },
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Changwing meeting={${meetingId}} webcam Only for Moderator: ${err}`);
+  try {
+    const { numberAffected } = Meetings.upsert(selector, modifier);
+
+    if (numberAffected) {
+      Logger.info(`Changed meeting={${meetingId}} updated webcam Only for Moderator`);
+    } else {
+      Logger.info(`meeting={${meetingId}} webcam Only for Moderator were not updated`);
     }
-
-    if (!numChanged) {
-      return Logger.info(`meeting={${meetingId}} webcam Only for Moderator were not updated`);
-    }
-
-    return Logger.info(`Changed meeting={${meetingId}} updated webcam Only for Moderator`);
-  };
-
-  return Meetings.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Changwing meeting={${meetingId}} webcam Only for Moderator: ${err}`);
+  }
 }

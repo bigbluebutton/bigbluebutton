@@ -2,10 +2,10 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
     <title>Error</title>
-    <asset:stylesheet src="bootstrap.css"/>
-    <asset:stylesheet src="tool.css"/>
-    <asset:javascript src="jquery.js"/>
-    <asset:javascript src="bootstrap.js"/>
+    <asset:stylesheet src="/lti/${assetPath(src: 'bootstrap.css')}"/>
+    <asset:stylesheet src="/lti/${assetPath(src: 'tool.css')}"/>
+    <asset:javascript src="/lti/${assetPath(src: 'jquery.js')}"/>
+    <asset:javascript src="/lti/${assetPath(src: 'bootstrap.js')}"/>
   </head>
   <body>
     <div class="body">

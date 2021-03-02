@@ -9,6 +9,7 @@ class PresentationPodHdlrs(implicit val context: ActorContext)
   with GetAllPresentationPodsReqMsgHdlr
   with SetCurrentPresentationPubMsgHdlr
   with PresentationConversionCompletedSysPubMsgHdlr
+  with PdfConversionInvalidErrorSysPubMsgHdlr
   with SetCurrentPagePubMsgHdlr
   with SetPresenterInPodReqMsgHdlr
   with RemovePresentationPubMsgHdlr
@@ -19,7 +20,10 @@ class PresentationPodHdlrs(implicit val context: ActorContext)
   with PresentationUploadTokenReqMsgHdlr
   with ResizeAndMovePagePubMsgHdlr
   with SyncGetPresentationPodsMsgHdlr
-  with RemovePresentationPodPubMsgHdlr {
+  with RemovePresentationPodPubMsgHdlr
+  with PresentationPageConvertedSysMsgHdlr
+  with PresentationPageConversionStartedSysMsgHdlr
+  with PresentationConversionEndedSysMsgHdlr {
 
   val log = Logging(context.system, getClass)
 }

@@ -54,6 +54,9 @@ class ReceivedJsonMsgHandlerActor(
       case CheckAlivePingSysMsg.NAME =>
         route[CheckAlivePingSysMsg](meetingManagerChannel, envelope, jsonNode)
 
+      case GetRunningMeetingsReqMsg.NAME =>
+        route[GetRunningMeetingsReqMsg](meetingManagerChannel, envelope, jsonNode)
+
       case CreateMeetingReqMsg.NAME =>
         route[CreateMeetingReqMsg](meetingManagerChannel, envelope, jsonNode)
       case ValidateAuthTokenReqMsg.NAME =>
@@ -82,6 +85,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetGuestsWaitingApprovalReqMsg](envelope, jsonNode)
       case GuestsWaitingApprovedMsg.NAME =>
         routeGenericMsg[GuestsWaitingApprovedMsg](envelope, jsonNode)
+      case GuestWaitingLeftMsg.NAME =>
+        routeGenericMsg[GuestWaitingLeftMsg](envelope, jsonNode)
       case SetGuestPolicyCmdMsg.NAME =>
         routeGenericMsg[SetGuestPolicyCmdMsg](envelope, jsonNode)
       case GetGuestPolicyReqMsg.NAME =>
@@ -98,6 +103,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetPresenterGroupReqMsg](envelope, jsonNode)
       case UserActivitySignCmdMsg.NAME =>
         routeGenericMsg[UserActivitySignCmdMsg](envelope, jsonNode)
+      case SelectRandomViewerReqMsg.NAME =>
+        routeGenericMsg[SelectRandomViewerReqMsg](envelope, jsonNode)
 
       // Poll
       case StartCustomPollReqMsg.NAME =>
@@ -112,6 +119,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetCurrentPollReqMsg](envelope, jsonNode)
       case RespondToPollReqMsg.NAME =>
         routeGenericMsg[RespondToPollReqMsg](envelope, jsonNode)
+      case RespondToTypedPollReqMsg.NAME =>
+        routeGenericMsg[RespondToTypedPollReqMsg](envelope, jsonNode)
 
       // Webcam
       case UserBroadcastCamStartMsg.NAME =>
@@ -148,6 +157,12 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[MuteMeetingCmdMsg](envelope, jsonNode)
       case IsMeetingMutedReqMsg.NAME =>
         routeGenericMsg[IsMeetingMutedReqMsg](envelope, jsonNode)
+      case CheckRunningAndRecordingVoiceConfEvtMsg.NAME =>
+        routeVoiceMsg[CheckRunningAndRecordingVoiceConfEvtMsg](envelope, jsonNode)
+      case UserStatusVoiceConfEvtMsg.NAME =>
+        routeVoiceMsg[UserStatusVoiceConfEvtMsg](envelope, jsonNode)
+      case VoiceConfCallStateEvtMsg.NAME =>
+        routeVoiceMsg[VoiceConfCallStateEvtMsg](envelope, jsonNode)
 
       // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>
@@ -213,8 +228,18 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PresentationPageCountErrorSysPubMsg](envelope, jsonNode)
       case PresentationPageGeneratedSysPubMsg.NAME =>
         routeGenericMsg[PresentationPageGeneratedSysPubMsg](envelope, jsonNode)
+      case PresentationPageConvertedSysMsg.NAME =>
+        routeGenericMsg[PresentationPageConvertedSysMsg](envelope, jsonNode)
+      case PresentationPageConversionStartedSysMsg.NAME =>
+        routeGenericMsg[PresentationPageConversionStartedSysMsg](envelope, jsonNode)
+      case PresentationConversionEndedSysMsg.NAME =>
+        routeGenericMsg[PresentationConversionEndedSysMsg](envelope, jsonNode)
+      case PresentationConversionRequestReceivedSysMsg.NAME =>
+        routeGenericMsg[PresentationConversionRequestReceivedSysMsg](envelope, jsonNode)
       case PresentationConversionCompletedSysPubMsg.NAME =>
         routeGenericMsg[PresentationConversionCompletedSysPubMsg](envelope, jsonNode)
+      case PdfConversionInvalidErrorSysPubMsg.NAME =>
+        routeGenericMsg[PdfConversionInvalidErrorSysPubMsg](envelope, jsonNode)
       case AssignPresenterReqMsg.NAME =>
         routeGenericMsg[AssignPresenterReqMsg](envelope, jsonNode)
 
@@ -234,20 +259,6 @@ class ReceivedJsonMsgHandlerActor(
       case SendCaptionHistoryReqMsg.NAME =>
         routeGenericMsg[SendCaptionHistoryReqMsg](envelope, jsonNode)
 
-      // Shared notes
-      case GetSharedNotesPubMsg.NAME =>
-        routeGenericMsg[GetSharedNotesPubMsg](envelope, jsonNode)
-      case SyncSharedNotePubMsg.NAME =>
-        routeGenericMsg[SyncSharedNotePubMsg](envelope, jsonNode)
-      case ClearSharedNotePubMsg.NAME =>
-        routeGenericMsg[ClearSharedNotePubMsg](envelope, jsonNode)
-      case UpdateSharedNoteReqMsg.NAME =>
-        routeGenericMsg[UpdateSharedNoteReqMsg](envelope, jsonNode)
-      case CreateSharedNoteReqMsg.NAME =>
-        routeGenericMsg[CreateSharedNoteReqMsg](envelope, jsonNode)
-      case DestroySharedNoteReqMsg.NAME =>
-        routeGenericMsg[DestroySharedNoteReqMsg](envelope, jsonNode)
-
       // Chat
       case GetChatHistoryReqMsg.NAME =>
         routeGenericMsg[GetChatHistoryReqMsg](envelope, jsonNode)
@@ -263,8 +274,6 @@ class ReceivedJsonMsgHandlerActor(
       // Meeting
       case EndMeetingSysCmdMsg.NAME =>
         routeGenericMsg[EndMeetingSysCmdMsg](envelope, jsonNode)
-      case MeetingActivityResponseCmdMsg.NAME =>
-        routeGenericMsg[MeetingActivityResponseCmdMsg](envelope, jsonNode)
       case LogoutAndEndMeetingCmdMsg.NAME =>
         routeGenericMsg[LogoutAndEndMeetingCmdMsg](envelope, jsonNode)
       case SetRecordingStatusCmdMsg.NAME =>

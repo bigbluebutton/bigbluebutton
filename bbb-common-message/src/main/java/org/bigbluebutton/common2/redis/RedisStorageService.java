@@ -19,8 +19,10 @@
 
 package org.bigbluebutton.common2.redis;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +31,7 @@ import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
+import org.apache.commons.codec.digest.DigestUtils;
 
 public class RedisStorageService extends RedisAwareCommunicator {
 
@@ -54,6 +57,37 @@ public class RedisStorageService extends RedisAwareCommunicator {
         connection.close();
         redisClient.shutdown();
         log.info("RedisStorageService Stopped");
+    }
+
+    public String generateSingleUseCaptionToken(String recordId, String caption, Long expirySeconds) {
+        Map<String, String> data = new HashMap<String, String>();
+        data.put("recordId", recordId);
+        data.put("caption", caption);
+
+        String token = DigestUtils.sha1Hex(recordId + caption + System.currentTimeMillis());
+        String key = "captions:" + token + ":singleusetoken";
+        RedisCommands<String, String> commands = connection.sync();
+        commands.multi();
+        commands.hmset(key, data);
+        commands.expire(key, expirySeconds);
+        commands.exec();
+
+        return token;
+    }
+
+    public Boolean validateSingleUseCaptionToken(String token, String recordId, String caption) {
+        String key = "captions:" + token + ":singleusetoken";
+        RedisCommands<String, String> commands = connection.sync();
+        Boolean keyExist = commands.exists(key) == 1;
+        if (keyExist) {
+            Map <String, String> data = commands.hgetall(key);
+            if (data.get("recordId").equals(recordId) && data.get("caption").equals(caption)) {
+                commands.del(key);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void recordMeetingInfo(String meetingId, Map<String, String> info) {

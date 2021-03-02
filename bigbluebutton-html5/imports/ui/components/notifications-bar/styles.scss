@@ -1,5 +1,3 @@
-@import "../../stylesheets/variables/_all";
-
 :root {
   --nb-default-color: var(--color-gray);
   --nb-default-bg: var(--color-white);
@@ -31,6 +29,17 @@
   color: $color;
   background-color: $background;
   border-color: $border;
+}
+
+.retryButton {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  display: inline;
+  margin: 0;
+  padding: 0;
+  color: var(--nb-primary-color);
 }
 
 .default {

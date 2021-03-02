@@ -1,13 +1,12 @@
-import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import { CursorStreamer } from '/imports/api/cursor';
 import { throttle } from 'lodash';
+import logger from '/imports/startup/client/logger';
 
 const Cursor = new Mongo.Collection(null);
+let cursorStreamListener = null;
 
-function updateCursor(meetingId, userId, payload) {
+function updateCursor(userId, payload) {
   const selector = {
-    meetingId,
     userId,
     whiteboardId: payload.whiteboardId,
   };
@@ -15,7 +14,6 @@ function updateCursor(meetingId, userId, payload) {
   const modifier = {
     $set: {
       userId,
-      meetingId,
       ...payload,
     },
   };
@@ -23,22 +21,51 @@ function updateCursor(meetingId, userId, payload) {
   return Cursor.upsert(selector, modifier);
 }
 
-CursorStreamer.on('message', ({ meetingId, cursors }) => {
-  Object.keys(cursors).forEach((userId) => {
-    if (Auth.meetingID === meetingId && Auth.userID === userId) return;
-    updateCursor(meetingId, userId, cursors[userId]);
-  });
-});
-
-const throttledEmit = throttle(CursorStreamer.emit.bind(CursorStreamer), 30, { trailing: true });
-
 export function publishCursorUpdate(payload) {
-  throttledEmit('publish', {
-    credentials: Auth.credentials,
-    payload,
+  if (cursorStreamListener) {
+    const throttledEmit = throttle(cursorStreamListener.emit.bind(cursorStreamListener), 30, { trailing: true });
+
+    throttledEmit('publish', {
+      userId: Auth.userID,
+      payload,
+    });
+  }
+
+  return updateCursor(Auth.userID, payload);
+}
+
+export function initCursorStreamListener() {
+  logger.info({ logCode: 'init_cursor_stream_listener' }, 'initCursorStreamListener called');
+
+  /**
+  * We create a promise to add the handlers after a ddp subscription stop.
+  * The problem was caused because we add handlers to stream before the onStop event happens,
+  * which set the handlers to undefined.
+  */
+  cursorStreamListener = new Meteor.Streamer(`cursor-${Auth.meetingID}`, { retransmit: false });
+
+  const startStreamHandlersPromise = new Promise((resolve) => {
+    const checkStreamHandlersInterval = setInterval(() => {
+      const streamHandlersSize = Object.values(Meteor.StreamerCentral.instances[`cursor-${Auth.meetingID}`].handlers)
+        .filter(el => el != undefined)
+        .length;
+
+      if (!streamHandlersSize) {
+        resolve(clearInterval(checkStreamHandlersInterval));
+      }
+    }, 250);
   });
 
-  return updateCursor(Auth.meetingID, Auth.userID, payload);
+  startStreamHandlersPromise.then(() => {
+    logger.debug({ logCode: 'cursor_stream_handler_attach' }, 'Attaching handlers for cursor stream');
+
+    cursorStreamListener.on('message', ({ cursors }) => {
+      Object.keys(cursors).forEach((userId) => {
+        if (Auth.userID === userId) return;
+        updateCursor(userId, cursors[userId]);
+      });
+    });
+  });
 }
 
 export default Cursor;

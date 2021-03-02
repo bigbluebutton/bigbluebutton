@@ -9,6 +9,7 @@ const SUPPORTED_DOCUMENT_KEY = 'SUPPORTED_DOCUMENT';
 const UNSUPPORTED_DOCUMENT_KEY = 'UNSUPPORTED_DOCUMENT';
 const PAGE_COUNT_FAILED_KEY = 'PAGE_COUNT_FAILED';
 const PAGE_COUNT_EXCEEDED_KEY = 'PAGE_COUNT_EXCEEDED';
+const PDF_HAS_BIG_PAGE_KEY = 'PDF_HAS_BIG_PAGE';
 const GENERATED_SLIDE_KEY = 'GENERATED_SLIDE';
 // const GENERATING_THUMBNAIL_KEY = 'GENERATING_THUMBNAIL';
 // const GENERATED_THUMBNAIL_KEY = 'GENERATED_THUMBNAIL';
@@ -47,6 +48,7 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
     case OFFICE_DOC_CONVERSION_INVALID_KEY:
     case PAGE_COUNT_FAILED_KEY:
     case PAGE_COUNT_EXCEEDED_KEY:
+    case PDF_HAS_BIG_PAGE_KEY:
       statusModifier.id = presentationId;
       statusModifier.name = presentationName;
       statusModifier['conversion.error'] = true;
@@ -71,18 +73,15 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
     $set: Object.assign({ meetingId, podId }, statusModifier),
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Updating conversion status presentation to collection: ${err}`);
-    }
+  try {
+    const { insertedId } = Presentations.upsert(selector, modifier);
 
-    const { insertedId } = numChanged;
     if (insertedId) {
-      return Logger.info(`Updated presentation conversion status=${status} id=${presentationId} meeting=${meetingId}`);
+      Logger.info(`Updated presentation conversion status=${status} id=${presentationId} meeting=${meetingId}`);
+    } else {
+      Logger.debug('Upserted presentation conversion', { status, presentationId, meetingId });
     }
-
-    return Logger.debug(`Upserted presentation conversion status=${status} id=${presentationId} meeting=${meetingId}`);
-  };
-
-  return Presentations.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Updating conversion status presentation to collection: ${err}`);
+  }
 }

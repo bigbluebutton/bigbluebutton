@@ -17,7 +17,7 @@ object ClientActor {
 }
 
 class ClientActor(clientId: String, connEventBus: InternalMessageBus)
-    extends Actor with ActorLogging with SystemConfiguration {
+  extends Actor with ActorLogging with SystemConfiguration {
 
   private val conns = new Connections
   private var authorized = false

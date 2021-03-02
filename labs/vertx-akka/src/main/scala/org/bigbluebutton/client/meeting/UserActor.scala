@@ -10,27 +10,31 @@ import com.fasterxml.jackson.databind.JsonNode
 import scala.util.{ Failure, Success }
 
 object UserActor {
-  def props(userId: String,
-    connEventBus: InternalMessageBus,
-    meetingId: String): Props =
+  def props(
+      userId:       String,
+      connEventBus: InternalMessageBus,
+      meetingId:    String
+  ): Props =
     Props(classOf[UserActor], userId, connEventBus, meetingId)
 }
 
-class UserActor(val userId: String,
-  connEventBus: InternalMessageBus,
-  meetingId: String)
-    extends Actor with ActorLogging with SystemConfiguration {
+class UserActor(
+    val userId:   String,
+    connEventBus: InternalMessageBus,
+    meetingId:    String
+)
+  extends Actor with ActorLogging with SystemConfiguration {
 
   private val conns = new Connections
   private var authorized = false
 
   def receive = {
 
-    case msg: ClientConnectedMsg => handleConnectMsg(msg)
+    case msg: ClientConnectedMsg    => handleConnectMsg(msg)
     case msg: ClientDisconnectedMsg => handleDisconnectMsg(msg)
-    case msg: MsgFromClientMsg => handleMsgFromClientMsg(msg, true)
+    case msg: MsgFromClientMsg      => handleMsgFromClientMsg(msg, true)
     case msg: BbbCommonEnvJsNodeMsg => handleBbbServerMsg(msg)
-    case _ => log.debug("***** UserActor cannot handle msg ")
+    case _                          => log.debug("***** UserActor cannot handle msg ")
   }
 
   private def createConnection(id: String, sessionId: String, active: Boolean): Connection = {
@@ -156,9 +160,9 @@ class UserActor(val userId: String,
     // log.debug("**** UserActor handleServerMsg " + msg)
     println("************* MESSAGE FROM SERVER *********** \n" + msg)
     msgType match {
-      case MessageTypes.DIRECT => handleDirectMessage(msg)
+      case MessageTypes.DIRECT               => handleDirectMessage(msg)
       case MessageTypes.BROADCAST_TO_MEETING => handleBroadcastMessage(msg)
-      case MessageTypes.SYSTEM => handleSystemMessage(msg)
+      case MessageTypes.SYSTEM               => handleSystemMessage(msg)
     }
   }
 

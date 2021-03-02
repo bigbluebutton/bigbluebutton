@@ -1,7 +1,8 @@
 package org.bigbluebutton.core.apps.users
 
+import org.bigbluebutton.LockSettingsUtil
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.Users2x
+import org.bigbluebutton.core.models.{ Users2x, VoiceUsers }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
@@ -30,6 +31,12 @@ trait LockUserInMeetingCmdMsgHdlr extends RightsManagementTrait {
       for {
         uvo <- Users2x.setUserLocked(liveMeeting.users2x, msg.body.userId, msg.body.lock)
       } yield {
+        if (msg.body.lock) {
+          VoiceUsers.findWithIntId(liveMeeting.voiceUsers, uvo.intId).foreach { vu =>
+            LockSettingsUtil.enforceLockSettingsForVoiceUser(vu, liveMeeting, outGW)
+          }
+        }
+
         log.info("Lock user.  meetingId=" + props.meetingProp.intId + " userId=" + uvo.intId + " locked=" + uvo.locked)
         val event = build(props.meetingProp.intId, uvo.intId, msg.body.lockedBy, uvo.locked)
         outGW.send(event)

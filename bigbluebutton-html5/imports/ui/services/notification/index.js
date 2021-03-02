@@ -31,7 +31,10 @@ export function notify(message, type = 'default', icon, options, content, small)
     const id = toast(<Toast {...toastProps} />, settings);
 
     lastToast = { id, ...toastProps };
+
+    return id;
   }
+  return null;
 }
 
 export default { notify };

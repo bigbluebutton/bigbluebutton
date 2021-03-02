@@ -3,16 +3,27 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { makeCall } from '/imports/ui/services/api';
+import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
+import logger from '/imports/startup/client/logger';
+import Auth from '/imports/ui/services/auth';
+import Users from '/imports/api/users';
+import Storage from '/imports/ui/services/storage/session';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioControls from './component';
 import AudioModalContainer from '../audio-modal/container';
+import { invalidateCookie } from '../audio-modal/service';
 import Service from '../service';
+import AppService from '/imports/ui/components/app/service';
+
+const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
+const APP_CONFIG = Meteor.settings.public.app;
 
 const AudioControlsContainer = props => <AudioControls {...props} />;
 
 const processToggleMuteFromOutside = (e) => {
   switch (e.data) {
     case 'c_mute': {
-      makeCall('toggleSelfVoice');
+      makeCall('toggleVoice');
       break;
     }
     case 'get_audio_joined_status': {
@@ -31,16 +42,67 @@ const processToggleMuteFromOutside = (e) => {
   }
 };
 
-export default withModalMounter(withTracker(({ mountModal }) => ({
-  processToggleMuteFromOutside: arg => processToggleMuteFromOutside(arg),
-  showMute: Service.isConnected() && !Service.isListenOnly() && !Service.isEchoTest() && !Service.audioLocked(),
-  muted: Service.isConnected() && !Service.isListenOnly() && Service.isMuted(),
-  inAudio: Service.isConnected() && !Service.isEchoTest(),
-  listenOnly: Service.isConnected() && Service.isListenOnly(),
-  disable: Service.isConnecting() || Service.isHangingUp(),
-  talking: Service.isTalking() && !Service.isMuted(),
-  currentUser: Service.currentUser(),
-  handleToggleMuteMicrophone: () => Service.toggleMuteMicrophone(),
-  handleJoinAudio: () => (Service.isConnected() ? Service.joinListenOnly() : mountModal(<AudioModalContainer />)),
-  handleLeaveAudio: () => Service.exitAudio(),
-}))(AudioControlsContainer));
+const handleLeaveAudio = () => {
+  const meetingIsBreakout = AppService.meetingIsBreakout();
+
+  if (!meetingIsBreakout) {
+    invalidateCookie('joinedAudio');
+  }
+
+  const skipOnFistJoin = getFromUserSettings('bbb_skip_check_audio_on_first_join', APP_CONFIG.skipCheckOnJoin);
+  if (skipOnFistJoin && !Storage.getItem('getEchoTest')) {
+    Storage.setItem('getEchoTest', true);
+  }
+
+  Service.exitAudio();
+  logger.info({
+    logCode: 'audiocontrols_leave_audio',
+    extraInfo: { logType: 'user_action' },
+  }, 'audio connection closed by user');
+};
+
+const {
+  isVoiceUser,
+  isConnected,
+  isListenOnly,
+  isEchoTest,
+  isMuted,
+  isConnecting,
+  isHangingUp,
+  isTalking,
+  toggleMuteMicrophone,
+  joinListenOnly,
+} = Service;
+
+export default lockContextContainer(withModalMounter(withTracker(({ mountModal, userLocks }) => {
+  const currentUser = Users.findOne({ meetingId: Auth.meetingID, userId: Auth.userID }, {
+    fields: {
+      role: 1,
+      presenter: 1,
+    },
+  });
+  const isViewer = currentUser.role === ROLE_VIEWER;
+  const isPresenter = currentUser.presenter;
+
+  if (Service.isReturningFromBreakoutAudioTransfer()) {
+    Service.setReturningFromBreakoutAudioTransfer(false);
+    Service.recoverMicState();
+  }
+
+  return ({
+    processToggleMuteFromOutside: arg => processToggleMuteFromOutside(arg),
+    showMute: isConnected() && !isListenOnly() && !isEchoTest() && !userLocks.userMic,
+    muted: isConnected() && !isListenOnly() && isMuted(),
+    inAudio: isConnected() && !isEchoTest(),
+    listenOnly: isConnected() && isListenOnly(),
+    disable: isConnecting() || isHangingUp() || !Meteor.status().connected,
+    talking: isTalking() && !isMuted(),
+    isVoiceUser: isVoiceUser(),
+    handleToggleMuteMicrophone: () => toggleMuteMicrophone(),
+    handleJoinAudio: () => (isConnected() ? joinListenOnly() : mountModal(<AudioModalContainer />)),
+    handleLeaveAudio,
+    inputStream: AudioManager.inputStream,
+    isViewer,
+    isPresenter,
+  });
+})(AudioControlsContainer)));

@@ -10,6 +10,7 @@ case class Permissions(
     disablePrivChat:        Boolean = false,
     disablePubChat:         Boolean = false,
     disableNote:            Boolean = false,
+    hideUserList:           Boolean = false,
     lockedLayout:           Boolean = false,
     lockOnJoin:             Boolean = true,
     lockOnJoinConfigurable: Boolean = false
@@ -20,13 +21,6 @@ case class MeetingExtensionProp(maxExtensions: Int = 2, numExtensions: Int = 0, 
                                 sent10MinNotice: Boolean = false, sent5MinNotice: Boolean = false)
 
 object MeetingStatus2x {
-
-  def isVoiceRecording(status: MeetingStatus2x): Boolean = {
-    status.voiceRecordings.values.find(s => s.recording) match {
-      case Some(rec) => true
-      case None      => false
-    }
-  }
 
   def isExtensionAllowed(status: MeetingStatus2x): Boolean = status.extension.numExtensions < status.extension.maxExtensions
   def incNumExtension(status: MeetingStatus2x): Int = {
@@ -54,6 +48,13 @@ object MeetingStatus2x {
   def setLastAuthedUserLeftOn(status: MeetingStatus2x) = status.lastAuthedUserLeftOn = TimeUtil.timeNowInMs()
   def getLastAuthedUserLeftOn(status: MeetingStatus2x): Long = status.lastAuthedUserLeftOn
   def resetLastAuthedUserLeftOn(status: MeetingStatus2x) = status.lastAuthedUserLeftOn = 0L
+
+  def isVoiceRecording(status: MeetingStatus2x): Boolean = {
+    status.voiceRecordings.values.find(s => s.recording) match {
+      case Some(rec) => true
+      case None      => false
+    }
+  }
 
   def voiceRecordingStart(status2x: MeetingStatus2x, stream: String): VoiceRecordingStream = {
     val vrs = new VoiceRecordingStream(stream, recording = false, createdOn = System.currentTimeMillis, ackedOn = None, stoppedOn = None)
@@ -110,7 +111,8 @@ object MeetingStatus2x {
 }
 
 class MeetingStatus2x {
-  private var voiceRecordings: collection.immutable.HashMap[String, VoiceRecordingStream] = new collection.immutable.HashMap[String, VoiceRecordingStream]
+  private var voiceRecordings: collection.immutable.HashMap[String, VoiceRecordingStream] =
+    new collection.immutable.HashMap[String, VoiceRecordingStream]
 
   private var audioSettingsInited = false
   private var permissionsInited = false

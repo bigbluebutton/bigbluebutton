@@ -2,6 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import Toggle from '/imports/ui/components/switch/component';
+import LocalesDropdown from '/imports/ui/components/locales-dropdown/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import { styles } from '../styles';
@@ -17,13 +18,9 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.animationsLabel',
     description: 'animations label',
   },
-  audioAlertLabel: {
-    id: 'app.submenu.application.audioAlertLabel',
-    description: 'audio notification label',
-  },
-  pushAlertLabel: {
-    id: 'app.submenu.application.pushAlertLabel',
-    description: 'push notifiation label',
+  audioFilterLabel: {
+    id: 'app.submenu.application.audioFilterLabel',
+    description: 'audio filters label',
   },
   fontSizeControlLabel: {
     id: 'app.submenu.application.fontSizeControlLabel',
@@ -49,9 +46,9 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.languageLabel',
     description: 'displayed label for changing application locale',
   },
-  ariaLanguageLabel: {
-    id: 'app.submenu.application.ariaLanguageLabel',
-    description: 'aria label for locale change section',
+  currentValue: {
+    id: 'app.submenu.application.currentSize',
+    description: 'current value label',
   },
   languageOptionLabel: {
     id: 'app.submenu.application.languageOptionLabel',
@@ -76,6 +73,7 @@ class ApplicationMenu extends BaseMenu {
       settings: props.settings,
       isLargestFontSize: false,
       isSmallestFontSize: false,
+      showSelect: false,
       fontSizes: [
         '12px',
         '14px',
@@ -83,11 +81,20 @@ class ApplicationMenu extends BaseMenu {
         '18px',
         '20px',
       ],
+      audioFilterEnabled: ApplicationMenu.isAudioFilterEnabled(props
+        .settings.microphoneConstraints),
     };
   }
 
   componentDidMount() {
     this.setInitialFontSize();
+  }
+
+  componentWillUnmount() {
+    // fix Warning: Can't perform a React state update on an unmounted component
+    this.setState = (state, callback) => {
+
+    };
   }
 
   setInitialFontSize() {
@@ -105,6 +112,49 @@ class ApplicationMenu extends BaseMenu {
       isLargestFontSize: fontIndex >= (fontSizes.length - 1),
       fontSizes,
     });
+  }
+
+  static isAudioFilterEnabled(_constraints) {
+    if (typeof _constraints === 'undefined') return true;
+
+    const _isConstraintEnabled = (constraintValue) => {
+      switch (typeof constraintValue) {
+        case 'boolean':
+          return constraintValue;
+        case 'string':
+          return constraintValue === 'true';
+        case 'object':
+          return !!(constraintValue.exact || constraintValue.ideal);
+        default:
+          return false;
+      }
+    };
+
+    let isAnyFilterEnabled = true;
+
+    const constraints = _constraints && (typeof _constraints.advanced === 'object')
+      ? _constraints.advanced
+      : _constraints || {};
+
+    isAnyFilterEnabled = Object.values(constraints).find(
+      constraintValue => _isConstraintEnabled(constraintValue),
+    );
+
+    return isAnyFilterEnabled;
+  }
+
+  handleAudioFilterChange() {
+    const _audioFilterEnabled = !ApplicationMenu.isAudioFilterEnabled(this
+      .state.settings.microphoneConstraints);
+    const _newConstraints = {
+      autoGainControl: _audioFilterEnabled,
+      echoCancellation: _audioFilterEnabled,
+      noiseSuppression: _audioFilterEnabled,
+    };
+
+    const obj = this.state;
+    obj.settings.microphoneConstraints = _newConstraints;
+    this.handleUpdateSettings(this.state.settings, obj.settings);
   }
 
   handleUpdateFontSize(size) {
@@ -145,13 +195,15 @@ class ApplicationMenu extends BaseMenu {
 
   handleSelectChange(fieldname, options, e) {
     const obj = this.state;
-    obj.settings[fieldname] = e.target.value.toLowerCase().replace('_', '-');
+    obj.settings[fieldname] = e.target.value;
     this.handleUpdateSettings('application', obj.settings);
   }
 
   render() {
-    const { availableLocales, intl } = this.props;
-    const { isLargestFontSize, isSmallestFontSize } = this.state;
+    const { allLocales, intl } = this.props;
+    const {
+      isLargestFontSize, isSmallestFontSize, settings,
+    } = this.state;
 
     // conversions can be found at http://pxtoem.com
     const pixelPercentage = {
@@ -163,6 +215,10 @@ class ApplicationMenu extends BaseMenu {
       '18px': '110%',
       '20px': '125%',
     };
+
+    const ariaValueLabel = intl.formatMessage(intlMessages.currentValue, { 0: `${pixelPercentage[settings.fontSize]}` });
+
+    const showSelect = allLocales && allLocales.length > 0;
 
     return (
       <div>
@@ -197,7 +253,7 @@ class ApplicationMenu extends BaseMenu {
             <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
                 <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.audioAlertLabel)}
+                  {intl.formatMessage(intlMessages.audioFilterLabel)}
                 </label>
               </div>
             </div>
@@ -205,68 +261,49 @@ class ApplicationMenu extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
                 <Toggle
                   icons={false}
-                  defaultChecked={this.state.settings.chatAudioAlerts}
-                  onChange={() => this.handleToggle('chatAudioAlerts')}
-                  ariaLabel={intl.formatMessage(intlMessages.audioAlertLabel)}
+                  defaultChecked={this.state.audioFilterEnabled}
+                  onChange={() => this.handleAudioFilterChange()}
+                  ariaLabel={intl.formatMessage(intlMessages.audioFilterLabel)}
                 />
               </div>
             </div>
           </div>
-
           <div className={styles.row}>
             <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
-                <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.pushAlertLabel)}
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
-                <Toggle
-                  icons={false}
-                  defaultChecked={this.state.settings.chatPushAlerts}
-                  onChange={() => this.handleToggle('chatPushAlerts')}
-                  ariaLabel={intl.formatMessage(intlMessages.pushAlertLabel)}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.row}>
-            <div className={styles.col} aria-hidden="true">
-              <div className={styles.formElement}>
-                <label className={styles.label}>
+                <label
+                  className={styles.label}
+                  htmlFor="langSelector"
+                  aria-label={intl.formatMessage(intlMessages.languageLabel)}
+                >
                   {intl.formatMessage(intlMessages.languageLabel)}
                 </label>
               </div>
             </div>
             <div className={styles.col}>
-              <div
-                id="changeLangLabel"
-                aria-label={intl.formatMessage(intlMessages.ariaLanguageLabel)}
-              />
-              <label
-                aria-labelledby="changeLangLabel"
-                className={cx(styles.formElement, styles.pullContentRight)}
-              >
-                {availableLocales && availableLocales.length > 0 ? (
-                  <select
-                    defaultValue={this.state.settings.locale}
-                    className={styles.select}
-                    onChange={this.handleSelectChange.bind(this, 'locale', availableLocales)}
-                  >
-                    <option disabled>{intl.formatMessage(intlMessages.languageOptionLabel)}</option>
-                    {availableLocales.map((locale, index) => (
-                      <option key={index} value={locale.locale}>
-                        {locale.name}
-                      </option>
-                    ))}
-                  </select>
-                ) : null}
-              </label>
+              <span className={cx(styles.formElement, styles.pullContentRight)}>
+                {showSelect ? (
+                  <LocalesDropdown
+                    allLocales={allLocales}
+                    handleChange={e => this.handleSelectChange('locale', allLocales, e)}
+                    value={this.state.settings.locale}
+                    elementId="langSelector"
+                    elementClass={styles.select}
+                    selectMessage={intl.formatMessage(intlMessages.languageOptionLabel)}
+                  />
+                )
+                  : (
+                    <div className={styles.spinnerOverlay}>
+                      <div className={styles.bounce1} />
+                      <div className={styles.bounce2} />
+                      <div />
+                    </div>
+                  )
+                }
+              </span>
             </div>
           </div>
+
           <hr className={styles.separator} />
           <div className={styles.row}>
             <div className={styles.col}>
@@ -277,7 +314,7 @@ class ApplicationMenu extends BaseMenu {
               </div>
             </div>
             <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentCenter)}>
+              <div aria-hidden className={cx(styles.formElement, styles.pullContentCenter)}>
                 <label className={cx(styles.label, styles.bold)}>
                   {`${pixelPercentage[this.state.settings.fontSize]}`}
                 </label>
@@ -294,6 +331,7 @@ class ApplicationMenu extends BaseMenu {
                       circle
                       hideLabel
                       label={intl.formatMessage(intlMessages.decreaseFontBtnLabel)}
+                      aria-label={`${intl.formatMessage(intlMessages.decreaseFontBtnLabel)}, ${ariaValueLabel}`}
                       disabled={isSmallestFontSize}
                     />
                   </div>
@@ -305,6 +343,7 @@ class ApplicationMenu extends BaseMenu {
                       circle
                       hideLabel
                       label={intl.formatMessage(intlMessages.increaseFontBtnLabel)}
+                      aria-label={`${intl.formatMessage(intlMessages.increaseFontBtnLabel)}, ${ariaValueLabel}`}
                       disabled={isLargestFontSize}
                     />
                   </div>

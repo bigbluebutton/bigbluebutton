@@ -14,6 +14,7 @@ object Dependencies {
 
     // Libraries
     val akkaVersion = "2.5.19"
+    val akkaHttpVersion = "10.1.4"
     val gson = "2.8.5"
     val jackson = "2.9.7"
     val logback = "1.2.3"
@@ -21,8 +22,8 @@ object Dependencies {
     val spray = "1.3.4"
 
     // Apache Commons
-    val lang = "3.8.1"
-    val codec = "1.11"
+    val lang = "3.9"
+    val codec = "1.14"
 
     // BigBlueButton
     val bbbCommons = "0.0.20-SNAPSHOT"
@@ -46,6 +47,10 @@ object Dependencies {
     val logback = "ch.qos.logback" % "logback-classic" % Versions.logback
     val commonsCodec = "commons-codec" % "commons-codec" % Versions.codec
     val sprayJson = "io.spray" % "spray-json_2.12" % Versions.spray
+
+    val akkaStream = "com.typesafe.akka" %% "akka-stream" % Versions.akkaVersion
+    val akkaHttp = "com.typesafe.akka" %% "akka-http" % Versions.akkaHttpVersion
+    val akkaHttpSprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % Versions.akkaHttpVersion
 
     val apacheLang = "org.apache.commons" % "commons-lang3" % Versions.lang
 
@@ -73,6 +78,7 @@ object Dependencies {
     Compile.scalaCompiler,
     Compile.akkaActor,
     Compile.akkaSl4fj,
+    Compile.akkaStream,
     Compile.googleGson,
     Compile.jacksonModule,
     Compile.quicklens,
@@ -80,5 +86,7 @@ object Dependencies {
     Compile.commonsCodec,
     Compile.sprayJson,
     Compile.apacheLang,
+    Compile.akkaHttp,
+    Compile.akkaHttpSprayJson,
     Compile.bbbCommons) ++ testing
 }

@@ -4,23 +4,27 @@ import java.io.{ File, FileOutputStream, FileWriter, IOException }
 import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
 import java.util
+import java.nio.file.{ Files, Paths }
 
 import com.google.gson.Gson
 import org.bigbluebutton.api.domain.RecordingMetadata
-import org.bigbluebutton.api2.RecordingServiceGW
+import org.bigbluebutton.api2.{ BbbWebApiGWApp, RecordingServiceGW }
 import org.bigbluebutton.api2.domain._
 
 import scala.xml.{ Elem, PrettyPrinter, XML }
 import scala.collection.JavaConverters._
 import scala.collection.mutable.{ Buffer, ListBuffer, Map }
 import scala.collection.Iterable
-
 import java.io.IOException
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 
-class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
+import com.google.gson.internal.LinkedTreeMap
+
+import scala.util.Try
+
+class RecMetaXmlHelper(gw: BbbWebApiGWApp) extends RecordingServiceGW with LogHelper {
 
   val SUCCESS = "SUCCESS"
   val FAILED = "FAILED"
@@ -188,25 +192,64 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
     }
   }
 
-  def getRecordingTextTracks(recordId: String, captionsDir: String): String = {
+  def validateTextTrackSingleUseToken(recordId: String, caption: String, token: String): Boolean = {
+    gw.validateSingleUseCaptionToken(token, recordId, caption)
+  }
+
+  def getRecordingsCaptionsJson(recordId: String, captionsDir: String, captionBaseUrl: String): String = {
     val gson = new Gson()
     var returnResponse: String = ""
     val captionsFilePath = captionsDir + File.separatorChar + recordId + File.separatorChar + CAPTIONS_FILE
 
     readCaptionJsonFile(captionsFilePath, StandardCharsets.UTF_8) match {
       case Some(captions) =>
-        val ctracks = gson.fromJson(captions, classOf[util.ArrayList[Track]])
-        val result1 = GetRecTextTracksResult(SUCCESS, ctracks)
-        val response1 = GetRecTextTracksResp(result1)
-        val respText1 = gson.toJson(response1)
+        val ctracks = gson.fromJson(captions, classOf[java.util.List[LinkedTreeMap[String, String]]])
 
-        returnResponse = respText1
+        val list = new util.ArrayList[Track]()
+        val it = ctracks.iterator()
+
+        while (it.hasNext()) {
+          val mapTrack = it.next()
+          val caption = mapTrack.get("kind") + "_" + mapTrack.get("lang") + ".vtt"
+          val singleUseToken = gw.generateSingleUseCaptionToken(recordId, caption, 60 * 60)
+
+          list.add(new Track(
+            // captionBaseUrl contains the '/' so no need to put one before singleUseToken
+            href = captionBaseUrl + singleUseToken + '/' + recordId + '/' + caption,
+            kind = mapTrack.get("kind"),
+            label = mapTrack.get("label"),
+            lang = mapTrack.get("lang"),
+            source = mapTrack.get("source")
+          ))
+        }
+        val textTracksResult = GetRecTextTracksResult(SUCCESS, list)
+
+        val textTracksResponse = GetRecTextTracksResp(textTracksResult)
+        val textTracksJson = gson.toJson(textTracksResponse)
+        //  parse(textTracksJson).transformField{case JField(x, v) if x == "value" && v == JString("Company")=> JField("value1",JString("Company1"))}
+
+        returnResponse = textTracksJson
       case None =>
         val resFailed = GetRecTextTracksResultFailed(FAILED, "noCaptionsFound", "No captions found for " + recordId)
         val respFailed = GetRecTextTracksRespFailed(resFailed)
         val failedTxt = gson.toJson(respFailed)
 
         returnResponse = failedTxt
+    }
+
+    returnResponse
+  }
+
+  def getRecordingTextTracks(recordId: String, captionsDir: String, captionBaseUrl: String): String = {
+    val gson = new Gson()
+    var returnResponse: String = ""
+    val recordingPath = captionsDir + File.separatorChar + recordId
+    if (!Files.exists(Paths.get(recordingPath))) {
+      val resFailed = GetRecTextTracksResultFailed(FAILED, "noRecordings", "No recording found for " + recordId)
+      val respFailed = GetRecTextTracksRespFailed(resFailed)
+      returnResponse = gson.toJson(respFailed)
+    } else {
+      returnResponse = getRecordingsCaptionsJson(recordId, captionsDir, captionBaseUrl)
     }
 
     returnResponse
@@ -232,23 +275,35 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
     }
   }
 
+  def mv(oldName: String, newName: String) =
+    Try(new File(oldName).renameTo(new File(newName))).getOrElse(false)
+
   def saveTrackInfoFile(trackInfoJson: String, trackInfoFilePath: String): Boolean = {
+    // Need to create intermediate file to prevent race where the file is processed before
+    // contents have been written.
+    val tempTrackInfoFilePath = trackInfoFilePath + ".tmp"
+
     var result = false
-    val fileWriter = new FileWriter(trackInfoFilePath)
+    val fileWriter = new FileWriter(tempTrackInfoFilePath)
     try {
       fileWriter.write(trackInfoJson)
       result = true
     } catch {
       case ioe: IOException =>
-        logger.info("Failed to write caption.json {}", trackInfoFilePath)
+        logger.info("Failed to write caption.json {}", tempTrackInfoFilePath)
         result = false
       case ex: Exception =>
-        logger.info("Exception while writing {}", trackInfoFilePath)
+        logger.info("Exception while writing {}", tempTrackInfoFilePath)
         logger.info("Exception details: {}", ex.getMessage)
         result = false
     } finally {
       fileWriter.flush()
       fileWriter.close()
+    }
+
+    if (result) {
+      // Rename so that the captions processor will pick up the uploaded captions.
+      result = mv(tempTrackInfoFilePath, trackInfoFilePath)
     }
 
     result
@@ -258,11 +313,13 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
     val trackInfoFilePath = track.inboxDir + File.separatorChar + track.trackId + "-track.json"
 
     val trackInfo = new UploadedTrackInfo(
-      recordId = track.recordId,
+      record_id = track.recordId,
       kind = track.kind,
       lang = track.lang,
       label = track.label,
-      origFilename = track.origFilename
+      original_filename = track.origFilename,
+      temp_filename = track.tempFilename,
+      content_type = track.contentType
     )
 
     val gson = new Gson()

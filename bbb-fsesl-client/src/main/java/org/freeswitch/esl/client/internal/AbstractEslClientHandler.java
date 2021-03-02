@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -231,15 +232,18 @@ public abstract class AbstractEslClientHandler extends SimpleChannelUpstreamHand
             try
             {
                 log.trace( "awaiting latch ... " );
-                latch.await();
+                if (latch.await(10, TimeUnit.SECONDS)) {
+                    log.trace( "returning response [{}]", response );
+                    return response;
+                } else {
+                    log.warn("Timeout waiting for response from ESL command.");
+                    throw new RuntimeException("WAIT_FOR_ESL_RESPONSE_TIMEOUT");
+                }
             }
             catch ( InterruptedException e )
             {
                 throw new RuntimeException( e );
             }
-            
-            log.trace( "returning response [{}]", response );
-            return response;
         }
 
         /**

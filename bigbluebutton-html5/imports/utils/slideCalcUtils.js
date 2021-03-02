@@ -42,22 +42,30 @@ export default class SlideCalcUtil {
   }
 
   static calcViewedRegionX(cpx, cpw) {
-    return (cpx * HUNDRED_PERCENT) / cpw || 0;
+    const viewX = -cpx / 2 / cpw * 100;
+    if (viewX > 0) {
+      return 0;
+    }
+    return viewX;
   }
 
   static calcViewedRegionY(cpy, cph) {
-    return (cpy * HUNDRED_PERCENT) / cph || 0;
+    const viewY = -cpy / 2 / cph * 100;
+    if (viewY > 0) {
+      return 0;
+    }
+    return viewY;
   }
 
   static calculateViewportX(vpw, pw) {
-    if (vpw == pw) {
+    if (vpw === pw) {
       return 0;
     }
     return (pw - vpw) / MYSTERY_NUM;
   }
 
   static calculateViewportY(vph, ph) {
-    if (vph == ph) {
+    if (vph === ph) {
       return 0;
     }
     return (ph - vph) / MYSTERY_NUM;

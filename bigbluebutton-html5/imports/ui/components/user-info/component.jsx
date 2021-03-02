@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { defineMessages, intlShape } from 'react-intl';
+import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
 
 import Modal from '/imports/ui/components/modal/simple/component';
@@ -9,7 +9,7 @@ import Service from './service';
 import { styles } from './styles';
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   meetingId: PropTypes.string.isRequired,
   requesterUserId: PropTypes.string.isRequired,
 };
@@ -53,13 +53,11 @@ class UserInfoComponent extends Component {
   }
 
   render() {
-    const {
-      intl, meetingId, requesterUserId,
-    } = this.props;
+    const { intl } = this.props;
     return (
       <Modal
         title={intl.formatMessage(intlMessages.title)}
-        onRequestClose={() => Service.handleCloseUserInfo(meetingId, requesterUserId)}
+        onRequestClose={() => Service.handleCloseUserInfo()}
       >
         {this.renderUserInfo()}
       </Modal>

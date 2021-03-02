@@ -15,7 +15,7 @@ export default function handleSyncGetPresentationPods({ body }, meetingId) {
   const presentationPodsToRemove = PresentationPods.find({
     meetingId,
     podId: { $nin: presentationPodIds },
-  }).fetch();
+  }, { fields: { podId: 1 } }).fetch();
 
   presentationPodsToRemove.forEach(p => removePresentationPod(meetingId, p.podId));
 

@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Modal from '/imports/ui/components/modal/simple/component';
 import Button from '/imports/ui/components/button/component';
+import { Session } from 'meteor/session';
 import {
-  defineMessages, injectIntl, intlShape, FormattedMessage,
+  defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
 import { styles } from './styles';
 import PermissionsOverlay from '../permissions-overlay/component';
@@ -12,10 +13,10 @@ import AudioSettings from '../audio-settings/component';
 import EchoTest from '../echo-test/component';
 import Help from '../help/component';
 import AudioDial from '../audio-dial/component';
-
+import AudioAutoplayPrompt from '../autoplay/component';
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   closeModal: PropTypes.func.isRequired,
   joinMicrophone: PropTypes.func.isRequired,
   joinListenOnly: PropTypes.func.isRequired,
@@ -32,15 +33,23 @@ const propTypes = {
   formattedDialNum: PropTypes.string.isRequired,
   showPermissionsOvelay: PropTypes.bool.isRequired,
   listenOnlyMode: PropTypes.bool.isRequired,
-  skipCheck: PropTypes.bool.isRequired,
-  joinFullAudioImmediately: PropTypes.bool.isRequired,
-  joinFullAudioEchoTest: PropTypes.bool.isRequired,
+  joinFullAudioImmediately: PropTypes.bool,
   forceListenOnlyAttendee: PropTypes.bool.isRequired,
+  audioLocked: PropTypes.bool.isRequired,
+  resolve: PropTypes.func,
+  isMobileNative: PropTypes.bool.isRequired,
+  isIOSChrome: PropTypes.bool.isRequired,
+  isIEOrEdge: PropTypes.bool.isRequired,
+  formattedTelVoice: PropTypes.string.isRequired,
+  autoplayBlocked: PropTypes.bool.isRequired,
+  handleAllowAutoplay: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
   inputDeviceId: null,
   outputDeviceId: null,
+  resolve: null,
+  joinFullAudioImmediately: false,
 };
 
 const intlMessages = defineMessages({
@@ -100,6 +109,10 @@ const intlMessages = defineMessages({
     id: 'app.audioModal.ariaTitle',
     description: 'aria label for modal title',
   },
+  autoplayPromptTitle: {
+    id: 'app.audioModal.autoplayBlockedDesc',
+    description: 'Message for autoplay audio block',
+  },
 });
 
 class AudioModal extends Component {
@@ -109,6 +122,7 @@ class AudioModal extends Component {
     this.state = {
       content: null,
       hasError: false,
+      errCode: null,
     };
 
     this.handleGoToAudioOptions = this.handleGoToAudioOptions.bind(this);
@@ -136,27 +150,29 @@ class AudioModal extends Component {
         title: intlMessages.audioDialTitle,
         component: () => this.renderAudioDial(),
       },
+      autoplayBlocked: {
+        title: intlMessages.autoplayPromptTitle,
+        component: () => this.renderAutoplayOverlay(),
+      },
     };
+    this.failedMediaElements = [];
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const {
-      joinFullAudioImmediately,
-      joinFullAudioEchoTest,
       forceListenOnlyAttendee,
       audioLocked,
     } = this.props;
 
-    if (joinFullAudioImmediately) {
-      this.handleJoinMicrophone();
-    }
+    if (forceListenOnlyAttendee) return this.handleJoinListenOnly();
+    if (audioLocked) return this.handleJoinMicrophone();
+  }
 
-    if (joinFullAudioEchoTest) {
-      this.handleGoToEchoTest();
-    }
+  componentDidUpdate(prevProps) {
+    const { autoplayBlocked, closeModal } = this.props;
 
-    if (forceListenOnlyAttendee || audioLocked) {
-      this.handleJoinListenOnly();
+    if (autoplayBlocked !== prevProps.autoplayBlocked) {
+      autoplayBlocked ? this.setState({ content: 'autoplayBlocked' }) : closeModal();
     }
   }
 
@@ -164,17 +180,21 @@ class AudioModal extends Component {
     const {
       isEchoTest,
       exitAudio,
+      resolve,
     } = this.props;
 
     if (isEchoTest) {
       exitAudio();
     }
+    if (resolve) resolve();
+    Session.set('audioModalIsOpen', false);
   }
 
   handleGoToAudioOptions() {
     this.setState({
       content: null,
       hasError: true,
+      disableActions: false,
     });
   }
 
@@ -188,39 +208,69 @@ class AudioModal extends Component {
   }
 
   handleRetryGoToEchoTest() {
-    const { joinFullAudioImmediately } = this.props;
-
     this.setState({
       hasError: false,
       content: null,
     });
 
-    if (joinFullAudioImmediately) return this.joinMicrophone();
-
     return this.handleGoToEchoTest();
   }
 
   handleGoToEchoTest() {
+    const { AudioError } = this.props;
+    const { MIC_ERROR } = AudioError;
+    const noSSL = !window.location.protocol.includes('https');
+
+    if (noSSL) {
+      return this.setState({
+        content: 'help',
+        errCode: MIC_ERROR.NO_SSL,
+      });
+    }
+
     const {
-      inputDeviceId,
-      outputDeviceId,
       joinEchoTest,
+      isConnecting,
     } = this.props;
+
+    const {
+      disableActions,
+    } = this.state;
+
+    if (disableActions && isConnecting) return;
 
     this.setState({
       hasError: false,
+      disableActions: true,
     });
 
     return joinEchoTest().then(() => {
-      console.log(inputDeviceId, outputDeviceId);
       this.setState({
         content: 'echoTest',
+        disableActions: false,
       });
     }).catch((err) => {
-      if (err.type === 'MEDIA_ERROR') {
-        this.setState({
-          content: 'help',
-        });
+      const { type } = err;
+      switch (type) {
+        case 'MEDIA_ERROR':
+          this.setState({
+            content: 'help',
+            errCode: 0,
+            disableActions: false,
+          });
+          break;
+        case 'CONNECTION_ERROR':
+          this.setState({
+            errCode: 0,
+            disableActions: false,
+          });
+          break;
+        default:
+          this.setState({
+            errCode: 0,
+            disableActions: false,
+          });
+          break;
       }
     });
   }
@@ -230,7 +280,21 @@ class AudioModal extends Component {
       joinListenOnly,
     } = this.props;
 
-    return joinListenOnly().catch((err) => {
+    const {
+      disableActions,
+    } = this.state;
+
+    if (disableActions) return;
+
+    this.setState({
+      disableActions: true,
+    });
+
+    return joinListenOnly().then(() => {
+      this.setState({
+        disableActions: false,
+      });
+    }).catch((err) => {
       if (err.type === 'MEDIA_ERROR') {
         this.setState({
           content: 'help',
@@ -244,19 +308,27 @@ class AudioModal extends Component {
       joinMicrophone,
     } = this.props;
 
+    const {
+      disableActions,
+    } = this.state;
+
+    if (disableActions) return;
+
     this.setState({
       hasError: false,
+      disableActions: true,
     });
 
-    joinMicrophone().catch(this.handleGoToAudioOptions);
+    joinMicrophone().then(() => {
+      this.setState({
+        disableActions: false,
+      });
+    }).catch(this.handleGoToAudioOptions);
   }
 
   skipAudioOptions() {
     const {
       isConnecting,
-      joinFullAudioImmediately,
-      joinFullAudioEchoTest,
-      forceListenOnlyAttendee,
     } = this.props;
 
     const {
@@ -264,13 +336,7 @@ class AudioModal extends Component {
       hasError,
     } = this.state;
 
-
-    return (
-      isConnecting
-      || forceListenOnlyAttendee
-      || joinFullAudioImmediately
-      || joinFullAudioEchoTest
-    ) && !content && !hasError;
+    return isConnecting && !content && !hasError;
   }
 
   renderAudioOptions() {
@@ -278,13 +344,17 @@ class AudioModal extends Component {
       intl,
       listenOnlyMode,
       forceListenOnlyAttendee,
-      skipCheck,
+      joinFullAudioImmediately,
       audioLocked,
       isMobileNative,
       formattedDialNum,
+      isRTL,
     } = this.props;
 
     const showMicrophone = forceListenOnlyAttendee || audioLocked;
+
+    const arrow = isRTL ? '←' : '→';
+    const dialAudioLabel = `${intl.formatMessage(intlMessages.audioDialTitle)} ${arrow}`;
 
     return (
       <div>
@@ -298,7 +368,7 @@ class AudioModal extends Component {
                 circle
                 size="jumbo"
                 disabled={audioLocked}
-                onClick={skipCheck ? this.handleJoinMicrophone : this.handleGoToEchoTest}
+                onClick={joinFullAudioImmediately ? this.handleJoinMicrophone : this.handleGoToEchoTest}
               />
             )
             : null}
@@ -318,7 +388,7 @@ class AudioModal extends Component {
         {formattedDialNum ? (
           <Button
             className={styles.audioDial}
-            label={`${intl.formatMessage(intlMessages.audioDialTitle)} ➔`}
+            label={dialAudioLabel}
             size="md"
             color="primary"
             onClick={() => {
@@ -353,6 +423,7 @@ class AudioModal extends Component {
           </div>
         </div>);
     }
+
     if (this.skipAudioOptions()) {
       return (
         <div className={styles.connecting} role="alert">
@@ -407,9 +478,18 @@ class AudioModal extends Component {
   }
 
   renderHelp() {
+    const { errCode } = this.state;
+    const { AudioError } = this.props;
+
+    const audioErr = {
+      ...AudioError,
+      code: errCode,
+    };
+
     return (
       <Help
         handleBack={this.handleGoToAudioOptions}
+        audioErr={audioErr}
       />
     );
   }
@@ -421,6 +501,15 @@ class AudioModal extends Component {
         formattedDialNum={formattedDialNum}
         telVoice={formattedTelVoice}
         handleBack={this.handleGoToAudioOptions}
+      />
+    );
+  }
+
+  renderAutoplayOverlay() {
+    const { handleAllowAutoplay } = this.props;
+    return (
+      <AudioAutoplayPrompt
+        handleAllowAutoplay={handleAllowAutoplay}
       />
     );
   }
@@ -438,7 +527,7 @@ class AudioModal extends Component {
 
     return (
       <span>
-        {showPermissionsOvelay ? <PermissionsOverlay /> : null}
+        {showPermissionsOvelay ? <PermissionsOverlay closeModal={closeModal} /> : null}
         <Modal
           overlayClassName={styles.overlay}
           className={styles.modal}
@@ -459,7 +548,6 @@ class AudioModal extends Component {
             </p>
           ) : null}
           {!this.skipAudioOptions()
-
             ? (
               <header
                 data-test="audioModalHeader"

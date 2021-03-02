@@ -24,14 +24,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -77,15 +72,14 @@ public class ParamsProcessorUtil {
     private String defaultLogoutUrl;
     private String defaultServerUrl;
     private int defaultNumDigitsForTelVoice;
-    private String defaultClientUrl;
+    private String defaultHTML5ClientUrl;
     private String defaultGuestWaitURL;
-    private String html5ClientUrl;
-    private Boolean moderatorsJoinViaHTML5Client;
-    private Boolean attendeesJoinViaHTML5Client;
     private Boolean allowRequestsWithoutSession;
+    private Boolean useDefaultAvatar = false;
     private String defaultAvatarURL;
     private String defaultConfigURL;
     private String defaultGuestPolicy;
+    private Boolean authenticatedGuest;
     private int defaultMeetingDuration;
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
@@ -103,6 +97,7 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsDisablePrivateChat;
 		private boolean defaultLockSettingsDisablePublicChat;
 		private boolean defaultLockSettingsDisableNote;
+		private boolean defaultLockSettingsHideUserList;
 		private boolean defaultLockSettingsLockedLayout;
 		private boolean defaultLockSettingsLockOnJoin;
 		private boolean defaultLockSettingsLockOnJoinConfigurable;
@@ -111,15 +106,31 @@ public class ParamsProcessorUtil {
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
 
-    private Integer maxInactivityTimeoutMinutes = 120;
     private Integer clientLogoutTimerInMinutes = 0;
-	private Integer warnMinutesBeforeMax = 5;
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
 	private Integer userInactivityInspectTimerInMinutes = 120;
 	private Integer userInactivityThresholdInMinutes = 30;
     private Integer userActivitySignResponseDelayInMinutes = 5;
     private Boolean defaultAllowDuplicateExtUserid = true;
+	private Boolean defaultEndWhenNoModerator = false;
+	private Integer defaultHtml5InstanceId = 1;
+
+	private String formatConfNum(String s) {
+		if (s.length() > 5) {
+			/* Reverse conference number.
+			* Put a whitespace every third char.
+			* Reverse it again to display it correctly.
+			* Trim leading whitespaces.
+			* */
+			String confNumReversed = new StringBuilder(s).reverse().toString();
+			String confNumSplit = confNumReversed.replaceAll("(.{3})", "$1 ");
+			String confNumL = new StringBuilder(confNumSplit).reverse().toString().trim();
+			return confNumL;
+		}
+
+		return s;
+	}
 
     private String substituteKeywords(String message, String dialNumber, String telVoice, String meetingName) {
         String welcomeMessage = message;
@@ -132,13 +143,21 @@ public class ParamsProcessorUtil {
 
         for (String keyword : keywordList) {
             if (keyword.equals(DIAL_NUM)) {
-                welcomeMessage = welcomeMessage.replaceAll(DIAL_NUM, dialNumber);
+                welcomeMessage = welcomeMessage.replaceAll(
+                        Pattern.quote(DIAL_NUM),
+                        Matcher.quoteReplacement(dialNumber));
             } else if (keyword.equals(CONF_NUM)) {
-                welcomeMessage = welcomeMessage.replaceAll(CONF_NUM, telVoice);
+                welcomeMessage = welcomeMessage.replaceAll(
+                        Pattern.quote(CONF_NUM),
+                        Matcher.quoteReplacement(formatConfNum(telVoice)));
             } else if (keyword.equals(CONF_NAME)) {
-                welcomeMessage = welcomeMessage.replaceAll(CONF_NAME, meetingName);
+                welcomeMessage = welcomeMessage.replaceAll(
+                        Pattern.quote(CONF_NAME),
+                        Matcher.quoteReplacement(meetingName));
             } else if (keyword.equals(SERVER_URL)) {
-                welcomeMessage = welcomeMessage.replaceAll(SERVER_URL, defaultServerUrl);
+                welcomeMessage = welcomeMessage.replaceAll(
+                        Pattern.quote(SERVER_URL),
+                        Matcher.quoteReplacement(defaultServerUrl));
             }
         }
         return  welcomeMessage;
@@ -162,16 +181,6 @@ public class ParamsProcessorUtil {
             }
         } else {
             errors.missingParamError(ApiParams.MEETING_ID);
-        }
-
-        // Check if moderator password was provided
-        if (StringUtils.isEmpty(params.get(ApiParams.MODERATOR_PW))) {
-          errors.missingParamError(ApiParams.MODERATOR_PW);
-        }
-
-        // Check if attendee password was provided
-        if (StringUtils.isEmpty(params.get(ApiParams.ATTENDEE_PW))) {
-          errors.missingParamError(ApiParams.ATTENDEE_PW);
         }
     }
 	
@@ -289,6 +298,12 @@ public class ParamsProcessorUtil {
 				lockSettingsDisableNote = Boolean.parseBoolean(lockSettingsDisableNoteParam);
 			}
 
+			Boolean lockSettingsHideUserList = defaultLockSettingsHideUserList;
+			String lockSettingsHideUserListParam = params.get(ApiParams.LOCK_SETTINGS_HIDE_USER_LIST);
+			if (!StringUtils.isEmpty(lockSettingsHideUserListParam)) {
+				lockSettingsHideUserList = Boolean.parseBoolean(lockSettingsHideUserListParam);
+			}
+
 			Boolean lockSettingsLockedLayout = defaultLockSettingsLockedLayout;
 			String lockSettingsLockedLayoutParam = params.get(ApiParams.LOCK_SETTINGS_LOCKED_LAYOUT);
 			if (!StringUtils.isEmpty(lockSettingsLockedLayoutParam)) {
@@ -312,6 +327,7 @@ public class ParamsProcessorUtil {
 							lockSettingsDisablePrivateChat,
 							lockSettingsDisablePublicChat,
 							lockSettingsDisableNote,
+							lockSettingsHideUserList,
 							lockSettingsLockedLayout,
 							lockSettingsLockOnJoin,
 							lockSettingsLockOnJoinConfigurable);
@@ -324,12 +340,12 @@ public class ParamsProcessorUtil {
             meetingName = "";
         }
 
-        meetingName = ParamsUtil.stripControlChars(meetingName);
+        meetingName = ParamsUtil.stripHTMLTags(ParamsUtil.stripControlChars(meetingName));
 
         String externalMeetingId = params.get(ApiParams.MEETING_ID);
 
-        String viewerPass = params.get(ApiParams.ATTENDEE_PW);
-        String modPass = params.get(ApiParams.MODERATOR_PW);
+        String viewerPass = processPassword(params.get(ApiParams.ATTENDEE_PW));
+        String modPass = processPassword(params.get(ApiParams.MODERATOR_PW));
 
         // Get the digits for voice conference for users joining through the
         // phone.
@@ -413,6 +429,15 @@ public class ParamsProcessorUtil {
             }
         }
 
+        boolean endWhenNoModerator = defaultEndWhenNoModerator;
+        if (!StringUtils.isEmpty(params.get(ApiParams.END_WHEN_NO_MODERATOR))) {
+          try {
+	          endWhenNoModerator = Boolean.parseBoolean(params.get(ApiParams.END_WHEN_NO_MODERATOR));
+          } catch (Exception ex) {
+            log.warn("Invalid param [endWhenNoModerator] for meeting=[{}]", internalMeetingId);
+          }
+        }
+
         String guestPolicy = defaultGuestPolicy;
         if (!StringUtils.isEmpty(params.get(ApiParams.GUEST_POLICY))) {
         	guestPolicy = params.get(ApiParams.GUEST_POLICY);
@@ -447,6 +472,10 @@ public class ParamsProcessorUtil {
             externalMeetingId = externalHash + "-" + timeStamp;
         }
 
+        String avatarURL = useDefaultAvatar ? defaultAvatarURL : "";
+
+        int html5InstanceId = processHtml5InstanceId(params.get(ApiParams.HTML5_INSTANCE_ID));
+
         // Create the meeting with all passed in parameters.
         Meeting meeting = new Meeting.Builder(externalMeetingId,
                 internalMeetingId, createTime).withName(meetingName)
@@ -457,7 +486,7 @@ public class ParamsProcessorUtil {
                 .withBannerText(bannerText).withBannerColor(bannerColor)
                 .withTelVoice(telVoice).withWebVoice(webVoice)
                 .withDialNumber(dialNumber)
-                .withDefaultAvatarURL(defaultAvatarURL)
+                .withDefaultAvatarURL(avatarURL)
                 .withAutoStartRecording(autoStartRec)
                 .withAllowStartStopRecording(allowStartStoptRec)
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)
@@ -465,9 +494,11 @@ public class ParamsProcessorUtil {
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
                 .withGuestPolicy(guestPolicy)
+                .withAuthenticatedGuest(authenticatedGuest)
 				.withBreakoutRoomsParams(breakoutParams)
 				.withLockSettingsParams(lockSettingsParams)
 				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
+                .withHTML5InstanceId(html5InstanceId)
                 .build();
 
         String configXML = getDefaultConfigXML();
@@ -480,13 +511,17 @@ public class ParamsProcessorUtil {
             meeting.setModeratorOnlyMessage(moderatorOnlyMessage);
         }
 
-        meeting.setMaxInactivityTimeoutMinutes(maxInactivityTimeoutMinutes);
-        meeting.setWarnMinutesBeforeMax(warnMinutesBeforeMax);
+        if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_ENDED_CALLBACK_URL))) {
+        	String meetingEndedCallbackURL = params.get(ApiParams.MEETING_ENDED_CALLBACK_URL);
+        	meeting.setMeetingEndedCallbackURL(meetingEndedCallbackURL);
+        }
+
         meeting.setMeetingExpireIfNoUserJoinedInMinutes(meetingExpireIfNoUserJoinedInMinutes);
 		meeting.setMeetingExpireWhenLastUserLeftInMinutes(meetingExpireWhenLastUserLeftInMinutes);
 		meeting.setUserInactivityInspectTimerInMinutes(userInactivityInspectTimerInMinutes);
 		meeting.setUserActivitySignResponseDelayInMinutes(userActivitySignResponseDelayInMinutes);
 		meeting.setUserInactivityThresholdInMinutes(userInactivityThresholdInMinutes);
+//		meeting.setHtml5InstanceId(html5InstanceId);
 
         // Add extra parameters for breakout room
         if (isBreakout) {
@@ -526,25 +561,13 @@ public class ParamsProcessorUtil {
 		return serviceEnabled;
 	}
 	
-	public String getDefaultClientUrl() {
-		return defaultClientUrl;
+	public String getDefaultHTML5ClientUrl() {
+		return defaultHTML5ClientUrl;
 	}
 
 	public String getDefaultGuestWaitURL() {
 		return defaultGuestWaitURL;
         }
-
-	public String getHTML5ClientUrl() {
-		return html5ClientUrl;
-	}
-
-	public Boolean getAttendeesJoinViaHTML5Client() {
-		return attendeesJoinViaHTML5Client;
-	}
-
-	public Boolean getModeratorsJoinViaHTML5Client() {
-		return moderatorsJoinViaHTML5Client;
-	}
 
 	public Boolean getAllowRequestsWithoutSession() {
 		return allowRequestsWithoutSession;
@@ -620,10 +643,14 @@ public class ParamsProcessorUtil {
 		return DigestUtils.sha1Hex(extMeetingId);
 	}
 	
+	public String processPassword(String pass) {
+		return StringUtils.isEmpty(pass) ? RandomStringUtils.randomAlphanumeric(8) : pass;
+	}
+
 	public boolean hasChecksumAndQueryString(String checksum, String queryString) {
 		return (! StringUtils.isEmpty(checksum) && StringUtils.isEmpty(queryString));
 	}
-		
+
 	public String processTelVoice(String telNum) {
 		return StringUtils.isEmpty(telNum) ? RandomStringUtils.randomNumeric(defaultNumDigitsForTelVoice) : telNum;
 	}
@@ -661,6 +688,17 @@ public class ParamsProcessorUtil {
 		}
 		
 		return rec;
+	}
+
+	public int processHtml5InstanceId(String instanceId) {
+		int html5InstanceId = 1;
+		try {
+            html5InstanceId = Integer.parseInt(instanceId);
+		} catch(Exception ex) {
+            html5InstanceId = defaultHtml5InstanceId;
+		}
+
+		return html5InstanceId;
 	}
 		
 	public int processMaxUser(String maxUsers) {
@@ -884,28 +922,16 @@ public class ParamsProcessorUtil {
 		this.defaultNumDigitsForTelVoice = defaultNumDigitsForTelVoice;
 	}
 
-	public void setDefaultClientUrl(String defaultClientUrl) {
-		this.defaultClientUrl = defaultClientUrl;
+	public void setDefaultHTML5ClientUrl(String defaultHTML5ClientUrl) {
+		this.defaultHTML5ClientUrl = defaultHTML5ClientUrl;
 	}
 
 	public void setDefaultGuestWaitURL(String url) {
 		this.defaultGuestWaitURL = url;
         }
 
-	public void setHtml5ClientUrl(String html5ClientUrl) {
-		this.html5ClientUrl = html5ClientUrl;
-	}
-
-	public void setModeratorsJoinViaHTML5Client(Boolean moderatorsJoinViaHTML5Client) {
-		this.moderatorsJoinViaHTML5Client = moderatorsJoinViaHTML5Client;
-	}
-
 	public void setAllowRequestsWithoutSession(Boolean allowRequestsWithoutSession) {
 		this.allowRequestsWithoutSession = allowRequestsWithoutSession;
-	}
-
-	public void setAttendeesJoinViaHTML5Client(Boolean attendeesJoinViaHTML5Client) {
-		this.attendeesJoinViaHTML5Client = attendeesJoinViaHTML5Client;
 	}
 
 	public void setDefaultMeetingDuration(int defaultMeetingDuration) {
@@ -928,6 +954,10 @@ public class ParamsProcessorUtil {
         this.webcamsOnlyForModerator = webcamsOnlyForModerator;
     }
 	
+	public void setUseDefaultAvatar(Boolean value) {
+		this.useDefaultAvatar = value;
+	}
+
 	public void setdefaultAvatarURL(String url) {
 		this.defaultAvatarURL = url;
 	}
@@ -936,24 +966,12 @@ public class ParamsProcessorUtil {
 		this.defaultGuestPolicy =  guestPolicy;
 	}
 
-	public void setMaxInactivityTimeoutMinutes(Integer value) {
-		maxInactivityTimeoutMinutes = value;
+	public void setAuthenticatedGuest(Boolean value) {
+		this.authenticatedGuest = value;
 	}
 
 	public void setClientLogoutTimerInMinutes(Integer value) {
 		clientLogoutTimerInMinutes = value;
-	}
-
-	public void setWarnMinutesBeforeMax(Integer value) {
-		warnMinutesBeforeMax = value;
-	}
-
-	public Integer getMaxInactivityTimeoutMinutes() {
-		return maxInactivityTimeoutMinutes;
-	}
-
-	public Integer getWarnMinutesBeforeMax() {
-		return warnMinutesBeforeMax;
 	}
 
 	public void setMeetingExpireWhenLastUserLeftInMinutes(Integer value) {
@@ -1103,6 +1121,10 @@ public class ParamsProcessorUtil {
 		this.defaultLockSettingsDisableNote = lockSettingsDisableNote;
 	}
 
+	public void setLockSettingsHideUserList(Boolean lockSettingsHideUserList) {
+		this.defaultLockSettingsHideUserList = lockSettingsHideUserList;
+	}
+
 	public void setLockSettingsLockedLayout(Boolean lockSettingsLockedLayout) {
 		this.defaultLockSettingsLockedLayout = lockSettingsLockedLayout;
 	}
@@ -1118,4 +1140,10 @@ public class ParamsProcessorUtil {
 	public void setAllowDuplicateExtUserid(Boolean allow) {
 		this.defaultAllowDuplicateExtUserid = allow;
 	}
+
+	public void setEndWhenNoModerator(Boolean val) {
+		this.defaultEndWhenNoModerator = val;
+	}
+
+
 }

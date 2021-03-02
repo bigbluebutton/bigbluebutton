@@ -14,7 +14,7 @@ export default function handleGetUsers({ body }, meetingId) {
   const usersToRemove = Users.find({
     meetingId,
     userId: { $nin: usersIds },
-  }).fetch();
+  }, { fields: { userId: 1 } }).fetch();
 
   usersToRemove.forEach(user => removeUser(meetingId, user.userId));
 

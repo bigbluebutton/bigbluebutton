@@ -1,6 +1,7 @@
 package org.bigbluebutton.core2.message.handlers.meeting
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.apps.voice.VoiceApp
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -26,6 +27,9 @@ trait DestroyMeetingSysCmdMsgHdlr {
 
     // Eject all users using the client.
     outGW.send(MsgBuilder.buildEndAndKickAllSysMsg(liveMeeting.props.meetingProp.intId, "not-used"))
+
+    // Force stopping of voice recording if voice conf is being recorded.
+    VoiceApp.stopRecordingVoiceConference(liveMeeting, outGW)
 
     // Eject all users from the voice conference
     outGW.send(MsgBuilder.buildEjectAllFromVoiceConfMsg(

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import browser from 'browser-detect';
 import Modal from '/imports/ui/components/modal/simple/component';
 import _ from 'lodash';
@@ -32,49 +32,57 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.functionLabel',
     description: 'heading for shortcut function column',
   },
-  openOptions: {
+  openoptions: {
     id: 'app.shortcut-help.openOptions',
     description: 'describes the open options shortcut',
   },
-  toggleUserList: {
+  toggleuserlist: {
     id: 'app.shortcut-help.toggleUserList',
     description: 'describes the toggle userlist shortcut',
   },
-  toggleMute: {
+  togglemute: {
     id: 'app.shortcut-help.toggleMute',
     description: 'describes the toggle mute shortcut',
   },
-  togglePublicChat: {
+  togglepublicchat: {
     id: 'app.shortcut-help.togglePublicChat',
     description: 'describes the toggle public chat shortcut',
   },
-  hidePrivateChat: {
+  hideprivatechat: {
     id: 'app.shortcut-help.hidePrivateChat',
     description: 'describes the hide public chat shortcut',
   },
-  closePrivateChat: {
+  closeprivatechat: {
     id: 'app.shortcut-help.closePrivateChat',
     description: 'describes the close private chat shortcut',
   },
-  openActions: {
+  openactions: {
     id: 'app.shortcut-help.openActions',
     description: 'describes the open actions shortcut',
   },
-  openStatus: {
+  opendebugwindow: {
+    id: 'app.shortcut-help.openDebugWindow',
+    description: 'describes the open debug window shortcut',
+  },
+  openstatus: {
     id: 'app.shortcut-help.openStatus',
     description: 'describes the open status shortcut',
   },
-  joinAudio: {
+  joinaudio: {
     id: 'app.audio.joinAudio',
     description: 'describes the join audio shortcut',
   },
-  leaveAudio: {
+  leaveaudio: {
     id: 'app.audio.leaveAudio',
     description: 'describes the leave audio shortcut',
   },
   togglePan: {
     id: 'app.shortcut-help.togglePan',
     description: 'describes the toggle pan shortcut',
+  },
+  toggleFullscreen: {
+    id: 'app.shortcut-help.toggleFullscreen',
+    description: 'describes the toggle full-screen shortcut',
   },
   nextSlideDesc: {
     id: 'app.shortcut-help.nextSlideDesc',
@@ -86,12 +94,18 @@ const intlMessages = defineMessages({
   },
 });
 
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_ENABLED = CHAT_CONFIG.enabled;
+
 const ShortcutHelpComponent = (props) => {
   const { intl, shortcuts } = props;
-  const { name } = browser();
+  const { name, os } = browser();
 
   let accessMod = null;
 
+  // different browsers use different access modifier keys
+  // on different systems when using accessKey property.
+  // Overview how different browsers behave: https://www.w3schools.com/jsref/prop_html_accesskey.asp
   switch (name) {
     case 'chrome':
     case 'edge':
@@ -109,12 +123,20 @@ const ShortcutHelpComponent = (props) => {
       break;
   }
 
-  const shortcutItems = shortcuts.map(shortcut => (
-    <tr key={_.uniqueId('hotkey-item-')}>
-      <td className={styles.keyCell}>{`${accessMod} + ${shortcut.accesskey}`}</td>
-      <td className={styles.descCell}>{intl.formatMessage(intlMessages[`${shortcut.descId}`])}</td>
-    </tr>
-  ));
+  // all Browsers on MacOS are using Control + Option as access modifier
+  if (os.includes('OS X 10')) {
+    accessMod = 'Control + Option';
+  }
+
+  const shortcutItems = shortcuts.map((shortcut) => {
+    if (!CHAT_ENABLED && shortcut.descId.indexOf('Chat') !== -1) return null;
+    return (
+      <tr key={_.uniqueId('hotkey-item-')}>
+        <td className={styles.keyCell}>{`${accessMod} + ${shortcut.accesskey}`}</td>
+        <td className={styles.descCell}>{`${intl.formatMessage(intlMessages[`${shortcut.descId.toLowerCase()}`])}`}</td>
+      </tr>
+    );
+  });
 
   shortcutItems.push((
     <tr key={_.uniqueId('hotkey-item-')}>
@@ -123,6 +145,13 @@ const ShortcutHelpComponent = (props) => {
     </tr>
   ));
 
+  shortcutItems.push((
+    <tr key={_.uniqueId('hotkey-item-')}>
+      <td className={styles.keyCell}>Enter</td>
+      <td className={styles.descCell}>{intl.formatMessage(intlMessages.toggleFullscreen)}</td>
+    </tr>
+  ));
+  
   shortcutItems.push((
     <tr key={_.uniqueId('hotkey-item-')}>
       <td className={styles.keyCell}>Right Arrow</td>
@@ -165,11 +194,11 @@ const ShortcutHelpComponent = (props) => {
 };
 
 ShortcutHelpComponent.defaultProps = {
-  intl: intlShape,
+  intl: {},
 };
 
 ShortcutHelpComponent.propTypes = {
-  intl: intlShape,
+  intl: PropTypes.object.isRequired,
   shortcuts: PropTypes.arrayOf(PropTypes.shape({
     accesskey: PropTypes.string.isRequired,
     descId: PropTypes.string.isRequired,

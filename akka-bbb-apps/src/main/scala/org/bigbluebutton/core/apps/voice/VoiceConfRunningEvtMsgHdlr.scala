@@ -17,7 +17,12 @@ trait VoiceConfRunningEvtMsgHdlr extends SystemConfiguration {
     if (liveMeeting.props.recordProp.record) {
       if (msg.body.running) {
         val meetingId = liveMeeting.props.meetingProp.intId
-        val recordFile = VoiceApp.genRecordPath(voiceConfRecordPath, meetingId, TimeUtil.timeNowInMs())
+        val recordFile = VoiceApp.genRecordPath(
+          voiceConfRecordPath,
+          meetingId,
+          TimeUtil.timeNowInMs(),
+          voiceConfRecordCodec
+        )
         log.info("Send START RECORDING voice conf. meetingId=" + meetingId + " voice conf=" + liveMeeting.props.voiceProp.voiceConf)
 
         VoiceApp.startRecordingVoiceConference(liveMeeting, outGW, recordFile)

@@ -5,10 +5,10 @@ import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.apps.voice.UserJoinedVoiceConfEvtMsgHdlr
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.Users2x
-import org.bigbluebutton.core.running.{ BaseMeetingActor, HandlerHelpers, LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting, MeetingActor, OutMsgRouter }
 
-trait UserJoinMeetingAfterReconnectReqMsgHdlr extends HandlerHelpers with BreakoutHdlrHelpers with UserJoinedVoiceConfEvtMsgHdlr {
-  this: BaseMeetingActor =>
+trait UserJoinMeetingAfterReconnectReqMsgHdlr extends HandlerHelpers with UserJoinedVoiceConfEvtMsgHdlr {
+  this: MeetingActor =>
 
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
@@ -27,7 +27,7 @@ trait UserJoinMeetingAfterReconnectReqMsgHdlr extends HandlerHelpers with Breako
       case None =>
         val newState = userJoinMeeting(outGW, msg.body.authToken, msg.body.clientType, liveMeeting, state)
         if (liveMeeting.props.meetingProp.isBreakout) {
-          updateParentMeetingWithUsers()
+          BreakoutHdlrHelpers.updateParentMeetingWithUsers(liveMeeting, eventBus)
         }
         newState
     }

@@ -36,8 +36,11 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.SAXException;
 
-public class GetAllUsersCommand extends FreeswitchCommand {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+public class GetAllUsersCommand extends FreeswitchCommand {
+    private static Logger log = LoggerFactory.getLogger(GetAllUsersCommand.class);
     public GetAllUsersCommand(String room, String requesterId) {
             super(room, requesterId);
     }
@@ -83,24 +86,38 @@ public class GetAllUsersCommand extends FreeswitchCommand {
             ByteArrayInputStream bs = new ByteArrayInputStream(responseBody.getBytes());
             sp.parse(bs, confXML);
 
-            //Maybe move this to XMLResponseConferenceListParser, sendConfrenceEvents ?
-            VoiceUserJoinedEvent pj;
+            Integer numUsers =  confXML.getConferenceList().size();
+            log.info("Num users in conf when starting. conf={},numUsers={}.", room, numUsers);
 
-            for(ConferenceMember member : confXML.getConferenceList()) {
-                //Foreach found member in conference create a JoinedEvent
-                String callerId = member.getCallerId();
-                String callerIdName = member.getCallerIdName();
-                String voiceUserId = callerIdName;
-                
-        		Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
-        		if (matcher.matches()) {			
-        			voiceUserId = matcher.group(1).trim();
-        			callerIdName = matcher.group(2).trim();
-        		} 
-        		
-                pj = new VoiceUserJoinedEvent(voiceUserId, member.getId().toString(), confXML.getConferenceRoom(),
-                		callerId, callerIdName, member.getMuted(), member.getSpeaking(), null);
-                eventListener.handleConferenceEvent(pj);
+            if (numUsers > 0) {
+                log.info("Check conference response: " + responseBody);
+
+                for(ConferenceMember member : confXML.getConferenceList()) {
+                    if ("caller".equals(member.getMemberType())) {
+                        //Foreach found member in conference create a JoinedEvent
+                        String callerId = member.getCallerId();
+                        String callerIdName = member.getCallerIdName();
+                        String voiceUserId = callerIdName;
+                        String uuid = member.getUUID();
+                        log.info("Conf user. uuid=" + uuid
+                                + ",caller=" + callerIdName + ",callerId=" + callerId + ",conf=" + room);
+                        Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
+                        if (matcher.matches()) {
+                            voiceUserId = matcher.group(1).trim();
+                            callerIdName = matcher.group(2).trim();
+                        }
+
+                        VoiceUserJoinedEvent pj = new VoiceUserJoinedEvent(voiceUserId, member.getId().toString(), confXML.getConferenceRoom(),
+                                callerId, callerIdName, member.getMuted(), member.getSpeaking(), "none");
+                        eventListener.handleConferenceEvent(pj);
+                    } else if ("recording_node".equals(member.getMemberType())) {
+
+                    }
+
+
+                }
+            } else {
+                log.info("INFO! Successfully ejected all users from conference {}.", room);
             }
 
         }catch(SAXException se) {

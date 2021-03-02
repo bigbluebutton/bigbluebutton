@@ -3,12 +3,13 @@ import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import VoiceUsers from '/imports/api/voice-users/';
+import _ from 'lodash';
+import SanitizeHTML from 'sanitize-html';
 
 import stringHash from 'string-hash';
 import flat from 'flat';
 
 import addVoiceUser from '/imports/api/voice-users/server/modifiers/addVoiceUser';
-import changeRole from '/imports/api/users/server/modifiers/changeRole';
 
 const COLOR_LIST = [
   '#7b1fa2', '#6a1b9a', '#4a148c', '#5e35b1', '#512da8', '#4527a0',
@@ -16,7 +17,17 @@ const COLOR_LIST = [
   '#0d47a1', '#0277bd', '#01579b',
 ];
 
-export default function addUser(meetingId, user) {
+export default function addUser(meetingId, userData) {
+  const user = userData;
+  const sanitizedName = SanitizeHTML(userData.name, {
+    allowedTags: [],
+    allowedAttributes: {},
+  });
+  // if user typed only tags
+  user.name = sanitizedName.length === 0
+    ? _.escape(userData.name)
+    : sanitizedName;
+
   check(meetingId, String);
 
   check(user, {
@@ -36,33 +47,12 @@ export default function addUser(meetingId, user) {
   });
 
   const userId = user.intId;
-  check(userId, String);
 
   const selector = {
     meetingId,
     userId,
   };
-
-  const USER_CONFIG = Meteor.settings.public.user;
-  const ROLE_PRESENTER = USER_CONFIG.role_presenter;
-  const ROLE_MODERATOR = USER_CONFIG.role_moderator;
-  const ROLE_VIEWER = USER_CONFIG.role_viewer;
-  const APP_CONFIG = Meteor.settings.public.app;
-  const ALLOW_HTML5_MODERATOR = APP_CONFIG.allowHTML5Moderator;
-
   const Meeting = Meetings.findOne({ meetingId });
-  // override moderator status of html5 client users, depending on a system flag
-  const dummyUser = Users.findOne(selector);
-  let userRole = user.role;
-
-  if (
-    dummyUser
-    && dummyUser.clientType === 'HTML5'
-    && userRole === ROLE_MODERATOR
-    && !ALLOW_HTML5_MODERATOR
-  ) {
-    userRole = ROLE_VIEWER;
-  }
 
   /* While the akka-apps dont generate a color we just pick one
     from a list based on the userId */
@@ -72,23 +62,25 @@ export default function addUser(meetingId, user) {
     $set: Object.assign(
       {
         meetingId,
-        connectionStatus: 'online',
-        roles: [ROLE_VIEWER.toLowerCase()],
         sortName: user.name.trim().toLowerCase(),
         color,
+        mobile: false,
         breakoutProps: {
           isBreakoutUser: Meeting.meetingProp.isBreakout,
           parentId: Meeting.breakoutProps.parentId,
         },
+        effectiveConnectionType: null,
         inactivityCheck: false,
         responseDelay: 0,
+        loggedOut: false,
       },
       flat(user),
     ),
   };
 
-  // Only add an empty VoiceUser if there isn't one already. We want to avoid overwriting good data
-  if (!VoiceUsers.findOne({ meetingId, intId: userId })) {
+  // Only add an empty VoiceUser if there isn't one already and if the user coming in isn't a
+  // dial-in user. We want to avoid overwriting good data
+  if (user.clientType !== 'dial-in-user' && !VoiceUsers.findOne({ meetingId, intId: userId })) {
     addVoiceUser(meetingId, {
       voiceUserId: '',
       intId: userId,
@@ -103,26 +95,15 @@ export default function addUser(meetingId, user) {
     });
   }
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Adding user to collection: ${err}`);
-    }
+  try {
+    const { insertedId } = Users.upsert(selector, modifier);
 
-    if (user.presenter) {
-      changeRole(ROLE_PRESENTER, true, userId, meetingId);
-    }
-
-    if (userRole === ROLE_MODERATOR) {
-      changeRole(ROLE_MODERATOR, true, userId, meetingId);
-    }
-
-    const { insertedId } = numChanged;
     if (insertedId) {
-      return Logger.info(`Added user id=${userId} meeting=${meetingId}`);
+      Logger.info(`Added user id=${userId} meeting=${meetingId}`);
+    } else {
+      Logger.info(`Upserted user id=${userId} meeting=${meetingId}`);
     }
-
-    return Logger.info(`Upserted user id=${userId} meeting=${meetingId}`);
-  };
-
-  return Users.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Adding user to collection: ${err}`);
+  }
 }

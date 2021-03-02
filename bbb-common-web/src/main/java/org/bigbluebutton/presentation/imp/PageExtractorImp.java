@@ -29,10 +29,11 @@ public class PageExtractorImp implements PageExtractor {
   private static Logger log = LoggerFactory.getLogger(PageExtractorImp.class);
 
   private static final String SPACE = " ";
+  private static final long extractTimeout = 10000; // 10sec
 
   public boolean extractPage(File presentationFile, File output, int page) {
     String COMMAND = "pdfseparate -f " + page + " -l " + page + SPACE
         + presentationFile.getAbsolutePath() + SPACE + output.getAbsolutePath();
-    return new ExternalProcessExecutor().exec(COMMAND, 60000);
+    return new ExternalProcessExecutor().exec(COMMAND, extractTimeout);
   }
 }

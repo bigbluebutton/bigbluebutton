@@ -1,6 +1,6 @@
+const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const Page = require('../core/page');
 const e = require('./elements');
-const ce = require('../core/elements');
 const util = require('./util');
 
 class Status extends Page {
@@ -9,30 +9,15 @@ class Status extends Page {
   }
 
   async test() {
-    // TODO: Check this if it's open before click
-    await this.click(ce.userList);
-
-    await this.screenshot(true);
-    const status0 = await util.getTestElements(this);
-
     await util.setStatus(this, e.applaud);
-
-    await this.screenshot(true);
-    const status1 = await util.getTestElements(this);
-
+    const resp1 = await this.page.evaluate(util.countTestElements, 'div[data-test="userAvatar"] > div > i[class="icon-bbb-applause"]');
     await util.setStatus(this, e.away);
+    const resp2 = await this.page.evaluate(util.countTestElements, 'div[data-test="userAvatar"] > div > i[class="icon-bbb-time"]');
 
-    await this.screenshot(true);
-    const status2 = await util.getTestElements(this);
-
-    await this.click(e.firstUser);
+    await this.click(e.firstUser, true);
+    await this.waitForSelector(e.clearStatus, ELEMENT_WAIT_TIME);
     await this.click(e.clearStatus, true);
-
-    await this.screenshot(true);
-    const status3 = await util.getTestElements(this);
-
-    // TODO: Check test
-    return true;
+    return resp1 === resp2;
   }
 }
 

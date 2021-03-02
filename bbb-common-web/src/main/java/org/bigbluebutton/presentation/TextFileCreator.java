@@ -20,5 +20,5 @@
 package org.bigbluebutton.presentation;
 
 public interface TextFileCreator {
-	public boolean createTextFiles(UploadedPresentation pres);
+	public boolean createTextFile(UploadedPresentation pres, int page);
 }

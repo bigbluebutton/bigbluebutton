@@ -25,11 +25,13 @@ object AppsRedisSubscriberActor extends SystemConfiguration {
 }
 
 class AppsRedisSubscriberActor(connEventBus: InternalMessageBus, redisHost: String,
-  redisPort: Int,
-  channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
-    extends RedisSubscriberActor(new InetSocketAddress(redisHost, redisPort),
-      channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") })
-    with SystemConfiguration with ActorLogging {
+                               redisPort: Int,
+                               channels:  Seq[String] = Nil, patterns: Seq[String] = Nil)
+  extends RedisSubscriberActor(
+    new InetSocketAddress(redisHost, redisPort),
+    channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") }
+  )
+  with SystemConfiguration with ActorLogging {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {

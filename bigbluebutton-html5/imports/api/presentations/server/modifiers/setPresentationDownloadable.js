@@ -21,16 +21,13 @@ export default function setPresentationDownloadable(meetingId, podId,
     },
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      Logger.error(`Could not set downloadable on pres {${presentationId} in meeting {${meetingId}} ${err}`);
-      return;
-    }
+  try {
+    const { numberAffected } = Presentations.upsert(selector, modifier);
 
-    if (numChanged) {
+    if (numberAffected) {
       Logger.info(`Set downloadable status on presentation {${presentationId} in meeting {${meetingId}}`);
     }
-  };
-
-  return Presentations.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Could not set downloadable on pres {${presentationId} in meeting {${meetingId}} ${err}`);
+  }
 }

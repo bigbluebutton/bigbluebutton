@@ -38,6 +38,19 @@ class BbbWebApiGWApp(
 
   val redisPass = if (redisPassword != "") Some(redisPassword) else None
   val redisConfig = RedisConfig(redisHost, redisPort, redisPass, redisExpireKey)
+
+  var redisStorage = new RedisStorageService()
+  redisStorage.setHost(redisConfig.host)
+  redisStorage.setPort(redisConfig.port)
+  val redisPassStr = redisConfig.password match {
+    case Some(pass) => pass
+    case None       => ""
+  }
+  redisStorage.setPassword(redisPassStr)
+  redisStorage.setExpireKey(redisConfig.expireKey)
+  redisStorage.setClientName("BbbWebRedisStore")
+  redisStorage.start()
+
   private val redisPublisher = new RedisPublisher(system, "BbbWebPub", redisConfig)
 
   private val msgSender: MessageSender = new MessageSender(redisPublisher)
@@ -114,10 +127,9 @@ class BbbWebApiGWApp(
                     viewerPass: String, createTime: java.lang.Long, createDate: String, isBreakout: java.lang.Boolean,
                     sequence: java.lang.Integer,
                     freeJoin: java.lang.Boolean,
-                    metadata: java.util.Map[String, String], guestPolicy: String,
+                    metadata: java.util.Map[String, String], guestPolicy: String, authenticatedGuest: java.lang.Boolean,
                     welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMessage: String,
-                    dialNumber: String, maxUsers: java.lang.Integer, maxInactivityTimeoutMinutes: java.lang.Integer,
-                    warnMinutesBeforeMax:                   java.lang.Integer,
+                    dialNumber: String, maxUsers: java.lang.Integer,
                     meetingExpireIfNoUserJoinedInMinutes:   java.lang.Integer,
                     meetingExpireWhenLastUserLeftInMinutes: java.lang.Integer,
                     userInactivityInspectTimerInMinutes:    java.lang.Integer,
@@ -127,15 +139,14 @@ class BbbWebApiGWApp(
                     allowModsToUnmuteUsers:                 java.lang.Boolean,
                     keepEvents:                             java.lang.Boolean,
                     breakoutParams:                         BreakoutRoomsParams,
-                    lockSettingsParams:                     LockSettingsParams): Unit = {
+                    lockSettingsParams:                     LockSettingsParams,
+                    html5InstanceId:                        java.lang.Integer): Unit = {
 
     val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
       isBreakout = isBreakout.booleanValue())
     val durationProps = DurationProps(
       duration = duration.intValue(),
       createdTime = createTime.longValue(), createDate,
-      maxInactivityTimeoutMinutes = maxInactivityTimeoutMinutes.intValue(),
-      warnMinutesBeforeMax = warnMinutesBeforeMax.intValue(),
       meetingExpireIfNoUserJoinedInMinutes = meetingExpireIfNoUserJoinedInMinutes.intValue(),
       meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes.intValue(),
       userInactivityInspectTimerInMinutes = userInactivityInspectTimerInMinutes.intValue(),
@@ -161,7 +172,7 @@ class BbbWebApiGWApp(
       modOnlyMessage = modOnlyMessage)
     val voiceProp = VoiceProp(telVoice = voiceBridge, voiceConf = voiceBridge, dialNumber = dialNumber, muteOnStart = muteOnStart.booleanValue())
     val usersProp = UsersProp(maxUsers = maxUsers.intValue(), webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
-      guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue())
+      guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(), authenticatedGuest = authenticatedGuest.booleanValue())
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
     val screenshareProps = ScreenshareProps(
       screenshareConf = voiceBridge + screenshareConfSuffix,
@@ -175,9 +186,14 @@ class BbbWebApiGWApp(
       disablePrivateChat = lockSettingsParams.disablePrivateChat.booleanValue(),
       disablePublicChat = lockSettingsParams.disablePublicChat.booleanValue(),
       disableNote = lockSettingsParams.disableNote.booleanValue(),
+      hideUserList = lockSettingsParams.hideUserList.booleanValue(),
       lockedLayout = lockSettingsParams.lockedLayout.booleanValue(),
       lockOnJoin = lockSettingsParams.lockOnJoin.booleanValue(),
       lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue()
+    )
+
+    val systemProps = SystemProps(
+      html5InstanceId
     )
 
     val defaultProps = DefaultProps(
@@ -191,7 +207,8 @@ class BbbWebApiGWApp(
       usersProp,
       metadataProp,
       screenshareProps,
-      lockSettingsProps
+      lockSettingsProps,
+      systemProps
     )
 
     //meetingManagerActorRef ! new CreateMeetingMsg(defaultProps)
@@ -220,6 +237,11 @@ class BbbWebApiGWApp(
 
   def ejectDuplicateUser(meetingId: String, intUserId: String, name: String, extUserId: String): Unit = {
     val event = MsgBuilder.buildEjectDuplicateUserRequestToAkkaApps(meetingId, intUserId, name, extUserId)
+    msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+  }
+
+  def guestWaitingLeft(meetingId: String, intUserId: String): Unit = {
+    val event = MsgBuilder.buildGuestWaitingLeftMsg(meetingId, intUserId)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
   }
 
@@ -260,18 +282,45 @@ class BbbWebApiGWApp(
     if (msg.isInstanceOf[DocPageGeneratedProgress]) {
       val event = MsgBuilder.buildPresentationPageGeneratedPubMsg(msg.asInstanceOf[DocPageGeneratedProgress])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+
+      // Send new event with page urls
+      val newEvent = MsgBuilder.buildPresentationPageConvertedSysMsg(msg.asInstanceOf[DocPageGeneratedProgress])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, newEvent))
     } else if (msg.isInstanceOf[OfficeDocConversionProgress]) {
       val event = MsgBuilder.buildPresentationConversionUpdateSysPubMsg(msg.asInstanceOf[OfficeDocConversionProgress])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[DocPageCompletedProgress]) {
       val event = MsgBuilder.buildPresentationConversionCompletedSysPubMsg(msg.asInstanceOf[DocPageCompletedProgress])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+
+      // Send new event with page urls
+      val newEvent = MsgBuilder.buildPresentationConversionEndedSysMsg(msg.asInstanceOf[DocPageCompletedProgress])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, newEvent))
+
     } else if (msg.isInstanceOf[DocPageCountFailed]) {
       val event = MsgBuilder.buildPresentationPageCountFailedSysPubMsg(msg.asInstanceOf[DocPageCountFailed])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[DocPageCountExceeded]) {
       val event = MsgBuilder.buildPresentationPageCountExceededSysPubMsg(msg.asInstanceOf[DocPageCountExceeded])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    } else if (msg.isInstanceOf[PdfConversionInvalid]) {
+      val event = MsgBuilder.buildPdfConversionInvalidErrorSysPubMsg(msg.asInstanceOf[PdfConversionInvalid])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    } else if (msg.isInstanceOf[DocConversionRequestReceived]) {
+      val event = MsgBuilder.buildPresentationConversionRequestReceivedSysMsg(msg.asInstanceOf[DocConversionRequestReceived])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    } else if (msg.isInstanceOf[DocPageConversionStarted]) {
+      val event = MsgBuilder.buildPresentationPageConversionStartedSysMsg(msg.asInstanceOf[DocPageConversionStarted])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     }
+  }
+
+/*** Caption API ***/
+  def generateSingleUseCaptionToken(recordId: String, caption: String, expirySeconds: Long): String = {
+    redisStorage.generateSingleUseCaptionToken(recordId, caption, expirySeconds)
+  }
+
+  def validateSingleUseCaptionToken(token: String, meetingId: String, caption: String): Boolean = {
+    redisStorage.validateSingleUseCaptionToken(token, meetingId, caption)
   }
 }

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -59,10 +60,19 @@ public class PresentationUrlDownloadService {
     }
 
     public void processUploadedFile(String podId, String meetingId, String presId,
-            String filename, File presFile, Boolean current) {
+                                    String filename, File presFile, Boolean current, String authzToken,
+                                    Boolean uploadFailed, ArrayList<String> uploadFailReasons) {
         // TODO add podId
-        UploadedPresentation uploadedPres = new UploadedPresentation(podId, meetingId,
-                presId, filename, presentationBaseURL, current);
+        UploadedPresentation uploadedPres = new UploadedPresentation(
+          podId,
+          meetingId,
+          presId,
+          filename,
+          presentationBaseURL,
+          current,
+          authzToken,
+          uploadFailed,
+          uploadFailReasons);
         uploadedPres.setUploadedFile(presFile);
         processUploadedPresentation(uploadedPres);
     }
@@ -83,6 +93,9 @@ public class PresentationUrlDownloadService {
 
     private void extractPage(final String sourceMeetingId, final String presentationId,
                              final Integer presentationSlide, final String destinationMeetingId) {
+
+        Boolean uploadFailed = false;
+        ArrayList<String> uploadFailedReasons = new ArrayList<String>();
 
         // Build the source meeting path
         File sourceMeetingPath = new File(presentationDir + File.separatorChar
@@ -118,13 +131,13 @@ public class PresentationUrlDownloadService {
         } else {
             sourcePresentationFile = matches[0];
         }
+
         // Build the target meeting path
-        String filenameExt = FilenameUtils.getExtension(sourcePresentationFile
-                .getName());
-        String presId = generatePresentationId(presentationId);
+        String filenameExt = FilenameUtils.getExtension(sourcePresentationFile.getName());
+        String presId = Util.generatePresentationId(presentationId);
         String newFilename = Util.createNewFilename(presId, filenameExt);
 
-        File uploadDir = createPresentationDirectory(destinationMeetingId,
+        File uploadDir = Util.createPresentationDir(destinationMeetingId,
                 presentationDir, presId);
         String newFilePath = uploadDir.getAbsolutePath() + File.separatorChar
                 + newFilename;
@@ -143,27 +156,15 @@ public class PresentationUrlDownloadService {
         }
 
         // Hardcode pre-uploaded presentation for breakout room to the default presentation window
-        processUploadedFile("DEFAULT_PRESENTATION_POD", destinationMeetingId, presId, "default-"
-                + presentationSlide.toString() + "." + filenameExt,
-                newPresentation, true);
-    }
-
-    public String generatePresentationId(String name) {
-        long timestamp = System.currentTimeMillis();
-        return DigestUtils.sha1Hex(name) + "-" + timestamp;
-    }
-
-    public File createPresentationDirectory(String meetingId,
-            String presentationDir, String presentationId) {
-        String meetingPath = presentationDir + File.separatorChar + meetingId
-                + File.separatorChar + meetingId;
-        String presPath = meetingPath + File.separatorChar + presentationId;
-        File dir = new File(presPath);
-        log.debug("Creating dir [{}]", presPath);
-        if (dir.mkdirs()) {
-            return dir;
-        }
-        return null;
+        processUploadedFile("DEFAULT_PRESENTATION_POD",
+          destinationMeetingId,
+          presId,
+          "default-" + presentationSlide.toString() + "." + filenameExt,
+          newPresentation,
+          true,
+          "breakout-authz-token",
+          uploadFailed,
+          uploadFailedReasons);
     }
 
     private String followRedirect(String meetingId, String redirectUrl,
@@ -186,7 +187,7 @@ public class PresentationUrlDownloadService {
         HttpURLConnection conn;
         try {
             conn = (HttpURLConnection) presUrl.openConnection();
-            conn.setReadTimeout(5000);
+            conn.setReadTimeout(60000);
             conn.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
             conn.addRequestProperty("User-Agent", "Mozilla");
 

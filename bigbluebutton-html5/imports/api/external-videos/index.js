@@ -1,5 +1,11 @@
 import { Meteor } from 'meteor/meteor';
 
-const Streamer = new Meteor.Streamer('videos');
+let streamer = null;
+const getStreamer = (meetingID) => {
+  if (!streamer) {
+    streamer = new Meteor.Streamer(`external-videos-${meetingID}`);
+  }
+  return streamer;
+};
 
-export default Streamer;
+export { getStreamer };

@@ -3,10 +3,11 @@ import Users from '/imports/api/users';
 import { makeCall } from '/imports/ui/services/api';
 import Meetings from '/imports/api/meetings';
 import Breakouts from '/imports/api/breakouts';
-import { getVideoId } from '/imports/ui/components/external-video-player/service';
+import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
 
 const USER_CONFIG = Meteor.settings.public.user;
 const ROLE_MODERATOR = USER_CONFIG.role_moderator;
+const DIAL_IN_USER = 'dial-in-user';
 
 const getBreakouts = () => Breakouts.find({ parentMeetingId: Auth.meetingID })
   .fetch()
@@ -22,21 +23,53 @@ const getUsersNotAssigned = filterBreakoutUsers(currentBreakoutUsers);
 
 const takePresenterRole = () => makeCall('assignPresenter', Auth.userID);
 
+const amIPresenter = () => {
+  const currentUser = Users.findOne({ userId: Auth.userID },
+    { fields: { presenter: 1 } });
+
+  if (!currentUser) {
+    return false;
+  }
+
+  return currentUser.presenter;
+};
+
+const amIModerator = () => {
+  const currentUser = Users.findOne({ userId: Auth.userID },
+    { fields: { role: 1 } });
+
+  if (!currentUser) {
+    return false;
+  }
+
+  return currentUser.role === ROLE_MODERATOR;
+};
+
+const isMe = intId => intId === Auth.userID;
+
+
 export default {
-  isUserPresenter: () => Users.findOne({ userId: Auth.userID }).presenter,
-  isUserModerator: () => Users.findOne({ userId: Auth.userID }).role === ROLE_MODERATOR,
-  recordSettingsList: () => Meetings.findOne({ meetingId: Auth.meetingID }).recordProp,
-  meetingIsBreakout: () => Meetings.findOne({ meetingId: Auth.meetingID }).meetingProp.isBreakout,
-  meetingName: () => Meetings.findOne({ meetingId: Auth.meetingID }).meetingProp.name,
-  users: () => Users.find({ connectionStatus: 'online', meetingId: Auth.meetingID }).fetch(),
-  hasBreakoutRoom: () => Breakouts.find({ parentMeetingId: Auth.meetingID }).fetch().length > 0,
-  isBreakoutEnabled: () => Meetings.findOne({ meetingId: Auth.meetingID }).breakoutProps.enabled,
-  isBreakoutRecordable: () => Meetings.findOne({ meetingId: Auth.meetingID }).breakoutProps.record,
+  amIPresenter,
+  amIModerator,
+  isMe,
+  meetingName: () => Meetings.findOne({ meetingId: Auth.meetingID },
+    { fields: { 'meetingProp.name': 1 } }).meetingProp.name,
+  users: () => Users.find({
+    meetingId: Auth.meetingID,
+    clientType: { $ne: DIAL_IN_USER },
+  }).fetch(),
+  isBreakoutEnabled: () => Meetings.findOne({ meetingId: Auth.meetingID },
+    { fields: { 'breakoutProps.enabled': 1 } }).breakoutProps.enabled,
+  isBreakoutRecordable: () => Meetings.findOne({ meetingId: Auth.meetingID },
+    { fields: { 'breakoutProps.record': 1 } }).breakoutProps.record,
   toggleRecording: () => makeCall('toggleRecording'),
   createBreakoutRoom: (numberOfRooms, durationInMinutes, record = false) => makeCall('createBreakoutRoom', numberOfRooms, durationInMinutes, record),
   sendInvitation: (breakoutId, userId) => makeCall('requestJoinURL', { breakoutId, userId }),
+  breakoutJoinedUsers: () => Breakouts.find({
+    joinedUsers: { $exists: true },
+  }, { fields: { joinedUsers: 1, breakoutId: 1, sequence: 1 }, sort: { sequence: 1 } }).fetch(),
   getBreakouts,
   getUsersNotAssigned,
   takePresenterRole,
-  isSharingVideo: () => getVideoId(),
+  isSharingVideo: () => getVideoUrl(),
 };

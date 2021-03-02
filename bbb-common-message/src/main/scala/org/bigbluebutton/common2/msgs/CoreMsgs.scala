@@ -23,11 +23,12 @@ trait StandardSysMsg extends BbbCoreMsg {
   def header: BbbClientMsgHeader
 }
 
-case class RoutingEnvelope(msgType: String, meetingId: String, userId: String)
-
-case class BbbMsgToClientEnvelope(name: String, routing: RoutingEnvelope)
-
-case class BbbCoreEnvelope(name: String, routing: collection.immutable.Map[String, String])
+case class BbbCoreEnvelope(name: String, routing: collection.immutable.Map[String, String], timestamp: Long)
+object BbbCoreEnvelope {
+  def apply(name: String, routing: collection.immutable.Map[String, String]): BbbCoreEnvelope = {
+    BbbCoreEnvelope(name, routing, System.currentTimeMillis())
+  }
+}
 
 case class BbbCommonEnvCoreMsg(envelope: BbbCoreEnvelope, core: BbbCoreMsg) extends BbbCommonMsg
 

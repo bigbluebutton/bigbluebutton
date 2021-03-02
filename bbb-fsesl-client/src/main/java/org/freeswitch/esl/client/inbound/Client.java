@@ -428,6 +428,7 @@ public class Client
         public void eventReceived( final EslEvent event )
         {
             log.debug( "Event received [{}]", event );
+
             /*
              *  Notify listeners in a different thread in order to:
              *    - not to block the IO threads with potentially long-running listeners
@@ -537,8 +538,10 @@ public class Client
                                         System.out.println("##### " + sb.toString());
                                          **/
                                     }
+                                } else {
+                                    listener.eventReceived( event );
                                 }
-                                listener.eventReceived( event );
+
                             } catch ( Throwable t ) {
                                 log.error( "Error caught notifying listener of event [" + event + ']', t );
                             }

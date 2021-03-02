@@ -4,6 +4,7 @@ import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.{ BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, EndBreakoutRoomInternalMsg }
 import org.bigbluebutton.core.apps.users.UsersApp
+import org.bigbluebutton.core.apps.voice.VoiceApp
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
@@ -151,18 +152,18 @@ trait HandlerHelpers extends SystemConfiguration {
     newState
   }
 
-  def endMeeting(outGW: OutMsgRouter, liveMeeting: LiveMeeting, reason: String): Unit = {
-    def buildMeetingEndingEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
+  def endMeeting(outGW: OutMsgRouter, liveMeeting: LiveMeeting, reason: String, userId: String): Unit = {
+    def buildMeetingEndingEvtMsg(meetingId: String, userId: String): BbbCommonEnvCoreMsg = {
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
       val envelope = BbbCoreEnvelope(MeetingEndingEvtMsg.NAME, routing)
       val body = MeetingEndingEvtMsgBody(meetingId, reason)
-      val header = BbbClientMsgHeader(MeetingEndingEvtMsg.NAME, meetingId, "not-used")
+      val header = BbbClientMsgHeader(MeetingEndingEvtMsg.NAME, meetingId, userId)
       val event = MeetingEndingEvtMsg(header, body)
 
       BbbCommonEnvCoreMsg(envelope, event)
     }
 
-    val endingEvent = buildMeetingEndingEvtMsg(liveMeeting.props.meetingProp.intId)
+    val endingEvent = buildMeetingEndingEvtMsg(liveMeeting.props.meetingProp.intId, userId)
 
     // Broadcast users the meeting will end
     outGW.send(endingEvent)
@@ -197,6 +198,9 @@ trait HandlerHelpers extends SystemConfiguration {
   }
 
   def ejectAllUsersFromVoiceConf(outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
+    // Force stopping of voice recording if voice conf is being recorded.
+    VoiceApp.stopRecordingVoiceConference(liveMeeting, outGW)
+
     val event = MsgBuilder.buildEjectAllFromVoiceConfMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf)
     outGW.send(event)
   }
@@ -213,8 +217,8 @@ trait HandlerHelpers extends SystemConfiguration {
     state.update(None)
   }
 
-  def sendEndMeetingDueToExpiry(reason: String, eventBus: InternalEventBus, outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
-    endMeeting(outGW, liveMeeting, reason)
+  def sendEndMeetingDueToExpiry(reason: String, eventBus: InternalEventBus, outGW: OutMsgRouter, liveMeeting: LiveMeeting, userId: String): Unit = {
+    endMeeting(outGW, liveMeeting, reason, userId)
     notifyParentThatBreakoutEnded(eventBus, liveMeeting)
     ejectAllUsersFromVoiceConf(outGW, liveMeeting)
     destroyMeeting(eventBus, liveMeeting.props.meetingProp.intId)
@@ -235,6 +239,9 @@ trait HandlerHelpers extends SystemConfiguration {
         new BreakoutRoomEndedInternalMsg(meetingId)
       ))
     }
+
+    // Force stopping of voice recording if voice conf is being recorded.
+    VoiceApp.stopRecordingVoiceConference(liveMeeting, outGW)
 
     val event = MsgBuilder.buildEjectAllFromVoiceConfMsg(meetingId, liveMeeting.props.voiceProp.voiceConf)
     outGW.send(event)

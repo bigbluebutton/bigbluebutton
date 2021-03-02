@@ -27,6 +27,7 @@ public class ConversionMessageConstants {
     public static final String UNSUPPORTED_DOCUMENT_KEY = "UNSUPPORTED_DOCUMENT";
     public static final String PAGE_COUNT_FAILED_KEY = "PAGE_COUNT_FAILED";
     public static final String PAGE_COUNT_EXCEEDED_KEY = "PAGE_COUNT_EXCEEDED";
+    public static final String PDF_HAS_BIG_PAGE = "PDF_HAS_BIG_PAGE";
     public static final String GENERATED_SLIDE_KEY = "GENERATED_SLIDE";
     public static final String GENERATING_THUMBNAIL_KEY = "GENERATING_THUMBNAIL";
     public static final String GENERATED_THUMBNAIL_KEY = "GENERATED_THUMBNAIL";
@@ -34,6 +35,7 @@ public class ConversionMessageConstants {
     public static final String GENERATED_TEXTFILES_KEY = "GENERATED_TEXTFILES";
     public static final String GENERATING_SVGIMAGES_KEY = "GENERATING_SVGIMAGES";
     public static final String GENERATED_SVGIMAGES_KEY = "GENERATED_SVGIMAGES";
+    public static final String CONVERSION_STARTED_KEY = "CONVERSION_STARTED_KEY";
     public static final String CONVERSION_COMPLETED_KEY = "CONVERSION_COMPLETED";
 
     private ConversionMessageConstants() {

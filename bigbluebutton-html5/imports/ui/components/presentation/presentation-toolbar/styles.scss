@@ -1,5 +1,5 @@
-@import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/_indicators";
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 :root {
   --whiteboard-toolbar-padding-sm: .3rem; 
@@ -26,11 +26,25 @@
 
 .presentationBtn {
   position: relative;
+  color: var(--toolbar-button-color);
+  background-color: var(--color-off-white);
+  border-radius: 0;
+  box-shadow: none !important;
+  border: 0;
+
+  &:focus {
+    background-color: var(--color-off-white);
+    border: 0;
+  }
 }
 
 .presentationZoomControls {
   justify-content: flex-end;
-  padding-right: var(--whiteboard-toolbar-padding);
+  padding: 0 var(--whiteboard-toolbar-padding) 0 0;
+
+  [dir="rtl"] & {
+    padding: 0 0 0 var(--whiteboard-toolbar-padding);
+  }
 }
 
 .presentationSlideControls,
@@ -65,32 +79,22 @@
     &:-moz-focusring {
       outline: none;
     }
-
-    margin-right: var(--whiteboard-toolbar-margin);
+    border: 0;
+    background-color: var(--color-off-white);
+    cursor: pointer;
+    margin: 0 var(--whiteboard-toolbar-margin) 0 0;
     padding: var(--whiteboard-toolbar-padding);
     padding-left: var(--whiteboard-toolbar-padding-sm);
+
+    [dir="rtl"] & {
+      margin: 0 0 0 var(--whiteboard-toolbar-margin);
+      padding: var(--whiteboard-toolbar-padding);
+      padding-right: var(--whiteboard-toolbar-padding-sm);
+    }
 
     option {
       color: var(--toolbar-button-color);
       background-color: var(--color-off-white);
-    }
-  }
-
-  button,
-  select,
-  >div {
-    color: var(--toolbar-button-color);
-    background-color: var(--color-off-white);
-    border-top: 0;
-    border-bottom: 0;
-    border-left: 0;
-    border-radius: 0;
-    box-shadow: none !important;
-    border: 0;
-
-    &:focus {
-      background-color: var(--color-off-white);
-      border: 0;
     }
   }
 
@@ -118,6 +122,14 @@
 
   i {
     font-size: 1rem;
+
+    [dir="rtl"] & {
+      -webkit-transform: scale(-1, 1);
+      -moz-transform: scale(-1, 1);
+      -ms-transform: scale(-1, 1);
+      -o-transform: scale(-1, 1);
+      transform: scale(-1, 1);
+    }
   }
 }
 
@@ -141,16 +153,21 @@
   margin: var(--border-size);
   margin-left: var(--whiteboard-toolbar-margin);
 
+  [dir="rtl"] & {
+    margin: var(--border-size);
+    margin-right: var(--whiteboard-toolbar-margin);
+  }
+
   &:-moz-focusring {
     outline: none;
   }
   
   &:hover {
-    @include highContrastOutline();
+    @extend %highContrastOutline;
   }
 
   &:focus {
-    @include highContrastOutline();
+    @extend %highContrastOutline;
     outline-style: solid;
   }
 }
