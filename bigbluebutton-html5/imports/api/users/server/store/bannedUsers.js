@@ -1,4 +1,4 @@
-import {check} from 'meteor/check';
+import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 
 class BannedUsers {
@@ -10,12 +10,12 @@ class BannedUsers {
       // types of queries for the users:
       // 1. meetingId
       // 2. meetingId, userId
-      this.store._ensureIndex({meetingId: 1, userId: 1});
+      this.store._ensureIndex({ meetingId: 1, userId: 1 });
     }
   }
 
   init(meetingId) {
-    Logger.debug('BannedUsers :: init', {meetingId});
+    Logger.debug('BannedUsers :: init', { meetingId });
 
     // if (!this.store[meetingId]) this.store[meetingId] = new Set();
   }
@@ -24,7 +24,7 @@ class BannedUsers {
     check(meetingId, String);
     check(externalId, String);
 
-    Logger.debug('BannedUsers :: add', {meetingId, externalId});
+    Logger.debug('BannedUsers :: add', { meetingId, externalId });
 
     const selector = {
       meetingId,
@@ -32,18 +32,18 @@ class BannedUsers {
     };
 
     const modifier = Object.assign( // TODO
-      {meetingId},
-      {externalId},
+      { meetingId },
+      { externalId },
     );
 
     try {
       const insertedId = this.store.upsert(selector, modifier);
 
       if (insertedId) {
-        Logger.info('BannedUsers :: Added to BannedUsers collection', {meetingId, externalId});
+        Logger.info('BannedUsers :: Added to BannedUsers collection', { meetingId, externalId });
       }
     } catch (err) {
-      Logger.error('BannedUsers :: Error on adding to BannedUsers collection', {meetingId, externalId, err});
+      Logger.error('BannedUsers :: Error on adding to BannedUsers collection', { meetingId, externalId, err });
     }
   }
 
@@ -56,9 +56,9 @@ class BannedUsers {
 
     try {
       this.store.remove(selector);
-      Logger.info('BannedUsers :: Removed meeting', {meetingId});
+      Logger.info('BannedUsers :: Removed meeting', { meetingId });
     } catch (err) {
-      Logger.error('BannedUsers :: Removing from collection', {err});
+      Logger.error('BannedUsers :: Removing from collection', { err });
     }
   }
 
@@ -66,9 +66,9 @@ class BannedUsers {
     check(meetingId, String);
     check(externalId, String);
 
-    Logger.info('BannedUsers :: has', {meetingId, externalId});
+    Logger.info('BannedUsers :: has', { meetingId, externalId });
 
-    return this.store.findOne({meetingId, externalId});
+    return this.store.findOne({ meetingId, externalId });
   }
 }
 

@@ -10,6 +10,7 @@ import createNote from '/imports/api/note/server/methods/createNote';
 import createCaptions from '/imports/api/captions/server/methods/createCaptions';
 import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
+import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
 import BannedUsers from '/imports/api/users/server/store/bannedUsers';
 
 export default function addMeeting(meeting) {
@@ -156,7 +157,7 @@ export default function addMeeting(meeting) {
   if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
     addAnnotationsStreamer(meetingId);
     addCursorStreamer(meetingId);
-    // TODO add addExternalVideoStreamer(meetingId);
+    addExternalVideoStreamer(meetingId);
 
     // we don't want to fully process the create meeting message in frontend since it can lead to duplication of meetings in mongo.
     if (process.env.BBB_HTML5_ROLE === 'frontend') {

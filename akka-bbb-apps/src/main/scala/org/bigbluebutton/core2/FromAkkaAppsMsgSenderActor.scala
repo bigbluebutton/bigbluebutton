@@ -119,7 +119,7 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       //==================================================================
 
       case ValidateAuthTokenRespMsg.NAME =>
-        msgSender.send(fromAkkaAppsRedisChannel, json) // needed for cases when single nodejs process is running (like in development)  
+        msgSender.send(fromAkkaAppsRedisChannel, json) // needed for cases when single nodejs process is running (like in development)
         msgSender.send("from-akka-apps-frontend-redis-channel", json)
 
       // Message duplicated for frontend and backend processes
@@ -141,6 +141,9 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
 
       case UserLeftVoiceConfToClientEvtMsg.NAME =>
         msgSender.send(fromAkkaAppsRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
+      case UpdateExternalVideoEvtMsg.NAME =>
         msgSender.send("from-akka-apps-frontend-redis-channel", json)
 
       case _ =>
