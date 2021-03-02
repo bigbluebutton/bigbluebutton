@@ -122,6 +122,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UserBroadcastCamStartMsg](envelope, jsonNode)
       case UserBroadcastCamStopMsg.NAME =>
         routeGenericMsg[UserBroadcastCamStopMsg](envelope, jsonNode)
+      case GetCamBroadcastPermissionReqMsg.NAME =>
+        routeGenericMsg[GetCamBroadcastPermissionReqMsg](envelope, jsonNode)
+      case GetCamSubscribePermissionReqMsg.NAME =>
+        routeGenericMsg[GetCamSubscribePermissionReqMsg](envelope, jsonNode)
 
       // Voice
       case RecordingStartedVoiceConfEvtMsg.NAME =>
@@ -158,6 +162,8 @@ class ReceivedJsonMsgHandlerActor(
         routeVoiceMsg[UserStatusVoiceConfEvtMsg](envelope, jsonNode)
       case VoiceConfCallStateEvtMsg.NAME =>
         routeVoiceMsg[VoiceConfCallStateEvtMsg](envelope, jsonNode)
+      case GetGlobalAudioPermissionReqMsg.NAME =>
+        routeGenericMsg[GetGlobalAudioPermissionReqMsg](envelope, jsonNode)
 
       // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>
@@ -319,6 +325,10 @@ class ReceivedJsonMsgHandlerActor(
         routeVoiceMsg[ScreenshareStartedVoiceConfEvtMsg](envelope, jsonNode)
       case ScreenshareStoppedVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[ScreenshareStoppedVoiceConfEvtMsg](envelope, jsonNode)
+      case GetScreenBroadcastPermissionReqMsg.NAME =>
+        routeGenericMsg[GetScreenBroadcastPermissionReqMsg](envelope, jsonNode)
+      case GetScreenSubscribePermissionReqMsg.NAME =>
+        routeGenericMsg[GetScreenSubscribePermissionReqMsg](envelope, jsonNode)
 
       // GroupChats
       case GetGroupChatsReqMsg.NAME =>

@@ -75,6 +75,11 @@ class MeetingActor(
   with MuteAllExceptPresentersCmdMsgHdlr
   with MuteMeetingCmdMsgHdlr
   with IsMeetingMutedReqMsgHdlr
+  with GetGlobalAudioPermissionReqMsgHdlr
+  with GetScreenBroadcastPermissionReqMsgHdlr
+  with GetScreenSubscribePermissionReqMsgHdlr
+  with GetCamBroadcastPermissionReqMsgHdlr
+  with GetCamSubscribePermissionReqMsgHdlr
 
   with EjectUserFromVoiceCmdMsgHdlr
   with EndMeetingSysCmdMsgHdlr
@@ -319,6 +324,9 @@ class MeetingActor(
       case m: UserLeaveReqMsg                     => state = handleUserLeaveReqMsg(m, state)
       case m: UserBroadcastCamStartMsg            => handleUserBroadcastCamStartMsg(m)
       case m: UserBroadcastCamStopMsg             => handleUserBroadcastCamStopMsg(m)
+      case m: GetCamBroadcastPermissionReqMsg     => handleGetCamBroadcastPermissionReqMsg(m)
+      case m: GetCamSubscribePermissionReqMsg     => handleGetCamSubscribePermissionReqMsg(m)
+
       case m: UserJoinedVoiceConfEvtMsg           => handleUserJoinedVoiceConfEvtMsg(m)
       case m: MeetingActivityResponseCmdMsg =>
         state = usersApp.handleMeetingActivityResponseCmdMsg(m, state)
@@ -408,6 +416,8 @@ class MeetingActor(
         handleCheckRunningAndRecordingVoiceConfEvtMsg(m)
       case m: UserStatusVoiceConfEvtMsg =>
         handleUserStatusVoiceConfEvtMsg(m)
+      case m: GetGlobalAudioPermissionReqMsg =>
+        handleGetGlobalAudioPermissionReqMsg(m)
 
       // Layout
       case m: GetCurrentLayoutReqMsg => handleGetCurrentLayoutReqMsg(m)
@@ -481,6 +491,8 @@ class MeetingActor(
       case m: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
       case m: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
       case m: GetScreenshareStatusReqMsg                     => screenshareApp2x.handle(m, liveMeeting, msgBus)
+      case m: GetScreenBroadcastPermissionReqMsg             => handleGetScreenBroadcastPermissionReqMsg(m)
+      case m: GetScreenSubscribePermissionReqMsg             => handleGetScreenSubscribePermissionReqMsg(m)
 
       // GroupChat
       case m: CreateGroupChatReqMsg =>
