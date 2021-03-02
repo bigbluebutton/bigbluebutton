@@ -427,7 +427,7 @@ class AudioModal extends Component {
     if (this.skipAudioOptions()) {
       return (
         <div className={styles.connecting} role="alert">
-          <span>
+          <span data-test={!isEchoTest ? 'connecting' : 'connectingToEchoTest'}>
             {!isEchoTest
               ? intl.formatMessage(intlMessages.connecting)
               : intl.formatMessage(intlMessages.connectingEchoTest)
