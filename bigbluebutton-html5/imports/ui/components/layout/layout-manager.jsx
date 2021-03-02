@@ -378,7 +378,7 @@ class LayoutManager extends Component {
     let webcamsAreaWidth;
     let webcamsAreaHeight;
 
-    if (numUsersVideo < 1) {
+    if (!numUsersVideo || numUsersVideo < 1) {
       return {
         webcamsAreaWidth: 0,
         webcamsAreaHeight: 0,
@@ -442,7 +442,7 @@ class LayoutManager extends Component {
       numUsersVideo,
     } = layoutContextState;
 
-    if (numUsersVideo < 1) {
+    if (!numUsersVideo || numUsersVideo < 1) {
       return {
         presentationAreaWidth: mediaAreaWidth,
         presentationAreaHeight: mediaAreaHeight - 20,
