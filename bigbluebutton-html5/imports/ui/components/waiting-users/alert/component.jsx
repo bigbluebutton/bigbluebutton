@@ -87,17 +87,21 @@ class PendingUsersAlert extends Component {
 
   notifyAndStore(user) {
     const { notify, intl } = this.props;
-    notify(
-      PendingUsersAlert.messageElement(user.name, styles.titleMessage),
-      'info',
-      'user',
-      { onOpen: this.storeId(user.intId) },
-      PendingUsersAlert.messageElement(
-        intl.formatMessage(intlMessages.pendingGuestAlert),
-        styles.contentMessage,
-      ),
-      true,
-    );
+
+    if (Settings.application.guestWaitingPushAlerts) {
+      notify(
+        PendingUsersAlert.messageElement(user.name, styles.titleMessage),
+        'info',
+        'user',
+        { onOpen: this.storeId(user.intId) },
+        PendingUsersAlert.messageElement(
+          intl.formatMessage(intlMessages.pendingGuestAlert),
+          styles.contentMessage,
+        ),
+        true,
+      );
+    }
+
     this.ringGuestWaitingBell();
   }
 

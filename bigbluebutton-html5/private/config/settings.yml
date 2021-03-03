@@ -58,7 +58,8 @@ public:
         userJoinPushAlerts: false
         raiseHandAudioAlerts: true
         raiseHandPushAlerts: true
-        guestWaitingAudioAlerts: false
+        guestWaitingAudioAlerts: true
+        guestWaitingPushAlerts: true
         fallbackLocale: en
         overrideLocale: null
         #Audio constraints for microphone. Use this to control browser's
@@ -532,9 +533,6 @@ public:
       throttleInterval: 400
       flushOnClose: true
       logTag: ''
-  waitingGuestBell:
-    enabled: true
-    debounceTime: 5000
 private:
   app:
     host: 127.0.0.1

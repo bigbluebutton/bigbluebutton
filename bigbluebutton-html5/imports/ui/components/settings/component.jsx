@@ -78,6 +78,7 @@ const propTypes = {
     chatPushAlerts: PropTypes.bool,
     userJoinAudioAlerts: PropTypes.bool,
     guestWaitingAudioAlerts: PropTypes.bool,
+    guestWaitingPushAlerts: PropTypes.bool,
     fallbackLocale: PropTypes.string,
     fontSize: PropTypes.string,
     locale: PropTypes.string,

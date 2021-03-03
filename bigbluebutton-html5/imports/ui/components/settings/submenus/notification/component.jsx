@@ -34,7 +34,7 @@ const intlMessages = defineMessages({
   },
   guestWaitingLabel: {
     id: 'app.submenu.notification.guestWaitingLabel',
-    description: 'audio notification when a guest is waiting for approval',
+    description: 'label for guests waiting for approval',
   },
   raiseHandLabel: {
     id: 'app.submenu.notification.raiseHandLabel',
@@ -147,7 +147,17 @@ class NotificationMenu extends BaseMenu {
                     icons={false}
                     defaultChecked={settings.guestWaitingAudioAlerts}
                     onChange={() => this.handleToggle('guestWaitingAudioAlerts')}
-                    ariaLabel={intl.formatMessage(intlMessages.guestWaitingLabel)}
+                    ariaLabel={`${intl.formatMessage(intlMessages.guestWaitingLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)}`}
+                  />
+                </div>
+              </div>
+              <div className={styles.col}>
+                <div className={cx(styles.formElement, styles.pullContentCenter)}>
+                  <Toggle
+                    icons={false}
+                    defaultChecked={settings.guestWaitingPushAlerts}
+                    onChange={() => this.handleToggle('guestWaitingPushAlerts')}
+                    ariaLabel={`${intl.formatMessage(intlMessages.guestWaitingLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)}`}
                   />
                 </div>
               </div>
