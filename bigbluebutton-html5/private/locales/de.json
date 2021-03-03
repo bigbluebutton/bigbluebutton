@@ -706,7 +706,9 @@
     "app.translation.translator.selectLanguage": "Sprache dolmetschen",
     "app.translation.selectTranslation": "Verfügbare Sprachen",
     "app.translation.language.origin": "Original",
-    "app.translation.language.none": "Keine"
+    "app.translation.language.none": "Keine",
+    "app.translation.filterMarker.languageListening": "hören",
+    "app.translation.filterMarker.languageTranslating": "sprechen"
 
 }
 
