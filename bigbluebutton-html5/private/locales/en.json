@@ -704,8 +704,8 @@
     "app.translation.endTranslation": "End Translation",
     "app.translation.newLanguage": "New Language",
     "app.translation.confirmLanguage": "confirm",
-    "app.translation.translator.microphone": "interpreter mic",
-    "app.translation.translator.selectLanguage": "interpret to",
+    "app.translation.translator.microphone": "Interpreter mic",
+    "app.translation.translator.selectLanguage": "Interpret to",
     "app.translation.selectTranslation": "Available languages",
     "app.translation.language.origin": "Floor",
     "app.translation.language.none": "None"
