@@ -157,10 +157,7 @@ class ActionsBar extends PureComponent {
     };
 
     AudioManager.openTranslatorChannel(language.extension, onInternalConnected).then(() => {
-      if( language.extension > 0 ) {
-        Service.muteMicrophone();
-      }
-      if( !this.state.translatorLanguage && !AudioManager.isTranslatorMuted() ) {
+      if (language.extension > 0 && !this.state.translatorLanguage && !AudioManager.isTranslatorMuted()) {
         this.handleMuteTranslator()
       }
       this.setState({translatorLanguage : language})

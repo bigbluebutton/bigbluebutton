@@ -788,9 +788,6 @@ class AudioManager {
           if (onConnected) {
             onConnected(message);
           }
-          if(this.isTranslatorMuted){
-            this.muteTranslator('mute-button')
-          }
           return new Promise(function () {})
         }.bind(this);
 
