@@ -130,7 +130,7 @@ public:
     enableNetworkMonitoring: false
     packetLostThreshold: 10
   kurento:
-    wsUrl: wss://dam23.bbbvm.imdt.com.br/bbb-webrtc-sfu
+    wsUrl: HOST
     # Valid for video-provider. Time (ms) before its WS connection times out
     # and tries to reconnect.
     wsConnectionTimeout: 4000
@@ -351,7 +351,7 @@ public:
     #so far. Increasing this value might help avoiding 1004 error when
     #user activates microphone.
     iceGatheringTimeout: 5000
-    sipjsHackViaWs: true
+    sipjsHackViaWs: false
     # Mute/umute toggle throttle time
     toggleMuteThrottleTime: 300
     #Websocket keepAlive interval (seconds). You may set this to prevent
