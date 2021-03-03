@@ -60,7 +60,8 @@ public class ParamsUtil {
       // If there is no query params, it's an invalid URL already
       if (splitURL.length == 2) {
         String[] params = splitURL[0].split("\\/");
-        padId = params[params.length - 1];
+        // /p/pad/<padId>
+        if (params.length >= 4) padId = params[3];
       }
     } catch (UnsupportedEncodingException e) {
       log.error(e.toString());
