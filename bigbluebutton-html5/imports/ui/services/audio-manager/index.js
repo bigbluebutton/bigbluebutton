@@ -647,6 +647,8 @@ class AudioManager {
 
     const audioAlert = new Audio(url);
 
+    audioAlert.addEventListener('ended', () => { audioAlert.src = null; });
+
     if (this.outputDeviceId && (typeof audioAlert.setSinkId === 'function')) {
       return audioAlert
         .setSinkId(this.outputDeviceId)

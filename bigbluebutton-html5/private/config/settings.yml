@@ -47,7 +47,7 @@ public:
       breakoutRoomLimit: 8
       sendInvitationToIncludedModerators: false
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
-    customHeartbeat: true
+    customHeartbeat: false
     showAllAvailableLocales: false
     defaultSettings:
       application:
@@ -325,12 +325,6 @@ public:
   note:
     enabled: false
     url: ETHERPAD_HOST
-    config:
-      showLineNumbers: false
-      showChat: false
-      noColors: true
-      showControls: true
-      rtl: false
   layout:
     autoSwapLayout: false
     hidePresentation: false

@@ -106,6 +106,66 @@ case class ScreenshareStopRtmpBroadcastVoiceConfMsg(
 ) extends BbbCoreMsg
 case class ScreenshareStopRtmpBroadcastVoiceConfMsgBody(voiceConf: String, screenshareConf: String, url: String, timestamp: String)
 
+/* Sent by bbb-webrtc-sfu to ask permission for broadcasting a screen stream
+ */
+object GetScreenBroadcastPermissionReqMsg { val NAME = "GetScreenBroadcastPermissionReqMsg" }
+case class GetScreenBroadcastPermissionReqMsg(
+    header: BbbClientMsgHeader,
+    body:   GetScreenBroadcastPermissionReqMsgBody
+) extends StandardMsg
+case class GetScreenBroadcastPermissionReqMsgBody(
+    meetingId:    String,
+    voiceConf:    String,
+    userId:       String,
+    sfuSessionId: String
+)
+
+/* Sent to bbb-webrtc-sfu to grant or deny screen sharing permission
+ */
+object GetScreenBroadcastPermissionRespMsg { val NAME = "GetScreenBroadcastPermissionRespMsg" }
+case class GetScreenBroadcastPermissionRespMsg(
+    header: BbbClientMsgHeader,
+    body:   GetScreenBroadcastPermissionRespMsgBody
+) extends StandardMsg
+case class GetScreenBroadcastPermissionRespMsgBody(
+    meetingId:    String,
+    voiceConf:    String,
+    userId:       String,
+    sfuSessionId: String,
+    allowed:      Boolean
+)
+
+/* Sent by bbb-webrtc-sfu to ask permission for subscring to a broadcasted
+ * screen stream
+ */
+object GetScreenSubscribePermissionReqMsg { val NAME = "GetScreenSubscribePermissionReqMsg" }
+case class GetScreenSubscribePermissionReqMsg(
+    header: BbbClientMsgHeader,
+    body:   GetScreenSubscribePermissionReqMsgBody
+) extends StandardMsg
+case class GetScreenSubscribePermissionReqMsgBody(
+    meetingId:    String,
+    voiceConf:    String,
+    userId:       String,
+    streamId:     String,
+    sfuSessionId: String
+)
+
+/* Sent to bbb-webrtc-sfu to grant or deny a screen sharing subscribe request
+ */
+object GetScreenSubscribePermissionRespMsg { val NAME = "GetScreenSubscribePermissionRespMsg" }
+case class GetScreenSubscribePermissionRespMsg(
+    header: BbbClientMsgHeader,
+    body:   GetScreenSubscribePermissionRespMsgBody
+) extends StandardMsg
+case class GetScreenSubscribePermissionRespMsgBody(
+    meetingId:    String,
+    voiceConf:    String,
+    userId:       String,
+    streamId:     String,
+    sfuSessionId: String,
+    allowed:      Boolean
+)
 /**
  * Sent to FS to eject all users from the voice conference.
  */
@@ -469,4 +529,32 @@ case class VoiceCallStateEvtMsgBody(
     userId:        String,
     callerName:    String,
     callState:     String
+)
+
+/* Sent by bbb-webrtc-sfu to ask permission for adding a listener to the global
+ * audio bridge
+ */
+object GetGlobalAudioPermissionReqMsg { val NAME = "GetGlobalAudioPermissionReqMsg" }
+case class GetGlobalAudioPermissionReqMsg(
+    header: BbbClientMsgHeader,
+    body:   GetGlobalAudioPermissionReqMsgBody
+) extends StandardMsg
+case class GetGlobalAudioPermissionReqMsgBody(
+    meetingId:    String,
+    voiceConf:    String,
+    userId:       String,
+    sfuSessionId: String
+)
+
+object GetGlobalAudioPermissionRespMsg { val NAME = "GetGlobalAudioPermissionRespMsg" }
+case class GetGlobalAudioPermissionRespMsg(
+    header: BbbClientMsgHeader,
+    body:   GetGlobalAudioPermissionRespMsgBody
+) extends StandardMsg
+case class GetGlobalAudioPermissionRespMsgBody(
+    meetingId:    String,
+    voiceConf:    String,
+    userId:       String,
+    sfuSessionId: String,
+    allowed:      Boolean
 )

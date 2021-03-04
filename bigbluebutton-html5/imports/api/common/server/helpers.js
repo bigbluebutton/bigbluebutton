@@ -1,3 +1,4 @@
+import sha1 from 'crypto-js/sha1';
 import Users from '/imports/api/users';
 
 const MSG_DIRECT_TYPE = 'DIRECT';
@@ -38,31 +39,7 @@ export const processForHTML5ServerOnly = fn => (message, ...args) => {
   return fn(message, ...args);
 };
 
-/**
- * Calculate a 32 bit FNV-1a hash
- * Found here: https://gist.github.com/vaiorabbit/5657561
- * Ref.: http://isthe.com/chongo/tech/comp/fnv/
- *
- * @param {string} str the input value
- * @param {boolean} [asString=false] set to true to return the hash value as
- *     8-digit hex string instead of an integer
- * @param {integer} [seed] optionally pass the hash of the previous chunk
- * @returns {integer | string}
- */
-/* eslint-disable */
-export const hashFNV32a = (str, asString, seed) => {
-  let hval = (seed === undefined) ? 0x811c9dc5 : seed;
-
-  for (let i = 0, l = str.length; i < l; i++) {
-    hval ^= str.charCodeAt(i);
-    hval += (hval << 1) + (hval << 4) + (hval << 7) + (hval << 8) + (hval << 24);
-  }
-  if (asString) {
-    return (`0000000${(hval >>> 0).toString(16)}`).substr(-8);
-  }
-  return hval >>> 0;
-};
-/* eslint-enable */
+export const hashSHA1 = (str) => sha1(str).toString();
 
 export const extractCredentials = (credentials) => {
   if (!credentials) return {};
