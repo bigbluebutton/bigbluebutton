@@ -223,21 +223,8 @@ class Poll extends Component {
 
     if (index < optList.length) optList[index].val = option === '' ? '' : option;
 
-    // this.input[index].current.value = optList[index];
-
     this.setState({ optList });
   }
-
-  /* handleBackClick() {
-    const { stopPoll } = this.props;
-    Session.set('resetPollPanel', false);
-
-    stopPoll();
-    this.setState({
-      isPolling: false,
-      customPollValues: [],
-    }, document.activeElement.blur());
-  } */
 
   handleInputChange(e, index) {
     const { optList, type, error } = this.state;
@@ -271,34 +258,6 @@ class Poll extends Component {
     if (text && text.length > 0) {
       this.pushToCustomPollValues(text);
     }
-  }
-
-  renderQuickPollBtns() {
-    const {
-      isMeteorConnected, pollTypes, startPoll, intl,
-    } = this.props;
-
-    const btns = pollTypes.map((type) => {
-      if (type === 'custom') return false;
-
-      const label = intl.formatMessage(
-        // regex removes the - to match the message id
-        intlMessages[type.replace(/-/g, '').toLowerCase()],
-      );
-
-      return (
-        <Button
-          disabled={!isMeteorConnected}
-          label={label}
-          color="default"
-          className={styles.pollBtn}
-          key={_.uniqueId('quick-poll-')}
-          onClick={() => {
-            Session.set('pollInitiated', true);
-            this.setState({ isPolling: true }, () => startPoll(type));
-          }}
-        />);
-    });
   }
 
   handleRemoveOption(index) {
@@ -345,34 +304,6 @@ class Poll extends Component {
     return _type;
   }
 
-  renderCustomView() {
-    const { intl, startCustomPoll } = this.props;
-    const { customPollValues } = this.state;
-    const isDisabled = _.compact(customPollValues).length < 1;
-
-    return (
-      <div className={styles.customInputWrapper}>
-        {this.renderInputFields()}
-        <Button
-          onClick={() => {
-            if (customPollValues.length > 0) {
-              Session.set('pollInitiated', true);
-              this.setState({ isPolling: true }, () => startCustomPoll('custom', _.compact(customPollValues)));
-            }
-          }}
-          label={intl.formatMessage(intlMessages.startCustomLabel)}
-          color="primary"
-          aria-disabled={isDisabled}
-          disabled={isDisabled}
-          className={styles.btn}
-        />
-        {
-          this.renderDragDrop()
-        }
-      </div>
-    );
-  }
-
   renderInputs() {
     const { intl } = this.props;
     const { optList, type, error } = this.state;
@@ -417,27 +348,6 @@ class Poll extends Component {
             <div className={styles.errorSpacer}>&nbsp;</div>
           )}
         </span>
-
-      /*
-    // const { customPollValues } = this.state;
-    let items = [];
-
-    items = _.range(1, MAX_CUSTOM_FIELDS + 1).map((ele, index) => {
-      const id = index;
-      return (
-        <div key={`custom-poll-${id}`} className={styles.pollInput}>
-          <input
-            aria-label={intl.formatMessage(
-              intlMessages.ariaInputCount, { 0: id + 1, 1: MAX_CUSTOM_FIELDS },
-            )}
-            placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
-            className={styles.input}
-            onChange={event => this.handleInputChange(id, event)}
-            ref={this.input[id]}
-            maxLength={MAX_INPUT_CHARS}
-          />
-        </div>
-      */
       );
     });
   }
