@@ -280,6 +280,7 @@ def svg_render_shape_marker(g, slide, shape)
     g << bg_path
     g << mask
     g << use
+    g['style'] = ""
 end
 
 def svg_render_shape_line(g, slide, shape)
