@@ -80,6 +80,12 @@ class Base extends Component {
   componentDidMount() {
     const { animations } = this.props;
 
+    const {
+      userID: localUserId,
+      credentials,
+    } = Auth;
+
+    const { meetingId } = credentials;
     if (animations) HTML.classList.add('animationsEnabled');
     if (!animations) HTML.classList.add('animationsDisabled');
 
@@ -87,6 +93,54 @@ class Base extends Component {
       document.addEventListener(event, Base.handleFullscreenChange);
     });
     Session.set('isFullscreen', false);
+
+    const users = Users.find({}, { fields: {
+        validated: 1,
+        name: 1,
+        userId: 1,
+        meetingId: 1,
+      }
+    });
+
+    this.usersAlreadyInMeetingAtBeggining =
+      users && (typeof users.map === 'function') ?
+        users.map(user => user.userId)
+        : [];
+
+    users.observe({
+      added: (user) => {
+        const {
+          userJoinAudioAlerts,
+          userJoinPushAlerts,
+        } = Settings.application;
+
+        if (user.validated && user.name
+          && user.userId !== localUserId
+          && meetingId == user.meetingId
+          && !this.usersAlreadyInMeetingAtBeggining.includes(user.userId)) {
+          if (userJoinAudioAlerts) {
+            AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
+              + Meteor.settings.public.app.basename
+              + Meteor.settings.public.app.instanceId}`
+              + '/resources/sounds/userJoin.mp3');
+          }
+
+          if (userJoinPushAlerts) {
+            notify(
+              <FormattedMessage
+                id="app.notification.userJoinPushAlert"
+                description="Notification for a user joins the meeting"
+                values={{
+                  0: user.name,
+                }}
+              />,
+              'info',
+              'user',
+            );
+          }
+        }
+      }
+    });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -352,35 +406,6 @@ const BaseContainer = withTracker(() => {
       }
     },
   });
-
-  if (userJoinAudioAlerts || userJoinPushAlerts) {
-    Users.find({}, { fields: { validated: 1, name: 1, userId: 1 } }).observe({
-      changed: (newDocument) => {
-        if (newDocument.validated && newDocument.name && newDocument.userId !== localUserId) {
-          if (userJoinAudioAlerts) {
-            AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-              + Meteor.settings.public.app.basename
-              + Meteor.settings.public.app.instanceId}`
-              + '/resources/sounds/userJoin.mp3');
-          }
-
-          if (userJoinPushAlerts) {
-            notify(
-              <FormattedMessage
-                id="app.notification.userJoinPushAlert"
-                description="Notification for a user joins the meeting"
-                values={{
-                  0: newDocument.name,
-                }}
-              />,
-              'info',
-              'user',
-            );
-          }
-        }
-      },
-    });
-  }
 
   if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.type().isPhone) {
     if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
