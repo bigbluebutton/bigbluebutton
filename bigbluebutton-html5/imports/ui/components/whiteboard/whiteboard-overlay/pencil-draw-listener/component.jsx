@@ -67,7 +67,7 @@ export default class PencilDrawListener extends Component {
 
     // sending the first message
     this.points = [transformedSvgPoint.x, transformedSvgPoint.y];
-    this.handleDrawPencil(this.points, DRAW_START, generateNewShapeId(), drawSettings.tool);
+    this.handleDrawPencil(this.points, DRAW_START, generateNewShapeId(), undefined, drawSettings.tool);
   }
 
   commonDrawMoveHandler(clientX, clientY) {
