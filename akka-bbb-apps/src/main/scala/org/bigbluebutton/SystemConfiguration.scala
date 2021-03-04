@@ -43,7 +43,7 @@ trait SystemConfiguration {
   lazy val voiceConfRecordCodec = Try(config.getString("voiceConf.recordCodec")).getOrElse("wav")
   lazy val checkVoiceRecordingInterval = Try(config.getInt("voiceConf.checkRecordingInterval")).getOrElse(19)
   lazy val syncVoiceUsersStatusInterval = Try(config.getInt("voiceConf.syncUserStatusInterval")).getOrElse(43)
-  lazy val ejectRogueVoiceUsers = Try(config.getBoolean("voiceConf.ejectRogueVoiceUsers")).getOrElse(false)
+  lazy val ejectRogueVoiceUsers = Try(config.getBoolean("voiceConf.ejectRogueVoiceUsers")).getOrElse(true)
 
   lazy val recordingChapterBreakLengthInMinutes = Try(config.getInt("recording.chapterBreakLengthInMinutes")).getOrElse(0)
 
