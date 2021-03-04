@@ -399,7 +399,7 @@ const BaseContainer = withTracker(() => {
   }
 
   const codeError = Session.get('codeError');
-  const usersVideo = VideoService.getVideoStreams();
+  const { streams: usersVideo } = VideoService.getVideoStreams();
 
   return {
     approved,
