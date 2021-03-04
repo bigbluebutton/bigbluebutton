@@ -702,8 +702,8 @@
     "app.translation.endTranslation": "Übersetzungen beenden",
     "app.translation.newLanguage": "Neue Sprache",
     "app.translation.confirmLanguage": "bestätigen",
-    "app.translation.translator.microphone": "Übersetzer Micro",
-    "app.translation.translator.selectLanguage": "Sprache Übersetzen",
+    "app.translation.translator.microphone": "Dolmetscher Micro",
+    "app.translation.translator.selectLanguage": "Sprache dolmetschen",
     "app.translation.selectTranslation": "Verfügbare Sprachen",
     "app.translation.language.origin": "Original",
     "app.translation.language.none": "Keine"
