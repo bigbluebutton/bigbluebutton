@@ -18,7 +18,8 @@ import { Session } from 'meteor/session';
 import { styles } from './styles';
 import UserName from '../user-name/component';
 import UserIcons from '../user-icons/component';
-import Service from '../../../../service';
+import Service from '/imports/ui/components/user-list/service';
+import WhiteboardService from '/imports/ui/components/whiteboard/service';
 
 const messages = defineMessages({
   presenter: {
@@ -65,12 +66,12 @@ const messages = defineMessages({
     id: 'app.userList.menu.makePresenter.label',
     description: 'label to make another user presenter',
   },
-  giveWBAccess: {
-    id: 'app.userList.menu.giveWBAccess.label',
+  giveWhiteboardAccess: {
+    id: 'app.userList.menu.giveWhiteboardAccess.label',
     description: 'label to give user whiteboard access',
   },
-  removeWBAccess: {
-    id: 'app.userList.menu.removeWBAccess.label',
+  removeWhiteboardAccess: {
+    id: 'app.userList.menu.removeWhiteboardAccess.label',
     description: 'label to remove user whiteboard access',
   },
   RemoveUserLabel: {
@@ -241,13 +242,13 @@ class UserDropdown extends PureComponent {
       isMe,
       meetingIsBreakout,
       mountModal,
-      changeWhiteboardMode,
       usersProp,
     } = this.props;
     const { showNestedOptions } = this.state;
 
+    const amIPresenter = currentUser.presenter;
     const amIModerator = currentUser.role === ROLE_MODERATOR;
-    const actionPermissions = getAvailableActions(amIModerator, meetingIsBreakout, user, voiceUser, usersProp);
+    const actionPermissions = getAvailableActions(amIModerator, meetingIsBreakout, user, voiceUser, usersProp, amIPresenter);
     const actions = [];
 
     const {
@@ -261,6 +262,7 @@ class UserDropdown extends PureComponent {
       allowedToDemote,
       allowedToChangeStatus,
       allowedToChangeUserLockStatus,
+      allowedToChangeWhiteboardAccess,
     } = actionPermissions;
 
     const { disablePrivateChat } = lockSettingsProps;
@@ -366,17 +368,13 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToRemove && !user.presenter && isMeteorConnected) {
-      let label = intl.formatMessage(messages.giveWBAccess);
-
-      if (user.whiteboardAccess) {
-        label = intl.formatMessage(messages.removeWBAccess);
-      }
+    if (allowedToChangeWhiteboardAccess && !user.presenter && isMeteorConnected) {
+      const label = user.whiteboardAccess ? intl.formatMessage(messages.removeWhiteboardAccess) : intl.formatMessage(messages.giveWhiteboardAccess);
 
       actions.push(this.makeDropdownItem(
-        'giveIndividualAccess',
+        'changeWhiteboardAccess',
         label,
-        () => changeWhiteboardMode(!user.whiteboardAccess, user.userId),
+        () => WhiteboardService.changeWhiteboardAccess(user.userId, !user.whiteboardAccess),
         'pen_tool',
       ));
     }
@@ -387,7 +385,7 @@ class UserDropdown extends PureComponent {
         isMe(user.userId)
           ? intl.formatMessage(messages.takePresenterLabel)
           : intl.formatMessage(messages.makePresenterLabel),
-        () => { this.onActionsHide(assignPresenter(user.userId)); },
+        () => this.onActionsHide(assignPresenter(user.userId)),
         'presentation',
       ));
     }

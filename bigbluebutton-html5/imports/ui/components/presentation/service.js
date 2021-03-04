@@ -1,4 +1,3 @@
-import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import PresentationPods from '/imports/api/presentation-pods';
 import Presentations from '/imports/api/presentations';
 import { Slides, SlidePositions } from '/imports/api/slides';
@@ -182,31 +181,12 @@ const isPresenter = (podId) => {
   return pod.currentPresenterId === Auth.userID;
 };
 
-const getMultiUserStatus = (whiteboardId) => {
-  const data = WhiteboardMultiUser.findOne({
-    meetingId: Auth.meetingID,
-    whiteboardId,
-  });
-
-  const currentUser = Users.findOne({
-    userId: Auth.userID,
-    meetingId: Auth.meetingID,
-  }, {
-    fields: {
-      whiteboardAccess: 1,
-    },
-  });
-
-  return data && data.multiUser && currentUser.whiteboardAccess;
-};
-
 export default {
   getCurrentSlide,
   getSlidePosition,
   isPresenter,
   isPresentationDownloadable,
   downloadPresentationUri,
-  getMultiUserStatus,
   currentSlidHasContent,
   parseCurrentSlideContent,
   getCurrentPresentation,

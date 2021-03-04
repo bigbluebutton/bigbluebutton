@@ -2,8 +2,6 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
-import Presentations from '/imports/api/presentations';
-import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import VoiceUsers from '/imports/api/voice-users/';
 import _ from 'lodash';
 import SanitizeHTML from 'sanitize-html';
@@ -55,24 +53,6 @@ export default function addUser(meetingId, userData) {
     userId,
   };
   const Meeting = Meetings.findOne({ meetingId });
-  const currentWBPages = Presentations.findOne({
-    meetingId,
-    current: true,
-  }, {
-    fields: {
-      pages: 1,
-    },
-  });
-
-  let isEnabled = { multiUser: false };
-  if (currentWBPages && currentWBPages.pages.length > 0) {
-    const currentWBpage = currentWBPages.pages.filter(p => p.current);
-    isEnabled = WhiteboardMultiUser.findOne({ meetingId, whiteboardId: currentWBpage[0].id }, {
-      fields: {
-        multiUser: 1,
-      },
-    });
-  }
 
   /* While the akka-apps dont generate a color we just pick one
     from a list based on the userId */
@@ -93,7 +73,6 @@ export default function addUser(meetingId, userData) {
         inactivityCheck: false,
         responseDelay: 0,
         loggedOut: false,
-        whiteboardAccess: user.presenter || isEnabled.multiUser,
       },
       flat(user),
     ),
