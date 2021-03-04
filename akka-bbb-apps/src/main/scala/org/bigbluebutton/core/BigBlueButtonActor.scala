@@ -167,7 +167,8 @@ class BigBlueButtonActor(
   }
 
   private def handleCheckAlivePingSysMsg(msg: CheckAlivePingSysMsg): Unit = {
-    val event = MsgBuilder.buildCheckAlivePingSysMsg(msg.body.system, msg.body.timestamp)
+    val event = MsgBuilder.buildCheckAlivePingSysMsg(msg.body.system, msg.body.bbbWebTimestamp, System.currentTimeMillis())
+    healthzService.sendSentStatusMessage(msg.body.akkaAppsTimestamp)
     healthzService.sendReceiveStatusMessage(System.currentTimeMillis())
     outGW.send(event)
   }

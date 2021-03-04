@@ -8,14 +8,27 @@ import scala.concurrent.duration._
 import akka.pattern.{ AskTimeoutException, ask }
 import org.bigbluebutton.core.BigBlueButtonActor
 
+import java.time.{ Instant, LocalDateTime }
+import java.util.TimeZone
+
 sealed trait HealthMessage
 
+case object GetHealthMessage extends HealthMessage
 case class GetBigBlueButtonActorStatus(bbbActor: BigBlueButtonActor) extends HealthMessage
 case class SetPubSubReceiveStatus(timestamp: Long) extends HealthMessage
+case class SetPubSubSentStatus(timestamp: Long) extends HealthMessage
 case class SetRecordingDatabaseStatus(timestamp: Long) extends HealthMessage
-case object GetHealthMessage extends HealthMessage
 
-case class GetHealthResponseMessage(isHealthy: Boolean) extends HealthMessage
+case class GetHealthResponseMessage(
+    isHealthy:             Boolean,
+    pubSubSendStatus:      PubSubSendStatus,
+    pubSubReceiveStatus:   PubSubReceiveStatus,
+    recordingDBSendStatus: RecordingDBSendStatus
+) extends HealthMessage
+
+case class PubSubSendStatus(status: Boolean, timestamp: String)
+case class PubSubReceiveStatus(status: Boolean, timestamp: String)
+case class RecordingDBSendStatus(status: Boolean, timestamp: String)
 
 object HealthzService {
   def apply(system: ActorSystem) = new HealthzService(system)
@@ -31,9 +44,13 @@ class HealthzService(system: ActorSystem) {
     val future = healthActor.ask(GetHealthMessage).mapTo[GetHealthResponseMessage]
     future.recover {
       case e: AskTimeoutException => {
-        GetHealthResponseMessage(isHealthy = false)
+        GetHealthResponseMessage(false, null, null, null)
       }
     }
+  }
+
+  def sendSentStatusMessage(timestamp: Long): Unit = {
+    healthActor ! SetPubSubSentStatus(timestamp)
   }
 
   def sendReceiveStatusMessage(timestamp: Long): Unit = {
@@ -43,6 +60,7 @@ class HealthzService(system: ActorSystem) {
   def sendRecordingDBStatusMessage(timestamp: Long): Unit = {
     healthActor ! SetRecordingDatabaseStatus(timestamp)
   }
+
 }
 
 object HealthzActor {
@@ -50,19 +68,26 @@ object HealthzActor {
 }
 
 class HealthzActor extends Actor with ActorLogging {
-  val twoMins = 2 * 60 * 1000
-  var lastReceivedTimestamp = 0L
-  var recordingDBResponseTimestamp = 0L
+  val twoMins: Int = 2 * 60 * 1000
+  var lastSentTimestamp: Long = 0L
+  var lastReceivedTimestamp: Long = 0L
+  var recordingDBResponseTimestamp: Long = 0L
 
   override def receive: Receive = {
     case GetHealthMessage =>
-      val status: Boolean = (computeElapsedTimeFromNow(lastReceivedTimestamp) < twoMins) &&
-        (computeElapsedTimeFromNow(recordingDBResponseTimestamp) < twoMins)
-      println(s"lastReceivedTimestamp: $lastReceivedTimestamp")
-      println(s"recordingDBResponseTimestamp: $recordingDBResponseTimestamp")
+      val c1: Boolean = computeElapsedTimeFromNow(lastSentTimestamp) < 30000
+      val c2: Boolean = computeElapsedTimeFromNow(lastReceivedTimestamp) < twoMins
+      val c3: Boolean = computeElapsedTimeFromNow(recordingDBResponseTimestamp) < twoMins
+      val status: Boolean = c1 && c2 && c3
 
-      sender ! GetHealthResponseMessage(status)
-
+      sender ! GetHealthResponseMessage(
+        status,
+        PubSubSendStatus(c1, convertLongTimestampToDateTimeString(lastSentTimestamp)),
+        PubSubReceiveStatus(c2, convertLongTimestampToDateTimeString(lastReceivedTimestamp)),
+        RecordingDBSendStatus(c3, convertLongTimestampToDateTimeString(recordingDBResponseTimestamp))
+      )
+    case SetPubSubSentStatus(timestamp) =>
+      lastSentTimestamp = timestamp
     case SetPubSubReceiveStatus(timestamp) =>
       lastReceivedTimestamp = timestamp
     case SetRecordingDatabaseStatus(timestamp) =>
@@ -73,4 +98,9 @@ class HealthzActor extends Actor with ActorLogging {
   def computeElapsedTimeFromNow(inputTimeStamp: Long): Long = {
     System.currentTimeMillis() - inputTimeStamp
   }
+
+  def convertLongTimestampToDateTimeString(inputTimestamp: Long): String = {
+    LocalDateTime.ofInstant(Instant.ofEpochMilli(inputTimestamp), TimeZone.getDefault.toZoneId).toString
+  }
+
 }

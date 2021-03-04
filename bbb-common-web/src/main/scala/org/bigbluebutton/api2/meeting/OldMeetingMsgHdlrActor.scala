@@ -91,7 +91,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
   }
 
   def handleCheckAlivePongSysMsg(msg: CheckAlivePongSysMsg): Unit = {
-    olgMsgGW.handle(new org.bigbluebutton.api.messaging.messages.KeepAliveReply(msg.body.system, msg.body.timestamp))
+    olgMsgGW.handle(new org.bigbluebutton.api.messaging.messages.KeepAliveReply(msg.body.system, msg.body.bbbWebTimestamp,
+      msg.body.akkaAppsTimestamp))
   }
 
   def handleUserJoinedMeetingEvtMsg(msg: UserJoinedMeetingEvtMsg): Unit = {
