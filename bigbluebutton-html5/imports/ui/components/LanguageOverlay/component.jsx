@@ -57,6 +57,7 @@ class LanguageOverlay extends Component{
         } = this.props;
 
         const connectionMessage = intl.formatMessage(isConnecting ? intlMessages.connectionSettingUp : intlMessages.connectionEstablished);
+        const filteredLanguageExtensions = new Set(this.props.filteredLanguages.map(language => language.extension));
 
        return(
         <div
@@ -64,14 +65,31 @@ class LanguageOverlay extends Component{
         >
             <ul>
                 {this.state.languages.map(function (language) {
-                    return <li
-                                className={language.isFiltered? styles.filteredLanguageOption : styles.languageOption}
-                                key={language.extension}
-                                onClick={language.isFiltered? null : () => this.clickHandler(language)}
-                            >
-                                <span>{language.name}</span>
-                                {((this.props.current && language.extension === this.props.current.extension) || (this.props.current === null && language.extension === -1)) && <span>{connectionMessage}</span>}
-                           </li>
+                    let languageMarker = null;
+                    const languageIsFiltered = language.extension !== -1 && filteredLanguageExtensions.has(language.extension);
+
+                    if (languageIsFiltered) {
+                        languageMarker = this.props.filterMarker;
+                    } else if (this.props.current && language.extension === this.props.current.extension) { //language language is selected
+                        languageMarker = connectionMessage;
+                    } else if (this.props.current === null && language.extension === -1) { //if no language is select use standart language(-1)
+                        languageMarker = connectionMessage;
+                    }
+
+                    return (
+                        <li
+                            className={languageIsFiltered ? styles.filteredLanguageOption : styles.languageOption}
+                            key={language.extension}
+                            onClick={languageIsFiltered ? null : () => this.clickHandler(language)}
+                        >
+                            <span>
+                                {language.name}
+                            </span>
+                            <span>
+                                {languageMarker}
+                            </span>
+                        </li>
+                    );
                 },this)}
             </ul>
         </div>);
@@ -82,11 +100,6 @@ class LanguageOverlay extends Component{
         } = this.props;
 
         Meeting.getLanguages().then(languages => {
-            if(this.props.filteredLanguages) {
-                let filteredLanguageExtensions = new Set(this.props.filteredLanguages
-                    .map(language => language.extension));
-                languages = languages.map(language => Object.assign(language, {isFiltered: filteredLanguageExtensions.has(language.extension)}));
-            }
             languages.push({
                 name: intl.formatMessage(this.props.translator ? intlMessages.noneLanguage : intlMessages.originLanguage),
                 extension: -1,

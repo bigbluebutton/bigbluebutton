@@ -65,6 +65,16 @@ const intlMessages = defineMessages({
       description: 'Label for select translation button',
       defaultMessage: 'Available languages',
   },
+  filterMarkerLanguageListening: {
+    id: 'app.translation.filterMarker.languageListening',
+    description: 'Label for filter text in translator language selection for already listening language',
+    defaultMessage: 'listening',
+  },
+  filterMarkerLanguageTranslating: {
+    id: 'app.translation.filterMarker.languageTranslating',
+    description: 'Label for filter text in listening language selection for already translating language',
+    defaultMessage: 'speaking',
+  },
 });
 
 class ActionsBar extends PureComponent {
@@ -292,6 +302,7 @@ class ActionsBar extends PureComponent {
                     <LanguageOverlay
                       current={this.state.translationLanguage}
                       filteredLanguages={this.state.translatorLanguage ? [this.state.translatorLanguage] : []}
+                      filterMarker={intl.formatMessage(intlMessages.filterMarkerLanguageTranslating)}
                       clickHandler={this.handleLanguageSelection.bind(this)}
                       intl={intl}
                     />
@@ -358,6 +369,7 @@ class ActionsBar extends PureComponent {
                       translator={true}
                       current={this.state.translatorLanguage}
                       filteredLanguages={this.state.translationLanguage ? [this.state.translationLanguage] : []}
+                      filterMarker={intl.formatMessage(intlMessages.filterMarkerLanguageListening)}
                       clickHandler={this.handleTranslatorLanguageSelection.bind(this)}
                       intl={intl}
                     />

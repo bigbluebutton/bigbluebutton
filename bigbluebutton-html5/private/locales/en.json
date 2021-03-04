@@ -708,6 +708,8 @@
     "app.translation.translator.selectLanguage": "Interpret to",
     "app.translation.selectTranslation": "Available languages",
     "app.translation.language.origin": "Floor",
-    "app.translation.language.none": "None"
+    "app.translation.language.none": "None",
+    "app.translation.filterMarker.languageListening": "listening",
+    "app.translation.filterMarker.languageTranslating": "speaking"
 
 }
