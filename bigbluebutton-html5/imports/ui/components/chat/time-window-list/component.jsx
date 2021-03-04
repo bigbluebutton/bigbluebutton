@@ -118,6 +118,12 @@ class TimeWindowList extends PureComponent {
         userScrolledBack: false,
       }, ()=> setUserSentMessage(false));
     }
+
+    // this condition exist to the case where the chat has a single message and the chat is cleared
+    // The component List from react-virtualized doesn't have a reference to the list of messages so I need force the update to fix it
+    if (lastTimeWindow?.id === 'SYSTEM_MESSAGE-PUBLIC_CHAT_CLEAR') {
+      this.listRef.forceUpdateGrid();
+    }
   }
 
   componentWillUnmount() {
