@@ -48,6 +48,7 @@ public:
       sendInvitationToIncludedModerators: false
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
     customHeartbeat: true
+    showAllAvailableLocales: false
     defaultSettings:
       application:
         animations: true

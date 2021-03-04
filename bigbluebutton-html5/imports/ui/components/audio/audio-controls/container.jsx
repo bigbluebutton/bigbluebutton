@@ -84,6 +84,11 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
   const isViewer = currentUser.role === ROLE_VIEWER;
   const isPresenter = currentUser.presenter;
 
+  if (Service.isReturningFromBreakoutAudioTransfer()) {
+    Service.setReturningFromBreakoutAudioTransfer(false);
+    Service.recoverMicState();
+  }
+
   return ({
     processToggleMuteFromOutside: arg => processToggleMuteFromOutside(arg),
     showMute: isConnected() && !isListenOnly() && !isEchoTest() && !userLocks.userMic,

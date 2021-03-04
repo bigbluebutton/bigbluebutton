@@ -33,9 +33,7 @@ const propTypes = {
   formattedDialNum: PropTypes.string.isRequired,
   showPermissionsOvelay: PropTypes.bool.isRequired,
   listenOnlyMode: PropTypes.bool.isRequired,
-  skipCheck: PropTypes.bool,
   joinFullAudioImmediately: PropTypes.bool,
-  joinFullAudioEchoTest: PropTypes.bool,
   forceListenOnlyAttendee: PropTypes.bool.isRequired,
   audioLocked: PropTypes.bool.isRequired,
   resolve: PropTypes.func,
@@ -51,9 +49,7 @@ const defaultProps = {
   inputDeviceId: null,
   outputDeviceId: null,
   resolve: null,
-  skipCheck: false,
   joinFullAudioImmediately: false,
-  joinFullAudioEchoTest: false,
 };
 
 const intlMessages = defineMessages({
@@ -166,13 +162,10 @@ class AudioModal extends Component {
     const {
       forceListenOnlyAttendee,
       audioLocked,
-      joinFullAudioImmediately,
-      joinFullAudioEchoTest,
     } = this.props;
 
     if (forceListenOnlyAttendee) return this.handleJoinListenOnly();
-    if (joinFullAudioEchoTest) return this.handleGoToEchoTest();
-    if (joinFullAudioImmediately || audioLocked) return this.handleJoinMicrophone();
+    if (audioLocked) return this.handleJoinMicrophone();
   }
 
   componentDidUpdate(prevProps) {
@@ -336,9 +329,6 @@ class AudioModal extends Component {
   skipAudioOptions() {
     const {
       isConnecting,
-      forceListenOnlyAttendee,
-      joinFullAudioEchoTest,
-      joinFullAudioImmediately,
     } = this.props;
 
     const {
@@ -346,12 +336,7 @@ class AudioModal extends Component {
       hasError,
     } = this.state;
 
-    return (
-      isConnecting
-      || forceListenOnlyAttendee
-      || joinFullAudioImmediately
-      || joinFullAudioEchoTest
-    ) && !content && !hasError;
+    return isConnecting && !content && !hasError;
   }
 
   renderAudioOptions() {
@@ -359,7 +344,7 @@ class AudioModal extends Component {
       intl,
       listenOnlyMode,
       forceListenOnlyAttendee,
-      skipCheck,
+      joinFullAudioImmediately,
       audioLocked,
       isMobileNative,
       formattedDialNum,
@@ -383,7 +368,7 @@ class AudioModal extends Component {
                 circle
                 size="jumbo"
                 disabled={audioLocked}
-                onClick={skipCheck ? this.handleJoinMicrophone : this.handleGoToEchoTest}
+                onClick={joinFullAudioImmediately ? this.handleJoinMicrophone : this.handleGoToEchoTest}
               />
             )
             : null}
@@ -442,7 +427,7 @@ class AudioModal extends Component {
     if (this.skipAudioOptions()) {
       return (
         <div className={styles.connecting} role="alert">
-          <span>
+          <span data-test={!isEchoTest ? 'connecting' : 'connectingToEchoTest'}>
             {!isEchoTest
               ? intl.formatMessage(intlMessages.connecting)
               : intl.formatMessage(intlMessages.connectingEchoTest)

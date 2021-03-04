@@ -16,11 +16,15 @@ const sharedNotesTest = () => {
     try {
       const testName = 'openSharedNotes';
       await test.page1.logger('begin of ', testName);
-      await test.init();
+      await test.init(undefined, testName);
+      await test.page1.startRecording(testName);
       await test.page1.closeAudioModal();
+      await test.page2.startRecording(testName);
       await test.page2.closeAudioModal();
       response = await test.test();
       await test.page1.logger('end of ', testName);
+      await test.page1.stopRecording();
+      await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
     } catch (e) {
       await test.page1.logger(e);

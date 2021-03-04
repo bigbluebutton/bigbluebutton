@@ -592,8 +592,8 @@ if [[ $SECRET ]]; then
         sed -i "s|\(^[ \t]*var shared_secret[ =]*\)[^;]*|\1\"$SECRET\"|g" /usr/local/bigbluebutton/bbb-webhooks/extra/post_catcher.js
     fi
 
-    if [ -f /usr/share/bbb-apps-akka/conf/application.conf ]; then
-        sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" /usr/share/bbb-apps-akka/conf/application.conf
+    if [ -f /etc/bigbluebutton/bbb-apps-akka.conf ]; then
+        sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" /etc/bigbluebutton/bbb-apps-akka.conf
     fi
 
     if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
@@ -1092,9 +1092,9 @@ check_state() {
         fi
     fi
 
-    if [ "$(cat /usr/share/bbb-apps-akka/conf/application.conf | sed -n '/sharedSecret.*/{s/[^"]*"//;s/".*//;p}')" == "changeme" ]; then
+    if [ "$(cat /etc/bigbluebutton/bbb-apps-akka.conf | sed -n '/sharedSecret.*/{s/[^"]*"//;s/".*//;p}')" == "changeme" ]; then
         BBB_WEB_IP=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-        echo "# Error: Detected that /usr/share/bbb-apps-akka/conf/application.conf has the default"
+        echo "# Error: Detected that /etc/bigbluebutton/bbb-apps-akka.conf has the default"
         echo "# configuration values.  To update, run"
         echo "#"
         echo "#   $SUDO bbb-conf --setip $BBB_WEB_IP"
@@ -1540,17 +1540,15 @@ if [ -n "$HOST" ]; then
     #
     # Update bbb-apps-akka
     #
-    echo "Assigning $HOST for web application URL in /usr/share/bbb-apps-akka/conf/application.conf"
+    echo "Assigning $HOST for web application URL in /etc/bigbluebutton/bbb-apps-akka.conf"
 
-    if [ -f /usr/share/bbb-apps-akka/conf/application.conf ]; then
+    if [ -f /etc/bigbluebutton/bbb-apps-akka.conf ]; then
         sed -i  "s/bbbWebAPI[ ]*=[ ]*\"[^\"]*\"/bbbWebAPI=\"${PROTOCOL}:\/\/$HOST\/bigbluebutton\/api\"/g" \
-                /usr/share/bbb-apps-akka/conf/application.conf
-        sed -i "s/deskshareip[ ]*=[ ]*\"[^\"]*\"/deskshareip=\"$HOST\"/g" \
-                /usr/share/bbb-apps-akka/conf/application.conf
-        # Fix to ensure application.conf has the latest shared secret
+                /etc/bigbluebutton/bbb-apps-akka.conf
+        # Fix to ensure bbb-apps-akka.conf has the latest shared secret
         SECRET=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
         sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" \
-                /usr/share/bbb-apps-akka/conf/application.conf
+                /etc/bigbluebutton/bbb-apps-akka.conf
     fi
 
     #
@@ -1633,10 +1631,10 @@ if [ -n "$HOST" ]; then
     #
     # Update ESL passwords in three configuration files
     #
-    ESL_PASSWORD=$(cat /usr/share/bbb-fsesl-akka/conf/application.conf | grep password | head -n 1 | sed 's/.*="//g' | sed 's/"//g')
+    ESL_PASSWORD=$(cat /etc/bigbluebutton/bbb-fsesl-akka.conf | grep password | head -n 1 | sed 's/.*="//g' | sed 's/"//g')
     if [ "$ESL_PASSWORD" == "ClueCon" ]; then
         ESL_PASSWORD=$(openssl rand -hex 8)
-        sudo sed -i "s/ClueCon/$ESL_PASSWORD/g" /usr/share/bbb-fsesl-akka/conf/application.conf
+        sudo sed -i "s/ClueCon/$ESL_PASSWORD/g" /etc/bigbluebutton/bbb-fsesl-akka.conf
     fi
 
     sudo yq w -i /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml freeswitch.esl_password "$ESL_PASSWORD"

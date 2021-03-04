@@ -217,7 +217,7 @@ const isMe = userId => userId === Auth.userID;
 
 const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
 
-  if (_.isEmpty(groupChats) || _.isEmpty(users)) return [];
+  if (_.isEmpty(groupChats) && _.isEmpty(users)) return [];
   
   const chatIds = Object.keys(groupChats);
   const lastTimeWindows = chatIds.reduce((acc, chatId) => {

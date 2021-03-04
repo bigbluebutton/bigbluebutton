@@ -264,7 +264,6 @@ const BaseContainer = withTracker(() => {
     ejected: 1,
     ejectedReason: 1,
     color: 1,
-    mobile: 1,
     effectiveConnectionType: 1,
     extId: 1,
     guest: 1,
@@ -395,7 +394,7 @@ const BaseContainer = withTracker(() => {
   }
 
   const codeError = Session.get('codeError');
-  const usersVideo = VideoService.getVideoStreams();
+  const { streams: usersVideo } = VideoService.getVideoStreams();
 
   return {
     approved,

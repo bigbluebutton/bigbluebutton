@@ -18,7 +18,7 @@ let globalAppplyStateToProps = ()=>{};
 
 const throttledFunc = _.debounce(() => {
   globalAppplyStateToProps();
-}, DEBOUNCE_TIME, { trailing: true, leading: false });
+}, DEBOUNCE_TIME, { trailing: true, leading: true });
 
 const intlMessages = defineMessages({
   titlePublic: {

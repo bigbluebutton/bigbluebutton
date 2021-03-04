@@ -12,8 +12,10 @@ const virtualizedListTest = () => {
     try {
       const testName = 'virtualizedUserList';
       await test.page1.logger('begin of ', testName);
-      await test.init();
+      await test.init(undefined, testName);
+      await test.page1.startRecording(testName);
       response = await test.test();
+      await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end of ', testName);
     } catch (e) {

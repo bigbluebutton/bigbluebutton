@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Users from '/imports/api/users';
 import VideoStreams from '/imports/api/video-streams';
 import Logger from '/imports/startup/server/logger';
-import stopWatchingExternalVideo from '/imports/api/external-videos/server/methods/stopWatchingExternalVideo';
+import stopWatchingExternalVideoSystemCall from '/imports/api/external-videos/server/methods/stopWatchingExternalVideoSystemCall';
 import clearUserInfoForRequester from '/imports/api/users-infos/server/modifiers/clearUserInfoForRequester';
 import ClientConnections from '/imports/startup/server/ClientConnections';
 
@@ -22,7 +22,7 @@ export default function removeUser(meetingId, userId) {
   if (userToRemove) {
     const { presenter } = userToRemove;
     if (presenter) {
-      stopWatchingExternalVideo({ meetingId, requesterUserId: userId });
+      stopWatchingExternalVideoSystemCall({ meetingId, requesterUserId: 'system-presenter-was-removed' });
     }
   }
 
