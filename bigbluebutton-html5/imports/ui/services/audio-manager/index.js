@@ -66,7 +66,6 @@ class AudioManager {
     this.failedMediaElements = [];
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.monitor = this.monitor.bind(this);
-    this.translatorVolumeGainNode = new AudioContext().createGain();
     this.muteHandels = new Set();
     this.muteStateCallbacks = new Set();
     this.translationStateCallbacks = new Set();
@@ -808,14 +807,6 @@ class AudioManager {
   setFloorOutputVolume(volume) {
     const floorMediaElement = document.querySelector(MEDIA_TAG);
     floorMediaElement.volume = volume;
-  }
-
-  setTranslatorVolume(translatorVolume) {
-    this.translatorVolumeGainNode.gain.value = translatorVolume;
-  }
-
-  getTranslatorVolume() {
-    return this.translatorVolumeGainNode.gain.value;
   }
 
   muteTranslator(muteHandle) {
