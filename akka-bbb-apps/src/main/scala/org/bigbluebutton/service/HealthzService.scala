@@ -44,17 +44,19 @@ class HealthzService(system: ActorSystem) {
     val future = healthActor.ask(GetHealthMessage).mapTo[GetHealthResponseMessage]
     future.recover {
       case e: AskTimeoutException => {
-        GetHealthResponseMessage(false, null, null, null)
+        GetHealthResponseMessage(
+          false,
+          PubSubSendStatus(false, String.valueOf(0L)),
+          PubSubReceiveStatus(false, String.valueOf(0L)),
+          RecordingDBSendStatus(false, String.valueOf(0L))
+        )
       }
     }
   }
 
-  def sendSentStatusMessage(timestamp: Long): Unit = {
-    healthActor ! SetPubSubSentStatus(timestamp)
-  }
-
-  def sendReceiveStatusMessage(timestamp: Long): Unit = {
-    healthActor ! SetPubSubReceiveStatus(timestamp)
+  def sendPubSubStatusMessage(sendTimestamp: Long, receiveTimestamp: Long): Unit = {
+    healthActor ! SetPubSubSentStatus(sendTimestamp)
+    healthActor ! SetPubSubReceiveStatus(receiveTimestamp)
   }
 
   def sendRecordingDBStatusMessage(timestamp: Long): Unit = {

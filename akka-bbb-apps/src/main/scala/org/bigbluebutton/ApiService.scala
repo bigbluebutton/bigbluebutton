@@ -29,19 +29,25 @@ class ApiService(healthz: HealthzService) extends JsonSupportProtocol {
         onSuccess(future) {
           case response =>
             if (response.isHealthy) {
-              complete(StatusCodes.OK, HealthResponse(
-                response.isHealthy,
-                response.pubSubSendStatus,
-                response.pubSubReceiveStatus,
-                response.recordingDBSendStatus
-              ))
+              complete(
+                StatusCodes.OK,
+                HealthResponse(
+                  response.isHealthy,
+                  response.pubSubSendStatus,
+                  response.pubSubReceiveStatus,
+                  response.recordingDBSendStatus
+                )
+              )
             } else {
-              complete(StatusCodes.ServiceUnavailable, HealthResponse(
-                response.isHealthy,
-                response.pubSubSendStatus,
-                response.pubSubReceiveStatus,
-                response.recordingDBSendStatus
-              ))
+              complete(
+                StatusCodes.ServiceUnavailable,
+                HealthResponse(
+                  response.isHealthy,
+                  response.pubSubSendStatus,
+                  response.pubSubReceiveStatus,
+                  response.recordingDBSendStatus
+                )
+              )
             }
         }
       }
