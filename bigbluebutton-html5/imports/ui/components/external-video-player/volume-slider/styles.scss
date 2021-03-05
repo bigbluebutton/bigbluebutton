@@ -14,15 +14,12 @@
   max-width: 20vw;
 }
 
-.streamingIndicator {
-}
-
 .slider {
   @extend %baseIndicator;
   display: flex;
   position: relative;
   bottom: 3.5em;
-  left: 10em;
+  left: 1em;
 
   min-width: 200px;
   background-color: rgba(0,0,0,0.5);
@@ -35,13 +32,12 @@
     font-size: 200%;
     cursor: pointer;
   }
-
 }
 
 .volumeSlider {
-  width: 150px;
+  width: 100%;
 }
 
 .volume {
-  margin-right: 1em;
+  margin-right: 0.5em;
 }

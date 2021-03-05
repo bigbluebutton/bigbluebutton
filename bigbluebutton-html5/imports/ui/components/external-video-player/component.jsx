@@ -499,18 +499,18 @@ class VideoPlayer extends Component {
         />
         { !isPresenter ?
             <div className={styles.hoverToolbar}>
-	      <VolumeSlider
+              <VolumeSlider
                 volume={volume}
                 muted={muted || mutedByEchoTest}
                 onMuted={this.handleOnMuted}
                 onVolumeChanged={this.handleVolumeChanged}
               />
-	      <ReloadButton
+              <ReloadButton
                 handleReload={this.handleReload}
                 label={intl.formatMessage(intlMessages.refreshLabel)}>
-	      </ReloadButton>
+              </ReloadButton>
             </div>
-	    : null
+          : null
         }
       </div>
     );
