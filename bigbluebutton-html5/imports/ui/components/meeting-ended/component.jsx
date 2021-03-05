@@ -90,7 +90,11 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   code: PropTypes.string.isRequired,
-  reason: PropTypes.string.isRequired,
+  reason: PropTypes.string,
+};
+
+const defaultProps = {
+  reason: null,
 };
 
 class MeetingEnded extends PureComponent {
@@ -300,5 +304,6 @@ class MeetingEnded extends PureComponent {
 }
 
 MeetingEnded.propTypes = propTypes;
+MeetingEnded.defaultProps = defaultProps;
 
 export default injectIntl(MeetingEnded);
