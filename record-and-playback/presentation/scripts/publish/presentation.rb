@@ -270,9 +270,9 @@ def svg_render_shape_marker(g, slide, shape)
     line_cap == "butt"
   end
     path = path.join('')
-    bg_path = doc.create_element('path', d: path, style: "stroke:##{shape[:color]};stroke-linecap:#{line_cap};stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};fill:none")
+    bg_path = doc.create_element('path', d: path, style: "stroke:##{shape[:color]};stroke-linecap:#{line_cap};stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};fill:none;shape-rendering:crispEdges")
     mask = doc.create_element('mask', id: g['id']+'-mask')
-    mask_path = doc.create_element('path', d: path, style: "stroke:##{shape[:color] == "ffffff" ? "ffffff" : "a0a0a0"};stroke-linecap:#{line_cap};stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};fill:none")
+    mask_path = doc.create_element('path', d: path, style: "stroke:##{shape[:color] == "ffffff" ? "ffffff" : "a0a0a0"};stroke-linecap:#{line_cap};stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};fill:none;shape-rendering:crispEdges")
     mask << mask_path
     use = doc.create_element('use',
             'mask': "url(##{g['id']+'-mask'})",
