@@ -94,7 +94,7 @@ class Base extends Component {
     });
     Session.set('isFullscreen', false);
 
-    const users = Users.find({}, { fields: {
+    const users = Users.find({meetingId: Auth.meetingID}, { fields: {
         validated: 1,
         name: 1,
         userId: 1,
@@ -113,6 +113,8 @@ class Base extends Component {
           userJoinAudioAlerts,
           userJoinPushAlerts,
         } = Settings.application;
+
+        if (!userJoinAudioAlerts && !userJoinPushAlerts) return;
 
         if (user.validated && user.name
           && user.userId !== localUserId
