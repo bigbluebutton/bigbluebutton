@@ -54,16 +54,23 @@ const {
   joinListenOnly,
 } = Service;
 
-export default lockContextContainer(withModalMounter(withTracker(({ mountModal, userLocks }) => ({
-  processToggleMuteFromOutside: arg => processToggleMuteFromOutside(arg),
-  showMute: isConnected() && !isListenOnly() && !isEchoTest() && !userLocks.userMic,
-  muted: isConnected() && !isListenOnly() && isMuted(),
-  inAudio: isConnected() && !isEchoTest(),
-  listenOnly: isConnected() && isListenOnly(),
-  disable: isConnecting() || isHangingUp() || !Meteor.status().connected,
-  talking: isTalking() && !isMuted(),
-  isVoiceUser: isVoiceUser(),
-  handleToggleMuteMicrophone: () => toggleMuteMicrophone(),
-  handleJoinAudio: () => (isConnected() ? joinListenOnly() : mountModal(<AudioModalContainer />)),
-  handleLeaveAudio,
-}))(AudioControlsContainer)));
+export default lockContextContainer(withModalMounter(withTracker(({ mountModal, userLocks }) => {
+  if (Service.isReturningFromBreakoutAudioTransfer()) {
+    Service.setReturningFromBreakoutAudioTransfer(false);
+    Service.recoverMicState();
+  }
+
+  return ({
+    processToggleMuteFromOutside: arg => processToggleMuteFromOutside(arg),
+    showMute: isConnected() && !isListenOnly() && !isEchoTest() && !userLocks.userMic,
+    muted: isConnected() && !isListenOnly() && isMuted(),
+    inAudio: isConnected() && !isEchoTest(),
+    listenOnly: isConnected() && isListenOnly(),
+    disable: isConnecting() || isHangingUp() || !Meteor.status().connected,
+    talking: isTalking() && !isMuted(),
+    isVoiceUser: isVoiceUser(),
+    handleToggleMuteMicrophone: () => toggleMuteMicrophone(),
+    handleJoinAudio: () => (isConnected() ? joinListenOnly() : mountModal(<AudioModalContainer />)),
+    handleLeaveAudio,
+  })
+})(AudioControlsContainer)));
