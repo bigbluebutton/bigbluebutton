@@ -94,15 +94,14 @@ class Base extends Component {
     });
     Session.set('isFullscreen', false);
 
-    const users = Users.find({meetingId: Auth.meetingID}, { fields: {
-        validated: 1,
-        name: 1,
-        userId: 1,
-        meetingId: 1,
-      }
-    });
+    const users = Users.find({
+        meetingId: Auth.meetingID,
+        validated: true,
+        userId: { $ne: localUserId },
+      }, { fields: { name: 1, userId: 1 } }
+    );
 
-    this.usersAlreadyInMeetingAtBeggining =
+    this.usersAlreadyInMeetingAtBeginning =
       users && (typeof users.map === 'function') ?
         users.map(user => user.userId)
         : [];
@@ -116,9 +115,7 @@ class Base extends Component {
 
         if (!userJoinAudioAlerts && !userJoinPushAlerts) return;
 
-        if (user.validated && user.name
-          && user.userId !== localUserId
-          && !this.usersAlreadyInMeetingAtBeggining.includes(user.userId)) {
+        if (!this.usersAlreadyInMeetingAtBeginning.includes(user.userId)) {
           if (userJoinAudioAlerts) {
             AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
               + Meteor.settings.public.app.basename
