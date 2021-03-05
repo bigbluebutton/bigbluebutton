@@ -164,14 +164,14 @@ case class CheckAlivePingSysMsg(
     header: BbbCoreBaseHeader,
     body:   CheckAlivePingSysMsgBody
 ) extends BbbCoreMsg
-case class CheckAlivePingSysMsgBody(system: String, timestamp: Long)
+case class CheckAlivePingSysMsgBody(system: String, bbbWebTimestamp: Long, akkaAppsTimestamp: Long)
 
 object CheckAlivePongSysMsg { val NAME = "CheckAlivePongSysMsg" }
 case class CheckAlivePongSysMsg(
     header: BbbCoreBaseHeader,
     body:   CheckAlivePongSysMsgBody
 ) extends BbbCoreMsg
-case class CheckAlivePongSysMsgBody(system: String, timestamp: Long)
+case class CheckAlivePongSysMsgBody(system: String, bbbWebTimestamp: Long, akkaAppsTimestamp: Long)
 
 object RecordingChapterBreakSysMsg { val NAME = "RecordingChapterBreakSysMsg" }
 case class RecordingChapterBreakSysMsg(
