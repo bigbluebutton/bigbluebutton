@@ -12,10 +12,10 @@ const ROLE_MODERATOR = USER_CONFIG.role_moderator;
 
 const WaitingContainer = (props) => {
   const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState } = newLayoutContext;
+  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
   const { sidebarContentPanel } = newLayoutContextState;
   const managementPanelIsOpen = sidebarContentPanel === PANELS.WAITING_USERS;
-  return <WaitingComponent {...{ managementPanelIsOpen, ...props }} />;
+  return <WaitingComponent {...{ managementPanelIsOpen, newLayoutContextDispatch, ...props }} />;
 };
 
 export default withTracker(() => {

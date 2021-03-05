@@ -106,6 +106,7 @@ class UserContent extends PureComponent {
           {...{
             hasBreakoutRoom,
             sidebarContentPanel,
+            newLayoutContextDispatch,
           }}
         />
         <UserParticipantsContainer

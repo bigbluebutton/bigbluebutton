@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -13,7 +13,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
 import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
-import NewLayoutContext from '../layout/context/context';
+import { NLayoutContext } from '../layout/context/context';
 
 import {
   getFontSize,
@@ -50,11 +50,12 @@ const endMeeting = (code) => {
 };
 
 const AppContainer = (props) => {
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
+
   const {
     actionsbar,
     media,
-    newLayoutContextState,
-    newLayoutContextDispatch,
     ...otherProps
   } = props;
   const {
@@ -142,7 +143,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     randomlySelectedUser,
     currentUserId: currentUser.userId,
   };
-})(NewLayoutContext.withConsumer(AppContainer))));
+})(AppContainer)));
 
 AppContainer.defaultProps = defaultProps;
 AppContainer.propTypes = propTypes;

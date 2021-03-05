@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { makeCall } from '/imports/ui/services/api';
 import { withTracker } from 'meteor/react-meteor-data';
 import Presentations from '/imports/api/presentations';
@@ -6,19 +6,15 @@ import PresentationAreaService from '/imports/ui/components/presentation/service
 import Poll from '/imports/ui/components/poll/component';
 import { Session } from 'meteor/session';
 import Service from './service';
-import NewLayoutContext from '../layout/context/context';
+import { NLayoutContext } from '../layout/context/context';
 import { ACTIONS, PANELS } from '../layout/enums';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
-const PollContainer = (props) => {
-  const {
-    newLayoutContextState,
-    newLayoutContextDispatch,
-    amIPresenter,
-    ...rest
-  } = props;
+const PollContainer = ({ amIPresenter, ...props }) => {
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextDispatch } = newLayoutContext;
 
   if (!amIPresenter) {
     Session.set('forcePollOpen', false);
@@ -29,7 +25,7 @@ const PollContainer = (props) => {
     return null;
   }
 
-  return <Poll {...rest} />;
+  return <Poll {...{ newLayoutContextDispatch, ...props }} />;
 };
 
 export default withTracker(() => {
@@ -62,4 +58,4 @@ export default withTracker(() => {
     pollAnswerIds: Service.pollAnswerIds,
     isMeteorConnected: Meteor.status().connected,
   };
-})(NewLayoutContext.withConsumer(PollContainer));
+})(PollContainer);

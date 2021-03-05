@@ -84,11 +84,11 @@ class PanelManager extends Component {
     this.waitingUsers = _.uniqueId('waitingUsers-');
 
     const { layoutContextState } = props;
-    const { userListSize, chatSize } = layoutContextState;
+    const { userListSize, secondPanelSize, chatSize } = layoutContextState;
 
     this.state = {
       userlistWidth: userListSize.width,
-      chatWidth: chatSize.width,
+      chatWidth: secondPanelSize.width,
       noteWidth: DEFAULT_PANEL_WIDTH,
       captionsWidth: DEFAULT_PANEL_WIDTH,
       pollWidth: DEFAULT_PANEL_WIDTH,
@@ -112,45 +112,66 @@ class PanelManager extends Component {
     const { layoutContextState } = this.props;
     const {
       userListSize,
-      chatSize,
-      noteSize,
-      captionsSize,
-      pollSize,
-      waitingSize,
-      breakoutRoomSize,
+      // chatSize,
+      secondPanelSize,
+      // noteSize,
+      // captionsSize,
+      // pollSize,
+      // waitingSize,
+      // breakoutRoomSize,
     } = layoutContextState;
     const { layoutContextState: oldLayoutContextState } = prevProps;
     const {
       userListSize: oldUserListSize,
-      chatSize: oldChatSize,
-      noteSize: oldNoteSize,
-      captionsSize: oldCaptionsSize,
-      pollSize: oldPollSize,
-      waitingSize: oldWaitingSize,
-      breakoutRoomSize: oldBreakoutRoomSize,
+      // chatSize: oldChatSize,
+      secondPanelSize: oldSecondPanelSize,
+      // noteSize: oldNoteSize,
+      // captionsSize: oldCaptionsSize,
+      // pollSize: oldPollSize,
+      // waitingSize: oldWaitingSize,
+      // breakoutRoomSize: oldBreakoutRoomSize,
     } = oldLayoutContextState;
 
     if (userListSize.width !== oldUserListSize.width && userListSize.width !== userlistWidth) {
       this.setUserListWidth(userListSize.width);
     }
-    if (chatSize.width !== oldChatSize.width && chatSize.width !== chatWidth) {
-      this.setChatWidth(chatSize.width);
+    // if (chatSize.width !== oldChatSize.width && chatSize.width !== chatWidth) {
+    //   this.setChatWidth(chatSize.width);
+    // }
+    // if (noteSize.width !== oldNoteSize.width && noteSize.width !== noteWidth) {
+    //   this.setNoteWidth(noteSize.width);
+    // }
+    // if (captionsSize.width !== oldCaptionsSize.width && captionsSize.width !== captionsWidth) {
+    //   this.setCaptionsWidth(captionsSize.width);
+    // }
+    // if (pollSize.width !== oldPollSize.width && pollSize.width !== pollWidth) {
+    //   this.setPollWidth(pollSize.width);
+    // }
+    // if (waitingSize.width !== oldWaitingSize.width && waitingSize.width !== waitingWidth) {
+    //   this.setWaitingWidth(waitingSize.width);
+    // }
+    // if (breakoutRoomSize.width !== oldBreakoutRoomSize.width
+    //   && breakoutRoomSize.width !== breakoutRoomWidth) {
+    //   this.setBreakoutRoomWidth(breakoutRoomSize.width);
+    // }
+    if (secondPanelSize.width !== oldSecondPanelSize.width && secondPanelSize.width !== chatWidth) {
+      this.setChatWidth(secondPanelSize.width);
     }
-    if (noteSize.width !== oldNoteSize.width && noteSize.width !== noteWidth) {
-      this.setNoteWidth(noteSize.width);
+    if (secondPanelSize.width !== oldSecondPanelSize.width && secondPanelSize.width !== noteWidth) {
+      this.setNoteWidth(secondPanelSize.width);
     }
-    if (captionsSize.width !== oldCaptionsSize.width && captionsSize.width !== captionsWidth) {
-      this.setCaptionsWidth(captionsSize.width);
+    if (secondPanelSize.width !== oldSecondPanelSize.width && secondPanelSize.width !== captionsWidth) {
+      this.setCaptionsWidth(secondPanelSize.width);
     }
-    if (pollSize.width !== oldPollSize.width && pollSize.width !== pollWidth) {
-      this.setPollWidth(pollSize.width);
+    if (secondPanelSize.width !== oldSecondPanelSize.width && secondPanelSize.width !== pollWidth) {
+      this.setPollWidth(secondPanelSize.width);
     }
-    if (waitingSize.width !== oldWaitingSize.width && waitingSize.width !== waitingWidth) {
-      this.setWaitingWidth(waitingSize.width);
+    if (secondPanelSize.width !== oldSecondPanelSize.width && secondPanelSize.width !== waitingWidth) {
+      this.setWaitingWidth(secondPanelSize.width);
     }
-    if (breakoutRoomSize.width !== oldBreakoutRoomSize.width
-      && breakoutRoomSize.width !== breakoutRoomWidth) {
-      this.setBreakoutRoomWidth(breakoutRoomSize.width);
+    if (secondPanelSize.width !== oldSecondPanelSize.width
+      && secondPanelSize.width !== breakoutRoomWidth) {
+      this.setBreakoutRoomWidth(secondPanelSize.width);
     }
   }
 
@@ -636,7 +657,6 @@ class PanelManager extends Component {
         panels.push(this.renderPoll());
       }
     }
-
     if (sidebarContentPanel === PANELS.BREAKOUT) {
       if (enableResize) {
         panels.push(this.renderBreakoutRoom());

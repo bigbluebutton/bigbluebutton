@@ -3,14 +3,16 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Button from '/imports/ui/components/button/component';
-import { Session } from 'meteor/session';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
+import { Meteor } from 'meteor/meteor';
 import { styles } from './styles.scss';
-import MessageForm from './message-form/container';
+import MessageFormContainer from './message-form/container';
 import TimeWindowList from './time-window-list/container';
 import ChatDropdownContainer from './chat-dropdown/container';
 import { PANELS, ACTIONS } from '../layout/enums';
 
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const ELEMENT_ID = 'chat-messages';
 
 const intlMessages = defineMessages({
@@ -38,9 +40,6 @@ const Chat = (props) => {
     lastReadMessageTime,
     hasUnreadMessages,
     scrollPosition,
-    UnsentMessagesCollection,
-    minMessageLength,
-    maxMessageLength,
     amIModerator,
     meetingIsBreakout,
     timeWindowsValues,
@@ -52,7 +51,7 @@ const Chat = (props) => {
   const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
   return (
     <div
-      data-test={chatID !== 'public' ? 'privateChat' : 'publicChat'}
+      data-test={chatID !== PUBLIC_CHAT_ID ? 'privateChat' : 'publicChat'}
       className={styles.chat}
     >
       <header className={styles.header}>
@@ -105,7 +104,16 @@ const Chat = (props) => {
                 accessKey={CLOSE_CHAT_AK}
               />
             )
-            : <ChatDropdownContainer {...{ meetingIsBreakout, isMeteorConnected, amIModerator, timeWindowsValues }} />
+            : (
+              <ChatDropdownContainer
+                {...{
+                  meetingIsBreakout,
+                  isMeteorConnected,
+                  amIModerator,
+                  timeWindowsValues,
+                }}
+              />
+            )
         }
       </header>
       <TimeWindowList
@@ -124,12 +132,9 @@ const Chat = (props) => {
           count,
         }}
       />
-      <MessageForm
+      <MessageFormContainer
         {...{
-          UnsentMessagesCollection,
           title,
-          minMessageLength,
-          maxMessageLength,
         }}
         chatId={chatID}
         chatTitle={title}
@@ -137,7 +142,6 @@ const Chat = (props) => {
         disabled={isChatLocked || !isMeteorConnected}
         connected={isMeteorConnected}
         locked={isChatLocked}
-        handleSendMessage={actions.handleSendMessage}
         partnerIsLoggedOut={partnerIsLoggedOut}
       />
     </div>

@@ -16,7 +16,9 @@ const UserContentContainer = (props) => {
   const { sidebarContentPanel } = newLayoutContextState;
   return (
     <UserContent {...{
-      sidebarContentPanel, newLayoutContextDispatch, ...props,
+      sidebarContentPanel,
+      newLayoutContextDispatch,
+      ...props,
     }}
     />
   );

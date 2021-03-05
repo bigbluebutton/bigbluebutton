@@ -112,7 +112,6 @@ export default {
   transferUserToMeeting,
   transferToBreakout,
   meetingId: () => Auth.meetingID,
-  closeBreakoutPanel,
   amIModerator,
   getBreakoutUserByUserId,
   getBreakoutByUser,

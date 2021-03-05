@@ -94,7 +94,6 @@ class NavBar extends Component {
       presentationTitle,
       amIModerator,
       style,
-      layoutManagerLoaded,
       main,
       sidebarNavPanel,
     } = this.props;

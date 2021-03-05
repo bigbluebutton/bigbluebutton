@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Note from './component';
 import NoteService from './service';
-import NewLayoutContext from '../layout/context/context';
+import { NLayoutContext } from '../layout/context/context';
 
-const NoteContainer = (props) => {
-  const { children, newLayoutContextState, ...rest } = props;
+const NoteContainer = ({ children, ...props }) => {
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextDispatch } = newLayoutContext;
   return (
-    <Note {...rest}>
+    <Note {...{ newLayoutContextDispatch, ...props }}>
       {children}
     </Note>
   );
@@ -20,4 +21,4 @@ export default withTracker(() => {
     isLocked,
     isRTL,
   };
-})(NewLayoutContext.withConsumer(NoteContainer));
+})(NoteContainer);

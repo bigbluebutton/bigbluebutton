@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import VoiceUsers from '/imports/api/voice-users';
 import Auth from '/imports/ui/services/auth';
@@ -7,7 +7,7 @@ import TalkingIndicator from './component';
 import { makeCall } from '/imports/ui/services/api';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import Service from './service';
-import NewLayoutContext from '../../layout/context/context';
+import { NLayoutContext } from '../../layout/context/context';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const { enableTalkingIndicator } = APP_CONFIG;
@@ -15,9 +15,19 @@ const TALKING_INDICATOR_MUTE_INTERVAL = 500;
 
 const TalkingIndicatorContainer = (props) => {
   if (!enableTalkingIndicator) return null;
-  const { newLayoutContextState, newLayoutContextDispatch, ...rest } = props;
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
   const { sidebarNavPanel, sidebarContentPanel } = newLayoutContextState;
-  return (<TalkingIndicator {...rest} {...{ sidebarNavPanel, sidebarContentPanel }} />);
+  return (
+    <TalkingIndicator
+      {...{
+        sidebarNavPanel,
+        sidebarContentPanel,
+        newLayoutContextDispatch,
+        ...props,
+      }}
+    />
+  );
 };
 
 export default withTracker(() => {
@@ -66,4 +76,4 @@ export default withTracker(() => {
     muteUser,
     isBreakoutRoom: meetingIsBreakout(),
   };
-})(NewLayoutContext.withConsumer(TalkingIndicatorContainer));
+})(TalkingIndicatorContainer);

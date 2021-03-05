@@ -61,26 +61,22 @@ const throttledFunc = _.throttle(() => {
 }, DEBOUNCE_TIME, { trailing: true, leading: true });
 
 const ChatContainer = (props) => {
+  const usingChatContext = useContext(ChatContext);
+  const usingGroupChatContext = useContext(GroupChatContext);
   const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState } = newLayoutContext;
+  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
   const { idChatOpen } = newLayoutContextState;
-  useEffect(() => {
-    ChatService.removeFromClosedChatsSession();
-  }, []);
-
-  const modOnlyMessage = Storage.getItem('ModeratorOnlyMessage');
-  const { welcomeProp } = ChatService.getWelcomeProp();
-
+  const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
   const {
     children,
     amIModerator,
     loginTime,
     intl,
+    ...rest
   } = props;
-
-  if (!idChatOpen) return null;
-
-  const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
+  const modOnlyMessage = Storage.getItem('ModeratorOnlyMessage');
+  const systemMessagesIds = [sysMessagesIds.welcomeId, amIModerator && modOnlyMessage && sysMessagesIds.moderatorId].filter(i => i);
+  const { welcomeProp } = ChatService.getWelcomeProp();
   const systemMessages = {
     [sysMessagesIds.welcomeId]: {
       id: sysMessagesIds.welcomeId,
@@ -105,18 +101,23 @@ const ChatContainer = (props) => {
       sender: null,
     }
   };
-
-  const systemMessagesIds = [sysMessagesIds.welcomeId, amIModerator && modOnlyMessage && sysMessagesIds.moderatorId].filter(i => i);
-
-  const usingChatContext = useContext(ChatContext);
-  const usingGroupChatContext = useContext(GroupChatContext);
+  useEffect(() => {
+    ChatService.removeFromClosedChatsSession(idChatOpen);
+  }, []);
   const [stateLastMsg, setLastMsg] = useState(null);
-  const [stateTimeWindows, setTimeWindows] = useState(isPublicChat ? [...systemMessagesIds.map((item) => systemMessages[item])] : []);
+  const [stateTimeWindows, setTimeWindows] = useState(isPublicChat
+    ? [...systemMessagesIds.map((item) => systemMessages[item])]
+    : []);
+
+
+  // if (!idChatOpen) return null;
+
+
 
   const { groupChat } = usingGroupChatContext;
   const participants = groupChat[idChatOpen]?.participants;
   const chatName = participants?.filter((user) => user.id !== Auth.userID)[0]?.name;
-  const title = chatName ? intl.formatMessage(intlMessages.titlePrivate, { 0: chatName}) : intl.formatMessage(intlMessages.titlePublic);
+  const title = chatName ? intl.formatMessage(intlMessages.titlePrivate, { 0: chatName }) : intl.formatMessage(intlMessages.titlePublic);
 
   const contextChat = usingChatContext?.chats[isPublicChat ? PUBLIC_GROUP_CHAT_KEY : idChatOpen];
   const lastTimeWindow = contextChat?.lastTimewindow;
@@ -133,7 +134,7 @@ const ChatContainer = (props) => {
                 id: sysMessagesIds.syncId,
                 content: [{
                   id: 'synced',
-                  text: intl.formatMessage(intlMessages.loading, { 0: contextChat?.syncedPercent}),
+                  text: intl.formatMessage(intlMessages.loading, { 0: contextChat?.syncedPercent }),
                   time: loginTime + 1,
                 }],
                 key: sysMessagesIds.syncId,
@@ -143,7 +144,7 @@ const ChatContainer = (props) => {
             ]
           )
           , ...systemMessagesIds.map((item) => systemMessages[item]),
-        ...Object.values(contextChat?.posJoinMessages || {})]
+          ...Object.values(contextChat?.posJoinMessages || {})]
         : [...Object.values(contextChat?.messageGroups || {})];
       if (previousChatId !== idChatOpen) {
         previousChatId = idChatOpen;
@@ -159,19 +160,20 @@ const ChatContainer = (props) => {
   const isChatLocked = ChatService.isChatLocked(idChatOpen);
 
   return (
-    <Chat 
-    chatID={idChatOpen}
-    {...{
-      ...props,
-      isChatLocked,
-      amIModerator,
-      count: (contextChat?.unreadTimeWindows.size || 0),
-      timeWindowsValues: stateTimeWindows,
-      dispatch: usingChatContext?.dispatch,
-      title,
-      chatName,
-      contextChat,
-    }}>
+    <Chat
+      chatID={idChatOpen}
+      {...{
+        ...rest,
+        isChatLocked,
+        amIModerator,
+        count: (contextChat?.unreadTimeWindows.size || 0),
+        timeWindowsValues: stateTimeWindows,
+        dispatch: usingChatContext?.dispatch,
+        title,
+        chatName,
+        contextChat,
+        newLayoutContextDispatch,
+      }}>
       {children}
     </Chat>
   );

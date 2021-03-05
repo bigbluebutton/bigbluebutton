@@ -1,9 +1,9 @@
-import React, { PureComponent, useContext } from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
+import React, { useContext } from 'react';
 import TimeWindowChatItem from './component';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import ChatService from '../../service';
+import { NLayoutContext } from '../../../layout/context/context';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
@@ -19,9 +19,12 @@ const isDefaultPoll = (pollText) => {
       return false;
   }
 };
-export default function TimeWindowChatItemContainer(props) {
-  ChatLogger.debug('TimeWindowChatItemContainer::render', { ...props });
+
+const TimeWindowChatItemContainer = (props) => {
   const { message, messageId } = props;
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextState } = newLayoutContext;
+  const { idChatOpen } = newLayoutContextState;
   const usingUsersContext = useContext(UsersContext);
   const  { users } = usingUsersContext;
   const {
@@ -35,6 +38,7 @@ export default function TimeWindowChatItemContainer(props) {
   const messages = content;
   const user = users[sender?.id];
   const messageKey = key;
+  const handleReadMessage = timestamp => ChatService.updateUnreadMessage(timestamp, idChatOpen);
   return (
     <TimeWindowChatItem
       {
@@ -51,10 +55,12 @@ export default function TimeWindowChatItemContainer(props) {
         timestamp,
         systemMessage: messageId.startsWith(SYSTEM_CHAT_TYPE) || !sender,
         messageKey,
-        handleReadMessage: ChatService.updateUnreadMessage,
+        handleReadMessage,
         ...props,
       }
       }
     />
   );
 }
+
+export default TimeWindowChatItemContainer;

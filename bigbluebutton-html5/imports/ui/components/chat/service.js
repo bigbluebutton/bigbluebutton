@@ -149,33 +149,6 @@ const getPublicGroupMessages = () => {
   return publicGroupMessages;
 };
 
-const getPrivateGroupMessages = () => {
-  return [];
-  const chatID = Session.get('idChatOpen');
-  const senderId = Auth.userID;
-
-  const privateChat = GroupChat.findOne({
-    meetingId: Auth.meetingID,
-    users: { $all: [chatID, senderId] },
-    access: PRIVATE_CHAT_TYPE,
-  });
-
-  let messages = [];
-
-  if (privateChat) {
-    const {
-      chatId,
-    } = privateChat;
-
-    messages = GroupChatMsg.find({
-      meetingId: Auth.meetingID,
-      chatId,
-    }, { sort: ['timestamp'] }).fetch();
-  }
-
-  return reduceAndDontMapGroupMessages(messages, []);
-};
-
 const isChatLocked = (receiverID) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
@@ -217,12 +190,11 @@ const lastReadMessageTime = (receiverID) => {
   return UnreadMessages.get(chatType);
 };
 
-const sendGroupMessage = (message) => {
-  // TODO: Refactor to use chatId directly
-  const chatIdToSent = Session.get('idChatOpen') === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : Session.get('idChatOpen')
+const sendGroupMessage = (message, idChatOpen) => {
+  const chatIdToSent = idChatOpen === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : idChatOpen
   const chat = GroupChat.findOne({ chatId: chatIdToSent },
   { fields: { users: 1 } });
-  const chatID = Session.get('idChatOpen') === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chat.users.filter(id => id !== Auth.userID)[0];
+  const chatID = idChatOpen === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chat.users.filter(id => id !== Auth.userID)[0];
   const isPublicChat = chatID === PUBLIC_CHAT_ID;
 
   let destinationChatId = PUBLIC_GROUP_CHAT_ID;
@@ -269,13 +241,13 @@ const getScrollPosition = (receiverID) => {
   return scroll.position;
 };
 
-const updateScrollPosition = position => ScrollCollection.upsert(
-  { receiver: Session.get('idChatOpen') },
+const updateScrollPosition = (position, idChatOpen) => ScrollCollection.upsert(
+  { receiver: idChatOpen },
   { $set: { position } },
 );
 
-const updateUnreadMessage = (timestamp) => {
-  const chatID = Session.get('idChatOpen');
+const updateUnreadMessage = (timestamp, idChatOpen) => {
+  const chatID = idChatOpen;
   const isPublic = chatID === PUBLIC_CHAT_ID;
   const chatType = isPublic ? PUBLIC_GROUP_CHAT_ID : chatID;
   return UnreadMessages.update(chatType, timestamp);
@@ -294,8 +266,8 @@ const closePrivateChat = (chatId) => {
 };
 
 // if this private chat has been added to the list of closed ones, remove it
-const removeFromClosedChatsSession = () => {
-  const chatID = Session.get('idChatOpen');
+const removeFromClosedChatsSession = (idChatOpen) => {
+  const chatID = idChatOpen;
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
   if (_.indexOf(currentClosedChats, chatID) > -1) {
     Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, chatID));
@@ -367,7 +339,6 @@ export default {
   reduceAndDontMapGroupMessages,
   getChatMessages,
   getPublicGroupMessages,
-  getPrivateGroupMessages,
   getUser,
   getPrivateChatByUsers,
   getWelcomeProp,

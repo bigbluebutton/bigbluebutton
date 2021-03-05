@@ -18,31 +18,38 @@ import { NLayoutContext } from '../layout/context/context';
 const PUBLIC_CONFIG = Meteor.settings.public;
 const ROLE_MODERATOR = PUBLIC_CONFIG.user.role_moderator;
 
-const checkUnreadMessages = ({ groupChatsMessages, groupChats, users }) => {
+const checkUnreadMessages = ({
+  groupChatsMessages, groupChats, users, idChatOpen,
+}) => {
   const activeChats = userListService.getActiveChats({ groupChatsMessages, groupChats, users });
   const hasUnreadMessages = activeChats
-    .filter(chat => chat.userId !== Session.get('idChatOpen'))
+    .filter(chat => chat.userId !== idChatOpen)
     .some(chat => chat.unreadCounter > 0);
 
   return hasUnreadMessages;
 };
 
 const NavBarContainer = ({ children, ...props }) => {
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
   const usingChatContext = useContext(ChatContext);
   const usingUsersContext = useContext(UsersContext);
   const usingGroupChatContext = useContext(GroupChatContext);
-  const newLayoutContext = useContext(NLayoutContext);
   const { chats: groupChatsMessages } = usingChatContext;
   const { users } = usingUsersContext;
   const { groupChat: groupChats } = usingGroupChatContext;
-  const hasUnreadMessages = checkUnreadMessages({ groupChatsMessages, groupChats, users });
-  const { output, sidebarNavPanel, sidebarContentPanel } = newLayoutContext.newLayoutContextState;
-  const hasUnreadNotes = NoteService.hasUnreadNotes(sidebarContentPanel);
   const {
     layoutManagerLoaded,
     ...rest
   } = props;
+  const {
+    idChatOpen, output, sidebarNavPanel, sidebarContentPanel,
+  } = newLayoutContextState;
   const { navBar } = output;
+  const hasUnreadMessages = checkUnreadMessages({
+    groupChatsMessages, groupChats, users, idChatOpen,
+  });
+  const hasUnreadNotes = NoteService.hasUnreadNotes(sidebarContentPanel);
 
   return (
     <NavBar
@@ -52,6 +59,7 @@ const NavBarContainer = ({ children, ...props }) => {
         layoutManagerLoaded,
         sidebarNavPanel,
         sidebarContentPanel,
+        newLayoutContextDispatch,
         ...rest,
       }}
       style={{ ...navBar }}

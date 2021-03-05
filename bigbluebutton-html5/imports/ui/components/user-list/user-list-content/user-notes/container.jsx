@@ -1,18 +1,19 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import NoteService from '/imports/ui/components/note/service';
 import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import UserNotes from './component';
-import NewLayoutContext from '../../../layout/context/context';
+import { NLayoutContext } from '../../../layout/context/context';
 
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
 const UserNotesContainer = (props) => {
-  const { newLayoutContextState, ...rest } = props;
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
   const { sidebarContentPanel } = newLayoutContextState;
-  return <UserNotes {...{ sidebarContentPanel }} {...rest} />;
+  return <UserNotes {...{ sidebarContentPanel, newLayoutContextDispatch, ...props }} />;
 };
 
 export default withTracker(() => {
@@ -29,4 +30,4 @@ export default withTracker(() => {
     revs: NoteService.getRevs(),
     disableNote: shouldDisableNote,
   };
-})(NewLayoutContext.withConsumer(UserNotesContainer));
+})(UserNotesContainer);

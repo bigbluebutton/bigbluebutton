@@ -1,15 +1,16 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import GuestUsers from '/imports/api/guest-users/';
 import Meetings from '/imports/api/meetings';
 import Service from './service';
 import WaitingComponent from './component';
-import NewLayoutContext from '../layout/context/context';
+import { NLayoutContext } from '../layout/context/context';
 
 const WaitingContainer = (props) => {
-  const { newLayoutContextState, ...rest } = props;
-  return <WaitingComponent {...rest} />;
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextDispatch } = newLayoutContext;
+  return <WaitingComponent {...{ newLayoutContextDispatch, ...props }} />;
 };
 
 export default withTracker(() => {
@@ -40,4 +41,4 @@ export default withTracker(() => {
     changeGuestPolicy: Service.changeGuestPolicy,
     authenticatedGuest,
   };
-})(NewLayoutContext.withConsumer(WaitingContainer));
+})(WaitingContainer);

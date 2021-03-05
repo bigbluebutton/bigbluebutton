@@ -155,20 +155,26 @@ class LayoutManager extends Component {
     );
     layoutContextDispatch(
       {
-        type: 'setChatSize',
-        value: {
-          width: layoutSizes.chatSize.width,
-        },
+        type: 'setSecondPanelSize',
+        value: layoutSizes.secondPanelSize.width,
       },
     );
-    layoutContextDispatch(
-      {
-        type: 'setBreakoutRoomSize',
-        value: {
-          width: layoutSizes.breakoutRoomSize.width,
-        },
-      },
-    );
+    // layoutContextDispatch(
+    //   {
+    //     type: 'setChatSize',
+    //     value: {
+    //       width: layoutSizes.chatSize.width,
+    //     },
+    //   },
+    // );
+    // layoutContextDispatch(
+    //   {
+    //     type: 'setBreakoutRoomSize',
+    //     value: {
+    //       width: layoutSizes.breakoutRoomSize.width,
+    //     },
+    //   },
+    // );
     layoutContextDispatch(
       {
         type: 'setWebcamsAreaSize',
@@ -202,12 +208,15 @@ class LayoutManager extends Component {
       userListSize: {
         width: layoutSizes.userListSize.width,
       },
-      chatSize: {
-        width: layoutSizes.chatSize.width,
+      secondPanelSize: {
+        width: layoutSizes.secondPanelSize.width,
       },
-      breakoutRoomSize: {
-        width: layoutSizes.breakoutRoomSize.width,
-      },
+      // chatSize: {
+      //   width: layoutSizes.chatSize.width,
+      // },
+      // breakoutRoomSize: {
+      //   width: layoutSizes.breakoutRoomSize.width,
+      // },
       webcamsAreaSize: {
         width: layoutSizes.webcamsAreaSize.width,
         height: layoutSizes.webcamsAreaSize.height,
@@ -281,25 +290,29 @@ class LayoutManager extends Component {
     const { layoutContextState, newLayoutContextState } = this.props;
     const {
       userListSize: userListSizeContext,
-      chatSize: chatSizeContext,
-      breakoutRoomSize: breakoutRoomSizeContext,
+      // chatSize: chatSizeContext,
+      // breakoutRoomSize: breakoutRoomSizeContext,
+      secondPanelSize,
     } = layoutContextState;
-    const { sidebarContentPanel } = newLayoutContextState;
+    const { sidebarNavPanel, sidebarContentPanel } = newLayoutContextState;
     const openPanel = sidebarContentPanel;
     const storageLData = storageLayoutData();
 
     let storageUserListWidth;
-    let storageChatWidth;
-    let storageBreakoutRoomWidth;
+    // let storageChatWidth;
+    let storageSecondPanelWidth;
+    // let storageBreakoutRoomWidth;
     if (storageLData) {
       storageUserListWidth = storageLData.userListSize.width;
-      storageChatWidth = storageLData.chatSize.width;
-      storageBreakoutRoomWidth = storageLData.breakoutRoomSize.width;
+      // storageChatWidth = storageLData.chatSize.width;
+      storageSecondPanelWidth = storageLData.secondPanelSize.width;
+      // storageBreakoutRoomWidth = storageLData.breakoutRoomSize.width;
     }
 
     let newUserListSize;
-    let newChatSize;
-    let newBreakoutRoomSize;
+    // let newChatSize;
+    let newPanelSize;
+    // let newBreakoutRoomSize;
 
     if (panelChanged && userListSizeContext.width !== 0) {
       newUserListSize = userListSizeContext;
@@ -313,74 +326,110 @@ class LayoutManager extends Component {
       };
     }
 
-    if (panelChanged && chatSizeContext.width !== 0) {
-      newChatSize = chatSizeContext;
-    } else if (!storageChatWidth) {
-      newChatSize = {
+    if (panelChanged && secondPanelSize.width !== 0) {
+      newPanelSize = secondPanelSize;
+    } else if (!storageSecondPanelWidth) {
+      newPanelSize = {
         width: min(max((this.windowWidth() * 0.2), CHAT_MIN_WIDTH), CHAT_MAX_WIDTH),
       };
     } else {
-      newChatSize = {
-        width: storageChatWidth,
+      newPanelSize = {
+        width: storageSecondPanelWidth,
       };
     }
 
-    if (panelChanged && breakoutRoomSizeContext.width !== 0) {
-      newBreakoutRoomSize = breakoutRoomSizeContext;
-    } else if (!storageBreakoutRoomWidth) {
-      newBreakoutRoomSize = {
-        width: min(max((this.windowWidth() * 0.2), CHAT_MIN_WIDTH), CHAT_MAX_WIDTH),
-      };
-    } else {
-      newBreakoutRoomSize = {
-        width: storageBreakoutRoomWidth,
-      };
-    }
+    // if (panelChanged && chatSizeContext.width !== 0) {
+    //   newChatSize = chatSizeContext;
+    // } else if (!storageChatWidth) {
+    //   newChatSize = {
+    //     width: min(max((this.windowWidth() * 0.2), CHAT_MIN_WIDTH), CHAT_MAX_WIDTH),
+    //   };
+    // } else {
+    //   newChatSize = {
+    //     width: storageChatWidth,
+    //   };
+    // }
 
-    switch (openPanel) {
-      case PANELS.USERLIST: {
-        newChatSize = {
-          width: 0,
-        };
-        newBreakoutRoomSize = {
-          width: 0,
-        };
-        break;
-      }
-      case PANELS.CHAT: {
-        newBreakoutRoomSize = {
-          width: 0,
-        };
-        break;
-      }
-      case PANELS.BREAKOUT: {
-        newChatSize = {
-          width: 0,
-        };
-        break;
-      }
-      case PANELS.NONE: {
-        newUserListSize = {
-          width: 0,
-        };
-        newChatSize = {
-          width: 0,
-        };
-        newBreakoutRoomSize = {
-          width: 0,
-        };
-        break;
-      }
-      default: {
-        throw new Error('Unexpected openPanel value');
-      }
-    }
+    // if (panelChanged && breakoutRoomSizeContext.width !== 0) {
+    //   newBreakoutRoomSize = breakoutRoomSizeContext;
+    // } else if (!storageBreakoutRoomWidth) {
+    //   newBreakoutRoomSize = {
+    //     width: min(max((this.windowWidth() * 0.2), CHAT_MIN_WIDTH), CHAT_MAX_WIDTH),
+    //   };
+    // } else {
+    //   newBreakoutRoomSize = {
+    //     width: storageBreakoutRoomWidth,
+    //   };
+    // }
 
     return {
       newUserListSize,
-      newChatSize,
-      newBreakoutRoomSize,
+      newPanelSize,
     };
+
+    // if (sidebarNavPanel === PANELS.USERLIST && openPanel !== PANELS.NONE) {
+    //   return {
+    //     newUserListSize,
+    //     newPanelSize,
+    //   };
+    // }
+
+    // if (sidebarNavPanel === PANELS.USERLIST && openPanel === PANELS.NONE) {
+    //   return {
+    //     newUserListSize,
+    //     newPanelSize: { width: 0 },
+    //   };
+    // }
+
+    // return {
+    //   newUserListSize: { width: 0 },
+    //   newPanelSize: { width: 0 },
+    // };
+
+    // switch (openPanel) {
+    //   case PANELS.USERLIST: {
+    //     newChatSize = {
+    //       width: 0,
+    //     };
+    //     newBreakoutRoomSize = {
+    //       width: 0,
+    //     };
+    //     break;
+    //   }
+    //   case PANELS.CHAT: {
+    //     newBreakoutRoomSize = {
+    //       width: 0,
+    //     };
+    //     break;
+    //   }
+    //   case PANELS.BREAKOUT: {
+    //     newChatSize = {
+    //       width: 0,
+    //     };
+    //     break;
+    //   }
+    //   case PANELS.NONE: {
+    //     newUserListSize = {
+    //       width: 0,
+    //     };
+    //     newChatSize = {
+    //       width: 0,
+    //     };
+    //     newBreakoutRoomSize = {
+    //       width: 0,
+    //     };
+    //     break;
+    //   }
+    //   default: {
+    //     throw new Error('Unexpected openPanel value');
+    //   }
+    // }
+
+    // return {
+    //   newUserListSize,
+    //   newChatSize,
+    //   newBreakoutRoomSize,
+    // };
   }
 
   calculatesWebcamsAreaSize(
@@ -504,18 +553,22 @@ class LayoutManager extends Component {
 
     const {
       newUserListSize,
-      newChatSize,
-      newBreakoutRoomSize,
+      newPanelSize,
+      // newChatSize,
+      // newBreakoutRoomSize,
     } = panelsSize;
 
     const firstPanel = newUserListSize;
     let secondPanel = {
       width: 0,
     };
-    if (newChatSize.width > 0) {
-      secondPanel = newChatSize;
-    } else if (newBreakoutRoomSize.width > 0) {
-      secondPanel = newBreakoutRoomSize;
+    // if (newChatSize.width > 0) {
+    //   secondPanel = newChatSize;
+    // } else if (newBreakoutRoomSize.width > 0) {
+    //   secondPanel = newBreakoutRoomSize;
+    // }
+    if (newPanelSize.width > 0) {
+      secondPanel = newPanelSize;
     }
 
     const mediaAreaHeight = this.windowHeight() - (NAVBAR_HEIGHT + ACTIONSBAR_HEIGHT) - 10;
@@ -563,8 +616,9 @@ class LayoutManager extends Component {
     return {
       mediaBounds: newMediaBounds,
       userListSize: newUserListSize,
-      chatSize: newChatSize,
-      breakoutRoomSize: newBreakoutRoomSize,
+      // chatSize: newChatSize,
+      secondPanelSize: newPanelSize,
+      // breakoutRoomSize: newBreakoutRoomSize,
       webcamsAreaSize: newWebcamsAreaSize,
       presentationAreaSize: newPresentationAreaSize,
       screenShareAreaSize: newScreenShareAreaSize,

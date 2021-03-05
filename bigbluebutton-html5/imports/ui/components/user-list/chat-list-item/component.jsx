@@ -42,7 +42,7 @@ const propTypes = {
     name: PropTypes.string.isRequired,
     unreadCounter: PropTypes.number.isRequired,
   }).isRequired,
-  activeChatId: PropTypes.string.isRequired,
+  idChatOpen: PropTypes.string.isRequired,
   compact: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -97,7 +97,7 @@ const ChatListItem = (props) => {
   }, [idChatOpen]);
 
   const handleClickToggleChat = () => {
-    if (sidebarContentPanel === PANELS.CHAT && idChatOpen === chat.id) {
+    if (sidebarContentPanel === PANELS.CHAT && idChatOpen === chat.chatId) {
       newLayoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
         value: PANELS.NONE,
@@ -112,7 +112,7 @@ const ChatListItem = (props) => {
     if (sidebarContentPanel === PANELS.CHAT) {
       newLayoutContextDispatch({
         type: ACTIONS.SET_ID_CHAT_OPEN,
-        value: chat.id,
+        value: chat.chatId,
       });
     } else {
       newLayoutContextDispatch({

@@ -1,20 +1,19 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import CaptionsService from '/imports/ui/components/captions/service';
 import Pad from './component';
 import Auth from '/imports/ui/services/auth';
-import NewLayoutContext from '../../layout/context/context';
+import { NLayoutContext } from '../../layout/context/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
 
 
 const PadContainer = (props) => {
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextDispatch } = newLayoutContext;
   const {
-    newLayoutContextState,
-    newLayoutContextDispatch,
     amIModerator,
     children,
-    ...rest
   } = props;
 
   if (!amIModerator) {
@@ -26,7 +25,7 @@ const PadContainer = (props) => {
   }
 
   return (
-    <Pad {...rest}>
+    <Pad {...{ newLayoutContextDispatch, ...props }}>
       {children}
     </Pad>
   );
@@ -52,4 +51,4 @@ export default withTracker(() => {
     currentUserId: Auth.userID,
     amIModerator: CaptionsService.amIModerator(),
   };
-})(NewLayoutContext.withConsumer(PadContainer));
+})(PadContainer);

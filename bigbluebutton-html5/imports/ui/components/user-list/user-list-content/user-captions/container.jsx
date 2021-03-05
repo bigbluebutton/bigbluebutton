@@ -1,15 +1,16 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import UserCaptionsItem from './component';
 import CaptionsService from '/imports/ui/components/captions/service';
-import NewLayoutContext from '../../../layout/context/context';
+import { NLayoutContext } from '../../../layout/context/context';
 
 const UserCaptionsItemContainer = (props) => {
-  const { newLayoutContextState, ...rest } = props;
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
   const { sidebarContentPanel } = newLayoutContextState;
-  return <UserCaptionsItem {...{ sidebarContentPanel, ...rest }} />;
+  return <UserCaptionsItem {...{ sidebarContentPanel, newLayoutContextDispatch, ...props }} />;
 };
 
 export default withTracker(() => ({
   ownedLocales: CaptionsService.getOwnedLocales(),
-}))(NewLayoutContext.withConsumer(UserCaptionsItemContainer));
+}))(UserCaptionsItemContainer);

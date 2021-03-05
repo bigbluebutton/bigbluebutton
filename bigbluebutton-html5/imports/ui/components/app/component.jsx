@@ -34,12 +34,7 @@ import CustomLayout from '../layout/layout-manager/customLayout';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 import { makeCall } from '/imports/ui/services/api';
-
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const CHAT_ENABLED = CHAT_CONFIG.enabled;
-const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -134,7 +129,6 @@ class App extends Component {
       validIOSVersion,
       startBandwidthMonitoring,
       handleNetworkConnection,
-      newLayoutContextDispatch,
     } = this.props;
     const BROWSER_RESULTS = browser();
     const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
@@ -175,23 +169,6 @@ class App extends Component {
     if (isMobileBrowser) makeCall('setMobileUser');
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
-
-    if (getFromUserSettings('bbb_show_participants_on_login', true)) {
-      newLayoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
-        value: PANELS.USERLIST,
-      });
-      if (CHAT_ENABLED) {
-        newLayoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-          value: PANELS.CHAT,
-        });
-        newLayoutContextDispatch({
-          type: ACTIONS.SET_ID_CHAT_OPEN,
-          value: PUBLIC_CHAT_ID,
-        });
-      }
-    }
 
     window.addEventListener('resize', this.deviceType);
     this.throttledDeviceType();
