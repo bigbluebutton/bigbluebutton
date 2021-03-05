@@ -167,7 +167,12 @@ class RemoteDesktop extends Component {
         data-test="remoteDesktop"
         style={{width: '100%', height: '100%', display: 'flex'}}
         ref={(ref) => { this.playerParent = ref; }}
-        onMouseEnter={() => this.transferClipboardText()}
+        /* onMouseEnter/onFocus doesn't seem to work on VncDisplay
+         *
+         * onMouseEnter will sometimes cause transferClipboardText to throw an exception
+         * because the document doesn't have focus, so let's use onFocus instead
+         */
+        onFocus={() => this.transferClipboardText('div.onFocus')}
       >
         <DesktopCloseButton toggleSwapLayout={MediaService.toggleSwapLayout}/>
         {this.renderFullscreenButton()}
