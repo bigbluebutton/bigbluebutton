@@ -101,11 +101,14 @@ class BreakoutRoom extends PureComponent {
       breakoutRoomUser,
       breakoutRooms,
       closeBreakoutPanel,
+      isMicrophoneUser,
+      isReconnecting,
     } = this.props;
 
     const {
       waiting,
       requestedBreakoutId,
+      joinedAudioOnly,
     } = this.state;
 
     if (breakoutRooms.length <= 0) closeBreakoutPanel();
@@ -118,6 +121,10 @@ class BreakoutRoom extends PureComponent {
         window.open(breakoutUser.redirectToHtml5JoinURL, '_blank');
         _.delay(() => this.setState({ waiting: false }), 1000);
       }
+    }
+
+    if (joinedAudioOnly && (!isMicrophoneUser || isReconnecting)) {
+      this.clearJoinedAudioOnly();
     }
   }
 
@@ -141,6 +148,10 @@ class BreakoutRoom extends PureComponent {
       this.setState({ waiting: false });
     }
     return null;
+  }
+
+  clearJoinedAudioOnly() {
+    this.setState({ joinedAudioOnly: false });
   }
 
   transferUserToBreakoutRoom(breakoutId) {

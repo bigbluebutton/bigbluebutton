@@ -130,4 +130,5 @@ export default {
   },
   isReturningFromBreakoutAudioTransfer:
     () => AudioManager.returningFromBreakoutAudioTransfer,
+  isReconnecting: () => AudioManager.isReconnecting,
 };

@@ -52,6 +52,7 @@ class AudioManager {
       outputDeviceId: null,
       muteHandle: null,
       autoplayBlocked: false,
+      isReconnecting: false,
     });
 
     this.useKurento = Meteor.settings.public.kurento.enableListenOnly;
@@ -393,12 +394,15 @@ class AudioManager {
       } = response;
 
       if (status === STARTED) {
+        this.isReconnecting = false;
         this.onAudioJoin();
         resolve(STARTED);
       } else if (status === ENDED) {
+        this.isReconnecting = false;
         logger.info({ logCode: 'audio_ended' }, 'Audio ended without issue');
         this.onAudioExit();
       } else if (status === FAILED) {
+        this.isReconnecting = false;
         const errorKey = this.messages.error[error] || this.messages.error.GENERIC_ERROR;
         const errorMsg = this.intl.formatMessage(errorKey, { 0: bridgeError });
         this.error = !!error;
@@ -416,10 +420,12 @@ class AudioManager {
           this.onAudioExit();
         }
       } else if (status === RECONNECTING) {
+        this.isReconnecting = true;
         logger.info({ logCode: 'audio_reconnecting' }, 'Attempting to reconnect audio');
         this.notify(this.intl.formatMessage(this.messages.info.RECONNECTING_AUDIO), true);
         this.playHangUpSound();
       } else if (status === AUTOPLAY_BLOCKED) {
+        this.isReconnecting = false;
         this.autoplayBlocked = true;
         this.onAudioJoin();
         resolve(AUTOPLAY_BLOCKED);
