@@ -439,30 +439,20 @@ public:
     toolbar:
       multiUserPenOnly: false
       colors:
-        - label: black
-          value: '#000000'
-        - label: white
-          value: '#ffffff'
-        - label: red
-          value: '#ff0000'
-        - label: orange
-          value: '#ff8800'
-        - label: eletricLime
-          value: '#ccff00'
-        - label: Lime
-          value: '#00ff00'
-        - label: Cyan
-          value: '#00ffff'
-        - label: dodgerBlue
-          value: '#0088ff'
         - label: blue
-          value: '#0000ff'
-        - label: violet
-          value: '#8800ff'
+          value: '#0077BB'
+        - label: cyan
+          value: '#33BBEE'
+        - label: teal
+          value: '#009988'
+        - label: orange
+          value: '#EE7733'
+        - label: red
+          value: '#CC3311'
         - label: magenta
-          value: '#ff00ff'
-        - label: silver
-          value: '#c0c0c0'
+          value: '#EE3377'
+        - label: grey
+          value: '#BBBBBB'
       thickness:
         - value: 14
         - value: 12

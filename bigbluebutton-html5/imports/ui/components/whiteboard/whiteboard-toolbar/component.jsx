@@ -97,11 +97,11 @@ class WhiteboardToolbar extends Component {
       annotationSelected,
       prevAnnotationSelected: annotationSelected,
       thicknessSelected: { value: 1 },
-      colorSelected: { value: '#ff0000' },
+      colorSelected: { value: '#CC3311' },
       fontSizeSelected: { value: 20 },
 
       // keeping the previous color and the thickness icon's radius selected for svg animation
-      prevColorSelected: { value: '#ff0000' },
+      prevColorSelected: { value: '#CC3311' },
       prevThicknessSelected: { value: 2 },
 
       // lists of tools/thickness/colors are not direct children of main toolbar buttons

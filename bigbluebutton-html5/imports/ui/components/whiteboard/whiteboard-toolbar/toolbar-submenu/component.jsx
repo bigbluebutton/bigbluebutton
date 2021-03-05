@@ -35,53 +35,33 @@ const intlMessages = defineMessages({
     id: 'app.whiteboard.toolbar.tools.text',
     description: 'Tool submenu text annotation',
   },
-  colorBlack: {
-    id: 'app.whiteboard.toolbar.color.black',
-    description: 'Color submenu black color',
-  },
-  colorWhite: {
-    id: 'app.whiteboard.toolbar.color.white',
-    description: 'Color submenu white color',
-  },
-  colorRed: {
-    id: 'app.whiteboard.toolbar.color.red',
-    description: 'Color submenu red color',
-  },
-  colorOrange: {
-    id: 'app.whiteboard.toolbar.color.orange',
-    description: 'Color submenu orange color',
-  },
-  colorEletricLime: {
-    id: 'app.whiteboard.toolbar.color.eletricLime',
-    description: 'Color submenu eletric lime color',
-  },
-  colorLime: {
-    id: 'app.whiteboard.toolbar.color.lime',
-    description: 'Color submenu lime color',
+  colorBlue: {
+    id: 'app.whiteboard.toolbar.color.blue',
+    description: 'Color submenu blue color',
   },
   colorCyan: {
     id: 'app.whiteboard.toolbar.color.cyan',
     description: 'Color submenu cyan color',
   },
-  colorDodgerBlue: {
-    id: 'app.whiteboard.toolbar.color.dodgerBlue',
-    description: 'Color submenu dodger blue color',
+  colorTeal: {
+    id: 'app.whiteboard.toolbar.color.teal',
+    description: 'Color submenu teal color',
   },
-  colorBlue: {
-    id: 'app.whiteboard.toolbar.color.blue',
-    description: 'Color submenu blue color',
+  colorOrange: {
+    id: 'app.whiteboard.toolbar.color.orange',
+    description: 'Color submenu orange color',
   },
-  colorViolet: {
-    id: 'app.whiteboard.toolbar.color.violet',
-    description: 'Color submenu violet color',
+  colorRed: {
+    id: 'app.whiteboard.toolbar.color.red',
+    description: 'Color submenu red color',
   },
   colorMagenta: {
     id: 'app.whiteboard.toolbar.color.magenta',
     description: 'Color submenu magenta color',
   },
-  colorSilver: {
-    id: 'app.whiteboard.toolbar.color.silver',
-    description: 'Color submenu silver color',
+  colorGrey: {
+    id: 'app.whiteboard.toolbar.color.grey',
+    description: 'Color submenu grey color',
   },
 });
 
