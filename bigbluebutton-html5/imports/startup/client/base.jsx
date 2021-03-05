@@ -118,7 +118,6 @@ class Base extends Component {
 
         if (user.validated && user.name
           && user.userId !== localUserId
-          && meetingId == user.meetingId
           && !this.usersAlreadyInMeetingAtBeggining.includes(user.userId)) {
           if (userJoinAudioAlerts) {
             AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
