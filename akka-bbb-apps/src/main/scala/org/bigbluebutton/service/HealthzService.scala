@@ -16,7 +16,7 @@ sealed trait HealthMessage
 case object GetHealthMessage extends HealthMessage
 case class GetBigBlueButtonActorStatus(bbbActor: BigBlueButtonActor) extends HealthMessage
 case class SetPubSubReceiveStatus(timestamp: Long) extends HealthMessage
-case class SetPubSubSentStatus(timestamp: Long) extends HealthMessage
+case class SetPubSubStatus(sendTimestamp: Long, receiveTimestamp: Long) extends HealthMessage
 case class SetRecordingDatabaseStatus(timestamp: Long) extends HealthMessage
 
 case class GetHealthResponseMessage(
@@ -55,8 +55,7 @@ class HealthzService(system: ActorSystem) {
   }
 
   def sendPubSubStatusMessage(sendTimestamp: Long, receiveTimestamp: Long): Unit = {
-    healthActor ! SetPubSubSentStatus(sendTimestamp)
-    healthActor ! SetPubSubReceiveStatus(receiveTimestamp)
+    healthActor ! SetPubSubStatus(sendTimestamp, receiveTimestamp)
   }
 
   def sendRecordingDBStatusMessage(timestamp: Long): Unit = {
@@ -88,10 +87,9 @@ class HealthzActor extends Actor with ActorLogging {
         PubSubReceiveStatus(c2, convertLongTimestampToDateTimeString(lastReceivedTimestamp)),
         RecordingDBSendStatus(c3, convertLongTimestampToDateTimeString(recordingDBResponseTimestamp))
       )
-    case SetPubSubSentStatus(timestamp) =>
-      lastSentTimestamp = timestamp
-    case SetPubSubReceiveStatus(timestamp) =>
-      lastReceivedTimestamp = timestamp
+    case SetPubSubStatus(sendTimestamp: Long, receiveTimestamp: Long) =>
+      lastSentTimestamp = sendTimestamp
+      lastReceivedTimestamp = receiveTimestamp
     case SetRecordingDatabaseStatus(timestamp) =>
       recordingDBResponseTimestamp = timestamp
     case _ => println("unexpected message, exception could be raised")
