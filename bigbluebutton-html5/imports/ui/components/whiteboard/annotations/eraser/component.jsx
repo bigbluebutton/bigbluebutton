@@ -52,12 +52,13 @@ export default class EraserComponent extends Component {
     return (
       <g>
         <clipPath id ={clipId}>
-        <rect
-          x={results.x}
-          y={results.y}
-          width={results.width}
-          height={results.height}
-        />
+          <rect
+            x={results.x}
+            y={results.y}
+            width={results.width}
+            height={results.height}
+            shape-rendering="crispEdges"
+          />
         </clipPath>
         <use clipPath={`url(#${clipId})`}
           x="0"
@@ -72,13 +73,14 @@ export default class EraserComponent extends Component {
     return (
       <g>
         <mask id ={maskId}>
-        <rect
-          x={results.x}
-          y={results.y}
-          width={results.width}
-          height={results.height}
-          fill="#fff"
-        />
+          <rect
+            x={results.x}
+            y={results.y}
+            width={results.width}
+            height={results.height}
+            shape-rendering="crispEdges"
+            fill="#fff"
+          />
         </mask>
         <use mask={`url(#${maskId})`}
           x="0"
