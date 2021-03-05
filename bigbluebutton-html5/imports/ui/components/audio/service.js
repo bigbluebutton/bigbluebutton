@@ -33,7 +33,7 @@ const audioEventHandler = (event) => {
 
   switch (event.name) {
     case 'started':
-      recoverMicState();
+      if (!event.isListenOnly) recoverMicState();
       break;
     default:
       break;
