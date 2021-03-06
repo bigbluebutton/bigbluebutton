@@ -57,7 +57,7 @@ export default class EraserComponent extends Component {
             y={results.y}
             width={results.width}
             height={results.height}
-            shape-rendering="crispEdges"
+            shapeRendering="crispEdges"
           />
         </clipPath>
         <use clipPath={`url(#${clipId})`}
