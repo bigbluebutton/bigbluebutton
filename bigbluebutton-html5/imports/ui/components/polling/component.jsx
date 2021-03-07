@@ -74,6 +74,23 @@ class Polling extends Component {
     this.setState({ typedAns: this.responseInput.value });
   }
 
+  handleSubmit(pollId) {
+    const { handleVote } = this.props;
+    const { checkedAnswers } = this.state;
+    handleVote(pollId, checkedAnswers);
+  }
+
+  handleCheckboxChange(pollId, answerId) {
+    const { checkedAnswers } = this.state;
+    if (checkedAnswers.includes(answerId)) {
+      checkedAnswers.splice(checkedAnswers.indexOf(answerId), 1);
+    } else {
+      checkedAnswers.push(answerId);
+    }
+    checkedAnswers.sort();
+    this.setState({ checkedAnswers });
+  }
+
   renderButtonAnswers(pollAnswerStyles) {
     const {
       isMeteorConnected,
@@ -174,23 +191,6 @@ class Polling extends Component {
     );
   }
 
-  handleCheckboxChange(pollId, answerId) {
-    const { checkedAnswers } = this.state;
-    if (checkedAnswers.includes(answerId)) {
-      checkedAnswers.splice(checkedAnswers.indexOf(answerId), 1);
-    } else {
-      checkedAnswers.push(answerId);
-    }
-    checkedAnswers.sort();
-    this.setState({ checkedAnswers });
-  }
-
-  handleSubmit(pollId) {
-    const { handleVote } = this.props;
-    const { checkedAnswers } = this.state;
-    handleVote(pollId, checkedAnswers);
-  }
-
   renderCheckboxAnswers(pollAnswerStyles) {
     const {
       isMeteorConnected,
@@ -210,7 +210,7 @@ class Polling extends Component {
           )
         }
         {/* <div className={cx(pollAnswerStyles)}> */}
-        <div>
+        <table className={styles.multipleResponseAnswersTable}>
           {poll.answers.map((pollAnswer) => {
             const formattedMessageIndex = pollAnswer.key.toLowerCase();
             let label = pollAnswer.key;
@@ -219,32 +219,36 @@ class Polling extends Component {
             }
 
             return (
-              <div
+              <tr
                 key={pollAnswer.id}
                 className={styles.checkboxContainer}
               >
-                <Checkbox
-                  disabled={!isMeteorConnected}
-                  id={`answerInput${pollAnswer.key}`}
-                  onChange={() => this.handleCheckboxChange(poll.pollId, pollAnswer.id)}
-                  checked={checkedAnswers.includes(pollAnswer.id)}
-                  className={styles.checkbox}
-                  ariaLabelledBy={`pollAnswerLabel${pollAnswer.key}`}
-                  ariaDescribedBy={`pollAnswerDesc${pollAnswer.key}`}
-                />
-                <label id={`pollAnswerLabel${pollAnswer.key}`}>
-                  {label}
-                </label>
-                <div
-                  className={styles.hidden}
-                  id={`pollAnswerDesc${pollAnswer.key}`}
-                >
-                  {intl.formatMessage(intlMessages.pollAnswerDesc, { 0: label })}
-                </div>
-              </div>
+                <td>
+                  <Checkbox
+                    disabled={!isMeteorConnected}
+                    id={`answerInput${pollAnswer.key}`}
+                    onChange={() => this.handleCheckboxChange(poll.pollId, pollAnswer.id)}
+                    checked={checkedAnswers.includes(pollAnswer.id)}
+                    className={styles.checkbox}
+                    ariaLabelledBy={`pollAnswerLabel${pollAnswer.key}`}
+                    ariaDescribedBy={`pollAnswerDesc${pollAnswer.key}`}
+                  />
+                </td>
+                <td className={styles.multipleResponseAnswersTableAnswerText}>
+                  <label id={`pollAnswerLabel${pollAnswer.key}`}>
+                    {label}
+                  </label>
+                  <div
+                    className={styles.hidden}
+                    id={`pollAnswerDesc${pollAnswer.key}`}
+                  >
+                    {intl.formatMessage(intlMessages.pollAnswerDesc, { 0: label })}
+                  </div>
+                </td>
+              </tr>
             );
           })}
-        </div>
+        </table>
         {/* </div> */}
         <div>
           <Button
