@@ -31,6 +31,10 @@ const intlMessages = defineMessages({
     id: 'app.whiteboard.toolbar.tools.line',
     description: 'Tool submenu line annotation',
   },
+  toolBenzene: {
+    id: 'app.whiteboard.toolbar.tools.benzene',
+    description: 'Tool submenu benzene ring annotation',
+  },
   toolText: {
     id: 'app.whiteboard.toolbar.tools.text',
     description: 'Tool submenu text annotation',
