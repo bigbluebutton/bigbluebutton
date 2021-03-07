@@ -6,6 +6,8 @@ import UserAvatar from '/imports/ui/components/user-avatar/component';
 import cx from 'classnames';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import MessageChatItem from './message-chat-item/component';
+import PollService from '/imports/ui/components/poll/service';
+import Icon from '/imports/ui/components/icon/component';
 import { styles } from './styles';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -19,7 +21,7 @@ const propTypes = {
     name: PropTypes.string,
   }),
   messages: PropTypes.arrayOf(Object).isRequired,
-  time: PropTypes.number,
+  timestamp: PropTypes.number,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -33,7 +35,7 @@ const defaultProps = {
   user: null,
   scrollArea: null,
   lastReadMessageTime: 0,
-  time: 0,
+  timestamp: 0,
 };
 
 const intlMessages = defineMessages({
@@ -105,7 +107,7 @@ class TimeWindowChatItem extends PureComponent {
 
   renderMessageItem() {
     const {
-      time,
+      timestamp,
       chatAreaId,
       scrollArea,
       intl,
@@ -121,7 +123,7 @@ class TimeWindowChatItem extends PureComponent {
       isOnline,
     } = this.props;
 
-    const dateTime = new Date(time);
+    const dateTime = new Date(timestamp);
     const regEx = /<a[^>]+>/i;
     ChatLogger.debug('TimeWindowChatItem::renderMessageItem', this.props);
     const defaultAvatarString = name?.toLowerCase().slice(0, 2) || "  ";
@@ -188,7 +190,7 @@ class TimeWindowChatItem extends PureComponent {
 
   renderPollItem() {
     const {
-      time,
+      timestamp,
       color,
       intl,
       isDefaultPoll,
@@ -199,11 +201,20 @@ class TimeWindowChatItem extends PureComponent {
       handleReadMessage,
     } = this.props;
 
-    const dateTime = new Date(time);
+    const dateTime = new Date(timestamp);
 
     return messages ? (
       <div className={styles.item} key={_.uniqueId('message-poll-item-')}>
         <div className={styles.wrapper} ref={(ref) => { this.item = ref; }}>
+        <div className={styles.avatarWrapper}>
+            <UserAvatar
+              className={styles.avatar}
+              color={PollService.POLL_AVATAR_COLOR}
+              moderator={true}
+            >
+              {<Icon className={styles.isPoll} iconName="polling" />}
+            </UserAvatar>
+          </div>
           <div className={styles.content}>
             <div className={styles.meta}>
               <div className={styles.name}>

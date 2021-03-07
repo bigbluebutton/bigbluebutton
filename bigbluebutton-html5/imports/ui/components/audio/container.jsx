@@ -83,7 +83,8 @@ class AudioContainer extends PureComponent {
   componentDidUpdate(prevProps) {
     const { hasBreakoutRooms, joinedAudio } = this.props;
     const { hasBreakoutRooms: hadBreakoutRooms } = prevProps;
-    if (hadBreakoutRooms && !hasBreakoutRooms && joinedAudio) {
+    if (hadBreakoutRooms && !hasBreakoutRooms && joinedAudio
+      && !Service.isConnected()) {
       joinMicrophone(true, true);
     }
   }
@@ -155,10 +156,10 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
         return;
       }
       setTimeout(() => openAudioModal().then(() => {
-        if (enableVideo && autoShareWebcam) {
-          openVideoPreviewModal();
-        }
-      }), 0);
+         if (enableVideo && autoShareWebcam) {
+           openVideoPreviewModal();
+          }
+        }), 0);
     },
   });
 

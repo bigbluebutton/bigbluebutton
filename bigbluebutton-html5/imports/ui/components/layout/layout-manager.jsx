@@ -15,6 +15,10 @@ const USERLIST_MIN_WIDTH = 150;
 const USERLIST_MAX_WIDTH = 240;
 const CHAT_MIN_WIDTH = 150;
 const CHAT_MAX_WIDTH = 335;
+const POLL_MIN_WIDTH = 320;
+const POLL_MAX_WIDTH = 400;
+const NOTE_MIN_WIDTH = 340;
+const NOTE_MAX_WIDTH = 800;
 const NAVBAR_HEIGHT = 85;
 const ACTIONSBAR_HEIGHT = 42;
 
@@ -95,6 +99,10 @@ class LayoutManager extends Component {
     window.addEventListener('webcamPlacementChange', () => {
       this.setLayoutSizes(false, false, true);
     });
+    
+    window.addEventListener('fullscreenchange', () => {
+      setTimeout(() => this.setLayoutSizes(), 200);
+    });
   }
 
   componentDidUpdate(prevProps) {
@@ -162,6 +170,22 @@ class LayoutManager extends Component {
     );
     layoutContextDispatch(
       {
+        type: 'setPollSize',
+        value: {
+          width: layoutSizes.pollSize.width,
+        },
+      },
+    );
+    layoutContextDispatch(
+      {
+        type: 'setNoteSize',
+        value: {
+          width: layoutSizes.noteSize.width,
+        },
+      },
+    );
+    layoutContextDispatch(
+      {
         type: 'setBreakoutRoomSize',
         value: {
           width: layoutSizes.breakoutRoomSize.width,
@@ -203,6 +227,12 @@ class LayoutManager extends Component {
       },
       chatSize: {
         width: layoutSizes.chatSize.width,
+      },
+      pollSize: {
+        width: layoutSizes.pollSize.width,
+      },
+      noteSize: {
+        width: layoutSizes.noteSize.width,
       },
       breakoutRoomSize: {
         width: layoutSizes.breakoutRoomSize.width,
@@ -263,6 +293,8 @@ class LayoutManager extends Component {
     const {
       userListSize: userListSizeContext,
       chatSize: chatSizeContext,
+      pollSize: pollSizeContext,
+      noteSize: noteSizeContext,
       breakoutRoomSize: breakoutRoomSizeContext,
     } = layoutContextState;
     const openPanel = Session.get('openPanel');
@@ -270,15 +302,22 @@ class LayoutManager extends Component {
 
     let storageUserListWidth;
     let storageChatWidth;
+    let storagePollWidth;
+    let storageNoteWidth;
     let storageBreakoutRoomWidth;
+
     if (storageLData) {
       storageUserListWidth = storageLData.userListSize.width;
       storageChatWidth = storageLData.chatSize.width;
+      storagePollWidth = storageLData.pollSize.width;
+      storageNoteWidth = storageLData.noteSize.width;
       storageBreakoutRoomWidth = storageLData.breakoutRoomSize.width;
     }
 
     let newUserListSize;
     let newChatSize;
+    let newPollSize;
+    let newNoteSize;
     let newBreakoutRoomSize;
 
     if (panelChanged && userListSizeContext.width !== 0) {
@@ -305,6 +344,30 @@ class LayoutManager extends Component {
       };
     }
 
+    if (panelChanged && pollSizeContext.width !== 0) {
+      newPollSize = pollSizeContext;
+    } else if (!storagePollWidth) {
+      newPollSize = {
+        width: min(max((windowWidth() * 0.2), POLL_MIN_WIDTH), POLL_MAX_WIDTH),
+      };
+    } else {
+      newPollSize = {
+        width: storagePollWidth,
+      };
+    }
+
+    if (panelChanged && noteSizeContext.width !== 0) {
+      newNoteSize = noteSizeContext;
+    } else if (!storageNoteWidth) {
+      newNoteSize = {
+        width: min(max((windowWidth() * 0.2), NOTE_MIN_WIDTH), NOTE_MAX_WIDTH),
+      };
+    } else {
+      newNoteSize = {
+        width: storageNoteWidth,
+      };
+    }
+
     if (panelChanged && breakoutRoomSizeContext.width !== 0) {
       newBreakoutRoomSize = breakoutRoomSizeContext;
     } else if (!storageBreakoutRoomWidth) {
@@ -325,16 +388,58 @@ class LayoutManager extends Component {
         newBreakoutRoomSize = {
           width: 0,
         };
+        newPollSize = {
+          width: 0,
+        };
+        newNoteSize = {
+          width: 0,
+        };
+        break;
+      }
+      case 'poll': {
+        newChatSize = {
+          width: 0,
+        };
+        newNoteSize = {
+          width: 0,
+        };
+        newBreakoutRoomSize = {
+          width: 0,
+        };
+        break;
+      }
+      case 'note': {
+        newChatSize = {
+          width: 0,
+        };
+        newPollSize = {
+          width: 0,
+        };
+        newBreakoutRoomSize = {
+          width: 0,
+        };
         break;
       }
       case 'chat': {
         newBreakoutRoomSize = {
           width: 0,
         };
+        newPollSize = {
+          width: 0,
+        };
+        newNoteSize = {
+          width: 0,
+        };
         break;
       }
       case 'breakoutroom': {
         newChatSize = {
+          width: 0,
+        };
+        newPollSize = {
+          width: 0,
+        };
+        newNoteSize = {
           width: 0,
         };
         break;
@@ -349,6 +454,12 @@ class LayoutManager extends Component {
         newBreakoutRoomSize = {
           width: 0,
         };
+        newPollSize = {
+          width: 0,
+        };
+        newNoteSize = {
+          width: 0,
+        };
         break;
       }
       default: {
@@ -359,6 +470,8 @@ class LayoutManager extends Component {
     return {
       newUserListSize,
       newChatSize,
+      newPollSize,
+      newNoteSize,
       newBreakoutRoomSize,
     };
   }
@@ -485,15 +598,23 @@ class LayoutManager extends Component {
     const {
       newUserListSize,
       newChatSize,
+      newPollSize,
+      newNoteSize,
       newBreakoutRoomSize,
     } = panelsSize;
 
     const firstPanel = newUserListSize;
+
     let secondPanel = {
       width: 0,
     };
+
     if (newChatSize.width > 0) {
       secondPanel = newChatSize;
+    } else if (newPollSize.width > 0) {
+      secondPanel = newPollSize;
+    } else if (newNoteSize.width > 0) {
+      secondPanel = newNoteSize;
     } else if (newBreakoutRoomSize.width > 0) {
       secondPanel = newBreakoutRoomSize;
     }
@@ -544,6 +665,8 @@ class LayoutManager extends Component {
       mediaBounds: newMediaBounds,
       userListSize: newUserListSize,
       chatSize: newChatSize,
+      pollSize: newPollSize,
+      noteSize: newNoteSize,
       breakoutRoomSize: newBreakoutRoomSize,
       webcamsAreaSize: newWebcamsAreaSize,
       presentationAreaSize: newPresentationAreaSize,
@@ -562,6 +685,10 @@ export {
   USERLIST_MAX_WIDTH,
   CHAT_MIN_WIDTH,
   CHAT_MAX_WIDTH,
+  POLL_MIN_WIDTH,
+  POLL_MAX_WIDTH,
+  NOTE_MIN_WIDTH,
+  NOTE_MAX_WIDTH,
   NAVBAR_HEIGHT,
   ACTIONSBAR_HEIGHT,
   WEBCAMSAREA_MIN_PERCENT,

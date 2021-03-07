@@ -143,6 +143,9 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
         msgSender.send(fromAkkaAppsRedisChannel, json)
         msgSender.send("from-akka-apps-frontend-redis-channel", json)
 
+      case UpdateExternalVideoEvtMsg.NAME =>
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
       case _ =>
         msgSender.send(fromAkkaAppsRedisChannel, json)
     }

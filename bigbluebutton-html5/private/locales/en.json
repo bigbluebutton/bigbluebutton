@@ -338,6 +338,7 @@
     "app.submenu.notification.pushAlertLabel": "Popup Alerts",
     "app.submenu.notification.messagesLabel": "Chat Message",
     "app.submenu.notification.userJoinLabel": "User Join",
+    "app.submenu.notification.guestWaitingLabel": "Guest Waiting Approval",
     "app.submenu.audio.micSourceLabel": "Microphone source",
     "app.submenu.audio.speakerSourceLabel": "Speaker source",
     "app.submenu.audio.streamVolumeLabel": "Your audio stream volume",

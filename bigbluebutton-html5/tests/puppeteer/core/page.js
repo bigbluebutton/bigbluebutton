@@ -2,6 +2,7 @@ require('dotenv').config();
 const puppeteer = require('puppeteer');
 const yaml = require('js-yaml');
 const fs = require('fs');
+const fsExtra = require('fs-extra');
 const moment = require('moment');
 const path = require('path');
 const helper = require('./helper');
@@ -9,6 +10,7 @@ const params = require('../params');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const e = require('./elements');
 const ue = require('../user/elements');
+const PuppeteerVideoRecorder = require('puppeteer-video-recorder');
 
 class Page {
   constructor(name) {
@@ -16,6 +18,7 @@ class Page {
     this.screenshotIndex = 0;
     this.meetingId;
     this.parentDir = this.getParentDir(__dirname);
+    this.recorder = new PuppeteerVideoRecorder();
   }
 
   getParentDir(dir) {
@@ -61,7 +64,7 @@ class Page {
       this.logger('Meeting ID: ', this.meetingId);
 
       const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, isModerator, customParameter);
-      await this.page.goto(joinURL);
+      await this.page.goto(joinURL, { waitUntil: 'networkidle2' });
       const checkForGetMetrics = async () => {
         if (process.env.BBB_COLLECT_METRICS === 'true') {
           await this.waitForSelector(ue.anyUser, ELEMENT_WAIT_TIME);
@@ -141,11 +144,6 @@ class Page {
   async getTestElements() {
   }
 
-  async waitForBreakoutElement(element, pageNumber) {
-    const pageTarget = await this.browser.pages();
-    await pageTarget[pageNumber].waitForSelector(element, { timeout: 0 });
-  }
-
   async clickBreakoutElement(element, pageNumber) {
     const pageTarget = await this.browser.pages();
     await pageTarget[pageNumber].click(element);
@@ -157,7 +155,7 @@ class Page {
 
   // Get the default arguments for creating a page
   static getArgs() {
-    const args = ['--no-sandbox', '--use-fake-ui-for-media-stream', '--lang=en-US'];
+    const args = ['--no-sandbox', '--use-fake-ui-for-media-stream', '--window-size=1280,720', '--lang=en-US'];
     return { headless: true, args };
   }
 
@@ -167,6 +165,7 @@ class Page {
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
+        '--window-size=1280,720',
         '--lang=en-US',
       ];
       return {
@@ -178,6 +177,7 @@ class Page {
       '--no-sandbox',
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
+      '--window-size=1280,720',
       `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
       '--allow-file-access',
       '--lang=en-US',
@@ -194,6 +194,7 @@ class Page {
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
+        '--window-size=1280,720',
         '--lang=en-US',
       ];
       return {
@@ -205,6 +206,7 @@ class Page {
       '--no-sandbox',
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
+      '--window-size=1280,720',
       `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
       '--allow-file-access',
       '--lang=en-US',
@@ -221,6 +223,7 @@ class Page {
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
+        '--window-size=1280,720',
         '--lang=en-US',
       ];
       return {
@@ -232,6 +235,7 @@ class Page {
       '--no-sandbox',
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
+      '--window-size=1280,720',
       `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
       `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
       '--allow-file-access',
@@ -244,8 +248,9 @@ class Page {
   }
 
   // Returns a Promise that resolves when an element does not exist/is removed from the DOM
-  elementRemoved(element) {
-    return this.page.waitFor(element => !document.querySelector(element), {}, element);
+  async waitForElementHandleToBeRemoved(element) {
+    await this.page.waitForTimeout(1000);
+    await this.page.waitForSelector(element, { hidden: true });
   }
 
   // Presses a hotkey (Ctrl, Alt and Shift can be held down while pressing the key)
@@ -299,9 +304,39 @@ class Page {
     await this.page.type(element, text);
   }
 
+  async startRecording(testName) {
+    if (process.env.WITH_RECORD === 'true') {
+      const today = moment(new Date()).format('DD-MM-YYYY');
+      const finalSaveFolder = path.join(__dirname, `../${process.env.TEST_FOLDER}`);
+      if (!fs.existsSync(finalSaveFolder)) {
+        fs.mkdirSync(finalSaveFolder);
+      }
+      this.testNameFolder = `${finalSaveFolder}/test-${today}-${testName}`;
+      if (!fs.existsSync(this.testNameFolder)) {
+        fs.mkdirSync(this.testNameFolder);
+      }
+      await this.recorder.init(this.page, `${this.testNameFolder}/recording`);
+      await this.recorder.start();
+    }
+  }
+
+  async stopRecording() {
+    if (process.env.WITH_RECORD === 'true') {
+      await this.recorder.stop();
+      await helper.sleep(5000);
+      await this.removeRecordingImages();
+    }
+  }
+
+  async removeRecordingImages() {
+    await fs.unlinkSync(`${this.testNameFolder}/recording/images.txt`);
+    await helper.sleep(5000);
+    await fsExtra.removeSync(`${this.testNameFolder}/recording/images`);
+  }
+
   async screenshot(testFolderName, testFileName, relief = false) {
     if (process.env.GENERATE_EVIDENCES === 'true') {
-      const today = moment().format('DD-MM-YYYY');
+      const today = moment(new Date()).format('DD-MM-YYYY');
       const dir = path.join(__dirname, `../${process.env.TEST_FOLDER}`);
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir);
@@ -318,6 +353,7 @@ class Page {
       const filename = `${testFileName}.png`;
       await this.page.screenshot({ path: `${screenshots}/${filename}` });
       this.screenshotIndex++;
+      return testResultsFolder;
     }
   }
 
@@ -343,7 +379,7 @@ class Page {
 
   async getMetrics(testFolderName) {
     const pageMetricsObj = {};
-    const today = moment().format('DD-MM-YYYY');
+    const today = moment(new Date()).format('DD-MM-YYYY');
     const dir = path.join(__dirname, `../${process.env.TEST_FOLDER}`);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir);
@@ -368,7 +404,7 @@ class Page {
     pageMetricsObj.totalNumberOfUsersMongoObj = totalNumberOfUsersMongo;
     pageMetricsObj.totalNumberOfUsersDomObj = totalNumberOfUsersDom;
     pageMetricsObj[`metricObj-${this.meetingId}`] = metric;
-    const metricsFile = path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testFolderName}/metrics/metrics-${this.effectiveParams.fullName}-${this.meetingId}.json`);
+    const metricsFile = path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testFolderName}/metrics/metrics-${this.effectiveParams.fullName}-[${this.meetingId}].json`);
     const createFile = () => {
       try {
         fs.appendFileSync(metricsFile, `${JSON.stringify(pageMetricsObj)},\n`);

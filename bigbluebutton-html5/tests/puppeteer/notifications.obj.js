@@ -21,6 +21,7 @@ const notificationsTest = () => {
       await test.page1.logger('begin of ', testName);
       response = await test.saveSettingsNotification(testName);
       await test.page1.logger('end of ', testName);
+      await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
     } catch (e) {
       await test.page1.logger(e);
@@ -46,6 +47,7 @@ const notificationsTest = () => {
       await test.page1.logger('begin of ', testName);
       response = await test.publicChatNotification(testName);
       await test.page1.logger('end of ', testName);
+      await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
     } catch (e) {
       await test.page1.logger(e);
@@ -71,6 +73,7 @@ const notificationsTest = () => {
       await test.page1.logger('begin of ', testName);
       response = await test.privateChatNotification(testName);
       await test.page1.logger('end of ', testName);
+      await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
     } catch (e) {
       await test.page1.logger(e);
@@ -93,15 +96,16 @@ const notificationsTest = () => {
     let screenshot;
     try {
       const testName = 'userJoinNotification';
-      await test.page1.logger('begin of ', testName);
+      await test.page3.logger('begin of ', testName);
       response = await test.getUserJoinPopupResponse(testName);
-      await test.page1.logger('end of ', testName);
+      await test.page3.logger('end of ', testName);
+      await test.page3.stopRecording();
       screenshot = await test.page3.page.screenshot();
     } catch (e) {
-      await test.page1.logger(e);
+      await test.page3.logger(e);
     } finally {
       await test.closePages();
-      await test.page1.logger('User join notification !');
+      await test.page3.logger('User join notification !');
     }
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
@@ -118,12 +122,13 @@ const notificationsTest = () => {
     let screenshot;
     try {
       const testName = 'uploadPresentationNotification';
-      await test.page1.logger('begin of ', testName);
+      await test.page3.logger('begin of ', testName);
       response = await test.fileUploaderNotification(testName);
-      await test.page1.logger('end of ', testName);
+      await test.page3.logger('end of ', testName);
+      await test.page3.stopRecording();
       screenshot = await test.page3.page.screenshot();
     } catch (e) {
-      await test.page1.logger(e);
+      await test.page3.logger(e);
     } finally {
       await test.closePage(test.page3);
       await test.page3.logger('Presentation upload notification !');
@@ -143,13 +148,14 @@ const notificationsTest = () => {
     let screenshot;
     try {
       const testName = 'pollResultsNotification';
-      await test.page1.logger('begin of ', testName);
-      await test.initUser3(Page.getArgs(), undefined);
+      await test.page3.logger('begin of ', testName);
+      await test.initUser3(Page.getArgs(), undefined, testName);
       response = await test.publishPollResults(testName);
-      await test.page1.logger('end of ', testName);
+      await test.page3.logger('end of ', testName);
+      await test.page3.stopRecording();
       screenshot = await test.page3.page.screenshot();
     } catch (e) {
-      await test.page1.logger(e);
+      await test.page3.logger(e);
     } finally {
       await test.closePage(test.page3);
       await test.page3.logger('Poll results notification !');
@@ -164,20 +170,21 @@ const notificationsTest = () => {
   });
 
   test('Screenshare notification', async () => {
-    const page = new Notifications();
+    const test = new Notifications();
     let response;
     let screenshot;
     try {
       const testName = 'screenShareNotification';
-      await page.page1.logger('begin of ', testName);
-      response = await page.screenshareToast(testName);
-      await page.page1.logger('end of ', testName);
-      screenshot = await page.page3.page.screenshot();
+      await test.page3.logger('begin of ', testName);
+      response = await test.screenshareToast(testName);
+      await test.page3.logger('end of ', testName);
+      await test.page3.stopRecording();
+      screenshot = await test.page3.page.screenshot();
     } catch (e) {
-      await page.page1.logger(e);
+      await test.page3.logger(e);
     } finally {
-      await page.closePage(page.page3);
-      await page.page3.logger('Screenshare notification !');
+      await test.closePage(test.page3);
+      await test.page3.logger('Screenshare notification !');
     }
     expect(response).toBe('Screenshare has started');
     if (process.env.REGRESSION_TESTING === 'true') {
@@ -194,12 +201,13 @@ const notificationsTest = () => {
     let screenshot;
     try {
       const testName = 'audioNotification';
-      await test.page1.logger('begin of ', testName);
+      await test.page3.logger('begin of ', testName);
       response = await test.audioNotification(testName);
-      await test.page1.logger('end of ', testName);
+      await test.page3.logger('end of ', testName);
+      await test.page3.stopRecording();
       screenshot = await test.page3.page.screenshot();
     } catch (e) {
-      await test.page1.logger(e);
+      await test.page3.logger(e);
     } finally {
       await test.closePage(test.page3);
       await test.page3.logger('Audio notification !');

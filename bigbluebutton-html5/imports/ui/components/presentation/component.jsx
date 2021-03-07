@@ -266,7 +266,6 @@ class PresentationArea extends PureComponent {
     if (isFullscreen !== newIsFullscreen) {
       this.setState({ isFullscreen: newIsFullscreen });
       layoutContextDispatch({ type: 'setPresentationFullscreen', value: newIsFullscreen });
-      window.dispatchEvent(new Event('slideChanged'));
     }
   }
 
@@ -385,6 +384,10 @@ class PresentationArea extends PureComponent {
       svgWidth = presentationAreaWidth;
       svgHeight = (svgWidth * originalHeight) / originalWidth;
       if (svgHeight > presentationAreaHeight) svgHeight = presentationAreaHeight;
+    }
+
+    if (typeof svgHeight !== 'number' || typeof svgWidth !== 'number') {
+      return { width: 0, height: 0 };
     }
 
     return {
@@ -839,13 +842,13 @@ class PresentationArea extends PureComponent {
               height: svgHeight + toolbarHeight,
             }}
           >
-            {showSlide
+            {showSlide && svgWidth > 0 && svgHeight > 0
               ? this.renderPresentationArea(svgDimensions, viewBoxDimensions)
               : null}
             {showSlide && (userIsPresenter || multiUser)
               ? this.renderWhiteboardToolbar(svgDimensions)
               : null}
-            {showSlide && userIsPresenter
+            {showSlide && userIsPresenter && svgWidth > 0 && svgHeight > 0
               ? (
                 <div
                   className={styles.presentationToolbar}

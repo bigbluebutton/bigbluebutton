@@ -23,9 +23,11 @@ const chatTest = () => {
     try {
       const testName = 'sendChat';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs());
+      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
+      await test.startRecording(testName);
       await test.closeAudioModal();
       response = await test.test(testName);
+      await test.stopRecording();
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
     } catch (e) {
@@ -50,9 +52,11 @@ const chatTest = () => {
     try {
       const testName = 'clearChat';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs());
+      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
+      await test.startRecording(testName);
       await test.closeAudioModal();
       response = await test.test(testName);
+      await test.stopRecording();
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
     } catch (e) {
@@ -77,9 +81,11 @@ const chatTest = () => {
     try {
       const testName = 'copyChat';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs());
+      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
+      await test.startRecording(testName);
       await test.closeAudioModal();
       response = await test.test(testName);
+      await test.stopRecording();
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
     } catch (e) {
@@ -103,9 +109,11 @@ const chatTest = () => {
     try {
       const testName = 'saveChat';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs());
+      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
+      await test.startRecording(testName);
       await test.closeAudioModal();
       response = await test.test(testName);
+      await test.stopRecording();
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
     } catch (e) {
@@ -130,10 +138,12 @@ const chatTest = () => {
     try {
       const testName = 'sendPublicChat';
       await test.page1.logger('begin of ', testName);
-      await test.init();
+      await test.init(undefined, testName);
+      await test.page1.startRecording(testName);
       await test.page1.closeAudioModal();
       await test.page2.closeAudioModal();
       response = await test.multiUsersPublicChat(testName);
+      await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end of ', testName);
     } catch (e) {
@@ -158,10 +168,12 @@ const chatTest = () => {
     try {
       const testName = 'sendPrivateChat';
       await test.page1.logger('begin of ', testName);
-      await test.init();
+      await test.init(undefined, testName);
+      await test.page1.startRecording(testName);
       await test.page1.closeAudioModal();
       await test.page2.closeAudioModal();
       response = await test.multiUsersPrivateChat(testName);
+      await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end of ', testName);
     } catch (e) {
@@ -186,8 +198,10 @@ const chatTest = () => {
     try {
       const testName = 'pollResultsChatMessage';
       await test.page3.logger('begin of ', testName);
-      await test.initUser3(Page.getArgs(), undefined);
+      await test.initUser3(Page.getArgs(), undefined, testName);
+      await test.page3.startRecording(testName);
       response = await test.test(testName);
+      await test.page3.startRecording();
       screenshot = await test.page3.page.screenshot();
       await test.page3.logger('end of ', testName);
     } catch (e) {
