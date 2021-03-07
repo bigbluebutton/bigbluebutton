@@ -24,7 +24,7 @@ const getLang = () => {
 };
 
 const getNoteParams = () => {
-  let config = {};
+  const config = {};
   const User = Users.findOne({ userId: Auth.userID }, { fields: { name: 1 } });
   config.userName = User.name;
   config.lang = getLang();

@@ -971,7 +971,7 @@ class SIPSession {
           if (supportedConstraints[constraintName]) {
             matchConstraints[constraintName] = constraintValue;
           }
-        }
+        },
       );
 
       return matchConstraints;
@@ -1005,7 +1005,7 @@ class SIPSession {
 
       const matchConstraints = this.filterSupportedConstraints(constraints);
 
-      //Chromium bug - see: https://bugs.chromium.org/p/chromium/issues/detail?id=796964&q=applyConstraints&can=2
+      // Chromium bug - see: https://bugs.chromium.org/p/chromium/issues/detail?id=796964&q=applyConstraints&can=2
       if (browser().name === 'chrome') {
         matchConstraints.deviceId = this.inputDeviceId;
 
@@ -1094,7 +1094,7 @@ export default class SIPBridge extends BaseAudioBridge {
           if (this.activeSession.webrtcConnected) {
             // webrtc was able to connect so just try again
             message.silenceNotifications = true;
-            callback({ status: this.baseCallStates.reconnecting, bridge: BRIDGE_NAME, });
+            callback({ status: this.baseCallStates.reconnecting, bridge: BRIDGE_NAME });
             shouldTryReconnect = true;
           } else if (hasFallbackDomain === true && hostname !== IPV4_FALLBACK_DOMAIN) {
             message.silenceNotifications = true;

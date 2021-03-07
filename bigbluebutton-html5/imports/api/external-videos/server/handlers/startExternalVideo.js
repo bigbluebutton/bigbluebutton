@@ -10,7 +10,7 @@ export default function handleStartExternalVideo({ header, body }, meetingId) {
   check(userId, String);
 
   const externalVideoUrl = body.externalVideoUrl;
-  const user = Users.findOne({ meetingId: meetingId, userId: userId })
+  const user = Users.findOne({ meetingId, userId });
 
   if (user && user.presenter) {
     try {

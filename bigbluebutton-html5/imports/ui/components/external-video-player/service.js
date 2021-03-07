@@ -27,7 +27,6 @@ const stopWatching = () => {
 let lastMessage = null;
 
 const sendMessage = (event, data) => {
-
   // don't re-send repeated update messages
   if (lastMessage && lastMessage.event === event
     && event === 'playerUpdate' && lastMessage.time === data.time) {

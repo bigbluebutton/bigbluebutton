@@ -9,16 +9,14 @@ export default function handleUpdateExternalVideo({ header, body }, meetingId) {
   check(meetingId, String);
   check(userId, String);
 
-  const user = Users.findOne({ meetingId: meetingId, userId: userId })
+  const user = Users.findOne({ meetingId, userId });
 
   if (user && user.presenter) {
     try {
       Logger.info(`UpdateExternalVideoEvtMsg received for user ${userId} and meeting ${meetingId} event:${body.status}`);
-      ExternalVideoStreamer(meetingId).emit(body.status, { ...body, meetingId: meetingId, userId: userId });
+      ExternalVideoStreamer(meetingId).emit(body.status, { ...body, meetingId, userId });
     } catch (err) {
       Logger.error(`Error on setting shared external video update in Meetings collection: ${err}`);
     }
-
   }
-
 }

@@ -12,7 +12,7 @@ const getReadOnlyIdURL = padId => `${BASE_URL}/getReadOnlyID?apikey=${ETHERPAD.a
 
 const appendTextURL = (padId, text) => `${BASE_URL}/appendText?apikey=${ETHERPAD.apikey}&padID=${padId}&text=${encodeURIComponent(text)}`;
 
-const generateNoteId = (meetingId) => hashSHA1(meetingId+ETHERPAD.apikey);
+const generateNoteId = meetingId => hashSHA1(meetingId + ETHERPAD.apikey);
 
 const isEnabled = () => NOTE_CONFIG.enabled;
 
