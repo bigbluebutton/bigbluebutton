@@ -6,6 +6,7 @@ object WhiteboardKeyUtil {
   val RECTANGLE_TYPE = "rectangle";
   val ELLIPSE_TYPE = "ellipse";
   val TRIANGLE_TYPE = "triangle";
+  val BENZENE_TYPE = "benzene";
   val LINE_TYPE = "line";
   val DRAW_START_STATUS = "DRAW_START";
   val DRAW_UPDATE_STATUS = "DRAW_UPDATE";
