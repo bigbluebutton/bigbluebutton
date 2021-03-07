@@ -18,7 +18,7 @@ trait StartPollReqMsgHdlr extends RightsManagementTrait {
       val envelope = BbbCoreEnvelope(PollStartedEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(PollStartedEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = PollStartedEvtMsgBody(msg.header.userId, poll.id, poll)
+      val body = PollStartedEvtMsgBody(msg.header.userId, poll.id, msg.body.pollType, msg.body.question, poll)
       val event = PollStartedEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
@@ -30,7 +30,7 @@ trait StartPollReqMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       for {
-        pvo <- Polls.handleStartPollReqMsg(state, msg.header.userId, msg.body.pollId, msg.body.pollType, msg.body.isMultipleResponse, liveMeeting)
+        pvo <- Polls.handleStartPollReqMsg(state, msg.header.userId, msg.body.pollId, msg.body.pollType, msg.body.question, msg.body.isMultipleResponse, liveMeeting)
       } yield {
         broadcastEvent(msg, pvo)
       }

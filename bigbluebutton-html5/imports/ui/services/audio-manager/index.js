@@ -10,8 +10,8 @@ import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills';
 import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import { monitorAudioConnection } from '/imports/utils/stats';
+import { Meteor } from 'meteor/meteor';
 import AudioErrors from './error-codes';
-import {Meteor} from "meteor/meteor";
 
 const STATS = Meteor.settings.public.stats;
 const MEDIA = Meteor.settings.public.media;
@@ -37,6 +37,8 @@ class AudioManager {
       tracker: new Tracker.Dependency(),
     };
 
+    this._returningFromBreakoutAudioTransfer = false;
+
     this.defineProperties({
       isMuted: false,
       isConnected: false,
@@ -58,13 +60,14 @@ class AudioManager {
     this.monitor = this.monitor.bind(this);
   }
 
-  init(userData) {
+  init(userData, audioEventHandler) {
     this.bridge = new SIPBridge(userData); // no alternative as of 2019-03-08
     if (this.useKurento) {
       this.listenOnlyBridge = new KurentoBridge(userData);
     }
     this.userData = userData;
     this.initialized = true;
+    this.audioEventHandler = audioEventHandler;
   }
 
   setAudioMessages(messages, intl) {
@@ -338,6 +341,7 @@ class AudioManager {
       this.notify(this.intl.formatMessage(this.messages.info.JOINED_AUDIO));
       logger.info({ logCode: 'audio_joined' }, 'Audio Joined');
       if (STATS.enabled) this.monitor();
+      this.audioEventHandler({ name: 'started' });
     }
   }
 
@@ -521,6 +525,14 @@ class AudioManager {
       ? this.bridge.inputDeviceId : DEFAULT_INPUT_DEVICE_ID;
   }
 
+  get returningFromBreakoutAudioTransfer() {
+    return this._returningFromBreakoutAudioTransfer;
+  }
+
+  set returningFromBreakoutAudioTransfer(value) {
+    this._returningFromBreakoutAudioTransfer = value;
+  }
+
   set userData(value) {
     this._userData = value;
   }
@@ -603,7 +615,7 @@ class AudioManager {
       return;
     }
 
-    peer.getSenders().forEach(sender => {
+    peer.getSenders().forEach((sender) => {
       const { track } = sender;
       if (track && track.kind === 'audio') {
         track.enabled = shouldEnable;
@@ -619,7 +631,7 @@ class AudioManager {
     this.setSenderTrackEnabled(true);
   }
 
-  playAlertSound (url) {
+  playAlertSound(url) {
     if (!url) {
       return Promise.resolve();
     }

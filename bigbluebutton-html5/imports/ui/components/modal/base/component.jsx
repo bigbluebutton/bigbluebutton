@@ -23,7 +23,15 @@ export default class ModalBase extends Component {
     if (!this.props.isOpen) return null;
 
     return (
-      <ReactModal {...this.props}>
+      <ReactModal
+        {...this.props}
+        parentSelector={() => {
+          if (document.fullscreenElement
+              && document.fullscreenElement.nodeName
+              && document.fullscreenElement.nodeName.toLowerCase() === 'div') return document.fullscreenElement;
+          return document.body;
+        }}
+      >
         {this.props.children}
       </ReactModal>
     );
@@ -33,35 +41,36 @@ export default class ModalBase extends Component {
 ModalBase.propTypes = propTypes;
 ModalBase.defaultProps = defaultProps;
 
-export const withModalState = ComponentToWrap =>
-  class ModalStateWrapper extends Component {
-    constructor(props) {
-      super(props);
+export const withModalState = ComponentToWrap => class ModalStateWrapper extends Component {
+  constructor(props) {
+    super(props);
 
-      this.state = {
-        isOpen: true,
-      };
+    this.state = {
+      isOpen: true,
+    };
 
-      this.hide = this.hide.bind(this);
-      this.show = this.show.bind(this);
-    }
+    this.hide = this.hide.bind(this);
+    this.show = this.show.bind(this);
+  }
 
-    hide(cb = () => {}) {
-      Promise.resolve(cb())
-        .then(() => this.setState({ isOpen: false }));
-    }
+  hide(cb = () => {}) {
+    Promise.resolve(cb())
+      .then(() => this.setState({ isOpen: false }));
+  }
 
-    show(cb = () => {}) {
-      Promise.resolve(cb())
-        .then(() => this.setState({ isOpen: true }));
-    }
+  show(cb = () => {}) {
+    Promise.resolve(cb())
+      .then(() => this.setState({ isOpen: true }));
+  }
 
-    render() {
-      return (<ComponentToWrap
+  render() {
+    return (
+      <ComponentToWrap
         {...this.props}
         modalHide={this.hide}
         modalShow={this.show}
         modalisOpen={this.state.isOpen}
-      />);
-    }
-  };
+      />
+    );
+  }
+};

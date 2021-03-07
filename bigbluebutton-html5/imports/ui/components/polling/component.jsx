@@ -9,6 +9,8 @@ import { styles } from './styles.scss';
 import AudioService from '/imports/ui/components/audio/service';
 import Checkbox from '/imports/ui/components/checkbox/component';
 
+const MAX_INPUT_CHARS = 45;
+
 const intlMessages = defineMessages({
   pollingTitleLabel: {
     id: 'app.polling.pollingTitle',
@@ -19,20 +21,37 @@ const intlMessages = defineMessages({
   pollAnswerDesc: {
     id: 'app.polling.pollAnswerDesc',
   },
-  pollSubmitLabel: {
-    id: 'app.polling.pollSubmitLabel',
+  pollQestionTitle: {
+    id: 'app.polling.pollQuestionTitle',
+  },
+  submitLabel: {
+    id: 'app.polling.submitLabel',
+  },
+  submitAriaLabel: {
+    id: 'app.polling.submitAriaLabel',
+  },
+  responsePlaceholder: {
+    id: 'app.polling.responsePlaceholder',
   },
 });
+
+const validateInput = (i) => {
+  let _input = i;
+  if (/^\s/.test(_input)) _input = '';
+  return _input;
+};
 
 class Polling extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      typedAns: '',
       checkedAnswers: [],
     };
 
     this.play = this.play.bind(this);
+    this.handleUpdateResponseInput = this.handleUpdateResponseInput.bind(this);
     this.renderButtonAnswers = this.renderButtonAnswers.bind(this);
     this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -50,57 +69,109 @@ class Polling extends Component {
       + '/resources/sounds/Poll.mp3');
   }
 
+  handleUpdateResponseInput(e) {
+    this.responseInput.value = validateInput(e.target.value);
+    this.setState({ typedAns: this.responseInput.value });
+  }
+
   renderButtonAnswers(pollAnswerStyles) {
     const {
       isMeteorConnected,
       intl,
       poll,
       handleVote,
+      handleTypedVote,
       pollAnswerIds,
     } = this.props;
 
-    return (
-      <div className={cx(pollAnswerStyles)}>
-        {poll.answers.map((pollAnswer) => {
-          const formattedMessageIndex = pollAnswer.key.toLowerCase();
-          let label = pollAnswer.key;
-          if (pollAnswerIds[formattedMessageIndex]) {
-            label = intl.formatMessage(pollAnswerIds[formattedMessageIndex]);
-          }
+    const { question } = poll;
 
-          return (
-            <div
-              key={pollAnswer.id}
-              className={styles.pollButtonWrapper}
-            >
-              <Button
-                disabled={!isMeteorConnected}
-                className={styles.pollingButton}
-                color="primary"
-                size="md"
-                label={label}
-                key={pollAnswer.key}
-                onClick={() => handleVote(poll.pollId, [pollAnswer.id])}
-                aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
-                aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
-              />
-              <div
-                className={styles.hidden}
-                id={`pollAnswerLabel${pollAnswer.key}`}
-              >
-                {intl.formatMessage(intlMessages.pollAnswerLabel, {0: label})}
+    const { typedAns } = this.state;
+
+    return (
+      <div>
+        { poll.pollType !== 'RP' && (
+        <span>
+          {question.length === 0
+              && (
+              <div className={styles.pollingTitle}>
+                {intl.formatMessage(intlMessages.pollingTitleLabel)}
               </div>
-              <div
-                className={styles.hidden}
-                id={`pollAnswerDesc${pollAnswer.key}`}
-              >
-                {intl.formatMessage(intlMessages.pollAnswerDesc, {0: label})}
-              </div>
-            </div>
-          );
-        })}
+              )
+            }
+
+          <div className={cx(pollAnswerStyles)}>
+            {poll.answers.map((pollAnswer) => {
+              const formattedMessageIndex = pollAnswer.key.toLowerCase();
+              let label = pollAnswer.key;
+              if (pollAnswerIds[formattedMessageIndex]) {
+                label = intl.formatMessage(pollAnswerIds[formattedMessageIndex]);
+              }
+
+              return (
+                <div
+                  key={pollAnswer.id}
+                  className={styles.pollButtonWrapper}
+                >
+                  <Button
+                    disabled={!isMeteorConnected}
+                    className={styles.pollingButton}
+                    color="primary"
+                    size="md"
+                    label={label}
+                    key={pollAnswer.key}
+                    onClick={() => handleVote(poll.pollId, [pollAnswer.id])}
+                    aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
+                    aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
+                  />
+                  <div
+                    className={styles.hidden}
+                    id={`pollAnswerLabel${pollAnswer.key}`}
+                  >
+                    {intl.formatMessage(intlMessages.pollAnswerLabel, { 0: label })}
+                  </div>
+                  <div
+                    className={styles.hidden}
+                    id={`pollAnswerDesc${pollAnswer.key}`}
+                  >
+                    {intl.formatMessage(intlMessages.pollAnswerDesc, { 0: label })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </span>
+        )
+        }
+        { poll.pollType === 'RP'
+          && (
+          <div className={styles.typedResponseWrapper}>
+            <input
+              onChange={(e) => {
+                this.handleUpdateResponseInput(e);
+              }}
+              type="text"
+              className={styles.typedResponseInput}
+              placeholder={intl.formatMessage(intlMessages.responsePlaceholder)}
+              maxLength={MAX_INPUT_CHARS}
+              ref={(r) => { this.responseInput = r; }}
+            />
+            <Button
+              className={styles.submitVoteBtn}
+              disabled={typedAns.length === 0}
+              color="primary"
+              size="sm"
+              label={intl.formatMessage(intlMessages.submitLabel)}
+              aria-label={intl.formatMessage(intlMessages.submitAriaLabel)}
+              onClick={() => {
+                handleTypedVote(poll.pollId, typedAns);
+              }}
+            />
+          </div>
+          )
+        }
       </div>
-    )
+    );
   }
 
   handleCheckboxChange(pollId, answerId) {
@@ -111,7 +182,7 @@ class Polling extends Component {
       checkedAnswers.push(answerId);
     }
     checkedAnswers.sort();
-    this.setState({checkedAnswers: checkedAnswers})
+    this.setState({ checkedAnswers });
   }
 
   handleSubmit(pollId) {
@@ -128,52 +199,61 @@ class Polling extends Component {
       pollAnswerIds,
     } = this.props;
     const { checkedAnswers } = this.state;
+    const { question } = poll;
     return (
       <div>
-        {/*<div className={cx(pollAnswerStyles)}>*/}
-          <div>
-            {poll.answers.map((pollAnswer) => {
-              const formattedMessageIndex = pollAnswer.key.toLowerCase();
-              let label = pollAnswer.key;
-              if (pollAnswerIds[formattedMessageIndex]) {
-                label = intl.formatMessage(pollAnswerIds[formattedMessageIndex]);
-              }
-
-              return (
-                <div
-                  key={pollAnswer.id}
-                  className={styles.checkboxContainer}
-                >
-                  <Checkbox
-                    disabled={!isMeteorConnected}
-                    id={`answerInput${pollAnswer.key}`}
-                    onChange={() => this.handleCheckboxChange(poll.pollId, pollAnswer.id)}
-                    checked={checkedAnswers.includes(pollAnswer.id)}
-                    className={styles.checkbox}
-                    ariaLabelledBy={`pollAnswerLabel${pollAnswer.key}`}
-                    ariaDescribedBy={`pollAnswerDesc${pollAnswer.key}`}
-                  />
-                  <label id={`pollAnswerLabel${pollAnswer.key}`}>
-                    {label}
-                  </label>
-                  <div
-                    className={styles.hidden}
-                    id={`pollAnswerDesc${pollAnswer.key}`}
-                  >
-                    {intl.formatMessage(intlMessages.pollAnswerDesc, { 0: label })}
-                  </div>
-                </div>
-              );
-            })}
+        {question.length === 0
+          && (
+          <div className={styles.pollingTitle}>
+            {intl.formatMessage(intlMessages.pollingTitleLabel)}
           </div>
-        {/*</div>*/}
+          )
+        }
+        {/* <div className={cx(pollAnswerStyles)}> */}
+        <div>
+          {poll.answers.map((pollAnswer) => {
+            const formattedMessageIndex = pollAnswer.key.toLowerCase();
+            let label = pollAnswer.key;
+            if (pollAnswerIds[formattedMessageIndex]) {
+              label = intl.formatMessage(pollAnswerIds[formattedMessageIndex]);
+            }
+
+            return (
+              <div
+                key={pollAnswer.id}
+                className={styles.checkboxContainer}
+              >
+                <Checkbox
+                  disabled={!isMeteorConnected}
+                  id={`answerInput${pollAnswer.key}`}
+                  onChange={() => this.handleCheckboxChange(poll.pollId, pollAnswer.id)}
+                  checked={checkedAnswers.includes(pollAnswer.id)}
+                  className={styles.checkbox}
+                  ariaLabelledBy={`pollAnswerLabel${pollAnswer.key}`}
+                  ariaDescribedBy={`pollAnswerDesc${pollAnswer.key}`}
+                />
+                <label id={`pollAnswerLabel${pollAnswer.key}`}>
+                  {label}
+                </label>
+                <div
+                  className={styles.hidden}
+                  id={`pollAnswerDesc${pollAnswer.key}`}
+                >
+                  {intl.formatMessage(intlMessages.pollAnswerDesc, { 0: label })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {/* </div> */}
         <div>
           <Button
+            className={styles.submitVoteBtn}
             disabled={!isMeteorConnected || checkedAnswers.length === 0}
-            className={styles.pollingButton}
             color="primary"
-            size="md"
-            label={intl.formatMessage(intlMessages.pollSubmitLabel)}
+            size="sm"
+            label={intl.formatMessage(intlMessages.submitLabel)}
+            aria-label={intl.formatMessage(intlMessages.submitAriaLabel)}
             onClick={() => this.handleSubmit(poll.pollId)}
           />
         </div>
@@ -189,7 +269,7 @@ class Polling extends Component {
 
     if (!poll) return null;
 
-    const { stackOptions, answers } = poll;
+    const { stackOptions, answers, question } = poll;
     const pollAnswerStyles = {
       [styles.pollingAnswers]: true,
       [styles.removeColumns]: answers.length === 1,
@@ -205,9 +285,12 @@ class Polling extends Component {
           })}
           role="alert"
         >
-          <div className={styles.pollingTitle}>
-            {intl.formatMessage(intlMessages.pollingTitleLabel)}
-          </div>
+          {question.length > 0 && (
+            <span className={styles.qHeader}>
+              <div className={styles.qTitle}>{intl.formatMessage(intlMessages.pollQestionTitle)}</div>
+              <div className={styles.qText}>{question}</div>
+            </span>)
+          }
           {poll.isMultipleResponse ? this.renderCheckboxAnswers(pollAnswerStyles) : this.renderButtonAnswers(pollAnswerStyles)}
         </div>
       </div>);

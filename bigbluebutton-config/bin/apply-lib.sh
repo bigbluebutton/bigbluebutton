@@ -225,20 +225,6 @@ disableMultipleKurentos() {
   yq w -i $KURENTO_CONFIG balancing-strategy ROUND_ROBIN
 }
 
-setNumberOfHTML5Processes() {
-  HTML5_RESTRICTIONS_FILE=/usr/share/meteor/bundle/bbb-html5.conf
-  NUMBER_OF_PROCESSES=`echo $1 | bc`
-
-  source $HTML5_RESTRICTIONS_FILE
-
-  echo "setNumberOfHTML5Processes with number of processes in the range ($INSTANCE_MIN to $INSTANCE_MAX)"
-  echo "setNumberOfHTML5Processes with NUMBER_OF_PROCESSES=$NUMBER_OF_PROCESSES"
-
-  sed -i -e "s|DESIRED_INSTANCE_COUNT=.*$|DESIRED_INSTANCE_COUNT=$NUMBER_OF_PROCESSES|g" $HTML5_RESTRICTIONS_FILE
-
-  systemctl restart bbb-html5
-}
-
 
 notCalled() {
 #
@@ -266,8 +252,6 @@ source /etc/bigbluebutton/bbb-conf/apply-lib.sh
 #enableHTML5WebcamPagination
 
 #enableMultipleKurentos
-
-#setNumberOfHTML5Processes 2
 
 # Shorten the FreeSWITCH "you have been muted" and "you have been unmuted" prompts
 # cp -r /etc/bigbluebutton/bbb-conf/sounds /opt/freeswitch/share/freeswitch

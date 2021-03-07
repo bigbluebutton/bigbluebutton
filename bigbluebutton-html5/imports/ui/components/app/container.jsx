@@ -74,9 +74,9 @@ const currentUserEmoji = currentUser => (currentUser ? {
   status: currentUser.emoji,
   changedAt: currentUser.emojiTime,
 } : {
-    status: 'none',
-    changedAt: null,
-  });
+  status: 'none',
+  changedAt: null,
+});
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   const authTokenValidation = AuthTokenValidation.findOne({}, { sort: { updatedAt: -1 } });
@@ -85,7 +85,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     endMeeting('403');
   }
 
-  Users.find({ userId: Auth.userID }).observe({
+  Users.find({ userId: Auth.userID, meetingId: Auth.meetingID }).observe({
     removed() {
       endMeeting('403');
     },

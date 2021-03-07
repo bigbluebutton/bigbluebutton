@@ -3,6 +3,11 @@ import PropTypes from 'prop-types';
 import PollService from '/imports/ui/components/poll/service';
 import { injectIntl, defineMessages } from 'react-intl';
 import styles from './styles';
+import { prototype } from 'clipboard';
+import MediaService, {
+  getSwapLayout,
+  shouldEnableSwapLayout,
+} from '/imports/ui/components/media/service';
 
 const intlMessages = defineMessages({
   pollResultAria: {
@@ -64,6 +69,9 @@ class PollDrawComponent extends Component {
   }
 
   componentDidMount() {
+    const isLayoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
+    if (isLayoutSwapped) return;
+
     this.pollInitialCalculation();
     this.checkSizes();
   }

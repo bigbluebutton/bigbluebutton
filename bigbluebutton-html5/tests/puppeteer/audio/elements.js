@@ -5,4 +5,4 @@ exports.audioAudible = 'button[aria-label="Echo is audible"]';
 exports.leaveAudio = 'button[aria-label="Leave audio"]';
 exports.microphone = 'button[aria-label="Microphone"]';
 exports.whiteboard = 'svg[data-test="whiteboard"]';
-
+exports.talkingIndicator = 'div[class^="isTalkingWrapper--"] > div[class^="speaking--"]';

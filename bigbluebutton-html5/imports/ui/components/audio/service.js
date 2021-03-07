@@ -6,9 +6,39 @@ import Meetings from '/imports/api/meetings';
 import { makeCall } from '/imports/ui/services/api';
 import VoiceUsers from '/imports/api/voice-users';
 import logger from '/imports/startup/client/logger';
+import Storage from '../../services/storage/session';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const TOGGLE_MUTE_THROTTLE_TIME = Meteor.settings.public.media.toggleMuteThrottleTime;
+
+const MUTED_KEY = 'muted';
+
+const recoverMicState = () => {
+  const muted = Storage.getItem(MUTED_KEY);
+
+  if ((muted === undefined) || (muted === null)) {
+    return;
+  }
+
+  logger.debug({
+    logCode: 'audio_recover_mic_state',
+  }, `Audio recover previous mic state: muted = ${muted}`);
+  makeCall('toggleVoice', null, muted);
+};
+
+const audioEventHandler = (event) => {
+  if (!event) {
+    return;
+  }
+
+  switch (event.name) {
+    case 'started':
+      recoverMicState();
+      break;
+    default:
+      break;
+  }
+};
 
 const init = (messages, intl) => {
   AudioManager.setAudioMessages(messages, intl);
@@ -33,7 +63,7 @@ const init = (messages, intl) => {
     microphoneLockEnforced,
   };
 
-  AudioManager.init(userData);
+  AudioManager.init(userData, audioEventHandler);
 };
 
 const isVoiceUser = () => {
@@ -46,6 +76,9 @@ const toggleMuteMicrophone = throttle(() => {
   const user = VoiceUsers.findOne({
     meetingId: Auth.meetingID, intId: Auth.userID,
   }, { fields: { muted: 1 } });
+
+  Storage.setItem(MUTED_KEY, !user.muted);
+
   if (user.muted) {
     logger.info({
       logCode: 'audiomanager_unmute_audio',
@@ -71,7 +104,11 @@ export default {
   joinEchoTest: () => AudioManager.joinEchoTest(),
   toggleMuteMicrophone: debounce(toggleMuteMicrophone, 500, { leading: true, trailing: false }),
   changeInputDevice: inputDeviceId => AudioManager.changeInputDevice(inputDeviceId),
-  changeOutputDevice: outputDeviceId => AudioManager.changeOutputDevice(outputDeviceId),
+  changeOutputDevice: (outputDeviceId) => {
+    if (AudioManager.outputDeviceId !== outputDeviceId) {
+      AudioManager.changeOutputDevice(outputDeviceId);
+    }
+  },
   isConnected: () => AudioManager.isConnected,
   isTalking: () => AudioManager.isTalking,
   isHangingUp: () => AudioManager.isHangingUp,
@@ -92,4 +129,10 @@ export default {
   playAlertSound: url => AudioManager.playAlertSound(url),
   updateAudioConstraints:
     constraints => AudioManager.updateAudioConstraints(constraints),
+  recoverMicState,
+  setReturningFromBreakoutAudioTransfer: (value) => {
+    AudioManager.returningFromBreakoutAudioTransfer = value;
+  },
+  isReturningFromBreakoutAudioTransfer:
+    () => AudioManager.returningFromBreakoutAudioTransfer,
 };

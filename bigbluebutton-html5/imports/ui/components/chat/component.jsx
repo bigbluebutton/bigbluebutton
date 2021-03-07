@@ -7,7 +7,7 @@ import { Session } from 'meteor/session';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from './styles.scss';
 import MessageForm from './message-form/container';
-import MessageList from './message-list/container';
+import TimeWindowList from './time-window-list/container';
 import ChatDropdownContainer from './chat-dropdown/container';
 
 const ELEMENT_ID = 'chat-messages';
@@ -22,10 +22,10 @@ const intlMessages = defineMessages({
     description: 'aria-label for hiding chat button',
   },
 });
+
 const Chat = (props) => {
   const {
     chatID,
-    chatName,
     title,
     messages,
     partnerIsLoggedOut,
@@ -42,11 +42,12 @@ const Chat = (props) => {
     maxMessageLength,
     amIModerator,
     meetingIsBreakout,
+    timeWindowsValues,
+    dispatch,
+    count,
   } = props;
-
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
   const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
-
   return (
     <div
       data-test={chatID !== 'public' ? 'privateChat' : 'publicChat'}
@@ -90,26 +91,34 @@ const Chat = (props) => {
                 accessKey={CLOSE_CHAT_AK}
               />
             )
-            : <ChatDropdownContainer {...{ meetingIsBreakout, isMeteorConnected, amIModerator }} />
+            : (
+              <ChatDropdownContainer {...{
+                meetingIsBreakout, isMeteorConnected, amIModerator, timeWindowsValues,
+              }}
+              />
+            )
         }
       </header>
-      <MessageList
+      <TimeWindowList
         id={ELEMENT_ID}
         chatId={chatID}
         handleScrollUpdate={actions.handleScrollUpdate}
-        handleReadMessage={actions.handleReadMessage}
         {...{
           partnerIsLoggedOut,
           lastReadMessageTime,
           hasUnreadMessages,
           scrollPosition,
           messages,
+          currentUserIsModerator: amIModerator,
+          timeWindowsValues,
+          dispatch,
+          count,
         }}
       />
       <MessageForm
         {...{
           UnsentMessagesCollection,
-          chatName,
+          title,
           minMessageLength,
           maxMessageLength,
         }}
@@ -130,7 +139,6 @@ export default withShortcutHelper(injectWbResizeEvent(injectIntl(memo(Chat))), [
 
 const propTypes = {
   chatID: PropTypes.string.isRequired,
-  chatName: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   messages: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.oneOfType([
     PropTypes.array,

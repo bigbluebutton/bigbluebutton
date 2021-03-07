@@ -17,6 +17,7 @@ import Breakouts from '/imports/api/breakouts';
 import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { invalidateCookie } from '/imports/ui/components/audio/audio-modal/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import LayoutManager from '/imports/ui/components/layout/layout-manager';
 import { withLayoutContext } from '/imports/ui/components/layout/context';
@@ -82,16 +83,6 @@ class Base extends Component {
     if (animations) HTML.classList.add('animationsEnabled');
     if (!animations) HTML.classList.add('animationsDisabled');
 
-    if (getFromUserSettings('bbb_show_participants_on_login', true) && !deviceInfo.type().isPhone) {
-      Session.set('openPanel', 'userlist');
-      if (CHAT_ENABLED) {
-        Session.set('openPanel', 'chat');
-        Session.set('idChatOpen', PUBLIC_CHAT_ID);
-      }
-    } else {
-      Session.set('openPanel', '');
-    }
-
     fullscreenChangedEvents.forEach((event) => {
       document.addEventListener(event, Base.handleFullscreenChange);
     });
@@ -106,6 +97,7 @@ class Base extends Component {
       ejected,
       isMeteorConnected,
       subscriptionsReady,
+      meetingIsBreakout,
       layoutContextDispatch,
       usersVideo,
     } = this.props;
@@ -113,6 +105,10 @@ class Base extends Component {
       loading,
       meetingExisted,
     } = this.state;
+
+    if (prevProps.meetingIsBreakout === undefined && !meetingIsBreakout) {
+      invalidateCookie('joinedAudio');
+    }
 
     if (usersVideo !== prevProps.usersVideo) {
       layoutContextDispatch(
@@ -387,15 +383,15 @@ const BaseContainer = withTracker(() => {
     });
   }
 
-  if (getFromUserSettings('bbb_show_participants_on_login', true) && !deviceInfo.type().isPhone) {
+  if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.type().isPhone) {
     if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
-      Session.setDefault('openPanel', 'chat');
-      Session.setDefault('idChatOpen', PUBLIC_CHAT_ID);
+      Session.set('openPanel', 'chat');
+      Session.set('idChatOpen', PUBLIC_CHAT_ID);
     } else {
-      Session.setDefault('openPanel', 'userlist');
+      Session.set('openPanel', 'userlist');
     }
   } else {
-    Session.setDefault('openPanel', '');
+    Session.set('openPanel', '');
   }
 
   const codeError = Session.get('codeError');

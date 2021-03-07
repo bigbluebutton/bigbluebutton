@@ -22,9 +22,9 @@ export default withTracker(() => {
 
   const pollId = currentSlide ? currentSlide.id : PUBLIC_CHAT_KEY;
 
-  const startPoll = (type, isMultipleResponse) => makeCall('startPoll', type, pollId, isMultipleResponse);
+  const startPoll = (type, question = '', isMultipleResponse) => makeCall('startPoll', type, pollId, question, isMultipleResponse);
 
-  const startCustomPoll = (type, isMultipleResponse, answers) => makeCall('startPoll', type, pollId, isMultipleResponse, answers);
+  const startCustomPoll = (type, question = '', answers, isMultipleResponse) => makeCall('startPoll', type, pollId, question, isMultipleResponse, answers);
 
   const stopPoll = () => makeCall('stopPoll');
 
@@ -40,6 +40,5 @@ export default withTracker(() => {
     resetPollPanel: Session.get('resetPollPanel') || false,
     pollAnswerIds: Service.pollAnswerIds,
     isMeteorConnected: Meteor.status().connected,
-    sendGroupMessage: Service.sendGroupMessage,
   };
 })(PollContainer);
