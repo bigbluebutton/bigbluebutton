@@ -268,7 +268,7 @@
     "app.polling.submitLabel": "Submit",
     "app.polling.submitAriaLabel": "Submit poll response",
     "app.polling.responsePlaceholder": "Enter answer",
-    "app.polling.pollAnswerLabel": "Poll afnswer {0}",
+    "app.polling.pollAnswerLabel": "Poll answer {0}",
     "app.polling.pollAnswerDesc": "Select this option to vote for {0}",
     "app.failedMessage": "Apologies, trouble connecting to the server.",
     "app.downloadPresentationButton.label": "Download the original presentation",
