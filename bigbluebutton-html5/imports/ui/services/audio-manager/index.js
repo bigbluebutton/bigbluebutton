@@ -30,6 +30,12 @@ const CALL_STATES = {
   AUTOPLAY_BLOCKED: 'autoplayBlocked',
 };
 
+const BREAKOUT_AUDIO_TRANSFER_STATES = {
+  CONNECTED: 'connected',
+  DISCONNECTED: 'disconnected',
+  RETURNING: 'returning',
+};
+
 class AudioManager {
   constructor() {
     this._inputDevice = {
@@ -37,7 +43,10 @@ class AudioManager {
       tracker: new Tracker.Dependency(),
     };
 
-    this._returningFromBreakoutAudioTransfer = false;
+    this._breakoutAudioTransferStatus = {
+      status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+      breakoutMeetingId: null,
+    };
 
     this.defineProperties({
       isMuted: false,
@@ -59,6 +68,8 @@ class AudioManager {
     this.failedMediaElements = [];
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.monitor = this.monitor.bind(this);
+
+    this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
   }
 
   init(userData, audioEventHandler) {
@@ -534,12 +545,29 @@ class AudioManager {
       ? this.bridge.inputDeviceId : DEFAULT_INPUT_DEVICE_ID;
   }
 
-  get returningFromBreakoutAudioTransfer() {
-    return this._returningFromBreakoutAudioTransfer;
+  /**
+   * Sets the current status for breakout audio transfer
+   * @param {String}  breakoutMeetingId         The id of the current breakout
+   *                                            audio transfer.
+   * @param {String} status                     The status to be set for
+   *                                            audio transfer. Valid values
+   *                                            are 'connected', 'disconnected'
+   *                                            and 'returning'
+   */
+  setBreakoutAudioTransferStatus(breakoutMeetingId, status) {
+    const data = this._breakoutAudioTransferStatus;
+
+    if (typeof breakoutMeetingId === 'string') {
+      data.breakoutMeetingId = breakoutMeetingId;
+    }
+
+    if (typeof status === 'string') {
+      data.status = status;
+    }
   }
 
-  set returningFromBreakoutAudioTransfer(value) {
-    this._returningFromBreakoutAudioTransfer = value;
+  getBreakoutAudioTransferStatus() {
+    return this._breakoutAudioTransferStatus;
   }
 
   set userData(value) {
