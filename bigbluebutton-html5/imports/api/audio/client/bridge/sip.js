@@ -587,7 +587,12 @@ class SIPSession {
       if (!isListenOnly) {
         userMediaConstraints = this.userMediaConstraints;
         if (this.inputDeviceId) {
-          userMediaConstraints['deviceId'] = { exact: this.inputDeviceId }
+          let inputDeviceIdMediaTrackConstraint = { exact: this.inputDeviceId };
+          if(typeof userMediaConstraints.audio ===  "object") {
+            userMediaConstraints.audio.deviceId = inputDeviceIdMediaTrackConstraint;
+          } else {
+            userMediaConstraints.audio = {deviceId: inputDeviceIdMediaTrackConstraint}
+          }
         }
       }
 
