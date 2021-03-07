@@ -277,6 +277,49 @@ def svg_render_shape_triangle(g, slide, shape)
   g << path
 end
 
+def svg_render_shape_benzene(g, slide, shape)
+  g['shape'] = "benzene#{shape[:shape_unique_id]}"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:#{shape[:fill] ? '#'+shape[:color] : 'none'}"
+  if $version_atleast_2_0_0
+    g['style'] += ";stroke-linejoin:miter;stroke-miterlimit:8"
+  else
+    g['style'] += ";stroke-linejoin:round"
+  end
+
+  doc = g.document
+  data_points = shape[:data_points]
+  x0 = shape_scale_width(slide, data_points[0])
+  y0 = shape_scale_height(slide, data_points[1])
+  x3 = shape_scale_width(slide, data_points[2])
+  y3 = shape_scale_height(slide, data_points[3])
+  xC = ( x0 + x3 ) / 2.0;
+  yC = ( y0 + y3 ) / 2.0;
+  x1 = (Math.cos(Math::PI / 3    ) * (x0 - xC) - Math.sin(Math::PI / 3    ) * (y0 - yC) + xC).round(5);
+  y1 = (Math.sin(Math::PI / 3    ) * (x0 - xC) + Math.cos(Math::PI / 3    ) * (y0 - yC) + yC).round(5);
+  x2 = (Math.cos(Math::PI / 3 * 2) * (x0 - xC) - Math.sin(Math::PI / 3 * 2) * (y0 - yC) + xC).round(5);
+  y2 = (Math.sin(Math::PI / 3 * 2) * (x0 - xC) + Math.cos(Math::PI / 3 * 2) * (y0 - yC) + yC).round(5);
+  x4 = (Math.cos(Math::PI / 3 * 4) * (x0 - xC) - Math.sin(Math::PI / 3 * 4) * (y0 - yC) + xC).round(5);
+  y4 = (Math.sin(Math::PI / 3 * 4) * (x0 - xC) + Math.cos(Math::PI / 3 * 4) * (y0 - yC) + yC).round(5);
+  x5 = (Math.cos(Math::PI / 3 * 5) * (x0 - xC) - Math.sin(Math::PI / 3 * 5) * (y0 - yC) + xC).round(5);
+  y5 = (Math.sin(Math::PI / 3 * 5) * (x0 - xC) + Math.cos(Math::PI / 3 * 5) * (y0 - yC) + yC).round(5);
+  xp0 = ((x0 * 3.0 + xC) / 4.0).round(5);
+  yp0 = ((y0 * 3.0 + yC) / 4.0).round(5);
+  xp1 = ((x1 * 3.0 + xC) / 4.0).round(5);
+  yp1 = ((y1 * 3.0 + yC) / 4.0).round(5);
+  xp2 = ((x2 * 3.0 + xC) / 4.0).round(5);
+  yp2 = ((y2 * 3.0 + yC) / 4.0).round(5);
+  xp3 = ((x3 * 3.0 + xC) / 4.0).round(5);
+  yp3 = ((y3 * 3.0 + yC) / 4.0).round(5);
+  xp4 = ((x4 * 3.0 + xC) / 4.0).round(5);
+  yp4 = ((y4 * 3.0 + yC) / 4.0).round(5);
+  xp5 = ((x5 * 3.0 + xC) / 4.0).round(5);
+  yp5 = ((y5 * 3.0 + yC) / 4.0).round(5);
+
+  path = doc.create_element('path',
+          d: "M#{x0} #{y0}L#{x1} #{y1}L#{x2} #{y2}L#{x3} #{y3}L#{x4} #{y4}L#{x5} #{y5}Z M#{xp0} #{yp0}L#{xp1} #{yp1}M#{xp2} #{yp2}L#{xp3} #{yp3} M#{xp4} #{yp4}L#{xp5} #{yp5}")
+  g << path
+end
+
 def svg_render_shape_ellipse(g, slide, shape)
   g['shape'] = "ellipse#{shape[:shape_unique_id]}"
   g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
@@ -413,6 +456,8 @@ def svg_render_shape(canvas, slide, shape, image_id)
     svg_render_shape_rect(g, slide, shape)
   when 'triangle'
     svg_render_shape_triangle(g, slide, shape)
+  when 'benzene'
+    svg_render_shape_benzene(g, slide, shape)
   when 'ellipse'
     svg_render_shape_ellipse(g, slide, shape)
   when 'text'
@@ -595,7 +640,7 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   # Some shape-specific properties
   if shape[:type] == 'pencil' or shape[:type] == 'rectangle' or
       shape[:type] == 'ellipse' or shape[:type] == 'triangle' or
-      shape[:type] == 'line'
+      shape[:type] == 'line' or shape[:type] == 'benzene'
     shape[:color] = color_to_hex(event.at_xpath('color').text)
     thickness = event.at_xpath('thickness')
     unless thickness
