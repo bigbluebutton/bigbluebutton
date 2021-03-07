@@ -24,7 +24,7 @@ export default withTracker(() => {
 
   const startPoll = (type, question = '', isMultipleResponse) => makeCall('startPoll', type, pollId, question, isMultipleResponse);
 
-  const startCustomPoll = (type, question = '', answers, isMultipleResponse) => makeCall('startPoll', type, pollId, question, isMultipleResponse, answers);
+  const startCustomPoll = (type, question = '', isMultipleResponse, answers) => makeCall('startPoll', type, pollId, question, isMultipleResponse, answers);
 
   const stopPoll = () => makeCall('stopPoll');
 
