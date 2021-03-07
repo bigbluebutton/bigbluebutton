@@ -95,6 +95,7 @@ class Polling extends Component {
     return (
       <div className={styles.overlay}>
         <div
+          data-test="pollingContainer"
           className={cx({
             [styles.pollingContainer]: true,
             [styles.autoWidth]: stackOptions,
@@ -104,7 +105,7 @@ class Polling extends Component {
           {question.length > 0 && (
             <span className={styles.qHeader}>
               <div className={styles.qTitle}>{intl.formatMessage(intlMessages.pollQestionTitle)}</div>
-              <div className={styles.qText}>{question}</div>
+              <div data-test="pollQuestion" className={styles.qText}>{question}</div>
             </span>)
           }
           { poll.pollType !== 'RP' && (
@@ -140,6 +141,7 @@ class Polling extends Component {
                         onClick={() => handleVote(poll.pollId, pollAnswer)}
                         aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
                         aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
+                        data-test="pollAnswerOption"
                       />
                       <div
                         className={styles.hidden}

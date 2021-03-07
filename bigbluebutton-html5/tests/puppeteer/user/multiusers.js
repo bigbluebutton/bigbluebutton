@@ -1,6 +1,11 @@
 const Page = require('../core/page');
 const params = require('../params');
 const util = require('../chat/util');
+const pe = require('../core/elements');
+const ne = require('../notifications/elements');
+const ple = require('../polling/elemens');
+const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { sleep } = require('../core/helper');
 
 class MultiUsers {
   constructor() {
@@ -43,6 +48,75 @@ class MultiUsers {
   async test() {
     const checks = await this.checkForOtherUser();
     return checks.firstCheck !== false && checks.secondCheck !== false;
+  }
+
+  async randomPoll(testName) {
+    try {
+      await this.page1.startRecording(testName);
+      await this.page1.closeAudioModal();
+      await this.page2.closeAudioModal();
+      await this.page1.waitForSelector(pe.actions, ELEMENT_WAIT_TIME);
+      await this.page1.click(pe.actions, true);
+      await this.page1.waitForSelector(ne.polling, ELEMENT_WAIT_TIME);
+      await this.page1.click(ne.polling, true);
+      await this.page1.waitForSelector(ple.pollQuestionArea, ELEMENT_WAIT_TIME);
+      await this.page1.page.focus(ple.pollQuestionArea);
+      await this.page1.page.keyboard.type(ple.pollQuestion);
+
+      const chosenRandomNb = await this.page1.page.evaluate(() => {
+        const responseTypesDiv = document.querySelector('div[data-test="responseTypes"]');
+        const buttons = responseTypesDiv.querySelectorAll('button');
+        const countButtons = buttons.length;
+        const randomNb = Math.floor(Math.random() * countButtons) + 1;
+        // const chosenRandomNb = 1;
+        const chosenRandomNb = randomNb - 1;
+        responseTypesDiv.querySelectorAll('button')[chosenRandomNb].click();
+        return chosenRandomNb;
+      });
+      switch (chosenRandomNb) {
+        case 0:
+          console.log({ chosenRandomNb }, ' <= True / False');
+          await this.page1.waitForSelector(ple.responseChoices, ELEMENT_WAIT_TIME);
+          await this.page1.waitForSelector(ple.addItem, ELEMENT_WAIT_TIME);
+          await this.page1.click(ple.addItem, true);
+          await this.page1.click(ple.pollOptionItem, true);
+          await this.page1.tab(2);
+          await this.page1.page.keyboard.type(ple.uncertain);
+          break;
+
+        case 1:
+          console.log({ chosenRandomNb }, ' <= A / B / C / D');
+          await this.page1.page.evaluate(() => {
+            const responseChoices = document.querySelector('div[data-test="responseChoices"]');
+            responseChoices.querySelectorAll('button[data-test="deletePollOption"]')[0].click();
+          });
+          await this.page1.waitForSelector(ple.deletePollOption, ELEMENT_WAIT_TIME);
+          await this.page1.click(ple.deletePollOption, true);
+          break;
+
+        case 2:
+          console.log({ chosenRandomNb }, ' <= Yes / No / Abstention');
+          break;
+
+        case 3:
+          console.log({ chosenRandomNb }, ' <= User Response');
+          break;
+      }
+      await this.page1.waitForSelector(ple.startPoll, ELEMENT_WAIT_TIME);
+      await this.page1.click(ple.startPoll, true);
+      await this.page2.waitForSelector(ple.pollingContainer, ELEMENT_WAIT_TIME);
+      await this.page2.waitForSelector(ple.pollAnswerOption, ELEMENT_WAIT_TIME);
+      await this.page2.click(ple.pollAnswerOption, true);
+      await this.page1.waitForSelector(ple.publishLabel, ELEMENT_WAIT_TIME);
+      await this.page1.click(ple.publishLabel, true);
+      await sleep(3000);
+      return true;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+
+    await sleep(50000);
   }
 
   // Close all Pages
