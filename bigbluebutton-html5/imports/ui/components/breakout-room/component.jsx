@@ -127,8 +127,10 @@ class BreakoutRoom extends PureComponent {
 
     if (joinedAudioOnly && (!isMicrophoneUser || isReconnecting)) {
       this.clearJoinedAudioOnly();
-      setBreakoutAudioTransferStatus('',
-        AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED);
+      setBreakoutAudioTransferStatus({
+        breakoutMeetingId: '',
+        status: AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+      });
     }
   }
 
@@ -201,8 +203,10 @@ class BreakoutRoom extends PureComponent {
     const disable = waiting && requestedBreakoutId !== breakoutId;
     const audioAction = joinedAudioOnly || isInBreakoutAudioTransfer
       ? () => {
-        setBreakoutAudioTransferStatus(breakoutId,
-          AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.RETURNING);
+        setBreakoutAudioTransferStatus({
+          breakoutMeetingId: breakoutId,
+          status: AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.RETURNING,
+        });
         this.returnBackToMeeeting(breakoutId);
         return logger.debug({
           logCode: 'breakoutroom_return_main_audio',
@@ -210,8 +214,10 @@ class BreakoutRoom extends PureComponent {
         }, 'Returning to main audio (breakout room audio closed)');
       }
       : () => {
-        setBreakoutAudioTransferStatus(breakoutId,
-          AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.CONNECTED);
+        setBreakoutAudioTransferStatus({
+          breakoutMeetingId: breakoutId,
+          status: AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.CONNECTED,
+        });
         this.transferUserToBreakoutRoom(breakoutId);
         return logger.debug({
           logCode: 'breakoutroom_join_audio_from_main_room',

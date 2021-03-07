@@ -126,9 +126,8 @@ export default {
     constraints => AudioManager.updateAudioConstraints(constraints),
   recoverMicState,
   isReconnecting: () => AudioManager.isReconnecting,
-  setBreakoutAudioTransferStatus:
-    (breakoutId, status) => AudioManager
-      .setBreakoutAudioTransferStatus(breakoutId, status),
+  setBreakoutAudioTransferStatus: status => AudioManager
+    .setBreakoutAudioTransferStatus(status),
   getBreakoutAudioTransferStatus: () => AudioManager
     .getBreakoutAudioTransferStatus(),
 };

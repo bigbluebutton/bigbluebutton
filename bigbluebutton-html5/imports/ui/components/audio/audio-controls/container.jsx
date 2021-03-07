@@ -58,8 +58,9 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
   const { status } = Service.getBreakoutAudioTransferStatus();
 
   if (status === AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.RETURNING) {
-    Service.setBreakoutAudioTransferStatus(null,
-      AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED);
+    Service.setBreakoutAudioTransferStatus({
+      status: AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+    });
     Service.recoverMicState();
   }
 

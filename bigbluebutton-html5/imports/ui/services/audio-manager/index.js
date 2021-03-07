@@ -547,22 +547,25 @@ class AudioManager {
 
   /**
    * Sets the current status for breakout audio transfer
-   * @param {String}  breakoutMeetingId         The id of the current breakout
+   * @param {Object} newStatus                  The status Object to be set for
    *                                            audio transfer.
-   * @param {String} status                     The status to be set for
-   *                                            audio transfer. Valid values
-   *                                            are 'connected', 'disconnected'
-   *                                            and 'returning'
+   * @param {string} newStatus.breakoutMeetingId The meeting id of the current
+   *                                            breakout audio transfer.
+   * @param {string} newStatus.status           The status of the current audio
+   *                                            transfer. Valid values are
+   *                                            'connected', 'disconnected' and
+   *                                            'returning'.
    */
-  setBreakoutAudioTransferStatus(breakoutMeetingId, status) {
-    const data = this._breakoutAudioTransferStatus;
+  setBreakoutAudioTransferStatus(newStatus) {
+    const currentStatus = this._breakoutAudioTransferStatus;
+    const { breakoutMeetingId, status } = newStatus;
 
     if (typeof breakoutMeetingId === 'string') {
-      data.breakoutMeetingId = breakoutMeetingId;
+      currentStatus.breakoutMeetingId = breakoutMeetingId;
     }
 
     if (typeof status === 'string') {
-      data.status = status;
+      currentStatus.status = status;
     }
   }
 
