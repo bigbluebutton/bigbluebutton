@@ -123,7 +123,13 @@ class MeetingEnded extends PureComponent {
 
     const meeting = Meetings.findOne({ id: user.meetingID });
     if (meeting) {
-      this.meetingEndedBy = meeting.meetingEndedBy;
+      const endedBy = Users.findOne({
+        userId: meeting.meetingEndedBy,
+      }, { fields: { name: 1 } });
+
+      if (endedBy) {
+        this.meetingEndedBy = endedBy.name;
+      }
     }
 
     this.setSelectedStar = this.setSelectedStar.bind(this);
