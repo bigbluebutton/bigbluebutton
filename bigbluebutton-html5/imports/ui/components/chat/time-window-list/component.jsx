@@ -116,10 +116,6 @@ class TimeWindowList extends PureComponent {
       }  
     }
 
-    if (lastTimeWindow && (chatId !== prevChatId)) {
-      this.listRef.recomputeGridSize();
-    }
-
     if (userSentMessage && !prevProps.userSentMessage){
       this.setState({
         userScrolledBack: false,
@@ -132,6 +128,7 @@ class TimeWindowList extends PureComponent {
       (lastTimeWindow?.id === 'SYSTEM_MESSAGE-PUBLIC_CHAT_CLEAR')
       || (prevSyncing && !syncing)
       || (syncedPercent !== prevSyncedPercent)
+      || (chatId !== prevChatId)
       ) {
       this.listRef.forceUpdateGrid();
     }
