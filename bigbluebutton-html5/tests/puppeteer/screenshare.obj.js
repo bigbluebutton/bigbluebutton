@@ -17,10 +17,12 @@ const screenShareTest = () => {
     try {
       const testName = 'shareScreen';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgsWithVideo());
+      await test.init(Page.getArgsWithVideo(), undefined, undefined, undefined, testName);
+      await test.startRecording(testName);
       await test.closeAudioModal();
       response = await test.test();
       await test.logger('end of ', testName);
+      await test.stopRecording();
       screenshot = await test.page.screenshot();
     } catch (e) {
       await test.logger(e);

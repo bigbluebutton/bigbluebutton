@@ -82,8 +82,9 @@ class AudioContainer extends PureComponent {
 
   componentDidUpdate(prevProps) {
     const { hasBreakoutRooms, joinedAudio } = this.props;
-    const { hasBreakoutRooms: hadBreakoutRooms } = prevProps;    
-    if (hadBreakoutRooms && !hasBreakoutRooms && joinedAudio) {
+    const { hasBreakoutRooms: hadBreakoutRooms } = prevProps;
+    if (hadBreakoutRooms && !hasBreakoutRooms && joinedAudio
+      && !Service.isConnected()) {
       joinMicrophone(true, true);
     }
   }

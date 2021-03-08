@@ -11,7 +11,7 @@ const breakoutTest = () => {
     jest.setTimeout(MAX_BREAKOUT_TEST_TIMEOUT);
   });
 
-  // // Create Breakout Room
+  // Create Breakout Room
   test('Create Breakout room', async () => {
     const test = new Create();
     let response;
@@ -19,11 +19,13 @@ const breakoutTest = () => {
     try {
       const testName = 'createBreakoutrooms';
       await test.page1.logger('begin of ', testName);
-      await test.init(undefined);
+      await test.init(undefined, testName);
+      await test.page1.startRecording(testName);
       await test.create(testName);
       response = await test.testCreatedBreakout(testName);
       const page2 = await test.page2.browser.pages();
       await page2[2].bringToFront();
+      await test.page1.stopRecording();
       screenshot = await page2[2].screenshot();
       await test.page1.logger('end of ', testName);
     } catch (e) {
@@ -48,12 +50,14 @@ const breakoutTest = () => {
     try {
       const testName = 'joinBreakoutroomsWithoutFeatures';
       await test.page1.logger('begin of ', testName);
-      await test.init(undefined);
+      await test.init(undefined, testName);
+      await test.page1.startRecording(testName);
       await test.create(testName);
       await test.join(testName);
       response = await test.testJoined(testName);
       const page2 = await test.page2.browser.pages();
       await page2[2].bringToFront();
+      await test.page1.stopRecording();
       screenshot = await page2[2].screenshot();
       await test.page1.logger('end of ', testName);
     } catch (e) {
@@ -78,12 +82,14 @@ const breakoutTest = () => {
     try {
       const testName = 'joinBreakoutroomsWithVideo';
       await test.page1.logger('begin of ', testName);
-      await test.init(undefined);
+      await test.init(undefined, testName);
+      await test.page1.startRecording(testName);
       await test.create(testName);
       await test.join(testName);
       response = await test.testJoined(testName);
       const page2 = await test.page2.browser.pages();
       await page2[2].bringToFront();
+      await test.page1.stopRecording();
       screenshot = await page2[2].screenshot();
       await test.page1.logger('end of ', testName);
     } catch (e) {
@@ -108,12 +114,14 @@ const breakoutTest = () => {
     try {
       const testName = 'joinBreakoutroomsAndShareScreen';
       await test.page1.logger('begin of ', testName);
-      await test.init(undefined);
+      await test.init(undefined, testName);
+      await test.page1.startRecording(testName);
       await test.create(testName);
       await test.join(testName);
       response = await test.testJoined(testName);
       const page2 = await test.page2.browser.pages();
       await page2[2].bringToFront();
+      await test.page1.stopRecording();
       screenshot = await page2[2].screenshot();
       await test.page1.logger('end of ', testName);
     } catch (e) {
@@ -138,12 +146,14 @@ const breakoutTest = () => {
     try {
       const testName = 'joinBreakoutroomsWithAudio';
       await test.page1.logger('begin of ', testName);
-      await test.init(undefined);
+      await test.init(undefined, testName);
+      await test.page1.startRecording(testName);
       await test.create(testName);
       await test.join(testName);
       response = await test.testJoined(testName);
       const page2 = await test.page2.browser.pages();
       await page2[2].bringToFront();
+      await test.page1.stopRecording();
       screenshot = await page2[2].screenshot();
       await test.page1.logger('end of ', testName);
     } catch (e) {

@@ -1,7 +1,21 @@
 import React, { Component } from 'react';
+import _ from 'lodash';
 import injectNotify from '/imports/ui/components/toast/inject-notify/component';
 import { defineMessages, injectIntl } from 'react-intl';
+import Settings from '/imports/ui/services/settings';
 import { styles } from './styles';
+
+const CDN = Meteor.settings.public.app.cdn;
+const BASENAME = Meteor.settings.public.app.basename;
+const HOST = CDN + BASENAME;
+const GUEST_WAITING_BELL_THROTTLE_TIME = 10000;
+
+function ringGuestWaitingBell() {
+  if (Settings.application.guestWaitingAudioAlerts) {
+    const audio = new Audio(`${HOST}/resources/sounds/doorbell.mp3`);
+    audio.play();
+  }
+}
 
 const intlMessages = defineMessages({
   pendingGuestAlert: {
@@ -27,6 +41,13 @@ class PendingUsersAlert extends Component {
     };
 
     this.notifyAndStore = this.notifyAndStore.bind(this);
+    // The throttle prevents the bell from annoying the mods when a lot of
+    // guests are entering almost at the same time
+    this.ringGuestWaitingBell = _.throttle(
+      ringGuestWaitingBell,
+      GUEST_WAITING_BELL_THROTTLE_TIME,
+      { leading: true, trailing: false },
+    );
   }
 
   componentDidMount() {
@@ -66,17 +87,22 @@ class PendingUsersAlert extends Component {
 
   notifyAndStore(user) {
     const { notify, intl } = this.props;
-    notify(
-      PendingUsersAlert.messageElement(user.name, styles.titleMessage),
-      'info',
-      'user',
-      { onOpen: this.storeId(user.intId) },
-      PendingUsersAlert.messageElement(
-        intl.formatMessage(intlMessages.pendingGuestAlert),
-        styles.contentMessage,
-      ),
-      true,
-    );
+
+    if (Settings.application.guestWaitingPushAlerts) {
+      notify(
+        PendingUsersAlert.messageElement(user.name, styles.titleMessage),
+        'info',
+        'user',
+        { onOpen: this.storeId(user.intId) },
+        PendingUsersAlert.messageElement(
+          intl.formatMessage(intlMessages.pendingGuestAlert),
+          styles.contentMessage,
+        ),
+        true,
+      );
+    }
+
+    this.ringGuestWaitingBell();
   }
 
   render() {

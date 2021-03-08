@@ -1,5 +1,8 @@
 const we = require('./elements');
-const { LOOP_INTERVAL, ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } = require('../core/constants');
+const { sleep } = require('../core/helper');
+const {
+  LOOP_INTERVAL, ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME,
+} = require('../core/constants');
 
 async function enableWebcam(test, videoPreviewTimeout) {
   // Enabling webcam
@@ -34,7 +37,7 @@ async function startAndCheckForWebcams(test) {
 
 async function webcamContentCheck(test) {
   await test.waitForSelector(we.videoContainer, ELEMENT_WAIT_TIME);
-  await test.elementRemoved(we.webcamConnecting);
+  await test.waitForElementHandleToBeRemoved(we.webcamConnecting, ELEMENT_WAIT_LONGER_TIME);
   const repeats = 5;
   let check;
   for (let i = repeats; i >= 1; i--) {
@@ -63,7 +66,7 @@ async function webcamContentCheck(test) {
     };
 
     check = await test.page.evaluate(checkCameras, i);
-    await test.page.waitFor(LOOP_INTERVAL);
+    await sleep(LOOP_INTERVAL);
   }
   return check === true;
 }
