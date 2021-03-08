@@ -12,6 +12,10 @@ const intlMessages = defineMessages({
   },
   endMeetingDescription: {
     id: 'app.endMeeting.description',
+    description: 'end meeting description with affected users information',
+  },
+  endMeetingNoUserDescription: {
+    id: 'app.endMeeting.noUserDescription',
     description: 'end meeting description',
   },
   yesLabel: {
@@ -40,8 +44,6 @@ class EndMeetingComponent extends React.PureComponent {
       users, intl, closeModal, endMeeting, meetingTitle,
     } = this.props;
 
-    const message = intl.formatMessage(intlMessages.endMeetingDescription, { 0: users }).split('.');
-
     return (
       <Modal
         overlayClassName={styles.overlay}
@@ -52,7 +54,10 @@ class EndMeetingComponent extends React.PureComponent {
       >
         <div className={styles.container}>
           <div className={styles.description}>
-            {users > 0 ? message.join('.') : message[1]}
+            {users > 0
+              ? intl.formatMessage(intlMessages.endMeetingDescription, { 0: users })
+              : intl.formatMessage(intlMessages.endMeetingNoUserDescription)
+            }
           </div>
           <div className={styles.footer}>
             <Button
