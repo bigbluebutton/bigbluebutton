@@ -303,6 +303,7 @@
     "app.leaveConfirmation.confirmDesc": "Logs you out of the meeting",
     "app.endMeeting.title": "End {0}",
     "app.endMeeting.description": "This action will end the session for {0} active user(s). Are you sure you want to end this session?",
+    "app.endMeeting.noUserDescription": "Are you sure you want to end this session?",
     "app.endMeeting.yesLabel": "Yes",
     "app.endMeeting.noLabel": "No",
     "app.about.title": "About",
