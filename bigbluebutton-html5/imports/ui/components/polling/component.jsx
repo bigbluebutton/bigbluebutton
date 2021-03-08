@@ -4,9 +4,9 @@ import Button from '/imports/ui/components/button/component';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
+import { Meteor } from 'meteor/meteor';
 import { styles } from './styles.scss';
 import AudioService from '/imports/ui/components/audio/service';
-import {Meteor} from "meteor/meteor";
 
 const MAX_INPUT_CHARS = 45;
 
@@ -166,6 +166,7 @@ class Polling extends Component {
             && (
             <div className={styles.typedResponseWrapper}>
               <input
+                data-test="pollAnswerOption"
                 onChange={(e) => {
                   this.handleUpdateResponseInput(e);
                 }}
@@ -176,6 +177,7 @@ class Polling extends Component {
                 ref={(r) => { this.responseInput = r; }}
               />
               <Button
+                data-test="submitAnswer"
                 className={styles.submitVoteBtn}
                 disabled={typedAns.length === 0}
                 color="primary"
