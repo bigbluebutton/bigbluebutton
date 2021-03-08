@@ -11,6 +11,7 @@ import Rating from './rating/component';
 import { styles } from './styles';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
@@ -34,6 +35,10 @@ const intlMessage = defineMessages({
   messageEnded: {
     id: 'app.meeting.endedMessage',
     description: 'message saying to go back to home screen',
+  },
+  messageEndedByUser: {
+    id: 'app.meeting.endedByUserMessage',
+    description: 'message informing who ended the meeting',
   },
   buttonOkay: {
     id: 'app.meeting.endNotification.ok.label',
@@ -114,6 +119,11 @@ class MeetingEnded extends PureComponent {
     const user = Users.findOne({ userId: Auth.userID });
     if (user) {
       this.localUserRole = user.role;
+    }
+
+    const meeting = Meetings.findOne({ id: user.meetingID });
+    if (meeting) {
+      this.meetingEndedBy = meeting.meetingEndedBy;
     }
 
     this.setSelectedStar = this.setSelectedStar.bind(this);
@@ -209,6 +219,11 @@ class MeetingEnded extends PureComponent {
             </h1>
             {!allowRedirectToLogoutURL() ? null : (
               <div>
+                {this.meetingEndedBy ? (
+                  <div className={styles.text}>
+                    {intl.formatMessage(intlMessage.messageEndedByUser, { 0: this.meetingEndedBy })}
+                  </div>
+                ) : null}
                 <div className={styles.text}>
                   {intl.formatMessage(intlMessage.messageEnded)}
                 </div>
