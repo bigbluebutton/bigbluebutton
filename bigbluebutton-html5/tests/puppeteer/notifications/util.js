@@ -102,8 +102,12 @@ async function startPoll(test) {
   await test.page.evaluate(clickOnElement, ne.dropdownContent);
   await test.page.evaluate(clickOnElement, ne.polling);
   await test.waitForSelector(ne.hidePollDesc, ELEMENT_WAIT_TIME);
-  await test.waitForSelector(ne.pollBtn, ELEMENT_WAIT_TIME);
-  await test.page.evaluate(clickOnElement, ne.pollBtn);
+  await test.waitForSelector(ne.polling, ELEMENT_WAIT_TIME);
+  await test.page.evaluate(clickOnElement, ne.polling);
+  await test.waitForSelector(ne.pollYesNoAbstentionBtn, ELEMENT_WAIT_TIME);
+  await test.click(ne.pollYesNoAbstentionBtn, true);
+  await test.waitForSelector(ne.startPoll, ELEMENT_WAIT_TIME);
+  await test.click(ne.startPoll, true);
   await test.waitForSelector(ne.publishLabel, ELEMENT_WAIT_TIME);
   await test.page.evaluate(clickOnElement, ne.publishLabel);
 }

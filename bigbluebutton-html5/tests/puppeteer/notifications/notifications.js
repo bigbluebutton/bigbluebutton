@@ -18,24 +18,25 @@ class Notifications extends MultiUsers {
     this.page4 = new Page();
   }
 
-  async init(meetingId) {
-    await this.page1.init(Page.getArgs(), meetingId, { ...params, fullName: 'User1' });
+  async init(meetingId, testName) {
+    await this.page1.init(Page.getArgs(), meetingId, { ...params, fullName: 'User1' }, undefined, testName);
     await this.page1.closeAudioModal();
-    await this.page2.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'User2' });
+    await this.page2.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'User2' }, undefined, testName);
     await this.page2.closeAudioModal();
   }
 
-  async initUser3(arg, meetingId) {
-    await this.page3.init(arg, meetingId, { ...params, fullName: 'User3' });
+  async initUser3(arg, meetingId, testFolderName) {
+    await this.page3.init(arg, meetingId, { ...params, fullName: 'User3' }, undefined, testFolderName);
   }
 
-  async initUser4() {
-    await this.page4.init(Page.getArgs(), this.page3.meetingId, { ...params, fullName: 'User' }, undefined, undefined);
+  async initUser4(testFolderName) {
+    await this.page4.init(Page.getArgs(), this.page3.meetingId, { ...params, fullName: 'User' }, undefined, testFolderName);
   }
 
   // Save Settings toast notification
   async saveSettingsNotification(testName) {
-    await this.init(undefined);
+    await this.init(undefined, testName);
+    await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-page01-initialized-${testName}`);
     await util.popupMenu(this.page1);
     await this.page1.screenshot(`${testName}`, `02-page01-popupMenu-${testName}`);
@@ -48,7 +49,8 @@ class Notifications extends MultiUsers {
 
   // Public chat toast notification
   async publicChatNotification(testName) {
-    await this.init(undefined);
+    await this.init(undefined, testName);
+    await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-page01-initialized-${testName}`);
     await util.popupMenu(this.page1);
     await this.page1.screenshot(`${testName}`, `02-page01-popup-menu-${testName}`);
@@ -67,7 +69,8 @@ class Notifications extends MultiUsers {
 
   // Private chat toast notification
   async privateChatNotification(testName) {
-    await this.init(undefined);
+    await this.init(undefined, testName);
+    await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-page01-initialized-${testName}`);
     await util.popupMenu(this.page1);
     await this.page1.screenshot(`${testName}`, `02-page01-popup-menu-${testName}`);
@@ -92,13 +95,14 @@ class Notifications extends MultiUsers {
   }
 
   async getUserJoinPopupResponse(testName) {
-    await this.initUser3(Page.getArgs(), undefined);
+    await this.initUser3(Page.getArgs(), undefined, testName);
+    await this.page3.startRecording(testName);
     await this.page3.screenshot(`${testName}`, `01-page03-initialized-${testName}`);
     await this.page3.closeAudioModal();
     await this.page3.screenshot(`${testName}`, `02-page03-audio-modal-closed-${testName}`);
     await this.userJoinNotification(this.page3);
     await this.page3.screenshot(`${testName}`, `03-page03-after-user-join-notification-activation-${testName}`);
-    await this.initUser4();
+    await this.initUser4(testName);
     await this.page4.closeAudioModal();
     await this.page3.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
     try {
@@ -115,7 +119,8 @@ class Notifications extends MultiUsers {
 
   // File upload notification
   async fileUploaderNotification(testName) {
-    await this.initUser3(Page.getArgs(), undefined);
+    await this.initUser3(Page.getArgs(), undefined, testName);
+    await this.page3.startRecording(testName);
     await this.page3.screenshot(`${testName}`, `01-page03-initialized-${testName}`);
     await this.page3.closeAudioModal();
     await this.page3.screenshot(`${testName}`, `02-page03-audio-modal-closed-${testName}`);
@@ -163,7 +168,8 @@ class Notifications extends MultiUsers {
   }
 
   async audioNotification(testName) {
-    await this.initUser3(Page.getArgsWithAudio(), undefined);
+    await this.initUser3(Page.getArgsWithAudio(), undefined, testName);
+    await this.page3.startRecording(testName);
     await this.page3.screenshot(`${testName}`, `01-page03-initialized-${testName}`);
     await this.page3.joinMicrophone();
     await this.page3.screenshot(`${testName}`, `02-page03-joined-microphone-${testName}`);
@@ -173,7 +179,8 @@ class Notifications extends MultiUsers {
   }
 
   async screenshareToast(testName) {
-    await this.initUser3(Page.getArgs(), undefined);
+    await this.initUser3(Page.getArgs(), undefined, testName);
+    await this.page3.startRecording(testName);
     await this.page3.screenshot(`${testName}`, `01-page03-initialized-${testName}`);
     await this.page3.closeAudioModal();
     await this.page3.screenshot(`${testName}`, `02-page03-audio-modal-closed-${testName}`);

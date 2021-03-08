@@ -10,9 +10,9 @@ class MultiUsers {
   }
 
   // Join BigBlueButton meeting
-  async init(meetingId) {
-    await this.page1.init(Page.getArgs(), meetingId, params);
-    await this.page2.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'User2' });
+  async init(meetingId, testFolderName) {
+    await this.page1.init(Page.getArgs(), meetingId, params, undefined, testFolderName);
+    await this.page2.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'User2' }, undefined, testFolderName);
   }
 
   // Run the test for the page
