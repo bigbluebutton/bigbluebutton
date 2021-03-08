@@ -70,7 +70,7 @@ class DebugWindow extends Component {
       const key = event.key.toUpperCase();
       const code = event.code.toUpperCase();
       console.log(`=== code === Key${SHOW_DEBUG_WINDOW_ACCESSKEY}`, code === `Key${SHOW_DEBUG_WINDOW_ACCESSKEY}`);
-      if (DEBUG_WINDOW_ENABLED && event.altKey && (key === SHOW_DEBUG_WINDOW_ACCESSKEY || code === `Key${SHOW_DEBUG_WINDOW_ACCESSKEY}`)) {
+      if (DEBUG_WINDOW_ENABLED && event.altKey && (key === SHOW_DEBUG_WINDOW_ACCESSKEY || `${code}` === `Key${SHOW_DEBUG_WINDOW_ACCESSKEY}`)) {
         this.debugWindowToggle();
       }
     });
