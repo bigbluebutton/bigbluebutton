@@ -61,9 +61,15 @@ class DebugWindow extends Component {
 
   componentDidMount() {
     document.addEventListener('keyup', (event) => {
-      console.log('=== key', event);
+      console.log('=== Event', event);
+      console.log('=== altKey', event.altKey);
+      console.log('=== ctrlKey', event.ctrlKey);
+      console.log('=== key', event.key);
+      console.log('=== code', event.code);
+      
       const key = event.key.toUpperCase();
       const code = event.code.toUpperCase();
+      console.log(`=== code === Key${SHOW_DEBUG_WINDOW_ACCESSKEY}`, code === `Key${SHOW_DEBUG_WINDOW_ACCESSKEY}`);
       if (DEBUG_WINDOW_ENABLED && event.altKey && (key === SHOW_DEBUG_WINDOW_ACCESSKEY || code === `Key${SHOW_DEBUG_WINDOW_ACCESSKEY}`)) {
         this.debugWindowToggle();
       }
