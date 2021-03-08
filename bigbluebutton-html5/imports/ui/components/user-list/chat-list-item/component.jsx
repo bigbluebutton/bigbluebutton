@@ -88,38 +88,51 @@ const ChatListItem = (props) => {
   }
 
   useEffect(() => {
-    if (chat.userId !== PUBLIC_CHAT_KEY && chat.userId === idChatOpen) {
+    if (chat.chatId !== PUBLIC_CHAT_KEY && chat.chatId === idChatOpen) {
       newLayoutContextDispatch({
         type: ACTIONS.SET_ID_CHAT_OPEN,
         value: chat.chatId,
+      });
+    } else {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_ID_CHAT_OPEN,
+        value: PUBLIC_CHAT_KEY,
       });
     }
   }, [idChatOpen]);
 
   const handleClickToggleChat = () => {
+    // Verify if chat panel is open
     if (sidebarContentPanel === PANELS.CHAT && idChatOpen === chat.chatId) {
       newLayoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
         value: PANELS.NONE,
       });
-    } else {
-      newLayoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-        value: PANELS.CHAT,
-      });
-    }
-
-    if (sidebarContentPanel !== PANELS.CHAT) {
-      newLayoutContextDispatch({
-        type: ACTIONS.SET_ID_CHAT_OPEN,
-        value: chat.chatId,
-      });
-    } else {
       newLayoutContextDispatch({
         type: ACTIONS.SET_ID_CHAT_OPEN,
         value: '',
       });
     }
+
+    if (sidebarContentPanel === PANELS.CHAT && idChatOpen !== chat.chatId) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_ID_CHAT_OPEN,
+        value: chat.chatId,
+      });
+    }
+
+    // Set the chat id
+    if (sidebarContentPanel !== PANELS.CHAT) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+        value: PANELS.CHAT,
+      });
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_ID_CHAT_OPEN,
+        value: chat.chatId,
+      });
+    }
+
     window.dispatchEvent(new Event('panelChanged'));
   };
 

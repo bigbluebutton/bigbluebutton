@@ -79,7 +79,7 @@ const Chat = (props) => {
           />
         </div>
         {
-          chatID !== 'public'
+          chatID !== PUBLIC_CHAT_ID
             ? (
               <Button
                 icon="close"
