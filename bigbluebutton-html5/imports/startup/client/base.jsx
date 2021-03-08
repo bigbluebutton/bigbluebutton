@@ -82,10 +82,8 @@ class Base extends Component {
 
     const {
       userID: localUserId,
-      credentials,
     } = Auth;
 
-    const { meetingId } = credentials;
     if (animations) HTML.classList.add('animationsEnabled');
     if (!animations) HTML.classList.add('animationsDisabled');
 
@@ -101,13 +99,12 @@ class Base extends Component {
       }, { fields: { name: 1, userId: 1 } }
     );
 
-    this.usersAlreadyInMeetingAtBeginning =
-      users && (typeof users.map === 'function') ?
-        users.map(user => user.userId)
-        : [];
-
     users.observe({
       added: (user) => {
+        const subscriptionsReady = Session.get('subscriptionsReady');
+
+        if (!subscriptionsReady) return;
+
         const {
           userJoinAudioAlerts,
           userJoinPushAlerts,
@@ -115,27 +112,25 @@ class Base extends Component {
 
         if (!userJoinAudioAlerts && !userJoinPushAlerts) return;
 
-        if (!this.usersAlreadyInMeetingAtBeginning.includes(user.userId)) {
-          if (userJoinAudioAlerts) {
-            AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-              + Meteor.settings.public.app.basename
-              + Meteor.settings.public.app.instanceId}`
-              + '/resources/sounds/userJoin.mp3');
-          }
+        if (userJoinAudioAlerts) {
+          AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
+            + Meteor.settings.public.app.basename
+            + Meteor.settings.public.app.instanceId}`
+            + '/resources/sounds/userJoin.mp3');
+        }
 
-          if (userJoinPushAlerts) {
-            notify(
-              <FormattedMessage
-                id="app.notification.userJoinPushAlert"
-                description="Notification for a user joins the meeting"
-                values={{
-                  0: user.name,
-                }}
-              />,
-              'info',
-              'user',
-            );
-          }
+        if (userJoinPushAlerts) {
+          notify(
+            <FormattedMessage
+              id="app.notification.userJoinPushAlert"
+              description="Notification for a user joins the meeting"
+              values={{
+                0: user.name,
+              }}
+            />,
+            'info',
+            'user',
+          );
         }
       }
     });
