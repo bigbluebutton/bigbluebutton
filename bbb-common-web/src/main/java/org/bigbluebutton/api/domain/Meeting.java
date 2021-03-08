@@ -68,7 +68,9 @@ public class Meeting {
 	private String defaultAvatarURL;
 	private String defaultConfigToken;
 	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
+	private Boolean authenticatedGuest = false;
 	private boolean userHasJoined = false;
+	private Map<String, String> pads;
 	private Map<String, String> metadata;
 	private Map<String, Object> userCustomData;
 	private final ConcurrentMap<String, User> users;
@@ -125,12 +127,20 @@ public class Meeting {
         createdTime = builder.createdTime;
         isBreakout = builder.isBreakout;
         guestPolicy = builder.guestPolicy;
+        authenticatedGuest = builder.authenticatedGuest;
         breakoutRoomsParams = builder.breakoutRoomsParams;
         lockSettingsParams = builder.lockSettingsParams;
         allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
         endWhenNoModerator = builder.endWhenNoModerator;
         html5InstanceId = builder.html5InstanceId;
 
+        /*
+         * A pad is a pair of padId and readOnlyId that represents
+         * valid etherpads instances for this meeting. They can be:
+         *  - shared notes
+         *  - closed captions
+         */
+        pads = new HashMap<>();
         userCustomData = new HashMap<>();
 
         users = new ConcurrentHashMap<>();
@@ -177,6 +187,10 @@ public class Meeting {
 	
 	public Config removeConfig(String token) {
 		return configs.remove(token);
+	}
+
+	public Map<String, String> getPads() {
+		return pads;
 	}
 
 	public Map<String, String> getMetadata() {
@@ -362,8 +376,35 @@ public class Meeting {
     	return guestPolicy;
 	}
 
+	public void setAuthenticatedGuest(Boolean authGuest) {
+		authenticatedGuest = authGuest;
+	}
+
+	public Boolean getAuthenticatedGuest() {
+		return authenticatedGuest;
+	}
+
+	private String getUnauthenticatedGuestStatus(Boolean guest) {
+		if (guest) {
+			switch(guestPolicy) {
+				case GuestPolicy.ALWAYS_ACCEPT:
+				case GuestPolicy.ALWAYS_ACCEPT_AUTH:
+					return GuestPolicy.ALLOW;
+				case GuestPolicy.ASK_MODERATOR:
+					return GuestPolicy.WAIT;
+				case GuestPolicy.ALWAYS_DENY:
+					return GuestPolicy.DENY;
+				default:
+					return GuestPolicy.DENY;
+			}
+		} else {
+			return GuestPolicy.ALLOW;
+		}
+	}
 
 	public String calcGuestStatus(String role, Boolean guest, Boolean authned) {
+		if (!authenticatedGuest) return getUnauthenticatedGuestStatus(guest);
+
 		// Allow moderators all the time.
 		if (ROLE_MODERATOR.equals(role)) {
 			return GuestPolicy.ALLOW;
@@ -548,6 +589,14 @@ public class Meeting {
         return sum;
     }
 	
+	public void addPad(String padId, String readOnlyId) {
+		pads.put(padId, readOnlyId);
+	}
+
+	public Boolean hasPad(String id) {
+		return pads.containsKey(id) || pads.containsValue(id);
+	}
+
 	public void addUserCustomData(String userID, Map<String, String> data) {
 		userCustomData.put(userID, data);
 	}
@@ -670,6 +719,7 @@ public class Meeting {
     	private long createdTime;
     	private boolean isBreakout;
     	private String guestPolicy;
+    	private Boolean authenticatedGuest;
     	private BreakoutRoomsParams breakoutRoomsParams;
     	private LockSettingsParams lockSettingsParams;
 		private Boolean allowDuplicateExtUserid;
@@ -791,6 +841,11 @@ public class Meeting {
     		guestPolicy = policy;
     		return  this;
 		}
+    
+    	public Builder withAuthenticatedGuest(Boolean authGuest) {
+    		authenticatedGuest = authGuest;
+    		return this;
+    	}
 
 		public Builder withBreakoutRoomsParams(BreakoutRoomsParams params) {
     		breakoutRoomsParams = params;

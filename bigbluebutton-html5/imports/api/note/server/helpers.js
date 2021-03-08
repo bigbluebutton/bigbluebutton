@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { hashFNV32a } from '/imports/api/common/server/helpers';
+import { hashSHA1 } from '/imports/api/common/server/helpers';
 
 const ETHERPAD = Meteor.settings.private.etherpad;
 const NOTE_CONFIG = Meteor.settings.public.note;
@@ -12,10 +12,7 @@ const getReadOnlyIdURL = padId => `${BASE_URL}/getReadOnlyID?apikey=${ETHERPAD.a
 
 const appendTextURL = (padId, text) => `${BASE_URL}/appendText?apikey=${ETHERPAD.apikey}&padID=${padId}&text=${encodeURIComponent(text)}`;
 
-const generateNoteId = (meetingId) => {
-  const noteId = hashFNV32a(meetingId, true);
-  return noteId;
-};
+const generateNoteId = (meetingId) => hashSHA1(meetingId+ETHERPAD.apikey);
 
 const isEnabled = () => NOTE_CONFIG.enabled;
 

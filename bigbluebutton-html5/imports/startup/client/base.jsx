@@ -17,6 +17,7 @@ import Breakouts from '/imports/api/breakouts';
 import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { invalidateCookie } from '/imports/ui/components/audio/audio-modal/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import LayoutManager from '/imports/ui/components/layout/layout-manager';
 import { withLayoutContext } from '/imports/ui/components/layout/context';
@@ -79,23 +80,65 @@ class Base extends Component {
   componentDidMount() {
     const { animations } = this.props;
 
+    const {
+      userID: localUserId,
+      credentials,
+    } = Auth;
+
+    const { meetingId } = credentials;
     if (animations) HTML.classList.add('animationsEnabled');
     if (!animations) HTML.classList.add('animationsDisabled');
-
-    if (getFromUserSettings('bbb_show_participants_on_login', true) && !deviceInfo.type().isPhone) {
-      Session.set('openPanel', 'userlist');
-      if (CHAT_ENABLED) {
-        Session.set('openPanel', 'chat');
-        Session.set('idChatOpen', PUBLIC_CHAT_ID);
-      }
-    } else {
-      Session.set('openPanel', '');
-    }
 
     fullscreenChangedEvents.forEach((event) => {
       document.addEventListener(event, Base.handleFullscreenChange);
     });
     Session.set('isFullscreen', false);
+
+    const users = Users.find({
+        meetingId: Auth.meetingID,
+        validated: true,
+        userId: { $ne: localUserId },
+      }, { fields: { name: 1, userId: 1 } }
+    );
+
+    this.usersAlreadyInMeetingAtBeginning =
+      users && (typeof users.map === 'function') ?
+        users.map(user => user.userId)
+        : [];
+
+    users.observe({
+      added: (user) => {
+        const {
+          userJoinAudioAlerts,
+          userJoinPushAlerts,
+        } = Settings.application;
+
+        if (!userJoinAudioAlerts && !userJoinPushAlerts) return;
+
+        if (!this.usersAlreadyInMeetingAtBeginning.includes(user.userId)) {
+          if (userJoinAudioAlerts) {
+            AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
+              + Meteor.settings.public.app.basename
+              + Meteor.settings.public.app.instanceId}`
+              + '/resources/sounds/userJoin.mp3');
+          }
+
+          if (userJoinPushAlerts) {
+            notify(
+              <FormattedMessage
+                id="app.notification.userJoinPushAlert"
+                description="Notification for a user joins the meeting"
+                values={{
+                  0: user.name,
+                }}
+              />,
+              'info',
+              'user',
+            );
+          }
+        }
+      }
+    });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -106,6 +149,7 @@ class Base extends Component {
       ejected,
       isMeteorConnected,
       subscriptionsReady,
+      meetingIsBreakout,
       layoutContextDispatch,
       usersVideo,
     } = this.props;
@@ -113,6 +157,10 @@ class Base extends Component {
       loading,
       meetingExisted,
     } = this.state;
+
+    if (prevProps.meetingIsBreakout === undefined && !meetingIsBreakout) {
+      invalidateCookie('joinedAudio');
+    }
 
     if (usersVideo !== prevProps.usersVideo) {
       layoutContextDispatch(
@@ -357,48 +405,19 @@ const BaseContainer = withTracker(() => {
     },
   });
 
-  if (userJoinAudioAlerts || userJoinPushAlerts) {
-    Users.find({}, { fields: { validated: 1, name: 1, userId: 1 } }).observe({
-      changed: (newDocument) => {
-        if (newDocument.validated && newDocument.name && newDocument.userId !== localUserId) {
-          if (userJoinAudioAlerts) {
-            AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-              + Meteor.settings.public.app.basename
-              + Meteor.settings.public.app.instanceId}`
-              + '/resources/sounds/userJoin.mp3');
-          }
-
-          if (userJoinPushAlerts) {
-            notify(
-              <FormattedMessage
-                id="app.notification.userJoinPushAlert"
-                description="Notification for a user joins the meeting"
-                values={{
-                  0: newDocument.name,
-                }}
-              />,
-              'info',
-              'user',
-            );
-          }
-        }
-      },
-    });
-  }
-
-  if (getFromUserSettings('bbb_show_participants_on_login', true) && !deviceInfo.type().isPhone) {
+  if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.type().isPhone) {
     if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
-      Session.setDefault('openPanel', 'chat');
-      Session.setDefault('idChatOpen', PUBLIC_CHAT_ID);
+      Session.set('openPanel', 'chat');
+      Session.set('idChatOpen', PUBLIC_CHAT_ID);
     } else {
-      Session.setDefault('openPanel', 'userlist');
+      Session.set('openPanel', 'userlist');
     }
   } else {
-    Session.setDefault('openPanel', '');
+    Session.set('openPanel', '');
   }
 
   const codeError = Session.get('codeError');
-  const usersVideo = VideoService.getVideoStreams();
+  const { streams: usersVideo } = VideoService.getVideoStreams();
 
   return {
     approved,

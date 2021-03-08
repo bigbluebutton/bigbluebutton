@@ -21,7 +21,6 @@ export default function editCaptions(padId, data) {
     return;
   }
 
-
   const {
     meetingId,
     ownerId,

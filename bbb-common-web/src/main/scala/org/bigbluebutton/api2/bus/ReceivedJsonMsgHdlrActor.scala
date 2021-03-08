@@ -94,6 +94,10 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
         route[GuestsWaitingApprovedEvtMsg](envelope, jsonNode)
       case GuestPolicyChangedEvtMsg.NAME =>
         route[GuestPolicyChangedEvtMsg](envelope, jsonNode)
+      case AddPadEvtMsg.NAME =>
+        route[AddPadEvtMsg](envelope, jsonNode)
+      case AddCaptionsPadsEvtMsg.NAME =>
+        route[AddCaptionsPadsEvtMsg](envelope, jsonNode)
       case RecordingChapterBreakSysMsg.NAME =>
         route[RecordingChapterBreakSysMsg](envelope, jsonNode)
       case SetPresentationDownloadableEvtMsg.NAME =>

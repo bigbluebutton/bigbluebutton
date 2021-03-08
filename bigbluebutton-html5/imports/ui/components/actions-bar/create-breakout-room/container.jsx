@@ -10,5 +10,6 @@ export default withTracker(() => ({
   sendInvitation: ActionsBarService.sendInvitation,
   breakoutJoinedUsers: ActionsBarService.breakoutJoinedUsers(),
   users: ActionsBarService.users(),
+  isMe: ActionsBarService.isMe,
   meetingName: ActionsBarService.meetingName(),
 }))(CreateBreakoutRoomModal);
