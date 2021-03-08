@@ -40,6 +40,8 @@ class EndMeetingComponent extends React.PureComponent {
       users, intl, closeModal, endMeeting, meetingTitle,
     } = this.props;
 
+    const message = intl.formatMessage(intlMessages.endMeetingDescription, { 0: users }).split('.');
+
     return (
       <Modal
         overlayClassName={styles.overlay}
@@ -50,7 +52,7 @@ class EndMeetingComponent extends React.PureComponent {
       >
         <div className={styles.container}>
           <div className={styles.description}>
-            {intl.formatMessage(intlMessages.endMeetingDescription, { 0: users })}
+            {users > 0 ? message.join('.') : message[1]}
           </div>
           <div className={styles.footer}>
             <Button
