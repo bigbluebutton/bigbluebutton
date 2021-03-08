@@ -8,6 +8,7 @@ import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from './styles.scss';
 import MessageForm from './message-form/container';
 import TimeWindowList from './time-window-list/container';
+import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import ChatDropdownContainer from './chat-dropdown/container';
 
 const ELEMENT_ID = 'chat-messages';
@@ -45,9 +46,13 @@ const Chat = (props) => {
     timeWindowsValues,
     dispatch,
     count,
+    syncing,
+    syncedPercent,
   } = props;
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
   const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
+  ChatLogger.debug('ChatComponent::render', props);
+
   return (
     <div
       data-test={chatID !== 'public' ? 'privateChat' : 'publicChat'}
@@ -108,6 +113,8 @@ const Chat = (props) => {
           timeWindowsValues,
           dispatch,
           count,
+          syncing,
+          syncedPercent,
         }}
       />
       <MessageForm

@@ -51,8 +51,8 @@ const intlMessages = defineMessages({
 });
 
 let previousChatId = null;
-let debounceTimeout = null;
-let messages = null;
+let prevSync = false;
+
 let globalAppplyStateToProps = () => { }
 
 const throttledFunc = _.throttle(() => {
@@ -76,6 +76,8 @@ const ChatContainer = (props) => {
     intl,
   } = props;
 
+  ChatLogger.debug('ChatContainer::render::props', props);
+  
   const isPublicChat = chatID === PUBLIC_CHAT_KEY;
   const systemMessages = {
     [sysMessagesIds.welcomeId]: {
@@ -123,8 +125,15 @@ const ChatContainer = (props) => {
   const lastMsg = contextChat && (isPublicChat
     ? contextChat.preJoinMessages[lastTimeWindow] || contextChat.posJoinMessages[lastTimeWindow]
     : contextChat.messageGroups[lastTimeWindow]);
+  ChatLogger.debug('ChatContainer::render::chatData',contextChat);
   applyPropsToState = () => {
-    if (!_.isEqualWith(lastMsg, stateLastMsg) || previousChatId !== chatID) {
+    ChatLogger.debug('ChatContainer::applyPropsToState::chatData',lastMsg, stateLastMsg, contextChat?.syncing);
+    if (
+      (lastMsg?.lastTimestamp !== stateLastMsg?.lastTimestamp)
+      || (previousChatId !== chatID)
+      || (prevSync !== contextChat?.syncing)
+      ) {
+      prevSync = contextChat?.syncing;
       const timeWindowsValues = isPublicChat
         ? [
           ...(
@@ -165,6 +174,8 @@ const ChatContainer = (props) => {
       timeWindowsValues: stateTimeWindows,
       dispatch: usingChatContext?.dispatch,
       title,
+      syncing: contextChat?.syncing,
+      syncedPercent: contextChat?.syncedPercent,
       chatName,
       contextChat,
     }}>
