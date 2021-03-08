@@ -109,7 +109,7 @@ const ChatListItem = (props) => {
       });
     }
 
-    if (sidebarContentPanel === PANELS.CHAT) {
+    if (sidebarContentPanel !== PANELS.CHAT) {
       newLayoutContextDispatch({
         type: ACTIONS.SET_ID_CHAT_OPEN,
         value: chat.chatId,

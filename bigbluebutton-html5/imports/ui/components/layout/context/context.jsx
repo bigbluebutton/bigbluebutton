@@ -4,6 +4,19 @@ import { ACTIONS, PANELS } from '../enums';
 import DEFAULT_VALUES from '../defaultValues';
 import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
 
+// variable to debug in console log
+const debug = false;
+
+const debugActions = (action, value) => {
+  const baseStyles = [
+    'color: #fff',
+    'background-color: #d64541',
+    'padding: 2px 4px',
+    'border-radius: 2px',
+  ].join(';');
+  return debug && console.log(`%c${action}`, baseStyles, value);
+};
+
 const providerPropTypes = {
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
@@ -25,6 +38,7 @@ const initState = {
 };
 
 const reducer = (state, action) => {
+  debugActions(action.type, action.value);
   switch (action.type) {
     case ACTIONS.SET_LAYOUT_INPUT: {
       if (state.input === action.value) return state;
