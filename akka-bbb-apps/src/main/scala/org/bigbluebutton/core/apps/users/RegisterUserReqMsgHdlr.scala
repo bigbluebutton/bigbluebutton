@@ -26,7 +26,7 @@ trait RegisterUserReqMsgHdlr {
 
     val regUser = RegisteredUsers.create(msg.body.intUserId, msg.body.extUserId,
       msg.body.name, msg.body.role, msg.body.authToken,
-      msg.body.avatarURL, msg.body.guest, msg.body.authed, guestStatus)
+      msg.body.avatarURL, msg.body.guest, msg.body.authed, guestStatus, msg.body.loggedOut)
 
     RegisteredUsers.add(liveMeeting.registeredUsers, regUser)
 
