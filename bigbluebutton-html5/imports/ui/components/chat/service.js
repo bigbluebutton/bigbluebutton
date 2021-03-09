@@ -193,7 +193,7 @@ const lastReadMessageTime = (receiverID) => {
 const sendGroupMessage = (message, idChatOpen) => {
   const chatIdToSent = idChatOpen === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : idChatOpen
   const chat = GroupChat.findOne({ chatId: chatIdToSent },
-  { fields: { users: 1 } });
+    { fields: { users: 1 } });
   const chatID = idChatOpen === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chat.users.filter(id => id !== Auth.userID)[0];
   const isPublicChat = chatID === PUBLIC_CHAT_ID;
 

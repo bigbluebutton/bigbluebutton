@@ -327,7 +327,7 @@ class LayoutManager extends Component {
     }
 
     if (panelChanged && secondPanelSize.width !== 0) {
-      newPanelSize = secondPanelSize;
+      newPanelSize = secondPanelSize.width;
     } else if (!storageSecondPanelWidth) {
       newPanelSize = {
         width: min(max((this.windowWidth() * 0.2), CHAT_MIN_WIDTH), CHAT_MAX_WIDTH),
@@ -361,7 +361,6 @@ class LayoutManager extends Component {
     //     width: storageBreakoutRoomWidth,
     //   };
     // }
-
     return {
       newUserListSize,
       newPanelSize,

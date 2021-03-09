@@ -88,17 +88,12 @@ const ChatListItem = (props) => {
   }
 
   useEffect(() => {
-    // if (chat.chatId !== PUBLIC_CHAT_KEY && chat.chatId === idChatOpen) {
-    //   newLayoutContextDispatch({
-    //     type: ACTIONS.SET_ID_CHAT_OPEN,
-    //     value: chat.chatId,
-    //   });
-    // } else {
-    //   newLayoutContextDispatch({
-    //     type: ACTIONS.SET_ID_CHAT_OPEN,
-    //     value: PUBLIC_CHAT_KEY,
-    //   });
-    // }
+    if (chat.userId !== PUBLIC_CHAT_KEY && chat.userId === idChatOpen) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_ID_CHAT_OPEN,
+        value: chat.chatId,
+      });
+    }
   }, [idChatOpen, sidebarContentPanel, chat]);
 
   const handleClickToggleChat = () => {

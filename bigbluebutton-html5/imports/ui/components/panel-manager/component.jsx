@@ -102,12 +102,13 @@ class PanelManager extends Component {
   componentDidUpdate(prevProps) {
     const {
       userlistWidth,
-      chatWidth,
-      noteWidth,
-      captionsWidth,
-      pollWidth,
-      waitingWidth,
-      breakoutRoomWidth,
+      // chatWidth,
+      // noteWidth,
+      // captionsWidth,
+      // pollWidth,
+      // waitingWidth,
+      // breakoutRoomWidth,
+      secondPanelWidth,
     } = this.state;
     const { layoutContextState } = this.props;
     const {
@@ -154,54 +155,61 @@ class PanelManager extends Component {
     //   && breakoutRoomSize.width !== breakoutRoomWidth) {
     //   this.setBreakoutRoomWidth(breakoutRoomSize.width);
     // }
-    if (secondPanelSize.width !== oldSecondPanelSize.width && secondPanelSize.width !== chatWidth) {
-      this.setChatWidth(secondPanelSize.width);
+    if (secondPanelSize.width !== oldSecondPanelSize.width && secondPanelSize.width !== secondPanelWidth) {
+      this.setSecondPanelWidth(secondPanelSize.width);
     }
-    if (secondPanelSize.width !== oldSecondPanelSize.width && secondPanelSize.width !== noteWidth) {
-      this.setNoteWidth(secondPanelSize.width);
-    }
-    if (secondPanelSize.width !== oldSecondPanelSize.width && secondPanelSize.width !== captionsWidth) {
-      this.setCaptionsWidth(secondPanelSize.width);
-    }
-    if (secondPanelSize.width !== oldSecondPanelSize.width && secondPanelSize.width !== pollWidth) {
-      this.setPollWidth(secondPanelSize.width);
-    }
-    if (secondPanelSize.width !== oldSecondPanelSize.width && secondPanelSize.width !== waitingWidth) {
-      this.setWaitingWidth(secondPanelSize.width);
-    }
-    if (secondPanelSize.width !== oldSecondPanelSize.width
-      && secondPanelSize.width !== breakoutRoomWidth) {
-      this.setBreakoutRoomWidth(secondPanelSize.width);
-    }
+    // if (secondPanelSize.width !== oldSecondPanelSize.width && secondPanelSize.width !== chatWidth) {
+    //   this.setChatWidth(secondPanelSize.width);
+    // }
+    // if (secondPanelSize.width !== oldSecondPanelSize.width && secondPanelSize.width !== noteWidth) {
+    //   this.setNoteWidth(secondPanelSize.width);
+    // }
+    // if (secondPanelSize.width !== oldSecondPanelSize.width && secondPanelSize.width !== captionsWidth) {
+    //   this.setCaptionsWidth(secondPanelSize.width);
+    // }
+    // if (secondPanelSize.width !== oldSecondPanelSize.width && secondPanelSize.width !== pollWidth) {
+    //   this.setPollWidth(secondPanelSize.width);
+    // }
+    // if (secondPanelSize.width !== oldSecondPanelSize.width && secondPanelSize.width !== waitingWidth) {
+    //   this.setWaitingWidth(secondPanelSize.width);
+    // }
+    // if (secondPanelSize.width !== oldSecondPanelSize.width
+    //   && secondPanelSize.width !== breakoutRoomWidth) {
+    //   this.setBreakoutRoomWidth(secondPanelSize.width);
+    // }
   }
 
   setUserListWidth(userlistWidth) {
     this.setState({ userlistWidth });
   }
 
-  setChatWidth(chatWidth) {
-    this.setState({ chatWidth });
+  setSecondPanelWidth(secondPanelWidth) {
+    this.setState({ secondPanelWidth });
   }
 
-  setNoteWidth(noteWidth) {
-    this.setState({ noteWidth });
-  }
+  // setChatWidth(chatWidth) {
+  //   this.setState({ chatWidth });
+  // }
 
-  setCaptionsWidth(captionsWidth) {
-    this.setState({ captionsWidth });
-  }
+  // setNoteWidth(noteWidth) {
+  //   this.setState({ noteWidth });
+  // }
 
-  setPollWidth(pollWidth) {
-    this.setState({ pollWidth });
-  }
+  // setCaptionsWidth(captionsWidth) {
+  //   this.setState({ captionsWidth });
+  // }
 
-  setWaitingWidth(waitingWidth) {
-    this.setState({ waitingWidth });
-  }
+  // setPollWidth(pollWidth) {
+  //   this.setState({ pollWidth });
+  // }
 
-  setBreakoutRoomWidth(breakoutRoomWidth) {
-    this.setState({ breakoutRoomWidth });
-  }
+  // setWaitingWidth(waitingWidth) {
+  //   this.setState({ waitingWidth });
+  // }
+
+  // setBreakoutRoomWidth(breakoutRoomWidth) {
+  //   this.setState({ breakoutRoomWidth });
+  // }
 
   userListResizeStop(addvalue) {
     const { userlistWidth } = this.state;
@@ -222,16 +230,18 @@ class PanelManager extends Component {
   }
 
   chatResizeStop(addvalue) {
-    const { chatWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     const { layoutContextDispatch } = this.props;
 
-    this.setChatWidth(chatWidth + addvalue);
+    // this.setChatWidth(chatWidth + addvalue);
+    const newSecondPanelWidth = secondPanelWidth + addvalue;
+    this.setSecondPanelWidth(newSecondPanelWidth);
 
     layoutContextDispatch(
       {
-        type: 'setChatSize',
+        type: 'setSecondPanelSize',
         value: {
-          width: chatWidth + addvalue,
+          width: newSecondPanelWidth,
         },
       },
     );
@@ -240,16 +250,18 @@ class PanelManager extends Component {
   }
 
   noteResizeStop(addvalue) {
-    const { noteWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     const { layoutContextDispatch } = this.props;
 
-    this.setNoteWidth(noteWidth + addvalue);
+    // this.setNoteWidth(noteWidth + addvalue);
+    const newSecondPanelWidth = secondPanelWidth + addvalue;
+    this.setSecondPanelWidth(newSecondPanelWidth);
 
     layoutContextDispatch(
       {
         type: 'setNoteSize',
         value: {
-          width: noteWidth + addvalue,
+          width: newSecondPanelWidth,
         },
       },
     );
@@ -258,16 +270,18 @@ class PanelManager extends Component {
   }
 
   captionsResizeStop(addvalue) {
-    const { captionsWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     const { layoutContextDispatch } = this.props;
 
-    this.setCaptionsWidth(captionsWidth + addvalue);
+    // this.setCaptionsWidth(captionsWidth + addvalue);
+    const newSecondPanelWidth = secondPanelWidth + addvalue;
+    this.setSecondPanelWidth(newSecondPanelWidth);
 
     layoutContextDispatch(
       {
         type: 'setCaptionsSize',
         value: {
-          width: captionsWidth + addvalue,
+          width: newSecondPanelWidth,
         },
       },
     );
@@ -276,16 +290,18 @@ class PanelManager extends Component {
   }
 
   pollResizeStop(addvalue) {
-    const { pollWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     const { layoutContextDispatch } = this.props;
 
-    this.setPollWidth(pollWidth + addvalue);
+    // this.setPollWidth(pollWidth + addvalue);
+    const newSecondPanelWidth = secondPanelWidth + addvalue;
+    this.setSecondPanelWidth(newSecondPanelWidth);
 
     layoutContextDispatch(
       {
         type: 'setPollSize',
         value: {
-          width: pollWidth + addvalue,
+          width: newSecondPanelWidth,
         },
       },
     );
@@ -294,16 +310,18 @@ class PanelManager extends Component {
   }
 
   waitingResizeStop(addvalue) {
-    const { waitingWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     const { layoutContextDispatch } = this.props;
 
-    this.setWaitingWidth(waitingWidth + addvalue);
+    // this.setWaitingWidth(waitingWidth + addvalue);
+    const newSecondPanelWidth = secondPanelWidth + addvalue;
+    this.setSecondPanelWidth(newSecondPanelWidth);
 
     layoutContextDispatch(
       {
         type: 'setWaitingUsersPanelSize',
         value: {
-          width: waitingWidth + addvalue,
+          width: newSecondPanelWidth,
         },
       },
     );
@@ -381,7 +399,7 @@ class PanelManager extends Component {
   }
 
   renderChatResizable() {
-    const { chatWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     const { isRTL } = this.props;
 
     const resizableEnableOptions = {
@@ -402,7 +420,7 @@ class PanelManager extends Component {
         ref={(node) => { this.resizableChat = node; }}
         enable={resizableEnableOptions}
         key={this.chatKey}
-        size={{ width: chatWidth }}
+        size={{ width: secondPanelWidth }}
         onResizeStop={(e, direction, ref, d) => {
           this.chatResizeStop(d.width);
         }}
@@ -427,7 +445,7 @@ class PanelManager extends Component {
   }
 
   renderNoteResizable() {
-    const { noteWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     const { isRTL } = this.props;
 
     const resizableEnableOptions = {
@@ -448,7 +466,7 @@ class PanelManager extends Component {
         ref={(node) => { this.resizableNote = node; }}
         enable={resizableEnableOptions}
         key={this.noteKey}
-        size={{ width: noteWidth }}
+        size={{ width: secondPanelWidth }}
         onResizeStop={(e, direction, ref, d) => {
           this.noteResizeStop(d.width);
         }}
@@ -473,7 +491,7 @@ class PanelManager extends Component {
   }
 
   renderCaptionsResizable() {
-    const { captionsWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     const { isRTL } = this.props;
 
     const resizableEnableOptions = {
@@ -494,9 +512,9 @@ class PanelManager extends Component {
         ref={(node) => { this.resizableCaptions = node; }}
         enable={resizableEnableOptions}
         key={this.captionsKey}
-        size={{ width: captionsWidth }}
+        size={{ width: secondPanelWidth }}
         onResizeStop={(e, direction, ref, d) => {
-          this.captionsResizeStop(captionsWidth + d.width);
+          this.captionsResizeStop(secondPanelWidth + d.width);
         }}
       >
         {this.renderCaptions()}
@@ -519,7 +537,7 @@ class PanelManager extends Component {
   }
 
   renderWaitingUsersPanelResizable() {
-    const { waitingWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     const { isRTL } = this.props;
 
     const resizableEnableOptions = {
@@ -540,9 +558,9 @@ class PanelManager extends Component {
         ref={(node) => { this.resizableWaitingUsersPanel = node; }}
         enable={resizableEnableOptions}
         key={this.waitingUsers}
-        size={{ width: waitingWidth }}
+        size={{ width: secondPanelWidth }}
         onResizeStop={(e, direction, ref, d) => {
-          this.waitingResizeStop(waitingWidth + d.width);
+          this.waitingResizeStop(secondPanelWidth + d.width);
         }}
       >
         {this.renderWaitingUsersPanel()}
@@ -551,13 +569,13 @@ class PanelManager extends Component {
   }
 
   renderBreakoutRoom() {
-    const { breakoutRoomWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     return (
       <div
         className={styles.breakoutRoom}
         key={this.breakoutroomKey}
         style={{
-          width: breakoutRoomWidth,
+          width: secondPanelWidth,
         }}
       >
         <BreakoutRoomContainer />
@@ -574,7 +592,7 @@ class PanelManager extends Component {
   }
 
   renderPollResizable() {
-    const { pollWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     const { isRTL } = this.props;
 
     const resizableEnableOptions = {
@@ -595,10 +613,10 @@ class PanelManager extends Component {
         ref={(node) => { this.resizablePoll = node; }}
         enable={resizableEnableOptions}
         key={this.pollKey}
-        size={{ width: pollWidth }}
+        size={{ width: secondPanelWidth }}
         onResizeStop={(e, direction, ref, d) => {
           // window.dispatchEvent(new Event('resize'));
-          this.pollResizeStop(pollWidth + d.width);
+          this.pollResizeStop(secondPanelWidth + d.width);
         }}
       >
         {this.renderPoll()}
