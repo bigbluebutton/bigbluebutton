@@ -301,7 +301,7 @@ case class UserJoinMeetingAfterReconnectReqMsgBody(userId: String, authToken: St
  */
 object UserLeaveReqMsg { val NAME = "UserLeaveReqMsg" }
 case class UserLeaveReqMsg(header: BbbClientMsgHeader, body: UserLeaveReqMsgBody) extends StandardMsg
-case class UserLeaveReqMsgBody(userId: String, sessionId: String)
+case class UserLeaveReqMsgBody(userId: String, sessionId: String, loggedOut: Boolean)
 
 object GetUsersMeetingReqMsg { val NAME = "GetUsersMeetingReqMsg" }
 case class GetUsersMeetingReqMsg(header: BbbClientMsgHeader, body: GetUsersMeetingReqMsgBody) extends StandardMsg
