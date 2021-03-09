@@ -19,10 +19,10 @@ const env = Meteor.isDevelopment ? 'development' : 'production';
 const meteorRoot = fs.realpathSync(`${process.cwd()}/../`);
 
 const applicationRoot = (env === 'development')
-  ? fs.realpathSync(`${meteorRoot}'/../../../../`)
-  : fs.realpathSync(`${meteorRoot}/../`);
+  ? fs.realpathSync(`${meteorRoot}'/../../../../public/locales/`)
+  : fs.realpathSync(`${meteorRoot}/../programs/web.browser/app/locales/`);
 
-const AVAILABLE_LOCALES = fs.readdirSync(`${applicationRoot}/public/locales`);
+const AVAILABLE_LOCALES = fs.readdirSync(`${applicationRoot}`);
 const FALLBACK_LOCALES = JSON.parse(Assets.getText('config/fallbackLocales.json'));
 
 process.on('uncaughtException', (err) => {
