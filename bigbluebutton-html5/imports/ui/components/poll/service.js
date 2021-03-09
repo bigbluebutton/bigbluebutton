@@ -1,15 +1,17 @@
-import { makeCall } from '/imports/ui/services/api';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import Polls from '/imports/api/polls';
 
+const POLL_AVATAR_COLOR = '#3B48A9';
+
 // 'YN' = Yes,No
+// 'YNA' = Yes,No,Abstention
 // 'TF' = True,False
 // 'A-2' = A,B
 // 'A-3' = A,B,C
 // 'A-4' = A,B,C,D
 // 'A-5' = A,B,C,D,E
-const pollTypes = ['YN', 'TF', 'A-2', 'A-3', 'A-4', 'A-5', 'custom'];
+const pollTypes = ['YN', 'YNA', 'TF', 'A-2', 'A-3', 'A-4', 'A-5', 'custom'];
 
 const pollAnswerIds = {
   true: {
@@ -27,6 +29,10 @@ const pollAnswerIds = {
   no: {
     id: 'app.poll.answer.no',
     description: 'label for poll answer No',
+  },
+  abstention: {
+    id: 'app.poll.answer.abstention',
+    description: 'label for poll answer Abstention',
   },
   a: {
     id: 'app.poll.answer.a',
@@ -50,24 +56,6 @@ const pollAnswerIds = {
   },
 };
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
-const PUBLIC_CHAT_SYSTEM_ID = CHAT_CONFIG.system_userid;
-
-const sendGroupMessage = (message) => {
-  const payload = {
-    color: '0',
-    correlationId: `${PUBLIC_CHAT_SYSTEM_ID}-${Date.now()}`,
-    sender: {
-      id: Auth.userID,
-      name: '',
-    },
-    message,
-  };
-
-  return makeCall('sendGroupChatMsg', PUBLIC_GROUP_CHAT_ID, payload);
-};
-
 export default {
   amIPresenter: () => Users.findOne(
     { userId: Auth.userID },
@@ -76,5 +64,5 @@ export default {
   pollTypes,
   currentPoll: () => Polls.findOne({ meetingId: Auth.meetingID }),
   pollAnswerIds,
-  sendGroupMessage,
+  POLL_AVATAR_COLOR,
 };

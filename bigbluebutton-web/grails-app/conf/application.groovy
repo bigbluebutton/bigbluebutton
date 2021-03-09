@@ -12,6 +12,10 @@
 // }
 // Moved to resources.xml
 // grails.config.locations = [ "classpath:bigbluebutton.properties"]
+// @todo: TO REVIEW
+if (new File("/etc/bigbluebutton/bbb-web.properties").canRead()) {
+    grails.config.locations << "file:/etc/bigbluebutton/bbb-web.properties"
+}
 
 grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
 

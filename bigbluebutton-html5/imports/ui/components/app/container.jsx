@@ -85,16 +85,16 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     endMeeting('403');
   }
 
-  Users.find({ userId: Auth.userID }).observe({
+  Users.find({ userId: Auth.userID, meetingId: Auth.meetingID }).observe({
     removed() {
       endMeeting('403');
     },
   });
 
-  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { approved: 1, emoji: 1 } });
+  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { approved: 1, emoji: 1, userId: 1 } });
   const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { publishedPoll: 1, voiceProp: 1 } });
-  const { publishedPoll, voiceProp } = currentMeeting;
+    { fields: { publishedPoll: 1, voiceProp: 1, randomlySelectedUser: 1 } });
+  const { publishedPoll, voiceProp, randomlySelectedUser } = currentMeeting;
 
   if (!currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
@@ -122,6 +122,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     hasPublishedPoll: publishedPoll,
     startBandwidthMonitoring,
     handleNetworkConnection: () => updateNavigatorConnection(navigator.connection),
+    randomlySelectedUser,
+    currentUserId: currentUser.userId,
   };
 })(AppContainer)));
 

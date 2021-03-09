@@ -1,0 +1,26 @@
+[Unit]
+Description=BigBlueButton Apps (Akka)
+Requires=network.target
+Wants=redis-server.service
+After=redis-server.service
+
+[Service]
+Type=simple
+WorkingDirectory=/usr/share/bbb-apps-akka
+EnvironmentFile=/etc/default/bbb-apps-akka
+ExecStart=/usr/share/bbb-apps-akka/bin/bbb-apps-akka
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=60
+SuccessExitStatus=
+TimeoutStopSec=5
+User=bigbluebutton
+ExecStartPre=/bin/mkdir -p /run/bbb-apps-akka
+ExecStartPre=/bin/chown bigbluebutton:bigbluebutton /run/bbb-apps-akka
+ExecStartPre=/bin/chmod 755 /run/bbb-apps-akka
+PermissionsStartOnly=true
+LimitNOFILE=1024
+
+[Install]
+WantedBy=multi-user.target
+

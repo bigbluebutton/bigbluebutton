@@ -23,8 +23,9 @@ export default function appendText(text, locale) {
     responseType: 'json',
   }).then((response) => {
     const { status } = response;
-    if (status === 200) {
-      Logger.verbose('Captions: appended text', { padId });
+    if (status !== 200) {
+      Logger.error(`Could not append captions for padId=${padId}`);
+      return;
     }
   }).catch(error => Logger.error(`Could not append captions for padId=${padId}: ${error}`));
 }

@@ -6,9 +6,7 @@ usage() {
 BBB Health Check
 
 OPTIONS:
-  -t <test name: webcamlayout/whiteboard/webcam/virtualizedlist/user/sharednotes/screenshare/presentation/notifications/customparameters/chat/breakout/audio/all>
-  -h <hostname name of BigBlueButton server>
-  -s <Shared secret>
+  -t <test name: webcamlayout/whiteboard/webcam/virtualizedlist/user/sharednotes/screenshare/presentation/polling/notifications/customparameters/chat/breakout/audio/all>
 
   -u Print usage 
 HERE
@@ -24,21 +22,13 @@ err() {
 main() {
   export DEBIAN_FRONTEND=noninteractive
 
-  while builtin getopts "uh:s:t:" opt "${@}"; do
+  while builtin getopts "ut:" opt "${@}"; do
 
     case $opt in
       t)
 	TEST=$OPTARG
 	;;
 
-      h)
-        HOST=$OPTARG
-        ;;
-
-      s)
-        SECRET=$OPTARG
-        ;;
-        
       u)
         usage
         exit 0
@@ -62,25 +52,9 @@ main() {
     exit 1
   fi
 
-  if [ -z "$HOST" ]; then
-    err "No host provided";
-    usage
-    exit 1
-  fi
+echo "Test is starting in 5 seconds..." && sleep 5;echo $Test " Test has started."
 
-  if [ -z "$SECRET" ]; then
-    err "No scret provided";
-    usage
-    exit 1
-  fi
-
-  IS_AUDIO_TEST=false
-
-  if [ "$TEST" = "audio" ]; then
-	IS_AUDIO_TEST=true;
-  fi;
-
-env $(cat tests/puppeteer/.env | xargs)  jest $TEST.test.js --color --detectOpenHandles
+env $(cat tests/puppeteer/.env | xargs)  jest $TEST.test.js --color --detectOpenHandles --forceExit
 }
 
 
