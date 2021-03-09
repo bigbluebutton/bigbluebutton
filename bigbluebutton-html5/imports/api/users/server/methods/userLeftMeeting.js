@@ -20,6 +20,6 @@ export default function userLeftMeeting() { // TODO-- spread the code to method/
       ClientConnections.removeClientConnection(this.userId, this.connection.id);
     }
   } catch (err) {
-    Logger.error(`leaving dummy user to collection: ${err}`);
+    Logger.error(`Error on user left: ${err}`);
   }
 }
