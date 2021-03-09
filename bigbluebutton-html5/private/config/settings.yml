@@ -302,6 +302,8 @@ public:
     time: 5000
   chat:
     enabled: true
+    itemsPerPage: 100
+    timeBetweenFetchs: 1000
     bufferChatInsertsMs: 0
     startClosed: false
     min_message_length: 1

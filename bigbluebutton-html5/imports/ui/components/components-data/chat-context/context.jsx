@@ -22,13 +22,16 @@ export const ACTIONS = {
   REMOVED: 'removed',
   LAST_READ_MESSAGE_TIMESTAMP_CHANGED: 'last_read_message_timestamp_changed',
   INIT: 'initial_structure',
+  SYNC_STATUS: 'sync_status',
+  HAS_MESSAGE_TO_SYNC: 'has_message_to_sync',
+  CLEAR_ALL: 'clear_all',
 };
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 export const getGroupingTime = () => Meteor.settings.public.chat.grouping_messages_window;
 export const getGroupChatId = () => Meteor.settings.public.chat.public_group_id;
-export const getLoginTime = () => (Users.findOne({ userId: Auth.userID }) || {}).loginTime || 0;
+export const getLoginTime = () => (Users.findOne({ userId: Auth.userID }) || {}).authTokenValidatedTime || 0;
 
 const generateTimeWindow = (timestamp) => {
   const groupingTime = getGroupingTime();
@@ -40,12 +43,12 @@ const generateTimeWindow = (timestamp) => {
 
 export const ChatContext = createContext();
 
-const generateStateWithNewMessage = ({ msg, senderData }, state) => {
+const generateStateWithNewMessage = (msg, state) => {
   
   const timeWindow = generateTimeWindow(msg.timestamp);
   const userId = msg.sender.id;
   const keyName = userId + '-' + timeWindow;
-  const msgBuilder = ({msg, senderData}, chat) => {
+  const msgBuilder = (msg, chat) => {
     const msgTimewindow = generateTimeWindow(msg.timestamp);
     const key = msg.sender.id + '-' + msgTimewindow;
     const chatIndex = chat?.chatIndexes[key];
@@ -80,6 +83,7 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
         chatIndexes: {},
         preJoinMessages: {},
         posJoinMessages: {},
+        synced:true,
         unreadTimeWindows: new Set(),
         unreadCount: 0,
       };
@@ -87,6 +91,7 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
       state[msg.chatId] = {
         count: 0,
         lastSender: '',
+        synced:true,
         chatIndexes: {},
         messageGroups: {},
         unreadTimeWindows: new Set(),
@@ -106,7 +111,7 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
   
   if (!groupMessage || (groupMessage && groupMessage.sender.id !== stateMessages.lastSender.id)) {
 
-    const [tempGroupMessage, sender, newIndex] = msgBuilder({msg, senderData}, stateMessages);
+    const [tempGroupMessage, sender, newIndex] = msgBuilder(msg, stateMessages);
     stateMessages.lastSender = sender;
     stateMessages.chatIndexes[keyName] = newIndex;
     stateMessages.lastTimewindow = keyName + '-' + newIndex;
@@ -116,7 +121,8 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
     messageGroupsKeys.forEach(key => {
       messageGroups[key] = tempGroupMessage[key];
       const message = tempGroupMessage[key];
-      if (message.sender.id !== Auth.userID && !message.id.startsWith(SYSTEM_CHAT_TYPE)) {
+      const previousMessage = message.timestamp <= getLoginTime();
+      if (!previousMessage && message.sender.id !== Auth.userID && !message.id.startsWith(SYSTEM_CHAT_TYPE)) {
         stateMessages.unreadTimeWindows.add(key);
       }
     });
@@ -161,7 +167,7 @@ const reducer = (state, action) => {
       const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
       const loginTime = getLoginTime();
       const newState = batchMsgs.reduce((acc, i)=> {
-        const message = i.msg;
+        const message = i;
         const chatId = message.chatId;
         if (
             chatId !== PUBLIC_GROUP_CHAT_KEY 
@@ -169,8 +175,7 @@ const reducer = (state, action) => {
             && currentClosedChats.includes(chatId) ){
           closedChatsToOpen.add(chatId)
         }
-
-        return generateStateWithNewMessage(i, acc);
+        return generateStateWithNewMessage(message, acc);
       }, state);
 
       if (closedChatsToOpen.size) {
@@ -259,6 +264,45 @@ const reducer = (state, action) => {
         };
       }
       return state;
+    }
+    case ACTIONS.SYNC_STATUS: {
+      ChatLogger.debug(ACTIONS.SYNC_STATUS);
+      const newState = { ...state };
+      newState[action.value.chatId].syncedPercent = action.value.percentage;
+      newState[action.value.chatId].syncing = action.value.percentage < 100 ? true : false;
+
+      return newState;
+    }
+    case ACTIONS.CLEAR_ALL: {
+      ChatLogger.debug(ACTIONS.CLEAR_ALL);
+      const newState = { ...state };
+      const chatIds = Object.keys(newState);
+      chatIds.forEach((chatId) => {
+        newState[chatId] = chatId === PUBLIC_GROUP_CHAT_KEY ? 
+        {
+          count: 0,
+          lastSender: '',
+          chatIndexes: {},
+          preJoinMessages: {},
+          posJoinMessages: {},
+          syncing: false,
+          syncedPercent: 0,
+          unreadTimeWindows: new Set(),
+          unreadCount: 0,
+        }
+        :  
+        {
+          count: 0,
+          lastSender: '',
+          chatIndexes: {},
+          messageGroups: {},
+          syncing: false,
+          syncedPercent: 0,
+          unreadTimeWindows: new Set(),
+          unreadCount: 0,
+        };
+      });
+      return newState;
     }
     default: {
       throw new Error(`Unexpected action: ${JSON.stringify(action)}`);

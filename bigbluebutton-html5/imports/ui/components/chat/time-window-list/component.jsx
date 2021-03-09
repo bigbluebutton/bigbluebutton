@@ -93,9 +93,16 @@ class TimeWindowList extends PureComponent {
       setUserSentMessage,
       timeWindowsValues,
       chatId,
+      syncing,
+      syncedPercent,
     } = this.props;
 
-    const {timeWindowsValues: prevTimeWindowsValues, chatId: prevChatId} = prevProps;
+    const {
+      timeWindowsValues: prevTimeWindowsValues,
+      chatId: prevChatId,
+      syncing: prevSyncing,
+      syncedPercent: prevSyncedPercent
+    } = prevProps;
 
     const prevTimeWindowsLength = prevTimeWindowsValues.length;
     const timeWindowsValuesLength = timeWindowsValues.length;
@@ -109,15 +116,23 @@ class TimeWindowList extends PureComponent {
       }  
     }
 
-    if (lastTimeWindow && (chatId !== prevChatId)) {
-      this.listRef.recomputeGridSize();
-    }
-
     if (userSentMessage && !prevProps.userSentMessage){
       this.setState({
         userScrolledBack: false,
       }, ()=> setUserSentMessage(false));
     }
+
+     // this condition exist to the case where the chat has a single message and the chat is cleared
+    // The component List from react-virtualized doesn't have a reference to the list of messages so I need force the update to fix it
+    if (
+      (lastTimeWindow?.id === 'SYSTEM_MESSAGE-PUBLIC_CHAT_CLEAR')
+      || (prevSyncing && !syncing)
+      || (syncedPercent !== prevSyncedPercent)
+      || (chatId !== prevChatId)      
+      ) {
+      this.listRef.forceUpdateGrid();
+    }
+
   }
 
   componentWillUnmount() {
