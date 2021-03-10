@@ -55,8 +55,12 @@ const {
 } = Service;
 
 export default lockContextContainer(withModalMounter(withTracker(({ mountModal, userLocks }) => {
-  if (Service.isReturningFromBreakoutAudioTransfer()) {
-    Service.setReturningFromBreakoutAudioTransfer(false);
+  const { status } = Service.getBreakoutAudioTransferStatus();
+
+  if (status === AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.RETURNING) {
+    Service.setBreakoutAudioTransferStatus({
+      status: AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+    });
     Service.recoverMicState();
   }
 
