@@ -331,7 +331,7 @@ class ActionsBar extends PureComponent {
             )
             : null
           }
-          { amIModerator ?
+          { amIModerator && hasLanguages ?
               (
                   <Button
                       className={[amIAsTranslatorMuted ? styles.btnmuted: "", styles.translatorBtn ].join(" ")}
@@ -347,7 +347,7 @@ class ActionsBar extends PureComponent {
                   />
               ) :null
           }
-          { amIModerator ?
+          { amIModerator && hasLanguages ?
               (
                   <div id={"translatorButton"}>
                     <Button
