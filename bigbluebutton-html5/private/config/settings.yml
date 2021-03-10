@@ -22,6 +22,7 @@ public:
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
     allowDefaultLogoutUrl: true
     allowUserLookup: false
+    enableGuestLobbyMessage: true
     enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
@@ -43,9 +44,12 @@ public:
     # Warning: increasing the limit of breakout rooms per meeting
     # can generate excessive overhead to the server. We recommend
     # this value to be kept under 12.
-    breakoutRoomLimit: 8
+    breakouts:
+      breakoutRoomLimit: 8
+      sendInvitationToIncludedModerators: false
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
-    customHeartbeat: true
+    customHeartbeat: false
+    showAllAvailableLocales: false
     defaultSettings:
       application:
         animations: true
@@ -55,6 +59,8 @@ public:
         userJoinPushAlerts: false
         raiseHandAudioAlerts: true
         raiseHandPushAlerts: true
+        guestWaitingAudioAlerts: true
+        guestWaitingPushAlerts: true
         fallbackLocale: en
         overrideLocale: null
         #Audio constraints for microphone. Use this to control browser's
@@ -247,7 +253,7 @@ public:
     #   profile: a camera profile id from the cameraProfiles configuration array
     #            that will be applied to all cameras when threshold is hit
     cameraQualityThresholds:
-      enabled: false
+      enabled: true
       thresholds:
         - threshold: 8
           profile: low-u8
@@ -263,7 +269,7 @@ public:
           profile: low-u30
     pagination:
       # whether to globally enable or disable pagination.
-      enabled: false
+      enabled: true
       # how long (in ms) the negotiation will be debounced after a page change.
       pageChangeDebounceTime: 2500
       # video page sizes for DESKTOP endpoints. It stands for the number of SUBSCRIBER streams.
@@ -271,11 +277,11 @@ public:
       # A page size of 0 (zero) means that the page size is unlimited (disabled).
       desktopPageSizes:
         moderator: 0
-        viewer: 5
+        viewer: 0
       # video page sizes for MOBILE endpoints
       mobilePageSizes:
-        moderator: 2
-        viewer: 2
+        moderator: 6
+        viewer: 4
   syncUsersWithConnectionManager:
     enabled: false
     syncInterval: 60000
@@ -285,6 +291,7 @@ public:
   poll:
     enabled: true
     max_custom: 5
+    allowDragAndDropFile: false
   captions:
     enabled: true
     enableDictation: false
@@ -314,20 +321,16 @@ public:
     storage_key: UNREAD_CHATS
     system_messages_keys:
       chat_clear: PUBLIC_CHAT_CLEAR
+      chat_poll_result: PUBLIC_CHAT_POLL_RESULT
     typingIndicator:
       enabled: true
   note:
     enabled: false
     url: ETHERPAD_HOST
-    config:
-      showLineNumbers: false
-      showChat: false
-      noColors: true
-      showControls: true
-      rtl: false
   layout:
     autoSwapLayout: false
     hidePresentation: false
+    showParticipantsOnLogin: true
     webcamsDefaultPlacement: 'top'
   media:
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
@@ -553,7 +556,7 @@ private:
       toThirdParty: to-third-party-redis-channel
     subscribeTo:
       - to-html5-redis-channel
-      - from-akka-apps-*
+      - from-akka-apps-[^f]*
       - from-third-party-redis-channel
       - from-etherpad-redis-channel
     async:

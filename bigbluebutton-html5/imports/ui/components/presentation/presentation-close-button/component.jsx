@@ -18,6 +18,7 @@ const ClosePresentationComponent = ({ intl, toggleSwapLayout }) => (
     color="primary"
     icon="minus"
     size="sm"
+    data-test="hidePresentationButton"
     onClick={toggleSwapLayout}
     label={intl.formatMessage(intlMessages.closePresentationLabel)}
     hideLabel

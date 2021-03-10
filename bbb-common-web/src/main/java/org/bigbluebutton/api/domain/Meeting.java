@@ -68,8 +68,10 @@ public class Meeting {
 	private String defaultAvatarURL;
 	private String defaultConfigToken;
 	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
+	private String guestLobbyMessage = "";
 	private Boolean authenticatedGuest = false;
 	private boolean userHasJoined = false;
+	private Map<String, String> pads;
 	private Map<String, String> metadata;
 	private Map<String, Object> userCustomData;
 	private final ConcurrentMap<String, User> users;
@@ -133,6 +135,13 @@ public class Meeting {
         endWhenNoModerator = builder.endWhenNoModerator;
         html5InstanceId = builder.html5InstanceId;
 
+        /*
+         * A pad is a pair of padId and readOnlyId that represents
+         * valid etherpads instances for this meeting. They can be:
+         *  - shared notes
+         *  - closed captions
+         */
+        pads = new HashMap<>();
         userCustomData = new HashMap<>();
 
         users = new ConcurrentHashMap<>();
@@ -179,6 +188,10 @@ public class Meeting {
 	
 	public Config removeConfig(String token) {
 		return configs.remove(token);
+	}
+
+	public Map<String, String> getPads() {
+		return pads;
 	}
 
 	public Map<String, String> getMetadata() {
@@ -362,6 +375,14 @@ public class Meeting {
 
 	public String getGuestPolicy() {
     	return guestPolicy;
+	}
+
+	public void setGuestLobbyMessage(String message) {
+		guestLobbyMessage = message;
+	}
+
+	public String getGuestLobbyMessage() {
+		return guestLobbyMessage;
 	}
 
 	public void setAuthenticatedGuest(Boolean authGuest) {
@@ -577,6 +598,14 @@ public class Meeting {
         return sum;
     }
 	
+	public void addPad(String padId, String readOnlyId) {
+		pads.put(padId, readOnlyId);
+	}
+
+	public Boolean hasPad(String id) {
+		return pads.containsKey(id) || pads.containsValue(id);
+	}
+
 	public void addUserCustomData(String userID, Map<String, String> data) {
 		userCustomData.put(userID, data);
 	}
