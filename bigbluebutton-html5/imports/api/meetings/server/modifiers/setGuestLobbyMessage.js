@@ -16,17 +16,13 @@ export default function setGuestLobbyMessage(meetingId, guestLobbyMessage) {
     },
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Changing meeting guest lobby message: ${err}`);
+  try {
+    const { numberAffected } = Meetings.upsert(selector, modifier);
+
+    if (numberAffected) {
+      Logger.verbose(`Set guest lobby message meetingId=${meetingId} guestLobbyMessage=${guestLobbyMessage}`);
     }
-
-    if (!numChanged) {
-      return Logger.info(`Meeting's ${meetingId} guest lobby message=${guestLobbyMessage} wasn't updated`);
-    }
-
-    return Logger.info(`Meeting's ${meetingId} guest lobby message=${guestLobbyMessage} updated`);
-  };
-
-  return Meetings.update(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Setting guest lobby message: ${err}`);
+  }
 }
