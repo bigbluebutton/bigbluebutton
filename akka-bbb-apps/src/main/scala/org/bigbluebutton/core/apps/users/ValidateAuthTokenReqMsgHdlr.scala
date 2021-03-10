@@ -75,7 +75,7 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
       reasonCode:      String,
       state:           MeetingState2x
   ): MeetingState2x = {
-    val event = MsgBuilder.buildValidateAuthTokenRespMsg(meetingId, userId, authToken, valid, waitForApproval, 0)
+    val event = MsgBuilder.buildValidateAuthTokenRespMsg(meetingId, userId, authToken, valid, waitForApproval, 0, 0)
     outGW.send(event)
 
     // send a system message to force disconnection
@@ -86,14 +86,16 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
   }
 
   def sendValidateAuthTokenRespMsg(meetingId: String, userId: String, authToken: String,
-                                   valid: Boolean, waitForApproval: Boolean, registeredOn: Long): Unit = {
-    val event = MsgBuilder.buildValidateAuthTokenRespMsg(meetingId, userId, authToken, valid, waitForApproval, registeredOn)
+                                   valid: Boolean, waitForApproval: Boolean, registeredOn: Long, authTokenValidatedOn: Long): Unit = {
+    val event = MsgBuilder.buildValidateAuthTokenRespMsg(meetingId, userId, authToken, valid, waitForApproval, registeredOn, authTokenValidatedOn)
     outGW.send(event)
   }
 
   def userValidated(user: RegisteredUser, state: MeetingState2x): MeetingState2x = {
     val meetingId = liveMeeting.props.meetingProp.intId
-    sendValidateAuthTokenRespMsg(meetingId, user.id, user.authToken, valid = true, waitForApproval = false, user.registeredOn)
+    val updatedUser = RegisteredUsers.updateUserLastAuthTokenValidated(liveMeeting.registeredUsers, user)
+
+    sendValidateAuthTokenRespMsg(meetingId, updatedUser.id, updatedUser.authToken, valid = true, waitForApproval = false, updatedUser.registeredOn, updatedUser.lastAuthTokenValidatedOn)
     state
   }
 

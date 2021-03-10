@@ -106,40 +106,39 @@ Meteor.startup(() => {
         session.bbbFixApplied = true;
       }
     }, 5000);
-
-    if (CDN_URL.trim()) {
-      // Add CDN
-      BrowserPolicy.content.disallowEval();
-      BrowserPolicy.content.allowInlineScripts();
-      BrowserPolicy.content.allowInlineStyles();
-      BrowserPolicy.content.allowImageDataUrl(CDN_URL);
-      BrowserPolicy.content.allowFontDataUrl(CDN_URL);
-      BrowserPolicy.content.allowOriginForAll(CDN_URL);
-      WebAppInternals.setBundledJsCssPrefix(CDN_URL + APP_CONFIG.basename + Meteor.settings.public.app.instanceId);
-
-      const fontRegExp = /\.(eot|ttf|otf|woff|woff2)$/;
-
-      WebApp.rawConnectHandlers.use('/', (req, res, next) => {
-        if (fontRegExp.test(req._parsedUrl.pathname)) {
-          res.setHeader('Access-Control-Allow-Origin', '*');
-          res.setHeader('Vary', 'Origin');
-          res.setHeader('Pragma', 'public');
-          res.setHeader('Cache-Control', '"public"');
-        }
-        return next();
-      });
-    }
-
-    setMinBrowserVersions();
-
-    Logger.warn(`SERVER STARTED.
-    ENV=${env}
-    nodejs version=${process.version}
-    BBB_HTML5_ROLE=${process.env.BBB_HTML5_ROLE}
-    INSTANCE_ID=${instanceId}
-    PORT=${process.env.PORT}
-    CDN=${CDN_URL}\n`, APP_CONFIG);
   }
+  if (CDN_URL.trim()) {
+    // Add CDN
+    BrowserPolicy.content.disallowEval();
+    BrowserPolicy.content.allowInlineScripts();
+    BrowserPolicy.content.allowInlineStyles();
+    BrowserPolicy.content.allowImageDataUrl(CDN_URL);
+    BrowserPolicy.content.allowFontDataUrl(CDN_URL);
+    BrowserPolicy.content.allowOriginForAll(CDN_URL);
+    WebAppInternals.setBundledJsCssPrefix(CDN_URL + APP_CONFIG.basename + Meteor.settings.public.app.instanceId);
+
+    const fontRegExp = /\.(eot|ttf|otf|woff|woff2)$/;
+
+    WebApp.rawConnectHandlers.use('/', (req, res, next) => {
+      if (fontRegExp.test(req._parsedUrl.pathname)) {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Vary', 'Origin');
+        res.setHeader('Pragma', 'public');
+        res.setHeader('Cache-Control', '"public"');
+      }
+      return next();
+    });
+  }
+
+  setMinBrowserVersions();
+
+  Logger.warn(`SERVER STARTED.
+  ENV=${env}
+  nodejs version=${process.version}
+  BBB_HTML5_ROLE=${process.env.BBB_HTML5_ROLE}
+  INSTANCE_ID=${instanceId}
+  PORT=${process.env.PORT}
+  CDN=${CDN_URL}\n`, APP_CONFIG);
 });
 
 

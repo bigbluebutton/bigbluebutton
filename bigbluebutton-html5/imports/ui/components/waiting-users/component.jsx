@@ -4,6 +4,7 @@ import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
+import TextInput from '/imports/ui/components/text-input/component';
 import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
 
@@ -47,6 +48,14 @@ const intlMessages = defineMessages({
   rememberChoice: {
     id: 'app.userList.guest.rememberChoice',
     description: 'Remember label for checkbox',
+  },
+  emptyMessage: {
+    id: 'app.userList.guest.emptyMessage',
+    description: 'Empty guest lobby message label',
+  },
+  inputPlaceholder: {
+    id: 'app.userList.guest.inputPlaceholder',
+    description: 'Placeholder to guest lobby message input',
   },
   accept: {
     id: 'app.userList.guest.acceptLabel',
@@ -153,6 +162,9 @@ const WaitingUsers = (props) => {
     guestUsers,
     guestUsersCall,
     changeGuestPolicy,
+    isGuestLobbyMessageEnabled,
+    setGuestLobbyMessage,
+    guestLobbyMessage,
     authenticatedGuest,
   } = props;
 
@@ -234,6 +246,16 @@ const WaitingUsers = (props) => {
           />
         </div>
       </header>
+      {isGuestLobbyMessageEnabled ? (
+        <div className={styles.lobbyMessage}>
+          <TextInput
+            maxLength={128}
+            placeholder={intl.formatMessage(intlMessages.inputPlaceholder)}
+            send={setGuestLobbyMessage}
+          />
+          <p><i>"{guestLobbyMessage.length > 0 ? guestLobbyMessage : intl.formatMessage(intlMessages.emptyMessage)}"</i></p>
+        </div>
+      ) : null}
       <div>
         <div>
           <p className={styles.mainTitle}>{intl.formatMessage(intlMessages.optionTitle)}</p>

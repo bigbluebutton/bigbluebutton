@@ -102,11 +102,14 @@ class BreakoutRoom extends PureComponent {
       breakoutRoomUser,
       breakoutRooms,
       closeBreakoutPanel,
+      isMicrophoneUser,
+      isReconnecting,
     } = this.props;
 
     const {
       waiting,
       requestedBreakoutId,
+      joinedAudioOnly,
     } = this.state;
 
     if (breakoutRooms.length <= 0) closeBreakoutPanel();
@@ -119,6 +122,10 @@ class BreakoutRoom extends PureComponent {
         window.open(breakoutUser.redirectToHtml5JoinURL, '_blank');
         _.delay(() => this.setState({ waiting: false }), 1000);
       }
+    }
+
+    if (joinedAudioOnly && (!isMicrophoneUser || isReconnecting)) {
+      this.clearJoinedAudioOnly();
     }
   }
 
@@ -144,6 +151,10 @@ class BreakoutRoom extends PureComponent {
     return null;
   }
 
+  clearJoinedAudioOnly() {
+    this.setState({ joinedAudioOnly: false });
+  }
+
   transferUserToBreakoutRoom(breakoutId) {
     const { transferToBreakout } = this.props;
     transferToBreakout(breakoutId);
@@ -163,6 +174,7 @@ class BreakoutRoom extends PureComponent {
       intl,
       isUserInBreakoutRoom,
       exitAudio,
+      setReturningFromBreakoutAudioTransfer,
     } = this.props;
 
     const {
@@ -176,6 +188,7 @@ class BreakoutRoom extends PureComponent {
     const disable = waiting && requestedBreakoutId !== breakoutId;
     const audioAction = joinedAudioOnly
       ? () => {
+        setReturningFromBreakoutAudioTransfer(true);
         this.returnBackToMeeeting(breakoutId);
         return logger.debug({
           logCode: 'breakoutroom_return_main_audio',

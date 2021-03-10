@@ -17,10 +17,12 @@ const webcamLayoutTest = () => {
     try {
       const testName = 'joinWebcamAndMicrophone';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgsWithAudioAndVideo());
+      await test.init(Page.getArgsWithAudioAndVideo(), undefined, undefined, undefined, testName);
+      await test.startRecording(testName);
       await test.webcamLayoutStart();
       response = await test.webcamLayoutTest(testName);
       await test.logger('end of ', testName);
+      await test.stopRecording();
       screenshot = await test.page.screenshot();
     } catch (e) {
       await test.logger(e);

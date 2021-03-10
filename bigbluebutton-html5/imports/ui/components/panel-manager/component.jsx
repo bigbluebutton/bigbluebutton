@@ -17,6 +17,10 @@ import {
   USERLIST_MAX_WIDTH,
   CHAT_MIN_WIDTH,
   CHAT_MAX_WIDTH,
+  POLL_MIN_WIDTH,
+  POLL_MAX_WIDTH,
+  NOTE_MIN_WIDTH,
+  NOTE_MAX_WIDTH,
 } from '/imports/ui/components/layout/layout-manager';
 
 const intlMessages = defineMessages({
@@ -52,14 +56,6 @@ const DEFAULT_PANEL_WIDTH = 340;
 // Variables for resizing user-list.
 const USERLIST_MIN_WIDTH_PX = USERLIST_MIN_WIDTH;
 const USERLIST_MAX_WIDTH_PX = USERLIST_MAX_WIDTH;
-
-// Variables for resizing poll.
-const POLL_MIN_WIDTH = 320;
-const POLL_MAX_WIDTH = 400;
-
-// Variables for resizing shared notes.
-const NOTE_MIN_WIDTH = DEFAULT_PANEL_WIDTH;
-const NOTE_MAX_WIDTH = 800;
 
 // Variables for resizing captions.
 const CAPTIONS_MIN_WIDTH = DEFAULT_PANEL_WIDTH;
