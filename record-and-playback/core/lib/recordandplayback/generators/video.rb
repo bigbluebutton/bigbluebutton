@@ -55,7 +55,7 @@ module BigBlueButton
         parameters: [
           # These settings are appropriate for 640x480 medium quality, and should be tweaked for other resolutions
           # See https://developers.google.com/media/vp9/settings/vod/
-          # Increase -threads to max of 4 or increase -speed to max of 4 to speed up processing
+          # We use force_key_frames instead of -g to set the GOP size independent of the frame rate
           %w[-c:v libvpx-vp9 -crf 32 -deadline realtime -cpu-used 8 -force_key_frames expr:gte(t,n_forced*10) -tile-columns 2 -tile-rows 2 -threads 4
              -c:a copy
              -f webm]
@@ -121,7 +121,7 @@ module BigBlueButton
         parameters: [
           # These settings are appropriate for 1280x720 medium quality, and should be tweaked for other resolutions
           # See https://developers.google.com/media/vp9/settings/vod/
-          # Increase -threads to max of 8 or increase -speed to max of 4 to speed up processing
+          # We use force_key_frames instead of -g to set the GOP size independent of the frame rate
           %w[-c:v libvpx-vp9 -crf 32 -deadline realtime -cpu-used 8 -force_key_frames expr:gte(t,n_forced*10) -tile-columns 2 -tile-rows 2 -threads 4
              -c:a copy
              -f webm]
