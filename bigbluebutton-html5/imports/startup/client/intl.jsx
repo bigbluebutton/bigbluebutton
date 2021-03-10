@@ -63,6 +63,7 @@ class IntlStartup extends Component {
 
   fetchLocalizedMessages(locale, init = false) {
     const url = `./locale?locale=${locale}&init=${init}`;
+    const localesPath = 'locales';
 
     this.setState({ fetching: true }, () => {
       fetch(url)
@@ -73,13 +74,51 @@ class IntlStartup extends Component {
 
           return response.json();
         })
-        .then(({ filePath, normalizedLocale }) => {
-          fetch(filePath)
+        .then(({ normalizedLocale, regionDefaultLocale }) => {
+          fetch(`${localesPath}/${DEFAULT_LANGUAGE}.json`)
             .then((response) => {
               if (!response.ok) {
                 return Promise.reject();
               }
               return response.json();
+            })
+            .then((messages) => {
+              if (regionDefaultLocale !== '') {
+                fetch(`${localesPath}/${regionDefaultLocale}.json`)
+                  .then((response) => {
+                    if (!response.ok) {
+                      return Promise.resolve();
+                    }
+                    return response.json();
+                  })
+                  .then((regionDefaultMessages) => {
+                    messages = Object.assign(messages, regionDefaultMessages);
+                    return messages;
+                  });
+              }
+
+              if (normalizedLocale !== DEFAULT_LANGUAGE && normalizedLocale !== regionDefaultLocale) {
+                fetch(`${localesPath}/${normalizedLocale}.json`)
+                  .then((response) => {
+                    if (!response.ok) {
+                      return Promise.reject();
+                    }
+                    return response.json();
+                  })
+                  .then((localeMessages) => {
+                    messages = Object.assign(messages, localeMessages);
+                    return messages;
+                  })
+                  .catch(() => {
+                    normalizedLocale = (regionDefaultLocale) || DEFAULT_LANGUAGE;
+                    const dasherizedLocale = normalizedLocale.replace('_', '-');
+                    this.setState({ messages, fetching: false, normalizedLocale: dasherizedLocale }, () => {
+                      IntlStartup.saveLocale(normalizedLocale);
+                    });
+                  });
+              }
+
+              return messages;
             })
             .then((messages) => {
               const dasherizedLocale = normalizedLocale.replace('_', '-');
@@ -88,8 +127,10 @@ class IntlStartup extends Component {
               });
             })
             .catch(() => {
-              this.setState({ fetching: false, normalizedLocale: null }, () => {
-                IntlStartup.saveLocale(DEFAULT_LANGUAGE);
+              normalizedLocale = DEFAULT_LANGUAGE;
+              const dasherizedLocale = normalizedLocale.replace('_', '-');
+              this.setState({ fetching: false, normalizedLocale: dasherizedLocale }, () => {
+                IntlStartup.saveLocale(normalizedLocale);
               });
             });
         })

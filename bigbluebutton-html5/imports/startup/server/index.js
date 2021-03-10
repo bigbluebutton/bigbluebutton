@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { WebAppInternals } from 'meteor/webapp';
 import Langmap from 'langmap';
 import fs from 'fs';
-import path from 'path';
 import Users from '/imports/api/users';
 import './settings';
 import { lookup as lookupUserAgent } from 'useragent';
@@ -227,11 +226,11 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.end(JSON.stringify({
     normalizedLocale: localeFile,
-    filePath: `locales/${localeFile}.json`,
+    regionDefaultLocale: (regionDefault && regionDefault !== localeFile) ? regionDefault : '',
   }));
 });
 
-WebApp.connectHandlers.use('/locales', (req, res) => {
+WebApp.connectHandlers.use('/locale-list', (req, res) => {
   if (!avaibleLocalesNamesJSON) {
     avaibleLocalesNamesJSON = JSON.stringify(generateLocaleOptions());
   }
