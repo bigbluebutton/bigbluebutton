@@ -302,18 +302,18 @@ def svg_render_shape_benzene(g, slide, shape)
   y4 = (Math.sin(Math::PI / 3 * 4) * (x0 - xC) + Math.cos(Math::PI / 3 * 4) * (y0 - yC) + yC).round(5);
   x5 = (Math.cos(Math::PI / 3 * 5) * (x0 - xC) - Math.sin(Math::PI / 3 * 5) * (y0 - yC) + xC).round(5);
   y5 = (Math.sin(Math::PI / 3 * 5) * (x0 - xC) + Math.cos(Math::PI / 3 * 5) * (y0 - yC) + yC).round(5);
-  xp0 = ((x0 * 3.0 + xC) / 4.0).round(5);
-  yp0 = ((y0 * 3.0 + yC) / 4.0).round(5);
-  xp1 = ((x1 * 3.0 + xC) / 4.0).round(5);
-  yp1 = ((y1 * 3.0 + yC) / 4.0).round(5);
-  xp2 = ((x2 * 3.0 + xC) / 4.0).round(5);
-  yp2 = ((y2 * 3.0 + yC) / 4.0).round(5);
-  xp3 = ((x3 * 3.0 + xC) / 4.0).round(5);
-  yp3 = ((y3 * 3.0 + yC) / 4.0).round(5);
-  xp4 = ((x4 * 3.0 + xC) / 4.0).round(5);
-  yp4 = ((y4 * 3.0 + yC) / 4.0).round(5);
-  xp5 = ((x5 * 3.0 + xC) / 4.0).round(5);
-  yp5 = ((y5 * 3.0 + yC) / 4.0).round(5);
+  xp0 = ((x0 * 3 + xC) / 4).round(5);
+  yp0 = ((y0 * 3 + yC) / 4).round(5);
+  xp1 = ((x1 * 3 + xC) / 4).round(5);
+  yp1 = ((y1 * 3 + yC) / 4).round(5);
+  xp2 = ((x2 * 3 + xC) / 4).round(5);
+  yp2 = ((y2 * 3 + yC) / 4).round(5);
+  xp3 = ((x3 * 3 + xC) / 4).round(5);
+  yp3 = ((y3 * 3 + yC) / 4).round(5);
+  xp4 = ((x4 * 3 + xC) / 4).round(5);
+  yp4 = ((y4 * 3 + yC) / 4).round(5);
+  xp5 = ((x5 * 3 + xC) / 4).round(5);
+  yp5 = ((y5 * 3 + yC) / 4).round(5);
 
   path = doc.create_element('path',
           d: "M#{x0} #{y0}L#{x1} #{y1}L#{x2} #{y2}L#{x3} #{y3}L#{x4} #{y4}L#{x5} #{y5}Z M#{xp0} #{yp0}L#{xp1} #{yp1}M#{xp2} #{yp2}L#{xp3} #{yp3} M#{xp4} #{yp4}L#{xp5} #{yp5}")
