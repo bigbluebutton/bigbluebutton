@@ -16,6 +16,17 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildGuestLobbyMessageChangedEvtMsg(meetingId: String, userId: String, message: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(GuestLobbyMessageChangedEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(GuestLobbyMessageChangedEvtMsg.NAME, meetingId, userId)
+
+    val body = GuestLobbyMessageChangedEvtMsgBody(message)
+    val event = GuestLobbyMessageChangedEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildGuestApprovedEvtMsg(meetingId: String, userId: String, status: String, approvedBy: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
     val envelope = BbbCoreEnvelope(GuestApprovedEvtMsg.NAME, routing)
