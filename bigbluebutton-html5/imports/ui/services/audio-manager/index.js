@@ -796,7 +796,7 @@ class AudioManager {
         }
         translatorBridgechangeInputDeviceIdPromise.then(() => this.translatorBridge.joinAudio(callOptions, callback));
       }
-      return navigator.mediaDevices.getUserMedia({ audio: { deviceId: { exact: this.inputDeviceId } }, video: false }).then(success.bind(this));
+      return navigator.mediaDevices.getUserMedia({ audio: { deviceId: this.inputDeviceId }, video: false }).then(success.bind(this));
     }else{
       let mainaudio = document.getElementById("remote-media")
       mainaudio.vol = 1

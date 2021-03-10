@@ -1,5 +1,7 @@
 # Changelog of Fairblue development
-## Next
+##next
+## 10032021
+* Fix bug when selecting interpreter language in firefox
 ## 07032021
 * Fix bug, where translator is muted if they change translation language
 * changed description of interpreter buttons to more pc words
