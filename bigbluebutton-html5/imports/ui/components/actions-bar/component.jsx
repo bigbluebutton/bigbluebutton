@@ -235,6 +235,7 @@ class ActionsBar extends PureComponent {
       hasBreakouts,
       isTranslatorTalking,
       isTranslatorMuted,
+      hasLanguages,
     } = this.props;
 
     const amIAsTranslatorMuted = isTranslatorMuted();
