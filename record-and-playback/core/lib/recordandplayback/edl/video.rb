@@ -259,13 +259,9 @@ module BigBlueButton
             warn 'Skipping 0-length edl entry'
             next
           end
-          if video_info(segment).empty?       
-            warn 'Skipping edl entry with no video stream'
-            next
-          end
           segment = "#{output_basename}_#{i}.#{WF_EXT}"
           composite_cut(segment, edl[i], layout, videoinfo)
-          concat += [segment]
+          concat += [segment] unless video_info(segment).empty?
         end
 
         concat_file = "#{output_basename}.txt"
