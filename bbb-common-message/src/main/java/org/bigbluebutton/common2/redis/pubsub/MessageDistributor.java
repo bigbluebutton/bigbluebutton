@@ -12,8 +12,8 @@ public class MessageDistributor {
 
     public void setMessageHandler(ReceivedMessageHandler handler) {
         this.handler = handler;
-        if (handler != null) {
-            handler.setMessageDistributor(this);
+        if (this.handler != null) {
+            this.handler.setMessageDistributor(this);
         }
     }
 

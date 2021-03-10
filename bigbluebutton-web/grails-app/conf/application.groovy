@@ -10,7 +10,9 @@
 // if (System.properties["${appName}.config.location"]) {
 //    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
 // }
-grails.config.locations = [ "classpath:bigbluebutton.properties"]
+// Moved to resources.xml
+// grails.config.locations = [ "classpath:bigbluebutton.properties"]
+// @todo: TO REVIEW
 if (new File("/etc/bigbluebutton/bbb-web.properties").canRead()) {
     grails.config.locations << "file:/etc/bigbluebutton/bbb-web.properties"
 }

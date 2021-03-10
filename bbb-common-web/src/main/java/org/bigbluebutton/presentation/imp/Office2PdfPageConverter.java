@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sun.org.apache.xerces.internal.impl.xs.opti.DefaultDocument;
 import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.jodconverter.core.document.DefaultDocumentFormatRegistry;

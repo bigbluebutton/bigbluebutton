@@ -1,6 +1,6 @@
 import org.bigbluebutton.build._
 
-version := "0.0.3-SNAPSHOT"
+version := "0.0.4-SNAPSHOT"
 
 val compileSettings = Seq(
   organization := "org.bigbluebutton",
@@ -11,7 +11,7 @@ val compileSettings = Seq(
     "-Xlint",
     "-Ywarn-dead-code",
     "-language:_",
-    "-target:jvm-1.8",
+    "-target:jvm-11",
     "-encoding", "UTF-8"
   ),
   javacOptions ++= List(
@@ -20,13 +20,14 @@ val compileSettings = Seq(
   )
 )
 
+resolvers += Resolver.sonatypeRepo("releases")
+
 // We want to have our jar files in lib_managed dir.
 // This way we'll have the right path when we import
 // into eclipse.
 retrieveManaged := true
 
 testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", "junitxml")
-
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
 Seq(Revolver.settings: _*)
@@ -35,6 +36,9 @@ lazy val commonWeb = (project in file(".")).settings(name := "bbb-common-web", l
 // See https://github.com/scala-ide/scalariform
 // Config file is in ./.scalariform.conf
 scalariformAutoformat := true
+
+// Check https://github.com/albuch/sbt-dependency-check/blob/master/README.md
+DependencyCheckPlugin.autoImport.dependencyCheckAssemblyAnalyzerEnabled := Option(false)
 
 //-----------
 // Packaging
@@ -50,6 +54,8 @@ scalariformAutoformat := true
 // Build pure Java lib (i.e. without scala)
 // Do not append Scala versions to the generated artifacts
 crossPaths := false
+
+scalaVersion := "2.13.4"
 
 // This forbids including Scala related libraries into the dependency
 autoScalaLibrary := false

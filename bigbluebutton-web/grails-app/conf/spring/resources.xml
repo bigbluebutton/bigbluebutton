@@ -26,6 +26,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         http://www.springframework.org/schema/util 
         http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreResourceNotFound">
+            <value>false</value>
+        </property>
+        <property name="locations">
+            <list>
+                <value>classpath:bigbluebutton.properties</value>
+            </list>
+        </property>
+    </bean>
 
     <bean id="characterEncodingFilter" class="org.springframework.web.filter.CharacterEncodingFilter">
         <property name="encoding">

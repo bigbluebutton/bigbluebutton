@@ -8,10 +8,10 @@ Upgrade Gradle and Grails
 curl -s "https://get.sdkman.io" | bash
 
 # Install Gradle
-sdk install gradle 5.1.1
+sdk install gradle 6.8.3
 
 # Install Grails
-sdk install grails 3.3.9
+sdk install grails 4.08
 ```
 
 ### Development
