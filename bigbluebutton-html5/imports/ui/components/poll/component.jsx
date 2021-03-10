@@ -153,6 +153,7 @@ const intlMessages = defineMessages({
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 const MAX_CUSTOM_FIELDS = Meteor.settings.public.poll.max_custom;
 const MAX_INPUT_CHARS = 45;
+const FILE_DRAG_AND_DROP_ENABLED = Meteor.settings.public.poll.allowDragAndDropFile;
 
 const validateInput = (i) => {
   let _input = i;
@@ -535,7 +536,7 @@ class Poll extends Component {
                         }}
                       />
                       {
-                        this.renderDragDrop()
+                        FILE_DRAG_AND_DROP_ENABLED && this.renderDragDrop()
                       }
                     </div>
                     )
