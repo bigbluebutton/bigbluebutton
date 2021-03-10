@@ -21,5 +21,6 @@ export default withTracker((params) => {
     isActive,
     setTextShapeValue: TextShapeService.setTextShapeValue,
     resetTextShapeActiveId: TextShapeService.resetTextShapeActiveId,
+    setTextShapeOffset: TextShapeService.setTextShapeOffset,
   };
 })(TextDrawContainer);
