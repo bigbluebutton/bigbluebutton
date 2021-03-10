@@ -22,13 +22,12 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
 
     val regUser = RegisteredUsers.getRegisteredUserWithToken(msg.body.authToken, msg.body.userId,
       liveMeeting.registeredUsers)
-
     regUser match {
       case Some(u) =>
         // Check if banned user is rejoining.
         // Fail validation if ejected user is rejoining.
         // ralam april 21, 2020
-        if (u.guestStatus == GuestStatus.ALLOW && !u.banned) {
+        if (u.guestStatus == GuestStatus.ALLOW && !u.banned && !u.loggedOut) {
           userValidated(u, state)
         } else {
           if (u.banned) {
@@ -78,7 +77,7 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
       reasonCode:      String,
       state:           MeetingState2x
   ): MeetingState2x = {
-    val event = MsgBuilder.buildValidateAuthTokenRespMsg(meetingId, userId, authToken, valid, waitForApproval, 0, 0)
+    val event = MsgBuilder.buildValidateAuthTokenRespMsg(meetingId, userId, authToken, valid, waitForApproval, 0, 0, Option.apply(reason))
     outGW.send(event)
 
     // send a system message to force disconnection
@@ -89,8 +88,8 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
   }
 
   def sendValidateAuthTokenRespMsg(meetingId: String, userId: String, authToken: String,
-                                   valid: Boolean, waitForApproval: Boolean, registeredOn: Long, authTokenValidatedOn: Long): Unit = {
-    val event = MsgBuilder.buildValidateAuthTokenRespMsg(meetingId, userId, authToken, valid, waitForApproval, registeredOn, authTokenValidatedOn)
+                                   valid: Boolean, waitForApproval: Boolean, registeredOn: Long, authTokenValidatedOn: Long, reason: Option[String] = None): Unit = {
+    val event = MsgBuilder.buildValidateAuthTokenRespMsg(meetingId, userId, authToken, valid, waitForApproval, registeredOn, authTokenValidatedOn, reason)
     outGW.send(event)
   }
 
