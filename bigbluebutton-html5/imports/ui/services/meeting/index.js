@@ -31,6 +31,18 @@ class MeetingService {
         return meeting?.languages ?? [];
     }
 
+    hasLanguages() {
+        let hasLanguages = false;
+        const languages = this.getLanguagesSync();
+        if (Array.isArray(languages)) {
+            if (languages.length > 0) {
+                hasLanguages = true;
+            }
+        }
+
+        return hasLanguages;
+    }
+
     clearLanguages() {
         this.setLanguages([]);
     }
