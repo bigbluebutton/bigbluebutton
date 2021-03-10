@@ -6,5 +6,5 @@
 ESL_PASSWORD=$(xmlstarlet sel -t -m 'configuration/settings/param[@name="password"]' -v @value /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml)
 
 if [ -n "$ESL_PASSWORD" ]; then
-    sed -i "s/ClueCon/$ESL_PASSWORD/g" /usr/share/bbb-fsesl-akka/conf/application.conf
+    sed -i "s/ClueCon/$ESL_PASSWORD/g" /etc/bigbluebutton/bbb-fsesl-akka.conf
 fi
