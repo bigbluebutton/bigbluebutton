@@ -59,7 +59,8 @@ case class ValidateAuthTokenRespMsg(
     header: BbbClientMsgHeader,
     body:   ValidateAuthTokenRespMsgBody
 ) extends BbbCoreMsg
-case class ValidateAuthTokenRespMsgBody(userId: String, authToken: String, valid: Boolean, waitForApproval: Boolean, registeredOn: Long, authTokenValidatedOn: Long)
+case class ValidateAuthTokenRespMsgBody(userId: String, authToken: String, valid: Boolean, waitForApproval: Boolean,
+                                        registeredOn: Long, authTokenValidatedOn: Long, reason: Option[String])
 
 object UserLeftMeetingEvtMsg {
   val NAME = "UserLeftMeetingEvtMsg"

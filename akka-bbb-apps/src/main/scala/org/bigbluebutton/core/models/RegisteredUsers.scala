@@ -139,6 +139,13 @@ object RegisteredUsers {
     users.save(u)
     u
   }
+
+  def setUserLoggedOutFlag(users: RegisteredUsers, user: RegisteredUser): RegisteredUser = {
+    val u = user.copy(loggedOut = true)
+    users.save(u)
+    u
+  }
+
 }
 
 class RegisteredUsers {
