@@ -161,11 +161,13 @@ class AudioModal extends Component {
   componentDidMount() {
     const {
       forceListenOnlyAttendee,
+      joinFullAudioImmediately,
+      listenOnlyMode,
       audioLocked,
     } = this.props;
 
     if (forceListenOnlyAttendee) return this.handleJoinListenOnly();
-    if (audioLocked) return this.handleJoinMicrophone();
+    if ((joinFullAudioImmediately && !listenOnlyMode) || audioLocked) return this.handleJoinMicrophone();
   }
 
   componentDidUpdate(prevProps) {
