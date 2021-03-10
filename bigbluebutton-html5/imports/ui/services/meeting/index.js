@@ -39,6 +39,14 @@ class MeetingService {
         return meetingLanguages;
     }
 
+    getLanguagesSync() {
+        let meeting = Meetings.findOne(
+            { meetingId: Auth.meetingID },
+            { fields: { 'languages': 1 } });
+
+        return meeting?.languages ?? [];
+    }
+
     clearLanguages() {
         this.setLanguages([]);
     }
