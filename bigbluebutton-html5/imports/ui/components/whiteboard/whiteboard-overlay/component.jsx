@@ -173,6 +173,8 @@ export default class WhiteboardOverlay extends Component {
           actions={actions}
           drawSettings={drawSettings}
           whiteboardId={whiteboardId}
+          physicalSlideWidth={physicalSlideWidth}
+          physicalSlideHeight={physicalSlideHeight}
         />
       );
     } if (tool === 'pencil') {
