@@ -310,22 +310,27 @@ class ActionsBar extends PureComponent {
                   </div>
               ):null
           }
-          <div id={"translationButton"}>
-            <Button
-              customIcon={
-                <img
-                  className="icon-bbb-translation"
-                  src='/html5client/svgs/bbb_translations_icon.svg'
+          {hasLanguages
+            ? (
+              <div id={"translationButton"}>
+                <Button
+                  customIcon={
+                    <img
+                      className="icon-bbb-translation"
+                      src='/html5client/svgs/bbb_translations_icon.svg'
+                    />
+                  }
+                  color='primary'
+                  label={intl.formatMessage(intlMessages.selectTranslationLabel)}
+                  circle
+                  hideLabel
+                  size="lg"
+                  onClick={this.toggleTranslationSelection.bind(this)}
                 />
-              }
-              color='primary'
-              label={intl.formatMessage(intlMessages.selectTranslationLabel)}
-              circle
-              hideLabel
-              size="lg"
-              onClick={this.toggleTranslationSelection.bind(this)}
-            />
-          </div>
+              </div>
+            )
+            : null
+          }
           { amIModerator ?
               (
                   <Button
