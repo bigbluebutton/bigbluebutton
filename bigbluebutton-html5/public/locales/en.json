@@ -133,6 +133,7 @@
     "app.meeting.ended": "This session has ended",
     "app.meeting.meetingTimeRemaining": "Meeting time remaining: {0}",
     "app.meeting.meetingTimeHasEnded": "Time ended. Meeting will close soon",
+    "app.meeting.endedByUserMessage": "The meeting was ended by {0}",
     "app.meeting.endedMessage": "You will be forwarded back to the home screen",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "Meeting is closing in one minute.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "Meeting is closing in {0} minutes.",
