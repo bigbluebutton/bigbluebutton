@@ -59,10 +59,22 @@
       }
   }
   </style>
-  
+
   <script type="text/javascript">
     function updateMessage(message) {
       document.querySelector('#content > p').innerHTML = message;
+    }
+
+    var lobbyMessage = '';
+    function updateLobbyMessage(message) {
+      if (message !== lobbyMessage) {
+        lobbyMessage = message;
+        if (lobbyMessage.length !== 0) {
+          updateMessage(lobbyMessage);
+        } else {
+          updateMessage('Please wait for a moderator to approve you joining the meeting.');
+        }
+      }
     }
 
     function findSessionToken() {
@@ -75,7 +87,7 @@
     };
 
     function fetchGuestWait(sessionToken) {
-      const GUEST_WAIT_ENDPOINT = '/bigbluebutton/api/guestWait';      
+      const GUEST_WAIT_ENDPOINT = '/bigbluebutton/api/guestWait';
       const urlTest = new URL(`${window.location.origin}${GUEST_WAIT_ENDPOINT}`);
       const concatedParams = sessionToken.concat('&redirect=false');
       urlTest.search = concatedParams;
@@ -95,7 +107,6 @@
         fetchGuestWait(token)
         .then(async (resp) => await resp.json())
         .then((data) => {
-          console.log("data=" + JSON.stringify(data));
           var status = data.response.guestStatus;
 
           if (REDIRECT_STATUSES.includes(status)) {
@@ -103,6 +114,8 @@
             window.location = data.response.url;
             return;
           }
+
+          updateLobbyMessage(data.response.lobbyMessage);
 
           return pollGuestStatus(token, attempt + 1, limit, everyMs);
         });
