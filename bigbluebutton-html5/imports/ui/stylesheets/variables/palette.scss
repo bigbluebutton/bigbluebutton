@@ -9,7 +9,7 @@
   --color-gray-darkest: #111111;
   --color-gray-lighter: #a7b3bd;
   --color-gray-lightest: #d4d9df;
-
+  
   --color-blue-light: #54a1f3;
   --color-blue-lighter: #92BCEA;
   --color-blue-lightest: #E4ECF2;
@@ -19,7 +19,7 @@
   --color-danger: #DF2721;
   --color-warning: purple;
 
-  --color-background: var(--color-gray-dark);
+  --color-background: var(--color-standard-background);
 
   --color-text: var(--color-gray);
   --color-heading: var(--color-gray-dark);
@@ -30,4 +30,38 @@
   --color-gray-label: var(--color-gray);
 
   --color-transparent: #ff000000;
+
+  --color-chat: var(--color-white);
+  --color-input:var(--color-white);
+  --color-theme-text:var(--color-text);
+  --color-standard-background:#06172a;
+  --color-chat-thumbnail:var(--color-gray-light);
+  --color-small-title:var(--color-gray-light);
+  --color-chat-name-main:var(--color-gray-dark);
+  --list-item-hover: #dce4ed;
+  --color-background-scrollablelist: var(--color-white);
+  --color-chat-box:var(--list-item-bg-hover);
+  --color-userlistPad: var(--color-off-white);
+  --color-background-messageList: var(--color-white);
+  --color-hide-chat:var(--color-white);
+  --background-icon: transparent;
+  --color-icon: var(--color-gray-dark);
+  --color-btn-hide-chat:var(--color-dark-grey);
+  --color-btn-hide-text:var(--color-black);
+  --color-background-listItem: var(--color-off-white);
+  
+  --color-darkmode-background: #2b2b2b;
+  --color-darkmode-chat: #313335;
+  --systemMessage-darkmode-background-color: var(--color-white);
+  --systemMessage-darkmode-color: var(--color-black);
+  --user-list-darktheme: var(--color-off-white);
+  --color-darkmode-input:#45494a;
+  --color-darkmode-text:var(--color-white);
+  --list-item-darkmode-hover: #00417a;
+  --color-background-darkmode-scrollablelist: var(--color-darkmode-background);
+  --color-darkmode-userlistPad: #444;
+  --color-background-darkmode-messageList: var(--color-darkmode-chat);
+  --background-darkmode-icon: #00417a;
+  --color-darkmode-icon: var(--color-white);
+  --color-background-darkmode-listItem: var(--user-list-darktheme);
 }

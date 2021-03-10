@@ -64,14 +64,14 @@
 
   &:hover {
     @include highContrastOutline();
-    background-color: var(--list-item-bg-hover);
+    background-color: var(--list-item-hover);
   }
 
   &:active,
   &:focus {
     @include highContrastOutline();
     outline-style: solid;
-    background-color: var(--list-item-bg-hover);
+    background-color: var(--list-item-hover);
     box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
   }
 }
@@ -83,7 +83,7 @@
 .userList {
   @extend %flex-column;
   justify-content: flex-start;
-  background-color: var(--user-list-bg);
+  background-color: var(--user-list-darktheme);
   color: var(--user-list-text);
   height: 100%;
 }
@@ -138,7 +138,7 @@
   text-transform: uppercase;
   padding: 0 var(--sm-padding-x);
   margin: 0 0 (var(--lg-padding-x) / 2) 0;
-  color: var(--color-gray);
+  color: var(--color-small-title);
 }
 
 .userListColumn {

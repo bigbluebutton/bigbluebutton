@@ -16,7 +16,7 @@
 
 
   i {
-    color: var(--color-gray-dark) !important;
+    color: var(--color-icon) !important;
     top: var(--icon-offset);
     left: var(--icon-offset);
   }
@@ -27,4 +27,17 @@
       background-color: transparent !important;
     }
   }
+}
+
+.optionsButton{
+    i {
+      color: var(--color-icon) !important;
+      background-color: transparent !important;
+    }
+    span {
+      &:hover,
+      &:focus {
+        background-color: var(--background-icon) !important;
+      }
+    }
 }

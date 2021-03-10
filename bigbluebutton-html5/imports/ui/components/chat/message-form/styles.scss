@@ -52,10 +52,10 @@
   @include inputFocus(var(--color-blue-light));
 
   flex: 1;
-  background: #fff;
+  background: var(--color-input);
   background-clip: padding-box;
   margin: 0;
-  color: var(--color-text);
+  color: var(--color-theme-text);
   -webkit-appearance: none;
   padding: calc(var(--sm-padding-y) * 2.5) calc(var(--sm-padding-x) * 1.25);
   resize: none;

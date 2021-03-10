@@ -63,6 +63,7 @@
 .content, .noPanelContent {
   @extend %full-page;
   order: 3;
+  background-color: var(--color-background);
 
   &:before,
   &:after {
@@ -96,6 +97,7 @@
 }
 
 .content{
+  background-color:var(--color-background);
   margin:0 0 0 var(--panel-margin-left);
 
   [dir="rtl"] & {
@@ -129,7 +131,7 @@
 }
 
 .userlistPad {
-  background-color: var(--color-off-white);
+  background-color: var(--color-userlistPad);
   width: var(--userlist-handle-width);
 }
 
@@ -165,7 +167,7 @@
 }
 
 .poll {
-  background-color: var(--color-white);
+  background-color: var(--color-chat);
   min-width: var(--poll-pane-min-width);
   padding: 1rem;
 }

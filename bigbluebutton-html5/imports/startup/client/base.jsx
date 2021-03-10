@@ -226,6 +226,7 @@ const BaseContainer = withTracker(() => {
     animations,
     userJoinAudioAlerts,
     userJoinPushAlerts,
+    darkMode,
   } = Settings.application;
 
   const {

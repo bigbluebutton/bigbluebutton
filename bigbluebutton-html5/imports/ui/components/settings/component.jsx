@@ -69,6 +69,7 @@ const propTypes = {
   application: PropTypes.shape({
     chatAudioAlerts: PropTypes.bool,
     chatPushAlerts: PropTypes.bool,
+    darkMode: PropTypes.bool,
     userJoinAudioAlerts: PropTypes.bool,
     fallbackLocale: PropTypes.string,
     fontSize: PropTypes.string,
@@ -235,6 +236,5 @@ class Settings extends Component {
     );
   }
 }
-
 Settings.propTypes = propTypes;
 export default withModalMounter(injectIntl(Settings));
