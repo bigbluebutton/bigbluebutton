@@ -64,6 +64,45 @@ class Base extends Component {
     }
   }
 
+  /**
+   * Callback for handling changes on users collection.
+   * Depending on what are the changes, we show the alerts.
+   * for more information see:
+   *  https://docs.meteor.com/api/collections.html#Mongo-Cursor-observeChanges
+   */
+  static handleUserJoinAlert(id, userFields) {
+    const subscriptionsReady = Session.get('subscriptionsReady');
+
+    if (!subscriptionsReady || !userFields.name) return;
+
+    const {
+      userJoinAudioAlerts,
+      userJoinPushAlerts,
+    } = Settings.application;
+
+    if (!userJoinAudioAlerts && !userJoinPushAlerts) return;
+
+    if (userJoinAudioAlerts) {
+      AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
+        + Meteor.settings.public.app.basename}`
+        + '/resources/sounds/userJoin.mp3');
+    }
+
+    if (userJoinPushAlerts) {
+      notify(
+        <FormattedMessage
+          id="app.notification.userJoinPushAlert"
+          description="Notification for a user joins the meeting"
+          values={{
+            0: userFields.name,
+          }}
+        />,
+        'info',
+        'user',
+      );
+    }
+  }
+
   constructor(props) {
     super(props);
 
@@ -96,38 +135,8 @@ class Base extends Component {
     }, { fields: { name: 1, userId: 1 } });
 
     users.observeChanges({
-      changed: (id, userFields) => {
-        const subscriptionsReady = Session.get('subscriptionsReady');
-
-        if (!subscriptionsReady || !userFields.name) return;
-
-        const {
-          userJoinAudioAlerts,
-          userJoinPushAlerts,
-        } = Settings.application;
-
-        if (!userJoinAudioAlerts && !userJoinPushAlerts) return;
-
-        if (userJoinAudioAlerts) {
-          AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-            + Meteor.settings.public.app.basename}`
-            + '/resources/sounds/userJoin.mp3');
-        }
-
-        if (userJoinPushAlerts) {
-          notify(
-            <FormattedMessage
-              id="app.notification.userJoinPushAlert"
-              description="Notification for a user joins the meeting"
-              values={{
-                0: userFields.name,
-              }}
-            />,
-            'info',
-            'user',
-          );
-        }
-      },
+      added: Base.handleUserJoinAlert,
+      changed: Base.handleUserJoinAlert,
     });
   }
 
