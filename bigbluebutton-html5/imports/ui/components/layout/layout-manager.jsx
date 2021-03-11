@@ -186,6 +186,14 @@ class LayoutManager extends Component {
     );
     layoutContextDispatch(
       {
+        type: 'setCaptionsSize',
+        value: {
+          width: layoutSizes.captionsSize.width,
+        },
+      },
+    );
+    layoutContextDispatch(
+      {
         type: 'setBreakoutRoomSize',
         value: {
           width: layoutSizes.breakoutRoomSize.width,
@@ -233,6 +241,9 @@ class LayoutManager extends Component {
       },
       noteSize: {
         width: layoutSizes.noteSize.width,
+      },
+      captionsSize: {
+        width: layoutSizes.captionsSize.width,
       },
       breakoutRoomSize: {
         width: layoutSizes.breakoutRoomSize.width,
@@ -295,6 +306,7 @@ class LayoutManager extends Component {
       chatSize: chatSizeContext,
       pollSize: pollSizeContext,
       noteSize: noteSizeContext,
+      captionsSize: captionsSizeContext,
       breakoutRoomSize: breakoutRoomSizeContext,
     } = layoutContextState;
     const openPanel = Session.get('openPanel');
@@ -304,6 +316,7 @@ class LayoutManager extends Component {
     let storageChatWidth;
     let storagePollWidth;
     let storageNoteWidth;
+    let storageCaptionsWidth;
     let storageBreakoutRoomWidth;
 
     if (storageLData) {
@@ -311,6 +324,7 @@ class LayoutManager extends Component {
       storageChatWidth = storageLData.chatSize?.width;
       storagePollWidth = storageLData.pollSize?.width;
       storageNoteWidth = storageLData.noteSize?.width;
+      storageCaptionsWidth = storageLData.captionsSize?.width;
       storageBreakoutRoomWidth = storageLData.breakoutRoomSize?.width;
     }
 
@@ -318,6 +332,7 @@ class LayoutManager extends Component {
     let newChatSize;
     let newPollSize;
     let newNoteSize;
+    let newCaptionsSize;
     let newBreakoutRoomSize;
 
     if (panelChanged && userListSizeContext.width !== 0) {
@@ -368,6 +383,18 @@ class LayoutManager extends Component {
       };
     }
 
+    if (panelChanged && captionsSizeContext.width !== 0) {
+      newCaptionsSize = captionsSizeContext;
+    } else if (!storageCaptionsWidth) {
+      newCaptionsSize = {
+        width: min(max((windowWidth() * 0.2), NOTE_MIN_WIDTH), NOTE_MAX_WIDTH),
+      };
+    } else {
+      newCaptionsSize = {
+        width: storageCaptionsWidth,
+      };
+    }
+
     if (panelChanged && breakoutRoomSizeContext.width !== 0) {
       newBreakoutRoomSize = breakoutRoomSizeContext;
     } else if (!storageBreakoutRoomWidth) {
@@ -394,6 +421,9 @@ class LayoutManager extends Component {
         newNoteSize = {
           width: 0,
         };
+        newCaptionsSize = {
+          width: 0,
+        };
         break;
       }
       case 'poll': {
@@ -404,6 +434,9 @@ class LayoutManager extends Component {
           width: 0,
         };
         newBreakoutRoomSize = {
+          width: 0,
+        };
+        newCaptionsSize = {
           width: 0,
         };
         break;
@@ -418,6 +451,24 @@ class LayoutManager extends Component {
         newBreakoutRoomSize = {
           width: 0,
         };
+        newCaptionsSize = {
+          width: 0,
+        };
+        break;
+      }
+      case 'captions': {
+        newChatSize = {
+          width: 0,
+        };
+        newPollSize = {
+          width: 0,
+        };
+        newBreakoutRoomSize = {
+          width: 0,
+        };
+        newNoteSize = {
+          width: 0,
+        };
         break;
       }
       case 'chat': {
@@ -430,6 +481,9 @@ class LayoutManager extends Component {
         newNoteSize = {
           width: 0,
         };
+        newCaptionsSize = {
+          width: 0,
+        };
         break;
       }
       case 'breakoutroom': {
@@ -440,6 +494,9 @@ class LayoutManager extends Component {
           width: 0,
         };
         newNoteSize = {
+          width: 0,
+        };
+        newCaptionsSize = {
           width: 0,
         };
         break;
@@ -460,6 +517,9 @@ class LayoutManager extends Component {
         newNoteSize = {
           width: 0,
         };
+        newCaptionsSize = {
+          width: 0,
+        };
         break;
       }
       default: {
@@ -472,6 +532,7 @@ class LayoutManager extends Component {
       newChatSize,
       newPollSize,
       newNoteSize,
+      newCaptionsSize,
       newBreakoutRoomSize,
     };
   }
@@ -600,6 +661,7 @@ class LayoutManager extends Component {
       newChatSize,
       newPollSize,
       newNoteSize,
+      newCaptionsSize,
       newBreakoutRoomSize,
     } = panelsSize;
 
@@ -615,6 +677,8 @@ class LayoutManager extends Component {
       secondPanel = newPollSize;
     } else if (newNoteSize.width > 0) {
       secondPanel = newNoteSize;
+    } else if (newCaptionsSize.width > 0) {
+      secondPanel = newCaptionsSize;
     } else if (newBreakoutRoomSize.width > 0) {
       secondPanel = newBreakoutRoomSize;
     }
@@ -667,6 +731,7 @@ class LayoutManager extends Component {
       chatSize: newChatSize,
       pollSize: newPollSize,
       noteSize: newNoteSize,
+      captionsSize: newCaptionsSize,
       breakoutRoomSize: newBreakoutRoomSize,
       webcamsAreaSize: newWebcamsAreaSize,
       presentationAreaSize: newPresentationAreaSize,
