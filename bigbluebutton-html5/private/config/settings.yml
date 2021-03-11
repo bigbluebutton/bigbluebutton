@@ -291,6 +291,7 @@ public:
   poll:
     enabled: true
     max_custom: 5
+    allowDragAndDropFile: false
   captions:
     enabled: true
     enableDictation: false
