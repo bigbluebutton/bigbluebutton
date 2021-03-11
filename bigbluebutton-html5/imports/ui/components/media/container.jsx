@@ -115,6 +115,7 @@ export default withLayoutConsumer(withModalMounter(withTracker(() => {
   const data = {
     children: <DefaultContent {...{ autoSwapLayout, hidePresentation }} />,
     audioModalIsOpen: Session.get('audioModalIsOpen'),
+    isMeteorConnected: Meteor.status().connected,
   };
 
   if (MediaService.shouldShowWhiteboard() && !hidePresentation) {
