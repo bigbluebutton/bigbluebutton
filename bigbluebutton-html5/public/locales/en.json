@@ -311,6 +311,7 @@
     "app.endMeeting.yesLabel": "Yes",
     "app.endMeeting.noLabel": "No",
     "app.about.title": "About",
+    "app.about.serververs": "Server version:",
     "app.about.version": "Client build:",
     "app.about.copyright": "Copyright:",
     "app.about.confirmLabel": "OK",
