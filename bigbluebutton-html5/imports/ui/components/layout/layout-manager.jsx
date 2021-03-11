@@ -307,11 +307,11 @@ class LayoutManager extends Component {
     let storageBreakoutRoomWidth;
 
     if (storageLData) {
-      storageUserListWidth = storageLData.userListSize.width;
-      storageChatWidth = storageLData.chatSize.width;
-      storagePollWidth = storageLData.pollSize.width;
-      storageNoteWidth = storageLData.noteSize.width;
-      storageBreakoutRoomWidth = storageLData.breakoutRoomSize.width;
+      storageUserListWidth = storageLData.userListSize?.width;
+      storageChatWidth = storageLData.chatSize?.width;
+      storagePollWidth = storageLData.pollSize?.width;
+      storageNoteWidth = storageLData.noteSize?.width;
+      storageBreakoutRoomWidth = storageLData.breakoutRoomSize?.width;
     }
 
     let newUserListSize;

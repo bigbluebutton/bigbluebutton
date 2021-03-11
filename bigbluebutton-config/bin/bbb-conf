@@ -1304,6 +1304,7 @@ if [ $CHECK ]; then
     echo "                         CPU cores: $NCPU"
 
     echo
+    echo "$BBB_WEB_ETC_CONFIG (override for bbb-web)"
     echo "$BBB_WEB_CONFIG (bbb-web)"
     echo "       bigbluebutton.web.serverURL: $(get_bbb_web_config_value bigbluebutton.web.serverURL)"
     echo "                defaultGuestPolicy: $(get_bbb_web_config_value defaultGuestPolicy)"
@@ -1644,9 +1645,7 @@ if [ -n "$HOST" ]; then
     fi
 
     if [ -f $HTML5_CONFIG ]; then
-        WS=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
-
-        yq w -i $HTML5_CONFIG public.kurento.wsUrl "$WS/bbb-webrtc-sfu"
+        yq w -i $HTML5_CONFIG public.kurento.wsUrl "wss://$HOST/bbb-webrtc-sfu"
         yq w -i $HTML5_CONFIG public.note.url      "$PROTOCOL://$HOST/pad"
         chown meteor:meteor $HTML5_CONFIG
 

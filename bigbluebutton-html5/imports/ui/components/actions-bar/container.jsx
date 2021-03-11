@@ -25,6 +25,7 @@ import MediaService, {
 
 const ActionsBarContainer = props => <ActionsBar {...props} />;
 const POLLING_ENABLED = Meteor.settings.public.poll.enabled;
+const PRESENTATION_DISABLED = Meteor.settings.public.layout.hidePresentation;
 
 export default withTracker(() => ({
   amIPresenter: Service.amIPresenter(),
@@ -46,6 +47,7 @@ export default withTracker(() => ({
   isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
   isMeteorConnected: Meteor.status().connected,
   isPollingEnabled: POLLING_ENABLED,
+  isPresentationDisabled: PRESENTATION_DISABLED,
   isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
     { fields: {} }),
   allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,

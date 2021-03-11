@@ -186,6 +186,18 @@
   text-overflow: ellipsis;
 }
 
+.lobbyMessage {
+  border-bottom: 1px solid var(--color-gray-lightest);
+
+  p {
+    background-color: var(--color-off-white);
+    box-sizing: border-box;
+    color: var(--color-gray);
+    padding: 1rem;
+    text-align: center;
+  }
+}
+
 .rememberContainer {
   margin: 1rem 1rem;
   height: 2rem;

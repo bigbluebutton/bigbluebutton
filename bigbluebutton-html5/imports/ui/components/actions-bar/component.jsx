@@ -30,6 +30,7 @@ class ActionsBar extends PureComponent {
       isCaptionsAvailable,
       isMeteorConnected,
       isPollingEnabled,
+      isPresentationDisabled,
       isThereCurrentPresentation,
       allowExternalVideo,
     } = this.props;
@@ -87,7 +88,7 @@ class ActionsBar extends PureComponent {
           />
         </div>
         <div className={styles.right}>
-          {isLayoutSwapped
+          {isLayoutSwapped && !isPresentationDisabled
             ? (
               <PresentationOptionsContainer
                 toggleSwapLayout={toggleSwapLayout}
