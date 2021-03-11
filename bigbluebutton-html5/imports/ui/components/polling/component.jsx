@@ -50,6 +50,7 @@ class Polling extends Component {
 
     this.play = this.play.bind(this);
     this.handleUpdateResponseInput = this.handleUpdateResponseInput.bind(this);
+    this.handleMessageKeyDown = this.handleMessageKeyDown.bind(this);
   }
 
   componentDidMount() {
@@ -66,6 +67,21 @@ class Polling extends Component {
   handleUpdateResponseInput(e) {
     this.responseInput.value = validateInput(e.target.value);
     this.setState({ typedAns: this.responseInput.value });
+  }
+
+  handleMessageKeyDown(e) {
+    const {
+      poll,
+      handleTypedVote,
+    } = this.props;
+
+    const {
+      typedAns,
+    } = this.state;
+
+    if (e.keyCode === 13) {
+      handleTypedVote(poll.pollId, typedAns);
+    }
   }
 
   render() {
@@ -170,6 +186,9 @@ class Polling extends Component {
                 onChange={(e) => {
                   this.handleUpdateResponseInput(e);
                 }}
+                onKeyDown={(e) => {
+                  this.handleMessageKeyDown(e);
+                }}
                 type="text"
                 className={styles.typedResponseInput}
                 placeholder={intl.formatMessage(intlMessages.responsePlaceholder)}
@@ -203,6 +222,7 @@ Polling.propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   handleVote: PropTypes.func.isRequired,
+  handleTypedVote: PropTypes.func.isRequired,
   poll: PropTypes.shape({
     pollId: PropTypes.string.isRequired,
     answers: PropTypes.arrayOf(PropTypes.shape({

@@ -5,7 +5,7 @@ import com.softwaremill.quicklens._
 object RegisteredUsers {
   def create(userId: String, extId: String, name: String, roles: String,
              token: String, avatar: String, guest: Boolean, authenticated: Boolean,
-             guestStatus: String): RegisteredUser = {
+             guestStatus: String, loggedOut: Boolean): RegisteredUser = {
     new RegisteredUser(
       userId,
       extId,
@@ -20,7 +20,8 @@ object RegisteredUsers {
       0,
       false,
       false,
-      false
+      false,
+      loggedOut
     )
   }
 
@@ -138,6 +139,13 @@ object RegisteredUsers {
     users.save(u)
     u
   }
+
+  def setUserLoggedOutFlag(users: RegisteredUsers, user: RegisteredUser): RegisteredUser = {
+    val u = user.copy(loggedOut = true)
+    users.save(u)
+    u
+  }
+
 }
 
 class RegisteredUsers {
@@ -173,6 +181,7 @@ case class RegisteredUser(
     lastAuthTokenValidatedOn: Long,
     joined:                   Boolean,
     markAsJoinTimedOut:       Boolean,
-    banned:                   Boolean
+    banned:                   Boolean,
+    loggedOut:                Boolean
 )
 
