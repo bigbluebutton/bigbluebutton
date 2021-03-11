@@ -95,6 +95,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SetGuestPolicyCmdMsg](envelope, jsonNode)
       case GetGuestPolicyReqMsg.NAME =>
         routeGenericMsg[GetGuestPolicyReqMsg](envelope, jsonNode)
+      case SetGuestLobbyMessageCmdMsg.NAME =>
+        routeGenericMsg[SetGuestLobbyMessageCmdMsg](envelope, jsonNode)
 
       // Users
       case GetUsersMeetingReqMsg.NAME =>

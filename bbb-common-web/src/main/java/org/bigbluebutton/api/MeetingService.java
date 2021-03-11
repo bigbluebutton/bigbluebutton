@@ -61,6 +61,7 @@ import org.bigbluebutton.api.messaging.messages.CreateBreakoutRoom;
 import org.bigbluebutton.api.messaging.messages.CreateMeeting;
 import org.bigbluebutton.api.messaging.messages.EndMeeting;
 import org.bigbluebutton.api.messaging.messages.GuestPolicyChanged;
+import org.bigbluebutton.api.messaging.messages.GuestLobbyMessageChanged;
 import org.bigbluebutton.api.messaging.messages.GuestStatusChangedEventMsg;
 import org.bigbluebutton.api.messaging.messages.GuestsStatus;
 import org.bigbluebutton.api.messaging.messages.IMessage;
@@ -1101,6 +1102,8 @@ public class MeetingService implements MessageListener {
           processGuestStatusChangedEventMsg((GuestStatusChangedEventMsg) message);
         } else if (message instanceof GuestPolicyChanged) {
           processGuestPolicyChanged((GuestPolicyChanged) message);
+        } else if (message instanceof GuestLobbyMessageChanged) {
+          processGuestLobbyMessageChanged((GuestLobbyMessageChanged) message);
         } else if (message instanceof RecordChapterBreak) {
           processRecordingChapterBreak((RecordChapterBreak) message);
         } else if (message instanceof AddPad) {
@@ -1122,6 +1125,13 @@ public class MeetingService implements MessageListener {
     Meeting m = getMeeting(msg.meetingId);
     if (m != null) {
       m.setGuestPolicy(msg.policy);
+    }
+  }
+
+  public void processGuestLobbyMessageChanged(GuestLobbyMessageChanged msg) {
+    Meeting m = getMeeting(msg.meetingId);
+    if (m != null) {
+      m.setGuestLobbyMessage(msg.message);
     }
   }
 
