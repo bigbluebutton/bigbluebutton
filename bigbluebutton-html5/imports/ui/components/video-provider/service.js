@@ -26,13 +26,14 @@ const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enabl
 const MIRROR_WEBCAM = Meteor.settings.public.app.mirrorOwnWebcam;
 const CAMERA_QUALITY_THRESHOLDS = Meteor.settings.public.kurento.cameraQualityThresholds.thresholds || [];
 const {
-  enabled: PAGINATION_ENABLED,
+  paginationToggleEnabled: PAGINATION_TOGGLE_ENABLED,
   pageChangeDebounceTime: PAGE_CHANGE_DEBOUNCE_TIME,
   desktopPageSizes: DESKTOP_PAGE_SIZES,
   mobilePageSizes: MOBILE_PAGE_SIZES,
 } = Meteor.settings.public.kurento.pagination;
 
 const TOKEN = '_';
+const ENABLE_PAGINATION_SESSION_VAR = 'enablePagination';
 
 class VideoService {
   // Paginated streams: sort with following priority: local -> presenter -> alphabetic
@@ -214,8 +215,13 @@ class VideoService {
     return Auth.authenticateURL(SFU_URL);
   }
 
+  shouldRenderPaginationToggle() {
+    // Only enable toggle if configured to do so and if we have a page size properly setup
+    return PAGINATION_TOGGLE_ENABLED && (this.getMyPageSize() > 0);
+  }
+
   isPaginationEnabled () {
-    return PAGINATION_ENABLED && (this.getMyPageSize() > 0);
+    return Settings.application.paginationEnabled && (this.getMyPageSize() > 0);
   }
 
   setNumberOfPages (numberOfPublishers, numberOfSubscribers, pageSize) {
@@ -338,7 +344,7 @@ class VideoService {
     // Pagination is either explictly disabled or pagination is set to 0 (which
     // is equivalent to disabling it), so return the mapped streams as they are
     // which produces the original non paginated behaviour
-    if (!PAGINATION_ENABLED || pageSize === 0) {
+    if (!this.isPaginationEnabled() || pageSize === 0) {
       return {
         streams: mappedStreams.sort(VideoService.sortMeshStreams),
         totalNumberOfStreams: mappedStreams.length
@@ -776,4 +782,5 @@ export default {
   getPreviousVideoPage: () => videoService.getPreviousVideoPage(),
   getNextVideoPage: () => videoService.getNextVideoPage(),
   getPageChangeDebounceTime: () => { return PAGE_CHANGE_DEBOUNCE_TIME },
+  shouldRenderPaginationToggle: () => videoService.shouldRenderPaginationToggle(),
 };
