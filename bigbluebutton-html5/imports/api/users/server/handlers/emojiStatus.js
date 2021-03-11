@@ -20,16 +20,13 @@ export default function handleEmojiStatus({ body }, meetingId) {
     },
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      Logger.error(`Assigning user emoji status: ${err}`);
-      return;
-    }
+  try {
+    const numberAffected = Users.update(selector, modifier);
 
-    if (numChanged) {
+    if (numberAffected) {
       Logger.info(`Assigned user emoji status ${emoji} id=${userId} meeting=${meetingId}`);
     }
-  };
-
-  return Users.update(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Assigning user emoji status: ${err}`);
+  }
 }

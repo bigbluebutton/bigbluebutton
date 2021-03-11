@@ -25,7 +25,7 @@ fi
 IMAGE_CHECK=`docker image inspect bbb-libreoffice &> /dev/null && echo 1 || echo 0`
 if [ "$IMAGE_CHECK"  = "0" ]; then
 	echo "Docker image doesn't exists, building"
-	docker build -t bbb-libreoffice docker/
+	docker build --no-cache -t bbb-libreoffice docker/
 else
 	echo "Docker image already exists";
 fi

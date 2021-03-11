@@ -22,7 +22,6 @@ const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false)
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
-  mountModal: PropTypes.func.isRequired,
   defaultFileName: PropTypes.string.isRequired,
   fileSizeMin: PropTypes.number.isRequired,
   fileSizeMax: PropTypes.number.isRequired,
@@ -715,7 +714,7 @@ class PresentationUploader extends Component {
     };
 
     const hideRemove = this.isDefault(item);
-    const formattedDownloadableLabel = item.isDownloadable
+    const formattedDownloadableLabel = !item.isDownloadable
       ? intl.formatMessage(intlMessages.isDownloadable)
       : intl.formatMessage(intlMessages.isNotDownloadable);
 

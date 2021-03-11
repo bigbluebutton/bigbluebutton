@@ -12,7 +12,7 @@ export default function endMeeting() {
   const payload = {
     userId: requesterUserId,
   };
-  Logger.verbose(`Meeting '${meetingId}' is destroyed by '${requesterUserId}'`);
+  Logger.warn(`Meeting '${meetingId}' is destroyed by '${requesterUserId}'`);
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

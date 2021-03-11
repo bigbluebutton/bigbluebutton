@@ -11,11 +11,17 @@ export default function fetchReadOnlyPadId(padId) {
   check(padId, String);
 
   const readOnlyURL = getReadOnlyIdURL(padId);
+
   axios({
     method: 'get',
     url: readOnlyURL,
     responseType: 'json',
   }).then((response) => {
+    const { status } = response;
+    if (status !== 200) {
+      Logger.error(`Could not get closed captions readOnlyID for ${padId} ${status}`);
+      return;
+    }
     const readOnlyPadId = getDataFromResponse(response.data, 'readOnlyID');
     if (readOnlyPadId) {
       updateReadOnlyPadId(padId, readOnlyPadId);

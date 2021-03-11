@@ -16,15 +16,12 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 package org.bigbluebutton.presentation.imp;
-
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.bigbluebutton.presentation.ConversionMessageConstants;
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.UploadedPresentation;
@@ -34,12 +31,10 @@ import org.jodconverter.local.LocalConverter;
 import org.jodconverter.local.office.ExternalOfficeManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import com.sun.star.document.UpdateDocMode;
 import com.google.gson.Gson;
-
 public class OfficeToPdfConversionService {
   private static Logger log = LoggerFactory.getLogger(OfficeToPdfConversionService.class);
-
   private OfficeDocumentValidator2 officeDocumentValidator;
   private final ArrayList<ExternalOfficeManager> officeManagers;
   private ExternalOfficeManager currentManager = null;
@@ -47,11 +42,9 @@ public class OfficeToPdfConversionService {
   private int sofficeBasePort = 0;
   private int sofficeManagers = 0;
   private String sofficeWorkingDirBase = null;
-
   public OfficeToPdfConversionService() throws OfficeException {
     officeManagers = new ArrayList<>();
   }
-
   /*
    * Convert the Office document to PDF. If successful, update
    * UploadPresentation.uploadedFile with the new PDF out and
@@ -71,7 +64,6 @@ public class OfficeToPdfConversionService {
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
         log.warn(" --analytics-- data={}", logStr);
-
         pres.setConversionStatus(ConversionMessageConstants.OFFICE_DOC_CONVERSION_INVALID_KEY);
         return pres;
       }
@@ -86,7 +78,6 @@ public class OfficeToPdfConversionService {
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
         log.info(" --analytics-- data={}", logStr);
-
         makePdfTheUploadedFileAndSetStepAsSuccess(pres, pdfOutput);
       } else {
         Map<String, Object> logData = new HashMap<>();
@@ -104,27 +95,28 @@ public class OfficeToPdfConversionService {
     }
     return pres;
   }
-
   public void initialize(UploadedPresentation pres) {
     pres.setConversionStatus(ConversionMessageConstants.OFFICE_DOC_CONVERSION_FAILED_KEY);
   }
-
   private File setupOutputPdfFile(UploadedPresentation pres) {
     File presentationFile = pres.getUploadedFile();
     String filenameWithoutExt = presentationFile.getAbsolutePath().substring(0,
         presentationFile.getAbsolutePath().lastIndexOf('.'));
     return new File(filenameWithoutExt + ".pdf");
   }
-
   private boolean convertOfficeDocToPdf(UploadedPresentation pres,
       File pdfOutput) {
     boolean success = false;
     int attempts = 0;
-
     while(!success) {
+      final Map<String, Object> loadProperties = new HashMap<>();
+      loadProperties.put("Hidden", true);
+      loadProperties.put("ReadOnly", true);
+      loadProperties.put("UpdateDocMode", UpdateDocMode.NO_UPDATE);
       LocalConverter documentConverter = LocalConverter
               .builder()
               .officeManager(currentManager)
+	      .loadProperties(loadProperties)
               .filterChain(new OfficeDocumentConversionFilter())
               .build();
 
@@ -229,3 +221,4 @@ public class OfficeToPdfConversionService {
     }
   }
 }
+
