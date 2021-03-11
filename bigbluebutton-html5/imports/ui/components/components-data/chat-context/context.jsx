@@ -198,6 +198,7 @@ const reducer = (state, action) => {
           count: 0,
           lastSender: '',
           chatIndexes: {},
+          syncing: false,
           preJoinMessages: {},
           posJoinMessages: {},
           unreadTimeWindows: new Set(),
