@@ -534,7 +534,7 @@ public:
 private:
   app:
     host: 127.0.0.1
-    localesUrl: /locales
+    localesUrl: /locale-list
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
   etherpad:
