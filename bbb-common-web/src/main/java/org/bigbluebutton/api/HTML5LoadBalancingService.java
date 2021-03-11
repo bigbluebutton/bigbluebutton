@@ -45,12 +45,16 @@ public class HTML5LoadBalancingService {
         log.info("HTML5LoadBalancingService initialised");
     }
 
+    // Find nodejs processes associated with processing meeting events
+    // $ ps -u meteor -o pcpu,cmd= | grep NODEJS_BACKEND_INSTANCE_ID
+    // 1.1 /usr/share/node-v12.16.1-linux-x64/bin/node --max-old-space-size=2048 --max_semi_space_size=128 main.js NODEJS_BACKEND_INSTANCE_ID=1
+    // 1.0 /usr/share/node-v12.16.1-linux-x64/bin/node --max-old-space-size=2048 --max_semi_space_size=128 main.js NODEJS_BACKEND_INSTANCE_ID=2
     public void scanHTML5processes() {
         try {
             this.list = new ArrayList<HTML5ProcessLine>();
             Process p1 = Runtime.getRuntime().exec(new String[]{"ps", "-u", "meteor", "-o", "pcpu,cmd="});
             InputStream input1 = p1.getInputStream();
-            Process p2 = Runtime.getRuntime().exec(new String[]{"grep", "node-"});
+            Process p2 = Runtime.getRuntime().exec(new String[]{"grep", HTML5ProcessLine.BBB_HTML5_PROCESS_IDENTIFIER});
             OutputStream output = p2.getOutputStream();
             IOUtils.copy(input1, output);
             output.close(); // signals grep to finish
@@ -71,24 +75,6 @@ public class HTML5LoadBalancingService {
             }
         }
         return false;
-    }
-
-    public int findSuitableHTML5ProcessByLookingAtCPU() {
-        this.scanHTML5processes();
-        if (list.isEmpty()) {
-            log.warn("Did not find any instances of html5 process running");
-            return 1;
-        }
-        double smallestCPUvalue = this.list.get(0).percentageCPU;
-        int instanceIDofSmallestCPUValue = this.list.get(0).instanceId;
-        for (HTML5ProcessLine line : this.list) {
-            System.out.println(line.toString());
-            if (smallestCPUvalue > line.percentageCPU) {
-                smallestCPUvalue = line.percentageCPU;
-                instanceIDofSmallestCPUValue = line.instanceId;
-            }
-        }
-        return instanceIDofSmallestCPUValue;
     }
 
     public int findSuitableHTML5ProcessByRoundRobin() {

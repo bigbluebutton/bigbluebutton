@@ -169,43 +169,44 @@ class PresentationArea extends PureComponent {
       this.onResize();
     }
 
-    const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;
-    const { width: currWidth, height: currHeight } = slidePosition;
+    if(prevProps?.slidePosition && slidePosition){
+      const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;
+      const { width: currWidth, height: currHeight } = slidePosition;
 
-    if (prevProps.slidePosition.id !== slidePosition.id) {
-      if ((prevWidth > prevHeight && currHeight > currWidth)
-        || (prevHeight > prevWidth && currWidth > currHeight)) {
-        layoutContextDispatch(
-          {
-            type: 'setAutoArrangeLayout',
-            value: true,
+      if (prevProps.slidePosition.id !== slidePosition.id) {
+        if ((prevWidth > prevHeight && currHeight > currWidth)
+          || (prevHeight > prevWidth && currWidth > currHeight)) {
+          layoutContextDispatch(
+            {
+              type: 'setAutoArrangeLayout',
+              value: true,
+            },
+          );
+        }
+        window.dispatchEvent(new Event('slideChanged'));
+      }
+
+      if (prevWidth !== currWidth || prevHeight !== currHeight) {
+        layoutContextDispatch({
+          type: 'setPresentationSlideSize',
+          value: {
+            width: currWidth,
+            height: currHeight,
           },
-        );
-      }
-      window.dispatchEvent(new Event('slideChanged'));
-    }
-
-    if (prevWidth !== currWidth || prevHeight !== currHeight) {
-      layoutContextDispatch({
-        type: 'setPresentationSlideSize',
-        value: {
-          width: currWidth,
-          height: currHeight,
-        },
-      });
-      if (currWidth > currHeight || currWidth === currHeight) {
-        layoutContextDispatch({
-          type: 'setPresentationOrientation',
-          value: 'landscape',
         });
+        if (currWidth > currHeight || currWidth === currHeight) {
+          layoutContextDispatch({
+            type: 'setPresentationOrientation',
+            value: 'landscape',
+          });
+        }
+        if (currHeight > currWidth) {
+          layoutContextDispatch({
+            type: 'setPresentationOrientation',
+            value: 'portrait',
+          });
+        }
       }
-      if (currHeight > currWidth) {
-        layoutContextDispatch({
-          type: 'setPresentationOrientation',
-          value: 'portrait',
-        });
-      }
-    }
 
     const downloadableOn = !prevProps.currentPresentation.downloadable
       && currentPresentation.downloadable;
@@ -250,6 +251,7 @@ class PresentationArea extends PureComponent {
       }
     }
   }
+  }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.onResize, false);
@@ -264,7 +266,6 @@ class PresentationArea extends PureComponent {
     if (isFullscreen !== newIsFullscreen) {
       this.setState({ isFullscreen: newIsFullscreen });
       layoutContextDispatch({ type: 'setPresentationFullscreen', value: newIsFullscreen });
-      window.dispatchEvent(new Event('slideChanged'));
     }
   }
 
@@ -383,6 +384,10 @@ class PresentationArea extends PureComponent {
       svgWidth = presentationAreaWidth;
       svgHeight = (svgWidth * originalHeight) / originalWidth;
       if (svgHeight > presentationAreaHeight) svgHeight = presentationAreaHeight;
+    }
+
+    if (typeof svgHeight !== 'number' || typeof svgWidth !== 'number') {
+      return { width: 0, height: 0 };
     }
 
     return {
@@ -837,13 +842,13 @@ class PresentationArea extends PureComponent {
               height: svgHeight + toolbarHeight,
             }}
           >
-            {showSlide
+            {showSlide && svgWidth > 0 && svgHeight > 0
               ? this.renderPresentationArea(svgDimensions, viewBoxDimensions)
               : null}
             {showSlide && (userIsPresenter || multiUser)
               ? this.renderWhiteboardToolbar(svgDimensions)
               : null}
-            {showSlide && userIsPresenter
+            {showSlide && userIsPresenter && svgWidth > 0 && svgHeight > 0
               ? (
                 <div
                   className={styles.presentationToolbar}

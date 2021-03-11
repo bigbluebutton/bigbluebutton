@@ -50,3 +50,59 @@ case class GetWebcamStreamsRespMsg(header: BbbClientMsgHeader, body: GetWebcamSt
 
 case class GetWebcamStreamsRespMsgBody(webcamStreams: Vector[String])
 
+/* Sent by bbb-webrtc-sfu to ask permission for broadcasting a webcam
+ */
+object GetCamBroadcastPermissionReqMsg { val NAME = "GetCamBroadcastPermissionReqMsg" }
+case class GetCamBroadcastPermissionReqMsg(
+    header: BbbClientMsgHeader,
+    body:   GetCamBroadcastPermissionReqMsgBody
+) extends StandardMsg
+case class GetCamBroadcastPermissionReqMsgBody(
+    meetingId:    String,
+    userId:       String,
+    sfuSessionId: String
+)
+
+/* Sent to bbb-webrtc-sfu to grant or deny webcam broadcasting permission
+ */
+object GetCamBroadcastPermissionRespMsg { val NAME = "GetCamBroadcastPermissionRespMsg" }
+case class GetCamBroadcastPermissionRespMsg(
+    header: BbbClientMsgHeader,
+    body:   GetCamBroadcastPermissionRespMsgBody
+) extends StandardMsg
+case class GetCamBroadcastPermissionRespMsgBody(
+    meetingId:    String,
+    userId:       String,
+    sfuSessionId: String,
+    allowed:      Boolean
+)
+
+/* Sent by bbb-webrtc-sfu to ask permission for subscring to a broadcasted
+ * webcam stream
+ */
+object GetCamSubscribePermissionReqMsg { val NAME = "GetCamSubscribePermissionReqMsg" }
+case class GetCamSubscribePermissionReqMsg(
+    header: BbbClientMsgHeader,
+    body:   GetCamSubscribePermissionReqMsgBody
+) extends StandardMsg
+case class GetCamSubscribePermissionReqMsgBody(
+    meetingId:    String,
+    userId:       String,
+    streamId:     String,
+    sfuSessionId: String
+)
+
+/* Sent to bbb-webrtc-sfu to grant or deny a webcam request
+ */
+object GetCamSubscribePermissionRespMsg { val NAME = "GetCamSubscribePermissionRespMsg" }
+case class GetCamSubscribePermissionRespMsg(
+    header: BbbClientMsgHeader,
+    body:   GetCamSubscribePermissionRespMsgBody
+) extends StandardMsg
+case class GetCamSubscribePermissionRespMsgBody(
+    meetingId:    String,
+    userId:       String,
+    streamId:     String,
+    sfuSessionId: String,
+    allowed:      Boolean
+)

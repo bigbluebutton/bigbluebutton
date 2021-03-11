@@ -80,6 +80,10 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.togglePan',
     description: 'describes the toggle pan shortcut',
   },
+  toggleFullscreen: {
+    id: 'app.shortcut-help.toggleFullscreen',
+    description: 'describes the toggle full-screen shortcut',
+  },
   nextSlideDesc: {
     id: 'app.shortcut-help.nextSlideDesc',
     description: 'describes the next slide shortcut',
@@ -141,6 +145,13 @@ const ShortcutHelpComponent = (props) => {
     </tr>
   ));
 
+  shortcutItems.push((
+    <tr key={_.uniqueId('hotkey-item-')}>
+      <td className={styles.keyCell}>Enter</td>
+      <td className={styles.descCell}>{intl.formatMessage(intlMessages.toggleFullscreen)}</td>
+    </tr>
+  ));
+  
   shortcutItems.push((
     <tr key={_.uniqueId('hotkey-item-')}>
       <td className={styles.keyCell}>Right Arrow</td>

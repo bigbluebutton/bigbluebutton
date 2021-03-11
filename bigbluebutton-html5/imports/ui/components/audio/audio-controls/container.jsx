@@ -11,7 +11,9 @@ import Storage from '/imports/ui/services/storage/session';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioControls from './component';
 import AudioModalContainer from '../audio-modal/container';
+import { invalidateCookie } from '../audio-modal/service';
 import Service from '../service';
+import AppService from '/imports/ui/components/app/service';
 
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 const APP_CONFIG = Meteor.settings.public.app;
@@ -41,6 +43,12 @@ const processToggleMuteFromOutside = (e) => {
 };
 
 const handleLeaveAudio = () => {
+  const meetingIsBreakout = AppService.meetingIsBreakout();
+
+  if (!meetingIsBreakout) {
+    invalidateCookie('joinedAudio');
+  }
+
   const skipOnFistJoin = getFromUserSettings('bbb_skip_check_audio_on_first_join', APP_CONFIG.skipCheckOnJoin);
   if (skipOnFistJoin && !Storage.getItem('getEchoTest')) {
     Storage.setItem('getEchoTest', true);
@@ -75,6 +83,11 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
   });
   const isViewer = currentUser.role === ROLE_VIEWER;
   const isPresenter = currentUser.presenter;
+
+  if (Service.isReturningFromBreakoutAudioTransfer()) {
+    Service.setReturningFromBreakoutAudioTransfer(false);
+    Service.recoverMicState();
+  }
 
   return ({
     processToggleMuteFromOutside: arg => processToggleMuteFromOutside(arg),

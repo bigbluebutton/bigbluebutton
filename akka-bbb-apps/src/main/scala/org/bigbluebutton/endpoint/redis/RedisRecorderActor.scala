@@ -10,28 +10,40 @@ import akka.actor.Actor
 import akka.actor.ActorLogging
 import akka.actor.ActorSystem
 import akka.actor.Props
+import org.bigbluebutton.service.HealthzService
+
+import scala.concurrent.duration._
+import scala.concurrent._
+import ExecutionContext.Implicits.global
+
+case object CheckRecordingDBStatus
 
 object RedisRecorderActor {
   def props(
-      system:      ActorSystem,
-      redisConfig: RedisConfig
+      system:         ActorSystem,
+      redisConfig:    RedisConfig,
+      healthzService: HealthzService
   ): Props =
     Props(
       classOf[RedisRecorderActor],
       system,
-      redisConfig
+      redisConfig,
+      healthzService
     )
 }
 
 class RedisRecorderActor(
-    system:      ActorSystem,
-    redisConfig: RedisConfig
+    system:         ActorSystem,
+    redisConfig:    RedisConfig,
+    healthzService: HealthzService
 )
   extends RedisStorageProvider(
     system,
     "BbbAppsAkkaRecorder",
     redisConfig
   ) with Actor with ActorLogging {
+
+  system.scheduler.schedule(1.minutes, 1.minutes, self, CheckRecordingDBStatus)
 
   private def record(session: String, message: java.util.Map[java.lang.String, java.lang.String]): Unit = {
     redis.recordAndExpire(session, message)
@@ -41,7 +53,7 @@ class RedisRecorderActor(
     //=============================
     // 2x messages
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
-
+    case CheckRecordingDBStatus   => checkRecordingDBStatus()
     case _                        => // do nothing
   }
 
@@ -107,6 +119,11 @@ class RedisRecorderActor(
       case m: UserRespondedToPollRecordMsg          => handleUserRespondedToPollRecordMsg(m)
       case m: PollStoppedEvtMsg                     => handlePollStoppedEvtMsg(m)
       case m: PollShowResultEvtMsg                  => handlePollShowResultEvtMsg(m)
+
+      // ExternalVideo
+      case m: StartExternalVideoEvtMsg              => handleStartExternalVideoEvtMsg(m)
+      case m: UpdateExternalVideoEvtMsg             => handleUpdateExternalVideoEvtMsg(m)
+      case m: StopExternalVideoEvtMsg               => handleStopExternalVideoEvtMsg(m)
 
       case _                                        => // message not to be recorded.
     }
@@ -456,6 +473,32 @@ class RedisRecorderActor(
   }
   */
 
+  private def handleStartExternalVideoEvtMsg(msg: StartExternalVideoEvtMsg) {
+    val ev = new StartExternalVideoRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setExternalVideoUrl(msg.body.externalVideoUrl)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleUpdateExternalVideoEvtMsg(msg: UpdateExternalVideoEvtMsg) {
+    val ev = new UpdateExternalVideoRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setStatus(msg.body.status)
+    ev.setRate(msg.body.rate)
+    ev.setTime(msg.body.time)
+    ev.setState(msg.body.state)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleStopExternalVideoEvtMsg(msg: StopExternalVideoEvtMsg) {
+    val ev = new StopExternalVideoRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
   private def handleRecordingStatusChangedEvtMsg(msg: RecordingStatusChangedEvtMsg) {
     val ev = new RecordStatusRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
@@ -529,4 +572,12 @@ class RedisRecorderActor(
 
     record(meetingId, ev.toMap.asJava)
   }
+
+  private def checkRecordingDBStatus(): Unit = {
+    if (redis.checkConnectionStatusBasic)
+      healthzService.sendRecordingDBStatusMessage(System.currentTimeMillis())
+    else
+      log.error("recording database is not available.")
+  }
+
 }

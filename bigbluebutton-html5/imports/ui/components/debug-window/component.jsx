@@ -8,6 +8,7 @@ import Button from '/imports/ui/components/button/component';
 import Toggle from '/imports/ui/components/switch/component';
 import Storage from '/imports/ui/services/storage/session';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
+import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 
 const intlMessages = defineMessages({
   modalClose: {
@@ -49,6 +50,7 @@ class DebugWindow extends Component {
 
     this.state = {
       showDebugWindow: false,
+      logLevel: ChatLogger.getLogLevel(),
     };
   }
 
@@ -87,7 +89,8 @@ class DebugWindow extends Component {
   }
 
   render() {
-    const { showDebugWindow } = this.state;
+    const { showDebugWindow, logLevel } = this.state;
+    const chatLoggerLevelsNames = Object.keys(ChatLogger.levels);
 
     if (!DEBUG_WINDOW_ENABLED || !showDebugWindow) return false;
 
@@ -188,6 +191,41 @@ class DebugWindow extends Component {
                         ariaLabel={intl.formatMessage(intlMessages.enableAutoarrangeLayoutLabel)}
                       />
                       <p>{`${intl.formatMessage(intlMessages.enableAutoarrangeLayoutDescription)}`}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.row}>
+                  <div className={styles.cell}>
+                    testando o chatLogger levels:
+                  </div>
+                  <div className={styles.cell}>
+                    <div className={styles.cellContent}>
+                      <select
+                        style={{ marginRight: '1rem' }}
+                        onChange={(ev) => {
+                          this.setState({
+                            logLevel: ev.target.value,
+                          });
+                        }}
+                      >
+                        {
+                          chatLoggerLevelsNames.map((i, index) => {
+                            return (<option key={`${i}-${index}`}>{i}</option>);
+                          })
+                        }
+                      </select>
+                      <button
+                        type="button"
+                        disabled={logLevel === ChatLogger.getLogLevel()}
+                        onClick={() => {
+                          ChatLogger.setLogLevel(logLevel);
+                          this.setState({
+                            logLevel: ChatLogger.getLogLevel(),
+                          });
+                        }}
+                      >
+                        Aplicar
+                      </button>
                     </div>
                   </div>
                 </div>
