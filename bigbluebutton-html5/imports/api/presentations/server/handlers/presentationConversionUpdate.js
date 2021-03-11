@@ -73,18 +73,15 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
     $set: Object.assign({ meetingId, podId }, statusModifier),
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Updating conversion status presentation to collection: ${err}`);
-    }
+  try {
+    const { insertedId } = Presentations.upsert(selector, modifier);
 
-    const { insertedId } = numChanged;
     if (insertedId) {
-      return Logger.info(`Updated presentation conversion status=${status} id=${presentationId} meeting=${meetingId}`);
+      Logger.info(`Updated presentation conversion status=${status} id=${presentationId} meeting=${meetingId}`);
+    } else {
+      Logger.debug('Upserted presentation conversion', { status, presentationId, meetingId });
     }
-
-    return Logger.debug(`Upserted presentation conversion status=${status} id=${presentationId} meeting=${meetingId}`);
-  };
-
-  return Presentations.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Updating conversion status presentation to collection: ${err}`);
+  }
 }

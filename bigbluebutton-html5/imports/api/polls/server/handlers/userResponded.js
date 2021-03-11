@@ -22,14 +22,13 @@ export default function userResponded({ body }) {
     },
   };
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Updating Poll responses: ${err}`);
+  try {
+    const numberAffected = Polls.update(selector, modifier);
+
+    if (numberAffected) {
+      Logger.info(`Updating Poll response (userId: ${userId}, response: ${answerId}, pollId: ${pollId})`);
     }
-
-    return Logger.info(`Updating Poll response (userId: ${userId},`
-      + `response: ${answerId}, pollId: ${pollId})`);
-  };
-
-  return Polls.update(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Updating Poll responses: ${err}`);
+  }
 }

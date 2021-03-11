@@ -7,8 +7,8 @@ import { Session } from 'meteor/session';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from './styles.scss';
 import MessageForm from './message-form/container';
-import MessageList from './message-list/container';
-import ChatDropdown from './chat-dropdown/component';
+import TimeWindowList from './time-window-list/container';
+import ChatDropdownContainer from './chat-dropdown/container';
 
 const ELEMENT_ID = 'chat-messages';
 
@@ -22,10 +22,10 @@ const intlMessages = defineMessages({
     description: 'aria-label for hiding chat button',
   },
 });
+
 const Chat = (props) => {
   const {
     chatID,
-    chatName,
     title,
     messages,
     partnerIsLoggedOut,
@@ -41,11 +41,13 @@ const Chat = (props) => {
     minMessageLength,
     maxMessageLength,
     amIModerator,
+    meetingIsBreakout,
+    timeWindowsValues,
+    dispatch,
+    count,
   } = props;
-
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
   const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
-
   return (
     <div
       data-test={chatID !== 'public' ? 'privateChat' : 'publicChat'}
@@ -60,6 +62,7 @@ const Chat = (props) => {
             onClick={() => {
               Session.set('idChatOpen', '');
               Session.set('openPanel', 'userlist');
+              window.dispatchEvent(new Event('panelChanged'));
             }}
             aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
             accessKey={HIDE_CHAT_AK}
@@ -81,32 +84,36 @@ const Chat = (props) => {
                   actions.handleClosePrivateChat(chatID);
                   Session.set('idChatOpen', '');
                   Session.set('openPanel', 'userlist');
+                  window.dispatchEvent(new Event('panelChanged'));
                 }}
                 aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
                 label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
                 accessKey={CLOSE_CHAT_AK}
               />
             )
-            : <ChatDropdown isMeteorConnected={isMeteorConnected} amIModerator={amIModerator} />
+            : <ChatDropdownContainer {...{ meetingIsBreakout, isMeteorConnected, amIModerator, timeWindowsValues }} />
         }
       </header>
-      <MessageList
+      <TimeWindowList
         id={ELEMENT_ID}
         chatId={chatID}
         handleScrollUpdate={actions.handleScrollUpdate}
-        handleReadMessage={actions.handleReadMessage}
         {...{
           partnerIsLoggedOut,
           lastReadMessageTime,
           hasUnreadMessages,
           scrollPosition,
           messages,
+          currentUserIsModerator: amIModerator,
+          timeWindowsValues,
+          dispatch,
+          count,
         }}
       />
       <MessageForm
         {...{
           UnsentMessagesCollection,
-          chatName,
+          title,
           minMessageLength,
           maxMessageLength,
         }}
@@ -127,7 +134,6 @@ export default withShortcutHelper(injectWbResizeEvent(injectIntl(memo(Chat))), [
 
 const propTypes = {
   chatID: PropTypes.string.isRequired,
-  chatName: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   messages: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.oneOfType([
     PropTypes.array,

@@ -3,40 +3,48 @@
 const Page = require('../core/page');
 const e = require('./elements');
 const util = require('./util');
+const { chatPushAlerts } = require('../notifications/elements');
+const { ELEMENT_WAIT_TIME } = require('../core/constants');
 
 class Clear extends Page {
   constructor() {
     super('chat-clear');
   }
 
-  async test() {
-    await util.openChat(this);
+  async test(testName) {
+    try {
+      await util.openChat(this);
+      if (process.env.GENERATE_EVIDENCES === 'true') {
+        await this.screenshot(`${testName}`, `01-before-chat-message-send-[${this.meetingId}]`);
+      }
+      // sending a message
+      await this.type(e.chatBox, e.message);
+      await this.click(e.sendButton, true);
 
-    // sending a message
-    await this.type(e.chatBox, e.message);
-    await this.click(e.sendButton);
-    await this.screenshot(true);
+      if (process.env.GENERATE_EVIDENCES === 'true') {
+        await this.screenshot(`${testName}`, `02-after-chat-message-send-[${this.meetingId}]`);
+      }
 
-    // const before = await util.getTestElements(this);
+      const chat0 = await this.page.evaluate(() => document.querySelectorAll('p[data-test="chatClearMessageText"]').length === 0);
 
-    // 1 message
-    const chat0 = await this.page.$$(`${e.chatUserMessage} ${e.chatMessageText}`);
+      // clear
+      await this.click(e.chatOptions, true);
+      if (process.env.GENERATE_EVIDENCES === 'true') {
+        await this.screenshot(`${testName}`, `03-chat-options-clicked-[${this.meetingId}]`);
+      }
+      await this.click(e.chatClear, true);
 
-    // clear
-    await this.click(e.chatOptions);
-    await this.click(e.chatClear, true);
-    await this.screenshot(true);
+      if (process.env.GENERATE_EVIDENCES === 'true') {
+        await this.screenshot(`${testName}`, `04-chat-cleared-[${this.meetingId}]`);
+      }
 
-    // const after = await util.getTestElements(this);
+      const chatResp = await this.waitForSelector(e.chatClearMessageText, ELEMENT_WAIT_TIME).then(() => true);
 
-    // 1 message
-    const chat1 = await this.page.$$(`${e.chatUserMessage} ${e.chatMessageText}`);
-
-    expect(await chat0[0].evaluate(n => n.innerText)).toBe(e.message);
-
-    const response = chat0.length === 1 && chat1.length === 0;
-
-    return response;
+      return chat0 && chatResp;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
   }
 }
 

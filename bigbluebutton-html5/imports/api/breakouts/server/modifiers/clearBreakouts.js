@@ -7,12 +7,23 @@ export default function clearBreakouts(breakoutId) {
       breakoutId,
     };
 
-    return Breakouts.remove(selector, () => {
-      Logger.info(`Cleared Breakouts (${breakoutId})`);
-    });
-  }
+    try {
+      const numberAffected = Breakouts.remove(selector);
 
-  return Breakouts.remove({}, () => {
-    Logger.info('Cleared Breakouts (all)');
-  });
+      if (numberAffected) {
+        Logger.info(`Cleared Breakouts (${breakoutId})`);
+      }
+    } catch (err) {
+      Logger.error(`Error on clearing Breakouts (${breakoutId})`);
+    }
+  } else {
+    try {
+      const numberAffected = Breakouts.remove({});
+      if (numberAffected) {
+        Logger.info('Cleared Breakouts (all)');
+      }
+    } catch (err) {
+      Logger.error('Error on clearing Breakouts (all)');
+    }
+  }
 }
