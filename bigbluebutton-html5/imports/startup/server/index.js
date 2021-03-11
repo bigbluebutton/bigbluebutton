@@ -12,7 +12,16 @@ import Redis from './redis';
 import setMinBrowserVersions from './minBrowserVersion';
 
 let guestWaitHtml = '';
-const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
+
+const env = Meteor.isDevelopment ? 'development' : 'production';
+
+const meteorRoot = fs.realpathSync(`${process.cwd()}/../`);
+
+const applicationRoot = (env === 'development')
+  ? fs.realpathSync(`${meteorRoot}'/../../../../public/locales/`)
+  : fs.realpathSync(`${meteorRoot}/../programs/web.browser/app/locales/`);
+
+const AVAILABLE_LOCALES = fs.readdirSync(`${applicationRoot}`);
 const FALLBACK_LOCALES = JSON.parse(Assets.getText('config/fallbackLocales.json'));
 
 process.on('uncaughtException', (err) => {
@@ -27,7 +36,6 @@ process.on('uncaughtException', (err) => {
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
-  const env = Meteor.isDevelopment ? 'development' : 'production';
   const CDN_URL = APP_CONFIG.cdn;
   const instanceId = parseInt(process.env.INSTANCE_ID, 10) || 1;
 
@@ -191,7 +199,7 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
   const browserLocale = override && req.query.init === 'true'
     ? override.split(/[-_]/g) : req.query.locale.split(/[-_]/g);
 
-  const localeList = [fallback];
+  let localeFile = fallback;
 
   const usableLocales = AVAILABLE_LOCALES
     .map(file => file.replace('.json', ''))
@@ -199,35 +207,29 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
       ? [...locales, locale]
       : locales), []);
 
-  const regionDefault = usableLocales.find(locale => browserLocale[0] === locale);
-
-  if (regionDefault) localeList.push(regionDefault);
-  if (!regionDefault && usableLocales.length) localeList.push(usableLocales[0]);
-
   let normalizedLocale;
-  let messages = {};
 
   if (browserLocale.length > 1) {
     normalizedLocale = `${browserLocale[0]}_${browserLocale[1].toUpperCase()}`;
-    localeList.push(normalizedLocale);
+
+    const normDefault = usableLocales.find(locale => normalizedLocale === locale);
+    if (normDefault) localeFile = normDefault;
   }
 
-  localeList.forEach((locale) => {
-    try {
-      const data = Assets.getText(`locales/${locale}.json`);
-      messages = Object.assign(messages, JSON.parse(data));
-      normalizedLocale = locale;
-    } catch (e) {
-      Logger.info(`'Could not process locale ${locale}:${e}`);
-      // Getting here means the locale is not available in the current locale files.
-    }
-  });
+  const regionDefault = usableLocales.find(locale => browserLocale[0] === locale);
+
+  if (localeFile === fallback && regionDefault !== localeFile) {
+    localeFile = regionDefault;
+  }
 
   res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify({ normalizedLocale, messages }));
+  res.end(JSON.stringify({
+    normalizedLocale: localeFile,
+    regionDefaultLocale: (regionDefault && regionDefault !== localeFile) ? regionDefault : '',
+  }));
 });
 
-WebApp.connectHandlers.use('/locales', (req, res) => {
+WebApp.connectHandlers.use('/locale-list', (req, res) => {
   if (!avaibleLocalesNamesJSON) {
     avaibleLocalesNamesJSON = JSON.stringify(generateLocaleOptions());
   }
