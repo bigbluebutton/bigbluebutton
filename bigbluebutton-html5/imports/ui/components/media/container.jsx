@@ -35,17 +35,9 @@ const intlMessages = defineMessages({
     id: 'app.media.screenshare.end',
     description: 'toast to show when a screenshare has ended',
   },
-  screenshareNotSupported: {
-    id: 'app.media.screenshare.notSupported',
-    description: 'Error message for screenshare not supported',
-  },
 });
 
 class MediaContainer extends Component {
-  componentDidMount() {
-    document.addEventListener('screenshareNotSupported', this.screenshareNotSupported.bind(this));
-  }
-
   componentDidUpdate(prevProps) {
     const {
       isScreensharing,
@@ -62,15 +54,6 @@ class MediaContainer extends Component {
         notify(intl.formatMessage(intlMessages.screenshareEnded), 'info', 'desktop');
       }
     }
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('screenshareNotSupported', this.screenshareNotSupported.bind(this));
-  }
-
-  screenshareNotSupported() {
-    const { intl } = this.props;
-    notify(intl.formatMessage(intlMessages.screenshareNotSupported), 'error', 'desktop');
   }
 
   render() {
