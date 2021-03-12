@@ -70,9 +70,7 @@ const screenshareHasAudio = () => {
 }
 
 const screenshareHasEnded = () => {
-  const amIPresenter = UserListService.isUserPresenter(Auth.userID);
-
-  if (amIPresenter) {
+  if (isSharingScreen()) {
     setSharingScreen(false);
   }
 
@@ -92,10 +90,8 @@ const attachLocalPreviewStream = (mediaElement) => {
 }
 
 const screenshareHasStarted = () => {
-  const amIPresenter = UserListService.isUserPresenter(Auth.userID);
-
   // Presenter's screen preview is local, so skip
-  if (!amIPresenter) {
+  if (!UserListService.amIPresenter()) {
     viewScreenshare();
   }
 };
