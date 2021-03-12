@@ -281,11 +281,11 @@ public:
       # A page size of 0 (zero) means that the page size is unlimited (disabled).
       desktopPageSizes:
         moderator: 0
-        viewer: 0
+        viewer: 5
       # video page sizes for MOBILE endpoints
       mobilePageSizes:
-        moderator: 6
-        viewer: 4
+        moderator: 2
+        viewer: 2
   syncUsersWithConnectionManager:
     enabled: false
     syncInterval: 60000
