@@ -13,6 +13,7 @@ import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
@@ -161,14 +162,14 @@ const sortChatsByIcon = (a, b) => {
 const sortByRecentActivity = (a, b) => {
   const _a = a.lastActivity;
   const _b = b.lastActivity;
-  if (a.userId === 'public') return -1;
+  if (a.userId === PUBLIC_CHAT_ID) return -1;
   if (!_b || _a > _b) return -1;
   if (!_a || _a < _b) return 1;
   return 0;
 };
 
 const isPublicChat = chat => (
-  chat.userId === 'public'
+  chat.userId === PUBLIC_CHAT_ID
 );
 
 const sortChats = (a, b) => {
@@ -272,10 +273,10 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
     }
 
     return {
-      userId: 'public',
+      userId: PUBLIC_CHAT_ID,
       name: 'Public Chat',
       icon: 'group_chat',
-      chatId: 'public',
+      chatId: PUBLIC_CHAT_ID,
       unreadCounter: unreadMessagesCount,
     };
   });

@@ -8,6 +8,9 @@ import ChatPushAlert from './push-alert/component';
 import Service from '../service';
 import { styles } from '../styles';
 
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
+
 const propTypes = {
   pushAlertDisabled: PropTypes.bool.isRequired,
   activeChats: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -79,7 +82,7 @@ class ChatAlert extends PureComponent {
       .filter(chat => chat.userId !== idChatOpen)
       .filter(chat => chat.unreadCounter > 0)
       .forEach((chat) => {
-        const chatId = (chat.userId === 'public') ? 'MAIN-PUBLIC-GROUP-CHAT' : chat.userId;
+        const chatId = (chat.userId === PUBLIC_CHAT_ID) ? 'MAIN-PUBLIC-GROUP-CHAT' : chat.userId;
         const thisChatUnreadMessages = UnreadMessages.getUnreadMessages(chatId);
 
         unalertedMessagesByChatId[chatId] = thisChatUnreadMessages.filter((msg) => {

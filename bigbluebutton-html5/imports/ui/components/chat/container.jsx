@@ -112,10 +112,7 @@ const ChatContainer = (props) => {
     ? [...systemMessagesIds.map((item) => systemMessages[item])]
     : []);
 
-
-  // if (!idChatOpen) return null;
-
-
+  if (!idChatOpen) return null;
 
   const { groupChat } = usingGroupChatContext;
   const participants = groupChat[idChatOpen]?.participants;
@@ -132,7 +129,7 @@ const ChatContainer = (props) => {
     ChatLogger.debug('ChatContainer::applyPropsToState::chatData', lastMsg, stateLastMsg, contextChat?.syncing);
     if (
       (lastMsg?.lastTimestamp !== stateLastMsg?.lastTimestamp)
-      || (previousChatId !== chatID)
+      || (previousChatId !== idChatOpen)
       || (prevSync !== contextChat?.syncing)
     ) {
       prevSync = contextChat?.syncing;
@@ -172,7 +169,9 @@ const ChatContainer = (props) => {
   return (
     <Chat {...{
       ...props,
-      chatID,
+      chatID: idChatOpen,
+      idChatOpen,
+      isChatLocked,
       amIModerator,
       count: (contextChat?.unreadTimeWindows.size || 0),
       timeWindowsValues: stateTimeWindows,
