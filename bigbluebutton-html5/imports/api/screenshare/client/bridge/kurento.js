@@ -2,7 +2,7 @@ import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
 import BridgeService from './service';
 import ScreenshareBroker from '/imports/ui/services/bbb-webrtc-sfu/screenshare-broker';
-import { setSharingScreen } from '/imports/ui/components/screenshare/service';
+import { setSharingScreen, screenShareEndAlert } from '/imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from './errors';
 
 const SFU_CONFIG = Meteor.settings.public.kurento;
@@ -215,6 +215,8 @@ export default class KurentoScreenshareBridge {
 
     this.broker.onstart = this.handleViewerStart.bind(this);
     this.broker.onerror = this.handleBrokerFailure.bind(this);
+    this.broker.onended = this.handleEnded.bind(this);
+
     return this.broker.view().finally(this.scheduleReconnect.bind(this));
   }
 
@@ -225,6 +227,10 @@ export default class KurentoScreenshareBridge {
     this.clearReconnectionTimeout();
     this.reconnecting = false;
     this.connectionAttempts = 0;
+  }
+
+  handleEnded() {
+    screenShareEndAlert();
   }
 
   share(stream, onFailure) {
@@ -266,6 +272,7 @@ export default class KurentoScreenshareBridge {
       this.broker.onerror = onerror.bind(this);
       this.broker.onstreamended = this.stop.bind(this);
       this.broker.onstart = this.handlePresenterStart.bind(this);
+      this.broker.onended = this.handleEnded.bind(this);
 
       this.broker.share().then(() => {
           this.scheduleReconnect();

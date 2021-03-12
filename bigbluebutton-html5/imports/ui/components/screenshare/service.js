@@ -77,7 +77,6 @@ const screenshareHasEnded = () => {
   }
 
   KurentoBridge.stop();
-  screenShareEndAlert();
 };
 
 const getMediaElement = () => {
