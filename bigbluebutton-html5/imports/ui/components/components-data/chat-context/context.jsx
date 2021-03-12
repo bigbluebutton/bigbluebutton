@@ -121,7 +121,8 @@ const generateStateWithNewMessage = (msg, state) => {
     messageGroupsKeys.forEach(key => {
       messageGroups[key] = tempGroupMessage[key];
       const message = tempGroupMessage[key];
-      if (message.sender.id !== Auth.userID && !message.id.startsWith(SYSTEM_CHAT_TYPE)) {
+      const previousMessage = message.timestamp <= getLoginTime();
+      if (!previousMessage && message.sender.id !== Auth.userID && !message.id.startsWith(SYSTEM_CHAT_TYPE)) {
         stateMessages.unreadTimeWindows.add(key);
       }
     });
@@ -197,6 +198,7 @@ const reducer = (state, action) => {
           count: 0,
           lastSender: '',
           chatIndexes: {},
+          syncing: false,
           preJoinMessages: {},
           posJoinMessages: {},
           unreadTimeWindows: new Set(),

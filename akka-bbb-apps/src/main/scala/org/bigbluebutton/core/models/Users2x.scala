@@ -307,4 +307,5 @@ object EjectReasonCode {
   val VALIDATE_TOKEN = "validate_token_failed_eject_reason"
   val USER_INACTIVITY = "user_inactivity_eject_reason"
   val EJECTED_USER_REJOINING = "ejected_user_rejoining_reason"
+  val USER_LOGGED_OUT = "user_logged_out_reason"
 }

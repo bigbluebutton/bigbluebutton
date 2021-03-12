@@ -82,6 +82,10 @@ class Base extends Component {
   componentDidMount() {
     const { animations, newLayoutContextDispatch } = this.props;
 
+    const {
+      userID: localUserId,
+    } = Auth;
+
     if (animations) HTML.classList.add('animationsEnabled');
     if (!animations) HTML.classList.add('animationsDisabled');
 
@@ -126,6 +130,50 @@ class Base extends Component {
         value: PANELS.NONE,
       });
     }
+
+    // TODO move this find to container
+    const users = Users.find({
+      meetingId: Auth.meetingID,
+      validated: true,
+      userId: { $ne: localUserId },
+    }, { fields: { name: 1, userId: 1 } }
+    );
+
+    users.observe({
+      added: (user) => {
+        const subscriptionsReady = Session.get('subscriptionsReady');
+
+        if (!subscriptionsReady) return;
+
+        const {
+          userJoinAudioAlerts,
+          userJoinPushAlerts,
+        } = Settings.application;
+
+        if (!userJoinAudioAlerts && !userJoinPushAlerts) return;
+
+        if (userJoinAudioAlerts) {
+          AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
+            + Meteor.settings.public.app.basename
+            + Meteor.settings.public.app.instanceId}`
+            + '/resources/sounds/userJoin.mp3');
+        }
+
+        if (userJoinPushAlerts) {
+          notify(
+            <FormattedMessage
+              id="app.notification.userJoinPushAlert"
+              description="Notification for a user joins the meeting"
+              values={{
+                0: user.name,
+              }}
+            />,
+            'info',
+            'user',
+          );
+        }
+      }
+    });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -425,6 +473,16 @@ const BaseContainer = withTracker(() => {
       },
     });
   }
+  // if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.type().isPhone) {
+  //   if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
+  //     Session.set('openPanel', 'chat');
+  //     Session.set('idChatOpen', PUBLIC_CHAT_ID);
+  //   } else {
+  //     Session.set('openPanel', 'userlist');
+  //   }
+  // } else {
+  //   Session.set('openPanel', '');
+  // }
 
   const codeError = Session.get('codeError');
   const { streams: usersVideo } = VideoService.getVideoStreams();

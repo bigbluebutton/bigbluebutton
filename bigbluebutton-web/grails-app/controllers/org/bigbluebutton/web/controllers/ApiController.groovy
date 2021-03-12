@@ -1323,6 +1323,7 @@ class ApiController {
       // Get the client url we stored in the join api call before
       // being told to wait.
       String clientURL = us.clientUrl;
+      String lobbyMsg = meeting.getGuestLobbyMessage()
       log.info("clientURL = " + clientURL)
       log.info("redirect = ." + redirectClient)
       if (!StringUtils.isEmpty(params.redirect)) {
@@ -1412,6 +1413,7 @@ class ApiController {
               auth_token us.authToken
               session_token session[sessionToken]
               guestStatus guestWaitStatus
+              lobbyMessage lobbyMsg
               url destUrl
             }
             render(contentType: "application/json", text: builder.toPrettyString())

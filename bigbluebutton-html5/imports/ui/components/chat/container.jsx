@@ -52,8 +52,8 @@ const intlMessages = defineMessages({
 });
 
 let previousChatId = null;
-let debounceTimeout = null;
-let messages = null;
+let prevSync = false;
+
 let globalAppplyStateToProps = () => { }
 
 const throttledFunc = _.throttle(() => {
@@ -77,6 +77,9 @@ const ChatContainer = (props) => {
   const modOnlyMessage = Storage.getItem('ModeratorOnlyMessage');
   const systemMessagesIds = [sysMessagesIds.welcomeId, amIModerator && modOnlyMessage && sysMessagesIds.moderatorId].filter(i => i);
   const { welcomeProp } = ChatService.getWelcomeProp();
+
+  ChatLogger.debug('ChatContainer::render::props', props);
+
   const systemMessages = {
     [sysMessagesIds.welcomeId]: {
       id: sysMessagesIds.welcomeId,
@@ -124,8 +127,15 @@ const ChatContainer = (props) => {
   const lastMsg = contextChat && (isPublicChat
     ? contextChat.preJoinMessages[lastTimeWindow] || contextChat.posJoinMessages[lastTimeWindow]
     : contextChat.messageGroups[lastTimeWindow]);
+  ChatLogger.debug('ChatContainer::render::chatData', contextChat);
   applyPropsToState = () => {
-    if (!_.isEqualWith(lastMsg, stateLastMsg) || previousChatId !== idChatOpen) {
+    ChatLogger.debug('ChatContainer::applyPropsToState::chatData', lastMsg, stateLastMsg, contextChat?.syncing);
+    if (
+      (lastMsg?.lastTimestamp !== stateLastMsg?.lastTimestamp)
+      || (previousChatId !== chatID)
+      || (prevSync !== contextChat?.syncing)
+    ) {
+      prevSync = contextChat?.syncing;
       const timeWindowsValues = isPublicChat
         ? [
           ...(
@@ -160,20 +170,20 @@ const ChatContainer = (props) => {
   const isChatLocked = ChatService.isChatLocked(idChatOpen);
 
   return (
-    <Chat
-      chatID={idChatOpen}
-      {...{
-        ...rest,
-        isChatLocked,
-        amIModerator,
-        count: (contextChat?.unreadTimeWindows.size || 0),
-        timeWindowsValues: stateTimeWindows,
-        dispatch: usingChatContext?.dispatch,
-        title,
-        chatName,
-        contextChat,
-        newLayoutContextDispatch,
-      }}>
+    <Chat {...{
+      ...props,
+      chatID,
+      amIModerator,
+      count: (contextChat?.unreadTimeWindows.size || 0),
+      timeWindowsValues: stateTimeWindows,
+      dispatch: usingChatContext?.dispatch,
+      title,
+      syncing: contextChat?.syncing,
+      syncedPercent: contextChat?.syncedPercent,
+      chatName,
+      contextChat,
+      newLayoutContextDispatch,
+    }}>
       {children}
     </Chat>
   );
@@ -200,3 +210,4 @@ export default injectIntl(withTracker(({ intl }) => {
     },
   };
 })(ChatContainer));
+

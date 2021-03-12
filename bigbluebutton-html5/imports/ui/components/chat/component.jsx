@@ -5,6 +5,7 @@ import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrap
 import Button from '/imports/ui/components/button/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { Meteor } from 'meteor/meteor';
+import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import { styles } from './styles.scss';
 import MessageFormContainer from './message-form/container';
 import TimeWindowList from './time-window-list/container';
@@ -46,9 +47,12 @@ const Chat = (props) => {
     dispatch,
     count,
     newLayoutContextDispatch,
+    syncing,
+    syncedPercent,
   } = props;
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
   const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
+  ChatLogger.debug('ChatComponent::render', props);
   return (
     <div
       data-test={chatID !== PUBLIC_CHAT_ID ? 'privateChat' : 'publicChat'}
@@ -130,6 +134,8 @@ const Chat = (props) => {
           timeWindowsValues,
           dispatch,
           count,
+          syncing,
+          syncedPercent,
         }}
       />
       <MessageFormContainer

@@ -6,6 +6,8 @@ import UserAvatar from '/imports/ui/components/user-avatar/component';
 import cx from 'classnames';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import MessageChatItem from './message-chat-item/component';
+import PollService from '/imports/ui/components/poll/service';
+import Icon from '/imports/ui/components/icon/component';
 import { styles } from './styles';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -204,6 +206,15 @@ class TimeWindowChatItem extends PureComponent {
     return messages ? (
       <div className={styles.item} key={_.uniqueId('message-poll-item-')}>
         <div className={styles.wrapper} ref={(ref) => { this.item = ref; }}>
+        <div className={styles.avatarWrapper}>
+            <UserAvatar
+              className={styles.avatar}
+              color={PollService.POLL_AVATAR_COLOR}
+              moderator={true}
+            >
+              {<Icon className={styles.isPoll} iconName="polling" />}
+            </UserAvatar>
+          </div>
           <div className={styles.content}>
             <div className={styles.meta}>
               <div className={styles.name}>

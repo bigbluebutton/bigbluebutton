@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import _ from 'lodash';
-import { makeCall } from '/imports/ui/services/api';
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -45,19 +44,16 @@ const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
 };
 
-const handleClickQuickPoll = (slideId, poll, newLayoutContextDispatch) => {
-  const { type } = poll;
+const handleClickQuickPoll = (newLayoutContextDispatch) => {
   newLayoutContextDispatch({
     type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
     value: PANELS.POLL,
   });
   Session.set('forcePollOpen', true);
   Session.set('pollInitiated', true);
-
-  makeCall('startPoll', type, slideId);
 };
 
-const getAvailableQuickPolls = (slideId, parsedSlides, newLayoutContextDispatch) => {
+const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, newLayoutContextDispatch) => {
   const pollItemElements = parsedSlides.map((poll) => {
     const { poll: label, type } = poll;
     let itemLabel = label;
@@ -82,7 +78,10 @@ const getAvailableQuickPolls = (slideId, parsedSlides, newLayoutContextDispatch)
       <DropdownListItem
         label={itemLabel}
         key={_.uniqueId('quick-poll-item')}
-        onClick={() => handleClickQuickPoll(slideId, poll, newLayoutContextDispatch)}
+        onClick={() => {
+          handleClickQuickPoll(newLayoutContextDispatch);
+          startPoll(type, slideId);
+        }}
       />
     );
   });
@@ -119,7 +118,7 @@ class QuickPollDropdown extends Component {
     );
 
     const { slideId, quickPollOptions } = parsedSlide;
-    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions, newLayoutContextDispatch);
+    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions, startPoll, newLayoutContextDispatch);
 
     if (quickPollOptions.length === 0) return null;
 
@@ -141,7 +140,10 @@ class QuickPollDropdown extends Component {
         className={styles.quickPollBtn}
         label={quickPollLabel}
         tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
-        onClick={() => startPoll(singlePollType, currentSlide.id)}
+        onClick={() => {
+          handleClickQuickPoll(newLayoutContextDispatch);
+          startPoll(singlePollType, currentSlide.id);
+        }}
         size="lg"
         disabled={!!activePoll}
       />

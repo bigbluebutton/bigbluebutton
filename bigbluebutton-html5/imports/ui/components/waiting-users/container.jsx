@@ -39,6 +39,9 @@ export default withTracker(() => {
     authenticatedUsers,
     guestUsersCall: Service.guestUsersCall,
     changeGuestPolicy: Service.changeGuestPolicy,
+    isGuestLobbyMessageEnabled: Service.isGuestLobbyMessageEnabled,
+    setGuestLobbyMessage: Service.setGuestLobbyMessage,
+    guestLobbyMessage: Service.getGuestLobbyMessage(),
     authenticatedGuest,
   };
 })(WaitingContainer);
