@@ -7,6 +7,8 @@ import logger from '/imports/startup/client/logger';
 import { styles } from './styles';
 import BreakoutRoomContainer from './breakout-remaining-time/container';
 import VideoService from '/imports/ui/components/video-provider/service';
+import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
+import UserListService from '/imports/ui/components/user-list/service';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -224,7 +226,7 @@ class BreakoutRoom extends PureComponent {
                   extraInfo: { logType: 'user_action' },
                 }, 'joining breakout room closed audio in the main room');
                 VideoService.exitVideo();
-                window.kurentoExitScreenShare();
+                if (UserListService.amIPresenter()) screenshareHasEnded();
               }
               }
               disabled={disable}

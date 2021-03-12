@@ -24,7 +24,7 @@ case class ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg(
   extends VoiceStandardMsg
 case class ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgBody(voiceConf: String, screenshareConf: String,
                                                               stream: String, vidWidth: Int, vidHeight: Int,
-                                                              timestamp: String)
+                                                              timestamp: String, hasAudio: Boolean)
 
 /**
  * Sent to clients to notify them of an RTMP stream starting.
@@ -37,7 +37,7 @@ case class ScreenshareRtmpBroadcastStartedEvtMsg(
   extends BbbCoreMsg
 case class ScreenshareRtmpBroadcastStartedEvtMsgBody(voiceConf: String, screenshareConf: String,
                                                      stream: String, vidWidth: Int, vidHeight: Int,
-                                                     timestamp: String)
+                                                     timestamp: String, hasAudio: Boolean)
 
 /**
  * Send by FS that RTMP stream has stopped.
