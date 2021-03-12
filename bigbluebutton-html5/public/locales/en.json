@@ -734,7 +734,6 @@
     "app.whiteboard.toolbar.tools.ellipse": "Ellipse",
     "app.whiteboard.toolbar.tools.line": "Line",
     "app.whiteboard.toolbar.tools.text": "Text",
-    "app.whiteboard.toolbar.tools.eraser": "Eraser",
     "app.whiteboard.toolbar.thickness": "Drawing thickness",
     "app.whiteboard.toolbar.thicknessDisabled": "Drawing thickness is disabled",
     "app.whiteboard.toolbar.color": "Colors",
