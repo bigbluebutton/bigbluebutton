@@ -1,6 +1,6 @@
 import React, { createContext, useReducer } from 'react';
 import PropTypes from 'prop-types';
-import { ACTIONS, PANELS } from '../enums';
+import { LAYOUT_TYPE, ACTIONS, PANELS } from '../enums';
 import DEFAULT_VALUES from '../defaultValues';
 import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
 

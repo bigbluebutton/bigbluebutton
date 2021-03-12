@@ -1,22 +1,25 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '/imports/ui/components/media/service';
 import { notify } from '/imports/ui/services/notification';
 import { Session } from 'meteor/session';
 import PresentationAreaService from './service';
 import { Slides } from '/imports/api/slides';
-import PresentationArea from './component';
+import PresentationArea from '/imports/ui/components/presentation/component';
 import PresentationToolbarService from './presentation-toolbar/service';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import { NLayoutContext } from '../layout/context/context';
 
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
-const PresentationAreaContainer = ({ presentationPodIds, mountPresentationArea, ...props }) => (
-  mountPresentationArea && <PresentationArea {...props} />
-);
+const PresentationAreaContainer = ({ presentationPodIds, mountPresentationArea, ...props }) => {
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextDispatch } = newLayoutContext;
+  return mountPresentationArea && <PresentationArea {...{ newLayoutContextDispatch, ...props }} />;
+};
 
 const APP_CONFIG = Meteor.settings.public.app;
 const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;

@@ -9,7 +9,7 @@ import Button from '/imports/ui/components/button/component';
 import Toggle from '/imports/ui/components/switch/component';
 import Storage from '/imports/ui/services/storage/session';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
-import { ACTIONS } from '../layout/enums';
+import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import NewLayoutContext from '../layout/context/context';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 
@@ -57,6 +57,7 @@ class DebugWindow extends Component {
     };
 
     this.setLayoutManagerToLoad = this.setLayoutManagerToLoad.bind(this);
+    this.setLayoutType = this.setLayoutType.bind(this);
   }
 
   componentDidMount() {
@@ -79,6 +80,14 @@ class DebugWindow extends Component {
     Session.set('layoutManagerLoaded', event.target.value);
     newLayoutContextDispatch({
       type: ACTIONS.SET_LAYOUT_LOADED,
+      value: event.target.value,
+    });
+  }
+
+  setLayoutType(event) {
+    const { newLayoutContextDispatch } = this.props;
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_LAYOUT_TYPE,
       value: event.target.value,
     });
   }
@@ -110,8 +119,10 @@ class DebugWindow extends Component {
 
     if (!DEBUG_WINDOW_ENABLED || !showDebugWindow) return false;
 
-    const { intl } = this.props;
+    const { intl, newLayoutContextState } = this.props;
+    const { layoutType } = newLayoutContextState;
     const autoArrangeLayout = Storage.getItem('autoArrangeLayout');
+    const layoutManagerLoaded = Session.get('layoutManagerLoaded');
     return (
       <Draggable
         handle="#debugWindowHeader"
@@ -212,7 +223,7 @@ class DebugWindow extends Component {
                 </div>
                 <div className={styles.row}>
                   <div className={styles.cell}>
-                  Layout
+                    Layout
                   </div>
                   <div className={styles.cell}>
                     <div className={styles.cellContent}>
@@ -223,13 +234,29 @@ class DebugWindow extends Component {
                         ariaLabel="teste"
                       /> */}
                       <select
-                        value={Session.get('layoutManagerLoaded')}
+                        value={layoutManagerLoaded}
                         onChange={this.setLayoutManagerToLoad}
                       >
                         <option value="legacy">Legacy</option>
                         <option value="new">New Layout Manager</option>
                         <option value="both">Both</option>
                       </select>
+                      {
+                        layoutManagerLoaded === 'new'
+                        && (
+                          <select
+                            value={layoutType}
+                            onChange={this.setLayoutType}
+                          >
+                            <option value={LAYOUT_TYPE.CUSTOM_LAYOUT}>Custom</option>
+                            <option value={LAYOUT_TYPE.SMART_LAYOUT}>Smart Layout</option>
+                            <option value={LAYOUT_TYPE.VIDEO_FOCUS}>Focus on Video</option>
+                            <option value={LAYOUT_TYPE.PRESENTATION_FOCUS}>
+                              Focus on Presentation
+                            </option>
+                          </select>
+                        )
+                      }
                     </div>
                   </div>
                 </div>

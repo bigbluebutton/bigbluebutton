@@ -21,6 +21,7 @@ import { withDraggableConsumer } from '../media/webcam-draggable-overlay/context
 import Icon from '/imports/ui/components/icon/component';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import PollingContainer from '/imports/ui/components/polling/container';
+import { ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -112,7 +113,9 @@ class PresentationArea extends PureComponent {
     window.addEventListener('layoutSizesSets', this.onResize, false);
     window.addEventListener('webcamAreaResize', this.handleResize, false);
 
-    const { slidePosition, layoutContextDispatch } = this.props;
+    const {
+      currentSlide, slidePosition, layoutContextDispatch, newLayoutContextDispatch,
+    } = this.props;
 
     let currWidth = 0;
     let currHeight = 0;
@@ -121,6 +124,18 @@ class PresentationArea extends PureComponent {
       currWidth = slidePosition.width;
       currHeight = slidePosition.height;
     }
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_NUM_CURRENT_SLIDE,
+      value: currentSlide.num,
+    });
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_CURRENT_SLIDE_SIZE,
+      value: {
+        width: slidePosition.width,
+        height: slidePosition.height,
+      },
+    });
 
     layoutContextDispatch({
       type: 'setPresentationSlideSize',

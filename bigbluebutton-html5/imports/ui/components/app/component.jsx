@@ -26,11 +26,16 @@ import UploaderContainer from '/imports/ui/components/presentation/presentation-
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
 import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
 import { styles } from './styles';
-import { DEVICE_TYPE, ACTIONS, PANELS } from '../layout/enums';
+import {
+  LAYOUT_TYPE, DEVICE_TYPE, ACTIONS, PANELS,
+} from '../layout/enums';
 import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 } from '../layout/utils';
 import CustomLayout from '../layout/layout-manager/customLayout';
+import SmartLayout from '../layout/layout-manager/smartLayout';
+import PresentationFocusLayout from '../layout/layout-manager/presentationFocusLayout';
+import VideoFocusLayout from '../layout/layout-manager/videoFocusLayout';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
@@ -351,6 +356,22 @@ class App extends Component {
         requesterUserId={User.userId}
         meetingId={User.meetingId}
       />) : null);
+  }
+
+  renderLayoutManager() {
+    const { layoutType } = this.props;
+    switch (layoutType) {
+      case LAYOUT_TYPE.CUSTOM_LAYOUT:
+        return <CustomLayout />;
+      case LAYOUT_TYPE.SMART_LAYOUT:
+        return <SmartLayout />;
+      case LAYOUT_TYPE.PRESENTATION_FOCUS:
+        return <PresentationFocusLayout />;
+      case LAYOUT_TYPE.VIDEO_FOCUS:
+        return <VideoFocusLayout />;
+      default:
+        return <CustomLayout />;
+    }
   }
 
   render() {

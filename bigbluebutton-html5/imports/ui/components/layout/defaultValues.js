@@ -1,7 +1,7 @@
 import { LAYOUT_TYPE, CAMERADOCK_POSITION } from './enums';
 
 const DEFAULT_VALUES = {
-  layoutType: LAYOUT_TYPE.SMART_LAYOUT,
+  layoutType: LAYOUT_TYPE.CUSTOM_LAYOUT,
   panelType: 'chat',
 
   cameraPosition: CAMERADOCK_POSITION.CONTENT_TOP,
