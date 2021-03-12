@@ -307,7 +307,7 @@ class UserOptions extends PureComponent {
           onClick={() => mountModal(<ConnectionStatusContainer />)}
         />) : null
       ),
-      (isMeteorConnected ? (
+      (!meetingIsBreakout && isMeteorConnected ? (
         <DropdownListItem
           key={this.guestPolicyId}
           icon="user"
