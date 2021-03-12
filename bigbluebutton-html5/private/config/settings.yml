@@ -321,6 +321,8 @@ public:
     websocketKeepAliveDebounce: 10
     #Trace sip/audio messages in browser. If not set, default value is false.
     traceSip: false
+    # SDP semantics: plan-b|unified-plan
+    sdpSemantics: 'plan-b'
   presentation:
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32
