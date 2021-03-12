@@ -16,17 +16,13 @@ export default function setGuestPolicy(meetingId, guestPolicy) {
     },
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Changing meeting guest policy: ${err}`);
+  try {
+    const { numberAffected } = Meetings.upsert(selector, modifier);
+
+    if (numberAffected) {
+      Logger.verbose(`Set guest policy meetingId=${meetingId} guestPolicy=${guestPolicy}`);
     }
-
-    if (!numChanged) {
-      return Logger.info(`Meeting's ${meetingId} guest policy=${guestPolicy} wasn't updated`);
-    }
-
-    return Logger.info(`Meeting's ${meetingId} guest policy=${guestPolicy} updated`);
-  };
-
-  return Meetings.update(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Setting guest policy: ${err}`);
+  }
 }
