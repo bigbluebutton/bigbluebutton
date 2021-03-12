@@ -69,16 +69,17 @@ const FETCHING = 'fetching';
 const FALLBACK = 'fallback';
 const READY = 'ready';
 const supportedBrowsers = ['chrome', 'firefox', 'safari', 'opera', 'edge', 'yandex'];
+const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.fallbackLocale;
 
 export default class Legacy extends Component {
   constructor(props) {
     super(props);
 
     const locale = navigator.languages ? navigator.languages[0] : false
-      || navigator.language
-      || Meteor.settings.public.app.defaultSettings.application.fallbackLocale;
+      || navigator.language;
 
     const url = `./locale?locale=${locale}`;
+    const localesPath = 'locales';
 
     const that = this;
     this.state = { viewState: FETCHING };
@@ -90,9 +91,56 @@ export default class Legacy extends Component {
 
         return response.json();
       })
-      .then(({ messages, normalizedLocale }) => {
-        const dasherizedLocale = normalizedLocale.replace('_', '-');
-        that.setState({ messages, normalizedLocale: dasherizedLocale, viewState: READY });
+      .then(({ normalizedLocale, regionDefaultLocale }) => {
+        fetch(`${localesPath}/${DEFAULT_LANGUAGE}.json`)
+          .then((response) => {
+            if (!response.ok) {
+              return Promise.reject();
+            }
+            return response.json();
+          })
+          .then((messages) => {
+            if (regionDefaultLocale !== '') {
+              fetch(`${localesPath}/${regionDefaultLocale}.json`)
+                .then((response) => {
+                  if (!response.ok) {
+                    return Promise.resolve();
+                  }
+                  return response.json();
+                })
+                .then((regionDefaultMessages) => {
+                  messages = Object.assign(messages, regionDefaultMessages);
+                  this.setState({ messages});
+                });
+            }
+
+            if (normalizedLocale && normalizedLocale !== DEFAULT_LANGUAGE && normalizedLocale !== regionDefaultLocale) {
+              fetch(`${localesPath}/${normalizedLocale}.json`)
+                .then((response) => {
+                  if (!response.ok) {
+                    return Promise.reject();
+                  }
+                  return response.json();
+                })
+                .then((localeMessages) => {
+                  messages = Object.assign(messages, localeMessages);
+                  this.setState({ messages});
+                })
+                .catch(() => {
+                  normalizedLocale = (regionDefaultLocale) || DEFAULT_LANGUAGE;
+                  const dasherizedLocale = normalizedLocale.replace('_', '-');
+                  this.setState({ messages, normalizedLocale: dasherizedLocale, viewState: READY });
+                });
+            }
+            return messages;
+          })
+          .then((messages) => {
+            const dasherizedLocale = normalizedLocale.replace('_', '-');
+            this.setState({ messages, normalizedLocale: dasherizedLocale, viewState: READY });
+          })
+          .catch(() => {
+            that.setState({ viewState: FALLBACK });
+          });
       })
       .catch(() => {
         that.setState({ viewState: FALLBACK });

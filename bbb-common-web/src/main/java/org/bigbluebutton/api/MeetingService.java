@@ -42,6 +42,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
+import org.bigbluebutton.api.HTML5LoadBalancingService;
 import org.bigbluebutton.api.domain.GuestPolicy;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Recording;
@@ -54,10 +55,13 @@ import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.PublishedRecordingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.UnpublishedRecordingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.DeletedRecordingMessage;
+import org.bigbluebutton.api.messaging.messages.AddPad;
+import org.bigbluebutton.api.messaging.messages.AddCaptionsPads;
 import org.bigbluebutton.api.messaging.messages.CreateBreakoutRoom;
 import org.bigbluebutton.api.messaging.messages.CreateMeeting;
 import org.bigbluebutton.api.messaging.messages.EndMeeting;
 import org.bigbluebutton.api.messaging.messages.GuestPolicyChanged;
+import org.bigbluebutton.api.messaging.messages.GuestLobbyMessageChanged;
 import org.bigbluebutton.api.messaging.messages.GuestStatusChangedEventMsg;
 import org.bigbluebutton.api.messaging.messages.GuestsStatus;
 import org.bigbluebutton.api.messaging.messages.IMessage;
@@ -115,6 +119,7 @@ public class MeetingService implements MessageListener {
   private StunTurnService stunTurnService;
   private RedisStorageService storeService;
   private CallbackUrlService callbackUrlService;
+  private HTML5LoadBalancingService html5LoadBalancingService;
   private boolean keepEvents;
 
   private long usersTimeout;
@@ -160,6 +165,20 @@ public class MeetingService implements MessageListener {
     if (m != null) {
       RegisteredUser ruser = new RegisteredUser(authToken, internalUserId, guestStatus);
       m.userRegistered(ruser);
+    }
+  }
+
+  public Boolean isPadValid(String padId, String sessionToken) {
+    UserSession us = getUserSessionWithAuthToken(sessionToken);
+    if (us == null) return false;
+
+    Meeting m = getMeeting(us.meetingID);
+    if (m == null) return false;
+
+    if (m.hasPad(padId)) {
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -394,13 +413,13 @@ public class MeetingService implements MessageListener {
             m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
             m.getWebcamsOnlyForModerator(), m.getModeratorPassword(), m.getViewerPassword(), m.getCreateTime(),
             formatPrettyDate(m.getCreateTime()), m.isBreakout(), m.getSequence(), m.isFreeJoin(), m.getMetadata(),
-            m.getGuestPolicy(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(), m.getModeratorOnlyMessage(),
+            m.getGuestPolicy(), m.getAuthenticatedGuest(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(), m.getModeratorOnlyMessage(),
             m.getDialNumber(), m.getMaxUsers(),
             m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes(),
             m.getUserInactivityInspectTimerInMinutes(), m.getUserInactivityThresholdInMinutes(),
             m.getUserActivitySignResponseDelayInMinutes(), m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), keepEvents,
             m.breakoutRoomsParams,
-            m.lockSettingsParams);
+            m.lockSettingsParams, m.getHtml5InstanceId());
   }
 
   private String formatPrettyDate(Long timestamp) {
@@ -1083,8 +1102,14 @@ public class MeetingService implements MessageListener {
           processGuestStatusChangedEventMsg((GuestStatusChangedEventMsg) message);
         } else if (message instanceof GuestPolicyChanged) {
           processGuestPolicyChanged((GuestPolicyChanged) message);
+        } else if (message instanceof GuestLobbyMessageChanged) {
+          processGuestLobbyMessageChanged((GuestLobbyMessageChanged) message);
         } else if (message instanceof RecordChapterBreak) {
           processRecordingChapterBreak((RecordChapterBreak) message);
+        } else if (message instanceof AddPad) {
+          processAddPad((AddPad) message);
+        } else if (message instanceof AddCaptionsPads) {
+          processAddCaptionsPads((AddCaptionsPads) message);
         } else if (message instanceof MakePresentationDownloadableMsg) {
           processMakePresentationDownloadableMsg((MakePresentationDownloadableMsg) message);
         } else if (message instanceof UpdateRecordingStatus) {
@@ -1100,6 +1125,29 @@ public class MeetingService implements MessageListener {
     Meeting m = getMeeting(msg.meetingId);
     if (m != null) {
       m.setGuestPolicy(msg.policy);
+    }
+  }
+
+  public void processGuestLobbyMessageChanged(GuestLobbyMessageChanged msg) {
+    Meeting m = getMeeting(msg.meetingId);
+    if (m != null) {
+      m.setGuestLobbyMessage(msg.message);
+    }
+  }
+
+  public void processAddPad(AddPad msg) {
+    Meeting m = getMeeting(msg.meetingId);
+    if (m != null) {
+      m.addPad(msg.padId, msg.readOnlyId);
+    }
+  }
+
+  public void processAddCaptionsPads(AddCaptionsPads msg) {
+    Meeting m = getMeeting(msg.meetingId);
+    if (m != null) {
+      for (String padId : msg.padIds) {
+        m.addPad(padId, "undefined");
+      }
     }
   }
 

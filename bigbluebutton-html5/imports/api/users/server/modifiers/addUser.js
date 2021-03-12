@@ -64,6 +64,7 @@ export default function addUser(meetingId, userData) {
         meetingId,
         sortName: user.name.trim().toLowerCase(),
         color,
+        mobile: false,
         breakoutProps: {
           isBreakoutUser: Meeting.meetingProp.isBreakout,
           parentId: Meeting.breakoutProps.parentId,

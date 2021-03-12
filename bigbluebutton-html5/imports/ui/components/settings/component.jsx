@@ -51,6 +51,10 @@ const intlMessages = defineMessages({
     id: 'app.settings.main.save.label.description',
     description: 'Settings modal save button label',
   },
+  notificationLabel: {
+    id: 'app.submenu.notification.SectionTitle', // set menu label identical to section title
+    description: 'label for notification tab',
+  },
   dataSavingLabel: {
     id: 'app.settings.dataSavingTab.label',
     description: 'label for data savings tab',
@@ -62,7 +66,9 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   dataSaving: PropTypes.shape({
     viewParticipantsWebcams: PropTypes.bool,
     viewScreenshare: PropTypes.bool,
@@ -71,9 +77,13 @@ const propTypes = {
     chatAudioAlerts: PropTypes.bool,
     chatPushAlerts: PropTypes.bool,
     userJoinAudioAlerts: PropTypes.bool,
+    guestWaitingAudioAlerts: PropTypes.bool,
+    guestWaitingPushAlerts: PropTypes.bool,
+    paginationEnabled: PropTypes.bool,
     fallbackLocale: PropTypes.string,
     fontSize: PropTypes.string,
     locale: PropTypes.string,
+    microphoneConstraints: PropTypes.objectOf(Object),
   }).isRequired,
   updateSettings: PropTypes.func.isRequired,
   availableLocales: PropTypes.objectOf(PropTypes.array).isRequired,
@@ -111,8 +121,9 @@ class Settings extends Component {
 
   componentDidMount() {
     const { availableLocales } = this.props;
+
     availableLocales.then((locales) => {
-      this.setState({ availableLocales: locales });
+      this.setState({ allLocales: locales });
     });
   }
 
@@ -136,8 +147,8 @@ class Settings extends Component {
 
     const {
       selectedTab,
-      availableLocales,
       current,
+      allLocales,
     } = this.state;
 
     return (
@@ -167,7 +178,7 @@ class Settings extends Component {
             selectedClassName={styles.selected}
           >
             <Icon iconName="alert" className={styles.icon} />
-            <span id="notificationTab">Notification</span>
+            <span id="notificationTab">{intl.formatMessage(intlMessages.notificationLabel)}</span>
           </Tab>
           <Tab
             className={styles.tabSelector}
@@ -186,7 +197,7 @@ class Settings extends Component {
         </TabList>
         <TabPanel className={styles.tabPanel}>
           <Application
-            availableLocales={availableLocales}
+            allLocales={allLocales}
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
           />

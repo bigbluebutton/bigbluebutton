@@ -11,12 +11,13 @@ import { notify } from '/imports/ui/services/notification';
 import { monitorVideoConnection } from '/imports/utils/stats';
 import browser from 'browser-detect';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import VideoPreviewService from '../video-preview/service';
+import Storage from '/imports/ui/services/storage/session';
 import logger from '/imports/startup/client/logger';
 import _ from 'lodash';
 
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
 const MULTIPLE_CAMERAS = Meteor.settings.public.app.enableMultipleCameras;
-const SKIP_VIDEO_PREVIEW = Meteor.settings.public.kurento.skipVideoPreview;
 
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -25,13 +26,14 @@ const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enabl
 const MIRROR_WEBCAM = Meteor.settings.public.app.mirrorOwnWebcam;
 const CAMERA_QUALITY_THRESHOLDS = Meteor.settings.public.kurento.cameraQualityThresholds.thresholds || [];
 const {
-  enabled: PAGINATION_ENABLED,
+  paginationToggleEnabled: PAGINATION_TOGGLE_ENABLED,
   pageChangeDebounceTime: PAGE_CHANGE_DEBOUNCE_TIME,
   desktopPageSizes: DESKTOP_PAGE_SIZES,
   mobilePageSizes: MOBILE_PAGE_SIZES,
 } = Meteor.settings.public.kurento.pagination;
 
 const TOKEN = '_';
+const ENABLE_PAGINATION_SESSION_VAR = 'enablePagination';
 
 class VideoService {
   // Paginated streams: sort with following priority: local -> presenter -> alphabetic
@@ -63,13 +65,10 @@ class VideoService {
       currentVideoPageIndex: 0,
       numberOfPages: 0,
     });
-    this.skipVideoPreview = null;
     this.userParameterProfile = null;
     const BROWSER_RESULTS = browser();
     this.isMobile = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
     this.isSafari = BROWSER_RESULTS.name === 'safari';
-    this.pageChangeLocked = false;
-
     this.numberOfDevices = 0;
 
     this.record = null;
@@ -132,6 +131,7 @@ class VideoService {
   joinVideo(deviceId) {
     this.deviceId = deviceId;
     this.isConnecting = true;
+    Storage.setItem('isFirstJoin', false);
   }
 
   joinedVideo() {
@@ -167,11 +167,28 @@ class VideoService {
         meetingId: Auth.meetingID,
         userId: Auth.userID,
       }, { fields: { stream: 1 } },
-    ).fetch().length;
-    this.sendUserUnshareWebcam(cameraId);
-    if (streams < 2) {
-      // If the user had less than 2 streams, set as a full disconnection
+    ).fetch();
+
+    const hasTargetStream = streams.some(s => s.stream === cameraId);
+    const hasOtherStream = streams.some(s => s.stream !== cameraId);
+
+    // Check if the target (cameraId) stream exists in the remote collection.
+    // If it does, means it was successfully shared. So do the full stop procedure.
+    if (hasTargetStream) {
+      this.sendUserUnshareWebcam(cameraId);
+    }
+
+    if (!hasOtherStream) {
+      // There's no other remote stream, meaning (OR)
+      // a) This was effectively the last webcam being unshared
+      // b) This was a connecting stream timing out (not effectively shared)
+      // For both cases, we clean everything up.
       this.exitedVideo();
+    } else {
+      // It was not the last webcam the user had successfully shared,
+      // nor was cameraId present in the server collection.
+      // Hence it's a connecting stream (not effectively shared) which timed out
+      this.stopConnectingStream();
     }
   }
 
@@ -198,8 +215,13 @@ class VideoService {
     return Auth.authenticateURL(SFU_URL);
   }
 
+  shouldRenderPaginationToggle() {
+    // Only enable toggle if configured to do so and if we have a page size properly setup
+    return PAGINATION_TOGGLE_ENABLED && (this.getMyPageSize() > 0);
+  }
+
   isPaginationEnabled () {
-    return PAGINATION_ENABLED && (this.getMyPageSize() > 0);
+    return Settings.application.paginationEnabled && (this.getMyPageSize() > 0);
   }
 
   setNumberOfPages (numberOfPublishers, numberOfSubscribers, pageSize) {
@@ -322,7 +344,7 @@ class VideoService {
     // Pagination is either explictly disabled or pagination is set to 0 (which
     // is equivalent to disabling it), so return the mapped streams as they are
     // which produces the original non paginated behaviour
-    if (!PAGINATION_ENABLED || pageSize === 0) {
+    if (!this.isPaginationEnabled() || pageSize === 0) {
       return {
         streams: mappedStreams.sort(VideoService.sortMeshStreams),
         totalNumberOfStreams: mappedStreams.length
@@ -331,6 +353,11 @@ class VideoService {
 
     const paginatedStreams = this.getVideoPage(mappedStreams, pageSize);
     return { streams: paginatedStreams, totalNumberOfStreams: mappedStreams.length };
+  }
+
+  stopConnectingStream () {
+    this.deviceId = null;
+    this.isConnecting = false;
   }
 
   getConnectingStream(streams) {
@@ -347,8 +374,7 @@ class VideoService {
           };
         } else {
           // Connecting stream is already stored at database
-          this.deviceId = null;
-          this.isConnecting = false;
+          this.stopConnectingStream();
         }
       } else {
         logger.error({
@@ -558,14 +584,6 @@ class VideoService {
     return isLocal ? 'share' : 'viewer';
   }
 
-  getSkipVideoPreview(fromInterface = false) {
-    if (this.skipVideoPreview === null) {
-      this.skipVideoPreview = getFromUserSettings('bbb_skip_video_preview', false) || SKIP_VIDEO_PREVIEW;
-    }
-
-    return this.skipVideoPreview && !fromInterface;
-  }
-
   getUserParameterProfile() {
     if (this.userParameterProfile === null) {
       this.userParameterProfile = getFromUserSettings(
@@ -582,7 +600,7 @@ class VideoService {
     // Mobile shouldn't be able to share more than one camera at the same time
     // Safari needs to implement devicechange event for safe device control
     return MULTIPLE_CAMERAS
-      && !this.getSkipVideoPreview()
+      && !VideoPreviewService.getSkipVideoPreview()
       && !this.isMobile
       && !this.isSafari
       && this.numberOfDevices > 1;
@@ -749,7 +767,6 @@ export default {
   getRole: isLocal => videoService.getRole(isLocal),
   getRecord: () => videoService.getRecord(),
   getSharedDevices: () => videoService.getSharedDevices(),
-  getSkipVideoPreview: fromInterface => videoService.getSkipVideoPreview(fromInterface),
   getUserParameterProfile: () => videoService.getUserParameterProfile(),
   isMultipleCamerasEnabled: () => videoService.isMultipleCamerasEnabled(),
   monitor: conn => videoService.monitor(conn),
@@ -765,4 +782,5 @@ export default {
   getPreviousVideoPage: () => videoService.getPreviousVideoPage(),
   getNextVideoPage: () => videoService.getNextVideoPage(),
   getPageChangeDebounceTime: () => { return PAGE_CHANGE_DEBOUNCE_TIME },
+  shouldRenderPaginationToggle: () => videoService.shouldRenderPaginationToggle(),
 };

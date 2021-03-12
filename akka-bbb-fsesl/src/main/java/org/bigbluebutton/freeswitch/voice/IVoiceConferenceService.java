@@ -55,7 +55,8 @@ public interface IVoiceConferenceService {
                                      String streamname,
                                      Integer videoWidth,
                                      Integer videoHeight,
-                                     String timestamp);
+                                     String timestamp,
+                                     boolean hasAudio);
 
   void deskShareRTMPBroadcastStopped(String room,
                                      String streamname,

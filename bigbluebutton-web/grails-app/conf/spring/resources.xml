@@ -106,6 +106,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultTextTrackUrl" value="${defaultTextTrackUrl}"/>
     </bean>
 
+    <bean id="html5LoadBalancingService" class="org.bigbluebutton.api.HTML5LoadBalancingService" init-method="init" />
+    
     <bean id="configServiceHelper" class="org.bigbluebutton.api.ClientConfigServiceHelperImp"/>
 
     <bean id="configService" class="org.bigbluebutton.api.ClientConfigService" init-method="init">
@@ -126,12 +128,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultLogoutUrl" value="${bigbluebutton.web.logoutURL}"/>
         <property name="defaultServerUrl" value="${bigbluebutton.web.serverURL}"/>
         <property name="defaultNumDigitsForTelVoice" value="${defaultNumDigitsForTelVoice}"/>
-        <property name="defaultClientUrl" value="${defaultClientUrl}"/>
+        <property name="defaultHTML5ClientUrl" value="${defaultHTML5ClientUrl}"/>
         <property name="defaultGuestWaitURL" value="${defaultGuestWaitURL}"/>
-        <property name="html5ClientUrl" value="${html5ClientUrl}"/>
         <property name="allowRequestsWithoutSession" value="${allowRequestsWithoutSession}"/>
-        <property name="moderatorsJoinViaHTML5Client" value="${moderatorsJoinViaHTML5Client}"/>
-        <property name="attendeesJoinViaHTML5Client" value="${attendeesJoinViaHTML5Client}"/>
         <property name="defaultMeetingDuration" value="${defaultMeetingDuration}"/>
         <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
         <property name="autoStartRecording" value="${autoStartRecording}"/>
@@ -141,6 +140,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
         <property name="defaultConfigURL" value="${defaultConfigURL}"/>
         <property name="defaultGuestPolicy" value="${defaultGuestPolicy}"/>
+        <property name="authenticatedGuest" value="${authenticatedGuest}"/>
         <property name="meetingExpireIfNoUserJoinedInMinutes" value="${meetingExpireIfNoUserJoinedInMinutes}"/>
         <property name="meetingExpireWhenLastUserLeftInMinutes" value="${meetingExpireWhenLastUserLeftInMinutes}"/>
         <property name="userInactivityInspectTimerInMinutes" value="${userInactivityInspectTimerInMinutes}"/>
