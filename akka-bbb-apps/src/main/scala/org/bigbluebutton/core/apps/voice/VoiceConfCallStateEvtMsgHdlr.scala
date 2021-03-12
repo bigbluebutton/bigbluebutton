@@ -1,7 +1,6 @@
 package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, MessageTypes, Routing, VoiceCallStateEvtMsg, VoiceCallStateEvtMsgBody, VoiceConfCallStateEvtMsg }
-import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
 
 trait VoiceConfCallStateEvtMsgHdlr {

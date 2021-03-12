@@ -3,6 +3,8 @@ import org.bigbluebutton.build._
 
 version := "0.0.20-SNAPSHOT"
 
+scalaVersion := "2.12.8"
+
 val compileSettings = Seq(
   organization := "org.bigbluebutton",
 

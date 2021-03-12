@@ -75,27 +75,6 @@ class RegisteredUsers {
 
 case class Config2(token: String, timestamp: Long, config: String)
 
-object Configs {
-
-}
-
-class Configs {
-  private var configs = new collection.immutable.HashMap[String, Config2]
-
-  private def toVector: Vector[Config2] = configs.values.toVector
-
-  private def save(config: Config2): Config2 = {
-    configs += config.token -> config
-    config
-  }
-
-  private def remove(id: String): Option[Config2] = {
-    val config = configs.get(id)
-    config foreach (u => configs -= id)
-    config
-  }
-}
-
 case class UserCustomData(userId: String, data: collection.immutable.Map[String, String])
 
 object UsersCustomData {

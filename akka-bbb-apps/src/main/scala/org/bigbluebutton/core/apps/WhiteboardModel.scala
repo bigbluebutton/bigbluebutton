@@ -1,6 +1,5 @@
 package org.bigbluebutton.core.apps
 
-//import java.util.ArrayList;
 import org.bigbluebutton.core.util.jhotdraw.BezierWrapper
 import scala.collection.immutable.List
 import scala.collection.immutable.HashMap
