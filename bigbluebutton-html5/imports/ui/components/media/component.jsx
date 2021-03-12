@@ -45,6 +45,7 @@ export default class Media extends Component {
       audioModalIsOpen,
       usersVideo,
       layoutContextState,
+      isMeteorConnected,
     } = this.props;
 
     const { webcamsPlacement: placement } = layoutContextState;
@@ -67,7 +68,7 @@ export default class Media extends Component {
       [styles.containerH]: webcamsPlacement === 'left' || webcamsPlacement === 'right',
     });
     const { viewParticipantsWebcams } = Settings.dataSaving;
-    const showVideo = usersVideo.length > 0 && viewParticipantsWebcams;
+    const showVideo = usersVideo.length > 0 && viewParticipantsWebcams && isMeteorConnected;
     const fullHeight = !showVideo || (webcamsPlacement === 'floating');
 
     return (

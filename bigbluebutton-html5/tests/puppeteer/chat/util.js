@@ -1,24 +1,25 @@
 const e = require('./elements');
 const ule = require('../user/elements');
+const { ELEMENT_WAIT_TIME } = require('../core/constants');
 
 async function openChat(test) {
-  await test.waitForSelector(e.chatBox);
-  await test.waitForSelector(e.chatMessages);
+  await test.waitForSelector(e.chatBox, ELEMENT_WAIT_TIME);
+  await test.waitForSelector(e.chatMessages, ELEMENT_WAIT_TIME);
 }
 
 async function sendPublicChatMessage(page1, page2) {
   // send a public message
   await page1.page.type(e.publicChat, e.publicMessage1);
-  await page1.page.click(e.sendButton);
+  await page1.page.click(e.sendButton, true);
   await page1.page.screenshot(true);
   await page2.page.type(e.publicChat, e.publicMessage2);
-  await page2.page.click(e.sendButton);
+  await page2.page.click(e.sendButton, true);
   await page2.page.screenshot(true);
 }
 
 async function openPrivateChatMessage(page1, page2) {
   // Open private Chat with the other User
-  Object.values(arguments).forEach(async argument => await argument.waitForSelector(ule.userListItem));
+  Object.values(arguments).forEach(async argument => await argument.waitForSelector(ule.userListItem, ELEMENT_WAIT_TIME));
   await page1.page.evaluate(clickOnTheOtherUser, ule.userListItem);
   await page2.page.evaluate(clickOnTheOtherUser, ule.userListItem);
   await page1.page.evaluate(clickThePrivateChatButton, e.activeChat);
@@ -31,10 +32,10 @@ async function sendPrivateChatMessage(page1, page2) {
   await page2.page.$$('[aria-label="Hide Private Chat with User1]');
 
   await page1.page.type(e.privateChat, e.message1);
-  await page1.page.click(e.sendButton);
+  await page1.page.click(e.sendButton, true);
   await page1.page.screenshot(true);
   await page2.page.type(e.privateChat, e.message2);
-  await page2.page.click(e.sendButton);
+  await page2.page.click(e.sendButton, true);
   await page2.page.screenshot(true);
 }
 

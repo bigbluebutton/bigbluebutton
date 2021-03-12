@@ -64,11 +64,11 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
-  def buildCheckAlivePingSysMsg(system: String, timestamp: Long): BbbCommonEnvCoreMsg = {
+  def buildCheckAlivePingSysMsg(system: String, bbbWebTimestamp: Long, akkaAppsTimestamp: Long): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(CheckAlivePingSysMsg.NAME, routing)
     val header = BbbCoreBaseHeader(CheckAlivePingSysMsg.NAME)
-    val body = CheckAlivePingSysMsgBody(system, timestamp)
+    val body = CheckAlivePingSysMsgBody(system, bbbWebTimestamp, akkaAppsTimestamp)
     val req = CheckAlivePingSysMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }

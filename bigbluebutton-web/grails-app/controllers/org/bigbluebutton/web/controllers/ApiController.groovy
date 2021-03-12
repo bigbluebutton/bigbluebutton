@@ -58,6 +58,7 @@ class ApiController {
   ClientConfigService configService
   PresentationUrlDownloadService presDownloadService
   StunTurnService stunTurnService
+  HTML5LoadBalancingService html5LoadBalancingService
   ResponseBuilder responseBuilder = initResponseBuilder()
 
   def initResponseBuilder = {
@@ -150,6 +151,8 @@ class ApiController {
       // Still no unique voiceBridge found? Let createMeeting handle it.
     }
 
+    params.html5InstanceId = html5LoadBalancingService.findSuitableHTML5ProcessByRoundRobin().toString()
+
     Meeting newMeeting = paramsProcessorUtil.processCreateParams(params)
 
     if (meetingService.createMeeting(newMeeting)) {
@@ -209,7 +212,12 @@ class ApiController {
 
     // BEGIN - backward compatibility
     if (StringUtils.isEmpty(params.checksum)) {
-      invalid("checksumError", "You did not pass the checksum security check", REDIRECT_RESPONSE)
+      invalid("checksumError", "You did not pass the checksum security check")
+      return
+    }
+
+    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      invalid("checksumError", "You did not pass the checksum security check")
       return
     }
 
@@ -241,11 +249,6 @@ class ApiController {
       return
     }
 
-    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-      invalid("checksumError", "You did not pass the checksum security check", REDIRECT_RESPONSE)
-      return
-    }
-
     // END - backward compatibility
 
     // Do we have a checksum? If none, complain.
@@ -267,11 +270,6 @@ class ApiController {
 
     if (!StringUtils.isEmpty(params.auth)) {
       authenticated = Boolean.parseBoolean(params.auth)
-    }
-
-    Boolean joinViaHtml5 = false;
-    if (!StringUtils.isEmpty(params.joinViaHtml5)) {
-      joinViaHtml5 = Boolean.parseBoolean(params.joinViaHtml5)
     }
 
     // Do we have a name for the user joining? If none, complain.
@@ -496,33 +494,7 @@ class ApiController {
 
     //check if exists the param redirect
     boolean redirectClient = true;
-    String clientURL = paramsProcessorUtil.getDefaultClientUrl();
-
-    // server-wide configuration:
-    // Depending on configuration, prefer the HTML5 client over Flash for moderators
-    if (paramsProcessorUtil.getModeratorsJoinViaHTML5Client() && role == ROLE_MODERATOR) {
-      joinViaHtml5 = true
-    }
-
-    // Depending on configuration, prefer the HTML5 client over Flash for attendees
-    if (paramsProcessorUtil.getAttendeesJoinViaHTML5Client() && role == ROLE_ATTENDEE) {
-      joinViaHtml5 = true
-    }
-
-    // single client join configuration:
-    // Depending on configuration, prefer the HTML5 client over Flash client
-    if (joinViaHtml5) {
-      clientURL = paramsProcessorUtil.getHTML5ClientUrl();
-    } else {
-      if (!StringUtils.isEmpty(params.clientURL)) {
-        clientURL = params.clientURL;
-      }
-    }
-
-
-    String meetingInstance = meeting.getMetadata()["bbb-meetinginstance"];
-    meetingInstance = (meetingInstance == null) ? "1" : meetingInstance;
-    clientURL = clientURL.replaceAll("%%INSTANCEID%%", meetingInstance);
+    String clientURL = paramsProcessorUtil.getDefaultHTML5ClientUrl();
 
     if (!StringUtils.isEmpty(params.redirect)) {
       try {
@@ -1351,6 +1323,7 @@ class ApiController {
       // Get the client url we stored in the join api call before
       // being told to wait.
       String clientURL = us.clientUrl;
+      String lobbyMsg = meeting.getGuestLobbyMessage()
       log.info("clientURL = " + clientURL)
       log.info("redirect = ." + redirectClient)
       if (!StringUtils.isEmpty(params.redirect)) {
@@ -1377,9 +1350,8 @@ class ApiController {
       String destUrl = clientURL
       log.debug("destUrl = " + destUrl)
 
-
       if (guestWaitStatus.equals(GuestPolicy.WAIT)) {
-        meetingService.guestIsWaiting(userSession.meetingID, userSession.internalUserId);
+        meetingService.guestIsWaiting(us.meetingID, us.internalUserId);
         clientURL = paramsProcessorUtil.getDefaultGuestWaitURL();
         destUrl = clientURL + "?sessionToken=" + sessionToken
         log.debug("GuestPolicy.WAIT - destUrl = " + destUrl)
@@ -1441,6 +1413,7 @@ class ApiController {
               auth_token us.authToken
               session_token session[sessionToken]
               guestStatus guestWaitStatus
+              lobbyMessage lobbyMsg
               url destUrl
             }
             render(contentType: "application/json", text: builder.toPrettyString())

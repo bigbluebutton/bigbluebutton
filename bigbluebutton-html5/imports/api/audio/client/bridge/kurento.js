@@ -1,258 +1,53 @@
 import BaseAudioBridge from './base';
 import Auth from '/imports/ui/services/auth';
-import { fetchWebRTCMappedStunTurnServers, getMappedFallbackStun } from '/imports/utils/fetchStunTurnServers';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import logger from '/imports/startup/client/logger';
+import ListenOnlyBroker from '/imports/ui/services/bbb-webrtc-sfu/listenonly-broker';
+import loadAndPlayMediaStream from '/imports/ui/services/bbb-webrtc-sfu/load-play';
+import {
+  fetchWebRTCMappedStunTurnServers,
+  getMappedFallbackStun
+} from '/imports/utils/fetchStunTurnServers';
 
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag.replace(/#/g, '');
 const GLOBAL_AUDIO_PREFIX = 'GLOBAL_AUDIO_';
 const RECONNECT_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
+const RECV_ROLE = 'recv';
+const BRIDGE_NAME = 'kurento';
+
+// SFU's base broker has distinct error codes so that it can be reused by different
+// modules. Errors that have a valid, localized counterpart in audio manager are
+// mapped so that the user gets a localized error message.
+// The ones that haven't (ie SFU's servers-side errors), aren't mapped.
+const errorCodeMap = {
+  1301: 1001,
+  1302: 1002,
+  1305: 1005,
+  1307: 1007,
+}
+const mapErrorCode = (error) => {
+  const { errorCode } = error;
+  const mappedErrorCode = errorCodeMap[errorCode];
+  if (errorCode == null || mappedErrorCode == null) return error;
+  error.errorCode = mappedErrorCode;
+  return error;
+}
 
 export default class KurentoAudioBridge extends BaseAudioBridge {
   constructor(userData) {
     super();
-    const {
-      userId,
-      username,
-      voiceBridge,
-      meetingId,
-      sessionToken,
-    } = userData;
-
-    this.user = {
-      userId,
-      name: username,
-      sessionToken,
-    };
-
+    this.internalMeetingID = userData.meetingId;
+    this.voiceBridge = userData.voiceBridge;
+    this.userId = userData.userId;
+    this.name = userData.username;
+    this.sessionToken = userData.sessionToken;
     this.media = {
       inputDevice: {},
     };
-
-
-    this.internalMeetingID = meetingId;
-    this.voiceBridge = voiceBridge;
-    this.reconnectOngoing = false;
-    this.hasSuccessfullyStarted = false;
-  }
-
-  static normalizeError(error = {}) {
-    const errorMessage = error.name || error.message || error.reason || 'Unknown error';
-    const errorCode = error.code || undefined;
-    let errorReason = error.reason || error.id || 'Undefined reason';
-
-    // HOPEFULLY TEMPORARY
-    // The errors are often just strings so replace the errorReason if that's the case
-    if (typeof error === 'string') {
-      errorReason = error;
-    }
-    // END OF HOPEFULLY TEMPORARY
-
-    return { errorMessage, errorCode, errorReason };
-  }
-
-
-  joinAudio({ isListenOnly, inputStream }, callback) {
-    return new Promise(async (resolve, reject) => {
-      this.callback = callback;
-      let iceServers = [];
-
-      try {
-        logger.info({
-          logCode: 'sfuaudiobridge_stunturn_fetch_start',
-          extraInfo: { iceServers },
-        }, 'SFU audio bridge starting STUN/TURN fetch');
-
-        iceServers = await fetchWebRTCMappedStunTurnServers(this.user.sessionToken);
-      } catch (error) {
-        logger.error({ logCode: 'sfuaudiobridge_stunturn_fetch_failed' },
-          'SFU audio bridge failed to fetch STUN/TURN info, using default servers');
-        iceServers = getMappedFallbackStun();
-      } finally {
-        logger.info({
-          logCode: 'sfuaudiobridge_stunturn_fetch_sucess',
-          extraInfo: { iceServers },
-        }, 'SFU audio bridge got STUN/TURN servers');
-
-        const options = {
-          wsUrl: Auth.authenticateURL(SFU_URL),
-          userName: this.user.name,
-          caleeName: `${GLOBAL_AUDIO_PREFIX}${this.voiceBridge}`,
-          iceServers,
-          logger,
-          inputStream,
-        };
-
-        const audioTag = document.getElementById(MEDIA_TAG);
-
-        const playElement = () => {
-          const mediaTagPlayed = () => {
-            logger.info({
-              logCode: 'listenonly_media_play_success',
-            }, 'Listen only media played successfully');
-            resolve(this.callback({ status: this.baseCallStates.started }));
-          };
-          if (audioTag.paused) {
-            // Tag isn't playing yet. Play it.
-            audioTag.play()
-              .then(mediaTagPlayed)
-              .catch((error) => {
-                // NotAllowedError equals autoplay issues, fire autoplay handling event.
-                // This will be handled in audio-manager.
-                if (error.name === 'NotAllowedError') {
-                  logger.error({
-                    logCode: 'listenonly_error_autoplay',
-                    extraInfo: { errorName: error.name },
-                  }, 'Listen only media play failed due to autoplay error');
-                  const tagFailedEvent = new CustomEvent('audioPlayFailed', { detail: { mediaElement: audioTag } });
-                  window.dispatchEvent(tagFailedEvent);
-                  resolve(this.callback({
-                    status: this.baseCallStates.autoplayBlocked,
-                  }));
-                } else {
-                  // Tag failed for reasons other than autoplay. Log the error and
-                  // try playing again a few times until it works or fails for good
-                  const played = playAndRetry(audioTag);
-                  if (!played) {
-                    logger.error({
-                      logCode: 'listenonly_error_media_play_failed',
-                      extraInfo: { errorName: error.name },
-                    }, `Listen only media play failed due to ${error.name}`);
-                  } else {
-                    mediaTagPlayed();
-                  }
-                }
-              });
-          } else {
-            // Media tag is already playing, so log a success. This is really a
-            // logging fallback for a case that shouldn't happen. But if it does
-            // (ie someone re-enables the autoPlay prop in the element), then it
-            // means the stream is playing properly and it'll be logged.
-            mediaTagPlayed();
-          }
-        };
-
-        const onSuccess = () => {
-          const { webRtcPeer } = window.kurentoManager.kurentoAudio;
-
-          this.hasSuccessfullyStarted = true;
-          if (webRtcPeer) {
-            logger.info({
-              logCode: 'sfuaudiobridge_audio_negotiation_success',
-            }, 'SFU audio bridge negotiated audio with success');
-
-            const stream = webRtcPeer.getRemoteStream();
-
-            audioTag.pause();
-            audioTag.srcObject = stream;
-            audioTag.muted = false;
-            logger.info({
-              logCode: 'sfuaudiobridge_audio_ready_to_play',
-            }, 'SFU audio bridge is ready to play');
-
-            playElement();
-          } else {
-            logger.info({
-              logCode: 'sfuaudiobridge_audio_negotiation_failed',
-            }, 'SFU audio bridge failed to negotiate audio');
-
-            this.callback({
-              status: this.baseCallStates.failed,
-              error: this.baseErrorCodes.CONNECTION_ERROR,
-              bridgeError: 'No WebRTC Peer',
-            });
-          }
-
-          if (this.reconnectOngoing) {
-            this.reconnectOngoing = false;
-            clearTimeout(this.reconnectTimeout);
-          }
-        };
-
-        const onFail = (error) => {
-          const { errorMessage, errorCode, errorReason } = KurentoAudioBridge.normalizeError(error);
-
-          // Listen only connected successfully already and dropped mid-call.
-          // Try to reconnect ONCE (binded to reconnectOngoing flag)
-          if (this.hasSuccessfullyStarted && !this.reconnectOngoing) {
-            logger.error({
-              logCode: 'listenonly_error_try_to_reconnect',
-              extraInfo: { errorMessage, errorCode, errorReason },
-            }, `Listen only failed for an ongoing session, try to reconnect. - reason: ${errorReason}`);
-            window.kurentoExitAudio();
-            this.callback({ status: this.baseCallStates.reconnecting });
-            this.reconnectOngoing = true;
-            // Set up a reconnectionTimeout in case the server is unresponsive
-            // for some reason. If it gets triggered, end the session and stop
-            // trying to reconnect
-            this.reconnectTimeout = setTimeout(() => {
-              this.callback({
-                status: this.baseCallStates.failed,
-                error: this.baseErrorCodes.CONNECTION_ERROR,
-                bridgeError: 'Reconnect Timeout',
-              });
-              this.reconnectOngoing = false;
-              this.hasSuccessfullyStarted = false;
-              window.kurentoExitAudio();
-            }, RECONNECT_TIMEOUT_MS);
-            window.kurentoJoinAudio(
-              MEDIA_TAG,
-              this.voiceBridge,
-              this.user.userId,
-              this.internalMeetingID,
-              onFail,
-              onSuccess,
-              options,
-            );
-          } else {
-            // Already tried reconnecting once OR the user handn't succesfully
-            // connected firsthand. Just finish the session and reject with error
-            if (!this.reconnectOngoing) {
-              logger.error({
-                logCode: 'listenonly_error_failed_to_connect',
-                extraInfo: { errorMessage, errorCode, errorReason },
-              }, `Listen only failed when trying to start due to ${errorReason}`);
-            } else {
-              logger.error({
-                logCode: 'listenonly_error_reconnect_failed',
-                extraInfo: { errorMessage, errorCode, errorReason },
-              }, `Listen only failed when trying to reconnect due to ${errorReason}`);
-            }
-
-            this.reconnectOngoing = false;
-            this.hasSuccessfullyStarted = false;
-            window.kurentoExitAudio();
-
-            this.callback({
-              status: this.baseCallStates.failed,
-              error: this.baseErrorCodes.CONNECTION_ERROR,
-              bridgeError: errorReason,
-            });
-
-            reject(errorReason);
-          }
-        };
-
-        if (!isListenOnly) {
-          return reject(new Error('Invalid bridge option'));
-        }
-
-        logger.info({
-          logCode: 'sfuaudiobridge_ready_to_join_audio',
-        }, 'SFU audio bridge is ready to join audio');
-        window.kurentoJoinAudio(
-          MEDIA_TAG,
-          this.voiceBridge,
-          this.user.userId,
-          this.internalMeetingID,
-          onFail,
-          onSuccess,
-          options,
-        );
-      }
-    });
+    this.broker;
+    this.reconnecting = false;
   }
 
   async changeOutputDevice(value) {
@@ -262,8 +57,10 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
         await audioContext.setSinkId(value);
         this.media.outputDeviceId = value;
       } catch (error) {
-        logger.error({ logCode: 'sfuaudiobridge_changeoutputdevice_error', extraInfo: { error } },
-          'SFU audio bridge failed to fetch STUN/TURN info, using default');
+        logger.error({
+          logCode: 'listenonly_changeoutputdevice_error',
+          extraInfo: { error, bridge: BRIDGE_NAME }
+        }, 'Audio bridge failed to change output device');
         throw new Error(this.baseErrorCodes.MEDIA_ERROR);
       }
     }
@@ -272,18 +69,175 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
   }
 
   getPeerConnection() {
-    const { webRtcPeer } = window.kurentoManager.kurentoAudio;
-    if (webRtcPeer) {
-      return webRtcPeer.peerConnection;
-    }
+    const webRtcPeer = this.broker.webRtcPeer;
+    if (webRtcPeer) return webRtcPeer.peerConnection;
     return null;
   }
 
-  exitAudio() {
-    return new Promise((resolve) => {
-      this.hasSuccessfullyStarted = false;
-      window.kurentoExitAudio();
-      return resolve(this.callback({ status: this.baseCallStates.ended }));
+  handleTermination() {
+    return this.callback({ status: this.baseCallStates.ended, bridge: BRIDGE_NAME });
+  }
+
+  clearReconnectionTimeout() {
+    this.reconnecting = false;
+    if (this.reconnectionTimeout) {
+      clearTimeout(this.reconnectionTimeout);
+      this.reconnectionTimeout = null;
+    }
+  }
+
+  reconnect() {
+    this.broker.stop();
+    this.callback({ status: this.baseCallStates.reconnecting, bridge: BRIDGE_NAME });
+    this.reconnecting = true;
+    // Set up a reconnectionTimeout in case the server is unresponsive
+    // for some reason. If it gets triggered, end the session and stop
+    // trying to reconnect
+    this.reconnectionTimeout = setTimeout(() => {
+      this.callback({
+        status: this.baseCallStates.failed,
+        error: 1010,
+        bridgeError: 'Reconnection timeout',
+        bridge: BRIDGE_NAME,
+      });
+      this.broker.stop();
+      this.clearReconnectionTimeout();
+    }, RECONNECT_TIMEOUT_MS);
+
+    this.joinAudio({ isListenOnly: true }, this.callback).then(() => {
+      this.clearReconnectionTimeout();
+    }).catch(error => {
+      // Error handling is a no-op because it will be "handled" in handleBrokerFailure
+      logger.debug({
+        logCode: 'listenonly_reconnect_failed',
+        extraInfo: {
+          errorMessage: error.errorMessage,
+          reconnecting: this.reconnecting,
+          bridge: BRIDGE_NAME
+        },
+      }, 'Listen only reconnect failed');
     });
+  }
+
+  handleBrokerFailure(error) {
+    return new Promise((resolve, reject) => {
+      mapErrorCode(error);
+      const { errorMessage, errorCause, errorCode } = error;
+
+      if (this.broker.started && !this.reconnecting) {
+        logger.error({
+          logCode: 'listenonly_error_try_to_reconnect',
+          extraInfo: { errorMessage, errorCode, errorCause, bridge: BRIDGE_NAME },
+        }, 'Listen only failed, try to reconnect');
+        this.reconnect();
+        return resolve();
+      } else {
+        // Already tried reconnecting once OR the user handn't succesfully
+        // connected firsthand. Just finish the session and reject with error
+        logger.error({
+          logCode: 'listenonly_error',
+          extraInfo: {
+            errorMessage, errorCode, errorCause,
+            reconnecting: this.reconnecting,
+            bridge: BRIDGE_NAME
+          },
+        }, 'Listen only failed');
+        this.clearReconnectionTimeout();
+        this.broker.stop();
+        this.callback({
+          status: this.baseCallStates.failed,
+          error: errorCode,
+          bridgeError: errorMessage,
+          bridge: BRIDGE_NAME,
+        });
+        return reject(error);
+      }
+    });
+  }
+
+  dispatchAutoplayHandlingEvent(mediaElement) {
+    const tagFailedEvent = new CustomEvent('audioPlayFailed', {
+      detail: { mediaElement }
+    });
+    window.dispatchEvent(tagFailedEvent);
+    this.callback({ status: this.baseCallStates.autoplayBlocked, bridge: BRIDGE_NAME });
+  }
+
+  handleStart() {
+    const stream = this.broker.webRtcPeer.getRemoteStream();
+    const mediaElement = document.getElementById(MEDIA_TAG);
+
+    return loadAndPlayMediaStream(stream, mediaElement, false).then(() => {
+      return this.callback({ status: this.baseCallStates.started, bridge: BRIDGE_NAME });
+    }).catch(error => {
+      // NotAllowedError equals autoplay issues, fire autoplay handling event.
+      // This will be handled in audio-manager.
+      if (error.name === 'NotAllowedError') {
+        logger.error({
+          logCode: 'listenonly_error_autoplay',
+          extraInfo: { errorName: error.name, bridge: BRIDGE_NAME },
+        }, 'Listen only media play failed due to autoplay error');
+        this.dispatchAutoplayHandlingEvent(mediaElement);
+      } else {
+        const normalizedError = {
+          errorCode: 1004,
+          errorMessage: error.message || 'AUDIO_PLAY_FAILED',
+        };
+        this.callback({
+          status: this.baseCallStates.failed,
+          error: normalizedError.errorCode,
+          bridgeError: normalizedError.errorMessage,
+          bridge: BRIDGE_NAME,
+        })
+        throw normalizedError;
+      }
+    });
+  }
+
+  joinAudio({ isListenOnly }, callback) {
+    return new Promise(async (resolve, reject) => {
+      if (!isListenOnly) return reject(new Error('Invalid bridge option'));
+      this.callback = callback;
+      let iceServers = [];
+
+      try {
+        iceServers = await fetchWebRTCMappedStunTurnServers(this.sessionToken);
+      } catch (error) {
+        logger.error({ logCode: 'listenonly_stunturn_fetch_failed' },
+          'SFU audio bridge failed to fetch STUN/TURN info, using default servers');
+        iceServers = getMappedFallbackStun();
+      } finally {
+        const options = {
+          userName: this.name,
+          caleeName: `${GLOBAL_AUDIO_PREFIX}${this.voiceBridge}`,
+          iceServers,
+        };
+
+        this.broker = new ListenOnlyBroker(
+          Auth.authenticateURL(SFU_URL),
+          this.voiceBridge,
+          this.userId,
+          this.internalMeetingID,
+          RECV_ROLE,
+          options,
+        );
+
+        this.broker.onended = this.handleTermination.bind(this);
+        this.broker.onerror = (error) => {
+          this.handleBrokerFailure(error).catch(reject);
+        }
+        this.broker.onstart = () => {
+          this.handleStart().then(resolve).catch(reject);
+        };
+
+       this.broker.listen().catch(reject);
+      }
+    });
+  }
+
+  exitAudio() {
+    this.broker.stop();
+    this.clearReconnectionTimeout();
+    return Promise.resolve();
   }
 }

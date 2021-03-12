@@ -23,15 +23,17 @@ else
   SERVLET_DIR=/var/lib/tomcat7/webapps/bigbluebutton
 fi
 
+BBB_WEB_ETC_CONFIG=/etc/bigbluebutton/bbb-web.properties
+
 PROTOCOL=http
 if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
-  SERVER_URL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-  if cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep bigbluebutton.web.serverURL | grep -q https; then
+  SERVER_URL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $BBB_WEB_ETC_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}' | tail -n 1)
+  if cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $BBB_WEB_ETC_CONFIG | grep -v '#' | grep bigbluebutton.web.serverURL | tail -n 1 | grep -q https; then
     PROTOCOL=https
   fi
 fi
 
-HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $BBB_WEB_ETC_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}' | tail -n 1)
 
 HTML5_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 BBB_WEB_CONFIG=$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
@@ -201,7 +203,7 @@ HERE
 }
 
 disableMultipleKurentos() {
-  echo "  - Configuring a single Kurento Media Server for listen only, webcam, and screeshare"
+  echo "  - Configuring a single Kurento Media Server for listen only, webcam, and screenshare"
   systemctl stop kurento-media-server.service
 
   for i in `seq 8888 8890`; do
@@ -223,20 +225,6 @@ disableMultipleKurentos() {
   yq w -i $KURENTO_CONFIG "kurento[0].mediaType" ""
 
   yq w -i $KURENTO_CONFIG balancing-strategy ROUND_ROBIN
-}
-
-setNumberOfHTML5Processes() {
-  HTML5_RESTRICTIONS_FILE=/usr/share/meteor/bundle/bbb-html5.conf
-  NUMBER_OF_PROCESSES=`echo $1 | bc`
-
-  source $HTML5_RESTRICTIONS_FILE
-
-  echo "setNumberOfHTML5Processes with number of processes in the range ($INSTANCE_MIN to $INSTANCE_MAX)"
-  echo "setNumberOfHTML5Processes with NUMBER_OF_PROCESSES=$NUMBER_OF_PROCESSES"
-
-  sed -i -e "s|DESIRED_INSTANCE_COUNT=.*$|DESIRED_INSTANCE_COUNT=$NUMBER_OF_PROCESSES|g" $HTML5_RESTRICTIONS_FILE
-
-  systemctl restart bbb-html5
 }
 
 
@@ -267,8 +255,8 @@ source /etc/bigbluebutton/bbb-conf/apply-lib.sh
 
 #enableMultipleKurentos
 
-#setNumberOfHTML5Processes 2
-
+# Shorten the FreeSWITCH "you have been muted" and "you have been unmuted" prompts
+# cp -r /etc/bigbluebutton/bbb-conf/sounds /opt/freeswitch/share/freeswitch
 
 HERE
 chmod +x /etc/bigbluebutton/bbb-conf/apply-config.sh

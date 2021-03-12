@@ -13,17 +13,17 @@ class Copy extends Page {
   async test(testName) {
     await util.openChat(this);
     if (process.env.GENERATE_EVIDENCES === 'true') {
-      await this.screenshot(`${testName}`, `01-before-sending-chat-message-[${testName}]`);
+      await this.screenshot(`${testName}`, `01-before-sending-chat-message-[${this.meetingId}]`);
     }
     // sending a message
     await this.type(e.chatBox, e.message);
-    await this.click(e.sendButton);
+    await this.click(e.sendButton, true);
     if (process.env.GENERATE_EVIDENCES === 'true') {
-      await this.screenshot(`${testName}`, `02-chat-message-sent-[${testName}]`);
+      await this.screenshot(`${testName}`, `02-chat-message-sent-[${this.meetingId}]`);
     }
-    await this.click(e.chatOptions);
+    await this.click(e.chatOptions, true);
     if (process.env.GENERATE_EVIDENCES === 'true') {
-      await this.screenshot(`${testName}`, `03-chat-options-clicked-[${testName}]`);
+      await this.screenshot(`${testName}`, `03-chat-options-clicked-[${this.meetingId}]`);
     }
     await this.click(e.chatCopy, true);
 

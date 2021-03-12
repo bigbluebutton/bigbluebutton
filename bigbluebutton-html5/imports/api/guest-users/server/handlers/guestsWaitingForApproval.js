@@ -24,7 +24,7 @@ export default function handleGuestsWaitingForApproval({ body }, meetingId) {
         denied: false,
         ...guest,
         meetingId,
-        loginTime: new Date().getTime(),
+        loginTime: guest.registeredOn,
         color: COLOR_LIST[stringHash(guest.intId) % COLOR_LIST.length],
       });
 
