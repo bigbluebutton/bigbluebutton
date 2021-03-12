@@ -41,6 +41,7 @@ export default class TextDrawComponent extends Component {
       resize: 'none',
       overflow: 'hidden',
       outline: 'none',
+      backgroundColor: 'rgba(128, 128, 128, 0.2)',
       color: results.fontColor,
       fontSize: results.calcedFontSize,
       padding: '0',
