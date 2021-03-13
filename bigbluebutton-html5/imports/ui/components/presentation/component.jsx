@@ -1,4 +1,5 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
+import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
@@ -51,6 +52,76 @@ const intlMessages = defineMessages({
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
+function copyStyles(sourceDoc, targetDoc) {
+  const hostUri = `https://${window.document.location.hostname}`;
+  const baseName = hostUri + Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId;
+  Array.from(sourceDoc.styleSheets).forEach(styleSheet => {
+    if (styleSheet.cssRules) { // for <style> elements
+      const newStyleEl = sourceDoc.createElement('style');
+      Array.from(styleSheet.cssRules).forEach(cssRule => {
+        let newCssText;
+        if (cssRule.cssText.match(/url\(.fonts/)) {
+          newCssText = cssRule.cssText.replace(/^(.*url\(.)(fonts.+)$/, function(){return arguments[1] + baseName + '/' + arguments[2]});
+        } else {
+          newCssText = cssRule.cssText;
+        }
+        newStyleEl.appendChild(sourceDoc.createTextNode(newCssText));
+      });
+      targetDoc.head.appendChild(newStyleEl);
+    } else if (styleSheet.href) {
+      const newLinkEl = sourceDoc.createElement('link');
+      newLinkEl.rel = 'stylesheet';
+      newLinkEl.href = styleSheet.href;
+      targetDoc.head.appendChild(newLinkEl);
+    }
+  });
+}
+
+let presentationWindow = window;
+class MyWindowPortal extends React.PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = { win: null, el: null };
+  }
+
+  componentDidMount() {
+    const {
+      svgSize,
+      setEventExternalWindow,
+      setSeparatePresentationWindow,
+      toolbarHeight,
+    } = this.props;
+
+    let win = window.open('', '', `innerWidth=${svgSize.width},innerHeight=${svgSize.height+toolbarHeight}`);
+    win.document.title = 'BigBlueButton Portal Window';
+    win.document.body.style.position = 'relative'; // to center the slide
+    copyStyles(document, win.document);
+    let el = document.createElement('div');
+    win.document.body.appendChild(el);
+    presentationWindow = win;
+    setEventExternalWindow(win, toolbarHeight);
+
+    win.addEventListener('beforeunload', () => {
+      presentationWindow = window;
+      setSeparatePresentationWindow(false); //for closing the window by X button
+    });
+
+    this.setState({ win, el });
+  }
+
+  componentWillUnmount() {
+    this.state.win.close();
+  }
+
+  render() {
+    const { el } = this.state;
+    if (!el) {
+      return null;
+    }
+    return createPortal(this.props.children, el);
+  }
+}
+
 class PresentationArea extends PureComponent {
   constructor() {
     super();
@@ -75,7 +146,7 @@ class PresentationArea extends PureComponent {
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
     this.getPresentationSizesAvailable = this.getPresentationSizesAvailable.bind(this);
     this.handleResize = this.handleResize.bind(this);
-
+    this.setEventExternalWindow = this.setEventExternalWindow.bind(this);
 
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
     this.renderCurrentPresentationToast = this.renderCurrentPresentationToast.bind(this);
@@ -259,6 +330,22 @@ class PresentationArea extends PureComponent {
     this.refPresentationContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
+  setEventExternalWindow (win, toolbarHeight) {
+    win.addEventListener('resize', () => {
+      this.setState({
+        presentationAreaWidth: win.innerWidth,
+        presentationAreaHeight: win.innerHeight - toolbarHeight,
+      });
+    });
+
+    win.addEventListener('fullscreenchange', () => {
+      this.setState({
+        presentationAreaWidth: win.innerWidth,
+        presentationAreaHeight: win.innerHeight - toolbarHeight,
+      });
+    });
+  }
+
   onFullscreenChange() {
     const { layoutContextDispatch } = this.props;
     const { isFullscreen } = this.state;
@@ -286,7 +373,7 @@ class PresentationArea extends PureComponent {
   }
 
   getPresentationSizesAvailable() {
-    const { layoutContextState } = this.props;
+    const { layoutContextState, separatePresentationWindow } = this.props;
     const {
       presentationAreaSize,
       webcamsAreaResizing,
@@ -299,12 +386,17 @@ class PresentationArea extends PureComponent {
       presentationAreaHeight: 0,
     };
 
-    presentationSizes.presentationAreaWidth = webcamsAreaResizing && (webcamsPlacement === 'left' || webcamsPlacement === 'right')
-      ? mediaBounds.width - tempWebcamsAreaSize.width
-      : presentationAreaSize.width;
-    presentationSizes.presentationAreaHeight = webcamsAreaResizing && (webcamsPlacement === 'top' || webcamsPlacement === 'bottom')
-      ? mediaBounds.height - tempWebcamsAreaSize.height - (this.getToolbarHeight() || 0) - 30
-      : presentationAreaSize.height - (this.getToolbarHeight() || 0);
+    if (separatePresentationWindow && presentationWindow.innerWidth != 0) {
+      presentationSizes.presentationAreaWidth = presentationWindow.innerWidth;
+      presentationSizes.presentationAreaHeight = presentationWindow.innerHeight - (this.getToolbarHeight() || 0);
+    } else {
+      presentationSizes.presentationAreaWidth = webcamsAreaResizing && (webcamsPlacement === 'left' || webcamsPlacement === 'right')
+        ? mediaBounds.width - tempWebcamsAreaSize.width
+        : presentationAreaSize.width;
+      presentationSizes.presentationAreaHeight = webcamsAreaResizing && (webcamsPlacement === 'top' || webcamsPlacement === 'bottom')
+        ? mediaBounds.height - tempWebcamsAreaSize.height - (this.getToolbarHeight() || 0) - 30
+        : presentationAreaSize.height - (this.getToolbarHeight() || 0);
+    }
     return presentationSizes;
   }
 
@@ -453,7 +545,9 @@ class PresentationArea extends PureComponent {
 
   renderPresentationClose() {
     const { isFullscreen } = this.state;
-    if (!shouldEnableSwapLayout() || isFullscreen) {
+    const { separatePresentationWindow } = this.props;
+    
+    if (!shouldEnableSwapLayout() || isFullscreen || separatePresentationWindow) {
       return null;
     }
     return <PresentationCloseButton toggleSwapLayout={MediaService.toggleSwapLayout} />;
@@ -466,6 +560,7 @@ class PresentationArea extends PureComponent {
       podId,
       currentSlide,
       slidePosition,
+      separatePresentationWindow,
     } = this.props;
 
     const {
@@ -505,6 +600,8 @@ class PresentationArea extends PureComponent {
         panAndZoomChanger={this.panAndZoomChanger}
         getSvgRef={this.getSvgRef}
         fitToWidth={fitToWidth}
+        eventWindow={presentationWindow}
+        separatePresentationWindow={separatePresentationWindow}
       >
         <WhiteboardOverlayContainer
           getSvgRef={this.getSvgRef}
@@ -521,6 +618,8 @@ class PresentationArea extends PureComponent {
           physicalSlideHeight={physicalDimensions.height}
           zoom={zoom}
           zoomChanger={this.zoomChanger}
+          eventWindow={presentationWindow}
+          separatePresentationWindow={separatePresentationWindow}
         />
       </PresentationOverlayContainer>
     );
@@ -535,6 +634,7 @@ class PresentationArea extends PureComponent {
       slidePosition,
       userIsPresenter,
       layoutSwapped,
+      separatePresentationWindow,
     } = this.props;
 
     const {
@@ -585,15 +685,22 @@ class PresentationArea extends PureComponent {
       ${content}
       ${intl.formatMessage(intlMessages.slideContentEnd)}` : intl.formatMessage(intlMessages.noSlideContent);
 
+    let presentationStyle = {
+      position: 'absolute',
+      width: svgDimensions.width < 0 ? 0 : svgDimensions.width,
+      height: svgDimensions.height < 0 ? 0 : svgDimensions.height,
+      textAlign: 'center',
+      display: layoutSwapped ? 'none' : 'block',
+    };
+    
+    if ( userIsPresenter && separatePresentationWindow ) {
+      presentationStyle.left = "50%";
+      presentationStyle.transform = "translateX(-50%)";
+    }
+    
     return (
       <div
-        style={{
-          position: 'absolute',
-          width: svgDimensions.width < 0 ? 0 : svgDimensions.width,
-          height: svgDimensions.height < 0 ? 0 : svgDimensions.height,
-          textAlign: 'center',
-          display: layoutSwapped ? 'none' : 'block',
-        }}
+        style={presentationStyle}
       >
         <span id="currentSlideText" className={styles.visuallyHidden}>{slideContent}</span>
         {this.renderPresentationClose()}
@@ -662,6 +769,8 @@ class PresentationArea extends PureComponent {
     const {
       currentSlide,
       podId,
+      separatePresentationWindow,
+      toggleSeparatePresentationWindow,
     } = this.props;
 
     const { zoom, fitToWidth, isFullscreen } = this.state;
@@ -684,6 +793,9 @@ class PresentationArea extends PureComponent {
         presentationId={currentSlide.presentationId}
         zoomChanger={this.zoomChanger}
         fitToWidthHandler={this.fitToWidthHandler}
+        toggleSeparatePresentationWindow={toggleSeparatePresentationWindow}
+        separatePresentationWindow={separatePresentationWindow}
+        presentationWindow={presentationWindow}
       />
     );
   }
@@ -696,6 +808,7 @@ class PresentationArea extends PureComponent {
       <WhiteboardToolbarContainer
         whiteboardId={currentSlide.id}
         height={svgDimensions.height}
+        presentationWindow={presentationWindow}
       />
     );
   }
@@ -781,6 +894,12 @@ class PresentationArea extends PureComponent {
       userIsPresenter,
       multiUser,
       slidePosition,
+      separatePresentationWindow,
+      setSeparatePresentationWindow,
+      setPreviousSvgSize,
+      getPreviousSvgSize,
+      setPreviousToolbarHeight,
+      getPreviousToolbarHeight,
     } = this.props;
 
     const {
@@ -821,6 +940,42 @@ class PresentationArea extends PureComponent {
       toolbarWidth = svgWidth;
     }
 
+    const slide =
+            showSlide
+              ? this.renderPresentationArea(svgDimensions, viewBoxDimensions)
+              : null ;
+
+    const wToolbar =
+            showSlide && (userIsPresenter || multiUser)
+              ? this.renderWhiteboardToolbar(svgDimensions)
+              : null ;
+
+    let pToolbarStyle = {width: toolbarWidth};
+    if (userIsPresenter && separatePresentationWindow){
+      pToolbarStyle.left = "50%";
+      pToolbarStyle.transform = "translateX(-50%)";
+    }
+
+    const pToolbar =
+            showSlide && userIsPresenter
+              ? (
+                <div
+                  className={styles.presentationToolbar}
+                  ref={(ref) => { this.refPresentationToolbar = ref; }}
+                  style={pToolbarStyle}
+                >
+                  {this.renderPresentationToolbar()}
+                </div>
+              )
+              : null ;
+
+    if (svgHeight != 0 && svgWidth != 0) {
+      setPreviousSvgSize(svgWidth, svgHeight);
+    }
+    if (toolbarHeight != 0) {
+      setPreviousToolbarHeight(toolbarHeight);
+    }
+
     return (
       <div
         ref={(ref) => { this.refPresentationContainer = ref; }}
@@ -842,27 +997,27 @@ class PresentationArea extends PureComponent {
               height: svgHeight + toolbarHeight,
             }}
           >
-            {showSlide && svgWidth > 0 && svgHeight > 0
-              ? this.renderPresentationArea(svgDimensions, viewBoxDimensions)
-              : null}
-            {showSlide && (userIsPresenter || multiUser)
-              ? this.renderWhiteboardToolbar(svgDimensions)
-              : null}
-            {showSlide && userIsPresenter && svgWidth > 0 && svgHeight > 0
-              ? (
-                <div
-                  className={styles.presentationToolbar}
-                  ref={(ref) => { this.refPresentationToolbar = ref; }}
-                  style={
-                    {
-                      width: toolbarWidth,
-                    }
-                  }
+          {userIsPresenter && separatePresentationWindow
+            ?
+              <Fragment>
+                <MyWindowPortal
+                  setSeparatePresentationWindow={setSeparatePresentationWindow}
+                  setEventExternalWindow={this.setEventExternalWindow}
+                  svgSize={getPreviousSvgSize()}
+                  toolbarHeight={getPreviousToolbarHeight()}
                 >
-                  {this.renderPresentationToolbar()}
-                </div>
-              )
-              : null}
+                  {slide}
+                  {pToolbar}
+                </MyWindowPortal>
+                {wToolbar}
+              </Fragment>
+            :
+              <Fragment>
+                {slide}
+                {wToolbar}
+                {pToolbar}
+              </Fragment>
+          }
           </div>
         </div>
       </div>
