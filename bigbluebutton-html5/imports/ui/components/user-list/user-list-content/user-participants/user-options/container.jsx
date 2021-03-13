@@ -4,15 +4,16 @@ import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import ActionsBarService from '/imports/ui/components/actions-bar/service';
 import UserListService from '/imports/ui/components/user-list/service';
+import WaitingUsersService from '/imports/ui/components/waiting-users/service';
 import logger from '/imports/startup/client/logger';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import UserOptions from './component';
 
 const propTypes = {
   users: PropTypes.arrayOf(Object).isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -48,6 +49,13 @@ const UserOptionsContainer = withTracker((props) => {
     return muteOnStart;
   };
 
+  const getMeetingName = () => {
+    const { meetingProp } = Meetings.findOne({ meetingId: Auth.meetingID },
+      { fields: { 'meetingProp.name': 1 } });
+    const { name } = meetingProp;
+    return name;
+  };
+
   return {
     toggleMuteAllUsers: () => {
       UserListService.muteAllUsers(Auth.userID);
@@ -77,7 +85,9 @@ const UserOptionsContainer = withTracker((props) => {
     isBreakoutEnabled: ActionsBarService.isBreakoutEnabled(),
     isBreakoutRecordable: ActionsBarService.isBreakoutRecordable(),
     users: ActionsBarService.users(),
+    guestPolicy: WaitingUsersService.getGuestPolicy(),
     isMeteorConnected: Meteor.status().connected,
+    meetingName: getMeetingName(),
   };
 })(UserOptions);
 

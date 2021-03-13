@@ -10,7 +10,7 @@ export default function stopUserTyping() {
     userId: requesterUserId,
   });
 
-  if (userTyping) {
+  if (userTyping && meetingId && requesterUserId) {
     stopTyping(meetingId, requesterUserId, true);
   }
 }

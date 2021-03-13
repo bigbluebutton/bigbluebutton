@@ -1,13 +1,14 @@
 @import '/imports/ui/stylesheets/mixins/_indicators';
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 .switch {
     &:hover {
-        @include highContrastOutline();
+        @extend %highContrastOutline;
     }
 
     &:focus,
     &:focus-within {
-        @include highContrastOutline();
+        @extend %highContrastOutline;
         outline-style: solid;
     }
 }

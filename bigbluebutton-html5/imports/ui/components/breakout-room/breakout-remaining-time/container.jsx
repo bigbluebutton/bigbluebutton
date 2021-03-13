@@ -34,6 +34,8 @@ const intlMessages = defineMessages({
 });
 
 let timeRemaining = 0;
+let prevTimeRemaining = 0;
+
 const timeRemainingDep = new Tracker.Dependency();
 let timeRemainingInterval = null;
 
@@ -89,8 +91,12 @@ export default injectNotify(injectIntl(withTracker(({
   const data = {};
   if (breakoutRoom) {
     const roomRemainingTime = breakoutRoom.timeRemaining;
+    const localRemainingTime = getTimeRemaining();
+    const shouldResync = prevTimeRemaining !== roomRemainingTime && roomRemainingTime !== localRemainingTime;
 
-    if (!timeRemainingInterval && roomRemainingTime) {
+    if ((!timeRemainingInterval || shouldResync) && roomRemainingTime) {
+      prevTimeRemaining = roomRemainingTime;
+
       timeRemainingInterval = startCounter(
         roomRemainingTime,
         setTimeRemaining,

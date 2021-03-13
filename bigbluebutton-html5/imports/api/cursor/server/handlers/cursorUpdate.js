@@ -17,9 +17,9 @@ const proccess = _.throttle(() => {
         delete cursorQueue[meetingId];
         CursorStreamer(meetingId).emit('message', { meetingId, cursors });
 
-        if (streamerLog) {
-          Logger.debug(`CursorUpdate process for meeting ${meetingId} has finished`);
-        }
+        // if (streamerLog) {
+        //   Logger.debug('CursorUpdate process has finished', { meetingId });
+        // }
       } catch (error) {
         Logger.error(`Error while trying to send cursor streamer data for meeting ${meetingId}. ${error}`);
       }

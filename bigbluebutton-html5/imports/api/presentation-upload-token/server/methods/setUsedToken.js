@@ -10,18 +10,18 @@ export default function setUsedToken(authzToken) {
       used: true,
     },
   };
-  const cb = (err) => {
-    if (err) {
-      Logger.error(`Unable to set token as used : ${err}`);
-      return;
+
+  try {
+    const numberAffected = PresentationUploadToken.update({
+      meetingId,
+      userId: requesterUserId,
+      authzToken,
+    }, payload);
+
+    if (numberAffected) {
+      Logger.info(`Token: ${authzToken} has been set as used in meeting=${meetingId}`);
     }
-
-    Logger.info(`Token: ${authzToken} has been set as used in meeting=${meetingId}`);
-  };
-
-  return PresentationUploadToken.update({
-    meetingId,
-    userId: requesterUserId,
-    authzToken,
-  }, payload, cb);
+  } catch (err) {
+    Logger.error(`Unable to set token as used : ${err}`);
+  }
 }

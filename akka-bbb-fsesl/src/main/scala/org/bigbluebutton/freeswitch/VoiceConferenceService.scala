@@ -237,13 +237,14 @@ class VoiceConferenceService(healthz: HealthzService,
       streamname:  String,
       vw:          java.lang.Integer,
       vh:          java.lang.Integer,
-      timestamp:   String
+      timestamp:   String,
+      hasAudio:    Boolean
   ) {
 
     val header = BbbCoreVoiceConfHeader(ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg.NAME, voiceConfId)
     val body = ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgBody(voiceConf = voiceConfId, screenshareConf = voiceConfId,
       stream = streamname, vidWidth = vw.intValue(), vidHeight = vh.intValue(),
-      timestamp)
+      timestamp, hasAudio)
     val envelope = BbbCoreEnvelope(ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
 
     val msg = new ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg(header, body)

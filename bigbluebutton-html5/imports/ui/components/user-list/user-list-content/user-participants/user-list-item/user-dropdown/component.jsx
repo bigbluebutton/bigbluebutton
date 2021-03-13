@@ -33,10 +33,6 @@ const messages = defineMessages({
     id: 'app.userList.locked',
     description: 'Text for identifying locked user',
   },
-  guest: {
-    id: 'app.userList.guest',
-    description: 'Text for identifying guest user',
-  },
   menuTitleContext: {
     id: 'app.userList.menuTitleContext',
     description: 'adds context to userListItem menu title',
@@ -53,9 +49,9 @@ const messages = defineMessages({
     id: 'app.audio.backLabel',
     description: 'label for option to hide emoji menu',
   },
-  ChatLabel: {
+  StartPrivateChat: {
     id: 'app.userList.menu.chat.label',
-    description: 'Save the changes and close the settings menu',
+    description: 'label for option to start a new private chat',
   },
   ClearStatusLabel: {
     id: 'app.userList.menu.clearStatus.label',
@@ -237,11 +233,12 @@ class UserDropdown extends PureComponent {
       isMe,
       meetingIsBreakout,
       mountModal,
+      usersProp,
     } = this.props;
     const { showNestedOptions } = this.state;
 
     const amIModerator = currentUser.role === ROLE_MODERATOR;
-    const actionPermissions = getAvailableActions(amIModerator, meetingIsBreakout, user, voiceUser);
+    const actionPermissions = getAvailableActions(amIModerator, meetingIsBreakout, user, voiceUser, usersProp);
     const actions = [];
 
     const {
@@ -323,7 +320,7 @@ class UserDropdown extends PureComponent {
     if (showChatOption) {
       actions.push(this.makeDropdownItem(
         'activeChat',
-        intl.formatMessage(messages.ChatLabel),
+        intl.formatMessage(messages.StartPrivateChat),
         () => {
           getGroupChatPrivate(currentUser.userId, user);
           Session.set('openPanel', 'chat');
@@ -371,7 +368,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToPromote && !user.guest && isMeteorConnected) {
+    if (allowedToPromote && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'promote',
         intl.formatMessage(messages.PromoteUserLabel),
@@ -380,7 +377,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToDemote && !user.guest && isMeteorConnected) {
+    if (allowedToDemote && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'demote',
         intl.formatMessage(messages.DemoteUserLabel),
@@ -538,6 +535,8 @@ class UserDropdown extends PureComponent {
         voice={voiceUser.isVoiceUser}
         noVoice={!voiceUser.isVoiceUser}
         color={user.color}
+        emoji={user.emoji !== 'none'}
+        avatar={user.avatar}
       >
         {
         userInBreakout
@@ -593,6 +592,7 @@ class UserDropdown extends PureComponent {
       <div
         data-test={isMe(user.userId) ? 'userListItemCurrent' : 'userListItem'}
         className={!actions.length ? styles.userListItem : null}
+        style={{ direction: document.documentElement.dir }}
       >
         <div className={styles.userItemContents}>
           <div className={styles.userAvatar}>
@@ -631,6 +631,7 @@ class UserDropdown extends PureComponent {
         autoFocus={false}
         aria-haspopup="true"
         aria-live="assertive"
+        aria-label={userAriaLabel}
         aria-relevant="additions"
         placement={placement}
         getContent={dropdownContent => this.dropdownContent = dropdownContent}

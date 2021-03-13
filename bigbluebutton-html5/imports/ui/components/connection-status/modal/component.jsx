@@ -84,8 +84,9 @@ class ConnectionStatusComponent extends PureComponent {
           <div className={styles.left}>
             <div className={styles.avatar}>
               <UserAvatar
-                className={styles.icon}
+                className={cx({ [styles.initials]: conn.avatar.length === 0 })}
                 you={conn.you}
+                avatar={conn.avatar}
                 moderator={conn.moderator}
                 color={conn.color}
               >
@@ -121,6 +122,8 @@ class ConnectionStatusComponent extends PureComponent {
       intl,
     } = this.props;
 
+    const isValidUrl = new RegExp(/^(http|https):\/\/[^ "]+$/).test(STATS.help);
+
     return (
       <Modal
         overlayClassName={styles.overlay}
@@ -137,9 +140,13 @@ class ConnectionStatusComponent extends PureComponent {
           </div>
           <div className={styles.description}>
             {intl.formatMessage(intlMessages.description)}{' '}
-            <a href={STATS.help} target="_blank" rel="noopener noreferrer">
-              {`(${intl.formatMessage(intlMessages.more)})`}
-            </a>
+            {isValidUrl
+              && (
+                <a href={STATS.help} target="_blank" rel="noopener noreferrer">
+                  {`(${intl.formatMessage(intlMessages.more)})`}
+                </a>
+              )
+            }
           </div>
           <div className={styles.content}>
             <div className={styles.wrapper}>
