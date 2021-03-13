@@ -12,8 +12,8 @@ const MAX_Z_INDEX = (2 ** 31) - 1;
 const POINTS_TO_BUFFER = 2;
 
 export default class PencilDrawListener extends Component {
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
 
     // to track the status of drawing
     this.isDrawing = false;
