@@ -13,8 +13,8 @@ const DEFAULT_TEXT_HEIGHT = 20;
 const MAX_Z_INDEX = (2 ** 31) - 1;
 
 export default class TextDrawListener extends Component {
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
 
     this.state = {
       // text shape state properties
