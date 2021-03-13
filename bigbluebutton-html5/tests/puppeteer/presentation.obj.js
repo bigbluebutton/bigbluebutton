@@ -18,9 +18,11 @@ const presentationTest = () => {
     try {
       const testName = 'skipSlide';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs());
+      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
+      await test.startRecording(testName);
       await test.closeAudioModal();
       response = await test.test();
+      await test.stopRecording(testName);
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
     } catch (e) {
@@ -44,9 +46,11 @@ const presentationTest = () => {
     try {
       const testName = 'uploadPresentation';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs());
+      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
+      await test.startRecording(testName);
       await test.closeAudioModal();
       response = await test.test(testName);
+      await test.stopRecording();
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
     } catch (e) {

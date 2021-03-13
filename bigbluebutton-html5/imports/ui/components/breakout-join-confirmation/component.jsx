@@ -6,6 +6,8 @@ import logger from '/imports/startup/client/logger';
 import PropTypes from 'prop-types';
 import AudioService from '../audio/service';
 import VideoService from '../video-provider/service';
+import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
+import UserListService from '/imports/ui/components/user-list/service';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -108,7 +110,7 @@ class BreakoutJoinConfirmation extends Component {
     }
 
     VideoService.exitVideo();
-    window.kurentoExitScreenShare();
+    if (UserListService.amIPresenter()) screenshareHasEnded();
     if (url === '') {
       logger.error({
         logCode: 'breakoutjoinconfirmation_redirecting_to_url',

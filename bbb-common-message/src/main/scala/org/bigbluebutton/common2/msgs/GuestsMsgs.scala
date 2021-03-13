@@ -104,6 +104,26 @@ case class GuestPolicyChangedEvtMsg(
 case class GuestPolicyChangedEvtMsgBody(policy: String, setBy: String)
 
 /**
+ * Message from user to set the guest lobby message.
+ */
+object SetGuestLobbyMessageCmdMsg { val NAME = "SetGuestLobbyMessageCmdMsg" }
+case class SetGuestLobbyMessageCmdMsg(
+    header: BbbClientMsgHeader,
+    body:   SetGuestLobbyMessageCmdMsgBody
+) extends StandardMsg
+case class SetGuestLobbyMessageCmdMsgBody(message: String)
+
+/**
+ * Message sent to all clients that guest lobby message has been changed.
+ */
+object GuestLobbyMessageChangedEvtMsg { val NAME = "GuestLobbyMessageChangedEvtMsg" }
+case class GuestLobbyMessageChangedEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   GuestLobbyMessageChangedEvtMsgBody
+) extends BbbCoreMsg
+case class GuestLobbyMessageChangedEvtMsgBody(message: String)
+
+/**
  * Message from user to get the guest policy.
  */
 object GetGuestPolicyReqMsg { val NAME = "GetGuestPolicyReqMsg" }

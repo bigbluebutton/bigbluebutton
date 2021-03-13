@@ -590,6 +590,10 @@ const isUserPresenter = (userId) => {
   return user ? user.presenter : false;
 };
 
+const amIPresenter = () => {
+  return isUserPresenter(Auth.userID);
+};
+
 export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
   const mimeType = 'text/plain';
   const userNamesObj = getUsers()
@@ -658,5 +662,6 @@ export default {
   requestUserInformation,
   focusFirstDropDownItem,
   isUserPresenter,
+  amIPresenter,
   getUsersProp,
 };

@@ -18,10 +18,12 @@ const userTest = () => {
     try {
       const testName = 'changeUserStatus';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs());
+      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
+      await test.startRecording(testName);
       await test.closeAudioModal();
       response = await test.test();
       await test.logger('end of ', testName);
+      await test.stopRecording();
       screenshot = await test.page.screenshot();
     } catch (e) {
       await test.logger(e);
@@ -44,10 +46,14 @@ const userTest = () => {
     try {
       const testName = 'multiUsersPresenceCheck';
       await test.page1.logger('begin of ', testName);
-      await test.init();
+      await test.init(undefined, testName);
+      await test.page1.startRecording(testName);
       await test.page1.closeAudioModal();
+      await test.page2.startRecording(testName);
       await test.page2.closeAudioModal();
       response = await test.test();
+      await test.page1.stopRecording();
+      await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await test.page1.logger('begin of ', testName);
     } catch (err) {

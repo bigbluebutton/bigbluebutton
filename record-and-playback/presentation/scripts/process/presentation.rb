@@ -220,21 +220,27 @@ if not FileTest.directory?(target_dir)
         captions.length > 0
       webcam_width = presentation_props['video_output_width']
       webcam_height = presentation_props['video_output_height']
+      webcam_framerate = presentation_props['video_output_framerate']
 
       # Use a higher resolution video canvas if there's broadcast video streams
       if !Dir["#{raw_archive_dir}/video-broadcast/*"].empty?
         webcam_width = presentation_props['deskshare_output_width']
         webcam_height = presentation_props['deskshare_output_height']
+        webcam_framerate = presentation_props['deskshare_output_framerate']
       end
 
+      webcam_framerate = 15 if webcam_framerate.nil?
       processed_audio_file = BigBlueButton::AudioProcessor.get_processed_audio_file("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio")
-      BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, webcam_width, webcam_height, presentation_props['audio_offset'], processed_audio_file, presentation_props['video_formats'])
+      BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, webcam_width, webcam_height, webcam_framerate, presentation_props['audio_offset'], processed_audio_file, presentation_props['video_formats'])
     end
 
     if !Dir["#{raw_archive_dir}/deskshare/*"].empty? and presentation_props['include_deskshare']
       deskshare_width = presentation_props['deskshare_output_width']
       deskshare_height = presentation_props['deskshare_output_height']
-      BigBlueButton.process_deskshare_videos(target_dir, temp_dir, meeting_id, deskshare_width, deskshare_height, presentation_props['video_formats'])
+      deskshare_framerate = presentation_props['deskshare_output_framerate']
+      deskshare_framerate = 5 if deskshare_framerate.nil?
+
+      BigBlueButton.process_deskshare_videos(target_dir, temp_dir, meeting_id, deskshare_width, deskshare_height, deskshare_framerate, presentation_props['video_formats'])
     end
 
     # Copy shared notes from raw files

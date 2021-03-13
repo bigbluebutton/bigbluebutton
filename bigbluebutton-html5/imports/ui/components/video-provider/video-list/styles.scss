@@ -1,5 +1,6 @@
 @import "/imports/ui/stylesheets/variables/breakpoints";
 @import "/imports/ui/stylesheets/variables/placeholders";
+@import "/imports/ui/components/media/styles";
 
 .videoCanvas {
   --cam-dropdown-width: 70%;
@@ -256,4 +257,14 @@
   @include mq($medium-up) {
     margin-right: 2px;
   }
+}
+
+.unhealthyStream {
+  filter: grayscale(50%) opacity(50%);
+}
+
+.reconnecting {
+  @extend .connectingSpinner;
+  background-color: transparent;
+  color: var(--color-white);
 }

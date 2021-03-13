@@ -3,6 +3,7 @@ const moment = require('moment');
 const Page = require('../core/page');
 const Create = require('./create');
 const util = require('./util');
+const utilScreenShare = require('../screenshare/util');
 const e = require('./elements');
 const pe = require('../core/elements');
 const we = require('../webcam/elements');
@@ -71,23 +72,19 @@ class Join extends Create {
       return resp;
     } else if (testName === 'joinBreakoutroomsAndShareScreen') {
       this.page2.logger('logged in to breakout with screenshare');
-
       const page2 = await this.page2.browser.pages();
       const page3 = await this.page3.browser.pages();
-      await page2[2].waitForSelector(pe.screenShareVideo, { timeout: VIDEO_LOADING_WAIT_TIME });
-      await page3[2].waitForSelector(pe.screenShareVideo, { timeout: VIDEO_LOADING_WAIT_TIME });
-      await page3[2].waitForSelector(pe.stopScreenSharing, { timeout: ELEMENT_WAIT_TIME });
+
       if (process.env.GENERATE_EVIDENCES === 'true') {
-        await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/05-breakout-page02-user-joined-webcam-after-check-${testName}.png`) });
+        await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/05-breakout-page02-user-joined-screenshare-before-check-${testName}.png`) });
       }
       this.page2.logger('before pages check');
-      const resp = await page2[2].evaluate(async () => {
-        const screenshareContainerElement = await document.querySelectorAll('video[id="screenshareVideo"]').length !== 0;
-        return screenshareContainerElement === true;
-      });
+      const resp = await utilScreenShare.getScreenShareBreakoutContainer(page2[2]);
+
       if (process.env.GENERATE_EVIDENCES === 'true') {
-        await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/06-breakout-page02-user-joined-with-webcam-success-${testName}.png`) });
+        await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/06-breakout-page02-user-joined-screenshare-after-check-${testName}.png`) });
       }
+
       this.page2.logger('after pages check');
       return resp;
     } else {
