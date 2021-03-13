@@ -941,7 +941,7 @@ class PresentationArea extends PureComponent {
     }
 
     const slide =
-            showSlide
+            showSlide && svgWidth > 0 && svgHeight > 0
               ? this.renderPresentationArea(svgDimensions, viewBoxDimensions)
               : null ;
 
@@ -957,7 +957,7 @@ class PresentationArea extends PureComponent {
     }
 
     const pToolbar =
-            showSlide && userIsPresenter
+            showSlide && userIsPresenter && svgWidth > 0 && svgHeight > 0
               ? (
                 <div
                   className={styles.presentationToolbar}
