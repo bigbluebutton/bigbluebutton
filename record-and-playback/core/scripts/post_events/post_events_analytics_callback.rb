@@ -19,6 +19,13 @@
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
+# In order to use this script, you will have to install the following ruby gems
+# in addition to the ones included with BigBlueButton:
+# * bbbevents
+# * jwt
+#
+# Running post_events scripts requires that you enable keepEvents=true in
+# bbb-web's bigbluebutton.properties configuration.
 
 require '../../core/lib/recordandplayback'
 require 'bbbevents'
@@ -166,8 +173,8 @@ begin
     data_version_format = "1.0"
 
     payload = { version: data_version_format,
-      ext_meeting_id: external_meeting_id,
-      meeting_id: meeting_id,
+      meeting_id: external_meeting_id,
+      internal_meeting_id: meeting_id,
       data: data
     }
 

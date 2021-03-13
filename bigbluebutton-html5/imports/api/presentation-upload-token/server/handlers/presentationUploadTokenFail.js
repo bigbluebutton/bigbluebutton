@@ -19,14 +19,13 @@ export default function handlePresentationUploadTokenFail({ body, header }, meet
     filename,
   };
 
-  const cb = (err) => {
-    if (err) {
-      Logger.error(`Removing presentationToken from collection: ${err}`);
-      return;
+  try {
+    const { numberAffected } = PresentationUploadToken.upsert(selector, { failed: true, authzToken: null });
+
+    if (numberAffected) {
+      Logger.info(`Removing presentationToken filename=${filename} podId=${podId} meeting=${meetingId}`);
     }
-
-    Logger.info(`Removing presentationToken filename=${filename} podId=${podId} meeting=${meetingId}`);
-  };
-
-  return PresentationUploadToken.upsert(selector, { failed: true, authzToken: null }, cb);
+  } catch (err) {
+    Logger.error(`Removing presentationToken from collection: ${err}`);
+  }
 }

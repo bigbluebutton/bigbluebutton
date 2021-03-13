@@ -29,8 +29,7 @@ export default function assignPresenter(userId) { // TODO-- send username from c
     requesterId: requesterUserId,
   };
 
-  Logger.verbose(`User '${userId}' setted as presenter by '${
-    requesterUserId}' from meeting '${meetingId}'`);
+  Logger.verbose('User set as presenter', { userId, meetingId, setBy: requesterUserId });
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

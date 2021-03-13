@@ -18,6 +18,11 @@ import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/
 import { styles } from '../styles';
 import { withDraggableConsumer } from '/imports/ui/components/media/webcam-draggable-overlay/context';
 import VideoService from '../../service';
+import {
+  isStreamStateUnhealthy,
+  subscribeToStreamStateChange,
+  unsubscribeFromStreamStateChange,
+} from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
@@ -29,16 +34,30 @@ class VideoListItem extends Component {
     this.state = {
       videoIsReady: false,
       isFullscreen: false,
+      isStreamHealthy: false,
     };
 
     this.mirrorOwnWebcam = VideoService.mirrorOwnWebcam(props.userId);
 
     this.setVideoIsReady = this.setVideoIsReady.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
+    this.onStreamStateChange = this.onStreamStateChange.bind(this);
+  }
+
+  onStreamStateChange (e) {
+    const { streamState } = e.detail;
+    const { isStreamHealthy } = this.state;
+
+    const newHealthState = !isStreamStateUnhealthy(streamState);
+    e.stopPropagation();
+
+    if (newHealthState !== isStreamHealthy) {
+      this.setState({ isStreamHealthy: newHealthState });
+    }
   }
 
   componentDidMount() {
-    const { onMount, webcamDraggableDispatch } = this.props;
+    const { onVideoItemMount, webcamDraggableDispatch, cameraId } = this.props;
 
     webcamDraggableDispatch(
       {
@@ -47,10 +66,10 @@ class VideoListItem extends Component {
       },
     );
 
-    onMount(this.videoTag);
-
+    onVideoItemMount(this.videoTag);
     this.videoTag.addEventListener('loadeddata', this.setVideoIsReady);
     this.videoContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
+    subscribeToStreamStateChange(cameraId, this.onStreamStateChange);
   }
 
   componentDidUpdate() {
@@ -62,10 +81,6 @@ class VideoListItem extends Component {
             const tagFailedEvent = new CustomEvent('videoPlayFailed', { detail: { mediaTag: elem } });
             window.dispatchEvent(tagFailedEvent);
           }
-          logger.warn({
-            logCode: 'videolistitem_component_play_maybe_error',
-            extraInfo: { error },
-          }, `Could not play video tag due to ${error.name}`);
         });
       }
     };
@@ -79,8 +94,12 @@ class VideoListItem extends Component {
   }
 
   componentWillUnmount() {
+    const { cameraId, onVideoItemUnmount } = this.props;
+
     this.videoTag.removeEventListener('loadeddata', this.setVideoIsReady);
     this.videoContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    unsubscribeFromStreamStateChange(cameraId, this.onStreamStateChange);
+    onVideoItemUnmount(cameraId);
   }
 
   onFullscreenChange() {
@@ -115,7 +134,7 @@ class VideoListItem extends Component {
     return _.compact([
       <DropdownListTitle className={styles.hiddenDesktop} key="name">{name}</DropdownListTitle>,
       <DropdownListSeparator className={styles.hiddenDesktop} key="sep" />,
-      ...actions.map(action => (<DropdownListItem key={cameraId} {...action} />)),
+      ...actions.map(action => (<DropdownListItem key={`${cameraId}-${action.actionName}`} {...action} />)),
     ]);
   }
 
@@ -140,6 +159,7 @@ class VideoListItem extends Component {
     const {
       videoIsReady,
       isFullscreen,
+      isStreamHealthy,
     } = this.state;
     const {
       name,
@@ -147,37 +167,49 @@ class VideoListItem extends Component {
       numOfStreams,
       webcamDraggableState,
       swapLayout,
+      mirrored
     } = this.props;
     const availableActions = this.getAvailableActions();
     const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
+    const shouldRenderReconnect = !isStreamHealthy && videoIsReady;
 
     const result = browser();
     const isFirefox = (result && result.name) ? result.name.includes('firefox') : false;
 
     return (
-      <div className={cx({
+      <div data-test={voiceUser.talking ? 'webcamItemTalkingUser' : 'webcamItem'} className={cx({
         [styles.content]: true,
         [styles.talking]: voiceUser.talking,
       })}
       >
         {
-          !videoIsReady
-          && <div data-test="webcamConnecting" className={styles.connecting} />
+          !videoIsReady &&
+            <div data-test="webcamConnecting" className={styles.connecting}>
+              <span className={styles.loadingText}>{name}</span>
+            </div>
+
         }
+
+        {
+          shouldRenderReconnect
+            && <div className={styles.reconnecting} />
+        }
+
         <div
           className={styles.videoContainer}
           ref={(ref) => { this.videoContainer = ref; }}
         >
           <video
             muted
-            data-test="videoContainer"
+            data-test={this.mirrorOwnWebcam ? 'mirroredVideoContainer' : 'videoContainer'}
             className={cx({
               [styles.media]: true,
               [styles.cursorGrab]: !webcamDraggableState.dragging
                 && !isFullscreen && !swapLayout,
               [styles.cursorGrabbing]: webcamDraggableState.dragging
                 && !isFullscreen && !swapLayout,
-              [styles.mirroredVideo]: this.mirrorOwnWebcam,
+              [styles.mirroredVideo]: (this.mirrorOwnWebcam && !mirrored) || (!this.mirrorOwnWebcam && mirrored),
+              [styles.unhealthyStream]: shouldRenderReconnect,
             })}
             ref={(ref) => { this.videoTag = ref; }}
             autoPlay
@@ -185,7 +217,8 @@ class VideoListItem extends Component {
           />
           {videoIsReady && this.renderFullscreenButton()}
         </div>
-        <div className={styles.info}>
+        { videoIsReady &&
+          <div className={styles.info}>
           {enableVideoMenu && availableActions.length >= 3
             ? (
               <Dropdown className={isFirefox ? styles.dropdownFireFox : styles.dropdown}>
@@ -216,6 +249,7 @@ class VideoListItem extends Component {
           {voiceUser.muted && !voiceUser.listenOnly ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
           {voiceUser.listenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
         </div>
+        }
       </div>
     );
   }

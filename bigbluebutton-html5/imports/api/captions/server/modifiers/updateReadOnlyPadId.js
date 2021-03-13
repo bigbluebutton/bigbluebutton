@@ -1,6 +1,7 @@
 import Captions from '/imports/api/captions';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
+import addPad from '/imports/api/captions/server/methods/addPad';
 
 export default function updateReadOnlyPadId(padId, readOnlyPadId) {
   check(padId, String);
@@ -16,13 +17,14 @@ export default function updateReadOnlyPadId(padId, readOnlyPadId) {
     },
   };
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Adding readOnlyPadId captions pad: ${err}`);
+  try {
+    const numberAffected = Captions.update(selector, modifier, { multi: true });
+
+    if (numberAffected) {
+      addPad(padId, readOnlyPadId);
+      Logger.verbose('Captions: added readOnlyPadId', { padId, readOnlyPadId });
     }
-
-    return Logger.verbose(`Added readOnlyPadId captions pad=${padId} readOnlyPadId=${readOnlyPadId}`);
-  };
-
-  return Captions.update(selector, modifier, { multi: true }, cb);
+  } catch (err) {
+    Logger.error('Captions: error when adding readOnlyPadId', { err });
+  }
 }

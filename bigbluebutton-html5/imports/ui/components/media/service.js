@@ -4,7 +4,6 @@ import { getVideoUrl } from '/imports/ui/components/external-video-player/servic
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Settings from '/imports/ui/services/settings';
-import PollingService from '/imports/ui/components/polling/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
@@ -53,6 +52,7 @@ const setSwapLayout = () => {
 };
 
 const toggleSwapLayout = () => {
+  window.dispatchEvent(new Event('togglePresentationHide'));
   swapLayout.value = !swapLayout.value;
   swapLayout.tracker.changed();
 };

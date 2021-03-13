@@ -1,17 +1,24 @@
 import Meetings from '/imports/api/meetings';
-import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import Logger from '/imports/startup/client/logger';
 
 import { getStreamer } from '/imports/api/external-videos';
 import { makeCall } from '/imports/ui/services/api';
 
 import ReactPlayer from 'react-player';
 
-const isUrlValid = url => ReactPlayer.canPlay(url);
+import Panopto from './custom-players/panopto';
+
+const isUrlValid = (url) => {
+  return /^https.*$/.test(url) && (ReactPlayer.canPlay(url) || Panopto.canPlay(url));
+}
 
 const startWatching = (url) => {
-  const externalVideoUrl = url;
+  let externalVideoUrl = url;
+
+  if (Panopto.canPlay(url)) {
+    externalVideoUrl = Panopto.getSocialUrl(url);
+  }
+
   makeCall('startWatchingExternalVideo', { externalVideoUrl });
 };
 
@@ -19,11 +26,24 @@ const stopWatching = () => {
   makeCall('stopWatchingExternalVideo');
 };
 
-const sendMessage = (event, data) => {
-  const meetingId = Auth.meetingID;
-  const userId = Auth.userID;
+let lastMessage = null;
 
-  makeCall('emitExternalVideoEvent', event, { ...data, meetingId, userId });
+const sendMessage = (event, data) => {
+
+  // don't re-send repeated update messages
+  if (lastMessage && lastMessage.event === event
+    && event === 'playerUpdate' && lastMessage.time === data.time) {
+    return;
+  }
+
+  // don't register to redis a viewer joined message
+  if (event === 'viewerJoined') {
+    return;
+  }
+
+  lastMessage = { ...data, event };
+
+  makeCall('emitExternalVideoEvent', { status: event, playerStatus: data });
 };
 
 const onMessage = (message, func) => {

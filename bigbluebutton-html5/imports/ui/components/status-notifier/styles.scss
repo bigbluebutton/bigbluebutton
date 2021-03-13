@@ -1,0 +1,109 @@
+@import "/imports/ui/stylesheets/mixins/_indicators";
+@import "/imports/ui/stylesheets/variables/placeholders";
+
+:root {
+  --toast-margin: .5rem;
+  --avatar-side: 34px;
+  --avatar-wrapper-offset: 14px;
+  --avatar-inset: -7px;
+}
+
+.clearBtn {
+  position: relative;
+  width: 100%;
+  margin-top: var(--toast-margin);
+  color: var(--color-primary);
+
+  &:focus,
+  &:hover,
+  &:active {
+    color: var(--color-primary);
+    box-shadow: 0;
+  }
+}
+
+.separator {
+  position: relative;
+  width: 100%;
+  height: var(--border-size-small);
+  background-color: var(--color-gray-lighter);
+  margin-top: var(--toast-margin);
+  margin-bottom: var(--toast-margin);
+}
+
+.toastMessage {
+  font-size: var(--font-size-small);
+  margin-top: var(--toast-margin);
+
+  > div {
+    font-weight: bold;
+  }
+}
+
+.toastIcon {
+  margin-right: var(--sm-padding-x);
+  [dir="rtl"] & {
+    margin-right: 0;
+    margin-left: var(--sm-padding-x);
+  }
+}
+
+.avatarsWrapper {
+  display: flex;
+  flex-direction: row;
+  position: absolute;
+  top: var(--avatar-wrapper-offset);
+  right: 1rem;
+  left: auto;
+  
+  [dir="rtl"] & {
+    left: var(--jumbo-padding-y);
+    right: auto;
+  }
+}
+
+.avatarsExtra {
+  background-color: var(--color-gray-light);
+}
+
+.avatar {
+  cursor: pointer;
+}
+
+.avatarsExtra,
+.avatar {
+  @extend %highContrastOutline;
+  width: var(--avatar-side);
+  height: var(--avatar-side);
+  color: var(--color-white);
+  border-radius: 50%;
+  border: solid var(--border-size) var(--color-white);
+  margin-left: var(--avatar-inset);
+  text-align: center;
+  padding: 5px 0;
+}
+
+.avatar:hover,
+.avatar:focus {
+    border: solid var(--border-size) var(--color-gray-lighter);
+}
+
+.iconWrapper {
+  background-color: var(--color-primary);
+  width: var(--toast-icon-side);
+  height: var(--toast-icon-side);
+  border-radius: 50%;
+  
+  > i {
+    position: relative;
+    color: var(--color-white);
+    top: var(--toast-margin);
+    left: var(--toast-margin);
+    font-size: var(--font-size-xl);
+  
+    [dir="rtl"] & {
+      left: 0;
+      right: 10px;
+    }
+  }
+}

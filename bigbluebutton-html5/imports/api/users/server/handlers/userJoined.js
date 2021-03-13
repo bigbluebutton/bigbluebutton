@@ -7,5 +7,5 @@ export default function handleUserJoined({ body }, meetingId) {
 
   check(user, Object);
 
-  return addUser(meetingId, user);
+  addUser(meetingId, user);
 }

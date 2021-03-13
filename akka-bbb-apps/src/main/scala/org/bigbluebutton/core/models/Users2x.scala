@@ -59,6 +59,14 @@ object Users2x {
     users.toVector.filter(u => !u.presenter)
   }
 
+  def findNotPresentersNorModerators(users: Users2x): Vector[UserState] = {
+    users.toVector.filter(u => !u.presenter && u.role != Roles.MODERATOR_ROLE)
+  }
+
+  def findViewers(users: Users2x): Vector[UserState] = {
+    users.toVector.filter(u => u.role == Roles.VIEWER_ROLE)
+  }
+
   def updateLastUserActivity(users: Users2x, u: UserState): UserState = {
     val newUserState = modify(u)(_.lastActivityTime).setTo(TimeUtil.timeNowInMs())
     users.save(newUserState)
@@ -241,6 +249,7 @@ class Users2x {
       }
     }
   }
+
 }
 
 case class OldPresenter(userId: String, changedPresenterOn: Long)
@@ -298,4 +307,5 @@ object EjectReasonCode {
   val VALIDATE_TOKEN = "validate_token_failed_eject_reason"
   val USER_INACTIVITY = "user_inactivity_eject_reason"
   val EJECTED_USER_REJOINING = "ejected_user_rejoining_reason"
+  val USER_LOGGED_OUT = "user_logged_out_reason"
 }

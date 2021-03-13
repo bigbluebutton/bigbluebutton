@@ -34,13 +34,14 @@ class UnreadMessagesTracker {
 
     return this._unreadChats[chatID];
   }
-
+  
   getUnreadMessages(chatID) {
+    return [];
     const filter = {
       timestamp: {
         $gt: this.get(chatID),
       },
-      sender: { $ne: Auth.userID },
+      'sender.id': { $ne: Auth.userID },
     };
     if (chatID === PUBLIC_GROUP_CHAT_ID) {
       filter.chatId = { $eq: chatID };
@@ -55,7 +56,6 @@ class UnreadMessagesTracker {
       }
     }
     const messages = GroupChatMsg.find(filter).fetch();
-    return messages;
   }
 
   count(chatID) {

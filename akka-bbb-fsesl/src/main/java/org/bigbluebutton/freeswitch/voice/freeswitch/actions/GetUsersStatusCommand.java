@@ -85,10 +85,12 @@ public class GetUsersStatusCommand extends FreeswitchCommand {
                 voiceUserId = callWithSess.group(1).trim();
                 clientSession = callWithSess.group(2).trim();
                 callerIdName = callWithSess.group(3).trim();
-              } else
-              if (matcher.matches()) {
+              } else if (matcher.matches()) {
                 voiceUserId = matcher.group(1).trim();
                 callerIdName = matcher.group(2).trim();
+              } else {
+                // This is a caller using dial in or out
+                voiceUserId = "v_" + member.getId().toString();
               }
 
               log.info("Conf user. uuid=" + uuid
