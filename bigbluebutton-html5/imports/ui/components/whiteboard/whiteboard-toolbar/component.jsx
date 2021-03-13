@@ -283,7 +283,7 @@ class WhiteboardToolbar extends Component {
      * 4. Trigger initial animation for the icons
     */
     // 1st case
-    if (　(this.thicknessListIconRadius && this.thicknessListIconColor) || annotationSelected.value === 'text') {
+    if ( (this.thicknessListIconRadius && this.thicknessListIconColor) || annotationSelected.value === 'text') {
       if (colorSelected.value !== prevState.colorSelected.value) {
         // 1st case b)
         if (annotationSelected.value !== 'text') {
