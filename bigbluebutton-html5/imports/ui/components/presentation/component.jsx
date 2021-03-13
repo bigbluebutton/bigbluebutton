@@ -56,7 +56,7 @@ function copyStyles(sourceDoc, targetDoc) {
   const hostUri = `https://${window.document.location.hostname}`;
   const baseName = hostUri + Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId;
   Array.from(sourceDoc.styleSheets).forEach(styleSheet => {
-    if (styleSheet.cssRules) { // for <style> elements
+    if (styleSheet.cssRules) {
       const newStyleEl = sourceDoc.createElement('style');
       Array.from(styleSheet.cssRules).forEach(cssRule => {
         let newCssText;
