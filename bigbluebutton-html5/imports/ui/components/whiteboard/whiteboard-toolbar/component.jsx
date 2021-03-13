@@ -291,7 +291,7 @@ class WhiteboardToolbar extends Component {
         }
         // 1st case a)
         this.colorListIconColor.beginElement();
-        // 2nd case  - never happens when the text tool is selected
+        // 2nd case - never happens when the text tool is selected
       } else if (thicknessSelected.value !== prevState.thicknessSelected.value) {
         this.thicknessListIconRadius.beginElement();
         // 3rd case
