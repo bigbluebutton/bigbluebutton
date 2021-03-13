@@ -61,6 +61,7 @@ public:
         raiseHandPushAlerts: true
         guestWaitingAudioAlerts: true
         guestWaitingPushAlerts: true
+        paginationEnabled: true
         fallbackLocale: en
         overrideLocale: null
         #Audio constraints for microphone. Use this to control browser's
@@ -146,11 +147,15 @@ public:
       # Max timeout: used as the max camera subscribe reconnection timeout. Each
       # subscribe reattempt increases the reconnection timer up to this
       maxTimeout: 60000
-    chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc
-    chromeDefaultExtensionLink: https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc
-    chromeExtensionKey: KEY
-    chromeExtensionLink: LINK
     screenshare:
+      mediaTimeouts:
+        maxConnectionAttempts: 2
+        # Base screen media timeout (send|recv)
+        baseTimeout: 15000
+        # Max timeout: used as the max camera subscribe reconnection timeout. Each
+        # subscribe reattempt increases the reconnection timer up to this
+        maxTimeout: 35000
+        timeoutIncreaseFactor: 1.5
       constraints:
         video:
           frameRate:
@@ -161,10 +166,6 @@ public:
           height:
             max: 1600
         audio: false
-      chromeScreenshareSources:
-        - window
-        - screen
-      firefoxScreenshareSource: window
     # cameraProfiles is an array of:
     # - id: profile identifier
     #   name: human-readable profile name
@@ -268,8 +269,11 @@ public:
         - threshold: 30
           profile: low-u30
     pagination:
-      # whether to globally enable or disable pagination.
-      enabled: true
+      # WARNING: the pagination.enabled setting has moved to
+      # public.app.defaultSettings.application.paginationEnabled
+      # paginationToggleEnabled: show a pagination toggle in settings for the
+      # user to enable/disable it
+      paginationToggleEnabled: true
       # how long (in ms) the negotiation will be debounced after a page change.
       pageChangeDebounceTime: 2500
       # video page sizes for DESKTOP endpoints. It stands for the number of SUBSCRIBER streams.
@@ -277,11 +281,11 @@ public:
       # A page size of 0 (zero) means that the page size is unlimited (disabled).
       desktopPageSizes:
         moderator: 0
-        viewer: 0
+        viewer: 5
       # video page sizes for MOBILE endpoints
       mobilePageSizes:
-        moderator: 6
-        viewer: 4
+        moderator: 2
+        viewer: 2
   syncUsersWithConnectionManager:
     enabled: false
     syncInterval: 60000
@@ -338,7 +342,6 @@ public:
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
-    recvonlyIceGatheringCheck: true
     mediaTag: '#remote-media'
     callTransferTimeout: 5000
     callHangupTimeout: 2000
@@ -364,6 +367,8 @@ public:
     websocketKeepAliveDebounce: 10
     #Trace sip/audio messages in browser. If not set, default value is false.
     traceSip: false
+    # SDP semantics: plan-b|unified-plan
+    sdpSemantics: 'plan-b'
   stats:
     enabled: true
     interval: 2000
@@ -585,7 +590,7 @@ private:
     - browser: chromeMobileIOS
       version: Infinity
     - browser: firefox
-      version: 63
+      version: 68
     - browser: firefoxMobile
       version: 68
     - browser: edge
