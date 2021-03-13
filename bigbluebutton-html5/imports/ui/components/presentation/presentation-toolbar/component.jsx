@@ -75,6 +75,14 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.title',
     description: 'presentation area element label',
   },
+  splitPresentationDesc: {
+    id: 'app.presentation.presentationToolbar.splitPresentationDesc',
+    description: 'detach the presentation area label',
+  },
+  mergePresentationDesc: {
+    id: 'app.presentation.presentationToolbar.mergePresentationDesc',
+    description: 'merge the detached presentation area label',
+  },
 });
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
@@ -92,11 +100,13 @@ class PresentationToolbar extends PureComponent {
   }
 
   componentDidMount() {
-    document.addEventListener('keydown', this.switchSlide);
+    const { presentationWindow } = this.props;
+    presentationWindow.document.addEventListener('keydown', this.switchSlide);
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.switchSlide);
+    const { presentationWindow } = this.props;
+    presentationWindow.document.removeEventListener('keydown', this.switchSlide);
   }
 
   switchSlide(event) {
@@ -223,6 +233,8 @@ class PresentationToolbar extends PureComponent {
       parseCurrentSlideContent,
       startPoll,
       currentSlide,
+      toggleSeparatePresentationWindow,
+      separatePresentationWindow,
     } = this.props;
 
     const BROWSER_RESULTS = browser();
@@ -261,6 +273,31 @@ class PresentationToolbar extends PureComponent {
               ) : null
           }
           </div>
+        }
+        {
+         !isFullscreen
+         ?
+          <div>
+            <Button
+              role="button"
+              aria-label={separatePresentationWindow
+                ? `${intl.formatMessage(intlMessages.mergePresentationDesc)}`
+                : `${intl.formatMessage(intlMessages.splitPresentationDesc)}`
+              }
+              aria-describedby={separatePresentationWindow ? 'mergePresentationDesc' : 'splitPresentationDesc'}
+              color="default"
+              icon={separatePresentationWindow ? "application" : "rooms"}
+              size="md"
+              onClick={toggleSeparatePresentationWindow}
+              label={separatePresentationWindow
+                ? `${intl.formatMessage(intlMessages.mergePresentationDesc)}`
+                : `${intl.formatMessage(intlMessages.splitPresentationDesc)}`
+              }
+              hideLabel
+              className={cx(styles.separateWindow, styles.presentationBtn)}
+            />
+          </div>
+         : null
         }
         {
           <div className={styles.presentationSlideControls}>
@@ -329,28 +366,32 @@ class PresentationToolbar extends PureComponent {
                 )
                 : null
             }
-            <Button
-              role="button"
-              aria-describedby={fitToWidth ? 'fitPageDesc' : 'fitWidthDesc'}
-              aria-label={fitToWidth
-                ? `${intl.formatMessage(intlMessages.presentationLabel)} ${intl.formatMessage(intlMessages.fitToPage)}`
-                : `${intl.formatMessage(intlMessages.presentationLabel)} ${intl.formatMessage(intlMessages.fitToWidth)}`
-              }
-              color="default"
-              disabled={!isMeteorConnected}
-              icon="fit_to_width"
-              size="md"
-              circle={false}
-              onClick={fitToWidthHandler}
-              label={fitToWidth
-                ? intl.formatMessage(intlMessages.fitToPage)
-                : intl.formatMessage(intlMessages.fitToWidth)
-              }
-              hideLabel
-              className={cx(styles.fitToWidth, styles.presentationBtn)}
-            />
+            {!separatePresentationWindow
+              ?
+                <Button
+                  role="button"
+                  aria-describedby={fitToWidth ? 'fitPageDesc' : 'fitWidthDesc'}
+                  aria-label={fitToWidth
+                    ? `${intl.formatMessage(intlMessages.presentationLabel)} ${intl.formatMessage(intlMessages.fitToPage)}`
+                    : `${intl.formatMessage(intlMessages.presentationLabel)} ${intl.formatMessage(intlMessages.fitToWidth)}`
+                  }
+                  color="default"
+                  disabled={!isMeteorConnected}
+                  icon="fit_to_width"
+                  size="md"
+                  circle={false}
+                  onClick={fitToWidthHandler}
+                  label={fitToWidth
+                    ? intl.formatMessage(intlMessages.fitToPage)
+                    : intl.formatMessage(intlMessages.fitToWidth)
+                  }
+                  hideLabel
+                  className={cx(styles.fitToWidth, styles.presentationBtn)}
+                />
+              : null
+            }
             {
-              ALLOW_FULLSCREEN
+              ALLOW_FULLSCREEN && !separatePresentationWindow
                 ? (
                   <FullscreenButtonContainer
                     fullscreenRef={fullscreenRef}
