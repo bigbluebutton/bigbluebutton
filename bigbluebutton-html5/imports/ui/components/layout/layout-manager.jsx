@@ -19,6 +19,8 @@ const POLL_MIN_WIDTH = 320;
 const POLL_MAX_WIDTH = 400;
 const NOTE_MIN_WIDTH = 340;
 const NOTE_MAX_WIDTH = 800;
+const WAITING_MIN_WIDTH = 340;
+const WAITING_MAX_WIDTH = 800;
 const NAVBAR_HEIGHT = 85;
 const ACTIONSBAR_HEIGHT = 42;
 
@@ -186,6 +188,22 @@ class LayoutManager extends Component {
     );
     layoutContextDispatch(
       {
+        type: 'setCaptionsSize',
+        value: {
+          width: layoutSizes.captionsSize.width,
+        },
+      },
+    );
+    layoutContextDispatch(
+      {
+        type: 'setWaitingUsersPanelSize',
+        value: {
+          width: layoutSizes.waitingSize.width,
+        },
+      },
+    );
+    layoutContextDispatch(
+      {
         type: 'setBreakoutRoomSize',
         value: {
           width: layoutSizes.breakoutRoomSize.width,
@@ -233,6 +251,12 @@ class LayoutManager extends Component {
       },
       noteSize: {
         width: layoutSizes.noteSize.width,
+      },
+      captionsSize: {
+        width: layoutSizes.captionsSize.width,
+      },
+      waitingSize: {
+        width: layoutSizes.waitingSize.width,
       },
       breakoutRoomSize: {
         width: layoutSizes.breakoutRoomSize.width,
@@ -295,6 +319,8 @@ class LayoutManager extends Component {
       chatSize: chatSizeContext,
       pollSize: pollSizeContext,
       noteSize: noteSizeContext,
+      captionsSize: captionsSizeContext,
+      waitingSize: waitingSizeContext,
       breakoutRoomSize: breakoutRoomSizeContext,
     } = layoutContextState;
     const openPanel = Session.get('openPanel');
@@ -304,20 +330,26 @@ class LayoutManager extends Component {
     let storageChatWidth;
     let storagePollWidth;
     let storageNoteWidth;
+    let storageCaptionsWidth;
+    let storageWaitingWidth;
     let storageBreakoutRoomWidth;
 
     if (storageLData) {
-      storageUserListWidth = storageLData.userListSize.width;
-      storageChatWidth = storageLData.chatSize.width;
-      storagePollWidth = storageLData.pollSize.width;
-      storageNoteWidth = storageLData.noteSize.width;
-      storageBreakoutRoomWidth = storageLData.breakoutRoomSize.width;
+      storageUserListWidth = storageLData.userListSize?.width;
+      storageChatWidth = storageLData.chatSize?.width;
+      storagePollWidth = storageLData.pollSize?.width;
+      storageNoteWidth = storageLData.noteSize?.width;
+      storageCaptionsWidth = storageLData.captionsSize?.width;
+      storageWaitingWidth = storageLData.waitingSize?.width;
+      storageBreakoutRoomWidth = storageLData.breakoutRoomSize?.width;
     }
 
     let newUserListSize;
     let newChatSize;
     let newPollSize;
     let newNoteSize;
+    let newCaptionsSize;
+    let newWaitingSize;
     let newBreakoutRoomSize;
 
     if (panelChanged && userListSizeContext.width !== 0) {
@@ -368,6 +400,30 @@ class LayoutManager extends Component {
       };
     }
 
+    if (panelChanged && captionsSizeContext.width !== 0) {
+      newCaptionsSize = captionsSizeContext;
+    } else if (!storageCaptionsWidth) {
+      newCaptionsSize = {
+        width: min(max((windowWidth() * 0.2), NOTE_MIN_WIDTH), NOTE_MAX_WIDTH),
+      };
+    } else {
+      newCaptionsSize = {
+        width: storageCaptionsWidth,
+      };
+    }
+
+    if (panelChanged && waitingSizeContext.width !== 0) {
+      newWaitingSize = waitingSizeContext;
+    } else if (!storageWaitingWidth) {
+      newWaitingSize = {
+        width: min(max((windowWidth() * 0.2), WAITING_MIN_WIDTH), WAITING_MAX_WIDTH),
+      };
+    } else {
+      newWaitingSize = {
+        width: storageWaitingWidth,
+      };
+    }
+
     if (panelChanged && breakoutRoomSizeContext.width !== 0) {
       newBreakoutRoomSize = breakoutRoomSizeContext;
     } else if (!storageBreakoutRoomWidth) {
@@ -394,6 +450,12 @@ class LayoutManager extends Component {
         newNoteSize = {
           width: 0,
         };
+        newCaptionsSize = {
+          width: 0,
+        };
+        newWaitingSize = {
+          width: 0,
+        };
         break;
       }
       case 'poll': {
@@ -404,6 +466,12 @@ class LayoutManager extends Component {
           width: 0,
         };
         newBreakoutRoomSize = {
+          width: 0,
+        };
+        newCaptionsSize = {
+          width: 0,
+        };
+        newWaitingSize = {
           width: 0,
         };
         break;
@@ -418,6 +486,48 @@ class LayoutManager extends Component {
         newBreakoutRoomSize = {
           width: 0,
         };
+        newCaptionsSize = {
+          width: 0,
+        };
+        newWaitingSize = {
+          width: 0,
+        };
+        break;
+      }
+      case 'captions': {
+        newChatSize = {
+          width: 0,
+        };
+        newPollSize = {
+          width: 0,
+        };
+        newBreakoutRoomSize = {
+          width: 0,
+        };
+        newNoteSize = {
+          width: 0,
+        };
+        newWaitingSize = {
+          width: 0,
+        };
+        break;
+      }
+      case 'waitingUsersPanel': {
+        newChatSize = {
+          width: 0,
+        };
+        newPollSize = {
+          width: 0,
+        };
+        newBreakoutRoomSize = {
+          width: 0,
+        };
+        newNoteSize = {
+          width: 0,
+        };
+        newCaptionsSize = {
+          width: 0,
+        };
         break;
       }
       case 'chat': {
@@ -430,6 +540,12 @@ class LayoutManager extends Component {
         newNoteSize = {
           width: 0,
         };
+        newCaptionsSize = {
+          width: 0,
+        };
+        newWaitingSize = {
+          width: 0,
+        };
         break;
       }
       case 'breakoutroom': {
@@ -440,6 +556,12 @@ class LayoutManager extends Component {
           width: 0,
         };
         newNoteSize = {
+          width: 0,
+        };
+        newCaptionsSize = {
+          width: 0,
+        };
+        newWaitingSize = {
           width: 0,
         };
         break;
@@ -460,6 +582,12 @@ class LayoutManager extends Component {
         newNoteSize = {
           width: 0,
         };
+        newCaptionsSize = {
+          width: 0,
+        };
+        newWaitingSize = {
+          width: 0,
+        };
         break;
       }
       default: {
@@ -472,6 +600,8 @@ class LayoutManager extends Component {
       newChatSize,
       newPollSize,
       newNoteSize,
+      newCaptionsSize,
+      newWaitingSize,
       newBreakoutRoomSize,
     };
   }
@@ -600,6 +730,8 @@ class LayoutManager extends Component {
       newChatSize,
       newPollSize,
       newNoteSize,
+      newCaptionsSize,
+      newWaitingSize,
       newBreakoutRoomSize,
     } = panelsSize;
 
@@ -615,6 +747,10 @@ class LayoutManager extends Component {
       secondPanel = newPollSize;
     } else if (newNoteSize.width > 0) {
       secondPanel = newNoteSize;
+    } else if (newCaptionsSize.width > 0) {
+      secondPanel = newCaptionsSize;
+    } else if (newWaitingSize.width > 0) {
+      secondPanel = newWaitingSize;
     } else if (newBreakoutRoomSize.width > 0) {
       secondPanel = newBreakoutRoomSize;
     }
@@ -667,6 +803,8 @@ class LayoutManager extends Component {
       chatSize: newChatSize,
       pollSize: newPollSize,
       noteSize: newNoteSize,
+      captionsSize: newCaptionsSize,
+      waitingSize: newWaitingSize,
       breakoutRoomSize: newBreakoutRoomSize,
       webcamsAreaSize: newWebcamsAreaSize,
       presentationAreaSize: newPresentationAreaSize,
@@ -689,6 +827,8 @@ export {
   POLL_MAX_WIDTH,
   NOTE_MIN_WIDTH,
   NOTE_MAX_WIDTH,
+  WAITING_MIN_WIDTH,
+  WAITING_MAX_WIDTH,
   NAVBAR_HEIGHT,
   ACTIONSBAR_HEIGHT,
   WEBCAMSAREA_MIN_PERCENT,

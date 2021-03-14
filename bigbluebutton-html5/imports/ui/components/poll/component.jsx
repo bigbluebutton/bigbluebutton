@@ -10,6 +10,7 @@ import Button from '/imports/ui/components/button/component';
 import Checkbox from '/imports/ui/components/checkbox/component';
 import LiveResult from './live-result/component';
 import { styles } from './styles.scss';
+import DragAndDrop from './dragAndDrop/component';
 
 const intlMessages = defineMessages({
   pollPaneTitle: {
@@ -31,6 +32,10 @@ const intlMessages = defineMessages({
   activePollInstruction: {
     id: 'app.poll.activePollInstruction',
     description: 'instructions displayed when a poll is active',
+  },
+  dragDropPollInstruction: {
+    id: 'app.poll.dragDropPollInstruction',
+    description: 'instructions for upload poll options via drag and drop',
   },
   ariaInputCount: {
     id: 'app.poll.ariaInputCount',
@@ -153,6 +158,7 @@ const intlMessages = defineMessages({
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 const MAX_CUSTOM_FIELDS = Meteor.settings.public.poll.max_custom;
 const MAX_INPUT_CHARS = 45;
+const FILE_DRAG_AND_DROP_ENABLED = Meteor.settings.public.poll.allowDragAndDropFile;
 
 const validateInput = (i) => {
   let _input = i;
@@ -213,6 +219,21 @@ class Poll extends Component {
     });
   }
 
+  handleInputChange(index, event) {
+    this.handleInputTextChange(index, event.target.value);
+  }
+
+  handleInputTextChange(index, text) {
+    const { optList } = this.state;
+    // This regex will replace any instance of 2 or more consecutive white spaces
+    // with a single white space character.
+    const option = text.replace(/\s{2,}/g, ' ').trim();
+
+    if (index < optList.length) optList[index].val = option === '' ? '' : option;
+
+    this.setState({ optList });
+  }
+
   handleInputChange(e, index) {
     const { optList, type, error } = this.state;
     const list = [...optList];
@@ -235,12 +256,32 @@ class Poll extends Component {
     const clearError = validatedQuestion.length > 0 && type === 'RP';
     this.setState({ question: validateInput(e.target.value), error: clearError ? null : error });
   }
+
+  pushToCustomPollValues(text) {
+    const lines = text.split('\n');
+    for (let i = 0; i < MAX_CUSTOM_FIELDS; i += 1) {
+      let line = '';
+      if (i < lines.length) {
+        line = lines[i];
+        line = line.length > MAX_INPUT_CHARS ? line.substring(0, MAX_INPUT_CHARS) : line;
+      }
+      this.handleInputTextChange(i, line);
+    }
+  }
+
+  handlePollValuesText(text) {
+    if (text && text.length > 0) {
+      this.pushToCustomPollValues(text);
+    }
+  }
+
   handleRemoveOption(index) {
     const { optList } = this.state;
     const list = [...optList];
     list.splice(index, 1);
     this.setState({ optList: list });
   }
+
   handleAddOption() {
     const { optList } = this.state;
     this.setState({ optList: [...optList, { val: '' }] });
@@ -524,6 +565,9 @@ class Poll extends Component {
                           });
                         }}
                       />
+                      {
+                        FILE_DRAG_AND_DROP_ENABLED && this.renderDragDrop()
+                      }
                     </div>
                     )
               }
@@ -564,6 +608,25 @@ class Poll extends Component {
 
     return this.renderPollOptions();
   }
+
+
+  renderDragDrop() {
+    const { intl } = this.props;
+    return (
+      <div>
+        <div className={styles.instructions}>
+          {intl.formatMessage(intlMessages.dragDropPollInstruction)}
+        </div>
+        <DragAndDrop
+          {...{ intl, MAX_INPUT_CHARS }}
+          handlePollValuesText={e => this.handlePollValuesText(e)}
+        >
+          <div className={styles.dragAndDropPollContainer} />
+        </DragAndDrop>
+      </div>
+    );
+  }
+
 
   render() {
     const {

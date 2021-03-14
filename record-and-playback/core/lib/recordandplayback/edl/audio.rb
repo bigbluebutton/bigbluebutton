@@ -22,9 +22,9 @@ module BigBlueButton
     module Audio
       FFMPEG_AEVALSRC = "aevalsrc=s=48000:c=stereo:exprs=0|0"
       FFMPEG_AFORMAT = "aformat=sample_fmts=s16:sample_rates=48000:channel_layouts=stereo"
-      FFMPEG_WF_CODEC = 'flac'
-      FFMPEG_WF_ARGS = ['-c:a', FFMPEG_WF_CODEC, '-f', 'flac']
-      WF_EXT = 'flac'
+      FFMPEG_WF_CODEC = 'libvorbis'
+      FFMPEG_WF_ARGS = ['-c:a', FFMPEG_WF_CODEC, '-q:a', '2', '-f', 'ogg']
+      WF_EXT = 'ogg'
 
       def self.dump(edl)
         BigBlueButton.logger.debug "EDL Dump:"

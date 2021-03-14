@@ -56,6 +56,7 @@ class Polling extends Component {
     this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.renderCheckboxAnswers = this.renderCheckboxAnswers.bind(this);
+    this.handleMessageKeyDown = this.handleMessageKeyDown.bind(this);
   }
 
   componentDidMount() {
@@ -90,6 +91,22 @@ class Polling extends Component {
     checkedAnswers.sort();
     this.setState({ checkedAnswers });
   }
+
+  handleMessageKeyDown(e) {
+    const {
+      poll,
+      handleTypedVote,
+    } = this.props;
+
+    const {
+      typedAns,
+    } = this.state;
+
+    if (e.keyCode === 13) {
+      handleTypedVote(poll.pollId, typedAns);
+    }
+  }
+
 
   renderButtonAnswers(pollAnswerStyles) {
     const {
@@ -166,6 +183,9 @@ class Polling extends Component {
             <input
               onChange={(e) => {
                 this.handleUpdateResponseInput(e);
+              }}
+              onKeyDown={(e) => {
+                this.handleMessageKeyDown(e);
               }}
               type="text"
               className={styles.typedResponseInput}
@@ -308,6 +328,7 @@ Polling.propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   handleVote: PropTypes.func.isRequired,
+  handleTypedVote: PropTypes.func.isRequired,
   poll: PropTypes.shape({
     pollId: PropTypes.string.isRequired,
     answers: PropTypes.arrayOf(PropTypes.shape({

@@ -8,7 +8,6 @@ import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills';
-import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import { monitorAudioConnection } from '/imports/utils/stats';
 import { Meteor } from 'meteor/meteor';
 import AudioErrors from './error-codes';
@@ -181,22 +180,7 @@ class AudioManager {
     const callOptions = {
       isListenOnly: true,
       extension: null,
-      inputStream: this.createListenOnlyStream(),
     };
-
-    // WebRTC restrictions may need a capture device permission to release
-    // useful ICE candidates on recvonly/no-gUM peers
-    try {
-      await tryGenerateIceCandidates();
-    } catch (error) {
-      logger.error({
-        logCode: 'listenonly_no_valid_candidate_gum_failure',
-        extraInfo: {
-          errorName: error.name,
-          errorMessage: error.message,
-        },
-      }, `Forced gUM to release additional ICE candidates failed due to ${error.name}.`);
-    }
 
     // Call polyfills for webrtc client if navigator is "iOS Webview"
     const userAgent = window.navigator.userAgent.toLocaleLowerCase();
@@ -433,29 +417,6 @@ class AudioManager {
         resolve(AUTOPLAY_BLOCKED);
       }
     });
-  }
-
-  createListenOnlyStream() {
-    const audio = document.querySelector(MEDIA_TAG);
-
-    // Play bogus silent audio to try to circumvent autoplay policy on Safari
-    if (!audio.src) {
-      audio.src = `${Meteor.settings.public.app.cdn
-      + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}` + '/resources/sounds/silence.mp3';
-    }
-
-    audio.play().catch((e) => {
-      if (e.name === 'AbortError') {
-        return;
-      }
-
-      logger.warn({
-        logCode: 'audiomanager_error_test_audio',
-        extraInfo: { error: e },
-      }, 'Error on playing test audio');
-    });
-
-    return {};
   }
 
   isUsingAudio() {
