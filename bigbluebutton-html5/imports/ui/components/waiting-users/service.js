@@ -28,7 +28,7 @@ const getGuestLobbyMessage = () => {
   return '';
 };
 
-const setGuestLobbyMessage = (message) => makeCall('setGuestLobbyMessage', message);
+const setGuestLobbyMessage = message => makeCall('setGuestLobbyMessage', message);
 
 export default {
   guestUsersCall,

@@ -59,7 +59,7 @@ const intlMessages = defineMessages({
   },
   accept: {
     id: 'app.userList.guest.acceptLabel',
-    description: 'Accept guest button label'
+    description: 'Accept guest button label',
   },
   deny: {
     id: 'app.userList.guest.denyLabel',
@@ -74,7 +74,7 @@ const getNameInitials = (name) => {
   const nameInitials = name.slice(0, 2);
 
   return nameInitials.replace(/^\w/, c => c.toUpperCase());
-}
+};
 
 const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequence, userId, avatar, intl) => (
   <div key={`userlist-item-${userId}`} className={styles.listItem}>
@@ -224,7 +224,7 @@ const WaitingUsers = (props) => {
     },
   ];
 
-  const buttonsData = authenticatedGuest ? _.concat(authGuestButtonsData , guestButtonsData) : guestButtonsData;
+  const buttonsData = authenticatedGuest ? _.concat(authGuestButtonsData, guestButtonsData) : guestButtonsData;
 
   return (
     <div
@@ -253,7 +253,13 @@ const WaitingUsers = (props) => {
             placeholder={intl.formatMessage(intlMessages.inputPlaceholder)}
             send={setGuestLobbyMessage}
           />
-          <p><i>"{guestLobbyMessage.length > 0 ? guestLobbyMessage : intl.formatMessage(intlMessages.emptyMessage)}"</i></p>
+          <p>
+            <i>
+"
+              {guestLobbyMessage.length > 0 ? guestLobbyMessage : intl.formatMessage(intlMessages.emptyMessage)}
+"
+            </i>
+          </p>
         </div>
       ) : null}
       <div>

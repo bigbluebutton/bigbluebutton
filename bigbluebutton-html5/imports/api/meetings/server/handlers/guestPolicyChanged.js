@@ -1,5 +1,5 @@
-import setGuestPolicy from '../modifiers/setGuestPolicy';
 import { check } from 'meteor/check';
+import setGuestPolicy from '../modifiers/setGuestPolicy';
 
 export default function handleGuestPolicyChanged({ body }, meetingId) {
   const { policy } = body;

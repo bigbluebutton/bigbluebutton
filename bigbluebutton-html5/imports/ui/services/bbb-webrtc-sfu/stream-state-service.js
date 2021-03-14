@@ -15,31 +15,27 @@ const STREAM_STATE_CHANGED_EVENT_PREFIX = 'streamStateChanged';
  * streamState must be a valid member of either RTCIceConnectionState or
  * RTCPeerConnectionState enums
  */
-export const  notifyStreamStateChange = (eventTag, streamState) => {
+export const notifyStreamStateChange = (eventTag, streamState) => {
   const eventName = `${STREAM_STATE_CHANGED_EVENT_PREFIX}:${eventTag}`;
   const streamStateChanged = new CustomEvent(
     eventName,
     { detail: { eventTag, streamState } },
   );
   window.dispatchEvent(streamStateChanged);
-}
+};
 
 // `callback` is the method to be called when a new state is notified
 // via notifyStreamStateChange
 export const subscribeToStreamStateChange = (eventTag, callback) => {
   const eventName = `${STREAM_STATE_CHANGED_EVENT_PREFIX}:${eventTag}`;
   window.addEventListener(eventName, callback, false);
-}
+};
 
 export const unsubscribeFromStreamStateChange = (eventTag, callback) => {
   const eventName = `${STREAM_STATE_CHANGED_EVENT_PREFIX}:${eventTag}`;
   window.removeEventListener(eventName, callback);
-}
+};
 
-export const isStreamStateUnhealthy = (streamState) => {
-  return streamState === 'failed' || streamState === 'closed';
-}
+export const isStreamStateUnhealthy = streamState => streamState === 'failed' || streamState === 'closed';
 
-export const isStreamStateHealthy = (streamState) => {
-  return streamState === 'connected' || streamState === 'completed';
-}
+export const isStreamStateHealthy = streamState => streamState === 'connected' || streamState === 'completed';

@@ -91,7 +91,7 @@ class ScreenshareComponent extends React.Component {
     unsubscribeFromStreamStateChange('screenshare', this.onStreamStateChange);
   }
 
-  onStreamStateChange (event) {
+  onStreamStateChange(event) {
     const { streamState } = event.detail;
     const { isStreamHealthy } = this.state;
 
@@ -188,7 +188,9 @@ class ScreenshareComponent extends React.Component {
   }
 
   render() {
-    const { loaded, autoplayBlocked, isFullscreen, isStreamHealthy } = this.state;
+    const {
+      loaded, autoplayBlocked, isFullscreen, isStreamHealthy,
+    } = this.state;
     const { intl, isPresenter, isGloballyBroadcasting } = this.props;
 
     // Conditions to render the (re)connecting spinner and the unhealthy stream

@@ -13,7 +13,7 @@ const propTypes = {
 
 const defaultProps = {
   placeholder: '',
-  send: () => logger.warn({ logCode: 'text_input_send_function' }, `Missing`),
+  send: () => logger.warn({ logCode: 'text_input_send_function' }, 'Missing'),
 };
 
 const messages = defineMessages({
@@ -57,7 +57,7 @@ class TextInput extends PureComponent {
         <TextareaAutosize
           className={styles.textarea}
           maxLength={maxLength}
-          onChange={(e) => this.handleOnChange(e)}
+          onChange={e => this.handleOnChange(e)}
           placeholder={placeholder}
           value={message}
         />

@@ -110,7 +110,7 @@ export default class Legacy extends Component {
                 })
                 .then((regionDefaultMessages) => {
                   messages = Object.assign(messages, regionDefaultMessages);
-                  this.setState({ messages});
+                  this.setState({ messages });
                 });
             }
 
@@ -124,7 +124,7 @@ export default class Legacy extends Component {
                 })
                 .then((localeMessages) => {
                   messages = Object.assign(messages, localeMessages);
-                  this.setState({ messages});
+                  this.setState({ messages });
                 })
                 .catch(() => {
                   normalizedLocale = (regionDefaultLocale) || DEFAULT_LANGUAGE;

@@ -5,7 +5,7 @@ import VideoService from '/imports/ui/components/video-provider/service';
 
 const VideoListContainer = ({ children, ...props }) => {
   const { streams } = props;
-  return (!streams.length ? null : <VideoList{...props}>{children}</VideoList>);
+  return (!streams.length ? null : <VideoList {...props}>{children}</VideoList>);
 };
 
 export default withTracker(props => ({

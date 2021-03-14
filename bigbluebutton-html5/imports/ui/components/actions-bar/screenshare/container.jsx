@@ -23,6 +23,6 @@ export default withModalMounter(withTracker(({ mountModal }) => ({
   screenshareDataSavingSetting: dataSavingSetting(),
   enabled: getFromUserSettings(
     'bbb_enable_screen_sharing',
-    Meteor.settings.public.kurento.enableScreensharing
+    Meteor.settings.public.kurento.enableScreensharing,
   ),
 }))(ScreenshareButtonContainer));
