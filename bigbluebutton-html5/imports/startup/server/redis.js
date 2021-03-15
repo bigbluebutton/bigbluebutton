@@ -311,7 +311,7 @@ class RedisPubSub {
             parsedMessage,
           });
         } else {
-          // Logger.warn('Backend meeting queue had not been initialized', { eventName, meetingIdFromMessageCoreHeader })
+          Logger.warn('Backend meeting queue had not been initialized', { eventName, meetingIdFromMessageCoreHeader })
         }
       }
     }
