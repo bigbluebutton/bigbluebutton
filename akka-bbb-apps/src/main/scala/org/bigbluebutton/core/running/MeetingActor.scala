@@ -156,6 +156,10 @@ class MeetingActor(
 
   var lastRttTestSentOn = System.currentTimeMillis()
 
+  // Send new 2x message
+  val msgEvent = MsgBuilder.buildMeetingCreatedEvtMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props)
+  outGW.send(msgEvent)
+
   // Create a default public group chat
   state = groupChatApp.handleCreateDefaultPublicGroupChat(state, liveMeeting, msgBus)
 
