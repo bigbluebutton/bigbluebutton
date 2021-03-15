@@ -53,7 +53,7 @@ const intlMessages = defineMessages({
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
 function copyStyles(sourceDoc, targetDoc) {
-  //To be fair, I declare that this is copied from https://medium.com/hackernoon/using-a-react-16-portal-to-do-something-cool-2a2d627b0202
+  //To be fair, I declare that this was copied from https://medium.com/hackernoon/using-a-react-16-portal-to-do-something-cool-2a2d627b0202
   const hostUri = `https://${window.document.location.hostname}`;
   const baseName = hostUri + Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId;
   Array.from(sourceDoc.styleSheets).forEach(styleSheet => {
@@ -80,6 +80,7 @@ function copyStyles(sourceDoc, targetDoc) {
 
 let presentationWindow = window;
 class MyWindowPortal extends React.PureComponent {
+  // Most of the idea and code were copied from https://stackoverflow.com/questions/47909601/onclick-not-working-inside-the-pop-up-opened-via-react-portals
   constructor(props) {
     super(props);
     this.state = { win: null, el: null };
