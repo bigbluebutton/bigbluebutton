@@ -6,6 +6,7 @@ import { sendMessage, onMessage, removeAllListeners } from './service';
 import logger from '/imports/startup/client/logger';
 
 import VolumeSlider from './volume-slider/component';
+import ReloadButton from '/imports/ui/components/reload-button/component';
 
 import ArcPlayer from './custom-players/arc-player';
 import PeerTubePlayer from './custom-players/peertube';
@@ -43,12 +44,16 @@ class VideoPlayer extends Component {
 
     this.throttleTimeout = null;
 
+    this.reloadPressed = false;
+    this.reloadTimeout = null;
+
     this.state = {
       muted: false,
       playing: false,
       autoPlayBlocked: false,
       volume: 1,
       playbackRate: 1,
+      key: 0,
     };
 
     this.opts = {
@@ -97,6 +102,7 @@ class VideoPlayer extends Component {
     this.clearVideoListeners = this.clearVideoListeners.bind(this);
     this.handleFirstPlay = this.handleFirstPlay.bind(this);
     this.handleResize = this.handleResize.bind(this);
+    this.handleReload = this.handleReload.bind(this);
     this.handleOnProgress = this.handleOnProgress.bind(this);
     this.handleOnReady = this.handleOnReady.bind(this);
     this.handleOnPlay = this.handleOnPlay.bind(this);
@@ -447,11 +453,32 @@ class VideoPlayer extends Component {
     this.setState({ muted });
   }
 
+  handleReload() {
+
+    if (this.reloadPressed) {
+      return;
+    }
+
+    // increment key and force a re-render of the video component
+    this.setState({key: this.state.key + 1});
+
+    // hack, resize player
+    this.resizeListener();
+
+    this.reloadPressed = true;
+
+    this.reloadTimeout = setTimeout(() => {
+      clearTimeout(this.reloadTimeout);
+      this.reloadTimeout = null;
+      this.reloadPressed = false;
+    }, 2000);
+  }
+
   render() {
     const { videoUrl, isPresenter, intl } = this.props;
     const {
       playing, playbackRate, mutedByEchoTest, autoPlayBlocked,
-      volume, muted,
+      volume, muted, key,
     } = this.state;
 
     return (
@@ -480,16 +507,20 @@ class VideoPlayer extends Component {
           onReady={this.handleOnReady}
           onPlay={this.handleOnPlay}
           onPause={this.handleOnPause}
+	  key={'react-player' + key}
           ref={(ref) => { this.player = ref; }}
         />
         { !isPresenter ?
-            <VolumeSlider
-              volume={volume}
-              muted={muted || mutedByEchoTest}
-              onMuted={this.handleOnMuted}
-              onVolumeChanged={this.handleVolumeChanged}
-            />
-          : null
+            <div className={styles.hoverToolbar}>
+	      <VolumeSlider
+                volume={volume}
+                muted={muted || mutedByEchoTest}
+                onMuted={this.handleOnMuted}
+                onVolumeChanged={this.handleVolumeChanged}
+              />
+	      <ReloadButton handleReload={this.handleReload}></ReloadButton>
+            </div>
+	    : null
         }
       </div>
     );
