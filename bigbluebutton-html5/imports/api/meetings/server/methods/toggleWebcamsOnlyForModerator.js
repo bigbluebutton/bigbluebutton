@@ -9,6 +9,9 @@ export default function toggleWebcamsOnlyForModerator(webcamsOnlyForModerator) {
   const EVENT_NAME = 'UpdateWebcamsOnlyForModeratorCmdMsg';
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
+
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(webcamsOnlyForModerator, Boolean);
 
   const payload = {

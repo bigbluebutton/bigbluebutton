@@ -11,6 +11,7 @@ export default function toggleUserLock(userId, lock) {
 
   const { meetingId, requesterUserId: lockedBy } = extractCredentials(this.userId);
 
+  check(meetingId, String);
   check(lockedBy, String);
   check(userId, String);
   check(lock, Boolean);
