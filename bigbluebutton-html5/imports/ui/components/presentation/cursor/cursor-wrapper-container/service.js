@@ -7,7 +7,7 @@ import Users from '/imports/api/users';
 
 const getMultiUserStatus = (whiteboardId) => {
   const data = WhiteboardMultiUser.findOne({ meetingId: Auth.meetingID, whiteboardId });
-  return data ? data.multiUser : false;
+  return data ? data.multiUser : 0;
 };
 
 const getPresenterCursorId = (whiteboardId, userId) =>
@@ -61,4 +61,5 @@ const getCurrentCursorIds = (podId, whiteboardId) => {
 export default {
   getCurrentCursorIds,
   getMultiUserStatus,
+  getPresenterCursorId,
 };

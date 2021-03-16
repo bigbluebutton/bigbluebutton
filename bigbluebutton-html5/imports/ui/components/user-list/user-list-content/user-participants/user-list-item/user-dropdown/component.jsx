@@ -18,6 +18,8 @@ import { Session } from 'meteor/session';
 import { styles } from './styles';
 import UserName from '../user-name/component';
 import UserIcons from '../user-icons/component';
+import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
+import PresentationAreaService from '/imports/ui/components/presentation/service';
 import Service from '../../../../service';
 
 const messages = defineMessages({
@@ -64,6 +66,14 @@ const messages = defineMessages({
   makePresenterLabel: {
     id: 'app.userList.menu.makePresenter.label',
     description: 'label to make another user presenter',
+  },
+  giveWBAccess: {
+    id: 'app.userList.menu.giveWBAccess.label',
+    description: 'label to give user whiteboard access',
+  },
+  removeWBAccess: {
+    id: 'app.userList.menu.removeWBAccess.label',
+    description: 'label to remove user whiteboard access',
   },
   RemoveUserLabel: {
     id: 'app.userList.menu.removeUser.label',
@@ -233,6 +243,7 @@ class UserDropdown extends PureComponent {
       isMe,
       meetingIsBreakout,
       mountModal,
+      changeWhiteboardMode,
       usersProp,
     } = this.props;
     const { showNestedOptions } = this.state;
@@ -357,13 +368,33 @@ class UserDropdown extends PureComponent {
       ));
     }
 
+    if (allowedToRemove && !user.presenter && isMeteorConnected) {
+      let label = intl.formatMessage(messages.giveWBAccess);
+
+      if (user.whiteboardAccess) {
+        label = intl.formatMessage(messages.removeWBAccess);
+      }
+
+      const currentSlide = PresentationAreaService.getCurrentSlide('DEFAULT_PRESENTATION_POD');
+      const whiteboardId = currentSlide.id;
+      const wbdata = WhiteboardMultiUser.findOne({ meetingId: user.meetingId, whiteboardId });
+      const multiUser = wbdata ? wbdata.multiUser : 0;
+
+      actions.push(this.makeDropdownItem(
+        'giveIndividualAccess',
+        label,
+        () => changeWhiteboardMode(user.whiteboardAccess ? 0 : (multiUser == 0 ? 1 : multiUser), user.userId),
+        'pen_tool',
+      ));
+    }
+    
     if (allowedToSetPresenter && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'setPresenter',
         isMe(user.userId)
           ? intl.formatMessage(messages.takePresenterLabel)
           : intl.formatMessage(messages.makePresenterLabel),
-        () => this.onActionsHide(assignPresenter(user.userId)),
+        () => { this.onActionsHide(assignPresenter(user.userId)); },
         'presentation',
       ));
     }
@@ -535,6 +566,7 @@ class UserDropdown extends PureComponent {
         voice={voiceUser.isVoiceUser}
         noVoice={!voiceUser.isVoiceUser}
         color={user.color}
+        whiteboardAccess={user.whiteboardAccess}
         emoji={user.emoji !== 'none'}
         avatar={user.avatar}
       >

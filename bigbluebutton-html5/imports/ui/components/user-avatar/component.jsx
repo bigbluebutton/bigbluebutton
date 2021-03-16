@@ -46,6 +46,7 @@ const UserAvatar = ({
   avatar,
   noVoice,
   className,
+  whiteboardAccess,
 }) => (
 
   <div
@@ -54,6 +55,7 @@ const UserAvatar = ({
     className={cx(styles.avatar, {
       [styles.moderator]: moderator,
       [styles.presenter]: presenter,
+      [styles.whiteboardAccess]: whiteboardAccess && !presenter,
       [styles.muted]: muted,
       [styles.listenOnly]: listenOnly,
       [styles.voice]: voice,

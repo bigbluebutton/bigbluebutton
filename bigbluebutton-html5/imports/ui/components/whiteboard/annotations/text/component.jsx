@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import RenderInBrowser from 'react-render-in-browser';
 import { getFormattedColor, denormalizeCoord } from '../helpers';
+import TextShapeService from './service';
 
 const DRAW_END = Meteor.settings.public.whiteboard.annotations.status.end;
 
@@ -144,8 +145,14 @@ export default class TextDrawComponent extends Component {
   }
 
   renderViewerTextShape(results) {
-    const { annotation } = this.props;
+    const { annotation, whiteboardId } = this.props;
     const styles = TextDrawComponent.getViewerStyles(results);
+    const isPresenter = TextShapeService.isPresenter();
+    const modeMultiUser = TextShapeService.getMultiUserStatus(whiteboardId);
+    const currentUserID = TextShapeService.currentUserID();
+    const drawerID = annotation.id.replace(/-.*$/,'');
+    const isDrawerPresenter = TextShapeService.isHePresenter(drawerID);
+    const visibility = modeMultiUser == 2 && !isPresenter && !isDrawerPresenter && currentUserID != drawerID ? {visibility: "hidden"} : {};
 
     return (
       <g>
@@ -165,6 +172,7 @@ export default class TextDrawComponent extends Component {
           y={results.y}
           width={results.width}
           height={results.height}
+          {...visibility}
         >
           <p style={styles}>
             {results.text}

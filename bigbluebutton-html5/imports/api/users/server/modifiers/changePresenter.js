@@ -1,7 +1,10 @@
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
+import { Slides } from '/imports/api/slides';
 import stopWatchingExternalVideoSystemCall from '/imports/api/external-videos/server/methods/stopWatchingExternalVideoSystemCall';
+import modifyWhiteboardAccess from '/imports/api/whiteboard-multi-user/server/modifiers/modifyWhiteboardAccess';
+import RedisPubSub from '/imports/startup/server/redis';
 
 export default function changePresenter(presenter, userId, meetingId, changedBy) {
   const selector = {
@@ -12,6 +15,7 @@ export default function changePresenter(presenter, userId, meetingId, changedBy)
   const modifier = {
     $set: {
       presenter,
+      whiteboardAccess: presenter,
     },
   };
 
@@ -22,6 +26,21 @@ export default function changePresenter(presenter, userId, meetingId, changedBy)
       stopWatchingExternalVideoSystemCall({ meetingId, requesterUserId: 'system-presenter-changed' });
     }
 
+    const currentSlide = Slides.findOne({
+      podId: 'DEFAULT_PRESENTATION_POD',
+      meetingId,
+      current: true,
+    }, {
+      fields: {
+        id: 1,
+      },
+    });
+
+    if (currentSlide) {
+      modifyWhiteboardAccess(meetingId, currentSlide.id, 0);
+      RedisPubSub.publishUserMessage(Meteor.settings.private.redis.channels.toAkkaApps, 'ModifyWhiteboardAccessPubMsg', meetingId, userId, {multiUser: 0, whiteboardId: currentSlide.id});
+    }
+    
     const numberAffected = Users.update(selector, modifier);
 
     if (numberAffected) {

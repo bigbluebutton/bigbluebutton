@@ -190,7 +190,17 @@ const getMultiUserStatus = (whiteboardId) => {
     meetingId: Auth.meetingID,
     whiteboardId,
   });
-  return data ? data.multiUser : false;
+  
+  const currentUser = Users.findOne({
+    userId: Auth.userID,
+    meetingId: Auth.meetingID,
+  }, {
+    fields: {
+      whiteboardAccess: 1,
+    },
+  });
+
+  return (data && data.multiUser>0 && currentUser.whiteboardAccess) ? data.multiUser : 0;
 };
 
 export default {
