@@ -10,6 +10,8 @@ export default function clearWhiteboard(whiteboardId) {
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(whiteboardId, String);
 
   const payload = {

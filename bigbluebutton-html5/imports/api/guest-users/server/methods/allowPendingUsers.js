@@ -11,6 +11,8 @@ const EVENT_NAME = 'GuestsWaitingApprovedMsg';
 export default function allowPendingUsers(guests, status) {
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(guests, Array);
   const mappedGuests = guests.map(guest => ({ status, guest: guest.intId }));
 

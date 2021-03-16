@@ -11,6 +11,8 @@ export default function startUserTyping(chatId) {
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(chatId, String);
 
   const payload = {

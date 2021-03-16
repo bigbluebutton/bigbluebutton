@@ -10,6 +10,8 @@ export default function userChangedLocalSettings(settings) {
   if (!meetingId || !requesterUserId) return;
 
   check(settings, Object);
+  check(meetingId, String);
+  check(requesterUserId, String);
 
   const userLocalSettings = LocalSettings
     .findOne({ meetingId, userId: requesterUserId },
