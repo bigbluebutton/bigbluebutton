@@ -12,6 +12,8 @@ export default function changeWhiteboardAccess(multiUser, whiteboardId, userId =
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(multiUser, Number);
   check(whiteboardId, String);
   check(userId, String);
