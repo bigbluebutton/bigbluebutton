@@ -20,8 +20,8 @@ const DEBOUNCE_OPTIONS = {
 };
 
 const ReloadButtonComponent = ({
-  intl,
   handleReload,
+  label,
 }) => {
 
   return (
@@ -34,10 +34,9 @@ const ReloadButtonComponent = ({
         onClick={_.debounce(handleReload, DEBOUNCE_TIMEOUT, DEBOUNCE_OPTIONS)}
         label={label}
         hideLabel
-        className={""}
       />
     </div>
   );
 };
 
-export default injectIntl(ReloadButtonComponent);
+export default ReloadButtonComponent;

@@ -695,6 +695,7 @@
     "app.externalVideo.urlError": "This video URL isn't supported",
     "app.externalVideo.close": "Close",
     "app.externalVideo.autoPlayWarning": "Play the video to enable media synchronization",
+    "app.externalVideo.refreshLabel": "Reload Video",
     "app.network.connection.effective.slow": "We're noticing connectivity issues.",
     "app.network.connection.effective.slow.help": "More information",
     "app.externalVideo.noteLabel": "Note: Shared external videos will not appear in the recording. YouTube, Vimeo, Instructure Media, Twitch and Daily Motion URLs are supported.",

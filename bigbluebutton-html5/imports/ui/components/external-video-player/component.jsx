@@ -18,6 +18,9 @@ const intlMessages = defineMessages({
     id: 'app.externalVideo.autoPlayWarning',
     description: 'Shown when user needs to interact with player to make it work',
   },
+  refreshLabel: {
+    id: 'app.externalVideo.refreshLabel',
+  },
 });
 
 const SYNC_INTERVAL_SECONDS = 5;
@@ -502,7 +505,10 @@ class VideoPlayer extends Component {
                 onMuted={this.handleOnMuted}
                 onVolumeChanged={this.handleVolumeChanged}
               />
-	      <ReloadButton handleReload={this.handleReload}></ReloadButton>
+	      <ReloadButton
+                handleReload={this.handleReload}
+                label={intl.formatMessage(intlMessages.refreshLabel)}>
+	      </ReloadButton>
             </div>
 	    : null
         }

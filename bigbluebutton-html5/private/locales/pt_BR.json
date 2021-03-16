@@ -664,6 +664,7 @@
     "app.externalVideo.urlError": "Essa URL de vídeo não é suportada",
     "app.externalVideo.close": "Fechar",
     "app.externalVideo.autoPlayWarning": "Clique no vídeo para habilitar a sincronização",
+    "app.externalVideo.refreshLabel": "Recarregar vídeo",
     "app.network.connection.effective.slow": "Estamos percebendo problemas de conectividade.",
     "app.network.connection.effective.slow.help": "Mais informações",
     "app.externalVideo.noteLabel": "Nota: vídeos externos compartilhados não aprecerão na gravação. Videos de YouTube, Vimeo, Instructure Media, Twitch e Daily Motion são suportados.",
