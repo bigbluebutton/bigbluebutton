@@ -8,6 +8,9 @@ export default function requestPresentationUploadToken(podId, filename) {
   const EVENT_NAME = 'PresentationUploadTokenReqMsg';
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
+
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(podId, String);
   check(filename, String);
 

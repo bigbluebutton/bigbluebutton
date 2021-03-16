@@ -102,7 +102,7 @@ class Polling extends Component {
       typedAns,
     } = this.state;
 
-    if (e.keyCode === 13) {
+    if (e.keyCode === 13 && typedAns.length > 0) {
       handleTypedVote(poll.pollId, typedAns);
     }
   }

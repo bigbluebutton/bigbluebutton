@@ -11,6 +11,8 @@ export default function publishVote(pollId, pollAnswerIds) {
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
   check(pollAnswerIds, Array);
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(pollId, String);
 
   const allowedToVote = Polls.findOne({ id: pollId, users: { $in: [requesterUserId] } }, {

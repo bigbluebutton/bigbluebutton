@@ -298,7 +298,7 @@ class RedisPubSub {
             });
             }
           }
-          // I ignore
+          // ignore
         }
       } else {
         // add to existing queue

@@ -11,6 +11,9 @@ export default function emitExternalVideoEvent(options) {
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
+
   const { status, playerStatus } = options;
 
   const user = Users.findOne({ meetingId, userId: requesterUserId });
