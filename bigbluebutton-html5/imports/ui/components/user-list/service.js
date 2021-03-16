@@ -210,7 +210,7 @@ const getUsers = () => {
 };
 
 const getUserCount = () => {
-  return Users.find({ meetingId: Auth.meetingID, connectionStatus: 'online' }).count();
+  return Users.find({ meetingId: Auth.meetingID }).count();
 };
 
 const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID },
