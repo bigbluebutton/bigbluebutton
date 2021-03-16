@@ -26,7 +26,6 @@ import DebugWindow from '/imports/ui/components/debug-window/component'
 import {Meteor} from "meteor/meteor";
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
-const CHAT_ENABLED = CHAT_CONFIG.enabled;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 
 const BREAKOUT_END_NOTIFY_DELAY = 50;
@@ -401,7 +400,7 @@ const BaseContainer = withTracker(() => {
   });
 
   if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.type().isPhone) {
-    if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
+    if (getFromUserSettings('bbb_enable_chat', CHAT_CONFIG.enabled) && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
       Session.set('openPanel', 'chat');
       Session.set('idChatOpen', PUBLIC_CHAT_ID);
     } else {

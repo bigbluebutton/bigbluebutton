@@ -4,6 +4,7 @@ import Note from '/imports/api/note';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 import { Session } from 'meteor/session';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const NOTE_CONFIG = Meteor.settings.public.note;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -94,7 +95,7 @@ const hasUnreadNotes = () => {
 
 const isEnabled = () => {
   const note = Note.findOne({ meetingId: Auth.meetingID });
-  return NOTE_CONFIG.enabled && note;
+  return getFromUserSettings('bbb_enable_notes', NOTE_CONFIG.enabled) && note;
 };
 
 const toggleNotePanel = () => {

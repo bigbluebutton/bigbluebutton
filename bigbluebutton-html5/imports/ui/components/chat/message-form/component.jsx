@@ -8,6 +8,7 @@ import _ from 'lodash';
 import TypingIndicatorContainer from './typing-indicator/container';
 import { styles } from './styles.scss';
 import Button from '../../button/component';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
@@ -68,8 +69,6 @@ const messages = defineMessages({
 });
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
-const CHAT_ENABLED = CHAT_CONFIG.enabled;
-
 class MessageForm extends PureComponent {
   constructor(props) {
     super(props);
@@ -274,7 +273,7 @@ class MessageForm extends PureComponent {
 
     const { hasErrors, error, message } = this.state;
 
-    return CHAT_ENABLED ? (
+    return getFromUserSettings('bbb_enable_chat', CHAT_CONFIG.enabled) ? (
       <form
         ref={(ref) => { this.form = ref; }}
         className={cx(className, styles.form)}
