@@ -14,10 +14,6 @@ const intlMessages = defineMessages({
     id: 'app.audio.joinAudio',
     description: 'Join audio button label',
   },
-  leaveAudio: {
-    id: 'app.audio.leaveAudio',
-    description: 'Leave audio button label',
-  },
   muteAudio: {
     id: 'app.actionsBar.muteLabel',
     description: 'Mute audio button label',
@@ -57,29 +53,7 @@ class AudioControls extends PureComponent {
   }
 
   renderLeaveButton() {
-    const {
-      listenOnly,
-      inAudio,
-      isVoiceUser,
-      handleLeaveAudio,
-      shortcuts,
-      disable,
-      intl,
-    } = this.props;
-    return (inAudio && isVoiceUser && listenOnly) ? (
-      <Button
-        onClick={handleLeaveAudio}
-        disabled={disable}
-        hideLabel
-        aria-label={intl.formatMessage(intlMessages.leaveAudio)}
-        label={intl.formatMessage(intlMessages.leaveAudio)}
-        color="primary"
-        icon="listen"
-        size="lg"
-        circle
-        accessKey={shortcuts.leaveAudio}
-      />
-    ) : (<InputStreamLiveSelectorContainer />);
+    return (<InputStreamLiveSelectorContainer />);
   }
 
   render() {
@@ -147,7 +121,7 @@ class AudioControls extends PureComponent {
                 icon={'audio_off'}
                 size="lg"
                 circle
-                accessKey={shortcuts.joinAudio}
+                accessKey={shortcuts.joinaudio}
               />
             )
         }
@@ -158,4 +132,4 @@ class AudioControls extends PureComponent {
 
 AudioControls.propTypes = propTypes;
 
-export default withShortcutHelper(injectIntl(AudioControls), ['joinAudio', 'leaveAudio', 'toggleMute']);
+export default withShortcutHelper(injectIntl(AudioControls), ['joinAudio', 'toggleMute']);

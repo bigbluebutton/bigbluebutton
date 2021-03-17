@@ -517,10 +517,10 @@ class AudioManager {
     this.bridge.liveChangeInputDevice(deviceId).then(handleChangeInputDeviceSuccess);
   }
 
-  async changeOutputDevice(deviceId) {
+  async changeOutputDevice(deviceId, isLive) {
     this.outputDeviceId = await this
       .bridge
-      .changeOutputDevice(deviceId || DEFAULT_OUTPUT_DEVICE_ID);
+      .changeOutputDevice(deviceId || DEFAULT_OUTPUT_DEVICE_ID, isLive);
   }
 
   set inputDevice(value) {
@@ -540,6 +540,11 @@ class AudioManager {
   get inputDeviceId() {
     return (this.bridge && this.bridge.inputDeviceId)
       ? this.bridge.inputDeviceId : DEFAULT_INPUT_DEVICE_ID;
+  }
+
+  get outputDeviceId() {
+    return (this.bridge && this.bridge.outputDeviceId)
+      ? this.bridge.outputDeviceId : DEFAULT_OUTPUT_DEVICE_ID;
   }
 
   get returningFromBreakoutAudioTransfer() {

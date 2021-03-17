@@ -459,6 +459,9 @@
     "app.audio.enterSessionLabel": "Entrar na sessão",
     "app.audio.playSoundLabel": "Reproduzir som",
     "app.audio.backLabel": "Voltar",
+    "app.audio.microphones": "Microfones",
+    "app.audio.speakers": "Alto-falantes",
+    "app.audio.noDeviceFound": "Nenhum dispositivo encontrado",
     "app.audio.audioSettings.titleLabel": "Configurações de áudio",
     "app.audio.audioSettings.descriptionLabel": "Por favor, note que aparecerá uma caixa de diálogo no seu navegador, a solicitar autorização para partilhar o seu microfone.",
     "app.audio.audioSettings.microphoneSourceLabel": "Selecionar microfone",
@@ -732,4 +735,3 @@
     "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(será desactivado se arrastar ou redimensionar a área das webcams)"
 
 }
-
