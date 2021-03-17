@@ -400,15 +400,17 @@ const BaseContainer = withTracker(() => {
     },
   });
 
-  if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.type().isPhone) {
-    if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
-      Session.set('openPanel', 'chat');
-      Session.set('idChatOpen', PUBLIC_CHAT_ID);
+  if (Session.equals('openPanel', undefined)) {
+    if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.type().isPhone) {
+      if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
+        Session.set('openPanel', 'chat');
+        Session.set('idChatOpen', PUBLIC_CHAT_ID);
+      } else {
+        Session.set('openPanel', 'userlist');
+      }
     } else {
-      Session.set('openPanel', 'userlist');
+      Session.set('openPanel', '');
     }
-  } else {
-    Session.set('openPanel', '');
   }
 
   const codeError = Session.get('codeError');
