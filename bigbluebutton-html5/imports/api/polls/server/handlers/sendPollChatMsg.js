@@ -17,7 +17,7 @@ export default function sendPollChatMsg({ body }, meetingId) {
     responded += item.numVotes;
     return item;
   }).map((item) => {
-    item.key = item.key.replace('<br/>', '');
+    item.key = item.key.split('<br/>').join('<br#>');
     const numResponded = responded === numRespondents ? numRespondents : responded;
     const pct = Math.round(item.numVotes / numResponded * 100);
     const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
