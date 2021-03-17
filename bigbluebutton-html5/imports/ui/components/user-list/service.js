@@ -250,8 +250,8 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
       const unreadTimewindows = contextChat.unreadTimeWindows;
       for (const unreadTimeWindowId of unreadTimewindows) {
         const timeWindow = (isPublicChat 
-          ? contextChat.preJoinMessages[unreadTimeWindowId] || contextChat.posJoinMessages[unreadTimeWindowId]
-          : contextChat.messageGroups[unreadTimeWindowId]);
+          ? contextChat?.preJoinMessages[unreadTimeWindowId] || contextChat?.posJoinMessages[unreadTimeWindowId]
+          : contextChat?.messageGroups[unreadTimeWindowId]);
         unreadMessagesCount += timeWindow.content.length;
       }
     }
