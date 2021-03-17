@@ -10,6 +10,8 @@ export default function publishTypedVote(id, pollAnswer) {
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(pollAnswer, String);
   check(id, String);
 

@@ -6,6 +6,15 @@ const guestUsersCall = (guestsArray, status) => makeCall('allowPendingUsers', gu
 
 const changeGuestPolicy = policyRule => makeCall('changeGuestPolicy', policyRule);
 
+const getGuestPolicy = () => {
+  const meeting = Meetings.findOne(
+    { meetingId: Auth.meetingID },
+    { fields: { 'usersProp.guestPolicy': 1 } },
+  );
+
+  return meeting.usersProp.guestPolicy;
+};
+
 const isGuestLobbyMessageEnabled = Meteor.settings.public.app.enableGuestLobbyMessage;
 
 const getGuestLobbyMessage = () => {
@@ -24,6 +33,7 @@ const setGuestLobbyMessage = (message) => makeCall('setGuestLobbyMessage', messa
 export default {
   guestUsersCall,
   changeGuestPolicy,
+  getGuestPolicy,
   isGuestLobbyMessageEnabled,
   getGuestLobbyMessage,
   setGuestLobbyMessage,

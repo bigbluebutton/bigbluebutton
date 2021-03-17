@@ -11,6 +11,7 @@ import _ from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
+import WhiteboardService from '/imports/ui/components/whiteboard/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
@@ -42,6 +43,14 @@ export const setCustomLogoUrl = path => Storage.setItem(CUSTOM_LOGO_URL_KEY, pat
 export const setModeratorOnlyMessage = msg => Storage.setItem('ModeratorOnlyMessage', msg);
 
 const getCustomLogoUrl = () => Storage.getItem(CUSTOM_LOGO_URL_KEY);
+
+const sortByWhiteboardAccess = (a, b) => {
+  const _a = a.whiteboardAccess;
+  const _b = b.whiteboardAccess;
+  if (!_b && _a) return -1;
+  if (!_a && _b) return 1;
+  return 0;
+};
 
 const sortUsersByName = (a, b) => {
   const aName = a.name.toLowerCase();
@@ -126,6 +135,10 @@ const sortUsers = (a, b) => {
   }
 
   if (sort === 0) {
+    sort = sortByWhiteboardAccess(a, b);
+  }
+
+  if (sort === 0) {
     sort = sortUsersByName(a, b);
   }
 
@@ -189,6 +202,30 @@ const userFindSorting = {
   userId: 1,
 };
 
+const addWhiteboardAccess = (users) => {
+  const whiteboardId = WhiteboardService.getCurrentWhiteboardId();
+
+  if (whiteboardId) {
+    const multiUserWhiteboard = WhiteboardService.getMultiUser(whiteboardId);
+    return users.map(user => {
+      const whiteboardAccess = multiUserWhiteboard.includes(user.userId);
+
+      return {
+        ...user,
+        whiteboardAccess,
+      };
+    });
+  }
+
+  return users.map(user => {
+    const whiteboardAccess = false;
+    return {
+      ...user,
+      whiteboardAccess,
+    };
+  });
+};
+
 const getUsers = () => {
   let users = Users
     .find({
@@ -206,7 +243,7 @@ const getUsers = () => {
     }
   }
 
-  return users.sort(sortUsers);
+  return addWhiteboardAccess(users).sort(sortUsers);
 };
 
 const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID },
@@ -334,7 +371,7 @@ const curatedVoiceUser = (intId) => {
   };
 };
 
-const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectVoiceUser, usersProp) => {
+const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectVoiceUser, usersProp, amIPresenter) => {
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId) || subjectUser.phone_user;
   const amISubjectUser = isMe(subjectUser.userId);
   const isSubjectUserModerator = subjectUser.role === ROLE_MODERATOR;
@@ -386,6 +423,9 @@ const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectV
     && !isSubjectUserModerator
     && isMeetingLocked(Auth.meetingID);
 
+  const allowedToChangeWhiteboardAccess = amIPresenter
+    && !amISubjectUser;
+
   return {
     allowedToChatPrivately,
     allowedToMuteAudio,
@@ -397,6 +437,7 @@ const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectV
     allowedToDemote,
     allowedToChangeStatus,
     allowedToChangeUserLockStatus,
+    allowedToChangeWhiteboardAccess,
   };
 };
 

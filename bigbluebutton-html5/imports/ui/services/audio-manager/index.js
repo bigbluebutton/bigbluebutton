@@ -8,7 +8,6 @@ import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills';
-import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import { monitorAudioConnection } from '/imports/utils/stats';
 import AudioErrors from './error-codes';
 import {Meteor} from "meteor/meteor";
@@ -182,20 +181,6 @@ class AudioManager {
       isListenOnly: true,
       extension: null,
     };
-
-    // WebRTC restrictions may need a capture device permission to release
-    // useful ICE candidates on recvonly/no-gUM peers
-    try {
-      await tryGenerateIceCandidates();
-    } catch (error) {
-      logger.error({
-        logCode: 'listenonly_no_valid_candidate_gum_failure',
-        extraInfo: {
-          errorName: error.name,
-          errorMessage: error.message,
-        },
-      }, `Forced gUM to release additional ICE candidates failed due to ${error.name}.`);
-    }
 
     // Call polyfills for webrtc client if navigator is "iOS Webview"
     const userAgent = window.navigator.userAgent.toLocaleLowerCase();
