@@ -246,6 +246,10 @@ const getUsers = () => {
   return addWhiteboardAccess(users).sort(sortUsers);
 };
 
+const getUserCount = () => {
+  return Users.find({ meetingId: Auth.meetingID }).count();
+};
+
 const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID },
   { fields: {} }).count() > 0;
 
@@ -693,4 +697,5 @@ export default {
   isUserPresenter,
   amIPresenter,
   getUsersProp,
+  getUserCount,
 };
