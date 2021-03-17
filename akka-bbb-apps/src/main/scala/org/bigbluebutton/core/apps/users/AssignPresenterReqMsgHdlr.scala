@@ -59,7 +59,11 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
       outGW.send(msgEventAssign)
     }
 
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, assignedBy)) {
+    var isForbidden = permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, assignedBy)
+    if (liveMeeting.props.usersProp.allowViewersToTakePresenter && assignedBy == newPresenterId) {
+      isForbidden = false
+    }
+    if (isForbidden) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to change presenter in meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, assignedBy, reason, outGW, liveMeeting)

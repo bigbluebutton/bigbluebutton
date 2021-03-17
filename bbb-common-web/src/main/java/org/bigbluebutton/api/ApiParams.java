@@ -21,6 +21,8 @@ package org.bigbluebutton.api;
 
 public class ApiParams {
 
+    public static final String ALLOW_MODS_TO_UNMUTE_USERS = "allowModsToUnmuteUsers";
+    public static final String ALLOW_VIEWERS_TO_TAKE_PRESENTER = "allowViewersToTakePresenter";
     public static final String ALLOW_START_STOP_RECORDING = "allowStartStopRecording";
     public static final String ATTENDEE_PW = "attendeePW";
     public static final String AUTO_START_RECORDING = "autoStartRecording";
@@ -33,6 +35,7 @@ public class ApiParams {
     public static final String FREE_JOIN = "freeJoin";
     public static final String FULL_NAME = "fullName";
     public static final String GUEST_POLICY = "guestPolicy";
+    public static final String HTML5_INSTANCE_ID = "html5InstanceId";
     public static final String IS_BREAKOUT = "isBreakout";
     public static final String LOGO = "logo";
     public static final String LOGOUT_TIMER = "logoutTimer";
@@ -43,7 +46,6 @@ public class ApiParams {
     public static final String MODERATOR_ONLY_MESSAGE = "moderatorOnlyMessage";
     public static final String MODERATOR_PW = "moderatorPW";
     public static final String MUTE_ON_START = "muteOnStart";
-    public static final String ALLOW_MODS_TO_UNMUTE_USERS = "allowModsToUnmuteUsers";
     public static final String NAME = "name";
     public static final String PARENT_MEETING_ID = "parentMeetingID";
     public static final String PASSWORD = "password";
@@ -55,7 +57,6 @@ public class ApiParams {
     public static final String WEB_VOICE = "webVoice";
     public static final String WEBCAMS_ONLY_FOR_MODERATOR = "webcamsOnlyForModerator";
     public static final String WELCOME = "welcome";
-    public static final String HTML5_INSTANCE_ID = "html5InstanceId";
 
     public static final String BREAKOUT_ROOMS_ENABLED = "breakoutRoomsEnabled";
     public static final String BREAKOUT_ROOMS_RECORD = "breakoutRoomsRecord";

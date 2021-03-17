@@ -28,6 +28,7 @@ public interface IBbbWebApiGWApp {
                      Integer userActivitySignResponseDelayInMinutes,
                      Boolean muteOnStart,
                      Boolean allowModsToUnmuteUsers,
+                     Boolean allowViewersToTakePresenter,
                      Boolean keepEvents,
                      BreakoutRoomsParams breakoutParams,
                      LockSettingsParams lockSettingsParams,

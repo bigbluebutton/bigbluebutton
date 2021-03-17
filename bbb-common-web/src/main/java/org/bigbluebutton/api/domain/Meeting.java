@@ -64,6 +64,7 @@ public class Meeting {
 	private boolean allowStartStopRecording = false;
 	private boolean haveRecordingMarks = false;
 	private boolean webcamsOnlyForModerator = false;
+	private boolean allowViewersToTakePresenter = false;
 	private String dialNumber;
 	private String defaultAvatarURL;
 	private String defaultConfigToken;
@@ -118,6 +119,7 @@ public class Meeting {
         autoStartRecording = builder.autoStartRecording;
         allowStartStopRecording = builder.allowStartStopRecording;
         webcamsOnlyForModerator = builder.webcamsOnlyForModerator;
+	    allowViewersToTakePresenter = builder.allowViewersToTakePresenter;
         duration = builder.duration;
         webVoice = builder.webVoice;
         telVoice = builder.telVoice;
@@ -475,6 +477,10 @@ public class Meeting {
         return webcamsOnlyForModerator;
     }
 	
+    public boolean getAllowViewersToTakePresenter() {
+        return allowViewersToTakePresenter;
+    }
+	
 	public boolean hasUserJoined() {
 		return userHasJoined;
 	}
@@ -711,6 +717,7 @@ public class Meeting {
     	private boolean autoStartRecording;
         private boolean allowStartStopRecording;
         private boolean webcamsOnlyForModerator;
+		private boolean allowViewersToTakePresenter;
     	private String moderatorPass;
     	private String viewerPass;
     	private int duration;
@@ -773,6 +780,11 @@ public class Meeting {
     
         public Builder withWebcamsOnlyForModerator(boolean only) {
             this.webcamsOnlyForModerator = only;
+            return this;
+        }
+
+		public Builder withAllowViewersToTakePresenter(boolean allowViewersToTakePresenter) {
+            this.allowViewersToTakePresenter = allowViewersToTakePresenter;
             return this;
         }
     	

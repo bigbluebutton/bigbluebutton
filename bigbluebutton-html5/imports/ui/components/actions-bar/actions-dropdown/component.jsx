@@ -24,6 +24,7 @@ const propTypes = {
   shortcuts: PropTypes.string,
   handleTakePresenter: PropTypes.func.isRequired,
   allowExternalVideo: PropTypes.bool.isRequired,
+  allowViewersToTakePresenter: PropTypes.bool.isRequired,
   stopExternalVideoShare: PropTypes.func.isRequired,
 };
 
@@ -248,6 +249,7 @@ class ActionsDropdown extends PureComponent {
       intl,
       amIPresenter,
       amIModerator,
+      allowViewersToTakePresenter,
       shortcuts: OPEN_ACTIONS_AK,
       isMeteorConnected,
     } = this.props;
@@ -257,7 +259,7 @@ class ActionsDropdown extends PureComponent {
     const children = availablePresentations.length > 2 && amIPresenter
       ? availablePresentations.concat(availableActions) : availableActions;
 
-    if ((!amIPresenter && !amIModerator)
+    if ((!amIPresenter && !amIModerator && !allowViewersToTakePresenter)
       || availableActions.length === 0
       || !isMeteorConnected) {
       return null;
