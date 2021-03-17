@@ -520,7 +520,6 @@ public:
         - triangle
         - rectangle
         - pencil
-        - hand
   clientLog:
     server:
       enabled: false

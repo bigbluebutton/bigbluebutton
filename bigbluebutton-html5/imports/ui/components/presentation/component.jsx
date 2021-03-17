@@ -774,12 +774,9 @@ class PresentationArea extends PureComponent {
       separatePresentationWindow,
       toggleSeparatePresentationWindow,
     } = this.props;
-
     const { zoom, fitToWidth, isFullscreen } = this.state;
 
-    if (!currentSlide) {
-      return null;
-    }
+    if (!currentSlide) return null;
 
     return (
       <PresentationToolbarContainer
