@@ -71,7 +71,7 @@ trait SendWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
           WhiteboardKeyUtil.DRAW_UPDATE_STATUS == annotation.status)
     }
 
-    if (!excludedWbMsg(msg.body.annotation) && filterWhiteboardMessage(msg.body.annotation.wbId, liveMeeting) && permissionFailed(
+    if (!excludedWbMsg(msg.body.annotation) && filterWhiteboardMessage(msg.body.annotation.wbId, msg.header.userId, liveMeeting) && permissionFailed(
       PermissionCheck.GUEST_LEVEL,
       PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId
     )) {
