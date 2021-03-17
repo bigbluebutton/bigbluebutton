@@ -44,9 +44,6 @@ class VideoPlayer extends Component {
 
     this.throttleTimeout = null;
 
-    this.reloadPressed = false;
-    this.reloadTimeout = null;
-
     this.state = {
       muted: false,
       playing: false,
@@ -454,24 +451,11 @@ class VideoPlayer extends Component {
   }
 
   handleReload() {
-
-    if (this.reloadPressed) {
-      return;
-    }
-
     // increment key and force a re-render of the video component
     this.setState({key: this.state.key + 1});
 
     // hack, resize player
     this.resizeListener();
-
-    this.reloadPressed = true;
-
-    this.reloadTimeout = setTimeout(() => {
-      clearTimeout(this.reloadTimeout);
-      this.reloadTimeout = null;
-      this.reloadPressed = false;
-    }, 2000);
   }
 
   render() {

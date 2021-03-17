@@ -2,7 +2,6 @@ import React from 'react';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import cx from 'classnames';
-import { styles } from './styles';
 
 const intlMessages = defineMessages({
   fullscreenButton: {
@@ -10,6 +9,15 @@ const intlMessages = defineMessages({
     description: 'Fullscreen label',
   },
 });
+
+import _ from 'lodash';
+import { styles } from './styles';
+
+const DEBOUNCE_TIMEOUT = 5000;
+const DEBOUNCE_OPTIONS = {
+  leading: true,
+  trailing: false,
+};
 
 const ReloadButtonComponent = ({
   intl,
@@ -21,9 +29,10 @@ const ReloadButtonComponent = ({
       <Button
         color="primary"
         icon="refresh"
-        size="sm"
-        onClick={handleReload}
-        label="label"
+        size="md"
+        circle
+        onClick={_.debounce(handleReload, DEBOUNCE_TIMEOUT, DEBOUNCE_OPTIONS)}
+        label={label}
         hideLabel
         className={""}
       />
