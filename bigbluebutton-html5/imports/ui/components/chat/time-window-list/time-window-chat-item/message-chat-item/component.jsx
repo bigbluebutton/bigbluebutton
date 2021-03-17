@@ -175,6 +175,8 @@ class MessageChatItem extends PureComponent {
     if (!isDefaultPoll) {
       const entries = _text.split('<br/>');
       const options = [];
+      _text = _text.split('<br#>').join('<br/>');
+
       entries.map((e) => {
         // Sanitize. See: https://gist.github.com/sagewall/47164de600df05fb0f6f44d48a09c0bd
         e = e.split('<br#>').join('<br/>');
