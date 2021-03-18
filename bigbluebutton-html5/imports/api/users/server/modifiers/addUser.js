@@ -4,7 +4,6 @@ import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import VoiceUsers from '/imports/api/voice-users/';
 import _ from 'lodash';
-import SanitizeHTML from 'sanitize-html';
 
 import stringHash from 'string-hash';
 import flat from 'flat';
@@ -19,14 +18,6 @@ const COLOR_LIST = [
 
 export default function addUser(meetingId, userData) {
   const user = userData;
-  const sanitizedName = SanitizeHTML(userData.name, {
-    allowedTags: [],
-    allowedAttributes: {},
-  });
-  // if user typed only tags
-  user.name = sanitizedName.length === 0
-    ? _.escape(userData.name)
-    : sanitizedName;
 
   check(meetingId, String);
 
