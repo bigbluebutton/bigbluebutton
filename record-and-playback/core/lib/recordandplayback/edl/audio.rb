@@ -21,7 +21,7 @@ module BigBlueButton
   module EDL
     module Audio
       FFMPEG_AEVALSRC = "aevalsrc=s=48000:c=stereo:exprs=0|0"
-      FFMPEG_AFORMAT = "aformat=sample_fmts=s16:sample_rates=48000:channel_layouts=stereo"
+      FFMPEG_AFORMAT = "aresample=async=1000,aformat=sample_fmts=s16:sample_rates=48000:channel_layouts=stereo"
       FFMPEG_WF_CODEC = 'libvorbis'
       FFMPEG_WF_ARGS = ['-c:a', FFMPEG_WF_CODEC, '-q:a', '2', '-f', 'ogg']
       WF_EXT = 'ogg'
@@ -144,6 +144,10 @@ module BigBlueButton
           # Ensure that the entire contents of freeswitch wav files are read
           if audioinfo[input[:filename]][:format][:format_name] == 'wav'
             ffmpeg_cmd += ['-ignore_length', '1']
+          end
+          # Prefer using the libopus decoder for opus files, it handles discontinuities better
+          if audioinfo[input[:filename]][:audio][:codec_name] == 'opus'
+            ffmpeg_cmd << '-c:a' << 'libopus'
           end
           ffmpeg_cmd += ['-i', input[:filename]]
         end
