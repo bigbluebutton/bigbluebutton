@@ -14,9 +14,9 @@ const getMultiUser = (meetingId, whiteboardId) => {
   return data.multiUser;
 };
 
-const getUsers = (meetingId) => {
+const getNonPresenters = (meetingId) => {
   const data = Users.find(
-    { meetingId },
+    { meetingId, presenter: false },
     { fields: { userId: 1 } },
   ).fetch();
 
@@ -27,5 +27,5 @@ const getUsers = (meetingId) => {
 
 export {
   getMultiUser,
-  getUsers,
+  getNonPresenters,
 };
