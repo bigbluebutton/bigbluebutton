@@ -10,6 +10,10 @@ const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 
 export default function chatMessageBeforeJoinCounter() {
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
+
+  check(meetingId, String);
+  check(requesterUserId, String);
+
   const groupChats = GroupChat.find({
     $or: [
       { meetingId, access: PUBLIC_CHAT_TYPE },

@@ -120,7 +120,6 @@ public class MeetingService implements MessageListener {
   private RedisStorageService storeService;
   private CallbackUrlService callbackUrlService;
   private HTML5LoadBalancingService html5LoadBalancingService;
-  private boolean keepEvents;
 
   private long usersTimeout;
   private long enteredUsersTimeout;
@@ -356,7 +355,7 @@ public class MeetingService implements MessageListener {
   }
 
   private boolean storeEvents(Meeting m) {
-    return m.isRecord() || keepEvents;
+    return m.isRecord() || m.getMeetingKeepEvents();
   }
 
   private void handleCreateMeeting(Meeting m) {
@@ -404,6 +403,8 @@ public class MeetingService implements MessageListener {
     logData.put("logCode", "create_meeting");
     logData.put("description", "Create meeting.");
 
+    logData.put("meetingKeepEvents", m.getMeetingKeepEvents());
+
     Gson gson = new Gson();
     String logStr = gson.toJson(logData);
 
@@ -417,7 +418,7 @@ public class MeetingService implements MessageListener {
             m.getDialNumber(), m.getMaxUsers(),
             m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes(),
             m.getUserInactivityInspectTimerInMinutes(), m.getUserInactivityThresholdInMinutes(),
-            m.getUserActivitySignResponseDelayInMinutes(), m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), keepEvents,
+            m.getUserActivitySignResponseDelayInMinutes(), m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), m.getMeetingKeepEvents(),
             m.breakoutRoomsParams,
             m.lockSettingsParams, m.getHtml5InstanceId());
   }
@@ -697,7 +698,7 @@ public class MeetingService implements MessageListener {
     if (m != null) {
       m.setForciblyEnded(true);
       processRecording(m);
-      if (keepEvents) {
+      if (m.getMeetingKeepEvents()) {
         // The creation of the ended tag must occur after the creation of the
         // recorded tag to avoid concurrency issues at the recording scripts
         recordingService.markAsEnded(m.getInternalId());
@@ -1231,10 +1232,6 @@ public class MeetingService implements MessageListener {
 
   public void setStunTurnService(StunTurnService s) {
     stunTurnService = s;
-  }
-
-  public void setKeepEvents(boolean value) {
-    keepEvents = value;
   }
 
   public void setUsersTimeout(long value) {

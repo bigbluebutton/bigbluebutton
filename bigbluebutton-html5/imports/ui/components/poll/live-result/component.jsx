@@ -80,7 +80,7 @@ class LiveResult extends PureComponent {
           (
             <tr key={_.uniqueId('stats-')}>
               <td className={styles.resultLeft}>{user.name}</td>
-              <td className={styles.resultRight}>
+              <td data-test="receivedAnswer" className={styles.resultRight}>
                 {
                   pollAnswerIds[formattedMessageIndex]
                     ? intl.formatMessage(pollAnswerIds[formattedMessageIndex])

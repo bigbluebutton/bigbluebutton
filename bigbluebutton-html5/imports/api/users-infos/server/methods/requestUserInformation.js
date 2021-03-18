@@ -9,6 +9,9 @@ export default function getUserInformation(externalUserId) {
   const EVENT_NAME = 'LookUpUserReqMsg';
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
+
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(externalUserId, String);
 
   const payload = {

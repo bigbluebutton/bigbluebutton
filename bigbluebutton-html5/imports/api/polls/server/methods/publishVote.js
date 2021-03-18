@@ -10,6 +10,8 @@ export default function publishVote(pollId, pollAnswerId) {
   const EVENT_NAME = 'RespondToPollReqMsg';
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(pollAnswerId, Number);
   check(pollId, String);
 

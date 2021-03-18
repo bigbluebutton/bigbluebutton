@@ -11,12 +11,14 @@ export default function emitExternalVideoEvent(options) {
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
+
   const { status, playerStatus } = options;
 
-  const user = Users.findOne({ meetingId, userId: requesterUserId })
+  const user = Users.findOne({ meetingId, userId: requesterUserId });
 
   if (user && user.presenter) {
-
     check(status, String);
     check(playerStatus, {
       rate: Match.Maybe(Number),
@@ -24,13 +26,14 @@ export default function emitExternalVideoEvent(options) {
       state: Match.Maybe(Boolean),
     });
 
-    let rate = playerStatus.rate || 0;
-    let time = playerStatus.time || 0;
-    let state = playerStatus.state || 0;
-    const payload = { status, rate, time, state };
+    const rate = playerStatus.rate || 0;
+    const time = playerStatus.time || 0;
+    const state = playerStatus.state || 0;
+    const payload = {
+      status, rate, time, state,
+    };
 
     Logger.debug(`User id=${requesterUserId} sending ${EVENT_NAME} event:${state} for meeting ${meetingId}`);
     return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
-
   }
 }

@@ -31,6 +31,9 @@ const {
   desktopPageSizes: DESKTOP_PAGE_SIZES,
   mobilePageSizes: MOBILE_PAGE_SIZES,
 } = Meteor.settings.public.kurento.pagination;
+const PAGINATION_THRESHOLDS_CONF = Meteor.settings.public.kurento.paginationThresholds;
+const PAGINATION_THRESHOLDS = PAGINATION_THRESHOLDS_CONF.thresholds.sort((t1, t2) => t1.users - t2.users);
+const PAGINATION_THRESHOLDS_ENABLED = PAGINATION_THRESHOLDS_CONF.enabled;
 
 const TOKEN = '_';
 const ENABLE_PAGINATION_SESSION_VAR = 'enablePagination';
@@ -64,6 +67,7 @@ class VideoService {
       isConnected: false,
       currentVideoPageIndex: 0,
       numberOfPages: 0,
+      pageSize: 0,
     });
     this.userParameterProfile = null;
     const BROWSER_RESULTS = browser();
@@ -288,17 +292,66 @@ class VideoService {
     return this.currentVideoPageIndex;
   }
 
-  getMyPageSize () {
-    const myRole = this.getMyRole();
-    const pageSizes = !this.isMobile ? DESKTOP_PAGE_SIZES : MOBILE_PAGE_SIZES;
+  getPageSizeDictionary () {
+    // Dynamic page sizes are disabled. Fetch the stock page sizes.
+    if (!PAGINATION_THRESHOLDS_ENABLED || PAGINATION_THRESHOLDS.length <= 0) {
+      return !this.isMobile ? DESKTOP_PAGE_SIZES : MOBILE_PAGE_SIZES;
+    }
 
+    // Dynamic page sizes are enabled. Get the user count, isolate the
+    // matching threshold entry, return the val.
+    let targetThreshold;
+    const userCount = UserListService.getUserCount();
+    const processThreshold = (threshold = {
+      desktopPageSizes: DESKTOP_PAGE_SIZES,
+      mobilePageSizes: MOBILE_PAGE_SIZES
+    }) => {
+      // We don't demand that all page sizes should be set in pagination profiles.
+      // That saves us some space because don't necessarily need to scale mobile
+      // endpoints.
+      // If eg mobile isn't set, then return the default value.
+      if (!this.isMobile) {
+        return threshold.desktopPageSizes || DESKTOP_PAGE_SIZES;
+      } else {
+        return threshold.mobilePageSizes || MOBILE_PAGE_SIZES;
+      }
+    };
+
+    // Short-circuit: no threshold yet, return stock values (processThreshold has a default arg)
+    if (userCount < PAGINATION_THRESHOLDS[0].users) return processThreshold();
+
+    // Reverse search for the threshold where our participant count is directly equal or great
+    // The PAGINATION_THRESHOLDS config is sorted when imported.
+    for (let mapIndex = PAGINATION_THRESHOLDS.length - 1; mapIndex >= 0; --mapIndex) {
+      targetThreshold = PAGINATION_THRESHOLDS[mapIndex];
+      if (targetThreshold.users <= userCount) {
+        return processThreshold(targetThreshold);
+      }
+    }
+  }
+
+  setPageSize (size) {
+    if (this.pageSize !== size) {
+      this.pageSize = size;
+    }
+
+    return this.pageSize;
+  }
+
+  getMyPageSize () {
+    let size;
+    const myRole = this.getMyRole();
+    const pageSizes = this.getPageSizeDictionary();
     switch (myRole) {
       case ROLE_MODERATOR:
-        return pageSizes.moderator;
+        size = pageSizes.moderator;
+        break;
       case ROLE_VIEWER:
       default:
-        return pageSizes.viewer
+        size = pageSizes.viewer
     }
+
+    return this.setPageSize(size);
   }
 
   getVideoPage (streams, pageSize) {

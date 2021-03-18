@@ -244,3 +244,26 @@
   color: var(--toolbar-list-color);
 }
 
+.multiUserTool {
+  background-color: var(--color-danger);
+  border-radius: 50%;
+  width: var(--lg-padding-x);
+  height: var(--lg-padding-x);
+  position: absolute;
+  z-index: 2;
+  right: 0px;
+  color: var(--color-white);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 1px 1px var(--border-size-large) var(--color-gray-dark);
+  font-size: var(--sm-padding-x);
+}
+
+.multiUserToolItem {
+  .toolbarButton {
+    border-top-right-radius: 0 !important;
+    border-top-left-radius: 0 !important;
+  }
+}
+

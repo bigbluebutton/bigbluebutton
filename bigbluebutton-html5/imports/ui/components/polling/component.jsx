@@ -4,9 +4,9 @@ import Button from '/imports/ui/components/button/component';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
+import { Meteor } from 'meteor/meteor';
 import { styles } from './styles.scss';
 import AudioService from '/imports/ui/components/audio/service';
-import {Meteor} from "meteor/meteor";
 
 const MAX_INPUT_CHARS = 45;
 
@@ -79,7 +79,7 @@ class Polling extends Component {
       typedAns,
     } = this.state;
 
-    if (e.keyCode === 13) {
+    if (e.keyCode === 13 && typedAns.length > 0) {
       handleTypedVote(poll.pollId, typedAns);
     }
   }
@@ -111,6 +111,7 @@ class Polling extends Component {
     return (
       <div className={styles.overlay}>
         <div
+          data-test="pollingContainer"
           className={cx({
             [styles.pollingContainer]: true,
             [styles.autoWidth]: stackOptions,
@@ -120,7 +121,7 @@ class Polling extends Component {
           {question.length > 0 && (
             <span className={styles.qHeader}>
               <div className={styles.qTitle}>{intl.formatMessage(intlMessages.pollQestionTitle)}</div>
-              <div className={styles.qText}>{question}</div>
+              <div data-test="pollQuestion" className={styles.qText}>{question}</div>
             </span>)
           }
           { poll.pollType !== 'RP' && (
@@ -156,6 +157,7 @@ class Polling extends Component {
                         onClick={() => handleVote(poll.pollId, pollAnswer)}
                         aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
                         aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
+                        data-test="pollAnswerOption"
                       />
                       <div
                         className={styles.hidden}
@@ -180,6 +182,7 @@ class Polling extends Component {
             && (
             <div className={styles.typedResponseWrapper}>
               <input
+                data-test="pollAnswerOption"
                 onChange={(e) => {
                   this.handleUpdateResponseInput(e);
                 }}
@@ -193,6 +196,7 @@ class Polling extends Component {
                 ref={(r) => { this.responseInput = r; }}
               />
               <Button
+                data-test="submitAnswer"
                 className={styles.submitVoteBtn}
                 disabled={typedAns.length === 0}
                 color="primary"

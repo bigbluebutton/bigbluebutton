@@ -1,26 +1,26 @@
+import RedisPubSub from '/imports/startup/server/redis';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import RedisPubSub from '/imports/startup/server/redis';
-import { CHAT_ACCESS_PRIVATE } from '/imports/api/group-chat';
+import { getUsers } from '/imports/api/whiteboard-multi-user/server/helpers';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
-export default function createGroupChat(receiver) {
+export default function addGlobalAccess(whiteboardId) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
-  const EVENT_NAME = 'CreateGroupChatReqMsg';
+  const EVENT_NAME = 'ModifyWhiteboardAccessPubMsg';
+
+  check(whiteboardId, String);
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
   check(meetingId, String);
   check(requesterUserId, String);
-  check(receiver, Object);
+
+  const multiUser = getUsers(meetingId);
 
   const payload = {
-    correlationId: `${requesterUserId}-${Date.now()}`,
-    msg: [],
-    users: [receiver.userId],
-    access: CHAT_ACCESS_PRIVATE,
-    name: receiver.name,
+    multiUser,
+    whiteboardId,
   };
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
