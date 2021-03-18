@@ -1,7 +1,7 @@
 import RedisPubSub from '/imports/startup/server/redis';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import { getUsers } from '/imports/api/whiteboard-multi-user/server/helpers';
+import { getNonPresenters } from '/imports/api/whiteboard-multi-user/server/helpers';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
 export default function addGlobalAccess(whiteboardId) {
@@ -16,7 +16,7 @@ export default function addGlobalAccess(whiteboardId) {
   check(meetingId, String);
   check(requesterUserId, String);
 
-  const multiUser = getUsers(meetingId);
+  const multiUser = getNonPresenters(meetingId);
 
   const payload = {
     multiUser,
