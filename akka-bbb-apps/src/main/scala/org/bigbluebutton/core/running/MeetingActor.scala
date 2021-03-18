@@ -1,9 +1,6 @@
 package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
-
-import akka.actor._
-import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.apps.groupchats.GroupChatHdlrs
 import org.bigbluebutton.core.apps.presentationpod._
@@ -22,7 +19,7 @@ import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.users.UsersApp2x
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp2x
 import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.models._
+import org.bigbluebutton.core.models.{ VoiceUsers, _ }
 import org.bigbluebutton.core2.{ MeetingStatus2x, Permissions }
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.meeting._
@@ -31,13 +28,18 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.breakout._
 import org.bigbluebutton.core.apps.polls._
 import org.bigbluebutton.core.apps.voice._
-import akka.actor._
+import akka.actor.Props
+import akka.actor.OneForOneStrategy
 import akka.actor.SupervisorStrategy.Resume
+import org.bigbluebutton.common2.msgs
 
 import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
+import org.bigbluebutton.core.models.VoiceUsers.findAllNonListenOnlyVoiceUsers
+import org.bigbluebutton.core.models.Webcams.findAll
+import org.bigbluebutton.core2.MeetingStatus2x.{ hasAuthedUserJoined, isVoiceRecording }
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -96,6 +98,7 @@ class MeetingActor(
 
   object CheckVoiceRecordingInternalMsg
   object SyncVoiceUserStatusInternalMsg
+  object MeetingInfoAnalyticsMsg
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -207,12 +210,20 @@ class MeetingActor(
     CheckVoiceRecordingInternalMsg
   )
 
+  context.system.scheduler.schedule(
+    5 seconds,
+    5 second,
+    self,
+    MeetingInfoAnalyticsMsg
+  )
+
   def receive = {
     case SyncVoiceUserStatusInternalMsg =>
       checkVoiceConfUsersStatus()
     case CheckVoiceRecordingInternalMsg =>
       checkVoiceConfIsRunningAndRecording()
-
+    case MeetingInfoAnalyticsMsg =>
+      handleMeetingInfoAnalyticsLogging()
     //=============================
 
     // 2x messages
@@ -498,6 +509,52 @@ class MeetingActor(
     }
   }
 
+  def handleMeetingInfoAnalyticsLogging(): Unit = {
+    println("***********Reaches here************")
+    val meetingName: String = liveMeeting.props.meetingProp.name
+    val externalId: String = liveMeeting.props.meetingProp.extId
+    val internalId: String = liveMeeting.props.meetingProp.intId
+    val hasUserJoined: Boolean = hasAuthedUserJoined(liveMeeting.status)
+    val isRecording: Boolean = isVoiceRecording(liveMeeting.status)
+
+    val liveWebcams: Vector[WebcamStream] = findAll(liveMeeting.webcams)
+    val numOfLiveWebcams: Int = liveWebcams.length
+    val mediaStreamLiveWebcamUserId: String = liveWebcams.flatMap(_.stream.userId).mkString
+    val viewers: List[String] = findAll(liveMeeting.webcams).flatMap(_.stream.viewers).toList
+
+    val webcamDetail: WebcamDetail = WebcamDetail(mediaStreamLiveWebcamUserId, viewers)
+    val webcam: Webcam = Webcam(numOfLiveWebcams, webcamDetail)
+
+    val voiceUsers: Vector[VoiceUserState] = VoiceUsers.findAll(liveMeeting.voiceUsers)
+    val numOfVoiceUsers: Int = voiceUsers.length
+    val numOfListenOnlyUsers: Int = numOfVoiceUsers - findAllNonListenOnlyVoiceUsers(liveMeeting.voiceUsers).length
+    val listeners: List[String] = voiceUsers.map(_.voiceUserId).toList
+
+    val audio: Audio = Audio(numOfVoiceUsers, numOfListenOnlyUsers, listeners)
+
+    val screenshareConfName: String = liveMeeting.props.screenshareProps.screenshareConf
+    val screenshare: Screenshare = Screenshare(screenshareConfName)
+
+    val listOfUsers: List[String] = Users2x.findAll(liveMeeting.users2x).map(_.name).toList
+
+    val presentation: msgs.Presentation = msgs.Presentation("test", "test")
+
+    val breakoutRoom: BreakoutRoom = BreakoutRoom(
+      liveMeeting.props.breakoutProps.parentId,
+      liveMeeting.props.breakoutProps.breakoutRooms.toList
+    )
+
+    val meetingInfoAnalyticsLogMessage: MeetingInfoAnalytics = MeetingInfoAnalytics(meetingName, externalId, internalId,
+      hasUserJoined, isRecording, numOfLiveWebcams, numOfVoiceUsers,
+      webcam, audio, screenshare, listOfUsers, presentation, breakoutRoom)
+
+    val event = MsgBuilder.buildMeetingInfoAnalyticsMsg(
+      meetingInfoAnalyticsLogMessage
+    )
+
+    outGW.send(event)
+  }
+
   def handleGetRunningMeetingStateReqMsg(msg: GetRunningMeetingStateReqMsg): Unit = {
     processGetRunningMeetingStateReqMsg()
   }
@@ -662,9 +719,7 @@ class MeetingActor(
     }
   }
 
-  def handleExtendMeetingDuration(msg: ExtendMeetingDuration) {
-
-  }
+  def handleExtendMeetingDuration(msg: ExtendMeetingDuration) = ???
 
   def removeUsersWithExpiredUserLeftFlag(liveMeeting: LiveMeeting, state: MeetingState2x): MeetingState2x = {
     val leftUsers = Users2x.findAllExpiredUserLeftFlags(liveMeeting.users2x, expiryTracker.meetingExpireWhenLastUserLeftInMs)

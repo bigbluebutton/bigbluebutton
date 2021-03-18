@@ -167,6 +167,16 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildMeetingInfoAnalyticsMsg(analytics: MeetingInfoAnalytics): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(MeetingInfoAnalyticsMessage.NAME, routing)
+    val header = BbbCoreBaseHeader(MeetingInfoAnalyticsMessage.NAME)
+    val body = MeetingInfoAnalyticsMessageBody(analytics)
+    val event = MeetingInfoAnalyticsMessage(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildMeetingDestroyedEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(MeetingDestroyedEvtMsg.NAME, routing)
