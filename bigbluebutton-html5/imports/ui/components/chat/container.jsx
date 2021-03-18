@@ -123,8 +123,8 @@ const ChatContainer = (props) => {
   const contextChat = usingChatContext?.chats[isPublicChat ? PUBLIC_GROUP_CHAT_KEY : chatID];
   const lastTimeWindow = contextChat?.lastTimewindow;
   const lastMsg = contextChat && (isPublicChat
-    ? contextChat.preJoinMessages[lastTimeWindow] || contextChat.posJoinMessages[lastTimeWindow]
-    : contextChat.messageGroups[lastTimeWindow]);
+    ? contextChat?.preJoinMessages[lastTimeWindow] || contextChat?.posJoinMessages[lastTimeWindow]
+    : contextChat?.messageGroups[lastTimeWindow]);
   ChatLogger.debug('ChatContainer::render::chatData',contextChat);
   applyPropsToState = () => {
     ChatLogger.debug('ChatContainer::applyPropsToState::chatData',lastMsg, stateLastMsg, contextChat?.syncing);

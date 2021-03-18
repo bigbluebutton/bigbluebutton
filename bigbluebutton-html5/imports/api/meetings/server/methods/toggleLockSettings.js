@@ -9,6 +9,8 @@ export default function toggleLockSettings(lockSettingsProps) {
   const EVENT_NAME = 'ChangeLockSettingsInMeetingCmdMsg';
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(lockSettingsProps, {
     disableCam: Boolean,
     disableMic: Boolean,

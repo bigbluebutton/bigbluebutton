@@ -84,6 +84,7 @@ public class Meeting {
 	private String customCopyright = "";
 	private Boolean muteOnStart = false;
 	private Boolean allowModsToUnmuteUsers = false;
+	private Boolean meetingKeepEvents;
 
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
@@ -502,6 +503,14 @@ public class Meeting {
 	public Boolean getMuteOnStart() {
     	return muteOnStart;
 	}
+
+  public void setMeetingKeepEvents(Boolean mke) {
+    meetingKeepEvents = mke;
+  }
+
+  public Boolean getMeetingKeepEvents() {
+    return meetingKeepEvents;
+  }
 
 	public void setAllowModsToUnmuteUsers(Boolean value) {
 		allowModsToUnmuteUsers = value;

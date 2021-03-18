@@ -175,7 +175,19 @@ class MessageChatItem extends PureComponent {
     if (!isDefaultPoll) {
       const entries = _text.split('<br/>');
       const options = [];
-      entries.map((e) => { options.push([e.slice(0, e.indexOf(':'))]); return e; });
+      _text = _text.split('<br#>').join('<br/>');
+
+      entries.map((e) => {
+        // Sanitize. See: https://gist.github.com/sagewall/47164de600df05fb0f6f44d48a09c0bd
+        e = e.split('<br#>').join('<br/>');
+        const div = document.createElement('div');
+        div.appendChild(document.createTextNode(e));
+        _text = _text.replace(e, div.innerHTML);
+        e = div.innerHTML;
+
+        options.push([e.slice(0, e.indexOf(':'))]);
+        return e;
+      });
       options.map((o, idx) => {
         if (o[0] !== '') {
           _text = formatBoldBlack(_text.replace(o, idx + 1));

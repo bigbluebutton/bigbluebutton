@@ -15,7 +15,7 @@ export default function handleWhiteboardAnnotations({ header, body }, meetingId)
 
   check(annotations, Array);
   check(whiteboardId, String);
-  check(multiUser, Boolean);
+  check(multiUser, Array);
 
   clearAnnotations(meetingId, whiteboardId);
 
