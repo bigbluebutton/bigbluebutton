@@ -467,6 +467,8 @@ public:
         mime: image/jpeg
       - extension: .png
         mime: image/png
+  selectRandomUser:
+    enabled: true
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
