@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { isMobile } from 'react-device-detect';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -143,8 +144,11 @@ class AudioControls extends PureComponent {
       enableDynamicAudioDeviceSelection = true;
     }
 
+    const _enableDynamicDeviceSelection = enableDynamicAudioDeviceSelection
+      && !isMobile;
+
     if (inAudio) {
-      if (enableDynamicAudioDeviceSelection) {
+      if (_enableDynamicDeviceSelection) {
         return AudioControls.renderLeaveButtonWithLiveStreamSelector();
       }
 
