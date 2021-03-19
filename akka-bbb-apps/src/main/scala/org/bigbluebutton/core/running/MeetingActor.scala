@@ -31,7 +31,6 @@ import org.bigbluebutton.core.apps.voice._
 import akka.actor.Props
 import akka.actor.OneForOneStrategy
 import akka.actor.SupervisorStrategy.Resume
-import org.bigbluebutton.common2.msgs
 
 import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
@@ -211,8 +210,8 @@ class MeetingActor(
   )
 
   context.system.scheduler.schedule(
-    5 seconds,
-    5 second,
+    60 seconds,
+    60 seconds,
     self,
     MeetingInfoAnalyticsMsg
   )
@@ -510,11 +509,11 @@ class MeetingActor(
   }
 
   def handleMeetingInfoAnalyticsLogging(): Unit = {
-    println("***********Reaches here************")
     val meetingName: String = liveMeeting.props.meetingProp.name
     val externalId: String = liveMeeting.props.meetingProp.extId
     val internalId: String = liveMeeting.props.meetingProp.intId
     val hasUserJoined: Boolean = hasAuthedUserJoined(liveMeeting.status)
+
     val isRecording: Boolean = isVoiceRecording(liveMeeting.status)
 
     val liveWebcams: Vector[WebcamStream] = findAll(liveMeeting.webcams)
@@ -537,7 +536,17 @@ class MeetingActor(
 
     val listOfUsers: List[String] = Users2x.findAll(liveMeeting.users2x).map(_.name).toList
 
-    val presentation: msgs.Presentation = msgs.Presentation("test", "test")
+    val presentationId: String = state.presentationPodManager.getAllPresentationPodsInMeeting()
+      .flatMap(_.getCurrentPresentation.map(_.id))
+      .mkString
+
+    val presentationName: String = state.presentationPodManager.getAllPresentationPodsInMeeting()
+      .flatMap(_.getCurrentPresentation.map(_.name))
+      .mkString
+
+    val presenter: Option[String] = Users2x.findPresenter(liveMeeting.users2x).map(_.name)
+
+    val presentationInfo = PresentationInfo(presentationId, presentationName, presenter.getOrElse(""))
 
     val breakoutRoom: BreakoutRoom = BreakoutRoom(
       liveMeeting.props.breakoutProps.parentId,
@@ -545,12 +554,10 @@ class MeetingActor(
     )
 
     val meetingInfoAnalyticsLogMessage: MeetingInfoAnalytics = MeetingInfoAnalytics(meetingName, externalId, internalId,
-      hasUserJoined, isRecording, numOfLiveWebcams, numOfVoiceUsers,
-      webcam, audio, screenshare, listOfUsers, presentation, breakoutRoom)
+      hasUserJoined, isRecording, numOfLiveWebcams, numOfVoiceUsers, webcam, audio, screenshare, listOfUsers,
+      presentationInfo, breakoutRoom)
 
-    val event = MsgBuilder.buildMeetingInfoAnalyticsMsg(
-      meetingInfoAnalyticsLogMessage
-    )
+    val event = MsgBuilder.buildMeetingInfoAnalyticsMsg(meetingInfoAnalyticsLogMessage)
 
     outGW.send(event)
   }

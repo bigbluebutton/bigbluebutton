@@ -10,10 +10,10 @@ case class MeetingInfoAnalyticsMessageBody(meetingInfo: MeetingInfoAnalytics)
 object MeetingInfoAnalytics {
   def apply(meetingName: String, meetingExternalId: String, meetingInternalId: String, hasUserJoined: Boolean,
             isRecording: Boolean, numberOfVideos: Int, numberOfUsers: Int, numberOfVoiceUsers: Int,
-            webcam: Webcam, audio: Audio, screenshare: Screenshare, users: List[String], presentation: Presentation,
+            webcam: Webcam, audio: Audio, screenshare: Screenshare, users: List[String], presentationInfo: PresentationInfo,
             breakoutRoom: BreakoutRoom): MeetingInfoAnalytics =
-    new MeetingInfoAnalytics(meetingName, meetingExternalId, meetingInternalId, hasUserJoined,
-      isRecording, numberOfVideos, numberOfVoiceUsers, webcam, audio, screenshare, users, presentation, breakoutRoom)
+    new MeetingInfoAnalytics(meetingName, meetingExternalId, meetingInternalId, hasUserJoined, isRecording,
+      numberOfVideos, numberOfVoiceUsers, webcam, audio, screenshare, users, presentationInfo, breakoutRoom)
 }
 
 case class MeetingInfoAnalytics(
@@ -28,7 +28,7 @@ case class MeetingInfoAnalytics(
     audio:              Audio,
     screenshare:        Screenshare,
     users:              List[String],
-    presentation:       Presentation,
+    presentationInfo:   PresentationInfo,
     breakoutRoom:       BreakoutRoom
 )
 
@@ -39,12 +39,6 @@ case class Audio(totalVoiceUsers: Int, totalListenOnlyUsers: Int, listeners: Lis
 
 case class Screenshare(name: String)
 
-case class Presentation(id: String, name: String)
+case class PresentationInfo(id: String, name: String, presenter: String)
 case class BreakoutRoom(parentId: String, rooms: List[String])
-// number of webcam streams and viewers {total: 123, [{broadcast, viewers:[]}]}
-// audio streams listeners and two ways
-// screenshare
-// users
-// current presentation id and name
-// breakout rooms id and name
 
