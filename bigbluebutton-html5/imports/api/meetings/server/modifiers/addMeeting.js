@@ -140,6 +140,18 @@ export default function addMeeting(meeting) {
   // At the moment `modOnlyMessage` is obtained from client side as a response to Enter API
   newMeeting.welcomeProp.modOnlyMessage = sanitizeTextInChat(newMeeting.welcomeProp.modOnlyMessage);
 
+  if (newMeeting.meetingProp.isBreakout) {
+    const parent = Meetings.findOne(
+      { meetingId: newMeeting.breakoutProps.parentId },
+      { fields: { 'languages': 1 } });
+
+    let languages = []
+    if (parent.languages) {
+      languages = parent.languages;
+    }
+    newMeeting.languages = languages;
+  }
+
   const modifier = {
     $set: Object.assign({
       meetingId,

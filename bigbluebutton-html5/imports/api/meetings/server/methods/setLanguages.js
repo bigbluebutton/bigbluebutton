@@ -13,6 +13,15 @@ export default function setLanguages(languages) {
         return {name:element, extension: 100+index, translatorIsSpeaking: false}
     })
     meeting.languages = languages
-    Meetings.update({ meetingId: meetingId }, meeting);
+    Meetings.update(
+        {
+            $or: [
+                { meetingId: meetingId },
+                { "meetingProp.isBreakout": true, "breakoutProps.parentId": meetingId }
+            ]
+        },
+        { $set: { languages: languages } },
+        { multi: true }
+    );
     return meeting;
 }
