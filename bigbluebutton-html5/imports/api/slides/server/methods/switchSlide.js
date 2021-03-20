@@ -11,6 +11,9 @@ export default function switchSlide(slideNumber, podId) { // TODO-- send present
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'SetCurrentPagePubMsg';
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
+
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(slideNumber, Number);
 
   const selector = {

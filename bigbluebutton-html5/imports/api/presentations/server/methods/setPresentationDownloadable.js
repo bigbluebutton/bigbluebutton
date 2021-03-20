@@ -9,6 +9,8 @@ export default function setPresentationDownloadable(presentationId, downloadable
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(downloadable, Boolean);
   check(presentationId, String);
 

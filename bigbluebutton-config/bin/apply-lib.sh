@@ -23,15 +23,17 @@ else
   SERVLET_DIR=/var/lib/tomcat7/webapps/bigbluebutton
 fi
 
+BBB_WEB_ETC_CONFIG=/etc/bigbluebutton/bbb-web.properties
+
 PROTOCOL=http
 if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
-  SERVER_URL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-  if cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep bigbluebutton.web.serverURL | grep -q https; then
+  SERVER_URL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $BBB_WEB_ETC_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}' | tail -n 1)
+  if cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $BBB_WEB_ETC_CONFIG | grep -v '#' | grep ^bigbluebutton.web.serverURL | tail -n 1 | grep -q https; then
     PROTOCOL=https
   fi
 fi
 
-HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $BBB_WEB_ETC_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}' | tail -n 1)
 
 HTML5_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 BBB_WEB_CONFIG=$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties

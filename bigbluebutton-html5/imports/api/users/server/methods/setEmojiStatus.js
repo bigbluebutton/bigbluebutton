@@ -11,6 +11,8 @@ export default function setEmojiStatus(userId, status) {
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(userId, String);
 
   const payload = {
