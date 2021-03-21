@@ -62,19 +62,12 @@
 
 .right {
   position: absolute;
-  bottom: var(--sm-padding-x);
   right: var(--sm-padding-x);
   left: auto;
 
   [dir="rtl"] & {
     right: auto;
     left: var(--sm-padding-x);
-  }
-}
-
-.centerWithActions {
-  @include mq($xsmall-only) {
-    justify-content: flex-end;
   }
 }
 

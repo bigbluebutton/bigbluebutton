@@ -1,13 +1,15 @@
 import React, { PureComponent } from 'react';
 import cx from 'classnames';
+import Button from '/imports/ui/components/button/component';
+import { ACTIONSBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
+import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
+
 import { styles } from './styles.scss';
 import ActionsDropdown from './actions-dropdown/container';
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
-import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
 import PresentationOptionsContainer from './presentation-options/component';
-import { ACTIONSBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
 
 class ActionsBar extends PureComponent {
   render() {
@@ -28,11 +30,12 @@ class ActionsBar extends PureComponent {
       isPresentationDisabled,
       isThereCurrentPresentation,
       allowExternalVideo,
+      setEmojiStatus,
+      currentUser,
     } = this.props;
 
     const actionBarClasses = {};
 
-    actionBarClasses[styles.centerWithActions] = amIPresenter;
     actionBarClasses[styles.center] = true;
     actionBarClasses[styles.mobileLayoutSwapped] = isLayoutSwapped && amIPresenter;
 
@@ -78,6 +81,22 @@ class ActionsBar extends PureComponent {
           />
         </div>
         <div className={styles.right}>
+          {
+            <Button
+              icon="hand"
+              label={intl.formatMessage({ id: 'app.actionsBar.emojiMenu.raiseHandLabel' })}
+              color="primary"
+              hideLabel
+              circle
+              size="lg"
+              onClick={() => {
+                setEmojiStatus(
+                  currentUser.userId,
+                  currentUser.emoji === 'raiseHand' ? 'none' : 'raiseHand',
+                );
+              }}
+            />
+          }
           {isLayoutSwapped && !isPresentationDisabled
             ? (
               <PresentationOptionsContainer

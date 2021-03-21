@@ -562,6 +562,8 @@
     "app.toast.setEmoji.label": "Emoji status set to {0}",
     "app.toast.meetingMuteOn.label": "All users have been muted",
     "app.toast.meetingMuteOff.label": "Meeting mute turned off",
+    "app.toast.setEmoji.raiseHand": "You have raised your hand",
+    "app.toast.setEmoji.lowerHand": "You have lowered your hand",
     "app.notification.recordingStart": "This session is now being recorded",
     "app.notification.recordingStop": "This session is not being recorded",
     "app.notification.recordingPaused": "This session is not being recorded anymore",
