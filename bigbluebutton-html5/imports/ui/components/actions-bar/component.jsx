@@ -86,7 +86,13 @@ class ActionsBar extends PureComponent {
           {
             <Button
               icon="hand"
-              label={intl.formatMessage({ id: 'app.actionsBar.emojiMenu.raiseHandLabel' })}
+              label={intl.formatMessage({
+                id: `app.actionsBar.emojiMenu.${
+                  currentUser.emoji === 'raiseHand'
+                    ? 'lowerHandLabel'
+                    : 'raiseHandLabel'
+                }`,
+              })}
               accessKey={shortcuts.raisehand}
               color="primary"
               hideLabel
