@@ -3,6 +3,7 @@ import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import { ACTIONSBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
 import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
+import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 
 import { styles } from './styles.scss';
 import ActionsDropdown from './actions-dropdown/container';
@@ -32,6 +33,7 @@ class ActionsBar extends PureComponent {
       allowExternalVideo,
       setEmojiStatus,
       currentUser,
+      shortcuts,
     } = this.props;
 
     const actionBarClasses = {};
@@ -85,6 +87,7 @@ class ActionsBar extends PureComponent {
             <Button
               icon="hand"
               label={intl.formatMessage({ id: 'app.actionsBar.emojiMenu.raiseHandLabel' })}
+              accessKey={shortcuts.raisehand}
               color="primary"
               hideLabel
               circle
@@ -112,4 +115,4 @@ class ActionsBar extends PureComponent {
   }
 }
 
-export default ActionsBar;
+export default withShortcutHelper(ActionsBar, ['raiseHand']);

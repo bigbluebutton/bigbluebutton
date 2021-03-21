@@ -583,6 +583,7 @@
     "app.shortcut-help.hidePrivateChat": "Hide private chat",
     "app.shortcut-help.closePrivateChat": "Close private chat",
     "app.shortcut-help.openActions": "Open actions menu",
+    "app.shortcut-help.raiseHand": "Toggle Raise Hand",
     "app.shortcut-help.openDebugWindow": "Open debug window",
     "app.shortcut-help.openStatus": "Open status menu",
     "app.shortcut-help.togglePan": "Activate Pan tool (Presenter)",
