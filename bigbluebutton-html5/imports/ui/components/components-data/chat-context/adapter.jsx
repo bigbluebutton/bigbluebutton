@@ -96,6 +96,7 @@ const Adapter = () => {
         }
       }
       if (msg.data.indexOf('{"msg":"removed","collection":"group-chat-msg"') != -1) {
+        messageQueue = [];
         dispatch({
           type: ACTIONS.REMOVED,
         });
