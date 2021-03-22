@@ -1,21 +1,13 @@
 #!/bin/bash
+# Conversion of office files to Pdf using local docker bbb-soffice
 
-#echo "First arg: $1"
-#echo "Second arg: $2"
-
-#foldername=$(date +"%Y%m%d-%H%M%S")
-#filename=$(basename $1)
-
-#foldername="/tmp/bbb-libreoffice-conversion/$(cat /proc/sys/kernel/random/uuid)"
-
-
-#tmpDirectory="/tmp/bbb-libreoffice-conversion/$(cat /proc/sys/kernel/random/uuid)"
+# This script receives two params
+# Param 1: Input office file path (e.g. "/tmp/test.odt")
+# Param 2: Output pdf file path (e.g. "/tmp/test.pdf")
 
 while [ -z "$randomDirectoryName" -o -d "/tmp/bbb-libreoffice-conversion/$randomDirectoryName" ]; do
         randomDirectoryName=$(shuf -i 100000000-999999999 -n 1)
 done
-
-#randomDirectoryName=001
 
 mkdir -p "/tmp/bbb-libreoffice-conversion/"
 mkdir "/tmp/bbb-libreoffice-conversion/$randomDirectoryName/"
