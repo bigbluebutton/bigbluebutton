@@ -27,8 +27,18 @@
   flex-direction: row;
 }
 
-.center,
 .right {
+  flex: 1;
+  justify-content: center;
+  @include mq($small-only) {
+    position: relative;
+    right: 0;
+    left: 0;
+    display: contents;
+  }
+}
+
+.center {
   flex: 1;
   justify-content: center;
 }
