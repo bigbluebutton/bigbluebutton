@@ -1,10 +1,9 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import { ACTIONSBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
 import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import { debounce } from 'lodash';
 import { styles } from './styles.scss';
 import ActionsDropdown from './actions-dropdown/container';
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
@@ -12,25 +11,7 @@ import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import PresentationOptionsContainer from './presentation-options/component';
 
-class ActionsBar extends Component {
-  constructor() {
-    super();
-
-    this.handleSetStatus = debounce(this.handleSetStatus.bind(this), 1000, { leading: true, trailing: false });
-  }
-
-  handleSetStatus() {
-    const {
-      setEmojiStatus,
-      currentUser,
-    } = this.props;
-
-    setEmojiStatus(
-      currentUser.userId,
-      currentUser.emoji === 'raiseHand' ? 'none' : 'raiseHand',
-    );
-  }
-
+class ActionsBar extends PureComponent {
   render() {
     const {
       amIPresenter,
@@ -116,7 +97,12 @@ class ActionsBar extends Component {
               hideLabel
               circle
               size="lg"
-              onClick={this.handleSetStatus}
+              onClick={() => {
+                setEmojiStatus(
+                  currentUser.userId,
+                  currentUser.emoji === 'raiseHand' ? 'none' : 'raiseHand',
+                );
+              }}
             />
           }
           {isLayoutSwapped && !isPresentationDisabled
