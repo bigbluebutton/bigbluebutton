@@ -27,7 +27,12 @@ module BigBlueButton
           @logger.info("Running sanity worker for #{@full_id}")
           @publisher.put_sanity_started(@meeting_id)
 
-          remove_status_files
+          # Keep the status files so we can still track
+          # the recording progress. We need these at the moment
+          # for the monitoring tools to continue to work.
+          # We need to find a better way (storing in redis?)
+          # in the future to be able to monitor progress.
+          #remove_status_files
 
           script = File.join(BigBlueButton.rap_scripts_path, 'sanity', 'sanity.rb')
           if @break_timestamp.nil?
