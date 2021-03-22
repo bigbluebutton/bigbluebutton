@@ -1036,6 +1036,10 @@ public class ParamsProcessorUtil {
 	public void setDefaultKeepEvents(Boolean mke) {
 		defaultKeepEvents = mke;
 	}
+	
+	public Boolean getDefaultKeepEvents() {
+		return defaultKeepEvents;
+	}
 
 	public void setAllowModsToUnmuteUsers(Boolean value) {
 		defaultAllowModsToUnmuteUsers = value;
