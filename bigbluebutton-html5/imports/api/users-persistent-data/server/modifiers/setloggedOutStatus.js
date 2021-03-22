@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import Logger from '/imports/startup/server/logger';
 
-export default function setOnlineStatus(userId, meetingId, status = false) {
+export default function setloggedOutStatus(userId, meetingId, status = true) {
   check(userId, String);
   check(meetingId, String);
   check(status, Boolean);
@@ -14,7 +14,7 @@ export default function setOnlineStatus(userId, meetingId, status = false) {
 
   const modifier = {
     $set: {
-      online: status,
+      loggedOut: status,
     },
   };
 

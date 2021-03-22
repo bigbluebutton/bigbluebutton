@@ -50,7 +50,7 @@ export default function addUserPersistentData(user) {
     avatar,
     guest,
     color,
-    online: true,
+    loggedOut: false,
   };
 
   const selector = {

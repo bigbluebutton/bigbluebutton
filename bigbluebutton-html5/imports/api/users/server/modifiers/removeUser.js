@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Users from '/imports/api/users';
 import VideoStreams from '/imports/api/video-streams';
 import Logger from '/imports/startup/server/logger';
-import setOnlineStatus from '/imports/api/users-persistent-data/server/modifiers/setOnlineStatus';
+import setloggedOutStatus from '/imports/api/users-persistent-data/server/modifiers/setloggedOutStatus';
 import stopWatchingExternalVideoSystemCall from '/imports/api/external-videos/server/methods/stopWatchingExternalVideoSystemCall';
 import clearUserInfoForRequester from '/imports/api/users-infos/server/modifiers/clearUserInfoForRequester';
 import ClientConnections from '/imports/startup/server/ClientConnections';
@@ -33,7 +33,7 @@ export default function removeUser(meetingId, userId) {
   };
 
   try {
-    setOnlineStatus(userId, meetingId, false);
+    setloggedOutStatus(userId, meetingId, true);
     VideoStreams.remove({ meetingId, userId });
     const sessionUserId = `${meetingId}-${userId}`;
 
