@@ -21,6 +21,11 @@ class MultiUsers {
     await this.page2.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'User2' }, undefined, testFolderName);
   }
 
+  // Join BigBlueButton meeting
+  async initUser3(testFolderName) {
+    await this.page3.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'User3' }, undefined, testFolderName);
+  }
+
   // Run the test for the page
   async checkForOtherUser() {
     const firstCheck = await this.page1.page.evaluate(() => document.querySelectorAll('[data-test="userListItem"]').length > 0);
@@ -42,6 +47,7 @@ class MultiUsers {
     await util.openPrivateChatMessage(this.page1, this.page2);
     const chat0 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
     await util.sendPrivateChatMessage(this.page1, this.page2);
+    await sleep(2000);
     const chat1 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
     return chat0 !== chat1;
   }
@@ -145,6 +151,11 @@ class MultiUsers {
       console.log(e);
       return false;
     }
+  }
+
+  async testWhiteboardAccess() {
+    await this.page1.click('div[data-test="userListItem"]');
+    await this.page1.click('li[data-test="changeWhiteboardAccess"]');
   }
 
   // Close all Pages

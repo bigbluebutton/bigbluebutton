@@ -1,5 +1,6 @@
 const Page = require('./core/page');
 const Draw = require('./whiteboard/draw');
+const Multiusers = require('./user/multiusers');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
 const { MAX_WHITEBOARD_TEST_TIMEOUT } = require('./core/constants');
 
@@ -29,6 +30,43 @@ const whiteboardTest = () => {
       await test.logger(e);
     } finally {
       await test.close();
+    }
+    expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.9,
+        failureThresholdType: 'percent',
+      });
+    }
+  });
+
+  test('User Special Whiteboard Access', async () => {
+    const test = new Multiusers();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'userSpecialWhiteboardAccess';
+      await test.page1.logger('begin of ', testName);
+      await test.init(undefined, testName);
+      await test.initUser3(testName);
+      await test.page1.startRecording(testName);
+      await test.page2.startRecording(testName);
+      await test.page3.startRecording(testName);
+      await test.page1.logger('Test Name: ', testName);
+      await test.page1.closeAudioModal();
+      await test.page2.closeAudioModal();
+      await test.page3.closeAudioModal();
+      response = await test.testWhiteboardAccess();
+      await test.page1.logger('end of ', testName);
+      await test.page1.stopRecording();
+      await test.page2.stopRecording();
+      await test.page3.stopRecording();
+      screenshot = await test.page1.page.screenshot();
+    } catch (e) {
+      await test.page1.logger(e);
+    } finally {
+      await test.close(test.page1, test.page2);
+      await test.closePage(test.page3);
     }
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
