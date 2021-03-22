@@ -19,10 +19,7 @@
 
 package org.bigbluebutton.presentation.imp;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,8 +38,10 @@ import com.google.gson.Gson;
 public abstract class Office2PdfPageConverter {
   private static Logger log = LoggerFactory.getLogger(Office2PdfPageConverter.class);
 
+//  public static boolean convert(File presentationFile, File output, int page, UploadedPresentation pres,
+//                         LocalConverter converter){
   public static boolean convert(File presentationFile, File output, int page, UploadedPresentation pres,
-                         LocalConverter converter){
+                         String presOfficeConversionExec){
 
     FileInputStream inputStream = null;
     FileOutputStream outputStream = null;
@@ -58,14 +57,39 @@ public abstract class Office2PdfPageConverter {
       String logStr = gson.toJson(logData);
       log.info(" --analytics-- data={}", logStr);
 
-      final DocumentFormat sourceFormat = DefaultDocumentFormatRegistry.getFormatByExtension(
-              FilenameUtils.getExtension(presentationFile.getName()));
+//      This method using Jod as office converter was replaced by a customizable script (solving issue https://github.com/bigbluebutton/bigbluebutton/issues/10699)
+//      final DocumentFormat sourceFormat = DefaultDocumentFormatRegistry.getFormatByExtension(
+//              FilenameUtils.getExtension(presentationFile.getName()));
+//
+//      inputStream = new FileInputStream(presentationFile);
+//      outputStream = new FileOutputStream(output);
+//
+//      converter.convert(inputStream).as(sourceFormat).to(outputStream).as(DefaultDocumentFormatRegistry.PDF).execute();
+//      outputStream.flush();
 
-      inputStream = new FileInputStream(presentationFile);
-      outputStream = new FileOutputStream(output);
+      try {
+        log.info("Calling conversion script " + presOfficeConversionExec);
 
-      converter.convert(inputStream).as(sourceFormat).to(outputStream).as(DefaultDocumentFormatRegistry.PDF).execute();
-      outputStream.flush();
+//        String convertScriptPath = "/usr/share/bbb-libreoffice-conversion/convert.sh";
+        Process p = Runtime.getRuntime().exec(String.format(presOfficeConversionExec + " %s %s", presentationFile.getAbsolutePath(), output.getAbsolutePath()));
+
+        BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+        String s = null;
+
+        // read the output from the command
+        while ((s = stdInput.readLine()) != null) {
+          log.info(s);
+        }
+
+        // read any errors from the attempted command
+        while ((s = stdError.readLine()) != null) {
+          log.error(s);
+        }
+
+      } catch (IOException e) {
+        log.error("Exception while calling convert script: ", presentationFile.getName(), e.getMessage());
+      }
 
       if (output.exists()) {
         return true;

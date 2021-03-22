@@ -25,7 +25,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="documentConversionService" class="org.bigbluebutton.presentation.DocumentConversionServiceImp">
         <property name="bbbWebApiGWApp" ref="bbbWebApiGWApp"/>
-        <property name="officeToPdfConversionService" ref="officeToPdfConversionService"/>
+        <property name="officeToPdfConversionService" ref="officeToPdfConversion"/>
         <property name="presentationFileProcessor" ref="presentationFileProcessor"/>
         <property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
     </bean>
@@ -42,6 +42,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="sofficeBasePort" value="${sofficeBasePort:8201}"/>
         <property name="sofficeManagers" value="${sofficeManagers:4}"/>
 	<property name="sofficeWorkingDirBase" value="${sofficeWorkingDirBase:/var/tmp/soffice_}"/>
+    </bean>
+
+    <bean id="officeToPdfConversion" class="org.bigbluebutton.presentation.imp.OfficeToPdfConversion">
+        <property name="officeDocumentValidator" ref="officeDocumentValidator"/>
+        <property name="skipOfficePrecheck" value="${skipOfficePrecheck}"/>
+        <property name="presOfficeConversionExec" value="${presOfficeConversionExec:/usr/share/bbb-libreoffice-conversion/convert.sh}"/>
     </bean>
 
     <bean id="pageExtractor" class="org.bigbluebutton.presentation.imp.PageExtractorImp"/>

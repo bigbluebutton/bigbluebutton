@@ -35,7 +35,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
   private static Logger log = LoggerFactory.getLogger(DocumentConversionServiceImp.class);
 
   private IBbbWebApiGWApp gw;
-  private OfficeToPdfConversionService officeToPdfConversionService;
+  private OfficeToPdfConversion officeToPdfConversionService;
   private SwfSlidesGenerationProgressNotifier notifier;
 
   private PresentationFileProcessor presentationFileProcessor;
@@ -161,7 +161,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
     gw = m;
   }
 
-  public void setOfficeToPdfConversionService(OfficeToPdfConversionService s) {
+  public void setOfficeToPdfConversionService(OfficeToPdfConversion s) {
     officeToPdfConversionService = s;
   }
 
