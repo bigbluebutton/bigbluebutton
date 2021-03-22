@@ -13,7 +13,7 @@ const Adapter = () => {
     const usersPersistentDataCursor = UsersPersistentData.find({}, { sort: { timestamp: 1 } });
     usersPersistentDataCursor.observe({
       added: (obj) => {
-        console.log('kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk');
+        ChatLogger.debug("usersAdapter::observe::added_persistent_user", obj);
         dispatch({
           type: ACTIONS.ADDED_USER_PERSISTENT_DATA,
           value: {
@@ -22,6 +22,7 @@ const Adapter = () => {
         });
       },
       changed: (obj) => {
+        ChatLogger.debug("usersAdapter::observe::changed_persistent_user", obj);
         dispatch({
           type: ACTIONS.CHANGED_USER_PERSISTENT_DATA,
           value: {

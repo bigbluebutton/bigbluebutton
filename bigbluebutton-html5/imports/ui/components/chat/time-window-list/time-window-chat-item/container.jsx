@@ -40,7 +40,7 @@ export default function TimeWindowChatItemContainer(props) {
       {
       ...{
         color: user?.color || color,
-        isModerator: !user?.loggedOut && user?.role === ROLE_MODERATOR,
+        isModerator: user?.role === ROLE_MODERATOR,
         isOnline: !user?.loggedOut,
         avatar: user?.avatar,
         name: user?.name || sender?.name,
