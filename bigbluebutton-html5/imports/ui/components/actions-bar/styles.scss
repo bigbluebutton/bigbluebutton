@@ -118,17 +118,23 @@
   }
 }
 
-.dropdown,
 .btn {
   z-index: 3;
 }
-
+.dropdown{
+  z-index: 4;
+}
 .presentationItem {
   span {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-    max-width: 10rem;
+    max-width: 15rem;
+
+    @include mq($small-only) {
+      max-width: 100%;
+    }
+
   }
 }
 
