@@ -106,7 +106,7 @@ public class OfficeToPdfConversion {
       loadProperties.put("ReadOnly", true);
       loadProperties.put("UpdateDocMode", UpdateDocMode.NO_UPDATE);
 
-      success = Office2PdfPageConverter.convert(pres.getUploadedFile(), pdfOutput, 0, pres, "");
+      success = Office2PdfPageConverter.convert(pres.getUploadedFile(), pdfOutput, 0, pres, presOfficeConversionExec);
     }
 
     return success;
