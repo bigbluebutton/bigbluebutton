@@ -63,6 +63,14 @@ const intlMessages = defineMessages({
     id: 'app.toast.setEmoji.label',
     description: 'message when a user emoji has been set',
   },
+  raisedHand: {
+    id: 'app.toast.setEmoji.raiseHand',
+    description: 'toast message for raised hand notification',
+  },
+  loweredHand: {
+    id: 'app.toast.setEmoji.lowerHand',
+    description: 'toast message for lowered hand notification',
+  },
   meetingMuteOn: {
     id: 'app.toast.meetingMuteOn.label',
     description: 'message used when meeting has been muted',
@@ -174,10 +182,21 @@ class App extends Component {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
       || currentUserEmoji.status;
 
+      const raisedHand = currentUserEmoji.status === 'raiseHand';
+
+      let statusLabel = '';
+      if (currentUserEmoji.status === 'none') {
+        statusLabel = prevProps.currentUserEmoji.status === 'raiseHand'
+          ? intl.formatMessage(intlMessages.loweredHand)
+          : intl.formatMessage(intlMessages.clearedEmoji);
+      } else {
+        statusLabel = raisedHand
+          ? intl.formatMessage(intlMessages.raisedHand)
+          : intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus }));
+      }
+
       notify(
-        currentUserEmoji.status === 'none'
-          ? intl.formatMessage(intlMessages.clearedEmoji)
-          : intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus })),
+        statusLabel,
         'info',
         currentUserEmoji.status === 'none'
           ? 'clear_status'
@@ -343,7 +362,7 @@ class App extends Component {
 
   render() {
     const {
-      customStyle, customStyleUrl, openPanel, layoutContextState
+      customStyle, customStyleUrl, openPanel, layoutContextState,
     } = this.props;
 
     return (

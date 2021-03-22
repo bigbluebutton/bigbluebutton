@@ -449,13 +449,12 @@ const normalizeEmojiName = emoji => (
   emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
 );
 
-const setEmojiStatus = (userId, emoji) => {
+const setEmojiStatus = _.debounce((userId, emoji) => {
   const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(emoji));
-
   return statusAvailable
     ? makeCall('setEmojiStatus', Auth.userID, emoji)
     : makeCall('setEmojiStatus', userId, 'none');
-};
+}, 1000, { leading: true, trailing: false });
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
 

@@ -7,6 +7,8 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import { makeCall } from '/imports/ui/services/api';
 import RandomUserSelect from './component';
 
+const SELECT_RANDOM_USER_ENABLED = Meteor.settings.public.selectRandomUser.enabled;
+
 const RandomUserSelectContainer = props => <RandomUserSelect {...props} />;
 
 export default withModalMounter(withTracker(({ mountModal }) => {
@@ -43,9 +45,9 @@ export default withModalMounter(withTracker(({ mountModal }) => {
     { fields: { userId: 1, presenter: 1 } },
   );
 
-  const randomUserReq = () => makeCall('setRandomUser');
+  const randomUserReq = () => (SELECT_RANDOM_USER_ENABLED ? makeCall('setRandomUser') : null);
 
-  const clearRandomlySelectedUser = () => makeCall('clearRandomlySelectedUser');
+  const clearRandomlySelectedUser = () => (SELECT_RANDOM_USER_ENABLED ? makeCall('clearRandomlySelectedUser') : null);
 
   return ({
     closeModal: () => mountModal(null),
