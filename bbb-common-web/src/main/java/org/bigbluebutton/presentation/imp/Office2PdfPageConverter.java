@@ -23,13 +23,7 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sun.org.apache.xerces.internal.impl.xs.opti.DefaultDocument;
-import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.presentation.UploadedPresentation;
-import org.jodconverter.core.document.DefaultDocumentFormatRegistry;
-import org.jodconverter.core.document.DocumentFormat;
-import org.jodconverter.core.job.AbstractConverter;
-import org.jodconverter.local.LocalConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +37,8 @@ public abstract class Office2PdfPageConverter {
   public static boolean convert(File presentationFile, File output, int page, UploadedPresentation pres,
                          String presOfficeConversionExec){
 
-    FileInputStream inputStream = null;
-    FileOutputStream outputStream = null;
+//    FileInputStream inputStream = null;
+//    FileOutputStream outputStream = null;
 
     try {
       Map<String, Object> logData = new HashMap<>();
@@ -70,7 +64,11 @@ public abstract class Office2PdfPageConverter {
       try {
         log.info("Calling conversion script " + presOfficeConversionExec);
 
-//        String convertScriptPath = "/usr/share/bbb-libreoffice-conversion/convert.sh";
+        if(presOfficeConversionExec == null) throw new Exception("Cannot find the conversion script path.");
+
+        File conversionScript = new File(presOfficeConversionExec);
+        if(!conversionScript.exists()) throw new Exception(presOfficeConversionExec + ", file not found.");
+
         Process p = Runtime.getRuntime().exec(String.format(presOfficeConversionExec + " %s %s", presentationFile.getAbsolutePath(), output.getAbsolutePath()));
 
         BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -88,7 +86,7 @@ public abstract class Office2PdfPageConverter {
         }
 
       } catch (IOException e) {
-        log.error("Exception while calling convert script: ", presentationFile.getName(), e.getMessage());
+        log.error("Exception while calling convert script: " + e.getMessage(), presentationFile.getName());
       }
 
       if (output.exists()) {
@@ -119,21 +117,21 @@ public abstract class Office2PdfPageConverter {
       log.error(" --analytics-- data={}", logStr, e);
       return false;
     } finally {
-       if(inputStream!=null) {
-         try {
-           inputStream.close();
-         } catch(Exception e) {
+//       if(inputStream!=null) {
+//         try {
+//           inputStream.close();
+//         } catch(Exception e) {
+//
+//         }
+//       }
 
-         }
-       }
-
-      if(outputStream!=null) {
-        try {
-          outputStream.close();
-        } catch(Exception e) {
-
-        }
-      }
+//      if(outputStream!=null) {
+//        try {
+//          outputStream.close();
+//        } catch(Exception e) {
+//
+//        }
+//      }
     }
   }
 
