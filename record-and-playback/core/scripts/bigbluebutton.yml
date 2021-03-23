@@ -7,7 +7,7 @@ raw_screenshare_src: /usr/share/red5/webapps/screenshare/streams
 raw_webrtc_deskshare_src: /usr/share/red5/webapps/video-broadcast/streams
 raw_deskshare_src: /var/bigbluebutton/deskshare
 raw_presentation_src: /var/bigbluebutton
-notes_endpoint: http://localhost:9001/p
+notes_endpoint: http://127.0.0.1:9001/p
 notes_apikey: ETHERPAD_APIKEY
 # Specify the notes formats we archive
 # txt, doc and odt are also supported
