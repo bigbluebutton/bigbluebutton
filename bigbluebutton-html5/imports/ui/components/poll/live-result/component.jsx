@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
+import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { styles } from './styles';
 import Service from './service';
 
@@ -80,7 +81,7 @@ class LiveResult extends PureComponent {
           (
             <tr key={_.uniqueId('stats-')}>
               <td className={styles.resultLeft}>{user.name}</td>
-              <td className={styles.resultRight}>
+              <td data-test="receivedAnswer" className={styles.resultRight}>
                 {
                   pollAnswerIds[formattedMessageIndex]
                     ? intl.formatMessage(pollAnswerIds[formattedMessageIndex])
@@ -94,7 +95,7 @@ class LiveResult extends PureComponent {
 
     const pollStats = [];
 
-    answers.map((obj) => {
+    answers.reduce(caseInsensitiveReducer, []).map((obj) => {
       const formattedMessageIndex = obj.key.toLowerCase();
       const pct = Math.round(obj.numVotes / numRespondents * 100);
       const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;

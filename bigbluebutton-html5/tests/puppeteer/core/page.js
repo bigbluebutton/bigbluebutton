@@ -292,10 +292,31 @@ class Page {
     }
   }
 
+  // Press a keyboard button
+  async press(key) {
+    await this.page.keyboard.press(key);
+  }
+
+  // Press and hold a keyboard button
+  async hold(key) {
+    await this.page.keyboard.down(key);
+  }
+
+  // Release a hold pressed keyboard button
+  async release(key) {
+    await this.page.keyboard.up(key);
+  }
+
   async click(element, relief = false) {
     if (relief) await helper.sleep(1000);
     await this.waitForSelector(element, ELEMENT_WAIT_TIME);
     await this.page.click(element, true);
+  }
+
+  async clickNItem(element, relief = false, n) {
+    if (relief) await helper.sleep(1000);
+    const elementHandle = await this.page.$$(element);
+    await elementHandle[n].click();
   }
 
   async type(element, text, relief = false) {

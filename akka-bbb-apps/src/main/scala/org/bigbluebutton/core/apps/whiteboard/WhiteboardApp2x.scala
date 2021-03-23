@@ -5,8 +5,16 @@ import akka.event.Logging
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.WhiteboardKeyUtil
+import scala.collection.immutable.{ Map, List }
 
-case class Whiteboard(id: String, multiUser: Boolean, changedModeOn: Long, annotationCount: Int, annotationsMap: scala.collection.immutable.Map[String, scala.collection.immutable.List[AnnotationVO]])
+case class Whiteboard(
+    id:              String,
+    multiUser:       Array[String],
+    oldMultiUser:    Array[String],
+    changedModeOn:   Long,
+    annotationCount: Int,
+    annotationsMap:  Map[String, List[AnnotationVO]]
+)
 
 class WhiteboardApp2x(implicit val context: ActorContext)
   extends SendCursorPositionPubMsgHdlr
@@ -56,18 +64,18 @@ class WhiteboardApp2x(implicit val context: ActorContext)
     liveMeeting.wbModel.undoWhiteboard(whiteboardId, requesterId)
   }
 
-  def getWhiteboardAccess(whiteboardId: String, liveMeeting: LiveMeeting): Boolean = {
+  def getWhiteboardAccess(whiteboardId: String, liveMeeting: LiveMeeting): Array[String] = {
     liveMeeting.wbModel.getWhiteboardAccess(whiteboardId)
   }
 
-  def modifyWhiteboardAccess(whiteboardId: String, multiUser: Boolean, liveMeeting: LiveMeeting) {
+  def modifyWhiteboardAccess(whiteboardId: String, multiUser: Array[String], liveMeeting: LiveMeeting) {
     liveMeeting.wbModel.modifyWhiteboardAccess(whiteboardId, multiUser)
   }
 
-  def filterWhiteboardMessage(whiteboardId: String, liveMeeting: LiveMeeting): Boolean = {
+  def filterWhiteboardMessage(whiteboardId: String, userId: String, liveMeeting: LiveMeeting): Boolean = {
     // Need to check if the wb mode change from multi-user to single-user. Give 5sec allowance to
     // allow delayed messages to be handled as clients may have been sending messages while the wb
     // mode was changed. (ralam nov 22, 2017)
-    if (!liveMeeting.wbModel.getWhiteboardAccess(whiteboardId) && liveMeeting.wbModel.getChangedModeOn(whiteboardId) > 5000) true else false
+    !liveMeeting.wbModel.hasWhiteboardAccess(whiteboardId, userId)
   }
 }

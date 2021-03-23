@@ -52,6 +52,8 @@ export default {
   amIPresenter,
   amIModerator,
   isMe,
+  currentUser: () => Users.findOne({ meetingId: Auth.meetingID, userId: Auth.userID },
+    { fields: { userId: 1, emoji: 1 } }),
   meetingName: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'meetingProp.name': 1 } }).meetingProp.name,
   users: () => Users.find({
