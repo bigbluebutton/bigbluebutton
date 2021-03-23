@@ -1,4 +1,5 @@
 const CustomParameters = require('./customparameters/customparameters');
+const Multiusers = require('./user/multiusers');
 const Polling = require('./polling/poll');
 const Page = require('./core/page');
 const Poll = require('./chat/poll');
@@ -82,6 +83,35 @@ const pollingTest = () => {
       await test.page1.logger('begin of ', testName);
       response = await test.forceRestorePresentationOnNewPollResult(Page.getArgs(), undefined, `${ce.forceRestorePresentationOnNewEvents}`, testName);
       await test.page1.logger('end of ', testName);
+      await test.page2.stopRecording();
+      screenshot = await test.page1.page.screenshot();
+    } catch (e) {
+      await test.page1.logger(e);
+    } finally {
+      await test.close(test.page1, test.page2);
+    }
+    expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 0.5,
+        failureThresholdType: 'percent',
+      });
+    }
+  });
+
+  // This Test chooses randomly a polling case, runs it
+  // and expects having it answered by the other user
+  test('Random Poll', async () => {
+    const test = new Multiusers();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'randomPoll';
+      await test.page1.logger('begin of ', testName);
+      await test.init(undefined, testName);
+      response = await test.randomPoll(testName);
+      await test.page1.logger('end of ', testName);
+      await test.page1.stopRecording();
       await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
     } catch (e) {

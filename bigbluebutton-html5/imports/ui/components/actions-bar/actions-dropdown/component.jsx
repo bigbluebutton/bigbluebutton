@@ -117,6 +117,7 @@ class ActionsDropdown extends PureComponent {
       handleTakePresenter,
       isSharingVideo,
       isPollingEnabled,
+      isSelectRandomUserEnabled,
       stopExternalVideoShare,
       mountModal,
     } = this.props;
@@ -188,7 +189,7 @@ class ActionsDropdown extends PureComponent {
           />
         )
         : null),
-      (amIPresenter
+      (amIPresenter && isSelectRandomUserEnabled
         ? (
           <DropdownListItem
             icon="user"

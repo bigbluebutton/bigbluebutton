@@ -3,6 +3,7 @@ import userLeaving from '/imports/api/users/server/methods/userLeaving';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import AuthTokenValidation from '/imports/api/auth-token-validation';
 import Users from '/imports/api/users';
+import { check } from 'meteor/check';
 
 const { enabled, syncInterval } = Meteor.settings.public.syncUsersWithConnectionManager;
 
@@ -38,6 +39,9 @@ class ClientConnections {
 
     const { meetingId, requesterUserId: userId } = extractCredentials(sessionId);
 
+    check(meetingId, String);
+    check(userId, String);
+      
     if (!meetingId) {
       Logger.error('Error on add new client connection. sessionId=${sessionId} connection=${connection.id}',
         { logCode: 'client_connections_add_error_meeting_id_null', extraInfo: { meetingId, userId } }
@@ -88,6 +92,9 @@ class ClientConnections {
   getConnectionsForClient(sessionId) {
     const { meetingId, requesterUserId: userId } = extractCredentials(sessionId);
 
+    check(meetingId, String);
+    check(userId, String);
+  
     return this.connections.get(meetingId)?.get(userId);
   }
 
@@ -108,6 +115,9 @@ class ClientConnections {
     Logger.info(`Removing connectionId for user. sessionId=${sessionId} connectionId=${connectionId}`);
     const { meetingId, requesterUserId: userId } = extractCredentials(sessionId);
 
+    check(meetingId, String);
+    check(userId, String);
+  
     const meetingConnections = this.connections.get(meetingId);
 
     if (meetingConnections?.has(userId)) {

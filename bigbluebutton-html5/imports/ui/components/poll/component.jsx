@@ -325,6 +325,7 @@ class Poll extends Component {
               type="text"
               value={o.val}
               placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
+              data-test="pollOptionItem"
               className={styles.pollOption}
               onChange={e => this.handleInputChange(e, i)}
               maxLength={MAX_INPUT_CHARS}
@@ -334,6 +335,7 @@ class Poll extends Component {
                 className={styles.deleteBtn}
                 label={intl.formatMessage(intlMessages.delete)}
                 icon="delete"
+                data-test="deletePollOption"
                 hideLabel
                 circle
                 color="default"
@@ -394,6 +396,7 @@ class Poll extends Component {
         <div>
           <h4>{intl.formatMessage(intlMessages.questionTitle)}</h4>
           <textarea
+            data-test="pollQuestionArea"
             className={styles.pollQuestion}
             value={question}
             onChange={e => this.handleTextareaChange(e)}
@@ -407,7 +410,7 @@ class Poll extends Component {
             <div className={styles.errorSpacer}>&nbsp;</div>
           )}
         </div>
-        <div>
+        <div data-test="responseTypes">
           <h4>{intl.formatMessage(intlMessages.responseTypesLabel)}</h4>
           <div className={styles.responseType}>
             <Button
@@ -465,7 +468,7 @@ class Poll extends Component {
         </div>
         { type
               && (
-              <div>
+              <div data-test="responseChoices">
                 <h4>{intl.formatMessage(intlMessages.responseChoices)}</h4>
                 {
                   type === 'RP'
@@ -494,6 +497,7 @@ class Poll extends Component {
                         && (
                         <Button
                           className={styles.addItemBtn}
+                          data-test="addItem"
                           label={intl.formatMessage(intlMessages.addOptionLabel)}
                           color="default"
                           icon="add"
@@ -504,6 +508,7 @@ class Poll extends Component {
                       }
                       <Button
                         className={styles.startPollBtn}
+                        data-test="startPoll"
                         label={intl.formatMessage(intlMessages.startPollLabel)}
                         color="primary"
                         onClick={() => {

@@ -10,6 +10,8 @@ export default function startPoll(pollType, pollId, question, answers) {
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(pollId, String);
   check(pollType, String);
 

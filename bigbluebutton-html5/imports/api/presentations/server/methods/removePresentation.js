@@ -9,6 +9,8 @@ export default function removePresentation(presentationId, podId) {
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(presentationId, String);
   check(podId, String);
 

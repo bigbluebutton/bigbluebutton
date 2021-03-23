@@ -11,6 +11,8 @@ export default function changeRole(userId, role) {
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(userId, String);
   check(role, String);
 
