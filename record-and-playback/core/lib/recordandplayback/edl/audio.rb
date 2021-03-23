@@ -22,11 +22,8 @@ module BigBlueButton
     module Audio
       FFMPEG_AEVALSRC = "aevalsrc=s=48000:c=stereo:exprs=0|0"
       FFMPEG_AFORMAT = "aresample=async=1000,aformat=sample_fmts=s16:sample_rates=48000:channel_layouts=stereo"
-      FFMPEG_AFORMAT_SCREENSHARE = "aresample=async=1000,aformat=sample_fmts=s16:sample_rates=48000:channel_layouts=stereo"
       FFMPEG_WF_CODEC = 'libvorbis'
       FFMPEG_WF_ARGS = ['-c:a', FFMPEG_WF_CODEC, '-q:a', '2', '-f', 'ogg']
-      FFMPEG_WF_SCREENSHARE_CODEC = 'libopus'
-      FFMPEG_WF_SCREENSHARE_ARGS = ['-c:a', FFMPEG_WF_SCREENSHARE_CODEC, '-b:a', '48K', '-f', 'opus']
       WF_EXT = 'ogg'
 
       def self.dump(edl)
@@ -138,17 +135,9 @@ module BigBlueButton
                 filename: audio[:filename],
                 seek: seek
               }
-              if screenshare
-                ffmpeg_filter << "[#{input_index}]#{FFMPEG_AFORMAT_SCREENSHARE},apad"
-              else
-                ffmpeg_filter << "[#{input_index}]#{FFMPEG_AFORMAT},apad"
-              end
+              ffmpeg_filter << "[#{input_index}]#{FFMPEG_AFORMAT},apad"
             else
-              if screenshare
-                ffmpeg_filter << "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT_SCREENSHARE}"
-              else
-                ffmpeg_filter << "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT}"
-              end
+              ffmpeg_filter << "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT}"
             end
 
             ffmpeg_filter << ",atempo=#{speed},atrim=start=#{ms_to_s(audio[:timestamp])}" if speed != 1
@@ -157,11 +146,7 @@ module BigBlueButton
           else
             BigBlueButton.logger.info "  Generating silence"
 
-            if screenshare
-              ffmpeg_filter << "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT_SCREENSHARE}"
-            else 
-              ffmpeg_filter << "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT}"
-            end
+            ffmpeg_filter << "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT}"
           end
 
           if i > 0
@@ -196,11 +181,7 @@ module BigBlueButton
         ffmpeg_cmd << '-filter_complex_script' << filter_complex_script
 
         output = "#{output_basename}.#{WF_EXT}"
-        if screenshare
-          ffmpeg_cmd += [*FFMPEG_WF_SCREENSHARE_ARGS, output]
-        else
-          ffmpeg_cmd += [*FFMPEG_WF_ARGS, output]
-        end
+        ffmpeg_cmd += [*FFMPEG_WF_ARGS, output]
 
         BigBlueButton.logger.info "Running audio processing..."
         exitstatus = BigBlueButton.exec_ret(*ffmpeg_cmd)

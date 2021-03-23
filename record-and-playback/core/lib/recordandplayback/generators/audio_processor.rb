@@ -51,11 +51,10 @@ module BigBlueButton
       BigBlueButton::EDL::Audio.dump(audio_edl)
 
       target_dir = File.dirname(file_basename)
-      events_xml = "#{archive_dir}/events.xml"
 
       # getting users audio...
       @audio_file = BigBlueButton::EDL::Audio.render(
-        audio_edl, File.join(target_dir, 'recording'), false)
+        audio_edl, File.join(target_dir, 'recording'))
 
       # and mixing it with deskshare audio	
       deskshare_dir = "#{archive_dir}/deskshare"
@@ -75,7 +74,7 @@ module BigBlueButton
 
         audio_inputs = []	
         audio_inputs << @audio_file	
-        audio_inputs << BigBlueButton::EDL::Audio.render(deskshare_audio_edl, deskshare_dir, true)	
+        audio_inputs << BigBlueButton::EDL::Audio.render(deskshare_audio_edl, deskshare_dir)	
 
         @audio_file = BigBlueButton::EDL::Audio.mixer(audio_inputs, mixed_dir)	
       else
