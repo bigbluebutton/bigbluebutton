@@ -183,10 +183,11 @@ export default function addMeeting(meeting) {
 
     if (insertedId) {
       Logger.info(`Added meeting id=${meetingId}`);
-      // TODO: Here we call Etherpad API to create this meeting notes. Is there a
-      // better place we can run this post-creation routine?
-      createNote(meetingId);
-      createCaptions(meetingId);
+
+      const { html5InstanceId } = meeting.systemProps;
+      createNote(meetingId, html5InstanceId);
+      createCaptions(meetingId, html5InstanceId);
+
       BannedUsers.init(meetingId);
     } else if (numberAffected) {
       Logger.info(`Upserted meeting id=${meetingId}`);
