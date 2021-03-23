@@ -31,12 +31,13 @@ import org.bigbluebutton.core.apps.voice._
 import akka.actor.Props
 import akka.actor.OneForOneStrategy
 import akka.actor.SupervisorStrategy.Resume
+import org.bigbluebutton.common2.msgs
 
 import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
-import org.bigbluebutton.core.models.VoiceUsers.findAllNonListenOnlyVoiceUsers
+import org.bigbluebutton.core.models.VoiceUsers.findAllListenOnlyVoiceUsers
 import org.bigbluebutton.core.models.Webcams.findAll
 import org.bigbluebutton.core2.MeetingStatus2x.{ hasAuthedUserJoined, isVoiceRecording }
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
@@ -516,25 +517,10 @@ class MeetingActor(
 
     val isRecording: Boolean = isVoiceRecording(liveMeeting.status)
 
-    val liveWebcams: Vector[WebcamStream] = findAll(liveMeeting.webcams)
-    val numOfLiveWebcams: Int = liveWebcams.length
-    val mediaStreamLiveWebcamUserId: String = liveWebcams.flatMap(_.stream.userId).mkString
-    val viewers: List[String] = findAll(liveMeeting.webcams).flatMap(_.stream.viewers).toList
-
-    val webcamDetail: WebcamDetail = WebcamDetail(mediaStreamLiveWebcamUserId, viewers)
-    val webcam: Webcam = Webcam(numOfLiveWebcams, webcamDetail)
-
-    val voiceUsers: Vector[VoiceUserState] = VoiceUsers.findAll(liveMeeting.voiceUsers)
-    val numOfVoiceUsers: Int = voiceUsers.length
-    val numOfListenOnlyUsers: Int = numOfVoiceUsers - findAllNonListenOnlyVoiceUsers(liveMeeting.voiceUsers).length
-    val listeners: List[String] = voiceUsers.map(_.voiceUserId).toList
-
-    val audio: Audio = Audio(numOfVoiceUsers, numOfListenOnlyUsers, listeners)
-
     val screenshareConfName: String = liveMeeting.props.screenshareProps.screenshareConf
     val screenshare: Screenshare = Screenshare(screenshareConfName)
 
-    val listOfUsers: List[String] = Users2x.findAll(liveMeeting.users2x).map(_.name).toList
+    val listOfUsers: List[UserState] = Users2x.findAll(liveMeeting.users2x).toList
 
     val presentationId: String = state.presentationPodManager.getAllPresentationPodsInMeeting()
       .flatMap(_.getCurrentPresentation.map(_.id))
@@ -553,13 +539,44 @@ class MeetingActor(
       liveMeeting.props.breakoutProps.breakoutRooms.toList
     )
 
-    val meetingInfoAnalyticsLogMessage: MeetingInfoAnalytics = MeetingInfoAnalytics(meetingName, externalId, internalId,
-      hasUserJoined, isRecording, numOfLiveWebcams, numOfVoiceUsers, webcam, audio, screenshare, listOfUsers,
-      presentationInfo, breakoutRoom)
+    val meetingInfoAnalyticsLogMessage: MeetingInfoAnalytics = MeetingInfoAnalytics(
+      meetingName,
+      externalId, internalId,
+      hasUserJoined, isRecording, getMeetingInfoWebcamDetails,
+      getMeetingInfoAudioDetails, screenshare,
+      listOfUsers.map(u => Participant(u.intId, u.name, u.role)), presentationInfo,
+      breakoutRoom
+    )
 
     val event = MsgBuilder.buildMeetingInfoAnalyticsMsg(meetingInfoAnalyticsLogMessage)
 
     outGW.send(event)
+  }
+
+  private def getMeetingInfoWebcamDetails(): Webcam = {
+    val liveWebcams: Vector[org.bigbluebutton.core.models.WebcamStream] = findAll(liveMeeting.webcams)
+    val numOfLiveWebcams: Int = liveWebcams.length
+
+    val broadcastId: String = liveWebcams.flatMap(_.streamId).mkString
+    val user: User = User(liveWebcams.flatMap(_.stream.userId).mkString, "")
+    val startedOn: Long = 0L
+    val broadcast: Broadcast = Broadcast(broadcastId, user, startedOn)
+    val viewers: Set[String] = findAll(liveMeeting.webcams).flatMap(_.stream.viewers).toSet
+
+    val webcamStream: WebcamStream = msgs.WebcamStream(broadcast, viewers)
+
+    Webcam(numOfLiveWebcams, webcamStream)
+  }
+
+  private def getMeetingInfoAudioDetails(): Audio = {
+    val voiceUsers: Vector[VoiceUserState] = VoiceUsers.findAll(liveMeeting.voiceUsers)
+    val numOfVoiceUsers: Int = voiceUsers.length
+
+    val listenOnlyUsers: Vector[VoiceUserState] = findAllListenOnlyVoiceUsers(liveMeeting.voiceUsers)
+    val numOfListenOnlyUsers: Int = listenOnlyUsers.length
+    val listenOnlyAudioUser = ListenOnlyAudioUser(numOfListenOnlyUsers, listenOnlyUsers.map(vsu => User(vsu.voiceUserId, "")).toList)
+
+    Audio(numOfVoiceUsers, listenOnlyAudioUser, null, null)
   }
 
   def handleGetRunningMeetingStateReqMsg(msg: GetRunningMeetingStateReqMsg): Unit = {

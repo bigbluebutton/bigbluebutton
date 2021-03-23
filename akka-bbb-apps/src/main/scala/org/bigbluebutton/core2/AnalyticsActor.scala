@@ -3,7 +3,6 @@ package org.bigbluebutton.core2
 import akka.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
-import org.bigbluebutton.common2.msgs.MeetingInfoAnalytics
 object AnalyticsActor {
   def props(): Props = Props(classOf[AnalyticsActor])
 }

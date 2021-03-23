@@ -8,37 +8,40 @@ case class MeetingInfoAnalyticsMessage(
 case class MeetingInfoAnalyticsMessageBody(meetingInfo: MeetingInfoAnalytics)
 
 object MeetingInfoAnalytics {
-  def apply(meetingName: String, meetingExternalId: String, meetingInternalId: String, hasUserJoined: Boolean,
-            isRecording: Boolean, numberOfVideos: Int, numberOfUsers: Int, numberOfVoiceUsers: Int,
-            webcam: Webcam, audio: Audio, screenshare: Screenshare, users: List[String], presentationInfo: PresentationInfo,
-            breakoutRoom: BreakoutRoom): MeetingInfoAnalytics =
-    new MeetingInfoAnalytics(meetingName, meetingExternalId, meetingInternalId, hasUserJoined, isRecording,
-      numberOfVideos, numberOfVoiceUsers, webcam, audio, screenshare, users, presentationInfo, breakoutRoom)
+  def apply(name: String, externalId: String, internalId: String, hasUserJoined: Boolean, isRecording: Boolean, webcam: Webcam,
+            audio: Audio, screenshare: Screenshare, users: List[Participant], presentation: PresentationInfo,
+            breakoutRooms: BreakoutRoom): MeetingInfoAnalytics =
+    new MeetingInfoAnalytics(name, externalId, internalId, hasUserJoined, isRecording, webcam, audio, screenshare, users,
+      presentation, breakoutRooms)
 }
 
 case class MeetingInfoAnalytics(
-    meetingName:        String,
-    meetingExternalId:  String,
-    meetingInternalId:  String,
-    hasUserJoined:      Boolean,
-    isRecording:        Boolean,
-    numberOfVideos:     Int,
-    numberOfVoiceUsers: Int,
-    webcam:             Webcam,
-    audio:              Audio,
-    screenshare:        Screenshare,
-    users:              List[String],
-    presentationInfo:   PresentationInfo,
-    breakoutRoom:       BreakoutRoom
+    name:          String,
+    externalId:    String,
+    internalId:    String,
+    hasUserJoined: Boolean,
+    isRecording:   Boolean,
+    webcams:       Webcam,
+    audio:         Audio,
+    screenshare:   Screenshare,
+    users:         List[Participant],
+    presentation:  PresentationInfo,
+    breakoutRoom:  BreakoutRoom
 )
 
-case class Webcam(totalWebcams: Int, webcamDetails: WebcamDetail)
-case class WebcamDetail(broadcastId: String, viewers: List[String])
+case class Webcam(total: Int, streams: List[WebcamStream])
+case class WebcamStream(broadcast: Broadcast, viewers: Set[String])
+case class User(id: String, name: String)
+case class Broadcast(id: String, user: User, startedOn: Long)
 
-case class Audio(totalVoiceUsers: Int, totalListenOnlyUsers: Int, listeners: List[String])
+case class Audio(total: Int, listenOnly: ListenOnlyAudioUser, twoWay: TwoWayAudioUser, phone: PhoneAudioUser)
+case class ListenOnlyAudioUser(total: Int, users: List[User])
+case class TwoWayAudioUser(total: Int, users: List[User])
+case class PhoneAudioUser(total: Int, users: List[User])
 
-case class Screenshare(name: String)
+case class Screenshare(stream: ScreenshareStream)
+case class ScreenshareStream(user: User, viewers: List[User])
 
-case class PresentationInfo(id: String, name: String, presenter: String)
-case class BreakoutRoom(parentId: String, rooms: List[String])
-
+case class Participant(id: String, name: String, role: String)
+case class PresentationInfo(id: String, name: String)
+case class BreakoutRoom(id: String, names: List[String])
