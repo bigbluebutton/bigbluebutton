@@ -60,10 +60,6 @@
   display: flex;
   flex: 1 1 100%;
 
-  @include mq($small-only) {
-    justify-content: center;
-  }
-
   .verticalList & {
     padding: calc(var(--line-height-computed) / 3) 0;
 

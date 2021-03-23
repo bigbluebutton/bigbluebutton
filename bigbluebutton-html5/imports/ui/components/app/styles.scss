@@ -113,12 +113,12 @@
   @include mq($medium-up) {
     flex: 0 15vw;
     order: 1;
-    height: 100vh;
+    height: 100%;
   }
 
   @include mq($xlarge-up) {
     flex-basis: 10vw;
-    height: 100vh;
+    height: 100%;
   }
 }
 

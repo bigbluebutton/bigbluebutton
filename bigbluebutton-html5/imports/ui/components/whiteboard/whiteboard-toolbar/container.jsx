@@ -26,6 +26,7 @@ export default withTracker((params) => {
       setTextShapeObject: WhiteboardToolbarService.setTextShapeObject,
     },
     textShapeActiveId: WhiteboardToolbarService.getTextShapeActiveId(),
+    multiUser: WhiteboardService.isMultiUserActive(whiteboardId),
     isPresenter: WhiteboardToolbarService.isPresenter(),
     annotations: WhiteboardToolbarService.filterAnnotationList(),
     isMeteorConnected: Meteor.status().connected,

@@ -76,6 +76,10 @@ const intlMessages = defineMessages({
     id: 'app.audio.leaveAudio',
     description: 'describes the leave audio shortcut',
   },
+  raisehand: {
+    id: 'app.shortcut-help.raiseHand',
+    description: 'describes the toggle raise hand shortcut',
+  },
   togglePan: {
     id: 'app.shortcut-help.togglePan',
     description: 'describes the toggle pan shortcut',
