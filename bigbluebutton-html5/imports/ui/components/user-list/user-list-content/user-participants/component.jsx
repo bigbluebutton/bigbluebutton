@@ -12,6 +12,7 @@ import {
 } from 'react-virtualized';
 import UserListItemContainer from './user-list-item/container';
 import UserOptionsContainer from './user-options/container';
+import Settings from '/imports/ui/services/settings';
 
 const propTypes = {
   compact: PropTypes.bool,
@@ -135,6 +136,7 @@ class UserParticipants extends Component {
     } = this.props;
     const { scrollArea } = this.state;
     const user = users[index];
+    const isRTL = Settings.application.isRTL;
 
     return (
       <CellMeasurer
@@ -157,6 +159,7 @@ class UserParticipants extends Component {
               currentUser,
               meetingIsBreakout,
               scrollArea,
+              isRTL,
             }}
             user={user}
             getScrollContainerRef={this.getScrollContainerRef}
