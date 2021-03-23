@@ -69,75 +69,72 @@ class IntlStartup extends Component {
       fetch(url)
         .then((response) => {
           if (!response.ok) {
-            return Promise.reject();
+            return false;
           }
-
           return response.json();
         })
         .then(({ normalizedLocale, regionDefaultLocale }) => {
-          fetch(`${localesPath}/${DEFAULT_LANGUAGE}.json`)
-            .then((response) => {
-              if (!response.ok) {
-                return Promise.reject();
-              }
-              return response.json();
-            })
-            .then((messages) => {
-              if (regionDefaultLocale !== '') {
-                fetch(`${localesPath}/${regionDefaultLocale}.json`)
-                  .then((response) => {
-                    if (!response.ok) {
-                      return Promise.resolve();
-                    }
-                    return response.json();
-                  })
-                  .then((regionDefaultMessages) => {
-                    messages = Object.assign(messages, regionDefaultMessages);
-                    return messages;
-                  });
+          const fetchFallbackMessages = new Promise((resolve, reject) => {
+            fetch(`${localesPath}/${DEFAULT_LANGUAGE}.json`)
+              .then((response) => {
+                if (!response.ok) {
+                  return reject();
+                }
+                return resolve(response.json());
+              });
+          });
+
+          const fetchRegionMessages = new Promise((resolve) => {
+            if (!regionDefaultLocale) {
+              return resolve(false);
+            }
+            fetch(`${localesPath}/${regionDefaultLocale}.json`)
+              .then((response) => {
+                if (!response.ok) {
+                  return resolve(false);
+                }
+                return resolve(response.json());
+              });
+          });
+
+          const fetchSpecificMessages = new Promise((resolve) => {
+            if (!normalizedLocale || normalizedLocale === DEFAULT_LANGUAGE || normalizedLocale === regionDefaultLocale) {
+              return resolve(false);
+            }
+            fetch(`${localesPath}/${normalizedLocale}.json`)
+              .then((response) => {
+                if (!response.ok) {
+                  return resolve(false);
+                }
+                return resolve(response.json());
+              });
+          });
+
+          Promise.all([fetchFallbackMessages, fetchRegionMessages, fetchSpecificMessages])
+            .then((values) => {
+              let mergedMessages = Object.assign({}, values[0]);
+
+              if (!values[1] && !values[2]) {
+                normalizedLocale = DEFAULT_LANGUAGE;
+              } else {
+                if (values[1]) {
+                  mergedMessages = Object.assign(mergedMessages, values[1]);
+                }
+                if (values[2]) {
+                  mergedMessages = Object.assign(mergedMessages, values[2]);
+                }
               }
 
-              if (normalizedLocale !== DEFAULT_LANGUAGE && normalizedLocale !== regionDefaultLocale) {
-                fetch(`${localesPath}/${normalizedLocale}.json`)
-                  .then((response) => {
-                    if (!response.ok) {
-                      return Promise.reject();
-                    }
-                    return response.json();
-                  })
-                  .then((localeMessages) => {
-                    messages = Object.assign(messages, localeMessages);
-                    return messages;
-                  })
-                  .catch(() => {
-                    normalizedLocale = (regionDefaultLocale) || DEFAULT_LANGUAGE;
-                    const dasherizedLocale = normalizedLocale.replace('_', '-');
-                    this.setState({ messages, fetching: false, normalizedLocale: dasherizedLocale }, () => {
-                      IntlStartup.saveLocale(normalizedLocale);
-                    });
-                  });
-              }
-
-              return messages;
-            })
-            .then((messages) => {
               const dasherizedLocale = normalizedLocale.replace('_', '-');
-              this.setState({ messages, fetching: false, normalizedLocale: dasherizedLocale }, () => {
+              this.setState({ messages: mergedMessages, fetching: false, normalizedLocale: dasherizedLocale }, () => {
                 IntlStartup.saveLocale(dasherizedLocale);
               });
             })
             .catch(() => {
-              normalizedLocale = DEFAULT_LANGUAGE;
-              const dasherizedLocale = normalizedLocale.replace('_', '-');
-              this.setState({ fetching: false, normalizedLocale: dasherizedLocale }, () => {
-                IntlStartup.saveLocale(normalizedLocale);
+              this.setState({ fetching: false, normalizedLocale: null }, () => {
+                IntlStartup.saveLocale(DEFAULT_LANGUAGE);
               });
             });
-        })
-        .catch(() => {
-          this.setState({ fetching: false, normalizedLocale: null }, () => {
-            IntlStartup.saveLocale(DEFAULT_LANGUAGE);
-          });
         });
     });
   }
