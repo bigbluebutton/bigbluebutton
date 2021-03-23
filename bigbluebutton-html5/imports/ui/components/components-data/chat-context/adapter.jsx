@@ -103,7 +103,7 @@ const Adapter = () => {
         });
       }
     });
-  }, [Meteor.status().connected]);
+  }, [Meteor.status().connected, Meteor.connection._lastSessionId]);
 
   return null;
 };
