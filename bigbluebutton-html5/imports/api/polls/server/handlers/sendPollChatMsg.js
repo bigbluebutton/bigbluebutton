@@ -11,12 +11,27 @@ export default function sendPollChatMsg({ body }, meetingId) {
 
   const { answers, numRespondents } = poll;
 
+  const caseInsensitiveReducer = (acc, item) => {
+    const index = acc.findIndex(ans => ans.key.toLowerCase() === item.key.toLowerCase());
+    if(index !== -1) {
+      if(acc[index].numVotes >= item.numVotes) acc[index].numVotes += item.numVotes;
+      else {
+        const tempVotes = acc[index].numVotes;
+        acc[index] = item;
+        acc[index].numVotes += tempVotes;
+      }
+    } else {
+      acc.push(item);
+    }
+    return acc;
+  };
+
   let responded = 0;
   let resultString = 'bbb-published-poll-\n';
   answers.map((item) => {
     responded += item.numVotes;
     return item;
-  }).map((item) => {
+  }).reduce(caseInsensitiveReducer, []).map((item) => {
     item.key = item.key.split('<br/>').join('<br#>');
     const numResponded = responded === numRespondents ? numRespondents : responded;
     const pct = Math.round(item.numVotes / numResponded * 100);
