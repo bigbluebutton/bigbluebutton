@@ -32,6 +32,7 @@ import akka.actor.Props
 import akka.actor.OneForOneStrategy
 import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.common2.msgs
+import org.bigbluebutton.core.apps.ScreenshareModel.getScreenshareConf
 
 import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
@@ -517,22 +518,11 @@ class MeetingActor(
 
     val isRecording: Boolean = isVoiceRecording(liveMeeting.status)
 
-    val screenshareConfName: String = liveMeeting.props.screenshareProps.screenshareConf
-    val screenshare: Screenshare = Screenshare(screenshareConfName)
+    //    val screenshareConfName: String = getScreenshareConf(liveMeeting.screenshareModel)
+    //    val screenshareStream: ScreenshareStream = liveMeeting.screenshareModel
+    val screenshare: Screenshare = Screenshare(null)
 
     val listOfUsers: List[UserState] = Users2x.findAll(liveMeeting.users2x).toList
-
-    val presentationId: String = state.presentationPodManager.getAllPresentationPodsInMeeting()
-      .flatMap(_.getCurrentPresentation.map(_.id))
-      .mkString
-
-    val presentationName: String = state.presentationPodManager.getAllPresentationPodsInMeeting()
-      .flatMap(_.getCurrentPresentation.map(_.name))
-      .mkString
-
-    val presenter: Option[String] = Users2x.findPresenter(liveMeeting.users2x).map(_.name)
-
-    val presentationInfo = PresentationInfo(presentationId, presentationName, presenter.getOrElse(""))
 
     val breakoutRoom: BreakoutRoom = BreakoutRoom(
       liveMeeting.props.breakoutProps.parentId,
@@ -544,8 +534,8 @@ class MeetingActor(
       externalId, internalId,
       hasUserJoined, isRecording, getMeetingInfoWebcamDetails,
       getMeetingInfoAudioDetails, screenshare,
-      listOfUsers.map(u => Participant(u.intId, u.name, u.role)), presentationInfo,
-      breakoutRoom
+      listOfUsers.map(u => Participant(u.intId, u.name, u.role)),
+      getMeetingInfoPresentationDetails, breakoutRoom
     )
 
     val event = MsgBuilder.buildMeetingInfoAnalyticsMsg(meetingInfoAnalyticsLogMessage)
@@ -563,9 +553,9 @@ class MeetingActor(
     val broadcast: Broadcast = Broadcast(broadcastId, user, startedOn)
     val viewers: Set[String] = findAll(liveMeeting.webcams).flatMap(_.stream.viewers).toSet
 
-    val webcamStream: WebcamStream = msgs.WebcamStream(broadcast, viewers)
+    val webcamStream: msgs.WebcamStream = msgs.WebcamStream(broadcast, viewers)
 
-    Webcam(numOfLiveWebcams, webcamStream)
+    Webcam(numOfLiveWebcams, List(webcamStream))
   }
 
   private def getMeetingInfoAudioDetails(): Audio = {
@@ -577,6 +567,18 @@ class MeetingActor(
     val listenOnlyAudioUser = ListenOnlyAudioUser(numOfListenOnlyUsers, listenOnlyUsers.map(vsu => User(vsu.voiceUserId, "")).toList)
 
     Audio(numOfVoiceUsers, listenOnlyAudioUser, null, null)
+  }
+
+  private def getMeetingInfoPresentationDetails(): PresentationInfo = {
+    val presentationId: String = state.presentationPodManager.getAllPresentationPodsInMeeting()
+      .flatMap(_.getCurrentPresentation.map(_.id))
+      .mkString
+
+    val presentationName: String = state.presentationPodManager.getAllPresentationPodsInMeeting()
+      .flatMap(_.getCurrentPresentation.map(_.name))
+      .mkString
+
+    PresentationInfo(presentationId, presentationName)
   }
 
   def handleGetRunningMeetingStateReqMsg(msg: GetRunningMeetingStateReqMsg): Unit = {
