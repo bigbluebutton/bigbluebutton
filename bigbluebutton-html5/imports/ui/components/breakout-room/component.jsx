@@ -9,6 +9,7 @@ import BreakoutRoomContainer from './breakout-remaining-time/container';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
 import UserListService from '/imports/ui/components/user-list/service';
+import AudioManager from '/imports/ui/services/audio-manager';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -104,6 +105,7 @@ class BreakoutRoom extends PureComponent {
       breakoutRoomUser,
       breakoutRooms,
       closeBreakoutPanel,
+      setBreakoutAudioTransferStatus,
       isMicrophoneUser,
       isReconnecting,
     } = this.props;
@@ -128,6 +130,10 @@ class BreakoutRoom extends PureComponent {
 
     if (joinedAudioOnly && (!isMicrophoneUser || isReconnecting)) {
       this.clearJoinedAudioOnly();
+      setBreakoutAudioTransferStatus({
+        breakoutMeetingId: '',
+        status: AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+      });
     }
   }
 
@@ -176,21 +182,34 @@ class BreakoutRoom extends PureComponent {
       intl,
       isUserInBreakoutRoom,
       exitAudio,
-      setReturningFromBreakoutAudioTransfer,
+      setBreakoutAudioTransferStatus,
+      getBreakoutAudioTransferStatus,
     } = this.props;
 
     const {
       joinedAudioOnly,
-      breakoutId: stateBreakoutId,
+      breakoutId: _stateBreakoutId,
       requestedBreakoutId,
       waiting,
     } = this.state;
 
+    const {
+      breakoutMeetingId: currentAudioTransferBreakoutId,
+      status,
+    } = getBreakoutAudioTransferStatus();
+
+    const isInBreakoutAudioTransfer = status
+      === AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.CONNECTED;
+
+    const stateBreakoutId = _stateBreakoutId || currentAudioTransferBreakoutId;
     const moderatorJoinedAudio = isMicrophoneUser && amIModerator;
     const disable = waiting && requestedBreakoutId !== breakoutId;
-    const audioAction = joinedAudioOnly
+    const audioAction = joinedAudioOnly || isInBreakoutAudioTransfer
       ? () => {
-        setReturningFromBreakoutAudioTransfer(true);
+        setBreakoutAudioTransferStatus({
+          breakoutMeetingId: breakoutId,
+          status: AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.RETURNING,
+        });
         this.returnBackToMeeeting(breakoutId);
         return logger.debug({
           logCode: 'breakoutroom_return_main_audio',
@@ -198,6 +217,10 @@ class BreakoutRoom extends PureComponent {
         }, 'Returning to main audio (breakout room audio closed)');
       }
       : () => {
+        setBreakoutAudioTransferStatus({
+          breakoutMeetingId: breakoutId,
+          status: AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.CONNECTED,
+        });
         this.transferUserToBreakoutRoom(breakoutId);
         return logger.debug({
           logCode: 'breakoutroom_join_audio_from_main_room',
@@ -241,9 +264,10 @@ class BreakoutRoom extends PureComponent {
               (
                 <Button
                   label={
-                      stateBreakoutId === breakoutId && joinedAudioOnly
-                      ? intl.formatMessage(intlMessages.breakoutReturnAudio)
-                      : intl.formatMessage(intlMessages.breakoutJoinAudio)
+                      stateBreakoutId === breakoutId
+                        && (joinedAudioOnly || isInBreakoutAudioTransfer)
+                        ? intl.formatMessage(intlMessages.breakoutReturnAudio)
+                        : intl.formatMessage(intlMessages.breakoutJoinAudio)
                   }
                   className={styles.button}
                   disabled={stateBreakoutId !== breakoutId && joinedAudioOnly}
