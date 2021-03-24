@@ -34,7 +34,7 @@ public:
     allowFullscreen: true
     preloadNextSlides: 2
     mutedAlert:
-      enabled: false
+      enabled: true
       interval: 200
       threshold: -50
       duration: 4000
@@ -62,7 +62,16 @@ public:
         guestWaitingAudioAlerts: true
         guestWaitingPushAlerts: true
         paginationEnabled: true
+        # fallbackLocale: if the locale the client is loaded in does not have a
+        # translation a string, it will use the translation from the locale
+        # specified in fallbackLocale. Note that fallbackLocale should be a
+        # 100% translated locale for best user experience
         fallbackLocale: en
+        # overrideLocale (default is null): if set (for example to 'de') will
+        # force all clients to display the German translations of the strings.
+        # Users can individually set their preferred locale through Settings,
+        # but on first page load overrideLocale will trump the browser's
+        # preferred locale
         overrideLocale: null
         #Audio constraints for microphone. Use this to control browser's
         #filters, such as AGC (Auto Gain Control) , Echo Cancellation,
@@ -114,6 +123,9 @@ public:
       closePrivateChat:
         accesskey: G
         descId: closePrivateChat
+      raiseHand:
+        accesskey: R
+        descId: raiseHand
       openActions:
         accesskey: A
         descId: openActions
@@ -403,7 +415,7 @@ public:
     #Trace sip/audio messages in browser. If not set, default value is false.
     traceSip: false
     # SDP semantics: plan-b|unified-plan
-    sdpSemantics: 'plan-b'
+    sdpSemantics: 'unified-plan'
   stats:
     enabled: true
     interval: 2000
@@ -467,6 +479,8 @@ public:
         mime: image/jpeg
       - extension: .png
         mime: image/png
+  selectRandomUser:
+    enabled: true
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import PollService from '/imports/ui/components/poll/service';
+import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { injectIntl, defineMessages } from 'react-intl';
 import styles from './styles';
 import { prototype } from 'clipboard';
@@ -230,9 +231,10 @@ class PollDrawComponent extends Component {
     let votesTotal = 0;
     let maxNumVotes = 0;
     const textArray = [];
+    const reducedResult = result.reduce(caseInsensitiveReducer, []);
 
     // counting the total number of votes, finding the biggest number of votes
-    result.reduce((previousValue, currentValue) => {
+    reducedResult.reduce((previousValue, currentValue) => {
       votesTotal = previousValue + currentValue.numVotes;
       if (maxNumVotes < currentValue.numVotes) {
         maxNumVotes = currentValue.numVotes;
@@ -244,10 +246,10 @@ class PollDrawComponent extends Component {
     // filling the textArray with data to display
     // adding value of the iterator to each line needed to create unique
     // keys while rendering at the end
-    const arrayLength = result.length;
+    const arrayLength = reducedResult.length;
     for (let i = 0; i < arrayLength; i += 1) {
       const _tempArray = [];
-      const _result = result[i];
+      const _result = reducedResult[i];
       let isDefaultPoll;
       switch (_result.key.toLowerCase()) {
         case 'true':
