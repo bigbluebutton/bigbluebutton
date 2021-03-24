@@ -177,7 +177,7 @@ public:
             max: 2560
           height:
             max: 1600
-        audio: false
+        audio: true
     # cameraProfiles is an array of:
     # - id: profile identifier
     #   name: human-readable profile name
