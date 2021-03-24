@@ -19,7 +19,6 @@
 package org.bigbluebutton.presentation.imp;
 
 import com.google.gson.Gson;
-import com.sun.star.document.UpdateDocMode;
 import org.bigbluebutton.presentation.ConversionMessageConstants;
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.UploadedPresentation;
@@ -27,13 +26,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class OfficeToPdfConversion {
-  private static Logger log = LoggerFactory.getLogger(OfficeToPdfConversion.class);
+public class OfficeToPdfConversionService {
+  private static Logger log = LoggerFactory.getLogger(OfficeToPdfConversionService.class);
   private OfficeDocumentValidator2 officeDocumentValidator;
   private boolean skipOfficePrecheck = false;
   private String presOfficeConversionExec = null;
@@ -101,13 +98,8 @@ public class OfficeToPdfConversion {
     boolean success = false;
     int attempts = 0;
     while(!success) {
-      final Map<String, Object> loadProperties = new HashMap<>();
-      loadProperties.put("Hidden", true);
-      loadProperties.put("ReadOnly", true);
-      loadProperties.put("UpdateDocMode", UpdateDocMode.NO_UPDATE);
-
       success = Office2PdfPageConverter.convert(pres.getUploadedFile(), pdfOutput, 0, pres, presOfficeConversionExec);
-
+      
       if(!success) {
         if(++attempts != 3) {
           //Try again

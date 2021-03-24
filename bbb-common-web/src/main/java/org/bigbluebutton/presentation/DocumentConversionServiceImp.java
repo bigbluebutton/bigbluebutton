@@ -19,8 +19,6 @@
 
 package org.bigbluebutton.presentation;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
@@ -28,14 +26,13 @@ import org.bigbluebutton.presentation.imp.*;
 import org.bigbluebutton.presentation.messages.DocConversionRequestReceived;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.bigbluebutton.api.Util;
 import com.google.gson.Gson;
 
 public class DocumentConversionServiceImp implements DocumentConversionService {
   private static Logger log = LoggerFactory.getLogger(DocumentConversionServiceImp.class);
 
   private IBbbWebApiGWApp gw;
-  private OfficeToPdfConversion officeToPdfConversionService;
+  private OfficeToPdfConversionService officeToPdfConversionService;
   private SwfSlidesGenerationProgressNotifier notifier;
 
   private PresentationFileProcessor presentationFileProcessor;
@@ -161,7 +158,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
     gw = m;
   }
 
-  public void setOfficeToPdfConversionService(OfficeToPdfConversion s) {
+  public void setOfficeToPdfConversionService(OfficeToPdfConversionService s) {
     officeToPdfConversionService = s;
   }
 

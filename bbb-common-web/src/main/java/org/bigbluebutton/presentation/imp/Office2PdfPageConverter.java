@@ -32,13 +32,11 @@ import com.google.gson.Gson;
 public abstract class Office2PdfPageConverter {
   private static Logger log = LoggerFactory.getLogger(Office2PdfPageConverter.class);
 
-//  public static boolean convert(File presentationFile, File output, int page, UploadedPresentation pres,
-//                         LocalConverter converter){
   public static boolean convert(File presentationFile, File output, int page, UploadedPresentation pres,
                          String presOfficeConversionExec){
 
-//    FileInputStream inputStream = null;
-//    FileOutputStream outputStream = null;
+    BufferedReader stdInput = null;
+    BufferedReader stdError = null;
 
     try {
       Map<String, Object> logData = new HashMap<>();
@@ -51,16 +49,6 @@ public abstract class Office2PdfPageConverter {
       String logStr = gson.toJson(logData);
       log.info(" --analytics-- data={}", logStr);
 
-//      This method using Jod as office converter was replaced by a customizable script (solving issue https://github.com/bigbluebutton/bigbluebutton/issues/10699)
-//      final DocumentFormat sourceFormat = DefaultDocumentFormatRegistry.getFormatByExtension(
-//              FilenameUtils.getExtension(presentationFile.getName()));
-//
-//      inputStream = new FileInputStream(presentationFile);
-//      outputStream = new FileOutputStream(output);
-//
-//      converter.convert(inputStream).as(sourceFormat).to(outputStream).as(DefaultDocumentFormatRegistry.PDF).execute();
-//      outputStream.flush();
-
       try {
         log.info("Calling conversion script " + presOfficeConversionExec);
 
@@ -71,18 +59,18 @@ public abstract class Office2PdfPageConverter {
 
         Process p = Runtime.getRuntime().exec(String.format(presOfficeConversionExec + " %s %s", presentationFile.getAbsolutePath(), output.getAbsolutePath()));
 
-        BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-        String s = null;
+        stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+        String shExecOutput = null;
 
         // read the output from the command
-        while ((s = stdInput.readLine()) != null) {
-          log.info(s);
+        while ((shExecOutput = stdInput.readLine()) != null) {
+          log.info(presentationFile.getName() + " conversion output: " + shExecOutput);
         }
 
         // read any errors from the attempted command
-        while ((s = stdError.readLine()) != null) {
-          log.error(s);
+        while ((shExecOutput = stdError.readLine()) != null) {
+          log.error(presentationFile.getName() + " conversion error output: " + shExecOutput);
         }
 
       } catch (IOException e) {
@@ -117,21 +105,21 @@ public abstract class Office2PdfPageConverter {
       log.error(" --analytics-- data={}", logStr, e);
       return false;
     } finally {
-//       if(inputStream!=null) {
-//         try {
-//           inputStream.close();
-//         } catch(Exception e) {
-//
-//         }
-//       }
+       if(stdInput!=null) {
+         try {
+           stdInput.close();
+         } catch(Exception e) {
 
-//      if(outputStream!=null) {
-//        try {
-//          outputStream.close();
-//        } catch(Exception e) {
-//
-//        }
-//      }
+         }
+       }
+
+      if(stdError!=null) {
+        try {
+          stdError.close();
+        } catch(Exception e) {
+
+        }
+      }
     }
   }
 
