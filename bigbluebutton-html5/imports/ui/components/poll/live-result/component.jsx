@@ -55,6 +55,8 @@ class LiveResult extends PureComponent {
       answers, responses, users, numRespondents,
     } = currentPoll;
 
+    const currentPollQuestion = (currentPoll.question) ? currentPoll.question : '';
+
     let userAnswers = responses
       ? [...users, ...responses.map(u => u.userId)]
       : [...users];
@@ -127,6 +129,7 @@ class LiveResult extends PureComponent {
     return {
       userAnswers,
       pollStats,
+      currentPollQuestion,
     };
   }
 
@@ -136,6 +139,7 @@ class LiveResult extends PureComponent {
     this.state = {
       userAnswers: null,
       pollStats: null,
+      currentPollQuestion: null,
     };
   }
 
@@ -148,7 +152,7 @@ class LiveResult extends PureComponent {
       currentPoll,
     } = this.props;
 
-    const { userAnswers, pollStats } = this.state;
+    const { userAnswers, pollStats, currentPollQuestion } = this.state;
 
     let waiting;
     let userCount = 0;
@@ -169,6 +173,7 @@ class LiveResult extends PureComponent {
     return (
       <div>
         <div className={styles.stats}>
+          {currentPollQuestion ? <span className={styles.title}>{currentPollQuestion}</span> : null}
           <div className={styles.status}>
             {waiting
               ? (
