@@ -44,10 +44,10 @@ module BigBlueButton
       def self.mixer(inputs, output_basename)
         BigBlueButton.logger.debug "Mixing audio files"
 
-        ffmpeg_cmd = [*FFMPEG]	
-        inputs.each do |input|	
-          ffmpeg_cmd += ['-i', input]	
-        end	
+        ffmpeg_cmd = [*FFMPEG]
+        inputs.each do |input|
+          ffmpeg_cmd += ['-i', input]
+        end
         ffmpeg_cmd += ['-filter_complex', "amix=inputs=#{inputs.length}"]
 
         output = "#{output_basename}.#{WF_EXT}"
