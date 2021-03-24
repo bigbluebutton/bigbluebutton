@@ -29,21 +29,19 @@ export default function TimeWindowChatItemContainer(props) {
     key,
     timestamp,
     content,
-    color,
   } = message;
-
   const messages = content;
-  const user = users[sender?.id];
+  const user = users[sender];
   const messageKey = key;
   return (
     <TimeWindowChatItem
       {
       ...{
-        color: user?.color || color,
+        color: user?.color,
         isModerator: user?.role === ROLE_MODERATOR,
         isOnline: !!user,
         avatar: user?.avatar,
-        name: user?.name || sender?.name,
+        name: user?.name,
         read: message.read,
         messages,
         isDefaultPoll,
