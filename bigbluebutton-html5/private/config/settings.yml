@@ -322,7 +322,7 @@ public:
     #Trace sip/audio messages in browser. If not set, default value is false.
     traceSip: false
     # SDP semantics: plan-b|unified-plan
-    sdpSemantics: 'plan-b'
+    sdpSemantics: 'unified-plan'
   presentation:
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32
