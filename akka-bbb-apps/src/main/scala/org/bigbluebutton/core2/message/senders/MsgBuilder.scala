@@ -86,7 +86,7 @@ object MsgBuilder {
 
   def buildValidateAuthTokenRespMsg(meetingId: String, userId: String, authToken: String,
                                     valid: Boolean, waitForApproval: Boolean, registeredOn: Long, authTokenValidatedOn: Long,
-                                    reasonCode: Option[String], reason: Option[String]): BbbCommonEnvCoreMsg = {
+                                    reasonCode: String, reason: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
     val envelope = BbbCoreEnvelope(ValidateAuthTokenRespMsg.NAME, routing)
     val header = BbbClientMsgHeader(ValidateAuthTokenRespMsg.NAME, meetingId, userId)
