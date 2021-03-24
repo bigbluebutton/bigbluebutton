@@ -41,6 +41,25 @@ module BigBlueButton
         end
       end
 
+      def self.mixer(inputs, output_basename)
+        BigBlueButton.logger.debug "Mixing audio files"
+
+        ffmpeg_cmd = [*FFMPEG]
+        inputs.each do |input|
+          ffmpeg_cmd += ['-i', input]
+        end
+        ffmpeg_cmd += ['-filter_complex', "amix=inputs=#{inputs.length}"]
+
+        output = "#{output_basename}.#{WF_EXT}"
+        ffmpeg_cmd += [*FFMPEG_WF_ARGS, output]
+
+        BigBlueButton.logger.info "Running audio mixer..."
+        exitstatus = BigBlueButton.exec_ret(*ffmpeg_cmd)
+        raise "ffmpeg failed, exit code #{exitstatus}" if exitstatus != 0
+
+        output
+      end
+
       def self.render(edl, output_basename)
         audioinfo = {}
 
