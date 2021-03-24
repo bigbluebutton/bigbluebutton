@@ -14,6 +14,8 @@ const appendTextURL = (padId, text) => `${BASE_URL}/appendText?apikey=${ETHERPAD
 
 const generateNoteId = (meetingId) => hashSHA1(meetingId+ETHERPAD.apikey);
 
+const withInstaceId = (instanceId, id) => `[${instanceId}]${id}`;
+
 const isEnabled = () => NOTE_CONFIG.enabled;
 
 const getDataFromResponse = (data, key) => {
@@ -47,4 +49,5 @@ export {
   getDataFromResponse,
   appendTextURL,
   processForNotePadOnly,
+  withInstaceId,
 };

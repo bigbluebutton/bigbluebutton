@@ -577,6 +577,7 @@ class UserDropdown extends PureComponent {
       intl,
       isThisMeetingLocked,
       isMe,
+      isRTL,
     } = this.props;
 
     const {
@@ -615,7 +616,7 @@ class UserDropdown extends PureComponent {
       <div
         data-test={isMe(user.userId) ? 'userListItemCurrent' : 'userListItem'}
         className={!actions.length ? styles.userListItem : null}
-        style={{ direction: document.documentElement.dir }}
+        style={{ direction: isRTL ? 'rtl' : 'ltr' }}
       >
         <div className={styles.userItemContents}>
           <div className={styles.userAvatar}>
