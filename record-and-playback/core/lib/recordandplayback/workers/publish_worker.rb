@@ -36,12 +36,7 @@ module BigBlueButton
             # If the publish directory exists, the script does nothing
             FileUtils.rm_rf("#{@recording_dir}/publish/#{@format_name}/#{@full_id}")
 
-            # Keep the status files so we can still track
-            # the recording progress. We need these at the moment
-            # for the monitoring tools to continue to work.
-            # We need to find a better way (storing in redis?)
-            # in the future to be able to monitor progress.
-            #remove_status_files
+            remove_status_files
 
             # For legacy reasons, the meeting ID passed to the publish script contains
             # the playback format name.

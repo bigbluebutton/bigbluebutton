@@ -29,12 +29,7 @@ module BigBlueButton
           script = File.join(BigBlueButton.rap_scripts_path,
                              'process', "#{@format_name}.rb")
           if File.exist?(script)
-            # Keep the status files so we can still track
-            # the recording progress. We need these at the moment
-            # for the monitoring tools to continue to work.
-            # We need to find a better way (storing in redis?)
-            # in the future to be able to monitor progress.
-            #remove_status_files
+            remove_status_files
 
             @publisher.put_process_started(@format_name, @meeting_id)
 
