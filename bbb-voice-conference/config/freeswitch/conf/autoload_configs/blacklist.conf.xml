@@ -1,0 +1,11 @@
+<configuration name="mod_blacklist.conf" description="Blacklist module">
+<lists>
+	<!--
+		Example blacklist, the referenced file contains blacklisted items, one entry per line
+
+		NOTE: make sure the file exists and is readable by FreeSWITCH.
+
+	<list name="example" filename="$${conf_dir}/blacklists/example.list"/>
+	-->
+</lists>
+</configuration>

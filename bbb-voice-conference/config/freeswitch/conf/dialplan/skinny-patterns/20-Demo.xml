@@ -1,0 +1,8 @@
+<include>
+  <extension name="Demo">
+    <condition field="destination_number" expression="^(9[0-9]{3})$">
+      <action application="skinny-process"/>
+    </condition>
+  </extension>
+</include>
+

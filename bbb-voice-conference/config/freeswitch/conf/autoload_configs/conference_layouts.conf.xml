@@ -1,0 +1,393 @@
+<configuration name="conference_layouts.conf" description="Audio Conference">
+  <layout-settings>
+    <layouts>
+      <layout name="1x1">
+	<image x="0" y="0" scale="360" floor="true"/>
+      </layout>
+      <layout name="1x2" auto-3d-position="true">
+	<image x="90" y="0" scale="180"/>
+	<image x="90" y="180" scale="180"/>
+      </layout>
+      <layout name="2x1" auto-3d-position="true">
+	<image x="0" y="90" scale="180"/>
+	<image x="180" y="90" scale="180"/>
+      </layout>
+
+      <layout name="2x1-zoom" auto-3d-position="true">
+	<image x="0" y="0" scale="180" hscale="360" zoom="true"/>
+	<image x="180" y="0" scale="180" hscale="360" zoom="true"/>
+      </layout>
+      <layout name="3x1-zoom" auto-3d-position="true">
+	<image x="0" y="0" scale="120" hscale="360" zoom="true"/>
+	<image x="120" y="0" scale="120" hscale="360" zoom="true"/>
+	<image x="240" y="0" scale="120" hscale="360" zoom="true"/>
+      </layout>
+      <layout name="5-grid-zoom" auto-3d-position="true">
+	<image x="0" y="0" scale="180"/>
+	<image x="180" y="0" scale="180"/>
+	<image x="0" y="180" scale="120" hscale="180" zoom="true"/>
+	<image x="120" y="180" scale="120" hscale="180" zoom="true"/>
+	<image x="240" y="180" scale="120" hscale="180" zoom="true"/>
+      </layout>
+      <layout name="3x2-zoom" auto-3d-position="true">
+	<image x="0" y="0" scale="120" hscale="180" zoom="true"/>
+	<image x="120" y="0" scale="120" hscale="180" zoom="true"/>
+	<image x="240" y="0" scale="120" hscale="180" zoom="true"/>
+	<image x="0" y="180" scale="120" hscale="180" zoom="true"/>
+	<image x="120" y="180" scale="120" hscale="180" zoom="true"/>
+	<image x="240" y="180" scale="120" hscale="180" zoom="true"/>
+      </layout>
+      <layout name="7-grid-zoom" auto-3d-position="true">
+	<image x="0" y="0" scale="120" hscale="180" zoom="true"/>
+	<image x="120" y="0" scale="120" hscale="180" zoom="true"/>
+	<image x="240" y="0" scale="120" hscale="180" zoom="true"/>
+	<image x="0" y="180" scale="90" hscale="180" zoom="true"/>
+	<image x="90" y="180" scale="90" hscale="180" zoom="true"/>
+	<image x="180" y="180" scale="90" hscale="180" zoom="true"/>
+	<image x="270" y="180" scale="90" hscale="180" zoom="true"/>
+      </layout>
+      <layout name="4x2-zoom" auto-3d-position="true">
+	<image x="0" y="0" scale="90" hscale="180" zoom="true"/>
+	<image x="90" y="0" scale="90" hscale="180" zoom="true"/>
+	<image x="180" y="0" scale="90" hscale="180" zoom="true"/>
+	<image x="270" y="0" scale="90" hscale="180" zoom="true"/>
+	<image x="0" y="180" scale="90" hscale="180" zoom="true"/>
+	<image x="90" y="180" scale="90" hscale="180" zoom="true"/>
+	<image x="180" y="180" scale="90" hscale="180" zoom="true"/>
+	<image x="270" y="180" scale="90" hscale="180" zoom="true"/>
+      </layout>
+      <layout name="1x1+2x1" auto-3d-position="true">
+	<image x="90" y="0" scale="180"/>
+	<image x="0" y="180" scale="180"/>
+	<image x="180" y="180" scale="180"/>
+      </layout>
+      <layout name="2x2" auto-3d-position="true">
+	<image x="0" y="0" scale="180"/>
+	<image x="180" y="0" scale="180"/>
+	<image x="0" y="180" scale="180"/>
+	<image x="180" y="180" scale="180"/>
+      </layout>
+      <layout name="3x3" auto-3d-position="true">
+	<image x="0" y="0" scale="120"/>
+	<image x="120" y="0" scale="120"/>
+	<image x="240" y="0" scale="120"/>
+	<image x="0" y="120" scale="120"/>
+	<image x="120" y="120" scale="120"/>
+	<image x="240" y="120" scale="120"/>
+	<image x="0" y="240" scale="120"/>
+	<image x="120" y="240" scale="120"/>
+	<image x="240" y="240" scale="120"/>
+      </layout>
+      <layout name="4x4" auto-3d-position="true">
+	<image x="0" y="0" scale="90"/>
+	<image x="90" y="0" scale="90"/>
+	<image x="180" y="0" scale="90"/>
+	<image x="270" y="0" scale="90"/>
+	<image x="0" y="90" scale="90"/>
+	<image x="90" y="90" scale="90"/>
+	<image x="180" y="90" scale="90"/>
+	<image x="270" y="90" scale="90"/>
+	<image x="0" y="180" scale="90"/>
+	<image x="90" y="180" scale="90"/>
+	<image x="180" y="180" scale="90"/>
+	<image x="270" y="180" scale="90"/>
+	<image x="0" y="270" scale="90"/>
+	<image x="90" y="270" scale="90"/>
+	<image x="180" y="270" scale="90"/>
+	<image x="270" y="270" scale="90"/>
+      </layout>
+      <layout name="5x5" auto-3d-position="true">
+	<image x="0" y="0" scale="72"/>
+	<image x="72" y="0" scale="72"/>
+	<image x="144" y="0" scale="72"/>
+	<image x="216" y="0" scale="72"/>
+	<image x="288" y="0" scale="72"/>
+	<image x="0" y="72" scale="72"/>
+	<image x="72" y="72" scale="72"/>
+	<image x="144" y="72" scale="72"/>
+	<image x="216" y="72" scale="72"/>
+	<image x="288" y="72" scale="72"/>
+	<image x="0" y="144" scale="72"/>
+	<image x="72" y="144" scale="72"/>
+	<image x="144" y="144" scale="72"/>
+	<image x="216" y="144" scale="72"/>
+	<image x="288" y="144" scale="72"/>
+	<image x="0" y="216" scale="72"/>
+	<image x="72" y="216" scale="72"/>
+	<image x="144" y="216" scale="72"/>
+	<image x="216" y="216" scale="72"/>
+	<image x="288" y="216" scale="72"/>
+	<image x="0" y="288" scale="72"/>
+	<image x="72" y="288" scale="72"/>
+	<image x="144" y="288" scale="72"/>
+	<image x="216" y="288" scale="72"/>
+	<image x="288" y="288" scale="72"/>
+      </layout>
+      <layout name="6x6" auto-3d-position="true">
+	<image x="0" y="0" scale="60"/>
+	<image x="60" y="0" scale="60"/>
+	<image x="120" y="0" scale="60"/>
+	<image x="180" y="0" scale="60"/>
+	<image x="240" y="0" scale="60"/>
+	<image x="300" y="0" scale="60"/>
+	<image x="0" y="60" scale="60"/>
+	<image x="60" y="60" scale="60"/>
+	<image x="120" y="60" scale="60"/>
+	<image x="180" y="60" scale="60"/>
+	<image x="240" y="60" scale="60"/>
+	<image x="300" y="60" scale="60"/>
+	<image x="0" y="120" scale="60"/>
+	<image x="60" y="120" scale="60"/>
+	<image x="120" y="120" scale="60"/>
+	<image x="180" y="120" scale="60"/>
+	<image x="240" y="120" scale="60"/>
+	<image x="300" y="120" scale="60"/>
+	<image x="0" y="180" scale="60"/>
+	<image x="60" y="180" scale="60"/>
+	<image x="120" y="180" scale="60"/>
+	<image x="180" y="180" scale="60"/>
+	<image x="240" y="180" scale="60"/>
+	<image x="300" y="180" scale="60"/>
+	<image x="0" y="240" scale="60"/>
+	<image x="60" y="240" scale="60"/>
+	<image x="120" y="240" scale="60"/>
+	<image x="180" y="240" scale="60"/>
+	<image x="240" y="240" scale="60"/>
+	<image x="300" y="240" scale="60"/>
+	<image x="0" y="300" scale="60"/>
+	<image x="60" y="300" scale="60"/>
+	<image x="120" y="300" scale="60"/>
+	<image x="180" y="300" scale="60"/>
+	<image x="240" y="300" scale="60"/>
+	<image x="300" y="300" scale="60"/>
+      </layout>
+      <layout name="8x8" auto-3d-position="true">
+	<image x="0" y="0" scale="45"/>
+	<image x="45" y="0" scale="45"/>
+	<image x="90" y="0" scale="45"/>
+	<image x="135" y="0" scale="45"/>
+	<image x="180" y="0" scale="45"/>
+	<image x="225" y="0" scale="45"/>
+	<image x="270" y="0" scale="45"/>
+	<image x="315" y="0" scale="45"/>
+	<image x="0" y="45" scale="45"/>
+	<image x="45" y="45" scale="45"/>
+	<image x="90" y="45" scale="45"/>
+	<image x="135" y="45" scale="45"/>
+	<image x="180" y="45" scale="45"/>
+	<image x="225" y="45" scale="45"/>
+	<image x="270" y="45" scale="45"/>
+	<image x="315" y="45" scale="45"/>
+	<image x="0" y="90" scale="45"/>
+	<image x="45" y="90" scale="45"/>
+	<image x="90" y="90" scale="45"/>
+	<image x="135" y="90" scale="45"/>
+	<image x="180" y="90" scale="45"/>
+	<image x="225" y="90" scale="45"/>
+	<image x="270" y="90" scale="45"/>
+	<image x="315" y="90" scale="45"/>
+	<image x="0" y="135" scale="45"/>
+	<image x="45" y="135" scale="45"/>
+	<image x="90" y="135" scale="45"/>
+	<image x="135" y="135" scale="45"/>
+	<image x="180" y="135" scale="45"/>
+	<image x="225" y="135" scale="45"/>
+	<image x="270" y="135" scale="45"/>
+	<image x="315" y="135" scale="45"/>
+	<image x="0" y="180" scale="45"/>
+	<image x="45" y="180" scale="45"/>
+	<image x="90" y="180" scale="45"/>
+	<image x="135" y="180" scale="45"/>
+	<image x="180" y="180" scale="45"/>
+	<image x="225" y="180" scale="45"/>
+	<image x="270" y="180" scale="45"/>
+	<image x="315" y="180" scale="45"/>
+	<image x="0" y="225" scale="45"/>
+	<image x="45" y="225" scale="45"/>
+	<image x="90" y="225" scale="45"/>
+	<image x="135" y="225" scale="45"/>
+	<image x="180" y="225" scale="45"/>
+	<image x="225" y="225" scale="45"/>
+	<image x="270" y="225" scale="45"/>
+	<image x="315" y="225" scale="45"/>
+	<image x="0" y="270" scale="45"/>
+	<image x="45" y="270" scale="45"/>
+	<image x="90" y="270" scale="45"/>
+	<image x="135" y="270" scale="45"/>
+	<image x="180" y="270" scale="45"/>
+	<image x="225" y="270" scale="45"/>
+	<image x="270" y="270" scale="45"/>
+	<image x="315" y="270" scale="45"/>
+	<image x="0" y="315" scale="45"/>
+	<image x="45" y="315" scale="45"/>
+	<image x="90" y="315" scale="45"/>
+	<image x="135" y="315" scale="45"/>
+	<image x="180" y="315" scale="45"/>
+	<image x="225" y="315" scale="45"/>
+	<image x="270" y="315" scale="45"/>
+	<image x="315" y="315" scale="45"/>
+      </layout>
+      <layout name="1up_top_left+5" auto-3d-position="true">
+	<image x="0" y="0" scale="240" floor="true"/>
+	<image x="240" y="0" scale="120"/>
+	<image x="240" y="120" scale="120"/>
+	<image x="0" y="240" scale="120"/>
+	<image x="120" y="240" scale="120"/>
+	<image x="240" y="240" scale="120"/>
+      </layout>
+      <layout name="1up_top_left+7" auto-3d-position="true">
+	<image x="0" y="0" scale="270" floor="true"/>
+	<image x="270" y="0" scale="90"/>
+	<image x="270" y="90" scale="90"/>
+	<image x="270" y="180" scale="90"/>
+	<image x="0" y="270" scale="90"/>
+	<image x="90" y="270" scale="90"/>
+	<image x="180" y="270" scale="90"/>
+	<image x="270" y="270" scale="90"/>
+      </layout>
+      <layout name="1up_top_left+9" auto-3d-position="true">
+	<image x="0" y="0" scale="288" floor="true"/>
+	<image x="288" y="0" scale="72"/>
+	<image x="288" y="72" scale="72"/>
+	<image x="288" y="144" scale="72"/>
+	<image x="288" y="216" scale="72"/>
+	<image x="0" y="288" scale="72"/>
+	<image x="72" y="288" scale="72"/>
+	<image x="144" y="288" scale="72"/>
+	<image x="216" y="288" scale="72"/>
+	<image x="288" y="288" scale="72"/>
+      </layout>
+      <layout name="2up_top+8" auto-3d-position="true">
+	<image x="0" y="0" scale="180" floor="true"/>
+	<image x="180" y="0" scale="180" reservation_id="secondary"/>
+	<image x="0" y="180" scale="90"/>
+	<image x="90" y="180" scale="90"/>
+	<image x="180" y="180" scale="90"/>
+	<image x="270" y="180" scale="90"/>
+	<image x="0" y="270" scale="90"/>
+	<image x="90" y="270" scale="90"/>
+	<image x="180" y="270" scale="90"/>
+	<image x="270" y="270" scale="90"/>
+      </layout>
+      <layout name="2up_middle+8" auto-3d-position="true">
+	<image x="0" y="90" scale="180" floor="true"/>
+	<image x="180" y="90" scale="180" reservation_id="secondary"/>
+	<image x="0" y="0" scale="90"/>
+	<image x="90" y="0" scale="90"/>
+	<image x="180" y="0" scale="90"/>
+	<image x="270" y="0" scale="90"/>
+	<image x="0" y="270" scale="90"/>
+	<image x="90" y="270" scale="90"/>
+	<image x="180" y="270" scale="90"/>
+	<image x="270" y="270" scale="90"/>
+      </layout>
+      <layout name="2up_bottom+8" auto-3d-position="true">
+	<image x="0" y="180" scale="180" floor="true"/>
+	<image x="180" y="180" scale="180" reservation_id="secondary"/>
+	<image x="0" y="0" scale="90"/>
+	<image x="90" y="0" scale="90"/>
+	<image x="180" y="0" scale="90"/>
+	<image x="270" y="0" scale="90"/>
+	<image x="0" y="90" scale="90"/>
+	<image x="90" y="90" scale="90"/>
+	<image x="180" y="90" scale="90"/>
+	<image x="270" y="90" scale="90"/>
+      </layout>
+      <layout name="3up+4" auto-3d-position="true">
+	<image x="0" y="0" scale="180" floor="true"/>
+	<image x="180" y="0" scale="180" reservation_id="secondary"/>
+	<image x="0" y="180" scale="180" reservation_id="third"/>
+	<image x="180" y="180" scale="90"/>
+	<image x="270" y="180" scale="90"/>
+	<image x="180" y="270" scale="90"/>
+	<image x="270" y="270" scale="90"/>
+      </layout>
+      <layout name="3up+9" auto-3d-position="true">
+	<image x="0" y="0" scale="180" floor="true"/>
+	<image x="180" y="0" scale="180" reservation_id="secondary"/>
+	<image x="0" y="180" scale="180" reservation_id="third"/>
+	<image x="180" y="180" scale="60"/>
+	<image x="240" y="180" scale="60"/>
+	<image x="300" y="180" scale="60"/>
+	<image x="180" y="240" scale="60"/>
+	<image x="240" y="240" scale="60"/>
+	<image x="300" y="240" scale="60"/>
+	<image x="180" y="300" scale="60"/>
+	<image x="240" y="300" scale="60"/>
+	<image x="300" y="300" scale="60"/>
+      </layout>
+      <layout name="2x1-presenter-zoom" auto-3d-position="true">
+	<image x="0" y="0" scale="180" hscale="360" zoom="true" floor="true"/>
+	<image x="180" y="0" scale="180" hscale="360" zoom="true" reservation_id="presenter"/>
+      </layout>
+      <layout name="presenter-dual-vertical">
+	<image x="90" y="0" scale="180" floor-only="true"/>
+	<image x="90" y="180" scale="180" reservation_id="presenter"/>
+      </layout>
+      <layout name="presenter-dual-horizontal">
+	<image x="0" y="90" scale="180" floor-only="true"/>
+	<image x="180" y="90" scale="180" reservation_id="presenter"/>
+      </layout>
+      <layout name="presenter-overlap-small-top-right">
+	<image x="0" y="0" scale="360" floor-only="true"/>
+	<image x="300" y="0" scale="60" overlap="true" reservation_id="presenter"/>
+      </layout>
+      <layout name="presenter-overlap-small-bot-right">
+	<image x="0" y="0" scale="360" floor-only="true"/>
+	<image x="300" y="300" scale="60" overlap="true" reservation_id="presenter"/>
+      </layout>
+      <layout name="presenter-overlap-large-top-right">
+	<image x="0" y="0" scale="360" floor-only="true"/>
+	<image x="180" y="0" scale="180" overlap="true" reservation_id="presenter"/>
+      </layout>
+      <layout name="presenter-overlap-large-bot-right">
+	<image x="0" y="0" scale="360" floor-only="true"/>
+	<image x="180" y="180" scale="180" overlap="true" reservation_id="presenter"/>
+      </layout>
+      <layout name="overlaps" auto-3d-position="true">
+	<image x="0" y="0" scale="360" floor-only="true"/>
+	<image x="300" y="300" scale="60" overlap="true"/>
+	<image x="240" y="300" scale="60" overlap="true"/>
+	<image x="180" y="300" scale="60" overlap="true"/>
+	<image x="120" y="300" scale="60" overlap="true"/>
+	<image x="60" y="300" scale="60" overlap="true"/>
+	<image x="0" y="300" scale="60" overlap="true"/>
+      </layout>
+      
+
+    </layouts>
+    <groups>
+      <group name="grid">
+	<layout>1x1</layout>
+	<layout>2x1</layout>
+	<layout>1x1+2x1</layout>
+	<layout>2x2</layout>
+	<layout>3x3</layout>
+	<layout>4x4</layout>
+	<layout>5x5</layout>
+	<layout>6x6</layout>
+	<layout>8x8</layout>
+      </group>
+      <group name="grid-zoom">
+	<layout>1x1</layout>
+	<layout>2x1-zoom</layout>
+	<layout>3x1-zoom</layout>
+	<layout>2x2</layout>
+	<layout>5-grid-zoom</layout>
+	<layout>3x2-zoom</layout>
+	<layout>7-grid-zoom</layout>
+	<layout>4x2-zoom</layout>
+	<layout>3x3</layout>
+      </group>
+      <group name="1up_top_left_plus">
+	<layout>1up_top_left+5</layout>
+	<layout>1up_top_left+7</layout>
+	<layout>1up_top_left+9</layout>
+      </group>
+      <group name="3up_plus">
+	<layout>3up+4</layout>
+	<layout>3up+9</layout>
+      </group>
+    </groups>
+  </layout-settings>
+</configuration>

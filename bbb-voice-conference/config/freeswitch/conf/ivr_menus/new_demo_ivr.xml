@@ -1,0 +1,69 @@
+<include>
+  <!-- new demo IVR, Main Menu -->
+  <menu name="new_demo_ivr"
+      greet-long="phrase:new_demo_ivr_main_menu"
+      greet-short="phrase:new_demo_ivr_main_menu_short"
+      invalid-sound="ivr/ivr-that_was_an_invalid_entry.wav"
+      exit-sound="voicemail/vm-goodbye.wav"
+      confirm-macro=""
+      confirm-key=""
+      tts-engine="flite"
+      tts-voice="rms"
+      confirm-attempts="3"
+      timeout="10000"
+      inter-digit-timeout="2000"
+      max-failures="3"
+      max-timeouts="3"
+      digit-len="4">
+
+    <entry action="menu-sub"      digits="1" param="freeswitch_ivr_submenu"/>            <!-- FreeSWITCH sub menu -->
+    <entry action="menu-sub"      digits="2" param="freeswitch_solutions_ivr_submenu"/>  <!-- FreeSWITCH Solutions sub menu -->
+    <entry action="menu-sub"      digits="3" param="cluecon_ivr_submenu"/>               <!-- ClueCon sub menu -->
+    <entry action="menu-exec-app" digits="4" param="5000 XML default"/>                  <!-- original demo IVR -->
+    <entry action="menu-top"      digits="9"/>                                           <!-- Repeat this menu -->
+  </menu>
+
+  <!-- FreeSWITCH IVR Sub Menu -->
+  <menu name="freeswitch_ivr_submenu"
+      greet-long="phrase:learn_about_freeswitch_sub_menu"
+      greet-short="phrase:learn_about_freeswitch_sub_menu"
+      invalid-sound="ivr/ivr-that_was_an_invalid_entry.wav"
+      exit-sound="voicemail/vm-goodbye.wav"
+      timeout="15000"
+      max-failures="3"
+      max-timeouts="3">
+
+    <entry action="menu-sub" digits="9" param="freeswitch_ivr_submenu"/>
+    <entry action="menu-top" digits="*"/>
+  </menu>
+
+  <!-- FreeSWITCH Solutions IVR Sub Menu -->
+  <menu name="freeswitch_solutions_ivr_submenu"
+      greet-long="phrase:learn_about_freeswitch_solutions_sub_menu"
+      greet-short="phrase:learn_about_freeswitch_solutions_sub_menu"
+      invalid-sound="ivr/ivr-that_was_an_invalid_entry.wav"
+      exit-sound="voicemail/vm-goodbye.wav"
+      timeout="15000"
+      max-failures="3"
+      max-timeouts="3">
+
+    <entry action="menu-sub" digits="9" param="freeswitch_solutions_ivr_submenu"/>
+    <entry action="menu-top" digits="*"/>
+  </menu>
+
+  <!-- ClueCon IVR Sub Menu -->
+  <menu name="cluecon_ivr_submenu"
+      greet-long="phrase:learn_about_cluecon_sub_menu"
+      greet-short="phrase:learn_about_cluecon_sub_menu"
+      invalid-sound="ivr/ivr-that_was_an_invalid_entry.wav"
+      exit-sound="voicemail/vm-goodbye.wav"
+      timeout="15000"
+      max-failures="3"
+      max-timeouts="3">
+
+    <entry action="menu-sub" digits="9" param="cluecon_ivr_submenu"/>
+    <entry action="menu-top" digits="*"/>
+  </menu>
+
+
+</include>
