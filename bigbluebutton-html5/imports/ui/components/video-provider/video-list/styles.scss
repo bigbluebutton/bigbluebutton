@@ -78,7 +78,7 @@
   position: relative;
   height: 100%;
   width: 100%;
-  object-fit: cover;
+  object-fit: contain;
   background-color: var(--color-black);
 }
 
