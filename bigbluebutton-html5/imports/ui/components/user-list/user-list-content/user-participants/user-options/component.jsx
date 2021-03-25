@@ -10,11 +10,9 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
-import ConnectionStatusContainer from '/imports/ui/components/connection-status/modal/container';
 import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
 import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/container';
 import CaptionsService from '/imports/ui/components/captions/service';
-import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import { styles } from './styles';
@@ -73,14 +71,6 @@ const intlMessages = defineMessages({
   lockViewersDesc: {
     id: 'app.userList.userOptions.lockViewersDesc',
     description: 'Lock viewers description',
-  },
-  connectionStatusLabel: {
-    id: 'app.userList.userOptions.connectionStatusLabel',
-    description: 'Connection status label',
-  },
-  connectionStatusDesc: {
-    id: 'app.userList.userOptions.connectionStatusDesc',
-    description: 'Connection status description',
   },
   guestPolicyLabel: {
     id: 'app.userList.userOptions.guestPolicyLabel',
@@ -148,7 +138,6 @@ class UserOptions extends PureComponent {
     this.muteId = _.uniqueId('list-item-');
     this.muteAllId = _.uniqueId('list-item-');
     this.lockId = _.uniqueId('list-item-');
-    this.connectionStatusId = _.uniqueId('list-item-');
     this.guestPolicyId = _.uniqueId('list-item-');
     this.createBreakoutId = _.uniqueId('list-item-');
     this.saveUsersNameId = _.uniqueId('list-item-');
@@ -296,15 +285,6 @@ class UserOptions extends PureComponent {
           label={intl.formatMessage(intlMessages.lockViewersLabel)}
           description={intl.formatMessage(intlMessages.lockViewersDesc)}
           onClick={() => mountModal(<LockViewersContainer />)}
-        />) : null
-      ),
-      (ConnectionStatusService.isEnabled() && isMeteorConnected ? (
-        <DropdownListItem
-          key={this.connectionStatusId}
-          icon="warning"
-          label={intl.formatMessage(intlMessages.connectionStatusLabel)}
-          description={intl.formatMessage(intlMessages.connectionStatusDesc)}
-          onClick={() => mountModal(<ConnectionStatusContainer />)}
         />) : null
       ),
       (!meetingIsBreakout && isMeteorConnected ? (

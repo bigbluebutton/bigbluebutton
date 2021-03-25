@@ -420,7 +420,11 @@ public:
     enabled: true
     interval: 2000
     length: 5
+    timeout: 30000
     log: false
+    notification:
+      warning: false
+      error: true
     jitter:
       - 10
       - 20
@@ -429,6 +433,10 @@ public:
       - 0.05
       - 0.1
       - 0.2
+    rtt:
+      - 500
+      - 1000
+      - 2000
     level:
       - warning
       - danger
