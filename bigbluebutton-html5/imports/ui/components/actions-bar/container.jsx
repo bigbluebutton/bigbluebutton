@@ -8,11 +8,9 @@ import PresentationService from '/imports/ui/components/presentation/service';
 import Presentations from '/imports/api/presentations';
 import ActionsBar from './component';
 import Service from './service';
+import UserListService from '/imports/ui/components/user-list/service';
 import ExternalVideoService from '/imports/ui/components/external-video-player/service';
 import CaptionsService from '/imports/ui/components/captions/service';
-import {
-  isVideoBroadcasting,
-} from '/imports/ui/components/screenshare/service';
 
 import MediaService, {
   getSwapLayout,
@@ -43,4 +41,6 @@ export default withTracker(() => ({
   isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
     { fields: {} }),
   allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,
+  setEmojiStatus: UserListService.setEmojiStatus,
+  currentUser: Service.currentUser(),
 }))(injectIntl(ActionsBarContainer));

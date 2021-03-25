@@ -114,6 +114,9 @@ const annotationsMaxDelayQueueSize = 60;
 const annotationsBufferTimeMin = 30;
 // Maximum bufferTime
 const annotationsBufferTimeMax = 200;
+// Time before running 'sendBulkAnnotations' again if user is offline
+const annotationsRetryDelay = 1000;
+
 let annotationsSenderIsRunning = false;
 
 const proccessAnnotationsQueue = async () => {
@@ -127,15 +130,19 @@ const proccessAnnotationsQueue = async () => {
 
   const annotations = annotationsQueue.splice(0, queueSize);
 
-  // console.log('annotationQueue.length', annotationsQueue, annotationsQueue.length);
-  await makeCall('sendBulkAnnotations', annotations);
+  const isAnnotationSent = await makeCall('sendBulkAnnotations', annotations);
 
-  // ask tiago
-  const delayPerc = Math.min(annotationsMaxDelayQueueSize, queueSize) / annotationsMaxDelayQueueSize;
-  const delayDelta = annotationsBufferTimeMax - annotationsBufferTimeMin;
-  const delayTime = annotationsBufferTimeMin + (delayDelta * delayPerc);
-  // console.log("delayPerc:", delayPerc)
-  setTimeout(proccessAnnotationsQueue, delayTime);
+  if (!isAnnotationSent) {
+    // undo splice
+    annotationsQueue.splice(0, 0, ...annotations);
+    setTimeout(proccessAnnotationsQueue, annotationsRetryDelay);
+  } else {
+    // ask tiago
+    const delayPerc = Math.min(annotationsMaxDelayQueueSize, queueSize) / annotationsMaxDelayQueueSize;
+    const delayDelta = annotationsBufferTimeMax - annotationsBufferTimeMin;
+    const delayTime = annotationsBufferTimeMin + (delayDelta * delayPerc);
+    setTimeout(proccessAnnotationsQueue, delayTime);
+  }
 };
 
 const sendAnnotation = (annotation) => {

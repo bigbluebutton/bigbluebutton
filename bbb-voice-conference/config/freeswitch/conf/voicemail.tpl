@@ -1,5 +1,6 @@
 From: "${voicemail_caller_id_name}" <${voicemail_caller_id_number}@${voicemail_domain}>
-To: <${voicemail_email}>
+Date: ${RFC2822_DATE}
+To: ${voicemail_email}
 Subject: Voicemail from "${voicemail_caller_id_name}" <${voicemail_caller_id_number}> ${voicemail_message_len}
 X-Priority: ${voicemail_priority}
 X-Mailer: FreeSWITCH
@@ -36,6 +37,7 @@ Content-Transfer-Encoding: 7bit
 Created: ${voicemail_time}<br>
 Duration: ${voicemail_message_len}<br>
 Account: ${voicemail_account}@${voicemail_domain}<br>
+</font>
 
 </body>
 </html>

@@ -1,0 +1,15 @@
+<configuration name="v8.conf" description="Google V8 JavaScript Plug-Ins">
+  <settings>
+    <!-- <param name="script-caching" value="enabled"/> -->
+    <!-- <param name="cache-expires-sec" value="3600"/> -->
+    <!-- <param name="startup-script" value="startup1.js"/> -->
+    <!-- <param name="startup-script" value="startup2.js"/> -->
+    <!-- <param name="xml-handler-script" value="directory.js"/> -->
+    <!-- <param name="xml-handler-bindings" value="directory"/> -->
+    <!-- <hook event="CUSTOM" subclass="sofia::register" script="catch-event.js"/> -->
+    <!-- <hook event="CHANNEL_HANGUP" script="hangup-event.js"/> -->
+  </settings>
+  <modules>
+    <!-- <load module="mod_v8_skel"/> -->
+  </modules>
+</configuration>

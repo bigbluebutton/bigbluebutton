@@ -1,0 +1,12 @@
+<include>
+
+    <extension name="bbb_webrtc_call" continue="true">
+      <condition field="${sip_via_protocol}" expression="^wss?$" break="on-false">
+	<action application="set" data="bbb_authorized=true"/>
+	<action application="set" data="jb_use_timestamps=true"/>
+        <action application="transfer" data="${destination_number} XML default"/>
+      </condition>
+    </extension>
+
+</include>
+

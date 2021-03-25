@@ -1,0 +1,7 @@
+<configuration name="redis.conf" description="mod_redis Configuration">
+  <settings>
+    <param name="host" value="localhost"/>
+    <param name="port" value="6379"/>
+    <param name="timeout" value="10000"/>
+  </settings>
+</configuration>
