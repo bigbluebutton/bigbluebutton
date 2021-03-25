@@ -95,6 +95,7 @@ class TimeWindowList extends PureComponent {
       chatId,
       syncing,
       syncedPercent,
+      lastTimeWindowValuesBuild,
     } = this.props;
 
     const {
@@ -128,7 +129,8 @@ class TimeWindowList extends PureComponent {
       (lastTimeWindow?.id === 'SYSTEM_MESSAGE-PUBLIC_CHAT_CLEAR')
       || (prevSyncing && !syncing)
       || (syncedPercent !== prevSyncedPercent)
-      || (chatId !== prevChatId)      
+      || (chatId !== prevChatId)
+      || (lastTimeWindowValuesBuild !== prevProps.lastTimeWindowValuesBuild)
       ) {
       this.listRef.forceUpdateGrid();
     }
