@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration name="kazoo.conf" description="General purpose Erlang c-node produced to better fit the Kazoo project">
+  <settings>
+    <param name="listen-ip" value="0.0.0.0" />
+    <param name="listen-port" value="8031" />
+    <!--<param name="cookie-file" value="/etc/freeswitch/autoload_configs/.erlang.cookie" />-->
+    <param name="cookie" value="change_me" />
+    <param name="shortname" value="false" />
+    <param name="nodename" value="freeswitch" />
+    <param name="send-msg-batch-size" value="10" />
+    <param name="receive-timeout" value="1" />
+    <!--<param name="receive-msg-preallocate" value="0" />-->
+    <!--<param name="event-stream-preallocate" value="0" />-->
+    <!--<param name="event-stream-framing" value="2" />-->
+    <!--<param name="kazoo-var-prefix" value="ecallmgr" />-->
+    <!--<param name="compat-rel" value="12"/> -->
+  </settings>
+  <event-filter type="whitelist">
+    <header name="Acquired-UUID" />
+    <header name="action" />
+    <header name="Action" />
+    <header name="alt_event_type" />
+    <header name="Answer-State" />
+    <header name="Application" />
+    <header name="Application-Data" />
+    <header name="Application-Name" />
+    <header name="Application-Response" />
+    <header name="att_xfer_replaced_by" />
+    <header name="Auth-Method" />
+    <header name="Auth-Realm" />
+    <header name="Auth-User" />
+    <header name="Bridge-A-Unique-ID" />
+    <header name="Bridge-B-Unique-ID" />
+    <header name="Call-Direction" />
+    <header name="Caller-Callee-ID-Name" />
+    <header name="Caller-Callee-ID-Number" />
+    <header name="Caller-Caller-ID-Name" />
+    <header name="Caller-Caller-ID-Number" />
+    <header name="Caller-Context" />
+    <header name="Caller-Controls" />
+    <header name="Caller-Destination-Number" />
+    <header name="Caller-Dialplan" />
+    <header name="Caller-Network-Addr" />
+    <header name="Caller-Unique-ID" />
+    <header name="Call-ID" />
+    <header name="Channel-Call-State" />
+    <header name="Channel-Call-UUID" />
+    <header name="Channel-Presence-ID" />
+    <header name="Channel-State" />
+    <header name="Chat-Permissions" />
+    <header name="Conference-Name" />
+    <header name="Conference-Profile-Name" />
+    <header name="Conference-Unique-ID" />
+    <header name="Conference-Size" />
+    <header name="New-ID" />
+    <header name="Old-ID" />
+    <header name="Detected-Tone" />
+    <header name="dialog_state" />
+    <header name="direction" />
+    <header name="Distributed-From" />
+    <header name="DTMF-Digit" />
+    <header name="DTMF-Duration" />
+    <header name="Event-Date-Timestamp" />
+    <header name="Event-Name" />
+    <header name="Event-Subclass" />
+    <header name="Expires" />
+    <header name="Ext-SIP-IP" />
+    <header name="File" />
+    <header name="FreeSWITCH-Hostname" />
+    <header name="from" />
+    <header name="Hunt-Destination-Number" />
+    <header name="ip" />
+    <header name="Message-Account" />
+    <header name="metadata" />
+    <header name="old_node_channel_uuid" />
+    <header name="Other-Leg-Callee-ID-Name" />
+    <header name="Other-Leg-Callee-ID-Number" />
+    <header name="Other-Leg-Caller-ID-Name" />
+    <header name="Other-Leg-Caller-ID-Number" />
+    <header name="Other-Leg-Destination-Number" />
+    <header name="Other-Leg-Direction" />
+    <header name="Other-Leg-Unique-ID" />
+    <header name="Participant-Type" />
+    <header name="Path" />
+    <header name="profile_name" />
+    <header name="Profiles" />
+    <header name="proto-specific-event-name" />
+    <header name="Raw-Application-Data" />
+    <header name="Resigning-UUID" />
+    <header name="set" />
+    <header name="sip_auto_answer" />
+    <header name="sip_auth_method" />
+    <header name="sip_from_host" />
+    <header name="sip_from_user" />
+    <header name="sip_to_host" />
+    <header name="sip_to_user" />
+    <header name="sub-call-id" />
+    <header name="technology" />
+    <header name="to" />
+    <header name="Unique-ID" />
+    <header name="URL" />
+    <header name="variable_channel_is_moving" />
+    <header name="variable_collected_digits" />
+    <header name="variable_current_application" />
+    <header name="variable_current_application_data" />
+    <header name="variable_domain_name" />
+    <header name="variable_effective_caller_id_name" />
+    <header name="variable_effective_caller_id_number" />
+    <header name="variable_fax_bad_rows" />
+    <header name="variable_fax_document_total_pages" />
+    <header name="variable_fax_document_transferred_pages" />
+    <header name="variable_fax_ecm_used" />
+    <header name="variable_fax_result_code" />
+    <header name="variable_fax_result_text" />
+    <header name="variable_fax_success" />
+    <header name="variable_fax_transfer_rate" />
+    <header name="variable_holding_uuid" />
+    <header name="variable_hold_music" />
+    <header name="variable_media_group_id" />
+    <header name="variable_originate_disposition" />
+    <header name="variable_playback_terminator_used" />
+    <header name="variable_presence_id" />
+    <header name="variable_record_ms" />
+    <header name="variable_recovered" />
+    <header name="variable_silence_hits_exhausted" />
+    <header name="variable_sip_auth_realm" />
+    <header name="variable_sip_from_host" />
+    <header name="variable_sip_from_user" />
+    <header name="variable_sip_h_X-AUTH-IP" />
+    <header name="variable_sip_received_ip" />
+    <header name="variable_sip_to_host" />
+    <header name="variable_sip_to_user" />
+    <header name="variable_sofia_profile_name" />
+    <header name="variable_transfer_history" />
+    <header name="variable_user_name" />
+    <header name="variable_endpoint_disposition" />
+    <header name="variable_originate_disposition" />
+    <header name="variable_bridge_hangup_cause" />
+    <header name="variable_hangup_cause" />
+    <header name="variable_last_bridge_proto_specific_hangup_cause" />
+    <header name="variable_proto_specific_hangup_cause" />
+    <header name="VM-Call-ID" />
+    <header name="VM-sub-call-id" />
+    <header name="whistle_application_name" />
+    <header name="whistle_application_response" />
+    <header name="whistle_event_name" />
+    <header name="sip_auto_answer_notify" />
+    <header name="eavesdrop_group" />
+    <header name="origination_caller_id_name" />
+    <header name="origination_caller_id_number" />
+    <header name="origination_callee_id_name" />
+    <header name="origination_callee_id_number" />
+    <header name="sip_auth_username" />
+    <header name="sip_auth_password" />
+    <header name="effective_caller_id_name" />
+    <header name="effective_caller_id_number" />
+    <header name="effective_callee_id_name" />
+    <header name="effective_callee_id_number" />
+    
+    <!-- Registrations -->
+    <header name="call-id" />
+    <header name="profile-name" />
+    <header name="from-user" />
+    <header name="from-host" />
+    <header name="presence-hosts" />
+    <header name="contact" />
+    <header name="rpid" />
+    <header name="status" />
+    <header name="expires" />
+    <header name="to-user" />
+    <header name="to-host" />
+    <header name="network-ip" />
+    <header name="network-port" />
+    <header name="username" />
+    <header name="realm" />
+    <header name="user-agent" />
+    
+    <!-- CDR Headers -->
+    <header name="Hangup-Cause" />
+    <header name="Unique-ID" />
+    <header name="variable_switch_r_sdp" />
+    <header name="variable_sip_local_sdp_str" />
+    <header name="variable_sip_to_uri" />
+    <header name="variable_sip_from_uri" />
+    <header name="variable_effective_caller_id_number" />
+    <header name="Caller-Caller-ID-Number" />
+    <header name="variable_effective_caller_id_name" />
+    <header name="Caller-Caller-ID-Name" />
+    <header name="Caller-Callee-ID-Name" />
+    <header name="Caller-Callee-ID-Number" />
+    <header name="Other-Leg-Unique-ID" />
+    <header name="variable_sip_user_agent" />
+    <header name="variable_duration" />
+    <header name="variable_billsec" />
+    <header name="variable_progresssec" />
+    <header name="variable_progress_uepoch" />
+    <header name="variable_progress_media_uepoch" />
+    <header name="variable_start_uepoch" />
+    <header name="variable_digits_dialed" />
+    <header name="variable_sip_cid_type" />
+    
+    <!-- Conference Headers -->
+    <header name="Hear" />
+    <header name="Speak" />
+    <header name="Video" />
+    <header name="Talking" />
+    <header name="Mute-Detect" />
+    <header name="Member-ID" />
+    <header name="Member-Type" />
+    <header name="Energy-Level" />
+    <header name="Current-Energy" />
+    <header name="Floor" />
+    
+  </event-filter>
+</configuration>

@@ -1,0 +1,21 @@
+<configuration name="directory.conf" description="Directory">
+  <settings>
+      <!--<param name="odbc-dsn" value="dsn:user:pass"/>-->
+      <!--<param name="dbname" value="directory"/>-->
+  </settings>
+  <profiles>
+    <profile name="default">
+      <param name="max-menu-attempts" value="3"/>
+      <param name="min-search-digits" value="3"/>
+      <param name="terminator-key" value="#"/>
+      <param name="digit-timeout" value="3000"/>
+      <param name="max-result" value="5"/>
+      <param name="next-key" value="6"/>
+      <param name="prev-key" value="4"/>
+      <param name="switch-order-key" value="*"/>
+      <param name="select-name-key" value="1"/>
+      <param name="new-search-key" value="3"/>
+      <param name="search-order" value="last_name"/>
+    </profile>
+  </profiles>
+</configuration> 

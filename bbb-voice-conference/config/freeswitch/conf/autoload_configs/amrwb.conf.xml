@@ -1,0 +1,7 @@
+<configuration name="amrwb.conf">
+  <settings>
+    <param name="default-bitrate" value="8"/>
+    <param name="volte" value="1"/>
+    <param name="adjust-bitrate" value="0"/>
+  </settings>
+</configuration>

@@ -82,6 +82,7 @@ module BigBlueButton
           if !info[:audio] || !info[:duration]
             BigBlueButton.logger.warn "    This audio file is corrupt! It will be removed from the output."
             corrupt_audios << audiofile
+            next
           end
 
           BigBlueButton.logger.debug "    format: #{info[:format][:format_name]}, codec: #{info[:audio][:codec_name]}"

@@ -1,0 +1,48 @@
+<configuration name="nibblebill.conf" description="Nibble Billing">
+  <settings>
+    <!-- See http://wiki.freeswitch.org/wiki/Mod_nibblebill for help with these options -->
+
+    <!-- Information for connecting to your database -->
+    <param name="odbc-dsn" value="bandwidth.com"/>
+
+    <!-- The database table where your CASH column is located -->
+    <param name="db_table" value="accounts"/>
+
+    <!-- The column name where we store the value of the account -->
+    <param name="db_column_cash" value="cash"/>
+
+    <!-- The column name for the unique ID identifying the account -->
+    <param name="db_column_account" value="id"/>
+
+    <!-- Custom SQL for loading current balance - overrides column names
+         channel vars are interpreted.
+         field nibble_balance is used for balance info
+
+    <param name="custom_sql_lookup" value="SELECT cash AS nibble_balance FROM accounts WHERE account_code='${nibble_account}'"/>
+    -->
+
+    <!-- Custom SQL for loading current balance - overrides column names
+         channel vars are interpreted.
+         nibble_increment is the amount to update
+
+    <param name="custom_sql_save" value="UPDATE accounts SET cash=cash-${nibble_increment} WHERE account_code='${nibble_account}'"/>
+    -->
+
+
+    <!-- Default heartbeat interval. Set to 'off' for no heartbeat (i.e. bill only at end of call) -->
+    <param name="global_heartbeat" value="60"/>
+
+    <!-- By default, warn a caller when their balance is at $5.00. You can set this to a negative number. -->
+    <param name="lowbal_amt" value="5"/>
+    <param name="lowbal_action" value="play ding"/>
+
+    <!-- By default, terminate a caller when their balance hits $0.00. You can set this to a negative number. -->
+    <param name="nobal_amt" value="0"/>
+    <param name="nobal_action" value="hangup"/>
+
+    <!-- If a call goes beyond a certain dollar amount, flag or terminate it -->
+    <param name="percall_max_amt" value="100"/>
+    <param name="percall_action" value="hangup"/>
+
+  </settings>
+</configuration>

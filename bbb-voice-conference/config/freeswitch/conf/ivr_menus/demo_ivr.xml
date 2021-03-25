@@ -1,0 +1,64 @@
+<include>
+  <!-- demo IVR setup -->
+  <!-- demo IVR, Main Menu -->
+  <menu name="demo_ivr"
+      greet-long="phrase:demo_ivr_main_menu"
+      greet-short="phrase:demo_ivr_main_menu_short"
+      invalid-sound="ivr/ivr-that_was_an_invalid_entry.wav"
+      exit-sound="voicemail/vm-goodbye.wav"
+      confirm-macro=""
+      confirm-key=""
+      tts-engine="flite"
+      tts-voice="rms"
+      confirm-attempts="3"
+      timeout="10000"
+      inter-digit-timeout="2000"
+      max-failures="3"
+      max-timeouts="3"
+      digit-len="4">
+
+    <!-- The following are the definitions for the digits the user dials -->
+    <!-- Digit 1 transfer caller to the public FreeSWITCH conference -->
+    <entry action="menu-exec-app" digits="1" param="bridge sofia/$${domain}/888@conference.freeswitch.org"/>
+    <entry action="menu-exec-app" digits="2" param="transfer 9196 XML default"/>    <!-- FS echo -->
+    <entry action="menu-exec-app" digits="3" param="transfer 9664 XML default"/>    <!-- MOH -->
+    <entry action="menu-exec-app" digits="4" param="transfer 9191 XML default"/>    <!-- ClueCon -->
+    <entry action="menu-exec-app" digits="5" param="transfer 1234*256 enum"/>       <!-- Screaming monkeys -->
+    <entry action="menu-sub" digits="6" param="demo_ivr_submenu"/>                  <!-- demo sub menu -->
+    <!-- Using a regex in the digits tag lets you define a dial pattern for the caller
+         You may define multiple regexes if you need a different pattern for some reason -->
+    <entry action="menu-exec-app" digits="/^(10[01][0-9])$/" param="transfer $1 XML features"/>
+    <entry action="menu-top" digits="9"/>          <!-- Repeat this menu -->
+  </menu>
+
+  <!-- Demo IVR, Sub Menu -->
+  <menu name="demo_ivr_submenu"
+      greet-long="phrase:demo_ivr_sub_menu"
+      greet-short="phrase:demo_ivr_sub_menu_short"
+      invalid-sound="ivr/ivr-that_was_an_invalid_entry.wav"
+      exit-sound="voicemail/vm-goodbye.wav"
+      timeout="15000"
+      max-failures="3"
+      max-timeouts="3">
+
+    <!-- The demo IVR sub menu prompt basically just says, "press star to return to previous menu..." -->
+    <entry action="menu-top" digits="*"/>
+   </menu>
+
+
+<!-- TTS sample; non-functional but it demonstrates say: and TTS -->
+<!--
+  <menu name="demo3"
+      greet-long="say:Press 1 to join the conference, Press 2 to join the other conference"
+      greet-short="say:Press 1 to join the conference, Press 2 to join the other conference"
+      invalid-sound="say:invalid extension"
+      exit-sound="say:exit sound"
+      timeout ="15000"
+      max-failures="3">
+    <entry action="menu-exit" digits="*"/>
+    <entry action="menu-play-sound" digits="1" param="say:You pressed 1"/>
+    <entry action="menu-exec-app" digits="2" param="transfert 1000 XML default"/>
+    <entry action="menu-exec-app" digits="3" param="transfert 1001 XML default"/>
+  </menu>
+-->
+</include>

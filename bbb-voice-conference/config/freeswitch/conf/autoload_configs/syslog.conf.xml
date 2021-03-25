@@ -12,7 +12,7 @@
     <param name="facility" value="user"/>
     <param name="ident" value="freeswitch"/>
     <param name="loglevel" value="warning"/>
-	<!-- Uncomment the following line to log uuids in syslogs (when applicable) -->
-    <!-- <param name="uuid" value="true"/> -->
+    <!-- log uuids in syslogs -->
+    <param name="uuid" value="true"/>
   </settings>
 </configuration>
