@@ -55,11 +55,11 @@ class ChatDropdown extends PureComponent {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { timeWindowsValues } = this.props;
+    const { timeWindowsValues, users } = this.props;
     const { isSettingOpen } = this.state;
     if (prevState.isSettingOpen !== isSettingOpen) {
       this.clipboard = new Clipboard('#clipboardButton', {
-        text: () => ChatService.exportChat(timeWindowsValues),
+        text: () => ChatService.exportChat(timeWindowsValues, users),
       });
     }
   }
@@ -82,7 +82,7 @@ class ChatDropdown extends PureComponent {
 
   getAvailableActions() {
     const {
-      intl, isMeteorConnected, amIModerator, meetingIsBreakout, meetingName, timeWindowsValues,
+      intl, isMeteorConnected, amIModerator, meetingIsBreakout, meetingName, timeWindowsValues, users,
     } = this.props;
 
     const clearIcon = 'delete';
@@ -104,7 +104,7 @@ class ChatDropdown extends PureComponent {
           link.setAttribute(
             'href',
             `data: ${mimeType} ;charset=utf-8,
-            ${encodeURIComponent(ChatService.exportChat(timeWindowsValues))}`,
+            ${encodeURIComponent(ChatService.exportChat(timeWindowsValues, users))}`,
           );
           link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
         }}
