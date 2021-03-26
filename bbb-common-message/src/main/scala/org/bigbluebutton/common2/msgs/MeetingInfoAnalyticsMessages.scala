@@ -29,8 +29,8 @@ case class MeetingInfoAnalytics(
     breakoutRoom:  BreakoutRoom
 )
 
-case class Webcam(total: Int, streams: List[WebcamStream])
-case class WebcamStream(broadcast: Broadcast, viewers: Set[String])
+case class Webcam(total: Int, streams: WebcamStream)
+case class WebcamStream(broadcasts: List[Broadcast], viewers: Set[String])
 case class User(id: String, name: String)
 case class Broadcast(id: String, user: User, startedOn: Long)
 

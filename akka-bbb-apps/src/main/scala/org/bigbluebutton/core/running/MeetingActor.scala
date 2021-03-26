@@ -19,7 +19,7 @@ import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.users.UsersApp2x
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp2x
 import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.models.{ VoiceUsers, _ }
+import org.bigbluebutton.core.models.{ Users2x, VoiceUsers, _ }
 import org.bigbluebutton.core2.{ MeetingStatus2x, Permissions }
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.meeting._
@@ -32,7 +32,7 @@ import akka.actor.Props
 import akka.actor.OneForOneStrategy
 import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.common2.msgs
-import org.bigbluebutton.core.apps.ScreenshareModel.getScreenshareConf
+import org.bigbluebutton.core.apps.ScreenshareModel.{ getScreenshareConf, getTimestamp }
 
 import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
@@ -518,20 +518,24 @@ class MeetingActor(
 
     val isRecording: Boolean = isVoiceRecording(liveMeeting.status)
 
-    //    val screenshareConfName: String = getScreenshareConf(liveMeeting.screenshareModel)
-    //    val screenshareStream: ScreenshareStream = liveMeeting.screenshareModel
-    val screenshare: Screenshare = Screenshare(null)
+    val screenshare: Screenshare = Screenshare(null) // TODO: Placeholder null as required values not available
 
     val listOfUsers: List[UserState] = Users2x.findAll(liveMeeting.users2x).toList
 
+    val breakoutRoomNames: List[String] = {
+      if (state.breakout.isDefined)
+        state.breakout.get.getRooms.map(_.name).toList
+      else
+        List()
+    }
+
     val breakoutRoom: BreakoutRoom = BreakoutRoom(
       liveMeeting.props.breakoutProps.parentId,
-      liveMeeting.props.breakoutProps.breakoutRooms.toList
+      breakoutRoomNames
     )
 
     val meetingInfoAnalyticsLogMessage: MeetingInfoAnalytics = MeetingInfoAnalytics(
-      meetingName,
-      externalId, internalId,
+      meetingName, externalId, internalId,
       hasUserJoined, isRecording, getMeetingInfoWebcamDetails,
       getMeetingInfoAudioDetails, screenshare,
       listOfUsers.map(u => Participant(u.intId, u.name, u.role)),
@@ -543,19 +547,26 @@ class MeetingActor(
     outGW.send(event)
   }
 
+  private def resolveUserName(userId: String): String = {
+    val userName: String = Users2x.findWithIntId(liveMeeting.users2x, userId).map(_.name).getOrElse("")
+
+    userName
+  }
+
   private def getMeetingInfoWebcamDetails(): Webcam = {
     val liveWebcams: Vector[org.bigbluebutton.core.models.WebcamStream] = findAll(liveMeeting.webcams)
     val numOfLiveWebcams: Int = liveWebcams.length
 
-    val broadcastId: String = liveWebcams.flatMap(_.streamId).mkString
-    val user: User = User(liveWebcams.flatMap(_.stream.userId).mkString, "")
-    val startedOn: Long = 0L
-    val broadcast: Broadcast = Broadcast(broadcastId, user, startedOn)
-    val viewers: Set[String] = findAll(liveMeeting.webcams).flatMap(_.stream.viewers).toSet
+    val broadcasts: List[Broadcast] = liveWebcams.map(webcam => Broadcast(
+      webcam.stream.id,
+      User(webcam.stream.userId, resolveUserName(webcam.stream.userId)), 0L
+    )).toList
 
-    val webcamStream: msgs.WebcamStream = msgs.WebcamStream(broadcast, viewers)
+    val viewers: Set[String] = liveWebcams.flatMap(_.stream.viewers).toSet
 
-    Webcam(numOfLiveWebcams, List(webcamStream))
+    val webcamStream: msgs.WebcamStream = msgs.WebcamStream(broadcasts, viewers)
+
+    Webcam(numOfLiveWebcams, webcamStream)
   }
 
   private def getMeetingInfoAudioDetails(): Audio = {
@@ -564,19 +575,20 @@ class MeetingActor(
 
     val listenOnlyUsers: Vector[VoiceUserState] = findAllListenOnlyVoiceUsers(liveMeeting.voiceUsers)
     val numOfListenOnlyUsers: Int = listenOnlyUsers.length
-    val listenOnlyAudioUser = ListenOnlyAudioUser(numOfListenOnlyUsers, listenOnlyUsers.map(vsu => User(vsu.voiceUserId, "")).toList)
+    val listenOnlyAudioUser = ListenOnlyAudioUser(
+      numOfListenOnlyUsers,
+      listenOnlyUsers.map(vsu => User(vsu.voiceUserId, resolveUserName(vsu.voiceUserId))).toList
+    )
 
     Audio(numOfVoiceUsers, listenOnlyAudioUser, null, null)
   }
 
   private def getMeetingInfoPresentationDetails(): PresentationInfo = {
-    val presentationId: String = state.presentationPodManager.getAllPresentationPodsInMeeting()
-      .flatMap(_.getCurrentPresentation.map(_.id))
-      .mkString
+    val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
 
-    val presentationName: String = state.presentationPodManager.getAllPresentationPodsInMeeting()
-      .flatMap(_.getCurrentPresentation.map(_.name))
-      .mkString
+    val presentationId: String = presentationPods.flatMap(_.getCurrentPresentation.map(_.id)).mkString
+
+    val presentationName: String = presentationPods.flatMap(_.getCurrentPresentation.map(_.name)).mkString
 
     PresentationInfo(presentationId, presentationName)
   }
