@@ -135,7 +135,12 @@ export default withLayoutConsumer(withModalMounter(withTracker(() => {
   let deviceIds = Session.get('deviceIds');
 
   if (!userIsInBreakout && userWasInBreakout && deviceIds && deviceIds !== '') {
+    /* used when re-sharing cameras after leaving a breakout room.
+    it is needed in cases where the user has more than one active camera
+    so we only share the second camera after the first
+    has finished loading (can't share more than one at the same time) */
     const canConnect = Session.get('canConnect');
+
     deviceIds = deviceIds.split(',');
 
     if (canConnect) {
