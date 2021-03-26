@@ -16,6 +16,8 @@ import DefaultContent from '../presentation/default-content/component';
 import ExternalVideoContainer from '../external-video-player/container';
 import Storage from '../../services/storage/session';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
+import Auth from '/imports/ui/services/auth';
+import breakoutService from '/imports/ui/components/breakout-room/service';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
@@ -106,6 +108,8 @@ class MediaContainer extends Component {
   }
 }
 
+let userWasInBreakout = false;
+
 export default withLayoutConsumer(withModalMounter(withTracker(() => {
   const { dataSaving } = Settings;
   const { viewParticipantsWebcams, viewScreenshare } = dataSaving;
@@ -125,6 +129,31 @@ export default withLayoutConsumer(withModalMounter(withTracker(() => {
 
   if (MediaService.shouldShowScreenshare() && (viewScreenshare || MediaService.isUserPresenter())) {
     data.children = <ScreenshareContainer />;
+  }
+
+  const userIsInBreakout = breakoutService.getBreakoutUserIsIn(Auth.userID);
+  let deviceIds = Session.get('deviceIds');
+
+  if (!userIsInBreakout && userWasInBreakout && deviceIds && deviceIds !== '') {
+    /* used when re-sharing cameras after leaving a breakout room.
+    it is needed in cases where the user has more than one active camera
+    so we only share the second camera after the first
+    has finished loading (can't share more than one at the same time) */
+    const canConnect = Session.get('canConnect');
+
+    deviceIds = deviceIds.split(',');
+
+    if (canConnect) {
+      const deviceId = deviceIds.shift();
+
+      Session.set('canConnect', false);
+      Session.set('WebcamDeviceId', deviceId);
+      Session.set('deviceIds', deviceIds.join(','));
+
+      VideoService.joinVideo(deviceId);
+    }
+  } else {
+    userWasInBreakout = userIsInBreakout;
   }
 
   const { streams: usersVideo } = VideoService.getVideoStreams();

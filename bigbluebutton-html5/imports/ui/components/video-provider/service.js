@@ -142,6 +142,22 @@ class VideoService {
     this.isConnected = true;
   }
 
+  storeDeviceIds() {
+    const streams = VideoStreams.find(
+      {
+        meetingId: Auth.meetingID,
+        userId: Auth.userID,
+      }, { fields: { deviceId: 1 } },
+    ).fetch();
+
+    let deviceIds = [];
+    streams.forEach(s => {
+      deviceIds.push(s.deviceId);
+    }
+    );
+    Session.set('deviceIds', deviceIds.join());
+  }
+
   exitVideo() {
     if (this.isConnected) {
       logger.info({
@@ -801,6 +817,7 @@ class VideoService {
 const videoService = new VideoService();
 
 export default {
+  storeDeviceIds: () => videoService.storeDeviceIds(),
   exitVideo: () => videoService.exitVideo(),
   joinVideo: deviceId => videoService.joinVideo(deviceId),
   stopVideo: cameraId => videoService.stopVideo(cameraId),
