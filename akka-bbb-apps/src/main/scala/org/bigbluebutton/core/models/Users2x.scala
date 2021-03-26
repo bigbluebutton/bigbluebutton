@@ -300,6 +300,7 @@ object SystemUser {
 }
 
 object EjectReasonCode {
+  val NOT_EJECT = "not_eject_reason"
   val DUPLICATE_USER = "duplicate_user_in_meeting_eject_reason"
   val PERMISSION_FAILED = "not_enough_permission_eject_reason"
   val EJECT_USER = "user_requested_eject_reason"

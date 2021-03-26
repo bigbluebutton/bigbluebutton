@@ -46,11 +46,11 @@ export const ChatContext = createContext();
 const generateStateWithNewMessage = (msg, state) => {
   
   const timeWindow = generateTimeWindow(msg.timestamp);
-  const userId = msg.sender.id;
+  const userId = msg.sender;
   const keyName = userId + '-' + timeWindow;
   const msgBuilder = (msg, chat) => {
     const msgTimewindow = generateTimeWindow(msg.timestamp);
-    const key = msg.sender.id + '-' + msgTimewindow;
+    const key = msg.sender + '-' + msgTimewindow;
     const chatIndex = chat?.chatIndexes[key];
     const {
       _id,
@@ -66,7 +66,7 @@ const generateStateWithNewMessage = (msg, state) => {
         lastTimestamp: msg.timestamp,
         read: msg.chatId === PUBLIC_CHAT_KEY && msg.timestamp <= getLoginTime() ? true : false,
         content: [
-          { id: msg.id, name: msg.sender.name, text: msg.message, time: msg.timestamp },
+          { id: msg.id, text: msg.message, time: msg.timestamp },
         ],
       }
     };
@@ -109,7 +109,7 @@ const generateStateWithNewMessage = (msg, state) => {
   const timewindowIndex = stateMessages.chatIndexes[keyName];
   const groupMessage = messageGroups[keyName + '-' + timewindowIndex];
   
-  if (!groupMessage || (groupMessage && groupMessage.sender.id !== stateMessages.lastSender.id)) {
+  if (!groupMessage || (groupMessage && groupMessage.sender !== stateMessages.lastSender)) {
 
     const [tempGroupMessage, sender, newIndex] = msgBuilder(msg, stateMessages);
     stateMessages.lastSender = sender;
@@ -122,13 +122,13 @@ const generateStateWithNewMessage = (msg, state) => {
       messageGroups[key] = tempGroupMessage[key];
       const message = tempGroupMessage[key];
       const previousMessage = message.timestamp <= getLoginTime();
-      if (!previousMessage && message.sender.id !== Auth.userID && !message.id.startsWith(SYSTEM_CHAT_TYPE)) {
+      if (!previousMessage && message.sender !== Auth.userID && !message.id.startsWith(SYSTEM_CHAT_TYPE)) {
         stateMessages.unreadTimeWindows.add(key);
       }
     });
   } else {
     if (groupMessage) {
-      if (groupMessage.sender.id === stateMessages.lastSender.id) {
+      if (groupMessage.sender === stateMessages.lastSender) {
         const previousMessage = msg.timestamp <= getLoginTime();
         const timeWindowKey = keyName + '-' + stateMessages.chatIndexes[keyName];
         messageGroups[timeWindowKey] = {
@@ -137,10 +137,10 @@ const generateStateWithNewMessage = (msg, state) => {
           read: previousMessage ? true : false,
           content: [
             ...groupMessage.content,
-            { id: msg.id, name: groupMessage.sender.name, text: msg.message, time: msg.timestamp }
+            { id: msg.id, text: msg.message, time: msg.timestamp }
           ],
         };
-        if (!previousMessage && groupMessage.sender.id !== Auth.userID) {
+        if (!previousMessage && groupMessage.sender !== Auth.userID) {
           stateMessages.unreadTimeWindows.add(timeWindowKey);
         }
       }
