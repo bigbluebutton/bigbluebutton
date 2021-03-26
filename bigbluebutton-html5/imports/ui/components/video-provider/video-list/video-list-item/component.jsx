@@ -122,6 +122,7 @@ class VideoListItem extends Component {
     const { videoIsReady } = this.state;
     if (!videoIsReady) this.setState({ videoIsReady: true });
     window.dispatchEvent(new Event('resize'));
+    Session.set('canConnect', true);
   }
 
   getAvailableActions() {
