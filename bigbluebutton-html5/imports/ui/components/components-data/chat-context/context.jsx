@@ -215,6 +215,7 @@ const reducer = (state, action) => {
       };
       const selectedChatId = chatId === PUBLIC_CHAT_KEY ? PUBLIC_GROUP_CHAT_KEY : chatId;
       const chat = state[selectedChatId];
+      if (!chat) return state;
       ['posJoinMessages','preJoinMessages','messageGroups'].forEach( messageGroupName => {
         const messageGroup = chat[messageGroupName];
         if (messageGroup){

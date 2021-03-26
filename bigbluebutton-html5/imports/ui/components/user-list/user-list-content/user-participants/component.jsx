@@ -12,6 +12,7 @@ import {
 } from 'react-virtualized';
 import UserListItemContainer from './user-list-item/container';
 import UserOptionsContainer from './user-options/container';
+import Settings from '/imports/ui/services/settings';
 
 const propTypes = {
   compact: PropTypes.bool,
@@ -94,7 +95,7 @@ class UserParticipants extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { compact } = this.props;
-    const { selectedUser,  scrollArea } = this.state;
+    const { selectedUser, scrollArea } = this.state;
     if (!compact && (!prevState.scrollArea && scrollArea)) {
       scrollArea.addEventListener(
         'keydown',
@@ -135,6 +136,7 @@ class UserParticipants extends Component {
     } = this.props;
     const { scrollArea } = this.state;
     const user = users[index];
+    const isRTL = Settings.application.isRTL;
 
     return (
       <CellMeasurer
@@ -157,6 +159,7 @@ class UserParticipants extends Component {
               currentUser,
               meetingIsBreakout,
               scrollArea,
+              isRTL,
             }}
             user={user}
             getScrollContainerRef={this.getScrollContainerRef}
@@ -231,7 +234,7 @@ class UserParticipants extends Component {
             this.refScrollContainer = ref;
           }}
         >
-          <span id="destination" />
+          <span id="participants-destination" />
           <AutoSizer>
             {({ height, width }) => (
               <List
@@ -244,7 +247,7 @@ class UserParticipants extends Component {
                     this.listRef = ref;
                   }
 
-                  if (ref !== null && !scrollArea) {                    
+                  if (ref !== null && !scrollArea) {
                     this.setState({ scrollArea: findDOMNode(ref) });
                   }
                 }}

@@ -1,0 +1,25 @@
+<configuration name="unicall.conf" description="Unicall Configuration">
+  <settings>
+    <param name="context" value="default"/>
+    <param name="dialplan" value="XML"/>
+    <param name="suppress-dtmf-tone" value="true"/>
+  </settings>
+  <spans>
+    <span id="1">
+      <param name="protocol-class" value="mfcr2"/>
+      <param name="protocol-variant" value="ar"/>
+      <param name="protocol-end" value="peer"/>
+      <param name="outgoing-allowed" value="true"/>
+      <param name="dialplan" value="XML"/>
+      <param name="context" value="default"/>
+    </span>
+    <span id="2">
+      <param name="protocol-class" value="mfcr2"/>
+      <param name="protocol-variant" value="ar"/>
+      <param name="protocol-end" value="peer"/>
+      <param name="outgoing-allowed" value="true"/>
+      <param name="dialplan" value="XML"/>
+      <param name="context" value="default"/>
+    </span>
+  </spans>
+</configuration>

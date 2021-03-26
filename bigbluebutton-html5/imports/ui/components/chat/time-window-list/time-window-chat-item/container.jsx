@@ -9,8 +9,19 @@ const CHAT_CONFIG = Meteor.settings.public.chat;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
+const extractPollQuestion = (pollText) => {
+  if (!pollText) return {};
+
+  const pollQuestion = pollText.split('<br/>')[0];
+  pollText = pollText.replace(`${pollQuestion}<br/>`,'');
+
+  return { pollQuestion, pollText };
+};
+
 const isDefaultPoll = (pollText) => {
-  const pollValue = pollText.replace(/<br\/>|[ :|%\n\d+]/g, '');
+  const { pollQuestion, pollText: newPollText} = extractPollQuestion(pollText);
+
+  const pollValue = newPollText.replace(/<br\/>|[ :|%\n\d+]/g, '');
   switch (pollValue) {
     case 'A': case 'AB': case 'ABC': case 'ABCD':
     case 'ABCDE': case 'YesNo': case 'TrueFalse':
@@ -47,6 +58,7 @@ export default function TimeWindowChatItemContainer(props) {
         read: message.read,
         messages,
         isDefaultPoll,
+        extractPollQuestion,
         user,
         timestamp,
         systemMessage: messageId.startsWith(SYSTEM_CHAT_TYPE) || !sender,

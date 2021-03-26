@@ -1,0 +1,167 @@
+<configuration name="avcodec.conf" description="AVCodec Config">
+  <settings>
+    <!-- max bitrate the system support, truncate if over limit -->
+    <!-- <param name="max-bitrate" value="5mb"/> -->
+
+    <!-- <param name="rtp-slice-size" value="1200"/> -->
+
+    <!-- minimum time to generate a new key frame in ms /> -->
+    <!-- <param name="key-frame-min-freq" value="250"/> -->
+
+    <!-- integer of cpus, or 'auto', or 'cpu/<divisor>/<max> -->
+    <param name="dec-threads" value="1"/>
+    <param name="enc-threads" value="cpu/2/4"/>
+  </settings>
+
+  <profiles>
+    <profile name="H263">
+    </profile>
+
+    <profile name="H263+">
+    </profile>
+
+    <profile name="H264">
+      <!-- <param name="dec-threads" value="1"/> -->
+      <!-- <param name="enc-threads" value="cpu/2/4"/> -->
+
+      <!-- <param name="profile" value="baseline"/> -->
+      <!-- <param name="level" value="41"/> -->
+      <!-- <param name="timebase" value="1/90"/> -->
+
+<!--
+
+#define AV_CODEC_FLAG_UNALIGNED       (1 <<  0)
+#define AV_CODEC_FLAG_QSCALE          (1 <<  1)
+#define AV_CODEC_FLAG_4MV             (1 <<  2)
+#define AV_CODEC_FLAG_OUTPUT_CORRUPT  (1 <<  3)
+#define AV_CODEC_FLAG_QPEL            (1 <<  4)
+#define AV_CODEC_FLAG_PASS1           (1 <<  9)
+#define AV_CODEC_FLAG_PASS2           (1 << 10)
+#define AV_CODEC_FLAG_LOOP_FILTER     (1 << 11)
+#define AV_CODEC_FLAG_GRAY            (1 << 13)
+#define AV_CODEC_FLAG_PSNR            (1 << 15)
+#define AV_CODEC_FLAG_TRUNCATED       (1 << 16)
+#define AV_CODEC_FLAG_INTERLACED_DCT  (1 << 18)
+#define AV_CODEC_FLAG_LOW_DELAY       (1 << 19)
+#define AV_CODEC_FLAG_GLOBAL_HEADER   (1 << 22)
+#define AV_CODEC_FLAG_BITEXACT        (1 << 23)
+#define AV_CODEC_FLAG_AC_PRED         (1 << 24)
+#define AV_CODEC_FLAG_INTERLACED_ME   (1 << 29)
+#define AV_CODEC_FLAG_CLOSED_GOP      (1U << 31)
+
+-->
+
+      <param name="flags" value="LOOP_FILTER|PSNR"/>
+
+<!--
+#define FF_CMP_SAD          0
+#define FF_CMP_SSE          1
+#define FF_CMP_SATD         2
+#define FF_CMP_DCT          3
+#define FF_CMP_PSNR         4
+#define FF_CMP_BIT          5
+#define FF_CMP_RD           6
+#define FF_CMP_ZERO         7
+#define FF_CMP_VSAD         8
+#define FF_CMP_VSSE         9
+#define FF_CMP_NSSE         10
+#define FF_CMP_W53          11
+#define FF_CMP_W97          12
+#define FF_CMP_DCTMAX       13
+#define FF_CMP_DCT264       14
+#define FF_CMP_MEDIAN_SAD   15
+#define FF_CMP_CHROMA       256
+-->
+
+      <!-- <param name="me-cmp" value="1"/> -->
+      <!-- <param name="me-range" value="16"/> -->
+      <!-- <param name="max-b-frames" value="3"/> -->
+      <!-- <param name="refs" value="3"/> -->
+      <!-- <param name="gop-size" value="250"/> -->
+      <!-- <param name="keyint-min" value="25"/> -->
+      <!-- <param name="i-quant-factor" value="0.71"/> -->
+      <!-- <param name="b-quant-factor" value="0.76923078"/> -->
+      <!-- <param name="qcompress" value="0.6"/> -->
+      <!-- <param name="qmin" value="10"/> -->
+      <!-- <param name="qmax" value="51"/> -->
+      <!-- <param name="max-qdiff" value="4"/> -->
+
+<!--
+enum AVColorSpace {
+    AVCOL_SPC_RGB         = 0,  ///< order of coefficients is actually GBR, also IEC 61966-2-1 (sRGB)
+    AVCOL_SPC_BT709       = 1,  ///< also ITU-R BT1361 / IEC 61966-2-4 xvYCC709 / SMPTE RP177 Annex B
+    AVCOL_SPC_UNSPECIFIED = 2,
+    AVCOL_SPC_RESERVED    = 3,
+    AVCOL_SPC_FCC         = 4,  ///< FCC Title 47 Code of Federal Regulations 73.682 (a)(20)
+    AVCOL_SPC_BT470BG     = 5,  ///< also ITU-R BT601-6 625 / ITU-R BT1358 625 / ITU-R BT1700 625 PAL & SECAM / IEC 61966-2-4 xvYCC601
+    AVCOL_SPC_SMPTE170M   = 6,  ///< also ITU-R BT601-6 525 / ITU-R BT1358 525 / ITU-R BT1700 NTSC
+    AVCOL_SPC_SMPTE240M   = 7,  ///< functionally identical to above
+    AVCOL_SPC_YCGCO       = 8,  ///< Used by Dirac / VC-2 and H.264 FRext, see ITU-T SG16
+    AVCOL_SPC_YCOCG       = AVCOL_SPC_YCGCO,
+    AVCOL_SPC_BT2020_NCL  = 9,  ///< ITU-R BT2020 non-constant luminance system
+    AVCOL_SPC_BT2020_CL   = 10, ///< ITU-R BT2020 constant luminance system
+    AVCOL_SPC_SMPTE2085   = 11, ///< SMPTE 2085, Y'D'zD'x
+    AVCOL_SPC_CHROMA_DERIVED_NCL = 12, ///< Chromaticity-derived non-constant luminance system
+    AVCOL_SPC_CHROMA_DERIVED_CL = 13, ///< Chromaticity-derived constant luminance system
+    AVCOL_SPC_ICTCP       = 14, ///< ITU-R BT.2100-0, ICtCp
+    AVCOL_SPC_NB                ///< Not part of ABI
+};
+-->
+      <param name="colorspace" value="0"/>
+
+<!--
+enum AVColorRange {
+    AVCOL_RANGE_UNSPECIFIED = 0,
+    AVCOL_RANGE_MPEG        = 1, ///< the normal 219*2^(n-8) "MPEG" YUV ranges
+    AVCOL_RANGE_JPEG        = 2, ///< the normal     2^n-1   "JPEG" YUV ranges
+    AVCOL_RANGE_NB               ///< Not part of ABI
+};
+-->
+      <param name="color-range" value="2"/>
+
+      <!-- x264 private options-->
+      <options>
+        <option name="preset" value="veryfast"/>
+        <option name="intra_refresh" value="1"/>
+        <option name="tune" value="animation+zerolatency"/>
+        <option name="sc_threshold" value="40"/>
+        <option name="b_strategy" value="1"/>
+        <option name="crf" value="18"/>
+      </options>
+    </profile>
+
+    <profile name="H265">
+    </profile>
+
+    <profile name="conference">
+      <param name="dec-threads" value="1"/>
+      <param name="enc-threads" value="cpu/2/4"/>
+
+      <codecs>
+        <!-- profiles will be parsed at runtime
+          to overwrite this profile params if codec matches -->
+        <codec name="H263" profile="H263"/>
+        <codec name="H264" profile="H264"/>
+        <codec name="H264" profile="conference-H264"/>
+      </codecs>
+    </profile>
+
+    <profile name="conference-H264">
+      <options>
+        <option name="preset" value="veryfast"/>
+        <option name="intra_refresh" value="1"/>
+        <option name="tune" value="animation+zerolatency"/>
+        <option name="sc_threshold" value="40"/>
+        <option name="b_strategy" value="1"/>
+        <option name="crf" value="10"/>
+      </options>
+    </profile>
+
+  </profiles>
+</configuration>
+
+<configuration name="avformat.conf" description="AVFormat Config">
+  <settings>
+      <param name="colorspace" value="1"/>
+  </settings>
+</configuration>

@@ -23,7 +23,7 @@ module BigBlueButton
       FFMPEG_AEVALSRC = "aevalsrc=s=48000:c=stereo:exprs=0|0"
       FFMPEG_AFORMAT = "aresample=async=1000,aformat=sample_fmts=s16:sample_rates=48000:channel_layouts=stereo"
       FFMPEG_WF_CODEC = 'libvorbis'
-      FFMPEG_WF_ARGS = ['-c:a', FFMPEG_WF_CODEC, '-q:a', '2', '-f', 'ogg']
+      FFMPEG_WF_ARGS = ['-vn', '-c:a', FFMPEG_WF_CODEC, '-q:a', '2', '-f', 'ogg']
       WF_EXT = 'ogg'
 
       def self.dump(edl)
@@ -39,6 +39,25 @@ module BigBlueButton
             BigBlueButton.logger.debug "    silence"
           end
         end
+      end
+
+      def self.mixer(inputs, output_basename)
+        BigBlueButton.logger.debug "Mixing audio files"
+
+        ffmpeg_cmd = [*FFMPEG]
+        inputs.each do |input|
+          ffmpeg_cmd += ['-i', input]
+        end
+        ffmpeg_cmd += ['-filter_complex', "amix=inputs=#{inputs.length}"]
+
+        output = "#{output_basename}.#{WF_EXT}"
+        ffmpeg_cmd += [*FFMPEG_WF_ARGS, output]
+
+        BigBlueButton.logger.info "Running audio mixer..."
+        exitstatus = BigBlueButton.exec_ret(*ffmpeg_cmd)
+        raise "ffmpeg failed, exit code #{exitstatus}" if exitstatus != 0
+
+        output
       end
 
       def self.render(edl, output_basename)
@@ -63,6 +82,7 @@ module BigBlueButton
           if !info[:audio] || !info[:duration]
             BigBlueButton.logger.warn "    This audio file is corrupt! It will be removed from the output."
             corrupt_audios << audiofile
+            next
           end
 
           BigBlueButton.logger.debug "    format: #{info[:format][:format_name]}, codec: #{info[:audio][:codec_name]}"

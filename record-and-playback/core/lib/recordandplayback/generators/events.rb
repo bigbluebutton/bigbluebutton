@@ -56,6 +56,17 @@ module BigBlueButton
       metadata
     end
 
+    def self.get_notes_id(events)
+      BigBlueButton.logger.info("Task: Getting notes id")
+      notes_id = 'undefined'
+      cc_token = '_cc_'
+      events.xpath("/recording/event[@eventname='AddPadEvent']").each do |pad_event|
+        pad_id = pad_event.at_xpath('padId').text
+        notes_id = pad_id if ! pad_id.include? cc_token
+      end
+      notes_id
+    end
+
     # Get the external meeting id
     def self.get_external_meeting_id(events_xml)
       BigBlueButton.logger.info("Task: Getting external meeting id")
@@ -690,6 +701,20 @@ module BigBlueButton
           return false
         end
       end
+    end
+
+    # Check if any screenshare files has audio
+    def self.screenshare_has_audio?(events_xml, deskshare_dir)
+      events = Nokogiri::XML(File.open(events_xml))
+      events.xpath('/recording/event[@eventname="StartWebRTCDesktopShareEvent"]').each do |event|
+        filename = event.at_xpath('filename').text
+        filename = "#{deskshare_dir}/#{File.basename(filename)}"
+        fileHasAudio = !BigBlueButton::EDL::Audio.audio_info(filename)[:audio].nil?
+        if fileHasAudio
+          return true
+        end
+      end
+      return false
     end
 
   end

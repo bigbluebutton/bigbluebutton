@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="Windows-1252"?>
-<include><!--This line will be ignored it's here to validate the xml and is optional -->
-
+<include>
 
   <macro name="demo_ivr_count">
     <input pattern="^(\d+)$">
@@ -66,7 +64,7 @@
 
   <!-- The following macro is the same as demo_ivr_main_menu except it is the "short" version -->
   <!-- The short version has all the options but not the initial greeting -->
-  <macro name="demo_ivr_main_menu_short" pause="250"> 
+  <macro name="demo_ivr_main_menu_short" pause="250">
     <input pattern="(.*)">
       <match>
         <!-- Menu option 1: Call FreeSWITCH conference-->
@@ -129,7 +127,7 @@
 
   <!-- The following macro is the same as demo_ivr_sub_menu except it is the "short" version -->
   <!-- The short version has all the options but not the initial greeting -->
-  <macro name="demo_ivr_sub_menu_short"> 
+  <macro name="demo_ivr_sub_menu_short">
     <input pattern="(.*)">
       <match>
         <!-- Menu option *: Return to top menu -->
@@ -142,4 +140,15 @@
     </input>
   </macro>
 
-</include><!--This line will be ignored it's here to validate the xml and is optional -->
+</include>
+<!--
+For Emacs:
+Local Variables:
+mode:xml
+indent-tabs-mode:nil
+tab-width:2
+c-basic-offset:2
+End:
+For VIM:
+vim:set softtabstop=2 shiftwidth=2 tabstop=2 expandtab:
+-->

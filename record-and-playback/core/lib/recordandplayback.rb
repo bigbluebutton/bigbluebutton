@@ -35,7 +35,6 @@ require 'find'
 require 'rubygems'
 require 'net/http'
 require 'journald/logger'
-require 'digest'
 require 'shellwords'
 require 'English'
 
@@ -224,12 +223,6 @@ module BigBlueButton
 
   def self.record_id_to_timestamp(r)
     r.split("-")[1].to_i / 1000
-  end
-
-  # Notes id will be a SHA1 hash string based on the meeting id and etherpad's apikey
-  def self.get_notes_id(meeting_id, notes_apikey)
-    value = meeting_id + notes_apikey
-    Digest::SHA1.hexdigest value
   end
 
   def self.done_to_timestamp(r)
