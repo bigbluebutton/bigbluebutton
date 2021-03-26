@@ -164,6 +164,10 @@ module BigBlueButton
       })
     end
 
+    def put_archive_norecord(meeting_id, additional_payload = {})
+      put_message "archive_norecord", meeting_id, additional_payload
+    end
+
     def put_archive_started(meeting_id, additional_payload = {})
       put_message "archive_started", meeting_id, additional_payload
     end
