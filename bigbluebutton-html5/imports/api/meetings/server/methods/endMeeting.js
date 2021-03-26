@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
+import { check } from 'meteor/check';
 
 export default function endMeeting() {
   const REDIS_CONFIG = Meteor.settings.private.redis;
@@ -9,10 +10,13 @@ export default function endMeeting() {
   const EVENT_NAME = 'LogoutAndEndMeetingCmdMsg';
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
+
   const payload = {
     userId: requesterUserId,
   };
-  Logger.verbose(`Meeting '${meetingId}' is destroyed by '${requesterUserId}'`);
+  Logger.warn(`Meeting '${meetingId}' is destroyed by '${requesterUserId}'`);
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

@@ -68,11 +68,15 @@ public class Meeting {
 	private String defaultAvatarURL;
 	private String defaultConfigToken;
 	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
+	private String guestLobbyMessage = "";
+	private Boolean authenticatedGuest = false;
 	private boolean userHasJoined = false;
+	private Map<String, String> pads;
 	private Map<String, String> metadata;
 	private Map<String, Object> userCustomData;
 	private final ConcurrentMap<String, User> users;
 	private final ConcurrentMap<String, RegisteredUser> registeredUsers;
+	private final ConcurrentMap<String, Long> enteredUsers;
 	private final ConcurrentMap<String, Config> configs;
 	private final Boolean isBreakout;
 	private final List<String> breakoutRooms = new ArrayList<>();
@@ -80,9 +84,8 @@ public class Meeting {
 	private String customCopyright = "";
 	private Boolean muteOnStart = false;
 	private Boolean allowModsToUnmuteUsers = false;
+	private Boolean meetingKeepEvents;
 
-	private Integer maxInactivityTimeoutMinutes = 120;
-	private Integer warnMinutesBeforeMax = 5;
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
 	private Integer userInactivityInspectTimerInMinutes = 120;
@@ -93,6 +96,12 @@ public class Meeting {
 	public final LockSettingsParams lockSettingsParams;
 
 	public final Boolean allowDuplicateExtUserid;
+
+	private String meetingEndedCallbackURL = "";
+
+	public final Boolean endWhenNoModerator;
+
+	private Integer html5InstanceId;
 
     public Meeting(Meeting.Builder builder) {
         name = builder.name;
@@ -120,14 +129,25 @@ public class Meeting {
         createdTime = builder.createdTime;
         isBreakout = builder.isBreakout;
         guestPolicy = builder.guestPolicy;
+        authenticatedGuest = builder.authenticatedGuest;
         breakoutRoomsParams = builder.breakoutRoomsParams;
         lockSettingsParams = builder.lockSettingsParams;
-		allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
+        allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
+        endWhenNoModerator = builder.endWhenNoModerator;
+        html5InstanceId = builder.html5InstanceId;
 
+        /*
+         * A pad is a pair of padId and readOnlyId that represents
+         * valid etherpads instances for this meeting. They can be:
+         *  - shared notes
+         *  - closed captions
+         */
+        pads = new HashMap<>();
         userCustomData = new HashMap<>();
 
         users = new ConcurrentHashMap<>();
         registeredUsers = new ConcurrentHashMap<>();
+        enteredUsers = new  ConcurrentHashMap<>();;
 
         configs = new ConcurrentHashMap<>();
     }
@@ -169,6 +189,10 @@ public class Meeting {
 	
 	public Config removeConfig(String token) {
 		return configs.remove(token);
+	}
+
+	public Map<String, String> getPads() {
+		return pads;
 	}
 
 	public Map<String, String> getMetadata() {
@@ -222,7 +246,11 @@ public class Meeting {
 		return GuestPolicy.DENY;
 	}
 
-	public long getStartTime() {
+	public int getHtml5InstanceId() { return html5InstanceId; }
+
+    public void setHtml5InstanceId(int instanceId) { html5InstanceId = instanceId; }
+
+    public long getStartTime() {
 		return startTime;
 	}
 	
@@ -350,8 +378,43 @@ public class Meeting {
     	return guestPolicy;
 	}
 
+	public void setGuestLobbyMessage(String message) {
+		guestLobbyMessage = message;
+	}
+
+	public String getGuestLobbyMessage() {
+		return guestLobbyMessage;
+	}
+
+	public void setAuthenticatedGuest(Boolean authGuest) {
+		authenticatedGuest = authGuest;
+	}
+
+	public Boolean getAuthenticatedGuest() {
+		return authenticatedGuest;
+	}
+
+	private String getUnauthenticatedGuestStatus(Boolean guest) {
+		if (guest) {
+			switch(guestPolicy) {
+				case GuestPolicy.ALWAYS_ACCEPT:
+				case GuestPolicy.ALWAYS_ACCEPT_AUTH:
+					return GuestPolicy.ALLOW;
+				case GuestPolicy.ASK_MODERATOR:
+					return GuestPolicy.WAIT;
+				case GuestPolicy.ALWAYS_DENY:
+					return GuestPolicy.DENY;
+				default:
+					return GuestPolicy.DENY;
+			}
+		} else {
+			return GuestPolicy.ALLOW;
+		}
+	}
 
 	public String calcGuestStatus(String role, Boolean guest, Boolean authned) {
+		if (!authenticatedGuest) return getUnauthenticatedGuestStatus(guest);
+
 		// Allow moderators all the time.
 		if (ROLE_MODERATOR.equals(role)) {
 			return GuestPolicy.ALLOW;
@@ -441,6 +504,14 @@ public class Meeting {
     	return muteOnStart;
 	}
 
+  public void setMeetingKeepEvents(Boolean mke) {
+    meetingKeepEvents = mke;
+  }
+
+  public Boolean getMeetingKeepEvents() {
+    return meetingKeepEvents;
+  }
+
 	public void setAllowModsToUnmuteUsers(Boolean value) {
 		allowModsToUnmuteUsers = value;
 	}
@@ -450,12 +521,28 @@ public class Meeting {
 	}
 
 	public void userJoined(User user) {
-	    userHasJoined = true;
-	    this.users.put(user.getInternalUserId(), user);
+		User u = getUserById(user.getInternalUserId());
+		if (u != null) {
+			u.joined();
+		} else {
+			if (!userHasJoined) userHasJoined = true;
+			this.users.put(user.getInternalUserId(), user);
+			// Clean this user up from the entered user's list
+			removeEnteredUser(user.getInternalUserId());
+		}
 	}
 
-	public User userLeft(String userid){
-		return users.remove(userid);	
+	public User userLeft(String userId) {
+		User user = getUserById(userId);
+		if (user != null) {
+			user.left();
+		}
+
+		return user;
+	}
+
+	public User removeUser(String userId) {
+		return this.users.remove(userId);
 	}
 
 	public User getUserById(String id){
@@ -520,24 +607,16 @@ public class Meeting {
         return sum;
     }
 	
+	public void addPad(String padId, String readOnlyId) {
+		pads.put(padId, readOnlyId);
+	}
+
+	public Boolean hasPad(String id) {
+		return pads.containsKey(id) || pads.containsValue(id);
+	}
+
 	public void addUserCustomData(String userID, Map<String, String> data) {
 		userCustomData.put(userID, data);
-	}
-
-	public void setMaxInactivityTimeoutMinutes(Integer value) {
-		maxInactivityTimeoutMinutes = value;
-	}
-
-	public void setWarnMinutesBeforeMax(Integer value) {
-		warnMinutesBeforeMax = value;
-	}
-
-	public Integer getMaxInactivityTimeoutMinutes() {
-		return maxInactivityTimeoutMinutes;
-	}
-
-	public Integer getWarnMinutesBeforeMax() {
-		return warnMinutesBeforeMax;
 	}
 
 	public void setMeetingExpireWhenLastUserLeftInMinutes(Integer value) {
@@ -581,6 +660,14 @@ public class Meeting {
         this.userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes;
     }
 
+    public String getMeetingEndedCallbackURL() {
+    	return meetingEndedCallbackURL;
+    }
+
+    public void setMeetingEndedCallbackURL(String meetingEndedCallbackURL) {
+    	this.meetingEndedCallbackURL = meetingEndedCallbackURL;
+    }
+
 	public Map<String, Object> getUserCustomData(String userID){
 		return (Map<String, Object>) userCustomData.get(userID);
 	}
@@ -595,6 +682,29 @@ public class Meeting {
 
     public ConcurrentMap<String, RegisteredUser> getRegisteredUsers() {
         return registeredUsers;
+    }
+
+    public ConcurrentMap<String, Long> getEnteredUsers() {
+        return this.enteredUsers;
+    }
+
+    public void userEntered(String userId) {
+        // Skip if user already joined
+        User u = getUserById(userId);
+        if (u != null) return;
+
+        if (!enteredUsers.containsKey(userId)) {
+            Long time = System.currentTimeMillis();
+            this.enteredUsers.put(userId, time);
+        }
+    }
+
+    public Long removeEnteredUser(String userId) {
+        return this.enteredUsers.remove(userId);
+    }
+
+    public Long getEnteredUserById(String userId) {
+        return this.enteredUsers.get(userId);
     }
 
     /***
@@ -627,9 +737,12 @@ public class Meeting {
     	private long createdTime;
     	private boolean isBreakout;
     	private String guestPolicy;
+    	private Boolean authenticatedGuest;
     	private BreakoutRoomsParams breakoutRoomsParams;
     	private LockSettingsParams lockSettingsParams;
 		private Boolean allowDuplicateExtUserid;
+		private Boolean endWhenNoModerator;
+		private int html5InstanceId;
 
     	public Builder(String externalId, String internalId, long createTime) {
     		this.externalId = externalId;
@@ -746,6 +859,11 @@ public class Meeting {
     		guestPolicy = policy;
     		return  this;
 		}
+    
+    	public Builder withAuthenticatedGuest(Boolean authGuest) {
+    		authenticatedGuest = authGuest;
+    		return this;
+    	}
 
 		public Builder withBreakoutRoomsParams(BreakoutRoomsParams params) {
     		breakoutRoomsParams = params;
@@ -759,6 +877,16 @@ public class Meeting {
 
 		public Builder withAllowDuplicateExtUserid(Boolean allowDuplicateExtUserid) {
     		this.allowDuplicateExtUserid = allowDuplicateExtUserid;
+    		return this;
+		}
+
+		public Builder withEndWhenNoModerator(Boolean endWhenNoModerator) {
+    		this.endWhenNoModerator = endWhenNoModerator;
+    		return this;
+		}
+
+		public Builder withHTML5InstanceId(int instanceId) {
+    		html5InstanceId = instanceId;
     		return this;
 		}
     

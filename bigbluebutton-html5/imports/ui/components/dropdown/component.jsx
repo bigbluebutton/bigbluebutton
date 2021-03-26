@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
-import { isMobile } from 'react-device-detect';
+import { isMobile, withOrientationChange } from 'react-device-detect';
 import TetherComponent from 'react-tether';
 import cx from 'classnames';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import screenreaderTrap from 'makeup-screenreader-trap';
 import { styles } from './styles';
@@ -52,7 +52,7 @@ const propTypes = {
   onHide: PropTypes.func,
   onShow: PropTypes.func,
   autoFocus: PropTypes.bool,
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   tethered: PropTypes.bool,
 };
 
@@ -161,7 +161,7 @@ class Dropdown extends Component {
       if (parentElement) parentElement.focus();
     }
 
-    if (keepOpen !== null) return;
+    if (keepOpen === true) return;
     this.handleHide();
   }
 
@@ -179,13 +179,17 @@ class Dropdown extends Component {
       tethered,
       placement,
       getContent,
+      isPortrait,
       ...otherProps
     } = this.props;
 
     const { isOpen } = this.state;
-    
+
+    const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
+    const isSmall = window.matchMedia(MOBILE_MEDIA).matches;
+
     const placements = placement && placement.replace(' ', '-');
-    const test = isMobile ? {
+    const test = isMobile && isPortrait && isSmall ? {
       width: '100%',
       height: '100%',
       transform: 'translateY(0)',
@@ -233,19 +237,19 @@ class Dropdown extends Component {
         tabIndex={-1}
       >
         {
-          tethered ?
-            (
+          tethered
+            ? (
               <TetherComponent
                 style={{
-                  zIndex: isOpen ? 15 : '',
+                  zIndex: isOpen ? 15 : -1,
                   ...test,
                 }}
                 attachment={
-                  isMobile ? 'middle bottom'
+                  isMobile && isPortrait && isSmall ? 'middle center'
                     : attachments[placements]
                 }
                 targetAttachment={
-                  isMobile ? ''
+                  isMobile && isPortrait && isSmall ? 'auto auto'
                     : targetAttachments[placements]
                 }
                 constraints={[
@@ -300,4 +304,4 @@ class Dropdown extends Component {
 
 Dropdown.propTypes = propTypes;
 Dropdown.defaultProps = defaultProps;
-export default injectIntl(Dropdown);
+export default injectIntl(withOrientationChange(Dropdown), { forwardRef: true });

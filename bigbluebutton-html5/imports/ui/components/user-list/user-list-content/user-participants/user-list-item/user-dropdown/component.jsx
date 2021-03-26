@@ -18,7 +18,8 @@ import { Session } from 'meteor/session';
 import { styles } from './styles';
 import UserName from '../user-name/component';
 import UserIcons from '../user-icons/component';
-import Service from '../../../../service';
+import Service from '/imports/ui/components/user-list/service';
+import WhiteboardService from '/imports/ui/components/whiteboard/service';
 
 const messages = defineMessages({
   presenter: {
@@ -32,10 +33,6 @@ const messages = defineMessages({
   locked: {
     id: 'app.userList.locked',
     description: 'Text for identifying locked user',
-  },
-  guest: {
-    id: 'app.userList.guest',
-    description: 'Text for identifying guest user',
   },
   menuTitleContext: {
     id: 'app.userList.menuTitleContext',
@@ -53,9 +50,9 @@ const messages = defineMessages({
     id: 'app.audio.backLabel',
     description: 'label for option to hide emoji menu',
   },
-  ChatLabel: {
+  StartPrivateChat: {
     id: 'app.userList.menu.chat.label',
-    description: 'Save the changes and close the settings menu',
+    description: 'label for option to start a new private chat',
   },
   ClearStatusLabel: {
     id: 'app.userList.menu.clearStatus.label',
@@ -68,6 +65,14 @@ const messages = defineMessages({
   makePresenterLabel: {
     id: 'app.userList.menu.makePresenter.label',
     description: 'label to make another user presenter',
+  },
+  giveWhiteboardAccess: {
+    id: 'app.userList.menu.giveWhiteboardAccess.label',
+    description: 'label to give user whiteboard access',
+  },
+  removeWhiteboardAccess: {
+    id: 'app.userList.menu.removeWhiteboardAccess.label',
+    description: 'label to remove user whiteboard access',
   },
   RemoveUserLabel: {
     id: 'app.userList.menu.removeUser.label',
@@ -237,11 +242,13 @@ class UserDropdown extends PureComponent {
       isMe,
       meetingIsBreakout,
       mountModal,
+      usersProp,
     } = this.props;
     const { showNestedOptions } = this.state;
 
+    const amIPresenter = currentUser.presenter;
     const amIModerator = currentUser.role === ROLE_MODERATOR;
-    const actionPermissions = getAvailableActions(amIModerator, meetingIsBreakout, user, voiceUser);
+    const actionPermissions = getAvailableActions(amIModerator, meetingIsBreakout, user, voiceUser, usersProp, amIPresenter);
     const actions = [];
 
     const {
@@ -255,6 +262,7 @@ class UserDropdown extends PureComponent {
       allowedToDemote,
       allowedToChangeStatus,
       allowedToChangeUserLockStatus,
+      allowedToChangeWhiteboardAccess,
     } = actionPermissions;
 
     const { disablePrivateChat } = lockSettingsProps;
@@ -323,7 +331,7 @@ class UserDropdown extends PureComponent {
     if (showChatOption) {
       actions.push(this.makeDropdownItem(
         'activeChat',
-        intl.formatMessage(messages.ChatLabel),
+        intl.formatMessage(messages.StartPrivateChat),
         () => {
           getGroupChatPrivate(currentUser.userId, user);
           Session.set('openPanel', 'chat');
@@ -342,7 +350,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToMuteAudio && isMeteorConnected) {
+    if (allowedToMuteAudio && isMeteorConnected && !meetingIsBreakout) {
       actions.push(this.makeDropdownItem(
         'mute',
         intl.formatMessage(messages.MuteUserAudioLabel),
@@ -351,12 +359,23 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToUnmuteAudio && !userLocks.userMic && isMeteorConnected) {
+    if (allowedToUnmuteAudio && !userLocks.userMic && isMeteorConnected && !meetingIsBreakout) {
       actions.push(this.makeDropdownItem(
         'unmute',
         intl.formatMessage(messages.UnmuteUserAudioLabel),
         () => this.onActionsHide(toggleVoice(user.userId)),
         'unmute',
+      ));
+    }
+
+    if (allowedToChangeWhiteboardAccess && !user.presenter && isMeteorConnected) {
+      const label = user.whiteboardAccess ? intl.formatMessage(messages.removeWhiteboardAccess) : intl.formatMessage(messages.giveWhiteboardAccess);
+
+      actions.push(this.makeDropdownItem(
+        'changeWhiteboardAccess',
+        label,
+        () => WhiteboardService.changeWhiteboardAccess(user.userId, !user.whiteboardAccess),
+        'pen_tool',
       ));
     }
 
@@ -371,7 +390,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToPromote && !user.guest && isMeteorConnected) {
+    if (allowedToPromote && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'promote',
         intl.formatMessage(messages.PromoteUserLabel),
@@ -380,7 +399,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToDemote && !user.guest && isMeteorConnected) {
+    if (allowedToDemote && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'demote',
         intl.formatMessage(messages.DemoteUserLabel),
@@ -538,6 +557,9 @@ class UserDropdown extends PureComponent {
         voice={voiceUser.isVoiceUser}
         noVoice={!voiceUser.isVoiceUser}
         color={user.color}
+        whiteboardAccess={user.whiteboardAccess}
+        emoji={user.emoji !== 'none'}
+        avatar={user.avatar}
       >
         {
         userInBreakout
@@ -555,6 +577,7 @@ class UserDropdown extends PureComponent {
       intl,
       isThisMeetingLocked,
       isMe,
+      isRTL,
     } = this.props;
 
     const {
@@ -593,6 +616,7 @@ class UserDropdown extends PureComponent {
       <div
         data-test={isMe(user.userId) ? 'userListItemCurrent' : 'userListItem'}
         className={!actions.length ? styles.userListItem : null}
+        style={{ direction: isRTL ? 'rtl' : 'ltr' }}
       >
         <div className={styles.userItemContents}>
           <div className={styles.userAvatar}>
@@ -631,6 +655,7 @@ class UserDropdown extends PureComponent {
         autoFocus={false}
         aria-haspopup="true"
         aria-live="assertive"
+        aria-label={userAriaLabel}
         aria-relevant="additions"
         placement={placement}
         getContent={dropdownContent => this.dropdownContent = dropdownContent}

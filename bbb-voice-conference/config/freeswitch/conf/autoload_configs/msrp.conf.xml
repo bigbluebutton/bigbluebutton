@@ -1,0 +1,12 @@
+<configuration name="msrp.conf" description="MSRP">
+  <settings>
+    <param name="listen-ip" value="$${local_ip_v4}"/>
+    <!-- <param name="listen-port" value="2855"/> -->
+    <!-- <param name="listen-ssl-port" value="2856"/> -->
+    <!-- <param name="message-buffer-size" value="50"/> -->
+    <!-- <param name="debug" value="true"/> -->
+    <!-- <param name="secure-cert" value="$${certs_dir}/wss.pem"/> -->
+    <!-- <param name="secure-key" value="$${certs_dir}/wss.pem"/> -->
+  </settings>
+</configuration>
+

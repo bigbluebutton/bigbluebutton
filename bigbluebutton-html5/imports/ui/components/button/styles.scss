@@ -1,5 +1,5 @@
-@import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/_indicators";
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 /* Base
  * ==========
@@ -63,13 +63,13 @@
 
   &:hover,
   &:focus {
-    @include highContrastOutline();
+    @extend %highContrastOutline;
     text-decoration: none;
   }
 
   &:active,
   &:focus {
-    @include highContrastOutline();
+    @extend %highContrastOutline;
     outline-style: solid;
   }
 
@@ -105,7 +105,7 @@
 
   &:focus,
   &:hover {
-    @include highContrastOutline();
+    @extend %highContrastOutline;
   }
 
   &:focus {
@@ -116,7 +116,7 @@
     &:focus {
       span:first-of-type::before {
         border-radius: 50%;
-        @include highContrastOutline();
+        @extend %highContrastOutline;
         outline-style: solid;
       }
     }

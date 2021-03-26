@@ -1,0 +1,36 @@
+<include>
+  <!-- Client Profile (Original mode) -->
+  <!-- to use this profile take the x- away from the open and close tags so its <profile> and </profile> -->
+  <x-profile type="client">
+    <param name="name" value="$${xmpp_client_profile}"/>
+    <param name="login" value="myjid@myserver.com/talk"/>
+    <param name="password" value="mypass"/>
+    <param name="dialplan" value="XML"/>
+    <param name="context" value="public"/>
+    <param name="message" value="Jingle all the way"/>
+    <param name="rtp-ip" value="$${bind_server_ip}"/>
+    <!-- <param name="ext-rtp-ip" value="auto-nat"/> -->
+    <param name="auto-login" value="true"/>
+    <!-- SASL "plain" or "md5" -->
+    <param name="sasl" value="plain"/>
+    <!-- if the server where the jabber is hosted is not the same as the one in the jid -->
+    <!--<param name="server" value="alternate.server.com"/>-->
+    <!-- Enable TLS or not -->
+    <param name="tls" value="true"/>
+    <!-- disable to trade async for more calls -->
+    <param name="use-rtp-timer" value="true"/>
+    <!-- default extension (if one cannot be determined) -->
+    <param name="exten" value="888"/>
+    <!-- VAD choose one -->
+    <!-- <param name="vad" value="in"/> -->
+    <!-- <param name="vad" value="out"/> -->
+    <!--<param name="vad" value="both"/>-->
+    <!--<param name="avatar" value="/path/to/tiny.jpg"/>-->
+    <!--<param name="candidate-acl" value="wan.auto"/>-->
+    <param name="local-network-acl" value="localnet.auto"/>
+
+    <!-- google voice does not work on this yet ....ikr... -->
+    <!--<param name="use-jingle" value="true"/>-->
+
+  </x-profile>
+</include>

@@ -29,8 +29,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     private SwfSlidesGenerationProgressNotifier notifier;
     private long imageTagThreshold;
     private long pathsThreshold;
-    private String convTimeout = "7s";
-    private int WAIT_FOR_SEC = 7;
+    private String convTimeout = "60s";
+    private int WAIT_FOR_SEC = 60;
 	private String BLANK_SVG;
 
     @Override

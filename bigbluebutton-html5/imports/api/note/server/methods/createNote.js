@@ -6,11 +6,12 @@ import {
   getReadOnlyIdURL,
   isEnabled,
   getDataFromResponse,
+  withInstaceId,
 } from '/imports/api/note/server/helpers';
 import addNote from '/imports/api/note/server/modifiers/addNote';
 import axios from 'axios';
 
-export default function createNote(meetingId) {
+export default function createNote(meetingId, instanceId) {
   // Avoid note creation if this feature is disabled
   if (!isEnabled()) {
     Logger.warn(`Notes are disabled for ${meetingId}`);
@@ -18,10 +19,12 @@ export default function createNote(meetingId) {
   }
 
   check(meetingId, String);
+  check(instanceId, Number);
 
-  const noteId = generateNoteId(meetingId);
+  const noteId = withInstaceId(instanceId, generateNoteId(meetingId));
 
   const createURL = createPadURL(noteId);
+
   axios({
     method: 'get',
     url: createURL,
@@ -30,6 +33,7 @@ export default function createNote(meetingId) {
     const { status } = responseOuter;
     if (status !== 200) {
       Logger.error(`Could not get note info for ${meetingId} ${status}`);
+      return;
     }
     const readOnlyURL = getReadOnlyIdURL(noteId);
     axios({

@@ -48,18 +48,16 @@ export default function resizeSlide(meetingId, slide) {
       $set: calculatedData,
     };
 
-    const cb = (err, numChanged) => {
-      if (err) {
-        return Logger.error(`Resizing slide positions id=${pageId}: ${err}`);
+    try {
+      const numberAffected = SlidePositions.update(selector, modifier);
+
+      if (numberAffected) {
+        Logger.debug(`Resized slide positions id=${pageId}`);
+      } else {
+        Logger.info(`No slide positions found with id=${pageId}`);
       }
-
-      if (numChanged) {
-        return Logger.debug(`Resized slide positions id=${pageId}`);
-      }
-
-      return Logger.info(`No slide positions found with id=${pageId}`);
-    };
-
-    return SlidePositions.update(selector, modifier, cb);
+    } catch (err) {
+      Logger.error(`Resizing slide positions id=${pageId}: ${err}`);
+    }
   }
 }

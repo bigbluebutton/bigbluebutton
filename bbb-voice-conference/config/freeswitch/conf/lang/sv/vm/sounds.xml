@@ -1,0 +1,504 @@
+<include><!--This line will be ignored it's here to validate the xml and is optional -->
+  <macro name="voicemail_enter_id">
+    <input pattern="(.*)">
+      <match>
+	<action function="play-file" data="voicemail/vm-knappa_in_din_anknytning_foljt_av.wav"/>
+	<action function="say" data="$1" method="pronounced" type="name_spelled"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_enter_pass">
+    <input pattern="(.*)">
+      <match>
+	<action function="play-file" data="voicemail/vm-knappa_in_ditt_pinnummer_foljt_av.wav"/>
+	<action function="say" data="$1" method="pronounced" type="name_spelled"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_fail_auth">
+    <input pattern="(.*)">
+      <match>
+	<action function="play-file" data="voicemail/vm-felaktig_inloggning.wav"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_hello">
+    <input pattern="(.*)">
+      <match>
+	<!--<action function="play-file" data="voicemail/vm-hej.wav"/> -->
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_goodbye">
+    <input pattern="(.*)">
+      <match>
+	<action function="play-file" data="voicemail/vm-hejda.wav"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_abort">
+    <input pattern="(.*)">
+      <match>
+	<action function="play-file" data="voicemail/vm-for_manga_felaktiga_forsok.wav"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_message_count">
+	<!-- 
+	Pattern matching needed:
+		0:*
+		1:new
+		*:new
+			:saved
+			:urgent
+			:urgent-new
+			:urgent-saved
+	-->
+	<input pattern="^(0):(.*)$" break_on_match="true">
+		<match>
+			<action function="play-file" data="voicemail/vm-du_har.wav"/>
+			<action function="play-file" data="voicemail/vm-inga.wav"/> 
+			<action function="play-file" data="voicemail/vm-meddelanden.wav"/>
+		</match>
+	</input>
+	<input pattern="^(1):new$" break_on_match="true">
+		<match>
+			<action function="play-file" data="voicemail/vm-du_har.wav"/>
+			<action function="say" data="$1" method="pronounced" type="items" gender="utrum"/>
+			<action function="play-file" data="voicemail/vm-nytt.wav"/> 
+			<action function="play-file" data="voicemail/vm-meddelande..wav"/>
+		</match>
+	</input>
+	<input pattern="^(\d+):new$" break_on_match="true">
+		<match>
+			<action function="play-file" data="voicemail/vm-du_har.wav"/>
+			<action function="say" data="$1" method="pronounced" type="items"/>
+			<action function="play-file" data="voicemail/vm-nya.wav"/> 
+			<action function="play-file" data="voicemail/vm-meddelanden.wav"/>
+		</match>
+	</input>
+	<input pattern="^(1):saved$" break_on_match="true">
+		<match>
+			<action function="play-file" data="voicemail/vm-du_har.wav"/>
+			<action function="say" data="$1" method="pronounced" type="items" gender="utrum"/>
+			<action function="play-file" data="voicemail/vm-sparat.wav"/> 
+			<action function="play-file" data="voicemail/vm-meddelande..wav"/>
+		</match>
+	</input>
+	<input pattern="^(\d+):saved$" break_on_match="true">
+		<match>
+			<action function="play-file" data="voicemail/vm-du_har.wav"/>
+			<action function="say" data="$1" method="pronounced" type="items"/>
+			<action function="play-file" data="voicemail/vm-sparade.wav"/> 
+			<action function="play-file" data="voicemail/vm-meddelanden.wav"/>
+		</match>
+	</input>
+	<input pattern="^(1):urgent$" break_on_match="true">
+		<match>
+			<action function="play-file" data="voicemail/vm-du_har.wav"/>
+			<action function="say" data="$1" method="pronounced" type="items" gender="utrum"/>
+			<action function="play-file" data="voicemail/vm-viktigt.wav"/> 
+			<action function="play-file" data="voicemail/vm-meddelande..wav"/>
+		</match>
+	</input>
+	<input pattern="^(\d+):urgent$" break_on_match="true">
+		<match>
+			<action function="play-file" data="voicemail/vm-du_har.wav"/>
+			<action function="say" data="$1" method="pronounced" type="items"/>
+			<action function="play-file" data="voicemail/vm-viktiga.wav"/> 
+			<action function="play-file" data="voicemail/vm-meddelanden.wav"/>
+		</match>
+	</input>
+	<input pattern="^(1):urgent-new$" break_on_match="true">
+		<match>
+			<action function="play-file" data="voicemail/vm-du_har.wav"/>
+			<action function="say" data="$1" method="pronounced" type="items" gender="utrum"/>
+			<action function="play-file" data="voicemail/vm-viktigt_nytt.wav"/> 
+			<action function="play-file" data="voicemail/vm-meddelande..wav"/>
+		</match>
+	</input>
+	<input pattern="^(\d+):urgent-new$" break_on_match="true">
+		<match>
+			<action function="play-file" data="voicemail/vm-du_har.wav"/>
+			<action function="say" data="$1" method="pronounced" type="items"/>
+			<action function="play-file" data="voicemail/vm-viktiga_nya.wav"/> 
+			<action function="play-file" data="voicemail/vm-meddelanden.wav"/>
+		</match>
+	</input>
+	<input pattern="^(1):urgent-saved$" break_on_match="true">
+		<match>
+			<action function="play-file" data="voicemail/vm-du_har.wav"/>
+			<action function="say" data="$1" method="pronounced" type="items" gender="utrum"/>
+			<action function="play-file" data="voicemail/vm-viktigt_sparat.wav"/> 
+			<action function="play-file" data="voicemail/vm-meddelande..wav"/>
+		</match>
+	</input>
+	<input pattern="^(\d+):urgent-saved$" break_on_match="true">
+		<match>
+			<action function="play-file" data="voicemail/vm-du_har.wav"/>
+			<action function="say" data="$1" method="pronounced" type="items"/>
+			<action function="play-file" data="voicemail/vm-viktiga_sparade.wav"/> 
+			<action function="play-file" data="voicemail/vm-meddelanden.wav"/>
+		</match>
+	</input>
+  </macro>
+
+  <macro name="voicemail_menu">
+    <input pattern="^([0-9#*]):([0-9#*]):([0-9#*]):([0-9#*])$">
+      <match>
+	<!-- To listen to new messages -->
+	<action function="play-file" data="voicemail/vm-for_att_lyssna_pa_nya_meddelanden.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$1" method="pronounced" type="name_spelled"/>
+	<action function="execute" data="sleep(200)"/>
+
+	<!-- To listen to saved messages -->
+	<action function="play-file" data="voicemail/vm-for_att_lyssna_pa_sparade_meddelanden.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$2" method="pronounced" type="name_spelled"/>
+	<action function="execute" data="sleep(200)"/>
+
+	<!-- For advanced options -->
+	<action function="play-file" data="voicemail/vm-for_avancerade_installningar.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$3" method="pronounced" type="name_spelled"/>
+	<action function="execute" data="sleep(200)"/>
+
+	<!-- To exit -->
+	<action function="play-file" data="voicemail/vm-for_att_avsluta.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$4" method="pronounced" type="name_phonetic"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_config_menu">
+    <input pattern="^([0-9#*]):([0-9#*]):([0-9#*]):([0-9#*]):([0-9#*])$">
+      <match>
+	<!-- To record a greeting -->
+	<action function="play-file" data="voicemail/vm-for_att_spela_in_en_halsning.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$1" method="pronounced" type="name_spelled"/>
+	<action function="execute" data="sleep(200)"/>
+
+	<!-- To choose greeting -->
+	<action function="play-file" data="voicemail/vm-for_att_valja_utgaende_meddelande.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$2" method="pronounced" type="name_spelled"/>
+	<action function="execute" data="sleep(200)"/>
+
+	<!-- To record your name -->
+	<action function="play-file" data="voicemail/vm-for_att_spela_in_ditt_namn.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$3" method="pronounced" type="name_spelled"/>
+	<action function="execute" data="sleep(200)"/>
+
+	<!-- To change password -->
+	<action function="play-file" data="voicemail/vm-for_att_byta_losenord.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$4" method="pronounced" type="name_spelled"/>
+	<action function="execute" data="sleep(200)"/>
+
+	<!-- To return to main menu -->
+	<action function="play-file" data="voicemail/vm-for_att_lyssna_till_huvudmenyn.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$5" method="pronounced" type="name_spelled"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_record_name">
+    <input pattern="^(.*)$">
+      <match>
+	<action function="play-file" data="voicemail/vm-efter_tonen_kan_du_spela_in_ditt_namn.wav"/>
+	<action function="play-file" data="voicemail/vm-for_att_avsluta_inspelningen.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck_valfri_knapp_eller_sluta_prata.wav"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_record_file_check">
+    <input pattern="^([0-9#*]):([0-9#*]):([0-9#*])$">
+      <match>
+	<action function="play-file" data="voicemail/vm-for_att_lyssna_pa_inspelningen.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$1" method="pronounced" type="name_spelled"/>
+	<action function="execute" data="sleep(200)"/>
+	<action function="play-file" data="voicemail/vm-for_att_spara_inspelningen.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$2" method="pronounced" type="name_spelled"/>
+	<action function="execute" data="sleep(200)"/>
+	<action function="play-file" data="voicemail/vm-for_att_spela_in_igen.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$3" method="pronounced" type="name_spelled"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_record_urgent_check">
+    <input pattern="^([0-9#*]):([0-9#*])$">
+      <match>
+	<action function="play-file" data="voicemail/vm-for_att_markera_detta_meddelande_viktigt.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$1" method="pronounced" type="name_spelled"/>
+	<action function="execute" data="sleep(200)"/>
+	<action function="play-file" data="voicemail/vm-for_att_fortsatta.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$2" method="pronounced" type="name_spelled"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_forward_prepend">
+    <input pattern="^([0-9#*]):([0-9#*])$">
+      <match>
+	<action function="play-file" data="voicemail/vm-for_att_infoga_en_introduktion_till_detta_meddelande.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$1" method="pronounced" type="name_spelled"/>
+	<action function="execute" data="sleep(200)"/>
+	<action function="play-file" data="voicemail/vm-for_att_skicka_detta_meddelande_nu.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$2" method="pronounced" type="name_spelled"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_forward_message_enter_extension">
+    <input pattern="^([0-9#*])$">
+      <match>
+	<action function="play-file" data="voicemail/vm-knappa_in_anknytningen_att_vidarebefordra_detta_meddelande_till.wav"/>
+	<action function="play-file" data="voicemail/vm-foljt_av.wav"/>
+	<action function="say" data="$1" method="pronounced" type="name_spelled"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_invalid_extension">
+    <input pattern="^(.*)$">
+      <match>
+	<action function="play-file" data="voicemail/vm-det_var_en_felaktig_anknytning.wav"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_listen_file_check">
+    <input pattern="^([0-9#*]):([0-9#*]):([0-9#*]):([0-9#*]):([0-9#*]):([0-9#*]):(.*)$">
+      <match>
+	<action function="play-file" data="voicemail/vm-for_att_lyssna_pa_inspelningen.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$1" method="pronounced" type="name_spelled"/>
+	<action function="execute" data="sleep(200)"/>
+	<action function="play-file" data="voicemail/vm-for_att_spara_meddelandet.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$2" method="pronounced" type="name_spelled"/>
+	<action function="execute" data="sleep(200)"/>
+	<action function="play-file" data="voicemail/vm-for_att_radera_inspelningen.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$3" method="pronounced" type="name_spelled"/>
+	<action function="execute" data="sleep(200)"/>
+	<action function="play-file" data="voicemail/vm-for_att_vidarebefordra_detta_meddelande_till_din_epost.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$4" method="pronounced" type="name_spelled"/>
+	<action function="execute" data="sleep(200)"/>
+	<action function="play-file" data="voicemail/vm-for_att_ringa_tillbaka_nu.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$5" method="pronounced" type="name_spelled"/>
+	<action function="execute" data="sleep(200)"/>
+	<action function="play-file" data="voicemail/vm-for_att_vidarebefordra_detta_meddelande.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$6" method="pronounced" type="name_spelled"/>
+      </match>
+    </input>
+    <input pattern="^([0-9#*]):([0-9#*]):([0-9#*]):([0-9#*]):([0-9#*]):([0-9#*])$">
+      <match>
+	<action function="play-file" data="voicemail/vm-for_att_lyssna_pa_inspelningen.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$1" method="pronounced" type="name_spelled"/>
+	<action function="execute" data="sleep(200)"/>
+	<action function="play-file" data="voicemail/vm-for_att_spara_meddelandet.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$2" method="pronounced" type="name_spelled"/>
+	<action function="execute" data="sleep(200)"/>
+	<action function="play-file" data="voicemail/vm-for_att_radera_inspelningen.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$3" method="pronounced" type="name_spelled"/>
+	<action function="execute" data="sleep(200)"/>
+	<action function="play-file" data="voicemail/vm-for_att_ringa_tillbaka_nu.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$5" method="pronounced" type="name_spelled"/>
+	<action function="execute" data="sleep(200)"/>
+	<action function="play-file" data="voicemail/vm-for_att_vidarebefordra_detta_meddelande.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck.wav"/>
+	<action function="say" data="$6" method="pronounced" type="name_spelled"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_choose_greeting">
+    <input pattern="^(.*)$">
+      <match>
+	<action function="play-file" data="voicemail/vm-valj_en_halsning_mellan_1_och_9.wav"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_choose_greeting_fail">
+    <input pattern="^(.*)$">
+      <match>
+	<action function="play-file" data="voicemail/vm-det_var_ett_felaktigt_val.wav"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_record_greeting">
+    <input pattern="^(.*)$">
+      <match>
+	<action function="play-file" data="voicemail/vm-spela_in_din_halsning_efter_tonen.wav"/>
+	<action function="play-file" data="voicemail/vm-for_att_avsluta_inspelningen.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck_valfri_knapp_eller_sluta_prata.wav"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_record_message">
+    <input pattern="^(.*)$">
+      <match>
+	<action function="play-file" data="voicemail/vm-spela_in_ditt_meddelande_efter_tonen.wav"/>
+	<action function="play-file" data="voicemail/vm-for_att_avsluta_inspelningen.wav"/>
+	<action function="play-file" data="voicemail/vm-tryck_valfri_knapp_eller_sluta_prata.wav"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_greeting_selected">
+    <input pattern="^(\d+)$">
+      <match>
+	<action function="play-file" data="voicemail/vm-meddelande_nummer.wav"/>
+	<action function="say" data="$1" method="pronounced" type="items"/>
+	<action function="play-file" data="voicemail/vm-markerad.wav"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_play_greeting">
+    <input pattern="^(.*)$">
+      <match>
+	<action function="play-file" data="voicemail/vm-personen_med_anknytning.wav"/>
+	<action function="say" data="$1" method="pronounced" type="name_spelled"/>
+	<action function="play-file" data="voicemail/vm-not_ar_inte_tillganglig.wav"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_say_number">
+    <input pattern="^(\d+)$">
+      <match>
+	<action function="say" data="$1" method="pronounced" type="items"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_say_message_number">
+    <input pattern="^([a-z]+):(\d+)$">
+      <match>
+	<action function="play-file" data="voicemail/vm-$1.wav"/> 
+	<action function="play-file" data="voicemail/vm-meddelande_nummer.wav"/>
+	<action function="say" data="$2" method="pronounced" type="items"/> 
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_say_phone_number">
+    <input pattern="^(.*)$">
+      <match>
+	<action function="say" data="$1" method="pronounced" type="name_spelled"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_say_name">
+    <input pattern="^(.*)$">
+      <match>
+	<action function="say" data="$1" method="pronounced" type="name_spelled"/>
+      </match>
+    </input>
+  </macro>
+  <!-- Note: Update this to marked-urgent,emailed and saved once new sound files are recorded -->
+  <macro name="voicemail_ack"> 
+    <input pattern="^(too-small)$">
+      <match>
+	<action function="play-file" data="voicemail/vm-din_inspelning_ar_kortare_an_tillaten_langd_vanligen_forsok_igen.wav"/>
+      </match>
+    </input>
+    <input pattern="^(deleted)$">
+      <match>
+	<action function="play-file" data="voicemail/vm-meddelande.wav"/>
+	<action function="play-file" data="voicemail/vm-raderat.wav"/>
+      </match>
+    </input>
+    <input pattern="^(saved)$">
+      <match>
+	<action function="play-file" data="voicemail/vm-meddelande.wav"/>
+	<action function="play-file" data="voicemail/vm-sparat.wav"/>
+      </match>
+    </input>
+    <input pattern="^(emailed)$">
+      <match>
+	<action function="play-file" data="voicemail/vm-meddelande.wav"/>
+	<action function="play-file" data="voicemail/vm-skickat_pa_epost.wav"/>
+      </match>
+    </input>
+    <input pattern="^(marked-urgent)$">
+      <match>
+	<action function="play-file" data="voicemail/vm-meddelande.wav"/>
+	<action function="play-file" data="voicemail/vm-markerat_som_viktigt.wav"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_say_date">
+    <input pattern="^(.*)$">
+      <match>
+	<action function="say" data="$1" method="pronounced" type="current_date_time"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="voicemail_disk_quota_exceeded">
+    <input pattern="^(.*)$">
+        <match>
+            <action function="play-file" data="voicemail/vm-den_rostbrevladan_ar_full_vanligen_forsok_ringa_senare.wav"/>
+        </match>
+    </input>
+  </macro>
+
+  <macro name="valet_announce_ext">
+    <input pattern="^([^\:]+):(.*)$">
+      <match>
+        <action function="say" data="$2" method="pronounced" type="name_spelled"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="valet_lot_full">
+    <input pattern="^(.*)$">
+      <match>
+        <action function="play-file" data="tone_stream://%(275,10,600);%(275,100,300)"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="valet_lot_empty">
+    <input pattern="^(.*)$">
+      <match>
+        <action function="play-file" data="tone_stream://%(275,10,600);%(275,100,300)"/>
+      </match>
+    </input>
+  </macro>
+</include><!--This line will be ignored it's here to validate the xml and is optional -->

@@ -1,0 +1,417 @@
+<include>
+
+  <macros name="voicemail_ivr">
+    <macro name="press_key">
+      <input pattern="^(.*):(.*)$">
+        <match>
+          <action function="play-file" data="$2"/>
+          <action function="play-file" data="voicemail/vm-press.wav"/>
+          <action function="say" data="$1" method="pronounced" type="name_spelled"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="plural_msg">
+      <input pattern="^[1]:(.*):(.*)$" break_on_match="true">
+        <match>
+          <action function="play-file" data="$1"/>
+        </match>
+      </input>
+      <input pattern="^.*:(.*):(.*)$" break_on_match="true">
+        <match>
+          <action function="play-file" data="$2"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="enter_id">
+      <input pattern="(.+)">
+        <match>
+          <action function="play-file" data="voicemail/vm-enter_id.wav"/>
+          <action function="say" data="$1" method="pronounced" type="name_spelled"/>
+        </match>
+        <nomatch>
+          <action function="play-file" data="voicemail/vm-enter_id.wav"/>
+          <action function="say" data="${VM-Key-Terminator}" method="pronounced" type="name_spelled"/>
+        </nomatch>
+      </input>
+    </macro>
+
+    <macro name="enter_pass">
+      <input pattern="(.+)">
+        <match>
+          <action function="play-file" data="voicemail/vm-enter_pass.wav"/>
+          <action function="say" data="$1" method="pronounced" type="name_spelled"/>
+        </match>
+        <nomatch>
+          <action function="play-file" data="voicemail/vm-enter_pass.wav"/>
+          <action function="say" data="${VM-Key-Terminator}" method="pronounced" type="name_spelled"/>
+        </nomatch>
+
+      </input>
+    </macro>
+
+    <macro name="fail_auth">
+      <input>
+        <match>
+          <action function="play-file" data="voicemail/vm-fail_auth.wav"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="hello">
+      <input>
+        <match>
+          <!--<action function="play-file" data="voicemail/vm-hello.wav"/> -->
+        </match>
+      </input>
+    </macro>
+
+    <macro name="goodbye">
+      <input>
+        <match>
+          <action function="play-file" data="voicemail/vm-goodbye.wav"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="abort">
+      <input>
+        <match>
+          <action function="play-file" data="voicemail/vm-abort.wav"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="message_count">
+      <input field="${VM-Total-New-Urgent-Messages}" pattern="^(0)$">
+        <nomatch>
+          <action function="play-file" data="voicemail/vm-you_have.wav"/>
+          <action function="say" data="${VM-Total-New-Urgent-Messages}" method="pronounced" type="items"/>
+          <action function="play-file" data="voicemail/vm-urgent-new.wav"/>
+          <action function="phrase" phrase="plural_msg@voicemail_ivr" data="${VM-Total-New-Urgent-Messages}:voicemail/vm-message.wav:voicemail/vm-messages.wav"/>
+        </nomatch>
+      </input>
+      <input field="${VM-Total-New-Messages}" pattern="^(\d+)$">
+        <match>
+          <action function="play-file" data="voicemail/vm-you_have.wav"/>
+          <action function="say" data="${VM-Total-New-Messages}" method="pronounced" type="items"/>
+          <action function="play-file" data="voicemail/vm-new.wav"/>
+          <action function="phrase" phrase="plural_msg@voicemail_ivr" data="${VM-Total-New-Messages}:voicemail/vm-message.wav:voicemail/vm-messages.wav"/>
+        </match>
+      </input>
+      <input field="${VM-Total-Saved-Messages}" pattern="^(0)$">
+        <nomatch>
+          <action function="play-file" data="currency/and.wav"/>
+          <action function="say" data="${VM-Total-Saved-Messages}" method="pronounced" type="items"/>
+          <action function="play-file" data="voicemail/vm-saved.wav"/>
+          <action function="phrase" phrase="plural_msg@voicemail_ivr" data="${VM-Total-Saved-Messages}:voicemail/vm-message.wav:voicemail/vm-messages.wav"/>
+        </nomatch>
+      </input>
+    </macro>
+
+    <macro name="menu">
+      <input field="${VM-Total-New-Messages}" pattern="^(0)$">
+        <nomatch>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Play-New-Messages}:voicemail/vm-listen_new.wav"/>
+	</nomatch>
+      </input>
+      <input field="${VM-Total-Saved-Messages}" pattern="^(0)$">
+	<nomatch>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Play-Saved-Messages}:voicemail/vm-listen_saved.wav"/>
+	</nomatch>
+      </input>
+      <input>
+	<match>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Config-Menu}:voicemail/vm-advanced.wav"/>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Terminator}:voicemail/vm-to_exit.wav"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="config_menu">
+      <input>
+        <match>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Record-Greeting}:voicemail/vm-to_record_greeting.wav"/>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Choose-Greeting}:voicemail/vm-choose_greeting.wav"/>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Record-Name}:voicemail/vm-record_name2.wav"/>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Change-Password}:voicemail/vm-change_password.wav"/>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Main-Menu}:voicemail/vm-main_menu.wav"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="record_name">
+      <input>
+        <match>
+          <action function="play-file" data="voicemail/vm-record_name1.wav"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="forward_ask_prepend">
+      <input>
+        <match>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Prepend}:voicemail/vm-forward_add_intro.wav"/>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Forward}:voicemail/vm-send_message_now.wav"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="forward_ask_extension">
+      <input>
+        <match>
+          <action function="play-file" data="voicemail/vm-forward_enter_ext.wav"/>
+          <!--<action function="phrase" phrase="play-file" data="voicemail/vm-followed_by.wav"/>-->
+          <!--<action function="say" data="${VM-Key-Terminate}" method="pronounced" type="name_spelled"/>-->
+        </match>
+      </input>
+    </macro>
+
+    <macro name="record_file_check">
+      <input>
+        <match>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Listen-File}:voicemail/vm-listen_to_recording.wav"/>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Save-File}:voicemail/vm-save_recording.wav"/>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Record-File}:voicemail/vm-rerecord.wav"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="record_urgent_check">
+      <input>
+        <match>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Urgent}:voicemail/vm-mark-urgent.wav"/>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Terminator}:voicemail/vm-continue.wav"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="forward_prepend">
+      <input>
+        <match>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Prepend}:voicemail/vm-forward_add_intro.wav"/>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Forward}:voicemail/vm-send_message_now.wav"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="forward_message_enter_extension">
+      <input pattern="^([0-9#*])$">
+        <match>
+          <action function="play-file" data="voicemail/vm-forward_enter_ext.wav"/>
+          <action function="play-file" data="voicemail/vm-followed_by.wav"/>
+          <action function="say" data="$1" method="pronounced" type="name_spelled"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="invalid_extension">
+      <input>
+        <match>
+          <action function="play-file" data="voicemail/vm-that_was_an_invalid_ext.wav"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="listen_file_check">
+      <input>
+        <match>
+          <!--<action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Main-Next-Msg}:voicemail/vm-for_next_msg.wav"/>--> <!-- Not existant in callie recordings -->
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Main-Listen-File}:voicemail/vm-listen_to_recording.wav"/>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Main-Save-File}:voicemail/vm-save_recording.wav"/>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Main-Delete-File}:voicemail/vm-delete_recording.wav"/>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Main-Forward}:voicemail/vm-to_forward.wav"/>
+        </match>
+      </input>
+      <input field="${VM-Message-Email}" pattern="^$">
+        <nomatch>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Main-Email}:voicemail/vm-forward_to_email.wav"/>
+        </nomatch>
+      </input>
+      <input>
+        <match>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Main-Callback}:voicemail/vm-return_call.wav"/>
+          <action function="phrase" phrase="press_key@voicemail_ivr" data="${VM-Key-Main-Forward}:voicemail/vm-to_forward.wav"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="choose_greeting">
+      <input>
+        <match>
+          <action function="play-file" data="voicemail/vm-choose_greeting_choose.wav"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="choose_greeting_fail">
+      <input>
+        <match>
+          <action function="play-file" data="voicemail/vm-choose_greeting_fail.wav"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="record_greeting">
+      <input>
+        <match>
+          <action function="play-file" data="voicemail/vm-record_greeting.wav"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="record_message">
+      <input>
+        <match>
+          <action function="play-file" data="voicemail/vm-record_message.wav"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="greeting_selected">
+      <input pattern="^(\d+)$">
+        <match>
+	  <action function="play-file" data="${VM-Preference-Greeting-File-Path}"/>
+          <action function="play-file" data="voicemail/vm-greeting.wav"/>
+          <action function="say" data="$1" method="pronounced" type="items"/>
+          <action function="play-file" data="voicemail/vm-selected.wav"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="play_greeting">
+      <input pattern="^(.*)$">
+        <match>
+          <action function="play-file" data="voicemail/vm-person.wav"/>
+          <action function="say" data="$1" method="pronounced" type="name_spelled"/>
+          <action function="play-file" data="voicemail/vm-not_available.wav"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="say_number">
+      <input pattern="^(\d+)$">
+        <match>
+          <action function="say" data="$1" method="pronounced" type="items"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="say_message_number">
+      <input>
+        <match>
+          <action function="play-file" data="voicemail/vm-${VM-Message-Type}.wav"/>
+          <action function="play-file" data="voicemail/vm-message_number.wav"/>
+          <action function="say" data="${VM-Message-Number}" method="pronounced" type="items"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="say_phone_number">
+      <input pattern="^(.*)$">
+        <match>
+          <action function="say" data="$1" method="pronounced" type="name_spelled"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="say_name">
+      <input pattern="^(.*)$">
+        <match>
+          <action function="say" data="$1" method="pronounced" type="name_spelled"/>
+        </match>
+      </input>
+    </macro>
+    <!-- Note: Update this to marked-urgent,emailed and saved once new sound files are recorded -->
+    <macro name="ack">
+      <input pattern="^(too-small)$">
+        <match>
+          <action function="play-file" data="voicemail/vm-too-small.wav"/>
+        </match>
+      </input>
+      <input pattern="^(undeleted)$">
+        <match>
+          <action function="play-file" data="voicemail/vm-message.wav"/>
+          <action function="play-file" data="voicemail/vm-$1.wav"/>
+        </match>
+      </input>
+      <input pattern="^(deleted)$">
+        <match>
+          <action function="play-file" data="voicemail/vm-message.wav"/>
+          <action function="play-file" data="voicemail/vm-$1.wav"/>
+        </match>
+      </input>
+      <input pattern="^(saved)$">
+        <match>
+          <action function="play-file" data="voicemail/vm-message.wav"/>
+          <action function="play-file" data="voicemail/vm-$1.wav"/>
+        </match>
+      </input>
+      <input pattern="^(emailed)$">
+        <match>
+          <action function="play-file" data="voicemail/vm-message.wav"/>
+          <action function="play-file" data="voicemail/vm-$1.wav"/>
+        </match>
+      </input>
+      <input pattern="^(marked-urgent)$">
+        <match>
+          <action function="play-file" data="voicemail/vm-message.wav"/>
+          <action function="play-file" data="voicemail/vm-$1.wav"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="say_date">
+      <input pattern="^(.*)$">
+        <match>
+          <action function="say" data="$1" method="pronounced" type="short_date_time"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="say_date_event">
+      <input>
+        <match>
+          <action function="say" data="${VM-Message-Received-Epoch}" method="pronounced" type="short_date_time"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="play_message">
+      <input>
+        <match>
+          <action function="play-file" data="${VM-Message-File-Path}"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="play_recording">
+      <input>
+        <match>
+          <action function="play-file" data="${VM-Record-File-Path}"/>
+        </match>
+      </input>
+    </macro>
+
+    <macro name="disk_quota_exceeded">
+      <input>
+        <match>
+          <action function="play-file" data="voicemail/vm-mailbox_full.wav"/>
+        </match>
+      </input>
+    </macro>
+  </macros>
+
+</include>
+<!--
+For Emacs:
+Local Variables:
+mode:xml
+indent-tabs-mode:nil
+tab-width:2
+c-basic-offset:2
+End:
+For VIM:
+vim:set softtabstop=2 shiftwidth=2 tabstop=2 expandtab:
+-->

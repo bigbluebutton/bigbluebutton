@@ -1,5 +1,3 @@
-@import "/imports/ui/stylesheets/variables/_all";
-
 .keyCell, .valueCell, .userInfoTable {
   border: var(--border-size) solid var(--color-gray-lighter);
 }
@@ -21,4 +19,3 @@
 .keyCell, .valueCell {
   padding: var(--md-padding-x);
 }
-

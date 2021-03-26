@@ -10,6 +10,7 @@ import createNote from '/imports/api/note/server/methods/createNote';
 import createCaptions from '/imports/api/captions/server/methods/createCaptions';
 import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
+import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
 import BannedUsers from '/imports/api/users/server/store/bannedUsers';
 
 export default function addMeeting(meeting) {
@@ -35,6 +36,7 @@ export default function addMeeting(meeting) {
     usersProp: {
       webcamsOnlyForModerator: Boolean,
       guestPolicy: String,
+      authenticatedGuest: Boolean,
       maxUsers: Number,
       allowModsToUnmuteUsers: Boolean,
     },
@@ -42,8 +44,6 @@ export default function addMeeting(meeting) {
       createdTime: Number,
       duration: Number,
       createdDate: String,
-      maxInactivityTimeoutMinutes: Number,
-      warnMinutesBeforeMax: Number,
       meetingExpireIfNoUserJoinedInMinutes: Number,
       meetingExpireWhenLastUserLeftInMinutes: Number,
       userInactivityInspectTimerInMinutes: Number,
@@ -87,6 +87,9 @@ export default function addMeeting(meeting) {
       lockOnJoin: Boolean,
       lockOnJoinConfigurable: Boolean,
       lockedLayout: Boolean,
+    },
+    systemProps: {
+      html5InstanceId: Number,
     },
   });
 
@@ -145,61 +148,51 @@ export default function addMeeting(meeting) {
       meetingId,
       meetingEnded,
       publishedPoll: false,
+      guestLobbyMessage: '',
+      randomlySelectedUser: '',
     }, flat(newMeeting, {
       safe: true,
     })),
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      Logger.error(`Adding meeting to collection: ${err}`);
+  if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
+    addAnnotationsStreamer(meetingId);
+    addCursorStreamer(meetingId);
+    addExternalVideoStreamer(meetingId);
+
+    // we don't want to fully process the create meeting message in frontend since it can lead to duplication of meetings in mongo.
+    if (process.env.BBB_HTML5_ROLE === 'frontend') {
       return;
     }
+  }
 
-    const {
-      insertedId,
-    } = numChanged;
-
-    if (insertedId) {
-      Logger.info(`Added meeting id=${meetingId}`);
-      // TODO: Here we call Etherpad API to create this meeting notes. Is there a
-      // better place we can run this post-creation routine?
-      createNote(meetingId);
-      createCaptions(meetingId);
-      BannedUsers.init(meetingId);
-    }
-
-    if (numChanged) {
-      Logger.info(`Upserted meeting id=${meetingId}`);
-    }
-  };
-
-  const cbRecord = (err, numChanged) => {
-    if (err) {
-      Logger.error(`Adding record prop to collection: ${err}`);
-      return;
-    }
-
-    const {
-      insertedId,
-    } = numChanged;
+  try {
+    const { insertedId, numberAffected } = RecordMeetings.upsert(selector, { meetingId, ...recordProp });
 
     if (insertedId) {
       Logger.info(`Added record prop id=${meetingId}`);
-    }
-
-    if (numChanged) {
+    } else if (numberAffected) {
       Logger.info(`Upserted record prop id=${meetingId}`);
     }
-  };
+  } catch (err) {
+    Logger.error(`Adding record prop to collection: ${err}`);
+  }
 
-  RecordMeetings.upsert(selector, {
-    meetingId,
-    ...recordProp,
-  }, cbRecord);
+  try {
+    const { insertedId, numberAffected } = Meetings.upsert(selector, modifier);
 
-  addAnnotationsStreamer(meetingId);
-  addCursorStreamer(meetingId);
+    if (insertedId) {
+      Logger.info(`Added meeting id=${meetingId}`);
 
-  return Meetings.upsert(selector, modifier, cb);
+      const { html5InstanceId } = meeting.systemProps;
+      createNote(meetingId, html5InstanceId);
+      createCaptions(meetingId, html5InstanceId);
+
+      BannedUsers.init(meetingId);
+    } else if (numberAffected) {
+      Logger.info(`Upserted meeting id=${meetingId}`);
+    }
+  } catch (err) {
+    Logger.error(`Adding meeting to collection: ${err}`);
+  }
 }

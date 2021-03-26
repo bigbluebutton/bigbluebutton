@@ -11,6 +11,7 @@ export default function toggleUserLock(userId, lock) {
 
   const { meetingId, requesterUserId: lockedBy } = extractCredentials(this.userId);
 
+  check(meetingId, String);
   check(lockedBy, String);
   check(userId, String);
   check(lock, Boolean);
@@ -21,8 +22,9 @@ export default function toggleUserLock(userId, lock) {
     lock,
   };
 
-  Logger.verbose(`User ${lockedBy} updated lock status from ${userId} to ${lock}
-  in meeting ${meetingId}`);
+  Logger.verbose('Updated lock status for user', {
+    meetingId, userId, lock, lockedBy,
+  });
 
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, lockedBy, payload);
