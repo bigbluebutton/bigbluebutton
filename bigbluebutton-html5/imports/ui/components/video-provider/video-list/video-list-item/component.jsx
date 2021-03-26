@@ -122,6 +122,12 @@ class VideoListItem extends Component {
     const { videoIsReady } = this.state;
     if (!videoIsReady) this.setState({ videoIsReady: true });
     window.dispatchEvent(new Event('resize'));
+
+    /* used when re-sharing cameras after leaving a breakout room.
+    it is needed in cases where the user has more than one active camera
+    so we only share the second camera after the first
+    has finished loading (can't share more than one at the same time) */
+    Session.set('canConnect', true);
   }
 
   getAvailableActions() {
