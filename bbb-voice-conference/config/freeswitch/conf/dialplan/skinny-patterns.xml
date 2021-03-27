@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    NOTICE:
+
+    This context is used for skinny to match dialed number
+
+    The special applications:
+    - skinny-process tells skinny to process the call (route, set call forwarding, ...)
+    - skinny-drop tells skinny to drop the call
+    - skinny-wait tells skinny to wait 'data' seconds for more numbers before drop
+-->
+<!-- http://wiki.freeswitch.org/wiki/Mod_skinny -->
+<include>
+  <context name="skinny-patterns">
+    <!--
+    Wait 10 seconds for another digit by default, if data not specified, uses profile default
+    -->
+    <extension name="Default">
+      <condition>
+        <action application="skinny-wait" data="10"/>
+      </condition>
+    </extension>
+
+    <!--
+	You can place files in the skinny-patterns directory to get included.
+    -->
+    <X-PRE-PROCESS cmd="include" data="skinny-patterns/*.xml"/>
+
+  </context>
+</include>

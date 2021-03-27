@@ -73,7 +73,7 @@ class WhiteboardToolbar extends Component {
 
     const {
       annotations,
-      multiUserSize,
+      multiUser,
       isPresenter,
     } = this.props;
 
@@ -82,7 +82,7 @@ class WhiteboardToolbar extends Component {
       value: 'hand',
     };
 
-    if (multiUserSize !== 0 && !isPresenter) {
+    if (multiUser && !isPresenter) {
       annotationSelected = {
         icon: 'pen_tool',
         value: 'pencil',
@@ -138,7 +138,7 @@ class WhiteboardToolbar extends Component {
   componentDidMount() {
     const {
       actions,
-      multiUserSize,
+      multiUser,
       isPresenter,
     } = this.props;
 
@@ -153,7 +153,7 @@ class WhiteboardToolbar extends Component {
     // if there are saved drawSettings in the session storage
     // - retrieve them and update toolbar values
     if (drawSettings) {
-      if (multiUserSize !== 0 && !isPresenter) {
+      if (multiUser && !isPresenter) {
         drawSettings.whiteboardAnnotationTool = 'pencil';
         this.handleAnnotationChange({ icon: 'pen_tool', value: 'pencil' });
       }
@@ -366,12 +366,12 @@ class WhiteboardToolbar extends Component {
 
   handleSwitchWhiteboardMode() {
     const {
-      multiUserSize,
+      multiUser,
       whiteboardId,
       actions,
     } = this.props;
 
-    if (multiUserSize !== 0) {
+    if (multiUser) {
       actions.removeWhiteboardGlobalAccess(whiteboardId);
     } else {
       actions.addWhiteboardGlobalAccess(whiteboardId);
@@ -774,19 +774,20 @@ class WhiteboardToolbar extends Component {
     const {
       intl,
       isMeteorConnected,
+      multiUser,
       multiUserSize,
     } = this.props;
 
     return (
       <span className={styles.multiUserToolItem}>
-        {multiUserSize > 0 && <span className={styles.multiUserTool}>{multiUserSize}</span>}
+        {multiUser && <span className={styles.multiUserTool}>{multiUserSize}</span>}
         <ToolbarMenuItem
           disabled={!isMeteorConnected}
-          label={multiUserSize > 0
+          label={multiUser
             ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
             : intl.formatMessage(intlMessages.toolbarMultiUserOn)
           }
-          icon={multiUserSize > 0 ? 'multi_whiteboard' : 'whiteboard'}
+          icon={multiUser ? 'multi_whiteboard' : 'whiteboard'}
           onItemClick={this.handleSwitchWhiteboardMode}
           className={styles.toolbarButton}
         />
@@ -820,6 +821,12 @@ WhiteboardToolbar.defaultProps = {
 };
 
 WhiteboardToolbar.propTypes = {
+  // defines a current mode of the whiteboard, multi/single user
+  multiUser: PropTypes.bool.isRequired,
+
+  // defines the number of non-presenters that have access to the whiteboard
+  multiUserSize: PropTypes.number.isRequired,
+
   // defines whether a current user is a presenter or not
   isPresenter: PropTypes.bool.isRequired,
 

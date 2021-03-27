@@ -88,6 +88,16 @@ const attachLocalPreviewStream = (mediaElement) => {
   }
 }
 
+const stopStreamTracks = (stream) => {
+  if (stream && typeof stream.getTracks === 'function') {
+    stream.getTracks().forEach(track => {
+      if (typeof track.stop === 'function') {
+        track.stop();
+      }
+    });
+  }
+}
+
 const screenshareHasStarted = () => {
   // Presenter's screen preview is local, so skip
   if (!UserListService.amIPresenter()) {
@@ -105,6 +115,7 @@ const shareScreen = async (onFail) => {
 
   try {
     const stream = await BridgeService.getScreenStream();
+    if(!UserListService.isUserPresenter(Auth.userID)) return stopStreamTracks(stream);
     await KurentoBridge.share(stream, onFail);
     setSharingScreen(true);
   } catch (error) {

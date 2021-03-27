@@ -36,6 +36,8 @@ class Subscriptions extends Component {
   }
 }
 
+let usersPersistentDataHandler = null;
+
 export default withTracker(() => {
   const { credentials } = Auth;
   const { meetingId, requesterUserId } = credentials;
@@ -104,6 +106,9 @@ export default withTracker(() => {
 
     const chatIds = chats.map(chat => chat.chatId);
     groupChatMessageHandler = Meteor.subscribe('group-chat-msg', chatIds, subscriptionErrorHandler);
+  }
+  if (ready && !usersPersistentDataHandler) {
+    usersPersistentDataHandler = Meteor.subscribe('users-persistent-data');
   }
 
   return {

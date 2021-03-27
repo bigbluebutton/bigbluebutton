@@ -1,0 +1,37 @@
+<configuration name="sangoma_codec.conf" description="Sangoma Codec Configuration">
+
+	<settings>
+		<!--
+		Comma separated list of codecs to register with FreeSWITCH, 
+		by default (if this parameter is not set) all available codecs are registered.
+		Valid codec values are: PCMU,PCMA,G729,G726-32,G722,GSM,G723,AMR,G7221,iLBC
+		If this parameter is not specified only G729 will be registered
+		<param name="register" value="all"/>
+		-->
+
+		<!-- 
+		List of codecs to not register with FreeSWITCH, by default this is empty,
+	        but you may want to not load PCMU and PCMA or may be others to not use your 
+	        resources in codecs that are done well and fast in software.	
+		<param name="noregister" value="PCMU,PCMA"/>
+		-->
+
+		<!--
+		Transcoding SOAP server URL. If you are installing the soap server (sngtc_server)
+		in the same box where FreeSWITCH, do not use this value, the default URL
+		that is hard-coded will work out of the box for local installations.
+		If you modify this value, you must configure your SOAP server (/etc/sngtc/sngtc_server.conf.xml)
+		to listen for HTTP requests on the same IP/port that you specify here.
+		<param name="soapserver" value="http://192.168.1.100:8080"/>
+		-->
+
+		<!--
+		RTP IP to use
+		By default, this module asks FreeSWITCH for the local ip address. However if you want to use a specific
+		IP address you can set it here.
+		<param name="rtpip" value="192.168.1.1"/>
+		-->
+	</settings>
+
+</configuration>
+

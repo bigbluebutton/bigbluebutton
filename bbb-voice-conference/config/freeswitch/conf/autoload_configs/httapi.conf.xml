@@ -1,0 +1,129 @@
+<configuration name="httapi.conf" description="HT-TAPI Hypertext Telephony API">
+  <settings>
+    <!-- print xml on the console -->
+    <param name="debug" value="true"/>
+    <!-- time to keep audio files when discovered they were deleted from the http server -->
+    <param name="file-not-found-expires" value="300"/>
+    <!-- how often to re-check the server to make sure the remote file has not changed -->
+    <param name="file-cache-ttl" value="300"/>
+  </settings>
+  <profiles>
+    <profile name="default">
+
+      <!-- default params for conference action tags -->
+      <conference>
+	<param name="default-profile" value="default"/>
+      </conference>
+
+      <!-- default params for dial action tags -->
+      <dial>
+	<param name="context" value="default"/>
+	<param name="dialplan" value="XML"/>
+      </dial>
+
+      <!-- permissions -->
+      <permissions>
+	<!-- <permission name="all" value="true"/> -->
+	<!--<permission name="none" value="true"/> -->
+	<permission name="set-params" value="true"/>
+	<permission name="set-vars" value="false">
+	  <!-- default to "deny" or "allow" -->
+	  <!-- type attr can be "deny" or "allow" nothing defaults to opposite of the list default so allow in this case -->
+	  <!-- 
+	  <variable-list default="deny">
+	    <variable name="caller_id_name"/>
+	    <variable name="hangup"/> 
+	  </variable-list>
+	  -->
+	</permission>
+	<permission name="get-vars" value="false">
+	  <!-- default to "deny" or "allow" -->
+	  <!-- type attr can be "deny" or "allow" nothing defaults to opposite of the list default so allow in this case -->
+	  <!-- 
+	  <variable-list default="deny">
+	    <variable name="caller_id_name"/>
+	    <variable name="hangup"/> 
+	  </variable-list>
+	  -->
+	</permission>
+	<permission name="extended-data" value="false"/>
+	<permission name="execute-apps" value="true">
+	  <!-- default to "deny" or "allow" -->
+	  <application-list default="deny">
+	    <!-- type attr can be "deny" or "allow" nothing defaults to opposite of the list default so allow in this case -->
+	    <application name="info"/>
+	    <application name="hangup"/>
+	  </application-list>
+	</permission>
+	<permission name="expand-vars-in-tag-body" value="false">
+	  <!-- default to "deny" or "allow" -->
+	  <!-- type attr can be "deny" or "allow" nothing defaults to opposite of the list default so allow in this case -->
+	  <!-- 
+	  <variable-list default="deny">
+	    <variable name="caller_id_name"/>
+	    <variable name="hangup"/> 
+	  </variable-list>
+
+	  <api-list default="deny">
+	    <api name="expr"/>
+	    <api name="lua"/> 
+	  </api-list>
+	  -->
+	</permission>
+	<permission name="dial" value="true"/>
+	<permission name="dial-set-context" value="false"/>
+	<permission name="dial-set-dialplan" value="false"/>
+	<permission name="dial-set-cid-name" value="false"/>
+	<permission name="dial-set-cid-number" value="false"/>
+	<permission name="dial-full-originate" value="false"/>
+	<permission name="conference" value="true"/>
+	<permission name="conference-set-profile" value="false"/>
+      </permissions>
+      
+      <params>
+	<!-- default url can be overridden by app data -->
+	<param name="gateway-url" value="http://www.freeswitch.org/api/index.cgi" />
+	
+	<!-- set this to provide authentication credentials to the server -->
+	<!--<param name="gateway-credentials" value="muser:mypass"/>-->
+	<!--<param name="auth-scheme" value="basic"/>-->
+
+	<!-- optional: this will enable the CA root certificate check by libcurl to
+	     verify that the certificate was issued by a major Certificate Authority.
+	     note: default value is disabled. only enable if you want this! -->
+	<!--<param name="enable-cacert-check" value="true"/>-->
+	<!-- optional: verify that the server is actually the one listed in the cert -->
+	<!-- <param name="enable-ssl-verifyhost" value="true"/> -->
+
+	<!-- optional: these options can be used to specify custom SSL certificates
+	     to use for HTTPS communications. Either use both options or neither.
+	     Specify your public key with 'ssl-cert-path' and the private key with
+	     'ssl-key-path'. If your private key has a password, specify it with
+	     'ssl-key-password'. -->
+	<!-- <param name="ssl-cert-path" value="$${certs_dir}/public_key.pem"/> -->
+	<!-- <param name="ssl-key-path" value="$${certs_dir}/private_key.pem"/> -->
+	<!-- <param name="ssl-key-password" value="MyPrivateKeyPassword"/> -->
+	<!-- optional timeout -->
+	<!-- <param name="timeout" value="10"/> -->
+	<!-- optional: maximum amount of time in seconds that is allowed to make the connection to the server -->
+	<!-- <param name="connect-timeout" value="2"/> -->
+
+	<!-- optional: use a custom CA certificate in PEM format to verify the peer
+	     with. This is useful if you are acting as your own certificate authority.
+	     note: only makes sense if used in combination with "enable-cacert-check." -->
+	<!-- <param name="ssl-cacert-file" value="$${certs_dir}/cacert.pem"/> -->
+
+	<!-- optional: specify the SSL version to force HTTPS to use. Valid options are
+	     "SSLv3" and "TLSv1". Otherwise libcurl will auto-negotiate the version. -->
+	<!-- <param name="ssl-version" value="TLSv1"/> -->
+
+	<!-- optional: enables cookies and stores them in the specified file. -->
+	<!-- <param name="cookie-file" value="$${temp_dir}/cookie-mod_xml_curl.txt"/> -->
+
+	<!-- one or more of these imply you want to pick the exact variables that are transmitted -->
+	<!--<param name="enable-post-var" value="Caller-Unique-ID"/>-->
+      </params>
+
+    </profile>
+  </profiles>
+</configuration>

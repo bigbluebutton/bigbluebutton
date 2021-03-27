@@ -1,0 +1,8 @@
+<configuration name="java.conf" description="Java Plug-Ins">
+  <javavm path="/opt/jdk1.6.0_04/jre/lib/amd64/server/libjvm.so"/>
+  <options>
+    <option value="-Djava.class.path=$${script_dir}/freeswitch.jar:$${script_dir}/example.jar"/>
+    <option value="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:8000"/>
+  </options>
+  <startup class="org/freeswitch/example/ApplicationLauncher" method="startup"/>
+</configuration>

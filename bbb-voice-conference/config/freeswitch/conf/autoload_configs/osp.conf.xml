@@ -1,0 +1,53 @@
+<configuration name="osp.conf" description="OSP Module Configuration">
+	<settings>
+		<!-- Debug info flag -->
+		<param name="debug-info" value="disabled"/>
+		<!-- Log level for debug info -->
+		<param name="log-level" value="info"/>
+		<!-- Crypto hareware accelerate is disabled by default -->
+		<param name="crypto-hardware" value="disabled"/>
+		<!-- SIP settings -->
+		<param name="sip" module="sofia" profile="external"/>
+		<!-- H.323 settings -->
+		<!-- <param name="h323" module="h323" profile="external"/> -->
+		<!-- IAX settings -->
+		<!-- <param name="iax" module="iax" profile="external"/> -->
+		<!-- Skype settings -->
+		<!-- <param name="skype" module="skypopen" profile="external"/> -->
+		<!-- Default destination protocol -->
+		<param name="default-protocol" value="sip"/>
+	</settings>
+
+	<profiles>
+	<!-- Default OSP profile -->
+		<profile name="default">
+			<!-- Service point URLs, up to 8 allowed -->
+			<!-- <param name="service-point-url" value="http://osptestserver.transnexus.com:5045/osp"/> -->
+			<!-- <param name="service-point-url" value="https://127.0.0.1:1443/osp"/> -->
+			<param name="service-point-url" value="http://127.0.0.1:5045/osp"/>
+
+			<!-- FreeSWITCH IP address for OSP -->
+			<param name="device-ip" value="127.0.0.1:5080"/>
+
+			<!-- SSL lifetime in seconds -->
+			<param name="ssl-lifetime" value="300"/>
+			<!-- HTTP max connections, 1~1000 -->
+			<param name="http-max-connections" value="20"/>
+			<!-- HTTP persistence in seconds -->
+			<param name="http-persistence" value="60"/>
+			<!-- HTTP retry delay in seconds, 0~10 -->
+			<param name="http-retry-delay" value="0"/>
+			<!-- HTTP retry limit, 0~100 -->
+			<param name="http-retry-limit" value="2"/>
+			<!-- HTTP timeout in milliseconds, 200~60000 -->
+			<param name="http-timeout" value="10000"/>
+
+			<!-- OSP work mode, direct or indirect -->
+			<param name="work-mode" value="direct"/>
+			<!-- OSP service type, voice or npquery -->
+			<param name="service-type" value="voice"/>
+			<!-- Max number of destinations -->
+			<param name="max-destinations" value="12"/>
+		</profile>
+	</profiles>
+</configuration>

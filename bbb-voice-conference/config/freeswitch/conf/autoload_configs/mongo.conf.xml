@@ -1,0 +1,15 @@
+<configuration name="mongo.conf">
+  <settings>
+    <!-- 
+         mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
+    -->
+    <param name="connection-string" value="mongodb://127.0.0.1:27017/?connectTimeoutMS=10000"/>
+
+<!--
+    <param name="map" value="function() { emit(this.a, 1); }"/>
+    <param name="reduce" value="function(key, values) { return Array.sum(values); }"/>
+    <param name="finalize" value="function(key, value) { return value;}"/>
+-->
+
+  </settings>
+</configuration>
