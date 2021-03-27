@@ -96,7 +96,7 @@ source /etc/bigbluebutton/bigbluebutton-release
 # Figure out our environment (Debian vs. CentOS)
 #
 
-if [ -f /etc/centos-release ]; then
+if [ -f /etc/centos-release ] || [ -f /etc/system-release ]; then
     DISTRIB_ID=centos
     TOMCAT_USER=tomcat
     TOMCAT_DIR=/var/lib/$TOMCAT_USER
