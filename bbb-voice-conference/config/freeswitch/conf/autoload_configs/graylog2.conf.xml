@@ -1,0 +1,24 @@
+<configuration name="graylog2.conf" description="Graylog2 Logger">
+  <!-- emerg   - system is unusable  -->
+  <!-- alert   - action must be taken immediately  -->
+  <!-- crit    - critical conditions  -->
+  <!-- err     - error conditions  -->
+  <!-- warning - warning conditions  -->
+  <!-- notice  - normal, but significant, condition  -->
+  <!-- info    - informational message  -->
+  <!-- debug   - debug-level message -->
+  <settings>
+    <param name="server-host" value="192.168.0.69"/>
+    <param name="server-port" value="12201"/>
+    <param name="loglevel" value="warning"/>
+    <!-- Uncomment if using logstash w/ gelf.rb -->
+    <!--param name="send-uncompressed-header" value="true"/-->
+
+    <!-- fields to add to every log associated w/ a session -->
+    <fields>
+      <!-- for example: channel variable "customer_account_number" will be the data source for the customer field in graylog2 -->
+      <!--field name="customer" variable="customer_account_number"/-->
+    </fields>
+  </settings>
+</configuration>
+

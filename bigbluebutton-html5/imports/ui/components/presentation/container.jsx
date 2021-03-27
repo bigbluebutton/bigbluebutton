@@ -10,6 +10,7 @@ import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import WhiteboardService from '/imports/ui/components/whiteboard/service';
 
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
@@ -73,7 +74,7 @@ export default withTracker(({ podId }) => {
     slidePosition,
     downloadPresentationUri: PresentationAreaService.downloadPresentationUri(podId),
     userIsPresenter: PresentationAreaService.isPresenter(podId) && !layoutSwapped,
-    multiUser: PresentationAreaService.getMultiUserStatus(currentSlide && currentSlide.id)
+    multiUser: WhiteboardService.hasMultiUserAccess(currentSlide && currentSlide.id, Auth.userID)
       && !layoutSwapped,
     presentationIsDownloadable,
     mountPresentationArea: !!currentSlide,

@@ -9,7 +9,6 @@ import {
   fetchWebRTCMappedStunTurnServers,
   getMappedFallbackStun,
 } from '/imports/utils/fetchStunTurnServers';
-import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import logger from '/imports/startup/client/logger';
 import { notifyStreamStateChange } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 
@@ -465,24 +464,6 @@ class VideoProvider extends Component {
     }
 
     this.webRtcPeers[cameraId] = {};
-
-    // WebRTC restrictions may need a capture device permission to release
-    // useful ICE candidates on recvonly/no-gUM peers
-    if (!isLocal) {
-      try {
-        await tryGenerateIceCandidates();
-      } catch (error) {
-        logger.error({
-          logCode: 'video_provider_no_valid_candidate_gum_failure',
-          extraInfo: {
-            cameraId,
-            role,
-            errorName: error.name,
-            errorMessage: error.message,
-          },
-        }, `Forced gUM to release additional ICE candidates failed due to ${error.name}.`);
-      }
-    }
 
     try {
       iceServers = await fetchWebRTCMappedStunTurnServers(this.info.sessionToken);

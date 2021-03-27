@@ -1,0 +1,87 @@
+<configuration name="amqp.conf" description="mod_amqp">
+  <producers>
+    <profile name="default">
+      <connections>
+	<connection name="primary">
+	  <param name="hostname" value="localhost"/>
+	  <param name="virtualhost" value="/"/>
+	  <param name="username" value="guest"/>
+	  <param name="password" value="guest"/>
+	  <param name="port" value="5673"/>
+	  <param name="heartbeat" value="0"/>
+	</connection>
+	<connection name="secondary">
+	  <param name="hostname" value="localhost"/>
+	  <param name="virtualhost" value="/"/>
+	  <param name="username" value="guest"/>
+	  <param name="password" value="guest"/>
+	  <param name="port" value="5672"/>
+	  <param name="heartbeat" value="0"/>
+	</connection>
+      </connections>
+      <params>
+	<param name="exchange-name" value="TAP.Events"/>
+	<param name="exchange-type" value="topic"/>
+	<param name="circuit_breaker_ms" value="10000"/>
+	<param name="reconnect_interval_ms" value="1000"/>
+	<param name="send_queue_size" value="5000"/>
+	<param name="enable_fallback_format_fields" value="1"/>
+
+	<!-- The routing key is made from the format string, using the header values in the event specified in the format_fields.-->
+	<!-- Fields that are prefixed with a # are treated as literals rather than doing a header lookup -->
+	<param name="format_fields" value="#FreeSWITCH,FreeSWITCH-Hostname,Event-Name,Event-Subclass,Unique-ID"/>
+
+	<!-- If enable_fallback_format_fields is enabled, then you can | separate event headers, and if the first does not exist
+	     then the system will check additional configured header values.
+	-->
+	<!-- <param name="format_fields" value="#FreeSWITCH,FreeSWITCH-Hostname|#Unknown,Event-Name,Event-Subclass,Unique-ID"/> -->
+
+	<!--    <param name="event_filter" value="SWITCH_EVENT_ALL"/> -->
+	<param name="event_filter" value="SWITCH_EVENT_CHANNEL_CREATE,SWITCH_EVENT_CHANNEL_DESTROY,SWITCH_EVENT_HEARTBEAT,SWITCH_EVENT_DTMF"/>
+      </params>
+    </profile>
+  </producers>
+  <commands>
+    <profile name="default">
+      <connections>
+	<connection name="primary">
+	  <param name="hostname" value="localhost"/>
+	  <param name="virtualhost" value="/"/>
+	  <param name="username" value="guest"/>
+	  <param name="password" value="guest"/>
+	  <param name="port" value="5672"/>
+	  <param name="heartbeat" value="0"/>
+	</connection>
+      </connections>
+      <params>
+	<param name="exchange-name" value="TAP.Commands"/>
+	<param name="binding_key" value="commandBindingKey"/>
+	<param name="reconnect_interval_ms" value="1000"/>
+	<param name="queue-passive" value="false"/>
+	<param name="queue-durable" value="false"/>
+	<param name="queue-exclusive" value="false"/>
+	<param name="queue-auto-delete" value="true"/>
+      </params>
+    </profile>
+  </commands>
+  <logging>
+    <profile name="default">
+      <connections>
+	<connection name="primary">
+	  <param name="hostname" value="localhost"/>
+	  <param name="virtualhost" value="/"/>
+	  <param name="username" value="guest"/>
+	  <param name="password" value="guest"/>
+	  <param name="port" value="5672"/>
+	  <param name="heartbeat" value="0"/>
+	</connection>
+      </connections>
+      <params>
+	<param name="exchange-name" value="TAP.Logging"/>
+	<param name="send_queue_size" value="5000"/>
+	<param name="reconnect_interval_ms" value="1000"/>
+	<param name="log-levels" value="debug,info,notice,warning,err,crit,alert"/>
+      </params>
+    </profile>
+  </logging>
+</configuration>

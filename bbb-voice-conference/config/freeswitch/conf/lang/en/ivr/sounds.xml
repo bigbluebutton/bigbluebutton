@@ -1,0 +1,163 @@
+<include>
+  <macro name="fifo_position">
+    <input pattern="^(.*)$">
+      <match>
+        <action function="play-file" data="ivr/ivr-you_are_number.wav"/>
+        <action function="say" data="${fifo_position}" method="pronounced" type="items"/>
+        <action function="play-file" data="ivr/ivr-in_line.wav"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="queue_position">
+    <input pattern="^(\d+)$">
+      <match>
+        <action function="play-file" data="ivr/ivr-you_are_number.wav"/>
+        <action function="say" data="$1" method="pronounced" type="items"/>
+        <action function="play-file" data="ivr/ivr-in_line.wav"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="has_called_conf">
+    <input pattern="^(\d+)$">
+      <match>
+        <action function="play-file" data="$1"/>
+        <action function="sleep" data="100"/>
+        <action function="play-file" data="conference/conf-has_joined.wav"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="has_left_conf">
+    <input pattern="^(\d+)$">
+      <match>
+        <action function="play-file" data="$1"/>
+        <action function="sleep" data="100"/>
+        <action function="play-file" data="conference/conf-has_left.wav"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="callers_in_conf">
+    <input pattern="^1$" break_on_match="true">
+      <match>
+        <action function="sleep" data="500"/>
+        <!--<action function="play-file" data="ivr/ivr-there_is.wav"/>-->
+        <action function="play-file" data="digits/1.wav"/>
+        <action function="sleep" data="100"/>
+        <action function="play-file" data="conference/conf-listener_in_conference.wav"/>
+      </match>
+    </input>
+    <input pattern="^(\d+)$">
+      <match>
+        <action function="sleep" data="500"/>
+        <action function="play-file" data="ivr/ivr-there_are.wav"/>
+        <action function="say" data="$1" method="pronounced" type="items"/>
+        <action function="sleep" data="100"/>
+        <action function="play-file" data="conference/conf-members_in_conference.wav"/>
+      </match>
+      <nomatch>
+        <action function="sleep" data="500"/>
+        <action function="play-file" data="ivr/ivr-there_are.wav"/>
+        <action function="play-file" data="digits/0.wav"/>
+        <action function="sleep" data="100"/>
+        <action function="play-file" data="conference/conf-members_in_conference.wav"/>
+      </nomatch>
+    </input>
+  </macro>
+
+  <macro name="enter_dest_number">
+    <input pattern="^(.*)$">
+      <match>
+        <action function="sleep" data="1000"/>
+        <action function="play-file" data="ivr/ivr-enter_destination_telephone_number.wav"/>
+        <action function="sleep" data="1000"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="enter_src_number">
+    <input pattern="^(.*)$">
+      <match>
+        <action function="sleep" data="1000"/>
+        <action function="play-file" data="ivr/ivr-enter_source_telephone_number.wav"/>
+        <action function="sleep" data="1000"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="call_forward_set">
+    <input pattern="^(\d+):(\d+)$">
+      <match>
+        <action function="sleep" data="1000"/>
+        <action function="play-file" data="ivr/ivr-extension_number.wav"/>
+        <action function="sleep" data="400"/>
+        <action function="say" data="$1" method="iterated" type="number"/>
+        <action function="sleep" data="400"/>
+        <action function="play-file" data="digits/2.wav"/>
+        <action function="sleep" data="1000"/>
+        <action function="play-file" data="ivr/ivr-extension_number.wav"/>
+        <action function="sleep" data="400"/>
+        <action function="say" data="$2" method="iterated" type="number"/>
+        <action function="sleep" data="1000"/>
+        <action function="play-file" data="ivr/ivr-call_forwarding_has_been_set.wav"/>
+        <action function="sleep" data="1500"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="call_forward_cancel">
+    <input pattern="^(\d+)$">
+      <match>
+        <action function="sleep" data="1000"/>
+        <action function="play-file" data="ivr/ivr-extension_number.wav"/>
+        <action function="sleep" data="400"/>
+        <action function="say" data="$1" method="iterated" type="number"/>
+        <action function="play-file" data="ivr/ivr-call_forwarding_has_been_cancelled.wav"/>
+        <action function="sleep" data="1500"/>
+      </match>
+    </input>
+  </macro>
+
+  <macro name="screen_confirm">
+    <input pattern="^(.*)$">
+      <match>
+        <action function="sleep" data="500"/>
+        <action function="play-file" data="ivr/ivr-call_from.wav"/>
+        <action function="sleep" data="250"/>
+        <!-- Note, be sure to pass in the full path to the file or else!! -->
+        <action function="play-file" data="$1"/>
+        <action function="sleep" data="500"/>
+        <action function="play-file" data="ivr/ivr-to_accept_press_one.wav"/>
+        <action function="sleep" data="500"/>
+        <action function="play-file" data="ivr/ivr-to_reject.wav"/>
+        <action function="sleep" data="50"/>
+        <action function="play-file" data="ivr/ivr-hang_up.wav"/>
+        <action function="sleep" data="1500"/>
+        <action function="play-file" data="ivr/ivr-call_from.wav"/>
+        <action function="sleep" data="250"/>
+        <action function="play-file" data="$1"/>
+        <action function="sleep" data="500"/>
+        <action function="play-file" data="ivr/ivr-to_accept_press_one.wav"/>
+        <action function="sleep" data="500"/>
+        <action function="play-file" data="ivr/ivr-to_reject.wav"/>
+        <action function="sleep" data="50"/>
+        <action function="play-file" data="ivr/ivr-hang_up.wav"/>
+        <action function="sleep" data="1500"/>
+      </match>
+    </input>
+  </macro>
+
+</include>
+<!--
+For Emacs:
+Local Variables:
+mode:xml
+indent-tabs-mode:nil
+tab-width:2
+c-basic-offset:2
+End:
+For VIM:
+vim:set softtabstop=2 shiftwidth=2 tabstop=2 expandtab:
+-->

@@ -54,7 +54,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="enteredUserCleanupTimerTask" ref="enteredUserCleanupTimerTask"/>
         <property name="gw" ref="bbbWebApiGWApp"/>
         <property name="callbackUrlService" ref="callbackUrlService"/>
-        <property name="keepEvents" value="${keepEvents}"/>
         <property name="usersTimeout" value="${usersTimeout}"/>
         <property name="enteredUsersTimeout" value="${enteredUsersTimeout}"/>
     </bean>
@@ -164,6 +163,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="lockSettingsLockOnJoinConfigurable" value="${lockSettingsLockOnJoinConfigurable}"/>
         <property name="allowDuplicateExtUserid" value="${allowDuplicateExtUserid}"/>
         <property name="endWhenNoModerator" value="${endWhenNoModerator}"/>
+        <property name="defaultKeepEvents" value="${defaultKeepEvents}"/>
     </bean>
 
     <import resource="doc-conversion.xml"/>

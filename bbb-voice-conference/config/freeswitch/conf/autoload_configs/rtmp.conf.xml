@@ -1,0 +1,17 @@
+<configuration name="rtmp.conf" description="RTMP Endpoint">
+  <profiles>
+	<profile name="default">
+		<settings>
+			<param name="bind-address" value="0.0.0.0:1935" />
+			<param name="context" value="public" />
+			<param name="dialplan" value="XML" />
+			<!-- If this is set to true, no unauthenticated inbound calls will be allowed -->
+			<param name="auth-calls" value="true" />
+			<!-- How much time should the clients buffer the media stream (miliseconds) -->
+			<param name="buffer-len" value="50" />
+			<!-- Sets the maximum size of outbound RTMP chunks -->
+			<param name="chunksize" value="512" />
+		</settings>
+	</profile>
+  </profiles>
+</configuration>

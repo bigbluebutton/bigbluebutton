@@ -1,0 +1,19 @@
+<include>
+    <extension name="bbb_conferences_ws">
+      <condition field="${bbb_authorized}" expression="true" break="on-false"/>
+      <condition field="${sip_via_protocol}" expression="^wss?$"/>
+      <condition field="destination_number" expression="^(\d{5,11})$">
+        <action application="jitterbuffer" data="60:120"/>
+        <action application="answer"/>
+        <action application="conference" data="$1@cdquality"/>
+      </condition>
+    </extension>
+    <extension name="bbb_conferences">
+      <condition field="${bbb_authorized}" expression="true" break="on-false"/>
+      <condition field="destination_number" expression="^(\d{5,11})$">
+        <action application="jitterbuffer" data="60:120"/>
+        <action application="answer"/>
+        <action application="conference" data="$1@cdquality"/>
+      </condition>
+    </extension>
+</include>

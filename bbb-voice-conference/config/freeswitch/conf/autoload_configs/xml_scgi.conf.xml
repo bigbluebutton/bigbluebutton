@@ -1,0 +1,12 @@
+<configuration name="xml_scgi.conf" description="SCGI XML Gateway">
+  <bindings>
+    <binding name="example">
+      <!-- one or more |-delim of configuration|directory|dialplan -->
+      <!-- <param name="host" value="127.0.0.1" bindings="dialplan"/> -->
+      <!-- <param name="port" value="8080"/> -->
+      <!-- <param name="timeout" value="10"/> -->
+      <!-- one or more of these imply you want to pick the exact variables that are transmitted -->
+      <!--<param name="enable-post-var" value="Unique-ID"/>-->
+    </binding>
+  </bindings>
+</configuration>

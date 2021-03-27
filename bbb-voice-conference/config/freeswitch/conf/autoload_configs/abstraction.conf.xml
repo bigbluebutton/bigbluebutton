@@ -1,0 +1,5 @@
+<configuration name="abstraction.conf" description="Abstraction">
+<apis>
+	<api name="user_name" description="Return Name for extension" syntax="&lt;exten&gt;" parse="(.*)" destination="user_data" argument="$1@default var effective_caller_id_name"/>
+</apis>
+</configuration>
