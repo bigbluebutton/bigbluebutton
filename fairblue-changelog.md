@@ -1,5 +1,6 @@
 # Changelog of Fairblue development
-##next
+## next
+* Buttons for translation feature are visible if languages are avaiable
 ## 10032021
 * Fix bug when selecting interpreter language in firefox
 ## 07032021
