@@ -4,8 +4,8 @@ import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers'
 
 export default class TriangleDrawComponent extends Component {
   shouldComponentUpdate(nextProps) {
-    const { version } = this.props;
-    return version !== nextProps.version;
+    const { version, hidden } = this.props;
+    return version !== nextProps.version || hidden !== nextProps.hidden;
   }
 
   getCoordinates() {
@@ -34,8 +34,9 @@ export default class TriangleDrawComponent extends Component {
 
   render() {
     const path = this.getCoordinates();
-    const { annotation, slideWidth } = this.props;
+    const { annotation, slideWidth, hidden } = this.props;
     return (
+      hidden ? null :
       <path
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
         fill="none"
