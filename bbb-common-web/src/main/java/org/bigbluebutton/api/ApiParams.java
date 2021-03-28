@@ -68,6 +68,7 @@ public class ApiParams {
     public static final String LOCK_SETTINGS_DISABLE_PUBLIC_CHAT = "lockSettingsDisablePublicChat";
     public static final String LOCK_SETTINGS_DISABLE_NOTE = "lockSettingsDisableNote";
     public static final String LOCK_SETTINGS_HIDE_USER_LIST = "lockSettingsHideUserList";
+    public static final String LOCK_SETTINGS_HIDE_ANNOTATIONS = "lockSettingsHideAnnotations";
     public static final String LOCK_SETTINGS_LOCKED_LAYOUT = "lockSettingsLockedLayout";
     public static final String LOCK_SETTINGS_LOCK_ON_JOIN = "lockSettingsLockOnJoin";
     public static final String LOCK_SETTINGS_LOCK_ON_JOIN_CONFIGURABLE = "lockSettingsLockOnJoinConfigurable";
