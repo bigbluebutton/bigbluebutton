@@ -5,6 +5,7 @@ import addAnnotationQuery from '/imports/api/annotations/addAnnotation';
 import { Slides } from '/imports/api/slides';
 import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
+import Meetings from '/imports/api/meetings';
 
 const Annotations = new Mongo.Collection(null);
 const UnsentAnnotations = new Mongo.Collection(null);
@@ -277,6 +278,35 @@ const removeIndividualAccess = (whiteboardId, userId) => {
   makeCall('removeIndividualAccess', whiteboardId, userId);
 };
 
+const currentUserID = () => {
+  return Auth.userID ;
+};
+
+const annotatorID = (annotation) => {
+  return annotation.id.replace(/-.*$/,'');
+};
+
+const hideAnnotationsForAnnotator = () => {
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
+    { fields: { 'lockSettingsProps.hideAnnotations': 1 } });
+  return meeting && meeting.lockSettingsProps ? meeting.lockSettingsProps.hideAnnotations : false;
+};
+
+const isPresenter = () => {
+  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } });
+  return currentUser ? currentUser.presenter : false;
+};
+
+const isHePresenter = (somebody) => {
+  const he = Users.findOne({ userId: somebody }, { fields: { presenter: 1 } });
+  return he ? he.presenter : false;
+};
+
+const hasAccessToWhiteboard = (whiteboardId) => {
+  const multiUser = getMultiUser(whiteboardId);
+  return multiUser.includes(Auth.userID) ? true : false;
+};
+
 export {
   Annotations,
   UnsentAnnotations,
@@ -292,4 +322,10 @@ export {
   addIndividualAccess,
   removeGlobalAccess,
   removeIndividualAccess,
+  currentUserID,
+  annotatorID,
+  hideAnnotationsForAnnotator,
+  isPresenter,
+  isHePresenter,
+  hasAccessToWhiteboard,
 };
