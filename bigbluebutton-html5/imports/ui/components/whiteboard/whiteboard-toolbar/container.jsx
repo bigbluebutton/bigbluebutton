@@ -31,6 +31,7 @@ export default withTracker((params) => {
     annotations: WhiteboardToolbarService.filterAnnotationList(),
     isMeteorConnected: Meteor.status().connected,
     multiUserSize: WhiteboardService.getMultiUserSize(whiteboardId),
+    hideAnnotationsForAnnotator: WhiteboardService.hideAnnotationsForAnnotator(),
   };
 
   return data;
