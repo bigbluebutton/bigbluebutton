@@ -822,7 +822,7 @@ check_configuration() {
        echo
        echo "# Warning: No firewall detected.  Recommend using setting up a firewall for your server"
        echo "#"
-       echo "#     https://docs.bigbluebutton.org/2.2/troubleshooting.html#freeswitch-using-default-stun-server"
+       echo "#     https://docs.bigbluebutton.org/2.2/customize.html#setup-a-firewall"
        echo "#"
        echo
     fi
