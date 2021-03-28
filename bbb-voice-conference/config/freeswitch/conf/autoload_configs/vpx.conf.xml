@@ -1,0 +1,237 @@
+<configuration name="vpx.conf" description="VPX Config">
+  <settings>
+    <!-- <param name="debug" value="1"/> -->
+
+    <!-- max bitrate the system support, truncate if over limit: bps string -->
+    <!-- <param name="max-bitrate" value="5mb"/> -->
+
+    <!-- maximum rtp payload size before encryption: 500..1440 -->
+    <!-- <param name="rtp-slice-size" value="1200"/> -->
+
+    <!-- minimum time to generate a new key frame in ms: 10..3000 /> -->
+    <!-- <param name="key-frame-min-freq" value="250"/> -->
+
+    <!-- integer, or 'auto', or 'cpu[/<divisor>[/<max>]]' -->
+    <!-- <param name="dec-threads" value="cpu/2/4"/> -->
+    <!-- <param name="enc-threads" value="1"/> -->
+  </settings>
+
+  <profiles>
+    <profile name="vp8">
+      <!-- integer, or 'auto', or 'cpu[/<divisor>[/<max>]]' -->
+      <!-- <param name="dec-threads" value="cpu/2/4"/> -->
+      <!-- <param name="enc-threads" value="1"/> -->
+
+      <!-- 0..3 -->
+      <!-- <param name="g-profile" value="2"/> -->
+      <!-- DEFAULT | PARTITIONS -->
+      <!-- <param name="g-error-resilient" value="PARTITIONS"/> -->
+      <!-- ONE_PASS, FIRST_PASS, LAST_PASS"/> -->
+      <!-- <param name="g-pass" value="ONE_PASS"/> -->
+      <!-- 0..25 -->
+      <!-- <param name="g-lag-in-frames" value="0"/> -->
+      <!-- 0..100 -->
+      <!-- <param name="rc-dropframe-thresh" value="0"/> -->
+      <!-- 0, 1 -->
+      <!-- <param name="rc-resize-allowed" value="1"/> -->
+      <!-- 0.. -->
+      <!-- <param name="rc-scaled-width" value="1"/> -->
+      <!-- 0.. -->
+      <!-- <param name="rc-scaled-height" value="1"/> -->
+      <!-- 0..100 -->
+      <!-- <param name="rc-resize-up-thresh" value="60"/> -->
+      <!-- 0..100 -->
+      <!-- <param name="rc-resize-down-thresh" value="30"/> -->
+      <!-- VBR, CBR, CQ, Q -->
+      <!-- <param name="rc-end-usage" value="CBR"/> -->
+      <!-- bps string -->
+      <!-- <param name="rc-target-bitrate" value="1mb"/> -->
+      <!-- 0..63 -->
+      <!-- <param name="rc-min-quantizer" value="0"/> -->
+      <!-- 0..63 -->
+      <!-- <param name="rc-max-quantizer" value="63"/> -->
+      <!-- 0..1000 -->
+      <!-- <param name="rc-undershoot-pct" value="100"/> -->
+      <!-- 0..1000 -->
+      <!-- <param name="rc-overshoot-pct" value="15"/> -->
+      <!-- 1.. -->
+      <!-- <param name="rc-buf-sz" value="5000"/> -->
+      <!-- 1.. -->
+      <!-- <param name="rc-buf-initial-sz" value="1000"/> -->
+      <!-- 1.. -->
+      <!-- <param name="rc-buf-optimal-sz" value="1000"/> -->
+      <!-- 0..100 -->
+      <!-- <param name="rc-2pass-vbr-bias-pct" value="50"/> -->
+      <!-- 1.. -->
+      <!-- <param name="rc-2pass-vbr-minsection-pct" value="0"/> -->
+      <!-- 1.. -->
+      <!-- <param name="rc-2pass-vbr-maxsection-pct" value="400"/> -->
+      <!-- AUTO, DISABLED -->
+      <!-- <param name="kf-mode" value="AUTO"/> -->
+      <!-- 0.. -->
+      <!-- <param name="kf-min-dist" value="0"/> -->
+      <!-- 0.. -->
+      <!-- <param name="kf-max-dist" value="360"/> -->
+      <!-- 0..5 -->
+      <!-- <param name="ss-number-layers" value="1"/> -->
+      <!-- 0..5 -->
+      <!-- <param name="ts-number-layers" value="1"/> -->
+      <!-- 0..16 -->
+      <!-- <param name="ts-periodicity" value="0"/> -->
+      <!-- 0..3 -->
+      <!-- <param name="temporal-layering-mode" value="0"/> -->
+
+      <!-- params SET by codec_control -->
+      <!-- -16..16 -->
+      <!-- <param name="cpuused" value="-6"/> -->
+      <!-- 0..3, if cpu==1 then 0 else 3 -->
+      <!-- <param name="token-parts" value="3"/> -->
+      <!-- 0.. -->
+      <!-- <param name="static-thresh" value="100"/> -->
+      <!-- 0..6 -->
+      <!-- <param name="noise-sensitivity" value="1"/> -->
+    </profile>
+
+    <profile name="vp9">
+      <!-- integer, or 'auto', or 'cpu[/<divisor>[/<max>]]' -->
+      <!-- <param name="dec-threads" value="cpu/2/4"/> -->
+      <!-- <param name="enc-threads" value="1"/> -->
+
+      <param name="g-profile" value="0"/>
+      <!-- DEFAULT | PARTITIONS -->
+      <!-- <param name="g-error-resilient" value="PARTITIONS"/> -->
+      <!-- ONE_PASS, FIRST_PASS, LAST_PASS"/> -->
+      <!-- <param name="g-pass" value="ONE_PASS"/> -->
+      <!-- 0..25 -->
+      <!-- <param name="g-lag-in-frames" value="0"/> -->
+      <!-- 0..100 -->
+      <!-- <param name="rc-dropframe-thresh" value="0"/> -->
+      <!-- 0, 1 -->
+      <!-- <param name="rc-resize-allowed" value="1"/> -->
+
+      <!-- 0.. -->
+      <!-- <param name="rc-scaled-width" value="0"/> -->
+      <!-- 0.. -->
+      <!-- <param name="rc-scaled-height" value="0"/> -->
+      <!-- 0..100 -->
+      <!-- <param name="rc-resize-up-thresh" value="0"/> -->
+      <!-- 0..100 -->
+      <!-- <param name="rc-resize-down-thresh" value="0"/> -->
+      <!-- VBR, CBR, CQ, Q -->
+      <!-- <param name="rc-end-usage" value="CBR"/> -->
+      <!-- bps string -->
+      <!-- <param name="rc-target-bitrate" value="1mb"/> -->
+      <!-- 0..63 -->
+      <!-- <param name="rc-min-quantizer" value="0"/> -->
+      <!-- 0..63 -->
+      <!-- <param name="rc-max-quantizer" value="63"/> -->
+      <!-- 0..100 -->
+      <!-- <param name="rc-undershoot-pct" value="100"/> -->
+      <!-- 0..100 -->
+      <!-- <param name="rc-overshoot-pct" value="15"/> -->
+      <!-- 1.. -->
+      <!-- <param name="rc-buf-sz" value="5000"/> -->
+      <!-- 1.. -->
+      <!-- <param name="rc-buf-initial-sz" value="1000"/> -->
+      <!-- 1.. -->
+      <!-- <param name="rc-buf-optimal-sz" value="1000"/> -->
+      <!-- 0..100 -->
+      <!-- <param name="rc-2pass-vbr-bias-pct" value="50"/> -->
+      <!-- 1.. -->
+      <!-- <param name="rc-2pass-vbr-minsection-pct" value="0"/> -->
+      <!-- 1.. -->
+      <!-- <param name="rc-2pass-vbr-maxsection-pct" value="2000"/> -->
+      <!-- AUTO, DISABLED -->
+      <!-- <param name="kf-mode" value="AUTO"/> -->
+      <!-- 0.. -->
+      <!-- <param name="kf-min-dist" value="0"/> -->
+      <!-- 0.. -->
+      <!-- <param name="kf-max-dist" value="360"/> -->
+      <!-- 0..5 -->
+      <!-- <param name="ss-number-layers" value="1"/> -->
+      <!-- 0..5 -->
+      <!-- <param name="ts-number-layers" value="1"/> -->
+      <!-- 0..16 -->
+      <!-- <param name="ts-periodicity" value="1"/> -->
+      <!-- 0..3 -->
+      <!-- <param name="temporal-layering-mode" value="0"/> -->
+
+      <!-- params SET by codec_control -->
+      <!-- 0, 1 -->
+      <!-- <param name="lossless" value="0"/> -->
+      <!-- -8..8 -->
+      <!-- <param name="cpuused" value="-8"/> -->
+      <!-- 0..3, if cpu==1 then 0 else 3 -->
+      <!-- <param name="token-parts" value="3"/> -->
+      <!-- 0.. -->
+      <!-- <param name="static-thresh" value="1000"/> -->
+      <!-- 0..6 -->
+      <!-- <param name="noise-sensitivity" value="0"/> -->
+      <!-- 0.. -->
+      <!-- <param name="max-intra-bitrate-pct" value="0"/> -->
+      <!-- DEFAULT, SCREEN -->
+      <!-- <param name="vp9e-tune-content" value="SCREEN"/> -->
+    </profile>
+
+    <profile name="conference">
+      <param name="dec-threads" value="cpu/2/4"/>
+      <param name="enc-threads" value="1"/>
+      <codecs>
+        <!-- profiles will be parsed at runtime
+          to overwrite this profile params if codec matches -->
+        <codec name="vp8" profile="vp8"/>
+        <!-- <codec name="vp8" profile="conference-vp8"/> -->
+        <codec name="vp9" profile="vp9"/>
+      </codecs>
+    </profile>
+
+    <profile name="conference-vp8">
+      <param name="dec-threads" value="cpu/2/4"/>
+      <param name="enc-threads" value="cpu/2/4"/>
+      <param name="g-profile" value="2"/>
+      <!-- DEFULT | PARTITIONS -->
+      <param name="g-error-resilient" value="PARTITIONS"/>
+      <!-- ONE_PASS, FIRST_PASS, LAST_PASS"/> -->
+      <!-- <param name="g-pass" value="ONE_PASS"/> -->
+      <!-- <param name="g-lag-in-frames" value="0"/> -->
+      <!-- <param name="rc-dropframe-thresh" value="0"/> -->
+      <!-- <param name="rc-resize-allowed" value="1"/> -->
+      <!-- <param name="rc-scaled-width" value="0"/> -->
+      <!-- <param name="rc-scaled-height" value="0"/> -->
+      <!-- <param name="rc-resize-up-thresh" value="0"/> -->
+      <!-- <param name="rc-resize-down-thresh" value="0"/> -->
+      <!-- VBR, CBR, CQ, Q -->
+      <param name="rc-end-usage" value="CBR"/>
+      <!-- bps -->
+      <param name="rc-target-bitrate" value="1mb"/>
+      <param name="rc-min-quantizer" value="0"/>
+      <param name="rc-max-quantizer" value="63"/>
+      <param name="rc-undershoot-pct" value="100"/>
+      <param name="rc-overshoot-pct" value="50"/>
+      <param name="rc-buf-sz" value="5000"/>
+      <param name="rc-buf-initial-sz" value="1000"/>
+      <param name="rc-buf-optimal-sz" value="1000"/>
+      <!-- <param name="rc-2pass-vbr-bias-pct" value="0"/> -->
+      <!-- <param name="rc-2pass-vbr-minsection-pct" value="0"/> -->
+      <!-- <param name="rc-2pass-vbr-maxsection-pct" value="0"/> -->
+      <!-- AUTO, DISABLED -->
+      <param name="kf-mode" value="AUTO"/>
+      <param name="kf-min-dist" value="0"/>
+      <param name="kf-max-dist" value="240"/>
+      <!-- <param name="ss-number-layers" value="0"/> -->
+      <!-- <param name="ts-number-layers" value="0"/> -->
+      <!-- <param name="ts-periodicity" value="0"/> -->
+      <!-- <param name="temporal-layering-mode" value="0"/> -->
+
+      <!-- params SET by codec_control -->
+      <param name="lossless" value="0"/>
+      <!-- cpuused -16..16 -->
+      <param name="cpuused" value="-6"/>
+      <!-- cpu string or integer -->
+      <param name="token-parts" value="cpu/2/3"/>
+      <param name="static-thresh" value="100"/>
+      <param name="noise-sensitivity" value="1"/>
+      <!-- <param name="max-intra-bitrate-pct" value="0"/> -->
+    </profile>
+  </profiles>
+</configuration>

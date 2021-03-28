@@ -1,0 +1,118 @@
+<configuration name="spandsp.conf" description="SpanDSP config">
+    <modem-settings>
+<!--
+    total-modems set to N will create that many soft-modems.  
+    If you use them with Hylafax you need the following for each one numbered 0..N:
+
+    1) A line like this in /etc/inittab:
+
+      f0:2345:respawn:/usr/lib/fax/faxgetty /dev/FS0
+
+    2) copy conf/config.FS0 to /var/spool/hylafax/etc (or wherver the appropriate dir is on your system)
+
+    Subsequent modem configs would incrment the 0 to 1 and so on.
+
+-->
+      <param name="total-modems" value="0"/>
+      <!-- Change the directory of the devices created from /dev. Needed if FS runs as non-root -->
+      <!-- <param name="directory" value="/dev/FS"/> -->
+
+      <!-- Default context and dialplan to use on inbound calls from the modems -->
+      <param name="context" value="default"/>
+      <param name="dialplan" value="XML"/>
+
+      <!-- Extra tracing for debugging -->
+      <param name="verbose" value="false"/>
+    </modem-settings>
+
+    <fax-settings>
+	<param name="use-ecm"		value="true"/>
+	<param name="verbose"		value="false"/>
+	<param name="disable-v17"	value="false"/>
+	<param name="ident"		value="SpanDSP Fax Ident"/>
+	<param name="header"		value="SpanDSP Fax Header"/>
+
+	<param name="spool-dir"		value="$${temp_dir}"/>
+	<param name="file-prefix"	value="faxrx"/>
+	<!-- How many packets to process before sending the re-invite on tx/rx -->
+	<!-- <param name="t38-rx-reinvite-packet-count" value="50"/> -->
+	<!-- <param name="t38-tx-reinvite-packet-count" value="100"/> -->
+    </fax-settings>
+
+    <descriptors>
+
+     <!-- These tones are defined in Annex to ITU Operational Bulletin No. 781 - 1.II.2003 -->
+     <!-- Various Tones Used in National Networks (According to ITU-T Recommendation E.180)(03/1998) -->
+
+     <!-- North America -->
+     <descriptor name="1">
+       <tone name="CED_TONE">
+         <element freq1="2100" freq2="0" min="700" max="0"/>
+       </tone>
+       <tone name="SIT">
+         <element freq1="950" freq2="0" min="256" max="400"/>
+         <element freq1="1400" freq2="0" min="256" max="400"/>
+         <element freq1="1800" freq2="0" min="256" max="400"/>
+       </tone>
+       <tone name="RING_TONE" description="North America ring">
+         <element freq1="440" freq2="480" min="1200" max="0"/>
+       </tone>
+       <tone name="REORDER_TONE">
+         <element freq1="480" freq2="620" min="224" max="316"/>
+         <element freq1="0" freq2="0" min="168" max="352"/>
+         <element freq1="480" freq2="620" min="224" max="316"/>
+       </tone>
+       <tone name="BUSY_TONE">
+         <element freq1="480" freq2="620" min="464" max="536"/>
+         <element freq1="0" freq2="0" min="464" max="572"/>
+         <element freq1="480" freq2="620" min="464" max="536"/>
+       </tone>
+     </descriptor>
+
+     <!-- United Kingdom -->
+     <descriptor name="44">
+       <tone name="CED_TONE">
+         <element freq1="2100" freq2="0" min="500" max="0"/>
+       </tone>
+       <tone name="SIT">
+         <element freq1="950" freq2="0" min="256" max="400"/>
+         <element freq1="1400" freq2="0" min="256" max="400"/>
+         <element freq1="1800" freq2="0" min="256" max="400"/>
+       </tone>
+       <tone name="REORDER_TONE">
+         <element freq1="400" freq2="0" min="368" max="416"/>
+         <element freq1="0" freq2="0" min="336" max="368"/>
+         <element freq1="400" freq2="0" min="256" max="288"/>
+         <element freq1="0" freq2="0" min="512" max="544"/>
+       </tone>
+       <tone name="BUSY_TONE">
+         <element freq1="400" freq2="0" min="352" max="384"/>
+         <element freq1="0" freq2="0" min="352" max="384"/>
+         <element freq1="400" freq2="0" min="352" max="384"/>
+         <element freq1="0" freq2="0" min="352" max="384"/>
+       </tone>
+     </descriptor>
+
+     <!-- Germany -->
+     <descriptor name="49">
+       <tone name="CED_TONE">
+         <element freq1="2100" freq2="0" min="500" max="0"/>
+       </tone>
+       <tone name="SIT">
+         <element freq1="900" freq2="0" min="256" max="400"/>
+         <element freq1="1400" freq2="0" min="256" max="400"/>
+         <element freq1="1800" freq2="0" min="256" max="400"/>
+       </tone>
+       <tone name="REORDER_TONE">
+         <element freq1="425" freq2="0" min="224" max="272"/>
+         <element freq1="0" freq2="0" min="224" max="272"/>
+       </tone>
+       <tone name="BUSY_TONE">
+         <element freq1="425" freq2="0" min="464" max="516"/>
+         <element freq1="0" freq2="0" min="464" max="516"/>
+       </tone>
+     </descriptor>
+   </descriptors>
+
+</configuration>
+

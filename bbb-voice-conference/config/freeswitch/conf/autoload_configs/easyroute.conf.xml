@@ -1,0 +1,28 @@
+<configuration name="easyroute.conf" description="EasyRoute Module">
+  <settings>
+    <!-- These are kind Obvious -->
+    <param name="db-username" value="root"/>
+    <param name="db-password" value="password"/>
+    <param name="db-dsn" value="easyroute"/>
+
+    <!-- Default Technology and profile -->
+    <param name="default-techprofile" value="sofia/default"/>
+    
+    <!-- IP or Hostname of Default Route -->
+    <param name="default-gateway" value="192.168.66.6"/>
+
+    <!-- Number of times to retry ODBC connection on connection problems, default is 120 -->
+    <param name="odbc-retries" value="120"/>
+
+    <!-- Customer Query. Use this with Care!!! We are not responsible if you mess
+         This up!!! Query *MUST* return columns in the following order!
+	 gateway varchar(128) - contains destination gateway host:port pair (ex: 192.168.1.1:5060 )
+	 group varchar(128) - contains optional group name
+	 call_limit varchar(16) - contains optional call limit
+	 tech_prefix varchar(128) - tech prefix used to build dial string (ex: sofia/default )
+	 acctcode varchar(128) - used to set channel variable acctcode for logging into the CDRs
+	 destination_number varchar(16) - Number returning for the query for building the dial string. (ex: 18005551212) 
+	 See Documentation on the Wiki for further information -->
+    <!-- <param name="custom-query" value="call  FS_GET_SIP_LOCATION(%s);"/> -->
+  </settings>
+</configuration>

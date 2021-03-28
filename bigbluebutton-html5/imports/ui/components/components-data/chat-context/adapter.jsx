@@ -4,6 +4,7 @@ import { ChatContext, ACTIONS } from './context';
 import { UsersContext } from '../users-context/context';
 import { makeCall } from '/imports/ui/services/api';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
+import Auth from '/imports/ui/services/auth';
 
 let usersData = {};
 let messageQueue = [];
@@ -60,12 +61,12 @@ const Adapter = () => {
 
   useEffect(() => {
     const connectionStatus = Meteor.status();
-    if (connectionStatus.connected && !syncStarted) {
+    if (connectionStatus.connected && !syncStarted && Auth.userID) {
       setSync(true);
 
       startSyncMessagesbeforeJoin(dispatch);
     }
-  }, [Meteor.status().connected, syncStarted]);
+  }, [Meteor.status().connected, syncStarted, Auth.userID]);
 
 
   useEffect(() => {
@@ -96,12 +97,13 @@ const Adapter = () => {
         }
       }
       if (msg.data.indexOf('{"msg":"removed","collection":"group-chat-msg"') != -1) {
+        messageQueue = [];
         dispatch({
           type: ACTIONS.REMOVED,
         });
       }
     });
-  }, [Meteor.status().connected]);
+  }, [Meteor.status().connected, Meteor.connection._lastSessionId]);
 
   return null;
 };

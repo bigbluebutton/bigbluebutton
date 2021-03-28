@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
+import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { styles } from './styles';
 import Service from './service';
 
@@ -54,6 +55,8 @@ class LiveResult extends PureComponent {
       answers, responses, users, numRespondents,
     } = currentPoll;
 
+    const currentPollQuestion = (currentPoll.question) ? currentPoll.question : '';
+
     let userAnswers = responses
       ? [...users, ...responses.map(u => u.userId)]
       : [...users];
@@ -80,7 +83,7 @@ class LiveResult extends PureComponent {
           (
             <tr key={_.uniqueId('stats-')}>
               <td className={styles.resultLeft}>{user.name}</td>
-              <td className={styles.resultRight}>
+              <td data-test="receivedAnswer" className={styles.resultRight}>
                 {
                   pollAnswerIds[formattedMessageIndex]
                     ? intl.formatMessage(pollAnswerIds[formattedMessageIndex])
@@ -94,7 +97,7 @@ class LiveResult extends PureComponent {
 
     const pollStats = [];
 
-    answers.map((obj) => {
+    answers.reduce(caseInsensitiveReducer, []).map((obj) => {
       const formattedMessageIndex = obj.key.toLowerCase();
       const pct = Math.round(obj.numVotes / numRespondents * 100);
       const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
@@ -126,6 +129,7 @@ class LiveResult extends PureComponent {
     return {
       userAnswers,
       pollStats,
+      currentPollQuestion,
     };
   }
 
@@ -135,6 +139,7 @@ class LiveResult extends PureComponent {
     this.state = {
       userAnswers: null,
       pollStats: null,
+      currentPollQuestion: null,
     };
   }
 
@@ -147,7 +152,7 @@ class LiveResult extends PureComponent {
       currentPoll,
     } = this.props;
 
-    const { userAnswers, pollStats } = this.state;
+    const { userAnswers, pollStats, currentPollQuestion } = this.state;
 
     let waiting;
     let userCount = 0;
@@ -168,6 +173,7 @@ class LiveResult extends PureComponent {
     return (
       <div>
         <div className={styles.stats}>
+          {currentPollQuestion ? <span className={styles.title}>{currentPollQuestion}</span> : null}
           <div className={styles.status}>
             {waiting
               ? (

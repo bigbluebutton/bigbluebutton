@@ -5,6 +5,7 @@ import Users from '/imports/api/users';
 import VoiceUsers from '/imports/api/voice-users';
 import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
+import { check } from 'meteor/check';
 
 export default function muteToggle(uId, toggle) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
@@ -12,6 +13,10 @@ export default function muteToggle(uId, toggle) {
   const EVENT_NAME = 'MuteUserCmdMsg';
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
+
+  check(meetingId, String);
+  check(requesterUserId, String);
+
   const userToMute = uId || requesterUserId;
 
   const requester = Users.findOne({

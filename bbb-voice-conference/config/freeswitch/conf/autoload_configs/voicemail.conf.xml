@@ -1,0 +1,74 @@
+<configuration name="voicemail.conf" description="Voicemail">
+  <settings>
+  </settings>
+  <profiles>
+    <profile name="default">
+      <param name="file-extension" value="wav"/>
+      <param name="terminator-key" value="#"/>
+      <param name="max-login-attempts" value="3"/>
+      <param name="digit-timeout" value="10000"/>
+      <param name="min-record-len" value="3"/>
+      <param name="max-record-len" value="300"/>
+      <param name="max-retries" value="3"/>
+      <param name="tone-spec" value="%(1000, 0, 640)"/>
+      <param name="callback-dialplan" value="XML"/>
+      <param name="callback-context" value="default"/>
+      <param name="play-new-messages-key" value="1"/>
+      <param name="play-saved-messages-key" value="2"/>
+      <!-- play-new-messages-lifo and play-saved-messages-lifo default is false, playing oldest messages first
+	   <param name="play-new-messages-lifo" value="false"/>
+	   <param name="play-saved-messages-lifo" value="false"/>
+      -->
+      <param name="login-keys" value="0"/>
+      <param name="main-menu-key" value="0"/>
+      <param name="config-menu-key" value="5"/>
+      <param name="record-greeting-key" value="1"/>
+      <param name="choose-greeting-key" value="2"/>
+      <param name="change-pass-key" value="6"/>
+      <param name="record-name-key" value="3"/>
+      <param name="record-file-key" value="3"/>
+      <param name="listen-file-key" value="1"/>
+      <param name="save-file-key" value="2"/>
+      <param name="delete-file-key" value="7"/>
+      <param name="undelete-file-key" value="8"/>
+      <param name="email-key" value="4"/>
+      <param name="pause-key" value="0"/>
+      <param name="restart-key" value="1"/>
+      <param name="ff-key" value="6"/>
+      <param name="rew-key" value="4"/>
+      <param name="skip-greet-key" value="#"/>
+      <param name="previous-message-key" value="1"/>
+      <param name="next-message-key" value="3"/>
+      <param name="skip-info-key" value="*"/>
+      <param name="repeat-message-key" value="0"/>
+      <param name="record-silence-threshold" value="200"/>
+      <param name="record-silence-hits" value="2"/>
+      <param name="web-template-file" value="web-vm.tpl"/>
+      <param name="db-password-override" value="false"/>
+      <param name="allow-empty-password-auth" value="true"/>
+      <!-- if you need to change the sample rate of the recorded files e.g. gmail voicemail player -->
+      <!--<param name="record-sample-rate" value="11025"/>-->
+      <!-- the next two both must be set for this to be enabled
+           the extension is in the format of <dest> [<dialplan>] [<context>]
+       -->
+      <param name="operator-extension" value="operator XML default"/>
+      <param name="operator-key" value="9"/>
+      <param name="vmain-extension" value="vmain XML default"/>
+      <param name="vmain-key" value="*"/>
+      <!-- playback created files as soon as they were recorded by default -->
+      <!--<param name="auto-playback-recordings" value="true"/>-->
+      <email>
+	<param name="template-file" value="voicemail.tpl"/>
+	<param name="notify-template-file" value="notify-voicemail.tpl"/>
+	<!-- this is the format voicemail_time will have -->
+        <param name="date-fmt" value="%A, %B %d %Y, %I %M %p"/>
+        <param name="email-from" value="${voicemail_account}@${voicemail_domain}"/>
+      </email>
+      <!--<param name="storage-dir" value="$${storage_dir}"/>-->
+      <!--<param name="odbc-dsn" value="dsn:user:pass"/>-->
+      <!--<param name="record-comment" value="Your Comment"/>-->
+      <!--<param name="record-title" value="Your Title"/>-->
+      <!--<param name="record-copyright" value="Your Copyright"/>-->
+    </profile>
+  </profiles>
+</configuration> 

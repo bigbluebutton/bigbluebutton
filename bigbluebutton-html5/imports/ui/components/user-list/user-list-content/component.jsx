@@ -50,7 +50,6 @@ class UserContent extends PureComponent {
       <div
         data-test="userListContent"
         className={styles.content}
-        role="complementary"
       >
         {CHAT_ENABLED
           ? (<UserMessages

@@ -11,6 +11,8 @@ export default function setUserEffectiveConnectionType(effectiveConnectionType) 
   const EVENT_NAME = 'ChangeUserEffectiveConnectionMsg';
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(effectiveConnectionType, String);
 
   const payload = {

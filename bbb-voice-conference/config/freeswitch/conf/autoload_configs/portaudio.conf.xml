@@ -1,0 +1,221 @@
+<configuration name="portaudio.conf" description="Soundcard Endpoint">
+  <settings>
+    <!-- indev, outdev, ringdev: 
+	 partial case sensitive string match on something in the name 
+	 or the device number prefixed with # eg "#1" (or blank for default) -->
+
+    <!-- device to use for input -->
+    <param name="indev" value=""/>
+    <!-- device to use for output -->
+    <param name="outdev" value=""/>
+
+    <!--device to use for inbound ring -->
+    <!--<param name="ringdev" value=""/>-->
+    <!--File to play as the ring sound -->
+    <!--<param name="ring-file" value="/sounds/ring.wav"/>-->
+    <!--Number of seconds to pause between rings -->
+    <!--<param name="ring-interval" value="5"/>-->
+    <!--Enable or Disable dual_streams-->
+    <!--<param name="dual-streams" value="true"/>-->
+
+    <!--file to play when calls are on hold-->
+    <param name="hold-file" value="$${hold_music}"/>
+    <!--Timer to use for hold music (i'd leave this one commented)-->
+    <!--<param name="timer-name" value="soft"/>-->
+
+    <!--Default dialplan and caller-id info -->
+    <param name="dialplan" value="XML"/>
+    <param name="cid-name" value="$${outbound_caller_name}"/>
+    <param name="cid-num" value="$${outbound_caller_id}"/>
+
+    <!--audio sample rate and interval -->
+    <param name="sample-rate" value="48000"/>
+    <param name="codec-ms" value="20"/>
+
+    <!--uncomment the following line to make mod_portaudio fail to load if it fails to find a device-->
+    <!-- <param name="unload-on-device-fail" value="true"/> -->
+  </settings>
+
+  <!-- 
+	mod_portaudio "streams"
+
+	The portaudio streams were introduced to support multiple devices and multiple channels in mod_portaudio.
+	For example, if you have a sound card that supports multiple channels or have multiple sound cards and you
+	want to use them at the same time, you can do it configuring streams and endpoints here.
+
+	A "stream" is just a logical container for some settings required by portaudio in order to stream audio and
+	define a friendly name for that configuration. Streams in itself do not do anything else than contain configs. 
+	Once you have your streams defined you can proceed to define "endpoints". Go to the "<endpoints>" section 
+	for more information on endpoints.
+
+	You can use the command "pa shstreams" (portaudio shared streams) to show the configured streams.
+  -->
+  <streams>
+  	<!--
+	In this example we define 2 streams, one for a usb audio device and another for the usual Mac defaults
+	The name="" attribute in the <stream> tag must uniquely identify the stream configuration and can be
+	later used when creating endpoints in the "instream" and "outstream" parameters of the endpoint.
+	-->
+
+	<!-- This sample "usb1" configuration was tested with a USB Griffin iMic device -->
+  	<stream name="usb1">
+		<!-- 
+			Which device to use for input in this stream 
+			The value for this parameter must be either in the form '#devno', 
+			for example '#2' for device number 2, or 'device-name', like 'iMic USB audio system'
+			The output of command "pa devlist" will show you device names and numbers as enumerated
+			by portaudio.
+		-->
+		<param name="indev" value="#2" />
+
+		<!-- 
+			Same as the indev but for output. In this case the device is capable of input and output
+			Some devices are capable of input only or output only (see the default example)
+	       	-->
+		<param name="outdev" value="#2" />
+
+		<!-- The sample rate to use for this stream -->
+		<param name="sample-rate" value="48000" />
+
+		<!-- 
+			Size of the packets in milliseconds. The smaller the number the less latency you'll have
+			The minimum value is 10ms 
+		-->
+		<param name="codec-ms" value="10" />
+
+		<!-- 
+			How many channels to open for this stream.
+			If you're device is stereo, you can choose 2 here. However, bear in mind that then
+			your left and right channels will be separated and when creating endpoints you will have
+			to either choose the left or right channel. This may or may not be what you want. This separation
+			means that you can have 2 separate FreeSWITCH calls, listening to one of them in your left channel
+			and the other in the right chanel.
+		-->
+		<param name="channels" value="2" />
+  	</stream>
+
+	<!-- This default stream was tested using the default Macbook Pro input/output devices -->
+  	<stream name="default">
+		<!-- The default system input device -->
+		<param name="indev" value="#0" />
+		<!-- The default system output device -->
+		<param name="outdev" value="#1" />
+		<!-- CD quality sampling rate ftw -->
+		<param name="sample-rate" value="48000" />
+		<!-- Low latency -->
+		<param name="codec-ms" value="10" />
+		<!-- Choosing 1 channel allows to hear in both left-right channel when using a headset -->
+		<param name="channels" value="1" />
+  	</stream>
+  </streams>
+
+  <!-- 
+	mod_portaudio "endpoints"
+
+	Endpoints is a way to define the input and output that a given portaudio channel will use.
+	There is a lot of flexibility. You can create endpoints which are "send-only", which means
+	audio will be read from FreeSWITCH and sent down to the provided stream, but no audio will
+	be read from that stream and only silence provided back to FreeSWITCH.
+
+		send-only endpoint:
+			(FS CORE) ->-> audio ->-> sound-card-x
+
+	You can also create a read-only endpoint.
+
+		read-only-endpoint:
+			(FS CORE) <-<- audio <-<- sound-card-x
+
+	And of course you can create a bidirectional endpoint:
+		bidirectional-endpoint:
+			(FS CORE) <-> audio <-> sound-card-x
+
+	You can also define a stream which uses only the left or only the right channel of a given device stream.
+	This means you can have 2 SIP calls connected to the same device haring one call in your left ear and
+	the other call to your right ear :-)
+
+	The name="parameter" of the endpoint allows you to use it in the FreeSWITCH dial plan to dial, ie:
+
+	<action application="bridge" data="portaudio/endpoint/usb1out-left" />
+
+	You can use the command "pa endpoints" to show the configured endpoints.
+  -->
+  <endpoints>
+
+	<!-- 
+		An endpoint is a handle name to refer to a configuration that determines where to read media from 
+		and write media to. The endpoint can use any input/output stream combination for that purpose as 
+		long as the streams match the sampling rate and codec-ms (see <streams> XML tag).
+		You can also omit the instream or the outstream parameter (but obviously not both).
+	-->
+
+	<!-- 
+		Configuration for a "default" bidirectional endpoint that uses the default stream defined previously in
+		the <streams> section.
+	 -->
+  	<endpoint name="default">
+		<!-- 
+			The instream, outstream is the name of the stream and channel to use. The stream
+			name is the same you configured in the <streams> section. This parameters follow 
+			the syntax <stream-name>:<channel index>. You can omit either the outstream
+			or the instream, but not both! The channel index is zero-based and must be consistent 
+			with the number of channels available for that stream (as configured in the <stream> section).
+			You cannot use index 1 if you chose channels=1 in the stream configuration.
+		-->
+		<param name="instream" value="default:0" />
+		<param name="outstream" value="default:0" />
+	</endpoint>
+
+	<!-- 
+		This endpoint uses the USB stream defined previously in the <streams> section and
+		is 'send-only' or 'output-only' and uses the channel index 0 (left channel in a stereo device) 
+	-->
+  	<endpoint name="usb1out-left">
+		<param name="outstream" value="usb1:0" />
+	</endpoint>
+
+	<!-- 
+		This endpoint uses the USB stream defined previously in the <streams> section and
+		is 'send-only' or 'output-only' and uses the channel index 1 (right channel in a stereo device) 
+	-->
+  	<endpoint name="usb1out-right">
+		<param name="outstream" value="usb1:1" />
+	</endpoint>
+
+	<!-- 
+		This endpoint uses the USB stream defined previously in the <streams> section and
+		is 'receive-only' or 'input-only' and uses the channel index 0 (left channel in a stereo device) 
+	-->
+  	<endpoint name="usb1in-left">
+		<param name="instream" value="usb1:0" />
+	</endpoint>
+
+	<!-- 
+		This endpoint uses the USB stream defined previously in the <streams> section and
+		is 'receive-only' or 'input-only' and uses the channel index 1 (right channel in a stereo device) 
+	-->
+  	<endpoint name="usb1in-right">
+		<param name="instream" value="usb1:1" />
+	</endpoint>
+
+	<!-- 
+		This endpoint uses the USB stream defined previously in the <streams> section and
+		is 'bidirectional' or 'send-receive' and uses the channel index 0 (left channel in a stereo device) 
+	-->
+  	<endpoint name="usb1-left">
+		<param name="instream" value="usb1:0" />
+		<param name="outstream" value="usb1:0" />
+	</endpoint>
+
+	<!-- 
+		This endpoint uses the USB stream defined previously in the <streams> section and
+		is 'bidirectional' or 'send-receive' and uses the channel index 1 (right channel in a stereo device) 
+	-->
+  	<endpoint name="usb1-right">
+		<param name="instream" value="usb1:1" />
+		<param name="outstream" value="usb1:1" />
+	</endpoint>
+
+  </endpoints>
+
+</configuration>
+

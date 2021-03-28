@@ -1,0 +1,40 @@
+<configuration name="cdr_pg_csv.conf" description="CDR PG CSV Format">
+  <settings>
+    <!-- See parameters for PQconnectdb() at http://www.postgresql.org/docs/8.4/static/libpq-connect.html -->
+    <param name="db-info" value="host=localhost dbname=cdr connect_timeout=10" />
+    <!-- CDR table name -->
+    <!--<param name="db-table" value="cdr"/>-->
+
+    <!-- Log a-leg (a), b-leg (b) or both (ab) -->
+    <param name="legs" value="a"/>
+
+    <!-- Directory in which to spool failed SQL inserts -->
+    <!-- <param name="spool-dir" value="$${log_dir}/cdr-pg-csv"/> -->
+    <!-- Disk spool format if DB connection/insert fails - csv (default) or sql -->
+    <param name="spool-format" value="csv"/>
+    <param name="rotate-on-hup" value="true"/>
+
+    <!-- This is like the info app but after the call is hung up -->
+    <!--<param name="debug" value="true"/>-->
+  </settings>
+  <schema>
+    <field var="local_ip_v4"/>
+    <field var="caller_id_name"/>
+    <field var="caller_id_number"/>
+    <field var="destination_number"/>
+    <field var="context"/>
+    <field var="start_stamp"/>
+    <field var="answer_stamp"/>
+    <field var="end_stamp"/>
+    <field var="duration" quote="false"/>
+    <field var="billsec" quote="false"/>
+    <field var="hangup_cause"/>
+    <field var="uuid"/>
+    <field var="bleg_uuid"/>
+    <field var="accountcode"/>
+    <field var="read_codec"/>
+    <field var="write_codec"/>
+    <!-- <field var="sip_hangup_disposition"/> -->
+    <!-- <field var="ani"/> -->
+  </schema>
+</configuration>

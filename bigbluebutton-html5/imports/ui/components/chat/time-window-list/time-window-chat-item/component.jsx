@@ -194,6 +194,7 @@ class TimeWindowChatItem extends PureComponent {
       color,
       intl,
       isDefaultPoll,
+      extractPollQuestion,
       messages,
       scrollArea,
       chatAreaId,
@@ -236,6 +237,7 @@ class TimeWindowChatItem extends PureComponent {
               scrollArea={scrollArea}
               color={color}
               isDefaultPoll={isDefaultPoll(messages[0].text.replace('bbb-published-poll-<br/>', ''))}
+              extractPollQuestion={extractPollQuestion}
             />
           </div>
         </div>

@@ -8,11 +8,9 @@ import PresentationService from '/imports/ui/components/presentation/service';
 import Presentations from '/imports/api/presentations';
 import ActionsBar from './component';
 import Service from './service';
+import UserListService from '/imports/ui/components/user-list/service';
 import ExternalVideoService from '/imports/ui/components/external-video-player/service';
 import CaptionsService from '/imports/ui/components/captions/service';
-import {
-  isVideoBroadcasting,
-} from '/imports/ui/components/screenshare/service';
 
 import MediaService, {
   getSwapLayout,
@@ -22,6 +20,7 @@ import MediaService, {
 const ActionsBarContainer = props => <ActionsBar {...props} />;
 const POLLING_ENABLED = Meteor.settings.public.poll.enabled;
 const PRESENTATION_DISABLED = Meteor.settings.public.layout.hidePresentation;
+const SELECT_RANDOM_USER_ENABLED = Meteor.settings.public.selectRandomUser.enabled;
 
 export default withTracker(() => ({
   amIPresenter: Service.amIPresenter(),
@@ -38,7 +37,10 @@ export default withTracker(() => ({
   isMeteorConnected: Meteor.status().connected,
   isPollingEnabled: POLLING_ENABLED,
   isPresentationDisabled: PRESENTATION_DISABLED,
+  isSelectRandomUserEnabled: SELECT_RANDOM_USER_ENABLED,
   isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
     { fields: {} }),
   allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,
+  setEmojiStatus: UserListService.setEmojiStatus,
+  currentUser: Service.currentUser(),
 }))(injectIntl(ActionsBarContainer));

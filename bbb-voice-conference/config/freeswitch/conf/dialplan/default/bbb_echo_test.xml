@@ -1,0 +1,13 @@
+<include>
+  <extension name="bbb_echo_test_direct">
+    <condition field="${bbb_authorized}" expression="true" break="on-false"/>
+    <condition field="destination_number" expression="^echo(\d{5,11})$">
+      <action application="set" data="vbridge=$1"/>
+      <action application="answer"/>
+      <action application="set" data="bbb_from_echo=true"/>
+      <action application="bind_digit_action" data="direct_from_echo,1,exec:execute_extension,ECHO_TO_CONFERENCE XML default"/>
+      <action application="sleep" data="500"/>
+      <action application="echo"/>
+    </condition>
+  </extension>
+</include>

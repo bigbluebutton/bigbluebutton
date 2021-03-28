@@ -1,6 +1,12 @@
 import { Meteor } from 'meteor/meteor';
-import changeWhiteboardAccess from './methods/changeWhiteboardAccess';
+import addGlobalAccess from './methods/addGlobalAccess';
+import addIndividualAccess from './methods/addIndividualAccess';
+import removeGlobalAccess from './methods/removeGlobalAccess';
+import removeIndividualAccess from './methods/removeIndividualAccess';
 
 Meteor.methods({
-  changeWhiteboardAccess,
+  addGlobalAccess,
+  addIndividualAccess,
+  removeGlobalAccess,
+  removeIndividualAccess,
 });

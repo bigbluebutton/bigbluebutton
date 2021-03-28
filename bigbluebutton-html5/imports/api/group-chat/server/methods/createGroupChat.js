@@ -11,6 +11,8 @@ export default function createGroupChat(receiver) {
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(receiver, Object);
 
   const payload = {

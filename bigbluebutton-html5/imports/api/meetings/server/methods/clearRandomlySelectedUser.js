@@ -1,9 +1,13 @@
 import Logger from '/imports/startup/server/logger';
 import Meetings from '/imports/api/meetings';
 import { extractCredentials } from '/imports/api/common/server/helpers';
+import { check } from 'meteor/check';
 
 export default function clearRandomlySelectedUser() {
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
+
+  check(meetingId, String);
+  check(requesterUserId, String);
 
   const selector = {
     meetingId,
