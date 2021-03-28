@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import StaticAnnotation from './static-annotation/component';
+import StaticAnnotationContainer from './static-annotation/container';
 import ReactiveAnnotationContainer from './reactive-annotation/container';
 import Ellipse from '../annotations/ellipse/component';
 import Line from '../annotations/line/component';
@@ -16,7 +16,7 @@ const DRAW_END = ANNOTATION_CONFIG.status.end;
 export default class AnnotationFactory extends Component {
   static renderStaticAnnotation(annotationInfo, slideWidth, slideHeight, drawObject, whiteboardId) {
     return (
-      <StaticAnnotation
+      <StaticAnnotationContainer
         key={annotationInfo._id}
         shapeId={annotationInfo._id}
         drawObject={drawObject}
