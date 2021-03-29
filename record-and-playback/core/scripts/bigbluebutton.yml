@@ -22,6 +22,12 @@ redis_port: 6379
 # redis_workers_host: 127.0.0.1
 # redis_workers_port: 6379
 
+# Set to true to insert recording process status into
+# redis list with key "store_recording_status: true".
+# This is useful if you want to track progress status
+# and have another script process it.
+store_recording_status: false
+
 # Sequence of recording steps. Keys are the current step, values
 # are the next step(s). Examples:
 #   current_step: next_step
