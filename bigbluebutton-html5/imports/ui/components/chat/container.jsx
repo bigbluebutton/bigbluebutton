@@ -167,6 +167,11 @@ const ChatContainer = (props) => {
   globalAppplyStateToProps = applyPropsToState;
   throttledFunc();
 
+  ChatService.removePackagedClassAttribute(
+    ["ReactVirtualized__Grid", "ReactVirtualized__Grid__innerScrollContainer"], 
+    "role"
+  );
+  
   return (
     <Chat {...{
       ...props,
