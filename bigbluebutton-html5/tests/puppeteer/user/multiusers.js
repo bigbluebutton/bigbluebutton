@@ -5,6 +5,7 @@ const utilCustomParams = require('../customparameters/util');
 const pe = require('../core/elements');
 const ne = require('../notifications/elements');
 const ple = require('../polling/elemens');
+const we = require('../whiteboard/elements');
 const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { sleep } = require('../core/helper');
 
@@ -154,8 +155,15 @@ class MultiUsers {
   }
 
   async testWhiteboardAccess() {
-    await this.page1.click('div[data-test="userListItem"]');
-    await this.page1.click('li[data-test="changeWhiteboardAccess"]');
+    await this.page1.closeAudioModal();
+    await this.page2.closeAudioModal();
+    await this.page3.closeAudioModal();
+    await this.page1.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
+    await this.page1.clickNItem(we.userListItem, true, 1);
+    await this.page1.clickNItem(we.changeWhiteboardAccess, true, 1);
+    await sleep(2000);
+    const resp = await this.page1.page.evaluate(async () => await document.querySelector('[data-test="multiWhiteboardTool"]').children[0].innerText === '1');
+    return resp;
   }
 
   // Close all Pages
