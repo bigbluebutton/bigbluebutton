@@ -26,6 +26,7 @@ import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/
 import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
 import { styles } from './styles';
 import { makeCall } from '/imports/ui/services/api';
+import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
@@ -161,6 +162,8 @@ class App extends Component {
 
     if (isMobileBrowser) makeCall('setMobileUser');
 
+    ConnectionStatusService.startRoundTripTime();
+
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
 
@@ -226,6 +229,8 @@ class App extends Component {
     if (navigator.connection) {
       navigator.connection.addEventListener('change', handleNetworkConnection, false);
     }
+
+    ConnectionStatusService.stopRoundTripTime();
   }
 
   handleWindowResize() {
