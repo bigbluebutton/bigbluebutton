@@ -149,6 +149,8 @@
 
   @include mq($small-only) {
     button {
+      /* should be placed after .dropdownContent
+      90vh: .dropdownContent height, 85px: navbar, 5rem: actions bar) */
       top: calc(90vh - 85px - 5rem);
       height: 10vh;
     }
@@ -203,6 +205,7 @@
   }
 
   @include mq($small-only) {
+    // use 90% of available height (85px: navbar, 5rem: actions bar)
     height: calc(90vh - 85px - 5rem);
     width: 100vw;
   }
