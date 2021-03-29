@@ -19,11 +19,17 @@
 
 package org.bigbluebutton.presentation.imp;
 
-import java.io.*;
+
+import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import com.zaxxer.nuprocess.NuProcess;
+import com.zaxxer.nuprocess.NuProcessBuilder;
 import org.bigbluebutton.presentation.UploadedPresentation;
+import org.bigbluebutton.presentation.handlers.Office2PdfConverterHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,9 +40,6 @@ public abstract class Office2PdfPageConverter {
 
   public static boolean convert(File presentationFile, File output, int page, UploadedPresentation pres,
                          String presOfficeConversionExec){
-
-    BufferedReader stdInput = null;
-    BufferedReader stdError = null;
 
     try {
       Map<String, Object> logData = new HashMap<>();
@@ -49,32 +52,26 @@ public abstract class Office2PdfPageConverter {
       String logStr = gson.toJson(logData);
       log.info(" --analytics-- data={}", logStr);
 
+      if(presOfficeConversionExec == null) throw new Exception("Cannot find the conversion script path.");
+
+      File conversionScript = new File(presOfficeConversionExec);
+      if(!conversionScript.exists()) throw new Exception(String.format("File not found: %s.",presOfficeConversionExec));
+
+      log.info(String.format("Calling conversion script %s.", presOfficeConversionExec));
+
+      NuProcessBuilder officeConverterExec = new NuProcessBuilder(Arrays.asList(presOfficeConversionExec, presentationFile.getAbsolutePath(), output.getAbsolutePath()));
+      Office2PdfConverterHandler office2PdfConverterHandler  = new Office2PdfConverterHandler();
+      officeConverterExec.setProcessListener(office2PdfConverterHandler);
+
+      NuProcess process = officeConverterExec.start();
       try {
-        log.info("Calling conversion script " + presOfficeConversionExec);
+        process.waitFor(0, TimeUnit.SECONDS);
+      } catch (InterruptedException e) {
+        log.error("InterruptedException while counting PDF pages {}", presentationFile.getName(), e);
+      }
 
-        if(presOfficeConversionExec == null) throw new Exception("Cannot find the conversion script path.");
-
-        File conversionScript = new File(presOfficeConversionExec);
-        if(!conversionScript.exists()) throw new Exception(presOfficeConversionExec + ", file not found.");
-
-        Process p = Runtime.getRuntime().exec(String.format(presOfficeConversionExec + " %s %s", presentationFile.getAbsolutePath(), output.getAbsolutePath()));
-
-        stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-        String shExecOutput = null;
-
-        // read the output from the command
-        while ((shExecOutput = stdInput.readLine()) != null) {
-          log.info(presentationFile.getName() + " conversion output: " + shExecOutput);
-        }
-
-        // read any errors from the attempted command
-        while ((shExecOutput = stdError.readLine()) != null) {
-          log.error(presentationFile.getName() + " conversion error output: " + shExecOutput);
-        }
-
-      } catch (IOException e) {
-        log.error("Exception while calling convert script: " + e.getMessage(), presentationFile.getName());
+      if(!office2PdfConverterHandler.isCommandSuccessful()) {
+        throw new Exception(String.format("Error while executing conversion script %s.", presOfficeConversionExec));
       }
 
       if (output.exists()) {
@@ -104,22 +101,6 @@ public abstract class Office2PdfPageConverter {
       String logStr = gson.toJson(logData);
       log.error(" --analytics-- data={}", logStr, e);
       return false;
-    } finally {
-       if(stdInput!=null) {
-         try {
-           stdInput.close();
-         } catch(Exception e) {
-
-         }
-       }
-
-      if(stdError!=null) {
-        try {
-          stdError.close();
-        } catch(Exception e) {
-
-        }
-      }
     }
   }
 
