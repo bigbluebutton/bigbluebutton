@@ -31,8 +31,8 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
           userValidated(u, state)
         } else {
           if (u.banned) {
-            failReason = "Ejected user rejoining"
-            failReasonCode = EjectReasonCode.EJECTED_USER_REJOINING
+            failReason = "Banned user rejoining"
+            failReasonCode = EjectReasonCode.BANNED_USER_REJOINING
           } else if (u.loggedOut) {
             failReason = "User had logged out"
             failReasonCode = EjectReasonCode.USER_LOGGED_OUT
