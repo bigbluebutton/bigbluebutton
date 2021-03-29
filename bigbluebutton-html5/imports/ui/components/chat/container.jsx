@@ -137,22 +137,22 @@ const ChatContainer = (props) => {
       prevSync = contextChat?.syncing;
       const timeWindowsValues = isPublicChat
         ? [
-          ...(
-            !contextChat?.syncing ? Object.values(contextChat?.preJoinMessages || {}) : [
-              {
-                id: sysMessagesIds.syncId,
-                content: [{
-                  id: 'synced',
-                  text: intl.formatMessage(intlMessages.loading, { 0: contextChat?.syncedPercent}),
-                  time: loginTime + 1,
-                }],
-                key: sysMessagesIds.syncId,
-                time: loginTime + 1,
-                sender: null,
-              }
-            ]
-          )
-          , ...systemMessagesIds.map((item) => systemMessages[item]),
+          // ...(
+          //   !contextChat?.syncing ? Object.values(contextChat?.preJoinMessages || {}) : [
+          //     {
+          //       id: sysMessagesIds.syncId,
+          //       content: [{
+          //         id: 'synced',
+          //         text: intl.formatMessage(intlMessages.loading, { 0: contextChat?.syncedPercent}),
+          //         time: loginTime + 1,
+          //       }],
+          //       key: sysMessagesIds.syncId,
+          //       time: loginTime + 1,
+          //       sender: null,
+          //     }
+          //   ]
+          // )
+          // , ...systemMessagesIds.map((item) => systemMessages[item]),
         ...Object.values(contextChat?.posJoinMessages || {})]
         : [...Object.values(contextChat?.messageGroups || {})];
       if (previousChatId !== chatID) {

@@ -27,12 +27,12 @@ const eventsToBeBound = [
 const isElementInViewport = (el) => {
   if (!el) return false;
   const rect = el.getBoundingClientRect();
+  console.log('rect', rect);
 
   return (
     rect.top >= 0
-    && rect.left >= 0
-    && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)
-    && rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    // This condition is for large messages that are bigger than client height
+    || rect.top + rect.height >= 0
   );
 };
 
