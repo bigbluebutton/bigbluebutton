@@ -1,10 +1,16 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
+import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import ChatDropdown from './component';
 
-const ChatDropdownContainer = ({ ...props }) => <ChatDropdown {...props} />;
+const ChatDropdownContainer = ({ ...props }) => {
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+
+  return <ChatDropdown {...props} users={users} />;
+};
 
 export default withTracker(() => {
   const getMeetingName = () => {

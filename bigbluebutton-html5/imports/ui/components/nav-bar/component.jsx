@@ -11,6 +11,8 @@ import { styles } from './styles.scss';
 import Button from '/imports/ui/components/button/component';
 import RecordingIndicator from './recording-indicator/container';
 import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
+import ConnectionStatusButton from '/imports/ui/components/connection-status/button/container';
+import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import SettingsDropdownContainer from './settings-dropdown/container';
 
 const intlMessages = defineMessages({
@@ -125,6 +127,7 @@ class NavBar extends Component {
             />
           </div>
           <div className={styles.right}>
+            {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
             <SettingsDropdownContainer amIModerator={amIModerator} />
           </div>
         </div>

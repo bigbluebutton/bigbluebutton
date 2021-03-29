@@ -248,6 +248,7 @@ class BreakoutRoom extends PureComponent {
                   logCode: 'breakoutroom_join',
                   extraInfo: { logType: 'user_action' },
                 }, 'joining breakout room closed audio in the main room');
+                VideoService.storeDeviceIds();
                 VideoService.exitVideo();
                 if (UserListService.amIPresenter()) screenshareHasEnded();
               }

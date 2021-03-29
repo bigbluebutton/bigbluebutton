@@ -20,9 +20,11 @@ HOW TO WRITE A GOOD PULL REQUEST?
 <!-- A brief description of each change being made with this pull request. -->
 
 ### Closes Issue(s)
+<!-- List here all the issues closed by this pull request. Use keyword `closes` before each issue number
+Closes #123456
+-->
+Closes #
 
-closes #...
-<!-- List here all the issues closed by this pull request. Use keyword `closes` before each issue number -->
 
 ### Motivation
 
