@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import RedisPubSub from '/imports/startup/server/redis';
 import { extractCredentials } from '/imports/api/common/server/helpers';
+import { check } from 'meteor/check';
 
 export default function setRandomUser() {
   const REDIS_CONFIG = Meteor.settings.private.redis;
@@ -8,6 +9,9 @@ export default function setRandomUser() {
   const EVENT_NAME = 'SelectRandomViewerReqMsg';
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
+
+  check(meetingId, String);
+  check(requesterUserId, String);
 
   const payload = {
     requestedBy: requesterUserId,

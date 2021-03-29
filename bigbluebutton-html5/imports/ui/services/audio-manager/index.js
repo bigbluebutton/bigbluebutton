@@ -8,7 +8,6 @@ import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills';
-import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import { monitorAudioConnection } from '/imports/utils/stats';
 import AudioErrors from './error-codes';
 import {Meteor} from "meteor/meteor";
@@ -30,11 +29,22 @@ const CALL_STATES = {
   AUTOPLAY_BLOCKED: 'autoplayBlocked',
 };
 
+const BREAKOUT_AUDIO_TRANSFER_STATES = {
+  CONNECTED: 'connected',
+  DISCONNECTED: 'disconnected',
+  RETURNING: 'returning',
+};
+
 class AudioManager {
   constructor() {
     this._inputDevice = {
       value: DEFAULT_INPUT_DEVICE_ID,
       tracker: new Tracker.Dependency(),
+    };
+
+    this._breakoutAudioTransferStatus = {
+      status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+      breakoutMeetingId: null,
     };
 
     this.defineProperties({
@@ -50,21 +60,25 @@ class AudioManager {
       outputDeviceId: null,
       muteHandle: null,
       autoplayBlocked: false,
+      isReconnecting: false,
     });
 
     this.useKurento = Meteor.settings.public.kurento.enableListenOnly;
     this.failedMediaElements = [];
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.monitor = this.monitor.bind(this);
+
+    this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
   }
 
-  init(userData) {
+  init(userData, audioEventHandler) {
     this.bridge = new SIPBridge(userData); // no alternative as of 2019-03-08
     if (this.useKurento) {
       this.listenOnlyBridge = new KurentoBridge(userData);
     }
     this.userData = userData;
     this.initialized = true;
+    this.audioEventHandler = audioEventHandler;
   }
 
   setAudioMessages(messages, intl) {
@@ -177,22 +191,7 @@ class AudioManager {
     const callOptions = {
       isListenOnly: true,
       extension: null,
-      inputStream: this.createListenOnlyStream(),
     };
-
-    // WebRTC restrictions may need a capture device permission to release
-    // useful ICE candidates on recvonly/no-gUM peers
-    try {
-      await tryGenerateIceCandidates();
-    } catch (error) {
-      logger.error({
-        logCode: 'listenonly_no_valid_candidate_gum_failure',
-        extraInfo: {
-          errorName: error.name,
-          errorMessage: error.message,
-        },
-      }, `Forced gUM to release additional ICE candidates failed due to ${error.name}.`);
-    }
 
     // Call polyfills for webrtc client if navigator is "iOS Webview"
     const userAgent = window.navigator.userAgent.toLocaleLowerCase();
@@ -338,6 +337,10 @@ class AudioManager {
       this.notify(this.intl.formatMessage(this.messages.info.JOINED_AUDIO));
       logger.info({ logCode: 'audio_joined' }, 'Audio Joined');
       if (STATS.enabled) this.monitor();
+      this.audioEventHandler({
+        name: 'started',
+        isListenOnly: this.isListenOnly,
+      });
     }
   }
 
@@ -388,12 +391,23 @@ class AudioManager {
       } = response;
 
       if (status === STARTED) {
+        this.isReconnecting = false;
         this.onAudioJoin();
         resolve(STARTED);
       } else if (status === ENDED) {
+        this.isReconnecting = false;
+        this.setBreakoutAudioTransferStatus({
+          breakoutMeetingId: '',
+          status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+        });
         logger.info({ logCode: 'audio_ended' }, 'Audio ended without issue');
         this.onAudioExit();
       } else if (status === FAILED) {
+        this.isReconnecting = false;
+        this.setBreakoutAudioTransferStatus({
+          breakoutMeetingId: '',
+          status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+        })
         const errorKey = this.messages.error[error] || this.messages.error.GENERIC_ERROR;
         const errorMsg = this.intl.formatMessage(errorKey, { 0: bridgeError });
         this.error = !!error;
@@ -411,38 +425,25 @@ class AudioManager {
           this.onAudioExit();
         }
       } else if (status === RECONNECTING) {
+        this.isReconnecting = true;
+        this.setBreakoutAudioTransferStatus({
+          breakoutMeetingId: '',
+          status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+        })
         logger.info({ logCode: 'audio_reconnecting' }, 'Attempting to reconnect audio');
         this.notify(this.intl.formatMessage(this.messages.info.RECONNECTING_AUDIO), true);
         this.playHangUpSound();
       } else if (status === AUTOPLAY_BLOCKED) {
+        this.setBreakoutAudioTransferStatus({
+          breakoutMeetingId: '',
+          status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+        })
+        this.isReconnecting = false;
         this.autoplayBlocked = true;
         this.onAudioJoin();
         resolve(AUTOPLAY_BLOCKED);
       }
     });
-  }
-
-  createListenOnlyStream() {
-    const audio = document.querySelector(MEDIA_TAG);
-
-    // Play bogus silent audio to try to circumvent autoplay policy on Safari
-    if (!audio.src) {
-      audio.src = `${Meteor.settings.public.app.cdn
-      + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}` + '/resources/sounds/silence.mp3';
-    }
-
-    audio.play().catch((e) => {
-      if (e.name === 'AbortError') {
-        return;
-      }
-
-      logger.warn({
-        logCode: 'audiomanager_error_test_audio',
-        extraInfo: { error: e },
-      }, 'Error on playing test audio');
-    });
-
-    return {};
   }
 
   isUsingAudio() {
@@ -519,6 +520,34 @@ class AudioManager {
   get inputDeviceId() {
     return (this.bridge && this.bridge.inputDeviceId)
       ? this.bridge.inputDeviceId : DEFAULT_INPUT_DEVICE_ID;
+  }
+
+  /**
+   * Sets the current status for breakout audio transfer
+   * @param {Object} newStatus                  The status Object to be set for
+   *                                            audio transfer.
+   * @param {string} newStatus.breakoutMeetingId The meeting id of the current
+   *                                            breakout audio transfer.
+   * @param {string} newStatus.status           The status of the current audio
+   *                                            transfer. Valid values are
+   *                                            'connected', 'disconnected' and
+   *                                            'returning'.
+   */
+  setBreakoutAudioTransferStatus(newStatus) {
+    const currentStatus = this._breakoutAudioTransferStatus;
+    const { breakoutMeetingId, status } = newStatus;
+
+    if (typeof breakoutMeetingId === 'string') {
+      currentStatus.breakoutMeetingId = breakoutMeetingId;
+    }
+
+    if (typeof status === 'string') {
+      currentStatus.status = status;
+    }
+  }
+
+  getBreakoutAudioTransferStatus() {
+    return this._breakoutAudioTransferStatus;
   }
 
   set userData(value) {
@@ -625,6 +654,8 @@ class AudioManager {
     }
 
     const audioAlert = new Audio(url);
+
+    audioAlert.addEventListener('ended', () => { audioAlert.src = null; });
 
     if (this.outputDeviceId && (typeof audioAlert.setSinkId === 'function')) {
       return audioAlert

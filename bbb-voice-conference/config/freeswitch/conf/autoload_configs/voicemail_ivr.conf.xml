@@ -1,0 +1,211 @@
+<configuration name="voicemail_ivr.conf" description="Voicemail IVR">
+<profiles>
+	<profile name="default">
+		<settings>
+			<param name="IVR-Maximum-Attempts" value="3" />
+			<param name="IVR-Entry-Timeout" value="3000" />
+			<param name="Record-Format" value="wav" />
+			<!--<param name="Record-Sample-Rate" value="8000" />-->
+			<param name="Record-Silence-Hits" value="4" />
+			<param name="Record-Silence-Threshold" value="200" />
+			<param name="Record-Maximum-Length" value="30" />
+			<!--<param name="Record-Minimum-Length" value="3" />-->
+			<param name="Exit-Purge" value="true" />
+			<param name="Password-Mask" value="XXX." />
+			<param name="User-Mask" value="X." />
+
+		</settings>
+		<apis>
+			<api name="auth_login" value="vm_fsdb_auth_login" />
+			<api name="msg_list" value="vm_fsdb_msg_list" />
+			<api name="msg_count" value="vm_fsdb_msg_count" />
+			<api name="msg_delete" value="vm_fsdb_msg_delete" />
+			<api name="msg_undelete" value="vm_fsdb_msg_undelete" />
+			<api name="msg_save" value="vm_fsdb_msg_save" />
+			<api name="msg_purge" value="vm_fsdb_msg_purge" />
+			<api name="msg_get" value="vm_fsdb_msg_get" />
+			<api name="msg_forward" value="vm_fsdb_msg_forward" />
+			<api name="pref_greeting_set" value="vm_fsdb_pref_greeting_set" />
+			<api name="pref_greeting_get" value="vm_fsdb_pref_greeting_get" />
+			<api name="pref_recname_set" value="vm_fsdb_pref_recname_set" />
+			<api name="pref_password_set" value="vm_fsdb_pref_password_set" />
+		</apis>
+		<menus>
+			<menu name="std_authenticate">
+			<phrases>
+				<phrase name="fail_auth" value="fail_auth@voicemail_ivr" />
+			</phrases>
+			<keys>
+			</keys>
+			</menu>
+
+			<menu name="std_authenticate_ask_user">
+			<phrases>
+				<phrase name="instructions" value="enter_id@voicemail_ivr" />
+			</phrases>
+			<keys>
+				<key dtmf="#" action="ivrengine:terminate_entry" variable="VM-Key-Terminator" />
+			</keys>
+			</menu>
+
+			<menu name="std_authenticate_ask_password">
+			<phrases>
+				<phrase name="instructions" value="enter_pass@voicemail_ivr" />
+			</phrases>
+			<keys>
+				<key dtmf="#" action="ivrengine:terminate_entry" variable="VM-Key-Terminator" />
+			</keys>
+			</menu>
+
+			<menu name="std_main_menu">
+			<settings>
+				<param name="Action-On-New-Message" value="new_msg:std_navigator" />
+			</settings>
+			<phrases>
+				<phrase name="msg_count" value="message_count@voicemail_ivr" />
+				<phrase name="say_date" value="say_date_event@voicemail_ivr" />
+				<phrase name="say_msg_number" value="say_message_number@voicemail_ivr" />
+				<phrase name="menu_options" value="menu@voicemail_ivr" />
+			</phrases>
+			<keys>
+				<key dtmf="1" action="new_msg:std_navigator" variable="VM-Key-Play-New-Messages" />
+				<key dtmf="2" action="saved_msg:std_navigator" variable="VM-Key-Play-Saved-Messages" />
+				<key dtmf="5" action="menu:std_preference" variable="VM-Key-Config-Menu"/>
+				<key dtmf="#" action="return" variable="VM-Key-Terminator" />
+			</keys>
+			</menu>
+
+			<menu name="std_navigator">
+			<settings>
+				<!--<param name="Nav-Action-On-Delete" value="next_msg" />-->
+			</settings>
+			<phrases>
+				<phrase name="msg_count" value="message_count@voicemail_ivr" />
+				<phrase name="say_date" value="say_date_event@voicemail_ivr" />
+				<phrase name="say_msg_number" value="say_message_number@voicemail_ivr" />
+				<phrase name="menu_options" value="listen_file_check@voicemail_ivr" />
+				<phrase name="ack" value="ack@voicemail_ivr" />
+				<phrase name="play_message" value="play_message@voicemail_ivr" />
+			</phrases>
+			<keys>
+				<key dtmf="1" action="skip_intro" variable="VM-Key-Main-Listen-File" />
+				<key dtmf="6" action="next_msg" variable="VM-Key-Main-Next-Msg" />
+				<key dtmf="4" action="prev_msg" />
+				<key dtmf="7" action="delete_msg" variable="VM-Key-Main-Delete-File" /> <!-- Same key for undelete if it already deleted -->
+				<key dtmf="8" action="menu:std_forward" variable="VM-Key-Main-Forward" />
+				<key dtmf="2" action="save_msg" variable="VM-Key-Main-Save-File" />
+				<key dtmf="5" action="callback" variable="VM-Key-Main-Callback" />
+				<key dtmf="#" action="return" /> <!-- TODO Might Conflict with future fast-forward -->
+			</keys>
+			</menu>
+
+			<menu name="std_preference">
+			<phrases>
+				<phrase name="menu_options" value="config_menu@voicemail_ivr" />
+			</phrases>
+			<keys>
+				<key dtmf="1" action="menu:std_record_greeting_with_slot" variable="VM-Key-Record-Greeting" />
+				<key dtmf="2" action="menu:std_select_greeting_slot" variable="VM-Key-Choose-Greeting" />
+				<key dtmf="3" action="menu:std_record_name" variable="VM-Key-Record-Name" />
+				<key dtmf="6" action="menu:std_set_password" variable="VM-Key-Change-Password" />
+				<key dtmf="0" action="return" variable="VM-Key-Main-Menu" />
+			</keys>
+			</menu>
+
+			<menu name="std_record_greeting">
+			<phrases>
+				<phrase name="instructions" value="record_greeting@voicemail_ivr" />
+				<phrase name="play_recording" value="play_recording@voicemail_ivr" />
+				<phrase name="menu_options" value="record_file_check@voicemail_ivr" />
+			</phrases>
+			<keys>
+				<key dtmf="1" action="listen" variable="VM-Key-Listen-File" />
+				<key dtmf="2" action="save" variable="VM-Key-Save-File" />
+				<key dtmf="4" action="rerecord" variable="VM-Key-ReRecord-File" />
+				<key dtmf="#" action="skip_instruction" />
+			</keys>
+			</menu>
+
+
+			<menu name="std_record_name">
+			<phrases>
+				<phrase name="instructions" value="record_name@voicemail_ivr" />
+				<phrase name="play_recording" value="play_recording@voicemail_ivr" />
+				<phrase name="menu_options" value="record_file_check@voicemail_ivr" />
+			</phrases>
+			<keys>
+				<key dtmf="1" action="listen" variable="VM-Key-Listen-File" />
+				<key dtmf="2" action="save" variable="VM-Key-Save-File" />
+				<key dtmf="4" action="rerecord" variable="VM-Key-ReRecord-File" />
+				<key dtmf="#" action="skip_instruction" />
+			</keys>
+			</menu>
+
+			<menu name="std_record_message">
+			<phrases>
+				<phrase name="instructions" value="record_message@voicemail_ivr" />
+				<phrase name="play_recording" value="play_recording@voicemail_ivr" />
+				<phrase name="menu_options" value="record_file_check@voicemail_ivr" />
+			</phrases>
+			<keys>
+				<key dtmf="1" action="listen" variable="VM-Key-Listen-File" />
+				<key dtmf="2" action="save" variable="VM-Key-Save-File" />
+				<key dtmf="4" action="rerecord" variable="VM-Key-ReRecord-File" />
+				<key dtmf="#" action="skip_instruction" />
+			</keys>
+			</menu>			
+
+			<menu name="std_forward_ask_prepend">
+			<phrases>
+				<phrase name="menu_options" value="forward_ask_prepend@voicemail_ivr" />
+			</phrases>
+			<keys>
+				<key dtmf="1" action="prepend" variable="VM-Key-Prepend" />
+				<key dtmf="8" action="forward" variable="VM-Key-Forward" />
+				<key dtmf="#" action="return" variable="VM-Key-Return" />
+			</keys>
+			</menu>
+
+			<menu name="std_forward_ask_extension">
+			<phrases>
+				<phrase name="instructions" value="forward_ask_extension@voicemail_ivr" />
+				<phrase name="ack" value="ack@voicemail_ivr" />
+				<phrase name="invalid_extension" value="invalid_extension@voicemail_ivr" />
+			</phrases>
+			<keys>
+				<key dtmf="#" action="ivrengine:terminate_entry" variable="VM-Key-Terminator" />
+			</keys>
+			</menu>
+
+			<menu name="std_select_greeting_slot">
+			<phrases>
+				<phrase name="instructions" value="choose_greeting@voicemail_ivr" />
+				<phrase name="invalid_slot" value="choose_greeting_fail@voicemail_ivr" />
+				<phrase name="selected_slot" value="greeting_selected@voicemail_ivr" />
+			</phrases>
+			<keys>
+			</keys>
+			</menu>
+
+			<menu name="std_record_greeting_with_slot">
+			<phrases>
+				<phrase name="instructions" value="choose_greeting@voicemail_ivr" />
+			</phrases>
+			<keys>
+			</keys>
+			</menu>
+
+			<menu name="std_set_password">
+			<phrases>
+				<phrase name="instructions" value="enter_pass@voicemail_ivr" />
+			</phrases>
+			<keys>
+				<key dtmf="#" action="ivrengine:terminate_entry" variable="VM-Key-Terminator" />
+			</keys>
+			</menu>
+		</menus>
+	</profile>
+</profiles>
+</configuration>
+
+

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import _ from 'lodash';
-import { makeCall } from '/imports/ui/services/api';
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -44,16 +43,7 @@ const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
 };
 
-const handleClickQuickPoll = (slideId, poll, label) => {
-  const { type } = poll;
-  Session.set('openPanel', 'poll');
-  Session.set('forcePollOpen', true);
-  Session.set('pollInitiated', true);
-
-  makeCall('startPoll', type, slideId, label.options);
-};
-
-const getAvailableQuickPolls = (slideId, parsedSlides) => {
+const getAvailableQuickPolls = (slideId, parsedSlides, startPoll) => {
   const pollItemElements = parsedSlides.map((poll) => {
     const { poll: label, type } = poll;
     let itemLabel = label;
@@ -81,7 +71,7 @@ const getAvailableQuickPolls = (slideId, parsedSlides) => {
       <DropdownListItem
         label={itemLabel}
         key={_.uniqueId('quick-poll-item')}
-        onClick={() => handleClickQuickPoll(slideId, poll, label)}
+        onClick={() => startPoll(type, slideId, label.options)}
       />
     );
   });
@@ -116,7 +106,7 @@ class QuickPollDropdown extends Component {
     );
 
     const { slideId, quickPollOptions } = parsedSlide;
-    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions);
+    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions, startPoll);
 
     if (quickPollOptions.length === 0) return null;
 

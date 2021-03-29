@@ -7,7 +7,6 @@ import CustomLogo from './custom-logo/component';
 import UserContentContainer from './user-list-content/container';
 
 const propTypes = {
-  activeChats: PropTypes.arrayOf(String).isRequired,
   compact: PropTypes.bool,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -28,7 +27,6 @@ class UserList extends PureComponent {
   render() {
     const {
       intl,
-      activeChats,
       compact,
       setEmojiStatus,
       isPublicChat,
@@ -50,7 +48,6 @@ class UserList extends PureComponent {
         {<UserContentContainer
           {...{
             intl,
-            activeChats,
             compact,
             setEmojiStatus,
             isPublicChat,

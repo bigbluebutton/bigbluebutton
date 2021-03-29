@@ -76,9 +76,17 @@ const intlMessages = defineMessages({
     id: 'app.audio.leaveAudio',
     description: 'describes the leave audio shortcut',
   },
+  raisehand: {
+    id: 'app.shortcut-help.raiseHand',
+    description: 'describes the toggle raise hand shortcut',
+  },
   togglePan: {
     id: 'app.shortcut-help.togglePan',
     description: 'describes the toggle pan shortcut',
+  },
+  toggleFullscreen: {
+    id: 'app.shortcut-help.toggleFullscreen',
+    description: 'describes the toggle full-screen shortcut',
   },
   nextSlideDesc: {
     id: 'app.shortcut-help.nextSlideDesc',
@@ -138,6 +146,13 @@ const ShortcutHelpComponent = (props) => {
     <tr key={_.uniqueId('hotkey-item-')}>
       <td className={styles.keyCell}>Spacebar</td>
       <td className={styles.descCell}>{intl.formatMessage(intlMessages.togglePan)}</td>
+    </tr>
+  ));
+
+  shortcutItems.push((
+    <tr key={_.uniqueId('hotkey-item-')}>
+      <td className={styles.keyCell}>Enter</td>
+      <td className={styles.descCell}>{intl.formatMessage(intlMessages.toggleFullscreen)}</td>
     </tr>
   ));
 

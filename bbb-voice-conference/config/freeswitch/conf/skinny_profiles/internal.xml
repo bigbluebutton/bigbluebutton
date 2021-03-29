@@ -1,0 +1,40 @@
+<profile name="internal">
+  <settings>
+    <param name="domain" value="$${domain}"/>
+    <param name="ip" value="$${local_ip_v4}"/>
+    <param name="port" value="2000"/>
+    <param name="patterns-dialplan" value="XML"/>
+    <param name="patterns-context" value="skinny-patterns"/>
+    <param name="dialplan" value="XML"/>
+    <param name="context" value="default"/>
+    <param name="keep-alive" value="60"/>
+    <param name="date-format" value="D/M/Y"/>
+    <param name="odbc-dsn" value=""/>
+    <param name="debug" value="4"/>
+    <param name="auto-restart" value="true"/>
+
+    <!-- timeout to wait for another digit in milliseconds -->
+    <param name="digit-timeout" value="10000"/>
+  </settings>
+  <soft-key-set-sets>
+    <soft-key-set-set name="default">
+      <soft-key-set name="KeySetOnHook" value="SoftkeyNewcall,SoftkeyRedial"/>
+      <soft-key-set name="KeySetConnected" value="SoftkeyEndcall,SoftkeyHold,SoftkeyNewcall,SoftkeyTransfer"/>
+      <soft-key-set name="KeySetOnHold" value="SoftkeyNewcall,SoftkeyResume,SoftkeyEndcall"/>
+      <soft-key-set name="KeySetRingIn" value="SoftkeyAnswer,SoftkeyEndcall,SoftkeyNewcall"/>
+      <soft-key-set name="KeySetOffHook" value=",SoftkeyRedial,SoftkeyEndcall"/>
+      <soft-key-set name="KeySetConnectedWithTransfer" value="SoftkeyEndcall,SoftkeyHold,SoftkeyNewcall,SoftkeyTransfer"/>
+      <soft-key-set name="KeySetDigitsAfterDialingFirstDigit" value="SoftkeyBackspace,,SoftkeyEndcall"/>
+      <!-- <soft-key-set name="KeySetConnectedWithConference" value=""/> -->
+      <soft-key-set name="KeySetRingOut" value=",,SoftkeyEndcall,SoftkeyTransfer"/>
+      <soft-key-set name="KeySetOffHookWithFeatures" value=",SoftkeyRedial,SoftkeyEndcall"/>
+      <soft-key-set name="KeySetInUseHint" value="SoftkeyNewcall,SoftkeyRedial"/>
+    </soft-key-set-set>
+  </soft-key-set-sets>
+  <device-types>
+    <device-type id="Cisco ATA 186">
+        <param name="firmware-version" value="ATA030101SCCP04"/>
+    </device-type>
+  </device-types>
+</profile>
+

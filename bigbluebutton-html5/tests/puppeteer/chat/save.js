@@ -12,11 +12,11 @@ class Save extends Page {
   async test(testName) {
     await util.openChat(this);
     if (process.env.GENERATE_EVIDENCES === 'true') {
-      await this.screenshot(`${testName}`, `01-before-chat-options-click-[${testName}]`);
+      await this.screenshot(`${testName}`, `01-before-chat-options-click-[${this.meetingId}]`);
     }
-    await this.click(e.chatOptions);
+    await this.click(e.chatOptions, true);
     if (process.env.GENERATE_EVIDENCES === 'true') {
-      await this.screenshot(`${testName}`, `02-chat-options-clicked-[${testName}]`);
+      await this.screenshot(`${testName}`, `02-chat-options-clicked-[${this.meetingId}]`);
     }
     await this.click(e.chatSave, true);
     let clicked = '';

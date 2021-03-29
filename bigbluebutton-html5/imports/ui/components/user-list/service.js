@@ -1,11 +1,9 @@
 import Users from '/imports/api/users';
 import VoiceUsers from '/imports/api/voice-users';
 import GroupChat from '/imports/api/group-chat';
-import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import Breakouts from '/imports/api/breakouts/';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
-import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import { makeCall } from '/imports/ui/services/api';
@@ -13,6 +11,7 @@ import _ from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
+import WhiteboardService from '/imports/ui/components/whiteboard/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
@@ -44,6 +43,14 @@ export const setCustomLogoUrl = path => Storage.setItem(CUSTOM_LOGO_URL_KEY, pat
 export const setModeratorOnlyMessage = msg => Storage.setItem('ModeratorOnlyMessage', msg);
 
 const getCustomLogoUrl = () => Storage.getItem(CUSTOM_LOGO_URL_KEY);
+
+const sortByWhiteboardAccess = (a, b) => {
+  const _a = a.whiteboardAccess;
+  const _b = b.whiteboardAccess;
+  if (!_b && _a) return -1;
+  if (!_a && _b) return 1;
+  return 0;
+};
 
 const sortUsersByName = (a, b) => {
   const aName = a.name.toLowerCase();
@@ -128,6 +135,10 @@ const sortUsers = (a, b) => {
   }
 
   if (sort === 0) {
+    sort = sortByWhiteboardAccess(a, b);
+  }
+
+  if (sort === 0) {
     sort = sortUsersByName(a, b);
   }
 
@@ -191,6 +202,30 @@ const userFindSorting = {
   userId: 1,
 };
 
+const addWhiteboardAccess = (users) => {
+  const whiteboardId = WhiteboardService.getCurrentWhiteboardId();
+
+  if (whiteboardId) {
+    const multiUserWhiteboard = WhiteboardService.getMultiUser(whiteboardId);
+    return users.map(user => {
+      const whiteboardAccess = multiUserWhiteboard.includes(user.userId);
+
+      return {
+        ...user,
+        whiteboardAccess,
+      };
+    });
+  }
+
+  return users.map(user => {
+    const whiteboardAccess = false;
+    return {
+      ...user,
+      whiteboardAccess,
+    };
+  });
+};
+
 const getUsers = () => {
   let users = Users
     .find({
@@ -208,7 +243,11 @@ const getUsers = () => {
     }
   }
 
-  return users.sort(sortUsers);
+  return addWhiteboardAccess(users).sort(sortUsers);
+};
+
+const getUserCount = () => {
+  return Users.find({ meetingId: Auth.meetingID }).count();
 };
 
 const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID },
@@ -216,82 +255,76 @@ const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID }
 
 const isMe = userId => userId === Auth.userID;
 
-const getActiveChats = (chatID) => {
-  const privateChat = GroupChat
-    .find({ users: { $all: [Auth.userID] } })
-    .fetch()
-    .map(chat => chat.chatId);
 
-  const filter = {
-    chatId: { $ne: PUBLIC_GROUP_CHAT_ID },
-  };
+const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
 
-  if (privateChat) {
-    filter.chatId = { $in: privateChat };
-  }
+  if (_.isEmpty(groupChats) && _.isEmpty(users)) return [];
+  
+  const chatIds = Object.keys(groupChats);
+  const lastTimeWindows = chatIds.reduce((acc, chatId) => {
+    const chat = groupChatsMessages[chatId];
+    const lastTimewindowKey = chat?.lastTimewindow;
+    const lastTimeWindow = lastTimewindowKey?.split('-')[1];
+    return {
+      ...acc,
+      chatId: lastTimeWindow,
+    }
+  }, {});
 
-  let activeChats = GroupChatMsg
-    .find(filter)
-    .fetch();
-
-  const idsWithTimeStamp = {};
-
-  activeChats.map((chat) => {
-    idsWithTimeStamp[`${chat.sender.id}`] = chat.timestamp;
+  chatIds.sort((a,b) => { 
+    if (a === PUBLIC_GROUP_CHAT_ID) {
+      return -1;
+    }
+  
+    if (lastTimeWindows[a] === lastTimeWindows[b]){
+      return 0;
+    }
+    
+    return 1;
   });
+  
+  const chatInfo = chatIds.map((chatId) => {
+    const contextChat = groupChatsMessages[chatId];
+    const isPublicChat = chatId === PUBLIC_GROUP_CHAT_ID;
+    let unreadMessagesCount = 0;
+    if (contextChat) {
+      const unreadTimewindows = contextChat.unreadTimeWindows;
+      for (const unreadTimeWindowId of unreadTimewindows) {
+        const timeWindow = (isPublicChat 
+          ? contextChat?.preJoinMessages[unreadTimeWindowId] || contextChat?.posJoinMessages[unreadTimeWindowId]
+          : contextChat?.messageGroups[unreadTimeWindowId]);
+        unreadMessagesCount += timeWindow.content.length;
+      }
+    }
 
-  activeChats = activeChats.map(mapActiveChats);
-
-  if (chatID) {
-    activeChats.push(chatID);
-  }
-
-  activeChats = _.uniqBy(_.compact(activeChats), 'id');
-
-  activeChats = activeChats.map(({ id, name }) => {
-    const user = Users.findOne({ userId: id }, { fields: { color: 1, role: 1 } });
+    if (chatId !== PUBLIC_GROUP_CHAT_ID) {
+      const groupChatsParticipants = groupChats[chatId].participants;
+    const otherParticipant = groupChatsParticipants.filter((user)=> user.id !== Auth.userID)[0];
+    const user = users[otherParticipant.id]; 
 
     return {
       color: user?.color || '#7b1fa2',
       isModerator: user?.role === ROLE_MODERATOR,
-      lastActivity: idsWithTimeStamp[id],
-      name,
-      unreadCounter: UnreadMessages.count(id),
-      userId: id,
+      name: user?.name || otherParticipant.name,
+      chatId,
+      unreadCounter: unreadMessagesCount,
+      userId: user?.userId || otherParticipant.id,
+    };
+    }
+
+    return {
+      userId: 'public',
+      name: 'Public Chat',
+      icon: 'group_chat',
+      chatId: 'public',
+      unreadCounter: unreadMessagesCount,
     };
   });
-
+  
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
-  const filteredChatList = [];
+  return chatInfo.filter(chat => !currentClosedChats.includes(chat.chatId));
+}
 
-  activeChats.forEach((op) => {
-    // When a new private chat message is received, ensure the conversation view is restored.
-    if (op.unreadCounter > 0) {
-      if (_.indexOf(currentClosedChats, op.userId) > -1) {
-        Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, op.userId));
-      }
-    }
-
-    // Compare activeChats with session and push it into filteredChatList
-    // if one of the activeChat is not in session.
-    // It will pass to activeChats.
-    if (_.indexOf(currentClosedChats, op.userId) < 0) {
-      filteredChatList.push(op);
-    }
-  });
-
-  activeChats = filteredChatList;
-
-  activeChats.push({
-    userId: 'public',
-    name: 'Public Chat',
-    icon: 'group_chat',
-    unreadCounter: UnreadMessages.count(PUBLIC_GROUP_CHAT_ID),
-  });
-
-  return activeChats
-    .sort(sortChats);
-};
 
 const isVoiceOnlyUser = userId => userId.toString().startsWith('v_');
 
@@ -342,7 +375,7 @@ const curatedVoiceUser = (intId) => {
   };
 };
 
-const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectVoiceUser, usersProp) => {
+const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectVoiceUser, usersProp, amIPresenter) => {
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId) || subjectUser.phone_user;
   const amISubjectUser = isMe(subjectUser.userId);
   const isSubjectUserModerator = subjectUser.role === ROLE_MODERATOR;
@@ -394,6 +427,9 @@ const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectV
     && !isSubjectUserModerator
     && isMeetingLocked(Auth.meetingID);
 
+  const allowedToChangeWhiteboardAccess = amIPresenter
+    && !amISubjectUser;
+
   return {
     allowedToChatPrivately,
     allowedToMuteAudio,
@@ -405,6 +441,7 @@ const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectV
     allowedToDemote,
     allowedToChangeStatus,
     allowedToChangeUserLockStatus,
+    allowedToChangeWhiteboardAccess,
   };
 };
 
@@ -412,13 +449,12 @@ const normalizeEmojiName = emoji => (
   emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
 );
 
-const setEmojiStatus = (userId, emoji) => {
+const setEmojiStatus = _.debounce((userId, emoji) => {
   const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(emoji));
-
   return statusAvailable
     ? makeCall('setEmojiStatus', Auth.userID, emoji)
     : makeCall('setEmojiStatus', userId, 'none');
-};
+}, 1000, { leading: true, trailing: false });
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
 
@@ -536,8 +572,14 @@ const hasPrivateChatBetweenUsers = (senderId, receiverId) => GroupChat
   .findOne({ users: { $all: [receiverId, senderId] } });
 
 const getGroupChatPrivate = (senderUserId, receiver) => {
-  if (!hasPrivateChatBetweenUsers(senderUserId, receiver.userId)) {
+  const chat = hasPrivateChatBetweenUsers(senderUserId, receiver.userId);
+  if (!chat) {
     makeCall('createGroupChat', receiver);
+  } else {
+    const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
+    if (_.indexOf(currentClosedChats, chat.chatId) > -1) {
+      Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, chat.chatId));
+    }
   }
 };
 
@@ -578,6 +620,10 @@ const isUserPresenter = (userId) => {
   const user = Users.findOne({ userId },
     { fields: { presenter: 1 } });
   return user ? user.presenter : false;
+};
+
+const amIPresenter = () => {
+  return isUserPresenter(Auth.userID);
 };
 
 export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
@@ -648,5 +694,7 @@ export default {
   requestUserInformation,
   focusFirstDropDownItem,
   isUserPresenter,
+  amIPresenter,
   getUsersProp,
+  getUserCount,
 };

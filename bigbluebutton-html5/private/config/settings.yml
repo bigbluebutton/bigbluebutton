@@ -22,6 +22,7 @@ public:
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
     allowDefaultLogoutUrl: true
     allowUserLookup: false
+    enableGuestLobbyMessage: true
     enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
@@ -33,7 +34,7 @@ public:
     allowFullscreen: true
     preloadNextSlides: 2
     mutedAlert:
-      enabled: false
+      enabled: true
       interval: 200
       threshold: -50
       duration: 4000
@@ -47,7 +48,8 @@ public:
       breakoutRoomLimit: 8
       sendInvitationToIncludedModerators: false
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
-    customHeartbeat: true
+    customHeartbeat: false
+    showAllAvailableLocales: false
     defaultSettings:
       application:
         animations: true
@@ -57,7 +59,19 @@ public:
         userJoinPushAlerts: false
         raiseHandAudioAlerts: true
         raiseHandPushAlerts: true
+        guestWaitingAudioAlerts: true
+        guestWaitingPushAlerts: true
+        paginationEnabled: true
+        # fallbackLocale: if the locale the client is loaded in does not have a
+        # translation a string, it will use the translation from the locale
+        # specified in fallbackLocale. Note that fallbackLocale should be a
+        # 100% translated locale for best user experience
         fallbackLocale: en
+        # overrideLocale (default is null): if set (for example to 'de') will
+        # force all clients to display the German translations of the strings.
+        # Users can individually set their preferred locale through Settings,
+        # but on first page load overrideLocale will trump the browser's
+        # preferred locale
         overrideLocale: null
         #Audio constraints for microphone. Use this to control browser's
         #filters, such as AGC (Auto Gain Control) , Echo Cancellation,
@@ -109,6 +123,9 @@ public:
       closePrivateChat:
         accesskey: G
         descId: closePrivateChat
+      raiseHand:
+        accesskey: R
+        descId: raiseHand
       openActions:
         accesskey: A
         descId: openActions
@@ -142,11 +159,15 @@ public:
       # Max timeout: used as the max camera subscribe reconnection timeout. Each
       # subscribe reattempt increases the reconnection timer up to this
       maxTimeout: 60000
-    chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc
-    chromeDefaultExtensionLink: https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc
-    chromeExtensionKey: KEY
-    chromeExtensionLink: LINK
     screenshare:
+      mediaTimeouts:
+        maxConnectionAttempts: 2
+        # Base screen media timeout (send|recv)
+        baseTimeout: 30000
+        # Max timeout: used as the max camera subscribe reconnection timeout. Each
+        # subscribe reattempt increases the reconnection timer up to this
+        maxTimeout: 60000
+        timeoutIncreaseFactor: 1.5
       constraints:
         video:
           frameRate:
@@ -156,11 +177,7 @@ public:
             max: 2560
           height:
             max: 1600
-        audio: false
-      chromeScreenshareSources:
-        - window
-        - screen
-      firefoxScreenshareSource: window
+        audio: true
     # cameraProfiles is an array of:
     # - id: profile identifier
     #   name: human-readable profile name
@@ -249,7 +266,7 @@ public:
     #   profile: a camera profile id from the cameraProfiles configuration array
     #            that will be applied to all cameras when threshold is hit
     cameraQualityThresholds:
-      enabled: false
+      enabled: true
       thresholds:
         - threshold: 8
           profile: low-u8
@@ -264,8 +281,11 @@ public:
         - threshold: 30
           profile: low-u30
     pagination:
-      # whether to globally enable or disable pagination.
-      enabled: false
+      # WARNING: the pagination.enabled setting has moved to
+      # public.app.defaultSettings.application.paginationEnabled
+      # paginationToggleEnabled: show a pagination toggle in settings for the
+      # user to enable/disable it
+      paginationToggleEnabled: true
       # how long (in ms) the negotiation will be debounced after a page change.
       pageChangeDebounceTime: 2500
       # video page sizes for DESKTOP endpoints. It stands for the number of SUBSCRIBER streams.
@@ -278,6 +298,41 @@ public:
       mobilePageSizes:
         moderator: 2
         viewer: 2
+    paginationThresholds:
+      enabled: false
+      thresholds:
+        - users: 30
+          desktopPageSizes:
+            moderator: 25
+            viewer: 25
+        - users: 40
+          desktopPageSizes:
+            moderator: 20
+            viewer: 20
+        - users: 50
+          desktopPageSizes:
+            moderator: 16
+            viewer: 16
+        - users: 60
+          desktopPageSizes:
+            moderator: 14
+            viewer: 12
+        - users: 70
+          desktopPageSizes:
+            moderator: 12
+            viewer: 10
+        - users: 80
+          desktopPageSizes:
+            moderator: 10
+            viewer: 8
+        - users: 90
+          desktopPageSizes:
+            moderator: 8
+            viewer: 6
+        - users: 100
+          desktopPageSizes:
+            moderator: 6
+            viewer: 4
   syncUsersWithConnectionManager:
     enabled: false
     syncInterval: 60000
@@ -287,6 +342,7 @@ public:
   poll:
     enabled: true
     max_custom: 5
+    allowDragAndDropFile: false
   captions:
     enabled: true
     enableDictation: false
@@ -299,6 +355,8 @@ public:
     time: 5000
   chat:
     enabled: true
+    itemsPerPage: 100
+    timeBetweenFetchs: 1000
     bufferChatInsertsMs: 0
     startClosed: false
     min_message_length: 1
@@ -316,26 +374,21 @@ public:
     storage_key: UNREAD_CHATS
     system_messages_keys:
       chat_clear: PUBLIC_CHAT_CLEAR
+      chat_poll_result: PUBLIC_CHAT_POLL_RESULT
     typingIndicator:
       enabled: true
   note:
     enabled: false
     url: ETHERPAD_HOST
-    config:
-      showLineNumbers: false
-      showChat: false
-      noColors: true
-      showControls: true
-      rtl: false
   layout:
     autoSwapLayout: false
     hidePresentation: false
+    showParticipantsOnLogin: true
     webcamsDefaultPlacement: 'top'
   media:
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
-    recvonlyIceGatheringCheck: true
     mediaTag: '#remote-media'
     callTransferTimeout: 5000
     callHangupTimeout: 2000
@@ -361,6 +414,8 @@ public:
     websocketKeepAliveDebounce: 10
     #Trace sip/audio messages in browser. If not set, default value is false.
     traceSip: false
+    # SDP semantics: plan-b|unified-plan
+    sdpSemantics: 'unified-plan'
   stats:
     enabled: true
     interval: 2000
@@ -424,6 +479,8 @@ public:
         mime: image/jpeg
       - extension: .png
         mime: image/png
+  selectRandomUser:
+    enabled: true
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
@@ -512,7 +569,6 @@ public:
         - triangle
         - rectangle
         - pencil
-        - hand
   clientLog:
     server:
       enabled: false
@@ -531,7 +587,7 @@ public:
 private:
   app:
     host: 127.0.0.1
-    localesUrl: /locales
+    localesUrl: /locale-list
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
   etherpad:
@@ -555,7 +611,7 @@ private:
       toThirdParty: to-third-party-redis-channel
     subscribeTo:
       - to-html5-redis-channel
-      - from-akka-apps-*
+      - from-akka-apps-[^f]*
       - from-third-party-redis-channel
       - from-etherpad-redis-channel
     async:
@@ -582,7 +638,7 @@ private:
     - browser: chromeMobileIOS
       version: Infinity
     - browser: firefox
-      version: 63
+      version: 68
     - browser: firefoxMobile
       version: 68
     - browser: edge

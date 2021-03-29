@@ -38,8 +38,7 @@ export default withTracker((params) => {
     Session.set('openPanel', 'poll');
     Session.set('forcePollOpen', true);
 
-    makeCall('startPoll', type, id, answers);
-    //makeCall('startPoll', type, id, "", answers); // in case the PR #10500 has been merged.
+    makeCall('startPoll', type, id, '', answers);
   };
 
   return {

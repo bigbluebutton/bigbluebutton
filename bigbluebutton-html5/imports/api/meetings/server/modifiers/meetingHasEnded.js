@@ -4,6 +4,7 @@ import Logger from '/imports/startup/server/logger';
 import BannedUsers from '/imports/api/users/server/store/bannedUsers';
 import { removeAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { removeCursorStreamer } from '/imports/api/cursor/server/streamer';
+import { removeExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
 
 import clearUsers from '/imports/api/users/server/modifiers/clearUsers';
 import clearUsersSettings from '/imports/api/users-settings/server/modifiers/clearUsersSettings';
@@ -27,12 +28,17 @@ import clearRecordMeeting from './clearRecordMeeting';
 import clearVoiceCallStates from '/imports/api/voice-call-states/server/modifiers/clearVoiceCallStates';
 import clearVideoStreams from '/imports/api/video-streams/server/modifiers/clearVideoStreams';
 import clearAuthTokenValidation from '/imports/api/auth-token-validation/server/modifiers/clearAuthTokenValidation';
+import clearUsersPersistentData from '/imports/api/users-persistent-data/server/modifiers/clearUsersPersistentData';
+
 import clearWhiteboardMultiUser from '/imports/api/whiteboard-multi-user/server/modifiers/clearWhiteboardMultiUser';
 import Metrics from '/imports/startup/server/metrics';
 
 export default function meetingHasEnded(meetingId) {
-  removeAnnotationsStreamer(meetingId);
-  removeCursorStreamer(meetingId);
+  if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
+    removeAnnotationsStreamer(meetingId);
+    removeCursorStreamer(meetingId);
+    removeExternalVideoStreamer(meetingId);
+  }
 
   return Meetings.remove({ meetingId }, () => {
     clearCaptions(meetingId);
@@ -58,6 +64,7 @@ export default function meetingHasEnded(meetingId) {
     clearAuthTokenValidation(meetingId);
     clearWhiteboardMultiUser(meetingId);
     clearScreenshare(meetingId);
+    clearUsersPersistentData(meetingId);
     BannedUsers.delete(meetingId);
     Metrics.removeMeeting(meetingId);
 

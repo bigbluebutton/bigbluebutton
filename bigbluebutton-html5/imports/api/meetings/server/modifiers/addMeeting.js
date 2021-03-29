@@ -10,6 +10,7 @@ import createNote from '/imports/api/note/server/methods/createNote';
 import createCaptions from '/imports/api/captions/server/methods/createCaptions';
 import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
+import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
 import BannedUsers from '/imports/api/users/server/store/bannedUsers';
 
 export default function addMeeting(meeting) {
@@ -147,11 +148,23 @@ export default function addMeeting(meeting) {
       meetingId,
       meetingEnded,
       publishedPoll: false,
+      guestLobbyMessage: '',
       randomlySelectedUser: '',
     }, flat(newMeeting, {
       safe: true,
     })),
   };
+
+  if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
+    addAnnotationsStreamer(meetingId);
+    addCursorStreamer(meetingId);
+    addExternalVideoStreamer(meetingId);
+
+    // we don't want to fully process the create meeting message in frontend since it can lead to duplication of meetings in mongo.
+    if (process.env.BBB_HTML5_ROLE === 'frontend') {
+      return;
+    }
+  }
 
   try {
     const { insertedId, numberAffected } = RecordMeetings.upsert(selector, { meetingId, ...recordProp });
@@ -168,15 +181,13 @@ export default function addMeeting(meeting) {
   try {
     const { insertedId, numberAffected } = Meetings.upsert(selector, modifier);
 
-    addAnnotationsStreamer(meetingId);
-    addCursorStreamer(meetingId);
-
     if (insertedId) {
       Logger.info(`Added meeting id=${meetingId}`);
-      // TODO: Here we call Etherpad API to create this meeting notes. Is there a
-      // better place we can run this post-creation routine?
-      createNote(meetingId);
-      createCaptions(meetingId);
+
+      const { html5InstanceId } = meeting.systemProps;
+      createNote(meetingId, html5InstanceId);
+      createCaptions(meetingId, html5InstanceId);
+
       BannedUsers.init(meetingId);
     } else if (numberAffected) {
       Logger.info(`Upserted meeting id=${meetingId}`);
