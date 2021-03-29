@@ -617,7 +617,6 @@
     "app.connection-status.empty": "There are currently no reported connection issues",
     "app.connection-status.more": "more",
     "app.connection-status.label": "Connection status",
-    "app.connection-status.description": "View users' connection status",
     "app.connection-status.notification": "Loss in your connection was detected",
     "app.recording.startTitle": "Start recording",
     "app.recording.stopTitle": "Pause recording",
