@@ -146,6 +146,19 @@
       padding: .25rem;
     }
   }
+
+  @include mq($small-only) {
+    button {
+      top: calc(90vh - 85px - 5rem);
+      height: 10vh;
+    }
+  }
+  @include mq($landscape) {
+    button {
+      width: calc(100vw - 4rem);
+      margin-left: 1rem;
+    }
+  }
 }
 
 .dropdownFireFox {
@@ -187,6 +200,11 @@
 
   [dir="rtl"] & {
     right: 2rem;
+  }
+
+  @include mq($small-only) {
+    height: calc(90vh - 85px - 5rem);
+    width: 100vw;
   }
 }
 
