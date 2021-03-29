@@ -5,6 +5,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
+import InputStreamLiveSelectorContainer from './input-stream-live-selector/container';
 import MutedAlert from '/imports/ui/components/muted-alert/component';
 import { styles } from './styles';
 
@@ -42,6 +43,11 @@ const propTypes = {
 };
 
 class AudioControls extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.renderLeaveButton = this.renderLeaveButton.bind(this);
+  }
+
   componentDidMount() {
     const { processToggleMuteFromOutside } = this.props;
     if (Meteor.settings.public.allowOutsideCommands.toggleSelfVoice
@@ -50,17 +56,41 @@ class AudioControls extends PureComponent {
     }
   }
 
+  renderLeaveButton() {
+    const {
+      listenOnly,
+      inAudio,
+      isVoiceUser,
+      handleLeaveAudio,
+      shortcuts,
+      disable,
+      intl,
+    } = this.props;
+    return (inAudio && isVoiceUser && listenOnly) ? (
+      <Button
+        onClick={handleLeaveAudio}
+        disabled={disable}
+        hideLabel
+        aria-label={intl.formatMessage(intlMessages.leaveAudio)}
+        label={intl.formatMessage(intlMessages.leaveAudio)}
+        color="primary"
+        icon="listen"
+        size="lg"
+        circle
+        accessKey={shortcuts.leaveAudio}
+      />
+    ) : (<InputStreamLiveSelectorContainer />);
+  }
+
   render() {
     const {
       handleToggleMuteMicrophone,
       handleJoinAudio,
-      handleLeaveAudio,
       showMute,
       muted,
       disable,
       talking,
       inAudio,
-      listenOnly,
       intl,
       shortcuts,
       isVoiceUser,
@@ -68,15 +98,6 @@ class AudioControls extends PureComponent {
       isViewer,
       isPresenter,
     } = this.props;
-
-    let joinIcon = 'audio_off';
-    if (inAudio) {
-      if (listenOnly) {
-        joinIcon = 'listen';
-      } else {
-        joinIcon = 'audio_on';
-      }
-    }
 
     const label = muted ? intl.formatMessage(intlMessages.unmuteAudio)
       : intl.formatMessage(intlMessages.muteAudio);
@@ -110,23 +131,26 @@ class AudioControls extends PureComponent {
           />
         ) : null}
         {showMute && isVoiceUser ? toggleMuteBtn : null}
-        <Button
-          className={cx(inAudio || styles.btn)}
-          onClick={inAudio ? handleLeaveAudio : handleJoinAudio}
-          disabled={disable}
-          data-test={inAudio ? 'leaveAudio' : 'joinAudio'}
-          hideLabel
-          aria-label={inAudio ? intl.formatMessage(intlMessages.leaveAudio)
-            : intl.formatMessage(intlMessages.joinAudio)}
-          label={inAudio ? intl.formatMessage(intlMessages.leaveAudio)
-            : intl.formatMessage(intlMessages.joinAudio)}
-          color={inAudio ? 'primary' : 'default'}
-          ghost={!inAudio}
-          icon={joinIcon}
-          size="lg"
-          circle
-          accessKey={inAudio ? shortcuts.leaveaudio : shortcuts.joinaudio}
-        />
+        {
+          (inAudio)
+            ? this.renderLeaveButton()
+            : (
+              <Button
+                className={cx(styles.button, styles.btn)}
+                onClick={handleJoinAudio}
+                disabled={disable}
+                hideLabel
+                aria-label={intl.formatMessage(intlMessages.joinAudio)}
+                label={intl.formatMessage(intlMessages.joinAudio)}
+                color="default"
+                ghost
+                icon={'audio_off'}
+                size="lg"
+                circle
+                accessKey={shortcuts.joinAudio}
+              />
+            )
+        }
       </span>
     );
   }

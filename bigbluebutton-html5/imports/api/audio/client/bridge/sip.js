@@ -1167,13 +1167,28 @@ export default class SIPBridge extends BaseAudioBridge {
     return inputDeviceId;
   }
 
+  liveChangeInputDevice(deviceId) {
+    const constraints = {
+      audio: {
+        deviceId,
+      },
+    };
+
+    return navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+      const peer = this.getPeerConnection();
+      const senders = peer.getSenders()[0];
+      const firstTrack = stream.getAudioTracks()[0];
+      senders.replaceTrack(firstTrack);
+    });
+  }
+
   async changeOutputDevice(value) {
     const audioContext = document.querySelector(MEDIA_TAG);
 
     if (audioContext.setSinkId) {
       try {
-        audioContext.srcObject = null;
         await audioContext.setSinkId(value);
+        audioContext.load();
         this.media.outputDeviceId = value;
       } catch (err) {
         logger.error({
