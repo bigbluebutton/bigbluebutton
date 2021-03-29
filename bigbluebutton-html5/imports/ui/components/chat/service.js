@@ -367,6 +367,18 @@ const getLastMessageTimestampFromChatList = activeChats => activeChats
   .map(chatId => getAllMessages(chatId).reduce(maxTimestampReducer, 0))
   .reduce(maxNumberReducer, 0);
 
+const processClearPublicChatFromOutside = (e) => {
+  switch (e.data) {
+    case 'clear_public_chat': {
+      clearPublicChatHistory();
+      break;
+    }
+    default: {
+      // console.log(e.data);
+    }
+  }
+};
+
 export default {
   setUserSentMessage,
   mapGroupMessage,
@@ -391,5 +403,6 @@ export default {
   clearPublicChatHistory,
   maxTimestampReducer,
   getLastMessageTimestampFromChatList,
+  processClearPublicChatFromOutside,
   UnsentMessagesCollection,
 };

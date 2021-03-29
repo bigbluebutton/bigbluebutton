@@ -337,6 +337,7 @@ public:
     enabled: false
     syncInterval: 60000
   allowOutsideCommands:
+    clearPublicChat: false
     toggleRecording: false
     toggleSelfVoice: false
   poll:
