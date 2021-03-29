@@ -26,6 +26,7 @@ import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/
 import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
 import { styles } from './styles';
 import { makeCall } from '/imports/ui/services/api';
+import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
@@ -62,6 +63,14 @@ const intlMessages = defineMessages({
   setEmoji: {
     id: 'app.toast.setEmoji.label',
     description: 'message when a user emoji has been set',
+  },
+  raisedHand: {
+    id: 'app.toast.setEmoji.raiseHand',
+    description: 'toast message for raised hand notification',
+  },
+  loweredHand: {
+    id: 'app.toast.setEmoji.lowerHand',
+    description: 'toast message for lowered hand notification',
   },
   meetingMuteOn: {
     id: 'app.toast.meetingMuteOn.label',
@@ -153,6 +162,8 @@ class App extends Component {
 
     if (isMobileBrowser) makeCall('setMobileUser');
 
+    ConnectionStatusService.startRoundTripTime();
+
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
 
@@ -174,10 +185,21 @@ class App extends Component {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
       || currentUserEmoji.status;
 
+      const raisedHand = currentUserEmoji.status === 'raiseHand';
+
+      let statusLabel = '';
+      if (currentUserEmoji.status === 'none') {
+        statusLabel = prevProps.currentUserEmoji.status === 'raiseHand'
+          ? intl.formatMessage(intlMessages.loweredHand)
+          : intl.formatMessage(intlMessages.clearedEmoji);
+      } else {
+        statusLabel = raisedHand
+          ? intl.formatMessage(intlMessages.raisedHand)
+          : intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus }));
+      }
+
       notify(
-        currentUserEmoji.status === 'none'
-          ? intl.formatMessage(intlMessages.clearedEmoji)
-          : intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus })),
+        statusLabel,
         'info',
         currentUserEmoji.status === 'none'
           ? 'clear_status'
@@ -207,6 +229,8 @@ class App extends Component {
     if (navigator.connection) {
       navigator.connection.addEventListener('change', handleNetworkConnection, false);
     }
+
+    ConnectionStatusService.stopRoundTripTime();
   }
 
   handleWindowResize() {
@@ -343,7 +367,7 @@ class App extends Component {
 
   render() {
     const {
-      customStyle, customStyleUrl, openPanel, layoutContextState
+      customStyle, customStyleUrl, openPanel, layoutContextState,
     } = this.props;
 
     return (

@@ -26,13 +26,17 @@ const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enabl
 const MIRROR_WEBCAM = Meteor.settings.public.app.mirrorOwnWebcam;
 const CAMERA_QUALITY_THRESHOLDS = Meteor.settings.public.kurento.cameraQualityThresholds.thresholds || [];
 const {
-  enabled: PAGINATION_ENABLED,
+  paginationToggleEnabled: PAGINATION_TOGGLE_ENABLED,
   pageChangeDebounceTime: PAGE_CHANGE_DEBOUNCE_TIME,
   desktopPageSizes: DESKTOP_PAGE_SIZES,
   mobilePageSizes: MOBILE_PAGE_SIZES,
 } = Meteor.settings.public.kurento.pagination;
+const PAGINATION_THRESHOLDS_CONF = Meteor.settings.public.kurento.paginationThresholds;
+const PAGINATION_THRESHOLDS = PAGINATION_THRESHOLDS_CONF.thresholds.sort((t1, t2) => t1.users - t2.users);
+const PAGINATION_THRESHOLDS_ENABLED = PAGINATION_THRESHOLDS_CONF.enabled;
 
 const TOKEN = '_';
+const ENABLE_PAGINATION_SESSION_VAR = 'enablePagination';
 
 class VideoService {
   // Paginated streams: sort with following priority: local -> presenter -> alphabetic
@@ -63,6 +67,7 @@ class VideoService {
       isConnected: false,
       currentVideoPageIndex: 0,
       numberOfPages: 0,
+      pageSize: 0,
     });
     this.userParameterProfile = null;
     const BROWSER_RESULTS = browser();
@@ -135,6 +140,22 @@ class VideoService {
 
   joinedVideo() {
     this.isConnected = true;
+  }
+
+  storeDeviceIds() {
+    const streams = VideoStreams.find(
+      {
+        meetingId: Auth.meetingID,
+        userId: Auth.userID,
+      }, { fields: { deviceId: 1 } },
+    ).fetch();
+
+    let deviceIds = [];
+    streams.forEach(s => {
+      deviceIds.push(s.deviceId);
+    }
+    );
+    Session.set('deviceIds', deviceIds.join());
   }
 
   exitVideo() {
@@ -214,8 +235,13 @@ class VideoService {
     return Auth.authenticateURL(SFU_URL);
   }
 
+  shouldRenderPaginationToggle() {
+    // Only enable toggle if configured to do so and if we have a page size properly setup
+    return PAGINATION_TOGGLE_ENABLED && (this.getMyPageSize() > 0);
+  }
+
   isPaginationEnabled () {
-    return PAGINATION_ENABLED && (this.getMyPageSize() > 0);
+    return Settings.application.paginationEnabled && (this.getMyPageSize() > 0);
   }
 
   setNumberOfPages (numberOfPublishers, numberOfSubscribers, pageSize) {
@@ -282,17 +308,66 @@ class VideoService {
     return this.currentVideoPageIndex;
   }
 
-  getMyPageSize () {
-    const myRole = this.getMyRole();
-    const pageSizes = !this.isMobile ? DESKTOP_PAGE_SIZES : MOBILE_PAGE_SIZES;
+  getPageSizeDictionary () {
+    // Dynamic page sizes are disabled. Fetch the stock page sizes.
+    if (!PAGINATION_THRESHOLDS_ENABLED || PAGINATION_THRESHOLDS.length <= 0) {
+      return !this.isMobile ? DESKTOP_PAGE_SIZES : MOBILE_PAGE_SIZES;
+    }
 
+    // Dynamic page sizes are enabled. Get the user count, isolate the
+    // matching threshold entry, return the val.
+    let targetThreshold;
+    const userCount = UserListService.getUserCount();
+    const processThreshold = (threshold = {
+      desktopPageSizes: DESKTOP_PAGE_SIZES,
+      mobilePageSizes: MOBILE_PAGE_SIZES
+    }) => {
+      // We don't demand that all page sizes should be set in pagination profiles.
+      // That saves us some space because don't necessarily need to scale mobile
+      // endpoints.
+      // If eg mobile isn't set, then return the default value.
+      if (!this.isMobile) {
+        return threshold.desktopPageSizes || DESKTOP_PAGE_SIZES;
+      } else {
+        return threshold.mobilePageSizes || MOBILE_PAGE_SIZES;
+      }
+    };
+
+    // Short-circuit: no threshold yet, return stock values (processThreshold has a default arg)
+    if (userCount < PAGINATION_THRESHOLDS[0].users) return processThreshold();
+
+    // Reverse search for the threshold where our participant count is directly equal or great
+    // The PAGINATION_THRESHOLDS config is sorted when imported.
+    for (let mapIndex = PAGINATION_THRESHOLDS.length - 1; mapIndex >= 0; --mapIndex) {
+      targetThreshold = PAGINATION_THRESHOLDS[mapIndex];
+      if (targetThreshold.users <= userCount) {
+        return processThreshold(targetThreshold);
+      }
+    }
+  }
+
+  setPageSize (size) {
+    if (this.pageSize !== size) {
+      this.pageSize = size;
+    }
+
+    return this.pageSize;
+  }
+
+  getMyPageSize () {
+    let size;
+    const myRole = this.getMyRole();
+    const pageSizes = this.getPageSizeDictionary();
     switch (myRole) {
       case ROLE_MODERATOR:
-        return pageSizes.moderator;
+        size = pageSizes.moderator;
+        break;
       case ROLE_VIEWER:
       default:
-        return pageSizes.viewer
+        size = pageSizes.viewer
     }
+
+    return this.setPageSize(size);
   }
 
   getVideoPage (streams, pageSize) {
@@ -338,7 +413,7 @@ class VideoService {
     // Pagination is either explictly disabled or pagination is set to 0 (which
     // is equivalent to disabling it), so return the mapped streams as they are
     // which produces the original non paginated behaviour
-    if (!PAGINATION_ENABLED || pageSize === 0) {
+    if (!this.isPaginationEnabled() || pageSize === 0) {
       return {
         streams: mappedStreams.sort(VideoService.sortMeshStreams),
         totalNumberOfStreams: mappedStreams.length
@@ -742,6 +817,7 @@ class VideoService {
 const videoService = new VideoService();
 
 export default {
+  storeDeviceIds: () => videoService.storeDeviceIds(),
   exitVideo: () => videoService.exitVideo(),
   joinVideo: deviceId => videoService.joinVideo(deviceId),
   stopVideo: cameraId => videoService.stopVideo(cameraId),
@@ -776,4 +852,5 @@ export default {
   getPreviousVideoPage: () => videoService.getPreviousVideoPage(),
   getNextVideoPage: () => videoService.getNextVideoPage(),
   getPageChangeDebounceTime: () => { return PAGE_CHANGE_DEBOUNCE_TIME },
+  shouldRenderPaginationToggle: () => videoService.shouldRenderPaginationToggle(),
 };

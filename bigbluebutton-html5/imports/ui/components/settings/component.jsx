@@ -79,6 +79,7 @@ const propTypes = {
     userJoinAudioAlerts: PropTypes.bool,
     guestWaitingAudioAlerts: PropTypes.bool,
     guestWaitingPushAlerts: PropTypes.bool,
+    paginationEnabled: PropTypes.bool,
     fallbackLocale: PropTypes.string,
     fontSize: PropTypes.string,
     locale: PropTypes.string,

@@ -40,6 +40,7 @@ const WEBSOCKET_KEEP_ALIVE_DEBOUNCE = MEDIA.websocketKeepAliveDebounce || 10;
 const TRACE_SIP = MEDIA.traceSip || false;
 const AUDIO_MICROPHONE_CONSTRAINTS = Meteor.settings.public.app.defaultSettings
   .application.microphoneConstraints;
+const SDP_SEMANTICS = MEDIA.sdpSemantics;
 
 const DEFAULT_INPUT_DEVICE_ID = 'default';
 const DEFAULT_OUTPUT_DEVICE_ID = 'default';
@@ -475,7 +476,7 @@ class SIPSession {
         sessionDescriptionHandlerFactoryOptions: {
           peerConnectionConfiguration: {
             iceServers,
-            sdpSemantics: 'plan-b',
+            sdpSemantics: SDP_SEMANTICS,
           },
         },
         displayName: callerIdName,

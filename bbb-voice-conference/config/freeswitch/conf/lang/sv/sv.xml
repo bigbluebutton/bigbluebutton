@@ -1,0 +1,11 @@
+<include>
+  <language name="sv" sound-path="$${sounds_dir}/sv/se/jakob" tts-engine="" tts-voice="">
+    <phrases>
+      <macros>
+        <X-PRE-PROCESS cmd="include" data="ivr/*.xml"/> <!-- Note: this now grabs whole subdir, previously grabbed only demo.xml -->
+        <X-PRE-PROCESS cmd="include" data="vm/sounds.xml"/>
+        <!--voicemail is purely implemented with files based one that is the default. -->
+      </macros>
+    </phrases>
+  </language>
+</include>

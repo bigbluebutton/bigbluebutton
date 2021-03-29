@@ -1,0 +1,12 @@
+<configuration name="cepstral.conf" description="Cepstral TTS configuration">
+  <settings>
+    <!--
+        Possible encodings:
+        * utf-8
+        * us-ascii
+        * iso8859-1 (default)
+        * iso8859-15
+    -->
+    <param name="encoding" value="utf-8"/>
+  </settings>
+</configuration>

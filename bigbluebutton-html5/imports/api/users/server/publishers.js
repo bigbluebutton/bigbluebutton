@@ -3,6 +3,7 @@ import { Meteor } from 'meteor/meteor';
 import Logger from '/imports/startup/server/logger';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 import { extractCredentials } from '/imports/api/common/server/helpers';
+import { check } from 'meteor/check';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -18,7 +19,7 @@ function currentUser() {
   const selector = {
     meetingId,
     userId: requesterUserId,
-    intId: { $exists: true }
+    intId: { $exists: true },
   };
 
   const options = {
@@ -57,7 +58,7 @@ function users(role) {
     $or: [
       { meetingId },
     ],
-    intId: { $exists: true }
+    intId: { $exists: true },
   };
 
   const User = Users.findOne({ userId, meetingId }, { fields: { role: 1 } });

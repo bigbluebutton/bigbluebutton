@@ -312,21 +312,28 @@ const htmlDecode = (input) => {
 };
 
 // Export the chat as [Hour:Min] user: message
-const exportChat = (timeWindowList) => {
-  const messageList = timeWindowList.reduce( (acc, timeWindow) => [...acc, ...timeWindow.content], []);
-  messageList.sort((a, b) => a.time - b.time);
+const exportChat = (timeWindowList, users) => {
+  // const messageList = timeWindowList.reduce( (acc, timeWindow) => [...acc, ...timeWindow.content], []);
+  // messageList.sort((a, b) => a.time - b.time);
 
-  return messageList.map(message => {
-    const date = new Date(message.time);
-    const hour = date.getHours().toString().padStart(2, 0);
-    const min = date.getMinutes().toString().padStart(2, 0);
-    const hourMin = `[${hour}:${min}]`;
+ const messageList = timeWindowList.reduce((acc, timeWindow) => {
 
-    const userName = message.id.endsWith('welcome-msg')
-      ? ''
-      : `${message.name} :`;
-    return `${hourMin} ${userName} ${htmlDecode(message.text)}`;
-  }).join('\n');
+    const msgs = timeWindow.content.map(message => {
+      const date = new Date(message.time);
+      const hour = date.getHours().toString().padStart(2, 0);
+      const min = date.getMinutes().toString().padStart(2, 0);
+      const hourMin = `[${hour}:${min}]`;
+      console.log('message', message);
+      const userName = message.id.endsWith('welcome-msg')
+        ? ''
+        : `${users[timeWindow.sender].name} :`;
+      return `${hourMin} ${userName} ${htmlDecode(message.text)}`;
+    });
+
+    return [...acc, ...msgs];
+  }, [])
+
+  return messageList.join('\n');
 }
 
 
@@ -360,6 +367,17 @@ const getLastMessageTimestampFromChatList = activeChats => activeChats
   .map(chatId => getAllMessages(chatId).reduce(maxTimestampReducer, 0))
   .reduce(maxNumberReducer, 0);
 
+const removePackagedClassAttribute = (classnames, attribute) => {
+  classnames.map(c => {
+    const elements = document.getElementsByClassName(c);
+      if (elements) {
+        for (const [k, v] of Object.entries(elements)) {
+          v.removeAttribute(attribute);
+      }
+    }
+  });
+}
+
 export default {
   setUserSentMessage,
   mapGroupMessage,
@@ -385,4 +403,5 @@ export default {
   maxTimestampReducer,
   getLastMessageTimestampFromChatList,
   UnsentMessagesCollection,
+  removePackagedClassAttribute,
 };

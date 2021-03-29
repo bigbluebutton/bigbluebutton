@@ -1,0 +1,12 @@
+<include>
+  <language name="pt" sound-path="$${sounds_dir}/pt/BR/karina" tts-engine="cepstral" tts-voice="marta">
+    <phrases>
+      <macros>
+        <X-PRE-PROCESS cmd="include" data="demo/*-pt-BR.xml"/> <!-- Note: this now grabs whole subdir, previously grabbed only demo.xml -->
+        <!--voicemail_pt_BR_tts is purely implemented with tts, we have the files based one that is the default. -->
+        <X-PRE-PROCESS cmd="include" data="vm/sounds-pt-BR.xml"/>  <!-- vm/tts.xml if you want to use tts and have cepstral -->
+        <X-PRE-PROCESS cmd="include" data="dir/sounds-pt-BR.xml"/>  <!-- dir/tts.xml if you want to use tts and have cepstral -->
+      </macros>
+    </phrases>
+  </language>
+</include>

@@ -161,11 +161,13 @@ class AudioModal extends Component {
   componentDidMount() {
     const {
       forceListenOnlyAttendee,
+      joinFullAudioImmediately,
+      listenOnlyMode,
       audioLocked,
     } = this.props;
 
     if (forceListenOnlyAttendee) return this.handleJoinListenOnly();
-    if (audioLocked) return this.handleJoinMicrophone();
+    if ((joinFullAudioImmediately && !listenOnlyMode) || audioLocked) return this.handleJoinMicrophone();
   }
 
   componentDidUpdate(prevProps) {
@@ -556,11 +558,11 @@ class AudioModal extends Component {
                 {
                   isIOSChrome ? null
                     : (
-                      <h3 className={styles.title}>
+                      <h2 className={styles.title}>
                         {content
                           ? intl.formatMessage(this.contents[content].title)
                           : intl.formatMessage(intlMessages.audioChoiceLabel)}
-                      </h3>
+                      </h2>
                     )
                 }
               </header>

@@ -159,7 +159,7 @@ const calculateInterval = (stats) => {
     bytes: {
       received: diff(single, first.bytes.received, last.bytes.received)
     },
-    jitter: single ? first.jitter : last.jitter
+    jitter: Math.max.apply(Math, stats.map(s => s.jitter))
   };
 };
 
@@ -190,7 +190,7 @@ const logResult = (id, result) => {
   if (!iteration || iteration % STATS_LENGTH !== 0) return null;
 
   const duration = STATS_LENGTH * STATS_INTERVAL / 1000;
-  logger.info(
+  logger.debug(
     {
       logCode: 'stats_monitor_result',
       extraInfo: {

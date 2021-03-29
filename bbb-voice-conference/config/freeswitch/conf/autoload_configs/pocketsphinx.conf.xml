@@ -1,0 +1,12 @@
+<configuration name="pocketsphinx.conf" description="PocketSphinx ASR Configuration">
+  <settings>
+    <param name="threshold" value="400"/>
+    <param name="silence-hits" value="25"/>
+    <param name="listen-hits" value="1"/>
+    <param name="auto-reload" value="true"/>
+    <!--<param name="language-weight" value="1"/>-->
+    <!--<param name="narrowband-model" value="communicator"/>-->
+    <!--<param name="wideband-model" value="wsj1"/>-->
+    <!--<param name="dictionary" value="default.dic"/>-->
+  </settings>
+</configuration>

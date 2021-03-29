@@ -42,7 +42,7 @@ public:
     allowFullscreen: true
     preloadNextSlides: 2
     mutedAlert:
-      enabled: false
+      enabled: true
       interval: 200
       threshold: -50
       duration: 4000
@@ -69,7 +69,17 @@ public:
         raiseHandPushAlerts: true
         guestWaitingAudioAlerts: true
         guestWaitingPushAlerts: true
+        paginationEnabled: true
+        # fallbackLocale: if the locale the client is loaded in does not have a
+        # translation a string, it will use the translation from the locale
+        # specified in fallbackLocale. Note that fallbackLocale should be a
+        # 100% translated locale for best user experience
         fallbackLocale: en
+        # overrideLocale (default is null): if set (for example to 'de') will
+        # force all clients to display the German translations of the strings.
+        # Users can individually set their preferred locale through Settings,
+        # but on first page load overrideLocale will trump the browser's
+        # preferred locale
         overrideLocale: null
         #Audio constraints for microphone. Use this to control browser's
         #filters, such as AGC (Auto Gain Control) , Echo Cancellation,
@@ -121,6 +131,9 @@ public:
       closePrivateChat:
         accesskey: G
         descId: closePrivateChat
+      raiseHand:
+        accesskey: R
+        descId: raiseHand
       openActions:
         accesskey: A
         descId: openActions
@@ -154,11 +167,15 @@ public:
       # Max timeout: used as the max camera subscribe reconnection timeout. Each
       # subscribe reattempt increases the reconnection timer up to this
       maxTimeout: 60000
-    chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc
-    chromeDefaultExtensionLink: https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc
-    chromeExtensionKey: KEY
-    chromeExtensionLink: LINK
     screenshare:
+      mediaTimeouts:
+        maxConnectionAttempts: 2
+        # Base screen media timeout (send|recv)
+        baseTimeout: 30000
+        # Max timeout: used as the max camera subscribe reconnection timeout. Each
+        # subscribe reattempt increases the reconnection timer up to this
+        maxTimeout: 60000
+        timeoutIncreaseFactor: 1.5
       constraints:
         video:
           frameRate:
@@ -168,11 +185,7 @@ public:
             max: 2560
           height:
             max: 1600
-        audio: false
-      chromeScreenshareSources:
-        - window
-        - screen
-      firefoxScreenshareSource: window
+        audio: true
     # cameraProfiles is an array of:
     # - id: profile identifier
     #   name: human-readable profile name
@@ -276,8 +289,11 @@ public:
         - threshold: 30
           profile: low-u30
     pagination:
-      # whether to globally enable or disable pagination.
-      enabled: true
+      # WARNING: the pagination.enabled setting has moved to
+      # public.app.defaultSettings.application.paginationEnabled
+      # paginationToggleEnabled: show a pagination toggle in settings for the
+      # user to enable/disable it
+      paginationToggleEnabled: true
       # how long (in ms) the negotiation will be debounced after a page change.
       pageChangeDebounceTime: 2500
       # video page sizes for DESKTOP endpoints. It stands for the number of SUBSCRIBER streams.
@@ -285,11 +301,46 @@ public:
       # A page size of 0 (zero) means that the page size is unlimited (disabled).
       desktopPageSizes:
         moderator: 0
-        viewer: 0
+        viewer: 5
       # video page sizes for MOBILE endpoints
       mobilePageSizes:
-        moderator: 6
-        viewer: 4
+        moderator: 2
+        viewer: 2
+    paginationThresholds:
+      enabled: false
+      thresholds:
+        - users: 30
+          desktopPageSizes:
+            moderator: 25
+            viewer: 25
+        - users: 40
+          desktopPageSizes:
+            moderator: 20
+            viewer: 20
+        - users: 50
+          desktopPageSizes:
+            moderator: 16
+            viewer: 16
+        - users: 60
+          desktopPageSizes:
+            moderator: 14
+            viewer: 12
+        - users: 70
+          desktopPageSizes:
+            moderator: 12
+            viewer: 10
+        - users: 80
+          desktopPageSizes:
+            moderator: 10
+            viewer: 8
+        - users: 90
+          desktopPageSizes:
+            moderator: 8
+            viewer: 6
+        - users: 100
+          desktopPageSizes:
+            moderator: 6
+            viewer: 4
   syncUsersWithConnectionManager:
     enabled: false
     syncInterval: 60000
@@ -312,6 +363,8 @@ public:
     time: 5000
   chat:
     enabled: true
+    itemsPerPage: 100
+    timeBetweenFetchs: 1000
     bufferChatInsertsMs: 0
     startClosed: false
     min_message_length: 1
@@ -344,7 +397,6 @@ public:
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
-    recvonlyIceGatheringCheck: true
     mediaTag: '#remote-media'
     callTransferTimeout: 5000
     callHangupTimeout: 2000
@@ -370,11 +422,17 @@ public:
     websocketKeepAliveDebounce: 10
     #Trace sip/audio messages in browser. If not set, default value is false.
     traceSip: false
+    # SDP semantics: plan-b|unified-plan
+    sdpSemantics: 'unified-plan'
   stats:
     enabled: true
     interval: 2000
     length: 5
+    timeout: 30000
     log: false
+    notification:
+      warning: false
+      error: true
     jitter:
       - 10
       - 20
@@ -383,6 +441,10 @@ public:
       - 0.05
       - 0.1
       - 0.2
+    rtt:
+      - 500
+      - 1000
+      - 2000
     level:
       - warning
       - danger
@@ -433,6 +495,8 @@ public:
         mime: image/jpeg
       - extension: .png
         mime: image/png
+  selectRandomUser:
+    enabled: true
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
@@ -521,7 +585,6 @@ public:
         - triangle
         - rectangle
         - pencil
-        - hand
   clientLog:
     server:
       enabled: false
@@ -540,7 +603,7 @@ public:
 private:
   app:
     host: 127.0.0.1
-    localesUrl: /locales
+    localesUrl: /locale-list
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
   etherpad:
@@ -591,7 +654,7 @@ private:
     - browser: chromeMobileIOS
       version: Infinity
     - browser: firefox
-      version: 63
+      version: 68
     - browser: firefoxMobile
       version: 68
     - browser: edge

@@ -1,0 +1,28 @@
+<include>
+  <configuration name="translate.conf" description="Number Translation Rules">
+    <profiles>
+      <profile name="US">
+	<rule regex="^\+(\d+)$" replace="$1"/>
+	<rule regex="^(1[2-9]\d{2}[2-9]\d{6})$" replace="$1"/>
+	<rule regex="^([2-9]\d{2}[2-9]\d{6})$" replace="1$1"/>
+	<rule regex="^([2-9]\d{6})$" replace="1${areacode}$1"/>
+	<rule regex="^011(\d+)$" replace="$1"/>
+      </profile>
+      <profile name="GB">
+	<rule regex="^\+(\d+)$" replace="$1"/>
+	<rule regex="^$" replace="$1"/>
+      </profile>
+      <profile name="HK">
+	<rule regex="\+(\d+)$" replace="$1"/>
+	<rule regex="^(852\d{8})$" replace="$1"/>
+	<rule regex="^(\d{8})$" replace="852$1"/>
+      </profile>
+    </profiles>
+    <!--
+      <profile name="">
+	<rule regex="^\+(\d+)$" replace="$1"/>
+	<rule regex="^$" replace="$1"/>
+      </profile>
+    -->
+  </configuration>
+</include>

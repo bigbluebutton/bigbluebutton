@@ -1,0 +1,49 @@
+<configuration name="xml_curl.conf" description="cURL XML Gateway">
+  <bindings>
+    <binding name="example">
+      <!-- Allow to bind on a particular IP for requests sent -->
+      <!--<param name="bind-local" value="$${local_ip_v4}" />-->
+      <!-- The url to a gateway cgi that can generate xml similar to
+	   what's in this file only on-the-fly (leave it commented if you dont
+	   need it) -->
+      <!-- one or more |-delim of configuration|directory|dialplan -->
+      <!-- <param name="gateway-url" value="http://www.freeswitch.org/gateway.xml" bindings="dialplan"/> -->
+      <!-- set this to provide authentication credentials to the server -->
+      <!--<param name="gateway-credentials" value="muser:mypass"/>-->
+      <!--<param name="auth-scheme" value="basic"/>-->
+
+      <!-- optional: this will enable the CA root certificate check by libcurl to
+           verify that the certificate was issued by a major Certificate Authority.
+           note: default value is disabled. only enable if you want this! -->
+      <!--<param name="enable-cacert-check" value="true"/>-->
+      <!-- optional: verify that the server is actually the one listed in the cert -->
+      <!-- <param name="enable-ssl-verifyhost" value="true"/> -->
+
+      <!-- optional: these options can be used to specify custom SSL certificates
+           to use for HTTPS communications. Either use both options or neither.
+           Specify your public key with 'ssl-cert-path' and the private key with
+           'ssl-key-path'. If your private key has a password, specify it with
+           'ssl-key-password'. -->
+      <!-- <param name="ssl-cert-path" value="$${certs_dir}/public_key.pem"/> -->
+      <!-- <param name="ssl-key-path" value="$${certs_dir}/private_key.pem"/> -->
+      <!-- <param name="ssl-key-password" value="MyPrivateKeyPassword"/> -->
+      <!-- optional timeout -->
+      <!-- <param name="timeout" value="10"/> -->
+
+      <!-- optional: use a custom CA certificate in PEM format to verify the peer
+           with. This is useful if you are acting as your own certificate authority.
+           note: only makes sense if used in combination with "enable-cacert-check." -->
+      <!-- <param name="ssl-cacert-file" value="$${certs_dir}/cacert.pem"/> -->
+
+      <!-- optional: specify the SSL version to force HTTPS to use. Valid options are
+           "SSLv3" and "TLSv1". Otherwise libcurl will auto-negotiate the version. -->
+      <!-- <param name="ssl-version" value="TLSv1"/> -->
+
+      <!-- optional: enables cookies and stores them in the specified file. -->
+      <!-- <param name="cookie-file" value="$${temp_dir}/cookie-mod_xml_curl.txt"/> -->
+
+      <!-- one or more of these imply you want to pick the exact variables that are transmitted -->
+      <!--<param name="enable-post-var" value="Unique-ID"/>-->
+    </binding>
+  </bindings>
+</configuration>

@@ -27,8 +27,17 @@
   flex-direction: row;
 }
 
-.center,
 .right {
+  justify-content: center;
+  @include mq($small-only) {
+    position: relative;
+    right: 0;
+    left: 0;
+    display: contents;
+  }
+}
+
+.center {
   flex: 1;
   justify-content: center;
 }
@@ -61,31 +70,11 @@
 }
 
 .right {
-  position: absolute;
-  bottom: var(--sm-padding-x);
-  right: var(--sm-padding-x);
-  left: auto;
+  position: relative;
 
   [dir="rtl"] & {
     right: auto;
     left: var(--sm-padding-x);
-  }
-}
-
-.centerWithActions {
-  @include mq($xsmall-only) {
-    justify-content: flex-end;
-  }
-}
-
-.mobileLayoutSwapped {
-  @include mq($xsmall-only) {
-    padding-right: var(--mobile-swap-offset);
-
-    [dir="rtl"] & {
-      padding-right: 0;
-      padding-left: var(--mobile-swap-offset);
-    }
   }
 }
 
@@ -118,17 +107,23 @@
   }
 }
 
-.dropdown,
 .btn {
   z-index: 3;
 }
-
+.dropdown{
+  z-index: 4;
+}
 .presentationItem {
   span {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-    max-width: 10rem;
+    max-width: 15rem;
+
+    @include mq($small-only) {
+      max-width: 100%;
+    }
+
   }
 }
 
