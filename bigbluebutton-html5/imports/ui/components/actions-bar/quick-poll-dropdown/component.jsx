@@ -47,7 +47,7 @@ const getAvailableQuickPolls = (slideId, parsedSlides, startPoll) => {
   const pollItemElements = parsedSlides.map((poll) => {
     const { poll: label, type } = poll;
     let itemLabel = label;
-    
+
     if (type !== 'YN' && type !== 'YNA' && type !== 'TF') {
       const { options } = itemLabel;
       if (type == 'custom') {
