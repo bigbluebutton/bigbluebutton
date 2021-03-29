@@ -571,7 +571,7 @@ class Poll extends Component {
                         }}
                       />
                       {
-                        FILE_DRAG_AND_DROP_ENABLED && this.renderDragDrop()
+                        FILE_DRAG_AND_DROP_ENABLED && type !== 'RP' && this.renderDragDrop()
                       }
                     </div>
                     )

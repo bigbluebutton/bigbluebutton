@@ -9,6 +9,8 @@ export const ACTIONS = {
   ADDED: 'added',
   CHANGED: 'changed',
   REMOVED: 'removed',
+  ADDED_USER_PERSISTENT_DATA: 'added_user_persistent_data',
+  CHANGED_USER_PERSISTENT_DATA: 'changed_user_persistent_data',
 };
 
 export const UsersContext = createContext();
@@ -45,6 +47,37 @@ const reducer = (state, action) => {
         return newState;
       }
 
+      return state;
+    }
+
+    //USER PERSISTENT DATA
+    case ACTIONS.ADDED_USER_PERSISTENT_DATA: {
+      const { user } = action.value;
+      if (state[user.userId]) {
+        return state;
+      }
+
+      const newState = {
+        ...state,
+        [user.userId]: {
+          ...user,
+        },
+      };
+      return newState;
+    }
+    case ACTIONS.CHANGED_USER_PERSISTENT_DATA: {
+      const { user } = action.value;
+      const stateUser = state[user.userId];
+      if (stateUser) {
+        const newState = {
+          ...state,
+          [user.userId]: {
+            ...stateUser,
+            ...user,
+          },
+        };
+        return newState;
+      }
       return state;
     }
     default: {

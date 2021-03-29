@@ -109,6 +109,7 @@ class BreakoutJoinConfirmation extends Component {
       }, 'joining breakout room closed audio in the main room');
     }
 
+    VideoService.storeDeviceIds();
     VideoService.exitVideo();
     if (UserListService.amIPresenter()) screenshareHasEnded();
     if (url === '') {

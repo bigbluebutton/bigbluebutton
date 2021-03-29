@@ -1,4 +1,12 @@
+@import '/imports/ui/stylesheets/mixins/focus';
+@import '/imports/ui/stylesheets/variables/_all';
 @import "/imports/ui/components/modal/simple/styles";
+
+:root {
+  --modal-margin: 3rem;
+  --title-position-left: 2.2rem;
+  --closeBtn-position-left: 2.5rem;
+}
 
 .title {
   left: var(--title-position-left);
@@ -57,7 +65,7 @@
 .wrapper {
   display: block;
   width: 100%;
-  max-height: 24rem;
+  max-height: 16rem;
 }
 
 .item {
@@ -101,10 +109,6 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-
-    .offline {
-      font-style: italic;
-    }
   }
 
   .status {
@@ -127,4 +131,19 @@
     width: 100%;
     height: 100%;
   }
+}
+
+.dataSaving {
+  background-color: var(--color-off-white);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  width: 100%;
+}
+
+.saving {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
 }

@@ -1,4 +1,7 @@
 import addSystemMsg from '../../../group-chat-msg/server/modifiers/addSystemMsg';
+import Polls from '/imports/api/polls';
+import removePoll from '../modifiers/removePoll';
+import Logger from '/imports/startup/server/logger';
 
 export default function sendPollChatMsg({ body }, meetingId) {
   const { poll } = body;
@@ -11,6 +14,13 @@ export default function sendPollChatMsg({ body }, meetingId) {
 
   const { answers, numRespondents } = poll;
 
+  const pollData = Polls.findOne({ meetingId });
+
+  if (!pollData) {
+    Logger.error(`Attempted to send chat message of inexisting poll for meetingId: ${meetingId}`);
+    return false;
+  }
+  
   const caseInsensitiveReducer = (acc, item) => {
     const index = acc.findIndex(ans => ans.key.toLowerCase() === item.key.toLowerCase());
     if (index !== -1) {
@@ -27,7 +37,8 @@ export default function sendPollChatMsg({ body }, meetingId) {
   };
 
   let responded = 0;
-  let resultString = 'bbb-published-poll-\n';
+  let resultString = `bbb-published-poll-\n${pollData.question.split('<br/>').join('<br#>').split('\n').join('<br#>')}\n`;
+
   answers.map((item) => {
     responded += item.numVotes;
     return item;
@@ -50,5 +61,6 @@ export default function sendPollChatMsg({ body }, meetingId) {
     message: resultString,
   };
 
+  removePoll(meetingId, pollData.id);
   return addSystemMsg(meetingId, PUBLIC_GROUP_CHAT_ID, payload);
 }

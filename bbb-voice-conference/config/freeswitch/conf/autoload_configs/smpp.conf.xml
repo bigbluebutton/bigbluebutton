@@ -1,0 +1,15 @@
+<configuration name="smpp.conf" description="SMPP client and server Gateway">
+  <gateways>
+    <gateway name="example.com">
+      <params>
+	<param name="host" value="example.com"/>
+	<param name="port" value="2775"/>
+	<param name="debug" value="1"/>
+	<param name="profile" value="default"/>
+	<param name="system_id" value="username"/>
+	<param name="password" value="password"/>
+	<param name="system_type" value="remote_smpp"/>
+      </params>
+    </gateway>
+  </gateways>
+</configuration>

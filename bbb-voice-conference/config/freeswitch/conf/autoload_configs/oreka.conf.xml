@@ -1,0 +1,13 @@
+<!--
+To use this application simply install the open source Oreka recorder server (Orkaudio) and point
+the sip-server-addr and sip-server-port to the oreka server
+-->
+<configuration name="oreka.conf" description="Oreka Recorder configuration">
+  <settings>
+    <!--  Oreka/Orkaudio recording server address -->
+    <!-- <param name="sip-server-addr" value="192.168.1.200"/> -->
+
+    <!-- Which port to send signaling to in the recording server -->
+    <!-- <param name="sip-server-port" value="6000"/> -->
+  </settings>
+</configuration>

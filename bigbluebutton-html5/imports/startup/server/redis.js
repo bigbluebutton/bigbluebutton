@@ -2,6 +2,10 @@
 import Redis from 'redis';
 import { Meteor } from 'meteor/meteor';
 import { EventEmitter2 } from 'eventemitter2';
+import {
+  isPadMessage,
+  getInstanceIdFromPadMessage,
+} from './etherpad';
 import { check } from 'meteor/check';
 import fs from 'fs';
 import Logger from './logger';
@@ -28,6 +32,18 @@ const makeEnvelope = (channel, eventName, header, body, routing) => {
   };
 
   return JSON.stringify(envelope);
+};
+
+const getInstanceIdFromMessage = (parsedMessage) => {
+  // End meeting message does not seem to have systemProps
+  let instanceIdFromMessage = parsedMessage.core.body.props?.systemProps?.html5InstanceId;
+
+  // Pad messages does not have systemProps
+  if (!instanceIdFromMessage && isPadMessage(parsedMessage)) {
+    instanceIdFromMessage = getInstanceIdFromPadMessage(parsedMessage);
+  }
+
+  return instanceIdFromMessage;
 };
 
 class MeetingMessageQueue {
@@ -267,7 +283,7 @@ class RedisPubSub {
     } else {
       if (meetingIdFromMessageCoreHeader === NO_MEETING_ID) { // if this is a system message
         const meetingIdFromMessageMeetingProp = parsedMessage.core.body.props?.meetingProp?.intId;
-        const instanceIdFromMessage = parsedMessage.core.body.props?.systemProps?.html5InstanceId; // end meeting message does not seem to have systemProps
+        const instanceIdFromMessage = getInstanceIdFromMessage(parsedMessage);
 
         if (this.instanceId === instanceIdFromMessage) {
           // create queue or destroy queue

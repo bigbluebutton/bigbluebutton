@@ -277,17 +277,6 @@ function WebRtcPeer(mode, options, callback) {
             callback(null, localDescription.sdp, self.processAnswer.bind(self));
         }
 
-        const isSafari = ((userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1) || browser.name.toLowerCase() == 'safari');
-
-        // Bind the SDP release to the gathering state on Safari-based envs
-        if (isSafari) {
-            pc.onicegatheringstatechange = function (event) {
-                if(event.target.iceGatheringState == "complete") {
-                  descriptionCallback();
-                }
-            }
-        }
-
         var offerAudio = true;
         var offerVideo = true;
         if (mediaConstraints) {
@@ -305,10 +294,6 @@ function WebRtcPeer(mode, options, callback) {
             offer = mangleSdpToAddSimulcast(offer);
             return pc.setLocalDescription(offer);
         }).then(() => {
-            // The Safari offer release was already binded to the gathering state
-            if (isSafari) {
-                return;
-            }
             descriptionCallback();
         }).catch(callback);
     };
