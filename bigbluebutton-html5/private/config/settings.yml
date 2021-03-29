@@ -163,10 +163,10 @@ public:
       mediaTimeouts:
         maxConnectionAttempts: 2
         # Base screen media timeout (send|recv)
-        baseTimeout: 15000
+        baseTimeout: 30000
         # Max timeout: used as the max camera subscribe reconnection timeout. Each
         # subscribe reattempt increases the reconnection timer up to this
-        maxTimeout: 35000
+        maxTimeout: 60000
         timeoutIncreaseFactor: 1.5
       constraints:
         video:
