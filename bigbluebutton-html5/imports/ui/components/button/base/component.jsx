@@ -101,7 +101,7 @@ export default class ButtonBase extends React.Component {
   // Define Mouse Event Handlers
   internalClickHandler(...args) {
     args[0].currentTarget.blur();
-    //if (args[0] && args[0].currentTarget) args[0].currentTarget.blur(); // To be safe, probably not necessary.
+    //if (args[0] && args[0].currentTarget) args[0].currentTarget.blur(); // A more secure version - probably not necessary.
     return this.validateDisabled(this.props.onClick, ...args);
   }
 
