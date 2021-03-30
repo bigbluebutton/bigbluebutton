@@ -4,9 +4,10 @@ import {
   defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
+// import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
 import Modal from '/imports/ui/components/modal/simple/component';
-import Bowser from 'bowser';
+import browser from 'browser-detect';
 import cx from 'classnames';
 import Service from './service';
 import VideoService from '../video-provider/service';
@@ -650,11 +651,10 @@ class VideoPreview extends Component {
     const shouldDisableButtons = this.skipVideoPreview && !(deviceError || previewError);
 
     const shared = sharedDevices.includes(webcamDeviceId);
-    const BROWSER_RESULTS = Bowser.parse(window.navigator.userAgent);
 
     return (
       <div>
-        {BROWSER_RESULTS.browser.name === 'Microsoft Edge' || BROWSER_RESULTS.browser.name === 'Internet Explorer' ? (
+        {browser().name === 'edge' || browser().name === 'ie' ? (
           <p className={styles.browserWarning}>
             <FormattedMessage
               id="app.audioModal.unsupportedBrowserLabel"

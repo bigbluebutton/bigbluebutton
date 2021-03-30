@@ -1,4 +1,4 @@
-import Bowser from 'bowser';
+import browser from 'browser-detect';
 import BaseAudioBridge from './base';
 import logger from '/imports/startup/client/logger';
 import {
@@ -1007,9 +1007,7 @@ class SIPSession {
       const matchConstraints = this.filterSupportedConstraints(constraints);
 
       //Chromium bug - see: https://bugs.chromium.org/p/chromium/issues/detail?id=796964&q=applyConstraints&can=2
-      const BROWSER_RESULTS = Bowser.parse(window.navigator.userAgent);
-
-      if (BROWSER_RESULTS.browser.name === 'Chrome') {
+      if (browser().name === 'chrome') {
         matchConstraints.deviceId = this.inputDeviceId;
 
         const stream = await navigator.mediaDevices.getUserMedia(

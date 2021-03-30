@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { throttle } from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import Modal from 'react-modal';
-import Bowser from 'bowser';
+import browser from 'browser-detect';
 import PanelManager from '/imports/ui/components/panel-manager/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
@@ -124,8 +124,8 @@ class App extends Component {
     const {
       locale, notify, intl, validIOSVersion, startBandwidthMonitoring, handleNetworkConnection,
     } = this.props;
-    const BROWSER_RESULTS = Bowser.parse(window.navigator.userAgent);
-    const isMobileBrowser = BROWSER_RESULTS.platform.type === 'mobile' || BROWSER_RESULTS.os.name.includes('Android');
+    const BROWSER_RESULTS = browser();
+    const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
 
     MediaService.setSwapLayout();
     Modal.setAppElement('#app');
@@ -133,11 +133,11 @@ class App extends Component {
     document.getElementsByTagName('html')[0].style.fontSize = isMobileBrowser ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
 
     const body = document.getElementsByTagName('body')[0];
-    if (BROWSER_RESULTS && BROWSER_RESULTS.browser.name) {
-      body.classList.add(`browser-${BROWSER_RESULTS.browser.name.toLowerCase()}`);
+    if (BROWSER_RESULTS && BROWSER_RESULTS.name) {
+      body.classList.add(`browser-${BROWSER_RESULTS.name}`);
     }
-    if (BROWSER_RESULTS && BROWSER_RESULTS.os.name) {
-      body.classList.add(`os-${BROWSER_RESULTS.os.name.split(' ').shift().toLowerCase()}`);
+    if (BROWSER_RESULTS && BROWSER_RESULTS.os) {
+      body.classList.add(`os-${BROWSER_RESULTS.os.split(' ').shift().toLowerCase()}`);
     }
 
     if (!validIOSVersion()) {
