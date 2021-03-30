@@ -1,0 +1,13 @@
+<configuration name="sms_flowroute.conf" description="SMS_FLOWROUTE send configs">
+  <profiles>
+    <profile name="default">
+      <params>
+	<param name="host" value="https://api.flowroute.com/v2/messages"/>
+	<param name="debug" value="1"/>
+	<param name="port" value="8090"/>
+	<param name="access-key" value="ACCESS-KEY"/>
+	<param name="secret-key" value="SECRET-KEY"/>
+      </params>
+    </profile>
+  </profiles>
+</configuration>

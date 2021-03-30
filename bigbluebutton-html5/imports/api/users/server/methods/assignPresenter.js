@@ -11,6 +11,9 @@ export default function assignPresenter(userId) { // TODO-- send username from c
   const EVENT_NAME = 'AssignPresenterReqMsg';
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
+
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(userId, String);
 
   const User = Users.findOne({

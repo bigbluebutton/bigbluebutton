@@ -1,0 +1,19 @@
+<configuration name="amr.conf">
+	<settings>
+	  <!-- AMR modes (supported bitrates) :
+               mode   0     AMR 4.75  kbps
+               mode   1     AMR 5.15  kbps
+               mode   2     AMR 5.9 kbps
+               mode   3     AMR 6.7 kbps
+               mode   4     AMR 7.4  kbps
+               mode   5     AMR 7.95 kbps 
+               mode   6     AMR 10.2 kbps 
+               mode   7     AMR 12.2 kbps
+          -->
+	  <param name="default-bitrate" value="7"/> 
+	  <!-- Enable VoLTE specific FMTP -->
+	  <param name="volte" value="0"/>
+	  <!-- Enable automatic bitrate variation during the call based on RTCP feedback -->
+	  <param name="adjust-bitrate" value="0"/> 
+	</settings>
+</configuration>

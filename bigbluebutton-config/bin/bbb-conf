@@ -96,7 +96,7 @@ source /etc/bigbluebutton/bigbluebutton-release
 # Figure out our environment (Debian vs. CentOS)
 #
 
-if [ -f /etc/centos-release ]; then
+if [ -f /etc/centos-release ] || [ -f /etc/system-release ]; then
     DISTRIB_ID=centos
     TOMCAT_USER=tomcat
     TOMCAT_DIR=/var/lib/$TOMCAT_USER
@@ -822,7 +822,7 @@ check_configuration() {
        echo
        echo "# Warning: No firewall detected.  Recommend using setting up a firewall for your server"
        echo "#"
-       echo "#     https://docs.bigbluebutton.org/2.2/troubleshooting.html#freeswitch-using-default-stun-server"
+       echo "#     https://docs.bigbluebutton.org/2.2/customize.html#setup-a-firewall"
        echo "#"
        echo
     fi

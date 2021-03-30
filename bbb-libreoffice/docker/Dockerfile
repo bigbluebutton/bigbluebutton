@@ -1,4 +1,4 @@
-FROM openjdk:8-jre
+FROM openjdk:11-jre
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -10,7 +10,4 @@ RUN apt -y install  --no-install-recommends libreoffice fonts-crosextra-carlito 
 
 RUN dpkg-reconfigure fontconfig && fc-cache -f -s -v
 
-VOLUME ["/usr/share/fonts/"]
-ADD ./bbb-libreoffice-entrypoint.sh /usr/local/bin/
 
-ENTRYPOINT ["/usr/local/bin/bbb-libreoffice-entrypoint.sh" ] 

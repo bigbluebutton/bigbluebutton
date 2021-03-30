@@ -20,6 +20,7 @@ import UserName from '../user-name/component';
 import UserIcons from '../user-icons/component';
 import Service from '/imports/ui/components/user-list/service';
 import { PANELS, ACTIONS } from '../../../../../layout/enums';
+import WhiteboardService from '/imports/ui/components/whiteboard/service';
 
 const messages = defineMessages({
   presenter: {
@@ -65,6 +66,14 @@ const messages = defineMessages({
   makePresenterLabel: {
     id: 'app.userList.menu.makePresenter.label',
     description: 'label to make another user presenter',
+  },
+  giveWhiteboardAccess: {
+    id: 'app.userList.menu.giveWhiteboardAccess.label',
+    description: 'label to give user whiteboard access',
+  },
+  removeWhiteboardAccess: {
+    id: 'app.userList.menu.removeWhiteboardAccess.label',
+    description: 'label to remove user whiteboard access',
   },
   RemoveUserLabel: {
     id: 'app.userList.menu.removeUser.label',
@@ -239,10 +248,9 @@ class UserDropdown extends PureComponent {
     } = this.props;
     const { showNestedOptions } = this.state;
 
+    const amIPresenter = currentUser.presenter;
     const amIModerator = currentUser.role === ROLE_MODERATOR;
-    const actionPermissions = getAvailableActions(
-      amIModerator, meetingIsBreakout, user, voiceUser, usersProp,
-    );
+    const actionPermissions = getAvailableActions(amIModerator, meetingIsBreakout, user, voiceUser, usersProp, amIPresenter);
     const actions = [];
 
     const {
@@ -256,6 +264,7 @@ class UserDropdown extends PureComponent {
       allowedToDemote,
       allowedToChangeStatus,
       allowedToChangeUserLockStatus,
+      allowedToChangeWhiteboardAccess,
     } = actionPermissions;
 
     const { disablePrivateChat } = lockSettingsProps;
@@ -364,6 +373,17 @@ class UserDropdown extends PureComponent {
         intl.formatMessage(messages.UnmuteUserAudioLabel),
         () => this.onActionsHide(toggleVoice(user.userId)),
         'unmute',
+      ));
+    }
+
+    if (allowedToChangeWhiteboardAccess && !user.presenter && isMeteorConnected) {
+      const label = user.whiteboardAccess ? intl.formatMessage(messages.removeWhiteboardAccess) : intl.formatMessage(messages.giveWhiteboardAccess);
+
+      actions.push(this.makeDropdownItem(
+        'changeWhiteboardAccess',
+        label,
+        () => WhiteboardService.changeWhiteboardAccess(user.userId, !user.whiteboardAccess),
+        'pen_tool',
       ));
     }
 
@@ -545,6 +565,7 @@ class UserDropdown extends PureComponent {
         voice={voiceUser.isVoiceUser}
         noVoice={!voiceUser.isVoiceUser}
         color={user.color}
+        whiteboardAccess={user.whiteboardAccess}
         emoji={user.emoji !== 'none'}
         avatar={user.avatar}
       >
@@ -564,6 +585,7 @@ class UserDropdown extends PureComponent {
       intl,
       isThisMeetingLocked,
       isMe,
+      isRTL,
     } = this.props;
 
     const {
@@ -602,7 +624,7 @@ class UserDropdown extends PureComponent {
       <div
         data-test={isMe(user.userId) ? 'userListItemCurrent' : 'userListItem'}
         className={!actions.length ? styles.userListItem : null}
-        style={{ direction: document.documentElement.dir }}
+        style={{ direction: isRTL ? 'rtl' : 'ltr' }}
       >
         <div className={styles.userItemContents}>
           <div className={styles.userAvatar}>

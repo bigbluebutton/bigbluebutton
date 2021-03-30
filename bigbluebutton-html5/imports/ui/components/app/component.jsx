@@ -40,6 +40,11 @@ import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import { makeCall } from '/imports/ui/services/api';
+<<<<<<< HEAD
+=======
+import ConnectionStatusService from '/imports/ui/components/connection-status/service';
+import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
+>>>>>>> upstream/develop
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -75,6 +80,14 @@ const intlMessages = defineMessages({
   setEmoji: {
     id: 'app.toast.setEmoji.label',
     description: 'message when a user emoji has been set',
+  },
+  raisedHand: {
+    id: 'app.toast.setEmoji.raiseHand',
+    description: 'toast message for raised hand notification',
+  },
+  loweredHand: {
+    id: 'app.toast.setEmoji.lowerHand',
+    description: 'toast message for lowered hand notification',
   },
   meetingMuteOn: {
     id: 'app.toast.meetingMuteOn.label',
@@ -173,6 +186,8 @@ class App extends Component {
 
     if (isMobileBrowser) makeCall('setMobileUser');
 
+    ConnectionStatusService.startRoundTripTime();
+
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
 
     window.addEventListener('resize', this.deviceType);
@@ -198,10 +213,21 @@ class App extends Component {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
         || currentUserEmoji.status;
 
+      const raisedHand = currentUserEmoji.status === 'raiseHand';
+
+      let statusLabel = '';
+      if (currentUserEmoji.status === 'none') {
+        statusLabel = prevProps.currentUserEmoji.status === 'raiseHand'
+          ? intl.formatMessage(intlMessages.loweredHand)
+          : intl.formatMessage(intlMessages.clearedEmoji);
+      } else {
+        statusLabel = raisedHand
+          ? intl.formatMessage(intlMessages.raisedHand)
+          : intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus }));
+      }
+
       notify(
-        currentUserEmoji.status === 'none'
-          ? intl.formatMessage(intlMessages.clearedEmoji)
-          : intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus })),
+        statusLabel,
         'info',
         currentUserEmoji.status === 'none'
           ? 'clear_status'
@@ -233,6 +259,8 @@ class App extends Component {
     if (navigator.connection) {
       navigator.connection.addEventListener('change', handleNetworkConnection, false);
     }
+
+    ConnectionStatusService.stopRoundTripTime();
   }
 
   setDeviceType() {
@@ -381,11 +409,11 @@ class App extends Component {
       layoutManagerLoaded,
       sidebarNavPanel,
       sidebarContentPanel,
+      customStyle, customStyleUrl,
     } = this.props;
 
     return (
       <Fragment>
-        {/* <CustomLayout /> */}
         {this.renderLayoutManager()}
         {(layoutManagerLoaded === 'legacy' || layoutManagerLoaded === 'both')
           && (

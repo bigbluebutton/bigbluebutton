@@ -49,6 +49,7 @@ const Chat = (props) => {
     newLayoutContextDispatch,
     syncing,
     syncedPercent,
+    lastTimeWindowValuesBuild,
   } = props;
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
   const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
@@ -144,6 +145,7 @@ const Chat = (props) => {
           count,
           syncing,
           syncedPercent,
+          lastTimeWindowValuesBuild,
         }}
       />
       <MessageFormContainer

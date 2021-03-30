@@ -7,5 +7,8 @@ export default function addConnectionStatus(level) {
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
+
   updateConnectionStatus(meetingId, requesterUserId, level);
 }

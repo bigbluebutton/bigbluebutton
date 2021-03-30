@@ -1,0 +1,18 @@
+<configuration name="cdr_sqlite.conf" description="SQLite CDR">
+  <settings>
+    <!-- SQLite database name (.db suffix will be automatically appended) -->
+    <!-- <param name="db-name" value="cdr"/> -->
+    <!-- CDR table name -->
+    <!-- <param name="db-table" value="cdr"/> -->
+    <!-- Log a-leg (a), b-leg (b) or both (ab) -->
+    <param name="legs" value="a"/>
+    <!-- Default template to use when inserting records -->
+    <param name="default-template" value="example"/>
+    <!-- This is like the info app but after the call is hung up -->
+    <!--<param name="debug" value="true"/>-->
+  </settings>
+  <templates>
+    <!-- Note that field order must match SQL table schema, otherwise insert will fail -->
+    <template name="example">"${caller_id_name}","${caller_id_number}","${destination_number}","${context}","${start_stamp}","${answer_stamp}","${end_stamp}",${duration},${billsec},"${hangup_cause}","${uuid}","${bleg_uuid}","${accountcode}"</template>
+  </templates>
+</configuration>

@@ -1,0 +1,23 @@
+<configuration name="erlang_event.conf" description="Erlang Socket Client">
+  <settings>
+    <param name="listen-ip" value="0.0.0.0"/>
+    <param name="listen-port" value="8031"/>
+    <!-- Specify the first part of the node name
+         (the host part after the @ will be autodetected)
+         OR pass a complete nodename to avoid autodetection
+         eg. freeswitch@example or freeswitch@example.com.
+         If you pass a complete node name, the 'shortname' parameter has no effect. -->
+    <param name="nodename" value="freeswitch"/>
+    <!-- Specify this OR 'cookie-file' or $HOME/.erlang.cookie will be read -->
+    <param name="cookie" value="ClueCon"/>
+    <!-- Read a cookie from an arbitary erlang cookie file instead -->
+    <!--<param name="cookie-file" value="/$${temp_dir}/erlang.cookie"/>-->
+    <param name="shortname" value="true"/>
+    <!-- in additon to cookie, optionally restrict by ACL -->
+    <!--<param name="apply-inbound-acl" value="lan"/>-->
+    <!-- alternative is "binary" -->
+    <!--<param name="encoding" value="string"/>--> 
+    <!-- provide compatability with previous OTP release (use with care) -->
+    <!--<param name="compat-rel" value="12"/> -->
+  </settings>
+</configuration>

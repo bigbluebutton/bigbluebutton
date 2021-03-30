@@ -225,8 +225,6 @@ class Auth {
         });
       }, CONNECTION_TIMEOUT);
 
-      Meteor.subscribe('auth-token-validation', { meetingId: this.meetingID, userId: this.userID });
-
       const result = await makeCall('validateAuthToken', this.meetingID, this.userID, this.token, this.externUserID);
 
       if (result && result.invalid) {
@@ -239,41 +237,20 @@ class Auth {
         return;
       }
 
+      Meteor.subscribe('auth-token-validation', { meetingId: this.meetingID, userId: this.userID });
       Meteor.subscribe('current-user');
 
       Tracker.autorun((c) => {
         computation = c;
 
-        const selector = { meetingId: this.meetingID, userId: this.userID };
-        const fields = {
-          ejected: 1, intId: 1, validated: 1, userId: 1,
-        };
-        const User = Users.findOne(selector, { fields });
-        // Skip in case the user is not in the collection yet or is a dummy user
-        if (!User || !('intId' in User)) {
-          logger.info({ logCode: 'auth_service_resend_validateauthtoken' }, 're-send validateAuthToken for delayed authentication');
-          makeCall('validateAuthToken', this.meetingID, this.userID, this.token);
-
-          return;
-        }
-
-        if (User.ejected) {
-          computation.stop();
-          reject({
-            error: 403,
-            description: 'User has been ejected.',
-          });
-          return;
-        }
-
-        const authenticationTokenValidation = AuthTokenValidation.findOne();
+        const authenticationTokenValidation = AuthTokenValidation.findOne({}, { sort: { updatedAt: -1 } });
 
         if (!authenticationTokenValidation) return;
 
         switch (authenticationTokenValidation.validationStatus) {
           case ValidationStates.INVALID:
             c.stop();
-            reject({ error: 401, description: 'User has been ejected.' });
+            reject({ error: 401, description: authenticationTokenValidation.reason });
             break;
           case ValidationStates.VALIDATED:
             initCursorStreamListener();

@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import RedisPubSub from '/imports/startup/server/redis';
 import Meetings from '/imports/api/meetings';
 import { extractCredentials } from '/imports/api/common/server/helpers';
+import { check } from 'meteor/check';
 
 export default function muteAllToggle() {
   const REDIS_CONFIG = Meteor.settings.private.redis;
@@ -9,6 +10,9 @@ export default function muteAllToggle() {
   const EVENT_NAME = 'MuteMeetingCmdMsg';
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
+
+  check(meetingId, String);
+  check(requesterUserId, String);
 
   const meeting = Meetings.findOne({ meetingId });
   const toggleMeetingMuted = !meeting.voiceProp.muteOnStart;

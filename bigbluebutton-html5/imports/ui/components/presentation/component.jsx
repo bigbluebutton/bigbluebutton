@@ -681,12 +681,9 @@ class PresentationArea extends PureComponent {
       currentSlide,
       podId,
     } = this.props;
-
     const { zoom, fitToWidth, isFullscreen } = this.state;
 
-    if (!currentSlide) {
-      return null;
-    }
+    if (!currentSlide) return null;
 
     return (
       <PresentationToolbarContainer

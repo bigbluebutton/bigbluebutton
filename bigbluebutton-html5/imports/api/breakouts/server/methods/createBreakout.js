@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
+import { check } from 'meteor/check';
 
 export default function createBreakoutRoom(rooms, durationInMinutes, record = false) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
@@ -11,6 +12,9 @@ export default function createBreakoutRoom(rooms, durationInMinutes, record = fa
   const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
+
+  check(meetingId, String);
+  check(requesterUserId, String);
 
   const eventName = 'CreateBreakoutRoomsCmdMsg';
   if (rooms.length > MAX_BREAKOUT_ROOMS) {

@@ -282,10 +282,8 @@ class MessageForm extends PureComponent {
             id="message-input"
             innerRef={(ref) => { this.textarea = ref; return this.textarea; }}
             placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: title })}
-            aria-controls={chatAreaId}
             aria-label={intl.formatMessage(messages.inputLabel, { 0: chatTitle })}
             aria-invalid={hasErrors ? 'true' : 'false'}
-            aria-describedby={hasErrors ? 'message-input-error' : null}
             autoCorrect="off"
             autoComplete="off"
             spellCheck="true"

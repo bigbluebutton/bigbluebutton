@@ -107,12 +107,13 @@ const ChatContainer = (props) => {
   useEffect(() => {
     ChatService.removeFromClosedChatsSession(idChatOpen);
   }, []);
-  const [stateLastMsg, setLastMsg] = useState(null);
-  const [stateTimeWindows, setTimeWindows] = useState(isPublicChat
-    ? [...systemMessagesIds.map((item) => systemMessages[item])]
-    : []);
 
   if (!idChatOpen) return null;
+  
+  const [stateLastMsg, setLastMsg] = useState(null);
+
+  const [stateTimeWindows, setTimeWindows] = useState(isPublicChat ? [...systemMessagesIds.map((item) => systemMessages[item])] : []);
+  const [lastTimeWindowValuesBuild, setLastTimeWindowValuesBuild] = useState(0);
 
   const { groupChat } = usingGroupChatContext;
   const participants = groupChat[idChatOpen]?.participants;
@@ -122,9 +123,9 @@ const ChatContainer = (props) => {
   const contextChat = usingChatContext?.chats[isPublicChat ? PUBLIC_GROUP_CHAT_KEY : idChatOpen];
   const lastTimeWindow = contextChat?.lastTimewindow;
   const lastMsg = contextChat && (isPublicChat
-    ? contextChat.preJoinMessages[lastTimeWindow] || contextChat.posJoinMessages[lastTimeWindow]
-    : contextChat.messageGroups[lastTimeWindow]);
-  ChatLogger.debug('ChatContainer::render::chatData', contextChat);
+    ? contextChat?.preJoinMessages[lastTimeWindow] || contextChat?.posJoinMessages[lastTimeWindow]
+    : contextChat?.messageGroups[lastTimeWindow]);
+  ChatLogger.debug('ChatContainer::render::chatData',contextChat);
   applyPropsToState = () => {
     ChatLogger.debug('ChatContainer::applyPropsToState::chatData', lastMsg, stateLastMsg, contextChat?.syncing);
     if (
@@ -159,6 +160,7 @@ const ChatContainer = (props) => {
 
       setLastMsg(lastMsg ? { ...lastMsg } : lastMsg);
       setTimeWindows(timeWindowsValues);
+      setLastTimeWindowValuesBuild(Date.now());
     }
   }
   globalAppplyStateToProps = applyPropsToState;
@@ -166,6 +168,11 @@ const ChatContainer = (props) => {
 
   const isChatLocked = ChatService.isChatLocked(idChatOpen);
 
+  ChatService.removePackagedClassAttribute(
+    ["ReactVirtualized__Grid", "ReactVirtualized__Grid__innerScrollContainer"], 
+    "role"
+  );
+  
   return (
     <Chat {...{
       ...props,
@@ -182,6 +189,7 @@ const ChatContainer = (props) => {
       chatName,
       contextChat,
       newLayoutContextDispatch,
+      lastTimeWindowValuesBuild,
     }}>
       {children}
     </Chat>

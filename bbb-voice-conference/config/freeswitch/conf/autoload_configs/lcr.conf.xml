@@ -1,0 +1,89 @@
+<configuration name="lcr.conf" description="LCR Configuration">
+  <settings>
+    <param name="odbc-dsn" value="freeswitch-mysql:freeswitch:Fr33Sw1tch"/>
+<!--    <param name="odbc-dsn" value="freeswitch-pgsql:freeswitch:Fr33Sw1tch"/> -->
+  </settings>
+  <profiles>
+    <profile name="default">
+      <param name="id" value="0"/>
+      <param name="order_by" value="rate,quality,reliability"/>
+    </profile>
+    <profile name="qual_rel">
+      <param name="id" value="1"/>
+      <param name="order_by" value="quality,reliability"/>
+    </profile>
+    <profile name="rel_qual">
+      <param name="id" value="2"/>
+      <param name="order_by" value="reliability,quality"/>
+    </profile>
+<!-- 
+  Some samples of how to do custom SQL:
+
+    =============================================================
+    PostgreSQL with contrib prefix module which supports fast
+    prefix queries.  Ideal option.
+    =============================================================
+    <profile name="pg_prefix">
+      <param name="custom_sql" value="
+SELECT l.digits AS lcr_digits,
+       c.carrier_name AS lcr_carrier_name,
+       l.${lcr_rate_field} as lcr_rate_field,
+       cg.prefix AS lcr_gw_prefix, cg.suffix AS lcr_gw_suffix,
+       l.lead_strip AS lcr_lead_strip, l.trail_strip AS lcr_trail_strip,
+       l.prefix AS lcr_prefix, l.suffix AS lcr_suffix
+  FROM lcr l
+    JOIN carriers c ON l.carrier_id=c.id
+    JOIN carrier_gateway cg ON c.id=cg.carrier_id
+  WHERE c.enabled = '1' AND cg.enabled = '1' AND l.enabled = '1'
+    AND digits_prefix @> %q
+    AND CURRENT_TIMESTAMP BETWEEN date_start AND date_end
+  ORDER BY digits DESC, ${lcr_rate_field}, random();
+      "/>
+    </profile>
+
+    =============================================================
+    PostgreSQL with contrib prefix module which supports fast
+    prefix queries.  Ideal option.  Alternate syntax which requies
+    a session but allows variable substitution.
+    =============================================================
+    <profile name="pg_prefix2">
+      <param name="custom_sql" value="
+SELECT l.digits AS lcr_digits,
+       c.carrier_name AS lcr_carrier_name,
+       l.${lcr_rate_field} as lcr_rate_field,
+       cg.prefix AS lcr_gw_prefix, cg.suffix AS lcr_gw_suffix,
+       l.lead_strip AS lcr_lead_strip, l.trail_strip AS lcr_trail_strip,
+       l.prefix AS lcr_prefix, l.suffix AS lcr_suffix
+  FROM lcr l
+    JOIN carriers c ON l.carrier_id=c.id
+    JOIN carrier_gateway cg ON c.id=cg.carrier_id
+  WHERE c.enabled = '1' AND cg.enabled = '1' AND l.enabled = '1'
+    AND digits_prefix @> '${lcr_query_digits}'
+    AND CURRENT_TIMESTAMP BETWEEN date_start AND date_end
+  ORDER BY digits DESC, ${lcr_rate_field}, random();
+      "/>
+    </profile>
+
+    =============================================================
+    Demonstrates use of computed inlist.
+    =============================================================
+    <profile name="inlist">
+      <param name="custom_sql" value="
+SELECT l.digits AS lcr_digits,
+       c.carrier_name AS lcr_carrier_name,
+       l.${lcr_rate_field} as lcr_rate_field,
+       cg.prefix AS lcr_gw_prefix, cg.suffix AS lcr_gw_suffix,
+       l.lead_strip AS lcr_lead_strip, l.trail_strip AS lcr_trail_strip,
+       l.prefix AS lcr_prefix, l.suffix AS lcr_suffix
+  FROM lcr l
+    JOIN carriers c ON l.carrier_id=c.id
+    JOIN carrier_gateway cg ON c.id=cg.carrier_id
+  WHERE c.enabled = '1' AND cg.enabled = '1' AND l.enabled = '1'
+    AND digits IN (${lcr_query_expanded_digits})
+    AND CURRENT_TIMESTAMP BETWEEN date_start AND date_end
+  ORDER BY digits DESC, ${lcr_rate_field}, random();
+      "/>
+    </profile>
+-->
+  </profiles>
+</configuration>

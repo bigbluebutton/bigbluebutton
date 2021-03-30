@@ -11,6 +11,8 @@ const EVENT_NAME = 'SetGuestPolicyCmdMsg';
 export default function changeGuestPolicy(policyRule) {
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(policyRule, String);
 
   const payload = {

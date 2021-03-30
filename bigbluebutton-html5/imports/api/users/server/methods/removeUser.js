@@ -12,6 +12,8 @@ export default function removeUser(userId, banUser) {
 
   const { meetingId, requesterUserId: ejectedBy } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(ejectedBy, String);
   check(userId, String);
 
   const payload = {

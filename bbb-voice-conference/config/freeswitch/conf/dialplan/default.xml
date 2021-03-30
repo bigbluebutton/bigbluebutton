@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
     NOTICE:
-    
-    This context is usually accessed via authenticated callers on the sip profile on port 5060 
+
+    This context is usually accessed via authenticated callers on the sip profile on port 5060
     or transfered callers from the public context which arrived via the sip profile on port 5080.
-    
+
     Authenticated users will use the user_context variable on the user to determine what context
     they can access.  You can also add a user in the directory with the cidr= attribute acl.conf.xml
     will build the domains ACL using this value.
@@ -16,106 +16,15 @@
     <extension name="unloop">
       <condition field="${unroll_loops}" expression="^true$"/>
       <condition field="${sip_looped_call}" expression="^true$">
-	<action application="deflect" data="${destination_number}"/>
-      </condition>
-    </extension>
-
-      <condition field="${sip_has_crypto}" expression="^(AES_CM_128_HMAC_SHA1_32|AES_CM_128_HMAC_SHA1_80)$" break="never">
-	<action application="set" data="sip_secure_media=true"/>
-	<!-- Offer SRTP on outbound legs if we have it on inbound. -->
-	<!-- <action application="export" data="sip_secure_media=true"/> -->
-      </condition>
-
-<!--
-      <condition>
-	<action application="hash" data="insert/${domain_name}-spymap/${caller_id_number}/${uuid}"/>
-	<action application="hash" data="insert/${domain_name}-last_dial/${caller_id_number}/${destination_number}"/>
-	<action application="hash" data="insert/${domain_name}-last_dial/global/${uuid}"/>
-      </condition>
-    </extension>
-
-    <extension name="eavesdrop">
-      <condition field="destination_number" expression="^88(\d{4})$|^\*0(.*)$">
-	<action application="answer"/>
-	<action application="eavesdrop" data="${hash(select/${domain_name}-spymap/$1)}"/>
-      </condition>
-    </extension>
-
-    <extension name="eavesdrop">
-      <condition field="destination_number" expression="^779$">
-	<action application="answer"/>
-	<action application="set" data="eavesdrop_indicate_failed=tone_stream://%(500, 0, 320)"/>
-	<action application="set" data="eavesdrop_indicate_new=tone_stream://%(500, 0, 620)"/>
-	<action application="set" data="eavesdrop_indicate_idle=tone_stream://%(250, 0, 920)"/>
-	<action application="eavesdrop" data="all"/>
-      </condition>
-    </extension>
--->
-
-    <!-- BBB testing -->
-
-    <!--extension name="bbb_conferences">
-      <condition field="destination_number" expression="^(7\d{4})$">
-	  <action application="answer"/>
-	  <action application="conference" data="$1@wideband"/>
-      </condition>
-    </extension>-->
-
-    <extension name="echo">
-      <condition field="destination_number" expression="^9196$">
-	<action application="answer"/>
-	<action application="echo"/>
-      </condition>
-    </extension>
-
-    <extension name="milliwatt">
-      <condition field="destination_number" expression="^9197$">
-	<action application="answer"/>
-	<action application="playback" data="tone_stream://%(251,0,1004);loops=-1"/>
-      </condition>
-    </extension>
-
-    <extension name="tone_stream">
-      <condition field="destination_number" expression="^9198$">
-	<action application="answer"/>
-	<action application="playback" data="tone_stream://path=${base_dir}/conf/tetris.ttml;loops=10"/>
+        <action application="deflect" data="${destination_number}"/>
       </condition>
     </extension>
 
     <!--
-	You will no longer hear the bong tone.  The wav file is playing stating the call is secure.
-	The file will not play unless you have both TLS and SRTP active.
-    -->
-
-    <extension name="hold_music">
-      <condition field="destination_number" expression="^9664$"/>
-      <condition field="${sip_has_crypto}" expression="^(AES_CM_128_HMAC_SHA1_32|AES_CM_128_HMAC_SHA1_80)$">
-	<action application="answer"/>
-	<action application="execute_extension" data="is_secure XML features"/>
-	<action application="playback" data="$${hold_music}"/>
-	<anti-action application="set" data="zrtp_secure_media=true"/>
-	<anti-action application="answer"/>
-	<anti-action application="playback" data="silence_stream://2000"/>
-	<anti-action application="execute_extension" data="is_zrtp_secure XML features"/>
-	<anti-action application="playback" data="$${hold_music}"/>
-      </condition>
-    </extension>
-
-    <!--
-	You can place files in the default directory to get included.
+        You can place files in the default directory to get included.
     -->
     <X-PRE-PROCESS cmd="include" data="default/*.xml"/>
-    
-    <!--
-	WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
-	
-	Anything you put below this line will usually get ignored due to the file in 
-	default/99999_enum.xml as it will transfer the call to the enum dialplan.
-
-	WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
-    -->
-
-    <!-- SEE WARNING ABOVE IF YOU ARE TRYING TO ADD EXTENSIONS HERE! -->
 
   </context>
 </include>
+
