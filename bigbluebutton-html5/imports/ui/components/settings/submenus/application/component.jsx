@@ -22,6 +22,10 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.audioAlertLabel',
     description: 'audio notification label',
   },
+  deskAlertLabel: {
+    id: 'app.submenu.application.deskAlertLabel',
+    description: 'desktop notification label',
+  },
   audioFilterLabel: {
     id: 'app.submenu.application.audioFilterLabel',
     description: 'audio filters label',
@@ -270,6 +274,25 @@ class ApplicationMenu extends BaseMenu {
                       defaultChecked={this.state.settings.chatAudioAlerts}
                       onChange={() => this.handleToggle('chatAudioAlerts')}
                       ariaLabel={intl.formatMessage(intlMessages.audioAlertLabel)}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className={styles.row}>
+                <div className={styles.col} aria-hidden="true">
+                  <div className={styles.formElement}>
+                    <label className={styles.label}>
+                      {intl.formatMessage(intlMessages.deskAlertLabel)}
+                    </label>
+                  </div>
+                </div>
+                <div className={styles.col}>
+                  <div className={cx(styles.formElement, styles.pullContentRight)}>
+                    <Toggle
+                      icons={false}
+                      defaultChecked={this.state.settings.chatDeskAlerts}
+                      onChange={() => this.handleToggle('chatDeskAlerts')}
+                      ariaLabel={intl.formatMessage(intlMessages.deskAlertLabel)}
                     />
                   </div>
                 </div>

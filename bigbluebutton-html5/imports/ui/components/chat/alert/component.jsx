@@ -5,13 +5,16 @@ import _ from 'lodash';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import ChatAudioAlert from './audio-alert/component';
 import ChatPushAlert from './push-alert/component';
+import ChatDeskAlert from './desk-alert/component';
 import Service from '../service';
+import Settings from '/imports/ui/services/settings';
 import { styles } from '../styles';
 
 const propTypes = {
   pushAlertDisabled: PropTypes.bool.isRequired,
   activeChats: PropTypes.arrayOf(PropTypes.object).isRequired,
   audioAlertDisabled: PropTypes.bool.isRequired,
+  deskAlertDisabled: PropTypes.bool.isRequired,
   joinTimestamp: PropTypes.number.isRequired,
   idChatOpen: PropTypes.string.isRequired,
 };
@@ -33,6 +36,14 @@ const intlMessages = defineMessages({
     id: 'app.chat.clearPublicChatMessage',
     description: 'message of when clear the public chat',
   },
+  appDeskChatPublic: {
+    id: 'app.desk.chat.public',
+    description: 'when entry various message',
+  },
+  appDeskChatPrivate: {
+    id: 'app.desk.chat.private',
+    description: 'when entry various message',
+  },
 });
 
 const ALERT_INTERVAL = 5000; // 5 seconds
@@ -41,7 +52,6 @@ const ALERT_DURATION = 4000; // 4 seconds
 class ChatAlert extends PureComponent {
   constructor(props) {
     super(props);
-
     const { joinTimestamp } = props;
 
     this.state = {
@@ -174,6 +184,7 @@ class ChatAlert extends PureComponent {
   render() {
     const {
       audioAlertDisabled,
+      deskAlertDisabled,
       idChatOpen,
       pushAlertDisabled,
       intl,
@@ -187,13 +198,47 @@ class ChatAlert extends PureComponent {
     const hasPendingNotifications = Object.keys(pendingNotificationsByChat).length > 0;
 
     const shouldPlayChatAlert = notCurrentTabOrMinimized
-      || (hasPendingNotifications && !idChatOpen);
+            || (hasPendingNotifications && !idChatOpen);
 
+    const ReceivedMessagesAfterLogin = Service.getReceivedMessagesAfterLogin();
+    const lastMessage = ReceivedMessagesAfterLogin.length > 0
+      ? ReceivedMessagesAfterLogin[ReceivedMessagesAfterLogin.length - 1]
+      : null;
+    let messageId = '';
+    let body = '';
+    let title = '';
+    const silent = true;
+    let timestamp = 0;
+    if (lastMessage) {
+      messageId = lastMessage.chatId;
+      body = lastMessage.content;
+      title = (lastMessage.chatId === 'MAIN-PUBLIC-GROUP-CHAT')
+        ? intl.formatMessage(intlMessages.appDeskChatPublic, { 0: lastMessage.name })
+        : intl.formatMessage(intlMessages.appDeskChatPrivate, { 0: lastMessage.name });
+      ({ timestamp } = lastMessage);
+    }
+    const dir = Settings.application.isRTL ? 'rtl' : 'ltr';
+    const lang = Settings.application.locale;
     return (
       <Fragment>
         {
           !audioAlertDisabled || (!audioAlertDisabled && notCurrentTabOrMinimized)
             ? <ChatAudioAlert play={shouldPlayChatAlert} />
+            : null
+        }
+        {
+          !deskAlertDisabled
+            ? (
+              <ChatDeskAlert
+                messageId={messageId}
+                title={title}
+                body={body}
+                silent={silent}
+                timestamp={timestamp}
+                dir={dir}
+                lang={lang}
+              />
+            )
             : null
         }
         {
@@ -215,17 +260,18 @@ class ChatAlert extends PureComponent {
                     chatId={chatId}
                     content={content}
                     title={
-                      (chatId === 'MAIN-PUBLIC-GROUP-CHAT')
-                        ? <span>{intl.formatMessage(intlMessages.appToastChatPublic)}</span>
-                        : <span>{intl.formatMessage(intlMessages.appToastChatPrivate)}</span>
-                    }
+                        (chatId === 'MAIN-PUBLIC-GROUP-CHAT')
+                          ? <span>{intl.formatMessage(intlMessages.appToastChatPublic)}</span>
+                          : <span>{intl.formatMessage(intlMessages.appToastChatPrivate)}</span>
+                      }
                     onOpen={
                       () => {
                         let pendingNotifications = pendingNotificationsByChat;
                         delete pendingNotifications[chatId];
                         pendingNotifications = { ...pendingNotifications };
                         this.setState({ pendingNotificationsByChat: pendingNotifications });
-                      }}
+                      }
+                    }
                     alertDuration={ALERT_DURATION}
                   />
                 );

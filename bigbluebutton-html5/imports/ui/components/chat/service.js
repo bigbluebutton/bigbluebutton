@@ -317,6 +317,21 @@ const getAllMessages = (chatID) => {
   return messages;
 };
 
+const getReceivedMessagesAfterLogin = () => {
+  const filter = {
+    sender: { $ne: Auth.userID },
+    timestamp: { $gt: getUser(Auth.userID).loginTime },
+  };
+  const messages = GroupChatMsg.find(filter).fetch();
+  return messages.map(message => ({
+    chatId: message.chatId,
+    sender: message.sender,
+    name: getUser(message.sender).name,
+    timestamp: message.timestamp,
+    content: message.message,
+  }));
+};
+
 const maxTimestampReducer = (max, el) => ((el.timestamp > max) ? el.timestamp : max);
 
 const maxNumberReducer = (max, el) => ((el > max) ? el : max);
@@ -346,4 +361,5 @@ export default {
   maxTimestampReducer,
   getLastMessageTimestampFromChatList,
   UnsentMessagesCollection,
+  getReceivedMessagesAfterLogin,
 };

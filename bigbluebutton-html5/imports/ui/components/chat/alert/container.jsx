@@ -28,6 +28,7 @@ export default withTracker(() => {
   return {
     audioAlertDisabled: !AppSettings.chatAudioAlerts,
     pushAlertDisabled: !AppSettings.chatPushAlerts,
+    deskAlertDisabled: !AppSettings.chatDeskAlerts,
     activeChats,
     publicUserId: Meteor.settings.public.chat.public_group_id,
     joinTimestamp: loginTime,

@@ -72,6 +72,7 @@
     "react-toastify": "^4.5.2",
     "react-toggle": "~4.0.2",
     "react-transition-group": "^2.9.0",
+    "react-web-notification": "^0.8.0",
     "reconnecting-websocket": "~v4.1.10",
     "redis": "~2.8.0",
     "sanitize-html": "^1.27.5",

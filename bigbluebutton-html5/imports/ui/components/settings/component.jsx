@@ -69,6 +69,7 @@ const propTypes = {
   application: PropTypes.shape({
     chatAudioAlerts: PropTypes.bool,
     chatPushAlerts: PropTypes.bool,
+    chatDeskAlerts: PropTypes.bool,
     userJoinAudioAlerts: PropTypes.bool,
     fallbackLocale: PropTypes.string,
     fontSize: PropTypes.string,
