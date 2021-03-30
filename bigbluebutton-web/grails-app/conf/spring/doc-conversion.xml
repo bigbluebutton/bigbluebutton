@@ -38,6 +38,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="officeDocumentValidator" ref="officeDocumentValidator"/>
         <property name="skipOfficePrecheck" value="${skipOfficePrecheck}"/>
         <property name="presOfficeConversionExec" value="${presOfficeConversionExec:/usr/share/bbb-libreoffice-conversion/convert.sh}"/>
+        <property name="presOfficeConversionTimeout" value="${officeToPdfConversionTimeout}"/>
+        <property name="presOfficeConversionMaxConcurrents" value="${officeToPdfMaxConcurrentConversions}"/>
     </bean>
 
     <bean id="pageExtractor" class="org.bigbluebutton.presentation.imp.PageExtractorImp"/>
