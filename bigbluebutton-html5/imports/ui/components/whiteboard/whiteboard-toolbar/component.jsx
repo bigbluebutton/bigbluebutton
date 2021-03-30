@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { HEXToINTColor, INTToHEXColor } from '/imports/utils/hexInt';
 import { defineMessages, injectIntl } from 'react-intl';
-import browser from 'browser-detect';
+import Bowser from 'bowser';
 import { noop } from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
@@ -64,7 +64,9 @@ const intlMessages = defineMessages({
   },
 });
 
-const isEdge = browser().name === 'edge';
+const BROWSER_RESULTS = Bowser.parse(window.navigator.userAgent);
+const isEdge = BROWSER_RESULTS.browser.name === 'Microsoft Edge';
+
 const runExceptInEdge = fn => (isEdge ? noop : fn);
 
 class WhiteboardToolbar extends Component {
@@ -292,7 +294,7 @@ class WhiteboardToolbar extends Component {
      * 4. Trigger initial animation for the icons
     */
     // 1st case
-    if ( (this.thicknessListIconRadius && this.thicknessListIconColor) || annotationSelected.value === 'text') {
+    if ((this.thicknessListIconRadius && this.thicknessListIconColor) || annotationSelected.value === 'text') {
       if (colorSelected.value !== prevState.colorSelected.value) {
         // 1st case b)
         if (annotationSelected.value !== 'text') {
@@ -779,7 +781,7 @@ class WhiteboardToolbar extends Component {
     } = this.props;
 
     return (
-      <span className={styles.multiUserToolItem}>
+      <span className={styles.multiUserToolItem} data-test={multiUser ? 'multiWhiteboardTool' : 'whiteboardTool'}>
         {multiUser && <span className={styles.multiUserTool}>{multiUserSize}</span>}
         <ToolbarMenuItem
           disabled={!isMeteorConnected}

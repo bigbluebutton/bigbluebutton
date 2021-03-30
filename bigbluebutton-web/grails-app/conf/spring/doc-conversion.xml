@@ -34,14 +34,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="presCheckExec" value="${presCheckExec}"/>
     </bean>
 
-
-    <bean id="officeToPdfConversionService" class="org.bigbluebutton.presentation.imp.OfficeToPdfConversionService"
-          init-method="start" destroy-method="stop">
+    <bean id="officeToPdfConversionService" class="org.bigbluebutton.presentation.imp.OfficeToPdfConversionService">
         <property name="officeDocumentValidator" ref="officeDocumentValidator"/>
         <property name="skipOfficePrecheck" value="${skipOfficePrecheck}"/>
-        <property name="sofficeBasePort" value="${sofficeBasePort:8201}"/>
-        <property name="sofficeManagers" value="${sofficeManagers:4}"/>
-	<property name="sofficeWorkingDirBase" value="${sofficeWorkingDirBase:/var/tmp/soffice_}"/>
+        <property name="presOfficeConversionExec" value="${presOfficeConversionExec:/usr/share/bbb-libreoffice-conversion/convert.sh}"/>
+        <property name="presOfficeConversionTimeout" value="${officeToPdfConversionTimeout}"/>
+        <property name="presOfficeConversionMaxConcurrents" value="${officeToPdfMaxConcurrentConversions}"/>
     </bean>
 
     <bean id="pageExtractor" class="org.bigbluebutton.presentation.imp.PageExtractorImp"/>

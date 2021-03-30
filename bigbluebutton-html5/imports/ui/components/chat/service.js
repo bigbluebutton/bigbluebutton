@@ -367,6 +367,17 @@ const getLastMessageTimestampFromChatList = activeChats => activeChats
   .map(chatId => getAllMessages(chatId).reduce(maxTimestampReducer, 0))
   .reduce(maxNumberReducer, 0);
 
+const removePackagedClassAttribute = (classnames, attribute) => {
+  classnames.map(c => {
+    const elements = document.getElementsByClassName(c);
+      if (elements) {
+        for (const [k, v] of Object.entries(elements)) {
+          v.removeAttribute(attribute);
+      }
+    }
+  });
+}
+
 export default {
   setUserSentMessage,
   mapGroupMessage,
@@ -392,4 +403,5 @@ export default {
   maxTimestampReducer,
   getLastMessageTimestampFromChatList,
   UnsentMessagesCollection,
+  removePackagedClassAttribute,
 };

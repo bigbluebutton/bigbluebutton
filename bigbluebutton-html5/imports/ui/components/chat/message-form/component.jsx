@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import TextareaAutosize from 'react-autosize-textarea';
-import browser from 'browser-detect';
+import Bowser from 'bowser';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import TypingIndicatorContainer from './typing-indicator/container';
@@ -80,7 +80,7 @@ class MessageForm extends PureComponent {
       hasErrors: false,
     };
 
-    this.BROWSER_RESULTS = browser();
+    this.BROWSER_RESULTS = Bowser.parse(window.navigator.userAgent);
 
     this.handleMessageChange = this.handleMessageChange.bind(this);
     this.handleMessageKeyDown = this.handleMessageKeyDown.bind(this);
@@ -91,7 +91,7 @@ class MessageForm extends PureComponent {
   }
 
   componentDidMount() {
-    const { mobile } = this.BROWSER_RESULTS;
+    const mobile = this.BROWSER_RESULTS.platform.type === 'mobile';
     this.setMessageState();
     this.setMessageHint();
 
@@ -108,7 +108,7 @@ class MessageForm extends PureComponent {
       partnerIsLoggedOut,
     } = this.props;
     const { message } = this.state;
-    const { mobile } = this.BROWSER_RESULTS;
+    const mobile = this.BROWSER_RESULTS.platform.type === 'mobile';
 
     if (prevProps.chatId !== chatId && !mobile) {
       if (this.textarea) this.textarea.focus();
@@ -286,10 +286,8 @@ class MessageForm extends PureComponent {
             id="message-input"
             innerRef={(ref) => { this.textarea = ref; return this.textarea; }}
             placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: title })}
-            aria-controls={chatAreaId}
             aria-label={intl.formatMessage(messages.inputLabel, { 0: chatTitle })}
             aria-invalid={hasErrors ? 'true' : 'false'}
-            aria-describedby={hasErrors ? 'message-input-error' : null}
             autoCorrect="off"
             autoComplete="off"
             spellCheck="true"

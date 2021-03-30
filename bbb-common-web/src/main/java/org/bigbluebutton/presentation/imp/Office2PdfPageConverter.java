@@ -19,20 +19,17 @@
 
 package org.bigbluebutton.presentation.imp;
 
+
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-import com.sun.org.apache.xerces.internal.impl.xs.opti.DefaultDocument;
-import org.apache.commons.io.FilenameUtils;
+import com.zaxxer.nuprocess.NuProcess;
+import com.zaxxer.nuprocess.NuProcessBuilder;
 import org.bigbluebutton.presentation.UploadedPresentation;
-import org.jodconverter.core.document.DefaultDocumentFormatRegistry;
-import org.jodconverter.core.document.DocumentFormat;
-import org.jodconverter.core.job.AbstractConverter;
-import org.jodconverter.local.LocalConverter;
+import org.bigbluebutton.presentation.handlers.Office2PdfConverterHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,10 +39,7 @@ public abstract class Office2PdfPageConverter {
   private static Logger log = LoggerFactory.getLogger(Office2PdfPageConverter.class);
 
   public static boolean convert(File presentationFile, File output, int page, UploadedPresentation pres,
-                         LocalConverter converter){
-
-    FileInputStream inputStream = null;
-    FileOutputStream outputStream = null;
+                         String presOfficeConversionExec, int conversionTimeout) {
 
     try {
       Map<String, Object> logData = new HashMap<>();
@@ -58,14 +52,28 @@ public abstract class Office2PdfPageConverter {
       String logStr = gson.toJson(logData);
       log.info(" --analytics-- data={}", logStr);
 
-      final DocumentFormat sourceFormat = DefaultDocumentFormatRegistry.getFormatByExtension(
-              FilenameUtils.getExtension(presentationFile.getName()));
+      if(presOfficeConversionExec == null) throw new Exception("Cannot find the conversion script path.");
 
-      inputStream = new FileInputStream(presentationFile);
-      outputStream = new FileOutputStream(output);
+      File conversionScript = new File(presOfficeConversionExec);
+      if(!conversionScript.exists()) throw new Exception(String.format("File not found: %s.",presOfficeConversionExec));
 
-      converter.convert(inputStream).as(sourceFormat).to(outputStream).as(DefaultDocumentFormatRegistry.PDF).execute();
-      outputStream.flush();
+      log.info(String.format("Calling conversion script %s.", presOfficeConversionExec));
+
+      NuProcessBuilder officeConverterExec = new NuProcessBuilder(Arrays.asList(presOfficeConversionExec, presentationFile.getAbsolutePath(), output.getAbsolutePath()));
+      Office2PdfConverterHandler office2PdfConverterHandler  = new Office2PdfConverterHandler();
+
+      officeConverterExec.setProcessListener(office2PdfConverterHandler);
+
+      NuProcess process = officeConverterExec.start();
+      try {
+        process.waitFor(conversionTimeout, TimeUnit.SECONDS);
+      } catch (InterruptedException e) {
+        log.error("InterruptedException while counting PDF pages {}", presentationFile.getName(), e);
+      }
+
+      if(!office2PdfConverterHandler.isCommandSuccessful()) {
+        throw new Exception(String.format("Error while executing conversion script %s.", presOfficeConversionExec));
+      }
 
       if (output.exists()) {
         return true;
@@ -94,23 +102,9 @@ public abstract class Office2PdfPageConverter {
       String logStr = gson.toJson(logData);
       log.error(" --analytics-- data={}", logStr, e);
       return false;
-    } finally {
-       if(inputStream!=null) {
-         try {
-           inputStream.close();
-         } catch(Exception e) {
-
-         }
-       }
-
-      if(outputStream!=null) {
-        try {
-          outputStream.close();
-        } catch(Exception e) {
-
-        }
-      }
     }
   }
+
+
 
 }
