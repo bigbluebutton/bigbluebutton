@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Bowser from 'bowser';
+import browser from 'browser-detect';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Button from '/imports/ui/components/button/component';
 import { HUNDRED_PERCENT, MAX_PERCENT, STEP } from '/imports/utils/slideCalcUtils';
@@ -225,8 +225,9 @@ class PresentationToolbar extends PureComponent {
       currentSlide,
     } = this.props;
 
-    const BROWSER_RESULTS = Bowser.parse(window.navigator.userAgent);
-    const isMobileBrowser = BROWSER_RESULTS.platform.type === 'mobile' || BROWSER_RESULTS.os.name.includes('Android');
+    const BROWSER_RESULTS = browser();
+    const isMobileBrowser = BROWSER_RESULTS.mobile
+      || BROWSER_RESULTS.os.includes('Android');
 
     const startOfSlides = !(currentSlideNum > 1);
     const endOfSlides = !(currentSlideNum < numberOfSlides);

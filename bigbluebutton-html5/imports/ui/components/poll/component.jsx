@@ -439,7 +439,7 @@ class Poll extends Component {
                   ],
                 });
               }}
-              className={cx(styles.pBtn, { [styles.selectedBtn]: type === 'TF' })}
+              className={cx(styles.pBtn, { [styles.selectedBtnBlue]: type === 'TF' })}
             />
             <Button
               label={intl.formatMessage(intlMessages.a4)}
@@ -455,7 +455,7 @@ class Poll extends Component {
                   ],
                 });
               }}
-              className={cx(styles.pBtn, { [styles.selectedBtn]: type === 'A-' })}
+              className={cx(styles.pBtn, { [styles.selectedBtnBlue]: type === 'A-' })}
             />
           </div>
           <Button
@@ -471,13 +471,13 @@ class Poll extends Component {
                 ],
               });
             }}
-            className={cx(styles.pBtn, styles.yna, { [styles.selectedBtn]: type === 'YNA' })}
+            className={cx(styles.pBtn, styles.yna, { [styles.selectedBtnBlue]: type === 'YNA' })}
           />
           <Button
             label={intl.formatMessage(intlMessages.userResponse)}
             color="default"
             onClick={() => { this.setState({ type: 'RP' }); }}
-            className={cx(styles.pBtn, styles.fullWidth, { [styles.selectedBtn]: type === 'RP' })}
+            className={cx(styles.pBtn, styles.fullWidth, { [styles.selectedBtnWhite]: type === 'RP' })}
           />
         </div>
         { type

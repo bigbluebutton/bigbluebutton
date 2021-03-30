@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { HEXToINTColor, INTToHEXColor } from '/imports/utils/hexInt';
 import { defineMessages, injectIntl } from 'react-intl';
-import Bowser from 'bowser';
+import browser from 'browser-detect';
 import { noop } from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
@@ -64,9 +64,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const BROWSER_RESULTS = Bowser.parse(window.navigator.userAgent);
-const isEdge = BROWSER_RESULTS.browser.name === 'Microsoft Edge';
-
+const isEdge = browser().name === 'edge';
 const runExceptInEdge = fn => (isEdge ? noop : fn);
 
 class WhiteboardToolbar extends Component {

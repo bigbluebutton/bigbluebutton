@@ -1,7 +1,7 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import Bowser from 'bowser';
+import browser from 'browser-detect';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioModal from './component';
 import Meetings from '/imports/api/meetings';
@@ -55,7 +55,6 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
     || (skipCheck || skipCheckOnJoin && !getEchoTest);
 
   const forceListenOnlyAttendee = forceListenOnly && !Service.isUserModerator();
-  const BROWSER_RESULTS = Bowser.parse(window.navigator.userAgent);
 
   return ({
     joinedAudio,
@@ -81,9 +80,9 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
     audioLocked: userLocks.userMic,
     joinFullAudioImmediately,
     forceListenOnlyAttendee,
-    isIOSChrome: BROWSER_RESULTS.os.name.includes('iOS') && BROWSER_RESULTS.browser.name === 'Chrome',
+    isIOSChrome: browser().name === 'crios',
     isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
-    isIEOrEdge: BROWSER_RESULTS.browser.name === 'Microsoft Edge' || BROWSER_RESULTS.browser.name === 'Internet Explorer',
+    isIEOrEdge: browser().name === 'edge' || browser().name === 'ie',
     autoplayBlocked: Service.autoplayBlocked(),
     handleAllowAutoplay: () => Service.handleAllowAutoplay(),
     isRTL,
