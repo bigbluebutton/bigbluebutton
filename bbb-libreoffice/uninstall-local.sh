@@ -24,11 +24,3 @@ if [ "$FILE_SUDOERS_CHECK" = "1" ]; then
 	echo "Removing Sudoers file"
 	rm /etc/sudoers.d/zzz-bbb-docker-libreoffice
 fi;
-
-
-NETWORK_CHECK=`docker network inspect bbb-libreoffice &> /dev/null && echo 1 || echo 0`
-if [ "$NETWORK_CHECK" = "1" ]; then
-        echo "Removing docker network"
-        docker network remove bbb-libreoffice
-fi
-

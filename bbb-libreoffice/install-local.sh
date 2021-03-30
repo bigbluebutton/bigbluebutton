@@ -4,6 +4,8 @@ if [ "$EUID" -ne 0 ]; then
 	exit 1;
 fi;
 
+cd "$(dirname "$0")"
+
 DOCKER_CHECK=`docker --version &> /dev/null && echo 1 || echo 0`
 
 if [ "$DOCKER_CHECK"  = "0" ]; then
@@ -33,11 +35,7 @@ FOLDER_CHECK=`[ -d /usr/share/bbb-libreoffice-conversion/ ] && echo 1 || echo 0`
 if [ "$FOLDER_CHECK" = "0" ]; then
 	echo "Install folder doesn't exists, installing"
 	mkdir -m 755 /usr/share/bbb-libreoffice-conversion/
-	cp assets/convert-local.sh /usr/share/bbb-libreoffice-conversion/
-	cp assets/convert-remote.sh /usr/share/bbb-libreoffice-conversion/
-	ln -sfn /usr/share/bbb-libreoffice-conversion/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert.sh
-	chmod 755 /usr/share/bbb-libreoffice-conversion/convert-local.sh
-	chmod 755 /usr/share/bbb-libreoffice-conversion/convert-remote.sh
+	cp assets/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert.sh
 	chmod 755 /usr/share/bbb-libreoffice-conversion/convert.sh
 	chown -R root /usr/share/bbb-libreoffice-conversion/
 else
