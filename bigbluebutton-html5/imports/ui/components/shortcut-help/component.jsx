@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import browser from 'browser-detect';
+import Bowser from 'bowser';
 import Modal from '/imports/ui/components/modal/simple/component';
 import _ from 'lodash';
 import { styles } from './styles';
@@ -103,7 +103,10 @@ const CHAT_ENABLED = CHAT_CONFIG.enabled;
 
 const ShortcutHelpComponent = (props) => {
   const { intl, shortcuts } = props;
-  const { name, os } = browser();
+
+  const BROWSER_RESULTS = Bowser.parse(window.navigator.userAgent);
+  const name = BROWSER_RESULTS.browser.name;
+  const os = BROWSER_RESULTS.os.name;
 
   let accessMod = null;
 
@@ -111,24 +114,24 @@ const ShortcutHelpComponent = (props) => {
   // on different systems when using accessKey property.
   // Overview how different browsers behave: https://www.w3schools.com/jsref/prop_html_accesskey.asp
   switch (name) {
-    case 'chrome':
-    case 'edge':
+    case 'Chrome':
+    case 'Microsoft Edge':
       accessMod = 'Alt';
       break;
-    case 'firefox':
+    case 'Firefox':
       accessMod = 'Alt + Shift';
-      break;
-    case 'safari':
-    case 'crios':
-    case 'fxios':
-      accessMod = 'Control + Alt';
       break;
     default:
       break;
   }
 
+  // all Browsers on iOS are using Control + Alt as access modifier
+  if (os.includes('iOS')) {
+    accessMod = 'Control + Alt';
+  }
+
   // all Browsers on MacOS are using Control + Option as access modifier
-  if (os.includes('OS X 10')) {
+  if (os.includes('MacOS')) {
     accessMod = 'Control + Option';
   }
 

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import cx from 'classnames';
-import browser from 'browser-detect';
+import Bowser from 'bowser';
 import Button from '/imports/ui/components/button/component';
 import { Session } from 'meteor/session';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
@@ -807,8 +807,8 @@ class BreakoutRoom extends PureComponent {
       numberOfRoomsIsValid,
     } = this.state;
 
-    const BROWSER_RESULTS = browser();
-    const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
+    const BROWSER_RESULTS = Bowser.parse(window.navigator.userAgent);
+    const isMobileBrowser = BROWSER_RESULTS.platform.type === 'mobile' || BROWSER_RESULTS.os.name.includes('Android');
 
     return (
       <Modal
