@@ -21,10 +21,12 @@ const propTypes = {
   }).isRequired,
 
   horizontal: PropTypes.bool,
+  ignoreMobile: PropTypes.bool,
 };
 
 const defaultProps = {
   horizontal: false,
+  ignoreMobile: false,
 };
 
 export default class DropdownList extends Component {
@@ -142,7 +144,7 @@ export default class DropdownList extends Component {
   }
 
   render() {
-    const { children, style, className } = this.props;
+    const { children, style, className, ignoreMobile } = this.props;
 
     const boundChildren = Children.map(
       children,
@@ -177,7 +179,7 @@ export default class DropdownList extends Component {
     return (
       <ul
         style={style}
-        className={cx(listDirection, className)}
+        className={cx(ignoreMobile ? styles.ignoreMobileVerticalList : listDirection, className)}
         role="menu"
         ref={(menu) => {
           this._menu = menu;

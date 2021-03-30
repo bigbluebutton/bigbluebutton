@@ -54,6 +54,7 @@ const propTypes = {
   autoFocus: PropTypes.bool,
   intl: PropTypes.object.isRequired,
   tethered: PropTypes.bool,
+  ignoreMobile: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -64,6 +65,7 @@ const defaultProps = {
   isOpen: false,
   keepOpen: null,
   getContent: () => {},
+  ignoreMobile: false,
 };
 
 const attachments = {
@@ -180,6 +182,7 @@ class Dropdown extends Component {
       placement,
       getContent,
       isPortrait,
+      ignoreMobile,
       ...otherProps
     } = this.props;
 
@@ -189,7 +192,7 @@ class Dropdown extends Component {
     const isSmall = window.matchMedia(MOBILE_MEDIA).matches;
 
     const placements = placement && placement.replace(' ', '-');
-    const test = isMobile && isPortrait && isSmall ? {
+    const test = isMobile && isPortrait && isSmall && !ignoreMobile ? {
       width: '100%',
       height: '100%',
       transform: 'translateY(0)',
@@ -224,7 +227,7 @@ class Dropdown extends Component {
       keepopen: `${keepOpen}`,
     });
 
-    const showCloseBtn = (isOpen && keepOpen) || (isOpen && keepOpen === null);
+    const showCloseBtn = ((isOpen && keepOpen) || (isOpen && keepOpen === null) && !ignoreMobile);
 
     return (
       <div
@@ -245,11 +248,11 @@ class Dropdown extends Component {
                   ...test,
                 }}
                 attachment={
-                  isMobile && isPortrait && isSmall ? 'middle center'
+                  isMobile && isPortrait && isSmall && !ignoreMobile ? 'middle center'
                     : attachments[placements]
                 }
                 targetAttachment={
-                  isMobile && isPortrait && isSmall ? 'auto auto'
+                  isMobile && isPortrait && isSmall && !ignoreMobile ? 'auto auto'
                     : targetAttachments[placements]
                 }
                 constraints={[

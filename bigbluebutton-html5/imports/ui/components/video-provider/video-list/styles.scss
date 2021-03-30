@@ -141,25 +141,8 @@
   outline: none !important;
   width: var(--cam-dropdown-width);
 
-  @include mq($medium-up) {
-    >[aria-expanded] {
-      padding: .25rem;
-    }
-  }
-
-  @include mq($small-only) {
-    button {
-      /* should be placed after .dropdownContent
-      90vh: .dropdownContent height, 85px: navbar, 5rem: actions bar) */
-      top: calc(90vh - 85px - 5rem);
-      height: 10vh;
-    }
-  }
-  @include mq($landscape) {
-    button {
-      width: calc(100vw - 4rem);
-      margin-left: 1rem;
-    }
+  >[aria-expanded] {
+    padding: .25rem;
   }
 }
 
@@ -203,26 +186,14 @@
   [dir="rtl"] & {
     right: 2rem;
   }
-
-  @include mq($small-only) {
-    // use 90% of available height (85px: navbar, 5rem: actions bar)
-    height: calc(90vh - 85px - 5rem);
-    width: 100vw;
-  }
 }
 
 .dropdownList {
-  @include mq($medium-up) {
-    font-size: .86rem;
-  }
+  font-size: .86rem;
 }
 
 .hiddenDesktop {
   display: none;
-
-  @include mq($small-only) {
-    display: block;
-  }
 }
 
 .muted,

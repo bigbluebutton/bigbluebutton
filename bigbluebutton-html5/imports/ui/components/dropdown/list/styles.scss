@@ -29,6 +29,28 @@
   width: 100%;
 }
 
+%ignoreMobileList {
+  list-style: none;
+  font-size: var(--font-size-base);
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  color: var(--color-gray-dark);
+  display: flex;
+  overflow-wrap: break-word;
+  white-space: pre-line;
+
+  [dir="rtl"] & {
+    text-align: right;
+  }
+}
+
+.ignoreMobileVerticalList {
+  @extend %ignoreMobileList;
+  flex-direction: column;
+  width: 100%;
+}
+
 .horizontalList {
   @extend %list;
   padding: 0;

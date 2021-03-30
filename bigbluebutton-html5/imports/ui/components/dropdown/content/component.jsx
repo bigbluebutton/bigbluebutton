@@ -16,11 +16,13 @@ const propTypes = {
    * @defaultValue 'top'
    */
   placement: PropTypes.oneOf(PLACEMENTS),
+  ignoreMobile: PropTypes.bool,
 };
 
 const defaultProps = {
   placement: 'top',
   'aria-expanded': false,
+  ignoreMobile: false,
 };
 
 export default class DropdownContent extends Component {
@@ -34,6 +36,7 @@ export default class DropdownContent extends Component {
       dropdownHide,
       dropdownIsOpen,
       keepOpen,
+      ignoreMobile,
       ...restProps
     } = this.props;
 
@@ -50,10 +53,10 @@ export default class DropdownContent extends Component {
     return (
       <div
         data-test="dropdownContent"
-        className={cx(styles.content, styles[placementName], className)}
+        className={cx(ignoreMobile ? styles.ignoreMobileContent : styles.content, styles[placementName], className)}
         {...restProps}
       >
-        <div className={styles.scrollable}>
+        <div className={ignoreMobile ? styles.ignoreMobileScrollable : styles.scrollable}>
           {boundChildren}
         </div>
       </div>
