@@ -10,15 +10,12 @@ import update from 'immutability-helper';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import { toast } from 'react-toastify';
-import browser from 'browser-detect';
+import Bowser from 'bowser';
 import _ from 'lodash';
 import { styles } from './styles';
 
-const BROWSER_RESULTS = browser();
-const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false)
-  || (BROWSER_RESULTS && BROWSER_RESULTS.os
-    ? BROWSER_RESULTS.os.includes('Android') // mobile flag doesn't always work
-    : false);
+const BROWSER_RESULTS = Bowser.parse(window.navigator.userAgent);
+const isMobileBrowser = BROWSER_RESULTS.platform.type === 'mobile' || BROWSER_RESULTS.os.name.includes('Android');
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
