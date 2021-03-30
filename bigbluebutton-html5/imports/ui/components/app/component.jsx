@@ -40,11 +40,7 @@ import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import { makeCall } from '/imports/ui/services/api';
-<<<<<<< HEAD
-=======
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
-import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
->>>>>>> upstream/develop
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -409,7 +405,6 @@ class App extends Component {
       layoutManagerLoaded,
       sidebarNavPanel,
       sidebarContentPanel,
-      customStyle, customStyleUrl,
     } = this.props;
 
     return (
