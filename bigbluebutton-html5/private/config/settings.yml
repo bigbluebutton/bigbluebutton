@@ -378,7 +378,7 @@ public:
     typingIndicator:
       enabled: true
   note:
-    enabled: false
+    enabled: true
     url: ETHERPAD_HOST
   layout:
     autoSwapLayout: false
