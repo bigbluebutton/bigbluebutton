@@ -243,8 +243,21 @@ class Poll extends Component {
     this.setState({ question: validateInput(e.target.value), error: clearError ? null : error });
   }
 
+  setOptListLength(len) {
+    const { optList } = this.state;
+    const diff = len - optList.length;
+    if (diff > 0) {
+      const emptyAddition = Array(diff).fill({ val: '' });
+      optList.push(...emptyAddition);
+    } else {
+      optList.splice(len);
+    }
+    this.setState({ optList });
+  }
+
   pushToCustomPollValues(text) {
     const lines = text.split('\n');
+    this.setOptListLength(lines.length);
     for (let i = 0; i < MAX_CUSTOM_FIELDS; i += 1) {
       let line = '';
       if (i < lines.length) {
