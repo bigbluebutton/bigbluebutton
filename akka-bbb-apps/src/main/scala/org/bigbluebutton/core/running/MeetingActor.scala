@@ -32,13 +32,12 @@ import akka.actor.Props
 import akka.actor.OneForOneStrategy
 import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.common2.msgs
-import org.bigbluebutton.core.apps.ScreenshareModel.{ getScreenshareConf, getTimestamp }
 
 import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
-import org.bigbluebutton.core.models.VoiceUsers.findAllListenOnlyVoiceUsers
+import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
 import org.bigbluebutton.core.models.Webcams.findAll
 import org.bigbluebutton.core2.MeetingStatus2x.{ hasAuthedUserJoined, isVoiceRecording }
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
@@ -529,17 +528,11 @@ class MeetingActor(
         List()
     }
 
-    val breakoutRoom: BreakoutRoom = BreakoutRoom(
-      liveMeeting.props.breakoutProps.parentId,
-      breakoutRoomNames
-    )
+    val breakoutRoom: BreakoutRoom = BreakoutRoom(liveMeeting.props.breakoutProps.parentId, breakoutRoomNames)
 
     val meetingInfoAnalyticsLogMessage: MeetingInfoAnalytics = MeetingInfoAnalytics(
-      meetingName, externalId, internalId,
-      hasUserJoined, isRecording, getMeetingInfoWebcamDetails,
-      getMeetingInfoAudioDetails, screenshare,
-      listOfUsers.map(u => Participant(u.intId, u.name, u.role)),
-      getMeetingInfoPresentationDetails, breakoutRoom
+      meetingName, externalId, internalId, hasUserJoined, isRecording, getMeetingInfoWebcamDetails, getMeetingInfoAudioDetails,
+      screenshare, listOfUsers.map(u => Participant(u.intId, u.name, u.role)), getMeetingInfoPresentationDetails, breakoutRoom
     )
 
     val event = MsgBuilder.buildMeetingInfoAnalyticsMsg(meetingInfoAnalyticsLogMessage)
@@ -549,6 +542,8 @@ class MeetingActor(
 
   private def resolveUserName(userId: String): String = {
     val userName: String = Users2x.findWithIntId(liveMeeting.users2x, userId).map(_.name).getOrElse("")
+
+    if (userName.isEmpty) log.error(s"Failed to map username for id $userId")
 
     userName
   }
@@ -575,12 +570,19 @@ class MeetingActor(
 
     val listenOnlyUsers: Vector[VoiceUserState] = findAllListenOnlyVoiceUsers(liveMeeting.voiceUsers)
     val numOfListenOnlyUsers: Int = listenOnlyUsers.length
-    val listenOnlyAudioUser = ListenOnlyAudioUser(
+    val listenOnlyAudio = ListenOnlyAudio(
       numOfListenOnlyUsers,
-      listenOnlyUsers.map(vsu => User(vsu.voiceUserId, resolveUserName(vsu.voiceUserId))).toList
+      listenOnlyUsers.map(vsu => User(vsu.voiceUserId, resolveUserName(vsu.intId))).toList
     )
 
-    Audio(numOfVoiceUsers, listenOnlyAudioUser, null, null)
+    val freeswitchUsers: Vector[VoiceUserState] = findAllFreeswitchCallers(liveMeeting.voiceUsers)
+    val numOfFreeswitchUsers: Int = freeswitchUsers.length
+    val twoWayAudio = TwoWayAudio(
+      numOfFreeswitchUsers,
+      freeswitchUsers.map(vsu => User(vsu.voiceUserId, resolveUserName(vsu.intId))).toList
+    )
+
+    Audio(numOfVoiceUsers, listenOnlyAudio, twoWayAudio, null)
   }
 
   private def getMeetingInfoPresentationDetails(): PresentationInfo = {
