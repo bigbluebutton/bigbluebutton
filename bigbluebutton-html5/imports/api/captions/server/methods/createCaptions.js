@@ -12,7 +12,7 @@ import axios from 'axios';
 export default function createCaptions(meetingId) {
   // Avoid captions creation if this feature is disabled
   if (!isEnabled()) {
-    Logger.warn(`Captions are disabled for ${meetingId}`);
+    Logger.warn(`Closed captions are disabled`);
     return;
   }
 
