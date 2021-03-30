@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Bowser from 'bowser';
+import browser from 'browser-detect';
 import Button from '/imports/ui/components/button/component';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
@@ -19,9 +19,12 @@ import {
 } from '/imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
 
-const BROWSER_RESULTS = Bowser.parse(window.navigator.userAgent);
-const isMobileBrowser = BROWSER_RESULTS.platform.type === 'mobile' || BROWSER_RESULTS.os.name.includes('Android');
-const IS_SAFARI = BROWSER_RESULTS.browser.name === 'Safari';
+const BROWSER_RESULTS = browser();
+const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false)
+  || (BROWSER_RESULTS && BROWSER_RESULTS.os
+    ? BROWSER_RESULTS.os.includes('Android') // mobile flag doesn't always work
+    : false);
+const IS_SAFARI = BROWSER_RESULTS.name === 'safari';
 
 const propTypes = {
   intl: PropTypes.objectOf(Object).isRequired,

@@ -1,18 +1,14 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import Bowser from 'bowser';
+import browser from 'browser-detect';
 import SettingsDropdown from './component';
 import FullscreenService from '../../fullscreen-button/service';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
-const BROWSER_RESULTS = Bowser.getParser(window.navigator.userAgent);
-const isSafari = BROWSER_RESULTS.getBrowserName() === 'Safari';
-const isIphone = !!(navigator.userAgent.match(/iPhone/i));
-const isValidBrowserVersion = BROWSER_RESULTS.satisfies({
-  safari: '>12',
-});
-
-const noIOSFullscreen = !!(((isSafari && !isValidBrowserVersion) || isIphone));
+const BROWSER_RESULTS = browser();
+const isSafari = BROWSER_RESULTS.name === 'safari';
+const isIphone = (navigator.userAgent.match(/iPhone/i)) ? true : false;
+const noIOSFullscreen = ((isSafari && BROWSER_RESULTS.versionNumber < 12) || isIphone) ? true : false;
 
 const SettingsDropdownContainer = props => (
   <SettingsDropdown {...props} />
