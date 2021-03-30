@@ -8,6 +8,14 @@ public:
     forceListenOnly: false
     skipCheck: false
     skipCheckOnJoin: false
+    #
+    # Allow users to change microphone/speaker dinamically
+    # The device is changed immediately, without the need to rejoin
+    # audio. Default value is true
+    # Firefox users: if no output devices is shown, you may set the flag
+    # "media.setsinkid.enabled" to make it work properly
+    # enableDynamicAudioDeviceSelection: true
+    #
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: 2.3-dev
