@@ -101,6 +101,10 @@ const ChatListItem = (props) => {
     if (sidebarContentPanel === PANELS.CHAT) {
       if (idChatOpen === chat.chatId) {
         newLayoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+          value: false,
+        });
+        newLayoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
           value: PANELS.NONE,
         });
@@ -118,6 +122,10 @@ const ChatListItem = (props) => {
 
     // Set the chat id
     if (sidebarContentPanel !== PANELS.CHAT) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+        value: true,
+      });
       newLayoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
         value: PANELS.CHAT,

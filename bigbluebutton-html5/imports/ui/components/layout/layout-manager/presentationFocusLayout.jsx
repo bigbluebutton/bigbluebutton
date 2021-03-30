@@ -1,509 +1,574 @@
-// import React, { Component, Fragment } from 'react';
-// import LayoutContext from '../context/context';
-// import DEFAULT_VALUES from '../defaultValues';
-// import _ from 'lodash';
-// import { INITIAL_INPUT_STATE } from '../context/initState';
-// import { DEVICE_TYPE, ACTIONS } from '../enums';
-// import slides from '../../presentation/slides-mock';
+import React, { Component, Fragment } from 'react';
+import { throttle, defaultsDeep } from 'lodash';
+import NewLayoutContext from '../context/context';
+import DEFAULT_VALUES from '../defaultValues';
+import { INITIAL_INPUT_STATE } from '../context/initState';
+import { DEVICE_TYPE, ACTIONS } from '../enums';
 
 // const windowWidth = () => window.document.documentElement.clientWidth;
 // const windowHeight = () => window.document.documentElement.clientHeight;
-// const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
-// const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
+const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
+const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 
-// class PresentationFocusLayout extends Component {
-//   constructor(props) {
-//     super(props);
+class PresentationFocusLayout extends Component {
+  constructor(props) {
+    super(props);
 
-//     this.throttledCalculatesLayout = _.throttle(() => this.calculatesLayout(),
-//       50, { 'trailing': true, 'leading': true });
-//   }
+    this.throttledCalculatesLayout = throttle(() => this.calculatesLayout(),
+      50, { trailing: true, leading: true });
+  }
 
-//   shouldComponentUpdate(nextProps) {
-//     return this.props.contextState.input !== nextProps.contextState.input
-//       || this.props.contextState.deviceType !== nextProps.contextState.deviceType;
-//   }
+  componentDidMount() {
+    this.init();
+    const { newLayoutContextDispatch } = this.props;
+    window.addEventListener('resize', () => {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_BROWSER_SIZE,
+        value: {
+          width: window.document.documentElement.clientWidth,
+          height: window.document.documentElement.clientHeight,
+        },
+      });
+    });
+  }
 
-//   componentDidMount() {
-//     this.init();
-//     const { contextDispatch } = this.props;
-//     window.addEventListener('resize', () => {
-//       contextDispatch({
-//         type: ACTIONS.SET_BROWSER_SIZE,
-//         value: {
-//           width: window.document.documentElement.clientWidth,
-//           height: window.document.documentElement.clientHeight,
-//         }
-//       });
-//     });
-//     contextDispatch({
-//       type: ACTIONS.SET_PRESENTATION_SLIDES_LENGTH,
-//       value: slides.length,
-//     });
-//   }
+  shouldComponentUpdate(nextProps) {
+    const { newLayoutContextState } = this.props;
+    return newLayoutContextState.input !== nextProps.newLayoutContextState.input
+      || newLayoutContextState.deviceType !== nextProps.newLayoutContextState.deviceType
+      || newLayoutContextState.layoutLoaded !== nextProps.newLayoutContextState.layoutLoaded;
+  }
 
-//   componentDidUpdate(prevProps) {
-//     const { contextState } = this.props;
-//     const { deviceType } = contextState;
-//     if (prevProps.contextState.deviceType !== deviceType) {
-//       this.init();
-//     } else {
-//       this.throttledCalculatesLayout();
-//     }
-//   }
+  componentDidUpdate(prevProps) {
+    const { newLayoutContextState } = this.props;
+    const { deviceType } = newLayoutContextState;
+    if (prevProps.newLayoutContextState.deviceType !== deviceType) {
+      this.init();
+    } else {
+      this.throttledCalculatesLayout();
+    }
+  }
 
-//   init() {
-//     const { contextState, contextDispatch } = this.props;
-//     const { input } = contextState;
-//     const { deviceType } = contextState;
-//     if (deviceType === DEVICE_TYPE.MOBILE) {
-//       contextDispatch({
-//         type: ACTIONS.SET_LAYOUT_INPUT,
-//         value: _.defaultsDeep({
-//           sidebarNavigation: {
-//             isOpen: false,
-//           },
-//           sidebarContent: {
-//             isOpen: false,
-//           },
-//           SidebarContentHorizontalResizer: {
-//             isOpen: false,
-//           },
-//           presentation: {
-//             slidesLength: input.presentation.slidesLength,
-//             currentSlide: {
-//               ...input.presentation.currentSlide,
-//             }
-//           }
-//         }, INITIAL_INPUT_STATE),
-//       })
-//     }
-//     if (deviceType !== DEVICE_TYPE.MOBILE) {
-//       contextDispatch({
-//         type: ACTIONS.SET_LAYOUT_INPUT,
-//         value: _.defaultsDeep({
-//           sidebarNavigation: {
-//             isOpen: true,
-//           },
-//           sidebarContent: {
-//             isOpen: deviceType === DEVICE_TYPE.TABLET_LANDSCAPE || deviceType === DEVICE_TYPE.DESKTOP ? true : false,
-//           },
-//           SidebarContentHorizontalResizer: {
-//             isOpen: false,
-//           },
-//           presentation: {
-//             slidesLength: input.presentation.slidesLength,
-//             currentSlide: {
-//               ...input.presentation.currentSlide,
-//             }
-//           }
-//         }, INITIAL_INPUT_STATE),
-//       })
-//     }
-//     this.throttledCalculatesLayout();
-//   }
+  mainWidth() {
+    const { newLayoutContextState } = this.props;
+    const { layoutLoaded } = newLayoutContextState;
+    const wWidth = window.document.documentElement.clientWidth;
 
-//   reset() {
-//     this.init();
-//   }
+    if (layoutLoaded === 'both') return wWidth / 2;
+    return wWidth;
+  }
 
-//   calculatesNavbarBounds(mediaAreaBounds) {
-//     return {
-//       width: windowWidth() - mediaAreaBounds.left,
-//       height: DEFAULT_VALUES.navBarHeight,
-//       top: DEFAULT_VALUES.navBarTop,
-//       left: mediaAreaBounds.left,
-//       zIndex: 1,
-//     }
-//   }
+  mainHeight() {
+    const { newLayoutContextState } = this.props;
+    const { layoutLoaded } = newLayoutContextState;
+    const wHeight = window.document.documentElement.clientHeight;
 
-//   calculatesActionbarBounds(mediaAreaBounds) {
-//     const { contextState } = this.props;
-//     const { input } = contextState;
-//     return {
-//       display: input.actionBar.hasActionBar,
-//       width: windowWidth() - mediaAreaBounds.left,
-//       height: DEFAULT_VALUES.actionBarHeight,
-//       top: windowHeight() - DEFAULT_VALUES.actionBarHeight,
-//       left: mediaAreaBounds.left,
-//       zIndex: 1,
-//     }
-//   }
+    if (layoutLoaded === 'both') return wHeight / 2;
+    return wHeight;
+  }
 
-//   calculatesSidebarNavWidth() {
-//     const { contextState } = this.props;
-//     const { deviceType, input } = contextState;
-//     const {
-//       sidebarNavMinWidth,
-//       sidebarNavMaxWidth,
-//     } = DEFAULT_VALUES;
-//     let minWidth = 0;
-//     let width = 0;
-//     let maxWidth = 0;
-//     if (input.sidebarNavigation.isOpen) {
-//       if (deviceType === DEVICE_TYPE.MOBILE) {
-//         minWidth = windowWidth();
-//         width = windowWidth();
-//         maxWidth = windowWidth();
-//       } else {
-//         if (input.sidebarNavigation.width === 0) {
-//           width = min(max((windowWidth() * 0.2), sidebarNavMinWidth), sidebarNavMaxWidth);
-//         } else {
-//           width = min(max(input.sidebarNavigation.width, sidebarNavMinWidth), sidebarNavMaxWidth);
-//         }
-//         minWidth = sidebarNavMinWidth;
-//         maxWidth = sidebarNavMaxWidth;
-//       }
-//     }
-//     return {
-//       minWidth,
-//       width,
-//       maxWidth,
-//     };
-//   }
+  init() {
+    const { newLayoutContextState, newLayoutContextDispatch } = this.props;
+    const { deviceType, input } = newLayoutContextState;
+    if (deviceType === DEVICE_TYPE.MOBILE) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_LAYOUT_INPUT,
+        value: defaultsDeep({
+          sidebarNavigation: {
+            isOpen: false,
+          },
+          sidebarContent: {
+            isOpen: false,
+          },
+          SidebarContentHorizontalResizer: {
+            isOpen: false,
+          },
+          presentation: {
+            slidesLength: input.presentation.slidesLength,
+            currentSlide: {
+              ...input.presentation.currentSlide,
+            },
+          },
+          cameraDock: {
+            numCameras: input.cameraDock.numCameras,
+          },
+        }, INITIAL_INPUT_STATE),
+      });
+    }
+    if (deviceType !== DEVICE_TYPE.MOBILE) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_LAYOUT_INPUT,
+        value: defaultsDeep({
+          sidebarNavigation: {
+            isOpen: true,
+          },
+          sidebarContent: {
+            isOpen: deviceType === DEVICE_TYPE.TABLET_LANDSCAPE
+              || deviceType === DEVICE_TYPE.DESKTOP,
+          },
+          SidebarContentHorizontalResizer: {
+            isOpen: false,
+          },
+          presentation: {
+            slidesLength: input.presentation.slidesLength,
+            currentSlide: {
+              ...input.presentation.currentSlide,
+            },
+          },
+          cameraDock: {
+            numCameras: input.cameraDock.numCameras,
+          },
+        }, INITIAL_INPUT_STATE),
+      });
+    }
+    this.throttledCalculatesLayout();
+  }
 
-//   calculatesSidebarNavHeight() {
-//     const { contextState } = this.props;
-//     const { input } = contextState;
-//     let sidebarNavHeight = 0;
-//     if (input.sidebarNavigation.isOpen) {
-//       sidebarNavHeight = windowHeight();
-//     }
-//     return sidebarNavHeight;
-//   }
+  reset() {
+    this.init();
+  }
 
-//   calculatesSidebarNavBounds() {
-//     const { contextState } = this.props;
-//     const { deviceType } = contextState;
-//     return {
-//       top: DEFAULT_VALUES.sidebarNavTop,
-//       left: DEFAULT_VALUES.sidebarNavLeft,
-//       zIndex: deviceType === DEVICE_TYPE.MOBILE ? 10 : 2,
-//     }
-//   }
+  calculatesNavbarBounds(mediaAreaBounds) {
+    const { newLayoutContextState } = this.props;
+    const { layoutLoaded } = newLayoutContextState;
 
-//   calculatesSidebarContentWidth() {
-//     const { contextState } = this.props;
-//     const { deviceType, input } = contextState;
-//     const {
-//       sidebarContentMinWidth,
-//       sidebarContentMaxWidth,
-//     } = DEFAULT_VALUES;
-//     let minWidth = 0;
-//     let width = 0;
-//     let maxWidth = 0;
-//     if (input.sidebarContent.isOpen) {
-//       if (deviceType === DEVICE_TYPE.MOBILE) {
-//         minWidth = windowWidth();
-//         width = windowWidth();
-//         maxWidth = windowWidth();
-//       } else {
-//         if (input.sidebarContent.width === 0) {
-//           width = min(max((windowWidth() * 0.2), sidebarContentMinWidth), sidebarContentMaxWidth);
-//         } else {
-//           width = min(max(input.sidebarContent.width, sidebarContentMinWidth), sidebarContentMaxWidth);
-//         }
-//         minWidth = sidebarContentMinWidth;
-//         maxWidth = sidebarContentMaxWidth;
-//       }
-//     }
-//     return {
-//       minWidth,
-//       width,
-//       maxWidth,
-//     };
-//   }
+    let top = 0;
+    if (layoutLoaded === 'both') top = this.mainHeight() / 2;
+    else top = DEFAULT_VALUES.navBarTop;
 
-//   calculatesSidebarContentHeight(cameraDockHeight) {
-//     const { contextState } = this.props;
-//     const { deviceType, input } = contextState;
-//     let sidebarContentHeight = 0;
-//     if (input.sidebarContent.isOpen) {
-//       if (deviceType === DEVICE_TYPE.MOBILE || input.cameraDock.numCameras < 1) {
-//         sidebarContentHeight = windowHeight();
-//       } else {
-//         sidebarContentHeight = windowHeight() - cameraDockHeight;
-//       }
-//     } else {
-//       sidebarContentHeight = 0;
-//     }
-//     return sidebarContentHeight;
-//   }
+    return {
+      width: this.mainWidth() - mediaAreaBounds.left,
+      height: DEFAULT_VALUES.navBarHeight,
+      top,
+      left: mediaAreaBounds.left,
+      zIndex: 1,
+    };
+  }
 
-//   calculatesSidebarContentBounds(sidebarNavWidth) {
-//     const { contextState } = this.props;
-//     const { deviceType } = contextState;
-//     return {
-//       top: 0,
-//       left: deviceType === DEVICE_TYPE.MOBILE || deviceType === DEVICE_TYPE.TABLET_PORTRAIT ? 0 : sidebarNavWidth,
-//       zIndex: deviceType === DEVICE_TYPE.MOBILE ? 11 : 2,
-//     }
-//   }
+  calculatesActionbarBounds(mediaAreaBounds) {
+    const { newLayoutContextState } = this.props;
+    const { input } = newLayoutContextState;
+    return {
+      display: input.actionBar.hasActionBar,
+      width: this.mainWidth() - mediaAreaBounds.left,
+      height: DEFAULT_VALUES.actionBarHeight,
+      top: this.mainHeight() - DEFAULT_VALUES.actionBarHeight,
+      left: mediaAreaBounds.left,
+      zIndex: 1,
+    };
+  }
 
-//   calculatesMediaAreaBounds(sidebarNavWidth, sidebarContentWidth) {
-//     const { contextState } = this.props;
-//     const { deviceType, input } = contextState;
-//     const { sidebarContent } = input;
-//     let left = 0;
-//     let width = 0;
-//     if (deviceType === DEVICE_TYPE.MOBILE) {
-//       left = 0;
-//       width = windowWidth();
-//     } else if (deviceType === DEVICE_TYPE.TABLET_PORTRAIT) {
-//       if (sidebarContent.isOpen) {
-//         left = sidebarContentWidth;
-//         width = windowWidth() - sidebarContentWidth;
-//       } else {
-//         left = sidebarNavWidth;
-//         width = windowWidth() - sidebarNavWidth;
-//       }
-//     } else {
-//       left = sidebarNavWidth + sidebarContentWidth;
-//       width = windowWidth() - sidebarNavWidth - sidebarContentWidth;
-//     }
+  calculatesSidebarNavWidth() {
+    const { newLayoutContextState } = this.props;
+    const { deviceType, input } = newLayoutContextState;
+    const {
+      sidebarNavMinWidth,
+      sidebarNavMaxWidth,
+    } = DEFAULT_VALUES;
+    let minWidth = 0;
+    let width = 0;
+    let maxWidth = 0;
+    if (input.sidebarNavigation.isOpen) {
+      if (deviceType === DEVICE_TYPE.MOBILE) {
+        minWidth = this.mainWidth();
+        width = this.mainWidth();
+        maxWidth = this.mainWidth();
+      } else {
+        if (input.sidebarNavigation.width === 0) {
+          width = min(max((this.mainWidth() * 0.2), sidebarNavMinWidth), sidebarNavMaxWidth);
+        } else {
+          width = min(max(input.sidebarNavigation.width, sidebarNavMinWidth), sidebarNavMaxWidth);
+        }
+        minWidth = sidebarNavMinWidth;
+        maxWidth = sidebarNavMaxWidth;
+      }
+    }
+    return {
+      minWidth,
+      width,
+      maxWidth,
+    };
+  }
 
-//     return {
-//       width,
-//       height: windowHeight() - (DEFAULT_VALUES.navBarHeight + DEFAULT_VALUES.actionBarHeight),
-//       top: DEFAULT_VALUES.navBarHeight,
-//       left,
-//     }
-//   }
+  calculatesSidebarNavHeight() {
+    const { newLayoutContextState } = this.props;
+    const { input } = newLayoutContextState;
+    let sidebarNavHeight = 0;
+    if (input.sidebarNavigation.isOpen) {
+      sidebarNavHeight = this.mainHeight();
+    }
+    return sidebarNavHeight;
+  }
 
-//   calculatesCameraDockBounds(presentationBounds, mediaAreaBounds, sidebarNavWidth, sidebarContentWidth) {
-//     const { contextState } = this.props;
-//     const { deviceType, input } = contextState;
-//     let cameraDockBounds = {};
+  calculatesSidebarNavBounds() {
+    const { newLayoutContextState } = this.props;
+    const { deviceType, layoutLoaded } = newLayoutContextState;
 
-//     if (input.cameraDock.isFullscreen) {
-//       cameraDockBounds.width = windowWidth();
-//       cameraDockBounds.minWidth = windowWidth();
-//       cameraDockBounds.maxWidth = windowWidth();
-//       cameraDockBounds.height = windowHeight();
-//       cameraDockBounds.minHeight = windowHeight();
-//       cameraDockBounds.maxHeight = windowHeight();
-//       cameraDockBounds.top = 0;
-//       cameraDockBounds.left = 0;
-//       cameraDockBounds.zIndex = 99;
-//       return cameraDockBounds;
-//     }
+    let top = 0;
+    if (layoutLoaded === 'both') top = this.mainHeight() / 2;
+    else top = DEFAULT_VALUES.sidebarNavTop;
 
-//     if (input.cameraDock.numCameras > 0) {
-//       let cameraDockHeight = 0;
-//       if (deviceType === DEVICE_TYPE.MOBILE) {
-//         cameraDockBounds.top = mediaAreaBounds.top + presentationBounds.height;
-//         cameraDockBounds.left = mediaAreaBounds.left;
-//         cameraDockBounds.minWidth = mediaAreaBounds.width;
-//         cameraDockBounds.width = mediaAreaBounds.width;
-//         cameraDockBounds.maxWidth = mediaAreaBounds.width;
-//         cameraDockBounds.minHeight = DEFAULT_VALUES.cameraDockMinHeight;
-//         cameraDockBounds.height = mediaAreaBounds.height - presentationBounds.height;
-//         cameraDockBounds.maxHeight = mediaAreaBounds.height - presentationBounds.height;
-//       } else {
-//         if (input.cameraDock.height === 0) {
-//           cameraDockHeight = min(max((windowHeight() * 0.2), DEFAULT_VALUES.cameraDockMinHeight), (windowHeight() - DEFAULT_VALUES.cameraDockMinHeight));
-//         } else {
-//           cameraDockHeight = min(max(input.cameraDock.height, DEFAULT_VALUES.cameraDockMinHeight), (windowHeight() - DEFAULT_VALUES.cameraDockMinHeight));
-//         }
-//         cameraDockBounds.top = windowHeight() - cameraDockHeight;
-//         cameraDockBounds.left = sidebarNavWidth;
-//         cameraDockBounds.minWidth = sidebarContentWidth;
-//         cameraDockBounds.width = sidebarContentWidth;
-//         cameraDockBounds.maxWidth = sidebarContentWidth;
-//         cameraDockBounds.minHeight = DEFAULT_VALUES.cameraDockMinHeight;
-//         cameraDockBounds.height = cameraDockHeight;
-//         cameraDockBounds.maxHeight = windowHeight() * 0.8;
-//         cameraDockBounds.zIndex = 1;
-//       }
-//     } else {
-//       cameraDockBounds.width = 0;
-//       cameraDockBounds.height = 0;
-//     }
-//     return cameraDockBounds;
-//   }
+    return {
+      top,
+      left: DEFAULT_VALUES.sidebarNavLeft,
+      zIndex: deviceType === DEVICE_TYPE.MOBILE ? 10 : 2,
+    };
+  }
 
-//   calculatesPresentationBounds(mediaAreaBounds) {
-//     const { contextState } = this.props;
-//     const { deviceType, input } = contextState;
-//     let presentationBounds = {};
+  calculatesSidebarContentWidth() {
+    const { newLayoutContextState } = this.props;
+    const { deviceType, input } = newLayoutContextState;
+    const {
+      sidebarContentMinWidth,
+      sidebarContentMaxWidth,
+    } = DEFAULT_VALUES;
+    let minWidth = 0;
+    let width = 0;
+    let maxWidth = 0;
+    if (input.sidebarContent.isOpen) {
+      if (deviceType === DEVICE_TYPE.MOBILE) {
+        minWidth = this.mainWidth();
+        width = this.mainWidth();
+        maxWidth = this.mainWidth();
+      } else {
+        if (input.sidebarContent.width === 0) {
+          width = min(
+            max((this.mainWidth() * 0.2), sidebarContentMinWidth), sidebarContentMaxWidth,
+          );
+        } else {
+          width = min(max(input.sidebarContent.width, sidebarContentMinWidth),
+            sidebarContentMaxWidth);
+        }
+        minWidth = sidebarContentMinWidth;
+        maxWidth = sidebarContentMaxWidth;
+      }
+    }
+    return {
+      minWidth,
+      width,
+      maxWidth,
+    };
+  }
 
-//     if (input.presentation.isFullscreen) {
-//       presentationBounds.width = windowWidth();
-//       presentationBounds.height = windowHeight();
-//       presentationBounds.top = 0;
-//       presentationBounds.left = 0;
-//       presentationBounds.zIndex = 99;
-//       return presentationBounds;
-//     }
+  calculatesSidebarContentHeight(cameraDockHeight) {
+    const { newLayoutContextState } = this.props;
+    const { deviceType, input } = newLayoutContextState;
+    let sidebarContentHeight = 0;
+    if (input.sidebarContent.isOpen) {
+      if (deviceType === DEVICE_TYPE.MOBILE || input.cameraDock.numCameras < 1) {
+        sidebarContentHeight = this.mainHeight();
+      } else {
+        sidebarContentHeight = this.mainHeight() - cameraDockHeight;
+      }
+    } else {
+      sidebarContentHeight = 0;
+    }
+    return sidebarContentHeight;
+  }
 
-//     if (deviceType === DEVICE_TYPE.MOBILE && input.cameraDock.numCameras > 0) {
-//       presentationBounds.height = mediaAreaBounds.height * 0.7;
-//     } else {
-//       presentationBounds.height = mediaAreaBounds.height;
-//     }
-//     presentationBounds.width = mediaAreaBounds.width;
-//     presentationBounds.top = DEFAULT_VALUES.navBarHeight;
-//     presentationBounds.left = mediaAreaBounds.left;
-//     presentationBounds.zIndex = 1;
+  calculatesSidebarContentBounds(sidebarNavWidth) {
+    const { newLayoutContextState } = this.props;
+    const { deviceType, layoutLoaded } = newLayoutContextState;
 
-//     return presentationBounds;
-//   }
+    let top = 0;
+    if (layoutLoaded === 'both') top = this.mainHeight() / 2;
+    else top = DEFAULT_VALUES.sidebarNavTop;
 
-//   calculatesLayout() {
-//     const { contextState, contextDispatch } = this.props;
-//     const { deviceType, input } = contextState;
+    return {
+      top,
+      left: deviceType === DEVICE_TYPE.MOBILE
+        || deviceType === DEVICE_TYPE.TABLET_PORTRAIT ? 0 : sidebarNavWidth,
+      zIndex: deviceType === DEVICE_TYPE.MOBILE ? 11 : 2,
+    };
+  }
 
-//     const sidebarNavWidth = this.calculatesSidebarNavWidth();
-//     const sidebarNavHeight = this.calculatesSidebarNavHeight();
-//     const sidebarContentWidth = this.calculatesSidebarContentWidth();
-//     const sidebarNavBounds = this.calculatesSidebarNavBounds(sidebarNavWidth.width, sidebarContentWidth.width);
-//     const sidebarContentBounds = this.calculatesSidebarContentBounds(sidebarNavWidth.width, sidebarContentWidth.width);
-//     const mediaAreaBounds = this.calculatesMediaAreaBounds(sidebarNavWidth.width, sidebarContentWidth.width);
-//     const navbarBounds = this.calculatesNavbarBounds(mediaAreaBounds);
-//     const actionbarBounds = this.calculatesActionbarBounds(mediaAreaBounds);
-//     const presentationBounds = this.calculatesPresentationBounds(mediaAreaBounds);
-//     const cameraDockBounds = this.calculatesCameraDockBounds(presentationBounds, mediaAreaBounds, sidebarNavWidth.width, sidebarContentWidth.width);
-//     const sidebarContentHeight = this.calculatesSidebarContentHeight(cameraDockBounds.height);
+  calculatesMediaAreaBounds(sidebarNavWidth, sidebarContentWidth) {
+    const { newLayoutContextState } = this.props;
+    const { deviceType, input, layoutLoaded } = newLayoutContextState;
+    const { sidebarContent } = input;
+    let left = 0;
+    let width = 0;
+    let top = 0;
+    if (deviceType === DEVICE_TYPE.MOBILE) {
+      left = 0;
+      width = this.mainWidth();
+    } else if (deviceType === DEVICE_TYPE.TABLET_PORTRAIT) {
+      if (sidebarContent.isOpen) {
+        left = sidebarContentWidth;
+        width = this.mainWidth() - sidebarContentWidth;
+      } else {
+        left = sidebarNavWidth;
+        width = this.mainWidth() - sidebarNavWidth;
+      }
+    } else {
+      left = sidebarNavWidth + sidebarContentWidth;
+      width = this.mainWidth() - sidebarNavWidth - sidebarContentWidth;
+    }
 
-//     contextDispatch({
-//       type: ACTIONS.SET_NAVBAR_OUTPUT,
-//       value: {
-//         display: input.navBar.hasNavBar,
-//         width: navbarBounds.width,
-//         height: navbarBounds.height,
-//         top: navbarBounds.top,
-//         left: navbarBounds.left,
-//         tabOrder: DEFAULT_VALUES.navBarTabOrder,
-//         zIndex: navbarBounds.zIndex,
-//       }
-//     });
+    if (layoutLoaded === 'both') top = this.mainHeight() / 2;
+    else top = DEFAULT_VALUES.navBarHeight;
 
-//     contextDispatch({
-//       type: ACTIONS.SET_ACTIONBAR_OUTPUT,
-//       value: {
-//         display: input.actionBar.hasActionBar,
-//         width: actionbarBounds.width,
-//         height: actionbarBounds.height,
-//         top: actionbarBounds.top,
-//         left: actionbarBounds.left,
-//         tabOrder: DEFAULT_VALUES.actionBarTabOrder,
-//         zIndex: actionbarBounds.zIndex,
-//       }
-//     });
+    return {
+      width,
+      height: this.mainHeight() - (DEFAULT_VALUES.navBarHeight + DEFAULT_VALUES.actionBarHeight),
+      top,
+      left,
+    };
+  }
 
-//     contextDispatch({
-//       type: ACTIONS.SET_SIDEBAR_NAVIGATION_OUTPUT,
-//       value: {
-//         display: input.sidebarNavigation.isOpen,
-//         minWidth: sidebarNavWidth.minWidth,
-//         width: sidebarNavWidth.width,
-//         maxWidth: sidebarNavWidth.maxWidth,
-//         height: sidebarNavHeight,
-//         top: sidebarNavBounds.top,
-//         left: sidebarNavBounds.left,
-//         tabOrder: DEFAULT_VALUES.sidebarNavTabOrder,
-//         isResizable: deviceType === DEVICE_TYPE.MOBILE
-//           || deviceType === DEVICE_TYPE.TABLET ? false : true,
-//         zIndex: sidebarNavBounds.zIndex,
-//       }
-//     });
+  calculatesCameraDockBounds(
+    presentationBounds,
+    mediaAreaBounds,
+    sidebarNavWidth,
+    sidebarContentWidth,
+  ) {
+    const { newLayoutContextState } = this.props;
+    const { deviceType, input } = newLayoutContextState;
+    const cameraDockBounds = {};
 
-//     contextDispatch({
-//       type: ACTIONS.SET_SIDEBAR_NAVIGATION_RESIZABLE_EDGE,
-//       value: {
-//         top: false,
-//         right: true,
-//         bottom: false,
-//         left: false,
-//       },
-//     });
+    if (input.cameraDock.isFullscreen) {
+      cameraDockBounds.width = this.mainWidth();
+      cameraDockBounds.minWidth = this.mainWidth();
+      cameraDockBounds.maxWidth = this.mainWidth();
+      cameraDockBounds.height = this.mainHeight();
+      cameraDockBounds.minHeight = this.mainHeight();
+      cameraDockBounds.maxHeight = this.mainHeight();
+      cameraDockBounds.top = 0;
+      cameraDockBounds.left = 0;
+      cameraDockBounds.zIndex = 99;
+      return cameraDockBounds;
+    }
 
-//     contextDispatch({
-//       type: ACTIONS.SET_SIDEBAR_CONTENT_OUTPUT,
-//       value: {
-//         display: input.sidebarContent.isOpen,
-//         minWidth: sidebarContentWidth.minWidth,
-//         width: sidebarContentWidth.width,
-//         maxWidth: sidebarContentWidth.maxWidth,
-//         height: sidebarContentHeight,
-//         top: sidebarContentBounds.top,
-//         left: sidebarContentBounds.left,
-//         currentPanelType: input.currentPanelType,
-//         tabOrder: DEFAULT_VALUES.sidebarContentTabOrder,
-//         isResizable: deviceType === DEVICE_TYPE.MOBILE
-//           || deviceType === DEVICE_TYPE.TABLET ? false : true,
-//         zIndex: sidebarContentBounds.zIndex,
-//       },
-//     });
+    if (input.cameraDock.numCameras > 0) {
+      let cameraDockHeight = 0;
+      if (deviceType === DEVICE_TYPE.MOBILE) {
+        cameraDockBounds.top = mediaAreaBounds.top + presentationBounds.height;
+        cameraDockBounds.left = mediaAreaBounds.left;
+        cameraDockBounds.minWidth = mediaAreaBounds.width;
+        cameraDockBounds.width = mediaAreaBounds.width;
+        cameraDockBounds.maxWidth = mediaAreaBounds.width;
+        cameraDockBounds.minHeight = DEFAULT_VALUES.cameraDockMinHeight;
+        cameraDockBounds.height = mediaAreaBounds.height - presentationBounds.height;
+        cameraDockBounds.maxHeight = mediaAreaBounds.height - presentationBounds.height;
+      } else {
+        if (input.cameraDock.height === 0) {
+          cameraDockHeight = min(
+            max((this.mainHeight() * 0.2), DEFAULT_VALUES.cameraDockMinHeight),
+            (this.mainHeight() - DEFAULT_VALUES.cameraDockMinHeight),
+          );
+        } else {
+          cameraDockHeight = min(
+            max(input.cameraDock.height, DEFAULT_VALUES.cameraDockMinHeight),
+            (this.mainHeight() - DEFAULT_VALUES.cameraDockMinHeight),
+          );
+        }
+        cameraDockBounds.top = this.mainHeight() - cameraDockHeight;
+        cameraDockBounds.left = sidebarNavWidth;
+        cameraDockBounds.minWidth = sidebarContentWidth;
+        cameraDockBounds.width = sidebarContentWidth;
+        cameraDockBounds.maxWidth = sidebarContentWidth;
+        cameraDockBounds.minHeight = DEFAULT_VALUES.cameraDockMinHeight;
+        cameraDockBounds.height = cameraDockHeight;
+        cameraDockBounds.maxHeight = this.mainHeight() * 0.8;
+        cameraDockBounds.zIndex = 1;
+      }
+    } else {
+      cameraDockBounds.width = 0;
+      cameraDockBounds.height = 0;
+    }
+    return cameraDockBounds;
+  }
 
-//     contextDispatch({
-//       type: ACTIONS.SET_SIDEBAR_CONTENT_RESIZABLE_EDGE,
-//       value: {
-//         top: false,
-//         right: true,
-//         bottom: false,
-//         left: false,
-//       },
-//     });
+  calculatesPresentationBounds(mediaAreaBounds) {
+    const { newLayoutContextState } = this.props;
+    const { deviceType, input } = newLayoutContextState;
+    const presentationBounds = {};
 
-//     contextDispatch({
-//       type: ACTIONS.SET_MEDIA_AREA_SIZE,
-//       value: {
-//         width: mediaAreaBounds.width,
-//         height: mediaAreaBounds.height,
-//       }
-//     });
+    if (input.presentation.isFullscreen) {
+      presentationBounds.width = this.mainWidth();
+      presentationBounds.height = this.mainHeight();
+      presentationBounds.top = 0;
+      presentationBounds.left = 0;
+      presentationBounds.zIndex = 99;
+      return presentationBounds;
+    }
 
-//     contextDispatch({
-//       type: ACTIONS.SET_CAMERA_DOCK_OUTPUT,
-//       value: {
-//         display: input.cameraDock.numCameras > 0,
-//         minWidth: cameraDockBounds.minWidth,
-//         width: cameraDockBounds.width,
-//         maxWidth: cameraDockBounds.maxWidth,
-//         minHeight: cameraDockBounds.minHeight,
-//         height: cameraDockBounds.height,
-//         maxHeight: cameraDockBounds.maxHeight,
-//         top: cameraDockBounds.top,
-//         left: cameraDockBounds.left,
-//         tabOrder: 4,
-//         isDraggable: false,
-//         isResizable: deviceType === DEVICE_TYPE.MOBILE
-//           || deviceType === DEVICE_TYPE.TABLET ? false : true,
-//         zIndex: cameraDockBounds.zIndex,
-//       }
-//     });
+    if (deviceType === DEVICE_TYPE.MOBILE && input.cameraDock.numCameras > 0) {
+      presentationBounds.height = mediaAreaBounds.height * 0.7;
+    } else {
+      presentationBounds.height = mediaAreaBounds.height;
+    }
+    presentationBounds.width = mediaAreaBounds.width;
+    presentationBounds.top = DEFAULT_VALUES.navBarHeight;
+    presentationBounds.left = mediaAreaBounds.left;
+    presentationBounds.zIndex = 1;
 
-//     contextDispatch({
-//       type: ACTIONS.SET_CAMERA_DOCK_RESIZABLE_EDGE,
-//       value: {
-//         top: true,
-//         right: false,
-//         bottom: false,
-//         left: false,
-//       },
-//     });
+    return presentationBounds;
+  }
 
-//     contextDispatch({
-//       type: ACTIONS.SET_PRESENTATION_OUTPUT,
-//       value: {
-//         display: input.presentation.isOpen,
-//         width: presentationBounds.width,
-//         height: presentationBounds.height,
-//         top: presentationBounds.top,
-//         left: presentationBounds.left,
-//         tabOrder: DEFAULT_VALUES.presentationTabOrder,
-//         isResizable: false,
-//         zIndex: presentationBounds.zIndex,
-//       }
-//     });
-//   }
+  calculatesLayout() {
+    const { newLayoutContextState, newLayoutContextDispatch } = this.props;
+    const { deviceType, input } = newLayoutContextState;
 
-//   render() {
-//     return (
-//       <Fragment />
-//     );
-//   }
-// }
+    const sidebarNavWidth = this.calculatesSidebarNavWidth();
+    const sidebarNavHeight = this.calculatesSidebarNavHeight();
+    const sidebarContentWidth = this.calculatesSidebarContentWidth();
+    const sidebarNavBounds = this.calculatesSidebarNavBounds(
+      sidebarNavWidth.width, sidebarContentWidth.width,
+    );
+    const sidebarContentBounds = this.calculatesSidebarContentBounds(
+      sidebarNavWidth.width, sidebarContentWidth.width,
+    );
+    const mediaAreaBounds = this.calculatesMediaAreaBounds(
+      sidebarNavWidth.width, sidebarContentWidth.width,
+    );
+    const navbarBounds = this.calculatesNavbarBounds(mediaAreaBounds);
+    const actionbarBounds = this.calculatesActionbarBounds(mediaAreaBounds);
+    const presentationBounds = this.calculatesPresentationBounds(mediaAreaBounds);
+    const cameraDockBounds = this.calculatesCameraDockBounds(
+      presentationBounds, mediaAreaBounds, sidebarNavWidth.width, sidebarContentWidth.width,
+    );
+    const sidebarContentHeight = this.calculatesSidebarContentHeight(cameraDockBounds.height);
 
-// export default LayoutContext.withConsumer(PresentationFocusLayout);
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_NAVBAR_OUTPUT,
+      value: {
+        display: input.navBar.hasNavBar,
+        width: navbarBounds.width,
+        height: navbarBounds.height,
+        top: navbarBounds.top,
+        left: navbarBounds.left,
+        tabOrder: DEFAULT_VALUES.navBarTabOrder,
+        zIndex: navbarBounds.zIndex,
+      },
+    });
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_ACTIONBAR_OUTPUT,
+      value: {
+        display: input.actionBar.hasActionBar,
+        width: actionbarBounds.width,
+        height: actionbarBounds.height,
+        top: actionbarBounds.top,
+        left: actionbarBounds.left,
+        tabOrder: DEFAULT_VALUES.actionBarTabOrder,
+        zIndex: actionbarBounds.zIndex,
+      },
+    });
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_NAVIGATION_OUTPUT,
+      value: {
+        display: input.sidebarNavigation.isOpen,
+        minWidth: sidebarNavWidth.minWidth,
+        width: sidebarNavWidth.width,
+        maxWidth: sidebarNavWidth.maxWidth,
+        height: sidebarNavHeight,
+        top: sidebarNavBounds.top,
+        left: sidebarNavBounds.left,
+        tabOrder: DEFAULT_VALUES.sidebarNavTabOrder,
+        isResizable: deviceType !== DEVICE_TYPE.MOBILE
+          && deviceType !== DEVICE_TYPE.TABLET,
+        zIndex: sidebarNavBounds.zIndex,
+      },
+    });
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_NAVIGATION_RESIZABLE_EDGE,
+      value: {
+        top: false,
+        right: true,
+        bottom: false,
+        left: false,
+      },
+    });
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_OUTPUT,
+      value: {
+        display: input.sidebarContent.isOpen,
+        minWidth: sidebarContentWidth.minWidth,
+        width: sidebarContentWidth.width,
+        maxWidth: sidebarContentWidth.maxWidth,
+        height: sidebarContentHeight,
+        top: sidebarContentBounds.top,
+        left: sidebarContentBounds.left,
+        currentPanelType: input.currentPanelType,
+        tabOrder: DEFAULT_VALUES.sidebarContentTabOrder,
+        isResizable: deviceType !== DEVICE_TYPE.MOBILE
+          && deviceType !== DEVICE_TYPE.TABLET,
+        zIndex: sidebarContentBounds.zIndex,
+      },
+    });
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_RESIZABLE_EDGE,
+      value: {
+        top: false,
+        right: true,
+        bottom: false,
+        left: false,
+      },
+    });
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_MEDIA_AREA_SIZE,
+      value: {
+        width: mediaAreaBounds.width,
+        height: mediaAreaBounds.height,
+      },
+    });
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_CAMERA_DOCK_OUTPUT,
+      value: {
+        display: input.cameraDock.numCameras > 0,
+        minWidth: cameraDockBounds.minWidth,
+        width: cameraDockBounds.width,
+        maxWidth: cameraDockBounds.maxWidth,
+        minHeight: cameraDockBounds.minHeight,
+        height: cameraDockBounds.height,
+        maxHeight: cameraDockBounds.maxHeight,
+        top: cameraDockBounds.top,
+        left: cameraDockBounds.left,
+        tabOrder: 4,
+        isDraggable: false,
+        isResizable: deviceType !== DEVICE_TYPE.MOBILE
+          && deviceType !== DEVICE_TYPE.TABLET,
+        zIndex: cameraDockBounds.zIndex,
+      },
+    });
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_CAMERA_DOCK_RESIZABLE_EDGE,
+      value: {
+        top: true,
+        right: false,
+        bottom: false,
+        left: false,
+      },
+    });
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_OUTPUT,
+      value: {
+        display: input.presentation.isOpen,
+        width: presentationBounds.width,
+        height: presentationBounds.height,
+        top: presentationBounds.top,
+        left: presentationBounds.left,
+        tabOrder: DEFAULT_VALUES.presentationTabOrder,
+        isResizable: false,
+        zIndex: presentationBounds.zIndex,
+      },
+    });
+  }
+
+  render() {
+    return (
+      <Fragment />
+    );
+  }
+}
+
+export default NewLayoutContext.withConsumer(PresentationFocusLayout);

@@ -351,6 +351,10 @@ class BreakoutRoom extends PureComponent {
           className={styles.header}
           onClick={() => {
             newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: false,
+            });
+            newLayoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
               value: PANELS.NONE,
             });
@@ -369,6 +373,10 @@ class BreakoutRoom extends PureComponent {
                 label={intl.formatMessage(intlMessages.endAllBreakouts)}
                 className={styles.endButton}
                 onClick={() => {
+                  newLayoutContextDispatch({
+                    type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                    value: false,
+                  });
                   newLayoutContextDispatch({
                     type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                     value: PANELS.NONE,

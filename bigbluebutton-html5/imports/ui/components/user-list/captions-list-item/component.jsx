@@ -44,6 +44,10 @@ const CaptionsListItem = (props) => {
         Session.set('captionsLocale', locale);
       } else {
         newLayoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+          value: false,
+        });
+        newLayoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
           value: PANELS.NONE,
         });

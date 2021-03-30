@@ -385,7 +385,8 @@ class App extends Component {
 
     return (
       <Fragment>
-        <CustomLayout />
+        {/* <CustomLayout /> */}
+        {this.renderLayoutManager()}
         {(layoutManagerLoaded === 'legacy' || layoutManagerLoaded === 'both')
           && (
             <main

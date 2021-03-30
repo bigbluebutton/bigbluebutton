@@ -66,6 +66,10 @@ const Chat = (props) => {
           <Button
             onClick={() => {
               newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                value: false,
+              });
+              newLayoutContextDispatch({
                 type: ACTIONS.SET_ID_CHAT_OPEN,
                 value: '',
               });
@@ -93,6 +97,10 @@ const Chat = (props) => {
                 hideLabel
                 onClick={() => {
                   actions.handleClosePrivateChat(chatID);
+                  newLayoutContextDispatch({
+                    type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                    value: false,
+                  });
                   newLayoutContextDispatch({
                     type: ACTIONS.SET_ID_CHAT_OPEN,
                     value: '',

@@ -99,8 +99,17 @@ class Base extends Component {
     if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.type().isPhone) {
       if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
         newLayoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+          value: true,
+        });
+        newLayoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
           value: PANELS.USERLIST,
+        });
+
+        newLayoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+          value: true,
         });
         newLayoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
@@ -112,8 +121,17 @@ class Base extends Component {
         });
       } else {
         newLayoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+          value: true,
+        });
+        newLayoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
           value: PANELS.USERLIST,
+        });
+
+        newLayoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+          value: false,
         });
         newLayoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
@@ -122,8 +140,17 @@ class Base extends Component {
       }
     } else {
       newLayoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+        value: false,
+      });
+      newLayoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
         value: PANELS.NONE,
+      });
+
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+        value: false,
       });
       newLayoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
@@ -186,6 +213,7 @@ class Base extends Component {
       subscriptionsReady,
       meetingIsBreakout,
       layoutContextDispatch,
+      newLayoutContextDispatch,
       usersVideo,
     } = this.props;
     const {
@@ -198,6 +226,10 @@ class Base extends Component {
     }
 
     if (usersVideo !== prevProps.usersVideo) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_NUM_CAMERAS,
+        value: usersVideo.length,
+      });
       layoutContextDispatch(
         {
           type: 'setUsersVideo',

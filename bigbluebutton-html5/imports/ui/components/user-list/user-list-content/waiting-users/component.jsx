@@ -30,6 +30,10 @@ const WaitingUsers = ({
 }) => {
   const toggleWaitingPanel = () => {
     newLayoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+      value: sidebarContentPanel !== PANELS.WAITING_USERS,
+    });
+    newLayoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
       value: sidebarContentPanel === PANELS.WAITING_USERS
         ? PANELS.NONE

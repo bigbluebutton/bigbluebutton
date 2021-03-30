@@ -20,6 +20,10 @@ const BreakoutRoomItem = ({
 }) => {
   const toggleBreakoutPanel = () => {
     newLayoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+      value: sidebarContentPanel !== PANELS.BREAKOUT,
+    });
+    newLayoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
       value: sidebarContentPanel === PANELS.BREAKOUT
         ? PANELS.NONE

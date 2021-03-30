@@ -1,13 +1,13 @@
 import { Component } from 'react';
 import _ from 'lodash';
-import LayoutContext from '../context/context';
+import NewLayoutContext from '../context/context';
 import DEFAULT_VALUES from '../defaultValues';
 import { INITIAL_INPUT_STATE } from '../context/initState';
 import { DEVICE_TYPE, ACTIONS, CAMERADOCK_POSITION } from '../enums';
 // import slides from '../../presentation/slides-mock';
 
 // const windowWidth = () => window.document.documentElement.clientWidth;
-const windowHeight = () => window.document.documentElement.clientHeight;
+// const windowHeight = () => window.document.documentElement.clientHeight;
 const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 
@@ -150,6 +150,9 @@ class CustomLayout extends Component {
               ...input.presentation.currentSlide,
             },
           },
+          cameraDock: {
+            numCameras: input.cameraDock.numCameras,
+          },
         }, INITIAL_INPUT_STATE),
       });
     }
@@ -173,6 +176,9 @@ class CustomLayout extends Component {
               ...input.presentation.currentSlide,
             },
           },
+          cameraDock: {
+            numCameras: input.cameraDock.numCameras,
+          },
         }, INITIAL_INPUT_STATE),
       });
     }
@@ -188,7 +194,7 @@ class CustomLayout extends Component {
     const { layoutLoaded } = newLayoutContextState;
 
     let top = 0;
-    if (layoutLoaded === 'both') top = windowHeight() / 2;
+    if (layoutLoaded === 'both') top = this.mainHeight() / 2;
     else top = DEFAULT_VALUES.navBarTop;
 
     return {
@@ -237,6 +243,10 @@ class CustomLayout extends Component {
         minWidth = sidebarNavMinWidth;
         maxWidth = sidebarNavMaxWidth;
       }
+    } else {
+      minWidth = 0;
+      width = 0;
+      maxWidth = 0;
     }
     return {
       minWidth,
@@ -260,7 +270,7 @@ class CustomLayout extends Component {
     const { deviceType, layoutLoaded } = newLayoutContextState;
 
     let top = 0;
-    if (layoutLoaded === 'both') top = windowHeight() / 2;
+    if (layoutLoaded === 'both') top = this.mainHeight() / 2;
     else top = DEFAULT_VALUES.sidebarNavTop;
 
     return {
@@ -297,7 +307,12 @@ class CustomLayout extends Component {
         minWidth = sidebarContentMinWidth;
         maxWidth = sidebarContentMaxWidth;
       }
+    } else {
+      minWidth = 0;
+      width = 0;
+      maxWidth = 0;
     }
+
     return {
       minWidth,
       width,
@@ -324,7 +339,7 @@ class CustomLayout extends Component {
     const { deviceType, layoutLoaded } = newLayoutContextState;
 
     let top = 0;
-    if (layoutLoaded === 'both') top = windowHeight() / 2;
+    if (layoutLoaded === 'both') top = this.mainHeight() / 2;
     else top = DEFAULT_VALUES.sidebarNavTop;
 
     return {
@@ -358,7 +373,7 @@ class CustomLayout extends Component {
       width = this.mainWidth() - sidebarNavWidth - sidebarContentWidth;
     }
 
-    if (layoutLoaded === 'both') top = windowHeight() / 2;
+    if (layoutLoaded === 'both') top = this.mainHeight() / 2;
     else top = DEFAULT_VALUES.navBarHeight;
 
     return {
@@ -774,4 +789,4 @@ class CustomLayout extends Component {
   }
 }
 
-export default LayoutContext.withConsumer(CustomLayout);
+export default NewLayoutContext.withConsumer(CustomLayout);

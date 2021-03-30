@@ -19,6 +19,10 @@ const PollContainer = ({ amIPresenter, ...props }) => {
   if (!amIPresenter) {
     Session.set('forcePollOpen', false);
     newLayoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+      value: false,
+    });
+    newLayoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
       value: PANELS.NONE,
     });

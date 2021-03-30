@@ -613,6 +613,10 @@ class Poll extends Component {
             className={styles.hideBtn}
             onClick={() => {
               newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                value: false,
+              });
+              newLayoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                 value: PANELS.NONE,
               });
@@ -623,6 +627,10 @@ class Poll extends Component {
             aria-label={`${intl.formatMessage(intlMessages.closeLabel)} ${intl.formatMessage(intlMessages.pollPaneTitle)}`}
             onClick={() => {
               if (currentPoll) stopPoll();
+              newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                value: false,
+              });
               newLayoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                 value: PANELS.NONE,

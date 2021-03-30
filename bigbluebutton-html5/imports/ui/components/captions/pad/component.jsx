@@ -190,6 +190,10 @@ class Pad extends PureComponent {
             <Button
               onClick={() => {
                 newLayoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                  value: false,
+                });
+                newLayoutContextDispatch({
                   type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                   value: PANELS.NONE,
                 });

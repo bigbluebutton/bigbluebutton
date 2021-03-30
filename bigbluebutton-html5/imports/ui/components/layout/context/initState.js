@@ -38,7 +38,7 @@ export const INITIAL_INPUT_STATE = {
     browserWidth: 0,
   },
   cameraDock: {
-    numCameras: 1,
+    numCameras: 0,
     position: DEFAULT_VALUES.cameraPosition,
     width: 0,
     height: 0,

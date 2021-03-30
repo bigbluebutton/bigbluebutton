@@ -160,6 +160,10 @@ const WaitingUsers = (props) => {
 
     if (!authenticatedUsers.length && !guestUsers.length) {
       newLayoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+        value: false,
+      });
+      newLayoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
         value: PANELS.NONE,
       });
@@ -251,6 +255,10 @@ const WaitingUsers = (props) => {
         >
           <Button
             onClick={() => {
+              newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                value: false,
+              });
               newLayoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                 value: PANELS.NONE,

@@ -25,6 +25,10 @@ const UserPolls = ({
 
   const handleClickTogglePoll = () => {
     newLayoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+      value: sidebarContentPanel !== PANELS.POLL,
+    });
+    newLayoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
       value: sidebarContentPanel === PANELS.POLL
         ? PANELS.NONE
