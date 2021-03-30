@@ -61,11 +61,13 @@
   </style>
 
   <script type="text/javascript">
+    const REDIRECT_TIMEOUT = 15000;
+
     function updateMessage(message) {
       document.querySelector('#content > p').innerHTML = message;
     }
 
-    var lobbyMessage = '';
+    let lobbyMessage = '';
     function updateLobbyMessage(message) {
       if (message !== lobbyMessage) {
         lobbyMessage = message;
@@ -91,25 +93,42 @@
       const urlTest = new URL(`${window.location.origin}${GUEST_WAIT_ENDPOINT}`);
       const concatedParams = sessionToken.concat('&redirect=false');
       urlTest.search = concatedParams;
-      return fetch(urlTest, {method: 'get'});
+      return fetch(urlTest, { method: 'get' });
+    };
+
+    function redirect(message, url) {
+      disableAnimation();
+      updateMessage(message);
+      setTimeout(() => {
+        window.location = url;
+      }, REDIRECT_TIMEOUT);
     };
 
     function pollGuestStatus(token, attempt, limit, everyMs) {
-      setTimeout(function() {
-        var REDIRECT_STATUSES = ['ALLOW', 'DENY'];
 
+      setTimeout(function() {
         if (attempt >= limit) {
           disableAnimation();
-          updateMessage('No response from Moderator');
+          updateMessage('No response from a moderator.');
           return;
         }
 
         fetchGuestWait(token)
         .then(async (resp) => await resp.json())
         .then((data) => {
-          var status = data.response.guestStatus;
+          const code = data.response.returncode;
 
-          if (REDIRECT_STATUSES.includes(status)) {
+          if (code === 'FAILED') {
+            return redirect(data.response.message, data.response.url);
+          }
+
+          const status = data.response.guestStatus;
+
+          if (status === 'DENY') {
+            return redirect(data.response.message, data.response.url);
+          }
+
+          if (status === 'ALLOW') {
             disableAnimation();
             window.location = data.response.url;
             return;
@@ -133,14 +152,14 @@
     window.onload = function() {
       enableAnimation();
       try {
-        var ATTEMPT_EVERY_MS = 5000;
-        var ATTEMPT_LIMIT = 100;
+        const ATTEMPT_EVERY_MS = 5000;
+        const ATTEMPT_LIMIT = 100;
 
-        var sessionToken = findSessionToken();
+        const sessionToken = findSessionToken();
 
-        if(!sessionToken) {
+        if (!sessionToken) {
           disableAnimation()
-          updateMessage('No session Token received');
+          updateMessage('No session token received.');
           return;
         }
 
@@ -148,7 +167,7 @@
       } catch (e) {
         disableAnimation();
         console.error(e);
-        updateMessage('Error: more details in the console');
+        updateMessage('Error: more details in the console.');
       }
     };
   </script>

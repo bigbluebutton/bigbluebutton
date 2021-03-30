@@ -21,39 +21,37 @@ else
 	echo "Docker already installed";
 fi
 
+#Uninstall old version of docker and service if exists (keep temporarily)
+./uninstall-bbb-libreoffice.sh
 
-IMAGE_CHECK=`docker image inspect bbb-libreoffice &> /dev/null && echo 1 || echo 0`
+IMAGE_CHECK=`docker image inspect bbb-soffice &> /dev/null && echo 1 || echo 0`
 if [ "$IMAGE_CHECK"  = "0" ]; then
 	echo "Docker image doesn't exists, building"
-	docker build --no-cache -t bbb-libreoffice docker/
+	docker build -t bbb-soffice docker/
 else
 	echo "Docker image already exists";
 fi
 
-NETWORK_CHECK=`docker network inspect bbb-libreoffice &> /dev/null && echo 1 || echo 0`
-
-if [ "$NETWORK_CHECK" = "0" ]; then
-	echo "Docker network doesn't exists, creating"
-	docker network create bbb-libreoffice -d bridge --opt com.docker.network.bridge.name=br-soffice 
-fi
-
-FOLDER_CHECK=`[ -d /usr/share/bbb-libreoffice/ ] && echo 1 || echo 0`
+FOLDER_CHECK=`[ -d /usr/share/bbb-libreoffice-conversion/ ] && echo 1 || echo 0`
 if [ "$FOLDER_CHECK" = "0" ]; then
 	echo "Install folder doesn't exists, installing"
-	mkdir -m 755 /usr/share/bbb-libreoffice/
-	cp assets/libreoffice_container.sh /usr/share/bbb-libreoffice/
-	chmod 700 /usr/share/bbb-libreoffice/libreoffice_container.sh
-	chown -R root /usr/share/bbb-libreoffice/
-
-	cp assets/bbb-libreoffice.service /lib/systemd/system/bbb-libreoffice@.service
-	systemctl daemon-reload
-
-	for i in `seq 1 4` ; do
-		systemctl enable bbb-libreoffice@${i}
-		systemctl start bbb-libreoffice@${i}
-	done
-
+	mkdir -m 755 /usr/share/bbb-libreoffice-conversion/
+	cp assets/convert-local.sh /usr/share/bbb-libreoffice-conversion/
+	cp assets/convert-remote.sh /usr/share/bbb-libreoffice-conversion/
+	ln -sfn /usr/share/bbb-libreoffice-conversion/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert.sh
+	chmod 755 /usr/share/bbb-libreoffice-conversion/convert-local.sh
+	chmod 755 /usr/share/bbb-libreoffice-conversion/convert-remote.sh
+	chmod 755 /usr/share/bbb-libreoffice-conversion/convert.sh
+	chown -R root /usr/share/bbb-libreoffice-conversion/
 else
 	echo "Install folder already exists"
+fi;
+
+FILE_SUDOERS_CHECK=`[ -f /etc/sudoers.d/zzz-bbb-docker-libreoffice ] && echo 1 || echo 0`
+if [ "$FILE_SUDOERS_CHECK" = "0" ]; then
+	echo "Sudoers file doesn't exists, installing"
+	cp assets/zzz-bbb-docker-libreoffice /etc/sudoers.d/zzz-bbb-docker-libreoffice
+else
+	echo "Sudoers file already exists"
 fi;
 

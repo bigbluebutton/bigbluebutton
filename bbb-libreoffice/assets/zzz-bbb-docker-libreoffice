@@ -1,0 +1,1 @@
+bigbluebutton ALL=(ALL) NOPASSWD: /usr/bin/docker run --rm --network none --env=HOME=/tmp/ -w /tmp/ --user=[0-9][0-9][0-9][0-9][0-9] -v /tmp/bbb-libreoffice-conversion/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]/\:/data/ --rm bbb-soffice sh -c /usr/bin/soffice -env\:UserInstallation=file\:///tmp/ --convert-to pdf --outdir /data /data/file
