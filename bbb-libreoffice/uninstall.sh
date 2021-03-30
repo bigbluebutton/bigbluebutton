@@ -7,10 +7,6 @@ if [ "$EUID" -ne 0 ]; then
 fi;
 
 
-#Uninstall old version of docker and service if exists (keep temporarily)
-./uninstall-bbb-libreoffice.sh
-
-
 IMAGE_CHECK=`docker image inspect bbb-soffice 2>&1 > /dev/null && echo 1 || echo 0`
 if [ "$IMAGE_CHECK"  = "1" ]; then
 	echo "Removing image"

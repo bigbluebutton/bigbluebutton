@@ -21,9 +21,6 @@ else
 	echo "Docker already installed";
 fi
 
-#Uninstall old version of docker and service if exists (keep temporarily)
-./uninstall-bbb-libreoffice.sh
-
 IMAGE_CHECK=`docker image inspect bbb-soffice &> /dev/null && echo 1 || echo 0`
 if [ "$IMAGE_CHECK"  = "0" ]; then
 	echo "Docker image doesn't exists, building"
