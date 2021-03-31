@@ -1,6 +1,8 @@
 # Changelog of Fairblue development
 ## next
+## 01042021
 * Buttons for translation feature are visible if languages are avaiable
+* Parent room sync languages into breakout rooms
 ## 10032021
 * Fix bug when selecting interpreter language in firefox
 ## 07032021

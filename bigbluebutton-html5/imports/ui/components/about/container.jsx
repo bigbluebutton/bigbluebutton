@@ -11,7 +11,7 @@ const AboutContainer = props => (
 
 const getClientBuildInfo = function () {
   return {
-    clientBuild: "Fairblue  10032021",
+    clientBuild: "Fairblue  01042021",
     copyright: "LGPL",
   };
 };
