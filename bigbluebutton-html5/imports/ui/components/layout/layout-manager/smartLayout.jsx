@@ -193,10 +193,14 @@ class SmartLayout extends Component {
 
   calculatesSidebarNavHeight() {
     const { newLayoutContextState } = this.props;
-    const { input } = newLayoutContextState;
+    const { deviceType, input } = newLayoutContextState;
     let sidebarNavHeight = 0;
     if (input.sidebarNavigation.isOpen) {
-      sidebarNavHeight = this.mainHeight();
+      if (deviceType === DEVICE_TYPE.MOBILE) {
+        sidebarNavHeight = this.mainHeight() - DEFAULT_VALUES.navBarHeight;
+      } else {
+        sidebarNavHeight = this.mainHeight();
+      }
     }
     return sidebarNavHeight;
   }
@@ -208,6 +212,8 @@ class SmartLayout extends Component {
     let top = 0;
     if (layoutLoaded === 'both') top = this.mainHeight() / 2;
     else top = DEFAULT_VALUES.sidebarNavTop;
+
+    if (deviceType === DEVICE_TYPE.MOBILE) top = DEFAULT_VALUES.navBarHeight;
 
     return {
       top,
@@ -253,10 +259,14 @@ class SmartLayout extends Component {
 
   calculatesSidebarContentHeight() {
     const { newLayoutContextState } = this.props;
-    const { input } = newLayoutContextState;
+    const { deviceType, input } = newLayoutContextState;
     let sidebarContentHeight = 0;
     if (input.sidebarContent.isOpen) {
-      sidebarContentHeight = this.mainHeight();
+      if (deviceType === DEVICE_TYPE.MOBILE) {
+        sidebarContentHeight = this.mainHeight() - DEFAULT_VALUES.navBarHeight;
+      } else {
+        sidebarContentHeight = this.mainHeight();
+      }
     }
     return sidebarContentHeight;
   }
@@ -268,6 +278,8 @@ class SmartLayout extends Component {
     let top = 0;
     if (layoutLoaded === 'both') top = this.mainHeight() / 2;
     else top = DEFAULT_VALUES.sidebarNavTop;
+
+    if (deviceType === DEVICE_TYPE.MOBILE) top = DEFAULT_VALUES.navBarHeight;
 
     return {
       top,

@@ -199,10 +199,14 @@ class VideoFocusLayout extends Component {
 
   calculatesSidebarNavHeight() {
     const { newLayoutContextState } = this.props;
-    const { input } = newLayoutContextState;
+    const { deviceType, input } = newLayoutContextState;
     let sidebarNavHeight = 0;
     if (input.sidebarNavigation.isOpen) {
-      sidebarNavHeight = this.mainHeight();
+      if (deviceType === DEVICE_TYPE.MOBILE) {
+        sidebarNavHeight = this.mainHeight() - DEFAULT_VALUES.navBarHeight;
+      } else {
+        sidebarNavHeight = this.mainHeight();
+      }
     }
     return sidebarNavHeight;
   }
@@ -214,6 +218,8 @@ class VideoFocusLayout extends Component {
     let top = 0;
     if (layoutLoaded === 'both') top = this.mainHeight() / 2;
     else top = DEFAULT_VALUES.sidebarNavTop;
+
+    if (deviceType === DEVICE_TYPE.MOBILE) top = DEFAULT_VALUES.navBarHeight;
 
     return {
       top,
@@ -263,12 +269,12 @@ class VideoFocusLayout extends Component {
     let sidebarContentHeight = 0;
     if (input.sidebarContent.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
-        sidebarContentHeight = this.mainHeight();
-      } else {
+        sidebarContentHeight = this.mainHeight() - DEFAULT_VALUES.navBarHeight;
+      } else if (input.cameraDock.numCameras > 0) {
         sidebarContentHeight = this.mainHeight() - presentationHeight;
+      } else {
+        sidebarContentHeight = this.mainHeight();
       }
-    } else {
-      sidebarContentHeight = 0;
     }
     return sidebarContentHeight;
   }
@@ -280,6 +286,8 @@ class VideoFocusLayout extends Component {
     let top = 0;
     if (layoutLoaded === 'both') top = this.mainHeight() / 2;
     else top = DEFAULT_VALUES.sidebarNavTop;
+
+    if (deviceType === DEVICE_TYPE.MOBILE) top = DEFAULT_VALUES.navBarHeight;
 
     return {
       top,

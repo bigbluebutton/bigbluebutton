@@ -192,10 +192,14 @@ class PresentationFocusLayout extends Component {
 
   calculatesSidebarNavHeight() {
     const { newLayoutContextState } = this.props;
-    const { input } = newLayoutContextState;
+    const { deviceType, input } = newLayoutContextState;
     let sidebarNavHeight = 0;
     if (input.sidebarNavigation.isOpen) {
-      sidebarNavHeight = this.mainHeight();
+      if (deviceType === DEVICE_TYPE.MOBILE) {
+        sidebarNavHeight = this.mainHeight() - DEFAULT_VALUES.navBarHeight;
+      } else {
+        sidebarNavHeight = this.mainHeight();
+      }
     }
     return sidebarNavHeight;
   }
@@ -207,6 +211,8 @@ class PresentationFocusLayout extends Component {
     let top = 0;
     if (layoutLoaded === 'both') top = this.mainHeight() / 2;
     else top = DEFAULT_VALUES.sidebarNavTop;
+
+    if (deviceType === DEVICE_TYPE.MOBILE) top = DEFAULT_VALUES.navBarHeight;
 
     return {
       top,
@@ -255,13 +261,13 @@ class PresentationFocusLayout extends Component {
     const { deviceType, input } = newLayoutContextState;
     let sidebarContentHeight = 0;
     if (input.sidebarContent.isOpen) {
-      if (deviceType === DEVICE_TYPE.MOBILE || input.cameraDock.numCameras < 1) {
-        sidebarContentHeight = this.mainHeight();
-      } else {
+      if (deviceType === DEVICE_TYPE.MOBILE) {
+        sidebarContentHeight = this.mainHeight() - DEFAULT_VALUES.navBarHeight;
+      } else if (input.cameraDock.numCameras > 0) {
         sidebarContentHeight = this.mainHeight() - cameraDockHeight;
+      } else {
+        sidebarContentHeight = this.mainHeight();
       }
-    } else {
-      sidebarContentHeight = 0;
     }
     return sidebarContentHeight;
   }
@@ -273,6 +279,8 @@ class PresentationFocusLayout extends Component {
     let top = 0;
     if (layoutLoaded === 'both') top = this.mainHeight() / 2;
     else top = DEFAULT_VALUES.sidebarNavTop;
+
+    if (deviceType === DEVICE_TYPE.MOBILE) top = DEFAULT_VALUES.navBarHeight;
 
     return {
       top,
