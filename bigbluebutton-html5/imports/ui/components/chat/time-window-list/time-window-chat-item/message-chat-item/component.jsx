@@ -27,7 +27,6 @@ const eventsToBeBound = [
 const isElementInViewport = (el) => {
   if (!el) return false;
   const rect = el.getBoundingClientRect();
-  console.log('rect', rect);
 
   return (
     rect.top >= 0
