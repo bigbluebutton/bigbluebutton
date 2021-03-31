@@ -70,11 +70,15 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
             NuProcess process = convertImgToSvg.start();
             try {
-                process.waitFor(convPdfToSvgTimeout, TimeUnit.SECONDS);
+                process.waitFor(convPdfToSvgTimeout + 1, TimeUnit.SECONDS);
                 done = true;
             } catch (InterruptedException e) {
                 done = false;
                 log.error("InterruptedException while converting to SVG {}", dest, e);
+            }
+
+            if(pHandler.isCommandTimeout()) {
+                log.error("Command execution (convertImgToSvg) exceeded the {} secs limit for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
             }
 
             // Use the intermediate PDF file as source
@@ -96,10 +100,14 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
         NuProcess process = convertPdfToSvg.start();
         try {
-            process.waitFor(convPdfToSvgTimeout, TimeUnit.SECONDS);
+            process.waitFor(convPdfToSvgTimeout + 1, TimeUnit.SECONDS);
             done = true;
         } catch (InterruptedException e) {
             log.error("Interrupted Exception while generating SVG slides {}", pres.getName(), e);
+        }
+
+        if(pHandler.isCommandTimeout()) {
+            log.error("Command execution (convertPdfToSvg) exceeded the {} secs limit for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
         }
 
         if (!done) {
@@ -158,46 +166,66 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             convertPdfToPng.setProcessListener(pngHandler);
             NuProcess pngProcess = convertPdfToPng.start();
             try {
-                pngProcess.waitFor(convPdfToSvgTimeout, TimeUnit.SECONDS);
+                pngProcess.waitFor(convPdfToSvgTimeout + 1, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 log.error("Interrupted Exception while generating PNG image {}", pres.getName(), e);
             }
 
-            // Step 2: Convert a PNG image to SVG
-            NuProcessBuilder convertPngToSvg = new NuProcessBuilder(Arrays.asList("timeout", convPdfToSvgTimeout + "s", "convert",
-                        tempPng.getAbsolutePath(), destsvg.getAbsolutePath()));
-
-            Png2SvgConversionHandler svgHandler = new Png2SvgConversionHandler();
-            convertPngToSvg.setProcessListener(svgHandler);
-            NuProcess svgProcess = convertPngToSvg.start();
-            try {
-                svgProcess.waitFor(convPdfToSvgTimeout, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                log.error("Interrupted Exception while generating SVG image {}", pres.getName(), e);
+            if(pngHandler.isCommandTimeout()) {
+                log.error("Command execution (convertPdfToPng) exceeded the {} secs limit for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
             }
 
-            done = svgHandler.isCommandSuccessful();
+            if(tempPng.length() > 0) {
+                // Step 2: Convert a PNG image to SVG
+
+                NuProcessBuilder convertPngToSvg = new NuProcessBuilder(Arrays.asList("timeout", convPdfToSvgTimeout + "s", "convert",
+                            tempPng.getAbsolutePath(), destsvg.getAbsolutePath()));
+
+                Png2SvgConversionHandler svgHandler = new Png2SvgConversionHandler();
+                convertPngToSvg.setProcessListener(svgHandler);
+                NuProcess svgProcess = convertPngToSvg.start();
+                try {
+                    svgProcess.waitFor(convPdfToSvgTimeout + 1, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    log.error("Interrupted Exception while generating SVG image {}", pres.getName(), e);
+                }
+
+                if(svgHandler.isCommandTimeout()) {
+                    log.error("Command execution (convertPngToSvg) exceeded the {} secs limit for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
+                }
+
+                done = svgHandler.isCommandSuccessful();
+
+                if(destsvg.length() > 0) {
+                    // Step 3: Add SVG namespace to the destionation file
+                    // Check : https://phabricator.wikimedia.org/T43174
+                    NuProcessBuilder addNameSpaceToSVG = new NuProcessBuilder(Arrays.asList("timeout", convPdfToSvgTimeout + "s",
+                            "/bin/sh", "-c",
+                            "sed -i "
+                                    + "'4s|>| xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.2\">|' "
+                                    + destsvg.getAbsolutePath()));
+
+                    AddNamespaceToSvgHandler namespaceHandler = new AddNamespaceToSvgHandler();
+                    addNameSpaceToSVG.setProcessListener(namespaceHandler);
+                    NuProcess namespaceProcess = addNameSpaceToSVG.start();
+                    try {
+                        namespaceProcess.waitFor(convPdfToSvgTimeout + 1, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        log.error("Interrupted Exception while adding SVG namespace {}", pres.getName(), e);
+                    }
+
+                    if (namespaceHandler.isCommandTimeout()) {
+                        log.error("Command execution (addNameSpaceToSVG) exceeded the {} secs limit for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
+                    }
+                }
+            }
 
             // Delete the temporary PNG after finishing the image conversion
-            tempPng.delete();
-
-            // Step 3: Add SVG namespace to the destionation file
-            // Check : https://phabricator.wikimedia.org/T43174
-            NuProcessBuilder addNameSpaceToSVG = new NuProcessBuilder(Arrays.asList("timeout", convPdfToSvgTimeout + "s",
-                        "/bin/sh", "-c",
-                        "sed -i "
-                                + "'4s|>| xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.2\">|' "
-                                + destsvg.getAbsolutePath()));
-
-            AddNamespaceToSvgHandler namespaceHandler = new AddNamespaceToSvgHandler();
-            addNameSpaceToSVG.setProcessListener(namespaceHandler);
-            NuProcess namespaceProcess = addNameSpaceToSVG.start();
-            try {
-                namespaceProcess.waitFor(convPdfToSvgTimeout, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                log.error("Interrupted Exception while adding SVG namespace {}", pres.getName(), e);
+            if(tempPng.exists()) {
+                tempPng.delete();
             }
         }
+
 
         long endConv = System.currentTimeMillis();
 
