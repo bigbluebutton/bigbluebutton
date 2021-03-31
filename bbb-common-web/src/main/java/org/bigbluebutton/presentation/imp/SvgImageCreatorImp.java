@@ -78,7 +78,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             }
 
             if(pHandler.isCommandTimeout()) {
-                log.error("Command execution (convertImgToSvg) exceeded the {} secs limit for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
+                log.error("Command execution (convertImgToSvg) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
             }
 
             // Use the intermediate PDF file as source
@@ -107,7 +107,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         }
 
         if(pHandler.isCommandTimeout()) {
-            log.error("Command execution (convertPdfToSvg) exceeded the {} secs limit for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
+            log.error("Command execution (convertPdfToSvg) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
         }
 
         if (!done) {
@@ -172,7 +172,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             }
 
             if(pngHandler.isCommandTimeout()) {
-                log.error("Command execution (convertPdfToPng) exceeded the {} secs limit for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
+                log.error("Command execution (convertPdfToPng) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
             }
 
             if(tempPng.length() > 0) {
@@ -191,7 +191,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 }
 
                 if(svgHandler.isCommandTimeout()) {
-                    log.error("Command execution (convertPngToSvg) exceeded the {} secs limit for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
+                    log.error("Command execution (convertPngToSvg) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
                 }
 
                 done = svgHandler.isCommandSuccessful();
@@ -215,7 +215,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                     }
 
                     if (namespaceHandler.isCommandTimeout()) {
-                        log.error("Command execution (addNameSpaceToSVG) exceeded the {} secs limit for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
+                        log.error("Command execution (addNameSpaceToSVG) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
                     }
                 }
             }
