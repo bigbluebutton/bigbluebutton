@@ -117,7 +117,10 @@ const getCaptionsSettings = () => {
   return settings;
 };
 
-const isCaptionsEnabled = () => CAPTIONS_CONFIG.enabled;
+const isCaptionsEnabled = () => {
+  const captions = Captions.findOne({ meetingId: Auth.meetingID });
+  return CAPTIONS_CONFIG.enabled && captions;
+};
 
 const isCaptionsAvailable = () => {
   if (isCaptionsEnabled) {

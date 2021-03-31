@@ -39,6 +39,7 @@ const WEBSOCKET_KEEP_ALIVE_DEBOUNCE = MEDIA.websocketKeepAliveDebounce || 10;
 const TRACE_SIP = MEDIA.traceSip || false;
 const AUDIO_MICROPHONE_CONSTRAINTS = Meteor.settings.public.app.defaultSettings
   .application.microphoneConstraints;
+const SDP_SEMANTICS = MEDIA.sdpSemantics;
 
 const getAudioSessionNumber = () => {
   let currItem = parseInt(sessionStorage.getItem(AUDIO_SESSION_NUM_KEY), 10);
@@ -381,7 +382,7 @@ class SIPSession {
         sessionDescriptionHandlerFactoryOptions: {
           peerConnectionConfiguration: {
             iceServers,
-            sdpSemantics: 'plan-b',
+            sdpSemantics: SDP_SEMANTICS,
           },
         },
         displayName: callerIdName,
