@@ -13,7 +13,7 @@
   flex-grow: 1;
   flex-direction: column;
   justify-content: space-around;
-  overflow: hidden;
+  overflow: auto;
   height: 100vh;
 
   :global(.browser-chrome) & {
