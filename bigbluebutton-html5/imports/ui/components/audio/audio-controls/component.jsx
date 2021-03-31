@@ -168,6 +168,7 @@ class AudioControls extends PureComponent {
       intl,
       shortcuts,
       isVoiceUser,
+      listenOnly,
       inputStream,
       isViewer,
       isPresenter,
@@ -198,7 +199,7 @@ class AudioControls extends PureComponent {
 
     return (
       <span className={styles.container}>
-        {isVoiceUser && inputStream && muteAlertEnabled ? (
+        {isVoiceUser && inputStream && muteAlertEnabled && !listenOnly ? (
           <MutedAlert {...{
             muted, inputStream, isViewer, isPresenter,
           }}

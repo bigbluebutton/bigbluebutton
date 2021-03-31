@@ -9,7 +9,7 @@ import { styles } from './styles';
 const MUTE_ALERT_CONFIG = Meteor.settings.public.app.mutedAlert;
 
 const propTypes = {
-  inputStream: PropTypes.objectOf(PropTypes.object).isRequired,
+  inputStream: PropTypes.objectOf(PropTypes.any).isRequired,
   isPresenter: PropTypes.bool.isRequired,
   isViewer: PropTypes.bool.isRequired,
   muted: PropTypes.bool.isRequired,
@@ -33,6 +33,9 @@ class MutedAlert extends Component {
 
   componentDidMount() {
     this._isMounted = true;
+
+    if (!this.hasValidInputStream()) return;
+
     this.cloneMediaStream();
     if (this.inputStream) {
       const { interval, threshold, duration } = MUTE_ALERT_CONFIG;
@@ -73,6 +76,17 @@ class MutedAlert extends Component {
   resetTimer() {
     if (this.timer) clearTimeout(this.timer);
     this.timer = null;
+  }
+
+  hasValidInputStream() {
+    const { inputStream } = this.props;
+
+    if (inputStream
+      && (typeof inputStream.getAudioTracks === 'function')
+      && (inputStream.getAudioTracks().length > 0)
+    ) return true;
+
+    return false;
   }
 
   render() {
