@@ -52,4 +52,5 @@ export default withTracker(() => ({
   hasBreakouts: Service.hasBreakouts,
   isTranslatorTalking: Service.isTranslatorTalking(),
   isTranslatorMuted: Service.isTranslatorMuted,
+  hasLanguages: Service.hasLanguages(),
 }))(injectIntl(ActionsBarContainer));

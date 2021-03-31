@@ -72,4 +72,5 @@ export default {
   muteMicrophone,
   isTranslatorTalking,
   isTranslatorMuted: () => AudioManager.isTranslatorMuted(),
+  hasLanguages: () => Meeting.hasLanguages(),
 };

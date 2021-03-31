@@ -20,23 +20,27 @@ class MeetingService {
     getCurrentMeeting = () => Meetings.findOne({meetingId: Auth.meetingID});
 
     async getLanguages() {
-        let meetingId = Auth.meetingID;
-        let meeting;
-        let meetingLanguages = []
-        if (this.isBreakout()) {
-            meeting = await makeCall("getParentMeeting")
-        } else {
-            meeting = Meetings.findOne(
-                {meetingId: meetingId},
-                {fields: {'languages': 1}});
+        return this.getLanguagesSync();
+    }
+
+    getLanguagesSync() {
+        let meeting = Meetings.findOne(
+            { meetingId: Auth.meetingID },
+            { fields: { 'languages': 1 } });
+
+        return meeting?.languages ?? [];
+    }
+
+    hasLanguages() {
+        let hasLanguages = false;
+        const languages = this.getLanguagesSync();
+        if (Array.isArray(languages)) {
+            if (languages.length > 0) {
+                hasLanguages = true;
+            }
         }
 
-
-        if (meeting && 'languages' in meeting) {
-            meetingLanguages = meeting.languages;
-        }
-
-        return meetingLanguages;
+        return hasLanguages;
     }
 
     clearLanguages() {

@@ -235,6 +235,7 @@ class ActionsBar extends PureComponent {
       hasBreakouts,
       isTranslatorTalking,
       isTranslatorMuted,
+      hasLanguages,
     } = this.props;
 
     const amIAsTranslatorMuted = isTranslatorMuted();
@@ -309,23 +310,28 @@ class ActionsBar extends PureComponent {
                   </div>
               ):null
           }
-          <div id={"translationButton"}>
-            <Button
-              customIcon={
-                <img
-                  className="icon-bbb-translation"
-                  src='/html5client/svgs/bbb_translations_icon.svg'
+          {hasLanguages
+            ? (
+              <div id={"translationButton"}>
+                <Button
+                  customIcon={
+                    <img
+                      className="icon-bbb-translation"
+                      src='/html5client/svgs/bbb_translations_icon.svg'
+                    />
+                  }
+                  color='primary'
+                  label={intl.formatMessage(intlMessages.selectTranslationLabel)}
+                  circle
+                  hideLabel
+                  size="lg"
+                  onClick={this.toggleTranslationSelection.bind(this)}
                 />
-              }
-              color='primary'
-              label={intl.formatMessage(intlMessages.selectTranslationLabel)}
-              circle
-              hideLabel
-              size="lg"
-              onClick={this.toggleTranslationSelection.bind(this)}
-            />
-          </div>
-          { amIModerator ?
+              </div>
+            )
+            : null
+          }
+          { amIModerator && hasLanguages ?
               (
                   <Button
                       className={[amIAsTranslatorMuted ? styles.btnmuted: "", styles.translatorBtn ].join(" ")}
@@ -341,7 +347,7 @@ class ActionsBar extends PureComponent {
                   />
               ) :null
           }
-          { amIModerator ?
+          { amIModerator && hasLanguages ?
               (
                   <div id={"translatorButton"}>
                     <Button
