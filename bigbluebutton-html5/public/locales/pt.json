@@ -451,6 +451,7 @@
     "app.audioManager.mediaError": "Erro: Houve um problema ao aceder aos seus dispositivos de media",
     "app.audio.joinAudio": "Ativar áudio",
     "app.audio.leaveAudio": "Desativar áudio",
+    "app.audio.changeLeaveAudio": "Configurar/Desativar áudio",
     "app.audio.enterSessionLabel": "Entrar na sessão",
     "app.audio.playSoundLabel": "Reproduzir som",
     "app.audio.backLabel": "Voltar",
