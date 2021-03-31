@@ -172,6 +172,7 @@ class ConnectionStatusComponent extends PureComponent {
             onChange={() => this.handleDataSavingChange('viewParticipantsWebcams')}
             ariaLabelledBy="webcam"
             ariaLabel={intl.formatMessage(intlMessages.webcam)}
+            data-test="dataSavingWebcams"
           />
         </div>
         <div className={styles.saving}>
@@ -184,6 +185,7 @@ class ConnectionStatusComponent extends PureComponent {
             onChange={() => this.handleDataSavingChange('viewScreenshare')}
             ariaLabelledBy="screenshare"
             ariaLabel={intl.formatMessage(intlMessages.screenshare)}
+            data-test="dataSavingScreenshare"
           />
         </div>
       </div>

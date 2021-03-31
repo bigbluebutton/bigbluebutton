@@ -7,3 +7,8 @@ exports.applaud = '[data-test="applause"]';
 exports.clearStatus = '[data-test="clearStatus"]';
 exports.statusIcon = '[data-test="userAvatar"]';
 exports.setPresenter = 'li[data-test="setPresenter"]';
+exports.dataSavingWebcams = 'input[data-test="dataSavingWebcams"]';
+exports.dataSavingScreenshare = 'input[data-test="dataSavingScreenshare"]';
+exports.closeConnectionStatusModal = 'button[aria-label="Close Connection status modal"]';
+exports.webcamsIsDisabledInDataSaving = 'button[aria-label="Webcam sharing is disabled in Data Saving"]';
+exports.screenshareLocked = 'button[aria-label="Screenshare locked"]';
