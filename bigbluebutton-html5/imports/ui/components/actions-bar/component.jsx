@@ -104,7 +104,7 @@ class ActionsBar extends PureComponent {
           { meetingId: Auth.meetingID },
           { fields: { 'languages': 1 } });
 
-        if (meeting.languages) {
+        if (meeting?.languages) {
 
           let transaudio = document.getElementById("translation-media")
 
