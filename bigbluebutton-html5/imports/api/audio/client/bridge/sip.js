@@ -89,7 +89,7 @@ class SIPSession {
     this.reconnectAttempt = reconnectAttempt;
     this.currentSession = null;
     this.remoteStream = null;
-    this._inputDeviceId = DEFAULT_INPUT_DEVICE_ID;
+    this._inputDeviceId = null;
     this._outputDeviceId = null;
     this._hangupFlag = false;
     this._reconnecting = false;
@@ -169,7 +169,7 @@ class SIPSession {
   get outputDeviceId() {
     if (!this._outputDeviceId) {
       const audioElement = document.querySelector(MEDIA_TAG);
-      if (audioElement && audioElement.sinkId) {
+      if (audioElement) {
         return audioElement.sinkId;
       }
     }
