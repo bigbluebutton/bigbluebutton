@@ -415,8 +415,8 @@ class Page {
     }
     await this.waitForSelector(ue.anyUser, ELEMENT_WAIT_TIME);
     const totalNumberOfUsersMongo = await this.page.evaluate(() => {
-      const collection = require('/imports/api/users/index.js');
-      const users = collection.default._collection.find({ connectionStatus: 'online' }).count();
+      const collection = require('/imports/api/users-persistent-data/index.js');
+      const users = collection.default._collection.find({}, {}, {}, {}, {}, { loggedOut: 'false' }).count();
       return users;
     });
     const totalNumberOfUsersDom = await this.page.evaluate(() => document.querySelectorAll('[data-test^="userListItem"]').length);
