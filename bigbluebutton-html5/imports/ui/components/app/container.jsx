@@ -115,7 +115,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     UserInfo,
     notify,
     validIOSVersion,
-    isPhone: deviceInfo.type().isPhone,
+    isPhone: deviceInfo.isPhone,
     isRTL: document.documentElement.getAttribute('dir') === 'rtl',
     meetingMuted: voiceProp.muteOnStart,
     currentUserEmoji: currentUserEmoji(currentUser),
