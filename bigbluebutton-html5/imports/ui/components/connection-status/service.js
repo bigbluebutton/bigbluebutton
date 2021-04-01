@@ -1,6 +1,7 @@
 import { defineMessages } from 'react-intl';
 import ConnectionStatus from '/imports/api/connection-status';
 import Users from '/imports/api/users';
+import UsersPersistentData from '/imports/api/users-persistent-data';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 import Logger from '/imports/startup/client/logger';
@@ -147,7 +148,8 @@ const getMyConnectionStatus = () => {
       meetingId: Auth.meetingID,
       userId: Auth.userID,
     },
-    { fields:
+    {
+      fields:
       {
         level: 1,
         timestamp: 1,
@@ -160,11 +162,12 @@ const getMyConnectionStatus = () => {
       meetingId: Auth.meetingID,
       userId: Auth.userID,
     },
-    { fields:
+    {
+      fields:
       {
         avatar: 1,
         color: 1,
-      }
+      },
     },
   );
 
@@ -188,7 +191,7 @@ const getConnectionStatus = () => {
 
   const connectionStatus = ConnectionStatus.find(
     { meetingId: Auth.meetingID },
-  ).fetch().map(status => {
+  ).fetch().map((status) => {
     const {
       userId,
       level,
@@ -202,15 +205,17 @@ const getConnectionStatus = () => {
     };
   });
 
-  return Users.find(
-    { meetingId: Auth.meetingID },
-    { fields:
+  return UsersPersistentData.find(
+    {},
+    {
+      fields:
       {
         userId: 1,
         name: 1,
         role: 1,
         avatar: 1,
         color: 1,
+        loggedOut: 1,
       },
     },
   ).fetch().reduce((result, user) => {
@@ -220,6 +225,7 @@ const getConnectionStatus = () => {
       role,
       avatar,
       color,
+      loggedOut,
     } = user;
 
     const status = connectionStatus.find(status => status.userId === userId);
@@ -228,6 +234,7 @@ const getConnectionStatus = () => {
       result.push({
         name,
         avatar,
+        offline: loggedOut,
         you: Auth.userID === userId,
         moderator: role === ROLE_MODERATOR,
         color,
@@ -256,7 +263,7 @@ const stopRoundTripTime = () => {
   if (roundTripTimeInterval) {
     clearInterval(roundTripTimeInterval);
   }
-}
+};
 
 const isModerator = () => {
   const user = Users.findOne(
@@ -264,7 +271,7 @@ const isModerator = () => {
       meetingId: Auth.meetingID,
       userId: Auth.userID,
     },
-    { fields: { role: 1 }},
+    { fields: { role: 1 } },
   );
 
   if (user && user.role === ROLE_MODERATOR) {
@@ -301,9 +308,9 @@ const notification = (level, intl) => {
   const notified = getNotified();
   if (notified) {
     return null;
-  } else {
-    Session.set('connectionStatusNotified', true);
   }
+  Session.set('connectionStatusNotified', true);
+
 
   if (intl) notify(intl.formatMessage(intlMessages.notification), level, 'network');
 };

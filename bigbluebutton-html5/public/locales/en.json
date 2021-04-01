@@ -626,6 +626,7 @@
     "app.connection-status.more": "more",
     "app.connection-status.label": "Connection status",
     "app.connection-status.notification": "Loss in your connection was detected",
+    "app.connection-status.offline": "offline",
     "app.recording.startTitle": "Start recording",
     "app.recording.stopTitle": "Pause recording",
     "app.recording.resumeTitle": "Resume recording",
