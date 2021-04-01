@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { throttle } from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import Modal from 'react-modal';
-import browser from 'browser-detect';
+import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import PanelManager from '/imports/ui/components/panel-manager/component';
 import PollingContainer from '/imports/ui/components/polling/container';
@@ -125,7 +125,7 @@ class App extends Component {
     const {
       locale, notify, intl, validIOSVersion, startBandwidthMonitoring, handleNetworkConnection,
     } = this.props;
-    const BROWSER_RESULTS = browser();
+    const { browserName } = browserInfo;
     const { isMobile, osName } = deviceInfo;
 
     MediaService.setSwapLayout();
@@ -134,9 +134,8 @@ class App extends Component {
     document.getElementsByTagName('html')[0].style.fontSize = isMobile ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
 
     const body = document.getElementsByTagName('body')[0];
-    if (BROWSER_RESULTS && BROWSER_RESULTS.name) {
-      body.classList.add(`browser-${BROWSER_RESULTS.name}`);
-    }
+
+    body.classList.add(`browser-${browserName.toLowerCase()}`);
     body.classList.add(`os-${osName.split(' ').shift().toLowerCase()}`);
 
     if (!validIOSVersion()) {

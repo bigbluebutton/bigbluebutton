@@ -1,8 +1,8 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import browser from 'browser-detect';
 import deviceInfo from '/imports/utils/deviceInfo';
+import browserInfo from '/imports/utils/browserInfo';
 import Button from '/imports/ui/components/button/component';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
@@ -20,9 +20,8 @@ import {
 } from '/imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
 
-const BROWSER_RESULTS = browser();
 const { isMobile } = deviceInfo;
-const IS_SAFARI = BROWSER_RESULTS.name === 'safari';
+const { isSafari } = browserInfo;
 
 const propTypes = {
   intl: PropTypes.objectOf(Object).isRequired,
@@ -191,7 +190,7 @@ const ScreenshareButton = ({
         onClick={isVideoBroadcasting
           ? screenshareHasEnded
           : () => {
-            if (IS_SAFARI && !ScreenshareBridgeService.HAS_DISPLAY_MEDIA) {
+            if (isSafari && !ScreenshareBridgeService.HAS_DISPLAY_MEDIA) {
               renderScreenshareUnavailableModal();
             } else {
               shareScreen(handleFailure);

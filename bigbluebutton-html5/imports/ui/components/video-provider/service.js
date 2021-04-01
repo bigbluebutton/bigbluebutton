@@ -10,7 +10,7 @@ import { makeCall } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
 import { monitorVideoConnection } from '/imports/utils/stats';
 import deviceInfo from '/imports/utils/deviceInfo';
-import browser from 'browser-detect';
+import browserInfo from '/imports/utils/browserInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import VideoPreviewService from '../video-preview/service';
 import Storage from '/imports/ui/services/storage/session';
@@ -71,9 +71,9 @@ class VideoService {
       pageSize: 0,
     });
     this.userParameterProfile = null;
-    const BROWSER_RESULTS = browser();
+
     this.isMobile = deviceInfo.isMobile;
-    this.isSafari = BROWSER_RESULTS.name === 'safari';
+    this.isSafari = browserInfo.isSafari;
     this.numberOfDevices = 0;
 
     this.record = null;
