@@ -142,7 +142,6 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
   return {
     init: () => {
       Service.init(messages, intl);
-      Service.changeOutputDevice(document.querySelector('#remote-media').sinkId);
       const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
       const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);
       if (!autoJoin || didMountAutoJoin) {
