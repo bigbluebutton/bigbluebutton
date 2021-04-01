@@ -158,7 +158,7 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: ChangeLockSettingsInMeetingCmdMsg => logMessage(msg)
       case m: GetLockSettingsReqMsg => logMessage(msg)
       case m: LockSettingsNotInitializedRespMsg => logMessage(msg)
-      case m: MeetingInfoAnalyticsMessage => logMessage(msg)
+      case m: MeetingInfoAnalyticsMsg => logMessage(msg)
 
       case _ => // ignore message
     }

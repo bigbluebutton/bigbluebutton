@@ -171,10 +171,20 @@ object MsgBuilder {
 
   def buildMeetingInfoAnalyticsMsg(analytics: MeetingInfoAnalytics): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
-    val envelope = BbbCoreEnvelope(MeetingInfoAnalyticsMessage.NAME, routing)
-    val header = BbbCoreBaseHeader(MeetingInfoAnalyticsMessage.NAME)
-    val body = MeetingInfoAnalyticsMessageBody(analytics)
-    val event = MeetingInfoAnalyticsMessage(header, body)
+    val envelope = BbbCoreEnvelope(MeetingInfoAnalyticsMsg.NAME, routing)
+    val header = BbbCoreBaseHeader(MeetingInfoAnalyticsMsg.NAME)
+    val body = MeetingInfoAnalyticsMsgBody(analytics)
+    val event = MeetingInfoAnalyticsMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildCamStreamSubscribeSysMsg(meetingId: String, userId: String, streamId: String, sfuSessionId: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(CamStreamSubscribeSysMsg.NAME, routing)
+    val header = BbbCoreBaseHeader(CamStreamSubscribeSysMsg.NAME)
+    val body = CamStreamSubscribeSysMsgBody(meetingId, userId, streamId, sfuSessionId)
+    val event = CamStreamSubscribeSysMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
   }

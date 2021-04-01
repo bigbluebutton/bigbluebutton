@@ -38,7 +38,7 @@ import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
 import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
-import org.bigbluebutton.core.models.Webcams.findAll
+import org.bigbluebutton.core.models.Webcams.{ findAll, updateWebcamStream }
 import org.bigbluebutton.core2.MeetingStatus2x.{ hasAuthedUserJoined, isVoiceRecording }
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
@@ -224,6 +224,8 @@ class MeetingActor(
       checkVoiceConfIsRunningAndRecording()
     case MeetingInfoAnalyticsMsg =>
       handleMeetingInfoAnalyticsLogging()
+    case msg: CamStreamSubscribeSysMsg =>
+      handleCamStreamSubscribeSysMsg(msg)
     //=============================
 
     // 2x messages
@@ -507,6 +509,10 @@ class MeetingActor(
 
       case _                              => log.warning("***** Cannot handle " + msg.envelope.name)
     }
+  }
+
+  private def handleCamStreamSubscribeSysMsg(msg: CamStreamSubscribeSysMsg): Unit = {
+    updateWebcamStream(liveMeeting.webcams, msg.body.streamId, msg.body.userId)
   }
 
   def handleMeetingInfoAnalyticsLogging(): Unit = {

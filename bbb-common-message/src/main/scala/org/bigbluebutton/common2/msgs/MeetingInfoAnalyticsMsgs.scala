@@ -1,11 +1,11 @@
 package org.bigbluebutton.common2.msgs
 
-object MeetingInfoAnalyticsMessage { val NAME = "MeetingInfoAnalyticsMessage" }
-case class MeetingInfoAnalyticsMessage(
+object MeetingInfoAnalyticsMsg { val NAME = "MeetingInfoAnalyticsMsg" }
+case class MeetingInfoAnalyticsMsg(
     header: BbbCoreBaseHeader,
-    body:   MeetingInfoAnalyticsMessageBody
+    body:   MeetingInfoAnalyticsMsgBody
 ) extends BbbCoreMsg
-case class MeetingInfoAnalyticsMessageBody(meetingInfo: MeetingInfoAnalytics)
+case class MeetingInfoAnalyticsMsgBody(meetingInfo: MeetingInfoAnalytics)
 
 object MeetingInfoAnalytics {
   def apply(name: String, externalId: String, internalId: String, hasUserJoined: Boolean, isRecording: Boolean, webcam: Webcam,
