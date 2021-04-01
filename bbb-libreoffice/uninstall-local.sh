@@ -7,10 +7,6 @@ if [ "$EUID" -ne 0 ]; then
 fi;
 
 
-#Uninstall old version of docker and service if exists (keep temporarily)
-./uninstall-bbb-libreoffice.sh
-
-
 IMAGE_CHECK=`docker image inspect bbb-soffice 2>&1 > /dev/null && echo 1 || echo 0`
 if [ "$IMAGE_CHECK"  = "1" ]; then
 	echo "Removing image"
@@ -28,11 +24,3 @@ if [ "$FILE_SUDOERS_CHECK" = "1" ]; then
 	echo "Removing Sudoers file"
 	rm /etc/sudoers.d/zzz-bbb-docker-libreoffice
 fi;
-
-
-NETWORK_CHECK=`docker network inspect bbb-libreoffice &> /dev/null && echo 1 || echo 0`
-if [ "$NETWORK_CHECK" = "1" ]; then
-        echo "Removing docker network"
-        docker network remove bbb-libreoffice
-fi
-

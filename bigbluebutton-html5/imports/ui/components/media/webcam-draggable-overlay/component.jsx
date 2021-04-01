@@ -3,15 +3,13 @@ import Draggable from 'react-draggable';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import Resizable from 're-resizable';
-import { isMobile, isIPad13 } from 'react-device-detect';
+import deviceInfo from '/imports/utils/deviceInfo';
 import { withDraggableConsumer } from './context';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 import { styles } from '../styles.scss';
 import Storage from '../../../services/storage/session';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import { WEBCAMSAREA_MIN_PERCENT, PRESENTATIONAREA_MIN_WIDTH } from '/imports/ui/components/layout/layout-manager';
-
-const BROWSER_ISMOBILE = isMobile || isIPad13;
 
 const propTypes = {
   swapLayout: PropTypes.bool,
@@ -286,6 +284,8 @@ class WebcamDraggable extends PureComponent {
       audioModalIsOpen,
     } = this.props;
 
+    const { isMobile } = deviceInfo;
+
     const { resizing, webcamsAreaResizable, hideWebcams } = this.state;
 
     const {
@@ -316,7 +316,7 @@ class WebcamDraggable extends PureComponent {
       };
     }
 
-    if (swapLayout || isCameraFullscreen || BROWSER_ISMOBILE) {
+    if (swapLayout || isCameraFullscreen || isMobile) {
       position = {
         x: 0,
         y: 0,
@@ -445,7 +445,7 @@ class WebcamDraggable extends PureComponent {
           onStart={this.handleWebcamDragStart}
           onStop={this.handleWebcamDragStop}
           onMouseDown={e => e.preventDefault()}
-          disabled={swapLayout || isCameraFullscreen || BROWSER_ISMOBILE || resizing}
+          disabled={swapLayout || isCameraFullscreen || isMobile || resizing}
           position={position}
         >
           <Resizable

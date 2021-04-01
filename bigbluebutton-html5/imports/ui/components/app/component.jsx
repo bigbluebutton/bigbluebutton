@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { throttle } from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import Modal from 'react-modal';
-import browser from 'browser-detect';
+import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
 import PanelManager from '/imports/ui/components/panel-manager/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
@@ -124,21 +125,18 @@ class App extends Component {
     const {
       locale, notify, intl, validIOSVersion, startBandwidthMonitoring, handleNetworkConnection,
     } = this.props;
-    const BROWSER_RESULTS = browser();
-    const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
+    const { browserName } = browserInfo;
+    const { isMobile, osName } = deviceInfo;
 
     MediaService.setSwapLayout();
     Modal.setAppElement('#app');
     document.getElementsByTagName('html')[0].lang = locale;
-    document.getElementsByTagName('html')[0].style.fontSize = isMobileBrowser ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
+    document.getElementsByTagName('html')[0].style.fontSize = isMobile ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
 
     const body = document.getElementsByTagName('body')[0];
-    if (BROWSER_RESULTS && BROWSER_RESULTS.name) {
-      body.classList.add(`browser-${BROWSER_RESULTS.name}`);
-    }
-    if (BROWSER_RESULTS && BROWSER_RESULTS.os) {
-      body.classList.add(`os-${BROWSER_RESULTS.os.split(' ').shift().toLowerCase()}`);
-    }
+
+    body.classList.add(`browser-${browserName.toLowerCase()}`);
+    body.classList.add(`os-${osName.split(' ').shift().toLowerCase()}`);
 
     if (!validIOSVersion()) {
       notify(
@@ -160,7 +158,7 @@ class App extends Component {
       startBandwidthMonitoring();
     }
 
-    if (isMobileBrowser) makeCall('setMobileUser');
+    if (isMobile) makeCall('setMobileUser');
 
     ConnectionStatusService.startRoundTripTime();
 

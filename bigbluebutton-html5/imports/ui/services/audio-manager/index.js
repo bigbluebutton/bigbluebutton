@@ -497,10 +497,18 @@ class AudioManager {
       .catch(handleChangeInputDeviceError);
   }
 
-  async changeOutputDevice(deviceId) {
+  liveChangeInputDevice(deviceId) {
+    const handleChangeInputDeviceSuccess = (inputDevice) => {
+      this.inputDevice = inputDevice;
+      return Promise.resolve(inputDevice);
+    };
+    this.bridge.liveChangeInputDevice(deviceId).then(handleChangeInputDeviceSuccess);
+  }
+
+  async changeOutputDevice(deviceId, isLive) {
     this.outputDeviceId = await this
       .bridge
-      .changeOutputDevice(deviceId || DEFAULT_OUTPUT_DEVICE_ID);
+      .changeOutputDevice(deviceId || DEFAULT_OUTPUT_DEVICE_ID, isLive);
   }
 
   set inputDevice(value) {
