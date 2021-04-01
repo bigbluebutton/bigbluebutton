@@ -5,8 +5,6 @@ const ETHERPAD = Meteor.settings.private.etherpad;
 const NOTE_CONFIG = Meteor.settings.public.note;
 const TOKEN = '_';
 
-const withInstaceId = (instanceId, id) => `[${instanceId}]${id}`;
-
 const isEnabled = () => NOTE_CONFIG.enabled;
 
 const getDataFromResponse = (data, key) => {
@@ -32,12 +30,11 @@ const processForNotePadOnly = fn => (message, ...args) => {
   return () => { };
 };
 
-const generatePadId = (meetingId) => hashSHA1(meetingId + ETHERPAD.apikey);
+const generatePadId = meetingId => hashSHA1(meetingId + ETHERPAD.apikey);
 
 export {
   generatePadId,
   isEnabled,
   getDataFromResponse,
   processForNotePadOnly,
-  withInstaceId,
 };
