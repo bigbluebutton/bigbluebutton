@@ -206,7 +206,7 @@ const getConnectionStatus = () => {
   });
 
   return UsersPersistentData.find(
-    {},
+    { meetingId: Auth.meetingID },
     {
       fields:
       {

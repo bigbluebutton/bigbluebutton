@@ -16,13 +16,7 @@ function usersPersistentData() {
     meetingId,
   };
 
-  const options = {
-    fields: {
-      meetingId: false,
-    },
-  };
-
-  return UsersPersistentData.find(selector, options);
+  return UsersPersistentData.find(selector);
 }
 
 function publishUsersPersistentData(...args) {
