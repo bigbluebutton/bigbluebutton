@@ -509,7 +509,7 @@ class SIPSession {
                 callerIdName: this.user.callerIdName,
               },
             }, 'User agent disconnected: trying to reconnect...'
-              + ` (userHangup = ${!!this.userRequestedHangup})`);
+            + ` (userHangup = ${!!this.userRequestedHangup})`);
 
             logger.info({
               logCode: 'sip_js_session_ua_reconnecting',
@@ -605,7 +605,7 @@ class SIPSession {
               callerIdName: this.user.callerIdName,
             },
           }, 'User agent failed to reconnect after'
-            + ` ${USER_AGENT_RECONNECTION_ATTEMPTS} attemps`);
+          + ` ${USER_AGENT_RECONNECTION_ATTEMPTS} attemps`);
 
           this.callback({
             status: this.baseCallStates.failed,
@@ -879,7 +879,7 @@ class SIPSession {
                 callerIdName: this.user.callerIdName,
               },
             }, 'ICE connection state change - Current connection state - '
-                + `${peer.connectionState}`);
+            + `${peer.connectionState}`);
 
             switch (peer.connectionState) {
               case 'failed':
@@ -904,8 +904,8 @@ class SIPSession {
                       callerIdName: this.user.callerIdName,
                     },
                   }, 'ICE connection success, but user is already connected'
-                      + 'ignoring it...'
-                      + `${peer.iceConnectionState}`);
+                  + 'ignoring it...'
+                  + `${peer.iceConnectionState}`);
 
                   return;
                 }
@@ -917,7 +917,7 @@ class SIPSession {
                     callerIdName: this.user.callerIdName,
                   },
                 }, 'ICE connection success. Current ICE Connection state - '
-                    + `${peer.iceConnectionState}`);
+                + `${peer.iceConnectionState}`);
 
                 clearTimeout(callTimeout);
                 clearTimeout(iceNegotiationTimeout);
@@ -1219,7 +1219,7 @@ export default class SIPBridge extends BaseAudioBridge {
           let shouldTryReconnect = false;
 
           // Try and get the call to clean up and end on an error
-          this.activeSession.exitAudio().catch(() => {});
+          this.activeSession.exitAudio().catch(() => { });
 
           if (this.activeSession.webrtcConnected) {
             // webrtc was able to connect so just try again

@@ -6,8 +6,7 @@ import {
 import SanitizeHTML from 'sanitize-html';
 import Meetings, { RecordMeetings } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
-import createNote from '/imports/api/note/server/methods/createNote';
-import createCaptions from '/imports/api/captions/server/methods/createCaptions';
+import { initPads } from '/imports/api/common/server/etherpad';
 import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
 import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
@@ -184,8 +183,7 @@ export default function addMeeting(meeting) {
       Logger.info(`Added meeting id=${meetingId}`);
 
       const { html5InstanceId } = meeting.systemProps;
-      createNote(meetingId, html5InstanceId);
-      createCaptions(meetingId, html5InstanceId);
+      initPads(meetingId, html5InstanceId);
     } else if (numberAffected) {
       Logger.info(`Upserted meeting id=${meetingId}`);
     }
