@@ -942,7 +942,7 @@ class PresentationUploader extends Component {
           className={styles.modalInner}
         >
           <div className={styles.modalHeader}>
-            <h1>Presentation</h1>
+            <h1>{intl.formatMessage(intlMessages.title)}</h1>
             <div className={styles.actionWrapper}>
               <Button
                 className={styles.dismiss}
