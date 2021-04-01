@@ -66,8 +66,6 @@
     "app.userList.menu.lockUser.label": "Barrar {0}",
     "app.userList.menu.makePresenter.label": "Far venir presentator",
     "app.userList.userOptions.manageUsersLabel": "Gerir los utilizaires",
-    "app.userList.userOptions.connectionStatusLabel": "Estat connexion",
-    "app.userList.userOptions.connectionStatusDesc": "Veire l’estat de la connexion de l’utilizaire",
     "app.userList.userOptions.disablePrivChat": "Lo chat privat es desactivat",
     "app.userList.userOptions.disablePubChat": "Lo chat public es desactivat",
     "app.media.label": "Mèdia",
