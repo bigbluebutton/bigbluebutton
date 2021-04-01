@@ -1,4 +1,3 @@
-import browser from 'browser-detect';
 import BaseAudioBridge from './base';
 import logger from '/imports/startup/client/logger';
 import {
@@ -19,6 +18,7 @@ import CallStateOptions from '/imports/api/voice-call-states/utils/callStates';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 import Storage from '/imports/ui/services/storage/session';
+import browserInfo from '/imports/utils/browserInfo';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
@@ -1084,7 +1084,9 @@ class SIPSession {
       const matchConstraints = this.filterSupportedConstraints(constraints);
 
       //Chromium bug - see: https://bugs.chromium.org/p/chromium/issues/detail?id=796964&q=applyConstraints&can=2
-      if (browser().name === 'chrome') {
+      const { isChrome } = browserInfo;
+
+      if (isChrome) {
         matchConstraints.deviceId = this.inputDeviceId;
 
         const stream = await navigator.mediaDevices.getUserMedia(

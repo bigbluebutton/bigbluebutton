@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/button/component';
 import Checkbox from '/imports/ui/components/checkbox/component';
 import Icon from '/imports/ui/components/icon/component';
@@ -10,15 +11,10 @@ import update from 'immutability-helper';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import { toast } from 'react-toastify';
-import browser from 'browser-detect';
 import _ from 'lodash';
 import { styles } from './styles';
 
-const BROWSER_RESULTS = browser();
-const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false)
-  || (BROWSER_RESULTS && BROWSER_RESULTS.os
-    ? BROWSER_RESULTS.os.includes('Android') // mobile flag doesn't always work
-    : false);
+const { isMobile } = deviceInfo;
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
@@ -968,7 +964,7 @@ class PresentationUploader extends Component {
             {`${intl.formatMessage(intlMessages.message)}`}
           </div>
           {this.renderPresentationList()}
-          {isMobileBrowser ? this.renderPicDropzone() : null}
+          {isMobile ? this.renderPicDropzone() : null}
           {this.renderDropzone()}
         </div>
       </div>
