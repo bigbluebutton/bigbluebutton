@@ -22,6 +22,7 @@ import {
   subscribeToStreamStateChange,
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
@@ -41,6 +42,7 @@ class VideoListItem extends Component {
     this.setVideoIsReady = this.setVideoIsReady.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
     this.onStreamStateChange = this.onStreamStateChange.bind(this);
+    this.updateOrientation = this.updateOrientation.bind(this);
   }
 
   onStreamStateChange(e) {
@@ -69,6 +71,7 @@ class VideoListItem extends Component {
     this.videoTag.addEventListener('loadeddata', this.setVideoIsReady);
     this.videoContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
     subscribeToStreamStateChange(cameraId, this.onStreamStateChange);
+    window.addEventListener('resize', this.updateOrientation);
   }
 
   componentDidUpdate() {
@@ -99,6 +102,7 @@ class VideoListItem extends Component {
     this.videoContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
     unsubscribeFromStreamStateChange(cameraId, this.onStreamStateChange);
     onVideoItemUnmount(cameraId);
+    window.removeEventListener('resize', this.updateOrientation);
   }
 
   onFullscreenChange() {
@@ -143,6 +147,10 @@ class VideoListItem extends Component {
     ]);
   }
 
+  updateOrientation() {
+    this.setState({ isPortrait: deviceInfo.isPortrait() });
+  }
+
   renderFullscreenButton() {
     const { name } = this.props;
     const { isFullscreen } = this.state;
@@ -165,6 +173,7 @@ class VideoListItem extends Component {
       videoIsReady,
       isFullscreen,
       isStreamHealthy,
+      isPortrait,
     } = this.state;
     const {
       name,
@@ -179,6 +188,8 @@ class VideoListItem extends Component {
     const shouldRenderReconnect = !isStreamHealthy && videoIsReady;
 
     const { isFirefox } = browserInfo;
+    const { isPhone } = deviceInfo;
+    const isTethered = isPhone && isPortrait;
 
     return (
       <div
@@ -230,7 +241,7 @@ class VideoListItem extends Component {
           <div className={styles.info}>
             {enableVideoMenu && availableActions.length >= 3
               ? (
-                <Dropdown className={isFirefox ? styles.dropdownFireFox : styles.dropdown}>
+                <Dropdown tethered={isTethered} placement="right bottom" className={isFirefox ? styles.dropdownFireFox : styles.dropdown}>
                   <DropdownTrigger className={styles.dropdownTrigger}>
                     <span>{name}</span>
                   </DropdownTrigger>
