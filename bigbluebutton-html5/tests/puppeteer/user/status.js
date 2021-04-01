@@ -14,9 +14,9 @@ class Status extends Page {
 
   async test() {
     await util.setStatus(this, e.applaud);
-    const resp1 = await this.page.evaluate(util.countTestElements, 'div[data-test="userAvatar"] > div > i[class="icon-bbb-applause"]');
+    const resp1 = await this.page.evaluate(util.countTestElements, e.applauseIcon);
     await util.setStatus(this, e.away);
-    const resp2 = await this.page.evaluate(util.countTestElements, 'div[data-test="userAvatar"] > div > i[class="icon-bbb-time"]');
+    const resp2 = await this.page.evaluate(util.countTestElements, e.awayIcon);
 
     await this.click(e.firstUser, true);
     await this.waitForSelector(e.clearStatus, ELEMENT_WAIT_TIME);
@@ -26,7 +26,7 @@ class Status extends Page {
 
   async findConnectionStatusModal() {
     await util.connectionStatus(this.page);
-    const resp = await (await this.page.$$('div[aria-label="Connection status modal"]')).length === 1;
+    const resp = await this.page.evaluate(util.countTestElements, e.connectionStatusModal) === true;
     return resp;
   }
 
@@ -40,7 +40,7 @@ class Status extends Page {
       await this.waitForSelector(e.closeConnectionStatusModal, ELEMENT_WAIT_TIME);
       await this.page.evaluate(utilB.clickTestElement, e.closeConnectionStatusModal);
       await sleep(2000);
-      const webcamsIsDisabledInDataSaving = await this.page.evaluate(() => document.querySelectorAll('button[aria-label="Webcam sharing is disabled in Data Saving"]').length === 1);
+      const webcamsIsDisabledInDataSaving = await this.page.evaluate(util.countTestElements, e.webcamsIsDisabledInDataSaving) === true;
       return webcamsIsDisabledInDataSaving === true;
     } catch (e) {
       console.log(e);
@@ -59,13 +59,30 @@ class Status extends Page {
       await this.waitForSelector(e.closeConnectionStatusModal, ELEMENT_WAIT_TIME);
       await this.page.evaluate(utilB.clickTestElement, e.closeConnectionStatusModal);
       await sleep(2000);
-      const webcamsIsDisabledInDataSaving = await this.page.evaluate(() => document.querySelectorAll('button[aria-label="Screenshare locked"]').length === 1);
+      const webcamsIsDisabledInDataSaving = await this.page.evaluate(util.countTestElements, e.screenshareLocked) === true;
       return webcamsIsDisabledInDataSaving === true;
     } catch (e) {
       console.log(e);
       return false;
     }
   }
-}
 
+  async reportUserInConnectionIssues() {
+    try {
+      await this.joinMicrophone();
+      await utilWebcam.enableWebcam(this, ELEMENT_WAIT_LONGER_TIME);
+      await utilScreenshare.startScreenshare(this);
+      await utilScreenshare.waitForScreenshareContainer(this);
+      await util.connectionStatus(this);
+      await sleep(10000);
+      const connectionStatusItemEmpty = await this.page.evaluate(util.countTestElements, e.connectionStatusItemEmpty) === false;
+      const connectionStatusItemUser = await this.page.evaluate(util.countTestElements, e.connectionStatusItemUser) === true;
+      console.log({ connectionStatusItemEmpty, connectionStatusItemUser });
+      return connectionStatusItemUser && connectionStatusItemEmpty;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+  }
+}
 module.exports = exports = Status;

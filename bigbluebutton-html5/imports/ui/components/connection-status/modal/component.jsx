@@ -82,7 +82,10 @@ class ConnectionStatusComponent extends PureComponent {
     const { intl } = this.props;
 
     return (
-      <div className={styles.item}>
+      <div
+        className={styles.item}
+        data-test="connectionStatusItemEmpty"
+      >
         <div className={styles.left}>
           <div className={styles.name}>
             <div className={styles.text}>
@@ -111,6 +114,7 @@ class ConnectionStatusComponent extends PureComponent {
         <div
           key={index}
           className={cx(styles.item, itemStyle)}
+          data-test="connectionStatusItemUser"
         >
           <div className={styles.left}>
             <div className={styles.avatar}>
@@ -215,7 +219,8 @@ class ConnectionStatusComponent extends PureComponent {
             </h2>
           </div>
           <div className={styles.description}>
-            {intl.formatMessage(intlMessages.description)}{' '}
+            {intl.formatMessage(intlMessages.description)}
+            {' '}
             {this.help
               && (
                 <a href={this.help} target="_blank" rel="noopener noreferrer">
