@@ -2,7 +2,8 @@ const Page = require('./core/page');
 const Status = require('./user/status');
 const MultiUsers = require('./user/multiusers');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
-const { MAX_MULTIUSERS_TEST_TIMEOUT } = require('./core/constants'); // core constants (Timeouts vars imported)
+const { MAX_MULTIUSERS_TEST_TIMEOUT, TEST_DURATION_TIME } = require('./core/constants'); // core constants (Timeouts vars imported)
+const { NETWORK_PRESETS, USER_AGENTS, MOBILE_DEVICES } = require('./core/profiles');
 
 expect.extend({ toMatchImageSnapshot });
 
@@ -101,8 +102,8 @@ const userTest = () => {
     }
   });
 
-  // Open Connection Status Modal, disable Webcam
-  // and check if webcam sharing is still available
+  // Open Connection Status Modal, start Webcam Share, disable Webcams in
+  // Connection Status Modal and check if webcam sharing is still available
   test('Disable Webcams From Connection Status Modal', async () => {
     const test = new Status();
     let response;
@@ -130,8 +131,8 @@ const userTest = () => {
     }
   });
 
-  // Open Connection Status Modal, disable Screenshare
-  // and check if Screensharing is still available
+  // Open Connection Status Modal, start Screenshare, disable Screenshare in
+  // Connection Status Modal and check if Screensharing is still available
   test('Disable Screenshare From Connection Status Modal', async () => {
     const test = new Status();
     let response;
@@ -139,7 +140,7 @@ const userTest = () => {
     try {
       const testName = 'disableScreenshareFromConnectionStatus';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgsWithVideo(), undefined, undefined, undefined, testName);
+      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
       await test.startRecording(testName);
       response = await test.disableScreenshareFromConnectionStatus();
       await test.stopRecording();
@@ -158,5 +159,34 @@ const userTest = () => {
       });
     }
   });
+
+  // Connect with a Good3G NETWORK_PRESET profil,  Open Connection Status Modal
+  // and check if User1 appears in reported connection issues
+  test('Report a User in Connection Issues', async () => {
+    const test = new Status();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'reportUserInConnectionIssues';
+      await test.logger('begin of ', testName);
+      await test.init(Page.getArgsWithAudioAndVideo(), undefined, undefined, undefined, testName, NETWORK_PRESETS.Good2G);
+      await test.startRecording(testName);
+      response = await test.reportUserInConnectionIssues();
+      await test.stopRecording();
+      screenshot = await test.page.screenshot();
+      await test.logger('end of ', testName);
+    } catch (err) {
+      await test.logger(err);
+    } finally {
+      await test.close();
+    }
+    expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 19.93,
+        failureThresholdType: 'percent',
+      });
+    }
+  }, TEST_DURATION_TIME);
 };
 module.exports = exports = userTest;
