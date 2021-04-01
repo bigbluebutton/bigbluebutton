@@ -36,11 +36,8 @@ object Webcams {
       case Some(value) => {
         val mediaStream: MediaStream = MediaStream(value.stream.id, value.stream.url, userId, value.stream.attributes,
           value.stream.viewers)
-
         val webcamStream: WebcamStream = WebcamStream(streamId, mediaStream)
-
         webcams.update(streamId, webcamStream)
-
         Some(webcamStream)
       }
       case None => {
