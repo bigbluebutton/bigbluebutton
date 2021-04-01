@@ -96,7 +96,12 @@ const Chat = (props) => {
                 accessKey={CLOSE_CHAT_AK}
               />
             )
-            : <ChatDropdownContainer {...{ meetingIsBreakout, isMeteorConnected, amIModerator, timeWindowsValues }} />
+            : (
+              <ChatDropdownContainer {...{
+                meetingIsBreakout, isMeteorConnected, amIModerator, timeWindowsValues,
+              }}
+              />
+            )
         }
       </header>
       <TimeWindowList

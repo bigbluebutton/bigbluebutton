@@ -40,8 +40,7 @@ const NavBarContainer = ({ children, ...props }) => {
       {children}
     </NavBar>
   );
-}
-
+};
 
 
 export default withTracker(() => {
@@ -71,7 +70,7 @@ export default withTracker(() => {
   const isExpanded = openPanel !== '';
   const amIModerator = currentUser.role === ROLE_MODERATOR;
   const hasUnreadNotes = NoteService.hasUnreadNotes();
-  
+
 
   return {
     amIModerator,

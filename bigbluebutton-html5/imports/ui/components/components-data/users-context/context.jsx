@@ -39,7 +39,7 @@ const reducer = (state, action) => {
     }
     case ACTIONS.REMOVED: {
       ChatLogger.debug('UsersContextProvider::reducer::removed', { ...action });
-      
+
       const { user } = action.value;
       if (state[user.userId]) {
         const newState = { ...state };
@@ -113,4 +113,3 @@ export default {
   UsersContextConsumer,
   UsersContextProvider,
 };
-

@@ -23,8 +23,8 @@ export default function sendPollChatMsg({ body }, meetingId) {
   
   const caseInsensitiveReducer = (acc, item) => {
     const index = acc.findIndex(ans => ans.key.toLowerCase() === item.key.toLowerCase());
-    if(index !== -1) {
-      if(acc[index].numVotes >= item.numVotes) acc[index].numVotes += item.numVotes;
+    if (index !== -1) {
+      if (acc[index].numVotes >= item.numVotes) acc[index].numVotes += item.numVotes;
       else {
         const tempVotes = acc[index].numVotes;
         acc[index] = item;

@@ -30,7 +30,7 @@ class Share extends Page {
       await this.screenshot(`${testName}`, `success-${testName}`);
       this.logger(testName, ' passed');
       return true;
-    } else if (foundTestElement === false) {
+    } if (foundTestElement === false) {
       await this.screenshot(`${testName}`, `fail-${testName}`);
       this.logger(testName, ' failed');
       return false;

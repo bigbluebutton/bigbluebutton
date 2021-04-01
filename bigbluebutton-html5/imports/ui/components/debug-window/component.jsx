@@ -209,9 +209,7 @@ class DebugWindow extends Component {
                         }}
                       >
                         {
-                          chatLoggerLevelsNames.map((i, index) => {
-                            return (<option key={`${i}-${index}`}>{i}</option>);
-                          })
+                          chatLoggerLevelsNames.map((i, index) => (<option key={`${i}-${index}`}>{i}</option>))
                         }
                       </select>
                       <button

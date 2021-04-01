@@ -4,6 +4,7 @@ import TimeWindowList from './component';
 import Auth from '/imports/ui/services/auth';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import ChatService, { UserSentMessageCollection } from '../service';
+
 export default class TimeWindowListContainer extends PureComponent {
   render() {
     const { chatId } = this.props;

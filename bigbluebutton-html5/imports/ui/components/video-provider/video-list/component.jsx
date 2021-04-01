@@ -311,10 +311,10 @@ class VideoList extends Component {
       const isFocused = focusedId === cameraId;
       const isFocusedIntlKey = !isFocused ? 'focus' : 'unfocus';
       const isMirrored = this.cameraIsMirrored(cameraId);
-      let actions = [{
+      const actions = [{
         actionName: ACTION_NAME_MIRROR,
-        label: intl.formatMessage(intlMessages['mirrorLabel']),
-        description: intl.formatMessage(intlMessages['mirrorDesc']),
+        label: intl.formatMessage(intlMessages.mirrorLabel),
+        description: intl.formatMessage(intlMessages.mirrorDesc),
         onClick: () => this.mirrorCamera(cameraId),
       }];
 

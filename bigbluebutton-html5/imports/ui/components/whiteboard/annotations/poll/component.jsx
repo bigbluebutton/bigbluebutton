@@ -208,9 +208,8 @@ class PollDrawComponent extends Component {
     // calculating only the parts which have to be done just once and don't require
     // rendering / rerendering the text objects
 
-    // if (!state.initialState) return;
     const { annotation } = this.props;
-    const { points, result } = annotation;
+    const { points, result, numResponders } = annotation;
     const { slideWidth, slideHeight, intl } = this.props;
 
     // x1 and y1 - coordinates of the top left corner of the annotation
@@ -274,11 +273,11 @@ class PollDrawComponent extends Component {
       }
 
       _tempArray.push(_result.key, `${_result.numVotes}`);
-      if (votesTotal === 0) {
+      if (numResponders === 0) {
         _tempArray.push('0%');
         _tempArray.push(i);
       } else {
-        const percResult = (_result.numVotes / votesTotal) * 100;
+        const percResult = (_result.numVotes / numResponders) * 100;
         _tempArray.push(`${Math.round(percResult)}%`);
         _tempArray.push(i);
       }
@@ -618,7 +617,7 @@ class PollDrawComponent extends Component {
     const { prepareToDisplay, textArray } = this.state;
 
     let ariaResultLabel = `${intl.formatMessage(intlMessages.pollResultAria)}: `;
-    textArray.map((t, idx) => {
+    textArray.forEach((t, idx) => {
       const pollLine = t.slice(0, -1);
       ariaResultLabel += `${idx > 0 ? ' |' : ''} ${pollLine.join(' | ')}`;
     });

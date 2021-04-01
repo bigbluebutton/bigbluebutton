@@ -14,5 +14,4 @@ export default function handleStopExternalVideo({ header, body }, meetingId) {
   } catch (err) {
     Logger.error(`Error on setting shared external video stop in Meetings collection: ${err}`);
   }
-
 }

@@ -8,7 +8,7 @@ import { SCREENSHARING_ERRORS } from './errors';
 const SFU_CONFIG = Meteor.settings.public.kurento;
 const SFU_URL = SFU_CONFIG.wsUrl;
 
-const BRIDGE_NAME = 'kurento'
+const BRIDGE_NAME = 'kurento';
 const SCREENSHARE_VIDEO_TAG = 'screenshareVideo';
 const SEND_ROLE = 'send';
 const RECV_ROLE = 'recv';
@@ -19,7 +19,7 @@ const ERROR_MAP = {
   1302: SCREENSHARING_ERRORS.SIGNALLING_TRANSPORT_CONNECTION_FAILED,
   1305: SCREENSHARING_ERRORS.PEER_NEGOTIATION_FAILED,
   1307: SCREENSHARING_ERRORS.ICE_STATE_FAILED,
-}
+};
 
 const mapErrorCode = (error) => {
   const { errorCode } = error;
@@ -31,7 +31,7 @@ const mapErrorCode = (error) => {
   error.message = mappedError.errorMessage;
 
   return error;
-}
+};
 
 export default class KurentoScreenshareBridge {
   constructor() {
@@ -62,15 +62,15 @@ export default class KurentoScreenshareBridge {
       extraInfo: {
         reconnecting: this.reconnecting,
         role: this.role,
-        bridge: BRIDGE_NAME
+        bridge: BRIDGE_NAME,
       },
-    }, `Screenshare presenter session is reconnecting`);
+    }, 'Screenshare presenter session is reconnecting');
 
     this.stop();
     this.restartIntervalMs = BridgeService.getNextReconnectionInterval(currentRestartIntervalMs);
     this.share(stream, this.onerror).then(() => {
       this.clearReconnectionTimeout();
-    }).catch(error => {
+    }).catch((error) => {
       // Error handling is a no-op because it will be "handled" in handlePresenterFailure
       logger.debug({
         logCode: 'screenshare_reconnect_failed',
@@ -79,7 +79,7 @@ export default class KurentoScreenshareBridge {
           errorMessage: error.errorMessage,
           reconnecting: this.reconnecting,
           role: this.role,
-          bridge: BRIDGE_NAME
+          bridge: BRIDGE_NAME,
         },
       }, 'Screensharing reconnect failed');
     });
@@ -93,9 +93,9 @@ export default class KurentoScreenshareBridge {
       extraInfo: {
         reconnecting: this.reconnecting,
         role: this.role,
-        bridge: BRIDGE_NAME
+        bridge: BRIDGE_NAME,
       },
-    }, `Screenshare viewer session is reconnecting`);
+    }, 'Screenshare viewer session is reconnecting');
 
     // Cleanly stop everything before triggering a reconnect
     this.stop();
@@ -103,7 +103,7 @@ export default class KurentoScreenshareBridge {
     this.restartIntervalMs = BridgeService.getNextReconnectionInterval(currentRestartIntervalMs);
     this.view(this.hasAudio).then(() => {
       this.clearReconnectionTimeout();
-    }).catch(error => {
+    }).catch((error) => {
       // Error handling is a no-op because it will be "handled" in handleViewerFailure
       logger.debug({
         logCode: 'screenshare_reconnect_failed',
@@ -112,7 +112,7 @@ export default class KurentoScreenshareBridge {
           errorMessage: error.errorMessage,
           reconnecting: this.reconnecting,
           role: this.role,
-          bridge: BRIDGE_NAME
+          bridge: BRIDGE_NAME,
         },
       }, 'Screensharing reconnect failed');
     });
@@ -129,26 +129,26 @@ export default class KurentoScreenshareBridge {
       default:
         this.reconnecting = false;
         logger.error({
-          logCode: 'screenshare_invalid_role'
+          logCode: 'screenshare_invalid_role',
         }, 'Screen sharing with invalid role, wont reconnect');
         break;
     }
   }
 
-  maxConnectionAttemptsReached () {
+  maxConnectionAttemptsReached() {
     return this.connectionAttempts > BridgeService.MAX_CONN_ATTEMPTS;
   }
 
-  scheduleReconnect () {
+  scheduleReconnect() {
     if (this.reconnectionTimeout == null) {
       this.reconnectionTimeout = setTimeout(
         this.handleConnectionTimeoutExpiry.bind(this),
-        this.restartIntervalMs
+        this.restartIntervalMs,
       );
     }
   }
 
-  clearReconnectionTimeout () {
+  clearReconnectionTimeout() {
     this.reconnecting = false;
     this.restartIntervalMs = BridgeService.BASE_MEDIA_TIMEOUT;
 
@@ -176,11 +176,12 @@ export default class KurentoScreenshareBridge {
     logger.error({
       logCode: 'screenshare_broker_failure',
       extraInfo: {
-        errorCode, errorMessage,
+        errorCode,
+        errorMessage,
         role: this.broker.role,
         started: this.broker.started,
         reconnecting: this.reconnecting,
-        bridge: BRIDGE_NAME
+        bridge: BRIDGE_NAME,
       },
     }, 'Screenshare broker failure');
 
@@ -275,11 +276,11 @@ export default class KurentoScreenshareBridge {
       this.broker.onended = this.handleEnded.bind(this);
 
       this.broker.share().then(() => {
-          this.scheduleReconnect();
-          return resolve();
-        }).catch(reject);
+        this.scheduleReconnect();
+        return resolve();
+      }).catch(reject);
     });
-  };
+  }
 
   stop() {
     if (this.broker) {

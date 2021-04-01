@@ -9,8 +9,8 @@ import { notify } from '/imports/ui/services/notification';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills';
 import { monitorAudioConnection } from '/imports/utils/stats';
+import { Meteor } from 'meteor/meteor';
 import AudioErrors from './error-codes';
-import {Meteor} from "meteor/meteor";
 
 const STATS = Meteor.settings.public.stats;
 const MEDIA = Meteor.settings.public.media;
@@ -640,7 +640,7 @@ class AudioManager {
       return;
     }
 
-    peer.getSenders().forEach(sender => {
+    peer.getSenders().forEach((sender) => {
       const { track } = sender;
       if (track && track.kind === 'audio') {
         track.enabled = shouldEnable;
@@ -656,7 +656,7 @@ class AudioManager {
     this.setSenderTrackEnabled(true);
   }
 
-  playAlertSound (url) {
+  playAlertSound(url) {
     if (!url) {
       return Promise.resolve();
     }

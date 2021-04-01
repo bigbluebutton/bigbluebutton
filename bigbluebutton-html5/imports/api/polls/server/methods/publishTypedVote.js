@@ -39,7 +39,7 @@ export default function publishTypedVote(id, pollAnswer) {
         requesterId: requesterUserId,
         pollId: id,
         questionId: 0,
-        answerId: existingAnsId,
+        answerIds: [existingAnsId],
       },
     );
   }

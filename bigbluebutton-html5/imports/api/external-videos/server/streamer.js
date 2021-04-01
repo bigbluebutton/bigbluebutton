@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import Logger from '/imports/startup/server/logger';
 
 const allowRecentMessages = (eventName, message) => {
-
   const {
     userId,
     meetingId,
@@ -25,10 +24,8 @@ export function removeExternalVideoStreamer(meetingId) {
 }
 
 export function addExternalVideoStreamer(meetingId) {
-
   const streamName = `external-videos-${meetingId}`;
   if (!Meteor.StreamerCentral.instances[streamName]) {
-
     const streamer = new Meteor.Streamer(streamName);
     streamer.allowRead('all');
     streamer.allowWrite('none');

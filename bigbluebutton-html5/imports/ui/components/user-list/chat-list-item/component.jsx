@@ -14,7 +14,7 @@ const DEBOUNCE_TIME = 1000;
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
-let globalAppplyStateToProps = ()=>{};
+let globalAppplyStateToProps = () => {};
 
 const throttledFunc = _.debounce(() => {
   globalAppplyStateToProps();
@@ -82,7 +82,6 @@ const ChatListItem = (props) => {
     chatPanelOpen,
   } = props;
 
-  
 
   const isCurrentChat = chat.userId === activeChatId && chatPanelOpen;
   const linkClasses = {};

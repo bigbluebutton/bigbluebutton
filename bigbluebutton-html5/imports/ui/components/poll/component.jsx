@@ -7,6 +7,7 @@ import _ from 'lodash';
 import { Session } from 'meteor/session';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
+import Checkbox from '/imports/ui/components/checkbox/component';
 import LiveResult from './live-result/component';
 import { styles } from './styles.scss';
 import DragAndDrop from './dragAndDrop/component';
@@ -148,6 +149,10 @@ const intlMessages = defineMessages({
     id: 'app.poll.abstention',
     description: '',
   },
+  enableMultipleResponseLabel: {
+    id: 'app.poll.enableMultipleResponseLabel',
+    description: 'label for checkbox to enable multiple choice',
+  },
 });
 
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
@@ -170,6 +175,7 @@ class Poll extends Component {
       question: '',
       optList: [],
       error: null,
+      isMultipleResponse: false,
     };
 
     this.handleBackClick = this.handleBackClick.bind(this);
@@ -177,6 +183,7 @@ class Poll extends Component {
     this.handleRemoveOption = this.handleRemoveOption.bind(this);
     this.handleTextareaChange = this.handleTextareaChange.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.toggleIsMultipleResponse = this.toggleIsMultipleResponse.bind(this);
   }
 
   componentDidMount() {
@@ -235,6 +242,13 @@ class Poll extends Component {
     list[index] = { val: validatedVal };
     this.setState({ optList: list, error: clearError ? null : error });
   }
+
+
+  toggleIsMultipleResponse() {
+    const { isMultipleResponse } = this.state;
+    return this.setState({ isMultipleResponse: !isMultipleResponse });
+  }
+
 
   handleTextareaChange(e) {
     const { type, error } = this.state;
@@ -384,7 +398,7 @@ class Poll extends Component {
 
   renderPollOptions() {
     const {
-      type, optList, question, error,
+      type, optList, question, error, isMultipleResponse,
     } = this.state;
     const { startPoll, startCustomPoll, intl } = this.props;
     const defaultPoll = type === 'TF' || type === 'A-' || type === 'YNA';
@@ -492,6 +506,21 @@ class Poll extends Component {
                       flexFlow: 'column',
                     }}
                     >
+                      {defaultPoll
+                        && (
+                        <div>
+                          <Checkbox
+                            onChange={this.toggleIsMultipleResponse}
+                            checked={isMultipleResponse}
+                            className={styles.checkbox}
+                            ariaLabelledBy="multipleResponseCheckboxLabel"
+                          />
+                          <label id="multipleResponseCheckboxLabel" className={styles.instructions}>
+                            {intl.formatMessage(intlMessages.enableMultipleResponseLabel)}
+                          </label>
+                        </div>
+                        )
+                      }
                       {defaultPoll && this.renderInputs()}
                       {defaultPoll
                         && (
@@ -532,10 +561,11 @@ class Poll extends Component {
                               startCustomPoll(
                                 verifiedPollType,
                                 question,
+                                isMultipleResponse,
                                 _.compact(verifiedOptions),
                               );
                             } else {
-                              startPoll(verifiedPollType, question);
+                              startPoll(verifiedPollType, question, isMultipleResponse);
                             }
                           });
                         }}

@@ -24,23 +24,23 @@ trait RespondToPollReqMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    def broadcastUserRespondedToPollRecordMsg(msg: RespondToPollReqMsg, pollId: String, answerId: Int): Unit = {
+    def broadcastUserRespondedToPollRecordMsg(msg: RespondToPollReqMsg, pollId: String, answerIds: Seq[Int]): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(UserRespondedToPollRecordMsg.NAME, routing)
       val header = BbbClientMsgHeader(UserRespondedToPollRecordMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = UserRespondedToPollRecordMsgBody(pollId, answerId)
+      val body = UserRespondedToPollRecordMsgBody(pollId, answerIds)
       val event = UserRespondedToPollRecordMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
     }
 
-    def broadcastUserRespondedToPollRespMsg(msg: RespondToPollReqMsg, pollId: String, answerId: Int, sendToId: String): Unit = {
+    def broadcastUserRespondedToPollRespMsg(msg: RespondToPollReqMsg, pollId: String, answerIds: Seq[Int], sendToId: String): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, liveMeeting.props.meetingProp.intId, sendToId)
       val envelope = BbbCoreEnvelope(UserRespondedToPollRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(UserRespondedToPollRespMsg.NAME, liveMeeting.props.meetingProp.intId, sendToId)
 
-      val body = UserRespondedToPollRespMsgBody(pollId, msg.header.userId, answerId)
+      val body = UserRespondedToPollRespMsgBody(pollId, msg.header.userId, answerIds)
       val event = UserRespondedToPollRespMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
@@ -48,15 +48,15 @@ trait RespondToPollReqMsgHdlr {
 
     for {
       (pollId: String, updatedPoll: SimplePollResultOutVO) <- Polls.handleRespondToPollReqMsg(msg.header.userId, msg.body.pollId,
-        msg.body.questionId, msg.body.answerId, liveMeeting)
+        msg.body.questionId, msg.body.answerIds, liveMeeting)
     } yield {
       broadcastPollUpdatedEvent(msg, pollId, updatedPoll)
-      broadcastUserRespondedToPollRecordMsg(msg, pollId, msg.body.answerId)
+      broadcastUserRespondedToPollRecordMsg(msg, pollId, msg.body.answerIds)
 
       for {
         presenter <- Users2x.findPresenter(liveMeeting.users2x)
       } yield {
-        broadcastUserRespondedToPollRespMsg(msg, pollId, msg.body.answerId, presenter.intId)
+        broadcastUserRespondedToPollRespMsg(msg, pollId, msg.body.answerIds, presenter.intId)
       }
     }
   }

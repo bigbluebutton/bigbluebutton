@@ -38,7 +38,7 @@ const Adapter = () => {
     const usersCursor = Users.find({}, { sort: { timestamp: 1 } });
     usersCursor.observe({
       added: (obj) => {
-        ChatLogger.debug("usersAdapter::observe::added", obj);
+        ChatLogger.debug('usersAdapter::observe::added', obj);
         dispatch({
           type: ACTIONS.ADDED,
           value: {

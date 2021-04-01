@@ -39,7 +39,7 @@ export const processForHTML5ServerOnly = fn => (message, ...args) => {
   return fn(message, ...args);
 };
 
-export const hashSHA1 = (str) => sha1(str).toString();
+export const hashSHA1 = str => sha1(str).toString();
 
 export const extractCredentials = (credentials) => {
   if (!credentials) return {};

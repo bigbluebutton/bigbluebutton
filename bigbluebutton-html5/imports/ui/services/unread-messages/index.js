@@ -34,7 +34,7 @@ class UnreadMessagesTracker {
 
     return this._unreadChats[chatID];
   }
-  
+
   getUnreadMessages(chatID) {
     return [];
     const filter = {

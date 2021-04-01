@@ -27,7 +27,7 @@ export default function userTypedResponse({ header, body }) {
     requesterId: userId,
     pollId,
     questionId: 0,
-    answerId,
+    answerIds: [answerId],
   };
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);
