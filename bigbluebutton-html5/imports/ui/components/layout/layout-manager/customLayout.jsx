@@ -48,8 +48,6 @@ class CustomLayout extends Component {
     const { newLayoutContextState } = this.props;
     const { deviceType } = newLayoutContextState;
 
-    console.log('zzz', newLayoutContextState.input);
-
     if (prevProps.newLayoutContextState.deviceType !== deviceType
       || newLayoutContextState.layoutLoaded !== prevProps.newLayoutContextState.layoutLoaded) {
       this.init();
@@ -134,9 +132,6 @@ class CustomLayout extends Component {
   init() {
     const { newLayoutContextState, newLayoutContextDispatch } = this.props;
     const { deviceType, input } = newLayoutContextState;
-
-    console.log('zzz 2', input.sidebarContent);
-    console.log('zzz 2', deviceType);
 
     if (deviceType === DEVICE_TYPE.MOBILE) {
       newLayoutContextDispatch({

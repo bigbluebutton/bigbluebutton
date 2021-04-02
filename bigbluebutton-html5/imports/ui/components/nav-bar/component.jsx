@@ -63,28 +63,16 @@ class NavBar extends Component {
     }
   }
 
-  componentDidUpdate() {
-    const { sidebarNavPanel, sidebarContentPanel } = this.props;
-
-    console.log('yyy sidebarNavPanel', sidebarNavPanel);
-    console.log('yyy sidebarNavPanel', sidebarContentPanel);
-  }
-
   componentWillUnmount() {
     clearInterval(this.interval);
   }
 
   handleToggleUserList() {
     const {
-      sidebarNavPanel,
-      sidebarContentPanel,
       sidebarNavigation,
       sidebarContent,
       newLayoutContextDispatch,
     } = this.props;
-
-    console.log('yyy', sidebarNavPanel);
-    console.log('yyy', sidebarContentPanel);
 
     if (sidebarNavigation.isOpen) {
       if (sidebarContent.isOpen) {
