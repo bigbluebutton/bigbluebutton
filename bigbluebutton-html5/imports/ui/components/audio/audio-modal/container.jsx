@@ -58,7 +58,7 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
   const forceListenOnlyAttendee = forceListenOnly && !Service.isUserModerator();
 
   const { isIos } = deviceInfo;
-  const { isChrome, isEdge, isIe } = browserInfo;
+  const { isChrome, isIe } = browserInfo;
 
   return ({
     joinedAudio,
@@ -86,7 +86,7 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
     forceListenOnlyAttendee,
     isIOSChrome: isIos && isChrome,
     isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
-    isIEOrEdge: isEdge || isIe,
+    isIE: isIe,
     autoplayBlocked: Service.autoplayBlocked(),
     handleAllowAutoplay: () => Service.handleAllowAutoplay(),
     isRTL,
