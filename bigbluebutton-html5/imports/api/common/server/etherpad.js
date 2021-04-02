@@ -6,6 +6,7 @@ import createCaptions from '/imports/api/captions/server/methods/createCaptions'
 
 const ETHERPAD = Meteor.settings.private.etherpad;
 const BASE_URL = `http://${ETHERPAD.host}:${ETHERPAD.port}/api/${ETHERPAD.version}`;
+const HASH_SIZE = 36;
 
 const createPadURL = padId => `${BASE_URL}/createPad?apikey=${ETHERPAD.apikey}&padID=${padId}`;
 
@@ -15,7 +16,7 @@ const appendTextURL = (padId, text) => `${BASE_URL}/appendText?apikey=${ETHERPAD
 
 const checkTokenURL = () => `${BASE_URL}/checkToken?apikey=${ETHERPAD.apikey}`;
 
-const hashSHA1 = (str) => sha1(str).toString();
+const hashSHA1 = (str) => sha1(str).toString().substring(0, HASH_SIZE);
 
 const checkServer = () => {
   return new Promise((resolve, reject) => {
