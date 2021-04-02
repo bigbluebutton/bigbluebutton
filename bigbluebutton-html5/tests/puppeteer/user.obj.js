@@ -12,6 +12,35 @@ const userTest = () => {
     jest.setTimeout(MAX_MULTIUSERS_TEST_TIMEOUT);
   });
 
+  // Mobile User Should have 'Mobile' tag under his name in Userslist
+  test('Mobile Tag Name For Mobile User', async () => {
+    const test = new Status();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'mobileTagName';
+      await test.logger('begin of ', testName);
+      await test.init(Page.iPhoneXArgs(), undefined, undefined, undefined, testName);
+      await test.startRecording(testName);
+      await test.closeAudioModal();
+      response = await test.mobileTagName();
+      await test.logger('end of ', testName);
+      await test.stopRecording();
+      screenshot = await test.page.screenshot();
+    } catch (e) {
+      await test.logger(e);
+    } finally {
+      await test.close();
+    }
+    expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 1.08,
+        failureThresholdType: 'percent',
+      });
+    }
+  });
+
   // Change user status icon and check if it has changed
   test('Change status', async () => {
     const test = new Status();
@@ -169,7 +198,7 @@ const userTest = () => {
     try {
       const testName = 'reportUserInConnectionIssues';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgsWithAudioAndVideo(), undefined, undefined, undefined, testName, NETWORK_PRESETS.Good2G);
+      await test.init(Page.getArgsWithAudioAndVideo(), undefined, undefined, undefined, testName);
       await test.startRecording(testName);
       response = await test.reportUserInConnectionIssues();
       await test.stopRecording();

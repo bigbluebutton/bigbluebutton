@@ -24,6 +24,15 @@ class Status extends Page {
     return resp1 === resp2;
   }
 
+  async mobileTagName() {
+    await this.page.waitForSelector(e.userList, ELEMENT_WAIT_TIME);
+    await this.page.click(e.userList, true);
+    await this.page.waitForSelector(e.firstUser, ELEMENT_WAIT_TIME);
+
+    const response = await this.page.evaluate(util.countTestElements, e.mobileUser) === true;
+    return response;
+  }
+
   async findConnectionStatusModal() {
     await util.connectionStatus(this.page);
     const resp = await this.page.evaluate(util.countTestElements, e.connectionStatusModal) === true;

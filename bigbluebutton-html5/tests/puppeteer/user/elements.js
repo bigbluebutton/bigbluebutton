@@ -17,3 +17,5 @@ exports.webcamsIsDisabledInDataSaving = 'button[aria-label="Webcam sharing is di
 exports.screenshareLocked = 'button[aria-label="Screenshare locked"]';
 exports.connectionStatusItemEmpty = 'div[data-test="connectionStatusItemEmpty"]';
 exports.connectionStatusItemUser = 'div[data-test="connectionStatusItemUser"]';
+exports.mobileUser = 'span[data-test="mobileUser"]';
+exports.userList = '[aria-label="Users and messages toggle"]';
