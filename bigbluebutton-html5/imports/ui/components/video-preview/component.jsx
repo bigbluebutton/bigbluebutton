@@ -651,11 +651,11 @@ class VideoPreview extends Component {
 
     const shared = sharedDevices.includes(webcamDeviceId);
 
-    const { isEdge, isIe } = browserInfo;
+    const { isIe } = browserInfo;
 
     return (
       <div>
-        {isEdge || isIe ? (
+        {isIe ? (
           <p className={styles.browserWarning}>
             <FormattedMessage
               id="app.audioModal.unsupportedBrowserLabel"
