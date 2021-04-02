@@ -2,7 +2,7 @@
 name: Server Core Issue
 about: Template for creating an issue with bbb-web, akka-apps, or other server component
 title: ''
-labels: ''
+labels: Core
 assignees: ''
 
 ---
