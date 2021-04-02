@@ -78,15 +78,15 @@ class Status extends Page {
 
   async reportUserInConnectionIssues() {
     try {
+      await this.page.evaluate(() => window.dispatchEvent(new CustomEvent('socketstats', { detail: { rtt: 2000 } })));
       await this.joinMicrophone();
       await utilWebcam.enableWebcam(this, ELEMENT_WAIT_LONGER_TIME);
       await utilScreenshare.startScreenshare(this);
       await utilScreenshare.waitForScreenshareContainer(this);
       await util.connectionStatus(this);
-      await sleep(10000);
+      await sleep(5000);
       const connectionStatusItemEmpty = await this.page.evaluate(util.countTestElements, e.connectionStatusItemEmpty) === false;
       const connectionStatusItemUser = await this.page.evaluate(util.countTestElements, e.connectionStatusItemUser) === true;
-      console.log({ connectionStatusItemEmpty, connectionStatusItemUser });
       return connectionStatusItemUser && connectionStatusItemEmpty;
     } catch (e) {
       console.log(e);
