@@ -59,11 +59,16 @@ const AppContainer = (props) => {
     ...otherProps
   } = props;
   const {
+    input,
     layoutType,
     deviceType,
     sidebarNavPanel,
     sidebarContentPanel,
   } = newLayoutContextState;
+
+  const { sidebarNavigation, sidebarContent } = input;
+  const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
+  const sidebarContentIsOpen = sidebarContent.isOpen;
 
 
   return (
@@ -75,7 +80,9 @@ const AppContainer = (props) => {
         deviceType,
         newLayoutContextDispatch,
         sidebarNavPanel,
+        sidebarNavigationIsOpen,
         sidebarContentPanel,
+        sidebarContentIsOpen,
       }}
       {...otherProps}
     />

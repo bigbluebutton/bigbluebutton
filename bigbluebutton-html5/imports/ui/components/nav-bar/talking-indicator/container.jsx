@@ -17,12 +17,17 @@ const TalkingIndicatorContainer = (props) => {
   if (!enableTalkingIndicator) return null;
   const newLayoutContext = useContext(NLayoutContext);
   const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { sidebarNavPanel, sidebarContentPanel } = newLayoutContextState;
+  const { input, sidebarNavPanel, sidebarContentPanel } = newLayoutContextState;
+  const { sidebarNavigation, sidebarContent } = input;
+  const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
+  const sidebarContentIsOpen = sidebarContent.isOpen;
   return (
     <TalkingIndicator
       {...{
         sidebarNavPanel,
+        sidebarNavigationIsOpen,
         sidebarContentPanel,
+        sidebarContentIsOpen,
         newLayoutContextDispatch,
         ...props,
       }}

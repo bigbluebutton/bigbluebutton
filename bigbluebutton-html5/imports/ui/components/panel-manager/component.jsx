@@ -535,9 +535,11 @@ class PanelManager extends Component {
     const {
       enableResize,
       sidebarNavPanel,
+      sidebarNavigationIsOpen,
       sidebarContentPanel,
+      sidebarContentIsOpen,
     } = this.props;
-    if (sidebarNavPanel === PANELS.NONE && sidebarContentPanel === PANELS.NONE) return null;
+    if (!sidebarNavigationIsOpen && !sidebarContentIsOpen) return null;
     const panels = [];
 
     if (sidebarNavPanel === PANELS.USERLIST) {

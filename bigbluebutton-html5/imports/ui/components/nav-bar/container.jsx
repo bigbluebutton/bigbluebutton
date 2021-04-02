@@ -43,8 +43,9 @@ const NavBarContainer = ({ children, ...props }) => {
     ...rest
   } = props;
   const {
-    idChatOpen, output, sidebarNavPanel, sidebarContentPanel,
+    input, idChatOpen, sidebarNavPanel, sidebarContentPanel, output,
   } = newLayoutContextState;
+  const { sidebarNavigation, sidebarContent } = input;
   const { navBar } = output;
   const hasUnreadMessages = checkUnreadMessages({
     groupChatsMessages, groupChats, users, idChatOpen,
@@ -59,6 +60,8 @@ const NavBarContainer = ({ children, ...props }) => {
         layoutManagerLoaded,
         sidebarNavPanel,
         sidebarContentPanel,
+        sidebarNavigation,
+        sidebarContent,
         newLayoutContextDispatch,
         ...rest,
       }}

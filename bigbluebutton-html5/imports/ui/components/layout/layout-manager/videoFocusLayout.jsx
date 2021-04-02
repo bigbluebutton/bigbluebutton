@@ -98,8 +98,7 @@ class VideoFocusLayout extends Component {
           INITIAL_INPUT_STATE,
         ),
       });
-    }
-    if (deviceType !== DEVICE_TYPE.MOBILE) {
+    } else {
       newLayoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: defaultsDeep(

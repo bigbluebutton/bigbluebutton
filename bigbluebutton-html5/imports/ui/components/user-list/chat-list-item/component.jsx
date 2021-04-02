@@ -66,11 +66,12 @@ const ChatListItem = (props) => {
     tabIndex,
     isPublicChat,
     shortcuts: TOGGLE_CHAT_PUB_AK,
+    sidebarContentIsOpen,
     sidebarContentPanel,
     newLayoutContextDispatch,
   } = props;
 
-  const chatPanelOpen = sidebarContentPanel === PANELS.CHAT;
+  const chatPanelOpen = sidebarContentIsOpen && sidebarContentPanel === PANELS.CHAT;
 
   const isCurrentChat = chat.userId === idChatOpen && chatPanelOpen;
   const linkClasses = {};
@@ -94,11 +95,12 @@ const ChatListItem = (props) => {
         value: chat.chatId,
       });
     }
-  }, [idChatOpen, sidebarContentPanel, chat]);
+  }, [idChatOpen, sidebarContentIsOpen, sidebarContentPanel, chat]);
 
   const handleClickToggleChat = () => {
     // Verify if chat panel is open
-    if (sidebarContentPanel === PANELS.CHAT) {
+
+    if (sidebarContentIsOpen && sidebarContentPanel === PANELS.CHAT) {
       if (idChatOpen === chat.chatId) {
         newLayoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -118,10 +120,7 @@ const ChatListItem = (props) => {
           value: chat.chatId,
         });
       }
-    }
-
-    // Set the chat id
-    if (sidebarContentPanel !== PANELS.CHAT) {
+    } else {
       newLayoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
         value: true,

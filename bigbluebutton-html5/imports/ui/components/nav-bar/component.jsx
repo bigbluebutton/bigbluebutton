@@ -63,34 +63,63 @@ class NavBar extends Component {
     }
   }
 
+  componentDidUpdate() {
+    const { sidebarNavPanel, sidebarContentPanel } = this.props;
+
+    console.log('yyy sidebarNavPanel', sidebarNavPanel);
+    console.log('yyy sidebarNavPanel', sidebarContentPanel);
+  }
+
   componentWillUnmount() {
     clearInterval(this.interval);
   }
 
   handleToggleUserList() {
-    const { sidebarNavPanel, sidebarContentPanel, newLayoutContextDispatch } = this.props;
-    newLayoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-      value: sidebarNavPanel === PANELS.NONE,
-    });
-    newLayoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
-      value: sidebarNavPanel === PANELS.NONE ? PANELS.USERLIST : PANELS.NONE,
-    });
-    if (sidebarContentPanel !== PANELS.NONE) {
+    const {
+      sidebarNavPanel,
+      sidebarContentPanel,
+      sidebarNavigation,
+      sidebarContent,
+      newLayoutContextDispatch,
+    } = this.props;
+
+    console.log('yyy', sidebarNavPanel);
+    console.log('yyy', sidebarContentPanel);
+
+    if (sidebarNavigation.isOpen) {
+      if (sidebarContent.isOpen) {
+        newLayoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+          value: false,
+        });
+        newLayoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+          value: PANELS.NONE,
+        });
+        newLayoutContextDispatch({
+          type: ACTIONS.SET_ID_CHAT_OPEN,
+          value: '',
+        });
+      }
+
       newLayoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+        type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
         value: false,
       });
       newLayoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+        type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
         value: PANELS.NONE,
       });
+    } else {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+        value: true,
+      });
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
+        value: PANELS.USERLIST,
+      });
     }
-    newLayoutContextDispatch({
-      type: ACTIONS.SET_ID_CHAT_OPEN,
-      value: '',
-    });
 
     window.dispatchEvent(new Event('panelChanged'));
   }
@@ -105,7 +134,7 @@ class NavBar extends Component {
       amIModerator,
       style,
       main,
-      sidebarNavPanel,
+      sidebarNavigation,
     } = this.props;
 
     const toggleBtnClasses = {};
@@ -115,7 +144,7 @@ class NavBar extends Component {
     let ariaLabel = intl.formatMessage(intlMessages.toggleUserListAria);
     ariaLabel += hasUnreadMessages ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
 
-    const isExpanded = sidebarNavPanel !== PANELS.NONE;
+    const isExpanded = sidebarNavigation.isOpen;
 
     return (
       <header

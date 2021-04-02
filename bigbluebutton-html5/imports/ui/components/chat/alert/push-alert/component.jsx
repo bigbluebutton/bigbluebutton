@@ -34,6 +34,10 @@ class ChatPushAlert extends PureComponent {
         tabIndex={0}
         onClick={() => {
           newLayoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: true,
+          });
+          newLayoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
             value: PANELS.CHAT,
           });

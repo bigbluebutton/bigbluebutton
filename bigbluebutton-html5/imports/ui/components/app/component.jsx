@@ -185,9 +185,6 @@ class App extends Component {
     ConnectionStatusService.startRoundTripTime();
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
-
-    window.addEventListener('resize', this.deviceType);
-    this.throttledDeviceType();
   }
 
   componentDidUpdate(prevProps) {
@@ -246,7 +243,7 @@ class App extends Component {
       );
     }
 
-    if (prevProps.deviceType !== deviceType) this.throttledDeviceType();
+    if (deviceType === null || prevProps.deviceType !== deviceType) this.throttledDeviceType();
   }
 
   componentWillUnmount() {
@@ -282,24 +279,33 @@ class App extends Component {
     if (enableResize === shouldEnableResize) return;
 
     this.setState({ enableResize: shouldEnableResize });
+    this.throttledDeviceType();
   }
 
   shouldAriaHide() {
-    const { sidebarNavPanel, sidebarContentPanel, isPhone } = this.props;
-    return sidebarContentPanel !== PANELS.NONE
-      && sidebarNavPanel !== PANELS.NONE
+    const { sidebarNavigationIsOpen, sidebarContentIsOpen, isPhone } = this.props;
+    return sidebarNavigationIsOpen
+      && sidebarContentIsOpen
       && (isPhone || isLayeredView.matches);
   }
 
   renderPanel() {
     const { enableResize } = this.state;
-    const { sidebarNavPanel, sidebarContentPanel, isRTL } = this.props;
+    const {
+      sidebarNavPanel,
+      sidebarNavigationIsOpen,
+      sidebarContentPanel,
+      sidebarContentIsOpen,
+      isRTL,
+    } = this.props;
 
     return (
       <PanelManager
         {...{
           sidebarNavPanel,
+          sidebarNavigationIsOpen,
           sidebarContentPanel,
+          sidebarContentIsOpen,
           enableResize,
           isRTL,
         }}
@@ -403,8 +409,8 @@ class App extends Component {
       customStyle,
       customStyleUrl,
       layoutManagerLoaded,
-      sidebarNavPanel,
-      sidebarContentPanel,
+      sidebarNavigationIsOpen,
+      sidebarContentIsOpen,
     } = this.props;
 
     return (
@@ -425,8 +431,8 @@ class App extends Component {
               <NotificationsBarContainer />
               <section className={styles.wrapper}>
                 <div className={
-                  sidebarNavPanel !== PANELS.NONE
-                    && sidebarContentPanel !== PANELS.NONE
+                  sidebarNavigationIsOpen
+                    && sidebarContentIsOpen
                     ? styles.content
                     : styles.noPanelContent
                 }
