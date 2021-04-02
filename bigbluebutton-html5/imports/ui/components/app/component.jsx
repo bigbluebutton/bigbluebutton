@@ -135,7 +135,11 @@ class App extends Component {
 
     const body = document.getElementsByTagName('body')[0];
 
-    body.classList.add(`browser-${browserName.toLowerCase()}`);
+    if (browserName) {
+      body.classList.add(`browser-${browserName.split(' ').pop()
+        .toLowerCase()}`);
+    }
+
     body.classList.add(`os-${osName.split(' ').shift().toLowerCase()}`);
 
     if (!validIOSVersion()) {
