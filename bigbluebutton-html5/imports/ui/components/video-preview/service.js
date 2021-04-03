@@ -1,5 +1,54 @@
 import Storage from '/imports/ui/services/storage/session';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import MediaStreamUtils from '/imports/utils/media-stream-utils';
+
+// VIDEO_STREAM_STORAGE: Map<deviceId, MediaStream>. Registers WEBCAM streams.
+// Easier to keep track of them. Easier to centralize their referencing.
+// Easier to shuffle them around.
+const VIDEO_STREAM_STORAGE = new Map();
+
+const storeStream = (deviceId, stream) => {
+  // Check if there's a dangling stream. If there's one and it's active, cool,
+  // return false as it's already stored. Otherwised, clean the derelict stream
+  // and store the new one
+  if (VIDEO_STREAM_STORAGE.has(deviceId)) {
+    const existingStream = getStream(deviceId);
+    if (existingStream.active) return false;
+    deleteStream(deviceId);
+  }
+
+  VIDEO_STREAM_STORAGE.set(deviceId, stream);
+
+  // Stream insurance: clean it up if it ends (see the events being listened to below)
+  const cleanup = () => {
+    deleteStream(deviceId)
+  }
+
+  // Dirty, but effective way of checking whether the browser supports the 'inactive'
+  // event. If the oninactive interface is null, it can be overridden === supported.
+  // If undefined, it's not; so we fallback to the track 'ended' event.
+  if (stream.oninactive === null) {
+    stream.addEventListener('inactive', cleanup, { once: true });
+  } else {
+    const track = MediaStreamUtils.getVideoTracks(stream)[0];
+    if (track) {
+      track.addEventListener('ended', cleanup, { once: true });
+    }
+  }
+
+  return true;
+}
+
+const getStream = (deviceId) => {
+  return VIDEO_STREAM_STORAGE.get(deviceId);
+}
+
+const deleteStream = (deviceId) => {
+  const stream = getStream(deviceId);
+  if (stream == null) return false;
+  MediaStreamUtils.stopMediaStreamTracks(stream);
+  return VIDEO_STREAM_STORAGE.delete(deviceId);
+}
 
 const promiseTimeout = (ms, promise) => {
   const timeout = new Promise((resolve, reject) => {
@@ -39,6 +88,49 @@ const getSkipVideoPreview = () => {
   );
 };
 
+const applyProfileConstraints = (stream, profile) => {
+  const videoTracks = MediaStreamUtils.getVideoTracks(stream);
+
+  // Something borked in the track fetching
+  if (videoTracks.length === 0) return Promise.reject(new Error('NoVideoTracksError'));
+
+  return Promise.all(
+    videoTracks.map(track => {
+      return track.applyConstraints(profile.constraints).catch(error => {
+        logger.warn({
+          logCode: 'video_preview_profile_apply_failure',
+          extraInfo: { errorName: error.name, errorCode: error.code, profileId: profile.id },
+        }, 'Error applying preview camera profile');
+      });
+    })
+  );
+}
+
+const digestVideoDevices = (devices, priorityDevice) => {
+  const webcams = [];
+  let areLabelled = true;
+
+  devices.forEach((device) => {
+    if (device.kind === 'videoinput') {
+      // Avoid duplicated devices
+      if (!webcams.some(d => d.deviceId === device.deviceId)) {
+        // We found a priority device. Push it to the beginning of the array so we
+        // can use it as the "initial device"
+        if (priorityDevice && priorityDevice === device.deviceId) {
+          webcams.unshift(device);
+        } else {
+          webcams.push(device);
+        }
+
+        if (!device.label) { areLabelled = false };
+      }
+    }
+  });
+
+  // Returns the list of devices and whether they are labelled or not
+  return { webcams, areLabelled };
+}
+
 export default {
   promiseTimeout,
   changeWebcam: (deviceId) => {
@@ -49,4 +141,9 @@ export default {
     Session.set('WebcamProfileId', profileId);
   },
   getSkipVideoPreview,
+  storeStream,
+  getStream,
+  deleteStream,
+  applyProfileConstraints,
+  digestVideoDevices,
 };
