@@ -1575,7 +1575,7 @@ if [ -n "$HOST" ]; then
         sed -i  "s/bbbWebAPI[ ]*=[ ]*\"[^\"]*\"/bbbWebAPI=\"${PROTOCOL}:\/\/$HOST\/bigbluebutton\/api\"/g" \
                 /etc/bigbluebutton/bbb-apps-akka.conf
         # Fix to ensure bbb-apps-akka.conf has the latest shared secret
-        SECRET=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
+        SECRET=$(get_bbb_web_config_value securitySalt)
         sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" \
                 /etc/bigbluebutton/bbb-apps-akka.conf
     fi
