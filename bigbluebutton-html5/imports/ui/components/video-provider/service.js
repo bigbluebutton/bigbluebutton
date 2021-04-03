@@ -559,7 +559,7 @@ class VideoService {
     return isOwnWebcam && isEnabledMirroring;
   }
 
-  getMyStream(deviceId) {
+  getMyStreamId(deviceId) {
     const videoStream = VideoStreams.findOne(
       {
         meetingId: Auth.meetingID,
@@ -812,6 +812,12 @@ class VideoService {
 
     return finalThreshold;
   }
+
+  getPreloadedStream () {
+    if (this.deviceId == null) return;
+
+    return VideoPreviewService.getStream(this.deviceId);
+  }
 }
 
 const videoService = new VideoService();
@@ -823,7 +829,7 @@ export default {
   stopVideo: cameraId => videoService.stopVideo(cameraId),
   getVideoStreams: () => videoService.getVideoStreams(),
   getInfo: () => videoService.getInfo(),
-  getMyStream: deviceId => videoService.getMyStream(deviceId),
+  getMyStreamId: deviceId => videoService.getMyStreamId(deviceId),
   isUserLocked: () => videoService.isUserLocked(),
   lockUser: () => videoService.lockUser(),
   getAuthenticatedURL: () => videoService.getAuthenticatedURL(),
@@ -853,4 +859,5 @@ export default {
   getPageChangeDebounceTime: () => { return PAGE_CHANGE_DEBOUNCE_TIME },
   getUsersIdFromVideoStreams: () => videoService.getUsersIdFromVideoStreams(),
   shouldRenderPaginationToggle: () => videoService.shouldRenderPaginationToggle(),
+  getPreloadedStream: () => videoService.getPreloadedStream(),
 };
