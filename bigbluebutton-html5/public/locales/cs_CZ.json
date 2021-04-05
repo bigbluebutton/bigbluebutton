@@ -96,8 +96,6 @@
     "app.userList.userOptions.unmuteAllDesc": "Zruší ztlumení uživatelů",
     "app.userList.userOptions.lockViewersLabel": "Uzamknout posluchače",
     "app.userList.userOptions.lockViewersDesc": "Uzamkne některé funkcionality setkání pro posluchače",
-    "app.userList.userOptions.connectionStatusLabel": "Stav připojení",
-    "app.userList.userOptions.connectionStatusDesc": "Zobrazit stav připojení uživatelů",
     "app.userList.userOptions.disableCam": "Webkamery sledujících jsou zakázány",
     "app.userList.userOptions.disableMic": "Uživatelské mikrofony jsou zakázány",
     "app.userList.userOptions.disablePrivChat": "Soukromý chat je zakázán",
