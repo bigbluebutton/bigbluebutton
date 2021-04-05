@@ -175,6 +175,7 @@ const getMyConnectionStatus = () => {
     return [{
       name: Auth.fullname,
       avatar: me.avatar,
+      offline: false,
       you: true,
       moderator: false,
       color: me.color,
