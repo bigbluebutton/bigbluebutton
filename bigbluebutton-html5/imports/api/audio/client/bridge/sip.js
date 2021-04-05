@@ -18,6 +18,8 @@ import VoiceCallStates from '/imports/api/voice-call-states';
 import CallStateOptions from '/imports/api/voice-call-states/utils/callStates';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
+import { filterSupportedConstraints } from '/imports/utils/media-stream-utils';
+
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
@@ -593,9 +595,7 @@ class SIPSession {
       const audioDeviceConstraints = userSettingsConstraints
         || AUDIO_MICROPHONE_CONSTRAINTS || {};
 
-      const matchConstraints = this.filterSupportedConstraints(
-        audioDeviceConstraints,
-      );
+      const matchConstraints = filterSupportedConstraints(audioDeviceConstraints);
 
       if (this.inputDeviceId) {
         matchConstraints.deviceId = this.inputDeviceId;
@@ -950,41 +950,6 @@ class SIPSession {
 
       resolve();
     });
-  }
-
-  /**
-   * Filter constraints set in audioDeviceConstraints, based on
-   * constants supported by browser. This avoids setting a constraint
-   * unsupported by browser. In currently safari version (13+), for example,
-   * setting an unsupported constraint crashes the audio.
-   * @param  {Object} audioDeviceConstraints Constraints to be set
-   * see: https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
-   * @return {Object}                        A new Object of the same type as
-   * input, containing only the supported constraints.
-   */
-  filterSupportedConstraints(audioDeviceConstraints) {
-    try {
-      const matchConstraints = {};
-      const supportedConstraints = navigator
-        .mediaDevices.getSupportedConstraints() || {};
-      Object.entries(audioDeviceConstraints).forEach(
-        ([constraintName, constraintValue]) => {
-          if (supportedConstraints[constraintName]) {
-            matchConstraints[constraintName] = constraintValue;
-          }
-        }
-      );
-
-      return matchConstraints;
-    } catch (error) {
-      logger.error({
-        logCode: 'sipjs_unsupported_audio_constraint_error',
-        extraInfo: {
-          callerIdName: this.user.callerIdName,
-        },
-      }, 'SIP.js unsupported constraint error');
-      return {};
-    }
   }
 
   /**

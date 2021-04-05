@@ -12,7 +12,12 @@ import PreviewService from './service';
 import VideoService from '../video-provider/service';
 import { styles } from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
-import MediaStreamUtils from '/imports/utils/media-stream-utils';
+import {
+  applyVideoConstraintsToStream,
+  getVideoTracksFromStream,
+  intersectTrackConstraints,
+  stopMediaStreamTracks
+} from '/imports/utils/media-stream-utils';
 
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
 const GUM_TIMEOUT = Meteor.settings.public.kurento.gUMTimeout;
@@ -187,6 +192,9 @@ class VideoPreview extends Component {
     this.handleSelectProfile = this.handleSelectProfile.bind(this);
 
     this.deviceStream = null;
+    this.defaultVideoTrackConstraints = {
+      facingMode: 'user',
+    };
 
     this._isMounted = false;
 
@@ -205,6 +213,16 @@ class VideoPreview extends Component {
     this.mirrorOwnWebcam = VideoService.mirrorOwnWebcam();
     this.skipVideoPreview = PreviewService.getSkipVideoPreview();
   }
+
+  updateDefaultConstraintSet() {
+    const track = getVideoTracksFromStream(this.deviceStream)[0];
+
+    if (typeof track.getSettings === 'function') {
+      const filteredSettings = intersectTrackConstraints(track.getSettings(), PreviewService.DEFAULT_PROPAGABLE_VIDEO_CONSTRAINTS);
+      this.defaultConstraintSet = { ...this.defaultConstraintSet, ...filteredSettings };
+    }
+  }
+
 
   componentDidMount() {
     const {
@@ -241,6 +259,8 @@ class VideoPreview extends Component {
 
             this.displayInitialPreview(webcams[0].deviceId)
               .then(async () => {
+                this.updateDefaultConstraintSet();
+
                 if (!areLabelled) {
                   // If they aren't labelled, run enumeration again and get their
                   // named versions
@@ -273,7 +293,7 @@ class VideoPreview extends Component {
 
   componentWillUnmount() {
     if (this.deviceStream) {
-      MediaStreamUtils.stopMediaStreamTracks(this.deviceStream);
+      stopMediaStreamTracks(this.deviceStream);
       this.deviceStream = null;
     }
 
@@ -301,17 +321,28 @@ class VideoPreview extends Component {
       previewError: undefined,
     });
     PreviewService.changeProfile(selectedProfile.id);
-    PreviewService.applyProfileConstraints(this.deviceStream, selectedProfile).then(() => {
+    const constraints = PreviewService.buildProfileConstraintSet(this.defaultConstraintSet, selectedProfile.constraints);
+
+    applyVideoConstraintsToStream(this.deviceStream, constraints).then(() => {
       // Late GUM resolution, clean up tracks, stop.
-      if (!this._isMounted) return MediaStreamUtils.stopMediaStreamTracks(this.deviceStream);
+      if (!this._isMounted) return stopMediaStreamTracks(this.deviceStream);
+      const track = getVideoTracksFromStream(this.deviceStream)[0];
+      const trackSettings = track.getSettings();
+
       this.setState({
         isStartSharingDisabled: false,
       });
     }).catch(error => {
-      if (error.message = 'NoVideoTracksError') {
+      logger.warn({
+        logCode: 'video_preview_profile_apply_failure',
+        extraInfo: { errorName: error.name, errorCode: error.code, profileId: selectedProfile.id },
+      }, 'Error applying preview camera profile');
+
+      if (error.message === 'NoVideoTracksError') {
         // Fail over: getting tracks isn't available; do as we did before.
         this.displayPreview(webcamDeviceId, selectedProfile);
       }
+
       this.handlePreviewError('do_gum_preview', error, 'displaying final selection');
     });
   }
@@ -323,7 +354,7 @@ class VideoPreview extends Component {
     // If the store call returns false, we're duplicating stuff. So clean this one
     // up because it's an impostor.
     if(!PreviewService.storeStream(webcamDeviceId, this.deviceStream)) {
-      MediaStreamUtils.stopMediaStreamTracks(this.deviceStream);
+      stopMediaStreamTracks(this.deviceStream);
     }
     this.deviceStream = null;
     startSharing(webcamDeviceId);
@@ -341,14 +372,14 @@ class VideoPreview extends Component {
 
   handleStopSharingAll() {
     const { resolve, stopSharing } = this.props;
-    MediaStreamUtils.stopMediaStreamTracks(this.deviceStream);
+    stopMediaStreamTracks(this.deviceStream);
     stopSharing();
     if (resolve) resolve();
   }
 
   handleProceed() {
     const { resolve, closeModal } = this.props;
-    MediaStreamUtils.stopMediaStreamTracks(this.deviceStream);
+    stopMediaStreamTracks(this.deviceStream);
     closeModal();
     if (resolve) resolve();
   }
@@ -422,11 +453,11 @@ class VideoPreview extends Component {
   doGUM(deviceId, profile) {
     const constraints = {
       audio: false,
-      video: { ...profile.constraints },
+      video: { ...this.defaultConstraintSet, ...profile.constraints },
     };
     constraints.video.deviceId = { exact: deviceId };
 
-    MediaStreamUtils.stopMediaStreamTracks(this.deviceStream);
+    stopMediaStreamTracks(this.deviceStream);
     if (this.video) {
       this.video.srcObject = null;
     }
@@ -450,7 +481,7 @@ class VideoPreview extends Component {
 
     return this.doGUM(deviceId, profile).then((stream) => {
       // Late GUM resolution, clean up tracks, stop.
-      if (!this._isMounted) return MediaStreamUtils.stopMediaStreamTracks(stream);
+      if (!this._isMounted) return stopMediaStreamTracks(stream);
 
       this.setState({
         isStartSharingDisabled: false,

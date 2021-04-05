@@ -1,6 +1,16 @@
 import Storage from '/imports/ui/services/storage/session';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import MediaStreamUtils from '/imports/utils/media-stream-utils';
+import { getVideoTracksFromStream, stopMediaStreamTracks } from '/imports/utils/media-stream-utils';
+
+// Constraints that MAY be propagated through subsequent applyConstraints calls
+// over the same MediaStreamTrack
+const DEFAULT_PROPAGABLE_VIDEO_CONSTRAINTS = {
+  aspectRatio: true,
+  deviceId: true,
+  frameRate: true,
+  height: true,
+  width: true,
+};
 
 // VIDEO_STREAM_STORAGE: Map<deviceId, MediaStream>. Registers WEBCAM streams.
 // Easier to keep track of them. Easier to centralize their referencing.
@@ -30,7 +40,7 @@ const storeStream = (deviceId, stream) => {
   if (stream.oninactive === null) {
     stream.addEventListener('inactive', cleanup, { once: true });
   } else {
-    const track = MediaStreamUtils.getVideoTracks(stream)[0];
+    const track = getVideoTracksFromStream(stream)[0];
     if (track) {
       track.addEventListener('ended', cleanup, { once: true });
     }
@@ -46,7 +56,7 @@ const getStream = (deviceId) => {
 const deleteStream = (deviceId) => {
   const stream = getStream(deviceId);
   if (stream == null) return false;
-  MediaStreamUtils.stopMediaStreamTracks(stream);
+  stopMediaStreamTracks(stream);
   return VIDEO_STREAM_STORAGE.delete(deviceId);
 }
 
@@ -89,7 +99,7 @@ const getSkipVideoPreview = () => {
 };
 
 const applyProfileConstraints = (stream, profile) => {
-  const videoTracks = MediaStreamUtils.getVideoTracks(stream);
+  const videoTracks = getVideoTracksFromStream(stream);
 
   // Something borked in the track fetching
   if (videoTracks.length === 0) return Promise.reject(new Error('NoVideoTracksError'));
@@ -131,7 +141,28 @@ const digestVideoDevices = (devices, priorityDevice) => {
   return { webcams, areLabelled };
 }
 
+const buildProfileConstraintSet = (defaultConstraintSet, profileConstraints = {}) => {
+  const unifiedConstraints = { ...defaultConstraintSet, ...profileConstraints };
+
+  // Hack: browsers (Blink, WebKit, Gecko) still do not honor the API specs
+  // which mandate that the constraints which aren't in applyConstraints argument
+  // should be reset to their default.
+  // So we have to dance a bit: height and width go hand in hand. If the profile
+  // sets those partially (either one or another), then do not propagate the
+  // missing values from defaultConstraintSet as to not bork aspectRatio
+  // prlanzarin 05 Apr 2021
+  if (profileConstraints.height && profileConstraints.width == null) {
+    delete unifiedConstraints['width'];
+  } else if (profileConstraints.width && profileConstraints.heght == null) {
+    delete unifiedConstraints['height'];
+  }
+
+  return unifiedConstraints;
+}
+
+
 export default {
+  DEFAULT_PROPAGABLE_VIDEO_CONSTRAINTS,
   promiseTimeout,
   changeWebcam: (deviceId) => {
     Session.set('WebcamDeviceId', deviceId);
@@ -146,4 +177,5 @@ export default {
   deleteStream,
   applyProfileConstraints,
   digestVideoDevices,
+  buildProfileConstraintSet,
 };

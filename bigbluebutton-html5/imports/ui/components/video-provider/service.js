@@ -15,6 +15,7 @@ import VideoPreviewService from '../video-preview/service';
 import Storage from '/imports/ui/services/storage/session';
 import logger from '/imports/startup/client/logger';
 import _ from 'lodash';
+import { applyVideoConstraintsToPeer } from '/imports/utils/media-stream-utils';
 
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
 const MULTIPLE_CAMERAS = Meteor.settings.public.app.enableMultipleCameras;
@@ -715,26 +716,6 @@ class VideoService {
     }
   }
 
-  // Some browsers (mainly iOS Safari) garble the stream if a constraint is
-  // reconfigured without propagating previous height/width info
-  reapplyResolutionIfNeeded (track, constraints) {
-    if (typeof track.getSettings !== 'function') {
-      return constraints;
-    }
-
-    const trackSettings = track.getSettings();
-
-    if (trackSettings.width && trackSettings.height) {
-      return {
-        ...constraints,
-        width: trackSettings.width,
-        height: trackSettings.height
-      };
-    } else {
-      return constraints;
-    }
-  }
-
   applyCameraProfile (peer, profileId) {
     const profile = CAMERA_PROFILES.find(targetProfile => targetProfile.id === profileId);
 
@@ -760,26 +741,21 @@ class VideoService {
     }
 
     if (constraints && typeof constraints === 'object') {
-      peer.peerConnection.getSenders().forEach(sender => {
-        const { track } = sender;
-        if (track && track.kind === 'video' && typeof track.applyConstraints  === 'function') {
-          let normalizedVideoConstraints = this.reapplyResolutionIfNeeded(track, constraints);
-          track.applyConstraints(normalizedVideoConstraints)
-            .then(() => {
-              logger.info({
-                logCode: 'video_provider_profile_applied',
-                extraInfo: { profileId },
-              }, `New camera profile applied: ${profileId}`);
-              peer.currentProfileId = profileId;
-            })
-            .catch(error => {
-              logger.warn({
-                logCode: 'video_provider_profile_apply_failed',
-                extraInfo: { errorName: error.name, errorCode: error.code },
-              }, 'Error applying camera profile');
-            });
-        }
-      });
+      const peerConnection = peer ? peer.peerConnection : undefined;
+      applyVideoConstraintsToPeer(peerConnection, constraints)
+        .then(() => {
+          logger.info({
+            logCode: 'video_provider_profile_applied',
+            extraInfo: { profileId },
+          }, `New camera profile applied: ${profileId}`);
+          peer.currentProfileId = profileId;
+        })
+        .catch(error => {
+          logger.warn({
+            logCode: 'video_provider_profile_apply_failed',
+            extraInfo: { errorName: error.name, errorCode: error.code },
+          }, 'Error applying camera profile');
+        });
     }
   }
 

@@ -9,7 +9,7 @@ import Auth from '/imports/ui/services/auth';
 import UserListService from '/imports/ui/components/user-list/service';
 import AudioService from '/imports/ui/components/audio/service';
 import { Meteor } from "meteor/meteor";
-import MediaStreamUtils from '/imports/utils/media-stream-utils';
+import { stopMediaStreamTracks } from '/imports/utils/media-stream-utils';
 
 const SCREENSHARE_MEDIA_ELEMENT_NAME = 'screenshareVideo';
 
@@ -106,7 +106,7 @@ const shareScreen = async (onFail) => {
 
   try {
     const stream = await BridgeService.getScreenStream();
-    if(!UserListService.isUserPresenter(Auth.userID)) return MediaStreamUtils.stopMediaStreamTracks(stream);
+    if(!UserListService.isUserPresenter(Auth.userID)) return stopMediaStreamTracks(stream);
     await KurentoBridge.share(stream, onFail);
     setSharingScreen(true);
   } catch (error) {
