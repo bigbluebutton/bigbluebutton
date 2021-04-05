@@ -469,6 +469,11 @@ class VideoPreview extends Component {
     );
   }
 
+  getFallbackLabel(webcam, index) {
+    const { intl } = this.props;
+    return `${intl.formatMessage(intlMessages.cameraLabel)} ${index}`
+  }
+
   renderDeviceSelectors() {
     const {
       intl,
@@ -496,9 +501,9 @@ class VideoPreview extends Component {
               className={styles.select}
               onChange={this.handleSelectWebcam}
             >
-              {availableWebcams.map(webcam => (
+              {availableWebcams.map((webcam, index) => (
                 <option key={webcam.deviceId} value={webcam.deviceId}>
-                  {webcam.label}
+                  {webcam.label || this.getFallbackLabel(webcam, index)}
                 </option>
               ))}
             </select>
