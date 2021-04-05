@@ -211,8 +211,8 @@ class MeetingActor(
   )
 
   context.system.scheduler.schedule(
-    60 seconds,
-    60 seconds,
+    1 minute,
+    1 minute,
     self,
     MeetingInfoAnalyticsMsg
   )
@@ -226,6 +226,8 @@ class MeetingActor(
       handleMeetingInfoAnalyticsLogging()
     case msg: CamStreamSubscribeSysMsg =>
       handleCamStreamSubscribeSysMsg(msg)
+    case msg: ScreenStreamSubscribeSysMsg =>
+      handleScreenStreamSubscribeSysMsg(msg)
     //=============================
 
     // 2x messages
@@ -515,58 +517,47 @@ class MeetingActor(
     updateWebcamStream(liveMeeting.webcams, msg.body.streamId, msg.body.userId)
   }
 
+  private def handleScreenStreamSubscribeSysMsg(msg: ScreenStreamSubscribeSysMsg): Unit = ???
+
   def handleMeetingInfoAnalyticsLogging(): Unit = {
     val meetingName: String = liveMeeting.props.meetingProp.name
     val externalId: String = liveMeeting.props.meetingProp.extId
     val internalId: String = liveMeeting.props.meetingProp.intId
     val hasUserJoined: Boolean = hasAuthedUserJoined(liveMeeting.status)
-
-    val isRecording: Boolean = isVoiceRecording(liveMeeting.status)
-
+    val isMeetingRecorded = MeetingStatus2x.isRecording(liveMeeting.status)
     val screenshare: Screenshare = Screenshare(null) // TODO: Placeholder null as required values not available
 
     val listOfUsers: List[UserState] = Users2x.findAll(liveMeeting.users2x).toList
-
     val breakoutRoomNames: List[String] = {
       if (state.breakout.isDefined)
         state.breakout.get.getRooms.map(_.name).toList
       else
         List()
     }
-
     val breakoutRoom: BreakoutRoom = BreakoutRoom(liveMeeting.props.breakoutProps.parentId, breakoutRoomNames)
-
     val meetingInfoAnalyticsLogMessage: MeetingInfoAnalytics = MeetingInfoAnalytics(
-      meetingName, externalId, internalId, hasUserJoined, isRecording, getMeetingInfoWebcamDetails, getMeetingInfoAudioDetails,
+      meetingName, externalId, internalId, hasUserJoined, isMeetingRecorded, getMeetingInfoWebcamDetails, getMeetingInfoAudioDetails,
       screenshare, listOfUsers.map(u => Participant(u.intId, u.name, u.role)), getMeetingInfoPresentationDetails, breakoutRoom
     )
-
     val event = MsgBuilder.buildMeetingInfoAnalyticsMsg(meetingInfoAnalyticsLogMessage)
-
     outGW.send(event)
   }
 
   private def resolveUserName(userId: String): String = {
     val userName: String = Users2x.findWithIntId(liveMeeting.users2x, userId).map(_.name).getOrElse("")
-
     if (userName.isEmpty) log.error(s"Failed to map username for id $userId")
-
     userName
   }
 
   private def getMeetingInfoWebcamDetails(): Webcam = {
     val liveWebcams: Vector[org.bigbluebutton.core.models.WebcamStream] = findAll(liveMeeting.webcams)
     val numOfLiveWebcams: Int = liveWebcams.length
-
     val broadcasts: List[Broadcast] = liveWebcams.map(webcam => Broadcast(
       webcam.stream.id,
       User(webcam.stream.userId, resolveUserName(webcam.stream.userId)), 0L
     )).toList
-
     val viewers: Set[String] = liveWebcams.flatMap(_.stream.viewers).toSet
-
     val webcamStream: msgs.WebcamStream = msgs.WebcamStream(broadcasts, viewers)
-
     Webcam(numOfLiveWebcams, webcamStream)
   }
 
@@ -593,11 +584,8 @@ class MeetingActor(
 
   private def getMeetingInfoPresentationDetails(): PresentationInfo = {
     val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
-
     val presentationId: String = presentationPods.flatMap(_.getCurrentPresentation.map(_.id)).mkString
-
     val presentationName: String = presentationPods.flatMap(_.getCurrentPresentation.map(_.name)).mkString
-
     PresentationInfo(presentationId, presentationName)
   }
 
@@ -651,7 +639,6 @@ class MeetingActor(
   }
 
   def handleDeskShareGetDeskShareInfoRequest(msg: DeskShareGetDeskShareInfoRequest): Unit = {
-
     log.info("handleDeskShareGetDeskShareInfoRequest: " + msg.conferenceName + "isBroadcasting="
       + ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel) + " URL:" +
       ScreenshareModel.getRTMPBroadcastingUrl(liveMeeting.screenshareModel))

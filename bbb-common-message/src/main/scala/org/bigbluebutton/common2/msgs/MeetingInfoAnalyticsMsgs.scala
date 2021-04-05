@@ -8,25 +8,25 @@ case class MeetingInfoAnalyticsMsg(
 case class MeetingInfoAnalyticsMsgBody(meetingInfo: MeetingInfoAnalytics)
 
 object MeetingInfoAnalytics {
-  def apply(name: String, externalId: String, internalId: String, hasUserJoined: Boolean, isRecording: Boolean, webcam: Webcam,
-            audio: Audio, screenshare: Screenshare, users: List[Participant], presentation: PresentationInfo,
+  def apply(name: String, externalId: String, internalId: String, hasUserJoined: Boolean, isMeetingRecorded: Boolean,
+            webcam: Webcam, audio: Audio, screenshare: Screenshare, users: List[Participant], presentation: PresentationInfo,
             breakoutRooms: BreakoutRoom): MeetingInfoAnalytics =
-    new MeetingInfoAnalytics(name, externalId, internalId, hasUserJoined, isRecording, webcam, audio, screenshare, users,
+    new MeetingInfoAnalytics(name, externalId, internalId, hasUserJoined, isMeetingRecorded, webcam, audio, screenshare, users,
       presentation, breakoutRooms)
 }
 
 case class MeetingInfoAnalytics(
-    name:          String,
-    externalId:    String,
-    internalId:    String,
-    hasUserJoined: Boolean,
-    isRecording:   Boolean,
-    webcams:       Webcam,
-    audio:         Audio,
-    screenshare:   Screenshare,
-    users:         List[Participant],
-    presentation:  PresentationInfo,
-    breakoutRoom:  BreakoutRoom
+    name:              String,
+    externalId:        String,
+    internalId:        String,
+    hasUserJoined:     Boolean,
+    isMeetingRecorded: Boolean,
+    webcams:           Webcam,
+    audio:             Audio,
+    screenshare:       Screenshare,
+    users:             List[Participant],
+    presentation:      PresentationInfo,
+    breakoutRoom:      BreakoutRoom
 )
 
 case class Webcam(total: Int, streams: WebcamStream)
