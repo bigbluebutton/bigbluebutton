@@ -317,7 +317,7 @@ class InputStreamLiveSelector extends Component {
             onClick={() => {}}
           />
         </DropdownTrigger>
-        <DropdownContent>
+        <DropdownContent className={styles.dropdownContent}>
           <DropdownList className={styles.dropdownListContainer}>
             {dropdownListComplete}
           </DropdownList>

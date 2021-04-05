@@ -40,6 +40,12 @@
       }
     }
   }
+
+  .dropdownContent {
+    [dir="rtl"] & {
+      right: auto;
+    }
+  }
 }
 
 .glow {
