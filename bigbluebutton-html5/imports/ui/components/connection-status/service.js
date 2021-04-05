@@ -142,6 +142,12 @@ const sortLevel = (a, b) => {
   if (indexOfA > indexOfB) return -1;
 };
 
+const sortOffline = (a, b) => {
+  if (a.offline && !b.offline) return 1;
+  if (a.offline === b.offline) return 0;
+  if (!a.offline && b.offline) return -1;
+};
+
 const getMyConnectionStatus = () => {
   const myConnectionStatus = ConnectionStatus.findOne(
     {
@@ -175,6 +181,7 @@ const getMyConnectionStatus = () => {
     return [{
       name: Auth.fullname,
       avatar: me.avatar,
+      offline: false,
       you: true,
       moderator: false,
       color: me.color,
@@ -244,7 +251,7 @@ const getConnectionStatus = () => {
     }
 
     return result;
-  }, []).sort(sortLevel);
+  }, []).sort(sortLevel).sort(sortOffline);
 };
 
 const isEnabled = () => STATS.enabled;
