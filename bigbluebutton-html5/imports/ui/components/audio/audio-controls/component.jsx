@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
-import { isMobile } from 'react-device-detect';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/button/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
@@ -138,6 +138,8 @@ class AudioControls extends PureComponent {
       inAudio,
     } = this.props;
 
+    const { isMobile } = deviceInfo;
+
     let { enableDynamicAudioDeviceSelection } = Meteor.settings.public.app;
 
     if (typeof enableDynamicAudioDeviceSelection === 'undefined') {
@@ -168,6 +170,7 @@ class AudioControls extends PureComponent {
       intl,
       shortcuts,
       isVoiceUser,
+      listenOnly,
       inputStream,
       isViewer,
       isPresenter,
@@ -198,7 +201,7 @@ class AudioControls extends PureComponent {
 
     return (
       <span className={styles.container}>
-        {isVoiceUser && inputStream && muteAlertEnabled ? (
+        {isVoiceUser && inputStream && muteAlertEnabled && !listenOnly ? (
           <MutedAlert {...{
             muted, inputStream, isViewer, isPresenter,
           }}

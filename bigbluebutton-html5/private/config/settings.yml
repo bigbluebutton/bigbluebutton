@@ -51,13 +51,13 @@ public:
     enableDebugWindow: true
     # Warning: increasing the limit of breakout rooms per meeting
     # can generate excessive overhead to the server. We recommend
-    # this value to be kept under 12.
+    # this value to be kept under 16.
     breakouts:
-      breakoutRoomLimit: 8
+      breakoutRoomLimit: 16
       sendInvitationToIncludedModerators: false
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
     customHeartbeat: false
-    showAllAvailableLocales: false
+    showAllAvailableLocales: true
     defaultSettings:
       application:
         animations: true

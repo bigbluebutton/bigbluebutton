@@ -1,4 +1,3 @@
-import browser from 'browser-detect';
 import BaseAudioBridge from './base';
 import logger from '/imports/startup/client/logger';
 import {
@@ -19,6 +18,7 @@ import CallStateOptions from '/imports/api/voice-call-states/utils/callStates';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 import Storage from '/imports/ui/services/storage/session';
+import browserInfo from '/imports/utils/browserInfo';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
@@ -89,7 +89,7 @@ class SIPSession {
     this.reconnectAttempt = reconnectAttempt;
     this.currentSession = null;
     this.remoteStream = null;
-    this._inputDeviceId = DEFAULT_INPUT_DEVICE_ID;
+    this._inputDeviceId = null;
     this._outputDeviceId = null;
     this._hangupFlag = false;
     this._reconnecting = false;
@@ -169,7 +169,7 @@ class SIPSession {
   get outputDeviceId() {
     if (!this._outputDeviceId) {
       const audioElement = document.querySelector(MEDIA_TAG);
-      if (audioElement && audioElement.sinkId) {
+      if (audioElement) {
         return audioElement.sinkId;
       }
     }
@@ -509,7 +509,7 @@ class SIPSession {
                 callerIdName: this.user.callerIdName,
               },
             }, 'User agent disconnected: trying to reconnect...'
-              + ` (userHangup = ${!!this.userRequestedHangup})`);
+            + ` (userHangup = ${!!this.userRequestedHangup})`);
 
             logger.info({
               logCode: 'sip_js_session_ua_reconnecting',
@@ -605,7 +605,7 @@ class SIPSession {
               callerIdName: this.user.callerIdName,
             },
           }, 'User agent failed to reconnect after'
-            + ` ${USER_AGENT_RECONNECTION_ATTEMPTS} attemps`);
+          + ` ${USER_AGENT_RECONNECTION_ATTEMPTS} attemps`);
 
           this.callback({
             status: this.baseCallStates.failed,
@@ -879,7 +879,7 @@ class SIPSession {
                 callerIdName: this.user.callerIdName,
               },
             }, 'ICE connection state change - Current connection state - '
-                + `${peer.connectionState}`);
+            + `${peer.connectionState}`);
 
             switch (peer.connectionState) {
               case 'failed':
@@ -904,8 +904,8 @@ class SIPSession {
                       callerIdName: this.user.callerIdName,
                     },
                   }, 'ICE connection success, but user is already connected'
-                      + 'ignoring it...'
-                      + `${peer.iceConnectionState}`);
+                  + 'ignoring it...'
+                  + `${peer.iceConnectionState}`);
 
                   return;
                 }
@@ -917,7 +917,7 @@ class SIPSession {
                     callerIdName: this.user.callerIdName,
                   },
                 }, 'ICE connection success. Current ICE Connection state - '
-                    + `${peer.iceConnectionState}`);
+                + `${peer.iceConnectionState}`);
 
                 clearTimeout(callTimeout);
                 clearTimeout(iceNegotiationTimeout);
@@ -1084,7 +1084,9 @@ class SIPSession {
       const matchConstraints = this.filterSupportedConstraints(constraints);
 
       //Chromium bug - see: https://bugs.chromium.org/p/chromium/issues/detail?id=796964&q=applyConstraints&can=2
-      if (browser().name === 'chrome') {
+      const { isChrome } = browserInfo;
+
+      if (isChrome) {
         matchConstraints.deviceId = this.inputDeviceId;
 
         const stream = await navigator.mediaDevices.getUserMedia(
@@ -1217,7 +1219,7 @@ export default class SIPBridge extends BaseAudioBridge {
           let shouldTryReconnect = false;
 
           // Try and get the call to clean up and end on an error
-          this.activeSession.exitAudio().catch(() => {});
+          this.activeSession.exitAudio().catch(() => { });
 
           if (this.activeSession.webrtcConnected) {
             // webrtc was able to connect so just try again

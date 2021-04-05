@@ -46,27 +46,10 @@
     <X-PRE-PROCESS cmd="include" data="dialplan/*.xml"/>
   </section>
 
-  <section name="chatplan" description="Regex/XML Chatplan">
-    <X-PRE-PROCESS cmd="include" data="chatplan/*.xml"/>
-  </section>
-
   <!-- mod_dingaling is reliant on the vcard data in the "directory" section. -->
   <!-- mod_sofia is reliant on the user data for authorization -->
   <section name="directory" description="User Directory">
     <X-PRE-PROCESS cmd="include" data="directory/*.xml"/>
   </section>
 
-  <!-- languages section (under development still) -->
-  <section name="languages" description="Language Management">
-    <X-PRE-PROCESS cmd="include" data="lang/de/*.xml"/>
-    <X-PRE-PROCESS cmd="include" data="lang/en/*.xml"/>
-    <X-PRE-PROCESS cmd="include" data="lang/fr/*.xml"/>
-    <X-PRE-PROCESS cmd="include" data="lang/ru/*.xml"/>
-    <X-PRE-PROCESS cmd="include" data="lang/he/*.xml"/>
-    <X-PRE-PROCESS cmd="include" data="lang/es/es_ES.xml"/>
-    <X-NO-PRE-PROCESS cmd="include" data="lang/es/es_MX.xml"/>
-    <X-PRE-PROCESS cmd="include" data="lang/pt/pt_BR.xml"/>
-    <X-NO-PRE-PROCESS cmd="include" data="lang/pt/pt_PT.xml"/>
-    <X-NO-PRE-PROCESS cmd="include" data="lang/sv/*.xml"/>
-  </section>
 </document>

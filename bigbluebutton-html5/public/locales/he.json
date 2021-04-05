@@ -504,7 +504,6 @@
     "app.lock-viewers.button.cancel": "בטל",
     "app.lock-viewers.locked": "לא מאופשר",
     "app.lock-viewers.unlocked": "מאופשר",
-    "app.connection-status.offline": "לא מקוון",
     "app.recording.startTitle": "התחל הקלטה",
     "app.recording.stopTitle": "השהה הקלטה",
     "app.recording.resumeTitle": "הפעל הקלטה מחדש",

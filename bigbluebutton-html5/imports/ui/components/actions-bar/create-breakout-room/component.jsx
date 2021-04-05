@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import cx from 'classnames';
-import browser from 'browser-detect';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/button/component';
 import { Session } from 'meteor/session';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
@@ -807,8 +807,7 @@ class BreakoutRoom extends PureComponent {
       numberOfRoomsIsValid,
     } = this.state;
 
-    const BROWSER_RESULTS = browser();
-    const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
+    const { isMobile } = deviceInfo;
 
     return (
       <Modal
@@ -834,7 +833,7 @@ class BreakoutRoom extends PureComponent {
       >
         <div className={styles.content}>
           {isInvitation || this.renderTitle()}
-          {isMobileBrowser ? this.renderMobile() : this.renderDesktop()}
+          {isMobile ? this.renderMobile() : this.renderDesktop()}
         </div>
       </Modal>
     );
