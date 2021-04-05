@@ -525,7 +525,10 @@ class MeetingActor(
     val internalId: String = liveMeeting.props.meetingProp.intId
     val hasUserJoined: Boolean = hasAuthedUserJoined(liveMeeting.status)
     val isMeetingRecorded = MeetingStatus2x.isRecording(liveMeeting.status)
-    val screenshare: Screenshare = Screenshare(null) // TODO: Placeholder null as required values not available
+
+    // TODO: Placeholder values as required values not available
+    val screenshareStream: ScreenshareStream = ScreenshareStream(new User("", ""), List())
+    val screenshare: Screenshare = Screenshare(screenshareStream)
 
     val listOfUsers: List[UserState] = Users2x.findAll(liveMeeting.users2x).toList
     val breakoutRoomNames: List[String] = {
@@ -579,7 +582,10 @@ class MeetingActor(
       freeswitchUsers.map(voiceUserState => User(voiceUserState.voiceUserId, resolveUserName(voiceUserState.intId))).toList
     )
 
-    Audio(numOfVoiceUsers, listenOnlyAudio, twoWayAudio, null)
+    // TODO: Placeholder values
+    val phoneAudio = PhoneAudio(0, List())
+
+    Audio(numOfVoiceUsers, listenOnlyAudio, twoWayAudio, phoneAudio)
   }
 
   private def getMeetingInfoPresentationDetails(): PresentationInfo = {
