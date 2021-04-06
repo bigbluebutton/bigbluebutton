@@ -11,6 +11,7 @@ const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const e = require('./elements');
 const ue = require('../user/elements');
 const PuppeteerVideoRecorder = require('puppeteer-video-recorder');
+const { NETWORK_PRESETS, USER_AGENTS, MOBILE_DEVICES } = require('./profiles');
 
 class Page {
   constructor(name) {
@@ -37,7 +38,7 @@ class Page {
   }
 
   // Join BigBlueButton meeting
-  async init(args, meetingId, newParams, customParameter, testFolderName) {
+  async init(args, meetingId, newParams, customParameter, testFolderName, connectionPreset) {
     try {
       this.effectiveParams = newParams || params;
       const isModerator = this.effectiveParams.moderatorPW;
@@ -49,7 +50,17 @@ class Page {
         this.browser = await puppeteer.launch(args);
       }
       this.page = await this.browser.newPage();
-      await this.page.setViewport({ width: 1280, height: 720 });
+
+      // Connect to Chrome DevTools
+      const client = await this.page.target().createCDPSession();
+
+      // Set throttling property
+      await client.send('Network.emulateNetworkConditions', connectionPreset || NETWORK_PRESETS.WiFi);
+
+      if (process.env.DEVICE_NAME === 'Desktop') {
+        await this.page.setViewport({ width: 1280, height: 720 });
+      }
+
       this.page.setDefaultTimeout(3600000);
 
       // Getting all page console logs
@@ -65,13 +76,12 @@ class Page {
 
       const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, isModerator, customParameter);
       await this.page.goto(joinURL, { waitUntil: 'networkidle2' });
-      const checkForGetMetrics = async () => {
-        if (process.env.BBB_COLLECT_METRICS === 'true') {
-          await this.waitForSelector(ue.anyUser, ELEMENT_WAIT_TIME);
-          await this.getMetrics(testFolderName);
-        }
-      };
-      await checkForGetMetrics();
+      await this.getUserAgent();
+
+      if (process.env.BBB_COLLECT_METRICS === 'true' && process.env.IS_MOBILE !== 'true') {
+        await this.waitForSelector(ue.anyUser, ELEMENT_WAIT_TIME);
+        await this.getMetrics(testFolderName);
+      }
     } catch (e) {
       this.logger(e);
     }
@@ -153,10 +163,33 @@ class Page {
     return await document.querySelectorAll(element)[0];
   }
 
+  async getUserAgent() {
+    const useragent = await this.page.evaluate('navigator.userAgent');
+    console.log({ useragent });
+    return useragent;
+  }
+
   // Get the default arguments for creating a page
   static getArgs() {
-    const args = ['--no-sandbox', '--use-fake-ui-for-media-stream', '--window-size=1280,720', '--lang=en-US'];
-    return { headless: true, args };
+    const args = [
+      '--no-sandbox',
+      '--use-fake-ui-for-media-stream',
+      '--use-fake-device-for-media-stream',
+      '--no-default-browser-check',
+      '--window-size=1280,1000',
+      '--lang=en-US',
+    ];
+    return {
+      headless: false,
+      args,
+      defaultViewport: {
+        width: 1280,
+        height: 805,
+      },
+      ignoreDefaultArgs: [
+        '--enable-automation',
+      ],
+    };
   }
 
   static getArgsWithAudio() {
@@ -177,14 +210,22 @@ class Page {
       '--no-sandbox',
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
-      '--window-size=1280,720',
+      '--no-default-browser-check',
+      '--window-size=1280,1000',
       `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
       '--allow-file-access',
       '--lang=en-US',
     ];
     return {
-      headless: true,
+      headless: false,
       args,
+      defaultViewport: {
+        width: 1280,
+        height: 805,
+      },
+      ignoreDefaultArgs: [
+        '--enable-automation',
+      ],
     };
   }
 
@@ -206,14 +247,22 @@ class Page {
       '--no-sandbox',
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
-      '--window-size=1280,720',
+      '--no-default-browser-check',
+      '--window-size=1280,1000',
       `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
       '--allow-file-access',
       '--lang=en-US',
     ];
     return {
-      headless: true,
+      headless: false,
       args,
+      defaultViewport: {
+        width: 1280,
+        height: 805,
+      },
+      ignoreDefaultArgs: [
+        '--enable-automation',
+      ],
     };
   }
 
@@ -235,17 +284,89 @@ class Page {
       '--no-sandbox',
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
-      '--window-size=1280,720',
+      '--no-default-browser-check',
+      '--window-size=1280,1000',
       `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
       `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
       '--allow-file-access',
       '--lang=en-US',
     ];
     return {
-      headless: true,
+      headless: false,
       args,
+      defaultViewport: {
+        width: 1280,
+        height: 805,
+      },
+      ignoreDefaultArgs: [
+        '--enable-automation',
+      ],
     };
   }
+
+  static iPhoneXArgs() {
+    const args = [
+      '--no-sandbox',
+      '--use-fake-ui-for-media-stream',
+      '--use-fake-device-for-media-stream',
+      `--user-agent=${USER_AGENTS.iPhoneX}`,
+      `--window-size=${MOBILE_DEVICES.iPhoneX.defaultViewport.width + 250},${MOBILE_DEVICES.iPhoneX.defaultViewport.height}`,
+      `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
+      `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
+      '--allow-file-access',
+      '--lang=en-US',
+    ];
+    const mobileArgs = MOBILE_DEVICES.iPhoneX;
+    return {
+      headless: false,
+      args,
+      ...mobileArgs,
+    };
+  }
+
+  static iPadArgs() {
+    const args = [
+      '--no-sandbox',
+      '--use-fake-ui-for-media-stream',
+      '--use-fake-device-for-media-stream',
+      `--user-agent=${USER_AGENTS.iPad}`,
+      `--window-size=${MOBILE_DEVICES.iPad.defaultViewport.width},${MOBILE_DEVICES.iPad.defaultViewport.height}`,
+      `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
+      `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
+      '--allow-file-access',
+      '--lang=en-US',
+    ];
+    const mobileArgs = MOBILE_DEVICES.iPad;
+    return {
+      headless: false,
+      args,
+      ...mobileArgs,
+    };
+  }
+
+  static galaxyNote3Args() {
+    const args = [
+      '--no-sandbox',
+      '--use-fake-ui-for-media-stream',
+      '--use-fake-device-for-media-stream',
+      `--user-agent=${USER_AGENTS.GalaxyNote3}`,
+      `--window-size=${MOBILE_DEVICES.GalaxyNote3.defaultViewport.width + 250},${MOBILE_DEVICES.GalaxyNote3.defaultViewport.height}`,
+      `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
+      `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
+      '--allow-file-access',
+      '--lang=en-US',
+    ];
+    const mobileArgs = MOBILE_DEVICES.GalaxyNote3;
+    return {
+      headless: false,
+      args,
+      ...mobileArgs,
+    };
+  }
+
+  // async emulateMobile(userAgent) {
+  //   await this.page.setUserAgent(userAgent);
+  // }
 
   // Returns a Promise that resolves when an element does not exist/is removed from the DOM
   async waitForElementHandleToBeRemoved(element) {
@@ -415,8 +536,8 @@ class Page {
     }
     await this.waitForSelector(ue.anyUser, ELEMENT_WAIT_TIME);
     const totalNumberOfUsersMongo = await this.page.evaluate(() => {
-      const collection = require('/imports/api/users/index.js');
-      const users = collection.default._collection.find({ connectionStatus: 'online' }).count();
+      const collection = require('/imports/api/users-persistent-data/index.js');
+      const users = collection.default._collection.find({}, {}, {}, {}, {}, { loggedOut: 'false' }).count();
       return users;
     });
     const totalNumberOfUsersDom = await this.page.evaluate(() => document.querySelectorAll('[data-test^="userListItem"]').length);

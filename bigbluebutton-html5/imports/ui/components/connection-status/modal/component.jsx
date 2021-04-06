@@ -86,7 +86,10 @@ class ConnectionStatusComponent extends PureComponent {
     const { intl } = this.props;
 
     return (
-      <div className={styles.item}>
+      <div
+        className={styles.item}
+        data-test="connectionStatusItemEmpty"
+      >
         <div className={styles.left}>
           <div className={styles.name}>
             <div className={styles.text}>
@@ -117,6 +120,7 @@ class ConnectionStatusComponent extends PureComponent {
         <div
           key={index}
           className={cx(styles.item, itemStyle)}
+          data-test="connectionStatusItemUser"
         >
           <div className={styles.left}>
             <div className={styles.avatar}>
@@ -179,6 +183,7 @@ class ConnectionStatusComponent extends PureComponent {
             onChange={() => this.handleDataSavingChange('viewParticipantsWebcams')}
             ariaLabelledBy="webcam"
             ariaLabel={intl.formatMessage(intlMessages.webcam)}
+            data-test="dataSavingWebcams"
           />
         </div>
         <div className={styles.saving}>
@@ -191,6 +196,7 @@ class ConnectionStatusComponent extends PureComponent {
             onChange={() => this.handleDataSavingChange('viewScreenshare')}
             ariaLabelledBy="screenshare"
             ariaLabel={intl.formatMessage(intlMessages.screenshare)}
+            data-test="dataSavingScreenshare"
           />
         </div>
       </div>
