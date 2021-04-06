@@ -29,8 +29,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     private SwfSlidesGenerationProgressNotifier notifier;
     private long imageTagThreshold;
     private long pathsThreshold;
-    private String convTimeout = "60s";
-    private int WAIT_FOR_SEC = 60;
+    private int convPdfToSvgTimeout = 60;
 	private String BLANK_SVG;
 
     @Override
@@ -64,18 +63,22 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             dest = imagePresentationDir.getAbsolutePath() + File.separator + "slide-1.pdf";
 
             NuProcessBuilder convertImgToSvg = new NuProcessBuilder(
-                    Arrays.asList("timeout", convTimeout, "convert", source, "-auto-orient", dest));
+                    Arrays.asList("timeout", convPdfToSvgTimeout + "s", "convert", source, "-auto-orient", dest));
 
             Png2SvgConversionHandler pHandler = new Png2SvgConversionHandler();
             convertImgToSvg.setProcessListener(pHandler);
 
             NuProcess process = convertImgToSvg.start();
             try {
-                process.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
+                process.waitFor(convPdfToSvgTimeout + 1, TimeUnit.SECONDS);
                 done = true;
             } catch (InterruptedException e) {
                 done = false;
                 log.error("InterruptedException while converting to SVG {}", dest, e);
+            }
+
+            if(pHandler.isCommandTimeout()) {
+                log.error("Command execution (convertImgToSvg) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
             }
 
             // Use the intermediate PDF file as source
@@ -97,10 +100,14 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
         NuProcess process = convertPdfToSvg.start();
         try {
-            process.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
+            process.waitFor(convPdfToSvgTimeout + 1, TimeUnit.SECONDS);
             done = true;
         } catch (InterruptedException e) {
             log.error("Interrupted Exception while generating SVG slides {}", pres.getName(), e);
+        }
+
+        if(pHandler.isCommandTimeout()) {
+            log.error("Command execution (convertPdfToSvg) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
         }
 
         if (!done) {
@@ -159,46 +166,66 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             convertPdfToPng.setProcessListener(pngHandler);
             NuProcess pngProcess = convertPdfToPng.start();
             try {
-                pngProcess.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
+                pngProcess.waitFor(convPdfToSvgTimeout + 1, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 log.error("Interrupted Exception while generating PNG image {}", pres.getName(), e);
             }
 
-            // Step 2: Convert a PNG image to SVG
-            NuProcessBuilder convertPngToSvg = new NuProcessBuilder(Arrays.asList("timeout", convTimeout, "convert",
-                        tempPng.getAbsolutePath(), destsvg.getAbsolutePath()));
-
-            Png2SvgConversionHandler svgHandler = new Png2SvgConversionHandler();
-            convertPngToSvg.setProcessListener(svgHandler);
-            NuProcess svgProcess = convertPngToSvg.start();
-            try {
-                svgProcess.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                log.error("Interrupted Exception while generating SVG image {}", pres.getName(), e);
+            if(pngHandler.isCommandTimeout()) {
+                log.error("Command execution (convertPdfToPng) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
             }
 
-            done = svgHandler.isCommandSuccessful();
+            if(tempPng.length() > 0) {
+                // Step 2: Convert a PNG image to SVG
+
+                NuProcessBuilder convertPngToSvg = new NuProcessBuilder(Arrays.asList("timeout", convPdfToSvgTimeout + "s", "convert",
+                            tempPng.getAbsolutePath(), destsvg.getAbsolutePath()));
+
+                Png2SvgConversionHandler svgHandler = new Png2SvgConversionHandler();
+                convertPngToSvg.setProcessListener(svgHandler);
+                NuProcess svgProcess = convertPngToSvg.start();
+                try {
+                    svgProcess.waitFor(convPdfToSvgTimeout + 1, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    log.error("Interrupted Exception while generating SVG image {}", pres.getName(), e);
+                }
+
+                if(svgHandler.isCommandTimeout()) {
+                    log.error("Command execution (convertPngToSvg) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
+                }
+
+                done = svgHandler.isCommandSuccessful();
+
+                if(destsvg.length() > 0) {
+                    // Step 3: Add SVG namespace to the destionation file
+                    // Check : https://phabricator.wikimedia.org/T43174
+                    NuProcessBuilder addNameSpaceToSVG = new NuProcessBuilder(Arrays.asList("timeout", convPdfToSvgTimeout + "s",
+                            "/bin/sh", "-c",
+                            "sed -i "
+                                    + "'4s|>| xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.2\">|' "
+                                    + destsvg.getAbsolutePath()));
+
+                    AddNamespaceToSvgHandler namespaceHandler = new AddNamespaceToSvgHandler();
+                    addNameSpaceToSVG.setProcessListener(namespaceHandler);
+                    NuProcess namespaceProcess = addNameSpaceToSVG.start();
+                    try {
+                        namespaceProcess.waitFor(convPdfToSvgTimeout + 1, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        log.error("Interrupted Exception while adding SVG namespace {}", pres.getName(), e);
+                    }
+
+                    if (namespaceHandler.isCommandTimeout()) {
+                        log.error("Command execution (addNameSpaceToSVG) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
+                    }
+                }
+            }
 
             // Delete the temporary PNG after finishing the image conversion
-            tempPng.delete();
-
-            // Step 3: Add SVG namespace to the destionation file
-            // Check : https://phabricator.wikimedia.org/T43174
-            NuProcessBuilder addNameSpaceToSVG = new NuProcessBuilder(Arrays.asList("timeout", convTimeout,
-                        "/bin/sh", "-c",
-                        "sed -i "
-                                + "'4s|>| xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.2\">|' "
-                                + destsvg.getAbsolutePath()));
-
-            AddNamespaceToSvgHandler namespaceHandler = new AddNamespaceToSvgHandler();
-            addNameSpaceToSVG.setProcessListener(namespaceHandler);
-            NuProcess namespaceProcess = addNameSpaceToSVG.start();
-            try {
-                namespaceProcess.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                log.error("Interrupted Exception while adding SVG namespace {}", pres.getName(), e);
+            if(tempPng.exists()) {
+                tempPng.delete();
             }
         }
+
 
         long endConv = System.currentTimeMillis();
 
@@ -232,7 +259,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             rawCommand += " && cat " + destFile;
             rawCommand += " | egrep 'data:image/png;base64|<path' | sed 's/  / /g' | cut -d' ' -f 1 | sort | uniq -cw 2";
         }
-        return new NuProcessBuilder(Arrays.asList("timeout", convTimeout, "/bin/sh", "-c", rawCommand));
+        return new NuProcessBuilder(Arrays.asList("timeout", convPdfToSvgTimeout + "s", "/bin/sh", "-c", rawCommand));
     }
 
     private File determineSvgImagesDirectory(File presentationFile) {
@@ -278,4 +305,9 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         SwfSlidesGenerationProgressNotifier notifier) {
       this.notifier = notifier;
     }
+
+    public void setConvPdfToSvgTimeout(int convPdfToSvgTimeout) {
+        this.convPdfToSvgTimeout = convPdfToSvgTimeout;
+    }
+
 }

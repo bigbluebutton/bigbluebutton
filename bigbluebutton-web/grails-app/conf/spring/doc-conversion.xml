@@ -86,6 +86,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="imageTagThreshold" value="${imageTagThreshold}"/>
         <property name="pathsThreshold" value="${placementsThreshold}"/>
         <property name="blankSvg" value="${BLANK_SVG}"/>
+        <property name="convPdfToSvgTimeout" value="${svgConversionTimeout}"/>
     </bean>
 
     <bean id="generatedSlidesInfoHelper" class="org.bigbluebutton.presentation.GeneratedSlidesInfoHelperImp"/>
