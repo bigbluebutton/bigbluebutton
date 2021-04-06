@@ -624,7 +624,10 @@ class Poll extends Component {
             icon="left_arrow"
             aria-label={intl.formatMessage(intlMessages.hidePollDesc)}
             className={styles.hideBtn}
-            onClick={() => { Session.set('openPanel', 'userlist'); }}
+            onClick={() => { 
+                     Session.set('openPanel', 'userlist');
+                     window.dispatchEvent(new Event('panelChanged'));
+                    }}
           />
           <Button
             label={intl.formatMessage(intlMessages.closeLabel)}
@@ -634,6 +637,7 @@ class Poll extends Component {
               Session.set('openPanel', 'userlist');
               Session.set('forcePollOpen', false);
               Session.set('pollInitiated', false);
+              window.dispatchEvent(new Event('panelChanged'));
             }}
             className={styles.closeBtn}
             icon="close"
