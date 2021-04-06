@@ -549,7 +549,6 @@ public:
         - value: 2
         - value: 1
       font_sizes:
-        - value: 36
         - value: 32
         - value: 28
         - value: 24
