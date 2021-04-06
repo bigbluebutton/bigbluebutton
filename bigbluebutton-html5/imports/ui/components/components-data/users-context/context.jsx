@@ -109,8 +109,9 @@ export const UsersContextConsumer = Component => props => (
   </UsersContext.Consumer>
 );
 
+export const withUsersConsumer = Component => UsersContextConsumer(Component);
+
 export default {
   UsersContextConsumer,
   UsersContextProvider,
 };
-
