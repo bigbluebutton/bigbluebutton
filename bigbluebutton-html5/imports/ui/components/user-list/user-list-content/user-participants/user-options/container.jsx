@@ -12,7 +12,7 @@ import UserOptions from './component';
 
 const propTypes = {
   users: PropTypes.arrayOf(Object).isRequired,
-  setEmojiStatus: PropTypes.func.isRequired,
+  clearAllEmojiStatus: PropTypes.func.isRequired,
   intl: PropTypes.object.isRequired,
 };
 
@@ -31,12 +31,13 @@ const meetingMuteDisabledLog = () => logger.info({
 const UserOptionsContainer = withTracker((props) => {
   const {
     users,
-    setEmojiStatus,
+    clearAllEmojiStatus,
     intl,
   } = props;
 
   const toggleStatus = () => {
-    users.forEach(user => setEmojiStatus(user.userId, 'none'));
+    clearAllEmojiStatus(users);
+
     notify(
       intl.formatMessage(intlMessages.clearStatusMessage), 'info', 'clear_status',
     );
