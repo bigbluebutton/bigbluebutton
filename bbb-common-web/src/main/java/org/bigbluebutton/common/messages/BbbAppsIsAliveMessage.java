@@ -11,7 +11,11 @@ public class BbbAppsIsAliveMessage {
 
 	public static final String TIMESTAMP = "timestamp";	
 	public static final String STARTED_ON = "started_on";
-	
+
+	public static final String HEADER  = "header";
+	public static final String NAME    = "name";
+	public static final String PAYLOAD = "payload";
+
 	public final Long timestamp;
 	public final Long startedOn;
 
@@ -30,13 +34,13 @@ public class BbbAppsIsAliveMessage {
 	}
 
 	public static BbbAppsIsAliveMessage fromJson(String message) {
-		JsonObject obj = JsonParser.parseString(message).getAsJsonObject();
-		if (obj.has("header") && obj.has("payload")) {
-			JsonObject header = (JsonObject) obj.get("header");
-			JsonObject payload = (JsonObject) obj.get("payload");
+		JsonObject obj = new JsonParser().parse(message).getAsJsonObject();
+		if (obj.has(HEADER) && obj.has(PAYLOAD)) {
+			JsonObject header = (JsonObject) obj.get(HEADER);
+			JsonObject payload = (JsonObject) obj.get(PAYLOAD);
 
-			if (header.has("name")) {
-				String messageName = header.get("name").getAsString();
+			if (header.has(NAME)) {
+				String messageName = header.get(NAME).getAsString();
 				if (BBB_APPS_IS_ALIVE.equals(messageName)) {
 
 					if (payload.has(TIMESTAMP) && payload.has(STARTED_ON)) {
