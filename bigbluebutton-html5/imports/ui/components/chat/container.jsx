@@ -8,6 +8,7 @@ import Storage from '/imports/ui/services/storage/session';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { ChatContext, getLoginTime } from '../components-data/chat-context/context';
 import { GroupChatContext } from '../components-data/group-chat-context/context';
+import { UsersContext } from '../components-data/users-context/context';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import Chat from './component';
 import ChatService from './service';
@@ -52,6 +53,7 @@ const intlMessages = defineMessages({
 
 let previousChatId = null;
 let prevSync = false;
+let prevPartnerIsLoggedOut = false;
 
 let globalAppplyStateToProps = () => { }
 
@@ -75,6 +77,8 @@ const ChatContainer = (props) => {
     loginTime,
     intl,
   } = props;
+
+  let { isChatLocked } = props;
 
   ChatLogger.debug('ChatContainer::render::props', props);
 
@@ -108,6 +112,7 @@ const ChatContainer = (props) => {
 
   const usingChatContext = useContext(ChatContext);
   const usingGroupChatContext = useContext(GroupChatContext);
+  const usingUsersContext = useContext(UsersContext);
   const [stateLastMsg, setLastMsg] = useState(null);
   const [stateTimeWindows, setTimeWindows] = useState(isPublicChat ? [...systemMessagesIds.map((item) => systemMessages[item])] : []);
   const [lastTimeWindowValuesBuild, setLastTimeWindowValuesBuild] = useState(0);
@@ -116,6 +121,20 @@ const ChatContainer = (props) => {
   const participants = groupChat[chatID]?.participants;
   const chatName = participants?.filter((user) => user.id !== Auth.userID)[0]?.name;
   const title = chatName ? intl.formatMessage(intlMessages.titlePrivate, { 0: chatName}) : intl.formatMessage(intlMessages.titlePublic);
+
+  const { users } = usingUsersContext;
+  let partnerIsLoggedOut = false;
+
+  if(!isPublicChat){
+    const idUser = participants?.filter((user) => user.id !== Auth.userID)[0]?.id;
+    partnerIsLoggedOut = (users[idUser]?.loggedOut || users[idUser]?.ejected) ? true : false;
+
+    if (partnerIsLoggedOut) {
+      isChatLocked = true;
+    }else{
+      partnerIsLoggedOut = false;
+    }
+  }
 
   if (unmounting === true) {
     return null;
@@ -133,8 +152,11 @@ const ChatContainer = (props) => {
       (lastMsg?.lastTimestamp !== stateLastMsg?.lastTimestamp)
       || (previousChatId !== chatID)
       || (prevSync !== contextChat?.syncing)
+      || (prevPartnerIsLoggedOut !== partnerIsLoggedOut)
       ) {
       prevSync = contextChat?.syncing;
+      prevPartnerIsLoggedOut = partnerIsLoggedOut;
+
       const timeWindowsValues = isPublicChat
         ? [
           ...(
@@ -157,6 +179,23 @@ const ChatContainer = (props) => {
         : [...Object.values(contextChat?.messageGroups || {})];
       if (previousChatId !== chatID) {
         previousChatId = chatID;
+      }
+
+      if (partnerIsLoggedOut) {
+        const time = Date.now();
+        const id = `partner-disconnected-${time}`;
+        const messagePartnerLoggedOut = {
+          id,
+          content: [{
+            id,
+            text: intl.formatMessage(intlMessages.partnerDisconnected, { 0: chatName}),
+            time,
+          }],
+          time,
+          sender: null,
+        };
+
+        timeWindowsValues.push(messagePartnerLoggedOut);
       }
 
       setLastMsg(lastMsg ? { ...lastMsg } : lastMsg);
@@ -186,6 +225,7 @@ const ChatContainer = (props) => {
       chatName,
       contextChat,
       lastTimeWindowValuesBuild,
+      isChatLocked
     }}>
       {children}
     </Chat>
