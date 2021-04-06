@@ -5,6 +5,7 @@ const utilCustomParams = require('../customparameters/util');
 const pe = require('../core/elements');
 const ne = require('../notifications/elements');
 const ple = require('../polling/elemens');
+const we = require('../whiteboard/elements');
 const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { sleep } = require('../core/helper');
 
@@ -19,6 +20,11 @@ class MultiUsers {
   async init(meetingId, testFolderName) {
     await this.page1.init(Page.getArgs(), meetingId, params, undefined, testFolderName);
     await this.page2.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'User2' }, undefined, testFolderName);
+  }
+
+  // Join BigBlueButton meeting
+  async initUser3(testFolderName) {
+    await this.page3.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'User3' }, undefined, testFolderName);
   }
 
   // Run the test for the page
@@ -42,6 +48,7 @@ class MultiUsers {
     await util.openPrivateChatMessage(this.page1, this.page2);
     const chat0 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
     await util.sendPrivateChatMessage(this.page1, this.page2);
+    await sleep(2000);
     const chat1 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
     return chat0 !== chat1;
   }
@@ -145,6 +152,18 @@ class MultiUsers {
       console.log(e);
       return false;
     }
+  }
+
+  async testWhiteboardAccess() {
+    await this.page1.closeAudioModal();
+    await this.page2.closeAudioModal();
+    await this.page3.closeAudioModal();
+    await this.page1.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
+    await this.page1.clickNItem(we.userListItem, true, 1);
+    await this.page1.clickNItem(we.changeWhiteboardAccess, true, 1);
+    await sleep(2000);
+    const resp = await this.page1.page.evaluate(async () => await document.querySelector('[data-test="multiWhiteboardTool"]').children[0].innerText === '1');
+    return resp;
   }
 
   // Close all Pages

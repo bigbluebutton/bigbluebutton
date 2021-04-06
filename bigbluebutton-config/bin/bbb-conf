@@ -96,7 +96,7 @@ source /etc/bigbluebutton/bigbluebutton-release
 # Figure out our environment (Debian vs. CentOS)
 #
 
-if [ -f /etc/centos-release ]; then
+if [ -f /etc/centos-release ] || [ -f /etc/system-release ]; then
     DISTRIB_ID=centos
     TOMCAT_USER=tomcat
     TOMCAT_DIR=/var/lib/$TOMCAT_USER
@@ -822,7 +822,7 @@ check_configuration() {
        echo
        echo "# Warning: No firewall detected.  Recommend using setting up a firewall for your server"
        echo "#"
-       echo "#     https://docs.bigbluebutton.org/2.2/troubleshooting.html#freeswitch-using-default-stun-server"
+       echo "#     https://docs.bigbluebutton.org/2.2/customize.html#setup-a-firewall"
        echo "#"
        echo
     fi
@@ -1575,7 +1575,7 @@ if [ -n "$HOST" ]; then
         sed -i  "s/bbbWebAPI[ ]*=[ ]*\"[^\"]*\"/bbbWebAPI=\"${PROTOCOL}:\/\/$HOST\/bigbluebutton\/api\"/g" \
                 /etc/bigbluebutton/bbb-apps-akka.conf
         # Fix to ensure bbb-apps-akka.conf has the latest shared secret
-        SECRET=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
+        SECRET=$(get_bbb_web_config_value securitySalt)
         sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" \
                 /etc/bigbluebutton/bbb-apps-akka.conf
     fi

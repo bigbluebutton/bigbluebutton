@@ -1,20 +1,9 @@
 import { Meteor } from 'meteor/meteor';
-import { hashSHA1 } from '/imports/api/common/server/helpers';
+import { hashSHA1 } from '/imports/api/common/server/etherpad';
 
 const ETHERPAD = Meteor.settings.private.etherpad;
 const NOTE_CONFIG = Meteor.settings.public.note;
-const BASE_URL = `http://${ETHERPAD.host}:${ETHERPAD.port}/api/${ETHERPAD.version}`;
 const TOKEN = '_';
-
-const createPadURL = padId => `${BASE_URL}/createPad?apikey=${ETHERPAD.apikey}&padID=${padId}`;
-
-const getReadOnlyIdURL = padId => `${BASE_URL}/getReadOnlyID?apikey=${ETHERPAD.apikey}&padID=${padId}`;
-
-const appendTextURL = (padId, text) => `${BASE_URL}/appendText?apikey=${ETHERPAD.apikey}&padID=${padId}&text=${encodeURIComponent(text)}`;
-
-const generateNoteId = (meetingId) => hashSHA1(meetingId+ETHERPAD.apikey);
-
-const withInstaceId = (instanceId, id) => `[${instanceId}]${id}`;
 
 const isEnabled = () => NOTE_CONFIG.enabled;
 
@@ -38,16 +27,14 @@ const processForNotePadOnly = fn => (message, ...args) => {
   check(id, String);
 
   if (isNotePad(id)) return fn(message, ...args);
-  return () => {};
+  return () => { };
 };
 
+const generatePadId = meetingId => hashSHA1(meetingId + ETHERPAD.apikey);
+
 export {
-  generateNoteId,
-  createPadURL,
-  getReadOnlyIdURL,
+  generatePadId,
   isEnabled,
   getDataFromResponse,
-  appendTextURL,
   processForNotePadOnly,
-  withInstaceId,
 };

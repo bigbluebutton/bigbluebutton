@@ -1,0 +1,17 @@
+.btn {
+  margin: 0;
+
+  span {
+    border: none;
+    box-shadow: none;
+  }
+
+  &:hover,
+  &:focus {
+    span {
+      background-color: transparent !important;
+      color: var(--color-white) !important;
+      opacity: .75;
+    }
+  }
+}

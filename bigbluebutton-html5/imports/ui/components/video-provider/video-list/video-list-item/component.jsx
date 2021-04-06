@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import browser from 'browser-detect';
+import browserInfo from '/imports/utils/browserInfo';
 import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
@@ -12,7 +12,6 @@ import DropdownListTitle from '/imports/ui/components/dropdown/list/title/compon
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import Icon from '/imports/ui/components/icon/component';
-import logger from '/imports/startup/client/logger';
 import FullscreenService from '/imports/ui/components/fullscreen-button/service';
 import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
 import { styles } from '../styles';
@@ -23,6 +22,7 @@ import {
   subscribeToStreamStateChange,
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
@@ -42,9 +42,10 @@ class VideoListItem extends Component {
     this.setVideoIsReady = this.setVideoIsReady.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
     this.onStreamStateChange = this.onStreamStateChange.bind(this);
+    this.updateOrientation = this.updateOrientation.bind(this);
   }
 
-  onStreamStateChange (e) {
+  onStreamStateChange(e) {
     const { streamState } = e.detail;
     const { isStreamHealthy } = this.state;
 
@@ -70,6 +71,7 @@ class VideoListItem extends Component {
     this.videoTag.addEventListener('loadeddata', this.setVideoIsReady);
     this.videoContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
     subscribeToStreamStateChange(cameraId, this.onStreamStateChange);
+    window.addEventListener('resize', this.updateOrientation);
   }
 
   componentDidUpdate() {
@@ -100,6 +102,7 @@ class VideoListItem extends Component {
     this.videoContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
     unsubscribeFromStreamStateChange(cameraId, this.onStreamStateChange);
     onVideoItemUnmount(cameraId);
+    window.removeEventListener('resize', this.updateOrientation);
   }
 
   onFullscreenChange() {
@@ -144,6 +147,10 @@ class VideoListItem extends Component {
     ]);
   }
 
+  updateOrientation() {
+    this.setState({ isPortrait: deviceInfo.isPortrait() });
+  }
+
   renderFullscreenButton() {
     const { name } = this.props;
     const { isFullscreen } = this.state;
@@ -166,6 +173,7 @@ class VideoListItem extends Component {
       videoIsReady,
       isFullscreen,
       isStreamHealthy,
+      isPortrait,
     } = this.state;
     const {
       name,
@@ -173,26 +181,31 @@ class VideoListItem extends Component {
       numOfStreams,
       webcamDraggableState,
       swapLayout,
-      mirrored
+      mirrored,
     } = this.props;
     const availableActions = this.getAvailableActions();
     const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
     const shouldRenderReconnect = !isStreamHealthy && videoIsReady;
 
-    const result = browser();
-    const isFirefox = (result && result.name) ? result.name.includes('firefox') : false;
+    const { isFirefox } = browserInfo;
+    const { isPhone } = deviceInfo;
+    const isTethered = isPhone && isPortrait;
 
     return (
-      <div data-test={voiceUser.talking ? 'webcamItemTalkingUser' : 'webcamItem'} className={cx({
-        [styles.content]: true,
-        [styles.talking]: voiceUser.talking,
-      })}
+      <div
+        data-test={voiceUser.talking ? 'webcamItemTalkingUser' : 'webcamItem'}
+        className={cx({
+          [styles.content]: true,
+          [styles.talking]: voiceUser.talking,
+        })}
       >
         {
-          !videoIsReady &&
+          !videoIsReady
+            && (
             <div data-test="webcamConnecting" className={styles.connecting}>
               <span className={styles.loadingText}>{name}</span>
             </div>
+            )
 
         }
 
@@ -223,39 +236,41 @@ class VideoListItem extends Component {
           />
           {videoIsReady && this.renderFullscreenButton()}
         </div>
-        { videoIsReady &&
+        { videoIsReady
+          && (
           <div className={styles.info}>
-          {enableVideoMenu && availableActions.length >= 3
-            ? (
-              <Dropdown className={isFirefox ? styles.dropdownFireFox : styles.dropdown}>
-                <DropdownTrigger className={styles.dropdownTrigger}>
-                  <span>{name}</span>
-                </DropdownTrigger>
-                <DropdownContent placement="top left" className={styles.dropdownContent}>
-                  <DropdownList className={styles.dropdownList}>
-                    {availableActions}
-                  </DropdownList>
-                </DropdownContent>
-              </Dropdown>
-            )
-            : (
-              <div className={isFirefox ? styles.dropdownFireFox
-                : styles.dropdown}
-              >
-                <span className={cx({
-                  [styles.userName]: true,
-                  [styles.noMenu]: numOfStreams < 3,
-                })}
+            {enableVideoMenu && availableActions.length >= 3
+              ? (
+                <Dropdown tethered={isTethered} placement="right bottom" className={isFirefox ? styles.dropdownFireFox : styles.dropdown}>
+                  <DropdownTrigger className={styles.dropdownTrigger}>
+                    <span>{name}</span>
+                  </DropdownTrigger>
+                  <DropdownContent placement="top left" className={styles.dropdownContent}>
+                    <DropdownList className={styles.dropdownList}>
+                      {availableActions}
+                    </DropdownList>
+                  </DropdownContent>
+                </Dropdown>
+              )
+              : (
+                <div className={isFirefox ? styles.dropdownFireFox
+                  : styles.dropdown}
                 >
-                  {name}
-                </span>
-              </div>
-            )
+                  <span className={cx({
+                    [styles.userName]: true,
+                    [styles.noMenu]: numOfStreams < 3,
+                  })}
+                  >
+                    {name}
+                  </span>
+                </div>
+              )
           }
-          {voiceUser.muted && !voiceUser.listenOnly ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
-          {voiceUser.listenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
-          {voiceUser.joined && !voiceUser.muted ? <Icon className={styles.voice} iconName="unmute" /> : null}
-        </div>
+            {voiceUser.muted && !voiceUser.listenOnly ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
+            {voiceUser.listenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
+            {voiceUser.joined && !voiceUser.muted ? <Icon className={styles.voice} iconName="unmute" /> : null}
+          </div>
+          )
         }
       </div>
     );

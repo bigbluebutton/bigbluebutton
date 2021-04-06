@@ -4,7 +4,6 @@ import Logger from '/imports/startup/server/logger';
 import upsertValidationState from '/imports/api/auth-token-validation/server/modifiers/upsertValidationState';
 import { ValidationStates } from '/imports/api/auth-token-validation';
 import pendingAuthenticationsStore from '../store/pendingAuthentications';
-import BannedUsers from '../store/bannedUsers';
 
 export default function validateAuthToken(meetingId, requesterUserId, requesterToken, externalId) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
@@ -12,14 +11,6 @@ export default function validateAuthToken(meetingId, requesterUserId, requesterT
   const EVENT_NAME = 'ValidateAuthTokenReqMsg';
 
   Logger.debug('ValidateAuthToken method called', { meetingId, requesterUserId, requesterToken, externalId });
-
-  // Check if externalId is banned from the meeting
-  if (externalId) {
-    if (BannedUsers.has(meetingId, externalId)) {
-      Logger.warn(`A banned user with extId ${externalId} tried to enter in meeting ${meetingId}`);
-      return { invalid: true, reason: 'User has been banned', error_type: 'user_banned' };
-    }
-  }
 
   if (!meetingId) return false;
 

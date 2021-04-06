@@ -3,12 +3,15 @@ import Storage from '/imports/ui/services/storage/session';
 import { Session } from 'meteor/session';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
+import deviceInfo from '/imports/utils/deviceInfo';
 import _ from 'lodash';
 
 const windowWidth = () => window.innerWidth;
 const windowHeight = () => window.innerHeight;
 const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
+
+const { isMobile } = deviceInfo;
 
 // values based on sass file
 const USERLIST_MIN_WIDTH = 150;
@@ -22,7 +25,7 @@ const NOTE_MAX_WIDTH = 800;
 const WAITING_MIN_WIDTH = 340;
 const WAITING_MAX_WIDTH = 800;
 const NAVBAR_HEIGHT = 85;
-const ACTIONSBAR_HEIGHT = 42;
+const ACTIONSBAR_HEIGHT = isMobile ? 50 : 42;
 
 const WEBCAMSAREA_MIN_PERCENT = 0.2;
 const WEBCAMSAREA_MAX_PERCENT = 0.8;

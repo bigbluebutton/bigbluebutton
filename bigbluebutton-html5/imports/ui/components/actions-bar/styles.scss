@@ -28,7 +28,6 @@
 }
 
 .right {
-  flex: 1;
   justify-content: center;
   @include mq($small-only) {
     position: relative;
@@ -71,24 +70,11 @@
 }
 
 .right {
-  position: absolute;
-  right: var(--sm-padding-x);
-  left: auto;
+  position: relative;
 
   [dir="rtl"] & {
     right: auto;
     left: var(--sm-padding-x);
-  }
-}
-
-.mobileLayoutSwapped {
-  @include mq($xsmall-only) {
-    padding-right: var(--mobile-swap-offset);
-
-    [dir="rtl"] & {
-      padding-right: 0;
-      padding-left: var(--mobile-swap-offset);
-    }
   }
 }
 

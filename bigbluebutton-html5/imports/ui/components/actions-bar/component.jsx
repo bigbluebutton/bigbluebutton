@@ -35,11 +35,6 @@ class ActionsBar extends PureComponent {
       shortcuts,
     } = this.props;
 
-    const actionBarClasses = {};
-
-    actionBarClasses[styles.center] = true;
-    actionBarClasses[styles.mobileLayoutSwapped] = isLayoutSwapped && amIPresenter;
-
     return (
       <div
         className={styles.actionsbar}
@@ -68,7 +63,7 @@ class ActionsBar extends PureComponent {
             : null
           }
         </div>
-        <div className={cx(actionBarClasses)}>
+        <div className={styles.center}>
           <AudioControlsContainer />
           {enableVideo
             ? (
