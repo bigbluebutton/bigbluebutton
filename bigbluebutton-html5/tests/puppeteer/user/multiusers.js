@@ -1,11 +1,13 @@
 const Page = require('../core/page');
 const params = require('../params');
 const util = require('../chat/util');
+const utilUser = require('../user/util');
 const utilCustomParams = require('../customparameters/util');
 const pe = require('../core/elements');
 const ne = require('../notifications/elements');
 const ple = require('../polling/elemens');
 const we = require('../whiteboard/elements');
+const ue = require('../user/elements');
 const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { sleep } = require('../core/helper');
 
@@ -191,6 +193,26 @@ class MultiUsers {
     const avatarInToastElementColor = await this.page1.page.$eval(we.avatarsWrapperAvatar, elem => getComputedStyle(elem).backgroundColor);
     const avatarInUserListColor = await this.page1.page.$eval('[data-test="userListItem"] > div [data-test="userAvatar"]', elem => getComputedStyle(elem).backgroundColor);
     return avatarInToastElementColor === avatarInUserListColor;
+  }
+
+
+  async userOfflineWithInternetProblem() {
+    try {
+      await this.page1.closeAudioModal();
+      await this.page2.closeAudioModal();
+      await this.page2.page.evaluate(() => window.dispatchEvent(new CustomEvent('socketstats', { detail: { rtt: 2000 } })));
+      await sleep(3000);
+      await this.page2.close();
+      await sleep(5000);
+      await utilUser.connectionStatus(this.page1);
+      await sleep(5000);
+      const connectionStatusItemEmpty = await this.page1.page.evaluate(utilUser.countTestElements, ue.connectionStatusItemEmpty) === false;
+      const connectionStatusOfflineUser = await this.page1.page.evaluate(utilUser.countTestElements, ue.connectionStatusOfflineUser) === true;
+      return connectionStatusOfflineUser && connectionStatusItemEmpty;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
   }
 
   // Close all Pages

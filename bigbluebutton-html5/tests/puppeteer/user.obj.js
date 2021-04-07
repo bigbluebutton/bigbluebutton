@@ -218,6 +218,35 @@ const userTest = () => {
     }
   }, TEST_DURATION_TIME);
 
+  // Force bad connection profile, force disconnection
+  // and appear with offline status in Connection Status Modal
+  test('User Offline due to connection problem appears in Connection Status Modal', async () => {
+    const test = new MultiUsers();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'userOfflineWithInternetProblem';
+      await test.page1.logger('begin of ', testName);
+      await test.init(undefined, testName);
+      await test.page1.startRecording(testName);
+      response = await test.userOfflineWithInternetProblem();
+      await test.page1.stopRecording();
+      screenshot = await test.page1.page.screenshot();
+      await test.page1.logger('end of ', testName);
+    } catch (err) {
+      await test.page1.logger(err);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 19.93,
+        failureThresholdType: 'percent',
+      });
+    }
+  }, TEST_DURATION_TIME);
+
   // Raise and Lower Hand and make sure that the User2 Avatar color
   // and its avatar in raised hand toast are the same
   test('Raise Hand Toast', async () => {
