@@ -76,9 +76,8 @@ const ChatContainer = (props) => {
     amIModerator,
     loginTime,
     intl,
+    isChatLocked,
   } = props;
-
-  let { isChatLocked } = props;
 
   ChatLogger.debug('ChatContainer::render::props', props);
 
@@ -128,12 +127,6 @@ const ChatContainer = (props) => {
   if(!isPublicChat){
     const idUser = participants?.filter((user) => user.id !== Auth.userID)[0]?.id;
     partnerIsLoggedOut = (users[idUser]?.loggedOut || users[idUser]?.ejected) ? true : false;
-
-    if (partnerIsLoggedOut) {
-      isChatLocked = true;
-    }else{
-      partnerIsLoggedOut = false;
-    }
   }
 
   if (unmounting === true) {
@@ -225,7 +218,8 @@ const ChatContainer = (props) => {
       chatName,
       contextChat,
       lastTimeWindowValuesBuild,
-      isChatLocked
+      isChatLocked,
+      partnerIsLoggedOut
     }}>
       {children}
     </Chat>
@@ -235,9 +229,6 @@ const ChatContainer = (props) => {
 export default injectIntl(withTracker(({ intl }) => {
   const chatID = Session.get('idChatOpen');
   let isChatLocked = ChatService.isChatLocked(chatID);
-
-  // let chatName = title;
-  let partnerIsLoggedOut = false;
 
   const currentUser = ChatService.getUser(Auth.userID);
   const amIModerator = currentUser.role === ROLE_MODERATOR;
@@ -257,7 +248,6 @@ export default injectIntl(withTracker(({ intl }) => {
     chatID,
     intl,
     messages: [],
-    partnerIsLoggedOut,
     isChatLocked,
     isMeteorConnected,
     amIModerator,
