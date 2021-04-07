@@ -166,6 +166,33 @@ class MultiUsers {
     return resp;
   }
 
+  // Raise Hand
+  async raiseHandTest() {
+    await this.page1.closeAudioModal();
+    await this.page2.closeAudioModal();
+    await this.page2.waitForSelector(we.raiseHandLabel, ELEMENT_WAIT_TIME);
+    await this.page2.click(we.raiseHandLabel, true);
+    await sleep(2000);
+    const resp = await this.page2.page.evaluate(utilCustomParams.countTestElements, we.lowerHandLabel);
+    return resp;
+  }
+
+  // Lower Hand
+  async lowerHandTest() {
+    await this.page2.waitForSelector(we.lowerHandLabel, ELEMENT_WAIT_TIME);
+    await this.page2.click(we.lowerHandLabel, true);
+    await sleep(2000);
+    const resp = await this.page2.page.evaluate(utilCustomParams.countTestElements, we.raiseHandLabel);
+    return resp;
+  }
+
+  // Get Avatars Colors from Userlist and Notification toast
+  async getAvatarColorAndCompareWithUserListItem() {
+    const avatarInToastElementColor = await this.page1.page.$eval(we.avatarsWrapperAvatar, elem => getComputedStyle(elem).backgroundColor);
+    const avatarInUserListColor = await this.page1.page.$eval('[data-test="userListItem"] > div [data-test="userAvatar"]', elem => getComputedStyle(elem).backgroundColor);
+    return avatarInToastElementColor === avatarInUserListColor;
+  }
+
   // Close all Pages
   async close(page1, page2) {
     await page1.close();
