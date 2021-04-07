@@ -2,10 +2,10 @@ import { check } from 'meteor/check';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import Logger from '/imports/startup/server/logger';
 
-export default function setloggedOutStatus(userId, meetingId, status = true) {
+export default function updateRole(userId, meetingId, role) {
   check(userId, String);
   check(meetingId, String);
-  check(status, Boolean);
+  check(role, String);
 
   const selector = {
     userId,
@@ -14,13 +14,13 @@ export default function setloggedOutStatus(userId, meetingId, status = true) {
 
   const modifier = {
     $set: {
-      loggedOut: status,
+      role,
     },
   };
 
   try {
     UsersPersistentData.update(selector, modifier);
   } catch (err) {
-    Logger.error(`Setting users persistent data's logged out status to the collection: ${err}`);
+    Logger.error(`Updating users persistent data's role to the collection: ${err}`);
   }
 }
