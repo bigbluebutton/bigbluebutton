@@ -543,7 +543,7 @@ class WhiteboardToolbar extends Component {
       <p
         className={styles.textThickness}
         style={{
-          fontSize: fontSizeSelected.value,
+          fontSize: fontSizeSelected.value <= 32 ? fontSizeSelected.value : 32,
           color: colorSelected.value,
           WebkitTransition: `color ${TRANSITION_DURATION}, font-size ${TRANSITION_DURATION}`, /* Safari */
           transition: `color ${TRANSITION_DURATION}, font-size ${TRANSITION_DURATION}`,
