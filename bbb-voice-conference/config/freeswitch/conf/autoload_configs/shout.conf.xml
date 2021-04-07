@@ -1,8 +1,0 @@
-<configuration name="shout.conf" description="mod shout config">
-  <settings>
-    <!-- Don't change these unless you are insane -->
-    <!--<param name="decoder" value="i586"/>-->
-    <!--<param name="volume" value=".1"/>-->
-    <!--<param name="outscale" value="8192"/>-->
-  </settings>
-</configuration>

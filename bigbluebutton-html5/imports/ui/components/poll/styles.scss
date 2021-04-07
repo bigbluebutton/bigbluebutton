@@ -343,7 +343,7 @@
     margin-bottom: 1rem;
 }
 
-.selectedBtn {
+.selectedBtnBlue {
     background-color: var(--poll-blue);
     color: var(--color-white);
     font-size: var(--font-size-base);
@@ -354,6 +354,23 @@
         background-color: var(--poll-blue) !important;
         box-shadow: none !important;
         color: var(--color-white) !important;
+    }
+}
+
+.selectedBtnWhite {
+    background-color: var(--color-white);
+    color: var(--poll-blue);
+    font-size: var(--font-size-base);
+    border-color: var(--poll-blue);
+    border-width: medium;
+
+    &:hover,
+    &:focus,
+    &:active {
+        background-color: var(--color-white) !important;
+        box-shadow: none !important;
+        color: var(--poll-blue) !important;
+        border-width: medium;
     }
 }
 

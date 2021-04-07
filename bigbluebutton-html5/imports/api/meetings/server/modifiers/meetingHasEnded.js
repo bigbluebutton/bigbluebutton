@@ -1,7 +1,6 @@
 import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
-import BannedUsers from '/imports/api/users/server/store/bannedUsers';
 import { removeAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { removeCursorStreamer } from '/imports/api/cursor/server/streamer';
 import { removeExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
@@ -65,7 +64,6 @@ export default function meetingHasEnded(meetingId) {
     clearWhiteboardMultiUser(meetingId);
     clearScreenshare(meetingId);
     clearUsersPersistentData(meetingId);
-    BannedUsers.delete(meetingId);
     Metrics.removeMeeting(meetingId);
 
     Logger.info(`Cleared Meetings with id ${meetingId}`);

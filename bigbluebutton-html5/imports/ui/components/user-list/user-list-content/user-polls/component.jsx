@@ -21,6 +21,7 @@ class UserPolls extends PureComponent {
           ? 'userlist'
           : 'poll',
       );
+      window.dispatchEvent(new Event('panelChanged'));
     };
 
     const {

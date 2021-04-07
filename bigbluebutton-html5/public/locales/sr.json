@@ -96,8 +96,6 @@
     "app.userList.userOptions.unmuteAllDesc": "Isključite ukidanje glasa na predavanju",
     "app.userList.userOptions.lockViewersLabel": "Zaključajte opcije učesnicima",
     "app.userList.userOptions.lockViewersDesc": "Zaključajte određene funkcionalnosti za učesnike predavanja",
-    "app.userList.userOptions.connectionStatusLabel": "Status povezivanja",
-    "app.userList.userOptions.connectionStatusDesc": "Pogledajte status povezivanja učesnika",
     "app.userList.userOptions.disableCam": "Veb kamere učesnika nisu omogućene",
     "app.userList.userOptions.disableMic": "Mikrofoni učesnika nisu omogućeni",
     "app.userList.userOptions.disablePrivChat": "Privatni razgovor je onemogućen",

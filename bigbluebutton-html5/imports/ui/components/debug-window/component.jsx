@@ -196,7 +196,7 @@ class DebugWindow extends Component {
                 </div>
                 <div className={styles.row}>
                   <div className={styles.cell}>
-                    testando o chatLogger levels:
+                    Testing the chatLogger levels:
                   </div>
                   <div className={styles.cell}>
                     <div className={styles.cellContent}>

@@ -35,11 +35,6 @@ class ActionsBar extends PureComponent {
       shortcuts,
     } = this.props;
 
-    const actionBarClasses = {};
-
-    actionBarClasses[styles.center] = true;
-    actionBarClasses[styles.mobileLayoutSwapped] = isLayoutSwapped && amIPresenter;
-
     return (
       <div
         className={styles.actionsbar}
@@ -68,7 +63,7 @@ class ActionsBar extends PureComponent {
             : null
           }
         </div>
-        <div className={cx(actionBarClasses)}>
+        <div className={styles.center}>
           <AudioControlsContainer />
           {enableVideo
             ? (
@@ -93,7 +88,9 @@ class ActionsBar extends PureComponent {
                 }`,
               })}
               accessKey={shortcuts.raisehand}
-              color="primary"
+              color={currentUser.emoji === 'raiseHand' ? 'primary' : 'default'}
+              ghost={currentUser.emoji !== 'raiseHand'}
+              className={cx(currentUser.emoji === 'raiseHand' || styles.btn)}
               hideLabel
               circle
               size="lg"

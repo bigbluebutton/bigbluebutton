@@ -30,9 +30,8 @@ const isElementInViewport = (el) => {
 
   return (
     rect.top >= 0
-    && rect.left >= 0
-    && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)
-    && rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    // This condition is for large messages that are bigger than client height
+    || rect.top + rect.height >= 0
   );
 };
 

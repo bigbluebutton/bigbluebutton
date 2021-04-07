@@ -22,6 +22,7 @@ const propTypes = {
   currentUser: PropTypes.shape({}).isRequired,
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
+  clearAllEmojiStatus: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
   requestUserInformation: PropTypes.func.isRequired,
 };
@@ -194,7 +195,7 @@ class UserParticipants extends Component {
       intl,
       users,
       compact,
-      setEmojiStatus,
+      clearAllEmojiStatus,
       currentUser,
       meetingIsBreakout,
     } = this.props;
@@ -216,7 +217,7 @@ class UserParticipants extends Component {
                   ? (
                     <UserOptionsContainer {...{
                       users,
-                      setEmojiStatus,
+                      clearAllEmojiStatus,
                       meetingIsBreakout,
                     }}
                     />

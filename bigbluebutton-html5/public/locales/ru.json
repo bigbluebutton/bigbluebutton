@@ -525,7 +525,6 @@
     "app.lock-viewers.locked": "Заблокировано",
     "app.lock-viewers.unlocked": "Разблокирован",
     "app.guest-policy.title": "Политика для гостей",
-    "app.connection-status.offline": "Не в сети",
     "app.recording.startTitle": "Включить запись",
     "app.recording.stopTitle": "Поставить запись на паузу",
     "app.recording.resumeTitle": "Возобновить запись",
