@@ -279,7 +279,7 @@ class ActionsDropdown extends PureComponent {
           />
         </DropdownTrigger>
         <DropdownContent placement="top left">
-          <DropdownList>
+          <DropdownList className={styles.scrollableList}>
             {children}
           </DropdownList>
         </DropdownContent>
