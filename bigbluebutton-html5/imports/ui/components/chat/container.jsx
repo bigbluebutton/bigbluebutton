@@ -110,6 +110,7 @@ const ChatContainer = (props) => {
   const usingGroupChatContext = useContext(GroupChatContext);
   const [stateLastMsg, setLastMsg] = useState(null);
   const [stateTimeWindows, setTimeWindows] = useState(isPublicChat ? [...systemMessagesIds.map((item) => systemMessages[item])] : []);
+  const [lastTimeWindowValuesBuild, setLastTimeWindowValuesBuild] = useState(0);
 
   const { groupChat } = usingGroupChatContext;
   const participants = groupChat[chatID]?.participants;
@@ -160,11 +161,17 @@ const ChatContainer = (props) => {
 
       setLastMsg(lastMsg ? { ...lastMsg } : lastMsg);
       setTimeWindows(timeWindowsValues);
+      setLastTimeWindowValuesBuild(Date.now());
     }
   }
   globalAppplyStateToProps = applyPropsToState;
   throttledFunc();
 
+  ChatService.removePackagedClassAttribute(
+    ["ReactVirtualized__Grid", "ReactVirtualized__Grid__innerScrollContainer"], 
+    "role"
+  );
+  
   return (
     <Chat {...{
       ...props,
@@ -178,6 +185,7 @@ const ChatContainer = (props) => {
       syncedPercent: contextChat?.syncedPercent,
       chatName,
       contextChat,
+      lastTimeWindowValuesBuild,
     }}>
       {children}
     </Chat>

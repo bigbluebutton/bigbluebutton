@@ -83,9 +83,12 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
   });
   const isViewer = currentUser.role === ROLE_VIEWER;
   const isPresenter = currentUser.presenter;
+  const { status } = Service.getBreakoutAudioTransferStatus();
 
-  if (Service.isReturningFromBreakoutAudioTransfer()) {
-    Service.setReturningFromBreakoutAudioTransfer(false);
+  if (status === AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.RETURNING) {
+    Service.setBreakoutAudioTransferStatus({
+      status: AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+    });
     Service.recoverMicState();
   }
 

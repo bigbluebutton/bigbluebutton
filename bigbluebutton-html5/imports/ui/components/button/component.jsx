@@ -11,7 +11,7 @@ const SIZES = [
 ];
 
 const COLORS = [
-  'default', 'primary', 'danger', 'success', 'dark',
+  'default', 'primary', 'danger', 'warning', 'success', 'dark', 'offline',
 ];
 
 const propTypes = {

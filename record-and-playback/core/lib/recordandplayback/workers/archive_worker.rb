@@ -42,6 +42,10 @@ module BigBlueButton
             !File.exist?(@archived_fail)
           )
 
+          if File.exist?(@archived_norecord)
+            @publisher.put_archive_norecord(@meeting_id)
+          end
+
           @publisher.put_archive_ended(@meeting_id, success: step_succeeded, step_time: step_time)
 
           if step_succeeded

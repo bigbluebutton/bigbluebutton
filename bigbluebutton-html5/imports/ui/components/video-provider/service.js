@@ -9,7 +9,8 @@ import UserListService from '/imports/ui/components/user-list/service';
 import { makeCall } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
 import { monitorVideoConnection } from '/imports/utils/stats';
-import browser from 'browser-detect';
+import deviceInfo from '/imports/utils/deviceInfo';
+import browserInfo from '/imports/utils/browserInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import VideoPreviewService from '../video-preview/service';
 import Storage from '/imports/ui/services/storage/session';
@@ -70,9 +71,9 @@ class VideoService {
       pageSize: 0,
     });
     this.userParameterProfile = null;
-    const BROWSER_RESULTS = browser();
-    this.isMobile = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
-    this.isSafari = BROWSER_RESULTS.name === 'safari';
+
+    this.isMobile = deviceInfo.isMobile;
+    this.isSafari = browserInfo.isSafari;
     this.numberOfDevices = 0;
 
     this.record = null;
@@ -140,6 +141,22 @@ class VideoService {
 
   joinedVideo() {
     this.isConnected = true;
+  }
+
+  storeDeviceIds() {
+    const streams = VideoStreams.find(
+      {
+        meetingId: Auth.meetingID,
+        userId: Auth.userID,
+      }, { fields: { deviceId: 1 } },
+    ).fetch();
+
+    let deviceIds = [];
+    streams.forEach(s => {
+      deviceIds.push(s.deviceId);
+    }
+    );
+    Session.set('deviceIds', deviceIds.join());
   }
 
   exitVideo() {
@@ -801,6 +818,7 @@ class VideoService {
 const videoService = new VideoService();
 
 export default {
+  storeDeviceIds: () => videoService.storeDeviceIds(),
   exitVideo: () => videoService.exitVideo(),
   joinVideo: deviceId => videoService.joinVideo(deviceId),
   stopVideo: cameraId => videoService.stopVideo(cameraId),
