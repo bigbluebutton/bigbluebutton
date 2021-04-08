@@ -1,21 +1,30 @@
-import React, { PureComponent } from 'react';
+import React, { useContext } from 'react';
 import { Session } from 'meteor/session';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import GuestUsers from '/imports/api/guest-users/';
-import Users from '/imports/api/users/';
+import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import WaitingComponent from './component';
 
 const USER_CONFIG = Meteor.settings.public.user;
 const ROLE_MODERATOR = USER_CONFIG.role_moderator;
 
-class WaitingContainer extends PureComponent {
-  render() {
-    return (
-      <WaitingComponent {...this.props} />
-    );
-  }
-}
+const WaitingContainer = (props) => {
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+  const currentUser = users[Auth.userID];
+  const currentUserIsModerator = currentUser.role === ROLE_MODERATOR;
+  const joinTime = currentUser.authTokenValidatedTime;
+  return (
+    <WaitingComponent {...{
+      ...props,
+      currentUserIsModerator,
+      joinTime,
+    }}
+    />
+  );
+};
+
 
 export default withTracker(() => {
   const pendingUsers = GuestUsers.find({
@@ -25,12 +34,8 @@ export default withTracker(() => {
   }).fetch();
   const managementPanelIsOpen = Session.get('openPanel') === 'waitingUsersPanel';
 
-  const currentUser = Users.findOne({ userId: Auth.userID },
-    { fields: { role: 1, loginTime: 1 } });
   return {
     managementPanelIsOpen,
     pendingUsers,
-    currentUserIsModerator: currentUser.role === ROLE_MODERATOR,
-    joinTime: currentUser.loginTime,
   };
 })(WaitingContainer);

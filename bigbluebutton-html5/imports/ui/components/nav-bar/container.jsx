@@ -3,7 +3,6 @@ import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import Meetings from '/imports/api/meetings';
-import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { ChatContext } from '/imports/ui/components/components-data/chat-context/context';
@@ -35,14 +34,15 @@ const NavBarContainer = ({ children, ...props }) => {
   const { groupChat: groupChats } = usingGroupChatContext;
   const hasUnreadMessages = checkUnreadMessages({ groupChatsMessages, groupChats, users });
 
+  const currentUser = users[Auth.userID];
+  const amIModerator = currentUser.role === ROLE_MODERATOR;
+
   return (
-    <NavBar {...props} hasUnreadMessages={hasUnreadMessages}>
+    <NavBar {...props} amIModerator={amIModerator} hasUnreadMessages={hasUnreadMessages}>
       {children}
     </NavBar>
   );
 }
-
-
 
 export default withTracker(() => {
   const CLIENT_TITLE = getFromUserSettings('bbb_client_title', PUBLIC_CONFIG.app.clientTitle);
@@ -66,15 +66,11 @@ export default withTracker(() => {
   }
 
   const { connectRecordingObserver, processOutsideToggleRecording } = Service;
-  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1 } });
   const openPanel = Session.get('openPanel');
   const isExpanded = openPanel !== '';
-  const amIModerator = currentUser.role === ROLE_MODERATOR;
   const hasUnreadNotes = NoteService.hasUnreadNotes();
-  
 
   return {
-    amIModerator,
     isExpanded,
     currentUserId: Auth.userID,
     processOutsideToggleRecording,

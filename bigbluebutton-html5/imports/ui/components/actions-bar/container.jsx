@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { injectIntl } from 'react-intl';
@@ -6,6 +6,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 import PresentationService from '/imports/ui/components/presentation/service';
 import Presentations from '/imports/api/presentations';
+import { UsersContext } from '../components-data/users-context/context';
 import ActionsBar from './component';
 import Service from './service';
 import UserListService from '/imports/ui/components/user-list/service';
@@ -17,7 +18,21 @@ import MediaService, {
   shouldEnableSwapLayout,
 } from '../media/service';
 
-const ActionsBarContainer = props => <ActionsBar {...props} />;
+const ActionsBarContainer = (props) => {
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+  const currentUser = users[Auth.userID];
+  return (
+    <ActionsBar {
+      ...{
+        ...props,
+        currentUser,
+      }
+    }
+    />
+  );
+};
+
 const POLLING_ENABLED = Meteor.settings.public.poll.enabled;
 const PRESENTATION_DISABLED = Meteor.settings.public.layout.hidePresentation;
 const SELECT_RANDOM_USER_ENABLED = Meteor.settings.public.selectRandomUser.enabled;
@@ -42,5 +57,4 @@ export default withTracker(() => ({
     { fields: {} }),
   allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,
   setEmojiStatus: UserListService.setEmojiStatus,
-  currentUser: Service.currentUser(),
 }))(injectIntl(ActionsBarContainer));

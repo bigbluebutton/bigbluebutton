@@ -1,18 +1,30 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Settings from '/imports/ui/services/settings';
+import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import { makeCall } from '/imports/ui/services/api';
 import StatusNotifier from './component';
 
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
-const StatusNotifierContainer = ({ ...props }) => <StatusNotifier {...props} />;
+const StatusNotifierContainer = (props) => {
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+  const currentUser = users[Auth.userID];
+  const isViewer = currentUser.role === ROLE_VIEWER;
+  return (
+    <StatusNotifier {...{
+      ...props,
+      isViewer,
+    }}
+    />
+  );
+};
 
 export default withTracker((props) => {
   const AppSettings = Settings.application;
-  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { userId: 1, role: 1 } });
   const { status } = props;
   const emojiUsers = Users.find({ meetingId: Auth.meetingID, emoji: status }, {
     fields: {
@@ -20,11 +32,10 @@ export default withTracker((props) => {
     },
   })
     .fetch()
-    .filter(u => u.emoji === status && u.userId !== currentUser.userId);
+    .filter(u => u.emoji === status && u.userId !== Auth.userID);
   const clearUserStatus = userId => makeCall('setEmojiStatus', userId, 'none');
 
   return {
-    isViewer: currentUser.role === ROLE_VIEWER,
     clearUserStatus,
     emojiUsers,
     status,
