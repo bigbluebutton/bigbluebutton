@@ -4,6 +4,7 @@ import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import { Session } from 'meteor/session';
 import Users from '/imports/api/users';
+import UserListService from '/imports/ui/components/user-list/service';
 import fp from 'lodash/fp';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -117,5 +118,6 @@ export default {
   getBreakoutsNoTime,
   getBreakoutByUserId,
   getBreakoutUserIsIn,
+  sortUsersByName: UserListService.sortUsersByName,
   isUserInBreakoutRoom,
 };

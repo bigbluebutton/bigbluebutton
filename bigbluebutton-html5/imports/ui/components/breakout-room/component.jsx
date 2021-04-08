@@ -5,6 +5,7 @@ import Button from '/imports/ui/components/button/component';
 import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
 import { styles } from './styles';
+import Service from './service';
 import BreakoutRoomContainer from './breakout-remaining-time/container';
 import AudioManager from '/imports/ui/services/audio-manager';
 
@@ -63,19 +64,6 @@ class BreakoutRoom extends PureComponent {
 
     if (a.userId < b.userId) {
       return -1;
-    }
-
-    return 0;
-  }
-
-  static sortUsersByName(a, b) {
-    const aName = a.name.toLowerCase();
-    const bName = b.name.toLowerCase();
-
-    if (aName < bName) {
-      return -1;
-    } if (aName > bName) {
-      return 1;
     }
 
     return 0;
@@ -316,7 +304,7 @@ class BreakoutRoom extends PureComponent {
           {breakout.joinedUsers
             .sort(BreakoutRoom.sortById)
             .filter((value, idx, arr) => !(value.userId === (arr[idx + 1] || {}).userId))
-            .sort(BreakoutRoom.sortUsersByName)
+            .sort(Service.sortUsersByName)
             .map(u => u.name)
             .join(', ')}
         </div>
