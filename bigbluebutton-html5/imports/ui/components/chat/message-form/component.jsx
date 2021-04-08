@@ -267,7 +267,6 @@ class MessageForm extends PureComponent {
       title,
       disabled,
       className,
-      chatAreaId,
     } = this.props;
 
     const { hasErrors, error, message } = this.state;
