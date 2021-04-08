@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { HEXToINTColor, INTToHEXColor } from '/imports/utils/hexInt';
 import { defineMessages, injectIntl } from 'react-intl';
-import browserInfo from '/imports/utils/browserInfo';
-import { noop } from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { styles } from './styles.scss';
@@ -63,9 +61,6 @@ const intlMessages = defineMessages({
     description: 'Label for the pan toolbar item',
   },
 });
-
-const { isEdge } = browserInfo;
-const runExceptInEdge = fn => (isEdge ? noop : fn);
 
 class WhiteboardToolbar extends Component {
   constructor(props) {
@@ -129,8 +124,6 @@ class WhiteboardToolbar extends Component {
     this.handleColorChange = this.handleColorChange.bind(this);
     this.handleMouseEnter = this.handleMouseEnter.bind(this);
     this.handleMouseLeave = this.handleMouseLeave.bind(this);
-    this.componentDidMount = runExceptInEdge(this.componentDidMount);
-    this.componentDidUpdate = runExceptInEdge(this.componentDidUpdate);
     this.panOn = this.panOn.bind(this);
     this.panOff = this.panOff.bind(this);
   }
@@ -543,7 +536,7 @@ class WhiteboardToolbar extends Component {
       <p
         className={styles.textThickness}
         style={{
-          fontSize: fontSizeSelected.value,
+          fontSize: fontSizeSelected.value <= 32 ? fontSizeSelected.value : 32,
           color: colorSelected.value,
           WebkitTransition: `color ${TRANSITION_DURATION}, font-size ${TRANSITION_DURATION}`, /* Safari */
           transition: `color ${TRANSITION_DURATION}, font-size ${TRANSITION_DURATION}`,
@@ -610,49 +603,36 @@ class WhiteboardToolbar extends Component {
 
     return (
       <svg className={styles.customSvgIcon} shapeRendering="geometricPrecision">
-        {isEdge
-          ? (
-            <circle
-              cx="50%"
-              cy="50%"
-              r={thicknessSelected.value}
-              stroke="black"
-              strokeWidth="1"
-              fill={colorSelected.value}
-            />
-          )
-          : (
-            <circle
-              shapeRendering="geometricPrecision"
-              cx="50%"
-              cy="50%"
-              stroke="black"
-              strokeWidth="1"
-            >
-              <animate
-                ref={(ref) => { this.thicknessListIconColor = ref; }}
-                attributeName="fill"
-                attributeType="XML"
-                from={prevColorSelected.value}
-                to={colorSelected.value}
-                begin="indefinite"
-                dur={TRANSITION_DURATION}
-                repeatCount="1"
-                fill="freeze"
-              />
-              <animate
-                ref={(ref) => { this.thicknessListIconRadius = ref; }}
-                attributeName="r"
-                attributeType="XML"
-                from={prevThicknessSelected.value}
-                to={thicknessSelected.value}
-                begin="indefinite"
-                dur={TRANSITION_DURATION}
-                repeatCount="1"
-                fill="freeze"
-              />
-            </circle>
-          )}
+        <circle
+          shapeRendering="geometricPrecision"
+          cx="50%"
+          cy="50%"
+          stroke="black"
+          strokeWidth="1"
+        >
+          <animate
+            ref={(ref) => { this.thicknessListIconColor = ref; }}
+            attributeName="fill"
+            attributeType="XML"
+            from={prevColorSelected.value}
+            to={colorSelected.value}
+            begin="indefinite"
+            dur={TRANSITION_DURATION}
+            repeatCount="1"
+            fill="freeze"
+          />
+          <animate
+            ref={(ref) => { this.thicknessListIconRadius = ref; }}
+            attributeName="r"
+            attributeType="XML"
+            from={prevThicknessSelected.value}
+            to={thicknessSelected.value}
+            begin="indefinite"
+            dur={TRANSITION_DURATION}
+            repeatCount="1"
+            fill="freeze"
+          />
+        </circle>
       </svg>
     );
   }
@@ -711,33 +691,19 @@ class WhiteboardToolbar extends Component {
 
     return (
       <svg className={styles.customSvgIcon}>
-        {isEdge
-          ? (
-            <rect
-              x="25%"
-              y="25%"
-              width="50%"
-              height="50%"
-              stroke="black"
-              strokeWidth="1"
-              fill={colorSelected.value}
-            />
-          ) : (
-            <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1">
-              <animate
-                ref={(ref) => { this.colorListIconColor = ref; }}
-                attributeName="fill"
-                attributeType="XML"
-                from={prevColorSelected.value}
-                to={colorSelected.value}
-                begin="indefinite"
-                dur={TRANSITION_DURATION}
-                repeatCount="1"
-                fill="freeze"
-              />
-            </rect>
-          )
-        }
+        <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1">
+          <animate
+            ref={(ref) => { this.colorListIconColor = ref; }}
+            attributeName="fill"
+            attributeType="XML"
+            from={prevColorSelected.value}
+            to={colorSelected.value}
+            begin="indefinite"
+            dur={TRANSITION_DURATION}
+            repeatCount="1"
+            fill="freeze"
+          />
+        </rect>
       </svg>
     );
   }

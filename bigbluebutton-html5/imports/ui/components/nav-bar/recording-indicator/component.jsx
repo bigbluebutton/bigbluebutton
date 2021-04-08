@@ -4,6 +4,7 @@ import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import Tooltip from '/imports/ui/components/tooltip/component';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
+import cx from 'classnames';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -103,6 +104,7 @@ class RecordingIndicator extends PureComponent {
       allowStartStopRecording,
       notify,
       micUser,
+      isPhone,
     } = this.props;
 
     const { time } = this.state;
@@ -116,12 +118,15 @@ class RecordingIndicator extends PureComponent {
       : intlMessages.recordingIndicatorOff);
 
     let recordTitle = '';
-    if (!recording) {
-      recordTitle = time > 0
-        ? intl.formatMessage(intlMessages.resumeTitle)
-        : intl.formatMessage(intlMessages.startTitle);
-    } else {
-      recordTitle = intl.formatMessage(intlMessages.stopTitle);
+
+    if (!isPhone) {
+      if (!recording) {
+        recordTitle = time > 0
+          ? intl.formatMessage(intlMessages.resumeTitle)
+          : intl.formatMessage(intlMessages.startTitle);
+      } else {
+        recordTitle = intl.formatMessage(intlMessages.stopTitle);
+      }
     }
 
     const recordingToggle = () => {
@@ -169,7 +174,7 @@ class RecordingIndicator extends PureComponent {
       >
         {recordingIndicatorIcon}
 
-        <div className={styles.presentationTitle}>
+        <div className={cx(styles.presentationTitle, (!isPhone || recording) && styles.presentationTitleMargin)}>
           {recording
             ? (
               <span className={styles.visuallyHidden}>

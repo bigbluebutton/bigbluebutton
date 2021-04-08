@@ -34,11 +34,12 @@ export default withTracker((params) => {
     presentationId,
   } = params;
 
-  const startPoll = (type, id) => {
+  const startPoll = (type, id, answers) => {
     Session.set('openPanel', 'poll');
     Session.set('forcePollOpen', true);
+    window.dispatchEvent(new Event('panelChanged'));
 
-    makeCall('startPoll', type, id, '');
+    makeCall('startPoll', type, id, '', answers);
   };
 
   return {

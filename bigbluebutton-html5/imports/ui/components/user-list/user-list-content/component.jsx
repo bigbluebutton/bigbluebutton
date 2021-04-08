@@ -17,6 +17,7 @@ const propTypes = {
   currentUser: PropTypes.shape({}).isRequired,
   isPublicChat: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
+  clearAllEmojiStatus: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
   pollIsOpen: PropTypes.bool.isRequired,
   forcePollOpen: PropTypes.bool.isRequired,
@@ -36,6 +37,7 @@ class UserContent extends PureComponent {
       intl,
       currentUser,
       setEmojiStatus,
+      clearAllEmojiStatus,
       roving,
       isPublicChat,
       pollIsOpen,
@@ -101,6 +103,7 @@ class UserContent extends PureComponent {
             intl,
             currentUser,
             setEmojiStatus,
+            clearAllEmojiStatus,
             roving,
             requestUserInformation,
           }}

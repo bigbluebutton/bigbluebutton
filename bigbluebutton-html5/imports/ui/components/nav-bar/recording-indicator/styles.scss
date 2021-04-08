@@ -65,7 +65,6 @@
   color: var(--color-white);
   font-size: var(--font-size-base);
   padding: 0;
-  margin-left: var(--sm-padding-x);
   margin-right: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -84,6 +83,10 @@
   span {
     vertical-align: middle;
   }
+}
+
+.presentationTitleMargin {
+  margin-left: var(--sm-padding-x);
 }
 
 .recordingStatusViewOnly {
