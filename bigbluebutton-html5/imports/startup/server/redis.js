@@ -280,7 +280,7 @@ class RedisPubSub {
           parsedMessage,
         });
       }
-    } else {
+    } else { // backend
       if (meetingIdFromMessageCoreHeader === NO_MEETING_ID) { // if this is a system message
         const meetingIdFromMessageMeetingProp = parsedMessage.core.body.props?.meetingProp?.intId;
         const instanceIdFromMessage = getInstanceIdFromMessage(parsedMessage);
@@ -327,7 +327,9 @@ class RedisPubSub {
             parsedMessage,
           });
         } else {
-          Logger.warn('Backend meeting queue had not been initialized', { eventName, meetingIdFromMessageCoreHeader })
+          // If we reach this line, this means that there is no existing queue for this redis "backend" message
+          // which means that the meeting is fully handled by another bbb-html5-backend.
+          // Logger.warn('Backend meeting queue had not been initialized', { eventName, meetingIdFromMessageCoreHeader })
         }
       }
     }
