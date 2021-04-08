@@ -210,12 +210,13 @@ class MeetingActor(
     CheckVoiceRecordingInternalMsg
   )
 
-  context.system.scheduler.schedule(
-    1 minute,
-    1 minute,
-    self,
-    MeetingInfoAnalyticsMsg
-  )
+// TODO: Aggregation of all meetings required, to expose via api and log it
+//  context.system.scheduler.schedule(
+//    1 minute,
+//    1 minute,
+//    self,
+//    MeetingInfoAnalyticsMsg
+//  )
 
   def receive = {
     case SyncVoiceUserStatusInternalMsg =>
@@ -520,6 +521,16 @@ class MeetingActor(
   private def handleScreenStreamSubscribeSysMsg(msg: ScreenStreamSubscribeSysMsg): Unit = ???
 
   def handleMeetingInfoAnalyticsLogging(): Unit = {
+    val meetingInfoAnalyticsLogMsg: MeetingInfoAnalytics = prepareMeetingInfo()
+
+    val event = MsgBuilder.buildMeetingInfoAnalyticsMsg(meetingInfoAnalyticsLogMsg)
+    outGW.send(event)
+
+    val event2 = MsgBuilder.buildMeetingInfoAnalyticsServiceMsg(meetingInfoAnalyticsLogMsg)
+    outGW.send(event2)
+  }
+
+  private def prepareMeetingInfo(): MeetingInfoAnalytics = {
     val meetingName: String = liveMeeting.props.meetingProp.name
     val externalId: String = liveMeeting.props.meetingProp.extId
     val internalId: String = liveMeeting.props.meetingProp.intId
@@ -538,12 +549,10 @@ class MeetingActor(
         List()
     }
     val breakoutRoom: BreakoutRoom = BreakoutRoom(liveMeeting.props.breakoutProps.parentId, breakoutRoomNames)
-    val meetingInfoAnalyticsLogMessage: MeetingInfoAnalytics = MeetingInfoAnalytics(
+    MeetingInfoAnalytics(
       meetingName, externalId, internalId, hasUserJoined, isMeetingRecorded, getMeetingInfoWebcamDetails, getMeetingInfoAudioDetails,
       screenshare, listOfUsers.map(u => Participant(u.intId, u.name, u.role)), getMeetingInfoPresentationDetails, breakoutRoom
     )
-    val event = MsgBuilder.buildMeetingInfoAnalyticsMsg(meetingInfoAnalyticsLogMessage)
-    outGW.send(event)
   }
 
   private def resolveUserName(userId: String): String = {
