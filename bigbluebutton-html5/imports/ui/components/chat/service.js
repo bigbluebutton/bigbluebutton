@@ -17,12 +17,8 @@ const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const PRIVATE_CHAT_TYPE = CHAT_CONFIG.type_private;
-const PUBLIC_CHAT_USER_ID = CHAT_CONFIG.system_userid;
-const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-
-const CONNECTION_STATUS_ONLINE = 'online';
 
 const ScrollCollection = new Mongo.Collection(null);
 
@@ -371,7 +367,7 @@ const removePackagedClassAttribute = (classnames, attribute) => {
   classnames.map(c => {
     const elements = document.getElementsByClassName(c);
       if (elements) {
-        for (const [k, v] of Object.entries(elements)) {
+        for (const [,v] of Object.entries(elements)) {
           v.removeAttribute(attribute);
       }
     }
