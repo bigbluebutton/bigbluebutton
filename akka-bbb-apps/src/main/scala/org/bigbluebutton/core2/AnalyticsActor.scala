@@ -119,7 +119,9 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: PresentationConversionUpdateSysPubMsg => logMessage(msg)
       case m: PresentationConversionUpdateEvtMsgBody => logMessage(msg)
       case m: PresentationPageCountErrorSysPubMsg => logMessage(msg)
+      case m: PresentationUploadedFileTooLargeErrorSysPubMsg => logMessage(msg)
       case m: PresentationPageCountErrorEvtMsg => logMessage(msg)
+      case m: PresentationUploadedFileTooLargeErrorEvtMsg => logMessage(msg)
 
       // Group Chats
       case m: SendGroupChatMessageMsg => logMessage(msg)

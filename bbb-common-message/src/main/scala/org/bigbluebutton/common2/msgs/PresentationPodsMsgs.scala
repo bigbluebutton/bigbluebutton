@@ -156,7 +156,6 @@ case class PresentationUploadedFileTooLargeErrorSysPubMsgBody(
     podId:             String,
     messageKey:        String,
     code:              String,
-    meetingId:         String,
     presentationName:  String,
     presentationToken: String,
     fileSize:          Int,
@@ -213,6 +212,10 @@ case class PresentationPageConvertedEventMsgBody(
     presName:       String,
     page:           PresentationPageVO
 )
+
+object PresentationUploadedFileTooLargeErrorEvtMsg { val NAME = "PresentationUploadedFileTooLargeErrorEvtMsg" }
+case class PresentationUploadedFileTooLargeErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationUploadedFileTooLargeErrorEvtMsgBody) extends BbbCoreMsg
+case class PresentationUploadedFileTooLargeErrorEvtMsgBody(podId: String, messageKey: String, code: String, presentationName: String, presentationToken: String, fileSize: Int, maxFileSize: Int)
 
 object PresentationConversionRequestReceivedEventMsg { val NAME = "PresentationConversionRequestReceivedEventMsg" }
 case class PresentationConversionRequestReceivedEventMsg(

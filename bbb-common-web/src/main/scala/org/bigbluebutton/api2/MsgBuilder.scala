@@ -287,7 +287,7 @@ object MsgBuilder {
     val header = BbbClientMsgHeader(PresentationUploadedFileTooLargeErrorSysPubMsg.NAME, msg.meetingId, msg.authzToken)
 
     val body = PresentationUploadedFileTooLargeErrorSysPubMsgBody(podId = msg.podId, messageKey = msg.key,
-      code = msg.key, meetingId = msg.meetingId, presentationName = msg.filename, presentationToken = msg.authzToken, fileSize = msg.uploadedFileSize.intValue(), maxFileSize = msg.maxUploadFileSize)
+      code = msg.key, presentationName = msg.filename, presentationToken = msg.authzToken, fileSize = msg.uploadedFileSize.intValue(), maxFileSize = msg.maxUploadFileSize)
 
     val req = PresentationUploadedFileTooLargeErrorSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
