@@ -4,9 +4,9 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { makeCall } from '/imports/ui/services/api';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
+import { withUsersConsumer } from '/imports/ui/components/components-data/users-context/context';
 import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/users';
 import Storage from '/imports/ui/services/storage/session';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioControls from './component';
@@ -74,13 +74,8 @@ const {
   joinListenOnly,
 } = Service;
 
-export default lockContextContainer(withModalMounter(withTracker(({ mountModal, userLocks }) => {
-  const currentUser = Users.findOne({ meetingId: Auth.meetingID, userId: Auth.userID }, {
-    fields: {
-      role: 1,
-      presenter: 1,
-    },
-  });
+export default withUsersConsumer(lockContextContainer(withModalMounter(withTracker(({ mountModal, userLocks, users }) => {
+  const currentUser = users[Auth.userID];
   const isViewer = currentUser.role === ROLE_VIEWER;
   const isPresenter = currentUser.presenter;
   const { status } = Service.getBreakoutAudioTransferStatus();
@@ -108,4 +103,4 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
     isViewer,
     isPresenter,
   });
-})(AudioControlsContainer)));
+})(AudioControlsContainer))));

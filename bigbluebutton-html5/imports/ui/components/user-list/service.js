@@ -456,6 +456,10 @@ const setEmojiStatus = _.debounce((userId, emoji) => {
     : makeCall('setEmojiStatus', userId, 'none');
 }, 1000, { leading: true, trailing: false });
 
+const clearAllEmojiStatus = (users) => {
+  users.forEach(user => makeCall('setEmojiStatus', user.userId, 'none'));
+};
+
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
 
 const removeUser = (userId, banUser) => {
@@ -670,6 +674,7 @@ export default {
   sortUsersByName,
   sortUsers,
   setEmojiStatus,
+  clearAllEmojiStatus,
   assignPresenter,
   removeUser,
   toggleVoice,

@@ -8,7 +8,9 @@ import Storage from '/imports/ui/services/storage/session';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { ChatContext, getLoginTime } from '../components-data/chat-context/context';
 import { GroupChatContext } from '../components-data/group-chat-context/context';
+import { UsersContext } from '../components-data/users-context/context';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
+import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import Chat from './component';
 import ChatService from './service';
 
@@ -60,6 +62,7 @@ const throttledFunc = _.throttle(() => {
 }, DEBOUNCE_TIME, { trailing: true, leading: true });
 
 const ChatContainer = (props) => {
+
   useEffect(() => {
     ChatService.removeFromClosedChatsSession();
   }, []);
@@ -71,11 +74,13 @@ const ChatContainer = (props) => {
     children,
     unmounting,
     chatID,
-    amIModerator,
     loginTime,
     intl,
+    userLocks,
+    lockSettings,
+    users: propUsers,
+    ...restProps
   } = props;
-
   ChatLogger.debug('ChatContainer::render::props', props);
 
   const isPublicChat = chatID === PUBLIC_CHAT_KEY;
@@ -103,7 +108,10 @@ const ChatContainer = (props) => {
       sender: null,
     }
   };
-
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+  const currentUser = users[Auth.userID];
+  const amIModerator = currentUser.role === ROLE_MODERATOR;
   const systemMessagesIds = [sysMessagesIds.welcomeId, amIModerator && modOnlyMessage && sysMessagesIds.moderatorId].filter(i => i);
 
   const usingChatContext = useContext(ChatContext);
@@ -111,7 +119,7 @@ const ChatContainer = (props) => {
   const [stateLastMsg, setLastMsg] = useState(null);
   const [stateTimeWindows, setTimeWindows] = useState(isPublicChat ? [...systemMessagesIds.map((item) => systemMessages[item])] : []);
   const [lastTimeWindowValuesBuild, setLastTimeWindowValuesBuild] = useState(0);
-
+  
   const { groupChat } = usingGroupChatContext;
   const participants = groupChat[chatID]?.participants;
   const chatName = participants?.filter((user) => user.id !== Auth.userID)[0]?.name;
@@ -171,10 +179,10 @@ const ChatContainer = (props) => {
     ["ReactVirtualized__Grid", "ReactVirtualized__Grid__innerScrollContainer"], 
     "role"
   );
-  
+
   return (
     <Chat {...{
-      ...props,
+      ...restProps,
       chatID,
       amIModerator,
       count: (contextChat?.unreadTimeWindows.size || 0),
@@ -184,7 +192,6 @@ const ChatContainer = (props) => {
       syncing: contextChat?.syncing,
       syncedPercent: contextChat?.syncedPercent,
       chatName,
-      contextChat,
       lastTimeWindowValuesBuild,
     }}>
       {children}
@@ -192,15 +199,10 @@ const ChatContainer = (props) => {
   );
 };
 
-export default injectIntl(withTracker(({ intl }) => {
+export default lockContextContainer(injectIntl(withTracker(({ intl, userLocks }) => {
   const chatID = Session.get('idChatOpen');
-  let isChatLocked = ChatService.isChatLocked(chatID);
-
-  // let chatName = title;
+  const isChatLocked = userLocks.userPrivateChat || userLocks.userPublicChat;
   let partnerIsLoggedOut = false;
-
-  const currentUser = ChatService.getUser(Auth.userID);
-  const amIModerator = currentUser.role === ROLE_MODERATOR;
 
   if (!chatID) {
     // No chatID is set so the panel is closed, about to close, or wasn't opened correctly
@@ -209,22 +211,18 @@ export default injectIntl(withTracker(({ intl }) => {
     };
   }
 
-
-
   const { connected: isMeteorConnected } = Meteor.status();
 
   return {
     chatID,
     intl,
-    messages: [],
     partnerIsLoggedOut,
     isChatLocked,
     isMeteorConnected,
-    amIModerator,
     meetingIsBreakout: meetingIsBreakout(),
     loginTime: getLoginTime(),
     actions: {
       handleClosePrivateChat: ChatService.closePrivateChat,
     },
   };
-})(ChatContainer));
+})(ChatContainer)));

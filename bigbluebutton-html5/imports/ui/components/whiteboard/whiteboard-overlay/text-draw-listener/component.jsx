@@ -132,7 +132,7 @@ export default class TextDrawListener extends Component {
     const textarea = document.getElementById(getCurrentShapeId());
 
     if (textarea) {
-      if (document.activeElement === textarea) {
+      if (document.activeElement === textarea && document.activeElement.value.length > 0) {
         return true;
       }
       textarea.focus();
