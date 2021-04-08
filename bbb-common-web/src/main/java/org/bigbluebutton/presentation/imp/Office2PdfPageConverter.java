@@ -39,7 +39,7 @@ public abstract class Office2PdfPageConverter {
   private static Logger log = LoggerFactory.getLogger(Office2PdfPageConverter.class);
 
   public static boolean convert(File presentationFile, File output, int page, UploadedPresentation pres,
-                         String presOfficeConversionExec){
+                         String presOfficeConversionExec, int conversionTimeout) {
 
     try {
       Map<String, Object> logData = new HashMap<>();
@@ -59,15 +59,20 @@ public abstract class Office2PdfPageConverter {
 
       log.info(String.format("Calling conversion script %s.", presOfficeConversionExec));
 
-      NuProcessBuilder officeConverterExec = new NuProcessBuilder(Arrays.asList(presOfficeConversionExec, presentationFile.getAbsolutePath(), output.getAbsolutePath()));
+      NuProcessBuilder officeConverterExec = new NuProcessBuilder(Arrays.asList("timeout", conversionTimeout + "s", "/bin/sh", "-c",
+              "\""+presOfficeConversionExec + "\" \"" + presentationFile.getAbsolutePath() + "\" \"" + output.getAbsolutePath()+"\""));
       Office2PdfConverterHandler office2PdfConverterHandler  = new Office2PdfConverterHandler();
       officeConverterExec.setProcessListener(office2PdfConverterHandler);
 
       NuProcess process = officeConverterExec.start();
       try {
-        process.waitFor(0, TimeUnit.SECONDS);
+        process.waitFor(conversionTimeout + 1, TimeUnit.SECONDS);
       } catch (InterruptedException e) {
         log.error("InterruptedException while counting PDF pages {}", presentationFile.getName(), e);
+      }
+
+      if(office2PdfConverterHandler.isCommandTimeout()) {
+        log.error("Command execution ({}) exceeded the {} secs timeout for {}.",presOfficeConversionExec, conversionTimeout, presentationFile.getName());
       }
 
       if(!office2PdfConverterHandler.isCommandSuccessful()) {
@@ -103,5 +108,7 @@ public abstract class Office2PdfPageConverter {
       return false;
     }
   }
+
+
 
 }

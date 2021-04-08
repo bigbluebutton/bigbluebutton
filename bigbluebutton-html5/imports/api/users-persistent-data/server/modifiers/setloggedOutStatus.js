@@ -21,6 +21,6 @@ export default function setloggedOutStatus(userId, meetingId, status = true) {
   try {
     UsersPersistentData.update(selector, modifier);
   } catch (err) {
-    Logger.error(`Adding note to the collection: ${err}`);
+    Logger.error(`Setting users persistent data's logged out status to the collection: ${err}`);
   }
 }

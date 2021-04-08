@@ -34,8 +34,8 @@ export default withTracker((params) => {
     presentationId,
   } = params;
 
-  const startPoll = (type, id) => {
-    makeCall('startPoll', type, id, '');
+  const startPoll = (type, id, answers) => {
+    makeCall('startPoll', type, id, '', answers);
   };
 
   return {

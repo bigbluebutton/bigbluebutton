@@ -30,6 +30,10 @@ const intlMessages = defineMessages({
     id: 'app.connection-status.more',
     description: 'More about conectivity issues',
   },
+  offline: {
+    id: 'app.connection-status.offline',
+    description: 'Offline user',
+  },
   dataSaving: {
     id: 'app.settings.dataSavingTab.description',
     description: 'Description of data saving',
@@ -82,7 +86,10 @@ class ConnectionStatusComponent extends PureComponent {
     const { intl } = this.props;
 
     return (
-      <div className={styles.item}>
+      <div
+        className={styles.item}
+        data-test="connectionStatusItemEmpty"
+      >
         <div className={styles.left}>
           <div className={styles.name}>
             <div className={styles.text}>
@@ -107,10 +114,13 @@ class ConnectionStatusComponent extends PureComponent {
       const itemStyle = {};
       itemStyle[styles.even] = (index + 1) % 2 === 0;
 
+      const textStyle = {};
+      textStyle[styles.offline] = conn.offline;
       return (
         <div
           key={index}
           className={cx(styles.item, itemStyle)}
+          data-test="connectionStatusItemUser"
         >
           <div className={styles.left}>
             <div className={styles.avatar}>
@@ -126,8 +136,9 @@ class ConnectionStatusComponent extends PureComponent {
             </div>
 
             <div className={styles.name}>
-              <div className={styles.text}>
+              <div className={cx(styles.text, textStyle)}>
                 {conn.name}
+                {conn.offline ? ` (${intl.formatMessage(intlMessages.offline)})` : null}
               </div>
             </div>
             <div className={styles.status}>
@@ -172,6 +183,7 @@ class ConnectionStatusComponent extends PureComponent {
             onChange={() => this.handleDataSavingChange('viewParticipantsWebcams')}
             ariaLabelledBy="webcam"
             ariaLabel={intl.formatMessage(intlMessages.webcam)}
+            data-test="dataSavingWebcams"
           />
         </div>
         <div className={styles.saving}>
@@ -184,6 +196,7 @@ class ConnectionStatusComponent extends PureComponent {
             onChange={() => this.handleDataSavingChange('viewScreenshare')}
             ariaLabelledBy="screenshare"
             ariaLabel={intl.formatMessage(intlMessages.screenshare)}
+            data-test="dataSavingScreenshare"
           />
         </div>
       </div>
@@ -213,7 +226,8 @@ class ConnectionStatusComponent extends PureComponent {
             </h2>
           </div>
           <div className={styles.description}>
-            {intl.formatMessage(intlMessages.description)}{' '}
+            {intl.formatMessage(intlMessages.description)}
+            {' '}
             {this.help
               && (
                 <a href={this.help} target="_blank" rel="noopener noreferrer">

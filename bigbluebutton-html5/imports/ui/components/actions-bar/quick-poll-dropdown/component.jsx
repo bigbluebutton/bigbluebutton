@@ -57,14 +57,43 @@ const handleClickQuickPoll = (newLayoutContextDispatch) => {
   Session.set('pollInitiated', true);
 };
 
-const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, newLayoutContextDispatch) => {
+const getLocalizedAnswers = (type, intl) => {
+  switch (type) {
+    case 'TF':
+      return [
+        intl.formatMessage(intlMessages.trueOptionLabel),
+        intl.formatMessage(intlMessages.falseOptionLabel),
+      ];
+    case 'YN':
+      return [
+        intl.formatMessage(intlMessages.yesOptionLabel),
+        intl.formatMessage(intlMessages.noOptionLabel),
+      ];
+    case 'YNA':
+      return [
+        intl.formatMessage(intlMessages.yesOptionLabel),
+        intl.formatMessage(intlMessages.noOptionLabel),
+        intl.formatMessage(intlMessages.abstentionOptionLabel),
+      ];
+    default:
+      return null;
+  }
+};
+
+const getAvailableQuickPolls = (
+  slideId, parsedSlides, startPoll, intl, newLayoutContextDispatch,
+) => {
   const pollItemElements = parsedSlides.map((poll) => {
     const { poll: label, type } = poll;
     let itemLabel = label;
+    let answers = null;
 
     if (type !== 'YN' && type !== 'YNA' && type !== 'TF') {
       const { options } = itemLabel;
       itemLabel = options.join('/').replace(/[\n.)]/g, '');
+    } else {
+      answers = getLocalizedAnswers(type, intl);
+      type = 'custom';
     }
 
     // removes any whitespace from the label
@@ -84,7 +113,7 @@ const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, newLayoutConte
         key={_.uniqueId('quick-poll-item')}
         onClick={() => {
           handleClickQuickPoll(newLayoutContextDispatch);
-          startPoll(type, slideId);
+          startPoll(type, slideId, answers);
         }}
       />
     );
@@ -122,7 +151,7 @@ class QuickPollDropdown extends Component {
     );
 
     const { slideId, quickPollOptions } = parsedSlide;
-    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions, startPoll, newLayoutContextDispatch);
+    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions, startPoll, intl, newLayoutContextDispatch);
 
     if (quickPollOptions.length === 0) return null;
 
@@ -133,9 +162,15 @@ class QuickPollDropdown extends Component {
     }
 
     let singlePollType = null;
+    let answers = null;
     if (quickPolls.length === 1 && quickPollOptions.length) {
       const { type } = quickPollOptions[0];
       singlePollType = type;
+    }
+
+    if (singlePollType === 'TF' || singlePollType === 'YN' || singlePollType === 'YNA') {
+      answers = getLocalizedAnswers(singlePollType, intl);
+      singlePollType = 'custom';
     }
 
     let btn = (
@@ -146,7 +181,7 @@ class QuickPollDropdown extends Component {
         tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
         onClick={() => {
           handleClickQuickPoll(newLayoutContextDispatch);
-          startPoll(singlePollType, currentSlide.id);
+          startPoll(singlePollType, currentSlide.id, answers);
         }}
         size="lg"
         disabled={!!activePoll}

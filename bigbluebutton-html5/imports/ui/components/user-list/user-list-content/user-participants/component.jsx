@@ -22,6 +22,7 @@ const propTypes = {
   currentUser: PropTypes.shape({}).isRequired,
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
+  clearAllEmojiStatus: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
   requestUserInformation: PropTypes.func.isRequired,
 };
@@ -94,14 +95,7 @@ class UserParticipants extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { compact } = this.props;
-    const { selectedUser, scrollArea } = this.state;
-    if (!compact && (!prevState.scrollArea && scrollArea)) {
-      scrollArea.addEventListener(
-        'keydown',
-        this.rove,
-      );
-    }
+    const { selectedUser } = this.state;
 
     if (selectedUser) {
       const { firstChild } = selectedUser;
@@ -194,7 +188,7 @@ class UserParticipants extends Component {
       intl,
       users,
       compact,
-      setEmojiStatus,
+      clearAllEmojiStatus,
       currentUser,
       meetingIsBreakout,
     } = this.props;
@@ -216,7 +210,7 @@ class UserParticipants extends Component {
                   ? (
                     <UserOptionsContainer {...{
                       users,
-                      setEmojiStatus,
+                      clearAllEmojiStatus,
                       meetingIsBreakout,
                     }}
                     />

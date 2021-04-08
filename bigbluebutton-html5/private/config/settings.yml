@@ -8,6 +8,14 @@ public:
     forceListenOnly: false
     skipCheck: false
     skipCheckOnJoin: false
+    #
+    # Allow users to change microphone/speaker dinamically
+    # The device is changed immediately, without the need to rejoin
+    # audio. Default value is true
+    # Firefox users: if no output devices is shown, you may set the flag
+    # "media.setsinkid.enabled" to make it work properly
+    # enableDynamicAudioDeviceSelection: true
+    #
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: 2.3-dev
@@ -43,13 +51,13 @@ public:
     enableDebugWindow: true
     # Warning: increasing the limit of breakout rooms per meeting
     # can generate excessive overhead to the server. We recommend
-    # this value to be kept under 12.
+    # this value to be kept under 16.
     breakouts:
-      breakoutRoomLimit: 8
+      breakoutRoomLimit: 16
       sendInvitationToIncludedModerators: false
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
     customHeartbeat: false
-    showAllAvailableLocales: false
+    showAllAvailableLocales: true
     defaultSettings:
       application:
         animations: true
@@ -630,16 +638,6 @@ private:
   serverLog:
     level: info
     streamerLog: false
-  memoryMonitoring:
-    stat:
-      enabled: false
-    leak:
-      enabled: false
-    heapdump:
-      thresholdMb: 1024
-      enabled: false
-      heapdumpFolderPath: HEAPDUMP_FOLDER
-      heapdumpIntervalMs: 3600000
   minBrowserVersions:
     - browser: chrome
       version: 72

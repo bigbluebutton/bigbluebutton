@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Session } from 'meteor/session';
 import cx from 'classnames';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
@@ -115,6 +114,8 @@ class NavBar extends Component {
   render() {
     const {
       hasUnreadMessages,
+      hasUnreadNotes,
+      // isExpanded,
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
       mountModal,
@@ -125,12 +126,13 @@ class NavBar extends Component {
       sidebarNavigation,
     } = this.props;
 
+    const hasNotification = hasUnreadMessages || hasUnreadNotes;
     const toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
-    toggleBtnClasses[styles.btnWithNotificationDot] = hasUnreadMessages;
+    toggleBtnClasses[styles.btnWithNotificationDot] = hasNotification;
 
     let ariaLabel = intl.formatMessage(intlMessages.toggleUserListAria);
-    ariaLabel += hasUnreadMessages ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
+    ariaLabel += hasNotification ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
 
     const isExpanded = sidebarNavigation.isOpen;
 
@@ -160,12 +162,12 @@ class NavBar extends Component {
               : <Icon iconName="left_arrow" className={styles.arrowLeft} />
             }
             <Button
-              data-test="userListToggleButton"
+              // data-test="userListToggleButton"
               onClick={this.handleToggleUserList}
               ghost
               circle
               hideLabel
-              data-test={hasUnreadMessages ? 'hasUnreadMessages' : null}
+              data-test={hasNotification ? 'hasUnreadMessages' : null}
               label={intl.formatMessage(intlMessages.toggleUserListLabel)}
               aria-label={ariaLabel}
               icon="user"

@@ -393,7 +393,7 @@ const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectV
     && subjectVoiceUser.isVoiceUser
     && !subjectVoiceUser.isListenOnly
     && subjectVoiceUser.isMuted
-    && (amISubjectUser || usersProp.allowedToUnmuteAudio);
+    && (amISubjectUser || usersProp.allowModsToUnmuteUsers);
 
   const allowedToResetStatus = hasAuthority
     && subjectUser.emoji !== EMOJI_STATUSES.none
@@ -456,6 +456,10 @@ const setEmojiStatus = _.debounce((userId, emoji) => {
     ? makeCall('setEmojiStatus', Auth.userID, emoji)
     : makeCall('setEmojiStatus', userId, 'none');
 }, 1000, { leading: true, trailing: false });
+
+const clearAllEmojiStatus = (users) => {
+  users.forEach(user => makeCall('setEmojiStatus', user.userId, 'none'));
+};
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
 
@@ -671,6 +675,7 @@ export default {
   sortUsersByName,
   sortUsers,
   setEmojiStatus,
+  clearAllEmojiStatus,
   assignPresenter,
   removeUser,
   toggleVoice,

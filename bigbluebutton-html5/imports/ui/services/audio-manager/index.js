@@ -57,7 +57,6 @@ class AudioManager {
       isTalking: false,
       isWaitingPermissions: false,
       error: null,
-      outputDeviceId: null,
       muteHandle: null,
       autoplayBlocked: false,
       isReconnecting: false,
@@ -497,10 +496,18 @@ class AudioManager {
       .catch(handleChangeInputDeviceError);
   }
 
-  async changeOutputDevice(deviceId) {
-    this.outputDeviceId = await this
+  liveChangeInputDevice(deviceId) {
+    const handleChangeInputDeviceSuccess = (inputDevice) => {
+      this.inputDevice = inputDevice;
+      return Promise.resolve(inputDevice);
+    };
+    this.bridge.liveChangeInputDevice(deviceId).then(handleChangeInputDeviceSuccess);
+  }
+
+  async changeOutputDevice(deviceId, isLive) {
+    await this
       .bridge
-      .changeOutputDevice(deviceId || DEFAULT_OUTPUT_DEVICE_ID);
+      .changeOutputDevice(deviceId || DEFAULT_OUTPUT_DEVICE_ID, isLive);
   }
 
   set inputDevice(value) {
@@ -520,6 +527,11 @@ class AudioManager {
   get inputDeviceId() {
     return (this.bridge && this.bridge.inputDeviceId)
       ? this.bridge.inputDeviceId : DEFAULT_INPUT_DEVICE_ID;
+  }
+
+  get outputDeviceId() {
+    return (this.bridge && this.bridge.outputDeviceId)
+      ? this.bridge.outputDeviceId : DEFAULT_OUTPUT_DEVICE_ID;
   }
 
   /**
@@ -648,7 +660,7 @@ class AudioManager {
     this.setSenderTrackEnabled(true);
   }
 
-  playAlertSound (url) {
+  playAlertSound(url) {
     if (!url) {
       return Promise.resolve();
     }
@@ -657,9 +669,12 @@ class AudioManager {
 
     audioAlert.addEventListener('ended', () => { audioAlert.src = null; });
 
-    if (this.outputDeviceId && (typeof audioAlert.setSinkId === 'function')) {
+
+    const { outputDeviceId } = this.bridge;
+
+    if (outputDeviceId && (typeof audioAlert.setSinkId === 'function')) {
       return audioAlert
-        .setSinkId(this.outputDeviceId)
+        .setSinkId(outputDeviceId)
         .then(() => audioAlert.play());
     }
 

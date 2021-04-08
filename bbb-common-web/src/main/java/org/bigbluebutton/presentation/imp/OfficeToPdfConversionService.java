@@ -28,12 +28,16 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 public class OfficeToPdfConversionService {
   private static Logger log = LoggerFactory.getLogger(OfficeToPdfConversionService.class);
   private OfficeDocumentValidator2 officeDocumentValidator;
   private boolean skipOfficePrecheck = false;
   private String presOfficeConversionExec = null;
+  private Semaphore presOfficeConversionSemaphore = new Semaphore(4);
+  private int presOfficeConversionTimeout = 60;
+
   /*
    * Convert the Office document to PDF. If successful, update
    * UploadPresentation.uploadedFile with the new PDF out and
@@ -93,12 +97,26 @@ public class OfficeToPdfConversionService {
         presentationFile.getAbsolutePath().lastIndexOf('.'));
     return new File(filenameWithoutExt + ".pdf");
   }
-  private boolean convertOfficeDocToPdf(UploadedPresentation pres,
-      File pdfOutput) {
+  private boolean convertOfficeDocToPdf(UploadedPresentation pres, File pdfOutput) {
     boolean success = false;
     int attempts = 0;
     while(!success) {
-      success = Office2PdfPageConverter.convert(pres.getUploadedFile(), pdfOutput, 0, pres, presOfficeConversionExec);
+
+      try {
+        if(presOfficeConversionSemaphore.availablePermits() == 0) {
+          log.info("Waiting for previous conversions finish before start (meetingId: {}, presId: {}, filename: {}), current queue: {}.",
+                  pres.getMeetingId(), pres.getId(), pres.getName(), presOfficeConversionSemaphore.getQueueLength());
+        }
+        presOfficeConversionSemaphore.acquire();
+
+        success = Office2PdfPageConverter.convert(pres.getUploadedFile(), pdfOutput, 0, pres,
+                presOfficeConversionExec, presOfficeConversionTimeout);
+
+      } catch (Exception e) {
+      } finally {
+        presOfficeConversionSemaphore.release();
+      }
+
       
       if(!success) {
         if(++attempts != 3) {
@@ -127,6 +145,14 @@ public class OfficeToPdfConversionService {
 
   public void setPresOfficeConversionExec(String presOfficeConversionExec) {
     this.presOfficeConversionExec = presOfficeConversionExec;
+  }
+
+  public void setPresOfficeConversionTimeout(int presOfficeConversionTimeout) {
+    this.presOfficeConversionTimeout = presOfficeConversionTimeout;
+  }
+
+  public void setPresOfficeConversionMaxConcurrents(int presOfficeConversionMaxConcurrents) {
+    presOfficeConversionSemaphore = new Semaphore(presOfficeConversionMaxConcurrents);
   }
 
 }

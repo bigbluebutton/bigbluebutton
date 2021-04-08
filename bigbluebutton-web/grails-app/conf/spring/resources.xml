@@ -168,5 +168,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <import resource="doc-conversion.xml"/>
     <import resource="bbb-redis-messaging.xml"/>
-    <import resource="turn-stun-servers.xml"/>
+    <!-- moved the following import statement for turn-stun-servers.xml to resources.groovy to be able to use overlay config for turn/stun servers -->
+    <!--	 <import resource="turn-stun-servers.xml"/>-->
 </beans>
