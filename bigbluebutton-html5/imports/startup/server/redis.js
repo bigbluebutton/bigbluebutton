@@ -328,7 +328,7 @@ class RedisPubSub {
           });
         } else {
           // If we reach this line, this means that there is no existing queue for this redis "backend" message
-          // which means that either the meeting is fully handled by another bbb-html5-backend.
+          // which means that the meeting is fully handled by another bbb-html5-backend.
           // Logger.warn('Backend meeting queue had not been initialized', { eventName, meetingIdFromMessageCoreHeader })
         }
       }
