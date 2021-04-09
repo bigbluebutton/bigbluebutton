@@ -399,7 +399,7 @@
     "app.actionsBar.actionsDropdown.captionsDesc": "Toggles captions pane",
     "app.actionsBar.actionsDropdown.takePresenter": "Take presenter",
     "app.actionsBar.actionsDropdown.takePresenterDesc": "Assign yourself as the new presenter",
-    "app.actionsBar.actionsDropdown.selectRandUserLabel": "Select Random User",
+    "app.actionsBar.actionsDropdown.selectRandUserLabel": "Select random user",
     "app.actionsBar.actionsDropdown.selectRandUserDesc": "Chooses a user from available viewers at random",
     "app.actionsBar.emojiMenu.statusTriggerLabel": "Set status",
     "app.actionsBar.emojiMenu.awayLabel": "Away",

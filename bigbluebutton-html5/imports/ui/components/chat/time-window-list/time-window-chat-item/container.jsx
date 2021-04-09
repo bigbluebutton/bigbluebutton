@@ -1,5 +1,4 @@
-import React, { PureComponent, useContext } from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
+import React, { useContext } from 'react';
 import TimeWindowChatItem from './component';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';

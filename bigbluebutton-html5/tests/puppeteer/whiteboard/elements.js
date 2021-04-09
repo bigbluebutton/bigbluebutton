@@ -5,3 +5,8 @@ exports.rectangle = 'button[aria-label="Rectangle"]';
 exports.drawnRectangle = 'rect[data-test="drawnRectangle"]';
 exports.userListItem = 'div[data-test="userListItem"]';
 exports.changeWhiteboardAccess = 'li[data-test="changeWhiteboardAccess"]';
+exports.raiseHandLabel = 'button[data-test="raiseHandLabel"]';
+exports.lowerHandLabel = 'button[data-test="lowerHandLabel"]';
+exports.avatarsWrapperAvatar = 'div[data-test="avatarsWrapperAvatar"]';
+exports.firstUserAvatar = '[data-test="userListItemCurrent"] > div [data-test="userAvatar"]';
+exports.secondUserAvatar = '[data-test="userListItem"] > div [data-test="userAvatar"]';

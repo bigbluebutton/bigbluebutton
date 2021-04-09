@@ -127,6 +127,7 @@ class StatusNotifier extends Component {
         onClick={() => clearUserStatus(u.userId)}
         onKeyDown={e => (e.keyCode === ENTER ? clearUserStatus(u.userId) : null)}
         key={`statusToastAvatar-${u.userId}`}
+        data-test="avatarsWrapperAvatar"
       >
         {u.name.slice(0, 2)}
       </div>
@@ -156,7 +157,10 @@ class StatusNotifier extends Component {
             <Icon iconName="hand" />
           </div>
         </div>
-        <div className={styles.avatarsWrapper}>
+        <div
+          className={styles.avatarsWrapper}
+          data-test="avatarsWrapper"
+        >
           {this.raisedHandAvatars()}
         </div>
         <div className={styles.toastMessage}>

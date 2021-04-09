@@ -20,7 +20,6 @@ const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
 const CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-const CONNECTION_STATUS = 'online';
 const DEBOUNCE_TIME = 1000;
 
 const sysMessagesIds = {
@@ -54,6 +53,7 @@ const intlMessages = defineMessages({
 
 let previousChatId = null;
 let prevSync = false;
+let prevPartnerIsLoggedOut = false;
 
 let globalAppplyStateToProps = () => { }
 
@@ -125,6 +125,13 @@ const ChatContainer = (props) => {
   const chatName = participants?.filter((user) => user.id !== Auth.userID)[0]?.name;
   const title = chatName ? intl.formatMessage(intlMessages.titlePrivate, { 0: chatName}) : intl.formatMessage(intlMessages.titlePublic);
 
+  let partnerIsLoggedOut = false;
+
+  if(!isPublicChat){
+    const idUser = participants?.filter((user) => user.id !== Auth.userID)[0]?.id;
+    partnerIsLoggedOut = (users[idUser]?.loggedOut || users[idUser]?.ejected) ? true : false;
+  }
+
   if (unmounting === true) {
     return null;
   }
@@ -141,8 +148,11 @@ const ChatContainer = (props) => {
       (lastMsg?.lastTimestamp !== stateLastMsg?.lastTimestamp)
       || (previousChatId !== chatID)
       || (prevSync !== contextChat?.syncing)
+      || (prevPartnerIsLoggedOut !== partnerIsLoggedOut)
       ) {
       prevSync = contextChat?.syncing;
+      prevPartnerIsLoggedOut = partnerIsLoggedOut;
+
       const timeWindowsValues = isPublicChat
         ? [
           ...(
@@ -165,6 +175,23 @@ const ChatContainer = (props) => {
         : [...Object.values(contextChat?.messageGroups || {})];
       if (previousChatId !== chatID) {
         previousChatId = chatID;
+      }
+
+      if (partnerIsLoggedOut) {
+        const time = Date.now();
+        const id = `partner-disconnected-${time}`;
+        const messagePartnerLoggedOut = {
+          id,
+          content: [{
+            id,
+            text: intl.formatMessage(intlMessages.partnerDisconnected, { 0: chatName}),
+            time,
+          }],
+          time,
+          sender: null,
+        };
+
+        timeWindowsValues.push(messagePartnerLoggedOut);
       }
 
       setLastMsg(lastMsg ? { ...lastMsg } : lastMsg);
@@ -193,6 +220,7 @@ const ChatContainer = (props) => {
       syncedPercent: contextChat?.syncedPercent,
       chatName,
       lastTimeWindowValuesBuild,
+      partnerIsLoggedOut
     }}>
       {children}
     </Chat>
@@ -202,7 +230,6 @@ const ChatContainer = (props) => {
 export default lockContextContainer(injectIntl(withTracker(({ intl, userLocks }) => {
   const chatID = Session.get('idChatOpen');
   const isChatLocked = userLocks.userPrivateChat || userLocks.userPublicChat;
-  let partnerIsLoggedOut = false;
 
   if (!chatID) {
     // No chatID is set so the panel is closed, about to close, or wasn't opened correctly
@@ -216,7 +243,6 @@ export default lockContextContainer(injectIntl(withTracker(({ intl, userLocks })
   return {
     chatID,
     intl,
-    partnerIsLoggedOut,
     isChatLocked,
     isMeteorConnected,
     meetingIsBreakout: meetingIsBreakout(),

@@ -27,8 +27,6 @@ export const ACTIONS = {
   CLEAR_ALL: 'clear_all',
 };
 
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-
 export const getGroupingTime = () => Meteor.settings.public.chat.grouping_messages_window;
 export const getGroupChatId = () => Meteor.settings.public.chat.public_group_id;
 export const getLoginTime = () => (Users.findOne({ userId: Auth.userID }) || {}).authTokenValidatedTime || 0;
