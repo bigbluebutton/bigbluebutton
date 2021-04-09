@@ -4,6 +4,7 @@ import AudioService from '/imports/ui/components/audio/service';
 
 const propTypes = {
   play: PropTypes.bool.isRequired,
+  isPublic: PropTypes.bool.isRequired,
 };
 
 class ChatAudioAlert extends Component {
@@ -26,11 +27,18 @@ class ChatAudioAlert extends Component {
   }
 
   playAudio() {
-    const { play } = this.props;
+    const { play, isPublic } = this.props;
     if (!play) return;
-    AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-      + Meteor.settings.public.app.basename}`
-      + '/resources/sounds/notify.mp3');
+
+    let playPath = `${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}`;
+
+    if (isPublic) {
+      playPath = playPath + '/resources/sounds/notify.mp3';
+    } else {
+      playPath = playPath + '/resources/sounds/private_chat_notify.mp3';
+    }
+
+    AudioService.playAlertSound(playPath);
   }
 
   render() {

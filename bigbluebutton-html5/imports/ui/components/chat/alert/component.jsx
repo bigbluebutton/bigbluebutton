@@ -44,6 +44,8 @@ class ChatAlert extends PureComponent {
 
     const { joinTimestamp } = props;
 
+    this.lastUnreadCounts = {};
+
     this.state = {
       alertEnabledTimestamp: joinTimestamp,
       lastAlertTimestampByChat: {},
@@ -174,6 +176,7 @@ class ChatAlert extends PureComponent {
   render() {
     const {
       audioAlertDisabled,
+      activeChats,
       idChatOpen,
       pushAlertDisabled,
       intl,
@@ -186,14 +189,31 @@ class ChatAlert extends PureComponent {
     const notCurrentTabOrMinimized = document.hidden;
     const hasPendingNotifications = Object.keys(pendingNotificationsByChat).length > 0;
 
+    let toAlert = [];
+
+    if (hasPendingNotifications) {
+      for (let chat of activeChats) {
+        if (this.lastUnreadCounts[chat.userId] === undefined || this.lastUnreadCounts[chat.userId] !== chat.unreadCounter) {
+          this.lastUnreadCounts[chat.userId] = chat.unreadCounter;
+          if (chat.unreadCounter > 0) {
+            toAlert.push(chat.userId);
+	  }
+	}
+      }
+    }
+
+    const isPublicChat = toAlert.includes('public') && idChatOpen !== 'public';
+
+    const notifyChatThatIsNotOpen = toAlert.length > 1 || (toAlert.length > 0 && !toAlert.includes(idChatOpen));
+
     const shouldPlayChatAlert = notCurrentTabOrMinimized
-      || (hasPendingNotifications && !idChatOpen);
+      || (hasPendingNotifications && notifyChatThatIsNotOpen);
 
     return (
       <Fragment>
         {
           !audioAlertDisabled || (!audioAlertDisabled && notCurrentTabOrMinimized)
-            ? <ChatAudioAlert play={shouldPlayChatAlert} />
+            ? <ChatAudioAlert play={shouldPlayChatAlert} isPublic={isPublicChat}/>
             : null
         }
         {
