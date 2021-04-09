@@ -69,17 +69,6 @@ export default class TextDrawListener extends Component {
     window.addEventListener('click', this.handleClick);
   }
 
-  // If the activeId suddenly became empty - this means the shape was deleted
-  // While the user was drawing it. So we are resetting the state.
-  componentWillReceiveProps(nextProps) {
-    const { drawSettings } = this.props;
-    const nextDrawsettings = nextProps.drawSettings;
-
-    if (drawSettings.textShapeActiveId !== '' && nextDrawsettings.textShapeActiveId === '') {
-      this.resetState();
-    }
-  }
-
   componentDidUpdate(prevProps) {
     const {
       drawSettings,
@@ -88,6 +77,11 @@ export default class TextDrawListener extends Component {
 
     const prevDrawsettings = prevProps.drawSettings;
     const prevTextShapeValue = prevProps.drawSettings.textShapeValue;
+    // If the activeId suddenly became empty - this means the shape was deleted
+    // While the user was drawing it. So we are resetting the state.
+    if (prevDrawsettings.textShapeActiveId !== '' && drawSettings.textShapeActiveId === '') {
+      this.resetState();
+    }
 
     // Updating the component in cases when:
     // Either color / font-size or text value has changed
@@ -138,7 +132,7 @@ export default class TextDrawListener extends Component {
     const textarea = document.getElementById(getCurrentShapeId());
 
     if (textarea) {
-      if (document.activeElement === textarea) {
+      if (document.activeElement === textarea && document.activeElement.value.length > 0) {
         return true;
       }
       textarea.focus();
@@ -224,12 +218,11 @@ export default class TextDrawListener extends Component {
       }
 
     // second case is when a user finished writing the text and publishes the final result
+    } else if (isRightClick) {
+      this.discardAnnotation();
     } else {
       // publishing the final shape and resetting the state
       this.sendLastMessage();
-      if (isRightClick) {
-        this.discardAnnotation();
-      }
     }
   }
 
@@ -490,18 +483,16 @@ export default class TextDrawListener extends Component {
 
   discardAnnotation() {
     const {
-      whiteboardId,
       actions,
     } = this.props;
 
     const {
       getCurrentShapeId,
-      addAnnotationToDiscardedList,
-      undoAnnotation,
+      clearPreview,
     } = actions;
 
-    undoAnnotation(whiteboardId);
-    addAnnotationToDiscardedList(getCurrentShapeId());
+    this.resetState();
+    clearPreview(getCurrentShapeId());
   }
 
   render() {
@@ -519,8 +510,9 @@ export default class TextDrawListener extends Component {
     } = this.state;
 
     const { contextMenuHandler } = actions;
-
-    const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
+    const { settings } = Meteor;
+    const { public: _public } = settings;
+    const baseName = _public.app.cdn + _public.app.basename + _public.app.instanceId;
     const textDrawStyle = {
       width: '100%',
       height: '100%',

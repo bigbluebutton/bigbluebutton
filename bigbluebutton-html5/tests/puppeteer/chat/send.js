@@ -9,25 +9,27 @@ class Send extends Page {
     super('chat-send');
   }
 
-  async test() {
+  async test(testName) {
     await util.openChat(this);
 
-    // Must be:
-    // []
-    const chat0 = await util.getTestElements(this);
-
+    // 0 messages
+    const chat0 = await this.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length === 0);
+    if (process.env.GENERATE_EVIDENCES === 'true') {
+      await this.screenshot(`${testName}`, `01-before-chat-message-send-[${this.meetingId}]`);
+    }
+    // send a message
     await this.type(e.chatBox, e.message);
-    await this.click(e.sendButton);
-    await this.screenshot(true);
+    if (process.env.GENERATE_EVIDENCES === 'true') {
+      await this.screenshot(`${testName}`, `02-typing-chat-message-[${this.meetingId}]`);
+    }
+    await this.click(e.sendButton, true);
+    if (process.env.GENERATE_EVIDENCES === 'true') {
+      await this.screenshot(`${testName}`, `03-after-chat-message-send-[${this.meetingId}]`);
+    }
 
-    // Must be:
-    // [{ "name": "User1\nXX:XX XM", "message": "Hello world!" }]
-    const chat1 = await util.getTestElements(this);
-
-    const response = chat0.length == 0
-      && chat1[0].message == e.message;
-
-    return response;
+    // 1 message
+    const chat1 = await this.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length === 1);
+    return chat0 === chat1;
   }
 }
 

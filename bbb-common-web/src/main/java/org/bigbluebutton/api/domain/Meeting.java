@@ -68,6 +68,8 @@ public class Meeting {
 	private String defaultAvatarURL;
 	private String defaultConfigToken;
 	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
+	private String guestLobbyMessage = "";
+	private Boolean authenticatedGuest = false;
 	private boolean userHasJoined = false;
 	private Map<String, String> pads;
 	private Map<String, String> metadata;
@@ -82,9 +84,8 @@ public class Meeting {
 	private String customCopyright = "";
 	private Boolean muteOnStart = false;
 	private Boolean allowModsToUnmuteUsers = false;
+	private Boolean meetingKeepEvents;
 
-	private Integer maxInactivityTimeoutMinutes = 120;
-	private Integer warnMinutesBeforeMax = 5;
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
 	private Integer userInactivityInspectTimerInMinutes = 120;
@@ -100,6 +101,7 @@ public class Meeting {
 
 	public final Boolean endWhenNoModerator;
 
+	private Integer html5InstanceId;
 
     public Meeting(Meeting.Builder builder) {
         name = builder.name;
@@ -127,10 +129,12 @@ public class Meeting {
         createdTime = builder.createdTime;
         isBreakout = builder.isBreakout;
         guestPolicy = builder.guestPolicy;
+        authenticatedGuest = builder.authenticatedGuest;
         breakoutRoomsParams = builder.breakoutRoomsParams;
         lockSettingsParams = builder.lockSettingsParams;
         allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
         endWhenNoModerator = builder.endWhenNoModerator;
+        html5InstanceId = builder.html5InstanceId;
 
         /*
          * A pad is a pair of padId and readOnlyId that represents
@@ -203,6 +207,13 @@ public class Meeting {
 	    return users;
 	}
 
+	public void guestIsWaiting(String userId) {
+		RegisteredUser ruser = registeredUsers.get(userId);
+		if (ruser != null) {
+			ruser.updateGuestWaitedOn();
+		}
+	}
+
 	public void setGuestStatusWithId(String userId, String guestStatus) {
     	User user = getUserById(userId);
     	if (user != null) {
@@ -235,7 +246,11 @@ public class Meeting {
 		return GuestPolicy.DENY;
 	}
 
-	public long getStartTime() {
+	public int getHtml5InstanceId() { return html5InstanceId; }
+
+    public void setHtml5InstanceId(int instanceId) { html5InstanceId = instanceId; }
+
+    public long getStartTime() {
 		return startTime;
 	}
 	
@@ -363,8 +378,43 @@ public class Meeting {
     	return guestPolicy;
 	}
 
+	public void setGuestLobbyMessage(String message) {
+		guestLobbyMessage = message;
+	}
+
+	public String getGuestLobbyMessage() {
+		return guestLobbyMessage;
+	}
+
+	public void setAuthenticatedGuest(Boolean authGuest) {
+		authenticatedGuest = authGuest;
+	}
+
+	public Boolean getAuthenticatedGuest() {
+		return authenticatedGuest;
+	}
+
+	private String getUnauthenticatedGuestStatus(Boolean guest) {
+		if (guest) {
+			switch(guestPolicy) {
+				case GuestPolicy.ALWAYS_ACCEPT:
+				case GuestPolicy.ALWAYS_ACCEPT_AUTH:
+					return GuestPolicy.ALLOW;
+				case GuestPolicy.ASK_MODERATOR:
+					return GuestPolicy.WAIT;
+				case GuestPolicy.ALWAYS_DENY:
+					return GuestPolicy.DENY;
+				default:
+					return GuestPolicy.DENY;
+			}
+		} else {
+			return GuestPolicy.ALLOW;
+		}
+	}
 
 	public String calcGuestStatus(String role, Boolean guest, Boolean authned) {
+		if (!authenticatedGuest) return getUnauthenticatedGuestStatus(guest);
+
 		// Allow moderators all the time.
 		if (ROLE_MODERATOR.equals(role)) {
 			return GuestPolicy.ALLOW;
@@ -453,6 +503,14 @@ public class Meeting {
 	public Boolean getMuteOnStart() {
     	return muteOnStart;
 	}
+
+  public void setMeetingKeepEvents(Boolean mke) {
+    meetingKeepEvents = mke;
+  }
+
+  public Boolean getMeetingKeepEvents() {
+    return meetingKeepEvents;
+  }
 
 	public void setAllowModsToUnmuteUsers(Boolean value) {
 		allowModsToUnmuteUsers = value;
@@ -559,22 +617,6 @@ public class Meeting {
 
 	public void addUserCustomData(String userID, Map<String, String> data) {
 		userCustomData.put(userID, data);
-	}
-
-	public void setMaxInactivityTimeoutMinutes(Integer value) {
-		maxInactivityTimeoutMinutes = value;
-	}
-
-	public void setWarnMinutesBeforeMax(Integer value) {
-		warnMinutesBeforeMax = value;
-	}
-
-	public Integer getMaxInactivityTimeoutMinutes() {
-		return maxInactivityTimeoutMinutes;
-	}
-
-	public Integer getWarnMinutesBeforeMax() {
-		return warnMinutesBeforeMax;
 	}
 
 	public void setMeetingExpireWhenLastUserLeftInMinutes(Integer value) {
@@ -695,10 +737,12 @@ public class Meeting {
     	private long createdTime;
     	private boolean isBreakout;
     	private String guestPolicy;
+    	private Boolean authenticatedGuest;
     	private BreakoutRoomsParams breakoutRoomsParams;
     	private LockSettingsParams lockSettingsParams;
 		private Boolean allowDuplicateExtUserid;
 		private Boolean endWhenNoModerator;
+		private int html5InstanceId;
 
     	public Builder(String externalId, String internalId, long createTime) {
     		this.externalId = externalId;
@@ -815,6 +859,11 @@ public class Meeting {
     		guestPolicy = policy;
     		return  this;
 		}
+    
+    	public Builder withAuthenticatedGuest(Boolean authGuest) {
+    		authenticatedGuest = authGuest;
+    		return this;
+    	}
 
 		public Builder withBreakoutRoomsParams(BreakoutRoomsParams params) {
     		breakoutRoomsParams = params;
@@ -833,6 +882,11 @@ public class Meeting {
 
 		public Builder withEndWhenNoModerator(Boolean endWhenNoModerator) {
     		this.endWhenNoModerator = endWhenNoModerator;
+    		return this;
+		}
+
+		public Builder withHTML5InstanceId(int instanceId) {
+    		html5InstanceId = instanceId;
     		return this;
 		}
     

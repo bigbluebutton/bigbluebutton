@@ -1,7 +1,8 @@
-import { makeCall } from '/imports/ui/services/api';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import Polls from '/imports/api/polls';
+
+const POLL_AVATAR_COLOR = '#3B48A9';
 
 // 'YN' = Yes,No
 // 'YNA' = Yes,No,Abstention
@@ -56,9 +57,12 @@ const pollAnswerIds = {
 };
 
 export default {
-  amIPresenter: () => Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } }).presenter,
+  amIPresenter: () => Users.findOne(
+    { userId: Auth.userID },
+    { fields: { presenter: 1 } },
+  ).presenter,
   pollTypes,
-  stopPoll: () => makeCall('stopPoll', Auth.userId),
   currentPoll: () => Polls.findOne({ meetingId: Auth.meetingID }),
   pollAnswerIds,
+  POLL_AVATAR_COLOR,
 };

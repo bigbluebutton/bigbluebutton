@@ -10,6 +10,7 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
+import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
 import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/container';
 import CaptionsService from '/imports/ui/components/captions/service';
 import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
@@ -27,6 +28,7 @@ const propTypes = {
   toggleStatus: PropTypes.func.isRequired,
   mountModal: PropTypes.func.isRequired,
   users: PropTypes.arrayOf(Object).isRequired,
+  guestPolicy: PropTypes.string.isRequired,
   meetingIsBreakout: PropTypes.bool.isRequired,
   hasBreakoutRoom: PropTypes.bool.isRequired,
   isBreakoutEnabled: PropTypes.bool.isRequired,
@@ -69,6 +71,14 @@ const intlMessages = defineMessages({
   lockViewersDesc: {
     id: 'app.userList.userOptions.lockViewersDesc',
     description: 'Lock viewers description',
+  },
+  guestPolicyLabel: {
+    id: 'app.userList.userOptions.guestPolicyLabel',
+    description: 'Guest policy label',
+  },
+  guestPolicyDesc: {
+    id: 'app.userList.userOptions.guestPolicyDesc',
+    description: 'Guest policy description',
   },
   muteAllExceptPresenterLabel: {
     id: 'app.userList.userOptions.muteAllExceptPresenterLabel',
@@ -128,6 +138,7 @@ class UserOptions extends PureComponent {
     this.muteId = _.uniqueId('list-item-');
     this.muteAllId = _.uniqueId('list-item-');
     this.lockId = _.uniqueId('list-item-');
+    this.guestPolicyId = _.uniqueId('list-item-');
     this.createBreakoutId = _.uniqueId('list-item-');
     this.saveUsersNameId = _.uniqueId('list-item-');
     this.captionsId = _.uniqueId('list-item-');
@@ -276,9 +287,19 @@ class UserOptions extends PureComponent {
           onClick={() => mountModal(<LockViewersContainer />)}
         />) : null
       ),
+      (!meetingIsBreakout && isMeteorConnected ? (
+        <DropdownListItem
+          key={this.guestPolicyId}
+          icon="user"
+          label={intl.formatMessage(intlMessages.guestPolicyLabel)}
+          description={intl.formatMessage(intlMessages.guestPolicyDesc)}
+          onClick={() => mountModal(<GuestPolicyContainer />)}
+        />) : null
+      ),
       (isMeteorConnected ? <DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
       (canCreateBreakout && isMeteorConnected ? (
         <DropdownListItem
+          data-test="createBreakoutRooms"
           key={this.createBreakoutId}
           icon="rooms"
           label={intl.formatMessage(intlMessages.createBreakoutRoom)}
@@ -288,6 +309,7 @@ class UserOptions extends PureComponent {
       ),
       (canInviteUsers && isMeteorConnected ? (
         <DropdownListItem
+          data-test="inviteBreakoutRooms"
           icon="rooms"
           label={intl.formatMessage(intlMessages.invitationItem)}
           key={this.createBreakoutId}
@@ -326,6 +348,7 @@ class UserOptions extends PureComponent {
         <DropdownTrigger tabIndex={0}>
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
+            data-test="manageUsers"
             icon="settings"
             ghost
             color="primary"

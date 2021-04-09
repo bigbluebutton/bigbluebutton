@@ -18,7 +18,7 @@ case class GetWhiteboardAnnotationsReqMsgBody(whiteboardId: String)
 
 object ModifyWhiteboardAccessPubMsg { val NAME = "ModifyWhiteboardAccessPubMsg" }
 case class ModifyWhiteboardAccessPubMsg(header: BbbClientMsgHeader, body: ModifyWhiteboardAccessPubMsgBody) extends StandardMsg
-case class ModifyWhiteboardAccessPubMsgBody(whiteboardId: String, multiUser: Boolean)
+case class ModifyWhiteboardAccessPubMsgBody(whiteboardId: String, multiUser: Array[String])
 
 object SendCursorPositionPubMsg { val NAME = "SendCursorPositionPubMsg" }
 case class SendCursorPositionPubMsg(header: BbbClientMsgHeader, body: SendCursorPositionPubMsgBody) extends StandardMsg
@@ -26,7 +26,7 @@ case class SendCursorPositionPubMsgBody(whiteboardId: String, xPercent: Double, 
 
 object SendWhiteboardAnnotationPubMsg { val NAME = "SendWhiteboardAnnotationPubMsg" }
 case class SendWhiteboardAnnotationPubMsg(header: BbbClientMsgHeader, body: SendWhiteboardAnnotationPubMsgBody) extends StandardMsg
-case class SendWhiteboardAnnotationPubMsgBody(annotation: AnnotationVO)
+case class SendWhiteboardAnnotationPubMsgBody(annotation: AnnotationVO, drawEndOnly: Boolean)
 
 object UndoWhiteboardPubMsg { val NAME = "UndoWhiteboardPubMsg" }
 case class UndoWhiteboardPubMsg(header: BbbClientMsgHeader, body: UndoWhiteboardPubMsgBody) extends StandardMsg
@@ -48,11 +48,11 @@ case class ClearWhiteboardEvtMsgBody(whiteboardId: String, userId: String, fullC
 
 object GetWhiteboardAnnotationsRespMsg { val NAME = "GetWhiteboardAnnotationsRespMsg" }
 case class GetWhiteboardAnnotationsRespMsg(header: BbbClientMsgHeader, body: GetWhiteboardAnnotationsRespMsgBody) extends BbbCoreMsg
-case class GetWhiteboardAnnotationsRespMsgBody(whiteboardId: String, annotations: Array[AnnotationVO], multiUser: Boolean)
+case class GetWhiteboardAnnotationsRespMsgBody(whiteboardId: String, annotations: Array[AnnotationVO], multiUser: Array[String])
 
 object ModifyWhiteboardAccessEvtMsg { val NAME = "ModifyWhiteboardAccessEvtMsg" }
 case class ModifyWhiteboardAccessEvtMsg(header: BbbClientMsgHeader, body: ModifyWhiteboardAccessEvtMsgBody) extends BbbCoreMsg
-case class ModifyWhiteboardAccessEvtMsgBody(whiteboardId: String, multiUser: Boolean)
+case class ModifyWhiteboardAccessEvtMsgBody(whiteboardId: String, multiUser: Array[String])
 
 object SendCursorPositionEvtMsg { val NAME = "SendCursorPositionEvtMsg" }
 case class SendCursorPositionEvtMsg(header: BbbClientMsgHeader, body: SendCursorPositionEvtMsgBody) extends BbbCoreMsg

@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import cx from 'classnames';
-import browser from 'browser-detect';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/button/component';
 import { Session } from 'meteor/session';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
@@ -107,15 +107,22 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.numberOfRoomsError',
     description: 'Label an error message',
   },
+  you: {
+    id: 'app.userList.you',
+    description: 'Text for identifying your user',
+  },
 });
 
-const BREAKOUT_LIM = Meteor.settings.public.app.breakoutRoomLimit;
+const BREAKOUT_LIM = Meteor.settings.public.app.breakouts.breakoutRoomLimit;
 const MIN_BREAKOUT_ROOMS = 2;
 const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   isInvitation: PropTypes.bool.isRequired,
+  isMe: PropTypes.func.isRequired,
   meetingName: PropTypes.string.isRequired,
   users: PropTypes.arrayOf(PropTypes.object).isRequired,
   createBreakoutRoom: PropTypes.func.isRequired,
@@ -156,6 +163,7 @@ class BreakoutRoom extends PureComponent {
     this.blurDurationTime = this.blurDurationTime.bind(this);
     this.removeRoomUsers = this.removeRoomUsers.bind(this);
     this.renderErrorMessages = this.renderErrorMessages.bind(this);
+    this.renderJoinedUsers = this.renderJoinedUsers.bind(this);
 
     this.state = {
       numberOfRooms: MIN_BREAKOUT_ROOMS,
@@ -169,16 +177,22 @@ class BreakoutRoom extends PureComponent {
       valid: true,
       record: false,
       numberOfRoomsIsValid: true,
+      breakoutJoinedUsers: null,
     };
 
     this.btnLevelId = _.uniqueId('btn-set-level-');
   }
 
   componentDidMount() {
-    const { isInvitation } = this.props;
+    const { isInvitation, breakoutJoinedUsers } = this.props;
     this.setRoomUsers();
     if (isInvitation) {
       this.setInvitationConfig();
+    }
+    if (isInvitation) {
+      this.setState({
+        breakoutJoinedUsers,
+      });
     }
   }
 
@@ -319,6 +333,12 @@ class BreakoutRoom extends PureComponent {
     return users.filter(user => user.room === room);
   }
 
+  getUsersByRoomSequence(sequence) {
+    const { breakoutJoinedUsers } = this.state;
+    if (!breakoutJoinedUsers) return [];
+    return breakoutJoinedUsers.filter(room => room.sequence === sequence)[0].joinedUsers || [];
+  }
+
   removeRoomUsers() {
     const { users } = this.props;
     const { users: stateUsers } = this.state;
@@ -393,7 +413,7 @@ class BreakoutRoom extends PureComponent {
   }
 
   renderRoomsGrid() {
-    const { intl } = this.props;
+    const { intl, isInvitation } = this.props;
     const {
       valid,
       numberOfRooms,
@@ -433,6 +453,7 @@ class BreakoutRoom extends PureComponent {
               </p>
               <div className={styles.breakoutBox} onDrop={drop(value)} onDragOver={allowDrop}>
                 {this.renderUserItemByRoom(value)}
+                {isInvitation && this.renderJoinedUsers(value)}
               </div>
             </div>
           ))
@@ -531,6 +552,7 @@ class BreakoutRoom extends PureComponent {
             </div>
           </label>
           <Button
+            data-test="randomlyAssign"
             label={intl.formatMessage(intlMessages.randomlyAssign)}
             className={styles.randomlyAssignBtn}
             onClick={this.onAssignRandomly}
@@ -552,12 +574,16 @@ class BreakoutRoom extends PureComponent {
     const {
       users,
       roomSelected,
+      breakoutJoinedUsers,
     } = this.state;
+    const { isInvitation } = this.props;
+
     return (
       <SortList
         confirm={() => this.setState({ formFillLevel: 2 })}
         users={users}
         room={roomSelected}
+        breakoutJoinedUsers={isInvitation && breakoutJoinedUsers}
         onCheck={this.changeUserRoom}
         onUncheck={userId => this.changeUserRoom(userId, 0)}
       />
@@ -610,6 +636,9 @@ class BreakoutRoom extends PureComponent {
       valid,
       seletedId,
     } = this.state;
+
+    const { intl, isMe } = this.props;
+
     const dragStart = (ev) => {
       ev.dataTransfer.setData('text', ev.target.id);
       this.setState({ seletedId: ev.target.id });
@@ -639,7 +668,27 @@ class BreakoutRoom extends PureComponent {
           onDragEnd={dragEnd}
         >
           {user.userName}
+          <i>{(isMe(user.userId)) ? ` (${intl.formatMessage(intlMessages.you)})` : ''}</i>
         </p>));
+  }
+
+  renderJoinedUsers(room) {
+    return this.getUsersByRoomSequence(room)
+      .map(user => (
+        <p
+          id={user.userId}
+          key={user.userId}
+          disabled
+          className={cx(
+            styles.roomUserItem,
+            styles.disableItem,
+          )
+          }
+        >
+          {user.name}
+          <span className={styles.lockIcon} />
+        </p>
+      ));
   }
 
   renderRoomSortList() {
@@ -758,8 +807,7 @@ class BreakoutRoom extends PureComponent {
       numberOfRoomsIsValid,
     } = this.state;
 
-    const BROWSER_RESULTS = browser();
-    const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
+    const { isMobile } = deviceInfo;
 
     return (
       <Modal
@@ -785,7 +833,7 @@ class BreakoutRoom extends PureComponent {
       >
         <div className={styles.content}>
           {isInvitation || this.renderTitle()}
-          {isMobileBrowser ? this.renderMobile() : this.renderDesktop()}
+          {isMobile ? this.renderMobile() : this.renderDesktop()}
         </div>
       </Modal>
     );

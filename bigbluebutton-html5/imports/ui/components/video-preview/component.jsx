@@ -1,16 +1,15 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
-  defineMessages, injectIntl, intlShape, FormattedMessage,
+  defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
-// import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
 import Modal from '/imports/ui/components/modal/simple/component';
-import Service from './service';
-import browser from 'browser-detect';
-import VideoService from '../video-provider/service';
+import browserInfo from '/imports/utils/browserInfo';
 import cx from 'classnames';
+import Service from './service';
+import VideoService from '../video-provider/service';
 import { styles } from './styles';
 
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
@@ -23,14 +22,13 @@ const VIEW_STATES = {
 };
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   closeModal: PropTypes.func.isRequired,
   startSharing: PropTypes.func.isRequired,
   stopSharing: PropTypes.func.isRequired,
   changeWebcam: PropTypes.func.isRequired,
   changeProfile: PropTypes.func.isRequired,
   resolve: PropTypes.func,
-  skipVideoPreview: PropTypes.bool.isRequired,
   hasMediaDevices: PropTypes.bool.isRequired,
   hasVideoStream: PropTypes.bool.isRequired,
   webcamDeviceId: PropTypes.string,
@@ -204,15 +202,15 @@ class VideoPreview extends Component {
       previewError: null,
     };
 
-    this.mirrorOwnWebcam = VideoService.mirrorOwnWebcam();
     this.userParameterProfile = VideoService.getUserParameterProfile();
+    this.mirrorOwnWebcam = VideoService.mirrorOwnWebcam();
+    this.skipVideoPreview = Service.getSkipVideoPreview();
   }
 
   componentDidMount() {
     const {
       webcamDeviceId,
       hasMediaDevices,
-      skipVideoPreview,
     } = this.props;
 
     this._isMounted = true;
@@ -260,8 +258,8 @@ class VideoPreview extends Component {
                 if (device.kind === 'videoinput' && !found) {
                   webcams.push(device);
                   if (!initialDeviceId
-                  || (webcamDeviceId && webcamDeviceId === device.deviceId)
-                  || device.deviceId === firstAllowedDeviceId) {
+                    || (webcamDeviceId && webcamDeviceId === device.deviceId)
+                    || device.deviceId === firstAllowedDeviceId) {
                     initialDeviceId = device.deviceId;
                   }
                 }
@@ -282,7 +280,7 @@ class VideoPreview extends Component {
                 });
                 this.displayInitialPreview(initialDeviceId);
               }
-              if (!skipVideoPreview) {
+              if (!this.skipVideoPreview) {
                 this.setState({
                   viewState: VIEW_STATES.found,
                 });
@@ -451,7 +449,6 @@ class VideoPreview extends Component {
   displayPreview(deviceId, profile) {
     const {
       changeProfile,
-      skipVideoPreview,
     } = this.props;
 
     this.setState({
@@ -460,7 +457,7 @@ class VideoPreview extends Component {
       previewError: undefined,
     });
     changeProfile(profile.id);
-    if (skipVideoPreview) return this.handleStartSharing();
+    if (this.skipVideoPreview) return this.handleStartSharing();
 
     this.doGUM(deviceId, profile).then((stream) => {
       if (!this._isMounted) return;
@@ -493,8 +490,7 @@ class VideoPreview extends Component {
   renderDeviceSelectors() {
     const {
       intl,
-      skipVideoPreview,
-      sharedDevices
+      sharedDevices,
     } = this.props;
 
     const {
@@ -518,7 +514,6 @@ class VideoPreview extends Component {
               value={webcamDeviceId || ''}
               className={styles.select}
               onChange={this.handleSelectWebcam}
-              disabled={skipVideoPreview}
             >
               {availableWebcams.map(webcam => (
                 <option key={webcam.deviceId} value={webcam.deviceId}>
@@ -534,43 +529,43 @@ class VideoPreview extends Component {
           )
         }
         { shared
-           ? (
-             <span className={styles.label}>
-               {intl.formatMessage(intlMessages.sharedCameraLabel)}
-             </span>
-           )
-           : (
-             <span>
-               <label className={styles.label} htmlFor="setQuality">
-                 {intl.formatMessage(intlMessages.qualityLabel)}
-               </label>
-               { availableProfiles && availableProfiles.length > 0
-                 ? (
-                   <select
-                     id="setQuality"
-                     value={selectedProfile || ''}
-                     className={styles.select}
-                     onChange={this.handleSelectProfile}
-                     disabled={skipVideoPreview}
-                   >
-                     {availableProfiles.map(profile => {
+          ? (
+            <span className={styles.label}>
+              {intl.formatMessage(intlMessages.sharedCameraLabel)}
+            </span>
+          )
+          : (
+            <span>
+              <label className={styles.label} htmlFor="setQuality">
+                {intl.formatMessage(intlMessages.qualityLabel)}
+              </label>
+              {availableProfiles && availableProfiles.length > 0
+                ? (
+                  <select
+                    id="setQuality"
+                    value={selectedProfile || ''}
+                    className={styles.select}
+                    onChange={this.handleSelectProfile}
+                  >
+                    {availableProfiles.map((profile) => {
                       const label = intlMessages[`${profile.id}`]
                         ? intl.formatMessage(intlMessages[`${profile.id}`])
                         : profile.name;
 
                       return (
-                       <option key={profile.id} value={profile.id}>
+                        <option key={profile.id} value={profile.id}>
                           {`${label}`}
-                       </option>
-                     )})}
-                   </select>
-                 )
-                 : (
-                   <span>
-                     {intl.formatMessage(intlMessages.profileNotFoundLabel)}
-                   </span>
-                 )
-               }
+                        </option>
+                      );
+                    })}
+                  </select>
+                )
+                : (
+                  <span>
+                    {intl.formatMessage(intlMessages.profileNotFoundLabel)}
+                  </span>
+                )
+              }
             </span>
           )
         }
@@ -613,24 +608,25 @@ class VideoPreview extends Component {
           <div className={styles.content}>
             <div className={styles.videoCol}>
               {
-              previewError
-                ? (
-                  <div>{previewError}</div>
-                )
-                : (
-                  <video
-                    id="preview"
-                    className={cx({
-                      [styles.preview]: true,
-                      [styles.mirroredVideo]: this.mirrorOwnWebcam,
-                    })}
-                    ref={(ref) => { this.video = ref; }}
-                    autoPlay
-                    playsInline
-                    muted
-                  />
-                )
-            }
+                previewError
+                  ? (
+                    <div>{previewError}</div>
+                  )
+                  : (
+                    <video
+                      id="preview"
+                      data-test={this.mirrorOwnWebcam ? 'mirroredVideoPreview' : 'videoPreview'}
+                      className={cx({
+                        [styles.preview]: true,
+                        [styles.mirroredVideo]: this.mirrorOwnWebcam,
+                      })}
+                      ref={(ref) => { this.video = ref; }}
+                      autoPlay
+                      playsInline
+                      muted
+                    />
+                  )
+              }
             </div>
             {this.renderDeviceSelectors()}
           </div>
@@ -641,7 +637,6 @@ class VideoPreview extends Component {
   renderModalContent() {
     const {
       intl,
-      skipVideoPreview,
       sharedDevices,
       hasVideoStream,
     } = this.props;
@@ -652,13 +647,15 @@ class VideoPreview extends Component {
       deviceError,
       previewError,
     } = this.state;
-    const shouldDisableButtons = skipVideoPreview && !(deviceError || previewError);
+    const shouldDisableButtons = this.skipVideoPreview && !(deviceError || previewError);
 
     const shared = sharedDevices.includes(webcamDeviceId);
 
+    const { isIe } = browserInfo;
+
     return (
       <div>
-        {browser().name === 'edge' || browser().name === 'ie' ? (
+        {isIe ? (
           <p className={styles.browserWarning}>
             <FormattedMessage
               id="app.audioModal.unsupportedBrowserLabel"
@@ -677,15 +674,17 @@ class VideoPreview extends Component {
         {this.renderContent()}
 
         <div className={styles.footer}>
-          {hasVideoStream ?
-            (<div className={styles.extraActions}>
-              <Button
-                color="danger"
-                label={intl.formatMessage(intlMessages.stopSharingAllLabel)}
-                onClick={this.handleStopSharingAll}
-                disabled={shouldDisableButtons}
-              />
-            </div>)
+          {hasVideoStream
+            ? (
+              <div className={styles.extraActions}>
+                <Button
+                  color="danger"
+                  label={intl.formatMessage(intlMessages.stopSharingAllLabel)}
+                  onClick={this.handleStopSharingAll}
+                  disabled={shouldDisableButtons}
+                />
+              </div>
+            )
             : null
           }
           <div className={styles.actions}>
@@ -695,7 +694,8 @@ class VideoPreview extends Component {
               disabled={shouldDisableButtons}
             />
             <Button
-              color={shared ? "danger" : "primary"}
+              data-test="startSharingWebcam"
+              color={shared ? 'danger' : 'primary'}
               label={intl.formatMessage(shared ? intlMessages.stopSharingLabel : intlMessages.startSharingLabel)}
               onClick={shared ? this.handleStopSharing : this.handleStartSharing}
               disabled={isStartSharingDisabled || isStartSharingDisabled === null || shouldDisableButtons}
@@ -710,7 +710,6 @@ class VideoPreview extends Component {
     const {
       intl,
       hasMediaDevices,
-      skipVideoPreview,
       isCamLocked,
     } = this.props;
 
@@ -719,12 +718,16 @@ class VideoPreview extends Component {
       return null;
     }
 
+    if (this.skipVideoPreview) {
+      return null;
+    }
+
     const {
       deviceError,
       previewError,
     } = this.state;
 
-    const allowCloseModal = !!(deviceError || previewError) || !skipVideoPreview;
+    const allowCloseModal = !!(deviceError || previewError) || !this.skipVideoPreview;
 
     return (
       <Modal

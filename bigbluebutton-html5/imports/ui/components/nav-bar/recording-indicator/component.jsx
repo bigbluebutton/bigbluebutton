@@ -3,7 +3,8 @@ import RecordingContainer from '/imports/ui/components/recording/container';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import Tooltip from '/imports/ui/components/tooltip/component';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
+import cx from 'classnames';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -46,7 +47,7 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   amIModerator: PropTypes.bool,
   record: PropTypes.bool,
   recording: PropTypes.bool,
@@ -103,6 +104,7 @@ class RecordingIndicator extends PureComponent {
       allowStartStopRecording,
       notify,
       micUser,
+      isPhone,
     } = this.props;
 
     const { time } = this.state;
@@ -116,16 +118,19 @@ class RecordingIndicator extends PureComponent {
       : intlMessages.recordingIndicatorOff);
 
     let recordTitle = '';
-    if (!recording) {
-      recordTitle = time > 0
-        ? intl.formatMessage(intlMessages.resumeTitle)
-        : intl.formatMessage(intlMessages.startTitle);
-    } else {
-      recordTitle = intl.formatMessage(intlMessages.stopTitle);
+
+    if (!isPhone) {
+      if (!recording) {
+        recordTitle = time > 0
+          ? intl.formatMessage(intlMessages.resumeTitle)
+          : intl.formatMessage(intlMessages.startTitle);
+      } else {
+        recordTitle = intl.formatMessage(intlMessages.stopTitle);
+      }
     }
 
     const recordingToggle = () => {
-      if (!micUser) {
+      if (!micUser && !recording) {
         notify(intl.formatMessage(intlMessages.emptyAudioBrdige), 'error', 'warning');
       }
       mountModal(<RecordingContainer amIModerator={amIModerator} />);
@@ -133,7 +138,7 @@ class RecordingIndicator extends PureComponent {
     };
 
     const recordingIndicatorIcon = (
-      <span className={styles.recordingIndicatorIcon}>
+      <span data-test="mainWhiteboard" className={styles.recordingIndicatorIcon}>
         <svg xmlns="http://www.w3.org/2000/svg" height="100%" version="1" viewBox="0 0 20 20">
           <g stroke="#FFF" fill="#FFF" strokeLinecap="square">
             <circle
@@ -169,7 +174,7 @@ class RecordingIndicator extends PureComponent {
       >
         {recordingIndicatorIcon}
 
-        <div className={styles.presentationTitle}>
+        <div className={cx(styles.presentationTitle, (!isPhone || recording) && styles.presentationTitleMargin)}>
           {recording
             ? (
               <span className={styles.visuallyHidden}>

@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, intlShape } from 'react-intl';
+import { defineMessages } from 'react-intl';
 
 import Button from '/imports/ui/components/button/component';
 import Modal from '/imports/ui/components/modal/simple/component';
 import { makeCall } from '/imports/ui/services/api';
 
 import { styles } from './styles';
+import { Meteor } from "meteor/meteor";
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   responseDelay: PropTypes.number.isRequired,
 };
 
@@ -64,6 +65,7 @@ class ActivityCheck extends Component {
 
     return setInterval(() => {
       const remainingTime = responseDelay - 1;
+
       this.setState({
         responseDelay: remainingTime,
       });
@@ -75,7 +77,7 @@ class ActivityCheck extends Component {
   }
 
   playAudioAlert() {
-    this.alert = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/notify.mp3`);
+    this.alert = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}/resources/sounds/notify.mp3`);
     alert.addEventListener('ended', () => { alert.src = null; });
     this.alert.play();
   }
@@ -97,6 +99,7 @@ class ActivityCheck extends Component {
           <p>{intl.formatMessage(intlMessages.activityCheckLabel, { 0: responseDelay })}</p>
           <Button
             color="primary"
+            disabled={responseDelay <= 0}
             label={intl.formatMessage(intlMessages.activityCheckButton)}
             onClick={handleInactivityDismiss}
             role="button"

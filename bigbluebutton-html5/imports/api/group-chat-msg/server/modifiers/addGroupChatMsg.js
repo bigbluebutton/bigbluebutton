@@ -29,18 +29,22 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
     correlationId: Match.Maybe(String),
   });
 
+  const {
+    color,
+    sender,
+    ...restMsg
+  } = msg;
+
   const msgDocument = {
-    ...msg,
+    ...restMsg,
+    sender: sender.id,
     meetingId,
     chatId,
     message: parseMessage(msg.message),
-    sender: msg.sender.id,
   };
 
-  const modifier = flat(msgDocument, { safe: true });
-
   try {
-    const insertedId = GroupChatMsg.insert(modifier);
+    const insertedId = GroupChatMsg.insert(msgDocument);
 
     if (insertedId) {
       Logger.info(`Added group-chat-msg msgId=${msg.id} chatId=${chatId} meetingId=${meetingId}`);

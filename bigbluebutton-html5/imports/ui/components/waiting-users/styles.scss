@@ -2,36 +2,36 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
 .panel {
-  background-color: #fff;
-  padding: var(--md-padding-x);
+  background-color: var(--color-white);
+  padding:
+    var(--md-padding-x)
+    var(--md-padding-y)
+    var(--md-padding-x)
+    var(--md-padding-x);
+
   display: flex;
   flex-grow: 1;
   flex-direction: column;
+  justify-content: space-around;
   overflow: hidden;
   height: 100vh;
+
+  :global(.browser-chrome) & {
+    transform: translateZ(0);
+  }
+
+  @include mq($small-only) {
+    transform: none !important;
+  }
 }
 
 .header {
+  position: relative;
+  top: var(--poll-header-offset);
   display: flex;
   flex-direction: row;
-  align-items: left;
-  flex-shrink: 0;
-
-  a {
-    @include elementFocus(var(--color-primary));
-    padding: 0 0 var(--sm-padding-y) var(--sm-padding-y);
-    text-decoration: none;
-    display: block;
-
-    [dir="rtl"] & {
-      padding: 0 var(--sm-padding-y) var(--sm-padding-y) 0;
-    }
-  }
-
-  [class^="icon-bbb-"],
-  [class*=" icon-bbb-"] {
-    font-size: 85%;
-  }
+  align-items: center;
+  justify-content: space-between;
 }
 
 .title {
@@ -39,9 +39,7 @@
   flex: 1;
 
   & > button, button:hover {
-    margin-top: 0;
-    padding-top: 0;
-    border-top: 0;
+    max-width: var(--toast-content-width);
   }
 }
 
@@ -49,8 +47,8 @@
   position: relative;
   background-color: var(--color-white);
   display: block;
-  margin: 4px;
-  margin-bottom: 2px;
+  margin: var(--border-size-large);
+  margin-bottom: var(--border-size);
   padding-left: 0;
   padding-right: inherit;
 
@@ -60,7 +58,16 @@
   }
 
   > i {
-    color: black;
+    color: var(--color-gray-dark);
+    font-size: smaller;
+
+    [dir="rtl"] & {
+      -webkit-transform: scale(-1, 1);
+      -moz-transform: scale(-1, 1);
+      -ms-transform: scale(-1, 1);
+      -o-transform: scale(-1, 1);
+      transform: scale(-1, 1);
+    }
   }
 
   &:hover {
@@ -81,7 +88,7 @@
 }
 
 .userAvatar {
-  width: 2rem;
+  min-width: 2.25rem;
   margin: .5rem;
 }
 
@@ -144,13 +151,51 @@
   }
 }
 
+.pendingUsers {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+}
+
+.usersWrapper {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+  position: relative;
+}
+
+.users {
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  height: 100%;
+  width: 100%;
+}
+
 .userName {
   min-width: 0;
   display: inline-block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: 100%;
+}
+
+.lobbyMessage {
+  border-bottom: 1px solid var(--color-gray-lightest);
+
+  p {
+    background-color: var(--color-off-white);
+    box-sizing: border-box;
+    color: var(--color-gray);
+    padding: 1rem;
+    text-align: center;
+  }
 }
 
 .rememberContainer {

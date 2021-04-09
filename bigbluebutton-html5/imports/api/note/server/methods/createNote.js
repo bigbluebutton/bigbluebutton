@@ -3,6 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import {
   createPadURL,
   getReadOnlyIdURL,
+  withInstaceId,
 } from '/imports/api/common/server/etherpad';
 import {
   generatePadId,
@@ -12,7 +13,7 @@ import {
 import addNote from '/imports/api/note/server/modifiers/addNote';
 import axios from 'axios';
 
-export default function createNote(meetingId) {
+export default function createNote(meetingId, instanceId) {
   // Avoid note creation if this feature is disabled
   if (!isEnabled()) {
     Logger.warn(`Shared notes are disabled`);
@@ -20,8 +21,10 @@ export default function createNote(meetingId) {
   }
 
   check(meetingId, String);
+  check(instanceId, Number);
 
-  const noteId = generatePadId(meetingId);
+  const noteId = withInstaceId(instanceId, generatePadId(meetingId));
+
   const createURL = createPadURL(noteId);
 
   axios({

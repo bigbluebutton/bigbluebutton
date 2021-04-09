@@ -1,11 +1,11 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
+import { debounce, throttle } from 'lodash';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Meetings from '/imports/api/meetings';
 import { makeCall } from '/imports/ui/services/api';
 import VoiceUsers from '/imports/api/voice-users';
 import logger from '/imports/startup/client/logger';
-import { throttle } from 'lodash';
 import Storage from '../../services/storage/session';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -94,6 +94,7 @@ const toggleMuteMicrophone = throttle(() => {
   }
 }, TOGGLE_MUTE_THROTTLE_TIME);
 
+
 export default {
   init,
   exitAudio: () => AudioManager.exitAudio(),
@@ -101,9 +102,14 @@ export default {
   joinListenOnly: () => AudioManager.joinListenOnly(),
   joinMicrophone: () => AudioManager.joinMicrophone(),
   joinEchoTest: () => AudioManager.joinEchoTest(),
-  toggleMuteMicrophone,
+  toggleMuteMicrophone: debounce(toggleMuteMicrophone, 500, { leading: true, trailing: false }),
   changeInputDevice: inputDeviceId => AudioManager.changeInputDevice(inputDeviceId),
-  changeOutputDevice: outputDeviceId => AudioManager.changeOutputDevice(outputDeviceId),
+  liveChangeInputDevice: inputDeviceId => AudioManager.liveChangeInputDevice(inputDeviceId),
+  changeOutputDevice: (outputDeviceId, isLive) => {
+    if (AudioManager.outputDeviceId !== outputDeviceId) {
+      AudioManager.changeOutputDevice(outputDeviceId, isLive);
+    }
+  },
   isConnected: () => AudioManager.isConnected,
   isTalking: () => AudioManager.isTalking,
   isHangingUp: () => AudioManager.isHangingUp,

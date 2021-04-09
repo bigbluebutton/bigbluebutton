@@ -4,7 +4,10 @@ import Users from '/imports/api/users';
 import userJoin from './userJoin';
 import pendingAuthenticationsStore from '../store/pendingAuthentications';
 import createDummyUser from '../modifiers/createDummyUser';
-import setConnectionIdAndAuthToken from '../modifiers/setConnectionIdAndAuthToken';
+import ClientConnections from '/imports/startup/server/ClientConnections';
+
+import upsertValidationState from '/imports/api/auth-token-validation/server/modifiers/upsertValidationState';
+import { ValidationStates } from '/imports/api/auth-token-validation';
 
 const clearOtherSessions = (sessionUserId, current = false) => {
   const serverSessions = Meteor.server.sessions;
@@ -20,14 +23,23 @@ export default function handleValidateAuthToken({ body }, meetingId) {
     valid,
     authToken,
     waitForApproval,
+    registeredOn,
+    authTokenValidatedOn,
+    reasonCode,
   } = body;
 
   check(userId, String);
   check(authToken, String);
   check(valid, Boolean);
   check(waitForApproval, Boolean);
+  check(registeredOn, Number);
+  check(authTokenValidatedOn, Number);
+  check(reasonCode, String);
 
   const pendingAuths = pendingAuthenticationsStore.take(meetingId, userId, authToken);
+
+  Logger.info(`PendingAuths length [${pendingAuths.length}]`);
+  if (pendingAuths.length === 0) return;
 
   if (!valid) {
     pendingAuths.forEach(
@@ -35,6 +47,8 @@ export default function handleValidateAuthToken({ body }, meetingId) {
         try {
           const { methodInvocationObject } = pendingAuth;
           const connectionId = methodInvocationObject.connection.id;
+
+          upsertValidationState(meetingId, userId, ValidationStates.INVALID, connectionId, reasonCode);
 
           // Schedule socket disconnection for this user, giving some time for client receiving the reason of disconnection
           Meteor.setTimeout(() => {
@@ -71,7 +85,9 @@ export default function handleValidateAuthToken({ body }, meetingId) {
           createDummyUser(meetingId, userId, authToken);
         }
 
-        setConnectionIdAndAuthToken(meetingId, userId, methodInvocationObject.connection.id, authToken);
+        ClientConnections.add(sessionId, methodInvocationObject.connection);
+        upsertValidationState(meetingId, userId, ValidationStates.VALIDATED, methodInvocationObject.connection.id);
+
         /* End of logic migrated from validateAuthToken */
       },
     );
@@ -98,7 +114,8 @@ export default function handleValidateAuthToken({ body }, meetingId) {
     $set: {
       validated: valid,
       approved: !waitForApproval,
-      loginTime: Date.now(),
+      loginTime: registeredOn,
+      authTokenValidatedTime: authTokenValidatedOn,
       inactivityCheck: false,
     },
   };

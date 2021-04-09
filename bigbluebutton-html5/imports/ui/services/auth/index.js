@@ -9,6 +9,7 @@ import { makeCall } from '/imports/ui/services/api';
 import { initAnnotationsStreamListener } from '/imports/ui/components/whiteboard/service';
 import allowRedirectToLogoutURL from '/imports/ui/components/meeting-ended/service';
 import { initCursorStreamListener } from '/imports/ui/components/cursor/service';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
@@ -224,53 +225,35 @@ class Auth {
         });
       }, CONNECTION_TIMEOUT);
 
-      const result = await makeCall('validateAuthToken', this.meetingID, this.userID, this.token, this.externUserID);
+      makeCall('validateAuthToken', this.meetingID, this.userID, this.token, this.externUserID);
 
-      if (result && result.invalid) {
-        clearTimeout(validationTimeout);
-        reject({
-          error: 403,
-          description: result.reason,
-          type: result.error_type,
-        });
-        return;
-      }
-
+      Meteor.subscribe('auth-token-validation', { meetingId: this.meetingID, userId: this.userID });
       Meteor.subscribe('current-user');
 
       Tracker.autorun((c) => {
         computation = c;
 
-        const selector = { meetingId: this.meetingID, userId: this.userID };
-        const fields = {
-          intId: 1, ejected: 1, validated: 1, connectionStatus: 1, userId: 1,
-        };
-        const User = Users.findOne(selector, { fields });
-        // Skip in case the user is not in the collection yet or is a dummy user
-        if (!User || !('intId' in User)) {
-          logger.info({ logCode: 'auth_service_resend_validateauthtoken' }, 're-send validateAuthToken for delayed authentication');
-          makeCall('validateAuthToken', this.meetingID, this.userID, this.token);
+        const authenticationTokenValidation = AuthTokenValidation.findOne({}, { sort: { updatedAt: -1 } });
 
-          return;
-        }
+        if (!authenticationTokenValidation) return;
 
-        if (User.ejected) {
-          computation.stop();
-          reject({
-            error: 403,
-            description: 'User has been ejected.',
-          });
-          return;
-        }
-
-        if (User.validated === true && User.connectionStatus === 'online') {
-          logger.info({ logCode: 'auth_service_init_streamers', extraInfo: { userId: User.userId } }, 'Calling init streamers functions');
-          initCursorStreamListener();
-          initAnnotationsStreamListener();
-          computation.stop();
-          clearTimeout(validationTimeout);
-          // setTimeout to prevent race-conditions with subscription
-          setTimeout(() => resolve(true), 100);
+        switch (authenticationTokenValidation.validationStatus) {
+          case ValidationStates.INVALID:
+            c.stop();
+            reject({ error: 403, description: authenticationTokenValidation.reason });
+            break;
+          case ValidationStates.VALIDATED:
+            initCursorStreamListener();
+            initAnnotationsStreamListener();
+            c.stop();
+            clearTimeout(validationTimeout);
+            setTimeout(() => resolve(true), 100);
+            break;
+          case ValidationStates.VALIDATING:
+            break;
+          case ValidationStates.NOT_VALIDATED:
+            break;
+          default:
         }
       });
     });

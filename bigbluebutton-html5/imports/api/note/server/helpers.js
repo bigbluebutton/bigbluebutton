@@ -27,10 +27,10 @@ const processForNotePadOnly = fn => (message, ...args) => {
   check(id, String);
 
   if (isNotePad(id)) return fn(message, ...args);
-  return () => {};
+  return () => { };
 };
 
-const generatePadId = (meetingId) => hashSHA1(meetingId+ETHERPAD.apikey);
+const generatePadId = meetingId => hashSHA1(meetingId + ETHERPAD.apikey);
 
 export {
   generatePadId,

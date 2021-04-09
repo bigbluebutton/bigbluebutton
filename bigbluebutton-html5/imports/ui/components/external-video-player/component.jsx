@@ -57,9 +57,9 @@ class VideoPlayer extends Component {
       },
       file: {
         attributes: {
-          controls: 'controls',
-          autoplay: 'autoplay',
-          playsinline: 'playsinline',
+          controls: true,
+          autoPlay: true,
+          playsInline: true,
         },
       },
       dailymotion: {
@@ -109,6 +109,7 @@ class VideoPlayer extends Component {
 
   componentDidMount() {
     window.addEventListener('resize', this.resizeListener);
+    window.addEventListener('layoutSizesSets', this.resizeListener);
     window.addEventListener('beforeunload', this.onBeforeUnload);
 
     clearInterval(this.syncInterval);
@@ -173,17 +174,16 @@ class VideoPlayer extends Component {
     const timestamp = Date.now();
 
     // If message is just a quick pause/un-pause just send nothing
-    const sinceLastMessage = (timestamp - this.lastMessageTimestamp)/1000;
-    if ((msg === 'play' && this.lastMessage === 'stop' ||
-         msg === 'stop' && this.lastMessage === 'play') &&
-         sinceLastMessage < THROTTLE_INTERVAL_SECONDS) {
-
-         return clearTimeout(this.throttleTimeout);
+    const sinceLastMessage = (timestamp - this.lastMessageTimestamp) / 1000;
+    if ((msg === 'play' && this.lastMessage === 'stop'
+         || msg === 'stop' && this.lastMessage === 'play')
+         && sinceLastMessage < THROTTLE_INTERVAL_SECONDS) {
+      return clearTimeout(this.throttleTimeout);
     }
 
     // Ignore repeat presenter ready messages
     if (this.lastMessage === msg && msg === 'presenterReady') {
-      logger.debug("Ignoring a repeated presenterReady message");
+      logger.debug('Ignoring a repeated presenterReady message');
     } else {
       // Play/pause messages are sent with a delay, to permit cancelling it in case of
       // quick sucessive play/pauses
@@ -191,7 +191,7 @@ class VideoPlayer extends Component {
 
       this.throttleTimeout = setTimeout(() => {
         sendMessage(msg, { ...params });
-      }, messageDelay*1000);
+      }, messageDelay * 1000);
 
       this.lastMessage = msg;
       this.lastMessageTimestamp = timestamp;
@@ -289,7 +289,6 @@ class VideoPlayer extends Component {
 
         this.sendSyncMessage('playerUpdate', { rate, time: curTime, state: playingState });
       }, SYNC_INTERVAL_SECONDS * 1000);
-
     } else {
       onMessage('play', ({ time }) => {
         const { hasPlayedBefore, player } = this;
@@ -357,16 +356,16 @@ class VideoPlayer extends Component {
     const { player } = this;
 
     if (!player) {
-      return logger.error("No player on seek");
+      return logger.error('No player on seek');
     }
 
 
     // Seek if viewer has drifted too far away from presenter
-    if (Math.abs(this.getCurrentTime() - time) > SYNC_INTERVAL_SECONDS*0.75) {
+    if (Math.abs(this.getCurrentTime() - time) > SYNC_INTERVAL_SECONDS * 0.75) {
       player.seekTo(time, true);
       logger.debug({
         logCode: 'external_video_client_update_seek',
-        extraInfo: { time, },
+        extraInfo: { time },
       }, `Seek external video to: ${time}`);
     }
   }

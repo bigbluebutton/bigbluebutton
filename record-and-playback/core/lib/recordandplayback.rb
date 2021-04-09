@@ -19,9 +19,7 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
 
-
-path = File.expand_path(File.join(File.dirname(__FILE__), '../lib'))
-$LOAD_PATH << path
+require_relative 'boot'
 
 require 'recordandplayback/events_archiver'
 require 'recordandplayback/generators/events'
@@ -36,7 +34,7 @@ require 'logger'
 require 'find'
 require 'rubygems'
 require 'net/http'
-require 'digest'
+require 'journald/logger'
 require 'shellwords'
 require 'English'
 
@@ -85,7 +83,8 @@ module BigBlueButton
   # @return [Logger]
   def self.logger
     return @logger if @logger
-    logger = Logger.new(STDOUT)
+
+    logger = Journald::Logger.new('bbb-rap')
     logger.level = Logger::INFO
     @logger = logger
   end
@@ -226,13 +225,30 @@ module BigBlueButton
     r.split("-")[1].to_i / 1000
   end
 
-  # Notes id will be a SHA1 hash string based on the meeting id and etherpad's apikey
-  def self.get_notes_id(meeting_id, notes_apikey)
-    value = meeting_id + notes_apikey
-    Digest::SHA1.hexdigest value
-  end
-
   def self.done_to_timestamp(r)
     BigBlueButton.record_id_to_timestamp(File.basename(r, ".done"))
+  end
+
+  def self.rap_core_path
+    File.expand_path('../../', __FILE__)
+  end
+
+  def self.rap_scripts_path
+    File.join(BigBlueButton.rap_core_path, 'scripts')
+  end
+
+  def self.read_props
+    return @props if @props
+
+    filepath = File.join(BigBlueButton.rap_scripts_path, 'bigbluebutton.yml')
+    @props = YAML::load(File.open(filepath))
+  end
+
+  def self.create_redis_publisher
+    props = BigBlueButton.read_props
+    redis_host = props['redis_host']
+    redis_port = props['redis_port']
+    redis_password = props['redis_password']
+    BigBlueButton.redis_publisher = BigBlueButton::RedisWrapper.new(redis_host, redis_port, redis_password)
   end
 end

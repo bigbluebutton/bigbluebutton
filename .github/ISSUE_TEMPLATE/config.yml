@@ -1,0 +1,17 @@
+blank_issues_enabled: false
+contact_links:
+  - name: BigBlueButton Setup
+    url: https://groups.google.com/forum/#!forum/bigbluebutton-setup
+    about: Get help with installation, setup and configuration of a BigBlueButton server.
+  - name: BigBlueButton Users
+    url: https://groups.google.com/forum/#!forum/bigbluebutton-users
+    about: Get help and give feedback about using BigBlueButton.
+  - name: BigBlueButton Developers
+    url: https://groups.google.com/forum/#!forum/bigbluebutton-dev
+    about: Ask questions and share experiences with other BigBlueButton developers.
+  - name: Greenlight Frontend
+    url: https://github.com/bigbluebutton/greenlight/issues/
+    about: Issue tracker for the Greenlight frontend
+  - name: Commercial Support
+    url: https://bigbluebutton.org/commercial-support
+    abount: List of companies offering commercial BigBlueButton support

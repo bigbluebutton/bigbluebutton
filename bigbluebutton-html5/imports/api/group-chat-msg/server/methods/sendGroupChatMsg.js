@@ -34,6 +34,8 @@ export default function sendGroupChatMsg(chatId, message) {
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(message, Object);
 
   const parsedMessage = parseMessage(message.message);

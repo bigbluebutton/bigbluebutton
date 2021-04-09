@@ -7,6 +7,9 @@ import logger from '/imports/startup/client/logger';
 import { styles } from './styles';
 import Service from './service';
 import BreakoutRoomContainer from './breakout-remaining-time/container';
+import VideoService from '/imports/ui/components/video-provider/service';
+import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
+import UserListService from '/imports/ui/components/user-list/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 
 const intlMessages = defineMessages({
@@ -223,14 +226,19 @@ class BreakoutRoom extends PureComponent {
           : (
             <Button
               label={intl.formatMessage(intlMessages.breakoutJoin)}
+              data-test="breakoutJoin"
               aria-label={`${intl.formatMessage(intlMessages.breakoutJoin)} ${number}`}
               onClick={() => {
                 this.getBreakoutURL(breakoutId);
+                // leave main room's audio, and stops video and screenshare when joining a breakout room
                 exitAudio();
                 logger.debug({
                   logCode: 'breakoutroom_join',
                   extraInfo: { logType: 'user_action' },
                 }, 'joining breakout room closed audio in the main room');
+                VideoService.storeDeviceIds();
+                VideoService.exitVideo();
+                if (UserListService.amIPresenter()) screenshareHasEnded();
               }
               }
               disabled={disable}

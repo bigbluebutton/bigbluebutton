@@ -54,6 +54,9 @@ class ReceivedJsonMsgHandlerActor(
       case CheckAlivePingSysMsg.NAME =>
         route[CheckAlivePingSysMsg](meetingManagerChannel, envelope, jsonNode)
 
+      case GetRunningMeetingsReqMsg.NAME =>
+        route[GetRunningMeetingsReqMsg](meetingManagerChannel, envelope, jsonNode)
+
       case CreateMeetingReqMsg.NAME =>
         route[CreateMeetingReqMsg](meetingManagerChannel, envelope, jsonNode)
       case ValidateAuthTokenReqMsg.NAME =>
@@ -86,10 +89,14 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetGuestsWaitingApprovalReqMsg](envelope, jsonNode)
       case GuestsWaitingApprovedMsg.NAME =>
         routeGenericMsg[GuestsWaitingApprovedMsg](envelope, jsonNode)
+      case GuestWaitingLeftMsg.NAME =>
+        routeGenericMsg[GuestWaitingLeftMsg](envelope, jsonNode)
       case SetGuestPolicyCmdMsg.NAME =>
         routeGenericMsg[SetGuestPolicyCmdMsg](envelope, jsonNode)
       case GetGuestPolicyReqMsg.NAME =>
         routeGenericMsg[GetGuestPolicyReqMsg](envelope, jsonNode)
+      case SetGuestLobbyMessageCmdMsg.NAME =>
+        routeGenericMsg[SetGuestLobbyMessageCmdMsg](envelope, jsonNode)
 
       // Users
       case GetUsersMeetingReqMsg.NAME =>
@@ -102,6 +109,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetPresenterGroupReqMsg](envelope, jsonNode)
       case UserActivitySignCmdMsg.NAME =>
         routeGenericMsg[UserActivitySignCmdMsg](envelope, jsonNode)
+      case SelectRandomViewerReqMsg.NAME =>
+        routeGenericMsg[SelectRandomViewerReqMsg](envelope, jsonNode)
 
       // Poll
       case StartCustomPollReqMsg.NAME =>
@@ -116,6 +125,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetCurrentPollReqMsg](envelope, jsonNode)
       case RespondToPollReqMsg.NAME =>
         routeGenericMsg[RespondToPollReqMsg](envelope, jsonNode)
+      case RespondToTypedPollReqMsg.NAME =>
+        routeGenericMsg[RespondToTypedPollReqMsg](envelope, jsonNode)
 
       // Webcam
       case UserBroadcastCamStartMsg.NAME =>
@@ -260,20 +271,6 @@ class ReceivedJsonMsgHandlerActor(
       case SendCaptionHistoryReqMsg.NAME =>
         routeGenericMsg[SendCaptionHistoryReqMsg](envelope, jsonNode)
 
-      // Shared notes
-      case GetSharedNotesPubMsg.NAME =>
-        routeGenericMsg[GetSharedNotesPubMsg](envelope, jsonNode)
-      case SyncSharedNotePubMsg.NAME =>
-        routeGenericMsg[SyncSharedNotePubMsg](envelope, jsonNode)
-      case ClearSharedNotePubMsg.NAME =>
-        routeGenericMsg[ClearSharedNotePubMsg](envelope, jsonNode)
-      case UpdateSharedNoteReqMsg.NAME =>
-        routeGenericMsg[UpdateSharedNoteReqMsg](envelope, jsonNode)
-      case CreateSharedNoteReqMsg.NAME =>
-        routeGenericMsg[CreateSharedNoteReqMsg](envelope, jsonNode)
-      case DestroySharedNoteReqMsg.NAME =>
-        routeGenericMsg[DestroySharedNoteReqMsg](envelope, jsonNode)
-
       // Chat
       case GetChatHistoryReqMsg.NAME =>
         routeGenericMsg[GetChatHistoryReqMsg](envelope, jsonNode)
@@ -289,8 +286,6 @@ class ReceivedJsonMsgHandlerActor(
       // Meeting
       case EndMeetingSysCmdMsg.NAME =>
         routeGenericMsg[EndMeetingSysCmdMsg](envelope, jsonNode)
-      case MeetingActivityResponseCmdMsg.NAME =>
-        routeGenericMsg[MeetingActivityResponseCmdMsg](envelope, jsonNode)
       case LogoutAndEndMeetingCmdMsg.NAME =>
         routeGenericMsg[LogoutAndEndMeetingCmdMsg](envelope, jsonNode)
       case SetRecordingStatusCmdMsg.NAME =>
@@ -339,6 +334,14 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetGroupChatMsgsReqMsg](envelope, jsonNode)
       case CreateGroupChatReqMsg.NAME =>
         routeGenericMsg[CreateGroupChatReqMsg](envelope, jsonNode)
+
+      // ExternalVideo
+      case StartExternalVideoPubMsg.NAME =>
+        routeGenericMsg[StartExternalVideoPubMsg](envelope, jsonNode)
+      case UpdateExternalVideoPubMsg.NAME =>
+        routeGenericMsg[UpdateExternalVideoPubMsg](envelope, jsonNode)
+      case StopExternalVideoPubMsg.NAME =>
+        routeGenericMsg[StopExternalVideoPubMsg](envelope, jsonNode)
 
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)

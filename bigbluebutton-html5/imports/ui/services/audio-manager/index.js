@@ -8,12 +8,11 @@ import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills';
-import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import { monitorAudioConnection } from '/imports/utils/stats';
 import AudioErrors from './error-codes';
+import {Meteor} from "meteor/meteor";
 
-const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
-
+const STATS = Meteor.settings.public.stats;
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
@@ -58,7 +57,6 @@ class AudioManager {
       isTalking: false,
       isWaitingPermissions: false,
       error: null,
-      outputDeviceId: null,
       muteHandle: null,
       autoplayBlocked: false,
       isReconnecting: false,
@@ -192,22 +190,7 @@ class AudioManager {
     const callOptions = {
       isListenOnly: true,
       extension: null,
-      inputStream: this.createListenOnlyStream(),
     };
-
-    // WebRTC restrictions may need a capture device permission to release
-    // useful ICE candidates on recvonly/no-gUM peers
-    try {
-      await tryGenerateIceCandidates();
-    } catch (error) {
-      logger.error({
-        logCode: 'listenonly_no_valid_candidate_gum_failure',
-        extraInfo: {
-          errorName: error.name,
-          errorMessage: error.message,
-        },
-      }, `Forced gUM to release additional ICE candidates failed due to ${error.name}.`);
-    }
 
     // Call polyfills for webrtc client if navigator is "iOS Webview"
     const userAgent = window.navigator.userAgent.toLocaleLowerCase();
@@ -352,11 +335,11 @@ class AudioManager {
       window.parent.postMessage({ response: 'joinedAudio' }, '*');
       this.notify(this.intl.formatMessage(this.messages.info.JOINED_AUDIO));
       logger.info({ logCode: 'audio_joined' }, 'Audio Joined');
+      if (STATS.enabled) this.monitor();
       this.audioEventHandler({
         name: 'started',
         isListenOnly: this.isListenOnly,
       });
-      if (ENABLE_NETWORK_MONITORING) this.monitor();
     }
   }
 
@@ -373,7 +356,6 @@ class AudioManager {
     this.failedMediaElements = [];
 
     if (this.inputStream) {
-      window.defaultInputStream.forEach(track => track.stop());
       this.inputStream.getTracks().forEach(track => track.stop());
       this.inputDevice = { id: 'default' };
     }
@@ -463,28 +445,6 @@ class AudioManager {
     });
   }
 
-  createListenOnlyStream() {
-    const audio = document.querySelector(MEDIA_TAG);
-
-    // Play bogus silent audio to try to circumvent autoplay policy on Safari
-    if (!audio.src) {
-      audio.src = 'resources/sounds/silence.mp3';
-    }
-
-    audio.play().catch((e) => {
-      if (e.name === 'AbortError') {
-        return;
-      }
-
-      logger.warn({
-        logCode: 'audiomanager_error_test_audio',
-        extraInfo: { error: e },
-      }, 'Error on playing test audio');
-    });
-
-    return {};
-  }
-
   isUsingAudio() {
     return this.isConnected || this.isConnecting
       || this.isHangingUp || this.isEchoTest;
@@ -536,10 +496,18 @@ class AudioManager {
       .catch(handleChangeInputDeviceError);
   }
 
-  async changeOutputDevice(deviceId) {
-    this.outputDeviceId = await this
+  liveChangeInputDevice(deviceId) {
+    const handleChangeInputDeviceSuccess = (inputDevice) => {
+      this.inputDevice = inputDevice;
+      return Promise.resolve(inputDevice);
+    };
+    this.bridge.liveChangeInputDevice(deviceId).then(handleChangeInputDeviceSuccess);
+  }
+
+  async changeOutputDevice(deviceId, isLive) {
+    await this
       .bridge
-      .changeOutputDevice(deviceId || DEFAULT_OUTPUT_DEVICE_ID);
+      .changeOutputDevice(deviceId || DEFAULT_OUTPUT_DEVICE_ID, isLive);
   }
 
   set inputDevice(value) {
@@ -549,7 +517,7 @@ class AudioManager {
 
   get inputStream() {
     this._inputDevice.tracker.depend();
-    return this._inputDevice.value.stream;
+    return (this.bridge ? this.bridge.inputStream : null);
   }
 
   get inputDevice() {
@@ -559,6 +527,11 @@ class AudioManager {
   get inputDeviceId() {
     return (this.bridge && this.bridge.inputDeviceId)
       ? this.bridge.inputDeviceId : DEFAULT_INPUT_DEVICE_ID;
+  }
+
+  get outputDeviceId() {
+    return (this.bridge && this.bridge.outputDeviceId)
+      ? this.bridge.outputDeviceId : DEFAULT_OUTPUT_DEVICE_ID;
   }
 
   /**
@@ -599,7 +572,7 @@ class AudioManager {
 
   playHangUpSound() {
     this.playAlertSound(`${Meteor.settings.public.app.cdn
-      + Meteor.settings.public.app.basename}`
+      + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}`
       + '/resources/sounds/LeftCall.mp3');
   }
 
@@ -659,7 +632,7 @@ class AudioManager {
     }
   }
 
-  setSenderTrackEnabled (shouldEnable) {
+  setSenderTrackEnabled(shouldEnable) {
     // If the bridge is set to listen only mode, nothing to do here. This method
     // is solely for muting outbound tracks.
     if (this.isListenOnly) return;
@@ -679,15 +652,15 @@ class AudioManager {
     });
   }
 
-  mute () {
+  mute() {
     this.setSenderTrackEnabled(false);
   }
 
-  unmute () {
+  unmute() {
     this.setSenderTrackEnabled(true);
   }
 
-  playAlertSound (url) {
+  playAlertSound(url) {
     if (!url) {
       return Promise.resolve();
     }
@@ -696,9 +669,12 @@ class AudioManager {
 
     audioAlert.addEventListener('ended', () => { audioAlert.src = null; });
 
-    if (this.outputDeviceId && (typeof audioAlert.setSinkId === 'function')) {
+
+    const { outputDeviceId } = this.bridge;
+
+    if (outputDeviceId && (typeof audioAlert.setSinkId === 'function')) {
       return audioAlert
-        .setSinkId(this.outputDeviceId)
+        .setSinkId(outputDeviceId)
         .then(() => audioAlert.play());
     }
 

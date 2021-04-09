@@ -6,12 +6,13 @@ const ETHERPAD = Meteor.settings.private.etherpad;
 const CAPTIONS_CONFIG = Meteor.settings.public.captions;
 const BASENAME = Meteor.settings.public.app.basename;
 const APP = Meteor.settings.private.app;
-const LOCALES_URL = `http://${APP.host}:${APP.port}${BASENAME}${APP.localesUrl}`;
+const INSTANCE_ID = Meteor.settings.public.app.instanceId;
+const LOCALES_URL = `http://${APP.host}:${process.env.PORT}${BASENAME}${INSTANCE_ID}${APP.localesUrl}`;
 const CAPTIONS_TOKEN = '_cc_';
 const TOKEN = '$';
 
 // Captions padId should look like: {prefix}_cc_{locale}
-const generatePadId = (meetingId, locale) => `${hashSHA1(meetingId+locale+ETHERPAD.apikey)}${CAPTIONS_TOKEN}${locale}`;
+const generatePadId = (meetingId, locale) => `${hashSHA1(meetingId + locale + ETHERPAD.apikey)}${CAPTIONS_TOKEN}${locale}`;
 
 const isCaptionsPad = (padId) => {
   const splitPadId = padId.split(CAPTIONS_TOKEN);
@@ -39,7 +40,7 @@ const processForCaptionsPadOnly = fn => (message, ...args) => {
   check(id, String);
 
   if (isCaptionsPad(id)) return fn(message, ...args);
-  return () => {};
+  return () => { };
 };
 
 export {

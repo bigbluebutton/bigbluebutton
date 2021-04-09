@@ -14,7 +14,8 @@ import Button from '/imports/ui/components/button/component';
 
 const propTypes = {
   streams: PropTypes.arrayOf(PropTypes.object).isRequired,
-  onMount: PropTypes.func.isRequired,
+  onVideoItemMount: PropTypes.func.isRequired,
+  onVideoItemUnmount: PropTypes.func.isRequired,
   webcamDraggableDispatch: PropTypes.func.isRequired,
   intl: PropTypes.objectOf(Object).isRequired,
   swapLayout: PropTypes.bool.isRequired,
@@ -121,16 +122,18 @@ class VideoList extends Component {
 
     this.handleCanvasResize();
     window.addEventListener('resize', this.handleCanvasResize, false);
+    window.addEventListener('layoutSizesSets', this.handleCanvasResize, false);
     window.addEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleCanvasResize, false);
+    window.removeEventListener('layoutSizesSets', this.handleCanvasResize, false);
     window.removeEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
   setOptimalGrid() {
-    const { streams } = this.props;
+    const { streams, webcamDraggableDispatch } = this.props;
     let numItems = streams.length;
     if (numItems < 1 || !this.canvas || !this.grid) {
       return;
@@ -156,6 +159,12 @@ class VideoList extends Component {
         const betterThanCurrent = testGrid.filledArea > currentGrid.filledArea;
         return focusedConstraint && betterThanCurrent ? testGrid : currentGrid;
       }, { filledArea: 0 });
+    webcamDraggableDispatch(
+      {
+        type: 'setOptimalGrid',
+        value: optimalGrid,
+      },
+    );
     this.setState({
       optimalGrid,
     });
@@ -290,7 +299,8 @@ class VideoList extends Component {
     const {
       intl,
       streams,
-      onMount,
+      onVideoItemMount,
+      onVideoItemUnmount,
       swapLayout,
     } = this.props;
     const { focusedId } = this.state;
@@ -332,10 +342,11 @@ class VideoList extends Component {
             name={name}
             mirrored={isMirrored}
             actions={actions}
-            onMount={(videoRef) => {
+            onVideoItemMount={(videoRef) => {
               this.handleCanvasResize();
-              onMount(cameraId, videoRef);
+              onVideoItemMount(cameraId, videoRef);
             }}
+            onVideoItemUnmount={onVideoItemUnmount}
             swapLayout={swapLayout}
           />
         </div>

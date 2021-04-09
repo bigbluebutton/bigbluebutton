@@ -1,7 +1,7 @@
 /*
     BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 
-    Copyright (c) 2019 BigBlueButton Inc. and by respective authors (see below).
+    Copyright (c) 2020 BigBlueButton Inc. and by respective authors (see below).
 
     This program is free software; you can redistribute it and/or modify it under the
     terms of the GNU Lesser General Public License as published by the Free Software
@@ -24,6 +24,11 @@ import Base from '/imports/startup/client/base';
 import JoinHandler from '/imports/ui/components/join-handler/component';
 import AuthenticatedHandler from '/imports/ui/components/authenticated-handler/component';
 import Subscriptions from '/imports/ui/components/subscriptions/component';
+import IntlStartup from '/imports/startup/client/intl';
+import ContextProviders from '/imports/ui/components/context-providers/component';
+import ChatAdapter from '/imports/ui/components/components-data/chat-context/adapter';
+import UsersAdapter from '/imports/ui/components/components-data/users-context/adapter';
+import GroupChatAdapter from '/imports/ui/components/components-data/group-chat-context/adapter';
 
 Meteor.startup(() => {
   // Logs all uncaught exceptions to the client logger
@@ -50,13 +55,22 @@ Meteor.startup(() => {
 
   // TODO make this a Promise
   render(
-    <JoinHandler>
-      <AuthenticatedHandler>
-        <Subscriptions>
-          <Base />
-        </Subscriptions>
-      </AuthenticatedHandler>
-    </JoinHandler>,
+    <ContextProviders>
+      <React.Fragment>
+        <JoinHandler>
+          <AuthenticatedHandler>
+            <Subscriptions>
+              <IntlStartup>
+                <Base />
+              </IntlStartup>
+            </Subscriptions>
+          </AuthenticatedHandler>
+        </JoinHandler>
+        <UsersAdapter />
+        <ChatAdapter />
+        <GroupChatAdapter />
+      </React.Fragment>
+    </ContextProviders>,
     document.getElementById('app'),
   );
 });

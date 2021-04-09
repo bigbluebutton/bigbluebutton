@@ -1,4 +1,3 @@
-import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import PresentationPods from '/imports/api/presentation-pods';
 import Presentations from '/imports/api/presentations';
 import { Slides, SlidePositions } from '/imports/api/slides';
@@ -77,26 +76,13 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
   const quickPollOptions = [];
   if (!currentSlide) return quickPollOptions;
 
-  const {
+  let {
     content,
   } = currentSlide;
 
   const pollRegex = /[1-6A-Fa-f][.)].*/g;
   let optionsPoll = content.match(pollRegex) || [];
   if (optionsPoll) optionsPoll = optionsPoll.map(opt => `\r${opt[0]}.`);
-
-  const excludePatt = '[^.)]';
-  const ynPollString = `(${excludePatt}${yesValue}\\s*\\/\\s*${noValue})|(${excludePatt}${noValue}\\s*\\/\\s*${yesValue})`;
-  const ynOptionsRegex = new RegExp(ynPollString, 'gi');
-  const ynPoll = content.match(ynOptionsRegex) || [];
-
-  const ynaPollString = `(${excludePatt}${yesValue}\\s*\\/\\s*${noValue}\\s*\\/\\s*${abstentionValue})|(${excludePatt}${yesValue}\\s*\\/\\s*${abstentionValue}\\s*\\/\\s*${noValue})|(${excludePatt}${abstentionValue}\\s*\\/\\s*${yesValue}\\s*\\/\\s*${noValue})|(${excludePatt}${abstentionValue}\\s*\\/\\s*${noValue}\\s*\\/\\s*${yesValue})|(${excludePatt}${noValue}\\s*\\/\\s*${yesValue}\\s*\\/\\s*${abstentionValue})|(${excludePatt}${noValue}\\s*\\/\\s*${abstentionValue}\\s*\\/\\s*${yesValue})`;
-  const ynaOptionsRegex = new RegExp(ynaPollString, 'gi');
-  const ynaPoll = content.match(ynaOptionsRegex) || [];
-
-  const tfPollString = `(${excludePatt}${trueValue}\\s*\\/\\s*${falseValue})|(${excludePatt}${falseValue}\\s*\\/\\s*${trueValue})`;
-  const tgOptionsRegex = new RegExp(tfPollString, 'gi');
-  const tfPoll = content.match(tgOptionsRegex) || [];
 
   optionsPoll.reduce((acc, currentValue) => {
     const lastElement = acc[acc.length - 1];
@@ -137,6 +123,22 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     type: `A-${poll.options.length}`,
     poll,
   }));
+
+  if (quickPollOptions.length > 0) {
+    content = content.replace(new RegExp(pollRegex), '');
+  }
+
+  const ynPollString = `(${yesValue}\\s*\\/\\s*${noValue})|(${noValue}\\s*\\/\\s*${yesValue})`;
+  const ynOptionsRegex = new RegExp(ynPollString, 'gi');
+  const ynPoll = content.match(ynOptionsRegex) || [];
+
+  const ynaPollString = `(${yesValue}\\s*\\/\\s*${noValue}\\s*\\/\\s*${abstentionValue})|(${yesValue}\\s*\\/\\s*${abstentionValue}\\s*\\/\\s*${noValue})|(${abstentionValue}\\s*\\/\\s*${yesValue}\\s*\\/\\s*${noValue})|(${abstentionValue}\\s*\\/\\s*${noValue}\\s*\\/\\s*${yesValue})|(${noValue}\\s*\\/\\s*${yesValue}\\s*\\/\\s*${abstentionValue})|(${noValue}\\s*\\/\\s*${abstentionValue}\\s*\\/\\s*${yesValue})`;
+  const ynaOptionsRegex = new RegExp(ynaPollString, 'gi');
+  const ynaPoll = content.match(ynaOptionsRegex) || [];
+
+  const tfPollString = `(${trueValue}\\s*\\/\\s*${falseValue})|(${falseValue}\\s*\\/\\s*${trueValue})`;
+  const tgOptionsRegex = new RegExp(tfPollString, 'gi');
+  const tfPoll = content.match(tgOptionsRegex) || [];
 
   ynPoll.forEach(poll => quickPollOptions.push({
     type: 'YN',
@@ -182,21 +184,12 @@ const isPresenter = (podId) => {
   return pod.currentPresenterId === Auth.userID;
 };
 
-const getMultiUserStatus = (whiteboardId) => {
-  const data = WhiteboardMultiUser.findOne({
-    meetingId: Auth.meetingID,
-    whiteboardId,
-  });
-  return data ? data.multiUser : false;
-};
-
 export default {
   getCurrentSlide,
   getSlidePosition,
   isPresenter,
   isPresentationDownloadable,
   downloadPresentationUri,
-  getMultiUserStatus,
   currentSlidHasContent,
   parseCurrentSlideContent,
   getCurrentPresentation,

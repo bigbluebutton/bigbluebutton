@@ -1,8 +1,10 @@
+import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
+import TextInput from '/imports/ui/components/text-input/component';
 import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
 
@@ -47,21 +49,44 @@ const intlMessages = defineMessages({
     id: 'app.userList.guest.rememberChoice',
     description: 'Remember label for checkbox',
   },
+  emptyMessage: {
+    id: 'app.userList.guest.emptyMessage',
+    description: 'Empty guest lobby message label',
+  },
+  inputPlaceholder: {
+    id: 'app.userList.guest.inputPlaceholder',
+    description: 'Placeholder to guest lobby message input',
+  },
+  accept: {
+    id: 'app.userList.guest.acceptLabel',
+    description: 'Accept guest button label'
+  },
+  deny: {
+    id: 'app.userList.guest.denyLabel',
+    description: 'Deny guest button label',
+  },
 });
 
 const ALLOW_STATUS = 'ALLOW';
 const DENY_STATUS = 'DENY';
 
-const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequence, userId) => (
+const getNameInitials = (name) => {
+  const nameInitials = name.slice(0, 2);
+
+  return nameInitials.replace(/^\w/, c => c.toUpperCase());
+}
+
+const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequence, userId, avatar, intl) => (
   <div key={`userlist-item-${userId}`} className={styles.listItem}>
     <div key={`user-content-container-${userId}`} className={styles.userContentContainer}>
       <div key={`user-avatar-container-${userId}`} className={styles.userAvatar}>
         <UserAvatar
           key={`user-avatar-${userId}`}
           moderator={role === 'MODERATOR'}
+          avatar={avatar}
           color={color}
         >
-          {name.slice(0, 2).toUpperCase()}
+          {getNameInitials(name)}
         </UserAvatar>
       </div>
       <p key={`user-name-${userId}`} className={styles.userName}>
@@ -79,7 +104,7 @@ const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequen
         color="primary"
         size="lg"
         ghost
-        label="Accept"
+        label={intl.formatMessage(intlMessages.accept)}
         onClick={handleAccept}
       />
       |
@@ -89,27 +114,33 @@ const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequen
         color="primary"
         size="lg"
         ghost
-        label="Deny"
+        label={intl.formatMessage(intlMessages.deny)}
         onClick={handleDeny}
       />
     </div>
   </div>
 );
 
-const renderPendingUsers = (message, usersArray, action) => {
+const renderPendingUsers = (message, usersArray, action, intl) => {
   if (!usersArray.length) return null;
   return (
-    <div>
+    <div className={styles.pendingUsers}>
       <p className={styles.mainTitle}>{message}</p>
-      {usersArray.map((user, idx) => renderGuestUserItem(
-        user.name,
-        user.color,
-        () => action([user], ALLOW_STATUS),
-        () => action([user], DENY_STATUS),
-        user.role,
-        idx + 1,
-        user.intId,
-      ))}
+      <div className={styles.usersWrapper}>
+        <div className={styles.users}>
+          {usersArray.map((user, idx) => renderGuestUserItem(
+            user.name,
+            user.color,
+            () => action([user], ALLOW_STATUS),
+            () => action([user], DENY_STATUS),
+            user.role,
+            idx + 1,
+            user.intId,
+            user.avatar,
+            intl,
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
@@ -131,6 +162,10 @@ const WaitingUsers = (props) => {
     guestUsers,
     guestUsersCall,
     changeGuestPolicy,
+    isGuestLobbyMessageEnabled,
+    setGuestLobbyMessage,
+    guestLobbyMessage,
+    authenticatedGuest,
   } = props;
 
   const onCheckBoxChange = (e) => {
@@ -156,7 +191,7 @@ const WaitingUsers = (props) => {
     />
   );
 
-  const buttonsData = [
+  const authGuestButtonsData = [
     {
       messageId: intlMessages.allowAllAuthenticated,
       action: () => guestUsersCall(authenticatedUsers, ALLOW_STATUS),
@@ -172,6 +207,9 @@ const WaitingUsers = (props) => {
       key: 'allow-all-guest',
       policy: 'ALWAYS_ACCEPT',
     },
+  ];
+
+  const guestButtonsData = [
     {
       messageId: intlMessages.allowEveryone,
       action: () => guestUsersCall([...guestUsers, ...authenticatedUsers], ALLOW_STATUS),
@@ -185,6 +223,8 @@ const WaitingUsers = (props) => {
       policy: 'ALWAYS_DENY',
     },
   ];
+
+  const buttonsData = authenticatedGuest ? _.concat(authGuestButtonsData , guestButtonsData) : guestButtonsData;
 
   return (
     <div
@@ -206,7 +246,17 @@ const WaitingUsers = (props) => {
           />
         </div>
       </header>
-      <main>
+      {isGuestLobbyMessageEnabled ? (
+        <div className={styles.lobbyMessage}>
+          <TextInput
+            maxLength={128}
+            placeholder={intl.formatMessage(intlMessages.inputPlaceholder)}
+            send={setGuestLobbyMessage}
+          />
+          <p><i>"{guestLobbyMessage.length > 0 ? guestLobbyMessage : intl.formatMessage(intlMessages.emptyMessage)}"</i></p>
+        </div>
+      ) : null}
+      <div>
         <div>
           <p className={styles.mainTitle}>{intl.formatMessage(intlMessages.optionTitle)}</p>
           {
@@ -222,19 +272,21 @@ const WaitingUsers = (props) => {
             {intl.formatMessage(intlMessages.rememberChoice)}
           </label>
         </div>
-        {renderPendingUsers(
-          intl.formatMessage(intlMessages.pendingUsers,
-            { 0: authenticatedUsers.length }),
-          authenticatedUsers,
-          guestUsersCall,
-        )}
-        {renderPendingUsers(
-          intl.formatMessage(intlMessages.pendingGuestUsers,
-            { 0: guestUsers.length }),
-          guestUsers,
-          guestUsersCall,
-        )}
-      </main>
+      </div>
+      {renderPendingUsers(
+        intl.formatMessage(intlMessages.pendingUsers,
+          { 0: authenticatedUsers.length }),
+        authenticatedUsers,
+        guestUsersCall,
+        intl,
+      )}
+      {renderPendingUsers(
+        intl.formatMessage(intlMessages.pendingGuestUsers,
+          { 0: guestUsers.length }),
+        guestUsers,
+        guestUsersCall,
+        intl,
+      )}
     </div>
   );
 };

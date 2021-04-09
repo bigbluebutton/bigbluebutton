@@ -58,6 +58,7 @@ class ApiController {
   ClientConfigService configService
   PresentationUrlDownloadService presDownloadService
   StunTurnService stunTurnService
+  HTML5LoadBalancingService html5LoadBalancingService
   ResponseBuilder responseBuilder = initResponseBuilder()
 
   def initResponseBuilder = {
@@ -149,6 +150,8 @@ class ApiController {
       }
       // Still no unique voiceBridge found? Let createMeeting handle it.
     }
+
+    params.html5InstanceId = html5LoadBalancingService.findSuitableHTML5ProcessByRoundRobin().toString()
 
     Meeting newMeeting = paramsProcessorUtil.processCreateParams(params)
 
@@ -267,11 +270,6 @@ class ApiController {
 
     if (!StringUtils.isEmpty(params.auth)) {
       authenticated = Boolean.parseBoolean(params.auth)
-    }
-
-    Boolean joinViaHtml5 = false;
-    if (!StringUtils.isEmpty(params.joinViaHtml5)) {
-      joinViaHtml5 = Boolean.parseBoolean(params.joinViaHtml5)
     }
 
     // Do we have a name for the user joining? If none, complain.
@@ -496,28 +494,7 @@ class ApiController {
 
     //check if exists the param redirect
     boolean redirectClient = true;
-    String clientURL = paramsProcessorUtil.getDefaultClientUrl();
-
-    // server-wide configuration:
-    // Depending on configuration, prefer the HTML5 client over Flash for moderators
-    if (paramsProcessorUtil.getModeratorsJoinViaHTML5Client() && role == ROLE_MODERATOR) {
-      joinViaHtml5 = true
-    }
-
-    // Depending on configuration, prefer the HTML5 client over Flash for attendees
-    if (paramsProcessorUtil.getAttendeesJoinViaHTML5Client() && role == ROLE_ATTENDEE) {
-      joinViaHtml5 = true
-    }
-
-    // single client join configuration:
-    // Depending on configuration, prefer the HTML5 client over Flash client
-    if (joinViaHtml5) {
-      clientURL = paramsProcessorUtil.getHTML5ClientUrl();
-    } else {
-      if (!StringUtils.isEmpty(params.clientURL)) {
-        clientURL = params.clientURL;
-      }
-    }
+    String clientURL = paramsProcessorUtil.getDefaultHTML5ClientUrl();
 
     if (!StringUtils.isEmpty(params.redirect)) {
       try {
@@ -1306,139 +1283,112 @@ class ApiController {
     }
 
     ApiErrors errors = new ApiErrors()
-    boolean reject = false;
+    String msgKey = "defaultKey"
+    String msgValue = "defaultValue"
+    String destURL = paramsProcessorUtil.getDefaultLogoutUrl()
+
+    // Do we have a sessionToken? If none, complain.
     String sessionToken = sanitizeSessionToken(params.sessionToken)
+    if (sessionToken == null) {
+      msgKey = "missingToken"
+      msgValue = "Guest missing session token."
+      respondWithJSONError(msgKey, msgValue, destURL)
+      return
+    }
 
-    UserSession us = getUserSession(sessionToken);
-    Meeting meeting = null;
-
+    UserSession us = getUserSession(sessionToken)
     if (us == null) {
-      log.debug("No user with session token.")
-      reject = true;
-    } else {
-      meeting = meetingService.getMeeting(us.meetingID);
-      if (meeting == null || meeting.isForciblyEnded()) {
-        log.debug("Meeting not found.")
-        reject = true
+      msgKey = "missingSession"
+      msgValue = "Guest missing session."
+      respondWithJSONError(msgKey, msgValue, destURL)
+      return
+    }
+
+    Meeting meeting = meetingService.getMeeting(us.meetingID)
+    if (meeting == null) {
+      msgKey = "missingMeeting"
+      msgValue = "Meeting does not exist."
+      respondWithJSONError(msgKey, msgValue, destURL)
+      return
+    }
+
+    // Is this user joining a meeting that has been ended. If so, complain.
+    if (meeting.isForciblyEnded()) {
+      msgKey = "meetingEnded"
+      msgValue = "Meeting ended."
+      respondWithJSONError(msgKey, msgValue, destURL)
+      return
+    }
+
+    String status = us.guestStatus
+    destURL = us.clientUrl
+    String lobbyMsg = meeting.getGuestLobbyMessage()
+
+    Boolean redirectClient = true
+    if (!StringUtils.isEmpty(params.redirect)) {
+      try {
+        redirectClient = Boolean.parseBoolean(params.redirect)
+      } catch (Exception e) {
+        redirectClient = true
       }
     }
 
-    // Determine the logout url so we can send the user there.
-    String logoutUrl = us != null ? us.logoutUrl : paramsProcessorUtil.getDefaultLogoutUrl()
+    String guestURL = paramsProcessorUtil.getDefaultGuestWaitURL() + "?sessionToken=" + sessionToken
 
-    if (reject) {
+    switch (status) {
+      case GuestPolicy.WAIT:
+        meetingService.guestIsWaiting(us.meetingID, us.internalUserId)
+        destURL = guestURL
+        msgKey = "guestWait"
+        msgValue = "Please wait for a moderator to approve you joining the meeting."
+
+        // We force the response to not do a redirect. Otherwise,
+        // the client would just be redirecting into this endpoint.
+        redirectClient = false
+        break
+      case GuestPolicy.DENY:
+        destURL = meeting.getLogoutUrl()
+        msgKey = "guestDeny"
+        msgValue = "Guest denied of joining the meeting."
+        redirectClient = false
+        break
+      case GuestPolicy.ALLOW:
+        // IF the user was allowed to join but there is no room available in
+        // the meeting we must hold his approval
+        if (hasReachedMaxParticipants(meeting, us)) {
+          meetingService.guestIsWaiting(us.meetingID, us.internalUserId)
+          destURL = guestURL
+          msgKey = "seatWait"
+          msgValue = "Guest waiting for a seat in the meeting."
+          redirectClient = false
+          status = GuestPolicy.WAIT
+        }
+        break
+      default:
+        break
+    }
+
+    if (redirectClient) {
+      // User may join the meeting
+      redirect(url: destURL)
+    } else {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         json {
           def builder = new JsonBuilder()
           builder.response {
-            returncode RESP_CODE_FAILED
-            message "Could not process waiting guest."
-            logoutURL logoutUrl
+            returncode RESP_CODE_SUCCESS
+            messageKey msgKey
+            message msgValue
+            meeting_id us.meetingID
+            user_id us.internalUserId
+            auth_token us.authToken
+            session_token session[sessionToken]
+            guestStatus status
+            lobbyMessage lobbyMsg
+            url destURL
           }
           render(contentType: "application/json", text: builder.toPrettyString())
-        }
-      }
-    } else {
-      //check if exists the param redirect
-      boolean redirectClient = true;
-
-      // Get the client url we stored in the join api call before
-      // being told to wait.
-      String clientURL = us.clientUrl;
-      log.info("clientURL = " + clientURL)
-      log.info("redirect = ." + redirectClient)
-      if (!StringUtils.isEmpty(params.redirect)) {
-        try {
-          redirectClient = Boolean.parseBoolean(params.redirect);
-          log.info("redirect 2 = ." + redirectClient)
-        } catch (Exception e) {
-          redirectClient = true;
-        }
-      }
-
-      // The client url is ovewriten. Let's allow it.
-      if (!StringUtils.isEmpty(params.clientURL)) {
-        clientURL = params.clientURL;
-      }
-
-      String guestWaitStatus = us.guestStatus
-
-      log.debug("GuestWaitStatus = " + guestWaitStatus)
-
-      String msgKey = "guestAllowed"
-      String msgValue = "Guest allowed to join meeting."
-
-      String destUrl = clientURL
-      log.debug("destUrl = " + destUrl)
-
-
-      if (guestWaitStatus.equals(GuestPolicy.WAIT)) {
-        clientURL = paramsProcessorUtil.getDefaultGuestWaitURL();
-        destUrl = clientURL + "?sessionToken=" + sessionToken
-        log.debug("GuestPolicy.WAIT - destUrl = " + destUrl)
-        msgKey = "guestWait"
-        msgValue = "Guest waiting for approval to join meeting."
-        // We force the response to not do a redirect. Otherwise,
-        // the client would just be redirecting into this endpoint.
-        redirectClient = false
-
-        Map<String, Object> logData = new HashMap<String, Object>();
-        logData.put("meetingid", us.meetingID);
-        logData.put("extMeetingid", us.externMeetingID);
-        logData.put("name", us.fullname);
-        logData.put("userid", us.internalUserId);
-        logData.put("sessionToken", sessionToken);
-        logData.put("logCode", "guest_wait");
-        logData.put("description", "Guest waiting for approval.");
-
-        Gson gson = new Gson();
-        String logStr = gson.toJson(logData);
-
-        log.info(" --analytics-- data=" + logStr);
-
-      } else if (guestWaitStatus.equals(GuestPolicy.DENY)) {
-        destUrl = meeting.getLogoutUrl()
-        msgKey = "guestDenied"
-        msgValue = "Guest denied to join meeting."
-
-        Map<String, Object> logData = new HashMap<String, Object>();
-        logData.put("meetingid", us.meetingID);
-        logData.put("extMeetingid", us.externMeetingID);
-        logData.put("name", us.fullname);
-        logData.put("userid", us.internalUserId);
-        logData.put("sessionToken", sessionToken);
-        logData.put("logCode", "guest_denied");
-        logData.put("description", "Guest denied.");
-
-        Gson gson = new Gson();
-        String logStr = gson.toJson(logData);
-
-        log.info(" --analytics-- data=" + logStr);
-      }
-
-      if (redirectClient) {
-        log.info("Redirecting to ${destUrl}");
-        redirect(url: destUrl);
-      } else {
-        log.info("Successfully joined. Sending XML response.");
-        response.addHeader("Cache-Control", "no-cache")
-        withFormat {
-          json {
-            def builder = new JsonBuilder()
-            builder.response {
-              returncode RESP_CODE_SUCCESS
-              messageKey msgKey
-              message msgValue
-              meeting_id us.meetingID
-              user_id us.internalUserId
-              auth_token us.authToken
-              session_token session[sessionToken]
-              guestStatus guestWaitStatus
-              url destUrl
-            }
-            render(contentType: "application/json", text: builder.toPrettyString())
-          }
         }
       }
     }
@@ -2174,6 +2124,10 @@ class ApiController {
           uploadFailReasons.add("failed_to_download_file")
           uploadFailed = true
         }
+      } else {
+        log.error("Null presentation directory meeting=[${meetingId}], presentationDir=[${presentationDir}], presId=[${presId}]")
+        uploadFailReasons.add("null_presentation_dir")
+        uploadFailed = true
       }
     }
 
@@ -2305,6 +2259,22 @@ class ApiController {
     }
 
     return false;
+  }
+
+  private void respondWithJSONError(msgKey, msgValue, destUrl) {
+    response.addHeader("Cache-Control", "no-cache")
+    withFormat {
+      json {
+        def builder = new JsonBuilder()
+        builder.response {
+          returncode RESP_CODE_FAILED
+          messageKey msgKey
+          message msgValue
+          url destUrl
+        }
+        render(contentType: "application/json", text: builder.toPrettyString())
+      }
+    }
   }
 
   private void respondWithErrors(errorList, redirectResponse = false) {

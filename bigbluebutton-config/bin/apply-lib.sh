@@ -1,10 +1,9 @@
-#!/bin/bash -e
-
-# This is a library of functions for apply-config.sh, which, if created, will be automatically called by
-# bbb-conf when you run
+# This is a library of functions for 
 #
-#   bbb-conf --restart
-#   bbb-conf --seitp ...
+#  /etc/bigbluebutton/bbb-conf/apply-config.sh
+#
+# which (if exists) will be run by `bbb-conf --setip` and `bbb-conf --restart` before restarting
+# BigBlueButton.
 #
 # The purpose of apply-config.sh is to make it easy to apply your configuration changes to a BigBlueButton server 
 # before BigBlueButton starts
@@ -24,16 +23,20 @@ else
   SERVLET_DIR=/var/lib/tomcat7/webapps/bigbluebutton
 fi
 
+BBB_WEB_ETC_CONFIG=/etc/bigbluebutton/bbb-web.properties
+
 PROTOCOL=http
 if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
-  SERVER_URL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-  if cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep bigbluebutton.web.serverURL | grep -q https; then
+  SERVER_URL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $BBB_WEB_ETC_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}' | tail -n 1)
+  if cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $BBB_WEB_ETC_CONFIG | grep -v '#' | grep ^bigbluebutton.web.serverURL | tail -n 1 | grep -q https; then
     PROTOCOL=https
   fi
 fi
 
-HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $BBB_WEB_ETC_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}' | tail -n 1)
+
 HTML5_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+BBB_WEB_CONFIG=$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
 
 
 #
@@ -72,16 +75,6 @@ HERE
   #   tail -f /var/log/nginx/html5-client.log | sed -u 's/\\x22/"/g' | sed -u 's/\\x5C//g'
 }
 
-#
-# Enable HTML5 as default
-#
-setHTML5ClientAsDefault() {
-  echo "  - Make HTML5 the default client in /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties"
-
-  sed -i 's/^attendeesJoinViaHTML5Client=.*/attendeesJoinViaHTML5Client=true/'   /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties
-  sed -i 's/^moderatorsJoinViaHTML5Client=.*/moderatorsJoinViaHTML5Client=true/' /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties
-}
-
 
 enableHTML5CameraQualityThresholds() {
   echo "  - Enable HTML5 cameraQualityThresholds"
@@ -104,13 +97,6 @@ enableUFWRules() {
     apt-get install -y ufw
   fi
 
-  #  Add 1935 if Flash client is enabled
-  if [[ "$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^attendeesJoinViaHTML5Client/{s/.*=//;p}')" == "true" &&
-        "$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^moderatorsJoinViaHTML5Client/{s/.*=//;p}')" == "true" ]]; then
-    ufw deny 1935/tcp
-  else
-    ufw allow 1935/tcp
-  fi
   ufw allow OpenSSH
   ufw allow "Nginx Full"
   ufw allow 16384:32768/udp
@@ -242,7 +228,6 @@ disableMultipleKurentos() {
 }
 
 
-
 notCalled() {
 #
 # This function is not called.
@@ -263,7 +248,6 @@ source /etc/bigbluebutton/bbb-conf/apply-lib.sh
 # Available configuration options
 
 #enableHTML5ClientLog
-#setHTML5ClientAsDefault
 #enableUFWRules
 
 #enableHTML5CameraQualityThresholds

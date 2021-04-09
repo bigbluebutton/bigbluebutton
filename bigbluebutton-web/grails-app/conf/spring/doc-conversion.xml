@@ -34,11 +34,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="presCheckExec" value="${presCheckExec}"/>
     </bean>
 
-
-    <bean id="officeToPdfConversionService" class="org.bigbluebutton.presentation.imp.OfficeToPdfConversionService"
-          init-method="start" destroy-method="stop">
+    <bean id="officeToPdfConversionService" class="org.bigbluebutton.presentation.imp.OfficeToPdfConversionService">
         <property name="officeDocumentValidator" ref="officeDocumentValidator"/>
         <property name="skipOfficePrecheck" value="${skipOfficePrecheck}"/>
+        <property name="presOfficeConversionExec" value="${presOfficeConversionExec:/usr/share/bbb-libreoffice-conversion/convert.sh}"/>
+        <property name="presOfficeConversionTimeout" value="${officeToPdfConversionTimeout}"/>
+        <property name="presOfficeConversionMaxConcurrents" value="${officeToPdfMaxConcurrentConversions}"/>
     </bean>
 
     <bean id="pageExtractor" class="org.bigbluebutton.presentation.imp.PageExtractorImp"/>
@@ -85,6 +86,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="imageTagThreshold" value="${imageTagThreshold}"/>
         <property name="pathsThreshold" value="${placementsThreshold}"/>
         <property name="blankSvg" value="${BLANK_SVG}"/>
+        <property name="convPdfToSvgTimeout" value="${svgConversionTimeout}"/>
     </bean>
 
     <bean id="generatedSlidesInfoHelper" class="org.bigbluebutton.presentation.GeneratedSlidesInfoHelperImp"/>

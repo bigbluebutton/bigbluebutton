@@ -5,10 +5,11 @@ import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrap
 import Button from '/imports/ui/components/button/component';
 import { Session } from 'meteor/session';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
+import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import { styles } from './styles.scss';
 import MessageForm from './message-form/container';
-import MessageList from './message-list/container';
-import ChatDropdown from './chat-dropdown/component';
+import TimeWindowList from './time-window-list/container';
+import ChatDropdownContainer from './chat-dropdown/container';
 
 const ELEMENT_ID = 'chat-messages';
 
@@ -22,10 +23,10 @@ const intlMessages = defineMessages({
     description: 'aria-label for hiding chat button',
   },
 });
+
 const Chat = (props) => {
   const {
     chatID,
-    chatName,
     title,
     messages,
     partnerIsLoggedOut,
@@ -42,14 +43,19 @@ const Chat = (props) => {
     maxMessageLength,
     amIModerator,
     meetingIsBreakout,
+    timeWindowsValues,
+    dispatch,
+    count,
+    syncing,
+    syncedPercent,
+    lastTimeWindowValuesBuild,
   } = props;
-
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
   const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
-
+  ChatLogger.debug('ChatComponent::render', props);
   return (
     <div
-      data-test="publicChat"
+      data-test={chatID !== 'public' ? 'privateChat' : 'publicChat'}
       className={styles.chat}
     >
       <header className={styles.header}>
@@ -61,6 +67,7 @@ const Chat = (props) => {
             onClick={() => {
               Session.set('idChatOpen', '');
               Session.set('openPanel', 'userlist');
+              window.dispatchEvent(new Event('panelChanged'));
             }}
             aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
             accessKey={HIDE_CHAT_AK}
@@ -82,32 +89,39 @@ const Chat = (props) => {
                   actions.handleClosePrivateChat(chatID);
                   Session.set('idChatOpen', '');
                   Session.set('openPanel', 'userlist');
+                  window.dispatchEvent(new Event('panelChanged'));
                 }}
                 aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
                 label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
                 accessKey={CLOSE_CHAT_AK}
               />
             )
-            : <ChatDropdown {...{ meetingIsBreakout, isMeteorConnected, amIModerator }} />
+            : <ChatDropdownContainer {...{ meetingIsBreakout, isMeteorConnected, amIModerator, timeWindowsValues }} />
         }
       </header>
-      <MessageList
+      <TimeWindowList
         id={ELEMENT_ID}
         chatId={chatID}
         handleScrollUpdate={actions.handleScrollUpdate}
-        handleReadMessage={actions.handleReadMessage}
         {...{
           partnerIsLoggedOut,
           lastReadMessageTime,
           hasUnreadMessages,
           scrollPosition,
           messages,
+          currentUserIsModerator: amIModerator,
+          timeWindowsValues,
+          dispatch,
+          count,
+          syncing,
+          syncedPercent,
+          lastTimeWindowValuesBuild,
         }}
       />
       <MessageForm
         {...{
           UnsentMessagesCollection,
-          chatName,
+          title,
           minMessageLength,
           maxMessageLength,
         }}
@@ -128,14 +142,7 @@ export default withShortcutHelper(injectWbResizeEvent(injectIntl(memo(Chat))), [
 
 const propTypes = {
   chatID: PropTypes.string.isRequired,
-  chatName: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
-  messages: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.oneOfType([
-    PropTypes.array,
-    PropTypes.string,
-    PropTypes.number,
-    PropTypes.object,
-  ])).isRequired).isRequired,
   shortcuts: PropTypes.objectOf(PropTypes.string),
   partnerIsLoggedOut: PropTypes.bool.isRequired,
   isChatLocked: PropTypes.bool.isRequired,

@@ -24,7 +24,7 @@ export default function changeWebcamOnlyModerator(meetingId, payload) {
     const { numberAffected } = Meetings.upsert(selector, modifier);
 
     if (numberAffected) {
-      Logger.info(`Changed meeting={${meetingId}} updated webcam Only for Moderator`)
+      Logger.info(`Changed meeting={${meetingId}} updated webcam Only for Moderator`);
     } else {
       Logger.info(`meeting={${meetingId}} webcam Only for Moderator were not updated`);
     }

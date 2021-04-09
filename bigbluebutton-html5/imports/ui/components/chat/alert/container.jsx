@@ -1,19 +1,24 @@
-import React, { memo } from 'react';
+import React, { memo, useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import UserListService from '/imports/ui/components/user-list/service';
 import Settings from '/imports/ui/services/settings';
 import ChatAlert from './component';
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/users';
+import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 
-const ChatAlertContainer = props => (
-  <ChatAlert {...props} />
-);
+const ChatAlertContainer = (props) => {
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+  const currentUser = users[Auth.userID];
+  const { authTokenValidatedTime } = currentUser;
+  return (
+    <ChatAlert {...props} joinTimestamp={authTokenValidatedTime} />
+  );
+};
 
 export default withTracker(() => {
   const AppSettings = Settings.application;
-  const activeChats = UserListService.getActiveChats();
-  const { loginTime } = Users.findOne({ userId: Auth.userID }, { fields: { loginTime: 1 } });
+  const activeChats = [];
+  // UserListService.getActiveChats();
 
   const openPanel = Session.get('openPanel');
   let idChatOpen = Session.get('idChatOpen');
@@ -30,7 +35,6 @@ export default withTracker(() => {
     pushAlertDisabled: !AppSettings.chatPushAlerts,
     activeChats,
     publicUserId: Meteor.settings.public.chat.public_group_id,
-    joinTimestamp: loginTime,
     idChatOpen,
   };
 })(memo(ChatAlertContainer));

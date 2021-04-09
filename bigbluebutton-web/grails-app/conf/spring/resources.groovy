@@ -1,6 +1,22 @@
 // Place your Spring DSL code here
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+Logger logger = LoggerFactory.getLogger("org.bigbluebutton.web.services.turn.StunTurnService")
+
 beans = {
+  def turnConfigFilePath = "/etc/bigbluebutton/turn-stun-servers.xml"
+  def turnConfigFile = new File(turnConfigFilePath)
+  if (turnConfigFile.canRead()) {
+    logger.info("Reading stun/turn server config from overlay config file " + turnConfigFilePath)
+    importBeans('file:' + turnConfigFilePath)
+  } else {
+    logger.info("Overlay stun/turn server config file " + turnConfigFilePath
+      + " not found/readable, reading from default config file location")
+    importBeans('spring/turn-stun-servers.xml')
+  }
 }
+
 /*
 Add back applicationContext.xml
 

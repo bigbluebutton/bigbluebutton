@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Settings from '/imports/ui/services/settings';
 import WebcamDraggable from './webcam-draggable-overlay/component';
-
 import { styles } from './styles';
+import Storage from '../../services/storage/session';
+
+const { isMobile } = deviceInfo;
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -14,7 +17,7 @@ const propTypes = {
   swapLayout: PropTypes.bool,
   disableVideo: PropTypes.bool,
   audioModalIsOpen: PropTypes.bool,
-  webcamPlacement: PropTypes.string,
+  layoutContextState: PropTypes.instanceOf(Object).isRequired,
 };
 
 const defaultProps = {
@@ -23,7 +26,6 @@ const defaultProps = {
   swapLayout: false,
   disableVideo: false,
   audioModalIsOpen: false,
-  webcamPlacement: 'top',
 };
 
 
@@ -31,10 +33,6 @@ export default class Media extends Component {
   constructor(props) {
     super(props);
     this.refContainer = React.createRef();
-  }
-
-  componentWillUpdate() {
-    window.dispatchEvent(new Event('resize'));
   }
 
   render() {
@@ -46,8 +44,13 @@ export default class Media extends Component {
       children,
       audioModalIsOpen,
       usersVideo,
-      webcamPlacement,
+      layoutContextState,
+      isMeteorConnected,
     } = this.props;
+
+    const { webcamsPlacement: placement } = layoutContextState;
+    const placementStorage = Storage.getItem('webcamsPlacement');
+    const webcamsPlacement = placement || placementStorage;
 
     const contentClassName = cx({
       [styles.content]: true,
@@ -56,24 +59,51 @@ export default class Media extends Component {
     const overlayClassName = cx({
       [styles.overlay]: true,
       [styles.hideOverlay]: hideOverlay,
-      [styles.floatingOverlay]: (webcamPlacement === 'floating'),
+      [styles.floatingOverlay]: (webcamsPlacement === 'floating'),
     });
 
+    const containerClassName = cx({
+      [styles.container]: true,
+      [styles.containerV]: webcamsPlacement === 'top' || webcamsPlacement === 'bottom' || webcamsPlacement === 'floating',
+      [styles.containerH]: webcamsPlacement === 'left' || webcamsPlacement === 'right',
+    });
     const { viewParticipantsWebcams } = Settings.dataSaving;
-    const showVideo = usersVideo.length > 0 && viewParticipantsWebcams;
-    const fullHeight = !showVideo || (webcamPlacement === 'floating');
+    const showVideo = usersVideo.length > 0 && viewParticipantsWebcams && isMeteorConnected;
+    const fullHeight = !showVideo || (webcamsPlacement === 'floating');
 
     return (
       <div
         id="container"
-        className={cx(styles.container)}
+        className={containerClassName}
         ref={this.refContainer}
       >
         <div
           className={!swapLayout ? contentClassName : overlayClassName}
           style={{
-            maxHeight: fullHeight ? '100%' : '80%',
-            minHeight: '20%',
+            maxHeight: usersVideo.length > 0
+            && (
+              webcamsPlacement !== 'left'
+              || webcamsPlacement !== 'right'
+            )
+            && (
+              webcamsPlacement === 'top'
+              || webcamsPlacement === 'bottom'
+            )
+              ? '80%'
+              : '100%',
+            minHeight: isMobile && window.innerWidth > window.innerHeight ? '50%' : '20%',
+            maxWidth: usersVideo.length > 0
+            && (
+              webcamsPlacement !== 'top'
+              || webcamsPlacement !== 'bottom'
+            )
+            && (
+              webcamsPlacement === 'left'
+              || webcamsPlacement === 'right'
+            )
+              ? '80%'
+              : '100%',
+            minWidth: '20%',
           }}
         >
           {children}
