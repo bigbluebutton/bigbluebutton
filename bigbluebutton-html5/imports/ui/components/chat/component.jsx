@@ -50,6 +50,7 @@ const Chat = (props) => {
     syncedPercent,
     lastTimeWindowValuesBuild,
   } = props;
+
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
   const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
   ChatLogger.debug('ChatComponent::render', props);
@@ -96,7 +97,12 @@ const Chat = (props) => {
                 accessKey={CLOSE_CHAT_AK}
               />
             )
-            : <ChatDropdownContainer {...{ meetingIsBreakout, isMeteorConnected, amIModerator, timeWindowsValues }} />
+            : (
+              <ChatDropdownContainer {...{
+                meetingIsBreakout, isMeteorConnected, amIModerator, timeWindowsValues,
+              }}
+              />
+            )
         }
       </header>
       <TimeWindowList

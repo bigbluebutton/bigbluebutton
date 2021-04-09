@@ -49,8 +49,8 @@ class TimeWindowList extends PureComponent {
         const { timeWindowsValues } = this.props;
         const timewindow = timeWindowsValues[rowIndex];
 
-        const key = timewindow.key;
-        const contentCount = timewindow.content.length;
+        const key = timewindow?.key;
+        const contentCount = timewindow?.content?.length;
         return `${key}-${contentCount}`;
       },
     });
