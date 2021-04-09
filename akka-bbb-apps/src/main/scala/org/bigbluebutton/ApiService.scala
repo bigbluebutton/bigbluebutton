@@ -5,7 +5,9 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.server.Directives._
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.service.{ HealthzService, MeetingInfoService, PubSubReceiveStatus, PubSubSendStatus, RecordingDBSendStatus }
-import spray.json.DefaultJsonProtocol
+import spray.json._
+import scala.concurrent._
+import ExecutionContext.Implicits.global
 
 case class HealthResponse(
     isHealthy:           Boolean,
@@ -96,22 +98,31 @@ class ApiService(healthz: HealthzService, meetingInfoz: MeetingInfoService)
       }
     } ~
       path("analytics") {
-        get {
-          val future = meetingInfoz.getAnalytics()
-          onSuccess(future) {
-            case response =>
-              if (response.optionMeetingInfoAnalytics.isDefined) {
-                complete(
-                  StatusCodes.OK,
-                  MeetingInfoResponse(response.optionMeetingInfoAnalytics)
-                )
-              } else {
-                complete(
-                  StatusCodes.NoContent,
-                  MeetingInfoResponse(None)
-                )
+        parameter('meetingId.as[String]) { meetingId =>
+          get {
+            val meetingAnalyticsFuture = meetingInfoz.getAnalytics(meetingId)
+            val entityFuture = meetingAnalyticsFuture.map { resp =>
+              resp.optionMeetingInfoAnalytics match {
+                case Some(_) =>
+                  HttpEntity(ContentTypes.`application/json`, resp.optionMeetingInfoAnalytics.get.toJson.prettyPrint)
+                case None =>
+                  HttpEntity(ContentTypes.`application/json`, {}.toJson.prettyPrint)
               }
+            }
+            complete(entityFuture)
           }
-        }
+        } ~
+          get {
+            val future = meetingInfoz.getAnalytics()
+            val entityFuture = future.map { res =>
+              res.optionMeetingsInfoAnalytics match {
+                case Some(_) =>
+                  HttpEntity(ContentTypes.`application/json`, res.optionMeetingsInfoAnalytics.get.toJson.prettyPrint)
+                case None =>
+                  HttpEntity(ContentTypes.`application/json`, {}.toJson.prettyPrint)
+              }
+            }
+            complete(entityFuture)
+          }
       }
 }
