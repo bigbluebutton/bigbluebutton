@@ -55,14 +55,14 @@ const mapGroupMessage = (message) => {
     key: message.key
   };
 
-  if (message.sender && message.sender.id !== SYSTEM_CHAT_TYPE) {
-    const sender = Users.findOne({ userId: message.sender.id }, { fields: { avatar: 1, role: 1 } });
+  if (message.sender && message.sender !== SYSTEM_CHAT_TYPE) {
+    const sender = Users.findOne({ userId: message.sender }, { fields: { avatar: 1, role: 1, name: 1 } });
 
     const mappedSender = {
       avatar: sender?.avatar,
       color: message.color,
       isModerator: sender?.role === ROLE_MODERATOR,
-      name: message.sender.name,
+      name: sender.name,
       isOnline: !!sender,
     };
 
@@ -198,12 +198,6 @@ const isChatLocked = (receiverID) => {
   }
 
   return false;
-};
-
-const hasUnreadMessages = (receiverID) => {
-  const isPublic = receiverID === PUBLIC_CHAT_ID;
-  const chatType = isPublic ? PUBLIC_GROUP_CHAT_ID : receiverID;
-  return UnreadMessages.count(chatType) > 0;
 };
 
 const lastReadMessageTime = (receiverID) => {
@@ -386,7 +380,6 @@ export default {
   getPrivateChatByUsers,
   getWelcomeProp,
   getScrollPosition,
-  hasUnreadMessages,
   lastReadMessageTime,
   isChatLocked,
   updateScrollPosition,

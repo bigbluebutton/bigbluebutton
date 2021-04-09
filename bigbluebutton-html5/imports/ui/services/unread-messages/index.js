@@ -1,9 +1,6 @@
 import { Tracker } from 'meteor/tracker';
 
 import Storage from '/imports/ui/services/storage/session';
-import Auth from '/imports/ui/services/auth';
-import GroupChat from '/imports/api/group-chat';
-import { GroupChatMsg } from '/imports/api/group-chat-msg';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const STORAGE_KEY = CHAT_CONFIG.storage_key;
@@ -35,32 +32,22 @@ class UnreadMessagesTracker {
     return this._unreadChats[chatID];
   }
   
-  getUnreadMessages(chatID) {
-    return [];
-    const filter = {
-      timestamp: {
-        $gt: this.get(chatID),
-      },
-      'sender.id': { $ne: Auth.userID },
-    };
-    if (chatID === PUBLIC_GROUP_CHAT_ID) {
-      filter.chatId = { $eq: chatID };
-    } else {
-      const privateChat = GroupChat.findOne({ users: { $all: [chatID, Auth.userID] } },
-        { fields: { chatId: 1 } });
+  getUnreadMessages(chatID, messages) {
+    const isPublicChat = chatID === PUBLIC_GROUP_CHAT_ID;
 
-      filter.chatId = { $ne: PUBLIC_GROUP_CHAT_ID };
+    let unreadMessages = [];
 
-      if (privateChat) {
-        filter.chatId = privateChat.chatId;
+    if (messages[chatID]) {
+      const contextChat = messages[chatID];
+      const unreadTimewindows = contextChat.unreadTimeWindows;
+      for (const unreadTimeWindowId of unreadTimewindows) {
+        unreadMessages.push(isPublicChat 
+          ? contextChat?.preJoinMessages[unreadTimeWindowId] || contextChat?.posJoinMessages[unreadTimeWindowId]
+          : contextChat?.messageGroups[unreadTimeWindowId]);
       }
     }
-    const messages = GroupChatMsg.find(filter).fetch();
-  }
 
-  count(chatID) {
-    const messages = this.getUnreadMessages(chatID);
-    return messages.length;
+    return unreadMessages;
   }
 }
 
