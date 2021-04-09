@@ -702,4 +702,5 @@ export default {
   amIPresenter,
   getUsersProp,
   getUserCount,
+  sortUsersByCurrent,
 };
