@@ -89,6 +89,7 @@ class ActionsBar extends PureComponent {
               })}
               accessKey={shortcuts.raisehand}
               color={currentUser.emoji === 'raiseHand' ? 'primary' : 'default'}
+              data-test={currentUser.emoji === 'raiseHand' ? 'lowerHandLabel' : 'raiseHandLabel'}
               ghost={currentUser.emoji !== 'raiseHand'}
               className={cx(currentUser.emoji === 'raiseHand' || styles.btn)}
               hideLabel
