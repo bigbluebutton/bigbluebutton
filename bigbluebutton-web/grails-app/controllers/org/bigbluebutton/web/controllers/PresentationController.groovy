@@ -70,6 +70,7 @@ class PresentationController {
 
         response.setStatus(404);
         response.addHeader("Cache-Control", "no-cache")
+        response.addHeader("x-file-too-large", "1")
         response.contentType = 'plain/text'
         response.outputStream << 'file-empty';
       }
