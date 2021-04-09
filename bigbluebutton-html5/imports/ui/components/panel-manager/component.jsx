@@ -571,7 +571,7 @@ class PanelManager extends Component {
         size={{ width: pollWidth }}
         onResizeStop={(e, direction, ref, d) => {
           // window.dispatchEvent(new Event('resize'));
-          this.pollResizeStop(pollWidth + d.width);
+          this.pollResizeStop(d.width);
         }}
       >
         {this.renderPoll()}
