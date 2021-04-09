@@ -19,6 +19,7 @@
 package org.bigbluebutton.web.controllers
 
 import grails.converters.*
+import org.bigbluebutton.api.messaging.messages.PresentationUploadToken
 import org.grails.web.mime.DefaultMimeUtility
 import org.bigbluebutton.api.ParamsProcessorUtil;
 
@@ -62,8 +63,14 @@ class PresentationController {
         response.outputStream << 'upload-success';
       } else {
         log.debug "NO SUCCESS \n"
+
+        //Send upload error message
+        PresentationUploadToken presUploadToken = meetingService.getPresentationUploadToken(presentationToken);
+        meetingService.sendPresentationUploadMaxFilesizeMessage(presUploadToken, originalContentLength, maxUploadFileSize as int);
+
         response.setStatus(404);
         response.addHeader("Cache-Control", "no-cache")
+        response.addHeader("x-file-too-large", "1")
         response.contentType = 'plain/text'
         response.outputStream << 'file-empty';
       }

@@ -3,7 +3,6 @@ import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import Meetings from '/imports/api/meetings';
-import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import userListService from '/imports/ui/components/user-list/service';
@@ -52,9 +51,13 @@ const NavBarContainer = ({ children, ...props }) => {
   });
   const hasUnreadNotes = NoteService.hasUnreadNotes(sidebarContentPanel);
 
+  const currentUser = users[Auth.userID];
+  const amIModerator = currentUser.role === ROLE_MODERATOR;
+
   return (
     <NavBar
       {...{
+        amIModerator,
         hasUnreadMessages,
         hasUnreadNotes,
         layoutManagerLoaded,
@@ -94,14 +97,13 @@ export default withTracker(() => {
   }
 
   const { connectRecordingObserver, processOutsideToggleRecording } = Service;
-  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1 } });
-  const amIModerator = currentUser.role === ROLE_MODERATOR;
-
+  const openPanel = Session.get('openPanel');
+  const isExpanded = openPanel !== '';
 
   const layoutManagerLoaded = Session.get('layoutManagerLoaded');
 
   return {
-    amIModerator,
+    isExpanded,
     currentUserId: Auth.userID,
     processOutsideToggleRecording,
     connectRecordingObserver,

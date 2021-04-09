@@ -136,7 +136,10 @@ class ConnectionStatusComponent extends PureComponent {
             </div>
 
             <div className={styles.name}>
-              <div className={cx(styles.text, textStyle)}>
+              <div
+                className={cx(styles.text, textStyle)}
+                data-test={conn.offline ? "offlineUser" : null}
+              >
                 {conn.name}
                 {conn.offline ? ` (${intl.formatMessage(intlMessages.offline)})` : null}
               </div>

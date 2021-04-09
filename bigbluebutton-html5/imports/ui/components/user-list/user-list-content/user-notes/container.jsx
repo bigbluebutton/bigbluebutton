@@ -1,33 +1,21 @@
 import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import NoteService from '/imports/ui/components/note/service';
-import Meetings from '/imports/api/meetings';
-import Users from '/imports/api/users';
-import Auth from '/imports/ui/services/auth';
+import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import UserNotes from './component';
 import { NLayoutContext } from '../../../layout/context/context';
-
-const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
 const UserNotesContainer = (props) => {
   const newLayoutContext = useContext(NLayoutContext);
   const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
   const { sidebarContentPanel } = newLayoutContextState;
-  return <UserNotes {...{ sidebarContentPanel, newLayoutContextDispatch, ...props }} />;
+  return <UserNotes {...{ newLayoutContextDispatch, sidebarContentPanel, ...props }} />;
 };
 
-export default withTracker(() => {
-  const Meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { 'lockSettingsProps.disableNote': 1 } });
-  const isViewer = Users.findOne({ meetingId: Auth.meetingID, userId: Auth.userID }, {
-    fields: {
-      role: 1,
-    },
-  }).role === ROLE_VIEWER;
-  const shouldDisableNote = (Meeting.lockSettingsProps.disableNote) && isViewer;
-
+export default lockContextContainer(withTracker(({ userLocks }) => {
+  const shouldDisableNote = userLocks.userNote;
   return {
     revs: NoteService.getRevs(),
     disableNote: shouldDisableNote,
   };
-})(UserNotesContainer);
+})(UserNotesContainer));

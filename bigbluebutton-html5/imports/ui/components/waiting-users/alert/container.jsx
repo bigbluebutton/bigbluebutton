@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import GuestUsers from '/imports/api/guest-users/';
-import Users from '/imports/api/users/';
+import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import WaitingComponent from './component';
 import { NLayoutContext } from '../../layout/context/context';
 import { PANELS } from '../../layout/enums';
@@ -15,7 +15,22 @@ const WaitingContainer = (props) => {
   const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
   const { sidebarContentPanel } = newLayoutContextState;
   const managementPanelIsOpen = sidebarContentPanel === PANELS.WAITING_USERS;
-  return <WaitingComponent {...{ managementPanelIsOpen, newLayoutContextDispatch, ...props }} />;
+
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+  const currentUser = users[Auth.userID];
+  const currentUserIsModerator = currentUser.role === ROLE_MODERATOR;
+  const joinTime = currentUser.authTokenValidatedTime;
+  return (
+    <WaitingComponent {...{
+      newLayoutContextDispatch,
+      managementPanelIsOpen,
+      ...props,
+      currentUserIsModerator,
+      joinTime,
+    }}
+    />
+  );
 };
 
 export default withTracker(() => {
@@ -25,11 +40,7 @@ export default withTracker(() => {
     denied: false,
   }).fetch();
 
-  const currentUser = Users.findOne({ userId: Auth.userID },
-    { fields: { role: 1, loginTime: 1 } });
   return {
     pendingUsers,
-    currentUserIsModerator: currentUser.role === ROLE_MODERATOR,
-    joinTime: currentUser.loginTime,
   };
 })(WaitingContainer);

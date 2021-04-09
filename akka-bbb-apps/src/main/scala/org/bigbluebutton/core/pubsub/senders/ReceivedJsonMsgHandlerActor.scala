@@ -234,6 +234,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetAllPresentationPodsReqMsg](envelope, jsonNode)
       case PreuploadedPresentationsSysPubMsg.NAME =>
         routeGenericMsg[PreuploadedPresentationsSysPubMsg](envelope, jsonNode)
+      case PresentationUploadedFileTooLargeErrorSysPubMsg.NAME =>
+        routeGenericMsg[PresentationUploadedFileTooLargeErrorSysPubMsg](envelope, jsonNode)
       case PresentationConversionUpdateSysPubMsg.NAME =>
         routeGenericMsg[PresentationConversionUpdateSysPubMsg](envelope, jsonNode)
       case PresentationPageCountErrorSysPubMsg.NAME =>

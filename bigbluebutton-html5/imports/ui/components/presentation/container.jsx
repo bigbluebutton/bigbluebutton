@@ -7,9 +7,9 @@ import PresentationAreaService from './service';
 import { Slides } from '/imports/api/slides';
 import PresentationArea from '/imports/ui/components/presentation/component';
 import PresentationToolbarService from './presentation-toolbar/service';
+import { UsersContext } from '../components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
-import Users from '/imports/api/users';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { NLayoutContext } from '../layout/context/context';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
@@ -19,7 +19,21 @@ const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 const PresentationAreaContainer = ({ presentationPodIds, mountPresentationArea, ...props }) => {
   const newLayoutContext = useContext(NLayoutContext);
   const { newLayoutContextDispatch } = newLayoutContext;
-  return mountPresentationArea && <PresentationArea {...{ newLayoutContextDispatch, ...props }} />;
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+  const currentUser = users[Auth.userID];
+  return mountPresentationArea
+    && (
+      <PresentationArea
+        {
+        ...{
+          newLayoutContextDispatch,
+          ...props,
+          isViewer: currentUser.role === ROLE_VIEWER,
+        }
+        }
+      />
+    );
 };
 
 const APP_CONFIG = Meteor.settings.public.app;
@@ -30,11 +44,6 @@ export default withTracker(({ podId }) => {
   const currentSlide = PresentationAreaService.getCurrentSlide(podId);
   const presentationIsDownloadable = PresentationAreaService.isPresentationDownloadable(podId);
   const layoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
-  const isViewer = Users.findOne({ meetingId: Auth.meetingID, userId: Auth.userID }, {
-    fields: {
-      role: 1,
-    },
-  }).role === ROLE_VIEWER;
 
   let slidePosition;
   if (currentSlide) {
@@ -64,7 +73,7 @@ export default withTracker(({ podId }) => {
       }).fetch();
 
       const promiseImageGet = slidesToFetch
-        .filter(s => !fetchedpresentation[presentationId].fetchedSlide[s.num])
+        .filter((s) => !fetchedpresentation[presentationId].fetchedSlide[s.num])
         .map(async (slide) => {
           if (presentation.canFetch) presentation.canFetch = false;
           const image = await fetch(slide.imageUri);
@@ -99,7 +108,6 @@ export default withTracker(({ podId }) => {
         publishedPoll: 1,
       },
     }).publishedPoll,
-    isViewer,
     currentPresentationId: Session.get('currentPresentationId') || null,
     restoreOnUpdate: getFromUserSettings(
       'bbb_force_restore_presentation_on_new_events',

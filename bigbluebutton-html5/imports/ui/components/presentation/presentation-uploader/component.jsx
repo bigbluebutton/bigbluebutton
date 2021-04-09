@@ -599,7 +599,15 @@ class PresentationUploader extends Component {
     const { intl } = this.props;
 
     const presentationsSorted = presentations
-      .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp);
+      .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp)
+      .sort((a, b) => a.filename.localeCompare(b.filename))
+      .sort((a, b) => b.upload.progress - a.upload.progress)
+      .sort((a, b) => b.conversion.done - a.conversion.done)
+      .sort((a, b) => {
+        const aUploadNotTriggeredYet = !a.upload.done && a.upload.progress === 0;
+        const bUploadNotTriggeredYet = !b.upload.done && b.upload.progress === 0;
+        return bUploadNotTriggeredYet - aUploadNotTriggeredYet;
+      });
 
     return (
       <div className={styles.fileList}>

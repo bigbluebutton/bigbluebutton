@@ -264,6 +264,7 @@ class MessageForm extends PureComponent {
       className,
       chatAreaId,
       idChatOpen,
+      partnerIsLoggedOut,
     } = this.props;
 
     const { hasErrors, error, message } = this.state;
@@ -285,7 +286,7 @@ class MessageForm extends PureComponent {
             autoCorrect="off"
             autoComplete="off"
             spellCheck="true"
-            disabled={disabled}
+            disabled={disabled || partnerIsLoggedOut}
             value={message}
             onChange={this.handleMessageChange}
             onKeyDown={this.handleMessageKeyDown}
@@ -297,7 +298,7 @@ class MessageForm extends PureComponent {
             className={styles.sendButton}
             aria-label={intl.formatMessage(messages.submitLabel)}
             type="submit"
-            disabled={disabled}
+            disabled={disabled || partnerIsLoggedOut}
             label={intl.formatMessage(messages.submitLabel)}
             color="primary"
             icon="send"

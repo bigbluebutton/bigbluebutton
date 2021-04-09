@@ -307,9 +307,8 @@ class Poll extends Component {
       if (o.val.length > 0) hasVal = true;
       const pollOptionKey = `poll-option-${i}`;
       return (
-        <span>
+        <span key={pollOptionKey}>
           <div
-            key={pollOptionKey}
             style={{
               display: 'flex',
               justifyContent: 'spaceBetween',

@@ -3,9 +3,9 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Settings from '/imports/ui/services/settings';
 import ChatAlert from './component';
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/users';
 import { NLayoutContext } from '../../layout/context/context';
 import { PANELS } from '../../layout/enums';
+import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 
 const ChatAlertContainer = (props) => {
   const newLayoutContext = useContext(NLayoutContext);
@@ -13,15 +13,25 @@ const ChatAlertContainer = (props) => {
   const { sidebarContentPanel, idChatOpen } = newLayoutContextState;
   let idChat = idChatOpen;
   if (sidebarContentPanel !== PANELS.CHAT) idChat = '';
+
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+  const currentUser = users[Auth.userID];
+  const { authTokenValidatedTime } = currentUser;
   return idChatOpen !== null
-    && <ChatAlert {...{ newLayoutContextDispatch, ...props }} idChatOpen={idChat} />;
+    && (
+      <ChatAlert
+        {...{ newLayoutContextDispatch, ...props }}
+        joinTimestamp={authTokenValidatedTime}
+        idChatOpen={idChat}
+      />
+    );
 };
 
 export default withTracker(() => {
   const AppSettings = Settings.application;
   const activeChats = [];
   // UserListService.getActiveChats();
-  const { loginTime } = Users.findOne({ userId: Auth.userID }, { fields: { loginTime: 1 } });
 
   return {
     audioAlertDisabled: !AppSettings.chatAudioAlerts,
