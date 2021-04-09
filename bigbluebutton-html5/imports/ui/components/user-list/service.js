@@ -154,22 +154,14 @@ const sortUsers = (a, b) => {
   return sort;
 };
 
-const sortChatsByName = (a, b) => {
-  let sort = sortUsersByName(a, b);
+const sortChatsByName = (a, b) => sortUsersByName(a, b);
 
-  if (sort === 0) {
-    sort = sortUsersByUserId(a, b);
-  }
-
-  return 0;
-};
+const sortChatsByUserId = (a, b) => sortUsersByUserId(a, b);
 
 const sortChatsByIcon = (a, b) => {
-  if (a.icon && b.icon) {
-    return sortChatsByName(a, b);
-  } if (a.icon) {
+  if (a.icon && !b.icon) {
     return -1;
-  } if (b.icon) {
+  } if (!a.icon && b.icon) {
     return 1;
   }
 
@@ -177,11 +169,15 @@ const sortChatsByIcon = (a, b) => {
 };
 
 const sortByRecentActivity = (a, b) => {
-  const _a = a.lastActivity;
-  const _b = b.lastActivity;
-  if (a.userId === 'public') return -1;
-  if (!_b || _a > _b) return -1;
-  if (!_a || _a < _b) return 1;
+  const aActivity = a.lastActivity ? a.lastActivity : 0;
+  const bActivity = b.lastActivity ? b.lastActivity : 0;
+
+  if (aActivity > bActivity) {
+    return -1;
+  } if (aActivity < bActivity) {
+    return 1;
+  }
+
   return 0;
 };
 
@@ -193,10 +189,18 @@ const sortChats = (a, b) => {
   let sort = sortChatsByIcon(a, b);
 
   if (sort === 0) {
+    sort = sortByRecentActivity(a, b);
+  }
+
+  if (sort === 0) {
     sort = sortChatsByName(a, b);
   }
 
-  return sortByRecentActivity(a, b);
+  if (sort === 0) {
+    sort = sortChatsByUserId(a, b);
+  }
+
+  return sort;
 };
 
 const userFindSorting = {
