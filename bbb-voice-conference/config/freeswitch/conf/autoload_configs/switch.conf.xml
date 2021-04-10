@@ -9,9 +9,9 @@
     <key name="6" value="reloadxml"/>
     <key name="7" value="console loglevel 0"/>
     <key name="8" value="console loglevel 7"/>
-    <key name="9" value="sofia status profile internal"/>
-    <key name="10" value="sofia profile internal siptrace on"/>
-    <key name="11" value="sofia profile internal siptrace off"/>
+    <key name="9" value="sofia status profile external"/>
+    <key name="10" value="sofia profile external siptrace on"/>
+    <key name="11" value="sofia profile external siptrace off"/>
     <key name="12" value="version"/>
   </cli-keybindings>
 

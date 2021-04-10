@@ -46,10 +46,4 @@
     <X-PRE-PROCESS cmd="include" data="dialplan/*.xml"/>
   </section>
 
-  <!-- mod_dingaling is reliant on the vcard data in the "directory" section. -->
-  <!-- mod_sofia is reliant on the user data for authorization -->
-  <section name="directory" description="User Directory">
-    <X-PRE-PROCESS cmd="include" data="directory/*.xml"/>
-  </section>
-
 </document>

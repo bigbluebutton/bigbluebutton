@@ -2,18 +2,7 @@
   <!-- Preprocessor Variables
        These are introduced when configuration strings must be consistent across modules.
        NOTICE: YOU CAN NOT COMMENT OUT AN X-PRE-PROCESS line, Remove the line instead.
-
-       WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
-
-       YOU SHOULD CHANGE THIS default_password value if you don't want to be subject to any
-       toll fraud in the future.  It's your responsibility to secure your own system.
-
-       This default config is used to demonstrate the feature set of FreeSWITCH.
-
-       WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
   -->
-  <X-PRE-PROCESS cmd="set" data="default_password=1234"/>
-  <!-- Did you change it yet? -->
   <!--
       The following variables are set dynamically - calculated if possible by freeswitch - and
       are available to the config as $${variable}.  You can see their calculated value via fs_cli
@@ -330,12 +319,6 @@
   <!-- various debug and defaults -->
   <X-PRE-PROCESS cmd="set" data="call_debug=false"/>
   <X-PRE-PROCESS cmd="set" data="console_loglevel=info"/>
-  <X-PRE-PROCESS cmd="set" data="default_areacode=918"/>
-  <X-PRE-PROCESS cmd="set" data="default_country=US"/>
-
-  <!-- if false or undefined, the destination number is included in presence NOTIFY dm:note.
-       if true, the destination number is not included -->
-  <X-PRE-PROCESS cmd="set" data="presence_privacy=false"/>
 
   <X-PRE-PROCESS cmd="set" data="au-ring=%(400,200,383,417);%(400,2000,383,417)"/>
   <X-PRE-PROCESS cmd="set" data="be-ring=%(1000,3000,425)"/>
@@ -385,20 +368,6 @@
   <XX-PRE-PROCESS cmd="set" data="digits_dialed_filter=(($${df_luhn})|($${df_us_ssn}))"/>
 
   <!--
-      Setting up your default sip provider is easy.
-      Below are some values that should work in most cases.
-
-      These are for conf/directory/default/example.com.xml
-  -->
-  <X-PRE-PROCESS cmd="set" data="default_provider=example.com"/>
-  <X-PRE-PROCESS cmd="set" data="default_provider_username=joeuser"/>
-  <X-PRE-PROCESS cmd="set" data="default_provider_password=password"/>
-  <X-PRE-PROCESS cmd="set" data="default_provider_from_domain=example.com"/>
-  <!-- true or false -->
-  <X-PRE-PROCESS cmd="set" data="default_provider_register=false"/>
-  <X-PRE-PROCESS cmd="set" data="default_provider_contact=5000"/>
-
-  <!--
      SIP and TLS settings. http://wiki.freeswitch.org/wiki/Tls
 
      valid options: sslv2,sslv3,sslv23,tlsv1,tlsv1.1,tlsv1.2
@@ -417,12 +386,6 @@
      Will show you what is available in your verion of openssl.
   -->
   <X-PRE-PROCESS cmd="set" data="sip_tls_ciphers=ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH"/>
-
-  <!-- Internal SIP Profile -->
-  <X-PRE-PROCESS cmd="set" data="internal_auth_calls=true"/>
-  <X-PRE-PROCESS cmd="set" data="internal_sip_port=5090"/>
-  <X-PRE-PROCESS cmd="set" data="internal_tls_port=5061"/>
-  <X-PRE-PROCESS cmd="set" data="internal_ssl_enable=false"/>
 
   <!-- External SIP Profile -->
   <X-PRE-PROCESS cmd="set" data="external_auth_calls=false"/>
