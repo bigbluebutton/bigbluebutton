@@ -12,7 +12,7 @@ import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import Chat from '/imports/ui/components/chat/component';
 import ChatService from './service';
-import { NLayoutContext } from '../layout/context/context';
+import NewLayoutContext from '../layout/context/context';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -62,8 +62,17 @@ const throttledFunc = _.throttle(() => {
 }, DEBOUNCE_TIME, { trailing: true, leading: true });
 
 const ChatContainer = (props) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
+  const {
+    children,
+    loginTime,
+    intl,
+    userLocks,
+    lockSettings,
+    users: propUsers,
+    newLayoutContextState,
+    newLayoutContextDispatch,
+    ...restProps
+  } = props;
   const { idChatOpen } = newLayoutContextState;
   const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
 
@@ -78,15 +87,6 @@ const ChatContainer = (props) => {
   const modOnlyMessage = Storage.getItem('ModeratorOnlyMessage');
   const { welcomeProp } = ChatService.getWelcomeProp();
 
-  const {
-    children,
-    loginTime,
-    intl,
-    userLocks,
-    lockSettings,
-    users: propUsers,
-    ...restProps
-  } = props;
   ChatLogger.debug('ChatContainer::render::props', props);
 
   const systemMessages = {
@@ -257,4 +257,4 @@ export default lockContextContainer(injectIntl(withTracker(({ intl, userLocks })
       handleClosePrivateChat: ChatService.closePrivateChat,
     },
   };
-})(ChatContainer)));
+})(NewLayoutContext.withConsumer(ChatContainer))));

@@ -421,7 +421,10 @@ class LayoutManager extends Component {
   calculatesLayout(panelChanged = false) {
     const {
       layoutContextState,
+      newLayoutContextState,
     } = this.props;
+    const { input } = newLayoutContextState;
+    const { sidebarNavigation, sidebarContent } = input;
     const {
       presentationIsFullscreen,
       presentationSlideSize,
@@ -448,7 +451,11 @@ class LayoutManager extends Component {
     }
 
     const mediaAreaHeight = this.windowHeight() - (NAVBAR_HEIGHT + ACTIONSBAR_HEIGHT) - 10;
-    const mediaAreaWidth = this.windowWidth() - (firstPanel.width + secondPanel.width);
+    const mediaAreaWidth = this.windowWidth() - (
+      (sidebarNavigation.isOpen ? firstPanel.width : 0)
+      + (sidebarContent.isOpen ? secondPanel.width : 0)
+    );
+
     const newMediaBounds = {
       width: mediaAreaWidth,
       height: mediaAreaHeight,
@@ -500,7 +507,7 @@ class LayoutManager extends Component {
   }
 
   render() {
-    return <Fragment />;
+    return <></>;
   }
 }
 

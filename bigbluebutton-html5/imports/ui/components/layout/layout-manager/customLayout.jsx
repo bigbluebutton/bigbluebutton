@@ -195,7 +195,7 @@ class CustomLayout extends Component {
     const { layoutLoaded } = newLayoutContextState;
 
     let top = 0;
-    if (layoutLoaded === 'both') top = this.mainHeight() / 2;
+    if (layoutLoaded === 'both') top = this.mainHeight();
     else top = DEFAULT_VALUES.navBarTop;
 
     return {
@@ -275,7 +275,7 @@ class CustomLayout extends Component {
     const { deviceType, layoutLoaded } = newLayoutContextState;
 
     let top = 0;
-    if (layoutLoaded === 'both') top = this.mainHeight() / 2;
+    if (layoutLoaded === 'both') top = this.mainHeight();
     else top = DEFAULT_VALUES.sidebarNavTop;
 
     if (deviceType === DEVICE_TYPE.MOBILE) top = DEFAULT_VALUES.navBarHeight;
@@ -349,7 +349,7 @@ class CustomLayout extends Component {
     const { deviceType, layoutLoaded } = newLayoutContextState;
 
     let top = 0;
-    if (layoutLoaded === 'both') top = this.mainHeight() / 2;
+    if (layoutLoaded === 'both') top = this.mainHeight();
     else top = DEFAULT_VALUES.sidebarNavTop;
 
     if (deviceType === DEVICE_TYPE.MOBILE) top = DEFAULT_VALUES.navBarHeight;
@@ -358,7 +358,7 @@ class CustomLayout extends Component {
       top,
       left: deviceType === DEVICE_TYPE.MOBILE
         || deviceType === DEVICE_TYPE.TABLET_PORTRAIT ? 0 : sidebarNavWidth,
-      zIndex: deviceType === DEVICE_TYPE.MOBILE ? 11 : 2,
+      zIndex: deviceType === DEVICE_TYPE.MOBILE ? 11 : 1,
     };
   }
 

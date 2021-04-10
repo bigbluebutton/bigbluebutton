@@ -133,7 +133,7 @@ class SmartLayout extends Component {
     const { layoutLoaded } = newLayoutContextState;
 
     let top = 0;
-    if (layoutLoaded === 'both') top = this.mainHeight() / 2;
+    if (layoutLoaded === 'both') top = this.mainHeight();
     else top = DEFAULT_VALUES.navBarTop;
 
     return {
@@ -209,7 +209,7 @@ class SmartLayout extends Component {
     const { deviceType, layoutLoaded } = newLayoutContextState;
 
     let top = 0;
-    if (layoutLoaded === 'both') top = this.mainHeight() / 2;
+    if (layoutLoaded === 'both') top = this.mainHeight();
     else top = DEFAULT_VALUES.sidebarNavTop;
 
     if (deviceType === DEVICE_TYPE.MOBILE) top = DEFAULT_VALUES.navBarHeight;
@@ -275,7 +275,7 @@ class SmartLayout extends Component {
     const { deviceType, layoutLoaded } = newLayoutContextState;
 
     let top = 0;
-    if (layoutLoaded === 'both') top = this.mainHeight() / 2;
+    if (layoutLoaded === 'both') top = this.mainHeight();
     else top = DEFAULT_VALUES.sidebarNavTop;
 
     if (deviceType === DEVICE_TYPE.MOBILE) top = DEFAULT_VALUES.navBarHeight;
@@ -598,10 +598,9 @@ class SmartLayout extends Component {
     });
   }
 
-
   render() {
     return (
-      <Fragment />
+      <></>
     );
   }
 }
