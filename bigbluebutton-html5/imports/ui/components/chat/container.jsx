@@ -229,15 +229,15 @@ const ChatContainer = (props) => {
 
 export default lockContextContainer(injectIntl(withTracker(({ intl, userLocks }) => {
   const chatID = Session.get('idChatOpen');
-  const isChatLocked = (userLocks.userPrivateChat && chatID !== PUBLIC_CHAT_KEY)
-      || (userLocks.userPublicChat && chatID === PUBLIC_CHAT_KEY);
-
   if (!chatID) {
     // No chatID is set so the panel is closed, about to close, or wasn't opened correctly
     return {
       unmounting: true,
     };
   }
+
+  const isChatLocked = (userLocks.userPrivateChat && chatID !== PUBLIC_CHAT_KEY)
+    || (userLocks.userPublicChat && chatID === PUBLIC_CHAT_KEY);
 
   const { connected: isMeteorConnected } = Meteor.status();
 
