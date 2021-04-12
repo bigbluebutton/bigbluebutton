@@ -661,7 +661,7 @@ class AudioManager {
   }
 
   playAlertSound(url) {
-    if (!url) {
+    if (!url || !this.bridge) {
       return Promise.resolve();
     }
 
