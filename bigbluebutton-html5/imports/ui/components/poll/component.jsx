@@ -245,16 +245,17 @@ class Poll extends Component {
 
   setOptListLength(len) {
     const { optList } = this.state;
-
     len = len > MAX_CUSTOM_FIELDS ? MAX_CUSTOM_FIELDS : len;
-    const diff = len - optList.length;
-    if (diff > 0) {
-      const emptyAddition = Array(diff).fill({ val: '' });
-      optList.push(...emptyAddition);
+    let diff = len - optList.length;
+    if(diff > 0) {
+      while(diff--) {
+        this.handleAddOption();
+      }
     } else {
-      optList.splice(len);
+      while(diff++) {
+        this.handleRemoveOption();
+      }
     }
-    this.setState({ optList });
   }
 
   pushToCustomPollValues(text) {
