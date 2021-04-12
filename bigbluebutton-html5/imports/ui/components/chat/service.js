@@ -8,6 +8,7 @@ import Storage from '/imports/ui/services/storage/session';
 import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
+import { defineMessages, injectIntl } from 'react-intl';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
@@ -30,6 +31,13 @@ export const UserSentMessageCollection = new Mongo.Collection(null);
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
 const POLL_MESSAGE_PREFIX = 'bbb-published-poll-<br/>';
+
+const intlMessages = defineMessages({
+  publicChatClear: {
+    id: 'app.chat.clearPublicChatMessage',
+    description: 'message of when clear the public chat',
+  },
+});
 
 const setUserSentMessage = (bool) => {
   UserSentMessageCollection.upsert(
@@ -308,22 +316,19 @@ const htmlDecode = (input) => {
 };
 
 // Export the chat as [Hour:Min] user: message
-const exportChat = (timeWindowList, users) => {
-  // const messageList = timeWindowList.reduce( (acc, timeWindow) => [...acc, ...timeWindow.content], []);
-  // messageList.sort((a, b) => a.time - b.time);
+const exportChat = (timeWindowList, users, intl) => {
 
- const messageList = timeWindowList.reduce((acc, timeWindow) => {
-
+  const messageList = timeWindowList.reduce((acc, timeWindow) => {
     const msgs = timeWindow.content.map(message => {
       const date = new Date(message.time);
       const hour = date.getHours().toString().padStart(2, 0);
       const min = date.getMinutes().toString().padStart(2, 0);
       const hourMin = `[${hour}:${min}]`;
-      console.log('message', message);
-      const userName = message.id.endsWith('welcome-msg')
+      const userName = message.id.startsWith('SYSTEM_MESSAGE')
         ? ''
-        : `${users[timeWindow.sender].name} :`;
-      return `${hourMin} ${userName} ${htmlDecode(message.text)}`;
+        : `${users[timeWindow.sender].name}: `;
+      const messageText = (message.text === 'PUBLIC_CHAT_CLEAR') ? intl.formatMessage(intlMessages.publicChatClear) : message.text;
+      return `${hourMin} ${userName}${htmlDecode(messageText)}`;
     });
 
     return [...acc, ...msgs];
