@@ -13,13 +13,13 @@ const proccess = _.throttle(() => {
   try {
     Object.keys(cursorQueue).forEach((meetingId) => {
       try {
-        const cursors = cursorQueue[meetingId];
+        const cursors = [];
+        for (let userId in cursorQueue[meetingId]){
+          cursorQueue[meetingId][userId].userId = userId;
+          cursors.push(cursorQueue[meetingId][userId]);
+        }
         delete cursorQueue[meetingId];
         CursorStreamer(meetingId).emit('message', { meetingId, cursors });
-
-        // if (streamerLog) {
-        //   Logger.debug('CursorUpdate process has finished', { meetingId });
-        // }
       } catch (error) {
         Logger.error(`Error while trying to send cursor streamer data for meeting ${meetingId}. ${error}`);
       }
