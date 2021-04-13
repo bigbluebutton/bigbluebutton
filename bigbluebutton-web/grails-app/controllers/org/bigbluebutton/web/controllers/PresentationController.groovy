@@ -68,7 +68,7 @@ class PresentationController {
         PresentationUploadToken presUploadToken = meetingService.getPresentationUploadToken(presentationToken);
         meetingService.sendPresentationUploadMaxFilesizeMessage(presUploadToken, originalContentLength, maxUploadFileSize as int);
 
-        response.setStatus(404);
+        response.setStatus(403);
         response.addHeader("Cache-Control", "no-cache")
         response.addHeader("x-file-too-large", "1")
         response.contentType = 'plain/text'
