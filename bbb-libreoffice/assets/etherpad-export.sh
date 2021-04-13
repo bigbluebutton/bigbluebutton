@@ -4,6 +4,6 @@
 # 1- Edit /usr/share/etherpad-lite/settings.json
 # 2- Set "soffice" config to this script path
 
-/usr/share/bbb-libreoffice-conversion/convert.sh "$8" "$(echo $8 | sed 's/html/'$7'/')" $7
+/usr/share/bbb-libreoffice-conversion/convert.sh "$8" "$(echo $8 | sed -E -e 's/html|odt/'$7'/')" $7
 
 exit 0
