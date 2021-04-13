@@ -73,7 +73,7 @@ class ChatAlert extends PureComponent {
 
     // Avoid alerting messages received before enabling alerts
     if (prevProps.pushAlertDisabled && !pushAlertDisabled) {
-      const newAlertEnabledTimestamp = Service.getLastMessageTimestampFromChatList(activeChats);
+      const newAlertEnabledTimestamp = Service.getLastMessageTimestampFromChatList(activeChats, messages);
       this.setAlertEnabledTimestamp(newAlertEnabledTimestamp);
       return;
     }
@@ -93,6 +93,7 @@ class ChatAlert extends PureComponent {
             && msg.timestamp > alertEnabledTimestamp
             && msg.timestamp > joinTimestamp
             && msg.timestamp > (lastAlertTimestampByChat[chatId] || 0)
+            && !pushAlertDisabled
           );
           return retorno;
         });
