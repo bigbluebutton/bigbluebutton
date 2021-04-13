@@ -2,7 +2,6 @@ import { useContext, useEffect } from 'react';
 import Users from '/imports/api/users';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import { UsersContext, ACTIONS } from './context';
-import { ChatContext, ACTIONS as CHAT_ACTIONS } from '../chat-context/context';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 
 const Adapter = () => {

@@ -4,8 +4,7 @@ import PollService from '/imports/ui/components/poll/service';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { injectIntl, defineMessages } from 'react-intl';
 import styles from './styles';
-import { prototype } from 'clipboard';
-import MediaService, {
+import {
   getSwapLayout,
   shouldEnableSwapLayout,
 } from '/imports/ui/components/media/service';

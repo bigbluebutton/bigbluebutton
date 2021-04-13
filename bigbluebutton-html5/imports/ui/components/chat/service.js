@@ -8,7 +8,7 @@ import Storage from '/imports/ui/services/storage/session';
 import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages } from 'react-intl';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
