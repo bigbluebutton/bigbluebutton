@@ -6,6 +6,7 @@ import cx from 'classnames';
 import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
 import { findDOMNode } from 'react-dom';
 import ChatListItemContainer from '../../chat-list-item/container';
+import Auth from '/imports/ui/services/auth';
 
 const propTypes = {
   activeChats: PropTypes.arrayOf(String).isRequired,
@@ -63,10 +64,22 @@ class UserMessages extends PureComponent {
 
   componentDidUpdate(prevProps, prevState) {
     const { selectedChat } = this.state;
+    const { activeChats } = this.props;
 
     if (selectedChat && selectedChat !== prevState.selectedChat) {
       const { firstChild } = selectedChat;
       if (firstChild) firstChild.focus();
+    }
+
+    // if the user started a new private chat, open it
+    if (activeChats.length > prevProps.activeChats.length) {
+      const createdPrivateChat = Session.get('createdPrivateChat');
+      const newChat = activeChats.slice(-1)[0];
+
+      if (createdPrivateChat && newChat?.createdBy === Auth.userID) {
+        Session.set('idChatOpen', newChat.chatId);
+        Session.set('createdPrivateChat', false);
+      }
     }
   }
 

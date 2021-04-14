@@ -318,6 +318,7 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
       chatId,
       unreadCounter: unreadMessagesCount,
       userId: user?.userId || otherParticipant.id,
+      createdBy: groupChats[chatId].createdBy,
     };
     }
 
@@ -593,6 +594,7 @@ const getGroupChatPrivate = (senderUserId, receiver) => {
     if (_.indexOf(currentClosedChats, chat.chatId) > -1) {
       Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, chat.chatId));
     }
+    return chat.chatId;
   }
 };
 

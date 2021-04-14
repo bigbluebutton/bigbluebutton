@@ -333,9 +333,14 @@ class UserDropdown extends PureComponent {
         'activeChat',
         intl.formatMessage(messages.StartPrivateChat),
         () => {
-          getGroupChatPrivate(currentUser.userId, user);
-          Session.set('openPanel', 'chat');
-          Session.set('idChatOpen', user.userId);
+          const privateChatId = getGroupChatPrivate(currentUser.userId, user);
+
+          if (privateChatId) {
+            Session.set('openPanel', 'chat');
+            Session.set('idChatOpen', privateChatId);
+          } else {
+            Session.set('createdPrivateChat', true);
+          }
         },
         'chat',
       ));

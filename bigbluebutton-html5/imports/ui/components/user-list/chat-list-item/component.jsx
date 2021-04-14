@@ -99,12 +99,6 @@ const ChatListItem = (props) => {
     setStateUreadCount(chat.unreadCounter);
   }
 
-  useEffect(() => {
-    if (chat.userId !== PUBLIC_CHAT_KEY && chat.userId === activeChatId) {
-      Session.set('idChatOpen', chat.chatId);
-    }
-  }, [activeChatId]);
-
   return (
     <div
       data-test="chatButton"
