@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import cx from 'classnames';
-import browser from 'browser-detect';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/button/component';
 import { Session } from 'meteor/session';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
@@ -107,15 +107,22 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.numberOfRoomsError',
     description: 'Label an error message',
   },
+  you: {
+    id: 'app.userList.you',
+    description: 'Text for identifying your user',
+  },
 });
 
-const BREAKOUT_LIM = Meteor.settings.public.app.breakoutRoomLimit;
+const BREAKOUT_LIM = Meteor.settings.public.app.breakouts.breakoutRoomLimit;
 const MIN_BREAKOUT_ROOMS = 2;
 const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   isInvitation: PropTypes.bool.isRequired,
+  isMe: PropTypes.func.isRequired,
   meetingName: PropTypes.string.isRequired,
   users: PropTypes.arrayOf(PropTypes.object).isRequired,
   createBreakoutRoom: PropTypes.func.isRequired,
@@ -629,6 +636,9 @@ class BreakoutRoom extends PureComponent {
       valid,
       seletedId,
     } = this.state;
+
+    const { intl, isMe } = this.props;
+
     const dragStart = (ev) => {
       ev.dataTransfer.setData('text', ev.target.id);
       this.setState({ seletedId: ev.target.id });
@@ -658,6 +668,7 @@ class BreakoutRoom extends PureComponent {
           onDragEnd={dragEnd}
         >
           {user.userName}
+          <i>{(isMe(user.userId)) ? ` (${intl.formatMessage(intlMessages.you)})` : ''}</i>
         </p>));
   }
 
@@ -796,8 +807,7 @@ class BreakoutRoom extends PureComponent {
       numberOfRoomsIsValid,
     } = this.state;
 
-    const BROWSER_RESULTS = browser();
-    const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
+    const { isMobile } = deviceInfo;
 
     return (
       <Modal
@@ -823,7 +833,7 @@ class BreakoutRoom extends PureComponent {
       >
         <div className={styles.content}>
           {isInvitation || this.renderTitle()}
-          {isMobileBrowser ? this.renderMobile() : this.renderDesktop()}
+          {isMobile ? this.renderMobile() : this.renderDesktop()}
         </div>
       </Modal>
     );

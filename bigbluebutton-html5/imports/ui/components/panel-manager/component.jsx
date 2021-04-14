@@ -17,6 +17,10 @@ import {
   USERLIST_MAX_WIDTH,
   CHAT_MIN_WIDTH,
   CHAT_MAX_WIDTH,
+  POLL_MIN_WIDTH,
+  POLL_MAX_WIDTH,
+  NOTE_MIN_WIDTH,
+  NOTE_MAX_WIDTH,
 } from '/imports/ui/components/layout/layout-manager';
 
 const intlMessages = defineMessages({
@@ -46,28 +50,19 @@ const propTypes = {
   openPanel: PropTypes.string.isRequired,
 };
 
-
 const DEFAULT_PANEL_WIDTH = 340;
 
 // Variables for resizing user-list.
 const USERLIST_MIN_WIDTH_PX = USERLIST_MIN_WIDTH;
 const USERLIST_MAX_WIDTH_PX = USERLIST_MAX_WIDTH;
 
-// Variables for resizing poll.
-const POLL_MIN_WIDTH = 320;
-const POLL_MAX_WIDTH = 400;
-
-// Variables for resizing shared notes.
-const NOTE_MIN_WIDTH = DEFAULT_PANEL_WIDTH;
-const NOTE_MAX_WIDTH = 800;
-
 // Variables for resizing captions.
 const CAPTIONS_MIN_WIDTH = DEFAULT_PANEL_WIDTH;
 const CAPTIONS_MAX_WIDTH = 400;
 
 // Variables for resizing waiting users.
-const WAITING_MIN_WIDTH = DEFAULT_PANEL_WIDTH;
-const WAITING_MAX_WIDTH = 800;
+const WAITING_MIN_WIDTH = 300;
+const WAITING_MAX_WIDTH = 350;
 
 class PanelManager extends Component {
   constructor(props) {
@@ -473,7 +468,7 @@ class PanelManager extends Component {
         key={this.captionsKey}
         size={{ width: captionsWidth }}
         onResizeStop={(e, direction, ref, d) => {
-          this.captionsResizeStop(captionsWidth + d.width);
+          this.captionsResizeStop(d.width);
         }}
       >
         {this.renderCaptions()}
@@ -519,7 +514,7 @@ class PanelManager extends Component {
         key={this.waitingUsers}
         size={{ width: waitingWidth }}
         onResizeStop={(e, direction, ref, d) => {
-          this.waitingResizeStop(waitingWidth + d.width);
+          this.waitingResizeStop(d.width);
         }}
       >
         {this.renderWaitingUsersPanel()}
@@ -574,8 +569,7 @@ class PanelManager extends Component {
         key={this.pollKey}
         size={{ width: pollWidth }}
         onResizeStop={(e, direction, ref, d) => {
-          // window.dispatchEvent(new Event('resize'));
-          this.pollResizeStop(pollWidth + d.width);
+          this.pollResizeStop(d.width);
         }}
       >
         {this.renderPoll()}

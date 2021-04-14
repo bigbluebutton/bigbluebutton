@@ -47,12 +47,14 @@ end
 
 def archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
   BigBlueButton.logger.info("Archiving notes for #{meeting_id}")
+  events = Nokogiri::XML(File.open("#{raw_archive_dir}/#{meeting_id}/events.xml"))
+  notes_id = BigBlueButton::Events.get_notes_id(events)
+
   notes_dir = "#{raw_archive_dir}/#{meeting_id}/notes"
   FileUtils.mkdir_p(notes_dir)
-  notes_id = BigBlueButton.get_notes_id(meeting_id)
 
   tmp_note = "#{notes_dir}/tmp_note.txt"
-  BigBlueButton.try_download("#{notes_endpoint}/#{notes_id}/export/txt", tmp_note)
+  BigBlueButton.try_download("#{notes_endpoint}/#{CGI.escape notes_id}/export/txt", tmp_note)
   if File.exist? tmp_note
     # If the notes are empty, do not archive them
     blank = false
@@ -71,7 +73,7 @@ def archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
   end
 
   notes_formats.each do |format|
-    BigBlueButton.try_download("#{notes_endpoint}/#{notes_id}/export/#{format}", "#{notes_dir}/notes.#{format}")
+    BigBlueButton.try_download("#{notes_endpoint}/#{CGI.escape notes_id}/export/#{format}", "#{notes_dir}/notes.#{format}")
   end
 end
 

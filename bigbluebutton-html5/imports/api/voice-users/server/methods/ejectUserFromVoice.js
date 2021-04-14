@@ -9,6 +9,9 @@ export default function ejectUserFromVoice(userId) {
   const EVENT_NAME = 'EjectUserFromVoiceCmdMsg';
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
+
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(userId, String);
 
   const payload = {

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import _ from 'lodash';
-import { makeCall } from '/imports/ui/services/api';
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -32,6 +31,10 @@ const intlMessages = defineMessages({
     id: 'app.poll.n',
     description: 'Poll no option value',
   },
+  abstentionOptionLabel: {
+    id: 'app.poll.abstention',
+    description: 'Poll Abstention option value',
+  },
 });
 
 const propTypes = {
@@ -40,23 +43,41 @@ const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
 };
 
-const handleClickQuickPoll = (slideId, poll) => {
-  const { type } = poll;
-  Session.set('openPanel', 'poll');
-  Session.set('forcePollOpen', true);
-  Session.set('pollInitiated', true);
-
-  makeCall('startPoll', type, slideId);
+const getLocalizedAnswers = (type, intl) => {
+  switch (type) {
+    case 'TF':
+      return [
+        intl.formatMessage(intlMessages.trueOptionLabel),
+        intl.formatMessage(intlMessages.falseOptionLabel),
+      ];
+    case 'YN':
+      return [
+        intl.formatMessage(intlMessages.yesOptionLabel),
+        intl.formatMessage(intlMessages.noOptionLabel),
+      ];
+    case 'YNA':
+      return [
+        intl.formatMessage(intlMessages.yesOptionLabel),
+        intl.formatMessage(intlMessages.noOptionLabel),
+        intl.formatMessage(intlMessages.abstentionOptionLabel),
+      ];
+    default:
+      return null;
+  }
 };
 
-const getAvailableQuickPolls = (slideId, parsedSlides) => {
+const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, intl) => {
   const pollItemElements = parsedSlides.map((poll) => {
-    const { poll: label, type } = poll;
+    let { poll: label, type } = poll;
     let itemLabel = label;
+    let answers = null;
 
-    if (type !== 'YN' && type !== 'TF') {
+    if (type !== 'YN' && type !== 'YNA' && type !== 'TF') {
       const { options } = itemLabel;
       itemLabel = options.join('/').replace(/[\n.)]/g, '');
+    } else {
+      answers = getLocalizedAnswers(type, intl);
+      type = 'custom';
     }
 
     // removes any whitespace from the label
@@ -74,7 +95,7 @@ const getAvailableQuickPolls = (slideId, parsedSlides) => {
       <DropdownListItem
         label={itemLabel}
         key={_.uniqueId('quick-poll-item')}
-        onClick={() => handleClickQuickPoll(slideId, poll)}
+        onClick={() => startPoll(type, slideId, answers)}
       />
     );
   });
@@ -103,12 +124,13 @@ class QuickPollDropdown extends Component {
     const parsedSlide = parseCurrentSlideContent(
       intl.formatMessage(intlMessages.yesOptionLabel),
       intl.formatMessage(intlMessages.noOptionLabel),
+      intl.formatMessage(intlMessages.abstentionOptionLabel),
       intl.formatMessage(intlMessages.trueOptionLabel),
       intl.formatMessage(intlMessages.falseOptionLabel),
     );
 
     const { slideId, quickPollOptions } = parsedSlide;
-    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions);
+    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions, startPoll, intl);
 
     if (quickPollOptions.length === 0) return null;
 
@@ -119,9 +141,15 @@ class QuickPollDropdown extends Component {
     }
 
     let singlePollType = null;
+    let answers = null;
     if (quickPolls.length === 1 && quickPollOptions.length) {
       const { type } = quickPollOptions[0];
       singlePollType = type;
+    }
+
+    if (singlePollType === 'TF' || singlePollType === 'YN' || singlePollType === 'YNA') {
+      answers = getLocalizedAnswers(singlePollType, intl);
+      singlePollType = 'custom';
     }
 
     let btn = (
@@ -130,7 +158,7 @@ class QuickPollDropdown extends Component {
         className={styles.quickPollBtn}
         label={quickPollLabel}
         tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
-        onClick={() => startPoll(singlePollType, currentSlide.id)}
+        onClick={() => startPoll(singlePollType, currentSlide.id, answers)}
         size="lg"
         disabled={!!activePoll}
       />

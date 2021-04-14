@@ -38,7 +38,7 @@ module BigBlueButton
       def perform
         super do
           @logger.info("Running events worker for #{@full_id}")
-          unless File.exist(@ended_done)
+          unless File.exist?(@ended_done)
             @logger.info("Events generation was not enabled for #{@full_id}, skipping")
             next true # We're inside a block and want to return to the block's caller, not return from perform
           end

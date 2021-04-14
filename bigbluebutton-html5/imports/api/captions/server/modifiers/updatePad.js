@@ -22,13 +22,14 @@ export default function updatePad(padId, data, revs) {
     },
   };
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Updating captions pad: ${err}`);
-    }
-    editCaptions(padId, data, revs);
-    return Logger.verbose(`Update captions pad=${padId} revs=${revs}`);
-  };
+  try {
+    const numberAffected = Captions.update(selector, modifier, { multi: true });
 
-  return Captions.update(selector, modifier, { multi: true }, cb);
+    if (numberAffected) {
+      editCaptions(padId, data, revs);
+      Logger.verbose('Captions: updated pad', { padId, revs });
+    }
+  } catch (err) {
+    Logger.error(`Updating captions pad: ${err}`);
+  }
 }

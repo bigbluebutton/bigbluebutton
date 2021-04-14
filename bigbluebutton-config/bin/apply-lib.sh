@@ -23,15 +23,17 @@ else
   SERVLET_DIR=/var/lib/tomcat7/webapps/bigbluebutton
 fi
 
+BBB_WEB_ETC_CONFIG=/etc/bigbluebutton/bbb-web.properties
+
 PROTOCOL=http
 if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
-  SERVER_URL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-  if cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep bigbluebutton.web.serverURL | grep -q https; then
+  SERVER_URL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $BBB_WEB_ETC_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}' | tail -n 1)
+  if cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $BBB_WEB_ETC_CONFIG | grep -v '#' | grep ^bigbluebutton.web.serverURL | tail -n 1 | grep -q https; then
     PROTOCOL=https
   fi
 fi
 
-HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $BBB_WEB_ETC_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}' | tail -n 1)
 
 HTML5_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 BBB_WEB_CONFIG=$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
@@ -103,12 +105,12 @@ enableUFWRules() {
 
 
 enableMultipleKurentos() {
-  echo "  - Configuring three Kurento Media Servers: one for listen only, webcam, and screeshare"
+  echo "  - Configuring three Kurento Media Servers (listen only, webcam, and screeshare)"
 
   # Step 1.  Setup shared certificate between FreeSWITCH and Kurento
 
   HOSTNAME=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1 | head -n 1)
-  openssl req -x509 -new -nodes -newkey rsa:2048 -sha256 -days 3650 -subj "/C=BR/ST=Ottawa/O=BigBlueButton Inc./OU=Live/CN=$HOSTNAME" -keyout /tmp/dtls-srtp-key.pem -out /tmp/dtls-srtp-cert.pem
+  openssl req -x509 -new -nodes -newkey rsa:4096 -sha256 -days 3650 -subj "/C=BR/ST=Ottawa/O=BigBlueButton Inc./OU=Live/CN=$HOSTNAME" -keyout /tmp/dtls-srtp-key.pem -out /tmp/dtls-srtp-cert.pem
   cat /tmp/dtls-srtp-key.pem /tmp/dtls-srtp-cert.pem > /etc/kurento/dtls-srtp.pem
   cat /tmp/dtls-srtp-key.pem /tmp/dtls-srtp-cert.pem > /opt/freeswitch/etc/freeswitch/tls/dtls-srtp.pem
 
@@ -119,50 +121,56 @@ enableMultipleKurentos() {
   for i in `seq 8888 8890`; do
 
     cat > /usr/lib/systemd/system/kurento-media-server-${i}.service << HERE
-  # /usr/lib/systemd/system/kurento-media-server-#{i}.service
-  [Unit]
-  Description=Kurento Media Server daemon (${i})
-  After=network.target
-  PartOf=kurento-media-server.service
-  After=kurento-media-server.service
+# /usr/lib/systemd/system/kurento-media-server-#{i}.service
+[Unit]
+Description=Kurento Media Server daemon (${i})
+After=network.target
+PartOf=kurento-media-server.service
+After=kurento-media-server.service
 
-  [Service]
-  UMask=0002
-  Environment=KURENTO_LOGS_PATH=/var/log/kurento-media-server
-  Environment=KURENTO_CONF_FILE=/etc/kurento/kurento-${i}.conf.json
-  User=kurento
-  Group=kurento
-  LimitNOFILE=1000000
-  ExecStartPre=-/bin/rm -f /var/kurento/.cache/gstreamer-1.5/registry.x86_64.bin
-  ExecStart=/usr/bin/kurento-media-server --gst-debug-level=3 --gst-debug="3,Kurento*:4,kms*:4,KurentoWebSocketTransport:5"
-  Type=simple
-  PIDFile=/var/run/kurento-media-server-${i}.pid
-  Restart=always
+[Service]
+UMask=0002
+Environment=KURENTO_LOGS_PATH=/var/log/kurento-media-server
+Environment=KURENTO_CONF_FILE=/etc/kurento/kurento-${i}.conf.json
+User=kurento
+Group=kurento
+LimitNOFILE=1000000
+ExecStartPre=-/bin/rm -f /var/kurento/.cache/gstreamer-1.5/registry.x86_64.bin
+ExecStart=/usr/bin/kurento-media-server --gst-debug-level=3 --gst-debug="3,Kurento*:4,kms*:4,KurentoWebSocketTransport:5"
+Type=simple
+PIDFile=/var/run/kurento-media-server-${i}.pid
+Restart=always
 
-  [Install]
-  WantedBy=kurento-media-server.service
-
+[Install]
+WantedBy=kurento-media-server.service
 HERE
 
     # Make a new configuration file each instance of Kurento that binds to a different port
     cp /etc/kurento/kurento.conf.json /etc/kurento/kurento-${i}.conf.json
     sed -i "s/8888/${i}/g" /etc/kurento/kurento-${i}.conf.json
-
   done
 
   # Step 3. Override the main kurento-media-server unit to start/stop the three Kurento instances
 
   cat > /etc/systemd/system/kurento-media-server.service << HERE
-  [Unit]
-  Description=Kurento Media Server
+[Unit]
+Description=Kurento Media Server
 
-  [Service]
-  Type=oneshot
-  ExecStart=/bin/true
-  RemainAfterExit=yes
+[Service]
+Type=oneshot
+ExecStart=/bin/true
+RemainAfterExit=yes
 
-  [Install]
-  WantedBy=multi-user.target
+[Install]
+WantedBy=multi-user.target
+HERE
+
+  # Step 4. Extend bbb-webrtc-sfu unit to wait for all three KMS servers to start
+
+  mkdir -p /etc/systemd/system/bbb-webrtc-sfu.service.d
+  cat > /etc/systemd/system/bbb-webrtc-sfu.service.d/override.conf << HERE
+[Unit]
+After=syslog.target network.target freeswitch.service kurento-media-server-8888.service kurento-media-server-8889.service kurento-media-server-8890.service
 HERE
 
   systemctl daemon-reload
@@ -172,7 +180,7 @@ HERE
   done
 
 
-  # Step 4.  Modify bbb-webrtc-sfu config to use the three Kurento servers
+  # Step 5.  Modify bbb-webrtc-sfu config to use the three Kurento servers
 
   KURENTO_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
 
@@ -195,7 +203,7 @@ HERE
 }
 
 disableMultipleKurentos() {
-  echo "  - Configuring a single Kurento Media Server for listen only, webcam, and screeshare"
+  echo "  - Configuring a single Kurento Media Server for listen only, webcam, and screenshare"
   systemctl stop kurento-media-server.service
 
   for i in `seq 8888 8890`; do
@@ -204,6 +212,8 @@ disableMultipleKurentos() {
 
   # Remove the overrride (restoring the original kurento-media-server.service unit file)
   rm -f /etc/systemd/system/kurento-media-server.service
+  rm -f /etc/systemd/system/bbb-webrtc-sfu.service.d/override.conf
+
   systemctl daemon-reload
 
   # Restore bbb-webrtc-sfu configuration to use a single instance of Kurento
@@ -216,7 +226,6 @@ disableMultipleKurentos() {
 
   yq w -i $KURENTO_CONFIG balancing-strategy ROUND_ROBIN
 }
-
 
 
 notCalled() {
@@ -243,6 +252,11 @@ source /etc/bigbluebutton/bbb-conf/apply-lib.sh
 
 #enableHTML5CameraQualityThresholds
 #enableHTML5WebcamPagination
+
+#enableMultipleKurentos
+
+# Shorten the FreeSWITCH "you have been muted" and "you have been unmuted" prompts
+# cp -r /etc/bigbluebutton/bbb-conf/sounds /opt/freeswitch/share/freeswitch
 
 HERE
 chmod +x /etc/bigbluebutton/bbb-conf/apply-config.sh

@@ -2,19 +2,26 @@
 import Redis from 'redis';
 import { Meteor } from 'meteor/meteor';
 import { EventEmitter2 } from 'eventemitter2';
+import {
+  isPadMessage,
+  getInstanceIdFromPadMessage,
+} from './etherpad';
 import { check } from 'meteor/check';
+import fs from 'fs';
 import Logger from './logger';
+import Metrics from './metrics';
 
 // Fake meetingId used for messages that have no meetingId
 const NO_MEETING_ID = '_';
+
+const { queueMetrics } = Meteor.settings.private.redis.metrics;
 
 const makeEnvelope = (channel, eventName, header, body, routing) => {
   const envelope = {
     envelope: {
       name: eventName,
       routing: routing || {
-        sender: 'bbb-apps-akka',
-        // sender: 'html5-server', // TODO
+        sender: 'html5-server',
       },
       timestamp: Date.now(),
     },
@@ -27,17 +34,24 @@ const makeEnvelope = (channel, eventName, header, body, routing) => {
   return JSON.stringify(envelope);
 };
 
-const makeDebugger = enabled => (message) => {
-  if (!enabled) return;
-  Logger.debug(`REDIS: ${message}`);
+const getInstanceIdFromMessage = (parsedMessage) => {
+  // End meeting message does not seem to have systemProps
+  let instanceIdFromMessage = parsedMessage.core.body.props?.systemProps?.html5InstanceId;
+
+  // Pad messages does not have systemProps
+  if (!instanceIdFromMessage && isPadMessage(parsedMessage)) {
+    instanceIdFromMessage = getInstanceIdFromPadMessage(parsedMessage);
+  }
+
+  return instanceIdFromMessage;
 };
 
 class MeetingMessageQueue {
-  constructor(eventEmitter, asyncMessages = [], debug = () => { }) {
+  constructor(eventEmitter, asyncMessages = [], redisDebugEnabled = false) {
     this.asyncMessages = asyncMessages;
     this.emitter = eventEmitter;
     this.queue = new PowerQueue();
-    this.debug = debug;
+    this.redisDebugEnabled = redisDebugEnabled;
 
     this.handleTask = this.handleTask.bind(this);
     this.queue.taskHandler = this.handleTask;
@@ -53,6 +67,7 @@ class MeetingMessageQueue {
     const isAsync = this.asyncMessages.includes(channel)
       || this.asyncMessages.includes(eventName);
 
+    const beginHandleTimestamp = Date.now();
     let called = false;
 
     check(eventName, String);
@@ -60,11 +75,21 @@ class MeetingMessageQueue {
 
     const callNext = () => {
       if (called) return;
-      this.debug(`${eventName} completed ${isAsync ? 'async' : 'sync'}`);
+      if (this.redisDebugEnabled) {
+        Logger.debug(`Redis: ${eventName} completed ${isAsync ? 'async' : 'sync'}`);
+      }
       called = true;
+
+      if (queueMetrics) {
+        const queueId = meetingId || NO_MEETING_ID;
+        const dataLength = JSON.stringify(data).length;
+
+        Metrics.processEvent(queueId, eventName, dataLength, beginHandleTimestamp);
+      }
+
       const queueLength = this.queue.length();
       if (queueLength > 100) {
-        Logger.error(`prev queue size=${queueLength} `);
+        Logger.warn(`Redis: MeetingMessageQueue for meetingId=${meetingId} has queue size=${queueLength} `);
       }
       next();
     };
@@ -75,7 +100,9 @@ class MeetingMessageQueue {
     };
 
     try {
-      this.debug(`${JSON.stringify(data.parsedMessage.core)} emitted`);
+      if (this.redisDebugEnabled) {
+        Logger.debug(`Redis: ${JSON.stringify(data.parsedMessage.core)} emitted`);
+      }
 
       if (isAsync) {
         callNext();
@@ -108,6 +135,10 @@ class RedisPubSub {
     this.didSendRequestEvent = false;
     const host = process.env.REDIS_HOST || Meteor.settings.private.redis.host;
     const redisConf = Meteor.settings.private.redis;
+    this.instanceId = parseInt(process.env.INSTANCE_ID, 10) || 1; // 1 also handles running in dev mode
+    this.role = process.env.BBB_HTML5_ROLE;
+    this.customRedisChannel = `to-html5-redis-channel${this.instanceId}`;
+
     const { password, port } = redisConf;
 
     if (password) {
@@ -120,12 +151,17 @@ class RedisPubSub {
       this.sub = Redis.createClient({ host, port });
     }
 
+    if (queueMetrics) {
+      Metrics.startDumpFile();
+    }
+
     this.emitter = new EventEmitter2();
-    this.mettingsQueues = {};
+    this.meetingsQueues = {};
+    // We create this _ meeting queue because we need to be able to handle system messages (no meetingId in core.header)
+    this.meetingsQueues[NO_MEETING_ID] = new MeetingMessageQueue(this.emitter, this.config.async, this.config.debug);
 
     this.handleSubscribe = this.handleSubscribe.bind(this);
     this.handleMessage = this.handleMessage.bind(this);
-    this.debug = makeDebugger(this.config.debug);
   }
 
   init() {
@@ -134,22 +170,46 @@ class RedisPubSub {
 
     const channelsToSubscribe = this.config.subscribeTo;
 
-    channelsToSubscribe.forEach((channel) => {
-      this.sub.psubscribe(channel);
-    });
+    channelsToSubscribe.push(this.customRedisChannel);
 
-    this.debug(`Subscribed to '${channelsToSubscribe}'`);
+
+    switch (this.role) {
+      case 'frontend':
+        this.sub.psubscribe('from-akka-apps-frontend-redis-channel');
+        if (this.redisDebugEnabled) {
+          Logger.debug(`Redis: NodeJSPool:${this.instanceId} Role: frontend. Subscribed to 'from-akka-apps-frontend-redis-channel'`);
+        }
+        break;
+      case 'backend':
+        channelsToSubscribe.forEach((channel) => {
+          this.sub.psubscribe(channel);
+          if (this.redisDebugEnabled) {
+            Logger.debug(`Redis: NodeJSPool:${this.instanceId} Role: backend. Subscribed to '${channelsToSubscribe}'`);
+          }
+        });
+        break;
+      default:
+        this.sub.psubscribe('from-akka-apps-frontend-redis-channel');
+        channelsToSubscribe.forEach((channel) => {
+          this.sub.psubscribe(channel);
+          if (this.redisDebugEnabled) {
+            Logger.debug(`Redis: NodeJSPool:${this.instanceId} Role:${this.role} (likely only one nodejs running, doing both frontend and backend. Dev env? ). Subscribed to '${channelsToSubscribe}'`);
+          }
+        });
+
+        break;
+    }
   }
 
   updateConfig(config) {
     this.config = Object.assign({}, this.config, config);
-    this.debug = makeDebugger(this.config.debug);
+    this.redisDebugEnabled = this.config.debug;
   }
 
 
   // TODO: Move this out of this class, maybe pass as a callback to init?
   handleSubscribe() {
-    if (this.didSendRequestEvent) return;
+    if (this.didSendRequestEvent || this.role === 'frontend') return;
 
     // populate collections with pre-existing data
     const REDIS_CONFIG = Meteor.settings.private.redis;
@@ -158,6 +218,7 @@ class RedisPubSub {
 
     const body = {
       requesterId: 'nodeJSapp',
+      html5InstanceId: this.instanceId,
     };
 
     this.publishSystemMessage(CHANNEL, EVENT_NAME, body);
@@ -166,34 +227,117 @@ class RedisPubSub {
 
   handleMessage(pattern, channel, message) {
     const parsedMessage = JSON.parse(message);
-    const { name: eventName, meetingId } = parsedMessage.core.header;
     const { ignored: ignoredMessages, async } = this.config;
+    const eventName = parsedMessage.core.header.name;
 
     if (ignoredMessages.includes(channel)
       || ignoredMessages.includes(eventName)) {
       if (eventName === 'CheckAlivePongSysMsg') {
         return;
       }
-      this.debug(`${eventName} skipped`);
+      if (this.redisDebugEnabled) {
+        Logger.debug(`Redis: ${eventName} skipped`);
+      }
       return;
     }
 
-    const queueId = meetingId || NO_MEETING_ID;
-
-    if (!(queueId in this.mettingsQueues)) {
-      this.mettingsQueues[meetingId] = new MeetingMessageQueue(this.emitter, async, this.debug);
+    if (this.redisDebugEnabled) {
+      Logger.warn('Received event to handle', { date: new Date().toISOString(), eventName });
     }
 
-    this.mettingsQueues[meetingId].add({
-      pattern,
-      channel,
-      eventName,
-      parsedMessage,
-    });
+    // System messages like Create / Destroy Meeting, etc do not have core.header.meetingId.
+    // Process them in MeetingQueue['_']  --- the NO_MEETING queueId
+    const meetingIdFromMessageCoreHeader = parsedMessage.core.header.meetingId || NO_MEETING_ID;
+
+    if (this.role === 'frontend') {
+      // receiving this message means we need to look at it. Frontends do not have instanceId.
+      if (meetingIdFromMessageCoreHeader === NO_MEETING_ID) { // if this is a system message
+
+        if (eventName === 'MeetingCreatedEvtMsg' || eventName === 'SyncGetMeetingInfoRespMsg') {
+          const meetingIdFromMessageMeetingProp = parsedMessage.core.body.props.meetingProp.intId;
+          this.meetingsQueues[meetingIdFromMessageMeetingProp] = new MeetingMessageQueue(this.emitter, async, this.redisDebugEnabled);
+          if (this.redisDebugEnabled) {
+            Logger.warn('Created frontend queue for meeting', { date: new Date().toISOString(), eventName, meetingIdFromMessageMeetingProp });
+          }
+
+        }
+      }
+
+      if (!this.meetingsQueues[meetingIdFromMessageCoreHeader]) {
+        Logger.warn(`Frontend meeting queue had not been initialized   ${message}`, { eventName, meetingIdFromMessageCoreHeader} )
+        this.meetingsQueues[NO_MEETING_ID].add({
+          pattern,
+          channel,
+          eventName,
+          parsedMessage,
+        });
+      } else {
+        // process the event - whether it's a system message or not, the meetingIdFromMessageCoreHeader value is adjusted
+        this.meetingsQueues[meetingIdFromMessageCoreHeader].add({
+          pattern,
+          channel,
+          eventName,
+          parsedMessage,
+        });
+      }
+    } else { // backend
+      if (meetingIdFromMessageCoreHeader === NO_MEETING_ID) { // if this is a system message
+        const meetingIdFromMessageMeetingProp = parsedMessage.core.body.props?.meetingProp?.intId;
+        const instanceIdFromMessage = getInstanceIdFromMessage(parsedMessage);
+
+        if (this.instanceId === instanceIdFromMessage) {
+          // create queue or destroy queue
+          if (eventName === 'MeetingCreatedEvtMsg' || eventName === 'SyncGetMeetingInfoRespMsg') {
+            this.meetingsQueues[meetingIdFromMessageMeetingProp] = new MeetingMessageQueue(this.emitter, async, this.redisDebugEnabled);
+            if (this.redisDebugEnabled) {
+              Logger.warn('Created backend queue for meeting', { date: new Date().toISOString(), eventName, meetingIdFromMessageMeetingProp });
+            }
+          }
+          this.meetingsQueues[NO_MEETING_ID].add({
+            pattern,
+            channel,
+            eventName,
+            parsedMessage,
+          });
+        } else {
+          if (eventName === 'MeetingEndedEvtMsg' || eventName === 'MeetingDestroyedEvtMsg') {
+            // MeetingEndedEvtMsg does not follow the system message pattern for meetingId
+            // but we still need to process it on the backend which is processing the rest of the events
+            // for this meetingId (it does not contain instanceId either, so we cannot compare that)
+            const meetingIdForMeetingEnded = parsedMessage.core.body.meetingId;
+            if (!!this.meetingsQueues[meetingIdForMeetingEnded]) {
+              this.meetingsQueues[NO_MEETING_ID].add({
+              pattern,
+              channel,
+              eventName,
+              parsedMessage,
+            });
+            }
+          }
+          // ignore
+        }
+      } else {
+        // add to existing queue
+        if (!!this.meetingsQueues[meetingIdFromMessageCoreHeader]) {
+          // only handle message if we have a queue for the meeting. If we don't have a queue, it means it's for a different instanceId
+          this.meetingsQueues[meetingIdFromMessageCoreHeader].add({
+            pattern,
+            channel,
+            eventName,
+            parsedMessage,
+          });
+        } else {
+          // If we reach this line, this means that there is no existing queue for this redis "backend" message
+          // which means that the meeting is fully handled by another bbb-html5-backend.
+          // Logger.warn('Backend meeting queue had not been initialized', { eventName, meetingIdFromMessageCoreHeader })
+        }
+      }
+    }
   }
 
+
   destroyMeetingQueue(id) {
-    delete this.mettingsQueues[id];
+    delete this.meetingsQueues[id];
   }
 
   on(...args) {

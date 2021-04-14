@@ -7,6 +7,7 @@ import Button from '/imports/ui/components/button/component';
 import { ENTER } from '/imports/utils/keyCodes';
 import toastStyles from '/imports/ui/components/toast/styles';
 import { styles } from './styles';
+import {Meteor} from "meteor/meteor";
 
 const messages = defineMessages({
   lowerHandsLabel: {
@@ -35,7 +36,7 @@ class StatusNotifier extends Component {
 
     this.statusNotifierId = null;
 
-    this.audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/bbb-handRaise.mp3`);
+    this.audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}/resources/sounds/bbb-handRaise.mp3`);
 
     this.renderRaisedHands = this.renderRaisedHands.bind(this);
     this.getRaisedHandNames = this.getRaisedHandNames.bind(this);
@@ -126,6 +127,7 @@ class StatusNotifier extends Component {
         onClick={() => clearUserStatus(u.userId)}
         onKeyDown={e => (e.keyCode === ENTER ? clearUserStatus(u.userId) : null)}
         key={`statusToastAvatar-${u.userId}`}
+        data-test="avatarsWrapperAvatar"
       >
         {u.name.slice(0, 2)}
       </div>
@@ -155,7 +157,10 @@ class StatusNotifier extends Component {
             <Icon iconName="hand" />
           </div>
         </div>
-        <div className={styles.avatarsWrapper}>
+        <div
+          className={styles.avatarsWrapper}
+          data-test="avatarsWrapper"
+        >
           {this.raisedHandAvatars()}
         </div>
         <div className={styles.toastMessage}>

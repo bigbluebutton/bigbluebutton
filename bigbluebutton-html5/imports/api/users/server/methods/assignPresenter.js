@@ -11,6 +11,9 @@ export default function assignPresenter(userId) { // TODO-- send username from c
   const EVENT_NAME = 'AssignPresenterReqMsg';
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
+
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(userId, String);
 
   const User = Users.findOne({
@@ -29,8 +32,7 @@ export default function assignPresenter(userId) { // TODO-- send username from c
     requesterId: requesterUserId,
   };
 
-  Logger.verbose(`User '${userId}' setted as presenter by '${
-    requesterUserId}' from meeting '${meetingId}'`);
+  Logger.verbose('User set as presenter', { userId, meetingId, setBy: requesterUserId });
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

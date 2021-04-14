@@ -13,25 +13,23 @@ class Send extends Page {
     await util.openChat(this);
 
     // 0 messages
-    const chat0 = await this.page.$$(`${e.chatUserMessage} ${e.chatMessageText}`);
+    const chat0 = await this.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length === 0);
     if (process.env.GENERATE_EVIDENCES === 'true') {
-      await this.screenshot(`${testName}`, `01-before-chat-message-send-[${testName}]`);
+      await this.screenshot(`${testName}`, `01-before-chat-message-send-[${this.meetingId}]`);
     }
     // send a message
     await this.type(e.chatBox, e.message);
     if (process.env.GENERATE_EVIDENCES === 'true') {
-      await this.screenshot(`${testName}`, `02-typing-chat-message-[${testName}]`);
+      await this.screenshot(`${testName}`, `02-typing-chat-message-[${this.meetingId}]`);
     }
-    await this.click(e.sendButton);
+    await this.click(e.sendButton, true);
     if (process.env.GENERATE_EVIDENCES === 'true') {
-      await this.screenshot(`${testName}`, `03-after-chat-message-send-[${testName}]`);
+      await this.screenshot(`${testName}`, `03-after-chat-message-send-[${this.meetingId}]`);
     }
 
     // 1 message
-    const chat1 = await this.page.$$(`${e.chatUserMessage} ${e.chatMessageText}`);
-    const response = chat0.length === 0 && chat1.length === 1;
-
-    return response;
+    const chat1 = await this.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length === 1);
+    return chat0 === chat1;
   }
 }
 

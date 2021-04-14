@@ -108,6 +108,8 @@
     box-shadow: none;
   }
 
+  z-index: 3;
+
   &:hover,
   &:focus {
     span {
@@ -118,5 +120,6 @@
   }
 }
 
-.btnSettings {
+.dropdown{
+  z-index: 5;
 }

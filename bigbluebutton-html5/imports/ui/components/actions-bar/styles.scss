@@ -1,5 +1,9 @@
 @import "/imports/ui/stylesheets/variables/breakpoints";
 @import "/imports/ui/components/modal/simple/styles";
+@import "/imports/ui/stylesheets/mixins/_scrollable";
+@import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/mixins/_indicators";
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 .modal {
   @extend .modal;
@@ -27,8 +31,17 @@
   flex-direction: row;
 }
 
-.center,
 .right {
+  justify-content: center;
+  @include mq($small-only) {
+    position: relative;
+    right: 0;
+    left: 0;
+    display: contents;
+  }
+}
+
+.center {
   flex: 1;
   justify-content: center;
 }
@@ -61,31 +74,11 @@
 }
 
 .right {
-  position: absolute;
-  bottom: var(--sm-padding-x);
-  right: var(--sm-padding-x);
-  left: auto;
+  position: relative;
 
   [dir="rtl"] & {
     right: auto;
     left: var(--sm-padding-x);
-  }
-}
-
-.centerWithActions {
-  @include mq($xsmall-only) {
-    justify-content: flex-end;
-  }
-}
-
-.mobileLayoutSwapped {
-  @include mq($xsmall-only) {
-    padding-right: var(--mobile-swap-offset);
-
-    [dir="rtl"] & {
-      padding-right: 0;
-      padding-left: var(--mobile-swap-offset);
-    }
   }
 }
 
@@ -118,12 +111,23 @@
   }
 }
 
+.btn {
+  z-index: 3;
+}
+.dropdown{
+  z-index: 4;
+}
 .presentationItem {
   span {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-    max-width: 10rem;
+    max-width: 15rem;
+
+    @include mq($small-only) {
+      max-width: 100%;
+    }
+
   }
 }
 
@@ -131,5 +135,30 @@
   i,
   span {
     color: var(--color-primary);
+  }
+}
+
+.scrollableList {
+  @include elementFocus(var(--list-item-bg-hover));
+  @include scrollbox-vertical();
+  @extend %highContrastOutline;
+
+  &:focus-within,
+  &:focus {
+    outline-style: solid;
+  }
+
+  &:active {
+    box-shadow: none;
+    border-radius: none;
+  }
+
+  overflow-x: hidden;
+  outline-width: 1px !important;
+  outline-color: transparent !important;
+  max-height: 50vh;
+
+  @include mq($small-only) {
+    max-height: 100%;
   }
 }

@@ -5,8 +5,12 @@ import Button from '/imports/ui/components/button/component';
 import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
 import { styles } from './styles';
+import Service from './service';
 import BreakoutRoomContainer from './breakout-remaining-time/container';
 import VideoService from '/imports/ui/components/video-provider/service';
+import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
+import UserListService from '/imports/ui/components/user-list/service';
+import AudioManager from '/imports/ui/services/audio-manager';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -68,19 +72,6 @@ class BreakoutRoom extends PureComponent {
     return 0;
   }
 
-  static sortUsersByName(a, b) {
-    const aName = a.name.toLowerCase();
-    const bName = b.name.toLowerCase();
-
-    if (aName < bName) {
-      return -1;
-    } if (aName > bName) {
-      return 1;
-    }
-
-    return 0;
-  }
-
   constructor(props) {
     super(props);
     this.renderBreakoutRooms = this.renderBreakoutRooms.bind(this);
@@ -102,11 +93,15 @@ class BreakoutRoom extends PureComponent {
       breakoutRoomUser,
       breakoutRooms,
       closeBreakoutPanel,
+      setBreakoutAudioTransferStatus,
+      isMicrophoneUser,
+      isReconnecting,
     } = this.props;
 
     const {
       waiting,
       requestedBreakoutId,
+      joinedAudioOnly,
     } = this.state;
 
     if (breakoutRooms.length <= 0) closeBreakoutPanel();
@@ -119,6 +114,14 @@ class BreakoutRoom extends PureComponent {
         window.open(breakoutUser.redirectToHtml5JoinURL, '_blank');
         _.delay(() => this.setState({ waiting: false }), 1000);
       }
+    }
+
+    if (joinedAudioOnly && (!isMicrophoneUser || isReconnecting)) {
+      this.clearJoinedAudioOnly();
+      setBreakoutAudioTransferStatus({
+        breakoutMeetingId: '',
+        status: AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+      });
     }
   }
 
@@ -144,6 +147,10 @@ class BreakoutRoom extends PureComponent {
     return null;
   }
 
+  clearJoinedAudioOnly() {
+    this.setState({ joinedAudioOnly: false });
+  }
+
   transferUserToBreakoutRoom(breakoutId) {
     const { transferToBreakout } = this.props;
     transferToBreakout(breakoutId);
@@ -163,19 +170,34 @@ class BreakoutRoom extends PureComponent {
       intl,
       isUserInBreakoutRoom,
       exitAudio,
+      setBreakoutAudioTransferStatus,
+      getBreakoutAudioTransferStatus,
     } = this.props;
 
     const {
       joinedAudioOnly,
-      breakoutId: stateBreakoutId,
+      breakoutId: _stateBreakoutId,
       requestedBreakoutId,
       waiting,
     } = this.state;
 
+    const {
+      breakoutMeetingId: currentAudioTransferBreakoutId,
+      status,
+    } = getBreakoutAudioTransferStatus();
+
+    const isInBreakoutAudioTransfer = status
+      === AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.CONNECTED;
+
+    const stateBreakoutId = _stateBreakoutId || currentAudioTransferBreakoutId;
     const moderatorJoinedAudio = isMicrophoneUser && amIModerator;
     const disable = waiting && requestedBreakoutId !== breakoutId;
-    const audioAction = joinedAudioOnly
+    const audioAction = joinedAudioOnly || isInBreakoutAudioTransfer
       ? () => {
+        setBreakoutAudioTransferStatus({
+          breakoutMeetingId: breakoutId,
+          status: AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.RETURNING,
+        });
         this.returnBackToMeeeting(breakoutId);
         return logger.debug({
           logCode: 'breakoutroom_return_main_audio',
@@ -183,6 +205,10 @@ class BreakoutRoom extends PureComponent {
         }, 'Returning to main audio (breakout room audio closed)');
       }
       : () => {
+        setBreakoutAudioTransferStatus({
+          breakoutMeetingId: breakoutId,
+          status: AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.CONNECTED,
+        });
         this.transferUserToBreakoutRoom(breakoutId);
         return logger.debug({
           logCode: 'breakoutroom_join_audio_from_main_room',
@@ -204,12 +230,15 @@ class BreakoutRoom extends PureComponent {
               aria-label={`${intl.formatMessage(intlMessages.breakoutJoin)} ${number}`}
               onClick={() => {
                 this.getBreakoutURL(breakoutId);
+                // leave main room's audio, and stops video and screenshare when joining a breakout room
                 exitAudio();
                 logger.debug({
                   logCode: 'breakoutroom_join',
                   extraInfo: { logType: 'user_action' },
                 }, 'joining breakout room closed audio in the main room');
+                VideoService.storeDeviceIds();
                 VideoService.exitVideo();
+                if (UserListService.amIPresenter()) screenshareHasEnded();
               }
               }
               disabled={disable}
@@ -224,13 +253,13 @@ class BreakoutRoom extends PureComponent {
               (
                 <Button
                   label={
-                    moderatorJoinedAudio
-                      && stateBreakoutId === breakoutId
-                      && joinedAudioOnly
-                      ? intl.formatMessage(intlMessages.breakoutReturnAudio)
-                      : intl.formatMessage(intlMessages.breakoutJoinAudio)
+                      stateBreakoutId === breakoutId
+                        && (joinedAudioOnly || isInBreakoutAudioTransfer)
+                        ? intl.formatMessage(intlMessages.breakoutReturnAudio)
+                        : intl.formatMessage(intlMessages.breakoutJoinAudio)
                   }
                   className={styles.button}
+                  disabled={stateBreakoutId !== breakoutId && joinedAudioOnly}
                   key={`join-audio-${breakoutId}`}
                   onClick={audioAction}
                 />
@@ -283,7 +312,7 @@ class BreakoutRoom extends PureComponent {
           {breakout.joinedUsers
             .sort(BreakoutRoom.sortById)
             .filter((value, idx, arr) => !(value.userId === (arr[idx + 1] || {}).userId))
-            .sort(BreakoutRoom.sortUsersByName)
+            .sort(Service.sortUsersByName)
             .map(u => u.name)
             .join(', ')}
         </div>

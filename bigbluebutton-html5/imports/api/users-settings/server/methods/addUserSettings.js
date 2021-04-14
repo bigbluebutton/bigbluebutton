@@ -37,6 +37,7 @@ const currentParameters = [
   'bbb_force_listen_only',
   'bbb_listen_only_mode',
   'bbb_skip_check_audio',
+  'bbb_skip_check_audio_on_first_join',
   // BRANDING
   'bbb_display_branding_area',
   // SHORTCUTS
@@ -48,6 +49,7 @@ const currentParameters = [
   'bbb_enable_video',
   'bbb_record_video',
   'bbb_skip_video_preview',
+  'bbb_skip_video_preview_on_first_join',
   'bbb_mirror_own_webcam',
   // PRESENTATION
   'bbb_force_restore_presentation_on_new_events',
@@ -82,6 +84,9 @@ export default function addUserSettings(settings) {
   check(settings, [Object]);
 
   const { meetingId, requesterUserId: userId } = extractCredentials(this.userId);
+
+  check(meetingId, String);
+  check(userId, String);
 
   let parameters = {};
 

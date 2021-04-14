@@ -7,24 +7,37 @@ public:
     listenOnlyMode: true
     forceListenOnly: false
     skipCheck: false
+    skipCheckOnJoin: false
+    #
+    # Allow users to change microphone/speaker dinamically
+    # The device is changed immediately, without the need to rejoin
+    # audio. Default value is true
+    # Firefox users: if no output devices is shown, you may set the flag
+    # "media.setsinkid.enabled" to make it work properly
+    # enableDynamicAudioDeviceSelection: true
+    #
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: 2.3-dev
-    copyright: "©2020 BigBlueButton Inc."
+    copyright: '©2021 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     lockOnJoin: true
-    cdn: ""
-    basename: "/html5client"
+    cdn: ''
+    basename: '/html5client'
     askForFeedbackOnLogout: false
+    # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
+    # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
+    allowDefaultLogoutUrl: true
     allowUserLookup: false
+    enableGuestLobbyMessage: true
     enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
     enableTalkingIndicator: true
     mirrorOwnWebcam: false
     viewersInWebcam: 8
-    ipv4FallbackDomain: ""
+    ipv4FallbackDomain: ''
     allowLogout: true
     allowFullscreen: true
     preloadNextSlides: 2
@@ -35,10 +48,16 @@ public:
       duration: 4000
     remainingTimeThreshold: 30
     remainingTimeAlertThreshold: 1
+    enableDebugWindow: true
     # Warning: increasing the limit of breakout rooms per meeting
     # can generate excessive overhead to the server. We recommend
-    # this value to be kept under 12.
-    breakoutRoomLimit: 8
+    # this value to be kept under 16.
+    breakouts:
+      breakoutRoomLimit: 16
+      sendInvitationToIncludedModerators: false
+    # https://github.com/bigbluebutton/bigbluebutton/pull/10826
+    customHeartbeat: false
+    showAllAvailableLocales: true
     defaultSettings:
       application:
         animations: true
@@ -48,8 +67,39 @@ public:
         userJoinPushAlerts: false
         raiseHandAudioAlerts: true
         raiseHandPushAlerts: true
+        guestWaitingAudioAlerts: true
+        guestWaitingPushAlerts: true
+        paginationEnabled: true
+        # fallbackLocale: if the locale the client is loaded in does not have a
+        # translation a string, it will use the translation from the locale
+        # specified in fallbackLocale. Note that fallbackLocale should be a
+        # 100% translated locale for best user experience
         fallbackLocale: en
+        # overrideLocale (default is null): if set (for example to 'de') will
+        # force all clients to display the German translations of the strings.
+        # Users can individually set their preferred locale through Settings,
+        # but on first page load overrideLocale will trump the browser's
+        # preferred locale
         overrideLocale: null
+        #Audio constraints for microphone. Use this to control browser's
+        #filters, such as AGC (Auto Gain Control) , Echo Cancellation,
+        #Noise Supression, etc.
+        #For more deails, see:
+        # https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+        #Currently, google chrome sets {ideal: true} for autoGainControl,
+        #echoCancellation and noiseSuppression, if not set.
+        #The accepted value for each constraint is an object of type
+        #https://developer.mozilla.org/en-US/docs/Web/API/ConstrainBoolean
+        #These values are used as initial constraints for every new participant,
+        #and can be changed by user in: Settings > Application > Microphone
+        #Audio Filters.
+        # microphoneConstraints:
+        #   autoGainControl:
+        #     ideal: true
+        #   echoCancellation:
+        #     ideal: true
+        #   noiseSuppression:
+        #     ideal: true
       audio:
         inputDeviceId: undefined
         outputDeviceId: undefined
@@ -81,9 +131,15 @@ public:
       closePrivateChat:
         accesskey: G
         descId: closePrivateChat
+      raiseHand:
+        accesskey: R
+        descId: raiseHand
       openActions:
         accesskey: A
         descId: openActions
+      openDebugWindow:
+        accesskey: K
+        descId: openDebugWindow
     branding:
       displayBrandingArea: true
     connectionTimeout: 60000
@@ -102,18 +158,24 @@ public:
     # Valid for video-provider. Time (ms) before its WS connection times out
     # and tries to reconnect.
     wsConnectionTimeout: 4000
+    # Time in milis to wait for the browser to return a gUM call (used in video-preview)
+    gUMTimeout: 20000
     cameraTimeouts:
       # Base camera timeout: used as the camera *sharing* timeout and
       # as the minimum camera subscribe reconnection timeout
-      baseTimeout: 15000
+      baseTimeout: 30000
       # Max timeout: used as the max camera subscribe reconnection timeout. Each
       # subscribe reattempt increases the reconnection timer up to this
       maxTimeout: 60000
-    chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc
-    chromeDefaultExtensionLink: https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc
-    chromeExtensionKey: KEY
-    chromeExtensionLink: LINK
     screenshare:
+      mediaTimeouts:
+        maxConnectionAttempts: 2
+        # Base screen media timeout (send|recv)
+        baseTimeout: 30000
+        # Max timeout: used as the max camera subscribe reconnection timeout. Each
+        # subscribe reattempt increases the reconnection timer up to this
+        maxTimeout: 60000
+        timeoutIncreaseFactor: 1.5
       constraints:
         video:
           frameRate:
@@ -123,11 +185,7 @@ public:
             max: 2560
           height:
             max: 1600
-        audio: false
-      chromeScreenshareSources:
-        - window
-        - screen
-      firefoxScreenshareSource: window
+        audio: true
     # cameraProfiles is an array of:
     # - id: profile identifier
     #   name: human-readable profile name
@@ -210,12 +268,13 @@ public:
     enableListenOnly: true
     autoShareWebcam: false
     skipVideoPreview: false
+    skipVideoPreviewOnFirstJoin: false
     # Entry `thresholds` is an array of:
     # - threshold: minimum number of cameras being shared for profile to applied
     #   profile: a camera profile id from the cameraProfiles configuration array
     #            that will be applied to all cameras when threshold is hit
     cameraQualityThresholds:
-      enabled: false
+      enabled: true
       thresholds:
         - threshold: 8
           profile: low-u8
@@ -230,8 +289,11 @@ public:
         - threshold: 30
           profile: low-u30
     pagination:
-      # whether to globally enable or disable pagination.
-      enabled: false
+      # WARNING: the pagination.enabled setting has moved to
+      # public.app.defaultSettings.application.paginationEnabled
+      # paginationToggleEnabled: show a pagination toggle in settings for the
+      # user to enable/disable it
+      paginationToggleEnabled: true
       # how long (in ms) the negotiation will be debounced after a page change.
       pageChangeDebounceTime: 2500
       # video page sizes for DESKTOP endpoints. It stands for the number of SUBSCRIBER streams.
@@ -244,20 +306,56 @@ public:
       mobilePageSizes:
         moderator: 2
         viewer: 2
-  pingPong:
-    clearUsersInSeconds: 180
-    pongTimeInSeconds: 15
+    paginationThresholds:
+      enabled: false
+      thresholds:
+        - users: 30
+          desktopPageSizes:
+            moderator: 25
+            viewer: 25
+        - users: 40
+          desktopPageSizes:
+            moderator: 20
+            viewer: 20
+        - users: 50
+          desktopPageSizes:
+            moderator: 16
+            viewer: 16
+        - users: 60
+          desktopPageSizes:
+            moderator: 14
+            viewer: 12
+        - users: 70
+          desktopPageSizes:
+            moderator: 12
+            viewer: 10
+        - users: 80
+          desktopPageSizes:
+            moderator: 10
+            viewer: 8
+        - users: 90
+          desktopPageSizes:
+            moderator: 8
+            viewer: 6
+        - users: 100
+          desktopPageSizes:
+            moderator: 6
+            viewer: 4
+  syncUsersWithConnectionManager:
+    enabled: false
+    syncInterval: 60000
   allowOutsideCommands:
     toggleRecording: false
     toggleSelfVoice: false
   poll:
     enabled: true
     max_custom: 5
+    allowDragAndDropFile: false
   captions:
     enabled: true
     enableDictation: false
-    backgroundColor: "#000000"
-    fontColor: "#FFFFFF"
+    backgroundColor: '#000000'
+    fontColor: '#FFFFFF'
     fontFamily: Calibri
     fontSize: 24px
     takeOwnership: true
@@ -265,6 +363,9 @@ public:
     time: 5000
   chat:
     enabled: true
+    itemsPerPage: 100
+    timeBetweenFetchs: 1000
+    bufferChatInsertsMs: 0
     startClosed: false
     min_message_length: 1
     max_message_length: 5000
@@ -281,37 +382,57 @@ public:
     storage_key: UNREAD_CHATS
     system_messages_keys:
       chat_clear: PUBLIC_CHAT_CLEAR
+      chat_poll_result: PUBLIC_CHAT_POLL_RESULT
     typingIndicator:
       enabled: true
   note:
-    enabled: false
+    enabled: true
     url: ETHERPAD_HOST
-    config:
-      showLineNumbers: false
-      showChat: false
-      noColors: true
-      showControls: true
-      rtl: false
   layout:
     autoSwapLayout: false
     hidePresentation: false
-    webcamsDefaultPlacement: "top"
+    showParticipantsOnLogin: true
+    webcamsDefaultPlacement: 'top'
   media:
-    stunTurnServersFetchAddress: "/bigbluebutton/api/stuns"
+    stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
-    fallbackStunServer:  ''
-    mediaTag: "#remote-media"
+    fallbackStunServer: ''
+    mediaTag: '#remote-media'
     callTransferTimeout: 5000
     callHangupTimeout: 2000
     callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
     relayOnlyOnReconnect: false
-    listenOnlyCallTimeout: 15000
+    listenOnlyCallTimeout: 25000
+    #Timeout (ms) for gathering ICE candidates. When this timeout expires
+    #the SDP is sent to the server with the candidates the browser gathered
+    #so far. Increasing this value might help avoiding 1004 error when
+    #user activates microphone.
+    iceGatheringTimeout: 5000
+    sipjsHackViaWs: false
+    # Mute/umute toggle throttle time
+    toggleMuteThrottleTime: 300
+    #Websocket keepAlive interval (seconds). You may set this to prevent
+    #websocket disconnection in some environments. When set, BBB will send
+    #'\r\n\r\n' string through SIP.js's websocket. If not set, default value
+    #is 0.
+    websocketKeepAliveInterval: 30
+    #Debounce time (seconds) for sending SIP.js's websocket keep alive message.
+    #If not set, default value is 10.
+    websocketKeepAliveDebounce: 10
+    #Trace sip/audio messages in browser. If not set, default value is false.
+    traceSip: false
+    # SDP semantics: plan-b|unified-plan
+    sdpSemantics: 'unified-plan'
   stats:
     enabled: true
     interval: 2000
     length: 5
+    timeout: 30000
     log: false
+    notification:
+      warning: false
+      error: true
     jitter:
       - 10
       - 20
@@ -320,6 +441,10 @@ public:
       - 0.05
       - 0.1
       - 0.2
+    rtt:
+      - 500
+      - 1000
+      - 2000
     level:
       - warning
       - danger
@@ -330,50 +455,58 @@ public:
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32
     restoreOnUpdate: false
-    uploadEndpoint: "/bigbluebutton/presentation/upload"
+    uploadEndpoint: '/bigbluebutton/presentation/upload'
     uploadSizeMin: 0
     uploadSizeMax: 50000000
     uploadValidMimeTypes:
-    - extension: .pdf
-      mime: application/pdf
-    - extension: .doc
-      mime: application/msword
-    - extension: .docx
-      mime: application/vnd.openxmlformats-officedocument.wordprocessingml.document
-    - extension: .xls
-      mime: application/vnd.ms-excel
-    - extension: .xlsx
-      mime: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-    - extension: .ppt
-      mime: application/vnd.ms-powerpoint
-    - extension: .pptx
-      mime: application/vnd.openxmlformats-officedocument.presentationml.presentation
-    - extension: .txt
-      mime: text/plain
-    - extension: .rtf
-      mime: application/rtf
-    - extension: .odt
-      mime: application/vnd.oasis.opendocument.text
-    - extension: .ods
-      mime: application/vnd.oasis.opendocument.spreadsheet
-    - extension: .odp
-      mime: application/vnd.oasis.opendocument.presentation
-    - extension: .odg
-      mime: application/vnd.oasis.opendocument.graphics
-    - extension: .odc
-      mime: application/vnd.oasis.opendocument.chart
-    - extension: .odi
-      mime: application/vnd.oasis.opendocument.image
-    - extension: .jpg
-      mime: image/jpeg
-    - extension: .jpeg
-      mime: image/jpeg
-    - extension: .png
-      mime: image/png
+      - extension: .pdf
+        mime: application/pdf
+      - extension: .doc
+        mime: application/msword
+      - extension: .docx
+        mime: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+      - extension: .xls
+        mime: application/vnd.ms-excel
+      - extension: .xlsx
+        mime: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      - extension: .ppt
+        mime: application/vnd.ms-powerpoint
+      - extension: .pptx
+        mime: application/vnd.openxmlformats-officedocument.presentationml.presentation
+      - extension: .txt
+        mime: text/plain
+      - extension: .rtf
+        mime: application/rtf
+      - extension: .odt
+        mime: application/vnd.oasis.opendocument.text
+      - extension: .ods
+        mime: application/vnd.oasis.opendocument.spreadsheet
+      - extension: .odp
+        mime: application/vnd.oasis.opendocument.presentation
+      - extension: .odg
+        mime: application/vnd.oasis.opendocument.graphics
+      - extension: .odc
+        mime: application/vnd.oasis.opendocument.chart
+      - extension: .odi
+        mime: application/vnd.oasis.opendocument.image
+      - extension: .jpg
+        mime: image/jpeg
+      - extension: .jpeg
+        mime: image/jpeg
+      - extension: .png
+        mime: image/png
+  selectRandomUser:
+    enabled: true
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
+    label:
+      moderator: false
+      mobile: true
+      guest: true
   whiteboard:
+    annotationsQueueProcessInterval: 60
+    cursorInterval: 150
     annotations:
       status:
         start: DRAW_START
@@ -382,80 +515,79 @@ public:
     toolbar:
       multiUserPenOnly: false
       colors:
-      - label: black
-        value: "#000000"
-      - label: white
-        value: "#ffffff"
-      - label: red
-        value: "#ff0000"
-      - label: orange
-        value: "#ff8800"
-      - label: eletricLime
-        value: "#ccff00"
-      - label: Lime
-        value: "#00ff00"
-      - label: Cyan
-        value: "#00ffff"
-      - label: dodgerBlue
-        value: "#0088ff"
-      - label: blue
-        value: "#0000ff"
-      - label: violet
-        value: "#8800ff"
-      - label: magenta
-        value: "#ff00ff"
-      - label: silver
-        value: "#c0c0c0"
+        - label: black
+          value: '#000000'
+        - label: white
+          value: '#ffffff'
+        - label: red
+          value: '#ff0000'
+        - label: orange
+          value: '#ff8800'
+        - label: eletricLime
+          value: '#ccff00'
+        - label: Lime
+          value: '#00ff00'
+        - label: Cyan
+          value: '#00ffff'
+        - label: dodgerBlue
+          value: '#0088ff'
+        - label: blue
+          value: '#0000ff'
+        - label: violet
+          value: '#8800ff'
+        - label: magenta
+          value: '#ff00ff'
+        - label: silver
+          value: '#c0c0c0'
       thickness:
-      - value: 14
-      - value: 12
-      - value: 10
-      - value: 8
-      - value: 6
-      - value: 4
-      - value: 2
-      - value: 1
+        - value: 14
+        - value: 12
+        - value: 10
+        - value: 8
+        - value: 6
+        - value: 4
+        - value: 2
+        - value: 1
       font_sizes:
-      - value: 36
-      - value: 32
-      - value: 28
-      - value: 24
-      - value: 20
-      - value: 16
+        - value: 36
+        - value: 32
+        - value: 28
+        - value: 24
+        - value: 20
+        - value: 16
       tools:
-      - icon: text_tool
-        value: text
-      - icon: line_tool
-        value: line
-      - icon: circle_tool
-        value: ellipse
-      - icon: triangle_tool
-        value: triangle
-      - icon: rectangle_tool
-        value: rectangle
-      - icon: pen_tool
-        value: pencil
-      - icon: hand
-        value: hand
+        - icon: text_tool
+          value: text
+        - icon: line_tool
+          value: line
+        - icon: circle_tool
+          value: ellipse
+        - icon: triangle_tool
+          value: triangle
+        - icon: rectangle_tool
+          value: rectangle
+        - icon: pen_tool
+          value: pencil
+        - icon: hand
+          value: hand
       presenterTools:
-      - text
-      - line
-      - ellipse
-      - triangle
-      - rectangle
-      - pencil
-      - hand
+        - text
+        - line
+        - ellipse
+        - triangle
+        - rectangle
+        - pencil
+        - hand
       multiUserTools:
-      - text
-      - line
-      - ellipse
-      - triangle
-      - rectangle
-      - pencil
-      - hand
+        - text
+        - line
+        - ellipse
+        - triangle
+        - rectangle
+        - pencil
   clientLog:
     server:
-      enabled: true
+      enabled: false
       level: info
     console:
       enabled: true
@@ -467,12 +599,11 @@ public:
       method: POST
       throttleInterval: 400
       flushOnClose: true
-      logTag: ""
+      logTag: ''
 private:
   app:
     host: 127.0.0.1
-    port: 3000
-    localesUrl: /locales
+    localesUrl: /locale-list
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
   etherpad:
@@ -486,36 +617,34 @@ private:
     timeout: 5000
     password: null
     debug: false
+    metrics:
+      queueMetrics: false
+      metricsDumpIntervalMs: 60000
+      metricsFolderPath: METRICS_FOLDER
+      removeMeetingOnEnd: true
     channels:
       toAkkaApps: to-akka-apps-redis-channel
       toThirdParty: to-third-party-redis-channel
     subscribeTo:
-    - to-html5-redis-channel
-    - from-akka-apps-*
-    - from-third-party-redis-channel
-    - from-etherpad-redis-channel
+      - to-html5-redis-channel
+      - from-akka-apps-[^f]*
+      - from-third-party-redis-channel
+      - from-etherpad-redis-channel
     async:
-    - from-akka-apps-wb-redis-channel
+      - from-akka-apps-wb-redis-channel
     ignored:
-    - CheckAlivePongSysMsg
-    - DoLatencyTracerMsg
+      - CheckAlivePongSysMsg
+      - DoLatencyTracerMsg
   serverLog:
     level: info
     streamerLog: false
-  memoryMonitoring:
-    stat:
-      enabled: false
-    leak:
-      enabled: false
-    heapdump:
-      enabled: false
   minBrowserVersions:
     - browser: chrome
       version: 72
     - browser: chromeMobileIOS
       version: Infinity
     - browser: firefox
-      version: 63
+      version: 68
     - browser: firefoxMobile
       version: 68
     - browser: edge
@@ -530,6 +659,7 @@ private:
       version: 50
     - browser: electron
       version: [0, 36]
+    - browser: SamsungInternet
+      version: 10
     - browser: YandexBrowser
       version: 19
-

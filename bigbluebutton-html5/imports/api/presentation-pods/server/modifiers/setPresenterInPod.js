@@ -18,16 +18,13 @@ export default function setPresenterInPod(meetingId, podId, nextPresenterId) {
     },
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      Logger.error(`Setting a presenter in pod: ${err}`);
-      return;
-    }
+  try {
+    const { numberAffected } = PresentationPods.upsert(selector, modifier);
 
-    if (numChanged) {
+    if (numberAffected) {
       Logger.info(`Set a new presenter in pod id=${podId} meeting=${meetingId}`);
     }
-  };
-
-  return PresentationPods.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Setting a presenter in pod: ${err}`);
+  }
 }

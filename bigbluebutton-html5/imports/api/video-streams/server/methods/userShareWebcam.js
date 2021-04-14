@@ -10,9 +10,12 @@ export default function userShareWebcam(stream) {
   const EVENT_NAME = 'UserBroadcastCamStartMsg';
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
+  check(stream, String);
+
   Logger.info(`user sharing webcam: ${meetingId} ${requesterUserId}`);
 
-  check(stream, String);
 
   // const actionName = 'joinVideo';
   /* TODO throw an error if user has no permission to share webcam

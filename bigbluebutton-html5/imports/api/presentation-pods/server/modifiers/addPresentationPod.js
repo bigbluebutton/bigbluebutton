@@ -26,22 +26,20 @@ export default function addPresentationPod(meetingId, pod, presentations = undef
     currentPresenterId,
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Adding presentation pod to the collection: ${err}`);
-    }
+  try {
+    const { insertedId } = PresentationPods.upsert(selector, modifier);
 
     // if it's a Sync message - continue adding the attached presentations
     if (presentations) {
       presentations.forEach(presentation => addPresentation(meetingId, podId, presentation));
     }
 
-    if (numChanged) {
-      return Logger.info(`Added presentation pod id=${podId} meeting=${meetingId}`);
+    if (insertedId) {
+      Logger.info(`Added presentation pod id=${podId} meeting=${meetingId}`);
+    } else {
+      Logger.info(`Upserted presentation pod id=${podId} meeting=${meetingId}`);
     }
-
-    return Logger.info(`Upserted presentation pod id=${podId} meeting=${meetingId}`);
-  };
-
-  return PresentationPods.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Adding presentation pod to the collection: ${err}`);
+  }
 }

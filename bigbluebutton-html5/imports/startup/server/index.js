@@ -10,72 +10,111 @@ import Logger from './logger';
 import Redis from './redis';
 
 import setMinBrowserVersions from './minBrowserVersion';
-import userLeaving from '/imports/api/users/server/methods/userLeaving';
 
 let guestWaitHtml = '';
-const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
+
+const env = Meteor.isDevelopment ? 'development' : 'production';
+
+const meteorRoot = fs.realpathSync(`${process.cwd()}/../`);
+
+const applicationRoot = (env === 'development')
+  ? fs.realpathSync(`${meteorRoot}'/../../../../public/locales/`)
+  : fs.realpathSync(`${meteorRoot}/../programs/web.browser/app/locales/`);
+
+const AVAILABLE_LOCALES = fs.readdirSync(`${applicationRoot}`);
 const FALLBACK_LOCALES = JSON.parse(Assets.getText('config/fallbackLocales.json'));
 
-const generateLocaleOptions = () => {
-  try {
-    Logger.warn('Calculating aggregateLocales (heavy)');
-    const tempAggregateLocales = AVAILABLE_LOCALES
-      .map(file => file.replace('.json', ''))
-      .map(file => file.replace('_', '-'))
-      .map((locale) => {
-        const localeName = (Langmap[locale] || {}).nativeName
-          || (FALLBACK_LOCALES[locale] || {}).nativeName
-          || locale;
-        return {
-          locale,
-          name: localeName,
-        };
-      });
-    Logger.warn(`Total locales: ${tempAggregateLocales.length}`, tempAggregateLocales);
-    return tempAggregateLocales;
-  } catch (e) {
-    Logger.error(`'Could not process locales error: ${e}`);
-    return [];
-  }
-};
+process.on('uncaughtException', (err) => {
+  Logger.error(`uncaughtException: ${err}`);
+  process.exit(1);
+});
 
-let avaibleLocalesNamesJSON = JSON.stringify(generateLocaleOptions());
+process.on('uncaughtException', (err) => {
+  Logger.error(`uncaughtException: ${err}`);
+  process.exit(1);
+});
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
-  const INTERVAL_IN_SETTINGS = (Meteor.settings.public.pingPong.clearUsersInSeconds) * 1000;
-  const INTERVAL_TIME = INTERVAL_IN_SETTINGS < 10000 ? 10000 : INTERVAL_IN_SETTINGS;
-  const env = Meteor.isDevelopment ? 'development' : 'production';
   const CDN_URL = APP_CONFIG.cdn;
+  const instanceId = parseInt(process.env.INSTANCE_ID, 10) || 1;
 
-  // Commenting out in BBB 2.3 as node12 does not allow for `memwatch`.
-  // We are looking for alternatives
+  Logger.warn(`Started bbb-html5 process with instanceId=${instanceId}`);
 
-  /* let heapDumpMbThreshold = 100;
+  const { customHeartbeat } = APP_CONFIG;
 
-  const memoryMonitoringSettings = Meteor.settings.private.memoryMonitoring;
-  if (memoryMonitoringSettings.stat.enabled) {
-    memwatch.on('stats', (stats) => {
-      let heapDumpTriggered = false;
+  if (customHeartbeat) {
+    Logger.warn('Custom heartbeat functions are enabled');
+    // https://github.com/sockjs/sockjs-node/blob/1ef08901f045aae7b4df0f91ef598d7a11e82897/lib/transport/websocket.js#L74-L82
+    const newHeartbeat = function heartbeat() {
+      const currentTime = new Date().getTime();
 
-      if (memoryMonitoringSettings.heapdump.enabled) {
-        heapDumpTriggered = (stats.current_base / 1048576) > heapDumpMbThreshold;
+      // Skipping heartbeat, because websocket is sending data
+      if (currentTime - this.ws.lastSentFrameTimestamp < 10000) {
+        try {
+          Logger.info('Skipping heartbeat, because websocket is sending data', {
+            currentTime,
+            lastSentFrameTimestamp: this.ws.lastSentFrameTimestamp,
+            userId: this.session.connection._meteorSession.userId,
+          });
+          return;
+        } catch (err) {
+          Logger.error(`Skipping heartbeat error: ${err}`);
+        }
       }
-      Logger.info('memwatch stats', { ...stats, heapDumpEnabled: memoryMonitoringSettings.heapdump.enabled, heapDumpTriggered });
 
-      if (heapDumpTriggered) {
-        heapdump.writeSnapshot(`./heapdump-stats-${Date.now()}.heapsnapshot`);
-        heapDumpMbThreshold += 100;
+      const supportsHeartbeats = this.ws.ping(null, () => clearTimeout(this.hto_ref));
+      if (supportsHeartbeats) {
+        this.hto_ref = setTimeout(() => {
+          try {
+            Logger.info('Heartbeat timeout', { userId: this.session.connection._meteorSession.userId, sentAt: currentTime, now: new Date().getTime() });
+          } catch (err) {
+            Logger.error(`Heartbeat timeout error: ${err}`);
+          }
+        }, Meteor.server.options.heartbeatTimeout);
+      } else {
+        Logger.error('Unexpected error supportsHeartbeats=false');
       }
-    });
+    };
+
+    // https://github.com/davhani/hagty/blob/6a5c78e9ae5a5e4ade03e747fb4cc8ea2df4be0c/faye-websocket/lib/faye/websocket/api.js#L84-L88
+    const newSend = function send(data) {
+      try {
+        this.lastSentFrameTimestamp = new Date().getTime();
+
+        if (this.meteorHeartbeat) {
+          // Call https://github.com/meteor/meteor/blob/1e7e56eec8414093cd0c1c70750b894069fc972a/packages/ddp-common/heartbeat.js#L80-L88
+          this.meteorHeartbeat._seenPacket = true;
+          if (this.meteorHeartbeat._heartbeatTimeoutHandle) {
+            this.meteorHeartbeat._clearHeartbeatTimeoutTimer();
+          }
+        }
+
+        if (this.readyState > 1/* API.OPEN = 1 */) return false;
+        if (!(data instanceof Buffer)) data = String(data);
+        return this._driver.messages.write(data);
+      } catch (err) {
+        console.error('Error on send data', err);
+        return false;
+      }
+    };
+
+    Meteor.setInterval(() => {
+      for (const session of Meteor.server.sessions.values()) {
+        const { socket } = session;
+        const recv = socket._session.recv;
+
+        if (session.bbbFixApplied || !recv || !recv.ws) {
+          continue;
+        }
+
+        recv.ws.meteorHeartbeat = session.heartbeat;
+        recv.__proto__.heartbeat = newHeartbeat;
+        recv.ws.__proto__.send = newSend;
+        session.bbbFixApplied = true;
+      }
+    }, 5000);
   }
-
-  if (memoryMonitoringSettings.leak.enabled) {
-    memwatch.on('leak', (info) => {
-      Logger.info('memwatch leak', info);
-    });
-  } */
-
   if (CDN_URL.trim()) {
     // Add CDN
     BrowserPolicy.content.disallowEval();
@@ -84,7 +123,7 @@ Meteor.startup(() => {
     BrowserPolicy.content.allowImageDataUrl(CDN_URL);
     BrowserPolicy.content.allowFontDataUrl(CDN_URL);
     BrowserPolicy.content.allowOriginForAll(CDN_URL);
-    WebAppInternals.setBundledJsCssPrefix(CDN_URL + APP_CONFIG.basename);
+    WebAppInternals.setBundledJsCssPrefix(CDN_URL + APP_CONFIG.basename + Meteor.settings.public.app.instanceId);
 
     const fontRegExp = /\.(eot|ttf|otf|woff|woff2)$/;
 
@@ -101,30 +140,49 @@ Meteor.startup(() => {
 
   setMinBrowserVersions();
 
-  Meteor.setInterval(() => {
-    const currentTime = Date.now();
-    Logger.info('Checking for inactive users');
-    const users = Users.find({
-      connectionStatus: 'online',
-      clientType: 'HTML5',
-      lastPing: {
-        $lt: (currentTime - INTERVAL_TIME), // get user who has not pinged in the last 10 seconds
-      },
-      loginTime: {
-        $lt: (currentTime - INTERVAL_TIME),
-      },
-    }).fetch();
-    if (!users.length) return Logger.info('No inactive users');
-    Logger.info('Removing inactive users');
-    users.forEach((user) => {
-      Logger.info(`Detected inactive user, userId:${user.userId}, meetingId:${user.meetingId}`);
-      return userLeaving(user.meetingId, user.userId, user.connectionId);
-    });
-    return Logger.info('All inactive users have been removed');
-  }, INTERVAL_TIME);
-
-  Logger.warn(`SERVER STARTED.\nENV=${env},\nnodejs version=${process.version}\nCDN=${CDN_URL}\n`, APP_CONFIG);
+  Logger.warn(`SERVER STARTED.
+  ENV=${env}
+  nodejs version=${process.version}
+  BBB_HTML5_ROLE=${process.env.BBB_HTML5_ROLE}
+  INSTANCE_ID=${instanceId}
+  PORT=${process.env.PORT}
+  CDN=${CDN_URL}\n`, APP_CONFIG);
 });
+
+
+const generateLocaleOptions = () => {
+  try {
+    Logger.warn('Calculating aggregateLocales (heavy)');
+
+
+    // remove duplicated locales (always remove more generic if same name)
+    const tempAggregateLocales = AVAILABLE_LOCALES
+      .map(file => file.replace('.json', ''))
+      .map(file => file.replace('_', '-'))
+      .map((locale) => {
+        const localeName = (Langmap[locale] || {}).nativeName
+          || (FALLBACK_LOCALES[locale] || {}).nativeName
+          || locale;
+        return {
+          locale,
+          name: localeName,
+        };
+      }).reverse()
+      .filter((item, index, self) => index === self.findIndex(i => (
+        i.name === item.name
+      )))
+      .reverse();
+
+    Logger.warn(`Total locales: ${tempAggregateLocales.length}`, tempAggregateLocales);
+
+    return tempAggregateLocales;
+  } catch (e) {
+    Logger.error(`'Could not process locales error: ${e}`);
+    return [];
+  }
+};
+
+let avaibleLocalesNamesJSON = JSON.stringify(generateLocaleOptions());
 
 WebApp.connectHandlers.use('/check', (req, res) => {
   const payload = { html5clientStatus: 'running' };
@@ -141,7 +199,7 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
   const browserLocale = override && req.query.init === 'true'
     ? override.split(/[-_]/g) : req.query.locale.split(/[-_]/g);
 
-  const localeList = [fallback];
+  let localeFile = fallback;
 
   const usableLocales = AVAILABLE_LOCALES
     .map(file => file.replace('.json', ''))
@@ -149,35 +207,29 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
       ? [...locales, locale]
       : locales), []);
 
-  const regionDefault = usableLocales.find(locale => browserLocale[0] === locale);
-
-  if (regionDefault) localeList.push(regionDefault);
-  if (!regionDefault && usableLocales.length) localeList.push(usableLocales[0]);
-
   let normalizedLocale;
-  let messages = {};
 
   if (browserLocale.length > 1) {
     normalizedLocale = `${browserLocale[0]}_${browserLocale[1].toUpperCase()}`;
-    localeList.push(normalizedLocale);
+
+    const normDefault = usableLocales.find(locale => normalizedLocale === locale);
+    if (normDefault) localeFile = normDefault;
   }
 
-  localeList.forEach((locale) => {
-    try {
-      const data = Assets.getText(`locales/${locale}.json`);
-      messages = Object.assign(messages, JSON.parse(data));
-      normalizedLocale = locale;
-    } catch (e) {
-      Logger.warn(`'Could not process locale ${locale}:${e}`);
-      // Getting here means the locale is not available in the current locale files.
-    }
-  });
+  const regionDefault = usableLocales.find(locale => browserLocale[0] === locale);
+
+  if (localeFile === fallback && regionDefault !== localeFile) {
+    localeFile = regionDefault;
+  }
 
   res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify({ normalizedLocale, messages }));
+  res.end(JSON.stringify({
+    normalizedLocale: localeFile,
+    regionDefaultLocale: (regionDefault && regionDefault !== localeFile) ? regionDefault : '',
+  }));
 });
 
-WebApp.connectHandlers.use('/locales', (req, res) => {
+WebApp.connectHandlers.use('/locale-list', (req, res) => {
   if (!avaibleLocalesNamesJSON) {
     avaibleLocalesNamesJSON = JSON.stringify(generateLocaleOptions());
   }
@@ -209,7 +261,6 @@ WebApp.connectHandlers.use('/feedback', (req, res) => {
     const user = Users.findOne({
       meetingId,
       userId,
-      connectionStatus: 'offline',
       authToken,
     });
 

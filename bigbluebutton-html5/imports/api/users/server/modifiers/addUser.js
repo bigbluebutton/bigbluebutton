@@ -5,7 +5,7 @@ import Meetings from '/imports/api/meetings';
 import VoiceUsers from '/imports/api/voice-users/';
 import _ from 'lodash';
 import SanitizeHTML from 'sanitize-html';
-
+import addUserPsersistentData from '/imports/api/users-persistent-data/server/modifiers/addUserPersistentData';
 import stringHash from 'string-hash';
 import flat from 'flat';
 
@@ -58,26 +58,28 @@ export default function addUser(meetingId, userData) {
     from a list based on the userId */
   const color = COLOR_LIST[stringHash(user.intId) % COLOR_LIST.length];
 
-  const modifier = {
-    $set: Object.assign(
-      {
-        meetingId,
-        connectionStatus: 'online',
-        sortName: user.name.trim().toLowerCase(),
-        color,
-        breakoutProps: {
-          isBreakoutUser: Meeting.meetingProp.isBreakout,
-          parentId: Meeting.breakoutProps.parentId,
-        },
-        effectiveConnectionType: null,
-        inactivityCheck: false,
-        responseDelay: 0,
-        loggedOut: false,
+  const userInfos = Object.assign(
+    {
+      meetingId,
+      sortName: user.name.trim().toLowerCase(),
+      color,
+      mobile: false,
+      breakoutProps: {
+        isBreakoutUser: Meeting.meetingProp.isBreakout,
+        parentId: Meeting.breakoutProps.parentId,
       },
-      flat(user),
-    ),
-  };
+      effectiveConnectionType: null,
+      inactivityCheck: false,
+      responseDelay: 0,
+      loggedOut: false,
+    },
+    flat(user),
+  );
 
+  const modifier = {
+    $set: userInfos,
+  };
+  addUserPsersistentData(userInfos);
   // Only add an empty VoiceUser if there isn't one already and if the user coming in isn't a
   // dial-in user. We want to avoid overwriting good data
   if (user.clientType !== 'dial-in-user' && !VoiceUsers.findOne({ meetingId, intId: userId })) {
@@ -95,18 +97,15 @@ export default function addUser(meetingId, userData) {
     });
   }
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Adding user to collection: ${err}`);
-    }
+  try {
+    const { insertedId } = Users.upsert(selector, modifier);
 
-    const { insertedId } = numChanged;
     if (insertedId) {
-      return Logger.info(`Added user id=${userId} meeting=${meetingId}`);
+      Logger.info(`Added user id=${userId} meeting=${meetingId}`);
+    } else {
+      Logger.info(`Upserted user id=${userId} meeting=${meetingId}`);
     }
-
-    return Logger.info(`Upserted user id=${userId} meeting=${meetingId}`);
-  };
-
-  return Users.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Adding user to collection: ${err}`);
+  }
 }

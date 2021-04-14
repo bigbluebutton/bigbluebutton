@@ -15,6 +15,9 @@ const intlMessages = defineMessages({
   410: {
     id: 'app.error.410',
   },
+  408: {
+    id: 'app.error.408',
+  },
   404: {
     id: 'app.error.404',
     defaultMessage: 'Not found',
@@ -27,6 +30,15 @@ const intlMessages = defineMessages({
   },
   400: {
     id: 'app.error.400',
+  },
+  user_logged_out_reason: {
+    id: 'app.error.userLoggedOut',
+  },
+  validate_token_failed_eject_reason: {
+    id: 'app.error.ejectedUser',
+  },
+  banned_user_rejoining_reason: {
+    id: 'app.error.userBanned',
   },
 });
 
@@ -62,15 +74,21 @@ class ErrorScreen extends PureComponent {
       formatedMessage = intl.formatMessage(intlMessages[code]);
     }
 
+    let errorMessageDescription = Session.get('errorMessageDescription');
+
+    if (code === 403 && errorMessageDescription in intlMessages) {
+      errorMessageDescription = intl.formatMessage(intlMessages[errorMessageDescription]);
+    }
+
     return (
       <div className={styles.background}>
         <h1 className={styles.message}>
           {formatedMessage}
         </h1>
         {
-          !Session.get('errorMessageDescription') || (
+          !errorMessageDescription || (
             <div className={styles.sessionMessage}>
-              {Session.get('errorMessageDescription')}
+              {errorMessageDescription}
             </div>)
         }
         <div className={styles.separator} />

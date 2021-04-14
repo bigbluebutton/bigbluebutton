@@ -11,6 +11,8 @@ export default function setEmojiStatus(userId, status) {
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(userId, String);
 
   const payload = {
@@ -18,8 +20,9 @@ export default function setEmojiStatus(userId, status) {
     userId,
   };
 
-  Logger.verbose(`User '${userId}' emoji status updated to '${status}' by '${
-    requesterUserId}' from meeting '${meetingId}'`);
+  Logger.verbose('User emoji status updated', {
+    userId, status, requesterUserId, meetingId,
+  });
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

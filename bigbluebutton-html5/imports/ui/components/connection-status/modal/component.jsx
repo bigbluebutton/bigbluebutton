@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import SlowConnection from '/imports/ui/components/slow-connection/component';
+import Switch from '/imports/ui/components/switch/component';
+import Service from '../service';
 import Modal from '/imports/ui/components/modal/simple/component';
 import { styles } from './styles';
-
-const STATS = Meteor.settings.public.stats;
 
 const intlMessages = defineMessages({
   ariaTitle: {
@@ -34,6 +34,18 @@ const intlMessages = defineMessages({
     id: 'app.connection-status.offline',
     description: 'Offline user',
   },
+  dataSaving: {
+    id: 'app.settings.dataSavingTab.description',
+    description: 'Description of data saving',
+  },
+  webcam: {
+    id: 'app.settings.dataSavingTab.webcam',
+    description: 'Webcam data saving switch',
+  },
+  screenshare: {
+    id: 'app.settings.dataSavingTab.screenShare',
+    description: 'Screenshare data saving switch',
+  },
 });
 
 const propTypes = {
@@ -43,12 +55,41 @@ const propTypes = {
   }).isRequired,
 };
 
+const isConnectionStatusEmpty = (connectionStatus) => {
+  // Check if it's defined
+  if (!connectionStatus) return true;
+
+  // Check if it's an array
+  if (!Array.isArray(connectionStatus)) return true;
+
+  // Check if is empty
+  if (connectionStatus.length === 0) return true;
+
+  return false;
+};
+
 class ConnectionStatusComponent extends PureComponent {
+  constructor(props) {
+    super(props);
+
+    this.help = Service.getHelp();
+    this.state = { dataSaving: props.dataSaving };
+  }
+
+  handleDataSavingChange(key) {
+    const { dataSaving } = this.state;
+    dataSaving[key] = !dataSaving[key];
+    this.setState(dataSaving);
+  }
+
   renderEmpty() {
     const { intl } = this.props;
 
     return (
-      <div className={styles.item}>
+      <div
+        className={styles.item}
+        data-test="connectionStatusItemEmpty"
+      >
         <div className={styles.left}>
           <div className={styles.name}>
             <div className={styles.text}>
@@ -66,20 +107,20 @@ class ConnectionStatusComponent extends PureComponent {
       intl,
     } = this.props;
 
-    if (connectionStatus.length === 0) return this.renderEmpty();
+    if (isConnectionStatusEmpty(connectionStatus)) return this.renderEmpty();
 
     return connectionStatus.map((conn, index) => {
       const dateTime = new Date(conn.timestamp);
       const itemStyle = {};
-      itemStyle[styles.even] = index % 2 === 0;
+      itemStyle[styles.even] = (index + 1) % 2 === 0;
 
       const textStyle = {};
       textStyle[styles.offline] = conn.offline;
-
       return (
         <div
           key={index}
           className={cx(styles.item, itemStyle)}
+          data-test="connectionStatusItemUser"
         >
           <div className={styles.left}>
             <div className={styles.avatar}>
@@ -95,7 +136,10 @@ class ConnectionStatusComponent extends PureComponent {
             </div>
 
             <div className={styles.name}>
-              <div className={cx(styles.text, textStyle)}>
+              <div
+                className={cx(styles.text, textStyle)}
+                data-test={conn.offline ? "offlineUser" : null}
+              >
                 {conn.name}
                 {conn.offline ? ` (${intl.formatMessage(intlMessages.offline)})` : null}
               </div>
@@ -116,17 +160,65 @@ class ConnectionStatusComponent extends PureComponent {
     });
   }
 
+  renderDataSaving() {
+    const {
+      intl,
+      dataSaving,
+    } = this.props;
+
+    const {
+      viewParticipantsWebcams,
+      viewScreenshare,
+    } = dataSaving;
+
+    return (
+      <div className={styles.dataSaving}>
+        <div className={styles.description}>
+          {intl.formatMessage(intlMessages.dataSaving)}
+        </div>
+        <div className={styles.saving}>
+          <label className={styles.label}>
+            {intl.formatMessage(intlMessages.webcam)}
+          </label>
+          <Switch
+            icons={false}
+            defaultChecked={viewParticipantsWebcams}
+            onChange={() => this.handleDataSavingChange('viewParticipantsWebcams')}
+            ariaLabelledBy="webcam"
+            ariaLabel={intl.formatMessage(intlMessages.webcam)}
+            data-test="dataSavingWebcams"
+          />
+        </div>
+        <div className={styles.saving}>
+          <label className={styles.label}>
+            {intl.formatMessage(intlMessages.screenshare)}
+          </label>
+          <Switch
+            icons={false}
+            defaultChecked={viewScreenshare}
+            onChange={() => this.handleDataSavingChange('viewScreenshare')}
+            ariaLabelledBy="screenshare"
+            ariaLabel={intl.formatMessage(intlMessages.screenshare)}
+            data-test="dataSavingScreenshare"
+          />
+        </div>
+      </div>
+    );
+  }
+
   render() {
     const {
       closeModal,
       intl,
     } = this.props;
 
+    const { dataSaving } = this.state;
+
     return (
       <Modal
         overlayClassName={styles.overlay}
         className={styles.modal}
-        onRequestClose={closeModal}
+        onRequestClose={() => closeModal(dataSaving, intl)}
         hideBorder
         contentLabel={intl.formatMessage(intlMessages.ariaTitle)}
       >
@@ -137,11 +229,17 @@ class ConnectionStatusComponent extends PureComponent {
             </h2>
           </div>
           <div className={styles.description}>
-            {intl.formatMessage(intlMessages.description)}{' '}
-            <a href={STATS.help} target="_blank" rel="noopener noreferrer">
-              {`(${intl.formatMessage(intlMessages.more)})`}
-            </a>
+            {intl.formatMessage(intlMessages.description)}
+            {' '}
+            {this.help
+              && (
+                <a href={this.help} target="_blank" rel="noopener noreferrer">
+                  {`(${intl.formatMessage(intlMessages.more)})`}
+                </a>
+              )
+            }
           </div>
+          {this.renderDataSaving()}
           <div className={styles.content}>
             <div className={styles.wrapper}>
               {this.renderConnections()}

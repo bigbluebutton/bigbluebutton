@@ -1,19 +1,33 @@
-import React, { memo } from 'react';
+import React, { memo, useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import UserListService from '/imports/ui/components/user-list/service';
 import Settings from '/imports/ui/services/settings';
 import ChatAlert from './component';
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/users';
+import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
+import { ChatContext } from '/imports/ui/components/components-data/chat-context/context';
+import { GroupChatContext } from '/imports/ui/components/components-data/group-chat-context/context';
+import userListService from '/imports/ui/components/user-list/service';
 
-const ChatAlertContainer = props => (
-  <ChatAlert {...props} />
-);
+const ChatAlertContainer = (props) => {
+  const usingUsersContext = useContext(UsersContext);
+  const usingChatContext = useContext(ChatContext);
+  const usingGroupChatContext = useContext(GroupChatContext);
+
+  const { users } = usingUsersContext;
+  const currentUser = users[Auth.userID];
+  const { authTokenValidatedTime } = currentUser;
+  const { chats: groupChatsMessages } = usingChatContext;
+  const { groupChat: groupChats } = usingGroupChatContext;
+
+  const activeChats = userListService.getActiveChats({ groupChatsMessages, groupChats, users });
+
+  return (
+    <ChatAlert {...props} activeChats={activeChats} messages={groupChatsMessages} joinTimestamp={authTokenValidatedTime} />
+  );
+};
 
 export default withTracker(() => {
   const AppSettings = Settings.application;
-  const activeChats = UserListService.getActiveChats();
-  const { loginTime } = Users.findOne({ userId: Auth.userID }, { fields: { loginTime: 1 } });
 
   const openPanel = Session.get('openPanel');
   let idChatOpen = Session.get('idChatOpen');
@@ -28,9 +42,7 @@ export default withTracker(() => {
   return {
     audioAlertDisabled: !AppSettings.chatAudioAlerts,
     pushAlertDisabled: !AppSettings.chatPushAlerts,
-    activeChats,
-    publicUserId: Meteor.settings.public.chat.public_group_id,
-    joinTimestamp: loginTime,
+    publicChatId: Meteor.settings.public.chat.public_group_id,
     idChatOpen,
   };
 })(memo(ChatAlertContainer));

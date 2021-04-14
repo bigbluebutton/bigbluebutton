@@ -6,6 +6,7 @@ import VideoService from '../service';
 import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles';
 import { validIOSVersion } from '/imports/ui/components/app/service';
+import { debounce } from 'lodash';
 
 const intlMessages = defineMessages({
   joinVideo: {
@@ -15,10 +16,6 @@ const intlMessages = defineMessages({
   leaveVideo: {
     id: 'app.video.leaveVideo',
     description: 'Leave video button label',
-  },
-  videoButtonDesc: {
-    id: 'app.video.videoButtonDesc',
-    description: 'video button description',
   },
   videoLocked: {
     id: 'app.video.videoLocked',
@@ -42,6 +39,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const JOIN_VIDEO_DELAY_MILLISECONDS = 500;
+
 const propTypes = {
   intl: PropTypes.object.isRequired,
   hasVideoStream: PropTypes.bool.isRequired,
@@ -56,7 +55,7 @@ const JoinVideoButton = ({
 }) => {
   const exitVideo = () => hasVideoStream && !VideoService.isMultipleCamerasEnabled();
 
-  const handleOnClick = () => {
+  const handleOnClick = debounce(() => {
     if (!validIOSVersion()) {
       return VideoService.notify(intl.formatMessage(intlMessages.iOSWarning));
     }
@@ -66,20 +65,21 @@ const JoinVideoButton = ({
     } else {
       mountVideoPreview();
     }
-  };
+  }, JOIN_VIDEO_DELAY_MILLISECONDS);
 
-  const label = exitVideo()
+  let label = exitVideo()
     ? intl.formatMessage(intlMessages.leaveVideo)
     : intl.formatMessage(intlMessages.joinVideo);
 
+  if (disableReason) label = intl.formatMessage(intlMessages[disableReason]);
+
   return (
     <Button
-      data-test="joinVideo"
-      label={disableReason ? intl.formatMessage(intlMessages[disableReason]) : label}
-      className={cx(styles.button, hasVideoStream || styles.btn)}
+      label={label}
+      data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
+      className={cx(hasVideoStream || styles.btn)}
       onClick={handleOnClick}
       hideLabel
-      aria-label={intl.formatMessage(intlMessages.videoButtonDesc)}
       color={hasVideoStream ? 'primary' : 'default'}
       icon={hasVideoStream ? 'video' : 'video_off'}
       ghost={!hasVideoStream}

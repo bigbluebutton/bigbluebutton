@@ -12,6 +12,7 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
+import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
 import cx from 'classnames';
 import { styles } from '../styles';
 
@@ -75,6 +76,14 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.stopShareExternalVideo',
     description: 'Stop sharing external video button',
   },
+  selectRandUserLabel: {
+    id: 'app.actionsBar.actionsDropdown.selectRandUserLabel',
+    description: 'Label for selecting a random user',
+  },
+  selectRandUserDesc: {
+    id: 'app.actionsBar.actionsDropdown.selectRandUserDesc',
+    description: 'Description for select random user option',
+  },
 });
 
 const handlePresentationClick = () => Session.set('showUploadPresentationView', true);
@@ -86,6 +95,7 @@ class ActionsDropdown extends PureComponent {
     this.presentationItemId = _.uniqueId('action-item-');
     this.pollId = _.uniqueId('action-item-');
     this.takePresenterId = _.uniqueId('action-item-');
+    this.selectUserRandId = _.uniqueId('action-item-');
 
     this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
     this.makePresentationItems = this.makePresentationItems.bind(this);
@@ -107,7 +117,9 @@ class ActionsDropdown extends PureComponent {
       handleTakePresenter,
       isSharingVideo,
       isPollingEnabled,
+      isSelectRandomUserEnabled,
       stopExternalVideoShare,
+      mountModal,
     } = this.props;
 
     const {
@@ -177,6 +189,17 @@ class ActionsDropdown extends PureComponent {
           />
         )
         : null),
+      (amIPresenter && isSelectRandomUserEnabled
+        ? (
+          <DropdownListItem
+            icon="user"
+            label={intl.formatMessage(intlMessages.selectRandUserLabel)}
+            description={intl.formatMessage(intlMessages.selectRandUserDesc)}
+            key={this.selectUserRandId}
+            onClick={() => mountModal(<RandomUserSelectContainer isSelectedUser={false} />)}
+          />
+        )
+        : null),
     ]);
   }
 
@@ -193,24 +216,26 @@ class ActionsDropdown extends PureComponent {
     // about the first one because it's the default.
     const { podId } = podIds[0];
 
-    const presentationItemElements = presentations.map((p) => {
-      const itemStyles = {};
-      itemStyles[styles.presentationItem] = true;
-      itemStyles[styles.isCurrent] = p.current;
+    const presentationItemElements = presentations
+      .sort((a, b) => (a.name.localeCompare(b.name)))
+      .map((p) => {
+        const itemStyles = {};
+        itemStyles[styles.presentationItem] = true;
+        itemStyles[styles.isCurrent] = p.current;
 
-      return (<DropdownListItem
-        className={cx(itemStyles)}
-        icon="file"
-        iconRight={p.current ? 'check' : null}
-        label={p.name}
-        description="uploaded presentation file"
-        key={`uploaded-presentation-${p.id}`}
-        onClick={() => {
-          setPresentation(p.id, podId);
-        }}
-      />
-      );
-    });
+        return (<DropdownListItem
+          className={cx(itemStyles)}
+          icon="file"
+          iconRight={p.current ? 'check' : null}
+          label={p.name}
+          description="uploaded presentation file"
+          key={`uploaded-presentation-${p.id}`}
+          onClick={() => {
+            setPresentation(p.id, podId);
+          }}
+        />
+        );
+      });
 
     presentationItemElements.push(<DropdownListSeparator key={_.uniqueId('list-separator-')} />);
     return presentationItemElements;
@@ -242,7 +267,7 @@ class ActionsDropdown extends PureComponent {
     }
 
     return (
-      <Dropdown ref={(ref) => { this._dropdown = ref; }}>
+      <Dropdown className={styles.dropdown} ref={(ref) => { this._dropdown = ref; }}>
         <DropdownTrigger tabIndex={0} accessKey={OPEN_ACTIONS_AK}>
           <Button
             hideLabel
@@ -256,7 +281,7 @@ class ActionsDropdown extends PureComponent {
           />
         </DropdownTrigger>
         <DropdownContent placement="top left">
-          <DropdownList>
+          <DropdownList className={styles.scrollableList}>
             {children}
           </DropdownList>
         </DropdownContent>

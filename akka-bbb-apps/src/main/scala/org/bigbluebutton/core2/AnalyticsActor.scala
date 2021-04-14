@@ -120,6 +120,8 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: PresentationConversionUpdateEvtMsgBody => logMessage(msg)
       case m: PresentationPageCountErrorSysPubMsg => logMessage(msg)
       case m: PresentationPageCountErrorEvtMsg => logMessage(msg)
+      case m: PresentationUploadedFileTooLargeErrorSysPubMsg => logMessage(msg)
+      case m: PresentationUploadedFileTooLargeErrorEvtMsg => logMessage(msg)
 
       // Group Chats
       case m: SendGroupChatMessageMsg => logMessage(msg)
@@ -139,6 +141,8 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: GuestsWaitingForApprovalEvtMsg => logMessage(msg)
       case m: SetGuestPolicyCmdMsg => logMessage(msg)
       case m: GuestPolicyChangedEvtMsg => logMessage(msg)
+      case m: SetGuestLobbyMessageCmdMsg => logMessage(msg)
+      case m: GuestLobbyMessageChangedEvtMsg => logMessage(msg)
 
       // System
       case m: ClientToServerLatencyTracerMsg => traceMessage(msg)

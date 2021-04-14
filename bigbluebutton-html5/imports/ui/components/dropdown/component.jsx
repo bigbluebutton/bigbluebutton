@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
-import { isMobile } from 'react-device-detect';
 import TetherComponent from 'react-tether';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/button/component';
 import screenreaderTrap from 'makeup-screenreader-trap';
 import { styles } from './styles';
@@ -78,7 +78,7 @@ const targetAttachments = {
 class Dropdown extends Component {
   constructor(props) {
     super(props);
-    this.state = { isOpen: false };
+    this.state = { isOpen: false, isPortrait:deviceInfo.isPortrait() };
     this.handleShow = this.handleShow.bind(this);
     this.handleHide = this.handleHide.bind(this);
     this.handleToggle = this.handleToggle.bind(this);
@@ -129,6 +129,17 @@ class Dropdown extends Component {
     });
   }
 
+  componentDidMount() {
+    window.addEventListener('resize', this.updateOrientation);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.updateOrientation);
+  }
+
+  updateOrientation = () => {
+    this.setState({ isPortrait:deviceInfo.isPortrait() });
+  };
+
   handleWindowClick(event) {
     const { keepOpen, onHide } = this.props;
     const { isOpen } = this.state;
@@ -161,7 +172,7 @@ class Dropdown extends Component {
       if (parentElement) parentElement.focus();
     }
 
-    if (keepOpen !== null) return;
+    if (keepOpen === true) return;
     this.handleHide();
   }
 
@@ -182,10 +193,10 @@ class Dropdown extends Component {
       ...otherProps
     } = this.props;
 
-    const { isOpen } = this.state;
-    
+    const { isOpen, isPortrait } = this.state;
+    const { isPhone } = deviceInfo;
     const placements = placement && placement.replace(' ', '-');
-    const test = isMobile ? {
+    const test = isPhone && isPortrait ? {
       width: '100%',
       height: '100%',
       transform: 'translateY(0)',
@@ -233,19 +244,19 @@ class Dropdown extends Component {
         tabIndex={-1}
       >
         {
-          tethered ?
-            (
+          tethered
+            ? (
               <TetherComponent
                 style={{
-                  zIndex: isOpen ? 15 : '',
+                  zIndex: isOpen ? 15 : -1,
                   ...test,
                 }}
                 attachment={
-                  isMobile ? 'middle bottom'
+                  isPhone && isPortrait ? 'middle center'
                     : attachments[placements]
                 }
                 targetAttachment={
-                  isMobile ? ''
+                  isPhone && isPortrait ? 'auto auto'
                     : targetAttachments[placements]
                 }
                 constraints={[

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { IntlProvider, FormattedMessage, addLocaleData } from 'react-intl';
-import { browserName } from 'react-device-detect';
+import { IntlProvider, FormattedMessage } from 'react-intl';
+import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
 import './styles.css';
 
 
@@ -68,17 +69,18 @@ import './styles.css';
 const FETCHING = 'fetching';
 const FALLBACK = 'fallback';
 const READY = 'ready';
-const supportedBrowsers = ['chrome', 'firefox', 'safari', 'opera', 'edge'];
+const supportedBrowsers = ['Chrome', 'Firefox', 'Safari', 'Opera', 'Microsoft Edge', 'Yandex Browser'];
+const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.fallbackLocale;
 
 export default class Legacy extends Component {
   constructor(props) {
     super(props);
 
     const locale = navigator.languages ? navigator.languages[0] : false
-      || navigator.language
-      || Meteor.settings.public.app.defaultSettings.application.fallbackLocale;
+      || navigator.language;
 
-    const url = `/html5client/locale?locale=${locale}`;
+    const url = `./locale?locale=${locale}`;
+    const localesPath = 'locales';
 
     const that = this;
     this.state = { viewState: FETCHING };
@@ -90,9 +92,56 @@ export default class Legacy extends Component {
 
         return response.json();
       })
-      .then(({ messages, normalizedLocale }) => {
-        const dasherizedLocale = normalizedLocale.replace('_', '-');
-        that.setState({ messages, normalizedLocale: dasherizedLocale, viewState: READY });
+      .then(({ normalizedLocale, regionDefaultLocale }) => {
+        fetch(`${localesPath}/${DEFAULT_LANGUAGE}.json`)
+          .then((response) => {
+            if (!response.ok) {
+              return Promise.reject();
+            }
+            return response.json();
+          })
+          .then((messages) => {
+            if (regionDefaultLocale !== '') {
+              fetch(`${localesPath}/${regionDefaultLocale}.json`)
+                .then((response) => {
+                  if (!response.ok) {
+                    return Promise.resolve();
+                  }
+                  return response.json();
+                })
+                .then((regionDefaultMessages) => {
+                  messages = Object.assign(messages, regionDefaultMessages);
+                  this.setState({ messages});
+                });
+            }
+
+            if (normalizedLocale && normalizedLocale !== DEFAULT_LANGUAGE && normalizedLocale !== regionDefaultLocale) {
+              fetch(`${localesPath}/${normalizedLocale}.json`)
+                .then((response) => {
+                  if (!response.ok) {
+                    return Promise.reject();
+                  }
+                  return response.json();
+                })
+                .then((localeMessages) => {
+                  messages = Object.assign(messages, localeMessages);
+                  this.setState({ messages});
+                })
+                .catch(() => {
+                  normalizedLocale = (regionDefaultLocale) || DEFAULT_LANGUAGE;
+                  const dasherizedLocale = normalizedLocale.replace('_', '-');
+                  this.setState({ messages, normalizedLocale: dasherizedLocale, viewState: READY });
+                });
+            }
+            return messages;
+          })
+          .then((messages) => {
+            const dasherizedLocale = normalizedLocale.replace('_', '-');
+            this.setState({ messages, normalizedLocale: dasherizedLocale, viewState: READY });
+          })
+          .catch(() => {
+            that.setState({ viewState: FALLBACK });
+          });
       })
       .catch(() => {
         that.setState({ viewState: FALLBACK });
@@ -100,9 +149,12 @@ export default class Legacy extends Component {
   }
 
   render() {
+    const { browserName, isChrome } = browserInfo;
+    const { isIos } = deviceInfo;
+
     const { messages, normalizedLocale, viewState } = this.state;
     const isSupportedBrowser = supportedBrowsers.includes(browserName);
-    const isChromeIos = browserName === 'crios';
+    const isChromeIos = isIos && isChrome;
 
     let messageId = isSupportedBrowser ? 'app.legacy.upgradeBrowser' : 'app.legacy.unsupportedBrowser';
     if (isChromeIos) messageId = 'app.legacy.criosBrowser';

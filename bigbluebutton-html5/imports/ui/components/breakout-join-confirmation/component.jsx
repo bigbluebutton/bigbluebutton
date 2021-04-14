@@ -6,6 +6,8 @@ import logger from '/imports/startup/client/logger';
 import PropTypes from 'prop-types';
 import AudioService from '../audio/service';
 import VideoService from '../video-provider/service';
+import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
+import UserListService from '/imports/ui/components/user-list/service';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -98,8 +100,8 @@ class BreakoutJoinConfirmation extends Component {
     const urlFromSelectedRoom = getURL(selectValue);
     const url = isFreeJoin ? urlFromSelectedRoom : breakoutURL;
 
+    // leave main room's audio, and stops video and screenshare when joining a breakout room
     if (voiceUserJoined) {
-      // leave main room's audio when joining a breakout room
       AudioService.exitAudio();
       logger.info({
         logCode: 'breakoutjoinconfirmation_ended_audio',
@@ -107,7 +109,9 @@ class BreakoutJoinConfirmation extends Component {
       }, 'joining breakout room closed audio in the main room');
     }
 
+    VideoService.storeDeviceIds();
     VideoService.exitVideo();
+    if (UserListService.amIPresenter()) screenshareHasEnded();
     if (url === '') {
       logger.error({
         logCode: 'breakoutjoinconfirmation_redirecting_to_url',
