@@ -1,6 +1,5 @@
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
-import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import GroupChat from '/imports/api/group-chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
@@ -17,7 +16,6 @@ const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
-const PRIVATE_CHAT_TYPE = CHAT_CONFIG.type_private;
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -109,76 +107,11 @@ const reduceGroupMessages = (previous, current) => {
   return previous.concat(currentMessage);
 };
 
-const getChatMessages = (chatId) => {
-  return []
-  if (chatId === PUBLIC_CHAT_ID) {
-    return GroupChatMsg.find({
-      meetingId: Auth.meetingID,
-      chatId: PUBLIC_GROUP_CHAT_ID,
-
-    }, { sort: ['timestamp'] }).fetch();
-  }
-  const senderId = Auth.userID;
-
-  const privateChat = GroupChat.findOne({
-    meetingId: Auth.meetingID,
-    users: { $all: [chatId, senderId] },
-    access: PRIVATE_CHAT_TYPE,
-  });
-
-  if (privateChat) {
-    const {
-      chatId: id,
-    } = privateChat;
-
-    return GroupChatMsg.find({
-      meetingId: Auth.meetingID,
-      chatId: id,
-    }, { sort: ['timestamp'] }).fetch();
-  }
-};
-
 const reduceAndMapGroupMessages = messages => (messages
   .reduce(reduceGroupMessages, []).map(mapGroupMessage));
 
 const reduceAndDontMapGroupMessages = messages => (messages
   .reduce(reduceGroupMessages, []));
-
-const getPublicGroupMessages = () => {
-  return [];
-  const publicGroupMessages = GroupChatMsg.find({
-    meetingId: Auth.meetingID,
-    chatId: PUBLIC_GROUP_CHAT_ID,
-  }, { sort: ['timestamp'] }).fetch();
-  return publicGroupMessages;
-};
-
-const getPrivateGroupMessages = () => {
-  return [];
-  const chatID = Session.get('idChatOpen');
-  const senderId = Auth.userID;
-
-  const privateChat = GroupChat.findOne({
-    meetingId: Auth.meetingID,
-    users: { $all: [chatID, senderId] },
-    access: PRIVATE_CHAT_TYPE,
-  });
-
-  let messages = [];
-
-  if (privateChat) {
-    const {
-      chatId,
-    } = privateChat;
-
-    messages = GroupChatMsg.find({
-      meetingId: Auth.meetingID,
-      chatId,
-    }, { sort: ['timestamp'] }).fetch();
-  }
-
-  return reduceAndDontMapGroupMessages(messages, []);
-};
 
 const isChatLocked = (receiverID) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
@@ -331,35 +264,23 @@ const exportChat = (timeWindowList, users, intl) => {
   return messageList.join('\n');
 }
 
-
-
-const getAllMessages = (chatID) => {
-  return [];
-  const filter = {
-    'sender.id': { $ne: Auth.userID },
-  };
-  if (chatID === PUBLIC_GROUP_CHAT_ID) {
-    filter.chatId = { $eq: chatID };
-  } else {
-    const privateChat = GroupChat.findOne({ users: { $all: [chatID, Auth.userID] } });
-
-    filter.chatId = { $ne: PUBLIC_GROUP_CHAT_ID };
-
-    if (privateChat) {
-      filter.chatId = privateChat.chatId;
-    }
+const getAllMessages = (chatID, messages) => {
+  if(!messages[chatID]){
+    return [];
   }
-  const messages = GroupChatMsg.find(filter).fetch();
-  return messages;
+
+  return (chatID === PUBLIC_GROUP_CHAT_ID)
+  ? Object.values(messages[chatID].posJoinMessages)
+  : Object.values(messages[chatID].messageGroups)
 };
 
 const maxTimestampReducer = (max, el) => ((el.timestamp > max) ? el.timestamp : max);
 
 const maxNumberReducer = (max, el) => ((el > max) ? el : max);
 
-const getLastMessageTimestampFromChatList = activeChats => activeChats
-  .map(chat => ((chat.userId === 'public') ? 'MAIN-PUBLIC-GROUP-CHAT' : chat.userId))
-  .map(chatId => getAllMessages(chatId).reduce(maxTimestampReducer, 0))
+const getLastMessageTimestampFromChatList = (activeChats, messages) => activeChats
+  .map((chat) => ((chat.userId === 'public') ? 'MAIN-PUBLIC-GROUP-CHAT' : chat.chatId))
+  .map((chatId) => getAllMessages(chatId, messages).reduce(maxTimestampReducer, 0))
   .reduce(maxNumberReducer, 0);
 
 const removePackagedClassAttribute = (classnames, attribute) => {
@@ -378,9 +299,6 @@ export default {
   mapGroupMessage,
   reduceAndMapGroupMessages,
   reduceAndDontMapGroupMessages,
-  getChatMessages,
-  getPublicGroupMessages,
-  getPrivateGroupMessages,
   getUser,
   getPrivateChatByUsers,
   getWelcomeProp,
