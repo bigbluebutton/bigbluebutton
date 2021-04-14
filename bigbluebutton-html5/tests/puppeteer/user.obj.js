@@ -36,7 +36,7 @@ const userTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 1.08,
+        failureThreshold: 2.0,
         failureThresholdType: 'percent',
       });
     }
@@ -65,7 +65,7 @@ const userTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 1.08,
+        failureThreshold: 2.0,
         failureThresholdType: 'percent',
       });
     }
@@ -97,7 +97,7 @@ const userTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 19.93,
+        failureThreshold: 2.0,
         failureThresholdType: 'percent',
       });
     }
@@ -126,7 +126,7 @@ const userTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 19.93,
+        failureThreshold: 2.0,
         failureThresholdType: 'percent',
       });
     }
@@ -155,7 +155,7 @@ const userTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 19.93,
+        failureThreshold: 2.0,
         failureThresholdType: 'percent',
       });
     }
@@ -184,7 +184,7 @@ const userTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 19.93,
+        failureThreshold: 2.0,
         failureThresholdType: 'percent',
       });
     }
@@ -213,7 +213,7 @@ const userTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 19.93,
+        failureThreshold: 2.0,
         failureThresholdType: 'percent',
       });
     }
@@ -242,7 +242,7 @@ const userTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 19.93,
+        failureThreshold: 2.0,
         failureThresholdType: 'percent',
       });
     }
@@ -276,7 +276,7 @@ const userTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 19.93,
+        failureThreshold: 2.0,
         failureThresholdType: 'percent',
       });
     }
@@ -308,7 +308,7 @@ const userTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 19.93,
+        failureThreshold: 2.0,
         failureThresholdType: 'percent',
       });
     }
@@ -340,7 +340,7 @@ const userTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 19.93,
+        failureThreshold: 2.0,
         failureThresholdType: 'percent',
       });
     }
@@ -372,7 +372,7 @@ const userTest = () => {
     expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 19.93,
+        failureThreshold: 2.0,
         failureThresholdType: 'percent',
       });
     }
