@@ -22,7 +22,7 @@
 	     value is one or more of debug,info,notice,warning,err,crit,alert,all
 	     Please see comments in console.conf.xml for more information
 	-->
-	<map name="all" value="console,debug,info,notice,warning,err,crit,alert"/>
+	<map name="all" value="info,notice,warning,err,crit,alert"/>
       </mappings>
     </profile>
   </profiles>
