@@ -5,12 +5,12 @@ const fs = require('fs');
 const fsExtra = require('fs-extra');
 const moment = require('moment');
 const path = require('path');
+const PuppeteerVideoRecorder = require('puppeteer-video-recorder');
 const helper = require('./helper');
 const params = require('../params');
-const { ELEMENT_WAIT_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_TIME } = require('./constants');
 const e = require('./elements');
 const ue = require('../user/elements');
-const PuppeteerVideoRecorder = require('puppeteer-video-recorder');
 const { NETWORK_PRESETS, USER_AGENTS, MOBILE_DEVICES } = require('./profiles');
 
 class Page {
@@ -540,7 +540,7 @@ class Page {
       const users = collection.default._collection.find({}, {}, {}, {}, {}, { loggedOut: 'false' }).count();
       return users;
     });
-    const totalNumberOfUsersDom = await this.page.evaluate(() => document.querySelectorAll('[data-test^="userListItem"]').length);
+    const totalNumberOfUsersDom = await this.page.evaluate(async () => await document.querySelectorAll('[data-test^="userListItem"]').length);
     this.logger({ totalNumberOfUsersDom, totalNumberOfUsersMongo });
     const metric = await this.page.metrics();
     pageMetricsObj.totalNumberOfUsersMongoObj = totalNumberOfUsersMongo;

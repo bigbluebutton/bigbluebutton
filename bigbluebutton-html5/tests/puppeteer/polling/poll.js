@@ -7,9 +7,12 @@ class Polling extends Page {
     super('polling-test');
   }
 
-  async test() {
+  async test(testName) {
     try {
       await utilNotification.startPoll(this);
+      if (process.env.GENERATE_EVIDENCES === 'true') {
+        await this.screenshot(`${testName}`, `01-before-chat-message-send-[${this.meetingId}]`);
+      }
       const resp = this.page.evaluate(() => document.querySelectorAll('[data-test="pollMenuButton"]').length === 1);
       return resp;
     } catch (e) {
