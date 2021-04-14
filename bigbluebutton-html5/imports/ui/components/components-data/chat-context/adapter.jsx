@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import _ from 'lodash';
-import { ChatContext, ACTIONS } from './context';
+import { ChatContext, ACTIONS, MESSAGE_TYPES } from './context';
 import { UsersContext } from '../users-context/context';
 import { makeCall } from '/imports/ui/services/api';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
@@ -12,6 +12,7 @@ let messageQueue = [];
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const ITENS_PER_PAGE = CHAT_CONFIG.itemsPerPage;
 const TIME_BETWEEN_FETCHS = CHAT_CONFIG.timeBetweenFetchs;
+const EVENT_NAME = 'bbb-group-chat-messages-subscription-has-stoppped';
 
 const getMessagesBeforeJoinCounter = async () => {
   const counter = await makeCall('chatMessageBeforeJoinCounter');
@@ -34,6 +35,7 @@ const startSyncMessagesbeforeJoin = async (dispatch) => {
       dispatch({
         type: ACTIONS.ADDED,
         value: messagesFromPage,
+        messageType: MESSAGE_TYPES.HISTORY,
       });
       dispatch({
         type: ACTIONS.SYNC_STATUS,
@@ -58,6 +60,14 @@ const Adapter = () => {
   const { users } = usingUsersContext;
   const [syncStarted, setSync] = useState(true);
   ChatLogger.trace('chatAdapter::body::users', users);
+
+  useEffect(() => {
+    window.addEventListener(EVENT_NAME, () => {
+      dispatch({
+        type: ACTIONS.CLEAR_STREAM_MESSAGES,
+      });
+    });
+  }, []);
 
   useEffect(() => {
     const connectionStatus = Meteor.status();
@@ -85,6 +95,7 @@ const Adapter = () => {
       dispatch({
         type: ACTIONS.ADDED,
         value: dispatchedMessageQueue,
+        messageType: MESSAGE_TYPES.STREAM,
       });
     }, 1000, { trailing: true, leading: true });
 
@@ -92,15 +103,17 @@ const Adapter = () => {
       if (msg.data.indexOf('{"msg":"added","collection":"group-chat-msg"') != -1) {
         const parsedMsg = JSON.parse(msg.data);
         if (parsedMsg.msg === 'added') {
-          messageQueue.push(parsedMsg.fields);
+          const { fields } = parsedMsg;
+          if (fields.id === 'SYSTEM_MESSAGE-PUBLIC_CHAT_CLEAR') {
+            messageQueue = [];
+            dispatch({
+              type: ACTIONS.REMOVED,
+            });
+          }
+
+          messageQueue.push(fields);
           throttledDispatch();
         }
-      }
-      if (msg.data.indexOf('{"msg":"removed","collection":"group-chat-msg"') != -1) {
-        messageQueue = [];
-        dispatch({
-          type: ACTIONS.REMOVED,
-        });
       }
     });
   }, [Meteor.status().connected, Meteor.connection._lastSessionId]);
