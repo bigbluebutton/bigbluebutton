@@ -23,7 +23,6 @@ const intlMessages = defineMessages({
 });
 
 class WaitingUsers extends PureComponent {
-
   static toggleWaitingPanel() {
     Session.set(
       'openPanel',
@@ -49,9 +48,10 @@ class WaitingUsers extends PureComponent {
         <div className={styles.scrollableList}>
           <div className={styles.list}>
             <div
-              role='button'
+              role="button"
               tabIndex={0}
               className={styles.listItem}
+              data-test="waitingUsersBtn"
               onClick={WaitingUsers.toggleWaitingPanel}
             >
               <Icon iconName="user" />
