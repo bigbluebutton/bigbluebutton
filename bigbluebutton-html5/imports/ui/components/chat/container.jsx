@@ -78,6 +78,8 @@ const ChatContainer = (props) => {
     intl,
     userLocks,
     lockSettings,
+    isChatLockedPublic,
+    isChatLockedPrivate,
     users: propUsers,
     ...restProps
   } = props;
@@ -127,9 +129,13 @@ const ChatContainer = (props) => {
 
   let partnerIsLoggedOut = false;
 
+  let isChatLocked;
   if(!isPublicChat){
     const idUser = participants?.filter((user) => user.id !== Auth.userID)[0]?.id;
     partnerIsLoggedOut = (users[idUser]?.loggedOut || users[idUser]?.ejected) ? true : false;
+    isChatLocked = isChatLockedPrivate && !(users[idUser]?.role === ROLE_MODERATOR);
+  } else {
+    isChatLocked = isChatLockedPublic;
   }
 
   if (unmounting === true) {
@@ -210,6 +216,7 @@ const ChatContainer = (props) => {
   return (
     <Chat {...{
       ...restProps,
+      isChatLocked,
       chatID,
       amIModerator,
       count: (contextChat?.unreadTimeWindows.size || 0),
@@ -236,15 +243,16 @@ export default lockContextContainer(injectIntl(withTracker(({ intl, userLocks })
     };
   }
 
-  const isChatLocked = (userLocks.userPrivateChat && chatID !== PUBLIC_CHAT_KEY)
-    || (userLocks.userPublicChat && chatID === PUBLIC_CHAT_KEY);
+  const isChatLockedPublic = userLocks.userPublicChat;
+  const isChatLockedPrivate = userLocks.userPrivateChat;
 
   const { connected: isMeteorConnected } = Meteor.status();
 
   return {
     chatID,
     intl,
-    isChatLocked,
+    isChatLockedPublic,
+    isChatLockedPrivate,
     isMeteorConnected,
     meetingIsBreakout: meetingIsBreakout(),
     loginTime: getLoginTime(),
