@@ -3,6 +3,7 @@ import TimeWindowChatItem from './component';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import ChatService from '../../service';
+import Auth from '/imports/ui/services/auth';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
@@ -41,7 +42,7 @@ export default function TimeWindowChatItemContainer(props) {
     content,
   } = message;
   const messages = content;
-  const user = users[sender];
+  const user = users[Auth.meetingID][sender];
   const messageKey = key;
   return (
     <TimeWindowChatItem

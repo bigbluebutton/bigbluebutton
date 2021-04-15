@@ -14,7 +14,7 @@ const ChatAlertContainer = (props) => {
   const usingGroupChatContext = useContext(GroupChatContext);
 
   const { users } = usingUsersContext;
-  const currentUser = users[Auth.userID];
+  const currentUser = users[Auth.meetingID][Auth.userID];
   const { authTokenValidatedTime } = currentUser;
   const { chats: groupChatsMessages } = usingChatContext;
   const { groupChat: groupChats } = usingGroupChatContext;

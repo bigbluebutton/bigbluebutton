@@ -32,9 +32,9 @@ const NavBarContainer = ({ children, ...props }) => {
   const { chats: groupChatsMessages } = usingChatContext;
   const { users } = usingUsersContext;
   const { groupChat: groupChats } = usingGroupChatContext;
-  const hasUnreadMessages = checkUnreadMessages({ groupChatsMessages, groupChats, users });
+  const hasUnreadMessages = checkUnreadMessages({ groupChatsMessages, groupChats, users:users[Auth.meetingID] });
 
-  const currentUser = users[Auth.userID];
+  const currentUser = users[Auth.meetingID][Auth.userID];
   const amIModerator = currentUser.role === ROLE_MODERATOR;
 
   return (

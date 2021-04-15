@@ -17,7 +17,7 @@ const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 const PresentationAreaContainer = ({ presentationPodIds, mountPresentationArea, ...props }) => {
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
-  const currentUser = users[Auth.userID];
+  const currentUser = users[Auth.meetingID][Auth.userID];
   return mountPresentationArea
     && (
       <PresentationArea

@@ -59,7 +59,7 @@ const Adapter = () => {
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
   const [syncStarted, setSync] = useState(true);
-  ChatLogger.trace('chatAdapter::body::users', users);
+  ChatLogger.trace('chatAdapter::body::users', users[Auth.meetingID]);
 
   useEffect(() => {
     window.addEventListener(EVENT_NAME, () => {
@@ -80,7 +80,7 @@ const Adapter = () => {
 
 
   useEffect(() => {
-    usersData = users;
+    usersData = users[Auth.meetingID];
   }, [usingUsersContext]);
 
   useEffect(() => {
