@@ -730,6 +730,8 @@
     "app.whiteboard.toolbar.clear": "Clear all annotations",
     "app.whiteboard.toolbar.multiUserOn": "Turn multi-user whiteboard on",
     "app.whiteboard.toolbar.multiUserOff": "Turn multi-user whiteboard off",
+    "app.whiteboard.toolbar.palmRejectionOn": "Turn palm rejection on",
+    "app.whiteboard.toolbar.palmRejectionOff": "Turn palm rejection off",
     "app.whiteboard.toolbar.fontSize": "Font size list",
     "app.feedback.title": "You have logged out of the conference",
     "app.feedback.subtitle": "We'd love to hear about your experience with BigBlueButton (optional)",
