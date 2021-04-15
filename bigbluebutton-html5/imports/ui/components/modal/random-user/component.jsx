@@ -53,24 +53,24 @@ class RandomUserSelect extends Component {
     if (props.currentUser.presenter) {
       props.randomUserReq();
     }
-    
+
     this.state = {
       count: 0,
     };
-    
+
     this.play = this.play.bind(this);
   }
 
   iterateSelection() {
-    if (this.props.mappedRandomlySelectedUsers.length > 1){
-      let that = this;
+    if (this.props.mappedRandomlySelectedUsers.length > 1) {
+      const that = this;
       setTimeout(delay(that.props.mappedRandomlySelectedUsers, 1), that.props.mappedRandomlySelectedUsers[1][1]);
       function delay(arr, num) {
         that.setState({
           count: num,
         });
-        if (num < that.props.mappedRandomlySelectedUsers.length-1){
-          setTimeout(function() { delay(arr, num+1); }, arr[num+1][1]);
+        if (num < that.props.mappedRandomlySelectedUsers.length - 1) {
+          setTimeout(() => { delay(arr, num + 1); }, arr[num + 1][1]);
         }
       }
     }
@@ -95,7 +95,6 @@ class RandomUserSelect extends Component {
       + '/resources/sounds/Poll.mp3');
   }
 
-
   reselect() {
     this.setState({
       count: 0,
@@ -114,19 +113,19 @@ class RandomUserSelect extends Component {
       mappedRandomlySelectedUsers,
     } = this.props;
 
-    if (mappedRandomlySelectedUsers.length < this.state.count+1) return null;
+    if (mappedRandomlySelectedUsers.length < this.state.count + 1) return null;
 
     const selectedUser = mappedRandomlySelectedUsers[this.state.count][0];
-    const countDown = mappedRandomlySelectedUsers.length - this.state.count -1;
-    
+    const countDown = mappedRandomlySelectedUsers.length - this.state.count - 1;
+
     this.play();
-    
+
     let viewElement;
 
     const amISelectedUser = currentUser.userId === selectedUser.userId;
     if (numAvailableViewers < 1 || (currentUser.presenter && amISelectedUser)) { // there's no viewers to select from,
-                                   //or when you are the presenter but selected, which happens when the presenter ability is passed to somebody
-                                   // and people are entering and leaving the meeting
+      // or when you are the presenter but selected, which happens when the presenter ability is passed to somebody
+      // and people are entering and leaving the meeting
       // display modal informing presenter that there's no viewers to select from
       viewElement = (
         <div className={styles.modalViewContainer}>
@@ -141,18 +140,15 @@ class RandomUserSelect extends Component {
 
       // display modal with random user selection
       viewElement = (
-        <div className={countDown == 0
-                         ? styles.modalViewFinalContainer
-                         : styles.modalViewContainer}>
+        <div className={styles.modalViewContainer}>
           <div className={styles.modalViewTitle}>
             {countDown == 0
               ? amISelectedUser
-                 ? `${intl.formatMessage(messages.selected)}`
-                 : numAvailableViewers == 1 && currentUser.presenter
-                    ? `${intl.formatMessage(messages.onlyOneViewerTobeSelected)}`
-                    : `${intl.formatMessage(messages.randUserTitle)}`
-              : `${intl.formatMessage(messages.whollbeSelected)} ${countDown}`
-            }
+                ? `${intl.formatMessage(messages.selected)}`
+                : numAvailableViewers == 1 && currentUser.presenter
+                  ? `${intl.formatMessage(messages.onlyOneViewerTobeSelected)}`
+                  : `${intl.formatMessage(messages.randUserTitle)}`
+              : `${intl.formatMessage(messages.whollbeSelected)} ${countDown}`}
           </div>
           <div aria-hidden className={styles.modalAvatar} style={{ backgroundColor: `${selectedUser.color}` }}>
             {selectedUser.name.slice(0, 2)}
@@ -170,8 +166,7 @@ class RandomUserSelect extends Component {
               className={styles.selectBtn}
               onClick={() => this.reselect()}
             />
-            )
-          }
+            )}
         </div>
       );
     }
