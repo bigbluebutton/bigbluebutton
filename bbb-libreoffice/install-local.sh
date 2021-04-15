@@ -37,6 +37,8 @@ if [ "$FOLDER_CHECK" = "0" ]; then
 	mkdir -m 755 /usr/share/bbb-libreoffice-conversion/
 	cp assets/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert.sh
 	chmod 755 /usr/share/bbb-libreoffice-conversion/convert.sh
+	cp assets/etherpad-export.sh /usr/share/bbb-libreoffice-conversion/etherpad-export.sh
+	chmod 755 /usr/share/bbb-libreoffice-conversion/etherpad-export.sh
 	chown -R root /usr/share/bbb-libreoffice-conversion/
 else
 	echo "Install folder already exists"
