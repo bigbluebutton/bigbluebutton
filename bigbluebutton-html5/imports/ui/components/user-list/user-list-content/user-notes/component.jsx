@@ -27,7 +27,7 @@ const intlMessages = defineMessages({
     description: 'Aria label for notes unread content',
   },
   locked: {
-    id: 'app.userList.locked',
+    id: 'app.note.locked',
     description: '',
   },
   byModerator: {
