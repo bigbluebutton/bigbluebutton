@@ -67,6 +67,9 @@ class AudioManager {
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.monitor = this.monitor.bind(this);
 
+    this._inputStream = null;
+    this._inputStreamTracker = new Tracker.Dependency();
+
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
   }
 
@@ -335,6 +338,7 @@ class AudioManager {
       window.parent.postMessage({ response: 'joinedAudio' }, '*');
       this.notify(this.intl.formatMessage(this.messages.info.JOINED_AUDIO));
       logger.info({ logCode: 'audio_joined' }, 'Audio Joined');
+      this.inputStream = (this.bridge ? this.bridge.inputStream : null);
       if (STATS.enabled) this.monitor();
       this.audioEventHandler({
         name: 'started',
@@ -356,7 +360,8 @@ class AudioManager {
     this.failedMediaElements = [];
 
     if (this.inputStream) {
-      this.inputStream.getTracks().forEach(track => track.stop());
+      this.inputStream.getTracks().forEach((track) => track.stop());
+      this.inputStream = null;
       this.inputDevice = { id: 'default' };
     }
 
@@ -497,11 +502,13 @@ class AudioManager {
   }
 
   liveChangeInputDevice(deviceId) {
-    const handleChangeInputDeviceSuccess = (inputDevice) => {
-      this.inputDevice = inputDevice;
-      return Promise.resolve(inputDevice);
-    };
-    this.bridge.liveChangeInputDevice(deviceId).then(handleChangeInputDeviceSuccess);
+    // we force stream to be null, so MutedAlert will deallocate it and
+    // a new one will be created for the new stream
+    this.inputStream = null;
+    this.bridge.liveChangeInputDevice(deviceId).then((stream) => {
+      this.setSenderTrackEnabled(!this.isMuted);
+      this.inputStream = stream;
+    });
   }
 
   async changeOutputDevice(deviceId, isLive) {
@@ -516,8 +523,19 @@ class AudioManager {
   }
 
   get inputStream() {
-    this._inputDevice.tracker.depend();
-    return (this.bridge ? this.bridge.inputStream : null);
+    this._inputStreamTracker.depend();
+    return this._inputStream;
+  }
+
+  set inputStream(stream) {
+    // We store reactive information about input stream
+    // because mutedalert component needs to track when it changes
+    // and then update hark with the new value for inputStream
+    if (this._inputStream !== stream) {
+      this._inputStreamTracker.changed();
+    }
+
+    this._inputStream = stream;
   }
 
   get inputDevice() {

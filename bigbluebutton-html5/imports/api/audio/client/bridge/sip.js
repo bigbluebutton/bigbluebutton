@@ -119,28 +119,69 @@ class SIPSession {
     return matchConstraints;
   }
 
-  setInputStream(stream) {
-    if (!this.currentSession
-      || !this.currentSession.sessionDescriptionHandler
-    ) return;
+  /**
+   * Set the input stream for the peer that represents the current session.
+   * Internally, this will call the sender's replaceTrack function.
+   * @param  {MediaStream}  stream The MediaStream object to be used as input
+   *                               stream
+   * @return {Promise}            A Promise that is resolved with the
+   *                              MediaStream object that was set.
+   */
+  async setInputStream(stream) {
+    try {
+      if (!this.currentSession
+        || !this.currentSession.sessionDescriptionHandler
+      ) return null;
 
+      await this.currentSession.sessionDescriptionHandler
+        .setLocalMediaStream(stream);
 
-    this.currentSession.sessionDescriptionHandler.setLocalMediaStream(stream);
+      return stream;
+    } catch (error) {
+      logger.warn({
+        logCode: 'sip_js_setinputstream_error',
+        extraInfo: {
+          errorCode: error.code,
+          errorMessage: error.message,
+          callerIdName: this.user.callerIdName,
+        },
+      }, 'Failed to set input stream (mic)');
+      return null;
+    }
   }
 
+  /**
+   * Change the input device with the given deviceId, without renegotiating
+   * peer.
+   * A new MediaStream object is created for the given deviceId. This object
+   * is returned by the resolved promise.
+   * @param  {String}  deviceId The id of the device to be set as input
+   * @return {Promise}          A promise that is resolved with the MediaStream
+   *                            object after changing the input device.
+   */
+  async liveChangeInputDevice(deviceId) {
+    try {
+      this.inputDeviceId = deviceId;
 
-  liveChangeInputDevice(deviceId) {
-    this.inputDeviceId = deviceId;
+      const constraints = {
+        audio: this.getAudioConstraints(),
+      };
 
-    const constraints = {
-      audio: this.getAudioConstraints(),
-    };
+      this.inputStream.getAudioTracks().forEach((t) => t.stop());
 
-    this.inputStream.getAudioTracks().forEach(t => t.stop());
-
-    return navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
-      this.setInputStream(stream);
-    });
+      return await navigator.mediaDevices.getUserMedia(constraints)
+        .then(this.setInputStream.bind(this));
+    } catch (error) {
+      logger.warn({
+        logCode: 'sip_js_livechangeinputdevice_error',
+        extraInfo: {
+          errorCode: error.code,
+          errorMessage: error.message,
+          callerIdName: this.user.callerIdName,
+        },
+      }, 'Failed to change input device (mic)');
+      return null;
+    }
   }
 
   get inputDeviceId() {
@@ -149,7 +190,7 @@ class SIPSession {
 
       if (stream) {
         const track = stream.getAudioTracks().find(
-          t => t.getSettings().deviceId,
+          (t) => t.getSettings().deviceId,
         );
 
         if (track && (typeof track.getSettings === 'function')) {
