@@ -341,6 +341,7 @@ class AudioManager {
         isListenOnly: this.isListenOnly,
       });
     }
+    Session.set('audioModalIsOpen', false);
   }
 
   onTransferStart() {
