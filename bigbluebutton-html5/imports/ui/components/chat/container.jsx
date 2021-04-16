@@ -78,6 +78,8 @@ const ChatContainer = (props) => {
     intl,
     userLocks,
     lockSettings,
+    isChatLockedPublic,
+    isChatLockedPrivate,
     users: propUsers,
     ...restProps
   } = props;
@@ -110,7 +112,7 @@ const ChatContainer = (props) => {
   };
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
-  const currentUser = users[Auth.userID];
+  const currentUser = users[Auth.meetingID][Auth.userID];
   const amIModerator = currentUser.role === ROLE_MODERATOR;
   const systemMessagesIds = [sysMessagesIds.welcomeId, amIModerator && modOnlyMessage && sysMessagesIds.moderatorId].filter(i => i);
 
@@ -127,9 +129,13 @@ const ChatContainer = (props) => {
 
   let partnerIsLoggedOut = false;
 
+  let isChatLocked;
   if(!isPublicChat){
     const idUser = participants?.filter((user) => user.id !== Auth.userID)[0]?.id;
     partnerIsLoggedOut = (users[idUser]?.loggedOut || users[idUser]?.ejected) ? true : false;
+    isChatLocked = isChatLockedPrivate && !(users[idUser]?.role === ROLE_MODERATOR);
+  } else {
+    isChatLocked = isChatLockedPublic;
   }
 
   if (unmounting === true) {
@@ -210,6 +216,7 @@ const ChatContainer = (props) => {
   return (
     <Chat {...{
       ...restProps,
+      isChatLocked,
       chatID,
       amIModerator,
       count: (contextChat?.unreadTimeWindows.size || 0),
@@ -229,8 +236,6 @@ const ChatContainer = (props) => {
 
 export default lockContextContainer(injectIntl(withTracker(({ intl, userLocks }) => {
   const chatID = Session.get('idChatOpen');
-  const isChatLocked = userLocks.userPrivateChat || userLocks.userPublicChat;
-
   if (!chatID) {
     // No chatID is set so the panel is closed, about to close, or wasn't opened correctly
     return {
@@ -238,12 +243,16 @@ export default lockContextContainer(injectIntl(withTracker(({ intl, userLocks })
     };
   }
 
+  const isChatLockedPublic = userLocks.userPublicChat;
+  const isChatLockedPrivate = userLocks.userPrivateChat;
+
   const { connected: isMeteorConnected } = Meteor.status();
 
   return {
     chatID,
     intl,
-    isChatLocked,
+    isChatLockedPublic,
+    isChatLockedPrivate,
     isMeteorConnected,
     meetingIsBreakout: meetingIsBreakout(),
     loginTime: getLoginTime(),

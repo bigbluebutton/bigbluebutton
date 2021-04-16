@@ -11,6 +11,7 @@ export default function sendPollChatMsg({ body }, meetingId) {
   const PUBLIC_CHAT_SYSTEM_ID = CHAT_CONFIG.system_userid;
   const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
   const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
+  const MAX_POLL_RESULT_BARS = 20;
 
   const { answers, numRespondents } = poll;
 
@@ -46,8 +47,9 @@ export default function sendPollChatMsg({ body }, meetingId) {
     item.key = item.key.split('<br/>').join('<br#>');
     const numResponded = responded === numRespondents ? numRespondents : responded;
     const pct = Math.round(item.numVotes / numResponded * 100);
+    const pctBars = "|".repeat(pct * MAX_POLL_RESULT_BARS / 100);
     const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
-    resultString += `${item.key}: ${item.numVotes || 0} | ${pctFotmatted}\n`;
+    resultString += `${item.key}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
   });
 
   const payload = {

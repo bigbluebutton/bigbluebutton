@@ -4,6 +4,7 @@ import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
 import addAnnotationQuery from '/imports/api/annotations/addAnnotation';
 import { Slides } from '/imports/api/slides';
 import { makeCall } from '/imports/ui/services/api';
+import PresentationService from '/imports/ui/components/presentation/service';
 import logger from '/imports/startup/client/logger';
 
 const Annotations = new Mongo.Collection(null);
@@ -227,9 +228,15 @@ const getMultiUserSize = (whiteboardId) => {
 };
 
 const getCurrentWhiteboardId = () => {
-  const currentSlide = Slides.findOne({
-      podId: 'DEFAULT_PRESENTATION_POD',
-      meetingId: Auth.meetingID,
+  const podId = 'DEFAULT_PRESENTATION_POD';
+  const currentPresentation = PresentationService.getCurrentPresentation(podId);
+
+  if (!currentPresentation) return null;
+
+  const currentSlide = Slides.findOne(
+    {
+      podId,
+      presentationId: currentPresentation.id,
       current: true,
     }, { fields: { id: 1 } },
   );

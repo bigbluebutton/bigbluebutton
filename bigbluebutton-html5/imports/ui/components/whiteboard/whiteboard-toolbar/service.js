@@ -5,6 +5,7 @@ import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const DRAW_SETTINGS = 'drawSettings';
+const PALM_REJECTION_MODE = 'palmRejectionMode';
 const WHITEBOARD_TOOLBAR = Meteor.settings.public.whiteboard.toolbar;
 
 const makeSetter = key => (value) => {
@@ -21,6 +22,23 @@ const undoAnnotation = (whiteboardId) => {
 
 const clearWhiteboard = (whiteboardId) => {
   makeCall('clearWhiteboard', whiteboardId);
+};
+
+const changeWhiteboardMode = (multiUser, whiteboardId) => {
+  makeCall('changeWhiteboardAccess', multiUser, whiteboardId);
+};
+
+const getCurrentPalmRejectionMode = () => Storage.getItem(PALM_REJECTION_MODE);
+
+const setInitialPalmRejectionMode = (palmRejectionMode) => {
+  const _palmRejectionMode = Storage.getItem(PALM_REJECTION_MODE);
+  if (!_palmRejectionMode) {
+    Storage.setItem(PALM_REJECTION_MODE, palmRejectionMode);
+  }
+};
+
+const setPalmRejectionMode = (palmRejectionMode) => {
+  Storage.setItem(PALM_REJECTION_MODE, palmRejectionMode);
 };
 
 const setInitialWhiteboardToolbarValues = (tool, thickness, color, fontSize, textShape) => {
@@ -90,6 +108,10 @@ const filterAnnotationList = () => {
 export default {
   undoAnnotation,
   clearWhiteboard,
+  changeWhiteboardMode,
+  getCurrentPalmRejectionMode,
+  setInitialPalmRejectionMode,
+  setPalmRejectionMode,
   setInitialWhiteboardToolbarValues,
   getCurrentDrawSettings,
   setFontSize,

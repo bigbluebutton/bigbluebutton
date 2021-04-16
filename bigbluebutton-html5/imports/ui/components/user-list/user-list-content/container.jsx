@@ -12,7 +12,7 @@ const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const UserContentContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
-  const currentUser = users[Auth.userID];
+  const currentUser = users[Auth.meetingID][Auth.userID];
   return (<UserContent {...props} currentUser={currentUser} />);
 }
 

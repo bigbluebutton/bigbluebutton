@@ -726,6 +726,8 @@
     "app.whiteboard.toolbar.clear": "Alle Anmerkungen löschen",
     "app.whiteboard.toolbar.multiUserOn": "Mehrbenutzermodus starten",
     "app.whiteboard.toolbar.multiUserOff": "Mehrbenutzermodus beenden",
+    "app.whiteboard.toolbar.palmRejectionOn": "Handballenerkennung aktivieren",
+    "app.whiteboard.toolbar.palmRejectionOff": "Handballenerkennung deaktivieren",
     "app.whiteboard.toolbar.fontSize": "Schriftgrößenliste",
     "app.feedback.title": "Sie haben sich aus der Konferenz ausgeloggt",
     "app.feedback.subtitle": "Wir würden gerne erfahren, wie Sie BigBlueButton finden (optional)",

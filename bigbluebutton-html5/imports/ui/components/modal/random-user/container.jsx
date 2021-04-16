@@ -28,17 +28,23 @@ export default withModalMounter(withTracker(({ mountModal }) => {
     },
   });
 
-  const selectedUser = Users.findOne({
-    meetingId: Auth.meetingID,
-    userId: meeting.randomlySelectedUser,
-  }, {
-    fields: {
-      userId: 1,
-      avatar: 1,
-      color: 1,
-      name: 1,
-    },
-  });
+  let mappedRandomlySelectedUsers = [];
+  if (meeting.randomlySelectedUser) {
+    mappedRandomlySelectedUsers = meeting.randomlySelectedUser.map(function(ui) {
+      const selectedUser = Users.findOne({
+        meetingId: Auth.meetingID,
+        userId: ui[0],
+      }, {
+        fields: {
+          userId: 1,
+          avatar: 1,
+          color: 1,
+          name: 1,
+        },
+      });
+      return [selectedUser,ui[1]];
+    });
+  }
 
   const currentUser = Users.findOne(
     { userId: Auth.userID },
@@ -53,7 +59,7 @@ export default withModalMounter(withTracker(({ mountModal }) => {
     closeModal: () => mountModal(null),
     numAvailableViewers: viewerPool.length,
     randomUserReq,
-    selectedUser,
+    mappedRandomlySelectedUsers,
     currentUser,
     clearRandomlySelectedUser,
   });

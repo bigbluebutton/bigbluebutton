@@ -50,7 +50,6 @@ const propTypes = {
   openPanel: PropTypes.string.isRequired,
 };
 
-
 const DEFAULT_PANEL_WIDTH = 340;
 
 // Variables for resizing user-list.
@@ -469,7 +468,7 @@ class PanelManager extends Component {
         key={this.captionsKey}
         size={{ width: captionsWidth }}
         onResizeStop={(e, direction, ref, d) => {
-          this.captionsResizeStop(captionsWidth + d.width);
+          this.captionsResizeStop(d.width);
         }}
       >
         {this.renderCaptions()}
@@ -515,7 +514,7 @@ class PanelManager extends Component {
         key={this.waitingUsers}
         size={{ width: waitingWidth }}
         onResizeStop={(e, direction, ref, d) => {
-          this.waitingResizeStop(waitingWidth + d.width);
+          this.waitingResizeStop(d.width);
         }}
       >
         {this.renderWaitingUsersPanel()}
@@ -570,8 +569,7 @@ class PanelManager extends Component {
         key={this.pollKey}
         size={{ width: pollWidth }}
         onResizeStop={(e, direction, ref, d) => {
-          // window.dispatchEvent(new Event('resize'));
-          this.pollResizeStop(pollWidth + d.width);
+          this.pollResizeStop(d.width);
         }}
       >
         {this.renderPoll()}

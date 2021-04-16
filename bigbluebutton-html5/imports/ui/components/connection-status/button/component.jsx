@@ -4,7 +4,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import ConnectionStatusModalContainer from '/imports/ui/components/connection-status/modal/container';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
-import { styles } from './styles';
 
 const intlMessages = defineMessages({
   label: {

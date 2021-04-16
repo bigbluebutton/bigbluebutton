@@ -341,6 +341,7 @@ class AudioManager {
         isListenOnly: this.isListenOnly,
       });
     }
+    Session.set('audioModalIsOpen', false);
   }
 
   onTransferStart() {
@@ -661,7 +662,7 @@ class AudioManager {
   }
 
   playAlertSound(url) {
-    if (!url) {
+    if (!url || !this.bridge) {
       return Promise.resolve();
     }
 

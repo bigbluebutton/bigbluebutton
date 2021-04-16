@@ -16,8 +16,8 @@ const { isMobile } = deviceInfo;
 // values based on sass file
 const USERLIST_MIN_WIDTH = 150;
 const USERLIST_MAX_WIDTH = 240;
-const CHAT_MIN_WIDTH = 150;
-const CHAT_MAX_WIDTH = 335;
+const CHAT_MIN_WIDTH = 320;
+const CHAT_MAX_WIDTH = 400;
 const POLL_MIN_WIDTH = 320;
 const POLL_MAX_WIDTH = 400;
 const NOTE_MIN_WIDTH = 340;

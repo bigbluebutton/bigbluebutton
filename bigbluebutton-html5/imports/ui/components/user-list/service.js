@@ -52,21 +52,26 @@ const sortByWhiteboardAccess = (a, b) => {
   return 0;
 };
 
-const sortUsersByName = (a, b) => {
-  const aName = a.name.toLowerCase();
-  const bName = b.name.toLowerCase();
+const sortUsersByUserId = (a, b) => {
+  const aUserId = a.userId;
+  const bUserId = b.userId;
 
-  if (aName < bName) {
-    return -1;
-  } if (aName > bName) {
-    return 1;
-  } if (a.userId > b.userId) {
+  if (a.userId > b.userId) {
     return -1;
   } if (a.userId < b.userId) {
     return 1;
   }
 
   return 0;
+};
+
+const sortUsersByName = (a, b) => {
+  const aName = a.name ? a.name.toLowerCase() : '';
+  const bName = b.name ? b.name.toLowerCase() : '';
+
+  // Extending for sorting strings with non-ASCII characters
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#sorting_non-ascii_characters
+  return aName.localeCompare(bName);
 };
 
 const sortUsersByEmoji = (a, b) => {
@@ -142,29 +147,21 @@ const sortUsers = (a, b) => {
     sort = sortUsersByName(a, b);
   }
 
+  if (sort === 0) {
+    sort = sortUsersByUserId(a, b);
+  }
+
   return sort;
 };
 
-const sortChatsByName = (a, b) => {
-  if (a.name.toLowerCase() < b.name.toLowerCase()) {
-    return -1;
-  } if (a.name.toLowerCase() > b.name.toLowerCase()) {
-    return 1;
-  } if (a.userId.toLowerCase() > b.userId.toLowerCase()) {
-    return -1;
-  } if (a.userId.toLowerCase() < b.userId.toLowerCase()) {
-    return 1;
-  }
+const sortChatsByName = (a, b) => sortUsersByName(a, b);
 
-  return 0;
-};
+const sortChatsByUserId = (a, b) => sortUsersByUserId(a, b);
 
 const sortChatsByIcon = (a, b) => {
-  if (a.icon && b.icon) {
-    return sortChatsByName(a, b);
-  } if (a.icon) {
+  if (a.icon && !b.icon) {
     return -1;
-  } if (b.icon) {
+  } if (!a.icon && b.icon) {
     return 1;
   }
 
@@ -172,11 +169,15 @@ const sortChatsByIcon = (a, b) => {
 };
 
 const sortByRecentActivity = (a, b) => {
-  const _a = a.lastActivity;
-  const _b = b.lastActivity;
-  if (a.userId === 'public') return -1;
-  if (!_b || _a > _b) return -1;
-  if (!_a || _a < _b) return 1;
+  const aActivity = a.lastActivity ? a.lastActivity : 0;
+  const bActivity = b.lastActivity ? b.lastActivity : 0;
+
+  if (aActivity > bActivity) {
+    return -1;
+  } if (aActivity < bActivity) {
+    return 1;
+  }
+
   return 0;
 };
 
@@ -188,10 +189,18 @@ const sortChats = (a, b) => {
   let sort = sortChatsByIcon(a, b);
 
   if (sort === 0) {
+    sort = sortByRecentActivity(a, b);
+  }
+
+  if (sort === 0) {
     sort = sortChatsByName(a, b);
   }
 
-  return sortByRecentActivity(a, b);
+  if (sort === 0) {
+    sort = sortChatsByUserId(a, b);
+  }
+
+  return sort;
 };
 
 const userFindSorting = {
@@ -596,28 +605,17 @@ const requestUserInformation = (userId) => {
 };
 
 const sortUsersByFirstName = (a, b) => {
-  if (!a.firstName && !b.firstName) return 0;
-  if (a.firstName && !b.firstName) return -1;
-  if (!a.firstName && b.firstName) return 1;
+  const aUser = { name: a.firstName ? a.firstName : '' };
+  const bUser = { name: b.firstName ? b.firstName : '' };
 
-  const aName = a.firstName.toLowerCase();
-  const bName = b.firstName.toLowerCase();
-  if (aName < bName) return -1;
-  if (aName > bName) return 1;
-  return 0;
+  return sortUsersByName(aUser, bUser);
 };
 
 const sortUsersByLastName = (a, b) => {
-  if (!a.lastName && !b.lastName) return 0;
-  if (a.lastName && !b.lastName) return -1;
-  if (!a.lastName && b.lastName) return 1;
+  const aUser = { name: a.lastName ? a.lastName : '' };
+  const bUser = { name: b.lastName ? b.lastName : '' };
 
-  const aName = a.lastName.toLowerCase();
-  const bName = b.lastName.toLowerCase();
-
-  if (aName < bName) return -1;
-  if (aName > bName) return 1;
-  return 0;
+  return sortUsersByName(aUser, bUser);
 };
 
 const isUserPresenter = (userId) => {

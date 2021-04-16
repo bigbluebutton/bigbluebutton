@@ -15,7 +15,6 @@ const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 const propTypes = {
   scrollPosition: PropTypes.number,
   chatId: PropTypes.string.isRequired,
-  hasUnreadMessages: PropTypes.bool.isRequired,
   handleScrollUpdate: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,

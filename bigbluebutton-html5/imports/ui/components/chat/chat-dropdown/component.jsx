@@ -55,11 +55,11 @@ class ChatDropdown extends PureComponent {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { timeWindowsValues, users } = this.props;
+    const { timeWindowsValues, users, intl } = this.props;
     const { isSettingOpen } = this.state;
     if (prevState.isSettingOpen !== isSettingOpen) {
       this.clipboard = new Clipboard('#clipboardButton', {
-        text: () => ChatService.exportChat(timeWindowsValues, users),
+        text: () => ChatService.exportChat(timeWindowsValues, users, intl),
       });
     }
   }
@@ -104,7 +104,7 @@ class ChatDropdown extends PureComponent {
           link.setAttribute(
             'href',
             `data: ${mimeType} ;charset=utf-8,
-            ${encodeURIComponent(ChatService.exportChat(timeWindowsValues, users))}`,
+            ${encodeURIComponent(ChatService.exportChat(timeWindowsValues, users, intl))}`,
           );
           link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
         }}

@@ -25,6 +25,14 @@ export const ACTIONS = {
   SYNC_STATUS: 'sync_status',
   HAS_MESSAGE_TO_SYNC: 'has_message_to_sync',
   CLEAR_ALL: 'clear_all',
+  CLEAR_STREAM_MESSAGES: 'clear_stream_messages',
+};
+
+export const MESSAGE_TYPES = {
+  //messages before user login, synced via makecall
+  HISTORY: 'history',
+  // messages after user login, synced via subscription
+  STREAM: 'stream',
 };
 
 export const getGroupingTime = () => Meteor.settings.public.chat.grouping_messages_window;
@@ -41,7 +49,7 @@ const generateTimeWindow = (timestamp) => {
 
 export const ChatContext = createContext();
 
-const generateStateWithNewMessage = (msg, state) => {
+const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY) => {
   
   const timeWindow = generateTimeWindow(msg.timestamp);
   const userId = msg.sender;
@@ -119,6 +127,7 @@ const generateStateWithNewMessage = (msg, state) => {
     messageGroupsKeys.forEach(key => {
       messageGroups[key] = tempGroupMessage[key];
       const message = tempGroupMessage[key];
+      message.messageType = msgType;
       const previousMessage = message.timestamp <= getLoginTime();
       if (!previousMessage && message.sender !== Auth.userID && !message.id.startsWith(SYSTEM_CHAT_TYPE)) {
         stateMessages.unreadTimeWindows.add(key);
@@ -173,7 +182,7 @@ const reducer = (state, action) => {
             && currentClosedChats.includes(chatId) ){
           closedChatsToOpen.add(chatId)
         }
-        return generateStateWithNewMessage(message, acc);
+        return generateStateWithNewMessage(message, acc, action.messageType);
       }, state);
 
       if (closedChatsToOpen.size) {
@@ -302,6 +311,30 @@ const reducer = (state, action) => {
           unreadCount: 0,
         };
       });
+      return newState;
+    }
+    // BBB don't remove individual messages, so when a message is removed it means the chat is cleared ( by admin, or for resync )
+    // considering it, we remove all messages from all chats
+    case ACTIONS.CLEAR_STREAM_MESSAGES: {
+      ChatLogger.debug(ACTIONS.CLEAR_STREAM_MESSAGES);
+      const newState = { ...state };
+      const chatIds = Object.keys(newState);
+      chatIds.forEach((chatId) => {
+        const chat = newState[chatId];
+        ['posJoinMessages','messageGroups'].forEach((group)=> {
+          const messages = chat[group];
+          if (messages) {
+            const timeWindowIds = Object.keys(messages);
+            timeWindowIds.forEach((timeWindowId)=> {
+              const timeWindow = messages[timeWindowId];
+              if (timeWindow.messageType === MESSAGE_TYPES.STREAM) {
+                delete newState[chatId][group][timeWindowId];
+              }
+            });
+          }
+        })
+      });
+
       return newState;
     }
     default: {

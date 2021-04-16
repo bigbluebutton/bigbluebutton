@@ -14,6 +14,7 @@
 
 .dialText, .telvoice {
   font-size: var(--audioDial-font-size);
+  direction: ltr;
 }
 
 .conferenceText {
