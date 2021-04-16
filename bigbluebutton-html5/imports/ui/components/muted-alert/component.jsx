@@ -77,10 +77,12 @@ class MutedAlert extends Component {
     }
   }
 
+  /* eslint-disable no-param-reassign */
   enableInputStreamAudioTracks() {
     if (!this.inputStream) return;
     this.inputStream.getAudioTracks().forEach((t) => { t.enabled = true; });
   }
+  /* eslint-enable no-param-reassign */
 
   resetTimer() {
     if (this.timer) clearTimeout(this.timer);

@@ -25,7 +25,6 @@ module.exports = {
     'jsx-a11y/no-access-key': 0,
     'react/jsx-props-no-spreading': 'off',
     'max-classes-per-file': ['error', 2],
-    'no-param-reassign': ['error', { props: false }],
   },
   globals: {
     browser: 'writable',
