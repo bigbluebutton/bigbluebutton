@@ -24,6 +24,7 @@ import { withLayoutContext } from '/imports/ui/components/layout/context';
 import VideoService from '/imports/ui/components/video-provider/service';
 import DebugWindow from '/imports/ui/components/debug-window/component'
 import {Meteor} from "meteor/meteor";
+import { withUsersConsumer } from '/imports/ui/components/components-data/users-context/context';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
@@ -142,7 +143,6 @@ class Base extends Component {
       approved,
       meetingExist,
       animations,
-      ejected,
       isMeteorConnected,
       subscriptionsReady,
       meetingIsBreakout,
@@ -185,11 +185,6 @@ class Base extends Component {
 
     if (approved && loading && subscriptionsReady) this.updateLoadingState(false);
 
-    if (prevProps.ejected || ejected) {
-      Session.set('codeError', '403');
-      Session.set('isMeetingEnded', true);
-    }
-
     // In case the meteor restart avoid error log
     if (isMeteorConnected && (prevState.meetingExisted !== meetingExisted)) {
       this.setMeetingExisted(false);
@@ -229,30 +224,32 @@ class Base extends Component {
     const { loading } = this.state;
     const {
       codeError,
-      ejected,
-      ejectedReason,
       meetingExist,
       meetingHasEnded,
       meetingIsBreakout,
       subscriptionsReady,
-      User,
+      users,
     } = this.props;
 
     if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
 
+    const contUser = users[Auth.userID];
+    const ejected = contUser?.ejected;
+    const ejectedReason = contUser?.ejectedReason;
+
     if (ejected) {
-      return (<MeetingEnded code="403" reason={ejectedReason} />);
+      return (<MeetingEnded code="403" user={contUser} reason={ejectedReason} />);
     }
 
-    if ((meetingHasEnded || User?.loggedOut) && meetingIsBreakout) {
+    if ((meetingHasEnded || contUser?.loggedOut) && meetingIsBreakout) {
       window.close();
       return null;
     }
 
-    if (((meetingHasEnded && !meetingIsBreakout)) || (codeError && User?.loggedOut)) {
-      return (<MeetingEnded code={codeError} />);
+    if (((meetingHasEnded && !meetingIsBreakout)) || (codeError && contUser?.loggedOut)) {
+      return (<MeetingEnded user={contUser} code={codeError} />);
     }
 
     if (codeError && !meetingHasEnded) {
@@ -260,7 +257,7 @@ class Base extends Component {
       if (codeError !== '680') {
         return (<ErrorScreen code={codeError} />);
       }
-      return (<MeetingEnded code={codeError} />);
+      return (<MeetingEnded user={contUser} code={codeError} />);
     }
 
     return (<AppContainer {...this.props} baseControls={stateControls} />);
@@ -336,8 +333,6 @@ const BaseContainer = withTracker(() => {
   }
 
   const approved = User?.approved && User?.guest;
-  const ejected = User?.ejected;
-  const ejectedReason = User?.ejectedReason;
 
   let userSubscriptionHandler;
 
@@ -424,8 +419,6 @@ const BaseContainer = withTracker(() => {
 
   return {
     approved,
-    ejected,
-    ejectedReason,
     userSubscriptionHandler,
     breakoutRoomSubscriptionHandler,
     meetingModeratorSubscriptionHandler,
@@ -440,6 +433,6 @@ const BaseContainer = withTracker(() => {
     codeError,
     usersVideo,
   };
-})(withLayoutContext(Base));
+})(withLayoutContext(withUsersConsumer(Base)));
 
 export default BaseContainer;

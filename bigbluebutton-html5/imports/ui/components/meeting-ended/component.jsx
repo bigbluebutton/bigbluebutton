@@ -96,6 +96,11 @@ const propTypes = {
   }).isRequired,
   code: PropTypes.string.isRequired,
   reason: PropTypes.string,
+  user: PropTypes.shape({
+    role: PropTypes.string.isRequired,
+    meetingId: PropTypes.string.isRequired,
+    ejected: PropTypes.bool.isRequired,
+  }).isRequired,
 };
 
 const defaultProps = {
@@ -116,12 +121,12 @@ class MeetingEnded extends PureComponent {
       dispatched: false,
     };
 
-    const user = Users.findOne({ userId: Auth.userID });
+    const { user } = props;
     if (user) {
       this.localUserRole = user.role;
     }
 
-    const meeting = Meetings.findOne({ id: user.meetingID });
+    const meeting = Meetings.findOne({ id: user.meetingId });
     if (meeting) {
       const endedBy = Users.findOne({
         userId: meeting.meetingEndedBy,
@@ -210,9 +215,12 @@ class MeetingEnded extends PureComponent {
   }
 
   renderNoFeedback() {
-    const { intl, code, reason } = this.props;
+    const {
+      intl, code, reason, user,
+    } = this.props;
 
-    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason } }, 'Meeting ended component, no feedback configured');
+    const logMessage = user.ejected ? 'User removed from the meeting' : 'Meeting ended component, no feedback configured';
+    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason } }, logMessage);
 
     return (
       <div className={styles.parent}>
@@ -251,7 +259,9 @@ class MeetingEnded extends PureComponent {
   }
 
   renderFeedback() {
-    const { intl, code, reason } = this.props;
+    const {
+      intl, code, reason, user,
+    } = this.props;
     const {
       selected,
       dispatched,
@@ -259,7 +269,8 @@ class MeetingEnded extends PureComponent {
 
     const noRating = selected <= 0;
 
-    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason } }, 'Meeting ended component, feedback allowed');
+    const logMessage = user.ejected ? 'User removed from the meeting' : 'Meeting ended component, feedback configured';
+    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason } }, logMessage);
 
     return (
       <div className={styles.parent}>

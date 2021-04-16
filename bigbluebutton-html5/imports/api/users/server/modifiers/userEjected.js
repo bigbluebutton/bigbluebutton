@@ -1,6 +1,6 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import Users from '/imports/api/users';
+import UsersPersistentData from '/imports/api/users-persistent-data';
 import clearUserInfoForRequester from '/imports/api/users-infos/server/modifiers/clearUserInfoForRequester';
 
 export default function userEjected(meetingId, userId, ejectedReason) {
@@ -21,7 +21,7 @@ export default function userEjected(meetingId, userId, ejectedReason) {
   };
 
   try {
-    const numberAffected = Users.update(selector, modifier);
+    const numberAffected = UsersPersistentData.update(selector, modifier);
 
     if (numberAffected) {
       clearUserInfoForRequester(meetingId, userId);
