@@ -75,7 +75,7 @@ const {
 } = Service;
 
 export default withUsersConsumer(lockContextContainer(withModalMounter(withTracker(({ mountModal, userLocks, users }) => {
-  const currentUser = users[Auth.userID];
+  const currentUser = users[Auth.meetingID][Auth.userID];
   const isViewer = currentUser.role === ROLE_VIEWER;
   const isPresenter = currentUser.presenter;
   const { status } = Service.getBreakoutAudioTransferStatus();
