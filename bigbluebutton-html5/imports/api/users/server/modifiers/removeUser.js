@@ -10,8 +10,8 @@ import ClientConnections from '/imports/startup/server/ClientConnections';
 const clearAllSessions = (sessionUserId) => {
   const serverSessions = Meteor.server.sessions;
   Object.keys(serverSessions)
-    .filter(i => serverSessions[i].userId === sessionUserId)
-    .forEach(i => serverSessions[i].close());
+    .filter((i) => serverSessions[i].userId === sessionUserId)
+    .forEach((i) => serverSessions[i].close());
 };
 
 export default function removeUser(meetingId, userId) {
@@ -43,7 +43,12 @@ export default function removeUser(meetingId, userId) {
 
     clearUserInfoForRequester(meetingId, userId);
 
-    Users.remove(selector);
+    Meteor.wrapAsync((callback) => {
+      Meteor.setTimeout(() => {
+        Users.remove(selector);
+        callback();
+      }, 1000);
+    })();
 
     Logger.info(`Removed user id=${userId} meeting=${meetingId}`);
   } catch (err) {
