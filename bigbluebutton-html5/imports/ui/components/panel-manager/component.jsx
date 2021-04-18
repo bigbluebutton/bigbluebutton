@@ -344,6 +344,7 @@ class PanelManager extends Component {
 
     return (
       <section
+        id="chatPanel"
         className={styles.chat}
         aria-label={intl.formatMessage(intlMessages.chatLabel)}
         key={enableResize ? null : this.chatKey}
@@ -390,6 +391,7 @@ class PanelManager extends Component {
 
     return (
       <section
+        id="notePanel"
         className={styles.note}
         aria-label={intl.formatMessage(intlMessages.noteLabel)}
         key={enableResize ? null : this.noteKey}
@@ -436,6 +438,7 @@ class PanelManager extends Component {
 
     return (
       <section
+        id="captionsPanel"
         className={styles.captions}
         aria-label={intl.formatMessage(intlMessages.captionsLabel)}
         key={enableResize ? null : this.captionsKey}
@@ -482,6 +485,7 @@ class PanelManager extends Component {
 
     return (
       <section
+        id="waitingUsersPanelPanel"
         className={styles.note}
         aria-label={intl.formatMessage(intlMessages.noteLabel)}
         key={enableResize ? null : this.waitingUsers}
@@ -527,6 +531,7 @@ class PanelManager extends Component {
     const { breakoutRoomWidth } = this.state;
     return (
       <div
+        id="breakoutroomPanel"
         className={styles.breakoutRoom}
         key={this.breakoutroomKey}
         style={{
@@ -540,7 +545,7 @@ class PanelManager extends Component {
 
   renderPoll() {
     return (
-      <div className={styles.poll} key={this.pollKey}>
+      <div className={styles.poll} key={this.pollKey} id="pollPanel">
         <PollContainer />
       </div>
     );
