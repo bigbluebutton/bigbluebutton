@@ -12,6 +12,7 @@ const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 
 const { isMobile } = deviceInfo;
+const { webcamsDefaultPlacement } = Meteor.settings.public.layout;
 
 // values based on sass file
 const USERLIST_MIN_WIDTH = 150;
@@ -296,23 +297,13 @@ class LayoutManager extends Component {
       return;
     }
 
-    if ((mediaAreaWidth - presentationWidth) > (mediaAreaHeight - presentationHeight)) {
-      layoutContextDispatch(
-        {
-          type: 'setWebcamsPlacement',
-          value: 'left',
-        },
-      );
-      Storage.setItem('webcamsPlacement', 'left');
-    } else {
-      layoutContextDispatch(
-        {
-          type: 'setWebcamsPlacement',
-          value: 'top',
-        },
-      );
-      Storage.setItem('webcamsPlacement', 'top');
-    }
+    layoutContextDispatch(
+      {
+        type: 'setWebcamsPlacement',
+        value: webcamsDefaultPlacement,
+      },
+    );
+    Storage.setItem('webcamsPlacement', webcamsDefaultPlacement);
   }
 
   calculatesPanelsSize(panelChanged) {
