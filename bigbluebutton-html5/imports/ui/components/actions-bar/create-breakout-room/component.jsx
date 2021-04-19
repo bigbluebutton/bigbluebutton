@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import cx from 'classnames';
@@ -221,6 +220,15 @@ class BreakoutRoom extends PureComponent {
       if (event.key.includes('ArrowRight')) this.handleShiftUser(parentElement.nextSibling);
       if (event.key.includes('ArrowLeft')) this.handleShiftUser(parentElement.previousSibling);
       this.setRoomUsers();
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.listOfUsers) {
+      for(let i = 0; i < this.listOfUsers.children.length; i++) {
+        const roomList = this.listOfUsers.children[i].getElementsByTagName('div')[0];
+        roomList.removeEventListener('keydown', this.handleMoveEvent, true);
+      }
     }
   }
 
