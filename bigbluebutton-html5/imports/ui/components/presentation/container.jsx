@@ -15,9 +15,14 @@ import WhiteboardService from '/imports/ui/components/whiteboard/service';
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
 const PresentationAreaContainer = ({ presentationPodIds, mountPresentationArea, ...props }) => {
+  const { layoutSwapped, podId } = props;
+
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
+
+  const userIsPresenter = (podId === 'DEFAULT_PRESENTATION_POD') ? currentUser.presenter : props.isPresenter;
+
   return mountPresentationArea
     && (
       <PresentationArea
@@ -25,6 +30,7 @@ const PresentationAreaContainer = ({ presentationPodIds, mountPresentationArea, 
         ...{
           ...props,
           isViewer: currentUser.role === ROLE_VIEWER,
+          userIsPresenter: userIsPresenter && !layoutSwapped,
         }
         }
       />
@@ -81,7 +87,7 @@ export default withTracker(({ podId }) => {
     currentSlide,
     slidePosition,
     downloadPresentationUri: PresentationAreaService.downloadPresentationUri(podId),
-    userIsPresenter: PresentationAreaService.isPresenter(podId) && !layoutSwapped,
+    isPresenter: PresentationAreaService.isPresenter(podId),
     multiUser: WhiteboardService.hasMultiUserAccess(currentSlide && currentSlide.id, Auth.userID)
       && !layoutSwapped,
     presentationIsDownloadable,
