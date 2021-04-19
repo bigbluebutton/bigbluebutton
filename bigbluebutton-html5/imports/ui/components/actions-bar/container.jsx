@@ -22,7 +22,7 @@ const ActionsBarContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
 
-  const currentUser = { userId: Auth.meetingID, emoji: users[Auth.meetingID][Auth.userID].emoji };
+  const currentUser = { userId: Auth.userID, emoji: users[Auth.meetingID][Auth.userID].emoji };
 
   return (
     <ActionsBar {

@@ -13,7 +13,7 @@ const UserContentContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
   const currentUser = {
-    userId: Auth.meetingID,
+    userId: Auth.userID,
     presenter: users[Auth.meetingID][Auth.userID].presenter,
     locked: users[Auth.meetingID][Auth.userID].locked,
     role: users[Auth.meetingID][Auth.userID].role,
