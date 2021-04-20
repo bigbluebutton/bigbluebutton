@@ -116,10 +116,6 @@
     @extend %highContrastOutline;
   }
 
-  &:focus {
-    outline-style: solid;
-  }
-
   &:active {
     &:focus {
       span:first-of-type::before {
@@ -186,7 +182,7 @@
   padding: 0 !important;
   overflow: hidden;
   display: none !important;
-  
+
 }
 
 .icon {
