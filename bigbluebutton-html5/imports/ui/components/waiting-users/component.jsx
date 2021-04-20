@@ -78,24 +78,23 @@ const getNameInitials = (name) => {
 
 const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequence, userId, avatar, intl) => (
   <div key={`userlist-item-${userId}`} className={styles.listItem}>
-    <div key={`user-content-container-${userId}`} className={styles.userContentContainer}>
-      <div key={`user-avatar-container-${userId}`} className={styles.userAvatar}>
-        <UserAvatar
-          key={`user-avatar-${userId}`}
-          moderator={role === 'MODERATOR'}
-          avatar={avatar}
-          color={color}
-        >
-          {getNameInitials(name)}
-        </UserAvatar>
-      </div>
-      <p key={`user-name-${userId}`} className={styles.userName}>
-[
-        {sequence}
-]
-        {name}
-      </p>
+    <div key={`user-avatar-container-${userId}`} className={styles.userAvatar}>
+      <UserAvatar
+        key={`user-avatar-${userId}`}
+        moderator={role === 'MODERATOR'}
+        avatar={avatar}
+        color={color}
+      >
+        {getNameInitials(name)}
+      </UserAvatar>
     </div>
+    <p key={`user-name-${userId}`} className={styles.userName}>
+[
+      {sequence}
+]
+      {name}
+    </p>
+
 
     <div key={`userlist-btns-${userId}`} className={styles.buttonContainer}>
       <Button

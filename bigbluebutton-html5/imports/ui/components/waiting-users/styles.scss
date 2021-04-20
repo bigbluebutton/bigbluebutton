@@ -96,8 +96,7 @@
   display: flex;
   flex-flow: row;
   flex-direction: row;
-  align-items: center; 
-  justify-content: space-between;
+  align-items: center;
   border-radius: 5px;
   cursor: pointer;
   :global(.animationsEnabled) & {
@@ -139,7 +138,7 @@
 
 .button {
   font-weight: 400;
-  
+
   &:focus {
     background-color: var(--list-item-bg-hover) !important;
     box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border) ;
@@ -184,6 +183,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 1;
 }
 
 .lobbyMessage {
