@@ -11,14 +11,12 @@ class InputStreamLiveSelectorContainer extends PureComponent {
   }
 }
 
-export default withTracker(() => {
-  return {
-    isAudioConnected: Service.isConnected(),
-    isListenOnly: Service.isListenOnly(),
-    currentInputDeviceId: Service.inputDeviceId(),
-    currentOutputDeviceId: Service.outputDeviceId(),
-    liveChangeInputDevice: Service.liveChangeInputDevice,
-    liveChangeOutputDevice: Service.changeOutputDevice,
-    exitAudio: Service.exitAudio,
-  };
-})(InputStreamLiveSelectorContainer);
+export default withTracker(({ handleLeaveAudio }) => ({
+  isAudioConnected: Service.isConnected(),
+  isListenOnly: Service.isListenOnly(),
+  currentInputDeviceId: Service.inputDeviceId(),
+  currentOutputDeviceId: Service.outputDeviceId(),
+  liveChangeInputDevice: Service.liveChangeInputDevice,
+  liveChangeOutputDevice: Service.changeOutputDevice,
+  handleLeaveAudio,
+}))(InputStreamLiveSelectorContainer);
