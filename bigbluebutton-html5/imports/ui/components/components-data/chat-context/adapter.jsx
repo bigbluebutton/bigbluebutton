@@ -62,10 +62,14 @@ const Adapter = () => {
   ChatLogger.trace('chatAdapter::body::users', users[Auth.meetingID]);
 
   useEffect(() => {
-    window.addEventListener(EVENT_NAME, () => {
-      dispatch({
-        type: ACTIONS.CLEAR_STREAM_MESSAGES,
-      });
+    window.addEventListener(EVENT_NAME, (e) => {
+      const { role } = e.detail;
+
+      if (role !== usersData[Auth.userID].role) {
+        dispatch({
+          type: ACTIONS.CLEAR_STREAM_MESSAGES,
+        });
+      }
     });
   }, []);
 
