@@ -18,7 +18,12 @@ import AppService from '/imports/ui/components/app/service';
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 const APP_CONFIG = Meteor.settings.public.app;
 
-const AudioControlsContainer = props => <AudioControls {...props} />;
+const AudioControlsContainer = (props) => {
+  const {
+    users, lockSettings, userLocks, children, ...newProps
+  } = props;
+  return <AudioControls {...newProps} />;
+};
 
 const processToggleMuteFromOutside = (e) => {
   switch (e.data) {
