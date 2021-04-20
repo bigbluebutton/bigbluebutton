@@ -28,7 +28,7 @@ import { withDraggableContext } from '../media/webcam-draggable-overlay/context'
 import { styles } from './styles';
 import { makeCall } from '/imports/ui/services/api';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
-import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
+import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager/component';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;

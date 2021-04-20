@@ -21,7 +21,7 @@ import {
   POLL_MAX_WIDTH,
   NOTE_MIN_WIDTH,
   NOTE_MAX_WIDTH,
-} from '/imports/ui/components/layout/layout-manager';
+} from '/imports/ui/components/layout/layout-manager/component';
 
 const intlMessages = defineMessages({
   chatLabel: {
