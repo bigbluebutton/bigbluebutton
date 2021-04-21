@@ -109,6 +109,7 @@
 
   &:-moz-focusring {
     outline: none;
+    outline-offset: var(--border-radius);
   }
 
   &:focus,
