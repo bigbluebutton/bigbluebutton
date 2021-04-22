@@ -114,7 +114,7 @@ class TimeWindowList extends PureComponent {
       this.listRef.forceUpdateGrid();
     }
 
-    if ((lastTimeWindow && (prevLastTimeWindow?.content.length !== lastTimeWindow?.content.length) || prevLastTimeWindow?.chatId !== lastTimeWindow?.chatId )) {
+    if ((lastTimeWindow && (prevLastTimeWindow?.content.length !== lastTimeWindow?.content.length))) {
       if (this.listRef) {
         this.cache.clear(timeWindowsValuesLength-1);
         this.listRef.recomputeRowHeights(timeWindowsValuesLength-1);
