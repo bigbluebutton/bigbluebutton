@@ -107,7 +107,6 @@ class RandomUserSelect extends Component {
       intl,
       mountModal,
       numAvailableViewers,
-      randomUserReq,
       currentUser,
       clearRandomlySelectedUser,
       mappedRandomlySelectedUsers,
