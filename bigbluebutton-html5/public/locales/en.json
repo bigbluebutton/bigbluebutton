@@ -374,7 +374,7 @@
     "app.settings.save-notification.label": "Settings have been saved",
     "app.statusNotifier.lowerHands": "Lower Hands",
     "app.statusNotifier.raisedHandsTitle": "Raised Hands",
-    "app.statusNotifier.raisedHandDesc": "{0} raised their hand",
+    "app.statusNotifier.raisedHandDesc": "{0} raised their hands",
     "app.statusNotifier.raisedHandDescOneUser": "{0} raised the hand",
     "app.statusNotifier.and": "and",
     "app.switch.onLabel": "ON",
