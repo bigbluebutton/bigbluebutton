@@ -64,6 +64,11 @@ public interface IVoiceConferenceService {
                                      Integer videoHeight,
                                      String timestamp);
 
+  void audioFloorChanged(String room,
+                         String voiceUserId,
+                         String oldVoiceUserId,
+                         String floorTimestamp);
+
   void voiceConfRunningAndRecording(String room,
                                     Boolean isRunning,
                                     Boolean isRecording,
