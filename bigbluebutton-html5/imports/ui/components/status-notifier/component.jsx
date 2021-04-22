@@ -20,7 +20,11 @@ const messages = defineMessages({
   },
   raisedHandDesc: {
     id: 'app.statusNotifier.raisedHandDesc',
-    description: 'label for user with raised hands',
+    description: 'label for multiple users with raised hands',
+  },
+  raisedHandDescOneUser: {
+    id: 'app.statusNotifier.raisedHandDescOneUser',
+    description: 'label for a single user with raised hand',
   },
   and: {
     id: 'app.statusNotifier.and',
@@ -110,7 +114,9 @@ class StatusNotifier extends Component {
         break;
     }
 
-    return intl.formatMessage(messages.raisedHandDesc, { 0: formattedNames });
+    const raisedHandMessageString
+        = length === 1 ? messages.raisedHandDescOneUser : messages.raisedHandDesc;
+    return intl.formatMessage(raisedHandMessageString, { 0: formattedNames });
   }
 
   raisedHandAvatars() {
