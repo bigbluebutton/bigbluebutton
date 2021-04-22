@@ -30,6 +30,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     private long imageTagThreshold;
     private long pathsThreshold;
     private int convPdfToSvgTimeout = 60;
+    private int svgResolutionPpi = 300;
 	private String BLANK_SVG;
 
     @Override
@@ -253,7 +254,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
     private NuProcessBuilder createConversionProcess(String format, int page, String source, String destFile,
             boolean analyze) {
-        String rawCommand = "pdftocairo -r " + (analyze ? " 300 " : " 150 ") + format + (analyze ? "" : " -singlefile")
+        String rawCommand = "pdftocairo -r " + this.svgResolutionPpi + " " + format + (analyze ? "" : " -singlefile")
                 + " -q -f " + String.valueOf(page) + " -l " + String.valueOf(page) + " " + source + " " + destFile;
         if (analyze) {
             rawCommand += " && cat " + destFile;
@@ -310,4 +311,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         this.convPdfToSvgTimeout = convPdfToSvgTimeout;
     }
 
+    public void setSvgResolutionPpi(int svgResolutionPpi) {
+        this.svgResolutionPpi = svgResolutionPpi;
+    }
 }

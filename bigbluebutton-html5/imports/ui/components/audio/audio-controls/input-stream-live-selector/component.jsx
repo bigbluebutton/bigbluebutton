@@ -50,7 +50,7 @@ const intlMessages = defineMessages({
 
 const propTypes = {
   liveChangeInputDevice: PropTypes.func.isRequired,
-  exitAudio: PropTypes.func.isRequired,
+  handleLeaveAudio: PropTypes.func.isRequired,
   liveChangeOutputDevice: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -267,7 +267,7 @@ class InputStreamLiveSelector extends Component {
 
     const {
       liveChangeInputDevice,
-      exitAudio,
+      handleLeaveAudio,
       liveChangeOutputDevice,
       intl,
       shortcuts,
@@ -299,7 +299,7 @@ class InputStreamLiveSelector extends Component {
           key="leaveAudioButtonKey"
           className={styles.stopButton}
           label={intl.formatMessage(intlMessages.leaveAudio)}
-          onClick={() => exitAudio()}
+          onClick={() => handleLeaveAudio()}
           accessKey={shortcuts.leaveaudio}
         />,
       ]);

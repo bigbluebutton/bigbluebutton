@@ -15,13 +15,11 @@ import {
   closeModal,
   joinListenOnly,
   leaveEchoTest,
-  getcookieData,
 } from './service';
 import Storage from '/imports/ui/services/storage/session';
 import Service from '../service';
 
-const AudioModalContainer = props => <AudioModal {...props} />;
-
+const AudioModalContainer = (props) => <AudioModal {...props} />;
 
 const APP_CONFIG = Meteor.settings.public.app;
 
@@ -50,7 +48,6 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
   }
 
   const meetingIsBreakout = AppService.meetingIsBreakout();
-  const { joinedAudio } = getcookieData();
 
   const joinFullAudioImmediately = (autoJoin && (skipCheck || skipCheckOnJoin && !getEchoTest))
     || (skipCheck || skipCheckOnJoin && !getEchoTest);
@@ -61,14 +58,15 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
   const { isChrome, isIe } = browserInfo;
 
   return ({
-    joinedAudio,
     meetingIsBreakout,
     closeModal,
-    joinMicrophone: skipEchoTest => joinMicrophone(skipEchoTest || skipCheck || skipCheckOnJoin),
+    joinMicrophone: (skipEchoTest) => joinMicrophone(skipEchoTest || skipCheck || skipCheckOnJoin),
     joinListenOnly,
     leaveEchoTest,
-    changeInputDevice: inputDeviceId => Service.changeInputDevice(inputDeviceId),
-    changeOutputDevice: outputDeviceId => Service.changeOutputDevice(outputDeviceId),
+    changeInputDevice: (inputDeviceId) => Service
+      .changeInputDevice(inputDeviceId),
+    changeOutputDevice: (outputDeviceId) => Service
+      .changeOutputDevice(outputDeviceId),
     joinEchoTest: () => Service.joinEchoTest(),
     exitAudio: () => Service.exitAudio(),
     isConnecting: Service.isConnecting(),

@@ -62,16 +62,27 @@ class MutedAlert extends Component {
     this._isMounted = false;
     if (this.speechEvents) this.speechEvents.stop();
     if (this.inputStream) {
-      this.inputStream.getTracks().forEach(t => t.stop());
+      this.inputStream.getTracks().forEach((t) => t.stop());
     }
     this.resetTimer();
   }
 
   cloneMediaStream() {
     if (this.inputStream) return;
-    const { inputStream, muted } = this.props;
-    if (inputStream && !muted) this.inputStream = inputStream.clone();
+    const { inputStream } = this.props;
+
+    if (inputStream) {
+      this.inputStream = inputStream.clone();
+      this.enableInputStreamAudioTracks(this.inputStream);
+    }
   }
+
+  /* eslint-disable no-param-reassign */
+  enableInputStreamAudioTracks() {
+    if (!this.inputStream) return;
+    this.inputStream.getAudioTracks().forEach((t) => { t.enabled = true; });
+  }
+  /* eslint-enable no-param-reassign */
 
   resetTimer() {
     if (this.timer) clearTimeout(this.timer);

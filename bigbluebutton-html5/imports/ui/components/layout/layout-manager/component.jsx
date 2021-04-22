@@ -35,7 +35,7 @@ const PRESENTATIONAREA_MIN_WIDTH = 385; // Value based on presentation toolbar
 
 const storageLayoutData = () => Storage.getItem('layoutData');
 
-class LayoutManager extends Component {
+class LayoutManagerComponent extends Component {
   static calculatesPresentationSize(
     mediaAreaWidth, mediaAreaHeight, presentationSlideWidth, presentationSlideHeight,
   ) {
@@ -111,8 +111,11 @@ class LayoutManager extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { layoutContextState } = this.props;
-    const { layoutContextState: prevLayoutContextState } = prevProps;
+    const { layoutContextState, screenIsShared } = this.props;
+    const {
+      layoutContextState: prevLayoutContextState,
+      screenIsShared: prevScreenIsShared
+    } = prevProps;
     const {
       numUsersVideo,
     } = layoutContextState;
@@ -120,7 +123,8 @@ class LayoutManager extends Component {
       numUsersVideo: prevNumUsersVideo,
     } = prevLayoutContextState;
 
-    if (numUsersVideo !== prevNumUsersVideo) {
+    if (numUsersVideo !== prevNumUsersVideo
+      || prevScreenIsShared !== screenIsShared) {
       setTimeout(() => this.setLayoutSizes(), 500);
     }
   }
@@ -767,7 +771,7 @@ class LayoutManager extends Component {
       left: firstPanel.width + secondPanel.width,
     };
 
-    const { presentationWidth, presentationHeight } = LayoutManager.calculatesPresentationSize(
+    const { presentationWidth, presentationHeight } = LayoutManagerComponent.calculatesPresentationSize(
       mediaAreaWidth, mediaAreaHeight, presentationSlideWidth, presentationSlideHeight,
     );
 
@@ -820,7 +824,7 @@ class LayoutManager extends Component {
   }
 }
 
-export default withLayoutConsumer(LayoutManager);
+export default withLayoutConsumer(LayoutManagerComponent);
 export {
   USERLIST_MIN_WIDTH,
   USERLIST_MAX_WIDTH,

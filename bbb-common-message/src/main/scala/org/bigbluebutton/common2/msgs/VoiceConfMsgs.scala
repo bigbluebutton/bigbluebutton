@@ -496,6 +496,24 @@ case class SyncGetVoiceUsersRespMsg(header: BbbClientMsgHeader, body: SyncGetVoi
 case class SyncGetVoiceUsersRespMsgBody(voiceUsers: Vector[VoiceConfUser])
 
 /**
+ * Received from FS that a user has become a floor holder
+ */
+object AudioFloorChangedVoiceConfEvtMsg { val NAME = "AudioFloorChangedVoiceConfEvtMsg" }
+case class AudioFloorChangedVoiceConfEvtMsg(
+    header: BbbCoreVoiceConfHeader,
+    body:   AudioFloorChangedVoiceConfEvtMsgBody
+) extends VoiceStandardMsg
+case class AudioFloorChangedVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String, oldVoiceUserId: String, floorTimestamp: String)
+
+/**
+ * Sent to a client that an user has become a floor holder
+ */
+
+object AudioFloorChangedEvtMsg { val NAME = "AudioFloorChangedEvtMsg" }
+case class AudioFloorChangedEvtMsg(header: BbbClientMsgHeader, body: AudioFloorChangedEvtMsgBody) extends BbbCoreMsg
+case class AudioFloorChangedEvtMsgBody(voiceConf: String, intId: String, voiceUserId: String, floor: Boolean, lastFloorTime: String)
+
+/**
  * Received from FS call state events.
  */
 object VoiceConfCallStateEvtMsg { val NAME = "VoiceConfCallStateEvtMsg" }

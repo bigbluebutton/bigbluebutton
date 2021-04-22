@@ -11,7 +11,11 @@ import Storage from '/imports/ui/services/storage/session';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioControls from './component';
 import AudioModalContainer from '../audio-modal/container';
-import { invalidateCookie } from '../audio-modal/service';
+import {
+  setUserSelectedMicrophone,
+  setUserSelectedListenOnly,
+} from '../audio-modal/service';
+
 import Service from '../service';
 import AppService from '/imports/ui/components/app/service';
 
@@ -51,7 +55,8 @@ const handleLeaveAudio = () => {
   const meetingIsBreakout = AppService.meetingIsBreakout();
 
   if (!meetingIsBreakout) {
-    invalidateCookie('joinedAudio');
+    setUserSelectedMicrophone(false);
+    setUserSelectedListenOnly(false);
   }
 
   const skipOnFistJoin = getFromUserSettings('bbb_skip_check_audio_on_first_join', APP_CONFIG.skipCheckOnJoin);
@@ -93,7 +98,7 @@ export default withUsersConsumer(lockContextContainer(withModalMounter(withTrack
   }
 
   return ({
-    processToggleMuteFromOutside: arg => processToggleMuteFromOutside(arg),
+    processToggleMuteFromOutside: (arg) => processToggleMuteFromOutside(arg),
     showMute: isConnected() && !isListenOnly() && !isEchoTest() && !userLocks.userMic,
     muted: isConnected() && !isListenOnly() && isMuted(),
     inAudio: isConnected() && !isEchoTest(),

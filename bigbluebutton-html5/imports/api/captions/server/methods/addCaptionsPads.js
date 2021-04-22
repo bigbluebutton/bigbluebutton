@@ -1,5 +1,4 @@
 import RedisPubSub from '/imports/startup/server/redis';
-import Logger from '/imports/startup/server/logger';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 
