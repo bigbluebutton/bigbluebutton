@@ -109,11 +109,6 @@ class TimeWindowList extends PureComponent {
     const prevLastTimeWindow = prevTimeWindowsValues[prevTimeWindowsLength - 1];
     const lastTimeWindow = timeWindowsValues[prevTimeWindowsLength - 1];
 
-    if (prevLastTimeWindow?.chatId !== lastTimeWindow?.chatId) {
-      this.systemMessageIndexes = [];
-      this.listRef.forceUpdateGrid();
-    }
-
     if ((lastTimeWindow && (prevLastTimeWindow?.content.length !== lastTimeWindow?.content.length))) {
       if (this.listRef) {
         this.cache.clear(timeWindowsValuesLength-1);
@@ -136,6 +131,11 @@ class TimeWindowList extends PureComponent {
       || (chatId !== prevChatId)
       || (lastTimeWindowValuesBuild !== prevProps.lastTimeWindowValuesBuild)
       ) {
+      if (chatId !== prevChatId){
+        this.systemMessageIndexes.forEach(index => {
+          this.listRef.recomputeRowHeights(index);
+        });
+      }
       this.listRef.forceUpdateGrid();
     }
 
