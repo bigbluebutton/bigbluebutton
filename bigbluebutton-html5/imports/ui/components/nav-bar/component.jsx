@@ -102,7 +102,6 @@ class NavBar extends Component {
               : <Icon iconName="left_arrow" className={styles.arrowLeft} />
             }
             <Button
-              data-test="userListToggleButton"
               onClick={NavBar.handleToggleUserList}
               ghost
               circle
