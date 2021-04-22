@@ -110,7 +110,7 @@ export default withTracker(() => {
     const subHandler = {
       ...subscriptionErrorHandler,
       onStop: () => {
-        const event = new CustomEvent(EVENT_NAME, { detail: { role: currentUser.role } });
+        const event = new Event(EVENT_NAME);
         window.dispatchEvent(event);
       },
     };

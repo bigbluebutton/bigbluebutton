@@ -6,7 +6,8 @@ import { makeCall } from '/imports/ui/services/api';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import Auth from '/imports/ui/services/auth';
 
-let usersData = {};
+let prevUserData = {};
+let currentUserData = {};
 let messageQueue = [];
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -62,10 +63,8 @@ const Adapter = () => {
   ChatLogger.trace('chatAdapter::body::users', users[Auth.meetingID]);
 
   useEffect(() => {
-    window.addEventListener(EVENT_NAME, (e) => {
-      const { role } = e.detail;
-
-      if (role !== usersData[Auth.userID].role) {
+    window.addEventListener(EVENT_NAME, () => {
+      if (prevUserData.role && prevUserData?.role !== currentUserData?.role) {
         dispatch({
           type: ACTIONS.CLEAR_STREAM_MESSAGES,
         });
@@ -84,7 +83,12 @@ const Adapter = () => {
 
 
   useEffect(() => {
-    usersData = users[Auth.meetingID];
+    if (users[Auth.meetingID]) {
+      if (currentUserData?.role !== users[Auth.meetingID][Auth.userID].role) {
+        prevUserData = currentUserData;
+      }
+      currentUserData = users[Auth.meetingID][Auth.userID];
+    }
   }, [usingUsersContext]);
 
   useEffect(() => {
