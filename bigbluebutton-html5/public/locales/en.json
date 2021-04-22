@@ -375,7 +375,7 @@
     "app.statusNotifier.lowerHands": "Lower Hands",
     "app.statusNotifier.raisedHandsTitle": "Raised Hands",
     "app.statusNotifier.raisedHandDesc": "{0} raised their hands",
-    "app.statusNotifier.raisedHandDescOneUser": "{0} raised the hand",
+    "app.statusNotifier.raisedHandDescOneUser": "{0} raised hand",
     "app.statusNotifier.and": "and",
     "app.switch.onLabel": "ON",
     "app.switch.offLabel": "OFF",
