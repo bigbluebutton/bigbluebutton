@@ -19,7 +19,6 @@ import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { invalidateCookie } from '/imports/ui/components/audio/audio-modal/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import LayoutManagerComponent from '/imports/ui/components/layout/layout-manager/component';
 import LayoutManagerContainer from '/imports/ui/components/layout/layout-manager/container';
 import { withLayoutContext } from '/imports/ui/components/layout/context';
 import VideoService from '/imports/ui/components/video-provider/service';

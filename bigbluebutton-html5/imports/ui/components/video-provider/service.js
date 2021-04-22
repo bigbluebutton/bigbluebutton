@@ -45,7 +45,6 @@ const {
 } = Meteor.settings.public.kurento.cameraSortingModes;
 
 const TOKEN = '_';
-const ENABLE_PAGINATION_SESSION_VAR = 'enablePagination';
 
 class VideoService {
   constructor() {

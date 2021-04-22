@@ -1,7 +1,5 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import Auth from '/imports/ui/services/auth';
-import Screenshare from '/imports/api/screenshare';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 import LayoutManagerComponent from '/imports/ui/components/layout/layout-manager/component';
 
