@@ -1,7 +1,7 @@
 {
     "app.home.greeting": "Your presentation will begin shortly ...",
     "app.chat.submitLabel": "Send message",
-    "app.chat.loading": "loading: {0}%",
+    "app.chat.loading": "Chat messages loaded: {0}%",
     "app.chat.errorMaxMessageLength": "The message is {0} characters(s) too long",
     "app.chat.disconnected": "You are disconnected, messages can't be sent",
     "app.chat.locked": "Chat is locked, messages can't be sent",
