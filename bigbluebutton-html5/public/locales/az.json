@@ -330,7 +330,6 @@
     "app.settings.save-notification.label": "Tənzimləmələr yadda saxlanıldır",
     "app.statusNotifier.lowerHands": "Aşağı əllər",
     "app.statusNotifier.raisedHandsTitle": "Qaldırılmış Əllər",
-    "app.statusNotifier.raisedHandDesc": "{0} əllərini qaldırdı",
     "app.statusNotifier.and": "və",
     "app.switch.onLabel": "Açıq",
     "app.switch.offLabel": "Bağlı",

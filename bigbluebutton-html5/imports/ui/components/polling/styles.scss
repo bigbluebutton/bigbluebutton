@@ -27,7 +27,6 @@
 .pollingContainer {
   pointer-events:auto;
   min-width: var(--poll-width);
-  max-width: var(--poll-width);
   position: absolute;
 
   z-index: var(--poll-index);

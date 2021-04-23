@@ -319,7 +319,7 @@ const notification = (level, intl) => {
   Session.set('connectionStatusNotified', true);
 
 
-  if (intl) notify(intl.formatMessage(intlMessages.notification), level, 'network');
+  if (intl) notify(intl.formatMessage(intlMessages.notification), level, 'warning');
 };
 
 export default {

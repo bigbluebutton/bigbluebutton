@@ -9,7 +9,7 @@ const ChatDropdownContainer = ({ ...props }) => {
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
 
-  return <ChatDropdown {...props} users={users} />;
+  return <ChatDropdown {...props} users={users[Auth.meetingID]} />;
 };
 
 export default withTracker(() => {

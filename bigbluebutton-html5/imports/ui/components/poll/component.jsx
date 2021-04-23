@@ -243,8 +243,24 @@ class Poll extends Component {
     this.setState({ question: validateInput(e.target.value), error: clearError ? null : error });
   }
 
+  setOptListLength(len) {
+    const { optList } = this.state;
+    len = len > MAX_CUSTOM_FIELDS ? MAX_CUSTOM_FIELDS : len;
+    let diff = len - optList.length;
+    if(diff > 0) {
+      while(diff--) {
+        this.handleAddOption();
+      }
+    } else {
+      while(diff++) {
+        this.handleRemoveOption();
+      }
+    }
+  }
+
   pushToCustomPollValues(text) {
     const lines = text.split('\n');
+    this.setOptListLength(lines.length);
     for (let i = 0; i < MAX_CUSTOM_FIELDS; i += 1) {
       let line = '';
       if (i < lines.length) {
@@ -313,9 +329,8 @@ class Poll extends Component {
       if (o.val.length > 0) hasVal = true;
       const pollOptionKey = `poll-option-${i}`;
       return (
-        <span>
+        <span key={pollOptionKey}>
           <div
-            key={pollOptionKey}
             style={{
               display: 'flex',
               justifyContent: 'spaceBetween',
@@ -362,6 +377,7 @@ class Poll extends Component {
       stopPoll,
       currentPoll,
       pollAnswerIds,
+      usernames,
     } = this.props;
 
     return (
@@ -375,6 +391,7 @@ class Poll extends Component {
             stopPoll,
             currentPoll,
             pollAnswerIds,
+            usernames,
           }}
           handleBackClick={this.handleBackClick}
         />
@@ -425,7 +442,7 @@ class Poll extends Component {
                   ],
                 });
               }}
-              className={cx(styles.pBtn, { [styles.selectedBtnBlue]: type === 'TF' })}
+              className={cx(styles.pBtn, styles.btnMR, { [styles.selectedBtnBlue]: type === 'TF' })}
             />
             <Button
               label={intl.formatMessage(intlMessages.a4)}
@@ -441,7 +458,7 @@ class Poll extends Component {
                   ],
                 });
               }}
-              className={cx(styles.pBtn, { [styles.selectedBtnBlue]: type === 'A-' })}
+              className={cx(styles.pBtn, styles.btnML, { [styles.selectedBtnBlue]: type === 'A-' })}
             />
           </div>
           <Button

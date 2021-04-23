@@ -325,7 +325,6 @@
     "app.settings.save-notification.label": "설정이 저장되었습니다 ",
     "app.statusNotifier.lowerHands": "손 내리기",
     "app.statusNotifier.raisedHandsTitle": "손 들기",
-    "app.statusNotifier.raisedHandDesc": "{0} 명이 손을 들었음",
     "app.statusNotifier.and": "그리고",
     "app.switch.onLabel": "켜기 ",
     "app.switch.offLabel": "끄기",

@@ -87,6 +87,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="pathsThreshold" value="${placementsThreshold}"/>
         <property name="blankSvg" value="${BLANK_SVG}"/>
         <property name="convPdfToSvgTimeout" value="${svgConversionTimeout}"/>
+        <property name="svgResolutionPpi" value="${svgPresentationResolutionPpi}"/>
+        <property name="forceRasterizeSlides" value="${forceRasterizeSlides}"/>
+        <property name="pngWidthRasterizedSlides" value="${pngWidthRasterizedSlides}"/>
     </bean>
 
     <bean id="generatedSlidesInfoHelper" class="org.bigbluebutton.presentation.GeneratedSlidesInfoHelperImp"/>

@@ -46,7 +46,7 @@ const getResponseString = (obj) => {
 class LiveResult extends PureComponent {
   static getDerivedStateFromProps(nextProps) {
     const {
-      currentPoll, intl, pollAnswerIds,
+      currentPoll, intl, pollAnswerIds, usernames,
     } = nextProps;
 
     if (!currentPoll) return null;
@@ -61,7 +61,7 @@ class LiveResult extends PureComponent {
       ? [...users, ...responses.map(u => u.userId)]
       : [...users];
 
-    userAnswers = userAnswers.map(id => Service.getUser(id))
+    userAnswers = userAnswers.map(id => usernames[id])
       .map((user) => {
         let answer = '';
 

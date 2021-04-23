@@ -330,7 +330,6 @@
     "app.settings.save-notification.label": "La configuració ha estat desada.",
     "app.statusNotifier.lowerHands": "Mans abaixades",
     "app.statusNotifier.raisedHandsTitle": "Mans aixecades",
-    "app.statusNotifier.raisedHandDesc": "{0} ha aixecat la mà",
     "app.statusNotifier.and": "i",
     "app.switch.onLabel": "ON",
     "app.switch.offLabel": "OFF",

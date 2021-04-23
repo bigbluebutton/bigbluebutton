@@ -15,7 +15,6 @@ const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 const propTypes = {
   scrollPosition: PropTypes.number,
   chatId: PropTypes.string.isRequired,
-  hasUnreadMessages: PropTypes.bool.isRequired,
   handleScrollUpdate: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -49,8 +48,8 @@ class TimeWindowList extends PureComponent {
         const { timeWindowsValues } = this.props;
         const timewindow = timeWindowsValues[rowIndex];
 
-        const key = timewindow.key;
-        const contentCount = timewindow.content.length;
+        const key = timewindow?.key;
+        const contentCount = timewindow?.content?.length;
         return `${key}-${contentCount}`;
       },
     });
@@ -132,6 +131,11 @@ class TimeWindowList extends PureComponent {
       || (chatId !== prevChatId)
       || (lastTimeWindowValuesBuild !== prevProps.lastTimeWindowValuesBuild)
       ) {
+      if (chatId !== prevChatId){
+        this.systemMessageIndexes.forEach(index => {
+          this.listRef.recomputeRowHeights(index);
+        });
+      }
       this.listRef.forceUpdateGrid();
     }
 

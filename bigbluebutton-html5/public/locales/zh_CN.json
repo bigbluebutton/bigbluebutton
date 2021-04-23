@@ -328,7 +328,6 @@
     "app.settings.save-notification.label": "设置已保存",
     "app.statusNotifier.lowerHands": "没举手",
     "app.statusNotifier.raisedHandsTitle": "已举手",
-    "app.statusNotifier.raisedHandDesc": "{0} 已举手",
     "app.statusNotifier.and": "和",
     "app.switch.onLabel": "开启",
     "app.switch.offLabel": "关闭",

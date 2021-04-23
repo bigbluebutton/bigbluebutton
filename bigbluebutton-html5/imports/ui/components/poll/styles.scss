@@ -6,7 +6,7 @@
     --poll-column-amount: 2;
     --poll-blue: #1A73D4;
     --poll-header-offset: -0.875rem;
-    --poll-addItem-width: 6rem;
+    --poll-addItem-width: 100%;
     --poll-input-height: 2.5rem;
 }
 
@@ -223,7 +223,7 @@
 
     button {
         position: relative;
-        width: 47%;
+        width: 100%;
     }
 }
 
@@ -328,6 +328,14 @@
             opacity: 1;
         }
     }
+}
+
+.btnML {
+    margin-left: 3%;
+}
+
+.btnMR {
+    margin-right: 3%;
 }
 
 .deleteBtn {

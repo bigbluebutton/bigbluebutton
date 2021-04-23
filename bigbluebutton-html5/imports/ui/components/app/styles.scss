@@ -160,6 +160,10 @@
   background-color: var(--color-white);
   min-width: var(--poll-pane-min-width);
   padding: 1rem;
+
+  @include mq($small-only) {
+    overflow: auto;
+  }
 }
 
 .breakoutRoom {

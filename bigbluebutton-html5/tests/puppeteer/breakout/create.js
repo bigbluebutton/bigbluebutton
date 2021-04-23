@@ -21,10 +21,91 @@ class Create {
     this.page3 = new Page();
   }
 
-  // Join BigBlueButton meeting
+  // Join BigBlueButton meeting with a Moderator and a Viewer
   async init(meetingId, testName) {
     await this.page1.init(Page.getArgs(), meetingId, { ...params, fullName: 'Moderator1' }, undefined, testName);
     await this.page2.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Viewer1', moderatorPW: '' }, undefined, testName);
+  }
+
+  // Join BigBlueButton meeting with a Viewer only
+  async initViewer(testName) {
+    await this.page3.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Viewer2', moderatorPW: '' }, undefined, testName);
+  }
+
+  async askModeratorGuestPolicy(testName) {
+    try {
+      await this.page1.screenshot(`${testName}`, `01-before-closing-audio-modal-[${this.page1.meetingId}]`);
+      await this.page1.closeAudioModal();
+      await this.page2.closeAudioModal();
+      await this.page1.screenshot(`${testName}`, `02-after-closing-audio-modal-[${this.page1.meetingId}]`);
+      await this.page1.waitForSelector(ue.manageUsers, ELEMENT_WAIT_TIME);
+      await this.page1.click(ue.manageUsers, true);
+      await this.page1.screenshot(`${testName}`, `03-opened-users-managing-[${this.page1.meetingId}]`);
+      await this.page1.waitForSelector(ue.guestPolicyLabel, ELEMENT_WAIT_TIME);
+      await this.page1.click(ue.guestPolicyLabel, true);
+      await this.page1.screenshot(`${testName}`, `04-opened-guest-policy-[${this.page1.meetingId}]`);
+      await this.page1.waitForSelector(ue.askModerator, ELEMENT_WAIT_TIME);
+      await this.page1.click(ue.askModerator, true);
+      await this.page1.screenshot(`${testName}`, `05-clicked-askModerator-[${this.page1.meetingId}]`);
+      await this.initViewer(testName);
+      const responseLoggedIn = await this.page1.page.evaluate(util.getTestElement, ue.waitingUsersBtn);
+      await this.page1.screenshot(`${testName}`, `06-after-viewer-acceptance-[${this.page1.meetingId}]`);
+      return responseLoggedIn;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+  }
+
+  async alwaysAcceptGuestPolicy(testName) {
+    try {
+      await this.page1.screenshot(`${testName}`, `01-before-closing-audio-modal-[${this.page1.meetingId}]`);
+      await this.page1.closeAudioModal();
+      await this.page2.closeAudioModal();
+      await this.page1.screenshot(`${testName}`, `02-after-closing-audio-modal-[${this.page1.meetingId}]`);
+      await this.page1.waitForSelector(ue.manageUsers, ELEMENT_WAIT_TIME);
+      await this.page1.click(ue.manageUsers, true);
+      await this.page1.screenshot(`${testName}`, `03-opened-users-managing-[${this.page1.meetingId}]`);
+      await this.page1.waitForSelector(ue.guestPolicyLabel, ELEMENT_WAIT_TIME);
+      await this.page1.click(ue.guestPolicyLabel, true);
+      await this.page1.screenshot(`${testName}`, `04-opened-guest-policy-[${this.page1.meetingId}]`);
+      await this.page1.waitForSelector(ue.alwaysAccept, ELEMENT_WAIT_TIME);
+      await this.page1.click(ue.alwaysAccept, true);
+      await this.page1.screenshot(`${testName}`, `05-clicked-alwaysAccept-[${this.page1.meetingId}]`);
+      await this.initViewer(testName);
+      await this.page3.closeAudioModal();
+      const responseLoggedIn = await this.page3.page.evaluate(util.getTestElement, e.whiteboard);
+      await this.page3.screenshot(`${testName}`, `06-after-viewer-connection-[${this.page1.meetingId}]`);
+      return responseLoggedIn;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+  }
+
+  async alwaysDenyGuestPolicy(testName) {
+    try {
+      await this.page1.screenshot(`${testName}`, `01-before-closing-audio-modal-[${this.page1.meetingId}]`);
+      await this.page1.closeAudioModal();
+      await this.page2.closeAudioModal();
+      await this.page1.screenshot(`${testName}`, `02-after-closing-audio-modal-[${this.page1.meetingId}]`);
+      await this.page1.waitForSelector(ue.manageUsers, ELEMENT_WAIT_TIME);
+      await this.page1.click(ue.manageUsers, true);
+      await this.page1.screenshot(`${testName}`, `03-opened-users-managing-[${this.page1.meetingId}]`);
+      await this.page1.waitForSelector(ue.guestPolicyLabel, ELEMENT_WAIT_TIME);
+      await this.page1.click(ue.guestPolicyLabel, true);
+      await this.page1.screenshot(`${testName}`, `04-opened-guest-policy-[${this.page1.meetingId}]`);
+      await this.page1.waitForSelector(ue.alwaysAccept, ELEMENT_WAIT_TIME);
+      await this.page1.click(ue.alwaysAccept, true);
+      await this.page1.screenshot(`${testName}`, `05-clicked-alwaysAccept-[${this.page1.meetingId}]`);
+      await this.initViewer(testName);
+      const responseLoggedIn = await this.page3.page.evaluate(util.getTestElement, ue.joinMeetingDemoPage);
+      await this.page3.screenshot(`${testName}`, `06-after-viewer-gets-denied-[${this.page1.meetingId}]`);
+      return responseLoggedIn;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
   }
 
   // Create Breakoutrooms
@@ -100,7 +181,6 @@ class Create {
       await this.page3.waitForSelector(be.chatButton, ELEMENT_WAIT_TIME);
       await this.page3.click(be.chatButton, true);
       await this.page3.click(be.breakoutRoomsItem, true);
-
 
       await this.page3.waitForSelector(be.joinRoom1, ELEMENT_WAIT_TIME);
       await this.page3.click(be.joinRoom1, true);
@@ -196,6 +276,11 @@ class Create {
   async close() {
     await this.page1.close();
     await this.page2.close();
+  }
+
+  // Close page
+  async closePage(page) {
+    await page.close();
   }
 }
 

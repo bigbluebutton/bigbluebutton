@@ -22,6 +22,8 @@ const SUBSCRIPTIONS = [
   'connection-status', 'voice-call-states',
 ];
 
+const EVENT_NAME = 'bbb-group-chat-messages-subscription-has-stoppped';
+
 class Subscriptions extends Component {
   componentDidUpdate() {
     const { subscriptionsReady } = this.props;
@@ -36,7 +38,6 @@ class Subscriptions extends Component {
   }
 }
 
-let usersPersistentDataHandler = null;
 
 export default withTracker(() => {
   const { credentials } = Auth;
@@ -103,11 +104,23 @@ export default withTracker(() => {
         { meetingId, users: { $all: [requesterUserId] } },
       ],
     }).fetch();
-
+    
     const chatIds = chats.map(chat => chat.chatId);
-    groupChatMessageHandler = Meteor.subscribe('group-chat-msg', chatIds, subscriptionErrorHandler);
+
+    const subHandler = {
+      ...subscriptionErrorHandler,
+      onStop: () => {
+        const event = new Event(EVENT_NAME);
+        window.dispatchEvent(event);
+      },
+    };
+
+    groupChatMessageHandler = Meteor.subscribe('group-chat-msg', chatIds, subHandler);
   }
-  if (ready && !usersPersistentDataHandler) {
+
+  // TODO: Refactor all the late subscribers
+  let usersPersistentDataHandler = {};
+  if (ready) {
     usersPersistentDataHandler = Meteor.subscribe('users-persistent-data');
   }
 

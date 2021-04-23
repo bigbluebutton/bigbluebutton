@@ -242,7 +242,7 @@ class PresentationUploader extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { selectedToBeNextCurrent, isOpen, presentations: propPresentations } = this.props;
+    const { isOpen, presentations: propPresentations } = this.props;
     const { presentations } = this.state;
 
     // cleared local presetation state errors and set to presentations available on the server
@@ -355,10 +355,6 @@ class PresentationUploader extends Component {
     const isConverting = !item.conversion.done && item.upload.done;
     const hasError = item.conversion.error || item.upload.error;
     const isProcessing = (isUploading || isConverting) && !hasError;
-
-    const {
-      intl, selectedToBeNextCurrent,
-    } = this.props;
 
     const itemClassName = {
       [styles.done]: !isProcessing && !hasError,
@@ -599,7 +595,15 @@ class PresentationUploader extends Component {
     const { intl } = this.props;
 
     const presentationsSorted = presentations
-      .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp);
+      .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp)
+      .sort((a, b) => a.filename.localeCompare(b.filename))
+      .sort((a, b) => b.upload.progress - a.upload.progress)
+      .sort((a, b) => b.conversion.done - a.conversion.done)
+      .sort((a, b) => {
+        const aUploadNotTriggeredYet = !a.upload.done && a.upload.progress === 0;
+        const bUploadNotTriggeredYet = !b.upload.done && b.upload.progress === 0;
+        return bUploadNotTriggeredYet - aUploadNotTriggeredYet;
+      });
 
     return (
       <div className={styles.fileList}>

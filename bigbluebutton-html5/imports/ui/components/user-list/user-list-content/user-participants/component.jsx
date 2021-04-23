@@ -95,14 +95,7 @@ class UserParticipants extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { compact } = this.props;
-    const { selectedUser, scrollArea } = this.state;
-    if (!compact && (!prevState.scrollArea && scrollArea)) {
-      scrollArea.addEventListener(
-        'keydown',
-        this.rove,
-      );
-    }
+    const { selectedUser } = this.state;
 
     if (selectedUser) {
       const { firstChild } = selectedUser;

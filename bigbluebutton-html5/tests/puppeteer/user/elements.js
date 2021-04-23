@@ -17,5 +17,14 @@ exports.webcamsIsDisabledInDataSaving = 'button[aria-label="Webcam sharing is di
 exports.screenshareLocked = 'button[aria-label="Screenshare locked"]';
 exports.connectionStatusItemEmpty = 'div[data-test="connectionStatusItemEmpty"]';
 exports.connectionStatusItemUser = 'div[data-test="connectionStatusItemUser"]';
+exports.connectionStatusOfflineUser = 'div[data-test="offlineUser"]';
 exports.mobileUser = 'span[data-test="mobileUser"]';
 exports.userList = '[aria-label="Users and messages toggle"]';
+exports.manageUsers = 'button[data-test="manageUsers"]';
+exports.guestPolicyLabel = 'li[data-test="guestPolicyLabel"]';
+exports.guestPolicySettingsModal = 'div[data-test="guestPolicySettingsModal"]';
+exports.askModerator = 'button[data-test="askModerator"]';
+exports.alwaysAccept = 'button[data-test="alwaysAccept"]';
+exports.alwaysDeny = 'button[data-test="alwaysDeny"]';
+exports.waitingUsersBtn = 'div[data-test="waitingUsersBtn"]';
+exports.joinMeetingDemoPage = 'div[class^="join-meeting"]';

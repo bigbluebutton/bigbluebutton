@@ -16,6 +16,10 @@ import VideoPreviewService from '../video-preview/service';
 import Storage from '/imports/ui/services/storage/session';
 import logger from '/imports/startup/client/logger';
 import _ from 'lodash';
+import {
+  getSortingMethod,
+  sortVideoStreams,
+} from '/imports/ui/components/video-provider/stream-sorting';
 
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
 const MULTIPLE_CAMERAS = Meteor.settings.public.app.enableMultipleCameras;
@@ -35,33 +39,14 @@ const {
 const PAGINATION_THRESHOLDS_CONF = Meteor.settings.public.kurento.paginationThresholds;
 const PAGINATION_THRESHOLDS = PAGINATION_THRESHOLDS_CONF.thresholds.sort((t1, t2) => t1.users - t2.users);
 const PAGINATION_THRESHOLDS_ENABLED = PAGINATION_THRESHOLDS_CONF.enabled;
+const {
+  paginationSorting: PAGINATION_SORTING,
+  defaultSorting: DEFAULT_SORTING,
+} = Meteor.settings.public.kurento.cameraSortingModes;
 
 const TOKEN = '_';
-const ENABLE_PAGINATION_SESSION_VAR = 'enablePagination';
 
 class VideoService {
-  // Paginated streams: sort with following priority: local -> presenter -> alphabetic
-  static sortPaginatedStreams(s1, s2) {
-    if (UserListService.isUserPresenter(s1.userId) && !UserListService.isUserPresenter(s2.userId)) {
-      return -1;
-    } else if (UserListService.isUserPresenter(s2.userId) && !UserListService.isUserPresenter(s1.userId)) {
-      return 1;
-    } else {
-      return UserListService.sortUsersByName(s1, s2);
-    }
-  }
-
-  // Full mesh: sort with the following priority: local -> alphabetic
-  static sortMeshStreams(s1, s2) {
-    if (s1.userId === Auth.userID && s2.userId !== Auth.userID) {
-      return -1;
-    } else if (s2.userId === Auth.userID && s1.userId !== Auth.userID) {
-      return 1;
-    } else {
-      return UserListService.sortUsersByName(s1, s2);
-    }
-  }
-
   constructor() {
     this.defineProperties({
       isConnecting: false,
@@ -379,50 +364,46 @@ class VideoService {
     // Recalculate total number of pages
     this.setNumberOfPages(mine.length, others.length, pageSize);
     const chunkIndex = this.currentVideoPageIndex * pageSize;
-    const paginatedStreams = others
-      .sort(VideoService.sortPaginatedStreams)
+    const paginatedStreams = sortVideoStreams(others, PAGINATION_SORTING)
       .slice(chunkIndex, (chunkIndex + pageSize)) || [];
-    const streamsOnPage = [...mine, ...paginatedStreams];
 
-    return streamsOnPage;
+    if (getSortingMethod(PAGINATION_SORTING).localFirst) {
+      return [...mine, ...paginatedStreams];
+    }
+
+    return [...paginatedStreams, ...mine];
   }
 
   getVideoStreams() {
+    const pageSize = this.getMyPageSize();
+    const isPaginationDisabled = !this.isPaginationEnabled() || pageSize === 0;
+    const { neededDataTypes } = isPaginationDisabled
+      ? getSortingMethod(DEFAULT_SORTING)
+      : getSortingMethod(PAGINATION_SORTING);
+
     let streams = VideoStreams.find(
       { meetingId: Auth.meetingID },
-      {
-        fields: {
-          userId: 1, stream: 1, name: 1,
-        },
-      },
+      { fields: neededDataTypes },
     ).fetch();
 
     const moderatorOnly = this.webcamsOnlyForModerator();
     if (moderatorOnly) streams = this.filterModeratorOnly(streams);
-
     const connectingStream = this.getConnectingStream(streams);
     if (connectingStream) streams.push(connectingStream);
-
-    const mappedStreams = streams.map(vs => ({
-      cameraId: vs.stream,
-      userId: vs.userId,
-      name: vs.name,
-    }));
-
-    const pageSize = this.getMyPageSize();
 
     // Pagination is either explictly disabled or pagination is set to 0 (which
     // is equivalent to disabling it), so return the mapped streams as they are
     // which produces the original non paginated behaviour
-    if (!this.isPaginationEnabled() || pageSize === 0) {
+    if (isPaginationDisabled) {
       return {
-        streams: mappedStreams.sort(VideoService.sortMeshStreams),
-        totalNumberOfStreams: mappedStreams.length
+        streams: sortVideoStreams(streams, DEFAULT_SORTING),
+        totalNumberOfStreams: streams.length
       };
     }
 
-    const paginatedStreams = this.getVideoPage(mappedStreams, pageSize);
-    return { streams: paginatedStreams, totalNumberOfStreams: mappedStreams.length };
+    const paginatedStreams = this.getVideoPage(streams, pageSize);
+
+    return { streams: paginatedStreams, totalNumberOfStreams: streams.length };
   }
 
   stopConnectingStream () {

@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
-import { ACTIONSBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
+import { ACTIONSBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager/component';
 import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from './styles.scss';
@@ -89,6 +89,7 @@ class ActionsBar extends PureComponent {
               })}
               accessKey={shortcuts.raisehand}
               color={currentUser.emoji === 'raiseHand' ? 'primary' : 'default'}
+              data-test={currentUser.emoji === 'raiseHand' ? 'lowerHandLabel' : 'raiseHandLabel'}
               ghost={currentUser.emoji !== 'raiseHand'}
               className={cx(currentUser.emoji === 'raiseHand' || styles.btn)}
               hideLabel
