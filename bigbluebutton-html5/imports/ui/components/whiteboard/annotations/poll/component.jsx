@@ -212,13 +212,17 @@ class PollDrawComponent extends Component {
     const { points, result } = annotation;
     const { slideWidth, slideHeight, intl } = this.props;
 
+    // group duplicated responses and keep track of the number of removed items
+    const reducedResult = result.reduce(caseInsensitiveReducer, []);
+    const reducedResultRatio = reducedResult.length * 100 / result.length;
+
     // x1 and y1 - coordinates of the top left corner of the annotation
     // initial width and height are the width and height of the annotation
     // all the points are given as percentages of the slide
-    const x1 = points[0];
-    const y1 = points[1];
     const initialWidth = points[2];
-    const initialHeight = points[3];
+    const initialHeight = points[3] / 100 * reducedResultRatio; // calculate new height after grouping
+    const x1 = points[0];
+    const y1 = points[1] + (points[3] - initialHeight); // add the difference between original and reduced values
 
     // calculating the data for the outer rectangle
     // 0.001 is needed to accomodate bottom and right borders of the annotation
@@ -230,7 +234,6 @@ class PollDrawComponent extends Component {
     let votesTotal = 0;
     let maxNumVotes = 0;
     const textArray = [];
-    const reducedResult = result.reduce(caseInsensitiveReducer, []);
 
     // counting the total number of votes, finding the biggest number of votes
     reducedResult.reduce((previousValue, currentValue) => {
