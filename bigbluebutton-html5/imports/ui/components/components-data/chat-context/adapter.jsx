@@ -6,7 +6,8 @@ import { makeCall } from '/imports/ui/services/api';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import Auth from '/imports/ui/services/auth';
 
-let usersData = {};
+let prevUserData = {};
+let currentUserData = {};
 let messageQueue = [];
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -63,9 +64,13 @@ const Adapter = () => {
 
   useEffect(() => {
     window.addEventListener(EVENT_NAME, () => {
-      dispatch({
-        type: ACTIONS.CLEAR_STREAM_MESSAGES,
-      });
+      /* needed to prevent an issue with dupĺicated messages when user role is changed
+      more info: https://github.com/bigbluebutton/bigbluebutton/issues/11842 */
+      if (prevUserData.role && prevUserData?.role !== currentUserData?.role) {
+        dispatch({
+          type: ACTIONS.CLEAR_STREAM_MESSAGES,
+        });
+      }
     });
   }, []);
 
@@ -79,8 +84,15 @@ const Adapter = () => {
   }, [Meteor.status().connected, syncStarted, Auth.userID]);
 
 
+  /* needed to prevent an issue with dupĺicated messages when user role is changed
+  more info: https://github.com/bigbluebutton/bigbluebutton/issues/11842 */
   useEffect(() => {
-    usersData = users[Auth.meetingID];
+    if (users[Auth.meetingID]) {
+      if (currentUserData?.role !== users[Auth.meetingID][Auth.userID].role) {
+        prevUserData = currentUserData;
+      }
+      currentUserData = users[Auth.meetingID][Auth.userID];
+    }
   }, [usingUsersContext]);
 
   useEffect(() => {
