@@ -330,7 +330,6 @@
     "app.settings.save-notification.label": "Indstillingerne er blevet gemt",
     "app.statusNotifier.lowerHands": "Sænk Hænder",
     "app.statusNotifier.raisedHandsTitle": "Hævede Hænder",
-    "app.statusNotifier.raisedHandDesc": "{0} løftede hånden",
     "app.statusNotifier.and": "og",
     "app.switch.onLabel": "Til",
     "app.switch.offLabel": "Fra",

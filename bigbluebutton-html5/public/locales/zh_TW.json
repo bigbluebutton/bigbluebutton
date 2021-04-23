@@ -325,7 +325,6 @@
     "app.settings.save-notification.label": "已儲存設定",
     "app.statusNotifier.lowerHands": "放下",
     "app.statusNotifier.raisedHandsTitle": "舉手",
-    "app.statusNotifier.raisedHandDesc": "{0} 人舉起他們的手",
     "app.statusNotifier.and": "並且",
     "app.switch.onLabel": "開啟",
     "app.switch.offLabel": "關閉",
