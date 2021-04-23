@@ -11,6 +11,7 @@ import TimeWindowChatItem from './time-window-chat-item/container';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
+const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
 
 const propTypes = {
   scrollPosition: PropTypes.number,
@@ -187,10 +188,11 @@ class TimeWindowList extends PureComponent {
 
     const needResizeMessages = [
       `${SYSTEM_CHAT_TYPE}-welcome-msg`,
-      `${SYSTEM_CHAT_TYPE}-moderator-msg`
+      `${SYSTEM_CHAT_TYPE}-moderator-msg`,
+      `${SYSTEM_CHAT_TYPE}-${CHAT_POLL_RESULTS_MESSAGE}`,
     ];
 
-    if (needResizeMessages.includes(message.key)) {
+    if (needResizeMessages.includes(message.id)) {
       if (!this.systemMessageIndexes.includes(index)) {
         this.systemMessageIndexes.push(index);
         [500, 1000, 2000, 3000, 4000, 5000].forEach((i)=>{
