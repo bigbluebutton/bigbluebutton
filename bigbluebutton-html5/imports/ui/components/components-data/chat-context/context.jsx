@@ -328,6 +328,7 @@ const reducer = (state, action) => {
             timeWindowIds.forEach((timeWindowId)=> {
               const timeWindow = messages[timeWindowId];
               if (timeWindow.messageType === MESSAGE_TYPES.STREAM) {
+                chat.unreadTimeWindows.delete(timeWindowId);
                 delete newState[chatId][group][timeWindowId];
               }
             });

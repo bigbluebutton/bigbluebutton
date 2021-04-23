@@ -276,7 +276,7 @@ public:
     # The algorithm names are self-explanatory.
     cameraSortingModes:
       defaultSorting: LOCAL_ALPHABETICAL
-      paginationSorting: LOCAL_PRESENTER_ALPHABETICAL
+      paginationSorting: VOICE_ACTIVITY_LOCAL
     # Entry `thresholds` is an array of:
     # - threshold: minimum number of cameras being shared for profile to applied
     #   profile: a camera profile id from the cameraProfiles configuration array
@@ -400,7 +400,6 @@ public:
     autoSwapLayout: false
     hidePresentation: false
     showParticipantsOnLogin: true
-    webcamsDefaultPlacement: 'top'
   media:
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
