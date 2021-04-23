@@ -2,7 +2,7 @@ package org.bigbluebutton.core2.message.handlers
 
 import org.bigbluebutton.core.api.SendTimeRemainingAuditInternalMsg
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.running.{BaseMeetingActor, LiveMeeting, OutMsgRouter}
+import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 

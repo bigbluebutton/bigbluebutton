@@ -73,7 +73,7 @@ case class BreakoutRoomUsersUpdateInternalMsg(parentId: String, breakoutId: Stri
  * @param parentId
  * @param breakoutId
  */
-case class EndBreakoutRoomInternalMsg(parentId: String, breakoutId: String) extends InMessage
+case class EndBreakoutRoomInternalMsg(parentId: String, breakoutId: String, reason: String) extends InMessage
 
 // DeskShare
 case class DeskShareStartedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage

@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.core.api.SendBreakoutTimeRemainingInternalMsg
-import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait SendBreakoutTimeRemainingInternalMsgHdlr {

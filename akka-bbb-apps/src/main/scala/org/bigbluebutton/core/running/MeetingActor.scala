@@ -575,9 +575,13 @@ class MeetingActor(
   def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg) {
     state = removeUsersWithExpiredUserLeftFlag(liveMeeting, state)
 
-    val (newState, expireReason) = ExpiryTrackerHelper.processMeetingExpiryAudit(outGW, eventBus, liveMeeting, state)
-    state = newState
-    expireReason foreach (reason => log.info("Meeting {} expired with reason {}", props.meetingProp.intId, reason))
+    if (!liveMeeting.props.meetingProp.isBreakout) {
+      // Track expiry only for non-breakout rooms. The breakout room lifecycle is
+      // driven by the parent meeting.
+      val (newState, expireReason) = ExpiryTrackerHelper.processMeetingExpiryAudit(outGW, eventBus, liveMeeting, state)
+      state = newState
+      expireReason foreach (reason => log.info("Meeting {} expired with reason {}", props.meetingProp.intId, reason))
+    }
 
     sendRttTraceTest()
     setRecordingChapterBreak()
