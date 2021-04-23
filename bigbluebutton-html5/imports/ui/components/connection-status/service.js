@@ -50,17 +50,17 @@ const getStats = () => {
   return STATS.level[stats];
 };
 
-const setStats = (level = -1) => {
+const setStats = (level = -1, type = 'recovery', value = {}) => {
   if (stats !== level) {
     stats = level;
     statsDep.changed();
-    addConnectionStatus(level);
+    addConnectionStatus(level, type, value);
   }
 };
 
-const handleStats = (level) => {
+const handleStats = (level, type, value) => {
   if (level > stats) {
-    setStats(level);
+    setStats(level, type, value);
   }
 };
 
@@ -71,9 +71,9 @@ const handleAudioStatsEvent = (event) => {
     let active = false;
     // From higher to lower
     for (let i = STATS.level.length - 1; i >= 0; i--) {
-      if (loss > STATS.loss[i] || jitter > STATS.jitter[i]) {
+      if (loss >= STATS.loss[i] || jitter >= STATS.jitter[i]) {
         active = true;
-        handleStats(i);
+        handleStats(i, 'audio', { loss, jitter });
         break;
       }
     }
@@ -89,9 +89,9 @@ const handleSocketStatsEvent = (event) => {
     let active = false;
     // From higher to lower
     for (let i = STATS.level.length - 1; i >= 0; i--) {
-      if (rtt > STATS.rtt[i]) {
+      if (rtt >= STATS.rtt[i]) {
         active = true;
-        handleStats(i);
+        handleStats(i, 'socket', { rtt });
         break;
       }
     }
@@ -108,9 +108,11 @@ const startStatsTimeout = () => {
   }, STATS.timeout);
 };
 
-const addConnectionStatus = (level) => {
-  if (level !== -1) makeCall('addConnectionStatus', STATS.level[level]);
-};
+const addConnectionStatus = (level, type, value) => {
+  const status = level !== -1 ? STATS.level[level] : 'normal';
+
+  makeCall('addConnectionStatus', status, type, value);
+}
 
 const fetchRoundTripTime = () => {
   const t0 = Date.now();
@@ -323,11 +325,9 @@ const notification = (level, intl) => {
 };
 
 export default {
-  addConnectionStatus,
   getConnectionStatus,
   getStats,
   getHelp,
-  getLevel,
   isEnabled,
   notification,
   startRoundTripTime,
