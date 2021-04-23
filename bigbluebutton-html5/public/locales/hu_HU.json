@@ -327,7 +327,6 @@
     "app.settings.save-notification.label": "A beállításokat mentettük",
     "app.statusNotifier.lowerHands": "Kéz letétele",
     "app.statusNotifier.raisedHandsTitle": "Kézfeltartások",
-    "app.statusNotifier.raisedHandDesc": "{0} feltartotta a kezét",
     "app.statusNotifier.and": "és",
     "app.switch.onLabel": "BE",
     "app.switch.offLabel": "KI",

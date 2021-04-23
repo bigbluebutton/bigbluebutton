@@ -131,6 +131,11 @@ class TimeWindowList extends PureComponent {
       || (chatId !== prevChatId)
       || (lastTimeWindowValuesBuild !== prevProps.lastTimeWindowValuesBuild)
       ) {
+      if (chatId !== prevChatId){
+        this.systemMessageIndexes.forEach(index => {
+          this.listRef.recomputeRowHeights(index);
+        });
+      }
       this.listRef.forceUpdateGrid();
     }
 

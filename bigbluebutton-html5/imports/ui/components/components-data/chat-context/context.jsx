@@ -49,6 +49,8 @@ const generateTimeWindow = (timestamp) => {
 
 export const ChatContext = createContext();
 
+const removedMessagesReadState = {};
+
 const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY) => {
   
   const timeWindow = generateTimeWindow(msg.timestamp);
@@ -70,7 +72,7 @@ const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY
         ...restMsg,
         key: messageKey,
         lastTimestamp: msg.timestamp,
-        read: msg.chatId === PUBLIC_CHAT_KEY && msg.timestamp <= getLoginTime() ? true : false,
+        read: msg.chatId === PUBLIC_CHAT_KEY && msg.timestamp <= getLoginTime() ? true : !!removedMessagesReadState[msg.id],
         content: [
           { id: msg.id, text: msg.message, time: msg.timestamp },
         ],
@@ -129,7 +131,7 @@ const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY
       const message = tempGroupMessage[key];
       message.messageType = msgType;
       const previousMessage = message.timestamp <= getLoginTime();
-      if (!previousMessage && message.sender !== Auth.userID && !message.id.startsWith(SYSTEM_CHAT_TYPE)) {
+      if (!previousMessage && message.sender !== Auth.userID && !message.id.startsWith(SYSTEM_CHAT_TYPE) && !message.read) {
         stateMessages.unreadTimeWindows.add(key);
       }
     });
@@ -329,6 +331,7 @@ const reducer = (state, action) => {
               const timeWindow = messages[timeWindowId];
               if (timeWindow.messageType === MESSAGE_TYPES.STREAM) {
                 chat.unreadTimeWindows.delete(timeWindowId);
+                removedMessagesReadState[newState[chatId][group][timeWindowId].id] = newState[chatId][group][timeWindowId].read;
                 delete newState[chatId][group][timeWindowId];
               }
             });

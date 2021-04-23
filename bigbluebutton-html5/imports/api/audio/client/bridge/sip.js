@@ -220,10 +220,14 @@ class SIPSession {
 
   set outputDeviceId(deviceId) {
     this._outputDeviceId = deviceId;
-    Storage.setItem(OUTPUT_DEVICE_ID_KEY, deviceId);
   }
 
-  joinAudio({ isListenOnly, extension, inputDeviceId }, managerCallback) {
+  joinAudio({
+    isListenOnly,
+    extension,
+    inputDeviceId,
+    outputDeviceId,
+  }, managerCallback) {
     return new Promise((resolve, reject) => {
       const callExtension = extension ? `${extension}${this.userData.voiceBridge}` : this.userData.voiceBridge;
 
@@ -250,10 +254,14 @@ class SIPSession {
       // If there's an extension passed it means that we're joining the echo test first
       this.inEchoTest = !!extension;
 
-      return this.doCall({ callExtension, isListenOnly, inputDeviceId })
-        .catch((reason) => {
-          reject(reason);
-        });
+      return this.doCall({
+        callExtension,
+        isListenOnly,
+        inputDeviceId,
+        outputDeviceId,
+      }).catch((reason) => {
+        reject(reason);
+      });
     });
   }
 
@@ -278,9 +286,11 @@ class SIPSession {
     const {
       isListenOnly,
       inputDeviceId,
+      outputDeviceId,
     } = options;
 
     this.inputDeviceId = inputDeviceId;
+    this.outputDeviceId = outputDeviceId;
 
     const {
       userId,
@@ -1217,7 +1227,6 @@ export default class SIPBridge extends BaseAudioBridge {
 
   get outputDeviceId() {
     const sessionOutputDeviceId = Storage.getItem(OUTPUT_DEVICE_ID_KEY);
-
     if (sessionOutputDeviceId) {
       return sessionOutputDeviceId;
     }
@@ -1278,13 +1287,15 @@ export default class SIPBridge extends BaseAudioBridge {
             const fallbackExtension = this.activeSession.inEchoTest ? extension : undefined;
             this.activeSession = new SIPSession(this.user, this.userData, this.protocol,
               hostname, this.baseCallStates, this.baseErrorCodes, true);
-            const { inputDeviceId } = this;
+            const { inputDeviceId, outputDeviceId } = this;
             this.activeSession.joinAudio({
               isListenOnly,
               extension: fallbackExtension,
               inputDeviceId,
+              outputDeviceId,
             }, callback)
               .then((value) => {
+                this.changeOutputDevice(outputDeviceId, true);
                 resolve(value);
               }).catch((reason) => {
                 reject(reason);
@@ -1295,13 +1306,15 @@ export default class SIPBridge extends BaseAudioBridge {
         return managerCallback(message);
       };
 
-      const { inputDeviceId } = this;
+      const { inputDeviceId, outputDeviceId } = this;
       this.activeSession.joinAudio({
         isListenOnly,
         extension,
         inputDeviceId,
+        outputDeviceId,
       }, callback)
         .then((value) => {
+          this.changeOutputDevice(outputDeviceId, true);
           resolve(value);
         }).catch((reason) => {
           reject(reason);
@@ -1343,17 +1356,29 @@ export default class SIPBridge extends BaseAudioBridge {
     return this.activeSession.liveChangeInputDevice(deviceId);
   }
 
-  async changeOutputDevice(value, isLive) {
-    const audioContext = document.querySelector(MEDIA_TAG);
+  reloadAudioElement(audioElement) {
+    if (audioElement && (audioElement.readyState > 0)) {
+      logger.debug({
+        logCode: 'sip_js_reload_audio_element',
+        extraInfo: {
+          callerIdName: this.user.callerIdName,
+        },
+      }, 'Reloading audio element after changing output device');
+      audioElement.load();
+    }
+  }
 
-    if (audioContext.setSinkId) {
+  async changeOutputDevice(value, isLive) {
+    const audioElement = document.querySelector(MEDIA_TAG);
+
+    if (audioElement.setSinkId) {
       try {
         if (!isLive) {
-          audioContext.srcObject = null;
+          audioElement.srcObject = null;
         }
 
-        await audioContext.setSinkId(value);
-        audioContext.load();
+        await audioElement.setSinkId(value);
+        this.reloadAudioElement(audioElement);
         this.outputDeviceId = value;
       } catch (err) {
         logger.error({

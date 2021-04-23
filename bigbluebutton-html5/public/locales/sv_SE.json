@@ -293,7 +293,6 @@
     "app.settings.dataSavingTab.screenShare": "Aktivera skrivbordsdelning",
     "app.settings.dataSavingTab.description": "För att spara din bandbredd justera vad som visas för närvarande.",
     "app.settings.save-notification.label": "Inställningarna har blivit sparade",
-    "app.statusNotifier.raisedHandDesc": "{0} räckte upp handen",
     "app.statusNotifier.and": "och",
     "app.switch.onLabel": "PÅ",
     "app.switch.offLabel": "AV",

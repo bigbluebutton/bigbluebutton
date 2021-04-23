@@ -442,7 +442,7 @@ class Poll extends Component {
                   ],
                 });
               }}
-              className={cx(styles.pBtn, { [styles.selectedBtnBlue]: type === 'TF' })}
+              className={cx(styles.pBtn, styles.btnMR, { [styles.selectedBtnBlue]: type === 'TF' })}
             />
             <Button
               label={intl.formatMessage(intlMessages.a4)}
@@ -458,7 +458,7 @@ class Poll extends Component {
                   ],
                 });
               }}
-              className={cx(styles.pBtn, { [styles.selectedBtnBlue]: type === 'A-' })}
+              className={cx(styles.pBtn, styles.btnML, { [styles.selectedBtnBlue]: type === 'A-' })}
             />
           </div>
           <Button
