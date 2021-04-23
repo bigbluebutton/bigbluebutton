@@ -3,6 +3,8 @@ import Logger from '/imports/startup/server/logger';
 import updateConnectionStatus from '/imports/api/connection-status/server/modifiers/updateConnectionStatus';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
+const STATS = Meteor.settings.public.stats;
+
 const logConnectionStatus = (meetingId, userId, status, type, value) => {
   switch (status) {
     case 'normal':
@@ -42,7 +44,7 @@ export default function addConnectionStatus(status, type, value) {
   check(meetingId, String);
   check(requesterUserId, String);
 
-  logConnectionStatus(meetingId, requesterUserId, status, type, value);
+  if (STATS.log) logConnectionStatus(meetingId, requesterUserId, status, type, value);
 
   // Avoid storing recoveries
   if (status !== 'normal') {

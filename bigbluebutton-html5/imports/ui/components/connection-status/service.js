@@ -4,7 +4,6 @@ import Users from '/imports/api/users';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
-import Logger from '/imports/startup/client/logger';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
 import { notify } from '/imports/ui/services/notification';
@@ -12,12 +11,7 @@ import { makeCall } from '/imports/ui/services/api';
 
 const STATS = Meteor.settings.public.stats;
 const NOTIFICATION = STATS.notification;
-const STATS_LENGTH = STATS.length;
 const STATS_INTERVAL = STATS.interval;
-const STATS_LOG = STATS.log;
-const RTT_INTERVAL = STATS_LENGTH * STATS_INTERVAL;
-// Set a bottom threshold to avoid log flooding
-const RTT_LOG_THRESHOLD = STATS.rtt[STATS.level.indexOf('danger')];
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const intlMessages = defineMessages({
@@ -119,17 +113,6 @@ const fetchRoundTripTime = () => {
   makeCall('voidConnection').then(() => {
     const tf = Date.now();
     const rtt = tf - t0;
-
-    if (STATS_LOG && rtt > RTT_LOG_THRESHOLD) {
-      Logger.info(
-        {
-          logCode: 'rtt',
-          extraInfo: { rtt },
-        },
-        'Calculated round-trip time in milliseconds',
-      );
-    }
-
     const event = new CustomEvent('socketstats', { detail: { rtt } });
     window.dispatchEvent(event);
   });
@@ -265,7 +248,7 @@ const startRoundTripTime = () => {
 
   stopRoundTripTime();
 
-  roundTripTimeInterval = setInterval(fetchRoundTripTime, RTT_INTERVAL);
+  roundTripTimeInterval = setInterval(fetchRoundTripTime, STATS_INTERVAL);
 };
 
 const stopRoundTripTime = () => {

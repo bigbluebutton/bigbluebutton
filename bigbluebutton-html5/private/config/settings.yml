@@ -433,8 +433,7 @@ public:
     sdpSemantics: 'unified-plan'
   stats:
     enabled: true
-    interval: 2000
-    length: 5
+    interval: 10000
     timeout: 30000
     log: false
     notification:
