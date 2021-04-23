@@ -3,7 +3,7 @@ import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
-import SlowConnection from '/imports/ui/components/slow-connection/component';
+import Icon from '/imports/ui/components/connection-status/icon/component';
 import Switch from '/imports/ui/components/switch/component';
 import Service from '../service';
 import Modal from '/imports/ui/components/modal/simple/component';
@@ -145,7 +145,9 @@ class ConnectionStatusComponent extends PureComponent {
               </div>
             </div>
             <div className={styles.status}>
-              <SlowConnection effectiveConnectionType={conn.level} />
+              <div className={styles.icon}>
+                <Icon level={conn.level} />
+              </div>
             </div>
           </div>
           <div className={styles.right}>
