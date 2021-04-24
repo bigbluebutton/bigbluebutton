@@ -168,6 +168,7 @@ public:
       # subscribe reattempt increases the reconnection timer up to this
       maxTimeout: 60000
     screenshare:
+      bitrate: 1500
       mediaTimeouts:
         maxConnectionAttempts: 2
         # Base screen media timeout (send|recv)
