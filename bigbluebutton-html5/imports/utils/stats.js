@@ -2,9 +2,9 @@ import logger from '/imports/startup/client/logger';
 
 const STATS = Meteor.settings.public.stats;
 
-const STATS_LENGTH = STATS.length;
-const STATS_INTERVAL = STATS.interval;
-const STATS_LOG = STATS.log;
+// Probes done in an interval
+const PROBES = 5;
+const INTERVAL = STATS.interval / PROBES;
 
 const stop = callback => {
   logger.debug(
@@ -47,7 +47,7 @@ const isActive = conn => {
 const collect = (conn, callback) => {
   let stats = [];
 
-  const monitor = (conn, stats, iteration) => {
+  const monitor = (conn, stats) => {
     if (!isActive(conn)) return stop(callback);
 
     conn.getStats().then(results => {
@@ -77,13 +77,13 @@ const collect = (conn, callback) => {
         }
 
         stats.push(buildData(inboundRTP || remoteInboundRTP));
-        while (stats.length > STATS_LENGTH) stats.shift();
+        while (stats.length > PROBES) stats.shift();
 
         const interval = calculateInterval(stats);
-        callback(buildResult(interval, iteration));
+        callback(buildResult(interval));
       }
 
-      setTimeout(monitor, STATS_INTERVAL, conn, stats, iteration + 1);
+      setTimeout(monitor, INTERVAL, conn, stats);
     }).catch(error => {
       logger.debug(
         {
@@ -110,10 +110,9 @@ const buildData = inboundRTP => {
   };
 };
 
-const buildResult = (interval, iteration) => {
+const buildResult = (interval) => {
   const rate = calculateRate(interval.packets);
   return {
-    iteration: iteration,
     packets: {
       received: interval.packets.received,
       lost: interval.packets.lost
@@ -130,7 +129,6 @@ const buildResult = (interval, iteration) => {
 
 const clearResult = () => {
   return {
-    iteration: 0,
     packets: {
       received: 0,
       lost: 0
@@ -178,30 +176,6 @@ const calculateMOS = (rate) => {
   return 1 + (0.035) * rate + (0.000007) * rate * (rate - 60) * (100 - rate);
 };
 
-const logResult = (id, result) => {
-  if (!STATS_LOG) return null;
-
-  const {
-    iteration,
-    loss,
-    jitter
-  } = result;
-  // Avoiding messages flood
-  if (!iteration || iteration % STATS_LENGTH !== 0) return null;
-
-  const duration = STATS_LENGTH * STATS_INTERVAL / 1000;
-  logger.debug(
-    {
-      logCode: 'stats_monitor_result',
-      extraInfo: {
-        id,
-        result
-      }
-    },
-    `Stats result for the last ${duration} seconds: loss: ${loss}, jitter: ${jitter}.`
-  );
-};
-
 const monitorAudioConnection = conn => {
   if (!conn) return;
 
@@ -211,7 +185,6 @@ const monitorAudioConnection = conn => {
   );
 
   collect(conn, (result) => {
-    logResult('audio', result);
     const event = new CustomEvent('audiostats', { detail: result });
     window.dispatchEvent(event);
   });

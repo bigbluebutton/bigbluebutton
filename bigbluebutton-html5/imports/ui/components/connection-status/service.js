@@ -4,7 +4,6 @@ import Users from '/imports/api/users';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
-import Logger from '/imports/startup/client/logger';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
 import { notify } from '/imports/ui/services/notification';
@@ -12,12 +11,7 @@ import { makeCall } from '/imports/ui/services/api';
 
 const STATS = Meteor.settings.public.stats;
 const NOTIFICATION = STATS.notification;
-const STATS_LENGTH = STATS.length;
 const STATS_INTERVAL = STATS.interval;
-const STATS_LOG = STATS.log;
-const RTT_INTERVAL = STATS_LENGTH * STATS_INTERVAL;
-// Set a bottom threshold to avoid log flooding
-const RTT_LOG_THRESHOLD = STATS.rtt[STATS.level.indexOf('danger')];
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const intlMessages = defineMessages({
@@ -50,17 +44,17 @@ const getStats = () => {
   return STATS.level[stats];
 };
 
-const setStats = (level = -1) => {
+const setStats = (level = -1, type = 'recovery', value = {}) => {
   if (stats !== level) {
     stats = level;
     statsDep.changed();
-    addConnectionStatus(level);
+    addConnectionStatus(level, type, value);
   }
 };
 
-const handleStats = (level) => {
+const handleStats = (level, type, value) => {
   if (level > stats) {
-    setStats(level);
+    setStats(level, type, value);
   }
 };
 
@@ -71,9 +65,9 @@ const handleAudioStatsEvent = (event) => {
     let active = false;
     // From higher to lower
     for (let i = STATS.level.length - 1; i >= 0; i--) {
-      if (loss > STATS.loss[i] || jitter > STATS.jitter[i]) {
+      if (loss >= STATS.loss[i] || jitter >= STATS.jitter[i]) {
         active = true;
-        handleStats(i);
+        handleStats(i, 'audio', { loss, jitter });
         break;
       }
     }
@@ -89,9 +83,9 @@ const handleSocketStatsEvent = (event) => {
     let active = false;
     // From higher to lower
     for (let i = STATS.level.length - 1; i >= 0; i--) {
-      if (rtt > STATS.rtt[i]) {
+      if (rtt >= STATS.rtt[i]) {
         active = true;
-        handleStats(i);
+        handleStats(i, 'socket', { rtt });
         break;
       }
     }
@@ -108,26 +102,17 @@ const startStatsTimeout = () => {
   }, STATS.timeout);
 };
 
-const addConnectionStatus = (level) => {
-  if (level !== -1) makeCall('addConnectionStatus', STATS.level[level]);
-};
+const addConnectionStatus = (level, type, value) => {
+  const status = level !== -1 ? STATS.level[level] : 'normal';
+
+  makeCall('addConnectionStatus', status, type, value);
+}
 
 const fetchRoundTripTime = () => {
   const t0 = Date.now();
   makeCall('voidConnection').then(() => {
     const tf = Date.now();
     const rtt = tf - t0;
-
-    if (STATS_LOG && rtt > RTT_LOG_THRESHOLD) {
-      Logger.info(
-        {
-          logCode: 'rtt',
-          extraInfo: { rtt },
-        },
-        'Calculated round-trip time in milliseconds',
-      );
-    }
-
     const event = new CustomEvent('socketstats', { detail: { rtt } });
     window.dispatchEvent(event);
   });
@@ -263,7 +248,7 @@ const startRoundTripTime = () => {
 
   stopRoundTripTime();
 
-  roundTripTimeInterval = setInterval(fetchRoundTripTime, RTT_INTERVAL);
+  roundTripTimeInterval = setInterval(fetchRoundTripTime, STATS_INTERVAL);
 };
 
 const stopRoundTripTime = () => {
@@ -323,11 +308,9 @@ const notification = (level, intl) => {
 };
 
 export default {
-  addConnectionStatus,
   getConnectionStatus,
   getStats,
   getHelp,
-  getLevel,
   isEnabled,
   notification,
   startRoundTripTime,
