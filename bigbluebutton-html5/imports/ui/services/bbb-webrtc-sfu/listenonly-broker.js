@@ -19,7 +19,7 @@ class ListenOnlyBroker extends BaseBroker {
     this.internalMeetingId = internalMeetingId;
     this.role = role;
 
-    // Optional parameters are: userName, caleeName, iceServers
+    // Optional parameters are: userName, caleeName, iceServers, mediaServer
     Object.assign(this, options);
   }
 
@@ -137,6 +137,7 @@ class ListenOnlyBroker extends BaseBroker {
       userId: this.userId,
       userName: this.userName,
       sdpOffer,
+      mediaServer: this.mediaServer,
     };
 
     logger.debug({
