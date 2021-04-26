@@ -8,6 +8,7 @@ const {
   constraints: GDM_CONSTRAINTS,
   mediaTimeouts: MEDIA_TIMEOUTS,
   bitrate: BASE_BITRATE,
+  mediaServer: DEFAULT_SCREENSHARE_MEDIA_SERVER,
 } = Meteor.settings.public.kurento.screenshare;
 const {
   baseTimeout: BASE_MEDIA_TIMEOUT,
@@ -103,6 +104,10 @@ const getIceServers = (sessionToken) => {
   });
 }
 
+const getMediaServerAdapter = () => {
+  return DEFAULT_SCREENSHARE_MEDIA_SERVER;
+}
+
 const getNextReconnectionInterval = (oldInterval) => {
   return Math.min(
     TIMEOUT_INCREASE_FACTOR * oldInterval,
@@ -149,6 +154,7 @@ export default {
   getNextReconnectionInterval,
   streamHasAudioTrack,
   screenshareLoadAndPlayMediaStream,
+  getMediaServerAdapter,
   BASE_MEDIA_TIMEOUT,
   MAX_CONN_ATTEMPTS,
   BASE_BITRATE,
