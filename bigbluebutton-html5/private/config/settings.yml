@@ -608,6 +608,8 @@ public:
       flushOnClose: true
       logTag: ''
 private:
+  analytics:
+    includeChat: true
   app:
     host: 127.0.0.1
     localesUrl: /locale-list
