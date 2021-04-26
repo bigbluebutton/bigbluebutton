@@ -8,7 +8,7 @@ const STATS = Meteor.settings.public.stats;
 const logConnectionStatus = (meetingId, userId, status, type, value) => {
   switch (status) {
     case 'normal':
-      Logger.info(`Connection status updated: meetingId=${meetingId} userId=${userId} type=${type}`);
+      Logger.info(`Connection status updated: meetingId=${meetingId} userId=${userId} status=${status} type=${type}`);
       break;
     case 'warning':
       // Skip
@@ -21,11 +21,11 @@ const logConnectionStatus = (meetingId, userId, status, type, value) => {
             jitter,
             loss,
           } = value;
-          Logger.info(`Connection status updated: meetingId=${meetingId} userId=${userId} jitter=${jitter} loss=${loss}`);
+          Logger.info(`Connection status updated: meetingId=${meetingId} userId=${userId} status=${status} type=${type} jitter=${jitter} loss=${loss}`);
           break;
         case 'socket':
           const { rtt } = value;
-          Logger.info(`Connection status updated: meetingId=${meetingId} userId=${userId} rtt=${rtt}`);
+          Logger.info(`Connection status updated: meetingId=${meetingId} userId=${userId} status=${status} type=${type} rtt=${rtt}`);
           break;
         default:
       }
