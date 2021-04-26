@@ -86,6 +86,7 @@ class MeetingActor(
   with DestroyMeetingSysCmdMsgHdlr
   with SendTimeRemainingUpdateHdlr
   with SendBreakoutTimeRemainingMsgHdlr
+  with SendBreakoutTimeRemainingInternalMsgHdlr
   with ChangeLockSettingsInMeetingCmdMsgHdlr
   with SyncGetMeetingInfoRespMsgHdlr
   with ClientToServerLatencyTracerMsgHdlr
@@ -238,16 +239,23 @@ class MeetingActor(
 
     case msg: ExtendMeetingDuration           => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingAuditInternalMsg =>
-      state = handleSendTimeRemainingUpdate(msg, state)
+      if (!liveMeeting.props.meetingProp.isBreakout) {
+        // Update users of meeting remaining time.
+        state = handleSendTimeRemainingUpdate(msg, state)
+      }
+
+      // Update breakout rooms of remaining time
       state = handleSendBreakoutTimeRemainingMsg(msg, state)
     case msg: BreakoutRoomCreatedInternalMsg     => state = handleBreakoutRoomCreatedInternalMsg(msg, state)
     case msg: SendBreakoutUsersAuditInternalMsg  => handleSendBreakoutUsersUpdateInternalMsg(msg)
     case msg: BreakoutRoomUsersUpdateInternalMsg => state = handleBreakoutRoomUsersUpdateInternalMsg(msg, state)
     case msg: EndBreakoutRoomInternalMsg         => handleEndBreakoutRoomInternalMsg(msg)
     case msg: BreakoutRoomEndedInternalMsg       => state = handleBreakoutRoomEndedInternalMsg(msg, state)
+    case msg: SendBreakoutTimeRemainingInternalMsg =>
+      handleSendBreakoutTimeRemainingInternalMsg(msg)
 
     // Screenshare
-    case msg: DeskShareGetDeskShareInfoRequest   => handleDeskShareGetDeskShareInfoRequest(msg)
+    case msg: DeskShareGetDeskShareInfoRequest => handleDeskShareGetDeskShareInfoRequest(msg)
 
     case msg: SendRecordingTimerInternalMsg =>
       state = usersApp.handleSendRecordingTimerInternalMsg(msg, state)
@@ -567,9 +575,13 @@ class MeetingActor(
   def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg) {
     state = removeUsersWithExpiredUserLeftFlag(liveMeeting, state)
 
-    val (newState, expireReason) = ExpiryTrackerHelper.processMeetingExpiryAudit(outGW, eventBus, liveMeeting, state)
-    state = newState
-    expireReason foreach (reason => log.info("Meeting {} expired with reason {}", props.meetingProp.intId, reason))
+    if (!liveMeeting.props.meetingProp.isBreakout) {
+      // Track expiry only for non-breakout rooms. The breakout room lifecycle is
+      // driven by the parent meeting.
+      val (newState, expireReason) = ExpiryTrackerHelper.processMeetingExpiryAudit(outGW, eventBus, liveMeeting, state)
+      state = newState
+      expireReason foreach (reason => log.info("Meeting {} expired with reason {}", props.meetingProp.intId, reason))
+    }
 
     sendRttTraceTest()
     setRecordingChapterBreak()
