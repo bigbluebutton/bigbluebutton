@@ -642,6 +642,7 @@ class VideoProvider extends Component {
           userName: this.info.userName,
           bitrate,
           record: VideoService.getRecord(),
+          mediaServer: VideoService.getMediaServerAdapter(),
         };
 
         logger.info({

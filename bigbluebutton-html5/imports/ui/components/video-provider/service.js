@@ -41,6 +41,7 @@ const {
   paginationSorting: PAGINATION_SORTING,
   defaultSorting: DEFAULT_SORTING,
 } = Meteor.settings.public.kurento.cameraSortingModes;
+const DEFAULT_VIDEO_MEDIA_SERVER = Meteor.settings.public.kurento.videoMediaServer;
 
 const FILTER_VIDEO_STATS = [
   'outbound-rtp',
@@ -471,6 +472,10 @@ class VideoService {
 
   hasStream(streams, stream) {
     return streams.find(s => s.stream === stream);
+  }
+
+  getMediaServerAdapter() {
+    return DEFAULT_VIDEO_MEDIA_SERVER;
   }
 
   getMyRole () {
@@ -923,6 +928,7 @@ export default {
   addCandidateToPeer: (peer, candidate, cameraId) => videoService.addCandidateToPeer(peer, candidate, cameraId),
   processInboundIceQueue: (peer, cameraId) => videoService.processInboundIceQueue(peer, cameraId),
   getRole: isLocal => videoService.getRole(isLocal),
+  getMediaServerAdapter: () => videoService.getMediaServerAdapter(),
   getRecord: () => videoService.getRecord(),
   getSharedDevices: () => videoService.getSharedDevices(),
   getUserParameterProfile: () => videoService.getUserParameterProfile(),
