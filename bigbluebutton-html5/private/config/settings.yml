@@ -308,6 +308,7 @@ public:
     enableVideo: true
     enableVideoMenu: true
     enableListenOnly: true
+    listenOnlyMediaServer: Kurento
     autoShareWebcam: false
     skipVideoPreview: false
     skipVideoPreviewOnFirstJoin: false

@@ -9,6 +9,7 @@ import {
 } from '/imports/utils/fetchStunTurnServers';
 
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
+const DEFAULT_LISTENONLY_MEDIA_SERVER = Meteor.settings.public.kurento.listenOnlyMediaServer;
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag.replace(/#/g, '');
 const GLOBAL_AUDIO_PREFIX = 'GLOBAL_AUDIO_';
@@ -33,6 +34,11 @@ const mapErrorCode = (error) => {
   if (errorCode == null || mappedErrorCode == null) return error;
   error.errorCode = mappedErrorCode;
   return error;
+}
+
+// TODO Would be interesting to move this to a service along with the error mapping
+const getMediaServerAdapter = () => {
+  return DEFAULT_LISTENONLY_MEDIA_SERVER;
 }
 
 export default class KurentoAudioBridge extends BaseAudioBridge {
@@ -257,6 +263,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
           caleeName: `${GLOBAL_AUDIO_PREFIX}${this.voiceBridge}`,
           iceServers,
           offering: OFFERING,
+          mediaServer: getMediaServerAdapter(),
         };
 
         this.broker = new ListenOnlyBroker(
