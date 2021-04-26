@@ -19,6 +19,7 @@ import {
   getSortingMethod,
   sortVideoStreams,
 } from '/imports/ui/components/video-provider/stream-sorting';
+import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
 const MULTIPLE_CAMERAS = Meteor.settings.public.app.enableMultipleCameras;
@@ -475,7 +476,7 @@ class VideoService {
   }
 
   getMediaServerAdapter() {
-    return DEFAULT_VIDEO_MEDIA_SERVER;
+    return getFromMeetingSettings('media-server-video', DEFAULT_VIDEO_MEDIA_SERVER);
   }
 
   getMyRole () {
@@ -494,12 +495,7 @@ class VideoService {
     // meta_hack-record-viewer-video is 'false' this user won't have this video
     // stream recorded.
     if (this.hackRecordViewer === null) {
-      const prop = Meetings.findOne(
-        { meetingId: Auth.meetingID },
-        { fields: { 'metadataProp': 1 } },
-      ).metadataProp;
-
-      const value = prop.metadata ? prop.metadata['hack-record-viewer-video'] : null;
+      const value = getFromMeetingSettings('hack-record-viewer-video', null);
       this.hackRecordViewer = value ? value.toLowerCase() === 'true' : true;
     }
 

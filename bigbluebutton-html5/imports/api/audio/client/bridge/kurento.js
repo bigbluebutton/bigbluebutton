@@ -7,6 +7,7 @@ import {
   fetchWebRTCMappedStunTurnServers,
   getMappedFallbackStun
 } from '/imports/utils/fetchStunTurnServers';
+import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const DEFAULT_LISTENONLY_MEDIA_SERVER = Meteor.settings.public.kurento.listenOnlyMediaServer;
@@ -38,8 +39,8 @@ const mapErrorCode = (error) => {
 
 // TODO Would be interesting to move this to a service along with the error mapping
 const getMediaServerAdapter = () => {
-  return DEFAULT_LISTENONLY_MEDIA_SERVER;
-}
+  return getFromMeetingSettings('media-server-listenonly', DEFAULT_LISTENONLY_MEDIA_SERVER);
+};
 
 export default class KurentoAudioBridge extends BaseAudioBridge {
   constructor(userData) {

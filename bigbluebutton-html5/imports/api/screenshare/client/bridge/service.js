@@ -3,6 +3,7 @@ import logger from '/imports/startup/client/logger';
 import { fetchWebRTCMappedStunTurnServers, getMappedFallbackStun } from '/imports/utils/fetchStunTurnServers';
 import loadAndPlayMediaStream from '/imports/ui/services/bbb-webrtc-sfu/load-play';
 import { SCREENSHARING_ERRORS } from './errors';
+import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 
 const {
   constraints: GDM_CONSTRAINTS,
@@ -105,7 +106,7 @@ const getIceServers = (sessionToken) => {
 }
 
 const getMediaServerAdapter = () => {
-  return DEFAULT_SCREENSHARE_MEDIA_SERVER;
+  return getFromMeetingSettings('media-server-screenshare', DEFAULT_SCREENSHARE_MEDIA_SERVER);
 }
 
 const getNextReconnectionInterval = (oldInterval) => {
