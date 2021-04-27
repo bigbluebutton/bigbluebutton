@@ -52,9 +52,6 @@
 .icon-bbb-fit_to_screen:before {
   content: "\e929";
 }
-.icon-bbb-eraser_tool:before {
-  content: "\e95a";
-}
 .icon-bbb-line_tool:before {
   content: "\e91c";
 }
@@ -297,4 +294,8 @@
 }
 .icon-bbb-no_palm_rejection:before {
   content: "\e95a";
+}
+/*\e95b -> icon-bbb-marker_tool*/
+.icon-bbb-eraser_tool:before {
+  content: "\e95c";
 }
