@@ -213,11 +213,6 @@ class Poll extends Component {
     });
   }
 
-  // Duplicated function
-  // handleInputChange(index, event) {
-  //   this.handleInputTextChange(index, event.target.value);
-  // }
-
   handleInputTextChange(index, text) {
     const { optList } = this.state;
     // This regex will replace any instance of 2 or more consecutive white spaces
