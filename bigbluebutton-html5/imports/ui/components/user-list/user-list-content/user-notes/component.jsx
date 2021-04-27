@@ -50,7 +50,7 @@ class UserNotes extends Component {
 
     const lastRevs = NoteService.getLastRevs();
 
-    if (revs !== 0 && revs > lastRevs) this.setState({ unread: true });
+    if (revs !== 0 && revs > lastRevs) this.setUnread(true);
   }
 
   componentDidUpdate(prevProps) {
@@ -58,12 +58,16 @@ class UserNotes extends Component {
     const { unread } = this.state;
 
     if (!isPanelOpened && !unread) {
-      if (prevProps.revs !== revs) this.setState({ unread: true });
+      if (prevProps.revs !== revs) this.setUnread(true);
     }
 
     if (isPanelOpened && unread) {
-      this.setState({ unread: false });
+      this.setUnread(false);
     }
+  }
+
+  setUnread(unread) {
+    this.setState({ unread });
   }
 
   renderNotes() {
@@ -92,6 +96,7 @@ class UserNotes extends Component {
         tabIndex={0}
         className={styles.listItem}
         onClick={NoteService.toggleNotePanel}
+        onKeyPress={() => { }}
       >
         <Icon iconName="copy" />
         <div aria-hidden>
@@ -104,8 +109,7 @@ class UserNotes extends Component {
                 <Icon iconName="lock" />
                 <span id="lockedNote">{`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}</span>
               </div>
-            ) : null
-          }
+            ) : null}
         </div>
         {notification}
       </div>
@@ -113,7 +117,7 @@ class UserNotes extends Component {
   }
 
   render() {
-    const { intl, disableNote } = this.props;
+    const { intl } = this.props;
 
     if (!NoteService.isEnabled()) return null;
 

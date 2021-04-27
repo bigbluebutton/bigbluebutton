@@ -9,7 +9,7 @@ import VideoProviderContainer from '/imports/ui/components/video-provider/contai
 import { styles } from '../styles.scss';
 import Storage from '../../../services/storage/session';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
-import { WEBCAMSAREA_MIN_PERCENT, PRESENTATIONAREA_MIN_WIDTH } from '/imports/ui/components/layout/layout-manager';
+import { WEBCAMSAREA_MIN_PERCENT, PRESENTATIONAREA_MIN_WIDTH } from '/imports/ui/components/layout/layout-manager/component';
 
 const propTypes = {
   swapLayout: PropTypes.bool,

@@ -82,9 +82,13 @@ class RandomUserSelect extends Component {
     }
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState) {
     if (this.props.currentUser.presenter && this.state.count == 0) {
       this.iterateSelection();
+    }
+
+    if (prevState.count !== this.state.count) {
+      this.play();
     }
   }
 
@@ -107,7 +111,6 @@ class RandomUserSelect extends Component {
       intl,
       mountModal,
       numAvailableViewers,
-      randomUserReq,
       currentUser,
       clearRandomlySelectedUser,
       mappedRandomlySelectedUsers,
@@ -117,8 +120,6 @@ class RandomUserSelect extends Component {
 
     const selectedUser = mappedRandomlySelectedUsers[this.state.count][0];
     const countDown = mappedRandomlySelectedUsers.length - this.state.count - 1;
-
-    this.play();
 
     let viewElement;
 

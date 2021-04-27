@@ -330,7 +330,6 @@
     "app.settings.save-notification.label": "Nastavitve so shranjene",
     "app.statusNotifier.lowerHands": "Spusti roke",
     "app.statusNotifier.raisedHandsTitle": "Dvignjene roke",
-    "app.statusNotifier.raisedHandDesc": "Dvignjene roke: {0}",
     "app.statusNotifier.and": "in",
     "app.switch.onLabel": "Vklopljeno",
     "app.switch.offLabel": "Izklopljeno",

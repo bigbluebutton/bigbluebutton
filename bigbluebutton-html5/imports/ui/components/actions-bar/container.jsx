@@ -21,7 +21,9 @@ import MediaService, {
 const ActionsBarContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
-  const currentUser = users[Auth.meetingID][Auth.userID];
+
+  const currentUser = { userId: Auth.userID, emoji: users[Auth.meetingID][Auth.userID].emoji };
+
   return (
     <ActionsBar {
       ...{

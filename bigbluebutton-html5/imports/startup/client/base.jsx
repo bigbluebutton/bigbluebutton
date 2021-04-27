@@ -11,19 +11,18 @@ import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import { Session } from 'meteor/session';
 import { FormattedMessage } from 'react-intl';
+import { Meteor } from 'meteor/meteor';
 import Meetings, { RecordMeetings } from '../../api/meetings';
 import AppService from '/imports/ui/components/app/service';
 import Breakouts from '/imports/api/breakouts';
 import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { invalidateCookie } from '/imports/ui/components/audio/audio-modal/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import LayoutManager from '/imports/ui/components/layout/layout-manager';
+import LayoutManagerContainer from '/imports/ui/components/layout/layout-manager/container';
 import { withLayoutContext } from '/imports/ui/components/layout/context';
 import VideoService from '/imports/ui/components/video-provider/service';
-import DebugWindow from '/imports/ui/components/debug-window/component'
-import {Meteor} from "meteor/meteor";
+import DebugWindow from '/imports/ui/components/debug-window/component';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
@@ -94,11 +93,10 @@ class Base extends Component {
     Session.set('isFullscreen', false);
 
     const users = Users.find({
-        meetingId: Auth.meetingID,
-        validated: true,
-        userId: { $ne: localUserId },
-      }, { fields: { name: 1, userId: 1 } }
-    );
+      meetingId: Auth.meetingID,
+      validated: true,
+      userId: { $ne: localUserId },
+    }, { fields: { name: 1, userId: 1 } });
 
     users.observe({
       added: (user) => {
@@ -133,7 +131,7 @@ class Base extends Component {
             'user',
           );
         }
-      }
+      },
     });
   }
 
@@ -145,7 +143,6 @@ class Base extends Component {
       ejected,
       isMeteorConnected,
       subscriptionsReady,
-      meetingIsBreakout,
       layoutContextDispatch,
       usersVideo,
     } = this.props;
@@ -153,10 +150,6 @@ class Base extends Component {
       loading,
       meetingExisted,
     } = this.state;
-
-    if (prevProps.meetingIsBreakout === undefined && !meetingIsBreakout) {
-      invalidateCookie('joinedAudio');
-    }
 
     if (usersVideo !== prevProps.usersVideo) {
       layoutContextDispatch(
@@ -273,15 +266,15 @@ class Base extends Component {
     const { meetingExisted } = this.state;
 
     return (
-      <Fragment>
+      <>
         {meetingExist && Auth.loggedIn && <DebugWindow />}
-        {meetingExist && Auth.loggedIn && <LayoutManager />}
+        {meetingExist && Auth.loggedIn && <LayoutManagerContainer />}
         {
           (!meetingExisted && !meetingExist && Auth.loggedIn)
             ? <LoadingScreen />
             : this.renderByState()
         }
-      </Fragment>
+      </>
     );
   }
 }
@@ -292,14 +285,11 @@ Base.defaultProps = defaultProps;
 const BaseContainer = withTracker(() => {
   const {
     animations,
-    userJoinAudioAlerts,
-    userJoinPushAlerts,
   } = Settings.application;
 
   const {
     credentials,
     loggedIn,
-    userID: localUserId,
   } = Auth;
 
   const { meetingId } = credentials;
@@ -413,7 +403,8 @@ const BaseContainer = withTracker(() => {
       } else {
         Session.set('openPanel', '');
       }
-      if ( Session.equals('subscriptionsReady', true )) {
+      window.dispatchEvent(new Event('panelChanged'));
+      if (Session.equals('subscriptionsReady', true)) {
         checkedUserSettings = true;
       }
     }

@@ -1,17 +1,8 @@
-.btn {
-  margin: 0;
+.buttonWrapper {
+  margin: 0 .5rem;
+}
 
-  span {
-    border: none;
-    box-shadow: none;
-  }
-
-  &:hover,
-  &:focus {
-    span {
-      background-color: transparent !important;
-      color: var(--color-white) !important;
-      opacity: .75;
-    }
-  }
+.iconWrapper {
+  width: 1.025rem;
+  height: 1.025rem;
 }

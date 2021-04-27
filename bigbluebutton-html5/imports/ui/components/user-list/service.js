@@ -23,19 +23,6 @@ const DIAL_IN_CLIENT_TYPE = 'dial-in-user';
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
-const mapActiveChats = (chat) => {
-  const currentUserId = Auth.userID;
-
-  const { chatId } = chat;
-
-  const userId = GroupChat
-    .findOne({ chatId })
-    .participants
-    .filter(user => user.id !== currentUserId);
-
-  return userId[0];
-};
-
 const CUSTOM_LOGO_URL_KEY = 'CustomLogoUrl';
 
 export const setCustomLogoUrl = path => Storage.setItem(CUSTOM_LOGO_URL_KEY, path);
@@ -53,9 +40,6 @@ const sortByWhiteboardAccess = (a, b) => {
 };
 
 const sortUsersByUserId = (a, b) => {
-  const aUserId = a.userId;
-  const bUserId = b.userId;
-
   if (a.userId > b.userId) {
     return -1;
   } if (a.userId < b.userId) {
@@ -184,24 +168,6 @@ const sortByRecentActivity = (a, b) => {
 const isPublicChat = chat => (
   chat.userId === 'public'
 );
-
-const sortChats = (a, b) => {
-  let sort = sortChatsByIcon(a, b);
-
-  if (sort === 0) {
-    sort = sortByRecentActivity(a, b);
-  }
-
-  if (sort === 0) {
-    sort = sortChatsByName(a, b);
-  }
-
-  if (sort === 0) {
-    sort = sortChatsByUserId(a, b);
-  }
-
-  return sort;
-};
 
 const userFindSorting = {
   emojiTime: 1,
@@ -700,4 +666,5 @@ export default {
   amIPresenter,
   getUsersProp,
   getUserCount,
+  sortUsersByCurrent,
 };

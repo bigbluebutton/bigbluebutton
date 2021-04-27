@@ -22,7 +22,7 @@ module.exports = class Application {
       UserMapping.initialize(() => {
         IDMapping.initialize(()=> {
           async.parallel([
-            (callback) => { this.webServer.start(config.get("server.port"), callback) },
+            (callback) => { this.webServer.start(config.get("server.port"), config.get("server.bind"), callback) },
             (callback) => { this.webServer.createPermanents(callback) },
             (callback) => { this.webHooks.start(callback) }
           ], (err,results) => {

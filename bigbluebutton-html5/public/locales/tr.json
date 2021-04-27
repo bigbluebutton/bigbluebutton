@@ -330,7 +330,6 @@
     "app.settings.save-notification.label": "Ayarlar kaydedildi",
     "app.statusNotifier.lowerHands": "İndirilmiş Eller",
     "app.statusNotifier.raisedHandsTitle": "Kaldırılmış Eller",
-    "app.statusNotifier.raisedHandDesc": "{0} elini kaldırdı",
     "app.statusNotifier.and": "ve",
     "app.switch.onLabel": "AÇIK",
     "app.switch.offLabel": "KAPALI",

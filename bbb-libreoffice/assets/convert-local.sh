@@ -23,8 +23,8 @@ fi;
 mkdir -p "/tmp/bbb-soffice-$(whoami)/"
 tempDir="$(mktemp -d -p /tmp/bbb-soffice-$(whoami)/)"
 
-source=${1}
-dest=${2}
+source="$1"
+dest="$2"
 
 #If output format is missing, define PDF
 convertTo="${3:-pdf}"

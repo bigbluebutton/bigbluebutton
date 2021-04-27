@@ -168,6 +168,7 @@ public:
       # subscribe reattempt increases the reconnection timer up to this
       maxTimeout: 60000
     screenshare:
+      bitrate: 1500
       mediaTimeouts:
         maxConnectionAttempts: 2
         # Base screen media timeout (send|recv)
@@ -269,6 +270,14 @@ public:
     autoShareWebcam: false
     skipVideoPreview: false
     skipVideoPreviewOnFirstJoin: false
+    # cameraSortingModes.paginationSorting: sorting mode to be applied when pagination is active
+    # cameraSortingModes.defaultSorting: sorting mode when pagination is not active (full mesh)
+    # Current implemented modes are:
+    # 'LOCAL_ALPHABETICAL' | 'VOICE_ACTIVITY_LOCAL' | 'LOCAL_VOICE_ACTIVITY' | 'LOCAL_PRESENTER_ALPHABETICAL'
+    # The algorithm names are self-explanatory.
+    cameraSortingModes:
+      defaultSorting: LOCAL_ALPHABETICAL
+      paginationSorting: VOICE_ACTIVITY_LOCAL
     # Entry `thresholds` is an array of:
     # - threshold: minimum number of cameras being shared for profile to applied
     #   profile: a camera profile id from the cameraProfiles configuration array
@@ -392,7 +401,6 @@ public:
     autoSwapLayout: false
     hidePresentation: false
     showParticipantsOnLogin: true
-    webcamsDefaultPlacement: 'top'
   media:
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
@@ -426,10 +434,9 @@ public:
     sdpSemantics: 'unified-plan'
   stats:
     enabled: true
-    interval: 2000
-    length: 5
+    interval: 10000
     timeout: 30000
-    log: false
+    log: true
     notification:
       warning: false
       error: true
@@ -599,6 +606,8 @@ public:
       flushOnClose: true
       logTag: ''
 private:
+  analytics:
+    includeChat: true
   app:
     host: 127.0.0.1
     localesUrl: /locale-list

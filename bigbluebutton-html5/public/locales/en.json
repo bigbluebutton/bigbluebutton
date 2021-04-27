@@ -1,7 +1,7 @@
 {
     "app.home.greeting": "Your presentation will begin shortly ...",
     "app.chat.submitLabel": "Send message",
-    "app.chat.loading": "loading: {0}%",
+    "app.chat.loading": "Chat messages loaded: {0}%",
     "app.chat.errorMaxMessageLength": "The message is {0} characters(s) too long",
     "app.chat.disconnected": "You are disconnected, messages can't be sent",
     "app.chat.locked": "Chat is locked, messages can't be sent",
@@ -375,7 +375,8 @@
     "app.settings.save-notification.label": "Settings have been saved",
     "app.statusNotifier.lowerHands": "Lower Hands",
     "app.statusNotifier.raisedHandsTitle": "Raised Hands",
-    "app.statusNotifier.raisedHandDesc": "{0} raised their hand",
+    "app.statusNotifier.raisedHandDesc": "{0} raised their hands",
+    "app.statusNotifier.raisedHandDescOneUser": "{0} raised hand",
     "app.statusNotifier.and": "and",
     "app.switch.onLabel": "ON",
     "app.switch.offLabel": "OFF",
