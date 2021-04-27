@@ -472,6 +472,7 @@ class VideoPlayer extends Component {
       <div
         id="video-player"
         data-test="videoPlayer"
+        className={styles.videoPlayerWrapper}
         ref={(ref) => { this.playerParent = ref; }}
       >
         {autoPlayBlocked

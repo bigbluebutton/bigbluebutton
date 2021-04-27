@@ -50,15 +50,7 @@ class VolumeSlider extends Component {
   getVolumeIcon() {
     const { muted, volume } = this.state;
 
-    if (muted || volume <= 0) {
-      return 'volume_off';
-    } else if (volume <= 0.25) {
-      return 'volume_mute';
-    } else if (volume <= 0.75) {
-      return 'volume_down';
-    } else {
-      return 'volume_up';
-    }
+    return 'speak_louder';
   }
 
   render() {
@@ -71,10 +63,12 @@ class VolumeSlider extends Component {
           className={styles.volume}
           onClick={ () => { setMuted(!muted) } }
         >
-          <i className={`icon-bbb-${getVolumeIcon()}`}></i>
+          <i
+            className={`icon-bbb-${getVolumeIcon()}`}>
+          </i>
         </span>
         <input
-	  className={styles.volumeSlider}
+          className={styles.volumeSlider}
           type="range"
           min={0}
           max={1}
