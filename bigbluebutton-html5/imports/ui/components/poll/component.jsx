@@ -153,6 +153,7 @@ const intlMessages = defineMessages({
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 const MAX_CUSTOM_FIELDS = Meteor.settings.public.poll.max_custom;
 const MAX_INPUT_CHARS = 45;
+const QUESTION_MAX_INPUT_CHARS = 400;
 const FILE_DRAG_AND_DROP_ENABLED = Meteor.settings.public.poll.allowDragAndDropFile;
 
 const validateInput = (i) => {
@@ -419,6 +420,7 @@ class Poll extends Component {
             onChange={e => this.handleTextareaChange(e)}
             rows="4"
             cols="35"
+            maxLength={QUESTION_MAX_INPUT_CHARS}
             placeholder={intl.formatMessage(intlMessages.questionLabel)}
           />
           {(type === 'RP' && question.length === 0 && error) ? (
