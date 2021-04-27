@@ -495,7 +495,7 @@ class VideoPlayer extends Component {
           onReady={this.handleOnReady}
           onPlay={this.handleOnPlay}
           onPause={this.handleOnPause}
-	  key={'react-player' + key}
+          key={'react-player' + key}
           ref={(ref) => { this.player = ref; }}
         />
         { !isPresenter ?

@@ -64,6 +64,7 @@ class VolumeSlider extends Component {
           onClick={ () => { setMuted(!muted) } }
         >
           <i
+            tabIndex="-1"
             className={`icon-bbb-${getVolumeIcon()}`}>
           </i>
         </span>
