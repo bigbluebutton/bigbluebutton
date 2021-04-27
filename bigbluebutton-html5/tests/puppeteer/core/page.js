@@ -350,7 +350,7 @@ class Page {
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
       `--user-agent=${USER_AGENTS.GalaxyNote3}`,
-      `--window-size=${MOBILE_DEVICES.GalaxyNote3.defaultViewport.width + 250},${MOBILE_DEVICES.GalaxyNote3.defaultViewport.height}`,
+      `--window-size=${MOBILE_DEVICES.GalaxyNote3.defaultViewport.width},${MOBILE_DEVICES.GalaxyNote3.defaultViewport.height}`,
       `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
       `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
       '--allow-file-access',

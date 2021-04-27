@@ -10,13 +10,28 @@ class ShareScreen extends Page {
   }
 
   async test() {
-    await util.startScreenshare(this.page);
+    try {
+      await util.startScreenshare(this);
 
-    await this.page.waitForSelector(e.screenshareConnecting, ELEMENT_WAIT_TIME);
-    await this.page.waitForSelector(e.screenShareVideo, VIDEO_LOADING_WAIT_TIME);
-    await sleep(5000);
-    const response = await util.getScreenShareContainer(this.page);
-    return response;
+      await this.page.waitForSelector(e.screenshareConnecting, ELEMENT_WAIT_TIME);
+      await this.page.waitForSelector(e.screenShareVideo, VIDEO_LOADING_WAIT_TIME);
+      await sleep(5000);
+      const response = await util.getScreenShareContainer(this);
+      return response;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+  }
+
+  async testMobileDevice() {
+    try {
+      const screenshareBtn = await this.page.evaluate(() => document.querySelectorAll('button[aria-label="Share your screen"]').length === 0) === true;
+      return screenshareBtn;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
   }
 }
 
