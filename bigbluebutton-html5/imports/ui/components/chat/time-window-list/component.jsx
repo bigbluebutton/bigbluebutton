@@ -292,6 +292,7 @@ class TimeWindowList extends PureComponent {
         className={styles.messageListWrapper}
         key="chat-list"
         data-test="chatMessages"
+        aria-live="polite"
         ref={node => this.messageListWrapper = node}
       >
         <AutoSizer>
