@@ -207,6 +207,7 @@
     "app.presentationUploder.conversion.pdfHasBigPage": "We could not convert the PDF file, please try optimizing it. Max page size {0}",
     "app.presentationUploder.conversion.timeout": "Ops, the conversion took too long",
     "app.presentationUploder.conversion.pageCountFailed": "Failed to determine the number of pages.",
+    "app.presentationUploder.conversion.unsupportedDocument": "File extension not supported",
     "app.presentationUploder.isDownloadableLabel": "Presentation download is not allowed - click to allow presentation to be downloaded",
     "app.presentationUploder.isNotDownloadableLabel": "Presentation download is allowed - click to disallow presentation to be downloaded",
     "app.presentationUploder.removePresentationLabel": "Remove presentation",

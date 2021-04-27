@@ -146,6 +146,18 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.conversion.pdfHasBigPage',
     description: 'warns the user that the conversion failed because of the pdf page siz that exceeds the allowed limit',
   },
+  OFFICE_DOC_CONVERSION_INVALID: {
+    id: 'app.presentationUploder.conversion.officeDocConversionInvalid',
+    description: '',
+  },
+  OFFICE_DOC_CONVERSION_FAILED: {
+    id: 'app.presentationUploder.conversion.officeDocConversionFailed',
+    description: 'warns the user that the conversion failed because of wrong office file',
+  },
+  UNSUPPORTED_DOCUMENT: {
+    id: 'app.presentationUploder.conversion.unsupportedDocument',
+    description: 'warns the user that the file extension is not supported',
+  },
   isDownloadable: {
     id: 'app.presentationUploder.isDownloadableLabel',
     description: 'presentation is available for downloading by all viewers',
@@ -287,10 +299,10 @@ class PresentationUploader extends Component {
   handleFiledrop(files, files2) {
     const { fileValidMimeTypes, intl } = this.props;
     const { toUploadCount } = this.state;
-    const validMimes = fileValidMimeTypes.map(fileValid => fileValid.mime);
-    const validExtentions = fileValidMimeTypes.map(fileValid => fileValid.extension);
+    const validMimes = fileValidMimeTypes.map((fileValid) => fileValid.mime);
+    const validExtentions = fileValidMimeTypes.map((fileValid) => fileValid.extension);
     const [accepted, rejected] = _.partition(files
-      .concat(files2), f => (
+      .concat(files2), (f) => (
       validMimes.includes(f.type) || validExtentions.includes(`.${f.name.split('.').pop()}`)
     ));
 
@@ -616,7 +628,7 @@ class PresentationUploader extends Component {
             </tr>
           </thead>
           <tbody>
-            {presentationsSorted.map(item => this.renderPresentationItem(item))}
+            {presentationsSorted.map((item) => this.renderPresentationItem(item))}
           </tbody>
         </table>
       </div>

@@ -88,7 +88,7 @@ const observePresentationConversion = (
       added: (doc) => {
         if (doc.name !== filename) return;
 
-        if (doc.conversion.status === 'FILE_TOO_LARGE') {
+        if (doc.conversion.status === 'FILE_TOO_LARGE' || doc.conversion.status === 'UNSUPPORTED_DOCUMENT') {
           onConversion(doc.conversion);
           c.stop();
           clearTimeout(conversionTimeout);
