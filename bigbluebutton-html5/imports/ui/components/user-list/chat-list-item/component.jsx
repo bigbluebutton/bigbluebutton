@@ -82,10 +82,9 @@ const ChatListItem = (props) => {
     chatPanelOpen,
   } = props;
 
-  
-
-  const isCurrentChat = chat.userId === activeChatId && chatPanelOpen;
+  const isCurrentChat = chat.chatId === activeChatId && chatPanelOpen;
   const linkClasses = {};
+
   linkClasses[styles.active] = isCurrentChat;
 
   const [stateUreadCount, setStateUreadCount] = useState(0);
