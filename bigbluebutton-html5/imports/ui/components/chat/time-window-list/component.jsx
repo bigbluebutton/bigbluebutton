@@ -133,7 +133,7 @@ class TimeWindowList extends PureComponent {
       ) {
       if (chatId !== prevChatId){
         this.systemMessageIndexes.forEach(index => {
-          this.listRef.recomputeRowHeights(index);
+          this.clearAndRecompute(index);
         });
       }
       this.listRef.forceUpdateGrid();
@@ -158,6 +158,17 @@ class TimeWindowList extends PureComponent {
     }
 
     handleScrollUpdate(position || 1);
+  }
+
+  clearAndRecompute(index) {
+    [500, 1000, 2000, 3000, 4000, 5000].forEach((i)=>{
+      setTimeout(() => {
+        if (this.listRef) {
+          this.cache.clear(index);
+          this.listRef.recomputeRowHeights(index);
+        }
+      }, i);
+    })
   }
 
   scrollTo(position = null) {
@@ -193,14 +204,7 @@ class TimeWindowList extends PureComponent {
     if (needResizeMessages.includes(message.key)) {
       if (!this.systemMessageIndexes.includes(index)) {
         this.systemMessageIndexes.push(index);
-        [500, 1000, 2000, 3000, 4000, 5000].forEach((i)=>{
-          setTimeout(() => {
-            if (this.listRef) {
-              this.cache.clear(index);
-              this.listRef.recomputeRowHeights(index);
-            }
-          }, i);
-        })
+        this.clearAndRecompute(index);
       }
     }
 
