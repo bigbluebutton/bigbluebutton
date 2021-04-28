@@ -50,7 +50,19 @@ class VolumeSlider extends Component {
   getVolumeIcon() {
     const { muted, volume } = this.state;
 
-    return 'speak_louder';
+    if (muted || volume <= 0) {
+      // muted icon
+      return 'speak_louder';
+    } else if (volume <= 0.25) {
+      // low volume icon
+      return 'speak_louder';
+    } else if (volume <= 0.75) {
+      // normal volume icon
+      return 'speak_louder';
+    } else {
+      // full volume icon
+      return 'speak_louder';
+    }
   }
 
   render() {
