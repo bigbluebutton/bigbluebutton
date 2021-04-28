@@ -6,6 +6,20 @@ fi;
 
 cd "$(dirname "$0")"
 
+: ${SOFFICE_VARIANT:=free}
+
+if [ "$SOFFICE_VARIANT" = "nonfree" ]; then
+    echo "You will now be presented with the EULA governing Microsoft Core Fonts."
+    echo "Press Enter to start pager..."
+    read -s
+    pager EULA.txt
+    echo "Press Enter to accept the EULA, or Ctrl-C to abort installation..."
+    read -s
+else
+    echo "By default, free replacements for the Microsoft Core Fonts are installed."
+    echo "To install the non-free fonts under Microsoft's EULA, set SOFFICE_VARIANT=nonfree in the environment."
+fi
+
 DOCKER_CHECK=`docker --version &> /dev/null && echo 1 || echo 0`
 
 if [ "$DOCKER_CHECK"  = "0" ]; then
@@ -26,7 +40,7 @@ fi
 IMAGE_CHECK=`docker image inspect bbb-soffice &> /dev/null && echo 1 || echo 0`
 if [ "$IMAGE_CHECK"  = "0" ]; then
 	echo "Docker image doesn't exists, building"
-	docker build -t bbb-soffice docker/
+	docker build --target soffice-$SOFFICE_VARIANT -t bbb-soffice docker/
 else
 	echo "Docker image already exists";
 fi
