@@ -684,8 +684,6 @@
     "app.video.videoMenu": "Video menu",
     "app.video.videoMenuDisabled": "Video menu Webcam is disabled in settings",
     "app.video.videoMenuDesc": "Open video menu dropdown",
-    "app.video.chromeExtensionError": "You must install",
-    "app.video.chromeExtensionErrorLink": "this Chrome extension",
     "app.video.pagination.prevPage": "See previous videos",
     "app.video.pagination.nextPage": "See next videos",
     "app.video.clientDisconnected": "Webcam cannot be shared due to connection issues",
