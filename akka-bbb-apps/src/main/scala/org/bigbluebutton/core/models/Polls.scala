@@ -259,9 +259,25 @@ object Polls {
     shape += "status" -> WhiteboardKeyUtil.DRAW_END_STATUS
 
     val answers = new ArrayBuffer[SimpleVoteOutVO]
-    result.answers.foreach(ans => {
-      answers += SimpleVoteOutVO(ans.id, ans.key, ans.numVotes)
-    })
+
+    def sortByNumVotes(s1: SimpleVoteOutVO, s2: SimpleVoteOutVO) = {
+      s1.numVotes > s2.numVotes
+    }
+
+    val sorted_answers = result.answers.sortWith(sortByNumVotes)
+
+    // Limit the number of answers displayed to minimize
+    // squishing the display.
+    if (sorted_answers.length < 7) {
+      sorted_answers.foreach(ans => {
+        answers += SimpleVoteOutVO(ans.id, ans.key, ans.numVotes)
+      })
+    } else {
+      for (i <- 0 until 7) {
+        val ans = sorted_answers(i)
+        answers += SimpleVoteOutVO(ans.id, ans.key, ans.numVotes)
+      }
+    }
 
     shape += "result" -> answers
 
