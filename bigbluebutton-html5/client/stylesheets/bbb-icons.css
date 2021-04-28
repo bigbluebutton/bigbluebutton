@@ -161,19 +161,19 @@
 }
 
 .icon-bbb-volume_down:before {
-  content: "\e808";
+  content: "\e947";
 }
 
 .icon-bbb-volume_mute:before {
-  content: "\e809";
+  content: "\e947";
 }
 
 .icon-bbb-volume_off:before {
-  content: "\e80a";
+  content: "\e947";
 }
 
 .icon-bbb-volume_up:before {
-  content: "\e80b";
+  content: "\e947";
 }
 
 /* Aliases for emoji status */
