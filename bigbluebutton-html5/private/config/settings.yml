@@ -504,6 +504,7 @@ public:
         mime: image/png
   selectRandomUser:
     enabled: true
+    countdown: false
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
