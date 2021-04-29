@@ -284,6 +284,8 @@
     "app.waitingMessage": "Disconnected. Trying to reconnect in {0} seconds ...",
     "app.retryNow": "Retry now",
     "app.muteWarning.label": "Click {0} to unmute yourself.",
+    "app.muteWarning.disableMessage": "Mute alerts disabled until unmute",
+    "app.muteWarning.tooltip": "Click to close and disable warning until next unmute",
     "app.navBar.settingsDropdown.optionsLabel": "Options",
     "app.navBar.settingsDropdown.fullscreenLabel": "Make fullscreen",
     "app.navBar.settingsDropdown.settingsLabel": "Settings",
