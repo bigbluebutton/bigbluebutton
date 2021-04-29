@@ -138,33 +138,6 @@ const sortUsers = (a, b) => {
   return sort;
 };
 
-const sortChatsByName = (a, b) => sortUsersByName(a, b);
-
-const sortChatsByUserId = (a, b) => sortUsersByUserId(a, b);
-
-const sortChatsByIcon = (a, b) => {
-  if (a.icon && !b.icon) {
-    return -1;
-  } if (!a.icon && b.icon) {
-    return 1;
-  }
-
-  return 0;
-};
-
-const sortByRecentActivity = (a, b) => {
-  const aActivity = a.lastActivity ? a.lastActivity : 0;
-  const bActivity = b.lastActivity ? b.lastActivity : 0;
-
-  if (aActivity > bActivity) {
-    return -1;
-  } if (aActivity < bActivity) {
-    return 1;
-  }
-
-  return 0;
-};
-
 const isPublicChat = chat => (
   chat.userId === 'public'
 );
