@@ -150,6 +150,7 @@ class LiveResult extends PureComponent {
       stopPoll,
       handleBackClick,
       currentPoll,
+      secretPoll,
     } = this.props;
 
     const { userAnswers, pollStats, currentPollQuestion } = this.state;
@@ -216,16 +217,20 @@ class LiveResult extends PureComponent {
             />
           )
         }
-        <div className={styles.separator} />
-        <table>
-          <tbody>
-            <tr>
-              <th className={styles.theading}>{intl.formatMessage(intlMessages.usersTitle)}</th>
-              <th className={styles.theading}>{intl.formatMessage(intlMessages.responsesTitle)}</th>
-            </tr>
-            {userAnswers}
-          </tbody>
-        </table>
+        { secretPoll ||
+        <React.Fragment>
+          <div className={styles.separator} />
+          <table>
+            <tbody>
+              <tr>
+                <th className={styles.theading}>{intl.formatMessage(intlMessages.usersTitle)}</th>
+                <th className={styles.theading}>{intl.formatMessage(intlMessages.responsesTitle)}</th>
+              </tr>
+              {userAnswers}
+            </tbody>
+          </table>
+        </React.Fragment>
+        }
       </div>
     );
   }
@@ -247,5 +252,6 @@ LiveResult.propTypes = {
     }),
   ]),
   stopPoll: PropTypes.func.isRequired,
+  secretPoll: PropTypes.bool.isRequired,
   handleBackClick: PropTypes.func.isRequired,
 };

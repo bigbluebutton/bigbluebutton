@@ -386,3 +386,38 @@
     width: 200px !important;
     height: 200px !important;
 }
+
+.row {
+  display: flex;
+  flex-flow: row;
+  flex-grow: 1;
+  justify-content: space-between;
+  margin-top: 0.7rem;
+  margin-bottom: 0.7rem;
+}
+
+.label {
+    color: var(--color-text);
+}
+
+.toggle {
+    margin-left: auto;
+}
+
+.col {
+  display: flex;
+  position: relative;
+  flex-flow: column;
+  flex-grow: 1;
+  flex-basis: 0;
+  
+  &:last-child {
+    padding-right: 0;
+    padding-left: 1rem;
+
+    [dir="rtl"] & {
+      padding-right: 0.1rem;
+      padding-left: 0;
+    }
+  }
+}

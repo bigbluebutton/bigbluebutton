@@ -14,6 +14,9 @@ const intlMessages = defineMessages({
   pollingTitleLabel: {
     id: 'app.polling.pollingTitle',
   },
+  secretPollingTitleLabel: {
+    id: 'app.polling.secretPollingTitle',
+  },
   pollAnswerLabel: {
     id: 'app.polling.pollAnswerLabel',
   },
@@ -22,6 +25,10 @@ const intlMessages = defineMessages({
   },
   pollQuestionTitle: {
     id: 'app.polling.pollQuestionTitle',
+  },
+  secretPollQuestionTitle: {
+    id: 'app.polling.secretPollQuestionTitle',
+    description: 'title displayed before poll question',
   },
   submitLabel: {
     id: 'app.polling.submitLabel',
@@ -123,7 +130,11 @@ class Polling extends Component {
             question.length > 0 && (
               <span className={styles.qHeader}>
                 <div className={styles.qTitle}>
-                  {intl.formatMessage(intlMessages.pollQuestionTitle)}
+                  {poll.secretPoll ? (
+                      intl.formatMessage(intlMessages.secretPollQuestionTitle)
+                    ) : (
+                      intl.formatMessage(intlMessages.pollQuestionTitle)
+                    )}
                 </div>
                 <div data-test="pollQuestion" className={styles.qText}>{question}</div>
               </span>
@@ -133,10 +144,13 @@ class Polling extends Component {
             poll.pollType !== pollTypes.Response && (
               <span>
                 {
-                  question.length === 0
-                  && (
+                  question.length === 0 && (
                     <div className={styles.pollingTitle}>
-                      {intl.formatMessage(intlMessages.pollingTitleLabel)}
+                      {poll.secretPoll ? (
+                        intl.formatMessage(intlMessages.secretPollingTitleLabel)
+                      ) : (
+                        intl.formatMessage(intlMessages.pollingTitleLabel)
+                      )}
                     </div>
                   )
                 }
