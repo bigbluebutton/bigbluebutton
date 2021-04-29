@@ -65,6 +65,7 @@ class TimeWindowList extends PureComponent {
       scrollPosition: 0,
       userScrolledBack: false,
       lastMessage: {},
+      fontsLoaded: false
     };
     this.systemMessageIndexes = [];
 
@@ -74,6 +75,8 @@ class TimeWindowList extends PureComponent {
     this.lastWidth = 0;
 
     this.scrollInterval = null;
+
+    document.fonts.onloadingdone = () => this.setState({fontsLoaded: true});
   }
 
   componentDidMount() {
@@ -162,11 +165,23 @@ class TimeWindowList extends PureComponent {
   }
 
   clearAndRecompute(index) {
+    let recomputed = false;
+
     [500, 1000, 2000, 3000, 4000, 5000].forEach((i)=>{
       setTimeout(() => {
+        const { fontsLoaded } = this.state;
+        // this is needed because fontsLoaded will be false if user closes/open chatPanel
+        const fontStatus = document.fonts.status;
+
         if (this.listRef) {
-          this.cache.clear(index);
-          this.listRef.recomputeRowHeights(index);
+          if ((fontsLoaded || fontStatus === 'loaded') && !recomputed) {
+            recomputed = true;
+
+            setTimeout(() => {
+              this.cache.clear(index);
+              this.listRef.recomputeRowHeights(index);
+            }, 500);
+          }
         }
       }, i);
     })
