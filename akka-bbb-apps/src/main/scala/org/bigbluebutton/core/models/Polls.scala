@@ -273,10 +273,26 @@ object Polls {
         answers += SimpleVoteOutVO(ans.id, ans.key, ans.numVotes)
       })
     } else {
+      var highestId = 0
+
       for (i <- 0 until 7) {
         val ans = sorted_answers(i)
         answers += SimpleVoteOutVO(ans.id, ans.key, ans.numVotes)
+        if (ans.id > highestId) {
+          highestId = ans.id
+        }
       }
+
+      var otherNumVotes = 0
+      for (i <- 7 until sorted_answers.length) {
+        val ans = sorted_answers(i)
+        otherNumVotes += ans.numVotes
+        if (ans.id > highestId) {
+          highestId = ans.id
+        }
+      }
+
+      answers += SimpleVoteOutVO(highestId + 1, "...", otherNumVotes)
     }
 
     shape += "result" -> answers
