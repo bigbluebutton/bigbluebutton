@@ -1,7 +1,6 @@
 {
     "app.home.greeting": "Votre présentation commencera dans quelques instants...",
     "app.chat.submitLabel": "Envoyer le message",
-    "app.chat.loading": "Chargement: {0}%",
     "app.chat.errorMaxMessageLength": "Le message est trop long de {0} caractère(s)",
     "app.chat.disconnected": "Vous êtes déconnecté, les messages ne peuvent pas être envoyés",
     "app.chat.locked": "La discussion est verrouillée, les messages ne peuvent pas être envoyés",
@@ -679,8 +678,6 @@
     "app.video.videoMenu": "Menu vidéo",
     "app.video.videoMenuDisabled": "Le menu vidéo de la webcam est désactivé dans les paramètres",
     "app.video.videoMenuDesc": "Ouvrir le menu déroulant de la vidéo",
-    "app.video.chromeExtensionError": "Vous devez installer ",
-    "app.video.chromeExtensionErrorLink": "cette extension Chrome",
     "app.video.pagination.prevPage": "Voir les vidéos précédentes",
     "app.video.pagination.nextPage": "Voir les vidéos suivantes",
     "app.video.clientDisconnected": "La webcam ne peut pas être partagée à cause de problèmes de connexion",

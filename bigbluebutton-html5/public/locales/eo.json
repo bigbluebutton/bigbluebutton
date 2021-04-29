@@ -599,8 +599,6 @@
     "app.video.videoMenu": "Videomenuo",
     "app.video.videoMenuDisabled": "Videomenuo de la kamerao estas malebligita en al agordoj",
     "app.video.videoMenuDesc": "Malfermi video-falmenuon",
-    "app.video.chromeExtensionError": "Vi devas instali",
-    "app.video.chromeExtensionErrorLink": "ĉi tiun Chrome-aldonaĵon",
     "app.fullscreenButton.label": "Fari {0} plenekrana",
     "app.sfu.mediaServerConnectionError2000": "Neeble konektiĝi kun aŭdvida servilo (eraro 2000)",
     "app.sfu.mediaServerOffline2001": "Aŭdvida servilo estas senkonekta. Bonvolu reprovi poste (eraro 2001)",

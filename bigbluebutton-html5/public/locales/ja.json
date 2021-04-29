@@ -1,7 +1,6 @@
 {
     "app.home.greeting": "プレゼンテーションはまもなく始まります…",
     "app.chat.submitLabel": "メッセージを送信",
-    "app.chat.loading": "ロードしています: {0}%",
     "app.chat.errorMaxMessageLength": "このメッセージは文字数制限を {0} 文字超えています",
     "app.chat.disconnected": "通信が切断されたため、メッセージを送れません",
     "app.chat.locked": "チャットがロック状態のため、メッセージを送れません",
@@ -684,8 +683,6 @@
     "app.video.videoMenu": "ビデオメニュー",
     "app.video.videoMenuDisabled": "ビデオメニューの設定でウェブカメラが無効です",
     "app.video.videoMenuDesc": "ビデオメニューのドロップダウンを開く",
-    "app.video.chromeExtensionError": "インストールしてください",
-    "app.video.chromeExtensionErrorLink": "このChromeの拡張機能",
     "app.video.pagination.prevPage": "前のビデオを見る",
     "app.video.pagination.nextPage": "次のビデオを見る",
     "app.video.clientDisconnected": "接続に問題があるためウェブカメラの共有ができません",

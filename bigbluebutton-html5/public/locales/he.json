@@ -542,8 +542,6 @@
     "app.video.videoMenu": "תפריט וידאו",
     "app.video.videoMenuDisabled": "Video menu Webcam is disabled in settings",
     "app.video.videoMenuDesc": "Open video menu dropdown",
-    "app.video.chromeExtensionError": "You must install",
-    "app.video.chromeExtensionErrorLink": "this Chrome extension",
     "app.fullscreenButton.label": "Make {0} fullscreen",
     "app.sfu.mediaServerConnectionError2000": "Error 2000: Unable to connect to media server",
     "app.sfu.mediaServerOffline2001": "שרת המדיה אינה מקוונת. אנא נסה שוב מאוחר יותר (שגיאה 2001)",

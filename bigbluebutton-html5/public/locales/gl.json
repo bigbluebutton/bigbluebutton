@@ -1,7 +1,6 @@
 {
     "app.home.greeting": "A súa presentación comezará en breve…",
     "app.chat.submitLabel": "Enviar mensaxe",
-    "app.chat.loading": "cargando: {0}%",
     "app.chat.errorMaxMessageLength": "A mensaxe ten {0} carácter(es) mais do admitido",
     "app.chat.disconnected": "Esta desconectado, non é posíbel enviar as mensaxes",
     "app.chat.locked": "Conversa bloqueado, anon é posíbel enviar as mensaxes",
@@ -663,8 +662,6 @@
     "app.video.videoMenu": "Menú de vídeo",
     "app.video.videoMenuDisabled": "O menú de vídeo da cámara web está desactivada nos axustes",
     "app.video.videoMenuDesc": "Abrir o menú despregable de vídeo",
-    "app.video.chromeExtensionError": "Debe instalar",
-    "app.video.chromeExtensionErrorLink": "esta extensión de Chrome",
     "app.video.pagination.prevPage": "Ver os vídeos anteriores",
     "app.video.pagination.nextPage": "Ver os seguintes vídeos",
     "app.video.clientDisconnected": "Non é posíbel compartir a cámara web por mor de problemas de conexión",

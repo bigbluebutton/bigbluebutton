@@ -597,8 +597,6 @@
     "app.video.videoMenu": "Video menyu",
     "app.video.videoMenuDisabled": "Video menu Veb kamera tənzimləmələrdə deaktiv olunub",
     "app.video.videoMenuDesc": "Video menu dropdown-unu aç",
-    "app.video.chromeExtensionError": "Siz quraşdırmalısınız",
-    "app.video.chromeExtensionErrorLink": "bu Chrome əlavəsi",
     "app.video.pagination.prevPage": "Əvvəlki videolara baxın",
     "app.video.pagination.nextPage": "Növbəti videolara baxın",
     "app.video.clientDisconnected": "Bağlantı problemləri səbəbindən vebkamera paylaşıla bilməz",
