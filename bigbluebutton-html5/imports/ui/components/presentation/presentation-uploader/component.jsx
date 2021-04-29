@@ -19,8 +19,6 @@ const { isMobile } = deviceInfo;
 const propTypes = {
   intl: PropTypes.object.isRequired,
   defaultFileName: PropTypes.string.isRequired,
-  fileSizeMin: PropTypes.number.isRequired,
-  fileSizeMax: PropTypes.number.isRequired,
   handleSave: PropTypes.func.isRequired,
   dispatchTogglePresentationDownloadable: PropTypes.func.isRequired,
   fileValidMimeTypes: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -147,6 +145,18 @@ const intlMessages = defineMessages({
   PDF_HAS_BIG_PAGE: {
     id: 'app.presentationUploder.conversion.pdfHasBigPage',
     description: 'warns the user that the conversion failed because of the pdf page siz that exceeds the allowed limit',
+  },
+  OFFICE_DOC_CONVERSION_INVALID: {
+    id: 'app.presentationUploder.conversion.officeDocConversionInvalid',
+    description: '',
+  },
+  OFFICE_DOC_CONVERSION_FAILED: {
+    id: 'app.presentationUploder.conversion.officeDocConversionFailed',
+    description: 'warns the user that the conversion failed because of wrong office file',
+  },
+  UNSUPPORTED_DOCUMENT: {
+    id: 'app.presentationUploder.conversion.unsupportedDocument',
+    description: 'warns the user that the file extension is not supported',
   },
   isDownloadable: {
     id: 'app.presentationUploder.isDownloadableLabel',
@@ -289,10 +299,10 @@ class PresentationUploader extends Component {
   handleFiledrop(files, files2) {
     const { fileValidMimeTypes, intl } = this.props;
     const { toUploadCount } = this.state;
-    const validMimes = fileValidMimeTypes.map(fileValid => fileValid.mime);
-    const validExtentions = fileValidMimeTypes.map(fileValid => fileValid.extension);
+    const validMimes = fileValidMimeTypes.map((fileValid) => fileValid.mime);
+    const validExtentions = fileValidMimeTypes.map((fileValid) => fileValid.extension);
     const [accepted, rejected] = _.partition(files
-      .concat(files2), f => (
+      .concat(files2), (f) => (
       validMimes.includes(f.type) || validExtentions.includes(`.${f.name.split('.').pop()}`)
     ));
 
@@ -350,6 +360,200 @@ class PresentationUploader extends Component {
     }
   }
 
+  handleRemove(item, withErr = false) {
+    if (withErr) {
+      const { presentations } = this.props;
+      this.hasError = false;
+      return this.setState({
+        presentations,
+        disableActions: false,
+      });
+    }
+
+    const { presentations } = this.state;
+    const toRemoveIndex = presentations.indexOf(item);
+    return this.setState({
+      presentations: update(presentations, {
+        $splice: [[toRemoveIndex, 1]],
+      }),
+    }, () => {
+      const { presentations: updatedPresentations, oldCurrentId } = this.state;
+      const currentIndex = updatedPresentations.findIndex((p) => p.isCurrent);
+      const actualCurrentIndex = updatedPresentations.findIndex((p) => p.id === oldCurrentId);
+
+      if (currentIndex === -1 && updatedPresentations.length > 0) {
+        const commands = {};
+        const newCurrentIndex = actualCurrentIndex === -1 ? 0 : actualCurrentIndex;
+        commands[newCurrentIndex] = {
+          $apply: (presentation) => {
+            const p = presentation;
+            p.isCurrent = true;
+            return p;
+          },
+        };
+
+        const updatedCurrent = update(updatedPresentations, commands);
+        this.setState({ presentations: updatedCurrent });
+      }
+    });
+  }
+
+  handleCurrentChange(id) {
+    const { presentations, disableActions } = this.state;
+
+    if (disableActions) return;
+
+    const currentIndex = presentations.findIndex((p) => p.isCurrent);
+    const newCurrentIndex = presentations.findIndex((p) => p.id === id);
+    const commands = {};
+
+    // we can end up without a current presentation
+    if (currentIndex !== -1) {
+      commands[currentIndex] = {
+        $apply: (presentation) => {
+          const p = presentation;
+          p.isCurrent = false;
+          return p;
+        },
+      };
+    }
+
+    commands[newCurrentIndex] = {
+      $apply: (presentation) => {
+        const p = presentation;
+        p.isCurrent = true;
+        return p;
+      },
+    };
+
+    const presentationsUpdated = update(presentations, commands);
+    this.setState({ presentations: presentationsUpdated });
+  }
+
+  deepMergeUpdateFileKey(id, key, value) {
+    const applyValue = (toUpdate) => update(toUpdate, { $merge: value });
+    this.updateFileKey(id, key, applyValue, '$apply');
+  }
+
+  handleConfirm(hasNewUpload) {
+    const {
+      handleSave, selectedToBeNextCurrent,
+    } = this.props;
+    const { disableActions, presentations } = this.state;
+    const presentationsToSave = presentations;
+
+    this.setState({ disableActions: true });
+
+    if (hasNewUpload) {
+      this.toastId = toast.info(this.renderToastList(), {
+        hideProgressBar: true,
+        autoClose: false,
+        newestOnTop: true,
+        closeOnClick: true,
+        onClose: () => {
+          this.toastId = null;
+        },
+      });
+    }
+
+    if (this.toastId) Session.set('UploadPresentationToastId', this.toastId);
+
+    if (!disableActions) {
+      Session.set('showUploadPresentationView', false);
+      return handleSave(presentationsToSave)
+        .then(() => {
+          const hasError = presentations.some((p) => p.upload.error || p.conversion.error);
+          if (!hasError) {
+            this.setState({
+              disableActions: false,
+              toUploadCount: 0,
+            });
+            return;
+          }
+          // if there's error we don't want to close the modal
+          this.setState({
+            disableActions: true,
+            // preventClosing: true,
+          }, () => {
+            // if the selected current has error we revert back to the old one
+            const newCurrent = presentations.find((p) => p.isCurrent);
+            if (newCurrent.upload.error || newCurrent.conversion.error) {
+              this.handleCurrentChange(selectedToBeNextCurrent);
+            }
+          });
+        })
+        .catch((error) => {
+          logger.error({
+            logCode: 'presentationuploader_component_save_error',
+            extraInfo: { error },
+          }, 'Presentation uploader catch error on confirm');
+        });
+    }
+
+    Session.set('showUploadPresentationView', false);
+    return null;
+  }
+
+  handleDismiss() {
+    const { presentations } = this.state;
+    const { presentations: propPresentations } = this.props;
+    const ids = new Set(propPresentations.map((d) => d.ID));
+    const merged = [
+      ...propPresentations,
+      ...presentations.filter((d) => !ids.has(d.ID)),
+    ];
+    this.setState(
+      { presentations: merged },
+      Session.set('showUploadPresentationView', false),
+    );
+  }
+
+  handleToggleDownloadable(item) {
+    const { dispatchTogglePresentationDownloadable } = this.props;
+    const { presentations } = this.state;
+
+    const oldDownloadableState = item.isDownloadable;
+
+    const outOfDatePresentationIndex = presentations.findIndex((p) => p.id === item.id);
+    const commands = {};
+    commands[outOfDatePresentationIndex] = {
+      $apply: (presentation) => {
+        const p = presentation;
+        p.isDownloadable = !oldDownloadableState;
+        return p;
+      },
+    };
+    const presentationsUpdated = update(presentations, commands);
+
+    this.setState({
+      presentations: presentationsUpdated,
+    });
+
+    // If the presentation has not be uploaded yet, adjusting the state suffices
+    // otherwise set previously uploaded presentation to [not] be downloadable
+    if (item.upload.done) {
+      dispatchTogglePresentationDownloadable(item, !oldDownloadableState);
+    }
+  }
+
+  updateFileKey(id, key, value, operation = '$set') {
+    this.setState(({ presentations }) => {
+      const fileIndex = presentations.findIndex((f) => f.id === id);
+
+      return fileIndex === -1 ? false : {
+        presentations: update(presentations, {
+          [fileIndex]: {
+            $apply: (file) => update(file, {
+              [key]: {
+                [operation]: value,
+              },
+            }),
+          },
+        }),
+      };
+    });
+  }
+
   renderToastItem(item) {
     const isUploading = !item.upload.done && item.upload.progress > 0;
     const isConverting = !item.conversion.done && item.upload.done;
@@ -396,200 +600,6 @@ class PresentationUploader extends Component {
     );
   }
 
-  handleToggleDownloadable(item) {
-    const { dispatchTogglePresentationDownloadable } = this.props;
-    const { presentations } = this.state;
-
-    const oldDownloadableState = item.isDownloadable;
-
-    const outOfDatePresentationIndex = presentations.findIndex(p => p.id === item.id);
-    const commands = {};
-    commands[outOfDatePresentationIndex] = {
-      $apply: (presentation) => {
-        const p = presentation;
-        p.isDownloadable = !oldDownloadableState;
-        return p;
-      },
-    };
-    const presentationsUpdated = update(presentations, commands);
-
-    this.setState({
-      presentations: presentationsUpdated,
-    });
-
-    // If the presentation has not be uploaded yet, adjusting the state suffices
-    // otherwise set previously uploaded presentation to [not] be downloadable
-    if (item.upload.done) {
-      dispatchTogglePresentationDownloadable(item, !oldDownloadableState);
-    }
-  }
-
-  updateFileKey(id, key, value, operation = '$set') {
-    this.setState(({ presentations }) => {
-      const fileIndex = presentations.findIndex(f => f.id === id);
-
-      return fileIndex === -1 ? false : {
-        presentations: update(presentations, {
-          [fileIndex]: {
-            $apply: file => update(file, {
-              [key]: {
-                [operation]: value,
-              },
-            }),
-          },
-        }),
-      };
-    });
-  }
-
-  handleDismiss() {
-    const { presentations } = this.state;
-    const { presentations: propPresentations } = this.props;
-    const ids = new Set(propPresentations.map(d => d.ID));
-    const merged = [
-      ...propPresentations,
-      ...presentations.filter(d => !ids.has(d.ID)),
-    ];
-    this.setState(
-      { presentations: merged },
-      Session.set('showUploadPresentationView', false),
-    );
-  }
-
-  handleConfirm(hasNewUpload) {
-    const {
-      handleSave, selectedToBeNextCurrent,
-    } = this.props;
-    const { disableActions, presentations } = this.state;
-    const presentationsToSave = presentations;
-
-    this.setState({ disableActions: true });
-
-    if (hasNewUpload) {
-      this.toastId = toast.info(this.renderToastList(), {
-        hideProgressBar: true,
-        autoClose: false,
-        newestOnTop: true,
-        closeOnClick: true,
-        onClose: () => {
-          this.toastId = null;
-        },
-      });
-    }
-
-    if (this.toastId) Session.set('UploadPresentationToastId', this.toastId);
-
-    if (!disableActions) {
-      Session.set('showUploadPresentationView', false);
-      return handleSave(presentationsToSave)
-        .then(() => {
-          const hasError = presentations.some(p => p.upload.error || p.conversion.error);
-          if (!hasError) {
-            this.setState({
-              disableActions: false,
-              toUploadCount: 0,
-            });
-            return;
-          }
-          // if there's error we don't want to close the modal
-          this.setState({
-            disableActions: true,
-            // preventClosing: true,
-          }, () => {
-            // if the selected current has error we revert back to the old one
-            const newCurrent = presentations.find(p => p.isCurrent);
-            if (newCurrent.upload.error || newCurrent.conversion.error) {
-              this.handleCurrentChange(selectedToBeNextCurrent);
-            }
-          });
-        })
-        .catch((error) => {
-          logger.error({
-            logCode: 'presentationuploader_component_save_error',
-            extraInfo: { error },
-          }, 'Presentation uploader catch error on confirm');
-        });
-    }
-
-    Session.set('showUploadPresentationView', false);
-    return null;
-  }
-
-  deepMergeUpdateFileKey(id, key, value) {
-    const applyValue = toUpdate => update(toUpdate, { $merge: value });
-    this.updateFileKey(id, key, applyValue, '$apply');
-  }
-
-  handleCurrentChange(id) {
-    const { presentations, disableActions } = this.state;
-
-    if (disableActions) return;
-
-    const currentIndex = presentations.findIndex(p => p.isCurrent);
-    const newCurrentIndex = presentations.findIndex(p => p.id === id);
-    const commands = {};
-
-    // we can end up without a current presentation
-    if (currentIndex !== -1) {
-      commands[currentIndex] = {
-        $apply: (presentation) => {
-          const p = presentation;
-          p.isCurrent = false;
-          return p;
-        },
-      };
-    }
-
-    commands[newCurrentIndex] = {
-      $apply: (presentation) => {
-        const p = presentation;
-        p.isCurrent = true;
-        return p;
-      },
-    };
-
-    const presentationsUpdated = update(presentations, commands);
-    this.setState({ presentations: presentationsUpdated });
-  }
-
-  handleRemove(item, withErr = false) {
-    if (withErr) {
-      const { presentations } = this.props;
-      this.hasError = false;
-      return this.setState({
-        presentations,
-        disableActions: false,
-      });
-    }
-
-    const { presentations } = this.state;
-    const toRemoveIndex = presentations.indexOf(item);
-    return this.setState({
-      presentations: update(presentations, {
-        $splice: [[toRemoveIndex, 1]],
-      }),
-    }, () => {
-      const { presentations: updatedPresentations, oldCurrentId } = this.state;
-      const currentIndex = updatedPresentations.findIndex(p => p.isCurrent);
-      const actualCurrentIndex = updatedPresentations.findIndex(p => p.id === oldCurrentId);
-
-      if (currentIndex === -1 && updatedPresentations.length > 0) {
-        const commands = {};
-        const newCurrentIndex = actualCurrentIndex === -1 ? 0 : actualCurrentIndex;
-        commands[newCurrentIndex] = {
-          $apply: (presentation) => {
-            const p = presentation;
-            p.isCurrent = true;
-            return p;
-          },
-        };
-
-        const updatedCurrent = update(updatedPresentations, commands);
-        this.setState({ presentations: updatedCurrent });
-      }
-    });
-  }
-
   renderPresentationList() {
     const { presentations } = this.state;
     const { intl } = this.props;
@@ -618,7 +628,7 @@ class PresentationUploader extends Component {
             </tr>
           </thead>
           <tbody>
-            {presentationsSorted.map(item => this.renderPresentationItem(item))}
+            {presentationsSorted.map((item) => this.renderPresentationItem(item))}
           </tbody>
         </table>
       </div>
@@ -681,7 +691,7 @@ class PresentationUploader extends Component {
         <div className={styles.innerToast}>
           <div>
             <div>
-              {presentationsSorted.map(item => this.renderToastItem(item))}
+              {presentationsSorted.map((item) => this.renderToastItem(item))}
             </div>
           </div>
         </div>
@@ -790,8 +800,6 @@ class PresentationUploader extends Component {
   renderDropzone() {
     const {
       intl,
-      fileSizeMin,
-      fileSizeMax,
       fileValidMimeTypes,
     } = this.props;
 
@@ -819,9 +827,7 @@ class PresentationUploader extends Component {
         multiple
         className={styles.dropzone}
         activeClassName={styles.dropzoneActive}
-        accept={fileValidMimeTypes.map(fileValid => fileValid.extension)}
-        minSize={fileSizeMin}
-        maxSize={fileSizeMax}
+        accept={fileValidMimeTypes.map((fileValid) => fileValid.extension)}
         disablepreview="true"
         onDrop={this.handleFiledrop}
       >
@@ -840,8 +846,6 @@ class PresentationUploader extends Component {
   renderPicDropzone() {
     const {
       intl,
-      fileSizeMin,
-      fileSizeMax,
     } = this.props;
 
     const { disableActions } = this.state;
@@ -867,8 +871,6 @@ class PresentationUploader extends Component {
         activeClassName={styles.dropzoneActive}
         rejectClassName={styles.dropzoneReject}
         accept="image/*"
-        minSize={fileSizeMin}
-        maxSize={fileSizeMax}
         disablepreview="true"
         data-test="fileUploadDropZone"
         onDrop={this.handleFiledrop}
@@ -897,14 +899,32 @@ class PresentationUploader extends Component {
       });
     }
 
+    const constraint = {};
+
     if (item.upload.done && item.upload.error) {
+      if (item.conversion.status === 'FILE_TOO_LARGE') {
+        constraint['0'] = ((item.conversion.maxFileSize) / 1000 / 1000).toFixed(2);
+      }
+
       const errorMessage = intlMessages[item.upload.status] || intlMessages.genericError;
-      return intl.formatMessage(errorMessage);
+      return intl.formatMessage(errorMessage, constraint);
     }
 
     if (!item.conversion.done && item.conversion.error) {
       const errorMessage = intlMessages[item.conversion.status] || intlMessages.genericConversionStatus;
-      return intl.formatMessage(errorMessage);
+
+      switch (item.conversion.status) {
+        case 'PAGE_COUNT_EXCEEDED':
+          constraint['0'] = item.conversion.maxNumberPages;
+          break;
+        case 'PDF_HAS_BIG_PAGE':
+          constraint['0'] = (item.conversion.bigPageSize / 1000 / 1000).toFixed(2);
+          break;
+        default:
+          break;
+      }
+
+      return intl.formatMessage(errorMessage, constraint);
     }
 
     if (!item.conversion.done && !item.conversion.error) {
