@@ -53,6 +53,10 @@ export default class KurentoScreenshareBridge {
     this._gdmStream = stream;
   }
 
+  getPeerConnection() {
+    return this.broker ? this.broker.webRtcPeer : null;
+  }
+
   outboundStreamReconnect() {
     const currentRestartIntervalMs = this.restartIntervalMs;
     const stream = this.gdmStream;

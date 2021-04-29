@@ -16,6 +16,7 @@ import {
   screenshareHasEnded,
   screenshareHasStarted,
   getMediaElement,
+  getPeerConnectionState,
   attachLocalPreviewStream,
 } from '/imports/ui/components/screenshare/service';
 import {
@@ -46,7 +47,7 @@ class ScreenshareComponent extends React.Component {
       loaded: false,
       isFullscreen: false,
       autoplayBlocked: false,
-      isStreamHealthy: false,
+      isStreamHealthy: !isStreamStateUnhealthy(getPeerConnectionState()),
     };
 
     this.onLoadedData = this.onLoadedData.bind(this);
@@ -85,7 +86,6 @@ class ScreenshareComponent extends React.Component {
     } = this.props;
     const layoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
     if (layoutSwapped) toggleSwapLayout();
-    screenshareHasEnded();
     this.screenshareContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     unsubscribeFromStreamStateChange('screenshare', this.onStreamStateChange);

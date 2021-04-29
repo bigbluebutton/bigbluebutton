@@ -80,6 +80,12 @@ const getMediaElement = () => {
   return document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
 }
 
+const getPeerConnectionState = () => {
+  const pc = KurentoBridge.getPeerConnection();
+  if (pc == null) return 'closed';
+  return pc.connectionState;
+}
+
 const attachLocalPreviewStream = (mediaElement) => {
   const stream = KurentoBridge.gdmStream;
   if (stream && mediaElement) {
@@ -155,6 +161,7 @@ export {
   isSharingScreen,
   setSharingScreen,
   getMediaElement,
+  getPeerConnectionState,
   attachLocalPreviewStream,
   isGloballyBroadcasting,
 };
