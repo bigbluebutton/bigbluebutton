@@ -596,8 +596,6 @@
     "app.video.videoMenu": "Video menu",
     "app.video.videoMenuDisabled": "Video menuen for webkamera er deaktiveret i indstillingerne",
     "app.video.videoMenuDesc": "Åben video dropdown menu",
-    "app.video.chromeExtensionError": "Installer venligst",
-    "app.video.chromeExtensionErrorLink": "denne Google Chrome tilføjelse",
     "app.video.pagination.prevPage": "Se forrige video",
     "app.video.pagination.nextPage": "Se næste video",
     "app.video.clientDisconnected": "Webcam kan ikke deles på grund af forbindelsesproblemer",

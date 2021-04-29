@@ -1,7 +1,6 @@
 {
     "app.home.greeting": "Jūsų pristatymas netrukus prasidės ...",
     "app.chat.submitLabel": "Siųsti žinutę",
-    "app.chat.loading": "Kraunasi: {0}%",
     "app.chat.errorMaxMessageLength": "Žinutė yra {0} simboliais(-ų) per ilga",
     "app.chat.disconnected": "Jūs esate atsijungę, žinutės negali būti išsiųstos",
     "app.chat.locked": "Susirašinėjimas yra draudžiamas, žinutės bus neišsiųstos.",
@@ -577,8 +576,6 @@
     "app.video.videoButtonDesc": "Dalintis kamera",
     "app.video.videoMenu": "Vaizdo įrašų meniu",
     "app.video.videoMenuDesc": "Atidaryti išskleidžiamąjį meniu „Vaizdo įrašas“",
-    "app.video.chromeExtensionError": "Turite įdiegti",
-    "app.video.chromeExtensionErrorLink": "šį „Chrome“ plėtinį",
     "app.video.pagination.prevPage": "Peržiūrėkite ankstesnius vaizdo įrašus",
     "app.video.pagination.nextPage": "Peržiūrėti ankstesnius vaizdo įrašus",
     "app.video.clientDisconnected": "Internetinės kameros negalima bendrinti dėl ryšio problemų",

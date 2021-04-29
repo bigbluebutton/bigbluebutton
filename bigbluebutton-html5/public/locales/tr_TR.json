@@ -619,8 +619,6 @@
     "app.video.videoMenu": "Video menüsü",
     "app.video.videoMenuDisabled": "Video menüsü Web kamerası ayarlarında devre dışı",
     "app.video.videoMenuDesc": "Video menüsünü liste olarak aç",
-    "app.video.chromeExtensionError": "Yüklemeniz gerekiyor",
-    "app.video.chromeExtensionErrorLink": "bu Chrome uzantısı",
     "app.video.pagination.prevPage": "Önceki videoları gör",
     "app.video.pagination.nextPage": "Sonraki videoları gör",
     "app.video.clientDisconnected": "Bağlantı sorunları sebebiyle web kamerası paylaşılamıyor",

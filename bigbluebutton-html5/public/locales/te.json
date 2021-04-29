@@ -583,8 +583,6 @@
     "app.video.videoMenu": "వీడియో మెను",
     "app.video.videoMenuDisabled": "వీడియో మెను సెట్టింగ్‌లలో వెబ్‌క్యామ్ నిలిపివేయబడింది",
     "app.video.videoMenuDesc": "వీడియో మెను డ్రాప్‌డౌన్ తెరవండి",
-    "app.video.chromeExtensionError": "మీరు తప్పనిసరిగా ఇన్‌స్టాల్ చేయాలి",
-    "app.video.chromeExtensionErrorLink": "ఈ Chrome పొడిగింపు",
     "app.fullscreenButton.label": "పూర్తి స్క్రీన్{0} చేయండి",
     "app.sfu.mediaServerConnectionError2000": "మీడియా సర్వర్‌కు కనెక్ట్ చేయడం సాధ్యం కాలేదు (లోపం 2000)",
     "app.sfu.mediaServerOffline2001": "మీడియా సర్వర్ ఆఫ్‌లైన్‌లో ఉంది. దయచేసి తరువాత మళ్ళీ ప్రయత్నించండి (లోపం 2001)",

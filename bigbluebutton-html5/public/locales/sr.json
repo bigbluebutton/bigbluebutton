@@ -555,8 +555,6 @@
     "app.video.videoMenu": "Video meni",
     "app.video.videoMenuDisabled": "Video meni za veb kamere je onemogućen u podešavanjima",
     "app.video.videoMenuDesc": "Otvori meni za video",
-    "app.video.chromeExtensionError": "Morate instalirati",
-    "app.video.chromeExtensionErrorLink": "ovu Chrome ekstenziju",
     "app.fullscreenButton.label": "Postavite {0} na ceo ekran",
     "app.meeting.endNotification.ok.label": "OK",
     "app.whiteboard.annotations.poll": "Rezultati ankete su bili objavljeni",

@@ -605,8 +605,6 @@
     "app.video.videoMenu": "Menu de vídeo",
     "app.video.videoMenuDisabled": "Menu de vídeo Webcam está desativada nas configurações",
     "app.video.videoMenuDesc": "Abra o menu de vídeo",
-    "app.video.chromeExtensionError": "Deve instalar o seguinte:",
-    "app.video.chromeExtensionErrorLink": "esta extensão Chrome",
     "app.video.pagination.prevPage": "Ver vídeos anteriores",
     "app.video.pagination.nextPage": "Ver vídeos seguintes",
     "app.video.clientDisconnected": "A webcam não pode ser partilhada devido a um problema de ligação",

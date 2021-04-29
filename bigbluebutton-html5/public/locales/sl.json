@@ -596,8 +596,6 @@
     "app.video.videoMenu": "Video meni",
     "app.video.videoMenuDisabled": "Meni spletne kamere je onemogočen v nastavitvah",
     "app.video.videoMenuDesc": "Odpre spustni meni za video",
-    "app.video.chromeExtensionError": "Namestiti je treba",
-    "app.video.chromeExtensionErrorLink": "razširitev za Chrome",
     "app.video.pagination.prevPage": "Ogled prejšnjih videov",
     "app.video.pagination.nextPage": "Ogled naslednjih videov",
     "app.video.clientDisconnected": "Spletne kamere ni mogoče deliti zaradi težav s povezovanjem",

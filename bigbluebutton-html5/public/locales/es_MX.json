@@ -400,8 +400,6 @@
     "app.video.videoMenu": "Menú de video",
     "app.video.videoMenuDisabled": "Webcam deshabilitada",
     "app.video.videoMenuDesc": "Abrir el menú de video",
-    "app.video.chromeExtensionError": "Debes instalar",
-    "app.video.chromeExtensionErrorLink": "esta extensión de Chrome",
     "app.fullscreenButton.label": "Visualizar {0} en pantalla completa",
     "app.meeting.endNotification.ok.label": "OK",
     "app.whiteboard.toolbar.tools": "Herramientas",

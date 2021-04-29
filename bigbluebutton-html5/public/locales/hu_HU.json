@@ -585,8 +585,6 @@
     "app.video.videoMenu": "Videómenü",
     "app.video.videoMenuDisabled": "Videó menü Webkamera ki van kapcsolva a beállításokban",
     "app.video.videoMenuDesc": "Videó lenyíló menü megnyitása",
-    "app.video.chromeExtensionError": "Szükséges telepítenie",
-    "app.video.chromeExtensionErrorLink": "ez a Chrome bővítmény",
     "app.fullscreenButton.label": "{0} teljes képernyős módra állítása",
     "app.sfu.mediaServerConnectionError2000": "Nem sikerült csatlakozni a médiaszerverhez (hiba 2000)",
     "app.sfu.mediaServerOffline2001": "A médiaszerver ki van kapcsolva. Kérjük, próbálja később. (hiba 2001)",
