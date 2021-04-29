@@ -153,7 +153,10 @@ const WaitingUsers = (props) => {
       authenticatedUsers,
       guestUsers,
     } = props;
-    if (!authenticatedUsers.length && !guestUsers.length) Session.set('openPanel', 'userlist');
+    if (!authenticatedUsers.length && !guestUsers.length) {
+      Session.set('openPanel', 'userlist');
+      window.dispatchEvent(new Event('panelChanged'));
+    }
   });
 
   const {
@@ -239,6 +242,7 @@ const WaitingUsers = (props) => {
           <Button
             onClick={() => {
               Session.set('openPanel', 'userlist');
+              window.dispatchEvent(new Event('panelChanged'));
             }}
             label={intl.formatMessage(intlMessages.title)}
             icon="left_arrow"
