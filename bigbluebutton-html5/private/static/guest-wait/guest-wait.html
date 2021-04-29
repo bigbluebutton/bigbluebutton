@@ -60,6 +60,42 @@
   }
   </style>
 
+  <script type="text/javascript" role="l10n">
+  tr = {
+    "en": {
+      "app.errorSeeConsole": "Error: more details in the console.",
+      "app.noModeratorResponse": "No response from Moderator.",
+      "app.noSessionToken": "No session Token received.",
+      "app.waitForModerator": "Please wait for a moderator to approve you joining the meeting.",
+      "app.windowTitle": "Guest Lobby",
+    },
+    "de": {
+      "app.errorSeeConsole": "Fehler: Mehr Details in der Konsole.",
+      "app.noModeratorResponse": "Keine Antwort vom Moderator.",
+      "app.noSessionToken": "Kein Sitzungstoken empfangen.",
+      "app.waitForModerator": "Bitte warten bis ein Moderator die Teilnahme bestätigt.",
+      "app.windowTitle": "Warteraum",
+    }
+  }
+
+  function _(message) {
+    lang = navigator.language;
+    // handle de-DE, en-US
+    if (pos = lang.indexOf('-') > -1) {
+       lang = lang.substr(0, pos);
+    }
+    if (tr[lang] == undefined) {
+      lang = "en";
+    }
+    msg = tr[lang][message];
+    if (msg === undefined) {
+      msg = tr["en"][message];
+    }
+    return msg;
+  }
+
+  </script>
+
   <script type="text/javascript">
     const REDIRECT_TIMEOUT = 15000;
 
@@ -74,7 +110,7 @@
         if (lobbyMessage.length !== 0) {
           updateMessage(lobbyMessage);
         } else {
-          updateMessage('Please wait for a moderator to approve you joining the meeting.');
+          updateMessage(_('app.waitForModerator'));
         }
       }
     }
@@ -109,7 +145,7 @@
       setTimeout(function() {
         if (attempt >= limit) {
           disableAnimation();
-          updateMessage('No response from a moderator.');
+          updateMessage(_('app.noModeratorResponse'));
           return;
         }
 
@@ -150,6 +186,8 @@
     }
 
     window.onload = function() {
+      window.document.title = _('app.windowTitle');
+      updateMessage(_('app.waitForModerator'));
       enableAnimation();
       try {
         const ATTEMPT_EVERY_MS = 5000;
@@ -159,7 +197,7 @@
 
         if (!sessionToken) {
           disableAnimation()
-          updateMessage('No session token received.');
+          updateMessage(_('app.noSessionToken'));
           return;
         }
 
@@ -167,7 +205,7 @@
       } catch (e) {
         disableAnimation();
         console.error(e);
-        updateMessage('Error: more details in the console.');
+        updateMessage(_('app.errorSeeConsole'));
       }
     };
   </script>
