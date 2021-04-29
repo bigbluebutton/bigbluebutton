@@ -360,6 +360,7 @@ public:
     enabled: true
     max_custom: 5
     allowDragAndDropFile: false
+    maxTypedAnswerLength: 45
   captions:
     enabled: true
     enableDictation: false
