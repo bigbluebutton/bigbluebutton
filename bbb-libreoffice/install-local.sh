@@ -6,9 +6,9 @@ fi;
 
 cd "$(dirname "$0")"
 
-DOCKER_CHECK=`docker --version &> /dev/null && echo 1 || echo 0`
-
-if [ "$DOCKER_CHECK"  = "0" ]; then
+if command -v docker &>/dev/null; then
+	echo "Docker already installed";
+else
 	echo "Docker not found";
 	apt update;
 	apt install apt-transport-https ca-certificates curl software-properties-common
@@ -19,20 +19,18 @@ if [ "$DOCKER_CHECK"  = "0" ]; then
 	systemctl enable docker
 	systemctl start docker
 	systemctl status docker
-else
-	echo "Docker already installed";
 fi
 
-IMAGE_CHECK=`docker image inspect bbb-soffice &> /dev/null && echo 1 || echo 0`
-if [ "$IMAGE_CHECK"  = "0" ]; then
+if docker image inspect bbb-soffice &>/dev/null; then
+	echo "Docker image already exists";
+else
 	echo "Docker image doesn't exists, building"
 	docker build -t bbb-soffice docker/
-else
-	echo "Docker image already exists";
 fi
 
-FOLDER_CHECK=`[ -d /usr/share/bbb-libreoffice-conversion/ ] && echo 1 || echo 0`
-if [ "$FOLDER_CHECK" = "0" ]; then
+if [[ -d /usr/share/bbb-libreoffice-conversion ]]; then
+	echo "Install folder already exists"
+else
 	echo "Install folder doesn't exists, installing"
 	mkdir -m 755 /usr/share/bbb-libreoffice-conversion/
 	cp assets/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert.sh
@@ -40,29 +38,26 @@ if [ "$FOLDER_CHECK" = "0" ]; then
 	cp assets/etherpad-export.sh /usr/share/bbb-libreoffice-conversion/etherpad-export.sh
 	chmod 755 /usr/share/bbb-libreoffice-conversion/etherpad-export.sh
 	chown -R root /usr/share/bbb-libreoffice-conversion/
-else
-	echo "Install folder already exists"
 fi;
 
-FILE_SUDOERS_CHECK=`[ -f /etc/sudoers.d/zzz-bbb-docker-libreoffice ] && echo 1 || echo 0`
-if [ "$FILE_SUDOERS_CHECK" = "0" ]; then
+if [[ -f /etc/sudoers.d/zzz-bbb-docker-libreoffice ]]; then
+	echo "Sudoers file already exists"
+else
 	echo "Sudoers file doesn't exists, installing"
 	cp assets/zzz-bbb-docker-libreoffice /etc/sudoers.d/zzz-bbb-docker-libreoffice
-else
-	echo "Sudoers file already exists"
 fi;
 
-aptInstalledList=$(apt list --installed 2>&1)
+aptInstalledList=$(apt list --installed "fonts*" 2>/dev/null|awk -F'/' 'NR>1{print $1}')
 fontInstalled=0
 
 for font in fonts-arkpandora fonts-crosextra-carlito fonts-crosextra-caladea fonts-noto fonts-noto-cjk fonts-liberation fonts-arkpandora
 do
-	if [[ $(echo $aptInstalledList | grep $font | wc -l) = "0" ]]; then
-		echo "Font $font doesn't exists, installing"
-		apt-get install -y --no-install-recommends $font
-		fontInstalled=1
-	else
+	if [[ -n $(echo "$aptInstalledList" | grep "$font") ]]; then
 		echo "Font $font already installed"
+	else
+		echo "Font $font doesn't exists, installing"
+		apt install -y --no-install-recommends $font
+		fontInstalled=1
 	fi
 done
 
