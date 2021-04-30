@@ -63,6 +63,8 @@ class PollDrawComponent extends Component {
       currentLine: 0,
       lineToMeasure: [],
       fontSizeDirection: 1,
+
+      reducedResult: [],
     };
 
     this.pollInitialCalculation = this.pollInitialCalculation.bind(this);
@@ -327,6 +329,7 @@ class PollDrawComponent extends Component {
       maxLineHeight,
       lineToMeasure,
       calculated: true,
+      reducedResult,
     });
   }
 
@@ -345,6 +348,7 @@ class PollDrawComponent extends Component {
       textArray,
       thickness,
       calculated,
+      reducedResult,
     } = this.state;
     if (!calculated) return null;
 
@@ -393,10 +397,10 @@ class PollDrawComponent extends Component {
     const extendedTextArray = [];
     for (let i = 0; i < textArray.length; i += 1) {
       let barWidth;
-      if (maxNumVotes === 0 || annotation.result[i].numVotes === 0) {
+      if (maxNumVotes === 0 || reducedResult[i].numVotes === 0) {
         barWidth = 1;
       } else {
-        barWidth = (annotation.result[i].numVotes / maxNumVotes) * maxBarWidth;
+        barWidth = (reducedResult[i].numVotes / maxNumVotes) * maxBarWidth;
       }
 
       let label = textArray[i][0];
@@ -437,7 +441,7 @@ class PollDrawComponent extends Component {
           yNumVotes,
           xNumVotes,
           color,
-          numVotes: annotation.result[i].numVotes,
+          numVotes: reducedResult[i].numVotes,
         },
         percentColumn: {
           xRight,
