@@ -190,13 +190,8 @@ class Settings extends Component {
             <Icon iconName="application" className={styles.icon} />
             <span id="appTab">{intl.formatMessage(intlMessages.appTabLabel)}</span>
           </Tab>
-          {/* <Tab className={styles.tabSelector} aria-labelledby="videoTab"> */}
-          {/* <Icon iconName='video' className={styles.icon}/> */}
-          {/* <span id="videoTab">{intl.formatMessage(intlMessages.videoTabLabel)}</span> */}
-          {/* </Tab> */}
           <Tab
             className={styles.tabSelector}
-            // aria-labelledby="appTab"
             selectedClassName={styles.selected}
           >
             <Icon iconName="alert" className={styles.icon} />
@@ -210,12 +205,6 @@ class Settings extends Component {
             <Icon iconName="network" className={styles.icon} />
             <span id="dataSaving">{intl.formatMessage(intlMessages.dataSavingLabel)}</span>
           </Tab>
-          {/* { isModerator ? */}
-          {/* <Tab className={styles.tabSelector} aria-labelledby="usersTab"> */}
-          {/* <Icon iconName="user" className={styles.icon} /> */}
-          {/* <span id="usersTab">{intl.formatMessage(intlMessages.usersTabLabel)}</span> */}
-          {/* </Tab> */}
-          {/* : null } */}
         </TabList>
         <TabPanel className={styles.tabPanel}>
           <Application
@@ -235,12 +224,6 @@ class Settings extends Component {
             {...{ isModerator }}
           />
         </TabPanel>
-        {/* <TabPanel className={styles.tabPanel}> */}
-        {/* <Video */}
-        {/* handleUpdateSettings={this.handleUpdateSettings} */}
-        {/* settings={this.state.current.video} */}
-        {/* /> */}
-        {/* </TabPanel> */}
         <TabPanel className={styles.tabPanel}>
           <DataSaving
             settings={current.dataSaving}
