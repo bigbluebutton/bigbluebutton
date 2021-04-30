@@ -68,6 +68,13 @@
       "app.noSessionToken": "No session Token received.",
       "app.waitForModerator": "Please wait for a moderator to approve you joining the meeting.",
       "app.windowTitle": "Guest Lobby",
+      "app.missingToken": "Guest missing session token.",
+      "app.missingSession": "Guest missing session.",
+      "app.missingMeeting": "Meeting does not exist.",
+      "app.meetingEnded": "Meeting ended.",
+      "app.guestWait": "Please wait for a moderator to approve you joining the meeting.",
+      "app.guestDeny": "Guest denied of joining the meeting.",
+      "app.seatWait": "Guest waiting for a seat in the meeting.",
     },
     "de": {
       "app.errorSeeConsole": "Fehler: Mehr Details in der Konsole.",
@@ -75,6 +82,12 @@
       "app.noSessionToken": "Kein Sitzungstoken empfangen.",
       "app.waitForModerator": "Bitte warten bis ein Moderator die Teilnahme bestätigt.",
       "app.windowTitle": "Warteraum",
+      "app.missingSession": "Gast-Session fehlt.",
+      "app.missingMeeting": "Konferenz existiert nicht.",
+      "app.meetingEnded": "Konferenz beendet.",
+      "app.guestWait": "Bitte warten Sie, bis ein Moderator Ihre Teilnahme bestätigt.",
+      "app.guestDeny": "Gast wurde abgelehnt.",
+      "app.seatWait": "Gast wartet auf einen Platz in der Konferenz.",
     }
   }
 
@@ -155,13 +168,13 @@
           const code = data.response.returncode;
 
           if (code === 'FAILED') {
-            return redirect(data.response.message, data.response.url);
+            return redirect(_('app.' + data.response.messageKey), data.response.url);
           }
 
           const status = data.response.guestStatus;
 
           if (status === 'DENY') {
-            return redirect(data.response.message, data.response.url);
+            return redirect(_('app.' + data.response.messageKey), data.response.url);
           }
 
           if (status === 'ALLOW') {
