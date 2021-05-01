@@ -4,10 +4,9 @@ import {
   defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
-// import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
 import Modal from '/imports/ui/components/modal/simple/component';
-import browser from 'browser-detect';
+import browserInfo from '/imports/utils/browserInfo';
 import cx from 'classnames';
 import Service from './service';
 import VideoService from '../video-provider/service';
@@ -652,9 +651,11 @@ class VideoPreview extends Component {
 
     const shared = sharedDevices.includes(webcamDeviceId);
 
+    const { isIe } = browserInfo;
+
     return (
       <div>
-        {browser().name === 'edge' || browser().name === 'ie' ? (
+        {isIe ? (
           <p className={styles.browserWarning}>
             <FormattedMessage
               id="app.audioModal.unsupportedBrowserLabel"

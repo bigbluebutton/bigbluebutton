@@ -28,6 +28,7 @@ export default function addSystemMsg(meetingId, chatId, msg) {
   });
   const msgDocument = {
     ...msg,
+    sender: msg.sender.id,
     meetingId,
     chatId,
     message: parseMessage(msg.message),

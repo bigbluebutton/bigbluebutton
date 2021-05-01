@@ -8,6 +8,8 @@ export default function setPresentation(presentationId, podId) {
   const EVENT_NAME = 'SetCurrentPresentationPubMsg';
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(presentationId, String);
   check(podId, String);
 

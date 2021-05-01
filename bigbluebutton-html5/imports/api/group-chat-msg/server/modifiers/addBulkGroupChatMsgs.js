@@ -7,14 +7,22 @@ export default async function addBulkGroupChatMsgs(msgs) {
   if (!msgs.length) return;
 
   const mappedMsgs = msgs
-    .map(({ chatId, meetingId, msg }) => ({
-      _id: new Mongo.ObjectID()._str,
-      ...msg,
-      meetingId,
-      chatId,
-      message: parseMessage(msg.message),
-      sender: msg.sender.id,
-    }))
+    .map(({ chatId, meetingId, msg }) => {
+      const {
+        sender,
+        color,
+        ...restMsg
+      } = msg;
+
+      return {
+        _id: new Mongo.ObjectID()._str,
+        ...restMsg,
+        meetingId,
+        chatId,
+        message: parseMessage(msg.message),
+        sender: sender.id,
+      };
+    })
     .map(el => flat(el, { safe: true }));
 
   try {

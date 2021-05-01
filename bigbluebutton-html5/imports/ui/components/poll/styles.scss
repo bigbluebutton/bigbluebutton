@@ -6,7 +6,7 @@
     --poll-column-amount: 2;
     --poll-blue: #1A73D4;
     --poll-header-offset: -0.875rem;
-    --poll-addItem-width: 6rem;
+    --poll-addItem-width: 100%;
     --poll-input-height: 2.5rem;
 }
 
@@ -223,7 +223,7 @@
 
     button {
         position: relative;
-        width: 47%;
+        width: 100%;
     }
 }
 
@@ -330,6 +330,14 @@
     }
 }
 
+.btnML {
+    margin-left: 3%;
+}
+
+.btnMR {
+    margin-right: 3%;
+}
+
 .deleteBtn {
     font-size: var(--font-size-base);
     position: relative;
@@ -343,7 +351,7 @@
     margin-bottom: 1rem;
 }
 
-.selectedBtn {
+.selectedBtnBlue {
     background-color: var(--poll-blue);
     color: var(--color-white);
     font-size: var(--font-size-base);
@@ -354,6 +362,23 @@
         background-color: var(--poll-blue) !important;
         box-shadow: none !important;
         color: var(--color-white) !important;
+    }
+}
+
+.selectedBtnWhite {
+    background-color: var(--color-white);
+    color: var(--poll-blue);
+    font-size: var(--font-size-base);
+    border-color: var(--poll-blue);
+    border-width: medium;
+
+    &:hover,
+    &:focus,
+    &:active {
+        background-color: var(--color-white) !important;
+        box-shadow: none !important;
+        color: var(--poll-blue) !important;
+        border-width: medium;
     }
 }
 

@@ -25,6 +25,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
     waitForApproval,
     registeredOn,
     authTokenValidatedOn,
+    reasonCode,
   } = body;
 
   check(userId, String);
@@ -33,6 +34,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
   check(waitForApproval, Boolean);
   check(registeredOn, Number);
   check(authTokenValidatedOn, Number);
+  check(reasonCode, String);
 
   const pendingAuths = pendingAuthenticationsStore.take(meetingId, userId, authToken);
 
@@ -46,7 +48,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
           const { methodInvocationObject } = pendingAuth;
           const connectionId = methodInvocationObject.connection.id;
 
-          upsertValidationState(meetingId, userId, ValidationStates.INVALID, connectionId);
+          upsertValidationState(meetingId, userId, ValidationStates.INVALID, connectionId, reasonCode);
 
           // Schedule socket disconnection for this user, giving some time for client receiving the reason of disconnection
           Meteor.setTimeout(() => {

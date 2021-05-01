@@ -5,6 +5,7 @@ import Auth from '/imports/ui/services/auth';
 import { notify } from '/imports/ui/services/notification';
 import VoiceUsers from '/imports/api/voice-users';
 import RecordIndicator from './component';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const RecordIndicatorContainer = props => (
   <RecordIndicator {...props} />
@@ -40,5 +41,6 @@ export default withTracker(() => {
     time: recordObeject && recordObeject.time,
     notify,
     micUser,
+    isPhone: deviceInfo.isPhone,
   };
 })(RecordIndicatorContainer);

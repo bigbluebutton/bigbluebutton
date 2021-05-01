@@ -10,6 +10,10 @@ const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 
 export default function chatMessageBeforeJoinCounter() {
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
+
+  check(meetingId, String);
+  check(requesterUserId, String);
+
   const groupChats = GroupChat.find({
     $or: [
       { meetingId, access: PUBLIC_CHAT_TYPE },
@@ -20,11 +24,15 @@ export default function chatMessageBeforeJoinCounter() {
   const User = Users.findOne({ userId: requesterUserId, meetingId });
 
   const chatIdWithCounter = groupChats.map((groupChat) => {
-    const msgCount = GroupChatMsg.find({ chatId: groupChat.chatId, timestamp: { $lt: User.authTokenValidatedTime } }).count();
+    const msgCount = GroupChatMsg.find({
+      meetingId,
+      chatId: groupChat.chatId,
+      timestamp: { $lt: User.authTokenValidatedTime },
+    }).count();
     return {
       chatId: groupChat.chatId,
       count: msgCount,
     };
-  }).filter(chat => chat.count);
+  }).filter((chat) => chat.count);
   return chatIdWithCounter;
 }

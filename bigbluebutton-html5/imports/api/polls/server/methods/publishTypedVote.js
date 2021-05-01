@@ -6,10 +6,13 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 export default function publishTypedVote(id, pollAnswer) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+  const MAX_INPUT_CHARS = Meteor.settings.public.poll.maxTypedAnswerLength;
   let EVENT_NAME = 'RespondToTypedPollReqMsg';
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(pollAnswer, String);
   check(id, String);
 
@@ -46,7 +49,7 @@ export default function publishTypedVote(id, pollAnswer) {
     requesterId: requesterUserId,
     pollId: id,
     questionId: 0,
-    answer: pollAnswer,
+    answer: pollAnswer.substring(0, MAX_INPUT_CHARS),
   };
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
