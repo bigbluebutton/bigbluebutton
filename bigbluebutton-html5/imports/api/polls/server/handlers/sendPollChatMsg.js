@@ -13,7 +13,7 @@ export default function sendPollChatMsg({ body }, meetingId) {
   const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
   const MAX_POLL_RESULT_BARS = 20;
 
-  const { answers, numRespondents } = poll;
+  const { answers, numResponders } = poll;
 
   const pollData = Polls.findOne({ meetingId });
 
@@ -37,16 +37,11 @@ export default function sendPollChatMsg({ body }, meetingId) {
     return acc;
   };
 
-  let responded = 0;
   let resultString = `bbb-published-poll-\n${pollData.question.split('<br/>').join('<br#>').split('\n').join('<br#>')}\n`;
 
-  answers.map((item) => {
-    responded += item.numVotes;
-    return item;
-  }).reduce(caseInsensitiveReducer, []).map((item) => {
+  answers.reduce(caseInsensitiveReducer, []).map((item) => {
     item.key = item.key.split('<br/>').join('<br#>');
-    const numResponded = responded === numRespondents ? numRespondents : responded;
-    const pct = Math.round(item.numVotes / numResponded * 100);
+    const pct = Math.round(item.numVotes / numResponders * 100);
     const pctBars = '|'.repeat(pct * MAX_POLL_RESULT_BARS / 100);
     const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
     resultString += `${item.key}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
