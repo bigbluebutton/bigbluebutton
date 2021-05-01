@@ -56,8 +56,10 @@ class DebugWindow extends Component {
 
   componentDidMount() {
     document.addEventListener('keyup', (event) => {
-      const key = event.key.toUpperCase();
-      if (DEBUG_WINDOW_ENABLED && event.altKey && key === SHOW_DEBUG_WINDOW_ACCESSKEY) {
+      const { key, code } = event;
+      const eventKey = key.toUpperCase();
+      const eventCode = code;
+      if (DEBUG_WINDOW_ENABLED && event.altKey && (eventKey === SHOW_DEBUG_WINDOW_ACCESSKEY || eventCode === `Key${SHOW_DEBUG_WINDOW_ACCESSKEY}`)) {
         this.debugWindowToggle();
       }
     });
@@ -196,7 +198,7 @@ class DebugWindow extends Component {
                 </div>
                 <div className={styles.row}>
                   <div className={styles.cell}>
-                    testando o chatLogger levels:
+                    Testing the chatLogger levels:
                   </div>
                   <div className={styles.cell}>
                     <div className={styles.cellContent}>

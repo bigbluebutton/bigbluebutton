@@ -5,31 +5,29 @@ import removeVoiceUser from '../modifiers/removeVoiceUser';
 import updateVoiceUser from '../modifiers/updateVoiceUser';
 import addVoiceUser from '../modifiers/addVoiceUser';
 
-
 export default function handleVoiceUsers({ header, body }) {
   const { voiceUsers } = body;
   const { meetingId } = header;
 
   const meeting = Meetings.findOne({ meetingId }, { fields: { 'voiceProp.voiceConf': 1 } });
-  const usersIds = voiceUsers.map(m => m.intId);
+  const usersIds = voiceUsers.map((m) => m.intId);
 
   const voiceUsersIdsToUpdate = VoiceUsers.find({
     meetingId,
     intId: { $in: usersIds },
-  }, { fields: { intId: 1 } }).fetch().map(m => m.intId);
+  }, { fields: { intId: 1 } }).fetch().map((m) => m.intId);
 
-  const voiceUsersUpdated = [];
   voiceUsers.forEach((voice) => {
     if (voiceUsersIdsToUpdate.indexOf(voice.intId) >= 0) {
       // user already exist, then update
-      voiceUsersUpdated.push(updateVoiceUser(meetingId, {
+      updateVoiceUser(meetingId, {
         intId: voice.intId,
         voiceUserId: voice.voiceUserId,
         talking: voice.talking,
         muted: voice.muted,
         voiceConf: meeting.voiceProp.voiceConf,
         joined: true,
-      }));
+      });
     } else {
       // user doesn't exist yet, then add it
       addVoiceUser(meetingId, {
@@ -54,11 +52,9 @@ export default function handleVoiceUsers({ header, body }) {
     meetingId,
     intId: { $nin: usersIds },
   }, { fields: { voiceUserId: 1, intId: 1 } }).fetch();
-  voiceUsersToRemove.forEach(user => removeVoiceUser(meetingId, {
+  voiceUsersToRemove.forEach((user) => removeVoiceUser(meetingId, {
     voiceConf: meeting.voiceProp.voiceConf,
     voiceUserId: user.voiceUserId,
     intId: user.intId,
   }));
-
-  return voiceUsersUpdated;
 }

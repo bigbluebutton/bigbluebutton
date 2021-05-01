@@ -17,6 +17,7 @@ const propTypes = {
   currentUser: PropTypes.shape({}).isRequired,
   isPublicChat: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
+  clearAllEmojiStatus: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
   pollIsOpen: PropTypes.bool.isRequired,
   forcePollOpen: PropTypes.bool.isRequired,
@@ -36,6 +37,7 @@ class UserContent extends PureComponent {
       intl,
       currentUser,
       setEmojiStatus,
+      clearAllEmojiStatus,
       roving,
       isPublicChat,
       pollIsOpen,
@@ -52,17 +54,17 @@ class UserContent extends PureComponent {
         className={styles.content}
       >
         {CHAT_ENABLED
-          ? (<UserMessages
-            {...{
-              isPublicChat,
-              compact,
-              intl,
-              roving,
-              currentClosedChats,
-            }}
-          />
-          ) : null
-        }
+          ? (
+            <UserMessages
+              {...{
+                isPublicChat,
+                compact,
+                intl,
+                roving,
+                currentClosedChats,
+              }}
+            />
+          ) : null}
         {currentUser.role === ROLE_MODERATOR
           ? (
             <UserCaptionsContainer
@@ -70,8 +72,7 @@ class UserContent extends PureComponent {
                 intl,
               }}
             />
-          ) : null
-        }
+          ) : null}
         <UserNotesContainer
           {...{
             intl,
@@ -85,8 +86,7 @@ class UserContent extends PureComponent {
                 pendingUsers,
               }}
             />
-          ) : null
-        }
+          ) : null}
         <UserPolls
           isPresenter={currentUser.presenter}
           {...{
@@ -101,6 +101,7 @@ class UserContent extends PureComponent {
             intl,
             currentUser,
             setEmojiStatus,
+            clearAllEmojiStatus,
             roving,
             requestUserInformation,
           }}

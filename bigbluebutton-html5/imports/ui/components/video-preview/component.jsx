@@ -254,7 +254,7 @@ class VideoPreview extends Component {
               // set webcam
               devices.forEach((device) => {
                 // Avoid duplicated devices
-                const found = webcams.find(d => d.deviceId === device.deviceId);
+                const found = webcams.find((d) => d.deviceId === device.deviceId);
                 if (device.kind === 'videoinput' && !found) {
                   webcams.push(device);
                   if (!initialDeviceId
@@ -272,7 +272,6 @@ class VideoPreview extends Component {
                   webcams,
                 },
               }, `Enumerate devices came back. There are ${devices.length} devices and ${webcams.length} are video inputs`);
-
 
               if (initialDeviceId) {
                 this.setState({
@@ -309,7 +308,6 @@ class VideoPreview extends Component {
     this._isMounted = false;
   }
 
-
   stopTracks() {
     // console.log("in stop tracks");
     if (this.deviceStream) {
@@ -331,7 +329,7 @@ class VideoPreview extends Component {
     const profileValue = event.target.value;
     const { webcamDeviceId } = this.state;
 
-    const selectedProfile = CAMERA_PROFILES.find(profile => profile.id === profileValue);
+    const selectedProfile = CAMERA_PROFILES.find((profile) => profile.id === profileValue);
 
     this.displayPreview(webcamDeviceId, selectedProfile);
   }
@@ -413,7 +411,7 @@ class VideoPreview extends Component {
 
   displayInitialPreview(deviceId) {
     const { changeWebcam } = this.props;
-    const availableProfiles = CAMERA_PROFILES.filter(p => !p.hidden);
+    const availableProfiles = CAMERA_PROFILES.filter((p) => !p.hidden);
 
     this.setState({
       webcamDeviceId: deviceId,
@@ -423,8 +421,8 @@ class VideoPreview extends Component {
     changeWebcam(deviceId);
 
     if (availableProfiles.length > 0) {
-      const defaultProfile = availableProfiles.find(profile => profile.id === this.userParameterProfile)
-        || availableProfiles.find(profile => profile.default)
+      const defaultProfile = availableProfiles.find((profile) => profile.id === this.userParameterProfile)
+        || availableProfiles.find((profile) => profile.default)
         || availableProfiles[0];
       this.displayPreview(deviceId, defaultProfile);
     }
@@ -515,7 +513,7 @@ class VideoPreview extends Component {
               className={styles.select}
               onChange={this.handleSelectWebcam}
             >
-              {availableWebcams.map(webcam => (
+              {availableWebcams.map((webcam) => (
                 <option key={webcam.deviceId} value={webcam.deviceId}>
                   {webcam.label}
                 </option>
@@ -526,8 +524,7 @@ class VideoPreview extends Component {
             <span>
               {intl.formatMessage(intlMessages.webcamNotFoundLabel)}
             </span>
-          )
-        }
+          )}
         { shared
           ? (
             <span className={styles.label}>
@@ -564,11 +561,9 @@ class VideoPreview extends Component {
                   <span>
                     {intl.formatMessage(intlMessages.profileNotFoundLabel)}
                   </span>
-                )
-              }
+                )}
             </span>
-          )
-        }
+          )}
       </div>
     );
   }
@@ -651,11 +646,11 @@ class VideoPreview extends Component {
 
     const shared = sharedDevices.includes(webcamDeviceId);
 
-    const { isEdge, isIe } = browserInfo;
+    const { isIe } = browserInfo;
 
     return (
       <div>
-        {isEdge || isIe ? (
+        {isIe ? (
           <p className={styles.browserWarning}>
             <FormattedMessage
               id="app.audioModal.unsupportedBrowserLabel"
@@ -685,8 +680,7 @@ class VideoPreview extends Component {
                 />
               </div>
             )
-            : null
-          }
+            : null}
           <div className={styles.actions}>
             <Button
               label={intl.formatMessage(intlMessages.cancelLabel)}
@@ -741,8 +735,7 @@ class VideoPreview extends Component {
       >
         {hasMediaDevices
           ? this.renderModalContent()
-          : this.supportWarning()
-        }
+          : this.supportWarning()}
       </Modal>
     );
   }

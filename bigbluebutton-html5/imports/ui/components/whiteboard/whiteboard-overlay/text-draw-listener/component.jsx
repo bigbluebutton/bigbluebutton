@@ -132,7 +132,7 @@ export default class TextDrawListener extends Component {
     const textarea = document.getElementById(getCurrentShapeId());
 
     if (textarea) {
-      if (document.activeElement === textarea) {
+      if (document.activeElement === textarea && document.activeElement.value.length > 0) {
         return true;
       }
       textarea.focus();
@@ -151,7 +151,6 @@ export default class TextDrawListener extends Component {
     setTimeout(() => { this.hasBeenTouchedRecently = false; }, 500);
     // to prevent default behavior (scrolling) on devices (in Safari), when you draw a text box
     event.preventDefault();
-
 
     // if our current drawing state is not drawing the box and not writing the text
     if (!isDrawing && !isWritingText) {
@@ -358,7 +357,6 @@ export default class TextDrawListener extends Component {
       textBoxY: y,
     });
   }
-
 
   commonDrawEndHandler() {
     const {

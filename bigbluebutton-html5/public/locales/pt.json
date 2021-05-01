@@ -96,8 +96,6 @@
     "app.userList.userOptions.unmuteAllDesc": "Desliga o modo de silêncio da sessão",
     "app.userList.userOptions.lockViewersLabel": "Bloquear participantes",
     "app.userList.userOptions.lockViewersDesc": "Bloquear acesso a algumas funcionalidades aos participantes da sessão",
-    "app.userList.userOptions.connectionStatusLabel": "Estado da ligação",
-    "app.userList.userOptions.connectionStatusDesc": "Ver o estado da ligação do utilizador",
     "app.userList.userOptions.disableCam": "As webcams dos espetadores estão desativadas",
     "app.userList.userOptions.disableMic": "Os microfones dos espetadores estão desativados",
     "app.userList.userOptions.disablePrivChat": "O chat privado está desativado",
@@ -334,7 +332,6 @@
     "app.settings.save-notification.label": "As configurações foram guardadas",
     "app.statusNotifier.lowerHands": "Mãos baixadas",
     "app.statusNotifier.raisedHandsTitle": "Mãos levantadas",
-    "app.statusNotifier.raisedHandDesc": "{0} levantou a mão",
     "app.statusNotifier.and": "e",
     "app.switch.onLabel": "Ligar",
     "app.switch.offLabel": "Desligar",
@@ -359,7 +356,6 @@
     "app.actionsBar.actionsDropdown.captionsDesc": "Alterna painel de legendas",
     "app.actionsBar.actionsDropdown.takePresenter": "Assumir apresentador",
     "app.actionsBar.actionsDropdown.takePresenterDesc": "Atribuir a si o papel de apresentador",
-    "app.actionsBar.actionsDropdown.selectRandUserLabel": "Escolher Utilizador aleatório.",
     "app.actionsBar.actionsDropdown.selectRandUserDesc": "Escolhe aleatoriamente um utilizador da lista",
     "app.actionsBar.emojiMenu.statusTriggerLabel": "Definir estado",
     "app.actionsBar.emojiMenu.awayLabel": "Ausente",
@@ -454,9 +450,6 @@
     "app.audio.enterSessionLabel": "Entrar na sessão",
     "app.audio.playSoundLabel": "Reproduzir som",
     "app.audio.backLabel": "Voltar",
-    "app.audio.microphones": "Microfones",
-    "app.audio.speakers": "Alto-falantes",
-    "app.audio.noDeviceFound": "Nenhum dispositivo encontrado",
     "app.audio.audioSettings.titleLabel": "Configurações de áudio",
     "app.audio.audioSettings.descriptionLabel": "Por favor, note que aparecerá uma caixa de diálogo no seu navegador, a solicitar autorização para partilhar o seu microfone.",
     "app.audio.audioSettings.microphoneSourceLabel": "Selecionar microfone",
@@ -565,7 +558,6 @@
     "app.connection-status.title": "Estado de ligação",
     "app.connection-status.description": "Ver o estado da ligação do utilizador",
     "app.connection-status.more": "mais",
-    "app.connection-status.offline": "offline",
     "app.recording.startTitle": "Iniciar gravação",
     "app.recording.stopTitle": "Pausar gravação",
     "app.recording.resumeTitle": "Retomar gravação",
@@ -613,8 +605,6 @@
     "app.video.videoMenu": "Menu de vídeo",
     "app.video.videoMenuDisabled": "Menu de vídeo Webcam está desativada nas configurações",
     "app.video.videoMenuDesc": "Abra o menu de vídeo",
-    "app.video.chromeExtensionError": "Deve instalar o seguinte:",
-    "app.video.chromeExtensionErrorLink": "esta extensão Chrome",
     "app.video.pagination.prevPage": "Ver vídeos anteriores",
     "app.video.pagination.nextPage": "Ver vídeos seguintes",
     "app.video.clientDisconnected": "A webcam não pode ser partilhada devido a um problema de ligação",
@@ -728,3 +718,4 @@
     "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(será desactivado se arrastar ou redimensionar a área das webcams)"
 
 }
+

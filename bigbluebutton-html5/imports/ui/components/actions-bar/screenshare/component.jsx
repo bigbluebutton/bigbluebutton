@@ -13,10 +13,7 @@ import { styles } from '../styles';
 import ScreenshareBridgeService from '/imports/api/screenshare/client/bridge/service';
 import {
   shareScreen,
-  stop,
   screenshareHasEnded,
-  screenShareEndAlert,
-  isVideoBroadcasting,
 } from '/imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
 
@@ -193,8 +190,7 @@ const ScreenshareButton = ({
             } else {
               shareScreen(handleFailure);
             }
-          }
-        }
+          }}
         id={isVideoBroadcasting ? 'unshare-screen-button' : 'share-screen-button'}
       />
     ) : null;

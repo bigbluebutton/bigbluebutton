@@ -527,8 +527,6 @@
     "app.video.videoMenu": "เมนูวิดีโอ",
     "app.video.videoMenuDisabled": "เมนูวิดีโอเว็บแคมถูกปิดใช้งานในการตั้งค่า",
     "app.video.videoMenuDesc": "เปิดเมนูวิดีโอแบบเลื่อนลง",
-    "app.video.chromeExtensionError": "คุณต้องติดตั้ง",
-    "app.video.chromeExtensionErrorLink": "ส่วนขยาย Chrome นี้",
     "app.fullscreenButton.label": "กำหนด {0} เต็มหน้าจอ",
     "app.meeting.endNotification.ok.label": "ตกลง",
     "app.whiteboard.toolbar.tools": "เครื่องมือ",

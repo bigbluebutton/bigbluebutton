@@ -30,6 +30,7 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
+  shortcuts: PropTypes.objectOf(PropTypes.string).isRequired,
   processToggleMuteFromOutside: PropTypes.func.isRequired,
   handleToggleMuteMicrophone: PropTypes.func.isRequired,
   handleJoinAudio: PropTypes.func.isRequired,
@@ -72,7 +73,7 @@ class AudioControls extends PureComponent {
 
     return (
       <Button
-        className={cx(styles.button, styles.btn)}
+        className={styles.btn}
         onClick={handleJoinAudio}
         disabled={disable}
         hideLabel
@@ -88,8 +89,11 @@ class AudioControls extends PureComponent {
     );
   }
 
-  static renderLeaveButtonWithLiveStreamSelector() {
-    return (<InputStreamLiveSelectorContainer />);
+  static renderLeaveButtonWithLiveStreamSelector(props) {
+    const { handleLeaveAudio } = props;
+    return (
+      <InputStreamLiveSelectorContainer {...{ handleLeaveAudio }} />
+    );
   }
 
   renderLeaveButtonWithoutLiveStreamSelector() {
@@ -151,7 +155,8 @@ class AudioControls extends PureComponent {
 
     if (inAudio) {
       if (_enableDynamicDeviceSelection) {
-        return AudioControls.renderLeaveButtonWithLiveStreamSelector();
+        return AudioControls.renderLeaveButtonWithLiveStreamSelector(this
+          .props);
       }
 
       return this.renderLeaveButtonWithoutLiveStreamSelector();
@@ -201,7 +206,7 @@ class AudioControls extends PureComponent {
 
     return (
       <span className={styles.container}>
-        {isVoiceUser && inputStream && muteAlertEnabled && !listenOnly ? (
+        {isVoiceUser && inputStream && muteAlertEnabled && !listenOnly && muted ? (
           <MutedAlert {...{
             muted, inputStream, isViewer, isPresenter,
           }}

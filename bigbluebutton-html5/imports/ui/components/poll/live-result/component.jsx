@@ -46,7 +46,7 @@ const getResponseString = (obj) => {
 class LiveResult extends PureComponent {
   static getDerivedStateFromProps(nextProps) {
     const {
-      currentPoll, intl, pollAnswerIds,
+      currentPoll, intl, pollAnswerIds, usernames,
     } = nextProps;
 
     if (!currentPoll) return null;
@@ -58,15 +58,15 @@ class LiveResult extends PureComponent {
     const currentPollQuestion = (currentPoll.question) ? currentPoll.question : '';
 
     let userAnswers = responses
-      ? [...users, ...responses.map(u => u.userId)]
+      ? [...users, ...responses.map((u) => u.userId)]
       : [...users];
 
-    userAnswers = userAnswers.map(id => Service.getUser(id))
+    userAnswers = userAnswers.map((id) => usernames[id])
       .map((user) => {
         let answer = '';
 
         if (responses) {
-          const response = responses.find(r => r.userId === user.userId);
+          const response = responses.find((r) => r.userId === user.userId);
           if (response) {
             const answerKeys = [];
             response.answerIds.forEach((answerId) => {
@@ -220,8 +220,7 @@ class LiveResult extends PureComponent {
               color="default"
               className={styles.btn}
             />
-          )
-        }
+          )}
         <div className={styles.separator} />
         <table>
           <tbody>

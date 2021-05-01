@@ -3,7 +3,7 @@ import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
-import SlowConnection from '/imports/ui/components/slow-connection/component';
+import Icon from '/imports/ui/components/connection-status/icon/component';
 import Switch from '/imports/ui/components/switch/component';
 import Service from '../service';
 import Modal from '/imports/ui/components/modal/simple/component';
@@ -29,6 +29,10 @@ const intlMessages = defineMessages({
   more: {
     id: 'app.connection-status.more',
     description: 'More about conectivity issues',
+  },
+  offline: {
+    id: 'app.connection-status.offline',
+    description: 'Offline user',
   },
   dataSaving: {
     id: 'app.settings.dataSavingTab.description',
@@ -82,7 +86,10 @@ class ConnectionStatusComponent extends PureComponent {
     const { intl } = this.props;
 
     return (
-      <div className={styles.item}>
+      <div
+        className={styles.item}
+        data-test="connectionStatusItemEmpty"
+      >
         <div className={styles.left}>
           <div className={styles.name}>
             <div className={styles.text}>
@@ -107,10 +114,13 @@ class ConnectionStatusComponent extends PureComponent {
       const itemStyle = {};
       itemStyle[styles.even] = (index + 1) % 2 === 0;
 
+      const textStyle = {};
+      textStyle[styles.offline] = conn.offline;
       return (
         <div
           key={index}
           className={cx(styles.item, itemStyle)}
+          data-test="connectionStatusItemUser"
         >
           <div className={styles.left}>
             <div className={styles.avatar}>
@@ -126,12 +136,18 @@ class ConnectionStatusComponent extends PureComponent {
             </div>
 
             <div className={styles.name}>
-              <div className={styles.text}>
+              <div
+                className={cx(styles.text, textStyle)}
+                data-test={conn.offline ? 'offlineUser' : null}
+              >
                 {conn.name}
+                {conn.offline ? ` (${intl.formatMessage(intlMessages.offline)})` : null}
               </div>
             </div>
             <div className={styles.status}>
-              <SlowConnection effectiveConnectionType={conn.level} />
+              <div className={styles.icon}>
+                <Icon level={conn.level} />
+              </div>
             </div>
           </div>
           <div className={styles.right}>
@@ -172,6 +188,7 @@ class ConnectionStatusComponent extends PureComponent {
             onChange={() => this.handleDataSavingChange('viewParticipantsWebcams')}
             ariaLabelledBy="webcam"
             ariaLabel={intl.formatMessage(intlMessages.webcam)}
+            data-test="dataSavingWebcams"
           />
         </div>
         <div className={styles.saving}>
@@ -184,6 +201,7 @@ class ConnectionStatusComponent extends PureComponent {
             onChange={() => this.handleDataSavingChange('viewScreenshare')}
             ariaLabelledBy="screenshare"
             ariaLabel={intl.formatMessage(intlMessages.screenshare)}
+            data-test="dataSavingScreenshare"
           />
         </div>
       </div>
@@ -220,8 +238,7 @@ class ConnectionStatusComponent extends PureComponent {
                 <a href={this.help} target="_blank" rel="noopener noreferrer">
                   {`(${intl.formatMessage(intlMessages.more)})`}
                 </a>
-              )
-            }
+              )}
           </div>
           {this.renderDataSaving()}
           <div className={styles.content}>

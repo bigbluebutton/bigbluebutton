@@ -8,7 +8,6 @@ import Users from '/imports/api/users';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
 import { Annotations as AnnotationsLocal } from '/imports/ui/components/whiteboard/service';
 
-
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
@@ -21,6 +20,8 @@ const SUBSCRIPTIONS = [
   'network-information', 'local-settings', 'users-typing', 'record-meetings', 'video-streams',
   'connection-status', 'voice-call-states',
 ];
+
+const EVENT_NAME = 'bbb-group-chat-messages-subscription-has-stoppped';
 
 class Subscriptions extends Component {
   componentDidUpdate() {
@@ -35,8 +36,6 @@ class Subscriptions extends Component {
     return children;
   }
 }
-
-let usersPersistentDataHandler = null;
 
 export default withTracker(() => {
   const { credentials } = Auth;
@@ -88,8 +87,8 @@ export default withTracker(() => {
     ...subscriptionErrorHandler,
   });
 
-  subscriptionsHandlers = subscriptionsHandlers.filter(obj => obj);
-  const ready = subscriptionsHandlers.every(handler => handler.ready());
+  subscriptionsHandlers = subscriptionsHandlers.filter((obj) => obj);
+  const ready = subscriptionsHandlers.every((handler) => handler.ready());
   let groupChatMessageHandler = {};
 
   if (CHAT_ENABLED && ready) {
@@ -104,10 +103,22 @@ export default withTracker(() => {
       ],
     }).fetch();
 
-    const chatIds = chats.map(chat => chat.chatId);
-    groupChatMessageHandler = Meteor.subscribe('group-chat-msg', chatIds, subscriptionErrorHandler);
+    const chatIds = chats.map((chat) => chat.chatId);
+
+    const subHandler = {
+      ...subscriptionErrorHandler,
+      onStop: () => {
+        const event = new Event(EVENT_NAME);
+        window.dispatchEvent(event);
+      },
+    };
+
+    groupChatMessageHandler = Meteor.subscribe('group-chat-msg', chatIds, subHandler);
   }
-  if (ready && !usersPersistentDataHandler) {
+
+  // TODO: Refactor all the late subscribers
+  let usersPersistentDataHandler = {};
+  if (ready) {
     usersPersistentDataHandler = Meteor.subscribe('users-persistent-data');
   }
 

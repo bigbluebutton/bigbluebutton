@@ -359,7 +359,6 @@ class VideoPlayer extends Component {
       return logger.error('No player on seek');
     }
 
-
     // Seek if viewer has drifted too far away from presenter
     if (Math.abs(this.getCurrentTime() - time) > SYNC_INTERVAL_SECONDS * 0.75) {
       player.seekTo(time, true);
@@ -396,6 +395,10 @@ class VideoPlayer extends Component {
     this.setState({ playing: true });
 
     this.handleFirstPlay();
+
+    if (!isPresenter && !playing) {
+      this.setState({ playing: false });
+    }
   }
 
   handleOnPause() {
@@ -410,6 +413,10 @@ class VideoPlayer extends Component {
     this.setState({ playing: false });
 
     this.handleFirstPlay();
+
+    if (!isPresenter && playing) {
+      this.setState({ playing: true });
+    }
   }
 
   render() {
@@ -430,8 +437,7 @@ class VideoPlayer extends Component {
               {intl.formatMessage(intlMessages.autoPlayWarning)}
             </p>
           )
-          : ''
-        }
+          : ''}
         <ReactPlayer
           className={styles.videoPlayer}
           url={videoUrl}

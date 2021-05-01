@@ -7,6 +7,7 @@ import { SCREENSHARING_ERRORS } from './errors';
 const {
   constraints: GDM_CONSTRAINTS,
   mediaTimeouts: MEDIA_TIMEOUTS,
+  bitrate: BASE_BITRATE,
 } = Meteor.settings.public.kurento.screenshare;
 const {
   baseTimeout: BASE_MEDIA_TIMEOUT,
@@ -20,7 +21,7 @@ const HAS_DISPLAY_MEDIA = (typeof navigator.getDisplayMedia === 'function'
 
 const getConferenceBridge = () => Meetings.findOne().voiceProp.voiceConf;
 
-const normalizeGetDisplayMediaError = error => SCREENSHARING_ERRORS[error.name] || SCREENSHARING_ERRORS.GetDisplayMediaGenericError;
+const normalizeGetDisplayMediaError = (error) => SCREENSHARING_ERRORS[error.name] || SCREENSHARING_ERRORS.GetDisplayMediaGenericError;
 
 const getBoundGDM = () => {
   if (typeof navigator.getDisplayMedia === 'function') {
@@ -89,7 +90,7 @@ const getScreenStream = async () => {
   return Promise.reject(SCREENSHARING_ERRORS.NotSupportedError);
 };
 
-const getIceServers = sessionToken => fetchWebRTCMappedStunTurnServers(sessionToken).catch((error) => {
+const getIceServers = (sessionToken) => fetchWebRTCMappedStunTurnServers(sessionToken).catch((error) => {
   logger.error({
     logCode: 'screenshare_fetchstunturninfo_error',
     extraInfo: { error },
@@ -97,12 +98,12 @@ const getIceServers = sessionToken => fetchWebRTCMappedStunTurnServers(sessionTo
   return getMappedFallbackStun();
 });
 
-const getNextReconnectionInterval = oldInterval => Math.min(
+const getNextReconnectionInterval = (oldInterval) => Math.min(
   TIMEOUT_INCREASE_FACTOR * oldInterval,
   MAX_MEDIA_TIMEOUT,
 );
 
-const streamHasAudioTrack = stream => stream
+const streamHasAudioTrack = (stream) => stream
     && typeof stream.getAudioTracks === 'function'
     && stream.getAudioTracks().length >= 1;
 
@@ -139,4 +140,5 @@ export default {
   screenshareLoadAndPlayMediaStream,
   BASE_MEDIA_TIMEOUT,
   MAX_CONN_ATTEMPTS,
+  BASE_BITRATE,
 };

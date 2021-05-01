@@ -24,9 +24,9 @@ export default function updateConnectionStatus(meetingId, userId, level) {
     const { numberAffected } = ConnectionStatus.upsert(selector, modifier);
 
     if (numberAffected) {
-      Logger.verbose(`Updated connection status userId=${userId} level=${level}`);
+      Logger.verbose(`Updated connection status meetingId=${meetingId} userId=${userId} level=${level}`);
     }
   } catch (err) {
-    Logger.error(`Updating connection status: ${err}`);
+    Logger.error(`Updating connection status meetingId=${meetingId} userId=${userId}: ${err}`);
   }
 }

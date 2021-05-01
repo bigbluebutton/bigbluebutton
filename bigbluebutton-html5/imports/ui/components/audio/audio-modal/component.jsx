@@ -39,7 +39,7 @@ const propTypes = {
   resolve: PropTypes.func,
   isMobileNative: PropTypes.bool.isRequired,
   isIOSChrome: PropTypes.bool.isRequired,
-  isIEOrEdge: PropTypes.bool.isRequired,
+  isIE: PropTypes.bool.isRequired,
   formattedTelVoice: PropTypes.string.isRequired,
   autoplayBlocked: PropTypes.bool.isRequired,
   handleAllowAutoplay: PropTypes.func.isRequired,
@@ -423,7 +423,8 @@ class AudioModal extends Component {
           <div className={styles.text}>
             {intl.formatMessage(intlMessages.iOSErrorRecommendation)}
           </div>
-        </div>);
+        </div>
+      );
     }
 
     if (this.skipAudioOptions()) {
@@ -432,8 +433,7 @@ class AudioModal extends Component {
           <span data-test={!isEchoTest ? 'connecting' : 'connectingToEchoTest'}>
             {!isEchoTest
               ? intl.formatMessage(intlMessages.connecting)
-              : intl.formatMessage(intlMessages.connectingEchoTest)
-            }
+              : intl.formatMessage(intlMessages.connectingEchoTest)}
           </span>
           <span className={styles.connectingAnimation} />
         </div>
@@ -522,7 +522,7 @@ class AudioModal extends Component {
       showPermissionsOvelay,
       isIOSChrome,
       closeModal,
-      isIEOrEdge,
+      isIE,
     } = this.props;
 
     const { content } = this.state;
@@ -537,7 +537,7 @@ class AudioModal extends Component {
           hideBorder
           contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
         >
-          {isIEOrEdge ? (
+          {isIE ? (
             <p className={cx(styles.text, styles.browserWarning)}>
               <FormattedMessage
                 id="app.audioModal.unsupportedBrowserLabel"
@@ -567,8 +567,7 @@ class AudioModal extends Component {
                 }
               </header>
             )
-            : null
-          }
+            : null}
           <div className={styles.content}>
             {this.renderContent()}
           </div>

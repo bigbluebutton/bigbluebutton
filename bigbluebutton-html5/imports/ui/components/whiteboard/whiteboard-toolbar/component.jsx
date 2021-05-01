@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { HEXToINTColor, INTToHEXColor } from '/imports/utils/hexInt';
 import { defineMessages, injectIntl } from 'react-intl';
-import browserInfo from '/imports/utils/browserInfo';
-import { noop } from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { styles } from './styles.scss';
@@ -54,6 +52,14 @@ const intlMessages = defineMessages({
     id: 'app.whiteboard.toolbar.multiUserOff',
     description: 'Whiteboard toolbar turn multi-user off menu',
   },
+  toolbarPalmRejectionOn: {
+    id: 'app.whiteboard.toolbar.palmRejectionOn',
+    description: 'Whiteboard toolbar turn palm rejection on menu',
+  },
+  toolbarPalmRejectionOff: {
+    id: 'app.whiteboard.toolbar.palmRejectionOff',
+    description: 'Whiteboard toolbar turn palm rejection off menu',
+  },
   toolbarFontSize: {
     id: 'app.whiteboard.toolbar.fontSize',
     description: 'Whiteboard toolbar font size menu',
@@ -63,9 +69,6 @@ const intlMessages = defineMessages({
     description: 'Label for the pan toolbar item',
   },
 });
-
-const { isEdge } = browserInfo;
-const runExceptInEdge = fn => (isEdge ? noop : fn);
 
 class WhiteboardToolbar extends Component {
   constructor(props) {
@@ -89,7 +92,7 @@ class WhiteboardToolbar extends Component {
       };
     }
 
-    if (!annotations.some(el => el.value === annotationSelected.value) && annotations.length > 0) {
+    if (!annotations.some((el) => el.value === annotationSelected.value) && annotations.length > 0) {
       annotationSelected = annotations[annotations.length - 1];
     }
 
@@ -115,6 +118,8 @@ class WhiteboardToolbar extends Component {
       onBlurEnabled: true,
 
       panMode: false,
+
+      palmRejection: false,
     };
 
     this.displaySubMenu = this.displaySubMenu.bind(this);
@@ -123,14 +128,13 @@ class WhiteboardToolbar extends Component {
     this.handleUndo = this.handleUndo.bind(this);
     this.handleClearAll = this.handleClearAll.bind(this);
     this.handleSwitchWhiteboardMode = this.handleSwitchWhiteboardMode.bind(this);
+    this.handleSwitchPalmRejectionMode = this.handleSwitchPalmRejectionMode.bind(this);
     this.handleAnnotationChange = this.handleAnnotationChange.bind(this);
     this.handleThicknessChange = this.handleThicknessChange.bind(this);
     this.handleFontSizeChange = this.handleFontSizeChange.bind(this);
     this.handleColorChange = this.handleColorChange.bind(this);
     this.handleMouseEnter = this.handleMouseEnter.bind(this);
     this.handleMouseLeave = this.handleMouseLeave.bind(this);
-    this.componentDidMount = runExceptInEdge(this.componentDidMount);
-    this.componentDidUpdate = runExceptInEdge(this.componentDidUpdate);
     this.panOn = this.panOn.bind(this);
     this.panOff = this.panOff.bind(this);
   }
@@ -143,8 +147,9 @@ class WhiteboardToolbar extends Component {
     } = this.props;
 
     const drawSettings = actions.getCurrentDrawSettings();
+    const palmRejectionMode = actions.getCurrentPalmRejectionMode();
     const {
-      annotationSelected, thicknessSelected, colorSelected, fontSizeSelected,
+      annotationSelected, thicknessSelected, colorSelected, fontSizeSelected, palmRejection,
     } = this.state;
 
     document.addEventListener('keydown', this.panOn);
@@ -174,6 +179,14 @@ class WhiteboardToolbar extends Component {
       );
     }
 
+    if (palmRejectionMode) {
+      this.setState({
+        palmRejection: palmRejectionMode,
+      });
+    } else {
+      actions.setInitialPalmRejectionMode(palmRejection);
+    }
+
     if (annotationSelected.value !== 'text') {
       // trigger initial animation on the thickness circle, otherwise it stays at 0
       this.thicknessListIconColor.beginElement();
@@ -187,7 +200,7 @@ class WhiteboardToolbar extends Component {
   componentDidUpdate(prevProps, prevState) {
     const { annotations } = this.props;
     const { annotationSelected } = prevState;
-    const hadInAnnotations = annotations.some(el => el.value === annotationSelected.value);
+    const hadInAnnotations = annotations.some((el) => el.value === annotationSelected.value);
 
     // if color or thickness were changed
     // we might need to trigger svg animation for Color and Thickness icons
@@ -378,6 +391,22 @@ class WhiteboardToolbar extends Component {
     }
   }
 
+  handleSwitchPalmRejectionMode() {
+    const {
+      actions,
+    } = this.props;
+
+    const {
+      palmRejection,
+    } = this.state;
+
+    actions.setPalmRejectionMode(!palmRejection);
+
+    this.setState({
+      palmRejection: !palmRejection,
+    });
+  }
+
   // changes a current selected annotation both in the state and in the session
   // and closes the annotation list
   handleAnnotationChange(annotation) {
@@ -543,7 +572,7 @@ class WhiteboardToolbar extends Component {
       <p
         className={styles.textThickness}
         style={{
-          fontSize: fontSizeSelected.value,
+          fontSize: fontSizeSelected.value <= 32 ? fontSizeSelected.value : 32,
           color: colorSelected.value,
           WebkitTransition: `color ${TRANSITION_DURATION}, font-size ${TRANSITION_DURATION}`, /* Safari */
           transition: `color ${TRANSITION_DURATION}, font-size ${TRANSITION_DURATION}`,
@@ -610,49 +639,36 @@ class WhiteboardToolbar extends Component {
 
     return (
       <svg className={styles.customSvgIcon} shapeRendering="geometricPrecision">
-        {isEdge
-          ? (
-            <circle
-              cx="50%"
-              cy="50%"
-              r={thicknessSelected.value}
-              stroke="black"
-              strokeWidth="1"
-              fill={colorSelected.value}
-            />
-          )
-          : (
-            <circle
-              shapeRendering="geometricPrecision"
-              cx="50%"
-              cy="50%"
-              stroke="black"
-              strokeWidth="1"
-            >
-              <animate
-                ref={(ref) => { this.thicknessListIconColor = ref; }}
-                attributeName="fill"
-                attributeType="XML"
-                from={prevColorSelected.value}
-                to={colorSelected.value}
-                begin="indefinite"
-                dur={TRANSITION_DURATION}
-                repeatCount="1"
-                fill="freeze"
-              />
-              <animate
-                ref={(ref) => { this.thicknessListIconRadius = ref; }}
-                attributeName="r"
-                attributeType="XML"
-                from={prevThicknessSelected.value}
-                to={thicknessSelected.value}
-                begin="indefinite"
-                dur={TRANSITION_DURATION}
-                repeatCount="1"
-                fill="freeze"
-              />
-            </circle>
-          )}
+        <circle
+          shapeRendering="geometricPrecision"
+          cx="50%"
+          cy="50%"
+          stroke="black"
+          strokeWidth="1"
+        >
+          <animate
+            ref={(ref) => { this.thicknessListIconColor = ref; }}
+            attributeName="fill"
+            attributeType="XML"
+            from={prevColorSelected.value}
+            to={colorSelected.value}
+            begin="indefinite"
+            dur={TRANSITION_DURATION}
+            repeatCount="1"
+            fill="freeze"
+          />
+          <animate
+            ref={(ref) => { this.thicknessListIconRadius = ref; }}
+            attributeName="r"
+            attributeType="XML"
+            from={prevThicknessSelected.value}
+            to={thicknessSelected.value}
+            begin="indefinite"
+            dur={TRANSITION_DURATION}
+            repeatCount="1"
+            fill="freeze"
+          />
+        </circle>
       </svg>
     );
   }
@@ -711,33 +727,19 @@ class WhiteboardToolbar extends Component {
 
     return (
       <svg className={styles.customSvgIcon}>
-        {isEdge
-          ? (
-            <rect
-              x="25%"
-              y="25%"
-              width="50%"
-              height="50%"
-              stroke="black"
-              strokeWidth="1"
-              fill={colorSelected.value}
-            />
-          ) : (
-            <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1">
-              <animate
-                ref={(ref) => { this.colorListIconColor = ref; }}
-                attributeName="fill"
-                attributeType="XML"
-                from={prevColorSelected.value}
-                to={colorSelected.value}
-                begin="indefinite"
-                dur={TRANSITION_DURATION}
-                repeatCount="1"
-                fill="freeze"
-              />
-            </rect>
-          )
-        }
+        <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1">
+          <animate
+            ref={(ref) => { this.colorListIconColor = ref; }}
+            attributeName="fill"
+            attributeType="XML"
+            from={prevColorSelected.value}
+            to={colorSelected.value}
+            begin="indefinite"
+            dur={TRANSITION_DURATION}
+            repeatCount="1"
+            fill="freeze"
+          />
+        </rect>
       </svg>
     );
   }
@@ -785,13 +787,30 @@ class WhiteboardToolbar extends Component {
           disabled={!isMeteorConnected}
           label={multiUser
             ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
-            : intl.formatMessage(intlMessages.toolbarMultiUserOn)
-          }
+            : intl.formatMessage(intlMessages.toolbarMultiUserOn)}
           icon={multiUser ? 'multi_whiteboard' : 'whiteboard'}
           onItemClick={this.handleSwitchWhiteboardMode}
           className={styles.toolbarButton}
         />
       </span>
+    );
+  }
+
+  renderPalmRejectionItem() {
+    const { intl, isMeteorConnected } = this.props;
+
+    const { palmRejection } = this.state;
+
+    return (
+      <ToolbarMenuItem
+        disabled={!isMeteorConnected}
+        label={palmRejection
+          ? intl.formatMessage(intlMessages.toolbarPalmRejectionOff)
+          : intl.formatMessage(intlMessages.toolbarPalmRejectionOn)}
+        icon={palmRejection ? 'palm_rejection' : 'no_palm_rejection'}
+        onItemClick={this.handleSwitchPalmRejectionMode}
+        className={styles.toolbarButton}
+      />
     );
   }
 
@@ -806,6 +825,7 @@ class WhiteboardToolbar extends Component {
           {this.renderColorItem()}
           {this.renderUndoItem()}
           {this.renderClearAllItem()}
+          {window.PointerEvent ? this.renderPalmRejectionItem() : null}
           {isPresenter ? this.renderMultiUserItem() : null}
         </div>
       </div>

@@ -57,7 +57,6 @@ class AudioManager {
       isTalking: false,
       isWaitingPermissions: false,
       error: null,
-      outputDeviceId: null,
       muteHandle: null,
       autoplayBlocked: false,
       isReconnecting: false,
@@ -67,6 +66,9 @@ class AudioManager {
     this.failedMediaElements = [];
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.monitor = this.monitor.bind(this);
+
+    this._inputStream = null;
+    this._inputStreamTracker = new Tracker.Dependency();
 
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
   }
@@ -336,12 +338,14 @@ class AudioManager {
       window.parent.postMessage({ response: 'joinedAudio' }, '*');
       this.notify(this.intl.formatMessage(this.messages.info.JOINED_AUDIO));
       logger.info({ logCode: 'audio_joined' }, 'Audio Joined');
+      this.inputStream = (this.bridge ? this.bridge.inputStream : null);
       if (STATS.enabled) this.monitor();
       this.audioEventHandler({
         name: 'started',
         isListenOnly: this.isListenOnly,
       });
     }
+    Session.set('audioModalIsOpen', false);
   }
 
   onTransferStart() {
@@ -357,7 +361,8 @@ class AudioManager {
     this.failedMediaElements = [];
 
     if (this.inputStream) {
-      this.inputStream.getTracks().forEach(track => track.stop());
+      this.inputStream.getTracks().forEach((track) => track.stop());
+      this.inputStream = null;
       this.inputDevice = { id: 'default' };
     }
 
@@ -407,7 +412,7 @@ class AudioManager {
         this.setBreakoutAudioTransferStatus({
           breakoutMeetingId: '',
           status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
-        })
+        });
         const errorKey = this.messages.error[error] || this.messages.error.GENERIC_ERROR;
         const errorMsg = this.intl.formatMessage(errorKey, { 0: bridgeError });
         this.error = !!error;
@@ -429,7 +434,7 @@ class AudioManager {
         this.setBreakoutAudioTransferStatus({
           breakoutMeetingId: '',
           status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
-        })
+        });
         logger.info({ logCode: 'audio_reconnecting' }, 'Attempting to reconnect audio');
         this.notify(this.intl.formatMessage(this.messages.info.RECONNECTING_AUDIO), true);
         this.playHangUpSound();
@@ -437,7 +442,7 @@ class AudioManager {
         this.setBreakoutAudioTransferStatus({
           breakoutMeetingId: '',
           status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
-        })
+        });
         this.isReconnecting = false;
         this.autoplayBlocked = true;
         this.onAudioJoin();
@@ -498,15 +503,17 @@ class AudioManager {
   }
 
   liveChangeInputDevice(deviceId) {
-    const handleChangeInputDeviceSuccess = (inputDevice) => {
-      this.inputDevice = inputDevice;
-      return Promise.resolve(inputDevice);
-    };
-    this.bridge.liveChangeInputDevice(deviceId).then(handleChangeInputDeviceSuccess);
+    // we force stream to be null, so MutedAlert will deallocate it and
+    // a new one will be created for the new stream
+    this.inputStream = null;
+    this.bridge.liveChangeInputDevice(deviceId).then((stream) => {
+      this.setSenderTrackEnabled(!this.isMuted);
+      this.inputStream = stream;
+    });
   }
 
   async changeOutputDevice(deviceId, isLive) {
-    this.outputDeviceId = await this
+    await this
       .bridge
       .changeOutputDevice(deviceId || DEFAULT_OUTPUT_DEVICE_ID, isLive);
   }
@@ -517,8 +524,19 @@ class AudioManager {
   }
 
   get inputStream() {
-    this._inputDevice.tracker.depend();
-    return (this.bridge ? this.bridge.inputStream : null);
+    this._inputStreamTracker.depend();
+    return this._inputStream;
+  }
+
+  set inputStream(stream) {
+    // We store reactive information about input stream
+    // because mutedalert component needs to track when it changes
+    // and then update hark with the new value for inputStream
+    if (this._inputStream !== stream) {
+      this._inputStreamTracker.changed();
+    }
+
+    this._inputStream = stream;
   }
 
   get inputDevice() {
@@ -528,6 +546,11 @@ class AudioManager {
   get inputDeviceId() {
     return (this.bridge && this.bridge.inputDeviceId)
       ? this.bridge.inputDeviceId : DEFAULT_INPUT_DEVICE_ID;
+  }
+
+  get outputDeviceId() {
+    return (this.bridge && this.bridge.outputDeviceId)
+      ? this.bridge.outputDeviceId : DEFAULT_OUTPUT_DEVICE_ID;
   }
 
   /**
@@ -657,7 +680,7 @@ class AudioManager {
   }
 
   playAlertSound(url) {
-    if (!url) {
+    if (!url || !this.bridge) {
       return Promise.resolve();
     }
 
@@ -665,9 +688,11 @@ class AudioManager {
 
     audioAlert.addEventListener('ended', () => { audioAlert.src = null; });
 
-    if (this.outputDeviceId && (typeof audioAlert.setSinkId === 'function')) {
+    const { outputDeviceId } = this.bridge;
+
+    if (outputDeviceId && (typeof audioAlert.setSinkId === 'function')) {
       return audioAlert
-        .setSinkId(this.outputDeviceId)
+        .setSinkId(outputDeviceId)
         .then(() => audioAlert.play());
     }
 

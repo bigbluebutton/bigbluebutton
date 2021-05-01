@@ -37,6 +37,8 @@ if [ "$FOLDER_CHECK" = "0" ]; then
 	mkdir -m 755 /usr/share/bbb-libreoffice-conversion/
 	cp assets/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert.sh
 	chmod 755 /usr/share/bbb-libreoffice-conversion/convert.sh
+	cp assets/etherpad-export.sh /usr/share/bbb-libreoffice-conversion/etherpad-export.sh
+	chmod 755 /usr/share/bbb-libreoffice-conversion/etherpad-export.sh
 	chown -R root /usr/share/bbb-libreoffice-conversion/
 else
 	echo "Install folder already exists"
@@ -50,3 +52,20 @@ else
 	echo "Sudoers file already exists"
 fi;
 
+aptInstalledList=$(apt list --installed 2>&1)
+fontInstalled=0
+
+for font in fonts-arkpandora fonts-crosextra-carlito fonts-crosextra-caladea fonts-noto fonts-noto-cjk fonts-liberation fonts-arkpandora
+do
+	if [[ $(echo $aptInstalledList | grep $font | wc -l) = "0" ]]; then
+		echo "Font $font doesn't exists, installing"
+		apt-get install -y --no-install-recommends $font
+		fontInstalled=1
+	else
+		echo "Font $font already installed"
+	fi
+done
+
+if [ $fontInstalled = "1" ]; then
+	dpkg-reconfigure fontconfig && fc-cache -f -s -v
+fi

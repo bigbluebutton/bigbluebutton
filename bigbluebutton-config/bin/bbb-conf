@@ -173,6 +173,10 @@ NCPU=$(nproc --all)
 BBB_USER=bigbluebutton
 
 TURN=$SERVLET_DIR/WEB-INF/classes/spring/turn-stun-servers.xml
+TURN_ETC_CONFIG=/etc/bigbluebutton/turn-stun-servers.xml
+if [ -f "$TURN_ETC_CONFIG" ]; then
+    TURN=$TURN_ETC_CONFIG
+fi
 STUN="$(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m '_:beans/_:bean[@class="org.bigbluebutton.web.services.turn.StunTurnService"]/_:property[@name="stunServers"]/_:set/_:ref' -v @bean $TURN)"
 
 PROTOCOL=http
@@ -199,7 +203,7 @@ fi
 if LANG=c ifconfig | grep -q 'venet0:0'; then
     IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | tail -1 | cut -d: -f2 | awk '{ print $1}')
 else
-    IP=$(ifconfig $(route | grep ^default | sed "s/.* //") | awk '/inet /{ print $2}' | cut -d: -f2)
+    IP=$(ifconfig $(route | grep ^default | head -1 | sed "s/.* //") | awk '/inet /{ print $2}' | cut -d: -f2)
 fi
 
 if [ -z "$IP" ]; then
@@ -1575,7 +1579,7 @@ if [ -n "$HOST" ]; then
         sed -i  "s/bbbWebAPI[ ]*=[ ]*\"[^\"]*\"/bbbWebAPI=\"${PROTOCOL}:\/\/$HOST\/bigbluebutton\/api\"/g" \
                 /etc/bigbluebutton/bbb-apps-akka.conf
         # Fix to ensure bbb-apps-akka.conf has the latest shared secret
-        SECRET=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
+        SECRET=$(get_bbb_web_config_value securitySalt)
         sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" \
                 /etc/bigbluebutton/bbb-apps-akka.conf
     fi

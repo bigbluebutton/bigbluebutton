@@ -59,7 +59,6 @@ const getAudioSessionNumber = () => {
   return currItem;
 };
 
-
 /**
   * Get error code from SIP.js websocket messages.
  */
@@ -89,7 +88,7 @@ class SIPSession {
     this.reconnectAttempt = reconnectAttempt;
     this.currentSession = null;
     this.remoteStream = null;
-    this._inputDeviceId = DEFAULT_INPUT_DEVICE_ID;
+    this._inputDeviceId = null;
     this._outputDeviceId = null;
     this._hangupFlag = false;
     this._reconnecting = false;
@@ -113,34 +112,75 @@ class SIPSession {
     );
 
     if (this.inputDeviceId) {
-      matchConstraints.deviceId = this.inputDeviceId;
+      matchConstraints.deviceId = { exact: this.inputDeviceId };
     }
 
     return matchConstraints;
   }
 
-  setInputStream(stream) {
-    if (!this.currentSession
-      || !this.currentSession.sessionDescriptionHandler
-    ) return;
+  /**
+   * Set the input stream for the peer that represents the current session.
+   * Internally, this will call the sender's replaceTrack function.
+   * @param  {MediaStream}  stream The MediaStream object to be used as input
+   *                               stream
+   * @return {Promise}            A Promise that is resolved with the
+   *                              MediaStream object that was set.
+   */
+  async setInputStream(stream) {
+    try {
+      if (!this.currentSession
+        || !this.currentSession.sessionDescriptionHandler
+      ) return null;
 
+      await this.currentSession.sessionDescriptionHandler
+        .setLocalMediaStream(stream);
 
-    this.currentSession.sessionDescriptionHandler.setLocalMediaStream(stream);
+      return stream;
+    } catch (error) {
+      logger.warn({
+        logCode: 'sip_js_setinputstream_error',
+        extraInfo: {
+          errorCode: error.code,
+          errorMessage: error.message,
+          callerIdName: this.user.callerIdName,
+        },
+      }, 'Failed to set input stream (mic)');
+      return null;
+    }
   }
 
+  /**
+   * Change the input device with the given deviceId, without renegotiating
+   * peer.
+   * A new MediaStream object is created for the given deviceId. This object
+   * is returned by the resolved promise.
+   * @param  {String}  deviceId The id of the device to be set as input
+   * @return {Promise}          A promise that is resolved with the MediaStream
+   *                            object after changing the input device.
+   */
+  async liveChangeInputDevice(deviceId) {
+    try {
+      this.inputDeviceId = deviceId;
 
-  liveChangeInputDevice(deviceId) {
-    this.inputDeviceId = deviceId;
+      const constraints = {
+        audio: this.getAudioConstraints(),
+      };
 
-    const constraints = {
-      audio: this.getAudioConstraints(),
-    };
+      this.inputStream.getAudioTracks().forEach((t) => t.stop());
 
-    this.inputStream.getAudioTracks().forEach(t => t.stop());
-
-    return navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
-      this.setInputStream(stream);
-    });
+      return await navigator.mediaDevices.getUserMedia(constraints)
+        .then(this.setInputStream.bind(this));
+    } catch (error) {
+      logger.warn({
+        logCode: 'sip_js_livechangeinputdevice_error',
+        extraInfo: {
+          errorCode: error.code,
+          errorMessage: error.message,
+          callerIdName: this.user.callerIdName,
+        },
+      }, 'Failed to change input device (mic)');
+      return null;
+    }
   }
 
   get inputDeviceId() {
@@ -149,17 +189,17 @@ class SIPSession {
 
       if (stream) {
         const track = stream.getAudioTracks().find(
-          t => t.getSettings().deviceId,
+          (t) => t.getSettings().deviceId,
         );
 
         if (track && (typeof track.getSettings === 'function')) {
           const { deviceId } = track.getSettings();
-          return deviceId || DEFAULT_INPUT_DEVICE_ID;
+          this._inputDeviceId = deviceId;
         }
       }
     }
 
-    return (this._inputDeviceId || DEFAULT_INPUT_DEVICE_ID);
+    return this._inputDeviceId;
   }
 
   set inputDeviceId(deviceId) {
@@ -169,20 +209,24 @@ class SIPSession {
   get outputDeviceId() {
     if (!this._outputDeviceId) {
       const audioElement = document.querySelector(MEDIA_TAG);
-      if (audioElement && audioElement.sinkId) {
-        return audioElement.sinkId;
+      if (audioElement) {
+        this._outputDeviceId = audioElement.sinkId;
       }
     }
 
-    return this._outputDeviceId || DEFAULT_OUTPUT_DEVICE_ID;
+    return this._outputDeviceId;
   }
 
   set outputDeviceId(deviceId) {
     this._outputDeviceId = deviceId;
-    Storage.setItem(OUTPUT_DEVICE_ID_KEY, deviceId);
   }
 
-  joinAudio({ isListenOnly, extension, inputDeviceId }, managerCallback) {
+  joinAudio({
+    isListenOnly,
+    extension,
+    inputDeviceId,
+    outputDeviceId,
+  }, managerCallback) {
     return new Promise((resolve, reject) => {
       const callExtension = extension ? `${extension}${this.userData.voiceBridge}` : this.userData.voiceBridge;
 
@@ -209,10 +253,14 @@ class SIPSession {
       // If there's an extension passed it means that we're joining the echo test first
       this.inEchoTest = !!extension;
 
-      return this.doCall({ callExtension, isListenOnly, inputDeviceId })
-        .catch((reason) => {
-          reject(reason);
-        });
+      return this.doCall({
+        callExtension,
+        isListenOnly,
+        inputDeviceId,
+        outputDeviceId,
+      }).catch((reason) => {
+        reject(reason);
+      });
     });
   }
 
@@ -237,9 +285,11 @@ class SIPSession {
     const {
       isListenOnly,
       inputDeviceId,
+      outputDeviceId,
     } = options;
 
     this.inputDeviceId = inputDeviceId;
+    this.outputDeviceId = outputDeviceId;
 
     const {
       userId,
@@ -387,7 +437,6 @@ class SIPSession {
           window.removeEventListener('beforeunload', this.onBeforeUnload);
         }
 
-
         hangupRetries += 1;
 
         setTimeout(() => {
@@ -509,7 +558,7 @@ class SIPSession {
                 callerIdName: this.user.callerIdName,
               },
             }, 'User agent disconnected: trying to reconnect...'
-              + ` (userHangup = ${!!this.userRequestedHangup})`);
+            + ` (userHangup = ${!!this.userRequestedHangup})`);
 
             logger.info({
               logCode: 'sip_js_session_ua_reconnecting',
@@ -605,7 +654,7 @@ class SIPSession {
               callerIdName: this.user.callerIdName,
             },
           }, 'User agent failed to reconnect after'
-            + ` ${USER_AGENT_RECONNECTION_ATTEMPTS} attemps`);
+          + ` ${USER_AGENT_RECONNECTION_ATTEMPTS} attemps`);
 
           this.callback({
             status: this.baseCallStates.failed,
@@ -673,7 +722,6 @@ class SIPSession {
         isListenOnly,
       } = this.callOptions;
 
-
       const target = SIP.UserAgent.makeURI(`sip:${callExtension}@${hostname}`);
 
       const matchConstraints = this.getAudioConstraints();
@@ -692,7 +740,6 @@ class SIPSession {
           [stripMDnsCandidates],
       };
 
-
       if (isListenOnly) {
         inviterOptions.sessionDescriptionHandlerOptions.offerOptions = {
           offerToReceiveAudio: true,
@@ -705,7 +752,7 @@ class SIPSession {
       this.setupEventHandlers(inviter).then(() => {
         inviter.invite().then(() => {
           resolve();
-        }).catch(e => reject(e));
+        }).catch((e) => reject(e));
       });
     });
   }
@@ -879,7 +926,7 @@ class SIPSession {
                 callerIdName: this.user.callerIdName,
               },
             }, 'ICE connection state change - Current connection state - '
-                + `${peer.connectionState}`);
+            + `${peer.connectionState}`);
 
             switch (peer.connectionState) {
               case 'failed':
@@ -904,8 +951,8 @@ class SIPSession {
                       callerIdName: this.user.callerIdName,
                     },
                   }, 'ICE connection success, but user is already connected'
-                      + 'ignoring it...'
-                      + `${peer.iceConnectionState}`);
+                  + 'ignoring it...'
+                  + `${peer.iceConnectionState}`);
 
                   return;
                 }
@@ -917,7 +964,7 @@ class SIPSession {
                     callerIdName: this.user.callerIdName,
                   },
                 }, 'ICE connection success. Current ICE Connection state - '
-                    + `${peer.iceConnectionState}`);
+                + `${peer.iceConnectionState}`);
 
                 clearTimeout(callTimeout);
                 clearTimeout(iceNegotiationTimeout);
@@ -956,7 +1003,6 @@ class SIPSession {
         // if session hasn't even started, we let audio-modal to handle
         // any possile errors
         if (!this._currentSessionState) return false;
-
 
         let mappedCause;
         let cause;
@@ -1083,7 +1129,7 @@ class SIPSession {
 
       const matchConstraints = this.filterSupportedConstraints(constraints);
 
-      //Chromium bug - see: https://bugs.chromium.org/p/chromium/issues/detail?id=796964&q=applyConstraints&can=2
+      // Chromium bug - see: https://bugs.chromium.org/p/chromium/issues/detail?id=796964&q=applyConstraints&can=2
       const { isChrome } = browserInfo;
 
       if (isChrome) {
@@ -1100,7 +1146,7 @@ class SIPSession {
           .sessionDescriptionHandler;
 
         localMediaStream.getAudioTracks().forEach(
-          track => track.applyConstraints(matchConstraints),
+          (track) => track.applyConstraints(matchConstraints),
         );
       }
     } catch (error) {
@@ -1176,7 +1222,6 @@ export default class SIPBridge extends BaseAudioBridge {
 
   get outputDeviceId() {
     const sessionOutputDeviceId = Storage.getItem(OUTPUT_DEVICE_ID_KEY);
-
     if (sessionOutputDeviceId) {
       return sessionOutputDeviceId;
     }
@@ -1219,7 +1264,7 @@ export default class SIPBridge extends BaseAudioBridge {
           let shouldTryReconnect = false;
 
           // Try and get the call to clean up and end on an error
-          this.activeSession.exitAudio().catch(() => {});
+          this.activeSession.exitAudio().catch(() => { });
 
           if (this.activeSession.webrtcConnected) {
             // webrtc was able to connect so just try again
@@ -1237,13 +1282,15 @@ export default class SIPBridge extends BaseAudioBridge {
             const fallbackExtension = this.activeSession.inEchoTest ? extension : undefined;
             this.activeSession = new SIPSession(this.user, this.userData, this.protocol,
               hostname, this.baseCallStates, this.baseErrorCodes, true);
-            const { inputDeviceId } = this;
+            const { inputDeviceId, outputDeviceId } = this;
             this.activeSession.joinAudio({
               isListenOnly,
               extension: fallbackExtension,
               inputDeviceId,
+              outputDeviceId,
             }, callback)
               .then((value) => {
+                this.changeOutputDevice(outputDeviceId, true);
                 resolve(value);
               }).catch((reason) => {
                 reject(reason);
@@ -1254,13 +1301,15 @@ export default class SIPBridge extends BaseAudioBridge {
         return managerCallback(message);
       };
 
-      const { inputDeviceId } = this;
+      const { inputDeviceId, outputDeviceId } = this;
       this.activeSession.joinAudio({
         isListenOnly,
         extension,
         inputDeviceId,
+        outputDeviceId,
       }, callback)
         .then((value) => {
+          this.changeOutputDevice(outputDeviceId, true);
           resolve(value);
         }).catch((reason) => {
           reject(reason);
@@ -1302,17 +1351,29 @@ export default class SIPBridge extends BaseAudioBridge {
     return this.activeSession.liveChangeInputDevice(deviceId);
   }
 
-  async changeOutputDevice(value, isLive) {
-    const audioContext = document.querySelector(MEDIA_TAG);
+  reloadAudioElement(audioElement) {
+    if (audioElement && (audioElement.readyState > 0)) {
+      logger.debug({
+        logCode: 'sip_js_reload_audio_element',
+        extraInfo: {
+          callerIdName: this.user.callerIdName,
+        },
+      }, 'Reloading audio element after changing output device');
+      audioElement.load();
+    }
+  }
 
-    if (audioContext.setSinkId) {
+  async changeOutputDevice(value, isLive) {
+    const audioElement = document.querySelector(MEDIA_TAG);
+
+    if (audioElement.setSinkId) {
       try {
         if (!isLive) {
-          audioContext.srcObject = null;
+          audioElement.srcObject = null;
         }
 
-        await audioContext.setSinkId(value);
-        audioContext.load();
+        await audioElement.setSinkId(value);
+        this.reloadAudioElement(audioElement);
         this.outputDeviceId = value;
       } catch (err) {
         logger.error({

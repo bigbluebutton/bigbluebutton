@@ -42,9 +42,8 @@ module BigBlueButton
             !File.exist?(@archived_fail)
           )
 
-          if File.exist?(@archived_norecord)
-            @publisher.put_archive_norecord(@meeting_id)
-          end
+          norecord = File.exist?(@archived_norecord)
+          @publisher.put_archive_norecord(@meeting_id) if norecord
 
           @publisher.put_archive_ended(@meeting_id, success: step_succeeded, step_time: step_time)
 
@@ -55,6 +54,8 @@ module BigBlueButton
             FileUtils.touch(@archived_fail)
           end
           @logger.debug("Finished archive worker for #{@full_id}")
+
+          raise WorkerNoRecordHalt, "Meeting #{@full_id} had no recording marks" if norecord
 
           step_succeeded
         end

@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { hashSHA1 } from '/imports/api/common/server/helpers';
+import { hashSHA1 } from '/imports/api/common/server/etherpad';
 import { check } from 'meteor/check';
 
 const ETHERPAD = Meteor.settings.private.etherpad;
@@ -32,7 +32,7 @@ const isEnabled = () => CAPTIONS_CONFIG.enabled;
 
 const getLocalesURL = () => LOCALES_URL;
 
-const processForCaptionsPadOnly = fn => (message, ...args) => {
+const processForCaptionsPadOnly = (fn) => (message, ...args) => {
   const { body } = message;
   const { pad } = body;
   const { id } = pad;

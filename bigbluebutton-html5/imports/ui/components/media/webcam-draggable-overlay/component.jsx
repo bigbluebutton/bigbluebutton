@@ -9,7 +9,7 @@ import VideoProviderContainer from '/imports/ui/components/video-provider/contai
 import { styles } from '../styles.scss';
 import Storage from '../../../services/storage/session';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
-import { WEBCAMSAREA_MIN_PERCENT, PRESENTATIONAREA_MIN_WIDTH } from '/imports/ui/components/layout/layout-manager';
+import { WEBCAMSAREA_MIN_PERCENT, PRESENTATIONAREA_MIN_WIDTH } from '/imports/ui/components/layout/layout-manager/component';
 
 const propTypes = {
   swapLayout: PropTypes.bool,
@@ -419,7 +419,7 @@ class WebcamDraggable extends PureComponent {
     }
 
     return (
-      <Fragment>
+      <>
         <div
           className={dropZoneTopClassName}
           style={{ height: '15vh' }}
@@ -444,7 +444,7 @@ class WebcamDraggable extends PureComponent {
           bounds="#container"
           onStart={this.handleWebcamDragStart}
           onStop={this.handleWebcamDragStop}
-          onMouseDown={e => e.preventDefault()}
+          onMouseDown={(e) => e.preventDefault()}
           disabled={swapLayout || isCameraFullscreen || isMobile || resizing}
           position={position}
         >
@@ -524,7 +524,7 @@ class WebcamDraggable extends PureComponent {
             className={dropZoneBgRightClassName}
           />
         </div>
-      </Fragment>
+      </>
     );
   }
 }

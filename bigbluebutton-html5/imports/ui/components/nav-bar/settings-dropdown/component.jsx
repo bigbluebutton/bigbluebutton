@@ -261,13 +261,14 @@ class SettingsDropdown extends PureComponent {
       />),
       (isMeteorConnected ? <DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
       allowedToEndMeeting && isMeteorConnected
-        ? (<DropdownListItem
-          key="list-item-end-meeting"
-          icon="application"
-          label={intl.formatMessage(intlMessages.endMeetingLabel)}
-          description={intl.formatMessage(intlMessages.endMeetingDesc)}
-          onClick={() => mountModal(<EndMeetingConfirmationContainer />)}
-        />
+        ? (
+          <DropdownListItem
+            key="list-item-end-meeting"
+            icon="application"
+            label={intl.formatMessage(intlMessages.endMeetingLabel)}
+            description={intl.formatMessage(intlMessages.endMeetingDesc)}
+            onClick={() => mountModal(<EndMeetingConfirmationContainer />)}
+          />
         )
         : null,
       shouldRenderLogoutOption,
@@ -284,6 +285,7 @@ class SettingsDropdown extends PureComponent {
 
     return (
       <Dropdown
+        className={styles.dropdown}
         autoFocus
         keepOpen={isSettingOpen}
         onShow={this.onActionsShow}

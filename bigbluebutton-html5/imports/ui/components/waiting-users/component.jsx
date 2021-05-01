@@ -73,7 +73,7 @@ const DENY_STATUS = 'DENY';
 const getNameInitials = (name) => {
   const nameInitials = name.slice(0, 2);
 
-  return nameInitials.replace(/^\w/, c => c.toUpperCase());
+  return nameInitials.replace(/^\w/, (c) => c.toUpperCase());
 };
 
 const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequence, userId, avatar, intl) => (
@@ -90,9 +90,9 @@ const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequen
         </UserAvatar>
       </div>
       <p key={`user-name-${userId}`} className={styles.userName}>
-[
+        [
         {sequence}
-]
+        ]
         {name}
       </p>
     </div>
@@ -153,7 +153,10 @@ const WaitingUsers = (props) => {
       authenticatedUsers,
       guestUsers,
     } = props;
-    if (!authenticatedUsers.length && !guestUsers.length) Session.set('openPanel', 'userlist');
+    if (!authenticatedUsers.length && !guestUsers.length) {
+      Session.set('openPanel', 'userlist');
+      window.dispatchEvent(new Event('panelChanged'));
+    }
   });
 
   const {
@@ -239,6 +242,7 @@ const WaitingUsers = (props) => {
           <Button
             onClick={() => {
               Session.set('openPanel', 'userlist');
+              window.dispatchEvent(new Event('panelChanged'));
             }}
             label={intl.formatMessage(intlMessages.title)}
             icon="left_arrow"
@@ -255,9 +259,9 @@ const WaitingUsers = (props) => {
           />
           <p>
             <i>
-"
+              "
               {guestLobbyMessage.length > 0 ? guestLobbyMessage : intl.formatMessage(intlMessages.emptyMessage)}
-"
+              "
             </i>
           </p>
         </div>
@@ -266,7 +270,7 @@ const WaitingUsers = (props) => {
         <div>
           <p className={styles.mainTitle}>{intl.formatMessage(intlMessages.optionTitle)}</p>
           {
-            buttonsData.map(buttonData => renderButton(
+            buttonsData.map((buttonData) => renderButton(
               intl.formatMessage(buttonData.messageId),
               buttonData,
             ))

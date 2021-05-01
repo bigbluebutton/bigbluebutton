@@ -2,20 +2,19 @@ import logger from '/imports/startup/client/logger';
 
 const STATS = Meteor.settings.public.stats;
 
-const STATS_LENGTH = STATS.length;
-const STATS_INTERVAL = STATS.interval;
-const STATS_LOG = STATS.log;
+// Probes done in an interval
+const PROBES = 5;
+const INTERVAL = STATS.interval / PROBES;
 
-const stop = callback => {
+const stop = (callback) => {
   logger.debug(
     { logCode: 'stats_stop_monitor' },
-    'Lost peer connection. Stopping monitor'
+    'Lost peer connection. Stopping monitor',
   );
   callback(clearResult());
-  return;
 };
 
-const isActive = conn => {
+const isActive = (conn) => {
   let active = false;
 
   if (conn) {
@@ -37,7 +36,7 @@ const isActive = conn => {
   } else {
     logger.error(
       { logCode: 'stats_missing_connection' },
-      'Missing connection'
+      'Missing connection',
     );
   }
 
@@ -45,18 +44,18 @@ const isActive = conn => {
 };
 
 const collect = (conn, callback) => {
-  let stats = [];
+  const stats = [];
 
-  const monitor = (conn, stats, iteration) => {
+  const monitor = (conn, stats) => {
     if (!isActive(conn)) return stop(callback);
 
-    conn.getStats().then(results => {
+    conn.getStats().then((results) => {
       if (!results) return stop(callback);
 
       let inboundRTP;
       let remoteInboundRTP;
 
-      results.forEach(res => {
+      results.forEach((res) => {
         switch (res.type) {
           case 'inbound-rtp':
             inboundRTP = res;
@@ -72,78 +71,72 @@ const collect = (conn, callback) => {
         if (!inboundRTP) {
           logger.debug(
             { logCode: 'stats_missing_inbound_rtc' },
-            'Missing local inbound RTC. Using remote instead'
+            'Missing local inbound RTC. Using remote instead',
           );
         }
 
         stats.push(buildData(inboundRTP || remoteInboundRTP));
-        while (stats.length > STATS_LENGTH) stats.shift();
+        while (stats.length > PROBES) stats.shift();
 
         const interval = calculateInterval(stats);
-        callback(buildResult(interval, iteration));
+        callback(buildResult(interval));
       }
 
-      setTimeout(monitor, STATS_INTERVAL, conn, stats, iteration + 1);
-    }).catch(error => {
+      setTimeout(monitor, INTERVAL, conn, stats);
+    }).catch((error) => {
       logger.debug(
         {
           logCode: 'stats_get_stats_error',
-          extraInfo: { error }
+          extraInfo: { error },
         },
-        'WebRTC stats not available'
+        'WebRTC stats not available',
       );
     });
   };
   monitor(conn, stats, 1);
 };
 
-const buildData = inboundRTP => {
-  return {
-    packets: {
-      received: inboundRTP.packetsReceived,
-      lost: inboundRTP.packetsLost
-    },
-    bytes: {
-      received: inboundRTP.bytesReceived
-    },
-    jitter: inboundRTP.jitter
-  };
-};
+const buildData = (inboundRTP) => ({
+  packets: {
+    received: inboundRTP.packetsReceived,
+    lost: inboundRTP.packetsLost,
+  },
+  bytes: {
+    received: inboundRTP.bytesReceived,
+  },
+  jitter: inboundRTP.jitter,
+});
 
-const buildResult = (interval, iteration) => {
+const buildResult = (interval) => {
   const rate = calculateRate(interval.packets);
   return {
-    iteration: iteration,
     packets: {
       received: interval.packets.received,
-      lost: interval.packets.lost
+      lost: interval.packets.lost,
     },
     bytes: {
-      received: interval.bytes.received
+      received: interval.bytes.received,
     },
     jitter: interval.jitter,
-    rate: rate,
+    rate,
     loss: calculateLoss(rate),
-    MOS: calculateMOS(rate)
+    MOS: calculateMOS(rate),
   };
 };
 
-const clearResult = () => {
-  return {
-    iteration: 0,
-    packets: {
-      received: 0,
-      lost: 0
-    },
-    bytes: {
-      received: 0
-    },
-    jitter: 0,
-    rate: 0,
-    loss: 0,
-    MOS: 0
-  };
-};
+const clearResult = () => ({
+  packets: {
+    received: 0,
+    lost: 0,
+  },
+  bytes: {
+    received: 0,
+  },
+  jitter: 0,
+  rate: 0,
+  loss: 0,
+  MOS: 0,
+});
 
 const diff = (single, first, last) => Math.abs((single ? 0 : last) - first);
 
@@ -154,12 +147,12 @@ const calculateInterval = (stats) => {
   return {
     packets: {
       received: diff(single, first.packets.received, last.packets.received),
-      lost: diff(single, first.packets.lost, last.packets.lost)
+      lost: diff(single, first.packets.lost, last.packets.lost),
     },
     bytes: {
-      received: diff(single, first.bytes.received, last.bytes.received)
+      received: diff(single, first.bytes.received, last.bytes.received),
     },
-    jitter: Math.max.apply(Math, stats.map(s => s.jitter))
+    jitter: Math.max.apply(Math, stats.map((s) => s.jitter)),
   };
 };
 
@@ -170,59 +163,30 @@ const calculateRate = (packets) => {
   return rate;
 };
 
-const calculateLoss = (rate) => {
-  return 1 - (rate / 100);
-};
+const calculateLoss = (rate) => 1 - (rate / 100);
 
-const calculateMOS = (rate) => {
-  return 1 + (0.035) * rate + (0.000007) * rate * (rate - 60) * (100 - rate);
-};
+const calculateMOS = (rate) => 1 + (0.035) * rate + (0.000007) * rate * (rate - 60) * (100 - rate);
 
-const logResult = (id, result) => {
-  if (!STATS_LOG) return null;
-
-  const {
-    iteration,
-    loss,
-    jitter
-  } = result;
-  // Avoiding messages flood
-  if (!iteration || iteration % STATS_LENGTH !== 0) return null;
-
-  const duration = STATS_LENGTH * STATS_INTERVAL / 1000;
-  logger.debug(
-    {
-      logCode: 'stats_monitor_result',
-      extraInfo: {
-        id,
-        result
-      }
-    },
-    `Stats result for the last ${duration} seconds: loss: ${loss}, jitter: ${jitter}.`
-  );
-};
-
-const monitorAudioConnection = conn => {
+const monitorAudioConnection = (conn) => {
   if (!conn) return;
 
   logger.debug(
     { logCode: 'stats_audio_monitor' },
-    'Starting to monitor audio connection'
+    'Starting to monitor audio connection',
   );
 
   collect(conn, (result) => {
-    logResult('audio', result);
     const event = new CustomEvent('audiostats', { detail: result });
     window.dispatchEvent(event);
   });
 };
 
-const monitorVideoConnection = conn => {
+const monitorVideoConnection = (conn) => {
   if (!conn) return;
 
   logger.debug(
     { logCode: 'stats_video_monitor' },
-    'Starting to monitor video connection'
+    'Starting to monitor video connection',
   );
 
   collect(conn, (result) => {
@@ -233,5 +197,5 @@ const monitorVideoConnection = conn => {
 
 export {
   monitorAudioConnection,
-  monitorVideoConnection
-}
+  monitorVideoConnection,
+};

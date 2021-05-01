@@ -4,6 +4,7 @@ import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
 import addAnnotationQuery from '/imports/api/annotations/addAnnotation';
 import { Slides } from '/imports/api/slides';
 import { makeCall } from '/imports/ui/services/api';
+import PresentationService from '/imports/ui/components/presentation/service';
 import logger from '/imports/startup/client/logger';
 
 const Annotations = new Mongo.Collection(null);
@@ -13,7 +14,6 @@ const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 const ANNOTATION_TYPE_PENCIL = 'pencil';
-
 
 let annotationsStreamListener = null;
 
@@ -66,7 +66,7 @@ export function initAnnotationsStreamListener() {
   const startStreamHandlersPromise = new Promise((resolve) => {
     const checkStreamHandlersInterval = setInterval(() => {
       const streamHandlersSize = Object.values(Meteor.StreamerCentral.instances[`annotations-${Auth.meetingID}`].handlers)
-        .filter(el => el !== undefined)
+        .filter((el) => el !== undefined)
         .length;
 
       if (!streamHandlersSize) {
@@ -81,7 +81,7 @@ export function initAnnotationsStreamListener() {
     annotationsStreamListener.on('removed', handleRemovedAnnotation);
 
     annotationsStreamListener.on('added', ({ annotations }) => {
-      annotations.forEach(annotation => handleAddedAnnotation(annotation));
+      annotations.forEach((annotation) => handleAddedAnnotation(annotation));
     });
   });
 }
@@ -227,15 +227,21 @@ const getMultiUserSize = (whiteboardId) => {
 };
 
 const getCurrentWhiteboardId = () => {
-  const currentSlide = Slides.findOne({
-      podId: 'DEFAULT_PRESENTATION_POD',
-      meetingId: Auth.meetingID,
+  const podId = 'DEFAULT_PRESENTATION_POD';
+  const currentPresentation = PresentationService.getCurrentPresentation(podId);
+
+  if (!currentPresentation) return null;
+
+  const currentSlide = Slides.findOne(
+    {
+      podId,
+      presentationId: currentPresentation.id,
       current: true,
     }, { fields: { id: 1 } },
   );
 
   return currentSlide && currentSlide.id;
-}
+};
 
 const isMultiUserActive = (whiteboardId) => {
   const multiUser = getMultiUser(whiteboardId);

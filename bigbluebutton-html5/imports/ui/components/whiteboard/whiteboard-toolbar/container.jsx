@@ -4,7 +4,7 @@ import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import WhiteboardToolbarService from './service';
 import WhiteboardToolbar from './component';
 
-const WhiteboardToolbarContainer = props => (
+const WhiteboardToolbarContainer = (props) => (
   <WhiteboardToolbar {...props} />
 );
 
@@ -17,6 +17,10 @@ export default withTracker((params) => {
       clearWhiteboard: WhiteboardToolbarService.clearWhiteboard,
       addWhiteboardGlobalAccess: WhiteboardService.addGlobalAccess,
       removeWhiteboardGlobalAccess: WhiteboardService.removeGlobalAccess,
+      changeWhiteboardMode: WhiteboardToolbarService.changeWhiteboardMode,
+      getCurrentPalmRejectionMode: WhiteboardToolbarService.getCurrentPalmRejectionMode,
+      setInitialPalmRejectionMode: WhiteboardToolbarService.setInitialPalmRejectionMode,
+      setPalmRejectionMode: WhiteboardToolbarService.setPalmRejectionMode,
       setInitialWhiteboardToolbarValues: WhiteboardToolbarService.setInitialWhiteboardToolbarValues,
       getCurrentDrawSettings: WhiteboardToolbarService.getCurrentDrawSettings,
       setFontSize: WhiteboardToolbarService.setFontSize,

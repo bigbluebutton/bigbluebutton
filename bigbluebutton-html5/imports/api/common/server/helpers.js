@@ -1,4 +1,3 @@
-import sha1 from 'crypto-js/sha1';
 import Users from '/imports/api/users';
 
 const MSG_DIRECT_TYPE = 'DIRECT';
@@ -22,7 +21,7 @@ export const indexOf = [].indexOf || function (item) {
   return -1;
 };
 
-export const processForHTML5ServerOnly = fn => (message, ...args) => {
+export const processForHTML5ServerOnly = (fn) => (message, ...args) => {
   const { envelope } = message;
   const { routing } = envelope;
   const { msgType, meetingId, userId } = routing;
@@ -38,8 +37,6 @@ export const processForHTML5ServerOnly = fn => (message, ...args) => {
   if (shouldSkip) return () => { };
   return fn(message, ...args);
 };
-
-export const hashSHA1 = str => sha1(str).toString();
 
 export const extractCredentials = (credentials) => {
   if (!credentials) return {};

@@ -1,12 +1,8 @@
 import axios from 'axios';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import {
-  generatePadId,
-} from '/imports/api/captions/server/helpers';
-import {
-  appendTextURL,
-} from '/imports/api/note/server/helpers';
+import { generatePadId } from '/imports/api/captions/server/helpers';
+import { appendTextURL } from '/imports/api/common/server/etherpad';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
 export default function appendText(text, locale) {
@@ -26,5 +22,5 @@ export default function appendText(text, locale) {
     if (status !== 200) {
       Logger.error(`Could not append captions for padId=${padId}`);
     }
-  }).catch(error => Logger.error(`Could not append captions for padId=${padId}: ${error}`));
+  }).catch((error) => Logger.error(`Could not append captions for padId=${padId}: ${error}`));
 }

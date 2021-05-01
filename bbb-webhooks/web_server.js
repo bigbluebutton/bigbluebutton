@@ -17,14 +17,15 @@ module.exports = class WebServer {
     this._registerRoutes();
   }
 
-  start(port, callback) {
-    this.server = this.app.listen(port);
-    if (this.server.address() == null) {
-      Logger.error("[WebServer] aborting, could not bind to port", port,
-      process.exit(1));
-    }
-    Logger.info("[WebServer] listening on port", port, "in", this.app.settings.env.toUpperCase(), "mode");
-    typeof callback === 'function' ? callback(null,"k") : undefined;
+  start(port, bind, callback) {
+    this.server = this.app.listen(port, bind, () => {
+      if (this.server.address() == null) {
+        Logger.error("[WebServer] aborting, could not bind to port", port,
+        process.exit(1));
+      }
+      Logger.info("[WebServer] listening on port", port, "in", this.app.settings.env.toUpperCase(), "mode");
+      typeof callback === 'function' ? callback(null,"k") : undefined;
+    });
   }
 
   _registerRoutes() {

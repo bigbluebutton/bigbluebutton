@@ -50,6 +50,7 @@ const Chat = (props) => {
     syncedPercent,
     lastTimeWindowValuesBuild,
   } = props;
+
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
   const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
   ChatLogger.debug('ChatComponent::render', props);
@@ -148,12 +149,6 @@ export default withShortcutHelper(injectWbResizeEvent(injectIntl(memo(Chat))), [
 const propTypes = {
   chatID: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
-  messages: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.oneOfType([
-    PropTypes.array,
-    PropTypes.string,
-    PropTypes.number,
-    PropTypes.object,
-  ])).isRequired).isRequired,
   shortcuts: PropTypes.objectOf(PropTypes.string),
   partnerIsLoggedOut: PropTypes.bool.isRequired,
   isChatLocked: PropTypes.bool.isRequired,

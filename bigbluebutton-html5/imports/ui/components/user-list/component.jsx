@@ -14,6 +14,7 @@ const propTypes = {
   CustomLogoUrl: PropTypes.string.isRequired,
   isPublicChat: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
+  clearAllEmojiStatus: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
   showBranding: PropTypes.bool.isRequired,
   requestUserInformation: PropTypes.func.isRequired,
@@ -29,6 +30,7 @@ class UserList extends PureComponent {
       intl,
       compact,
       setEmojiStatus,
+      clearAllEmojiStatus,
       isPublicChat,
       roving,
       CustomLogoUrl,
@@ -45,18 +47,19 @@ class UserList extends PureComponent {
             && CustomLogoUrl
             ? <CustomLogo CustomLogoUrl={CustomLogoUrl} /> : null
         }
-        {<UserContentContainer
+        <UserContentContainer
           {...{
             intl,
             compact,
             setEmojiStatus,
+            clearAllEmojiStatus,
             isPublicChat,
             roving,
             hasBreakoutRoom,
             requestUserInformation,
           }
           }
-        />}
+        />
       </div>
     );
   }

@@ -67,6 +67,13 @@ const getRevs = () => {
   return note ? note.revs : 0;
 };
 
+const getLastRevs = () => {
+  const lastRevs = Session.get('noteLastRevs');
+
+  if (!lastRevs) return -1;
+  return lastRevs;
+};
+
 const setLastRevs = (revs) => {
   const lastRevs = getLastRevs();
 
@@ -75,12 +82,7 @@ const setLastRevs = (revs) => {
   }
 };
 
-const getLastRevs = () => {
-  const lastRevs = Session.get('noteLastRevs');
-
-  if (!lastRevs) return -1;
-  return lastRevs;
-};
+const isPanelOpened = () => Session.get('openPanel') === 'note';
 
 const hasUnreadNotes = () => {
   const opened = isPanelOpened();
@@ -102,9 +104,8 @@ const toggleNotePanel = () => {
     'openPanel',
     isPanelOpened() ? 'userlist' : 'note',
   );
+  window.dispatchEvent(new Event('panelChanged'));
 };
-
-const isPanelOpened = () => Session.get('openPanel') === 'note';
 
 export default {
   getNoteURL,

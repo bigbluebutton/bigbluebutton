@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import ShapeDrawListener from './shape-draw-listener/component';
 import TextDrawListener from './text-draw-listener/component';
 import PencilDrawListener from './pencil-draw-listener/component';
+import ShapePointerListener from './shape-pointer-listener/component';
+import PencilPointerListener from './pencil-pointer-listener/component';
 import CursorListener from './cursor-listener/component';
 
 export default class WhiteboardOverlay extends Component {
@@ -49,7 +51,6 @@ export default class WhiteboardOverlay extends Component {
     this.normalizeThickness = this.normalizeThickness.bind(this);
     this.normalizeFont = this.normalizeFont.bind(this);
   }
-
 
   getCurrentShapeId() {
     return this.currentShapeId;
@@ -107,7 +108,7 @@ export default class WhiteboardOverlay extends Component {
       userId,
     } = this.props;
 
-    this.count = this.count + 1;
+    this.count += 1;
     this.currentShapeId = `${userId}-${this.count}-${new Date().getTime()}`;
     return this.currentShapeId;
   }
@@ -167,6 +168,17 @@ export default class WhiteboardOverlay extends Component {
     const { tool } = drawSettings;
 
     if (tool === 'triangle' || tool === 'rectangle' || tool === 'ellipse' || tool === 'line') {
+      if (window.PointerEvent) {
+        return (
+          <ShapePointerListener
+            userId={userId}
+            actions={actions}
+            drawSettings={drawSettings}
+            whiteboardId={whiteboardId}
+          />
+        );
+      }
+
       return (
         <ShapeDrawListener
           userId={userId}
@@ -176,6 +188,19 @@ export default class WhiteboardOverlay extends Component {
         />
       );
     } if (tool === 'pencil') {
+      if (window.PointerEvent) {
+        return (
+          <PencilPointerListener
+            userId={userId}
+            whiteboardId={whiteboardId}
+            drawSettings={drawSettings}
+            actions={actions}
+            physicalSlideWidth={physicalSlideWidth}
+            physicalSlideHeight={physicalSlideHeight}
+          />
+        );
+      }
+
       return (
         <PencilDrawListener
           userId={userId}

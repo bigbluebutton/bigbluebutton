@@ -75,6 +75,7 @@ class NavBar extends Component {
   render() {
     const {
       hasUnreadMessages,
+      hasUnreadNotes,
       isExpanded,
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
@@ -83,13 +84,13 @@ class NavBar extends Component {
       amIModerator,
     } = this.props;
 
-
+    const hasNotification = hasUnreadMessages || hasUnreadNotes;
     const toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
-    toggleBtnClasses[styles.btnWithNotificationDot] = hasUnreadMessages;
+    toggleBtnClasses[styles.btnWithNotificationDot] = hasNotification;
 
     let ariaLabel = intl.formatMessage(intlMessages.toggleUserListAria);
-    ariaLabel += hasUnreadMessages ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
+    ariaLabel += hasNotification ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
 
     return (
       <div
@@ -98,15 +99,13 @@ class NavBar extends Component {
         <div className={styles.top}>
           <div className={styles.left}>
             {!isExpanded ? null
-              : <Icon iconName="left_arrow" className={styles.arrowLeft} />
-            }
+              : <Icon iconName="left_arrow" className={styles.arrowLeft} />}
             <Button
-              data-test="userListToggleButton"
               onClick={NavBar.handleToggleUserList}
               ghost
               circle
               hideLabel
-              data-test={hasUnreadMessages ? 'hasUnreadMessages' : null}
+              data-test={hasNotification ? 'hasUnreadMessages' : null}
               label={intl.formatMessage(intlMessages.toggleUserListLabel)}
               aria-label={ariaLabel}
               icon="user"
@@ -115,8 +114,7 @@ class NavBar extends Component {
               accessKey={TOGGLE_USERLIST_AK}
             />
             {isExpanded ? null
-              : <Icon iconName="right_arrow" className={styles.arrowRight} />
-            }
+              : <Icon iconName="right_arrow" className={styles.arrowRight} />}
           </div>
           <div className={styles.center}>
             <h1 className={styles.presentationTitle}>{presentationTitle}</h1>

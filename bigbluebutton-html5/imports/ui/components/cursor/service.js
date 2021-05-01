@@ -25,17 +25,17 @@ export function publishCursorUpdate(payload) {
   if (cursorStreamListener) {
     const throttledEmit = throttle(cursorStreamListener.emit.bind(cursorStreamListener), 30, { trailing: true });
 
-    throttledEmit('publish', {
-      userId: Auth.userID,
-      payload,
-    });
+    throttledEmit('publish', payload);
   }
 
   return updateCursor(Auth.userID, payload);
 }
 
 export function initCursorStreamListener() {
-  logger.info({ logCode: 'init_cursor_stream_listener' }, 'initCursorStreamListener called');
+  logger.info({
+    logCode: 'init_cursor_stream_listener',
+    extraInfo: { meetingId: Auth.meetingID, userId: Auth.userID },
+  }, 'initCursorStreamListener called');
 
   /**
   * We create a promise to add the handlers after a ddp subscription stop.
@@ -47,7 +47,7 @@ export function initCursorStreamListener() {
   const startStreamHandlersPromise = new Promise((resolve) => {
     const checkStreamHandlersInterval = setInterval(() => {
       const streamHandlersSize = Object.values(Meteor.StreamerCentral.instances[`cursor-${Auth.meetingID}`].handlers)
-        .filter(el => el != undefined)
+        .filter((el) => el != undefined)
         .length;
 
       if (!streamHandlersSize) {
@@ -60,9 +60,12 @@ export function initCursorStreamListener() {
     logger.debug({ logCode: 'cursor_stream_handler_attach' }, 'Attaching handlers for cursor stream');
 
     cursorStreamListener.on('message', ({ cursors }) => {
-      Object.keys(cursors).forEach((userId) => {
+      Object.keys(cursors).forEach((cursorId) => {
+        const cursor = cursors[cursorId];
+        const { userId } = cursor;
+        delete cursor.userId;
         if (Auth.userID === userId) return;
-        updateCursor(userId, cursors[userId]);
+        updateCursor(userId, cursor);
       });
     });
   });

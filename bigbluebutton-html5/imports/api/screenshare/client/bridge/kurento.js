@@ -259,6 +259,7 @@ export default class KurentoScreenshareBridge {
         userName: Auth.fullname,
         stream,
         hasAudio: this.hasAudio,
+        bitrate: BridgeService.BASE_BITRATE,
       };
 
       this.broker = new ScreenshareBroker(

@@ -17,7 +17,7 @@ const getActiveCaptions = () => {
   return activeCaptions;
 };
 
-const getCaptions = locale => Captions.findOne({
+const getCaptions = (locale) => Captions.findOne({
   meetingId: Auth.meetingID,
   padId: { $regex: `${CAPTIONS_TOKEN}${locale}$` },
 });
@@ -118,7 +118,10 @@ const getCaptionsSettings = () => {
   return settings;
 };
 
-const isCaptionsEnabled = () => CAPTIONS_CONFIG.enabled;
+const isCaptionsEnabled = () => {
+  const captions = Captions.findOne({ meetingId: Auth.meetingID });
+  return CAPTIONS_CONFIG.enabled && captions;
+};
 
 const isCaptionsAvailable = () => {
   if (isCaptionsEnabled) {

@@ -101,7 +101,7 @@ class ToolbarSubmenu extends Component {
       );
     } if (type === 'font-size') {
       return (
-        <p className={styles.textThickness} style={{ fontSize: obj.value }}>
+        <p className={styles.textThickness} style={{ fontSize: obj.value <= 32 ? obj.value : 32 }}>
           Aa
         </p>
       );
@@ -259,7 +259,7 @@ class ToolbarSubmenu extends Component {
         className={ToolbarSubmenu.getWrapperClassNames(type)}
         ref={(node) => { this.submenuItems = node; }}
       >
-        {objectsToRender ? objectsToRender.map(obj => (
+        {objectsToRender ? objectsToRender.map((obj) => (
           <ToolbarSubmenuItem
             label={this.formatSubmenuLabel(type, obj)}
             icon={!customIcon ? obj.icon : null}

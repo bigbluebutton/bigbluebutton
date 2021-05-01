@@ -187,7 +187,7 @@ class UserDropdown extends PureComponent {
       const dropdownTrigger = dropdown.children[0];
       const list = findDOMNode(this.list);
       const children = [].slice.call(list.children);
-      children.find(child => child.getAttribute('role') === 'menuitem').focus();
+      children.find((child) => child.getAttribute('role') === 'menuitem').focus();
 
       this.setState({
         isActionsOpen: true,
@@ -294,7 +294,7 @@ class UserDropdown extends PureComponent {
       actions.push(<DropdownListSeparator key={_.uniqueId('list-separator-')} />);
 
       const statuses = Object.keys(getEmojiList);
-      statuses.map(status => actions.push(this.makeDropdownItem(
+      statuses.map((status) => actions.push(this.makeDropdownItem(
         status,
         intl.formatMessage({ id: `app.actionsBar.emojiMenu.${status}Label` }),
         () => { setEmojiStatus(user.userId, status); this.resetMenuState(); },
@@ -477,7 +477,6 @@ class UserDropdown extends PureComponent {
     });
   }
 
-
   handleScroll() {
     this.setState({
       isActionsOpen: false,
@@ -564,7 +563,8 @@ class UserDropdown extends PureComponent {
         {
         userInBreakout
         && !meetingIsBreakout
-          ? breakoutSequence : userIcon}
+          ? breakoutSequence : userIcon
+}
       </UserAvatar>
     );
   }
@@ -584,7 +584,6 @@ class UserDropdown extends PureComponent {
       isActionsOpen,
       dropdownVisible,
       dropdownDirection,
-      dropdownOffset,
       showNestedOptions,
     } = this.state;
 
@@ -622,7 +621,7 @@ class UserDropdown extends PureComponent {
           <div className={styles.userAvatar}>
             {this.renderUserAvatar()}
           </div>
-          {<UserName
+          <UserName
             {...{
               user,
               compact,
@@ -632,13 +631,13 @@ class UserDropdown extends PureComponent {
               isActionsOpen,
               isMe,
             }}
-          />}
-          {<UserIcons
+          />
+          <UserIcons
             {...{
               user,
               amIModerator: currentUser.role === ROLE_MODERATOR,
             }}
-          />}
+          />
         </div>
       </div>
     );
@@ -658,7 +657,7 @@ class UserDropdown extends PureComponent {
         aria-label={userAriaLabel}
         aria-relevant="additions"
         placement={placement}
-        getContent={dropdownContent => this.dropdownContent = dropdownContent}
+        getContent={(dropdownContent) => this.dropdownContent = dropdownContent}
         tethered
       >
         <DropdownTrigger>

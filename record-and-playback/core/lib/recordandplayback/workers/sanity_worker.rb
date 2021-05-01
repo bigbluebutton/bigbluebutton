@@ -47,10 +47,7 @@ module BigBlueButton
             FileUtils.touch(@sanity_fail)
           end
 
-          # Avoid the regular process flow if it's a norecord meeting
-          process = !File.exist?(@archived_norecord)
-
-          step_succeeded && process
+          step_succeeded
         end
       end
 
@@ -63,7 +60,6 @@ module BigBlueButton
         super(opts)
         @step_name = 'sanity'
         @post_scripts_path = File.join(BigBlueButton.rap_scripts_path, 'post_archive')
-        @archived_norecord = "#{@recording_dir}/status/archived/#{@full_id}.norecord"
         @sanity_fail = "#{@recording_dir}/status/sanity/#{@full_id}.fail"
         @sanity_done = "#{@recording_dir}/status/sanity/#{@full_id}.done"
       end

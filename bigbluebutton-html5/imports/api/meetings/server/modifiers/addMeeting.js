@@ -6,8 +6,7 @@ import {
 import SanitizeHTML from 'sanitize-html';
 import Meetings, { RecordMeetings } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
-import createNote from '/imports/api/note/server/methods/createNote';
-import createCaptions from '/imports/api/captions/server/methods/createCaptions';
+import { initPads } from '/imports/api/common/server/etherpad';
 import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
 import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
@@ -109,7 +108,7 @@ export default function addMeeting(meeting) {
 
   let { welcomeMsg } = newMeeting.welcomeProp;
 
-  const sanitizeTextInChat = original => SanitizeHTML(original, {
+  const sanitizeTextInChat = (original) => SanitizeHTML(original, {
     allowedTags: ['a', 'b', 'br', 'i', 'img', 'li', 'small', 'span', 'strong', 'u', 'ul'],
     allowedAttributes: {
       a: ['href', 'name', 'target'],
@@ -143,15 +142,16 @@ export default function addMeeting(meeting) {
   newMeeting.welcomeProp.modOnlyMessage = sanitizeTextInChat(newMeeting.welcomeProp.modOnlyMessage);
 
   const modifier = {
-    $set: Object.assign({
+    $set: {
       meetingId,
       meetingEnded,
       publishedPoll: false,
       guestLobbyMessage: '',
-      randomlySelectedUser: '',
-    }, flat(newMeeting, {
-      safe: true,
-    })),
+      randomlySelectedUser: [],
+      ...flat(newMeeting, {
+        safe: true,
+      }),
+    },
   };
 
   if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
@@ -184,8 +184,7 @@ export default function addMeeting(meeting) {
       Logger.info(`Added meeting id=${meetingId}`);
 
       const { html5InstanceId } = meeting.systemProps;
-      createNote(meetingId, html5InstanceId);
-      createCaptions(meetingId, html5InstanceId);
+      initPads(meetingId, html5InstanceId);
     } else if (numberAffected) {
       Logger.info(`Upserted meeting id=${meetingId}`);
     }

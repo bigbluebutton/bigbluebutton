@@ -1,8 +1,6 @@
 import React, { createContext, useReducer, useEffect } from 'react';
 import Storage from '/imports/ui/services/storage/session';
 
-const { webcamsDefaultPlacement } = Meteor.settings.public.layout;
-
 export const LayoutContext = createContext();
 
 const initialState = {
@@ -50,7 +48,7 @@ const initialState = {
   },
   webcamsAreaUserSetsHeight: 0,
   webcamsAreaUserSetsWidth: 0,
-  webcamsPlacement: webcamsDefaultPlacement || 'top',
+  webcamsPlacement: 'top',
   presentationAreaSize: {
     width: 0,
     height: 0,
@@ -276,20 +274,20 @@ const ContextProvider = (props) => {
   );
 };
 
-const withProvider = Component => props => (
+const withProvider = (Component) => (props) => (
   <ContextProvider {...props}>
     <Component />
   </ContextProvider>
 );
 
-const ContextConsumer = Component => props => (
+const ContextConsumer = (Component) => (props) => (
   <LayoutContext.Consumer>
-    {contexts => <Component {...props} {...contexts} />}
+    {(contexts) => <Component {...props} {...contexts} />}
   </LayoutContext.Consumer>
 );
 
-const withLayoutConsumer = Component => ContextConsumer(Component);
-const withLayoutContext = Component => withProvider(withLayoutConsumer(Component));
+const withLayoutConsumer = (Component) => ContextConsumer(Component);
+const withLayoutContext = (Component) => withProvider(withLayoutConsumer(Component));
 
 export {
   withProvider,

@@ -22,21 +22,13 @@ const propTypes = {
   currentUser: PropTypes.shape({}).isRequired,
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
+  clearAllEmojiStatus: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
   requestUserInformation: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
   compact: false,
-};
-
-const listTransition = {
-  enter: styles.enter,
-  enterActive: styles.enterActive,
-  appear: styles.appear,
-  appearActive: styles.appearActive,
-  leave: styles.leave,
-  leaveActive: styles.leaveActive,
 };
 
 const intlMessages = defineMessages({
@@ -94,14 +86,7 @@ class UserParticipants extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { compact } = this.props;
-    const { selectedUser, scrollArea } = this.state;
-    if (!compact && (!prevState.scrollArea && scrollArea)) {
-      scrollArea.addEventListener(
-        'keydown',
-        this.rove,
-      );
-    }
+    const { selectedUser } = this.state;
 
     if (selectedUser) {
       const { firstChild } = selectedUser;
@@ -136,7 +121,7 @@ class UserParticipants extends Component {
     } = this.props;
     const { scrollArea } = this.state;
     const user = users[index];
-    const isRTL = Settings.application.isRTL;
+    const { isRTL } = Settings.application;
 
     return (
       <CellMeasurer
@@ -172,7 +157,7 @@ class UserParticipants extends Component {
   handleClickSelectedUser(event) {
     let selectedUser = null;
     if (event.path) {
-      selectedUser = event.path.find(p => p.className && p.className.includes('participantsList'));
+      selectedUser = event.path.find((p) => p.className && p.className.includes('participantsList'));
     }
     this.setState({ selectedUser });
   }
@@ -194,7 +179,7 @@ class UserParticipants extends Component {
       intl,
       users,
       compact,
-      setEmojiStatus,
+      clearAllEmojiStatus,
       currentUser,
       meetingIsBreakout,
     } = this.props;
@@ -216,12 +201,11 @@ class UserParticipants extends Component {
                   ? (
                     <UserOptionsContainer {...{
                       users,
-                      setEmojiStatus,
+                      clearAllEmojiStatus,
                       meetingIsBreakout,
                     }}
                     />
-                  ) : null
-                }
+                  ) : null}
 
               </div>
             )

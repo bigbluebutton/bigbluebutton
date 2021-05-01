@@ -18,7 +18,7 @@ public:
     #
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
-    bbbServerVersion: 2.3-dev
+    bbbServerVersion: 2.3
     copyright: '©2021 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
@@ -51,13 +51,13 @@ public:
     enableDebugWindow: true
     # Warning: increasing the limit of breakout rooms per meeting
     # can generate excessive overhead to the server. We recommend
-    # this value to be kept under 12.
+    # this value to be kept under 16.
     breakouts:
-      breakoutRoomLimit: 8
+      breakoutRoomLimit: 16
       sendInvitationToIncludedModerators: false
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
     customHeartbeat: false
-    showAllAvailableLocales: false
+    showAllAvailableLocales: true
     defaultSettings:
       application:
         animations: true
@@ -168,6 +168,7 @@ public:
       # subscribe reattempt increases the reconnection timer up to this
       maxTimeout: 60000
     screenshare:
+      bitrate: 1500
       mediaTimeouts:
         maxConnectionAttempts: 2
         # Base screen media timeout (send|recv)
@@ -269,6 +270,14 @@ public:
     autoShareWebcam: false
     skipVideoPreview: false
     skipVideoPreviewOnFirstJoin: false
+    # cameraSortingModes.paginationSorting: sorting mode to be applied when pagination is active
+    # cameraSortingModes.defaultSorting: sorting mode when pagination is not active (full mesh)
+    # Current implemented modes are:
+    # 'LOCAL_ALPHABETICAL' | 'VOICE_ACTIVITY_LOCAL' | 'LOCAL_VOICE_ACTIVITY' | 'LOCAL_PRESENTER_ALPHABETICAL'
+    # The algorithm names are self-explanatory.
+    cameraSortingModes:
+      defaultSorting: LOCAL_ALPHABETICAL
+      paginationSorting: VOICE_ACTIVITY_LOCAL
     # Entry `thresholds` is an array of:
     # - threshold: minimum number of cameras being shared for profile to applied
     #   profile: a camera profile id from the cameraProfiles configuration array
@@ -351,6 +360,7 @@ public:
     enabled: true
     max_custom: 5
     allowDragAndDropFile: false
+    maxTypedAnswerLength: 45
   captions:
     enabled: true
     enableDictation: false
@@ -392,7 +402,6 @@ public:
     autoSwapLayout: false
     hidePresentation: false
     showParticipantsOnLogin: true
-    webcamsDefaultPlacement: 'top'
   media:
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
@@ -426,10 +435,9 @@ public:
     sdpSemantics: 'unified-plan'
   stats:
     enabled: true
-    interval: 2000
-    length: 5
+    interval: 10000
     timeout: 30000
-    log: false
+    log: true
     notification:
       warning: false
       error: true
@@ -456,8 +464,6 @@ public:
     panZoomThrottle: 32
     restoreOnUpdate: false
     uploadEndpoint: '/bigbluebutton/presentation/upload'
-    uploadSizeMin: 0
-    uploadSizeMax: 50000000
     uploadValidMimeTypes:
       - extension: .pdf
         mime: application/pdf
@@ -497,6 +503,7 @@ public:
         mime: image/png
   selectRandomUser:
     enabled: true
+    countdown: false
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
@@ -601,6 +608,8 @@ public:
       flushOnClose: true
       logTag: ''
 private:
+  analytics:
+    includeChat: true
   app:
     host: 127.0.0.1
     localesUrl: /locale-list
@@ -638,16 +647,6 @@ private:
   serverLog:
     level: info
     streamerLog: false
-  memoryMonitoring:
-    stat:
-      enabled: false
-    leak:
-      enabled: false
-    heapdump:
-      thresholdMb: 1024
-      enabled: false
-      heapdumpFolderPath: HEAPDUMP_FOLDER
-      heapdumpIntervalMs: 3600000
   minBrowserVersions:
     - browser: chrome
       version: 72

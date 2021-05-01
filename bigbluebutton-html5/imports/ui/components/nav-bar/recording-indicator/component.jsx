@@ -4,6 +4,7 @@ import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import Tooltip from '/imports/ui/components/tooltip/component';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
+import cx from 'classnames';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -103,6 +104,7 @@ class RecordingIndicator extends PureComponent {
       allowStartStopRecording,
       notify,
       micUser,
+      isPhone,
     } = this.props;
 
     const { time } = this.state;
@@ -116,12 +118,15 @@ class RecordingIndicator extends PureComponent {
       : intlMessages.recordingIndicatorOff);
 
     let recordTitle = '';
-    if (!recording) {
-      recordTitle = time > 0
-        ? intl.formatMessage(intlMessages.resumeTitle)
-        : intl.formatMessage(intlMessages.startTitle);
-    } else {
-      recordTitle = intl.formatMessage(intlMessages.stopTitle);
+
+    if (!isPhone) {
+      if (!recording) {
+        recordTitle = time > 0
+          ? intl.formatMessage(intlMessages.resumeTitle)
+          : intl.formatMessage(intlMessages.startTitle);
+      } else {
+        recordTitle = intl.formatMessage(intlMessages.stopTitle);
+      }
     }
 
     const recordingToggle = () => {
@@ -169,14 +174,13 @@ class RecordingIndicator extends PureComponent {
       >
         {recordingIndicatorIcon}
 
-        <div className={styles.presentationTitle}>
+        <div className={cx(styles.presentationTitle, (!isPhone || recording) && styles.presentationTitleMargin)}>
           {recording
             ? (
               <span className={styles.visuallyHidden}>
                 {`${intl.formatMessage(intlMessages.recordingAriaLabel)} ${humanizeSeconds(time)}`}
               </span>
-            ) : null
-          }
+            ) : null}
           {recording
             ? <span aria-hidden>{humanizeSeconds(time)}</span> : <span>{recordTitle}</span>}
         </div>
@@ -192,7 +196,7 @@ class RecordingIndicator extends PureComponent {
     const recordingButton = recording ? recordMeetingButtonWithTooltip : recordMeetingButton;
 
     return (
-      <Fragment>
+      <>
         {record
           ? <span className={styles.presentationTitleSeparator} aria-hidden>|</span>
           : null}
@@ -221,7 +225,7 @@ class RecordingIndicator extends PureComponent {
             </Tooltip>
           )}
         </div>
-      </Fragment>
+      </>
     );
   }
 }

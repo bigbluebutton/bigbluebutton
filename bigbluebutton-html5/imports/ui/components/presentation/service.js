@@ -1,10 +1,9 @@
 import PresentationPods from '/imports/api/presentation-pods';
 import Presentations from '/imports/api/presentations';
 import { Slides, SlidePositions } from '/imports/api/slides';
-import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 
-const getCurrentPresentation = podId => Presentations.findOne({
+const getCurrentPresentation = (podId) => Presentations.findOne({
   podId,
   current: true,
 });
@@ -82,7 +81,7 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
 
   const pollRegex = /[1-6A-Fa-f][.)].*/g;
   let optionsPoll = content.match(pollRegex) || [];
-  if (optionsPoll) optionsPoll = optionsPoll.map(opt => `\r${opt[0]}.`);
+  if (optionsPoll) optionsPoll = optionsPoll.map((opt) => `\r${opt[0]}.`);
 
   optionsPoll.reduce((acc, currentValue) => {
     const lastElement = acc[acc.length - 1];
@@ -119,7 +118,7 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     return acc;
   }, []).filter(({
     options,
-  }) => options.length > 1 && options.length < 7).forEach(poll => quickPollOptions.push({
+  }) => options.length > 1 && options.length < 7).forEach((poll) => quickPollOptions.push({
     type: `A-${poll.options.length}`,
     poll,
   }));
@@ -140,17 +139,17 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
   const tgOptionsRegex = new RegExp(tfPollString, 'gi');
   const tfPoll = content.match(tgOptionsRegex) || [];
 
-  ynPoll.forEach(poll => quickPollOptions.push({
+  ynPoll.forEach((poll) => quickPollOptions.push({
     type: 'YN',
     poll,
   }));
 
-  ynaPoll.forEach(poll => quickPollOptions.push({
+  ynaPoll.forEach((poll) => quickPollOptions.push({
     type: 'YNA',
     poll,
   }));
 
-  tfPoll.forEach(poll => quickPollOptions.push({
+  tfPoll.forEach((poll) => quickPollOptions.push({
     type: 'TF',
     poll,
   }));
@@ -163,25 +162,16 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
 
 const isPresenter = (podId) => {
   // a main presenter in the meeting always owns a default pod
-  if (podId === 'DEFAULT_PRESENTATION_POD') {
-    const options = {
-      filter: {
-        presenter: 1,
-      },
+  if (podId !== 'DEFAULT_PRESENTATION_POD') {
+    // if a pod is not default, then we check whether this user owns a current pod
+    const selector = {
+      meetingId: Auth.meetingID,
+      podId,
     };
-    const currentUser = Users.findOne({
-      userId: Auth.userID,
-    }, options);
-    return currentUser ? currentUser.presenter : false;
+    const pod = PresentationPods.findOne(selector);
+    return pod.currentPresenterId === Auth.userID;
   }
-
-  // if a pod is not default, then we check whether this user owns a current pod
-  const selector = {
-    meetingId: Auth.meetingID,
-    podId,
-  };
-  const pod = PresentationPods.findOne(selector);
-  return pod.currentPresenterId === Auth.userID;
+  return true;
 };
 
 export default {

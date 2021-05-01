@@ -60,6 +60,80 @@
   }
   </style>
 
+  <script type="text/javascript" role="l10n">
+  tr = {
+    "en": {
+      "app.errorSeeConsole": "Error: more details in the console.",
+      "app.noModeratorResponse": "No response from Moderator.",
+      "app.noSessionToken": "No session Token received.",
+      "app.windowTitle": "Guest Lobby",
+      "app.missingToken": "Guest missing session token.",
+      "app.missingSession": "Guest missing session.",
+      "app.missingMeeting": "Meeting does not exist.",
+      "app.meetingEnded": "Meeting ended.",
+      "app.guestWait": "Please wait for a moderator to approve you joining the meeting.",
+      "app.guestDeny": "Guest denied of joining the meeting.",
+      "app.seatWait": "Guest waiting for a seat in the meeting.",
+    },
+    "de": {
+      "app.errorSeeConsole": "Fehler: Mehr Details in der Konsole.",
+      "app.noModeratorResponse": "Keine Antwort vom Moderator.",
+      "app.noSessionToken": "Kein Sitzungstoken empfangen.",
+      "app.windowTitle": "Warteraum",
+      "app.missingToken": "Gast hat keinen Sitzungs-Token",
+      "app.missingSession": "Gast-Session fehlt.",
+      "app.missingMeeting": "Konferenz existiert nicht.",
+      "app.meetingEnded": "Konferenz beendet.",
+      "app.guestWait": "Bitte warten Sie, bis ein Moderator Ihre Teilnahme bestätigt.",
+      "app.guestDeny": "Gast wurde abgelehnt.",
+      "app.seatWait": "Gast wartet auf einen Platz in der Konferenz.",
+    },
+    "pt": {
+      "app.errorSeeConsole": "Erro: mais detalhes no console.",
+      "app.noModeratorResponse": "Sem resposta do moderador.",
+      "app.noSessionToken": "Token de sessão não recebido.",
+      "app.windowTitle": "Sala de espera",
+      "app.missingToken": "Convidado sem token de sessão.",
+      "app.missingSession": "Convidado sem sessão.",
+      "app.missingMeeting": "Reunião não existente.",
+      "app.meetingEnded": "Reunião encerrada.",
+      "app.guestWait": "Por favor aguarde até que um moderador aprove a sua entrada.",
+      "app.guestDeny": "Convidado teve sua entrada negada.",
+      "app.seatWait": "Convidado aguardando uma vaga na reunião.",
+    },
+    "es": {
+      "app.errorSeeConsole": "Error: más detalles en la consola.",
+      "app.noModeratorResponse": "Sin respuesta del moderador.",
+      "app.noSessionToken": "No se recibió ningún token de sesión.",
+      "app.windowTitle": "Vestíbulo de invitados",
+      "app.missingToken": "Token de sesión faltante del invitado.",
+      "app.missingSession": "Sesión perdida de invitado.",
+      "app.missingMeeting": "La reunión no existe.",
+      "app.meetingEnded": "La reunión terminó.",
+      "app.guestWait": "Espere a que un moderador apruebe su participación en la reunión.",
+      "app.guestDeny": "Invitado negado de unirse a la reunión.",
+      "app.seatWait": "Invitado esperando un asiento en la reunión.",
+    }
+  }
+
+  function _(message) {
+    lang = navigator.language;
+    // handle de-DE, en-US
+    if (pos = lang.indexOf('-') > -1) {
+       lang = lang.substr(0, pos);
+    }
+    if (tr[lang] == undefined) {
+      lang = "en";
+    }
+    msg = tr[lang][message];
+    if (msg === undefined) {
+      msg = tr["en"][message];
+    }
+    return msg;
+  }
+
+  </script>
+
   <script type="text/javascript">
     const REDIRECT_TIMEOUT = 15000;
 
@@ -74,7 +148,7 @@
         if (lobbyMessage.length !== 0) {
           updateMessage(lobbyMessage);
         } else {
-          updateMessage('Please wait for a moderator to approve you joining the meeting.');
+          updateMessage(_('app.guestWait'));
         }
       }
     }
@@ -109,7 +183,7 @@
       setTimeout(function() {
         if (attempt >= limit) {
           disableAnimation();
-          updateMessage('No response from a moderator.');
+          updateMessage(_('app.noModeratorResponse'));
           return;
         }
 
@@ -119,13 +193,13 @@
           const code = data.response.returncode;
 
           if (code === 'FAILED') {
-            return redirect(data.response.message, data.response.url);
+            return redirect(_('app.' + data.response.messageKey), data.response.url);
           }
 
           const status = data.response.guestStatus;
 
           if (status === 'DENY') {
-            return redirect(data.response.message, data.response.url);
+            return redirect(_('app.' + data.response.messageKey), data.response.url);
           }
 
           if (status === 'ALLOW') {
@@ -150,6 +224,8 @@
     }
 
     window.onload = function() {
+      window.document.title = _('app.windowTitle');
+      updateMessage(_('app.guestWait'));
       enableAnimation();
       try {
         const ATTEMPT_EVERY_MS = 5000;
@@ -159,7 +235,7 @@
 
         if (!sessionToken) {
           disableAnimation()
-          updateMessage('No session token received.');
+          updateMessage(_('app.noSessionToken'));
           return;
         }
 
@@ -167,7 +243,7 @@
       } catch (e) {
         disableAnimation();
         console.error(e);
-        updateMessage('Error: more details in the console.');
+        updateMessage(_('app.errorSeeConsole'));
       }
     };
   </script>

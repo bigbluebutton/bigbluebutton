@@ -2,16 +2,14 @@ import PresentationPods from '/imports/api/presentation-pods';
 import Auth from '/imports/ui/services/auth';
 import Cursor from '/imports/ui/components/cursor/service';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
-import Users from '/imports/api/users';
 
-const getPresenterCursorId = (whiteboardId, userId) =>
-  Cursor.findOne(
-    {
-      whiteboardId,
-      userId,
-    },
-    { fields: { _id: 1 } },
-  );
+const getPresenterCursorId = (whiteboardId, userId) => Cursor.findOne(
+  {
+    whiteboardId,
+    userId,
+  },
+  { fields: { _id: 1 } },
+);
 
 const getCurrentCursorIds = (podId, whiteboardId) => {
   // object to return

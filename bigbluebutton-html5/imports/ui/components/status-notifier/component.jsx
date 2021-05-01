@@ -6,8 +6,8 @@ import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
 import { ENTER } from '/imports/utils/keyCodes';
 import toastStyles from '/imports/ui/components/toast/styles';
+import { Meteor } from 'meteor/meteor';
 import { styles } from './styles';
-import {Meteor} from "meteor/meteor";
 
 const messages = defineMessages({
   lowerHandsLabel: {
@@ -20,7 +20,11 @@ const messages = defineMessages({
   },
   raisedHandDesc: {
     id: 'app.statusNotifier.raisedHandDesc',
-    description: 'label for user with raised hands',
+    description: 'label for multiple users with raised hands',
+  },
+  raisedHandDescOneUser: {
+    id: 'app.statusNotifier.raisedHandDescOneUser',
+    description: 'label for a single user with raised hand',
   },
   and: {
     id: 'app.statusNotifier.and',
@@ -88,7 +92,7 @@ class StatusNotifier extends Component {
     const { emojiUsers, intl } = this.props;
     if (emojiUsers.length === 0) return '';
 
-    const _names = emojiUsers.map(u => u.name);
+    const _names = emojiUsers.map((u) => u.name);
     const { length } = _names;
     const and = intl.formatMessage(messages.and);
     let formattedNames = '';
@@ -110,7 +114,8 @@ class StatusNotifier extends Component {
         break;
     }
 
-    return intl.formatMessage(messages.raisedHandDesc, { 0: formattedNames });
+    const raisedHandMessageString = length === 1 ? messages.raisedHandDescOneUser : messages.raisedHandDesc;
+    return intl.formatMessage(raisedHandMessageString, { 0: formattedNames });
   }
 
   raisedHandAvatars() {
@@ -118,15 +123,16 @@ class StatusNotifier extends Component {
     let users = emojiUsers;
     if (emojiUsers.length > MAX_AVATAR_COUNT) users = users.slice(0, MAX_AVATAR_COUNT);
 
-    const avatars = users.map(u => (
+    const avatars = users.map((u) => (
       <div
         role="button"
         tabIndex={0}
         className={styles.avatar}
         style={{ backgroundColor: `${u.color}` }}
         onClick={() => clearUserStatus(u.userId)}
-        onKeyDown={e => (e.keyCode === ENTER ? clearUserStatus(u.userId) : null)}
+        onKeyDown={(e) => (e.keyCode === ENTER ? clearUserStatus(u.userId) : null)}
         key={`statusToastAvatar-${u.userId}`}
+        data-test="avatarsWrapperAvatar"
       >
         {u.name.slice(0, 2)}
       </div>
@@ -156,7 +162,10 @@ class StatusNotifier extends Component {
             <Icon iconName="hand" />
           </div>
         </div>
-        <div className={styles.avatarsWrapper}>
+        <div
+          className={styles.avatarsWrapper}
+          data-test="avatarsWrapper"
+        >
           {this.raisedHandAvatars()}
         </div>
         <div className={styles.toastMessage}>
@@ -170,7 +179,7 @@ class StatusNotifier extends Component {
           color="default"
           size="md"
           onClick={() => {
-            emojiUsers.map(u => clearUserStatus(u.userId));
+            emojiUsers.map((u) => clearUserStatus(u.userId));
           }}
         />
       </div>

@@ -30,9 +30,8 @@ const isElementInViewport = (el) => {
 
   return (
     rect.top >= 0
-    && rect.left >= 0
-    && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)
-    && rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    // This condition is for large messages that are bigger than client height
+    || rect.top + rect.height >= 0
   );
 };
 
@@ -85,7 +84,7 @@ class MessageChatItem extends PureComponent {
 
     if (scrollArea) {
       eventsToBeBound.forEach(
-        e => scrollArea.addEventListener(e, this.handleMessageInViewport),
+        (e) => scrollArea.addEventListener(e, this.handleMessageInViewport),
       );
     }
   }
@@ -125,7 +124,7 @@ class MessageChatItem extends PureComponent {
 
     if (scrollArea && !read) {
       eventsToBeBound.forEach(
-        e => scrollArea.removeEventListener(e, this.handleMessageInViewport),
+        (e) => scrollArea.removeEventListener(e, this.handleMessageInViewport),
       );
     }
   }
@@ -173,7 +172,7 @@ class MessageChatItem extends PureComponent {
       extractPollQuestion,
     } = this.props;
 
-    const formatBoldBlack = s => s.bold().fontcolor('black');
+    const formatBoldBlack = (s) => s.bold().fontcolor('black');
 
     // Sanitize. See: https://gist.github.com/sagewall/47164de600df05fb0f6f44d48a09c0bd
     const sanitize = (value) => {

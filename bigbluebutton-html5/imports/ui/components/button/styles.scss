@@ -107,9 +107,7 @@
   display: inline-block;
   cursor: pointer;
 
-  &:-moz-focusring {
-    outline: none;
-  }
+
 
   &:focus,
   &:hover {
@@ -119,6 +117,12 @@
   &:focus {
     outline-style: solid;
   }
+
+  &:-moz-focusring {
+    outline-color: transparent;
+    outline-offset: var(--border-radius);
+  }
+
 
   &:active {
     &:focus {
