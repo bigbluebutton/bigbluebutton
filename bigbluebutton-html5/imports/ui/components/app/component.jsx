@@ -353,7 +353,8 @@ class App extends Component {
       <ActivityCheckContainer
         inactivityCheck={inactivityCheck}
         responseDelay={responseDelay}
-      />) : null);
+      />
+    ) : null);
   }
 
   renderUserInformation() {
@@ -364,7 +365,8 @@ class App extends Component {
         UserInfo={UserInfo}
         requesterUserId={User.userId}
         meetingId={User.meetingId}
-      />) : null);
+      />
+    ) : null);
   }
 
   render() {
@@ -379,13 +381,13 @@ class App extends Component {
         <BannerBarContainer />
         <NotificationsBarContainer />
         <section className={styles.wrapper}>
+          {this.renderSidebar()}
+          {this.renderPanel()}
           <div className={openPanel ? styles.content : styles.noPanelContent}>
             {this.renderNavBar()}
             {this.renderMedia()}
             {this.renderActionsBar()}
           </div>
-          {this.renderPanel()}
-          {this.renderSidebar()}
         </section>
         <UploaderContainer />
         <BreakoutRoomInvitation />
