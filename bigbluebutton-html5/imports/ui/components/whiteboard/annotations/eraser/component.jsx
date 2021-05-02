@@ -50,7 +50,7 @@ export default class EraserComponent extends Component {
     // Option 1. Using clipPath seems less CPU intensive, but a thin white line is drawn on a dark background.
     const clipId = "clip-" + annotation.id ;
     return (
-      <g>
+      <g data-test="eraser">
         <clipPath id ={clipId}>
           <rect
             x={results.x}
@@ -71,7 +71,7 @@ export default class EraserComponent extends Component {
     // Option2. Alternatively, SVG mask can be used. No edge line drawn. But it seems much slower than the clipPath method above
     const maskId = "mask-" + annotation.id ;
     return (
-      <g>
+      <g data-test="eraser">
         <mask id ={maskId}>
           <rect
             x={results.x}
