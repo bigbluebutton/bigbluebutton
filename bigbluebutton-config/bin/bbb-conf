@@ -191,8 +191,8 @@ fi
 # We're going to give ^bigbluebutton.web.logoutURL a default value (if undefined) so bbb-conf does not give a warning
 #
 if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
-    if ! get_bbb_web_config_value bigbluebutton.web.logoutURL ; then
-        echo "bigbluebutton.web.logoutURL=default" >> BBB_WEB_ETC_CONFIG
+    if [ -z "$(get_bbb_web_config_value bigbluebutton.web.logoutURL)" ]; then
+        echo "bigbluebutton.web.logoutURL=default" >> $BBB_WEB_ETC_CONFIG
     fi
 fi
 
