@@ -7,6 +7,7 @@ import { SCREENSHARING_ERRORS } from './errors';
 const {
   constraints: GDM_CONSTRAINTS,
   mediaTimeouts: MEDIA_TIMEOUTS,
+  bitrate: BASE_BITRATE,
 } = Meteor.settings.public.kurento.screenshare;
 const {
   baseTimeout: BASE_MEDIA_TIMEOUT,
@@ -150,4 +151,5 @@ export default {
   screenshareLoadAndPlayMediaStream,
   BASE_MEDIA_TIMEOUT,
   MAX_CONN_ATTEMPTS,
+  BASE_BITRATE,
 };

@@ -74,6 +74,8 @@ trait SystemConfiguration {
   lazy val toAkkaTranscodeJsonChannel = Try(config.getString("eventBus.toAkkaTranscodeJsonChannel")).getOrElse("to-akka-transcode-json-channel")
   lazy val fromAkkaTranscodeJsonChannel = Try(config.getString("eventBus.fromAkkaTranscodeJsonChannel")).getOrElse("from-akka-transcode-json-channel")
 
+  lazy val analyticsIncludeChat = Try(config.getBoolean("analytics.includeChat")).getOrElse(true)
+
   // Grab the "interface" parameter from the http config
   val httpHost = config.getString("http.interface")
   // Grab the "port" parameter from the http config

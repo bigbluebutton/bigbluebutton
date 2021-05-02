@@ -523,8 +523,6 @@
     "app.video.videoMenu": "Meniu Video",
     "app.video.videoMenuDisabled": "Meniul Video Webcam este dezactivat din setari.",
     "app.video.videoMenuDesc": "Deschideti dropdown-ul de meniu Video",
-    "app.video.chromeExtensionError": "Trebuie sa instalezi",
-    "app.video.chromeExtensionErrorLink": "acesta extensie de Chrome",
     "app.fullscreenButton.label": "Faceti {0} ecran complet",
     "app.meeting.endNotification.ok.label": "OK",
     "app.whiteboard.toolbar.tools": "Unelte",

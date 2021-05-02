@@ -18,6 +18,7 @@ export default function addUserPersistentData(user) {
     role: String,
     guest: Boolean,
     authed: Boolean,
+    waitingForAcceptance: Match.Maybe(Boolean),
     guestStatus: String,
     emoji: String,
     presenter: Boolean,

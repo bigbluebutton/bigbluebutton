@@ -1,7 +1,0 @@
-<configuration name="presence_map.conf" description="PRESENCE MAP">
-  <domains>
-    <domain name="$${domain}">
-      <exten regex="3\d+" proto="conf"/>
-    </domain>
-  </domains>
-</configuration>

@@ -57,7 +57,7 @@ object Boot extends App with SystemConfiguration {
 
   val fromAkkaAppsMsgSenderActorRef = system.actorOf(FromAkkaAppsMsgSenderActor.props(msgSender))
 
-  val analyticsActorRef = system.actorOf(AnalyticsActor.props())
+  val analyticsActorRef = system.actorOf(AnalyticsActor.props(analyticsIncludeChat))
   outBus2.subscribe(fromAkkaAppsMsgSenderActorRef, outBbbMsgMsgChannel)
   outBus2.subscribe(redisRecorderActor, recordServiceMessageChannel)
 

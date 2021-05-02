@@ -1,8 +1,6 @@
 import React, { createContext, useReducer, useEffect } from 'react';
 import Storage from '/imports/ui/services/storage/session';
 
-const { webcamsDefaultPlacement } = Meteor.settings.public.layout;
-
 export const LayoutContext = createContext();
 
 const initialState = {
@@ -50,7 +48,7 @@ const initialState = {
   },
   webcamsAreaUserSetsHeight: 0,
   webcamsAreaUserSetsWidth: 0,
-  webcamsPlacement: webcamsDefaultPlacement || 'top',
+  webcamsPlacement: 'top',
   presentationAreaSize: {
     width: 0,
     height: 0,

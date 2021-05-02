@@ -8,6 +8,7 @@ import UserList from './component';
 const propTypes = {
   isPublicChat: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
+  clearAllEmojiStatus: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
   requestUserInformation: PropTypes.func.isRequired,
 };
@@ -20,6 +21,7 @@ export default withTracker(({ compact }) => ({
   hasBreakoutRoom: Service.hasBreakoutRoom(),
   isPublicChat: Service.isPublicChat,
   setEmojiStatus: Service.setEmojiStatus,
+  clearAllEmojiStatus: Service.clearAllEmojiStatus,
   roving: Service.roving,
   CustomLogoUrl: Service.getCustomLogoUrl(),
   compact,

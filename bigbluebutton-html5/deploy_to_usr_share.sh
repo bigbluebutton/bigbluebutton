@@ -33,7 +33,7 @@ tar -xzf $UPPER_DESTINATION_DIR/bigbluebutton-html5.tar.gz -C $UPPER_DESTINATION
 
 
 cd "$DESTINATION_DIR"/programs/server/ || exit
-npm i --production
+sudo npm i --production
 echo "deployed to $DESTINATION_DIR/programs/server\n\n\n"
 
 echo "writing $DESTINATION_DIR/mongod_start_pre.sh"

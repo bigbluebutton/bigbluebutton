@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import browser from 'browser-detect';
+import deviceInfo from '/imports/utils/deviceInfo';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Button from '/imports/ui/components/button/component';
 import { HUNDRED_PERCENT, MAX_PERCENT, STEP } from '/imports/utils/slideCalcUtils';
@@ -225,9 +225,7 @@ class PresentationToolbar extends PureComponent {
       currentSlide,
     } = this.props;
 
-    const BROWSER_RESULTS = browser();
-    const isMobileBrowser = BROWSER_RESULTS.mobile
-      || BROWSER_RESULTS.os.includes('Android');
+    const { isMobile } = deviceInfo;
 
     const startOfSlides = !(currentSlideNum > 1);
     const endOfSlides = !(currentSlideNum < numberOfSlides);
@@ -314,7 +312,7 @@ class PresentationToolbar extends PureComponent {
         {
           <div className={styles.presentationZoomControls}>
             {
-              !isMobileBrowser
+              !isMobile
                 ? (
                   <TooltipContainer>
                     <ZoomTool

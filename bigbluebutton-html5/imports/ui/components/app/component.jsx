@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { throttle } from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import Modal from 'react-modal';
-import browser from 'browser-detect';
+import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
 import PanelManager from '/imports/ui/components/panel-manager/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
@@ -26,7 +27,8 @@ import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/
 import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
 import { styles } from './styles';
 import { makeCall } from '/imports/ui/services/api';
-import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
+import ConnectionStatusService from '/imports/ui/components/connection-status/service';
+import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager/component';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -123,21 +125,22 @@ class App extends Component {
     const {
       locale, notify, intl, validIOSVersion, startBandwidthMonitoring, handleNetworkConnection,
     } = this.props;
-    const BROWSER_RESULTS = browser();
-    const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
+    const { browserName } = browserInfo;
+    const { isMobile, osName } = deviceInfo;
 
     MediaService.setSwapLayout();
     Modal.setAppElement('#app');
     document.getElementsByTagName('html')[0].lang = locale;
-    document.getElementsByTagName('html')[0].style.fontSize = isMobileBrowser ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
+    document.getElementsByTagName('html')[0].style.fontSize = isMobile ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
 
     const body = document.getElementsByTagName('body')[0];
-    if (BROWSER_RESULTS && BROWSER_RESULTS.name) {
-      body.classList.add(`browser-${BROWSER_RESULTS.name}`);
+
+    if (browserName) {
+      body.classList.add(`browser-${browserName.split(' ').pop()
+        .toLowerCase()}`);
     }
-    if (BROWSER_RESULTS && BROWSER_RESULTS.os) {
-      body.classList.add(`os-${BROWSER_RESULTS.os.split(' ').shift().toLowerCase()}`);
-    }
+
+    body.classList.add(`os-${osName.split(' ').shift().toLowerCase()}`);
 
     if (!validIOSVersion()) {
       notify(
@@ -159,7 +162,9 @@ class App extends Component {
       startBandwidthMonitoring();
     }
 
-    if (isMobileBrowser) makeCall('setMobileUser');
+    if (isMobile) makeCall('setMobileUser');
+
+    ConnectionStatusService.startRoundTripTime();
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
@@ -172,11 +177,11 @@ class App extends Component {
       intl,
       hasPublishedPoll,
       randomlySelectedUser,
-      currentUserId,
       mountModal,
+      isPresenter,
     } = this.props;
 
-    if (randomlySelectedUser === currentUserId) mountModal(<RandomUserSelectContainer />);
+    if (!isPresenter && randomlySelectedUser.length > 0) mountModal(<RandomUserSelectContainer />);
 
     if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
@@ -226,6 +231,8 @@ class App extends Component {
     if (navigator.connection) {
       navigator.connection.addEventListener('change', handleNetworkConnection, false);
     }
+
+    ConnectionStatusService.stopRoundTripTime();
   }
 
   handleWindowResize() {

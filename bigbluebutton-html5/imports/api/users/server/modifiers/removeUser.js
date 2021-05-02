@@ -10,8 +10,8 @@ import ClientConnections from '/imports/startup/server/ClientConnections';
 const clearAllSessions = (sessionUserId) => {
   const serverSessions = Meteor.server.sessions;
   Object.keys(serverSessions)
-    .filter(i => serverSessions[i].userId === sessionUserId)
-    .forEach(i => serverSessions[i].close());
+    .filter((i) => serverSessions[i].userId === sessionUserId)
+    .forEach((i) => serverSessions[i].close());
 };
 
 export default function removeUser(meetingId, userId) {
@@ -43,7 +43,20 @@ export default function removeUser(meetingId, userId) {
 
     clearUserInfoForRequester(meetingId, userId);
 
-    Users.remove(selector);
+    /*
+    Timeout added to reduce the probability that "userRemove" happens too close to "ejectUser",
+    redirecting user to the wrong component.
+    This is a workaround and should be removed as soon as a better fix is made
+    see: https://github.com/bigbluebutton/bigbluebutton/pull/12057
+    */
+    const DELAY_USER_REMOVAL_TIMEOUT_MS = 1000;
+
+    Meteor.wrapAsync((callback) => {
+      Meteor.setTimeout(() => {
+        Users.remove(selector);
+        callback();
+      }, DELAY_USER_REMOVAL_TIMEOUT_MS);
+    })();
 
     Logger.info(`Removed user id=${userId} meeting=${meetingId}`);
   } catch (err) {

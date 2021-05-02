@@ -3,8 +3,6 @@ import { Tracker } from 'meteor/tracker';
 
 import Storage from '/imports/ui/services/storage/session';
 
-import Users from '/imports/api/users';
-import logger from '/imports/startup/client/logger';
 import { makeCall } from '/imports/ui/services/api';
 import { initAnnotationsStreamListener } from '/imports/ui/components/whiteboard/service';
 import allowRedirectToLogoutURL from '/imports/ui/components/meeting-ended/service';
@@ -225,17 +223,7 @@ class Auth {
         });
       }, CONNECTION_TIMEOUT);
 
-      const result = await makeCall('validateAuthToken', this.meetingID, this.userID, this.token, this.externUserID);
-
-      if (result && result.invalid) {
-        clearTimeout(validationTimeout);
-        reject({
-          error: 403,
-          description: result.reason,
-          type: result.error_type,
-        });
-        return;
-      }
+      makeCall('validateAuthToken', this.meetingID, this.userID, this.token, this.externUserID);
 
       Meteor.subscribe('auth-token-validation', { meetingId: this.meetingID, userId: this.userID });
       Meteor.subscribe('current-user');
@@ -250,7 +238,7 @@ class Auth {
         switch (authenticationTokenValidation.validationStatus) {
           case ValidationStates.INVALID:
             c.stop();
-            reject({ error: 401, description: authenticationTokenValidation.reason });
+            reject({ error: 403, description: authenticationTokenValidation.reason });
             break;
           case ValidationStates.VALIDATED:
             initCursorStreamListener();

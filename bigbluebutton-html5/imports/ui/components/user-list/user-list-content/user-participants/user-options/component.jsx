@@ -10,11 +10,9 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
-import ConnectionStatusContainer from '/imports/ui/components/connection-status/modal/container';
 import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
 import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/container';
 import CaptionsService from '/imports/ui/components/captions/service';
-import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import { styles } from './styles';
@@ -73,14 +71,6 @@ const intlMessages = defineMessages({
   lockViewersDesc: {
     id: 'app.userList.userOptions.lockViewersDesc',
     description: 'Lock viewers description',
-  },
-  connectionStatusLabel: {
-    id: 'app.userList.userOptions.connectionStatusLabel',
-    description: 'Connection status label',
-  },
-  connectionStatusDesc: {
-    id: 'app.userList.userOptions.connectionStatusDesc',
-    description: 'Connection status description',
   },
   guestPolicyLabel: {
     id: 'app.userList.userOptions.guestPolicyLabel',
@@ -148,7 +138,6 @@ class UserOptions extends PureComponent {
     this.muteId = _.uniqueId('list-item-');
     this.muteAllId = _.uniqueId('list-item-');
     this.lockId = _.uniqueId('list-item-');
-    this.connectionStatusId = _.uniqueId('list-item-');
     this.guestPolicyId = _.uniqueId('list-item-');
     this.createBreakoutId = _.uniqueId('list-item-');
     this.saveUsersNameId = _.uniqueId('list-item-');
@@ -259,7 +248,8 @@ class UserOptions extends PureComponent {
           label={intl.formatMessage(intlMessages.clearAllLabel)}
           description={intl.formatMessage(intlMessages.clearAllDesc)}
           onClick={toggleStatus}
-        />) : null
+        />
+      ) : null
       ),
       (!meetingIsBreakout && isMeteorConnected ? (
         <DropdownListItem
@@ -268,7 +258,8 @@ class UserOptions extends PureComponent {
           label={intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllLabel' : 'muteAllLabel'])}
           description={intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllDesc' : 'muteAllDesc'])}
           onClick={toggleMuteAllUsers}
-        />) : null
+        />
+      ) : null
       ),
       (!meetingIsBreakout && !isMeetingMuted && isMeteorConnected ? (
         <DropdownListItem
@@ -277,7 +268,8 @@ class UserOptions extends PureComponent {
           label={intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
           description={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
           onClick={toggleMuteAllUsersExceptPresenter}
-        />) : null
+        />
+      ) : null
       ),
       (amIModerator
         ? (
@@ -286,7 +278,8 @@ class UserOptions extends PureComponent {
             label={intl.formatMessage(intlMessages.saveUserNames)}
             key={this.saveUsersNameId}
             onClick={this.onSaveUserNames}
-          />)
+          />
+        )
         : null
       ),
       (!meetingIsBreakout && isMeteorConnected ? (
@@ -296,25 +289,19 @@ class UserOptions extends PureComponent {
           label={intl.formatMessage(intlMessages.lockViewersLabel)}
           description={intl.formatMessage(intlMessages.lockViewersDesc)}
           onClick={() => mountModal(<LockViewersContainer />)}
-        />) : null
-      ),
-      (ConnectionStatusService.isEnabled() && isMeteorConnected ? (
-        <DropdownListItem
-          key={this.connectionStatusId}
-          icon="warning"
-          label={intl.formatMessage(intlMessages.connectionStatusLabel)}
-          description={intl.formatMessage(intlMessages.connectionStatusDesc)}
-          onClick={() => mountModal(<ConnectionStatusContainer />)}
-        />) : null
+        />
+      ) : null
       ),
       (!meetingIsBreakout && isMeteorConnected ? (
         <DropdownListItem
           key={this.guestPolicyId}
           icon="user"
           label={intl.formatMessage(intlMessages.guestPolicyLabel)}
+          data-test="guestPolicyLabel"
           description={intl.formatMessage(intlMessages.guestPolicyDesc)}
           onClick={() => mountModal(<GuestPolicyContainer />)}
-        />) : null
+        />
+      ) : null
       ),
       (isMeteorConnected ? <DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
       (canCreateBreakout && isMeteorConnected ? (
@@ -325,7 +312,8 @@ class UserOptions extends PureComponent {
           label={intl.formatMessage(intlMessages.createBreakoutRoom)}
           description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
           onClick={this.onCreateBreakouts}
-        />) : null
+        />
+      ) : null
       ),
       (canInviteUsers && isMeteorConnected ? (
         <DropdownListItem
@@ -334,7 +322,8 @@ class UserOptions extends PureComponent {
           label={intl.formatMessage(intlMessages.invitationItem)}
           key={this.createBreakoutId}
           onClick={this.onInvitationUsers}
-        />) : null
+        />
+      ) : null
       ),
       (amIModerator && CaptionsService.isCaptionsEnabled() && isMeteorConnected
         ? (

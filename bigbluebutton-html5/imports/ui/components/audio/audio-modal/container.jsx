@@ -1,7 +1,8 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import browser from 'browser-detect';
+import deviceInfo from '/imports/utils/deviceInfo';
+import browserInfo from '/imports/utils/browserInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioModal from './component';
 import Meetings from '/imports/api/meetings';
@@ -14,13 +15,11 @@ import {
   closeModal,
   joinListenOnly,
   leaveEchoTest,
-  getcookieData,
 } from './service';
 import Storage from '/imports/ui/services/storage/session';
 import Service from '../service';
 
-const AudioModalContainer = props => <AudioModal {...props} />;
-
+const AudioModalContainer = (props) => <AudioModal {...props} />;
 
 const APP_CONFIG = Meteor.settings.public.app;
 
@@ -49,22 +48,25 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
   }
 
   const meetingIsBreakout = AppService.meetingIsBreakout();
-  const { joinedAudio } = getcookieData();
 
   const joinFullAudioImmediately = (autoJoin && (skipCheck || skipCheckOnJoin && !getEchoTest))
     || (skipCheck || skipCheckOnJoin && !getEchoTest);
 
   const forceListenOnlyAttendee = forceListenOnly && !Service.isUserModerator();
 
+  const { isIos } = deviceInfo;
+  const { isChrome, isIe } = browserInfo;
+
   return ({
-    joinedAudio,
     meetingIsBreakout,
     closeModal,
-    joinMicrophone: skipEchoTest => joinMicrophone(skipEchoTest || skipCheck || skipCheckOnJoin),
+    joinMicrophone: (skipEchoTest) => joinMicrophone(skipEchoTest || skipCheck || skipCheckOnJoin),
     joinListenOnly,
     leaveEchoTest,
-    changeInputDevice: inputDeviceId => Service.changeInputDevice(inputDeviceId),
-    changeOutputDevice: outputDeviceId => Service.changeOutputDevice(outputDeviceId),
+    changeInputDevice: (inputDeviceId) => Service
+      .changeInputDevice(inputDeviceId),
+    changeOutputDevice: (outputDeviceId) => Service
+      .changeOutputDevice(outputDeviceId),
     joinEchoTest: () => Service.joinEchoTest(),
     exitAudio: () => Service.exitAudio(),
     isConnecting: Service.isConnecting(),
@@ -80,9 +82,9 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
     audioLocked: userLocks.userMic,
     joinFullAudioImmediately,
     forceListenOnlyAttendee,
-    isIOSChrome: browser().name === 'crios',
+    isIOSChrome: isIos && isChrome,
     isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
-    isIEOrEdge: browser().name === 'edge' || browser().name === 'ie',
+    isIE: isIe,
     autoplayBlocked: Service.autoplayBlocked(),
     handleAllowAutoplay: () => Service.handleAllowAutoplay(),
     isRTL,

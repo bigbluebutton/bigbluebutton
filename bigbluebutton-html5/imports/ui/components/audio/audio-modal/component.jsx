@@ -39,7 +39,7 @@ const propTypes = {
   resolve: PropTypes.func,
   isMobileNative: PropTypes.bool.isRequired,
   isIOSChrome: PropTypes.bool.isRequired,
-  isIEOrEdge: PropTypes.bool.isRequired,
+  isIE: PropTypes.bool.isRequired,
   formattedTelVoice: PropTypes.string.isRequired,
   autoplayBlocked: PropTypes.bool.isRequired,
   handleAllowAutoplay: PropTypes.func.isRequired,
@@ -522,7 +522,7 @@ class AudioModal extends Component {
       showPermissionsOvelay,
       isIOSChrome,
       closeModal,
-      isIEOrEdge,
+      isIE,
     } = this.props;
 
     const { content } = this.state;
@@ -537,7 +537,7 @@ class AudioModal extends Component {
           hideBorder
           contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
         >
-          {isIEOrEdge ? (
+          {isIE ? (
             <p className={cx(styles.text, styles.browserWarning)}>
               <FormattedMessage
                 id="app.audioModal.unsupportedBrowserLabel"
