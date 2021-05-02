@@ -32,7 +32,7 @@ export default class EraserComponent extends Component {
     }
     /* eslint-enable prefer-destructuring */
     const x = denormalizeCoord(x1, slideWidth);
-        const y = denormalizeCoord(y1, slideHeight);
+    const y = denormalizeCoord(y1, slideHeight);
     const width = denormalizeCoord((x2 - x1), slideWidth);
     const height = denormalizeCoord((y2 - y1), slideHeight);
 
