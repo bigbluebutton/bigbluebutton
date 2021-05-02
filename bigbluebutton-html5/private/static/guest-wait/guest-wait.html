@@ -61,7 +61,7 @@
   </style>
 
   <script type="text/javascript" role="l10n">
-  tr = {
+  const tr = {
     "en": {
       "app.errorSeeConsole": "Error: more details in the console.",
       "app.noModeratorResponse": "No response from Moderator.",
@@ -117,18 +117,12 @@
   }
 
   function _(message) {
-    lang = navigator.language;
-    // handle de-DE, en-US
-    if (pos = lang.indexOf('-') > -1) {
-       lang = lang.substr(0, pos);
-    }
-    if (tr[lang] == undefined) {
-      lang = "en";
-    }
-    msg = tr[lang][message];
-    if (msg === undefined) {
-      msg = tr["en"][message];
-    }
+    let lang = navigator.language.split(/[-_]/)[0];
+    if (!tr[lang]) lang = "en";
+
+    let msg = tr[lang][message];
+    if (!msg) msg = tr["en"][message];
+
     return msg;
   }
 
