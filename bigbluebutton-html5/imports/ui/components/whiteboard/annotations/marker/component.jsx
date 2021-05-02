@@ -146,7 +146,7 @@ export default class MarkerComponent extends Component {
     const coord = this.getCurrentPath().replace(/^\s+/,'').split(' ').map(x => parseFloat(x.replace(/[ML]/,'')));
     const lineCap = coord.length == 4 && coord[0] == coord[2] && coord[1] == coord[3] ? "square" : "butt";
     return (
-      <g>
+      <g data-test="drawnMarker">
       <path
         fill="none"
         stroke={getFormattedColor(annotation.color)}
