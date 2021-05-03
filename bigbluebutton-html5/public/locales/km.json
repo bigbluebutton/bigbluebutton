@@ -502,8 +502,6 @@
     "app.video.videoMenu": "ម៉ឺនុយវីដេអូ",
     "app.video.videoMenuDisabled": "ម៉ឺនុយវីដេអូវេបខែមត្រូវបានបិទនៅក្នុងការកំណត់",
     "app.video.videoMenuDesc": "បើកម៉ឺនុយទម្លាក់ចុះសម្រាប់វីដេអូ",
-    "app.video.chromeExtensionError": "អ្នកត្រូវតែដំឡើង",
-    "app.video.chromeExtensionErrorLink": "កម្មវិធីបន្ថែម Chrome នេះ",
     "app.fullscreenButton.label": "ធ្វើឱ្យ {0} អេក្រង់ពេញ",
     "app.meeting.endNotification.ok.label": "យល់ព្រម",
     "app.whiteboard.toolbar.tools": "ឧបករណ៍",

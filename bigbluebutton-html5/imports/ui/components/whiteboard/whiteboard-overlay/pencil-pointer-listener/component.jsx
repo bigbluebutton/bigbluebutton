@@ -25,7 +25,7 @@ export default class PencilPointerListener extends Component {
     this.handlePointerDown = this.handlePointerDown.bind(this);
     this.handlePointerUp = this.handlePointerUp.bind(this);
     this.handlePointerMove = this.handlePointerMove.bind(this);
-    this.handlePointerCancle = this.handlePointerCancle.bind(this);
+    this.handlePointerCancel = this.handlePointerCancel.bind(this);
 
     this.resetState = this.resetState.bind(this);
     this.sendLastMessage = this.sendLastMessage.bind(this);
@@ -183,7 +183,7 @@ export default class PencilPointerListener extends Component {
     // remove event listener
     window.removeEventListener('pointerup', this.handlePointerUp);
     window.removeEventListener('pointermove', this.handlePointerMove);
-    window.removeEventListener('pointercancle', this.handlePointerCancle, true);
+    window.removeEventListener('pointercancel', this.handlePointerCancel, true);
   }
 
   discardAnnotation() {
@@ -245,7 +245,7 @@ export default class PencilPointerListener extends Component {
     if (!this.isDrawing) {
       window.addEventListener('pointerup', this.handlePointerUp);
       window.addEventListener('pointermove', this.handlePointerMove);
-      window.addEventListener('pointercancle', this.handlePointerCancle, true);
+      window.addEventListener('pointercancel', this.handlePointerCancel, true);
 
       const { clientX, clientY } = event;
       this.commonDrawStartHandler(clientX, clientY);
@@ -306,7 +306,7 @@ export default class PencilPointerListener extends Component {
     }
   }
 
-  handlePointerCancle(event) {
+  handlePointerCancel(event) {
     switch (event.pointerType) {
       case 'pen': {
         this.sendLastMessage();

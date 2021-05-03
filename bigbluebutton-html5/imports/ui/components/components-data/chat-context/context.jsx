@@ -117,8 +117,7 @@ const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY
   const timewindowIndex = stateMessages.chatIndexes[keyName];
   const groupMessage = messageGroups[keyName + '-' + timewindowIndex];
   
-  if (!groupMessage || (groupMessage && groupMessage.sender !== stateMessages.lastSender)) {
-
+  if (!groupMessage || (groupMessage && groupMessage.sender !== stateMessages.lastSender) || msg.id.startsWith(SYSTEM_CHAT_TYPE)) {
     const [tempGroupMessage, sender, newIndex] = msgBuilder(msg, stateMessages);
     stateMessages.lastSender = sender;
     stateMessages.chatIndexes[keyName] = newIndex;

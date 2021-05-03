@@ -432,8 +432,6 @@
     "app.video.videoMenu": "वीडियो मेनू",
     "app.video.videoMenuDisabled": "वीडियो मेनू वेबकैम सेटिंग्स में अक्षम है",
     "app.video.videoMenuDesc": "खुला वीडियो मेनू ड्रॉपडाउन",
-    "app.video.chromeExtensionError": "आपको स्थापित करना होगा",
-    "app.video.chromeExtensionErrorLink": "यह क्रोम एक्सटेंशन है",
     "app.fullscreenButton.label": "फुलस्क्रीन बनाएं {0}",
     "app.meeting.endNotification.ok.label": "ठीक",
     "app.whiteboard.toolbar.tools": "उपकरण",

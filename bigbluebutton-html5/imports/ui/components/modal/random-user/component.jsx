@@ -6,6 +6,8 @@ import Button from '/imports/ui/components/button/component';
 import AudioService from '/imports/ui/components/audio/service';
 import { styles } from './styles';
 
+const SELECT_RANDOM_USER_COUNTDOWN = Meteor.settings.public.selectRandomUser.countdown;
+
 const messages = defineMessages({
   noViewers: {
     id: 'app.modal.randomUser.noViewers.description',
@@ -54,11 +56,12 @@ class RandomUserSelect extends Component {
       props.randomUserReq();
     }
 
-    this.state = {
-      count: 0,
-    };
-
-    this.play = this.play.bind(this);
+    if(SELECT_RANDOM_USER_COUNTDOWN) {
+      this.state = {
+        count: 0,
+      };
+      this.play = this.play.bind(this);
+    }
   }
 
   iterateSelection() {
@@ -77,18 +80,20 @@ class RandomUserSelect extends Component {
   }
 
   componentDidMount() {
-    if (!this.props.currentUser.presenter) {
+    if (SELECT_RANDOM_USER_COUNTDOWN && !this.props.currentUser.presenter) {
       this.iterateSelection();
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.props.currentUser.presenter && this.state.count == 0) {
-      this.iterateSelection();
-    }
+    if(SELECT_RANDOM_USER_COUNTDOWN) {
+      if (this.props.currentUser.presenter && this.state.count == 0) {
+        this.iterateSelection();
+      }
 
-    if (prevState.count !== this.state.count) {
-      this.play();
+      if (prevState.count !== this.state.count) {
+        this.play();
+      }
     }
   }
 
@@ -100,9 +105,11 @@ class RandomUserSelect extends Component {
   }
 
   reselect() {
-    this.setState({
-      count: 0,
-    });
+    if(SELECT_RANDOM_USER_COUNTDOWN) {
+      this.setState({
+        count: 0,
+      });
+    }
     this.props.randomUserReq();
   }
 
@@ -116,10 +123,12 @@ class RandomUserSelect extends Component {
       mappedRandomlySelectedUsers,
     } = this.props;
 
-    if (mappedRandomlySelectedUsers.length < this.state.count + 1) return null;
+    const counter = SELECT_RANDOM_USER_COUNTDOWN ? this.state.count : 0;
+    if (mappedRandomlySelectedUsers.length < counter + 1) return null;
 
-    const selectedUser = mappedRandomlySelectedUsers[this.state.count][0];
-    const countDown = mappedRandomlySelectedUsers.length - this.state.count - 1;
+    const selectedUser = mappedRandomlySelectedUsers[counter][0];
+    const countDown = SELECT_RANDOM_USER_COUNTDOWN ?
+      mappedRandomlySelectedUsers.length - this.state.count - 1 : 0;
 
     let viewElement;
 

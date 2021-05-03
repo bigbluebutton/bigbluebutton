@@ -587,8 +587,6 @@
     "app.video.videoMenu": "비디오 메뉴",
     "app.video.videoMenuDisabled": "이 설정에서 웹캠의 비디오 메뉴 사용은 불가능합니다 ",
     "app.video.videoMenuDesc": "비디오 메뉴를 드롭다운 메뉴로 열기 ",
-    "app.video.chromeExtensionError": "설치 하셔야 합니다 ",
-    "app.video.chromeExtensionErrorLink": "이 크롬 확장프로그램",
     "app.video.pagination.prevPage": "이전 비디오 보기",
     "app.video.pagination.nextPage": "다음 비디오 보기",
     "app.fullscreenButton.label": "{0} 을 꽉찬화면으로 ",

@@ -553,8 +553,6 @@
     "app.video.videoMenu": "Bideoaren menua",
     "app.video.videoMenuDisabled": "Web-kameraren bideoaren menua desgaituta dago ezarpenetan",
     "app.video.videoMenuDesc": "Ireki bideoaren goitik-beherako menua",
-    "app.video.chromeExtensionError": "Instalatu behar duzu",
-    "app.video.chromeExtensionErrorLink": "Chromeren gehigarri hau",
     "app.fullscreenButton.label": "Jarri  {0} pantaila osoan",
     "app.sfu.mediaServerConnectionError2000": "Ezin da konektatu multimedia zerbitzaria (2000 errorea)",
     "app.sfu.mediaServerOffline2001": "Multimedia zerbitzaria konexiorik gabe dago. Saiatu geroago (2001 errorea)",

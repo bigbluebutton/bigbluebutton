@@ -553,8 +553,6 @@
     "app.video.videoMenu": "Menu video",
     "app.video.videoMenuDisabled": "Menu video Webcam dinonaktifkan dalam pengaturan",
     "app.video.videoMenuDesc": "Buka dropdown menu video",
-    "app.video.chromeExtensionError": "Anda mesti memasang",
-    "app.video.chromeExtensionErrorLink": "ekstensi Chrome ini",
     "app.fullscreenButton.label": "Jadikan {0} layar penuh",
     "app.sfu.mediaServerConnectionError2000": "Tidak bisa menyambung ke server media (galat 2000)",
     "app.sfu.mediaServerOffline2001": "Server media sedang luring. Harap coba lagi nanti (galat 2001)",

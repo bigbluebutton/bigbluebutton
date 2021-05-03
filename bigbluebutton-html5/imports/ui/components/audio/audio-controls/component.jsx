@@ -73,7 +73,7 @@ class AudioControls extends PureComponent {
 
     return (
       <Button
-        className={cx(styles.button, styles.btn)}
+        className={styles.btn}
         onClick={handleJoinAudio}
         disabled={disable}
         hideLabel
@@ -206,7 +206,7 @@ class AudioControls extends PureComponent {
 
     return (
       <span className={styles.container}>
-        {isVoiceUser && inputStream && muteAlertEnabled && !listenOnly ? (
+        {isVoiceUser && inputStream && muteAlertEnabled && !listenOnly && muted ? (
           <MutedAlert {...{
             muted, inputStream, isViewer, isPresenter,
           }}

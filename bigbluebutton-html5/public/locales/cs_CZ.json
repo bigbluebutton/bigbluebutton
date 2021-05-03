@@ -1,7 +1,6 @@
 {
     "app.home.greeting": "Vaše prezentace začne za okamžik...",
     "app.chat.submitLabel": "Odeslat zprávu",
-    "app.chat.loading": "nahrávání: {0}%",
     "app.chat.errorMaxMessageLength": "Zpráva je příliš dlouhá (o {0} znaků)",
     "app.chat.disconnected": "Zpráva nemůže být odeslána, protože jste odpojen.",
     "app.chat.locked": "Chat je uzamčen, nelze odeslat zprávu.",
@@ -682,8 +681,6 @@
     "app.video.videoMenu": "Video menu",
     "app.video.videoMenuDisabled": "Webkamera je deaktivována v nastavení",
     "app.video.videoMenuDesc": "Otevřít video menu",
-    "app.video.chromeExtensionError": "Musíte nainstalovat",
-    "app.video.chromeExtensionErrorLink": "toto rozšíření Chrome",
     "app.video.pagination.prevPage": "Předešlá videa",
     "app.video.pagination.nextPage": "Následující videa",
     "app.video.clientDisconnected": "Kamera nemůže být sdílena, jelikož dochází k potížím se spojením",
