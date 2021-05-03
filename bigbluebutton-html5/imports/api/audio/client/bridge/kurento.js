@@ -1,6 +1,5 @@
 import BaseAudioBridge from './base';
 import Auth from '/imports/ui/services/auth';
-import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import logger from '/imports/startup/client/logger';
 import ListenOnlyBroker from '/imports/ui/services/bbb-webrtc-sfu/listenonly-broker';
 import loadAndPlayMediaStream from '/imports/ui/services/bbb-webrtc-sfu/load-play';
