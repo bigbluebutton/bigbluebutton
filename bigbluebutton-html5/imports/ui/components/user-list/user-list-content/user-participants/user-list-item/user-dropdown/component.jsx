@@ -13,6 +13,7 @@ import Dropdown from '/imports/ui/components/dropdown/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import RemoveUserModal from '/imports/ui/components/modal/remove-user/component';
+import ChangeUserNameModal from '/imports/ui/components/modal/change-username/component';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
 import { styles } from './styles';
@@ -77,6 +78,10 @@ const messages = defineMessages({
   RemoveUserLabel: {
     id: 'app.userList.menu.removeUser.label',
     description: 'Forcefully remove this user from the meeting',
+  },
+  ChangeUserNameLabel: {
+    id: 'app.userList.menu.changeUserName.label',
+    description: 'Change the username of the selected user',
   },
   MuteUserAudioLabel: {
     id: 'app.userList.menu.muteUserAudio.label',
@@ -231,6 +236,7 @@ class UserDropdown extends PureComponent {
       setEmojiStatus,
       assignPresenter,
       removeUser,
+      changeUserName,
       toggleVoice,
       changeRole,
       lockSettingsProps,
@@ -261,6 +267,7 @@ class UserDropdown extends PureComponent {
       allowedToPromote,
       allowedToDemote,
       allowedToChangeStatus,
+      allowedToChangeUserName,
       allowedToChangeUserLockStatus,
       allowedToChangeWhiteboardAccess,
     } = actionPermissions;
@@ -440,6 +447,21 @@ class UserDropdown extends PureComponent {
           />,
         )),
         'circle_close',
+      ));
+    }
+
+    if (allowedToChangeUserName && isMeteorConnected) {
+      actions.push(this.makeDropdownItem(
+        'changeName',
+        intl.formatMessage(messages.ChangeUserNameLabel, { 0: user.name }),
+        () => this.onActionsHide(mountModal(
+          <ChangeUserNameModal
+            intl={intl}
+            user={user}
+            onConfirm={changeUserName}
+          />,
+        )),
+        'user',
       ));
     }
 

@@ -189,6 +189,20 @@ case class UserEmojiChangedEvtMsg(header: BbbClientMsgHeader, body: UserEmojiCha
 case class UserEmojiChangedEvtMsgBody(userId: String, emoji: String)
 
 /**
+ * Sent from client about a user change name request.
+ */
+object ChangeUserNameCmdMsg { val NAME = "ChangeUserNameCmdMsg" }
+case class ChangeUserNameCmdMsg(header: BbbClientMsgHeader, body: ChangeUserNameCmdMsgBody) extends StandardMsg
+case class ChangeUserNameCmdMsgBody(userId: String, newUserName: String)
+
+/**
+ * Sent to all clients when a user's name was changed.
+ */
+object UserNameChangedEvtMsg { val NAME = "UserNameChangedEvtMsg" }
+case class UserNameChangedEvtMsg(header: BbbClientMsgHeader, body: UserNameChangedEvtMsgBody) extends BbbCoreMsg
+case class UserNameChangedEvtMsgBody(userId: String, newUserName: String)
+
+/**
  * Sent to all clients about a user ejected (kicked) from the meeting
  */
 object UserEjectedFromMeetingEvtMsg { val NAME = "UserEjectedFromMeetingEvtMsg" }

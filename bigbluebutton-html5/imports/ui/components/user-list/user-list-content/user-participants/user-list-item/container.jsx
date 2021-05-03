@@ -26,6 +26,7 @@ export default withTracker(({ user }) => {
     voiceUser: UserListService.curatedVoiceUser(user.userId),
     toggleVoice: UserListService.toggleVoice,
     removeUser: UserListService.removeUser,
+    changeUserName: UserListService.changeUserName,
     toggleUserLock: UserListService.toggleUserLock,
     changeRole: UserListService.changeRole,
     assignPresenter: UserListService.assignPresenter,

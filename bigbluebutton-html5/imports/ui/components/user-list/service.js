@@ -351,6 +351,9 @@ const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectV
     && !amISubjectUser
     && !isBreakoutRoom;
 
+  const allowedToChangeUserName = amIModerator
+    && (!isSubjectUserModerator || amISubjectUser);
+
   const allowedToSetPresenter = amIModerator
     && !subjectUser.presenter
     && !isDialInUser;
@@ -384,6 +387,7 @@ const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectV
     allowedToUnmuteAudio,
     allowedToResetStatus,
     allowedToRemove,
+    allowedToChangeUserName,
     allowedToSetPresenter,
     allowedToPromote,
     allowedToDemote,
@@ -416,6 +420,10 @@ const removeUser = (userId, banUser) => {
   } else {
     makeCall('removeUser', userId, banUser);
   }
+};
+
+const changeUserName = (userId, newUserName) => {
+  makeCall('changeUserName', userId, newUserName);
 };
 
 const toggleVoice = (userId) => {
@@ -614,6 +622,7 @@ export default {
   clearAllEmojiStatus,
   assignPresenter,
   removeUser,
+  changeUserName,
   toggleVoice,
   muteAllUsers,
   muteAllExceptPresenter,

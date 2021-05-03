@@ -118,6 +118,16 @@ object Users2x {
     }
   }
 
+  def setUserName(users: Users2x, intId: String, newUserName: String): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.name).setTo(newUserName)
+      users.save(newUser)
+      newUser
+    }
+  }
+
   def setUserLocked(users: Users2x, intId: String, locked: Boolean): Option[UserState] = {
     for {
       u <- findWithIntId(users, intId)
