@@ -60,8 +60,7 @@ class ActionsBar extends PureComponent {
             ? (
               <CaptionsButtonContainer {...{ intl }} />
             )
-            : null
-          }
+            : null}
         </div>
         <div className={styles.center}>
           <AudioControlsContainer />
@@ -77,32 +76,6 @@ class ActionsBar extends PureComponent {
           />
         </div>
         <div className={styles.right}>
-          {
-            <Button
-              icon="hand"
-              label={intl.formatMessage({
-                id: `app.actionsBar.emojiMenu.${
-                  currentUser.emoji === 'raiseHand'
-                    ? 'lowerHandLabel'
-                    : 'raiseHandLabel'
-                }`,
-              })}
-              accessKey={shortcuts.raisehand}
-              color={currentUser.emoji === 'raiseHand' ? 'primary' : 'default'}
-              data-test={currentUser.emoji === 'raiseHand' ? 'lowerHandLabel' : 'raiseHandLabel'}
-              ghost={currentUser.emoji !== 'raiseHand'}
-              className={cx(currentUser.emoji === 'raiseHand' || styles.btn)}
-              hideLabel
-              circle
-              size="lg"
-              onClick={() => {
-                setEmojiStatus(
-                  currentUser.userId,
-                  currentUser.emoji === 'raiseHand' ? 'none' : 'raiseHand',
-                );
-              }}
-            />
-          }
           {isLayoutSwapped && !isPresentationDisabled
             ? (
               <PresentationOptionsContainer
@@ -110,8 +83,31 @@ class ActionsBar extends PureComponent {
                 isThereCurrentPresentation={isThereCurrentPresentation}
               />
             )
-            : null
-          }
+            : null}
+          <Button
+            icon="hand"
+            label={intl.formatMessage({
+              id: `app.actionsBar.emojiMenu.${
+                currentUser.emoji === 'raiseHand'
+                  ? 'lowerHandLabel'
+                  : 'raiseHandLabel'
+              }`,
+            })}
+            accessKey={shortcuts.raisehand}
+            color={currentUser.emoji === 'raiseHand' ? 'primary' : 'default'}
+            data-test={currentUser.emoji === 'raiseHand' ? 'lowerHandLabel' : 'raiseHandLabel'}
+            ghost={currentUser.emoji !== 'raiseHand'}
+            className={cx(currentUser.emoji === 'raiseHand' || styles.btn)}
+            hideLabel
+            circle
+            size="lg"
+            onClick={() => {
+              setEmojiStatus(
+                currentUser.userId,
+                currentUser.emoji === 'raiseHand' ? 'none' : 'raiseHand',
+              );
+            }}
+          />
         </div>
       </div>
     );
