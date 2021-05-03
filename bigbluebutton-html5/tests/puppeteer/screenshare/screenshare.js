@@ -12,7 +12,6 @@ class ShareScreen extends Page {
   async test() {
     try {
       await util.startScreenshare(this);
-
       await this.page.waitForSelector(e.screenshareConnecting, ELEMENT_WAIT_TIME);
       await this.page.waitForSelector(e.screenShareVideo, VIDEO_LOADING_WAIT_TIME);
       await sleep(5000);
@@ -24,7 +23,10 @@ class ShareScreen extends Page {
     }
   }
 
-  async testMobileDevice() {
+  async testMobileDevice(args) {
+    await this.init(args, undefined, undefined, undefined, testName);
+    await this.startRecording(testName);
+    await this.closeAudioModal();
     try {
       const screenshareBtn = await this.page.evaluate(() => document.querySelectorAll('button[aria-label="Share your screen"]').length === 0) === true;
       return screenshareBtn;
