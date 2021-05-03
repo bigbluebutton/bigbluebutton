@@ -541,8 +541,6 @@
     "app.video.videoMenu": "ვიდეო მენიუ",
     "app.video.videoMenuDisabled": "ვიდეო მენიუს ვებ-კამერა გამორთულია პარამეტრებიდან",
     "app.video.videoMenuDesc": "გახსენით ვიდეოს ჩამოსაშლელი მენიუ",
-    "app.video.chromeExtensionError": "თქვენ უნდა დააინსტალიროთ",
-    "app.video.chromeExtensionErrorLink": "Chrome-ის ეს გაფართოება",
     "app.fullscreenButton.label": "გამოიტანე {0} სრულ ეკრანზე",
     "app.sfu.mediaServerConnectionError2000": "ვერ ხერხდება მედია სერვერთან დაკავშირება (შეცდომა 2000)",
     "app.sfu.mediaServerOffline2001": "მედია სერვერი offline რეჟიმშია. გთხოვთ, სცადოთ მოგვიანებით (შეცდომა 2001)",

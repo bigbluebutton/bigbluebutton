@@ -545,8 +545,6 @@
     "app.video.videoMenu": "ವೀಡಿಯೊ ಮೆನು",
     "app.video.videoMenuDisabled": "ವೀಡಿಯೊ ಮೆನು ಸೆಟ್ಟಿಂಗ್‌ಗಳಲ್ಲಿ ವೆಬ್‌ಕ್ಯಾಮ್ ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ",
     "app.video.videoMenuDesc": "ವೀಡಿಯೊ ಮೆನು ಡ್ರಾಪ್‌ಡೌನ್ ತೆರೆಯಿರಿ",
-    "app.video.chromeExtensionError": "ನೀವು ಸ್ಥಾಪಿಸಬೇಕು",
-    "app.video.chromeExtensionErrorLink": "ಈ ಕ್ರೋಮ್‌ ವಿಸ್ತರಣೆ",
     "app.fullscreenButton.label": "{0} ಪೂರ್ಣಪರದೆ ಮಾಡಿ",
     "app.sfu.mediaServerConnectionError2000": "ಮಾಧ್ಯಮ ಸರ್ವರ್‌ಗೆ ಸಂಪರ್ಕಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ (ದೋಷ 2000)",
     "app.sfu.mediaServerOffline2001": "ಮಾಧ್ಯಮ ಸರ್ವರ್ ಆಫ್‌ಲೈನ್‌ನಲ್ಲಿದೆ. ದಯವಿಟ್ಟು ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ (ದೋಷ 2001)",

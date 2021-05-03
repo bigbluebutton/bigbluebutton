@@ -40,6 +40,12 @@
       }
     }
   }
+
+  .dropdownContent {
+    [dir="rtl"] & {
+      right: auto;
+    }
+  }
 }
 
 .glow {
@@ -67,4 +73,22 @@
   100% {
     box-shadow: 0 0 0 0 transparent;
   }
+}
+
+.dropdownListContainer {
+  min-width: 10rem;
+}
+
+.stopButton {
+  & > span {
+    color: var(--color-danger);
+  }
+}
+
+.disableDeviceSelection {
+  pointer-events: none;
+}
+
+.selectedDevice {
+  font-weight: bold;
 }

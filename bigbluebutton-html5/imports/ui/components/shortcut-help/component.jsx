@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import browser from 'browser-detect';
+import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Modal from '/imports/ui/components/modal/simple/component';
 import _ from 'lodash';
 import { styles } from './styles';
@@ -76,6 +77,10 @@ const intlMessages = defineMessages({
     id: 'app.audio.leaveAudio',
     description: 'describes the leave audio shortcut',
   },
+  raisehand: {
+    id: 'app.shortcut-help.raiseHand',
+    description: 'describes the toggle raise hand shortcut',
+  },
   togglePan: {
     id: 'app.shortcut-help.togglePan',
     description: 'describes the toggle pan shortcut',
@@ -99,32 +104,32 @@ const CHAT_ENABLED = CHAT_CONFIG.enabled;
 
 const ShortcutHelpComponent = (props) => {
   const { intl, shortcuts } = props;
-  const { name, os } = browser();
+  const { browserName } = browserInfo;
+  const { isIos, isMacos } = deviceInfo;
 
   let accessMod = null;
 
   // different browsers use different access modifier keys
   // on different systems when using accessKey property.
   // Overview how different browsers behave: https://www.w3schools.com/jsref/prop_html_accesskey.asp
-  switch (name) {
-    case 'chrome':
-    case 'edge':
+  switch (browserName) {
+    case 'Chrome':
+    case 'Microsoft Edge':
       accessMod = 'Alt';
       break;
-    case 'firefox':
+    case 'Firefox':
       accessMod = 'Alt + Shift';
-      break;
-    case 'safari':
-    case 'crios':
-    case 'fxios':
-      accessMod = 'Control + Alt';
       break;
     default:
       break;
   }
 
+  // all Browsers on iOS are using Control + Alt as access modifier
+  if (isIos) {
+    accessMod = 'Control + Alt';
+  }
   // all Browsers on MacOS are using Control + Option as access modifier
-  if (os.includes('OS X 10')) {
+  if (isMacos) {
     accessMod = 'Control + Option';
   }
 
@@ -151,7 +156,7 @@ const ShortcutHelpComponent = (props) => {
       <td className={styles.descCell}>{intl.formatMessage(intlMessages.toggleFullscreen)}</td>
     </tr>
   ));
-  
+
   shortcutItems.push((
     <tr key={_.uniqueId('hotkey-item-')}>
       <td className={styles.keyCell}>Right Arrow</td>

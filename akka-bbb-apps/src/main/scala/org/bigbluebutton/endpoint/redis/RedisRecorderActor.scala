@@ -100,6 +100,9 @@ class RedisRecorderActor(
       // Caption
       case m: EditCaptionHistoryEvtMsg              => handleEditCaptionHistoryEvtMsg(m)
 
+      // Pad
+      case m: AddPadEvtMsg                          => handleAddPadEvtMsg(m)
+
       // Screenshare
       case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
       case m: ScreenshareRtmpBroadcastStoppedEvtMsg => handleScreenshareRtmpBroadcastStoppedEvtMsg(m)
@@ -442,6 +445,14 @@ class RedisRecorderActor(
     ev.setLocale(msg.body.locale)
     ev.setLocaleCode(msg.body.localeCode)
     ev.setText(msg.body.text)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleAddPadEvtMsg(msg: AddPadEvtMsg) {
+    val ev = new AddPadRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setPadId(msg.body.padId)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }

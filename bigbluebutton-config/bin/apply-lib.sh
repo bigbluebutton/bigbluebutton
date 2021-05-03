@@ -139,6 +139,7 @@ ExecStartPre=-/bin/rm -f /var/kurento/.cache/gstreamer-1.5/registry.x86_64.bin
 ExecStart=/usr/bin/kurento-media-server --gst-debug-level=3 --gst-debug="3,Kurento*:4,kms*:4,KurentoWebSocketTransport:5"
 Type=simple
 PIDFile=/var/run/kurento-media-server-${i}.pid
+TasksMax=infinity
 Restart=always
 
 [Install]

@@ -1,7 +1,6 @@
 import PresentationPods from '/imports/api/presentation-pods';
 import Presentations from '/imports/api/presentations';
 import { Slides, SlidePositions } from '/imports/api/slides';
-import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 
 const getCurrentPresentation = podId => Presentations.findOne({
@@ -163,25 +162,16 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
 
 const isPresenter = (podId) => {
   // a main presenter in the meeting always owns a default pod
-  if (podId === 'DEFAULT_PRESENTATION_POD') {
-    const options = {
-      filter: {
-        presenter: 1,
-      },
+  if (podId !== 'DEFAULT_PRESENTATION_POD') {
+    // if a pod is not default, then we check whether this user owns a current pod
+    const selector = {
+      meetingId: Auth.meetingID,
+      podId,
     };
-    const currentUser = Users.findOne({
-      userId: Auth.userID,
-    }, options);
-    return currentUser ? currentUser.presenter : false;
+    const pod = PresentationPods.findOne(selector);
+    return pod.currentPresenterId === Auth.userID;
   }
-
-  // if a pod is not default, then we check whether this user owns a current pod
-  const selector = {
-    meetingId: Auth.meetingID,
-    podId,
-  };
-  const pod = PresentationPods.findOne(selector);
-  return pod.currentPresenterId === Auth.userID;
+  return true;
 };
 
 export default {

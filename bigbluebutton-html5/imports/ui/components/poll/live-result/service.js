@@ -1,4 +1,3 @@
-import Users from '/imports/api/users';
 import { makeCall } from '/imports/ui/services/api';
 
 const sortUsers = (a, b) => {
@@ -35,6 +34,5 @@ const sortUsers = (a, b) => {
 
 export default {
   sortUsers,
-  getUser: userId => Users.findOne({ userId }),
   publishPoll: () => makeCall('publishPoll'),
 };
