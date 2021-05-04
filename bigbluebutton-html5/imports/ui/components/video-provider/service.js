@@ -364,10 +364,15 @@ class VideoService {
     // Recalculate total number of pages
     this.setNumberOfPages(mine.length, others.length, pageSize);
     const chunkIndex = this.currentVideoPageIndex * pageSize;
-    const paginatedStreams = sortVideoStreams(others, PAGINATION_SORTING)
+
+    // This is an extra check because pagination is globally in effect (hard
+    // limited page sizes, toggles on), but we might still only have one page.
+    // Use the default sorting method if that's the case.
+    const sortingMethod = (this.numberOfPages > 1) ? PAGINATION_SORTING : DEFAULT_SORTING;
+    const paginatedStreams = sortVideoStreams(others, sortingMethod)
       .slice(chunkIndex, (chunkIndex + pageSize)) || [];
 
-    if (getSortingMethod(PAGINATION_SORTING).localFirst) {
+    if (getSortingMethod(sortingMethod).localFirst) {
       return [...mine, ...paginatedStreams];
     }
 
