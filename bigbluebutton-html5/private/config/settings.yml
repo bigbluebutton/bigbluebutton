@@ -3,10 +3,20 @@ public:
     mobileFontSize: 16px
     desktopFontSize: 14px
     audioChatNotification: false
+    # Shows the audio modal when user joins the room. The audio modal prompts
+    # user to select an option ("Microphone" and/or "Listen only") for joining
+    # audio
     autoJoin: true
+    # Disables the listen only option in audio modal.
     listenOnlyMode: true
     forceListenOnly: false
+    # Skips the echo test when connecting with microphone.
     skipCheck: false
+    # Skips the echo test when connecting with microphone right after user
+    # joins the room the first time. Subsequents joins  to microphone won't
+    # have echo test skipped, for example if user leave and join mic again
+    # or reloading page and joining mic again.
+    # This setting won't have effect if skipCheck = true
     skipCheckOnJoin: false
     #
     # Allow users to change microphone/speaker dinamically
