@@ -195,7 +195,6 @@ class MultiUsers {
     return avatarInToastElementColor === avatarInUserListColor;
   }
 
-
   async userOfflineWithInternetProblem() {
     try {
       await this.page1.closeAudioModal();
@@ -209,6 +208,19 @@ class MultiUsers {
       const connectionStatusItemEmpty = await this.page1.page.evaluate(utilUser.countTestElements, ue.connectionStatusItemEmpty) === false;
       const connectionStatusOfflineUser = await this.page1.page.evaluate(utilUser.countTestElements, ue.connectionStatusOfflineUser) === true;
       return connectionStatusOfflineUser && connectionStatusItemEmpty;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+  }
+
+  async userlistNotAppearOnMobile() {
+    try {
+      await this.page1.closeAudioModal();
+      await this.page2.closeAudioModal();
+      const userlistPanel = await this.page1.page.evaluate(utilUser.countTestElements, ue.userListPanel) === false;
+      const chatPanel = await this.page2.page.evaluate(utilUser.countTestElements, ue.chatPanel) === false;
+      return userlistPanel && chatPanel;
     } catch (e) {
       console.log(e);
       return false;

@@ -377,5 +377,37 @@ const userTest = () => {
       });
     }
   });
+
+  // Userlist and chat panel should not appear at page 
+  // load in iPhone and Android Mobile devices
+  test('Userlist does not appear at page load on iPhone and Android', async () => {
+    const test = new MultiUsers();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'userlistNotAppearOnMobile';
+      await test.page1.logger('begin of ', testName);
+      await test.page1.init(Page.iPhoneXArgs(), undefined, undefined, undefined, testName);
+      await test.page2.init(Page.galaxyNote3Args(), undefined, undefined, undefined, testName);
+      await test.page1.startRecording(testName);
+      await test.page2.startRecording(testName);
+      response = await test.userlistNotAppearOnMobile(testName);
+      await test.page1.stopRecording();
+      await test.page2.stopRecording();
+      screenshot = await test.page1.page.screenshot();
+      await test.page1.logger('end of ', testName);
+    } catch (err) {
+      await test.page1.logger(err);
+    } finally {
+      await test.close(test.page1, test.page2);
+    }
+    expect(response).toBe(true);
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: 2.0,
+        failureThresholdType: 'percent',
+      });
+    }
+  });
 };
 module.exports = exports = userTest;
