@@ -35,11 +35,20 @@ export default withTracker(() => {
 
   const pollId = currentSlide ? currentSlide.id : PUBLIC_CHAT_KEY;
 
-  const startPoll = (type, question = '') => makeCall('startPoll', type, pollId, question);
+  const startPoll = (type, question = '') => {
+    makeCall('startPoll', type, pollId, question);
+    setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
+  };
 
-  const startCustomPoll = (type, question = '', answers) => makeCall('startPoll', type, pollId, question, answers);
+  const startCustomPoll = (type, question = '', answers) => {
+    makeCall('startPoll', type, pollId, question, answers);
+    setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
+  };
 
-  const stopPoll = () => makeCall('stopPoll');
+  const stopPoll = () => {
+    setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
+    return makeCall('stopPoll');
+  };
 
   return {
     currentSlide,

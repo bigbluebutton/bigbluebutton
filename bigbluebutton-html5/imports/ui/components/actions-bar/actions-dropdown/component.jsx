@@ -155,7 +155,7 @@ class ActionsDropdown extends PureComponent {
               }
               Session.set('openPanel', 'poll');
               Session.set('forcePollOpen', true);
-              window.dispatchEvent(new Event('panelChanged'));
+              setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
             }}
           />
         )

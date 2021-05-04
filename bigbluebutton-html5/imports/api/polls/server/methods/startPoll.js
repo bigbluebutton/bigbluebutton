@@ -28,5 +28,7 @@ export default function startPoll(pollType, pollId, question, answers) {
     payload.answers = answers;
   }
 
+  setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
+
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

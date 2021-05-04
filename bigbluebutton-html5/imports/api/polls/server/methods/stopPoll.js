@@ -12,6 +12,8 @@ export default function stopPoll() {
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'StopPollReqMsg';
 
+  setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
+
   return RedisPubSub.publishUserMessage(
     CHANNEL,
     EVENT_NAME,

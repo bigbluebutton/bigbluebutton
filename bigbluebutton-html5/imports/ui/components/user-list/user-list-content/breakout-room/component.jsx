@@ -18,7 +18,7 @@ const toggleBreakoutPanel = () => {
       ? 'userlist'
       : 'breakoutroom',
   );
-  window.dispatchEvent(new Event('panelChanged'));
+  setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
 };
 
 const BreakoutRoomItem = ({

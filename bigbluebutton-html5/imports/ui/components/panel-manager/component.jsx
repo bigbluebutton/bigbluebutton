@@ -191,7 +191,7 @@ class PanelManager extends Component {
       },
     );
 
-    window.dispatchEvent(new Event('panelChanged'));
+    setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
   }
 
   chatResizeStop(addvalue) {
@@ -209,7 +209,7 @@ class PanelManager extends Component {
       },
     );
 
-    window.dispatchEvent(new Event('panelChanged'));
+    setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
   }
 
   noteResizeStop(addvalue) {
@@ -227,7 +227,7 @@ class PanelManager extends Component {
       },
     );
 
-    window.dispatchEvent(new Event('panelChanged'));
+    setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
   }
 
   captionsResizeStop(addvalue) {
@@ -245,7 +245,7 @@ class PanelManager extends Component {
       },
     );
 
-    window.dispatchEvent(new Event('panelChanged'));
+    setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
   }
 
   pollResizeStop(addvalue) {
@@ -263,7 +263,7 @@ class PanelManager extends Component {
       },
     );
 
-    window.dispatchEvent(new Event('panelChanged'));
+    setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
   }
 
   waitingResizeStop(addvalue) {
@@ -281,7 +281,7 @@ class PanelManager extends Component {
       },
     );
 
-    window.dispatchEvent(new Event('panelChanged'));
+    setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
   }
 
   renderUserList() {

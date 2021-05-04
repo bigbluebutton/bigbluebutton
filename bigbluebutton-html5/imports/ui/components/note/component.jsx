@@ -63,7 +63,7 @@ class Note extends Component {
             <Button
               onClick={() => {
                 Session.set('openPanel', 'userlist');
-                window.dispatchEvent(new Event('panelChanged'));
+                setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
               }}
               data-test="hideNoteLabel"
               aria-label={intl.formatMessage(intlMessages.hideNoteLabel)}

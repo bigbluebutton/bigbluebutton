@@ -403,7 +403,7 @@ const BaseContainer = withTracker(() => {
       } else {
         Session.set('openPanel', '');
       }
-      window.dispatchEvent(new Event('panelChanged'));
+      setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
       if (Session.equals('subscriptionsReady', true)) {
         checkedUserSettings = true;
       }

@@ -199,7 +199,10 @@ const setPresentation = (presentationId, podId) => {
 
 const removePresentation = (presentationId, podId) => {
   const hasPoll = Poll.find({}, { fields: {} }).count();
-  if (hasPoll) makeCall('stopPoll');
+  if (hasPoll) {
+    makeCall('stopPoll');
+    setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
+  }
   makeCall('removePresentation', presentationId, podId);
 };
 
