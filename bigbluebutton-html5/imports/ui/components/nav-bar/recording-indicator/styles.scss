@@ -86,7 +86,9 @@
 }
 
 .presentationTitleMargin {
-  margin-left: var(--sm-padding-x);
+  [dir="ltr"] & {
+    margin-right: var(--sm-padding-x);
+  }
 }
 
 .recordingStatusViewOnly {

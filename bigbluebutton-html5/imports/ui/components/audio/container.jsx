@@ -84,7 +84,7 @@ class AudioContainer extends PureComponent {
 
     this.init();
 
-    if (meetingIsBreakout) {
+    if (meetingIsBreakout && !Service.isUsingAudio()) {
       this.joinAudio();
     }
   }

@@ -71,6 +71,7 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
     exitAudio: () => Service.exitAudio(),
     isConnecting: Service.isConnecting(),
     isConnected: Service.isConnected(),
+    isUsingAudio: Service.isUsingAudio(),
     isEchoTest: Service.isEchoTest(),
     inputDeviceId: Service.inputDeviceId(),
     outputDeviceId: Service.outputDeviceId(),
