@@ -12,14 +12,13 @@ const intlMessages = defineMessages({
 
 const ClosePresentationComponent = ({ intl, toggleSwapLayout }) => (
   <Button
-    role="button"
-    aria-labelledby="closeLabel"
-    aria-describedby="closeDesc"
     color="primary"
     icon="minus"
     size="sm"
+    data-test="hidePresentationButton"
     onClick={toggleSwapLayout}
     label={intl.formatMessage(intlMessages.closePresentationLabel)}
+    aria-label={intl.formatMessage(intlMessages.closePresentationLabel)}
     hideLabel
     className={styles.button}
   />

@@ -1,0 +1,53 @@
+@import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/mixins/_indicators";
+@import "/imports/ui/stylesheets/variables/_all";
+
+.wrapper {
+  display: flex;
+  flex-direction: row;
+}
+
+.textarea {
+  @include inputFocus(var(--color-blue-light));
+
+  flex: 1;
+  background: #fff;
+  background-clip: padding-box;
+  margin: 0;
+  color: var(--color-text);
+  -webkit-appearance: none;
+  padding: calc(var(--sm-padding-y) * 2.5) calc(var(--sm-padding-x) * 1.25);
+  resize: none;
+  transition: none;
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+  min-height: 2.5rem;
+  max-height: 10rem;
+  border: 1px solid var(--color-gray-lighter);
+  box-shadow: 0 0 0 1px var(--color-gray-lighter);
+
+  &:hover {
+    @include highContrastOutline();
+  }
+
+  &:active,
+  &:focus {
+    @include highContrastOutline();
+    outline-style: solid;
+  }
+}
+
+.button {
+  margin:0 0 0 var(--sm-padding-x);
+  align-self: center;
+  font-size: 0.9rem;
+
+  [dir="rtl"]  & {
+    margin: 0 var(--sm-padding-x) 0 0;
+    -webkit-transform: scale(-1, 1);
+    -moz-transform: scale(-1, 1);
+    -ms-transform: scale(-1, 1);
+    -o-transform: scale(-1, 1);
+    transform: scale(-1, 1);
+  }
+}

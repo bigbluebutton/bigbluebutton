@@ -10,7 +10,8 @@ const VideoListContainer = ({ children, ...props }) => {
 
 export default withTracker(props => ({
   streams: props.streams,
-  onMount: props.onMount,
+  onVideoItemMount: props.onVideoItemMount,
+  onVideoItemUnmount: props.onVideoItemUnmount,
   swapLayout: props.swapLayout,
   numberOfPages: VideoService.getNumberOfPages(),
   currentVideoPageIndex: props.currentVideoPageIndex,

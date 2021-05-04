@@ -1,8 +1,6 @@
 import React, { createContext, useReducer, useEffect } from 'react';
 import Storage from '/imports/ui/services/storage/session';
 
-const { webcamsDefaultPlacement } = Meteor.settings.public.layout;
-
 export const LayoutContext = createContext();
 
 const initialState = {
@@ -50,7 +48,7 @@ const initialState = {
   },
   webcamsAreaUserSetsHeight: 0,
   webcamsAreaUserSetsWidth: 0,
-  webcamsPlacement: webcamsDefaultPlacement || 'top',
+  webcamsPlacement: 'top',
   presentationAreaSize: {
     width: 0,
     height: 0,
@@ -61,6 +59,7 @@ const initialState = {
   },
   presentationIsFullscreen: null,
   presentationOrientation: null,
+  screenShareIsFullscreen: null,
 };
 
 const reducer = (state, action) => {
@@ -226,6 +225,13 @@ const reducer = (state, action) => {
       return {
         ...state,
         presentationOrientation: action.value,
+      };
+    }
+    case 'setScreenShareFullscreen': {
+      // screenshareIsFullscreen: (true | false) boolean
+      return {
+        ...state,
+        screenShareIsFullscreen: action.value,
       };
     }
     default: {

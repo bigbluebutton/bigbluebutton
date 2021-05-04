@@ -83,12 +83,20 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
           if (((ScreenshareRTMPBroadcastEvent) event).getBroadcast()) {
             ScreenshareRTMPBroadcastEvent evt = (ScreenshareRTMPBroadcastEvent) event;
             vcs.deskShareRTMPBroadcastStarted(evt.getRoom(), evt.getBroadcastingStreamUrl(),
-              evt.getVideoWidth(), evt.getVideoHeight(), evt.getTimestamp());
+              evt.getVideoWidth(), evt.getVideoHeight(), evt.getTimestamp(), evt.getHasAudio());
           } else {
             ScreenshareRTMPBroadcastEvent evt = (ScreenshareRTMPBroadcastEvent) event;
             vcs.deskShareRTMPBroadcastStopped(evt.getRoom(), evt.getBroadcastingStreamUrl(),
               evt.getVideoWidth(), evt.getVideoHeight(), evt.getTimestamp());
           }
+        } else if (event instanceof AudioFloorChangedEvent) {
+          AudioFloorChangedEvent evt = (AudioFloorChangedEvent) event;
+          vcs.audioFloorChanged(
+            evt.getRoom(),
+            evt.getVoiceUserId(),
+            evt.getOldVoiceUserId(),
+            evt.getFloorTimestamp()
+          );
         } else if (event instanceof VoiceConfRunningAndRecordingEvent) {
           VoiceConfRunningAndRecordingEvent evt = (VoiceConfRunningAndRecordingEvent) event;
           if (evt.running && ! evt.recording) {

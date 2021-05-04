@@ -11,6 +11,8 @@ import { styles } from './styles.scss';
 import Button from '/imports/ui/components/button/component';
 import RecordingIndicator from './recording-indicator/container';
 import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
+import ConnectionStatusButton from '/imports/ui/components/connection-status/button/container';
+import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import SettingsDropdownContainer from './settings-dropdown/container';
 
 const intlMessages = defineMessages({
@@ -73,6 +75,7 @@ class NavBar extends Component {
   render() {
     const {
       hasUnreadMessages,
+      hasUnreadNotes,
       isExpanded,
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
@@ -81,13 +84,13 @@ class NavBar extends Component {
       amIModerator,
     } = this.props;
 
-
+    const hasNotification = hasUnreadMessages || hasUnreadNotes;
     const toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
-    toggleBtnClasses[styles.btnWithNotificationDot] = hasUnreadMessages;
+    toggleBtnClasses[styles.btnWithNotificationDot] = hasNotification;
 
     let ariaLabel = intl.formatMessage(intlMessages.toggleUserListAria);
-    ariaLabel += hasUnreadMessages ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
+    ariaLabel += hasNotification ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
 
     return (
       <div
@@ -99,12 +102,11 @@ class NavBar extends Component {
               : <Icon iconName="left_arrow" className={styles.arrowLeft} />
             }
             <Button
-              data-test="userListToggleButton"
               onClick={NavBar.handleToggleUserList}
               ghost
               circle
               hideLabel
-              data-test={hasUnreadMessages ? 'hasUnreadMessages' : null}
+              data-test={hasNotification ? 'hasUnreadMessages' : null}
               label={intl.formatMessage(intlMessages.toggleUserListLabel)}
               aria-label={ariaLabel}
               icon="user"
@@ -125,6 +127,7 @@ class NavBar extends Component {
             />
           </div>
           <div className={styles.right}>
+            {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
             <SettingsDropdownContainer amIModerator={amIModerator} />
           </div>
         </div>

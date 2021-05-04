@@ -396,6 +396,10 @@ class VideoPlayer extends Component {
     this.setState({ playing: true });
 
     this.handleFirstPlay();
+
+    if (!isPresenter && !playing) {
+      this.setState({ playing: false });
+    }
   }
 
   handleOnPause() {
@@ -410,6 +414,10 @@ class VideoPlayer extends Component {
     this.setState({ playing: false });
 
     this.handleFirstPlay();
+
+    if (!isPresenter && playing) {
+      this.setState({ playing: true });
+    }
   }
 
   render() {

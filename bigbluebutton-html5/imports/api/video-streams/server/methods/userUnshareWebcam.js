@@ -10,9 +10,11 @@ export default function userUnshareWebcam(stream) {
   const EVENT_NAME = 'UserBroadcastCamStopMsg';
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  Logger.info(`user unsharing webcam: ${meetingId} ${requesterUserId}`);
-
+  check(meetingId, String);
+  check(requesterUserId, String);
   check(stream, String);
+
+  Logger.info(`user unsharing webcam: ${meetingId} ${requesterUserId}`);
 
   // const actionName = 'joinVideo';
   /* TODO throw an error if user has no permission to share webcam

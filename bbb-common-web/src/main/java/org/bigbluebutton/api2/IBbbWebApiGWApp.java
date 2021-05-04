@@ -50,7 +50,7 @@ public interface IBbbWebApiGWApp {
     String userId,
     String meetingId
   );
-  void sendKeepAlive(String system, Long timestamp);
+  void sendKeepAlive(String system, Long bbbWebTimestamp, Long akkaAppsTimestamp);
   void publishedRecording(PublishedRecordingMessage msg);
   void unpublishedRecording(UnpublishedRecordingMessage msg);
   void deletedRecording(DeletedRecordingMessage msg);

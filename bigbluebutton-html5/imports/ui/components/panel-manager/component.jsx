@@ -17,7 +17,11 @@ import {
   USERLIST_MAX_WIDTH,
   CHAT_MIN_WIDTH,
   CHAT_MAX_WIDTH,
-} from '/imports/ui/components/layout/layout-manager';
+  POLL_MIN_WIDTH,
+  POLL_MAX_WIDTH,
+  NOTE_MIN_WIDTH,
+  NOTE_MAX_WIDTH,
+} from '/imports/ui/components/layout/layout-manager/component';
 
 const intlMessages = defineMessages({
   chatLabel: {
@@ -46,20 +50,11 @@ const propTypes = {
   openPanel: PropTypes.string.isRequired,
 };
 
-
 const DEFAULT_PANEL_WIDTH = 340;
 
 // Variables for resizing user-list.
 const USERLIST_MIN_WIDTH_PX = USERLIST_MIN_WIDTH;
 const USERLIST_MAX_WIDTH_PX = USERLIST_MAX_WIDTH;
-
-// Variables for resizing poll.
-const POLL_MIN_WIDTH = 320;
-const POLL_MAX_WIDTH = 400;
-
-// Variables for resizing shared notes.
-const NOTE_MIN_WIDTH = DEFAULT_PANEL_WIDTH;
-const NOTE_MAX_WIDTH = 800;
 
 // Variables for resizing captions.
 const CAPTIONS_MIN_WIDTH = DEFAULT_PANEL_WIDTH;
@@ -348,6 +343,7 @@ class PanelManager extends Component {
 
     return (
       <section
+        id="chatPanel"
         className={styles.chat}
         aria-label={intl.formatMessage(intlMessages.chatLabel)}
         key={enableResize ? null : this.chatKey}
@@ -394,6 +390,7 @@ class PanelManager extends Component {
 
     return (
       <section
+        id="notePanel"
         className={styles.note}
         aria-label={intl.formatMessage(intlMessages.noteLabel)}
         key={enableResize ? null : this.noteKey}
@@ -440,6 +437,7 @@ class PanelManager extends Component {
 
     return (
       <section
+        id="captionsPanel"
         className={styles.captions}
         aria-label={intl.formatMessage(intlMessages.captionsLabel)}
         key={enableResize ? null : this.captionsKey}
@@ -473,7 +471,7 @@ class PanelManager extends Component {
         key={this.captionsKey}
         size={{ width: captionsWidth }}
         onResizeStop={(e, direction, ref, d) => {
-          this.captionsResizeStop(captionsWidth + d.width);
+          this.captionsResizeStop(d.width);
         }}
       >
         {this.renderCaptions()}
@@ -486,6 +484,7 @@ class PanelManager extends Component {
 
     return (
       <section
+        id="waitingUsersPanelPanel"
         className={styles.note}
         aria-label={intl.formatMessage(intlMessages.noteLabel)}
         key={enableResize ? null : this.waitingUsers}
@@ -519,7 +518,7 @@ class PanelManager extends Component {
         key={this.waitingUsers}
         size={{ width: waitingWidth }}
         onResizeStop={(e, direction, ref, d) => {
-          this.waitingResizeStop(waitingWidth + d.width);
+          this.waitingResizeStop(d.width);
         }}
       >
         {this.renderWaitingUsersPanel()}
@@ -531,6 +530,7 @@ class PanelManager extends Component {
     const { breakoutRoomWidth } = this.state;
     return (
       <div
+        id="breakoutroomPanel"
         className={styles.breakoutRoom}
         key={this.breakoutroomKey}
         style={{
@@ -544,7 +544,7 @@ class PanelManager extends Component {
 
   renderPoll() {
     return (
-      <div className={styles.poll} key={this.pollKey}>
+      <div className={styles.poll} key={this.pollKey} id="pollPanel">
         <PollContainer />
       </div>
     );
@@ -574,8 +574,7 @@ class PanelManager extends Component {
         key={this.pollKey}
         size={{ width: pollWidth }}
         onResizeStop={(e, direction, ref, d) => {
-          // window.dispatchEvent(new Event('resize'));
-          this.pollResizeStop(pollWidth + d.width);
+          this.pollResizeStop(d.width);
         }}
       >
         {this.renderPoll()}

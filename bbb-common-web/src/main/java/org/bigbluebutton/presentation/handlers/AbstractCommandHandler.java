@@ -89,4 +89,9 @@ public abstract class AbstractCommandHandler extends
   public Boolean isCommandSuccessful() {
     return !exitedWithError();
   }
+
+  public Boolean isCommandTimeout() {
+    return exitCode == 124;
+  }
+
 }

@@ -13,7 +13,10 @@ class Check extends Share {
   }
 
   async test() {
-    await util.enableWebcam(this);
+    const parsedSettings = await this.getSettingsYaml();
+    const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
+
+    await util.enableWebcam(this, videoPreviewTimeout);
     const respUser = await util.webcamContentCheck(this);
     return respUser === true;
   }

@@ -2,9 +2,11 @@ import React from 'react';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import Toggle from '/imports/ui/components/switch/component';
+import LocalesDropdown from '/imports/ui/components/locales-dropdown/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import { styles } from '../styles';
+import VideoService from '/imports/ui/components/video-provider/service';
 
 const MIN_FONTSIZE = 0;
 
@@ -57,6 +59,10 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.noLocaleOptionLabel',
     description: 'default change language option when no locales available',
   },
+  paginationEnabledLabel: {
+    id: 'app.submenu.application.paginationEnabledLabel',
+    description: 'enable/disable video pagination',
+  },
 });
 
 class ApplicationMenu extends BaseMenu {
@@ -87,17 +93,6 @@ class ApplicationMenu extends BaseMenu {
 
   componentDidMount() {
     this.setInitialFontSize();
-  }
-
-  componentDidUpdate() {
-    const { availableLocales } = this.props;
-
-    if (availableLocales && availableLocales.length > 0) {
-      // I used setTimout to create a smooth animation transition
-      setTimeout(() => this.setState({
-        showSelect: true,
-      }), 100);
-    }
   }
 
   componentWillUnmount() {
@@ -205,14 +200,43 @@ class ApplicationMenu extends BaseMenu {
 
   handleSelectChange(fieldname, options, e) {
     const obj = this.state;
-    obj.settings[fieldname] = e.target.value.toLowerCase().replace('_', '-');
+    obj.settings[fieldname] = e.target.value;
     this.handleUpdateSettings('application', obj.settings);
   }
 
+  renderPaginationToggle() {
+    // See VideoService's method for an explanation
+    if (!VideoService.shouldRenderPaginationToggle()) return;
+
+    const { intl } = this.props;
+
+    return (
+      <div className={styles.row}>
+        <div className={styles.col} aria-hidden="true">
+          <div className={styles.formElement}>
+            <label className={styles.label}>
+              {intl.formatMessage(intlMessages.paginationEnabledLabel)}
+            </label>
+          </div>
+        </div>
+        <div className={styles.col}>
+          <div className={cx(styles.formElement, styles.pullContentRight)}>
+            <Toggle
+              icons={false}
+              defaultChecked={this.state.settings.paginationEnabled}
+              onChange={() => this.handleToggle('paginationEnabled')}
+              ariaLabel={intl.formatMessage(intlMessages.paginationEnabledLabel)}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   render() {
-    const { availableLocales, intl } = this.props;
+    const { allLocales, intl } = this.props;
     const {
-      isLargestFontSize, isSmallestFontSize, settings, showSelect,
+      isLargestFontSize, isSmallestFontSize, settings,
     } = this.state;
 
     // conversions can be found at http://pxtoem.com
@@ -227,6 +251,8 @@ class ApplicationMenu extends BaseMenu {
     };
 
     const ariaValueLabel = intl.formatMessage(intlMessages.currentValue, { 0: `${pixelPercentage[settings.fontSize]}` });
+
+    const showSelect = allLocales && allLocales.length > 0;
 
     return (
       <div>
@@ -276,6 +302,9 @@ class ApplicationMenu extends BaseMenu {
               </div>
             </div>
           </div>
+
+          {this.renderPaginationToggle()}
+
           <div className={styles.row}>
             <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
@@ -291,20 +320,14 @@ class ApplicationMenu extends BaseMenu {
             <div className={styles.col}>
               <span className={cx(styles.formElement, styles.pullContentRight)}>
                 {showSelect ? (
-                  <select
-                    id="langSelector"
-                    defaultValue={this.state.settings.locale}
-                    lang={this.state.settings.locale}
-                    className={styles.select}
-                    onChange={this.handleSelectChange.bind(this, 'locale', availableLocales)}
-                  >
-                    <option disabled>{intl.formatMessage(intlMessages.languageOptionLabel)}</option>
-                    {availableLocales.map((locale, index) => (
-                      <option key={index} value={locale.locale} lang={locale.locale}>
-                        {locale.name}
-                      </option>
-                    ))}
-                  </select>
+                  <LocalesDropdown
+                    allLocales={allLocales}
+                    handleChange={e => this.handleSelectChange('locale', allLocales, e)}
+                    value={this.state.settings.locale}
+                    elementId="langSelector"
+                    elementClass={styles.select}
+                    selectMessage={intl.formatMessage(intlMessages.languageOptionLabel)}
+                  />
                 )
                   : (
                     <div className={styles.spinnerOverlay}>

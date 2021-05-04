@@ -121,6 +121,11 @@ class ActionsDropdown extends PureComponent {
     }
   }
 
+  handleExternalVideoClick() {
+    const { mountModal } = this.props;
+    mountModal(<ExternalVideoModal />);
+  }
+
   getAvailableActions() {
     const {
       intl,
@@ -130,6 +135,7 @@ class ActionsDropdown extends PureComponent {
       handleTakePresenter,
       isSharingVideo,
       isPollingEnabled,
+      isSelectRandomUserEnabled,
       stopExternalVideoShare,
       mountModal,
     } = this.props;
@@ -164,6 +170,7 @@ class ActionsDropdown extends PureComponent {
               }
               Session.set('openPanel', 'poll');
               Session.set('forcePollOpen', true);
+              window.dispatchEvent(new Event('panelChanged'));
             }}
           />
         )
@@ -203,7 +210,7 @@ class ActionsDropdown extends PureComponent {
           />
         )
         : null),
-      (amIPresenter
+      (amIPresenter && isSelectRandomUserEnabled
         ? (
           <DropdownListItem
             icon="user"
@@ -241,24 +248,27 @@ class ActionsDropdown extends PureComponent {
     // about the first one because it's the default.
     const { podId } = podIds[0];
 
-    const presentationItemElements = presentations.map((p) => {
-      const itemStyles = {};
-      itemStyles[styles.presentationItem] = true;
-      itemStyles[styles.isCurrent] = p.current;
+    const presentationItemElements = presentations
+      .sort((a, b) => (a.name.localeCompare(b.name)))
+      .map((p) => {
+        const itemStyles = {};
+        itemStyles[styles.presentationItem] = true;
+        itemStyles[styles.isCurrent] = p.current;
 
-      return (<DropdownListItem
-        className={cx(itemStyles)}
-        icon="file"
-        iconRight={p.current ? 'check' : null}
-        label={p.name}
-        description="uploaded presentation file"
-        key={`uploaded-presentation-${p.id}`}
-        onClick={() => {
-          setPresentation(p.id, podId);
-        }}
-      />
-      );
-    });
+        return (
+          <DropdownListItem
+            className={cx(itemStyles)}
+            icon="file"
+            iconRight={p.current ? 'check' : null}
+            label={p.name}
+            description="uploaded presentation file"
+            key={`uploaded-presentation-${p.id}`}
+            onClick={() => {
+              setPresentation(p.id, podId);
+            }}
+          />
+        );
+      });
 
     presentationItemElements.push(<DropdownListSeparator key={_.uniqueId('list-separator-')} />);
     return presentationItemElements;
@@ -309,7 +319,7 @@ class ActionsDropdown extends PureComponent {
           />
         </DropdownTrigger>
         <DropdownContent placement="top left">
-          <DropdownList>
+          <DropdownList className={styles.scrollableList}>
             {children}
           </DropdownList>
         </DropdownContent>

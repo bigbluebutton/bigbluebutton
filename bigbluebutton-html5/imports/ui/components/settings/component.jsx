@@ -66,7 +66,9 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   dataSaving: PropTypes.shape({
     viewParticipantsWebcams: PropTypes.bool,
     viewScreenshare: PropTypes.bool,
@@ -75,6 +77,9 @@ const propTypes = {
     chatAudioAlerts: PropTypes.bool,
     chatPushAlerts: PropTypes.bool,
     userJoinAudioAlerts: PropTypes.bool,
+    guestWaitingAudioAlerts: PropTypes.bool,
+    guestWaitingPushAlerts: PropTypes.bool,
+    paginationEnabled: PropTypes.bool,
     fallbackLocale: PropTypes.string,
     fontSize: PropTypes.string,
     locale: PropTypes.string,
@@ -116,8 +121,9 @@ class Settings extends Component {
 
   componentDidMount() {
     const { availableLocales } = this.props;
+
     availableLocales.then((locales) => {
-      this.setState({ availableLocales: locales });
+      this.setState({ allLocales: locales });
     });
   }
 
@@ -141,8 +147,8 @@ class Settings extends Component {
 
     const {
       selectedTab,
-      availableLocales,
       current,
+      allLocales,
     } = this.state;
 
     return (
@@ -191,7 +197,7 @@ class Settings extends Component {
         </TabList>
         <TabPanel className={styles.tabPanel}>
           <Application
-            availableLocales={availableLocales}
+            allLocales={allLocales}
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
           />
@@ -234,6 +240,7 @@ class Settings extends Component {
         confirm={{
           callback: () => {
             this.updateSettings(current, intl.formatMessage(intlMessages.savedAlertLabel));
+            document.getElementsByTagName('html')[0].lang = current.application.locale;
             /* We need to use mountModal(null) here to prevent submenu state updates,
             *  from re-opening the modal.
             */
@@ -245,6 +252,7 @@ class Settings extends Component {
         dismiss={{
           callback: () => {
             Settings.setHtmlFontSize(saved.application.fontSize);
+            document.getElementsByTagName('html')[0].lang = saved.application.locale;
             mountModal(null);
           },
           label: intl.formatMessage(intlMessages.CancelLabel),

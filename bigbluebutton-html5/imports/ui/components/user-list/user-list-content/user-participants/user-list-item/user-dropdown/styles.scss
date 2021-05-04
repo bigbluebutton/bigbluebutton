@@ -163,10 +163,10 @@
   cursor: default;
   min-width: 10vw;
   @include mq($medium-only) {
-    min-width: 13vw;
+    min-width: 23vw;
   }
   @include mq($large-up) {
-    min-width: 8vw;
+    min-width: 14vw;
   }
   max-width: 100%;
   overflow: visible;
