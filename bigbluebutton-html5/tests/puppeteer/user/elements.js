@@ -29,4 +29,4 @@ exports.alwaysDeny = 'button[data-test="alwaysDeny"]';
 exports.waitingUsersBtn = 'div[data-test="waitingUsersBtn"]';
 exports.joinMeetingDemoPage = 'div[class^="join-meeting"]';
 exports.chatPanel = 'section[data-test="chatPanel"]';
-exports.userListPanel = 'div[data-test="userListPanel"]'
+exports.userListPanel = 'div[data-test="userListPanel"]';

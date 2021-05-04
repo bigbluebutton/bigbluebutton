@@ -378,7 +378,7 @@ const userTest = () => {
     }
   });
 
-  // Userlist and chat panel should not appear at page 
+  // Userlist and chat panel should not appear at page
   // load in iPhone and Android Mobile devices
   test('Userlist does not appear at page load on iPhone and Android', async () => {
     const test = new MultiUsers();

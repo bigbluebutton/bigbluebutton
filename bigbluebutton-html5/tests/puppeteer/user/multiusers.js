@@ -1,13 +1,13 @@
 const Page = require('../core/page');
 const params = require('../params');
 const util = require('../chat/util');
-const utilUser = require('../user/util');
+const utilUser = require('./util');
 const utilCustomParams = require('../customparameters/util');
 const pe = require('../core/elements');
 const ne = require('../notifications/elements');
 const ple = require('../polling/elemens');
 const we = require('../whiteboard/elements');
-const ue = require('../user/elements');
+const ue = require('./elements');
 const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { sleep } = require('../core/helper');
 
@@ -190,8 +190,8 @@ class MultiUsers {
 
   // Get Avatars Colors from Userlist and Notification toast
   async getAvatarColorAndCompareWithUserListItem() {
-    const avatarInToastElementColor = await this.page1.page.$eval(we.avatarsWrapperAvatar, elem => getComputedStyle(elem).backgroundColor);
-    const avatarInUserListColor = await this.page1.page.$eval('[data-test="userListItem"] > div [data-test="userAvatar"]', elem => getComputedStyle(elem).backgroundColor);
+    const avatarInToastElementColor = await this.page1.page.$eval(we.avatarsWrapperAvatar, (elem) => getComputedStyle(elem).backgroundColor);
+    const avatarInUserListColor = await this.page1.page.$eval('[data-test="userListItem"] > div [data-test="userAvatar"]', (elem) => getComputedStyle(elem).backgroundColor);
     return avatarInToastElementColor === avatarInUserListColor;
   }
 
