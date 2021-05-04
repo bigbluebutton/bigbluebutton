@@ -35,6 +35,17 @@ module BigBlueButton
         events_archiver.delete_events(@meeting_id) if @break_timestamp.nil?
       end
 
+      def store_etherpad_events(target_dir)
+        return unless File.exist?("#{target_dir}/events.xml")
+
+        @logger.info("Keeping etherpad events for #{@meeting_id}")
+        events = Nokogiri::XML(File.open("#{target_dir}/events.xml"))
+        notes_id = BigBlueButton::Events.get_notes_id(events)
+
+        events_etherpad = "#{target_dir}/events.etherpad"
+        BigBlueButton.try_download("#{@notes_endpoint}/#{CGI.escape notes_id}/export/etherpad", events_etherpad)
+      end
+
       def perform
         super do
           @logger.info("Running events worker for #{@full_id}")
@@ -58,6 +69,8 @@ module BigBlueButton
             store_events(target_dir)
           end
 
+          store_etherpad_events(target_dir)
+
           # Only run post events scripts after full meeting ends, not during segments
           run_post_scripts(@post_scripts_path) if @break_timestamp.nil?
 
@@ -74,6 +87,7 @@ module BigBlueButton
         @single_step = true
         @step_name = 'events'
         @events_dir = @props['events_dir']
+        @notes_endpoint = @props['notes_endpoint']
         @post_scripts_path = File.join(BigBlueButton.rap_scripts_path, 'post_events')
         @ended_done = "#{@recording_dir}/status/ended/#{@full_id}.done"
       end
