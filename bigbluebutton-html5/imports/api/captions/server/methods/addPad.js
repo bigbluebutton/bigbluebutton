@@ -9,24 +9,28 @@ export default function addPad(padId, readOnlyId) {
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'AddPadSysMsg';
 
-  check(padId, String);
-  check(readOnlyId, String);
+  try {
+    check(padId, String);
+    check(readOnlyId, String);
 
-  const pad = Captions.findOne({ padId });
+    const pad = Captions.findOne({ padId });
 
-  if (!pad) {
-    Logger.error(`Could not find closed captions pad ${padId}`);
-    return;
+    if (!pad) {
+      Logger.error(`Could not find closed captions pad ${padId}`);
+      return;
+    }
+
+    const { meetingId } = pad;
+
+    check(meetingId, String);
+
+    const payload = {
+      padId,
+      readOnlyId,
+    };
+
+    RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, 'nodeJSapp', payload);
+  } catch (err) {
+    Logger.error(`Exception while invoking method addPad ${err.stack}`);
   }
-
-  const { meetingId } = pad;
-
-  check(meetingId, String);
-
-  const payload = {
-    padId,
-    readOnlyId,
-  };
-
-  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, 'nodeJSapp', payload);
 }
