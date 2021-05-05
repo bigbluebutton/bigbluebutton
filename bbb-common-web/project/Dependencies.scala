@@ -21,10 +21,8 @@ object Dependencies {
     val apacheHttpAsync = "4.1.4"
 
     // Office and document conversion
-    val jodConverter = "4.3.0"
     val apachePoi = "4.1.2"
     val nuProcess = "1.2.4"
-    val libreOffice = "5.4.2"
 
     // Server
     val servlet = "3.1.0"
@@ -46,7 +44,7 @@ object Dependencies {
     val scalaCompiler = "org.scala-lang" % "scala-compiler" % Versions.scala
 
     val akkaActor = "com.typesafe.akka" % "akka-actor_2.12" % Versions.akkaVersion
-    val akkaSl4fj = "com.typesafe.akka" % "akka-slf4j_2.12" % Versions.akkaVersion % "runtime"
+    val akkaSl4fj = "com.typesafe.akka" % "akka-slf4j_2.12" % Versions.akkaVersion
 
     val googleGson = "com.google.code.gson" % "gson" % Versions.gson
     val jacksonModule = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
@@ -56,13 +54,7 @@ object Dependencies {
     val apacheHttpAsync = "org.apache.httpcomponents" % "httpasyncclient" % Versions.apacheHttpAsync
 
     val poiXml = "org.apache.poi" % "poi-ooxml" % Versions.apachePoi
-    val jodConverter = "org.jodconverter" % "jodconverter-local" % Versions.jodConverter
     val nuProcess = "com.zaxxer" % "nuprocess" % Versions.nuProcess
-
-    val officeUnoil = "org.libreoffice" % "unoil" % Versions.libreOffice
-    val officeRidl = "org.libreoffice" % "ridl" % Versions.libreOffice
-    val officeJuh = "org.libreoffice" % "juh" % Versions.libreOffice
-    val officejurt = "org.libreoffice" % "jurt" % Versions.libreOffice
 
     val servletApi = "javax.servlet" % "javax.servlet-api" % Versions.servlet
     
@@ -99,7 +91,6 @@ object Dependencies {
     Compile.apacheHttp,
     Compile.apacheHttpAsync,
     Compile.poiXml,
-    Compile.jodConverter,
     Compile.nuProcess,
     Compile.servletApi,
     Compile.apacheLang,

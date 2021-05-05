@@ -543,8 +543,6 @@
     "app.video.videoMenu": "Menu wideo",
     "app.video.videoMenuDisabled": "Menu wideo zostało wyłączone w ustawieniach",
     "app.video.videoMenuDesc": "Otwiera menu wideo",
-    "app.video.chromeExtensionError": "Musisz zainstalować",
-    "app.video.chromeExtensionErrorLink": "to rozszerzenie Chrome",
     "app.fullscreenButton.label": "Przełącz {0} na pełny ekran",
     "app.sfu.mediaServerConnectionError2000": "Nie można połączyć się z serwerem multimediów (błąd 2000)",
     "app.sfu.mediaServerOffline2001": "Serwer multimediów jest niedostępny. Spróbuj ponownie później (błąd 2001)",

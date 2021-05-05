@@ -408,4 +408,4 @@ case class SelectRandomViewerReqMsgBody(requestedBy: String)
  */
 object SelectRandomViewerRespMsg { val NAME = "SelectRandomViewerRespMsg" }
 case class SelectRandomViewerRespMsg(header: BbbClientMsgHeader, body: SelectRandomViewerRespMsgBody) extends StandardMsg
-case class SelectRandomViewerRespMsgBody(requestedBy: String, selectedUserId: String)
+case class SelectRandomViewerRespMsgBody(requestedBy: String, userIds: Vector[String], choice: Integer)

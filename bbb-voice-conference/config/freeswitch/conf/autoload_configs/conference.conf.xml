@@ -216,6 +216,7 @@
       <param name="caller-id-number" value="$${outbound_caller_id}"/>
       <!-- param name="comfort-noise" value="true"/ -->
       <param name="comfort-noise" value="1400"/>
+      <param name="video-auto-floor-msec" value="2000"/>
 
       <!-- <param name="conference-flags" value="video-floor-only|rfc-4579|livearray-sync|auto-3d-position|minimize-video-encoding"/> -->
 

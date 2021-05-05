@@ -205,12 +205,12 @@ trait HandlerHelpers extends SystemConfiguration {
     outGW.send(event)
   }
 
-  def endAllBreakoutRooms(eventBus: InternalEventBus, liveMeeting: LiveMeeting, state: MeetingState2x): MeetingState2x = {
+  def endAllBreakoutRooms(eventBus: InternalEventBus, liveMeeting: LiveMeeting, state: MeetingState2x, reason: String): MeetingState2x = {
     for {
       model <- state.breakout
     } yield {
       model.rooms.values.foreach { room =>
-        eventBus.publish(BigBlueButtonEvent(room.id, EndBreakoutRoomInternalMsg(liveMeeting.props.breakoutProps.parentId, room.id)))
+        eventBus.publish(BigBlueButtonEvent(room.id, EndBreakoutRoomInternalMsg(liveMeeting.props.breakoutProps.parentId, room.id, reason)))
       }
     }
 

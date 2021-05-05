@@ -15,7 +15,7 @@ export default function clearRandomlySelectedUser() {
 
   const modifier = {
     $set: {
-      randomlySelectedUser: '',
+      randomlySelectedUser: [],
     },
   };
 

@@ -541,8 +541,6 @@
     "app.video.videoMenu": "Video izvēlne",
     "app.video.videoMenuDisabled": "Video izvēlne Kameras iestatījumos ir atspējota",
     "app.video.videoMenuDesc": "Atveriet nolaižamo Video izvēlni",
-    "app.video.chromeExtensionError": "Jums jāuzinstalē",
-    "app.video.chromeExtensionErrorLink": "šo Chromium paplašinājumu ",
     "app.fullscreenButton.label": "{0} rādīt pilnekrāna režīmā",
     "app.sfu.mediaServerConnectionError2000": "Nevar izveidot savienojumu ar multimediju serveri (kļūme 2000)",
     "app.sfu.mediaServerOffline2001": "Multivides serveris ir bezsaistē. Lūdzu, mēģiniet vēlāk atkal (kļūme 2001)",

@@ -2,7 +2,7 @@
 name: HTML5 Issue
 about: Template for creating HTML5 Issue (frontend which you see during a session, not Greenlight).
 title: ''
-labels: HTML5 Client
+labels: 'module: client'
 assignees: ''
 
 ---

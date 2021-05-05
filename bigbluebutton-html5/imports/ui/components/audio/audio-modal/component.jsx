@@ -28,6 +28,7 @@ const propTypes = {
   isEchoTest: PropTypes.bool.isRequired,
   isConnecting: PropTypes.bool.isRequired,
   isConnected: PropTypes.bool.isRequired,
+  isUsingAudio: PropTypes.bool.isRequired,
   inputDeviceId: PropTypes.string,
   outputDeviceId: PropTypes.string,
   formattedDialNum: PropTypes.string.isRequired,
@@ -39,7 +40,7 @@ const propTypes = {
   resolve: PropTypes.func,
   isMobileNative: PropTypes.bool.isRequired,
   isIOSChrome: PropTypes.bool.isRequired,
-  isIEOrEdge: PropTypes.bool.isRequired,
+  isIE: PropTypes.bool.isRequired,
   formattedTelVoice: PropTypes.string.isRequired,
   autoplayBlocked: PropTypes.bool.isRequired,
   handleAllowAutoplay: PropTypes.func.isRequired,
@@ -164,10 +165,15 @@ class AudioModal extends Component {
       joinFullAudioImmediately,
       listenOnlyMode,
       audioLocked,
+      isUsingAudio,
     } = this.props;
 
-    if (forceListenOnlyAttendee) return this.handleJoinListenOnly();
-    if ((joinFullAudioImmediately && !listenOnlyMode) || audioLocked) return this.handleJoinMicrophone();
+    if (!isUsingAudio) {
+      if (forceListenOnlyAttendee) return this.handleJoinListenOnly();
+
+      if ((joinFullAudioImmediately && !listenOnlyMode)
+        || audioLocked) return this.handleJoinMicrophone();
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -522,7 +528,7 @@ class AudioModal extends Component {
       showPermissionsOvelay,
       isIOSChrome,
       closeModal,
-      isIEOrEdge,
+      isIE,
     } = this.props;
 
     const { content } = this.state;
@@ -537,7 +543,7 @@ class AudioModal extends Component {
           hideBorder
           contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
         >
-          {isIEOrEdge ? (
+          {isIE ? (
             <p className={cx(styles.text, styles.browserWarning)}>
               <FormattedMessage
                 id="app.audioModal.unsupportedBrowserLabel"

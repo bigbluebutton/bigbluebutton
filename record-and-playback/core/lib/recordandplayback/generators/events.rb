@@ -451,9 +451,7 @@ module BigBlueButton
       return new_edl
     end
 
-    def self.edl_match_recording_marks(edl, events,
-                                       edl_entry_offset, edl_empty_entry,
-                                       start_time, end_time)
+    def self.get_start_stop_events_for_edl(events, start_time, end_time)
       initial_timestamp = BigBlueButton::Events.first_event_timestamp(events)
       start_stop_events = BigBlueButton::Events.match_start_and_stop_rec_events(
               BigBlueButton::Events.get_start_and_stop_rec_events(events))
@@ -465,7 +463,12 @@ module BigBlueButton
         record_event[:start_timestamp] -= initial_timestamp
         record_event[:stop_timestamp] -= initial_timestamp
       end
+    end
 
+    def self.edl_match_recording_marks(edl, events,
+                                       edl_entry_offset, edl_empty_entry,
+                                       start_time, end_time)
+      start_stop_events = BigBlueButton::Events.get_start_stop_events_for_edl(events, start_time, end_time)
       return BigBlueButton::Events.edl_apply_start_stop_events(edl, edl_entry_offset, edl_empty_entry, start_stop_events)
     end
 

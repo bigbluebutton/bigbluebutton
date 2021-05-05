@@ -2,12 +2,11 @@
 import Redis from 'redis';
 import { Meteor } from 'meteor/meteor';
 import { EventEmitter2 } from 'eventemitter2';
+import { check } from 'meteor/check';
 import {
   isPadMessage,
   getInstanceIdFromPadMessage,
 } from './etherpad';
-import { check } from 'meteor/check';
-import fs from 'fs';
 import Logger from './logger';
 import Metrics from './metrics';
 
@@ -101,6 +100,9 @@ class MeetingMessageQueue {
 
     try {
       if (this.redisDebugEnabled) {
+        if (!Meteor.settings.private.analytics.includeChat && eventName === 'GroupChatMessageBroadcastEvtMsg') {
+          return;
+        }
         Logger.debug(`Redis: ${JSON.stringify(data.parsedMessage.core)} emitted`);
       }
 
@@ -171,7 +173,6 @@ class RedisPubSub {
     const channelsToSubscribe = this.config.subscribeTo;
 
     channelsToSubscribe.push(this.customRedisChannel);
-
 
     switch (this.role) {
       case 'frontend':
@@ -252,19 +253,17 @@ class RedisPubSub {
     if (this.role === 'frontend') {
       // receiving this message means we need to look at it. Frontends do not have instanceId.
       if (meetingIdFromMessageCoreHeader === NO_MEETING_ID) { // if this is a system message
-
         if (eventName === 'MeetingCreatedEvtMsg' || eventName === 'SyncGetMeetingInfoRespMsg') {
           const meetingIdFromMessageMeetingProp = parsedMessage.core.body.props.meetingProp.intId;
           this.meetingsQueues[meetingIdFromMessageMeetingProp] = new MeetingMessageQueue(this.emitter, async, this.redisDebugEnabled);
           if (this.redisDebugEnabled) {
             Logger.warn('Created frontend queue for meeting', { date: new Date().toISOString(), eventName, meetingIdFromMessageMeetingProp });
           }
-
         }
       }
 
       if (!this.meetingsQueues[meetingIdFromMessageCoreHeader]) {
-        Logger.warn(`Frontend meeting queue had not been initialized   ${message}`, { eventName, meetingIdFromMessageCoreHeader} )
+        Logger.warn(`Frontend meeting queue had not been initialized   ${message}`, { eventName, meetingIdFromMessageCoreHeader });
         this.meetingsQueues[NO_MEETING_ID].add({
           pattern,
           channel,
@@ -280,7 +279,7 @@ class RedisPubSub {
           parsedMessage,
         });
       }
-    } else {
+    } else { // backend
       if (meetingIdFromMessageCoreHeader === NO_MEETING_ID) { // if this is a system message
         const meetingIdFromMessageMeetingProp = parsedMessage.core.body.props?.meetingProp?.intId;
         const instanceIdFromMessage = getInstanceIdFromMessage(parsedMessage);
@@ -307,11 +306,11 @@ class RedisPubSub {
             const meetingIdForMeetingEnded = parsedMessage.core.body.meetingId;
             if (!!this.meetingsQueues[meetingIdForMeetingEnded]) {
               this.meetingsQueues[NO_MEETING_ID].add({
-              pattern,
-              channel,
-              eventName,
-              parsedMessage,
-            });
+                pattern,
+                channel,
+                eventName,
+                parsedMessage,
+              });
             }
           }
           // ignore
@@ -327,12 +326,13 @@ class RedisPubSub {
             parsedMessage,
           });
         } else {
-          Logger.warn('Backend meeting queue had not been initialized', { eventName, meetingIdFromMessageCoreHeader })
+          // If we reach this line, this means that there is no existing queue for this redis "backend" message
+          // which means that the meeting is fully handled by another bbb-html5-backend.
+          // Logger.warn('Backend meeting queue had not been initialized', { eventName, meetingIdFromMessageCoreHeader })
         }
       }
     }
   }
-
 
   destroyMeetingQueue(id) {
     delete this.meetingsQueues[id];
