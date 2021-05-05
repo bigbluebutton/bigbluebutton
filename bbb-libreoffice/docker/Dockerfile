@@ -1,16 +1,13 @@
-FROM openjdk:8-jre
+FROM openjdk:11-jre
 
 ENV DEBIAN_FRONTEND noninteractive
+
+
+#Required to install Libreoffice 7
+RUN echo "deb http://deb.debian.org/debian buster-backports main" >> /etc/apt/sources.list
 
 RUN apt update
 
 RUN apt -y install locales-all fontconfig libxt6 libxrender1 
-RUN apt -y install  --no-install-recommends libreoffice fonts-crosextra-carlito fonts-crosextra-caladea fonts-noto fonts-noto-cjk
+RUN apt install -y -t buster-backports libreoffice
 
-
-RUN dpkg-reconfigure fontconfig && fc-cache -f -s -v
-
-VOLUME ["/usr/share/fonts/"]
-ADD ./bbb-libreoffice-entrypoint.sh /usr/local/bin/
-
-ENTRYPOINT ["/usr/local/bin/bbb-libreoffice-entrypoint.sh" ] 

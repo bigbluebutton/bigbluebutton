@@ -1,5 +1,6 @@
 @import "/imports/ui/stylesheets/variables/breakpoints";
 @import "/imports/ui/stylesheets/variables/placeholders";
+@import "/imports/ui/components/media/styles";
 
 .videoCanvas {
   --cam-dropdown-width: 70%;
@@ -145,6 +146,13 @@
       padding: .25rem;
     }
   }
+
+  @include mq($landscape) {
+    button {
+      width: calc(100vw - 4rem);
+      margin-left: 1rem;
+    }
+  }
 }
 
 .dropdownFireFox {
@@ -186,6 +194,11 @@
 
   [dir="rtl"] & {
     right: 2rem;
+  }
+
+  @include mq($small-only) {
+    height: 90%;
+    width: 100vw;
   }
 }
 
@@ -256,4 +269,14 @@
   @include mq($medium-up) {
     margin-right: 2px;
   }
+}
+
+.unhealthyStream {
+  filter: grayscale(50%) opacity(50%);
+}
+
+.reconnecting {
+  @extend .connectingSpinner;
+  background-color: transparent;
+  color: var(--color-white);
 }

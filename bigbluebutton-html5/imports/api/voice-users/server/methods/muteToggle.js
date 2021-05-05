@@ -5,13 +5,18 @@ import Users from '/imports/api/users';
 import VoiceUsers from '/imports/api/voice-users';
 import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
+import { check } from 'meteor/check';
 
-export default function muteToggle(uId) {
+export default function muteToggle(uId, toggle) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'MuteUserCmdMsg';
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
+
+  check(meetingId, String);
+  check(requesterUserId, String);
+
   const userToMute = uId || requesterUserId;
 
   const requester = Users.findOne({
@@ -39,10 +44,18 @@ export default function muteToggle(uId) {
     }
   }
 
+  let _muted;
+
+  if ((toggle === undefined) || (toggle === null)) {
+    _muted = !muted;
+  } else {
+    _muted = !!toggle;
+  }
+
   const payload = {
     userId: userToMute,
     mutedBy: requesterUserId,
-    mute: !muted,
+    mute: _muted,
   };
 
   RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);

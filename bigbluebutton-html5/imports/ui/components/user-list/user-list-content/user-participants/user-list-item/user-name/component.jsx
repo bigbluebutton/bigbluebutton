@@ -105,7 +105,7 @@ const UserName = (props) => {
       aria-label={userAriaLabel}
       aria-expanded={isActionsOpen}
     >
-      <span className={styles.userNameMain}>
+      <span aria-hidden className={styles.userNameMain}>
         <span>
           {user.name}
 &nbsp;
@@ -115,7 +115,11 @@ const UserName = (props) => {
       {
         userNameSub.length
           ? (
-            <span className={styles.userNameSub}>
+            <span
+              aria-hidden
+              className={styles.userNameSub}
+              data-test={user.mobile ? 'mobileUser' : undefined}
+            >
               {userNameSub.reduce((prev, curr) => [prev, ' | ', curr])}
             </span>
           )

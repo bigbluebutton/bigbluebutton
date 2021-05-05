@@ -1,9 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import PollService from '/imports/ui/components/poll/service';
+import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { injectIntl, defineMessages } from 'react-intl';
 import styles from './styles';
-import { prototype } from 'clipboard';
+import {
+  getSwapLayout,
+  shouldEnableSwapLayout,
+} from '/imports/ui/components/media/service';
 
 const intlMessages = defineMessages({
   pollResultAria: {
@@ -59,12 +63,17 @@ class PollDrawComponent extends Component {
       currentLine: 0,
       lineToMeasure: [],
       fontSizeDirection: 1,
+
+      reducedResult: [],
     };
 
     this.pollInitialCalculation = this.pollInitialCalculation.bind(this);
   }
 
   componentDidMount() {
+    const isLayoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
+    if (isLayoutSwapped) return;
+
     this.pollInitialCalculation();
     this.checkSizes();
   }
@@ -205,13 +214,17 @@ class PollDrawComponent extends Component {
     const { points, result } = annotation;
     const { slideWidth, slideHeight, intl } = this.props;
 
+    // group duplicated responses and keep track of the number of removed items
+    const reducedResult = result.reduce(caseInsensitiveReducer, []);
+    const reducedResultRatio = reducedResult.length * 100 / result.length;
+
     // x1 and y1 - coordinates of the top left corner of the annotation
     // initial width and height are the width and height of the annotation
     // all the points are given as percentages of the slide
-    const x1 = points[0];
-    const y1 = points[1];
     const initialWidth = points[2];
-    const initialHeight = points[3];
+    const initialHeight = points[3] / 100 * reducedResultRatio; // calculate new height after grouping
+    const x1 = points[0];
+    const y1 = points[1] + (points[3] - initialHeight); // add the difference between original and reduced values
 
     // calculating the data for the outer rectangle
     // 0.001 is needed to accomodate bottom and right borders of the annotation
@@ -225,7 +238,7 @@ class PollDrawComponent extends Component {
     const textArray = [];
 
     // counting the total number of votes, finding the biggest number of votes
-    result.reduce((previousValue, currentValue) => {
+    reducedResult.reduce((previousValue, currentValue) => {
       votesTotal = previousValue + currentValue.numVotes;
       if (maxNumVotes < currentValue.numVotes) {
         maxNumVotes = currentValue.numVotes;
@@ -237,10 +250,10 @@ class PollDrawComponent extends Component {
     // filling the textArray with data to display
     // adding value of the iterator to each line needed to create unique
     // keys while rendering at the end
-    const arrayLength = result.length;
+    const arrayLength = reducedResult.length;
     for (let i = 0; i < arrayLength; i += 1) {
       const _tempArray = [];
-      const _result = result[i];
+      const _result = reducedResult[i];
       let isDefaultPoll;
       switch (_result.key.toLowerCase()) {
         case 'true':
@@ -316,6 +329,7 @@ class PollDrawComponent extends Component {
       maxLineHeight,
       lineToMeasure,
       calculated: true,
+      reducedResult,
     });
   }
 
@@ -334,6 +348,7 @@ class PollDrawComponent extends Component {
       textArray,
       thickness,
       calculated,
+      reducedResult,
     } = this.state;
     if (!calculated) return null;
 
@@ -382,10 +397,10 @@ class PollDrawComponent extends Component {
     const extendedTextArray = [];
     for (let i = 0; i < textArray.length; i += 1) {
       let barWidth;
-      if (maxNumVotes === 0 || annotation.result[i].numVotes === 0) {
+      if (maxNumVotes === 0 || reducedResult[i].numVotes === 0) {
         barWidth = 1;
       } else {
-        barWidth = (annotation.result[i].numVotes / maxNumVotes) * maxBarWidth;
+        barWidth = (reducedResult[i].numVotes / maxNumVotes) * maxBarWidth;
       }
 
       let label = textArray[i][0];
@@ -426,7 +441,7 @@ class PollDrawComponent extends Component {
           yNumVotes,
           xNumVotes,
           color,
-          numVotes: annotation.result[i].numVotes,
+          numVotes: reducedResult[i].numVotes,
         },
         percentColumn: {
           xRight,
@@ -461,26 +476,21 @@ class PollDrawComponent extends Component {
           fill={backgroundColor}
           strokeWidth={thickness}
         />
-        <text
-          x={innerRect.x}
-          y={innerRect.y}
-          fill="#333333"
-          fontFamily="Arial"
-          fontSize={calcFontSize}
-          textAnchor={isRTL ? 'end' : 'start'}
-        >
-          {extendedTextArray.map(line => (
-            <tspan
-              x={line.keyColumn.xLeft}
-              y={line.keyColumn.yLeft}
-              dy={maxLineHeight / 2}
-              key={`${line.key}_key`}
-              className={styles.outline}
-            >
-              {line.keyColumn.keyString}
-            </tspan>
-          ))}
-        </text>
+        {extendedTextArray.map(line => (
+          <text
+            x={line.keyColumn.xLeft}
+            y={line.keyColumn.yLeft}
+            dy={maxLineHeight / 2}
+            key={`${line.key}_key`}
+            fill="#333333"
+            fontFamily="Arial"
+            fontSize={calcFontSize}
+            textAnchor={isRTL ? 'end' : 'start'}
+            className={styles.outline}
+          >
+            {line.keyColumn.keyString}
+          </text>
+        ))}
         {extendedTextArray.map(line => (
           <rect
             key={`${line.key}_bar`}

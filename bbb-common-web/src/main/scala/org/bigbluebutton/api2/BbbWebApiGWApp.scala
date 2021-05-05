@@ -255,8 +255,8 @@ class BbbWebApiGWApp(
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
   }
 
-  def sendKeepAlive(system: String, timestamp: java.lang.Long): Unit = {
-    val event = MsgBuilder.buildCheckAlivePingSysMsg(system, timestamp.longValue())
+  def sendKeepAlive(system: String, bbbWebTimestamp: java.lang.Long, akkaAppsTimestamp: java.lang.Long): Unit = {
+    val event = MsgBuilder.buildCheckAlivePingSysMsg(system, bbbWebTimestamp.longValue(), akkaAppsTimestamp.longValue())
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
   }
 
@@ -311,6 +311,9 @@ class BbbWebApiGWApp(
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[DocPageConversionStarted]) {
       val event = MsgBuilder.buildPresentationPageConversionStartedSysMsg(msg.asInstanceOf[DocPageConversionStarted])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    } else if (msg.isInstanceOf[UploadFileTooLargeMessage]) {
+      val event = MsgBuilder.buildPresentationUploadedFileTooLargeErrorSysMsg(msg.asInstanceOf[UploadFileTooLargeMessage])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     }
   }

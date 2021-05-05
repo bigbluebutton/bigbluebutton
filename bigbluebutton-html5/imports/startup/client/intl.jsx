@@ -55,34 +55,86 @@ class IntlStartup extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { fetching, messages } = this.state;
+    const { fetching, messages, normalizedLocale } = this.state;
     const { locale } = this.props;
-    const shouldFetch = (!fetching && _.isEmpty(messages)) || (locale !== prevProps.locale);
+    const shouldFetch = (!fetching && _.isEmpty(messages)) || ((locale !== prevProps.locale) && (normalizedLocale && (locale !== normalizedLocale)));
     if (shouldFetch) this.fetchLocalizedMessages(locale);
   }
 
   fetchLocalizedMessages(locale, init = false) {
     const url = `./locale?locale=${locale}&init=${init}`;
+    const localesPath = 'locales';
 
     this.setState({ fetching: true }, () => {
       fetch(url)
         .then((response) => {
           if (!response.ok) {
-            return Promise.reject();
+            return false;
           }
-
           return response.json();
         })
-        .then(({ messages, normalizedLocale }) => {
-          const dasherizedLocale = normalizedLocale.replace('_', '-');
-          this.setState({ messages, fetching: false, normalizedLocale: dasherizedLocale }, () => {
-            IntlStartup.saveLocale(dasherizedLocale);
+        .then(({ normalizedLocale, regionDefaultLocale }) => {
+          const fetchFallbackMessages = new Promise((resolve, reject) => {
+            fetch(`${localesPath}/${DEFAULT_LANGUAGE}.json`)
+              .then((response) => {
+                if (!response.ok) {
+                  return reject();
+                }
+                return resolve(response.json());
+              });
           });
-        })
-        .catch(() => {
-          this.setState({ fetching: false, normalizedLocale: null }, () => {
-            IntlStartup.saveLocale(DEFAULT_LANGUAGE);
+
+          const fetchRegionMessages = new Promise((resolve) => {
+            if (!regionDefaultLocale) {
+              return resolve(false);
+            }
+            fetch(`${localesPath}/${regionDefaultLocale}.json`)
+              .then((response) => {
+                if (!response.ok) {
+                  return resolve(false);
+                }
+                return resolve(response.json());
+              });
           });
+
+          const fetchSpecificMessages = new Promise((resolve) => {
+            if (!normalizedLocale || normalizedLocale === DEFAULT_LANGUAGE || normalizedLocale === regionDefaultLocale) {
+              return resolve(false);
+            }
+            fetch(`${localesPath}/${normalizedLocale}.json`)
+              .then((response) => {
+                if (!response.ok) {
+                  return resolve(false);
+                }
+                return resolve(response.json());
+              });
+          });
+
+          Promise.all([fetchFallbackMessages, fetchRegionMessages, fetchSpecificMessages])
+            .then((values) => {
+              let mergedMessages = Object.assign({}, values[0]);
+
+              if (!values[1] && !values[2]) {
+                normalizedLocale = DEFAULT_LANGUAGE;
+              } else {
+                if (values[1]) {
+                  mergedMessages = Object.assign(mergedMessages, values[1]);
+                }
+                if (values[2]) {
+                  mergedMessages = Object.assign(mergedMessages, values[2]);
+                }
+              }
+
+              const dasherizedLocale = normalizedLocale.replace('_', '-');
+              this.setState({ messages: mergedMessages, fetching: false, normalizedLocale: dasherizedLocale }, () => {
+                IntlStartup.saveLocale(dasherizedLocale);
+              });
+            })
+            .catch(() => {
+              this.setState({ fetching: false, normalizedLocale: null }, () => {
+                IntlStartup.saveLocale(DEFAULT_LANGUAGE);
+              });
+            });
         });
     });
   }
@@ -91,10 +143,18 @@ class IntlStartup extends Component {
     const { fetching, normalizedLocale, messages } = this.state;
     const { children } = this.props;
 
-    return (fetching || !normalizedLocale) ? <LoadingScreen /> : (
-      <IntlProvider locale={normalizedLocale} messages={messages}>
-        {children}
-      </IntlProvider>
+    return (
+      <>
+        {(fetching || !normalizedLocale) && <LoadingScreen />}
+
+        {normalizedLocale
+          && (
+          <IntlProvider locale={normalizedLocale} messages={messages}>
+            {children}
+          </IntlProvider>
+          )
+        }
+      </>
     );
   }
 }

@@ -55,10 +55,13 @@ import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.PublishedRecordingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.UnpublishedRecordingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.DeletedRecordingMessage;
+import org.bigbluebutton.api.messaging.messages.AddPad;
+import org.bigbluebutton.api.messaging.messages.AddCaptionsPads;
 import org.bigbluebutton.api.messaging.messages.CreateBreakoutRoom;
 import org.bigbluebutton.api.messaging.messages.CreateMeeting;
 import org.bigbluebutton.api.messaging.messages.EndMeeting;
 import org.bigbluebutton.api.messaging.messages.GuestPolicyChanged;
+import org.bigbluebutton.api.messaging.messages.GuestLobbyMessageChanged;
 import org.bigbluebutton.api.messaging.messages.GuestStatusChangedEventMsg;
 import org.bigbluebutton.api.messaging.messages.GuestsStatus;
 import org.bigbluebutton.api.messaging.messages.IMessage;
@@ -83,6 +86,7 @@ import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.bigbluebutton.common2.redis.RedisStorageService;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
+import org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier;
 import org.bigbluebutton.web.services.WaitingGuestCleanupTimerTask;
 import org.bigbluebutton.web.services.UserCleanupTimerTask;
 import org.bigbluebutton.web.services.EnteredUserCleanupTimerTask;
@@ -117,7 +121,7 @@ public class MeetingService implements MessageListener {
   private RedisStorageService storeService;
   private CallbackUrlService callbackUrlService;
   private HTML5LoadBalancingService html5LoadBalancingService;
-  private boolean keepEvents;
+  private SwfSlidesGenerationProgressNotifier notifier;
 
   private long usersTimeout;
   private long enteredUsersTimeout;
@@ -162,6 +166,20 @@ public class MeetingService implements MessageListener {
     if (m != null) {
       RegisteredUser ruser = new RegisteredUser(authToken, internalUserId, guestStatus);
       m.userRegistered(ruser);
+    }
+  }
+
+  public Boolean isPadValid(String padId, String sessionToken) {
+    UserSession us = getUserSessionWithAuthToken(sessionToken);
+    if (us == null) return false;
+
+    Meeting m = getMeeting(us.meetingID);
+    if (m == null) return false;
+
+    if (m.hasPad(padId)) {
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -298,6 +316,18 @@ public class MeetingService implements MessageListener {
     return valid;
   }
 
+  public PresentationUploadToken getPresentationUploadToken(String authzToken) {
+    if(uploadAuthzTokens.containsKey(authzToken)) {
+      return uploadAuthzTokens.get(authzToken);
+    } else {
+      return null;
+    }
+  }
+
+  public void sendPresentationUploadMaxFilesizeMessage(PresentationUploadToken presUploadToken, int uploadedFileSize, int maxUploadFileSize) {
+    notifier.sendUploadFileTooLargeMessage(presUploadToken, uploadedFileSize, maxUploadFileSize);
+  }
+
   private void removeUserSessions(String meetingId) {
     Iterator<Map.Entry<String, UserSession>> iterator = sessions.entrySet().iterator();
     while (iterator.hasNext()) {
@@ -339,7 +369,7 @@ public class MeetingService implements MessageListener {
   }
 
   private boolean storeEvents(Meeting m) {
-    return m.isRecord() || keepEvents;
+    return m.isRecord() || m.getMeetingKeepEvents();
   }
 
   private void handleCreateMeeting(Meeting m) {
@@ -387,6 +417,8 @@ public class MeetingService implements MessageListener {
     logData.put("logCode", "create_meeting");
     logData.put("description", "Create meeting.");
 
+    logData.put("meetingKeepEvents", m.getMeetingKeepEvents());
+
     Gson gson = new Gson();
     String logStr = gson.toJson(logData);
 
@@ -400,7 +432,7 @@ public class MeetingService implements MessageListener {
             m.getDialNumber(), m.getMaxUsers(),
             m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes(),
             m.getUserInactivityInspectTimerInMinutes(), m.getUserInactivityThresholdInMinutes(),
-            m.getUserActivitySignResponseDelayInMinutes(), m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), keepEvents,
+            m.getUserActivitySignResponseDelayInMinutes(), m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), m.getMeetingKeepEvents(),
             m.breakoutRoomsParams,
             m.lockSettingsParams, m.getHtml5InstanceId());
   }
@@ -680,7 +712,7 @@ public class MeetingService implements MessageListener {
     if (m != null) {
       m.setForciblyEnded(true);
       processRecording(m);
-      if (keepEvents) {
+      if (m.getMeetingKeepEvents()) {
         // The creation of the ended tag must occur after the creation of the
         // recorded tag to avoid concurrency issues at the recording scripts
         recordingService.markAsEnded(m.getInternalId());
@@ -1085,8 +1117,14 @@ public class MeetingService implements MessageListener {
           processGuestStatusChangedEventMsg((GuestStatusChangedEventMsg) message);
         } else if (message instanceof GuestPolicyChanged) {
           processGuestPolicyChanged((GuestPolicyChanged) message);
+        } else if (message instanceof GuestLobbyMessageChanged) {
+          processGuestLobbyMessageChanged((GuestLobbyMessageChanged) message);
         } else if (message instanceof RecordChapterBreak) {
           processRecordingChapterBreak((RecordChapterBreak) message);
+        } else if (message instanceof AddPad) {
+          processAddPad((AddPad) message);
+        } else if (message instanceof AddCaptionsPads) {
+          processAddCaptionsPads((AddCaptionsPads) message);
         } else if (message instanceof MakePresentationDownloadableMsg) {
           processMakePresentationDownloadableMsg((MakePresentationDownloadableMsg) message);
         } else if (message instanceof UpdateRecordingStatus) {
@@ -1102,6 +1140,29 @@ public class MeetingService implements MessageListener {
     Meeting m = getMeeting(msg.meetingId);
     if (m != null) {
       m.setGuestPolicy(msg.policy);
+    }
+  }
+
+  public void processGuestLobbyMessageChanged(GuestLobbyMessageChanged msg) {
+    Meeting m = getMeeting(msg.meetingId);
+    if (m != null) {
+      m.setGuestLobbyMessage(msg.message);
+    }
+  }
+
+  public void processAddPad(AddPad msg) {
+    Meeting m = getMeeting(msg.meetingId);
+    if (m != null) {
+      m.addPad(msg.padId, msg.readOnlyId);
+    }
+  }
+
+  public void processAddCaptionsPads(AddCaptionsPads msg) {
+    Meeting m = getMeeting(msg.meetingId);
+    if (m != null) {
+      for (String padId : msg.padIds) {
+        m.addPad(padId, "undefined");
+      }
     }
   }
 
@@ -1187,10 +1248,6 @@ public class MeetingService implements MessageListener {
     stunTurnService = s;
   }
 
-  public void setKeepEvents(boolean value) {
-    keepEvents = value;
-  }
-
   public void setUsersTimeout(long value) {
     usersTimeout = value;
   }
@@ -1198,4 +1255,9 @@ public class MeetingService implements MessageListener {
   public void setEnteredUsersTimeout(long value) {
     enteredUsersTimeout = value;
   }
+
+  public void setSwfSlidesGenerationProgressNotifier(SwfSlidesGenerationProgressNotifier notifier) {
+    this.notifier = notifier;
+  }
+
 }
