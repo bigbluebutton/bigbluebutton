@@ -304,6 +304,12 @@ class AudioManager {
     return Promise.resolve();
   }
 
+  exitTranslationBridgeAudio() {
+    if( this.translationBridge.activeSession ) {
+      this.translationBridge.exitAudio();
+    }
+  }
+
   exitAudio() {
     if (!this.isConnected) return Promise.resolve();
 
@@ -311,6 +317,7 @@ class AudioManager {
 
     this.isHangingUp = true;
 
+    this.exitTranslationBridgeAudio();
     return bridge.exitAudio();
   }
 
