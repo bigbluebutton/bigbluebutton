@@ -87,6 +87,7 @@ public class ParamsProcessorUtil {
     private boolean webcamsOnlyForModerator;
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
+    private boolean defaultKeepEvents = false;
 
 		private boolean defaultBreakoutRoomsEnabled;
 		private boolean defaultBreakoutRoomsRecord;
@@ -543,6 +544,12 @@ public class ParamsProcessorUtil {
         }
 
 		meeting.setMuteOnStart(muteOnStart);
+
+    Boolean meetingKeepEvents = defaultKeepEvents;
+    if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_KEEP_EVENTS))) {
+      meetingKeepEvents = Boolean.parseBoolean(params.get(ApiParams.MEETING_KEEP_EVENTS));
+    }
+    meeting.setMeetingKeepEvents(meetingKeepEvents);
 
         Boolean allowModsToUnmuteUsers = defaultAllowModsToUnmuteUsers;
         if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_MODS_TO_UNMUTE_USERS))) {
@@ -1024,6 +1031,10 @@ public class ParamsProcessorUtil {
 
 	public Boolean getMuteOnStart() {
 		return defaultMuteOnStart;
+	}
+
+	public void setDefaultKeepEvents(Boolean mke) {
+		defaultKeepEvents = mke;
 	}
 
 	public void setAllowModsToUnmuteUsers(Boolean value) {

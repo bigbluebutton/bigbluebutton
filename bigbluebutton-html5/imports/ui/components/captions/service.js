@@ -43,6 +43,7 @@ const getAvailableLocales = () => {
   const { meetingID } = Auth;
   const locales = [];
   Captions.find({ meetingId: meetingID },
+    { sort: { locale: 1 } },
     { fields: { ownerId: 1, locale: 1 } })
     .forEach((caption) => {
       if (caption.ownerId === '') {
@@ -117,7 +118,10 @@ const getCaptionsSettings = () => {
   return settings;
 };
 
-const isCaptionsEnabled = () => CAPTIONS_CONFIG.enabled;
+const isCaptionsEnabled = () => {
+  const captions = Captions.findOne({ meetingId: Auth.meetingID });
+  return CAPTIONS_CONFIG.enabled && captions;
+};
 
 const isCaptionsAvailable = () => {
   if (isCaptionsEnabled) {

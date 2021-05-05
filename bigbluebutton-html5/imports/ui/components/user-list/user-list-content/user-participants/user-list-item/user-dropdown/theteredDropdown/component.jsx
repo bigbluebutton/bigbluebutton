@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
 import cx from 'classnames';
-import { isMobile } from 'react-device-detect';
 import { defineMessages, injectIntl } from 'react-intl';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/button/component';
 import screenreaderTrap from 'makeup-screenreader-trap';
 import TetherComponent from 'react-tether';
@@ -179,6 +179,8 @@ class Dropdown extends Component {
     } = this.props;
 
     const { isOpen } = this.state;
+
+    const { isMobile } = deviceInfo;
 
     let trigger = children.find(x => x.type === DropdownTrigger);
     let content = children.find(x => x.type === DropdownContent);

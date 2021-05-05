@@ -115,7 +115,11 @@ const UserName = (props) => {
       {
         userNameSub.length
           ? (
-            <span aria-hidden className={styles.userNameSub}>
+            <span
+              aria-hidden
+              className={styles.userNameSub}
+              data-test={user.mobile ? 'mobileUser' : undefined}
+            >
               {userNameSub.reduce((prev, curr) => [prev, ' | ', curr])}
             </span>
           )

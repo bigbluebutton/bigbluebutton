@@ -17,7 +17,7 @@ const TIP_OFFSET = '0, 10';
 
 const propTypes = {
   title: PropTypes.string,
-  position: PropTypes.oneOf(['bottom']),
+  position: PropTypes.oneOf(['bottom','top']),
   children: PropTypes.element.isRequired,
   className: PropTypes.string,
 };

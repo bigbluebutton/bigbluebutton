@@ -12,8 +12,8 @@
     "jest": "^26.6.1",
     "js-yaml": "^4.0.0",
     "moment": "^2.24.0",
-    "puppeteer-recorder": "^1.0.7",
     "puppeteer-video-recorder": "^1.0.3",
+    "puppeteer-mass-screenshots": "^1.0.14",
     "sleep-promise": "9.1.0",
     "sha1": "^1.1.1",
     "yaml": "^1.7.2"

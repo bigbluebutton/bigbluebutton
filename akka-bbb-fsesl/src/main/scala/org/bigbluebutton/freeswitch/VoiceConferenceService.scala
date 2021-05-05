@@ -237,13 +237,14 @@ class VoiceConferenceService(healthz: HealthzService,
       streamname:  String,
       vw:          java.lang.Integer,
       vh:          java.lang.Integer,
-      timestamp:   String
+      timestamp:   String,
+      hasAudio:    Boolean
   ) {
 
     val header = BbbCoreVoiceConfHeader(ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg.NAME, voiceConfId)
     val body = ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgBody(voiceConf = voiceConfId, screenshareConf = voiceConfId,
       stream = streamname, vidWidth = vw.intValue(), vidHeight = vh.intValue(),
-      timestamp)
+      timestamp, hasAudio)
     val envelope = BbbCoreEnvelope(ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
 
     val msg = new ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg(header, body)
@@ -269,6 +270,28 @@ class VoiceConferenceService(healthz: HealthzService,
     val envelope = BbbCoreEnvelope(ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
 
     val msg = new ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, msg)
+
+    val json = JsonUtil.toJson(msgEvent)
+    sender.publish(fromVoiceConfRedisChannel, json)
+  }
+
+  def audioFloorChanged(
+      voiceConfId: String,
+      voiceUserId: String,
+      oldVoiceUserId: String,
+      floorTimestamp: String
+  ) {
+    val header = BbbCoreVoiceConfHeader(AudioFloorChangedVoiceConfEvtMsg.NAME, voiceConfId)
+    val body = AudioFloorChangedVoiceConfEvtMsgBody(
+      voiceConfId,
+      voiceUserId,
+      oldVoiceUserId,
+      floorTimestamp
+    );
+    val envelope = BbbCoreEnvelope(AudioFloorChangedVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
+
+    val msg = new AudioFloorChangedVoiceConfEvtMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, msg)
 
     val json = JsonUtil.toJson(msgEvent)

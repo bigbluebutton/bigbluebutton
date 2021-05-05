@@ -11,11 +11,11 @@ import TimeWindowChatItem from './time-window-chat-item/container';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
+const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
 
 const propTypes = {
   scrollPosition: PropTypes.number,
   chatId: PropTypes.string.isRequired,
-  hasUnreadMessages: PropTypes.bool.isRequired,
   handleScrollUpdate: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -49,8 +49,8 @@ class TimeWindowList extends PureComponent {
         const { timeWindowsValues } = this.props;
         const timewindow = timeWindowsValues[rowIndex];
 
-        const key = timewindow.key;
-        const contentCount = timewindow.content.length;
+        const key = timewindow?.key;
+        const contentCount = timewindow?.content?.length;
         return `${key}-${contentCount}`;
       },
     });
@@ -65,6 +65,7 @@ class TimeWindowList extends PureComponent {
       scrollPosition: 0,
       userScrolledBack: false,
       lastMessage: {},
+      fontsLoaded: false
     };
     this.systemMessageIndexes = [];
 
@@ -74,6 +75,8 @@ class TimeWindowList extends PureComponent {
     this.lastWidth = 0;
 
     this.scrollInterval = null;
+
+    document.fonts.onloadingdone = () => this.setState({fontsLoaded: true});
   }
 
   componentDidMount() {
@@ -93,9 +96,17 @@ class TimeWindowList extends PureComponent {
       setUserSentMessage,
       timeWindowsValues,
       chatId,
+      syncing,
+      syncedPercent,
+      lastTimeWindowValuesBuild,
     } = this.props;
 
-    const {timeWindowsValues: prevTimeWindowsValues, chatId: prevChatId} = prevProps;
+    const {
+      timeWindowsValues: prevTimeWindowsValues,
+      chatId: prevChatId,
+      syncing: prevSyncing,
+      syncedPercent: prevSyncedPercent
+    } = prevProps;
 
     const prevTimeWindowsLength = prevTimeWindowsValues.length;
     const timeWindowsValuesLength = timeWindowsValues.length;
@@ -109,15 +120,29 @@ class TimeWindowList extends PureComponent {
       }  
     }
 
-    if (lastTimeWindow && (chatId !== prevChatId)) {
-      this.listRef.recomputeGridSize();
-    }
-
     if (userSentMessage && !prevProps.userSentMessage){
       this.setState({
         userScrolledBack: false,
       }, ()=> setUserSentMessage(false));
     }
+
+     // this condition exist to the case where the chat has a single message and the chat is cleared
+    // The component List from react-virtualized doesn't have a reference to the list of messages so I need force the update to fix it
+    if (
+      (lastTimeWindow?.id === 'SYSTEM_MESSAGE-PUBLIC_CHAT_CLEAR')
+      || (prevSyncing && !syncing)
+      || (syncedPercent !== prevSyncedPercent)
+      || (chatId !== prevChatId)
+      || (lastTimeWindowValuesBuild !== prevProps.lastTimeWindowValuesBuild)
+      ) {
+      if (chatId !== prevChatId){
+        this.systemMessageIndexes.forEach(index => {
+          this.clearAndRecompute(index);
+        });
+      }
+      this.listRef.forceUpdateGrid();
+    }
+
   }
 
   componentWillUnmount() {
@@ -137,6 +162,29 @@ class TimeWindowList extends PureComponent {
     }
 
     handleScrollUpdate(position || 1);
+  }
+
+  clearAndRecompute(index) {
+    let recomputed = false;
+
+    [500, 1000, 2000, 3000, 4000, 5000].forEach((i)=>{
+      setTimeout(() => {
+        const { fontsLoaded } = this.state;
+        // this is needed because fontsLoaded will be false if user closes/open chatPanel
+        const fontStatus = document.fonts.status;
+
+        if (this.listRef) {
+          if ((fontsLoaded || fontStatus === 'loaded') && !recomputed) {
+            recomputed = true;
+
+            setTimeout(() => {
+              this.cache.clear(index);
+              this.listRef.recomputeRowHeights(index);
+            }, 500);
+          }
+        }
+      }, i);
+    })
   }
 
   scrollTo(position = null) {
@@ -166,20 +214,14 @@ class TimeWindowList extends PureComponent {
 
     const needResizeMessages = [
       `${SYSTEM_CHAT_TYPE}-welcome-msg`,
-      `${SYSTEM_CHAT_TYPE}-moderator-msg`
+      `${SYSTEM_CHAT_TYPE}-moderator-msg`,
+      `${SYSTEM_CHAT_TYPE}-${CHAT_POLL_RESULTS_MESSAGE}`,
     ];
 
-    if (needResizeMessages.includes(message.key)) {
+    if (needResizeMessages.includes(message.id)) {
       if (!this.systemMessageIndexes.includes(index)) {
         this.systemMessageIndexes.push(index);
-        [500, 1000, 2000, 3000, 4000, 5000].forEach((i)=>{
-          setTimeout(() => {
-            if (this.listRef) {
-              this.cache.clear(index);
-              this.listRef.recomputeRowHeights(index);
-            }
-          }, i);
-        })
+        this.clearAndRecompute(index);
       }
     }
 
@@ -265,6 +307,7 @@ class TimeWindowList extends PureComponent {
         className={styles.messageListWrapper}
         key="chat-list"
         data-test="chatMessages"
+        aria-live="polite"
         ref={node => this.messageListWrapper = node}
       >
         <AutoSizer>

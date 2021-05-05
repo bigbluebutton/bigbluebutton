@@ -212,7 +212,8 @@ class MeetingEnded extends PureComponent {
   renderNoFeedback() {
     const { intl, code, reason } = this.props;
 
-    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason } }, 'Meeting ended component, no feedback configured');
+    const logMessage = reason === 'user_requested_eject_reason' ? 'User removed from the meeting' : 'Meeting ended component, no feedback configured';
+    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason } }, logMessage);
 
     return (
       <div className={styles.parent}>
@@ -259,7 +260,8 @@ class MeetingEnded extends PureComponent {
 
     const noRating = selected <= 0;
 
-    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason } }, 'Meeting ended component, feedback allowed');
+    const logMessage = reason === 'user_requested_eject_reason' ? 'User removed from the meeting' : 'Meeting ended component, feedback allowed';
+    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason } }, logMessage);
 
     return (
       <div className={styles.parent}>

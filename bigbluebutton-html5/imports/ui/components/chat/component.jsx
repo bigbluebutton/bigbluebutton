@@ -5,6 +5,7 @@ import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrap
 import Button from '/imports/ui/components/button/component';
 import { Session } from 'meteor/session';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
+import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import { styles } from './styles.scss';
 import MessageForm from './message-form/container';
 import TimeWindowList from './time-window-list/container';
@@ -45,9 +46,14 @@ const Chat = (props) => {
     timeWindowsValues,
     dispatch,
     count,
+    syncing,
+    syncedPercent,
+    lastTimeWindowValuesBuild,
   } = props;
+
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
   const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
+  ChatLogger.debug('ChatComponent::render', props);
   return (
     <div
       data-test={chatID !== 'public' ? 'privateChat' : 'publicChat'}
@@ -91,7 +97,12 @@ const Chat = (props) => {
                 accessKey={CLOSE_CHAT_AK}
               />
             )
-            : <ChatDropdownContainer {...{ meetingIsBreakout, isMeteorConnected, amIModerator, timeWindowsValues }} />
+            : (
+              <ChatDropdownContainer {...{
+                meetingIsBreakout, isMeteorConnected, amIModerator, timeWindowsValues,
+              }}
+              />
+            )
         }
       </header>
       <TimeWindowList
@@ -108,6 +119,9 @@ const Chat = (props) => {
           timeWindowsValues,
           dispatch,
           count,
+          syncing,
+          syncedPercent,
+          lastTimeWindowValuesBuild,
         }}
       />
       <MessageForm
@@ -135,12 +149,6 @@ export default withShortcutHelper(injectWbResizeEvent(injectIntl(memo(Chat))), [
 const propTypes = {
   chatID: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
-  messages: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.oneOfType([
-    PropTypes.array,
-    PropTypes.string,
-    PropTypes.number,
-    PropTypes.object,
-  ])).isRequired).isRequired,
   shortcuts: PropTypes.objectOf(PropTypes.string),
   partnerIsLoggedOut: PropTypes.bool.isRequired,
   isChatLocked: PropTypes.bool.isRequired,

@@ -284,6 +284,7 @@ class SettingsDropdown extends PureComponent {
 
     return (
       <Dropdown
+        className={styles.dropdown}
         autoFocus
         keepOpen={isSettingOpen}
         onShow={this.onActionsShow}

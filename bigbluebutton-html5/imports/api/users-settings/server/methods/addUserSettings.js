@@ -85,6 +85,9 @@ export default function addUserSettings(settings) {
 
   const { meetingId, requesterUserId: userId } = extractCredentials(this.userId);
 
+  check(meetingId, String);
+  check(userId, String);
+
   let parameters = {};
 
   settings.forEach((el) => {
