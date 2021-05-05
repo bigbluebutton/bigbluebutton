@@ -305,6 +305,7 @@ class AudioManager {
   }
 
   exitAudio() {
+    // TODO: for task #86, add this.translationBridge.exitAudio()?
     if (!this.isConnected) return Promise.resolve();
 
     const bridge = (this.useKurento && this.isListenOnly) ? this.listenOnlyBridge : this.bridge;
