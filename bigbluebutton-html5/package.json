@@ -73,7 +73,7 @@
     "react-virtualized": "^9.22.3",
     "reconnecting-websocket": "~v4.1.10",
     "redis": "~2.8.0",
-    "sanitize-html": "^1.27.5",
+    "sanitize-html": "2.3.3",
     "sdp-transform": "2.7.0",
     "string-hash": "~1.1.3",
     "tippy.js": "^5.1.3",
