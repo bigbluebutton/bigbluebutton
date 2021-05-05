@@ -81,15 +81,19 @@ const mapGroupMessage = (message) => {
 const reduceGroupMessages = (previous, current) => {
   const lastMessage = previous[previous.length - 1];
   const currentMessage = current;
-  const content = {
+  currentMessage.content = [{
+//  const content = {
     id: current.id,
     text: current.message,
     time: current.timestamp,
     color: current.color,
-  };
-  // I do not like this
-  if (current.upload) content['upload'] = current.upload;
-  currentMessage.content = [content];
+  }];
+//  };
+//  // I (Pedro) do not like this 
+      //-> [21.05.05 for BBB2.3] It is transferring "upload" under curreneMessage.content,
+      //    which is done now by ui/component/components-data/chat-context/context.jsx
+//  if (current.upload) content['upload'] = current.upload;
+//  currentMessage.content = [content];
   if (!lastMessage) {
     return previous.concat(currentMessage);
   }
