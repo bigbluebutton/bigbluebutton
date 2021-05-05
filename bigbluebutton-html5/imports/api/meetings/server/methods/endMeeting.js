@@ -8,15 +8,20 @@ export default function endMeeting() {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'LogoutAndEndMeetingCmdMsg';
-  const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  check(meetingId, String);
-  check(requesterUserId, String);
+  try {
+    const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  const payload = {
-    userId: requesterUserId,
-  };
-  Logger.warn(`Meeting '${meetingId}' is destroyed by '${requesterUserId}'`);
+    check(meetingId, String);
+    check(requesterUserId, String);
 
-  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+    const payload = {
+      userId: requesterUserId,
+    };
+    Logger.warn(`Meeting '${meetingId}' is destroyed by '${requesterUserId}'`);
+
+    RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+  } catch (err) {
+    Logger.error(`Exception while invoking method endMeeting ${err.stack}`);
+  }
 }
