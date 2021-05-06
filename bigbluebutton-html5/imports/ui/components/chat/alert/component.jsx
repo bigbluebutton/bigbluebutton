@@ -183,6 +183,7 @@ class ChatAlert extends PureComponent {
       idChatOpen,
       pushAlertDisabled,
       intl,
+      activeChats,
     } = this.props;
 
     const {
@@ -192,7 +193,9 @@ class ChatAlert extends PureComponent {
     const notCurrentTabOrMinimized = document.hidden;
     const hasPendingNotifications = Object.keys(pendingNotificationsByChat).length > 0;
 
-    const shouldPlayChatAlert = notCurrentTabOrMinimized
+    const unreadMessages = activeChats.reduce((a, b) => a + b.unreadCounter, 0);
+
+    const shouldPlayChatAlert = (notCurrentTabOrMinimized && unreadMessages > 0)
       || (hasPendingNotifications && !idChatOpen);
 
     return (
