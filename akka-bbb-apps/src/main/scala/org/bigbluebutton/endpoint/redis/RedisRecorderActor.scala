@@ -555,6 +555,7 @@ class RedisRecorderActor(
   private def handlePollStartedEvtMsg(msg: PollStartedEvtMsg): Unit = {
     val ev = new PollStartedRecordEvent()
     ev.setPollId(msg.body.pollId)
+    ev.setQuestion(msg.body.question)
     ev.setAnswers(msg.body.poll.answers)
 
     record(msg.header.meetingId, ev.toMap.asJava)

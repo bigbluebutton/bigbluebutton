@@ -31,6 +31,10 @@ class PollStartedRecordEvent extends AbstractPollRecordEvent {
     eventMap.put(USER_ID, userId)
   }
 
+  def setQuestion(question: String) {
+    eventMap.put(QUESTION, question)
+  }
+
   def setAnswers(answers: Array[SimpleAnswerOutVO]) {
     eventMap.put(ANSWERS, JsonUtil.toJson(answers))
   }
@@ -38,5 +42,6 @@ class PollStartedRecordEvent extends AbstractPollRecordEvent {
 
 object PollStartedRecordEvent {
   protected final val USER_ID = "userId"
+  protected final val QUESTION = "question"
   protected final val ANSWERS = "answers"
 }
