@@ -9,6 +9,10 @@ import { styles } from '../styles';
 import VideoService from '/imports/ui/components/video-provider/service';
 
 const MIN_FONTSIZE = 0;
+const SHOW_AUDIO_FILTERS = (Meteor.settings.public.app
+  .showAudioFilters === undefined)
+  ? true
+  : Meteor.settings.public.app.showAudioFilters;
 
 const intlMessages = defineMessages({
   applicationSectionTitle: {
@@ -204,6 +208,43 @@ class ApplicationMenu extends BaseMenu {
     this.handleUpdateSettings('application', obj.settings);
   }
 
+  renderAudioFilters() {
+    let audioFilterOption = null;
+
+    if (SHOW_AUDIO_FILTERS) {
+      const { intl, showToggleLabel, displaySettingsStatus } = this.props;
+      const { settings } = this.state;
+      const audioFilterStatus = ApplicationMenu
+        .isAudioFilterEnabled(settings.microphoneConstraints);
+
+      audioFilterOption = (
+        <div className={styles.row}>
+          <div className={styles.col} aria-hidden="true">
+            <div className={styles.formElement}>
+              <span className={styles.label}>
+                {intl.formatMessage(intlMessages.audioFilterLabel)}
+              </span>
+            </div>
+          </div>
+          <div className={styles.col}>
+            <div className={cx(styles.formElement, styles.pullContentRight)}>
+              {displaySettingsStatus(audioFilterStatus)}
+              <Toggle
+                icons={false}
+                defaultChecked={this.state.audioFilterEnabled}
+                onChange={() => this.handleAudioFilterChange()}
+                ariaLabel={intl.formatMessage(intlMessages.audioFilterLabel)}
+                showToggleLabel={showToggleLabel}
+              />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return audioFilterOption;
+  }
+
   renderPaginationToggle() {
     // See VideoService's method for an explanation
     if (!VideoService.shouldRenderPaginationToggle()) return;
@@ -290,28 +331,7 @@ class ApplicationMenu extends BaseMenu {
             </div>
           </div>
 
-          <div className={styles.row}>
-            <div className={styles.col} aria-hidden="true">
-              <div className={styles.formElement}>
-                <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.audioFilterLabel)}
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
-                {displaySettingsStatus(ApplicationMenu.isAudioFilterEnabled(settings.microphoneConstraints))}
-                <Toggle
-                  icons={false}
-                  defaultChecked={this.state.audioFilterEnabled}
-                  onChange={() => this.handleAudioFilterChange()}
-                  ariaLabel={intl.formatMessage(intlMessages.audioFilterLabel)}
-                  showToggleLabel={showToggleLabel}
-                />
-              </div>
-            </div>
-          </div>
-
+          {this.renderAudioFilters()}
           {this.renderPaginationToggle()}
 
           <div className={styles.row}>
