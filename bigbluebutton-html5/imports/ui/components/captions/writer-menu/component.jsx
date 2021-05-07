@@ -59,7 +59,7 @@ class WriterMenu extends PureComponent {
     const { allLocales, intl } = this.props;
 
     const candidate = allLocales.filter(
-      l => l.locale.substring(0, 2) === intl.locale.substring(0, 2),
+      (l) => l.locale.substring(0, 2) === intl.locale.substring(0, 2),
     );
 
     this.state = {

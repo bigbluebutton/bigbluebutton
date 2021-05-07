@@ -31,7 +31,7 @@ const getNoteParams = () => {
   config.lang = getLang();
   config.rtl = document.documentElement.getAttribute('dir') === 'rtl';
 
-  const params = Object.keys(config).map(key => `${key}=${encodeURIComponent(config[key])}`).join('&');
+  const params = Object.keys(config).map((key) => `${key}=${encodeURIComponent(config[key])}`).join('&');
   return params;
 };
 
@@ -66,6 +66,7 @@ const getRevs = () => {
 
 const getLastRevs = () => {
   const lastRevs = Session.get('noteLastRevs');
+
   if (!lastRevs) return -1;
   return lastRevs;
 };

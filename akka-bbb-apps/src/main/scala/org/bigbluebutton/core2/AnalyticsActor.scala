@@ -5,10 +5,10 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
 
 object AnalyticsActor {
-  def props(): Props = Props(classOf[AnalyticsActor])
+  def props(includeChat: Boolean): Props = Props(classOf[AnalyticsActor], includeChat)
 }
 
-class AnalyticsActor extends Actor with ActorLogging {
+class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
 
   val TAG = "-- analytics -- "
 
@@ -20,6 +20,12 @@ class AnalyticsActor extends Actor with ActorLogging {
   def logMessage(msg: BbbCommonEnvCoreMsg): Unit = {
     val json = JsonUtil.toJson(msg)
     log.info(TAG + json)
+  }
+
+  def logChatMessage(msg: BbbCommonEnvCoreMsg): Unit = {
+    if (includeChat) {
+      logMessage(msg)
+    }
   }
 
   def traceMessage(msg: BbbCommonEnvCoreMsg): Unit = {
@@ -124,14 +130,14 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: PresentationUploadedFileTooLargeErrorEvtMsg => logMessage(msg)
 
       // Group Chats
-      case m: SendGroupChatMessageMsg => logMessage(msg)
-      case m: GroupChatMessageBroadcastEvtMsg => logMessage(msg)
-      case m: GetGroupChatMsgsReqMsg => logMessage(msg)
-      case m: GetGroupChatMsgsRespMsg => logMessage(msg)
-      case m: CreateGroupChatReqMsg => logMessage(msg)
-      case m: GroupChatCreatedEvtMsg => logMessage(msg)
-      case m: GetGroupChatsReqMsg => logMessage(msg)
-      case m: GetGroupChatsRespMsg => logMessage(msg)
+      case m: SendGroupChatMessageMsg => logChatMessage(msg)
+      case m: GroupChatMessageBroadcastEvtMsg => logChatMessage(msg)
+      case m: GetGroupChatMsgsReqMsg => logChatMessage(msg)
+      case m: GetGroupChatMsgsRespMsg => logChatMessage(msg)
+      case m: CreateGroupChatReqMsg => logChatMessage(msg)
+      case m: GroupChatCreatedEvtMsg => logChatMessage(msg)
+      case m: GetGroupChatsReqMsg => logChatMessage(msg)
+      case m: GetGroupChatsRespMsg => logChatMessage(msg)
 
       // Guest Management
       case m: GuestsWaitingApprovedMsg => logMessage(msg)

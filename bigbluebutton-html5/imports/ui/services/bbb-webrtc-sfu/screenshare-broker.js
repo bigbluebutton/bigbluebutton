@@ -22,7 +22,7 @@ class ScreenshareBroker extends BaseBroker {
     this.webRtcPeer = null;
     this.hasAudio = false;
 
-    // Optional parameters are: userName, caleeName, iceServers, hasAudio
+    // Optional parameters are: userName, caleeName, iceServers, hasAudio, bitrate
     Object.assign(this, options);
   }
 
@@ -116,6 +116,7 @@ class ScreenshareBroker extends BaseBroker {
       callerName: this.userId,
       sdpOffer,
       hasAudio: !!this.hasAudio,
+      bitrate: this.bitrate,
     };
 
     this.sendMessage(message);

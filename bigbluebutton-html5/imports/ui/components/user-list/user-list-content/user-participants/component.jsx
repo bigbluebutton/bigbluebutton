@@ -31,15 +31,6 @@ const defaultProps = {
   compact: false,
 };
 
-const listTransition = {
-  enter: styles.enter,
-  enterActive: styles.enterActive,
-  appear: styles.appear,
-  appearActive: styles.appearActive,
-  leave: styles.leave,
-  leaveActive: styles.leaveActive,
-};
-
 const intlMessages = defineMessages({
   usersTitle: {
     id: 'app.userList.usersTitle',

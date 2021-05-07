@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
-import { Session } from 'meteor/session';
 import _ from 'lodash';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from './styles';
@@ -59,7 +58,7 @@ const defaultProps = {
 const ChatListItem = (props) => {
   const {
     chat,
-    // activeChatId,
+    activeChatId,
     idChatOpen,
     compact,
     intl,
@@ -73,8 +72,9 @@ const ChatListItem = (props) => {
 
   const chatPanelOpen = sidebarContentIsOpen && sidebarContentPanel === PANELS.CHAT;
 
-  const isCurrentChat = chat.userId === idChatOpen && chatPanelOpen;
+  const isCurrentChat = chat.chatId === activeChatId && chatPanelOpen;
   const linkClasses = {};
+
   linkClasses[styles.active] = isCurrentChat;
 
   const [stateUreadCount, setStateUreadCount] = useState(0);
@@ -149,6 +149,7 @@ const ChatListItem = (props) => {
       onClick={handleClickToggleChat}
       id="chat-toggle-button"
       aria-label={isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
+      onKeyPress={() => {}}
     >
 
       <div className={styles.chatListItemLink}>

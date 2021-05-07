@@ -547,8 +547,6 @@
     "app.video.videoMenu": "Videomeny",
     "app.video.videoMenuDisabled": "Videomeny webcam er deaktivert i innstillinger",
     "app.video.videoMenuDesc": "Åpne videomenyen",
-    "app.video.chromeExtensionError": "Du må installere",
-    "app.video.chromeExtensionErrorLink": "denne Chrome utvidelsen",
     "app.fullscreenButton.label": "Gjør {0} fullskjerm",
     "app.sfu.mediaServerConnectionError2000": "Unable to connect to media server (error 2000)",
     "app.sfu.mediaServerOffline2001": "Media server is offline. Please try again later (error 2001)",

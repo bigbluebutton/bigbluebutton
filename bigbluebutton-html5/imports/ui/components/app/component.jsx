@@ -42,12 +42,14 @@ import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import { makeCall } from '/imports/ui/services/api';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
+import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager/component';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
 const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
+const OVERRIDE_LOCALE = APP_CONFIG.defaultSettings.application.overrideLocale;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -115,7 +117,7 @@ const defaultProps = {
   media: null,
   actionsbar: null,
   captions: null,
-  locale: 'en',
+  locale: OVERRIDE_LOCALE || navigator.language,
 };
 
 const LAYERED_BREAKPOINT = 640;
@@ -146,10 +148,11 @@ class App extends Component {
       handleNetworkConnection,
     } = this.props;
     const { browserName } = browserInfo;
-    const { isMobile, osName } = deviceInfo;
+    const { osName } = deviceInfo;
 
     MediaService.setSwapLayout();
     Modal.setAppElement('#app');
+
     document.getElementsByTagName('html')[0].lang = locale;
     document.getElementsByTagName('html')[0].style.fontSize = isMobile ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
 
@@ -197,12 +200,12 @@ class App extends Component {
       intl,
       hasPublishedPoll,
       randomlySelectedUser,
-      currentUserId,
       mountModal,
       deviceType,
+      isPresenter,
     } = this.props;
 
-    if (randomlySelectedUser === currentUserId) mountModal(<RandomUserSelectContainer />);
+    if (!isPresenter && randomlySelectedUser.length > 0) mountModal(<RandomUserSelectContainer />);
 
     if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
@@ -258,6 +261,15 @@ class App extends Component {
     ConnectionStatusService.stopRoundTripTime();
   }
 
+  handleWindowResize() {
+    const { enableResize } = this.state;
+    const shouldEnableResize = !window.matchMedia(MOBILE_MEDIA).matches;
+    if (enableResize === shouldEnableResize) return;
+
+    this.setState({ enableResize: shouldEnableResize });
+    this.throttledDeviceType();
+  }
+
   setDeviceType() {
     const { deviceType, newLayoutContextDispatch } = this.props;
     let newDeviceType = null;
@@ -273,15 +285,6 @@ class App extends Component {
         value: newDeviceType,
       });
     }
-  }
-
-  handleWindowResize() {
-    const { enableResize } = this.state;
-    const shouldEnableResize = !window.matchMedia(MOBILE_MEDIA).matches;
-    if (enableResize === shouldEnableResize) return;
-
-    this.setState({ enableResize: shouldEnableResize });
-    this.throttledDeviceType();
   }
 
   shouldAriaHide() {
@@ -376,7 +379,8 @@ class App extends Component {
       <ActivityCheckContainer
         inactivityCheck={inactivityCheck}
         responseDelay={responseDelay}
-      />) : null);
+      />
+    ) : null);
   }
 
   renderUserInformation() {
@@ -387,7 +391,8 @@ class App extends Component {
         UserInfo={UserInfo}
         requesterUserId={User.userId}
         meetingId={User.meetingId}
-      />) : null);
+      />
+    ) : null);
   }
 
   renderLayoutManager() {
@@ -416,7 +421,7 @@ class App extends Component {
     } = this.props;
 
     return (
-      <Fragment>
+      <>
         {this.renderLayoutManager()}
         {(layoutManagerLoaded === 'legacy' || layoutManagerLoaded === 'both')
           && (
@@ -459,11 +464,10 @@ class App extends Component {
               {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
               {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
             </main>
-          )
-        }
+          )}
         {(layoutManagerLoaded === 'new' || layoutManagerLoaded === 'both')
           && (
-            <Fragment>
+            <>
               <div
                 id="newLayout"
                 className={styles.newLayout}
@@ -476,9 +480,9 @@ class App extends Component {
                 <SidebarNavigationContainer />
                 <SidebarContentContainer />
               </div>
-            </Fragment>
+            </>
           )}
-      </Fragment>
+      </>
     );
   }
 }

@@ -68,6 +68,8 @@ const ChatContainer = (props) => {
     intl,
     userLocks,
     lockSettings,
+    isChatLockedPublic,
+    isChatLockedPrivate,
     users: propUsers,
     newLayoutContextState,
     newLayoutContextDispatch,
@@ -115,7 +117,7 @@ const ChatContainer = (props) => {
   };
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
-  const currentUser = users[Auth.userID];
+  const currentUser = users[Auth.meetingID][Auth.userID];
   const amIModerator = currentUser.role === ROLE_MODERATOR;
   const systemMessagesIds = [
     sysMessagesIds.welcomeId,
@@ -140,9 +142,14 @@ const ChatContainer = (props) => {
 
   let partnerIsLoggedOut = false;
 
+  let isChatLocked;
   if (!isPublicChat) {
     const idUser = participants?.filter((user) => user.id !== Auth.userID)[0]?.id;
-    partnerIsLoggedOut = (users[idUser]?.loggedOut || users[idUser]?.ejected);
+    partnerIsLoggedOut = !!(users[Auth.meetingID][idUser]?.loggedOut
+      || users[Auth.meetingID][idUser]?.ejected);
+    isChatLocked = isChatLockedPrivate && !(users[Auth.meetingID][idUser]?.role === ROLE_MODERATOR);
+  } else {
+    isChatLocked = isChatLockedPublic;
   }
 
   const contextChat = usingChatContext?.chats[isPublicChat ? PUBLIC_GROUP_CHAT_KEY : chatID];
@@ -210,8 +217,6 @@ const ChatContainer = (props) => {
   globalAppplyStateToProps = applyPropsToState;
   throttledFunc();
 
-  const isChatLocked = ChatService.isChatLocked(idChatOpen);
-
   ChatService.removePackagedClassAttribute(
     ['ReactVirtualized__Grid', 'ReactVirtualized__Grid__innerScrollContainer'],
     'role',
@@ -243,13 +248,15 @@ const ChatContainer = (props) => {
 };
 
 export default lockContextContainer(injectIntl(withTracker(({ intl, userLocks }) => {
-  const isChatLocked = userLocks.userPrivateChat || userLocks.userPublicChat;
+  const isChatLockedPublic = userLocks.userPublicChat;
+  const isChatLockedPrivate = userLocks.userPrivateChat;
 
   const { connected: isMeteorConnected } = Meteor.status();
 
   return {
     intl,
-    isChatLocked,
+    isChatLockedPublic,
+    isChatLockedPrivate,
     isMeteorConnected,
     meetingIsBreakout: meetingIsBreakout(),
     loginTime: getLoginTime(),

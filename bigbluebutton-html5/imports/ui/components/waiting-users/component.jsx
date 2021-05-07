@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
-import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
@@ -74,7 +73,7 @@ const DENY_STATUS = 'DENY';
 const getNameInitials = (name) => {
   const nameInitials = name.slice(0, 2);
 
-  return nameInitials.replace(/^\w/, c => c.toUpperCase());
+  return nameInitials.replace(/^\w/, (c) => c.toUpperCase());
 };
 
 const renderGuestUserItem = (
@@ -93,9 +92,7 @@ const renderGuestUserItem = (
         </UserAvatar>
       </div>
       <p key={`user-name-${userId}`} className={styles.userName}>
-        [
         {sequence}
-]
         {name}
       </p>
     </div>
@@ -277,14 +274,24 @@ const WaitingUsers = (props) => {
             placeholder={intl.formatMessage(intlMessages.inputPlaceholder)}
             send={setGuestLobbyMessage}
           />
-          <p><i>"{guestLobbyMessage.length > 0 ? guestLobbyMessage : intl.formatMessage(intlMessages.emptyMessage)}"</i></p>
+          <p>
+            <i>
+              &quot;
+              {
+                guestLobbyMessage.length > 0
+                  ? guestLobbyMessage
+                  : intl.formatMessage(intlMessages.emptyMessage)
+              }
+              &quot;
+            </i>
+          </p>
         </div>
       ) : null}
       <div>
         <div>
           <p className={styles.mainTitle}>{intl.formatMessage(intlMessages.optionTitle)}</p>
           {
-            buttonsData.map(buttonData => renderButton(
+            buttonsData.map((buttonData) => renderButton(
               intl.formatMessage(buttonData.messageId),
               buttonData,
             ))

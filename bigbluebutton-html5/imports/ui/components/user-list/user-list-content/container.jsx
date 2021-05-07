@@ -16,7 +16,12 @@ const UserContentContainer = (props) => {
   const { sidebarContentPanel } = newLayoutContextState;
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
-  const currentUser = users[Auth.userID];
+  const currentUser = {
+    userId: Auth.userID,
+    presenter: users[Auth.meetingID][Auth.userID].presenter,
+    locked: users[Auth.meetingID][Auth.userID].locked,
+    role: users[Auth.meetingID][Auth.userID].role,
+  };
   return (
     <UserContent
       {...{

@@ -70,7 +70,6 @@ const AppContainer = (props) => {
   const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
   const sidebarContentIsOpen = sidebarContent.isOpen;
 
-
   return (
     <App
       {...{
@@ -89,7 +88,7 @@ const AppContainer = (props) => {
   );
 };
 
-const currentUserEmoji = currentUser => (currentUser
+const currentUserEmoji = (currentUser) => (currentUser
   ? {
     status: currentUser.emoji,
     changedAt: currentUser.emojiTime,
@@ -113,8 +112,15 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     },
   });
 
-  const currentUser = Users.findOne({ userId: Auth.userID },
-    { fields: { approved: 1, emoji: 1, userId: 1 } });
+  const currentUser = Users.findOne(
+    { userId: Auth.userID },
+    {
+      fields:
+      {
+        approved: 1, emoji: 1, userId: 1, presenter: 1,
+      },
+    },
+  );
   const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { publishedPoll: 1, voiceProp: 1, randomlySelectedUser: 1 } });
   const { publishedPoll, voiceProp, randomlySelectedUser } = currentMeeting;
@@ -149,6 +155,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     layoutManagerLoaded,
     randomlySelectedUser,
     currentUserId: currentUser.userId,
+    isPresenter: currentUser.presenter,
   };
 })(AppContainer)));
 

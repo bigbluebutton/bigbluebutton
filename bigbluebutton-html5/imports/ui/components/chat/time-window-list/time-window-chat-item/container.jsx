@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
 import TimeWindowChatItem from './component';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
-import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import ChatService from '../../service';
 import { NLayoutContext } from '../../../layout/context/context';
+import Auth from '/imports/ui/services/auth';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
@@ -13,13 +13,13 @@ const extractPollQuestion = (pollText) => {
   if (!pollText) return {};
 
   const pollQuestion = pollText.split('<br/>')[0];
-  pollText = pollText.replace(`${pollQuestion}<br/>`,'');
+  const newPollText = pollText.replace(`${pollQuestion}<br/>`, '');
 
-  return { pollQuestion, pollText };
+  return { pollQuestion, newPollText };
 };
 
 const isDefaultPoll = (pollText) => {
-  const { pollQuestion, pollText: newPollText} = extractPollQuestion(pollText);
+  const { pollText: newPollText } = extractPollQuestion(pollText);
 
   const pollValue = newPollText.replace(/<br\/>|[ :|%\n\d+]/g, '');
   switch (pollValue) {
@@ -37,7 +37,7 @@ const TimeWindowChatItemContainer = (props) => {
   const { newLayoutContextState } = newLayoutContext;
   const { idChatOpen } = newLayoutContextState;
   const usingUsersContext = useContext(UsersContext);
-  const  { users } = usingUsersContext;
+  const { users } = usingUsersContext;
   const {
     sender,
     key,
@@ -45,9 +45,9 @@ const TimeWindowChatItemContainer = (props) => {
     content,
   } = message;
   const messages = content;
-  const user = users[sender];
+  const user = users[Auth.meetingID][sender];
   const messageKey = key;
-  const handleReadMessage = timestamp => ChatService.updateUnreadMessage(timestamp, idChatOpen);
+  const handleReadMessage = (tstamp) => ChatService.updateUnreadMessage(tstamp, idChatOpen);
   return (
     <TimeWindowChatItem
       {
@@ -71,6 +71,6 @@ const TimeWindowChatItemContainer = (props) => {
       }
     />
   );
-}
+};
 
 export default TimeWindowChatItemContainer;

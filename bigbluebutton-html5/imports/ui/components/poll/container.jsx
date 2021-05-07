@@ -6,30 +6,23 @@ import PresentationAreaService from '/imports/ui/components/presentation/service
 import Poll from '/imports/ui/components/poll/component';
 import { Session } from 'meteor/session';
 import Service from './service';
-import { NLayoutContext } from '../layout/context/context';
-import { ACTIONS, PANELS } from '../layout/enums';
+import Auth from '/imports/ui/services/auth';
+import { UsersContext } from '../components-data/users-context/context';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
-const PollContainer = ({ amIPresenter, ...props }) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextDispatch } = newLayoutContext;
+const PollContainer = ({ ...props }) => {
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
 
-  if (!amIPresenter) {
-    Session.set('forcePollOpen', false);
-    newLayoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-      value: false,
-    });
-    newLayoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-      value: PANELS.NONE,
-    });
-    return null;
-  }
+  const usernames = {};
 
-  return <Poll {...{ newLayoutContextDispatch, ...props }} />;
+  Object.values(users[Auth.meetingID]).forEach((user) => {
+    usernames[user.userId] = { userId: user.userId, name: user.name };
+  });
+
+  return <Poll {...props} usernames={usernames} />;
 };
 
 export default withTracker(() => {

@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
@@ -18,14 +18,13 @@ import Breakouts from '/imports/api/breakouts';
 import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { invalidateCookie } from '/imports/ui/components/audio/audio-modal/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import LayoutManager from '/imports/ui/components/layout/layout-manager';
 import LayoutContext from '/imports/ui/components/layout/context';
 import NewLayoutContext from '../../ui/components/layout/context/context';
 import VideoService from '/imports/ui/components/video-provider/service';
 import DebugWindow from '/imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
+import LayoutManagerContainer from '/imports/ui/components/layout/layout-manager/container';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
@@ -36,7 +35,7 @@ const BREAKOUT_END_NOTIFY_DELAY = 50;
 const HTML = document.getElementsByTagName('html')[0];
 
 let breakoutNotified = false;
-// const checkedUserSettings = false;
+let checkedUserSettings = false;
 
 const propTypes = {
   subscriptionsReady: PropTypes.bool,
@@ -81,7 +80,7 @@ class Base extends Component {
   }
 
   componentDidMount() {
-    const { animations, newLayoutContextDispatch } = this.props;
+    const { animations } = this.props;
 
     const {
       userID: localUserId,
@@ -96,68 +95,6 @@ class Base extends Component {
       document.addEventListener(event, Base.handleFullscreenChange);
     });
     Session.set('isFullscreen', false);
-
-    if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
-      if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
-        newLayoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-          value: true,
-        });
-        newLayoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
-          value: PANELS.USERLIST,
-        });
-
-        newLayoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-          value: true,
-        });
-        newLayoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-          value: PANELS.CHAT,
-        });
-        newLayoutContextDispatch({
-          type: ACTIONS.SET_ID_CHAT_OPEN,
-          value: PUBLIC_CHAT_ID,
-        });
-      } else {
-        newLayoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-          value: true,
-        });
-        newLayoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
-          value: PANELS.USERLIST,
-        });
-
-        newLayoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-          value: false,
-        });
-        newLayoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-          value: PANELS.NONE,
-        });
-      }
-    } else {
-      newLayoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-        value: false,
-      });
-      newLayoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
-        value: PANELS.NONE,
-      });
-
-      newLayoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-        value: false,
-      });
-      newLayoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-        value: PANELS.NONE,
-      });
-    }
 
     // TODO move this find to container
     const users = Users.find({
@@ -211,7 +148,6 @@ class Base extends Component {
       ejected,
       isMeteorConnected,
       subscriptionsReady,
-      meetingIsBreakout,
       layoutContextDispatch,
       newLayoutContextDispatch,
       usersVideo,
@@ -220,10 +156,6 @@ class Base extends Component {
       loading,
       meetingExisted,
     } = this.state;
-
-    if (prevProps.meetingIsBreakout === undefined && !meetingIsBreakout) {
-      invalidateCookie('joinedAudio');
-    }
 
     if (usersVideo !== prevProps.usersVideo) {
       newLayoutContextDispatch({
@@ -340,18 +272,13 @@ class Base extends Component {
   render() {
     const {
       meetingExist,
-      layoutManagerLoaded,
     } = this.props;
     const { meetingExisted } = this.state;
 
     return (
       <>
         {meetingExist && Auth.loggedIn && <DebugWindow />}
-        {
-          meetingExist
-          && Auth.loggedIn
-          && <LayoutManager layoutManagerLoaded={layoutManagerLoaded} />
-        }
+        {meetingExist && Auth.loggedIn && <LayoutManagerContainer />}
         {
           (!meetingExisted && !meetingExist && Auth.loggedIn)
             ? <LoadingScreen />
@@ -368,14 +295,11 @@ Base.defaultProps = defaultProps;
 const BaseContainer = withTracker(() => {
   const {
     animations,
-    userJoinAudioAlerts,
-    userJoinPushAlerts,
   } = Settings.application;
 
   const {
     credentials,
     loggedIn,
-    userID: localUserId,
   } = Auth;
 
   const { meetingId } = credentials;
@@ -477,33 +401,23 @@ const BaseContainer = withTracker(() => {
     },
   });
 
-  if (userJoinAudioAlerts || userJoinPushAlerts) {
-    Users.find({}, { fields: { validated: 1, name: 1, userId: 1 } }).observe({
-      changed: (newDocument) => {
-        if (newDocument.validated && newDocument.name && newDocument.userId !== localUserId) {
-          if (userJoinAudioAlerts) {
-            AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-              + Meteor.settings.public.app.basename
-              + Meteor.settings.public.app.instanceId}`
-              + '/resources/sounds/userJoin.mp3');
-          }
-
-          if (userJoinPushAlerts) {
-            notify(
-              <FormattedMessage
-                id="app.notification.userJoinPushAlert"
-                description="Notification for a user joins the meeting"
-                values={{
-                  0: newDocument.name,
-                }}
-              />,
-              'info',
-              'user',
-            );
-          }
+  if (Session.equals('openPanel', undefined) || Session.equals('subscriptionsReady', true)) {
+    if (!checkedUserSettings) {
+      if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
+        if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
+          Session.set('openPanel', 'chat');
+          Session.set('idChatOpen', PUBLIC_CHAT_ID);
+        } else {
+          Session.set('openPanel', 'userlist');
         }
-      },
-    });
+      } else {
+        Session.set('openPanel', '');
+      }
+      window.dispatchEvent(new Event('panelChanged'));
+      if (Session.equals('subscriptionsReady', true)) {
+        checkedUserSettings = true;
+      }
+    }
   }
 
   const codeError = Session.get('codeError');

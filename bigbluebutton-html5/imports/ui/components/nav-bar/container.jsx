@@ -22,8 +22,8 @@ const checkUnreadMessages = ({
 }) => {
   const activeChats = userListService.getActiveChats({ groupChatsMessages, groupChats, users });
   const hasUnreadMessages = activeChats
-    .filter(chat => chat.userId !== idChatOpen)
-    .some(chat => chat.unreadCounter > 0);
+    .filter((chat) => chat.userId !== idChatOpen)
+    .some((chat) => chat.unreadCounter > 0);
 
   return hasUnreadMessages;
 };
@@ -42,16 +42,16 @@ const NavBarContainer = ({ children, ...props }) => {
     ...rest
   } = props;
   const {
-    input, idChatOpen, sidebarNavPanel, sidebarContentPanel, output,
+    input, sidebarNavPanel, sidebarContentPanel, output,
   } = newLayoutContextState;
   const { sidebarNavigation, sidebarContent } = input;
   const { navBar } = output;
-  const hasUnreadMessages = checkUnreadMessages({
-    groupChatsMessages, groupChats, users, idChatOpen,
-  });
   const hasUnreadNotes = NoteService.hasUnreadNotes(sidebarContentPanel);
+  const hasUnreadMessages = checkUnreadMessages(
+    { groupChatsMessages, groupChats, users: users[Auth.meetingID] },
+  );
 
-  const currentUser = users[Auth.userID];
+  const currentUser = users[Auth.meetingID][Auth.userID];
   const amIModerator = currentUser.role === ROLE_MODERATOR;
 
   return (

@@ -14,8 +14,14 @@ const { isMobile } = deviceInfo;
 // values based on sass file
 const USERLIST_MIN_WIDTH = 150;
 const USERLIST_MAX_WIDTH = 240;
-const CHAT_MIN_WIDTH = 150;
-const CHAT_MAX_WIDTH = 335;
+const CHAT_MIN_WIDTH = 320;
+const CHAT_MAX_WIDTH = 400;
+const POLL_MIN_WIDTH = 320;
+const POLL_MAX_WIDTH = 400;
+const NOTE_MIN_WIDTH = 340;
+const NOTE_MAX_WIDTH = 800;
+const WAITING_MIN_WIDTH = 340;
+const WAITING_MAX_WIDTH = 800;
 const NAVBAR_HEIGHT = 85;
 const ACTIONSBAR_HEIGHT = isMobile ? 50 : 42;
 
@@ -27,7 +33,7 @@ const PRESENTATIONAREA_MIN_WIDTH = 385; // Value based on presentation toolbar
 
 const storageLayoutData = () => Storage.getItem('layoutData');
 
-class LayoutManager extends Component {
+class LayoutManagerComponent extends Component {
   static calculatesPresentationSize(
     mediaAreaWidth, mediaAreaHeight, presentationSlideWidth, presentationSlideHeight,
   ) {
@@ -99,8 +105,11 @@ class LayoutManager extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { layoutContextState, layoutManagerLoaded } = this.props;
-    const { layoutContextState: prevLayoutContextState } = prevProps;
+    const { layoutContextState, layoutManagerLoaded, screenIsShared } = this.props;
+    const {
+      layoutContextState: prevLayoutContextState,
+      screenIsShared: prevScreenIsShared,
+    } = prevProps;
     const {
       numUsersVideo,
     } = layoutContextState;
@@ -109,7 +118,8 @@ class LayoutManager extends Component {
     } = prevLayoutContextState;
 
     if (numUsersVideo !== prevNumUsersVideo
-      || prevProps.layoutManagerLoaded !== layoutManagerLoaded) {
+      || prevProps.layoutManagerLoaded !== layoutManagerLoaded
+      || prevScreenIsShared !== screenIsShared) {
       setTimeout(() => this.setLayoutSizes(), 500);
     }
   }
@@ -463,7 +473,10 @@ class LayoutManager extends Component {
       left: firstPanel.width + secondPanel.width,
     };
 
-    const { presentationWidth, presentationHeight } = LayoutManager.calculatesPresentationSize(
+    const {
+      presentationWidth,
+      presentationHeight,
+    } = LayoutManagerComponent.calculatesPresentationSize(
       mediaAreaWidth, mediaAreaHeight, presentationSlideWidth, presentationSlideHeight,
     );
 
@@ -511,7 +524,7 @@ class LayoutManager extends Component {
   }
 }
 
-export default withLayoutConsumer(NewLayoutManager.withConsumer(LayoutManager));
+export default withLayoutConsumer(NewLayoutManager.withConsumer(LayoutManagerComponent));
 export {
   USERLIST_MIN_WIDTH,
   USERLIST_MAX_WIDTH,

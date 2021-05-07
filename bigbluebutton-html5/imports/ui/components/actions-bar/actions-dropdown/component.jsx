@@ -110,6 +110,11 @@ class ActionsDropdown extends PureComponent {
     }
   }
 
+  handleExternalVideoClick() {
+    const { mountModal } = this.props;
+    mountModal(<ExternalVideoModal />);
+  }
+
   getAvailableActions() {
     const {
       intl,
@@ -159,6 +164,7 @@ class ActionsDropdown extends PureComponent {
                 value: PANELS.POLL,
               });
               Session.set('forcePollOpen', true);
+              window.dispatchEvent(new Event('panelChanged'));
             }}
           />
         )
@@ -232,27 +238,23 @@ class ActionsDropdown extends PureComponent {
         itemStyles[styles.presentationItem] = true;
         itemStyles[styles.isCurrent] = p.current;
 
-        return (<DropdownListItem
-          className={cx(itemStyles)}
-          icon="file"
-          iconRight={p.current ? 'check' : null}
-          label={p.name}
-          description="uploaded presentation file"
-          key={`uploaded-presentation-${p.id}`}
-          onClick={() => {
-            setPresentation(p.id, podId);
-          }}
-        />
+        return (
+          <DropdownListItem
+            className={cx(itemStyles)}
+            icon="file"
+            iconRight={p.current ? 'check' : null}
+            label={p.name}
+            description="uploaded presentation file"
+            key={`uploaded-presentation-${p.id}`}
+            onClick={() => {
+              setPresentation(p.id, podId);
+            }}
+          />
         );
       });
 
     presentationItemElements.push(<DropdownListSeparator key={_.uniqueId('list-separator-')} />);
     return presentationItemElements;
-  }
-
-  handleExternalVideoClick() {
-    const { mountModal } = this.props;
-    mountModal(<ExternalVideoModal />);
   }
 
   render() {

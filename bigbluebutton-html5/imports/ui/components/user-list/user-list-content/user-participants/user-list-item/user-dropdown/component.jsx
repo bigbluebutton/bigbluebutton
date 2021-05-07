@@ -596,7 +596,6 @@ class UserDropdown extends PureComponent {
       isActionsOpen,
       dropdownVisible,
       dropdownDirection,
-      dropdownOffset,
       showNestedOptions,
     } = this.state;
 

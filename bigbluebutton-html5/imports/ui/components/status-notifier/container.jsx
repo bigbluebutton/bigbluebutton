@@ -12,7 +12,7 @@ const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 const StatusNotifierContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
-  const currentUser = users[Auth.userID];
+  const currentUser = users[Auth.meetingID][Auth.userID];
   const isViewer = currentUser.role === ROLE_VIEWER;
   return (
     <StatusNotifier {...{

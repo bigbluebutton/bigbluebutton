@@ -62,7 +62,10 @@ class GuestPolicyComponent extends PureComponent {
         hideBorder
         contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
       >
-        <div className={styles.container}>
+        <div
+          className={styles.container}
+          data-test="guestPolicySettingsModal"
+        >
           <div className={styles.header}>
             <h2 className={styles.title}>
               {intl.formatMessage(intlMessages.guestPolicyTitle)}
@@ -78,6 +81,7 @@ class GuestPolicyComponent extends PureComponent {
               className={styles.button}
               disabled={guestPolicy === ASK_MODERATOR}
               label={intl.formatMessage(intlMessages.askModerator)}
+              data-test="askModerator"
               onClick={() => {
                 changeGuestPolicy(ASK_MODERATOR);
                 closeModal();
@@ -88,6 +92,7 @@ class GuestPolicyComponent extends PureComponent {
               className={styles.button}
               disabled={guestPolicy === ALWAYS_ACCEPT}
               label={intl.formatMessage(intlMessages.alwaysAccept)}
+              data-test="alwaysAccept"
               onClick={() => {
                 changeGuestPolicy(ALWAYS_ACCEPT);
                 closeModal();
@@ -98,6 +103,7 @@ class GuestPolicyComponent extends PureComponent {
               className={styles.button}
               disabled={guestPolicy === ALWAYS_DENY}
               label={intl.formatMessage(intlMessages.alwaysDeny)}
+              data-test="alwaysDeny"
               onClick={() => {
                 changeGuestPolicy(ALWAYS_DENY);
                 closeModal();

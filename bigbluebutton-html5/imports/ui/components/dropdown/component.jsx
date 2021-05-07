@@ -7,6 +7,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/button/component';
 import screenreaderTrap from 'makeup-screenreader-trap';
+import { Session } from 'meteor/session';
 import { styles } from './styles';
 import DropdownTrigger from './trigger/component';
 import DropdownContent from './content/component';
@@ -90,14 +91,29 @@ class Dropdown extends Component {
       onShow,
       onHide,
       keepOpen,
+      tethered,
     } = this.props;
 
     const { isOpen } = this.state;
 
-    if (isOpen) {
+    const openPanel = Session.get('openPanel');
+    const panelRef = document.getElementById(`${openPanel}Panel`);
+    const enableSRTrap = isOpen && !tethered;
+
+    if (enableSRTrap) {
       screenreaderTrap.trap(this.dropdown);
     } else {
       screenreaderTrap.untrap();
+    }
+
+    if (isOpen && tethered) {
+      if (!openPanel.includes('userlist') && panelRef) {
+        panelRef.setAttribute("aria-hidden", true);
+      }
+    }else if (!isOpen && tethered) {
+      if (panelRef) {
+        panelRef.setAttribute("aria-hidden", false);
+      }
     }
 
     if (isOpen && !prevState.isOpen) { onShow(); }

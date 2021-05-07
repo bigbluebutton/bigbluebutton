@@ -18,7 +18,7 @@ const WaitingContainer = (props) => {
 
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
-  const currentUser = users[Auth.userID];
+  const currentUser = users[Auth.meetingID][Auth.userID];
   const currentUserIsModerator = currentUser.role === ROLE_MODERATOR;
   const joinTime = currentUser.authTokenValidatedTime;
   return (

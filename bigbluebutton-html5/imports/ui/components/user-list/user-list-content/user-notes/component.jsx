@@ -27,7 +27,7 @@ const intlMessages = defineMessages({
     description: 'Aria label for notes unread content',
   },
   locked: {
-    id: 'app.userList.locked',
+    id: 'app.note.locked',
     description: '',
   },
   byModerator: {
@@ -51,7 +51,7 @@ class UserNotes extends Component {
 
     const lastRevs = NoteService.getLastRevs();
 
-    if (revs !== 0 && revs > lastRevs) this.setState({ unread: true });
+    if (revs !== 0 && revs > lastRevs) this.setUnread(true);
   }
 
   componentDidUpdate(prevProps) {
@@ -72,7 +72,9 @@ class UserNotes extends Component {
   }
 
   renderNotes() {
-    const { intl, disableNote, sidebarContentPanel, newLayoutContextDispatch } = this.props;
+    const {
+      intl, disableNote, sidebarContentPanel, newLayoutContextDispatch
+    } = this.props;
     const { unread } = this.state;
 
     let notification = null;
@@ -97,6 +99,7 @@ class UserNotes extends Component {
         tabIndex={0}
         className={styles.listItem}
         onClick={() => NoteService.toggleNotePanel(sidebarContentPanel, newLayoutContextDispatch)}
+        onKeyPress={() => { }}
       >
         <Icon iconName="copy" />
         <div aria-hidden>
@@ -109,8 +112,7 @@ class UserNotes extends Component {
                 <Icon iconName="lock" />
                 <span id="lockedNote">{`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}</span>
               </div>
-            ) : null
-          }
+            ) : null}
         </div>
         {notification}
       </div>
@@ -118,7 +120,7 @@ class UserNotes extends Component {
   }
 
   render() {
-    const { intl, disableNote } = this.props;
+    const { intl } = this.props;
 
     if (!NoteService.isEnabled()) return null;
 
