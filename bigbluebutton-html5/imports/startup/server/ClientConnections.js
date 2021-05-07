@@ -43,7 +43,7 @@ class ClientConnections {
     check(userId, String);
       
     if (!meetingId) {
-      Logger.error('Error on add new client connection. sessionId=${sessionId} connection=${connection.id}',
+      Logger.error(`Error on add new client connection. sessionId=${sessionId} connection=${connection.id}`,
         { logCode: 'client_connections_add_error_meeting_id_null', extraInfo: { meetingId, userId } }
       );
       return false;
