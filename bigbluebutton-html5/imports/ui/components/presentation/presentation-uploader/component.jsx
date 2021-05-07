@@ -255,6 +255,15 @@ class PresentationUploader extends Component {
     const { isOpen, presentations: propPresentations } = this.props;
     const { presentations } = this.state;
 
+    if (prevProps.isOpen !== isOpen && isOpen) {
+      this.setState({
+        presentations: {
+          ...propPresentations,
+          ...presentations,
+        },
+      });
+    }
+
     // cleared local presetation state errors and set to presentations available on the server
     if (presentations.length === 0 && propPresentations.length > 1) {
       return this.setState({ presentations: propPresentations });
