@@ -8,6 +8,7 @@ import handleGetVoiceUsers from './handlers/getVoiceUsers';
 import handleVoiceUsers from './handlers/voiceUsers';
 import handleMeetingMuted from './handlers/meetingMuted';
 import handleFloorChange from './handlers/floorChanged';
+import handleChangeUserName from './handlers/changeUserName';
 
 RedisPubSub.on('UserLeftVoiceConfToClientEvtMsg', handleLeftVoiceUser);
 RedisPubSub.on('UserJoinedVoiceConfToClientEvtMsg', handleJoinVoiceUser);
@@ -17,3 +18,4 @@ RedisPubSub.on('GetVoiceUsersMeetingRespMsg', processForHTML5ServerOnly(handleGe
 RedisPubSub.on('SyncGetVoiceUsersRespMsg', handleVoiceUsers);
 RedisPubSub.on('MeetingMutedEvtMsg', handleMeetingMuted);
 RedisPubSub.on('AudioFloorChangedEvtMsg', handleFloorChange);
+RedisPubSub.on('UserNameChangedEvtMsg', handleChangeUserName);
