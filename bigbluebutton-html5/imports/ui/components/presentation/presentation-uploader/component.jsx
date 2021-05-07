@@ -255,7 +255,7 @@ class PresentationUploader extends Component {
     const { isOpen, presentations: propPresentations } = this.props;
     const { presentations } = this.state;
     //Updates presentation list when chat modal opens to avoid missing presentations
-    if (prevProps.isOpen !== isOpen && isOpen) {
+    if (isOpen && !prevProps.isOpen) {
       this.setState({
         presentations: {
           ...propPresentations,
