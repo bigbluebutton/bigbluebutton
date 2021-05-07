@@ -82,10 +82,10 @@ class ChatAlert extends PureComponent {
     const unalertedMessagesByChatId = {};
 
     activeChats
-      .filter(chat => chat.userId !== idChatOpen)
+      .filter(chat => chat.chatId !== idChatOpen)
       .filter(chat => chat.unreadCounter > 0)
       .forEach((chat) => {
-        const chatId = (chat.userId === 'public') ? publicChatId : chat.chatId;
+        const chatId = (chat.chatId === 'public') ? publicChatId : chat.chatId;
         const thisChatUnreadMessages = UnreadMessages.getUnreadMessages(chatId, messages);
 
         unalertedMessagesByChatId[chatId] = thisChatUnreadMessages.filter((msg) => {
