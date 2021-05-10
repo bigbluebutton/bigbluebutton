@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
@@ -152,7 +151,6 @@ const intlMessages = defineMessages({
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
 
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 const MAX_CUSTOM_FIELDS = POLL_SETTINGS.max_custom;
 const MAX_INPUT_CHARS = POLL_SETTINGS.maxTypedAnswerLength;
 const QUESTION_MAX_INPUT_CHARS = 400;
@@ -575,14 +573,14 @@ class Poll extends Component {
   }
 
   renderNoSlidePanel() {
-    const { mountModal, intl } = this.props;
+    const { intl } = this.props;
     return (
       <div className={styles.noSlidePanelContainer}>
         <h4>{intl.formatMessage(intlMessages.noPresentationSelected)}</h4>
         <Button
           label={intl.formatMessage(intlMessages.clickHereToSelect)}
           color="primary"
-          onClick={() => mountModal(<PresentationUploaderContainer />)}
+          onClick={() => Session.set('showUploadPresentationView', true)}
           className={styles.pollBtn}
         />
       </div>
@@ -596,7 +594,7 @@ class Poll extends Component {
       currentSlide,
     } = this.props;
 
-    if (!CHAT_ENABLED && !currentSlide) return this.renderNoSlidePanel();
+    if (!currentSlide) return this.renderNoSlidePanel();
 
     if (isPolling || (!isPolling && currentPoll)) {
       return this.renderActivePollOptions();
