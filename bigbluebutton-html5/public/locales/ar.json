@@ -494,7 +494,7 @@
     "app.audioManager.mediaError": "خطأ: حدثت مشكلة في الحصول على أجهزة الوسائط",
     "app.audio.joinAudio": "الانضمام إلى الصوت",
     "app.audio.leaveAudio": "مغادرة الصوت",
-    "app.audio.changeLeaveAudio": "تغيير / ترك الصوت",
+    "app.audio.changeAudioDevice": "تغيير / ترك الصوت",
     "app.audio.enterSessionLabel": "ادخل الجلسة",
     "app.audio.playSoundLabel": "تشغيل الصوت",
     "app.audio.backLabel": "الى الخلف",

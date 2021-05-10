@@ -4,6 +4,7 @@ import Auth from '/imports/ui/services/auth';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
+import ButtonEmoji from '/imports/ui/components/button/button-emoji/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
@@ -22,9 +23,9 @@ const DEFAULT_DEVICE = 'default';
 const DEVICE_LABEL_MAX_LENGTH = 40;
 
 const intlMessages = defineMessages({
-  changeLeaveAudio: {
-    id: 'app.audio.changeLeaveAudio',
-    description: 'Change/Leave audio button label',
+  changeAudioDevice: {
+    id: 'app.audio.changeAudioDevice',
+    description: 'Change audio device button label',
   },
   leaveAudio: {
     id: 'app.audio.leaveAudio',
@@ -214,7 +215,8 @@ class InputStreamLiveSelector extends Component {
       });
   }
 
-  renderDeviceList(deviceKind, list, callback, title, currentDeviceId) {
+  renderDeviceList(deviceKind, list, callback, title, currentDeviceId,
+    renderSeparator = true) {
     const {
       intl,
     } = this.props;
@@ -254,7 +256,9 @@ class InputStreamLiveSelector extends Component {
       <DropdownListSeparator key={`audioDeviceListSeparator-${deviceKind}`} />,
     ];
 
-    return listTitle.concat(deviceList).concat(listSeparator);
+    return listTitle.concat(deviceList).concat(
+      renderSeparator ? listSeparator : [],
+    );
   }
 
   render() {
@@ -291,32 +295,30 @@ class InputStreamLiveSelector extends Component {
       liveChangeOutputDevice,
       intl.formatMessage(intlMessages.speakers),
       selectedOutputDeviceId || currentOutputDeviceId,
+      false,
     );
 
-    const dropdownListComplete = inputDeviceList.concat(outputDeviceList)
-      .concat([
-        <DropdownListItem
-          key="leaveAudioButtonKey"
-          className={styles.stopButton}
-          label={intl.formatMessage(intlMessages.leaveAudio)}
-          onClick={() => handleLeaveAudio()}
-          accessKey={shortcuts.leaveaudio}
-        />,
-      ]);
+    const dropdownListComplete = inputDeviceList.concat(outputDeviceList);
 
     return (
       <Dropdown>
         <DropdownTrigger>
           <Button
-            aria-label={intl.formatMessage(intlMessages.changeLeaveAudio)}
-            label={intl.formatMessage(intlMessages.changeLeaveAudio)}
+            aria-label={intl.formatMessage(intlMessages.leaveAudio)}
+            label={intl.formatMessage(intlMessages.leaveAudio)}
+            accessKey={shortcuts.leaveaudio}
             hideLabel
             color="primary"
             icon={isListenOnly ? 'listen' : 'audio_on'}
             size="lg"
             circle
-            onClick={() => {}}
-          />
+            onClick={() => handleLeaveAudio()}
+          >
+            <ButtonEmoji
+              emoji="device_list_selector"
+              label={intl.formatMessage(intlMessages.changeAudioDevice)}
+            />
+          </Button>
         </DropdownTrigger>
         <DropdownContent className={styles.dropdownContent}>
           <DropdownList className={cx(styles.scrollableList, styles.dropdownListContainer)}>

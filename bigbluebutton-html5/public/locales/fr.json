@@ -490,7 +490,7 @@
     "app.audioManager.mediaError": "Erreur : il y a un problème pour obtenir vos périphériques multimédias",
     "app.audio.joinAudio": "Rejoindre l'audio",
     "app.audio.leaveAudio": "Quitter l'audio",
-    "app.audio.changeLeaveAudio": "Modifier/Quitter l'audio",
+    "app.audio.changeAudioDevice": "Modifier/Quitter l'audio",
     "app.audio.enterSessionLabel": "Entrer une session",
     "app.audio.playSoundLabel": "Jouer son",
     "app.audio.backLabel": "Retour",

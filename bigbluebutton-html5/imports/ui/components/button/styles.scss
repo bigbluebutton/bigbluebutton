@@ -213,6 +213,30 @@
   }
 }
 
+.emojiButton {
+  position: absolute;
+  border-radius: 50%;
+  width: 1em;
+  height: 1em;
+  right: 0;
+  bottom: 0;
+  background-color: var(--btn-default-bg);
+  overflow: hidden;
+
+  &:hover {
+    transform: scale(1.5);
+    transition-duration: 150ms;
+  }
+
+  .emojiButtonIcon {
+    position: absolute;
+    top: 50%;
+    height: 50%;
+    left: 0;
+    color: var(--btn-default-color);
+  }
+}
+
 /* Colors
  * ==========
  */

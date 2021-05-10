@@ -494,7 +494,7 @@
     "app.audioManager.mediaError": "Ошибка: возникла проблема с вашими аудио-устройствами",
     "app.audio.joinAudio": "Присоединиться к аудио-конференции",
     "app.audio.leaveAudio": "Покинуть аудио-конференцию",
-    "app.audio.changeLeaveAudio": "Изменить аудио устройства/Покинуть аудио конференцию",
+    "app.audio.changeAudioDevice": "Изменить аудио устройства/Покинуть аудио конференцию",
     "app.audio.enterSessionLabel": "Подключиться к сеансу",
     "app.audio.playSoundLabel": "Проиграть звук",
     "app.audio.backLabel": "Назад",
