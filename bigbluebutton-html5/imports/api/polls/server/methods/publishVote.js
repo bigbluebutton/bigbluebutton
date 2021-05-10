@@ -5,11 +5,10 @@ import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
 export default function publishVote(pollId, pollAnswerId) {
-  const REDIS_CONFIG = Meteor.settings.private.redis;
-  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
-  const EVENT_NAME = 'RespondToPollReqMsg';
-
   try {
+    const REDIS_CONFIG = Meteor.settings.private.redis;
+    const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+    const EVENT_NAME = 'RespondToPollReqMsg';
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
     check(meetingId, String);
@@ -17,7 +16,11 @@ export default function publishVote(pollId, pollAnswerId) {
     check(pollAnswerId, Number);
     check(pollId, String);
 
-    const allowedToVote = Polls.findOne({ id: pollId, users: { $in: [requesterUserId] } }, {
+    const allowedToVote = Polls.findOne({
+      id: pollId,
+      users: { $in: [requesterUserId] },
+      meetingId,
+    }, {
       fields: {
         users: 1,
       },

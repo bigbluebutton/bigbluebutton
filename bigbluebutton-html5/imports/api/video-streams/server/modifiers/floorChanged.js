@@ -21,7 +21,7 @@ export default function floorChanged(meetingId, userId, floor, lastFloorTime) {
   };
 
   try {
-    const numberAffected = VideoStreams.update(selector, modifier);
+    const numberAffected = VideoStreams.update(selector, modifier, { multi: true });
 
     if (numberAffected) {
       Logger.info(`Updated user streams floor times userId=${userId} floor=${floor} lastFloorTime=${lastFloorTime}`);

@@ -16,6 +16,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const MAX_DISPLAYED_CHARS = 15;
+
 class PollDrawComponent extends Component {
   constructor(props) {
     super(props);
@@ -63,6 +65,8 @@ class PollDrawComponent extends Component {
       currentLine: 0,
       lineToMeasure: [],
       fontSizeDirection: 1,
+
+      reducedResult: [],
     };
 
     this.pollInitialCalculation = this.pollInitialCalculation.bind(this);
@@ -275,6 +279,19 @@ class PollDrawComponent extends Component {
         _result.key = intl.formatMessage({ id: `app.poll.answer.${_result.key.toLowerCase()}` });
       }
 
+      if (_result.key.length > MAX_DISPLAYED_CHARS) {
+        // find closest end of word
+        const before = _result.key.lastIndexOf(' ', MAX_DISPLAYED_CHARS);
+        const after = _result.key.indexOf(' ', MAX_DISPLAYED_CHARS + 1);
+
+        const breakpoint = (MAX_DISPLAYED_CHARS - before < after - MAX_DISPLAYED_CHARS) ? before : after;
+
+        if (breakpoint === -1) {
+          _result.key = `${_result.key.substr(0, MAX_DISPLAYED_CHARS)}...`;
+        } else {
+          _result.key = `${_result.key.substr(0, breakpoint)}...`;
+        }
+      }
       _tempArray.push(_result.key, `${_result.numVotes}`);
       if (votesTotal === 0) {
         _tempArray.push('0%');
@@ -297,7 +314,7 @@ class PollDrawComponent extends Component {
 
     // calculating the maximum possible width and height of the each line
     // 25% of the height goes to the padding
-    const maxLineWidth = innerWidth / 3;
+    const maxLineWidth = innerWidth / 2;
     const maxLineHeight = (innerHeight * 0.75) / textArray.length;
 
     const lineToMeasure = textArray[0];
@@ -327,6 +344,7 @@ class PollDrawComponent extends Component {
       maxLineHeight,
       lineToMeasure,
       calculated: true,
+      reducedResult,
     });
   }
 
@@ -345,6 +363,7 @@ class PollDrawComponent extends Component {
       textArray,
       thickness,
       calculated,
+      reducedResult,
     } = this.state;
     if (!calculated) return null;
 
@@ -393,10 +412,10 @@ class PollDrawComponent extends Component {
     const extendedTextArray = [];
     for (let i = 0; i < textArray.length; i += 1) {
       let barWidth;
-      if (maxNumVotes === 0 || annotation.result[i].numVotes === 0) {
+      if (maxNumVotes === 0 || reducedResult[i].numVotes === 0) {
         barWidth = 1;
       } else {
-        barWidth = (annotation.result[i].numVotes / maxNumVotes) * maxBarWidth;
+        barWidth = (reducedResult[i].numVotes / maxNumVotes) * maxBarWidth;
       }
 
       let label = textArray[i][0];
@@ -437,7 +456,7 @@ class PollDrawComponent extends Component {
           yNumVotes,
           xNumVotes,
           color,
-          numVotes: annotation.result[i].numVotes,
+          numVotes: reducedResult[i].numVotes,
         },
         percentColumn: {
           xRight,
