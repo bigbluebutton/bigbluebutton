@@ -753,12 +753,10 @@ class MeetingActor(
     log.info("Checking for inactive users.")
     val users = Users2x.findAll(liveMeeting.users2x)
     users foreach { u =>
+      val hasActivityAfterWarning = u.lastInactivityInspect < u.lastActivityTime
+      val hasActivityRecently = (lastUsersInactivityInspection - expiryTracker.userInactivityThresholdInMs) < u.lastActivityTime
 
-      if (u.lastInactivityInspect > u.lastActivityTime) return
-
-      val active = (lastUsersInactivityInspection - expiryTracker.userInactivityThresholdInMs) < u.lastActivityTime
-      if (!active) {
-
+      if (hasActivityAfterWarning && !hasActivityRecently) {
         log.info("User has been inactive for " + TimeUnit.MILLISECONDS.toMinutes(expiryTracker.userInactivityThresholdInMs) + " minutes. Sending inactivity warning. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
 
         val secsToDisconnect = TimeUnit.MILLISECONDS.toSeconds(expiryTracker.userActivitySignResponseDelayInMs);
@@ -772,12 +770,11 @@ class MeetingActor(
     log.info("Check for users who haven't responded to user inactivity warning.")
     val users = Users2x.findAll(liveMeeting.users2x)
     users foreach { u =>
-
-      if (u.lastInactivityInspect == 0 ||
-        u.lastActivityTime > u.lastInactivityInspect) return
-
+      val hasInactivityWarningSent = u.lastInactivityInspect != 0
+      val hasActivityAfterWarning = u.lastInactivityInspect < u.lastActivityTime
       val respondedOnTime = (lastUsersInactivityInspection - expiryTracker.userActivitySignResponseDelayInMs) < u.lastInactivityInspect
-      if (!respondedOnTime) {
+
+      if (hasInactivityWarningSent && !hasActivityAfterWarning && !respondedOnTime) {
         log.info("User didn't response the inactivity warning within " + TimeUnit.MILLISECONDS.toSeconds(expiryTracker.userActivitySignResponseDelayInMs) + " seconds. Ejecting from meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
 
         UsersApp.ejectUserFromMeeting(
