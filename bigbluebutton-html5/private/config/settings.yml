@@ -51,6 +51,7 @@ public:
     allowLogout: true
     allowFullscreen: true
     preloadNextSlides: 2
+    warnAboutUnsavedContentOnMeetingEnd: false
     mutedAlert:
       enabled: true
       interval: 200
