@@ -12,6 +12,8 @@ const { ELEMENT_WAIT_TIME } = require('./constants');
 const e = require('./elements');
 const ue = require('../user/elements');
 const { NETWORK_PRESETS, USER_AGENTS, MOBILE_DEVICES } = require('./profiles');
+const audioCapture = `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`;
+const videoCapture = `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`;
 
 class Page {
   constructor(name) {
@@ -107,12 +109,17 @@ class Page {
     const parsedSettings = await this.getSettingsYaml();
     const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
     await this.waitForSelector(e.leaveAudio, listenOnlyCallTimeout);
+    await this.click(e.leaveAudio, ELEMENT_WAIT_TIME);
+    await this.waitForSelector(e.disconnectAudio, ELEMENT_WAIT_TIME);
+    await this.click(e.disconnectAudio, ELEMENT_WAIT_TIME);
   }
 
   // Leave audio
   async leaveAudio() {
     await this.waitForSelector(e.leaveAudio, ELEMENT_WAIT_TIME);
     await this.click(e.leaveAudio, true);
+    await this.waitForSelector(e.disconnectAudio, ELEMENT_WAIT_TIME);
+    await this.click(e.disconnectAudio, ELEMENT_WAIT_TIME);
     await this.waitForSelector(e.joinAudio, ELEMENT_WAIT_TIME);
   }
 
@@ -212,7 +219,7 @@ class Page {
       '--use-fake-device-for-media-stream',
       '--no-default-browser-check',
       '--window-size=1280,1000',
-      `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
+      audioCapture,
       '--allow-file-access',
       '--lang=en-US',
     ];
@@ -249,7 +256,7 @@ class Page {
       '--use-fake-device-for-media-stream',
       '--no-default-browser-check',
       '--window-size=1280,1000',
-      `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
+      videoCapture,
       '--allow-file-access',
       '--lang=en-US',
     ];
@@ -286,8 +293,8 @@ class Page {
       '--use-fake-device-for-media-stream',
       '--no-default-browser-check',
       '--window-size=1280,1000',
-      `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
-      `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
+      audioCapture,
+      videoCapture,
       '--allow-file-access',
       '--lang=en-US',
     ];
@@ -310,9 +317,9 @@ class Page {
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
       `--user-agent=${USER_AGENTS.iPhoneX}`,
-      `--window-size=${MOBILE_DEVICES.iPhoneX.defaultViewport.width + 250},${MOBILE_DEVICES.iPhoneX.defaultViewport.height}`,
-      `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
-      `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
+      `--window-size=${MOBILE_DEVICES.iPhoneX.defaultViewport.width},${MOBILE_DEVICES.iPhoneX.defaultViewport.height}`,
+      audioCapture,
+      videoCapture,
       '--allow-file-access',
       '--lang=en-US',
     ];
@@ -331,8 +338,8 @@ class Page {
       '--use-fake-device-for-media-stream',
       `--user-agent=${USER_AGENTS.iPad}`,
       `--window-size=${MOBILE_DEVICES.iPad.defaultViewport.width},${MOBILE_DEVICES.iPad.defaultViewport.height}`,
-      `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
-      `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
+      audioCapture,
+      videoCapture,
       '--allow-file-access',
       '--lang=en-US',
     ];
@@ -351,8 +358,8 @@ class Page {
       '--use-fake-device-for-media-stream',
       `--user-agent=${USER_AGENTS.GalaxyNote3}`,
       `--window-size=${MOBILE_DEVICES.GalaxyNote3.defaultViewport.width},${MOBILE_DEVICES.GalaxyNote3.defaultViewport.height}`,
-      `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
-      `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
+      audioCapture,
+      videoCapture,
       '--allow-file-access',
       '--lang=en-US',
     ];
