@@ -1,6 +1,6 @@
 package org.bigbluebutton.common2.msgs
 
-import org.bigbluebutton.common2.domain.{ PageVO, PresentationPageConvertedVO, PresentationPageVO, PresentationPodVO, PresentationVO }
+import org.bigbluebutton.common2.domain.{ PresentationPageConvertedVO, PresentationPageVO, PresentationPodVO, PresentationVO }
 
 // ------------ client to akka-apps ------------
 object CreateNewPresentationPodPubMsg { val NAME = "CreateNewPresentationPodPubMsg" }

@@ -6,7 +6,6 @@ import akka.event.Logging
 import org.bigbluebutton.api.domain.{ BreakoutRoomsParams, LockSettingsParams }
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api2.bus._
-import org.bigbluebutton.api2.endpoint.redis.WebRedisSubscriberActor
 import org.bigbluebutton.common2.redis.MessageSender
 import org.bigbluebutton.api2.meeting.{ OldMeetingMsgHdlrActor, RegisterUser }
 import org.bigbluebutton.common2.domain._
@@ -85,20 +84,6 @@ class BbbWebApiGWApp(
   val incomingJsonMessageBus = new IncomingJsonMessageBus
 
   val channelsToSubscribe = Seq(fromAkkaAppsRedisChannel)
-  private val appsRedisSubscriberActor = system.actorOf(
-    WebRedisSubscriberActor.props(
-      system,
-      receivedJsonMsgBus,
-      oldMessageEventBus,
-      incomingJsonMessageBus,
-      redisConfig,
-      channelsToSubscribe,
-      Nil,
-      fromAkkaAppsJsonChannel,
-      fromAkkaAppsOldJsonChannel
-    ),
-    "appsRedisSubscriberActor"
-  )
 
   private val receivedJsonMsgHdlrActor = system.actorOf(
     ReceivedJsonMsgHdlrActor.props(msgFromAkkaAppsEventBus), "receivedJsonMsgHdlrActor"

@@ -2,8 +2,6 @@ package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
 
-import akka.actor._
-import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.apps.groupchats.GroupChatHdlrs
 import org.bigbluebutton.core.apps.presentationpod._

@@ -1,6 +1,5 @@
 package org.bigbluebutton.api2.endpoint.redis
 
-import org.bigbluebutton.api2.SystemConfiguration
 import org.bigbluebutton.common2.bus._
 import org.bigbluebutton.common2.redis.{ RedisConfig, RedisSubscriberProvider }
 import akka.actor.ActorSystem
