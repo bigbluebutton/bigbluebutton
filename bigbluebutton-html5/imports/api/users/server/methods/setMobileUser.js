@@ -4,12 +4,16 @@ import setMobile from '../modifiers/setMobile';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
 export default function setMobileUser() {
-  const { meetingId, requesterUserId } = extractCredentials(this.userId);
+  try {
+    const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  check(meetingId, String);
-  check(requesterUserId, String);
+    check(meetingId, String);
+    check(requesterUserId, String);
 
-  Logger.verbose(`Mobile user ${requesterUserId} from meeting ${meetingId}`);
+    Logger.verbose(`Mobile user ${requesterUserId} from meeting ${meetingId}`);
 
-  setMobile(meetingId, requesterUserId);
+    setMobile(meetingId, requesterUserId);
+  } catch (err) {
+    Logger.error(`Exception while invoking method setMobileUser ${err.stack}`);
+  }
 }
