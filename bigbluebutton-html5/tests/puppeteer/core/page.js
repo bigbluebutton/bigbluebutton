@@ -111,7 +111,7 @@ class Page {
     await this.waitForSelector(e.leaveAudio, listenOnlyCallTimeout);
     await this.click(e.leaveAudio, ELEMENT_WAIT_TIME);
     await this.waitForSelector(e.disconnectAudio, ELEMENT_WAIT_TIME);
-    await this.click(e.disconnectAudio, ELEMENT_WAIT_TIME);
+    await this.click(e.disconnectAudio, true);
   }
 
   // Leave audio
@@ -119,7 +119,7 @@ class Page {
     await this.waitForSelector(e.leaveAudio, ELEMENT_WAIT_TIME);
     await this.click(e.leaveAudio, true);
     await this.waitForSelector(e.disconnectAudio, ELEMENT_WAIT_TIME);
-    await this.click(e.disconnectAudio, ELEMENT_WAIT_TIME);
+    await this.click(e.disconnectAudio, true);
     await this.waitForSelector(e.joinAudio, ELEMENT_WAIT_TIME);
   }
 
