@@ -370,8 +370,6 @@
 .uploadRow {
   display: flex;
   flex-direction: column;
-  margin-bottom: var(--statusInfoHeight);
-  margin-top: var(--statusInfoHeight);
 }
 
 .textErr,
@@ -389,8 +387,6 @@
   bottom: var(--toast-md-margin);
   position: relative;
   left: var(--border-size-large);
-  max-height: var(--statusInfoHeight);
-  height: var(--statusInfoHeight);
   
   [dir="rtl"] & {
     right: var(--border-size-large);
@@ -490,7 +486,7 @@
   height: 100%;
   max-height: var(--uploadListHeight);
   overflow-y: auto;
-  padding-right: 1rem;
+  padding-right: 1.5rem;
   box-sizing: content-box;
   background: none;
 }

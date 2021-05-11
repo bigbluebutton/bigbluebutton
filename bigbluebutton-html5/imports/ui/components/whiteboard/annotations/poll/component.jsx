@@ -16,6 +16,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const MAX_DISPLAYED_CHARS = 15;
+
 class PollDrawComponent extends Component {
   constructor(props) {
     super(props);
@@ -277,6 +279,19 @@ class PollDrawComponent extends Component {
         _result.key = intl.formatMessage({ id: `app.poll.answer.${_result.key.toLowerCase()}` });
       }
 
+      if (_result.key.length > MAX_DISPLAYED_CHARS) {
+        // find closest end of word
+        const before = _result.key.lastIndexOf(' ', MAX_DISPLAYED_CHARS);
+        const after = _result.key.indexOf(' ', MAX_DISPLAYED_CHARS + 1);
+
+        const breakpoint = (MAX_DISPLAYED_CHARS - before < after - MAX_DISPLAYED_CHARS) ? before : after;
+
+        if (breakpoint === -1) {
+          _result.key = `${_result.key.substr(0, MAX_DISPLAYED_CHARS)}...`;
+        } else {
+          _result.key = `${_result.key.substr(0, breakpoint)}...`;
+        }
+      }
       _tempArray.push(_result.key, `${_result.numVotes}`);
       if (votesTotal === 0) {
         _tempArray.push('0%');
@@ -299,7 +314,7 @@ class PollDrawComponent extends Component {
 
     // calculating the maximum possible width and height of the each line
     // 25% of the height goes to the padding
-    const maxLineWidth = innerWidth / 3;
+    const maxLineWidth = innerWidth / 2;
     const maxLineHeight = (innerHeight * 0.75) / textArray.length;
 
     const lineToMeasure = textArray[0];

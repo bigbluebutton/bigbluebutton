@@ -254,6 +254,15 @@ class PresentationUploader extends Component {
   componentDidUpdate(prevProps) {
     const { isOpen, presentations: propPresentations } = this.props;
     const { presentations } = this.state;
+    //Updates presentation list when chat modal opens to avoid missing presentations
+    if (isOpen && !prevProps.isOpen) {
+      this.setState({
+        presentations: {
+          ...propPresentations,
+          ...presentations,
+        },
+      });
+    }
 
     // cleared local presetation state errors and set to presentations available on the server
     if (presentations.length === 0 && propPresentations.length > 1) {
@@ -271,7 +280,7 @@ class PresentationUploader extends Component {
     }
 
     if (presentations.length > 0) {
-      const selected = propPresentations.filter(p => p.isCurrent);
+      const selected = propPresentations.filter((p) => p.isCurrent);
       if (selected.length > 0) Session.set('selectedToBeNextCurrent', selected[0].id);
     }
 
@@ -646,7 +655,7 @@ class PresentationUploader extends Component {
     let converted = 0;
 
     let presentationsSorted = presentations
-      .filter(p => (p.upload.progress || p.conversion.status) && p.file)
+      .filter((p) => (p.upload.progress || p.conversion.status) && p.file)
       .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp)
       .sort((a, b) => a.conversion.done - b.conversion.done);
 
@@ -978,8 +987,7 @@ class PresentationUploader extends Component {
                 disabled={disableActions}
                 label={hasNewUpload
                   ? intl.formatMessage(intlMessages.uploadLabel)
-                  : intl.formatMessage(intlMessages.confirmLabel)
-                }
+                  : intl.formatMessage(intlMessages.confirmLabel)}
               />
             </div>
           </div>

@@ -15,7 +15,7 @@ export default function sharedWebcam(meetingId, userId, stream) {
   check(stream, String);
 
   const deviceId = getDeviceId(stream);
-  const name = getUserName(userId);
+  const name = getUserName(userId, meetingId);
   const vu = VoiceUsers.findOne(
     { meetingId, intId: userId },
     { fields: { floor: 1, lastFloorTime: 1 }}
