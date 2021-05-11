@@ -24,11 +24,15 @@
 
 .container {
   margin: 0 var(--modal-margin) var(--lg-padding-x);
+
+  @include mq($hasPhoneDimentions) {
+    margin: 0 1rem;
+  }
 }
 
 .modal {
   @extend .modal;
-  padding: var(--jumbo-padding-y);
+  padding: var(--sm-padding-y);
 }
 
 .overlay {

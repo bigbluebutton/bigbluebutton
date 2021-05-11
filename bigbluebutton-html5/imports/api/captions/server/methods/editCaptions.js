@@ -1,6 +1,7 @@
 import RedisPubSub from '/imports/startup/server/redis';
 import Captions from '/imports/api/captions';
 import Logger from '/imports/startup/server/logger';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 
@@ -14,7 +15,8 @@ export default function editCaptions(padId, data) {
   check(padId, String);
   check(data, String);
 
-  const pad = Captions.findOne({ padId });
+  const { meetingId: creadentialMeetingId } = extractCredentials(this.userId);
+  const pad = Captions.findOne({ padId, meetingId: creadentialMeetingId });
 
   if (!pad) {
     Logger.error(`Editing captions history: ${padId}`);

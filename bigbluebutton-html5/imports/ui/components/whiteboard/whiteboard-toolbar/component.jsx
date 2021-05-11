@@ -313,8 +313,8 @@ class WhiteboardToolbar extends Component {
         }
         // 1st case a)
         this.colorListIconColor.beginElement();
-        // 2nd case - never happens when the text tool is selected
-      } else if (thicknessSelected.value !== prevState.thicknessSelected.value) {
+        // 2nd case
+      } else if (thicknessSelected.value !== prevState.thicknessSelected.value && annotationSelected.value !== 'text') {
         this.thicknessListIconRadius.beginElement();
         // 3rd case
       } else if (annotationSelected.value !== 'text'

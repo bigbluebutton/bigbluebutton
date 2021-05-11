@@ -26,6 +26,8 @@ const WAITING_MIN_WIDTH = 340;
 const WAITING_MAX_WIDTH = 800;
 const NAVBAR_HEIGHT = 85;
 const ACTIONSBAR_HEIGHT = isMobile ? 50 : 42;
+const BREAKOUT_MIN_WIDTH = 320;
+const BREAKOUT_MAX_WIDTH = 400;
 
 const WEBCAMSAREA_MIN_PERCENT = 0.2;
 const WEBCAMSAREA_MAX_PERCENT = 0.8;
@@ -435,7 +437,7 @@ class LayoutManagerComponent extends Component {
       newBreakoutRoomSize = breakoutRoomSizeContext;
     } else if (!storageBreakoutRoomWidth) {
       newBreakoutRoomSize = {
-        width: min(max((windowWidth() * 0.2), CHAT_MIN_WIDTH), CHAT_MAX_WIDTH),
+        width: min(max((windowWidth() * 0.2), BREAKOUT_MIN_WIDTH), BREAKOUT_MAX_WIDTH),
       };
     } else {
       newBreakoutRoomSize = {
@@ -841,4 +843,6 @@ export {
   WEBCAMSAREA_MIN_PERCENT,
   WEBCAMSAREA_MAX_PERCENT,
   PRESENTATIONAREA_MIN_WIDTH,
+  BREAKOUT_MIN_WIDTH,
+  BREAKOUT_MAX_WIDTH,
 };

@@ -15,7 +15,11 @@ export default function publishVote(pollId, pollAnswerId) {
   check(pollAnswerId, Number);
   check(pollId, String);
 
-  const allowedToVote = Polls.findOne({ id: pollId, users: { $in: [requesterUserId] } }, {
+  const allowedToVote = Polls.findOne({
+    id: pollId,
+    users: { $in: [requesterUserId] },
+    meetingId,
+  }, {
     fields: {
       users: 1,
     },

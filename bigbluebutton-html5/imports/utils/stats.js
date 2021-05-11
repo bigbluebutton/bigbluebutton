@@ -94,7 +94,7 @@ const collect = (conn, callback) => {
       );
     });
   };
-  monitor(conn, stats, 1);
+  monitor(conn, stats);
 };
 
 const buildData = inboundRTP => {
