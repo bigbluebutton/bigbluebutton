@@ -766,7 +766,7 @@
     "app.createBreakoutRoom.randomlyAssign": "Atribuir aleatoriamente",
     "app.createBreakoutRoom.endAllBreakouts": "Encerrar todas as salas de apoio",
     "app.createBreakoutRoom.roomName": "{0} (Sala - {1})",
-    "app.createBreakoutRoom.doneLabel": "Finalizado",
+    "app.createBreakoutRoom.doneLabel": "Confirmar",
     "app.createBreakoutRoom.nextLabel": "Próximo",
     "app.createBreakoutRoom.minusRoomTime": "Diminuir o tempo da sala de apoio para",
     "app.createBreakoutRoom.addRoomTime": "Aumentar o tempo da sala de apoio para",

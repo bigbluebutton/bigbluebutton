@@ -19,26 +19,35 @@
 
 package org.bigbluebutton.core.record.events
 
-class UserRespondedToPollRecordEvent extends AbstractPollRecordEvent {
-  import UserRespondedToPollRecordEvent._
+import org.bigbluebutton.common2.domain.SimpleVoteOutVO
+import org.bigbluebutton.common2.util.JsonUtil
 
-  setEvent("UserRespondedToPollRecordEvent")
+class PollPublishedRecordEvent extends AbstractPollRecordEvent {
+  import PollPublishedRecordEvent._
 
-  def setUserId(userId: String) {
-    eventMap.put(USER_ID, userId)
+  setEvent("PollPublishedRecordEvent")
+
+  def setQuestion(question: String) {
+    eventMap.put(QUESTION, question)
   }
 
-  def setAnswerId(answerId: Int) {
-    eventMap.put(ANSWER_ID, Integer.toString(answerId))
+  def setAnswers(answers: Array[SimpleVoteOutVO]) {
+    eventMap.put(ANSWERS, JsonUtil.toJson(answers))
   }
 
-  def setAnswer(answer: String) {
-    eventMap.put(ANSWER, answer)
+  def setNumRespondents(numRespondents: Int) {
+    eventMap.put(NUM_RESPONDENTS, Integer.toString(numRespondents))
+  }
+
+  def setNumResponders(numResponders: Int) {
+    eventMap.put(NUM_RESPONDERS, Integer.toString(numResponders))
   }
 }
 
-object UserRespondedToPollRecordEvent {
+object PollPublishedRecordEvent {
   protected final val USER_ID = "userId"
-  protected final val ANSWER_ID = "answerId"
-  protected final val ANSWER = "answer"
+  protected final val QUESTION = "question"
+  protected final val ANSWERS = "answers"
+  protected final val NUM_RESPONDENTS = "numRespondents"
+  protected final val NUM_RESPONDERS = "numResponders"
 }
