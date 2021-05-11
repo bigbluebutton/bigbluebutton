@@ -38,15 +38,13 @@ const ButtonEmoji = (props) => {
   );
 
   return (
-    <span className={styles.emojiButtonContainer}>
-      <div
-        tabIndex={-1}
-        {...props}
-        className={styles.emojiButton}
-      >
-        { IconComponent }
-      </div>
-    </span>
+    <div
+      tabIndex={-1}
+      {...props}
+      className={styles.emojiButton}
+    >
+      { IconComponent }
+    </div>
   );
 };
 
