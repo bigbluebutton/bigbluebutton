@@ -13,30 +13,34 @@ import axios from 'axios';
 export default function createCaptions(meetingId, instanceId) {
   // Avoid captions creation if this feature is disabled
   if (!isEnabled()) {
-    Logger.warn(`Closed captions are disabled`);
+    Logger.warn('Closed captions are disabled');
     return;
   }
 
-  check(meetingId, String);
-  check(instanceId, Number);
+  try {
+    check(meetingId, String);
+    check(instanceId, Number);
 
-  axios({
-    method: 'get',
-    url: getLocalesURL(),
-    responseType: 'json',
-  }).then((response) => {
-    const { status } = response;
-    if (status !== 200) {
-      Logger.error(`Could not get locales info for ${meetingId} ${status}`);
-      return;
-    }
-    const padIds = [];
-    const locales = response.data;
-    locales.forEach((locale) => {
-      const padId = withInstaceId(instanceId, generatePadId(meetingId, locale.locale));
-      addCaption(meetingId, padId, locale);
-      padIds.push(padId);
-    });
-    addCaptionsPads(meetingId, padIds);
-  }).catch(error => Logger.error(`Could not create captions for ${meetingId}: ${error}`));
+    axios({
+      method: 'get',
+      url: getLocalesURL(),
+      responseType: 'json',
+    }).then((response) => {
+      const { status } = response;
+      if (status !== 200) {
+        Logger.error(`Could not get locales info for ${meetingId} ${status}`);
+        return;
+      }
+      const padIds = [];
+      const locales = response.data;
+      locales.forEach((locale) => {
+        const padId = withInstaceId(instanceId, generatePadId(meetingId, locale.locale));
+        addCaption(meetingId, padId, locale);
+        padIds.push(padId);
+      });
+      addCaptionsPads(meetingId, padIds);
+    }).catch((error) => Logger.error(`Could not create captions for ${meetingId}: ${error}`));
+  } catch (err) {
+    Logger.error(`Exception while invoking method createCaptions ${err.stack}`);
+  }
 }

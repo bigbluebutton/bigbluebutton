@@ -9,31 +9,35 @@ export default function emitExternalVideoEvent(options) {
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'UpdateExternalVideoPubMsg';
 
-  const { meetingId, requesterUserId } = extractCredentials(this.userId);
+  try {
+    const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  check(meetingId, String);
-  check(requesterUserId, String);
+    check(meetingId, String);
+    check(requesterUserId, String);
 
-  const { status, playerStatus } = options;
+    const { status, playerStatus } = options;
 
-  const user = Users.findOne({ meetingId, userId: requesterUserId });
+    const user = Users.findOne({ meetingId, userId: requesterUserId });
 
-  if (user && user.presenter) {
-    check(status, String);
-    check(playerStatus, {
-      rate: Match.Maybe(Number),
-      time: Match.Maybe(Number),
-      state: Match.Maybe(Boolean),
-    });
+    if (user && user.presenter) {
+      check(status, String);
+      check(playerStatus, {
+        rate: Match.Maybe(Number),
+        time: Match.Maybe(Number),
+        state: Match.Maybe(Boolean),
+      });
 
-    const rate = playerStatus.rate || 0;
-    const time = playerStatus.time || 0;
-    const state = playerStatus.state || 0;
-    const payload = {
-      status, rate, time, state,
-    };
+      const rate = playerStatus.rate || 0;
+      const time = playerStatus.time || 0;
+      const state = playerStatus.state || 0;
+      const payload = {
+        status, rate, time, state,
+      };
 
-    Logger.debug(`User id=${requesterUserId} sending ${EVENT_NAME} event:${state} for meeting ${meetingId}`);
-    return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+      Logger.debug(`User id=${requesterUserId} sending ${EVENT_NAME} event:${state} for meeting ${meetingId}`);
+      RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+    }
+  } catch (err) {
+    Logger.error(`Exception while invoking method emitExternalVideoEvent ${err.stack}`);
   }
 }
