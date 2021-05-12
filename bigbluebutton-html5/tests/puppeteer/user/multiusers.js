@@ -200,6 +200,7 @@ class MultiUsers {
       await this.page1.closeAudioModal();
       await this.page2.closeAudioModal();
       await this.page2.page.evaluate(() => window.dispatchEvent(new CustomEvent('socketstats', { detail: { rtt: 2000 } })));
+      await this.page2.page.setOfflineMode(true);
       await sleep(3000);
       await this.page2.close();
       await sleep(5000);
@@ -231,10 +232,13 @@ class MultiUsers {
     try {
       await this.page1.closeAudioModal();
       await this.page2.closeAudioModal();
-      await this.page1.press('KeyU');
-      await this.page2.press('KeyP');
-      const onUserListPanel = await this.page1.isVisible(we.whiteboard, ELEMENT_WAIT_TIME);
-      const onChatPanel = await this.page2.isVisible(we.whiteboard, ELEMENT_WAIT_TIME);
+      await this.page1.click(ue.userListButton, true);
+      await this.page2.click(ue.userListButton, true);
+      await this.page2.click(ue.chatButton, true);
+      const onUserListPanel = await this.page1.isVisible(we.whiteboard, ELEMENT_WAIT_TIME) === true;
+      const onChatPanel = await this.page2.isVisible(we.whiteboard, ELEMENT_WAIT_TIME) === true;
+      console.log({onUserListPanel, onChatPanel});
+      await sleep(2000);
       return onUserListPanel && onChatPanel;
     } catch (e) {
       console.log(e);

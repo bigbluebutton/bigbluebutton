@@ -5,6 +5,9 @@ const Create = require('./breakout/create');
 const MultiUsers = require('./user/multiusers');
 const { MAX_MULTIUSERS_TEST_TIMEOUT, TEST_DURATION_TIME } = require('./core/constants'); // core constants (Timeouts vars imported)
 const { NETWORK_PRESETS } = require('./core/profiles');
+const devices = require('./core/devices');
+const iPhonex = devices['iPhone X'];
+const galaxyNote3 = devices['Galaxy Note 3'];
 
 expect.extend({ toMatchImageSnapshot });
 
@@ -21,7 +24,7 @@ const userTest = () => {
     try {
       const testName = 'mobileTagName';
       await test.logger('begin of ', testName);
-      await test.init(Page.iPhoneXArgs(), undefined, undefined, undefined, testName);
+      await test.init(Page.iPhoneXArgs(), undefined, undefined, undefined, testName, undefined, iPhonex);
       await test.startRecording(testName);
       await test.closeAudioModal();
       response = await test.mobileTagName();
@@ -387,8 +390,8 @@ const userTest = () => {
     try {
       const testName = 'userlistNotAppearOnMobile';
       await test.page1.logger('begin of ', testName);
-      await test.page1.init(Page.iPhoneXArgs(), undefined, undefined, undefined, testName);
-      await test.page2.init(Page.galaxyNote3Args(), undefined, undefined, undefined, testName);
+      await test.page1.init(Page.iPhoneXArgs(), undefined, undefined, undefined, testName, undefined, iPhonex);
+      await test.page2.init(Page.galaxyNote3Args(), undefined, undefined, undefined, testName, undefined, galaxyNote3);
       await test.page1.startRecording(testName);
       await test.page2.startRecording(testName);
       response = await test.userlistNotAppearOnMobile(testName);
@@ -419,8 +422,8 @@ const userTest = () => {
     try {
       const testName = 'whiteboardNotAppearOnMobile';
       await test.page1.logger('begin of ', testName);
-      await test.page1.init(Page.iPhoneXArgs(), undefined, undefined, undefined, testName);
-      await test.page2.init(Page.galaxyNote3Args(), undefined, undefined, undefined, testName);
+      await test.page1.init(Page.iPhoneXArgs(), undefined, undefined, undefined, testName, undefined, iPhonex);
+      await test.page2.init(Page.galaxyNote3Args(), undefined, undefined, undefined, testName, undefined, galaxyNote3);
       await test.page1.startRecording(testName);
       await test.page2.startRecording(testName);
       response = await test.whiteboardNotAppearOnMobile(testName);
