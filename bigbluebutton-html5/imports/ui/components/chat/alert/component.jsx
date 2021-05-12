@@ -82,10 +82,10 @@ class ChatAlert extends PureComponent {
     const unalertedMessagesByChatId = {};
 
     activeChats
-      .filter(chat => chat.userId !== idChatOpen)
+      .filter(chat => chat.chatId !== idChatOpen)
       .filter(chat => chat.unreadCounter > 0)
       .forEach((chat) => {
-        const chatId = (chat.userId === 'public') ? publicChatId : chat.chatId;
+        const chatId = (chat.chatId === 'public') ? publicChatId : chat.chatId;
         const thisChatUnreadMessages = UnreadMessages.getUnreadMessages(chatId, messages);
 
         unalertedMessagesByChatId[chatId] = thisChatUnreadMessages.filter((msg) => {
@@ -183,6 +183,7 @@ class ChatAlert extends PureComponent {
       idChatOpen,
       pushAlertDisabled,
       intl,
+      activeChats,
     } = this.props;
 
     const {
@@ -192,7 +193,9 @@ class ChatAlert extends PureComponent {
     const notCurrentTabOrMinimized = document.hidden;
     const hasPendingNotifications = Object.keys(pendingNotificationsByChat).length > 0;
 
-    const shouldPlayChatAlert = notCurrentTabOrMinimized
+    const unreadMessages = activeChats.reduce((a, b) => a + b.unreadCounter, 0);
+
+    const shouldPlayChatAlert = (notCurrentTabOrMinimized && unreadMessages > 0)
       || (hasPendingNotifications && !idChatOpen);
 
     return (

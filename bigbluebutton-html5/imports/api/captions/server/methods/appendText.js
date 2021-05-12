@@ -6,22 +6,25 @@ import { appendTextURL } from '/imports/api/common/server/etherpad';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
 export default function appendText(text, locale) {
-  const { meetingId } = extractCredentials(this.userId);
-  check(meetingId, String);
-  check(text, String);
-  check(locale, String);
+  try {
+    const { meetingId } = extractCredentials(this.userId);
+    check(meetingId, String);
+    check(text, String);
+    check(locale, String);
 
-  const padId = generatePadId(meetingId, locale);
+    const padId = generatePadId(meetingId, locale);
 
-  axios({
-    method: 'get',
-    url: appendTextURL(padId, text),
-    responseType: 'json',
-  }).then((response) => {
-    const { status } = response;
-    if (status !== 200) {
-      Logger.error(`Could not append captions for padId=${padId}`);
-      return;
-    }
-  }).catch(error => Logger.error(`Could not append captions for padId=${padId}: ${error}`));
+    axios({
+      method: 'get',
+      url: appendTextURL(padId, text),
+      responseType: 'json',
+    }).then((response) => {
+      const { status } = response;
+      if (status !== 200) {
+        Logger.error(`Could not append captions for padId=${padId}`);
+      }
+    }).catch((error) => Logger.error(`Could not append captions for padId=${padId}: ${error}`));
+  } catch (err) {
+    Logger.error(`Exception while invoking method appendText ${err.stack}`);
+  }
 }

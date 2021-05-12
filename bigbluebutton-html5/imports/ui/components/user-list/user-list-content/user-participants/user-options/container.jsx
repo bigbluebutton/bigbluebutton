@@ -23,6 +23,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const dynamicGuestPolicy = Meteor.settings.public.app.dynamicGuestPolicy;
+
 const meetingMuteDisabledLog = () => logger.info({
   logCode: 'useroptions_unmute_all',
   extraInfo: { logType: 'moderator_action' },
@@ -89,6 +91,7 @@ const UserOptionsContainer = withTracker((props) => {
     guestPolicy: WaitingUsersService.getGuestPolicy(),
     isMeteorConnected: Meteor.status().connected,
     meetingName: getMeetingName(),
+    dynamicGuestPolicy,
   };
 })(UserOptions);
 

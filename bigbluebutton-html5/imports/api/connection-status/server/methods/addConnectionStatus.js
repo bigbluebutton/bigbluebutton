@@ -16,17 +16,19 @@ const logConnectionStatus = (meetingId, userId, status, type, value) => {
     case 'danger':
     case 'critical':
       switch (type) {
-        case 'audio':
+        case 'audio': {
           const {
             jitter,
             loss,
           } = value;
           Logger.info(`Connection status updated: meetingId=${meetingId} userId=${userId} status=${status} type=${type} jitter=${jitter} loss=${loss}`);
           break;
-        case 'socket':
+        }
+        case 'socket': {
           const { rtt } = value;
           Logger.info(`Connection status updated: meetingId=${meetingId} userId=${userId} status=${status} type=${type} rtt=${rtt}`);
           break;
+        }
         default:
       }
       break;
@@ -35,19 +37,23 @@ const logConnectionStatus = (meetingId, userId, status, type, value) => {
 };
 
 export default function addConnectionStatus(status, type, value) {
-  check(status, String);
-  check(type, String);
-  check(value, Object);
+  try {
+    check(status, String);
+    check(type, String);
+    check(value, Object);
 
-  const { meetingId, requesterUserId } = extractCredentials(this.userId);
+    const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  check(meetingId, String);
-  check(requesterUserId, String);
+    check(meetingId, String);
+    check(requesterUserId, String);
 
-  if (STATS.log) logConnectionStatus(meetingId, requesterUserId, status, type, value);
+    if (STATS.log) logConnectionStatus(meetingId, requesterUserId, status, type, value);
 
-  // Avoid storing recoveries
-  if (status !== 'normal') {
-    updateConnectionStatus(meetingId, requesterUserId, status);
+    // Avoid storing recoveries
+    if (status !== 'normal') {
+      updateConnectionStatus(meetingId, requesterUserId, status);
+    }
+  } catch (err) {
+    Logger.error(`Exception while invoking method addConnectionStatus ${err.stack}`);
   }
 }
