@@ -553,8 +553,6 @@
     "app.video.videoMenu": "Видео меню",
     "app.video.videoMenuDisabled": "Видео менюто на камерета е изключено в настройките",
     "app.video.videoMenuDesc": "Отвори падащото видео меню",
-    "app.video.chromeExtensionError": "Трябва да инсталирате",
-    "app.video.chromeExtensionErrorLink": "това Chrome разширение",
     "app.fullscreenButton.label": "Покажи {0} на цял екран",
     "app.sfu.mediaServerConnectionError2000": "Връзката тс медия сървъра невъзможна (Грешка 2000)",
     "app.sfu.mediaServerOffline2001": "Медия сървъра е offline. Моля опитайте по-късно (грешка 2001)",

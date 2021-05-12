@@ -150,11 +150,13 @@ const intlMessages = defineMessages({
   },
 });
 
+const POLL_SETTINGS = Meteor.settings.public.poll;
+
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
-const MAX_CUSTOM_FIELDS = Meteor.settings.public.poll.max_custom;
-const MAX_INPUT_CHARS = 45;
+const MAX_CUSTOM_FIELDS = POLL_SETTINGS.max_custom;
+const MAX_INPUT_CHARS = POLL_SETTINGS.maxTypedAnswerLength;
 const QUESTION_MAX_INPUT_CHARS = 400;
-const FILE_DRAG_AND_DROP_ENABLED = Meteor.settings.public.poll.allowDragAndDropFile;
+const FILE_DRAG_AND_DROP_ENABLED = POLL_SETTINGS.allowDragAndDropFile;
 
 const validateInput = (i) => {
   let _input = i;

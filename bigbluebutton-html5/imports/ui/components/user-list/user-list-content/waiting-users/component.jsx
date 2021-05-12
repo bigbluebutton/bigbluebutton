@@ -30,6 +30,8 @@ class WaitingUsers extends PureComponent {
         ? 'userlist'
         : 'waitingUsersPanel',
     );
+
+    window.dispatchEvent(new Event('panelChanged'));
   }
 
   render() {

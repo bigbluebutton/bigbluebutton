@@ -37,8 +37,6 @@ const getHelp = () => {
   return null;
 };
 
-const getLevel = () => STATS.level;
-
 const getStats = () => {
   statsDep.depend();
   return STATS.level[stats];

@@ -1,7 +1,6 @@
 {
     "app.home.greeting": "Вітаємо! Ваша презентація почнеться найближчим часом... ",
     "app.chat.submitLabel": "Надіслати повідомлення",
-    "app.chat.loading": "Завантаження: {0}%",
     "app.chat.errorMaxMessageLength": "Повідомлення з {0} символів є занадто довгим",
     "app.chat.disconnected": "Ви від'єднались, повідомлення не можуть бути надіслані",
     "app.chat.locked": "Чат заблоковано, неможливо надіслати повідомлення",
@@ -677,8 +676,6 @@
     "app.video.videoMenu": "Відео меню",
     "app.video.videoMenuDisabled": "Відео меню вебкамери вимкнено у налаштуваннях",
     "app.video.videoMenuDesc": "Відкрити контекстне меню відео",
-    "app.video.chromeExtensionError": "Ви маєте встановити",
-    "app.video.chromeExtensionErrorLink": "це розширення Chrome",
     "app.video.pagination.prevPage": "Відео на попередній сторінці",
     "app.video.pagination.nextPage": "Відео на наступній сторінці",
     "app.video.clientDisconnected": "Вебкамера не може бути показана через проблеми підключення",

@@ -596,8 +596,6 @@
     "app.video.videoMenu": "Menú de vídeo",
     "app.video.videoMenuDisabled": "Menú de vídeo de la càmera web està desactivada en la configuració",
     "app.video.videoMenuDesc": "Obre el menú desplegable de vídeo",
-    "app.video.chromeExtensionError": "Heu d'instal·lar",
-    "app.video.chromeExtensionErrorLink": "aquesta extensió de Chrome",
     "app.video.pagination.prevPage": "Mostra els vídeos anteriors",
     "app.video.pagination.nextPage": "Mostra els vídeos següents",
     "app.video.clientDisconnected": "No es pot compartir la càmera a causa de problemes amb la connexió",

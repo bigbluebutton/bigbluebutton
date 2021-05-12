@@ -1,7 +1,7 @@
 {
     "app.home.greeting": "Uw presentatie begint binnenkort ...",
     "app.chat.submitLabel": "Bericht verzenden",
-    "app.chat.loading": "Aan het laden:  {0%}",
+    "app.chat.loading": "Chatberichten geladen: {0}%",
     "app.chat.errorMaxMessageLength": "Het bericht is {0} teken(s) te lang",
     "app.chat.disconnected": "De verbinding is verbroken, berichten kunnen niet worden verzonden",
     "app.chat.locked": "Chat is vergrendeld, berichten kunnen niet worden verzonden",
@@ -684,8 +684,6 @@
     "app.video.videoMenu": "Videomenu",
     "app.video.videoMenuDisabled": "Videomenu Webcam is uitgeschakeld in instellingen",
     "app.video.videoMenuDesc": "Vervolgkeuzelijst Videomenu openen",
-    "app.video.chromeExtensionError": "U moet installeren",
-    "app.video.chromeExtensionErrorLink": "deze Chrome-extensie",
     "app.video.pagination.prevPage": "Zie vorige videos",
     "app.video.pagination.nextPage": "Zie volgende videos",
     "app.video.clientDisconnected": "Webcam kan niet worden gedeeld vanwege verbindingsproblemen",

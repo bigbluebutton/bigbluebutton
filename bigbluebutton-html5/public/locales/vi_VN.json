@@ -527,8 +527,6 @@
     "app.video.videoMenu": "Menu video",
     "app.video.videoMenuDisabled": "menu video webcam không khả đụng trong mục cài đặt",
     "app.video.videoMenuDesc": "Mở thanh menu video trượt xuống",
-    "app.video.chromeExtensionError": "Bạn phải cài đặt",
-    "app.video.chromeExtensionErrorLink": "tiện ích mở rộng Chrome này",
     "app.fullscreenButton.label": "Tạo {0} toàn màn hình",
     "app.meeting.endNotification.ok.label": "Đồng ý",
     "app.whiteboard.toolbar.tools": "Công cụ",

@@ -470,8 +470,6 @@
     "app.video.videoMenu": "Video-valikko",
     "app.video.videoMenuDisabled": "Video-valikon Webkamera on pois päältä asetuksista.",
     "app.video.videoMenuDesc": "Avaa video-alasvetovalikko",
-    "app.video.chromeExtensionError": "Sinun täytyy asentaa",
-    "app.video.chromeExtensionErrorLink": "tämä Chrome-selaimen lisäosa",
     "app.fullscreenButton.label": "Aseta {0} kokoruuduntilaan.",
     "app.meeting.endNotification.ok.label": "OK",
     "app.whiteboard.toolbar.tools": "Työkalut",

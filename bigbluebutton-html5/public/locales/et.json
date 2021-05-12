@@ -569,8 +569,6 @@
     "app.video.videoMenu": "Videomenüü",
     "app.video.videoMenuDisabled": "Veebikaamera videomenüü on seadetes välja lülitatud",
     "app.video.videoMenuDesc": "Ava videomenüü",
-    "app.video.chromeExtensionError": "Sa pead installeerima",
-    "app.video.chromeExtensionErrorLink": "selle Chrome'i laienduse",
     "app.fullscreenButton.label": "Esita {0} täisekraanil",
     "app.sfu.mediaServerConnectionError2000": "Meediaserveriga ei saa ühendust (viga 2000)",
     "app.sfu.mediaServerOffline2001": "Meediaserver ei vasta. Palun proovi hiljem uuesti (viga 2001)",

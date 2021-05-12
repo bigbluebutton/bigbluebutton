@@ -555,8 +555,6 @@
     "app.video.videoMenu": "Video menu",
     "app.video.videoMenuDisabled": "Video menu webkamery je vypnuté v nastaveniach",
     "app.video.videoMenuDesc": "Otvoriť video menu",
-    "app.video.chromeExtensionError": "Musíte nainštalovať",
-    "app.video.chromeExtensionErrorLink": "toto rozšírenie pre Chrome",
     "app.fullscreenButton.label": "Nastaviť {0} na celú obrazovku",
     "app.meeting.endNotification.ok.label": "OK",
     "app.whiteboard.toolbar.tools": "Nástroje tabule",
