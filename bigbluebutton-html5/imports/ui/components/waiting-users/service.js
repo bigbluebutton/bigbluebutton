@@ -17,6 +17,9 @@ const getGuestPolicy = () => {
 
 const isGuestLobbyMessageEnabled = Meteor.settings.public.app.enableGuestLobbyMessage;
 
+// We use the dynamicGuestPolicy rule for allowing the rememberChoice checkbox
+const allowRememberChoice = Meteor.settings.public.app.dynamicGuestPolicy;
+
 const getGuestLobbyMessage = () => {
   const meeting = Meetings.findOne(
     { meetingId: Auth.meetingID },
@@ -37,4 +40,5 @@ export default {
   isGuestLobbyMessageEnabled,
   getGuestLobbyMessage,
   setGuestLobbyMessage,
+  allowRememberChoice,
 };
