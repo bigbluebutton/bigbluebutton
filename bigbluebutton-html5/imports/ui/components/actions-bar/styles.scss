@@ -111,12 +111,16 @@
   }
 }
 
-.btn {
-  z-index: 3;
-}
 .dropdown{
   z-index: 4;
 }
+
+.hideDropdownButton {
+  @include mq($small-only) {
+    display:none;
+  }
+}
+
 .presentationItem {
   span {
     text-overflow: ellipsis;
