@@ -99,7 +99,6 @@
     "app.presentationUploder.fileToUpload": "Bit će postavljeno ...",
     "app.presentationUploder.currentBadge": "Trenutačno",
     "app.presentationUploder.upload.progress": "Postavljanje ({0}%)",
-    "app.presentationUploder.upload.413": "Datoteka je prevelika. Podijelite ju u više manjih datoteka.",
     "app.presentationUploder.conversion.genericConversionStatus": "Konverzija datoteke ...",
     "app.presentationUploder.removePresentationLabel": "Uklonite prezentaciju",
     "app.presentationUploder.tableHeading.filename": "Datoteka",
