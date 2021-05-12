@@ -371,6 +371,16 @@ class Page {
     };
   }
 
+  async isVisible(el, timeout) {
+    try {
+      await this.page.waitForSelector(el, {visible: false, timeout: timeout});
+      return true;
+    } catch(e) {
+      console.log(e);
+      return false;
+    }
+  }
+
   // async emulateMobile(userAgent) {
   //   await this.page.setUserAgent(userAgent);
   // }

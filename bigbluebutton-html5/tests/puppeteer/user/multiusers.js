@@ -227,6 +227,21 @@ class MultiUsers {
     }
   }
 
+  async whiteboardNotAppearOnMobile() {
+    try {
+      await this.page1.closeAudioModal();
+      await this.page2.closeAudioModal();
+      await this.page1.press('KeyU');
+      await this.page2.press('KeyP');
+      const onUserListPanel = await this.page1.isVisible(we.whiteboard, ELEMENT_WAIT_TIME);
+      const onChatPanel = await this.page2.isVisible(we.whiteboard, ELEMENT_WAIT_TIME);
+      return onUserListPanel && onChatPanel;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+  }
+
   // Close all Pages
   async close(page1, page2) {
     await page1.close();
