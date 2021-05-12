@@ -254,6 +254,7 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
       color: user?.color || '#7b1fa2',
       isModerator: user?.role === ROLE_MODERATOR,
       name: user?.name || otherParticipant.name,
+      avatar: user?.avatar,
       chatId,
       unreadCounter: unreadMessagesCount,
       userId: user?.userId || otherParticipant.id,
