@@ -213,12 +213,20 @@
   }
 }
 
+.emojiButtonSibling {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
 .emojiButton {
   position: absolute;
   border-radius: 50%;
   width: 1em;
   height: 1em;
-  right: 0;
+  right: -1px;
   bottom: 0;
   background-color: var(--btn-default-bg);
   overflow: hidden;

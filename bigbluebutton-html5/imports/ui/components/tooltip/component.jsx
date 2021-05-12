@@ -8,6 +8,8 @@ import Tippy, { roundArrow, hideAll } from 'tippy.js';
 import 'tippy.js/dist/svg-arrow.css';
 import 'tippy.js/animations/shift-away.css';
 import './bbbtip.css';
+import BaseButton from '/imports/ui/components/button/base/component';
+import ButtonEmoji from '/imports/ui/components/button/button-emoji/component';
 
 const ANIMATION_DURATION = 350;
 const ANIMATION_DELAY = [150, 50];
@@ -29,6 +31,19 @@ const defaultProps = {
 };
 
 class Tooltip extends Component {
+  static buttonComponentHasButtonEmoji(_component) {
+    return (
+      _component
+      && (_component.type === BaseButton)
+      && (_component.props)
+      && (_component.props.children)
+      && (typeof _component.props.children.find === 'function')
+      && (!!_component.props.children.find((_child) => (
+        _child && _child.type === ButtonEmoji
+      )))
+    );
+  }
+
   constructor(props) {
     super(props);
 
@@ -123,9 +138,34 @@ class Tooltip extends Component {
       ...restProps
     } = this.props;
 
-    const WrappedComponent = React.Children.only(children);
+    let WrappedComponent;
+    let WrappedComponentBound;
 
-    const WrappedComponentBound = React.cloneElement(WrappedComponent, {
+    if (Tooltip.buttonComponentHasButtonEmoji(children)) {
+      const { children: grandChildren } = children.props;
+
+      let otherChildren;
+
+      [WrappedComponent, ...otherChildren] = grandChildren;
+
+      WrappedComponentBound = React.cloneElement(WrappedComponent, {
+        ...restProps,
+        id: this.tippySelectorId,
+        className: cx(WrappedComponent.props.className, className),
+      });
+
+      const ParentComponent = React.Children.only(children);
+      const updatedChildren = [WrappedComponentBound, otherChildren];
+
+      const ParentComponentBound = React.cloneElement(ParentComponent, null,
+        updatedChildren);
+
+      return ParentComponentBound;
+    }
+
+    WrappedComponent = React.Children.only(children);
+
+    WrappedComponentBound = React.cloneElement(WrappedComponent, {
       ...restProps,
       id: this.tippySelectorId,
       className: cx(children.props.className, className),

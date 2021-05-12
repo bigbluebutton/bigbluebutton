@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { styles } from '../styles';
 import Icon from '../../icon/component';
+import TooltipContainer from '/imports/ui/components/tooltip/container';
 
 const propTypes = {
   /**
@@ -10,6 +11,8 @@ const propTypes = {
    * @defaultValue ''
    */
   emoji: PropTypes.string,
+
+  label: PropTypes.string,
 
   onClick: PropTypes.func,
 
@@ -20,6 +23,7 @@ const propTypes = {
 
 const defaultProps = {
   emoji: '',
+  label: '',
   onClick: null,
   onKeyDown: null,
   onFocus: null,
@@ -28,6 +32,7 @@ const defaultProps = {
 const ButtonEmoji = (props) => {
   const {
     emoji,
+    label,
   } = props;
 
   const IconComponent = (
@@ -38,13 +43,20 @@ const ButtonEmoji = (props) => {
   );
 
   return (
-    <div
-      tabIndex={-1}
-      {...props}
-      className={styles.emojiButton}
-    >
-      { IconComponent }
-    </div>
+    <span className={styles.emojiButtonContainer}>
+      <TooltipContainer title={label}>
+        <div
+          tabIndex={-1}
+          {...props}
+          className={styles.emojiButton}
+        >
+          <span className={styles.label}>
+            {label}
+            { IconComponent }
+          </span>
+        </div>
+      </TooltipContainer>
+    </span>
   );
 };
 

@@ -204,6 +204,7 @@ export default class Button extends BaseButton {
         className={cx(styles[size], styles.buttonWrapper, className)}
         {...remainingProps}
       >
+        {this.renderButtonEmojiSibling()}
         {!iconRight ? null : this.renderLabel()}
         <span className={cx(this._getClassNames())}>
           {this.renderIcon()}
@@ -212,6 +213,14 @@ export default class Button extends BaseButton {
         {this.hasButtonEmojiComponent() ? children : null}
       </BaseButton>
     );
+  }
+
+  renderButtonEmojiSibling() {
+    if (!this.hasButtonEmojiComponent()) {
+      return null;
+    }
+
+    return (<span className={styles.emojiButtonSibling} />);
   }
 
   renderIcon() {
