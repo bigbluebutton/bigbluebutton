@@ -42,5 +42,6 @@ export default withTracker(() => {
     setGuestLobbyMessage: Service.setGuestLobbyMessage,
     guestLobbyMessage: Service.getGuestLobbyMessage(),
     authenticatedGuest,
+    allowRememberChoice: Service.allowRememberChoice,
   };
 })(WaitingContainer);
