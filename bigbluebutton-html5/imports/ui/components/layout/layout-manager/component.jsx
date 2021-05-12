@@ -24,7 +24,7 @@ const NOTE_MIN_WIDTH = 340;
 const NOTE_MAX_WIDTH = 800;
 const WAITING_MIN_WIDTH = 340;
 const WAITING_MAX_WIDTH = 800;
-const NAVBAR_HEIGHT = 85;
+const NAVBAR_HEIGHT = 170;
 const ACTIONSBAR_HEIGHT = isMobile ? 50 : 42;
 
 const WEBCAMSAREA_MIN_PERCENT = 0.2;
@@ -32,7 +32,6 @@ const WEBCAMSAREA_MAX_PERCENT = 0.8;
 // const PRESENTATIONAREA_MIN_PERCENT = 0.2;
 const PRESENTATIONAREA_MIN_WIDTH = 385; // Value based on presentation toolbar
 // const PRESENTATIONAREA_MAX_PERCENT = 0.8;
-
 const storageLayoutData = () => Storage.getItem('layoutData');
 
 class LayoutManagerComponent extends Component {
