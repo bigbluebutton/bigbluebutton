@@ -80,7 +80,11 @@ class TimeWindowList extends PureComponent {
   }
 
   componentDidMount() {
-    // TODO: re-implement scroll to position using virtualized list    
+    const { scrollPosition: scrollProps } = this.props;
+
+    this.setState({
+      scrollPosition: scrollProps,
+    });
   }
 
   componentDidUpdate(prevProps) {
@@ -99,7 +103,19 @@ class TimeWindowList extends PureComponent {
       syncing,
       syncedPercent,
       lastTimeWindowValuesBuild,
+      scrollPosition: scrollProps,
+      count
     } = this.props;
+
+    const { userScrolledBack } = this.state;
+
+    if((count > 0 && !userScrolledBack) || userSentMessage){
+      const lastItemIndex = timeWindowsValues.length - 1;
+
+      this.setState({
+        scrollPosition: lastItemIndex,
+      }, ()=> this.handleScrollUpdate(lastItemIndex));
+    }
 
     const {
       timeWindowsValues: prevTimeWindowsValues,
@@ -107,6 +123,12 @@ class TimeWindowList extends PureComponent {
       syncing: prevSyncing,
       syncedPercent: prevSyncedPercent
     } = prevProps;
+
+    if (prevChatId !== chatId) {
+      this.setState({
+        scrollPosition: scrollProps,
+      });
+    }
 
     const prevTimeWindowsLength = prevTimeWindowsValues.length;
     const timeWindowsValuesLength = timeWindowsValues.length;
@@ -257,6 +279,7 @@ class TimeWindowList extends PureComponent {
     const {
       intl,
       count,
+      timeWindowsValues,
     } = this.props;
     const { userScrolledBack } = this.state;
 
@@ -269,9 +292,15 @@ class TimeWindowList extends PureComponent {
           size="sm"
           key="unread-messages"
           label={intl.formatMessage(intlMessages.moreMessages)}
-          onClick={()=> this.setState({
-            userScrolledBack: false,
-          })}
+          onClick={()=> {
+            const lastItemIndex = timeWindowsValues.length - 1;
+            this.handleScrollUpdate(lastItemIndex);
+
+            this.setState({
+              scrollPosition: lastItemIndex,
+              userScrolledBack: false,
+            });
+          }}
         />
       );
     }
@@ -285,9 +314,12 @@ class TimeWindowList extends PureComponent {
     } = this.props;
     const {
       scrollArea,
+      scrollPosition,
       userScrolledBack,
     } = this.state;
     ChatLogger.debug('TimeWindowList::render', {...this.props},  {...this.state}, new Date());
+
+    const shouldAutoScroll = !!(scrollPosition && timeWindowsValues.length >= scrollPosition && !userScrolledBack);
 
     return (
       [<div 
@@ -328,7 +360,7 @@ class TimeWindowList extends PureComponent {
                     }
                   }
                 }}
-                isScrolling={true}
+                isScrolling
                 rowHeight={this.cache.rowHeight}
                 className={styles.messageList}
                 rowRenderer={this.rowRender}
@@ -337,10 +369,11 @@ class TimeWindowList extends PureComponent {
                 width={width}
                 overscanRowCount={0}
                 deferredMeasurementCache={this.cache}
-                scrollToIndex={
-                  !userScrolledBack ? timeWindowsValues.length - 1 : undefined
-                }
-                onScroll={({ clientHeight, scrollHeight, scrollTop })=> {
+                scrollToIndex={shouldAutoScroll ? scrollPosition : undefined}
+                onRowsRendered={({ stopIndex }) => {
+                  this.handleScrollUpdate(stopIndex);
+                }}
+                onScroll={({ clientHeight, scrollHeight, scrollTop }) => {
                   const scrollSize = scrollTop + clientHeight;
                   if (scrollSize >= scrollHeight) {
                     this.setState({

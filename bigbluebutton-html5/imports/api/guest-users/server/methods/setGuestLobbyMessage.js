@@ -9,16 +9,20 @@ const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
 const EVENT_NAME = 'SetGuestLobbyMessageCmdMsg';
 
 export default function setGuestLobbyMessage(message) {
-  check(message, String);
+  try {
+    check(message, String);
 
-  const { meetingId, requesterUserId } = extractCredentials(this.userId);
+    const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  check(meetingId, String);
-  check(requesterUserId, String);
+    check(meetingId, String);
+    check(requesterUserId, String);
 
-  const payload = { message };
+    const payload = { message };
 
-  Logger.info(`User=${requesterUserId} set guest lobby message to ${message}`);
+    Logger.info(`User=${requesterUserId} set guest lobby message to ${message}`);
 
-  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+    RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+  } catch (err) {
+    Logger.error(`Exception while invoking method setGuestLobbyMessage ${err.stack}`);
+  }
 }
