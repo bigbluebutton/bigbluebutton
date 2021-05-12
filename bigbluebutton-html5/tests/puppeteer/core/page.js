@@ -11,9 +11,11 @@ const params = require('../params');
 const { ELEMENT_WAIT_TIME } = require('./constants');
 const e = require('./elements');
 const ue = require('../user/elements');
-const { NETWORK_PRESETS, USER_AGENTS, MOBILE_DEVICES } = require('./profiles');
+const { NETWORK_PRESETS } = require('./profiles');
 const audioCapture = `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`;
 const videoCapture = `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`;
+const devices = require('./devices');
+const linuxDesktop = devices['Linux Desktop'];
 
 class Page {
   constructor(name) {
@@ -40,7 +42,7 @@ class Page {
   }
 
   // Join BigBlueButton meeting
-  async init(args, meetingId, newParams, customParameter, testFolderName, connectionPreset) {
+  async init(args, meetingId, newParams, customParameter, testFolderName, connectionPreset, deviceX) {
     try {
       this.effectiveParams = newParams || params;
       const isModerator = this.effectiveParams.moderatorPW;
@@ -52,6 +54,8 @@ class Page {
         this.browser = await puppeteer.launch(args);
       }
       this.page = await this.browser.newPage();
+      this.page.emulate(deviceX || linuxDesktop);
+      await this.getUserAgent(this);
 
       // Connect to Chrome DevTools
       const client = await this.page.target().createCDPSession();
@@ -59,9 +63,9 @@ class Page {
       // Set throttling property
       await client.send('Network.emulateNetworkConditions', connectionPreset || NETWORK_PRESETS.WiFi);
 
-      if (process.env.DEVICE_NAME === 'Desktop') {
-        await this.page.setViewport({ width: 1280, height: 720 });
-      }
+      // if (process.env.DEVICE_NAME === 'Desktop') {
+      //   await this.page.setViewport({ width: 1024, height: 720 });
+      // }
 
       this.page.setDefaultTimeout(3600000);
 
@@ -69,6 +73,7 @@ class Page {
       // this.page.on('console', async msg => console[msg._type](
       //   ...await Promise.all(msg.args().map(arg => arg.jsonValue()))
       // ));
+
       await this.page.setExtraHTTPHeaders({
         'Accept-Language': 'en-US',
       });
@@ -78,7 +83,6 @@ class Page {
 
       const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, isModerator, customParameter);
       await this.page.goto(joinURL, { waitUntil: 'networkidle2' });
-      await this.getUserAgent();
 
       if (process.env.BBB_COLLECT_METRICS === 'true' && process.env.IS_MOBILE !== 'true') {
         await this.waitForSelector(ue.anyUser, ELEMENT_WAIT_TIME);
@@ -170,8 +174,8 @@ class Page {
     return await document.querySelectorAll(element)[0];
   }
 
-  async getUserAgent() {
-    const useragent = await this.page.evaluate('navigator.userAgent');
+  async getUserAgent(test) {
+    const useragent = await test.page.evaluate('navigator.userAgent');
     console.log({ useragent });
     return useragent;
   }
@@ -183,15 +187,15 @@ class Page {
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
       '--no-default-browser-check',
-      '--window-size=1280,1000',
+      '--window-size=1024,720',
       '--lang=en-US',
     ];
     return {
       headless: false,
       args,
       defaultViewport: {
-        width: 1280,
-        height: 805,
+        width: 1024,
+        height: 720,
       },
       ignoreDefaultArgs: [
         '--enable-automation',
@@ -205,7 +209,7 @@ class Page {
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
-        '--window-size=1280,720',
+        '--window-size=1024,720',
         '--lang=en-US',
       ];
       return {
@@ -218,7 +222,7 @@ class Page {
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
       '--no-default-browser-check',
-      '--window-size=1280,1000',
+      '--window-size=1024,720',
       audioCapture,
       '--allow-file-access',
       '--lang=en-US',
@@ -227,8 +231,8 @@ class Page {
       headless: false,
       args,
       defaultViewport: {
-        width: 1280,
-        height: 805,
+        width: 1024,
+        height: 720,
       },
       ignoreDefaultArgs: [
         '--enable-automation',
@@ -242,7 +246,7 @@ class Page {
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
-        '--window-size=1280,720',
+        '--window-size=1024,720',
         '--lang=en-US',
       ];
       return {
@@ -255,7 +259,7 @@ class Page {
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
       '--no-default-browser-check',
-      '--window-size=1280,1000',
+      '--window-size=1024,720',
       videoCapture,
       '--allow-file-access',
       '--lang=en-US',
@@ -264,8 +268,8 @@ class Page {
       headless: false,
       args,
       defaultViewport: {
-        width: 1280,
-        height: 805,
+        width: 1024,
+        height: 720,
       },
       ignoreDefaultArgs: [
         '--enable-automation',
@@ -279,7 +283,7 @@ class Page {
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
-        '--window-size=1280,720',
+        '--window-size=1024,720',
         '--lang=en-US',
       ];
       return {
@@ -292,7 +296,7 @@ class Page {
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
       '--no-default-browser-check',
-      '--window-size=1280,1000',
+      '--window-size=1024,720',
       audioCapture,
       videoCapture,
       '--allow-file-access',
@@ -302,8 +306,8 @@ class Page {
       headless: false,
       args,
       defaultViewport: {
-        width: 1280,
-        height: 805,
+        width: 1024,
+        height: 720,
       },
       ignoreDefaultArgs: [
         '--enable-automation',
@@ -316,18 +320,18 @@ class Page {
       '--no-sandbox',
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
-      `--user-agent=${USER_AGENTS.iPhoneX}`,
-      `--window-size=${MOBILE_DEVICES.iPhoneX.defaultViewport.width},${MOBILE_DEVICES.iPhoneX.defaultViewport.height}`,
+      '--no-default-browser-check',
       audioCapture,
       videoCapture,
       '--allow-file-access',
       '--lang=en-US',
     ];
-    const mobileArgs = MOBILE_DEVICES.iPhoneX;
     return {
       headless: false,
       args,
-      ...mobileArgs,
+      ignoreDefaultArgs: [
+        '--enable-automation',
+      ],
     };
   }
 
@@ -336,18 +340,18 @@ class Page {
       '--no-sandbox',
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
-      `--user-agent=${USER_AGENTS.iPad}`,
-      `--window-size=${MOBILE_DEVICES.iPad.defaultViewport.width},${MOBILE_DEVICES.iPad.defaultViewport.height}`,
+      '--no-default-browser-check',
       audioCapture,
       videoCapture,
       '--allow-file-access',
       '--lang=en-US',
     ];
-    const mobileArgs = MOBILE_DEVICES.iPad;
     return {
       headless: false,
       args,
-      ...mobileArgs,
+      ignoreDefaultArgs: [
+        '--enable-automation',
+      ],
     };
   }
 
@@ -356,18 +360,18 @@ class Page {
       '--no-sandbox',
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
-      `--user-agent=${USER_AGENTS.GalaxyNote3}`,
-      `--window-size=${MOBILE_DEVICES.GalaxyNote3.defaultViewport.width},${MOBILE_DEVICES.GalaxyNote3.defaultViewport.height}`,
+      '--no-default-browser-check',
       audioCapture,
       videoCapture,
       '--allow-file-access',
       '--lang=en-US',
     ];
-    const mobileArgs = MOBILE_DEVICES.GalaxyNote3;
     return {
       headless: false,
       args,
-      ...mobileArgs,
+      ignoreDefaultArgs: [
+        '--enable-automation',
+      ],
     };
   }
 
