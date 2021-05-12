@@ -23,8 +23,8 @@ class ShareScreen extends Page {
     }
   }
 
-  async testMobileDevice(args) {
-    await this.init(args, undefined, undefined, undefined, testName);
+  async testMobileDevice(args, testName, deviceX) {
+    await this.init(args, undefined, undefined, undefined, testName, undefined, deviceX);
     await this.startRecording(testName);
     await this.closeAudioModal();
     try {

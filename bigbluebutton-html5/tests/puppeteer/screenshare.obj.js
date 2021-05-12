@@ -2,7 +2,10 @@ const { toMatchImageSnapshot } = require('jest-image-snapshot');
 const ShareScreen = require('./screenshare/screenshare');
 const Page = require('./core/page');
 const { MAX_SCREENSHARE_TEST_TIMEOUT } = require('./core/constants'); // core constants (Timeouts vars imported)
-
+const devices = require('./core/devices');
+const iPhonex = devices['iPhone X'];
+const galaxyNote3 = devices['Galaxy Note 3'];
+const ipadPro = devices['iPad Pro'];
 expect.extend({ toMatchImageSnapshot });
 
 const screenShareTest = () => {
@@ -46,7 +49,7 @@ const screenShareTest = () => {
     try {
       const testName = 'shareScreenAndroidMobile';
       await test.logger('begin of ', testName);
-      response = await test.testMobileDevice(Page.galaxyNote3Args());
+      response = await test.testMobileDevice(Page.galaxyNote3Args(), testName, galaxyNote3);
       await test.logger('end of ', testName);
       await test.stopRecording();
       screenshot = await test.page.screenshot();
@@ -72,7 +75,7 @@ const screenShareTest = () => {
     try {
       const testName = 'shareScreenIphoneMobile';
       await test.logger('begin of ', testName);
-      response = await test.testMobileDevice(Page.iPhoneXArgs());
+      response = await test.testMobileDevice(Page.iPhoneXArgs(), testName, iPhonex);
       await test.logger('end of ', testName);
       await test.stopRecording();
       screenshot = await test.page.screenshot();
@@ -98,7 +101,7 @@ const screenShareTest = () => {
     try {
       const testName = 'shareScreenTabletIpad';
       await test.logger('begin of ', testName);
-      response = await test.testMobileDevice(Page.iPadArgs());
+      response = await test.testMobileDevice(Page.iPadArgs(), testName, ipadPro);
       await test.logger('end of ', testName);
       await test.stopRecording();
       screenshot = await test.page.screenshot();
