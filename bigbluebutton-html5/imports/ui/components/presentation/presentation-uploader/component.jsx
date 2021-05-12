@@ -257,10 +257,10 @@ class PresentationUploader extends Component {
     //Updates presentation list when chat modal opens to avoid missing presentations
     if (isOpen && !prevProps.isOpen) {
       this.setState({
-        presentations: {
+        presentations: Object.values({
           ...propPresentations,
           ...presentations,
-        },
+        }),
       });
     }
 
