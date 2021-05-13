@@ -247,17 +247,18 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
 
     if (chatId !== PUBLIC_GROUP_CHAT_ID) {
       const groupChatsParticipants = groupChats[chatId].participants;
-    const otherParticipant = groupChatsParticipants.filter((user)=> user.id !== Auth.userID)[0];
-    const user = users[otherParticipant.id]; 
+      const otherParticipant = groupChatsParticipants.filter((user)=> user.id !== Auth.userID)[0];
+      const user = users[otherParticipant.id];
 
-    return {
-      color: user?.color || '#7b1fa2',
-      isModerator: user?.role === ROLE_MODERATOR,
-      name: user?.name || otherParticipant.name,
-      chatId,
-      unreadCounter: unreadMessagesCount,
-      userId: user?.userId || otherParticipant.id,
-    };
+      return {
+        color: user?.color || '#7b1fa2',
+        isModerator: user?.role === ROLE_MODERATOR,
+        name: user?.name || otherParticipant.name,
+        avatar: user?.avatar,
+        chatId,
+        unreadCounter: unreadMessagesCount,
+        userId: user?.userId || otherParticipant.id,
+      };
     }
 
     return {

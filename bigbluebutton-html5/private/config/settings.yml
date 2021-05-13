@@ -40,6 +40,7 @@ public:
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
     allowDefaultLogoutUrl: true
     allowUserLookup: false
+    dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
     enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
@@ -51,6 +52,7 @@ public:
     allowLogout: true
     allowFullscreen: true
     preloadNextSlides: 2
+    warnAboutUnsavedContentOnMeetingEnd: false
     mutedAlert:
       enabled: true
       interval: 200

@@ -81,51 +81,55 @@ function valueParser(val) {
 }
 
 export default function addUserSettings(settings) {
-  check(settings, [Object]);
+  try {
+    check(settings, [Object]);
 
-  const { meetingId, requesterUserId: userId } = extractCredentials(this.userId);
+    const { meetingId, requesterUserId: userId } = extractCredentials(this.userId);
 
-  check(meetingId, String);
-  check(userId, String);
+    check(meetingId, String);
+    check(userId, String);
 
-  let parameters = {};
+    let parameters = {};
 
-  settings.forEach((el) => {
-    const settingKey = Object.keys(el).shift();
-    const normalizedKey = settingKey.trim();
+    settings.forEach((el) => {
+      const settingKey = Object.keys(el).shift();
+      const normalizedKey = settingKey.trim();
 
-    if (currentParameters.includes(normalizedKey)) {
-      if (!Object.keys(parameters).includes(normalizedKey)) {
-        parameters = {
-          [normalizedKey]: valueParser(el[settingKey]),
-          ...parameters,
-        };
-      } else {
-        parameters[normalizedKey] = el[settingKey];
+      if (currentParameters.includes(normalizedKey)) {
+        if (!Object.keys(parameters).includes(normalizedKey)) {
+          parameters = {
+            [normalizedKey]: valueParser(el[settingKey]),
+            ...parameters,
+          };
+        } else {
+          parameters[normalizedKey] = el[settingKey];
+        }
+        return;
       }
-      return;
-    }
 
-    if (oldParametersKeys.includes(normalizedKey)) {
-      const matchingNewKey = oldParameters[normalizedKey];
-      if (!Object.keys(parameters).includes(matchingNewKey)) {
-        parameters = {
-          [matchingNewKey]: valueParser(el[settingKey]),
-          ...parameters,
-        };
+      if (oldParametersKeys.includes(normalizedKey)) {
+        const matchingNewKey = oldParameters[normalizedKey];
+        if (!Object.keys(parameters).includes(matchingNewKey)) {
+          parameters = {
+            [matchingNewKey]: valueParser(el[settingKey]),
+            ...parameters,
+          };
+        }
+        return;
       }
-      return;
-    }
 
-    logger.warn(`Parameter ${normalizedKey} not handled`);
-  });
+      logger.warn(`Parameter ${normalizedKey} not handled`);
+    });
 
-  const settingsAdded = [];
-  Object.entries(parameters).forEach((el) => {
-    const setting = el[0];
-    const value = el[1];
-    settingsAdded.push(addUserSetting(meetingId, userId, setting, value));
-  });
+    const settingsAdded = [];
+    Object.entries(parameters).forEach((el) => {
+      const setting = el[0];
+      const value = el[1];
+      settingsAdded.push(addUserSetting(meetingId, userId, setting, value));
+    });
 
-  return settingsAdded;
+    return settingsAdded;
+  } catch (err) {
+    logger.error(`Exception while invoking method addUserSettings ${err.stack}`);
+  }
 }

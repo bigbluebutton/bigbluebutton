@@ -12,38 +12,42 @@ export default function editCaptions(padId, data) {
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'EditCaptionHistoryPubMsg';
 
-  check(padId, String);
-  check(data, String);
+  try {
+    const { meetingId } = extractCredentials(this.userId);
 
-  const { meetingId: creadentialMeetingId } = extractCredentials(this.userId);
-  const pad = Captions.findOne({ padId, meetingId: creadentialMeetingId });
+    check(padId, String);
+    check(data, String);
+    check(meetingId, String);
 
-  if (!pad) {
-    Logger.error(`Editing captions history: ${padId}`);
-    return;
+    const pad = Captions.findOne({ padId, meetingId });
+
+    if (!pad) {
+      Logger.error(`Editing captions history: ${padId}`);
+      return;
+    }
+
+    const {
+      ownerId,
+      locale,
+      length,
+    } = pad;
+
+    check(ownerId, String);
+    check(locale, { locale: String, name: String });
+    check(length, Number);
+
+    const index = getIndex(data, length);
+
+    const payload = {
+      startIndex: index,
+      localeCode: locale.locale,
+      locale: locale.name,
+      endIndex: index,
+      text: data,
+    };
+
+    RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, ownerId, payload);
+  } catch (err) {
+    Logger.error(`Exception while invoking method editCaptions ${err.stack}`);
   }
-
-  const {
-    meetingId,
-    ownerId,
-    locale,
-    length,
-  } = pad;
-
-  check(meetingId, String);
-  check(ownerId, String);
-  check(locale, { locale: String, name: String });
-  check(length, Number);
-
-  const index = getIndex(data, length);
-
-  const payload = {
-    startIndex: index,
-    localeCode: locale.locale,
-    locale: locale.name,
-    endIndex: index,
-    text: data,
-  };
-
-  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, ownerId, payload);
 }

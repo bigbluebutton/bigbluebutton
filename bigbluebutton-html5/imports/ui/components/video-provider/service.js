@@ -691,11 +691,14 @@ class VideoService {
         const { track } = sender;
         if (track && track.kind === 'video') {
           const parameters = sender.getParameters();
-          if (!parameters.encodings) {
+          const normalizedBitrate = bitrate * 1000;
+
+          // The encoder parameters might not be up yet; if that's the case,
+          // add a filler object so we can alter the parameters anyways
+          if (parameters.encodings == null || parameters.encodings.length === 0) {
             parameters.encodings = [{}];
           }
 
-          const normalizedBitrate = bitrate * 1000;
           // Only reset bitrate if it changed in some way to avoid enconder fluctuations
           if (parameters.encodings[0].maxBitrate !== normalizedBitrate) {
             parameters.encodings[0].maxBitrate = normalizedBitrate;

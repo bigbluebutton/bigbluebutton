@@ -64,6 +64,8 @@ class ActivityCheck extends Component {
     const { responseDelay } = this.state;
 
     return setInterval(() => {
+      if(responseDelay == 0) return;
+
       const remainingTime = responseDelay - 1;
 
       this.setState({

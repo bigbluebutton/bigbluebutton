@@ -8,6 +8,7 @@ export default withTracker(() => {
   const presentations = Presentations.find({ 'conversion.done': true }).fetch();
   return ({
     presentations,
+    isDropdownOpen: Session.get('dropdownOpen'),
     setPresentation: PresentationUploaderService.setPresentation,
     podIds: PresentationPodService.getPresentationPodIds(),
   });
