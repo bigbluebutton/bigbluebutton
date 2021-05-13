@@ -229,7 +229,7 @@ class Poll extends Component {
     const { optList, type, error } = this.state;
     const list = [...optList];
     const validatedVal = validateInput(e.target.value).replace(/\s{2,}/g, ' ');
-    const clearError = validatedVal.length > 0 && type !== 'RP';
+    const clearError = validatedVal.length > 0 && type !== 'R-';
     list[index] = { val: validatedVal };
     this.setState({ optList: list, error: clearError ? null : error });
   }
@@ -237,7 +237,7 @@ class Poll extends Component {
   handleTextareaChange(e) {
     const { type, error } = this.state;
     const validatedQuestion = validateInput(e.target.value);
-    const clearError = validatedQuestion.length > 0 && type === 'RP';
+    const clearError = validatedQuestion.length > 0 && type === 'R-';
     this.setState({ question: validateInput(e.target.value), error: clearError ? null : error });
   }
 
@@ -363,7 +363,7 @@ class Poll extends Component {
               )
               : <div style={{ width: '40px' }} />}
           </div>
-          {!hasVal && type !== 'RP' && error ? (
+          {!hasVal && type !== 'R-' && error ? (
             <div className={styles.inputError}>{error}</div>
           ) : (
             <div className={styles.errorSpacer}>&nbsp;</div>
@@ -425,7 +425,7 @@ class Poll extends Component {
             maxLength={QUESTION_MAX_INPUT_CHARS}
             placeholder={intl.formatMessage(intlMessages.questionLabel)}
           />
-          {(type === 'RP' && question.length === 0 && error) ? (
+          {(type === 'R-' && question.length === 0 && error) ? (
             <div className={styles.inputError}>{error}</div>
           ) : (
             <div className={styles.errorSpacer}>&nbsp;</div>
@@ -483,8 +483,8 @@ class Poll extends Component {
           <Button
             label={intl.formatMessage(intlMessages.userResponse)}
             color="default"
-            onClick={() => { this.setState({ type: 'RP' }); }}
-            className={cx(styles.pBtn, styles.fullWidth, { [styles.selectedBtnWhite]: type === 'RP' })}
+            onClick={() => { this.setState({ type: 'R-' }); }}
+            className={cx(styles.pBtn, styles.fullWidth, { [styles.selectedBtnWhite]: type === 'R-' })}
           />
         </div>
         { type
@@ -492,7 +492,7 @@ class Poll extends Component {
             <div data-test="responseChoices">
               <h4>{intl.formatMessage(intlMessages.responseChoices)}</h4>
               {
-                type === 'RP'
+                type === 'R-'
                 && (
                   <div>
                     <span>{intl.formatMessage(intlMessages.typedResponseDesc)}</span>
@@ -506,7 +506,7 @@ class Poll extends Component {
                 )
               }
               {
-                (defaultPoll || type === 'RP')
+                (defaultPoll || type === 'R-')
                 && (
                   <div style={{
                     display: 'flex',
@@ -538,8 +538,8 @@ class Poll extends Component {
                         });
 
                         let err = null;
-                        if (type === 'RP' && question.length === 0) err = intl.formatMessage(intlMessages.questionErr);
-                        if (!hasVal && type !== 'RP') err = intl.formatMessage(intlMessages.optionErr);
+                        if (type === 'R-' && question.length === 0) err = intl.formatMessage(intlMessages.questionErr);
+                        if (!hasVal && type !== 'R-') err = intl.formatMessage(intlMessages.optionErr);
                         if (err) return this.setState({ error: err });
 
                         return this.setState({ isPolling: true }, () => {
@@ -561,7 +561,7 @@ class Poll extends Component {
                       }}
                     />
                     {
-                      FILE_DRAG_AND_DROP_ENABLED && type !== 'RP' && this.renderDragDrop()
+                      FILE_DRAG_AND_DROP_ENABLED && type !== 'R-' && this.renderDragDrop()
                     }
                   </div>
                 )
