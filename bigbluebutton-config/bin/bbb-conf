@@ -1252,14 +1252,16 @@ check_state() {
       else
 	STUN_SERVER="$STUN_SERVER 3478"
       fi
-
-      if stunclient --mode full --localport 30000 $STUN_SERVER | grep -q fail; then
-        echo
-        echo "#"
-        echo "# Warning: Failed to verify STUN server at $STUN_SERVER with command"
-        echo "#"
-        echo "#    stunclient --mode full --localport 30000 $STUN_SERVER"
-        echo "#"
+     
+      if which stunclient > /dev/null 2>&1; then 
+        if stunclient --mode full --localport 30000 $STUN_SERVER | grep -q fail; then
+          echo
+          echo "#"
+          echo "# Warning: Failed to verify STUN server at $STUN_SERVER with command"
+          echo "#"
+          echo "#    stunclient --mode full --localport 30000 $STUN_SERVER"
+          echo "#"
+        fi
       fi
     fi
 
