@@ -91,6 +91,14 @@
   }
 }
 
+[lang="te"] .iconMargin, [lang="te-IN"] .iconMargin {
+  margin-top: .65rem;
+}
+
+[lang="km"] .iconMargin, [lang="km-KH"] .iconMargin {
+  margin-top: .35rem;
+}
+
 .recordingStatusViewOnly {
   display: flex;
 }

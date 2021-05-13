@@ -17,6 +17,10 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+[lang="te"] .react-toggle, [lang="te-IN"] .react-toggle{
+  margin-top: .5rem;
+}
+
 .react-toggle-screenreader-only {
   border: 0;
   clip: rect(0 0 0 0);
