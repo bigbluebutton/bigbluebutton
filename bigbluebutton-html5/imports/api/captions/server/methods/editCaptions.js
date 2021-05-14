@@ -1,6 +1,7 @@
 import RedisPubSub from '/imports/startup/server/redis';
 import Captions from '/imports/api/captions';
 import Logger from '/imports/startup/server/logger';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 
@@ -11,34 +12,42 @@ export default function editCaptions(padId, data) {
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'EditCaptionHistoryPubMsg';
 
-  check(padId, String);
-  check(data, String);
+  try {
+    const { meetingId } = extractCredentials(this.userId);
 
-  const pad = Captions.findOne({ padId });
+    check(padId, String);
+    check(data, String);
+    check(meetingId, String);
 
-  if (!pad) return Logger.error(`Editing captions history: ${padId}`);
+    const pad = Captions.findOne({ padId, meetingId });
 
-  const {
-    meetingId,
-    ownerId,
-    locale,
-    length,
-  } = pad;
+    if (!pad) {
+      Logger.error(`Editing captions history: ${padId}`);
+      return;
+    }
 
-  check(meetingId, String);
-  check(ownerId, String);
-  check(locale, { locale: String, name: String });
-  check(length, Number);
+    const {
+      ownerId,
+      locale,
+      length,
+    } = pad;
 
-  const index = getIndex(data, length);
+    check(ownerId, String);
+    check(locale, { locale: String, name: String });
+    check(length, Number);
 
-  const payload = {
-    startIndex: index,
-    localeCode: locale.locale,
-    locale: locale.name,
-    endIndex: index,
-    text: data,
-  };
+    const index = getIndex(data, length);
 
-  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, ownerId, payload);
+    const payload = {
+      startIndex: index,
+      localeCode: locale.locale,
+      locale: locale.name,
+      endIndex: index,
+      text: data,
+    };
+
+    RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, ownerId, payload);
+  } catch (err) {
+    Logger.error(`Exception while invoking method editCaptions ${err.stack}`);
+  }
 }

@@ -14,6 +14,10 @@ const propTypes = {
   audioAlertDisabled: PropTypes.bool.isRequired,
   joinTimestamp: PropTypes.number.isRequired,
   idChatOpen: PropTypes.string.isRequired,
+  publicChatId: PropTypes.string.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -57,6 +61,8 @@ class ChatAlert extends PureComponent {
       idChatOpen,
       joinTimestamp,
       pushAlertDisabled,
+      messages,
+      publicChatId,
     } = this.props;
 
     const {
@@ -67,7 +73,7 @@ class ChatAlert extends PureComponent {
 
     // Avoid alerting messages received before enabling alerts
     if (prevProps.pushAlertDisabled && !pushAlertDisabled) {
-      const newAlertEnabledTimestamp = Service.getLastMessageTimestampFromChatList(activeChats);
+      const newAlertEnabledTimestamp = Service.getLastMessageTimestampFromChatList(activeChats, messages);
       this.setAlertEnabledTimestamp(newAlertEnabledTimestamp);
       return;
     }
@@ -76,18 +82,18 @@ class ChatAlert extends PureComponent {
     const unalertedMessagesByChatId = {};
 
     activeChats
-      .filter(chat => chat.userId !== idChatOpen)
+      .filter(chat => chat.chatId !== idChatOpen)
       .filter(chat => chat.unreadCounter > 0)
       .forEach((chat) => {
-        const chatId = (chat.userId === 'public') ? 'MAIN-PUBLIC-GROUP-CHAT' : chat.userId;
-        const thisChatUnreadMessages = UnreadMessages.getUnreadMessages(chatId);
+        const chatId = (chat.chatId === 'public') ? publicChatId : chat.chatId;
+        const thisChatUnreadMessages = UnreadMessages.getUnreadMessages(chatId, messages);
 
         unalertedMessagesByChatId[chatId] = thisChatUnreadMessages.filter((msg) => {
-          const messageChatId = (msg.chatId === 'MAIN-PUBLIC-GROUP-CHAT') ? msg.chatId : msg.sender;
           const retorno = (msg
             && msg.timestamp > alertEnabledTimestamp
             && msg.timestamp > joinTimestamp
-            && msg.timestamp > (lastAlertTimestampByChat[messageChatId] || 0)
+            && msg.timestamp > (lastAlertTimestampByChat[chatId] || 0)
+            && !pushAlertDisabled
           );
           return retorno;
         });
@@ -177,6 +183,7 @@ class ChatAlert extends PureComponent {
       idChatOpen,
       pushAlertDisabled,
       intl,
+      activeChats,
     } = this.props;
 
     const {
@@ -186,7 +193,9 @@ class ChatAlert extends PureComponent {
     const notCurrentTabOrMinimized = document.hidden;
     const hasPendingNotifications = Object.keys(pendingNotificationsByChat).length > 0;
 
-    const shouldPlayChatAlert = notCurrentTabOrMinimized
+    const unreadMessages = activeChats.reduce((a, b) => a + b.unreadCounter, 0);
+
+    const shouldPlayChatAlert = (notCurrentTabOrMinimized && unreadMessages > 0)
       || (hasPendingNotifications && !idChatOpen);
 
     return (

@@ -44,6 +44,7 @@ export default class TriangleDrawComponent extends Component {
         d={path}
         strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         strokeLinejoin="miter"
+        data-test="drawnTriangle"
       />
     );
   }

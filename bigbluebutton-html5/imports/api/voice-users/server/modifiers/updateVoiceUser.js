@@ -15,6 +15,8 @@ export default function updateVoiceUser(meetingId, voiceUser) {
     muted: Match.Maybe(Boolean),
     voiceConf: String,
     joined: Match.Maybe(Boolean),
+    floor: Match.Maybe(Boolean),
+    lastFloorTime: Match.Maybe(String),
   });
 
   const { intId } = voiceUser;
@@ -43,14 +45,6 @@ export default function updateVoiceUser(meetingId, voiceUser) {
     clearSpokeTimeout(meetingId, intId);
   }
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Update voiceUser=${intId}: ${err}`);
-    }
-
-    return Logger.debug(`Update voiceUser=${intId} meeting=${meetingId}`);
-  };
-
   if (!voiceUser.talking) {
     const timeoutHandle = Meteor.setTimeout(() => {
       const user = VoiceUsers.findOne({ meetingId, intId }, {
@@ -66,7 +60,15 @@ export default function updateVoiceUser(meetingId, voiceUser) {
         if (talking || spokeDelay) return;
         modifier.$set.spoke = false;
         modifier.$set.startTime = null;
-        VoiceUsers.update(selector, modifier, cb);
+        try {
+          const numberAffected = VoiceUsers.update(selector, modifier);
+
+          if (numberAffected) {
+            Logger.debug('Update voiceUser', { voiceUser: intId, meetingId });
+          }
+        } catch (err) {
+          Logger.error(`Update voiceUser=${intId}: ${err}`);
+        }
       }
     }, TALKING_TIMEOUT);
 
@@ -74,5 +76,13 @@ export default function updateVoiceUser(meetingId, voiceUser) {
     modifier.$set.endTime = Date.now();
   }
 
-  return VoiceUsers.update(selector, modifier, cb);
+  try {
+    const numberAffected = VoiceUsers.update(selector, modifier);
+
+    if (numberAffected) {
+      Logger.debug('Update voiceUser', { voiceUser: intId, meetingId });
+    }
+  } catch (err) {
+    Logger.error(`Update voiceUser=${intId}: ${err}`);
+  }
 }

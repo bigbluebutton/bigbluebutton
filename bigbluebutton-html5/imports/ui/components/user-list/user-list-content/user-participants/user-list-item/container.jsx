@@ -3,10 +3,8 @@ import { withTracker } from 'meteor/react-meteor-data';
 import BreakoutService from '/imports/ui/components/breakout-room/service';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
-import Settings from '/imports/ui/services/settings';
 import UserListItem from './component';
 import UserListService from '/imports/ui/components/user-list/service';
-import { notify } from '/imports/ui/services/notification';
 
 const UserListItemContainer = props => <UserListItem {...props} />;
 const isMe = intId => intId === Auth.userID;
@@ -16,7 +14,6 @@ export default withTracker(({ user }) => {
   const breakoutSequence = (findUserInBreakout || {}).sequence;
   const Meeting = Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { lockSettingsProps: 1 } });
-  const AppSettings = Settings.application;
 
   return {
     user,
@@ -37,9 +34,7 @@ export default withTracker(({ user }) => {
     getGroupChatPrivate: UserListService.getGroupChatPrivate,
     getEmojiList: UserListService.getEmojiList(),
     getEmoji: UserListService.getEmoji(),
+    usersProp: UserListService.getUsersProp(),
     hasPrivateChatBetweenUsers: UserListService.hasPrivateChatBetweenUsers,
-    notify,
-    raiseHandAudioAlert: AppSettings.raiseHandAudioAlerts,
-    raiseHandPushAlert: AppSettings.raiseHandPushAlerts,
   };
 })(UserListItemContainer);

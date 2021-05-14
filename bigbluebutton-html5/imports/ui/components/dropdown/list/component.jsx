@@ -45,8 +45,8 @@ export default class DropdownList extends Component {
   }
 
   componentDidUpdate() {
-    const { focusedIndex } = this.state;
 
+    const { focusedIndex } = this.state;
     const children = [].slice.call(this._menu.children);
     this.menuRefs = children.filter(child => child.getAttribute('role') === 'menuitem');
 
@@ -126,13 +126,14 @@ export default class DropdownList extends Component {
   }
 
   handleItemClick(event, callback) {
-    const { getDropdownMenuParent, onActionsHide, dropdownHide } = this.props;
-
-    if (getDropdownMenuParent) {
-      onActionsHide();
-    } else {
-      this.setState({ focusedIndex: null });
-      dropdownHide();
+    const { getDropdownMenuParent, onActionsHide, dropdownHide, keepOpen} = this.props;
+    if(!keepOpen) {
+      if (getDropdownMenuParent) {
+        onActionsHide();
+      } else {
+        this.setState({ focusedIndex: null });
+        dropdownHide();
+      }
     }
 
     if (typeof callback === 'function') {

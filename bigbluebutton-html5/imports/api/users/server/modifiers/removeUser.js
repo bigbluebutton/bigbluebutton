@@ -2,14 +2,16 @@ import { check } from 'meteor/check';
 import Users from '/imports/api/users';
 import VideoStreams from '/imports/api/video-streams';
 import Logger from '/imports/startup/server/logger';
-import stopWatchingExternalVideo from '/imports/api/external-videos/server/methods/stopWatchingExternalVideo';
+import setloggedOutStatus from '/imports/api/users-persistent-data/server/modifiers/setloggedOutStatus';
+import stopWatchingExternalVideoSystemCall from '/imports/api/external-videos/server/methods/stopWatchingExternalVideoSystemCall';
 import clearUserInfoForRequester from '/imports/api/users-infos/server/modifiers/clearUserInfoForRequester';
+import ClientConnections from '/imports/startup/server/ClientConnections';
 
 const clearAllSessions = (sessionUserId) => {
   const serverSessions = Meteor.server.sessions;
   Object.keys(serverSessions)
-    .filter(i => serverSessions[i].userId === sessionUserId)
-    .forEach(i => serverSessions[i].close());
+    .filter((i) => serverSessions[i].userId === sessionUserId)
+    .forEach((i) => serverSessions[i].close());
 };
 
 export default function removeUser(meetingId, userId) {
@@ -21,7 +23,7 @@ export default function removeUser(meetingId, userId) {
   if (userToRemove) {
     const { presenter } = userToRemove;
     if (presenter) {
-      stopWatchingExternalVideo({ meetingId, requesterUserId: userId });
+      stopWatchingExternalVideoSystemCall({ meetingId, requesterUserId: 'system-presenter-was-removed' });
     }
   }
 
@@ -30,28 +32,34 @@ export default function removeUser(meetingId, userId) {
     userId,
   };
 
-  const modifier = {
-    $set: {
-      connectionStatus: 'offline',
-      validated: false,
-      emoji: 'none',
-      presenter: false,
-      role: 'VIEWER',
-    },
-  };
-
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Removing user from collection: ${err}`);
-    }
-
+  try {
+    setloggedOutStatus(userId, meetingId, true);
+    VideoStreams.remove({ meetingId, userId });
     const sessionUserId = `${meetingId}-${userId}`;
+
+    ClientConnections.removeClientConnection(`${meetingId}--${userId}`);
+
     clearAllSessions(sessionUserId);
 
     clearUserInfoForRequester(meetingId, userId);
 
-    return Logger.info(`Removed user id=${userId} meeting=${meetingId}`);
-  };
-  VideoStreams.remove({ meetingId, userId });
-  return Users.update(selector, modifier, cb);
+    /*
+    Timeout added to reduce the probability that "userRemove" happens too close to "ejectUser",
+    redirecting user to the wrong component.
+    This is a workaround and should be removed as soon as a better fix is made
+    see: https://github.com/bigbluebutton/bigbluebutton/pull/12057
+    */
+    const DELAY_USER_REMOVAL_TIMEOUT_MS = 1000;
+
+    Meteor.wrapAsync((callback) => {
+      Meteor.setTimeout(() => {
+        Users.remove(selector);
+        callback();
+      }, DELAY_USER_REMOVAL_TIMEOUT_MS);
+    })();
+
+    Logger.info(`Removed user id=${userId} meeting=${meetingId}`);
+  } catch (err) {
+    Logger.error(`Removing user from Users collection: ${err}`);
+  }
 }

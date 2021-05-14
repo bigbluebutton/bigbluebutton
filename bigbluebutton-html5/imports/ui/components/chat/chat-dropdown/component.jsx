@@ -50,8 +50,18 @@ class ChatDropdown extends PureComponent {
 
   componentDidMount() {
     this.clipboard = new Clipboard('#clipboardButton', {
-      text: () => ChatService.exportChat(ChatService.getPublicGroupMessages()),
+      text: () => '',
     });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { timeWindowsValues, users, intl } = this.props;
+    const { isSettingOpen } = this.state;
+    if (prevState.isSettingOpen !== isSettingOpen) {
+      this.clipboard = new Clipboard('#clipboardButton', {
+        text: () => ChatService.exportChat(timeWindowsValues, users, intl),
+      });
+    }
   }
 
   componentWillUnmount() {
@@ -71,12 +81,13 @@ class ChatDropdown extends PureComponent {
   }
 
   getAvailableActions() {
-    const { intl, isMeteorConnected, amIModerator } = this.props;
+    const {
+      intl, isMeteorConnected, amIModerator, meetingIsBreakout, meetingName, timeWindowsValues, users,
+    } = this.props;
 
     const clearIcon = 'delete';
     const saveIcon = 'download';
     const copyIcon = 'copy';
-
     return _.compact([
       <DropdownListItem
         data-test="chatSave"
@@ -86,12 +97,14 @@ class ChatDropdown extends PureComponent {
         onClick={() => {
           const link = document.createElement('a');
           const mimeType = 'text/plain';
-
-          link.setAttribute('download', `public-chat-${Date.now()}.txt`);
+          const date = new Date();
+          const time = `${date.getHours()}-${date.getMinutes()}`;
+          const dateString = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}_${time}`;
+          link.setAttribute('download', `bbb-${meetingName}[public-chat]_${dateString}.txt`);
           link.setAttribute(
             'href',
             `data: ${mimeType} ;charset=utf-8,
-            ${encodeURIComponent(ChatService.exportChat(ChatService.getPublicGroupMessages()))}`,
+            ${encodeURIComponent(ChatService.exportChat(timeWindowsValues, users, intl))}`,
           );
           link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
         }}
@@ -103,7 +116,7 @@ class ChatDropdown extends PureComponent {
         label={intl.formatMessage(intlMessages.copy)}
         key={this.actionsKey[1]}
       />,
-      amIModerator && isMeteorConnected ? (
+      !meetingIsBreakout && amIModerator && isMeteorConnected ? (
         <DropdownListItem
           data-test="chatClear"
           icon={clearIcon}

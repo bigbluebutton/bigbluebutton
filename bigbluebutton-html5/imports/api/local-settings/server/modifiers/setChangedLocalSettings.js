@@ -18,15 +18,13 @@ export default function setChangedLocalSettings(meetingId, userId, settings) {
     },
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      Logger.error(`${err}`);
-    }
+  try {
+    const { numChanged } = LocalSettings.upsert(selector, modifier);
 
     if (numChanged) {
       Logger.info(`Updated settings for user ${userId} on meeting ${meetingId}`);
     }
-  };
-
-  return LocalSettings.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Error on update settings. ${err}`);
+  }
 }

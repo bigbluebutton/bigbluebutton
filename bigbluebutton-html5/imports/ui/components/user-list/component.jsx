@@ -7,7 +7,6 @@ import CustomLogo from './custom-logo/component';
 import UserContentContainer from './user-list-content/container';
 
 const propTypes = {
-  activeChats: PropTypes.arrayOf(String).isRequired,
   compact: PropTypes.bool,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -15,6 +14,7 @@ const propTypes = {
   CustomLogoUrl: PropTypes.string.isRequired,
   isPublicChat: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
+  clearAllEmojiStatus: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
   showBranding: PropTypes.bool.isRequired,
   requestUserInformation: PropTypes.func.isRequired,
@@ -28,9 +28,9 @@ class UserList extends PureComponent {
   render() {
     const {
       intl,
-      activeChats,
       compact,
       setEmojiStatus,
+      clearAllEmojiStatus,
       isPublicChat,
       roving,
       CustomLogoUrl,
@@ -50,9 +50,9 @@ class UserList extends PureComponent {
         {<UserContentContainer
           {...{
             intl,
-            activeChats,
             compact,
             setEmojiStatus,
+            clearAllEmojiStatus,
             isPublicChat,
             roving,
             hasBreakoutRoom,

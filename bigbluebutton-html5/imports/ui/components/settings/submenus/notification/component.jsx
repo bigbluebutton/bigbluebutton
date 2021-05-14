@@ -32,6 +32,10 @@ const intlMessages = defineMessages({
     id: 'app.submenu.notification.userJoinLabel',
     description: 'label for chat messages',
   },
+  guestWaitingLabel: {
+    id: 'app.submenu.notification.guestWaitingLabel',
+    description: 'label for guests waiting for approval',
+  },
   raiseHandLabel: {
     id: 'app.submenu.notification.raiseHandLabel',
     description: 'label for raise hand emoji notifications',
@@ -49,7 +53,9 @@ class NotificationMenu extends BaseMenu {
   }
 
   render() {
-    const { intl } = this.props;
+    const {
+      intl, isModerator, showToggleLabel, displaySettingsStatus,
+    } = this.props;
     const { settings } = this.state;
 
     return (
@@ -81,21 +87,25 @@ class NotificationMenu extends BaseMenu {
               </div>
               <div className={styles.col}>
                 <div className={cx(styles.formElement, styles.pullContentCenter)}>
+                  {displaySettingsStatus(settings.chatAudioAlerts)}
                   <Toggle
                     icons={false}
                     defaultChecked={settings.chatAudioAlerts}
                     onChange={() => this.handleToggle('chatAudioAlerts')}
                     ariaLabel={`${intl.formatMessage(intlMessages.messagesLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)}`}
+                    showToggleLabel={showToggleLabel}
                   />
                 </div>
               </div>
               <div className={styles.col}>
                 <div className={cx(styles.formElement, styles.pullContentCenter)}>
+                  {displaySettingsStatus(settings.chatPushAlerts)}
                   <Toggle
                     icons={false}
                     defaultChecked={settings.chatPushAlerts}
                     onChange={() => this.handleToggle('chatPushAlerts')}
                     ariaLabel={`${intl.formatMessage(intlMessages.messagesLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)}`}
+                    showToggleLabel={showToggleLabel}
                   />
                 </div>
               </div>
@@ -110,53 +120,97 @@ class NotificationMenu extends BaseMenu {
             </div>
             <div className={styles.col}>
               <div className={cx(styles.formElement, styles.pullContentCenter)}>
+                {displaySettingsStatus(settings.userJoinAudioAlerts)}
                 <Toggle
                   icons={false}
                   defaultChecked={settings.userJoinAudioAlerts}
                   onChange={() => this.handleToggle('userJoinAudioAlerts')}
                   ariaLabel={`${intl.formatMessage(intlMessages.userJoinLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)}`}
+                  showToggleLabel={showToggleLabel}
                 />
               </div>
             </div>
             <div className={styles.col}>
               <div className={cx(styles.formElement, styles.pullContentCenter)}>
+                {displaySettingsStatus(settings.userJoinPushAlerts)}
                 <Toggle
                   icons={false}
                   defaultChecked={settings.userJoinPushAlerts}
                   onChange={() => this.handleToggle('userJoinPushAlerts')}
                   ariaLabel={`${intl.formatMessage(intlMessages.userJoinLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)}`}
+                  showToggleLabel={showToggleLabel}
                 />
               </div>
             </div>
           </div>
 
-          <div className={styles.row}>
-            <div className={styles.col}>
-              <label className={styles.label}>
-                {intl.formatMessage(intlMessages.raiseHandLabel)}
-              </label>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentCenter)}>
-                <Toggle
-                  icons={false}
-                  defaultChecked={settings.raiseHandAudioAlerts}
-                  onChange={() => this.handleToggle('raiseHandAudioAlerts')}
-                  ariaLabel={`${intl.formatMessage(intlMessages.raiseHandLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)}`}
-                />
+          {isModerator ? (
+            <div className={styles.row}>
+              <div className={styles.col}>
+                <label className={styles.label}>
+                  {intl.formatMessage(intlMessages.guestWaitingLabel)}
+                </label>
+              </div>
+              <div className={styles.col}>
+                <div className={cx(styles.formElement, styles.pullContentCenter)}>
+                  {displaySettingsStatus(settings.guestWaitingAudioAlerts)}
+                  <Toggle
+                    icons={false}
+                    defaultChecked={settings.guestWaitingAudioAlerts}
+                    onChange={() => this.handleToggle('guestWaitingAudioAlerts')}
+                    ariaLabel={`${intl.formatMessage(intlMessages.guestWaitingLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)}`}
+                    showToggleLabel={showToggleLabel}
+                  />
+                </div>
+              </div>
+              <div className={styles.col}>
+                <div className={cx(styles.formElement, styles.pullContentCenter)}>
+                  {displaySettingsStatus(settings.guestWaitingPushAlerts)}
+                  <Toggle
+                    icons={false}
+                    defaultChecked={settings.guestWaitingPushAlerts}
+                    onChange={() => this.handleToggle('guestWaitingPushAlerts')}
+                    ariaLabel={`${intl.formatMessage(intlMessages.guestWaitingLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)}`}
+                    showToggleLabel={showToggleLabel}
+                  />
+                </div>
               </div>
             </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentCenter)}>
-                <Toggle
-                  icons={false}
-                  defaultChecked={settings.raiseHandPushAlerts}
-                  onChange={() => this.handleToggle('raiseHandPushAlerts')}
-                  ariaLabel={`${intl.formatMessage(intlMessages.raiseHandLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)}`}
-                />
+          ) : null}
+
+          {isModerator ? (
+            <div className={styles.row}>
+              <div className={styles.col}>
+                <label className={styles.label}>
+                  {intl.formatMessage(intlMessages.raiseHandLabel)}
+                </label>
+              </div>
+              <div className={styles.col}>
+                <div className={cx(styles.formElement, styles.pullContentCenter)}>
+                  {displaySettingsStatus(settings.raiseHandAudioAlerts)}
+                  <Toggle
+                    icons={false}
+                    defaultChecked={settings.raiseHandAudioAlerts}
+                    onChange={() => this.handleToggle('raiseHandAudioAlerts')}
+                    ariaLabel={`${intl.formatMessage(intlMessages.raiseHandLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)}`}
+                    showToggleLabel={showToggleLabel}
+                  />
+                </div>
+              </div>
+              <div className={styles.col}>
+                <div className={cx(styles.formElement, styles.pullContentCenter)}>
+                  {displaySettingsStatus(settings.raiseHandPushAlerts)}
+                  <Toggle
+                    icons={false}
+                    defaultChecked={settings.raiseHandPushAlerts}
+                    onChange={() => this.handleToggle('raiseHandPushAlerts')}
+                    ariaLabel={`${intl.formatMessage(intlMessages.raiseHandLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)}`}
+                    showToggleLabel={showToggleLabel}
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          ) : null}
 
         </div>
       </div>

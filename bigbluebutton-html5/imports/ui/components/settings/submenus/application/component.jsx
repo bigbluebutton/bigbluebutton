@@ -2,11 +2,17 @@ import React from 'react';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import Toggle from '/imports/ui/components/switch/component';
+import LocalesDropdown from '/imports/ui/components/locales-dropdown/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import { styles } from '../styles';
+import VideoService from '/imports/ui/components/video-provider/service';
 
 const MIN_FONTSIZE = 0;
+const SHOW_AUDIO_FILTERS = (Meteor.settings.public.app
+  .showAudioFilters === undefined)
+  ? true
+  : Meteor.settings.public.app.showAudioFilters;
 
 const intlMessages = defineMessages({
   applicationSectionTitle: {
@@ -16,6 +22,10 @@ const intlMessages = defineMessages({
   animationsLabel: {
     id: 'app.submenu.application.animationsLabel',
     description: 'animations label',
+  },
+  audioFilterLabel: {
+    id: 'app.submenu.application.audioFilterLabel',
+    description: 'audio filters label',
   },
   fontSizeControlLabel: {
     id: 'app.submenu.application.fontSizeControlLabel',
@@ -53,6 +63,10 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.noLocaleOptionLabel',
     description: 'default change language option when no locales available',
   },
+  paginationEnabledLabel: {
+    id: 'app.submenu.application.paginationEnabledLabel',
+    description: 'enable/disable video pagination',
+  },
 });
 
 class ApplicationMenu extends BaseMenu {
@@ -68,6 +82,7 @@ class ApplicationMenu extends BaseMenu {
       settings: props.settings,
       isLargestFontSize: false,
       isSmallestFontSize: false,
+      showSelect: false,
       fontSizes: [
         '12px',
         '14px',
@@ -75,11 +90,20 @@ class ApplicationMenu extends BaseMenu {
         '18px',
         '20px',
       ],
+      audioFilterEnabled: ApplicationMenu.isAudioFilterEnabled(props
+        .settings.microphoneConstraints),
     };
   }
 
   componentDidMount() {
     this.setInitialFontSize();
+  }
+
+  componentWillUnmount() {
+    // fix Warning: Can't perform a React state update on an unmounted component
+    this.setState = (state, callback) => {
+
+    };
   }
 
   setInitialFontSize() {
@@ -97,6 +121,49 @@ class ApplicationMenu extends BaseMenu {
       isLargestFontSize: fontIndex >= (fontSizes.length - 1),
       fontSizes,
     });
+  }
+
+  static isAudioFilterEnabled(_constraints) {
+    if (typeof _constraints === 'undefined') return true;
+
+    const _isConstraintEnabled = (constraintValue) => {
+      switch (typeof constraintValue) {
+        case 'boolean':
+          return constraintValue;
+        case 'string':
+          return constraintValue === 'true';
+        case 'object':
+          return !!(constraintValue.exact || constraintValue.ideal);
+        default:
+          return false;
+      }
+    };
+
+    let isAnyFilterEnabled = true;
+
+    const constraints = _constraints && (typeof _constraints.advanced === 'object')
+      ? _constraints.advanced
+      : _constraints || {};
+
+    isAnyFilterEnabled = Object.values(constraints).find(
+      constraintValue => _isConstraintEnabled(constraintValue),
+    );
+
+    return isAnyFilterEnabled;
+  }
+
+  handleAudioFilterChange() {
+    const _audioFilterEnabled = !ApplicationMenu.isAudioFilterEnabled(this
+      .state.settings.microphoneConstraints);
+    const _newConstraints = {
+      autoGainControl: _audioFilterEnabled,
+      echoCancellation: _audioFilterEnabled,
+      noiseSuppression: _audioFilterEnabled,
+    };
+
+    const obj = this.state;
+    obj.settings.microphoneConstraints = _newConstraints;
+    this.handleUpdateSettings(this.state.settings, obj.settings);
   }
 
   handleUpdateFontSize(size) {
@@ -137,13 +204,86 @@ class ApplicationMenu extends BaseMenu {
 
   handleSelectChange(fieldname, options, e) {
     const obj = this.state;
-    obj.settings[fieldname] = e.target.value.toLowerCase().replace('_', '-');
+    obj.settings[fieldname] = e.target.value;
     this.handleUpdateSettings('application', obj.settings);
   }
 
+  renderAudioFilters() {
+    let audioFilterOption = null;
+
+    if (SHOW_AUDIO_FILTERS) {
+      const { intl, showToggleLabel, displaySettingsStatus } = this.props;
+      const { settings } = this.state;
+      const audioFilterStatus = ApplicationMenu
+        .isAudioFilterEnabled(settings.microphoneConstraints);
+
+      audioFilterOption = (
+        <div className={styles.row}>
+          <div className={styles.col} aria-hidden="true">
+            <div className={styles.formElement}>
+              <span className={styles.label}>
+                {intl.formatMessage(intlMessages.audioFilterLabel)}
+              </span>
+            </div>
+          </div>
+          <div className={styles.col}>
+            <div className={cx(styles.formElement, styles.pullContentRight)}>
+              {displaySettingsStatus(audioFilterStatus)}
+              <Toggle
+                icons={false}
+                defaultChecked={this.state.audioFilterEnabled}
+                onChange={() => this.handleAudioFilterChange()}
+                ariaLabel={intl.formatMessage(intlMessages.audioFilterLabel)}
+                showToggleLabel={showToggleLabel}
+              />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return audioFilterOption;
+  }
+
+  renderPaginationToggle() {
+    // See VideoService's method for an explanation
+    if (!VideoService.shouldRenderPaginationToggle()) return;
+
+    const { intl, showToggleLabel, displaySettingsStatus } = this.props;
+    const { settings } = this.state;
+
+    return (
+      <div className={styles.row}>
+        <div className={styles.col} aria-hidden="true">
+          <div className={styles.formElement}>
+            <label className={styles.label}>
+              {intl.formatMessage(intlMessages.paginationEnabledLabel)}
+            </label>
+          </div>
+        </div>
+        <div className={styles.col}>
+          <div className={cx(styles.formElement, styles.pullContentRight)}>
+            {displaySettingsStatus(settings.paginationEnabled)}
+            <Toggle
+              icons={false}
+              defaultChecked={settings.paginationEnabled}
+              onChange={() => this.handleToggle('paginationEnabled')}
+              ariaLabel={intl.formatMessage(intlMessages.paginationEnabledLabel)}
+              showToggleLabel={showToggleLabel}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   render() {
-    const { availableLocales, intl } = this.props;
-    const { isLargestFontSize, isSmallestFontSize, settings } = this.state;
+    const {
+      allLocales, intl, showToggleLabel, displaySettingsStatus,
+    } = this.props;
+    const {
+      isLargestFontSize, isSmallestFontSize, settings,
+    } = this.state;
 
     // conversions can be found at http://pxtoem.com
     const pixelPercentage = {
@@ -157,6 +297,8 @@ class ApplicationMenu extends BaseMenu {
     };
 
     const ariaValueLabel = intl.formatMessage(intlMessages.currentValue, { 0: `${pixelPercentage[settings.fontSize]}` });
+
+    const showSelect = allLocales && allLocales.length > 0;
 
     return (
       <div>
@@ -177,15 +319,20 @@ class ApplicationMenu extends BaseMenu {
             </div>
             <div className={styles.col}>
               <div className={cx(styles.formElement, styles.pullContentRight)}>
+                {displaySettingsStatus(settings.animations)}
                 <Toggle
                   icons={false}
-                  defaultChecked={this.state.settings.animations}
+                  defaultChecked={settings.animations}
                   onChange={() => this.handleToggle('animations')}
                   ariaLabel={intl.formatMessage(intlMessages.animationsLabel)}
+                  showToggleLabel={showToggleLabel}
                 />
               </div>
             </div>
           </div>
+
+          {this.renderAudioFilters()}
+          {this.renderPaginationToggle()}
 
           <div className={styles.row}>
             <div className={styles.col} aria-hidden="true">
@@ -201,25 +348,28 @@ class ApplicationMenu extends BaseMenu {
             </div>
             <div className={styles.col}>
               <span className={cx(styles.formElement, styles.pullContentRight)}>
-                {availableLocales && availableLocales.length > 0 ? (
-                  <select
-                    id="langSelector"
-                    defaultValue={this.state.settings.locale}
-                    lang={this.state.settings.locale}
-                    className={styles.select}
-                    onChange={this.handleSelectChange.bind(this, 'locale', availableLocales)}
-                  >
-                    <option disabled>{intl.formatMessage(intlMessages.languageOptionLabel)}</option>
-                    {availableLocales.map((locale, index) => (
-                      <option key={index} value={locale.locale} lang={locale.locale}>
-                        {locale.name}
-                      </option>
-                    ))}
-                  </select>
-                ) : null}
+                {showSelect ? (
+                  <LocalesDropdown
+                    allLocales={allLocales}
+                    handleChange={e => this.handleSelectChange('locale', allLocales, e)}
+                    value={settings.locale}
+                    elementId="langSelector"
+                    elementClass={styles.select}
+                    selectMessage={intl.formatMessage(intlMessages.languageOptionLabel)}
+                  />
+                )
+                  : (
+                    <div className={styles.spinnerOverlay}>
+                      <div className={styles.bounce1} />
+                      <div className={styles.bounce2} />
+                      <div />
+                    </div>
+                  )
+                }
               </span>
             </div>
           </div>
+
           <hr className={styles.separator} />
           <div className={styles.row}>
             <div className={styles.col}>
@@ -232,7 +382,7 @@ class ApplicationMenu extends BaseMenu {
             <div className={styles.col}>
               <div aria-hidden className={cx(styles.formElement, styles.pullContentCenter)}>
                 <label className={cx(styles.label, styles.bold)}>
-                  {`${pixelPercentage[this.state.settings.fontSize]}`}
+                  {`${pixelPercentage[settings.fontSize]}`}
                 </label>
               </div>
             </div>

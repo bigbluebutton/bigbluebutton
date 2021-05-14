@@ -10,10 +10,9 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
-import ConnectionStatusContainer from '/imports/ui/components/connection-status/modal/container';
+import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
 import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/container';
 import CaptionsService from '/imports/ui/components/captions/service';
-import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import { styles } from './styles';
@@ -29,10 +28,12 @@ const propTypes = {
   toggleStatus: PropTypes.func.isRequired,
   mountModal: PropTypes.func.isRequired,
   users: PropTypes.arrayOf(Object).isRequired,
+  guestPolicy: PropTypes.string.isRequired,
   meetingIsBreakout: PropTypes.bool.isRequired,
   hasBreakoutRoom: PropTypes.bool.isRequired,
   isBreakoutEnabled: PropTypes.bool.isRequired,
   isBreakoutRecordable: PropTypes.bool.isRequired,
+  dynamicGuestPolicy: PropTypes.bool.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -72,13 +73,13 @@ const intlMessages = defineMessages({
     id: 'app.userList.userOptions.lockViewersDesc',
     description: 'Lock viewers description',
   },
-  connectionStatusLabel: {
-    id: 'app.userList.userOptions.connectionStatusLabel',
-    description: 'Connection status label',
+  guestPolicyLabel: {
+    id: 'app.userList.userOptions.guestPolicyLabel',
+    description: 'Guest policy label',
   },
-  connectionStatusDesc: {
-    id: 'app.userList.userOptions.connectionStatusDesc',
-    description: 'Connection status description',
+  guestPolicyDesc: {
+    id: 'app.userList.userOptions.guestPolicyDesc',
+    description: 'Guest policy description',
   },
   muteAllExceptPresenterLabel: {
     id: 'app.userList.userOptions.muteAllExceptPresenterLabel',
@@ -112,6 +113,18 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.captionsDesc',
     description: 'Captions menu toggle description',
   },
+  savedNamesListTitle: {
+    id: 'app.userList.userOptions.savedNames.title',
+    description: '',
+  },
+  sortedFirstNameHeading: {
+    id: 'app.userList.userOptions.sortedFirstName.heading',
+    description: '',
+  },
+  sortedLastNameHeading: {
+    id: 'app.userList.userOptions.sortedLastName.heading',
+    description: '',
+  },
 });
 
 class UserOptions extends PureComponent {
@@ -126,7 +139,7 @@ class UserOptions extends PureComponent {
     this.muteId = _.uniqueId('list-item-');
     this.muteAllId = _.uniqueId('list-item-');
     this.lockId = _.uniqueId('list-item-');
-    this.connectionStatusId = _.uniqueId('list-item-');
+    this.guestPolicyId = _.uniqueId('list-item-');
     this.createBreakoutId = _.uniqueId('list-item-');
     this.saveUsersNameId = _.uniqueId('list-item-');
     this.captionsId = _.uniqueId('list-item-');
@@ -142,7 +155,21 @@ class UserOptions extends PureComponent {
   }
 
   onSaveUserNames() {
-    getUserNamesLink().dispatchEvent(new MouseEvent('click',
+    const { intl, meetingName } = this.props;
+    const date = new Date();
+    getUserNamesLink(
+      intl.formatMessage(intlMessages.savedNamesListTitle,
+        {
+          0: meetingName,
+          1: `${date.toLocaleDateString(
+            document.documentElement.lang,
+          )}:${date.toLocaleTimeString(
+            document.documentElement.lang,
+          )}`,
+        }),
+      intl.formatMessage(intlMessages.sortedFirstNameHeading),
+      intl.formatMessage(intlMessages.sortedLastNameHeading),
+    ).dispatchEvent(new MouseEvent('click',
       { bubbles: true, cancelable: true, view: window }));
   }
 
@@ -202,6 +229,7 @@ class UserOptions extends PureComponent {
       amIModerator,
       users,
       isMeteorConnected,
+      dynamicGuestPolicy,
     } = this.props;
 
     const canCreateBreakout = amIModerator
@@ -222,25 +250,28 @@ class UserOptions extends PureComponent {
           label={intl.formatMessage(intlMessages.clearAllLabel)}
           description={intl.formatMessage(intlMessages.clearAllDesc)}
           onClick={toggleStatus}
-        />) : null
+        />
+      ) : null
       ),
-      (isMeteorConnected ? (
+      (!meetingIsBreakout && isMeteorConnected ? (
         <DropdownListItem
           key={this.muteAllId}
           icon={isMeetingMuted ? 'unmute' : 'mute'}
           label={intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllLabel' : 'muteAllLabel'])}
           description={intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllDesc' : 'muteAllDesc'])}
           onClick={toggleMuteAllUsers}
-        />) : null
+        />
+      ) : null
       ),
-      (!isMeetingMuted && isMeteorConnected ? (
+      (!meetingIsBreakout && !isMeetingMuted && isMeteorConnected ? (
         <DropdownListItem
           key={this.muteId}
           icon="mute"
           label={intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
           description={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
           onClick={toggleMuteAllUsersExceptPresenter}
-        />) : null
+        />
+      ) : null
       ),
       (amIModerator
         ? (
@@ -249,7 +280,8 @@ class UserOptions extends PureComponent {
             label={intl.formatMessage(intlMessages.saveUserNames)}
             key={this.saveUsersNameId}
             onClick={this.onSaveUserNames}
-          />)
+          />
+        )
         : null
       ),
       (!meetingIsBreakout && isMeteorConnected ? (
@@ -259,16 +291,19 @@ class UserOptions extends PureComponent {
           label={intl.formatMessage(intlMessages.lockViewersLabel)}
           description={intl.formatMessage(intlMessages.lockViewersDesc)}
           onClick={() => mountModal(<LockViewersContainer />)}
-        />) : null
+        />
+      ) : null
       ),
-      (ConnectionStatusService.isEnabled() && isMeteorConnected ? (
+      (!meetingIsBreakout && isMeteorConnected && dynamicGuestPolicy ? (
         <DropdownListItem
-          key={this.connectionStatusId}
-          icon="warning"
-          label={intl.formatMessage(intlMessages.connectionStatusLabel)}
-          description={intl.formatMessage(intlMessages.connectionStatusDesc)}
-          onClick={() => mountModal(<ConnectionStatusContainer />)}
-        />) : null
+          key={this.guestPolicyId}
+          icon="user"
+          label={intl.formatMessage(intlMessages.guestPolicyLabel)}
+          data-test="guestPolicyLabel"
+          description={intl.formatMessage(intlMessages.guestPolicyDesc)}
+          onClick={() => mountModal(<GuestPolicyContainer />)}
+        />
+      ) : null
       ),
       (isMeteorConnected ? <DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
       (canCreateBreakout && isMeteorConnected ? (
@@ -279,7 +314,8 @@ class UserOptions extends PureComponent {
           label={intl.formatMessage(intlMessages.createBreakoutRoom)}
           description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
           onClick={this.onCreateBreakouts}
-        />) : null
+        />
+      ) : null
       ),
       (canInviteUsers && isMeteorConnected ? (
         <DropdownListItem
@@ -288,7 +324,8 @@ class UserOptions extends PureComponent {
           label={intl.formatMessage(intlMessages.invitationItem)}
           key={this.createBreakoutId}
           onClick={this.onInvitationUsers}
-        />) : null
+        />
+      ) : null
       ),
       (amIModerator && CaptionsService.isCaptionsEnabled() && isMeteorConnected
         ? (

@@ -37,7 +37,7 @@ trait RightsManagementTrait extends SystemConfiguration {
   }
 }
 
-object PermissionCheck {
+object PermissionCheck extends SystemConfiguration {
 
   val MOD_LEVEL = 100
   val AUTHED_LEVEL = 50
@@ -83,12 +83,17 @@ object PermissionCheck {
 
   def ejectUserForFailedPermission(meetingId: String, userId: String, reason: String,
                                    outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
-    val ejectedBy = SystemUser.ID
+    if (ejectOnViolation) {
+      val ejectedBy = SystemUser.ID
 
-    UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, ejectedBy, reason, EjectReasonCode.PERMISSION_FAILED, ban = false)
+      UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, ejectedBy, reason, EjectReasonCode.PERMISSION_FAILED, ban = false)
 
-    // send a system message to force disconnection
-    Sender.sendDisconnectClientSysMsg(meetingId, userId, ejectedBy, reason, outGW)
+      // send a system message to force disconnection
+      Sender.sendDisconnectClientSysMsg(meetingId, userId, ejectedBy, reason, outGW)
+    } else {
+      // TODO: get this object a context so it can use the akka logging system
+      println(s"Skipping violation ejection of ${userId} trying to ${reason} in ${meetingId}")
+    }
   }
 
   def addOldPresenter(users: Users2x, userId: String): OldPresenter = {

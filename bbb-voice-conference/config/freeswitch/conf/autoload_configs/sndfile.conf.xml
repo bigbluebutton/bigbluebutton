@@ -1,0 +1,9 @@
+<configuration name="sndfile.conf">
+	<settings>
+		<!-- Allow only these file extensions. Default: allow all sndfile provided extensions + FS custom extra -->
+		<!--
+		<param name="allowed-extensions" value="wav,raw,r8,r16"/>
+		-->
+	</settings>
+</configuration>
+
