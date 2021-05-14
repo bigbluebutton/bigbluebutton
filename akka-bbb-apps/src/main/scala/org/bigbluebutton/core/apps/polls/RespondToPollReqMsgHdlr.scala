@@ -23,12 +23,12 @@ trait RespondToPollReqMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    def broadcastUserRespondedToPollRecordMsg(msg: RespondToPollReqMsg, pollId: String, answerId: Int): Unit = {
+    def broadcastUserRespondedToPollRecordMsg(msg: RespondToPollReqMsg, pollId: String, answerId: Int, answer: String): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(UserRespondedToPollRecordMsg.NAME, routing)
       val header = BbbClientMsgHeader(UserRespondedToPollRecordMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = UserRespondedToPollRecordMsgBody(pollId, answerId)
+      val body = UserRespondedToPollRecordMsgBody(pollId, answerId, answer)
       val event = UserRespondedToPollRecordMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
@@ -50,7 +50,12 @@ trait RespondToPollReqMsgHdlr {
         msg.body.questionId, msg.body.answerId, liveMeeting)
     } yield {
       broadcastPollUpdatedEvent(msg, pollId, updatedPoll)
-      broadcastUserRespondedToPollRecordMsg(msg, pollId, msg.body.answerId)
+      for {
+        simplePoll <- Polls.getSimplePoll(pollId, liveMeeting.polls)
+      } yield {
+        val answerText = simplePoll.answers(msg.body.answerId).key
+        broadcastUserRespondedToPollRecordMsg(msg, pollId, msg.body.answerId, answerText)
+      }
 
       for {
         presenter <- Users2x.findPresenter(liveMeeting.users2x)
