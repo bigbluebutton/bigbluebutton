@@ -21,6 +21,7 @@ import { withDraggableConsumer } from '../media/webcam-draggable-overlay/context
 import Icon from '/imports/ui/components/icon/component';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import PollingContainer from '/imports/ui/components/polling/container';
+import { ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -76,7 +77,6 @@ class PresentationArea extends PureComponent {
     this.getPresentationSizesAvailable = this.getPresentationSizesAvailable.bind(this);
     this.handleResize = this.handleResize.bind(this);
 
-
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
     this.renderCurrentPresentationToast = this.renderCurrentPresentationToast.bind(this);
   }
@@ -112,7 +112,9 @@ class PresentationArea extends PureComponent {
     window.addEventListener('layoutSizesSets', this.onResize, false);
     window.addEventListener('webcamAreaResize', this.handleResize, false);
 
-    const { slidePosition, layoutContextDispatch } = this.props;
+    const {
+      currentSlide, slidePosition, layoutContextDispatch, newLayoutContextDispatch,
+    } = this.props;
 
     let currWidth = 0;
     let currHeight = 0;
@@ -121,6 +123,18 @@ class PresentationArea extends PureComponent {
       currWidth = slidePosition.width;
       currHeight = slidePosition.height;
     }
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_NUM_CURRENT_SLIDE,
+      value: currentSlide.num,
+    });
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_CURRENT_SLIDE_SIZE,
+      value: {
+        width: slidePosition.width,
+        height: slidePosition.height,
+      },
+    });
 
     layoutContextDispatch({
       type: 'setPresentationSlideSize',
@@ -157,6 +171,7 @@ class PresentationArea extends PureComponent {
       layoutContextDispatch,
       layoutContextState,
       userIsPresenter,
+      layoutManagerLoaded,
     } = this.props;
 
     const { numUsersVideo } = layoutContextState;
@@ -169,7 +184,7 @@ class PresentationArea extends PureComponent {
       this.onResize();
     }
 
-    if(prevProps?.slidePosition && slidePosition){
+    if (prevProps?.slidePosition && slidePosition) {
       const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;
       const { width: currWidth, height: currHeight } = slidePosition;
 
@@ -208,55 +223,69 @@ class PresentationArea extends PureComponent {
         }
       }
 
-    const downloadableOn = !prevProps.currentPresentation.downloadable
-      && currentPresentation.downloadable;
+      const downloadableOn = !prevProps.currentPresentation.downloadable
+        && currentPresentation.downloadable;
 
-    const shouldCloseToast = !(currentPresentation.downloadable && !userIsPresenter);
+      const shouldCloseToast = !(currentPresentation.downloadable && !userIsPresenter);
 
-    if (
-      prevProps.currentPresentation.name !== currentPresentation.name
-      || (downloadableOn && !userIsPresenter)
-    ) {
-      if (this.currentPresentationToastId) {
+      if (
+        prevProps.currentPresentation.name !== currentPresentation.name
+        || (downloadableOn && !userIsPresenter)
+      ) {
+        if (this.currentPresentationToastId) {
+          toast.update(this.currentPresentationToastId, {
+            autoClose: shouldCloseToast,
+            render: this.renderCurrentPresentationToast(),
+          });
+        } else {
+          this.currentPresentationToastId = toast(this.renderCurrentPresentationToast(), {
+            onClose: () => { this.currentPresentationToastId = null; },
+            autoClose: shouldCloseToast,
+            className: toastStyles.actionToast,
+          });
+        }
+      }
+
+      const downloadableOff = prevProps.currentPresentation.downloadable
+        && !currentPresentation.downloadable;
+
+      if (this.currentPresentationToastId && downloadableOff) {
         toast.update(this.currentPresentationToastId, {
-          autoClose: shouldCloseToast,
+          autoClose: true,
           render: this.renderCurrentPresentationToast(),
         });
-      } else {
-        this.currentPresentationToastId = toast(this.renderCurrentPresentationToast(), {
-          onClose: () => { this.currentPresentationToastId = null; },
-          autoClose: shouldCloseToast,
-          className: toastStyles.actionToast,
-        });
       }
-    }
 
-    const downloadableOff = prevProps.currentPresentation.downloadable
-      && !currentPresentation.downloadable;
-
-    if (this.currentPresentationToastId && downloadableOff) {
-      toast.update(this.currentPresentationToastId, {
-        autoClose: true,
-        render: this.renderCurrentPresentationToast(),
-      });
-    }
-
-    if (layoutSwapped && restoreOnUpdate && isViewer && currentSlide) {
-      const slideChanged = currentSlide.id !== prevProps.currentSlide.id;
-      const positionChanged = slidePosition.viewBoxHeight !== prevProps.slidePosition.viewBoxHeight
-        || slidePosition.viewBoxWidth !== prevProps.slidePosition.viewBoxWidth;
-      const pollPublished = publishedPoll && !prevProps.publishedPoll;
-      if (slideChanged || positionChanged || pollPublished) {
-        toggleSwapLayout();
+      if (layoutSwapped && restoreOnUpdate && isViewer && currentSlide) {
+        const slideChanged = currentSlide.id !== prevProps.currentSlide.id;
+        const positionChanged = slidePosition
+          .viewBoxHeight !== prevProps.slidePosition.viewBoxHeight
+          || slidePosition.viewBoxWidth !== prevProps.slidePosition.viewBoxWidth;
+        const pollPublished = publishedPoll && !prevProps.publishedPoll;
+        if (slideChanged || positionChanged || pollPublished) {
+          toggleSwapLayout();
+        }
       }
+
+      if (prevProps.layoutManagerLoaded !== layoutManagerLoaded) this.onResize();
     }
-  }
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.onResize, false);
     window.removeEventListener('layoutSizesSets', this.onResize, false);
     this.refPresentationContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
+  }
+
+  handleResize() {
+    const presentationSizes = this.getPresentationSizesAvailable();
+    if (Object.keys(presentationSizes).length > 0) {
+      // updating the size of the space available for the slide
+      this.setState({
+        presentationAreaHeight: presentationSizes.presentationAreaHeight,
+        presentationAreaWidth: presentationSizes.presentationAreaWidth,
+      });
+    }
   }
 
   onFullscreenChange() {
@@ -326,17 +355,6 @@ class PresentationArea extends PureComponent {
 
   setFitToWidth(fitToWidth) {
     this.setState({ fitToWidth });
-  }
-
-  handleResize() {
-    const presentationSizes = this.getPresentationSizesAvailable();
-    if (Object.keys(presentationSizes).length > 0) {
-      // updating the size of the space available for the slide
-      this.setState({
-        presentationAreaHeight: presentationSizes.presentationAreaHeight,
-        presentationAreaWidth: presentationSizes.presentationAreaWidth,
-      });
-    }
   }
 
   calculateSize(viewBoxDimensions) {
@@ -767,8 +785,7 @@ class PresentationArea extends PureComponent {
                 {intl.formatMessage(intlMessages.downloadLabel)}
               </a>
             </span>
-          ) : null
-        }
+          ) : null}
       </div>
     );
   }
@@ -824,7 +841,7 @@ class PresentationArea extends PureComponent {
         className={styles.presentationContainer}
       >
         {isFullscreen && <PollingContainer />}
-        
+
         <div
           ref={(ref) => { this.refPresentationArea = ref; }}
           className={styles.presentationArea}
@@ -870,7 +887,6 @@ class PresentationArea extends PureComponent {
 export default injectIntl(withDraggableConsumer(withLayoutConsumer(PresentationArea)));
 
 PresentationArea.propTypes = {
-  intl: PropTypes.object.isRequired,
   podId: PropTypes.string.isRequired,
   // Defines a boolean value to detect whether a current user is a presenter
   userIsPresenter: PropTypes.bool.isRequired,

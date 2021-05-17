@@ -1,15 +1,20 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import NoteService from '/imports/ui/components/note/service';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import UserNotes from './component';
+import { NLayoutContext } from '../../../layout/context/context';
 
-const UserNotesContainer = props => <UserNotes {...props} />;
+const UserNotesContainer = (props) => {
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
+  const { sidebarContentPanel } = newLayoutContextState;
+  return <UserNotes {...{ newLayoutContextDispatch, sidebarContentPanel, ...props }} />;
+};
 
 export default lockContextContainer(withTracker(({ userLocks }) => {
   const shouldDisableNote = userLocks.userNote;
   return {
-    isPanelOpened: NoteService.isPanelOpened(),
     revs: NoteService.getRevs(),
     disableNote: shouldDisableNote,
   };

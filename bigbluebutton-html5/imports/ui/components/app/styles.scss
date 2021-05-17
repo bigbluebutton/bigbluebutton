@@ -13,15 +13,19 @@
 .main {
   @extend %flex-column;
   position: relative;
-  height: 100%;
+}
+
+.newLayout{
+  background-color: #06172A;
 }
 
 .navbar {
-  position: relative;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
   text-align: center;
   font-size: 1.5rem;
   padding: var(--bars-padding) var(--bars-padding) 0 var(--bars-padding);
-  height: 7rem;
 }
 
 .wrapper {
