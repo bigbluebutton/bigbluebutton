@@ -161,7 +161,7 @@ class NavBar extends Component {
             {!isExpanded ? null
               : <Icon iconName="left_arrow" className={styles.arrowLeft} />}
             <Button
-              onClick={NavBar.handleToggleUserList}
+              onClick={this.handleToggleUserList}
               ghost
               circle
               hideLabel

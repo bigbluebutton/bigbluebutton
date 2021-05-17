@@ -51,6 +51,8 @@ const NavBarContainer = ({ children, ...props }) => {
     { groupChatsMessages, groupChats, users: users[Auth.meetingID] },
   );
 
+  const isExpanded = !!sidebarContentPanel || !!sidebarNavPanel;
+
   const currentUser = users[Auth.meetingID][Auth.userID];
   const amIModerator = currentUser.role === ROLE_MODERATOR;
 
@@ -66,6 +68,7 @@ const NavBarContainer = ({ children, ...props }) => {
         sidebarNavigation,
         sidebarContent,
         newLayoutContextDispatch,
+        isExpanded,
         ...rest,
       }}
       style={{ ...navBar }}
@@ -97,13 +100,10 @@ export default withTracker(() => {
   }
 
   const { connectRecordingObserver, processOutsideToggleRecording } = Service;
-  const openPanel = Session.get('openPanel');
-  const isExpanded = openPanel !== '';
 
   const layoutManagerLoaded = Session.get('layoutManagerLoaded');
 
   return {
-    isExpanded,
     currentUserId: Auth.userID,
     processOutsideToggleRecording,
     connectRecordingObserver,

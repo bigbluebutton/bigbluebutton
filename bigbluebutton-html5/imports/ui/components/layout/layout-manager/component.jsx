@@ -4,7 +4,7 @@ import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import _ from 'lodash';
-import NewLayoutManager from './context/context';
+import NewLayoutManager from '../context/context';
 
 const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);

@@ -12,8 +12,11 @@ import userListService from '/imports/ui/components/user-list/service';
 
 const ChatAlertContainer = (props) => {
   const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
+  const { newLayoutContextState } = newLayoutContext;
   const { sidebarContentPanel, idChatOpen } = newLayoutContextState;
+
+  if (!idChatOpen) return false;
+
   let idChat = idChatOpen;
   if (sidebarContentPanel !== PANELS.CHAT) idChat = '';
 
@@ -35,6 +38,7 @@ const ChatAlertContainer = (props) => {
       activeChats={activeChats}
       messages={groupChatsMessages}
       joinTimestamp={authTokenValidatedTime}
+      idChatOpen={idChat}
     />
   );
 };

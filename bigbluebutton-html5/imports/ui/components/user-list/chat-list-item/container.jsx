@@ -8,6 +8,7 @@ const ChatListItemContainer = (props) => {
   const { input, sidebarContentPanel, idChatOpen } = newLayoutContextState;
   const { sidebarContent } = input;
   const sidebarContentIsOpen = sidebarContent.isOpen;
+
   return (
     <ChatListItem
       {...{

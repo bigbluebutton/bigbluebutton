@@ -78,6 +78,8 @@ const ChatContainer = (props) => {
   const { idChatOpen } = newLayoutContextState;
   const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
 
+  console.log('idChatOpen', idChatOpen);
+
   const chatID = idChatOpen;
 
   if (!chatID) return null;

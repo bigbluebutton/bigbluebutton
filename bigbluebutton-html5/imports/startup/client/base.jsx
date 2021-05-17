@@ -80,7 +80,9 @@ class Base extends Component {
   }
 
   componentDidMount() {
-    const { animations } = this.props;
+    const { animations, newLayoutContextState, newLayoutContextDispatch } = this.props;
+    const { input } = newLayoutContextState;
+    const { sidebarNavPanel, sidebarContentPanel } = input;
 
     const {
       userID: localUserId,
@@ -138,6 +140,53 @@ class Base extends Component {
         }
       },
     });
+
+    if (!sidebarContentPanel || Session.equals('subscriptionsReady', true)) {
+      if (!checkedUserSettings) {
+        if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
+          if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+              value: true,
+            });
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: true,
+            });
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+              value: PANELS.CHAT,
+            });
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_ID_CHAT_OPEN,
+              value: PUBLIC_CHAT_ID,
+            });
+          } else {
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+              value: true,
+            });
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: false,
+            });
+          }
+        } else {
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+            value: false,
+          });
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: false,
+          });
+        }
+        window.dispatchEvent(new Event('panelChanged'));
+        if (Session.equals('subscriptionsReady', true)) {
+          checkedUserSettings = true;
+        }
+      }
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -400,25 +449,6 @@ const BaseContainer = withTracker(() => {
       }
     },
   });
-
-  if (Session.equals('openPanel', undefined) || Session.equals('subscriptionsReady', true)) {
-    if (!checkedUserSettings) {
-      if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
-        if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
-          Session.set('openPanel', 'chat');
-          Session.set('idChatOpen', PUBLIC_CHAT_ID);
-        } else {
-          Session.set('openPanel', 'userlist');
-        }
-      } else {
-        Session.set('openPanel', '');
-      }
-      window.dispatchEvent(new Event('panelChanged'));
-      if (Session.equals('subscriptionsReady', true)) {
-        checkedUserSettings = true;
-      }
-    }
-  }
 
   const codeError = Session.get('codeError');
   const { streams: usersVideo } = VideoService.getVideoStreams();
