@@ -28,7 +28,7 @@ case class PollUpdatedEvtMsgBody(pollId: String, poll: SimplePollResultOutVO)
 
 object UserRespondedToPollRecordMsg { val NAME = "UserRespondedToPollRecordMsg" }
 case class UserRespondedToPollRecordMsg(header: BbbClientMsgHeader, body: UserRespondedToPollRecordMsgBody) extends BbbCoreMsg
-case class UserRespondedToPollRecordMsgBody(pollId: String, answerId: Int)
+case class UserRespondedToPollRecordMsgBody(pollId: String, answerId: Int, answer: String)
 
 object RespondToPollReqMsg { val NAME = "RespondToPollReqMsg" }
 case class RespondToPollReqMsg(header: BbbClientMsgHeader, body: RespondToPollReqMsgBody) extends StandardMsg

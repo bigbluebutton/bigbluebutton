@@ -18,7 +18,7 @@ object Polls {
       val numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter
 
       for {
-        poll <- PollFactory.createPoll(stampedPollId, pollType, numRespondents, None)
+        poll <- PollFactory.createPoll(stampedPollId, pollType, numRespondents, None, Some(question))
       } yield {
         lm.polls.save(poll)
         poll
@@ -172,7 +172,7 @@ object Polls {
     def createPoll(stampedPollId: String): Option[Poll] = {
       val numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter
       for {
-        poll <- PollFactory.createPoll(stampedPollId, pollType, numRespondents, Some(answers))
+        poll <- PollFactory.createPoll(stampedPollId, pollType, numRespondents, Some(answers), Some(question))
       } yield {
         lm.polls.save(poll)
         poll
@@ -435,7 +435,7 @@ object PollType {
   val CustomPollType = "CUSTOM"
   val LetterPollType = "A-"
   val NumberPollType = "1-"
-  val ResponsePollType = "RP"
+  val ResponsePollType = "R-"
 }
 
 object PollFactory {
@@ -561,12 +561,12 @@ object PollFactory {
     questionOption
   }
 
-  def createPoll(id: String, pollType: String, numRespondents: Int, answers: Option[Seq[String]]): Option[Poll] = {
+  def createPoll(id: String, pollType: String, numRespondents: Int, answers: Option[Seq[String]], title: Option[String]): Option[Poll] = {
     var poll: Option[Poll] = None
 
     createQuestion(pollType, answers) match {
       case Some(question) => {
-        poll = Some(new Poll(id, Array(question), numRespondents, None))
+        poll = Some(new Poll(id, Array(question), numRespondents, title))
       }
       case None => poll = None
     }
@@ -644,7 +644,7 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
   }
 
   def toSimplePollResultOutVO(): SimplePollResultOutVO = {
-    new SimplePollResultOutVO(id, questions(0).toSimpleVotesOutVO(), numRespondents, _numResponders)
+    new SimplePollResultOutVO(id, title, questions(0).toSimpleVotesOutVO(), numRespondents, _numResponders)
   }
 }
 

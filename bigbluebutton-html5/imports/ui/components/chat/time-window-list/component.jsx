@@ -104,7 +104,18 @@ class TimeWindowList extends PureComponent {
       syncedPercent,
       lastTimeWindowValuesBuild,
       scrollPosition: scrollProps,
+      count
     } = this.props;
+
+    const { userScrolledBack } = this.state;
+
+    if((count > 0 && !userScrolledBack) || userSentMessage){
+      const lastItemIndex = timeWindowsValues.length - 1;
+
+      this.setState({
+        scrollPosition: lastItemIndex,
+      }, ()=> this.handleScrollUpdate(lastItemIndex));
+    }
 
     const {
       timeWindowsValues: prevTimeWindowsValues,
@@ -304,10 +315,11 @@ class TimeWindowList extends PureComponent {
     const {
       scrollArea,
       scrollPosition,
+      userScrolledBack,
     } = this.state;
     ChatLogger.debug('TimeWindowList::render', {...this.props},  {...this.state}, new Date());
 
-    const shouldAutoScroll = !!(scrollPosition && timeWindowsValues.length >= scrollPosition);
+    const shouldAutoScroll = !!(scrollPosition && timeWindowsValues.length >= scrollPosition && !userScrolledBack);
 
     return (
       [<div 

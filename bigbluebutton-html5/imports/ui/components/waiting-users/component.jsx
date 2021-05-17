@@ -178,6 +178,7 @@ const WaitingUsers = (props) => {
     guestLobbyMessage,
     authenticatedGuest,
     newLayoutContextDispatch,
+    allowRememberChoice,
   } = props;
 
   const onCheckBoxChange = (e) => {
@@ -236,9 +237,7 @@ const WaitingUsers = (props) => {
     },
   ];
 
-  const buttonsData = authenticatedGuest
-    ? _.concat(authGuestButtonsData, guestButtonsData)
-    : guestButtonsData;
+  const buttonsData = authenticatedGuest ? _.concat(authGuestButtonsData, guestButtonsData) : guestButtonsData;
 
   return (
     <div
@@ -297,12 +296,15 @@ const WaitingUsers = (props) => {
             ))
           }
         </div>
-        <div className={styles.rememberContainer}>
-          <input id="rememderCheckboxId" type="checkbox" onChange={onCheckBoxChange} />
-          <label htmlFor="rememderCheckboxId">
-            {intl.formatMessage(intlMessages.rememberChoice)}
-          </label>
-        </div>
+
+        {allowRememberChoice ? (
+          <div className={styles.rememberContainer}>
+            <input id="rememderCheckboxId" type="checkbox" onChange={onCheckBoxChange} />
+            <label htmlFor="rememderCheckboxId">
+              {intl.formatMessage(intlMessages.rememberChoice)}
+            </label>
+          </div>
+        ) : null}
       </div>
       {renderPendingUsers(
         intl.formatMessage(intlMessages.pendingUsers,

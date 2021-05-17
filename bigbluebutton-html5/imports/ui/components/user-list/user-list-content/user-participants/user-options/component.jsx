@@ -33,6 +33,7 @@ const propTypes = {
   hasBreakoutRoom: PropTypes.bool.isRequired,
   isBreakoutEnabled: PropTypes.bool.isRequired,
   isBreakoutRecordable: PropTypes.bool.isRequired,
+  dynamicGuestPolicy: PropTypes.bool.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -228,6 +229,7 @@ class UserOptions extends PureComponent {
       amIModerator,
       users,
       isMeteorConnected,
+      dynamicGuestPolicy,
     } = this.props;
 
     const canCreateBreakout = amIModerator
@@ -292,7 +294,7 @@ class UserOptions extends PureComponent {
         />
       ) : null
       ),
-      (!meetingIsBreakout && isMeteorConnected ? (
+      (!meetingIsBreakout && isMeteorConnected && dynamicGuestPolicy ? (
         <DropdownListItem
           key={this.guestPolicyId}
           icon="user"
