@@ -38,6 +38,7 @@ const ActionsBarContainer = (props) => {
 const POLLING_ENABLED = Meteor.settings.public.poll.enabled;
 const PRESENTATION_DISABLED = Meteor.settings.public.layout.hidePresentation;
 const SELECT_RANDOM_USER_ENABLED = Meteor.settings.public.selectRandomUser.enabled;
+const RAISE_HAND_BUTTON_ENABLED = Meteor.settings.public.app.raiseHandActionButton.enabled;
 
 export default withTracker(() => ({
   amIPresenter: Service.amIPresenter(),
@@ -55,6 +56,7 @@ export default withTracker(() => ({
   isPollingEnabled: POLLING_ENABLED,
   isPresentationDisabled: PRESENTATION_DISABLED,
   isSelectRandomUserEnabled: SELECT_RANDOM_USER_ENABLED,
+  isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,
   isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
     { fields: {} }),
   allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,

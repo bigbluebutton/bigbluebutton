@@ -77,6 +77,8 @@ public:
     # For more info, see 'microphoneConstraints' option in this config.
     # If not set, default value is true.
     showAudioFilters: true
+    raiseHandActionButton:
+      enabled: true
     defaultSettings:
       application:
         animations: true
