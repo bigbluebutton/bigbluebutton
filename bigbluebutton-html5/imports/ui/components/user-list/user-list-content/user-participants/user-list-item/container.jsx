@@ -12,7 +12,7 @@ const UserListItemContainer = (props) => {
   const { newLayoutContextDispatch } = newLayoutContext;
   return <UserListItem {...{ newLayoutContextDispatch, ...props }} />;
 };
-const isMe = intId => intId === Auth.userID;
+const isMe = (intId) => intId === Auth.userID;
 
 export default withTracker(({ user }) => {
   const findUserInBreakout = BreakoutService.getBreakoutUserIsIn(user.userId);

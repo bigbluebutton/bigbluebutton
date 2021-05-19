@@ -154,7 +154,7 @@ class App extends Component {
     Modal.setAppElement('#app');
 
     document.getElementsByTagName('html')[0].lang = locale;
-    document.getElementsByTagName('html')[0].style.fontSize = isMobile ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
+    document.getElementsByTagName('html')[0].style.fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
 
     const body = document.getElementsByTagName('body')[0];
 
@@ -185,7 +185,7 @@ class App extends Component {
       startBandwidthMonitoring();
     }
 
-    if (isMobile) makeCall('setMobileUser');
+    if (isMobile()) makeCall('setMobileUser');
 
     ConnectionStatusService.startRoundTripTime();
 
