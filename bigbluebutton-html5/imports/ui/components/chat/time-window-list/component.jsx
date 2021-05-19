@@ -109,7 +109,7 @@ class TimeWindowList extends PureComponent {
 
     const { userScrolledBack } = this.state;
 
-    if((count > 0 && !userScrolledBack) || userSentMessage){
+    if((count > 0 && !userScrolledBack) || userSentMessage || !scrollProps){
       const lastItemIndex = timeWindowsValues.length - 1;
 
       this.setState({

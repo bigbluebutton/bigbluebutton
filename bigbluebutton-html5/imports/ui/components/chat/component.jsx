@@ -11,6 +11,8 @@ import MessageFormContainer from './message-form/container';
 import TimeWindowList from './time-window-list/container';
 import ChatDropdownContainer from './chat-dropdown/container';
 import { PANELS, ACTIONS } from '../layout/enums';
+import { UserSentMessageCollection } from './service';
+import Auth from '/imports/ui/services/auth';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -51,6 +53,8 @@ const Chat = (props) => {
     syncedPercent,
     lastTimeWindowValuesBuild,
   } = props;
+
+  const userSentMessage = UserSentMessageCollection.findOne({ userId: Auth.userID, sent: true });
 
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
   const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
@@ -143,6 +147,7 @@ const Chat = (props) => {
           syncing,
           syncedPercent,
           lastTimeWindowValuesBuild,
+          userSentMessage
         }}
       />
       <MessageFormContainer
