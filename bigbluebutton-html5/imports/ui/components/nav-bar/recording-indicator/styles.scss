@@ -12,6 +12,7 @@
 %recordingControl {
   display: flex;
   border-radius: 2em 2em;
+  align-items: center;
 
   span {
     border: none;
@@ -89,14 +90,6 @@
   [dir="ltr"] & {
     margin-right: var(--sm-padding-x);
   }
-}
-
-[lang="te"] .iconMargin, [lang="te-IN"] .iconMargin {
-  margin-top: .65rem;
-}
-
-[lang="km"] .iconMargin, [lang="km-KH"] .iconMargin {
-  margin-top: .35rem;
 }
 
 .recordingStatusViewOnly {

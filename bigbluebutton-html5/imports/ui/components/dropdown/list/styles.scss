@@ -59,6 +59,7 @@
 .item {
   display: flex;
   flex: 1 1 100%;
+  align-items: center;
 
   .verticalList & {
     padding: calc(var(--line-height-computed) / 3) 0;
@@ -139,14 +140,6 @@
   [dir="rtl"] & {
     margin: 0 0 0 calc(var(--line-height-computed) / 2);
   }
-}
-
-[lang="te"] .iconRight, [lang="te-IN"] .iconRight, [lang="te"] .itemIcon, [lang="te-IN"] .itemIcon{
-  margin-top: .65rem;
-}
-
-[lang="km"] .iconRight, [lang="km-KH"] .iconRight, [lang="km"] .itemIcon, [lang="km-KH"] .itemIcon{
-  margin-top: .35rem;
 }
 
 .iconRight {
