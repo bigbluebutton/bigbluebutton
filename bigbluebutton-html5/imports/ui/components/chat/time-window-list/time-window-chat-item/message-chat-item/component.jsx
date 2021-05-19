@@ -104,7 +104,7 @@ class MessageChatItem extends PureComponent {
           return;
         }
 
-        if (isElementInViewport(node) && !read) {
+        if (isElementInViewport(node)) {
           handleReadMessage(time);
           this.removeScrollListeners();
         }

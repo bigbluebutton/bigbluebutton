@@ -42,6 +42,14 @@ const intlMessages = defineMessages({
     id: 'app.debugWindow.form.enableAutoarrangeLayoutDescription',
     description: 'Enable Autoarrange layout description',
   },
+  on: {
+    id: 'app.switch.onLabel',
+    description: 'label for toggle switch on state',
+  },
+  off: {
+    id: 'app.switch.offLabel',
+    description: 'label for toggle switch off state',
+  },
 });
 
 const DEBUG_WINDOW_ENABLED = Meteor.settings.public.app.enableDebugWindow;
@@ -54,6 +62,7 @@ class DebugWindow extends Component {
     this.state = {
       showDebugWindow: false,
       logLevel: ChatLogger.getLogLevel(),
+      autoArrangeLayout: Storage.getItem('autoArrangeLayout'),
     };
 
     this.setLayoutManagerToLoad = this.setLayoutManagerToLoad.bind(this);
@@ -101,15 +110,32 @@ class DebugWindow extends Component {
     }
   }
 
+  displaySettingsStatus(status) {
+    const { intl } = this.props;
+
+    return (
+      <span className={styles.toggleLabel}>
+        {status ? intl.formatMessage(intlMessages.on)
+          : intl.formatMessage(intlMessages.off)}
+      </span>
+    );
+  }
+
   autoArrangeToggle() {
     const { layoutContextDispatch } = this.props;
     const autoArrangeLayout = Storage.getItem('autoArrangeLayout');
+
+    this.setState({
+      autoArrangeLayout: !autoArrangeLayout,
+    });
+
     layoutContextDispatch(
       {
         type: 'setAutoArrangeLayout',
         value: !autoArrangeLayout,
       },
     );
+
     window.dispatchEvent(new Event('autoArrangeChanged'));
   }
 
@@ -121,8 +147,9 @@ class DebugWindow extends Component {
 
     const { intl, newLayoutContextState } = this.props;
     const { layoutType } = newLayoutContextState;
-    const autoArrangeLayout = Storage.getItem('autoArrangeLayout');
     const layoutManagerLoaded = Session.get('layoutManagerLoaded');
+    const { autoArrangeLayout } = this.state;
+
     return (
       <Draggable
         handle="#debugWindowHeader"
@@ -210,12 +237,14 @@ class DebugWindow extends Component {
                   </div>
                   <div className={styles.cell}>
                     <div className={styles.cellContent}>
+                      {this.displaySettingsStatus(autoArrangeLayout)}
                       <Toggle
                         className={styles.autoArrangeToggle}
                         icons={false}
                         defaultChecked={autoArrangeLayout}
                         onChange={() => this.autoArrangeToggle()}
                         ariaLabel={intl.formatMessage(intlMessages.enableAutoarrangeLayoutLabel)}
+                        showToggleLabel={false}
                       />
                       <p>{`${intl.formatMessage(intlMessages.enableAutoarrangeLayoutDescription)}`}</p>
                     </div>
