@@ -13,7 +13,9 @@ const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const UserContentContainer = (props) => {
   const newLayoutContext = useContext(NLayoutContext);
   const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { sidebarContentPanel } = newLayoutContextState;
+  const { input } = newLayoutContextState;
+  const { sidebarContent } = input;
+  const { sidebarContentPanel } = sidebarContent;
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
   const currentUser = {

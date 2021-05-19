@@ -5,8 +5,10 @@ import NewLayoutContext from '../layout/context/context';
 const SidebarContentContainer = (props) => {
   const { newLayoutContextState, newLayoutContextDispatch } = props;
   const {
-    output, sidebarContentPanel,
+    output, input,
   } = newLayoutContextState;
+  const { sidebarContent: sidebarContentInput } = input;
+  const { sidebarContentPanel } = sidebarContentInput;
   const { sidebarContent } = output;
 
   if (sidebarContent.display === false) return null;

@@ -7,7 +7,9 @@ import { NLayoutContext } from '../../../layout/context/context';
 const UserCaptionsItemContainer = (props) => {
   const newLayoutContext = useContext(NLayoutContext);
   const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { sidebarContentPanel } = newLayoutContextState;
+  const { input } = newLayoutContextState;
+  const { sidebarContent } = input;
+  const { sidebarContentPanel } = sidebarContent;
   return <UserCaptionsItem {...{ sidebarContentPanel, newLayoutContextDispatch, ...props }} />;
 };
 

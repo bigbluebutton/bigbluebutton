@@ -1,4 +1,4 @@
-import { LAYOUT_TYPE, CAMERADOCK_POSITION } from './enums';
+import { LAYOUT_TYPE, CAMERADOCK_POSITION, PANELS } from './enums';
 
 const DEFAULT_VALUES = {
   layoutType: LAYOUT_TYPE.CUSTOM_LAYOUT,
@@ -25,12 +25,14 @@ const DEFAULT_VALUES = {
   sidebarNavTop: 0,
   sidebarNavLeft: 0,
   sidebarNavTabOrder: 1,
+  sidebarNavPanel: PANELS.USERLIST,
 
   sidebarContentMaxWidth: 350,
   sidebarContentMinWidth: 150,
   sidebarContentHeight: '100%',
   sidebarContentTop: 0,
   sidebarContentTabOrder: 2,
+  sidebarContentPanel: PANELS.CHAT,
 };
 
 export default DEFAULT_VALUES;

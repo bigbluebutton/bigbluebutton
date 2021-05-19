@@ -1,6 +1,6 @@
 import React, { createContext, useReducer } from 'react';
 import PropTypes from 'prop-types';
-import { LAYOUT_TYPE, ACTIONS, PANELS } from '../enums';
+import { ACTIONS } from '../enums';
 import DEFAULT_VALUES from '../defaultValues';
 import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
 
@@ -30,8 +30,6 @@ const initState = {
   deviceType: null,
   layoutType: DEFAULT_VALUES.layoutType,
   layoutLoaded: 'legacy',
-  sidebarNavPanel: PANELS.USERLIST,
-  sidebarContentPanel: PANELS.CHAT,
   idChatOpen: null,
   input: INITIAL_INPUT_STATE,
   output: INITIAL_OUTPUT_STATE,
@@ -60,6 +58,8 @@ const reducer = (state, action) => {
       };
     }
 
+    // LAYOUT TYPE
+    // using to load a diferent layout manager
     case ACTIONS.SET_LAYOUT_TYPE: {
       const { layoutType } = state.input;
       if (layoutType === action.value) return state;
@@ -69,6 +69,8 @@ const reducer = (state, action) => {
       };
     }
 
+    // LAYOUT TYPE LOADED
+    // only while the new layout manager is being developed
     case ACTIONS.SET_LAYOUT_LOADED: {
       const { layoutLoaded } = state;
       if (layoutLoaded === action.value) return state;
@@ -78,22 +80,7 @@ const reducer = (state, action) => {
       };
     }
 
-    case ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL: {
-      if (state.sidebarNavPanel === action.value) return state;
-      return {
-        ...state,
-        sidebarNavPanel: action.value,
-      };
-    }
-
-    case ACTIONS.SET_SIDEBAR_CONTENT_PANEL: {
-      if (state.sidebarContentPanel === action.value) return state;
-      return {
-        ...state,
-        sidebarContentPanel: action.value,
-      };
-    }
-
+    // ID CHAT open in sidebar content panel
     case ACTIONS.SET_ID_CHAT_OPEN: {
       if (state.idChatOpen === action.value) return state;
       return {
@@ -102,6 +89,7 @@ const reducer = (state, action) => {
       };
     }
 
+    // DEVICE
     case ACTIONS.SET_DEVICE_TYPE: {
       const { deviceType } = state;
       if (deviceType === action.value) return state;
@@ -111,6 +99,7 @@ const reducer = (state, action) => {
       };
     }
 
+    // BROWSER
     case ACTIONS.SET_BROWSER_SIZE: {
       const { width, height } = action.value;
       const { browser } = state.input;
@@ -130,6 +119,7 @@ const reducer = (state, action) => {
       };
     }
 
+    // NAV BAR
     case ACTIONS.SET_NAVBAR_OUTPUT: {
       const {
         display, width, height, top, left, tabOrder, zIndex,
@@ -162,6 +152,7 @@ const reducer = (state, action) => {
       };
     }
 
+    // ACTION BAR
     case ACTIONS.SET_ACTIONBAR_OUTPUT: {
       const {
         display, width, height, top, left, tabOrder, zIndex,
@@ -194,6 +185,7 @@ const reducer = (state, action) => {
       };
     }
 
+    // SIDEBAR NAVIGATION
     case ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN: {
       const { sidebarNavigation } = state.input;
       if (sidebarNavigation.isOpen === action.value) {
@@ -206,6 +198,22 @@ const reducer = (state, action) => {
           sidebarNavigation: {
             ...sidebarNavigation,
             isOpen: action.value,
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL: {
+      const { sidebarNavigation } = state.input;
+      if (sidebarNavigation.sidebarNavPanel === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          sidebarNavigation: {
+            ...sidebarNavigation,
+            sidebarNavPanel: action.value,
           },
         },
       };
@@ -309,7 +317,7 @@ const reducer = (state, action) => {
       };
     }
 
-
+    // SIDEBAR CONTENT
     case ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN: {
       const { sidebarContent } = state.input;
       if (sidebarContent.isOpen === action.value) {
@@ -322,6 +330,22 @@ const reducer = (state, action) => {
           sidebarContent: {
             ...sidebarContent,
             isOpen: action.value,
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_SIDEBAR_CONTENT_PANEL: {
+      const { sidebarContent } = state.input;
+      if (sidebarContent.sidebarContentPanel === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          sidebarContent: {
+            ...sidebarContent,
+            sidebarContentPanel: action.value,
           },
         },
       };
@@ -427,6 +451,7 @@ const reducer = (state, action) => {
       };
     }
 
+    // MEDIA
     case ACTIONS.SET_MEDIA_AREA_SIZE: {
       const { width, height } = action.value;
       const { mediaArea } = state.output;
@@ -447,6 +472,7 @@ const reducer = (state, action) => {
       };
     }
 
+    // WEBCAMS
     case ACTIONS.SET_NUM_CAMERAS: {
       const { cameraDock } = state.input;
       if (cameraDock.numCameras === action.value) {
@@ -632,6 +658,7 @@ const reducer = (state, action) => {
       };
     }
 
+    // WEBCAMS DROP AREAS
     case ACTIONS.SET_DROP_AREAS: {
       const { dropZoneAreas } = state.output;
       if (dropZoneAreas === action.value) {
@@ -646,6 +673,7 @@ const reducer = (state, action) => {
       };
     }
 
+    // PRESENTATION
     case ACTIONS.SET_PRESENTATION_IS_OPEN: {
       const { presentation } = state.input;
       if (presentation.isOpen === action.value) {
@@ -844,6 +872,7 @@ const reducer = (state, action) => {
       };
     }
 
+    // SCREEN SHARE
     case ACTIONS.SET_HAS_SCREEN_SHARE: {
       const { screenShare } = state.input;
       if (screenShare.hasScreenShare === action.value) {
@@ -886,6 +915,7 @@ const reducer = (state, action) => {
       };
     }
 
+    // EXTERNAL VIDEO
     case ACTIONS.SET_HAS_EXTERNAL_VIDEO: {
       const { externalVideo } = state.input;
       if (externalVideo.hasExternalVideo === action.value) {
@@ -948,20 +978,20 @@ const ContextProvider = (props) => {
 };
 ContextProvider.propTypes = providerPropTypes;
 
-const withProvider = Component => props => (
+const withProvider = (Component) => (props) => (
   <ContextProvider>
     <Component {...props} />
   </ContextProvider>
 );
 
-const withConsumer = Component => props => (
+const withConsumer = (Component) => (props) => (
   <NLayoutContext.Consumer>
-    {contexts => <Component {...props} {...contexts} />}
+    {(contexts) => <Component {...props} {...contexts} />}
   </NLayoutContext.Consumer>
 );
 
 export default {
   withProvider,
   withConsumer,
-  withContext: Component => withProvider(withConsumer(Component)),
+  withContext: (Component) => withProvider(withConsumer(Component)),
 };

@@ -78,9 +78,11 @@ class VideoFocusLayout extends Component {
           {
             sidebarNavigation: {
               isOpen: false,
+              sidebarNavPanel: input.sidebarNavigation.sidebarNavPanel,
             },
             sidebarContent: {
               isOpen: false,
+              sidebarContentPanel: input.sidebarContent.sidebarContentPanel,
             },
             SidebarContentHorizontalResizer: {
               isOpen: false,

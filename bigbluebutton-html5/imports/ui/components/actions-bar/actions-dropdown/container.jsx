@@ -8,8 +8,19 @@ import { NLayoutContext } from '../../layout/context/context';
 
 const ActionsDropdownContainer = (props) => {
   const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextDispatch } = newLayoutContext;
-  return <ActionsDropdown {...{ newLayoutContextDispatch, ...props }} />;
+  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
+  const { input } = newLayoutContextState;
+  const { sidebarContent, sidebarNavigation } = input;
+
+  return (
+    <ActionsDropdown {...{
+      newLayoutContextDispatch,
+      sidebarContent,
+      sidebarNavigation,
+      ...props,
+    }}
+    />
+  );
 };
 
 export default withTracker(() => {

@@ -92,28 +92,18 @@ class Dropdown extends Component {
       onHide,
       keepOpen,
       tethered,
+      sidebarContentPanel,
+      sidebarNavPanel
     } = this.props;
 
     const { isOpen } = this.state;
 
-    const openPanel = Session.get('openPanel');
-    const panelRef = document.getElementById(`${openPanel}Panel`);
     const enableSRTrap = isOpen && !tethered;
 
     if (enableSRTrap) {
       screenreaderTrap.trap(this.dropdown);
     } else {
       screenreaderTrap.untrap();
-    }
-
-    if (isOpen && tethered) {
-      if (!openPanel.includes('userlist') && panelRef) {
-        panelRef.setAttribute("aria-hidden", true);
-      }
-    }else if (!isOpen && tethered) {
-      if (panelRef) {
-        panelRef.setAttribute("aria-hidden", false);
-      }
     }
 
     if (isOpen && !prevState.isOpen) { onShow(); }

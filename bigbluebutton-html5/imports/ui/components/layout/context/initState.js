@@ -22,6 +22,7 @@ export const INITIAL_INPUT_STATE = {
     width: 0,
     height: 0,
     browserWidth: 0,
+    sidebarNavPanel: DEFAULT_VALUES.sidebarNavPanel,
   },
   sidebarContent: {
     isOpen: true,
@@ -29,6 +30,7 @@ export const INITIAL_INPUT_STATE = {
     width: 0,
     height: 0,
     browserWidth: 0,
+    sidebarContentPanel: DEFAULT_VALUES.sidebarContentPanel,
   },
   sidebarContentHorizontalResizer: {
     isOpen: true,

@@ -13,7 +13,9 @@ const ROLE_MODERATOR = USER_CONFIG.role_moderator;
 const WaitingContainer = (props) => {
   const newLayoutContext = useContext(NLayoutContext);
   const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { sidebarContentPanel } = newLayoutContextState;
+  const { input } = newLayoutContextState;
+  const { sidebarContent } = input;
+  const { sidebarContentPanel } = sidebarContent;
   const managementPanelIsOpen = sidebarContentPanel === PANELS.WAITING_USERS;
 
   const usingUsersContext = useContext(UsersContext);

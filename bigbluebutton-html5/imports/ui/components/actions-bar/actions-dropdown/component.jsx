@@ -265,6 +265,8 @@ class ActionsDropdown extends PureComponent {
       shortcuts: OPEN_ACTIONS_AK,
       isMeteorConnected,
       isDropdownOpen,
+      sidebarContent,
+      sidebarNavigation
     } = this.props;
 
     const availableActions = this.getAvailableActions();
@@ -279,7 +281,14 @@ class ActionsDropdown extends PureComponent {
     }
 
     return (
-      <Dropdown className={styles.dropdown} ref={(ref) => { this._dropdown = ref; }}>
+      <Dropdown
+        {...{
+          sidebarContent,
+          sidebarNavigation,
+        }}
+        className={styles.dropdown}
+        ref={(ref) => { this._dropdown = ref; }}
+      >
         <DropdownTrigger tabIndex={0} accessKey={OPEN_ACTIONS_AK}>
           <Button
             className={isDropdownOpen ? styles.hideDropdownButton : ''}

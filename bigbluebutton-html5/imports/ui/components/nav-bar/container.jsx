@@ -42,9 +42,11 @@ const NavBarContainer = ({ children, ...props }) => {
     ...rest
   } = props;
   const {
-    input, sidebarNavPanel, sidebarContentPanel, output,
+    input, output,
   } = newLayoutContextState;
-  const { sidebarNavigation, sidebarContent } = input;
+  const { sidebarContent, sidebarNavigation } = input;
+  const { sidebarNavPanel } = sidebarNavigation;
+  const { sidebarContentPanel } = sidebarContent;
   const { navBar } = output;
   const hasUnreadNotes = NoteService.hasUnreadNotes(sidebarContentPanel);
   const hasUnreadMessages = checkUnreadMessages(

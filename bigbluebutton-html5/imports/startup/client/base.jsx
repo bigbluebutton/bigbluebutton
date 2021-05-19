@@ -82,7 +82,8 @@ class Base extends Component {
   componentDidMount() {
     const { animations, newLayoutContextState, newLayoutContextDispatch } = this.props;
     const { input } = newLayoutContextState;
-    const { sidebarNavPanel, sidebarContentPanel } = input;
+    const { sidebarContent } = input;
+    const { sidebarContentPanel } = sidebarContent;
 
     const {
       userID: localUserId,

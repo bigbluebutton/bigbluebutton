@@ -62,11 +62,10 @@ const AppContainer = (props) => {
     input,
     layoutType,
     deviceType,
-    sidebarNavPanel,
-    sidebarContentPanel,
   } = newLayoutContextState;
-
-  const { sidebarNavigation, sidebarContent } = input;
+  const { sidebarContent, sidebarNavigation } = input;
+  const { sidebarNavPanel } = sidebarNavigation;
+  const { sidebarContentPanel } = sidebarContent;
   const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
   const sidebarContentIsOpen = sidebarContent.isOpen;
 

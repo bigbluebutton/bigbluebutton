@@ -139,9 +139,11 @@ class CustomLayout extends Component {
         value: _.defaultsDeep({
           sidebarNavigation: {
             isOpen: false,
+            sidebarNavPanel: input.sidebarNavigation.sidebarNavPanel,
           },
           sidebarContent: {
             isOpen: false,
+            sidebarContentPanel: input.sidebarContent.sidebarContentPanel,
           },
           sidebarContentHorizontalResizer: {
             isOpen: false,

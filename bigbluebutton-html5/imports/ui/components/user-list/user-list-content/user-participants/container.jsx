@@ -5,7 +5,7 @@ import UserParticipants from './component';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import ChatService from '/imports/ui/components/chat/service';
 
-const UserParticipantsContainer = props => <UserParticipants {...props} />;
+const UserParticipantsContainer = (props) => <UserParticipants {...props} />;
 
 export default withTracker(() => {
   ChatService.removePackagedClassAttribute(
