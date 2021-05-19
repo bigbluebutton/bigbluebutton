@@ -107,8 +107,6 @@ class NavBar extends Component {
         value: PANELS.USERLIST,
       });
     }
-
-    window.dispatchEvent(new Event('panelChanged'));
   }
 
   render() {

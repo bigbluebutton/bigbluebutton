@@ -182,7 +182,7 @@ class Base extends Component {
             value: false,
           });
         }
-        window.dispatchEvent(new Event('panelChanged'));
+
         if (Session.equals('subscriptionsReady', true)) {
           checkedUserSettings = true;
         }

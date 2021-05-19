@@ -139,8 +139,6 @@ class PanelManager extends Component {
         },
       },
     );
-
-    window.dispatchEvent(new Event('panelChanged'));
   }
 
   chatResizeStop(addvalue) {
@@ -158,8 +156,6 @@ class PanelManager extends Component {
         },
       },
     );
-
-    window.dispatchEvent(new Event('panelChanged'));
   }
 
   noteResizeStop(addvalue) {
@@ -178,8 +174,6 @@ class PanelManager extends Component {
         },
       },
     );
-
-    window.dispatchEvent(new Event('panelChanged'));
   }
 
   captionsResizeStop(addvalue) {
@@ -197,8 +191,6 @@ class PanelManager extends Component {
         },
       },
     );
-
-    window.dispatchEvent(new Event('panelChanged'));
   }
 
   pollResizeStop(addvalue) {
@@ -216,8 +208,6 @@ class PanelManager extends Component {
         },
       },
     );
-
-    window.dispatchEvent(new Event('panelChanged'));
   }
 
   waitingResizeStop(addvalue) {
@@ -235,8 +225,6 @@ class PanelManager extends Component {
         },
       },
     );
-
-    window.dispatchEvent(new Event('panelChanged'));
   }
 
   breakoutResizeStop(addvalue) {
@@ -253,8 +241,6 @@ class PanelManager extends Component {
         },
       },
     );
-
-    window.dispatchEvent(new Event('panelChanged'));
   }
 
   renderUserList() {

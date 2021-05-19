@@ -83,7 +83,6 @@ const Chat = (props) => {
                 type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                 value: PANELS.NONE,
               });
-              window.dispatchEvent(new Event('panelChanged'));
             }}
             aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
             accessKey={HIDE_CHAT_AK}
@@ -115,7 +114,6 @@ const Chat = (props) => {
                     type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                     value: PANELS.NONE,
                   });
-                  window.dispatchEvent(new Event('panelChanged'));
                 }}
                 aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
                 label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}

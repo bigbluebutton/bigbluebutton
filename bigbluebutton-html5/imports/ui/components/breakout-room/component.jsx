@@ -369,7 +369,6 @@ class BreakoutRoom extends PureComponent {
               type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
               value: PANELS.NONE,
             });
-            window.dispatchEvent(new Event('panelChanged'));
           }}
         />
         {this.renderBreakoutRooms()}
@@ -392,7 +391,6 @@ class BreakoutRoom extends PureComponent {
                     type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                     value: PANELS.NONE,
                   });
-                  window.dispatchEvent(new Event('panelChanged'));
                   endAllBreakouts();
                 }}
               />

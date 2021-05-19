@@ -41,7 +41,6 @@ class ChatPushAlert extends PureComponent {
             type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
             value: PANELS.CHAT,
           });
-          window.dispatchEvent(new Event('panelChanged'));
         }}
         onKeyPress={() => null}
       >

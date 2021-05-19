@@ -1,8 +1,13 @@
+import { Meteor } from 'meteor/meteor';
 import { LAYOUT_TYPE, CAMERADOCK_POSITION, PANELS } from './enums';
+
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
 const DEFAULT_VALUES = {
   layoutType: LAYOUT_TYPE.CUSTOM_LAYOUT,
   panelType: 'chat',
+  idChatOpen: PUBLIC_GROUP_CHAT_ID,
 
   cameraPosition: CAMERADOCK_POSITION.CONTENT_TOP,
   cameraDockTabOrder: 4,

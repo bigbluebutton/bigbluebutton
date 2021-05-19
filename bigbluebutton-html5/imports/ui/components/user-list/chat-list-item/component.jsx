@@ -134,8 +134,6 @@ const ChatListItem = (props) => {
         value: chat.chatId,
       });
     }
-
-    window.dispatchEvent(new Event('panelChanged'));
   };
 
   return (

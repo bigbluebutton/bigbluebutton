@@ -30,7 +30,7 @@ const initState = {
   deviceType: null,
   layoutType: DEFAULT_VALUES.layoutType,
   layoutLoaded: 'legacy',
-  idChatOpen: null,
+  idChatOpen: DEFAULT_VALUES.PUBLIC_GROUP_CHAT_ID,
   input: INITIAL_INPUT_STATE,
   output: INITIAL_OUTPUT_STATE,
 };

@@ -29,7 +29,6 @@ const BreakoutRoomItem = ({
         ? PANELS.NONE
         : PANELS.BREAKOUT,
     });
-    window.dispatchEvent(new Event('panelChanged'));
   };
 
   if (hasBreakoutRoom) {

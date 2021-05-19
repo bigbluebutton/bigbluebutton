@@ -106,11 +106,18 @@ class LayoutManagerComponent extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { layoutContextState, layoutManagerLoaded, screenIsShared } = this.props;
+    const {
+      layoutContextState,
+      layoutManagerLoaded,
+      screenIsShared,
+      newLayoutContextState,
+    } = this.props;
     const {
       layoutContextState: prevLayoutContextState,
       screenIsShared: prevScreenIsShared,
+      newLayoutContextState: prevNewLayoutContextState,
     } = prevProps;
+
     const {
       numUsersVideo,
     } = layoutContextState;
@@ -118,9 +125,20 @@ class LayoutManagerComponent extends Component {
       numUsersVideo: prevNumUsersVideo,
     } = prevLayoutContextState;
 
+    const { input } = newLayoutContextState;
+    const { sidebarNavigation, sidebarContent } = input;
+
+    const { input: prevInput } = prevNewLayoutContextState;
+    const {
+      sidebarNavigation: prevSidebarNavigation,
+      sidebarContent: prevSidebarContent,
+    } = prevInput;
+
     if (numUsersVideo !== prevNumUsersVideo
       || prevProps.layoutManagerLoaded !== layoutManagerLoaded
-      || prevScreenIsShared !== screenIsShared) {
+      || prevScreenIsShared !== screenIsShared
+      || sidebarNavigation.isOpen !== prevSidebarNavigation.isOpen
+      || sidebarContent.isOpen !== prevSidebarContent.isOpen) {
       setTimeout(() => this.setLayoutSizes(), 500);
     }
   }

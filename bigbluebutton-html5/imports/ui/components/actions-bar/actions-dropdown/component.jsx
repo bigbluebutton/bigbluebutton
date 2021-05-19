@@ -164,7 +164,6 @@ class ActionsDropdown extends PureComponent {
                 value: PANELS.POLL,
               });
               Session.set('forcePollOpen', true);
-              window.dispatchEvent(new Event('panelChanged'));
             }}
           />
         )
