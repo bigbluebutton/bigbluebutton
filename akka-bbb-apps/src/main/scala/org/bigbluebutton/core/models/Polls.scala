@@ -268,7 +268,7 @@ object Polls {
 
     // Limit the number of answers displayed to minimize
     // squishing the display.
-    if (sorted_answers.length < 7) {
+    if (sorted_answers.length <= 7) {
       sorted_answers.foreach(ans => {
         answers += SimpleVoteOutVO(ans.id, ans.key, ans.numVotes)
       })
