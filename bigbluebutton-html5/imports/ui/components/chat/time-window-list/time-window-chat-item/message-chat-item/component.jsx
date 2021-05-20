@@ -4,6 +4,7 @@ import _ from 'lodash';
 import fastdom from 'fastdom';
 import { defineMessages, injectIntl } from 'react-intl';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
+import PollListItem from './poll-list-item/component';
 
 const propTypes = {
   text: PropTypes.string.isRequired,
@@ -53,8 +54,6 @@ class MessageChatItem extends PureComponent {
     this.ticking = false;
 
     this.handleMessageInViewport = _.debounce(this.handleMessageInViewport.bind(this), 50);
-
-    this.renderPollListItem = this.renderPollListItem.bind(this);
   }
 
   componentDidMount() {
@@ -162,91 +161,32 @@ class MessageChatItem extends PureComponent {
     });
   }
 
-  renderPollListItem() {
-    const {
-      intl,
-      text,
-      className,
-      color,
-      isDefaultPoll,
-      extractPollQuestion,
-    } = this.props;
-
-    const formatBoldBlack = s => s.bold().fontcolor('black');
-
-    // Sanitize. See: https://gist.github.com/sagewall/47164de600df05fb0f6f44d48a09c0bd
-    const sanitize = (value) => {
-      const div = document.createElement('div');
-      div.appendChild(document.createTextNode(value));
-      return div.innerHTML;
-    };
-
-    let _text = text.replace('bbb-published-poll-<br/>', '');
-
-    const { pollQuestion, pollText: newPollText } = extractPollQuestion(_text);
-    _text = newPollText;
-
-    if (!isDefaultPoll) {
-      const entries = _text.split('<br/>');
-      const options = [];
-      _text = _text.split('<br#>').join('<br/>');
-
-      entries.map((e) => {
-        e = e.split('<br#>').join('<br/>');
-        const sanitizedEntry = sanitize(e);
-        _text = _text.replace(e, sanitizedEntry);
-        e = sanitizedEntry;
-
-        options.push([e.slice(0, e.indexOf(':'))]);
-        return e;
-      });
-      options.map((o, idx) => {
-        if (o[0] !== '') {
-          _text = formatBoldBlack(_text.replace(o, idx + 1));
-        }
-        return _text;
-      });
-      _text += formatBoldBlack(`<br/><br/>${intl.formatMessage(intlMessages.legendTitle)}`);
-      options.map((o, idx) => {
-        if (o[0] !== '') {
-          _text += `<br/>${idx + 1}: ${o}`;
-        }
-        return _text;
-      });
-    }
-
-    if (isDefaultPoll) {
-      _text = formatBoldBlack(_text);
-    }
-
-    if (pollQuestion.trim() !== '') {
-      const sanitizedPollQuestion = sanitize(pollQuestion.split('<br#>').join(' '));
-
-      _text = `${formatBoldBlack(intl.formatMessage(intlMessages.pollQuestionTitle))}<br/>${sanitizedPollQuestion}<br/><br/>${_text}`;
-    }
-
-    return (
-      <p
-        className={className}
-        style={{ borderLeft: `3px ${color} solid` }}
-        ref={(ref) => { this.text = ref; }}
-        dangerouslySetInnerHTML={{ __html: _text }}
-        data-test="chatPollMessageText"
-      />
-    );
-  }
-
   render() {
     const {
+      intl,
       text,
       type,
       className,
       isSystemMessage,
       chatUserMessageItem,
       systemMessageType,
+      color,
+      isDefaultPoll,
+      getPollResultString,      
+      pollResultData,
     } = this.props;
     ChatLogger.debug('MessageChatItem::render', this.props);
-    if (type === 'poll') return this.renderPollListItem();
+    if (type === 'poll') return (
+      <PollListItem
+        intl={intl}
+        text={text}
+        pollResultData={pollResultData}
+        className={className}
+        color={color}
+        isDefaultPoll={isDefaultPoll}
+        getPollResultString={getPollResultString}
+      />      
+    )
 
     return (
       <p

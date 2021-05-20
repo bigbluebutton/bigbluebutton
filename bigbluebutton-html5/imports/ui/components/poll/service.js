@@ -1,8 +1,10 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import Polls from '/imports/api/polls';
+import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 
 const POLL_AVATAR_COLOR = '#3B48A9';
+const MAX_POLL_RESULT_BARS = 20;
 
 // 'YN' = Yes,No
 // 'YNA' = Yes,No,Abstention
@@ -56,6 +58,30 @@ const pollAnswerIds = {
   },
 };
 
+const getPollResultString = (isDefaultPoll, answers, numRespondents) => {
+  let responded = 0;
+  let resultString = '';
+  let optionsString = '';
+
+  answers.map((item) => {
+    responded += item.numVotes;
+    return item;
+  }).reduce(caseInsensitiveReducer, []).map((item) => {
+    const numResponded = responded === numRespondents ? numRespondents : responded;
+    const pct = Math.round(item.numVotes / numResponded * 100);
+    const pctBars = "|".repeat(pct * MAX_POLL_RESULT_BARS / 100);
+    const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
+    if (isDefaultPoll) {
+      resultString += `${item.key}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
+    } else {
+      resultString += `${item.id+1}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
+      optionsString += `${item.id+1}: ${item.key}\n`;
+    }
+  });
+
+  return { resultString, optionsString };
+}
+
 export default {
   amIPresenter: () => Users.findOne(
     { userId: Auth.userID },
@@ -65,4 +91,6 @@ export default {
   currentPoll: () => Polls.findOne({ meetingId: Auth.meetingID }),
   pollAnswerIds,
   POLL_AVATAR_COLOR,
+  isDefaultPoll: (pollType) => { return pollType !== 'custom' && pollType !== 'R-'},
+  getPollResultString: getPollResultString,
 };
