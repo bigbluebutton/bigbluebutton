@@ -218,7 +218,7 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
     const normDefault = usableLocales.find(locale => normalizedLocale === locale);
     if (normDefault) {
       localeFile = normDefault;
-    }else{
+    } else {
       if (regionDefault) {
         localeFile = regionDefault;
       } else {
