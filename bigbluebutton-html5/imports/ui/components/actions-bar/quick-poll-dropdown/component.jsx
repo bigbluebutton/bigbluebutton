@@ -39,22 +39,11 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   parseCurrentSlideContent: PropTypes.func.isRequired,
   amIPresenter: PropTypes.bool.isRequired,
-};
-
-const handleClickQuickPoll = (newLayoutContextDispatch) => {
-  newLayoutContextDispatch({
-    type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-    value: true,
-  });
-  newLayoutContextDispatch({
-    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-    value: PANELS.POLL,
-  });
-  Session.set('forcePollOpen', true);
-  Session.set('pollInitiated', true);
 };
 
 const getLocalizedAnswers = (type, intl) => {
@@ -80,11 +69,25 @@ const getLocalizedAnswers = (type, intl) => {
   }
 };
 
+const handleClickQuickPoll = (newLayoutContextDispatch) => {
+  newLayoutContextDispatch({
+    type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+    value: true,
+  });
+  newLayoutContextDispatch({
+    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+    value: PANELS.POLL,
+  });
+  Session.set('forcePollOpen', true);
+  Session.set('pollInitiated', true);
+};
+
 const getAvailableQuickPolls = (
   slideId, parsedSlides, startPoll, intl, newLayoutContextDispatch,
 ) => {
   const pollItemElements = parsedSlides.map((poll) => {
-    const { poll: label, type } = poll;
+    const { poll: label } = poll;
+    let { type } = poll;
     let itemLabel = label;
     let answers = null;
 
@@ -119,11 +122,10 @@ const getAvailableQuickPolls = (
     );
   });
 
-  // TODO review the code below
   const sizes = [];
   return pollItemElements.filter((el) => {
     const { label } = el.props;
-    if (label.length === sizes[sizes.length - 1]) return;
+    if (label.length === sizes[sizes.length - 1]) return false;
     sizes.push(label.length);
     return el;
   });
@@ -151,7 +153,9 @@ class QuickPollDropdown extends Component {
     );
 
     const { slideId, quickPollOptions } = parsedSlide;
-    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions, startPoll, intl, newLayoutContextDispatch);
+    const quickPolls = getAvailableQuickPolls(
+      slideId, quickPollOptions, startPoll, intl, newLayoutContextDispatch,
+    );
 
     if (quickPollOptions.length === 0) return null;
 
