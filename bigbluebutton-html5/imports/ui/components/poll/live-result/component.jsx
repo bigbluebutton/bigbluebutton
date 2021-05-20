@@ -211,7 +211,7 @@ class LiveResult extends PureComponent {
                 handleBackClick();
               }}
               label={intl.formatMessage(intlMessages.backLabel)}
-              color="default"
+              color="primary"
               className={styles.btn}
             />
           )
