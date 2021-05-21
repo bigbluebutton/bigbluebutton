@@ -420,6 +420,26 @@ display_bigbluebutton_status () {
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         units="$units mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
+		
+	for i in `seq 8888 8890`; do
+          if systemctl is-enabled kurento-media-server-${i}.service > /dev/null; then
+            units="$units kurento-media-server-${i}"
+          fi
+        done
+
+	source /usr/share/meteor/bundle/bbb-html5-with-roles.conf
+
+        if [ -f /etc/bigbluebutton/bbb-html5-with-roles.conf ]; then
+          source /etc/bigbluebutton/bbb-html5-with-roles.conf
+        fi
+
+        for ((i = 1 ; i <= $NUMBER_OF_BACKEND_NODEJS_PROCESSES; i++)); do
+          units="$units bbb-html5-backend@$i"
+        done
+		
+        for ((i = 1; i <= $NUMBER_OF_FRONTEND_NODEJS_PROCESSES; i++)); do
+          units="$units bbb-html5-frontend@$i"
+        done
     fi
 
     if [ -f /usr/share/etherpad-lite/settings.json ]; then
