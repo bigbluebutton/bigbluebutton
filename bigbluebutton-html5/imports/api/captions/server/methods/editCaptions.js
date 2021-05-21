@@ -13,13 +13,10 @@ export default function editCaptions(padId, data) {
   const EVENT_NAME = 'EditCaptionHistoryPubMsg';
 
   try {
-    const { meetingId } = extractCredentials(this.userId);
-
     check(padId, String);
     check(data, String);
-    check(meetingId, String);
 
-    const pad = Captions.findOne({ padId, meetingId });
+    const pad = Captions.findOne({ padId });
 
     if (!pad) {
       Logger.error(`Editing captions history: ${padId}`);
@@ -27,11 +24,13 @@ export default function editCaptions(padId, data) {
     }
 
     const {
+      meetingId,
       ownerId,
       locale,
       length,
     } = pad;
 
+    check(meetingId, String);
     check(ownerId, String);
     check(locale, { locale: String, name: String });
     check(length, Number);

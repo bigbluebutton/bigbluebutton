@@ -59,6 +59,7 @@
 .item {
   display: flex;
   flex: 1 1 100%;
+  align-items: center;
 
   .verticalList & {
     padding: calc(var(--line-height-computed) / 3) 0;

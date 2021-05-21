@@ -10,6 +10,8 @@ import { styles } from './styles.scss';
 import MessageForm from './message-form/container';
 import TimeWindowList from './time-window-list/container';
 import ChatDropdownContainer from './chat-dropdown/container';
+import { UserSentMessageCollection } from './service';
+import Auth from '/imports/ui/services/auth';
 
 const ELEMENT_ID = 'chat-messages';
 
@@ -50,6 +52,8 @@ const Chat = (props) => {
     syncedPercent,
     lastTimeWindowValuesBuild,
   } = props;
+
+  const userSentMessage = UserSentMessageCollection.findOne({ userId: Auth.userID, sent: true });
 
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
   const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
@@ -122,6 +126,7 @@ const Chat = (props) => {
           syncing,
           syncedPercent,
           lastTimeWindowValuesBuild,
+          userSentMessage
         }}
       />
       <MessageForm
@@ -144,7 +149,7 @@ const Chat = (props) => {
   );
 };
 
-export default withShortcutHelper(injectWbResizeEvent(injectIntl(memo(Chat))), ['hidePrivateChat', 'closePrivateChat']);
+export default memo(withShortcutHelper(injectWbResizeEvent(injectIntl(Chat)), ['hidePrivateChat', 'closePrivateChat']));
 
 const propTypes = {
   chatID: PropTypes.string.isRequired,

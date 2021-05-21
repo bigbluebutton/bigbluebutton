@@ -1,18 +1,30 @@
 import axios from 'axios';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import { generatePadId } from '/imports/api/captions/server/helpers';
+import Captions from '/imports/api/captions';
+import { CAPTIONS_TOKEN } from '/imports/api/captions/server/helpers';
 import { appendTextURL } from '/imports/api/common/server/etherpad';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
 export default function appendText(text, locale) {
   try {
     const { meetingId } = extractCredentials(this.userId);
+
     check(meetingId, String);
     check(text, String);
     check(locale, String);
 
-    const padId = generatePadId(meetingId, locale);
+    const captions = Captions.findOne({
+      meetingId,
+      padId: { $regex: `${CAPTIONS_TOKEN}${locale}$` },
+    });
+
+    if (!captions) {
+      Logger.error(`Could not find captions' pad for meetingId=${meetingId} locale=${locale}`);
+      return;
+    }
+
+    const { padId } = captions;
 
     axios({
       method: 'get',

@@ -27,6 +27,7 @@ class ActionsBar extends PureComponent {
       isMeteorConnected,
       isPollingEnabled,
       isSelectRandomUserEnabled,
+      isRaiseHandButtonEnabled,
       isPresentationDisabled,
       isThereCurrentPresentation,
       allowExternalVideo,
@@ -84,30 +85,34 @@ class ActionsBar extends PureComponent {
               />
             )
             : null}
-          <Button
-            icon="hand"
-            label={intl.formatMessage({
-              id: `app.actionsBar.emojiMenu.${
-                currentUser.emoji === 'raiseHand'
-                  ? 'lowerHandLabel'
-                  : 'raiseHandLabel'
-              }`,
-            })}
-            accessKey={shortcuts.raisehand}
-            color={currentUser.emoji === 'raiseHand' ? 'primary' : 'default'}
-            data-test={currentUser.emoji === 'raiseHand' ? 'lowerHandLabel' : 'raiseHandLabel'}
-            ghost={currentUser.emoji !== 'raiseHand'}
-            className={cx(currentUser.emoji === 'raiseHand' || styles.btn)}
-            hideLabel
-            circle
-            size="lg"
-            onClick={() => {
-              setEmojiStatus(
-                currentUser.userId,
-                currentUser.emoji === 'raiseHand' ? 'none' : 'raiseHand',
-              );
-            }}
-          />
+          {isRaiseHandButtonEnabled
+            ? (
+              <Button
+                icon="hand"
+                label={intl.formatMessage({
+                  id: `app.actionsBar.emojiMenu.${
+                    currentUser.emoji === 'raiseHand'
+                      ? 'lowerHandLabel'
+                      : 'raiseHandLabel'
+                  }`,
+                })}
+                accessKey={shortcuts.raisehand}
+                color={currentUser.emoji === 'raiseHand' ? 'primary' : 'default'}
+                data-test={currentUser.emoji === 'raiseHand' ? 'lowerHandLabel' : 'raiseHandLabel'}
+                ghost={currentUser.emoji !== 'raiseHand'}
+                className={cx(currentUser.emoji === 'raiseHand' || styles.btn)}
+                hideLabel
+                circle
+                size="lg"
+                onClick={() => {
+                  setEmojiStatus(
+                    currentUser.userId,
+                    currentUser.emoji === 'raiseHand' ? 'none' : 'raiseHand',
+                  );
+                }}
+              />
+            )
+            : null}
         </div>
       </div>
     );
