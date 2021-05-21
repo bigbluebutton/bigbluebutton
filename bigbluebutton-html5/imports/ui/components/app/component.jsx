@@ -22,6 +22,7 @@ import LockNotifier from '/imports/ui/components/lock-viewers/notify/container';
 import StatusNotifier from '/imports/ui/components/status-notifier/container';
 import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
 import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
@@ -36,6 +37,7 @@ const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 const OVERRIDE_LOCALE = APP_CONFIG.defaultSettings.application.overrideLocale;
+
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -375,7 +377,7 @@ class App extends Component {
     const {
       customStyle, customStyleUrl, openPanel, layoutContextState,
     } = this.props;
-
+    const enableAudio = getFromUserSettings('bbb_enable_audio', true);
     return (
       <main className={styles.main}>
         {this.renderActivityCheck()}
@@ -395,7 +397,7 @@ class App extends Component {
         <BreakoutRoomInvitation />
         {!layoutContextState.presentationIsFullscreen && !layoutContextState.screenShareIsFullscreen && <PollingContainer />}
         <ModalContainer />
-        <AudioContainer />
+        { enableAudio ? <AudioContainer /> : ''}
         <ToastContainer rtl />
         <ChatAlertContainer />
         <WaitingNotifierContainer />

@@ -53,7 +53,7 @@ export default withTracker(() => ({
   isSharingVideo: Service.isSharingVideo(),
   isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
   isMeteorConnected: Meteor.status().connected,
-  isPollingEnabled: POLLING_ENABLED,
+  isPollingEnabled: getFromUserSettings('bbb_enable_polling', POLLING_ENABLED),
   isPresentationDisabled: PRESENTATION_DISABLED,
   isSelectRandomUserEnabled: SELECT_RANDOM_USER_ENABLED,
   isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,
