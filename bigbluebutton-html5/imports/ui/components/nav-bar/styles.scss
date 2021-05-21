@@ -127,3 +127,9 @@
 .dropdown{
   z-index: 99;
 }
+
+.hideDropdownButton {
+  @include mq($small-only) {
+    display: none;
+  }
+}

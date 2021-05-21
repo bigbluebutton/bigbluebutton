@@ -9,6 +9,7 @@ import { NLayoutContext } from '../../layout/context/context';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
+const STARTED_CHAT_LIST_KEY = 'startedChatList';
 
 const UserContentContainer = (props) => {
   const newLayoutContext = useContext(NLayoutContext);
@@ -40,6 +41,7 @@ export default withTracker(() => ({
   pollIsOpen: Session.equals('isPollOpen', true),
   forcePollOpen: Session.equals('forcePollOpen', true),
   currentClosedChats: Storage.getItem(CLOSED_CHAT_LIST_KEY) || [],
+  startedChats: Session.get(STARTED_CHAT_LIST_KEY) || [],
   pendingUsers: GuestUsers.find({
     meetingId: Auth.meetingID,
     approved: false,

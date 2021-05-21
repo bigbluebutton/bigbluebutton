@@ -48,6 +48,7 @@ class UserContent extends PureComponent {
       currentClosedChats,
       sidebarContentPanel,
       newLayoutContextDispatch,
+      startedChats,
     } = this.props;
 
     return (
@@ -56,17 +57,18 @@ class UserContent extends PureComponent {
         className={styles.content}
       >
         {CHAT_ENABLED
-          ? (<UserMessages
-            {...{
-              isPublicChat,
-              compact,
-              intl,
-              roving,
-              currentClosedChats,
-            }}
-          />
-          ) : null
-        }
+          ? (
+            <UserMessages
+              {...{
+                isPublicChat,
+                compact,
+                intl,
+                roving,
+                currentClosedChats,
+                startedChats,
+              }}
+            />
+          ) : null}
         {currentUser.role === ROLE_MODERATOR
           ? (
             <UserCaptionsContainer
@@ -74,8 +76,7 @@ class UserContent extends PureComponent {
                 intl,
               }}
             />
-          ) : null
-        }
+          ) : null}
         <UserNotesContainer
           {...{
             intl,
@@ -91,8 +92,7 @@ class UserContent extends PureComponent {
                 newLayoutContextDispatch,
               }}
             />
-          ) : null
-        }
+          ) : null}
         <UserPolls
           isPresenter={currentUser.presenter}
           {...{

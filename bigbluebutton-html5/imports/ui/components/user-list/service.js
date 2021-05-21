@@ -12,6 +12,7 @@ import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
+import { Session } from 'meteor/session';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -23,6 +24,8 @@ const DIAL_IN_CLIENT_TYPE = 'dial-in-user';
 
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
+// session for chats the current user started
+const STARTED_CHAT_LIST_KEY = 'startedChatList';
 
 const CUSTOM_LOGO_URL_KEY = 'CustomLogoUrl';
 
@@ -246,8 +249,9 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
 
     if (chatId !== PUBLIC_GROUP_CHAT_ID) {
       const groupChatsParticipants = groupChats[chatId].participants;
-      const otherParticipant = groupChatsParticipants.filter((user)=> user.id !== Auth.userID)[0];
+      const otherParticipant = groupChatsParticipants.filter((user) => user.id !== Auth.userID)[0];
       const user = users[otherParticipant.id];
+      const startedChats = Session.get(STARTED_CHAT_LIST_KEY) || [];
 
       return {
         color: user?.color || '#7b1fa2',
@@ -257,6 +261,9 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
         chatId,
         unreadCounter: unreadMessagesCount,
         userId: user?.userId || otherParticipant.id,
+        shouldDisplayInChatList: groupChats[chatId].createdBy === Auth.userID
+          || startedChats.includes(chatId)
+          || !!contextChat,
       };
     }
 
@@ -266,11 +273,13 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
       icon: 'group_chat',
       chatId: PUBLIC_CHAT_ID,
       unreadCounter: unreadMessagesCount,
+      shouldDisplayInChatList: true,
     };
   });
 
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
-  return chatInfo.filter((chat) => !currentClosedChats.includes(chat.chatId));
+  return chatInfo.filter((chat) => !currentClosedChats.includes(chat.chatId)
+    && chat.shouldDisplayInChatList);
 };
 
 const isVoiceOnlyUser = (userId) => userId.toString().startsWith('v_');
@@ -528,6 +537,12 @@ const getGroupChatPrivate = (senderUserId, receiver) => {
   if (!chat) {
     makeCall('createGroupChat', receiver);
   } else {
+    const startedChats = Session.get(STARTED_CHAT_LIST_KEY) || [];
+    if (_.indexOf(startedChats, chat.chatId) < 0) {
+      startedChats.push(chat.chatId);
+      Session.set(STARTED_CHAT_LIST_KEY, startedChats);
+    }
+
     const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
     if (_.indexOf(currentClosedChats, chat.chatId) > -1) {
       Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, chat.chatId));
