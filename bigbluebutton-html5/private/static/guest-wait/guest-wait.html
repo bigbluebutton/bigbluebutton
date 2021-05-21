@@ -110,13 +110,6 @@
         });
     };
 
-    function fetchLocales() {
-      const LOCALES_ENDPOINT = '/html5client/locale';
-      const urlTest = new URL(`${window.location.origin}${LOCALES_ENDPOINT}`);
-      urlTest.search = `locale=${navigator.language}`;
-      return fetch(urlTest, { method: 'get' });
-    };
-
     function fetchLocalizedMessages() {
       const DEFAULT_LANGUAGE = 'en';
       const LOCALES_ENDPOINT = '/html5client/locale';
