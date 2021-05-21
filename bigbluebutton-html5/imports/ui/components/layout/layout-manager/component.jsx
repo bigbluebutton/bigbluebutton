@@ -528,6 +528,11 @@ class LayoutManagerComponent extends Component {
       };
     }
 
+    newScreenShareAreaSize = {
+      width: presentationAreaWidth || 0,
+      height: presentationAreaHeight || 0,
+    };
+
     return {
       mediaBounds: newMediaBounds,
       userListSize: newUserListSize,

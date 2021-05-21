@@ -505,7 +505,7 @@ class PanelManager extends Component {
   }
 
   renderBreakoutRoomResizable() {
-    const { breakoutRoomWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     const { isRTL } = this.props;
 
     const resizableEnableOptions = {
@@ -526,7 +526,7 @@ class PanelManager extends Component {
         ref={(node) => { this.resizableBreakout = node; }}
         enable={resizableEnableOptions}
         key={this.breakoutroomKey}
-        size={{ width: breakoutRoomWidth }}
+        size={{ width: secondPanelWidth }}
         onResizeStop={(e, direction, ref, d) => {
           this.breakoutResizeStop(d.width);
         }}

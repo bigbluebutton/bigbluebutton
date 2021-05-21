@@ -230,13 +230,13 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
 
   const chatInfo = chatIds.map((chatId) => {
     const contextChat = groupChatsMessages[chatId];
-    // const isPublicChat = chatId === PUBLIC_GROUP_CHAT_ID;
+    const isPublicChatId = chatId === PUBLIC_GROUP_CHAT_ID;
     let unreadMessagesCount = 0;
     if (contextChat) {
       const unreadTimewindows = contextChat.unreadTimeWindows;
       // eslint-disable-next-line
       for (const unreadTimeWindowId of unreadTimewindows) {
-        const timeWindow = (isPublicChat
+        const timeWindow = (isPublicChatId
           ? contextChat?.preJoinMessages[unreadTimeWindowId]
           || contextChat?.posJoinMessages[unreadTimeWindowId]
           : contextChat?.messageGroups[unreadTimeWindowId]);

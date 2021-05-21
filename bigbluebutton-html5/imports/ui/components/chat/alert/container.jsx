@@ -3,7 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Settings from '/imports/ui/services/settings';
 import ChatAlert from './component';
 import Auth from '/imports/ui/services/auth';
-import NewLayoutContext from '../../layout/context/context';
+import { NLayoutContext } from '../../layout/context/context';
 import { PANELS } from '../../layout/enums';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import { ChatContext } from '/imports/ui/components/components-data/chat-context/context';
@@ -11,7 +11,8 @@ import { GroupChatContext } from '/imports/ui/components/components-data/group-c
 import userListService from '/imports/ui/components/user-list/service';
 
 const ChatAlertContainer = (props) => {
-  const { newLayoutContextState } = props;
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextState } = newLayoutContext;
   const { idChatOpen, input } = newLayoutContextState;
   const { sidebarContent } = input;
   const { sidebarContentPanel } = sidebarContent;
@@ -52,4 +53,4 @@ export default withTracker(() => {
     pushAlertDisabled: !AppSettings.chatPushAlerts,
     publicChatId: Meteor.settings.public.chat.public_group_id,
   };
-})(memo(NewLayoutContext.withConsumer(ChatAlertContainer)));
+})(memo(ChatAlertContainer));
