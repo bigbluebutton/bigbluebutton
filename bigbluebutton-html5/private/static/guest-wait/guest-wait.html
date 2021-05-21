@@ -1,134 +1,88 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Guest Lobby</title>
   <meta charset="UTF-8">
   <style>
-  :root{
-    --enableAnimation: 1;
-  }
-  body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #06172A;
-    height: 100vh;
-    margin: 0;
-  }
-  #content {
-    text-align: center;
-    color: white;
-    font-weight: bold;
-    font-size: 24px;
-    font-family: arial, sans-serif;
-  }
-  .spinner {
-    margin: 20px auto;
-  }
-  .spinner .bounce1 {
-    animation-delay: -0.32s;
-  }
-  .spinner .bounce2 {
-    animation-delay: -0.16s;
-  }
-  .spinner > div {
-    width: 30px;
-    height: 30px;
-    background-color: rgb(255, 255, 255);
-    display: inline-block;
-    border-radius: 100%;
-    animation: sk-bouncedelay calc(var(--enableAnimation) * 1.4s) infinite ease-in-out both;
-  }
-  @-webkit-keyframes sk-bouncedelay {
-      0%, 80%, 100% {
-          -webkit-transform: scale(0)
-      }
-      40% {
-          -webkit-transform: scale(1.0)
-      }
-  }
+    :root {
+      --enableAnimation: 1;
+    }
 
-  @keyframes sk-bouncedelay {
-      0%, 80%, 100% {
-          -webkit-transform: scale(0);
-          transform: scale(0);
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #06172A;
+      height: 100vh;
+      margin: 0;
+    }
+
+    #content {
+      text-align: center;
+      color: white;
+      font-weight: bold;
+      font-size: 24px;
+      font-family: arial, sans-serif;
+    }
+
+    .spinner {
+      margin: 20px auto;
+    }
+
+    .spinner .bounce1 {
+      animation-delay: -0.32s;
+    }
+
+    .spinner .bounce2 {
+      animation-delay: -0.16s;
+    }
+
+    .spinner>div {
+      width: 30px;
+      height: 30px;
+      background-color: rgb(255, 255, 255);
+      display: inline-block;
+      border-radius: 100%;
+      animation: sk-bouncedelay calc(var(--enableAnimation) * 1.4s) infinite ease-in-out both;
+    }
+
+    @-webkit-keyframes sk-bouncedelay {
+
+      0%,
+      80%,
+      100% {
+        -webkit-transform: scale(0)
       }
+
       40% {
-          -webkit-transform: scale(1.0);
-          transform: scale(1.0);
+        -webkit-transform: scale(1.0)
       }
-  }
+    }
+
+    @keyframes sk-bouncedelay {
+
+      0%,
+      80%,
+      100% {
+        -webkit-transform: scale(0);
+        transform: scale(0);
+      }
+
+      40% {
+        -webkit-transform: scale(1.0);
+        transform: scale(1.0);
+      }
+    }
   </style>
 
-  <script type="text/javascript" role="l10n">
-  const tr = {
-    "en": {
-      "app.errorSeeConsole": "Error: more details in the console.",
-      "app.noModeratorResponse": "No response from Moderator.",
-      "app.noSessionToken": "No session Token received.",
-      "app.windowTitle": "Guest Lobby",
-      "app.missingToken": "Guest missing session token.",
-      "app.missingSession": "Guest missing session.",
-      "app.missingMeeting": "Meeting does not exist.",
-      "app.meetingEnded": "Meeting ended.",
-      "app.guestWait": "Please wait for a moderator to approve you joining the meeting.",
-      "app.guestDeny": "Guest denied of joining the meeting.",
-      "app.seatWait": "Guest waiting for a seat in the meeting.",
-    },
-    "de": {
-      "app.errorSeeConsole": "Fehler: Mehr Details in der Konsole.",
-      "app.noModeratorResponse": "Keine Antwort vom Moderator.",
-      "app.noSessionToken": "Kein Sitzungstoken empfangen.",
-      "app.windowTitle": "Warteraum",
-      "app.missingToken": "Gast hat keinen Sitzungs-Token",
-      "app.missingSession": "Gast-Session fehlt.",
-      "app.missingMeeting": "Konferenz existiert nicht.",
-      "app.meetingEnded": "Konferenz beendet.",
-      "app.guestWait": "Bitte warten Sie, bis ein Moderator Ihre Teilnahme bestätigt.",
-      "app.guestDeny": "Gast wurde abgelehnt.",
-      "app.seatWait": "Gast wartet auf einen Platz in der Konferenz.",
-    },
-    "pt": {
-      "app.errorSeeConsole": "Erro: mais detalhes no console.",
-      "app.noModeratorResponse": "Sem resposta do moderador.",
-      "app.noSessionToken": "Token de sessão não recebido.",
-      "app.windowTitle": "Sala de espera",
-      "app.missingToken": "Convidado sem token de sessão.",
-      "app.missingSession": "Convidado sem sessão.",
-      "app.missingMeeting": "Reunião não existente.",
-      "app.meetingEnded": "Reunião encerrada.",
-      "app.guestWait": "Por favor aguarde até que um moderador aprove a sua entrada.",
-      "app.guestDeny": "Convidado teve sua entrada negada.",
-      "app.seatWait": "Convidado aguardando uma vaga na reunião.",
-    },
-    "es": {
-      "app.errorSeeConsole": "Error: más detalles en la consola.",
-      "app.noModeratorResponse": "Sin respuesta del moderador.",
-      "app.noSessionToken": "No se recibió ningún token de sesión.",
-      "app.windowTitle": "Vestíbulo de invitados",
-      "app.missingToken": "Token de sesión faltante del invitado.",
-      "app.missingSession": "Sesión perdida de invitado.",
-      "app.missingMeeting": "La reunión no existe.",
-      "app.meetingEnded": "La reunión terminó.",
-      "app.guestWait": "Espere a que un moderador apruebe su participación en la reunión.",
-      "app.guestDeny": "Invitado negado de unirse a la reunión.",
-      "app.seatWait": "Invitado esperando un asiento en la reunión.",
-    }
-  }
-
-  function _(message) {
-    let lang = navigator.language.split(/[-_]/)[0];
-    if (!tr[lang]) lang = "en";
-
-    let msg = tr[lang][message];
-    if (!msg) msg = tr["en"][message];
-
-    return msg;
-  }
-
-  </script>
-
   <script type="text/javascript">
+    let messages = {};
+
+    function _(message) {
+      return messages[message];
+    }
+
     const REDIRECT_TIMEOUT = 15000;
 
     function updateMessage(message) {
@@ -142,7 +96,7 @@
         if (lobbyMessage.length !== 0) {
           updateMessage(lobbyMessage);
         } else {
-          updateMessage(_('app.guestWait'));
+          updateMessage(_('app.guest.guestWait'));
         }
       }
     }
@@ -151,10 +105,109 @@
       return location.search
         .substr(1)
         .split('&')
-        .find(function(item) {
+        .find(function (item) {
           return item.split('=')[0] === 'sessionToken'
         });
     };
+
+    function fetchLocalizedMessages() {
+      const DEFAULT_LANGUAGE = 'en';
+      const LOCALES_ENDPOINT = '/html5client/locale';
+      const url = new URL(`${window.location.origin}${LOCALES_ENDPOINT}`);
+      url.search = `locale=${navigator.language}`;
+
+      const localesPath = 'locales';
+
+      fetch(url)
+        .then((response) => {
+          if (!response.ok) {
+            return false;
+          }
+          return response.json();
+        })
+        .then(({ normalizedLocale, regionDefaultLocale }) => {
+          const fetchFallbackMessages = new Promise((resolve, reject) => {
+            fetch(`${localesPath}/${DEFAULT_LANGUAGE}.json`)
+              .then((response) => {
+                if (!response.ok) {
+                  return reject();
+                }
+                return resolve(response.json());
+              });
+          });
+
+          const fetchRegionMessages = new Promise((resolve) => {
+            if (!regionDefaultLocale) {
+              return resolve(false);
+            }
+            fetch(`${localesPath}/${regionDefaultLocale}.json`)
+              .then((response) => {
+                if (!response.ok) {
+                  return resolve(false);
+                }
+                return resolve(response.json());
+              });
+          });
+
+          const fetchSpecificMessages = new Promise((resolve) => {
+            if (!normalizedLocale || normalizedLocale === DEFAULT_LANGUAGE || normalizedLocale === regionDefaultLocale) {
+              return resolve(false);
+            }
+            fetch(`${localesPath}/${normalizedLocale}.json`)
+              .then((response) => {
+                if (!response.ok) {
+                  return resolve(false);
+                }
+                return resolve(response.json());
+              });
+          });
+
+          Promise.all([fetchFallbackMessages, fetchRegionMessages, fetchSpecificMessages])
+            .then((values) => {
+              let mergedMessages = Object.assign({}, values[0]);
+
+              if (!values[1] && !values[2]) {
+                normalizedLocale = DEFAULT_LANGUAGE;
+              } else {
+                if (values[1]) {
+                  mergedMessages = Object.assign(mergedMessages, values[1]);
+                }
+                if (values[2]) {
+                  mergedMessages = Object.assign(mergedMessages, values[2]);
+                }
+              }
+
+              messages = mergedMessages;
+
+              window.document.title = _('app.guest.windowTitle');
+              updateMessage(_('app.guest.guestWait'));
+              enableAnimation();
+              try {
+                const ATTEMPT_EVERY_MS = 5000;
+                const ATTEMPT_LIMIT = 100;
+
+                const sessionToken = findSessionToken();
+
+                if (!sessionToken) {
+                  disableAnimation()
+                  updateMessage(_('app.guest.noSessionToken'));
+                  return;
+                }
+
+                pollGuestStatus(sessionToken, 0, ATTEMPT_LIMIT, ATTEMPT_EVERY_MS);
+              } catch (e) {
+                disableAnimation();
+                console.error(e);
+                updateMessage(_('app.guest.errorSeeConsole'));
+              }
+
+
+            })
+            .catch((e) => {
+              console.error(e);
+            });
+        });
+    }
 
     function fetchGuestWait(sessionToken) {
       const GUEST_WAIT_ENDPOINT = '/bigbluebutton/api/guestWait';
@@ -174,42 +227,42 @@
 
     function pollGuestStatus(token, attempt, limit, everyMs) {
 
-      setTimeout(function() {
+      setTimeout(function () {
         if (attempt >= limit) {
           disableAnimation();
-          updateMessage(_('app.noModeratorResponse'));
+          updateMessage(_('app.guest.noModeratorResponse'));
           return;
         }
 
         fetchGuestWait(token)
-        .then(async (resp) => await resp.json())
-        .then((data) => {
-          const code = data.response.returncode;
+          .then(async (resp) => await resp.json())
+          .then((data) => {
+            const code = data.response.returncode;
 
-          if (code === 'FAILED') {
-            return redirect(_('app.' + data.response.messageKey), data.response.url);
-          }
+            if (code === 'FAILED') {
+              return redirect(_('app.guest.' + data.response.messageKey), data.response.url);
+            }
 
-          const status = data.response.guestStatus;
+            const status = data.response.guestStatus;
 
-          if (status === 'DENY') {
-            return redirect(_('app.' + data.response.messageKey), data.response.url);
-          }
+            if (status === 'DENY') {
+              return redirect(_('app.guest.' + data.response.messageKey), data.response.url);
+            }
 
-          if (status === 'ALLOW') {
-            disableAnimation();
-            window.location = data.response.url;
-            return;
-          }
+            if (status === 'ALLOW') {
+              disableAnimation();
+              window.location = data.response.url;
+              return;
+            }
 
-          updateLobbyMessage(data.response.lobbyMessage);
+            updateLobbyMessage(data.response.lobbyMessage);
 
-          return pollGuestStatus(token, attempt + 1, limit, everyMs);
-        });
+            return pollGuestStatus(token, attempt + 1, limit, everyMs);
+          });
       }, everyMs);
     };
 
-    function enableAnimation(){
+    function enableAnimation() {
       document.documentElement.style.setProperty('--enableAnimation', 1);
     }
 
@@ -217,28 +270,8 @@
       document.documentElement.style.setProperty('--enableAnimation', 0);
     }
 
-    window.onload = function() {
-      window.document.title = _('app.windowTitle');
-      updateMessage(_('app.guestWait'));
-      enableAnimation();
-      try {
-        const ATTEMPT_EVERY_MS = 5000;
-        const ATTEMPT_LIMIT = 100;
-
-        const sessionToken = findSessionToken();
-
-        if (!sessionToken) {
-          disableAnimation()
-          updateMessage(_('app.noSessionToken'));
-          return;
-        }
-
-        pollGuestStatus(sessionToken, 0, ATTEMPT_LIMIT, ATTEMPT_EVERY_MS);
-      } catch (e) {
-        disableAnimation();
-        console.error(e);
-        updateMessage(_('app.errorSeeConsole'));
-      }
+    window.onload = function () {
+      fetchLocalizedMessages();
     };
   </script>
 </head>
