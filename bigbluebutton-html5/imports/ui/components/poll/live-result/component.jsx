@@ -198,6 +198,7 @@ class LiveResult extends PureComponent {
                 Session.set('pollInitiated', false);
                 Service.publishPoll();
                 stopPoll();
+                setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
               }}
               label={intl.formatMessage(intlMessages.publishLabel)}
               data-test="publishLabel"

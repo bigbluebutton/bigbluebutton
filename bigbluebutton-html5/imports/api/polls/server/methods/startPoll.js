@@ -29,8 +29,10 @@ export default function startPoll(pollType, pollId, question, answers) {
       payload.answers = answers;
     }
 
-    RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+  RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   } catch (err) {
     Logger.error(`Exception while invoking method startPoll ${err.stack}`);
   }
+
+  setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
 }

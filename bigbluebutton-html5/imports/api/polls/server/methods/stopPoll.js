@@ -18,4 +18,6 @@ export default function stopPoll() {
   } catch (err) {
     Logger.error(`Exception while invoking method stopPoll ${err.stack}`);
   }
+
+  setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
 }

@@ -104,7 +104,7 @@ const toggleNotePanel = () => {
     'openPanel',
     isPanelOpened() ? 'userlist' : 'note',
   );
-  window.dispatchEvent(new Event('panelChanged'));
+  setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
 };
 
 export default {

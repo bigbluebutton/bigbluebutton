@@ -52,7 +52,7 @@ class NavBar extends Component {
     );
     Session.set('idChatOpen', '');
 
-    window.dispatchEvent(new Event('panelChanged'));
+    setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
   }
 
   componentDidMount() {

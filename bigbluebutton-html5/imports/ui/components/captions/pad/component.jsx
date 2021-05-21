@@ -182,7 +182,7 @@ class Pad extends PureComponent {
 
     if (!amIModerator) {
       Session.set('openPanel', 'userlist');
-      window.dispatchEvent(new Event('panelChanged'));
+      setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
       return null;
     }
 
@@ -196,7 +196,7 @@ class Pad extends PureComponent {
             <Button
               onClick={() => {
                 Session.set('openPanel', 'userlist');
-                window.dispatchEvent(new Event('panelChanged'));
+                setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
               }}
               aria-label={intl.formatMessage(intlMessages.hide)}
               label={name}

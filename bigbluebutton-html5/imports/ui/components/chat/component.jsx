@@ -72,7 +72,7 @@ const Chat = (props) => {
             onClick={() => {
               Session.set('idChatOpen', '');
               Session.set('openPanel', 'userlist');
-              window.dispatchEvent(new Event('panelChanged'));
+              setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
             }}
             aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
             accessKey={HIDE_CHAT_AK}
@@ -94,7 +94,7 @@ const Chat = (props) => {
                   actions.handleClosePrivateChat(chatID);
                   Session.set('idChatOpen', '');
                   Session.set('openPanel', 'userlist');
-                  window.dispatchEvent(new Event('panelChanged'));
+                  setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
                 }}
                 aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
                 label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}

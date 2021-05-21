@@ -198,7 +198,7 @@ class Poll extends Component {
     if (!amIPresenter) {
       Session.set('openPanel', 'userlist');
       Session.set('forcePollOpen', false);
-      window.dispatchEvent(new Event('panelChanged'));
+      setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
     }
   }
 
@@ -211,6 +211,7 @@ class Poll extends Component {
       stopPoll();
       Session.set('resetPollPanel', false);
       document.activeElement.blur();
+      setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
     });
   }
 
@@ -643,7 +644,7 @@ class Poll extends Component {
             className={styles.hideBtn}
             onClick={() => {
               Session.set('openPanel', 'userlist');
-              window.dispatchEvent(new Event('panelChanged'));
+              setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
             }}
           />
           <Button
@@ -654,7 +655,7 @@ class Poll extends Component {
               Session.set('openPanel', 'userlist');
               Session.set('forcePollOpen', false);
               Session.set('pollInitiated', false);
-              window.dispatchEvent(new Event('panelChanged'));
+              setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
             }}
             className={styles.closeBtn}
             icon="close"

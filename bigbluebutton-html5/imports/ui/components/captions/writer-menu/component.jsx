@@ -80,7 +80,7 @@ class WriterMenu extends PureComponent {
     takeOwnership(locale);
     Session.set('captionsLocale', locale);
     Session.set('openPanel', 'captions');
-    window.dispatchEvent(new Event('panelChanged'));
+    setTimeout(() => window.dispatchEvent(new Event('panelChanged')), 200);
 
     closeModal();
   }
