@@ -26,7 +26,7 @@ export default withTracker(() => ({
   pollIsOpen: Session.equals('isPollOpen', true),
   forcePollOpen: Session.equals('forcePollOpen', true),
   currentClosedChats: Storage.getItem(CLOSED_CHAT_LIST_KEY) || [],
-  startedChats: Storage.getItem(STARTED_CHAT_LIST_KEY) || [],
+  startedChats: Session.get(STARTED_CHAT_LIST_KEY) || [],
   pendingUsers: GuestUsers.find({
     meetingId: Auth.meetingID,
     approved: false,

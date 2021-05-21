@@ -12,6 +12,7 @@ import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
+import { Session } from 'meteor/session';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
@@ -251,7 +252,7 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
       const groupChatsParticipants = groupChats[chatId].participants;
       const otherParticipant = groupChatsParticipants.filter((user)=> user.id !== Auth.userID)[0];
       const user = users[otherParticipant.id];
-      const startedChats = Storage.getItem(STARTED_CHAT_LIST_KEY) || [];
+      const startedChats = Session.get(STARTED_CHAT_LIST_KEY) || [];
 
       return {
         color: user?.color || '#7b1fa2',
@@ -534,10 +535,10 @@ const getGroupChatPrivate = (senderUserId, receiver) => {
   if (!chat) {
     makeCall('createGroupChat', receiver);
   } else {
-    const startedChats = Storage.getItem(STARTED_CHAT_LIST_KEY) || [];
+    const startedChats = Session.get(STARTED_CHAT_LIST_KEY) || [];
     if (_.indexOf(startedChats, chat.chatId) < 0) {
       startedChats.push(chat.chatId);
-      Storage.setItem(STARTED_CHAT_LIST_KEY, startedChats);
+      Session.set(STARTED_CHAT_LIST_KEY, startedChats);
     }
 
     const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
