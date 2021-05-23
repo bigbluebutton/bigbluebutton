@@ -12,7 +12,7 @@ import org.bigbluebutton.core.running.LiveMeeting
 object Polls {
 
   def handleStartPollReqMsg(state: MeetingState2x, userId: String, pollId: String, pollType: String, question: String,
-                            lm: LiveMeeting): Option[SimplePollOutVO] = {
+                            lm: LiveMeeting, anonymous: Boolean): Option[SimplePollOutVO] = {
 
     def createPoll(stampedPollId: String): Option[Poll] = {
       val numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter
@@ -167,7 +167,7 @@ object Polls {
   }
 
   def handleStartCustomPollReqMsg(state: MeetingState2x, requesterId: String, pollId: String, pollType: String,
-                                  answers: Seq[String], question: String, lm: LiveMeeting): Option[SimplePollOutVO] = {
+                                  answers: Seq[String], question: String, lm: LiveMeeting, anonymous: Boolean): Option[SimplePollOutVO] = {
 
     def createPoll(stampedPollId: String): Option[Poll] = {
       val numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter

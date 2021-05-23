@@ -32,6 +32,12 @@ const intlMessages = defineMessages({
   responsePlaceholder: {
     id: 'app.polling.responsePlaceholder',
   },
+  responseIsAnonymous: {
+    id: 'app.polling.responseAnonymous',
+  },
+  responseNotAnonymous: {
+    id: 'app.polling.responseNotAnonymous',
+  },
 });
 
 const validateInput = (i) => {
@@ -216,6 +222,9 @@ class Polling extends Component {
               </div>
             )
           }
+          <div className={styles.pollingAnonymous}>
+            {intl.formatMessage(poll.anonymous ? intlMessages.responseIsAnonymous : intlMessages.responseNotAnonymous)}
+          </div>
         </div>
       </div>
     );

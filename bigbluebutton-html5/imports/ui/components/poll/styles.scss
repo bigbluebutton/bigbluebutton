@@ -386,3 +386,29 @@
     width: 200px !important;
     height: 200px !important;
 }
+
+.row {
+    display: flex;
+    flex-flow: row;
+    flex-grow: 1;
+    justify-content: space-between;
+    margin-bottom: var(--md-padding-x);
+
+    & > :first-child {
+      margin:  0 var(--md-padding-x) 0 0;
+
+      [dir="rtl"] & {
+        margin: 0 0 0 var(--md-padding-x);
+      }
+    }
+}
+.col {
+    display: flex;
+    flex-grow: 1;
+    flex-basis: 0;
+    margin: 0;
+
+    [dir="rtl"] & {
+      margin: 0;
+    }
+}

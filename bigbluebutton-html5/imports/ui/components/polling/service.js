@@ -38,6 +38,7 @@ const mapPolls = () => {
       pollType: poll.pollType,
       stackOptions,
       question: poll.question,
+      anonymous: poll.anonymous,
     },
     pollExists: true,
     amIRequester,

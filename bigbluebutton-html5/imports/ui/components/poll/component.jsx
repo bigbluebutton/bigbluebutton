@@ -6,6 +6,7 @@ import _ from 'lodash';
 import { Session } from 'meteor/session';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
+import Toggle from '/imports/ui/components/switch/component';
 import LiveResult from './live-result/component';
 import { styles } from './styles.scss';
 import DragAndDrop from './dragAndDrop/component';
@@ -107,6 +108,18 @@ const intlMessages = defineMessages({
     id: 'app.poll.question.title',
     description: '',
   },
+  anonymousPollLabel: {
+    id: 'app.poll.anonymous.label',
+    description: 'the label shown next to the anonymous switch',
+  },
+  isAnonymousPollLabel: {
+    id: 'app.poll.anonymous.is_anonymous_label',
+    description: '',
+  },
+  nonAnonymousPollLabel: {
+    id: 'app.poll.anonymous.not_anonymous_label',
+    description: 'label explaining that the presenter will see for which option everyone voted',
+  },
   true: {
     id: 'app.poll.answer.true',
     description: '',
@@ -169,6 +182,7 @@ class Poll extends Component {
     this.state = {
       isPolling: false,
       question: '',
+      anonymous: false,
       optList: [],
       error: null,
     };
@@ -257,6 +271,14 @@ class Poll extends Component {
   handleAddOption() {
     const { optList } = this.state;
     this.setState({ optList: [...optList, { val: '' }] });
+  }
+
+  toggleAnonymous() {
+    let { anonymous } = this.state;
+    anonymous = !anonymous;
+    this.setState({
+      anonymous,
+    });
   }
 
   setOptListLength(len) {
@@ -404,7 +426,7 @@ class Poll extends Component {
 
   renderPollOptions() {
     const {
-      type, optList, question, error,
+      type, optList, question, error, anonymous,
     } = this.state;
     const { startPoll, startCustomPoll, intl } = this.props;
     const defaultPoll = type === 'TF' || type === 'A-' || type === 'YNA';
@@ -430,6 +452,26 @@ class Poll extends Component {
           ) : (
             <div className={styles.errorSpacer}>&nbsp;</div>
           )}
+          <div className={styles.row}>
+            <div className={styles.col} aria-hidden="true">
+              <div className={styles.label}>
+                {intl.formatMessage(intlMessages.anonymousPollLabel)}
+              </div>
+            </div>
+            <div className={styles.col}>
+              <Toggle
+                icons={false}
+                defaultChecked={anonymous}
+                onChange={()=> {
+                  this.toggleAnonymous();
+                }}
+                ariaLabel={intl.formatMessage(intlMessages.anonymousPollLabel)}
+              />
+            </div>
+          </div>
+          <div>
+            {intl.formatMessage(anonymous ? intlMessages.isAnonymousPollLabel : intlMessages.nonAnonymousPollLabel)}
+          </div>
         </div>
         <div data-test="responseTypes">
           <h4>{intl.formatMessage(intlMessages.responseTypesLabel)}</h4>
@@ -552,10 +594,11 @@ class Poll extends Component {
                             startCustomPoll(
                               verifiedPollType,
                               question,
+                              anonymous,
                               _.compact(verifiedOptions),
                             );
                           } else {
-                            startPoll(verifiedPollType, question);
+                            startPoll(verifiedPollType, question, anonymous);
                           }
                         });
                       }}
