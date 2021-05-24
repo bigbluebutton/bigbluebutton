@@ -375,7 +375,16 @@ class Page {
     };
   }
 
-  async isVisible(el, timeout) {
+  static checkRegression(numb) {
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: numb,
+        failureThresholdType: 'percent',
+      });
+    }  
+  }
+
+  async isNotVisible(el, timeout) {
     try {
       await this.page.waitForSelector(el, {visible: false, timeout: timeout});
       return true;

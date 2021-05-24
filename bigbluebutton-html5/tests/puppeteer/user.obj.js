@@ -37,12 +37,7 @@ const userTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 2.0,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(2.0);
   });
 
   // Change user status icon and check if it has changed
@@ -66,12 +61,7 @@ const userTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 2.0,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(2.0);
   });
 
   // Connect with 2 users and check if User1 sees User2
@@ -98,12 +88,7 @@ const userTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 2.0,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(2.0);
   });
 
   // Open Connection Status Modal and check if appears
@@ -127,12 +112,7 @@ const userTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 2.0,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(2.0);
   });
 
   // Open Connection Status Modal, start Webcam Share, disable Webcams in
@@ -156,12 +136,7 @@ const userTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 2.0,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(2.0);
   });
 
   // Open Connection Status Modal, start Screenshare, disable Screenshare in
@@ -185,12 +160,7 @@ const userTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 2.0,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(2.0);
   });
 
   // Connect with a Good3G NETWORK_PRESET profil,  Open Connection Status Modal
@@ -214,12 +184,7 @@ const userTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 2.0,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(2.0);
   }, TEST_DURATION_TIME);
 
   // Force bad connection profile, force disconnection
@@ -243,12 +208,7 @@ const userTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 2.0,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(2.0);
   }, TEST_DURATION_TIME);
 
   // Raise and Lower Hand and make sure that the User2 Avatar color
@@ -277,12 +237,7 @@ const userTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 2.0,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(2.0);
   });
 
   // Set Guest policy to ASK_MODERATOR
@@ -309,12 +264,7 @@ const userTest = () => {
       await test.closePage(test.page3);
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 2.0,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(2.0);
   });
 
   // Set Guest policy to ALWAYS_ACCEPT
@@ -341,12 +291,7 @@ const userTest = () => {
       await test.closePage(test.page3);
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 2.0,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(2.0);
   });
 
   // Set Guest policy to ALWAYS_DENY
@@ -373,44 +318,7 @@ const userTest = () => {
       await test.closePage(test.page3);
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 2.0,
-        failureThresholdType: 'percent',
-      });
-    }
-  });
-
-  // Userlist and chat panel should not appear at page
-  // load in iPhone and Android Mobile devices
-  test('Userlist does not appear at page load on iPhone and Android', async () => {
-    const test = new MultiUsers();
-    let response;
-    let screenshot;
-    try {
-      const testName = 'userlistNotAppearOnMobile';
-      await test.page1.logger('begin of ', testName);
-      await test.page1.init(Page.iPhoneXArgs(), undefined, undefined, undefined, testName, undefined, iPhonex);
-      await test.page2.init(Page.galaxyNote3Args(), undefined, undefined, undefined, testName, undefined, galaxyNote3);
-      await test.page1.startRecording(testName);
-      await test.page2.startRecording(testName);
-      response = await test.userlistNotAppearOnMobile(testName);
-      await test.page1.stopRecording();
-      await test.page2.stopRecording();
-      screenshot = await test.page1.page.screenshot();
-      await test.page1.logger('end of ', testName);
-    } catch (err) {
-      await test.page1.logger(err);
-    } finally {
-      await test.close(test.page1, test.page2);
-    }
-    expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 2.0,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(2.0);
   });
 
   // Whiteboard shouldn't be accessible when
@@ -437,12 +345,88 @@ const userTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 2.0,
-        failureThresholdType: 'percent',
-      });
+    await Page.checkRegression(2.0);
+  });
+
+  // Userlist and chat panel should not appear at page
+  // load in iPhone and Android Mobile devices
+  test('Userlist does not appear at page load on iPhone and Android', async () => {
+    const test = new MultiUsers();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'userlistNotAppearOnMobile';
+      await test.page1.logger('begin of ', testName);
+      await test.page1.init(Page.iPhoneXArgs(), undefined, undefined, undefined, testName, undefined, iPhonex);
+      await test.page2.init(Page.galaxyNote3Args(), undefined, undefined, undefined, testName, undefined, galaxyNote3);
+      await test.page1.startRecording(testName);
+      await test.page2.startRecording(testName);
+      response = await test.userlistNotAppearOnMobile(testName);
+      await test.page1.stopRecording();
+      await test.page2.stopRecording();
+      screenshot = await test.page1.page.screenshot();
+      await test.page1.logger('end of ', testName);
+    } catch (err) {
+      await test.page1.logger(err);
+    } finally {
+      await test.close(test.page1, test.page2);
     }
+    expect(response).toBe(true);
+    await Page.checkRegression(2.0);
+  });
+
+  // Userslist shouldn't appear when Chat Panel or Whiteboard
+  // are active on small mobile devices
+  test('Userslist should not appear when Chat Panel or Whiteboard are active on small mobile devices', async () => {
+    const test = new MultiUsers();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'userlistNotAppearOnMobile';
+      await test.page1.logger('begin of ', testName);
+      await test.page1.init(Page.iPhoneXArgs(), undefined, undefined, undefined, testName, undefined, iPhonex);
+      await test.page2.init(Page.galaxyNote3Args(), undefined, undefined, undefined, testName, undefined, galaxyNote3);
+      await test.page1.startRecording(testName);
+      await test.page2.startRecording(testName);
+      response = await test.userlistNotAppearOnMobile();
+      await test.page1.stopRecording();
+      await test.page2.stopRecording();
+      screenshot = await test.page1.page.screenshot();
+      await test.page1.logger('end of ', testName);
+    } catch (err) {
+      await test.page1.logger(err);
+    } finally {
+      await test.close(test.page1, test.page2);
+    }
+    expect(response).toBe(true);
+    await Page.checkRegression(2.0);
+  });
+
+  // Chat Panel shouldn't appear when Userlist or Whiteboard
+  // are active on small mobile devices
+  test('Chat Panel should not appear when Userlist or Whiteboard are active on small mobile devices', async () => {
+    const test = new MultiUsers();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'chatPanelNotAppearOnMobile';
+      await test.page1.logger('begin of ', testName);
+      await test.page1.init(Page.iPhoneXArgs(), undefined, undefined, undefined, testName, undefined, iPhonex);
+      await test.page2.init(Page.galaxyNote3Args(), undefined, undefined, undefined, testName, undefined, galaxyNote3);
+      await test.page1.startRecording(testName);
+      await test.page2.startRecording(testName);
+      response = await test.chatPanelNotAppearOnMobile();
+      await test.page1.stopRecording();
+      await test.page2.stopRecording();
+      screenshot = await test.page1.page.screenshot();
+      await test.page1.logger('end of ', testName);
+    } catch (err) {
+      await test.page1.logger(err);
+    } finally {
+      await test.close(test.page1, test.page2);
+    }
+    expect(response).toBe(true);
+    await Page.checkRegression(2.0);
   });
 };
 module.exports = exports = userTest;

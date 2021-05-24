@@ -8,6 +8,8 @@ const ne = require('../notifications/elements');
 const ple = require('../polling/elemens');
 const we = require('../whiteboard/elements');
 const ue = require('./elements');
+const cu = require('../customparameters/elements');
+const pre = require('../presentation/elements');
 const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { sleep } = require('../core/helper');
 
@@ -219,8 +221,8 @@ class MultiUsers {
     try {
       await this.page1.closeAudioModal();
       await this.page2.closeAudioModal();
-      const userlistPanel = await this.page1.page.evaluate(utilUser.countTestElements, ue.userListPanel) === false;
-      const chatPanel = await this.page2.page.evaluate(utilUser.countTestElements, ue.chatPanel) === false;
+      const userlistPanel = await this.page1.page.evaluate(utilUser.countTestElements, ue.chatButton) === false;
+      const chatPanel = await this.page2.page.evaluate(utilUser.countTestElements, ue.chatButton) === false;
       return userlistPanel && chatPanel;
     } catch (e) {
       console.log(e);
@@ -235,11 +237,28 @@ class MultiUsers {
       await this.page1.click(ue.userListButton, true);
       await this.page2.click(ue.userListButton, true);
       await this.page2.click(ue.chatButton, true);
-      const onUserListPanel = await this.page1.isVisible(we.whiteboard, ELEMENT_WAIT_TIME) === true;
-      const onChatPanel = await this.page2.isVisible(we.whiteboard, ELEMENT_WAIT_TIME) === true;
+      const onUserListPanel = await this.page1.isNotVisible(cu.hidePresentation, ELEMENT_WAIT_TIME) === true;
+      const onChatPanel = await this.page2.page.evaluate(utilUser.countTestElements, cu.hidePresentation) === false;
       console.log({onUserListPanel, onChatPanel});
       await sleep(2000);
       return onUserListPanel && onChatPanel;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+  }
+
+  async chatPanelNotAppearOnMobile() {
+    try {
+      await this.page1.closeAudioModal();
+      await this.page2.closeAudioModal();
+      await this.page2.click(ue.userListButton, true);
+      await this.page2.click(ue.chatButton, true);
+      const whiteboard = await this.page1.page.evaluate(utilUser.countTestElements, ue.chatButton) === false;
+      const onChatPanel = await this.page2.isNotVisible(ue.chatButton, ELEMENT_WAIT_TIME) === true;
+      console.log({whiteboard, onChatPanel});
+      await sleep(2000);
+      return whiteboard && onChatPanel;
     } catch (e) {
       console.log(e);
       return false;
