@@ -172,10 +172,14 @@ class PresentationArea extends PureComponent {
       layoutContextState,
       userIsPresenter,
       layoutManagerLoaded,
+      presentationBounds,
     } = this.props;
 
     const { numUsersVideo } = layoutContextState;
-    const { layoutContextState: prevLayoutContextState } = prevProps;
+    const {
+      layoutContextState: prevLayoutContextState,
+      presentationBounds: prevPresentationBounds,
+    } = prevProps;
     const {
       numUsersVideo: prevNumUsersVideo,
     } = prevLayoutContextState;
@@ -267,7 +271,8 @@ class PresentationArea extends PureComponent {
         }
       }
 
-      if (prevProps.layoutManagerLoaded !== layoutManagerLoaded) this.onResize();
+      if (prevProps.layoutManagerLoaded !== layoutManagerLoaded
+        || presentationBounds !== prevPresentationBounds) this.onResize();
     }
   }
 
@@ -315,7 +320,11 @@ class PresentationArea extends PureComponent {
   }
 
   getPresentationSizesAvailable() {
-    const { layoutContextState } = this.props;
+    const {
+      layoutContextState,
+      presentationBounds,
+      layoutLoaded,
+    } = this.props;
     const {
       presentationAreaSize,
       webcamsAreaResizing,
@@ -328,12 +337,18 @@ class PresentationArea extends PureComponent {
       presentationAreaHeight: 0,
     };
 
-    presentationSizes.presentationAreaWidth = webcamsAreaResizing && (webcamsPlacement === 'left' || webcamsPlacement === 'right')
-      ? mediaBounds.width - tempWebcamsAreaSize.width
-      : presentationAreaSize.width;
-    presentationSizes.presentationAreaHeight = webcamsAreaResizing && (webcamsPlacement === 'top' || webcamsPlacement === 'bottom')
-      ? mediaBounds.height - tempWebcamsAreaSize.height - (this.getToolbarHeight() || 0) - 30
-      : presentationAreaSize.height - (this.getToolbarHeight() || 0);
+    if (layoutLoaded === 'legacy') {
+      presentationSizes.presentationAreaWidth = webcamsAreaResizing && (webcamsPlacement === 'left' || webcamsPlacement === 'right')
+        ? mediaBounds.width - tempWebcamsAreaSize.width
+        : presentationAreaSize.width;
+      presentationSizes.presentationAreaHeight = webcamsAreaResizing && (webcamsPlacement === 'top' || webcamsPlacement === 'bottom')
+        ? mediaBounds.height - tempWebcamsAreaSize.height - (this.getToolbarHeight() || 0) - 30
+        : presentationAreaSize.height - (this.getToolbarHeight() || 0);
+      return presentationSizes;
+    }
+
+    presentationSizes.presentationAreaWidth = presentationBounds.width;
+    presentationSizes.presentationAreaHeight = presentationBounds.height;
     return presentationSizes;
   }
 
