@@ -26,6 +26,8 @@ import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-user
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
 import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
+import NewWebcamContainer from '../webcam/container';
+import PresentationPodsContainer from '../presentation-pod/container';
 import { styles } from './styles';
 import {
   LAYOUT_TYPE, DEVICE_TYPE, ACTIONS, PANELS,
@@ -479,6 +481,8 @@ class App extends Component {
                 <NavBarContainer main="new" />
                 <SidebarNavigationContainer />
                 <SidebarContentContainer />
+                <NewWebcamContainer />
+                <PresentationPodsContainer />
               </div>
             </>
           )}

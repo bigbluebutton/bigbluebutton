@@ -795,6 +795,8 @@ class PresentationArea extends PureComponent {
       userIsPresenter,
       multiUser,
       slidePosition,
+      presentationBounds,
+      layoutLoaded,
     } = this.props;
 
     const {
@@ -839,6 +841,12 @@ class PresentationArea extends PureComponent {
       <div
         ref={(ref) => { this.refPresentationContainer = ref; }}
         className={styles.presentationContainer}
+        style={{
+          top: layoutLoaded === 'new' ? presentationBounds.top : undefined,
+          left: layoutLoaded === 'new' ? presentationBounds.left : undefined,
+          width: layoutLoaded === 'new' ? presentationBounds.width : undefined,
+          height: layoutLoaded === 'new' ? presentationBounds.height : undefined,
+        }}
       >
         {isFullscreen && <PollingContainer />}
 

@@ -18,7 +18,9 @@ const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
 const PresentationAreaContainer = ({ presentationPodIds, mountPresentationArea, ...props }) => {
   const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextDispatch } = newLayoutContext;
+  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
+  const { output, layoutLoaded } = newLayoutContextState;
+  const { presentation } = output;
   const { layoutSwapped, podId } = props;
 
   const usingUsersContext = useContext(UsersContext);
@@ -36,6 +38,8 @@ const PresentationAreaContainer = ({ presentationPodIds, mountPresentationArea, 
           ...props,
           isViewer: currentUser.role === ROLE_VIEWER,
           userIsPresenter: userIsPresenter && !layoutSwapped,
+          presentationBounds: presentation,
+          layoutLoaded,
         }
         }
       />
