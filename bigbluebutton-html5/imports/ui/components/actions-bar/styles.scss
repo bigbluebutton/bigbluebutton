@@ -161,6 +161,7 @@
   outline-width: 1px !important;
   outline-color: transparent !important;
   max-height: 50vh;
+  padding: 0.25rem;
 
   @include mq($small-only) {
     max-height: 100%;
