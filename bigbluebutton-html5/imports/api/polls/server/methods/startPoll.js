@@ -15,6 +15,7 @@ export default function startPoll(pollType, pollId, secretPoll, question, answer
     check(requesterUserId, String);
     check(pollId, String);
     check(pollType, String);
+    check(secretPoll, Boolean);
 
     const payload = {
       requesterId: requesterUserId,

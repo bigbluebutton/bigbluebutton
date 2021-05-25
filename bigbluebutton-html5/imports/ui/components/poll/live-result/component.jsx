@@ -150,7 +150,6 @@ class LiveResult extends PureComponent {
       stopPoll,
       handleBackClick,
       currentPoll,
-      secretPoll,
     } = this.props;
 
     const { userAnswers, pollStats, currentPollQuestion } = this.state;
@@ -217,7 +216,7 @@ class LiveResult extends PureComponent {
             />
           )
         }
-        { secretPoll ||
+        { currentPoll && !currentPoll.secretPoll &&
         <React.Fragment>
           <div className={styles.separator} />
           <table>
@@ -252,6 +251,5 @@ LiveResult.propTypes = {
     }),
   ]),
   stopPoll: PropTypes.func.isRequired,
-  secretPoll: PropTypes.bool.isRequired,
   handleBackClick: PropTypes.func.isRequired,
 };

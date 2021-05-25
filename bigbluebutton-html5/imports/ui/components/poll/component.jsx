@@ -367,7 +367,6 @@ class Poll extends Component {
             isMeteorConnected,
             stopPoll,
             currentPoll,
-            secretPoll: this.state.secretPoll,
             pollAnswerIds,
             usernames,
           }}
