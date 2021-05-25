@@ -20,7 +20,7 @@ const screenShareTest = () => {
     try {
       const testName = 'shareScreen';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgsWithVideo(), undefined, undefined, undefined, testName);
+      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
       await test.startRecording(testName);
       await test.closeAudioModal();
       response = await test.test();
@@ -49,7 +49,7 @@ const screenShareTest = () => {
     try {
       const testName = 'shareScreenAndroidMobile';
       await test.logger('begin of ', testName);
-      response = await test.testMobileDevice(Page.galaxyNote3Args(), testName, galaxyNote3);
+      response = await test.testMobileDevice(Page.getArgs(), testName, galaxyNote3);
       await test.logger('end of ', testName);
       await test.stopRecording();
       screenshot = await test.page.screenshot();
@@ -75,7 +75,7 @@ const screenShareTest = () => {
     try {
       const testName = 'shareScreenIphoneMobile';
       await test.logger('begin of ', testName);
-      response = await test.testMobileDevice(Page.iPhoneXArgs(), testName, iPhonex);
+      response = await test.testMobileDevice(Page.getArgs(), testName, iPhonex);
       await test.logger('end of ', testName);
       await test.stopRecording();
       screenshot = await test.page.screenshot();
@@ -101,7 +101,7 @@ const screenShareTest = () => {
     try {
       const testName = 'shareScreenTabletIpad';
       await test.logger('begin of ', testName);
-      response = await test.testMobileDevice(Page.iPadArgs(), testName, ipadPro);
+      response = await test.testMobileDevice(Page.getArgs(), testName, ipadPro);
       await test.logger('end of ', testName);
       await test.stopRecording();
       screenshot = await test.page.screenshot();

@@ -24,7 +24,7 @@ const userTest = () => {
     try {
       const testName = 'mobileTagName';
       await test.logger('begin of ', testName);
-      await test.init(Page.iPhoneXArgs(), undefined, undefined, undefined, testName, undefined, iPhonex);
+      await test.init(Page.getArgs(), undefined, undefined, undefined, testName, undefined, iPhonex);
       await test.startRecording(testName);
       await test.closeAudioModal();
       response = await test.mobileTagName();
@@ -124,7 +124,7 @@ const userTest = () => {
     try {
       const testName = 'disableWebcamsFromConnectionStatus';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgsWithVideo(), undefined, undefined, undefined, testName);
+      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
       await test.startRecording(testName);
       response = await test.disableWebcamsFromConnectionStatus();
       await test.stopRecording();
@@ -172,7 +172,7 @@ const userTest = () => {
     try {
       const testName = 'reportUserInConnectionIssues';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgsWithAudioAndVideo(), undefined, undefined, undefined, testName, NETWORK_PRESETS.Regular4G);
+      await test.init(Page.getArgs(), undefined, undefined, undefined, testName, NETWORK_PRESETS.Regular4G);
       await test.startRecording(testName);
       response = await test.reportUserInConnectionIssues();
       await test.stopRecording();
@@ -330,8 +330,8 @@ const userTest = () => {
     try {
       const testName = 'whiteboardNotAppearOnMobile';
       await test.page1.logger('begin of ', testName);
-      await test.page1.init(Page.iPhoneXArgs(), undefined, undefined, undefined, testName, undefined, iPhonex);
-      await test.page2.init(Page.galaxyNote3Args(), undefined, undefined, undefined, testName, undefined, galaxyNote3);
+      await test.page1.init(Page.getArgs(), undefined, undefined, undefined, testName, undefined, iPhonex);
+      await test.page2.init(Page.getArgs(), undefined, undefined, undefined, testName, undefined, galaxyNote3);
       await test.page1.startRecording(testName);
       await test.page2.startRecording(testName);
       response = await test.whiteboardNotAppearOnMobile(testName);
@@ -357,8 +357,8 @@ const userTest = () => {
     try {
       const testName = 'userlistNotAppearOnMobile';
       await test.page1.logger('begin of ', testName);
-      await test.page1.init(Page.iPhoneXArgs(), undefined, undefined, undefined, testName, undefined, iPhonex);
-      await test.page2.init(Page.galaxyNote3Args(), undefined, undefined, undefined, testName, undefined, galaxyNote3);
+      await test.page1.init(Page.getArgs(), undefined, undefined, undefined, testName, undefined, iPhonex);
+      await test.page2.init(Page.getArgs(), undefined, undefined, undefined, testName, undefined, galaxyNote3);
       await test.page1.startRecording(testName);
       await test.page2.startRecording(testName);
       response = await test.userlistNotAppearOnMobile(testName);
@@ -384,8 +384,8 @@ const userTest = () => {
     try {
       const testName = 'userlistNotAppearOnMobile';
       await test.page1.logger('begin of ', testName);
-      await test.page1.init(Page.iPhoneXArgs(), undefined, undefined, undefined, testName, undefined, iPhonex);
-      await test.page2.init(Page.galaxyNote3Args(), undefined, undefined, undefined, testName, undefined, galaxyNote3);
+      await test.page1.init(Page.getArgs(), undefined, undefined, undefined, testName, undefined, iPhonex);
+      await test.page2.init(Page.getArgs(), undefined, undefined, undefined, testName, undefined, galaxyNote3);
       await test.page1.startRecording(testName);
       await test.page2.startRecording(testName);
       response = await test.userlistNotAppearOnMobile();
@@ -411,8 +411,8 @@ const userTest = () => {
     try {
       const testName = 'chatPanelNotAppearOnMobile';
       await test.page1.logger('begin of ', testName);
-      await test.page1.init(Page.iPhoneXArgs(), undefined, undefined, undefined, testName, undefined, iPhonex);
-      await test.page2.init(Page.galaxyNote3Args(), undefined, undefined, undefined, testName, undefined, galaxyNote3);
+      await test.page1.init(Page.getArgs(), undefined, undefined, undefined, testName, undefined, iPhonex);
+      await test.page2.init(Page.getArgs(), undefined, undefined, undefined, testName, undefined, galaxyNote3);
       await test.page1.startRecording(testName);
       await test.page2.startRecording(testName);
       response = await test.chatPanelNotAppearOnMobile();

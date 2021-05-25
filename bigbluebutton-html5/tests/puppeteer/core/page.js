@@ -182,28 +182,6 @@ class Page {
 
   // Get the default arguments for creating a page
   static getArgs() {
-    const args = [
-      '--no-sandbox',
-      '--use-fake-ui-for-media-stream',
-      '--use-fake-device-for-media-stream',
-      '--no-default-browser-check',
-      '--window-size=1024,720',
-      '--lang=en-US',
-    ];
-    return {
-      headless: false,
-      args,
-      defaultViewport: {
-        width: 1024,
-        height: 720,
-      },
-      ignoreDefaultArgs: [
-        '--enable-automation',
-      ],
-    };
-  }
-
-  static getArgsWithAudio() {
     if (process.env.BROWSERLESS_ENABLED === 'true') {
       const args = [
         '--no-sandbox',
@@ -222,81 +200,7 @@ class Page {
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
       '--no-default-browser-check',
-      '--window-size=1024,720',
-      audioCapture,
-      '--allow-file-access',
-      '--lang=en-US',
-    ];
-    return {
-      headless: false,
-      args,
-      defaultViewport: {
-        width: 1024,
-        height: 720,
-      },
-      ignoreDefaultArgs: [
-        '--enable-automation',
-      ],
-    };
-  }
-
-  static getArgsWithVideo() {
-    if (process.env.BROWSERLESS_ENABLED === 'true') {
-      const args = [
-        '--no-sandbox',
-        '--use-fake-ui-for-media-stream',
-        '--use-fake-device-for-media-stream',
-        '--window-size=1024,720',
-        '--lang=en-US',
-      ];
-      return {
-        headless: true,
-        args,
-      };
-    }
-    const args = [
-      '--no-sandbox',
-      '--use-fake-ui-for-media-stream',
-      '--use-fake-device-for-media-stream',
-      '--no-default-browser-check',
-      '--window-size=1024,720',
-      videoCapture,
-      '--allow-file-access',
-      '--lang=en-US',
-    ];
-    return {
-      headless: false,
-      args,
-      defaultViewport: {
-        width: 1024,
-        height: 720,
-      },
-      ignoreDefaultArgs: [
-        '--enable-automation',
-      ],
-    };
-  }
-
-  static getArgsWithAudioAndVideo() {
-    if (process.env.BROWSERLESS_ENABLED === 'true') {
-      const args = [
-        '--no-sandbox',
-        '--use-fake-ui-for-media-stream',
-        '--use-fake-device-for-media-stream',
-        '--window-size=1024,720',
-        '--lang=en-US',
-      ];
-      return {
-        headless: true,
-        args,
-      };
-    }
-    const args = [
-      '--no-sandbox',
-      '--use-fake-ui-for-media-stream',
-      '--use-fake-device-for-media-stream',
-      '--no-default-browser-check',
-      '--window-size=1024,720',
+      '--window-size=1150,980',
       audioCapture,
       videoCapture,
       '--allow-file-access',
@@ -306,69 +210,9 @@ class Page {
       headless: false,
       args,
       defaultViewport: {
-        width: 1024,
-        height: 720,
+        width: 1250,
+        height: 850,
       },
-      ignoreDefaultArgs: [
-        '--enable-automation',
-      ],
-    };
-  }
-
-  static iPhoneXArgs() {
-    const args = [
-      '--no-sandbox',
-      '--use-fake-ui-for-media-stream',
-      '--use-fake-device-for-media-stream',
-      '--no-default-browser-check',
-      audioCapture,
-      videoCapture,
-      '--allow-file-access',
-      '--lang=en-US',
-    ];
-    return {
-      headless: false,
-      args,
-      ignoreDefaultArgs: [
-        '--enable-automation',
-      ],
-    };
-  }
-
-  static iPadArgs() {
-    const args = [
-      '--no-sandbox',
-      '--use-fake-ui-for-media-stream',
-      '--use-fake-device-for-media-stream',
-      '--no-default-browser-check',
-      audioCapture,
-      videoCapture,
-      '--allow-file-access',
-      '--lang=en-US',
-    ];
-    return {
-      headless: false,
-      args,
-      ignoreDefaultArgs: [
-        '--enable-automation',
-      ],
-    };
-  }
-
-  static galaxyNote3Args() {
-    const args = [
-      '--no-sandbox',
-      '--use-fake-ui-for-media-stream',
-      '--use-fake-device-for-media-stream',
-      '--no-default-browser-check',
-      audioCapture,
-      videoCapture,
-      '--allow-file-access',
-      '--lang=en-US',
-    ];
-    return {
-      headless: false,
-      args,
       ignoreDefaultArgs: [
         '--enable-automation',
       ],
