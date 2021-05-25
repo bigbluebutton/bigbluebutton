@@ -183,7 +183,7 @@ class MessageChatItem extends PureComponent {
 
     let _text = text.replace('bbb-published-poll-<br/>', '');
 
-    const { pollQuestion, pollText: newPollText } = extractPollQuestion(_text);
+    const { pollQuestion, newPollText } = extractPollQuestion(_text);
     _text = newPollText;
 
     if (!isDefaultPoll) {
