@@ -8,13 +8,15 @@ import ChatPushAlert from './push-alert/component';
 import Service from '../service';
 import { styles } from '../styles';
 
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
+
 const propTypes = {
   pushAlertDisabled: PropTypes.bool.isRequired,
   activeChats: PropTypes.arrayOf(PropTypes.object).isRequired,
   audioAlertDisabled: PropTypes.bool.isRequired,
   joinTimestamp: PropTypes.number.isRequired,
   idChatOpen: PropTypes.string.isRequired,
-  publicChatId: PropTypes.string.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -62,7 +64,6 @@ class ChatAlert extends PureComponent {
       joinTimestamp,
       pushAlertDisabled,
       messages,
-      publicChatId,
     } = this.props;
 
     const {
@@ -73,7 +74,8 @@ class ChatAlert extends PureComponent {
 
     // Avoid alerting messages received before enabling alerts
     if (prevProps.pushAlertDisabled && !pushAlertDisabled) {
-      const newAlertEnabledTimestamp = Service.getLastMessageTimestampFromChatList(activeChats, messages);
+      const newAlertEnabledTimestamp = Service
+        .getLastMessageTimestampFromChatList(activeChats, messages);
       this.setAlertEnabledTimestamp(newAlertEnabledTimestamp);
       return;
     }
@@ -82,10 +84,10 @@ class ChatAlert extends PureComponent {
     const unalertedMessagesByChatId = {};
 
     activeChats
-      .filter(chat => chat.chatId !== idChatOpen)
-      .filter(chat => chat.unreadCounter > 0)
+      .filter((chat) => chat.chatId !== idChatOpen)
+      .filter((chat) => chat.unreadCounter > 0)
       .forEach((chat) => {
-        const chatId = (chat.chatId === 'public') ? publicChatId : chat.chatId;
+        const chatId = (chat.chatId === 'public') ? PUBLIC_CHAT_ID : chat.chatId;
         const thisChatUnreadMessages = UnreadMessages.getUnreadMessages(chatId, messages);
 
         unalertedMessagesByChatId[chatId] = thisChatUnreadMessages.filter((msg) => {
@@ -109,7 +111,7 @@ class ChatAlert extends PureComponent {
 
     // Keep track of chats that need to be alerted now (considering alert interval)
     const chatsWithPendingAlerts = Object.keys(lastUnalertedMessageTimestampByChat)
-      .filter(chatId => lastUnalertedMessageTimestampByChat[chatId]
+      .filter((chatId) => lastUnalertedMessageTimestampByChat[chatId]
         > ((lastAlertTimestampByChat[chatId] || 0) + ALERT_INTERVAL)
         && !(chatId in pendingNotificationsByChat));
 
@@ -120,7 +122,7 @@ class ChatAlert extends PureComponent {
     if (!chatsWithPendingAlerts.length) return;
 
     const newPendingNotificationsByChat = Object.assign({},
-      ...chatsWithPendingAlerts.map(chatId => ({ [chatId]: unalertedMessagesByChatId[chatId] })));
+      ...chatsWithPendingAlerts.map((chatId) => ({ [chatId]: unalertedMessagesByChatId[chatId] })));
 
     // Mark messages as alerted
     const newLastAlertTimestampByChat = { ...lastAlertTimestampByChat };
@@ -144,7 +146,6 @@ class ChatAlert extends PureComponent {
   setChatMessagesState(pendingNotificationsByChat, lastAlertTimestampByChat) {
     this.setState({ pendingNotificationsByChat, lastAlertTimestampByChat });
   }
-
 
   mapContentText(message) {
     const {
@@ -183,6 +184,7 @@ class ChatAlert extends PureComponent {
       idChatOpen,
       pushAlertDisabled,
       intl,
+      newLayoutContextDispatch,
       activeChats,
     } = this.props;
 
@@ -199,7 +201,7 @@ class ChatAlert extends PureComponent {
       || (hasPendingNotifications && !idChatOpen);
 
     return (
-      <Fragment>
+      <>
         {
           !audioAlertDisabled || (!audioAlertDisabled && notCurrentTabOrMinimized)
             ? <ChatAudioAlert play={shouldPlayChatAlert} />
@@ -234,14 +236,16 @@ class ChatAlert extends PureComponent {
                         delete pendingNotifications[chatId];
                         pendingNotifications = { ...pendingNotifications };
                         this.setState({ pendingNotificationsByChat: pendingNotifications });
-                      }}
+                      }
+                    }
                     alertDuration={ALERT_DURATION}
+                    newLayoutContextDispatch={newLayoutContextDispatch}
                   />
                 );
               })
             : null
         }
-      </Fragment>
+      </>
     );
   }
 }

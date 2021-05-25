@@ -15,6 +15,7 @@ import ExternalVideoModal from '/imports/ui/components/external-video-player/mod
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
 import cx from 'classnames';
 import { styles } from '../styles';
+import { PANELS, ACTIONS } from '../../layout/enums';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -125,6 +126,7 @@ class ActionsDropdown extends PureComponent {
       isSelectRandomUserEnabled,
       stopExternalVideoShare,
       mountModal,
+      newLayoutContextDispatch,
     } = this.props;
 
     const {
@@ -153,9 +155,15 @@ class ActionsDropdown extends PureComponent {
               if (Session.equals('pollInitiated', true)) {
                 Session.set('resetPollPanel', true);
               }
-              Session.set('openPanel', 'poll');
+              newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                value: true,
+              });
+              newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                value: PANELS.POLL,
+              });
               Session.set('forcePollOpen', true);
-              window.dispatchEvent(new Event('panelChanged'));
             }}
           />
         )
@@ -256,6 +264,8 @@ class ActionsDropdown extends PureComponent {
       shortcuts: OPEN_ACTIONS_AK,
       isMeteorConnected,
       isDropdownOpen,
+      sidebarContent,
+      sidebarNavigation
     } = this.props;
 
     const availableActions = this.getAvailableActions();
@@ -270,7 +280,14 @@ class ActionsDropdown extends PureComponent {
     }
 
     return (
-      <Dropdown className={styles.dropdown} ref={(ref) => { this._dropdown = ref; }}>
+      <Dropdown
+        {...{
+          sidebarContent,
+          sidebarNavigation,
+        }}
+        className={styles.dropdown}
+        ref={(ref) => { this._dropdown = ref; }}
+      >
         <DropdownTrigger tabIndex={0} accessKey={OPEN_ACTIONS_AK}>
           <Button
             className={isDropdownOpen ? styles.hideDropdownButton : ''}

@@ -4,6 +4,7 @@ import Note from '/imports/api/note';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 import { Session } from 'meteor/session';
+import { ACTIONS, PANELS } from '../layout/enums';
 
 const NOTE_CONFIG = Meteor.settings.public.note;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -30,12 +31,8 @@ const getNoteParams = () => {
   config.lang = getLang();
   config.rtl = document.documentElement.getAttribute('dir') === 'rtl';
 
-  const params = [];
-  Object.keys(config).forEach((k) => {
-    params.push(`${k}=${encodeURIComponent(config[k])}`);
-  });
-
-  return params.join('&');
+  const params = Object.keys(config).map((key) => `${key}=${encodeURIComponent(config[key])}`).join('&');
+  return params;
 };
 
 const isLocked = () => {
@@ -82,11 +79,8 @@ const setLastRevs = (revs) => {
   }
 };
 
-const isPanelOpened = () => Session.get('openPanel') === 'note';
-
-const hasUnreadNotes = () => {
-  const opened = isPanelOpened();
-  if (opened) return false;
+const hasUnreadNotes = (sidebarContentPanel) => {
+  if (sidebarContentPanel === PANELS.SHARED_NOTES) return false;
 
   const revs = getRevs();
   const lastRevs = getLastRevs();
@@ -99,12 +93,17 @@ const isEnabled = () => {
   return NOTE_CONFIG.enabled && note;
 };
 
-const toggleNotePanel = () => {
-  Session.set(
-    'openPanel',
-    isPanelOpened() ? 'userlist' : 'note',
-  );
-  window.dispatchEvent(new Event('panelChanged'));
+const toggleNotePanel = (sidebarContentPanel, newLayoutContextDispatch) => {
+  newLayoutContextDispatch({
+    type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+    value: sidebarContentPanel !== PANELS.SHARED_NOTES,
+  });
+  newLayoutContextDispatch({
+    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+    value: sidebarContentPanel === PANELS.SHARED_NOTES
+      ? PANELS.NONE
+      : PANELS.SHARED_NOTES,
+  });
 };
 
 export default {
@@ -113,7 +112,6 @@ export default {
   toggleNotePanel,
   isLocked,
   isEnabled,
-  isPanelOpened,
   getRevs,
   setLastRevs,
   getLastRevs,

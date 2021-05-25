@@ -1,18 +1,17 @@
-import React, { PureComponent } from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import GuestUsers from '/imports/api/guest-users/';
 import Meetings from '/imports/api/meetings';
 import Service from './service';
 import WaitingComponent from './component';
+import { NLayoutContext } from '../layout/context/context';
 
-class WaitingContainer extends PureComponent {
-  render() {
-    return (
-      <WaitingComponent {...this.props} />
-    );
-  }
-}
+const WaitingContainer = (props) => {
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextDispatch } = newLayoutContext;
+  return <WaitingComponent {...{ newLayoutContextDispatch, ...props }} />;
+};
 
 export default withTracker(() => {
   const guestUsers = GuestUsers.find({
@@ -31,7 +30,9 @@ export default withTracker(() => {
     denied: false,
   }).fetch();
 
-  const authenticatedGuest = Meetings.findOne({ meetingId: Auth.meetingID }).usersProp.authenticatedGuest;
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+  const { usersProp } = meeting;
+  const { authenticatedGuest } = usersProp;
 
   return {
     guestUsers,

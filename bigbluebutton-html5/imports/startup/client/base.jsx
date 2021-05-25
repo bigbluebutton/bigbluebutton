@@ -19,10 +19,12 @@ import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import LayoutManagerContainer from '/imports/ui/components/layout/layout-manager/container';
-import { withLayoutContext } from '/imports/ui/components/layout/context';
+import LayoutContext from '/imports/ui/components/layout/context';
+import NewLayoutContext from '../../ui/components/layout/context/context';
 import VideoService from '/imports/ui/components/video-provider/service';
 import DebugWindow from '/imports/ui/components/debug-window/component';
+import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
+import LayoutManagerContainer from '/imports/ui/components/layout/layout-manager/container';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
@@ -78,7 +80,10 @@ class Base extends Component {
   }
 
   componentDidMount() {
-    const { animations } = this.props;
+    const { animations, newLayoutContextState, newLayoutContextDispatch } = this.props;
+    const { input } = newLayoutContextState;
+    const { sidebarContent } = input;
+    const { sidebarContentPanel } = sidebarContent;
 
     const {
       userID: localUserId,
@@ -87,11 +92,14 @@ class Base extends Component {
     if (animations) HTML.classList.add('animationsEnabled');
     if (!animations) HTML.classList.add('animationsDisabled');
 
+    Session.set('layoutManagerLoaded', 'legacy');
+
     fullscreenChangedEvents.forEach((event) => {
       document.addEventListener(event, Base.handleFullscreenChange);
     });
     Session.set('isFullscreen', false);
 
+    // TODO move this find to container
     const users = Users.find({
       meetingId: Auth.meetingID,
       validated: true,
@@ -133,6 +141,53 @@ class Base extends Component {
         }
       },
     });
+
+    if (!sidebarContentPanel || Session.equals('subscriptionsReady', true)) {
+      if (!checkedUserSettings) {
+        if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
+          if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+              value: true,
+            });
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: true,
+            });
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+              value: PANELS.CHAT,
+            });
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_ID_CHAT_OPEN,
+              value: PUBLIC_CHAT_ID,
+            });
+          } else {
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+              value: true,
+            });
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: false,
+            });
+          }
+        } else {
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+            value: false,
+          });
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: false,
+          });
+        }
+
+        if (Session.equals('subscriptionsReady', true)) {
+          checkedUserSettings = true;
+        }
+      }
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -144,6 +199,7 @@ class Base extends Component {
       isMeteorConnected,
       subscriptionsReady,
       layoutContextDispatch,
+      newLayoutContextDispatch,
       usersVideo,
     } = this.props;
     const {
@@ -152,6 +208,10 @@ class Base extends Component {
     } = this.state;
 
     if (usersVideo !== prevProps.usersVideo) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_NUM_CAMERAS,
+        value: usersVideo.length,
+      });
       layoutContextDispatch(
         {
           type: 'setUsersVideo',
@@ -391,25 +451,6 @@ const BaseContainer = withTracker(() => {
     },
   });
 
-  if (Session.equals('openPanel', undefined) || Session.equals('subscriptionsReady', true)) {
-    if (!checkedUserSettings) {
-      if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
-        if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
-          Session.set('openPanel', 'chat');
-          Session.set('idChatOpen', PUBLIC_CHAT_ID);
-        } else {
-          Session.set('openPanel', 'userlist');
-        }
-      } else {
-        Session.set('openPanel', '');
-      }
-      window.dispatchEvent(new Event('panelChanged'));
-      if (Session.equals('subscriptionsReady', true)) {
-        checkedUserSettings = true;
-      }
-    }
-  }
-
   const codeError = Session.get('codeError');
   const { streams: usersVideo } = VideoService.getVideoStreams();
 
@@ -430,7 +471,8 @@ const BaseContainer = withTracker(() => {
     loggedIn,
     codeError,
     usersVideo,
+    layoutManagerLoaded: Session.get('layoutManagerLoaded'),
   };
-})(withLayoutContext(Base));
+})(LayoutContext.withLayoutContext(NewLayoutContext.withContext(Base)));
 
 export default BaseContainer;

@@ -20,6 +20,9 @@ const initialState = {
   userListSize: {
     width: 0,
   },
+  secondPanelSize: {
+    width: 0,
+  },
   chatSize: {
     width: 0,
   },
@@ -107,6 +110,14 @@ const reducer = (state, action) => {
         ...state,
         userListSize: {
           width: action.value.width,
+        },
+      };
+    }
+    case 'setSecondPanelSize': {
+      return {
+        ...state,
+        secondPanelSize: {
+          width: action.value,
         },
       };
     }
@@ -266,7 +277,6 @@ const ContextProvider = (props) => {
     <LayoutContext.Provider value={{
       layoutContextState,
       layoutContextDispatch,
-      ...props,
     }}
     >
       {children}
@@ -275,8 +285,8 @@ const ContextProvider = (props) => {
 };
 
 const withProvider = Component => props => (
-  <ContextProvider {...props}>
-    <Component />
+  <ContextProvider>
+    <Component {...props} />
   </ContextProvider>
 );
 
