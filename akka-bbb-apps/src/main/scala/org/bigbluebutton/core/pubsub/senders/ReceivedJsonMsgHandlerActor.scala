@@ -167,6 +167,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[MuteMeetingCmdMsg](envelope, jsonNode)
       case IsMeetingMutedReqMsg.NAME =>
         routeGenericMsg[IsMeetingMutedReqMsg](envelope, jsonNode)
+      case AudioFloorChangedVoiceConfEvtMsg.NAME =>
+        routeVoiceMsg[AudioFloorChangedVoiceConfEvtMsg](envelope, jsonNode)
       case CheckRunningAndRecordingVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[CheckRunningAndRecordingVoiceConfEvtMsg](envelope, jsonNode)
       case UserStatusVoiceConfEvtMsg.NAME =>
@@ -234,6 +236,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetAllPresentationPodsReqMsg](envelope, jsonNode)
       case PreuploadedPresentationsSysPubMsg.NAME =>
         routeGenericMsg[PreuploadedPresentationsSysPubMsg](envelope, jsonNode)
+      case PresentationUploadedFileTooLargeErrorSysPubMsg.NAME =>
+        routeGenericMsg[PresentationUploadedFileTooLargeErrorSysPubMsg](envelope, jsonNode)
       case PresentationConversionUpdateSysPubMsg.NAME =>
         routeGenericMsg[PresentationConversionUpdateSysPubMsg](envelope, jsonNode)
       case PresentationPageCountErrorSysPubMsg.NAME =>

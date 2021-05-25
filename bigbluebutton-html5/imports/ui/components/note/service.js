@@ -4,6 +4,7 @@ import Note from '/imports/api/note';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 import { Session } from 'meteor/session';
+import { ACTIONS, PANELS } from '../layout/enums';
 
 const NOTE_CONFIG = Meteor.settings.public.note;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -24,18 +25,14 @@ const getLang = () => {
 };
 
 const getNoteParams = () => {
-  let config = {};
+  const config = {};
   const User = Users.findOne({ userId: Auth.userID }, { fields: { name: 1 } });
   config.userName = User.name;
   config.lang = getLang();
   config.rtl = document.documentElement.getAttribute('dir') === 'rtl';
 
-  const params = [];
-  Object.keys(config).forEach((k) => {
-    params.push(`${k}=${encodeURIComponent(config[k])}`);
-  });
-
-  return params.join('&');
+  const params = Object.keys(config).map((key) => `${key}=${encodeURIComponent(config[key])}`).join('&');
+  return params;
 };
 
 const isLocked = () => {
@@ -67,6 +64,13 @@ const getRevs = () => {
   return note ? note.revs : 0;
 };
 
+const getLastRevs = () => {
+  const lastRevs = Session.get('noteLastRevs');
+
+  if (!lastRevs) return -1;
+  return lastRevs;
+};
+
 const setLastRevs = (revs) => {
   const lastRevs = getLastRevs();
 
@@ -75,16 +79,8 @@ const setLastRevs = (revs) => {
   }
 };
 
-const getLastRevs = () => {
-  const lastRevs = Session.get('noteLastRevs');
-
-  if (!lastRevs) return -1;
-  return lastRevs;
-};
-
-const hasUnreadNotes = () => {
-  const opened = isPanelOpened();
-  if (opened) return false;
+const hasUnreadNotes = (sidebarContentPanel) => {
+  if (sidebarContentPanel === PANELS.SHARED_NOTES) return false;
 
   const revs = getRevs();
   const lastRevs = getLastRevs();
@@ -97,14 +93,18 @@ const isEnabled = () => {
   return NOTE_CONFIG.enabled && note;
 };
 
-const toggleNotePanel = () => {
-  Session.set(
-    'openPanel',
-    isPanelOpened() ? 'userlist' : 'note',
-  );
+const toggleNotePanel = (sidebarContentPanel, newLayoutContextDispatch) => {
+  newLayoutContextDispatch({
+    type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+    value: sidebarContentPanel !== PANELS.SHARED_NOTES,
+  });
+  newLayoutContextDispatch({
+    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+    value: sidebarContentPanel === PANELS.SHARED_NOTES
+      ? PANELS.NONE
+      : PANELS.SHARED_NOTES,
+  });
 };
-
-const isPanelOpened = () => Session.get('openPanel') === 'note';
 
 export default {
   getNoteURL,
@@ -112,7 +112,6 @@ export default {
   toggleNotePanel,
   isLocked,
   isEnabled,
-  isPanelOpened,
   getRevs,
   setLastRevs,
   getLastRevs,

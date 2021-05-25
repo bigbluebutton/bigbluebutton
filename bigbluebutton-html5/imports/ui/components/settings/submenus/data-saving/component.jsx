@@ -35,7 +35,7 @@ class DataSaving extends BaseMenu {
   }
 
   render() {
-    const { intl } = this.props;
+    const { intl, showToggleLabel, displaySettingsStatus } = this.props;
 
     const { viewParticipantsWebcams, viewScreenshare } = this.state.settings;
 
@@ -56,12 +56,14 @@ class DataSaving extends BaseMenu {
             </div>
             <div className={styles.col}>
               <div className={cx(styles.formElement, styles.pullContentRight)}>
+                {displaySettingsStatus(viewParticipantsWebcams)}
                 <Toggle
                   icons={false}
                   defaultChecked={viewParticipantsWebcams}
                   onChange={() => this.handleToggle('viewParticipantsWebcams')}
                   ariaLabelledBy="webcamToggle"
                   ariaLabel={intl.formatMessage(intlMessages.webcamLabel)}
+                  showToggleLabel={showToggleLabel}
                 />
               </div>
             </div>
@@ -76,12 +78,14 @@ class DataSaving extends BaseMenu {
             </div>
             <div className={styles.col}>
               <div className={cx(styles.formElement, styles.pullContentRight)}>
+                {displaySettingsStatus(viewScreenshare)}
                 <Toggle
                   icons={false}
                   defaultChecked={viewScreenshare}
                   onChange={() => this.handleToggle('viewScreenshare')}
                   ariaLabelledBy="screenShare"
                   ariaLabel={intl.formatMessage(intlMessages.screenShareLabel)}
+                  showToggleLabel={showToggleLabel}
                 />
               </div>
             </div>

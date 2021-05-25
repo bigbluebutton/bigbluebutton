@@ -189,7 +189,7 @@ class ScreenshareComponent extends React.Component {
 
   render() {
     const { loaded, autoplayBlocked, isFullscreen, isStreamHealthy } = this.state;
-    const { intl, isPresenter, isGloballyBroadcasting } = this.props;
+    const { isPresenter, isGloballyBroadcasting } = this.props;
 
     // Conditions to render the (re)connecting spinner and the unhealthy stream
     // grayscale:

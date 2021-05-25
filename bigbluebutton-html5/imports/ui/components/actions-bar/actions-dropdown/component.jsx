@@ -15,6 +15,7 @@ import ExternalVideoModal from '/imports/ui/components/external-video-player/mod
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
 import cx from 'classnames';
 import { styles } from '../styles';
+import { PANELS, ACTIONS } from '../../layout/enums';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -109,6 +110,11 @@ class ActionsDropdown extends PureComponent {
     }
   }
 
+  handleExternalVideoClick() {
+    const { mountModal } = this.props;
+    mountModal(<ExternalVideoModal />);
+  }
+
   getAvailableActions() {
     const {
       intl,
@@ -117,8 +123,10 @@ class ActionsDropdown extends PureComponent {
       handleTakePresenter,
       isSharingVideo,
       isPollingEnabled,
+      isSelectRandomUserEnabled,
       stopExternalVideoShare,
       mountModal,
+      newLayoutContextDispatch,
     } = this.props;
 
     const {
@@ -147,7 +155,14 @@ class ActionsDropdown extends PureComponent {
               if (Session.equals('pollInitiated', true)) {
                 Session.set('resetPollPanel', true);
               }
-              Session.set('openPanel', 'poll');
+              newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                value: true,
+              });
+              newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                value: PANELS.POLL,
+              });
               Session.set('forcePollOpen', true);
             }}
           />
@@ -188,7 +203,7 @@ class ActionsDropdown extends PureComponent {
           />
         )
         : null),
-      (amIPresenter
+      (amIPresenter && isSelectRandomUserEnabled
         ? (
           <DropdownListItem
             icon="user"
@@ -215,32 +230,30 @@ class ActionsDropdown extends PureComponent {
     // about the first one because it's the default.
     const { podId } = podIds[0];
 
-    const presentationItemElements = presentations.map((p) => {
-      const itemStyles = {};
-      itemStyles[styles.presentationItem] = true;
-      itemStyles[styles.isCurrent] = p.current;
+    const presentationItemElements = presentations
+      .sort((a, b) => (a.name.localeCompare(b.name)))
+      .map((p) => {
+        const itemStyles = {};
+        itemStyles[styles.presentationItem] = true;
+        itemStyles[styles.isCurrent] = p.current;
 
-      return (<DropdownListItem
-        className={cx(itemStyles)}
-        icon="file"
-        iconRight={p.current ? 'check' : null}
-        label={p.name}
-        description="uploaded presentation file"
-        key={`uploaded-presentation-${p.id}`}
-        onClick={() => {
-          setPresentation(p.id, podId);
-        }}
-      />
-      );
-    });
+        return (
+          <DropdownListItem
+            className={cx(itemStyles)}
+            icon="file"
+            iconRight={p.current ? 'check' : null}
+            label={p.name}
+            description="uploaded presentation file"
+            key={`uploaded-presentation-${p.id}`}
+            onClick={() => {
+              setPresentation(p.id, podId);
+            }}
+          />
+        );
+      });
 
     presentationItemElements.push(<DropdownListSeparator key={_.uniqueId('list-separator-')} />);
     return presentationItemElements;
-  }
-
-  handleExternalVideoClick() {
-    const { mountModal } = this.props;
-    mountModal(<ExternalVideoModal />);
   }
 
   render() {
@@ -250,6 +263,9 @@ class ActionsDropdown extends PureComponent {
       amIModerator,
       shortcuts: OPEN_ACTIONS_AK,
       isMeteorConnected,
+      isDropdownOpen,
+      sidebarContent,
+      sidebarNavigation
     } = this.props;
 
     const availableActions = this.getAvailableActions();
@@ -264,9 +280,17 @@ class ActionsDropdown extends PureComponent {
     }
 
     return (
-      <Dropdown className={styles.dropdown} ref={(ref) => { this._dropdown = ref; }}>
+      <Dropdown
+        {...{
+          sidebarContent,
+          sidebarNavigation,
+        }}
+        className={styles.dropdown}
+        ref={(ref) => { this._dropdown = ref; }}
+      >
         <DropdownTrigger tabIndex={0} accessKey={OPEN_ACTIONS_AK}>
           <Button
+            className={isDropdownOpen ? styles.hideDropdownButton : ''}
             hideLabel
             aria-label={intl.formatMessage(intlMessages.actionsLabel)}
             label={intl.formatMessage(intlMessages.actionsLabel)}
@@ -278,7 +302,7 @@ class ActionsDropdown extends PureComponent {
           />
         </DropdownTrigger>
         <DropdownContent placement="top left">
-          <DropdownList>
+          <DropdownList className={styles.scrollableList}>
             {children}
           </DropdownList>
         </DropdownContent>

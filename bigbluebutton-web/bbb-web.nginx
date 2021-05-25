@@ -20,8 +20,8 @@
 			# Workaround IE refusal to set cookies in iframe
 		        add_header P3P 'CP="No P3P policy available"';
 
-			# Allow 30M uploaded presentation document.
-		        client_max_body_size       30m;
+			# high limit for presentation as bbb-web will reject upload if larger than configured
+			client_max_body_size       1000m;
 			client_body_buffer_size    128k;
 
 			proxy_connect_timeout      90;
@@ -38,7 +38,10 @@
 			proxy_request_buffering off;
 
 			# Send a sub-request to allow bbb-web to refuse before loading
-		 	auth_request /bigbluebutton/presentation/checkPresentation;
+			# If file is larger than configured bbb-web will return with code 403 and Header: x-file-too-large = 1
+			auth_request /bigbluebutton/presentation/checkPresentation;
+			error_page 403 = @error403;
+			auth_request_set $file_too_large_header $upstream_http_x_file_too_large;
 
 		}
 
@@ -66,8 +69,8 @@
 			proxy_set_header	Content-Length "";
 			proxy_set_header	X-Original-Content-Length $http_content_length;
 
-			# Allow 30M uploaded presentation document.
-		        client_max_body_size       30m;
+			# high limit for presentation as bbb-web will reject upload if larger than configured
+			client_max_body_size       1000m;
 			client_body_buffer_size    128k;
 
 			proxy_pass_request_body off;
@@ -137,4 +140,12 @@
             proxy_set_header        X-Original-URI $request_uri;
         }
 
+	}
+
+	location @error403 {
+            if ($file_too_large_header = '1') {
+                    return 413;
+            }
+
+            return 403;
 	}

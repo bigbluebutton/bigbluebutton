@@ -30,9 +30,8 @@ const isElementInViewport = (el) => {
 
   return (
     rect.top >= 0
-    && rect.left >= 0
-    && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)
-    && rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    // This condition is for large messages that are bigger than client height
+    || rect.top + rect.height >= 0
   );
 };
 
@@ -40,6 +39,10 @@ const intlMessages = defineMessages({
   legendTitle: {
     id: 'app.polling.pollingTitle',
     description: 'heading for chat poll legend',
+  },
+  pollQuestionTitle: {
+    id: 'app.polling.pollQuestionTitle',
+    description: 'title displayed before poll question',
   },
 });
 
@@ -101,7 +104,7 @@ class MessageChatItem extends PureComponent {
           return;
         }
 
-        if (isElementInViewport(node) && !read) {
+        if (isElementInViewport(node)) {
           handleReadMessage(time);
           this.removeScrollListeners();
         }
@@ -166,16 +169,37 @@ class MessageChatItem extends PureComponent {
       className,
       color,
       isDefaultPoll,
+      extractPollQuestion,
     } = this.props;
 
     const formatBoldBlack = s => s.bold().fontcolor('black');
 
+    // Sanitize. See: https://gist.github.com/sagewall/47164de600df05fb0f6f44d48a09c0bd
+    const sanitize = (value) => {
+      const div = document.createElement('div');
+      div.appendChild(document.createTextNode(value));
+      return div.innerHTML;
+    };
+
     let _text = text.replace('bbb-published-poll-<br/>', '');
+
+    const { pollQuestion, pollText: newPollText } = extractPollQuestion(_text);
+    _text = newPollText;
 
     if (!isDefaultPoll) {
       const entries = _text.split('<br/>');
       const options = [];
-      entries.map((e) => { options.push([e.slice(0, e.indexOf(':'))]); return e; });
+      _text = _text.split('<br#>').join('<br/>');
+
+      entries.map((e) => {
+        e = e.split('<br#>').join('<br/>');
+        const sanitizedEntry = sanitize(e);
+        _text = _text.replace(e, sanitizedEntry);
+        e = sanitizedEntry;
+
+        options.push([e.slice(0, e.indexOf(':'))]);
+        return e;
+      });
       options.map((o, idx) => {
         if (o[0] !== '') {
           _text = formatBoldBlack(_text.replace(o, idx + 1));
@@ -191,12 +215,22 @@ class MessageChatItem extends PureComponent {
       });
     }
 
+    if (isDefaultPoll) {
+      _text = formatBoldBlack(_text);
+    }
+
+    if (pollQuestion.trim() !== '') {
+      const sanitizedPollQuestion = sanitize(pollQuestion.split('<br#>').join(' '));
+
+      _text = `${formatBoldBlack(intl.formatMessage(intlMessages.pollQuestionTitle))}<br/>${sanitizedPollQuestion}<br/><br/>${_text}`;
+    }
+
     return (
       <p
         className={className}
         style={{ borderLeft: `3px ${color} solid` }}
         ref={(ref) => { this.text = ref; }}
-        dangerouslySetInnerHTML={{ __html: isDefaultPoll ? formatBoldBlack(_text) : _text }}
+        dangerouslySetInnerHTML={{ __html: _text }}
         data-test="chatPollMessageText"
       />
     );

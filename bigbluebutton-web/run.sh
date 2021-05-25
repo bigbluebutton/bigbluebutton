@@ -11,4 +11,4 @@ if [ "`whoami`" != "bigbluebutton" ]; then
 	exit 1
 fi
 
-grails prod run-app --port 8090
+exec grails prod run-app --port 8090

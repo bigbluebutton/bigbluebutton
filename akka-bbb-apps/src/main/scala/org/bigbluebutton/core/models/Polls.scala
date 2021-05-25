@@ -18,7 +18,7 @@ object Polls {
       val numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter
 
       for {
-        poll <- PollFactory.createPoll(stampedPollId, pollType, numRespondents, None)
+        poll <- PollFactory.createPoll(stampedPollId, pollType, numRespondents, None, Some(question))
       } yield {
         lm.polls.save(poll)
         poll
@@ -172,7 +172,7 @@ object Polls {
     def createPoll(stampedPollId: String): Option[Poll] = {
       val numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter
       for {
-        poll <- PollFactory.createPoll(stampedPollId, pollType, numRespondents, Some(answers))
+        poll <- PollFactory.createPoll(stampedPollId, pollType, numRespondents, Some(answers), Some(question))
       } yield {
         lm.polls.save(poll)
         poll
@@ -259,9 +259,41 @@ object Polls {
     shape += "status" -> WhiteboardKeyUtil.DRAW_END_STATUS
 
     val answers = new ArrayBuffer[SimpleVoteOutVO]
-    result.answers.foreach(ans => {
-      answers += SimpleVoteOutVO(ans.id, ans.key, ans.numVotes)
-    })
+
+    def sortByNumVotes(s1: SimpleVoteOutVO, s2: SimpleVoteOutVO) = {
+      s1.numVotes > s2.numVotes
+    }
+
+    val sorted_answers = result.answers.sortWith(sortByNumVotes)
+
+    // Limit the number of answers displayed to minimize
+    // squishing the display.
+    if (sorted_answers.length <= 7) {
+      sorted_answers.foreach(ans => {
+        answers += SimpleVoteOutVO(ans.id, ans.key, ans.numVotes)
+      })
+    } else {
+      var highestId = 0
+
+      for (i <- 0 until 7) {
+        val ans = sorted_answers(i)
+        answers += SimpleVoteOutVO(ans.id, ans.key, ans.numVotes)
+        if (ans.id > highestId) {
+          highestId = ans.id
+        }
+      }
+
+      var otherNumVotes = 0
+      for (i <- 7 until sorted_answers.length) {
+        val ans = sorted_answers(i)
+        otherNumVotes += ans.numVotes
+        if (ans.id > highestId) {
+          highestId = ans.id
+        }
+      }
+
+      answers += SimpleVoteOutVO(highestId + 1, "...", otherNumVotes)
+    }
 
     shape += "result" -> answers
 
@@ -403,7 +435,7 @@ object PollType {
   val CustomPollType = "CUSTOM"
   val LetterPollType = "A-"
   val NumberPollType = "1-"
-  val ResponsePollType = "RP"
+  val ResponsePollType = "R-"
 }
 
 object PollFactory {
@@ -529,12 +561,12 @@ object PollFactory {
     questionOption
   }
 
-  def createPoll(id: String, pollType: String, numRespondents: Int, answers: Option[Seq[String]]): Option[Poll] = {
+  def createPoll(id: String, pollType: String, numRespondents: Int, answers: Option[Seq[String]], title: Option[String]): Option[Poll] = {
     var poll: Option[Poll] = None
 
     createQuestion(pollType, answers) match {
       case Some(question) => {
-        poll = Some(new Poll(id, Array(question), numRespondents, None))
+        poll = Some(new Poll(id, Array(question), numRespondents, title))
       }
       case None => poll = None
     }
@@ -612,7 +644,7 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
   }
 
   def toSimplePollResultOutVO(): SimplePollResultOutVO = {
-    new SimplePollResultOutVO(id, questions(0).toSimpleVotesOutVO(), numRespondents, _numResponders)
+    new SimplePollResultOutVO(id, title, questions(0).toSimpleVotesOutVO(), numRespondents, _numResponders)
   }
 }
 

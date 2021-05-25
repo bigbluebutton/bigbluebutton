@@ -100,6 +100,9 @@ class RedisRecorderActor(
       // Caption
       case m: EditCaptionHistoryEvtMsg              => handleEditCaptionHistoryEvtMsg(m)
 
+      // Pad
+      case m: AddPadEvtMsg                          => handleAddPadEvtMsg(m)
+
       // Screenshare
       case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
       case m: ScreenshareRtmpBroadcastStoppedEvtMsg => handleScreenshareRtmpBroadcastStoppedEvtMsg(m)
@@ -446,6 +449,14 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
+  private def handleAddPadEvtMsg(msg: AddPadEvtMsg) {
+    val ev = new AddPadRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setPadId(msg.body.padId)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
   private def handleScreenshareRtmpBroadcastStartedEvtMsg(msg: ScreenshareRtmpBroadcastStartedEvtMsg) {
     val ev = new DeskshareStartRtmpRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
@@ -544,7 +555,9 @@ class RedisRecorderActor(
   private def handlePollStartedEvtMsg(msg: PollStartedEvtMsg): Unit = {
     val ev = new PollStartedRecordEvent()
     ev.setPollId(msg.body.pollId)
+    ev.setQuestion(msg.body.question)
     ev.setAnswers(msg.body.poll.answers)
+    ev.setType(msg.body.pollType)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
@@ -554,23 +567,27 @@ class RedisRecorderActor(
     ev.setPollId(msg.body.pollId)
     ev.setUserId(msg.header.userId)
     ev.setAnswerId(msg.body.answerId)
+    ev.setAnswer(msg.body.answer)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
   private def handlePollStoppedEvtMsg(msg: PollStoppedEvtMsg): Unit = {
-    pollStoppedRecordHelper(msg.header.meetingId, msg.body.pollId)
+    val ev = new PollStoppedRecordEvent()
+    ev.setPollId(msg.body.pollId)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
   }
 
   private def handlePollShowResultEvtMsg(msg: PollShowResultEvtMsg): Unit = {
-    pollStoppedRecordHelper(msg.header.meetingId, msg.body.pollId)
-  }
+    val ev = new PollPublishedRecordEvent()
+    ev.setPollId(msg.body.pollId)
+    ev.setQuestion(msg.body.poll.title.getOrElse(""))
+    ev.setAnswers(msg.body.poll.answers)
+    ev.setNumRespondents(msg.body.poll.numRespondents)
+    ev.setNumResponders(msg.body.poll.numResponders)
 
-  private def pollStoppedRecordHelper(meetingId: String, pollId: String): Unit = {
-    val ev = new PollStoppedRecordEvent()
-    ev.setPollId(pollId)
-
-    record(meetingId, ev.toMap.asJava)
+    record(msg.header.meetingId, ev.toMap.asJava)
   }
 
   private def checkRecordingDBStatus(): Unit = {

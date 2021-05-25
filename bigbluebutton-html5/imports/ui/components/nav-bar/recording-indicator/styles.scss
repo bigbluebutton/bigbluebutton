@@ -12,6 +12,7 @@
 %recordingControl {
   display: flex;
   border-radius: 2em 2em;
+  align-items: center;
 
   span {
     border: none;
@@ -65,7 +66,6 @@
   color: var(--color-white);
   font-size: var(--font-size-base);
   padding: 0;
-  margin-left: var(--sm-padding-x);
   margin-right: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -83,6 +83,12 @@
 
   span {
     vertical-align: middle;
+  }
+}
+
+.presentationTitleMargin {
+  [dir="ltr"] & {
+    margin-right: var(--sm-padding-x);
   }
 }
 

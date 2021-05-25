@@ -1,11 +1,26 @@
-import React from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
-import { Session } from 'meteor/session';
+import React, { useContext } from 'react';
 import ChatListItem from './component';
+import { NLayoutContext } from '../../layout/context/context';
 
-const ChatListItemContainer = props => <ChatListItem {...props} />;
+const ChatListItemContainer = (props) => {
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
+  const { input, idChatOpen } = newLayoutContextState;
+  const { sidebarContent } = input;
+  const { sidebarContentPanel } = sidebarContent;
+  const sidebarContentIsOpen = sidebarContent.isOpen;
 
-export default withTracker(() => ({
-  activeChatId: Session.get('idChatOpen'),
-  chatPanelOpen: Session.get('openPanel') === 'chat',
-}))(ChatListItemContainer);
+  return (
+    <ChatListItem
+      {...{
+        sidebarContentIsOpen,
+        sidebarContentPanel,
+        newLayoutContextDispatch,
+        idChatOpen,
+        ...props,
+      }}
+    />
+  );
+};
+
+export default ChatListItemContainer;

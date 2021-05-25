@@ -85,10 +85,24 @@ const observePresentationConversion = (
     const query = Presentations.find({ meetingId });
 
     query.observe({
+      added: (doc) => {
+        if (doc.name !== filename) return;
+
+        if (doc.conversion.status === 'FILE_TOO_LARGE' || doc.conversion.status === 'UNSUPPORTED_DOCUMENT') {
+          onConversion(doc.conversion);
+          c.stop();
+          clearTimeout(conversionTimeout);
+        }
+      },
       changed: (newDoc) => {
         if (newDoc.name !== filename) return;
 
         onConversion(newDoc.conversion);
+
+        if (newDoc.conversion.error) {
+          c.stop();
+          clearTimeout(conversionTimeout);
+        }
 
         if (newDoc.conversion.done) {
           c.stop();
@@ -178,6 +192,7 @@ const uploadAndConvertPresentation = (
           error,
         },
       }, 'Generic presentation upload exception catcher');
+      observePresentationConversion(meetingId, file.name, onConversion);
       onUpload({ error: true, done: true, status: error.code });
       return Promise.resolve();
     });
@@ -188,7 +203,7 @@ const uploadAndConvertPresentations = (
   meetingId,
   podId,
   uploadEndpoint,
-) => Promise.all(presentationsToUpload.map(p => uploadAndConvertPresentation(
+) => Promise.all(presentationsToUpload.map((p) => uploadAndConvertPresentation(
   p.file, p.isDownloadable, podId, meetingId, uploadEndpoint,
   p.onUpload, p.onProgress, p.onConversion,
 )));
@@ -206,13 +221,13 @@ const removePresentation = (presentationId, podId) => {
 const removePresentations = (
   presentationsToRemove,
   podId,
-) => Promise.all(presentationsToRemove.map(p => removePresentation(p.id, podId)));
+) => Promise.all(presentationsToRemove.map((p) => removePresentation(p.id, podId)));
 
 const persistPresentationChanges = (oldState, newState, uploadEndpoint, podId) => {
-  const presentationsToUpload = newState.filter(p => !p.upload.done);
-  const presentationsToRemove = oldState.filter(p => !_.find(newState, ['id', p.id]));
+  const presentationsToUpload = newState.filter((p) => !p.upload.done);
+  const presentationsToRemove = oldState.filter((p) => !_.find(newState, ['id', p.id]));
 
-  let currentPresentation = newState.find(p => p.isCurrent);
+  let currentPresentation = newState.find((p) => p.isCurrent);
 
   return uploadAndConvertPresentations(presentationsToUpload, Auth.meetingID, podId, uploadEndpoint)
     .then((presentations) => {
@@ -233,7 +248,7 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint, podId) =
 
       // If its a newly uploaded presentation we need to get it from promise result
       if (!currentPresentation.conversion.done) {
-        const currentIndex = presentationsToUpload.findIndex(p => p === currentPresentation);
+        const currentIndex = presentationsToUpload.findIndex((p) => p === currentPresentation);
         currentPresentation = presentations[currentIndex];
       }
 

@@ -19,6 +19,7 @@ import { styles } from './styles';
 import UserName from '../user-name/component';
 import UserIcons from '../user-icons/component';
 import Service from '/imports/ui/components/user-list/service';
+import { PANELS, ACTIONS } from '../../../../../layout/enums';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 
 const messages = defineMessages({
@@ -243,6 +244,7 @@ class UserDropdown extends PureComponent {
       meetingIsBreakout,
       mountModal,
       usersProp,
+      newLayoutContextDispatch,
     } = this.props;
     const { showNestedOptions } = this.state;
 
@@ -334,8 +336,18 @@ class UserDropdown extends PureComponent {
         intl.formatMessage(messages.StartPrivateChat),
         () => {
           getGroupChatPrivate(currentUser.userId, user);
-          Session.set('openPanel', 'chat');
-          Session.set('idChatOpen', user.userId);
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: true,
+          });
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+            value: PANELS.CHAT,
+          });
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_ID_CHAT_OPEN,
+            value: user.userId,
+          });
         },
         'chat',
       ));
@@ -577,13 +589,13 @@ class UserDropdown extends PureComponent {
       intl,
       isThisMeetingLocked,
       isMe,
+      isRTL,
     } = this.props;
 
     const {
       isActionsOpen,
       dropdownVisible,
       dropdownDirection,
-      dropdownOffset,
       showNestedOptions,
     } = this.state;
 
@@ -615,7 +627,7 @@ class UserDropdown extends PureComponent {
       <div
         data-test={isMe(user.userId) ? 'userListItemCurrent' : 'userListItem'}
         className={!actions.length ? styles.userListItem : null}
-        style={{ direction: document.documentElement.dir }}
+        style={{ direction: isRTL ? 'rtl' : 'ltr' }}
       >
         <div className={styles.userItemContents}>
           <div className={styles.userAvatar}>

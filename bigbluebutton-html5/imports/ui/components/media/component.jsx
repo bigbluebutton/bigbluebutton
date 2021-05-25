@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Settings from '/imports/ui/services/settings';
-import { isMobile, isIPad13 } from 'react-device-detect';
 import WebcamDraggable from './webcam-draggable-overlay/component';
 import { styles } from './styles';
 import Storage from '../../services/storage/session';
 
-const BROWSER_ISMOBILE = isMobile || isIPad13;
+const { isMobile } = deviceInfo;
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -69,7 +69,6 @@ export default class Media extends Component {
     });
     const { viewParticipantsWebcams } = Settings.dataSaving;
     const showVideo = usersVideo.length > 0 && viewParticipantsWebcams && isMeteorConnected;
-    const fullHeight = !showVideo || (webcamsPlacement === 'floating');
 
     return (
       <div
@@ -91,7 +90,7 @@ export default class Media extends Component {
             )
               ? '80%'
               : '100%',
-            minHeight: BROWSER_ISMOBILE && window.innerWidth > window.innerHeight ? '50%' : '20%',
+            minHeight: isMobile && window.innerWidth > window.innerHeight ? '50%' : '20%',
             maxWidth: usersVideo.length > 0
             && (
               webcamsPlacement !== 'top'
