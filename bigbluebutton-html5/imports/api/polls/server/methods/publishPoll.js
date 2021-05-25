@@ -9,22 +9,26 @@ export default function publishPoll() {
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'ShowPollResultReqMsg';
 
-  const { meetingId, requesterUserId } = extractCredentials(this.userId);
+  try {
+    const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  check(meetingId, String);
-  check(requesterUserId, String);
+    check(meetingId, String);
+    check(requesterUserId, String);
 
-  const poll = Polls.findOne({ meetingId }); // TODO--send pollid from client
-  if (!poll) {
-    Logger.error(`Attempted to publish inexisting poll for meetingId: ${meetingId}`);
-    return false;
+    const poll = Polls.findOne({ meetingId }); // TODO--send pollid from client
+    if (!poll) {
+      Logger.error(`Attempted to publish inexisting poll for meetingId: ${meetingId}`);
+      return false;
+    }
+
+    RedisPubSub.publishUserMessage(
+      CHANNEL,
+      EVENT_NAME,
+      meetingId,
+      requesterUserId,
+      ({ requesterId: requesterUserId, pollId: poll.id }),
+    );
+  } catch (err) {
+    Logger.error(`Exception while invoking method publishPoll ${err.stack}`);
   }
-
-  return RedisPubSub.publishUserMessage(
-    CHANNEL,
-    EVENT_NAME,
-    meetingId,
-    requesterUserId,
-    ({ requesterId: requesterUserId, pollId: poll.id }),
-  );
 }

@@ -129,7 +129,7 @@ class Polling extends Component {
             )
           }
           {
-            poll.pollType !== 'RP' && (
+            poll.pollType !== 'R-' && (
               <span>
                 {
                   question.length === 0
@@ -184,7 +184,7 @@ class Polling extends Component {
             )
           }
           {
-            poll.pollType === 'RP'
+            poll.pollType === 'R-'
             && (
               <div className={styles.typedResponseWrapper}>
                 <input

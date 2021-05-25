@@ -16,6 +16,7 @@ import org.bigbluebutton.presentation.handlers.AddNamespaceToSvgHandler;
 import org.bigbluebutton.presentation.handlers.Pdf2PngPageConverterHandler;
 import org.bigbluebutton.presentation.handlers.Png2SvgConversionHandler;
 import org.bigbluebutton.presentation.handlers.SvgConversionHandler;
+import org.bigbluebutton.presentation.handlers.PdfFontType3DetectorHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +60,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
         int numSlides = 1;
         boolean done = false;
+        Boolean rasterizeCurrSlide = this.forceRasterizeSlides;
 
         // Convert single image file
         if (SupportedFileTypes.isImageFile(pres.getFileType())) {
@@ -93,11 +95,38 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         // Continue image processing
         long startConv = System.currentTimeMillis();
 
+
+        //Detect if PDF contains text with font Type 3
+        //Pdftocairo has problem to convert Pdf to Svg when text contains font Type 3
+        //Case detects type 3, rasterize will be forced to avoid the problem
+        NuProcessBuilder detectFontType3Process = this.createDetectFontType3Process(source,page);
+        PdfFontType3DetectorHandler detectFontType3tHandler = new PdfFontType3DetectorHandler();
+        detectFontType3Process.setProcessListener(detectFontType3tHandler);
+
+        NuProcess processDetectFontType3 = detectFontType3Process.start();
+        try {
+            processDetectFontType3.waitFor(convPdfToSvgTimeout + 1, TimeUnit.SECONDS);
+            done = true;
+        } catch (InterruptedException e) {
+            done = false;
+            log.error("InterruptedException while verifing font type 3 on {} page {}: {}", pres.getName(), page, e);
+        }
+
+        if(detectFontType3tHandler.isCommandTimeout()) {
+            log.error("Command execution (detectFontType3) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
+        }
+
+        if(detectFontType3tHandler.hasFontType3()) {
+            log.info("Font Type 3 identified on {} page {}, slide will be rasterized.", pres.getName(), page);
+            rasterizeCurrSlide = true;
+        }
+
+
         File destsvg = new File(imagePresentationDir.getAbsolutePath() + File.separatorChar + "slide" + page + ".svg");
 
         SvgConversionHandler pHandler = new SvgConversionHandler();
 
-        if(this.forceRasterizeSlides == false) {
+        if(rasterizeCurrSlide == false) {
             NuProcessBuilder convertPdfToSvg = createConversionProcess("-svg", page, source, destsvg.getAbsolutePath(),
                     true);
 
@@ -124,7 +153,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         if (destsvg.length() == 0 ||
                 pHandler.numberOfImageTags() > imageTagThreshold ||
                 pHandler.numberOfPaths() > pathsThreshold ||
-                this.forceRasterizeSlides) {
+                rasterizeCurrSlide) {
 
             // We need t delete the destination file as we are starting a
             // new conversion process
@@ -134,7 +163,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
             done = false;
 
-            if(!this.forceRasterizeSlides) {
+            if(!rasterizeCurrSlide) {
                 Map<String, Object> logData = new HashMap<String, Object>();
                 logData.put("meetingId", pres.getMeetingId());
                 logData.put("presId", pres.getId());
@@ -278,6 +307,14 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             rawCommand += " && cat " + destFile;
             rawCommand += " | egrep 'data:image/png;base64|<path' | sed 's/  / /g' | cut -d' ' -f 1 | sort | uniq -cw 2";
         }
+
+        return new NuProcessBuilder(Arrays.asList("timeout", convPdfToSvgTimeout + "s", "/bin/sh", "-c", rawCommand));
+    }
+
+    private NuProcessBuilder createDetectFontType3Process(String source, int page) {
+        String rawCommand  = "pdffonts -f " + String.valueOf(page) + " -l " + String.valueOf(page) + " " + source;
+        rawCommand += " | grep -m 1 'Type 3'";
+        rawCommand += " | wc -l";
 
         return new NuProcessBuilder(Arrays.asList("timeout", convPdfToSvgTimeout + "s", "/bin/sh", "-c", rawCommand));
     }

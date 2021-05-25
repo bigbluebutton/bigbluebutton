@@ -364,10 +364,15 @@ class VideoService {
     // Recalculate total number of pages
     this.setNumberOfPages(mine.length, others.length, pageSize);
     const chunkIndex = this.currentVideoPageIndex * pageSize;
-    const paginatedStreams = sortVideoStreams(others, PAGINATION_SORTING)
+
+    // This is an extra check because pagination is globally in effect (hard
+    // limited page sizes, toggles on), but we might still only have one page.
+    // Use the default sorting method if that's the case.
+    const sortingMethod = (this.numberOfPages > 1) ? PAGINATION_SORTING : DEFAULT_SORTING;
+    const paginatedStreams = sortVideoStreams(others, sortingMethod)
       .slice(chunkIndex, (chunkIndex + pageSize)) || [];
 
-    if (getSortingMethod(PAGINATION_SORTING).localFirst) {
+    if (getSortingMethod(sortingMethod).localFirst) {
       return [...mine, ...paginatedStreams];
     }
 
@@ -686,11 +691,14 @@ class VideoService {
         const { track } = sender;
         if (track && track.kind === 'video') {
           const parameters = sender.getParameters();
-          if (!parameters.encodings) {
+          const normalizedBitrate = bitrate * 1000;
+
+          // The encoder parameters might not be up yet; if that's the case,
+          // add a filler object so we can alter the parameters anyways
+          if (parameters.encodings == null || parameters.encodings.length === 0) {
             parameters.encodings = [{}];
           }
 
-          const normalizedBitrate = bitrate * 1000;
           // Only reset bitrate if it changed in some way to avoid enconder fluctuations
           if (parameters.encodings[0].maxBitrate !== normalizedBitrate) {
             parameters.encodings[0].maxBitrate = normalizedBitrate;

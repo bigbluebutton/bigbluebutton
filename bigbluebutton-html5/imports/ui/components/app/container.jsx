@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -13,6 +13,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
 import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
+import { NLayoutContext } from '../layout/context/context';
 
 import {
   getFontSize,
@@ -23,18 +24,15 @@ import {
 import { withModalMounter } from '../modal/service';
 
 import App from './component';
-import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
 
 const propTypes = {
-  navbar: PropTypes.node,
   actionsbar: PropTypes.node,
   media: PropTypes.node,
 };
 
 const defaultProps = {
-  navbar: <NavBarContainer />,
   actionsbar: <ActionsBarContainer />,
   media: <MediaContainer />,
 };
@@ -52,30 +50,53 @@ const endMeeting = (code) => {
 };
 
 const AppContainer = (props) => {
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
+
   const {
-    navbar,
     actionsbar,
     media,
     ...otherProps
   } = props;
+  const {
+    input,
+    layoutType,
+    deviceType,
+  } = newLayoutContextState;
+  const { sidebarContent, sidebarNavigation } = input;
+  const { sidebarNavPanel } = sidebarNavigation;
+  const { sidebarContentPanel } = sidebarContent;
+  const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
+  const sidebarContentIsOpen = sidebarContent.isOpen;
 
   return (
     <App
-      navbar={navbar}
-      actionsbar={actionsbar}
-      media={media}
+      {...{
+        actionsbar,
+        media,
+        layoutType,
+        deviceType,
+        newLayoutContextDispatch,
+        sidebarNavPanel,
+        sidebarNavigationIsOpen,
+        sidebarContentPanel,
+        sidebarContentIsOpen,
+      }}
       {...otherProps}
     />
   );
 };
 
-const currentUserEmoji = currentUser => (currentUser ? {
-  status: currentUser.emoji,
-  changedAt: currentUser.emojiTime,
-} : {
+const currentUserEmoji = (currentUser) => (currentUser
+  ? {
+    status: currentUser.emoji,
+    changedAt: currentUser.emojiTime,
+  }
+  : {
     status: 'none',
     changedAt: null,
-  });
+  }
+);
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   const authTokenValidation = AuthTokenValidation.findOne({}, { sort: { updatedAt: -1 } });
@@ -90,7 +111,15 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     },
   });
 
-  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { approved: 1, emoji: 1, userId: 1, presenter: 1 } });
+  const currentUser = Users.findOne(
+    { userId: Auth.userID },
+    {
+      fields:
+      {
+        approved: 1, emoji: 1, userId: 1, presenter: 1,
+      },
+    },
+  );
   const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { publishedPoll: 1, voiceProp: 1, randomlySelectedUser: 1 } });
   const { publishedPoll, voiceProp, randomlySelectedUser } = currentMeeting;
@@ -104,13 +133,14 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     requesterUserId: Auth.userID,
   }).fetch();
 
+  const layoutManagerLoaded = Session.get('layoutManagerLoaded');
+
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
     fontSize: getFontSize(),
     hasBreakoutRooms: getBreakoutRooms().length > 0,
     customStyle: getFromUserSettings('bbb_custom_style', false),
     customStyleUrl: getFromUserSettings('bbb_custom_style_url', false),
-    openPanel: Session.get('openPanel'),
     UserInfo,
     notify,
     validIOSVersion,
@@ -121,6 +151,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     hasPublishedPoll: publishedPoll,
     startBandwidthMonitoring,
     handleNetworkConnection: () => updateNavigatorConnection(navigator.connection),
+    layoutManagerLoaded,
     randomlySelectedUser,
     currentUserId: currentUser.userId,
     isPresenter: currentUser.presenter,

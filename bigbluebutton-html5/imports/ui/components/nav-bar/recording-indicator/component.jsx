@@ -138,7 +138,7 @@ class RecordingIndicator extends PureComponent {
     };
 
     const recordingIndicatorIcon = (
-      <span data-test="mainWhiteboard" className={styles.recordingIndicatorIcon}>
+      <span data-test="mainWhiteboard" className={cx(styles.recordingIndicatorIcon, (!isPhone || recording) && styles.presentationTitleMargin)}>
         <svg xmlns="http://www.w3.org/2000/svg" height="100%" version="1" viewBox="0 0 20 20">
           <g stroke="#FFF" fill="#FFF" strokeLinecap="square">
             <circle
@@ -174,7 +174,7 @@ class RecordingIndicator extends PureComponent {
       >
         {recordingIndicatorIcon}
 
-        <div className={cx(styles.presentationTitle, (!isPhone || recording) && styles.presentationTitleMargin)}>
+        <div className={styles.presentationTitle}>
           {recording
             ? (
               <span className={styles.visuallyHidden}>

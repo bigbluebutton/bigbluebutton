@@ -46,6 +46,14 @@ const intlMessages = defineMessages({
     id: 'app.settings.dataSavingTab.screenShare',
     description: 'Screenshare data saving switch',
   },
+  on: {
+    id: 'app.switch.onLabel',
+    description: 'label for toggle switch on state',
+  },
+  off: {
+    id: 'app.switch.offLabel',
+    description: 'label for toggle switch off state',
+  },
 });
 
 const propTypes = {
@@ -74,6 +82,7 @@ class ConnectionStatusComponent extends PureComponent {
 
     this.help = Service.getHelp();
     this.state = { dataSaving: props.dataSaving };
+    this.displaySettingsStatus = this.displaySettingsStatus.bind(this);
   }
 
   handleDataSavingChange(key) {
@@ -98,6 +107,17 @@ class ConnectionStatusComponent extends PureComponent {
           </div>
         </div>
       </div>
+    );
+  }
+
+  displaySettingsStatus(status) {
+    const { intl } = this.props;
+
+    return (
+      <span className={styles.toggleLabel}>
+        {status ? intl.formatMessage(intlMessages.on)
+          : intl.formatMessage(intlMessages.off)}
+      </span>
     );
   }
 
@@ -178,31 +198,53 @@ class ConnectionStatusComponent extends PureComponent {
         <div className={styles.description}>
           {intl.formatMessage(intlMessages.dataSaving)}
         </div>
-        <div className={styles.saving}>
-          <label className={styles.label}>
-            {intl.formatMessage(intlMessages.webcam)}
-          </label>
-          <Switch
-            icons={false}
-            defaultChecked={viewParticipantsWebcams}
-            onChange={() => this.handleDataSavingChange('viewParticipantsWebcams')}
-            ariaLabelledBy="webcam"
-            ariaLabel={intl.formatMessage(intlMessages.webcam)}
-            data-test="dataSavingWebcams"
-          />
+
+        <div className={styles.row}>
+          <div className={styles.col} aria-hidden="true">
+            <div className={styles.formElement}>
+              <span className={styles.label}>
+                {intl.formatMessage(intlMessages.webcam)}
+              </span>
+            </div>
+          </div>
+          <div className={styles.col}>
+            <div className={cx(styles.formElement, styles.pullContentRight)}>
+              {this.displaySettingsStatus(viewParticipantsWebcams)}
+              <Switch
+                icons={false}
+                defaultChecked={viewParticipantsWebcams}
+                onChange={() => this.handleDataSavingChange('viewParticipantsWebcams')}
+                ariaLabelledBy="webcam"
+                ariaLabel={intl.formatMessage(intlMessages.webcam)}
+                data-test="dataSavingWebcams"
+                showToggleLabel={false}
+              />
+            </div>
+          </div>
         </div>
-        <div className={styles.saving}>
-          <label className={styles.label}>
-            {intl.formatMessage(intlMessages.screenshare)}
-          </label>
-          <Switch
-            icons={false}
-            defaultChecked={viewScreenshare}
-            onChange={() => this.handleDataSavingChange('viewScreenshare')}
-            ariaLabelledBy="screenshare"
-            ariaLabel={intl.formatMessage(intlMessages.screenshare)}
-            data-test="dataSavingScreenshare"
-          />
+
+        <div className={styles.row}>
+          <div className={styles.col} aria-hidden="true">
+            <div className={styles.formElement}>
+              <span className={styles.label}>
+                {intl.formatMessage(intlMessages.screenshare)}
+              </span>
+            </div>
+          </div>
+          <div className={styles.col}>
+            <div className={cx(styles.formElement, styles.pullContentRight)}>
+              {this.displaySettingsStatus(viewScreenshare)}
+              <Switch
+                icons={false}
+                defaultChecked={viewScreenshare}
+                onChange={() => this.handleDataSavingChange('viewScreenshare')}
+                ariaLabelledBy="screenshare"
+                ariaLabel={intl.formatMessage(intlMessages.screenshare)}
+                data-test="dataSavingScreenshare"
+                showToggleLabel={false}
+              />
+            </div>
+          </div>
         </div>
       </div>
     );
