@@ -51,6 +51,7 @@
     "postcss-nested": "^5.0.5",
     "probe-image-size": "^4.1.1",
     "prop-types": "^15.7.2",
+    "queue": "^6.0.2",
     "re-resizable": "^4.11.0",
     "react": "^16.14.0",
     "react-autosize-textarea": "^5.0.1",
