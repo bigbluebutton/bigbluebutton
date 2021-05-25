@@ -70,7 +70,9 @@ class RemoteDesktop extends Component {
     if (window.allowClipboard) {
       navigator.clipboard.readText().then((text) => {
         if (text != this.clipboardText) {
-          this.player.rfb.clipboardPasteFrom(text);
+          if (this.player && this.player.rfb) {
+            this.player.rfb.clipboardPasteFrom(text);
+          }
           this.clipboardText = text;
         }
       });
