@@ -92,6 +92,7 @@ class Polling extends Component {
       handleVote,
       handleTypedVote,
       pollAnswerIds,
+      pollTypes
     } = this.props;
 
     const {
@@ -129,7 +130,7 @@ class Polling extends Component {
             )
           }
           {
-            poll.pollType !== 'R-' && (
+            poll.pollType !== pollTypes.Response && (
               <span>
                 {
                   question.length === 0
@@ -184,7 +185,7 @@ class Polling extends Component {
             )
           }
           {
-            poll.pollType === 'R-'
+            poll.pollType === pollTypes.Response
             && (
               <div className={styles.typedResponseWrapper}>
                 <input
