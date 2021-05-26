@@ -1,4 +1,4 @@
-import Meetings from '/imports/api/meetings';
+import { ExternalVideoMeetings } from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 
 import { getStreamer } from '/imports/api/external-videos';
@@ -58,9 +58,10 @@ const removeAllListeners = (eventType) => {
 
 const getVideoUrl = () => {
   const meetingId = Auth.meetingID;
-  const meeting = Meetings.findOne({ meetingId }, { fields: { externalVideoUrl: 1 } });
+  const externalVideo = ExternalVideoMeetings
+    .findOne({ meetingId }, { fields: { externalVideoUrl: 1 } });
 
-  return meeting && meeting.externalVideoUrl;
+  return externalVideo && externalVideo.externalVideoUrl;
 };
 
 export {
