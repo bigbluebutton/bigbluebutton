@@ -109,6 +109,14 @@ const intlMessages = defineMessages({
     id: 'app.poll.secretPoll.label',
     description: '',
   },
+  isSecretPollLabel: {
+    id: 'app.poll.secretPoll.is_secret_label',
+    description: '',
+  },
+  nonSecretPollLabel: {
+    id: 'app.poll.secretPoll.not_secret_label',
+    description: 'label explaining that the presenter will see for which option everyone voted',
+  },
   questionTitle: {
     id: 'app.poll.question.title',
     description: '',
@@ -516,6 +524,9 @@ class Poll extends Component {
                           />
                         </label>
                       </div>
+                    </div>
+                    <div>
+                      {intl.formatMessage(secretPoll ? intlMessages.isSecretPollLabel : intlMessages.nonSecretPollLabel)}
                     </div>
                     <Button
                       className={styles.startPollBtn}

@@ -14,9 +14,6 @@ const intlMessages = defineMessages({
   pollingTitleLabel: {
     id: 'app.polling.pollingTitle',
   },
-  secretPollingTitleLabel: {
-    id: 'app.polling.secretPollingTitle',
-  },
   pollAnswerLabel: {
     id: 'app.polling.pollAnswerLabel',
   },
@@ -26,9 +23,11 @@ const intlMessages = defineMessages({
   pollQuestionTitle: {
     id: 'app.polling.pollQuestionTitle',
   },
-  secretPollQuestionTitle: {
-    id: 'app.polling.secretPollQuestionTitle',
-    description: 'title displayed before poll question',
+  responseIsSecret: {
+    id: 'app.polling.responseSecret',
+  },
+  responseNotSecret: {
+    id: 'app.polling.responseNotSecret',
   },
   submitLabel: {
     id: 'app.polling.submitLabel',
@@ -130,11 +129,7 @@ class Polling extends Component {
             question.length > 0 && (
               <span className={styles.qHeader}>
                 <div className={styles.qTitle}>
-                  {poll.secretPoll ? (
-                      intl.formatMessage(intlMessages.secretPollQuestionTitle)
-                    ) : (
-                      intl.formatMessage(intlMessages.pollQuestionTitle)
-                    )}
+                  {intl.formatMessage(intlMessages.pollQuestionTitle)}
                 </div>
                 <div data-test="pollQuestion" className={styles.qText}>{question}</div>
               </span>
@@ -146,11 +141,7 @@ class Polling extends Component {
                 {
                   question.length === 0 && (
                     <div className={styles.pollingTitle}>
-                      {poll.secretPoll ? (
-                        intl.formatMessage(intlMessages.secretPollingTitleLabel)
-                      ) : (
-                        intl.formatMessage(intlMessages.pollingTitleLabel)
-                      )}
+                      {intl.formatMessage(intlMessages.pollingTitleLabel)}
                     </div>
                   )
                 }
@@ -231,6 +222,9 @@ class Polling extends Component {
               </div>
             )
           }
+          <div className={styles.pollingSecret}>
+            {intl.formatMessage(poll.secretPoll ? intlMessages.responseIsSecret : intlMessages.responseNotSecret)}
+          </div>
         </div>
       </div>
     );
