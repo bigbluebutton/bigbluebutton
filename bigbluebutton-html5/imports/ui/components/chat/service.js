@@ -17,6 +17,8 @@ const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
+const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
+
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const ScrollCollection = new Mongo.Collection(null);
@@ -27,8 +29,6 @@ export const UserSentMessageCollection = new Mongo.Collection(null);
 
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
-
-const POLL_MESSAGE_PREFIX = 'bbb-published-poll-<br/>';
 
 const intlMessages = defineMessages({
   publicChatClear: {
@@ -94,8 +94,8 @@ const reduceGroupMessages = (previous, current) => {
   // between the two messages exceeds window and then group current
   // message with the last one
   const timeOfLastMessage = lastMessage.content[lastMessage.content.length - 1].time;
-  const isOrWasPoll = currentMessage.message.includes(POLL_MESSAGE_PREFIX)
-    || lastMessage.message.includes(POLL_MESSAGE_PREFIX);
+  const isOrWasPoll = currentMessage.id.includes(CHAT_POLL_RESULTS_MESSAGE)
+    || lastMessage.id.includes(CHAT_POLL_RESULTS_MESSAGE);
   const groupingWindow = isOrWasPoll ? 0 : GROUPING_MESSAGES_WINDOW;
 
   if (lastMessage.sender.id === currentMessage.sender.id
