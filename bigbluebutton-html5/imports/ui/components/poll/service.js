@@ -13,7 +13,18 @@ const MAX_POLL_RESULT_BARS = 20;
 // 'A-3' = A,B,C
 // 'A-4' = A,B,C,D
 // 'A-5' = A,B,C,D,E
-const pollTypes = ['YN', 'YNA', 'TF', 'A-2', 'A-3', 'A-4', 'A-5', 'custom'];
+const pollTypes = {
+  YesNo: 'YN',
+  YesNoAbstention: 'YNA',
+  TrueFalse: 'TF',
+  Letter: 'A-',
+  A2: 'A-2',
+  A3: 'A-3',
+  A4: 'A-4',
+  A5: 'A-5',
+  Custom: 'custom',
+  Response: 'R-',
+}
 
 const pollAnswerIds = {
   true: {
@@ -82,6 +93,63 @@ const getPollResultString = (isDefaultPoll, answers, numRespondents) => {
   return { resultString, optionsString };
 }
 
+const matchYesNoPoll = (yesValue, noValue, contentString) => {
+  const ynPollString = `(${yesValue}\\s*\\/\\s*${noValue})|(${noValue}\\s*\\/\\s*${yesValue})`;
+  const ynOptionsRegex = new RegExp(ynPollString, 'gi');
+  const ynPoll = contentString.match(ynOptionsRegex) || [];
+  return ynPoll;
+}
+
+const matchYesNoAbstentionPoll = (yesValue, noValue, abstentionValue, contentString) => {
+  const ynaPollString = `(${yesValue}\\s*\\/\\s*${noValue}\\s*\\/\\s*${abstentionValue})|(${yesValue}\\s*\\/\\s*${abstentionValue}\\s*\\/\\s*${noValue})|(${abstentionValue}\\s*\\/\\s*${yesValue}\\s*\\/\\s*${noValue})|(${abstentionValue}\\s*\\/\\s*${noValue}\\s*\\/\\s*${yesValue})|(${noValue}\\s*\\/\\s*${yesValue}\\s*\\/\\s*${abstentionValue})|(${noValue}\\s*\\/\\s*${abstentionValue}\\s*\\/\\s*${yesValue})`;
+  const ynaOptionsRegex = new RegExp(ynaPollString, 'gi');
+  const ynaPoll = contentString.match(ynaOptionsRegex) || [];
+  return ynaPoll;
+}
+
+const matchTrueFalsePoll = (trueValue, falseValue, contentString) => {
+  const tfPollString = `(${trueValue}\\s*\\/\\s*${falseValue})|(${falseValue}\\s*\\/\\s*${trueValue})`;
+  const tgOptionsRegex = new RegExp(tfPollString, 'gi');
+  const tfPoll = contentString.match(tgOptionsRegex) || [];
+  return tfPoll;
+}
+
+const checkPollType = (type, optList, yesValue, noValue, abstentionValue, trueValue, falseValue) => {
+  let _type = type;
+  let pollString = '';
+  let defaultMatch = null;
+  let isDefault = null;
+
+  switch (_type) {
+    case pollTypes.Letter:
+      pollString = optList.map((x) => x.val).sort().join('');
+      defaultMatch = pollString.match(/^(ABCDEFG)|(ABCDEF)|(ABCDE)|(ABCD)|(ABC)|(AB)$/gi);
+      isDefault = defaultMatch && pollString.length === defaultMatch[0].length;
+      _type = isDefault ? `${_type}${defaultMatch[0].length}` : pollTypes.Custom;
+      break;
+    case pollTypes.TrueFalse:
+      pollString = optList.map((x) => x.val).join('/');
+      defaultMatch = matchTrueFalsePoll(trueValue, falseValue, pollString);
+      isDefault = defaultMatch.length > 0 && pollString.length === defaultMatch[0].length;
+      if (!isDefault) _type = pollTypes.Custom;
+      break;
+    case pollTypes.YesNoAbstention:
+      pollString = optList.map((x) => x.val).join('/');
+      defaultMatch = matchYesNoAbstentionPoll(yesValue, noValue, abstentionValue, pollString);
+      isDefault = defaultMatch.length > 0 && pollString.length === defaultMatch[0].length;
+      if (!isDefault) {
+        // also try to match only yes/no
+        defaultMatch = matchYesNoPoll(yesValue, noValue, pollString);;
+        isDefault = defaultMatch.length > 0 && pollString.length === defaultMatch[0].length;
+        _type = isDefault ? pollTypes.YesNo : _type = pollTypes.Custom;
+      }
+      break;
+    default:
+      break;
+  }
+  return _type;
+}
+
 export default {
   amIPresenter: () => Users.findOne(
     { userId: Auth.userID },
@@ -91,6 +159,10 @@ export default {
   currentPoll: () => Polls.findOne({ meetingId: Auth.meetingID }),
   pollAnswerIds,
   POLL_AVATAR_COLOR,
-  isDefaultPoll: (pollType) => { return pollType !== 'custom' && pollType !== 'R-'},
+  isDefaultPoll: (pollType) => { return pollType !== pollTypes.Custom && pollType !== pollTypes.Response},
   getPollResultString: getPollResultString,
+  matchYesNoPoll: matchYesNoPoll,
+  matchYesNoAbstentionPoll: matchYesNoAbstentionPoll,
+  matchTrueFalsePoll: matchTrueFalsePoll,
+  checkPollType: checkPollType,
 };
