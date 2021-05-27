@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import injectNotify from '/imports/ui/components/toast/inject-notify/component';
-import { Session } from 'meteor/session';
 import { PANELS, ACTIONS } from '../../../layout/enums';
 
 const propTypes = {
@@ -11,6 +10,7 @@ const propTypes = {
   title: PropTypes.node.isRequired,
   content: PropTypes.node.isRequired,
   alertDuration: PropTypes.number.isRequired,
+  newLayoutContextDispatch: PropTypes.func.isRequired
 };
 
 class ChatPushAlert extends PureComponent {

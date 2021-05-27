@@ -420,6 +420,8 @@ class App extends Component {
       layoutManagerLoaded,
       sidebarNavigationIsOpen,
       sidebarContentIsOpen,
+      audioAlertEnabled,
+      pushAlertEnabled
     } = this.props;
 
     return (
@@ -458,7 +460,7 @@ class App extends Component {
               <ModalContainer />
               <AudioContainer />
               <ToastContainer rtl />
-              <ChatAlertContainer />
+              {(audioAlertEnabled || pushAlertEnabled) && <ChatAlertContainer audioAlertEnabled={audioAlertEnabled} pushAlertEnabled={pushAlertEnabled} /> }
               <WaitingNotifierContainer />
               <LockNotifier />
               <StatusNotifier status="raiseHand" />
