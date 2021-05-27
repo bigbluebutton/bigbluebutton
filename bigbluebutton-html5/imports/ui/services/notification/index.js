@@ -28,9 +28,17 @@ export function notify(message, type = 'default', icon, options, content, small)
   };
 
   if (!toast.isActive(lastToast.id) || !_.isEqual(lastToastProps, toastProps)) {
-    if(toast.isActive(lastToast.id) && _.isEqual(lastToastProps.key, toastProps.key) && options?.autoClose > 0){
-      toast.update(lastToast.id, { render: <Toast {...toastProps} />, autoClose: options.autoClose, ...toastProps });
-    }else{
+    if (toast.isActive(lastToast.id)
+      && _.isEqual(lastToastProps.key, toastProps.key) && options?.autoClose > 0) {
+      toast.update(
+        lastToast.id,
+        {
+          render: <Toast {...toastProps} />,
+          autoClose: options.autoClose,
+          ...toastProps,
+        },
+      );
+    } else {
       const id = toast(<Toast {...toastProps} />, settings);
 
       lastToast = { id, ...toastProps };

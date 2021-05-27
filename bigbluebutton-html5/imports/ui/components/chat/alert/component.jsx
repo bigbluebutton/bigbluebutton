@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Meteor } from "meteor/meteor";
+import { Meteor } from 'meteor/meteor';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import AudioService from '/imports/ui/components/audio/service';
@@ -54,7 +54,7 @@ const ChatAlert = (props) => {
     unreadMessagesCountByChat,
     unreadMessagesByChat,
     intl,
-    newLayoutContextDispatch
+    newLayoutContextDispatch,
   } = props;
 
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
@@ -68,9 +68,9 @@ const ChatAlert = (props) => {
       const unreadObject = JSON.parse(unreadMessagesCountByChat);
 
       const unreadCount = document.hidden
-      ? unreadObject.reduce((a, b) => a + b.unreadCounter, 0)
-      : unreadObject.filter((chat) => chat.chatId !== idChatOpen)
-        .reduce((a, b) => a + b.unreadCounter, 0);
+        ? unreadObject.reduce((a, b) => a + b.unreadCounter, 0)
+        : unreadObject.filter((chat) => chat.chatId !== idChatOpen)
+          .reduce((a, b) => a + b.unreadCounter, 0);
 
       if (audioAlertEnabled && unreadCount > unreadMessagesCount) {
         AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
@@ -97,48 +97,43 @@ const ChatAlert = (props) => {
       let timewindowsToAlert = [];
       let filteredTimewindows = [];
 
-      alertsObject.forEach(chat => {
+      alertsObject.forEach((chat) => {
         filteredTimewindows = filteredTimewindows.concat(
-          chat.filter(timeWindow => {
-            return timeWindow.timestamp > alertEnabledTimestamp
-          })
+          chat.filter((timeWindow) => timeWindow.timestamp > alertEnabledTimestamp),
         );
-      })
+      });
 
-      filteredTimewindows.forEach(timeWindow => {
+      filteredTimewindows.forEach((timeWindow) => {
         const durationDiff = ALERT_DURATION - (new Date().getTime() - timeWindow.timestamp);
 
-        if(timeWindow.lastTimestamp > timeWindow.timestamp){
-          // é update de uma timewindow ja enviada
-          // verifica se lasttimestamp é maior que ultimo alert exibido desse chat
-          if(durationDiff > 0 && timeWindow.lastTimestamp > (lastAlertTimestampByChat[timeWindow.chatId] || 0)){
-            //remover outros timewindows com mesmo key
-            timewindowsToAlert = timewindowsToAlert.filter(item => item.chatId !== timeWindow.chatId);
-            const newTimeWindow = {...timeWindow};
+        if (timeWindow.lastTimestamp > timeWindow.timestamp) {
+          if (durationDiff > 0
+            && timeWindow.lastTimestamp > (lastAlertTimestampByChat[timeWindow.chatId] || 0)) {
+            timewindowsToAlert = timewindowsToAlert
+              .filter((item) => item.chatId !== timeWindow.chatId);
+            const newTimeWindow = { ...timeWindow };
             newTimeWindow.durationDiff = durationDiff;
             timewindowsToAlert.push(newTimeWindow);
 
-            const newLastAlertTimestampByChat = {...lastAlertTimestampByChat};
-            if(timeWindow.timestamp > (lastAlertTimestampByChat[timeWindow.chatId] || 0)){
+            const newLastAlertTimestampByChat = { ...lastAlertTimestampByChat };
+            if (timeWindow.timestamp > (lastAlertTimestampByChat[timeWindow.chatId] || 0)) {
               newLastAlertTimestampByChat[timeWindow.chatId] = timeWindow.timestamp;
               setLastAlertTimestampByChat(newLastAlertTimestampByChat);
             }
           }
-        }else{
-          // new timeWindow, display if newer than last alert + alert interval
-          if(timeWindow.timestamp > (lastAlertTimestampByChat[timeWindow.chatId] || 0) + ALERT_INTERVAL){
-            timewindowsToAlert = timewindowsToAlert.filter(item => item.chatId !== timeWindow.chatId);
-            timewindowsToAlert.push(timeWindow);
+        } else if (timeWindow.timestamp
+          > (lastAlertTimestampByChat[timeWindow.chatId] || 0) + ALERT_INTERVAL) {
+          timewindowsToAlert = timewindowsToAlert
+            .filter((item) => item.chatId !== timeWindow.chatId);
+          timewindowsToAlert.push(timeWindow);
 
-            const newLastAlertTimestampByChat = {...lastAlertTimestampByChat};
-            if(timeWindow.timestamp > (lastAlertTimestampByChat[timeWindow.chatId] || 0)){
-              newLastAlertTimestampByChat[timeWindow.chatId] = timeWindow.timestamp;
-              setLastAlertTimestampByChat(newLastAlertTimestampByChat);
-            }
-
+          const newLastAlertTimestampByChat = { ...lastAlertTimestampByChat };
+          if (timeWindow.timestamp > (lastAlertTimestampByChat[timeWindow.chatId] || 0)) {
+            newLastAlertTimestampByChat[timeWindow.chatId] = timeWindow.timestamp;
+            setLastAlertTimestampByChat(newLastAlertTimestampByChat);
           }
         }
-      })
+      });
       setUnreadMessages(timewindowsToAlert);
     }
   }, [unreadMessagesByChat]);
@@ -155,45 +150,49 @@ const ChatAlert = (props) => {
       });
 
     return contentMessage;
-  }
-  
-  const createMessage = (name, message) => {
-    return (
-      <div className={styles.pushMessageContent}>
-        <h3 className={styles.userNameMessage}>{name}</h3>
-        <div className={styles.contentMessage}>
-          {
-            mapContentText(message)
+  };
+
+  const createMessage = (name, message) => (
+    <div className={styles.pushMessageContent}>
+      <h3 className={styles.userNameMessage}>{name}</h3>
+      <div className={styles.contentMessage}>
+        {
+          mapContentText(message)
             .reduce((acc, text) => [...acc, (<br key={_.uniqueId('br_')} />), text], [])
-          }
-        </div>
+        }
       </div>
-    );
-  }
+    </div>
+  );
 
   return pushAlertEnabled
-    ? unreadMessages.map(timeWindow => {
+    ? unreadMessages.map((timeWindow) => {
       const mappedMessage = Service.mapGroupMessage(timeWindow);
-      const content = mappedMessage ? createMessage(mappedMessage.sender.name, mappedMessage.content.slice(-5)) : null;
+      const content = mappedMessage
+        ? createMessage(mappedMessage.sender.name, mappedMessage.content.slice(-5))
+        : null;
 
-      return content ? <ChatPushAlert
-        key={mappedMessage.chatId}
-        chatId={mappedMessage.chatId}
-        content={content}
-        title={
-          (mappedMessage.chatId === 'MAIN-PUBLIC-GROUP-CHAT')
-            ? <span>{intl.formatMessage(intlMessages.appToastChatPublic)}</span>
-            : <span>{intl.formatMessage(intlMessages.appToastChatPrivate)}</span>
-        }
-        onOpen={
-          () => {
-            const newUnreadMessages = unreadMessages.filter(message => message.key !== mappedMessage.key);
-            setUnreadMessages(newUnreadMessages);
-          }
-        }
-        alertDuration={timeWindow.durationDiff || ALERT_DURATION}
-        newLayoutContextDispatch={newLayoutContextDispatch}
-      /> : null;
+      return content
+        ? (
+          <ChatPushAlert
+            key={mappedMessage.chatId}
+            chatId={mappedMessage.chatId}
+            content={content}
+            title={
+              (mappedMessage.chatId === 'MAIN-PUBLIC-GROUP-CHAT')
+                ? <span>{intl.formatMessage(intlMessages.appToastChatPublic)}</span>
+                : <span>{intl.formatMessage(intlMessages.appToastChatPrivate)}</span>
+            }
+            onOpen={
+              () => {
+                const newUnreadMessages = unreadMessages
+                  .filter((message) => message.key !== mappedMessage.key);
+                setUnreadMessages(newUnreadMessages);
+              }
+            }
+            alertDuration={timeWindow.durationDiff || ALERT_DURATION}
+            newLayoutContextDispatch={newLayoutContextDispatch}
+          />
+        ) : null;
     })
     : null;
 };

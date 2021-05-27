@@ -39,18 +39,18 @@ const ChatAlertContainer = (props) => {
 
   // audio alerts
   const unreadMessagesCountByChat = audioAlertEnabled
-  ? JSON.stringify(activeChats.map(chat => {
-    return {chatId: chat.chatId, unreadCounter: chat.unreadCounter};
-  }))
-  : null;
+    ? JSON.stringify(activeChats.map((chat) => ({
+      chatId: chat.chatId, unreadCounter: chat.unreadCounter,
+    })))
+    : null;
 
   // push alerts
   const unreadMessagesByChat = pushAlertEnabled
-  ? JSON.stringify(activeChats.filter((chat) => chat.unreadCounter > 0).map(chat => {
-    const chatId = (chat.chatId === 'public') ? PUBLIC_CHAT_ID : chat.chatId;
-    return UnreadMessages.getUnreadMessages(chatId, groupChatsMessages);
-  }))
-  : null;
+    ? JSON.stringify(activeChats.filter((chat) => chat.unreadCounter > 0).map((chat) => {
+      const chatId = (chat.chatId === 'public') ? PUBLIC_CHAT_ID : chat.chatId;
+      return UnreadMessages.getUnreadMessages(chatId, groupChatsMessages);
+    }))
+    : null;
 
   return (
     <ChatAlert

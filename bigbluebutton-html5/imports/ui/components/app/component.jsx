@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { throttle } from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -30,7 +30,7 @@ import NewWebcamContainer from '../webcam/container';
 import PresentationPodsContainer from '../presentation-pod/container';
 import { styles } from './styles';
 import {
-  LAYOUT_TYPE, DEVICE_TYPE, ACTIONS, PANELS,
+  LAYOUT_TYPE, DEVICE_TYPE, ACTIONS,
 } from '../layout/enums';
 import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
@@ -44,7 +44,6 @@ import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import { makeCall } from '/imports/ui/services/api';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
-import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager/component';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -421,7 +420,7 @@ class App extends Component {
       sidebarNavigationIsOpen,
       sidebarContentIsOpen,
       audioAlertEnabled,
-      pushAlertEnabled
+      pushAlertEnabled,
     } = this.props;
 
     return (
@@ -460,7 +459,13 @@ class App extends Component {
               <ModalContainer />
               <AudioContainer />
               <ToastContainer rtl />
-              {(audioAlertEnabled || pushAlertEnabled) && <ChatAlertContainer audioAlertEnabled={audioAlertEnabled} pushAlertEnabled={pushAlertEnabled} /> }
+              {(audioAlertEnabled || pushAlertEnabled)
+                && (
+                  <ChatAlertContainer
+                    audioAlertEnabled={audioAlertEnabled}
+                    pushAlertEnabled={pushAlertEnabled}
+                  />
+                )}
               <WaitingNotifierContainer />
               <LockNotifier />
               <StatusNotifier status="raiseHand" />
