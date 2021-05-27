@@ -19,7 +19,7 @@ const startWatching = (url) => {
     externalVideoUrl = Panopto.getSocialUrl(url);
   }
 
-  makeCall('startWatchingExternalVideo', { externalVideoUrl });
+  makeCall('startWatchingExternalVideo', externalVideoUrl);
 };
 
 const stopWatching = () => {

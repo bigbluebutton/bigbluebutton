@@ -1,11 +1,11 @@
 import { check } from 'meteor/check';
 import stopExternalVideo from '../modifiers/stopExternalVideo';
 
-export default function handleStopExternalVideo({ header, body }, meetingId) {
-  const { userId } = header;
-  check(body, Object);
+export default function handleStopExternalVideo({ header }, meetingId) {
+  check(header, Object);
   check(meetingId, String);
-  check(userId, String);
+
+  const { userId } = header;
 
   stopExternalVideo(userId, meetingId);
 }

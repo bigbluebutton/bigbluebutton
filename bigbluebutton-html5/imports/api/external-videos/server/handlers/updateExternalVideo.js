@@ -2,10 +2,12 @@ import { check } from 'meteor/check';
 import updateExternalVideo from '../modifiers/updateExternalVideo';
 
 export default function handleUpdateExternalVideo({ header, body }, meetingId) {
-  const { userId } = header;
+  check(header, Object);
   check(body, Object);
   check(meetingId, String);
-  check(userId, String);
+
+  const { userId } = header;
+
   const {
     status,
     rate,
