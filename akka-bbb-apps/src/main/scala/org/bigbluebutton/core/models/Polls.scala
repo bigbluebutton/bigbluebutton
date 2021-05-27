@@ -443,35 +443,35 @@ object PollFactory {
   val LetterArray = Array("A", "B", "C", "D", "E", "F")
   val NumberArray = Array("1", "2", "3", "4", "5", "6")
 
-  private def processYesNoPollType(qType: String, questionText: Option[String]): Question = {
+  private def processYesNoPollType(qType: String, text: Option[String]): Question = {
     val answers = new ArrayBuffer[Answer];
 
     answers += new Answer(0, "Yes", Some("Yes"))
     answers += new Answer(1, "No", Some("No"))
 
-    new Question(0, PollType.YesNoPollType, false, questionText, answers)
+    new Question(0, PollType.YesNoPollType, false, text, answers)
   }
 
-  private def processYesNoAbstentionPollType(qType: String, questionText: Option[String]): Question = {
+  private def processYesNoAbstentionPollType(qType: String, text: Option[String]): Question = {
     val answers = new ArrayBuffer[Answer]
 
     answers += new Answer(0, "Yes", Some("Yes"))
     answers += new Answer(1, "No", Some("No"))
     answers += new Answer(2, "Abstention", Some("Abstention"))
 
-    new Question(0, PollType.YesNoAbstentionPollType, false, questionText, answers)
+    new Question(0, PollType.YesNoAbstentionPollType, false, text, answers)
   }
 
-  private def processTrueFalsePollType(qType: String, questionText: Option[String]): Question = {
+  private def processTrueFalsePollType(qType: String, text: Option[String]): Question = {
     val answers = new ArrayBuffer[Answer];
 
     answers += new Answer(0, "True", Some("True"))
     answers += new Answer(1, "False", Some("False"))
 
-    new Question(0, PollType.TrueFalsePollType, false, questionText, answers)
+    new Question(0, PollType.TrueFalsePollType, false, text, answers)
   }
 
-  private def processLetterPollType(qType: String, multiResponse: Boolean, questionText: Option[String]): Option[Question] = {
+  private def processLetterPollType(qType: String, multiResponse: Boolean, text: Option[String]): Option[Question] = {
     val q = qType.split('-')
     val numQs = q(1).toInt
 
@@ -481,7 +481,7 @@ object PollFactory {
       val answers = new ArrayBuffer[Answer];
       for (i <- 0 until numQs) {
         answers += new Answer(i, LetterArray(i), Some(LetterArray(i)))
-        val question = new Question(0, PollType.LetterPollType, multiResponse, questionText, answers)
+        val question = new Question(0, PollType.LetterPollType, multiResponse, text, answers)
         questionOption = Some(question)
       }
     }
@@ -489,7 +489,7 @@ object PollFactory {
     questionOption
   }
 
-  private def processNumberPollType(qType: String, multiResponse: Boolean, questionText: Option[String]): Option[Question] = {
+  private def processNumberPollType(qType: String, multiResponse: Boolean, text: Option[String]): Option[Question] = {
     val q = qType.split('-')
     val numQs = q(1).toInt
 
@@ -499,7 +499,7 @@ object PollFactory {
       val answers = new ArrayBuffer[Answer];
       for (i <- 0 until numQs) {
         answers += new Answer(i, NumberArray(i), Some(NumberArray(i)))
-        val question = new Question(0, PollType.NumberPollType, multiResponse, questionText, answers)
+        val question = new Question(0, PollType.NumberPollType, multiResponse, text, answers)
         questionOption = Some(question)
       }
     }
@@ -515,47 +515,47 @@ object PollFactory {
     ans
   }
 
-  private def processCustomPollType(qType: String, multiResponse: Boolean, questionText: Option[String], answers: Option[Seq[String]]): Option[Question] = {
+  private def processCustomPollType(qType: String, multiResponse: Boolean, text: Option[String], answers: Option[Seq[String]]): Option[Question] = {
     var questionOption: Option[Question] = None
 
     answers.foreach { ans =>
       val someAnswers = buildAnswers(ans)
-      val question = new Question(0, PollType.CustomPollType, multiResponse, questionText, someAnswers)
+      val question = new Question(0, PollType.CustomPollType, multiResponse, text, someAnswers)
       questionOption = Some(question)
     }
 
     questionOption
   }
 
-  private def processResponsePollType(qType: String, questionText: Option[String]): Option[Question] = {
+  private def processResponsePollType(qType: String, text: Option[String]): Option[Question] = {
     var questionOption: Option[Question] = None
 
     val answers = new ArrayBuffer[Answer]
-    val question = new Question(0, PollType.ResponsePollType, false, questionText, answers)
+    val question = new Question(0, PollType.ResponsePollType, false, text, answers)
     questionOption = Some(question)
 
     questionOption
   }
 
-  private def createQuestion(qType: String, answers: Option[Seq[String]], questionText: Option[String]): Option[Question] = {
+  private def createQuestion(qType: String, answers: Option[Seq[String]], text: Option[String]): Option[Question] = {
 
     val qt = qType.toUpperCase()
     var questionOption: Option[Question] = None
 
     if (qt.matches(PollType.YesNoPollType)) {
-      questionOption = Some(processYesNoPollType(qt, questionText))
+      questionOption = Some(processYesNoPollType(qt, text))
     } else if (qt.matches(PollType.YesNoAbstentionPollType)) {
-      questionOption = Some(processYesNoAbstentionPollType(qt, questionText))
+      questionOption = Some(processYesNoAbstentionPollType(qt, text))
     } else if (qt.matches(PollType.TrueFalsePollType)) {
-      questionOption = Some(processTrueFalsePollType(qt, questionText))
+      questionOption = Some(processTrueFalsePollType(qt, text))
     } else if (qt.matches(PollType.CustomPollType)) {
-      questionOption = processCustomPollType(qt, false, questionText, answers)
+      questionOption = processCustomPollType(qt, false, text, answers)
     } else if (qt.startsWith(PollType.LetterPollType)) {
-      questionOption = processLetterPollType(qt, false, questionText)
+      questionOption = processLetterPollType(qt, false, text)
     } else if (qt.startsWith(PollType.NumberPollType)) {
-      questionOption = processNumberPollType(qt, false, questionText)
+      questionOption = processNumberPollType(qt, false, text)
     } else if (qt.startsWith(PollType.ResponsePollType)) {
-      questionOption = processResponsePollType(qt, questionText)
+      questionOption = processResponsePollType(qt, text)
     }
 
     questionOption
