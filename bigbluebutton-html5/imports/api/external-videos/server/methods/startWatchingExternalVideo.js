@@ -17,15 +17,11 @@ export default function startWatchingExternalVideo(options) {
     check(userId, String);
     check(externalVideoUrl, String);
 
-    const user = Users.findOne({ meetingId, userId }, { presenter: 1 });
+    const payload = { externalVideoUrl };
 
-    if (user && user.presenter) {
-      check(externalVideoUrl, String);
-      const payload = { externalVideoUrl };
-      Logger.debug(`User id=${userId} sending ${EVENT_NAME} url:${externalVideoUrl} for meeting ${meetingId}`);
-      return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);
-    }
-    Logger.error(`Only presenters are allowed to start external video for a meeting. meeting=${meetingId} userId=${userId}`);
+    Logger.info(`User id=${userId} sharing an external video: ${externalVideoUrl} for meeting ${meetingId}`);
+
+    return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);
   } catch (error) {
     Logger.error(`Error on sharing an external video: ${externalVideoUrl} ${error}`);
   }
