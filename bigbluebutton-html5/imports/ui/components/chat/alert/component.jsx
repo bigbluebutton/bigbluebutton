@@ -11,8 +11,8 @@ import { styles } from '../styles';
 const propTypes = {
   pushAlertEnabled: PropTypes.bool.isRequired,
   audioAlertEnabled: PropTypes.bool.isRequired,
-  unreadMessagesCountByChat: PropTypes.string,
-  unreadMessagesByChat: PropTypes.string,
+  unreadMessagesCountByChat: PropTypes.arrayOf(PropTypes.object),
+  unreadMessagesByChat: PropTypes.arrayOf(PropTypes.array),
   idChatOpen: PropTypes.string.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -65,7 +65,7 @@ const ChatAlert = (props) => {
   // audio alerts
   useEffect(() => {
     if (audioAlertEnabled) {
-      const unreadObject = JSON.parse(unreadMessagesCountByChat);
+      const unreadObject = unreadMessagesCountByChat;
 
       const unreadCount = document.hidden
         ? unreadObject.reduce((a, b) => a + b.unreadCounter, 0)
@@ -92,7 +92,7 @@ const ChatAlert = (props) => {
 
   useEffect(() => {
     if (pushAlertEnabled) {
-      const alertsObject = JSON.parse(unreadMessagesByChat);
+      const alertsObject = unreadMessagesByChat;
 
       let timewindowsToAlert = [];
       let filteredTimewindows = [];
@@ -106,26 +106,15 @@ const ChatAlert = (props) => {
       filteredTimewindows.forEach((timeWindow) => {
         const durationDiff = ALERT_DURATION - (new Date().getTime() - timeWindow.timestamp);
 
-        if (timeWindow.lastTimestamp > timeWindow.timestamp) {
-          if (durationDiff > 0
-            && timeWindow.lastTimestamp > (lastAlertTimestampByChat[timeWindow.chatId] || 0)) {
-            timewindowsToAlert = timewindowsToAlert
-              .filter((item) => item.chatId !== timeWindow.chatId);
-            const newTimeWindow = { ...timeWindow };
-            newTimeWindow.durationDiff = durationDiff;
-            timewindowsToAlert.push(newTimeWindow);
-
-            const newLastAlertTimestampByChat = { ...lastAlertTimestampByChat };
-            if (timeWindow.timestamp > (lastAlertTimestampByChat[timeWindow.chatId] || 0)) {
-              newLastAlertTimestampByChat[timeWindow.chatId] = timeWindow.timestamp;
-              setLastAlertTimestampByChat(newLastAlertTimestampByChat);
-            }
-          }
-        } else if (timeWindow.timestamp
+        if ((timeWindow.lastTimestamp > timeWindow.timestamp && durationDiff > 0
+          && timeWindow.lastTimestamp > (lastAlertTimestampByChat[timeWindow.chatId] || 0))
+          || timeWindow.timestamp
           > (lastAlertTimestampByChat[timeWindow.chatId] || 0) + ALERT_INTERVAL) {
           timewindowsToAlert = timewindowsToAlert
             .filter((item) => item.chatId !== timeWindow.chatId);
-          timewindowsToAlert.push(timeWindow);
+          const newTimeWindow = { ...timeWindow };
+          newTimeWindow.durationDiff = durationDiff;
+          timewindowsToAlert.push(newTimeWindow);
 
           const newLastAlertTimestampByChat = { ...lastAlertTimestampByChat };
           if (timeWindow.timestamp > (lastAlertTimestampByChat[timeWindow.chatId] || 0)) {
@@ -189,7 +178,7 @@ const ChatAlert = (props) => {
                 setUnreadMessages(newUnreadMessages);
               }
             }
-            alertDuration={timeWindow.durationDiff || ALERT_DURATION}
+            alertDuration={timeWindow.durationDiff}
             newLayoutContextDispatch={newLayoutContextDispatch}
           />
         ) : null;
