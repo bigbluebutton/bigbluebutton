@@ -45,7 +45,7 @@ function PollListItem(props) {
   };
 
   const { answers, numRespondents } = pollResultData;
-  let { resultString, optionsString } = getPollResultString(isDefaultPoll, answers, numRespondents)
+  let { resultString, optionsString } = getPollResultString(isDefaultPoll, answers, numRespondents, intl)
   resultString = sanitize(resultString);
   optionsString = sanitize(optionsString);
 
