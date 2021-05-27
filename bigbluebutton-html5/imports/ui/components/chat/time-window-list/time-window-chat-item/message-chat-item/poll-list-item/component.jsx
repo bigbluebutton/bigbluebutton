@@ -55,7 +55,7 @@ function PollListItem(props) {
     pollText += optionsString;
   }
 
-  const pollQuestion = pollResultData.title;
+  const pollQuestion = pollResultData.questionText;
   if (pollQuestion.trim() !== '') {
     const sanitizedPollQuestion = sanitize(pollQuestion.split('<br#>').join(' '));
 
