@@ -58,7 +58,7 @@ const pollAnswerIds = {
   },
 };
 
-const getPollResultString = (isDefaultPoll, answers, numRespondents) => {
+const getPollResultString = (isDefaultPoll, answers, numRespondents, intl) => {
   let responded = 0;
   let resultString = '';
   let optionsString = '';
@@ -72,7 +72,8 @@ const getPollResultString = (isDefaultPoll, answers, numRespondents) => {
     const pctBars = "|".repeat(pct * MAX_POLL_RESULT_BARS / 100);
     const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
     if (isDefaultPoll) {
-      resultString += `${item.key}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
+      const translatedKey = intl.formatMessage(pollAnswerIds[item.key.toLowerCase()]);
+      resultString += `${translatedKey}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
     } else {
       resultString += `${item.id+1}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
       optionsString += `${item.id+1}: ${item.key}\n`;

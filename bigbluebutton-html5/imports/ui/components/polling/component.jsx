@@ -20,7 +20,7 @@ const intlMessages = defineMessages({
   pollAnswerDesc: {
     id: 'app.polling.pollAnswerDesc',
   },
-  pollQestionTitle: {
+  pollQuestionTitle: {
     id: 'app.polling.pollQuestionTitle',
   },
   submitLabel: {
@@ -122,7 +122,7 @@ class Polling extends Component {
             question.length > 0 && (
               <span className={styles.qHeader}>
                 <div className={styles.qTitle}>
-                  {intl.formatMessage(intlMessages.pollQestionTitle)}
+                  {intl.formatMessage(intlMessages.pollQuestionTitle)}
                 </div>
                 <div data-test="pollQuestion" className={styles.qText}>{question}</div>
               </span>
