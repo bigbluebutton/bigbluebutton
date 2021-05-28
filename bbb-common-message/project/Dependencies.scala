@@ -20,7 +20,7 @@ object Dependencies {
     val codec = "1.15"
 
     // Redis
-    val lettuce = "6.0.1.RELEASE"
+    val lettuce = "6.1.2.RELEASE"
 
     // Test
     val scalaTest = "3.2.3"

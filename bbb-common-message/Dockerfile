@@ -1,4 +1,4 @@
-FROM sbt:0.13.8
+FROM hseeberger/scala-sbt:11.0.10_1.5.2_2.13.6
 
 ARG COMMON_VERSION
 

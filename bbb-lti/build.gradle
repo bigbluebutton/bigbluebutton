@@ -88,7 +88,7 @@ dependencies {
   compile "org.grails:grails-plugin-services"
   compile "org.grails:grails-plugin-url-mappings"
   compile "org.grails:grails-plugin-interceptors"
-  compile 'org.grails.plugins:external-config:1.2.2'
+  compile 'org.grails.plugins:external-config:2.0.0'
   compile "org.grails.plugins:cache"
   compile "org.grails.plugins:async"
   compile "org.grails.plugins:scaffolding"
