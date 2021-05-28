@@ -38,8 +38,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.bigbluebutton.api.domain.BreakoutRoomsParams;
 import org.bigbluebutton.api.domain.LockSettingsParams;
@@ -77,7 +75,6 @@ public class ParamsProcessorUtil {
     private Boolean allowRequestsWithoutSession;
     private Boolean useDefaultAvatar = false;
     private String defaultAvatarURL;
-    private String defaultConfigURL;
     private String defaultGuestPolicy;
     private Boolean authenticatedGuest;
     private int defaultMeetingDuration;
@@ -102,8 +99,6 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsLockedLayout;
 		private boolean defaultLockSettingsLockOnJoin;
 		private boolean defaultLockSettingsLockOnJoinConfigurable;
-
-    private String defaultConfigXML = null;
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
 
@@ -502,9 +497,6 @@ public class ParamsProcessorUtil {
                 .withHTML5InstanceId(html5InstanceId)
                 .build();
 
-        String configXML = getDefaultConfigXML();
-        meeting.storeConfig(true, configXML);
-
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
             String moderatorOnlyMessageTemplate = params.get(ApiParams.MODERATOR_ONLY_MESSAGE);
             String moderatorOnlyMessage = substituteKeywords(moderatorOnlyMessageTemplate,
@@ -580,54 +572,6 @@ public class ParamsProcessorUtil {
 		return allowRequestsWithoutSession;
 	}
 
-	public String getDefaultConfigXML() {
-		defaultConfigXML = getConfig(defaultConfigURL);
-		
-		return defaultConfigXML;
-	}
-	
-	private String getConfig(String url) {
-		String configXML = "";
-
-		CloseableHttpClient httpclient = HttpClients.createDefault();
-		try {
-			HttpGet httpget = new HttpGet(url);
-
-			// Create a custom response handler
-			ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
-
-				@Override
-				public String handleResponse(
-						final HttpResponse response) throws IOException {
-					int status = response.getStatusLine().getStatusCode();
-					if (status >= 200 && status < 300) {
-						HttpEntity entity = response.getEntity();
-						return entity != null ? EntityUtils.toString(entity, StandardCharsets.UTF_8) : null;
-					} else {
-						throw new ClientProtocolException("Unexpected response status: " + status);
-					}
-				}
-			};
-
-			String responseBody = httpclient.execute(httpget, responseHandler);
-			configXML = responseBody;
-		} catch(IOException ex) {
-			// IOException
-		} finally {
-			try {
-				httpclient.close();
-			} catch(IOException ex) {
-				// do nothing
-			}
-		}
-
-		return configXML;
-	  }
-	
-	public String getDefaultConfigURL() {
-		return defaultConfigURL;
-	}
-	
 	public String getDefaultLogoutUrl() {
 		 if ((StringUtils.isEmpty(defaultLogoutUrl)) || "default".equalsIgnoreCase(defaultLogoutUrl)) {
      		return defaultServerUrl;
@@ -757,29 +701,7 @@ public class ParamsProcessorUtil {
 
         return "";
     }
-	
-	public boolean isConfigXMLChecksumSame(String meetingID, String configXML, String checksum) {
-		if (StringUtils.isEmpty(securitySalt)) {
-			log.warn("Security is disabled in this service. Make sure this is intentional.");
-			return true;
-		}
 
-		log.info("CONFIGXML CHECKSUM={} length={}", checksum, checksum.length());
-
-		String data = meetingID + configXML + securitySalt;
-		String cs = DigestUtils.sha1Hex(data);
-		if (checksum.length() == 64) {
-			cs = DigestUtils.sha256Hex(data);
-			log.info("CONFIGXML SHA256 {}", cs);
-		}
-
-		if (cs == null || !cs.equals(checksum)) {
-			log.info("checksumError: configXML checksum. our: [{}], client: [{}]", cs, checksum);
-			return false;
-		}
-		return true;
-	}
-	
 	public boolean isChecksumSame(String apiCall, String checksum, String queryString) {
 		if (StringUtils.isEmpty(securitySalt)) {
 			log.warn("Security is disabled in this service. Make sure this is intentional.");
@@ -917,10 +839,6 @@ public class ParamsProcessorUtil {
 		this.defaultLogoutUrl = defaultLogoutUrl;
 	}
 
-	public void setDefaultConfigURL(String defaultConfigUrl) {
-		this.defaultConfigURL = defaultConfigUrl;
-	}
-	
 	public void setDefaultServerUrl(String defaultServerUrl) {
 		this.defaultServerUrl = defaultServerUrl;
 	}

@@ -138,7 +138,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
         <property name="useDefaultAvatar" value="${useDefaultAvatar}"/>
         <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
-        <property name="defaultConfigURL" value="${defaultConfigURL}"/>
         <property name="defaultGuestPolicy" value="${defaultGuestPolicy}"/>
         <property name="authenticatedGuest" value="${authenticatedGuest}"/>
         <property name="meetingExpireIfNoUserJoinedInMinutes" value="${meetingExpireIfNoUserJoinedInMinutes}"/>
