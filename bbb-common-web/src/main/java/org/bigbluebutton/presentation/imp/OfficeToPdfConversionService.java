@@ -17,42 +17,27 @@
  *
  */
 package org.bigbluebutton.presentation.imp;
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+
+import com.google.gson.Gson;
 import org.bigbluebutton.presentation.ConversionMessageConstants;
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.UploadedPresentation;
-import org.jodconverter.core.office.OfficeException;
-import org.jodconverter.core.office.OfficeManager;
-import org.jodconverter.local.LocalConverter;
-import org.jodconverter.local.office.LocalOfficeManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.sun.star.document.UpdateDocMode;
-import com.google.gson.Gson;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Semaphore;
+
 public class OfficeToPdfConversionService {
   private static Logger log = LoggerFactory.getLogger(OfficeToPdfConversionService.class);
   private OfficeDocumentValidator2 officeDocumentValidator;
-  private final OfficeManager officeManager;
-  private final LocalConverter documentConverter;
   private boolean skipOfficePrecheck = false;
-  public OfficeToPdfConversionService() throws OfficeException {
-    final Map<String, Object> loadProperties = new HashMap<>();
-    loadProperties.put("Hidden", true);
-    loadProperties.put("ReadOnly", true);
-    loadProperties.put("UpdateDocMode", UpdateDocMode.NO_UPDATE);
-    officeManager = LocalOfficeManager
-      .builder()
-      .portNumbers(8100, 8101, 8102, 8103, 8104)
-      .build();
-    documentConverter = LocalConverter
-      .builder()
-      .officeManager(officeManager)
-      .loadProperties(loadProperties)
-      .filterChain(new OfficeDocumentConversionFilter())
-      .build();
-  }
+  private String presOfficeConversionExec = null;
+  private Semaphore presOfficeConversionSemaphore = new Semaphore(4);
+  private int presOfficeConversionTimeout = 60;
+
   /*
    * Convert the Office document to PDF. If successful, update
    * UploadPresentation.uploadedFile with the new PDF out and
@@ -112,33 +97,63 @@ public class OfficeToPdfConversionService {
         presentationFile.getAbsolutePath().lastIndexOf('.'));
     return new File(filenameWithoutExt + ".pdf");
   }
-  private boolean convertOfficeDocToPdf(UploadedPresentation pres,
-      File pdfOutput) {
-    Office2PdfPageConverter converter = new Office2PdfPageConverter();
-    return converter.convert(pres.getUploadedFile(), pdfOutput, 0, pres, documentConverter);
+  private boolean convertOfficeDocToPdf(UploadedPresentation pres, File pdfOutput) {
+    boolean success = false;
+    int attempts = 0;
+    while(!success) {
+
+      try {
+        if(presOfficeConversionSemaphore.availablePermits() == 0) {
+          log.info("Waiting for previous conversions finish before start (meetingId: {}, presId: {}, filename: {}), current queue: {}.",
+                  pres.getMeetingId(), pres.getId(), pres.getName(), presOfficeConversionSemaphore.getQueueLength());
+        }
+        presOfficeConversionSemaphore.acquire();
+
+        success = Office2PdfPageConverter.convert(pres.getUploadedFile(), pdfOutput, 0, pres,
+                presOfficeConversionExec, presOfficeConversionTimeout);
+
+      } catch (Exception e) {
+      } finally {
+        presOfficeConversionSemaphore.release();
+      }
+
+      
+      if(!success) {
+        if(++attempts != 3) {
+          //Try again
+        } else {
+          break;
+        }
+      }
+    }
+
+    return success;
   }
+
   private void makePdfTheUploadedFileAndSetStepAsSuccess(UploadedPresentation pres, File pdf) {
     pres.setUploadedFile(pdf);
     pres.setConversionStatus(ConversionMessageConstants.OFFICE_DOC_CONVERSION_SUCCESS_KEY);
   }
+
   public void setOfficeDocumentValidator(OfficeDocumentValidator2 v) {
     officeDocumentValidator = v;
   }
+
   public void setSkipOfficePrecheck(boolean skipOfficePrecheck) {
     this.skipOfficePrecheck = skipOfficePrecheck;
   }
-  public void start() {
-    try {
-      officeManager.start();
-    } catch (OfficeException e) {
-      log.error("Could not start Office Manager", e);
-    }
+
+  public void setPresOfficeConversionExec(String presOfficeConversionExec) {
+    this.presOfficeConversionExec = presOfficeConversionExec;
   }
-  public void stop() {
-    try {
-      officeManager.stop();
-    } catch (OfficeException e) {
-      log.error("Could not stop Office Manager", e);
-    }
+
+  public void setPresOfficeConversionTimeout(int presOfficeConversionTimeout) {
+    this.presOfficeConversionTimeout = presOfficeConversionTimeout;
   }
+
+  public void setPresOfficeConversionMaxConcurrents(int presOfficeConversionMaxConcurrents) {
+    presOfficeConversionSemaphore = new Semaphore(presOfficeConversionMaxConcurrents);
+  }
+
 }
+

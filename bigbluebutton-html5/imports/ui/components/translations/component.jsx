@@ -6,17 +6,18 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { makeCall } from '/imports/ui/services/api';
 import Meeting from "/imports/ui/services/meeting";
 import Button from '/imports/ui/components/button/component';
+import AudioManager from '/imports/ui/services/audio-manager';
 
 const intlMessages = defineMessages({
     translationsTitle: {
-      id: 'app.translation.translations.title',
-      description: 'Translation title',
-      defaultMessage: 'Translation',
+        id: 'app.translation.translations.title',
+        description: 'Translation title',
+        defaultMessage: 'Translation',
     },
     confirmAllLangugagesWarning: {
-      id: 'app.translation.warning.confirmAllLanguages',
-      description: 'Warning that ask user to confirm all languages',
-      defaultMessage: 'Please confirm all languages.',
+        id: 'app.translation.warning.confirmAllLanguages',
+        description: 'Warning that ask user to confirm all languages',
+        defaultMessage: 'Please confirm all languages.',
     },
     addLangugagesWarning: {
         id: 'app.translation.warning.addLanguages',
@@ -97,6 +98,8 @@ class Translations extends Component{
         this.state.active = false
         this.state.warning = ""
         this.setState(this.state)
+        // also remove participants from translation rooms
+        AudioManager.translatorChannelOpen = false;
     }
 
     state ={

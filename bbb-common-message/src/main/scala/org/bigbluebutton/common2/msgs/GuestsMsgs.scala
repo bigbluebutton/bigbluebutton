@@ -19,7 +19,7 @@ case class GetGuestsWaitingApprovalRespMsg(
     body:   GetGuestsWaitingApprovalRespMsgBody
 ) extends BbbCoreMsg
 case class GetGuestsWaitingApprovalRespMsgBody(guests: Vector[GuestWaitingVO])
-case class GuestWaitingVO(intId: String, name: String, role: String, guest: Boolean, authenticated: Boolean)
+case class GuestWaitingVO(intId: String, name: String, role: String, guest: Boolean, avatar: String, authenticated: Boolean, registeredOn: Long)
 
 /**
  * Message sent to client for list of guest waiting for approval. This is sent when
@@ -64,6 +64,26 @@ case class GuestApprovedEvtMsg(
 case class GuestApprovedEvtMsgBody(status: String, approvedBy: String)
 
 /**
+ * Message from bbb-web when it detects a guest stopped polling for his status.
+ */
+object GuestWaitingLeftMsg { val NAME = "GuestWaitingLeftMsg" }
+case class GuestWaitingLeftMsg(
+    header: BbbClientMsgHeader,
+    body:   GuestWaitingLeftMsgBody
+) extends StandardMsg
+case class GuestWaitingLeftMsgBody(userId: String)
+
+/**
+ * Message sent to all clients that a guest left the waiting page.
+ */
+object GuestWaitingLeftEvtMsg { val NAME = "GuestWaitingLeftEvtMsg" }
+case class GuestWaitingLeftEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   GuestWaitingLeftEvtMsgBody
+) extends BbbCoreMsg
+case class GuestWaitingLeftEvtMsgBody(userId: String)
+
+/**
  * Message from user to set the guest policy.
  */
 object SetGuestPolicyCmdMsg { val NAME = "SetGuestPolicyCmdMsg" }
@@ -82,6 +102,26 @@ case class GuestPolicyChangedEvtMsg(
     body:   GuestPolicyChangedEvtMsgBody
 ) extends BbbCoreMsg
 case class GuestPolicyChangedEvtMsgBody(policy: String, setBy: String)
+
+/**
+ * Message from user to set the guest lobby message.
+ */
+object SetGuestLobbyMessageCmdMsg { val NAME = "SetGuestLobbyMessageCmdMsg" }
+case class SetGuestLobbyMessageCmdMsg(
+    header: BbbClientMsgHeader,
+    body:   SetGuestLobbyMessageCmdMsgBody
+) extends StandardMsg
+case class SetGuestLobbyMessageCmdMsgBody(message: String)
+
+/**
+ * Message sent to all clients that guest lobby message has been changed.
+ */
+object GuestLobbyMessageChangedEvtMsg { val NAME = "GuestLobbyMessageChangedEvtMsg" }
+case class GuestLobbyMessageChangedEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   GuestLobbyMessageChangedEvtMsgBody
+) extends BbbCoreMsg
+case class GuestLobbyMessageChangedEvtMsgBody(message: String)
 
 /**
  * Message from user to get the guest policy.

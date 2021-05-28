@@ -1,0 +1,104 @@
+.debugWindowWrapper {
+  position: absolute !important;
+  z-index: 9;
+}
+
+.debugWindow {
+  min-width: 20vw;
+  min-height: 20vh;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  border: 2px solid #06172A;
+
+  &::after {
+    content: "";
+    -webkit-transform: rotate(-45deg);
+    position: absolute;
+    right: 2px;
+    bottom: 8px;
+    pointer-events: none;
+    width: 14px;
+    height: 1px;
+    background: rgba(0,0,0,.5);
+  }
+
+  &::before {
+    content: "";
+    -webkit-transform: rotate(-45deg);
+    position: absolute;
+    right: 2px;
+    bottom: 5px;
+    pointer-events: none;
+    width: 8px;
+    height: 1px;
+    background: rgba(0,0,0,.5);
+  }
+
+  .header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid lightgray;
+    cursor: move;
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+     -khtml-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+    
+    .title {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .moveIcon {
+      margin: 5px;
+      color: rgba(0,0,0,.5);
+    }
+
+    .close {
+      span {
+        i {
+          font-size: 115%;
+        }
+      }
+    }
+  }
+
+  .debugWindowContent {
+    padding: 10px;
+    .table{
+      display: table;
+      width: 100%;
+      .row{
+        display: table-row;
+      }
+      .cell {
+        display: table-cell;
+        padding: 5px;
+        vertical-align: middle;
+
+        .cellContent {
+          display: flex;
+          align-items: center;
+        }
+      }
+    }
+
+    .userAgentInput, .autoArrangeToggle {
+      margin-right: 5px;
+    }
+  }
+}
+
+.toggleLabel {
+  margin-right: var(--sm-padding-x);
+
+  [dir="rtl"] & {
+    margin: 0 0 0 var(--sm-padding-x);
+  }
+}

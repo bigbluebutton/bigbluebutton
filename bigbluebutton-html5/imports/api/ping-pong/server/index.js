@@ -1,2 +1,0 @@
-import './publishers';
-import './methods';

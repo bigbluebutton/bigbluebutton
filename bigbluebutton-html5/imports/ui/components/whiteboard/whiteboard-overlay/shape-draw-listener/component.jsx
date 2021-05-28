@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import {Meteor} from "meteor/meteor";
 
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
@@ -174,8 +175,6 @@ export default class ShapeDrawListener extends Component {
     // if you switch to a different window using Alt+Tab while mouse is down and release it
     // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
     } else if (isRightClick) {
-      // this.isDrawing = false;
-      this.sendLastMessage();
       this.discardAnnotation();
     }
   }
@@ -324,18 +323,16 @@ export default class ShapeDrawListener extends Component {
 
   discardAnnotation() {
     const {
-      whiteboardId,
       actions,
     } = this.props;
 
     const {
       getCurrentShapeId,
-      addAnnotationToDiscardedList,
-      undoAnnotation,
+      clearPreview,
     } = actions;
 
-    undoAnnotation(whiteboardId);
-    addAnnotationToDiscardedList(getCurrentShapeId());
+    this.resetState();
+    clearPreview(getCurrentShapeId());
   }
 
   render() {
@@ -352,7 +349,7 @@ export default class ShapeDrawListener extends Component {
       tool,
     } = drawSettings;
 
-    const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
+    const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId;
     const shapeDrawStyle = {
       width: '100%',
       height: '100%',

@@ -52,9 +52,9 @@ export default function handlePresenterAssigned({ body }, meetingId) {
       return setPresenterInPodReqMsg(setPresenterPayload);
     }
 
-    const oldPresenter = Users.findOne({ meetingId, userId: currentPresenterId, connectionStatus: 'offline' });
+    const oldPresenter = Users.findOne({ meetingId, userId: currentPresenterId });
 
-    if (oldPresenter) {
+    if (oldPresenter?.userId !== currentPresenterId) {
       return setPresenterInPodReqMsg(setPresenterPayload);
     }
 

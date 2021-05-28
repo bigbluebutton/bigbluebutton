@@ -6,9 +6,9 @@ import Meetings from "/imports/api/meetings";
 import  Breakouts from "/imports/api/breakouts";
 
 export default function getParentMeeting() {
-  const { meetingId, requesterUserId } = extractCredentials(this.userId);
-  let meeting = Meetings.findOne({ meetingId: meetingId });
-  let parentId = meeting.breakoutProps.parentId;
-  let parent = Meetings.findOne({ meetingId: parentId});
-  return parent;
+    const { meetingId, requesterUserId } = extractCredentials(this.userId);
+    let meeting = Meetings.findOne({ meetingId: meetingId });
+    let parentId = meeting.breakoutProps.parentId;
+    let parent = Meetings.findOne({ meetingId: parentId});
+    return parent;
 }

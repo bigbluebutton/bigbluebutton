@@ -1,6 +1,7 @@
 const Page = require('../core/page');
 const e = require('./elements');
 const we = require('../whiteboard/elements');
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
 
 class Slide extends Page {
   constructor() {
@@ -8,36 +9,26 @@ class Slide extends Page {
   }
 
   async test() {
-    await this.waitForSelector(we.whiteboard);
-    await this.waitForSelector(e.presentationToolbarWrapper);
+    await this.waitForSelector(we.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.waitForSelector(e.presentationToolbarWrapper, ELEMENT_WAIT_TIME);
 
-    await this.screenshot(true);
-    const svg0 = await this.getTestElements();
+    const svg0 = await this.page.evaluate(async () => await document.querySelector('svg g g g').outerHTML.indexOf('/svg/1') !== -1);
 
+    await this.waitForSelector(e.nextSlide, ELEMENT_WAIT_TIME);
     await this.click(e.nextSlide, true);
+    await this.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
+    await this.page.waitFor(1000);
 
-    await this.screenshot(true);
-    const svg1 = await this.getTestElements();
+    const svg1 = await this.page.evaluate(async () => await document.querySelector('svg g g g').outerHTML.indexOf('/svg/2') !== -1);
 
+    await this.waitForSelector(e.prevSlide, ELEMENT_WAIT_TIME);
     await this.click(e.prevSlide, true);
+    await this.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
+    await this.page.waitFor(1000);
 
-    await this.screenshot(true);
-    const svg2 = await this.getTestElements();
+    const svg2 = await this.page.evaluate(async () => await document.querySelector('svg g g g').outerHTML.indexOf('/svg/1') !== -1);
 
-    console.log('\nStarting slide:');
-    console.log(svg0);
-    console.log('\nAfter next slide:');
-    console.log(svg1);
-    console.log('\nAfter previous slide:');
-    console.log(svg2);
-
-    // TODO: Check test
-    return true;
-  }
-
-  async getTestElements() {
-    const svg = await this.page.evaluate(() => document.querySelector('svg g g g').outerHTML);
-    return svg;
+    return svg0 === true && svg1 === true && svg2 === true;
   }
 }
 

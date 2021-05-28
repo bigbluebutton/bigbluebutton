@@ -1,0 +1,11 @@
+exports.joinAudio = 'button[aria-label="Join audio"]';
+exports.listen = 'button[aria-label="Listen only"]';
+exports.connectingStatus = 'div[class^="connecting-"]';
+exports.connecting = 'span[data-test="connecting"]';
+exports.connectingToEchoTest = 'span[data-test="connectingToEchoTest"]';
+exports.audioAudible = 'button[aria-label="Echo is audible"]';
+exports.leaveAudio = 'button[aria-label="Leave audio"]';
+exports.microphone = 'button[aria-label="Microphone"]';
+exports.muteMicrophoneBtn = 'button[aria-label="Mute"]';
+exports.whiteboard = 'svg[data-test="whiteboard"]';
+exports.talkingIndicator = 'div[class^="isTalkingWrapper--"] > div[class^="speaking--"]';

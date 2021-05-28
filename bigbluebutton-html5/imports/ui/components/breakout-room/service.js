@@ -4,6 +4,7 @@ import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import { Session } from 'meteor/session';
 import Users from '/imports/api/users';
+import UserListService from '/imports/ui/components/user-list/service';
 import fp from 'lodash/fp';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -27,7 +28,10 @@ const breakoutRoomUser = (breakoutId) => {
   return breakoutUser;
 };
 
-const closeBreakoutPanel = () => Session.set('openPanel', 'userlist');
+const closeBreakoutPanel = () => {
+  Session.set('openPanel', 'userlist');
+  window.dispatchEvent(new Event('panelChanged'));
+};
 
 const endAllBreakouts = () => {
   makeCall('endAllBreakouts');
@@ -58,6 +62,12 @@ const transferToBreakout = (breakoutId) => {
 const amIModerator = () => {
   const User = Users.findOne({ intId: Auth.userID }, { fields: { role: 1 } });
   return User.role === ROLE_MODERATOR;
+};
+
+const checkInviteModerators = () => {
+  const BREAKOUTS_CONFIG = Meteor.settings.public.app.breakouts;
+
+  return !((amIModerator() && !BREAKOUTS_CONFIG.sendInvitationToIncludedModerators));
 };
 
 const getBreakoutByUserId = userId => Breakouts.find(
@@ -117,5 +127,7 @@ export default {
   getBreakoutsNoTime,
   getBreakoutByUserId,
   getBreakoutUserIsIn,
+  sortUsersByName: UserListService.sortUsersByName,
   isUserInBreakoutRoom,
+  checkInviteModerators,
 };

@@ -14,8 +14,8 @@ export default function translatorSpeakStateChange(languageExtension, isSpeaking
     Meetings.update(
         query,
         { $set: {
-            "languages.$.translatorIsSpeaking": isSpeaking,
-            "languages.$.translatorSpeakingUtcTimestamp": Date.now()}},
+                "languages.$.translatorIsSpeaking": isSpeaking,
+                "languages.$.translatorSpeakingUtcTimestamp": Date.now()}},
         (error) => {
             if(error) {
                 Logger.error("Translator for language="+languageExtension+" is speaking="+isSpeaking+".",  error);

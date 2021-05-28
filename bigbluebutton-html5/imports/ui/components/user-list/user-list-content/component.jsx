@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { styles } from './styles';
 import UserParticipantsContainer from './user-participants/container';
-import UserMessages from './user-messages/component';
+import UserMessages from './user-messages/container';
 import UserNotesContainer from './user-notes/container';
 import UserCaptionsContainer from './user-captions/container';
 import WaitingUsers from './waiting-users/component';
@@ -11,7 +11,6 @@ import Translations from "./translations/component"
 import BreakoutRoomItem from './breakout-room/component';
 
 const propTypes = {
-  activeChats: PropTypes.arrayOf(String).isRequired,
   compact: PropTypes.bool,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -19,6 +18,7 @@ const propTypes = {
   currentUser: PropTypes.shape({}).isRequired,
   isPublicChat: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
+  clearAllEmojiStatus: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
   pollIsOpen: PropTypes.bool.isRequired,
   forcePollOpen: PropTypes.bool.isRequired,
@@ -38,14 +38,16 @@ class UserContent extends PureComponent {
       intl,
       currentUser,
       setEmojiStatus,
+      clearAllEmojiStatus,
       roving,
       isPublicChat,
-      activeChats,
       pollIsOpen,
       forcePollOpen,
       hasBreakoutRoom,
       pendingUsers,
       requestUserInformation,
+      currentClosedChats,
+      startedChats,
       amIModerator,
       meetingIsBreakout,
     } = this.props;
@@ -54,16 +56,16 @@ class UserContent extends PureComponent {
       <div
         data-test="userListContent"
         className={styles.content}
-        role="complementary"
       >
         {CHAT_ENABLED
           ? (<UserMessages
             {...{
               isPublicChat,
-              activeChats,
               compact,
               intl,
               roving,
+              currentClosedChats,
+              startedChats,
             }}
           />
           ) : null
@@ -94,13 +96,13 @@ class UserContent extends PureComponent {
         }
 
         {amIModerator && !meetingIsBreakout
-          ? (
-            <Translations
-              {...{
-                intl,
-              }}
-            />
-          ) : null
+            ? (
+                <Translations
+                    {...{
+                      intl,
+                    }}
+                />
+            ) : null
         }
 
         <UserPolls
@@ -117,6 +119,7 @@ class UserContent extends PureComponent {
             intl,
             currentUser,
             setEmojiStatus,
+            clearAllEmojiStatus,
             roving,
             requestUserInformation,
           }}

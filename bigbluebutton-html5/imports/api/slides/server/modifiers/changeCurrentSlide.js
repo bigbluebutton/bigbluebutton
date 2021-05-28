@@ -25,7 +25,6 @@ export default function changeCurrentSlide(meetingId, podId, presentationId, sli
       }
 
       Logger.info('Unsetted the current slide');
-      return;
     },
   };
 
@@ -46,7 +45,6 @@ export default function changeCurrentSlide(meetingId, podId, presentationId, sli
       }
 
       Logger.info(`Setted as current slide id=${slideId}`);
-      return;
     },
   };
 

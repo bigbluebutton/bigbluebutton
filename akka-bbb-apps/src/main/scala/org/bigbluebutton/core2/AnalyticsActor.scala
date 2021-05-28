@@ -5,10 +5,10 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
 
 object AnalyticsActor {
-  def props(): Props = Props(classOf[AnalyticsActor])
+  def props(includeChat: Boolean): Props = Props(classOf[AnalyticsActor], includeChat)
 }
 
-class AnalyticsActor extends Actor with ActorLogging {
+class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
 
   val TAG = "-- analytics -- "
 
@@ -22,6 +22,12 @@ class AnalyticsActor extends Actor with ActorLogging {
     log.info(TAG + json)
   }
 
+  def logChatMessage(msg: BbbCommonEnvCoreMsg): Unit = {
+    if (includeChat) {
+      logMessage(msg)
+    }
+  }
+
   def traceMessage(msg: BbbCommonEnvCoreMsg): Unit = {
     val json = JsonUtil.toJson(msg)
     log.info(" -- trace -- " + json)
@@ -31,6 +37,8 @@ class AnalyticsActor extends Actor with ActorLogging {
 
     msg.core match {
       case m: GetAllMeetingsReqMsg                           => logMessage(msg)
+      case m: GetRunningMeetingsRespMsg                      => logMessage(msg)
+      case m: GetRunningMeetingsReqMsg                       => logMessage(msg)
 
       case m: RegisterUserReqMsg                             => logMessage(msg)
       case m: RegisteredUserJoinTimeoutMsg                   => logMessage(msg)
@@ -47,7 +55,6 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: UserLeftMeetingEvtMsg                          => logMessage(msg)
       case m: PresenterUnassignedEvtMsg                      => logMessage(msg)
       case m: PresenterAssignedEvtMsg                        => logMessage(msg)
-      case m: MeetingIsActiveEvtMsg                          => logMessage(msg)
       case m: UserEjectedFromMeetingEvtMsg                   => logMessage(msg)
       case m: EjectUserFromVoiceConfSysMsg                   => logMessage(msg)
       case m: CreateBreakoutRoomSysCmdMsg                    => logMessage(msg)
@@ -74,7 +81,6 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: ScreenshareStopRtmpBroadcastVoiceConfMsg       => logMessage(msg)
       case m: ScreenshareRtmpBroadcastStartedEvtMsg          => logMessage(msg)
       case m: ScreenshareRtmpBroadcastStoppedEvtMsg          => logMessage(msg)
-      case m: MeetingInactivityWarningEvtMsg                 => logMessage(msg)
       case m: StartRecordingVoiceConfSysMsg                  => logMessage(msg)
       case m: StopRecordingVoiceConfSysMsg                   => logMessage(msg)
       //case m: UpdateRecordingTimerEvtMsg => logMessage(msg)
@@ -120,23 +126,29 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: PresentationConversionUpdateEvtMsgBody => logMessage(msg)
       case m: PresentationPageCountErrorSysPubMsg => logMessage(msg)
       case m: PresentationPageCountErrorEvtMsg => logMessage(msg)
+      case m: PresentationUploadedFileTooLargeErrorSysPubMsg => logMessage(msg)
+      case m: PresentationUploadedFileTooLargeErrorEvtMsg => logMessage(msg)
 
       // Group Chats
-      case m: SendGroupChatMessageMsg => logMessage(msg)
-      case m: GroupChatMessageBroadcastEvtMsg => logMessage(msg)
-      case m: GetGroupChatMsgsReqMsg => logMessage(msg)
-      case m: GetGroupChatMsgsRespMsg => logMessage(msg)
-      case m: CreateGroupChatReqMsg => logMessage(msg)
-      case m: GroupChatCreatedEvtMsg => logMessage(msg)
-      case m: GetGroupChatsReqMsg => logMessage(msg)
-      case m: GetGroupChatsRespMsg => logMessage(msg)
+      case m: SendGroupChatMessageMsg => logChatMessage(msg)
+      case m: GroupChatMessageBroadcastEvtMsg => logChatMessage(msg)
+      case m: GetGroupChatMsgsReqMsg => logChatMessage(msg)
+      case m: GetGroupChatMsgsRespMsg => logChatMessage(msg)
+      case m: CreateGroupChatReqMsg => logChatMessage(msg)
+      case m: GroupChatCreatedEvtMsg => logChatMessage(msg)
+      case m: GetGroupChatsReqMsg => logChatMessage(msg)
+      case m: GetGroupChatsRespMsg => logChatMessage(msg)
 
       // Guest Management
       case m: GuestsWaitingApprovedMsg => logMessage(msg)
       case m: GuestsWaitingApprovedEvtMsg => logMessage(msg)
+      case m: GuestWaitingLeftMsg => logMessage(msg)
+      case m: GuestWaitingLeftEvtMsg => logMessage(msg)
       case m: GuestsWaitingForApprovalEvtMsg => logMessage(msg)
       case m: SetGuestPolicyCmdMsg => logMessage(msg)
       case m: GuestPolicyChangedEvtMsg => logMessage(msg)
+      case m: SetGuestLobbyMessageCmdMsg => logMessage(msg)
+      case m: GuestLobbyMessageChangedEvtMsg => logMessage(msg)
 
       // System
       case m: ClientToServerLatencyTracerMsg => traceMessage(msg)

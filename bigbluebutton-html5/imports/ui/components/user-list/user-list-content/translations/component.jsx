@@ -5,9 +5,9 @@ import cx from 'classnames';
 
 const intlMessages = defineMessages({
     translationTitle: {
-      id: 'app.translation.translation.title',
-      description: 'Translation title',
-      defaultMessage: 'Translation',
+        id: 'app.translation.translation.title',
+        description: 'Translation title',
+        defaultMessage: 'Translation',
     },
     languagesTitle: {
         id: 'app.translation.languages.title',
@@ -28,7 +28,7 @@ class Translations extends Component{
     }
     componentDidMount() {
         window.addEventListener('panelChanged',()=>{
-           this.forceUpdate()
+            this.forceUpdate()
         });
     }
 

@@ -6,11 +6,10 @@ import {
 import SanitizeHTML from 'sanitize-html';
 import Meetings, { RecordMeetings } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
-import createNote from '/imports/api/note/server/methods/createNote';
-import createCaptions from '/imports/api/captions/server/methods/createCaptions';
+import { initPads } from '/imports/api/common/server/etherpad';
 import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
-import BannedUsers from '/imports/api/users/server/store/bannedUsers';
+import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
 
 export default function addMeeting(meeting) {
   const meetingId = meeting.meetingProp.intId;
@@ -35,6 +34,7 @@ export default function addMeeting(meeting) {
     usersProp: {
       webcamsOnlyForModerator: Boolean,
       guestPolicy: String,
+      authenticatedGuest: Boolean,
       maxUsers: Number,
       allowModsToUnmuteUsers: Boolean,
     },
@@ -42,8 +42,6 @@ export default function addMeeting(meeting) {
       createdTime: Number,
       duration: Number,
       createdDate: String,
-      maxInactivityTimeoutMinutes: Number,
-      warnMinutesBeforeMax: Number,
       meetingExpireIfNoUserJoinedInMinutes: Number,
       meetingExpireWhenLastUserLeftInMinutes: Number,
       userInactivityInspectTimerInMinutes: Number,
@@ -87,6 +85,9 @@ export default function addMeeting(meeting) {
       lockOnJoin: Boolean,
       lockOnJoinConfigurable: Boolean,
       lockedLayout: Boolean,
+    },
+    systemProps: {
+      html5InstanceId: Number,
     },
   });
 
@@ -142,8 +143,8 @@ export default function addMeeting(meeting) {
 
   if (newMeeting.meetingProp.isBreakout) {
     const parent = Meetings.findOne(
-      { meetingId: newMeeting.breakoutProps.parentId },
-      { fields: { 'languages': 1 } });
+        { meetingId: newMeeting.breakoutProps.parentId },
+        { fields: { 'languages': 1 } });
 
     let languages = []
     if (parent.languages) {
@@ -157,10 +158,23 @@ export default function addMeeting(meeting) {
       meetingId,
       meetingEnded,
       publishedPoll: false,
+      guestLobbyMessage: '',
+      randomlySelectedUser: [],
     }, flat(newMeeting, {
       safe: true,
     })),
   };
+
+  if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
+    addAnnotationsStreamer(meetingId);
+    addCursorStreamer(meetingId);
+    addExternalVideoStreamer(meetingId);
+
+    // we don't want to fully process the create meeting message in frontend since it can lead to duplication of meetings in mongo.
+    if (process.env.BBB_HTML5_ROLE === 'frontend') {
+      return;
+    }
+  }
 
   try {
     const { insertedId, numberAffected } = RecordMeetings.upsert(selector, { meetingId, ...recordProp });
@@ -177,16 +191,11 @@ export default function addMeeting(meeting) {
   try {
     const { insertedId, numberAffected } = Meetings.upsert(selector, modifier);
 
-    addAnnotationsStreamer(meetingId);
-    addCursorStreamer(meetingId);
-
     if (insertedId) {
       Logger.info(`Added meeting id=${meetingId}`);
-      // TODO: Here we call Etherpad API to create this meeting notes. Is there a
-      // better place we can run this post-creation routine?
-      createNote(meetingId);
-      createCaptions(meetingId);
-      BannedUsers.init(meetingId);
+
+      const { html5InstanceId } = meeting.systemProps;
+      initPads(meetingId, html5InstanceId);
     } else if (numberAffected) {
       Logger.info(`Upserted meeting id=${meetingId}`);
     }

@@ -4,14 +4,14 @@ import {styles} from "./styles.scss"
 
 const intlMessages = defineMessages({
     newLanguagePlaceholder: {
-      id: 'app.translation.newLanguage',
-      description: 'New language placeholder',
-      defaultMessage: 'New Language',
+        id: 'app.translation.newLanguage',
+        description: 'New language placeholder',
+        defaultMessage: 'New Language',
     },
     confirmLanguageLabel: {
-      id: 'app.translation.confirmLanguage',
-      description: 'Label for add language button',
-      defaultMessage: 'confirm',
+        id: 'app.translation.confirmLanguage',
+        description: 'Label for add language button',
+        defaultMessage: 'confirm',
     },
 });
 

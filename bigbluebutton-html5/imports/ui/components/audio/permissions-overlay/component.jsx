@@ -1,11 +1,11 @@
 import React from 'react';
-import { injectIntl, intlShape, defineMessages } from 'react-intl';
+import { injectIntl, defineMessages } from 'react-intl';
 import Modal from '/imports/ui/components/modal/simple/component';
 import PropTypes from 'prop-types';
 import { styles } from './styles';
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   closeModal: PropTypes.func.isRequired,
 };
 

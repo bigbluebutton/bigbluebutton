@@ -6,14 +6,14 @@ import styles from "./styles.scss"
 
 const intlMessages = defineMessages({
     originLanguage: {
-      id: 'app.translation.language.origin',
-      description: 'Name of origin language',
-      defaultMessage: 'Floor',
+        id: 'app.translation.language.origin',
+        description: 'Name of origin language',
+        defaultMessage: 'Floor',
     },
     noneLanguage: {
-      id: 'app.translation.language.none',
-      description: 'Name of none language',
-      defaultMessage: 'None',
+        id: 'app.translation.language.none',
+        description: 'Name of none language',
+        defaultMessage: 'None',
     },
     connectionSettingUp: {
         id: 'app.translation.language.connection.settingUp',
@@ -59,40 +59,40 @@ class LanguageOverlay extends Component{
         const connectionMessage = intl.formatMessage(isConnecting ? intlMessages.connectionSettingUp : intlMessages.connectionEstablished);
         const filteredLanguageExtensions = new Set(this.props.filteredLanguages.map(language => language.extension));
 
-       return(
-        <div
-            className={styles.languageOverlay}
-        >
-            <ul>
-                {this.state.languages.map(function (language) {
-                    let languageMarker = null;
-                    const languageIsFiltered = language.extension !== -1 && filteredLanguageExtensions.has(language.extension);
+        return(
+            <div
+                className={styles.languageOverlay}
+            >
+                <ul>
+                    {this.state.languages.map(function (language) {
+                        let languageMarker = null;
+                        const languageIsFiltered = language.extension !== -1 && filteredLanguageExtensions.has(language.extension);
 
-                    if (languageIsFiltered) {
-                        languageMarker = this.props.filterMarker;
-                    } else if (this.props.current && language.extension === this.props.current.extension) { //language language is selected
-                        languageMarker = connectionMessage;
-                    } else if (this.props.current === null && language.extension === -1) { //if no language is select use standart language(-1)
-                        languageMarker = connectionMessage;
-                    }
+                        if (languageIsFiltered) {
+                            languageMarker = this.props.filterMarker;
+                        } else if (this.props.current && language.extension === this.props.current.extension) { //language language is selected
+                            languageMarker = connectionMessage;
+                        } else if (this.props.current === null && language.extension === -1) { //if no language is select use standart language(-1)
+                            languageMarker = connectionMessage;
+                        }
 
-                    return (
-                        <li
-                            className={languageIsFiltered ? styles.filteredLanguageOption : styles.languageOption}
-                            key={language.extension}
-                            onClick={languageIsFiltered ? null : () => this.clickHandler(language)}
-                        >
+                        return (
+                            <li
+                                className={languageIsFiltered ? styles.filteredLanguageOption : styles.languageOption}
+                                key={language.extension}
+                                onClick={languageIsFiltered ? null : () => this.clickHandler(language)}
+                            >
                             <span>
                                 {language.name}
                             </span>
-                            <span>
+                                <span>
                                 {languageMarker}
                             </span>
-                        </li>
-                    );
-                },this)}
-            </ul>
-        </div>);
+                            </li>
+                        );
+                    },this)}
+                </ul>
+            </div>);
     }
     componentDidMount() {
         const {

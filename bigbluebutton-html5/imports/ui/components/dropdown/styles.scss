@@ -1,6 +1,7 @@
-@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/breakpoints";
 @import "/imports/ui/stylesheets/mixins/_scrollable";
 @import "/imports/ui/stylesheets/mixins/_indicators";
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 :root {
   --dropdown-bg: var(--color-white);
@@ -16,6 +17,7 @@
 
 .dropdown {
   position: relative;
+  z-index: 3;
 
   &:focus {
     outline: none;
@@ -23,7 +25,7 @@
 }
 
 .content {
-  @include highContrastOutline();
+  @extend %highContrastOutline;
   outline-style: solid;
   z-index: 9999;
   position: absolute;
@@ -103,6 +105,14 @@
 
   @include mq($small-only) {
     display: block;
+  }
+}
+
+// removes transform on tethered dropdown for small screen sizes.
+// prevents the user-list-item dropdown breaking on mobile.
+:global(.tether-out-of-bounds)  {
+  @include mq($small-only) {
+    transform: none !important;
   }
 }
 
@@ -302,7 +312,7 @@
 .top-left, [dir="rtl"] .top-right {
   @extend %down-caret;
   @extend %horz-right-caret;
-  min-width: 11.5rem;
+  min-width: 18rem;
 
   @include mq($small-only) {
     width: auto;

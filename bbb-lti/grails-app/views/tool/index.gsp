@@ -51,9 +51,7 @@
                     <g:if test="${r.published}">
                         <div>
                         <g:each in="${r.thumbnails}" var="thumbnail">
-                            <g:each in="${thumbnail.content}" var="thumbnail_url">
-                                <img src="${thumbnail_url}" class="thumbnail"/>
-                            </g:each>
+                            <img src="${thumbnail.content}" class="thumbnail"/>
                         </g:each>
                         </div>
                   </g:if>

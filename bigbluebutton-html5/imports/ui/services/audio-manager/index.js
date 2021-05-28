@@ -11,13 +11,12 @@ import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills';
-import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import { monitorAudioConnection } from '/imports/utils/stats';
 import AudioErrors from './error-codes';
+import {Meteor} from "meteor/meteor";
 import {makeCall} from "../api";
 
-const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
-
+const STATS = Meteor.settings.public.stats;
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
@@ -35,6 +34,12 @@ const CALL_STATES = {
   AUTOPLAY_BLOCKED: 'autoplayBlocked',
 };
 
+const BREAKOUT_AUDIO_TRANSFER_STATES = {
+  CONNECTED: 'connected',
+  DISCONNECTED: 'disconnected',
+  RETURNING: 'returning',
+};
+
 export const ORIGINAL_TRANSLATION = 'original';
 
 class AudioManager {
@@ -42,6 +47,11 @@ class AudioManager {
     this._inputDevice = {
       value: DEFAULT_INPUT_DEVICE_ID,
       tracker: new Tracker.Dependency(),
+    };
+
+    this._breakoutAudioTransferStatus = {
+      status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+      breakoutMeetingId: null,
     };
     this.translatorStream = null
     this.defineProperties({
@@ -54,9 +64,9 @@ class AudioManager {
       isTalking: false,
       isWaitingPermissions: false,
       error: null,
-      outputDeviceId: null,
       muteHandle: null,
       autoplayBlocked: false,
+      isReconnecting: false,
       listeningTranslation: ORIGINAL_TRANSLATION,
       translatorChannelOpen:false,
       translationChannelOpen:false
@@ -66,29 +76,36 @@ class AudioManager {
     this.failedMediaElements = [];
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.monitor = this.monitor.bind(this);
-    this.muteHandels = new Set();
+
+    this._inputStream = null;
+    this._inputStreamTracker = new Tracker.Dependency();
+
+    this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
+
+    this.muteHandles = new Set();
     this.muteStateCallbacks = new Set();
     this.translationStateCallbacks = new Set();
     this.translationState = null;
   }
 
-  init(userData) {
+  init(userData, audioEventHandler) {
     this.bridge = new SIPBridge(userData); // no alternative as of 2019-03-08
     this.translationBridge = new SIPBridge({...userData}, "#translation-media");
     this.translatorBridge = new SIPBridge({...userData},
-      "#translator-media",
-      {
-        video: false,
-        audio: {
-          echoCancellation: false,
+        "#translator-media",
+        {
+          video: false,
+          audio: {
+            echoCancellation: false,
+          },
         },
-      },
     );
     if (this.useKurento) {
       this.listenOnlyBridge = new KurentoBridge(userData);
     }
     this.userData = userData;
     this.initialized = true;
+    this.audioEventHandler = audioEventHandler;
   }
 
   setAudioMessages(messages, intl) {
@@ -201,22 +218,7 @@ class AudioManager {
     const callOptions = {
       isListenOnly: true,
       extension: null,
-      inputStream: this.createListenOnlyStream(),
     };
-
-    // WebRTC restrictions may need a capture device permission to release
-    // useful ICE candidates on recvonly/no-gUM peers
-    try {
-      await tryGenerateIceCandidates();
-    } catch (error) {
-      logger.error({
-        logCode: 'listenonly_no_valid_candidate_gum_failure',
-        extraInfo: {
-          errorName: error.name,
-          errorMessage: error.message,
-        },
-      }, `Forced gUM to release additional ICE candidates failed due to ${error.name}.`);
-    }
 
     // Call polyfills for webrtc client if navigator is "iOS Webview"
     const userAgent = window.navigator.userAgent.toLocaleLowerCase();
@@ -368,8 +370,14 @@ class AudioManager {
       window.parent.postMessage({ response: 'joinedAudio' }, '*');
       this.notify(this.intl.formatMessage(this.messages.info.JOINED_AUDIO));
       logger.info({ logCode: 'audio_joined' }, 'Audio Joined');
-      if (ENABLE_NETWORK_MONITORING) this.monitor();
+      this.inputStream = (this.bridge ? this.bridge.inputStream : null);
+      if (STATS.enabled) this.monitor();
+      this.audioEventHandler({
+        name: 'started',
+        isListenOnly: this.isListenOnly,
+      });
     }
+    Session.set('audioModalIsOpen', false);
   }
 
   onTransferStart() {
@@ -385,8 +393,8 @@ class AudioManager {
     this.failedMediaElements = [];
 
     if (this.inputStream) {
-      window.defaultInputStream.forEach(track => track.stop());
-      this.inputStream.getTracks().forEach(track => track.stop());
+      this.inputStream.getTracks().forEach((track) => track.stop());
+      this.inputStream = null;
       this.inputDevice = { id: 'default' };
     }
 
@@ -420,12 +428,23 @@ class AudioManager {
       } = response;
 
       if (status === STARTED) {
+        this.isReconnecting = false;
         this.onAudioJoin();
         resolve(STARTED);
       } else if (status === ENDED) {
+        this.isReconnecting = false;
+        this.setBreakoutAudioTransferStatus({
+          breakoutMeetingId: '',
+          status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+        });
         logger.info({ logCode: 'audio_ended' }, 'Audio ended without issue');
         this.onAudioExit();
       } else if (status === FAILED) {
+        this.isReconnecting = false;
+        this.setBreakoutAudioTransferStatus({
+          breakoutMeetingId: '',
+          status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+        })
         const errorKey = this.messages.error[error] || this.messages.error.GENERIC_ERROR;
         const errorMsg = this.intl.formatMessage(errorKey, { 0: bridgeError });
         this.error = !!error;
@@ -443,37 +462,25 @@ class AudioManager {
           this.onAudioExit();
         }
       } else if (status === RECONNECTING) {
+        this.isReconnecting = true;
+        this.setBreakoutAudioTransferStatus({
+          breakoutMeetingId: '',
+          status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+        })
         logger.info({ logCode: 'audio_reconnecting' }, 'Attempting to reconnect audio');
         this.notify(this.intl.formatMessage(this.messages.info.RECONNECTING_AUDIO), true);
         this.playHangUpSound();
       } else if (status === AUTOPLAY_BLOCKED) {
+        this.setBreakoutAudioTransferStatus({
+          breakoutMeetingId: '',
+          status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+        })
+        this.isReconnecting = false;
         this.autoplayBlocked = true;
         this.onAudioJoin();
         resolve(AUTOPLAY_BLOCKED);
       }
     });
-  }
-
-  createListenOnlyStream() {
-    const audio = document.querySelector(MEDIA_TAG);
-
-    // Play bogus silent audio to try to circumvent autoplay policy on Safari
-    if (!audio.src) {
-      audio.src = 'resources/sounds/silence.mp3';
-    }
-
-    audio.play().catch((e) => {
-      if (e.name === 'AbortError') {
-        return;
-      }
-
-      logger.warn({
-        logCode: 'audiomanager_error_test_audio',
-        extraInfo: { error: e },
-      }, 'Error on playing test audio');
-    });
-
-    return {};
   }
 
   isUsingAudio() {
@@ -529,22 +536,32 @@ class AudioManager {
     };
 
     return Promise.all(
-      [
-        this.bridge.changeInputDeviceId(deviceId)
-          .then(handleChangeInputDeviceSuccess)
-          .catch(handleChangeInputDeviceError),
-        this.translatorBridge.changeInputDeviceId(deviceId)
-          .then(handleChangeInputDeviceSuccess)
-          .then(reconnectTranslator.bind(this))
-          .catch(handleChangeInputDeviceError),
-      ]
+        [
+          this.bridge.changeInputDeviceId(deviceId)
+              .then(handleChangeInputDeviceSuccess)
+              .catch(handleChangeInputDeviceError),
+          this.translatorBridge.changeInputDeviceId(deviceId)
+              .then(handleChangeInputDeviceSuccess)
+              .then(reconnectTranslator.bind(this))
+              .catch(handleChangeInputDeviceError),
+        ]
     );
   }
 
-  async changeOutputDevice(deviceId) {
-    this.outputDeviceId = await this
+  liveChangeInputDevice(deviceId) {
+    // we force stream to be null, so MutedAlert will deallocate it and
+    // a new one will be created for the new stream
+    this.inputStream = null;
+    this.bridge.liveChangeInputDevice(deviceId).then((stream) => {
+      this.setSenderTrackEnabled(!this.isMuted);
+      this.inputStream = stream;
+    });
+  }
+
+  async changeOutputDevice(deviceId, isLive) {
+    await this
       .bridge
-      .changeOutputDevice(deviceId || DEFAULT_OUTPUT_DEVICE_ID);
+      .changeOutputDevice(deviceId || DEFAULT_OUTPUT_DEVICE_ID, isLive);
   }
 
   set inputDevice(value) {
@@ -553,8 +570,19 @@ class AudioManager {
   }
 
   get inputStream() {
-    this._inputDevice.tracker.depend();
-    return this._inputDevice.value.stream;
+    this._inputStreamTracker.depend();
+    return this._inputStream;
+  }
+
+  set inputStream(stream) {
+    // We store reactive information about input stream
+    // because mutedalert component needs to track when it changes
+    // and then update hark with the new value for inputStream
+    if (this._inputStream !== stream) {
+      this._inputStreamTracker.changed();
+    }
+
+    this._inputStream = stream;
   }
 
   get inputDevice() {
@@ -564,6 +592,39 @@ class AudioManager {
   get inputDeviceId() {
     return (this.bridge && this.bridge.inputDeviceId)
       ? this.bridge.inputDeviceId : DEFAULT_INPUT_DEVICE_ID;
+  }
+
+  get outputDeviceId() {
+    return (this.bridge && this.bridge.outputDeviceId)
+      ? this.bridge.outputDeviceId : DEFAULT_OUTPUT_DEVICE_ID;
+  }
+
+  /**
+   * Sets the current status for breakout audio transfer
+   * @param {Object} newStatus                  The status Object to be set for
+   *                                            audio transfer.
+   * @param {string} newStatus.breakoutMeetingId The meeting id of the current
+   *                                            breakout audio transfer.
+   * @param {string} newStatus.status           The status of the current audio
+   *                                            transfer. Valid values are
+   *                                            'connected', 'disconnected' and
+   *                                            'returning'.
+   */
+  setBreakoutAudioTransferStatus(newStatus) {
+    const currentStatus = this._breakoutAudioTransferStatus;
+    const { breakoutMeetingId, status } = newStatus;
+
+    if (typeof breakoutMeetingId === 'string') {
+      currentStatus.breakoutMeetingId = breakoutMeetingId;
+    }
+
+    if (typeof status === 'string') {
+      currentStatus.status = status;
+    }
+  }
+
+  getBreakoutAudioTransferStatus() {
+    return this._breakoutAudioTransferStatus;
   }
 
   set userData(value) {
@@ -580,7 +641,7 @@ class AudioManager {
 
   playHangUpSound() {
     this.playAlertSound(`${Meteor.settings.public.app.cdn
-      + Meteor.settings.public.app.basename}`
+      + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}`
       + '/resources/sounds/LeftCall.mp3');
   }
 
@@ -640,7 +701,7 @@ class AudioManager {
     }
   }
 
-  setSenderTrackEnabled (shouldEnable) {
+  setSenderTrackEnabled(shouldEnable) {
     // If the bridge is set to listen only mode, nothing to do here. This method
     // is solely for muting outbound tracks.
     if (this.isListenOnly) return;
@@ -659,8 +720,8 @@ class AudioManager {
       }
     });
   }
-  setSenderTrackEnabledTranslator (shouldEnable) {
 
+  setSenderTrackEnabledTranslator (shouldEnable) {
     this.translatorStream && this.translatorStream.getTracks().forEach(track=>{
       if (track && track.kind === 'audio') {
         track.enabled = shouldEnable;
@@ -682,30 +743,38 @@ class AudioManager {
     }
   }
 
-  mute () {
+  mute() {
     this.setSenderTrackEnabled(false);
   }
 
-  unmute () {
+  unmute() {
     this.setSenderTrackEnabled(true);
   }
 
-  playAlertSound (url) {
-    if (!url) {
+  playAlertSound(url) {
+    if (!url || !this.bridge) {
       return Promise.resolve();
     }
 
     const audioAlert = new Audio(url);
 
-    if (this.outputDeviceId && (typeof audioAlert.setSinkId === 'function')) {
+    audioAlert.addEventListener('ended', () => { audioAlert.src = null; });
+
+
+    const { outputDeviceId } = this.bridge;
+
+    if (outputDeviceId && (typeof audioAlert.setSinkId === 'function')) {
       return audioAlert
-        .setSinkId(this.outputDeviceId)
+        .setSinkId(outputDeviceId)
         .then(() => audioAlert.play());
     }
 
     return audioAlert.play();
   }
 
+  async updateAudioConstraints(constraints) {
+    await this.bridge.updateAudioConstraints(constraints);
+  }
   async handleTranslationChannelStateChange(languageExtension, message) {
     this.translationState = message.status;
     this.notifyTranslationChannelStateChange(languageExtension, message);
@@ -750,6 +819,7 @@ class AudioManager {
 
   async openTranslatorChannel(languageExtension, onConnected) {
     if( this.translatorBridge.activeSession ) {
+      this.translatorChannelOpen = false;
       this.translatorBridge.exitAudio();
       this.translatorSpeechEvents.stop();
     }
@@ -802,6 +872,7 @@ class AudioManager {
           translatorBridgechangeInputDeviceIdPromise = this.translatorBridge.changeInputDeviceId(this.inputDevice.id);
         }
         translatorBridgechangeInputDeviceIdPromise.then(() => this.translatorBridge.joinAudio(callOptions, callback));
+        this.translatorChannelOpen = true;
       }
       return navigator.mediaDevices.getUserMedia({ audio: { deviceId: this.inputDeviceId }, video: false }).then(success.bind(this));
     }else{
@@ -809,6 +880,7 @@ class AudioManager {
       mainaudio.vol = 1
 
     }
+
   }
 
   setFloorOutputVolume(volume) {
@@ -818,13 +890,13 @@ class AudioManager {
 
   muteTranslator(muteHandle) {
     this.setSenderTrackEnabledTranslator(false)
-    this.muteHandels.add(muteHandle);
+    this.muteHandles.add(muteHandle);
     this.notifyMuteStateListener();
   }
 
   unmuteTranslator(muteHandle) {
-    this.muteHandels.delete(muteHandle);
-    if(this.muteHandels.size === 0) {
+    this.muteHandles.delete(muteHandle);
+    if(this.muteHandles.size === 0) {
       this.setSenderTrackEnabledTranslator(true);
     }
     this.notifyMuteStateListener();
@@ -832,9 +904,9 @@ class AudioManager {
 
   isTranslatorMuted(muteHandle = null) {
     if(muteHandle === null) {
-      return this.muteHandels.size !== 0;
+      return this.muteHandles.size !== 0;
     } else {
-      return this.muteHandels.has(muteHandle);
+      return this.muteHandles.has(muteHandle);
     }
   }
 

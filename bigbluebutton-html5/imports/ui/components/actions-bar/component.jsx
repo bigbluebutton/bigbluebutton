@@ -1,18 +1,20 @@
 import React, { PureComponent } from 'react';
 import cx from 'classnames';
+import Button from '/imports/ui/components/button/component';
+import { ACTIONSBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager/component';
+import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
+import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from './styles.scss';
-import { defineMessages } from 'react-intl';
-import DesktopShare from './desktop-share/component';
-import ActionsDropdown from './actions-dropdown/component';
-import QuickPollDropdown from './quick-poll-dropdown/component';
+import ActionsDropdown from './actions-dropdown/container';
+import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
-import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
 import PresentationOptionsContainer from './presentation-options/component';
-import Button from '/imports/ui/components/button/component';
 import Storage from '/imports/ui/services/storage/session';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { makeCall } from "../../services/api";
+import { defineMessages, injectIntl } from 'react-intl';
+
 import Meetings from '/imports/api/meetings';
 import LanguageOverlay from '/imports/ui/components/LanguageOverlay/component'
 import Service from './service';
@@ -61,9 +63,9 @@ const intlMessages = defineMessages({
     defaultMessage: 'Translate to',
   },
   selectTranslationLabel: {
-      id: 'app.translation.selectTranslation',
-      description: 'Label for select translation button',
-      defaultMessage: 'Available languages',
+    id: 'app.translation.selectTranslation',
+    description: 'Label for select translation button',
+    defaultMessage: 'Available languages',
   },
   filterMarkerLanguageListening: {
     id: 'app.translation.filterMarker.languageListening',
@@ -101,8 +103,8 @@ class ActionsBar extends PureComponent {
     if (TRANSLATOR_SPEAKING_ENABLED) {
       setInterval(() => {
         const meeting = Meetings.findOne(
-          { meetingId: Auth.meetingID },
-          { fields: { 'languages': 1 } });
+            { meetingId: Auth.meetingID },
+            { fields: { 'languages': 1 } });
 
         if (meeting?.languages) {
 
@@ -139,18 +141,18 @@ class ActionsBar extends PureComponent {
     const { layoutContextDispatch } = this.props;
     const autoArrangeLayout = Storage.getItem('autoArrangeLayout');
     layoutContextDispatch(
-      {
-        type: 'setAutoArrangeLayout',
-        value: !autoArrangeLayout,
-      },
+        {
+          type: 'setAutoArrangeLayout',
+          value: !autoArrangeLayout,
+        },
     );
     window.dispatchEvent(new Event('autoArrangeChanged'));
   }
   toggleTranslatorSelection(){
-      this.state.showTranslatorChoice = !this.state.showTranslatorChoice;
-      this.state.showLanguageChoice = false;
-      this.setState(this.state)
-      this.forceUpdate()
+    this.state.showTranslatorChoice = !this.state.showTranslatorChoice;
+    this.state.showLanguageChoice = false;
+    this.setState(this.state)
+    this.forceUpdate()
   }
   toggleTranslationSelection(){
     this.state.showLanguageChoice = !this.state.showLanguageChoice;
@@ -167,6 +169,9 @@ class ActionsBar extends PureComponent {
     };
 
     AudioManager.openTranslatorChannel(language.extension, onInternalConnected).then(() => {
+      if( language.extension > 0 ) {
+        Service.muteMicrophone();
+      }
       if (language.extension > 0 && !this.state.translatorLanguage && !AudioManager.isTranslatorMuted()) {
         this.handleMuteTranslator()
       }
@@ -191,19 +196,19 @@ class ActionsBar extends PureComponent {
   handleLanguageSelection(language, onConnected) {
     this.state.translationLanguage = language
     AudioManager.openTranslationChannel(language.extension)
-      .then((languageExtension) => {
-        onConnected();
-        return languageExtension;
-      })
-      .then((languageExtension) => {
-        if (!TRANSLATOR_SPEAKING_ENABLED) {
-          if (languageExtension === -1) {
-            AudioManager.setFloorOutputVolume(1.0);
-          } else {
-            AudioManager.setFloorOutputVolume(FLOOR_TRANSLATION_VOLUME);
+        .then((languageExtension) => {
+          onConnected();
+          return languageExtension;
+        })
+        .then((languageExtension) => {
+          if (!TRANSLATOR_SPEAKING_ENABLED) {
+            if (languageExtension === -1) {
+              AudioManager.setFloorOutputVolume(1.0);
+            } else {
+              AudioManager.setFloorOutputVolume(FLOOR_TRANSLATION_VOLUME);
+            }
           }
-        }
-      });
+        });
     this.setState(this.state)
     this.forceUpdate()
   }
@@ -211,47 +216,47 @@ class ActionsBar extends PureComponent {
   render() {
     const {
       amIPresenter,
-      handleShareScreen,
-      handleUnshareScreen,
-      isVideoBroadcasting,
       amIModerator,
-      screenSharingCheck,
       enableVideo,
       isLayoutSwapped,
       toggleSwapLayout,
       handleTakePresenter,
       intl,
-      currentSlidHasContent,
-      parseCurrentSlideContent,
       isSharingVideo,
-      screenShareEndAlert,
       stopExternalVideoShare,
-      screenshareDataSavingSetting,
       isCaptionsAvailable,
       isMeteorConnected,
       isPollingEnabled,
+      isSelectRandomUserEnabled,
+      isRaiseHandButtonEnabled,
+      isPresentationDisabled,
       isThereCurrentPresentation,
       allowExternalVideo,
+      setEmojiStatus,
+      currentUser,
+      shortcuts,
       hasBreakouts,
       isTranslatorTalking,
       isTranslatorMuted,
       hasLanguages,
+      showTranslatorMicButton
     } = this.props;
 
     const amIAsTranslatorMuted = isTranslatorMuted();
-    const actionBarClasses = {};
-
-    actionBarClasses[styles.centerWithActions] = amIPresenter;
-    actionBarClasses[styles.center] = true;
-    actionBarClasses[styles.mobileLayoutSwapped] = isLayoutSwapped && amIPresenter;
 
     return (
-      <div className={styles.actionsbar}>
+      <div
+        className={styles.actionsbar}
+        style={{
+          height: ACTIONSBAR_HEIGHT,
+        }}
+      >
         <div className={styles.left}>
           <ActionsDropdown {...{
             amIPresenter,
             amIModerator,
             isPollingEnabled,
+            isSelectRandomUserEnabled,
             allowExternalVideo,
             handleTakePresenter,
             intl,
@@ -260,78 +265,62 @@ class ActionsBar extends PureComponent {
             isMeteorConnected,
           }}
           />
-          {isPollingEnabled
-            ? (
-              <QuickPollDropdown
-                {...{
-                  currentSlidHasContent,
-                  intl,
-                  amIPresenter,
-                  parseCurrentSlideContent,
-                }}
-              />
-            ) : null
-          }
           {isCaptionsAvailable
             ? (
               <CaptionsButtonContainer {...{ intl }} />
             )
-            : null
-          }
+            : null}
         </div>
-        <div className={cx(actionBarClasses)}>
-          <AudioControlsContainer />
+        <div className={styles.center}>
+          <AudioControlsContainer
+              currentLanguage={this.state.translationLanguage}
+
+          />
           {enableVideo
             ? (
               <JoinVideoOptionsContainer />
             )
             : null}
-          <DesktopShare {...{
-            handleShareScreen,
-            handleUnshareScreen,
-            isVideoBroadcasting,
+          <ScreenshareButtonContainer {...{
             amIPresenter,
-            screenSharingCheck,
-            screenShareEndAlert,
             isMeteorConnected,
-            screenshareDataSavingSetting,
           }}
           />
           { this.state.showLanguageChoice ?
               (
                   <div className={["sailingShip", styles.languageOverlay, styles.translationLanguageOverlay].join(' ')}>
                     <LanguageOverlay
-                      current={this.state.translationLanguage}
-                      filteredLanguages={this.state.translatorLanguage ? [this.state.translatorLanguage] : []}
-                      filterMarker={intl.formatMessage(intlMessages.filterMarkerLanguageTranslating)}
-                      clickHandler={this.handleLanguageSelection.bind(this)}
-                      intl={intl}
+                        current={this.state.translationLanguage}
+                        filteredLanguages={this.state.translatorLanguage ? [this.state.translatorLanguage] : []}
+                        filterMarker={intl.formatMessage(intlMessages.filterMarkerLanguageTranslating)}
+                        clickHandler={this.handleLanguageSelection.bind(this)}
+                        intl={intl}
                     />
                   </div>
               ):null
           }
           {hasLanguages
-            ? (
-              <div id={"translationButton"}>
-                <Button
-                  customIcon={
-                    <img
-                      className="icon-bbb-translation"
-                      src='/html5client/svgs/bbb_translations_icon.svg'
+              ? (
+                  <div id={"translationButton"}>
+                    <Button
+                        customIcon={
+                          <img
+                              className="icon-bbb-translation"
+                              src='/html5client/svgs/bbb_translations_icon.svg'
+                          />
+                        }
+                        color='primary'
+                        label={intl.formatMessage(intlMessages.selectTranslationLabel)}
+                        circle
+                        hideLabel
+                        size="lg"
+                        onClick={this.toggleTranslationSelection.bind(this)}
                     />
-                  }
-                  color='primary'
-                  label={intl.formatMessage(intlMessages.selectTranslationLabel)}
-                  circle
-                  hideLabel
-                  size="lg"
-                  onClick={this.toggleTranslationSelection.bind(this)}
-                />
-              </div>
-            )
-            : null
+                  </div>
+              )
+              : null
           }
-          { amIModerator && hasLanguages ?
+          { amIModerator && hasLanguages && showTranslatorMicButton ?
               (
                   <Button
                       className={[amIAsTranslatorMuted ? styles.btnmuted: "", styles.translatorBtn ].join(" ")}
@@ -372,32 +361,58 @@ class ActionsBar extends PureComponent {
               (
                   <div className={["sailingShip", styles.languageOverlay, styles.translatorLanguageOverlay].join(' ')}>
                     <LanguageOverlay
-                      translator={true}
-                      current={this.state.translatorLanguage}
-                      filteredLanguages={this.state.translationLanguage ? [this.state.translationLanguage] : []}
-                      filterMarker={intl.formatMessage(intlMessages.filterMarkerLanguageListening)}
-                      clickHandler={this.handleTranslatorLanguageSelection.bind(this)}
-                      intl={intl}
+                        translator={true}
+                        current={this.state.translatorLanguage}
+                        filteredLanguages={this.state.translationLanguage ? [this.state.translationLanguage] : []}
+                        filterMarker={intl.formatMessage(intlMessages.filterMarkerLanguageListening)}
+                        clickHandler={this.handleTranslatorLanguageSelection.bind(this)}
+                        intl={intl}
                     />
                   </div>
               ):null
           }
-
         </div>
         <div className={styles.right}>
-          {isLayoutSwapped
+          {isLayoutSwapped && !isPresentationDisabled
             ? (
               <PresentationOptionsContainer
                 toggleSwapLayout={toggleSwapLayout}
                 isThereCurrentPresentation={isThereCurrentPresentation}
               />
             )
-            : null
-          }
+            : null}
+          {isRaiseHandButtonEnabled
+            ? (
+              <Button
+                icon="hand"
+                label={intl.formatMessage({
+                  id: `app.actionsBar.emojiMenu.${
+                    currentUser.emoji === 'raiseHand'
+                      ? 'lowerHandLabel'
+                      : 'raiseHandLabel'
+                  }`,
+                })}
+                accessKey={shortcuts.raisehand}
+                color={currentUser.emoji === 'raiseHand' ? 'primary' : 'default'}
+                data-test={currentUser.emoji === 'raiseHand' ? 'lowerHandLabel' : 'raiseHandLabel'}
+                ghost={currentUser.emoji !== 'raiseHand'}
+                className={cx(currentUser.emoji === 'raiseHand' || styles.btn)}
+                hideLabel
+                circle
+                size="lg"
+                onClick={() => {
+                  setEmojiStatus(
+                    currentUser.userId,
+                    currentUser.emoji === 'raiseHand' ? 'none' : 'raiseHand',
+                  );
+                }}
+              />
+            )
+            : null}
         </div>
       </div>
     );
   }
 }
 
-export default ActionsBar;
+export default withShortcutHelper(ActionsBar, ['raiseHand']);

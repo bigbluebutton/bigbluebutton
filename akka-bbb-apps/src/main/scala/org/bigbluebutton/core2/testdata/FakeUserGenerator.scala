@@ -54,25 +54,27 @@ object FakeUserGenerator {
       RandomStringGenerator.randomAlphanumericString(10) + ".png"
 
     val ru = RegisteredUsers.create(userId = id, extId, name, role,
-      authToken, avatarURL, guest, authed, guestStatus = GuestStatus.ALLOW)
+      authToken, avatarURL, guest, authed, guestStatus = GuestStatus.ALLOW, false)
     RegisteredUsers.add(users, ru)
     ru
   }
 
   def createFakeVoiceUser(user: RegisteredUser, callingWith: String, muted: Boolean, talking: Boolean,
-                          listenOnly: Boolean): VoiceUserState = {
+                          listenOnly: Boolean, floor: Boolean = false): VoiceUserState = {
     val voiceUserId = RandomStringGenerator.randomAlphanumericString(8)
+    val lastFloorTime = System.currentTimeMillis().toString();
     VoiceUserState(intId = user.id, voiceUserId = voiceUserId, callingWith, callerName = user.name,
-      callerNum = user.name, muted, talking, listenOnly, "freeswitch", System.currentTimeMillis())
+      callerNum = user.name, muted, talking, listenOnly, "freeswitch", System.currentTimeMillis(), floor, lastFloorTime)
   }
 
   def createFakeVoiceOnlyUser(callingWith: String, muted: Boolean, talking: Boolean,
-                              listenOnly: Boolean): VoiceUserState = {
+                              listenOnly: Boolean, floor: Boolean = false): VoiceUserState = {
     val voiceUserId = RandomStringGenerator.randomAlphanumericString(8)
     val intId = "v_" + RandomStringGenerator.randomAlphanumericString(16)
     val name = getRandomElement(firstNames, random) + " " + getRandomElement(lastNames, random)
+    val lastFloorTime = System.currentTimeMillis().toString();
     VoiceUserState(intId, voiceUserId = voiceUserId, callingWith, callerName = name,
-      callerNum = name, muted, talking, listenOnly, "freeswitch", System.currentTimeMillis())
+      callerNum = name, muted, talking, listenOnly, "freeswitch", System.currentTimeMillis(), floor, lastFloorTime)
   }
 
   def createFakeWebcamStreamFor(userId: String, viewers: Set[String]): WebcamStream = {
