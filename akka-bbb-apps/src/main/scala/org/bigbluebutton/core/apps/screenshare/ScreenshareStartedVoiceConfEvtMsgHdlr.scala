@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.screenshare
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.ScreenshareModel
+import org.bigbluebutton.core.apps.{ ScreenshareModel, ExternalVideoModel }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.{ LiveMeeting }
 
@@ -33,6 +33,8 @@ trait ScreenshareStartedVoiceConfEvtMsgHdlr {
         "/" + liveMeeting.props.meetingProp.intId + "/" + liveMeeting.props.meetingProp.intId + "-" + timestamp
 
       log.info("handleScreenshareStartedRequest: streamPath=" + streamPath)
+
+      ExternalVideoModel.stop(liveMeeting.externalVideoModel)
 
       // Tell FreeSwitch to broadcast to RTMP
       val msgEvent = broadcastEvent(msg.body.voiceConf, msg.body.screenshareConf, streamPath, timestamp)

@@ -19,10 +19,6 @@ trait UpdateExternalVideoPubMsgHdlr extends RightsManagementTrait {
       bus.outGW.send(msgEvent)
     }
 
-    if (msg.header.userId.contains("system")) {
-      return broadcastEvent(msg)
-    }
-
     if (permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "You need to be the presenter to update external video"

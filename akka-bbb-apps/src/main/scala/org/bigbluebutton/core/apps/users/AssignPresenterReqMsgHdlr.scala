@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.presentationpod.SetPresenterInPodActionHandler
+import org.bigbluebutton.core.apps.{ ExternalVideoModel }
 import org.bigbluebutton.core.models.{ PresentationPod, UserState, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
@@ -69,6 +70,7 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
       } yield {
         Users2x.makeNotPresenter(liveMeeting.users2x, oldPres.intId)
         broadcastOldPresenterChange(oldPres)
+        ExternalVideoModel.stop(liveMeeting.externalVideoModel)
       }
 
       for {
