@@ -482,6 +482,7 @@ class App extends Component {
                 <SidebarContentContainer />
                 <NewWebcamContainer />
                 <PresentationPodsContainer />
+                <ModalContainer />
               </div>
             </>
           )}
