@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Button from '/imports/ui/components/button/component';
-import NoteService from './service';
+import NoteService from '/imports/ui/components/note/service';
 import { styles } from './styles';
+import { PANELS, ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
   hideNoteLabel: {
@@ -47,6 +47,7 @@ class Note extends Component {
       isLocked,
       intl,
       isRTL,
+      newLayoutContextDispatch,
     } = this.props;
 
     const url = isLocked ? this.readOnlyURL : this.noteURL;
@@ -62,8 +63,14 @@ class Note extends Component {
           >
             <Button
               onClick={() => {
-                Session.set('openPanel', 'userlist');
-                window.dispatchEvent(new Event('panelChanged'));
+                newLayoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                  value: false,
+                });
+                newLayoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                  value: PANELS.NONE,
+                });
               }}
               data-test="hideNoteLabel"
               aria-label={intl.formatMessage(intlMessages.hideNoteLabel)}

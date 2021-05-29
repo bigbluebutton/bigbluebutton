@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
 import Draggable from 'react-draggable';
 import Resizable from 're-resizable';
-import { styles } from './styles.scss';
+import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
+import { styles } from './styles.scss';
 import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
 import Toggle from '/imports/ui/components/switch/component';
 import Storage from '/imports/ui/services/storage/session';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
+import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
+import NewLayoutContext from '../layout/context/context';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 
 const intlMessages = defineMessages({
@@ -39,6 +42,14 @@ const intlMessages = defineMessages({
     id: 'app.debugWindow.form.enableAutoarrangeLayoutDescription',
     description: 'Enable Autoarrange layout description',
   },
+  on: {
+    id: 'app.switch.onLabel',
+    description: 'label for toggle switch on state',
+  },
+  off: {
+    id: 'app.switch.offLabel',
+    description: 'label for toggle switch off state',
+  },
 });
 
 const DEBUG_WINDOW_ENABLED = Meteor.settings.public.app.enableDebugWindow;
@@ -51,7 +62,11 @@ class DebugWindow extends Component {
     this.state = {
       showDebugWindow: false,
       logLevel: ChatLogger.getLogLevel(),
+      autoArrangeLayout: Storage.getItem('autoArrangeLayout'),
     };
+
+    this.setLayoutManagerToLoad = this.setLayoutManagerToLoad.bind(this);
+    this.setLayoutType = this.setLayoutType.bind(this);
   }
 
   componentDidMount() {
@@ -69,6 +84,23 @@ class DebugWindow extends Component {
     this.setState({ showDebugWindow });
   }
 
+  setLayoutManagerToLoad(event) {
+    const { newLayoutContextDispatch } = this.props;
+    Session.set('layoutManagerLoaded', event.target.value);
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_LAYOUT_LOADED,
+      value: event.target.value,
+    });
+  }
+
+  setLayoutType(event) {
+    const { newLayoutContextDispatch } = this.props;
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_LAYOUT_TYPE,
+      value: event.target.value,
+    });
+  }
+
   debugWindowToggle() {
     const { showDebugWindow } = this.state;
     if (showDebugWindow) {
@@ -78,15 +110,32 @@ class DebugWindow extends Component {
     }
   }
 
+  displaySettingsStatus(status) {
+    const { intl } = this.props;
+
+    return (
+      <span className={styles.toggleLabel}>
+        {status ? intl.formatMessage(intlMessages.on)
+          : intl.formatMessage(intlMessages.off)}
+      </span>
+    );
+  }
+
   autoArrangeToggle() {
     const { layoutContextDispatch } = this.props;
     const autoArrangeLayout = Storage.getItem('autoArrangeLayout');
+
+    this.setState({
+      autoArrangeLayout: !autoArrangeLayout,
+    });
+
     layoutContextDispatch(
       {
         type: 'setAutoArrangeLayout',
         value: !autoArrangeLayout,
       },
     );
+
     window.dispatchEvent(new Event('autoArrangeChanged'));
   }
 
@@ -96,8 +145,11 @@ class DebugWindow extends Component {
 
     if (!DEBUG_WINDOW_ENABLED || !showDebugWindow) return false;
 
-    const { intl } = this.props;
-    const autoArrangeLayout = Storage.getItem('autoArrangeLayout');
+    const { intl, newLayoutContextState } = this.props;
+    const { layoutType } = newLayoutContextState;
+    const layoutManagerLoaded = Session.get('layoutManagerLoaded');
+    const { autoArrangeLayout } = this.state;
+
     return (
       <Draggable
         handle="#debugWindowHeader"
@@ -185,14 +237,55 @@ class DebugWindow extends Component {
                   </div>
                   <div className={styles.cell}>
                     <div className={styles.cellContent}>
+                      {this.displaySettingsStatus(autoArrangeLayout)}
                       <Toggle
                         className={styles.autoArrangeToggle}
                         icons={false}
                         defaultChecked={autoArrangeLayout}
                         onChange={() => this.autoArrangeToggle()}
                         ariaLabel={intl.formatMessage(intlMessages.enableAutoarrangeLayoutLabel)}
+                        showToggleLabel={false}
                       />
                       <p>{`${intl.formatMessage(intlMessages.enableAutoarrangeLayoutDescription)}`}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.row}>
+                  <div className={styles.cell}>
+                    Layout
+                  </div>
+                  <div className={styles.cell}>
+                    <div className={styles.cellContent}>
+                      {/* <Toggle
+                        className={styles.autoArrangeToggle}
+                        icons={false}
+                        defaultChecked
+                        ariaLabel="teste"
+                      /> */}
+                      <select
+                        value={layoutManagerLoaded}
+                        onChange={this.setLayoutManagerToLoad}
+                      >
+                        <option value="legacy">Legacy</option>
+                        <option value="new">New Layout Manager</option>
+                        <option value="both">Both</option>
+                      </select>
+                      {
+                        layoutManagerLoaded === 'new'
+                        && (
+                          <select
+                            value={layoutType}
+                            onChange={this.setLayoutType}
+                          >
+                            <option value={LAYOUT_TYPE.CUSTOM_LAYOUT}>Custom</option>
+                            <option value={LAYOUT_TYPE.SMART_LAYOUT}>Smart Layout</option>
+                            <option value={LAYOUT_TYPE.VIDEO_FOCUS}>Focus on Video</option>
+                            <option value={LAYOUT_TYPE.PRESENTATION_FOCUS}>
+                              Focus on Presentation
+                            </option>
+                          </select>
+                        )
+                      }
                     </div>
                   </div>
                 </div>
@@ -240,4 +333,4 @@ class DebugWindow extends Component {
   }
 }
 
-export default withLayoutConsumer(injectIntl(DebugWindow));
+export default withLayoutConsumer(injectIntl(NewLayoutContext.withConsumer(DebugWindow)));

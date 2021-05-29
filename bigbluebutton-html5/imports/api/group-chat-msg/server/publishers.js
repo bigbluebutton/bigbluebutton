@@ -20,7 +20,7 @@ function groupChatMsg(chatsIds) {
 
   Logger.debug('Publishing group-chat-msg', { meetingId, userId });
 
-  const User = Users.findOne({ userId });
+  const User = Users.findOne({ userId, meetingId });
   const selector = {
     timestamp: { $gte: User.authTokenValidatedTime },
     $or: [

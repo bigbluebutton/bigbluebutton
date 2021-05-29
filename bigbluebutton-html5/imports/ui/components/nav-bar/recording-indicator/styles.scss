@@ -12,6 +12,7 @@
 %recordingControl {
   display: flex;
   border-radius: 2em 2em;
+  align-items: center;
 
   span {
     border: none;
@@ -86,7 +87,9 @@
 }
 
 .presentationTitleMargin {
-  margin-left: var(--sm-padding-x);
+  [dir="ltr"] & {
+    margin-right: var(--sm-padding-x);
+  }
 }
 
 .recordingStatusViewOnly {

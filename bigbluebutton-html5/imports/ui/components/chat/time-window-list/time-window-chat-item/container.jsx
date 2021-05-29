@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import TimeWindowChatItem from './component';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
-import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import ChatService from '../../service';
+import { NLayoutContext } from '../../../layout/context/context';
 import Auth from '/imports/ui/services/auth';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -13,13 +13,13 @@ const extractPollQuestion = (pollText) => {
   if (!pollText) return {};
 
   const pollQuestion = pollText.split('<br/>')[0];
-  pollText = pollText.replace(`${pollQuestion}<br/>`,'');
+  const newPollText = pollText.replace(`${pollQuestion}<br/>`, '');
 
-  return { pollQuestion, pollText };
+  return { pollQuestion, newPollText };
 };
 
 const isDefaultPoll = (pollText) => {
-  const { pollQuestion, pollText: newPollText} = extractPollQuestion(pollText);
+  const { newPollText } = extractPollQuestion(pollText);
 
   const pollValue = newPollText.replace(/<br\/>|[ :|%\n\d+]/g, '');
   switch (pollValue) {
@@ -30,11 +30,14 @@ const isDefaultPoll = (pollText) => {
       return false;
   }
 };
-export default function TimeWindowChatItemContainer(props) {
-  ChatLogger.debug('TimeWindowChatItemContainer::render', { ...props });
+
+const TimeWindowChatItemContainer = (props) => {
   const { message, messageId } = props;
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextState } = newLayoutContext;
+  const { idChatOpen } = newLayoutContextState;
   const usingUsersContext = useContext(UsersContext);
-  const  { users } = usingUsersContext;
+  const { users } = usingUsersContext;
   const {
     sender,
     key,
@@ -44,6 +47,7 @@ export default function TimeWindowChatItemContainer(props) {
   const messages = content;
   const user = users[Auth.meetingID][sender];
   const messageKey = key;
+  const handleReadMessage = (tstamp) => ChatService.updateUnreadMessage(tstamp, idChatOpen);
   return (
     <TimeWindowChatItem
       {
@@ -61,10 +65,12 @@ export default function TimeWindowChatItemContainer(props) {
         timestamp,
         systemMessage: messageId.startsWith(SYSTEM_CHAT_TYPE) || !sender,
         messageKey,
-        handleReadMessage: ChatService.updateUnreadMessage,
+        handleReadMessage,
         ...props,
       }
       }
     />
   );
-}
+};
+
+export default TimeWindowChatItemContainer;

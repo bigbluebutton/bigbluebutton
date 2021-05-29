@@ -104,7 +104,7 @@ class MessageChatItem extends PureComponent {
           return;
         }
 
-        if (isElementInViewport(node) && !read) {
+        if (isElementInViewport(node)) {
           handleReadMessage(time);
           this.removeScrollListeners();
         }
@@ -183,7 +183,7 @@ class MessageChatItem extends PureComponent {
 
     let _text = text.replace('bbb-published-poll-<br/>', '');
 
-    const { pollQuestion, pollText: newPollText } = extractPollQuestion(_text);
+    const { pollQuestion, newPollText } = extractPollQuestion(_text);
     _text = newPollText;
 
     if (!isDefaultPoll) {

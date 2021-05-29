@@ -1,5 +1,4 @@
 import {
-  SFU_CLIENT_SIDE_ERRORS,
   SFU_SERVER_SIDE_ERRORS
 } from '/imports/ui/services/bbb-webrtc-sfu/broker-base-errors';
 
@@ -53,8 +52,6 @@ const SCREENSHARING_ERRORS = expandErrors();
 
 export {
   GDM_ERRORS,
-  BRIDGE_SERVER_SIDE_ERRORS,
-  BRIDGE_CLIENT_SIDE_ERRORS,
   // All errors, [code]: [message]
   // Expanded errors. It's AGGREGATED + message: { errorCode, errorMessage }
   SCREENSHARING_ERRORS,

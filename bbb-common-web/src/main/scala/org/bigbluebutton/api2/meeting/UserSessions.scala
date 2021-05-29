@@ -5,7 +5,7 @@ case class UserSession2(authToken: String, internalUserId: String, conferencenam
                         role: String, conference: String, room: String, guest: Boolean = false,
                         authed: Boolean = false, voicebridge: String, webvoiceconf: String,
                         mode: String, record: String, welcome: String, logoutUrl: String,
-                        defaultLayout: String = "NOLAYOUT", avatarURL: String, configXML: String)
+                        defaultLayout: String = "NOLAYOUT", avatarURL: String)
 
 class UserSessions {
 

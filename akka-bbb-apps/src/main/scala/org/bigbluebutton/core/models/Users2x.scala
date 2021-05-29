@@ -68,7 +68,13 @@ object Users2x {
   }
 
   def updateLastUserActivity(users: Users2x, u: UserState): UserState = {
-    val newUserState = modify(u)(_.lastActivityTime).setTo(TimeUtil.timeNowInMs())
+    val newUserState = modify(u)(_.lastActivityTime).setTo(System.currentTimeMillis())
+    users.save(newUserState)
+    newUserState
+  }
+
+  def updateLastInactivityInspect(users: Users2x, u: UserState): UserState = {
+    val newUserState = modify(u)(_.lastInactivityInspect).setTo(System.currentTimeMillis())
     users.save(newUserState)
     newUserState
   }
@@ -257,21 +263,22 @@ case class OldPresenter(userId: String, changedPresenterOn: Long)
 case class UserLeftFlag(left: Boolean, leftOn: Long)
 
 case class UserState(
-    intId:            String,
-    extId:            String,
-    name:             String,
-    role:             String,
-    guest:            Boolean,
-    authed:           Boolean,
-    guestStatus:      String,
-    emoji:            String,
-    locked:           Boolean,
-    presenter:        Boolean,
-    avatar:           String,
-    roleChangedOn:    Long         = System.currentTimeMillis(),
-    lastActivityTime: Long         = TimeUtil.timeNowInMs(),
-    clientType:       String,
-    userLeftFlag:     UserLeftFlag
+    intId:                 String,
+    extId:                 String,
+    name:                  String,
+    role:                  String,
+    guest:                 Boolean,
+    authed:                Boolean,
+    guestStatus:           String,
+    emoji:                 String,
+    locked:                Boolean,
+    presenter:             Boolean,
+    avatar:                String,
+    roleChangedOn:         Long         = System.currentTimeMillis(),
+    lastActivityTime:      Long         = System.currentTimeMillis(),
+    lastInactivityInspect: Long         = 0,
+    clientType:            String,
+    userLeftFlag:          UserLeftFlag
 )
 
 case class UserIdAndName(id: String, name: String)
