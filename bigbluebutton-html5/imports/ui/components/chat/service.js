@@ -266,7 +266,7 @@ const exportChat = (timeWindowList, users, intl) => {
       } else if (message.id.includes(CHAT_POLL_RESULTS_MESSAGE)) {
         userName = `${intl.formatMessage(intlMessages.pollResult)}:\n`;
         const { pollResultData } = timeWindow.extra;
-        const pollText = htmlDecode(PollService.getPollResultString(pollResultData, intl));
+        const pollText = htmlDecode(PollService.getPollResultString(pollResultData, intl).split('<br/>').join('\n'));
         // remove last \n to avoid empty line
         messageText = pollText.slice(0, -1);
       } else {
