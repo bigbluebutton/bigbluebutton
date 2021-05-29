@@ -380,7 +380,7 @@ public:
   poll:
     enabled: true
     max_custom: 5
-    allowDragAndDropFile: false
+    allowDragAndDropFile: true
     maxTypedAnswerLength: 45
   captions:
     enabled: true

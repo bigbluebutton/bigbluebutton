@@ -95,7 +95,7 @@ class TimeWindowChatItem extends PureComponent {
                   text={intlMessages[message.text] ? intl.formatMessage(intlMessages[message.text]) : message.text }
                   time={message.time}
                   isSystemMessage={message.id ? true : false}
-                  systemMessageType={message.text === 'PUBLIC_CHAT_CLEAR' ? 'chatClearMessageText' : 'chatWelcomeMessageText'}
+                  systemMessageType={message.text === CHAT_CLEAR_MESSAGE ? 'chatClearMessageText' : 'chatWelcomeMessageText'}
                   chatAreaId={chatAreaId}
                   handleReadMessage={handleReadMessage}
                 />
@@ -194,7 +194,6 @@ class TimeWindowChatItem extends PureComponent {
       timestamp,
       color,
       intl,
-      isDefaultPoll,
       getPollResultString,
       messages,
       extra,
@@ -231,16 +230,13 @@ class TimeWindowChatItem extends PureComponent {
               type="poll"
               className={cx(styles.message, styles.pollWrapper)}
               key={messages[0].id}
-              text={messages[0].text}
-              pollResultData={extra.pollResultData}
+              text={getPollResultString(extra.pollResultData, intl)}
               time={messages[0].time}
               chatAreaId={chatAreaId}
               lastReadMessageTime={lastReadMessageTime}
               handleReadMessage={handleReadMessage}
               scrollArea={scrollArea}
               color={color}
-              isDefaultPoll={isDefaultPoll(extra.pollResultData.pollType)}
-              getPollResultString={getPollResultString}
             />
           </div>
         </div>

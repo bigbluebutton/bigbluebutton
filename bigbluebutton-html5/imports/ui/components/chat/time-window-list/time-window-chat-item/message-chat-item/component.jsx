@@ -2,9 +2,8 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import fastdom from 'fastdom';
-import { defineMessages, injectIntl } from 'react-intl';
+import { injectIntl } from 'react-intl';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
-import PollListItem from './poll-list-item/component';
 
 const propTypes = {
   text: PropTypes.string.isRequired,
@@ -35,17 +34,6 @@ const isElementInViewport = (el) => {
     || rect.top + rect.height >= 0
   );
 };
-
-const intlMessages = defineMessages({
-  legendTitle: {
-    id: 'app.polling.pollingTitle',
-    description: 'heading for chat poll legend',
-  },
-  pollQuestionTitle: {
-    id: 'app.polling.pollQuestionTitle',
-    description: 'title displayed before poll question',
-  },
-});
 
 class MessageChatItem extends PureComponent {
   constructor(props) {
@@ -163,7 +151,6 @@ class MessageChatItem extends PureComponent {
 
   render() {
     const {
-      intl,
       text,
       type,
       className,
@@ -171,31 +158,28 @@ class MessageChatItem extends PureComponent {
       chatUserMessageItem,
       systemMessageType,
       color,
-      isDefaultPoll,
-      getPollResultString,      
-      pollResultData,
     } = this.props;
     ChatLogger.debug('MessageChatItem::render', this.props);
-    if (type === 'poll') return (
-      <PollListItem
-        intl={intl}
-        text={text}
-        pollResultData={pollResultData}
-        className={className}
-        color={color}
-        isDefaultPoll={isDefaultPoll}
-        getPollResultString={getPollResultString}
-      />      
-    )
-
-    return (
-      <p
-        className={className}
-        ref={(ref) => { this.text = ref; }}
-        dangerouslySetInnerHTML={{ __html: text }}
-        data-test={isSystemMessage ? systemMessageType : chatUserMessageItem ? 'chatUserMessageText' : ''}
-      />
-    );
+    if (type === 'poll') {
+      return (
+        <p
+          className={className}
+          style={{ borderLeft: `3px ${color} solid`, whiteSpace: 'pre-wrap' }}
+          ref={(ref) => { this.text = ref; }}
+          dangerouslySetInnerHTML={{ __html: text }}
+          data-test="chatPollMessageText"
+        />
+      );
+    } else {
+      return (
+        <p
+          className={className}
+          ref={(ref) => { this.text = ref; }}
+          dangerouslySetInnerHTML={{ __html: text }}
+          data-test={isSystemMessage ? systemMessageType : chatUserMessageItem ? 'chatUserMessageText' : ''}
+        />
+      );
+    }
   }
 }
 

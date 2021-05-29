@@ -2,6 +2,7 @@ import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import Polls from '/imports/api/polls';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
+import { defineMessages } from 'react-intl';
 
 const POLL_AVATAR_COLOR = '#3B48A9';
 const MAX_POLL_RESULT_BARS = 20;
@@ -69,7 +70,18 @@ const pollAnswerIds = {
   },
 };
 
-const getPollResultString = (isDefaultPoll, answers, numRespondents, intl) => {
+const intlMessages = defineMessages({
+  legendTitle: {
+    id: 'app.polling.pollingTitle',
+    description: 'heading for chat poll legend',
+  },
+  pollQuestionTitle: {
+    id: 'app.polling.pollQuestionTitle',
+    description: 'title displayed before poll question',
+  },
+});
+
+const getPollResultsText = (isDefaultPoll, answers, numRespondents, intl) => {
   let responded = 0;
   let resultString = '';
   let optionsString = '';
@@ -92,6 +104,42 @@ const getPollResultString = (isDefaultPoll, answers, numRespondents, intl) => {
   });
 
   return { resultString, optionsString };
+}
+
+const isDefaultPoll = (pollType) => { 
+  return pollType !== pollTypes.Custom && pollType !== pollTypes.Response
+}
+
+const getPollResultString = (pollResultData, intl) => {
+  const formatBoldBlack = s => s.bold().fontcolor('black');
+
+  // Sanitize. See: https://gist.github.com/sagewall/47164de600df05fb0f6f44d48a09c0bd
+  const sanitize = (value) => {
+    const div = document.createElement('div');
+    div.appendChild(document.createTextNode(value));
+    return div.innerHTML;
+  };
+
+  const { answers, numRespondents, pollType } = pollResultData;
+  const ísDefault = isDefaultPoll(pollType)
+  let { resultString, optionsString } = getPollResultsText(ísDefault, answers, numRespondents, intl)
+  resultString = sanitize(resultString);
+  optionsString = sanitize(optionsString);
+
+  let pollText = formatBoldBlack(resultString);
+  if (!ísDefault) {
+    pollText += formatBoldBlack(`<br/><br/>${intl.formatMessage(intlMessages.legendTitle)}<br/>`);
+    pollText += optionsString;
+  }
+
+  const pollQuestion = pollResultData.questionText;
+  if (pollQuestion.trim() !== '') {
+    const sanitizedPollQuestion = sanitize(pollQuestion.split('<br#>').join(' '));
+
+    pollText = `${formatBoldBlack(intl.formatMessage(intlMessages.pollQuestionTitle))}<br/>${sanitizedPollQuestion}<br/><br/>${pollText}`;
+  }
+
+  return pollText;
 }
 
 const matchYesNoPoll = (yesValue, noValue, contentString) => {
@@ -160,7 +208,7 @@ export default {
   currentPoll: () => Polls.findOne({ meetingId: Auth.meetingID }),
   pollAnswerIds,
   POLL_AVATAR_COLOR,
-  isDefaultPoll: (pollType) => { return pollType !== pollTypes.Custom && pollType !== pollTypes.Response},
+  isDefaultPoll: isDefaultPoll,
   getPollResultString: getPollResultString,
   matchYesNoPoll: matchYesNoPoll,
   matchYesNoAbstentionPoll: matchYesNoAbstentionPoll,
