@@ -19,7 +19,7 @@ const extractPollQuestion = (pollText) => {
 };
 
 const isDefaultPoll = (pollText) => {
-  const { pollText: newPollText } = extractPollQuestion(pollText);
+  const { newPollText } = extractPollQuestion(pollText);
 
   const pollValue = newPollText.replace(/<br\/>|[ :|%\n\d+]/g, '');
   switch (pollValue) {
