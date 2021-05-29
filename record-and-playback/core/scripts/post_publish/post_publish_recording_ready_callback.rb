@@ -38,6 +38,7 @@ meeting_id = opts[:meeting_id]
 
 processed_files = "/var/bigbluebutton/recording/process/presentation/#{meeting_id}"
 meeting_metadata = BigBlueButton::Events.get_meeting_metadata("/var/bigbluebutton/recording/raw/#{meeting_id}/events.xml")
+bbb_web_properties = "/etc/bigbluebutton/bbb-web.properties"
 
 #
 # Main code
@@ -54,7 +55,7 @@ begin
   unless callback_url.nil?
     BigBlueButton.logger.info("Making callback for recording ready notification")
 
-    props = JavaProperties::Properties.new("/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties")
+    props = JavaProperties::Properties.new(bbb_web_properties)
     secret = props[:securitySalt]
     external_meeting_id = meeting_metadata["meetingId"].value
 
