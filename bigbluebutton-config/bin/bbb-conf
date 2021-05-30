@@ -66,7 +66,7 @@
 #   2019-11-09 GTR  Keep HTML5 client logs permissions when cleaning logs
 #   2020-05-20 NJH  Add port 443 to --Network and clean up tmp file.
 #   2020-06-23 JFS  Remove defaultGuestPolicy warning for HTML5 client
-#   2020-10-22 AGG  Removing Flash/Red5 related code
+#   2020-10-22 AGG  Removing Flash/Red5 related code (yay!)
 
 #set -x
 #set -e
