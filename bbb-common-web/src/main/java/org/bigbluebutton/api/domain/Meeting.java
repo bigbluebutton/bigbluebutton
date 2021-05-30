@@ -82,6 +82,7 @@ public class Meeting {
 	private String customCopyright = "";
 	private Boolean muteOnStart = false;
 	private Boolean allowModsToUnmuteUsers = false;
+	private Boolean allowModsToChangeUsernames = false;
 	private Boolean meetingKeepEvents;
 
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
@@ -483,6 +484,14 @@ public class Meeting {
 
 	public Boolean getAllowModsToUnmuteUsers() {
 		return allowModsToUnmuteUsers;
+	}
+
+	public void setAllowModsToChangeUsernames(Boolean value) {
+		allowModsToChangeUsernames = value;
+	}
+
+	public Boolean getAllowModsToChangeUsernames() {
+		return allowModsToChangeUsernames;
 	}
 
 	public void userJoined(User user) {

@@ -308,6 +308,7 @@ const getUsersProp = () => {
     {
       fields: {
         'usersProp.allowModsToUnmuteUsers': 1,
+        'usersProp.allowModsToChangeUsernames': 1,
         'usersProp.authenticatedGuest': 1,
       },
     },
@@ -317,6 +318,7 @@ const getUsersProp = () => {
 
   return {
     allowModsToUnmuteUsers: false,
+    allowModsToChangeUsernames: false,
     authenticatedGuest: false,
   };
 };
@@ -361,8 +363,8 @@ const getAvailableActions = (
     && !amISubjectUser
     && !isBreakoutRoom;
 
-  const allowedToChangeUserName = amIModerator
-    && (!isSubjectUserModerator || amISubjectUser);
+  const allowedToChangeUserName = usersProp.allowModsToChangeUsernames
+    && (amIModerator && (!isSubjectUserModerator || amISubjectUser));
 
   const allowedToSetPresenter = amIModerator
     && !subjectUser.presenter

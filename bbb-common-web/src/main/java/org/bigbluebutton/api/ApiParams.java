@@ -45,6 +45,7 @@ public class ApiParams {
     public static final String MUTE_ON_START = "muteOnStart";
     public static final String MEETING_KEEP_EVENTS = "meetingKeepEvents";
     public static final String ALLOW_MODS_TO_UNMUTE_USERS = "allowModsToUnmuteUsers";
+    public static final String ALLOW_MODS_TO_CHANGE_USERNAMES = "allowModsToChangeUsernames";
     public static final String NAME = "name";
     public static final String PARENT_MEETING_ID = "parentMeetingID";
     public static final String PASSWORD = "password";
