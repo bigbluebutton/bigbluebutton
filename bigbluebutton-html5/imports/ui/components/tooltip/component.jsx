@@ -48,6 +48,7 @@ class Tooltip extends Component {
 
     const options = {
       aria: null,
+      allowHTML: false,
       animation: animations ? DEFAULT_ANIMATION : ANIMATION_NONE,
       arrow: roundArrow,
       boundary: 'window',
@@ -60,7 +61,7 @@ class Tooltip extends Component {
       placement: position,
       touch: 'hold',
       theme: 'bbbtip',
-      multiple:	false,
+      multiple: false,
       onBeforeUpdate: () => {
         hideAll();
       },
