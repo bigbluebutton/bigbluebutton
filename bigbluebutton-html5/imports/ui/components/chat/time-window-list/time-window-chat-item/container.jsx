@@ -37,7 +37,6 @@ export default function TimeWindowChatItemContainer(props) {
         read: message.read,
         messages,
         extra,
-        isDefaultPoll: PollService.isDefaultPoll,
         getPollResultString: PollService.getPollResultString,
         user,
         timestamp,

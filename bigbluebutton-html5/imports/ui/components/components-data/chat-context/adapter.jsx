@@ -11,6 +11,8 @@ let currentUserData = {};
 let messageQueue = [];
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
+const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
+const CHAT_CLEAR_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_clear;
 const ITENS_PER_PAGE = CHAT_CONFIG.itemsPerPage;
 const TIME_BETWEEN_FETCHS = CHAT_CONFIG.timeBetweenFetchs;
 const EVENT_NAME = 'bbb-group-chat-messages-subscription-has-stoppped';
@@ -116,7 +118,7 @@ const Adapter = () => {
         const parsedMsg = JSON.parse(msg.data);
         if (parsedMsg.msg === 'added') {
           const { fields } = parsedMsg;
-          if (fields.id === 'SYSTEM_MESSAGE-PUBLIC_CHAT_CLEAR') {
+          if (fields.id === `${SYSTEM_CHAT_TYPE}-${CHAT_CLEAR_MESSAGE}`) {
             messageQueue = [];
             dispatch({
               type: ACTIONS.REMOVED,

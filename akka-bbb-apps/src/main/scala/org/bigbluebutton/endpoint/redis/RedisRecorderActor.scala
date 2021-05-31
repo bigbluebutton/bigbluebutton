@@ -582,7 +582,7 @@ class RedisRecorderActor(
   private def handlePollShowResultEvtMsg(msg: PollShowResultEvtMsg): Unit = {
     val ev = new PollPublishedRecordEvent()
     ev.setPollId(msg.body.pollId)
-    ev.setQuestion(msg.body.poll.title.getOrElse(""))
+    ev.setQuestion(msg.body.poll.questionText.getOrElse(""))
     ev.setAnswers(msg.body.poll.answers)
     ev.setNumRespondents(msg.body.poll.numRespondents)
     ev.setNumResponders(msg.body.poll.numResponders)
