@@ -60,10 +60,12 @@ const AppContainer = (props) => {
   } = props;
   const {
     input,
+    output,
     layoutType,
     deviceType,
   } = newLayoutContextState;
   const { sidebarContent, sidebarNavigation } = input;
+  const { actionBar: actionsBarStyle } = output;
   const { sidebarNavPanel } = sidebarNavigation;
   const { sidebarContentPanel } = sidebarContent;
   const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
@@ -73,6 +75,7 @@ const AppContainer = (props) => {
     <App
       {...{
         actionsbar,
+        actionsBarStyle,
         media,
         layoutType,
         deviceType,
