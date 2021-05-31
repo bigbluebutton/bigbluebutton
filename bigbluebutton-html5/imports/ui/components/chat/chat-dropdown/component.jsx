@@ -30,6 +30,8 @@ const intlMessages = defineMessages({
     description: 'Chat Options',
   },
 });
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const ENABLE_SAVE_AND_COPY_PUBLIC_CHAT = CHAT_CONFIG.enableSaveAndCopyPublicChat;
 
 class ChatDropdown extends PureComponent {
   constructor(props) {
@@ -82,13 +84,21 @@ class ChatDropdown extends PureComponent {
 
   getAvailableActions() {
     const {
-      intl, isMeteorConnected, amIModerator, meetingIsBreakout, meetingName, timeWindowsValues, users,
+      intl,
+      isMeteorConnected,
+      amIModerator,
+      meetingIsBreakout,
+      meetingName,
+      timeWindowsValues,
+      users,
     } = this.props;
 
     const clearIcon = 'delete';
     const saveIcon = 'download';
     const copyIcon = 'copy';
     return _.compact([
+      ENABLE_SAVE_AND_COPY_PUBLIC_CHAT
+      && (
       <DropdownListItem
         data-test="chatSave"
         icon={saveIcon}
@@ -108,14 +118,18 @@ class ChatDropdown extends PureComponent {
           );
           link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
         }}
-      />,
+      />
+      ),
+      ENABLE_SAVE_AND_COPY_PUBLIC_CHAT
+      && (
       <DropdownListItem
         data-test="chatCopy"
         icon={copyIcon}
         id="clipboardButton"
         label={intl.formatMessage(intlMessages.copy)}
         key={this.actionsKey[1]}
-      />,
+      />
+      ),
       !meetingIsBreakout && amIModerator && isMeteorConnected ? (
         <DropdownListItem
           data-test="chatClear"
