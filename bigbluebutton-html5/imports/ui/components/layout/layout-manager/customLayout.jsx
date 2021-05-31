@@ -205,7 +205,6 @@ class CustomLayout extends Component {
       height: DEFAULT_VALUES.navBarHeight,
       top,
       left: mediaAreaBounds.left,
-      zIndex: 1,
     };
   }
 
@@ -666,7 +665,6 @@ class CustomLayout extends Component {
         top: navbarBounds.top,
         left: navbarBounds.left,
         tabOrder: DEFAULT_VALUES.navBarTabOrder,
-        zIndex: navbarBounds.zIndex,
       },
     });
 
