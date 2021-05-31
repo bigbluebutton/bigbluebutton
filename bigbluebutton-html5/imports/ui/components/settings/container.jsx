@@ -5,6 +5,7 @@ import Settings from './component';
 
 import {
   getUserRoles,
+  showGuestNotification,
   updateSettings,
   getAvailableLocales,
 } from './service';
@@ -20,5 +21,6 @@ export default withTracker(() => ({
   updateSettings,
   availableLocales: getAvailableLocales(),
   isModerator: getUserRoles() === 'MODERATOR',
+  showGuestNotification: showGuestNotification(),
   showToggleLabel: false,
 }))(SettingsContainer);
