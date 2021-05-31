@@ -316,6 +316,7 @@
     "app.endMeeting.title": "終了 {0}",
     "app.endMeeting.description": "この操作により、セッションを終了します。まだ{0}人が参加していますが本当に構いませんか？",
     "app.endMeeting.noUserDescription": "本当にこのセッションを終了しますか？",
+    "app.endMeeting.contentWarning": "このセッションのチャットメッセージ、共有メモ、ホワイトボードの書き込み、そして共有ドキュメントにはもうアクセスできなくなります",
     "app.endMeeting.yesLabel": "はい",
     "app.endMeeting.noLabel": "いいえ",
     "app.about.title": "製品情報",
