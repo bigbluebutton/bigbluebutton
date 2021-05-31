@@ -4,11 +4,6 @@ import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/icon/component';
-import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
-import DropdownContent from '/imports/ui/components/dropdown/content/component';
-import DropdownList from '/imports/ui/components/dropdown/list/component';
-import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
@@ -293,7 +288,7 @@ class UserDropdown extends PureComponent {
         ));
       }
 
-      actions.push(<DropdownListSeparator key={_.uniqueId('list-separator-')} />);
+      actions.push(<Dropdown.DropdownListSeparator key={_.uniqueId('list-separator-')} />);
 
       const statuses = Object.keys(getEmojiList);
       statuses.map(status => actions.push(this.makeDropdownItem(
@@ -465,7 +460,7 @@ class UserDropdown extends PureComponent {
   makeDropdownItem(key, label, onClick, icon = null, iconRight = null) {
     const { getEmoji } = this.props;
     return (
-      <DropdownListItem
+      <Dropdown.DropdownListItem
         {...{
           key,
           label,
@@ -672,24 +667,24 @@ class UserDropdown extends PureComponent {
         getContent={dropdownContent => this.dropdownContent = dropdownContent}
         tethered
       >
-        <DropdownTrigger>
+        <Dropdown.DropdownTrigger>
           {contents}
-        </DropdownTrigger>
-        <DropdownContent
+        </Dropdown.DropdownTrigger>
+        <Dropdown.DropdownContent
           style={{
             visibility: dropdownVisible ? 'visible' : 'hidden',
           }}
           className={styles.dropdownContent}
           placement={placement}
         >
-          <DropdownList
+          <Dropdown.DropdownList
             ref={(ref) => { this.list = ref; }}
             getDropdownMenuParent={this.getDropdownMenuParent}
             onActionsHide={this.onActionsHide}
           >
             {actions}
-          </DropdownList>
-        </DropdownContent>
+          </Dropdown.DropdownList>
+        </Dropdown.DropdownContent>
       </Dropdown>
     );
   }

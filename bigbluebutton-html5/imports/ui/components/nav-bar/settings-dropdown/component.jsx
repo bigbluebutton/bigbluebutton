@@ -9,11 +9,6 @@ import AboutContainer from '/imports/ui/components/about/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
-import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
-import DropdownContent from '/imports/ui/components/dropdown/content/component';
-import DropdownList from '/imports/ui/components/dropdown/list/component';
-import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import FullscreenService from '../../fullscreen-button/service';
@@ -178,7 +173,7 @@ class SettingsDropdown extends PureComponent {
     }
 
     return (
-      <DropdownListItem
+      <Dropdown.DropdownListItem
         key="list-item-fullscreen"
         icon={fullscreenIcon}
         label={fullscreenLabel}
@@ -210,7 +205,7 @@ class SettingsDropdown extends PureComponent {
     } = Meteor.settings.public.app;
 
     const logoutOption = (
-      <DropdownListItem
+      <Dropdown.DropdownListItem
         key="list-item-logout"
         data-test="logout"
         icon="logout"
@@ -226,7 +221,7 @@ class SettingsDropdown extends PureComponent {
 
     return _.compact([
       this.getFullscreenItem(),
-      (<DropdownListItem
+      (<Dropdown.DropdownListItem
         key="list-item-settings"
         icon="settings"
         data-test="settings"
@@ -234,7 +229,7 @@ class SettingsDropdown extends PureComponent {
         description={intl.formatMessage(intlMessages.settingsDesc)}
         onClick={() => mountModal(<SettingsMenuContainer />)}
       />),
-      (<DropdownListItem
+      (<Dropdown.DropdownListItem
         key="list-item-about"
         icon="about"
         label={intl.formatMessage(intlMessages.aboutLabel)}
@@ -243,7 +238,7 @@ class SettingsDropdown extends PureComponent {
       />),
       !helpButton ? null
         : (
-          <DropdownListItem
+          <Dropdown.DropdownListItem
             key="list-item-help"
             icon="help"
             iconRight="popout_window"
@@ -252,16 +247,16 @@ class SettingsDropdown extends PureComponent {
             onClick={() => window.open(`${helpLink}`)}
           />
         ),
-      (<DropdownListItem
+      (<Dropdown.DropdownListItem
         key="list-item-shortcuts"
         icon="shortcuts"
         label={intl.formatMessage(intlMessages.hotkeysLabel)}
         description={intl.formatMessage(intlMessages.hotkeysDesc)}
         onClick={() => mountModal(<ShortcutHelpComponent />)}
       />),
-      (isMeteorConnected ? <DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
+      (isMeteorConnected ? <Dropdown.DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
       allowedToEndMeeting && isMeteorConnected
-        ? (<DropdownListItem
+        ? (<Dropdown.DropdownListItem
           key="list-item-end-meeting"
           icon="application"
           label={intl.formatMessage(intlMessages.endMeetingLabel)}
@@ -291,7 +286,7 @@ class SettingsDropdown extends PureComponent {
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
       >
-        <DropdownTrigger tabIndex={0} accessKey={OPEN_OPTIONS_AK}>
+        <Dropdown.DropdownTrigger tabIndex={0} accessKey={OPEN_OPTIONS_AK}>
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"
@@ -304,12 +299,12 @@ class SettingsDropdown extends PureComponent {
             // even after the DropdownTrigger inject an onClick handler
             onClick={() => null}
           />
-        </DropdownTrigger>
-        <DropdownContent placement="bottom right">
-          <DropdownList>
+        </Dropdown.DropdownTrigger>
+        <Dropdown.DropdownContent placement="bottom right">
+          <Dropdown.DropdownList>
             {this.renderMenuItems()}
-          </DropdownList>
-        </DropdownContent>
+          </Dropdown.DropdownList>
+        </Dropdown.DropdownContent>
       </Dropdown>
     );
   }
