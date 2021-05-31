@@ -23,11 +23,13 @@ export default function emitExternalVideoEvent(options) {
       state: Match.Maybe(Number),
     });
 
+    const state = playerStatus.state || 0;
+
     const payload = {
       status,
       rate: playerStatus.rate || 0,
       time: playerStatus.time || 0,
-      state: playerStatus.state || 0,
+      state,
     };
 
     Logger.debug(`User id=${requesterUserId} sending ${EVENT_NAME} event:${state} for meeting ${meetingId}`);

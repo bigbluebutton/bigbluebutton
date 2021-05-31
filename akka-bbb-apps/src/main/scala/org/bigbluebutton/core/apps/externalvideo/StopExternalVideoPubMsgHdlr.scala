@@ -1,7 +1,6 @@
 package org.bigbluebutton.core.apps.externalvideo
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.{ ExternalVideoModel }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait, ExternalVideoModel }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.{ LiveMeeting }
@@ -29,7 +28,7 @@ trait StopExternalVideoPubMsgHdlr extends RightsManagementTrait {
       val reason = "You need to be the presenter to stop external video"
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
-      ExternalVideoModel.stop(liveMeeting.externalVideoModel)
+      ExternalVideoModel.clear(liveMeeting.externalVideoModel)
       broadcastEvent()
     }
   }

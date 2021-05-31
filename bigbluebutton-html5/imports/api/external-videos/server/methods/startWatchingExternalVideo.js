@@ -8,9 +8,9 @@ export default function startWatchingExternalVideo(externalVideoUrl) {
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'StartExternalVideoPubMsg';
 
-  const { meetingId, requesterUserId } = extractCredentials(this.userId);
-
   try {
+    const { meetingId, requesterUserId } = extractCredentials(this.userId);
+
     check(meetingId, String);
     check(requesterUserId, String);
     check(externalVideoUrl, String);
@@ -19,7 +19,7 @@ export default function startWatchingExternalVideo(externalVideoUrl) {
 
     Logger.info(`User ${requesterUserId} sharing an external video ${externalVideoUrl} for meeting ${meetingId}`);
 
-    return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+    RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   } catch (error) {
     Logger.error(`Error on sharing an external video for meeting ${meetingId}: ${error}`);
   }

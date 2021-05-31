@@ -28,7 +28,7 @@ trait StartExternalVideoPubMsgHdlr extends RightsManagementTrait {
       val reason = "You need to be the presenter to start external videos"
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
-      ExternalVideoModel.start(liveMeeting.externalVideoModel, msg.body.externalVideoUrl)
+      ExternalVideoModel.setURL(liveMeeting.externalVideoModel, msg.body.externalVideoUrl)
       broadcastEvent(msg)
     }
   }

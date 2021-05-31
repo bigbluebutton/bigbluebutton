@@ -1,19 +1,27 @@
 package org.bigbluebutton.core.apps
 
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
+
 object ExternalVideoModel {
-  def start(externalVideoModel: ExternalVideoModel, videoUrl: String) {
-    externalVideoModel.externalVideoUrl = Some(videoUrl)
+  def setURL(externalVideoModel: ExternalVideoModel, externalVideoUrl: String) {
+    externalVideoModel.externalVideoUrl = externalVideoUrl
   }
 
-  def stop(externalVideoModel: ExternalVideoModel) {
-    externalVideoModel.externalVideoUrl = None: Option[String]
+  def clear(externalVideoModel: ExternalVideoModel) {
+    externalVideoModel.externalVideoUrl = ""
   }
 
-  def isPlaying(externalVideoModel: ExternalVideoModel): Boolean = {
-    !externalVideoModel.externalVideoUrl.isEmpty
+  def stop(outGW: OutMsgRouter, liveMeeting: LiveMeeting) {
+    if (!liveMeeting.externalVideoModel.externalVideoUrl.isEmpty) {
+      liveMeeting.externalVideoModel.externalVideoUrl = ""
+
+      val event = MsgBuilder.buildStopExternalVideoEvtMsg(liveMeeting.props.meetingProp.intId)
+      outGW.send(event)
+    }
   }
 }
 
 class ExternalVideoModel {
-  private var externalVideoUrl = None: Option[String]
+  private var externalVideoUrl = ""
 }

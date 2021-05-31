@@ -68,9 +68,11 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
       for {
         oldPres <- Users2x.findPresenter(liveMeeting.users2x)
       } yield {
+        // Stop external video if it's running
+        ExternalVideoModel.stop(outGW, liveMeeting)
+
         Users2x.makeNotPresenter(liveMeeting.users2x, oldPres.intId)
         broadcastOldPresenterChange(oldPres)
-        ExternalVideoModel.stop(liveMeeting.externalVideoModel)
       }
 
       for {

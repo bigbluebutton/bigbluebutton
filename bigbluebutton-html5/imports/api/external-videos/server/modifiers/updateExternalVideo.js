@@ -19,7 +19,7 @@ export default function updateExternalVideo(meetingId, userId, status, rate, tim
   };
 
   try {
-    Logger.verbose(`UpdateExternalVideoEvtMsg received for user ${userId} and meeting ${meetingId} event:${status}`);
+    Logger.debug(`UpdateExternalVideoEvtMsg received for user ${userId} and meeting ${meetingId} event:${status}`);
     ExternalVideoStreamer(meetingId).emit(status, modifier);
   } catch (err) {
     Logger.error(`Error on setting shared external video update in Meetings collection: ${err}`);
