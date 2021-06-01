@@ -2,6 +2,9 @@ import PresentationPods from '/imports/api/presentation-pods';
 import Presentations from '/imports/api/presentations';
 import { Slides, SlidePositions } from '/imports/api/slides';
 import Auth from '/imports/ui/services/auth';
+import ReactPlayer from 'react-player';
+
+const isUrlValid = url => ReactPlayer.canPlay(url);
 
 const getCurrentPresentation = podId => Presentations.findOne({
   podId,
@@ -154,9 +157,14 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     poll,
   }));
 
+  const urlRegex = /((http|https):\/\/[a-zA-Z0-9\-.]+\.[a-zA-Z]{2,3}(\/\S*)?)/g;
+  const optionsUrls = content.match(urlRegex) || [];
+  const videoUrls = optionsUrls.filter(value => isUrlValid(value));
+
   return {
     slideId: currentSlide.id,
     quickPollOptions,
+    videoUrls,
   };
 };
 
