@@ -24,7 +24,8 @@ const NOTE_MIN_WIDTH = 340;
 const NOTE_MAX_WIDTH = 800;
 const WAITING_MIN_WIDTH = 340;
 const WAITING_MAX_WIDTH = 800;
-const NAVBAR_HEIGHT = 170;
+const LARGE_NAVBAR_HEIGHT = 170;
+const NAVBAR_HEIGHT = 112;
 const ACTIONSBAR_HEIGHT = isMobile ? 50 : 42;
 const BREAKOUT_MIN_WIDTH = 320;
 const BREAKOUT_MAX_WIDTH = 400;
@@ -763,12 +764,15 @@ class LayoutManagerComponent extends Component {
       secondPanel = newBreakoutRoomSize;
     }
 
-    const mediaAreaHeight = windowHeight() - (NAVBAR_HEIGHT + ACTIONSBAR_HEIGHT) - 10;
+    const isLargeFont = Session.get('isLargeFont');
+    const realNavbarHeight = isLargeFont ? LARGE_NAVBAR_HEIGHT : NAVBAR_HEIGHT;
+
+    const mediaAreaHeight = windowHeight() - (realNavbarHeight + ACTIONSBAR_HEIGHT) - 10;
     const mediaAreaWidth = windowWidth() - (firstPanel.width + secondPanel.width);
     const newMediaBounds = {
       width: mediaAreaWidth,
       height: mediaAreaHeight,
-      top: NAVBAR_HEIGHT,
+      top: realNavbarHeight,
       left: firstPanel.width + secondPanel.width,
     };
 
@@ -838,6 +842,7 @@ export {
   WAITING_MIN_WIDTH,
   WAITING_MAX_WIDTH,
   NAVBAR_HEIGHT,
+  LARGE_NAVBAR_HEIGHT,
   ACTIONSBAR_HEIGHT,
   WEBCAMSAREA_MIN_PERCENT,
   WEBCAMSAREA_MAX_PERCENT,
