@@ -152,9 +152,9 @@ class IntlStartup extends Component {
 
         {normalizedLocale
           && (
-          <IntlProvider locale={normalizedLocale} messages={messages}>
-            {children}
-          </IntlProvider>
+            <IntlProvider locale={normalizedLocale} messages={messages}>
+              {children}
+            </IntlProvider>
           )
         }
       </>

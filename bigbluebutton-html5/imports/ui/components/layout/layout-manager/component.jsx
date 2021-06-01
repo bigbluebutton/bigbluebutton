@@ -106,7 +106,7 @@ class LayoutManagerComponent extends Component {
     window.addEventListener('webcamPlacementChange', () => {
       this.setLayoutSizes(false, false, true);
     });
-    
+
     window.addEventListener('fullscreenchange', () => {
       setTimeout(() => this.setLayoutSizes(), 200);
     });
