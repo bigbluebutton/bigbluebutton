@@ -43,6 +43,11 @@ const sendMessage = (event, data) => {
 
   lastMessage = { ...data, event };
 
+  // Use an integer for playing state
+  // 0: stopped 1: playing
+  // We might use more states in the future
+  data.state =  data.state ? 1 : 0;
+
   makeCall('emitExternalVideoEvent', { status: event, playerStatus: data });
 };
 
@@ -64,6 +69,13 @@ const getVideoUrl = () => {
   return externalVideo && externalVideo.externalVideoUrl;
 };
 
+// Convert state (Number) to playing (Boolean)
+const getPlayingState = (state) => {
+  if (state === 1) return true;
+
+  return false;
+};
+
 export {
   sendMessage,
   onMessage,
@@ -72,4 +84,5 @@ export {
   isUrlValid,
   startWatching,
   stopWatching,
+  getPlayingState,
 };
