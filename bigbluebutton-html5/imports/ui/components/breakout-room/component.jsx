@@ -174,7 +174,7 @@ class BreakoutRoom extends PureComponent {
   }
 
   changeExtendTime(event) {
-    this.setState({ extendTime: Number.parseInt(event.target.value, 10) || '' });
+    this.setState({ extendTime: Number.parseInt(event.target.value, 10) || 0 });
   }
 
   showExtendTimeForm() {
