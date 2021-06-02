@@ -17,6 +17,7 @@ export default withTracker((props) => {
   const {
     endAllBreakouts,
     requestJoinURL,
+    extendBreakoutsTime,
     findBreakouts,
     breakoutRoomUser,
     transferUserToMeeting,
@@ -40,6 +41,7 @@ export default withTracker((props) => {
     breakoutRooms,
     endAllBreakouts,
     requestJoinURL,
+    extendBreakoutsTime,
     breakoutRoomUser,
     transferUserToMeeting,
     transferToBreakout,

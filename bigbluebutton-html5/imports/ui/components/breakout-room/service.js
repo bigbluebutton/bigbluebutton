@@ -38,6 +38,12 @@ const requestJoinURL = (breakoutId) => {
   });
 };
 
+const extendBreakoutsTime = (extendTimeInMinutes) => {
+  makeCall('extendBreakoutsTime', {
+    extendTimeInMinutes,
+  });
+};
+
 const transferUserToMeeting = (fromMeetingId, toMeetingId) => makeCall('transferUser', fromMeetingId, toMeetingId);
 
 const transferToBreakout = (breakoutId) => {
@@ -108,6 +114,7 @@ const isUserInBreakoutRoom = (joinedUsers) => {
 export default {
   findBreakouts,
   endAllBreakouts,
+  extendBreakoutsTime,
   requestJoinURL,
   breakoutRoomUser,
   transferUserToMeeting,

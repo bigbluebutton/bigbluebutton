@@ -12,6 +12,7 @@ import { PANELS, ACTIONS } from '../layout/enums';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
 import UserListService from '/imports/ui/components/user-list/service';
 import AudioManager from '/imports/ui/services/audio-manager';
+import cx from "classnames";
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -58,6 +59,22 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.alreadyConnected',
     description: 'label for the user that is already connected to breakout room',
   },
+  duration: {
+    id: 'app.createBreakoutRoom.durationInMinutes',
+    description: 'duration time label',
+  },
+  extendTimeInMinutes: {
+    id: 'app.createBreakoutRoom.extendTimeInMinutes',
+    description: 'Label for input to extend time (minutes)',
+  },
+  extendTimeLabel: {
+    id: 'app.createBreakoutRoom.extendTimeLabel',
+    description: 'Button label to incresce breakout rooms time',
+  },
+  extendTimeCancel: {
+    id: 'app.createBreakoutRoom.extendTimeCancel',
+    description: 'Button label to cancel extend breakout rooms time',
+  },
 });
 
 class BreakoutRoom extends PureComponent {
@@ -79,6 +96,9 @@ class BreakoutRoom extends PureComponent {
     this.getBreakoutURL = this.getBreakoutURL.bind(this);
     this.renderDuration = this.renderDuration.bind(this);
     this.transferUserToBreakoutRoom = this.transferUserToBreakoutRoom.bind(this);
+    this.changeExtendTime = this.changeExtendTime.bind(this);
+    this.showExtendTimeForm = this.showExtendTimeForm.bind(this);
+    this.resetExtendTimeForm = this.resetExtendTimeForm.bind(this);
     this.renderUserActions = this.renderUserActions.bind(this);
     this.returnBackToMeeeting = this.returnBackToMeeeting.bind(this);
     this.state = {
@@ -86,6 +106,8 @@ class BreakoutRoom extends PureComponent {
       waiting: false,
       joinedAudioOnly: false,
       breakoutId: '',
+      visibleExtendTimeForm: false,
+      extendTime: 5,
     };
   }
 
@@ -153,6 +175,18 @@ class BreakoutRoom extends PureComponent {
 
   clearJoinedAudioOnly() {
     this.setState({ joinedAudioOnly: false });
+  }
+
+  changeExtendTime(event) {
+    this.setState({ extendTime: Number.parseInt(event.target.value, 10) || '' });
+  }
+
+  showExtendTimeForm() {
+    this.setState({ visibleExtendTimeForm: true });
+  }
+
+  resetExtendTimeForm() {
+    this.setState({ visibleExtendTimeForm: false, extendTime: 5 });
   }
 
   transferUserToBreakoutRoom(breakoutId) {
@@ -334,14 +368,75 @@ class BreakoutRoom extends PureComponent {
   }
 
   renderDuration() {
-    const { breakoutRooms } = this.props;
+    const {
+      intl, breakoutRooms, amIModerator, isMeteorConnected, extendBreakoutsTime,
+    } = this.props;
+    const { extendTime, visibleExtendTimeForm } = this.state;
     return (
-      <span className={styles.duration}>
-        <BreakoutRoomContainer
-          messageDuration={intlMessages.breakoutDuration}
-          breakoutRoom={breakoutRooms[0]}
-        />
-      </span>
+      <div className={styles.durationContainer}>
+        { amIModerator && visibleExtendTimeForm ? (
+          <div className={styles.extendTimeContainer}>
+            <label
+              htmlFor="inputExtendTimeSelector"
+              className={cx(styles.label, styles.labelSmall)}
+            >
+              {intl.formatMessage(intlMessages.extendTimeInMinutes)}
+            </label>
+            <br />
+            <input
+              id="inputExtendTimeSelector"
+              type="number"
+              className={styles.extendDuration}
+              min="1"
+              value={extendTime}
+              onChange={this.changeExtendTime}
+              aria-label={intl.formatMessage(intlMessages.extendTimeInMinutes)}
+            />
+            <br />
+            <br />
+            <Button
+              color="default"
+              disabled={!isMeteorConnected}
+              size="sm"
+              label={intl.formatMessage(intlMessages.extendTimeCancel)}
+              className={styles.endButton}
+              onClick={this.resetExtendTimeForm}
+            />
+            <Button
+              color="primary"
+              disabled={!isMeteorConnected}
+              size="sm"
+              label={intl.formatMessage(intlMessages.extendTimeLabel)}
+              className={styles.endButton}
+              onClick={() => {
+                extendBreakoutsTime(extendTime);
+                this.resetExtendTimeForm();
+              }}
+            />
+          </div>
+        ) : null }
+        <span className={styles.duration}>
+          <BreakoutRoomContainer
+            messageDuration={intlMessages.breakoutDuration}
+            breakoutRoom={breakoutRooms[0]}
+          />
+          { !visibleExtendTimeForm
+            ? (
+              <Button
+                onClick={this.showExtendTimeForm}
+                color="default"
+                icon="add"
+                circle
+                hideLabel
+                size="sm"
+                label={intl.formatMessage(intlMessages.extendTimeLabel)}
+                aria-label={intl.formatMessage(intlMessages.extendTimeLabel)}
+                disabled={!isMeteorConnected}
+              />
+            )
+            : null }
+        </span>
+      </div>
     );
   }
 
