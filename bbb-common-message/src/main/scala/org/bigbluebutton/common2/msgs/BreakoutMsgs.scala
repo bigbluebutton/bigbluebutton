@@ -104,7 +104,7 @@ object ExtendBreakoutRoomsTimeReqMsg { val NAME = "ExtendBreakoutRoomsTimeReqMsg
 case class ExtendBreakoutRoomsTimeReqMsg(header: BbbClientMsgHeader, body: ExtendBreakoutRoomsTimeReqMsgBody) extends StandardMsg
 case class ExtendBreakoutRoomsTimeReqMsgBody(meetingId: String, extendTimeInMinutes: Int)
 
-object ExtendBreakoutRoomsTimeEvtMsg { val NAME = "ExtendBreakoutTimeReqMsg" }
+object ExtendBreakoutRoomsTimeEvtMsg { val NAME = "ExtendBreakoutRoomsTimeEvtMsg" }
 case class ExtendBreakoutRoomsTimeEvtMsg(header: BbbClientMsgHeader, body: ExtendBreakoutRoomsTimeEvtMsgBody) extends BbbCoreMsg
 case class ExtendBreakoutRoomsTimeEvtMsgBody(meetingId: String, extendTimeInMinutes: Int)
 

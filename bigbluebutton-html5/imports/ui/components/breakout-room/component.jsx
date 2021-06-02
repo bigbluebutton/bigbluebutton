@@ -59,10 +59,6 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.alreadyConnected',
     description: 'label for the user that is already connected to breakout room',
   },
-  duration: {
-    id: 'app.createBreakoutRoom.durationInMinutes',
-    description: 'duration time label',
-  },
   extendTimeInMinutes: {
     id: 'app.createBreakoutRoom.extendTimeInMinutes',
     description: 'Label for input to extend time (minutes)',
