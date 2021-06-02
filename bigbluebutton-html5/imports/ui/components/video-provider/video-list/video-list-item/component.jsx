@@ -196,7 +196,11 @@ class VideoListItem extends Component {
         {
           !videoIsReady
             && (
-            <div data-test="webcamConnecting" className={styles.connecting}>
+            <div data-test="webcamConnecting" className={cx({
+              [styles.connecting]: true,
+              [styles.content]: true,
+              [styles.talking]: voiceUser.talking,
+            })}>
               <span className={styles.loadingText}>{name}</span>
             </div>
             )
