@@ -33,6 +33,7 @@ class IntlStartup extends Component {
       Settings.application.isRTL = false;
     }
     Session.set('isLargeFont', LARGE_FONT_LANGUAGES.includes(localeName.substring(0, 2)));
+    window.dispatchEvent(new Event('localeChanged'));
     Settings.save();
   }
 

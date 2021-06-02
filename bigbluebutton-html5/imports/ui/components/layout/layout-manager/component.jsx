@@ -110,6 +110,10 @@ class LayoutManagerComponent extends Component {
     window.addEventListener('fullscreenchange', () => {
       setTimeout(() => this.setLayoutSizes(), 200);
     });
+
+    window.addEventListener('localeChanged', () => {
+      this.setLayoutSizes();
+    });
   }
 
   componentDidUpdate(prevProps) {

@@ -267,10 +267,9 @@ class App extends Component {
   }
 
   renderNavBar() {
-    const { navbar } = this.props;
+    const { navbar, isLargeFont } = this.props;
     if (!navbar) return null;
 
-    const isLargeFont = Session.get('isLargeFont');
     const realNavbarHeight = isLargeFont ? LARGE_NAVBAR_HEIGHT : NAVBAR_HEIGHT;
 
     return (
