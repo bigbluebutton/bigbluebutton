@@ -39,6 +39,7 @@ const requestJoinURL = (breakoutId) => {
 };
 
 const extendBreakoutsTime = (extendTimeInMinutes) => {
+  if (extendTimeInMinutes <= 0) return;
   makeCall('extendBreakoutsTime', {
     extendTimeInMinutes,
   });

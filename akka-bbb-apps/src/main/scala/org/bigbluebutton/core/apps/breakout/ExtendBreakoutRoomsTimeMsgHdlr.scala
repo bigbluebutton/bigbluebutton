@@ -19,6 +19,9 @@ trait ExtendBreakoutRoomsTimeMsgHdlr extends RightsManagementTrait {
       val reason = "No permission to extend time for breakout rooms for meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
       state
+    } else if (msg.body.extendTimeInMinutes <= 0) {
+      log.error("Error while trying to extend {} minutes for breakout rooms time in meeting {}. Only positive values are allowed!", msg.body.extendTimeInMinutes, props.meetingProp.intId)
+      state
     } else {
       val updatedModel = for {
         breakoutModel <- state.breakout
