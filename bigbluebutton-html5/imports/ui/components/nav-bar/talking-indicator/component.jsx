@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
+import { PANELS } from '../../layout/enums';
 
 const intlMessages = defineMessages({
   wasTalking: {
@@ -34,7 +35,11 @@ class TalkingIndicator extends PureComponent {
 
   render() {
     const {
-      intl, talkers, openPanel, amIModerator,
+      intl,
+      talkers,
+      amIModerator,
+      sidebarNavigationIsOpen,
+      sidebarContentIsOpen,
     } = this.props;
     if (!talkers) return null;
 
@@ -51,7 +56,8 @@ class TalkingIndicator extends PureComponent {
         [styles.talker]: true,
         [styles.spoke]: !talking,
         [styles.muted]: muted,
-        [styles.mobileHide]: openPanel !== '',
+        [styles.mobileHide]: sidebarNavigationIsOpen
+          && sidebarContentIsOpen,
         [styles.isViewer]: !amIModerator,
       };
 

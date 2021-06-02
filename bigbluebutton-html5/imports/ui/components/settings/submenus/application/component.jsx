@@ -6,8 +6,13 @@ import LocalesDropdown from '/imports/ui/components/locales-dropdown/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import { styles } from '../styles';
+import VideoService from '/imports/ui/components/video-provider/service';
 
 const MIN_FONTSIZE = 0;
+const SHOW_AUDIO_FILTERS = (Meteor.settings.public.app
+  .showAudioFilters === undefined)
+  ? true
+  : Meteor.settings.public.app.showAudioFilters;
 
 const intlMessages = defineMessages({
   applicationSectionTitle: {
@@ -57,6 +62,10 @@ const intlMessages = defineMessages({
   noLocaleOptionLabel: {
     id: 'app.submenu.application.noLocaleOptionLabel',
     description: 'default change language option when no locales available',
+  },
+  paginationEnabledLabel: {
+    id: 'app.submenu.application.paginationEnabledLabel',
+    description: 'enable/disable video pagination',
   },
 });
 
@@ -199,8 +208,79 @@ class ApplicationMenu extends BaseMenu {
     this.handleUpdateSettings('application', obj.settings);
   }
 
+  renderAudioFilters() {
+    let audioFilterOption = null;
+
+    if (SHOW_AUDIO_FILTERS) {
+      const { intl, showToggleLabel, displaySettingsStatus } = this.props;
+      const { settings } = this.state;
+      const audioFilterStatus = ApplicationMenu
+        .isAudioFilterEnabled(settings.microphoneConstraints);
+
+      audioFilterOption = (
+        <div className={styles.row}>
+          <div className={styles.col} aria-hidden="true">
+            <div className={styles.formElement}>
+              <span className={styles.label}>
+                {intl.formatMessage(intlMessages.audioFilterLabel)}
+              </span>
+            </div>
+          </div>
+          <div className={styles.col}>
+            <div className={cx(styles.formElement, styles.pullContentRight)}>
+              {displaySettingsStatus(audioFilterStatus)}
+              <Toggle
+                icons={false}
+                defaultChecked={this.state.audioFilterEnabled}
+                onChange={() => this.handleAudioFilterChange()}
+                ariaLabel={intl.formatMessage(intlMessages.audioFilterLabel)}
+                showToggleLabel={showToggleLabel}
+              />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return audioFilterOption;
+  }
+
+  renderPaginationToggle() {
+    // See VideoService's method for an explanation
+    if (!VideoService.shouldRenderPaginationToggle()) return;
+
+    const { intl, showToggleLabel, displaySettingsStatus } = this.props;
+    const { settings } = this.state;
+
+    return (
+      <div className={styles.row}>
+        <div className={styles.col} aria-hidden="true">
+          <div className={styles.formElement}>
+            <label className={styles.label}>
+              {intl.formatMessage(intlMessages.paginationEnabledLabel)}
+            </label>
+          </div>
+        </div>
+        <div className={styles.col}>
+          <div className={cx(styles.formElement, styles.pullContentRight)}>
+            {displaySettingsStatus(settings.paginationEnabled)}
+            <Toggle
+              icons={false}
+              defaultChecked={settings.paginationEnabled}
+              onChange={() => this.handleToggle('paginationEnabled')}
+              ariaLabel={intl.formatMessage(intlMessages.paginationEnabledLabel)}
+              showToggleLabel={showToggleLabel}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   render() {
-    const { allLocales, intl } = this.props;
+    const {
+      allLocales, intl, showToggleLabel, displaySettingsStatus,
+    } = this.props;
     const {
       isLargestFontSize, isSmallestFontSize, settings,
     } = this.state;
@@ -239,35 +319,21 @@ class ApplicationMenu extends BaseMenu {
             </div>
             <div className={styles.col}>
               <div className={cx(styles.formElement, styles.pullContentRight)}>
+                {displaySettingsStatus(settings.animations)}
                 <Toggle
                   icons={false}
-                  defaultChecked={this.state.settings.animations}
+                  defaultChecked={settings.animations}
                   onChange={() => this.handleToggle('animations')}
                   ariaLabel={intl.formatMessage(intlMessages.animationsLabel)}
+                  showToggleLabel={showToggleLabel}
                 />
               </div>
             </div>
           </div>
 
-          <div className={styles.row}>
-            <div className={styles.col} aria-hidden="true">
-              <div className={styles.formElement}>
-                <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.audioFilterLabel)}
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
-                <Toggle
-                  icons={false}
-                  defaultChecked={this.state.audioFilterEnabled}
-                  onChange={() => this.handleAudioFilterChange()}
-                  ariaLabel={intl.formatMessage(intlMessages.audioFilterLabel)}
-                />
-              </div>
-            </div>
-          </div>
+          {this.renderAudioFilters()}
+          {this.renderPaginationToggle()}
+
           <div className={styles.row}>
             <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
@@ -286,7 +352,7 @@ class ApplicationMenu extends BaseMenu {
                   <LocalesDropdown
                     allLocales={allLocales}
                     handleChange={e => this.handleSelectChange('locale', allLocales, e)}
-                    value={this.state.settings.locale}
+                    value={settings.locale}
                     elementId="langSelector"
                     elementClass={styles.select}
                     selectMessage={intl.formatMessage(intlMessages.languageOptionLabel)}
@@ -316,7 +382,7 @@ class ApplicationMenu extends BaseMenu {
             <div className={styles.col}>
               <div aria-hidden className={cx(styles.formElement, styles.pullContentCenter)}>
                 <label className={cx(styles.label, styles.bold)}>
-                  {`${pixelPercentage[this.state.settings.fontSize]}`}
+                  {`${pixelPercentage[settings.fontSize]}`}
                 </label>
               </div>
             </div>

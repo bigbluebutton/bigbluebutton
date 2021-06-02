@@ -4,11 +4,6 @@ import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/icon/component';
-import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
-import DropdownContent from '/imports/ui/components/dropdown/content/component';
-import DropdownList from '/imports/ui/components/dropdown/list/component';
-import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
@@ -18,7 +13,9 @@ import { Session } from 'meteor/session';
 import { styles } from './styles';
 import UserName from '../user-name/component';
 import UserIcons from '../user-icons/component';
-import Service from '../../../../service';
+import Service from '/imports/ui/components/user-list/service';
+import { PANELS, ACTIONS } from '../../../../../layout/enums';
+import WhiteboardService from '/imports/ui/components/whiteboard/service';
 
 const messages = defineMessages({
   presenter: {
@@ -64,6 +61,14 @@ const messages = defineMessages({
   makePresenterLabel: {
     id: 'app.userList.menu.makePresenter.label',
     description: 'label to make another user presenter',
+  },
+  giveWhiteboardAccess: {
+    id: 'app.userList.menu.giveWhiteboardAccess.label',
+    description: 'label to give user whiteboard access',
+  },
+  removeWhiteboardAccess: {
+    id: 'app.userList.menu.removeWhiteboardAccess.label',
+    description: 'label to remove user whiteboard access',
   },
   RemoveUserLabel: {
     id: 'app.userList.menu.removeUser.label',
@@ -234,11 +239,13 @@ class UserDropdown extends PureComponent {
       meetingIsBreakout,
       mountModal,
       usersProp,
+      newLayoutContextDispatch,
     } = this.props;
     const { showNestedOptions } = this.state;
 
+    const amIPresenter = currentUser.presenter;
     const amIModerator = currentUser.role === ROLE_MODERATOR;
-    const actionPermissions = getAvailableActions(amIModerator, meetingIsBreakout, user, voiceUser, usersProp);
+    const actionPermissions = getAvailableActions(amIModerator, meetingIsBreakout, user, voiceUser, usersProp, amIPresenter);
     const actions = [];
 
     const {
@@ -252,6 +259,7 @@ class UserDropdown extends PureComponent {
       allowedToDemote,
       allowedToChangeStatus,
       allowedToChangeUserLockStatus,
+      allowedToChangeWhiteboardAccess,
     } = actionPermissions;
 
     const { disablePrivateChat } = lockSettingsProps;
@@ -280,7 +288,7 @@ class UserDropdown extends PureComponent {
         ));
       }
 
-      actions.push(<DropdownListSeparator key={_.uniqueId('list-separator-')} />);
+      actions.push(<Dropdown.DropdownListSeparator key={_.uniqueId('list-separator-')} />);
 
       const statuses = Object.keys(getEmojiList);
       statuses.map(status => actions.push(this.makeDropdownItem(
@@ -323,8 +331,18 @@ class UserDropdown extends PureComponent {
         intl.formatMessage(messages.StartPrivateChat),
         () => {
           getGroupChatPrivate(currentUser.userId, user);
-          Session.set('openPanel', 'chat');
-          Session.set('idChatOpen', user.userId);
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: true,
+          });
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+            value: PANELS.CHAT,
+          });
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_ID_CHAT_OPEN,
+            value: user.userId,
+          });
         },
         'chat',
       ));
@@ -354,6 +372,17 @@ class UserDropdown extends PureComponent {
         intl.formatMessage(messages.UnmuteUserAudioLabel),
         () => this.onActionsHide(toggleVoice(user.userId)),
         'unmute',
+      ));
+    }
+
+    if (allowedToChangeWhiteboardAccess && !user.presenter && isMeteorConnected) {
+      const label = user.whiteboardAccess ? intl.formatMessage(messages.removeWhiteboardAccess) : intl.formatMessage(messages.giveWhiteboardAccess);
+
+      actions.push(this.makeDropdownItem(
+        'changeWhiteboardAccess',
+        label,
+        () => WhiteboardService.changeWhiteboardAccess(user.userId, !user.whiteboardAccess),
+        'pen_tool',
       ));
     }
 
@@ -431,7 +460,7 @@ class UserDropdown extends PureComponent {
   makeDropdownItem(key, label, onClick, icon = null, iconRight = null) {
     const { getEmoji } = this.props;
     return (
-      <DropdownListItem
+      <Dropdown.DropdownListItem
         {...{
           key,
           label,
@@ -535,6 +564,7 @@ class UserDropdown extends PureComponent {
         voice={voiceUser.isVoiceUser}
         noVoice={!voiceUser.isVoiceUser}
         color={user.color}
+        whiteboardAccess={user.whiteboardAccess}
         emoji={user.emoji !== 'none'}
         avatar={user.avatar}
       >
@@ -554,13 +584,13 @@ class UserDropdown extends PureComponent {
       intl,
       isThisMeetingLocked,
       isMe,
+      isRTL,
     } = this.props;
 
     const {
       isActionsOpen,
       dropdownVisible,
       dropdownDirection,
-      dropdownOffset,
       showNestedOptions,
     } = this.state;
 
@@ -592,7 +622,7 @@ class UserDropdown extends PureComponent {
       <div
         data-test={isMe(user.userId) ? 'userListItemCurrent' : 'userListItem'}
         className={!actions.length ? styles.userListItem : null}
-        style={{ direction: document.documentElement.dir }}
+        style={{ direction: isRTL ? 'rtl' : 'ltr' }}
       >
         <div className={styles.userItemContents}>
           <div className={styles.userAvatar}>
@@ -637,24 +667,24 @@ class UserDropdown extends PureComponent {
         getContent={dropdownContent => this.dropdownContent = dropdownContent}
         tethered
       >
-        <DropdownTrigger>
+        <Dropdown.DropdownTrigger>
           {contents}
-        </DropdownTrigger>
-        <DropdownContent
+        </Dropdown.DropdownTrigger>
+        <Dropdown.DropdownContent
           style={{
             visibility: dropdownVisible ? 'visible' : 'hidden',
           }}
           className={styles.dropdownContent}
           placement={placement}
         >
-          <DropdownList
+          <Dropdown.DropdownList
             ref={(ref) => { this.list = ref; }}
             getDropdownMenuParent={this.getDropdownMenuParent}
             onActionsHide={this.onActionsHide}
           >
             {actions}
-          </DropdownList>
-        </DropdownContent>
+          </Dropdown.DropdownList>
+        </Dropdown.DropdownContent>
       </Dropdown>
     );
   }

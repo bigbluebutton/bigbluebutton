@@ -216,19 +216,6 @@ public class ResponseBuilder {
         return xmlText.toString();
     }
 
-    public String buildConfgXmlReject(String message, String logoutUrl, String returnCode) {
-
-        StringWriter xmlText = new StringWriter();
-
-        Map<String, Object> data = new HashMap<String, Object>();
-        data.put("returnCode", returnCode);
-        data.put("message", message);
-        data.put("logoutUrl", logoutUrl);
-
-        processData(getTemplate("config-xml-rejected.ftlx"), data, xmlText);
-        return xmlText.toString();
-    }
-
     private Template getTemplate(String templateName) {
         Template ftl = null;
         try {

@@ -25,6 +25,7 @@ public class ScreenshareRTMPBroadcastEvent extends VoiceConferenceEvent {
 	private String streamUrl;
 	private Integer vw;
 	private Integer vh;
+	private boolean hasAudio;
 
 	private final String SCREENSHARE_SUFFIX = "-SCREENSHARE";
 
@@ -46,6 +47,10 @@ public class ScreenshareRTMPBroadcastEvent extends VoiceConferenceEvent {
 
 	public void setVideoHeight(Integer vh) {this.vh = vh;}
 
+	public void setHasAudio(boolean hasAudio) {
+		this.hasAudio = hasAudio;
+	}
+
 	public Integer getVideoHeight() {return vh;}
 
 	public Integer getVideoWidth() {return vw;}
@@ -64,5 +69,9 @@ public class ScreenshareRTMPBroadcastEvent extends VoiceConferenceEvent {
 
 	public boolean getBroadcast() {
 		return broadcast;
+	}
+
+	public boolean getHasAudio() {
+		return hasAudio;
 	}
 }

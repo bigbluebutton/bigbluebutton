@@ -66,7 +66,6 @@ public class Meeting {
 	private boolean webcamsOnlyForModerator = false;
 	private String dialNumber;
 	private String defaultAvatarURL;
-	private String defaultConfigToken;
 	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
 	private String guestLobbyMessage = "";
 	private Boolean authenticatedGuest = false;
@@ -77,19 +76,21 @@ public class Meeting {
 	private final ConcurrentMap<String, User> users;
 	private final ConcurrentMap<String, RegisteredUser> registeredUsers;
 	private final ConcurrentMap<String, Long> enteredUsers;
-	private final ConcurrentMap<String, Config> configs;
 	private final Boolean isBreakout;
 	private final List<String> breakoutRooms = new ArrayList<>();
 	private String customLogoURL = "";
 	private String customCopyright = "";
 	private Boolean muteOnStart = false;
 	private Boolean allowModsToUnmuteUsers = false;
+	private Boolean meetingKeepEvents;
 
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
 	private Integer userInactivityInspectTimerInMinutes = 120;
 	private Integer userInactivityThresholdInMinutes = 30;
     private Integer userActivitySignResponseDelayInMinutes = 5;
+    private Boolean endWhenNoModerator = false;
+    private Integer endWhenNoModeratorDelayInMinutes = 1;
 
 	public final BreakoutRoomsParams breakoutRoomsParams;
 	public final LockSettingsParams lockSettingsParams;
@@ -97,8 +98,6 @@ public class Meeting {
 	public final Boolean allowDuplicateExtUserid;
 
 	private String meetingEndedCallbackURL = "";
-
-	public final Boolean endWhenNoModerator;
 
 	private Integer html5InstanceId;
 
@@ -133,6 +132,7 @@ public class Meeting {
         lockSettingsParams = builder.lockSettingsParams;
         allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
         endWhenNoModerator = builder.endWhenNoModerator;
+        endWhenNoModeratorDelayInMinutes = builder.endWhenNoModeratorDelayInMinutes;
         html5InstanceId = builder.html5InstanceId;
 
         /*
@@ -146,9 +146,7 @@ public class Meeting {
 
         users = new ConcurrentHashMap<>();
         registeredUsers = new ConcurrentHashMap<>();
-        enteredUsers = new  ConcurrentHashMap<>();;
-
-        configs = new ConcurrentHashMap<>();
+        enteredUsers = new  ConcurrentHashMap<>();
     }
 
 	public void addBreakoutRoom(String meetingId) {
@@ -157,37 +155,6 @@ public class Meeting {
 
 	public List<String> getBreakoutRooms() {
 		return breakoutRooms;
-	}
-
-	public String storeConfig(boolean defaultConfig, String config) {
-		String token = RandomStringUtils.randomAlphanumeric(8);
-		while (configs.containsKey(token)) {
-			token = RandomStringUtils.randomAlphanumeric(8);
-		}
-		
-		configs.put(token, new Config(token, System.currentTimeMillis(), config));
-		
-		if (defaultConfig) {
-			defaultConfigToken = token;
-		}
-		
-		return token;
-	}
-	
-	public Config getDefaultConfig() {
-		if (defaultConfigToken != null) {
-			return getConfig(defaultConfigToken);
-		}
-		
-		return null;
-	}
-	
-	public Config getConfig(String token) {
-		return configs.get(token);
-	}
-	
-	public Config removeConfig(String token) {
-		return configs.remove(token);
 	}
 
 	public Map<String, String> getPads() {
@@ -503,6 +470,14 @@ public class Meeting {
     	return muteOnStart;
 	}
 
+  public void setMeetingKeepEvents(Boolean mke) {
+    meetingKeepEvents = mke;
+  }
+
+  public Boolean getMeetingKeepEvents() {
+    return meetingKeepEvents;
+  }
+
 	public void setAllowModsToUnmuteUsers(Boolean value) {
 		allowModsToUnmuteUsers = value;
 	}
@@ -651,6 +626,22 @@ public class Meeting {
         this.userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes;
     }
 
+	public Boolean getEndWhenNoModerator() {
+		return endWhenNoModerator;
+	}
+
+	public void setEndWhenNoModerator(Boolean endWhenNoModerator) {
+		this.endWhenNoModerator = endWhenNoModerator;
+	}
+
+	public Integer getEndWhenNoModeratorDelayInMinutes() {
+		return endWhenNoModeratorDelayInMinutes;
+	}
+
+	public void setEndWhenNoModeratorDelayInMinutes(Integer endWhenNoModeratorDelayInMinutes) {
+		this.endWhenNoModeratorDelayInMinutes = endWhenNoModeratorDelayInMinutes;
+	}
+
     public String getMeetingEndedCallbackURL() {
     	return meetingEndedCallbackURL;
     }
@@ -733,6 +724,7 @@ public class Meeting {
     	private LockSettingsParams lockSettingsParams;
 		private Boolean allowDuplicateExtUserid;
 		private Boolean endWhenNoModerator;
+		private Integer endWhenNoModeratorDelayInMinutes;
 		private int html5InstanceId;
 
     	public Builder(String externalId, String internalId, long createTime) {
@@ -873,6 +865,11 @@ public class Meeting {
 
 		public Builder withEndWhenNoModerator(Boolean endWhenNoModerator) {
     		this.endWhenNoModerator = endWhenNoModerator;
+    		return this;
+		}
+
+		public Builder withEndWhenNoModeratorDelayInMinutes(Integer endWhenNoModeratorDelayInMinutes) {
+    		this.endWhenNoModeratorDelayInMinutes = endWhenNoModeratorDelayInMinutes;
     		return this;
 		}
 

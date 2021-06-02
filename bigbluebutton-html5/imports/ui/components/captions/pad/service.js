@@ -1,4 +1,3 @@
-import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 
@@ -26,7 +25,7 @@ const getPadURL = (padId, readOnlyPadId, ownerId) => {
   const userId = Auth.userID;
   const params = getPadParams();
   let url;
-  if (!ownerId || (ownerId && userId === ownerId)) {
+  if (!ownerId || userId === ownerId) {
     url = Auth.authenticateURL(`${NOTE_CONFIG.url}/p/${padId}?${params}`);
   } else {
     url = Auth.authenticateURL(`${NOTE_CONFIG.url}/p/${readOnlyPadId}?${params}`);

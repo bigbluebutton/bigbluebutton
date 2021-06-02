@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps.breakout
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.BreakoutRoomUsersUpdateInternalMsg
 import org.bigbluebutton.core.domain.{ BreakoutRoom2x, MeetingState2x }
+import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 
 trait BreakoutRoomUsersUpdateMsgHdlr {
@@ -30,6 +31,13 @@ trait BreakoutRoomUsersUpdateMsgHdlr {
       val updatedRoom = room.copy(users = msg.users, voiceUsers = msg.voiceUsers)
       val msgEvent = broadcastEvent(updatedRoom)
       outGW.send(msgEvent)
+
+      //Update user lastActivityTime in parent room (to avoid be ejected while is in Breakout room)
+      for {
+        breakoutRoomUser <- updatedRoom.users
+        user <- Users2x.findWithBreakoutRoomId(liveMeeting.users2x, breakoutRoomUser.id)
+      } yield Users2x.updateLastUserActivity(liveMeeting.users2x, user)
+
       model.update(updatedRoom)
     }
 

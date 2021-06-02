@@ -165,6 +165,12 @@
   margin-bottom: 1rem;
 }
 
+.title {
+  font-weight: bold;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
 @keyframes ellipsis {
   to {
     width: 1.25em;

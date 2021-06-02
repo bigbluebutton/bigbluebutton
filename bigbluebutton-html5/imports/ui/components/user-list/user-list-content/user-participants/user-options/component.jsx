@@ -5,17 +5,11 @@ import _ from 'lodash';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
-import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
-import DropdownContent from '/imports/ui/components/dropdown/content/component';
-import DropdownList from '/imports/ui/components/dropdown/list/component';
-import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
-import ConnectionStatusContainer from '/imports/ui/components/connection-status/modal/container';
+import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
 import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/container';
 import CaptionsService from '/imports/ui/components/captions/service';
-import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
-import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import { styles } from './styles';
 import { getUserNamesLink } from '/imports/ui/components/user-list/service';
 
@@ -29,10 +23,12 @@ const propTypes = {
   toggleStatus: PropTypes.func.isRequired,
   mountModal: PropTypes.func.isRequired,
   users: PropTypes.arrayOf(Object).isRequired,
+  guestPolicy: PropTypes.string.isRequired,
   meetingIsBreakout: PropTypes.bool.isRequired,
   hasBreakoutRoom: PropTypes.bool.isRequired,
   isBreakoutEnabled: PropTypes.bool.isRequired,
   isBreakoutRecordable: PropTypes.bool.isRequired,
+  dynamicGuestPolicy: PropTypes.bool.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -72,13 +68,13 @@ const intlMessages = defineMessages({
     id: 'app.userList.userOptions.lockViewersDesc',
     description: 'Lock viewers description',
   },
-  connectionStatusLabel: {
-    id: 'app.userList.userOptions.connectionStatusLabel',
-    description: 'Connection status label',
+  guestPolicyLabel: {
+    id: 'app.userList.userOptions.guestPolicyLabel',
+    description: 'Guest policy label',
   },
-  connectionStatusDesc: {
-    id: 'app.userList.userOptions.connectionStatusDesc',
-    description: 'Connection status description',
+  guestPolicyDesc: {
+    id: 'app.userList.userOptions.guestPolicyDesc',
+    description: 'Guest policy description',
   },
   muteAllExceptPresenterLabel: {
     id: 'app.userList.userOptions.muteAllExceptPresenterLabel',
@@ -138,7 +134,7 @@ class UserOptions extends PureComponent {
     this.muteId = _.uniqueId('list-item-');
     this.muteAllId = _.uniqueId('list-item-');
     this.lockId = _.uniqueId('list-item-');
-    this.connectionStatusId = _.uniqueId('list-item-');
+    this.guestPolicyId = _.uniqueId('list-item-');
     this.createBreakoutId = _.uniqueId('list-item-');
     this.saveUsersNameId = _.uniqueId('list-item-');
     this.captionsId = _.uniqueId('list-item-');
@@ -228,6 +224,7 @@ class UserOptions extends PureComponent {
       amIModerator,
       users,
       isMeteorConnected,
+      dynamicGuestPolicy,
     } = this.props;
 
     const canCreateBreakout = amIModerator
@@ -242,83 +239,92 @@ class UserOptions extends PureComponent {
 
     this.menuItems = _.compact([
       (isMeteorConnected ? (
-        <DropdownListItem
+        <Dropdown.DropdownListItem
           key={this.clearStatusId}
           icon="clear_status"
           label={intl.formatMessage(intlMessages.clearAllLabel)}
           description={intl.formatMessage(intlMessages.clearAllDesc)}
           onClick={toggleStatus}
-        />) : null
+        />
+      ) : null
       ),
       (!meetingIsBreakout && isMeteorConnected ? (
-        <DropdownListItem
+        <Dropdown.DropdownListItem
           key={this.muteAllId}
           icon={isMeetingMuted ? 'unmute' : 'mute'}
           label={intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllLabel' : 'muteAllLabel'])}
           description={intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllDesc' : 'muteAllDesc'])}
           onClick={toggleMuteAllUsers}
-        />) : null
+        />
+      ) : null
       ),
       (!meetingIsBreakout && !isMeetingMuted && isMeteorConnected ? (
-        <DropdownListItem
+        <Dropdown.DropdownListItem
           key={this.muteId}
           icon="mute"
           label={intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
           description={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
           onClick={toggleMuteAllUsersExceptPresenter}
-        />) : null
+        />
+      ) : null
       ),
       (amIModerator
         ? (
-          <DropdownListItem
+          <Dropdown.DropdownListItem
             icon="download"
             label={intl.formatMessage(intlMessages.saveUserNames)}
             key={this.saveUsersNameId}
             onClick={this.onSaveUserNames}
-          />)
+          />
+        )
         : null
       ),
       (!meetingIsBreakout && isMeteorConnected ? (
-        <DropdownListItem
+        <Dropdown.DropdownListItem
           key={this.lockId}
           icon="lock"
           label={intl.formatMessage(intlMessages.lockViewersLabel)}
           description={intl.formatMessage(intlMessages.lockViewersDesc)}
           onClick={() => mountModal(<LockViewersContainer />)}
-        />) : null
+        />
+      ) : null
       ),
-      (ConnectionStatusService.isEnabled() && isMeteorConnected ? (
-        <DropdownListItem
-          key={this.connectionStatusId}
-          icon="warning"
-          label={intl.formatMessage(intlMessages.connectionStatusLabel)}
-          description={intl.formatMessage(intlMessages.connectionStatusDesc)}
-          onClick={() => mountModal(<ConnectionStatusContainer />)}
-        />) : null
+      (!meetingIsBreakout && isMeteorConnected && dynamicGuestPolicy ? (
+        <Dropdown.DropdownListItem
+          key={this.guestPolicyId}
+          icon="user"
+          label={intl.formatMessage(intlMessages.guestPolicyLabel)}
+          data-test="guestPolicyLabel"
+          description={intl.formatMessage(intlMessages.guestPolicyDesc)}
+          onClick={() => mountModal(<GuestPolicyContainer />)}
+        />
+      ) : null
       ),
-      (isMeteorConnected ? <DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
+      (isMeteorConnected ? <Dropdown.DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
       (canCreateBreakout && isMeteorConnected ? (
-        <DropdownListItem
+        <Dropdown.DropdownListItem
           data-test="createBreakoutRooms"
           key={this.createBreakoutId}
           icon="rooms"
           label={intl.formatMessage(intlMessages.createBreakoutRoom)}
           description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
           onClick={this.onCreateBreakouts}
-        />) : null
+        />
+      ) : null
       ),
       (canInviteUsers && isMeteorConnected ? (
-        <DropdownListItem
+        <Dropdown.DropdownListItem
           data-test="inviteBreakoutRooms"
           icon="rooms"
           label={intl.formatMessage(intlMessages.invitationItem)}
           key={this.createBreakoutId}
           onClick={this.onInvitationUsers}
-        />) : null
+        />
+      ) : null
       ),
       (amIModerator && CaptionsService.isCaptionsEnabled() && isMeteorConnected
         ? (
-          <DropdownListItem
+          <Dropdown.DropdownListItem
             icon="closed_caption"
             label={intl.formatMessage(intlMessages.captionsLabel)}
             description={intl.formatMessage(intlMessages.captionsDesc)}
@@ -345,7 +351,7 @@ class UserOptions extends PureComponent {
         onHide={this.onActionsHide}
         className={styles.dropdown}
       >
-        <DropdownTrigger tabIndex={0}>
+        <Dropdown.DropdownTrigger tabIndex={0}>
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
             data-test="manageUsers"
@@ -357,17 +363,17 @@ class UserOptions extends PureComponent {
             size="sm"
             onClick={() => null}
           />
-        </DropdownTrigger>
-        <DropdownContent
+        </Dropdown.DropdownTrigger>
+        <Dropdown.DropdownContent
           className={styles.dropdownContent}
           placement="right top"
         >
-          <DropdownList>
+          <Dropdown.DropdownList>
             {
               this.renderMenuItems()
             }
-          </DropdownList>
-        </DropdownContent>
+          </Dropdown.DropdownList>
+        </Dropdown.DropdownContent>
       </Dropdown>
     );
   }

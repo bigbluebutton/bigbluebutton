@@ -3,14 +3,32 @@ public:
     mobileFontSize: 16px
     desktopFontSize: 14px
     audioChatNotification: false
+    # Shows the audio modal when user joins the room. The audio modal prompts
+    # user to select an option ("Microphone" and/or "Listen only") for joining
+    # audio
     autoJoin: true
+    # Disables the listen only option in audio modal.
     listenOnlyMode: true
     forceListenOnly: false
+    # Skips the echo test when connecting with microphone.
     skipCheck: false
+    # Skips the echo test when connecting with microphone right after user
+    # joins the room the first time. Subsequents joins  to microphone won't
+    # have echo test skipped, for example if user leave and join mic again
+    # or reloading page and joining mic again.
+    # This setting won't have effect if skipCheck = true
     skipCheckOnJoin: false
+    #
+    # Allow users to change microphone/speaker dinamically
+    # The device is changed immediately, without the need to rejoin
+    # audio. Default value is true
+    # Firefox users: if no output devices is shown, you may set the flag
+    # "media.setsinkid.enabled" to make it work properly
+    # enableDynamicAudioDeviceSelection: true
+    #
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
-    bbbServerVersion: 2.3-dev
+    bbbServerVersion: 2.3
     copyright: '©2021 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
@@ -22,6 +40,7 @@ public:
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
     allowDefaultLogoutUrl: true
     allowUserLookup: false
+    dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
     enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
@@ -33,8 +52,9 @@ public:
     allowLogout: true
     allowFullscreen: true
     preloadNextSlides: 2
+    warnAboutUnsavedContentOnMeetingEnd: false
     mutedAlert:
-      enabled: false
+      enabled: true
       interval: 200
       threshold: -50
       duration: 4000
@@ -43,13 +63,22 @@ public:
     enableDebugWindow: true
     # Warning: increasing the limit of breakout rooms per meeting
     # can generate excessive overhead to the server. We recommend
-    # this value to be kept under 12.
+    # this value to be kept under 16.
     breakouts:
-      breakoutRoomLimit: 8
+      breakoutRoomLimit: 16
       sendInvitationToIncludedModerators: false
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
     customHeartbeat: false
-    showAllAvailableLocales: false
+    showAllAvailableLocales: true
+    # Show "Audio Filters for Microphone" option in settings menu.
+    # When set to true, users are able to enable/disable microphone constraints,
+    # otherwise default values for 'microphoneConstraints' option
+    # are used.
+    # For more info, see 'microphoneConstraints' option in this config.
+    # If not set, default value is true.
+    showAudioFilters: true
+    raiseHandActionButton:
+      enabled: true
     defaultSettings:
       application:
         animations: true
@@ -61,7 +90,17 @@ public:
         raiseHandPushAlerts: true
         guestWaitingAudioAlerts: true
         guestWaitingPushAlerts: true
+        paginationEnabled: true
+        # fallbackLocale: if the locale the client is loaded in does not have a
+        # translation a string, it will use the translation from the locale
+        # specified in fallbackLocale. Note that fallbackLocale should be a
+        # 100% translated locale for best user experience
         fallbackLocale: en
+        # overrideLocale (default is null): if set (for example to 'de') will
+        # force all clients to display the German translations of the strings.
+        # Users can individually set their preferred locale through Settings,
+        # but on first page load overrideLocale will trump the browser's
+        # preferred locale
         overrideLocale: null
         #Audio constraints for microphone. Use this to control browser's
         #filters, such as AGC (Auto Gain Control) , Echo Cancellation,
@@ -113,6 +152,9 @@ public:
       closePrivateChat:
         accesskey: G
         descId: closePrivateChat
+      raiseHand:
+        accesskey: R
+        descId: raiseHand
       openActions:
         accesskey: A
         descId: openActions
@@ -146,11 +188,16 @@ public:
       # Max timeout: used as the max camera subscribe reconnection timeout. Each
       # subscribe reattempt increases the reconnection timer up to this
       maxTimeout: 60000
-    chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc
-    chromeDefaultExtensionLink: https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc
-    chromeExtensionKey: KEY
-    chromeExtensionLink: LINK
     screenshare:
+      bitrate: 1500
+      mediaTimeouts:
+        maxConnectionAttempts: 2
+        # Base screen media timeout (send|recv)
+        baseTimeout: 30000
+        # Max timeout: used as the max camera subscribe reconnection timeout. Each
+        # subscribe reattempt increases the reconnection timer up to this
+        maxTimeout: 60000
+        timeoutIncreaseFactor: 1.5
       constraints:
         video:
           frameRate:
@@ -160,11 +207,7 @@ public:
             max: 2560
           height:
             max: 1600
-        audio: false
-      chromeScreenshareSources:
-        - window
-        - screen
-      firefoxScreenshareSource: window
+        audio: true
     # cameraProfiles is an array of:
     # - id: profile identifier
     #   name: human-readable profile name
@@ -248,6 +291,14 @@ public:
     autoShareWebcam: false
     skipVideoPreview: false
     skipVideoPreviewOnFirstJoin: false
+    # cameraSortingModes.paginationSorting: sorting mode to be applied when pagination is active
+    # cameraSortingModes.defaultSorting: sorting mode when pagination is not active (full mesh)
+    # Current implemented modes are:
+    # 'LOCAL_ALPHABETICAL' | 'VOICE_ACTIVITY_LOCAL' | 'LOCAL_VOICE_ACTIVITY' | 'LOCAL_PRESENTER_ALPHABETICAL'
+    # The algorithm names are self-explanatory.
+    cameraSortingModes:
+      defaultSorting: LOCAL_ALPHABETICAL
+      paginationSorting: VOICE_ACTIVITY_LOCAL
     # Entry `thresholds` is an array of:
     # - threshold: minimum number of cameras being shared for profile to applied
     #   profile: a camera profile id from the cameraProfiles configuration array
@@ -268,8 +319,11 @@ public:
         - threshold: 30
           profile: low-u30
     pagination:
-      # whether to globally enable or disable pagination.
-      enabled: true
+      # WARNING: the pagination.enabled setting has moved to
+      # public.app.defaultSettings.application.paginationEnabled
+      # paginationToggleEnabled: show a pagination toggle in settings for the
+      # user to enable/disable it
+      paginationToggleEnabled: true
       # how long (in ms) the negotiation will be debounced after a page change.
       pageChangeDebounceTime: 2500
       # video page sizes for DESKTOP endpoints. It stands for the number of SUBSCRIBER streams.
@@ -277,11 +331,46 @@ public:
       # A page size of 0 (zero) means that the page size is unlimited (disabled).
       desktopPageSizes:
         moderator: 0
-        viewer: 0
+        viewer: 5
       # video page sizes for MOBILE endpoints
       mobilePageSizes:
-        moderator: 6
-        viewer: 4
+        moderator: 2
+        viewer: 2
+    paginationThresholds:
+      enabled: false
+      thresholds:
+        - users: 30
+          desktopPageSizes:
+            moderator: 25
+            viewer: 25
+        - users: 40
+          desktopPageSizes:
+            moderator: 20
+            viewer: 20
+        - users: 50
+          desktopPageSizes:
+            moderator: 16
+            viewer: 16
+        - users: 60
+          desktopPageSizes:
+            moderator: 14
+            viewer: 12
+        - users: 70
+          desktopPageSizes:
+            moderator: 12
+            viewer: 10
+        - users: 80
+          desktopPageSizes:
+            moderator: 10
+            viewer: 8
+        - users: 90
+          desktopPageSizes:
+            moderator: 8
+            viewer: 6
+        - users: 100
+          desktopPageSizes:
+            moderator: 6
+            viewer: 4
   syncUsersWithConnectionManager:
     enabled: false
     syncInterval: 60000
@@ -292,6 +381,7 @@ public:
     enabled: true
     max_custom: 5
     allowDragAndDropFile: false
+    maxTypedAnswerLength: 45
   captions:
     enabled: true
     enableDictation: false
@@ -304,6 +394,8 @@ public:
     time: 5000
   chat:
     enabled: true
+    itemsPerPage: 100
+    timeBetweenFetchs: 1000
     bufferChatInsertsMs: 0
     startClosed: false
     min_message_length: 1
@@ -325,18 +417,16 @@ public:
     typingIndicator:
       enabled: true
   note:
-    enabled: false
+    enabled: true
     url: ETHERPAD_HOST
   layout:
     autoSwapLayout: false
     hidePresentation: false
     showParticipantsOnLogin: true
-    webcamsDefaultPlacement: 'top'
   media:
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
-    recvonlyIceGatheringCheck: true
     mediaTag: '#remote-media'
     callTransferTimeout: 5000
     callHangupTimeout: 2000
@@ -362,11 +452,16 @@ public:
     websocketKeepAliveDebounce: 10
     #Trace sip/audio messages in browser. If not set, default value is false.
     traceSip: false
+    # SDP semantics: plan-b|unified-plan
+    sdpSemantics: 'unified-plan'
   stats:
     enabled: true
-    interval: 2000
-    length: 5
-    log: false
+    interval: 10000
+    timeout: 30000
+    log: true
+    notification:
+      warning: false
+      error: true
     jitter:
       - 10
       - 20
@@ -375,6 +470,10 @@ public:
       - 0.05
       - 0.1
       - 0.2
+    rtt:
+      - 500
+      - 1000
+      - 2000
     level:
       - warning
       - danger
@@ -386,8 +485,6 @@ public:
     panZoomThrottle: 32
     restoreOnUpdate: false
     uploadEndpoint: '/bigbluebutton/presentation/upload'
-    uploadSizeMin: 0
-    uploadSizeMax: 50000000
     uploadValidMimeTypes:
       - extension: .pdf
         mime: application/pdf
@@ -425,6 +522,9 @@ public:
         mime: image/jpeg
       - extension: .png
         mime: image/png
+  selectRandomUser:
+    enabled: true
+    countdown: false
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
@@ -513,7 +613,6 @@ public:
         - triangle
         - rectangle
         - pencil
-        - hand
   clientLog:
     server:
       enabled: false
@@ -530,9 +629,11 @@ public:
       flushOnClose: true
       logTag: ''
 private:
+  analytics:
+    includeChat: true
   app:
     host: 127.0.0.1
-    localesUrl: /locales
+    localesUrl: /locale-list
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
   etherpad:
@@ -567,23 +668,13 @@ private:
   serverLog:
     level: info
     streamerLog: false
-  memoryMonitoring:
-    stat:
-      enabled: false
-    leak:
-      enabled: false
-    heapdump:
-      thresholdMb: 1024
-      enabled: false
-      heapdumpFolderPath: HEAPDUMP_FOLDER
-      heapdumpIntervalMs: 3600000
   minBrowserVersions:
     - browser: chrome
       version: 72
     - browser: chromeMobileIOS
       version: Infinity
     - browser: firefox
-      version: 63
+      version: 68
     - browser: firefoxMobile
       version: 68
     - browser: edge

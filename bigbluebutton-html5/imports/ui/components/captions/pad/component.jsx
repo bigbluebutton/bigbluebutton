@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Button from '/imports/ui/components/button/component';
@@ -8,6 +7,7 @@ import logger from '/imports/startup/client/logger';
 import PadService from './service';
 import CaptionsService from '/imports/ui/components/captions/service';
 import { styles } from './styles';
+import { PANELS, ACTIONS } from '../../layout/enums';
 
 const intlMessages = defineMessages({
   hide: {
@@ -55,7 +55,6 @@ const propTypes = {
   padId: PropTypes.string.isRequired,
   readOnlyPadId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  amIModerator: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -94,16 +93,6 @@ class Pad extends PureComponent {
       this.recognition.lang = locale;
       if (ownerId !== currentUserId) this.recognition.stop();
     }
-  }
-
-  toggleListen() {
-    const {
-      listening,
-    } = this.state;
-
-    this.setState({
-      listening: !listening,
-    }, this.handleListen);
   }
 
   handleListen() {
@@ -169,6 +158,16 @@ class Pad extends PureComponent {
     }
   }
 
+  toggleListen() {
+    const {
+      listening,
+    } = this.state;
+
+    this.setState({
+      listening: !listening,
+    }, this.handleListen);
+  }
+
   render() {
     const {
       locale,
@@ -177,13 +176,8 @@ class Pad extends PureComponent {
       readOnlyPadId,
       ownerId,
       name,
-      amIModerator,
+      newLayoutContextDispatch,
     } = this.props;
-
-    if (!amIModerator) {
-      Session.set('openPanel', 'userlist');
-      return null;
-    }
 
     const { listening } = this.state;
     const url = PadService.getPadURL(padId, readOnlyPadId, ownerId);
@@ -193,7 +187,16 @@ class Pad extends PureComponent {
         <header className={styles.header}>
           <div className={styles.title}>
             <Button
-              onClick={() => { Session.set('openPanel', 'userlist'); }}
+              onClick={() => {
+                newLayoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                  value: false,
+                });
+                newLayoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                  value: PANELS.NONE,
+                });
+              }}
               aria-label={intl.formatMessage(intlMessages.hide)}
               label={name}
               icon="left_arrow"
@@ -207,8 +210,7 @@ class Pad extends PureComponent {
                   onClick={() => { this.toggleListen(); }}
                   label={listening
                     ? intl.formatMessage(intlMessages.dictationStop)
-                    : intl.formatMessage(intlMessages.dictationStart)
-                  }
+                    : intl.formatMessage(intlMessages.dictationStart)}
                   aria-describedby="dictationBtnDesc"
                   color="primary"
                   disabled={!this.recognition}
@@ -216,12 +218,11 @@ class Pad extends PureComponent {
                 <div id="dictationBtnDesc" hidden>
                   {listening
                     ? intl.formatMessage(intlMessages.dictationOffDesc)
-                    : intl.formatMessage(intlMessages.dictationOnDesc)
-                  }
+                    : intl.formatMessage(intlMessages.dictationOnDesc)}
                 </div>
               </span>
-            ) : null
-          }
+            )
+            : null}
           {CaptionsService.canIOwnThisPad(ownerId)
             ? (
               <Button
@@ -231,8 +232,7 @@ class Pad extends PureComponent {
                 aria-label={intl.formatMessage(intlMessages.takeOwnership)}
                 label={intl.formatMessage(intlMessages.takeOwnership)}
               />
-            ) : null
-        }
+            ) : null}
         </header>
         {listening ? (
           <div>
@@ -244,8 +244,7 @@ class Pad extends PureComponent {
               ref={(node) => { this.iterimResultContainer = node; }}
             />
           </div>
-        ) : null
-      }
+        ) : null}
         <iframe
           title="etherpad"
           src={url}
@@ -259,6 +258,5 @@ class Pad extends PureComponent {
   }
 }
 
-export default injectWbResizeEvent(injectIntl(Pad));
-
 Pad.propTypes = propTypes;
+export default injectWbResizeEvent(injectIntl(Pad));

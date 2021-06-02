@@ -5,12 +5,17 @@ const fs = require('fs');
 const fsExtra = require('fs-extra');
 const moment = require('moment');
 const path = require('path');
+const PuppeteerVideoRecorder = require('puppeteer-video-recorder');
 const helper = require('./helper');
 const params = require('../params');
-const { ELEMENT_WAIT_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_TIME } = require('./constants');
 const e = require('./elements');
 const ue = require('../user/elements');
-const PuppeteerVideoRecorder = require('puppeteer-video-recorder');
+const { NETWORK_PRESETS } = require('./profiles');
+const audioCapture = `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`;
+const videoCapture = `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`;
+const devices = require('./devices');
+const linuxDesktop = devices['Linux Desktop'];
 
 class Page {
   constructor(name) {
@@ -37,7 +42,7 @@ class Page {
   }
 
   // Join BigBlueButton meeting
-  async init(args, meetingId, newParams, customParameter, testFolderName) {
+  async init(args, meetingId, newParams, customParameter, testFolderName, connectionPreset, deviceX) {
     try {
       this.effectiveParams = newParams || params;
       const isModerator = this.effectiveParams.moderatorPW;
@@ -49,13 +54,26 @@ class Page {
         this.browser = await puppeteer.launch(args);
       }
       this.page = await this.browser.newPage();
-      await this.page.setViewport({ width: 1280, height: 720 });
+      this.page.emulate(deviceX || linuxDesktop);
+      await this.getUserAgent(this);
+
+      // Connect to Chrome DevTools
+      const client = await this.page.target().createCDPSession();
+
+      // Set throttling property
+      await client.send('Network.emulateNetworkConditions', connectionPreset || NETWORK_PRESETS.WiFi);
+
+      // if (process.env.DEVICE_NAME === 'Desktop') {
+      //   await this.page.setViewport({ width: 1024, height: 720 });
+      // }
+
       this.page.setDefaultTimeout(3600000);
 
       // Getting all page console logs
       // this.page.on('console', async msg => console[msg._type](
       //   ...await Promise.all(msg.args().map(arg => arg.jsonValue()))
       // ));
+
       await this.page.setExtraHTTPHeaders({
         'Accept-Language': 'en-US',
       });
@@ -65,13 +83,11 @@ class Page {
 
       const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, isModerator, customParameter);
       await this.page.goto(joinURL, { waitUntil: 'networkidle2' });
-      const checkForGetMetrics = async () => {
-        if (process.env.BBB_COLLECT_METRICS === 'true') {
-          await this.waitForSelector(ue.anyUser, ELEMENT_WAIT_TIME);
-          await this.getMetrics(testFolderName);
-        }
-      };
-      await checkForGetMetrics();
+
+      if (process.env.BBB_COLLECT_METRICS === 'true' && process.env.IS_MOBILE !== 'true') {
+        await this.waitForSelector(ue.anyUser, ELEMENT_WAIT_TIME);
+        await this.getMetrics(testFolderName);
+      }
     } catch (e) {
       this.logger(e);
     }
@@ -97,12 +113,17 @@ class Page {
     const parsedSettings = await this.getSettingsYaml();
     const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
     await this.waitForSelector(e.leaveAudio, listenOnlyCallTimeout);
+    await this.click(e.leaveAudio, ELEMENT_WAIT_TIME);
+    await this.waitForSelector(e.disconnectAudio, ELEMENT_WAIT_TIME);
+    await this.click(e.disconnectAudio, true);
   }
 
   // Leave audio
   async leaveAudio() {
     await this.waitForSelector(e.leaveAudio, ELEMENT_WAIT_TIME);
     await this.click(e.leaveAudio, true);
+    await this.waitForSelector(e.disconnectAudio, ELEMENT_WAIT_TIME);
+    await this.click(e.disconnectAudio, true);
     await this.waitForSelector(e.joinAudio, ELEMENT_WAIT_TIME);
   }
 
@@ -153,19 +174,20 @@ class Page {
     return await document.querySelectorAll(element)[0];
   }
 
+  async getUserAgent(test) {
+    const useragent = await test.page.evaluate('navigator.userAgent');
+    console.log({ useragent });
+    return useragent;
+  }
+
   // Get the default arguments for creating a page
   static getArgs() {
-    const args = ['--no-sandbox', '--use-fake-ui-for-media-stream', '--window-size=1280,720', '--lang=en-US'];
-    return { headless: true, args };
-  }
-
-  static getArgsWithAudio() {
     if (process.env.BROWSERLESS_ENABLED === 'true') {
       const args = [
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
-        '--window-size=1280,720',
+        '--window-size=1024,720',
         '--lang=en-US',
       ];
       return {
@@ -177,75 +199,48 @@ class Page {
       '--no-sandbox',
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
-      '--window-size=1280,720',
-      `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
+      '--no-default-browser-check',
+      '--window-size=1150,980',
+      audioCapture,
+      videoCapture,
       '--allow-file-access',
       '--lang=en-US',
     ];
     return {
-      headless: true,
+      headless: false,
       args,
+      defaultViewport: {
+        width: 1250,
+        height: 850,
+      },
+      ignoreDefaultArgs: [
+        '--enable-automation',
+      ],
     };
   }
 
-  static getArgsWithVideo() {
-    if (process.env.BROWSERLESS_ENABLED === 'true') {
-      const args = [
-        '--no-sandbox',
-        '--use-fake-ui-for-media-stream',
-        '--use-fake-device-for-media-stream',
-        '--window-size=1280,720',
-        '--lang=en-US',
-      ];
-      return {
-        headless: true,
-        args,
-      };
-    }
-    const args = [
-      '--no-sandbox',
-      '--use-fake-ui-for-media-stream',
-      '--use-fake-device-for-media-stream',
-      '--window-size=1280,720',
-      `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
-      '--allow-file-access',
-      '--lang=en-US',
-    ];
-    return {
-      headless: true,
-      args,
-    };
+  static checkRegression(numb) {
+    if (process.env.REGRESSION_TESTING === 'true') {
+      expect(screenshot).toMatchImageSnapshot({
+        failureThreshold: numb,
+        failureThresholdType: 'percent',
+      });
+    }  
   }
 
-  static getArgsWithAudioAndVideo() {
-    if (process.env.BROWSERLESS_ENABLED === 'true') {
-      const args = [
-        '--no-sandbox',
-        '--use-fake-ui-for-media-stream',
-        '--use-fake-device-for-media-stream',
-        '--window-size=1280,720',
-        '--lang=en-US',
-      ];
-      return {
-        headless: true,
-        args,
-      };
+  async isNotVisible(el, timeout) {
+    try {
+      await this.page.waitForSelector(el, {visible: false, timeout: timeout});
+      return true;
+    } catch(e) {
+      console.log(e);
+      return false;
     }
-    const args = [
-      '--no-sandbox',
-      '--use-fake-ui-for-media-stream',
-      '--use-fake-device-for-media-stream',
-      '--window-size=1280,720',
-      `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
-      `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
-      '--allow-file-access',
-      '--lang=en-US',
-    ];
-    return {
-      headless: true,
-      args,
-    };
   }
+
+  // async emulateMobile(userAgent) {
+  //   await this.page.setUserAgent(userAgent);
+  // }
 
   // Returns a Promise that resolves when an element does not exist/is removed from the DOM
   async waitForElementHandleToBeRemoved(element) {
@@ -292,10 +287,31 @@ class Page {
     }
   }
 
+  // Press a keyboard button
+  async press(key) {
+    await this.page.keyboard.press(key);
+  }
+
+  // Press and hold a keyboard button
+  async hold(key) {
+    await this.page.keyboard.down(key);
+  }
+
+  // Release a hold pressed keyboard button
+  async release(key) {
+    await this.page.keyboard.up(key);
+  }
+
   async click(element, relief = false) {
     if (relief) await helper.sleep(1000);
     await this.waitForSelector(element, ELEMENT_WAIT_TIME);
     await this.page.click(element, true);
+  }
+
+  async clickNItem(element, relief = false, n) {
+    if (relief) await helper.sleep(1000);
+    const elementHandle = await this.page.$$(element);
+    await elementHandle[n].click();
   }
 
   async type(element, text, relief = false) {
@@ -394,11 +410,11 @@ class Page {
     }
     await this.waitForSelector(ue.anyUser, ELEMENT_WAIT_TIME);
     const totalNumberOfUsersMongo = await this.page.evaluate(() => {
-      const collection = require('/imports/api/users/index.js');
-      const users = collection.default._collection.find({ connectionStatus: 'online' }).count();
+      const collection = require('/imports/api/users-persistent-data/index.js');
+      const users = collection.default._collection.find({}, {}, {}, {}, {}, { loggedOut: 'false' }).count();
       return users;
     });
-    const totalNumberOfUsersDom = await this.page.evaluate(() => document.querySelectorAll('[data-test^="userListItem"]').length);
+    const totalNumberOfUsersDom = await this.page.evaluate(async () => await document.querySelectorAll('[data-test^="userListItem"]').length);
     this.logger({ totalNumberOfUsersDom, totalNumberOfUsersMongo });
     const metric = await this.page.metrics();
     pageMetricsObj.totalNumberOfUsersMongoObj = totalNumberOfUsersMongo;

@@ -11,11 +11,12 @@ import TimeWindowChatItem from './time-window-chat-item/container';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
+const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
+const CHAT_CLEAR_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_clear;
 
 const propTypes = {
   scrollPosition: PropTypes.number,
   chatId: PropTypes.string.isRequired,
-  hasUnreadMessages: PropTypes.bool.isRequired,
   handleScrollUpdate: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -49,8 +50,8 @@ class TimeWindowList extends PureComponent {
         const { timeWindowsValues } = this.props;
         const timewindow = timeWindowsValues[rowIndex];
 
-        const key = timewindow.key;
-        const contentCount = timewindow.content.length;
+        const key = timewindow?.key;
+        const contentCount = timewindow?.content?.length;
         return `${key}-${contentCount}`;
       },
     });
@@ -65,6 +66,7 @@ class TimeWindowList extends PureComponent {
       scrollPosition: 0,
       userScrolledBack: false,
       lastMessage: {},
+      fontsLoaded: false
     };
     this.systemMessageIndexes = [];
 
@@ -74,10 +76,16 @@ class TimeWindowList extends PureComponent {
     this.lastWidth = 0;
 
     this.scrollInterval = null;
+
+    document.fonts.onloadingdone = () => this.setState({fontsLoaded: true});
   }
 
   componentDidMount() {
-    // TODO: re-implement scroll to position using virtualized list    
+    const { scrollPosition: scrollProps } = this.props;
+
+    this.setState({
+      scrollPosition: scrollProps,
+    });
   }
 
   componentDidUpdate(prevProps) {
@@ -93,9 +101,35 @@ class TimeWindowList extends PureComponent {
       setUserSentMessage,
       timeWindowsValues,
       chatId,
+      syncing,
+      syncedPercent,
+      lastTimeWindowValuesBuild,
+      scrollPosition: scrollProps,
+      count
     } = this.props;
 
-    const {timeWindowsValues: prevTimeWindowsValues, chatId: prevChatId} = prevProps;
+    const { userScrolledBack } = this.state;
+
+    if((count > 0 && !userScrolledBack) || userSentMessage || !scrollProps){
+      const lastItemIndex = timeWindowsValues.length - 1;
+
+      this.setState({
+        scrollPosition: lastItemIndex,
+      }, ()=> this.handleScrollUpdate(lastItemIndex));
+    }
+
+    const {
+      timeWindowsValues: prevTimeWindowsValues,
+      chatId: prevChatId,
+      syncing: prevSyncing,
+      syncedPercent: prevSyncedPercent
+    } = prevProps;
+
+    if (prevChatId !== chatId) {
+      this.setState({
+        scrollPosition: scrollProps,
+      });
+    }
 
     const prevTimeWindowsLength = prevTimeWindowsValues.length;
     const timeWindowsValuesLength = timeWindowsValues.length;
@@ -109,15 +143,29 @@ class TimeWindowList extends PureComponent {
       }  
     }
 
-    if (lastTimeWindow && (chatId !== prevChatId)) {
-      this.listRef.recomputeGridSize();
-    }
-
     if (userSentMessage && !prevProps.userSentMessage){
       this.setState({
         userScrolledBack: false,
       }, ()=> setUserSentMessage(false));
     }
+
+     // this condition exist to the case where the chat has a single message and the chat is cleared
+    // The component List from react-virtualized doesn't have a reference to the list of messages so I need force the update to fix it
+    if (
+      (lastTimeWindow?.id === `${SYSTEM_CHAT_TYPE}-${CHAT_CLEAR_MESSAGE}`)
+      || (prevSyncing && !syncing)
+      || (syncedPercent !== prevSyncedPercent)
+      || (chatId !== prevChatId)
+      || (lastTimeWindowValuesBuild !== prevProps.lastTimeWindowValuesBuild)
+      ) {
+      if (chatId !== prevChatId){
+        this.systemMessageIndexes.forEach(index => {
+          this.clearAndRecompute(index);
+        });
+      }
+      this.listRef.forceUpdateGrid();
+    }
+
   }
 
   componentWillUnmount() {
@@ -137,6 +185,29 @@ class TimeWindowList extends PureComponent {
     }
 
     handleScrollUpdate(position || 1);
+  }
+
+  clearAndRecompute(index) {
+    let recomputed = false;
+
+    [500, 1000, 2000, 3000, 4000, 5000].forEach((i)=>{
+      setTimeout(() => {
+        const { fontsLoaded } = this.state;
+        // this is needed because fontsLoaded will be false if user closes/open chatPanel
+        const fontStatus = document.fonts.status;
+
+        if (this.listRef) {
+          if ((fontsLoaded || fontStatus === 'loaded') && !recomputed) {
+            recomputed = true;
+
+            setTimeout(() => {
+              this.cache.clear(index);
+              this.listRef.recomputeRowHeights(index);
+            }, 500);
+          }
+        }
+      }, i);
+    })
   }
 
   scrollTo(position = null) {
@@ -166,20 +237,14 @@ class TimeWindowList extends PureComponent {
 
     const needResizeMessages = [
       `${SYSTEM_CHAT_TYPE}-welcome-msg`,
-      `${SYSTEM_CHAT_TYPE}-moderator-msg`
+      `${SYSTEM_CHAT_TYPE}-moderator-msg`,
+      `${SYSTEM_CHAT_TYPE}-${CHAT_POLL_RESULTS_MESSAGE}`,
     ];
 
-    if (needResizeMessages.includes(message.key)) {
+    if (needResizeMessages.includes(message.id)) {
       if (!this.systemMessageIndexes.includes(index)) {
         this.systemMessageIndexes.push(index);
-        [500, 1000, 2000, 3000, 4000, 5000].forEach((i)=>{
-          setTimeout(() => {
-            if (this.listRef) {
-              this.cache.clear(index);
-              this.listRef.recomputeRowHeights(index);
-            }
-          }, i);
-        })
+        this.clearAndRecompute(index);
       }
     }
 
@@ -215,6 +280,7 @@ class TimeWindowList extends PureComponent {
     const {
       intl,
       count,
+      timeWindowsValues,
     } = this.props;
     const { userScrolledBack } = this.state;
 
@@ -227,9 +293,15 @@ class TimeWindowList extends PureComponent {
           size="sm"
           key="unread-messages"
           label={intl.formatMessage(intlMessages.moreMessages)}
-          onClick={()=> this.setState({
-            userScrolledBack: false,
-          })}
+          onClick={()=> {
+            const lastItemIndex = timeWindowsValues.length - 1;
+            this.handleScrollUpdate(lastItemIndex);
+
+            this.setState({
+              scrollPosition: lastItemIndex,
+              userScrolledBack: false,
+            });
+          }}
         />
       );
     }
@@ -243,9 +315,12 @@ class TimeWindowList extends PureComponent {
     } = this.props;
     const {
       scrollArea,
+      scrollPosition,
       userScrolledBack,
     } = this.state;
     ChatLogger.debug('TimeWindowList::render', {...this.props},  {...this.state}, new Date());
+
+    const shouldAutoScroll = !!(scrollPosition && timeWindowsValues.length >= scrollPosition && !userScrolledBack);
 
     return (
       [<div 
@@ -265,6 +340,7 @@ class TimeWindowList extends PureComponent {
         className={styles.messageListWrapper}
         key="chat-list"
         data-test="chatMessages"
+        aria-live="polite"
         ref={node => this.messageListWrapper = node}
       >
         <AutoSizer>
@@ -285,7 +361,7 @@ class TimeWindowList extends PureComponent {
                     }
                   }
                 }}
-                isScrolling={true}
+                isScrolling
                 rowHeight={this.cache.rowHeight}
                 className={styles.messageList}
                 rowRenderer={this.rowRender}
@@ -294,10 +370,11 @@ class TimeWindowList extends PureComponent {
                 width={width}
                 overscanRowCount={0}
                 deferredMeasurementCache={this.cache}
-                scrollToIndex={
-                  !userScrolledBack ? timeWindowsValues.length - 1 : undefined
-                }
-                onScroll={({ clientHeight, scrollHeight, scrollTop })=> {
+                scrollToIndex={shouldAutoScroll ? scrollPosition : undefined}
+                onRowsRendered={({ stopIndex }) => {
+                  this.handleScrollUpdate(stopIndex);
+                }}
+                onScroll={({ clientHeight, scrollHeight, scrollTop }) => {
                   const scrollSize = scrollTop + clientHeight;
                   if (scrollSize >= scrollHeight) {
                     this.setState({

@@ -31,20 +31,18 @@
         <map name="mod_sndfile.c" value="warning,info,debug"/>
      -->
     <map name="all" value="console,debug,info,notice,warning,err,crit,alert"/>
-    <map name="sofia.c"                     value="notice"/>
-    <map name="switch_core_state_machine.c" value="notice"/>      
     
     <!--
       You can use or modify this sample set of mappings.  It turns on higher
       level messages for all modules and then specifies extra lower level
-      messages for OpenZAP, Sofia, and switch core messages.
+      messages for freetdm, Sofia, and switch core messages.
       
     <map name="all"                         value="warning,err,crit,alert"/>
     <map name="zap_analog.c"                value="all"/>
     <map name="zap_io.c"                    value="all"/>
     <map name="zap_isdn.c"                  value="all"/>
     <map name="zap_zt.c"                    value="all"/>
-    <map name="mod_openzap"                 value="all"/>
+    <map name="mod_freetdm"                 value="all"/>
     <map name="sofia.c"                     value="notice"/>
     <map name="switch_core_state_machine.c" value="all"/>      
     

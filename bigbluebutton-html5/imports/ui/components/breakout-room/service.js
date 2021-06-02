@@ -4,6 +4,7 @@ import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import { Session } from 'meteor/session';
 import Users from '/imports/api/users';
+import UserListService from '/imports/ui/components/user-list/service';
 import fp from 'lodash/fp';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -27,14 +28,8 @@ const breakoutRoomUser = (breakoutId) => {
   return breakoutUser;
 };
 
-const closeBreakoutPanel = () => {
-  Session.set('openPanel', 'userlist');
-  window.dispatchEvent(new Event('panelChanged'));
-};
-
 const endAllBreakouts = () => {
   makeCall('endAllBreakouts');
-  closeBreakoutPanel();
 };
 
 const requestJoinURL = (breakoutId) => {
@@ -118,7 +113,6 @@ export default {
   transferUserToMeeting,
   transferToBreakout,
   meetingId: () => Auth.meetingID,
-  closeBreakoutPanel,
   amIModerator,
   getBreakoutUserByUserId,
   getBreakoutByUser,
@@ -126,6 +120,7 @@ export default {
   getBreakoutsNoTime,
   getBreakoutByUserId,
   getBreakoutUserIsIn,
+  sortUsersByName: UserListService.sortUsersByName,
   isUserInBreakoutRoom,
   checkInviteModerators,
 };

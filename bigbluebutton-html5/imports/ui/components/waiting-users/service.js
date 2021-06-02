@@ -6,7 +6,19 @@ const guestUsersCall = (guestsArray, status) => makeCall('allowPendingUsers', gu
 
 const changeGuestPolicy = policyRule => makeCall('changeGuestPolicy', policyRule);
 
+const getGuestPolicy = () => {
+  const meeting = Meetings.findOne(
+    { meetingId: Auth.meetingID },
+    { fields: { 'usersProp.guestPolicy': 1 } },
+  );
+
+  return meeting.usersProp.guestPolicy;
+};
+
 const isGuestLobbyMessageEnabled = Meteor.settings.public.app.enableGuestLobbyMessage;
+
+// We use the dynamicGuestPolicy rule for allowing the rememberChoice checkbox
+const allowRememberChoice = Meteor.settings.public.app.dynamicGuestPolicy;
 
 const getGuestLobbyMessage = () => {
   const meeting = Meetings.findOne(
@@ -24,7 +36,9 @@ const setGuestLobbyMessage = (message) => makeCall('setGuestLobbyMessage', messa
 export default {
   guestUsersCall,
   changeGuestPolicy,
+  getGuestPolicy,
   isGuestLobbyMessageEnabled,
   getGuestLobbyMessage,
   setGuestLobbyMessage,
+  allowRememberChoice,
 };

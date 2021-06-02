@@ -1,4 +1,7 @@
 import addSystemMsg from '../../../group-chat-msg/server/modifiers/addSystemMsg';
+import Polls from '/imports/api/polls';
+import removePoll from '../modifiers/removePoll';
+import Logger from '/imports/startup/server/logger';
 
 export default function sendPollChatMsg({ body }, meetingId) {
   const { poll } = body;
@@ -9,19 +12,19 @@ export default function sendPollChatMsg({ body }, meetingId) {
   const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
   const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 
-  const { answers, numRespondents } = poll;
+  const pollData = Polls.findOne({ meetingId });
 
-  let responded = 0;
-  let resultString = 'bbb-published-poll-\n';
-  answers.map((item) => {
-    responded += item.numVotes;
-    return item;
-  }).map((item) => {
-    const numResponded = responded === numRespondents ? numRespondents : responded;
-    const pct = Math.round(item.numVotes / numResponded * 100);
-    const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
-    resultString += `${item.key}: ${item.numVotes || 0} | ${pctFotmatted}\n`;
-  });
+  if (!pollData) {
+    Logger.error(`Attempted to send chat message of inexisting poll for meetingId: ${meetingId}`);
+    return false;
+  }
+
+  const pollResultData = poll;
+  pollResultData.pollType = pollData.pollType;
+  const extra = {
+    type: 'poll',
+    pollResultData,
+  };
 
   const payload = {
     id: `${SYSTEM_CHAT_TYPE}-${CHAT_POLL_RESULTS_MESSAGE}`,
@@ -31,8 +34,10 @@ export default function sendPollChatMsg({ body }, meetingId) {
       id: PUBLIC_CHAT_SYSTEM_ID,
       name: '',
     },
-    message: resultString,
+    message: '',
+    extra,
   };
 
+  removePoll(meetingId, pollData.id);
   return addSystemMsg(meetingId, PUBLIC_GROUP_CHAT_ID, payload);
 }

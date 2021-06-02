@@ -4,17 +4,13 @@ import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
-import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
-import DropdownContent from '/imports/ui/components/dropdown/content/component';
-import DropdownList from '/imports/ui/components/dropdown/list/component';
-import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
 import cx from 'classnames';
 import { styles } from '../styles';
+import { PANELS, ACTIONS } from '../../layout/enums';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -109,6 +105,11 @@ class ActionsDropdown extends PureComponent {
     }
   }
 
+  handleExternalVideoClick() {
+    const { mountModal } = this.props;
+    mountModal(<ExternalVideoModal />);
+  }
+
   getAvailableActions() {
     const {
       intl,
@@ -117,8 +118,10 @@ class ActionsDropdown extends PureComponent {
       handleTakePresenter,
       isSharingVideo,
       isPollingEnabled,
+      isSelectRandomUserEnabled,
       stopExternalVideoShare,
       mountModal,
+      newLayoutContextDispatch,
     } = this.props;
 
     const {
@@ -137,7 +140,7 @@ class ActionsDropdown extends PureComponent {
     return _.compact([
       (amIPresenter && isPollingEnabled
         ? (
-          <DropdownListItem
+          <Dropdown.DropdownListItem
             icon="polling"
             data-test="polling"
             label={formatMessage(pollBtnLabel)}
@@ -147,7 +150,14 @@ class ActionsDropdown extends PureComponent {
               if (Session.equals('pollInitiated', true)) {
                 Session.set('resetPollPanel', true);
               }
-              Session.set('openPanel', 'poll');
+              newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                value: true,
+              });
+              newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                value: PANELS.POLL,
+              });
               Session.set('forcePollOpen', true);
             }}
           />
@@ -155,7 +165,7 @@ class ActionsDropdown extends PureComponent {
         : null),
       (!amIPresenter
         ? (
-          <DropdownListItem
+          <Dropdown.DropdownListItem
             icon="presentation"
             label={formatMessage(takePresenter)}
             description={formatMessage(takePresenterDesc)}
@@ -166,7 +176,7 @@ class ActionsDropdown extends PureComponent {
         : null),
       (amIPresenter
         ? (
-          <DropdownListItem
+          <Dropdown.DropdownListItem
             data-test="uploadPresentation"
             icon="presentation"
             label={formatMessage(presentationLabel)}
@@ -178,7 +188,7 @@ class ActionsDropdown extends PureComponent {
         : null),
       (amIPresenter && allowExternalVideo
         ? (
-          <DropdownListItem
+          <Dropdown.DropdownListItem
             icon="video"
             label={!isSharingVideo ? intl.formatMessage(intlMessages.startExternalVideoLabel)
               : intl.formatMessage(intlMessages.stopExternalVideoLabel)}
@@ -188,9 +198,9 @@ class ActionsDropdown extends PureComponent {
           />
         )
         : null),
-      (amIPresenter
+      (amIPresenter && isSelectRandomUserEnabled
         ? (
-          <DropdownListItem
+          <Dropdown.DropdownListItem
             icon="user"
             label={intl.formatMessage(intlMessages.selectRandUserLabel)}
             description={intl.formatMessage(intlMessages.selectRandUserDesc)}
@@ -215,32 +225,30 @@ class ActionsDropdown extends PureComponent {
     // about the first one because it's the default.
     const { podId } = podIds[0];
 
-    const presentationItemElements = presentations.map((p) => {
-      const itemStyles = {};
-      itemStyles[styles.presentationItem] = true;
-      itemStyles[styles.isCurrent] = p.current;
+    const presentationItemElements = presentations
+      .sort((a, b) => (a.name.localeCompare(b.name)))
+      .map((p) => {
+        const itemStyles = {};
+        itemStyles[styles.presentationItem] = true;
+        itemStyles[styles.isCurrent] = p.current;
 
-      return (<DropdownListItem
-        className={cx(itemStyles)}
-        icon="file"
-        iconRight={p.current ? 'check' : null}
-        label={p.name}
-        description="uploaded presentation file"
-        key={`uploaded-presentation-${p.id}`}
-        onClick={() => {
-          setPresentation(p.id, podId);
-        }}
-      />
-      );
-    });
+        return (
+          <Dropdown.DropdownListItem
+            className={cx(itemStyles)}
+            icon="file"
+            iconRight={p.current ? 'check' : null}
+            label={p.name}
+            description="uploaded presentation file"
+            key={`uploaded-presentation-${p.id}`}
+            onClick={() => {
+              setPresentation(p.id, podId);
+            }}
+          />
+        );
+      });
 
-    presentationItemElements.push(<DropdownListSeparator key={_.uniqueId('list-separator-')} />);
+    presentationItemElements.push(<Dropdown.DropdownListSeparator key={_.uniqueId('list-separator-')} />);
     return presentationItemElements;
-  }
-
-  handleExternalVideoClick() {
-    const { mountModal } = this.props;
-    mountModal(<ExternalVideoModal />);
   }
 
   render() {
@@ -250,6 +258,9 @@ class ActionsDropdown extends PureComponent {
       amIModerator,
       shortcuts: OPEN_ACTIONS_AK,
       isMeteorConnected,
+      isDropdownOpen,
+      sidebarContent,
+      sidebarNavigation
     } = this.props;
 
     const availableActions = this.getAvailableActions();
@@ -264,9 +275,17 @@ class ActionsDropdown extends PureComponent {
     }
 
     return (
-      <Dropdown className={styles.dropdown} ref={(ref) => { this._dropdown = ref; }}>
-        <DropdownTrigger tabIndex={0} accessKey={OPEN_ACTIONS_AK}>
+      <Dropdown
+        {...{
+          sidebarContent,
+          sidebarNavigation,
+        }}
+        className={styles.dropdown}
+        ref={(ref) => { this._dropdown = ref; }}
+      >
+        <Dropdown.DropdownTrigger tabIndex={0} accessKey={OPEN_ACTIONS_AK}>
           <Button
+            className={isDropdownOpen ? styles.hideDropdownButton : ''}
             hideLabel
             aria-label={intl.formatMessage(intlMessages.actionsLabel)}
             label={intl.formatMessage(intlMessages.actionsLabel)}
@@ -276,12 +295,12 @@ class ActionsDropdown extends PureComponent {
             circle
             onClick={() => null}
           />
-        </DropdownTrigger>
-        <DropdownContent placement="top left">
-          <DropdownList>
+        </Dropdown.DropdownTrigger>
+        <Dropdown.DropdownContent placement="top left">
+          <Dropdown.DropdownList className={styles.scrollableList}>
             {children}
-          </DropdownList>
-        </DropdownContent>
+          </Dropdown.DropdownList>
+        </Dropdown.DropdownContent>
       </Dropdown>
     );
   }

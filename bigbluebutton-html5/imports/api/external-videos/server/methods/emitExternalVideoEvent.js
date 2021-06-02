@@ -9,28 +9,35 @@ export default function emitExternalVideoEvent(options) {
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'UpdateExternalVideoPubMsg';
 
-  const { meetingId, requesterUserId } = extractCredentials(this.userId);
+  try {
+    const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  const { status, playerStatus } = options;
+    check(meetingId, String);
+    check(requesterUserId, String);
 
-  const user = Users.findOne({ meetingId, userId: requesterUserId })
+    const { status, playerStatus } = options;
 
-  if (user && user.presenter) {
+    const user = Users.findOne({ meetingId, userId: requesterUserId });
 
-    check(status, String);
-    check(playerStatus, {
-      rate: Match.Maybe(Number),
-      time: Match.Maybe(Number),
-      state: Match.Maybe(Boolean),
-    });
+    if (user && user.presenter) {
+      check(status, String);
+      check(playerStatus, {
+        rate: Match.Maybe(Number),
+        time: Match.Maybe(Number),
+        state: Match.Maybe(Boolean),
+      });
 
-    let rate = playerStatus.rate || 0;
-    let time = playerStatus.time || 0;
-    let state = playerStatus.state || 0;
-    const payload = { status, rate, time, state };
+      const rate = playerStatus.rate || 0;
+      const time = playerStatus.time || 0;
+      const state = playerStatus.state || 0;
+      const payload = {
+        status, rate, time, state,
+      };
 
-    Logger.debug(`User id=${requesterUserId} sending ${EVENT_NAME} event:${state} for meeting ${meetingId}`);
-    return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
-
+      Logger.debug(`User id=${requesterUserId} sending ${EVENT_NAME} event:${state} for meeting ${meetingId}`);
+      RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+    }
+  } catch (err) {
+    Logger.error(`Exception while invoking method emitExternalVideoEvent ${err.stack}`);
   }
 }

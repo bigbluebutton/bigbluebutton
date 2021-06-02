@@ -34,11 +34,8 @@ export default withTracker((params) => {
     presentationId,
   } = params;
 
-  const startPoll = (type, id) => {
-    Session.set('openPanel', 'poll');
-    Session.set('forcePollOpen', true);
-
-    makeCall('startPoll', type, id, '');
+  const startPoll = (type, id, answers) => {
+    makeCall('startPoll', type, id, '', answers);
   };
 
   return {

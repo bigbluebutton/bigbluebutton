@@ -35,6 +35,13 @@ class TextInput extends PureComponent {
     this.setState({ message });
   }
 
+  handleOnKeyDown(e) {
+    if (e.keyCode === 13 && e.shiftKey === false) {
+      e.preventDefault();
+      this.handleOnClick();
+    }
+  }
+
   handleOnClick() {
     const { send } = this.props;
     const { message } = this.state;
@@ -58,6 +65,7 @@ class TextInput extends PureComponent {
           className={styles.textarea}
           maxLength={maxLength}
           onChange={(e) => this.handleOnChange(e)}
+          onKeyDown={(e) => this.handleOnKeyDown(e)}
           placeholder={placeholder}
           value={message}
         />

@@ -1,8 +1,6 @@
 import React, { createContext, useReducer, useEffect } from 'react';
 import Storage from '/imports/ui/services/storage/session';
 
-const { webcamsDefaultPlacement } = Meteor.settings.public.layout;
-
 export const LayoutContext = createContext();
 
 const initialState = {
@@ -20,6 +18,9 @@ const initialState = {
     left: 0,
   },
   userListSize: {
+    width: 0,
+  },
+  secondPanelSize: {
     width: 0,
   },
   chatSize: {
@@ -50,7 +51,7 @@ const initialState = {
   },
   webcamsAreaUserSetsHeight: 0,
   webcamsAreaUserSetsWidth: 0,
-  webcamsPlacement: webcamsDefaultPlacement || 'top',
+  webcamsPlacement: 'top',
   presentationAreaSize: {
     width: 0,
     height: 0,
@@ -109,6 +110,14 @@ const reducer = (state, action) => {
         ...state,
         userListSize: {
           width: action.value.width,
+        },
+      };
+    }
+    case 'setSecondPanelSize': {
+      return {
+        ...state,
+        secondPanelSize: {
+          width: action.value,
         },
       };
     }
@@ -268,7 +277,6 @@ const ContextProvider = (props) => {
     <LayoutContext.Provider value={{
       layoutContextState,
       layoutContextDispatch,
-      ...props,
     }}
     >
       {children}
@@ -277,8 +285,8 @@ const ContextProvider = (props) => {
 };
 
 const withProvider = Component => props => (
-  <ContextProvider {...props}>
-    <Component />
+  <ContextProvider>
+    <Component {...props} />
   </ContextProvider>
 );
 

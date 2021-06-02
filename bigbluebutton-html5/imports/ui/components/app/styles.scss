@@ -13,15 +13,19 @@
 .main {
   @extend %flex-column;
   position: relative;
-  height: 100%;
+}
+
+.newLayout{
+  background-color: #06172A;
 }
 
 .navbar {
-  position: relative;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
   text-align: center;
   font-size: 1.5rem;
   padding: var(--bars-padding) var(--bars-padding) 0 var(--bars-padding);
-  height: 7rem;
 }
 
 .wrapper {
@@ -75,12 +79,10 @@
 
   &:before {
     top: 0;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, .45) -20%, transparent 20%);
   }
 
   &:after {
     bottom: 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, .45) -20%, transparent 20%);
   }
 
   @include mq($medium-up) {
@@ -102,7 +104,7 @@
   @extend %text-elipsis;
   @extend %highContrastOutline;
   outline-style: solid;
-  z-index: 3;
+  z-index: 5;
   overflow: visible;
   order: 1;
 
@@ -113,12 +115,12 @@
   @include mq($medium-up) {
     flex: 0 15vw;
     order: 1;
-    height: 100vh;
+    height: 100%;
   }
 
   @include mq($xlarge-up) {
     flex-basis: 10vw;
-    height: 100vh;
+    height: 100%;
   }
 }
 
@@ -142,7 +144,7 @@
   order: 2;
   height: 100%;
   @include mq($small-only) {
-    z-index: 4;
+    z-index: 5;
     height: auto;
     top: var(--navbar-height);
     overflow: visible;
@@ -162,6 +164,10 @@
   background-color: var(--color-white);
   min-width: var(--poll-pane-min-width);
   padding: 1rem;
+
+  @include mq($small-only) {
+    overflow: auto;
+  }
 }
 
 .breakoutRoom {
