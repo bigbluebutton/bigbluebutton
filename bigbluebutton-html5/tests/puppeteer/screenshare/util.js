@@ -21,6 +21,7 @@ async function getScreenShareContainer(test) {
   const response = screenShareContainer !== null;
   return response;
 }
+
 async function getScreenShareBreakoutContainer(test) {
   await test.waitForSelector(e.screenshareConnecting, { timeout: VIDEO_LOADING_WAIT_TIME });
   await test.waitForSelector(e.screenShareVideo, { timeout: VIDEO_LOADING_WAIT_TIME });

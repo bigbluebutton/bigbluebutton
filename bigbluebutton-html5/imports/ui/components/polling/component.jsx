@@ -20,7 +20,7 @@ const intlMessages = defineMessages({
   pollAnswerDesc: {
     id: 'app.polling.pollAnswerDesc',
   },
-  pollQestionTitle: {
+  pollQuestionTitle: {
     id: 'app.polling.pollQuestionTitle',
   },
   submitLabel: {
@@ -92,6 +92,7 @@ class Polling extends Component {
       handleVote,
       handleTypedVote,
       pollAnswerIds,
+      pollTypes
     } = this.props;
 
     const {
@@ -122,14 +123,14 @@ class Polling extends Component {
             question.length > 0 && (
               <span className={styles.qHeader}>
                 <div className={styles.qTitle}>
-                  {intl.formatMessage(intlMessages.pollQestionTitle)}
+                  {intl.formatMessage(intlMessages.pollQuestionTitle)}
                 </div>
                 <div data-test="pollQuestion" className={styles.qText}>{question}</div>
               </span>
             )
           }
           {
-            poll.pollType !== 'R-' && (
+            poll.pollType !== pollTypes.Response && (
               <span>
                 {
                   question.length === 0
@@ -184,7 +185,7 @@ class Polling extends Component {
             )
           }
           {
-            poll.pollType === 'R-'
+            poll.pollType === pollTypes.Response
             && (
               <div className={styles.typedResponseWrapper}>
                 <input

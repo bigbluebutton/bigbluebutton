@@ -99,8 +99,8 @@ class ChatDropdown extends PureComponent {
           link.setAttribute('download', `bbb-${meetingName}[public-chat]_${dateString}.txt`);
           link.setAttribute(
             'href',
-            `data: ${mimeType} ;charset=utf-8,
-            ${encodeURIComponent(ChatService.exportChat(timeWindowsValues, users, intl))}`,
+            `data: ${mimeType} ;charset=utf-8,`+
+            `${encodeURIComponent(ChatService.exportChat(timeWindowsValues, users, intl))}`,
           );
           link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
         }}
