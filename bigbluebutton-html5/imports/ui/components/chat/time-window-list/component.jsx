@@ -12,6 +12,7 @@ import TimeWindowChatItem from './time-window-chat-item/container';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
+const CHAT_CLEAR_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_clear;
 
 const propTypes = {
   scrollPosition: PropTypes.number,
@@ -151,7 +152,7 @@ class TimeWindowList extends PureComponent {
      // this condition exist to the case where the chat has a single message and the chat is cleared
     // The component List from react-virtualized doesn't have a reference to the list of messages so I need force the update to fix it
     if (
-      (lastTimeWindow?.id === 'SYSTEM_MESSAGE-PUBLIC_CHAT_CLEAR')
+      (lastTimeWindow?.id === `${SYSTEM_CHAT_TYPE}-${CHAT_CLEAR_MESSAGE}`)
       || (prevSyncing && !syncing)
       || (syncedPercent !== prevSyncedPercent)
       || (chatId !== prevChatId)

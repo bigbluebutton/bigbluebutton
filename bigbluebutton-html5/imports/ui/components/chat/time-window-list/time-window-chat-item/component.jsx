@@ -12,6 +12,7 @@ import { styles } from './styles';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_CLEAR_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_clear;
+const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
 
 const propTypes = {
   user: PropTypes.shape({
@@ -78,7 +79,7 @@ class TimeWindowChatItem extends PureComponent {
       intl,
     } = this.props;
 
-    if (messages && messages[0].text.includes('bbb-published-poll-<br/>')) {
+    if (messages && messages[0].id.includes(CHAT_POLL_RESULTS_MESSAGE)) {
       return this.renderPollItem();
     }
 
@@ -94,7 +95,7 @@ class TimeWindowChatItem extends PureComponent {
                   text={intlMessages[message.text] ? intl.formatMessage(intlMessages[message.text]) : message.text }
                   time={message.time}
                   isSystemMessage={message.id ? true : false}
-                  systemMessageType={message.text === 'PUBLIC_CHAT_CLEAR' ? 'chatClearMessageText' : 'chatWelcomeMessageText'}
+                  systemMessageType={message.text === CHAT_CLEAR_MESSAGE ? 'chatClearMessageText' : 'chatWelcomeMessageText'}
                   chatAreaId={chatAreaId}
                   handleReadMessage={handleReadMessage}
                 />
@@ -193,9 +194,9 @@ class TimeWindowChatItem extends PureComponent {
       timestamp,
       color,
       intl,
-      isDefaultPoll,
-      extractPollQuestion,
+      getPollResultString,
       messages,
+      extra,
       scrollArea,
       chatAreaId,
       lastReadMessageTime,
@@ -229,15 +230,13 @@ class TimeWindowChatItem extends PureComponent {
               type="poll"
               className={cx(styles.message, styles.pollWrapper)}
               key={messages[0].id}
-              text={messages[0].text}
+              text={getPollResultString(extra.pollResultData, intl)}
               time={messages[0].time}
               chatAreaId={chatAreaId}
               lastReadMessageTime={lastReadMessageTime}
               handleReadMessage={handleReadMessage}
               scrollArea={scrollArea}
               color={color}
-              isDefaultPoll={isDefaultPoll(messages[0].text.replace('bbb-published-poll-<br/>', ''))}
-              extractPollQuestion={extractPollQuestion}
             />
           </div>
         </div>
