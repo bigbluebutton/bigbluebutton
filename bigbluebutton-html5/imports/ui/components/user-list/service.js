@@ -12,8 +12,10 @@ import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
+import { Session } from 'meteor/session';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
@@ -22,19 +24,8 @@ const DIAL_IN_CLIENT_TYPE = 'dial-in-user';
 
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
-
-const mapActiveChats = (chat) => {
-  const currentUserId = Auth.userID;
-
-  const { chatId } = chat;
-
-  const userId = GroupChat
-    .findOne({ chatId })
-    .participants
-    .filter(user => user.id !== currentUserId);
-
-  return userId[0];
-};
+// session for chats the current user started
+const STARTED_CHAT_LIST_KEY = 'startedChatList';
 
 const CUSTOM_LOGO_URL_KEY = 'CustomLogoUrl';
 
@@ -53,9 +44,6 @@ const sortByWhiteboardAccess = (a, b) => {
 };
 
 const sortUsersByUserId = (a, b) => {
-  const aUserId = a.userId;
-  const bUserId = b.userId;
-
   if (a.userId > b.userId) {
     return -1;
   } if (a.userId < b.userId) {
@@ -154,54 +142,9 @@ const sortUsers = (a, b) => {
   return sort;
 };
 
-const sortChatsByName = (a, b) => sortUsersByName(a, b);
-
-const sortChatsByUserId = (a, b) => sortUsersByUserId(a, b);
-
-const sortChatsByIcon = (a, b) => {
-  if (a.icon && !b.icon) {
-    return -1;
-  } if (!a.icon && b.icon) {
-    return 1;
-  }
-
-  return 0;
-};
-
-const sortByRecentActivity = (a, b) => {
-  const aActivity = a.lastActivity ? a.lastActivity : 0;
-  const bActivity = b.lastActivity ? b.lastActivity : 0;
-
-  if (aActivity > bActivity) {
-    return -1;
-  } if (aActivity < bActivity) {
-    return 1;
-  }
-
-  return 0;
-};
-
-const isPublicChat = chat => (
-  chat.userId === 'public'
+const isPublicChat = (chat) => (
+  chat.userId === PUBLIC_CHAT_ID
 );
-
-const sortChats = (a, b) => {
-  let sort = sortChatsByIcon(a, b);
-
-  if (sort === 0) {
-    sort = sortByRecentActivity(a, b);
-  }
-
-  if (sort === 0) {
-    sort = sortChatsByName(a, b);
-  }
-
-  if (sort === 0) {
-    sort = sortChatsByUserId(a, b);
-  }
-
-  return sort;
-};
 
 const userFindSorting = {
   emojiTime: 1,
@@ -216,7 +159,7 @@ const addWhiteboardAccess = (users) => {
 
   if (whiteboardId) {
     const multiUserWhiteboard = WhiteboardService.getMultiUser(whiteboardId);
-    return users.map(user => {
+    return users.map((user) => {
       const whiteboardAccess = multiUserWhiteboard.includes(user.userId);
 
       return {
@@ -226,7 +169,7 @@ const addWhiteboardAccess = (users) => {
     });
   }
 
-  return users.map(user => {
+  return users.map((user) => {
     const whiteboardAccess = false;
     return {
       ...user,
@@ -247,7 +190,7 @@ const getUsers = () => {
     const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
       { fields: { 'lockSettingsProps.hideUserList': 1 } });
     if (meeting && meeting.lockSettingsProps && meeting.lockSettingsProps.hideUserList) {
-      const moderatorOrCurrentUser = u => u.role === ROLE_MODERATOR || u.userId === Auth.userID;
+      const moderatorOrCurrentUser = (u) => u.role === ROLE_MODERATOR || u.userId === Auth.userID;
       users = users.filter(moderatorOrCurrentUser);
     }
   }
@@ -255,20 +198,16 @@ const getUsers = () => {
   return addWhiteboardAccess(users).sort(sortUsers);
 };
 
-const getUserCount = () => {
-  return Users.find({ meetingId: Auth.meetingID }).count();
-};
+const getUserCount = () => Users.find({ meetingId: Auth.meetingID }).count();
 
 const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID },
   { fields: {} }).count() > 0;
 
-const isMe = userId => userId === Auth.userID;
-
+const isMe = (userId) => userId === Auth.userID;
 
 const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
-
   if (_.isEmpty(groupChats) && _.isEmpty(users)) return [];
-  
+
   const chatIds = Object.keys(groupChats);
   const lastTimeWindows = chatIds.reduce((acc, chatId) => {
     const chat = groupChatsMessages[chatId];
@@ -277,30 +216,32 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
     return {
       ...acc,
       chatId: lastTimeWindow,
-    }
+    };
   }, {});
 
-  chatIds.sort((a,b) => { 
+  chatIds.sort((a, b) => {
     if (a === PUBLIC_GROUP_CHAT_ID) {
       return -1;
     }
-  
-    if (lastTimeWindows[a] === lastTimeWindows[b]){
+
+    if (lastTimeWindows[a] === lastTimeWindows[b]) {
       return 0;
     }
-    
+
     return 1;
   });
-  
+
   const chatInfo = chatIds.map((chatId) => {
     const contextChat = groupChatsMessages[chatId];
-    const isPublicChat = chatId === PUBLIC_GROUP_CHAT_ID;
+    const isPublicChatId = chatId === PUBLIC_GROUP_CHAT_ID;
     let unreadMessagesCount = 0;
     if (contextChat) {
       const unreadTimewindows = contextChat.unreadTimeWindows;
+      // eslint-disable-next-line
       for (const unreadTimeWindowId of unreadTimewindows) {
-        const timeWindow = (isPublicChat 
-          ? contextChat?.preJoinMessages[unreadTimeWindowId] || contextChat?.posJoinMessages[unreadTimeWindowId]
+        const timeWindow = (isPublicChatId
+          ? contextChat?.preJoinMessages[unreadTimeWindowId]
+          || contextChat?.posJoinMessages[unreadTimeWindowId]
           : contextChat?.messageGroups[unreadTimeWindowId]);
         unreadMessagesCount += timeWindow.content.length;
       }
@@ -308,34 +249,40 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
 
     if (chatId !== PUBLIC_GROUP_CHAT_ID) {
       const groupChatsParticipants = groupChats[chatId].participants;
-    const otherParticipant = groupChatsParticipants.filter((user)=> user.id !== Auth.userID)[0];
-    const user = users[otherParticipant.id]; 
+      const otherParticipant = groupChatsParticipants.filter((user) => user.id !== Auth.userID)[0];
+      const user = users[otherParticipant.id];
+      const startedChats = Session.get(STARTED_CHAT_LIST_KEY) || [];
 
-    return {
-      color: user?.color || '#7b1fa2',
-      isModerator: user?.role === ROLE_MODERATOR,
-      name: user?.name || otherParticipant.name,
-      chatId,
-      unreadCounter: unreadMessagesCount,
-      userId: user?.userId || otherParticipant.id,
-    };
+      return {
+        color: user?.color || '#7b1fa2',
+        isModerator: user?.role === ROLE_MODERATOR,
+        name: user?.name || otherParticipant.name,
+        avatar: user?.avatar,
+        chatId,
+        unreadCounter: unreadMessagesCount,
+        userId: user?.userId || otherParticipant.id,
+        shouldDisplayInChatList: groupChats[chatId].createdBy === Auth.userID
+          || startedChats.includes(chatId)
+          || !!contextChat,
+      };
     }
 
     return {
-      userId: 'public',
+      userId: PUBLIC_CHAT_ID,
       name: 'Public Chat',
       icon: 'group_chat',
-      chatId: 'public',
+      chatId: PUBLIC_CHAT_ID,
       unreadCounter: unreadMessagesCount,
+      shouldDisplayInChatList: true,
     };
   });
-  
+
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
-  return chatInfo.filter(chat => !currentClosedChats.includes(chat.chatId));
-}
+  return chatInfo.filter((chat) => !currentClosedChats.includes(chat.chatId)
+    && chat.shouldDisplayInChatList);
+};
 
-
-const isVoiceOnlyUser = userId => userId.toString().startsWith('v_');
+const isVoiceOnlyUser = (userId) => userId.toString().startsWith('v_');
 
 const isMeetingLocked = (id) => {
   const meeting = Meetings.findOne({ meetingId: id }, { fields: { lockSettingsProps: 1 } });
@@ -363,7 +310,7 @@ const getUsersProp = () => {
         'usersProp.allowModsToUnmuteUsers': 1,
         'usersProp.authenticatedGuest': 1,
       },
-    }
+    },
   );
 
   if (meeting.usersProp) return meeting.usersProp;
@@ -371,7 +318,7 @@ const getUsersProp = () => {
   return {
     allowModsToUnmuteUsers: false,
     authenticatedGuest: false,
-  }
+  };
 };
 
 const curatedVoiceUser = (intId) => {
@@ -384,7 +331,9 @@ const curatedVoiceUser = (intId) => {
   };
 };
 
-const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectVoiceUser, usersProp, amIPresenter) => {
+const getAvailableActions = (
+  amIModerator, isBreakoutRoom, subjectUser, subjectVoiceUser, usersProp, amIPresenter,
+) => {
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId) || subjectUser.phone_user;
   const amISubjectUser = isMe(subjectUser.userId);
   const isSubjectUserModerator = subjectUser.role === ROLE_MODERATOR;
@@ -454,7 +403,7 @@ const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectV
   };
 };
 
-const normalizeEmojiName = emoji => (
+const normalizeEmojiName = (emoji) => (
   emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
 );
 
@@ -466,7 +415,7 @@ const setEmojiStatus = _.debounce((userId, emoji) => {
 }, 1000, { leading: true, trailing: false });
 
 const clearAllEmojiStatus = (users) => {
-  users.forEach(user => makeCall('setEmojiStatus', user.userId, 'none'));
+  users.forEach((user) => makeCall('setEmojiStatus', user.userId, 'none'));
 };
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
@@ -501,7 +450,6 @@ const getEmoji = () => {
 
   return currentUser.emoji;
 };
-
 
 const muteAllUsers = (userId) => { makeCall('muteAllUsers', userId); };
 
@@ -589,6 +537,12 @@ const getGroupChatPrivate = (senderUserId, receiver) => {
   if (!chat) {
     makeCall('createGroupChat', receiver);
   } else {
+    const startedChats = Session.get(STARTED_CHAT_LIST_KEY) || [];
+    if (_.indexOf(startedChats, chat.chatId) < 0) {
+      startedChats.push(chat.chatId);
+      Session.set(STARTED_CHAT_LIST_KEY, startedChats);
+    }
+
     const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
     if (_.indexOf(currentClosedChats, chat.chatId) > -1) {
       Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, chat.chatId));
@@ -624,9 +578,7 @@ const isUserPresenter = (userId) => {
   return user ? user.presenter : false;
 };
 
-const amIPresenter = () => {
-  return isUserPresenter(Auth.userID);
-};
+const amIPresenter = () => isUserPresenter(Auth.userID);
 
 export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
   const mimeType = 'text/plain';
@@ -646,10 +598,10 @@ export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
   };
 
   const namesByFirstName = userNamesObj.sort(sortUsersByFirstName)
-    .map(u => getUsernameString(u)).join('\r\n');
+    .map((u) => getUsernameString(u)).join('\r\n');
 
   const namesByLastName = userNamesObj.sort(sortUsersByLastName)
-    .map(u => getUsernameString(u)).join('\r\n');
+    .map((u) => getUsernameString(u)).join('\r\n');
 
   const namesListsString = `${docTitle}\r\n\r\n${fnSortedLabel}\r\n${namesByFirstName}
     \r\n\r\n${lnSortedLabel}\r\n${namesByLastName}`.replace(/ {2}/g, ' ');

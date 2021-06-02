@@ -23,5 +23,6 @@ export default withTracker((props) => {
     noIOSFullscreen,
     isMeteorConnected: Meteor.status().connected,
     isBreakoutRoom: meetingIsBreakout(),
+    isDropdownOpen: Session.get('dropdownOpen'),
   };
 })(SettingsDropdownContainer);

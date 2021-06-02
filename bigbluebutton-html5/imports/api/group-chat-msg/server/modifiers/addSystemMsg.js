@@ -24,10 +24,12 @@ export default function addSystemMsg(meetingId, chatId, msg) {
     timestamp: Number,
     sender: Object,
     message: String,
+    extra: Object,
     correlationId: Match.Maybe(String),
   });
   const msgDocument = {
     ...msg,
+    sender: msg.sender.id,
     meetingId,
     chatId,
     message: parseMessage(msg.message),

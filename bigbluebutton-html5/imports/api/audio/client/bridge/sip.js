@@ -113,7 +113,7 @@ class SIPSession {
     );
 
     if (this.inputDeviceId) {
-      matchConstraints.deviceId = this.inputDeviceId;
+      matchConstraints.deviceId = { exact: this.inputDeviceId };
     }
 
     return matchConstraints;
@@ -195,12 +195,12 @@ class SIPSession {
 
         if (track && (typeof track.getSettings === 'function')) {
           const { deviceId } = track.getSettings();
-          return deviceId || DEFAULT_INPUT_DEVICE_ID;
+          this._inputDeviceId = deviceId;
         }
       }
     }
 
-    return (this._inputDeviceId || DEFAULT_INPUT_DEVICE_ID);
+    return this._inputDeviceId;
   }
 
   set inputDeviceId(deviceId) {
@@ -211,11 +211,11 @@ class SIPSession {
     if (!this._outputDeviceId) {
       const audioElement = document.querySelector(MEDIA_TAG);
       if (audioElement) {
-        return audioElement.sinkId;
+        this._outputDeviceId = audioElement.sinkId;
       }
     }
 
-    return this._outputDeviceId || DEFAULT_OUTPUT_DEVICE_ID;
+    return this._outputDeviceId;
   }
 
   set outputDeviceId(deviceId) {

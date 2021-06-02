@@ -4,6 +4,7 @@ import Icon from '/imports/ui/components/icon/component';
 import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
+import { PANELS, ACTIONS } from '../../layout/enums';
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
@@ -21,28 +22,42 @@ const intlMessages = defineMessages({
   },
 });
 
-const handleClickToggleCaptions = (locale) => {
-  const panel = Session.get('openPanel');
-
-  if (panel !== 'captions') {
-    Session.set('captionsLocale', locale);
-    Session.set('openPanel', 'captions');
-  } else {
-    const captionsLocale = Session.get('captionsLocale');
-    if (captionsLocale !== locale) {
-      Session.set('captionsLocale', locale);
-    } else {
-      Session.set('openPanel', 'userlist');
-    }
-  }
-};
-
 const CaptionsListItem = (props) => {
   const {
     intl,
     locale,
     tabIndex,
+    sidebarContentPanel,
+    newLayoutContextDispatch,
   } = props;
+
+  const handleClickToggleCaptions = () => {
+    if (sidebarContentPanel !== PANELS.CAPTIONS) {
+      Session.set('captionsLocale', locale.locale);
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+        value: true,
+      });
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+        value: PANELS.CAPTIONS,
+      });
+    } else {
+      const captionsLocale = Session.get('captionsLocale');
+      if (captionsLocale !== locale.locale) {
+        Session.set('captionsLocale', locale.locale);
+      } else {
+        newLayoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+          value: false,
+        });
+        newLayoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+          value: PANELS.NONE,
+        });
+      }
+    }
+  };
 
   return (
     <div
@@ -50,8 +65,9 @@ const CaptionsListItem = (props) => {
       tabIndex={tabIndex}
       id={locale.locale}
       className={styles.listItem}
-      onClick={() => handleClickToggleCaptions(locale.locale)}
+      onClick={handleClickToggleCaptions}
       aria-label={`${locale.name} ${intl.formatMessage(intlMessages.captionLabel)}`}
+      onKeyPress={() => {}}
     >
       <Icon iconName="closed_caption" />
       <span aria-hidden>{locale.name}</span>

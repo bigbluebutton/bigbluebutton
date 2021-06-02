@@ -45,7 +45,6 @@ class JoinHandler extends Component {
 
       logger.debug(`Initial connection status change. status: ${status}, connected: ${connected}`);
       if (connected) {
-
         const msToConnect = (new Date() - this.firstJoinTime) / 1000;
         const secondsToConnect = parseFloat(msToConnect).toFixed(2);
 

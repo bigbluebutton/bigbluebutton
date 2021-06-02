@@ -527,8 +527,6 @@
     "app.video.videoMenu": "Videomeny",
     "app.video.videoMenuDisabled": "Videomenyn Webbkamera är inaktiverad i inställningarna",
     "app.video.videoMenuDesc": "Öppna videomenyns rullgardin",
-    "app.video.chromeExtensionError": "Du måste installera",
-    "app.video.chromeExtensionErrorLink": "det här Chrome-tillägget",
     "app.fullscreenButton.label": "Gör {0} fullskärm",
     "app.meeting.endNotification.ok.label": "OK",
     "app.whiteboard.toolbar.tools": "Verktyg",

@@ -9,8 +9,12 @@
 }
 
 .navbar {
+  position: absolute;
   display: flex;
   flex-direction: column;
+  text-align: center;
+  font-size: 1.5rem;
+  padding: var(--bars-padding) var(--bars-padding) 0 var(--bars-padding);
 }
 
 .top,
@@ -121,5 +125,11 @@
 }
 
 .dropdown{
-  z-index: 5;
+  z-index: 99;
+}
+
+.hideDropdownButton {
+  @include mq($small-only) {
+    display: none;
+  }
 }

@@ -1,37 +1,41 @@
-import React, { PureComponent } from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
+import React, { useContext } from 'react';
 import _ from 'lodash';
 import { makeCall } from '/imports/ui/services/api';
-import ChatForm from './component';
-import ChatService from '../service';
+import MessageForm from './component';
+import ChatService from '/imports/ui/components/chat/service';
+import { NLayoutContext } from '../../layout/context/context';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const START_TYPING_THROTTLE_INTERVAL = 2000;
 
-class ChatContainer extends PureComponent {
-  render() {
-    return (
-      <ChatForm {...this.props} />
-    );
-  }
-}
-
-export default withTracker(() => {
-  const cleanScrollAndSendMessage = (message) => {
+const MessageFormContainer = (props) => {
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextState } = newLayoutContext;
+  const { idChatOpen } = newLayoutContextState;
+  const handleSendMessage = (message) => {
     ChatService.setUserSentMessage(true);
-    return ChatService.sendGroupMessage(message);
+    return ChatService.sendGroupMessage(message, idChatOpen);
   };
-
-  const startUserTyping = chatId => makeCall('startUserTyping', chatId);
-
+  const startUserTyping = _.throttle(
+    chatId => makeCall('startUserTyping', chatId),
+    START_TYPING_THROTTLE_INTERVAL,
+  );
   const stopUserTyping = () => makeCall('stopUserTyping');
 
-  return {
-    startUserTyping: _.throttle(startUserTyping, START_TYPING_THROTTLE_INTERVAL),
-    stopUserTyping,
-    UnsentMessagesCollection: ChatService.UnsentMessagesCollection,
-    minMessageLength: CHAT_CONFIG.min_message_length,
-    maxMessageLength: CHAT_CONFIG.max_message_length,
-    handleSendMessage: cleanScrollAndSendMessage,
-  };
-})(ChatContainer);
+  return (
+    <MessageForm
+      {...{
+        startUserTyping,
+        stopUserTyping,
+        UnsentMessagesCollection: ChatService.UnsentMessagesCollection,
+        minMessageLength: CHAT_CONFIG.min_message_length,
+        maxMessageLength: CHAT_CONFIG.max_message_length,
+        handleSendMessage,
+        idChatOpen,
+        ...props,
+      }}
+    />
+  );
+};
+
+export default MessageFormContainer;

@@ -73,10 +73,6 @@ const UserName = (props) => {
 
   const userNameSub = [];
 
-  if (compact) {
-    return null;
-  }
-
   if (isThisMeetingLocked && user.locked && user.role !== ROLE_MODERATOR) {
     userNameSub.push(
       <span>

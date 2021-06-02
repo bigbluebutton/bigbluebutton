@@ -4,11 +4,6 @@ import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/icon/component';
-import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
-import DropdownContent from '/imports/ui/components/dropdown/content/component';
-import DropdownList from '/imports/ui/components/dropdown/list/component';
-import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
@@ -19,6 +14,7 @@ import { styles } from './styles';
 import UserName from '../user-name/component';
 import UserIcons from '../user-icons/component';
 import Service from '/imports/ui/components/user-list/service';
+import { PANELS, ACTIONS } from '../../../../../layout/enums';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 
 const messages = defineMessages({
@@ -243,6 +239,7 @@ class UserDropdown extends PureComponent {
       meetingIsBreakout,
       mountModal,
       usersProp,
+      newLayoutContextDispatch,
     } = this.props;
     const { showNestedOptions } = this.state;
 
@@ -291,7 +288,7 @@ class UserDropdown extends PureComponent {
         ));
       }
 
-      actions.push(<DropdownListSeparator key={_.uniqueId('list-separator-')} />);
+      actions.push(<Dropdown.DropdownListSeparator key={_.uniqueId('list-separator-')} />);
 
       const statuses = Object.keys(getEmojiList);
       statuses.map(status => actions.push(this.makeDropdownItem(
@@ -334,8 +331,18 @@ class UserDropdown extends PureComponent {
         intl.formatMessage(messages.StartPrivateChat),
         () => {
           getGroupChatPrivate(currentUser.userId, user);
-          Session.set('openPanel', 'chat');
-          Session.set('idChatOpen', user.userId);
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: true,
+          });
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+            value: PANELS.CHAT,
+          });
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_ID_CHAT_OPEN,
+            value: user.userId,
+          });
         },
         'chat',
       ));
@@ -453,7 +460,7 @@ class UserDropdown extends PureComponent {
   makeDropdownItem(key, label, onClick, icon = null, iconRight = null) {
     const { getEmoji } = this.props;
     return (
-      <DropdownListItem
+      <Dropdown.DropdownListItem
         {...{
           key,
           label,
@@ -584,7 +591,6 @@ class UserDropdown extends PureComponent {
       isActionsOpen,
       dropdownVisible,
       dropdownDirection,
-      dropdownOffset,
       showNestedOptions,
     } = this.state;
 
@@ -661,24 +667,24 @@ class UserDropdown extends PureComponent {
         getContent={dropdownContent => this.dropdownContent = dropdownContent}
         tethered
       >
-        <DropdownTrigger>
+        <Dropdown.DropdownTrigger>
           {contents}
-        </DropdownTrigger>
-        <DropdownContent
+        </Dropdown.DropdownTrigger>
+        <Dropdown.DropdownContent
           style={{
             visibility: dropdownVisible ? 'visible' : 'hidden',
           }}
           className={styles.dropdownContent}
           placement={placement}
         >
-          <DropdownList
+          <Dropdown.DropdownList
             ref={(ref) => { this.list = ref; }}
             getDropdownMenuParent={this.getDropdownMenuParent}
             onActionsHide={this.onActionsHide}
           >
             {actions}
-          </DropdownList>
-        </DropdownContent>
+          </Dropdown.DropdownList>
+        </Dropdown.DropdownContent>
       </Dropdown>
     );
   }

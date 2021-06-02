@@ -3,6 +3,10 @@
 
 source /usr/share/meteor/bundle/bbb-html5-with-roles.conf
 
+if [ -f /etc/bigbluebutton/bbb-html5-with-roles.conf ]; then
+  source /etc/bigbluebutton/bbb-html5-with-roles.conf
+fi
+
 MIN_NUMBER_OF_BACKEND_PROCESSES=1
 MAX_NUMBER_OF_BACKEND_PROCESSES=4
 

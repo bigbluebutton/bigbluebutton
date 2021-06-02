@@ -3,14 +3,18 @@ package org.bigbluebutton.core.domain
 case class MeetingExpiryTracker(
     startedOnInMs:                     Long,
     userHasJoined:                     Boolean,
+    moderatorHasJoined:                Boolean,
     isBreakout:                        Boolean,
     lastUserLeftOnInMs:                Option[Long],
+    lastModeratorLeftOnInMs:           Long,
     durationInMs:                      Long,
     meetingExpireIfNoUserJoinedInMs:   Long,
     meetingExpireWhenLastUserLeftInMs: Long,
     userInactivityInspectTimerInMs:    Long,
     userInactivityThresholdInMs:       Long,
-    userActivitySignResponseDelayInMs: Long
+    userActivitySignResponseDelayInMs: Long,
+    endWhenNoModerator:                Boolean,
+    endWhenNoModeratorDelayInMs:       Long
 ) {
   def setUserHasJoined(): MeetingExpiryTracker = {
     if (!userHasJoined) {
@@ -22,6 +26,18 @@ case class MeetingExpiryTracker(
 
   def setLastUserLeftOn(timestampInMs: Long): MeetingExpiryTracker = {
     copy(lastUserLeftOnInMs = Some(timestampInMs))
+  }
+
+  def setModeratorHasJoined(): MeetingExpiryTracker = {
+    if (!moderatorHasJoined) {
+      copy(moderatorHasJoined = true, lastModeratorLeftOnInMs = 0)
+    } else {
+      copy(lastModeratorLeftOnInMs = 0)
+    }
+  }
+
+  def setLastModeratorLeftOn(timestampInMs: Long): MeetingExpiryTracker = {
+    copy(lastModeratorLeftOnInMs = timestampInMs)
   }
 
   def hasMeetingExpiredAfterLastUserLeft(timestampInMs: Long): Boolean = {

@@ -1,15 +1,14 @@
-/* global PowerQueue */
 import Redis from 'redis';
 import { Meteor } from 'meteor/meteor';
 import { EventEmitter2 } from 'eventemitter2';
+import { check } from 'meteor/check';
 import {
   isPadMessage,
   getInstanceIdFromPadMessage,
 } from './etherpad';
-import { check } from 'meteor/check';
-import fs from 'fs';
 import Logger from './logger';
 import Metrics from './metrics';
+import queue from 'queue';
 
 // Fake meetingId used for messages that have no meetingId
 const NO_MEETING_ID = '_';
@@ -50,7 +49,7 @@ class MeetingMessageQueue {
   constructor(eventEmitter, asyncMessages = [], redisDebugEnabled = false) {
     this.asyncMessages = asyncMessages;
     this.emitter = eventEmitter;
-    this.queue = new PowerQueue();
+    this.queue = queue({ autostart: true });
     this.redisDebugEnabled = redisDebugEnabled;
 
     this.handleTask = this.handleTask.bind(this);
@@ -87,7 +86,7 @@ class MeetingMessageQueue {
         Metrics.processEvent(queueId, eventName, dataLength, beginHandleTimestamp);
       }
 
-      const queueLength = this.queue.length();
+      const queueLength = this.queue.length;
       if (queueLength > 100) {
         Logger.warn(`Redis: MeetingMessageQueue for meetingId=${meetingId} has queue size=${queueLength} `);
       }
@@ -101,6 +100,9 @@ class MeetingMessageQueue {
 
     try {
       if (this.redisDebugEnabled) {
+        if (!Meteor.settings.private.analytics.includeChat && eventName === 'GroupChatMessageBroadcastEvtMsg') {
+          return;
+        }
         Logger.debug(`Redis: ${JSON.stringify(data.parsedMessage.core)} emitted`);
       }
 
@@ -118,7 +120,12 @@ class MeetingMessageQueue {
   }
 
   add(...args) {
-    return this.queue.add(...args);
+    const { taskHandler } = this.queue;
+
+    this.queue.push(function (next) {
+      taskHandler(...args, next);
+    })
+
   }
 }
 
@@ -171,7 +178,6 @@ class RedisPubSub {
     const channelsToSubscribe = this.config.subscribeTo;
 
     channelsToSubscribe.push(this.customRedisChannel);
-
 
     switch (this.role) {
       case 'frontend':
@@ -252,19 +258,17 @@ class RedisPubSub {
     if (this.role === 'frontend') {
       // receiving this message means we need to look at it. Frontends do not have instanceId.
       if (meetingIdFromMessageCoreHeader === NO_MEETING_ID) { // if this is a system message
-
         if (eventName === 'MeetingCreatedEvtMsg' || eventName === 'SyncGetMeetingInfoRespMsg') {
           const meetingIdFromMessageMeetingProp = parsedMessage.core.body.props.meetingProp.intId;
           this.meetingsQueues[meetingIdFromMessageMeetingProp] = new MeetingMessageQueue(this.emitter, async, this.redisDebugEnabled);
           if (this.redisDebugEnabled) {
             Logger.warn('Created frontend queue for meeting', { date: new Date().toISOString(), eventName, meetingIdFromMessageMeetingProp });
           }
-
         }
       }
 
       if (!this.meetingsQueues[meetingIdFromMessageCoreHeader]) {
-        Logger.warn(`Frontend meeting queue had not been initialized   ${message}`, { eventName, meetingIdFromMessageCoreHeader} )
+        Logger.warn(`Frontend meeting queue had not been initialized   ${message}`, { eventName, meetingIdFromMessageCoreHeader });
         this.meetingsQueues[NO_MEETING_ID].add({
           pattern,
           channel,
@@ -307,11 +311,11 @@ class RedisPubSub {
             const meetingIdForMeetingEnded = parsedMessage.core.body.meetingId;
             if (!!this.meetingsQueues[meetingIdForMeetingEnded]) {
               this.meetingsQueues[NO_MEETING_ID].add({
-              pattern,
-              channel,
-              eventName,
-              parsedMessage,
-            });
+                pattern,
+                channel,
+                eventName,
+                parsedMessage,
+              });
             }
           }
           // ignore
@@ -334,7 +338,6 @@ class RedisPubSub {
       }
     }
   }
-
 
   destroyMeetingQueue(id) {
     delete this.meetingsQueues[id];

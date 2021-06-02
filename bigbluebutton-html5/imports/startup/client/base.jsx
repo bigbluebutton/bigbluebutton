@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
@@ -11,6 +11,7 @@ import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import { Session } from 'meteor/session';
 import { FormattedMessage } from 'react-intl';
+import { Meteor } from 'meteor/meteor';
 import Meetings, { RecordMeetings } from '../../api/meetings';
 import AppService from '/imports/ui/components/app/service';
 import Breakouts from '/imports/api/breakouts';
@@ -18,11 +19,12 @@ import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import LayoutManagerContainer from '/imports/ui/components/layout/layout-manager/container';
-import { withLayoutContext } from '/imports/ui/components/layout/context';
+import LayoutContext from '/imports/ui/components/layout/context';
+import NewLayoutContext from '../../ui/components/layout/context/context';
 import VideoService from '/imports/ui/components/video-provider/service';
-import DebugWindow from '/imports/ui/components/debug-window/component'
-import {Meteor} from "meteor/meteor";
+import DebugWindow from '/imports/ui/components/debug-window/component';
+import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
+import LayoutManagerContainer from '/imports/ui/components/layout/layout-manager/container';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
@@ -78,7 +80,10 @@ class Base extends Component {
   }
 
   componentDidMount() {
-    const { animations } = this.props;
+    const { animations, newLayoutContextState, newLayoutContextDispatch } = this.props;
+    const { input } = newLayoutContextState;
+    const { sidebarContent } = input;
+    const { sidebarContentPanel } = sidebarContent;
 
     const {
       userID: localUserId,
@@ -87,17 +92,19 @@ class Base extends Component {
     if (animations) HTML.classList.add('animationsEnabled');
     if (!animations) HTML.classList.add('animationsDisabled');
 
+    Session.set('layoutManagerLoaded', 'legacy');
+
     fullscreenChangedEvents.forEach((event) => {
       document.addEventListener(event, Base.handleFullscreenChange);
     });
     Session.set('isFullscreen', false);
 
+    // TODO move this find to container
     const users = Users.find({
-        meetingId: Auth.meetingID,
-        validated: true,
-        userId: { $ne: localUserId },
-      }, { fields: { name: 1, userId: 1 } }
-    );
+      meetingId: Auth.meetingID,
+      validated: true,
+      userId: { $ne: localUserId },
+    }, { fields: { name: 1, userId: 1 } });
 
     users.observe({
       added: (user) => {
@@ -132,8 +139,55 @@ class Base extends Component {
             'user',
           );
         }
-      }
+      },
     });
+
+    if (!sidebarContentPanel || Session.equals('subscriptionsReady', true)) {
+      if (!checkedUserSettings) {
+        if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
+          if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+              value: true,
+            });
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: true,
+            });
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+              value: PANELS.CHAT,
+            });
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_ID_CHAT_OPEN,
+              value: PUBLIC_CHAT_ID,
+            });
+          } else {
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+              value: true,
+            });
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: false,
+            });
+          }
+        } else {
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+            value: false,
+          });
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: false,
+          });
+        }
+
+        if (Session.equals('subscriptionsReady', true)) {
+          checkedUserSettings = true;
+        }
+      }
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -145,6 +199,7 @@ class Base extends Component {
       isMeteorConnected,
       subscriptionsReady,
       layoutContextDispatch,
+      newLayoutContextDispatch,
       usersVideo,
     } = this.props;
     const {
@@ -153,6 +208,10 @@ class Base extends Component {
     } = this.state;
 
     if (usersVideo !== prevProps.usersVideo) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_NUM_CAMERAS,
+        value: usersVideo.length,
+      });
       layoutContextDispatch(
         {
           type: 'setUsersVideo',
@@ -177,7 +236,7 @@ class Base extends Component {
     // In case the meeting delayed to load
     if (!subscriptionsReady || !meetingExist) return;
 
-    if (approved && loading && subscriptionsReady) this.updateLoadingState(false);
+    if (approved && loading) this.updateLoadingState(false);
 
     if (prevProps.ejected || ejected) {
       Session.set('codeError', '403');
@@ -267,7 +326,7 @@ class Base extends Component {
     const { meetingExisted } = this.state;
 
     return (
-      <Fragment>
+      <>
         {meetingExist && Auth.loggedIn && <DebugWindow />}
         {meetingExist && Auth.loggedIn && <LayoutManagerContainer />}
         {
@@ -275,7 +334,7 @@ class Base extends Component {
             ? <LoadingScreen />
             : this.renderByState()
         }
-      </Fragment>
+      </>
     );
   }
 }
@@ -286,14 +345,11 @@ Base.defaultProps = defaultProps;
 const BaseContainer = withTracker(() => {
   const {
     animations,
-    userJoinAudioAlerts,
-    userJoinPushAlerts,
   } = Settings.application;
 
   const {
     credentials,
     loggedIn,
-    userID: localUserId,
   } = Auth;
 
   const { meetingId } = credentials;
@@ -395,24 +451,6 @@ const BaseContainer = withTracker(() => {
     },
   });
 
-  if (Session.equals('openPanel', undefined) || Session.equals('subscriptionsReady', true)) {
-    if (!checkedUserSettings) {
-      if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
-        if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
-          Session.set('openPanel', 'chat');
-          Session.set('idChatOpen', PUBLIC_CHAT_ID);
-        } else {
-          Session.set('openPanel', 'userlist');
-        }
-      } else {
-        Session.set('openPanel', '');
-      }
-      if ( Session.equals('subscriptionsReady', true )) {
-        checkedUserSettings = true;
-      }
-    }
-  }
-
   const codeError = Session.get('codeError');
   const { streams: usersVideo } = VideoService.getVideoStreams();
 
@@ -433,7 +471,8 @@ const BaseContainer = withTracker(() => {
     loggedIn,
     codeError,
     usersVideo,
+    layoutManagerLoaded: Session.get('layoutManagerLoaded'),
   };
-})(withLayoutContext(Base));
+})(LayoutContext.withLayoutContext(NewLayoutContext.withContext(Base)));
 
 export default BaseContainer;

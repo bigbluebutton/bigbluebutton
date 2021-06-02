@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
@@ -9,6 +8,7 @@ import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import LiveResult from './live-result/component';
 import { styles } from './styles.scss';
+import { PANELS, ACTIONS } from '../layout/enums';
 import DragAndDrop from './dragAndDrop/component';
 
 const intlMessages = defineMessages({
@@ -150,10 +150,12 @@ const intlMessages = defineMessages({
   },
 });
 
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
-const MAX_CUSTOM_FIELDS = Meteor.settings.public.poll.max_custom;
-const MAX_INPUT_CHARS = 45;
-const FILE_DRAG_AND_DROP_ENABLED = Meteor.settings.public.poll.allowDragAndDropFile;
+const POLL_SETTINGS = Meteor.settings.public.poll;
+
+const MAX_CUSTOM_FIELDS = POLL_SETTINGS.max_custom;
+const MAX_INPUT_CHARS = POLL_SETTINGS.maxTypedAnswerLength;
+const QUESTION_MAX_INPUT_CHARS = 400;
+const FILE_DRAG_AND_DROP_ENABLED = POLL_SETTINGS.allowDragAndDropFile;
 
 const validateInput = (i) => {
   let _input = i;
@@ -188,15 +190,8 @@ class Poll extends Component {
   }
 
   componentDidUpdate() {
-    const { amIPresenter } = this.props;
-
     if (Session.equals('resetPollPanel', true)) {
       this.handleBackClick();
-    }
-
-    if (!amIPresenter) {
-      Session.set('openPanel', 'userlist');
-      Session.set('forcePollOpen', false);
     }
   }
 
@@ -212,10 +207,6 @@ class Poll extends Component {
     });
   }
 
-  handleInputChange(index, event) {
-    this.handleInputTextChange(index, event.target.value);
-  }
-
   handleInputTextChange(index, text) {
     const { optList } = this.state;
     // This regex will replace any instance of 2 or more consecutive white spaces
@@ -229,46 +220,20 @@ class Poll extends Component {
 
   handleInputChange(e, index) {
     const { optList, type, error } = this.state;
+    const { pollTypes } = this.props;
     const list = [...optList];
     const validatedVal = validateInput(e.target.value).replace(/\s{2,}/g, ' ');
-    const clearError = validatedVal.length > 0 && type !== 'RP';
+    const clearError = validatedVal.length > 0 && type !== pollTypes.Response;
     list[index] = { val: validatedVal };
     this.setState({ optList: list, error: clearError ? null : error });
   }
 
   handleTextareaChange(e) {
     const { type, error } = this.state;
+    const { pollTypes } = this.props;
     const validatedQuestion = validateInput(e.target.value);
-    const clearError = validatedQuestion.length > 0 && type === 'RP';
+    const clearError = validatedQuestion.length > 0 && type === pollTypes.Response;
     this.setState({ question: validateInput(e.target.value), error: clearError ? null : error });
-  }
-
-  setOptListLength(len) {
-    const { optList } = this.state;
-    len = len > MAX_CUSTOM_FIELDS ? MAX_CUSTOM_FIELDS : len;
-    let diff = len - optList.length;
-    if(diff > 0) {
-      while(diff--) {
-        this.handleAddOption();
-      }
-    } else {
-      while(diff++) {
-        this.handleRemoveOption();
-      }
-    }
-  }
-
-  pushToCustomPollValues(text) {
-    const lines = text.split('\n');
-    this.setOptListLength(lines.length);
-    for (let i = 0; i < MAX_CUSTOM_FIELDS; i += 1) {
-      let line = '';
-      if (i < lines.length) {
-        line = lines[i];
-        line = line.length > MAX_INPUT_CHARS ? line.substring(0, MAX_INPUT_CHARS) : line;
-      }
-      this.handleInputTextChange(i, line);
-    }
   }
 
   handlePollValuesText(text) {
@@ -289,40 +254,39 @@ class Poll extends Component {
     this.setState({ optList: [...optList, { val: '' }] });
   }
 
-  checkPollType() {
-    const { type, optList } = this.state;
-    let _type = type;
-    let pollString = '';
-    let defaultMatch = null;
-    let isDefault = null;
-
-    switch (_type) {
-      case 'A-':
-        pollString = optList.map(x => x.val).sort().join('');
-        defaultMatch = pollString.match(/^(ABCDEFG)|(ABCDEF)|(ABCDE)|(ABCD)|(ABC)|(AB)$/gi);
-        isDefault = defaultMatch && pollString.length === defaultMatch[0].length;
-        _type = isDefault ? `${_type}${defaultMatch[0].length}` : 'custom';
-        break;
-      case 'TF':
-        pollString = optList.map(x => x.val).join('');
-        defaultMatch = pollString.match(/^(TRUEFALSE)|(FALSETRUE)$/gi);
-        isDefault = defaultMatch && pollString.length === defaultMatch[0].length;
-        if (!isDefault) _type = 'custom';
-        break;
-      case 'YNA':
-        pollString = optList.map(x => x.val).join('');
-        defaultMatch = pollString.match(/^(YesNoAbstention)$/gi);
-        isDefault = defaultMatch && pollString.length === defaultMatch[0].length;
-        if (!isDefault) _type = 'custom';
-        break;
-      default:
-        break;
+  setOptListLength(len) {
+    const { optList } = this.state;
+    let diff = len > MAX_CUSTOM_FIELDS
+      ? MAX_CUSTOM_FIELDS - optList.length
+      : len - optList.length;
+    if (diff > 0) {
+      while (diff > 0) {
+        this.handleAddOption();
+        diff -= 1;
+      }
+    } else {
+      while (diff < 0) {
+        this.handleRemoveOption();
+        diff += 1;
+      }
     }
-    return _type;
+  }
+
+  pushToCustomPollValues(text) {
+    const lines = text.split('\n');
+    this.setOptListLength(lines.length);
+    for (let i = 0; i < MAX_CUSTOM_FIELDS; i += 1) {
+      let line = '';
+      if (i < lines.length) {
+        line = lines[i];
+        line = line.length > MAX_INPUT_CHARS ? line.substring(0, MAX_INPUT_CHARS) : line;
+      }
+      this.handleInputTextChange(i, line);
+    }
   }
 
   renderInputs() {
-    const { intl } = this.props;
+    const { intl, pollTypes } = this.props;
     const { optList, type, error } = this.state;
     let hasVal = false;
     return optList.map((o, i) => {
@@ -342,25 +306,27 @@ class Poll extends Component {
               placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
               data-test="pollOptionItem"
               className={styles.pollOption}
-              onChange={e => this.handleInputChange(e, i)}
+              onChange={(e) => this.handleInputChange(e, i)}
               maxLength={MAX_INPUT_CHARS}
             />
-            { i > 1 ? (
-              <Button
-                className={styles.deleteBtn}
-                label={intl.formatMessage(intlMessages.delete)}
-                icon="delete"
-                data-test="deletePollOption"
-                hideLabel
-                circle
-                color="default"
-                onClick={() => {
-                  this.handleRemoveOption(i);
-                }}
-              />) : <div style={{ width: '40px' }} />
-        }
+            {i > 1
+              ? (
+                <Button
+                  className={styles.deleteBtn}
+                  label={intl.formatMessage(intlMessages.delete)}
+                  icon="delete"
+                  data-test="deletePollOption"
+                  hideLabel
+                  circle
+                  color="default"
+                  onClick={() => {
+                    this.handleRemoveOption(i);
+                  }}
+                />
+              )
+              : <div style={{ width: '40px' }} />}
           </div>
-          {!hasVal && type !== 'RP' && error ? (
+          {!hasVal && type !== pollTypes.Response && error ? (
             <div className={styles.inputError}>{error}</div>
           ) : (
             <div className={styles.errorSpacer}>&nbsp;</div>
@@ -403,8 +369,8 @@ class Poll extends Component {
     const {
       type, optList, question, error,
     } = this.state;
-    const { startPoll, startCustomPoll, intl } = this.props;
-    const defaultPoll = type === 'TF' || type === 'A-' || type === 'YNA';
+    const { startPoll, startCustomPoll, intl, pollTypes, isDefaultPoll, checkPollType } = this.props;
+    const defaultPoll = isDefaultPoll(type);
     return (
       <div>
         <div className={styles.instructions}>
@@ -416,12 +382,13 @@ class Poll extends Component {
             data-test="pollQuestionArea"
             className={styles.pollQuestion}
             value={question}
-            onChange={e => this.handleTextareaChange(e)}
+            onChange={(e) => this.handleTextareaChange(e)}
             rows="4"
             cols="35"
+            maxLength={QUESTION_MAX_INPUT_CHARS}
             placeholder={intl.formatMessage(intlMessages.questionLabel)}
           />
-          {(type === 'RP' && question.length === 0 && error) ? (
+          {(type === pollTypes.Response && question.length === 0 && error) ? (
             <div className={styles.inputError}>{error}</div>
           ) : (
             <div className={styles.errorSpacer}>&nbsp;</div>
@@ -435,21 +402,21 @@ class Poll extends Component {
               color="default"
               onClick={() => {
                 this.setState({
-                  type: 'TF',
+                  type: pollTypes.TrueFalse,
                   optList: [
                     { val: intl.formatMessage(intlMessages.true) },
                     { val: intl.formatMessage(intlMessages.false) },
                   ],
                 });
               }}
-              className={cx(styles.pBtn, styles.btnMR, { [styles.selectedBtnBlue]: type === 'TF' })}
+              className={cx(styles.pBtn, styles.btnMR, { [styles.selectedBtnBlue]: type === pollTypes.TrueFalse })}
             />
             <Button
               label={intl.formatMessage(intlMessages.a4)}
               color="default"
               onClick={() => {
                 this.setState({
-                  type: 'A-',
+                  type: pollTypes.Letter,
                   optList: [
                     { val: intl.formatMessage(intlMessages.a) },
                     { val: intl.formatMessage(intlMessages.b) },
@@ -458,7 +425,7 @@ class Poll extends Component {
                   ],
                 });
               }}
-              className={cx(styles.pBtn, styles.btnML, { [styles.selectedBtnBlue]: type === 'A-' })}
+              className={cx(styles.pBtn, styles.btnML, { [styles.selectedBtnBlue]: type === pollTypes.Letter })}
             />
           </div>
           <Button
@@ -466,7 +433,7 @@ class Poll extends Component {
             color="default"
             onClick={() => {
               this.setState({
-                type: 'YNA',
+                type: pollTypes.YesNoAbstention,
                 optList: [
                   { val: intl.formatMessage(intlMessages.yes) },
                   { val: intl.formatMessage(intlMessages.no) },
@@ -474,44 +441,44 @@ class Poll extends Component {
                 ],
               });
             }}
-            className={cx(styles.pBtn, styles.yna, { [styles.selectedBtnBlue]: type === 'YNA' })}
+            className={cx(styles.pBtn, styles.yna, { [styles.selectedBtnBlue]: type === pollTypes.YesNoAbstention })}
           />
           <Button
             label={intl.formatMessage(intlMessages.userResponse)}
             color="default"
-            onClick={() => { this.setState({ type: 'RP' }); }}
-            className={cx(styles.pBtn, styles.fullWidth, { [styles.selectedBtnWhite]: type === 'RP' })}
+            onClick={() => { this.setState({ type: pollTypes.Response }); }}
+            className={cx(styles.pBtn, styles.fullWidth, { [styles.selectedBtnWhite]: type === pollTypes.Response })}
           />
         </div>
         { type
-              && (
-              <div data-test="responseChoices">
-                <h4>{intl.formatMessage(intlMessages.responseChoices)}</h4>
-                {
-                  type === 'RP'
-                    && (
-                    <div>
-                      <span>{intl.formatMessage(intlMessages.typedResponseDesc)}</span>
-                      <div className={styles.exampleResponse}>
-                        <div className={styles.exampleTitle} />
-                        <div className={styles.responseInput}>
-                          <div className={styles.rInput} />
-                        </div>
+          && (
+            <div data-test="responseChoices">
+              <h4>{intl.formatMessage(intlMessages.responseChoices)}</h4>
+              {
+                type === pollTypes.Response
+                && (
+                  <div>
+                    <span>{intl.formatMessage(intlMessages.typedResponseDesc)}</span>
+                    <div className={styles.exampleResponse}>
+                      <div className={styles.exampleTitle} />
+                      <div className={styles.responseInput}>
+                        <div className={styles.rInput} />
                       </div>
                     </div>
-                    )
-                }
-                {
-                  (defaultPoll || type === 'RP')
-                    && (
-                    <div style={{
-                      display: 'flex',
-                      flexFlow: 'column',
-                    }}
-                    >
-                      {defaultPoll && this.renderInputs()}
-                      {defaultPoll
-                        && (
+                  </div>
+                )
+              }
+              {
+                (defaultPoll || type === pollTypes.Response)
+                && (
+                  <div style={{
+                    display: 'flex',
+                    flexFlow: 'column',
+                  }}
+                  >
+                    {defaultPoll && this.renderInputs()}
+                    {defaultPoll
+                      && (
                         <Button
                           className={styles.addItemBtn}
                           data-test="addItem"
@@ -521,64 +488,70 @@ class Poll extends Component {
                           disabled={optList.length === MAX_CUSTOM_FIELDS}
                           onClick={() => this.handleAddOption()}
                         />
-                        )
-                      }
-                      <Button
-                        className={styles.startPollBtn}
-                        data-test="startPoll"
-                        label={intl.formatMessage(intlMessages.startPollLabel)}
-                        color="primary"
-                        onClick={() => {
-                          let hasVal = false;
-                          optList.forEach((o) => {
-                            if (o.val.length > 0) hasVal = true;
-                          });
+                      )}
+                    <Button
+                      className={styles.startPollBtn}
+                      data-test="startPoll"
+                      label={intl.formatMessage(intlMessages.startPollLabel)}
+                      color="primary"
+                      onClick={() => {
+                        let hasVal = false;
+                        optList.forEach((o) => {
+                          if (o.val.length > 0) hasVal = true;
+                        });
 
-                          let err = null;
-                          if (type === 'RP' && question.length === 0) err = intl.formatMessage(intlMessages.questionErr);
-                          if (!hasVal && type !== 'RP') err = intl.formatMessage(intlMessages.optionErr);
-                          if (err) return this.setState({ error: err });
+                        let err = null;
+                        if (type === pollTypes.Response && question.length === 0) err = intl.formatMessage(intlMessages.questionErr);
+                        if (!hasVal && type !== pollTypes.Response) err = intl.formatMessage(intlMessages.optionErr);
+                        if (err) return this.setState({ error: err });
 
-                          this.setState({ isPolling: true }, () => {
-                            const verifiedPollType = this.checkPollType();
-                            const verifiedOptions = optList.map((o) => {
-                              if (o.val.length > 0) return o.val;
-                              return null;
-                            });
-                            if (verifiedPollType === 'custom') {
-                              startCustomPoll(
-                                verifiedPollType,
-                                question,
-                                _.compact(verifiedOptions),
-                              );
-                            } else {
-                              startPoll(verifiedPollType, question);
-                            }
+                        return this.setState({ isPolling: true }, () => {
+                          const verifiedPollType = checkPollType(
+                            type,
+                            optList,
+                            intl.formatMessage(intlMessages.yes),
+                            intl.formatMessage(intlMessages.no),
+                            intl.formatMessage(intlMessages.abstention),
+                            intl.formatMessage(intlMessages.true),
+                            intl.formatMessage(intlMessages.false)
+                          );
+                          const verifiedOptions = optList.map((o) => {
+                            if (o.val.length > 0) return o.val;
+                            return null;
                           });
-                        }}
-                      />
-                      {
-                        FILE_DRAG_AND_DROP_ENABLED && type !== 'RP' && this.renderDragDrop()
-                      }
-                    </div>
-                    )
+                          if (verifiedPollType === pollTypes.Custom) {
+                            startCustomPoll(
+                              verifiedPollType,
+                              question,
+                              _.compact(verifiedOptions),
+                            );
+                          } else {
+                            startPoll(verifiedPollType, question);
+                          }
+                        });
+                      }}
+                    />
+                    {
+                      FILE_DRAG_AND_DROP_ENABLED && type !== pollTypes.Response && this.renderDragDrop()
+                    }
+                  </div>
+                )
               }
-              </div>
-              )
-        }
+            </div>
+          )}
       </div>
     );
   }
 
   renderNoSlidePanel() {
-    const { mountModal, intl } = this.props;
+    const { intl } = this.props;
     return (
       <div className={styles.noSlidePanelContainer}>
         <h4>{intl.formatMessage(intlMessages.noPresentationSelected)}</h4>
         <Button
           label={intl.formatMessage(intlMessages.clickHereToSelect)}
           color="primary"
-          onClick={() => mountModal(<PresentationUploaderContainer />)}
+          onClick={() => Session.set('showUploadPresentationView', true)}
           className={styles.pollBtn}
         />
       </div>
@@ -592,7 +565,7 @@ class Poll extends Component {
       currentSlide,
     } = this.props;
 
-    if (!CHAT_ENABLED && !currentSlide) return this.renderNoSlidePanel();
+    if (!currentSlide) return this.renderNoSlidePanel();
 
     if (isPolling || (!isPolling && currentPoll)) {
       return this.renderActivePollOptions();
@@ -600,7 +573,6 @@ class Poll extends Component {
 
     return this.renderPollOptions();
   }
-
 
   renderDragDrop() {
     const { intl } = this.props;
@@ -611,7 +583,7 @@ class Poll extends Component {
         </div>
         <DragAndDrop
           {...{ intl, MAX_INPUT_CHARS }}
-          handlePollValuesText={e => this.handlePollValuesText(e)}
+          handlePollValuesText={(e) => this.handlePollValuesText(e)}
         >
           <div className={styles.dragAndDropPollContainer} />
         </DragAndDrop>
@@ -619,16 +591,13 @@ class Poll extends Component {
     );
   }
 
-
   render() {
     const {
       intl,
       stopPoll,
       currentPoll,
-      amIPresenter,
+      newLayoutContextDispatch,
     } = this.props;
-
-    if (!amIPresenter) return null;
 
     return (
       <div>
@@ -641,20 +610,32 @@ class Poll extends Component {
             icon="left_arrow"
             aria-label={intl.formatMessage(intlMessages.hidePollDesc)}
             className={styles.hideBtn}
-            onClick={() => { 
-                     Session.set('openPanel', 'userlist');
-                     window.dispatchEvent(new Event('panelChanged'));
-                    }}
+            onClick={() => {
+              newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                value: false,
+              });
+              newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                value: PANELS.NONE,
+              });
+            }}
           />
           <Button
             label={intl.formatMessage(intlMessages.closeLabel)}
             aria-label={`${intl.formatMessage(intlMessages.closeLabel)} ${intl.formatMessage(intlMessages.pollPaneTitle)}`}
             onClick={() => {
               if (currentPoll) stopPoll();
-              Session.set('openPanel', 'userlist');
+              newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                value: false,
+              });
+              newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                value: PANELS.NONE,
+              });
               Session.set('forcePollOpen', false);
               Session.set('pollInitiated', false);
-              window.dispatchEvent(new Event('panelChanged'));
             }}
             className={styles.closeBtn}
             icon="close"
@@ -675,7 +656,7 @@ Poll.propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   amIPresenter: PropTypes.bool.isRequired,
-  pollTypes: PropTypes.instanceOf(Array).isRequired,
+  pollTypes: PropTypes.instanceOf(Object).isRequired,
   startPoll: PropTypes.func.isRequired,
   startCustomPoll: PropTypes.func.isRequired,
   stopPoll: PropTypes.func.isRequired,
