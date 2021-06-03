@@ -81,6 +81,7 @@ public class ApiParams {
     // Needed for classes where teacher gets disconnected and can't get back in. Prevents
     // students from running amok.
     public static final String END_WHEN_NO_MODERATOR = "endWhenNoModerator";
+    public static final String END_WHEN_NO_MODERATOR_DELAY_IN_MINUTES = "endWhenNoModeratorDelayInMinutes";
 
     private ApiParams() {
         throw new IllegalStateException("ApiParams is a utility class. Instanciation is forbidden.");
