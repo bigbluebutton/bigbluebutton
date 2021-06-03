@@ -124,7 +124,6 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     randomlySelectedUser,
     currentUserId: currentUser.userId,
     isPresenter: currentUser.presenter,
-    isLargeFont: Session.get('isLargeFont')
   };
 })(AppContainer)));
 
