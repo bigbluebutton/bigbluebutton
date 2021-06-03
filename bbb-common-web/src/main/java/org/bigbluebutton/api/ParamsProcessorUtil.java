@@ -440,6 +440,15 @@ public class ParamsProcessorUtil {
           }
         }
 
+        int endWhenNoModeratorDelayInMinutes = defaultEndWhenNoModeratorDelayInMinutes;
+        if (!StringUtils.isEmpty(params.get(ApiParams.END_WHEN_NO_MODERATOR_DELAY_IN_MINUTES))) {
+          try {
+              endWhenNoModeratorDelayInMinutes = Integer.parseInt(params.get(ApiParams.END_WHEN_NO_MODERATOR_DELAY_IN_MINUTES));
+          } catch (Exception ex) {
+            log.warn("Invalid param [endWhenNoModeratorDelayInMinutes] for meeting=[{}]", internalMeetingId);
+          }
+        }
+
         String guestPolicy = defaultGuestPolicy;
         if (!StringUtils.isEmpty(params.get(ApiParams.GUEST_POLICY))) {
         	guestPolicy = params.get(ApiParams.GUEST_POLICY);
@@ -524,8 +533,8 @@ public class ParamsProcessorUtil {
 		meeting.setUserActivitySignResponseDelayInMinutes(userActivitySignResponseDelayInMinutes);
 		meeting.setUserInactivityThresholdInMinutes(userInactivityThresholdInMinutes);
 //		meeting.setHtml5InstanceId(html5InstanceId);
-        meeting.setEndWhenNoModerator(defaultEndWhenNoModerator);
-        meeting.setEndWhenNoModeratorDelayInMinutes(defaultEndWhenNoModeratorDelayInMinutes);
+        meeting.setEndWhenNoModerator(endWhenNoModerator);
+        meeting.setEndWhenNoModeratorDelayInMinutes(endWhenNoModeratorDelayInMinutes);
 
         // Add extra parameters for breakout room
         if (isBreakout) {
