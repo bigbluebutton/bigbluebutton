@@ -338,27 +338,27 @@ class MeetingActor(
   private def handleMessageThatAffectsInactivity(msg: BbbCommonEnvCoreMsg): Unit = {
 
     msg.core match {
-      case m: EndMeetingSysCmdMsg                 => handleEndMeeting(m, state)
+      case m: EndMeetingSysCmdMsg     => handleEndMeeting(m, state)
 
       // Users
-      case m: ValidateAuthTokenReqMsg             => state = usersApp.handleValidateAuthTokenReqMsg(m, state)
-      case m: UserJoinMeetingReqMsg               =>
+      case m: ValidateAuthTokenReqMsg => state = usersApp.handleValidateAuthTokenReqMsg(m, state)
+      case m: UserJoinMeetingReqMsg =>
         state = handleUserJoinMeetingReqMsg(m, state)
         updateModeratorsPresence()
       case m: UserJoinMeetingAfterReconnectReqMsg =>
         state = handleUserJoinMeetingAfterReconnectReqMsg(m, state)
         updateModeratorsPresence()
-      case m: UserLeaveReqMsg                     =>
+      case m: UserLeaveReqMsg =>
         state = handleUserLeaveReqMsg(m, state)
         updateModeratorsPresence()
-      case m: UserBroadcastCamStartMsg            => handleUserBroadcastCamStartMsg(m)
-      case m: UserBroadcastCamStopMsg             => handleUserBroadcastCamStopMsg(m)
-      case m: GetCamBroadcastPermissionReqMsg     => handleGetCamBroadcastPermissionReqMsg(m)
-      case m: GetCamSubscribePermissionReqMsg     => handleGetCamSubscribePermissionReqMsg(m)
+      case m: UserBroadcastCamStartMsg        => handleUserBroadcastCamStartMsg(m)
+      case m: UserBroadcastCamStopMsg         => handleUserBroadcastCamStopMsg(m)
+      case m: GetCamBroadcastPermissionReqMsg => handleGetCamBroadcastPermissionReqMsg(m)
+      case m: GetCamSubscribePermissionReqMsg => handleGetCamSubscribePermissionReqMsg(m)
 
-      case m: UserJoinedVoiceConfEvtMsg           => handleUserJoinedVoiceConfEvtMsg(m)
-      case m: LogoutAndEndMeetingCmdMsg           => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
-      case m: SetRecordingStatusCmdMsg            =>
+      case m: UserJoinedVoiceConfEvtMsg       => handleUserJoinedVoiceConfEvtMsg(m)
+      case m: LogoutAndEndMeetingCmdMsg       => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
+      case m: SetRecordingStatusCmdMsg =>
         state = usersApp.handleSetRecordingStatusCmdMsg(m, state)
         updateUserLastActivity(m.body.setBy)
       case m: RecordAndClearPreviousMarkersCmdMsg =>
@@ -706,7 +706,8 @@ class MeetingActor(
           sendEndMeetingDueToExpiry(
             MeetingEndReason.ENDED_DUE_TO_NO_AUTHED_USER,
             eventBus, outGW, liveMeeting,
-            "system"
+            "system",
+            "System"
           )
         }
       }
@@ -726,7 +727,8 @@ class MeetingActor(
         sendEndMeetingDueToExpiry(
           MeetingEndReason.ENDED_DUE_TO_NO_MODERATOR,
           eventBus, outGW, liveMeeting,
-          "system"
+          "system",
+          "System"
         )
       } else {
         val msToEndMeeting = state.expiryTracker.lastModeratorLeftOnInMs - (TimeUtil.timeNowInMs() - state.expiryTracker.endWhenNoModeratorDelayInMs)
