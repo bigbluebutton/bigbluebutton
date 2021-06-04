@@ -5,6 +5,8 @@ import ReactPlayer from 'react-player';
 import { sendMessage, onMessage, removeAllListeners } from './service';
 import logger from '/imports/startup/client/logger';
 import ExternalVideoCloseButton from './externalvideo-close-button/component';
+import Service from './service';
+
 import ArcPlayer from './custom-players/arc-player';
 import PeerTubePlayer from './custom-players/peertube';
 
@@ -345,8 +347,9 @@ class VideoPlayer extends Component {
 
         this.seekTo(time);
 
-        if (playing !== state) {
-          this.setState({ playing: state });
+        const playingState = Service.getPlayingState(state);
+        if (playing !== playingState) {
+          this.setState({ playing: playingState });
         }
       });
     }
