@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Button from '/imports/ui/components/button/component';
@@ -8,6 +7,7 @@ import logger from '/imports/startup/client/logger';
 import PadService from './service';
 import CaptionsService from '/imports/ui/components/captions/service';
 import { styles } from './styles';
+import { PANELS, ACTIONS } from '../../layout/enums';
 
 const intlMessages = defineMessages({
   hide: {
@@ -55,7 +55,6 @@ const propTypes = {
   padId: PropTypes.string.isRequired,
   readOnlyPadId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  amIModerator: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -177,14 +176,8 @@ class Pad extends PureComponent {
       readOnlyPadId,
       ownerId,
       name,
-      amIModerator,
+      newLayoutContextDispatch,
     } = this.props;
-
-    if (!amIModerator) {
-      Session.set('openPanel', 'userlist');
-      window.dispatchEvent(new Event('panelChanged'));
-      return null;
-    }
 
     const { listening } = this.state;
     const url = PadService.getPadURL(padId, readOnlyPadId, ownerId);
@@ -195,8 +188,14 @@ class Pad extends PureComponent {
           <div className={styles.title}>
             <Button
               onClick={() => {
-                Session.set('openPanel', 'userlist');
-                window.dispatchEvent(new Event('panelChanged'));
+                newLayoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                  value: false,
+                });
+                newLayoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                  value: PANELS.NONE,
+                });
               }}
               aria-label={intl.formatMessage(intlMessages.hide)}
               label={name}
@@ -259,6 +258,5 @@ class Pad extends PureComponent {
   }
 }
 
-export default injectWbResizeEvent(injectIntl(Pad));
-
 Pad.propTypes = propTypes;
+export default injectWbResizeEvent(injectIntl(Pad));

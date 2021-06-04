@@ -1,13 +1,11 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import Storage from '/imports/ui/services/storage/session';
-import { Session } from 'meteor/session';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import _ from 'lodash';
+import NewLayoutManager from '../context/context';
 
-const windowWidth = () => window.innerWidth;
-const windowHeight = () => window.innerHeight;
 const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 
@@ -18,12 +16,6 @@ const USERLIST_MIN_WIDTH = 150;
 const USERLIST_MAX_WIDTH = 240;
 const CHAT_MIN_WIDTH = 320;
 const CHAT_MAX_WIDTH = 400;
-const POLL_MIN_WIDTH = 320;
-const POLL_MAX_WIDTH = 400;
-const NOTE_MIN_WIDTH = 340;
-const NOTE_MAX_WIDTH = 800;
-const WAITING_MIN_WIDTH = 340;
-const WAITING_MAX_WIDTH = 800;
 const NAVBAR_HEIGHT = 170;
 const ACTIONSBAR_HEIGHT = isMobile ? 50 : 42;
 const BREAKOUT_MIN_WIDTH = 320;
@@ -105,18 +97,21 @@ class LayoutManagerComponent extends Component {
     window.addEventListener('webcamPlacementChange', () => {
       this.setLayoutSizes(false, false, true);
     });
-    
-    window.addEventListener('fullscreenchange', () => {
-      setTimeout(() => this.setLayoutSizes(), 200);
-    });
   }
 
   componentDidUpdate(prevProps) {
-    const { layoutContextState, screenIsShared } = this.props;
+    const {
+      layoutContextState,
+      layoutManagerLoaded,
+      screenIsShared,
+      newLayoutContextState,
+    } = this.props;
     const {
       layoutContextState: prevLayoutContextState,
-      screenIsShared: prevScreenIsShared
+      screenIsShared: prevScreenIsShared,
+      newLayoutContextState: prevNewLayoutContextState,
     } = prevProps;
+
     const {
       numUsersVideo,
     } = layoutContextState;
@@ -124,8 +119,20 @@ class LayoutManagerComponent extends Component {
       numUsersVideo: prevNumUsersVideo,
     } = prevLayoutContextState;
 
+    const { input } = newLayoutContextState;
+    const { sidebarNavigation, sidebarContent } = input;
+
+    const { input: prevInput } = prevNewLayoutContextState;
+    const {
+      sidebarNavigation: prevSidebarNavigation,
+      sidebarContent: prevSidebarContent,
+    } = prevInput;
+
     if (numUsersVideo !== prevNumUsersVideo
-      || prevScreenIsShared !== screenIsShared) {
+      || prevProps.layoutManagerLoaded !== layoutManagerLoaded
+      || prevScreenIsShared !== screenIsShared
+      || sidebarNavigation.isOpen !== prevSidebarNavigation.isOpen
+      || sidebarContent.isOpen !== prevSidebarContent.isOpen) {
       setTimeout(() => this.setLayoutSizes(), 500);
     }
   }
@@ -146,8 +153,8 @@ class LayoutManagerComponent extends Component {
       {
         type: 'setWindowSize',
         value: {
-          width: windowWidth(),
-          height: windowHeight(),
+          width: this.windowWidth(),
+          height: this.windowHeight(),
         },
       },
     );
@@ -172,50 +179,8 @@ class LayoutManagerComponent extends Component {
     );
     layoutContextDispatch(
       {
-        type: 'setChatSize',
-        value: {
-          width: layoutSizes.chatSize.width,
-        },
-      },
-    );
-    layoutContextDispatch(
-      {
-        type: 'setPollSize',
-        value: {
-          width: layoutSizes.pollSize.width,
-        },
-      },
-    );
-    layoutContextDispatch(
-      {
-        type: 'setNoteSize',
-        value: {
-          width: layoutSizes.noteSize.width,
-        },
-      },
-    );
-    layoutContextDispatch(
-      {
-        type: 'setCaptionsSize',
-        value: {
-          width: layoutSizes.captionsSize.width,
-        },
-      },
-    );
-    layoutContextDispatch(
-      {
-        type: 'setWaitingUsersPanelSize',
-        value: {
-          width: layoutSizes.waitingSize.width,
-        },
-      },
-    );
-    layoutContextDispatch(
-      {
-        type: 'setBreakoutRoomSize',
-        value: {
-          width: layoutSizes.breakoutRoomSize.width,
-        },
+        type: 'setSecondPanelSize',
+        value: layoutSizes.secondPanelSize.width,
       },
     );
     layoutContextDispatch(
@@ -239,8 +204,8 @@ class LayoutManagerComponent extends Component {
 
     const newLayoutData = {
       windowSize: {
-        width: windowWidth(),
-        height: windowHeight(),
+        width: this.windowWidth(),
+        height: this.windowHeight(),
       },
       mediaBounds: {
         width: layoutSizes.mediaBounds.width,
@@ -251,23 +216,8 @@ class LayoutManagerComponent extends Component {
       userListSize: {
         width: layoutSizes.userListSize.width,
       },
-      chatSize: {
-        width: layoutSizes.chatSize.width,
-      },
-      pollSize: {
-        width: layoutSizes.pollSize.width,
-      },
-      noteSize: {
-        width: layoutSizes.noteSize.width,
-      },
-      captionsSize: {
-        width: layoutSizes.captionsSize.width,
-      },
-      waitingSize: {
-        width: layoutSizes.waitingSize.width,
-      },
-      breakoutRoomSize: {
-        width: layoutSizes.breakoutRoomSize.width,
+      secondPanelSize: {
+        width: layoutSizes.secondPanelSize.width,
       },
       webcamsAreaSize: {
         width: layoutSizes.webcamsAreaSize.width,
@@ -281,6 +231,24 @@ class LayoutManagerComponent extends Component {
 
     Storage.setItem('layoutData', newLayoutData);
     window.dispatchEvent(new Event('layoutSizesSets'));
+  }
+
+  windowWidth() {
+    const { layoutManagerLoaded } = this.props;
+    return (
+      layoutManagerLoaded !== 'both'
+        ? window.document.documentElement.clientWidth
+        : window.document.documentElement.clientWidth * 0.5
+    );
+  }
+
+  windowHeight() {
+    const { layoutManagerLoaded } = this.props;
+    return (
+      layoutManagerLoaded !== 'both'
+        ? window.document.documentElement.clientHeight
+        : window.document.documentElement.clientHeight * 0.5
+    );
   }
 
   defineWebcamPlacement(mediaAreaWidth, mediaAreaHeight, presentationWidth, presentationHeight) {
@@ -324,47 +292,25 @@ class LayoutManagerComponent extends Component {
     const { layoutContextState } = this.props;
     const {
       userListSize: userListSizeContext,
-      chatSize: chatSizeContext,
-      pollSize: pollSizeContext,
-      noteSize: noteSizeContext,
-      captionsSize: captionsSizeContext,
-      waitingSize: waitingSizeContext,
-      breakoutRoomSize: breakoutRoomSizeContext,
+      secondPanelSize,
     } = layoutContextState;
-    const openPanel = Session.get('openPanel');
     const storageLData = storageLayoutData();
 
     let storageUserListWidth;
-    let storageChatWidth;
-    let storagePollWidth;
-    let storageNoteWidth;
-    let storageCaptionsWidth;
-    let storageWaitingWidth;
-    let storageBreakoutRoomWidth;
-
+    let storageSecondPanelWidth;
     if (storageLData) {
-      storageUserListWidth = storageLData.userListSize?.width;
-      storageChatWidth = storageLData.chatSize?.width;
-      storagePollWidth = storageLData.pollSize?.width;
-      storageNoteWidth = storageLData.noteSize?.width;
-      storageCaptionsWidth = storageLData.captionsSize?.width;
-      storageWaitingWidth = storageLData.waitingSize?.width;
-      storageBreakoutRoomWidth = storageLData.breakoutRoomSize?.width;
+      storageUserListWidth = storageLData?.userListSize?.width;
+      storageSecondPanelWidth = storageLData?.secondPanelSize?.width;
     }
 
     let newUserListSize;
-    let newChatSize;
-    let newPollSize;
-    let newNoteSize;
-    let newCaptionsSize;
-    let newWaitingSize;
-    let newBreakoutRoomSize;
+    let newPanelSize;
 
     if (panelChanged && userListSizeContext.width !== 0) {
       newUserListSize = userListSizeContext;
     } else if (!storageUserListWidth) {
       newUserListSize = {
-        width: min(max((windowWidth() * 0.1), USERLIST_MIN_WIDTH), USERLIST_MAX_WIDTH),
+        width: min(max((this.windowWidth() * 0.1), USERLIST_MIN_WIDTH), USERLIST_MAX_WIDTH),
       };
     } else {
       newUserListSize = {
@@ -372,245 +318,23 @@ class LayoutManagerComponent extends Component {
       };
     }
 
-    if (panelChanged && chatSizeContext.width !== 0) {
-      newChatSize = chatSizeContext;
-    } else if (!storageChatWidth) {
-      newChatSize = {
-        width: min(max((windowWidth() * 0.2), CHAT_MIN_WIDTH), CHAT_MAX_WIDTH),
+    if (panelChanged && secondPanelSize.width !== 0) {
+      newPanelSize = {
+        width: secondPanelSize.width,
+      };
+    } else if (!storageSecondPanelWidth) {
+      newPanelSize = {
+        width: min(max((this.windowWidth() * 0.2), CHAT_MIN_WIDTH), CHAT_MAX_WIDTH),
       };
     } else {
-      newChatSize = {
-        width: storageChatWidth,
+      newPanelSize = {
+        width: storageSecondPanelWidth,
       };
-    }
-
-    if (panelChanged && pollSizeContext.width !== 0) {
-      newPollSize = pollSizeContext;
-    } else if (!storagePollWidth) {
-      newPollSize = {
-        width: min(max((windowWidth() * 0.2), POLL_MIN_WIDTH), POLL_MAX_WIDTH),
-      };
-    } else {
-      newPollSize = {
-        width: storagePollWidth,
-      };
-    }
-
-    if (panelChanged && noteSizeContext.width !== 0) {
-      newNoteSize = noteSizeContext;
-    } else if (!storageNoteWidth) {
-      newNoteSize = {
-        width: min(max((windowWidth() * 0.2), NOTE_MIN_WIDTH), NOTE_MAX_WIDTH),
-      };
-    } else {
-      newNoteSize = {
-        width: storageNoteWidth,
-      };
-    }
-
-    if (panelChanged && captionsSizeContext.width !== 0) {
-      newCaptionsSize = captionsSizeContext;
-    } else if (!storageCaptionsWidth) {
-      newCaptionsSize = {
-        width: min(max((windowWidth() * 0.2), NOTE_MIN_WIDTH), NOTE_MAX_WIDTH),
-      };
-    } else {
-      newCaptionsSize = {
-        width: storageCaptionsWidth,
-      };
-    }
-
-    if (panelChanged && waitingSizeContext.width !== 0) {
-      newWaitingSize = waitingSizeContext;
-    } else if (!storageWaitingWidth) {
-      newWaitingSize = {
-        width: min(max((windowWidth() * 0.2), WAITING_MIN_WIDTH), WAITING_MAX_WIDTH),
-      };
-    } else {
-      newWaitingSize = {
-        width: storageWaitingWidth,
-      };
-    }
-
-    if (panelChanged && breakoutRoomSizeContext.width !== 0) {
-      newBreakoutRoomSize = breakoutRoomSizeContext;
-    } else if (!storageBreakoutRoomWidth) {
-      newBreakoutRoomSize = {
-        width: min(max((windowWidth() * 0.2), BREAKOUT_MIN_WIDTH), BREAKOUT_MAX_WIDTH),
-      };
-    } else {
-      newBreakoutRoomSize = {
-        width: storageBreakoutRoomWidth,
-      };
-    }
-
-    switch (openPanel) {
-      case 'userlist': {
-        newChatSize = {
-          width: 0,
-        };
-        newBreakoutRoomSize = {
-          width: 0,
-        };
-        newPollSize = {
-          width: 0,
-        };
-        newNoteSize = {
-          width: 0,
-        };
-        newCaptionsSize = {
-          width: 0,
-        };
-        newWaitingSize = {
-          width: 0,
-        };
-        break;
-      }
-      case 'poll': {
-        newChatSize = {
-          width: 0,
-        };
-        newNoteSize = {
-          width: 0,
-        };
-        newBreakoutRoomSize = {
-          width: 0,
-        };
-        newCaptionsSize = {
-          width: 0,
-        };
-        newWaitingSize = {
-          width: 0,
-        };
-        break;
-      }
-      case 'note': {
-        newChatSize = {
-          width: 0,
-        };
-        newPollSize = {
-          width: 0,
-        };
-        newBreakoutRoomSize = {
-          width: 0,
-        };
-        newCaptionsSize = {
-          width: 0,
-        };
-        newWaitingSize = {
-          width: 0,
-        };
-        break;
-      }
-      case 'captions': {
-        newChatSize = {
-          width: 0,
-        };
-        newPollSize = {
-          width: 0,
-        };
-        newBreakoutRoomSize = {
-          width: 0,
-        };
-        newNoteSize = {
-          width: 0,
-        };
-        newWaitingSize = {
-          width: 0,
-        };
-        break;
-      }
-      case 'waitingUsersPanel': {
-        newChatSize = {
-          width: 0,
-        };
-        newPollSize = {
-          width: 0,
-        };
-        newBreakoutRoomSize = {
-          width: 0,
-        };
-        newNoteSize = {
-          width: 0,
-        };
-        newCaptionsSize = {
-          width: 0,
-        };
-        break;
-      }
-      case 'chat': {
-        newBreakoutRoomSize = {
-          width: 0,
-        };
-        newPollSize = {
-          width: 0,
-        };
-        newNoteSize = {
-          width: 0,
-        };
-        newCaptionsSize = {
-          width: 0,
-        };
-        newWaitingSize = {
-          width: 0,
-        };
-        break;
-      }
-      case 'breakoutroom': {
-        newChatSize = {
-          width: 0,
-        };
-        newPollSize = {
-          width: 0,
-        };
-        newNoteSize = {
-          width: 0,
-        };
-        newCaptionsSize = {
-          width: 0,
-        };
-        newWaitingSize = {
-          width: 0,
-        };
-        break;
-      }
-      case '': {
-        newUserListSize = {
-          width: 0,
-        };
-        newChatSize = {
-          width: 0,
-        };
-        newBreakoutRoomSize = {
-          width: 0,
-        };
-        newPollSize = {
-          width: 0,
-        };
-        newNoteSize = {
-          width: 0,
-        };
-        newCaptionsSize = {
-          width: 0,
-        };
-        newWaitingSize = {
-          width: 0,
-        };
-        break;
-      }
-      default: {
-        throw new Error('Unexpected openPanel value');
-      }
     }
 
     return {
       newUserListSize,
-      newChatSize,
-      newPollSize,
-      newNoteSize,
-      newCaptionsSize,
-      newWaitingSize,
-      newBreakoutRoomSize,
+      newPanelSize,
     };
   }
 
@@ -720,7 +444,10 @@ class LayoutManagerComponent extends Component {
   calculatesLayout(panelChanged = false) {
     const {
       layoutContextState,
+      newLayoutContextState,
     } = this.props;
+    const { input } = newLayoutContextState;
+    const { sidebarNavigation, sidebarContent } = input;
     const {
       presentationIsFullscreen,
       presentationSlideSize,
@@ -735,36 +462,23 @@ class LayoutManagerComponent extends Component {
 
     const {
       newUserListSize,
-      newChatSize,
-      newPollSize,
-      newNoteSize,
-      newCaptionsSize,
-      newWaitingSize,
-      newBreakoutRoomSize,
+      newPanelSize,
     } = panelsSize;
 
     const firstPanel = newUserListSize;
-
     let secondPanel = {
       width: 0,
     };
-
-    if (newChatSize.width > 0) {
-      secondPanel = newChatSize;
-    } else if (newPollSize.width > 0) {
-      secondPanel = newPollSize;
-    } else if (newNoteSize.width > 0) {
-      secondPanel = newNoteSize;
-    } else if (newCaptionsSize.width > 0) {
-      secondPanel = newCaptionsSize;
-    } else if (newWaitingSize.width > 0) {
-      secondPanel = newWaitingSize;
-    } else if (newBreakoutRoomSize.width > 0) {
-      secondPanel = newBreakoutRoomSize;
+    if (newPanelSize.width > 0) {
+      secondPanel = newPanelSize;
     }
 
-    const mediaAreaHeight = windowHeight() - (NAVBAR_HEIGHT + ACTIONSBAR_HEIGHT) - 10;
-    const mediaAreaWidth = windowWidth() - (firstPanel.width + secondPanel.width);
+    const mediaAreaHeight = this.windowHeight() - (NAVBAR_HEIGHT + ACTIONSBAR_HEIGHT) - 10;
+    const mediaAreaWidth = this.windowWidth() - (
+      (sidebarNavigation.isOpen ? firstPanel.width : 0)
+      + (sidebarContent.isOpen ? secondPanel.width : 0)
+    );
+
     const newMediaBounds = {
       width: mediaAreaWidth,
       height: mediaAreaHeight,
@@ -772,7 +486,10 @@ class LayoutManagerComponent extends Component {
       left: firstPanel.width + secondPanel.width,
     };
 
-    const { presentationWidth, presentationHeight } = LayoutManagerComponent.calculatesPresentationSize(
+    const {
+      presentationWidth,
+      presentationHeight,
+    } = LayoutManagerComponent.calculatesPresentationSize(
       mediaAreaWidth, mediaAreaHeight, presentationSlideWidth, presentationSlideHeight,
     );
 
@@ -800,20 +517,20 @@ class LayoutManagerComponent extends Component {
       };
     } else {
       newPresentationAreaSize = {
-        width: windowWidth(),
-        height: windowHeight(),
+        width: this.windowWidth(),
+        height: this.windowHeight(),
       };
     }
+
+    newScreenShareAreaSize = {
+      width: presentationAreaWidth || 0,
+      height: presentationAreaHeight || 0,
+    };
 
     return {
       mediaBounds: newMediaBounds,
       userListSize: newUserListSize,
-      chatSize: newChatSize,
-      pollSize: newPollSize,
-      noteSize: newNoteSize,
-      captionsSize: newCaptionsSize,
-      waitingSize: newWaitingSize,
-      breakoutRoomSize: newBreakoutRoomSize,
+      secondPanelSize: newPanelSize,
       webcamsAreaSize: newWebcamsAreaSize,
       presentationAreaSize: newPresentationAreaSize,
       screenShareAreaSize: newScreenShareAreaSize,
@@ -821,22 +538,16 @@ class LayoutManagerComponent extends Component {
   }
 
   render() {
-    return <Fragment />;
+    return <></>;
   }
 }
 
-export default withLayoutConsumer(LayoutManagerComponent);
+export default withLayoutConsumer(NewLayoutManager.withConsumer(LayoutManagerComponent));
 export {
   USERLIST_MIN_WIDTH,
   USERLIST_MAX_WIDTH,
   CHAT_MIN_WIDTH,
   CHAT_MAX_WIDTH,
-  POLL_MIN_WIDTH,
-  POLL_MAX_WIDTH,
-  NOTE_MIN_WIDTH,
-  NOTE_MAX_WIDTH,
-  WAITING_MIN_WIDTH,
-  WAITING_MAX_WIDTH,
   NAVBAR_HEIGHT,
   ACTIONSBAR_HEIGHT,
   WEBCAMSAREA_MIN_PERCENT,

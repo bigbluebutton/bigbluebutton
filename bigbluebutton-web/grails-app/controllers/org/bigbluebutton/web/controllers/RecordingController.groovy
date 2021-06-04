@@ -34,6 +34,328 @@ class RecordingController {
     }
   }
 
+  /******************************************************
+   * GET_RECORDINGS API
+   ******************************************************/
+  def getRecordingsHandler = {
+    String API_CALL = "getRecordings"
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
+
+    // BEGIN - backward compatibility
+    if (StringUtils.isEmpty(params.checksum)) {
+      invalid("checksumError", "You did not pass the checksum security check")
+      return
+    }
+
+    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      invalid("checksumError", "You did not pass the checksum security check")
+      return
+    }
+    // END - backward compatibility
+
+    ApiErrors errors = new ApiErrors()
+
+    // Do we have a checksum? If none, complain.
+    if (StringUtils.isEmpty(params.checksum)) {
+      errors.missingParamError("checksum");
+      respondWithErrors(errors)
+      return
+    }
+
+    log.debug request.getQueryString()
+
+    // Do we agree on the checksum? If not, complain.
+    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      errors.checksumError()
+      respondWithErrors(errors)
+      return
+    }
+
+    List<String> externalMeetingIds = new ArrayList<String>();
+    if (!StringUtils.isEmpty(params.meetingID)) {
+      externalMeetingIds = paramsProcessorUtil.decodeIds(params.meetingID);
+    }
+
+    ArrayList<String> internalRecordIds = new ArrayList<String>()
+    if (!StringUtils.isEmpty(params.recordID)) {
+      internalRecordIds = paramsProcessorUtil.decodeIds(params.recordID)
+    }
+
+    ArrayList<String> states = new ArrayList<String>()
+    if (!StringUtils.isEmpty(params.state)) {
+      states = paramsProcessorUtil.decodeIds(params.state)
+    }
+
+    // Everything is good so far.
+    if (internalRecordIds.size() == 0 && externalMeetingIds.size() > 0) {
+      // No recordIDs, process the request based on meetingID(s)
+      // Translate the external meeting ids to internal meeting ids (which is the seed for the recordIDs).
+      internalRecordIds = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingIds);
+    }
+
+    for(String intRecId : internalRecordIds) {
+      log.debug intRecId
+    }
+
+    Map<String, String> metadataFilters = ParamsProcessorUtil.processMetaParam(params);
+
+    def getRecordingsResult = meetingService.getRecordings2x(internalRecordIds, states, metadataFilters)
+
+    withFormat {
+      xml {
+        render(text: getRecordingsResult, contentType: "text/xml")
+      }
+    }
+  }
+
+  /******************************************************
+   * UPDATE_RECORDINGS API
+   ******************************************************/
+  def updateRecordingsHandler = {
+    String API_CALL = "updateRecordings"
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
+
+    // BEGIN - backward compatibility
+    if (StringUtils.isEmpty(params.checksum)) {
+      invalid("checksumError", "You did not pass the checksum security check")
+      return
+    }
+
+    if (StringUtils.isEmpty(params.recordID)) {
+      invalid("missingParamRecordID", "You must specify a recordID.");
+      return
+    }
+
+    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      invalid("checksumError", "You did not pass the checksum security check")
+      return
+    }
+    // END - backward compatibility
+
+    ApiErrors errors = new ApiErrors()
+
+    // Do we have a checksum? If none, complain.
+    if (StringUtils.isEmpty(params.checksum)) {
+      errors.missingParamError("checksum");
+    }
+
+    // Do we have a recording id? If none, complain.
+    String recordId = params.recordID
+    if (StringUtils.isEmpty(recordId)) {
+      errors.missingParamError("recordID");
+    }
+
+    if (errors.hasErrors()) {
+      respondWithErrors(errors)
+      return
+    }
+
+    // Do we agree on the checksum? If not, complain.
+    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      errors.checksumError()
+      respondWithErrors(errors)
+      return
+    }
+
+    List<String> recordIdList = new ArrayList<String>();
+    if (!StringUtils.isEmpty(recordId)) {
+      recordIdList = paramsProcessorUtil.decodeIds(recordId);
+    }
+
+    if (!meetingService.existsAnyRecording(recordIdList)) {
+      // BEGIN - backward compatibility
+      invalid("notFound", "We could not find recordings");
+      return;
+      // END - backward compatibility
+    }
+
+    //Execute code specific for this call
+    Map<String, String> metaParams = ParamsProcessorUtil.processMetaParam(params)
+    if (!metaParams.empty) {
+      //Proceed with the update
+      meetingService.updateRecordings(recordIdList, metaParams);
+    }
+    withFormat {
+      xml {
+        // No need to use the response builder here until we have a more complex response
+        render(text: "<response><returncode>$RESP_CODE_SUCCESS</returncode><updated>true</updated></response>", contentType: "text/xml")
+      }
+    }
+  }
+
+
+
+  /******************************************************
+   * PUBLISH_RECORDINGS API
+   ******************************************************/
+  def publishRecordings = {
+    String API_CALL = "publishRecordings"
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
+
+    // BEGIN - backward compatibility
+    if (StringUtils.isEmpty(params.checksum)) {
+      invalid("checksumError", "You did not pass the checksum security check")
+      return
+    }
+
+    if (StringUtils.isEmpty(params.recordID)) {
+      invalid("missingParamRecordID", "You must specify a recordID.");
+      return
+    }
+
+    if (StringUtils.isEmpty(params.publish)) {
+      invalid("missingParamPublish", "You must specify a publish value true or false.");
+      return
+    }
+
+    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      invalid("checksumError", "You did not pass the checksum security check")
+      return
+    }
+    // END - backward compatibility
+
+    ApiErrors errors = new ApiErrors()
+
+    // Do we have a checksum? If none, complain.
+    if (StringUtils.isEmpty(params.checksum)) {
+      errors.missingParamError("checksum");
+    }
+
+    // Do we have a recording id? If none, complain.
+    String recordId = params.recordID
+    if (StringUtils.isEmpty(recordId)) {
+      errors.missingParamError("recordID");
+    }
+    // Do we have a publish status? If none, complain.
+    String publish = params.publish
+    if (StringUtils.isEmpty(publish)) {
+      errors.missingParamError("publish");
+    }
+
+    if (errors.hasErrors()) {
+      respondWithErrors(errors)
+      return
+    }
+
+    // Do we agree on the checksum? If not, complain.
+    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      errors.checksumError()
+      respondWithErrors(errors)
+      return
+    }
+
+    ArrayList<String> recordIdList = new ArrayList<String>();
+    if (!StringUtils.isEmpty(recordId)) {
+      recordIdList = paramsProcessorUtil.decodeIds(recordId);
+    }
+
+    if (!meetingService.existsAnyRecording(recordIdList)) {
+      // BEGIN - backward compatibility
+      invalid("notFound", "We could not find recordings");
+      return;
+      // END - backward compatibility
+
+    }
+
+    meetingService.setPublishRecording(recordIdList, publish.toBoolean());
+    withFormat {
+      xml {
+        // No need to use the response builder here until we have a more complex response
+        render(text: "<response><returncode>$RESP_CODE_SUCCESS</returncode><published>$publish</published></response>", contentType: "text/xml")
+      }
+    }
+  }
+
+  /******************************************************
+   * DELETE_RECORDINGS API
+   ******************************************************/
+  def deleteRecordings = {
+    String API_CALL = "deleteRecordings"
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
+
+    // BEGIN - backward compatibility
+    if (StringUtils.isEmpty(params.checksum)) {
+      invalid("checksumError", "You did not pass the checksum security check")
+      return
+    }
+
+    if (StringUtils.isEmpty(params.recordID)) {
+      invalid("missingParamRecordID", "You must specify a recordID.");
+      return
+    }
+
+    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      invalid("checksumError", "You did not pass the checksum security check")
+      return
+    }
+    // END - backward compatibility
+
+    ApiErrors errors = new ApiErrors()
+
+    // Do we have a checksum? If none, complain.
+    if (StringUtils.isEmpty(params.checksum)) {
+      errors.missingParamError("checksum");
+    }
+
+    // Do we have a recording id? If none, complain.
+    String recordId = params.recordID
+    if (StringUtils.isEmpty(recordId)) {
+      errors.missingParamError("recordID");
+    }
+
+    if (errors.hasErrors()) {
+      respondWithErrors(errors)
+      return
+    }
+
+    // Do we agree on the checksum? If not, complain.
+    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      errors.checksumError()
+      respondWithErrors(errors)
+      return
+    }
+
+    List<String> recordIdList = new ArrayList<String>();
+    if (!StringUtils.isEmpty(recordId)) {
+      recordIdList = paramsProcessorUtil.decodeIds(recordId);
+    }
+
+    if (!meetingService.existsAnyRecording(recordIdList)) {
+      // BEGIN - backward compatibility
+      invalid("notFound", "We could not find recordings");
+      return;
+      // END - backward compatibility
+    }
+
+    meetingService.deleteRecordings(recordIdList);
+    withFormat {
+      xml {
+        // No need to use the response builder here until we have a more complex response
+        render(text: "<response><returncode>$RESP_CODE_SUCCESS</returncode><deleted>true</deleted></response>", contentType: "text/xml")
+      }
+    }
+  }
+
   def checkTextTrackAuthToken = {
     try {
       def textTrackToken = request.getHeader("x-textTrack-token")
@@ -281,4 +603,48 @@ class RecordingController {
     redirect(url: newUri)
   }
 
+  private def sanitizeInput (input) {
+    if(input == null)
+      return
+
+    if(!("java.lang.String".equals(input.getClass().getName())))
+      return input
+
+    StringUtils.strip(input.replaceAll("\\p{Cntrl}", ""));
+  }
+
+  private void respondWithErrors(errorList, redirectResponse = false) {
+    log.debug CONTROLLER_NAME + "#invalid"
+    if (redirectResponse) {
+      ArrayList<Object> errors = new ArrayList<Object>();
+      errorList.getErrors().each { error ->
+        Map<String, String> errorMap = new LinkedHashMap<String, String>()
+        errorMap.put("key", error[0])
+        errorMap.put("message", error[1])
+        errors.add(errorMap)
+      }
+
+      JSONArray errorsJSONArray = new JSONArray(errors);
+      log.debug errorsJSONArray
+
+      respondWithRedirect(errorsJSONArray)
+    } else {
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        xml {
+          render(text: responseBuilder.buildErrors(errorList.getErrors(), RESP_CODE_FAILED), contentType: "text/xml")
+        }
+        json {
+          log.debug "Rendering as json"
+          def builder = new JsonBuilder()
+          builder.response {
+            returncode RESP_CODE_FAILED
+            messageKey key
+            message msg
+          }
+          render(contentType: "application/json", text: builder.toPrettyString())
+        }
+      }
+    }
+  }
 }

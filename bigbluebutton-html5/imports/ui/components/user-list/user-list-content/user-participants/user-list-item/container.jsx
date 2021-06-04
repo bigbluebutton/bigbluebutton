@@ -1,13 +1,18 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import BreakoutService from '/imports/ui/components/breakout-room/service';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UserListItem from './component';
 import UserListService from '/imports/ui/components/user-list/service';
+import { NLayoutContext } from '../../../../layout/context/context';
 
-const UserListItemContainer = props => <UserListItem {...props} />;
-const isMe = intId => intId === Auth.userID;
+const UserListItemContainer = (props) => {
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextDispatch } = newLayoutContext;
+  return <UserListItem {...{ newLayoutContextDispatch, ...props }} />;
+};
+const isMe = (intId) => intId === Auth.userID;
 
 export default withTracker(({ user }) => {
   const findUserInBreakout = BreakoutService.getBreakoutUserIsIn(user.userId);

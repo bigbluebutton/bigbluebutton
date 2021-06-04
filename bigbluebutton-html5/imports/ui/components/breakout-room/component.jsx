@@ -8,6 +8,7 @@ import { styles } from './styles';
 import Service from './service';
 import BreakoutRoomContainer from './breakout-remaining-time/container';
 import VideoService from '/imports/ui/components/video-provider/service';
+import { PANELS, ACTIONS } from '../layout/enums';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
 import UserListService from '/imports/ui/components/user-list/service';
 import AudioManager from '/imports/ui/services/audio-manager';
@@ -91,8 +92,6 @@ class BreakoutRoom extends PureComponent {
   componentDidUpdate() {
     const {
       breakoutRoomUser,
-      breakoutRooms,
-      closeBreakoutPanel,
       setBreakoutAudioTransferStatus,
       isMicrophoneUser,
       isReconnecting,
@@ -104,7 +103,12 @@ class BreakoutRoom extends PureComponent {
       joinedAudioOnly,
     } = this.state;
 
-    if (breakoutRooms.length <= 0) closeBreakoutPanel();
+    // if (breakoutRooms.length <= 0) {
+    //   newLayoutContextDispatch({
+    //     type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+    //     value: PANELS.NONE,
+    //   });
+    // }
 
     if (waiting) {
       const breakoutUser = breakoutRoomUser(requestedBreakoutId);
@@ -230,7 +234,8 @@ class BreakoutRoom extends PureComponent {
               aria-label={`${intl.formatMessage(intlMessages.breakoutJoin)} ${number}`}
               onClick={() => {
                 this.getBreakoutURL(breakoutId);
-                // leave main room's audio, and stops video and screenshare when joining a breakout room
+                // leave main room's audio,
+                // and stops video and screenshare when joining a breakout room
                 exitAudio();
                 logger.debug({
                   logCode: 'breakoutroom_join',
@@ -253,10 +258,10 @@ class BreakoutRoom extends PureComponent {
               (
                 <Button
                   label={
-                      stateBreakoutId === breakoutId
-                        && (joinedAudioOnly || isInBreakoutAudioTransfer)
-                        ? intl.formatMessage(intlMessages.breakoutReturnAudio)
-                        : intl.formatMessage(intlMessages.breakoutJoinAudio)
+                    stateBreakoutId === breakoutId
+                      && (joinedAudioOnly || isInBreakoutAudioTransfer)
+                      ? intl.formatMessage(intlMessages.breakoutReturnAudio)
+                      : intl.formatMessage(intlMessages.breakoutJoinAudio)
                   }
                   className={styles.button}
                   disabled={stateBreakoutId !== breakoutId && joinedAudioOnly}
@@ -342,7 +347,11 @@ class BreakoutRoom extends PureComponent {
 
   render() {
     const {
-      isMeteorConnected, intl, endAllBreakouts, amIModerator, closeBreakoutPanel,
+      isMeteorConnected,
+      intl,
+      endAllBreakouts,
+      amIModerator,
+      newLayoutContextDispatch,
     } = this.props;
     return (
       <div className={styles.panel}>
@@ -351,7 +360,16 @@ class BreakoutRoom extends PureComponent {
           label={intl.formatMessage(intlMessages.breakoutTitle)}
           aria-label={intl.formatMessage(intlMessages.breakoutAriaTitle)}
           className={styles.header}
-          onClick={closeBreakoutPanel}
+          onClick={() => {
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: false,
+            });
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+              value: PANELS.NONE,
+            });
+          }}
         />
         {this.renderBreakoutRooms()}
         {this.renderDuration()}
@@ -364,7 +382,17 @@ class BreakoutRoom extends PureComponent {
                 size="lg"
                 label={intl.formatMessage(intlMessages.endAllBreakouts)}
                 className={styles.endButton}
-                onClick={endAllBreakouts}
+                onClick={() => {
+                  newLayoutContextDispatch({
+                    type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                    value: false,
+                  });
+                  newLayoutContextDispatch({
+                    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                    value: PANELS.NONE,
+                  });
+                  endAllBreakouts();
+                }}
               />
             ) : null
         }

@@ -8,6 +8,7 @@ import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import LiveResult from './live-result/component';
 import { styles } from './styles.scss';
+import { PANELS, ACTIONS } from '../layout/enums';
 import DragAndDrop from './dragAndDrop/component';
 
 const intlMessages = defineMessages({
@@ -189,16 +190,8 @@ class Poll extends Component {
   }
 
   componentDidUpdate() {
-    const { amIPresenter } = this.props;
-
     if (Session.equals('resetPollPanel', true)) {
       this.handleBackClick();
-    }
-
-    if (!amIPresenter) {
-      Session.set('openPanel', 'userlist');
-      Session.set('forcePollOpen', false);
-      window.dispatchEvent(new Event('panelChanged'));
     }
   }
 
@@ -603,10 +596,8 @@ class Poll extends Component {
       intl,
       stopPoll,
       currentPoll,
-      amIPresenter,
+      newLayoutContextDispatch,
     } = this.props;
-
-    if (!amIPresenter) return null;
 
     return (
       <div>
@@ -620,8 +611,14 @@ class Poll extends Component {
             aria-label={intl.formatMessage(intlMessages.hidePollDesc)}
             className={styles.hideBtn}
             onClick={() => {
-              Session.set('openPanel', 'userlist');
-              window.dispatchEvent(new Event('panelChanged'));
+              newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                value: false,
+              });
+              newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                value: PANELS.NONE,
+              });
             }}
           />
           <Button
@@ -629,10 +626,16 @@ class Poll extends Component {
             aria-label={`${intl.formatMessage(intlMessages.closeLabel)} ${intl.formatMessage(intlMessages.pollPaneTitle)}`}
             onClick={() => {
               if (currentPoll) stopPoll();
-              Session.set('openPanel', 'userlist');
+              newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                value: false,
+              });
+              newLayoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                value: PANELS.NONE,
+              });
               Session.set('forcePollOpen', false);
               Session.set('pollInitiated', false);
-              window.dispatchEvent(new Event('panelChanged'));
             }}
             className={styles.closeBtn}
             icon="close"
