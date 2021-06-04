@@ -144,11 +144,14 @@ class ChatDropdown extends PureComponent {
   }
 
   render() {
-    const { intl } = this.props;
+    const {
+      intl,
+      amIModerator,
+    } = this.props;
     const { isSettingOpen } = this.state;
 
     const availableActions = this.getAvailableActions();
-
+    if (!amIModerator && !ENABLE_SAVE_AND_COPY_PUBLIC_CHAT) return null;
     return (
       <Dropdown
         isOpen={isSettingOpen}
