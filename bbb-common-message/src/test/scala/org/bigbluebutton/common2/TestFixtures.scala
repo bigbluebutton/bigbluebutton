@@ -17,6 +17,8 @@ trait TestFixtures {
   val userInactivityInspectTimerInMinutes = 60
   val userInactivityThresholdInMinutes = 10
   val userActivitySignResponseDelayInMinutes = 5
+  val endWhenNoModerator = false
+  val endWhenNoModeratorDelayInMinutes = 1
 
   val autoStartRecording = false
   val allowStartStopRecording = false

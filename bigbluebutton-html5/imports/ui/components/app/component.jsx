@@ -356,6 +356,8 @@ class App extends Component {
     const {
       actionsbar,
       intl,
+      layoutManagerLoaded,
+      actionsBarStyle,
     } = this.props;
 
     if (!actionsbar) return null;
@@ -365,6 +367,19 @@ class App extends Component {
         className={styles.actionsbar}
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
         aria-hidden={this.shouldAriaHide()}
+        style={
+          layoutManagerLoaded === 'new'
+            ? {
+              position: 'absolute',
+              top: actionsBarStyle.top,
+              left: actionsBarStyle.left,
+              height: actionsBarStyle.height,
+              width: actionsBarStyle.width,
+            }
+            : {
+              position: 'relative',
+            }
+        }
       >
         {actionsbar}
       </section>
@@ -490,6 +505,8 @@ class App extends Component {
                 <SidebarContentContainer />
                 <NewWebcamContainer />
                 <PresentationPodsContainer />
+                <ModalContainer />
+                {this.renderActionsBar()}
               </div>
             </>
           )}
