@@ -13,6 +13,6 @@ trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
 
   def handleEndBreakoutRoomInternalMsg(msg: EndBreakoutRoomInternalMsg): Unit = {
     log.info("Breakout room {} ended by parent meeting {}.", msg.breakoutId, msg.parentId)
-    sendEndMeetingDueToExpiry(msg.reason, eventBus, outGW, liveMeeting, "system")
+    sendEndMeetingDueToExpiry(msg.reason, eventBus, outGW, liveMeeting, "system", "System")
   }
 }

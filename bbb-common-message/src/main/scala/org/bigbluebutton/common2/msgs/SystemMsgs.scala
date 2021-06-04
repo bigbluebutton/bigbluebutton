@@ -91,7 +91,7 @@ case class MeetingEndingEvtMsg(
     header: BbbClientMsgHeader,
     body:   MeetingEndingEvtMsgBody
 ) extends BbbCoreMsg
-case class MeetingEndingEvtMsgBody(meetingId: String, reason: String)
+case class MeetingEndingEvtMsgBody(meetingId: String, reason: String, userId: String = "system", name: String = "System")
 
 /**
  * Sent to bbb-web
