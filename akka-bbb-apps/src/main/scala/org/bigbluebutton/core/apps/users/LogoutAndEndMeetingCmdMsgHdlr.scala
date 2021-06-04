@@ -27,7 +27,7 @@ trait LogoutAndEndMeetingCmdMsgHdlr extends RightsManagementTrait {
           endAllBreakoutRooms(eventBus, liveMeeting, state, MeetingEndReason.ENDED_AFTER_USER_LOGGED_OUT)
           log.info("Meeting {} ended by user [{}, {}} when logging out.", liveMeeting.props.meetingProp.intId,
             u.intId, u.name)
-          sendEndMeetingDueToExpiry(MeetingEndReason.ENDED_AFTER_USER_LOGGED_OUT, eventBus, outGW, liveMeeting, u.intId)
+          sendEndMeetingDueToExpiry(MeetingEndReason.ENDED_AFTER_USER_LOGGED_OUT, eventBus, outGW, liveMeeting, u.intId, u.name)
         }
       }
     }
