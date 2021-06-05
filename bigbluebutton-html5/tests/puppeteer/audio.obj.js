@@ -29,12 +29,7 @@ const audioTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.65,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(0.65);
   });
 
   test('Join audio with Microphone', async () => {
@@ -56,12 +51,7 @@ const audioTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.52,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(0.52);
   });
 };
 

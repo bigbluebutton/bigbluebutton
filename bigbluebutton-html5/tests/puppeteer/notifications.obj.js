@@ -30,12 +30,7 @@ const notificationsTest = () => {
       await test.page1.logger('Save Setting notification !');
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 1.56,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(1.56);
   });
 
   test('Public Chat notification', async () => {
@@ -56,12 +51,7 @@ const notificationsTest = () => {
       await test.page1.logger('Public Chat notification !');
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 1,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(1.0);
   });
 
   test('Private Chat notification', async () => {
@@ -82,12 +72,7 @@ const notificationsTest = () => {
       await test.page1.logger('Private Chat notification !');
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.6,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(0.6);
   });
 
   test('User join notification', async () => {
@@ -108,12 +93,7 @@ const notificationsTest = () => {
       await test.page3.logger('User join notification !');
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.6,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(2.0);
   });
 
   test('Presentation upload notification', async () => {
@@ -134,12 +114,7 @@ const notificationsTest = () => {
       await test.page3.logger('Presentation upload notification !');
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 2.64,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(2.64);
   });
 
   test('Poll results notification', async () => {
@@ -161,12 +136,7 @@ const notificationsTest = () => {
       await test.page3.logger('Poll results notification !');
     }
     expect(response).toContain('Poll results were published');
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 7.26,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(7.26);
   });
 
   test('Screenshare notification', async () => {
@@ -187,12 +157,7 @@ const notificationsTest = () => {
       await test.page3.logger('Screenshare notification !');
     }
     expect(response).toBe('Screenshare has started');
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 7.25,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(7.25);
   });
 
   test('Audio notifications', async () => {
@@ -213,12 +178,7 @@ const notificationsTest = () => {
       await test.page3.logger('Audio notification !');
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 1.05,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(1.05);
   });
 };
 module.exports = exports = notificationsTest;

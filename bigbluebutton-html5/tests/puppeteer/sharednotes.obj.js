@@ -32,12 +32,7 @@ const sharedNotesTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.1,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(0.1);
   });
 };
 module.exports = exports = sharedNotesTest;

@@ -24,12 +24,7 @@ const virtualizedListTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.005,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(0.05);
   }, parseInt(TEST_DURATION_TIME));
 };
 module.exports = exports = virtualizedListTest;

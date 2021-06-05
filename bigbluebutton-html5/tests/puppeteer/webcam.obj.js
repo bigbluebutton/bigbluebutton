@@ -30,12 +30,7 @@ const webcamTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.81,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(0.81);
   });
 
   test('Checks content of webcam', async () => {
@@ -57,12 +52,7 @@ const webcamTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 7.5,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(7.5);
   });
 };
 module.exports = exports = webcamTest;

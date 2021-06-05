@@ -34,12 +34,7 @@ const whiteboardTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.9,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(0.9);
   });
 
   // Give a User Whiteboard addition access
@@ -68,12 +63,7 @@ const whiteboardTest = () => {
       await test.closePage(test.page3);
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.9,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(0.9);
   });
 };
 module.exports = exports = whiteboardTest;
