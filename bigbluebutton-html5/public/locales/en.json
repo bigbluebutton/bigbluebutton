@@ -20,6 +20,8 @@
     "app.chat.label": "Chat",
     "app.chat.offline": "Offline",
     "app.chat.pollResult": "Poll Results",
+    "app.chat.userNameChangedMessage": "User {0} has been renamed to {1} by user {2}.",
+    "app.chat.ownUserNameChangedMessage": "User {0} has renamed himself to {1}.",
     "app.chat.emptyLogLabel": "Chat log empty",
     "app.chat.clearPublicChatMessage": "The public chat history was cleared by a moderator",
     "app.chat.multi.typing": "Multiple users are typing",

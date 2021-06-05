@@ -414,6 +414,7 @@ public:
     system_messages_keys:
       chat_clear: PUBLIC_CHAT_CLEAR
       chat_poll_result: PUBLIC_CHAT_POLL_RESULT
+      chat_username_changed: PUBLIC_CHAT_USERNAME_CHANGED
     typingIndicator:
       enabled: true
   note:

@@ -5,7 +5,9 @@ import Modal from '/imports/ui/components/modal/simple/component';
 import Button from '/imports/ui/components/button/component';
 import PropTypes from 'prop-types';
 import { styles } from './styles';
-import TextInput from '../../text-input/component';
+import TextInput from '/imports/ui/components/text-input/component';
+import Auth from '/imports/ui/services/auth';
+import Users from '/imports/api/users';
 
 const messages = defineMessages({
   changeUserNameLabel: {
@@ -23,6 +25,14 @@ const messages = defineMessages({
   changeUserNameDesc: {
     id: 'app.changeUserNameModal.desc',
     description: 'description for change user name modal',
+  },
+  userNameChangedMessage: {
+    id: 'app.chat.userNameChangedMessage',
+    description: 'message sent to all chat informing about user name change',
+  },
+  ownUserNameChangedMessage: {
+    id: 'app.chat.ownUserNameChangedMessage',
+    description: 'message sent to all chat informing about own user name change',
   },
 });
 
@@ -46,6 +56,8 @@ function ChangeUserNameModal(props) {
     intl,
   } = props;
 
+  const currentUserName = Users.findOne({ userId: Auth.userID }).name;
+
   return (
     <Modal
       overlayClassName={styles.overlay}
@@ -62,7 +74,17 @@ function ChangeUserNameModal(props) {
         <div className={styles.newUsernameInput}>
           <TextInput
             send={(newlyTypedInUsername) => {
-              onConfirm(user.userId, newlyTypedInUsername);
+              onConfirm(user.userId, newlyTypedInUsername,
+                currentUserName === user.name
+                  ? intl.formatMessage(messages.ownUserNameChangedMessage, {
+                    0: user.name,
+                    1: newlyTypedInUsername,
+                  })
+                  : intl.formatMessage(messages.userNameChangedMessage, {
+                    0: user.name,
+                    1: newlyTypedInUsername,
+                    2: currentUserName,
+                  }));
               mountModal(null);
             }}
             placeholder={user.name}

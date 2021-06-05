@@ -434,8 +434,8 @@ const removeUser = (userId, banUser) => {
   }
 };
 
-const changeUserName = (userId, newUserName) => {
-  makeCall('changeUserName', userId, newUserName);
+const changeUserName = (userId, newUserName, userNameChangedMessage) => {
+  makeCall('changeUserName', userId, newUserName, userNameChangedMessage);
 };
 
 const toggleVoice = (userId) => {
