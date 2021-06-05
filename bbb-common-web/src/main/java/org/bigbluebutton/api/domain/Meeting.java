@@ -90,6 +90,8 @@ public class Meeting {
 	private Integer userInactivityInspectTimerInMinutes = 120;
 	private Integer userInactivityThresholdInMinutes = 30;
     private Integer userActivitySignResponseDelayInMinutes = 5;
+    private Boolean endWhenNoModerator = false;
+    private Integer endWhenNoModeratorDelayInMinutes = 1;
 
 	public final BreakoutRoomsParams breakoutRoomsParams;
 	public final LockSettingsParams lockSettingsParams;
@@ -97,8 +99,6 @@ public class Meeting {
 	public final Boolean allowDuplicateExtUserid;
 
 	private String meetingEndedCallbackURL = "";
-
-	public final Boolean endWhenNoModerator;
 
 	private Integer html5InstanceId;
 
@@ -133,6 +133,7 @@ public class Meeting {
         lockSettingsParams = builder.lockSettingsParams;
         allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
         endWhenNoModerator = builder.endWhenNoModerator;
+        endWhenNoModeratorDelayInMinutes = builder.endWhenNoModeratorDelayInMinutes;
         html5InstanceId = builder.html5InstanceId;
 
         /*
@@ -634,6 +635,22 @@ public class Meeting {
         this.userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes;
     }
 
+	public Boolean getEndWhenNoModerator() {
+		return endWhenNoModerator;
+	}
+
+	public void setEndWhenNoModerator(Boolean endWhenNoModerator) {
+		this.endWhenNoModerator = endWhenNoModerator;
+	}
+
+	public Integer getEndWhenNoModeratorDelayInMinutes() {
+		return endWhenNoModeratorDelayInMinutes;
+	}
+
+	public void setEndWhenNoModeratorDelayInMinutes(Integer endWhenNoModeratorDelayInMinutes) {
+		this.endWhenNoModeratorDelayInMinutes = endWhenNoModeratorDelayInMinutes;
+	}
+
     public String getMeetingEndedCallbackURL() {
     	return meetingEndedCallbackURL;
     }
@@ -716,6 +733,7 @@ public class Meeting {
     	private LockSettingsParams lockSettingsParams;
 		private Boolean allowDuplicateExtUserid;
 		private Boolean endWhenNoModerator;
+		private Integer endWhenNoModeratorDelayInMinutes;
 		private int html5InstanceId;
 
     	public Builder(String externalId, String internalId, long createTime) {
@@ -856,6 +874,11 @@ public class Meeting {
 
 		public Builder withEndWhenNoModerator(Boolean endWhenNoModerator) {
     		this.endWhenNoModerator = endWhenNoModerator;
+    		return this;
+		}
+
+		public Builder withEndWhenNoModeratorDelayInMinutes(Integer endWhenNoModeratorDelayInMinutes) {
+    		this.endWhenNoModeratorDelayInMinutes = endWhenNoModeratorDelayInMinutes;
     		return this;
 		}
 

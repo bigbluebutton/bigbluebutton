@@ -54,6 +54,8 @@ export default withTracker(() => {
     stopPoll,
     publishPoll: Service.publishPoll,
     currentPoll: Service.currentPoll(),
+    isDefaultPoll: Service.isDefaultPoll,
+    checkPollType: Service.checkPollType,
     resetPollPanel: Session.get('resetPollPanel') || false,
     pollAnswerIds: Service.pollAnswerIds,
     isMeteorConnected: Meteor.status().connected,

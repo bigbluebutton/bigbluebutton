@@ -219,7 +219,7 @@ class SmartLayout extends Component {
     return {
       top,
       left: DEFAULT_VALUES.sidebarNavLeft,
-      zIndex: deviceType === DEVICE_TYPE.MOBILE ? 10 : 2,
+      zIndex: deviceType === DEVICE_TYPE.MOBILE ? 11 : 1,
     };
   }
 

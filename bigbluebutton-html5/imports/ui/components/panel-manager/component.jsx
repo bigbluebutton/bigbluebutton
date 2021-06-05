@@ -256,6 +256,7 @@ class PanelManager extends Component {
 
     return (
       <div
+        data-test="userListPanel"
         className={styles.userList}
         aria-label={intl.formatMessage(intlMessages.userListLabel)}
         key={enableResize ? null : this.userlistKey}
@@ -304,6 +305,7 @@ class PanelManager extends Component {
     return (
       <section
         id="chatPanel"
+        data-test="chatPanel"
         className={styles.chat}
         aria-label={intl.formatMessage(intlMessages.chatLabel)}
         key={enableResize ? null : this.chatKey}

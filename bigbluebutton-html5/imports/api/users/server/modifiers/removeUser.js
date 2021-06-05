@@ -3,7 +3,6 @@ import Users from '/imports/api/users';
 import VideoStreams from '/imports/api/video-streams';
 import Logger from '/imports/startup/server/logger';
 import setloggedOutStatus from '/imports/api/users-persistent-data/server/modifiers/setloggedOutStatus';
-import stopWatchingExternalVideoSystemCall from '/imports/api/external-videos/server/methods/stopWatchingExternalVideoSystemCall';
 import clearUserInfoForRequester from '/imports/api/users-infos/server/modifiers/clearUserInfoForRequester';
 import ClientConnections from '/imports/startup/server/ClientConnections';
 
@@ -17,15 +16,6 @@ const clearAllSessions = (sessionUserId) => {
 export default function removeUser(meetingId, userId) {
   check(meetingId, String);
   check(userId, String);
-
-  const userToRemove = Users.findOne({ userId, meetingId });
-
-  if (userToRemove) {
-    const { presenter } = userToRemove;
-    if (presenter) {
-      stopWatchingExternalVideoSystemCall({ meetingId, requesterUserId: 'system-presenter-was-removed' });
-    }
-  }
 
   const selector = {
     meetingId,

@@ -4,7 +4,9 @@ case class ConfigProps(defaultConfigToken: String, config: String)
 
 case class DurationProps(duration: Int, createdTime: Long, createdDate: String,
                          meetingExpireIfNoUserJoinedInMinutes: Int, meetingExpireWhenLastUserLeftInMinutes: Int,
-                         userInactivityInspectTimerInMinutes: Int, userInactivityThresholdInMinutes: Int, userActivitySignResponseDelayInMinutes: Int)
+                         userInactivityInspectTimerInMinutes: Int, userInactivityThresholdInMinutes: Int,
+                         userActivitySignResponseDelayInMinutes: Int,
+                         endWhenNoModerator: Boolean, endWhenNoModeratorDelayInMinutes: Int)
 
 case class MeetingProp(name: String, extId: String, intId: String, isBreakout: Boolean)
 
@@ -75,7 +77,7 @@ case class Meeting2x(defaultProps: DefaultProps, meetingStatus: MeetingStatus)
 case class SimpleAnswerOutVO(id: Int, key: String)
 case class SimplePollOutVO(id: String, answers: Array[SimpleAnswerOutVO])
 case class SimpleVoteOutVO(id: Int, key: String, numVotes: Int)
-case class SimplePollResultOutVO(id: String, title: Option[String], answers: Array[SimpleVoteOutVO], numRespondents: Int, numResponders: Int)
+case class SimplePollResultOutVO(id: String, questionText: Option[String], answers: Array[SimpleVoteOutVO], numRespondents: Int, numResponders: Int)
 case class Responder(userId: String, name: String)
 case class AnswerVO(id: Int, key: String, text: Option[String], responders: Option[Array[Responder]])
 case class QuestionVO(id: Int, questionType: String, multiResponse: Boolean, questionText: Option[String], answers: Option[Array[AnswerVO]])
