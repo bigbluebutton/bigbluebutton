@@ -13,9 +13,9 @@ public:
     # Skips the echo test when connecting with microphone.
     skipCheck: false
     # Skips the echo test when connecting with microphone right after user
-    # joins the room the first time. Subsequents joins  to microphone won't
-    # have echo test skipped, for example if user leave and join mic again
-    # or reloading page and joining mic again.
+    # joins the room the first time. Subsequent joins to microphone won't
+    # have echo test skipped, for example if user leaves and joins the mic
+    # again or reloading page and joining mic again.
     # This setting won't have effect if skipCheck = true
     skipCheckOnJoin: false
     #
