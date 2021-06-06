@@ -19,7 +19,7 @@ public:
     # This setting won't have effect if skipCheck = true
     skipCheckOnJoin: false
     #
-    # Allow users to change microphone/speaker dinamically
+    # Allow users to change microphone/speaker dynamically
     # The device is changed immediately, without the need to rejoin
     # audio. Default value is true
     # Firefox users: if no output devices is shown, you may set the flag
