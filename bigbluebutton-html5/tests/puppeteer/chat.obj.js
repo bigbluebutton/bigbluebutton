@@ -36,7 +36,7 @@ const chatTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.9);
+    await Page.checkRegression(0.9, screenshot);
   });
 
   // Clear chat box and make sure that no chat public messages appear in chat box
@@ -60,7 +60,7 @@ const chatTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.9);
+    await Page.checkRegression(0.9, screenshot);
   });
 
   // Check if clipboard copied content contains the expected copied text
@@ -84,7 +84,7 @@ const chatTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.9);
+    await Page.checkRegression(0.9, screenshot);
   });
 
   // Wait for chat history to start downloading
@@ -108,7 +108,7 @@ const chatTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.9);
+    await Page.checkRegression(0.9, screenshot);
   });
 
   // Check for public chat message and return true when it appears
@@ -133,7 +133,7 @@ const chatTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.9);
+    await Page.checkRegression(0.9, screenshot);
   });
 
   // Check for private chat message and return true when it appears
@@ -158,7 +158,7 @@ const chatTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.9);
+    await Page.checkRegression(0.9, screenshot);
   });
 
   // Check for Poll Results chat message and return true when it appears
@@ -181,7 +181,7 @@ const chatTest = () => {
       await test.closePage(test.page3);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.9);
+    await Page.checkRegression(0.9, screenshot);
   });
 };
 module.exports = exports = chatTest;

@@ -32,7 +32,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-listenOnlyMode parameter to false
@@ -55,7 +55,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-forceListenOnly parameter to false
@@ -78,7 +78,7 @@ const customParametersTest = () => {
       await test.closePage(test.page2);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-bbb_skip_check_audio parameter to true
@@ -101,7 +101,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(53.18);
+    await Page.checkRegression(53.18, screenshot);
   });
 
   // This test spec sets the userdata-bbb_skip_check_audio_on_first_join parameter to true
@@ -124,7 +124,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(53.18);
+    await Page.checkRegression(53.18, screenshot);
   });
 
   // This test spec sets the userdata-clientTitle parameter to some value
@@ -147,7 +147,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-askForFeedbackOnLogout parameter to true
@@ -170,7 +170,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-displayBrandingArea parameter to true and add a logo link
@@ -194,7 +194,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-shortcuts parameter to one or a list of shortcuts parameters
@@ -217,7 +217,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-enableScreensharing parameter to false
@@ -240,7 +240,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-enableVideo parameter to false
@@ -263,7 +263,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-autoShareWebcam parameter to true
@@ -286,7 +286,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-multiUserPenOnly parameter to true
@@ -310,7 +310,7 @@ const customParametersTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-presenterTools parameter to an interval of parameters
@@ -333,7 +333,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-multiUserTools parameter to an interval of parameters
@@ -357,7 +357,7 @@ const customParametersTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-customStyle parameter to an interval of styles
@@ -380,7 +380,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-customStyleUrl parameter to a styles URL
@@ -403,7 +403,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-autoSwapLayout parameter to true
@@ -427,7 +427,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-hidePresentation parameter to true
@@ -450,7 +450,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-bannerText parameter to some text
@@ -473,7 +473,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-bannerColor parameter to some hex color value
@@ -497,7 +497,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-bbb_show_public_chat_on_login parameter to false
@@ -520,7 +520,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-bbb_force_restore_presentation_on_new_events parameter to true
@@ -545,7 +545,7 @@ const customParametersTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-bbb_record_video parameter to false
@@ -566,7 +566,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-bbb_skip_video_preview parameter to true
@@ -587,7 +587,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-bbb_skip_video_preview_on_first_join parameter to true
@@ -608,7 +608,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-bbb_mirror_own_webcam parameter to true
@@ -630,7 +630,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 
   // This test spec sets the userdata-bbb_show_participants_on_login parameter to false
@@ -651,7 +651,7 @@ const customParametersTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   });
 };
 

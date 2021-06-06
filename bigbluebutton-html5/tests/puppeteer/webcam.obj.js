@@ -30,7 +30,7 @@ const webcamTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.81);
+    await Page.checkRegression(0.81, screenshot);
   });
 
   test('Checks content of webcam', async () => {
@@ -52,7 +52,7 @@ const webcamTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(7.5);
+    await Page.checkRegression(7.5, screenshot);
   });
 };
 module.exports = exports = webcamTest;

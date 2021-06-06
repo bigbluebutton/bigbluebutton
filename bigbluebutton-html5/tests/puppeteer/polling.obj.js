@@ -35,7 +35,7 @@ const pollingTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(1.37);
+    await Page.checkRegression(1.37, screenshot);
   }, TEST_DURATION_TIME);
 
   // Check for Poll Results chat message and return true when it appears
@@ -58,7 +58,7 @@ const pollingTest = () => {
       await test.closePage(test.page3);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.9);
+    await Page.checkRegression(0.9, screenshot);
   }, TEST_DURATION_TIME);
 
   // This test spec sets the userdata-bbb_force_restore_presentation_on_new_events parameter to true
@@ -81,7 +81,7 @@ const pollingTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   }, TEST_DURATION_TIME);
 
   // This Test chooses randomly a polling case, runs it
@@ -105,7 +105,7 @@ const pollingTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5);
+    await Page.checkRegression(0.5, screenshot);
   }, TEST_DURATION_TIME);
 };
 module.exports = exports = pollingTest;

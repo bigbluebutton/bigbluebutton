@@ -24,7 +24,7 @@ const virtualizedListTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.05);
+    await Page.checkRegression(0.05, screenshot);
   }, parseInt(TEST_DURATION_TIME));
 };
 module.exports = exports = virtualizedListTest;

@@ -32,7 +32,7 @@ const sharedNotesTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.1);
+    await Page.checkRegression(0.1, screenshot);
   });
 };
 module.exports = exports = sharedNotesTest;

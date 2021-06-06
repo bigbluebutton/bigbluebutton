@@ -33,7 +33,7 @@ const screenShareTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(1.37);
+    await Page.checkRegression(1.37, screenshot);
   });
 
   test('Share screen unavailable on Mobile Android', async () => {
@@ -54,7 +54,7 @@ const screenShareTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(1.37);
+    await Page.checkRegression(1.37, screenshot);
   });
 
   test('Share screen unavailable on Mobile iPhone', async () => {
@@ -75,7 +75,7 @@ const screenShareTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(1.37);
+    await Page.checkRegression(1.37, screenshot);
   });
 
   test('Share screen unavailable on Tablet iPad', async () => {
@@ -96,7 +96,7 @@ const screenShareTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(1.37);
+    await Page.checkRegression(1.37, screenshot);
   });
 };
 module.exports = exports = screenShareTest;

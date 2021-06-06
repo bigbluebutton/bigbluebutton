@@ -31,7 +31,7 @@ const presentationTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.81);
+    await Page.checkRegression(0.81, screenshot);
   });
 
   test('Upload presentation', async () => {
@@ -54,7 +54,7 @@ const presentationTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(24.62);
+    await Page.checkRegression(24.62, screenshot);
   });
 };
 module.exports = exports = presentationTest;
