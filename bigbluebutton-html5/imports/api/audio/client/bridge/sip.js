@@ -1399,14 +1399,14 @@ export default class SIPBridge extends BaseAudioBridge {
     async changeOutputDevice(value, isLive) {
         const audioContext = document.querySelector(this.mediaTag);
 
-        if (audioElement.setSinkId) {
+        if (audioContext && audioContext.setSinkId) {
             try {
                 if (!isLive) {
-                    audioElement.srcObject = null;
+                    audioContext.srcObject = null;
                 }
 
-                await audioElement.setSinkId(value);
-                this.reloadAudioElement(audioElement);
+                await audioContext.setSinkId(value);
+                this.reloadAudioElement(audioContext);
                 this.outputDeviceId = value;
             } catch (err) {
                 logger.error({

@@ -827,6 +827,8 @@
     "app.translation.selectTranslation": "Available languages",
     "app.translation.language.origin": "Floor",
     "app.translation.language.none": "None",
+    "app.translation.language.connection.established": "✓",
+    "app.translation.language.connection.settingUp": "...",
     "app.translation.filterMarker.languageListening": "listening",
     "app.translation.filterMarker.languageTranslating": "speaking"
 

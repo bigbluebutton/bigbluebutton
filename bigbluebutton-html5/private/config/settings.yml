@@ -175,7 +175,7 @@ public:
     enableNetworkMonitoring: false
     packetLostThreshold: 10
   kurento:
-    wsUrl: HOST
+    wsUrl: wss://bbb80.wechange.de/bbb-webrtc-sfu
     # Valid for video-provider. Time (ms) before its WS connection times out
     # and tries to reconnect.
     wsConnectionTimeout: 4000
@@ -418,7 +418,7 @@ public:
       enabled: true
   note:
     enabled: true
-    url: ETHERPAD_HOST
+    url: https://bbb80.wechange.de/pad
   layout:
     autoSwapLayout: false
     hidePresentation: false

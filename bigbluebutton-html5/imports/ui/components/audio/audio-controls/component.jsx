@@ -205,8 +205,6 @@ class AudioControls extends PureComponent {
     const MUTE_ALERT_CONFIG = Meteor.settings.public.app.mutedAlert;
     const { enabled: muteAlertEnabled } = MUTE_ALERT_CONFIG;
 
-    console.log("translatorChannelOpen: " + translatorChannelOpen);
-    console.log("translatorChannelOpen type: " + typeof(translatorChannelOpen));
     return (
       <span className={styles.container}>
         {isVoiceUser && inputStream && muteAlertEnabled && !listenOnly && muted ? (

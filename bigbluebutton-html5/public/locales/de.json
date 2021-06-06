@@ -816,6 +816,8 @@
     "app.translation.selectTranslation": "Verfügbare Sprachen",
     "app.translation.language.origin": "Original",
     "app.translation.language.none": "Keine",
+    "app.translation.language.connection.established": "✓",
+    "app.translation.language.connection.settingUp": "...",
     "app.translation.filterMarker.languageListening": "hören",
     "app.translation.filterMarker.languageTranslating": "sprechen"
 }
