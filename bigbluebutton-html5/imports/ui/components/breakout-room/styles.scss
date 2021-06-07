@@ -163,6 +163,10 @@
   margin: .5rem 0 .5rem 0;
 }
 
+.withError {
+  color: var(--color-danger);
+}
+
 .usersAssignedNumberLabel {
   margin: 0 0 0 .25rem;
 

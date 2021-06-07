@@ -1,5 +1,5 @@
 import Breakouts from '/imports/api/breakouts';
-import Meetings from '/imports/api/meetings';
+import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import { Session } from 'meteor/session';
@@ -38,11 +38,37 @@ const requestJoinURL = (breakoutId) => {
   });
 };
 
+const isExtendTimeHigherThanMeetingRemaining = (extendTimeInMinutes) => {
+  const meetingId = Auth.meetingID;
+  const meetingTimeRemaining = MeetingTimeRemaining.findOne({ meetingId });
+
+  if (meetingTimeRemaining) {
+    const { timeRemaining } = meetingTimeRemaining;
+
+    if (timeRemaining) {
+      const breakoutRooms = findBreakouts();
+      const breakoutRoomsTimeRemaining = (breakoutRooms[0]).timeRemaining;
+      const newBreakoutRoomsRemainingTime = breakoutRoomsTimeRemaining + (extendTimeInMinutes * 60);
+      //  Keep margin of 5 seconds for breakout rooms end before parent meeting
+      const meetingTimeRemainingWithMargin = timeRemaining - 5;
+
+      if (newBreakoutRoomsRemainingTime > meetingTimeRemainingWithMargin) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+};
+
 const extendBreakoutsTime = (extendTimeInMinutes) => {
-  if (extendTimeInMinutes <= 0) return;
+  if (extendTimeInMinutes <= 0) return false;
+
   makeCall('extendBreakoutsTime', {
     extendTimeInMinutes,
   });
+
+  return true;
 };
 
 const transferUserToMeeting = (fromMeetingId, toMeetingId) => makeCall('transferUser', fromMeetingId, toMeetingId);
@@ -116,6 +142,7 @@ export default {
   findBreakouts,
   endAllBreakouts,
   extendBreakoutsTime,
+  isExtendTimeHigherThanMeetingRemaining,
   requestJoinURL,
   breakoutRoomUser,
   transferUserToMeeting,

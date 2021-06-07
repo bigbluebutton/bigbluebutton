@@ -71,6 +71,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.extendTimeCancel',
     description: 'Button label to cancel extend breakout rooms time',
   },
+  extendTimeHigherThanMeetingTimeError: {
+    id: 'app.createBreakoutRoom.extendTimeHigherThanMeetingTimeError',
+    description: 'Label for error when extend breakout rooms time would be higher than remaining time in parent meeting',
+  },
 });
 
 class BreakoutRoom extends PureComponent {
@@ -103,6 +107,7 @@ class BreakoutRoom extends PureComponent {
       joinedAudioOnly: false,
       breakoutId: '',
       visibleExtendTimeForm: false,
+      visibleExtendTimeHigherThanMeetingTimeError: false,
       extendTime: 5,
     };
   }
@@ -180,6 +185,10 @@ class BreakoutRoom extends PureComponent {
 
   showExtendTimeForm() {
     this.setState({ visibleExtendTimeForm: true });
+  }
+
+  showExtendTimeHigherThanMeetingTimeError(show) {
+    this.setState({ visibleExtendTimeHigherThanMeetingTimeError: show });
   }
 
   resetExtendTimeForm() {
@@ -366,9 +375,9 @@ class BreakoutRoom extends PureComponent {
 
   renderDuration() {
     const {
-      intl, breakoutRooms, amIModerator, isMeteorConnected, extendBreakoutsTime,
+      intl, breakoutRooms, amIModerator, isMeteorConnected, extendBreakoutsTime, isExtendTimeHigherThanMeetingRemaining,
     } = this.props;
-    const { extendTime, visibleExtendTimeForm } = this.state;
+    const { extendTime, visibleExtendTimeForm, visibleExtendTimeHigherThanMeetingTimeError } = this.state;
     return (
       <div className={styles.durationContainer}>
         { amIModerator && visibleExtendTimeForm ? (
@@ -391,6 +400,13 @@ class BreakoutRoom extends PureComponent {
             />
             <br />
             <br />
+            { visibleExtendTimeHigherThanMeetingTimeError ? (
+              <span className={styles.withError}>
+                {intl.formatMessage(intlMessages.extendTimeHigherThanMeetingTimeError)}
+                <br />
+                <br />
+              </span>
+            ) : null }
             <Button
               color="default"
               disabled={!isMeteorConnected}
@@ -406,8 +422,13 @@ class BreakoutRoom extends PureComponent {
               label={intl.formatMessage(intlMessages.extendTimeLabel)}
               className={styles.endButton}
               onClick={() => {
-                extendBreakoutsTime(extendTime);
-                this.resetExtendTimeForm();
+                this.showExtendTimeHigherThanMeetingTimeError(false);
+
+                if (isExtendTimeHigherThanMeetingRemaining(extendTime)) {
+                  this.showExtendTimeHigherThanMeetingTimeError(true);
+                } else if (extendBreakoutsTime(extendTime)) {
+                  this.resetExtendTimeForm();
+                }
               }}
             />
           </div>
