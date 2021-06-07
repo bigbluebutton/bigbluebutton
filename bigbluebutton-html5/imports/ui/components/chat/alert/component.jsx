@@ -10,6 +10,7 @@ import { styles } from '../styles';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.chat_clear;
+const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 
 const propTypes = {
   pushAlertEnabled: PropTypes.bool.isRequired,
@@ -133,7 +134,9 @@ const ChatAlert = (props) => {
   const mapContentText = (message) => {
     const contentMessage = message
       .map((content) => {
-        if (content.text === PUBLIC_CHAT_CLEAR) return intl.formatMessage(intlMessages.publicChatClear);
+        if (content.text === PUBLIC_CHAT_CLEAR) {
+          return intl.formatMessage(intlMessages.publicChatClear);
+        }
         /* this code is to remove html tags that come in the server's messages */
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = content.text;
@@ -163,11 +166,13 @@ const ChatAlert = (props) => {
         ? createMessage(mappedMessage.sender.name, mappedMessage.content.slice(-5))
         : null;
 
+      const messageChatId = mappedMessage.chatId === 'MAIN-PUBLIC-GROUP-CHAT' ? PUBLIC_CHAT_ID : mappedMessage.chatId;
+
       return content
         ? (
           <ChatPushAlert
-            key={mappedMessage.chatId}
-            chatId={mappedMessage.chatId}
+            key={messageChatId}
+            chatId={messageChatId}
             content={content}
             title={
               (mappedMessage.chatId === 'MAIN-PUBLIC-GROUP-CHAT')

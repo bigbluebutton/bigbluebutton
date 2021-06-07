@@ -10,7 +10,7 @@ const propTypes = {
   title: PropTypes.node.isRequired,
   content: PropTypes.node.isRequired,
   alertDuration: PropTypes.number.isRequired,
-  newLayoutContextDispatch: PropTypes.func.isRequired
+  newLayoutContextDispatch: PropTypes.func.isRequired,
 };
 
 class ChatPushAlert extends PureComponent {
@@ -36,6 +36,10 @@ class ChatPushAlert extends PureComponent {
           newLayoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
             value: true,
+          });
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_ID_CHAT_OPEN,
+            value: chatId,
           });
           newLayoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
