@@ -168,6 +168,9 @@ const ChatAlert = (props) => {
 
       const messageChatId = mappedMessage.chatId === 'MAIN-PUBLIC-GROUP-CHAT' ? PUBLIC_CHAT_ID : mappedMessage.chatId;
 
+      const newUnreadMessages = unreadMessages
+        .filter((message) => message.key !== mappedMessage.key);
+
       return content
         ? (
           <ChatPushAlert
@@ -180,11 +183,10 @@ const ChatAlert = (props) => {
                 : <span>{intl.formatMessage(intlMessages.appToastChatPrivate)}</span>
             }
             onOpen={
-              () => {
-                const newUnreadMessages = unreadMessages
-                  .filter((message) => message.key !== mappedMessage.key);
-                setUnreadMessages(newUnreadMessages);
-              }
+              () => setUnreadMessages(newUnreadMessages)
+            }
+            onClose={
+              () => setUnreadMessages(newUnreadMessages)
             }
             alertDuration={timeWindow.durationDiff}
             newLayoutContextDispatch={newLayoutContextDispatch}

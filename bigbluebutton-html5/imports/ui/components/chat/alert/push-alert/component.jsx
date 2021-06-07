@@ -57,6 +57,7 @@ class ChatPushAlert extends PureComponent {
     const {
       notify,
       onOpen,
+      onClose,
       chatId,
       title,
       content,
@@ -67,7 +68,7 @@ class ChatPushAlert extends PureComponent {
       this.link(title, chatId),
       'info',
       'chat',
-      { onOpen, autoClose: alertDuration },
+      { onOpen, onClose, autoClose: alertDuration },
       this.link(content, chatId),
       true,
     );
