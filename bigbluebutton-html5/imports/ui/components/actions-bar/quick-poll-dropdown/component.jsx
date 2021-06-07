@@ -80,7 +80,6 @@ const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, intl, pollType
       itemLabel = options.join('/').replace(/[\n.)]/g, '');
     } else {
       answers = getLocalizedAnswers(type, intl, pollTypes);
-      type = pollTypes.Custom;
     }
 
     // removes any whitespace from the label
