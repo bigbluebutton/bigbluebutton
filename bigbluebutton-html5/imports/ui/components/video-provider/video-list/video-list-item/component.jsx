@@ -5,12 +5,6 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import cx from 'classnames';
 import Dropdown from '/imports/ui/components/dropdown/component';
-import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
-import DropdownContent from '/imports/ui/components/dropdown/content/component';
-import DropdownList from '/imports/ui/components/dropdown/list/component';
-import DropdownListTitle from '/imports/ui/components/dropdown/list/title/component';
-import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
-import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import Icon from '/imports/ui/components/icon/component';
 import FullscreenService from '/imports/ui/components/fullscreen-button/service';
 import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
@@ -141,9 +135,9 @@ class VideoListItem extends Component {
     } = this.props;
 
     return _.compact([
-      <DropdownListTitle className={styles.hiddenDesktop} key="name">{name}</DropdownListTitle>,
-      <DropdownListSeparator className={styles.hiddenDesktop} key="sep" />,
-      ...actions.map(action => (<DropdownListItem key={`${cameraId}-${action.actionName}`} {...action} />)),
+      <Dropdown.DropdownListTitle className={styles.hiddenDesktop} key="name">{name}</Dropdown.DropdownListTitle>,
+      <Dropdown.DropdownListSeparator className={styles.hiddenDesktop} key="sep" />,
+      ...actions.map(action => (<Dropdown.DropdownListItem key={`${cameraId}-${action.actionName}`} {...action} />)),
     ]);
   }
 
@@ -202,7 +196,11 @@ class VideoListItem extends Component {
         {
           !videoIsReady
             && (
-            <div data-test="webcamConnecting" className={styles.connecting}>
+            <div data-test="webcamConnecting" className={cx({
+              [styles.connecting]: true,
+              [styles.content]: true,
+              [styles.talking]: voiceUser.talking,
+            })}>
               <span className={styles.loadingText}>{name}</span>
             </div>
             )
@@ -242,14 +240,14 @@ class VideoListItem extends Component {
             {enableVideoMenu && availableActions.length >= 3
               ? (
                 <Dropdown tethered={isTethered} placement="right bottom" className={isFirefox ? styles.dropdownFireFox : styles.dropdown}>
-                  <DropdownTrigger className={styles.dropdownTrigger}>
+                  <Dropdown.DropdownTrigger className={styles.dropdownTrigger}>
                     <span>{name}</span>
-                  </DropdownTrigger>
-                  <DropdownContent placement="top left" className={styles.dropdownContent}>
-                    <DropdownList className={styles.dropdownList}>
+                  </Dropdown.DropdownTrigger>
+                  <Dropdown.DropdownContent placement="top left" className={styles.dropdownContent}>
+                    <Dropdown.DropdownList className={styles.dropdownList}>
                       {availableActions}
-                    </DropdownList>
-                  </DropdownContent>
+                    </Dropdown.DropdownList>
+                  </Dropdown.DropdownContent>
                 </Dropdown>
               )
               : (

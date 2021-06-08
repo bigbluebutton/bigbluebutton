@@ -469,6 +469,7 @@
     "app.error.fallback.presentation.description": "Jis buvo užregistruotas. Pabandykite iš naujo įkelti puslapį.",
     "app.error.fallback.presentation.reloadButton": "Perkrauti",
     "app.guest.waiting": "Laukia patvirtinimo prisijungti",
+    "app.guest.guestWait": "Prašome palaukti, kol moderatorius patvirtins jūsų prisijungimą į susitikimą",
     "app.userList.guest.waitingUsers": "Laukiama naudotojų",
     "app.userList.guest.waitingUsersTitle": "Naudotojo valdymas",
     "app.userList.guest.optionTitle": "Peržiūrėti laukiančius naudotojus",

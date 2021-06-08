@@ -2,6 +2,7 @@ import PresentationPods from '/imports/api/presentation-pods';
 import Presentations from '/imports/api/presentations';
 import { Slides, SlidePositions } from '/imports/api/slides';
 import Auth from '/imports/ui/services/auth';
+import PollService from '/imports/ui/components/poll/service';
 
 const getCurrentPresentation = podId => Presentations.findOne({
   podId,
@@ -71,6 +72,7 @@ const currentSlidHasContent = () => {
 };
 
 const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue, falseValue) => {
+  const pollTypes = PollService.pollTypes;
   const currentSlide = getCurrentSlide('DEFAULT_PRESENTATION_POD');
   const quickPollOptions = [];
   if (!currentSlide) return quickPollOptions;
@@ -119,7 +121,7 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
   }, []).filter(({
     options,
   }) => options.length > 1 && options.length < 7).forEach(poll => quickPollOptions.push({
-    type: `A-${poll.options.length}`,
+    type: `${pollTypes.Letter}${poll.options.length}`,
     poll,
   }));
 
@@ -127,30 +129,22 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     content = content.replace(new RegExp(pollRegex), '');
   }
 
-  const ynPollString = `(${yesValue}\\s*\\/\\s*${noValue})|(${noValue}\\s*\\/\\s*${yesValue})`;
-  const ynOptionsRegex = new RegExp(ynPollString, 'gi');
-  const ynPoll = content.match(ynOptionsRegex) || [];
-
-  const ynaPollString = `(${yesValue}\\s*\\/\\s*${noValue}\\s*\\/\\s*${abstentionValue})|(${yesValue}\\s*\\/\\s*${abstentionValue}\\s*\\/\\s*${noValue})|(${abstentionValue}\\s*\\/\\s*${yesValue}\\s*\\/\\s*${noValue})|(${abstentionValue}\\s*\\/\\s*${noValue}\\s*\\/\\s*${yesValue})|(${noValue}\\s*\\/\\s*${yesValue}\\s*\\/\\s*${abstentionValue})|(${noValue}\\s*\\/\\s*${abstentionValue}\\s*\\/\\s*${yesValue})`;
-  const ynaOptionsRegex = new RegExp(ynaPollString, 'gi');
-  const ynaPoll = content.match(ynaOptionsRegex) || [];
-
-  const tfPollString = `(${trueValue}\\s*\\/\\s*${falseValue})|(${falseValue}\\s*\\/\\s*${trueValue})`;
-  const tgOptionsRegex = new RegExp(tfPollString, 'gi');
-  const tfPoll = content.match(tgOptionsRegex) || [];
+  const ynPoll = PollService.matchYesNoPoll(yesValue, noValue, content);
+  const ynaPoll = PollService.matchYesNoAbstentionPoll(yesValue, noValue, abstentionValue, content);
+  const tfPoll = PollService.matchTrueFalsePoll(trueValue, falseValue, content);
 
   ynPoll.forEach(poll => quickPollOptions.push({
-    type: 'YN',
+    type: pollTypes.YesNo,
     poll,
   }));
 
   ynaPoll.forEach(poll => quickPollOptions.push({
-    type: 'YNA',
+    type: pollTypes.YesNoAbstention,
     poll,
   }));
 
   tfPoll.forEach(poll => quickPollOptions.push({
-    type: 'TF',
+    type: pollTypes.TrueFalse,
     poll,
   }));
 

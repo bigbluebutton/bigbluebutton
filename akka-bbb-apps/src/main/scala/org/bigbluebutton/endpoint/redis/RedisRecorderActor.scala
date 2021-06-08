@@ -85,6 +85,7 @@ class RedisRecorderActor(
       case m: UserLeftMeetingEvtMsg                 => handleUserLeftMeetingEvtMsg(m)
       case m: PresenterAssignedEvtMsg               => handlePresenterAssignedEvtMsg(m)
       case m: UserEmojiChangedEvtMsg                => handleUserEmojiChangedEvtMsg(m)
+      case m: UserRoleChangedEvtMsg                 => handleUserRoleChangedEvtMsg(m)
       case m: UserBroadcastCamStartedEvtMsg         => handleUserBroadcastCamStartedEvtMsg(m)
       case m: UserBroadcastCamStoppedEvtMsg         => handleUserBroadcastCamStoppedEvtMsg(m)
 
@@ -357,6 +358,10 @@ class RedisRecorderActor(
     handleUserStatusChange(msg.header.meetingId, msg.body.userId, "emojiStatus", msg.body.emoji)
   }
 
+  private def handleUserRoleChangedEvtMsg(msg: UserRoleChangedEvtMsg) {
+    handleUserStatusChange(msg.header.meetingId, msg.body.userId, "role", msg.body.role)
+  }
+
   private def handleUserBroadcastCamStartedEvtMsg(msg: UserBroadcastCamStartedEvtMsg) {
     handleUserStatusChange(msg.header.meetingId, msg.body.userId, "hasStream", "true,stream=" + msg.body.stream)
   }
@@ -582,7 +587,7 @@ class RedisRecorderActor(
   private def handlePollShowResultEvtMsg(msg: PollShowResultEvtMsg): Unit = {
     val ev = new PollPublishedRecordEvent()
     ev.setPollId(msg.body.pollId)
-    ev.setQuestion(msg.body.poll.title.getOrElse(""))
+    ev.setQuestion(msg.body.poll.questionText.getOrElse(""))
     ev.setAnswers(msg.body.poll.answers)
     ev.setNumRespondents(msg.body.poll.numRespondents)
     ev.setNumResponders(msg.body.poll.numResponders)

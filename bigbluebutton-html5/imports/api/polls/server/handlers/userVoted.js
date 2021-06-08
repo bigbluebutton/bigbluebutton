@@ -7,7 +7,7 @@ export default function userVoted({ body }, meetingId) {
   check(meetingId, String);
   check(poll, {
     id: String,
-    title: String,
+    questionText: String,
     answers: [
       {
         id: Number,

@@ -160,6 +160,17 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildStopExternalVideoEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, "nodeJSapp")
+    val envelope = BbbCoreEnvelope(StopExternalVideoEvtMsg.NAME, routing)
+
+    val body = StopExternalVideoEvtMsgBody()
+    val header = BbbClientMsgHeader(StopExternalVideoEvtMsg.NAME, meetingId, "not-used")
+    val event = StopExternalVideoEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildMeetingCreatedEvtMsg(meetingId: String, props: DefaultProps): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(MeetingCreatedEvtMsg.NAME, routing)

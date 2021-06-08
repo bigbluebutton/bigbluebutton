@@ -135,14 +135,18 @@ class MeetingActor(
   val expiryTracker = new MeetingExpiryTracker(
     startedOnInMs = TimeUtil.timeNowInMs(),
     userHasJoined = false,
+    moderatorHasJoined = false,
     isBreakout = props.meetingProp.isBreakout,
     lastUserLeftOnInMs = None,
+    lastModeratorLeftOnInMs = 0,
     durationInMs = TimeUtil.minutesToMillis(props.durationProps.duration),
     meetingExpireIfNoUserJoinedInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireIfNoUserJoinedInMinutes),
     meetingExpireWhenLastUserLeftInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireWhenLastUserLeftInMinutes),
     userInactivityInspectTimerInMs = TimeUtil.minutesToMillis(props.durationProps.userInactivityInspectTimerInMinutes),
     userInactivityThresholdInMs = TimeUtil.minutesToMillis(props.durationProps.userInactivityThresholdInMinutes),
-    userActivitySignResponseDelayInMs = TimeUtil.minutesToMillis(props.durationProps.userActivitySignResponseDelayInMinutes)
+    userActivitySignResponseDelayInMs = TimeUtil.minutesToMillis(props.durationProps.userActivitySignResponseDelayInMinutes),
+    endWhenNoModerator = props.durationProps.endWhenNoModerator,
+    endWhenNoModeratorDelayInMs = TimeUtil.minutesToMillis(props.durationProps.endWhenNoModeratorDelayInMinutes)
   )
 
   val recordingTracker = new MeetingRecordingTracker(startedOnInMs = 0L, previousDurationInMs = 0L, currentDurationInMs = 0L)
@@ -298,6 +302,23 @@ class MeetingActor(
     }
   }
 
+  private def updateModeratorsPresence() {
+    if (Users2x.numActiveModerators(liveMeeting.users2x) > 0) {
+      if (state.expiryTracker.moderatorHasJoined == false ||
+        state.expiryTracker.lastModeratorLeftOnInMs != 0) {
+        log.info("A moderator has joined. Setting setModeratorHasJoined(). meetingId=" + props.meetingProp.intId)
+        val tracker = state.expiryTracker.setModeratorHasJoined()
+        state = state.update(tracker)
+      }
+    } else {
+      if (state.expiryTracker.moderatorHasJoined == true) {
+        log.info("All moderators have left. Setting setLastModeratorLeftOn(). meetingId=" + props.meetingProp.intId)
+        val tracker = state.expiryTracker.setLastModeratorLeftOn(TimeUtil.timeNowInMs())
+        state = state.update(tracker)
+      }
+    }
+  }
+
   private def updateUserLastInactivityInspect(userId: String) {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
@@ -321,9 +342,15 @@ class MeetingActor(
 
       // Users
       case m: ValidateAuthTokenReqMsg             => state = usersApp.handleValidateAuthTokenReqMsg(m, state)
-      case m: UserJoinMeetingReqMsg               => state = handleUserJoinMeetingReqMsg(m, state)
-      case m: UserJoinMeetingAfterReconnectReqMsg => state = handleUserJoinMeetingAfterReconnectReqMsg(m, state)
-      case m: UserLeaveReqMsg                     => state = handleUserLeaveReqMsg(m, state)
+      case m: UserJoinMeetingReqMsg               =>
+        state = handleUserJoinMeetingReqMsg(m, state)
+        updateModeratorsPresence()
+      case m: UserJoinMeetingAfterReconnectReqMsg =>
+        state = handleUserJoinMeetingAfterReconnectReqMsg(m, state)
+        updateModeratorsPresence()
+      case m: UserLeaveReqMsg                     =>
+        state = handleUserLeaveReqMsg(m, state)
+        updateModeratorsPresence()
       case m: UserBroadcastCamStartMsg            => handleUserBroadcastCamStartMsg(m)
       case m: UserBroadcastCamStopMsg             => handleUserBroadcastCamStopMsg(m)
       case m: GetCamBroadcastPermissionReqMsg     => handleGetCamBroadcastPermissionReqMsg(m)
@@ -331,7 +358,7 @@ class MeetingActor(
 
       case m: UserJoinedVoiceConfEvtMsg           => handleUserJoinedVoiceConfEvtMsg(m)
       case m: LogoutAndEndMeetingCmdMsg           => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
-      case m: SetRecordingStatusCmdMsg =>
+      case m: SetRecordingStatusCmdMsg            =>
         state = usersApp.handleSetRecordingStatusCmdMsg(m, state)
         updateUserLastActivity(m.body.setBy)
       case m: RecordAndClearPreviousMarkersCmdMsg =>
@@ -354,6 +381,7 @@ class MeetingActor(
       case m: ChangeUserRoleCmdMsg =>
         usersApp.handleChangeUserRoleCmdMsg(m)
         updateUserLastActivity(m.body.changedBy)
+        updateModeratorsPresence()
 
       // Whiteboard
       case m: SendCursorPositionPubMsg       => wbApp.handle(m, liveMeeting, msgBus)
@@ -596,7 +624,8 @@ class MeetingActor(
 
     processUserInactivityAudit()
     flagRegisteredUsersWhoHasNotJoined()
-    checkIfNeetToEndMeetingWhenNoAuthedUsers(liveMeeting)
+    checkIfNeedToEndMeetingWhenNoAuthedUsers(liveMeeting)
+    checkIfNeedToEndMeetingWhenNoModerators(liveMeeting)
   }
 
   def checkVoiceConfUsersStatus(): Unit = {
@@ -663,7 +692,7 @@ class MeetingActor(
 
   }
 
-  private def checkIfNeetToEndMeetingWhenNoAuthedUsers(liveMeeting: LiveMeeting): Unit = {
+  private def checkIfNeedToEndMeetingWhenNoAuthedUsers(liveMeeting: LiveMeeting): Unit = {
     val authUserJoined = MeetingStatus2x.hasAuthedUserJoined(liveMeeting.status)
 
     if (endMeetingWhenNoMoreAuthedUsers &&
@@ -680,6 +709,28 @@ class MeetingActor(
             "system"
           )
         }
+      }
+    }
+  }
+
+  private def checkIfNeedToEndMeetingWhenNoModerators(liveMeeting: LiveMeeting): Unit = {
+    if (state.expiryTracker.endWhenNoModerator &&
+      !liveMeeting.props.meetingProp.isBreakout &&
+      state.expiryTracker.moderatorHasJoined &&
+      state.expiryTracker.lastModeratorLeftOnInMs != 0 &&
+      //Check if has moderator with leftFlag
+      Users2x.findModerator(liveMeeting.users2x).toVector.length == 0) {
+      val hasModeratorLeftRecently = (TimeUtil.timeNowInMs() - state.expiryTracker.endWhenNoModeratorDelayInMs) < state.expiryTracker.lastModeratorLeftOnInMs
+      if (!hasModeratorLeftRecently) {
+        log.info("Meeting will end due option endWhenNoModerator is enabled and all moderators have left the meeting. meetingId=" + props.meetingProp.intId)
+        sendEndMeetingDueToExpiry(
+          MeetingEndReason.ENDED_DUE_TO_NO_MODERATOR,
+          eventBus, outGW, liveMeeting,
+          "system"
+        )
+      } else {
+        val msToEndMeeting = state.expiryTracker.lastModeratorLeftOnInMs - (TimeUtil.timeNowInMs() - state.expiryTracker.endWhenNoModeratorDelayInMs)
+        log.info("All moderators have left. Meeting will end in " + TimeUtil.millisToSeconds(msToEndMeeting) + " seconds. meetingId=" + props.meetingProp.intId)
       }
     }
   }

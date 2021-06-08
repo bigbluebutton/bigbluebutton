@@ -110,6 +110,7 @@ public class ParamsProcessorUtil {
     private Integer userActivitySignResponseDelayInMinutes = 5;
     private Boolean defaultAllowDuplicateExtUserid = true;
 	private Boolean defaultEndWhenNoModerator = false;
+	private Integer defaultEndWhenNoModeratorDelayInMinutes = 1;
 	private Integer defaultHtml5InstanceId = 1;
 
 	private String formatConfNum(String s) {
@@ -515,6 +516,8 @@ public class ParamsProcessorUtil {
 		meeting.setUserActivitySignResponseDelayInMinutes(userActivitySignResponseDelayInMinutes);
 		meeting.setUserInactivityThresholdInMinutes(userInactivityThresholdInMinutes);
 //		meeting.setHtml5InstanceId(html5InstanceId);
+        meeting.setEndWhenNoModerator(defaultEndWhenNoModerator);
+        meeting.setEndWhenNoModeratorDelayInMinutes(defaultEndWhenNoModeratorDelayInMinutes);
 
         // Add extra parameters for breakout room
         if (isBreakout) {
@@ -1074,5 +1077,8 @@ public class ParamsProcessorUtil {
 		this.defaultEndWhenNoModerator = val;
 	}
 
+    public void setEndWhenNoModeratorDelayInMinutes(Integer value) {
+        this.defaultEndWhenNoModeratorDelayInMinutes = value;
+    }
 
 }

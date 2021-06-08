@@ -4,12 +4,34 @@ import {
   Match,
 } from 'meteor/check';
 import SanitizeHTML from 'sanitize-html';
-import Meetings, { RecordMeetings } from '/imports/api/meetings';
+import Meetings, {
+  RecordMeetings,
+  ExternalVideoMeetings,
+} from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 import { initPads } from '/imports/api/common/server/etherpad';
 import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
 import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
+
+const addExternalVideo = (meetingId) => {
+  const selector = { meetingId };
+
+  const modifier = {
+    meetingId,
+    externalVideoUrl: null,
+  };
+
+  try {
+    const { numberAffected } = ExternalVideoMeetings.upsert(selector, modifier);
+
+    if (numberAffected) {
+      Logger.verbose(`Added external video meetingId=${meetingId}`);
+    }
+  } catch (err) {
+    Logger.error(`Adding external video: ${err}`);
+  }
+};
 
 export default function addMeeting(meeting) {
   const meetingId = meeting.meetingProp.intId;
@@ -47,6 +69,8 @@ export default function addMeeting(meeting) {
       userInactivityInspectTimerInMinutes: Number,
       userInactivityThresholdInMinutes: Number,
       userActivitySignResponseDelayInMinutes: Number,
+      endWhenNoModerator: Boolean,
+      endWhenNoModeratorDelayInMinutes: Number,
       timeRemaining: Number,
     },
     welcomeProp: {
@@ -175,6 +199,8 @@ export default function addMeeting(meeting) {
   } catch (err) {
     Logger.error(`Adding record prop to collection: ${err}`);
   }
+
+  addExternalVideo(meetingId);
 
   try {
     const { insertedId, numberAffected } = Meetings.upsert(selector, modifier);
