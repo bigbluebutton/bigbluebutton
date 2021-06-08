@@ -2,6 +2,8 @@ buildscript {
   repositories {
     jcenter()
     mavenLocal()
+    maven { url "https://repo1.maven.org/maven2" }
+    maven { url "https://repo.grails.org/artifactory/core" }
     maven { url "https://repo.grails.org/grails/core" }
   }
   dependencies {
@@ -40,6 +42,8 @@ processResources.dependsOn copyWebInf
 repositories {
   jcenter()
   mavenLocal()
+  maven { url "https://repo1.maven.org/maven2" }
+  maven { url "https://repo.grails.org/artifactory/core" }
   maven { url "https://repo.grails.org/grails/core" }
 }
 
