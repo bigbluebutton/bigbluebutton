@@ -43,30 +43,7 @@ const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
 };
 
-const getLocalizedAnswers = (type, intl, pollTypes) => {
-  switch (type) {
-    case pollTypes.TrueFalse:
-      return [
-        intl.formatMessage(intlMessages.trueOptionLabel),
-        intl.formatMessage(intlMessages.falseOptionLabel),
-      ];
-    case pollTypes.YesNo:
-      return [
-        intl.formatMessage(intlMessages.yesOptionLabel),
-        intl.formatMessage(intlMessages.noOptionLabel),
-      ];
-    case pollTypes.YesNoAbstention:
-      return [
-        intl.formatMessage(intlMessages.yesOptionLabel),
-        intl.formatMessage(intlMessages.noOptionLabel),
-        intl.formatMessage(intlMessages.abstentionOptionLabel),
-      ];
-    default:
-      return null;
-  }
-};
-
-const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, intl, pollTypes) => {
+const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, pollTypes) => {
   const pollItemElements = parsedSlides.map((poll) => {
     let { poll: label, type } = poll;
     let itemLabel = label;
@@ -78,8 +55,6 @@ const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, intl, pollType
     {
       const { options } = itemLabel;
       itemLabel = options.join('/').replace(/[\n.)]/g, '');
-    } else {
-      answers = getLocalizedAnswers(type, intl, pollTypes);
     }
 
     // removes any whitespace from the label
@@ -148,14 +123,6 @@ class QuickPollDropdown extends Component {
     if (quickPolls.length === 1 && quickPollOptions.length) {
       const { type } = quickPollOptions[0];
       singlePollType = type;
-    }
-
-    if (singlePollType === pollTypes.TrueFalse || 
-        singlePollType === pollTypes.YesNo || 
-        singlePollType === pollTypes.YesNoAbstention) 
-    {
-      answers = getLocalizedAnswers(singlePollType, intl, pollTypes);
-      singlePollType = pollTypes.Custom;
     }
 
     let btn = (
