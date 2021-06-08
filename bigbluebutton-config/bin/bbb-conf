@@ -162,9 +162,6 @@ HTML5_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings
 
 KURENTO_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
 KURENTO_ETC_CONFIG=/etc/bigbluebutton/bbb-webrtc-sfu/production.yml
-if [ -f "$KURENTO_ETC_CONFIG" ]; then
-    KURENTO_CONFIG=$KURENTO_ETC_CONFIG
-fi
 
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
 BBB_WEB_ETC_CONFIG="/etc/bigbluebutton/bbb-web.properties"
@@ -1256,7 +1253,11 @@ check_state() {
     fi
 
     FREESWITCH_SIP=$(netstat -anlt | grep :5066 | grep -v tcp6 | grep LISTEN | sed 's/ [ ]*/ /g' | cut -d' ' -f4 | sed 's/:5066//g')
-    KURENTO_SIP=$(yq r $KURENTO_CONFIG freeswitch.sip_ip)
+    KURENTO_SIP=$(yq r $KURENTO_ETC_CONFIG freeswitch.sip_ip)
+    if [ -z "$KURENTO_SIP" ];then
+        KURENTO_SIP=$(yq r $KURENTO_CONFIG freeswitch.sip_ip)
+    fi
+
 
     if [ ! -z "$FREESWITCH_SIP" ]; then
      if [ "$FREESWITCH_SIP" != "$KURENTO_SIP" ]; then
@@ -1277,7 +1278,7 @@ check_state() {
       if echo $STUN_SERVER | grep -q ':'; then
         STUN_SERVER="$(echo $STUN_SERVER | sed 's/:.*//g') $(echo $STUN_SERVER | sed 's/.*://g')"
       else
-	STUN_SERVER="$STUN_SERVER 3478"
+	    STUN_SERVER="$STUN_SERVER 3478"
       fi
      
       if which stunclient > /dev/null 2>&1; then 
