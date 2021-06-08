@@ -77,6 +77,7 @@ public class ParamsProcessorUtil {
     private Integer defaultHttpSessionTimeout = 14400;
     private Boolean useDefaultAvatar = false;
     private String defaultAvatarURL;
+    private String defaultBotAvatarURL;
     private Boolean useDefaultWebcamBackground = false;
     private String defaultWebcamBackgroundURL;
     private String defaultGuestPolicy;
@@ -783,6 +784,7 @@ public class ParamsProcessorUtil {
         }
 
         String avatarURL = useDefaultAvatar ? defaultAvatarURL : "";
+        String botAvatarURL = defaultBotAvatarURL;
         String webcamBackgroundURL = useDefaultWebcamBackground ? defaultWebcamBackgroundURL : "";
 
         if(defaultAllowDuplicateExtUserid == false) {
@@ -803,6 +805,7 @@ public class ParamsProcessorUtil {
                 .withTelVoice(telVoice).withWebVoice(webVoice)
                 .withDialNumber(dialNumber)
                 .withDefaultAvatarURL(avatarURL)
+                .withDefaultBotAvatarURL(botAvatarURL)
                 .withDefaultWebcamBackgroundURL(webcamBackgroundURL)
                 .withAutoStartRecording(autoStartRec)
                 .withAllowStartStopRecording(allowStartStoptRec)
@@ -1391,6 +1394,10 @@ public class ParamsProcessorUtil {
 
 	public void setDefaultAvatarURL(String url) {
 		this.defaultAvatarURL = url;
+	}
+
+	public void setDefaultBotAvatarURL(String url) {
+		this.defaultBotAvatarURL = url;
 	}
 
     public void setUseDefaultWebcamBackground(Boolean value) {

@@ -458,6 +458,8 @@ class ApiController {
 
     if (!StringUtils.isEmpty(params.avatarURL)) {
       us.avatarURL = params.avatarURL;
+    } else if (us.bot) {
+      us.avatarURL = meeting.defaultBotAvatarURL
     } else {
       us.avatarURL = meeting.defaultAvatarURL
     }
