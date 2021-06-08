@@ -66,7 +66,7 @@
 #   2019-11-09 GTR  Keep HTML5 client logs permissions when cleaning logs
 #   2020-05-20 NJH  Add port 443 to --Network and clean up tmp file.
 #   2020-06-23 JFS  Remove defaultGuestPolicy warning for HTML5 client
-#   2020-10-22 AGG  Removing Flash/Red5 related code
+#   2020-10-22 AGG  Removing Flash/Red5 related code (yay!)
 
 #set -x
 #set -e
@@ -420,6 +420,29 @@ display_bigbluebutton_status () {
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         units="$units mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
+
+	for i in `seq 8888 8890`; do
+	  # check if multi-kurento setup is configured
+	  if [ -f /usr/lib/systemd/system/kurento-media-server-${i}.service ]; then
+            if systemctl is-enabled kurento-media-server-${i}.service > /dev/null; then
+              units="$units kurento-media-server-${i}"
+            fi
+	  fi
+        done
+
+	source /usr/share/meteor/bundle/bbb-html5-with-roles.conf
+
+        if [ -f /etc/bigbluebutton/bbb-html5-with-roles.conf ]; then
+          source /etc/bigbluebutton/bbb-html5-with-roles.conf
+        fi
+
+        for ((i = 1 ; i <= $NUMBER_OF_BACKEND_NODEJS_PROCESSES; i++)); do
+          units="$units bbb-html5-backend@$i"
+        done
+		
+        for ((i = 1; i <= $NUMBER_OF_FRONTEND_NODEJS_PROCESSES; i++)); do
+          units="$units bbb-html5-frontend@$i"
+        done
     fi
 
     if [ -f /usr/share/etherpad-lite/settings.json ]; then
@@ -1252,14 +1275,16 @@ check_state() {
       else
 	STUN_SERVER="$STUN_SERVER 3478"
       fi
-
-      if stunclient --mode full --localport 30000 $STUN_SERVER | grep -q fail; then
-        echo
-        echo "#"
-        echo "# Warning: Failed to verify STUN server at $STUN_SERVER with command"
-        echo "#"
-        echo "#    stunclient --mode full --localport 30000 $STUN_SERVER"
-        echo "#"
+     
+      if which stunclient > /dev/null 2>&1; then 
+        if stunclient --mode full --localport 30000 $STUN_SERVER | grep -q fail; then
+          echo
+          echo "#"
+          echo "# Warning: Failed to verify STUN server at $STUN_SERVER with command"
+          echo "#"
+          echo "#    stunclient --mode full --localport 30000 $STUN_SERVER"
+          echo "#"
+        fi
       fi
     fi
 

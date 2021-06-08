@@ -28,3 +28,7 @@ exports.alwaysAccept = 'button[data-test="alwaysAccept"]';
 exports.alwaysDeny = 'button[data-test="alwaysDeny"]';
 exports.waitingUsersBtn = 'div[data-test="waitingUsersBtn"]';
 exports.joinMeetingDemoPage = 'div[class^="join-meeting"]';
+exports.chatButton = '[accesskey="P"]';
+exports.chatPanel = 'section[data-test="chatPanel"]';
+exports.userListButton = '[accesskey="U"]';
+exports.userListPanel = 'div[data-test="userListPanel"]';

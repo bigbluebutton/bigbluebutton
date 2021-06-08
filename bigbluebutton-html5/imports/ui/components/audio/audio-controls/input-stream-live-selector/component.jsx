@@ -298,6 +298,7 @@ class InputStreamLiveSelector extends Component {
         <DropdownListItem
           key="leaveAudioButtonKey"
           className={styles.stopButton}
+          data-test="disconnectAudio"
           label={intl.formatMessage(intlMessages.leaveAudio)}
           onClick={() => handleLeaveAudio()}
           accessKey={shortcuts.leaveaudio}

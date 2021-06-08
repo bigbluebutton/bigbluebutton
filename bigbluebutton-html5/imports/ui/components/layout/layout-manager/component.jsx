@@ -24,15 +24,17 @@ const NOTE_MIN_WIDTH = 340;
 const NOTE_MAX_WIDTH = 800;
 const WAITING_MIN_WIDTH = 340;
 const WAITING_MAX_WIDTH = 800;
-const NAVBAR_HEIGHT = 85;
+const NAVBAR_HEIGHT = 112;
+const LARGE_NAVBAR_HEIGHT = 170;
 const ACTIONSBAR_HEIGHT = isMobile ? 50 : 42;
+const BREAKOUT_MIN_WIDTH = 320;
+const BREAKOUT_MAX_WIDTH = 400;
 
 const WEBCAMSAREA_MIN_PERCENT = 0.2;
 const WEBCAMSAREA_MAX_PERCENT = 0.8;
 // const PRESENTATIONAREA_MIN_PERCENT = 0.2;
 const PRESENTATIONAREA_MIN_WIDTH = 385; // Value based on presentation toolbar
 // const PRESENTATIONAREA_MAX_PERCENT = 0.8;
-
 const storageLayoutData = () => Storage.getItem('layoutData');
 
 class LayoutManagerComponent extends Component {
@@ -106,6 +108,10 @@ class LayoutManagerComponent extends Component {
     });
     
     window.addEventListener('fullscreenchange', () => {
+      setTimeout(() => this.setLayoutSizes(), 200);
+    });
+
+    window.addEventListener('localeChanged', () => {
       setTimeout(() => this.setLayoutSizes(), 200);
     });
   }
@@ -435,7 +441,7 @@ class LayoutManagerComponent extends Component {
       newBreakoutRoomSize = breakoutRoomSizeContext;
     } else if (!storageBreakoutRoomWidth) {
       newBreakoutRoomSize = {
-        width: min(max((windowWidth() * 0.2), CHAT_MIN_WIDTH), CHAT_MAX_WIDTH),
+        width: min(max((windowWidth() * 0.2), BREAKOUT_MIN_WIDTH), BREAKOUT_MAX_WIDTH),
       };
     } else {
       newBreakoutRoomSize = {
@@ -762,12 +768,15 @@ class LayoutManagerComponent extends Component {
       secondPanel = newBreakoutRoomSize;
     }
 
-    const mediaAreaHeight = windowHeight() - (NAVBAR_HEIGHT + ACTIONSBAR_HEIGHT) - 10;
+    const isLargeFont = Session.get('isLargeFont');
+    const realNavbarHeight = isLargeFont ? LARGE_NAVBAR_HEIGHT : NAVBAR_HEIGHT;
+
+    const mediaAreaHeight = windowHeight() - (realNavbarHeight + ACTIONSBAR_HEIGHT) - 10;
     const mediaAreaWidth = windowWidth() - (firstPanel.width + secondPanel.width);
     const newMediaBounds = {
       width: mediaAreaWidth,
       height: mediaAreaHeight,
-      top: NAVBAR_HEIGHT,
+      top: realNavbarHeight,
       left: firstPanel.width + secondPanel.width,
     };
 
@@ -837,8 +846,11 @@ export {
   WAITING_MIN_WIDTH,
   WAITING_MAX_WIDTH,
   NAVBAR_HEIGHT,
+  LARGE_NAVBAR_HEIGHT,
   ACTIONSBAR_HEIGHT,
   WEBCAMSAREA_MIN_PERCENT,
   WEBCAMSAREA_MAX_PERCENT,
   PRESENTATIONAREA_MIN_WIDTH,
+  BREAKOUT_MIN_WIDTH,
+  BREAKOUT_MAX_WIDTH,
 };

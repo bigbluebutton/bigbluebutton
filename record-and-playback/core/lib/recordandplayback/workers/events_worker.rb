@@ -20,10 +20,10 @@
 module BigBlueButton
   module Resque
     class EventsWorker < BaseWorker
-      @queue = 'rap:archive'
+      @queue = 'rap:events'
 
       def store_events(target_dir)
-        @logger.info("Keeping events for #{meeting_id}")
+        @logger.info("Keeping events for #{@meeting_id}")
         redis = BigBlueButton::RedisWrapper.new(@props['redis_host'], @props['redis_port'], @props['redis_password'])
         events_archiver = BigBlueButton::RedisEventsArchiver.new(redis)
 
@@ -32,7 +32,18 @@ module BigBlueButton
 
         # When the events script is responsible for archiving events, the sanity script (which normally clears the events
         # from redis) will not get run, so we have to clear them here.
-        events_archiver.delete_events(meeting_id) if @break_timestamp.nil?
+        events_archiver.delete_events(@meeting_id) if @break_timestamp.nil?
+      end
+
+      def store_etherpad_events(target_dir)
+        return unless File.exist?("#{target_dir}/events.xml")
+
+        @logger.info("Keeping etherpad events for #{@meeting_id}")
+        events = Nokogiri::XML(File.open("#{target_dir}/events.xml"))
+        notes_id = BigBlueButton::Events.get_notes_id(events)
+
+        events_etherpad = "#{target_dir}/events.etherpad"
+        BigBlueButton.try_download("#{@notes_endpoint}/#{CGI.escape notes_id}/export/etherpad", events_etherpad)
       end
 
       def perform
@@ -43,19 +54,22 @@ module BigBlueButton
             next true # We're inside a block and want to return to the block's caller, not return from perform
           end
 
+          remove_status_files
+
           target_dir = "#{@events_dir}/#{@meeting_id}"
           FileUtils.mkdir_p(target_dir)
 
+          raw_events_xml = "#{@recording_dir}/raw/#{@meeting_id}/events.xml"
           if File.exist?(raw_events_xml)
             # This is a recorded meeting. The archive step should have already run, so copy the events.xml from the raw
             # recording directory.
-            FileUtils.cp("#{@recording_dir}/raw/#{@meeting_id}/events.xml", "#{target_dir}/events.xml")
+            FileUtils.cp(raw_events_xml, "#{target_dir}/events.xml")
           else
             # This meeting was not recorded. We need to run the (incremental, if break_timestamp was provided) events archiving.
             store_events(target_dir)
           end
 
-          FileUtils.rm_f(@ended_done)
+          store_etherpad_events(target_dir)
 
           # Only run post events scripts after full meeting ends, not during segments
           run_post_scripts(@post_scripts_path) if @break_timestamp.nil?
@@ -64,10 +78,16 @@ module BigBlueButton
         end
       end
 
+      def remove_status_files
+        FileUtils.rm_f(@ended_done)
+      end
+
       def initialize(opts)
         super(opts)
+        @single_step = true
         @step_name = 'events'
         @events_dir = @props['events_dir']
+        @notes_endpoint = @props['notes_endpoint']
         @post_scripts_path = File.join(BigBlueButton.rap_scripts_path, 'post_events')
         @ended_done = "#{@recording_dir}/status/ended/#{@full_id}.done"
       end

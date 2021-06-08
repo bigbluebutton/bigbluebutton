@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
@@ -152,7 +151,6 @@ const intlMessages = defineMessages({
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
 
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 const MAX_CUSTOM_FIELDS = POLL_SETTINGS.max_custom;
 const MAX_INPUT_CHARS = POLL_SETTINGS.maxTypedAnswerLength;
 const QUESTION_MAX_INPUT_CHARS = 400;
@@ -229,17 +227,19 @@ class Poll extends Component {
 
   handleInputChange(e, index) {
     const { optList, type, error } = this.state;
+    const { pollTypes } = this.props;
     const list = [...optList];
     const validatedVal = validateInput(e.target.value).replace(/\s{2,}/g, ' ');
-    const clearError = validatedVal.length > 0 && type !== 'RP';
+    const clearError = validatedVal.length > 0 && type !== pollTypes.Response;
     list[index] = { val: validatedVal };
     this.setState({ optList: list, error: clearError ? null : error });
   }
 
   handleTextareaChange(e) {
     const { type, error } = this.state;
+    const { pollTypes } = this.props;
     const validatedQuestion = validateInput(e.target.value);
-    const clearError = validatedQuestion.length > 0 && type === 'RP';
+    const clearError = validatedQuestion.length > 0 && type === pollTypes.Response;
     this.setState({ question: validateInput(e.target.value), error: clearError ? null : error });
   }
 
@@ -292,40 +292,8 @@ class Poll extends Component {
     }
   }
 
-  checkPollType() {
-    const { type, optList } = this.state;
-    let _type = type;
-    let pollString = '';
-    let defaultMatch = null;
-    let isDefault = null;
-
-    switch (_type) {
-      case 'A-':
-        pollString = optList.map((x) => x.val).sort().join('');
-        defaultMatch = pollString.match(/^(ABCDEFG)|(ABCDEF)|(ABCDE)|(ABCD)|(ABC)|(AB)$/gi);
-        isDefault = defaultMatch && pollString.length === defaultMatch[0].length;
-        _type = isDefault ? `${_type}${defaultMatch[0].length}` : 'custom';
-        break;
-      case 'TF':
-        pollString = optList.map((x) => x.val).join('');
-        defaultMatch = pollString.match(/^(TRUEFALSE)|(FALSETRUE)$/gi);
-        isDefault = defaultMatch && pollString.length === defaultMatch[0].length;
-        if (!isDefault) _type = 'custom';
-        break;
-      case 'YNA':
-        pollString = optList.map((x) => x.val).join('');
-        defaultMatch = pollString.match(/^(YesNoAbstention)$/gi);
-        isDefault = defaultMatch && pollString.length === defaultMatch[0].length;
-        if (!isDefault) _type = 'custom';
-        break;
-      default:
-        break;
-    }
-    return _type;
-  }
-
   renderInputs() {
-    const { intl } = this.props;
+    const { intl, pollTypes } = this.props;
     const { optList, type, error } = this.state;
     let hasVal = false;
     return optList.map((o, i) => {
@@ -365,7 +333,7 @@ class Poll extends Component {
               )
               : <div style={{ width: '40px' }} />}
           </div>
-          {!hasVal && type !== 'RP' && error ? (
+          {!hasVal && type !== pollTypes.Response && error ? (
             <div className={styles.inputError}>{error}</div>
           ) : (
             <div className={styles.errorSpacer}>&nbsp;</div>
@@ -408,8 +376,8 @@ class Poll extends Component {
     const {
       type, optList, question, error,
     } = this.state;
-    const { startPoll, startCustomPoll, intl } = this.props;
-    const defaultPoll = type === 'TF' || type === 'A-' || type === 'YNA';
+    const { startPoll, startCustomPoll, intl, pollTypes, isDefaultPoll, checkPollType } = this.props;
+    const defaultPoll = isDefaultPoll(type);
     return (
       <div>
         <div className={styles.instructions}>
@@ -427,7 +395,7 @@ class Poll extends Component {
             maxLength={QUESTION_MAX_INPUT_CHARS}
             placeholder={intl.formatMessage(intlMessages.questionLabel)}
           />
-          {(type === 'RP' && question.length === 0 && error) ? (
+          {(type === pollTypes.Response && question.length === 0 && error) ? (
             <div className={styles.inputError}>{error}</div>
           ) : (
             <div className={styles.errorSpacer}>&nbsp;</div>
@@ -441,21 +409,21 @@ class Poll extends Component {
               color="default"
               onClick={() => {
                 this.setState({
-                  type: 'TF',
+                  type: pollTypes.TrueFalse,
                   optList: [
                     { val: intl.formatMessage(intlMessages.true) },
                     { val: intl.formatMessage(intlMessages.false) },
                   ],
                 });
               }}
-              className={cx(styles.pBtn, styles.btnMR, { [styles.selectedBtnBlue]: type === 'TF' })}
+              className={cx(styles.pBtn, styles.btnMR, { [styles.selectedBtnBlue]: type === pollTypes.TrueFalse })}
             />
             <Button
               label={intl.formatMessage(intlMessages.a4)}
               color="default"
               onClick={() => {
                 this.setState({
-                  type: 'A-',
+                  type: pollTypes.Letter,
                   optList: [
                     { val: intl.formatMessage(intlMessages.a) },
                     { val: intl.formatMessage(intlMessages.b) },
@@ -464,7 +432,7 @@ class Poll extends Component {
                   ],
                 });
               }}
-              className={cx(styles.pBtn, styles.btnML, { [styles.selectedBtnBlue]: type === 'A-' })}
+              className={cx(styles.pBtn, styles.btnML, { [styles.selectedBtnBlue]: type === pollTypes.Letter })}
             />
           </div>
           <Button
@@ -472,7 +440,7 @@ class Poll extends Component {
             color="default"
             onClick={() => {
               this.setState({
-                type: 'YNA',
+                type: pollTypes.YesNoAbstention,
                 optList: [
                   { val: intl.formatMessage(intlMessages.yes) },
                   { val: intl.formatMessage(intlMessages.no) },
@@ -480,13 +448,13 @@ class Poll extends Component {
                 ],
               });
             }}
-            className={cx(styles.pBtn, styles.yna, { [styles.selectedBtnBlue]: type === 'YNA' })}
+            className={cx(styles.pBtn, styles.yna, { [styles.selectedBtnBlue]: type === pollTypes.YesNoAbstention })}
           />
           <Button
             label={intl.formatMessage(intlMessages.userResponse)}
             color="default"
-            onClick={() => { this.setState({ type: 'RP' }); }}
-            className={cx(styles.pBtn, styles.fullWidth, { [styles.selectedBtnWhite]: type === 'RP' })}
+            onClick={() => { this.setState({ type: pollTypes.Response }); }}
+            className={cx(styles.pBtn, styles.fullWidth, { [styles.selectedBtnWhite]: type === pollTypes.Response })}
           />
         </div>
         { type
@@ -494,7 +462,7 @@ class Poll extends Component {
             <div data-test="responseChoices">
               <h4>{intl.formatMessage(intlMessages.responseChoices)}</h4>
               {
-                type === 'RP'
+                type === pollTypes.Response
                 && (
                   <div>
                     <span>{intl.formatMessage(intlMessages.typedResponseDesc)}</span>
@@ -508,7 +476,7 @@ class Poll extends Component {
                 )
               }
               {
-                (defaultPoll || type === 'RP')
+                (defaultPoll || type === pollTypes.Response)
                 && (
                   <div style={{
                     display: 'flex',
@@ -540,17 +508,25 @@ class Poll extends Component {
                         });
 
                         let err = null;
-                        if (type === 'RP' && question.length === 0) err = intl.formatMessage(intlMessages.questionErr);
-                        if (!hasVal && type !== 'RP') err = intl.formatMessage(intlMessages.optionErr);
+                        if (type === pollTypes.Response && question.length === 0) err = intl.formatMessage(intlMessages.questionErr);
+                        if (!hasVal && type !== pollTypes.Response) err = intl.formatMessage(intlMessages.optionErr);
                         if (err) return this.setState({ error: err });
 
                         return this.setState({ isPolling: true }, () => {
-                          const verifiedPollType = this.checkPollType();
+                          const verifiedPollType = checkPollType(
+                            type,
+                            optList,
+                            intl.formatMessage(intlMessages.yes),
+                            intl.formatMessage(intlMessages.no),
+                            intl.formatMessage(intlMessages.abstention),
+                            intl.formatMessage(intlMessages.true),
+                            intl.formatMessage(intlMessages.false)
+                          );
                           const verifiedOptions = optList.map((o) => {
                             if (o.val.length > 0) return o.val;
                             return null;
                           });
-                          if (verifiedPollType === 'custom') {
+                          if (verifiedPollType === pollTypes.Custom) {
                             startCustomPoll(
                               verifiedPollType,
                               question,
@@ -563,7 +539,7 @@ class Poll extends Component {
                       }}
                     />
                     {
-                      FILE_DRAG_AND_DROP_ENABLED && type !== 'RP' && this.renderDragDrop()
+                      FILE_DRAG_AND_DROP_ENABLED && type !== pollTypes.Response && this.renderDragDrop()
                     }
                   </div>
                 )
@@ -575,14 +551,14 @@ class Poll extends Component {
   }
 
   renderNoSlidePanel() {
-    const { mountModal, intl } = this.props;
+    const { intl } = this.props;
     return (
       <div className={styles.noSlidePanelContainer}>
         <h4>{intl.formatMessage(intlMessages.noPresentationSelected)}</h4>
         <Button
           label={intl.formatMessage(intlMessages.clickHereToSelect)}
           color="primary"
-          onClick={() => mountModal(<PresentationUploaderContainer />)}
+          onClick={() => Session.set('showUploadPresentationView', true)}
           className={styles.pollBtn}
         />
       </div>
@@ -596,7 +572,7 @@ class Poll extends Component {
       currentSlide,
     } = this.props;
 
-    if (!CHAT_ENABLED && !currentSlide) return this.renderNoSlidePanel();
+    if (!currentSlide) return this.renderNoSlidePanel();
 
     if (isPolling || (!isPolling && currentPoll)) {
       return this.renderActivePollOptions();
@@ -677,7 +653,7 @@ Poll.propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   amIPresenter: PropTypes.bool.isRequired,
-  pollTypes: PropTypes.instanceOf(Array).isRequired,
+  pollTypes: PropTypes.instanceOf(Object).isRequired,
   startPoll: PropTypes.func.isRequired,
   startCustomPoll: PropTypes.func.isRequired,
   stopPoll: PropTypes.func.isRequired,

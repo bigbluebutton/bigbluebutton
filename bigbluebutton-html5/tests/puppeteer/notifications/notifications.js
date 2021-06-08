@@ -168,7 +168,7 @@ class Notifications extends MultiUsers {
   }
 
   async audioNotification(testName) {
-    await this.initUser3(Page.getArgsWithAudio(), undefined, testName);
+    await this.initUser3(Page.getArgs(), undefined, testName);
     await this.page3.startRecording(testName);
     await this.page3.screenshot(`${testName}`, `01-page03-initialized-${testName}`);
     await this.page3.joinMicrophone();
