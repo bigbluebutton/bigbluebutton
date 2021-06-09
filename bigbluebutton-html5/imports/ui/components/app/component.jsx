@@ -28,9 +28,10 @@ import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/
 import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
 import NewWebcamContainer from '../webcam/container';
 import PresentationPodsContainer from '../presentation-pod/container';
+import PresentationAreaContainer from '../presentation/presentation-area/container';
 import { styles } from './styles';
 import {
-  LAYOUT_TYPE, DEVICE_TYPE, ACTIONS, PANELS,
+  LAYOUT_TYPE, DEVICE_TYPE, ACTIONS,
 } from '../layout/enums';
 import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
@@ -44,7 +45,6 @@ import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import { makeCall } from '/imports/ui/services/api';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
-import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager/component';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -482,7 +482,8 @@ class App extends Component {
                 <SidebarNavigationContainer />
                 <SidebarContentContainer />
                 <NewWebcamContainer />
-                <PresentationPodsContainer />
+                <PresentationAreaContainer />
+                {/* <PresentationPodsContainer /> */}
               </div>
             </>
           )}

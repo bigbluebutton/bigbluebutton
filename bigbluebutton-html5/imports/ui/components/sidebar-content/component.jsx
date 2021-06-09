@@ -22,7 +22,6 @@ const propTypes = {
   contextDispatch: PropTypes.func.isRequired,
 };
 
-
 const SidebarContent = (props) => {
   const {
     // display,

@@ -15,7 +15,7 @@ const DEFAULT_VALUES = {
   cameraDockMinWidth: 140,
 
   presentationTabOrder: 5,
-  presentationMinHeight: 140,
+  presentationMinHeight: 220,
 
   navBarHeight: 85,
   navBarTop: 0,
