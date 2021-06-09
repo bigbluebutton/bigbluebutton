@@ -3,10 +3,9 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { styles } from '../styles';
 
-const DropdownListSeparator = ({ style, className }) =>
-  (
-    <li style={style} className={cx(styles.separator, className)} />
-  );
+const DropdownListSeparator = ({ style, className }) => (
+  <li style={style} className={cx(styles.separator, className)} />
+);
 
 DropdownListSeparator.propTypes = {
   style: PropTypes.shape({}),

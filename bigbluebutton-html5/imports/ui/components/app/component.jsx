@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { throttle } from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -357,6 +357,8 @@ class App extends Component {
     const {
       actionsbar,
       intl,
+      layoutManagerLoaded,
+      actionsBarStyle,
     } = this.props;
 
     if (!actionsbar) return null;
@@ -366,6 +368,19 @@ class App extends Component {
         className={styles.actionsbar}
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
         aria-hidden={this.shouldAriaHide()}
+        style={
+          layoutManagerLoaded === 'new'
+            ? {
+              position: 'absolute',
+              top: actionsBarStyle.top,
+              left: actionsBarStyle.left,
+              height: actionsBarStyle.height,
+              width: actionsBarStyle.width,
+            }
+            : {
+              position: 'relative',
+            }
+        }
       >
         {actionsbar}
       </section>
@@ -420,6 +435,8 @@ class App extends Component {
       layoutManagerLoaded,
       sidebarNavigationIsOpen,
       sidebarContentIsOpen,
+      audioAlertEnabled,
+      pushAlertEnabled,
     } = this.props;
 
     return (
@@ -458,7 +475,13 @@ class App extends Component {
               <ModalContainer />
               <AudioContainer />
               <ToastContainer rtl />
-              <ChatAlertContainer />
+              {(audioAlertEnabled || pushAlertEnabled)
+                && (
+                  <ChatAlertContainer
+                    audioAlertEnabled={audioAlertEnabled}
+                    pushAlertEnabled={pushAlertEnabled}
+                  />
+                )}
               <WaitingNotifierContainer />
               <LockNotifier />
               <StatusNotifier status="raiseHand" />
@@ -484,6 +507,9 @@ class App extends Component {
                 <NewWebcamContainer />
                 <PresentationAreaContainer />
                 {/* <PresentationPodsContainer /> */}
+                <PresentationPodsContainer />
+                <ModalContainer />
+                {this.renderActionsBar()}
               </div>
             </>
           )}

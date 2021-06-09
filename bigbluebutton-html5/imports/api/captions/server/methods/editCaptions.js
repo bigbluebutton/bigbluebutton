@@ -1,7 +1,6 @@
 import RedisPubSub from '/imports/startup/server/redis';
 import Captions from '/imports/api/captions';
 import Logger from '/imports/startup/server/logger';
-import { extractCredentials } from '/imports/api/common/server/helpers';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 

@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import Storage from '/imports/ui/services/storage/session';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
@@ -16,12 +16,6 @@ const USERLIST_MIN_WIDTH = 150;
 const USERLIST_MAX_WIDTH = 240;
 const CHAT_MIN_WIDTH = 320;
 const CHAT_MAX_WIDTH = 400;
-const POLL_MIN_WIDTH = 320;
-const POLL_MAX_WIDTH = 400;
-const NOTE_MIN_WIDTH = 340;
-const NOTE_MAX_WIDTH = 800;
-const WAITING_MIN_WIDTH = 340;
-const WAITING_MAX_WIDTH = 800;
 const NAVBAR_HEIGHT = 170;
 const ACTIONSBAR_HEIGHT = isMobile ? 50 : 42;
 const BREAKOUT_MIN_WIDTH = 320;

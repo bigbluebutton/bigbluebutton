@@ -8,6 +8,7 @@ import PollContainer from '/imports/ui/components/poll/container';
 import CaptionsContainer from '/imports/ui/components/captions/pad/container';
 import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
 import WaitingUsersPanel from '/imports/ui/components/waiting-users/container';
+import { styles } from '/imports/ui/components/app/styles';
 
 const propTypes = {
   top: PropTypes.number.isRequired,
@@ -100,7 +101,12 @@ const SidebarContent = (props) => {
       {sidebarContentPanel === PANELS.CHAT && <ChatContainer />}
       {sidebarContentPanel === PANELS.SHARED_NOTES && <NoteContainer />}
       {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer />}
-      {sidebarContentPanel === PANELS.POLL && <PollContainer />}
+      {sidebarContentPanel === PANELS.POLL
+        && (
+          <div className={styles.poll} style={{ minWidth }} id="pollPanel">
+            <PollContainer />
+          </div>
+        )}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
       {sidebarContentPanel === PANELS.WAITING_USERS && <WaitingUsersPanel />}
     </Resizable>

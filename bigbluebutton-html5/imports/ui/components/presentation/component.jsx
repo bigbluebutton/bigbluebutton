@@ -338,7 +338,6 @@ class Presentation extends PureComponent {
       presentationHeight: 0,
     };
 
-    console.log('=== newPresentationAreaSize', newPresentationAreaSize);
     if (layoutLoaded === 'legacy') {
       presentationSizes.presentationWidth = webcamsAreaResizing && (webcamsPlacement === 'left' || webcamsPlacement === 'right')
         ? mediaBounds.width - tempWebcamsAreaSize.width

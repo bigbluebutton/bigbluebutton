@@ -54,8 +54,13 @@ class NotificationMenu extends BaseMenu {
 
   render() {
     const {
-      intl, isModerator, showToggleLabel, displaySettingsStatus,
+      intl,
+      isModerator,
+      showGuestNotification,
+      showToggleLabel,
+      displaySettingsStatus,
     } = this.props;
+
     const { settings } = this.state;
 
     return (
@@ -144,7 +149,7 @@ class NotificationMenu extends BaseMenu {
             </div>
           </div>
 
-          {isModerator ? (
+          {isModerator && showGuestNotification ? (
             <div className={styles.row}>
               <div className={styles.col}>
                 <label className={styles.label}>

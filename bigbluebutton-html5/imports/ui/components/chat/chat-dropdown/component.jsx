@@ -4,10 +4,6 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import Clipboard from 'clipboard';
 import _ from 'lodash';
 import Dropdown from '/imports/ui/components/dropdown/component';
-import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
-import DropdownContent from '/imports/ui/components/dropdown/content/component';
-import DropdownList from '/imports/ui/components/dropdown/list/component';
-import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import Button from '/imports/ui/components/button/component';
 
 import ChatService from '../service';
@@ -89,7 +85,7 @@ class ChatDropdown extends PureComponent {
     const saveIcon = 'download';
     const copyIcon = 'copy';
     return _.compact([
-      <DropdownListItem
+      <Dropdown.DropdownListItem
         data-test="chatSave"
         icon={saveIcon}
         label={intl.formatMessage(intlMessages.save)}
@@ -103,13 +99,13 @@ class ChatDropdown extends PureComponent {
           link.setAttribute('download', `bbb-${meetingName}[public-chat]_${dateString}.txt`);
           link.setAttribute(
             'href',
-            `data: ${mimeType} ;charset=utf-8,
-            ${encodeURIComponent(ChatService.exportChat(timeWindowsValues, users, intl))}`,
+            `data: ${mimeType} ;charset=utf-8,`+
+            `${encodeURIComponent(ChatService.exportChat(timeWindowsValues, users, intl))}`,
           );
           link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
         }}
       />,
-      <DropdownListItem
+      <Dropdown.DropdownListItem
         data-test="chatCopy"
         icon={copyIcon}
         id="clipboardButton"
@@ -117,7 +113,7 @@ class ChatDropdown extends PureComponent {
         key={this.actionsKey[1]}
       />,
       !meetingIsBreakout && amIModerator && isMeteorConnected ? (
-        <DropdownListItem
+        <Dropdown.DropdownListItem
           data-test="chatClear"
           icon={clearIcon}
           label={intl.formatMessage(intlMessages.clear)}
@@ -140,7 +136,7 @@ class ChatDropdown extends PureComponent {
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
       >
-        <DropdownTrigger tabIndex={0}>
+        <Dropdown.DropdownTrigger tabIndex={0}>
           <Button
             data-test="chatDropdownTrigger"
             icon="more"
@@ -153,10 +149,10 @@ class ChatDropdown extends PureComponent {
             aria-label={intl.formatMessage(intlMessages.options)}
             onClick={() => null}
           />
-        </DropdownTrigger>
-        <DropdownContent placement="bottom right">
-          <DropdownList>{availableActions}</DropdownList>
-        </DropdownContent>
+        </Dropdown.DropdownTrigger>
+        <Dropdown.DropdownContent placement="bottom right">
+          <Dropdown.DropdownList>{availableActions}</Dropdown.DropdownList>
+        </Dropdown.DropdownContent>
       </Dropdown>
     );
   }

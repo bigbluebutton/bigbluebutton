@@ -416,6 +416,7 @@ public:
       chat_poll_result: PUBLIC_CHAT_POLL_RESULT
     typingIndicator:
       enabled: true
+    moderatorChatEmphasized: true
   note:
     enabled: true
     url: ETHERPAD_HOST
