@@ -160,8 +160,9 @@ RECORD_CONFIG=/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
 HTML5_CONFIG_OLD=/usr/share/meteor/bundle/programs/server/assets/app/config/settings-production.json
 HTML5_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 
-KURENTO_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
+KURENTO_DEFAULT_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
 KURENTO_ETC_CONFIG=/etc/bigbluebutton/bbb-webrtc-sfu/production.yml
+KURENTO_CONFIG=$(yq m -x $KURENTO_DEFAULT_CONFIG $KURENTO_ETC_CONFIG)
 
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
 BBB_WEB_ETC_CONFIG="/etc/bigbluebutton/bbb-web.properties"
@@ -1253,12 +1254,8 @@ check_state() {
     fi
 
     FREESWITCH_SIP=$(netstat -anlt | grep :5066 | grep -v tcp6 | grep LISTEN | sed 's/ [ ]*/ /g' | cut -d' ' -f4 | sed 's/:5066//g')
-    KURENTO_SIP=$(yq r $KURENTO_ETC_CONFIG freeswitch.sip_ip)
-    if [ -z "$KURENTO_SIP" ];then
-        KURENTO_SIP=$(yq r $KURENTO_CONFIG freeswitch.sip_ip)
-    fi
-
-
+    KURENTO_SIP=$(echo "$KURENTO_CONFIG" | yq r - freeswitch.sip_ip)
+    
     if [ ! -z "$FREESWITCH_SIP" ]; then
      if [ "$FREESWITCH_SIP" != "$KURENTO_SIP" ]; then
       echo
@@ -1396,17 +1393,17 @@ if [ $CHECK ]; then
         echo "                          protocol: $(cat /etc/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)"
     fi
 
-    if [ -f $KURENTO_CONFIG ]; then
-        echo
-        echo "$KURENTO_CONFIG (Kurento SFU)"
-        echo "                        kurento.ip: $(yq r $KURENTO_CONFIG kurento[0].ip)"
-        echo "                       kurento.url: $(yq r $KURENTO_CONFIG kurento[0].url)"
-        echo "                    kurento.sip_ip: $(yq r $KURENTO_CONFIG freeswitch.sip_ip)"
-        echo "                    localIpAddress: $(yq r $KURENTO_CONFIG localIpAddress)"
-        echo "               recordScreenSharing: $(yq r $KURENTO_CONFIG recordScreenSharing)"
-        echo "                     recordWebcams: $(yq r $KURENTO_CONFIG recordWebcams)"
-        echo "                  codec_video_main: $(yq r $KURENTO_CONFIG conference-media-specs.codec_video_main)"
-        echo "               codec_video_content: $(yq r $KURENTO_CONFIG conference-media-specs.codec_video_content)"
+    if [ ! -z "$KURENTO_CONFIG" ]; then
+        echo "/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml (Kurento SFU)"
+        echo "/etc/bigbluebutton/bbb-webrtc-sfu/production.yml (Kurento SFU - overwrite)"
+        echo "                        kurento.ip: $(echo "$KURENTO_CONFIG" | yq r - kurento[0].ip)"
+        echo "                       kurento.url: $(echo "$KURENTO_CONFIG" | yq r - kurento[0].url)"
+        echo "                    kurento.sip_ip: $(echo "$KURENTO_CONFIG" | yq r - freeswitch.sip_ip)"
+        echo "                    localIpAddress: $(echo "$KURENTO_CONFIG" | yq r - localIpAddress)"
+        echo "               recordScreenSharing: $(echo "$KURENTO_CONFIG" | yq r - recordScreenSharing)"
+        echo "                     recordWebcams: $(echo "$KURENTO_CONFIG" | yq r - recordWebcams)"
+        echo "                  codec_video_main: $(echo "$KURENTO_CONFIG" | yq r - conference-media-specs.codec_video_main)"
+        echo "               codec_video_content: $(echo "$KURENTO_CONFIG" | yq r - conference-media-specs.codec_video_content)"
     fi
 
      if [ -f $HTML5_CONFIG ]; then
