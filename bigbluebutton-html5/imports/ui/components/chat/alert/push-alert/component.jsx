@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import injectNotify from '/imports/ui/components/toast/inject-notify/component';
-import { Session } from 'meteor/session';
 import { PANELS, ACTIONS } from '../../../layout/enums';
 
 const propTypes = {
@@ -11,6 +10,7 @@ const propTypes = {
   title: PropTypes.node.isRequired,
   content: PropTypes.node.isRequired,
   alertDuration: PropTypes.number.isRequired,
+  newLayoutContextDispatch: PropTypes.func.isRequired,
 };
 
 class ChatPushAlert extends PureComponent {
@@ -38,6 +38,10 @@ class ChatPushAlert extends PureComponent {
             value: true,
           });
           newLayoutContextDispatch({
+            type: ACTIONS.SET_ID_CHAT_OPEN,
+            value: chatId,
+          });
+          newLayoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
             value: PANELS.CHAT,
           });
@@ -53,6 +57,7 @@ class ChatPushAlert extends PureComponent {
     const {
       notify,
       onOpen,
+      onClose,
       chatId,
       title,
       content,
@@ -63,7 +68,7 @@ class ChatPushAlert extends PureComponent {
       this.link(title, chatId),
       'info',
       'chat',
-      { onOpen, autoClose: alertDuration },
+      { onOpen, onClose, autoClose: alertDuration },
       this.link(content, chatId),
       true,
     );
