@@ -158,11 +158,21 @@ get_bbb_web_config_value() {
 RECORD_CONFIG=/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
 
 HTML5_CONFIG_OLD=/usr/share/meteor/bundle/programs/server/assets/app/config/settings-production.json
-HTML5_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+HTML5_DEFAULT_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+HTML5_ETC_CONFIG=/etc/bigbluebutton/bbb-html5.yml
+if [ -f $HTML5_ETC_CONFIG ]; then
+    HTML5_CONFIG=$(yq m -x $HTML5_DEFAULT_CONFIG $HTML5_ETC_CONFIG)
+else
+    HTML5_CONFIG=$(yq r $HTML5_DEFAULT_CONFIG)
+fi
 
 KURENTO_DEFAULT_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
 KURENTO_ETC_CONFIG=/etc/bigbluebutton/bbb-webrtc-sfu/production.yml
-KURENTO_CONFIG=$(yq m -x $KURENTO_DEFAULT_CONFIG $KURENTO_ETC_CONFIG)
+if [ -f $KURENTO_ETC_CONFIG ]; then
+    KURENTO_CONFIG=$(yq m -x $KURENTO_DEFAULT_CONFIG $KURENTO_ETC_CONFIG)
+else
+    KURENTO_CONFIG=$(yq r $KURENTO_DEFAULT_CONFIG)
+fi
 
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
 BBB_WEB_ETC_CONFIG="/etc/bigbluebutton/bbb-web.properties"
@@ -401,7 +411,7 @@ start_bigbluebutton () {
     fi
 
     if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
-      TOMCAT_SERVICE=$TOMCAT_USER
+        TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
     systemctl start $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
@@ -417,22 +427,22 @@ display_bigbluebutton_status () {
     units="nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka"
 
     if [ -d $TOMCAT_DIR ]; then
-      units="$units $TOMCAT_USER"
+        units="$units $TOMCAT_USER"
     fi
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         units="$units mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
 
-	for i in `seq 8888 8890`; do
-	  # check if multi-kurento setup is configured
-	  if [ -f /usr/lib/systemd/system/kurento-media-server-${i}.service ]; then
-            if systemctl is-enabled kurento-media-server-${i}.service > /dev/null; then
-              units="$units kurento-media-server-${i}"
+        for i in `seq 8888 8890`; do
+            # check if multi-kurento setup is configured
+            if [ -f /usr/lib/systemd/system/kurento-media-server-${i}.service ]; then
+                if systemctl is-enabled kurento-media-server-${i}.service > /dev/null; then
+                    units="$units kurento-media-server-${i}"
+                fi
             fi
-	  fi
         done
 
-	source /usr/share/meteor/bundle/bbb-html5-with-roles.conf
+        source /usr/share/meteor/bundle/bbb-html5-with-roles.conf
 
         if [ -f /etc/bigbluebutton/bbb-html5-with-roles.conf ]; then
           source /etc/bigbluebutton/bbb-html5-with-roles.conf
@@ -441,7 +451,7 @@ display_bigbluebutton_status () {
         for ((i = 1 ; i <= $NUMBER_OF_BACKEND_NODEJS_PROCESSES; i++)); do
           units="$units bbb-html5-backend@$i"
         done
-		
+
         for ((i = 1; i <= $NUMBER_OF_FRONTEND_NODEJS_PROCESSES; i++)); do
           units="$units bbb-html5-frontend@$i"
         done
@@ -822,7 +832,7 @@ check_configuration() {
         echo "# is not owned by $BBB_USER"
     fi
 
-    if [ -f $HTML5_CONFIG ]; then
+    if [ -n "$HTML5_CONFIG" ]; then
         SVG_IMAGES_REQUIRED=$(cat $BBB_WEB_CONFIG | grep -v '#' | sed -n '/^svgImagesRequired/{s/.*=//;p}')
         if [ "$SVG_IMAGES_REQUIRED" != "true" ]; then
             echo
@@ -1055,20 +1065,6 @@ check_state() {
         echo
     fi
 
-    if [ "$(yq r /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml public.media.sipjsHackViaWs)" == "false" ]; then
-      if [ "$SIP_NGINX_IP" != $IP ]; then
-        if [ "$SIP_NGINX_IP" != "\$freeswitch_addr" ]; then
-            echo "# Warning: The setting of $SIP_NGINX_IP for proxy_pass in"
-            echo "#"
-            echo "#    /etc/bigbluebutton/nginx/sip.nginx"
-            echo "#"
-            echo "# does not match the local IP address ($IP)."
-            echo "# (This is OK if you've manually changed the values)"
-            echo
-        fi
-      fi
-    fi
-
     VARS_IP=$(cat $FREESWITCH_VARS | sed -n '/"local_ip_v4/{s/.*local_ip_v4=//;s/".*//;p}')
     if [[ "$VARS_IP" != "127.0.0.1" ]] && [[ "$VARS_IP" != "auto" ]]; then
         if [ "$VARS_IP" != $IP ]; then
@@ -1181,7 +1177,7 @@ check_state() {
         echo "#"
     fi
 
-    if [ "$(yq r /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml public.media.sipjsHackViaWs)" != "true" ]; then
+    if [ "$(echo "$HTML5_CONFIG" | yq r - public.media.sipjsHackViaWs)" == "false" ]; then
       if [ "$PROTOCOL" == "https" ]; then
         if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep -q https; then
           echo "# Warning: You have this server defined for https, but in"
@@ -1193,6 +1189,18 @@ check_state() {
           echo "#    $(cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1)"
           echo "#"
         fi
+
+      if [ "$SIP_NGINX_IP" != $IP ]; then
+        if [ "$SIP_NGINX_IP" != "\$freeswitch_addr" ]; then
+          echo "# Warning: The setting of $SIP_NGINX_IP for proxy_pass in"
+          echo "#"
+          echo "#    /etc/bigbluebutton/nginx/sip.nginx"
+          echo "#"
+          echo "# does not match the local IP address ($IP)."
+          echo "# (This is OK if you've manually changed the values)"
+          echo
+        fi
+      fi
 
         if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep -q 7443; then
           echo
@@ -1257,25 +1265,25 @@ check_state() {
     KURENTO_SIP=$(echo "$KURENTO_CONFIG" | yq r - freeswitch.sip_ip)
     
     if [ ! -z "$FREESWITCH_SIP" ]; then
-     if [ "$FREESWITCH_SIP" != "$KURENTO_SIP" ]; then
-      echo
-      echo "#"
-      echo "# Kurento will try to connect to $KURENTO_SIP but FreeSWITCH is listening on $FREESWITCH_SIP for port 5066"
-      echo "#"
-      echo "# To fix, run the commands"
-      echo "#"
-      echo "# sudo yq w -i /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml freeswitch.sip_ip $FREESWITCH_SIP"
-      echo "# sudo chown bigbluebutton:bigbluebutton /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml"
-      echo "#"
-     fi
+      if [ "$FREESWITCH_SIP" != "$KURENTO_SIP" ]; then
+        echo
+        echo "#"
+        echo "# Kurento will try to connect to $KURENTO_SIP but FreeSWITCH is listening on $FREESWITCH_SIP for port 5066"
+        echo "#"
+        echo "# To fix, run the commands"
+        echo "#"
+        echo "# sudo yq w -i /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml freeswitch.sip_ip $FREESWITCH_SIP"
+        echo "# sudo chown bigbluebutton:bigbluebutton /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml"
+        echo "#"
+      fi
     fi
 
     if [ ! -z "$STUN" ]; then
       STUN_SERVER="$(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m "_:beans/_:bean[@id=\"$STUN\"]/_:constructor-arg[@index=\"0\"]" -v @value $TURN | sed 's/stun://g')"
       if echo $STUN_SERVER | grep -q ':'; then
-        STUN_SERVER="$(echo $STUN_SERVER | sed 's/:.*//g') $(echo $STUN_SERVER | sed 's/.*://g')"
+          STUN_SERVER="$(echo $STUN_SERVER | sed 's/:.*//g') $(echo $STUN_SERVER | sed 's/.*://g')"
       else
-	    STUN_SERVER="$STUN_SERVER 3478"
+          STUN_SERVER="$STUN_SERVER 3478"
       fi
      
       if which stunclient > /dev/null 2>&1; then 
@@ -1393,9 +1401,10 @@ if [ $CHECK ]; then
         echo "                          protocol: $(cat /etc/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)"
     fi
 
-    if [ ! -z "$KURENTO_CONFIG" ]; then
+    if [ -n "$KURENTO_CONFIG" ]; then
+        echo
         echo "/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml (Kurento SFU)"
-        echo "/etc/bigbluebutton/bbb-webrtc-sfu/production.yml (Kurento SFU - overwrite)"
+        echo "/etc/bigbluebutton/bbb-webrtc-sfu/production.yml (Kurento SFU - override)"
         echo "                        kurento.ip: $(echo "$KURENTO_CONFIG" | yq r - kurento[0].ip)"
         echo "                       kurento.url: $(echo "$KURENTO_CONFIG" | yq r - kurento[0].url)"
         echo "                    kurento.sip_ip: $(echo "$KURENTO_CONFIG" | yq r - freeswitch.sip_ip)"
@@ -1406,19 +1415,20 @@ if [ $CHECK ]; then
         echo "               codec_video_content: $(echo "$KURENTO_CONFIG" | yq r - conference-media-specs.codec_video_content)"
     fi
 
-     if [ -f $HTML5_CONFIG ]; then
+     if [ -n "$HTML5_CONFIG" ]; then
         echo
         echo "/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml (HTML5 client)"
-        echo "                             build: $(yq r $HTML5_CONFIG public.app.html5ClientBuild)"
-        echo "                        kurentoUrl: $(yq r $HTML5_CONFIG public.kurento.wsUrl)"
-        echo "                  enableListenOnly: $(yq r $HTML5_CONFIG public.kurento.enableListenOnly)"
-        echo "                    sipjsHackViaWs: $(yq r $HTML5_CONFIG public.media.sipjsHackViaWs)"
+        echo "/etc/bigbluebutton/bbb-html5.yml (HTML5 client config override)"
+        echo "                             build: $(echo "$HTML5_CONFIG" | yq r - public.app.html5ClientBuild)"
+        echo "                        kurentoUrl: $(echo "$HTML5_CONFIG" | yq r - public.kurento.wsUrl)"
+        echo "                  enableListenOnly: $(echo "$HTML5_CONFIG" | yq r - public.kurento.enableListenOnly)"
+        echo "                    sipjsHackViaWs: $(echo "$HTML5_CONFIG" | yq r - public.media.sipjsHackViaWs)"
      fi
 
      if [ ! -z "$STUN" ]; then
         echo
         echo "$TURN (STUN Server)"
-	echo "                              stun: $(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m "_:beans/_:bean[@id=\"$STUN\"]/_:constructor-arg[@index=\"0\"]" -v @value $TURN | sed 's/stun://g')"
+        echo "                              stun: $(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m "_:beans/_:bean[@id=\"$STUN\"]/_:constructor-arg[@index=\"0\"]" -v @value $TURN | sed 's/stun://g')"
      fi
 
      stunServerAddress=$(cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini | sed -n '/^stunServerAddress/{s/.*=//;p}')
@@ -1675,10 +1685,10 @@ if [ -n "$HOST" ]; then
         sed -i "s|\"wsUrl.*|\"wsUrl\": \"$WS/bbb-webrtc-sfu\",|g" $HTML5_CONFIG_OLD
     fi
 
-    if [ -f $HTML5_CONFIG ]; then
-        yq w -i $HTML5_CONFIG public.kurento.wsUrl "wss://$HOST/bbb-webrtc-sfu"
-        yq w -i $HTML5_CONFIG public.note.url      "$PROTOCOL://$HOST/pad"
-        chown meteor:meteor $HTML5_CONFIG
+    if [ -f $HTML5_DEFAULT_CONFIG ]; then
+        yq w -i $HTML5_DEFAULT_CONFIG public.kurento.wsUrl "wss://$HOST/bbb-webrtc-sfu"
+        yq w -i $HTML5_DEFAULT_CONFIG public.note.url      "$PROTOCOL://$HOST/pad"
+        chown meteor:meteor $HTML5_DEFAULT_CONFIG
 
         #if [ -f $KURENTO_CONFIG ]; then
         #    yq w -i $KURENTO_CONFIG kurento[0].url "ws://$HOST:8888/kurento"
@@ -1813,7 +1823,7 @@ if [ $NETWORK ]; then
         echo -e "netstat\t\t\t80\t443"
         for IP in $REMOTE ; do
             PORT_80=$(cat /tmp/t_net | grep :80 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )
-	    PORT_443=$(cat /tmp/t_net | grep :443 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )
+            PORT_443=$(cat /tmp/t_net | grep :443 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )
 
             echo -e "$IP\t\t$PORT_80\t$PORT_443"
         done
