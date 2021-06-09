@@ -204,10 +204,21 @@ class App extends Component {
       mountModal,
       deviceType,
       isPresenter,
+      meetingLayoutManager,
       meetingLayout,
+      layoutManagerLoaded,
       layoutType,
       newLayoutContextDispatch,
     } = this.props;
+
+
+    if (meetingLayoutManager !== layoutManagerLoaded) {
+      Session.set('layoutManagerLoaded', meetingLayoutManager);
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_LAYOUT_LOADED,
+        value: meetingLayoutManager,
+      });
+    }
 
     if (meetingLayout !== layoutType) {
       newLayoutContextDispatch({

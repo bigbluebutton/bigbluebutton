@@ -9,7 +9,7 @@ import Button from '/imports/ui/components/button/component';
 import Toggle from '/imports/ui/components/switch/component';
 import Storage from '/imports/ui/services/storage/session';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
-import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
+import { LAYOUT_TYPE } from '../layout/enums';
 import NewLayoutContext from '../layout/context/context';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import Service from '/imports/ui/components/layout/service';
@@ -65,8 +65,6 @@ class DebugWindow extends Component {
       logLevel: ChatLogger.getLogLevel(),
       autoArrangeLayout: Storage.getItem('autoArrangeLayout'),
     };
-
-    this.setLayoutManagerToLoad = this.setLayoutManagerToLoad.bind(this);
   }
 
   componentDidMount() {
@@ -85,12 +83,7 @@ class DebugWindow extends Component {
   }
 
   setLayoutManagerToLoad(event) {
-    const { newLayoutContextDispatch } = this.props;
-    Session.set('layoutManagerLoaded', event.target.value);
-    newLayoutContextDispatch({
-      type: ACTIONS.SET_LAYOUT_LOADED,
-      value: event.target.value,
-    });
+    Service.setMeetingLayoutManager(event.target.value);
   }
 
   setLayoutType(event) {
