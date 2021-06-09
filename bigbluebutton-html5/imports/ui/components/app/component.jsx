@@ -204,7 +204,17 @@ class App extends Component {
       mountModal,
       deviceType,
       isPresenter,
+      meetingLayout,
+      layoutType,
+      newLayoutContextDispatch,
     } = this.props;
+
+    if (meetingLayout !== layoutType) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_LAYOUT_TYPE,
+        value: meetingLayout,
+      });
+    }
 
     if (!isPresenter && randomlySelectedUser.length > 0) mountModal(<RandomUserSelectContainer />);
 

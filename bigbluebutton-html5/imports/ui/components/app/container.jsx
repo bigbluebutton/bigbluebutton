@@ -30,6 +30,7 @@ import MediaContainer from '../media/container';
 const propTypes = {
   actionsbar: PropTypes.node,
   media: PropTypes.node,
+  meetingLayout: PropTypes.string.isRequired
 };
 
 const defaultProps = {
@@ -56,6 +57,7 @@ const AppContainer = (props) => {
   const {
     actionsbar,
     media,
+    meetingLayout,
     ...otherProps
   } = props;
   const {
@@ -78,6 +80,7 @@ const AppContainer = (props) => {
         actionsBarStyle,
         media,
         layoutType,
+        meetingLayout,
         deviceType,
         newLayoutContextDispatch,
         sidebarNavPanel,
@@ -124,8 +127,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     },
   );
   const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { publishedPoll: 1, voiceProp: 1, randomlySelectedUser: 1 } });
-  const { publishedPoll, voiceProp, randomlySelectedUser } = currentMeeting;
+    { fields: { publishedPoll: 1, voiceProp: 1, randomlySelectedUser: 1, layout: 1 } });
+  const { publishedPoll, voiceProp, randomlySelectedUser, layout } = currentMeeting;
 
   if (!currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
@@ -158,6 +161,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     randomlySelectedUser,
     currentUserId: currentUser.userId,
     isPresenter: currentUser.presenter,
+    meetingLayout: layout
   };
 })(AppContainer)));
 

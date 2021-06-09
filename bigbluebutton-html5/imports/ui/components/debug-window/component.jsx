@@ -12,6 +12,7 @@ import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import NewLayoutContext from '../layout/context/context';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
+import Service from '/imports/ui/components/layout/service';
 
 const intlMessages = defineMessages({
   modalClose: {
@@ -66,7 +67,6 @@ class DebugWindow extends Component {
     };
 
     this.setLayoutManagerToLoad = this.setLayoutManagerToLoad.bind(this);
-    this.setLayoutType = this.setLayoutType.bind(this);
   }
 
   componentDidMount() {
@@ -94,11 +94,7 @@ class DebugWindow extends Component {
   }
 
   setLayoutType(event) {
-    const { newLayoutContextDispatch } = this.props;
-    newLayoutContextDispatch({
-      type: ACTIONS.SET_LAYOUT_TYPE,
-      value: event.target.value,
-    });
+    Service.setMeetingLayout(event.target.value);
   }
 
   debugWindowToggle() {
