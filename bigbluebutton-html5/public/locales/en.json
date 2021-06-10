@@ -73,6 +73,7 @@
     "app.userList.moderator": "Moderator",
     "app.userList.mobile": "Mobile",
     "app.userList.guest": "Guest",
+    "app.userList.sharingWebcam": "Webcam",
     "app.userList.menuTitleContext": "Available options",
     "app.userList.chatListItem.unreadSingular": "{0} New Message",
     "app.userList.chatListItem.unreadPlural": "{0} New Messages",
