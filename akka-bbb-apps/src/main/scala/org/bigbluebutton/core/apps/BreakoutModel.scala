@@ -75,4 +75,9 @@ case class BreakoutModel(
   def removeRoom(id: String): BreakoutModel = {
     copy(rooms = rooms - id)
   }
+
+  def extendTime(timeToExtendInMinutes: Int): BreakoutModel = {
+    copy(durationInMinutes = durationInMinutes + timeToExtendInMinutes)
+  }
+
 }
