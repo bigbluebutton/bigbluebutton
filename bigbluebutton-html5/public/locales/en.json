@@ -791,6 +791,8 @@
     "app.createBreakoutRoom.modalDesc": "Tip: You can drag-and-drop a user's name to assign them to a specific breakout room.",
     "app.createBreakoutRoom.roomTime": "{0} minutes",
     "app.createBreakoutRoom.numberOfRoomsError": "The number of rooms is invalid.",
+    "app.createBreakoutRoom.duplicatedRoomNameError": "Room name can't be duplicated.",
+    "app.createBreakoutRoom.emptyRoomNameError": "Room name can't be empty.",
     "app.externalVideo.start": "Share a new video",
     "app.externalVideo.title": "Share an external video",
     "app.externalVideo.input": "External Video URL",
