@@ -65,7 +65,7 @@ let userWasInBreakout = false;
 
 export default withLayoutConsumer(withModalMounter(withTracker(() => {
   const { dataSaving } = Settings;
-  const { viewParticipantsWebcams, viewScreenshare } = dataSaving;
+  const { viewScreenshare } = dataSaving;
   const hidePresentation = getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation);
   const autoSwapLayout = getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout);
   const { current_presentation: hasPresentation } = MediaService.getPresentationInfo();
@@ -112,7 +112,7 @@ export default withLayoutConsumer(withModalMounter(withTracker(() => {
   const { streams: usersVideo } = VideoService.getVideoStreams();
   data.usersVideo = usersVideo;
 
-  if (MediaService.shouldShowOverlay() && usersVideo.length && viewParticipantsWebcams) {
+  if (MediaService.shouldShowOverlay() && usersVideo.length) {
     data.floatingOverlay = usersVideo.length < 2;
     data.hideOverlay = usersVideo.length === 0;
   }
@@ -121,7 +121,6 @@ export default withLayoutConsumer(withModalMounter(withTracker(() => {
 
   data.isScreensharing = MediaService.isVideoBroadcasting();
   data.swapLayout = (getSwapLayout() || !hasPresentation) && shouldEnableSwapLayout();
-  data.disableVideo = !viewParticipantsWebcams;
 
   if (data.swapLayout) {
     data.floatingOverlay = true;

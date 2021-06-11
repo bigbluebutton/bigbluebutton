@@ -14,7 +14,6 @@ import { WEBCAMSAREA_MIN_PERCENT, PRESENTATIONAREA_MIN_WIDTH } from '/imports/ui
 const propTypes = {
   swapLayout: PropTypes.bool,
   hideOverlay: PropTypes.bool,
-  disableVideo: PropTypes.bool,
   audioModalIsOpen: PropTypes.bool,
   webcamDraggableState: PropTypes.objectOf(Object).isRequired,
   webcamDraggableDispatch: PropTypes.func.isRequired,
@@ -26,7 +25,6 @@ const propTypes = {
 const defaultProps = {
   swapLayout: false,
   hideOverlay: false,
-  disableVideo: false,
   audioModalIsOpen: false,
   refMediaContainer: null,
 };
@@ -280,7 +278,6 @@ class WebcamDraggable extends PureComponent {
       webcamDraggableState,
       swapLayout,
       hideOverlay,
-      disableVideo,
       audioModalIsOpen,
     } = this.props;
 
@@ -494,8 +491,7 @@ class WebcamDraggable extends PureComponent {
             }}
           >
             {
-              !disableVideo
-                && !audioModalIsOpen
+              !audioModalIsOpen
                 ? (
                   <VideoProviderContainer
                     swapLayout={swapLayout}
