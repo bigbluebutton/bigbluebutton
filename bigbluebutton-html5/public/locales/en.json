@@ -830,6 +830,7 @@
     "app.translation.language.connection.established": "✓",
     "app.translation.language.connection.settingUp": "...",
     "app.translation.filterMarker.languageListening": "listening",
-    "app.translation.filterMarker.languageTranslating": "speaking"
+    "app.translation.filterMarker.languageTranslating": "speaking",
+    "app.translation.speechDetectionThreshold": "Translator speech detection threshold"
 
 }

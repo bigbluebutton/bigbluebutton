@@ -34,3 +34,4 @@ clients/flash/**/.gradle
 **/.idea/*
 *.iml
 *~
+**/node_modules/

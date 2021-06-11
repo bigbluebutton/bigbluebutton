@@ -39,6 +39,11 @@ const intlMessages = defineMessages({
         description: 'Label for end translation button',
         defaultMessage: 'End Translation',
     },
+    speechDetectionThreshold: {
+        id: 'app.translation.speechDetectionThreshold',
+        description: 'Translator speech detection threshold',
+        defaultMessage: 'Translator speech detection threshold',
+    },
 });
 
 class Translations extends Component{
@@ -106,10 +111,23 @@ class Translations extends Component{
         languages: [],
         active: false,
         warning: null,
+        speechDetectionThreshold: AudioManager.$translatorSpeechDetectionThresholdChanged.value
     }
 
     componentWillUnmount() {
         window.dispatchEvent(new Event('panelChanged'));
+    }
+
+    updateThreshold() {
+        AudioManager.$translatorSpeechDetectionThresholdChanged.next(this.state.speechDetectionThreshold);
+    }
+
+    setThreshold(pEvent) {
+        this.setState({speechDetectionThreshold: pEvent.target.value});
+    }
+
+    handleSubmit(pEvent) {
+        pEvent.preventDefault();
     }
 
     render() {
@@ -167,6 +185,11 @@ class Translations extends Component{
                         : null
                     }
                 </p>
+                <div>{intl.formatMessage(intlMessages.speechDetectionThreshold)}:</div>
+                <form onSubmit={this.handleSubmit}>
+                    <input id="speechDetectionThreshold" type="number" value={this.state.speechDetectionThreshold} onChange={this.setThreshold.bind(this)} />
+                    <input type="submit" onClick={ this.updateThreshold.bind(this) } value="Set" />
+                </form>
             </div>
         );
     }

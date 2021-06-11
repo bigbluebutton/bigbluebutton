@@ -330,7 +330,7 @@ class ActionsBar extends PureComponent {
                       aria-label={intl.formatMessage(intlMessages.translatorMicrophoneLabel)}
                       color={!amIAsTranslatorMuted ? 'primary' : 'default'}
                       ghost={amIAsTranslatorMuted}
-                      icon={amIAsTranslatorMuted ? 'mute' : 'unmute'}
+                      icon={amIAsTranslatorMuted ? 'mute' : AudioManager.$translatorSpeakingChanged.value ? "mute_filled": 'unmute'}
                       size="lg"
                       circle
                   />

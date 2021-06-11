@@ -819,6 +819,7 @@
     "app.translation.language.connection.established": "✓",
     "app.translation.language.connection.settingUp": "...",
     "app.translation.filterMarker.languageListening": "hören",
-    "app.translation.filterMarker.languageTranslating": "sprechen"
+    "app.translation.filterMarker.languageTranslating": "sprechen",
+    "app.translation.speechDetectionThreshold": "Sprachschwellenwert f. Übersetzer"
 }
 

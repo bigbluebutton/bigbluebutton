@@ -15,6 +15,7 @@ import { monitorAudioConnection } from '/imports/utils/stats';
 import AudioErrors from './error-codes';
 import {Meteor} from "meteor/meteor";
 import {makeCall} from "../api";
+import { BehaviorSubject } from "rxjs";
 
 const STATS = Meteor.settings.public.stats;
 const MEDIA = Meteor.settings.public.media;
@@ -24,7 +25,7 @@ const MAX_LISTEN_ONLY_RETRIES = 1;
 const LISTEN_ONLY_CALL_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 25000;
 const DEFAULT_INPUT_DEVICE_ID = 'default';
 const DEFAULT_OUTPUT_DEVICE_ID = 'default';
-const TRANSLATOR_SPEAK_DETECTION_THRESHOLD = MEDIA.translation.translator.speakDetection.threshold || -70;
+const TRANSLATOR_SPEECH_DETECTION_THRESHOLD = MEDIA.translation.translator.speakDetection.threshold || -70;
 
 const CALL_STATES = {
   STARTED: 'started',
@@ -53,7 +54,12 @@ class AudioManager {
       status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
       breakoutMeetingId: null,
     };
-    this.translatorStream = null
+    this.translatorStream = null;
+    this.translatorSpeechEvents = null;
+
+    this.$translatorSpeechDetectionThresholdChanged = new BehaviorSubject(TRANSLATOR_SPEECH_DETECTION_THRESHOLD)
+    this.$translatorSpeakingChanged = new BehaviorSubject(false)
+
     this.defineProperties({
       isMuted: false,
       isConnected: false,
@@ -69,7 +75,7 @@ class AudioManager {
       isReconnecting: false,
       listeningTranslation: ORIGINAL_TRANSLATION,
       translatorChannelOpen:false,
-      translationChannelOpen:false
+      translationChannelOpen:false,
     });
 
     this.useKurento = Meteor.settings.public.kurento.enableListenOnly;
@@ -86,6 +92,12 @@ class AudioManager {
     this.muteStateCallbacks = new Set();
     this.translationStateCallbacks = new Set();
     this.translationState = null;
+    this.$translatorSpeechDetectionThresholdChanged.subscribe((val) => {
+      if(this.translatorSpeechEvents && this.translatorSpeechEvents.hasOwnProperty("setThreshold")) {
+        this.translatorSpeechEvents.setThreshold(val);
+      }
+    });
+
   }
 
   init(userData, audioEventHandler) {
@@ -828,29 +840,28 @@ class AudioManager {
       let success = function (inputStream) {
         let speechEventsOptions = {
           interval: 200,
-          threshold: TRANSLATOR_SPEAK_DETECTION_THRESHOLD,
+          threshold: this.$translatorSpeechDetectionThresholdChanged.value,
           play: false,
         };
         let hark = window.hark;
         this.translatorStream = inputStream
         this.translatorSpeechEvents = hark(inputStream, speechEventsOptions);
         this.translatorSpeechEvents.on('speaking', () => {
-          console.log("Speaking")
+          this.$translatorSpeakingChanged.next(true);
           Meeting.changeTranslatorSpeackState(languageExtension, true);
         });
 
         this.translatorSpeechEvents.on('volume_change', () => {
           const translatorIsSpeaking = this.translatorSpeechEvents.speaking;
           if (translatorIsSpeaking && (!this.translatorSpeechEvents.lastTimestamp || Date.now() - this.translatorSpeechEvents.lastTimestamp > 2000)) {
-            console.log("Check is translator speaking");
             this.translatorSpeechEvents.lastTimestamp = Date.now();
             Meeting.changeTranslatorSpeackState(languageExtension, translatorIsSpeaking);
           }
         });
 
         this.translatorSpeechEvents.on('stopped_speaking', () => {
+          this.$translatorSpeakingChanged.next(false);
           Meeting.changeTranslatorSpeackState(languageExtension, false);
-          console.log("stopped speaking")
         });
 
         const callOptions = {
