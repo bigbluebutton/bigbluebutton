@@ -58,6 +58,8 @@ class AudioManager {
     this.translatorSpeechEvents = null;
 
     this.$translatorSpeechDetectionThresholdChanged = new BehaviorSubject(TRANSLATOR_SPEECH_DETECTION_THRESHOLD)
+    this.$translatorSpeakingChanged = new BehaviorSubject(false)
+
     this.defineProperties({
       isMuted: false,
       isConnected: false,
@@ -95,6 +97,7 @@ class AudioManager {
         this.translatorSpeechEvents.setThreshold(val);
       }
     });
+
   }
 
   init(userData, audioEventHandler) {
@@ -844,22 +847,21 @@ class AudioManager {
         this.translatorStream = inputStream
         this.translatorSpeechEvents = hark(inputStream, speechEventsOptions);
         this.translatorSpeechEvents.on('speaking', () => {
-          console.log("Speaking")
+          this.$translatorSpeakingChanged.next(true);
           Meeting.changeTranslatorSpeackState(languageExtension, true);
         });
 
         this.translatorSpeechEvents.on('volume_change', () => {
           const translatorIsSpeaking = this.translatorSpeechEvents.speaking;
           if (translatorIsSpeaking && (!this.translatorSpeechEvents.lastTimestamp || Date.now() - this.translatorSpeechEvents.lastTimestamp > 2000)) {
-            console.log("Check is translator speaking");
             this.translatorSpeechEvents.lastTimestamp = Date.now();
             Meeting.changeTranslatorSpeackState(languageExtension, translatorIsSpeaking);
           }
         });
 
         this.translatorSpeechEvents.on('stopped_speaking', () => {
+          this.$translatorSpeakingChanged.next(false);
           Meeting.changeTranslatorSpeackState(languageExtension, false);
-          console.log("stopped speaking")
         });
 
         const callOptions = {
