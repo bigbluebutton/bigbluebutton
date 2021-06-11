@@ -99,6 +99,7 @@ class MeetingActor(
   object CheckVoiceRecordingInternalMsg
   object SyncVoiceUserStatusInternalMsg
   object MeetingInfoAnalyticsMsg
+  object MeetingInfoAnalyticsLogMsg
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -210,21 +211,28 @@ class MeetingActor(
     CheckVoiceRecordingInternalMsg
   )
 
-// TODO: Aggregation of all meetings required, to expose via api and log it
-//  context.system.scheduler.schedule(
-//    1 minute,
-//    1 minute,
-//    self,
-//    MeetingInfoAnalyticsMsg
-//  )
+  context.system.scheduler.scheduleOnce(
+    10 seconds,
+    self,
+    MeetingInfoAnalyticsLogMsg
+  )
+
+  context.system.scheduler.schedule(
+    10 seconds,
+    30 seconds,
+    self,
+    MeetingInfoAnalyticsMsg
+  )
 
   def receive = {
     case SyncVoiceUserStatusInternalMsg =>
       checkVoiceConfUsersStatus()
     case CheckVoiceRecordingInternalMsg =>
       checkVoiceConfIsRunningAndRecording()
-    case MeetingInfoAnalyticsMsg =>
+    case MeetingInfoAnalyticsLogMsg =>
       handleMeetingInfoAnalyticsLogging()
+    case MeetingInfoAnalyticsMsg =>
+      handleMeetingInfoAnalyticsService()
     case msg: CamStreamSubscribeSysMsg =>
       handleCamStreamSubscribeSysMsg(msg)
     case msg: ScreenStreamSubscribeSysMsg =>
@@ -520,12 +528,14 @@ class MeetingActor(
 
   private def handleScreenStreamSubscribeSysMsg(msg: ScreenStreamSubscribeSysMsg): Unit = ???
 
-  def handleMeetingInfoAnalyticsLogging(): Unit = {
+  private def handleMeetingInfoAnalyticsLogging(): Unit = {
     val meetingInfoAnalyticsLogMsg: MeetingInfoAnalytics = prepareMeetingInfo()
-
     val event = MsgBuilder.buildMeetingInfoAnalyticsMsg(meetingInfoAnalyticsLogMsg)
     outGW.send(event)
+  }
 
+  private def handleMeetingInfoAnalyticsService(): Unit = {
+    val meetingInfoAnalyticsLogMsg: MeetingInfoAnalytics = prepareMeetingInfo()
     val event2 = MsgBuilder.buildMeetingInfoAnalyticsServiceMsg(meetingInfoAnalyticsLogMsg)
     outGW.send(event2)
   }

@@ -106,7 +106,7 @@ class ApiService(healthz: HealthzService, meetingInfoz: MeetingInfoService)
                 case Some(_) =>
                   HttpEntity(ContentTypes.`application/json`, resp.optionMeetingInfoAnalytics.get.toJson.prettyPrint)
                 case None =>
-                  HttpEntity(ContentTypes.`application/json`, {}.toJson.prettyPrint)
+                  HttpEntity(ContentTypes.`application/json`, s"""{ "message": "No active meeting with ID $meetingId"}""".parseJson.prettyPrint)
               }
             }
             complete(entityFuture)
@@ -119,7 +119,7 @@ class ApiService(healthz: HealthzService, meetingInfoz: MeetingInfoService)
                 case Some(_) =>
                   HttpEntity(ContentTypes.`application/json`, res.optionMeetingsInfoAnalytics.get.toJson.prettyPrint)
                 case None =>
-                  HttpEntity(ContentTypes.`application/json`, {}.toJson.prettyPrint)
+                  HttpEntity(ContentTypes.`application/json`, """{ "message": "No active meetings"}""".parseJson.prettyPrint)
               }
             }
             complete(entityFuture)

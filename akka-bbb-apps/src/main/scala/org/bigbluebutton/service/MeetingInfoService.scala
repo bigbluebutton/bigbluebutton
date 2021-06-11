@@ -58,7 +58,11 @@ class MeetingInfoActor extends Actor with ActorLogging {
   override def receive: Receive = {
     case msg: BbbCommonEnvCoreMsg => handle(msg)
     case GetMeetingsInfoMessage =>
-      sender ! MeetingInfoListResponseMsg(Option(meetingInfoMap.values.toList))
+      if (meetingInfoMap.size > 0) {
+        sender ! MeetingInfoListResponseMsg(Option(meetingInfoMap.values.toList))
+      } else {
+        sender ! MeetingInfoListResponseMsg(None)
+      }
     case GetMeetingInfoMessage(meetingId) =>
       meetingInfoMap.get(meetingId) match {
         case Some(meetingInfoAnalytics) =>
