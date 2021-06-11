@@ -90,11 +90,11 @@
   display: grid;
   grid-template-columns: repeat(var(--col-amount), 1fr);
 
-  > pollButtonWrapper:nth-child(odd) {
+  > .pollButtonWrapper:nth-child(odd) {
       grid-column: 1;
   }
 
-  > pollButtonWrapper:nth-child(even) {
+  > .pollButtonWrapper:nth-child(even) {
       grid-column: var(--col-amount);
   }
 
