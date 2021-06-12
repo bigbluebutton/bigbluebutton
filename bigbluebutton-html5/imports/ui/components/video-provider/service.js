@@ -400,6 +400,10 @@ class VideoService {
       { fields: neededDataTypes },
     ).fetch();
 
+    // Data savings enabled will only show local streams
+    const { viewParticipantsWebcams } = Settings.dataSaving;
+    if (!viewParticipantsWebcams) streams = this.filterLocalOnly(streams);
+
     const moderatorOnly = this.webcamsOnlyForModerator();
     if (moderatorOnly) streams = this.filterModeratorOnly(streams);
     const connectingStream = this.getConnectingStream(streams);
@@ -521,6 +525,10 @@ class VideoService {
     return streams;
   }
 
+  filterLocalOnly(streams) {
+    return streams.filter(stream => stream.userId === Auth.userID);
+  }
+
   disableCam() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID },
       { fields: { 'lockSettingsProps.disableCam': 1 } });
@@ -637,7 +645,6 @@ class VideoService {
     const locks = {
       videoLocked: this.isUserLocked(),
       videoConnecting: this.isConnecting,
-      dataSaving: !viewParticipantsWebcams,
       meteorDisconnected: !Meteor.status().connected
     };
     const locksKeys = Object.keys(locks);
