@@ -86,7 +86,7 @@ public class Meeting {
 	private Boolean allowModsToUnmuteUsers = false;
 	private Boolean meetingKeepEvents;
   
-  private  HashMap<String, UploadRequest> uploadRequests = new HashMap<String, UploadRequest>();
+	private  HashMap<String, UploadRequest> uploadRequests = new HashMap<String, UploadRequest>();
 	private  HashMap<String, UploadedFile> uploadedFiles = new HashMap<String, UploadedFile>();
 
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
@@ -241,9 +241,9 @@ public class Meeting {
 
 	}
   
-  public Boolean isUploadRequestValid(String source, String filename, String userId, String token) {
+	public Boolean isUploadRequestValid(String source, String filename, String userId, String token) {
 		UploadRequest uploadRequest = uploadRequests.get(token);
-	  if (uploadRequest != null) {
+		if (uploadRequest != null) {
 			return uploadRequest.isValid(source, filename, userId);
 		} else {
 			return false;
