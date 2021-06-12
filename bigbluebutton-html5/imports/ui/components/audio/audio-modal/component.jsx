@@ -28,21 +28,19 @@ const propTypes = {
   isEchoTest: PropTypes.bool.isRequired,
   isConnecting: PropTypes.bool.isRequired,
   isConnected: PropTypes.bool.isRequired,
+  isUsingAudio: PropTypes.bool.isRequired,
   inputDeviceId: PropTypes.string,
   outputDeviceId: PropTypes.string,
   formattedDialNum: PropTypes.string.isRequired,
   showPermissionsOvelay: PropTypes.bool.isRequired,
   listenOnlyMode: PropTypes.bool.isRequired,
-  skipCheck: PropTypes.bool,
   joinFullAudioImmediately: PropTypes.bool,
-  joinFullAudioEchoTest: PropTypes.bool,
   forceListenOnlyAttendee: PropTypes.bool.isRequired,
   audioLocked: PropTypes.bool.isRequired,
   resolve: PropTypes.func,
   isMobileNative: PropTypes.bool.isRequired,
   isIOSChrome: PropTypes.bool.isRequired,
-  isIEOrEdge: PropTypes.bool.isRequired,
-  hasMediaDevices: PropTypes.bool.isRequired,
+  isIE: PropTypes.bool.isRequired,
   formattedTelVoice: PropTypes.string.isRequired,
   autoplayBlocked: PropTypes.bool.isRequired,
   handleAllowAutoplay: PropTypes.func.isRequired,
@@ -52,9 +50,7 @@ const defaultProps = {
   inputDeviceId: null,
   outputDeviceId: null,
   resolve: null,
-  skipCheck: false,
   joinFullAudioImmediately: false,
-  joinFullAudioEchoTest: false,
 };
 
 const intlMessages = defineMessages({
@@ -166,14 +162,17 @@ class AudioModal extends Component {
   componentDidMount() {
     const {
       forceListenOnlyAttendee,
-      audioLocked,
       joinFullAudioImmediately,
-      joinFullAudioEchoTest,
+      listenOnlyMode,
+      audioLocked,
+      isUsingAudio,
     } = this.props;
 
-    if (forceListenOnlyAttendee) return this.handleJoinListenOnly();
-    if (joinFullAudioEchoTest) return this.handleGoToEchoTest();
-    if (joinFullAudioImmediately || audioLocked) return this.handleJoinMicrophone();
+    if (!isUsingAudio) {
+      if (forceListenOnlyAttendee || audioLocked) return this.handleJoinListenOnly();
+
+      if (joinFullAudioImmediately && !listenOnlyMode) return this.handleJoinMicrophone();
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -253,7 +252,6 @@ class AudioModal extends Component {
     });
 
     return joinEchoTest().then(() => {
-      // console.log(inputDeviceId, outputDeviceId);
       this.setState({
         content: 'echoTest',
         disableActions: false,
@@ -338,9 +336,6 @@ class AudioModal extends Component {
   skipAudioOptions() {
     const {
       isConnecting,
-      forceListenOnlyAttendee,
-      joinFullAudioEchoTest,
-      joinFullAudioImmediately,
     } = this.props;
 
     const {
@@ -348,12 +343,7 @@ class AudioModal extends Component {
       hasError,
     } = this.state;
 
-    return (
-      isConnecting
-      || forceListenOnlyAttendee
-      || joinFullAudioImmediately
-      || joinFullAudioEchoTest
-    ) && !content && !hasError;
+    return isConnecting && !content && !hasError;
   }
 
   renderAudioOptions() {
@@ -361,7 +351,7 @@ class AudioModal extends Component {
       intl,
       listenOnlyMode,
       forceListenOnlyAttendee,
-      skipCheck,
+      joinFullAudioImmediately,
       audioLocked,
       isMobileNative,
       formattedDialNum,
@@ -385,7 +375,7 @@ class AudioModal extends Component {
                 circle
                 size="jumbo"
                 disabled={audioLocked}
-                onClick={skipCheck ? this.handleJoinMicrophone : this.handleGoToEchoTest}
+                onClick={joinFullAudioImmediately ? this.handleJoinMicrophone : this.handleGoToEchoTest}
               />
             )
             : null}
@@ -444,7 +434,7 @@ class AudioModal extends Component {
     if (this.skipAudioOptions()) {
       return (
         <div className={styles.connecting} role="alert">
-          <span>
+          <span data-test={!isEchoTest ? 'connecting' : 'connectingToEchoTest'}>
             {!isEchoTest
               ? intl.formatMessage(intlMessages.connecting)
               : intl.formatMessage(intlMessages.connectingEchoTest)
@@ -537,7 +527,7 @@ class AudioModal extends Component {
       showPermissionsOvelay,
       isIOSChrome,
       closeModal,
-      isIEOrEdge,
+      isIE,
     } = this.props;
 
     const { content } = this.state;
@@ -552,7 +542,7 @@ class AudioModal extends Component {
           hideBorder
           contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
         >
-          {isIEOrEdge ? (
+          {isIE ? (
             <p className={cx(styles.text, styles.browserWarning)}>
               <FormattedMessage
                 id="app.audioModal.unsupportedBrowserLabel"
@@ -573,11 +563,11 @@ class AudioModal extends Component {
                 {
                   isIOSChrome ? null
                     : (
-                      <h3 className={styles.title}>
+                      <h2 className={styles.title}>
                         {content
                           ? intl.formatMessage(this.contents[content].title)
                           : intl.formatMessage(intlMessages.audioChoiceLabel)}
-                      </h3>
+                      </h2>
                     )
                 }
               </header>

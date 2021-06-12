@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { throttle } from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import Modal from 'react-modal';
-import browser from 'browser-detect';
+import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
 import PanelManager from '/imports/ui/components/panel-manager/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
@@ -26,13 +27,15 @@ import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/
 import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
 import { styles } from './styles';
 import { makeCall } from '/imports/ui/services/api';
-import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
+import ConnectionStatusService from '/imports/ui/components/connection-status/service';
+import { NAVBAR_HEIGHT, LARGE_NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager/component';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
 const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
+const OVERRIDE_LOCALE = APP_CONFIG.defaultSettings.application.overrideLocale;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -62,6 +65,14 @@ const intlMessages = defineMessages({
   setEmoji: {
     id: 'app.toast.setEmoji.label',
     description: 'message when a user emoji has been set',
+  },
+  raisedHand: {
+    id: 'app.toast.setEmoji.raiseHand',
+    description: 'toast message for raised hand notification',
+  },
+  loweredHand: {
+    id: 'app.toast.setEmoji.lowerHand',
+    description: 'toast message for lowered hand notification',
   },
   meetingMuteOn: {
     id: 'app.toast.meetingMuteOn.label',
@@ -93,7 +104,7 @@ const defaultProps = {
   media: null,
   actionsbar: null,
   captions: null,
-  locale: 'en',
+  locale: OVERRIDE_LOCALE || navigator.language,
 };
 
 const LAYERED_BREAKPOINT = 640;
@@ -115,21 +126,23 @@ class App extends Component {
     const {
       locale, notify, intl, validIOSVersion, startBandwidthMonitoring, handleNetworkConnection,
     } = this.props;
-    const BROWSER_RESULTS = browser();
-    const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
+    const { browserName } = browserInfo;
+    const { isMobile, osName } = deviceInfo;
 
     MediaService.setSwapLayout();
     Modal.setAppElement('#app');
+
     document.getElementsByTagName('html')[0].lang = locale;
-    document.getElementsByTagName('html')[0].style.fontSize = isMobileBrowser ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
+    document.getElementsByTagName('html')[0].style.fontSize = isMobile ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
 
     const body = document.getElementsByTagName('body')[0];
-    if (BROWSER_RESULTS && BROWSER_RESULTS.name) {
-      body.classList.add(`browser-${BROWSER_RESULTS.name}`);
+
+    if (browserName) {
+      body.classList.add(`browser-${browserName.split(' ').pop()
+        .toLowerCase()}`);
     }
-    if (BROWSER_RESULTS && BROWSER_RESULTS.os) {
-      body.classList.add(`os-${BROWSER_RESULTS.os.split(' ').shift().toLowerCase()}`);
-    }
+
+    body.classList.add(`os-${osName.split(' ').shift().toLowerCase()}`);
 
     if (!validIOSVersion()) {
       notify(
@@ -151,7 +164,9 @@ class App extends Component {
       startBandwidthMonitoring();
     }
 
-    if (isMobileBrowser) makeCall('setMobileUser');
+    if (isMobile) makeCall('setMobileUser');
+
+    ConnectionStatusService.startRoundTripTime();
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
@@ -164,20 +179,31 @@ class App extends Component {
       intl,
       hasPublishedPoll,
       randomlySelectedUser,
-      currentUserId,
       mountModal,
+      isPresenter,
     } = this.props;
 
-    if (randomlySelectedUser === currentUserId) mountModal(<RandomUserSelectContainer />);
+    if (!isPresenter && randomlySelectedUser.length > 0) mountModal(<RandomUserSelectContainer />);
 
     if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
       || currentUserEmoji.status;
 
+      const raisedHand = currentUserEmoji.status === 'raiseHand';
+
+      let statusLabel = '';
+      if (currentUserEmoji.status === 'none') {
+        statusLabel = prevProps.currentUserEmoji.status === 'raiseHand'
+          ? intl.formatMessage(intlMessages.loweredHand)
+          : intl.formatMessage(intlMessages.clearedEmoji);
+      } else {
+        statusLabel = raisedHand
+          ? intl.formatMessage(intlMessages.raisedHand)
+          : intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus }));
+      }
+
       notify(
-        currentUserEmoji.status === 'none'
-          ? intl.formatMessage(intlMessages.clearedEmoji)
-          : intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus })),
+        statusLabel,
         'info',
         currentUserEmoji.status === 'none'
           ? 'clear_status'
@@ -207,6 +233,8 @@ class App extends Component {
     if (navigator.connection) {
       navigator.connection.addEventListener('change', handleNetworkConnection, false);
     }
+
+    ConnectionStatusService.stopRoundTripTime();
   }
 
   handleWindowResize() {
@@ -239,15 +267,17 @@ class App extends Component {
   }
 
   renderNavBar() {
-    const { navbar } = this.props;
+    const { navbar, isLargeFont } = this.props;
 
     if (!navbar) return null;
+
+    const realNavbarHeight = isLargeFont ? LARGE_NAVBAR_HEIGHT : NAVBAR_HEIGHT;
 
     return (
       <header
         className={styles.navbar}
         style={{
-          height: NAVBAR_HEIGHT,
+          height: realNavbarHeight,
         }}
       >
         {navbar}
@@ -327,7 +357,8 @@ class App extends Component {
       <ActivityCheckContainer
         inactivityCheck={inactivityCheck}
         responseDelay={responseDelay}
-      />) : null);
+      />
+    ) : null);
   }
 
   renderUserInformation() {
@@ -338,13 +369,15 @@ class App extends Component {
         UserInfo={UserInfo}
         requesterUserId={User.userId}
         meetingId={User.meetingId}
-      />) : null);
+      />
+    ) : null);
   }
 
   render() {
     const {
-      customStyle, customStyleUrl, openPanel, layoutContextState
+      customStyle, customStyleUrl, openPanel, layoutContextState,
     } = this.props;
+
     return (
       <main className={styles.main}>
         {this.renderActivityCheck()}
@@ -352,17 +385,17 @@ class App extends Component {
         <BannerBarContainer />
         <NotificationsBarContainer />
         <section className={styles.wrapper}>
+          {this.renderSidebar()}
+          {this.renderPanel()}
           <div className={openPanel ? styles.content : styles.noPanelContent}>
             {this.renderNavBar()}
             {this.renderMedia()}
             {this.renderActionsBar()}
           </div>
-          {this.renderPanel()}
-          {this.renderSidebar()}
         </section>
         <UploaderContainer />
         <BreakoutRoomInvitation />
-        {!layoutContextState.presentationIsFullscreen && <PollingContainer />}
+        {!layoutContextState.presentationIsFullscreen && !layoutContextState.screenShareIsFullscreen && <PollingContainer />}
         <ModalContainer />
         <AudioContainer />
         <ToastContainer rtl />

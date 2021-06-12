@@ -1,4 +1,5 @@
 import { GroupChatMsg, UsersTyping } from '/imports/api/group-chat-msg';
+import Users from '/imports/api/users';
 import { Meteor } from 'meteor/meteor';
 
 import Logger from '/imports/startup/server/logger';
@@ -19,12 +20,15 @@ function groupChatMsg(chatsIds) {
 
   Logger.debug('Publishing group-chat-msg', { meetingId, userId });
 
-  return GroupChatMsg.find({
+  const User = Users.findOne({ userId, meetingId });
+  const selector = {
+    timestamp: { $gte: User.authTokenValidatedTime },
     $or: [
       { meetingId, chatId: { $eq: PUBLIC_GROUP_CHAT_ID } },
       { chatId: { $in: chatsIds } },
     ],
-  });
+  };
+  return GroupChatMsg.find(selector);
 }
 
 function publish(...args) {

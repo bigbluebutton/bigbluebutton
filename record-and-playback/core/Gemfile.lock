@@ -15,7 +15,6 @@ GEM
     crass (1.0.6)
     fastimage (2.1.7)
     ffi (1.12.1)
-    fnv (0.2.0)
     i18n (1.8.3)
       concurrent-ruby (~> 1.0)
     jaro_winkler (1.5.4)
@@ -89,7 +88,6 @@ DEPENDENCIES
   bbbevents (~> 1.2)
   builder (~> 3.2)
   fastimage (~> 2.1)
-  fnv (~> 0.2)
   java_properties
   journald-logger (~> 3.0)
   jwt (~> 2.2)

@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
@@ -11,6 +11,7 @@ import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import { Session } from 'meteor/session';
 import { FormattedMessage } from 'react-intl';
+import { Meteor } from 'meteor/meteor';
 import Meetings, { RecordMeetings } from '../../api/meetings';
 import AppService from '/imports/ui/components/app/service';
 import Breakouts from '/imports/api/breakouts';
@@ -18,11 +19,10 @@ import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import LayoutManager from '/imports/ui/components/layout/layout-manager';
+import LayoutManagerContainer from '/imports/ui/components/layout/layout-manager/container';
 import { withLayoutContext } from '/imports/ui/components/layout/context';
 import VideoService from '/imports/ui/components/video-provider/service';
-import DebugWindow from '/imports/ui/components/debug-window/component'
-import {Meteor} from "meteor/meteor";
+import DebugWindow from '/imports/ui/components/debug-window/component';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
@@ -33,6 +33,7 @@ const BREAKOUT_END_NOTIFY_DELAY = 50;
 const HTML = document.getElementsByTagName('html')[0];
 
 let breakoutNotified = false;
+let checkedUserSettings = false;
 
 const propTypes = {
   subscriptionsReady: PropTypes.bool,
@@ -79,23 +80,59 @@ class Base extends Component {
   componentDidMount() {
     const { animations } = this.props;
 
+    const {
+      userID: localUserId,
+    } = Auth;
+
     if (animations) HTML.classList.add('animationsEnabled');
     if (!animations) HTML.classList.add('animationsDisabled');
-
-    if (getFromUserSettings('bbb_show_participants_on_login', true) && !deviceInfo.type().isPhone) {
-      Session.set('openPanel', 'userlist');
-      if (CHAT_ENABLED) {
-        Session.set('openPanel', 'chat');
-        Session.set('idChatOpen', PUBLIC_CHAT_ID);
-      }
-    } else {
-      Session.set('openPanel', '');
-    }
 
     fullscreenChangedEvents.forEach((event) => {
       document.addEventListener(event, Base.handleFullscreenChange);
     });
     Session.set('isFullscreen', false);
+
+    const users = Users.find({
+      meetingId: Auth.meetingID,
+      validated: true,
+      userId: { $ne: localUserId },
+    }, { fields: { name: 1, userId: 1 } });
+
+    users.observe({
+      added: (user) => {
+        const subscriptionsReady = Session.get('subscriptionsReady');
+
+        if (!subscriptionsReady) return;
+
+        const {
+          userJoinAudioAlerts,
+          userJoinPushAlerts,
+        } = Settings.application;
+
+        if (!userJoinAudioAlerts && !userJoinPushAlerts) return;
+
+        if (userJoinAudioAlerts) {
+          AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
+            + Meteor.settings.public.app.basename
+            + Meteor.settings.public.app.instanceId}`
+            + '/resources/sounds/userJoin.mp3');
+        }
+
+        if (userJoinPushAlerts) {
+          notify(
+            <FormattedMessage
+              id="app.notification.userJoinPushAlert"
+              description="Notification for a user joins the meeting"
+              values={{
+                0: user.name,
+              }}
+            />,
+            'info',
+            'user',
+          );
+        }
+      },
+    });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -139,7 +176,7 @@ class Base extends Component {
     // In case the meeting delayed to load
     if (!subscriptionsReady || !meetingExist) return;
 
-    if (approved && loading && subscriptionsReady) this.updateLoadingState(false);
+    if (approved && loading) this.updateLoadingState(false);
 
     if (prevProps.ejected || ejected) {
       Session.set('codeError', '403');
@@ -229,15 +266,15 @@ class Base extends Component {
     const { meetingExisted } = this.state;
 
     return (
-      <Fragment>
+      <>
         {meetingExist && Auth.loggedIn && <DebugWindow />}
-        {meetingExist && Auth.loggedIn && <LayoutManager />}
+        {meetingExist && Auth.loggedIn && <LayoutManagerContainer />}
         {
           (!meetingExisted && !meetingExist && Auth.loggedIn)
             ? <LoadingScreen />
             : this.renderByState()
         }
-      </Fragment>
+      </>
     );
   }
 }
@@ -248,14 +285,11 @@ Base.defaultProps = defaultProps;
 const BaseContainer = withTracker(() => {
   const {
     animations,
-    userJoinAudioAlerts,
-    userJoinPushAlerts,
   } = Settings.application;
 
   const {
     credentials,
     loggedIn,
-    userID: localUserId,
   } = Auth;
 
   const { meetingId } = credentials;
@@ -268,7 +302,6 @@ const BaseContainer = withTracker(() => {
     ejected: 1,
     ejectedReason: 1,
     color: 1,
-    mobile: 1,
     effectiveConnectionType: 1,
     extId: 1,
     guest: 1,
@@ -358,48 +391,27 @@ const BaseContainer = withTracker(() => {
     },
   });
 
-  if (userJoinAudioAlerts || userJoinPushAlerts) {
-    Users.find({}, { fields: { validated: 1, name: 1, userId: 1 } }).observe({
-      changed: (newDocument) => {
-        if (newDocument.validated && newDocument.name && newDocument.userId !== localUserId) {
-          if (userJoinAudioAlerts) {
-            AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-              + Meteor.settings.public.app.basename
-              + Meteor.settings.public.app.instanceId}`
-              + '/resources/sounds/userJoin.mp3');
-          }
-
-          if (userJoinPushAlerts) {
-            notify(
-              <FormattedMessage
-                id="app.notification.userJoinPushAlert"
-                description="Notification for a user joins the meeting"
-                values={{
-                  0: newDocument.name,
-                }}
-              />,
-              'info',
-              'user',
-            );
-          }
+  if (Session.equals('openPanel', undefined) || Session.equals('subscriptionsReady', true)) {
+    if (!checkedUserSettings) {
+      if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
+        if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
+          Session.set('openPanel', 'chat');
+          Session.set('idChatOpen', PUBLIC_CHAT_ID);
+        } else {
+          Session.set('openPanel', 'userlist');
         }
-      },
-    });
-  }
-
-  if (getFromUserSettings('bbb_show_participants_on_login', true) && !deviceInfo.type().isPhone) {
-    if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
-      Session.setDefault('openPanel', 'chat');
-      Session.setDefault('idChatOpen', PUBLIC_CHAT_ID);
-    } else {
-      Session.setDefault('openPanel', 'userlist');
+      } else {
+        Session.set('openPanel', '');
+      }
+      window.dispatchEvent(new Event('panelChanged'));
+      if (Session.equals('subscriptionsReady', true)) {
+        checkedUserSettings = true;
+      }
     }
-  } else {
-    Session.setDefault('openPanel', '');
   }
 
   const codeError = Session.get('codeError');
-  const usersVideo = VideoService.getVideoStreams();
+  const { streams: usersVideo } = VideoService.getVideoStreams();
 
   return {
     approved,

@@ -519,6 +519,12 @@ public class Client
                                     } else if (eventFunc.equals("conference_loop_input")) {
                                         listener.conferenceEventAction(uniqueId, confName, confSize, eventAction, event);
                                         return;
+                                    } else if (eventFunc.equals("conference_member_set_floor_holder")) {
+                                        listener.conferenceEventAction(uniqueId, confName, confSize, eventAction, event);
+                                        return;
+                                    } else if (eventFunc.equals("conference_video_set_floor_holder")) {
+                                        listener.conferenceEventAction(uniqueId, confName, confSize, eventAction, event);
+                                        return;
                                     } else if (eventFunc.equals("stop_talking_handler")) {
                                         listener.conferenceEventAction(uniqueId, confName, confSize, eventAction, event);
                                         return;

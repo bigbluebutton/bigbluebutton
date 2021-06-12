@@ -1,12 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
-import { isMobile } from 'react-device-detect';
 import TetherComponent from 'react-tether';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/button/component';
 import screenreaderTrap from 'makeup-screenreader-trap';
+import { Session } from 'meteor/session';
 import { styles } from './styles';
 import DropdownTrigger from './trigger/component';
 import DropdownContent from './content/component';
@@ -78,7 +79,7 @@ const targetAttachments = {
 class Dropdown extends Component {
   constructor(props) {
     super(props);
-    this.state = { isOpen: false };
+    this.state = { isOpen: false, isPortrait:deviceInfo.isPortrait() };
     this.handleShow = this.handleShow.bind(this);
     this.handleHide = this.handleHide.bind(this);
     this.handleToggle = this.handleToggle.bind(this);
@@ -90,14 +91,29 @@ class Dropdown extends Component {
       onShow,
       onHide,
       keepOpen,
+      tethered,
     } = this.props;
 
     const { isOpen } = this.state;
 
-    if (isOpen) {
+    const openPanel = Session.get('openPanel');
+    const panelRef = document.getElementById(`${openPanel}Panel`);
+    const enableSRTrap = isOpen && !tethered;
+
+    if (enableSRTrap) {
       screenreaderTrap.trap(this.dropdown);
     } else {
       screenreaderTrap.untrap();
+    }
+
+    if (isOpen && tethered) {
+      if (!openPanel.includes('userlist') && panelRef) {
+        panelRef.setAttribute("aria-hidden", true);
+      }
+    }else if (!isOpen && tethered) {
+      if (panelRef) {
+        panelRef.setAttribute("aria-hidden", false);
+      }
     }
 
     if (isOpen && !prevState.isOpen) { onShow(); }
@@ -128,6 +144,17 @@ class Dropdown extends Component {
       removeEventListener('click', this.handleWindowClick, true);
     });
   }
+
+  componentDidMount() {
+    window.addEventListener('resize', this.updateOrientation);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.updateOrientation);
+  }
+
+  updateOrientation = () => {
+    this.setState({ isPortrait:deviceInfo.isPortrait() });
+  };
 
   handleWindowClick(event) {
     const { keepOpen, onHide } = this.props;
@@ -182,10 +209,10 @@ class Dropdown extends Component {
       ...otherProps
     } = this.props;
 
-    const { isOpen } = this.state;
-
+    const { isOpen, isPortrait } = this.state;
+    const { isPhone } = deviceInfo;
     const placements = placement && placement.replace(' ', '-');
-    const test = isMobile ? {
+    const test = isPhone && isPortrait ? {
       width: '100%',
       height: '100%',
       transform: 'translateY(0)',
@@ -237,15 +264,15 @@ class Dropdown extends Component {
             ? (
               <TetherComponent
                 style={{
-                  zIndex: isOpen ? 15 : 1,
+                  zIndex: isOpen ? 15 : -1,
                   ...test,
                 }}
                 attachment={
-                  isMobile ? 'middle center'
+                  isPhone && isPortrait ? 'middle center'
                     : attachments[placements]
                 }
                 targetAttachment={
-                  isMobile ? 'auto auto'
+                  isPhone && isPortrait ? 'auto auto'
                     : targetAttachments[placements]
                 }
                 constraints={[

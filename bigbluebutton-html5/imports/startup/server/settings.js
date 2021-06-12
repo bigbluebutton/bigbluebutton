@@ -2,19 +2,25 @@
 import { Meteor } from 'meteor/meteor';
 import fs from 'fs';
 import YAML from 'yaml';
+import _ from 'lodash';
 
-const YAML_FILE_PATH = process.env.BBB_HTML5_SETTINGS || 'assets/app/config/settings.yml';
-const INSTANCE_MAX = parseInt(process.env.INSTANCE_MAX, 10) || 1;
-const REQUESTED_INSTANCE_ID = parseInt(process.env.INSTANCE_ID, 10) || 1;
-const INSTANCE_ID = (INSTANCE_MAX < REQUESTED_INSTANCE_ID) ? 1 : REQUESTED_INSTANCE_ID;
+const DEFAULT_SETTINGS_FILE_PATH = process.env.BBB_HTML5_SETTINGS || 'assets/app/config/settings.yml';
+const LOCAL_SETTINGS_FILE_PATH = process.env.BBB_HTML5_LOCAL_SETTINGS || '/etc/bigbluebutton/bbb-html5.yml';
 
 
 try {
-  if (fs.existsSync(YAML_FILE_PATH)) {
-    const SETTINGS = YAML.parse(fs.readFileSync(YAML_FILE_PATH, 'utf-8'));
+  if (fs.existsSync(DEFAULT_SETTINGS_FILE_PATH)) {
+    const SETTINGS = YAML.parse(fs.readFileSync(DEFAULT_SETTINGS_FILE_PATH, 'utf-8'));
+
+    if (fs.existsSync(LOCAL_SETTINGS_FILE_PATH)) {
+      console.log('Local configuration found! Merging with default configuration...');
+      const LOCAL_CONFIG = YAML.parse(fs.readFileSync(LOCAL_SETTINGS_FILE_PATH, 'utf-8'));
+      _.merge(SETTINGS, LOCAL_CONFIG);
+    } else console.log('Local Configuration not found! Loading default configuration...');
 
     Meteor.settings = SETTINGS;
-    Meteor.settings.public.app.instanceId = `/${INSTANCE_ID}`;
+    Meteor.settings.public.app.instanceId = ''; // no longer use instanceId in URLs. Likely permanent change
+    // Meteor.settings.public.app.instanceId = `/${INSTANCE_ID}`;
 
     __meteor_runtime_config__.PUBLIC_SETTINGS = SETTINGS.public;
   } else {

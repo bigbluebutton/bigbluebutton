@@ -43,6 +43,7 @@ public class ApiParams {
     public static final String MODERATOR_ONLY_MESSAGE = "moderatorOnlyMessage";
     public static final String MODERATOR_PW = "moderatorPW";
     public static final String MUTE_ON_START = "muteOnStart";
+    public static final String MEETING_KEEP_EVENTS = "meetingKeepEvents";
     public static final String ALLOW_MODS_TO_UNMUTE_USERS = "allowModsToUnmuteUsers";
     public static final String NAME = "name";
     public static final String PARENT_MEETING_ID = "parentMeetingID";
@@ -80,6 +81,7 @@ public class ApiParams {
     // Needed for classes where teacher gets disconnected and can't get back in. Prevents
     // students from running amok.
     public static final String END_WHEN_NO_MODERATOR = "endWhenNoModerator";
+    public static final String END_WHEN_NO_MODERATOR_DELAY_IN_MINUTES = "endWhenNoModeratorDelayInMinutes";
 
     private ApiParams() {
         throw new IllegalStateException("ApiParams is a utility class. Instanciation is forbidden.");

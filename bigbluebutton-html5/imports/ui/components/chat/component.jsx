@@ -5,10 +5,13 @@ import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrap
 import Button from '/imports/ui/components/button/component';
 import { Session } from 'meteor/session';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
+import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import { styles } from './styles.scss';
 import MessageForm from './message-form/container';
-import MessageList from './message-list/container';
+import TimeWindowList from './time-window-list/container';
 import ChatDropdownContainer from './chat-dropdown/container';
+import { UserSentMessageCollection } from './service';
+import Auth from '/imports/ui/services/auth';
 
 const ELEMENT_ID = 'chat-messages';
 
@@ -22,10 +25,10 @@ const intlMessages = defineMessages({
     description: 'aria-label for hiding chat button',
   },
 });
+
 const Chat = (props) => {
   const {
     chatID,
-    chatName,
     title,
     messages,
     partnerIsLoggedOut,
@@ -42,11 +45,19 @@ const Chat = (props) => {
     maxMessageLength,
     amIModerator,
     meetingIsBreakout,
+    timeWindowsValues,
+    dispatch,
+    count,
+    syncing,
+    syncedPercent,
+    lastTimeWindowValuesBuild,
   } = props;
+
+  const userSentMessage = UserSentMessageCollection.findOne({ userId: Auth.userID, sent: true });
 
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
   const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
-
+  ChatLogger.debug('ChatComponent::render', props);
   return (
     <div
       data-test={chatID !== 'public' ? 'privateChat' : 'publicChat'}
@@ -90,26 +101,38 @@ const Chat = (props) => {
                 accessKey={CLOSE_CHAT_AK}
               />
             )
-            : <ChatDropdownContainer {...{ meetingIsBreakout, isMeteorConnected, amIModerator }} />
+            : (
+              <ChatDropdownContainer {...{
+                meetingIsBreakout, isMeteorConnected, amIModerator, timeWindowsValues,
+              }}
+              />
+            )
         }
       </header>
-      <MessageList
+      <TimeWindowList
         id={ELEMENT_ID}
         chatId={chatID}
         handleScrollUpdate={actions.handleScrollUpdate}
-        handleReadMessage={actions.handleReadMessage}
         {...{
           partnerIsLoggedOut,
           lastReadMessageTime,
           hasUnreadMessages,
           scrollPosition,
           messages,
+          currentUserIsModerator: amIModerator,
+          timeWindowsValues,
+          dispatch,
+          count,
+          syncing,
+          syncedPercent,
+          lastTimeWindowValuesBuild,
+          userSentMessage
         }}
       />
       <MessageForm
         {...{
           UnsentMessagesCollection,
-          chatName,
+          title,
           minMessageLength,
           maxMessageLength,
         }}
@@ -126,18 +149,11 @@ const Chat = (props) => {
   );
 };
 
-export default withShortcutHelper(injectWbResizeEvent(injectIntl(memo(Chat))), ['hidePrivateChat', 'closePrivateChat']);
+export default memo(withShortcutHelper(injectWbResizeEvent(injectIntl(Chat)), ['hidePrivateChat', 'closePrivateChat']));
 
 const propTypes = {
   chatID: PropTypes.string.isRequired,
-  chatName: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
-  messages: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.oneOfType([
-    PropTypes.array,
-    PropTypes.string,
-    PropTypes.number,
-    PropTypes.object,
-  ])).isRequired).isRequired,
   shortcuts: PropTypes.objectOf(PropTypes.string),
   partnerIsLoggedOut: PropTypes.bool.isRequired,
   isChatLocked: PropTypes.bool.isRequired,

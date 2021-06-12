@@ -101,7 +101,7 @@ class ToolbarSubmenu extends Component {
       );
     } if (type === 'font-size') {
       return (
-        <p className={styles.textThickness} style={{ fontSize: obj.value }}>
+        <p className={styles.textThickness} style={{ fontSize: obj.value <= 32 ? obj.value : 32 }}>
           Aa
         </p>
       );

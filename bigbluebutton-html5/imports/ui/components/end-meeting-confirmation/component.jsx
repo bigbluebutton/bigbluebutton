@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
@@ -12,7 +12,15 @@ const intlMessages = defineMessages({
   },
   endMeetingDescription: {
     id: 'app.endMeeting.description',
+    description: 'end meeting description with affected users information',
+  },
+  endMeetingNoUserDescription: {
+    id: 'app.endMeeting.noUserDescription',
     description: 'end meeting description',
+  },
+  contentWarning: {
+    id: 'app.endMeeting.contentWarning',
+    description: 'end meeting content warning',
   },
   yesLabel: {
     id: 'app.endMeeting.yesLabel',
@@ -24,6 +32,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const { warnAboutUnsavedContentOnMeetingEnd } = Meteor.settings.public.app;
+
 const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -34,7 +44,7 @@ const propTypes = {
   users: PropTypes.number.isRequired,
 };
 
-class EndMeetingComponent extends React.PureComponent {
+class EndMeetingComponent extends PureComponent {
   render() {
     const {
       users, intl, closeModal, endMeeting, meetingTitle,
@@ -50,7 +60,19 @@ class EndMeetingComponent extends React.PureComponent {
       >
         <div className={styles.container}>
           <div className={styles.description}>
-            {intl.formatMessage(intlMessages.endMeetingDescription, { 0: users })}
+            {
+              users > 0
+                ? intl.formatMessage(intlMessages.endMeetingDescription, { 0: users })
+                : intl.formatMessage(intlMessages.endMeetingNoUserDescription)
+            }
+            {
+              warnAboutUnsavedContentOnMeetingEnd
+                ? (
+                  <p>
+                    {intl.formatMessage(intlMessages.contentWarning)}
+                  </p>
+                ) : null
+            }
           </div>
           <div className={styles.footer}>
             <Button

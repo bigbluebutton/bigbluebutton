@@ -278,12 +278,14 @@ class SettingsDropdown extends PureComponent {
     const {
       intl,
       shortcuts: OPEN_OPTIONS_AK,
+      isDropdownOpen,
     } = this.props;
 
     const { isSettingOpen } = this.state;
 
     return (
       <Dropdown
+        className={styles.dropdown}
         autoFocus
         keepOpen={isSettingOpen}
         onShow={this.onActionsShow}
@@ -296,7 +298,7 @@ class SettingsDropdown extends PureComponent {
             ghost
             circle
             hideLabel
-            className={styles.btn}
+            className={isDropdownOpen ? styles.hideDropdownButton : styles.btn}
 
             // FIXME: Without onClick react proptypes keep warning
             // even after the DropdownTrigger inject an onClick handler
