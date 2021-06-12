@@ -35,5 +35,5 @@ class WebcamsOnlyForModeratorRecordEvent extends AbstractParticipantRecordEvent 
 
 object WebcamsOnlyForModeratorRecordEvent {
   protected final val USER_ID = "userId"
-  protected final val WEBCAMS_ONLY_FOR_MODERATOR = "webacmsOnlyForModerator"
+  protected final val WEBCAMS_ONLY_FOR_MODERATOR = "webcamsOnlyForModerator"
 }

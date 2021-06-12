@@ -13,6 +13,7 @@ import { styles } from './styles';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_CLEAR_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_clear;
+const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
 
 const propTypes = {
   user: PropTypes.shape({
@@ -79,37 +80,37 @@ class TimeWindowChatItem extends PureComponent {
       intl,
     } = this.props;
 
-    if (messages && messages[0].text.includes('bbb-published-poll-<br/>')) {
+    if (messages && messages[0].id.includes(CHAT_POLL_RESULTS_MESSAGE)) {
       return this.renderPollItem();
     }
 
     return (
       <div className={styles.item} key={`time-window-chat-item-${messageKey}`}>
         <div className={styles.messages}>
-        {messages.map(message => {
+          {messages.map(message => {
           const {
             id,
             time,
             upload,
           } = message;
 
-          const text = upload ? UploadService.getNotification(upload, intl) : (intlMessages[message.text] ? intl.formatMessage(intlMessages[message.text]) : message.text);
+          const text = upload ? UploadService.getNotification(upload, intl) : message.text;
 
           if (text === '') return null;
-
-          return (
-            <MessageChatItem
-              className={(id ? styles.systemMessage : styles.systemMessageNoBorder)}
-              key={message.id ? message.id : _.uniqueId('id-')}
-              text={text}
-              time={time}
-              isSystemMessage={id ? true : false}
-              systemMessageType={message.text === 'PUBLIC_CHAT_CLEAR' ? 'chatClearMessageText' : 'chatWelcomeMessageText'}
-              chatAreaId={chatAreaId}
-              handleReadMessage={handleReadMessage}
-            />
-          );
-        })}
+          
+              return (
+                <MessageChatItem
+                  className={(message.id ? styles.systemMessage : styles.systemMessageNoBorder)}
+                  key={message.id ? message.id : _.uniqueId('id-')}
+                  text={intlMessages[message.text] ? intl.formatMessage(intlMessages[message.text]) : message.text }
+                  time={message.time}
+                  isSystemMessage={message.id ? true : false}
+                  systemMessageType={message.text === CHAT_CLEAR_MESSAGE ? 'chatClearMessageText' : 'chatWelcomeMessageText'}
+                  chatAreaId={chatAreaId}
+                  handleReadMessage={handleReadMessage}
+                />
+              );
+          })}
         </div>
       </div>
     );
@@ -203,9 +204,9 @@ class TimeWindowChatItem extends PureComponent {
       timestamp,
       color,
       intl,
-      isDefaultPoll,
-      extractPollQuestion,
+      getPollResultString,
       messages,
+      extra,
       scrollArea,
       chatAreaId,
       lastReadMessageTime,
@@ -239,15 +240,13 @@ class TimeWindowChatItem extends PureComponent {
               type="poll"
               className={cx(styles.message, styles.pollWrapper)}
               key={messages[0].id}
-              text={messages[0].text}
+              text={getPollResultString(extra.pollResultData, intl)}
               time={messages[0].time}
               chatAreaId={chatAreaId}
               lastReadMessageTime={lastReadMessageTime}
               handleReadMessage={handleReadMessage}
               scrollArea={scrollArea}
               color={color}
-              isDefaultPoll={isDefaultPoll(messages[0].text.replace('bbb-published-poll-<br/>', ''))}
-              extractPollQuestion={extractPollQuestion}
             />
           </div>
         </div>

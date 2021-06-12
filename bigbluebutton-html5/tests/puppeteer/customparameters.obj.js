@@ -50,7 +50,7 @@ const customParametersTest = () => {
     try {
       const testName = 'listenOnlyMode';
       page.logger('before ', testName);
-      response = await test.listenOnlyMode(testName, Page.getArgsWithAudio(), undefined, c.listenOnlyMode);
+      response = await test.listenOnlyMode(testName, Page.getArgs(), undefined, c.listenOnlyMode);
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
@@ -78,7 +78,7 @@ const customParametersTest = () => {
     try {
       const testName = 'forceListenOnly';
       page.logger('before ', testName);
-      response = await test.forceListenOnly(testName, Page.getArgsWithAudio(), undefined, c.forceListenOnly);
+      response = await test.forceListenOnly(testName, Page.getArgs(), undefined, c.forceListenOnly);
       await test.page2.stopRecording();
       screenshot = await test.page2.page.screenshot();
       page.logger('after ', testName);
@@ -106,7 +106,7 @@ const customParametersTest = () => {
     try {
       const testName = 'skipCheck';
       page.logger('before ', testName);
-      response = await test.skipCheck(testName, Page.getArgsWithAudio(), undefined, c.skipCheck);
+      response = await test.skipCheck(testName, Page.getArgs(), undefined, c.skipCheck);
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
@@ -134,7 +134,7 @@ const customParametersTest = () => {
     try {
       const testName = 'skipCheckOnFirstJoin';
       page.logger('before ', testName);
-      response = await test.skipCheckOnFirstJoin(testName, Page.getArgsWithAudio(), undefined, c.skipCheckOnFirstJoin);
+      response = await test.skipCheckOnFirstJoin(testName, Page.getArgs(), undefined, c.skipCheckOnFirstJoin);
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
@@ -303,7 +303,7 @@ const customParametersTest = () => {
     try {
       const testName = 'enableVideo';
       page.logger('before ', testName);
-      response = await test.enableVideo(testName, Page.getArgsWithVideo(), undefined, c.enableVideo);
+      response = await test.enableVideo(testName, Page.getArgs(), undefined, c.enableVideo);
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
@@ -331,7 +331,7 @@ const customParametersTest = () => {
     try {
       const testName = 'autoShareWebcam';
       page.logger('before ', testName);
-      response = await test.autoShareWebcam(testName, Page.getArgsWithVideo(), undefined, c.autoShareWebcam);
+      response = await test.autoShareWebcam(testName, Page.getArgs(), undefined, c.autoShareWebcam);
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       page.logger('after ', testName);
@@ -692,7 +692,7 @@ const customParametersTest = () => {
     try {
       const testName = 'skipVideoPreview';
       page.logger('before ', testName);
-      response = await test.skipVideoPreview(testName, Page.getArgsWithVideo(), undefined, `${c.skipVideoPreview}`);
+      response = await test.skipVideoPreview(testName, Page.getArgs(), undefined, `${c.skipVideoPreview}`);
       await test.page1.stopRecording();
       page.logger('after ', testName);
     } catch (e) {
@@ -712,7 +712,7 @@ const customParametersTest = () => {
     try {
       const testName = 'skipVideoPreviewOnFirstJoin';
       page.logger('before ', testName);
-      response = await test.skipVideoPreviewOnFirstJoin(testName, Page.getArgsWithVideo(), undefined, `${c.skipVideoPreviewOnFirstJoin}`);
+      response = await test.skipVideoPreviewOnFirstJoin(testName, Page.getArgs(), undefined, `${c.skipVideoPreviewOnFirstJoin}`);
       await test.page1.stopRecording();
       page.logger('after ', testName);
     } catch (e) {
@@ -733,7 +733,7 @@ const customParametersTest = () => {
     try {
       const testName = 'mirrorOwnWebcam';
       page.logger('before ', testName);
-      response = await test.mirrorOwnWebcam(testName, Page.getArgsWithVideo(), undefined, `${c.mirrorOwnWebcam}`);
+      response = await test.mirrorOwnWebcam(testName, Page.getArgs(), undefined, `${c.mirrorOwnWebcam}`);
       await test.page1.stopRecording();
       page.logger('after ', testName);
     } catch (e) {
@@ -753,7 +753,7 @@ const customParametersTest = () => {
     try {
       const testName = 'showParticipantsOnLogin';
       page.logger('before ', testName);
-      response = await test.showParticipantsOnLogin(testName, Page.getArgsWithVideo(), undefined, `${c.showParticipantsOnLogin}`);
+      response = await test.showParticipantsOnLogin(testName, Page.getArgs(), undefined, `${c.showParticipantsOnLogin}`);
       await test.page1.stopRecording();
       page.logger('after ', testName);
     } catch (e) {

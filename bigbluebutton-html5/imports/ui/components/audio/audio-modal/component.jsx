@@ -28,6 +28,7 @@ const propTypes = {
   isEchoTest: PropTypes.bool.isRequired,
   isConnecting: PropTypes.bool.isRequired,
   isConnected: PropTypes.bool.isRequired,
+  isUsingAudio: PropTypes.bool.isRequired,
   inputDeviceId: PropTypes.string,
   outputDeviceId: PropTypes.string,
   formattedDialNum: PropTypes.string.isRequired,
@@ -164,10 +165,14 @@ class AudioModal extends Component {
       joinFullAudioImmediately,
       listenOnlyMode,
       audioLocked,
+      isUsingAudio,
     } = this.props;
 
-    if (forceListenOnlyAttendee) return this.handleJoinListenOnly();
-    if ((joinFullAudioImmediately && !listenOnlyMode) || audioLocked) return this.handleJoinMicrophone();
+    if (!isUsingAudio) {
+      if (forceListenOnlyAttendee || audioLocked) return this.handleJoinListenOnly();
+
+      if (joinFullAudioImmediately && !listenOnlyMode) return this.handleJoinMicrophone();
+    }
   }
 
   componentDidUpdate(prevProps) {

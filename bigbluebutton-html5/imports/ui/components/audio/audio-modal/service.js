@@ -26,12 +26,15 @@ export const joinMicrophone = (skipEchoTest = false) => {
   Storage.setItem(CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY, false);
 
   const call = new Promise((resolve, reject) => {
-    if (skipEchoTest) {
-      resolve(Service.joinMicrophone());
-    } else {
-      resolve(Service.transferCall());
+    try {
+      if (skipEchoTest && !Service.isConnected()) {
+        return resolve(Service.joinMicrophone());
+      }
+
+      return resolve(Service.transferCall());
+    } catch {
+      return reject(Service.exitAudio);
     }
-    reject(Service.exitAudio);
   });
 
   return call.then(() => {

@@ -21,6 +21,8 @@ import {
   POLL_MAX_WIDTH,
   NOTE_MIN_WIDTH,
   NOTE_MAX_WIDTH,
+  BREAKOUT_MIN_WIDTH,
+  BREAKOUT_MAX_WIDTH,
 } from '/imports/ui/components/layout/layout-manager/component';
 
 const intlMessages = defineMessages({
@@ -87,7 +89,7 @@ class PanelManager extends Component {
       captionsWidth: DEFAULT_PANEL_WIDTH,
       pollWidth: DEFAULT_PANEL_WIDTH,
       waitingWidth: DEFAULT_PANEL_WIDTH,
-      breakoutRoomWidth: 0,
+      breakoutRoomWidth: DEFAULT_PANEL_WIDTH,
     };
 
     this.setUserListWidth = this.setUserListWidth.bind(this);
@@ -284,6 +286,24 @@ class PanelManager extends Component {
     window.dispatchEvent(new Event('panelChanged'));
   }
 
+  breakoutResizeStop(addvalue) {
+    const { breakoutRoomWidth } = this.state;
+    const { layoutContextDispatch } = this.props;
+
+    this.setBreakoutRoomWidth(breakoutRoomWidth + addvalue);
+
+    layoutContextDispatch(
+      {
+        type: 'setBreakoutRoomSize',
+        value: {
+          width: breakoutRoomWidth + addvalue,
+        },
+      },
+    );
+
+    window.dispatchEvent(new Event('panelChanged'));
+  }
+
   renderUserList() {
     const {
       intl,
@@ -296,6 +316,7 @@ class PanelManager extends Component {
 
     return (
       <div
+        data-test="userListPanel"
         className={styles.userList}
         aria-label={intl.formatMessage(intlMessages.userListLabel)}
         key={enableResize ? null : this.userlistKey}
@@ -344,6 +365,7 @@ class PanelManager extends Component {
     return (
       <section
         id="chatPanel"
+        data-test="chatPanel"
         className={styles.chat}
         aria-label={intl.formatMessage(intlMessages.chatLabel)}
         key={enableResize ? null : this.chatKey}
@@ -527,18 +549,48 @@ class PanelManager extends Component {
   }
 
   renderBreakoutRoom() {
-    const { breakoutRoomWidth } = this.state;
+    const { enableResize } = this.props;
+
     return (
       <div
         id="breakoutroomPanel"
         className={styles.breakoutRoom}
-        key={this.breakoutroomKey}
-        style={{
-          width: breakoutRoomWidth,
-        }}
+        key={enableResize ? null : this.breakoutroomKey}
       >
         <BreakoutRoomContainer />
       </div>
+    );
+  }
+
+  renderBreakoutRoomResizable() {
+    const { breakoutRoomWidth } = this.state;
+    const { isRTL } = this.props;
+
+    const resizableEnableOptions = {
+      top: false,
+      right: !isRTL,
+      bottom: false,
+      left: !!isRTL,
+      topRight: false,
+      bottomRight: false,
+      bottomLeft: false,
+      topLeft: false,
+    };
+
+    return (
+      <Resizable
+        minWidth={BREAKOUT_MIN_WIDTH}
+        maxWidth={BREAKOUT_MAX_WIDTH}
+        ref={(node) => { this.resizableBreakout = node; }}
+        enable={resizableEnableOptions}
+        key={this.breakoutroomKey}
+        size={{ width: breakoutRoomWidth }}
+        onResizeStop={(e, direction, ref, d) => {
+          this.breakoutResizeStop(d.width);
+        }}
+      >
+        {this.renderBreakoutRoom()}
+      </Resizable>
     );
   }
 
@@ -630,7 +682,7 @@ class PanelManager extends Component {
 
     if (openPanel === 'breakoutroom') {
       if (enableResize) {
-        panels.push(this.renderBreakoutRoom());
+        panels.push(this.renderBreakoutRoomResizable());
       } else {
         panels.push(this.renderBreakoutRoom());
       }

@@ -69,7 +69,6 @@ export default class Media extends Component {
     });
     const { viewParticipantsWebcams } = Settings.dataSaving;
     const showVideo = usersVideo.length > 0 && viewParticipantsWebcams && isMeteorConnected;
-    const fullHeight = !showVideo || (webcamsPlacement === 'floating');
 
     return (
       <div

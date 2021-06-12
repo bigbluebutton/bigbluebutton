@@ -84,9 +84,9 @@ public class Meeting {
 	private String customCopyright = "";
 	private Boolean muteOnStart = false;
 	private Boolean allowModsToUnmuteUsers = false;
-  private Boolean meetingKeepEvents;
-
-	private  HashMap<String, UploadRequest> uploadRequests = new HashMap<String, UploadRequest>();
+	private Boolean meetingKeepEvents;
+  
+  private  HashMap<String, UploadRequest> uploadRequests = new HashMap<String, UploadRequest>();
 	private  HashMap<String, UploadedFile> uploadedFiles = new HashMap<String, UploadedFile>();
 
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
@@ -94,6 +94,8 @@ public class Meeting {
 	private Integer userInactivityInspectTimerInMinutes = 120;
 	private Integer userInactivityThresholdInMinutes = 30;
     private Integer userActivitySignResponseDelayInMinutes = 5;
+    private Boolean endWhenNoModerator = false;
+    private Integer endWhenNoModeratorDelayInMinutes = 1;
 
 	public final BreakoutRoomsParams breakoutRoomsParams;
 	public final LockSettingsParams lockSettingsParams;
@@ -101,8 +103,6 @@ public class Meeting {
 	public final Boolean allowDuplicateExtUserid;
 
 	private String meetingEndedCallbackURL = "";
-
-	public final Boolean endWhenNoModerator;
 
 	private Integer html5InstanceId;
 
@@ -137,6 +137,7 @@ public class Meeting {
         lockSettingsParams = builder.lockSettingsParams;
         allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
         endWhenNoModerator = builder.endWhenNoModerator;
+        endWhenNoModeratorDelayInMinutes = builder.endWhenNoModeratorDelayInMinutes;
         html5InstanceId = builder.html5InstanceId;
 
         /*
@@ -158,17 +159,17 @@ public class Meeting {
 	public void addBreakoutRoom(String meetingId) {
 		breakoutRooms.add(meetingId);
 	}
-	
+  
 	public void addUploadRequest(String source, String filename, String userId, String token) {
-               UploadRequest uploadRequest = new UploadRequest(source, filename, userId);
-               uploadRequests.put(token, uploadRequest);
-       }
+		UploadRequest uploadRequest = new UploadRequest(source, filename, userId);
+		uploadRequests.put(token, uploadRequest);
+	}
 
-       public void addUploadedFile(String source, String filename, String contentType, String extension, String uploadId)  {
-               UploadedFile uploadedFile = new UploadedFile(source, filename, contentType, extension);
-               uploadedFiles.put(uploadId, uploadedFile);
-       }
-
+	public void addUploadedFile(String source, String filename, String contentType, String extension, String uploadId)  {
+		UploadedFile uploadedFile = new UploadedFile(source, filename, contentType, extension);
+		uploadedFiles.put(uploadId, uploadedFile);
+	}
+  
 	public List<String> getBreakoutRooms() {
 		return breakoutRooms;
 	}
@@ -239,29 +240,29 @@ public class Meeting {
 		}
 
 	}
-	
-       public Boolean isUploadRequestValid(String source, String filename, String userId, String token) {
-               UploadRequest uploadRequest = uploadRequests.get(token);
-               if (uploadRequest != null) {
-                       return uploadRequest.isValid(source, filename, userId);
-               } else {
-                       return false;
-               }
-       }
+  
+  public Boolean isUploadRequestValid(String source, String filename, String userId, String token) {
+		UploadRequest uploadRequest = uploadRequests.get(token);
+	  if (uploadRequest != null) {
+			return uploadRequest.isValid(source, filename, userId);
+		} else {
+			return false;
+		}
+	}
 
-       public Boolean hasUploadedFile(String source, String uploadId) {
-               UploadedFile uploadedFile = uploadedFiles.get(uploadId);
-               if (uploadedFile != null) {
-                       return source.equals(uploadedFile.source);
-               } else {
-                       return false;
-               }
-       }
+	public Boolean hasUploadedFile(String source, String uploadId) {
+		UploadedFile uploadedFile = uploadedFiles.get(uploadId);
+		if (uploadedFile != null) {
+			return source.equals(uploadedFile.source);
+		} else {
+			return false;
+		}
+	}
 
-       public UploadedFile getUploadedFile(String uploadId) {
-               UploadedFile uploadedFile = uploadedFiles.get(uploadId);
-               return uploadedFile;
-       }
+	public UploadedFile getUploadedFile(String uploadId) {
+		UploadedFile uploadedFile = uploadedFiles.get(uploadId);
+		return uploadedFile;
+	}
 
 	public RegisteredUser getRegisteredUserWithAuthToken(String authToken) {
 		for (RegisteredUser ruser : registeredUsers.values()) {
@@ -696,6 +697,22 @@ public class Meeting {
         this.userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes;
     }
 
+	public Boolean getEndWhenNoModerator() {
+		return endWhenNoModerator;
+	}
+
+	public void setEndWhenNoModerator(Boolean endWhenNoModerator) {
+		this.endWhenNoModerator = endWhenNoModerator;
+	}
+
+	public Integer getEndWhenNoModeratorDelayInMinutes() {
+		return endWhenNoModeratorDelayInMinutes;
+	}
+
+	public void setEndWhenNoModeratorDelayInMinutes(Integer endWhenNoModeratorDelayInMinutes) {
+		this.endWhenNoModeratorDelayInMinutes = endWhenNoModeratorDelayInMinutes;
+	}
+
     public String getMeetingEndedCallbackURL() {
     	return meetingEndedCallbackURL;
     }
@@ -778,6 +795,7 @@ public class Meeting {
     	private LockSettingsParams lockSettingsParams;
 		private Boolean allowDuplicateExtUserid;
 		private Boolean endWhenNoModerator;
+		private Integer endWhenNoModeratorDelayInMinutes;
 		private int html5InstanceId;
 
     	public Builder(String externalId, String internalId, long createTime) {
@@ -918,6 +936,11 @@ public class Meeting {
 
 		public Builder withEndWhenNoModerator(Boolean endWhenNoModerator) {
     		this.endWhenNoModerator = endWhenNoModerator;
+    		return this;
+		}
+
+		public Builder withEndWhenNoModeratorDelayInMinutes(Integer endWhenNoModeratorDelayInMinutes) {
+    		this.endWhenNoModeratorDelayInMinutes = endWhenNoModeratorDelayInMinutes;
     		return this;
 		}
 

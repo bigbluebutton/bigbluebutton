@@ -9,18 +9,22 @@ export default function transferUser(fromMeetingId, toMeetingId) {
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'TransferUserToMeetingRequestMsg';
 
-  const { meetingId, requesterUserId } = extractCredentials(this.userId);
+  try {
+    const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  check(meetingId, String);
-  check(requesterUserId, String);
+    check(meetingId, String);
+    check(requesterUserId, String);
 
-  const payload = {
-    fromMeetingId,
-    toMeetingId,
-    userId: requesterUserId,
-  };
+    const payload = {
+      fromMeetingId,
+      toMeetingId,
+      userId: requesterUserId,
+    };
 
-  Logger.verbose('User was transferred from one meting to another', { requesterUserId, fromMeetingId, toMeetingId });
+    Logger.verbose('User was transferred from one meting to another', { requesterUserId, fromMeetingId, toMeetingId });
 
-  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+    RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+  } catch (err) {
+    Logger.error(`Exception while invoking method transferUser ${err.stack}`);
+  }
 }

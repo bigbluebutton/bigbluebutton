@@ -135,6 +135,8 @@ class BbbWebApiGWApp(
                     userInactivityInspectTimerInMinutes:    java.lang.Integer,
                     userInactivityThresholdInMinutes:       java.lang.Integer,
                     userActivitySignResponseDelayInMinutes: java.lang.Integer,
+                    endWhenNoModerator:                     java.lang.Boolean,
+                    endWhenNoModeratorDelayInMinutes:       java.lang.Integer,
                     muteOnStart:                            java.lang.Boolean,
                     allowModsToUnmuteUsers:                 java.lang.Boolean,
                     keepEvents:                             java.lang.Boolean,
@@ -151,7 +153,9 @@ class BbbWebApiGWApp(
       meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes.intValue(),
       userInactivityInspectTimerInMinutes = userInactivityInspectTimerInMinutes.intValue(),
       userInactivityThresholdInMinutes = userInactivityThresholdInMinutes.intValue(),
-      userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes.intValue()
+      userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes.intValue(),
+      endWhenNoModerator = endWhenNoModerator.booleanValue(),
+      endWhenNoModeratorDelayInMinutes.intValue()
     )
 
     val password = PasswordProp(moderatorPass = moderatorPass, viewerPass = viewerPass)

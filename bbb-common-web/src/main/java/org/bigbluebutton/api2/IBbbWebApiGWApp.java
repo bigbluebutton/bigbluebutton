@@ -26,6 +26,8 @@ public interface IBbbWebApiGWApp {
                      Integer userInactivityInspectTimerInMinutes,
                      Integer userInactivityThresholdInMinutes,
                      Integer userActivitySignResponseDelayInMinutes,
+                     Boolean endWhenNoModerator,
+                     Integer endWhenNoModeratorDelayInMinutes,
                      Boolean muteOnStart,
                      Boolean allowModsToUnmuteUsers,
                      Boolean keepEvents,

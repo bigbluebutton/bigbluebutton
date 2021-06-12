@@ -209,17 +209,31 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
 
   let normalizedLocale;
 
+  const regionDefault = usableLocales.find(locale => browserLocale[0] === locale);
+
   if (browserLocale.length > 1) {
+    // browser asks for specific locale
     normalizedLocale = `${browserLocale[0]}_${browserLocale[1].toUpperCase()}`;
 
     const normDefault = usableLocales.find(locale => normalizedLocale === locale);
-    if (normDefault) localeFile = normDefault;
-  }
-
-  const regionDefault = usableLocales.find(locale => browserLocale[0] === locale);
-
-  if (localeFile === fallback && regionDefault !== localeFile) {
-    localeFile = regionDefault;
+    if (normDefault) {
+      localeFile = normDefault;
+    } else {
+      if (regionDefault) {
+        localeFile = regionDefault;
+      } else {
+        const specFallback = usableLocales.find(locale => browserLocale[0] === locale.split("_")[0]);
+        if (specFallback) localeFile = specFallback;
+      }
+    }
+  } else {
+    // browser asks for region default locale
+    if (regionDefault && localeFile === fallback && regionDefault !== localeFile) {
+      localeFile = regionDefault;
+    } else {
+      const normFallback = usableLocales.find(locale => browserLocale[0] === locale.split("_")[0]);
+      if (normFallback) localeFile = normFallback;
+    }
   }
 
   res.setHeader('Content-Type', 'application/json');

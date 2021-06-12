@@ -44,10 +44,10 @@ sudo cp $LOCAL_PACKAGING_DIR/mongo-ramdisk.conf "$DESTINATION_DIR"/mongo-ramdisk
 
 echo "writing $DESTINATION_DIR/bbb-html5-with-roles.conf"
 sudo tee "$DESTINATION_DIR/bbb-html5-with-roles.conf" >/dev/null <<HERE
-# Default = 1; Min = 1; Max = 4
+# Default = 2; Min = 1; Max = 4
 # On powerful systems with high number of meetings you can set values up to 4 to accelerate handling of events
 NUMBER_OF_BACKEND_NODEJS_PROCESSES=2
-# Default = 1; Min = 0; Max = 8
+# Default = 2; Min = 0; Max = 8
 # If 0 is set, bbb-html5 will handle both backend and frontend roles in one process (default until Feb 2021)
 # Set a number between 1 and 4 times the value of NUMBER_OF_BACKEND_NODEJS_PROCESSES where higher number helps with meetings
 # stretching the recommended number of users in BigBlueButton

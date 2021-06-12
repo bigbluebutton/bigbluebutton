@@ -46,6 +46,7 @@ class UserContent extends PureComponent {
       pendingUsers,
       requestUserInformation,
       currentClosedChats,
+      startedChats,
     } = this.props;
 
     return (
@@ -61,6 +62,7 @@ class UserContent extends PureComponent {
               intl,
               roving,
               currentClosedChats,
+              startedChats,
             }}
           />
           ) : null

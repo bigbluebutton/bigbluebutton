@@ -291,6 +291,7 @@ class ActionsDropdown extends PureComponent {
       amIModerator,
       shortcuts: OPEN_ACTIONS_AK,
       isMeteorConnected,
+      isDropdownOpen,
     } = this.props;
 
     const availableActions = this.getAvailableActions();
@@ -308,6 +309,7 @@ class ActionsDropdown extends PureComponent {
       <Dropdown className={styles.dropdown} ref={(ref) => { this._dropdown = ref; }}>
         <DropdownTrigger tabIndex={0} accessKey={OPEN_ACTIONS_AK}>
           <Button
+            className={isDropdownOpen ? styles.hideDropdownButton : ''}
             hideLabel
             aria-label={intl.formatMessage(intlMessages.actionsLabel)}
             label={intl.formatMessage(intlMessages.actionsLabel)}

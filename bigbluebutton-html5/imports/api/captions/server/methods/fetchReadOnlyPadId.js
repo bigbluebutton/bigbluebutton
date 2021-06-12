@@ -6,23 +6,27 @@ import updateReadOnlyPadId from '/imports/api/captions/server/modifiers/updateRe
 import axios from 'axios';
 
 export default function fetchReadOnlyPadId(padId) {
-  check(padId, String);
+  try {
+    check(padId, String);
 
-  axios({
-    method: 'get',
-    url: getReadOnlyIdURL(padId),
-    responseType: 'json',
-  }).then((response) => {
-    const { status } = response;
-    if (status !== 200) {
-      Logger.error(`Could not get closed captions readOnlyID for ${padId} ${status}`);
-      return;
-    }
-    const readOnlyPadId = getDataFromResponse(response.data, 'readOnlyID');
-    if (readOnlyPadId) {
-      updateReadOnlyPadId(padId, readOnlyPadId);
-    } else {
-      Logger.error(`Could not get pad readOnlyID for ${padId}`);
-    }
-  }).catch(error => Logger.error(`Could not get pad readOnlyID for ${padId}: ${error}`));
+    axios({
+      method: 'get',
+      url: getReadOnlyIdURL(padId),
+      responseType: 'json',
+    }).then((response) => {
+      const { status } = response;
+      if (status !== 200) {
+        Logger.error(`Could not get closed captions readOnlyID for ${padId} ${status}`);
+        return;
+      }
+      const readOnlyPadId = getDataFromResponse(response.data, 'readOnlyID');
+      if (readOnlyPadId) {
+        updateReadOnlyPadId(padId, readOnlyPadId);
+      } else {
+        Logger.error(`Could not get pad readOnlyID for ${padId}`);
+      }
+    }).catch((error) => Logger.error(`Could not get pad readOnlyID for ${padId}: ${error}`));
+  } catch (err) {
+    Logger.error(`Exception while invoking method fetchReadOnlyPadId ${err.stack}`);
+  }
 }
