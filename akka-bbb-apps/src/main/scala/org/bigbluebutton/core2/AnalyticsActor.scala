@@ -60,6 +60,7 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: RequestBreakoutJoinURLReqMsg                   => logMessage(msg)
       case m: EndAllBreakoutRoomsMsg                         => logMessage(msg)
       case m: TransferUserToMeetingRequestMsg                => logMessage(msg)
+      case m: ExtendBreakoutRoomsTimeReqMsg                  => logMessage(msg)
       case m: UserLeftVoiceConfToClientEvtMsg                => logMessage(msg)
       case m: UserLeftVoiceConfEvtMsg                        => logMessage(msg)
       case m: RecordingStartedVoiceConfEvtMsg                => logMessage(msg)

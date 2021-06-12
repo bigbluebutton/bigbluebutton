@@ -137,10 +137,34 @@
   }
 }
 
+.durationContainer {
+  text-align: center;
+}
+
+.extendTimeContainer {
+  border-top: 1px solid var(--systemMessage-border-color);
+  border-bottom: 1px solid var(--systemMessage-border-color);
+  padding: 10px 0px;
+}
+
+.extendDuration {
+  width: 50%;
+  text-align: center;
+  padding: .25rem;
+  &::placeholder {
+    color: var(--color-gray);
+    opacity: 1;
+  }
+}
+
 .duration {
-  display: flex;
+  display: inline-block;
   align-self: center;
   margin: .5rem 0 .5rem 0;
+}
+
+.withError {
+  color: var(--color-danger);
 }
 
 .usersAssignedNumberLabel {
