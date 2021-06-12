@@ -23,7 +23,7 @@ const pollTypes = {
   A3: 'A-3',
   A4: 'A-4',
   A5: 'A-5',
-  Custom: 'custom',
+  Custom: 'CUSTOM',
   Response: 'R-',
 }
 
