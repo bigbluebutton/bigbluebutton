@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, intlShape } from 'react-intl';
+import { defineMessages } from 'react-intl';
 import _ from 'lodash';
-import { makeCall } from '/imports/ui/services/api';
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -32,29 +31,28 @@ const intlMessages = defineMessages({
     id: 'app.poll.n',
     description: 'Poll no option value',
   },
+  abstentionOptionLabel: {
+    id: 'app.poll.abstention',
+    description: 'Poll Abstention option value',
+  },
 });
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   parseCurrentSlideContent: PropTypes.func.isRequired,
   amIPresenter: PropTypes.bool.isRequired,
 };
 
-const handleClickQuickPoll = (slideId, poll) => {
-  const { type } = poll;
-  Session.set('openPanel', 'poll');
-  Session.set('forcePollOpen', true);
-  Session.set('pollInitiated', true);
-
-  makeCall('startPoll', type, slideId);
-};
-
-const getAvailableQuickPolls = (slideId, parsedSlides) => {
+const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, pollTypes) => {
   const pollItemElements = parsedSlides.map((poll) => {
-    const { poll: label, type } = poll;
+    let { poll: label, type } = poll;
     let itemLabel = label;
+    let answers = null;
 
-    if (type !== 'YN' && type !== 'TF') {
+    if (type !== pollTypes.YesNo && 
+        type !== pollTypes.YesNoAbstention && 
+        type !== pollTypes.TrueFalse) 
+    {
       const { options } = itemLabel;
       itemLabel = options.join('/').replace(/[\n.)]/g, '');
     }
@@ -74,7 +72,7 @@ const getAvailableQuickPolls = (slideId, parsedSlides) => {
       <DropdownListItem
         label={itemLabel}
         key={_.uniqueId('quick-poll-item')}
-        onClick={() => handleClickQuickPoll(slideId, poll)}
+        onClick={() => startPoll(type, slideId, answers)}
       />
     );
   });
@@ -98,17 +96,19 @@ class QuickPollDropdown extends Component {
       currentSlide,
       activePoll,
       className,
+      pollTypes,
     } = this.props;
 
     const parsedSlide = parseCurrentSlideContent(
       intl.formatMessage(intlMessages.yesOptionLabel),
       intl.formatMessage(intlMessages.noOptionLabel),
+      intl.formatMessage(intlMessages.abstentionOptionLabel),
       intl.formatMessage(intlMessages.trueOptionLabel),
       intl.formatMessage(intlMessages.falseOptionLabel),
     );
 
     const { slideId, quickPollOptions } = parsedSlide;
-    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions);
+    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions, startPoll, intl, pollTypes);
 
     if (quickPollOptions.length === 0) return null;
 
@@ -119,6 +119,7 @@ class QuickPollDropdown extends Component {
     }
 
     let singlePollType = null;
+    let answers = null;
     if (quickPolls.length === 1 && quickPollOptions.length) {
       const { type } = quickPollOptions[0];
       singlePollType = type;
@@ -130,7 +131,7 @@ class QuickPollDropdown extends Component {
         className={styles.quickPollBtn}
         label={quickPollLabel}
         tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
-        onClick={() => startPoll(singlePollType, currentSlide.id)}
+        onClick={() => startPoll(singlePollType, currentSlide.id, answers)}
         size="lg"
         disabled={!!activePoll}
       />

@@ -25,7 +25,14 @@ class WhiteboardModel extends SystemConfiguration {
   }
 
   private def createWhiteboard(wbId: String): Whiteboard = {
-    new Whiteboard(wbId, multiUserWhiteboardDefault, System.currentTimeMillis(), 0, new HashMap[String, List[AnnotationVO]]())
+    new Whiteboard(
+      wbId,
+      Array.empty[String],
+      Array.empty[String],
+      System.currentTimeMillis(),
+      0,
+      new HashMap[String, List[AnnotationVO]]()
+    )
   }
 
   private def getAnnotationsByUserId(wb: Whiteboard, id: String): List[AnnotationVO] = {
@@ -97,7 +104,7 @@ class WhiteboardModel extends SystemConfiguration {
     }
   }
 
-  def endAnnotationPencil(wbId: String, userId: String, annotation: AnnotationVO): AnnotationVO = {
+  def endAnnotationPencil(wbId: String, userId: String, annotation: AnnotationVO, drawEndOnly: Boolean): AnnotationVO = {
     var rtnAnnotation: AnnotationVO = annotation
 
     val wb = getWhiteboard(wbId)
@@ -153,8 +160,12 @@ class WhiteboardModel extends SystemConfiguration {
       val updatedAnnotation = annotation.copy(position = newPosition, annotationInfo = updatedAnnotationData)
 
       var newUsersAnnotations: List[AnnotationVO] = oldAnnotationOption match {
-        case Some(annotation) => usersAnnotations.tail
-        case None             => usersAnnotations
+        //As part of the whiteboard improvments for the HTML5 client it no longer sends
+        //DRAW_START and DRAW_UPDATE events (#9019). Client now sends drawEndOnly in the
+        //SendWhiteboardAnnotationPubMsg so akka knows not to expect usersAnnotations to be accumulating.
+        case Some(annotation) if (drawEndOnly == true) => usersAnnotations
+        case Some(annotation)                          => usersAnnotations.tail
+        case None                                      => usersAnnotations
       }
 
       val newAnnotationsMap = wb.annotationsMap + (userId -> (updatedAnnotation :: newUsersAnnotations))
@@ -180,7 +191,7 @@ class WhiteboardModel extends SystemConfiguration {
     if (hasWhiteboard(wbId)) {
       val wb = getWhiteboard(wbId)
 
-      if (wb.multiUser) {
+      if (wb.multiUser.contains(userId)) {
         if (wb.annotationsMap.contains(userId)) {
           val newWb = wb.copy(annotationsMap = wb.annotationsMap - userId)
           saveWhiteboard(newWb)
@@ -201,7 +212,7 @@ class WhiteboardModel extends SystemConfiguration {
     var last: Option[AnnotationVO] = None
     val wb = getWhiteboard(wbId)
 
-    if (wb.multiUser) {
+    if (wb.multiUser.contains(userId)) {
       val usersAnnotations = getAnnotationsByUserId(wb, userId)
 
       //not empty and head id equals annotation id
@@ -230,13 +241,21 @@ class WhiteboardModel extends SystemConfiguration {
     wb.copy(annotationsMap = newAnnotationsMap)
   }
 
-  def modifyWhiteboardAccess(wbId: String, multiUser: Boolean) {
+  def modifyWhiteboardAccess(wbId: String, multiUser: Array[String]) {
     val wb = getWhiteboard(wbId)
-    val newWb = wb.copy(multiUser = multiUser, changedModeOn = System.currentTimeMillis())
+    val newWb = wb.copy(multiUser = multiUser, oldMultiUser = wb.multiUser, changedModeOn = System.currentTimeMillis())
     saveWhiteboard(newWb)
   }
 
-  def getWhiteboardAccess(wbId: String): Boolean = getWhiteboard(wbId).multiUser
+  def getWhiteboardAccess(wbId: String): Array[String] = getWhiteboard(wbId).multiUser
+
+  def hasWhiteboardAccess(wbId: String, userId: String): Boolean = {
+    val wb = getWhiteboard(wbId)
+    wb.multiUser.contains(userId) || {
+      val lastChange = System.currentTimeMillis() - wb.changedModeOn
+      wb.oldMultiUser.contains(userId) && lastChange < 5000
+    }
+  }
 
   def getChangedModeOn(wbId: String): Long = getWhiteboard(wbId).changedModeOn
 

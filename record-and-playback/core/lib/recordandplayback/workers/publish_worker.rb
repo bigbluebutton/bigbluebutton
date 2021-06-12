@@ -35,6 +35,7 @@ module BigBlueButton
 
             # If the publish directory exists, the script does nothing
             FileUtils.rm_rf("#{@recording_dir}/publish/#{@format_name}/#{@full_id}")
+
             remove_status_files
 
             # For legacy reasons, the meeting ID passed to the publish script contains
@@ -60,7 +61,7 @@ module BigBlueButton
             metadata_xml_path = "#{published_dir}/#{@format_name}/#{@full_id}/metadata.xml"
             if File.exist?(metadata_xml_path)
               begin
-                doc = Hash.from_xml(File.open(metadata_xml_path))
+                doc = Hash.from_xml(File.read(metadata_xml_path))
                 playback = doc[:recording][:playback] unless doc[:recording][:playback].nil?
                 metadata = doc[:recording][:meta] unless doc[:recording][:meta].nil?
                 download = doc[:recording][:download] unless doc[:recording][:download].nil?

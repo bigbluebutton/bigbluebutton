@@ -34,6 +34,8 @@ const intlMessages = defineMessages({
 });
 
 let timeRemaining = 0;
+let prevTimeRemaining = 0;
+
 const timeRemainingDep = new Tracker.Dependency();
 let timeRemainingInterval = null;
 
@@ -83,13 +85,18 @@ export default injectNotify(injectIntl(withTracker(({
   notify,
   messageDuration,
   timeEndedMessage,
-  alertMessageUnderOneMinute,
+  alertMessage,
+  alertUnderMinutes,
 }) => {
   const data = {};
   if (breakoutRoom) {
     const roomRemainingTime = breakoutRoom.timeRemaining;
+    const localRemainingTime = getTimeRemaining();
+    const shouldResync = prevTimeRemaining !== roomRemainingTime && roomRemainingTime !== localRemainingTime;
 
-    if (!timeRemainingInterval && roomRemainingTime) {
+    if ((!timeRemainingInterval || shouldResync) && roomRemainingTime) {
+      prevTimeRemaining = roomRemainingTime;
+
       timeRemainingInterval = startCounter(
         roomRemainingTime,
         setTimeRemaining,
@@ -104,7 +111,9 @@ export default injectNotify(injectIntl(withTracker(({
   if (timeRemaining >= 0 && timeRemainingInterval) {
     if (timeRemaining > 0) {
       const time = getTimeRemaining();
-      if (time === (1 * 60) && alertMessageUnderOneMinute) notify(alertMessageUnderOneMinute, 'info', 'rooms');
+      if (time === (alertUnderMinutes * 60) && alertMessage) {
+        notify(alertMessage, 'info', 'rooms');
+      }
       data.message = intl.formatMessage(messageDuration, { 0: humanizeSeconds(time) });
     } else {
       clearInterval(timeRemainingInterval);

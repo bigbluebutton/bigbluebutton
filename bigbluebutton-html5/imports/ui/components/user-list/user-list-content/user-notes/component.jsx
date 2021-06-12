@@ -26,6 +26,14 @@ const intlMessages = defineMessages({
     id: 'app.userList.notesListItem.unreadContent',
     description: 'Aria label for notes unread content',
   },
+  locked: {
+    id: 'app.note.locked',
+    description: '',
+  },
+  byModerator: {
+    id: 'app.userList.byModerator',
+    description: '',
+  },
 });
 
 class UserNotes extends Component {
@@ -42,7 +50,7 @@ class UserNotes extends Component {
 
     const lastRevs = NoteService.getLastRevs();
 
-    if (revs !== 0 && revs > lastRevs) this.setState({ unread: true });
+    if (revs !== 0 && revs > lastRevs) this.setUnread(true);
   }
 
   componentDidUpdate(prevProps) {
@@ -50,16 +58,20 @@ class UserNotes extends Component {
     const { unread } = this.state;
 
     if (!isPanelOpened && !unread) {
-      if (prevProps.revs !== revs) this.setState({ unread: true });
+      if (prevProps.revs !== revs) this.setUnread(true);
     }
 
     if (isPanelOpened && unread) {
-      this.setState({ unread: false });
+      this.setUnread(false);
     }
   }
 
+  setUnread(unread) {
+    this.setState({ unread });
+  }
+
   renderNotes() {
-    const { intl } = this.props;
+    const { intl, disableNote } = this.props;
     const { unread } = this.state;
 
     let notification = null;
@@ -78,13 +90,27 @@ class UserNotes extends Component {
 
     return (
       <div
+        aria-label={intl.formatMessage(intlMessages.sharedNotes)}
+        aria-describedby="lockedNote"
         role="button"
         tabIndex={0}
         className={styles.listItem}
         onClick={NoteService.toggleNotePanel}
+        onKeyPress={() => { }}
       >
         <Icon iconName="copy" />
-        <span aria-hidden>{intl.formatMessage(intlMessages.sharedNotes)}</span>
+        <div aria-hidden>
+          <div className={styles.noteTitle} data-test="sharedNotes">
+            {intl.formatMessage(intlMessages.sharedNotes)}
+          </div>
+          {disableNote
+            ? (
+              <div className={styles.noteLock}>
+                <Icon iconName="lock" />
+                <span id="lockedNote">{`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}</span>
+              </div>
+            ) : null}
+        </div>
         {notification}
       </div>
     );

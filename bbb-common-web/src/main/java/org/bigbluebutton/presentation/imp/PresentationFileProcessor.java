@@ -1,6 +1,7 @@
 package org.bigbluebutton.presentation.imp;
 
 import com.google.gson.Gson;
+import org.bigbluebutton.api.Util;
 import org.bigbluebutton.presentation.*;
 import org.bigbluebutton.presentation.messages.DocPageConversionStarted;
 import org.bigbluebutton.presentation.messages.DocPageCountExceeded;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -53,12 +55,25 @@ public class PresentationFileProcessor {
     }
 
     public synchronized void process(UploadedPresentation pres) {
+        if (pres.isDownloadable()) {
+            processMakePresentationDownloadableMsg(pres);
+        }
+
         Runnable messageProcessor = new Runnable() {
             public void run() {
                 processUploadedPresentation(pres);
             }
         };
         executor.submit(messageProcessor);
+    }
+
+    private void processMakePresentationDownloadableMsg(UploadedPresentation pres) {
+        try {
+            File presentationFileDir = pres.getUploadedFile().getParentFile();
+            Util.makePresentationDownloadable(presentationFileDir, pres.getId(), pres.isDownloadable());
+        } catch (IOException e) {
+            log.error("Failed to make presentation downloadable: {}", e);
+        }
     }
 
     private void processUploadedPresentation(UploadedPresentation pres) {

@@ -1,5 +1,5 @@
-@import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/_indicators";
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 :root {
   --whiteboard-toolbar-padding-sm: .3rem; 
@@ -79,7 +79,9 @@
     &:-moz-focusring {
       outline: none;
     }
-
+    border: 0;
+    background-color: var(--color-off-white);
+    cursor: pointer;
     margin: 0 var(--whiteboard-toolbar-margin) 0 0;
     padding: var(--whiteboard-toolbar-padding);
     padding-left: var(--whiteboard-toolbar-padding-sm);
@@ -161,11 +163,11 @@
   }
   
   &:hover {
-    @include highContrastOutline();
+    @extend %highContrastOutline;
   }
 
   &:focus {
-    @include highContrastOutline();
+    @extend %highContrastOutline;
     outline-style: solid;
   }
 }

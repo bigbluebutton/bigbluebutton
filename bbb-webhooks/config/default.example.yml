@@ -8,6 +8,7 @@ bbb:
 
 # The port in which the API server will run.
 server:
+  bind: 127.0.0.1
   port: 3005
 
 # Web hooks configs
@@ -47,6 +48,8 @@ hooks:
     - 60000
   # Reset permanent interval when exceeding maximum attemps
   permanentIntervalReset: 8
+  # Hook's request module timeout for socket conn establishment and/or responses (ms)
+  requestTimeout: 5000
 
 # Mappings of internal to external meeting IDs
 mappings:

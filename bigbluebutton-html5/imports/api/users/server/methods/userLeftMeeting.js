@@ -1,33 +1,29 @@
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import { extractCredentials } from '/imports/api/common/server/helpers';
+import ClientConnections from '/imports/startup/server/ClientConnections';
+import { check } from 'meteor/check';
 
 export default function userLeftMeeting() { // TODO-- spread the code to method/modifier/handler
-  // so we don't update the db in a method
-  const { meetingId, requesterUserId } = extractCredentials(this.userId);
+  try {
+    // so we don't update the db in a method
+    const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  const selector = {
-    meetingId,
-    userId: requesterUserId,
-  };
+    check(meetingId, String);
+    check(requesterUserId, String);
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      Logger.error(`leaving dummy user to collection: ${err}`);
-      return;
-    }
-    if (numChanged) {
+    const selector = {
+      meetingId,
+      userId: requesterUserId,
+    };
+
+    const numberAffected = Users.update(selector, { $set: { loggedOut: true } });
+
+    if (numberAffected) {
       Logger.info(`user left id=${requesterUserId} meeting=${meetingId}`);
+      ClientConnections.removeClientConnection(this.userId, this.connection.id);
     }
-  };
-
-  return Users.update(
-    selector,
-    {
-      $set: {
-        loggedOut: true,
-      },
-    },
-    cb,
-  );
+  } catch (err) {
+    Logger.error(`Exception while invoking method userLeftMeeting ${err.stack}`);
+  }
 }

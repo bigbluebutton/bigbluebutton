@@ -5,6 +5,9 @@ import {
   getDeviceId,
   getUserName,
 } from '/imports/api/video-streams/server/helpers';
+import VoiceUsers from '/imports/api/voice-users/';
+
+const BASE_FLOOR_TIME = "0";
 
 export default function sharedWebcam(meetingId, userId, stream) {
   check(meetingId, String);
@@ -12,7 +15,13 @@ export default function sharedWebcam(meetingId, userId, stream) {
   check(stream, String);
 
   const deviceId = getDeviceId(stream);
-  const name = getUserName(userId);
+  const name = getUserName(userId, meetingId);
+  const vu = VoiceUsers.findOne(
+    { meetingId, intId: userId },
+    { fields: { floor: 1, lastFloorTime: 1 }}
+  ) || {};
+  const floor = vu.floor || false;
+  const lastFloorTime = vu.lastFloorTime || BASE_FLOOR_TIME;
 
   const selector = {
     meetingId,
@@ -24,18 +33,18 @@ export default function sharedWebcam(meetingId, userId, stream) {
     $set: {
       stream,
       name,
+      lastFloorTime,
+      floor,
     },
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Error setting stream: ${err}`);
-    }
+  try {
+    const { insertedId } = VideoStreams.upsert(selector, modifier);
 
-    if (numChanged) {
-      return Logger.info(`Updated stream=${stream} meeting=${meetingId}`);
+    if (insertedId) {
+      Logger.info(`Updated stream=${stream} meeting=${meetingId}`);
     }
-  };
-
-  return VideoStreams.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Error setting stream: ${err}`);
+  }
 }

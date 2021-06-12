@@ -1,7 +1,3 @@
-@import "../../stylesheets/variables/_all";
-@import "../../stylesheets/variables/video";
-@import "../video-provider/video-list/styles";
-
 $content-order: 2;
 $before-content-order: 1;
 $after-content-order: 3;
@@ -95,15 +91,7 @@ $after-content-order: 3;
 
 // used to fully hide the presentation area when minimized
 .hideOverlay {
-  visibility: hidden !important;
   position: absolute !important;
-  overflow: hidden !important;
-  clip: rect(0 0 0 0) !important;
-  width: 1px !important;
-  height: 1px !important;
-  margin: -1px !important;
-  padding: 0 !important;
-  border: 0 !important;
 }
 
 .floatingOverlay {
@@ -227,6 +215,52 @@ $after-content-order: 3;
   height: 100% !important;
   &:hover{
     background-color: rgba(255, 255, 255, .3);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.connectingSpinner {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  color: var(--color-white-with-transparency);
+  font-size: 2.5rem;
+  text-align: center;
+  white-space: nowrap;
+  z-index: 1;
+
+
+  &::after {
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    margin: 0 -0.25em 0 0;
+
+    [dir="rtl"] & {
+      margin: 0 0 0 -0.25em
+    }
+  }
+
+  &::before {
+    content: "\e949";
+    /* ascii code for the ellipsis character */
+    font-family: 'bbb-icons' !important;
+    display: inline-block;
+
+    :global(.animationsEnabled) & {
+      animation: spin 4s infinite linear;
+    }
   }
 }
 

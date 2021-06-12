@@ -26,6 +26,7 @@ public class ESLEventListener implements IEslEventListener {
     private static final String STOP_RECORDING_EVENT = "stop-recording";
     private static final String CONFERENCE_CREATED_EVENT = "conference-create";
     private static final String CONFERENCE_DESTROYED_EVENT = "conference-destroy";
+    private static final String FLOOR_CHANGE_EVENT = "video-floor-change";
 
     private static final String SCREENSHARE_CONFERENCE_NAME_SUFFIX = "-SCREENSHARE";
 
@@ -56,7 +57,7 @@ public class ESLEventListener implements IEslEventListener {
     private static final Pattern CALLERNAME_PATTERN = Pattern.compile("(.*)-bbbID-(.*)$");
     private static final Pattern CALLERNAME_WITH_SESS_INFO_PATTERN = Pattern.compile("^(.*)_(\\d+)-bbbID-(.*)$");
     private static final Pattern CALLERNAME_LISTENONLY_PATTERN = Pattern.compile("^(.*)_(\\d+)-bbbID-LISTENONLY-(.*)$");
-    private static final Pattern ECHO_TEST_DEST_PATTERN = Pattern.compile("^9196(\\d+)$");
+    private static final Pattern ECHO_TEST_DEST_PATTERN = Pattern.compile("^echo(\\d+)$");
     
     @Override
     public void conferenceEventJoin(String uniqueId, String confName, int confSize, EslEvent event) {
@@ -197,6 +198,12 @@ public class ESLEventListener implements IEslEventListener {
         } else if (action.equals(CONFERENCE_DESTROYED_EVENT)) {
             VoiceConfRunningEvent pt = new VoiceConfRunningEvent(confName, false);
             conferenceEventListener.handleConferenceEvent(pt);
+        } else if (action.equals(FLOOR_CHANGE_EVENT)) {
+            String holderMemberId = this.getNewFloorHolderMemberIdFromEvent(event);
+            String oldHolderMemberId = this.getOldFloorHolderMemberIdFromEvent(event);
+            String floorTimestamp = event.getEventHeaders().get("Event-Date-Timestamp");
+            AudioFloorChangedEvent vFloor= new AudioFloorChangedEvent(confName, holderMemberId, oldHolderMemberId, floorTimestamp);
+            conferenceEventListener.handleConferenceEvent(vFloor);
         } else {
             log.warn("Unknown conference Action [" + action + "]");
         }
@@ -334,7 +341,13 @@ public class ESLEventListener implements IEslEventListener {
                     callerName = callerListenOnly.group(3).trim();
                 }
 
-                VoiceCallStateEvent csEvent = new VoiceCallStateEvent(varvBridge,
+                String conf = origCallerDestNumber;
+                Matcher callerDestNumberMatcher = ECHO_TEST_DEST_PATTERN.matcher(origCallerDestNumber);
+                if (callerDestNumberMatcher.matches()) {
+                    conf = callerDestNumberMatcher.group(1).trim();
+                }
+
+                VoiceCallStateEvent csEvent = new VoiceCallStateEvent(conf,
                         coreuuid,
                         clientSession,
                         voiceUserId,
@@ -367,7 +380,13 @@ public class ESLEventListener implements IEslEventListener {
                     callerName = callerListenOnly.group(3).trim();
                 }
 
-                VoiceCallStateEvent csEvent = new VoiceCallStateEvent(varvBridge,
+                String conf = origCallerDestNumber;
+                Matcher callerDestNumberMatcher = ECHO_TEST_DEST_PATTERN.matcher(origCallerDestNumber);
+                if (callerDestNumberMatcher.matches()) {
+                    conf = callerDestNumberMatcher.group(1).trim();
+                }
+
+                VoiceCallStateEvent csEvent = new VoiceCallStateEvent(conf,
                         coreuuid,
                         clientSession,
                         voiceUserId,
@@ -493,6 +512,22 @@ public class ESLEventListener implements IEslEventListener {
 
     private String getRecordFilenameFromEvent(EslEvent e) {
         return e.getEventHeaders().get("Path");
+    }
+
+    private String getOldFloorHolderMemberIdFromEvent(EslEvent e) {
+        String oldFloorHolder = e.getEventHeaders().get("Old-ID");
+        if(oldFloorHolder == null || oldFloorHolder.equalsIgnoreCase("none")) {
+            oldFloorHolder= "";
+        }
+        return oldFloorHolder;
+    }
+
+    private String getNewFloorHolderMemberIdFromEvent(EslEvent e) {
+        String newHolder = e.getEventHeaders().get("New-ID");
+        if(newHolder == null || newHolder.equalsIgnoreCase("none")) {
+            newHolder = "";
+        }
+        return newHolder;
     }
 
     // Distinguish between recording to a file:

@@ -7,12 +7,11 @@ import ErrorScreen from '/imports/ui/components/error-screen/component';
 import MeetingEnded from '/imports/ui/components/meeting-ended/component';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
-import AudioManager from '/imports/ui/services/audio-manager';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import { Session } from 'meteor/session';
 import { FormattedMessage } from 'react-intl';
-import IntlStartup from './intl';
+import { Meteor } from 'meteor/meteor';
 import Meetings, { RecordMeetings } from '../../api/meetings';
 import AppService from '/imports/ui/components/app/service';
 import Breakouts from '/imports/api/breakouts';
@@ -20,6 +19,10 @@ import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import LayoutManagerContainer from '/imports/ui/components/layout/layout-manager/container';
+import { withLayoutContext } from '/imports/ui/components/layout/context';
+import VideoService from '/imports/ui/components/video-provider/service';
+import DebugWindow from '/imports/ui/components/debug-window/component';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
@@ -30,17 +33,16 @@ const BREAKOUT_END_NOTIFY_DELAY = 50;
 const HTML = document.getElementsByTagName('html')[0];
 
 let breakoutNotified = false;
+let checkedUserSettings = false;
 
 const propTypes = {
   subscriptionsReady: PropTypes.bool,
-  locale: PropTypes.string,
   approved: PropTypes.bool,
   meetingHasEnded: PropTypes.bool.isRequired,
   meetingExist: PropTypes.bool,
 };
 
 const defaultProps = {
-  locale: undefined,
   approved: false,
   meetingExist: false,
   subscriptionsReady: false,
@@ -78,23 +80,59 @@ class Base extends Component {
   componentDidMount() {
     const { animations } = this.props;
 
+    const {
+      userID: localUserId,
+    } = Auth;
+
     if (animations) HTML.classList.add('animationsEnabled');
     if (!animations) HTML.classList.add('animationsDisabled');
-
-    if (getFromUserSettings('bbb_show_participants_on_login', true) && !deviceInfo.type().isPhone) {
-      Session.set('openPanel', 'userlist');
-      if (CHAT_ENABLED) {
-        Session.set('openPanel', 'chat');
-        Session.set('idChatOpen', PUBLIC_CHAT_ID);
-      }
-    } else {
-      Session.set('openPanel', '');
-    }
 
     fullscreenChangedEvents.forEach((event) => {
       document.addEventListener(event, Base.handleFullscreenChange);
     });
     Session.set('isFullscreen', false);
+
+    const users = Users.find({
+      meetingId: Auth.meetingID,
+      validated: true,
+      userId: { $ne: localUserId },
+    }, { fields: { name: 1, userId: 1 } });
+
+    users.observe({
+      added: (user) => {
+        const subscriptionsReady = Session.get('subscriptionsReady');
+
+        if (!subscriptionsReady) return;
+
+        const {
+          userJoinAudioAlerts,
+          userJoinPushAlerts,
+        } = Settings.application;
+
+        if (!userJoinAudioAlerts && !userJoinPushAlerts) return;
+
+        if (userJoinAudioAlerts) {
+          AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
+            + Meteor.settings.public.app.basename
+            + Meteor.settings.public.app.instanceId}`
+            + '/resources/sounds/userJoin.mp3');
+        }
+
+        if (userJoinPushAlerts) {
+          notify(
+            <FormattedMessage
+              id="app.notification.userJoinPushAlert"
+              description="Notification for a user joins the meeting"
+              values={{
+                0: user.name,
+              }}
+            />,
+            'info',
+            'user',
+          );
+        }
+      },
+    });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -105,11 +143,22 @@ class Base extends Component {
       ejected,
       isMeteorConnected,
       subscriptionsReady,
+      layoutContextDispatch,
+      usersVideo,
     } = this.props;
     const {
       loading,
       meetingExisted,
     } = this.state;
+
+    if (usersVideo !== prevProps.usersVideo) {
+      layoutContextDispatch(
+        {
+          type: 'setUsersVideo',
+          value: usersVideo.length,
+        },
+      );
+    }
 
     if (!prevProps.subscriptionsReady && subscriptionsReady) {
       logger.info({ logCode: 'startup_client_subscriptions_ready' }, 'Subscriptions are ready');
@@ -127,7 +176,7 @@ class Base extends Component {
     // In case the meeting delayed to load
     if (!subscriptionsReady || !meetingExist) return;
 
-    if (approved && loading && subscriptionsReady) this.updateLoadingState(false);
+    if (approved && loading) this.updateLoadingState(false);
 
     if (prevProps.ejected || ejected) {
       Session.set('codeError', '403');
@@ -171,9 +220,10 @@ class Base extends Component {
     const { updateLoadingState } = this;
     const stateControls = { updateLoadingState };
     const { loading } = this.state;
-    const codeError = Session.get('codeError');
     const {
+      codeError,
       ejected,
+      ejectedReason,
       meetingExist,
       meetingHasEnded,
       meetingIsBreakout,
@@ -186,42 +236,45 @@ class Base extends Component {
     }
 
     if (ejected) {
-      AudioManager.exitAudio();
-      return (<MeetingEnded code="403" />);
+      return (<MeetingEnded code="403" reason={ejectedReason} />);
     }
 
-    if (meetingHasEnded && meetingIsBreakout) window.close();
+    if ((meetingHasEnded || User?.loggedOut) && meetingIsBreakout) {
+      window.close();
+      return null;
+    }
 
-    if (((meetingHasEnded && !meetingIsBreakout)) || (codeError && (User && User.loggedOut))) {
-      AudioManager.exitAudio();
+    if (((meetingHasEnded && !meetingIsBreakout)) || (codeError && User?.loggedOut)) {
       return (<MeetingEnded code={codeError} />);
     }
 
     if (codeError && !meetingHasEnded) {
       // 680 is set for the codeError when the user requests a logout
       if (codeError !== '680') {
-        logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${codeError}`);
+        return (<ErrorScreen code={codeError} />);
       }
-      return (<ErrorScreen code={codeError} />);
+      return (<MeetingEnded code={codeError} />);
     }
-    // this.props.annotationsHandler.stop();
+
     return (<AppContainer {...this.props} baseControls={stateControls} />);
   }
 
   render() {
-    const { updateLoadingState } = this;
-    const { locale, meetingExist } = this.props;
-    const stateControls = { updateLoadingState };
+    const {
+      meetingExist,
+    } = this.props;
     const { meetingExisted } = this.state;
 
     return (
-      (!meetingExisted && !meetingExist && Auth.loggedIn)
-        ? <LoadingScreen />
-        : (
-          <IntlStartup locale={locale} baseControls={stateControls}>
-            {this.renderByState()}
-          </IntlStartup>
-        )
+      <>
+        {meetingExist && Auth.loggedIn && <DebugWindow />}
+        {meetingExist && Auth.loggedIn && <LayoutManagerContainer />}
+        {
+          (!meetingExisted && !meetingExist && Auth.loggedIn)
+            ? <LoadingScreen />
+            : this.renderByState()
+        }
+      </>
     );
   }
 }
@@ -231,16 +284,12 @@ Base.defaultProps = defaultProps;
 
 const BaseContainer = withTracker(() => {
   const {
-    locale,
     animations,
-    userJoinAudioAlerts,
-    userJoinPushAlerts,
   } = Settings.application;
 
   const {
     credentials,
     loggedIn,
-    userID: localUserId,
   } = Auth;
 
   const { meetingId } = credentials;
@@ -251,6 +300,7 @@ const BaseContainer = withTracker(() => {
     approved: 1,
     authed: 1,
     ejected: 1,
+    ejectedReason: 1,
     color: 1,
     effectiveConnectionType: 1,
     extId: 1,
@@ -260,6 +310,8 @@ const BaseContainer = withTracker(() => {
     loggedOut: 1,
     meetingId: 1,
     userId: 1,
+    inactivityCheck: 1,
+    responseDelay: 1,
   };
   const User = Users.findOne({ intId: credentials.requesterUserId }, { fields });
   const meeting = Meetings.findOne({ meetingId }, {
@@ -273,8 +325,10 @@ const BaseContainer = withTracker(() => {
     Session.set('codeError', '410');
   }
 
-  const approved = User && User.approved && User.guest;
-  const ejected = User && User.ejected;
+  const approved = User?.approved && User?.guest;
+  const ejected = User?.ejected;
+  const ejectedReason = User?.ejectedReason;
+
   let userSubscriptionHandler;
 
   Breakouts.find({}, { fields: { _id: 1 } }).observeChanges({
@@ -337,37 +391,32 @@ const BaseContainer = withTracker(() => {
     },
   });
 
-  if (userJoinAudioAlerts || userJoinPushAlerts) {
-    Users.find({}, { fields: { validated: 1, name: 1, userId: 1 } }).observe({
-      changed: (newDocument) => {
-        if (newDocument.validated && newDocument.name && newDocument.userId !== localUserId) {
-          if (userJoinAudioAlerts) {
-            const audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/userJoin.mp3`);
-            audio.play();
-          }
-
-          if (userJoinPushAlerts) {
-            notify(
-              <FormattedMessage
-                id="app.notification.userJoinPushAlert"
-                description="Notification for a user joins the meeting"
-                values={{
-                  0: newDocument.name,
-                }}
-              />,
-              'info',
-              'user',
-            );
-          }
+  if (Session.equals('openPanel', undefined) || Session.equals('subscriptionsReady', true)) {
+    if (!checkedUserSettings) {
+      if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
+        if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
+          Session.set('openPanel', 'chat');
+          Session.set('idChatOpen', PUBLIC_CHAT_ID);
+        } else {
+          Session.set('openPanel', 'userlist');
         }
-      },
-    });
+      } else {
+        Session.set('openPanel', '');
+      }
+      window.dispatchEvent(new Event('panelChanged'));
+      if (Session.equals('subscriptionsReady', true)) {
+        checkedUserSettings = true;
+      }
+    }
   }
+
+  const codeError = Session.get('codeError');
+  const { streams: usersVideo } = VideoService.getVideoStreams();
 
   return {
     approved,
     ejected,
-    locale,
+    ejectedReason,
     userSubscriptionHandler,
     breakoutRoomSubscriptionHandler,
     meetingModeratorSubscriptionHandler,
@@ -379,7 +428,9 @@ const BaseContainer = withTracker(() => {
     meetingIsBreakout: AppService.meetingIsBreakout(),
     subscriptionsReady: Session.get('subscriptionsReady'),
     loggedIn,
+    codeError,
+    usersVideo,
   };
-})(Base);
+})(withLayoutContext(Base));
 
 export default BaseContainer;

@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
-import Button from '/imports/ui/components/button/component';
-import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
 import { Session } from 'meteor/session';
+import AudioManager from '/imports/ui/services/audio-manager';
+import logger from '/imports/startup/client/logger';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -14,6 +14,9 @@ const intlMessages = defineMessages({
   },
   410: {
     id: 'app.error.410',
+  },
+  408: {
+    id: 'app.error.408',
   },
   404: {
     id: 'app.error.404',
@@ -28,9 +31,14 @@ const intlMessages = defineMessages({
   400: {
     id: 'app.error.400',
   },
-  leave: {
-    id: 'app.error.leaveLabel',
-    description: 'aria-label for leaving',
+  user_logged_out_reason: {
+    id: 'app.error.userLoggedOut',
+  },
+  validate_token_failed_eject_reason: {
+    id: 'app.error.ejectedUser',
+  },
+  banned_user_rejoining_reason: {
+    id: 'app.error.userBanned',
   },
 });
 
@@ -45,9 +53,12 @@ const defaultProps = {
   code: 500,
 };
 
-class ErrorScreen extends React.PureComponent {
+class ErrorScreen extends PureComponent {
   componentDidMount() {
+    const { code } = this.props;
+    AudioManager.exitAudio();
     Meteor.disconnect();
+    logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${code}`);
   }
 
   render() {
@@ -63,32 +74,29 @@ class ErrorScreen extends React.PureComponent {
       formatedMessage = intl.formatMessage(intlMessages[code]);
     }
 
+    let errorMessageDescription = Session.get('errorMessageDescription');
+
+    if (code === 403 && errorMessageDescription in intlMessages) {
+      errorMessageDescription = intl.formatMessage(intlMessages[errorMessageDescription]);
+    }
+
     return (
       <div className={styles.background}>
-        <h1 className={styles.codeError}>
-          {code}
-        </h1>
         <h1 className={styles.message}>
           {formatedMessage}
         </h1>
+        {
+          !errorMessageDescription || (
+            <div className={styles.sessionMessage}>
+              {errorMessageDescription}
+            </div>)
+        }
         <div className={styles.separator} />
+        <h1 className={styles.codeError}>
+          {code}
+        </h1>
         <div>
           {children}
-        </div>
-        {
-          !Session.get('errorMessageDescription') || (
-          <div className={styles.sessionMessage}>
-            {Session.get('errorMessageDescription')}
-          </div>)
-        }
-        <div>
-          <Button
-            size="sm"
-            color="primary"
-            className={styles.button}
-            onClick={logoutRouteHandler}
-            label={intl.formatMessage(intlMessages.leave)}
-          />
         </div>
       </div>
     );

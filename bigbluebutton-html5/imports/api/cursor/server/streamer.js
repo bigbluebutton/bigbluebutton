@@ -1,4 +1,5 @@
 import Logger from '/imports/startup/server/logger';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 import publishCursorUpdate from './methods/publishCursorUpdate';
 
 const { streamerLog } = Meteor.settings.private.serverLog;
@@ -11,12 +12,12 @@ export function removeCursorStreamer(meetingId) {
 export function addCursorStreamer(meetingId) {
   const streamer = new Meteor.Streamer(`cursor-${meetingId}`, { retransmit: false });
   if (streamerLog) {
-    Logger.debug(`Cursor streamer created for meeting ${meetingId}`);
+    Logger.debug('Cursor streamer created', { meetingId });
   }
 
   streamer.allowRead(function allowRead() {
     if (streamerLog) {
-      Logger.debug(`Cursor streamer called allowRead for user ${this.userId} in meeting ${meetingId}`);
+      Logger.debug('Cursor streamer called allowRead', { userId: this.userId, meetingId });
     }
     return this.userId && this.userId.includes(meetingId);
   });
@@ -25,8 +26,9 @@ export function addCursorStreamer(meetingId) {
     return this.userId && this.userId.includes(meetingId);
   });
 
-  streamer.on('publish', (message) => {
-    publishCursorUpdate(meetingId, message.userId, message.payload);
+  streamer.on('publish', function (message) {
+    const { requesterUserId } = extractCredentials(this.userId);
+    publishCursorUpdate(meetingId, requesterUserId, message);
   });
 }
 

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
+import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { styles } from './styles';
 import Service from './service';
 
@@ -38,13 +39,14 @@ const getResponseString = (obj) => {
   if (typeof children !== 'string') {
     return getResponseString(children[1]);
   }
+
   return children;
 };
 
 class LiveResult extends PureComponent {
   static getDerivedStateFromProps(nextProps) {
     const {
-      currentPoll, intl, pollAnswerIds,
+      currentPoll, intl, pollAnswerIds, usernames,
     } = nextProps;
 
     if (!currentPoll) return null;
@@ -53,14 +55,15 @@ class LiveResult extends PureComponent {
       answers, responses, users, numRespondents,
     } = currentPoll;
 
+    const currentPollQuestion = (currentPoll.question) ? currentPoll.question : '';
+
     let userAnswers = responses
       ? [...users, ...responses.map(u => u.userId)]
       : [...users];
 
-    userAnswers = userAnswers.map(id => Service.getUser(id))
-      .filter(user => user.connectionStatus === 'online')
+    userAnswers = userAnswers.map(id => usernames[id])
       .map((user) => {
-        let answer = '-';
+        let answer = '';
 
         if (responses) {
           const response = responses.find(r => r.userId === user.userId);
@@ -80,7 +83,7 @@ class LiveResult extends PureComponent {
           (
             <tr key={_.uniqueId('stats-')}>
               <td className={styles.resultLeft}>{user.name}</td>
-              <td className={styles.resultRight}>
+              <td data-test="receivedAnswer" className={styles.resultRight}>
                 {
                   pollAnswerIds[formattedMessageIndex]
                     ? intl.formatMessage(pollAnswerIds[formattedMessageIndex])
@@ -94,7 +97,7 @@ class LiveResult extends PureComponent {
 
     const pollStats = [];
 
-    answers.map((obj) => {
+    answers.reduce(caseInsensitiveReducer, []).map((obj) => {
       const formattedMessageIndex = obj.key.toLowerCase();
       const pct = Math.round(obj.numVotes / numRespondents * 100);
       const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
@@ -126,6 +129,7 @@ class LiveResult extends PureComponent {
     return {
       userAnswers,
       pollStats,
+      currentPollQuestion,
     };
   }
 
@@ -135,6 +139,7 @@ class LiveResult extends PureComponent {
     this.state = {
       userAnswers: null,
       pollStats: null,
+      currentPollQuestion: null,
     };
   }
 
@@ -145,10 +150,9 @@ class LiveResult extends PureComponent {
       stopPoll,
       handleBackClick,
       currentPoll,
-      sendGroupMessage,
     } = this.props;
 
-    const { userAnswers, pollStats } = this.state;
+    const { userAnswers, pollStats, currentPollQuestion } = this.state;
 
     let waiting;
     let userCount = 0;
@@ -158,7 +162,7 @@ class LiveResult extends PureComponent {
       userCount = userAnswers.length;
       userAnswers.map((user) => {
         const response = getResponseString(user);
-        if (response === '-') return user;
+        if (response === '') return user;
         respondedCount += 1;
         return user;
       });
@@ -169,40 +173,30 @@ class LiveResult extends PureComponent {
     return (
       <div>
         <div className={styles.stats}>
+          {currentPollQuestion ? <span className={styles.title}>{currentPollQuestion}</span> : null}
+          <div className={styles.status}>
+            {waiting
+              ? (
+                <span>
+                  {`${intl.formatMessage(intlMessages.waitingLabel, {
+                    0: respondedCount,
+                    1: userCount,
+                  })} `}
+                </span>
+              )
+              : <span>{intl.formatMessage(intlMessages.doneLabel)}</span>}
+            {waiting
+              ? <span className={styles.connectingAnimation} /> : null}
+          </div>
           {pollStats}
         </div>
-        <div className={styles.status}>
-          {waiting
-            ? (
-              <span>
-                {`${intl.formatMessage(intlMessages.waitingLabel, {
-                  0: respondedCount,
-                  1: userCount,
-                })} `}
-              </span>
-            )
-            : <span>{intl.formatMessage(intlMessages.doneLabel)}</span>}
-          {waiting
-            ? <span className={styles.connectingAnimation} /> : null}
-        </div>
-        {currentPoll
+        {currentPoll && currentPoll.answers.length > 0
           ? (
             <Button
               disabled={!isMeteorConnected}
               onClick={() => {
                 Session.set('pollInitiated', false);
                 Service.publishPoll();
-                const { answers, numRespondents } = currentPoll;
-
-                let resultString = 'bbb-published-poll-\n';
-                answers.forEach((item) => {
-                  const pct = Math.round(item.numVotes / numRespondents * 100);
-                  const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
-
-                  resultString += `${item.key}: ${item.numVotes || 0} | ${pctFotmatted}\n`;
-                });
-
-                sendGroupMessage(resultString);
                 stopPoll();
               }}
               label={intl.formatMessage(intlMessages.publishLabel)}
@@ -217,11 +211,12 @@ class LiveResult extends PureComponent {
                 handleBackClick();
               }}
               label={intl.formatMessage(intlMessages.backLabel)}
-              color="default"
+              color="primary"
               className={styles.btn}
             />
           )
         }
+        <div className={styles.separator} />
         <table>
           <tbody>
             <tr>

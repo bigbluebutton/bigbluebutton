@@ -1,15 +1,6 @@
-@import "/imports/ui/stylesheets/variables/_all";
-
 /* Variables
  * ==========
  */
-
-:root {
-  --loader-bg: var(--color-gray-dark);
-  --loader-bullet: var(--color-white);
-  --loader-message-color: var(--color-white);
-}
-
 .background {
   position: fixed;
   display: flex;
@@ -18,6 +9,7 @@
   width: 100%;
   height: 100%;
   background-color: var(--loader-bg);
+  z-index: 4;
 }
 
 .message {

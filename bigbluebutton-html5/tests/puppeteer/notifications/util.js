@@ -2,50 +2,55 @@ const ne = require('../notifications/elements');
 const ule = require('../user/elements');
 const ce = require('../chat/elements');
 const e = require('../core/elements');
+const { ELEMENT_WAIT_TIME } = require('../core/constants');
 
 async function clickTestElement(element) {
   await document.querySelectorAll(element)[0].click();
 }
 
-async function popupMenu(page) {
-  await page.page.evaluate(clickTestElement, e.options);
-  await page.page.evaluate(clickTestElement, ne.settings);
+async function popupMenu(test) {
+  await test.page.evaluate(clickTestElement, e.options);
+  await test.page.evaluate(clickTestElement, ne.settings);
 }
 
 async function enableChatPopup(test) {
-  await test.waitForSelector(ne.chatPushAlerts);
-  await test.page.evaluate(() => document.querySelector('[data-test="chatPushAlerts"]').children[0].click());
+  await test.waitForSelector(ne.notificationsTab, ELEMENT_WAIT_TIME);
+  await test.page.evaluate(clickTestElement, ne.notificationsTab);
+  await test.waitForSelector(ne.chatPushAlerts, ELEMENT_WAIT_TIME);
+  await test.page.evaluate(clickTestElement, ne.chatPushAlerts);
 }
 
 async function enableUserJoinPopup(test) {
-  await test.waitForSelector(ne.userJoinPushAlerts);
-  await test.page.evaluate(() => document.querySelector('[data-test="userJoinPushAlerts"]').children[0].click());
+  await test.waitForSelector(ne.notificationsTab, ELEMENT_WAIT_TIME);
+  await test.page.evaluate(clickTestElement, ne.notificationsTab);
+  await test.waitForSelector(ne.userJoinPushAlerts, ELEMENT_WAIT_TIME);
+  await test.page.evaluate(clickTestElement, ne.userJoinPushAlerts);
 }
 
 async function saveSettings(page) {
-  await page.waitForSelector(ne.saveSettings);
+  await page.waitForSelector(ne.saveSettings, ELEMENT_WAIT_TIME);
   await page.click(ne.saveSettings, true);
 }
 
 async function waitForToast(test) {
-  await test.waitForSelector(ne.smallToastMsg);
+  await test.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
   const resp = await test.page.evaluate(getTestElement, ne.smallToastMsg) !== null;
   return resp;
 }
 
 async function getLastToastValue(test) {
-  await test.waitForSelector(ne.smallToastMsg);
-  const toast = test.page.evaluate(() => {
-    const lastToast = document.querySelectorAll('[data-test="toastSmallMsg"]')[0].innerText;
+  await test.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
+  const toast = test.page.evaluate(async () => {
+    const lastToast = await document.querySelectorAll('div[data-test="toastSmallMsg"]')[0].innerText;
     return lastToast;
   });
   return toast;
 }
 
 async function getOtherToastValue(test) {
-  await test.waitForSelector(ne.smallToastMsg);
-  const toast = test.page.evaluate(() => {
-    const lastToast = document.querySelectorAll('[data-test="toastSmallMsg"]')[1].innerText;
+  await test.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
+  const toast = test.page.evaluate(async () => {
+    const lastToast = await document.querySelectorAll('div[data-test="toastSmallMsg"]')[1].innerText;
     return lastToast;
   });
   return toast;
@@ -69,7 +74,7 @@ async function publicChatMessageToast(page1, page2) {
   await page1.page.evaluate(clickThePrivateChatButton, ce.activeChat);
   // send a public message
   await page2.page.type(ce.publicChat, ce.publicMessage1);
-  await page2.page.click(ce.sendButton, true);
+  await page2.click(ce.sendButton, true);
   return ne.publicChatToast;
 }
 
@@ -79,7 +84,7 @@ async function privateChatMessageToast(page2) {
   await page2.page.evaluate(clickThePrivateChatButton, ce.activeChat);
   // send a private message
   await page2.page.type(ce.privateChat, ce.message1);
-  await page2.page.click(ce.sendButton, true);
+  await page2.click(ce.sendButton, true);
   return ne.privateChatToast;
 }
 
@@ -93,19 +98,18 @@ async function getFileItemStatus(element, value) {
   document.querySelectorAll(element)[1].innerText.includes(value);
 }
 
-async function clickRandomPollOption(element) {
-  document.querySelector(element).click();
-}
-
 async function startPoll(test) {
   await test.page.evaluate(clickOnElement, ne.dropdownContent);
   await test.page.evaluate(clickOnElement, ne.polling);
-  await test.waitForSelector(ne.hidePollDesc);
-  await test.waitForSelector(ne.pollBtn);
-  await test.page.evaluate(clickRandomPollOption, ne.pollBtn);
-  await test.waitForSelector(ne.publishLabel);
+  await test.waitForSelector(ne.hidePollDesc, ELEMENT_WAIT_TIME);
+  await test.waitForSelector(ne.polling, ELEMENT_WAIT_TIME);
+  await test.page.evaluate(clickOnElement, ne.polling);
+  await test.waitForSelector(ne.pollYesNoAbstentionBtn, ELEMENT_WAIT_TIME);
+  await test.click(ne.pollYesNoAbstentionBtn, true);
+  await test.waitForSelector(ne.startPoll, ELEMENT_WAIT_TIME);
+  await test.click(ne.startPoll, true);
+  await test.waitForSelector(ne.publishLabel, ELEMENT_WAIT_TIME);
   await test.page.evaluate(clickOnElement, ne.publishLabel);
-  await test.waitForSelector(ne.smallToastMsg);
 }
 
 exports.getFileItemStatus = getFileItemStatus;

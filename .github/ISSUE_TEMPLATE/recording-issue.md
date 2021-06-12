@@ -2,10 +2,13 @@
 name: Recording Issue
 about: Template for creating a recording issue
 title: ''
-labels: Recording
+labels: 'module: recording'
 assignees: ''
 
 ---
+
+<!--PLEASE DO NOT FILE ISSUES FOR GENERAL SUPPORT QUESTIONS.
+This issue tracker is only for bbb development related issues.-->
 
 **Describe the bug**
 A clear and concise description of what the bug is.

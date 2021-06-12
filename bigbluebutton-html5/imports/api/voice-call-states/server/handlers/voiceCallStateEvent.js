@@ -36,13 +36,15 @@ export default function handleVoiceCallStateEvent({ body }, meetingId) {
     },
   };
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Update voice call state=${userId}: ${err}`);
+  try {
+    const { numberAffected } = VoiceCallState.upsert(selector, modifier);
+
+    if (numberAffected) {
+      Logger.debug('Update voice call', {
+        state: userId, meetingId, clientSession, callState,
+      });
     }
-
-    return Logger.debug(`Update voice call state=${userId} meeting=${meetingId} clientSession=${clientSession} callState=${callState}`);
-  };
-
-  return VoiceCallState.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Update voice call state=${userId}: ${err}`);
+  }
 }

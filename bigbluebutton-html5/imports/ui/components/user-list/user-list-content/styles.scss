@@ -2,7 +2,7 @@
 @import "/imports/ui/stylesheets/mixins/_scrollable";
 @import "/imports/ui/stylesheets/mixins/focus";
 @import "/imports/ui/stylesheets/mixins/_indicators";
-@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 .content {
   @extend %flex-column;
@@ -20,20 +20,52 @@
 .scrollableList {
   @include elementFocus(var(--list-item-bg-hover));
   @include scrollbox-vertical(var(--user-list-bg));
-  @include highContrastOutline();
 
-  &:focus-within,
-  &:focus {
-    outline-style: solid;
+  outline: none;
+  
+  &:hover {
+    @extend %highContrastOutline;
   }
 
+  &:focus,
   &:active {
     box-shadow: none;
     border-radius: none;
   }
 
-  outline-width: 1px !important;
-  outline-color: transparent !important;
+  overflow-x: hidden;
+}
+
+.virtulizedScrollableList {
+  @include elementFocus(var(--list-item-bg-hover));
+  @include scrollbox-vertical(var(--user-list-bg));
+  
+
+  > div {
+    outline: none;
+  }
+
+
+  &:hover {
+    @extend %highContrastOutline;
+  }
+
+  &:focus,
+  &:active {
+    box-shadow: none;
+    border-radius: none;
+    outline-style: none;
+  }
+
+  flex-grow: 1;
+  flex-shrink: 1;
+
+  margin: 0 0 1px var(--md-padding-y);
+
+  [dir="rtl"] & {
+    margin: 0 var(--md-padding-y) 1px 0;
+  }
+  margin-left: 0;
 }
 
 .list {
@@ -62,7 +94,7 @@
 
   [dir="rtl"]  & {
     padding-right: var(--lg-padding-y);
-    padding-left: none;
+    padding-left: 0;
   }
 
   > i {
@@ -70,6 +102,11 @@
     font-size: 175%;
     color: var(--color-gray-light);
     flex: 0 0 2.2rem;
+    margin-right: var(--sm-padding-x);
+    [dir="rtl"]  & {
+      margin-right: 0;
+      margin-left: var(--sm-padding-x);
+    }
   }
 
   > span {
@@ -91,6 +128,12 @@
     }
   }
 
+  div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   &:active {
     background-color: var(--list-item-bg-hover);
     box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
@@ -100,6 +143,11 @@
 .unreadMessages {
   @extend %flex-column;
   justify-content: center;
+  margin-left: auto;
+  [dir="rtl"] & {
+    margin-right: auto;
+    margin-left: 0;
+  }
 }
 
 .unreadMessagesText {
@@ -133,4 +181,24 @@
   @extend .lists;
   overflow: hidden;
   flex-shrink: 1;
+}
+
+.scrollStyle {
+  @include scrollbox-vertical($bg-color: #f3f6f9);
+  outline: none;
+}
+
+.noteLock {
+  font-weight: 200;
+  font-size: var(--font-size-smaller);
+  color: var(--color-gray);
+
+  > i {
+    font-size: var(--font-size-xs);
+  }
+}
+
+.noteTitle {
+  font-weight: 400;
+  font-size: var(--font-size-small);
 }

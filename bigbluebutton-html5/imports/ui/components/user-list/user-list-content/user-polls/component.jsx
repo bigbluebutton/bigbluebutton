@@ -21,6 +21,7 @@ class UserPolls extends PureComponent {
           ? 'userlist'
           : 'poll',
       );
+      window.dispatchEvent(new Event('panelChanged'));
     };
 
     const {
@@ -46,6 +47,7 @@ class UserPolls extends PureComponent {
               role="button"
               tabIndex={0}
               className={styles.listItem}
+              data-test="pollMenuButton"
               onClick={handleClickTogglePoll}
             >
               <Icon iconName="polling" />

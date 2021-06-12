@@ -11,34 +11,41 @@ export default function editCaptions(padId, data) {
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'EditCaptionHistoryPubMsg';
 
-  check(padId, String);
-  check(data, String);
+  try {
+    check(padId, String);
+    check(data, String);
 
-  const pad = Captions.findOne({ padId });
+    const pad = Captions.findOne({ padId });
 
-  if (!pad) return Logger.error(`Editing captions history: ${padId}`);
+    if (!pad) {
+      Logger.error(`Editing captions history: ${padId}`);
+      return;
+    }
 
-  const {
-    meetingId,
-    ownerId,
-    locale,
-    length,
-  } = pad;
+    const {
+      meetingId,
+      ownerId,
+      locale,
+      length,
+    } = pad;
 
-  check(meetingId, String);
-  check(ownerId, String);
-  check(locale, { locale: String, name: String });
-  check(length, Number);
+    check(meetingId, String);
+    check(ownerId, String);
+    check(locale, { locale: String, name: String });
+    check(length, Number);
 
-  const index = getIndex(data, length);
+    const index = getIndex(data, length);
 
-  const payload = {
-    startIndex: index,
-    localeCode: locale.locale,
-    locale: locale.name,
-    endIndex: index,
-    text: data,
-  };
+    const payload = {
+      startIndex: index,
+      localeCode: locale.locale,
+      locale: locale.name,
+      endIndex: index,
+      text: data,
+    };
 
-  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, ownerId, payload);
+    RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, ownerId, payload);
+  } catch (err) {
+    Logger.error(`Exception while invoking method editCaptions ${err.stack}`);
+  }
 }

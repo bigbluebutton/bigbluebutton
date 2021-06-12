@@ -19,6 +19,10 @@ public class ParamsUtil {
   public static String stripControlChars(String text) {
     return text.replaceAll("\\p{Cc}", "");
   }
+  
+  public static String stripHTMLTags(String value) {
+    return value.replaceAll("\\<.*?>","");
+  }
 
   public static boolean isValidMeetingId(String meetingId) {
     //return  VALID_ID_PATTERN.matcher(meetingId).matches();
@@ -46,5 +50,22 @@ public class ParamsUtil {
       log.error(e.toString());
     }
     return token;
+  }
+
+  public static String getPadId(String url) {
+    String padId = "undefined";
+    try {
+      String decodedURL = URLDecoder.decode(url, "UTF-8");
+      String[] splitURL = decodedURL.split("\\?");
+      // If there is no query params, it's an invalid URL already
+      if (splitURL.length == 2) {
+        String[] params = splitURL[0].split("\\/");
+        // /p/pad/<padId>
+        if (params.length >= 4) padId = params[3];
+      }
+    } catch (UnsupportedEncodingException e) {
+      log.error(e.toString());
+    }
+    return padId;
   }
 }

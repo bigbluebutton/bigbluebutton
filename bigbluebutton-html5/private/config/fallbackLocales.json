@@ -1,0 +1,26 @@
+{
+  "dv": {
+    "englishName": "Dhivehi",
+    "nativeName": "ދިވެހި"
+  },
+  "hy": {
+    "englishName": "Armenian",
+    "nativeName": "Հայերեն"
+  },
+  "ka": {
+    "englishName": "Georgian",
+    "nativeName": "ქართული"
+  },
+  "kk": {
+    "englishName": "Kazakh",
+    "nativeName": "қазақ"
+  },
+  "lo-LA": {
+    "englishName": "Lao",
+    "nativeName": "ລາວ"
+  },
+  "oc": {
+    "englishName": "Occitan",
+    "nativeName": "Occitan"
+  }
+}

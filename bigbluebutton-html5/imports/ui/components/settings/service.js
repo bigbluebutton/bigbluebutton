@@ -2,6 +2,7 @@ import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
+import GuestService from '/imports/ui/components/waiting-users/service';
 
 const getUserRoles = () => {
   const user = Users.findOne({
@@ -9,6 +10,14 @@ const getUserRoles = () => {
   });
 
   return user.role;
+};
+
+const showGuestNotification = () => {
+  const guestPolicy = GuestService.getGuestPolicy();
+
+  // Guest notification only makes sense when guest
+  // entrance is being controlled by moderators
+  return guestPolicy === 'ASK_MODERATOR';
 };
 
 const updateSettings = (obj, msg) => {
@@ -27,10 +36,11 @@ const updateSettings = (obj, msg) => {
   }
 };
 
-const getAvailableLocales = () => fetch('/html5client/locales').then(locales => locales.json());
+const getAvailableLocales = () => fetch('./locale-list').then(locales => locales.json());
 
 export {
   getUserRoles,
+  showGuestNotification,
   updateSettings,
   getAvailableLocales,
 };

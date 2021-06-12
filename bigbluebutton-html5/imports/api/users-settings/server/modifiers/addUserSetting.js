@@ -22,13 +22,13 @@ export default function addUserSetting(meetingId, userId, setting, value) {
     },
   };
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Adding user setting to collection: ${err}`);
+  try {
+    const { numberAffected } = UserSettings.upsert(selector, modifier);
+
+    if (numberAffected) {
+      Logger.verbose('Upserted user setting', { meetingId, userId, setting });
     }
-
-    return Logger.verbose(`Upserted user setting for meetingId=${meetingId} userId=${userId} setting=${setting}`);
-  };
-
-  return UserSettings.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Adding user setting to collection: ${err}`);
+  }
 }

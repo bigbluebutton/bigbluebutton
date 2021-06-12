@@ -17,6 +17,16 @@ object VoiceUsers {
   def findAllFreeswitchCallers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.calledInto == "freeswitch")
   def findAllKurentoCallers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.calledInto == "kms")
 
+  def findAllBannedCallers(users: VoiceUsers): Vector[VoiceUserState] = users.bannedUsers.values.toVector
+
+  def isCallerBanned(callerIdNum: String, users: VoiceUsers): Boolean = {
+    users.bannedUsers.contains(callerIdNum)
+  }
+
+  def ban(users: VoiceUsers, user: VoiceUserState): Unit = {
+    users.ban(user)
+  }
+
   def add(users: VoiceUsers, user: VoiceUserState): Unit = {
     users.save(user)
   }
@@ -57,6 +67,29 @@ object VoiceUsers {
     }
   }
 
+  def becameFloor(users: VoiceUsers, voiceUserId: String, floor: Boolean, timestamp: String): Option[VoiceUserState] = {
+    for {
+      u <- findWithVoiceUserId(users, voiceUserId)
+    } yield {
+      val vu = u.modify(_.floor).setTo(floor)
+        .modify(_.lastFloorTime).setTo(timestamp)
+        .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
+      users.save(vu)
+      vu
+    }
+  }
+
+  def releasedFloor(users: VoiceUsers, voiceUserId: String, floor: Boolean): Option[VoiceUserState] = {
+    for {
+      u <- findWithVoiceUserId(users, voiceUserId)
+    } yield {
+      val vu = u.modify(_.floor).setTo(floor)
+        .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
+      users.save(vu)
+      vu
+    }
+  }
+
   def setLastStatusUpdate(users: VoiceUsers, user: VoiceUserState): VoiceUserState = {
     val vu = user.copy(lastStatusUpdateOn = System.currentTimeMillis())
     users.save(vu)
@@ -67,11 +100,20 @@ object VoiceUsers {
 class VoiceUsers {
   private var users: collection.immutable.HashMap[String, VoiceUserState] = new collection.immutable.HashMap[String, VoiceUserState]
 
+  // Keep track of ejected voice users to prevent them from rejoining.
+  // ralam april 23, 2020
+  private var bannedUsers: collection.immutable.HashMap[String, VoiceUserState] = new collection.immutable.HashMap[String, VoiceUserState]
+
   // Collection of users that left the meeting. We keep a cache of the old users state to recover in case
   // the user reconnected by refreshing the client. (ralam june 13, 2017)
   private var usersCache: collection.immutable.HashMap[String, VoiceUserState] = new collection.immutable.HashMap[String, VoiceUserState]
 
   private def toVector: Vector[VoiceUserState] = users.values.toVector
+
+  private def ban(user: VoiceUserState): VoiceUserState = {
+    bannedUsers += user.callerNum -> user
+    user
+  }
 
   private def save(user: VoiceUserState): VoiceUserState = {
     users += user.intId -> user
@@ -111,16 +153,18 @@ case class VoiceUser2x(
     voiceUserId: String
 )
 case class VoiceUserVO2x(
-    intId:       String,
-    voiceUserId: String,
-    callerName:  String,
-    callerNum:   String,
-    joined:      Boolean,
-    locked:      Boolean,
-    muted:       Boolean,
-    talking:     Boolean,
-    callingWith: String,
-    listenOnly:  Boolean
+    intId:         String,
+    voiceUserId:   String,
+    callerName:    String,
+    callerNum:     String,
+    joined:        Boolean,
+    locked:        Boolean,
+    muted:         Boolean,
+    talking:       Boolean,
+    callingWith:   String,
+    listenOnly:    Boolean,
+    floor:         Boolean,
+    lastFloorTime: String
 )
 
 case class VoiceUserState(
@@ -133,5 +177,7 @@ case class VoiceUserState(
     talking:            Boolean,
     listenOnly:         Boolean,
     calledInto:         String,
-    lastStatusUpdateOn: Long
+    lastStatusUpdateOn: Long,
+    floor:              Boolean,
+    lastFloorTime:      String
 )

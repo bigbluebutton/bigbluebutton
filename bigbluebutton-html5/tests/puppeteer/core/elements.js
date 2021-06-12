@@ -1,4 +1,4 @@
-exports.audioDialog = '[aria-label="Join audio modal"]';
+exports.audioDialog = 'div[aria-label="Join audio modal"]';
 exports.closeAudio = 'button[aria-label="Close Join audio modal"]';
 exports.microphoneButton = 'button[aria-label="Microphone"]';
 exports.listenButton = 'button[aria-label="Listen Only"]';
@@ -8,14 +8,22 @@ exports.alerts = '.toastify-content';
 
 exports.isTalking = '[data-test="isTalking"]';
 exports.wasTalking = '[data-test="wasTalking"]';
-exports.joinAudio = 'button[aria-label="Join Audio"]';
-exports.leaveAudio = 'button[aria-label="Leave Audio"]';
+exports.joinAudio = 'button[data-test="joinAudio"]';
+exports.leaveAudio = 'button[aria-label="Change/Leave audio"]';
+exports.disconnectAudio = 'li[data-test="disconnectAudio"]';
 
 exports.actions = 'button[aria-label="Actions"]';
 exports.options = 'button[aria-label="Options"]';
 exports.userList = 'button[aria-label="Users and Messages Toggle"]';
 exports.joinAudio = 'button[aria-label="Join Audio"]';
-exports.leaveAudio = 'button[aria-label="Leave Audio"]';
+exports.connectingStatus = 'div[class^="connecting--"]';
 exports.videoMenu = 'button[aria-label="Open video menu dropdown"]';
 exports.screenShare = 'button[aria-label="Share your screen"]';
-exports.screenShareVideo = '[id="screenshareVideo"]';
+exports.screenshareConnecting = 'div[data-test="screenshareConnecting"]';
+exports.screenShareVideo = 'video[id="screenshareVideo"]';
+exports.stopScreenSharing = 'button[aria-label="Stop sharing your screen"]';
+exports.logout = 'li[data-test="logout"]';
+exports.meetingEndedModal = 'div[data-test="meetingEndedModal"]';
+exports.rating = 'div[data-test="rating"]';
+exports.whiteboard = 'svg[data-test="whiteboard"]';
+exports.pollMenuButton = 'button[data-test="pollMenuButton"]';

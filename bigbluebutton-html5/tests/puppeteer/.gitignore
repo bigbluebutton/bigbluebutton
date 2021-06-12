@@ -6,3 +6,5 @@ downloads/*
 .directory
 .env
 media/*
+data/
+__image_snapshots__/

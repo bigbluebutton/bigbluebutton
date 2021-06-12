@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import {Meteor} from "meteor/meteor";
 
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
@@ -348,7 +349,7 @@ export default class ShapeDrawListener extends Component {
       tool,
     } = drawSettings;
 
-    const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
+    const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId;
     const shapeDrawStyle = {
       width: '100%',
       height: '100%',

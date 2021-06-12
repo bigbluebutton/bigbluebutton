@@ -11,6 +11,9 @@
 //    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
 // }
 grails.config.locations = [ "classpath:bigbluebutton.properties"]
+if (new File("/etc/bigbluebutton/bbb-web.properties").canRead()) {
+    grails.config.locations << "file:/etc/bigbluebutton/bbb-web.properties"
+}
 
 grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
 
@@ -29,7 +32,11 @@ grails.mime.types = [
     rss:           'application/rss+xml',
     text:          'text/plain',
     hal:           ['application/hal+json','application/hal+xml'],
-    xml:           ['text/xml', 'application/xml']
+    xml:           ['text/xml', 'application/xml'],
+    png:           'image/png',
+    jpg:           'image/jpg',
+    jpeg:          'image/jpg',
+    gif:           'image/gif'
 ]
 
 // URL Mapping Cache Max Size, defaults to 5000

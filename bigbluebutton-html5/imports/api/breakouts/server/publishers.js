@@ -2,30 +2,31 @@ import { Meteor } from 'meteor/meteor';
 import Breakouts from '/imports/api/breakouts';
 import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
-import { extractCredentials } from '/imports/api/common/server/helpers';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
-function breakouts(moderator = false) {
-  if (!this.userId) {
+function breakouts(role) {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing Breakouts was requested by unauth connection ${this.connection.id}`);
     return Breakouts.find({ meetingId: '' });
   }
+  const { meetingId, userId } = tokenValidation;
 
-  const { meetingId, requesterUserId } = extractCredentials(this.userId);
-  Logger.debug(`Publishing Breakouts for ${meetingId} ${requesterUserId}`);
+  const User = Users.findOne({ userId, meetingId }, { fields: { role: 1 } });
+  Logger.debug('Publishing Breakouts', { meetingId, userId });
 
-  if (moderator) {
-    const User = Users.findOne({ userId: requesterUserId, meetingId });
-    if (!!User && User.role === ROLE_MODERATOR) {
-      const presenterSelector = {
-        $or: [
-          { parentMeetingId: meetingId },
-          { breakoutId: meetingId },
-        ],
-      };
+  if (!!User && User.role === ROLE_MODERATOR) {
+    const presenterSelector = {
+      $or: [
+        { parentMeetingId: meetingId },
+        { breakoutId: meetingId },
+      ],
+    };
 
-      return Breakouts.find(presenterSelector);
-    }
+    return Breakouts.find(presenterSelector);
   }
 
   const selector = {
@@ -36,7 +37,7 @@ function breakouts(moderator = false) {
       },
       {
         parentMeetingId: meetingId,
-        'users.userId': requesterUserId,
+        'users.userId': userId,
       },
       {
         breakoutId: meetingId,

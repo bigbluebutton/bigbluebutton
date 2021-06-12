@@ -23,17 +23,15 @@ export default function changeUserLock(meetingId, payload) {
     },
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Changing user lock setting: ${err}`);
+  try {
+    const { numberAffected } = Users.update(selector, modifier);
+
+    if (numberAffected) {
+      Logger.info(`User's userId=${userId} lock status was changed to: ${locked} by user userId=${lockedBy}`);
+    } else {
+      Logger.info(`User's userId=${userId} lock status wasn't updated`);
     }
-
-    if (!numChanged) {
-      return Logger.info(`User's userId=${userId} lock status wasn't updated`);
-    }
-
-    return Logger.info(`User's userId=${userId} lock status was changed to: ${locked} by user userId=${lockedBy}`);
-  };
-
-  return Users.update(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Changing user lock setting: ${err}`);
+  }
 }

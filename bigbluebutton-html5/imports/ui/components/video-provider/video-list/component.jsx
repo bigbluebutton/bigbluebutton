@@ -9,13 +9,18 @@ import { withDraggableConsumer } from '../../media/webcam-draggable-overlay/cont
 import AutoplayOverlay from '../../media/autoplay-overlay/component';
 import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
+import VideoService from '/imports/ui/components/video-provider/service';
+import Button from '/imports/ui/components/button/component';
 
 const propTypes = {
   streams: PropTypes.arrayOf(PropTypes.object).isRequired,
-  onMount: PropTypes.func.isRequired,
+  onVideoItemMount: PropTypes.func.isRequired,
+  onVideoItemUnmount: PropTypes.func.isRequired,
   webcamDraggableDispatch: PropTypes.func.isRequired,
   intl: PropTypes.objectOf(Object).isRequired,
   swapLayout: PropTypes.bool.isRequired,
+  numberOfPages: PropTypes.number.isRequired,
+  currentVideoPageIndex: PropTypes.number.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -31,11 +36,23 @@ const intlMessages = defineMessages({
   unfocusDesc: {
     id: 'app.videoDock.webcamUnfocusDesc',
   },
+  mirrorLabel: {
+    id: 'app.videoDock.webcamMirrorLabel',
+  },
+  mirrorDesc: {
+    id: 'app.videoDock.webcamMirrorDesc',
+  },
   autoplayBlockedDesc: {
     id: 'app.videoDock.autoplayBlockedDesc',
   },
   autoplayAllowLabel: {
     id: 'app.videoDock.autoplayAllowLabel',
+  },
+  nextPageLabel: {
+    id: 'app.video.pagination.nextPage',
+  },
+  prevPageLabel: {
+    id: 'app.video.pagination.prevPage',
   },
 });
 
@@ -61,6 +78,8 @@ const findOptimalGrid = (canvasWidth, canvasHeight, gutter, aspectRatio, numItem
 };
 
 const ASPECT_RATIO = 4 / 3;
+const ACTION_NAME_FOCUS = 'focus';
+const ACTION_NAME_MIRROR = 'mirror';
 
 class VideoList extends Component {
   constructor(props) {
@@ -74,6 +93,7 @@ class VideoList extends Component {
         filledArea: 0,
       },
       autoplayBlocked: false,
+      mirroredCameras: [],
     };
 
     this.ticking = false;
@@ -102,11 +122,13 @@ class VideoList extends Component {
 
     this.handleCanvasResize();
     window.addEventListener('resize', this.handleCanvasResize, false);
+    window.addEventListener('layoutSizesSets', this.handleCanvasResize, false);
     window.addEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleCanvasResize, false);
+    window.removeEventListener('layoutSizesSets', this.handleCanvasResize, false);
     window.removeEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
@@ -197,6 +219,24 @@ class VideoList extends Component {
     window.dispatchEvent(new Event('videoFocusChange'));
   }
 
+  mirrorCamera(stream) {
+    const { mirroredCameras } = this.state;
+    if (this.cameraIsMirrored(stream)) {
+      this.setState({
+        mirroredCameras: mirroredCameras.filter(x => x != stream),
+      });
+    } else {
+      this.setState({
+        mirroredCameras: mirroredCameras.concat([stream]),
+      });
+    }
+  }
+
+  cameraIsMirrored(stream) {
+    const { mirroredCameras } = this.state;
+    return mirroredCameras.indexOf(stream) >= 0;
+  }
+
   handleCanvasResize() {
     if (!this.ticking) {
       window.requestAnimationFrame(() => {
@@ -207,48 +247,106 @@ class VideoList extends Component {
     this.ticking = true;
   }
 
+  renderNextPageButton() {
+    const { intl, numberOfPages, currentVideoPageIndex } = this.props;
+
+    if (!VideoService.isPaginationEnabled() || numberOfPages <= 1) return null;
+
+    const currentPage = currentVideoPageIndex + 1;
+    const nextPageLabel = intl.formatMessage(intlMessages.nextPageLabel);
+    const nextPageDetailedLabel = `${nextPageLabel} (${currentPage}/${numberOfPages})`;
+
+    return (
+      <Button
+        role="button"
+        aria-label={nextPageLabel}
+        color="primary"
+        icon="right_arrow"
+        size="md"
+        onClick={VideoService.getNextVideoPage}
+        label={nextPageDetailedLabel}
+        hideLabel
+        className={cx(styles.nextPage)}
+      />
+    );
+  }
+
+  renderPreviousPageButton() {
+    const { intl, currentVideoPageIndex, numberOfPages } = this.props;
+
+    if (!VideoService.isPaginationEnabled() || numberOfPages <= 1) return null;
+
+    const currentPage = currentVideoPageIndex + 1;
+    const prevPageLabel = intl.formatMessage(intlMessages.prevPageLabel);
+    const prevPageDetailedLabel = `${prevPageLabel} (${currentPage}/${numberOfPages})`;
+
+    return (
+      <Button
+        role="button"
+        aria-label={prevPageLabel}
+        color="primary"
+        icon="left_arrow"
+        size="md"
+        onClick={VideoService.getPreviousVideoPage}
+        label={prevPageDetailedLabel}
+        hideLabel
+        className={cx(styles.previousPage)}
+      />
+    );
+  }
+
   renderVideoList() {
     const {
       intl,
       streams,
-      onMount,
+      onVideoItemMount,
+      onVideoItemUnmount,
       swapLayout,
     } = this.props;
     const { focusedId } = this.state;
 
     const numOfStreams = streams.length;
-    return streams.map((stream) => {
-      const { cameraId, userId, name } = stream;
-      const isFocused = focusedId === cameraId;
+    return streams.map((vs) => {
+      const { stream, userId, name } = vs;
+      const isFocused = focusedId === stream;
       const isFocusedIntlKey = !isFocused ? 'focus' : 'unfocus';
-      let actions = [];
+      const isMirrored = this.cameraIsMirrored(stream);
+      let actions = [{
+        actionName: ACTION_NAME_MIRROR,
+        label: intl.formatMessage(intlMessages['mirrorLabel']),
+        description: intl.formatMessage(intlMessages['mirrorDesc']),
+        onClick: () => this.mirrorCamera(stream),
+      }];
 
       if (numOfStreams > 2) {
-        actions = [{
+        actions.push({
+          actionName: ACTION_NAME_FOCUS,
           label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
           description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
-          onClick: () => this.handleVideoFocus(cameraId),
-        }];
+          onClick: () => this.handleVideoFocus(stream),
+        });
       }
 
       return (
         <div
-          key={cameraId}
+          key={stream}
           className={cx({
             [styles.videoListItem]: true,
-            [styles.focused]: focusedId === cameraId && numOfStreams > 2,
+            [styles.focused]: focusedId === stream && numOfStreams > 2,
           })}
         >
           <VideoListItemContainer
             numOfStreams={numOfStreams}
-            cameraId={cameraId}
+            cameraId={stream}
             userId={userId}
             name={name}
+            mirrored={isMirrored}
             actions={actions}
-            onMount={(videoRef) => {
+            onVideoItemMount={(videoRef) => {
               this.handleCanvasResize();
-              onMount(cameraId, videoRef);
+              onVideoItemMount(stream, videoRef);
             }}
+            onVideoItemUnmount={onVideoItemUnmount}
             swapLayout={swapLayout}
           />
         </div>
@@ -275,6 +373,9 @@ class VideoList extends Component {
         }}
         className={canvasClassName}
       >
+
+        {this.renderPreviousPageButton()}
+
         {!streams.length ? null : (
           <div
             ref={(ref) => {
@@ -298,6 +399,9 @@ class VideoList extends Component {
             handleAllowAutoplay={this.handleAllowAutoplay}
           />
         )}
+
+        {this.renderNextPageButton()}
+
       </div>
     );
   }
