@@ -102,7 +102,7 @@ class TimeWindowChatItem extends PureComponent {
                 <MessageChatItem
                   className={(message.id ? styles.systemMessage : styles.systemMessageNoBorder)}
                   key={message.id ? message.id : _.uniqueId('id-')}
-                  text={intlMessages[message.text] ? intl.formatMessage(intlMessages[message.text]) : message.text }
+                  text={intlMessages[text] ? intl.formatMessage(intlMessages[text]) : text }
                   time={message.time}
                   isSystemMessage={message.id ? true : false}
                   systemMessageType={message.text === CHAT_CLEAR_MESSAGE ? 'chatClearMessageText' : 'chatWelcomeMessageText'}
