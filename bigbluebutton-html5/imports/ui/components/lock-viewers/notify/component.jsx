@@ -64,8 +64,8 @@ const intlEnableMessages = defineMessages({
     description: 'label to show user list notification',
   },
   hideAnnotations: {
-    id: 'app.userList.userOptions.hideAnnotations',
-    description: 'label to hide viewers annotations',
+    id: 'app.userList.userOptions.showAnnotations',
+    description: 'label to show viewers annotations',
   },
   onlyModeratorWebcam: {
     id: 'app.userList.userOptions.enableOnlyModeratorWebcam',
