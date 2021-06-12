@@ -379,6 +379,15 @@ class VideoService {
     return [...paginatedStreams, ...mine];
   }
 
+  getUsersIdFromVideoStreams() {
+    const usersId = VideoStreams.find(
+      { meetingId: Auth.meetingID },
+      { fields: { userId: 1 } },
+    ).fetch().map(user => user.userId);
+
+    return usersId;
+  }
+
   getVideoStreams() {
     const pageSize = this.getMyPageSize();
     const isPaginationDisabled = !this.isPaginationEnabled() || pageSize === 0;
@@ -842,5 +851,6 @@ export default {
   getPreviousVideoPage: () => videoService.getPreviousVideoPage(),
   getNextVideoPage: () => videoService.getNextVideoPage(),
   getPageChangeDebounceTime: () => { return PAGE_CHANGE_DEBOUNCE_TIME },
+  getUsersIdFromVideoStreams: () => videoService.getUsersIdFromVideoStreams(),
   shouldRenderPaginationToggle: () => videoService.shouldRenderPaginationToggle(),
 };
