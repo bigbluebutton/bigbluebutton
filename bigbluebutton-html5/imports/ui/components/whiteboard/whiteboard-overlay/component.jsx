@@ -171,13 +171,15 @@ export default class WhiteboardOverlay extends Component {
     const { tool } = drawSettings;
 
     if (tool === 'triangle' || tool === 'rectangle' || tool === 'ellipse' || tool === 'line') {
-      if (window.PointerEvent) {
+      if (eventWindow.PointerEvent) {
         return (
           <ShapePointerListener
             userId={userId}
             actions={actions}
             drawSettings={drawSettings}
             whiteboardId={whiteboardId}
+            eventWindow={eventWindow}
+            separatePresentationWindow={separatePresentationWindow}
           />
         );
       }
@@ -193,7 +195,7 @@ export default class WhiteboardOverlay extends Component {
         />
       );
     } if (tool === 'pencil') {
-      if (window.PointerEvent) {
+      if (eventWindow.PointerEvent) {
         return (
           <PencilPointerListener
             userId={userId}
@@ -202,6 +204,8 @@ export default class WhiteboardOverlay extends Component {
             actions={actions}
             physicalSlideWidth={physicalSlideWidth}
             physicalSlideHeight={physicalSlideHeight}
+            eventWindow={eventWindow}
+            separatePresentationWindow={separatePresentationWindow}
           />
         );
       }
