@@ -820,7 +820,7 @@ class WhiteboardToolbar extends Component {
 
   render() {
     const { annotationSelected } = this.state;
-    const { isPresenter } = this.props;
+    const { isPresenter, presentationWindow } = this.props;
     return (
       <div className={styles.toolbarContainer}>
         <div className={styles.toolbarWrapper}>
@@ -829,7 +829,7 @@ class WhiteboardToolbar extends Component {
           {this.renderColorItem()}
           {this.renderUndoItem()}
           {this.renderClearAllItem()}
-          {window.PointerEvent ? this.renderPalmRejectionItem() : null}
+          {presentationWindow.PointerEvent ? this.renderPalmRejectionItem() : null}
           {isPresenter ? this.renderMultiUserItem() : null}
         </div>
       </div>
