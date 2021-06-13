@@ -49,7 +49,6 @@ const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
 const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
-const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 const OVERRIDE_LOCALE = APP_CONFIG.defaultSettings.application.overrideLocale;
 
 const intlMessages = defineMessages({
@@ -145,8 +144,6 @@ class App extends Component {
       notify,
       intl,
       validIOSVersion,
-      startBandwidthMonitoring,
-      handleNetworkConnection,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -176,15 +173,6 @@ class App extends Component {
     window.addEventListener('resize', this.handleWindowResize, false);
     window.ondragover = (e) => { e.preventDefault(); };
     window.ondrop = (e) => { e.preventDefault(); };
-
-    if (ENABLE_NETWORK_MONITORING) {
-      if (navigator.connection) {
-        handleNetworkConnection();
-        navigator.connection.addEventListener('change', handleNetworkConnection);
-      }
-
-      startBandwidthMonitoring();
-    }
 
     if (isMobile()) makeCall('setMobileUser');
 
@@ -253,12 +241,7 @@ class App extends Component {
   }
 
   componentWillUnmount() {
-    const { handleNetworkConnection } = this.props;
     window.removeEventListener('resize', this.handleWindowResize, false);
-    if (navigator.connection) {
-      navigator.connection.addEventListener('change', handleNetworkConnection, false);
-    }
-
     ConnectionStatusService.stopRoundTripTime();
   }
 
