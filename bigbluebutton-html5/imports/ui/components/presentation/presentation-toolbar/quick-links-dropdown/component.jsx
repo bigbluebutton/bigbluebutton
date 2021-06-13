@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import _ from 'lodash';
 import { makeCall } from '/imports/ui/services/api';
-import browser from 'browser-detect';
+//import browser from 'browser-detect';
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -31,11 +31,11 @@ const intlMessages = defineMessages({
   },
 });
 
-const BROWSER_RESULTS = browser();
-const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false)
-  || (BROWSER_RESULTS && BROWSER_RESULTS.os
-    ? BROWSER_RESULTS.os.includes('Android') // mobile flag doesn't always work
-    : false);
+//const BROWSER_RESULTS = browser();
+//const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false)
+//  || (BROWSER_RESULTS && BROWSER_RESULTS.os
+//    ? BROWSER_RESULTS.os.includes('Android') // mobile flag doesn't always work
+//    : false);
 
 const propTypes = {
   parseCurrentSlideContent: PropTypes.func.isRequired,
@@ -97,9 +97,10 @@ const QuickLinksDropdown = (props) => {
 
   const { slideId, videoUrls, urls } = parsedSlide;
 
-  const shouldAllowScreensharing = screenSharingCheck
-    && !isMobileBrowser
-    && amIPresenter;
+// This seems useless.
+//  const shouldAllowScreensharing = screenSharingCheck
+//    && !isMobileBrowser
+//    && amIPresenter;
 
   return amIPresenter && ((videoUrls && videoUrls.length) || (urls && urls.length)) ? (
     <Dropdown>
