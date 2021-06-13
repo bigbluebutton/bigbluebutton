@@ -4,6 +4,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import PresentationService from '/imports/ui/components/presentation/service';
 import MediaService from '/imports/ui/components/media/service';
 import Service from '/imports/ui/components/actions-bar/service';
+import PollService from '/imports/ui/components/poll/service';
 import { makeCall } from '/imports/ui/services/api';
 import PresentationToolbar from './component';
 import PresentationToolbarService from './service';
@@ -39,7 +40,7 @@ export default withTracker((params) => {
     Session.set('forcePollOpen', true);
     window.dispatchEvent(new Event('panelChanged'));
 
-    makeCall('startPoll', type, id, '', answers);
+    makeCall('startPoll', PollService.pollTypes, type, id, '', answers);
   };
 
   return {
