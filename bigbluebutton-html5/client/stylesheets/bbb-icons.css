@@ -25,6 +25,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-bbb-screenshare-fullscreen:before {
+  content: "\e92a";
+}
+.icon-bbb-screenshare-close-fullscreen:before {
+  content: "\e935";
+}
 .icon-bbb-alert:before {
   content: "\e958";
 }
