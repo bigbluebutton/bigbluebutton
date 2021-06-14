@@ -347,7 +347,7 @@ class Presentation extends PureComponent {
         : presentationAreaSize.height - (this.getToolbarHeight() || 0);
       return presentationSizes;
     }
-    if (layoutLoaded === 'new') {
+    if (layoutLoaded === 'new' && newPresentationAreaSize) {
       presentationSizes.presentationWidth = newPresentationAreaSize.presentationAreaWidth;
       presentationSizes.presentationHeight = newPresentationAreaSize.presentationAreaHeight;
       return presentationSizes;
