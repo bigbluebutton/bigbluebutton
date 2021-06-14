@@ -14,8 +14,7 @@ RUN apt-get update \
 RUN cd /source \
  && sbt debian:packageBin
 
-# FROM ubuntu:16.04
-FROM openjdk:8-jre-slim-stretch
+FROM openjdk:11
 
 COPY --from=builder /source/target/*.deb /root/
 

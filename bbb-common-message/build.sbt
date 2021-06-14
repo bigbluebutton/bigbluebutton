@@ -1,7 +1,6 @@
 import org.bigbluebutton.build._
 
-
-version := "0.0.20-SNAPSHOT"
+version := "0.0.21-SNAPSHOT"
 
 val compileSettings = Seq(
   organization := "org.bigbluebutton",
@@ -12,7 +11,7 @@ val compileSettings = Seq(
     "-Xlint",
     "-Ywarn-dead-code",
     "-language:_",
-    "-target:jvm-1.8",
+    "-target:jvm-11",
     "-encoding", "UTF-8"
   ),
   javacOptions ++= List(
@@ -38,6 +37,9 @@ lazy val commonMessage = (project in file(".")).settings(name := "bbb-common-mes
 // Config file is in ./.scalariform.conf
 scalariformAutoformat := true
 
+// Check https://github.com/albuch/sbt-dependency-check/blob/master/README.md
+DependencyCheckPlugin.autoImport.dependencyCheckAssemblyAnalyzerEnabled := Option(false)
+
 //-----------
 // Packaging
 //
@@ -53,8 +55,10 @@ scalariformAutoformat := true
 // Do not append Scala versions to the generated artifacts
 //crossPaths := false
 
+scalaVersion := "2.13.4"
+
 // This forbids including Scala related libraries into the dependency
-//autoScalaLibrary := false
+autoScalaLibrary := false
 
 /** *************************
   * When developing, change the version above to x.x.x-SNAPSHOT then use the file resolver to

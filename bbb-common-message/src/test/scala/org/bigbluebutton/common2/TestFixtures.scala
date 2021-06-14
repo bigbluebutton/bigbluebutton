@@ -42,7 +42,7 @@ trait TestFixtures {
 
   val meetingProp = MeetingProp(name = meetingName, extId = externalMeetingId, intId = meetingId,
     isBreakout = isBreakout.booleanValue())
-  val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, freeJoin = false, breakoutRooms = Vector())
+  val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, freeJoin = false, breakoutRooms = Vector(), enabled = true, record = false, privateChatEnabled = true)
 
   val durationProps = DurationProps(duration = durationInMinutes, createdTime = createTime, createdDate = createDate,
     meetingExpireIfNoUserJoinedInMinutes = meetingExpireIfNoUserJoinedInMinutes, meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes,
@@ -58,6 +58,9 @@ trait TestFixtures {
   val metadataProp = new MetadataProp(metadata)
   val screenshareProps = ScreenshareProps(screenshareConf = "FixMe!", red5ScreenshareIp = "fixMe!",
     red5ScreenshareApp = "fixMe!")
+  val lockSettingsProps = LockSettingsProps(disableCam = false, disableMic = false, disablePrivateChat = false,
+    disablePublicChat = false, disableNote = false, hideUserList = false, lockedLayout = false, lockOnJoin = false,
+    lockOnJoinConfigurable = false);
   val defaultProps = DefaultProps(meetingProp, breakoutProps, durationProps, password, recordProp, welcomeProp, voiceProp,
-    usersProp, metadataProp, screenshareProps)
+    usersProp, metadataProp, screenshareProps, lockSettingsProps)
 }
