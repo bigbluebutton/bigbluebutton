@@ -59,6 +59,7 @@ class AudioManager {
 
     this.$translatorSpeechDetectionThresholdChanged = new BehaviorSubject(TRANSLATOR_SPEECH_DETECTION_THRESHOLD)
     this.$translatorSpeakingChanged = new BehaviorSubject(false)
+    this.$translatorChannelLanguageExtensionChanged = new BehaviorSubject(-1);
 
     this.$translationChannelVolumeChanged = new BehaviorSubject({ extension: -1, volume: 0 });
     this.translationChannelVolume = [];
@@ -107,8 +108,12 @@ class AudioManager {
             pLang.hasOwnProperty("volume")
         ) {
           this.translationChannelVolume[pLang.extension] = pLang.volume;
-          let audioElement = document.getElementById("translation-media");
-          if(audioElement) audioElement.volume = pLang.volume;
+
+          let tCExt = parseInt((this.translationLanguageExtension+ '').charAt(2));
+          if(tCExt == pLang.extension) {
+            let audioElement = document.getElementById("translation-media");
+            if(audioElement) audioElement.volume = pLang.volume;
+          }
         }
     })
 
@@ -825,11 +830,7 @@ class AudioManager {
       let ac = new AudioContext();
       let dest = ac.createMediaStreamDestination();
       let audioElement = document.getElementById("translation-media");
-      console.log("#@# languageExtension: " + languageExtension);
       let tIdx = parseInt((languageExtension+ '').charAt(2));
-      console.log("#@# tIdx: " + tIdx);
-      console.log("#@# this.translationChannelVolume: ");
-      console.log(this.translationChannelVolume);
       if(audioElement) audioElement.volume =
           Array.isArray(this.translationChannelVolume) && typeof this.translationChannelVolume[tIdx] !== 'undefined' ?
               this.translationChannelVolume[tIdx] : 1;
@@ -890,6 +891,11 @@ class AudioManager {
           Meeting.changeTranslatorSpeackState(languageExtension, false);
         });
 
+        if (this.$translatorChannelLanguageExtensionChanged.value > -1) {
+          Meeting.changeTranslatorSpeackState(this.$translatorChannelLanguageExtensionChanged.value, false);
+        }
+
+        this.$translatorChannelLanguageExtensionChanged.next(languageExtension);
         const callOptions = {
           isListenOnly: false,
           extension: null,
@@ -955,8 +961,9 @@ class AudioManager {
     this.muteStateCallbacks.forEach(callback => callback());
   }
 
-
-
+  resetCurrentTranslatorChannelExtension() {
+    this.$translatorChannelLanguageExtensionChanged.next(-1);
+  }
 }
 
 const audioManager = new AudioManager();

@@ -98,20 +98,22 @@ class Translations extends Component{
     }
 
     endTranslation = () =>{
-        Meeting.clearLanguages()
+        Meeting.clearLanguages();
         this.state.languages = [];
         this.state.active = false
         this.state.warning = ""
         this.setState(this.state)
         // also remove participants from translation rooms
         AudioManager.translatorChannelOpen = false;
+        AudioManager.resetCurrentTranslatorChannelExtension();
     }
 
     state ={
         languages: [],
         active: false,
         warning: null,
-        speechDetectionThreshold: AudioManager.$translatorSpeechDetectionThresholdChanged.value
+        speechDetectionThreshold: AudioManager.$translatorSpeechDetectionThresholdChanged.value,
+        channelVolume: AudioManager.translationChannelVolume
     }
 
     componentWillUnmount() {
@@ -130,9 +132,13 @@ class Translations extends Component{
         pEvent.preventDefault();
     }
 
-    setLanguageVolume(pExt, pVol) {
-        console.log("#@# pExt: " + pExt + "pVol: " + pVol);
-        AudioManager.$translationChannelVolumeChanged.next({ extension: pExt, volume: pVol});
+    setTranslationChannelVolume(pEvent) {
+        if(pEvent.target.dataset.hasOwnProperty("ext")) {
+            AudioManager.$translationChannelVolumeChanged.next({
+                extension: pEvent.target.dataset["ext"],
+                volume: pEvent.target.value / 100
+            });
+        }
     }
 
     render() {
@@ -170,7 +176,8 @@ class Translations extends Component{
                             intl={intl}
                         />
                     }else{
-                        return <Language
+                        return (<div style={{margin: "0 0 10px 0;"}}>
+                            <Language
                             active={this.state.active}
                             name={language.name}
                             key={index}
@@ -178,6 +185,10 @@ class Translations extends Component{
                             deletionHandler={this.deletionHandler}
                             intl={intl}
                         />
+                            <div>
+                                <input type="range" data-ext={index} id="volume" name="volume" min="0" max="100" value={this.state.channelVolume[index]} onChange={this.setTranslationChannelVolume.bind(this)}/>
+                            </div>
+                        </div>);
                     }
                 }, this)}
                 {add}
@@ -196,12 +207,6 @@ class Translations extends Component{
                     <input id="speechDetectionThreshold" type="number" value={this.state.speechDetectionThreshold} onChange={this.setThreshold.bind(this)} />
                     <input type="submit" onClick={ this.updateThreshold.bind(this) } value="Set" />
                 </form>
-
-                <button onClick={ _ => this.setLanguageVolume(0,.5)}>1,0.5</button>
-                <button onClick={ _ => this.setLanguageVolume(0,1)}>1,1</button>
-                <button onClick={ _ => this.setLanguageVolume(1,.5)}>2,0.5</button>
-                <button onClick={ _ => this.setLanguageVolume(1,1)}>2,1</button>
-
             </div>
         );
     }
