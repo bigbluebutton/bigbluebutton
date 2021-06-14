@@ -555,6 +555,12 @@ public class ParamsProcessorUtil {
         	muteOnStart = Boolean.parseBoolean(params.get(ApiParams.MUTE_ON_START));
         }
 
+		// when a moderator joins in a breakout room only with the audio, and the muteOnStart is set to true,
+		// the moderator is unable to unmute himself, because they don't have an icon to do so
+		if (isBreakout) {
+			muteOnStart = false;
+		}
+
 		meeting.setMuteOnStart(muteOnStart);
 
     Boolean meetingKeepEvents = defaultKeepEvents;
