@@ -811,5 +811,7 @@
     "app.debugWindow.form.userAgentLabel": "User Agent",
     "app.debugWindow.form.button.copy": "Copy",
     "app.debugWindow.form.enableAutoarrangeLayoutLabel": "Enable Auto Arrange Layout",
-    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(it will be disabled if you drag or resize the webcams area)"
+    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(it will be disabled if you drag or resize the webcams area)",
+    "app.debugWindow.form.chatLoggerLabel": "Test Chat Logger Levels",
+    "app.debugWindow.form.button.apply": "Apply"
 }
