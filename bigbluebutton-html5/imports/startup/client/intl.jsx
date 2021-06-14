@@ -15,7 +15,7 @@ const propTypes = {
 
 const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.fallbackLocale;
 
-const RTL_LANGUAGES = ['ar', 'he', 'fa'];
+const RTL_LANGUAGES = ['ar', 'dv', 'fa', 'he'];
 const LARGE_FONT_LANGUAGES = ['te', 'km'];
 
 const defaultProps = {
