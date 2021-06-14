@@ -98,13 +98,14 @@ class Translations extends Component{
     }
 
     endTranslation = () =>{
-        Meeting.clearLanguages()
+        Meeting.clearLanguages();
         this.state.languages = [];
         this.state.active = false
         this.state.warning = ""
         this.setState(this.state)
         // also remove participants from translation rooms
         AudioManager.translatorChannelOpen = false;
+        AudioManager.resetCurrentTranslatorChannelExtension();
     }
 
     state ={

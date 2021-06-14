@@ -59,6 +59,7 @@ class AudioManager {
 
     this.$translatorSpeechDetectionThresholdChanged = new BehaviorSubject(TRANSLATOR_SPEECH_DETECTION_THRESHOLD)
     this.$translatorSpeakingChanged = new BehaviorSubject(false)
+    this.$translatorChannelLanguageExtensionChanged = new BehaviorSubject(-1);
 
     this.defineProperties({
       isMuted: false,
@@ -864,6 +865,11 @@ class AudioManager {
           Meeting.changeTranslatorSpeackState(languageExtension, false);
         });
 
+        if (this.$translatorChannelLanguageExtensionChanged.value > -1) {
+          Meeting.changeTranslatorSpeackState(this.$translatorChannelLanguageExtensionChanged.value, false);
+        }
+
+        this.$translatorChannelLanguageExtensionChanged.next(languageExtension);
         const callOptions = {
           isListenOnly: false,
           extension: null,
@@ -927,6 +933,10 @@ class AudioManager {
 
   async notifyMuteStateListener() {
     this.muteStateCallbacks.forEach(callback => callback());
+  }
+
+  resetCurrentTranslatorChannelExtension() {
+    this.$translatorChannelLanguageExtensionChanged.next(-1);
   }
 }
 
