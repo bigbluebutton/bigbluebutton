@@ -340,8 +340,6 @@ class VideoFocusLayout extends Component {
 
     const cameraDockBounds = {};
 
-    console.log('calculatesCameraDockBounds props', this.props);
-
     if (isFullscreen) {
       cameraDockBounds.width = this.mainWidth();
       cameraDockBounds.minWidth = this.mainWidth();
