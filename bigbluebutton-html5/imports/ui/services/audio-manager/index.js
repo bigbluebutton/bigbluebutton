@@ -60,6 +60,9 @@ class AudioManager {
     this.$translatorSpeechDetectionThresholdChanged = new BehaviorSubject(TRANSLATOR_SPEECH_DETECTION_THRESHOLD)
     this.$translatorSpeakingChanged = new BehaviorSubject(false)
 
+    this.$translationChannelVolumeChanged = new BehaviorSubject({ extension: -1, volume: 0 });
+    this.translationChannelVolume = [];
+
     this.defineProperties({
       isMuted: false,
       isConnected: false,
@@ -97,6 +100,18 @@ class AudioManager {
         this.translatorSpeechEvents.setThreshold(val);
       }
     });
+
+    this.$translationChannelVolumeChanged.subscribe((pLang) => {
+        if(
+            pLang.hasOwnProperty("extension") &&
+            pLang.hasOwnProperty("volume")
+        ) {
+          this.translationChannelVolume[pLang.extension] = pLang.volume;
+          let audioElement = document.getElementById("translation-media");
+          if(audioElement) audioElement.volume = pLang.volume;
+        }
+    })
+
 
   }
 
@@ -809,6 +824,16 @@ class AudioManager {
       //create a dummy stream that does nothing at all
       let ac = new AudioContext();
       let dest = ac.createMediaStreamDestination();
+      let audioElement = document.getElementById("translation-media");
+      console.log("#@# languageExtension: " + languageExtension);
+      let tIdx = parseInt((languageExtension+ '').charAt(2));
+      console.log("#@# tIdx: " + tIdx);
+      console.log("#@# this.translationChannelVolume: ");
+      console.log(this.translationChannelVolume);
+      if(audioElement) audioElement.volume =
+          Array.isArray(this.translationChannelVolume) && typeof this.translationChannelVolume[tIdx] !== 'undefined' ?
+              this.translationChannelVolume[tIdx] : 1;
+
       if (languageExtension >= 0) {
         const callOptions = {
           isListenOnly: true,
@@ -827,6 +852,7 @@ class AudioManager {
         resolve(-1);
       }
     });
+
   }
 
   async openTranslatorChannel(languageExtension, onConnected) {
@@ -928,6 +954,9 @@ class AudioManager {
   async notifyMuteStateListener() {
     this.muteStateCallbacks.forEach(callback => callback());
   }
+
+
+
 }
 
 const audioManager = new AudioManager();

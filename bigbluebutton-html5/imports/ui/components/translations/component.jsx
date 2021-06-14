@@ -130,6 +130,11 @@ class Translations extends Component{
         pEvent.preventDefault();
     }
 
+    setLanguageVolume(pExt, pVol) {
+        console.log("#@# pExt: " + pExt + "pVol: " + pVol);
+        AudioManager.$translationChannelVolumeChanged.next({ extension: pExt, volume: pVol});
+    }
+
     render() {
         const {
             intl,
@@ -185,11 +190,18 @@ class Translations extends Component{
                         : null
                     }
                 </p>
+
                 <div>{intl.formatMessage(intlMessages.speechDetectionThreshold)}:</div>
                 <form onSubmit={this.handleSubmit}>
                     <input id="speechDetectionThreshold" type="number" value={this.state.speechDetectionThreshold} onChange={this.setThreshold.bind(this)} />
                     <input type="submit" onClick={ this.updateThreshold.bind(this) } value="Set" />
                 </form>
+
+                <button onClick={ _ => this.setLanguageVolume(0,.5)}>1,0.5</button>
+                <button onClick={ _ => this.setLanguageVolume(0,1)}>1,1</button>
+                <button onClick={ _ => this.setLanguageVolume(1,.5)}>2,0.5</button>
+                <button onClick={ _ => this.setLanguageVolume(1,1)}>2,1</button>
+
             </div>
         );
     }
