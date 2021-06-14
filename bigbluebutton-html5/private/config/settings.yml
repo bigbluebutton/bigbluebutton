@@ -42,7 +42,6 @@ public:
     allowUserLookup: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
-    enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
     enableTalkingIndicator: true
@@ -171,9 +170,6 @@ public:
       - warning
   externalVideoPlayer:
     enabled: true
-  networkMonitoring:
-    enableNetworkMonitoring: false
-    packetLostThreshold: 10
   kurento:
     wsUrl: HOST
     # Valid for video-provider. Time (ms) before its WS connection times out

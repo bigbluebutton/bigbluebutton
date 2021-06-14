@@ -12,7 +12,6 @@ import CaptionsService from '/imports/ui/components/captions/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
-import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
 import { NLayoutContext } from '../layout/context/context';
 import Settings from '/imports/ui/services/settings';
 
@@ -154,8 +153,6 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     meetingMuted: voiceProp.muteOnStart,
     currentUserEmoji: currentUserEmoji(currentUser),
     hasPublishedPoll: publishedPoll,
-    startBandwidthMonitoring,
-    handleNetworkConnection: () => updateNavigatorConnection(navigator.connection),
     layoutManagerLoaded,
     randomlySelectedUser,
     currentUserId: currentUser.userId,

@@ -563,7 +563,6 @@ class VideoProvider extends Component {
         conn.onconnectionstatechange = () => {
           this._handleIceConnectionStateChange(stream, isLocal);
         };
-        VideoService.monitor(conn);
       }
     }
   }
