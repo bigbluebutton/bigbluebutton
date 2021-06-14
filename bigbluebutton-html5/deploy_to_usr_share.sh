@@ -8,7 +8,7 @@ UPPER_DESTINATION_DIR=/usr/share/meteor
 DESTINATION_DIR=$UPPER_DESTINATION_DIR/bundle
 
 SERVICE_FILES_DIR=/usr/lib/systemd/system
-LOCAL_PACKAGING_DIR=/home/bigbluebutton/dev/bigbluebutton/bigbluebutton-html5/dev_local_deployment
+LOCAL_PACKAGING_DIR=/home/$(whoami)/dev/bigbluebutton/bigbluebutton-html5/dev_local_deployment
 
 sudo rm -rf "$UPPER_DESTINATION_DIR"
 sudo mkdir -p "$UPPER_DESTINATION_DIR"
