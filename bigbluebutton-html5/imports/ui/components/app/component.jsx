@@ -27,7 +27,7 @@ import UploaderContainer from '/imports/ui/components/presentation/presentation-
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
 import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
 import NewWebcamContainer from '../webcam/container';
-import PresentationPodsContainer from '../presentation-pod/container';
+import PresentationAreaContainer from '../presentation/presentation-area/container';
 import { styles } from './styles';
 import {
   LAYOUT_TYPE, DEVICE_TYPE, ACTIONS,
@@ -487,7 +487,7 @@ class App extends Component {
                 <SidebarNavigationContainer />
                 <SidebarContentContainer />
                 <NewWebcamContainer />
-                <PresentationPodsContainer />
+                <PresentationAreaContainer />
                 <ModalContainer />
                 {this.renderActionsBar()}
               </div>

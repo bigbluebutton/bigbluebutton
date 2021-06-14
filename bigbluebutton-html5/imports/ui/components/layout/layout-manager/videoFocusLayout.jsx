@@ -335,10 +335,12 @@ class VideoFocusLayout extends Component {
   calculatesCameraDockBounds(mediaAreaBounds) {
     const { newLayoutContextState } = this.props;
     const { deviceType, input } = newLayoutContextState;
+    const { cameraDock } = input;
+    const { isFullscreen, numCameras } = cameraDock;
 
     const cameraDockBounds = {};
 
-    if (input.cameraDock.isFullscreen) {
+    if (isFullscreen) {
       cameraDockBounds.width = this.mainWidth();
       cameraDockBounds.minWidth = this.mainWidth();
       cameraDockBounds.maxWidth = this.mainWidth();
@@ -351,22 +353,32 @@ class VideoFocusLayout extends Component {
       return cameraDockBounds;
     }
 
-    if (deviceType === DEVICE_TYPE.MOBILE) {
-      cameraDockBounds.minHeight = mediaAreaBounds.height * 0.7;
-      cameraDockBounds.height = mediaAreaBounds.height * 0.7;
-      cameraDockBounds.maxHeight = mediaAreaBounds.height * 0.7;
-    } else {
-      cameraDockBounds.minHeight = mediaAreaBounds.height;
-      cameraDockBounds.height = mediaAreaBounds.height;
-      cameraDockBounds.maxHeight = mediaAreaBounds.height;
+    if (numCameras > 0) {
+      if (deviceType === DEVICE_TYPE.MOBILE) {
+        cameraDockBounds.minHeight = mediaAreaBounds.height * 0.7;
+        cameraDockBounds.height = mediaAreaBounds.height * 0.7;
+        cameraDockBounds.maxHeight = mediaAreaBounds.height * 0.7;
+      } else {
+        cameraDockBounds.minHeight = mediaAreaBounds.height;
+        cameraDockBounds.height = mediaAreaBounds.height;
+        cameraDockBounds.maxHeight = mediaAreaBounds.height;
+      }
+
+      cameraDockBounds.top = DEFAULT_VALUES.navBarHeight;
+      cameraDockBounds.left = mediaAreaBounds.left;
+      cameraDockBounds.minWidth = mediaAreaBounds.width;
+      cameraDockBounds.width = mediaAreaBounds.width;
+      cameraDockBounds.maxWidth = mediaAreaBounds.width;
+      cameraDockBounds.zIndex = 1;
+      return cameraDockBounds;
     }
 
-    cameraDockBounds.top = DEFAULT_VALUES.navBarHeight;
-    cameraDockBounds.left = mediaAreaBounds.left;
-    cameraDockBounds.minWidth = mediaAreaBounds.width;
-    cameraDockBounds.width = mediaAreaBounds.width;
-    cameraDockBounds.maxWidth = mediaAreaBounds.width;
-    cameraDockBounds.zIndex = 1;
+    cameraDockBounds.top = 0;
+    cameraDockBounds.left = 0;
+    cameraDockBounds.minWidth = 0;
+    cameraDockBounds.width = 0;
+    cameraDockBounds.maxWidth = 0;
+    cameraDockBounds.zIndex = 0;
     return cameraDockBounds;
   }
 
@@ -386,7 +398,6 @@ class VideoFocusLayout extends Component {
       presentationBounds.top = 0;
       presentationBounds.left = 0;
       presentationBounds.zIndex = 99;
-      return presentationBounds;
     }
 
     if (deviceType === DEVICE_TYPE.MOBILE) {
@@ -394,7 +405,7 @@ class VideoFocusLayout extends Component {
       presentationBounds.left = mediaAreaBounds.left;
       presentationBounds.top = mediaAreaBounds.top + cameraDockBounds.height;
       presentationBounds.width = mediaAreaBounds.width;
-    } else {
+    } else if (input.cameraDock.numCameras > 0) {
       if (input.presentation.height === 0) {
         presentationBounds.height = min(
           max(this.mainHeight() * 0.2, DEFAULT_VALUES.presentationMinHeight),
@@ -409,8 +420,15 @@ class VideoFocusLayout extends Component {
       presentationBounds.left = sidebarNavWidth;
       presentationBounds.top = this.mainHeight() - presentationBounds.height;
       presentationBounds.width = sidebarContentWidth;
+      presentationBounds.zIndex = 1;
+    } else {
+      presentationBounds.height = mediaAreaBounds.height;
+      presentationBounds.width = mediaAreaBounds.width;
+      presentationBounds.top = DEFAULT_VALUES.navBarHeight;
+      presentationBounds.left = mediaAreaBounds.left;
+      presentationBounds.zIndex = 1;
     }
-    presentationBounds.zIndex = 1;
+
     return presentationBounds;
   }
 
