@@ -139,7 +139,7 @@
     "app.meeting.ended": "إنتهت هذه الجلسة",
     "app.meeting.meetingTimeRemaining": "الوقت المتبقي للاجتماع: {0}",
     "app.meeting.meetingTimeHasEnded": "انتهى الوقت. سيتم إغلاق الاجتماع قريبًا",
-    "app.meeting.endedByUserMessage": "تم إنهاء الاجتماع من قبل {0}",
+    "app.meeting.endedByUserMessage": "تم إنهاء هذه الجلسة من قبل {0}",
     "app.meeting.endedMessage": "سيتم اعادة توجيهك الى الشاشة الرئيسية",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "الاجتماع سينتهي في دقيقة واحدة.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "سينتهي الاجتماع في غضون {0} دقيقة.",

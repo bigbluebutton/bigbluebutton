@@ -139,7 +139,6 @@
     "app.meeting.ended": "Сеанс окончен",
     "app.meeting.meetingTimeRemaining": "До окончания конференции осталось: {0}",
     "app.meeting.meetingTimeHasEnded": "Время вышло. Конференция скоро закроется.",
-    "app.meeting.endedByUserMessage": "Конференция завершена {0}",
     "app.meeting.endedMessage": "Вы будете перенаправлены назад на главный экран",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "Конференция завершится в течение минуты.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "Конференция завершится через {0} минут.",
