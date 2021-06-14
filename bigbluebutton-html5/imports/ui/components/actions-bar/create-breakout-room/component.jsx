@@ -43,9 +43,9 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.randomlyAssign',
     description: 'randomly assign label',
   },
-  roomName: {
-    id: 'app.createBreakoutRoom.roomName',
-    description: 'room intl to name the breakout meetings',
+  breakoutRoom: {
+    id: 'app.createBreakoutRoom.room',
+    description: 'breakout room',
   },
   freeJoinLabel: {
     id: 'app.createBreakoutRoom.freeJoin',
@@ -345,7 +345,9 @@ class BreakoutRoom extends PureComponent {
 
     const rooms = _.range(1, numberOfRooms + 1).map((seq) => ({
       users: this.getUserByRoom(seq).map((u) => u.userId),
-      name: this.getRoomName(seq),
+      name: this.getFullName(seq),
+      shortName: this.getRoomName(seq),
+      isDefaultName: !this.hasNameChanged(seq),
       freeJoin,
       sequence: seq,
     }));
@@ -514,17 +516,32 @@ class BreakoutRoom extends PureComponent {
   }
 
   getRoomName(position) {
-    const { intl, meetingName } = this.props;
+    const { intl } = this.props;
     const { roomNamesChanged } = this.state;
 
-    if (typeof roomNamesChanged[position] !== 'undefined') {
+    if (this.hasNameChanged(position)) {
       return roomNamesChanged[position];
     }
 
-    return intl.formatMessage(intlMessages.roomName, {
-      0: meetingName,
-      1: position,
-    });
+    return intl.formatMessage(intlMessages.breakoutRoom, { 0: position });
+  }
+
+  getFullName(position) {
+    const { meetingName } = this.props;
+
+    return `${meetingName} (${this.getRoomName(position)})`;
+  }
+
+  hasNameChanged(position) {
+    const { intl } = this.props;
+    const { roomNamesChanged } = this.state;
+
+    if (typeof roomNamesChanged[position] !== 'undefined'
+    && roomNamesChanged[position] !== intl.formatMessage(intlMessages.breakoutRoom, { 0: position })) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   hasNameDuplicated(position) {
