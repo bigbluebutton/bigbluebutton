@@ -55,7 +55,10 @@ const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, pollTypes) => 
     {
       const { options } = itemLabel;
       if (type == pollTypes.Custom) {
-        itemLabel = Array.from({length: options.length}, (_, i) => i + 1).join('/');
+        //No matter what the items are, replace them to 1,2,3...
+        //itemLabel = Array.from({length: options.length}, (_, i) => i + 1).join('/');
+        //Show the first letter of options
+        itemLabel = options.map(function(item){ return item.slice(0,1); }).join('/');
         answers = label.options;
       } else {
         itemLabel = options.join('/').replace(/[\n.)]/g, '');
@@ -65,13 +68,14 @@ const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, pollTypes) => 
     // removes any whitespace from the label
     itemLabel = itemLabel.replace(/\s+/g, '').toUpperCase();
 
-    const numChars = {
-      1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F',
-    };
-    itemLabel = itemLabel.split('').map((c) => {
-      if (numChars[c]) return numChars[c];
-      return c;
-    }).join('');
+    //Removed because replacing numbers to alphabets is confusing...
+    //const numChars = {
+    //  1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F',
+    //};
+    //itemLabel = itemLabel.split('').map((c) => {
+    //  if (numChars[c]) return numChars[c];
+    //  return c;
+    //}).join('');
 
     return (
       <DropdownListItem
