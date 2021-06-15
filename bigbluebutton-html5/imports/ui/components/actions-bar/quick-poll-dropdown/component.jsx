@@ -54,14 +54,19 @@ const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, pollTypes) => 
         type !== pollTypes.TrueFalse) 
     {
       const { options } = itemLabel;
-      itemLabel = options.join('/').replace(/[\n.)]/g, '');
+      if (type == 'custom') {
+        itemLabel = Array.from({length: options.length}, (_, i) => i + 1).join('/');
+        answers = label.options;
+      } else {
+        itemLabel = options.join('/').replace(/[\n.)]/g, '');
+      }
     }
 
     // removes any whitespace from the label
     itemLabel = itemLabel.replace(/\s+/g, '').toUpperCase();
 
     const numChars = {
-      1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E',
+      1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F',
     };
     itemLabel = itemLabel.split('').map((c) => {
       if (numChars[c]) return numChars[c];
