@@ -54,7 +54,7 @@ const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, pollTypes) => 
         type !== pollTypes.TrueFalse) 
     {
       const { options } = itemLabel;
-      if (type == 'custom') {
+      if (type == pollTypes.Custom) {
         itemLabel = Array.from({length: options.length}, (_, i) => i + 1).join('/');
         answers = label.options;
       } else {
@@ -113,7 +113,7 @@ class QuickPollDropdown extends Component {
     );
 
     const { slideId, quickPollOptions } = parsedSlide;
-    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions, startPoll, intl, pollTypes);
+    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions, startPoll, pollTypes);
 
     if (quickPollOptions.length === 0) return null;
 
