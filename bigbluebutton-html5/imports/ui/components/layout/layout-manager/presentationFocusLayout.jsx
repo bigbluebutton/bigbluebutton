@@ -326,7 +326,7 @@ class PresentationFocusLayout extends Component {
   }
 
   calculatesCameraDockBounds(
-    presentationBounds,
+    mediaBounds,
     mediaAreaBounds,
     sidebarNavWidth,
     sidebarContentWidth,
@@ -351,14 +351,14 @@ class PresentationFocusLayout extends Component {
     if (input.cameraDock.numCameras > 0) {
       let cameraDockHeight = 0;
       if (deviceType === DEVICE_TYPE.MOBILE) {
-        cameraDockBounds.top = mediaAreaBounds.top + presentationBounds.height;
+        cameraDockBounds.top = mediaAreaBounds.top + mediaBounds.height;
         cameraDockBounds.left = mediaAreaBounds.left;
         cameraDockBounds.minWidth = mediaAreaBounds.width;
         cameraDockBounds.width = mediaAreaBounds.width;
         cameraDockBounds.maxWidth = mediaAreaBounds.width;
         cameraDockBounds.minHeight = DEFAULT_VALUES.cameraDockMinHeight;
-        cameraDockBounds.height = mediaAreaBounds.height - presentationBounds.height;
-        cameraDockBounds.maxHeight = mediaAreaBounds.height - presentationBounds.height;
+        cameraDockBounds.height = mediaAreaBounds.height - mediaBounds.height;
+        cameraDockBounds.maxHeight = mediaAreaBounds.height - mediaBounds.height;
       } else {
         if (input.cameraDock.height === 0) {
           cameraDockHeight = min(
@@ -388,31 +388,31 @@ class PresentationFocusLayout extends Component {
     return cameraDockBounds;
   }
 
-  calculatesPresentationBounds(mediaAreaBounds) {
+  calculatesMediaBounds(mediaAreaBounds) {
     const { newLayoutContextState } = this.props;
     const { deviceType, input } = newLayoutContextState;
-    const presentationBounds = {};
+    const mediaBounds = {};
 
     if (input.presentation.isFullscreen) {
-      presentationBounds.width = this.mainWidth();
-      presentationBounds.height = this.mainHeight();
-      presentationBounds.top = 0;
-      presentationBounds.left = 0;
-      presentationBounds.zIndex = 99;
-      return presentationBounds;
+      mediaBounds.width = this.mainWidth();
+      mediaBounds.height = this.mainHeight();
+      mediaBounds.top = 0;
+      mediaBounds.left = 0;
+      mediaBounds.zIndex = 99;
+      return mediaBounds;
     }
 
     if (deviceType === DEVICE_TYPE.MOBILE && input.cameraDock.numCameras > 0) {
-      presentationBounds.height = mediaAreaBounds.height * 0.7;
+      mediaBounds.height = mediaAreaBounds.height * 0.7;
     } else {
-      presentationBounds.height = mediaAreaBounds.height;
+      mediaBounds.height = mediaAreaBounds.height;
     }
-    presentationBounds.width = mediaAreaBounds.width;
-    presentationBounds.top = DEFAULT_VALUES.navBarHeight;
-    presentationBounds.left = mediaAreaBounds.left;
-    presentationBounds.zIndex = 1;
+    mediaBounds.width = mediaAreaBounds.width;
+    mediaBounds.top = DEFAULT_VALUES.navBarHeight;
+    mediaBounds.left = mediaAreaBounds.left;
+    mediaBounds.zIndex = 1;
 
-    return presentationBounds;
+    return mediaBounds;
   }
 
   calculatesLayout() {
@@ -433,9 +433,9 @@ class PresentationFocusLayout extends Component {
     );
     const navbarBounds = this.calculatesNavbarBounds(mediaAreaBounds);
     const actionbarBounds = this.calculatesActionbarBounds(mediaAreaBounds);
-    const presentationBounds = this.calculatesPresentationBounds(mediaAreaBounds);
+    const mediaBounds = this.calculatesMediaBounds(mediaAreaBounds);
     const cameraDockBounds = this.calculatesCameraDockBounds(
-      presentationBounds, mediaAreaBounds, sidebarNavWidth.width, sidebarContentWidth.width,
+      mediaBounds, mediaAreaBounds, sidebarNavWidth.width, sidebarContentWidth.width,
     );
     const sidebarContentHeight = this.calculatesSidebarContentHeight(cameraDockBounds.height);
 
@@ -562,23 +562,23 @@ class PresentationFocusLayout extends Component {
       type: ACTIONS.SET_PRESENTATION_OUTPUT,
       value: {
         display: input.presentation.isOpen,
-        width: presentationBounds.width,
-        height: presentationBounds.height,
-        top: presentationBounds.top,
-        left: presentationBounds.left,
+        width: mediaBounds.width,
+        height: mediaBounds.height,
+        top: mediaBounds.top,
+        left: mediaBounds.left,
         tabOrder: DEFAULT_VALUES.presentationTabOrder,
         isResizable: false,
-        zIndex: presentationBounds.zIndex,
+        zIndex: mediaBounds.zIndex,
       },
     });
 
     newLayoutContextDispatch({
       type: ACTIONS.SET_SCREEN_SHARE_OUTPUT,
       value: {
-        width: presentationBounds.width,
-        height: presentationBounds.height,
-        top: presentationBounds.top,
-        left: presentationBounds.left,
+        width: mediaBounds.width,
+        height: mediaBounds.height,
+        top: mediaBounds.top,
+        left: mediaBounds.left,
       },
     });
   }
