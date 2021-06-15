@@ -207,12 +207,6 @@ class AudioControls extends PureComponent {
 
     return (
       <span className={styles.container}>
-        {isVoiceUser && inputStream && muteAlertEnabled && !listenOnly && muted ? (
-          <MutedAlert {...{
-            muted, inputStream, isViewer, isPresenter,
-          }}
-          />
-        ) : null}
         {(showMute && isVoiceUser ) && ! translatorChannelOpen ? toggleMuteBtn : null}
         {
           this.renderJoinLeaveButton()
