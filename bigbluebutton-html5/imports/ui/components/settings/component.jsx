@@ -164,6 +164,7 @@ class Settings extends Component {
     const {
       intl,
       isModerator,
+      showGuestNotification,
       showToggleLabel,
     } = this.props;
 
@@ -219,6 +220,7 @@ class Settings extends Component {
           <Notification
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
+            showGuestNotification={showGuestNotification}
             showToggleLabel={showToggleLabel}
             displaySettingsStatus={this.displaySettingsStatus}
             {...{ isModerator }}

@@ -400,29 +400,8 @@ class ApiController {
     if (userCustomData.size() > 0)
       meetingService.addUserCustomData(meeting.getInternalId(), externUserID, userCustomData);
 
-    String configxml = null;
-
-    if (!StringUtils.isEmpty(params.configToken)) {
-      Config conf = meeting.getConfig(params.configToken);
-      if (conf == null) {
-        // Check if this config is one of our pre-built config
-        configxml = configService.getConfig(params.configToken)
-        if (configxml == null) {
-          // BEGIN - backward compatibility
-          invalid("noConfigFound", "We could not find a config for this request.", REDIRECT_RESPONSE);
-          return
-          // END - backward compatibility
-
-          errors.noConfigFound();
-          respondWithErrors(errors);
-        }
-      } else {
-        configxml = conf.config;
-      }
-    } else {
-      Config conf = meeting.getDefaultConfig();
-      configxml = conf.config;
-    }
+    Config conf = meeting.getDefaultConfig();
+    String configxml = conf.config;
 
     // Do not fail if there's no default config.xml, needed for an HTML5 client only scenario
 

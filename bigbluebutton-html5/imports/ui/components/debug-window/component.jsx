@@ -42,6 +42,14 @@ const intlMessages = defineMessages({
     id: 'app.debugWindow.form.enableAutoarrangeLayoutDescription',
     description: 'Enable Autoarrange layout description',
   },
+  chatLoggerLabel: {
+    id: 'app.debugWindow.form.chatLoggerLabel',
+    description: 'Chat logger level form label',
+  },
+  applyButtonLabel: {
+    id: 'app.debugWindow.form.button.apply',
+    description: 'Chat logger level form apply button',
+  },
   on: {
     id: 'app.switch.onLabel',
     description: 'label for toggle switch on state',
@@ -252,46 +260,7 @@ class DebugWindow extends Component {
                 </div>
                 <div className={styles.row}>
                   <div className={styles.cell}>
-                    Layout
-                  </div>
-                  <div className={styles.cell}>
-                    <div className={styles.cellContent}>
-                      {/* <Toggle
-                        className={styles.autoArrangeToggle}
-                        icons={false}
-                        defaultChecked
-                        ariaLabel="teste"
-                      /> */}
-                      <select
-                        value={layoutManagerLoaded}
-                        onChange={this.setLayoutManagerToLoad}
-                      >
-                        <option value="legacy">Legacy</option>
-                        <option value="new">New Layout Manager</option>
-                        <option value="both">Both</option>
-                      </select>
-                      {
-                        layoutManagerLoaded === 'new'
-                        && (
-                          <select
-                            value={layoutType}
-                            onChange={this.setLayoutType}
-                          >
-                            <option value={LAYOUT_TYPE.CUSTOM_LAYOUT}>Custom</option>
-                            <option value={LAYOUT_TYPE.SMART_LAYOUT}>Smart Layout</option>
-                            <option value={LAYOUT_TYPE.VIDEO_FOCUS}>Focus on Video</option>
-                            <option value={LAYOUT_TYPE.PRESENTATION_FOCUS}>
-                              Focus on Presentation
-                            </option>
-                          </select>
-                        )
-                      }
-                    </div>
-                  </div>
-                </div>
-                <div className={styles.row}>
-                  <div className={styles.cell}>
-                    Testing the chatLogger levels:
+                    {`${intl.formatMessage(intlMessages.chatLoggerLabel)}:`}
                   </div>
                   <div className={styles.cell}>
                     <div className={styles.cellContent}>
@@ -319,7 +288,7 @@ class DebugWindow extends Component {
                           });
                         }}
                       >
-                        Aplicar
+                        {`${intl.formatMessage(intlMessages.applyButtonLabel)}`}
                       </button>
                     </div>
                   </div>

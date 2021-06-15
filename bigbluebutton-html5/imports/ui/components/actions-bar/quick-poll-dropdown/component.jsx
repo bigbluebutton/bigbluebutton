@@ -46,57 +46,19 @@ const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
 };
 
-const getLocalizedAnswers = (type, intl) => {
-  switch (type) {
-    case 'TF':
-      return [
-        intl.formatMessage(intlMessages.trueOptionLabel),
-        intl.formatMessage(intlMessages.falseOptionLabel),
-      ];
-    case 'YN':
-      return [
-        intl.formatMessage(intlMessages.yesOptionLabel),
-        intl.formatMessage(intlMessages.noOptionLabel),
-      ];
-    case 'YNA':
-      return [
-        intl.formatMessage(intlMessages.yesOptionLabel),
-        intl.formatMessage(intlMessages.noOptionLabel),
-        intl.formatMessage(intlMessages.abstentionOptionLabel),
-      ];
-    default:
-      return null;
-  }
-};
-
-const handleClickQuickPoll = (newLayoutContextDispatch) => {
-  newLayoutContextDispatch({
-    type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-    value: true,
-  });
-  newLayoutContextDispatch({
-    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-    value: PANELS.POLL,
-  });
-  Session.set('forcePollOpen', true);
-  Session.set('pollInitiated', true);
-};
-
-const getAvailableQuickPolls = (
-  slideId, parsedSlides, startPoll, intl, newLayoutContextDispatch,
-) => {
+const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, pollTypes) => {
   const pollItemElements = parsedSlides.map((poll) => {
     const { poll: label } = poll;
     let { type } = poll;
     let itemLabel = label;
     let answers = null;
 
-    if (type !== 'YN' && type !== 'YNA' && type !== 'TF') {
+    if (type !== pollTypes.YesNo && 
+        type !== pollTypes.YesNoAbstention && 
+        type !== pollTypes.TrueFalse) 
+    {
       const { options } = itemLabel;
       itemLabel = options.join('/').replace(/[\n.)]/g, '');
-    } else {
-      answers = getLocalizedAnswers(type, intl);
-      type = 'custom';
     }
 
     // removes any whitespace from the label
@@ -141,7 +103,7 @@ class QuickPollDropdown extends Component {
       currentSlide,
       activePoll,
       className,
-      newLayoutContextDispatch,
+      pollTypes,
     } = this.props;
 
     const parsedSlide = parseCurrentSlideContent(
@@ -153,9 +115,7 @@ class QuickPollDropdown extends Component {
     );
 
     const { slideId, quickPollOptions } = parsedSlide;
-    const quickPolls = getAvailableQuickPolls(
-      slideId, quickPollOptions, startPoll, intl, newLayoutContextDispatch,
-    );
+    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions, startPoll, pollTypes);
 
     if (quickPollOptions.length === 0) return null;
 
@@ -170,11 +130,6 @@ class QuickPollDropdown extends Component {
     if (quickPolls.length === 1 && quickPollOptions.length) {
       const { type } = quickPollOptions[0];
       singlePollType = type;
-    }
-
-    if (singlePollType === 'TF' || singlePollType === 'YN' || singlePollType === 'YNA') {
-      answers = getLocalizedAnswers(singlePollType, intl);
-      singlePollType = 'custom';
     }
 
     let btn = (
