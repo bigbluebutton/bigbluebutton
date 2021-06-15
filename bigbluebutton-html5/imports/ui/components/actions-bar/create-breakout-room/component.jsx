@@ -480,18 +480,18 @@ class BreakoutRoom extends PureComponent {
 
   increaseDurationTime() {
     const { durationTime } = this.state;
-    const durationIsValid = durationTime >= MIN_BREAKOUT_TIME;
+    const number = ((1 * durationTime) + 1);
+    const newDurationTime = number > MIN_BREAKOUT_TIME ? number : MIN_BREAKOUT_TIME;
 
-    this.setState({ durationTime: (1 * durationTime) + 1, durationIsValid });
+    this.setState({ durationTime: newDurationTime, durationIsValid: true });
   }
 
   decreaseDurationTime() {
     const { durationTime } = this.state;
     const number = ((1 * durationTime) - 1);
-    const newDurationTime = number < MIN_BREAKOUT_TIME ? MIN_BREAKOUT_TIME : number;
-    const durationIsValid = durationTime >= MIN_BREAKOUT_TIME;
+    const newDurationTime = number > MIN_BREAKOUT_TIME ? number : MIN_BREAKOUT_TIME;
 
-    this.setState({ durationTime: newDurationTime, durationIsValid });
+    this.setState({ durationTime: newDurationTime, durationIsValid: true });
   }
 
   changeDurationTime(event) {
