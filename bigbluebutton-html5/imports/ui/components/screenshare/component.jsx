@@ -99,7 +99,7 @@ class ScreenshareComponent extends React.Component {
     unsubscribeFromStreamStateChange('screenshare', this.onStreamStateChange);
   }
 
-  onStreamStateChange (event) {
+  onStreamStateChange(event) {
     const { streamState } = event.detail;
     const { isStreamHealthy } = this.state;
 
@@ -255,7 +255,7 @@ class ScreenshareComponent extends React.Component {
           ? (
             <div>
               {!switched
-              && this.renderScreenshareContainerInside(intl.formatMessage(intlMessages.presenterSharingLabel))}
+                && this.renderScreenshareContainerInside(intl.formatMessage(intlMessages.presenterSharingLabel))}
             </div>
           )
           : this.renderScreenshareContainerInside(intl.formatMessage(intlMessages.presenterLoadingLabel))
@@ -285,7 +285,7 @@ class ScreenshareComponent extends React.Component {
 
   render() {
     const { loaded, autoplayBlocked, isStreamHealthy } = this.state;
-    const { isPresenter, isGloballyBroadcasting } = this.props;
+    const { isPresenter, isGloballyBroadcasting, top, left, width, height, layoutLoaded } = this.props;
 
     // Conditions to render the (re)connecting spinner and the unhealthy stream
     // grayscale:
@@ -298,22 +298,33 @@ class ScreenshareComponent extends React.Component {
       || !isStreamHealthy && loaded && isGloballyBroadcasting;
 
     return (
-      [(shouldRenderConnectingState)
-        ? (
-          <div
-            key={_.uniqueId('screenshareArea-')}
-            className={styles.connecting}
-            data-test="screenshareConnecting"
-          />
-        )
-        : null,
-      !autoplayBlocked
-        ? null
-        : (this.renderAutoplayOverlay()),
-      isPresenter
-        ? this.renderScreensharePresenter()
-        : this.renderScreenshareDefault(),
-      ]
+      <div
+        style={
+          layoutLoaded === 'new'
+            ? {
+              position: 'absolute',
+              top,
+              left,
+              height,
+              width,
+            }
+            : {
+              height: '100%',
+              width: '100%',
+            }
+        }
+      >
+        {(shouldRenderConnectingState)
+          && (
+            <div
+              key={_.uniqueId('screenshareArea-')}
+              className={styles.connecting}
+              data-test="screenshareConnecting"
+            />
+          )}
+        {autoplayBlocked ? this.renderAutoplayOverlay() : null}
+        {isPresenter ? this.renderScreensharePresenter() : this.renderScreenshareDefault()}
+      </div>
     );
   }
 }
