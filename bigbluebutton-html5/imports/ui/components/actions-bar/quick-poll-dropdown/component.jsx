@@ -42,42 +42,7 @@ const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
 };
 
-const getLocalizedAnswers = (type, intl, pollTypes) => {
-  switch (type) {
-    case pollTypes.TrueFalse:
-      return [
-        intl.formatMessage(intlMessages.trueOptionLabel),
-        intl.formatMessage(intlMessages.falseOptionLabel),
-      ];
-    case pollTypes.YesNo:
-      return [
-        intl.formatMessage(intlMessages.yesOptionLabel),
-        intl.formatMessage(intlMessages.noOptionLabel),
-      ];
-    case pollTypes.YesNoAbstention:
-      return [
-        intl.formatMessage(intlMessages.yesOptionLabel),
-        intl.formatMessage(intlMessages.noOptionLabel),
-        intl.formatMessage(intlMessages.abstentionOptionLabel),
-      ];
-    default:
-      return null;
-  }
-};
-
-const handleClickQuickPoll = (newLayoutContextDispatch) => {
-  newLayoutContextDispatch({
-    type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-    value: true,
-  });
-  newLayoutContextDispatch({
-    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-    value: PANELS.POLL,
-  });
-  Session.set('forcePollOpen', true);
-  Session.set('pollInitiated', true);
-};
-const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, intl, pollTypes, newLayoutContextDispatch) => {
+const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, pollTypes) => {
   const pollItemElements = parsedSlides.map((poll) => {
     const { poll: label } = poll;
     let { type } = poll;
@@ -94,9 +59,6 @@ const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, intl, pollType
       } else {
         itemLabel = options.join('/').replace(/[\n.)]/g, '');
       }
-    } else {
-      answers = getLocalizedAnswers(type, intl, pollTypes);
-      type = pollTypes.Custom;
     }
 
     // removes any whitespace from the label
@@ -154,7 +116,7 @@ class QuickPollDropdown extends Component {
     );
 
     const { slideId, quickPollOptions } = parsedSlide;
-    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions, startPoll, intl, pollTypes, newLayoutContextDispatch);
+    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions, startPoll, intl, pollTypes);
 
     if (quickPollOptions.length === 0) return null;
 
@@ -170,13 +132,6 @@ class QuickPollDropdown extends Component {
       answers = quickPollOptions[0].poll.options;
       const { type } = quickPollOptions[0];
       singlePollType = type;
-    }
-
-    if (singlePollType === pollTypes.TrueFalse ||
-      singlePollType === pollTypes.YesNo ||
-      singlePollType === pollTypes.YesNoAbstention) {
-      answers = getLocalizedAnswers(singlePollType, intl, pollTypes);
-      singlePollType = pollTypes.Custom;
     }
 
     let btn = (

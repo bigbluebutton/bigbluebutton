@@ -139,7 +139,7 @@
     "app.meeting.ended": "This session has ended",
     "app.meeting.meetingTimeRemaining": "Meeting time remaining: {0}",
     "app.meeting.meetingTimeHasEnded": "Time ended. Meeting will close soon",
-    "app.meeting.endedByUserMessage": "The meeting was ended by {0}",
+    "app.meeting.endedByUserMessage": "This session was ended by {0}",
     "app.meeting.endedMessage": "You will be forwarded back to the home screen",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "Meeting is closing in one minute.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "Meeting is closing in {0} minutes.",
@@ -788,6 +788,7 @@
     "app.createBreakoutRoom.addParticipantLabel": "+ Add participant",
     "app.createBreakoutRoom.freeJoin": "Allow users to choose a breakout room to join",
     "app.createBreakoutRoom.leastOneWarnBreakout": "You must place at least one user in a breakout room.",
+    "app.createBreakoutRoom.minimumDurationWarnBreakout": "Minimum duration for a breakout room is {0} minutes.",
     "app.createBreakoutRoom.modalDesc": "Tip: You can drag-and-drop a user's name to assign them to a specific breakout room.",
     "app.createBreakoutRoom.roomTime": "{0} minutes",
     "app.createBreakoutRoom.numberOfRoomsError": "The number of rooms is invalid.",
@@ -811,5 +812,7 @@
     "app.debugWindow.form.userAgentLabel": "User Agent",
     "app.debugWindow.form.button.copy": "Copy",
     "app.debugWindow.form.enableAutoarrangeLayoutLabel": "Enable Auto Arrange Layout",
-    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(it will be disabled if you drag or resize the webcams area)"
+    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(it will be disabled if you drag or resize the webcams area)",
+    "app.debugWindow.form.chatLoggerLabel": "Test Chat Logger Levels",
+    "app.debugWindow.form.button.apply": "Apply"
 }

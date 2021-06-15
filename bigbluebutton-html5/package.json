@@ -11,7 +11,8 @@
     "test:recording": "export WITH_RECORD=true;export REGRESSION_TESTING=false;env $(cat tests/puppeteer/.env | xargs)  jest all.test.js --color --detectOpenHandles --forceExit",
     "test-visual-regression": "export REGRESSION_TESTING=true;env $(cat tests/puppeteer/.env | xargs)  jest all.test.js --color --detectOpenHandles --forceExit",
     "test-visual-regression:recording": "export WITH_RECORD=true;export REGRESSION_TESTING=true;env $(cat tests/puppeteer/.env | xargs)  jest all.test.js --color --detectOpenHandles --forceExit",
-    "lint": "eslint . --ext .jsx,.js"
+    "lint": "eslint . --ext .jsx,.js",
+    "preinstall": "npx npm-force-resolutions"
   },
   "meteor": {
     "mainModule": {
@@ -101,6 +102,9 @@
     "postcss-modules-values": "1.3.0",
     "puppeteer": "3.0.0",
     "sha1": "^1.1.1"
+  },
+  "resolutions": {
+    "trim-newlines": "^4.0.1"
   },
   "cssModules": {
     "cssClassNamingConvention": {
