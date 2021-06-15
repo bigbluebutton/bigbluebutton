@@ -83,6 +83,8 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
 
   const pollRegex = /[1-6A-Fa-f][.)].*/g;
   let optionsPoll = content.match(pollRegex) || [];
+  let optionsPollStrings = [];
+  if (optionsPoll) optionsPollStrings = optionsPoll.map(opt => `${opt.slice(2).replace(/^\s+/, '')}`);
   if (optionsPoll) optionsPoll = optionsPoll.map(opt => `\r${opt[0]}.`);
 
   optionsPoll.reduce((acc, currentValue) => {
@@ -118,10 +120,16 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
       });
     }
     return acc;
-  }, []).filter(({
+  }, []).map(poll => {
+    for (let i = 0 ; i < poll.options.length ; i++) {
+      poll.options.shift();
+      poll.options.push(optionsPollStrings.shift());
+    }
+    return poll;
+  }).filter(({
     options,
   }) => options.length > 1 && options.length < 7).forEach(poll => quickPollOptions.push({
-    type: `${pollTypes.Letter}${poll.options.length}`,
+    type: `${pollTypes.Custom}`,
     poll,
   }));
 
