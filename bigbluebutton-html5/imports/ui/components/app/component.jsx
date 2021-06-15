@@ -28,6 +28,7 @@ import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/
 import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
 import NewWebcamContainer from '../webcam/container';
 import PresentationAreaContainer from '../presentation/presentation-area/container';
+import ScreenshareContainer from '../screenshare/container';
 import { styles } from './styles';
 import {
   LAYOUT_TYPE, DEVICE_TYPE, ACTIONS,
@@ -419,6 +420,8 @@ class App extends Component {
       sidebarContentIsOpen,
       audioAlertEnabled,
       pushAlertEnabled,
+      shouldShowPresentation,
+      shouldShowScreenshare,
     } = this.props;
 
     return (
@@ -487,7 +490,8 @@ class App extends Component {
                 <SidebarNavigationContainer />
                 <SidebarContentContainer />
                 <NewWebcamContainer />
-                <PresentationAreaContainer />
+                {shouldShowPresentation ? <PresentationAreaContainer /> : null}
+                {shouldShowScreenshare ? <ScreenshareContainer /> : null}
                 <ModalContainer />
                 {this.renderActionsBar()}
               </div>
