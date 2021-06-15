@@ -126,6 +126,7 @@ class QuickPollDropdown extends Component {
     let singlePollType = null;
     let answers = null;
     if (quickPolls.length === 1 && quickPollOptions.length) {
+      answers = quickPollOptions[0].poll.options;
       const { type } = quickPollOptions[0];
       singlePollType = type;
     }
