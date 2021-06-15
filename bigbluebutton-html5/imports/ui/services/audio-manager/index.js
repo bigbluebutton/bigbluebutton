@@ -857,6 +857,7 @@ class AudioManager {
   }
 
   async openTranslatorChannel(languageExtension, onConnected) {
+
     if( this.translatorBridge.activeSession ) {
       this.translatorChannelOpen = false;
       this.translatorBridge.exitAudio();
