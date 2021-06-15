@@ -14,10 +14,10 @@ const ScreenshareContainer = (props) => {
   const NewLayoutManager = useContext(NLayoutContext);
   const { newLayoutContextState } = NewLayoutManager;
   const { output, layoutLoaded } = newLayoutContextState;
-  const { presentation } = output;
+  const { screenShare } = output;
 
   if (isVideoBroadcasting()) {
-    return <ScreenshareComponent {...props} {...presentation} layoutLoaded={layoutLoaded}/>;
+    return <ScreenshareComponent {...props} {...screenShare} layoutLoaded={layoutLoaded} />;
   }
   return null;
 };

@@ -598,6 +598,16 @@ class SmartLayout extends Component {
         zIndex: presentationBounds.zIndex,
       },
     });
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_SCREEN_SHARE_OUTPUT,
+      value: {
+        width: presentationBounds.width,
+        height: presentationBounds.height,
+        top: presentationBounds.top,
+        left: presentationBounds.left,
+      },
+    });
   }
 
   render() {
