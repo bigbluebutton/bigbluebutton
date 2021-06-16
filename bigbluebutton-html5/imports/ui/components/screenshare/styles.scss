@@ -7,14 +7,35 @@
   font-size: 2.5rem * 3;
 }
 
-.screenshareContainer{
+.screenshareContainer {
   display: flex;
   align-items: center;
   justify-content: center;
-
-  position: relative;
   width: 100%;
   height: 100%;
+}
+
+.screenshareContainerPresenter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: var(--color-content-background);
+  width: 100%;
+  height: 100%;
+}
+
+.screenshareContainerInside {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.mainText {
+  color: var(--color-white);
+  font-size: 2rem;
 }
 
 .unhealthyStream {

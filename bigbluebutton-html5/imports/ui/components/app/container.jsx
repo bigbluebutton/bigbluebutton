@@ -12,8 +12,9 @@ import CaptionsService from '/imports/ui/components/captions/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
-import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
 import { NLayoutContext } from '../layout/context/context';
+import Settings from '/imports/ui/services/settings';
+import MediaService from '/imports/ui/components/media/service';
 
 import {
   getFontSize,
@@ -137,6 +138,10 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   }).fetch();
 
   const layoutManagerLoaded = Session.get('layoutManagerLoaded');
+  const AppSettings = Settings.application;
+  const { viewScreenshare } = Settings.dataSaving;
+  const shouldShowScreenshare = MediaService.shouldShowScreenshare()
+    && (viewScreenshare || MediaService.isUserPresenter());
 
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
@@ -152,12 +157,15 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     meetingMuted: voiceProp.muteOnStart,
     currentUserEmoji: currentUserEmoji(currentUser),
     hasPublishedPoll: publishedPoll,
-    startBandwidthMonitoring,
-    handleNetworkConnection: () => updateNavigatorConnection(navigator.connection),
     layoutManagerLoaded,
     randomlySelectedUser,
     currentUserId: currentUser.userId,
     isPresenter: currentUser.presenter,
+    audioAlertEnabled: AppSettings.chatAudioAlerts,
+    pushAlertEnabled: AppSettings.chatPushAlerts,
+    shouldShowScreenshare,
+    shouldShowPresentation: !shouldShowScreenshare,
+    isLargeFont: Session.get('isLargeFont')
   };
 })(AppContainer)));
 

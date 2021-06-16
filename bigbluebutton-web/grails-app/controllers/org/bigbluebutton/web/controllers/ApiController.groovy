@@ -280,7 +280,8 @@ class ApiController {
     } else {
       errors.missingParamError("fullName");
     }
-    String fullName = ParamsUtil.stripHTMLTags(params.fullName)
+
+    String fullName = ParamsUtil.stripControlChars(params.fullName)
 
     // Do we have a meeting id? If none, complain.
     if (!StringUtils.isEmpty(params.meetingID)) {

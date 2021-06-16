@@ -914,6 +914,34 @@ const reducer = (state, action) => {
         },
       };
     }
+    case ACTIONS.SET_SCREEN_SHARE_OUTPUT: {
+      const {
+        width,
+        height,
+        top,
+        left,
+      } = action.value;
+      const { screenShare } = state.output;
+      if (screenShare.width === width
+        && screenShare.height === height
+        && screenShare.top === top
+        && screenShare.left === left) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          screenShare: {
+            ...screenShare,
+            width,
+            height,
+            top,
+            left,
+          },
+        },
+      };
+    }
 
     // EXTERNAL VIDEO
     case ACTIONS.SET_HAS_EXTERNAL_VIDEO: {

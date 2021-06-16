@@ -42,7 +42,6 @@ public:
     allowUserLookup: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
-    enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
     enableTalkingIndicator: true
@@ -171,9 +170,6 @@ public:
       - warning
   externalVideoPlayer:
     enabled: true
-  networkMonitoring:
-    enableNetworkMonitoring: false
-    packetLostThreshold: 10
   kurento:
     wsUrl: HOST
     # Valid for video-provider. Time (ms) before its WS connection times out
@@ -396,6 +392,7 @@ public:
     enabled: true
     itemsPerPage: 100
     timeBetweenFetchs: 1000
+    enableSaveAndCopyPublicChat: true
     bufferChatInsertsMs: 0
     startClosed: false
     min_message_length: 1
@@ -416,6 +413,7 @@ public:
       chat_poll_result: PUBLIC_CHAT_POLL_RESULT
     typingIndicator:
       enabled: true
+    moderatorChatEmphasized: true
   note:
     enabled: true
     url: ETHERPAD_HOST
@@ -532,6 +530,7 @@ public:
       moderator: false
       mobile: true
       guest: true
+      sharingWebcam: true
   whiteboard:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150

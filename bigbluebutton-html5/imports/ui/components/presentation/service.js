@@ -155,17 +155,12 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
 };
 
 const isPresenter = (podId) => {
-  // a main presenter in the meeting always owns a default pod
-  if (podId !== 'DEFAULT_PRESENTATION_POD') {
-    // if a pod is not default, then we check whether this user owns a current pod
-    const selector = {
-      meetingId: Auth.meetingID,
-      podId,
-    };
-    const pod = PresentationPods.findOne(selector);
-    return pod.currentPresenterId === Auth.userID;
-  }
-  return true;
+  const selector = {
+    meetingId: Auth.meetingID,
+    podId,
+  };
+  const pod = PresentationPods.findOne(selector);
+  return pod?.currentPresenterId === Auth.userID;
 };
 
 export default {

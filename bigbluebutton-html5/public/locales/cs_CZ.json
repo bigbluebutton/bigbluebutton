@@ -139,7 +139,6 @@
     "app.meeting.ended": "Setkání bylo ukončeno",
     "app.meeting.meetingTimeRemaining": "Čas zbývající do konce setkání: {0}",
     "app.meeting.meetingTimeHasEnded": "Čas setkání vypršel. Setkání bude za okamžik ukončeno.",
-    "app.meeting.endedByUserMessage": "Setkání bylo ukončeno uživatelem {0}",
     "app.meeting.endedMessage": "Budete přesměrováni zpět na úvodní obrazovku",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "Setkání se ukončí za minutu.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "Setkání skončí za {0} minut.",

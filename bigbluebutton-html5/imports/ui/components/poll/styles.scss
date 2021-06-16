@@ -94,19 +94,6 @@
     color: var(--color-text);
 }
 
-.grid {
-    display: grid;
-    grid-template-columns: repeat(var(--poll-column-amount), 1fr);
-
-    > pollBtn:nth-child(odd) {
-        grid-column: 1;
-    }
-
-    > pollBtn:nth-child(even) {
-        grid-column: var(--poll-column-amount);
-    }
-}
-
 .pollBtn:nth-child(even) {
     margin-right: inherit;
     margin-left: var(--sm-padding-y);

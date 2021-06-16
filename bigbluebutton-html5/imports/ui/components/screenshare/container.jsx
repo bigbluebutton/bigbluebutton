@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Users from '/imports/api/users/';
 import Auth from '/imports/ui/services/auth';
@@ -8,10 +8,16 @@ import {
   isGloballyBroadcasting,
 } from './service';
 import ScreenshareComponent from './component';
+import { NLayoutContext } from '../layout/context/context';
 
 const ScreenshareContainer = (props) => {
+  const NewLayoutManager = useContext(NLayoutContext);
+  const { newLayoutContextState } = NewLayoutManager;
+  const { output, layoutLoaded } = newLayoutContextState;
+  const { screenShare } = output;
+
   if (isVideoBroadcasting()) {
-    return <ScreenshareComponent {...props} />;
+    return <ScreenshareComponent {...props} {...screenShare} layoutLoaded={layoutLoaded} />;
   }
   return null;
 };
