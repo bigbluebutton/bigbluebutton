@@ -16,7 +16,8 @@ const USERLIST_MIN_WIDTH = 150;
 const USERLIST_MAX_WIDTH = 240;
 const CHAT_MIN_WIDTH = 320;
 const CHAT_MAX_WIDTH = 400;
-const NAVBAR_HEIGHT = 170;
+const NAVBAR_HEIGHT = 112;
+const LARGE_NAVBAR_HEIGHT = 170;
 const ACTIONSBAR_HEIGHT = isMobile ? 50 : 42;
 const BREAKOUT_MIN_WIDTH = 320;
 const BREAKOUT_MAX_WIDTH = 400;
@@ -96,6 +97,14 @@ class LayoutManagerComponent extends Component {
 
     window.addEventListener('webcamPlacementChange', () => {
       this.setLayoutSizes(false, false, true);
+    });
+    
+    window.addEventListener('fullscreenchange', () => {
+      setTimeout(() => this.setLayoutSizes(), 200);
+    });
+
+    window.addEventListener('localeChanged', () => {
+      setTimeout(() => this.setLayoutSizes(), 200);
     });
   }
 
@@ -473,7 +482,10 @@ class LayoutManagerComponent extends Component {
       secondPanel = newPanelSize;
     }
 
-    const mediaAreaHeight = this.windowHeight() - (NAVBAR_HEIGHT + ACTIONSBAR_HEIGHT) - 10;
+    const isLargeFont = Session.get('isLargeFont');
+    const realNavbarHeight = isLargeFont ? LARGE_NAVBAR_HEIGHT : NAVBAR_HEIGHT;
+
+    const mediaAreaHeight = this.windowHeight() - (realNavbarHeight + ACTIONSBAR_HEIGHT) - 10;
     const mediaAreaWidth = this.windowWidth() - (
       (sidebarNavigation.isOpen ? firstPanel.width : 0)
       + (sidebarContent.isOpen ? secondPanel.width : 0)
@@ -482,7 +494,7 @@ class LayoutManagerComponent extends Component {
     const newMediaBounds = {
       width: mediaAreaWidth,
       height: mediaAreaHeight,
-      top: NAVBAR_HEIGHT,
+      top: realNavbarHeight,
       left: firstPanel.width + secondPanel.width,
     };
 
@@ -549,6 +561,7 @@ export {
   CHAT_MIN_WIDTH,
   CHAT_MAX_WIDTH,
   NAVBAR_HEIGHT,
+  LARGE_NAVBAR_HEIGHT,
   ACTIONSBAR_HEIGHT,
   WEBCAMSAREA_MIN_PERCENT,
   WEBCAMSAREA_MAX_PERCENT,

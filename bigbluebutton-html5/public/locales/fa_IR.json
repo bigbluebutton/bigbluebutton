@@ -139,7 +139,7 @@
     "app.meeting.ended": "جلسه پایان یافت",
     "app.meeting.meetingTimeRemaining": "زمان باقی مانده از جلسه: {0}",
     "app.meeting.meetingTimeHasEnded": "زمان جلسه به اتمام رسید. جلسه به زودی بسته خواهد شد",
-    "app.meeting.endedByUserMessage": "{0} جلسه را پایان داد.",
+    "app.meeting.endedByUserMessage": "این جلسه توسط {0} به پایان رسید",
     "app.meeting.endedMessage": "شما در حال انتقال به صفحه اصلی هستید",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "جلسه تا یک دقیقه دیگر به پایان می‌رسد.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "جلسه تا {0} دقیقه دیگر به پایان می‌رسد.",

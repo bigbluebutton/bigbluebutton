@@ -220,17 +220,13 @@ class MeetingEnded extends PureComponent {
         <div className={styles.modal}>
           <div className={styles.content}>
             <h1 className={styles.title} data-test="meetingEndedModalTitle">
-              {
-                intl.formatMessage(intlMessage[code] || intlMessage[430])
-              }
+              {this.meetingEndedBy
+                ? intl.formatMessage(intlMessage.messageEndedByUser, { 0: this.meetingEndedBy })
+                : intl.formatMessage(intlMessage[code] || intlMessage[430])}
             </h1>
             {!allowRedirectToLogoutURL() ? null : (
               <div>
-                {this.meetingEndedBy ? (
-                  <div className={styles.text}>
-                    {intl.formatMessage(intlMessage.messageEndedByUser, { 0: this.meetingEndedBy })}
-                  </div>
-                ) : null}
+
                 <div className={styles.text}>
                   {intl.formatMessage(intlMessage.messageEnded)}
                 </div>
@@ -294,7 +290,7 @@ class MeetingEnded extends PureComponent {
                   />
                 ) : null}
               </div>
-            ) : null }
+            ) : null}
             {noRating && allowRedirectToLogoutURL() ? (
               <Button
                 color="primary"

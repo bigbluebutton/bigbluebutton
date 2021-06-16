@@ -139,7 +139,6 @@
     "app.meeting.ended": "ఈ సెషన్ ముగిసింది",
     "app.meeting.meetingTimeRemaining": "సమావేశ సమయం మిగిలి ఉంది: {0}",
     "app.meeting.meetingTimeHasEnded": "సమయం ముగిసింది. సమావేశం త్వరలో ముగుస్తుంది",
-    "app.meeting.endedByUserMessage": "సమావేశం {0 by తో ముగిసింది",
     "app.meeting.endedMessage": "మీరు హోమ్ స్క్రీన్‌కు తిరిగి ఫార్ వర్డ్ చేయబడతారు",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "సమావేశం ఒక నిమిషంలో ముగుస్తుంది.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "సమావేశం {0} నిమిషాల్లో ముగుస్తుంది.",
