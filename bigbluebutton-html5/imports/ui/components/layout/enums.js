@@ -79,9 +79,11 @@ export const ACTIONS = {
 
   SET_HAS_SCREEN_SHARE: 'setHasScreenShare',
   SET_SCREEN_SHARE_SIZE: 'setScreenShareSize',
+  SET_SCREEN_SHARE_OUTPUT: 'setScreenShareOutput',
 
   SET_HAS_EXTERNAL_VIDEO: 'setHasExternalVideo',
   SET_EXTERNAL_VIDEO_SIZE: 'setExternalVideoSize',
+  SET_EXTERNAL_VIDEO_OUTPUT: 'setExternalVideoOutput',
 };
 
 export const PANELS = {
