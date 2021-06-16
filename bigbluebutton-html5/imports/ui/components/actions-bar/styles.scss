@@ -218,20 +218,9 @@
   margin: 0;
 }
 
-.btnmuted{
-  span{
-    border-color: white !important;
-  }
-}
-
 .translatorBtn{
   span{
     background-color: mediumpurple;
   }
 }
 
-.translatorBtn:not(.btnmuted):focus{
-  span{
-    background-color: mediumpurple !important;
-  }
-}

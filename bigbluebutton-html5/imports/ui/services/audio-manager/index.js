@@ -88,7 +88,12 @@ class AudioManager {
 
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
 
-    this.muteHandles = new Set();
+    // this.muteHandles = new Set();
+    this.$translatorMuted = new BehaviorSubject(true);
+    this.$translatorMuted.subscribe((val) => {
+      this.setSenderTrackEnabledTranslator(!val);
+    })
+
     this.muteStateCallbacks = new Set();
     this.translationStateCallbacks = new Set();
     this.translationState = null;
@@ -900,26 +905,26 @@ class AudioManager {
     floorMediaElement.volume = volume;
   }
 
-  muteTranslator(muteHandle) {
-    this.setSenderTrackEnabledTranslator(false)
-    this.muteHandles.add(muteHandle);
+  muteTranslator() {
+    this.$translatorMuted.next(true);
     this.notifyMuteStateListener();
   }
 
-  unmuteTranslator(muteHandle) {
-    this.muteHandles.delete(muteHandle);
-    if(this.muteHandles.size === 0) {
-      this.setSenderTrackEnabledTranslator(true);
-    }
+  unmuteTranslator() {
+    this.$translatorMuted.next(false);
     this.notifyMuteStateListener();
   }
 
-  isTranslatorMuted(muteHandle = null) {
-    if(muteHandle === null) {
-      return this.muteHandles.size !== 0;
+  toggleMuteTranslator() {
+    if (this.isTranslatorMuted()) {
+      this.unmuteTranslator();
     } else {
-      return this.muteHandles.has(muteHandle);
+      this.muteTranslator();
     }
+  }
+
+  isTranslatorMuted() {
+    return this.$translatorMuted.value;
   }
 
   registerMuteStateListener( callback ) {
