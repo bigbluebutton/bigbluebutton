@@ -67,3 +67,5 @@ export default withTracker(() => ({
   hasLanguages: Service.hasLanguages(),
   showTranslatorMicButton: Service.showTranslatorMicButton()
 }))(injectIntl(ActionsBarContainer));
+
+

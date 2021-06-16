@@ -39,10 +39,15 @@ const intlMessages = defineMessages({
         description: 'Label for end translation button',
         defaultMessage: 'End Translation',
     },
-    speechDetectionThreshold: {
-        id: 'app.translation.speechDetectionThreshold',
-        description: 'Translator speech detection threshold',
-        defaultMessage: 'Translator speech detection threshold',
+    speechDetectionThresholdInfo: {
+        id: 'app.translation.speechDetectionThresholdInfo',
+        description: 'Translator speech detection threshold info',
+        defaultMessage: 'Translator speech detection threshold info',
+    },
+    speechDetectionThresholdExplanation: {
+        id: 'app.translation.speechDetectionThresholdExplanation',
+        description: 'Translator speech detection threshold explanation',
+        defaultMessage: 'Translator speech detection threshold explanation',
     },
 });
 
@@ -201,7 +206,6 @@ class Translations extends Component{
                         : null
                     }
                 </p>
-
                 <div>{intl.formatMessage(intlMessages.speechDetectionThreshold)}:</div>
                 <form onSubmit={this.handleSubmit}>
                     <input id="speechDetectionThreshold" type="number" value={this.state.speechDetectionThreshold} onChange={this.setThreshold.bind(this)} />

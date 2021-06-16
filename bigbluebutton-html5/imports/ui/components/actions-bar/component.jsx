@@ -52,11 +52,6 @@ if (TRANSLATION_SETTINGS) {
 }
 
 const intlMessages = defineMessages({
-  translatorMicrophoneLabel: {
-    id: 'app.translation.translator.microphone',
-    description: 'Label for translator microphone button',
-    defaultMessage: 'Translator mic',
-  },
   translatorSelectLanguageLabel: {
     id: 'app.translation.translator.selectLanguage',
     description: 'Label for translator select language button',
@@ -181,18 +176,10 @@ class ActionsBar extends PureComponent {
   }
 
   handleMuteTranslator(){
-    const muteKey = 'mute-button';
-
-    let isTranslatorMuted = AudioManager.isTranslatorMuted(muteKey);
-
-    if(isTranslatorMuted) {
-      AudioManager.unmuteTranslator(muteKey);
-    } else {
-      AudioManager.muteTranslator(muteKey);
-    }
-
+    AudioManager.toggleMuteTranslator();
     this.forceUpdate();
   }
+
   handleLanguageSelection(language, onConnected) {
     this.state.translationLanguage = language
     AudioManager.openTranslationChannel(language.extension)
@@ -235,14 +222,9 @@ class ActionsBar extends PureComponent {
       setEmojiStatus,
       currentUser,
       shortcuts,
-      hasBreakouts,
-      isTranslatorTalking,
-      isTranslatorMuted,
       hasLanguages,
-      showTranslatorMicButton
     } = this.props;
 
-    const amIAsTranslatorMuted = isTranslatorMuted();
 
     return (
       <div
@@ -320,22 +302,7 @@ class ActionsBar extends PureComponent {
               )
               : null
           }
-          { amIModerator && hasLanguages && showTranslatorMicButton ?
-              (
-                  <Button
-                      className={[amIAsTranslatorMuted ? styles.btnmuted: "", styles.translatorBtn ].join(" ")}
-                      onClick={this.handleMuteTranslator}
-                      hideLabel
-                      label={intl.formatMessage(intlMessages.translatorMicrophoneLabel)}
-                      aria-label={intl.formatMessage(intlMessages.translatorMicrophoneLabel)}
-                      color={!amIAsTranslatorMuted ? 'primary' : 'default'}
-                      ghost={amIAsTranslatorMuted}
-                      icon={amIAsTranslatorMuted ? 'mute' : AudioManager.$translatorSpeakingChanged.value ? "mute_filled": 'unmute'}
-                      size="lg"
-                      circle
-                  />
-              ) :null
-          }
+
           { amIModerator && hasLanguages ?
               (
                   <div id={"translatorButton"}>

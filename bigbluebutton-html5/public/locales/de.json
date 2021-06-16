@@ -820,6 +820,8 @@
     "app.translation.language.connection.settingUp": "...",
     "app.translation.filterMarker.languageListening": "hören",
     "app.translation.filterMarker.languageTranslating": "sprechen",
-    "app.translation.speechDetectionThreshold": "Sprachschwellenwert f. Übersetzer"
+    "app.translation.speechDetectionThresholdInfo": "Sprachschwellenwert f. Übersetzer (-100 bis 0)",
+    "app.translation.speechDetectionThresholdExplanation": "The system tries to recognize when you are actually speaking while interpreting. The volume of the original audio is then lowered for the listeners so they can hear your voice. The center of the mic-symbol in the mute-button turns solid when speech is recognized. Use this feedback to fine-tune the threshold to your current setup. Change this setting from -100 (most sensitive / always on) to 0 (least sensitive / disabled). Click \"set\" to activate the new setting. This affects only you in the current session. Changes are not saved.  Tip: Make sure your microphone provides a decent audio-level without clipping (check system mixer-settings)."
+
 }
 
