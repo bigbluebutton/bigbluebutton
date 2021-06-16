@@ -17,7 +17,7 @@ You can install on a Ubuntu 18.04 64-bit server.  We provide [bbb-install.sh](ht
 
 For full technical documentation BigBlueButton -- including architecture, features, API, and GreenLight (the default front-end) -- see [https://docs.bigbluebutton.org/](https://docs.bigbluebutton.org/).
 
-Setting up a development environment for the HTML 5 client
+Working with a custom HTML 5 client
 ==========================================================
 
 After installing BBB 2.3 using [this tutorial](https://docs.bigbluebutton.org/2.3/install.html),
@@ -43,5 +43,23 @@ follow these steps to set a development environment:
     * set the "wsUrl" value to the url that was retrieved before
 
 * ```meteor npm install```
-* run the html5 client using ```npm start```. [Screen](https://www.gnu.org/software/screen/) can be used to keep the session open when the shell is closed.
+
+
+* Now you can set up a development environment by running the html5 client using ```npm start```. [Screen](https://www.gnu.org/software/screen/) can be used to keep the session open when the shell is closed.
+  
+
+* or build a bundle which can be run as a service:
+    * Build the html5 client bundle
+    ```METEOR_ALLOW_SUPERUSER=1 meteor build --server-only /some/dir```
+      This will create a tar archive of the built client in /some/dir
+
+    * if you have not removed the built-in client service, according to [this page](https://docs.bigbluebutton.org/2.3/dev.html#developing-the-html5-client), stop the service:
+    ```sudo systemctl stop bbb-html5```
+
+    * unpack the bundle
+    ```sudo tar -xzvf /some/dir/<bundle>.tar.gz -C /usr/share/meteor```
+
+    * and Start the html5 client
+    ```sudo systemctl start bbb-html5```
+
 
