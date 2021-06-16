@@ -116,7 +116,7 @@ class AudioManager {
 
           let tCExt = parseInt((this.translationLanguageExtension+ '').charAt(2));
           if(tCExt == pLang.extension) {
-            let audioElement = document.getElementById("translation-media");
+            let audioElement = document.getElementById("remote-media");
             if(audioElement) audioElement.volume = pLang.volume;
           }
         }

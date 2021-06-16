@@ -122,10 +122,10 @@ class ActionsBar extends PureComponent {
             }
           }
           if (result) {
-            AudioManager.setFloorOutputVolume(FLOOR_TRANSLATION_VOLUME);
+            // AudioManager.setFloorOutputVolume(FLOOR_TRANSLATION_VOLUME);
             // transaudio.volume = 1
           } else {
-            AudioManager.setFloorOutputVolume(1.0);
+            // AudioManager.setFloorOutputVolume(1.0);
           }
         }
       }, 500);
