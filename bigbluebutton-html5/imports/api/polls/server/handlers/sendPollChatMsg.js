@@ -1,7 +1,4 @@
 import addSystemMsg from '../../../group-chat-msg/server/modifiers/addSystemMsg';
-import Polls from '/imports/api/polls';
-import removePoll from '../modifiers/removePoll';
-import Logger from '/imports/startup/server/logger';
 
 export default function sendPollChatMsg({ body }, meetingId) {
   const { poll } = body;
