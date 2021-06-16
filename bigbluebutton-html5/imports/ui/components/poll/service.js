@@ -122,8 +122,8 @@ const getPollResultString = (pollResultData, intl) => {
     return div.innerHTML;
   };
 
-  const { answers, numRespondents, pollType } = pollResultData;
-  const ísDefault = isDefaultPoll(pollType)
+  const { answers, numRespondents, questionType } = pollResultData;
+  const ísDefault = isDefaultPoll(questionType)
   let { resultString, optionsString } = getPollResultsText(ísDefault, answers, numRespondents, intl)
   resultString = sanitize(resultString);
   optionsString = sanitize(optionsString);
