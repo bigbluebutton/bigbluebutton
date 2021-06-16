@@ -139,7 +139,7 @@
     "app.meeting.ended": "Diese Konferenz wurde beendet",
     "app.meeting.meetingTimeRemaining": "Verbleibende Konferenzzeit: {0}",
     "app.meeting.meetingTimeHasEnded": "Die Zeit ist abgelaufen. Die Konferenz wird in Kürze beendet",
-    "app.meeting.endedByUserMessage": "Die Konferenz wurde von {0} beendet.",
+    "app.meeting.endedByUserMessage": "Diese Konferenz wurde durch {0} beendet",
     "app.meeting.endedMessage": "Sie werden zum Startbildschirm weitergeleitet",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "Konferenz endet in einer Minute.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "Konferenz endet in {0} Minuten.",

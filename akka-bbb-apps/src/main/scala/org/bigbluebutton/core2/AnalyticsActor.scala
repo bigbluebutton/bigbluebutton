@@ -3,7 +3,6 @@ package org.bigbluebutton.core2
 import akka.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
-
 object AnalyticsActor {
   def props(includeChat: Boolean): Props = Props(classOf[AnalyticsActor], includeChat)
 }
@@ -61,6 +60,7 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: RequestBreakoutJoinURLReqMsg                   => logMessage(msg)
       case m: EndAllBreakoutRoomsMsg                         => logMessage(msg)
       case m: TransferUserToMeetingRequestMsg                => logMessage(msg)
+      case m: ExtendBreakoutRoomsTimeReqMsg                  => logMessage(msg)
       case m: UserLeftVoiceConfToClientEvtMsg                => logMessage(msg)
       case m: UserLeftVoiceConfEvtMsg                        => logMessage(msg)
       case m: RecordingStartedVoiceConfEvtMsg                => logMessage(msg)
@@ -167,6 +167,7 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: ChangeLockSettingsInMeetingCmdMsg => logMessage(msg)
       case m: GetLockSettingsReqMsg => logMessage(msg)
       case m: LockSettingsNotInitializedRespMsg => logMessage(msg)
+      case m: MeetingInfoAnalyticsMsg => logMessage(msg)
 
       case _ => // ignore message
     }

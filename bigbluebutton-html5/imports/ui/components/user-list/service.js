@@ -10,6 +10,7 @@ import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
+import VideoService from '/imports/ui/components/video-provider/service';
 import logger from '/imports/startup/client/logger';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { Session } from 'meteor/session';
@@ -178,6 +179,19 @@ const addWhiteboardAccess = (users) => {
   });
 };
 
+const addIsSharingWebcam = (users) => {
+  const usersId = VideoService.getUsersIdFromVideoStreams();
+
+  return users.map((user) => {
+    const isSharingWebcam = usersId.includes(user.userId);
+
+    return {
+      ...user,
+      isSharingWebcam,
+    };
+  });
+};
+
 const getUsers = () => {
   let users = Users
     .find({
@@ -195,7 +209,7 @@ const getUsers = () => {
     }
   }
 
-  return addWhiteboardAccess(users).sort(sortUsers);
+  return addIsSharingWebcam(addWhiteboardAccess(users)).sort(sortUsers);
 };
 
 const getUserCount = () => Users.find({ meetingId: Auth.meetingID }).count();

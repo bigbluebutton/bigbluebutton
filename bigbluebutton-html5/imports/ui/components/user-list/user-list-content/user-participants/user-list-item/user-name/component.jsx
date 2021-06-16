@@ -33,6 +33,10 @@ const messages = defineMessages({
     id: 'app.userList.menuTitleContext',
     description: 'adds context to userListItem menu title',
   },
+  sharingWebcam: {
+    id: 'app.userList.sharingWebcam',
+    description: 'Text for identifying who is sharing webcam',
+  },
   userAriaLabel: {
     id: 'app.userList.userAriaLabel',
     description: 'aria label for each user in the userlist',
@@ -73,10 +77,25 @@ const UserName = (props) => {
 
   const userNameSub = [];
 
+  if (compact) {
+    return null;
+  }
+
+  if (user.isSharingWebcam && LABEL.sharingWebcam) {
+    userNameSub.push(
+      <span>
+        <Icon iconName="video" />
+        &nbsp;
+        {intl.formatMessage(messages.sharingWebcam)}
+      </span>,
+    );
+  }
+
   if (isThisMeetingLocked && user.locked && user.role !== ROLE_MODERATOR) {
     userNameSub.push(
       <span>
         <Icon iconName="lock" />
+        &nbsp;
         {intl.formatMessage(messages.locked)}
       </span>,
     );

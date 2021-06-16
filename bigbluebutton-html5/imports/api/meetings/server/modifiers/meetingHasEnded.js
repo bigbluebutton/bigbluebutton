@@ -20,7 +20,6 @@ import clearUserInfo from '/imports/api/users-infos/server/modifiers/clearUserIn
 import clearConnectionStatus from '/imports/api/connection-status/server/modifiers/clearConnectionStatus';
 import clearScreenshare from '/imports/api/screenshare/server/modifiers/clearScreenshare';
 import clearNote from '/imports/api/note/server/modifiers/clearNote';
-import clearNetworkInformation from '/imports/api/network-information/server/modifiers/clearNetworkInformation';
 import clearMeetingTimeRemaining from '/imports/api/meetings/server/modifiers/clearMeetingTimeRemaining';
 import clearLocalSettings from '/imports/api/local-settings/server/modifiers/clearLocalSettings';
 import clearRecordMeeting from './clearRecordMeeting';
@@ -55,7 +54,6 @@ export default function meetingHasEnded(meetingId) {
     clearUserInfo(meetingId);
     clearConnectionStatus(meetingId);
     clearNote(meetingId);
-    clearNetworkInformation(meetingId);
     clearLocalSettings(meetingId);
     clearMeetingTimeRemaining(meetingId);
     clearRecordMeeting(meetingId);
