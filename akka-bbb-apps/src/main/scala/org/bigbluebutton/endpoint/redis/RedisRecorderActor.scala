@@ -571,6 +571,11 @@ class RedisRecorderActor(
   private def handleUserRespondedToPollRecordMsg(msg: UserRespondedToPollRecordMsg): Unit = {
     val ev = new UserRespondedToPollRecordEvent()
     ev.setPollId(msg.body.pollId)
+    if (msg.body.isSecret) {
+      ev.setUserId("")
+    } else {
+      ev.setUserId(msg.header.userId)
+    }
     ev.setAnswerId(msg.body.answerId)
     ev.setAnswer(msg.body.answer)
 

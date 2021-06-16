@@ -24,6 +24,10 @@ class UserRespondedToPollRecordEvent extends AbstractPollRecordEvent {
 
   setEvent("UserRespondedToPollRecordEvent")
 
+  def setUserId(userId: String) {
+    eventMap.put(USER_ID, userId)
+  }
+
   def setAnswerId(answerId: Int) {
     eventMap.put(ANSWER_ID, Integer.toString(answerId))
   }
@@ -34,6 +38,7 @@ class UserRespondedToPollRecordEvent extends AbstractPollRecordEvent {
 }
 
 object UserRespondedToPollRecordEvent {
+  protected final val USER_ID = "userId"
   protected final val ANSWER_ID = "answerId"
   protected final val ANSWER = "answer"
 }
