@@ -139,7 +139,6 @@
     "app.meeting.ended": "Sesja zakończyła się",
     "app.meeting.meetingTimeRemaining": "Czas do końca spotkania: {0}",
     "app.meeting.meetingTimeHasEnded": "Koniec czasu. Spotkanie wkrótce się zakończy",
-    "app.meeting.endedByUserMessage": "Spotkanie zostało zakończone przez {0}",
     "app.meeting.endedMessage": "Zostaniesz przekierowany do strony domowej",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "Spotkanie zakończy się w ciągu jednej minuty.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "Spotkanie zakończy się w {0} minut.",
