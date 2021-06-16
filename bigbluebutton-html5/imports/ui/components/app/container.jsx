@@ -142,6 +142,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   const { viewScreenshare } = Settings.dataSaving;
   const shouldShowScreenshare = MediaService.shouldShowScreenshare()
     && (viewScreenshare || MediaService.isUserPresenter());
+  const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
 
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
@@ -164,7 +165,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     audioAlertEnabled: AppSettings.chatAudioAlerts,
     pushAlertEnabled: AppSettings.chatPushAlerts,
     shouldShowScreenshare,
-    shouldShowPresentation: !shouldShowScreenshare,
+    shouldShowPresentation: !shouldShowScreenshare && !shouldShowExternalVideo,
+    shouldShowExternalVideo
   };
 })(AppContainer)));
 

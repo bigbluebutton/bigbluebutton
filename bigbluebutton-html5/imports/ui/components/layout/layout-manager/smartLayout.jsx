@@ -608,6 +608,16 @@ class SmartLayout extends Component {
         left: mediaBounds.left,
       },
     });
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
+      value: {
+        width: mediaBounds.width,
+        height: mediaBounds.height,
+        top: mediaBounds.top,
+        left: mediaBounds.left,
+      },
+    });
   }
 
   render() {
