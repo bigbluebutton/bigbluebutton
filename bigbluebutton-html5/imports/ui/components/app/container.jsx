@@ -165,6 +165,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     pushAlertEnabled: AppSettings.chatPushAlerts,
     shouldShowScreenshare,
     shouldShowPresentation: !shouldShowScreenshare,
+    isLargeFont: Session.get('isLargeFont')
   };
 })(AppContainer)));
 

@@ -139,7 +139,6 @@
     "app.meeting.ended": "Oturum sonlandı",
     "app.meeting.meetingTimeRemaining": "Oturumun bitmesine kalan süre: {0}",
     "app.meeting.meetingTimeHasEnded": "Zaman bitti. Oturum kısa süre sonra kapanacak",
-    "app.meeting.endedByUserMessage": "Görüşme {0} tarafından sonlandırıldı",
     "app.meeting.endedMessage": "Ana ekrana geri yönlendirileceksiniz",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "Toplantı bir dakika içinde kapanacak.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "Toplantı {0} dakika içinde kapanacak.",

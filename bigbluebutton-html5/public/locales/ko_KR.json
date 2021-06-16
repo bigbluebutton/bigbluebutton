@@ -139,7 +139,6 @@
     "app.meeting.ended": "이 세션은 종료 되었습니다 ",
     "app.meeting.meetingTimeRemaining": "미팅시간은 {0} 남았습니다 ",
     "app.meeting.meetingTimeHasEnded": "시간종료. 미팅은 조만간 종료 됩니다 ",
-    "app.meeting.endedByUserMessage": "{0}님이 미팅을 종료했습니다.",
     "app.meeting.endedMessage": "홈화면으로 돌아갑니다 ",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "미팅이 1분내에 마감됩니다 ",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "미팅이 {0} 분내에 마감됩니다 ",

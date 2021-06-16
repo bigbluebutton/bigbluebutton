@@ -139,7 +139,6 @@
     "app.meeting.ended": "Toto pripojenie bolo ukončené",
     "app.meeting.meetingTimeRemaining": "Zostávajúci čas: {0}",
     "app.meeting.meetingTimeHasEnded": "Čas vypršal. Konferencia sa čoskoro skončí",
-    "app.meeting.endedByUserMessage": "Stretnutie bolo ukončené užívateľom {0}",
     "app.meeting.endedMessage": "Budete presmerovaný na Vašu domovskú obrazovku",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "Konferencia skončí o 1 minútu.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "Konferencia skončí o {0} minút.",

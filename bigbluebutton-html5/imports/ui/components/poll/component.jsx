@@ -344,6 +344,7 @@ class Poll extends Component {
       currentPoll,
       pollAnswerIds,
       usernames,
+      isDefaultPoll,
     } = this.props;
 
     return (
@@ -358,6 +359,7 @@ class Poll extends Component {
             currentPoll,
             pollAnswerIds,
             usernames,
+            isDefaultPoll,
           }}
           handleBackClick={this.handleBackClick}
         />
