@@ -257,6 +257,7 @@ const exportChat = (timeWindowList, users, intl) => {
       const hour = date.getHours().toString().padStart(2, 0);
       const min = date.getMinutes().toString().padStart(2, 0);
       const hourMin = `[${hour}:${min}]`;
+      if (['SYSTEM_MESSAGE-sync-msg', 'synced'].includes(message.id)) return acc;
       let userName = message.id.startsWith(SYSTEM_CHAT_TYPE)
         ? ''
         : `${users[timeWindow.sender].name}: `;
@@ -276,10 +277,10 @@ const exportChat = (timeWindowList, users, intl) => {
     });
 
     return [...acc, ...msgs];
-  }, [])
+  }, []);
 
   return messageList.join('\n');
-}
+};
 
 const getAllMessages = (chatID, messages) => {
   if(!messages[chatID]){
