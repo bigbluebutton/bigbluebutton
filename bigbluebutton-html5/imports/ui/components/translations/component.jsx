@@ -7,6 +7,7 @@ import { makeCall } from '/imports/ui/services/api';
 import Meeting from "/imports/ui/services/meeting";
 import Button from '/imports/ui/components/button/component';
 import AudioManager from '/imports/ui/services/audio-manager';
+import TranslationManager from '/imports/ui/services/translation-manager';
 
 const intlMessages = defineMessages({
     translationsTitle: {
@@ -63,6 +64,10 @@ class Translations extends Component{
         })
     }
 
+    componentDidUpdate() {
+        TranslationManager.$languagesChanged.next(null);
+    }
+
     createEditForm = () => {
         if( this.state.languages.length < 8 ){
             this.state.languages.push({name:"?", edit:"true"})
@@ -77,6 +82,7 @@ class Translations extends Component{
         this.state.languages[index].name = name;
         this.state.languages[index].edit = false;
         this.setState(this.state)
+
     }
 
     deletionHandler = (index)=>{
@@ -118,7 +124,6 @@ class Translations extends Component{
         active: false,
         warning: null,
         speechDetectionThreshold: AudioManager.$translatorSpeechDetectionThresholdChanged.value,
-        channelVolume: AudioManager.translationChannelVolume
     }
 
     componentWillUnmount() {
@@ -135,15 +140,6 @@ class Translations extends Component{
 
     handleSubmit(pEvent) {
         pEvent.preventDefault();
-    }
-
-    setTranslationChannelVolume(pEvent) {
-        if(pEvent.target.dataset.hasOwnProperty("ext")) {
-            AudioManager.$translationChannelVolumeChanged.next({
-                extension: pEvent.target.dataset["ext"],
-                volume: pEvent.target.value / 100
-            });
-        }
     }
 
     render() {
@@ -190,9 +186,7 @@ class Translations extends Component{
                             deletionHandler={this.deletionHandler}
                             intl={intl}
                         />
-                            <div>
-                                <input type="range" data-ext={index} id="volume" name="volume" min="0" max="100" value={this.state.channelVolume[index]} onChange={this.setTranslationChannelVolume.bind(this)}/>
-                            </div>
+
                         </div>);
                     }
                 }, this)}

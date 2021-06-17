@@ -61,8 +61,8 @@ class AudioManager {
     this.$translatorSpeakingChanged = new BehaviorSubject(false)
     this.$translatorChannelLanguageExtensionChanged = new BehaviorSubject(-1);
 
-    this.$translationChannelVolumeChanged = new BehaviorSubject({ extension: -1, volume: 0 });
-    this.translationChannelVolume = [];
+    this.$translationOriginalVolumeChanged = new BehaviorSubject({ extension: -1, volume: 0 });
+    this.translationOriginalVolume = [];
 
     this.defineProperties({
       isMuted: false,
@@ -107,22 +107,14 @@ class AudioManager {
       }
     });
 
-    this.$translationChannelVolumeChanged.subscribe((pLang) => {
+    this.$translationOriginalVolumeChanged.subscribe((pLang) => {
         if(
             pLang.hasOwnProperty("extension") &&
             pLang.hasOwnProperty("volume")
         ) {
-          this.translationChannelVolume[pLang.extension] = pLang.volume;
-
-          let tCExt = parseInt((this.translationLanguageExtension+ '').charAt(2));
-          if(tCExt == pLang.extension) {
-            let audioElement = document.getElementById("remote-media");
-            if(audioElement) audioElement.volume = pLang.volume;
-          }
+          this.translationOriginalVolume[pLang.extension] = pLang.volume;
         }
     })
-
-
   }
 
   init(userData, audioEventHandler) {
@@ -834,11 +826,6 @@ class AudioManager {
       //create a dummy stream that does nothing at all
       let ac = new AudioContext();
       let dest = ac.createMediaStreamDestination();
-      let audioElement = document.getElementById("translation-media");
-      let tIdx = parseInt((languageExtension+ '').charAt(2));
-      if(audioElement) audioElement.volume =
-          Array.isArray(this.translationChannelVolume) && typeof this.translationChannelVolume[tIdx] !== 'undefined' ?
-              this.translationChannelVolume[tIdx] : 1;
 
       if (languageExtension >= 0) {
         const callOptions = {
@@ -930,6 +917,13 @@ class AudioManager {
 
     }
 
+  }
+
+  setTranslationFloorVolumeByExt(pExt) {
+    let tIdx = parseInt((pExt+ '').charAt(2));
+    let tVol = Array.isArray(this.translationOriginalVolume) && typeof this.translationOriginalVolume[tIdx] !== 'undefined' ?
+        this.translationOriginalVolume[tIdx] : 1;
+    this.setFloorOutputVolume(tVol);
   }
 
   setFloorOutputVolume(volume) {

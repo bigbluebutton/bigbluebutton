@@ -6,6 +6,7 @@ import UserMessages from './user-messages/container';
 import UserNotesContainer from './user-notes/container';
 import UserCaptionsContainer from './user-captions/container';
 import WaitingUsers from './waiting-users/component';
+import TranslationSettings from "./translation-settings/component";
 import UserPolls from './user-polls/component';
 import Translations from "./translations/component"
 import BreakoutRoomItem from './breakout-room/component';
@@ -50,6 +51,7 @@ class UserContent extends PureComponent {
       startedChats,
       amIModerator,
       meetingIsBreakout,
+      hasLanguages
     } = this.props;
 
     return (
@@ -93,6 +95,15 @@ class UserContent extends PureComponent {
               }}
             />
           ) : null
+        }
+
+        {hasLanguages ? (
+          <TranslationSettings
+            {...{
+              intl,
+            }}
+          />
+        ) : null
         }
 
         {amIModerator && !meetingIsBreakout
