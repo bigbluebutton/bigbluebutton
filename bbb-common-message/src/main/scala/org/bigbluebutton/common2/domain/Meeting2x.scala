@@ -81,7 +81,7 @@ case class SimplePollResultOutVO(id: String, questionType: String, questionText:
 case class Responder(userId: String, name: String)
 case class AnswerVO(id: Int, key: String, text: Option[String], responders: Option[Array[Responder]])
 case class QuestionVO(id: Int, questionType: String, multiResponse: Boolean, questionText: Option[String], answers: Option[Array[AnswerVO]])
-case class PollVO(id: String, questions: Array[QuestionVO], title: Option[String], started: Boolean, stopped: Boolean, showResult: Boolean)
+case class PollVO(id: String, questions: Array[QuestionVO], title: Option[String], started: Boolean, stopped: Boolean, showResult: Boolean, isSecret: Boolean)
 
 case class UserVO(id: String, externalId: String, name: String, role: String,
                   guest: Boolean, authed: Boolean, guestStatus: String, emojiStatus: String,
