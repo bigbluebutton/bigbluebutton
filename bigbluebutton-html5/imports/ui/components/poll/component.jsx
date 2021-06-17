@@ -110,11 +110,11 @@ const intlMessages = defineMessages({
     description: '',
   },
   isSecretPollLabel: {
-    id: 'app.poll.secretPoll.is_secret_label',
+    id: 'app.poll.secretPoll.isSecretLabel',
     description: '',
   },
   nonSecretPollLabel: {
-    id: 'app.poll.secretPoll.not_secret_label',
+    id: 'app.poll.secretPoll.notSecretLabel',
     description: 'label explaining that the presenter will see for which option everyone voted',
   },
   questionTitle: {

@@ -247,9 +247,6 @@
     "app.poll.addItem.label" : "Element hinzufügen",
     "app.poll.question.title": "Eine Frage stellen",
     "app.poll.start.label" : "Umfrage starten",
-    "app.poll.secretPoll.label" : "Anonyme Umfrage",
-    "app.poll.secretPoll.is_secret_label": "Die Umfrage ist anonym – sie werden die einzelnen Antworten nicht sehen können.",
-    "app.poll.secretPoll.not_secret_label": "Die Umfrage ist nicht anonym – sie werden die einzelnen Antworten sehen können.",
     "app.poll.questionErr": "Eingabe einer Frage",
     "app.poll.optionErr": "Eingabe einer Abfrageoption",
     "app.poll.t": "Richtig",
@@ -275,14 +272,11 @@
     "app.poll.answer.e": "E",
     "app.poll.liveResult.usersTitle": "Teilnehmer",
     "app.poll.liveResult.responsesTitle": "Antwort",
-    "app.poll.liveResult.secretLabel": "Diese Umfrage ist anonym. Die einzelnen Antworten werden nicht angezeigt.",
     "app.polling.pollingTitle": "Umfrageoptionen",
     "app.polling.pollQuestionTitle": "Frage der Umfrage",
     "app.polling.submitLabel": "Absenden",
     "app.polling.submitAriaLabel": "Umfrageantwort absenden",
     "app.polling.responsePlaceholder": "Antwort eingeben",
-    "app.polling.responseSecret": "Anonyme Umfrage – der Präsentator kann ihre Antwort nicht sehen.",
-    "app.polling.responseNotSecret": "Normale Umfrage – der Präsentator kann ihre Antwort sehen.",
     "app.polling.pollAnswerLabel": "Umfrageantwort {0}",
     "app.polling.pollAnswerDesc": "Diese Option auswählen für Umfrage {0}",
     "app.failedMessage": "Es gibt Verbindungsprobleme mit dem Server.",
@@ -820,4 +814,3 @@
     "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(es wird deaktiviert, wenn Sie den Webcambereich ziehen oder in der Größe verändern)"
 
 }
-

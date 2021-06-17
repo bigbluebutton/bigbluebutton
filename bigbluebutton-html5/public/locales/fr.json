@@ -240,9 +240,6 @@
     "app.poll.addItem.label" : "Ajouter un élément",
     "app.poll.question.title": "Poser une question",
     "app.poll.start.label" : "Débuter un sondage",
-    "app.poll.secretPoll.label" : "Sondage anonyme",
-    "app.poll.secretPoll.is_secret_label": "Le sondage est anonyme. Vous ne pourrez pas voir les réponses individuelles.",
-    "app.poll.secretPoll.not_secret_label": "Le sondage n'est pas anonyme. Vous pourrez voir les réponses individuelles.",
     "app.poll.questionErr": "Entrez une question",
     "app.poll.optionErr": "Entrez une option de sondage",
     "app.poll.t": "Vrai",
@@ -268,14 +265,11 @@
     "app.poll.answer.e": "E",
     "app.poll.liveResult.usersTitle": "Utilisateurs",
     "app.poll.liveResult.responsesTitle": "Réponse",
-    "app.poll.liveResult.secretLabel": "Ce sondage est anonyme. Les réponses individuelles ne sont pas affichées.",
     "app.polling.pollingTitle": "Options de sondage",
     "app.polling.pollQuestionTitle": "Question de sondage",
     "app.polling.submitLabel": "Soumettre",
     "app.polling.submitAriaLabel": "Soumettre votre réponse au sondage",
     "app.polling.responsePlaceholder": "Entrez votre réponse",
-    "app.polling.responseSecret": "Sondage anonyme – le présentateur ne peut pas voir votre réponse.",
-    "app.polling.responseNotSecret": "Sondage normal – le présentateur peut voir votre réponse.",
     "app.polling.pollAnswerLabel": "Réponse de sondage {0}",
     "app.polling.pollAnswerDesc": "Choisir cette option pour voter pour {0}",
     "app.failedMessage": "Problème de connexion au serveur, toutes nos excuses.",
@@ -793,4 +787,3 @@
     "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(il sera désactivé si vous faites glisser ou redimensionnez la zone des webcams)"
 
 }
-

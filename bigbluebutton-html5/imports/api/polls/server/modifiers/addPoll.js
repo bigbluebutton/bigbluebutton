@@ -37,7 +37,7 @@ export default function addPoll(meetingId, requesterId, poll, pollType, secretPo
     { meetingId },
     { requester: requesterId },
     { users: userIds },
-    { question, pollType, secretPoll},
+    { question, pollType, secretPoll },
     flat(poll, { safe: true }),
   );
 
