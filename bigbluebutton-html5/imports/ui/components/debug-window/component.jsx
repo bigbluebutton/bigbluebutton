@@ -162,29 +162,12 @@ class DebugWindow extends Component {
       <Draggable
         handle="#debugWindowHeader"
         bounds="body"
-        // onStart={}
-        // onStop={}
-        // disabled={}
-        // position={}
         enableUserSelectHack={false}
       >
         <Resizable
           className={styles.debugWindowWrapper}
           minWidth={window.innerWidth * 0.2}
           minHeight={window.innerHeight * 0.2}
-          // size={
-          //   {
-          //     width: sizeWidth,
-          //     height: sizeHeight,
-          //   }
-          // }
-          // lockAspectRatio
-          // handleWrapperClass="resizeWrapper"
-          // onResizeStart={}
-          // onResize={}
-          // onResizeStop={(e, direction, ref, d) => {
-          //   this.setWebcamsAreaResizable(d.width, d.height);
-          // }}
           enable={{
             top: false,
             bottom: false,
@@ -264,12 +247,6 @@ class DebugWindow extends Component {
                   </div>
                   <div className={styles.cell}>
                     <div className={styles.cellContent}>
-                      {/* <Toggle
-                        className={styles.autoArrangeToggle}
-                        icons={false}
-                        defaultChecked
-                        ariaLabel="teste"
-                      /> */}
                       <select
                         value={layoutManagerLoaded}
                         onChange={this.setLayoutManagerToLoad}

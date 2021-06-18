@@ -126,13 +126,6 @@ class BreakoutRoom extends PureComponent {
       joinedAudioOnly,
     } = this.state;
 
-    // if (breakoutRooms.length <= 0) {
-    //   newLayoutContextDispatch({
-    //     type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-    //     value: PANELS.NONE,
-    //   });
-    // }
-
     if (waiting) {
       const breakoutUser = breakoutRoomUser(requestedBreakoutId);
 
