@@ -33,12 +33,14 @@ export default class PencilDrawListener extends Component {
   }
 
   componentDidMount() {
+    const { eventWindow } = this.props;
     // to send the last DRAW_END message in case if a user reloads the page while drawing
-    window.addEventListener('beforeunload', this.sendLastMessage);
+    eventWindow.addEventListener('beforeunload', this.sendLastMessage);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('beforeunload', this.sendLastMessage);
+    const { eventWindow } = this.props;
+    eventWindow.removeEventListener('beforeunload', this.sendLastMessage);
 
     // sending the last message on componentDidUnmount
     this.sendLastMessage();
@@ -101,11 +103,12 @@ export default class PencilDrawListener extends Component {
   }
 
   handleTouchStart(event) {
+    const { eventWindow } = this.props;
     event.preventDefault();
     if (!this.isDrawing) {
-      window.addEventListener('touchend', this.handleTouchEnd, { passive: false });
-      window.addEventListener('touchmove', this.handleTouchMove, { passive: false });
-      window.addEventListener('touchcancel', this.handleTouchCancel, true);
+      eventWindow.addEventListener('touchend', this.handleTouchEnd, { passive: false });
+      eventWindow.addEventListener('touchmove', this.handleTouchMove, { passive: false });
+      eventWindow.addEventListener('touchcancel', this.handleTouchCancel, true);
 
       const { clientX, clientY } = event.changedTouches[0];
       this.commonDrawStartHandler(clientX, clientY);
@@ -133,13 +136,14 @@ export default class PencilDrawListener extends Component {
 
   // main mouse down handler
   mouseDownHandler(event) {
+    const { eventWindow } = this.props;
     const isLeftClick = event.button === 0;
     const isRightClick = event.button === 2;
 
     if (!this.isDrawing) {
       if (isLeftClick) {
-        window.addEventListener('mouseup', this.mouseUpHandler);
-        window.addEventListener('mousemove', this.mouseMoveHandler, true);
+        eventWindow.addEventListener('mouseup', this.mouseUpHandler);
+        eventWindow.addEventListener('mousemove', this.mouseMoveHandler, true);
 
         const { clientX, clientY } = event;
         this.commonDrawStartHandler(clientX, clientY);
@@ -239,16 +243,17 @@ export default class PencilDrawListener extends Component {
   }
 
   resetState() {
+    const { eventWindow } = this.props;
     // resetting the current info
     this.points = [];
     this.isDrawing = false;
     // mouseup and mousemove are removed on desktop
-    window.removeEventListener('mouseup', this.mouseUpHandler);
-    window.removeEventListener('mousemove', this.mouseMoveHandler, true);
+    eventWindow.removeEventListener('mouseup', this.mouseUpHandler);
+    eventWindow.removeEventListener('mousemove', this.mouseMoveHandler, true);
     // touchend, touchmove and touchcancel are removed on devices
-    window.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
-    window.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
-    window.removeEventListener('touchcancel', this.handleTouchCancel, true);
+    eventWindow.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
+    eventWindow.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
+    eventWindow.removeEventListener('touchcancel', this.handleTouchCancel, true);
   }
 
   discardAnnotation() {
@@ -268,11 +273,16 @@ export default class PencilDrawListener extends Component {
   render() {
     const {
       actions,
+      separatePresentationWindow,
     } = this.props;
 
     const { contextMenuHandler } = actions;
 
-    const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId;
+    let baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId;
+    const hostUri = `https://${window.document.location.hostname}`;
+    if (separatePresentationWindow) {
+      baseName = hostUri + baseName ;
+    }
     const pencilDrawStyle = {
       width: '100%',
       height: '100%',
