@@ -144,6 +144,7 @@ class WhiteboardToolbar extends Component {
       actions,
       multiUser,
       isPresenter,
+      presentationWindow,
     } = this.props;
 
     const drawSettings = actions.getCurrentDrawSettings();
@@ -152,8 +153,8 @@ class WhiteboardToolbar extends Component {
       annotationSelected, thicknessSelected, colorSelected, fontSizeSelected, palmRejection,
     } = this.state;
 
-    document.addEventListener('keydown', this.panOn);
-    document.addEventListener('keyup', this.panOff);
+    presentationWindow.document.addEventListener('keydown', this.panOn);
+    presentationWindow.document.addEventListener('keyup', this.panOff);
 
     // if there are saved drawSettings in the session storage
     // - retrieve them and update toolbar values
@@ -216,8 +217,9 @@ class WhiteboardToolbar extends Component {
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.panOn);
-    document.removeEventListener('keyup', this.panOff);
+    const { presentationWindow } = this.props;
+    presentationWindow.document.removeEventListener('keydown', this.panOn);
+    presentationWindow.document.removeEventListener('keyup', this.panOff);
   }
 
   setToolbarValues(drawSettings) {
