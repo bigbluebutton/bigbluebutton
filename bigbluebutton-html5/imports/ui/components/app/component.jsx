@@ -147,6 +147,7 @@ class App extends Component {
       notify,
       intl,
       validIOSVersion,
+      newLayoutContextDispatch,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -154,8 +155,14 @@ class App extends Component {
     MediaService.setSwapLayout();
     Modal.setAppElement('#app');
 
+    const fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
     document.getElementsByTagName('html')[0].lang = locale;
-    document.getElementsByTagName('html')[0].style.fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
+    document.getElementsByTagName('html')[0].style.fontSize = fontSize;
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_FONT_SIZE,
+      value: parseInt(fontSize.slice(0, -2)),
+    });
 
     const body = document.getElementsByTagName('body')[0];
 

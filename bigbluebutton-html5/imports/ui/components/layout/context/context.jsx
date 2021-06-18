@@ -30,6 +30,7 @@ const initState = {
   deviceType: null,
   layoutType: DEFAULT_VALUES.layoutType,
   layoutLoaded: 'legacy',
+  fontSize: DEFAULT_VALUES.fontSize,
   idChatOpen: DEFAULT_VALUES.idChatOpen,
   input: INITIAL_INPUT_STATE,
   output: INITIAL_OUTPUT_STATE,
@@ -77,6 +78,16 @@ const reducer = (state, action) => {
       return {
         ...state,
         layoutLoaded: action.value,
+      };
+    }
+
+    // FONT SIZE
+    case ACTIONS.SET_FONT_SIZE: {
+      const { fontSize } = state;
+      if (fontSize === action.value) return state;
+      return {
+        ...state,
+        fontSize: action.value,
       };
     }
 
