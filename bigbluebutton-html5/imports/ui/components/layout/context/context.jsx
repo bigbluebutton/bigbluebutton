@@ -29,7 +29,7 @@ export const NLayoutContext = createContext();
 const initState = {
   deviceType: null,
   layoutType: DEFAULT_VALUES.layoutType,
-  layoutLoaded: 'new',
+  layoutLoaded: 'legacy',
   idChatOpen: DEFAULT_VALUES.idChatOpen,
   input: INITIAL_INPUT_STATE,
   output: INITIAL_OUTPUT_STATE,
