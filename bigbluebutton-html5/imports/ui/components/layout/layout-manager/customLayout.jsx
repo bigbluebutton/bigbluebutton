@@ -4,10 +4,7 @@ import NewLayoutContext from '../context/context';
 import DEFAULT_VALUES from '../defaultValues';
 import { INITIAL_INPUT_STATE } from '../context/initState';
 import { DEVICE_TYPE, ACTIONS, CAMERADOCK_POSITION } from '../enums';
-// import slides from '../../presentation/slides-mock';
 
-// const windowWidth = () => window.document.documentElement.clientWidth;
-// const windowHeight = () => window.document.documentElement.clientHeight;
 const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 
@@ -31,10 +28,6 @@ class CustomLayout extends Component {
         },
       });
     });
-    // newLayoutContextDispatch({
-    //   type: ACTIONS.SET_PRESENTATION_SLIDES_LENGTH,
-    //   value: slides.length,
-    // });
   }
 
   shouldComponentUpdate(nextProps) {
