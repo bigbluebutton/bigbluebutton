@@ -81,11 +81,11 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     content,
   } = currentSlide;
 
-  const pollRegex = /[1-6A-Fa-f][.)].*/g;
+  const pollRegex = /(\d{1,2}|[A-Fa-f])[.)].*/g;
   let optionsPoll = content.match(pollRegex) || [];
   let optionsPollStrings = [];
-  if (optionsPoll) optionsPollStrings = optionsPoll.map(opt => `${opt.slice(2).replace(/^\s+/, '')}`);
-  if (optionsPoll) optionsPoll = optionsPoll.map(opt => `\r${opt[0]}.`);
+  if (optionsPoll) optionsPollStrings = optionsPoll.map(opt => `${opt.replace(/^[^.)]{1,2}[.)]/,'').replace(/^\s+/, '')}`);
+  if (optionsPoll) optionsPoll = optionsPoll.map(opt => `\r${opt.replace(/[.)].*/,'')}.`);
 
   optionsPoll.reduce((acc, currentValue) => {
     const lastElement = acc[acc.length - 1];
@@ -107,12 +107,22 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     const isCurrentValueInteger = !!parseInt(currentValue.charAt(1), 10);
 
     if (isLastOptionInteger === isCurrentValueInteger) {
-      if (currentValue.toLowerCase().charCodeAt(1) > lastOption.toLowerCase().charCodeAt(1)) {
-        options.push(currentValue);
+      if (isCurrentValueInteger){
+        if (parseInt(currentValue.replace(/[\r.]g/,'')) > parseInt(lastOption.replace(/[\r.]g/,''))) {
+          options.push(currentValue);
+        } else {
+          acc.push({
+            options: [currentValue],
+          });
+        }
       } else {
-        acc.push({
-          options: [currentValue],
-        });
+        if (currentValue.toLowerCase().charCodeAt(1) > lastOption.toLowerCase().charCodeAt(1)) {
+          options.push(currentValue);
+        } else {
+          acc.push({
+            options: [currentValue],
+          });
+        }
       }
     } else {
       acc.push({
@@ -128,7 +138,7 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     return poll;
   }).filter(({
     options,
-  }) => options.length > 1 && options.length < 7).forEach(poll => quickPollOptions.push({
+  }) => options.length > 1 && options.length < 99).forEach(poll => quickPollOptions.push({
     type: `${pollTypes.Custom}`,
     poll,
   }));
