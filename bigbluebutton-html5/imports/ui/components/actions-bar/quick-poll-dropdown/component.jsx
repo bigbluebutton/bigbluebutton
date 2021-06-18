@@ -42,7 +42,20 @@ const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
 };
 
-const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, pollTypes) => {
+const handleClickQuickPoll = (newLayoutContextDispatch) => {
+  newLayoutContextDispatch({
+    type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+    value: true,
+  });
+  newLayoutContextDispatch({
+    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+    value: PANELS.POLL,
+  });
+  Session.set('forcePollOpen', true);
+  Session.set('pollInitiated', true);
+};
+
+const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, pollTypes, newLayoutContextDispatch) => {
   const pollItemElements = parsedSlides.map((poll) => {
     const { poll: label } = poll;
     let { type } = poll;
@@ -111,7 +124,7 @@ class QuickPollDropdown extends Component {
     );
 
     const { slideId, quickPollOptions } = parsedSlide;
-    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions, startPoll, pollTypes);
+    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions, startPoll, pollTypes, newLayoutContextDispatch);
 
     if (quickPollOptions.length === 0) return null;
 

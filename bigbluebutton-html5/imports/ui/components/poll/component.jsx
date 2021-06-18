@@ -6,6 +6,7 @@ import _ from 'lodash';
 import { Session } from 'meteor/session';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
+import Toggle from '/imports/ui/components/switch/component';
 import LiveResult from './live-result/component';
 import { styles } from './styles.scss';
 import { PANELS, ACTIONS } from '../layout/enums';
@@ -104,6 +105,18 @@ const intlMessages = defineMessages({
     id: 'app.poll.start.label',
     description: '',
   },
+  secretPollLabel: {
+    id: 'app.poll.secretPoll.label',
+    description: '',
+  },
+  isSecretPollLabel: {
+    id: 'app.poll.secretPoll.isSecretLabel',
+    description: '',
+  },
+  nonSecretPollLabel: {
+    id: 'app.poll.secretPoll.notSecretLabel',
+    description: 'label explaining that the presenter will see for which option everyone voted',
+  },
   questionTitle: {
     id: 'app.poll.question.title',
     description: '',
@@ -172,6 +185,7 @@ class Poll extends Component {
       question: '',
       optList: [],
       error: null,
+      secretPoll: false,
     };
 
     this.handleBackClick = this.handleBackClick.bind(this);
@@ -252,6 +266,11 @@ class Poll extends Component {
   handleAddOption() {
     const { optList } = this.state;
     this.setState({ optList: [...optList, { val: '' }] });
+  }
+
+  handleToggle() {
+    const toggledValue = !this.state.secretPoll;
+    this.setState({ secretPoll: toggledValue});
   }
 
   setOptListLength(len) {
@@ -369,7 +388,7 @@ class Poll extends Component {
 
   renderPollOptions() {
     const {
-      type, optList, question, error,
+      type, secretPoll, optList, question, error,
     } = this.state;
     const { startPoll, startCustomPoll, intl, pollTypes, isDefaultPoll, checkPollType } = this.props;
     const defaultPoll = isDefaultPoll(type);
@@ -491,6 +510,26 @@ class Poll extends Component {
                           onClick={() => this.handleAddOption()}
                         />
                       )}
+                    <div className={styles.row}>
+                      <div className={styles.col} aria-hidden="true">
+                          <label className={styles.label}>
+                            {intl.formatMessage(intlMessages.secretPollLabel)}
+                          </label>
+                      </div>
+                      <div className={styles.col}>
+                        <label className={styles.toggle}>
+                          <Toggle
+                            icons={false}
+                            defaultChecked={secretPoll}
+                            onChange={() => this.handleToggle()}
+                            ariaLabel={intl.formatMessage(intlMessages.secretPollLabel)}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                    <div>
+                      {intl.formatMessage(secretPoll ? intlMessages.isSecretPollLabel : intlMessages.nonSecretPollLabel)}
+                    </div>
                     <Button
                       className={styles.startPollBtn}
                       data-test="startPoll"
@@ -524,11 +563,12 @@ class Poll extends Component {
                           if (verifiedPollType === pollTypes.Custom) {
                             startCustomPoll(
                               verifiedPollType,
+                              secretPoll,
                               question,
                               _.compact(verifiedOptions),
                             );
                           } else {
-                            startPoll(verifiedPollType, question);
+                            startPoll(verifiedPollType, secretPoll, question);
                           }
                         });
                       }}

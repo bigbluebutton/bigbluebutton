@@ -985,6 +985,34 @@ const reducer = (state, action) => {
         },
       };
     }
+    case ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT: {
+      const {
+        width,
+        height,
+        top,
+        left,
+      } = action.value;
+      const { externalVideo } = state.output;
+      if (externalVideo.width === width
+        && externalVideo.height === height
+        && externalVideo.top === top
+        && externalVideo.left === left) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          externalVideo: {
+            ...externalVideo,
+            width,
+            height,
+            top,
+            left,
+          },
+        },
+      };
+    }
     default: {
       throw new Error('Unexpected action');
     }

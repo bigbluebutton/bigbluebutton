@@ -29,6 +29,7 @@ import { withDraggableContext } from '../media/webcam-draggable-overlay/context'
 import NewWebcamContainer from '../webcam/container';
 import PresentationAreaContainer from '../presentation/presentation-area/container';
 import ScreenshareContainer from '../screenshare/container';
+import ExternalVideoContainer from '../external-video-player/container';
 import { styles } from './styles';
 import {
   LAYOUT_TYPE, DEVICE_TYPE, ACTIONS,
@@ -454,6 +455,8 @@ class App extends Component {
       pushAlertEnabled,
       shouldShowPresentation,
       shouldShowScreenshare,
+      shouldShowExternalVideo,
+      isPresenter,
     } = this.props;
 
     return (
@@ -524,6 +527,7 @@ class App extends Component {
                 <NewWebcamContainer />
                 {shouldShowPresentation ? <PresentationAreaContainer /> : null}
                 {shouldShowScreenshare ? <ScreenshareContainer /> : null}
+                {shouldShowExternalVideo ? <ExternalVideoContainer isPresenter={isPresenter} /> : null}
                 <ModalContainer />
                 {this.renderActionsBar()}
               </div>
