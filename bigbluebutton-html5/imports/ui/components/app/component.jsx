@@ -549,6 +549,16 @@ class App extends Component {
                 {shouldShowPresentation ? <PresentationAreaContainer /> : null}
                 {shouldShowScreenshare ? <ScreenshareContainer /> : null}
                 {shouldShowExternalVideo ? <ExternalVideoContainer isPresenter={isPresenter} /> : null}
+                <UploaderContainer />
+                <ToastContainer rtl />
+                {(audioAlertEnabled || pushAlertEnabled)
+                  && (
+                    <ChatAlertContainer
+                      audioAlertEnabled={audioAlertEnabled}
+                      pushAlertEnabled={pushAlertEnabled}
+                    />
+                  )}
+                <PollingContainer />
                 <ModalContainer />
                 {this.renderActionsBar()}
               </div>
