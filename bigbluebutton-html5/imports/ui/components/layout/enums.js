@@ -25,6 +25,7 @@ export const ACTIONS = {
   SET_AUTO_ARRANGE_LAYOUT: 'setAutoArrangeLayout',
   SET_LAYOUT_TYPE: 'setLayoutType',
   SET_DEVICE_TYPE: 'setDeviceType',
+  SET_FONT_SIZE: 'setFontSize',
 
   SET_LAYOUT_LOADED: 'setLayoutLoaded',
   SET_LAYOUT_INPUT: 'setLayoutInput',
