@@ -13,6 +13,7 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import DropdownListTitle from '/imports/ui/components/dropdown/list/title/component';
 import FullscreenService from '/imports/ui/components/fullscreen-button/service';
+import Auth from '/imports/ui/services/auth';
 
 import { styles } from '../styles';
 
@@ -45,10 +46,28 @@ const propTypes = {
   isFullscreen: PropTypes.bool.isRequired,
 };
 
+const sendGroupMessage = (message) => {
+  const CHAT_CONFIG = Meteor.settings.public.chat;
+  const PUBLIC_CHAT_SYSTEM_ID = CHAT_CONFIG.system_userid;
+  const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
+  const payload = {
+    color: '0',
+    correlationId: `${PUBLIC_CHAT_SYSTEM_ID}-${Date.now()}`,
+    sender: {
+      id: Auth.userID,
+      name: '',
+    },
+    message,
+  };
+
+  return makeCall('sendGroupChatMsg', PUBLIC_GROUP_CHAT_ID, payload);
+};
+
 const handleClickQuickVideo = (videoUrl, isFullscreen, fullscreenRef) => {
   if (isFullscreen) {
     FullscreenService.toggleFullScreen(fullscreenRef);
   }
+  sendGroupMessage(videoUrl);
   makeCall('startWatchingExternalVideo', { externalVideoUrl: videoUrl });
 };
 
@@ -57,6 +76,7 @@ const handleClickQuickUrl = (url, isFullscreen, fullscreenRef) => {
     // may not be necessary; presentation automatically becomes small when the slide is moved on (but depending on browser..) 
     FullscreenService.toggleFullScreen(fullscreenRef);
   }
+  sendGroupMessage(url);
   window.open(url, null, 'menubar,toolbar,location,resizable');
 };
 
