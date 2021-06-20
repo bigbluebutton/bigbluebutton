@@ -9,9 +9,10 @@ import Button from '/imports/ui/components/button/component';
 import Toggle from '/imports/ui/components/switch/component';
 import Storage from '/imports/ui/services/storage/session';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
-import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
+import { LAYOUT_TYPE } from '../layout/enums';
 import NewLayoutContext from '../layout/context/context';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
+import Service from '/imports/ui/components/layout/service';
 
 const intlMessages = defineMessages({
   modalClose: {
@@ -72,9 +73,6 @@ class DebugWindow extends Component {
       logLevel: ChatLogger.getLogLevel(),
       autoArrangeLayout: Storage.getItem('autoArrangeLayout'),
     };
-
-    this.setLayoutManagerToLoad = this.setLayoutManagerToLoad.bind(this);
-    this.setLayoutType = this.setLayoutType.bind(this);
   }
 
   componentDidMount() {
@@ -93,20 +91,11 @@ class DebugWindow extends Component {
   }
 
   setLayoutManagerToLoad(event) {
-    const { newLayoutContextDispatch } = this.props;
-    Session.set('layoutManagerLoaded', event.target.value);
-    newLayoutContextDispatch({
-      type: ACTIONS.SET_LAYOUT_LOADED,
-      value: event.target.value,
-    });
+    Service.setMeetingLayoutManager(event.target.value);
   }
 
   setLayoutType(event) {
-    const { newLayoutContextDispatch } = this.props;
-    newLayoutContextDispatch({
-      type: ACTIONS.SET_LAYOUT_TYPE,
-      value: event.target.value,
-    });
+    Service.setMeetingLayout(event.target.value);
   }
 
   debugWindowToggle() {
@@ -162,29 +151,12 @@ class DebugWindow extends Component {
       <Draggable
         handle="#debugWindowHeader"
         bounds="body"
-        // onStart={}
-        // onStop={}
-        // disabled={}
-        // position={}
         enableUserSelectHack={false}
       >
         <Resizable
           className={styles.debugWindowWrapper}
           minWidth={window.innerWidth * 0.2}
           minHeight={window.innerHeight * 0.2}
-          // size={
-          //   {
-          //     width: sizeWidth,
-          //     height: sizeHeight,
-          //   }
-          // }
-          // lockAspectRatio
-          // handleWrapperClass="resizeWrapper"
-          // onResizeStart={}
-          // onResize={}
-          // onResizeStop={(e, direction, ref, d) => {
-          //   this.setWebcamsAreaResizable(d.width, d.height);
-          // }}
           enable={{
             top: false,
             bottom: false,
@@ -264,12 +236,6 @@ class DebugWindow extends Component {
                   </div>
                   <div className={styles.cell}>
                     <div className={styles.cellContent}>
-                      {/* <Toggle
-                        className={styles.autoArrangeToggle}
-                        icons={false}
-                        defaultChecked
-                        ariaLabel="teste"
-                      /> */}
                       <select
                         value={layoutManagerLoaded}
                         onChange={this.setLayoutManagerToLoad}

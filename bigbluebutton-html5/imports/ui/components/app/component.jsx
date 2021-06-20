@@ -147,6 +147,7 @@ class App extends Component {
       notify,
       intl,
       validIOSVersion,
+      newLayoutContextDispatch,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -154,8 +155,14 @@ class App extends Component {
     MediaService.setSwapLayout();
     Modal.setAppElement('#app');
 
+    const fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
     document.getElementsByTagName('html')[0].lang = locale;
-    document.getElementsByTagName('html')[0].style.fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
+    document.getElementsByTagName('html')[0].style.fontSize = fontSize;
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_FONT_SIZE,
+      value: parseInt(fontSize.slice(0, -2)),
+    });
 
     const body = document.getElementsByTagName('body')[0];
 
@@ -195,7 +202,28 @@ class App extends Component {
       mountModal,
       deviceType,
       isPresenter,
+      meetingLayoutManager,
+      meetingLayout,
+      layoutManagerLoaded,
+      layoutType,
+      newLayoutContextDispatch,
     } = this.props;
+
+
+    if (meetingLayoutManager !== layoutManagerLoaded) {
+      Session.set('layoutManagerLoaded', meetingLayoutManager);
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_LAYOUT_LOADED,
+        value: meetingLayoutManager,
+      });
+    }
+
+    if (meetingLayout !== layoutType) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_LAYOUT_TYPE,
+        value: meetingLayout,
+      });
+    }
 
     if (!isPresenter && randomlySelectedUser.length > 0) mountModal(<RandomUserSelectContainer />);
 
@@ -528,6 +556,16 @@ class App extends Component {
                 {shouldShowPresentation ? <PresentationAreaContainer /> : null}
                 {shouldShowScreenshare ? <ScreenshareContainer /> : null}
                 {shouldShowExternalVideo ? <ExternalVideoContainer isPresenter={isPresenter} /> : null}
+                <UploaderContainer />
+                <ToastContainer rtl />
+                {(audioAlertEnabled || pushAlertEnabled)
+                  && (
+                    <ChatAlertContainer
+                      audioAlertEnabled={audioAlertEnabled}
+                      pushAlertEnabled={pushAlertEnabled}
+                    />
+                  )}
+                <PollingContainer />
                 <ModalContainer />
                 {this.renderActionsBar()}
               </div>

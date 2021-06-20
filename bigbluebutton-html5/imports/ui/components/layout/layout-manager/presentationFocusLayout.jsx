@@ -1,12 +1,10 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { throttle, defaultsDeep } from 'lodash';
 import NewLayoutContext from '../context/context';
 import DEFAULT_VALUES from '../defaultValues';
 import { INITIAL_INPUT_STATE } from '../context/initState';
 import { DEVICE_TYPE, ACTIONS } from '../enums';
 
-// const windowWidth = () => window.document.documentElement.clientWidth;
-// const windowHeight = () => window.document.documentElement.clientHeight;
 const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 
@@ -36,7 +34,8 @@ class PresentationFocusLayout extends Component {
     const { newLayoutContextState } = this.props;
     return newLayoutContextState.input !== nextProps.newLayoutContextState.input
       || newLayoutContextState.deviceType !== nextProps.newLayoutContextState.deviceType
-      || newLayoutContextState.layoutLoaded !== nextProps.newLayoutContextState.layoutLoaded;
+      || newLayoutContextState.layoutLoaded !== nextProps.newLayoutContextState.layoutLoaded
+      || newLayoutContextState.fontSize !== nextProps.newLayoutContextState.fontSize;
   }
 
   componentDidUpdate(prevProps) {
@@ -148,12 +147,16 @@ class PresentationFocusLayout extends Component {
 
   calculatesActionbarBounds(mediaAreaBounds) {
     const { newLayoutContextState } = this.props;
-    const { input } = newLayoutContextState;
+    const { input, fontSize } = newLayoutContextState;
+
+    const BASE_FONT_SIZE = 16;
+    const actionBarHeight = DEFAULT_VALUES.actionBarHeight / BASE_FONT_SIZE * fontSize;
+
     return {
       display: input.actionBar.hasActionBar,
       width: this.mainWidth() - mediaAreaBounds.left,
-      height: DEFAULT_VALUES.actionBarHeight,
-      top: this.mainHeight() - DEFAULT_VALUES.actionBarHeight,
+      height: actionBarHeight,
+      top: this.mainHeight() - actionBarHeight,
       left: mediaAreaBounds.left,
       zIndex: 1,
     };
