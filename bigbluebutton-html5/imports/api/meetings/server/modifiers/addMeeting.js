@@ -169,6 +169,8 @@ export default function addMeeting(meeting) {
     $set: Object.assign({
       meetingId,
       meetingEnded,
+      layoutManager: 'legacy',
+      layout: 'custom',
       publishedPoll: false,
       guestLobbyMessage: '',
       randomlySelectedUser: [],

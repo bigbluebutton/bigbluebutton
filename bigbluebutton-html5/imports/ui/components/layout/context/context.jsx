@@ -30,6 +30,7 @@ const initState = {
   deviceType: null,
   layoutType: DEFAULT_VALUES.layoutType,
   layoutLoaded: 'legacy',
+  fontSize: DEFAULT_VALUES.fontSize,
   idChatOpen: DEFAULT_VALUES.idChatOpen,
   input: INITIAL_INPUT_STATE,
   output: INITIAL_OUTPUT_STATE,
@@ -77,6 +78,16 @@ const reducer = (state, action) => {
       return {
         ...state,
         layoutLoaded: action.value,
+      };
+    }
+
+    // FONT SIZE
+    case ACTIONS.SET_FONT_SIZE: {
+      const { fontSize } = state;
+      if (fontSize === action.value) return state;
+      return {
+        ...state,
+        fontSize: action.value,
       };
     }
 
@@ -981,6 +992,34 @@ const reducer = (state, action) => {
             height,
             browserWidth,
             browserHeight,
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT: {
+      const {
+        width,
+        height,
+        top,
+        left,
+      } = action.value;
+      const { externalVideo } = state.output;
+      if (externalVideo.width === width
+        && externalVideo.height === height
+        && externalVideo.top === top
+        && externalVideo.left === left) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          externalVideo: {
+            ...externalVideo,
+            width,
+            height,
+            top,
+            left,
           },
         },
       };

@@ -32,6 +32,10 @@ const intlMessages = defineMessages({
     id: 'app.poll.waitingLabel',
     description: 'label shown while waiting for responses',
   },
+  secretPollLabel: {
+    id: 'app.poll.liveResult.secretLabel',
+    description: 'label shown instead of users in poll responses if poll is secret',
+  },
 });
 
 const getResponseString = (obj) => {
@@ -219,15 +223,20 @@ class LiveResult extends PureComponent {
           )
         }
         <div className={styles.separator} />
-        <table>
-          <tbody>
-            <tr>
-              <th className={styles.theading}>{intl.formatMessage(intlMessages.usersTitle)}</th>
-              <th className={styles.theading}>{intl.formatMessage(intlMessages.responsesTitle)}</th>
-            </tr>
-            {userAnswers}
-          </tbody>
-        </table>
+        { currentPoll && !currentPoll.secretPoll
+          ? (
+            <table>
+              <tbody>
+                <tr>
+                  <th className={styles.theading}>{intl.formatMessage(intlMessages.usersTitle)}</th>
+                  <th className={styles.theading}>{intl.formatMessage(intlMessages.responsesTitle)}</th>
+                </tr>
+                {userAnswers}
+              </tbody>
+            </table>
+          ) : (
+            currentPoll ? (<div>{intl.formatMessage(intlMessages.secretPollLabel)}</div>) : null
+        )}
       </div>
     );
   }

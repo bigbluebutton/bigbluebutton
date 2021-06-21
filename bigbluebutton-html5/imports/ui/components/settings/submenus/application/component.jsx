@@ -7,6 +7,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import { styles } from '../styles';
 import VideoService from '/imports/ui/components/video-provider/service';
+import { ACTIONS } from '/imports/ui/components/layout/enums';
 
 const MIN_FONTSIZE = 0;
 const SHOW_AUDIO_FILTERS = (Meteor.settings.public.app
@@ -173,11 +174,17 @@ class ApplicationMenu extends BaseMenu {
   }
 
   changeFontSize(size) {
+    const { newLayoutContextDispatch } = this.props;
     const obj = this.state;
     obj.settings.fontSize = size;
     this.setState(obj, () => {
       ApplicationMenu.setHtmlFontSize(this.state.settings.fontSize);
       this.handleUpdateFontSize(this.state.settings.fontSize);
+    });
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_FONT_SIZE,
+      value: parseInt(size.slice(0, -2)),
     });
   }
 

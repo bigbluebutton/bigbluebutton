@@ -25,6 +25,7 @@ export const ACTIONS = {
   SET_AUTO_ARRANGE_LAYOUT: 'setAutoArrangeLayout',
   SET_LAYOUT_TYPE: 'setLayoutType',
   SET_DEVICE_TYPE: 'setDeviceType',
+  SET_FONT_SIZE: 'setFontSize',
 
   SET_LAYOUT_LOADED: 'setLayoutLoaded',
   SET_LAYOUT_INPUT: 'setLayoutInput',
@@ -79,9 +80,11 @@ export const ACTIONS = {
 
   SET_HAS_SCREEN_SHARE: 'setHasScreenShare',
   SET_SCREEN_SHARE_SIZE: 'setScreenShareSize',
+  SET_SCREEN_SHARE_OUTPUT: 'setScreenShareOutput',
 
   SET_HAS_EXTERNAL_VIDEO: 'setHasExternalVideo',
   SET_EXTERNAL_VIDEO_SIZE: 'setExternalVideoSize',
+  SET_EXTERNAL_VIDEO_OUTPUT: 'setExternalVideoOutput',
 };
 
 export const PANELS = {

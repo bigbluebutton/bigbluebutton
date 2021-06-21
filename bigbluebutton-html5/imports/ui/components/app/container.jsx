@@ -31,6 +31,7 @@ import MediaContainer from '../media/container';
 const propTypes = {
   actionsbar: PropTypes.node,
   media: PropTypes.node,
+  meetingLayout: PropTypes.string.isRequired
 };
 
 const defaultProps = {
@@ -57,6 +58,8 @@ const AppContainer = (props) => {
   const {
     actionsbar,
     media,
+    meetingLayoutManager,
+    meetingLayout,
     ...otherProps
   } = props;
   const {
@@ -79,6 +82,8 @@ const AppContainer = (props) => {
         actionsBarStyle,
         media,
         layoutType,
+        meetingLayoutManager,
+        meetingLayout,
         deviceType,
         newLayoutContextDispatch,
         sidebarNavPanel,
@@ -125,8 +130,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     },
   );
   const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { publishedPoll: 1, voiceProp: 1, randomlySelectedUser: 1 } });
-  const { publishedPoll, voiceProp, randomlySelectedUser } = currentMeeting;
+    { fields: { publishedPoll: 1, voiceProp: 1, randomlySelectedUser: 1, layoutManager: 1, layout: 1 } });
+  const { publishedPoll, voiceProp, randomlySelectedUser, layoutManager, layout } = currentMeeting;
 
   if (!currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
@@ -142,6 +147,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   const { viewScreenshare } = Settings.dataSaving;
   const shouldShowScreenshare = MediaService.shouldShowScreenshare()
     && (viewScreenshare || MediaService.isUserPresenter());
+  const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
 
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
@@ -161,10 +167,13 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     randomlySelectedUser,
     currentUserId: currentUser.userId,
     isPresenter: currentUser.presenter,
+    meetingLayoutManager: layoutManager,
+    meetingLayout: layout,
     audioAlertEnabled: AppSettings.chatAudioAlerts,
     pushAlertEnabled: AppSettings.chatPushAlerts,
     shouldShowScreenshare,
-    shouldShowPresentation: !shouldShowScreenshare,
+    shouldShowPresentation: !shouldShowScreenshare && !shouldShowExternalVideo,
+    shouldShowExternalVideo,
     isLargeFont: Session.get('isLargeFont'),
   };
 })(AppContainer)));

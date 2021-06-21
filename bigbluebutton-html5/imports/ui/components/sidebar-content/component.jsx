@@ -103,7 +103,7 @@ const SidebarContent = (props) => {
       {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer />}
       {sidebarContentPanel === PANELS.POLL
         && (
-          <div className={styles.poll} style={{ minWidth }} id="pollPanel">
+          <div className={styles.poll} style={{ minWidth, top: '0' }} id="pollPanel">
             <PollContainer />
           </div>
         )}
