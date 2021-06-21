@@ -175,6 +175,7 @@ class VideoListItem extends Component {
       numOfStreams,
       swapLayout,
       mirrored,
+      webcamDraggableState,
     } = this.props;
     const availableActions = this.getAvailableActions();
     const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
@@ -223,10 +224,10 @@ class VideoListItem extends Component {
             data-test={this.mirrorOwnWebcam ? 'mirroredVideoContainer' : 'videoContainer'}
             className={cx({
               [styles.media]: true,
-              [styles.cursorGrab]: // !webcamDraggableState.dragging
-                !isFullscreen && !swapLayout,
-              [styles.cursorGrabbing]: // webcamDraggableState.dragging
-                !isFullscreen && !swapLayout,
+              [styles.cursorGrab]: !webcamDraggableState.dragging
+                && !isFullscreen && !swapLayout,
+              [styles.cursorGrabbing]: webcamDraggableState.dragging
+                && !isFullscreen && !swapLayout,
               [styles.mirroredVideo]: (this.mirrorOwnWebcam && !mirrored)
                 || (!this.mirrorOwnWebcam && mirrored),
               [styles.unhealthyStream]: shouldRenderReconnect,

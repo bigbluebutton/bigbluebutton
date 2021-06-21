@@ -12,7 +12,6 @@ const WebcamComponent = ({
       left: cameraDockBounds.left,
       width: cameraDockBounds.width,
       height: cameraDockBounds.height,
-      backgroundColor: 'red',
     }}
   >
     <VideoProviderContainer
