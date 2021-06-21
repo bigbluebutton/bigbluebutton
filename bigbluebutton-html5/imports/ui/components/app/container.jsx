@@ -60,6 +60,8 @@ const AppContainer = (props) => {
     media,
     meetingLayoutManager,
     meetingLayout,
+    settingsLayout,
+    pushLayoutToEveryone,
     ...otherProps
   } = props;
   const {
@@ -82,8 +84,9 @@ const AppContainer = (props) => {
         actionsBarStyle,
         media,
         layoutType,
-        meetingLayoutManager,
         meetingLayout,
+        settingsLayout,
+        pushLayoutToEveryone,
         deviceType,
         newLayoutContextDispatch,
         sidebarNavPanel,
@@ -169,6 +172,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     isPresenter: currentUser.presenter,
     meetingLayoutManager: layoutManager,
     meetingLayout: layout,
+    settingsLayout: AppSettings.selectedLayout,
+    pushLayoutToEveryone: AppSettings.pushLayoutToEveryone,
     audioAlertEnabled: AppSettings.chatAudioAlerts,
     pushAlertEnabled: AppSettings.chatPushAlerts,
     shouldShowScreenshare,
