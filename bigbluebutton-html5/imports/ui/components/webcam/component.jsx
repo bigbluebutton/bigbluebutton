@@ -1,6 +1,10 @@
 import React from 'react';
+import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 
-const WebcamComponent = ({ cameraDockBounds }) => (
+const WebcamComponent = ({
+  cameraDockBounds,
+  swapLayout,
+}) => (
   <div
     style={{
       position: 'absolute',
@@ -11,7 +15,12 @@ const WebcamComponent = ({ cameraDockBounds }) => (
       backgroundColor: 'red',
     }}
   >
-    Round 2
+    <VideoProviderContainer
+      {...{
+        swapLayout,
+        cameraDockBounds,
+      }}
+    />
   </div>
 );
 

@@ -23,7 +23,9 @@ const LAYOUT_CONFIG = Meteor.settings.public.layout;
 
 const propTypes = {
   isScreensharing: PropTypes.bool.isRequired,
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
 const intlMessages = defineMessages({
