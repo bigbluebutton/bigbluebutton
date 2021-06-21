@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import Draggable from 'react-draggable';
 import Resizable from 're-resizable';
-import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles.scss';
 import Icon from '/imports/ui/components/icon/component';
@@ -9,10 +8,7 @@ import Button from '/imports/ui/components/button/component';
 import Toggle from '/imports/ui/components/switch/component';
 import Storage from '/imports/ui/services/storage/session';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
-import { LAYOUT_TYPE } from '../layout/enums';
-import NewLayoutContext from '../layout/context/context';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
-import Service from '/imports/ui/components/layout/service';
 
 const intlMessages = defineMessages({
   modalClose: {
@@ -90,14 +86,6 @@ class DebugWindow extends Component {
     this.setState({ showDebugWindow });
   }
 
-  setLayoutManagerToLoad(event) {
-    Service.setMeetingLayoutManager(event.target.value);
-  }
-
-  setLayoutType(event) {
-    Service.setMeetingLayout(event.target.value);
-  }
-
   debugWindowToggle() {
     const { showDebugWindow } = this.state;
     if (showDebugWindow) {
@@ -142,9 +130,7 @@ class DebugWindow extends Component {
 
     if (!DEBUG_WINDOW_ENABLED || !showDebugWindow) return false;
 
-    const { intl, newLayoutContextState } = this.props;
-    const { layoutType } = newLayoutContextState;
-    const layoutManagerLoaded = Session.get('layoutManagerLoaded');
+    const { intl } = this.props;
     const { autoArrangeLayout } = this.state;
 
     return (
@@ -232,39 +218,6 @@ class DebugWindow extends Component {
                 </div>
                 <div className={styles.row}>
                   <div className={styles.cell}>
-                    Layout
-                  </div>
-                  <div className={styles.cell}>
-                    <div className={styles.cellContent}>
-                      <select
-                        value={layoutManagerLoaded}
-                        onChange={this.setLayoutManagerToLoad}
-                      >
-                        <option value="legacy">Legacy</option>
-                        <option value="new">New Layout Manager</option>
-                        <option value="both">Both</option>
-                      </select>
-                      {
-                        layoutManagerLoaded === 'new'
-                        && (
-                          <select
-                            value={layoutType}
-                            onChange={this.setLayoutType}
-                          >
-                            <option value={LAYOUT_TYPE.CUSTOM_LAYOUT}>Custom</option>
-                            <option value={LAYOUT_TYPE.SMART_LAYOUT}>Smart Layout</option>
-                            <option value={LAYOUT_TYPE.VIDEO_FOCUS}>Focus on Video</option>
-                            <option value={LAYOUT_TYPE.PRESENTATION_FOCUS}>
-                              Focus on Presentation
-                            </option>
-                          </select>
-                        )
-                      }
-                    </div>
-                  </div>
-                </div>
-                <div className={styles.row}>
-                  <div className={styles.cell}>
                     {`${intl.formatMessage(intlMessages.chatLoggerLabel)}:`}
                   </div>
                   <div className={styles.cell}>
@@ -307,4 +260,4 @@ class DebugWindow extends Component {
   }
 }
 
-export default withLayoutConsumer(injectIntl(NewLayoutContext.withConsumer(DebugWindow)));
+export default withLayoutConsumer(injectIntl(DebugWindow));
