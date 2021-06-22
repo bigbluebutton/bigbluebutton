@@ -47,6 +47,8 @@ import SidebarContentContainer from '../sidebar-content/container';
 import { makeCall } from '/imports/ui/services/api';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import { NAVBAR_HEIGHT, LARGE_NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager/component';
+import Settings from '/imports/ui/services/settings';
+import LayoutService from '/imports/ui/components/layout/service';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -202,27 +204,40 @@ class App extends Component {
       mountModal,
       deviceType,
       isPresenter,
-      meetingLayoutManager,
       meetingLayout,
-      layoutManagerLoaded,
-      layoutType,
+      settingsLayout,
+      pushLayoutToEveryone,
       newLayoutContextDispatch,
     } = this.props;
 
 
-    if (meetingLayoutManager !== layoutManagerLoaded) {
-      Session.set('layoutManagerLoaded', meetingLayoutManager);
-      newLayoutContextDispatch({
-        type: ACTIONS.SET_LAYOUT_LOADED,
-        value: meetingLayoutManager,
-      });
-    }
-
-    if (meetingLayout !== layoutType) {
+    if (meetingLayout !== prevProps.meetingLayout) {
       newLayoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_TYPE,
         value: meetingLayout,
       });
+
+      Settings.application.selectedLayout = meetingLayout;
+      Settings.save();
+    }
+
+    if (settingsLayout !== prevProps.settingsLayout) {
+      const newLayoutManager = settingsLayout === 'legacy' ? 'legacy' : 'new';
+      Session.set('layoutManagerLoaded', newLayoutManager);
+
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_LAYOUT_LOADED,
+        value: newLayoutManager,
+      });
+
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_LAYOUT_TYPE,
+        value: settingsLayout,
+      });
+
+      if (pushLayoutToEveryone) {
+        LayoutService.setMeetingLayout(settingsLayout);
+      }
     }
 
     if (!isPresenter && randomlySelectedUser.length > 0) mountModal(<RandomUserSelectContainer />);

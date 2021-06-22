@@ -58,8 +58,9 @@ const AppContainer = (props) => {
   const {
     actionsbar,
     media,
-    meetingLayoutManager,
     meetingLayout,
+    settingsLayout,
+    pushLayoutToEveryone,
     ...otherProps
   } = props;
   const {
@@ -82,8 +83,9 @@ const AppContainer = (props) => {
         actionsBarStyle,
         media,
         layoutType,
-        meetingLayoutManager,
         meetingLayout,
+        settingsLayout,
+        pushLayoutToEveryone,
         deviceType,
         newLayoutContextDispatch,
         sidebarNavPanel,
@@ -130,8 +132,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     },
   );
   const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { publishedPoll: 1, voiceProp: 1, randomlySelectedUser: 1, layoutManager: 1, layout: 1 } });
-  const { publishedPoll, voiceProp, randomlySelectedUser, layoutManager, layout } = currentMeeting;
+    { fields: { publishedPoll: 1, voiceProp: 1, randomlySelectedUser: 1, layout: 1 } });
+  const { publishedPoll, voiceProp, randomlySelectedUser, layout } = currentMeeting;
 
   if (!currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
@@ -167,8 +169,9 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     randomlySelectedUser,
     currentUserId: currentUser.userId,
     isPresenter: currentUser.presenter,
-    meetingLayoutManager: layoutManager,
     meetingLayout: layout,
+    settingsLayout: AppSettings.selectedLayout,
+    pushLayoutToEveryone: AppSettings.pushLayoutToEveryone,
     audioAlertEnabled: AppSettings.chatAudioAlerts,
     pushAlertEnabled: AppSettings.chatPushAlerts,
     shouldShowScreenshare,
