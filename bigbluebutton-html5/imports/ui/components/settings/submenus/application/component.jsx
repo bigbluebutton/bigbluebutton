@@ -345,27 +345,27 @@ class ApplicationMenu extends BaseMenu {
         </div>
 
         {isModerator ? (
-        <div className={styles.row}>
-        <div className={styles.col} aria-hidden="true">
-          <div className={styles.formElement}>
-            <label className={styles.label}>
-              {intl.formatMessage(intlMessages.pushLayoutOptionLabel)}
-            </label>
+          <div className={styles.row}>
+            <div className={styles.col} aria-hidden="true">
+              <div className={styles.formElement}>
+                <label className={styles.label}>
+                  {intl.formatMessage(intlMessages.pushLayoutOptionLabel)}
+                </label>
+              </div>
+            </div>
+            <div className={styles.col}>
+              <div className={cx(styles.formElement, styles.pullContentRight)}>
+                {displaySettingsStatus(settings.pushLayoutToEveryone)}
+                <Toggle
+                  icons={false}
+                  defaultChecked={settings.pushLayoutToEveryone}
+                  onChange={() => this.handleToggle('pushLayoutToEveryone')}
+                  ariaLabel={intl.formatMessage(intlMessages.pushLayoutOptionLabel)}
+                  showToggleLabel={showToggleLabel}
+                />
+              </div>
+            </div>
           </div>
-        </div>
-        <div className={styles.col}>
-          <div className={cx(styles.formElement, styles.pullContentRight)}>
-            {displaySettingsStatus(settings.pushLayoutToEveryone)}
-            <Toggle
-              icons={false}
-              defaultChecked={settings.pushLayoutToEveryone}
-              onChange={() => this.handleToggle('pushLayoutToEveryone')}
-              ariaLabel={intl.formatMessage(intlMessages.pushLayoutOptionLabel)}
-              showToggleLabel={showToggleLabel}
-            />
-          </div>
-        </div>
-        </div>
         ) : null}
       </>
     );
