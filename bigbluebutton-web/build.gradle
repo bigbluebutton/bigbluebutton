@@ -85,6 +85,10 @@ dependencies {
   // https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload
   compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
 
+  compile "javax.validation:validation-api:2.0.1.Final"
+//  compile "org.hibernate:hibernate-validator:7.0.1.Final"
+  compile 'org.springframework.boot:spring-boot-starter-validation:2.5.1'
+
   //--- BigBlueButton Dependencies End
   console "org.grails:grails-console"
   profile "org.grails.profiles:web"

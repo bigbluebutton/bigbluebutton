@@ -115,6 +115,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="clientConfigServiceHelper" ref="configServiceHelper"/>
     </bean>
 
+    <bean id="validatorService" class="org.bigbluebutton.api.service.ValidatorService">
+        <property name="securitySalt" value="${securitySalt}"/>
+    </bean>
+
     <bean id="paramsProcessorUtil" class="org.bigbluebutton.api.ParamsProcessorUtil">
         <property name="apiVersion" value="${apiVersion}"/>
         <property name="serviceEnabled" value="${serviceEnabled}"/>
