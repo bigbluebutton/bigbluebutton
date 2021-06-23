@@ -69,4 +69,14 @@ public class ParamsUtil {
     }
     return padId;
   }
+
+  public static String sanitizeString(String inputString) {
+    if(inputString == null) {
+      return "";
+    }
+
+    String sanitizedString = stripControlChars(inputString);
+    String trimmedString = sanitizedString.trim();
+    return trimmedString;
+  }
 }
