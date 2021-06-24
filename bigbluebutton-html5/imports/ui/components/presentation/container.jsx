@@ -19,8 +19,9 @@ const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props }) => {
   const newLayoutContext = useContext(NLayoutContext);
   const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { output, layoutLoaded } = newLayoutContextState;
+  const { input, output, layoutLoaded } = newLayoutContextState;
   const { presentation } = output;
+  const { isFullscreen: fullscreenContext } = input.presentation;
   const { layoutSwapped, podId } = props;
 
   const usingUsersContext = useContext(UsersContext);
@@ -40,6 +41,7 @@ const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props
           userIsPresenter: userIsPresenter && !layoutSwapped,
           presentationBounds: presentation,
           layoutLoaded,
+          fullscreenContext,
         }
         }
       />

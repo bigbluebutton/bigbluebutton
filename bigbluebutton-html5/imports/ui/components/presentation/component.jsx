@@ -818,6 +818,7 @@ class Presentation extends PureComponent {
       slidePosition,
       presentationBounds,
       layoutLoaded,
+      fullscreenContext,
     } = this.props;
 
     const {
@@ -867,6 +868,8 @@ class Presentation extends PureComponent {
           left: layoutLoaded === 'new' ? presentationBounds.left : undefined,
           width: layoutLoaded === 'new' ? presentationBounds.width : undefined,
           height: layoutLoaded === 'new' ? presentationBounds.height : undefined,
+          zIndex: layoutLoaded === 'new' && fullscreenContext ? presentationBounds.zIndex : undefined,
+          backgroundColor: layoutLoaded === 'new' ? '#06172A': undefined,
         }}
       >
         {isFullscreen && <PollingContainer />}
