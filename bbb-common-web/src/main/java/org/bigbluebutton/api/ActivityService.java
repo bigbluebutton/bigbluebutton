@@ -26,7 +26,7 @@ import java.io.FileOutputStream;
 
 public class ActivityService {
     private static Logger log = LoggerFactory.getLogger(ActivityService.class);
-    private static String activitiesDir = "/var/bigbluebutton/activities";
+    private static String activitiesDir = "/var/bigbluebutton/activity-report";
 
     public void writeActivityJsonFile(String meetingId, String activityJson) {
         this.createDirectory(new File(this.getDestinationBaseDirectoryName()));

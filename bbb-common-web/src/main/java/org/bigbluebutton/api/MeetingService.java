@@ -460,7 +460,7 @@ public class MeetingService implements MessageListener {
             return null;
         for (Map.Entry<String, Meeting> entry : meetings.entrySet()) {
             String key = entry.getKey();
-          if (key.startsWith(meetingId))
+            if (key.startsWith(meetingId))
                 return entry.getValue();
         }
 
