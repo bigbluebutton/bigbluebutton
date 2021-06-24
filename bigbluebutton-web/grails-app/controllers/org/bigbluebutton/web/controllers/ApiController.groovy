@@ -315,7 +315,6 @@ class ApiController {
     }
 
     // Do we have a name for the user joining? If none, complain.
-<<<<<<< HEAD
     if (!StringUtils.isEmpty(params.fullName)) {
       if (StringUtils.isEmpty(params.fullName)) {
         errors.missingParamError("fullName");
@@ -327,15 +326,14 @@ class ApiController {
     String fullName = ParamsUtil.stripControlChars(params.fullName)
 
     // Do we have a meeting id? If none, complain.
-    if (!StringUtils.isEmpty(params.meetingID)) {
-      params.meetingID = StringUtils.strip(params.meetingID);
-      if (StringUtils.isEmpty(params.meetingID)) {
-        errors.missingParamError("meetingID");
-      }
-    } else {
-      errors.missingParamError("meetingID");
-    }
-=======
+//    if (!StringUtils.isEmpty(params.meetingID)) {
+//      params.meetingID = StringUtils.strip(params.meetingID);
+//      if (StringUtils.isEmpty(params.meetingID)) {
+//        errors.missingParamError("meetingID");
+//      }
+//    } else {
+//      errors.missingParamError("meetingID");
+//    }
 //    if (!StringUtils.isEmpty(params.fullName)) {
 //      if (StringUtils.isEmpty(params.fullName)) {
 //        errors.missingParamError("fullName");
@@ -343,7 +341,6 @@ class ApiController {
 //    } else {
 //      errors.missingParamError("fullName");
 //    }
-    String fullName = ParamsUtil.stripHTMLTags(params.fullName)
 //
 //    // Do we have a meeting id? If none, complain.
 //    if (!StringUtils.isEmpty(params.meetingID)) {
@@ -354,7 +351,6 @@ class ApiController {
 //    } else {
 //      errors.missingParamError("meetingID");
 //    }
->>>>>>> update-api-create-join-validation
     String externalMeetingId = params.meetingID
 
     // Do we have a password? If not, complain.
