@@ -67,6 +67,7 @@ const AppContainer = (props) => {
     input,
     output,
     layoutType,
+    layoutLoaded,
     deviceType,
   } = newLayoutContextState;
   const { sidebarContent, sidebarNavigation } = input;
@@ -83,6 +84,7 @@ const AppContainer = (props) => {
         actionsBarStyle,
         media,
         layoutType,
+        layoutLoaded,
         meetingLayout,
         settingsLayout,
         pushLayoutToEveryone,
