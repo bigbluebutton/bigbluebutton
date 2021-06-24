@@ -8,7 +8,6 @@ import { HUNDRED_PERCENT, MAX_PERCENT, STEP } from '/imports/utils/slideCalcUtil
 import cx from 'classnames';
 import { styles } from './styles.scss';
 import ZoomTool from './zoom-tool/component';
-import FullscreenButtonContainer from '../../fullscreen-button/container';
 import TooltipContainer from '/imports/ui/components/tooltip/container';
 import QuickPollDropdownContainer from '/imports/ui/components/actions-bar/quick-poll-dropdown/container';
 import FullscreenService from '/imports/ui/components/fullscreen-button/service';
@@ -76,8 +75,6 @@ const intlMessages = defineMessages({
     description: 'presentation area element label',
   },
 });
-
-const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
 class PresentationToolbar extends PureComponent {
   constructor(props) {
@@ -214,8 +211,6 @@ class PresentationToolbar extends PureComponent {
       fitToWidth,
       intl,
       zoom,
-      isFullscreen,
-      fullscreenRef,
       isMeteorConnected,
       isPollingEnabled,
       amIPresenter,
@@ -347,18 +342,6 @@ class PresentationToolbar extends PureComponent {
               hideLabel
               className={cx(styles.fitToWidth, styles.presentationBtn)}
             />
-            {
-              ALLOW_FULLSCREEN
-                ? (
-                  <FullscreenButtonContainer
-                    fullscreenRef={fullscreenRef}
-                    isFullscreen={isFullscreen}
-                    elementName={intl.formatMessage(intlMessages.presentationLabel)}
-                    className={styles.presentationBtn}
-                  />
-                )
-                : null
-            }
           </div>
         }
       </div>

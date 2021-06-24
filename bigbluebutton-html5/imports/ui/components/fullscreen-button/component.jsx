@@ -26,6 +26,8 @@ const propTypes = {
   elementName: PropTypes.string,
   className: PropTypes.string,
   handleToggleFullScreen: PropTypes.func.isRequired,
+  color: PropTypes.string,
+  fullScreenStyle: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -36,6 +38,8 @@ const defaultProps = {
   elementName: '',
   className: '',
   fullscreenRef: null,
+  color: 'default',
+  fullScreenStyle: true,
 };
 
 const FullscreenButtonComponent = ({
@@ -48,6 +52,8 @@ const FullscreenButtonComponent = ({
   handleToggleFullScreen,
   isIphone,
   isFullscreen,
+  color,
+  fullScreenStyle,
 }) => {
   if (isIphone) return null;
 
@@ -71,16 +77,22 @@ const FullscreenButtonComponent = ({
     [styles.bottom]: bottom,
   });
 
+  const buttonClassName = cx({
+    [styles.button]: fullScreenStyle,
+    [styles.fullScreenButton]: fullScreenStyle,
+    [className]: true,
+  });
+
   return (
     <div className={wrapperClassName}>
       <Button
-        color="default"
+        color={color || 'default'}
         icon={!isFullscreen ? 'fullscreen' : 'exit_fullscreen'}
         size="sm"
         onClick={() => handleToggleFullScreen(fullscreenRef)}
         label={formattedLabel(isFullscreen)}
         hideLabel
-        className={cx(styles.button, styles.fullScreenButton, className)}
+        className={buttonClassName}
         data-test="presentationFullscreenButton"
       />
     </div>
