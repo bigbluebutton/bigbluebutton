@@ -206,6 +206,8 @@ class App extends Component {
       isPresenter,
       meetingLayout,
       settingsLayout,
+      layoutType,
+      layoutLoaded,
       pushLayoutToEveryone,
       newLayoutContextDispatch,
     } = this.props;
@@ -221,8 +223,12 @@ class App extends Component {
       Settings.save();
     }
 
-    if (settingsLayout !== prevProps.settingsLayout) {
-      const newLayoutManager = settingsLayout === 'legacy' ? 'legacy' : 'new';
+    const newLayoutManager = settingsLayout === 'legacy' ? 'legacy' : 'new';
+
+    if (settingsLayout !== prevProps.settingsLayout ||
+      settingsLayout !== layoutType ||
+      newLayoutManager !== layoutLoaded
+    ) {
       Session.set('layoutManagerLoaded', newLayoutManager);
 
       newLayoutContextDispatch({
