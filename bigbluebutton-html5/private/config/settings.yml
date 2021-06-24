@@ -377,7 +377,7 @@ public:
     toggleSelfVoice: false
   poll:
     enabled: true
-    max_custom: 5
+    maxCustom: 5
     allowDragAndDropFile: false
     maxTypedAnswerLength: 45
     chatMessage: true
