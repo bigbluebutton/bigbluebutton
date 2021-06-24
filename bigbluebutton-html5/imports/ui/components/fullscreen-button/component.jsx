@@ -55,7 +55,7 @@ const FullscreenButtonComponent = ({
   if (isIphone) return null;
 
   const formattedLabel = (isFullscreen) => {
-    return(isFullscreen ?
+    return (isFullscreen ?
       intl.formatMessage(
         intlMessages.fullscreenUndoButton,
         ({ 0: elementName || '' }),
@@ -75,9 +75,9 @@ const FullscreenButtonComponent = ({
   });
 
   const handleClick = () => {
-    if(layoutManagerLoaded === 'legacy'){
+    if (layoutManagerLoaded === 'legacy') {
       handleToggleFullScreen(fullscreenRef);
-    }else{
+    } else {
       newLayoutContextDispatch({
         type: ACTIONS.SET_PRESENTATION_IS_FULLSCREEN,
         value: !isFullscreen,

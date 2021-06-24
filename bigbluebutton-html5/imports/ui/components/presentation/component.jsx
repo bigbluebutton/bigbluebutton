@@ -869,7 +869,7 @@ class Presentation extends PureComponent {
           width: layoutLoaded === 'new' ? presentationBounds.width : undefined,
           height: layoutLoaded === 'new' ? presentationBounds.height : undefined,
           zIndex: layoutLoaded === 'new' && fullscreenContext ? presentationBounds.zIndex : undefined,
-          backgroundColor: layoutLoaded === 'new' ? '#06172A': undefined,
+          backgroundColor: layoutLoaded === 'new' ? '#06172A' : undefined,
         }}
       >
         {isFullscreen && <PollingContainer />}
