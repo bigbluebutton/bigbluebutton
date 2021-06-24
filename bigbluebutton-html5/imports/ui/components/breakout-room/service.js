@@ -2,7 +2,6 @@ import Breakouts from '/imports/api/breakouts';
 import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
-import { Session } from 'meteor/session';
 import Users from '/imports/api/users';
 import UserListService from '/imports/ui/components/user-list/service';
 import fp from 'lodash/fp';
