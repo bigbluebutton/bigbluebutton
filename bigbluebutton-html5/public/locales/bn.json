@@ -139,7 +139,6 @@
     "app.meeting.ended": "এই অধিবেশন শেষ হয়েছে",
     "app.meeting.meetingTimeRemaining": "সভার সময় বাকি: {0}",
     "app.meeting.meetingTimeHasEnded": "সময় শেষ। শীঘ্রই সভা বন্ধ হবে",
-    "app.meeting.endedByUserMessage": "সভাটি {0 by দ্বারা শেষ হয়েছিল",
     "app.meeting.endedMessage": "আপনাকে হোম স্ক্রিনে ফরোয়ার্ড করা হবে",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "এক মিনিটের মধ্যে সভা বন্ধ হচ্ছে।",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "সভাটি {0} মিনিটের মধ্যে শেষ হচ্ছে।",

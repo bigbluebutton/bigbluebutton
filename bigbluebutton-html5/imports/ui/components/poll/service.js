@@ -23,7 +23,7 @@ const pollTypes = {
   A3: 'A-3',
   A4: 'A-4',
   A5: 'A-5',
-  Custom: 'custom',
+  Custom: 'CUSTOM',
   Response: 'R-',
 }
 
@@ -95,7 +95,9 @@ const getPollResultsText = (isDefaultPoll, answers, numRespondents, intl) => {
     const pctBars = "|".repeat(pct * MAX_POLL_RESULT_BARS / 100);
     const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
     if (isDefaultPoll) {
-      const translatedKey = intl.formatMessage(pollAnswerIds[item.key.toLowerCase()]);
+      const translatedKey = pollAnswerIds[item.key.toLowerCase()] 
+        ? intl.formatMessage(pollAnswerIds[item.key.toLowerCase()])
+        : item.key;
       resultString += `${translatedKey}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
     } else {
       resultString += `${item.id+1}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
@@ -120,8 +122,8 @@ const getPollResultString = (pollResultData, intl) => {
     return div.innerHTML;
   };
 
-  const { answers, numRespondents, pollType } = pollResultData;
-  const ísDefault = isDefaultPoll(pollType)
+  const { answers, numRespondents, questionType } = pollResultData;
+  const ísDefault = isDefaultPoll(questionType)
   let { resultString, optionsString } = getPollResultsText(ísDefault, answers, numRespondents, intl)
   resultString = sanitize(resultString);
   optionsString = sanitize(optionsString);

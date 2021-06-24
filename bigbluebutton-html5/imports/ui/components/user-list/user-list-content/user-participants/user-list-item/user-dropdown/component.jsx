@@ -12,7 +12,6 @@ import _ from 'lodash';
 import { Session } from 'meteor/session';
 import { styles } from './styles';
 import UserName from '../user-name/component';
-import UserIcons from '../user-icons/component';
 import Service from '/imports/ui/components/user-list/service';
 import { PANELS, ACTIONS } from '../../../../../layout/enums';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
@@ -579,7 +578,6 @@ class UserDropdown extends PureComponent {
   render() {
     const {
       compact,
-      currentUser,
       user,
       intl,
       isThisMeetingLocked,
@@ -637,12 +635,6 @@ class UserDropdown extends PureComponent {
               userAriaLabel,
               isActionsOpen,
               isMe,
-            }}
-          />}
-          {<UserIcons
-            {...{
-              user,
-              amIModerator: currentUser.role === ROLE_MODERATOR,
             }}
           />}
         </div>

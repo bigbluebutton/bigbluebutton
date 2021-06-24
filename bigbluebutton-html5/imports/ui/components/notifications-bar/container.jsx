@@ -5,9 +5,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Auth from '/imports/ui/services/auth';
 import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
-import Users from '/imports/api/users';
 import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
-import SlowConnection from '/imports/ui/components/slow-connection/component';
 import { styles } from './styles.scss';
 
 import breakoutService from '/imports/ui/components/breakout-room/service';
@@ -23,11 +21,6 @@ const STATUS_FAILED = 'failed';
 const STATUS_WAITING = 'waiting';
 
 const METEOR_SETTINGS_APP = Meteor.settings.public.app;
-
-const SLOW_CONNECTIONS_TYPES = METEOR_SETTINGS_APP.effectiveConnection;
-const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
-
-const HELP_LINK = METEOR_SETTINGS_APP.helpLink;
 
 const REMAINING_TIME_THRESHOLD = METEOR_SETTINGS_APP.remainingTimeThreshold;
 const REMAINING_TIME_ALERT_THRESHOLD = METEOR_SETTINGS_APP.remainingTimeAlertThreshold;
@@ -77,14 +70,6 @@ const intlMessages = defineMessages({
     id: 'app.meeting.alertBreakoutEndsUnderMinutes',
     description: 'Alert that tells that the breakout ends under x minutes',
   },
-  slowEffectiveConnectionDetected: {
-    id: 'app.network.connection.effective.slow',
-    description: 'Alert for detected slow connections',
-  },
-  slowEffectiveConnectionHelpLink: {
-    id: 'app.network.connection.effective.slow.help',
-    description: 'Help link for slow connections',
-  },
 });
 
 const NotificationsBarContainer = (props) => {
@@ -132,22 +117,6 @@ const reconnect = () => {
 export default injectIntl(withTracker(({ intl }) => {
   const { status, connected, retryTime } = Meteor.status();
   const data = {};
-
-  const user = Users.findOne({ userId: Auth.userID }, { fields: { effectiveConnectionType: 1 } });
-
-  if (user) {
-    const { effectiveConnectionType } = user;
-    if (ENABLE_NETWORK_MONITORING && SLOW_CONNECTIONS_TYPES.includes(effectiveConnectionType)) {
-      data.message = (
-        <SlowConnection effectiveConnectionType={effectiveConnectionType}>
-          {intl.formatMessage(intlMessages.slowEffectiveConnectionDetected)}
-          <a href={HELP_LINK} target="_blank" rel="noopener noreferrer">
-            {intl.formatMessage(intlMessages.slowEffectiveConnectionHelpLink)}
-          </a>
-        </SlowConnection>
-      );
-    }
-  }
 
   if (!connected) {
     data.color = 'primary';

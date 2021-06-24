@@ -166,6 +166,8 @@ class Settings extends Component {
       isModerator,
       showGuestNotification,
       showToggleLabel,
+      newLayoutContextDispatch,
+      selectedLayout,
     } = this.props;
 
     const {
@@ -214,6 +216,9 @@ class Settings extends Component {
             settings={current.application}
             showToggleLabel={showToggleLabel}
             displaySettingsStatus={this.displaySettingsStatus}
+            newLayoutContextDispatch={newLayoutContextDispatch}
+            selectedLayout={selectedLayout}
+            isModerator={isModerator}
           />
         </TabPanel>
         <TabPanel className={styles.tabPanel}>

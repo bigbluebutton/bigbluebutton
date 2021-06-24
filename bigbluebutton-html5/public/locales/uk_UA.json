@@ -137,7 +137,6 @@
     "app.meeting.ended": "Цей сеанс завершився",
     "app.meeting.meetingTimeRemaining": "Залишилось часу зустрічі: {0}",
     "app.meeting.meetingTimeHasEnded": "Час закінчився. Зустріч буде закрито незабаром",
-    "app.meeting.endedByUserMessage": "Зустріч завершено користувачем -  {0}",
     "app.meeting.endedMessage": "Вас буде перенаправлено на головну сторінку",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "Зустріч завершується за 1 хв.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "Зустріч завершується за {0} хв.",

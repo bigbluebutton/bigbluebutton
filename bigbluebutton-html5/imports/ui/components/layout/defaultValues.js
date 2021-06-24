@@ -8,6 +8,7 @@ const DEFAULT_VALUES = {
   layoutType: LAYOUT_TYPE.CUSTOM_LAYOUT,
   panelType: 'chat',
   idChatOpen: PUBLIC_CHAT_ID,
+  fontSize: 16,
 
   cameraPosition: CAMERADOCK_POSITION.CONTENT_TOP,
   cameraDockTabOrder: 4,
@@ -15,7 +16,7 @@ const DEFAULT_VALUES = {
   cameraDockMinWidth: 140,
 
   presentationTabOrder: 5,
-  presentationMinHeight: 140,
+  presentationMinHeight: 220,
 
   navBarHeight: 85,
   navBarTop: 0,
