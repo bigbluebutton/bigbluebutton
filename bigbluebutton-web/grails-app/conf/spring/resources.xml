@@ -45,6 +45,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="meetingService" class="org.bigbluebutton.api.MeetingService" init-method="start" destroy-method="stop">
         <property name="redisStorageService" ref="redisStorageService"/>
+        <property name="activityService" ref="activityService"/>
         <property name="recordingService" ref="recordingService"/>
         <property name="presDownloadService" ref="presDownloadService"/>
         <property name="paramsProcessorUtil" ref="paramsProcessorUtil"/>
@@ -104,6 +105,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="presentationBaseDir" value="${presentationDir}"/>
         <property name="defaultServerUrl" value="${bigbluebutton.web.serverURL}"/>
         <property name="defaultTextTrackUrl" value="${defaultTextTrackUrl}"/>
+    </bean>
+
+    <bean id="activityService" class="org.bigbluebutton.api.ActivityService">
+        <property name="activitiesDir" value="${activitiesDir}"/>
     </bean>
 
     <bean id="html5LoadBalancingService" class="org.bigbluebutton.api.HTML5LoadBalancingService" init-method="init" />

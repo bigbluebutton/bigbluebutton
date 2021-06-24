@@ -515,4 +515,15 @@ object MsgBuilder {
 
     BbbCommonEnvCoreMsg(envelope, event)
   }
+
+  def buildActivityReportEvtMsg(meetingId: String, activityJson: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(ActivityReportEvtMsg.NAME, routing)
+    val body = ActivityReportEvtMsgBody(activityJson)
+    val header = BbbCoreHeaderWithMeetingId(ActivityReportEvtMsg.NAME, meetingId)
+    val event = ActivityReportEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
 }

@@ -2,9 +2,10 @@ package org.bigbluebutton.endpoint.redis
 
 import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.common2.redis.{RedisConfig, RedisStorageProvider}
 import org.bigbluebutton.common2.util.JsonUtil
+import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 import scala.concurrent.duration._
 import scala.concurrent._
@@ -56,35 +57,30 @@ case class Webcam(
 object ActivityTrackerActor {
   def props(
              system:         ActorSystem,
-             redisConfig:    RedisConfig,
-             //healthzService: HealthzService
+             outGW:          OutMessageGateway,
+//             healthzService: HealthzService
   ): Props =
     Props(
       classOf[ActivityTrackerActor],
       system,
-      redisConfig,
+      outGW
 //      healthzService
     )
 }
 
 class ActivityTrackerActor(
     system:         ActorSystem,
-    redisConfig:    RedisConfig,
+    val outGW:          OutMessageGateway,
 //    healthzService: HealthzService
-)
-  extends RedisStorageProvider(
-    system,
-    "BbbAppsAkkaRecorder",
-    redisConfig
-  ) with Actor with ActorLogging {
+) extends Actor with ActorLogging {
 
   private var meetings: Map[String, MeetingActivityTracker] = Map()
 
   system.scheduler.schedule(10.seconds, 10.seconds, self, SendPeriodicReport)
 
-  private def record(session: String, message: java.util.Map[java.lang.String, java.lang.String]): Unit = {
-    redis.recordAndExpire(session, message)
-  }
+//  private def record(session: String, message: java.util.Map[java.lang.String, java.lang.String]): Unit = {
+//    redis.recordAndExpire(session, message)
+//  }
 
   def receive = {
     //=============================
@@ -323,6 +319,13 @@ class ActivityTrackerActor(
       log.info("users: " + meeting._2.users.toVector.length)
 
       log.info(JsonUtil.toJson(meeting._2))
+
+      val activityJson: String = JsonUtil.toJson(meeting._2)
+
+      val event = MsgBuilder.buildActivityReportEvtMsg(meeting._2.intId, activityJson)
+//      healthzService.sendPubSubStatusMessage(msg.body.akkaAppsTimestamp, System.currentTimeMillis())
+      outGW.send(event)
+
     })
 
 

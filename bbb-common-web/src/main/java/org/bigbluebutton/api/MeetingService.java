@@ -55,33 +55,7 @@ import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.PublishedRecordingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.UnpublishedRecordingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.DeletedRecordingMessage;
-import org.bigbluebutton.api.messaging.messages.AddPad;
-import org.bigbluebutton.api.messaging.messages.AddCaptionsPads;
-import org.bigbluebutton.api.messaging.messages.CreateBreakoutRoom;
-import org.bigbluebutton.api.messaging.messages.CreateMeeting;
-import org.bigbluebutton.api.messaging.messages.EndMeeting;
-import org.bigbluebutton.api.messaging.messages.GuestPolicyChanged;
-import org.bigbluebutton.api.messaging.messages.GuestLobbyMessageChanged;
-import org.bigbluebutton.api.messaging.messages.GuestStatusChangedEventMsg;
-import org.bigbluebutton.api.messaging.messages.GuestsStatus;
-import org.bigbluebutton.api.messaging.messages.IMessage;
-import org.bigbluebutton.api.messaging.messages.MakePresentationDownloadableMsg;
-import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
-import org.bigbluebutton.api.messaging.messages.MeetingEnded;
-import org.bigbluebutton.api.messaging.messages.MeetingStarted;
-import org.bigbluebutton.api.messaging.messages.PresentationUploadToken;
-import org.bigbluebutton.api.messaging.messages.RecordChapterBreak;
-import org.bigbluebutton.api.messaging.messages.RegisterUser;
-import org.bigbluebutton.api.messaging.messages.UpdateRecordingStatus;
-import org.bigbluebutton.api.messaging.messages.UserJoined;
-import org.bigbluebutton.api.messaging.messages.UserJoinedVoice;
-import org.bigbluebutton.api.messaging.messages.UserLeft;
-import org.bigbluebutton.api.messaging.messages.UserLeftVoice;
-import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
-import org.bigbluebutton.api.messaging.messages.UserRoleChanged;
-import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
-import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
-import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
+import org.bigbluebutton.api.messaging.messages.*;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.bigbluebutton.common2.redis.RedisStorageService;
@@ -114,6 +88,7 @@ public class MeetingService implements MessageListener {
   private final ConcurrentMap<String, UserSession> sessions;
 
   private RecordingService recordingService;
+  private ActivityService activityService;
   private WaitingGuestCleanupTimerTask waitingGuestCleaner;
   private UserCleanupTimerTask userCleaner;
   private EnteredUserCleanupTimerTask enteredUserCleaner;
@@ -485,7 +460,7 @@ public class MeetingService implements MessageListener {
             return null;
         for (Map.Entry<String, Meeting> entry : meetings.entrySet()) {
             String key = entry.getKey();
-            if (key.startsWith(meetingId))
+          if (key.startsWith(meetingId))
                 return entry.getValue();
         }
 
@@ -974,6 +949,24 @@ public class MeetingService implements MessageListener {
     }
   }
 
+  public void processActivityReport(ActivityReport message) {
+    Meeting m = getMeeting(message.meetingId);
+    if (m != null) {
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingId", m.getInternalId());
+      logData.put("externalMeetingId", m.getExternalId());
+      logData.put("name", m.getName());
+      logData.put("logCode", "update_activity_json");
+      logData.put("description", "Updating activities json.");
+
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+
+      log.info(" --analytics-- data={}", logStr);
+      activityService.writeActivityJsonFile(message.meetingId, message.activityJson);
+    }
+  }
+
   @Override
   public void handle(IMessage message) {
     receivedMessages.add(message);
@@ -1130,6 +1123,8 @@ public class MeetingService implements MessageListener {
           processMakePresentationDownloadableMsg((MakePresentationDownloadableMsg) message);
         } else if (message instanceof UpdateRecordingStatus) {
           processUpdateRecordingStatus((UpdateRecordingStatus) message);
+        } else if (message instanceof ActivityReport) {
+          processActivityReport((ActivityReport) message);
         }
       }
     };
@@ -1213,6 +1208,10 @@ public class MeetingService implements MessageListener {
 
   public void setRecordingService(RecordingService s) {
     recordingService = s;
+  }
+
+  public void setActivityService(ActivityService s) {
+    activityService = s;
   }
 
   public void setRedisStorageService(RedisStorageService mess) {

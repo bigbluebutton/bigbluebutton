@@ -52,7 +52,7 @@ object Boot extends App with SystemConfiguration {
   )
 
   val activityTrackerActor = system.actorOf(
-    ActivityTrackerActor.props(system, redisConfig),
+    ActivityTrackerActor.props(system, outGW),
     "activityTrackerActor"
   )
 
