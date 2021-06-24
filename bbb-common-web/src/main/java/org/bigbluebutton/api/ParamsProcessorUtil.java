@@ -720,6 +720,26 @@ public class ParamsProcessorUtil {
         return "";
     }
 
+<<<<<<< HEAD
+=======
+		log.info("CONFIGXML CHECKSUM={} length={}", checksum, checksum.length());
+
+		String data = meetingID + configXML + securitySalt;
+		String cs = DigestUtils.sha1Hex(data);
+		if (checksum.length() == 64) {
+			cs = DigestUtils.sha256Hex(data);
+			log.info("CONFIGXML SHA256 {}", cs);
+		}
+
+		if (cs == null || !cs.equals(checksum)) {
+			log.info("checksumError: configXML checksum. our: [{}], client: [{}]", cs, checksum);
+			return false;
+		}
+		return true;
+	}
+
+	// Can be removed. Checksum validation is performed by the ChecksumValidator
+>>>>>>> update-api-create-join-validation
 	public boolean isChecksumSame(String apiCall, String checksum, String queryString) {
 		if (StringUtils.isEmpty(securitySalt)) {
 			log.warn("Security is disabled in this service. Make sure this is intentional.");

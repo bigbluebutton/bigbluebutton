@@ -30,6 +30,7 @@ import org.bigbluebutton.api.domain.Config
 import org.bigbluebutton.api.domain.GuestPolicy
 import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.domain.UserSession
+import org.bigbluebutton.api.service.ValidatorService
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.api.util.ResponseBuilder
 import org.bigbluebutton.presentation.PresentationUrlDownloadService
@@ -60,6 +61,7 @@ class ApiController {
   StunTurnService stunTurnService
   HTML5LoadBalancingService html5LoadBalancingService
   ResponseBuilder responseBuilder = initResponseBuilder()
+  ValidatorService validatorService
 
   def initResponseBuilder = {
     String protocol = this.getClass().getResource("").getProtocol();
@@ -93,49 +95,68 @@ class ApiController {
     String API_CALL = 'create'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
     log.debug request.getParameterMap().toMapString()
+    log.debug request.getQueryString()
+
+    Set<String> violations = validatorService.validate(
+            ValidatorService.ApiCall.CREATE,
+            request.getParameterMap(),
+            request.getQueryString()
+    )
+
+    if(!violations.isEmpty()) {
+      StringBuilder violationMessages = new StringBuilder()
+
+      for(String violation: violations) {
+        violationMessages.append(violation + "\n");
+        log.error violation
+      }
+
+      invalid("validationError", violationMessages.toString())
+      return
+    }
 
     //sanitizeInput
-    params.each {
-      key, value -> params[key] = sanitizeInput(value)
-    }
-
-    // BEGIN - backward compatibility
-    if (StringUtils.isEmpty(params.checksum)) {
-      invalid("checksumError", "You did not pass the checksum security check")
-      return
-    }
-
-    if (!StringUtils.isEmpty(params.meetingID)) {
-      params.meetingID = StringUtils.strip(params.meetingID);
-      if (StringUtils.isEmpty(params.meetingID)) {
-        invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-        return
-      }
-    } else {
-      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-      return
-    }
-
-    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-      invalid("checksumError", "You did not pass the checksum security check")
-      return
-    }
-    // END - backward compatibility
-
-    ApiErrors errors = new ApiErrors();
-    paramsProcessorUtil.processRequiredCreateParams(params, errors);
-
-    if (errors.hasErrors()) {
-      respondWithErrors(errors)
-      return
-    }
-
-    // Do we agree with the checksum? If not, complain.
-    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-      errors.checksumError()
-      respondWithErrors(errors)
-      return
-    }
+//    params.each {
+//      key, value -> params[key] = sanitizeInput(value)
+//    }
+//
+//    // BEGIN - backward compatibility
+//    if (StringUtils.isEmpty(params.checksum)) {
+//      invalid("checksumError", "You did not pass the checksum security check")
+//      return
+//    }
+//
+//    if (!StringUtils.isEmpty(params.meetingID)) {
+//      params.meetingID = StringUtils.strip(params.meetingID);
+//      if (StringUtils.isEmpty(params.meetingID)) {
+//        invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+//        return
+//      }
+//    } else {
+//      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+//      return
+//    }
+//
+//    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+//      invalid("checksumError", "You did not pass the checksum security check")
+//      return
+//    }
+//    // END - backward compatibility
+//
+//    ApiErrors errors = new ApiErrors();
+//    paramsProcessorUtil.processRequiredCreateParams(params, errors);
+//
+//    if (errors.hasErrors()) {
+//      respondWithErrors(errors)
+//      return
+//    }
+//
+//    // Do we agree with the checksum? If not, complain.
+//    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+//      errors.checksumError()
+//      respondWithErrors(errors)
+//      return
+//    }
 
     // Ensure unique TelVoice. Uniqueness is not guaranteed by paramsProcessorUtil.
     if (!params.voiceBridge) {
@@ -203,58 +224,79 @@ class ApiController {
   def join = {
     String API_CALL = 'join'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
-    ApiErrors errors = new ApiErrors()
+    log.debug request.getParameterMap().toMapString()
+    log.debug request.getQueryString()
 
-    //sanitizeInput
-    params.each {
-      key, value -> params[key] = sanitizeInput(value)
-    }
+    Set<String> violations = validatorService.validate(
+            ValidatorService.ApiCall.JOIN,
+            request.getParameterMap(),
+            request.getQueryString()
+    )
 
-    // BEGIN - backward compatibility
-    if (StringUtils.isEmpty(params.checksum)) {
-      invalid("checksumError", "You did not pass the checksum security check")
-      return
-    }
+    if(!violations.isEmpty()) {
+      StringBuilder violationMessages = new StringBuilder()
 
-    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-      invalid("checksumError", "You did not pass the checksum security check")
-      return
-    }
-
-    //checking for an empty username or for a username containing whitespaces only
-    if (!StringUtils.isEmpty(params.fullName)) {
-      params.fullName = StringUtils.strip(params.fullName);
-      if (StringUtils.isEmpty(params.fullName)) {
-        invalid("missingParamFullName", "You must specify a name for the attendee who will be joining the meeting.", REDIRECT_RESPONSE);
-        return
+      for(String violation: violations) {
+        violationMessages.append(violation + "\n");
+        log.error violation
       }
-    } else {
-      invalid("missingParamFullName", "You must specify a name for the attendee who will be joining the meeting.", REDIRECT_RESPONSE);
+
+      invalid("validationError", violationMessages.toString())
       return
     }
 
-    if (!StringUtils.isEmpty(params.meetingID)) {
-      params.meetingID = StringUtils.strip(params.meetingID);
-      if (StringUtils.isEmpty(params.meetingID)) {
-        invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.", REDIRECT_RESPONSE)
-        return
-      }
-    } else {
-      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.", REDIRECT_RESPONSE)
-      return
-    }
-
-    if (StringUtils.isEmpty(params.password)) {
-      invalid("invalidPassword", "You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference.", REDIRECT_RESPONSE);
-      return
-    }
-
-    // END - backward compatibility
-
-    // Do we have a checksum? If none, complain.
-    if (StringUtils.isEmpty(params.checksum)) {
-      errors.missingParamError("checksum");
-    }
+//    ApiErrors errors = new ApiErrors()
+//
+//    //sanitizeInput
+//    params.each {
+//      key, value -> params[key] = sanitizeInput(value)
+//    }
+//
+//    // BEGIN - backward compatibility
+//    if (StringUtils.isEmpty(params.checksum)) {
+//      invalid("checksumError", "You did not pass the checksum security check")
+//      return
+//    }
+//
+//    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+//      invalid("checksumError", "You did not pass the checksum security check")
+//      return
+//    }
+//
+//    //checking for an empty username or for a username containing whitespaces only
+//    if (!StringUtils.isEmpty(params.fullName)) {
+//      params.fullName = StringUtils.strip(params.fullName);
+//      if (StringUtils.isEmpty(params.fullName)) {
+//        invalid("missingParamFullName", "You must specify a name for the attendee who will be joining the meeting.", REDIRECT_RESPONSE);
+//        return
+//      }
+//    } else {
+//      invalid("missingParamFullName", "You must specify a name for the attendee who will be joining the meeting.", REDIRECT_RESPONSE);
+//      return
+//    }
+//
+//    if (!StringUtils.isEmpty(params.meetingID)) {
+//      params.meetingID = StringUtils.strip(params.meetingID);
+//      if (StringUtils.isEmpty(params.meetingID)) {
+//        invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.", REDIRECT_RESPONSE)
+//        return
+//      }
+//    } else {
+//      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.", REDIRECT_RESPONSE)
+//      return
+//    }
+//
+//    if (StringUtils.isEmpty(params.password)) {
+//      invalid("invalidPassword", "You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference.", REDIRECT_RESPONSE);
+//      return
+//    }
+//
+//    // END - backward compatibility
+//
+//    // Do we have a checksum? If none, complain.
+//    if (StringUtils.isEmpty(params.checksum)) {
+//      errors.missingParamError("checksum");
+//    }
 
     Boolean authenticated = false;
 
@@ -273,6 +315,7 @@ class ApiController {
     }
 
     // Do we have a name for the user joining? If none, complain.
+<<<<<<< HEAD
     if (!StringUtils.isEmpty(params.fullName)) {
       if (StringUtils.isEmpty(params.fullName)) {
         errors.missingParamError("fullName");
@@ -292,23 +335,43 @@ class ApiController {
     } else {
       errors.missingParamError("meetingID");
     }
+=======
+//    if (!StringUtils.isEmpty(params.fullName)) {
+//      if (StringUtils.isEmpty(params.fullName)) {
+//        errors.missingParamError("fullName");
+//      }
+//    } else {
+//      errors.missingParamError("fullName");
+//    }
+    String fullName = ParamsUtil.stripHTMLTags(params.fullName)
+//
+//    // Do we have a meeting id? If none, complain.
+//    if (!StringUtils.isEmpty(params.meetingID)) {
+//      params.meetingID = StringUtils.strip(params.meetingID);
+//      if (StringUtils.isEmpty(params.meetingID)) {
+//        errors.missingParamError("meetingID");
+//      }
+//    } else {
+//      errors.missingParamError("meetingID");
+//    }
+>>>>>>> update-api-create-join-validation
     String externalMeetingId = params.meetingID
 
     // Do we have a password? If not, complain.
     String attPW = params.password
-    if (StringUtils.isEmpty(attPW)) {
-      errors.missingParamError("password");
-    }
+//    if (StringUtils.isEmpty(attPW)) {
+//      errors.missingParamError("password");
+//    }
 
     // Do we agree on the checksum? If not, complain.
-    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-      errors.checksumError()
-    }
-
-    if (errors.hasErrors()) {
-      respondWithErrors(errors, REDIRECT_RESPONSE)
-      return
-    }
+//    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+//      errors.checksumError()
+//    }
+//
+//    if (errors.hasErrors()) {
+//      respondWithErrors(errors, REDIRECT_RESPONSE)
+//      return
+//    }
 
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
     // we can't find the meeting, complain.
@@ -1667,6 +1730,7 @@ class ApiController {
     return us
   }
 
+  // Can be removed. Input sanitization is performed in the ValidatorService.
   private def sanitizeInput (input) {
     if(input == null)
       return
