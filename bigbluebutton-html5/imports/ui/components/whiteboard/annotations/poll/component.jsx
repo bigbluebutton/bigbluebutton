@@ -16,6 +16,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const MAX_DISPLAYED_CHARS = 15;
+
 class PollDrawComponent extends Component {
   constructor(props) {
     super(props);
@@ -211,7 +213,7 @@ class PollDrawComponent extends Component {
 
     // if (!state.initialState) return;
     const { annotation } = this.props;
-    const { points, result } = annotation;
+    const { points, result, pollType } = annotation;
     const { slideWidth, slideHeight, intl } = this.props;
 
     // group duplicated responses and keep track of the number of removed items
@@ -251,32 +253,29 @@ class PollDrawComponent extends Component {
     // adding value of the iterator to each line needed to create unique
     // keys while rendering at the end
     const arrayLength = reducedResult.length;
+    const { pollAnswerIds } = PollService;
+    const isDefaultPoll = PollService.isDefaultPoll(pollType);
     for (let i = 0; i < arrayLength; i += 1) {
       const _tempArray = [];
       const _result = reducedResult[i];
-      let isDefaultPoll;
-      switch (_result.key.toLowerCase()) {
-        case 'true':
-        case 'false':
-        case 'yes':
-        case 'no':
-        case 'abstention':
-        case 'a':
-        case 'b':
-        case 'c':
-        case 'd':
-        case 'e':
-          isDefaultPoll = true;
-          break;
-        default:
-          isDefaultPoll = false;
-          break;
-      }
 
       if (isDefaultPoll) {
-        _result.key = intl.formatMessage({ id: `app.poll.answer.${_result.key.toLowerCase()}` });
+        _result.key = intl.formatMessage(pollAnswerIds[_result.key.toLowerCase()]);
       }
 
+      if (_result.key.length > MAX_DISPLAYED_CHARS) {
+        // find closest end of word
+        const before = _result.key.lastIndexOf(' ', MAX_DISPLAYED_CHARS);
+        const after = _result.key.indexOf(' ', MAX_DISPLAYED_CHARS + 1);
+
+        const breakpoint = (MAX_DISPLAYED_CHARS - before < after - MAX_DISPLAYED_CHARS) ? before : after;
+
+        if (breakpoint === -1) {
+          _result.key = `${_result.key.substr(0, MAX_DISPLAYED_CHARS)}...`;
+        } else {
+          _result.key = `${_result.key.substr(0, breakpoint)}...`;
+        }
+      }
       _tempArray.push(_result.key, `${_result.numVotes}`);
       if (votesTotal === 0) {
         _tempArray.push('0%');
@@ -299,13 +298,12 @@ class PollDrawComponent extends Component {
 
     // calculating the maximum possible width and height of the each line
     // 25% of the height goes to the padding
-    const maxLineWidth = innerWidth / 3;
+    const maxLineWidth = innerWidth / 2;
     const maxLineHeight = (innerHeight * 0.75) / textArray.length;
 
     const lineToMeasure = textArray[0];
-    const { pollAnswerIds } = PollService;
     const messageIndex = lineToMeasure[0].toLowerCase();
-    if (pollAnswerIds[messageIndex]) {
+    if (isDefaultPoll && pollAnswerIds[messageIndex]) {
       lineToMeasure[0] = intl.formatMessage(pollAnswerIds[messageIndex]);
     }
 
@@ -405,7 +403,8 @@ class PollDrawComponent extends Component {
 
       let label = textArray[i][0];
       const formattedMessageIndex = label.toLowerCase();
-      if (pollAnswerIds[formattedMessageIndex]) {
+      const isDefaultPoll = PollService.isDefaultPoll(annotation.pollType);
+      if (isDefaultPoll && pollAnswerIds[formattedMessageIndex]) {
         label = intl.formatMessage(pollAnswerIds[formattedMessageIndex]);
       }
 

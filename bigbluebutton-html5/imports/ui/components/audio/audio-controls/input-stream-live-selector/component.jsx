@@ -6,12 +6,6 @@ import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
 import ButtonEmoji from '/imports/ui/components/button/button-emoji/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
-import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
-import DropdownContent from '/imports/ui/components/dropdown/content/component';
-import DropdownList from '/imports/ui/components/dropdown/list/component';
-import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
-import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-import DropdownListTitle from '/imports/ui/components/dropdown/list/title/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import cx from 'classnames';
 
@@ -224,14 +218,14 @@ class InputStreamLiveSelector extends Component {
     const listLenght = list ? list.length : -1;
 
     const listTitle = [
-      <DropdownListTitle key={`audioDeviceList-${deviceKind}`}>
+      <Dropdown.DropdownListTitle key={`audioDeviceList-${deviceKind}`}>
         {title}
-      </DropdownListTitle>,
+      </Dropdown.DropdownListTitle>,
     ];
 
     const deviceList = (listLenght > 0)
       ? list.map((device) => (
-        <DropdownListItem
+        <Dropdown.DropdownListItem
           key={`${device.deviceId}-${deviceKind}`}
           label={InputStreamLiveSelector.truncateDeviceName(device.label)}
           onClick={() => this.onDeviceListClick(device.deviceId, deviceKind,
@@ -241,7 +235,7 @@ class InputStreamLiveSelector extends Component {
         />
       ))
       : [
-        <DropdownListItem
+        <Dropdown.DropdownListItem
           key={`noDeviceFoundKey-${deviceKind}-`}
           className={styles.disableDeviceSelection}
           label={
@@ -253,7 +247,7 @@ class InputStreamLiveSelector extends Component {
       ];
 
     const listSeparator = [
-      <DropdownListSeparator key={`audioDeviceListSeparator-${deviceKind}`} />,
+      <Dropdown.DropdownListSeparator key={`audioDeviceListSeparator-${deviceKind}`} />,
     ];
 
     return listTitle.concat(deviceList).concat(
@@ -302,7 +296,7 @@ class InputStreamLiveSelector extends Component {
 
     return (
       <Dropdown>
-        <DropdownTrigger>
+        <Dropdown.DropdownTrigger>
           <Button
             aria-label={intl.formatMessage(intlMessages.leaveAudio)}
             label={intl.formatMessage(intlMessages.leaveAudio)}
@@ -319,12 +313,12 @@ class InputStreamLiveSelector extends Component {
               label={intl.formatMessage(intlMessages.changeAudioDevice)}
             />
           </Button>
-        </DropdownTrigger>
-        <DropdownContent className={styles.dropdownContent}>
-          <DropdownList className={cx(styles.scrollableList, styles.dropdownListContainer)}>
+        </Dropdown.DropdownTrigger>
+        <Dropdown.DropdownContent className={styles.dropdownContent}>
+          <Dropdown.DropdownList className={cx(styles.scrollableList, styles.dropdownListContainer)}>
             {dropdownListComplete}
-          </DropdownList>
-        </DropdownContent>
+          </Dropdown.DropdownList>
+        </Dropdown.DropdownContent>
       </Dropdown>
     );
   }

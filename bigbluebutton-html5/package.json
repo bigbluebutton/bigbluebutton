@@ -11,7 +11,8 @@
     "test:recording": "export WITH_RECORD=true;export REGRESSION_TESTING=false;env $(cat tests/puppeteer/.env | xargs)  jest all.test.js --color --detectOpenHandles --forceExit",
     "test-visual-regression": "export REGRESSION_TESTING=true;env $(cat tests/puppeteer/.env | xargs)  jest all.test.js --color --detectOpenHandles --forceExit",
     "test-visual-regression:recording": "export WITH_RECORD=true;export REGRESSION_TESTING=true;env $(cat tests/puppeteer/.env | xargs)  jest all.test.js --color --detectOpenHandles --forceExit",
-    "lint": "eslint . --ext .jsx,.js"
+    "lint": "eslint . --ext .jsx,.js",
+    "preinstall": "npx npm-force-resolutions"
   },
   "meteor": {
     "mainModule": {
@@ -21,18 +22,15 @@
     }
   },
   "lint-staged": {
-    "linters": {
-      "*.{js,jsx}": [
-        "eslint --fix",
-        "git add"
-      ]
-    }
+    "*.{js,jsx}": [
+      "eslint --fix"
+    ]
   },
   "dependencies": {
     "@babel/runtime": "^7.13.10",
     "@browser-bunyan/server-stream": "^1.6.1",
     "@jitsi/sdp-interop": "0.1.14",
-    "autoprefixer": "~9.3.1",
+    "autoprefixer": "^10.2.5",
     "axios": "^0.21.1",
     "babel-runtime": "~6.26.0",
     "bowser": "^2.11.0",
@@ -50,10 +48,11 @@
     "lodash": "^4.17.21",
     "makeup-screenreader-trap": "0.0.5",
     "meteor-node-stubs": "^1.0.3",
-    "node-sass": "^4.14.1",
-    "postcss-nested": "4.2.3",
+    "node-sass": "^6.0.0",
+    "postcss-nested": "^5.0.5",
     "probe-image-size": "^4.1.1",
     "prop-types": "^15.7.2",
+    "queue": "^6.0.2",
     "re-resizable": "^4.11.0",
     "react": "^16.14.0",
     "react-autosize-textarea": "^5.0.1",
@@ -72,7 +71,7 @@
     "react-transition-group": "^2.9.0",
     "react-virtualized": "^9.22.3",
     "reconnecting-websocket": "~v4.1.10",
-    "redis": "~2.8.0",
+    "redis": "^3.1.2",
     "sanitize-html": "2.3.3",
     "sdp-transform": "2.7.0",
     "string-hash": "~1.1.3",
@@ -95,13 +94,17 @@
     "husky": "^1.3.1",
     "jest": "^26.6.3",
     "jest-image-snapshot": "^4.4.0",
-    "lint-staged": "8.1.3",
-    "postcss-modules-extract-imports": "2.0.0",
+    "lint-staged": "11.0.0",
+    "postcss": "^8.2.15",
+    "postcss-modules-extract-imports": "^3.0.0",
     "postcss-modules-local-by-default": "1.2.0",
     "postcss-modules-scope": "1.1.0",
     "postcss-modules-values": "1.3.0",
     "puppeteer": "3.0.0",
     "sha1": "^1.1.1"
+  },
+  "resolutions": {
+    "trim-newlines": "^4.0.1"
   },
   "cssModules": {
     "cssClassNamingConvention": {
@@ -111,11 +114,9 @@
       "scss"
     ],
     "postcssPlugins": {
-      "postcss-nested": {},
       "postcss-modules-local-by-default": {},
       "postcss-modules-extract-imports": {},
-      "postcss-modules-scope": {},
-      "autoprefixer": {}
+      "postcss-modules-scope": {}
     }
   },
   "repository": {

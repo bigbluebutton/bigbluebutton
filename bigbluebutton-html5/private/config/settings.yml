@@ -28,7 +28,7 @@ public:
     #
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
-    bbbServerVersion: 2.3
+    bbbServerVersion: 2.4
     copyright: '©2021 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
@@ -40,8 +40,8 @@ public:
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
     allowDefaultLogoutUrl: true
     allowUserLookup: false
+    dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
-    enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
     enableTalkingIndicator: true
@@ -51,6 +51,7 @@ public:
     allowLogout: true
     allowFullscreen: true
     preloadNextSlides: 2
+    warnAboutUnsavedContentOnMeetingEnd: false
     mutedAlert:
       enabled: true
       interval: 200
@@ -68,6 +69,15 @@ public:
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
     customHeartbeat: false
     showAllAvailableLocales: true
+    # Show "Audio Filters for Microphone" option in settings menu.
+    # When set to true, users are able to enable/disable microphone constraints,
+    # otherwise default values for 'microphoneConstraints' option
+    # are used.
+    # For more info, see 'microphoneConstraints' option in this config.
+    # If not set, default value is true.
+    showAudioFilters: true
+    raiseHandActionButton:
+      enabled: true
     defaultSettings:
       application:
         animations: true
@@ -80,6 +90,8 @@ public:
         guestWaitingAudioAlerts: true
         guestWaitingPushAlerts: true
         paginationEnabled: true
+        pushLayoutToEveryone: false
+        selectedLayout: 'legacy'
         # fallbackLocale: if the locale the client is loaded in does not have a
         # translation a string, it will use the translation from the locale
         # specified in fallbackLocale. Note that fallbackLocale should be a
@@ -160,9 +172,6 @@ public:
       - warning
   externalVideoPlayer:
     enabled: true
-  networkMonitoring:
-    enableNetworkMonitoring: false
-    packetLostThreshold: 10
   kurento:
     wsUrl: HOST
     # Valid for video-provider. Time (ms) before its WS connection times out
@@ -368,9 +377,10 @@ public:
     toggleSelfVoice: false
   poll:
     enabled: true
-    max_custom: 5
+    maxCustom: 5
     allowDragAndDropFile: false
     maxTypedAnswerLength: 45
+    chatMessage: true
   captions:
     enabled: true
     enableDictation: false
@@ -385,6 +395,7 @@ public:
     enabled: true
     itemsPerPage: 100
     timeBetweenFetchs: 1000
+    enableSaveAndCopyPublicChat: true
     bufferChatInsertsMs: 0
     startClosed: false
     min_message_length: 1
@@ -405,6 +416,7 @@ public:
       chat_poll_result: PUBLIC_CHAT_POLL_RESULT
     typingIndicator:
       enabled: true
+    moderatorChatEmphasized: true
   note:
     enabled: true
     url: ETHERPAD_HOST
@@ -521,6 +533,7 @@ public:
       moderator: false
       mobile: true
       guest: true
+      sharingWebcam: true
   whiteboard:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150

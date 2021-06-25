@@ -21,7 +21,10 @@ import {
   POLL_MAX_WIDTH,
   NOTE_MIN_WIDTH,
   NOTE_MAX_WIDTH,
+  BREAKOUT_MIN_WIDTH,
+  BREAKOUT_MAX_WIDTH,
 } from '/imports/ui/components/layout/layout-manager/component';
+import { PANELS } from '../layout/enums';
 
 const intlMessages = defineMessages({
   chatLabel: {
@@ -47,7 +50,7 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   enableResize: PropTypes.bool.isRequired,
-  openPanel: PropTypes.string.isRequired,
+  // openPanel: PropTypes.string.isRequired,
 };
 
 const DEFAULT_PANEL_WIDTH = 340;
@@ -78,16 +81,12 @@ class PanelManager extends Component {
     this.waitingUsers = _.uniqueId('waitingUsers-');
 
     const { layoutContextState } = props;
-    const { userListSize, chatSize } = layoutContextState;
+    const { userListSize, secondPanelSize } = layoutContextState;
 
     this.state = {
       userlistWidth: userListSize.width,
-      chatWidth: chatSize.width,
-      noteWidth: DEFAULT_PANEL_WIDTH,
-      captionsWidth: DEFAULT_PANEL_WIDTH,
-      pollWidth: DEFAULT_PANEL_WIDTH,
-      waitingWidth: DEFAULT_PANEL_WIDTH,
-      breakoutRoomWidth: 0,
+      secondPanelWidth: secondPanelSize.width,
+      breakoutRoomWidth: DEFAULT_PANEL_WIDTH,
     };
 
     this.setUserListWidth = this.setUserListWidth.bind(this);
@@ -96,55 +95,25 @@ class PanelManager extends Component {
   componentDidUpdate(prevProps) {
     const {
       userlistWidth,
-      chatWidth,
-      noteWidth,
-      captionsWidth,
-      pollWidth,
-      waitingWidth,
-      breakoutRoomWidth,
+      secondPanelWidth,
     } = this.state;
     const { layoutContextState } = this.props;
     const {
       userListSize,
-      chatSize,
-      noteSize,
-      captionsSize,
-      pollSize,
-      waitingSize,
-      breakoutRoomSize,
+      secondPanelSize,
     } = layoutContextState;
     const { layoutContextState: oldLayoutContextState } = prevProps;
     const {
       userListSize: oldUserListSize,
-      chatSize: oldChatSize,
-      noteSize: oldNoteSize,
-      captionsSize: oldCaptionsSize,
-      pollSize: oldPollSize,
-      waitingSize: oldWaitingSize,
-      breakoutRoomSize: oldBreakoutRoomSize,
+      secondPanelSize: oldSecondPanelSize,
     } = oldLayoutContextState;
 
     if (userListSize.width !== oldUserListSize.width && userListSize.width !== userlistWidth) {
       this.setUserListWidth(userListSize.width);
     }
-    if (chatSize.width !== oldChatSize.width && chatSize.width !== chatWidth) {
-      this.setChatWidth(chatSize.width);
-    }
-    if (noteSize.width !== oldNoteSize.width && noteSize.width !== noteWidth) {
-      this.setNoteWidth(noteSize.width);
-    }
-    if (captionsSize.width !== oldCaptionsSize.width && captionsSize.width !== captionsWidth) {
-      this.setCaptionsWidth(captionsSize.width);
-    }
-    if (pollSize.width !== oldPollSize.width && pollSize.width !== pollWidth) {
-      this.setPollWidth(pollSize.width);
-    }
-    if (waitingSize.width !== oldWaitingSize.width && waitingSize.width !== waitingWidth) {
-      this.setWaitingWidth(waitingSize.width);
-    }
-    if (breakoutRoomSize.width !== oldBreakoutRoomSize.width
-      && breakoutRoomSize.width !== breakoutRoomWidth) {
-      this.setBreakoutRoomWidth(breakoutRoomSize.width);
+    if (secondPanelSize.width !== oldSecondPanelSize.width
+      && secondPanelSize.width !== secondPanelWidth) {
+      this.setSecondPanelWidth(secondPanelSize.width);
     }
   }
 
@@ -152,28 +121,8 @@ class PanelManager extends Component {
     this.setState({ userlistWidth });
   }
 
-  setChatWidth(chatWidth) {
-    this.setState({ chatWidth });
-  }
-
-  setNoteWidth(noteWidth) {
-    this.setState({ noteWidth });
-  }
-
-  setCaptionsWidth(captionsWidth) {
-    this.setState({ captionsWidth });
-  }
-
-  setPollWidth(pollWidth) {
-    this.setState({ pollWidth });
-  }
-
-  setWaitingWidth(waitingWidth) {
-    this.setState({ waitingWidth });
-  }
-
-  setBreakoutRoomWidth(breakoutRoomWidth) {
-    this.setState({ breakoutRoomWidth });
+  setSecondPanelWidth(secondPanelWidth) {
+    this.setState({ secondPanelWidth });
   }
 
   userListResizeStop(addvalue) {
@@ -190,112 +139,124 @@ class PanelManager extends Component {
         },
       },
     );
-
-    window.dispatchEvent(new Event('panelChanged'));
   }
 
   chatResizeStop(addvalue) {
-    const { chatWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     const { layoutContextDispatch } = this.props;
 
-    this.setChatWidth(chatWidth + addvalue);
+    const newSecondPanelWidth = secondPanelWidth + addvalue;
+    this.setSecondPanelWidth(newSecondPanelWidth);
 
     layoutContextDispatch(
       {
-        type: 'setChatSize',
+        type: 'setSecondPanelSize',
         value: {
-          width: chatWidth + addvalue,
+          width: newSecondPanelWidth,
         },
       },
     );
-
-    window.dispatchEvent(new Event('panelChanged'));
   }
 
   noteResizeStop(addvalue) {
-    const { noteWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     const { layoutContextDispatch } = this.props;
 
-    this.setNoteWidth(noteWidth + addvalue);
+    // this.setNoteWidth(noteWidth + addvalue);
+    const newSecondPanelWidth = secondPanelWidth + addvalue;
+    this.setSecondPanelWidth(newSecondPanelWidth);
 
     layoutContextDispatch(
       {
         type: 'setNoteSize',
         value: {
-          width: noteWidth + addvalue,
+          width: newSecondPanelWidth,
         },
       },
     );
-
-    window.dispatchEvent(new Event('panelChanged'));
   }
 
   captionsResizeStop(addvalue) {
-    const { captionsWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     const { layoutContextDispatch } = this.props;
 
-    this.setCaptionsWidth(captionsWidth + addvalue);
+    const newSecondPanelWidth = secondPanelWidth + addvalue;
+    this.setSecondPanelWidth(newSecondPanelWidth);
 
     layoutContextDispatch(
       {
         type: 'setCaptionsSize',
         value: {
-          width: captionsWidth + addvalue,
+          width: newSecondPanelWidth,
         },
       },
     );
-
-    window.dispatchEvent(new Event('panelChanged'));
   }
 
   pollResizeStop(addvalue) {
-    const { pollWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     const { layoutContextDispatch } = this.props;
 
-    this.setPollWidth(pollWidth + addvalue);
+    const newSecondPanelWidth = secondPanelWidth + addvalue;
+    this.setSecondPanelWidth(newSecondPanelWidth);
 
     layoutContextDispatch(
       {
         type: 'setPollSize',
         value: {
-          width: pollWidth + addvalue,
+          width: newSecondPanelWidth,
         },
       },
     );
-
-    window.dispatchEvent(new Event('panelChanged'));
   }
 
   waitingResizeStop(addvalue) {
-    const { waitingWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     const { layoutContextDispatch } = this.props;
 
-    this.setWaitingWidth(waitingWidth + addvalue);
+    const newSecondPanelWidth = secondPanelWidth + addvalue;
+    this.setSecondPanelWidth(newSecondPanelWidth);
 
     layoutContextDispatch(
       {
         type: 'setWaitingUsersPanelSize',
         value: {
-          width: waitingWidth + addvalue,
+          width: newSecondPanelWidth,
         },
       },
     );
+  }
 
-    window.dispatchEvent(new Event('panelChanged'));
+  breakoutResizeStop(addvalue) {
+    const { breakoutRoomWidth } = this.state;
+    const { layoutContextDispatch } = this.props;
+
+    this.setBreakoutRoomWidth(breakoutRoomWidth + addvalue);
+
+    layoutContextDispatch(
+      {
+        type: 'setBreakoutRoomSize',
+        value: {
+          width: breakoutRoomWidth + addvalue,
+        },
+      },
+    );
   }
 
   renderUserList() {
     const {
       intl,
       enableResize,
-      openPanel,
+      // openPanel,
       shouldAriaHide,
     } = this.props;
 
-    const ariaHidden = shouldAriaHide() && openPanel !== 'userlist';
+    // TODO Verify this condition
+    const ariaHidden = shouldAriaHide(); // && openPanel !== 'userlist';
 
     return (
       <div
+        data-test="userListPanel"
         className={styles.userList}
         aria-label={intl.formatMessage(intlMessages.userListLabel)}
         key={enableResize ? null : this.userlistKey}
@@ -344,6 +305,7 @@ class PanelManager extends Component {
     return (
       <section
         id="chatPanel"
+        data-test="chatPanel"
         className={styles.chat}
         aria-label={intl.formatMessage(intlMessages.chatLabel)}
         key={enableResize ? null : this.chatKey}
@@ -354,7 +316,7 @@ class PanelManager extends Component {
   }
 
   renderChatResizable() {
-    const { chatWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     const { isRTL } = this.props;
 
     const resizableEnableOptions = {
@@ -375,7 +337,7 @@ class PanelManager extends Component {
         ref={(node) => { this.resizableChat = node; }}
         enable={resizableEnableOptions}
         key={this.chatKey}
-        size={{ width: chatWidth }}
+        size={{ width: secondPanelWidth }}
         onResizeStop={(e, direction, ref, d) => {
           this.chatResizeStop(d.width);
         }}
@@ -401,7 +363,7 @@ class PanelManager extends Component {
   }
 
   renderNoteResizable() {
-    const { noteWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     const { isRTL } = this.props;
 
     const resizableEnableOptions = {
@@ -422,7 +384,7 @@ class PanelManager extends Component {
         ref={(node) => { this.resizableNote = node; }}
         enable={resizableEnableOptions}
         key={this.noteKey}
-        size={{ width: noteWidth }}
+        size={{ width: secondPanelWidth }}
         onResizeStop={(e, direction, ref, d) => {
           this.noteResizeStop(d.width);
         }}
@@ -448,7 +410,7 @@ class PanelManager extends Component {
   }
 
   renderCaptionsResizable() {
-    const { captionsWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     const { isRTL } = this.props;
 
     const resizableEnableOptions = {
@@ -469,9 +431,9 @@ class PanelManager extends Component {
         ref={(node) => { this.resizableCaptions = node; }}
         enable={resizableEnableOptions}
         key={this.captionsKey}
-        size={{ width: captionsWidth }}
+        size={{ width: secondPanelWidth }}
         onResizeStop={(e, direction, ref, d) => {
-          this.captionsResizeStop(d.width);
+          this.captionsResizeStop(secondPanelWidth + d.width);
         }}
       >
         {this.renderCaptions()}
@@ -495,7 +457,7 @@ class PanelManager extends Component {
   }
 
   renderWaitingUsersPanelResizable() {
-    const { waitingWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     const { isRTL } = this.props;
 
     const resizableEnableOptions = {
@@ -516,9 +478,9 @@ class PanelManager extends Component {
         ref={(node) => { this.resizableWaitingUsersPanel = node; }}
         enable={resizableEnableOptions}
         key={this.waitingUsers}
-        size={{ width: waitingWidth }}
+        size={{ width: secondPanelWidth }}
         onResizeStop={(e, direction, ref, d) => {
-          this.waitingResizeStop(d.width);
+          this.waitingResizeStop(secondPanelWidth + d.width);
         }}
       >
         {this.renderWaitingUsersPanel()}
@@ -527,18 +489,52 @@ class PanelManager extends Component {
   }
 
   renderBreakoutRoom() {
-    const { breakoutRoomWidth } = this.state;
+    const { secondPanelWidth } = this.state;
+    const { enableResize } = this.props;
+
     return (
       <div
         id="breakoutroomPanel"
         className={styles.breakoutRoom}
-        key={this.breakoutroomKey}
         style={{
-          width: breakoutRoomWidth,
+          width: secondPanelWidth,
         }}
+        key={enableResize ? null : this.breakoutroomKey}
       >
         <BreakoutRoomContainer />
       </div>
+    );
+  }
+
+  renderBreakoutRoomResizable() {
+    const { secondPanelWidth } = this.state;
+    const { isRTL } = this.props;
+
+    const resizableEnableOptions = {
+      top: false,
+      right: !isRTL,
+      bottom: false,
+      left: !!isRTL,
+      topRight: false,
+      bottomRight: false,
+      bottomLeft: false,
+      topLeft: false,
+    };
+
+    return (
+      <Resizable
+        minWidth={BREAKOUT_MIN_WIDTH}
+        maxWidth={BREAKOUT_MAX_WIDTH}
+        ref={(node) => { this.resizableBreakout = node; }}
+        enable={resizableEnableOptions}
+        key={this.breakoutroomKey}
+        size={{ width: secondPanelWidth }}
+        onResizeStop={(e, direction, ref, d) => {
+          this.breakoutResizeStop(d.width);
+        }}
+      >
+        {this.renderBreakoutRoom()}
+      </Resizable>
     );
   }
 
@@ -551,7 +547,7 @@ class PanelManager extends Component {
   }
 
   renderPollResizable() {
-    const { pollWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     const { isRTL } = this.props;
 
     const resizableEnableOptions = {
@@ -572,9 +568,10 @@ class PanelManager extends Component {
         ref={(node) => { this.resizablePoll = node; }}
         enable={resizableEnableOptions}
         key={this.pollKey}
-        size={{ width: pollWidth }}
+        size={{ width: secondPanelWidth }}
         onResizeStop={(e, direction, ref, d) => {
-          this.pollResizeStop(d.width);
+          // window.dispatchEvent(new Event('resize'));
+          this.pollResizeStop(secondPanelWidth + d.width);
         }}
       >
         {this.renderPoll()}
@@ -583,20 +580,28 @@ class PanelManager extends Component {
   }
 
   render() {
-    const { enableResize, openPanel } = this.props;
-    if (openPanel === '') return null;
+    const {
+      enableResize,
+      sidebarNavPanel,
+      sidebarNavigationIsOpen,
+      sidebarContentPanel,
+      sidebarContentIsOpen,
+    } = this.props;
+    if (!sidebarNavigationIsOpen && !sidebarContentIsOpen) return null;
     const panels = [];
 
-    if (enableResize) {
-      panels.push(
-        this.renderUserListResizable(),
-        <div className={styles.userlistPad} key={this.padKey} />,
-      );
-    } else {
-      panels.push(this.renderUserList());
+    if (sidebarNavPanel === PANELS.USERLIST) {
+      if (enableResize) {
+        panels.push(
+          this.renderUserListResizable(),
+          <div className={styles.userlistPad} key={this.padKey} />,
+        );
+      } else {
+        panels.push(this.renderUserList());
+      }
     }
 
-    if (openPanel === 'chat') {
+    if (sidebarContentPanel === PANELS.CHAT) {
       if (enableResize) {
         panels.push(this.renderChatResizable());
       } else {
@@ -604,7 +609,7 @@ class PanelManager extends Component {
       }
     }
 
-    if (openPanel === 'note') {
+    if (sidebarContentPanel === PANELS.SHARED_NOTES) {
       if (enableResize) {
         panels.push(this.renderNoteResizable());
       } else {
@@ -612,7 +617,7 @@ class PanelManager extends Component {
       }
     }
 
-    if (openPanel === 'captions') {
+    if (sidebarContentPanel === PANELS.CAPTIONS) {
       if (enableResize) {
         panels.push(this.renderCaptionsResizable());
       } else {
@@ -620,23 +625,22 @@ class PanelManager extends Component {
       }
     }
 
-    if (openPanel === 'poll') {
+    if (sidebarContentPanel === PANELS.POLL) {
       if (enableResize) {
         panels.push(this.renderPollResizable());
       } else {
         panels.push(this.renderPoll());
       }
     }
-
-    if (openPanel === 'breakoutroom') {
+    if (sidebarContentPanel === PANELS.BREAKOUT) {
       if (enableResize) {
-        panels.push(this.renderBreakoutRoom());
+        panels.push(this.renderBreakoutRoomResizable());
       } else {
         panels.push(this.renderBreakoutRoom());
       }
     }
 
-    if (openPanel === 'waitingUsersPanel') {
+    if (sidebarContentPanel === PANELS.WAITING_USERS) {
       if (enableResize) {
         panels.push(this.renderWaitingUsersPanelResizable());
       } else {

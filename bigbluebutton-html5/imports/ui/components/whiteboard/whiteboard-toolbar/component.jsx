@@ -521,7 +521,7 @@ class WhiteboardToolbar extends Component {
                 customIcon={false}
                 label="Annotations"
                 onItemClick={this.handleAnnotationChange}
-                objectsToRender={panMode ? annotations[annotations.length - 1] : annotations}
+                objectsToRender={annotations}
                 objectSelected={annotationSelected}
                 handleMouseEnter={this.handleMouseEnter}
                 handleMouseLeave={this.handleMouseLeave}

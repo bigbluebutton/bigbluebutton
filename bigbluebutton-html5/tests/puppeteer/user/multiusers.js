@@ -1,13 +1,15 @@
 const Page = require('../core/page');
 const params = require('../params');
 const util = require('../chat/util');
-const utilUser = require('../user/util');
+const utilUser = require('./util');
 const utilCustomParams = require('../customparameters/util');
 const pe = require('../core/elements');
 const ne = require('../notifications/elements');
 const ple = require('../polling/elemens');
 const we = require('../whiteboard/elements');
-const ue = require('../user/elements');
+const ue = require('./elements');
+const cu = require('../customparameters/elements');
+const pre = require('../presentation/elements');
 const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { sleep } = require('../core/helper');
 
@@ -190,17 +192,17 @@ class MultiUsers {
 
   // Get Avatars Colors from Userlist and Notification toast
   async getAvatarColorAndCompareWithUserListItem() {
-    const avatarInToastElementColor = await this.page1.page.$eval(we.avatarsWrapperAvatar, elem => getComputedStyle(elem).backgroundColor);
-    const avatarInUserListColor = await this.page1.page.$eval('[data-test="userListItem"] > div [data-test="userAvatar"]', elem => getComputedStyle(elem).backgroundColor);
+    const avatarInToastElementColor = await this.page1.page.$eval(we.avatarsWrapperAvatar, (elem) => getComputedStyle(elem).backgroundColor);
+    const avatarInUserListColor = await this.page1.page.$eval('[data-test="userListItem"] > div [data-test="userAvatar"]', (elem) => getComputedStyle(elem).backgroundColor);
     return avatarInToastElementColor === avatarInUserListColor;
   }
-
 
   async userOfflineWithInternetProblem() {
     try {
       await this.page1.closeAudioModal();
       await this.page2.closeAudioModal();
       await this.page2.page.evaluate(() => window.dispatchEvent(new CustomEvent('socketstats', { detail: { rtt: 2000 } })));
+      await this.page2.page.setOfflineMode(true);
       await sleep(3000);
       await this.page2.close();
       await sleep(5000);
@@ -209,6 +211,54 @@ class MultiUsers {
       const connectionStatusItemEmpty = await this.page1.page.evaluate(utilUser.countTestElements, ue.connectionStatusItemEmpty) === false;
       const connectionStatusOfflineUser = await this.page1.page.evaluate(utilUser.countTestElements, ue.connectionStatusOfflineUser) === true;
       return connectionStatusOfflineUser && connectionStatusItemEmpty;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+  }
+
+  async userlistNotAppearOnMobile() {
+    try {
+      await this.page1.closeAudioModal();
+      await this.page2.closeAudioModal();
+      const userlistPanel = await this.page1.page.evaluate(utilUser.countTestElements, ue.chatButton) === false;
+      const chatPanel = await this.page2.page.evaluate(utilUser.countTestElements, ue.chatButton) === false;
+      return userlistPanel && chatPanel;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+  }
+
+  async whiteboardNotAppearOnMobile() {
+    try {
+      await this.page1.closeAudioModal();
+      await this.page2.closeAudioModal();
+      await this.page1.click(ue.userListButton, true);
+      await this.page2.click(ue.userListButton, true);
+      await this.page2.click(ue.chatButton, true);
+      const onUserListPanel = await this.page1.isNotVisible(cu.hidePresentation, ELEMENT_WAIT_TIME) === true;
+      const onChatPanel = await this.page2.page.evaluate(utilUser.countTestElements, cu.hidePresentation) === false;
+      console.log({onUserListPanel, onChatPanel});
+      await sleep(2000);
+      return onUserListPanel && onChatPanel;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+  }
+
+  async chatPanelNotAppearOnMobile() {
+    try {
+      await this.page1.closeAudioModal();
+      await this.page2.closeAudioModal();
+      await this.page2.click(ue.userListButton, true);
+      await this.page2.click(ue.chatButton, true);
+      const whiteboard = await this.page1.page.evaluate(utilUser.countTestElements, ue.chatButton) === false;
+      const onChatPanel = await this.page2.isNotVisible(ue.chatButton, ELEMENT_WAIT_TIME) === true;
+      console.log({whiteboard, onChatPanel});
+      await sleep(2000);
+      return whiteboard && onChatPanel;
     } catch (e) {
       console.log(e);
       return false;

@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { Session } from 'meteor/session';
 import Icon from '/imports/ui/components/icon/component';
 import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
+import { ACTIONS, PANELS } from '../../../layout/enums';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -11,20 +11,26 @@ const intlMessages = defineMessages({
     description: 'breakout title',
   },
 });
-const toggleBreakoutPanel = () => {
-  Session.set(
-    'openPanel',
-    Session.get('openPanel') === 'breakoutroom'
-      ? 'userlist'
-      : 'breakoutroom',
-  );
-  window.dispatchEvent(new Event('panelChanged'));
-};
 
 const BreakoutRoomItem = ({
   hasBreakoutRoom,
+  sidebarContentPanel,
+  newLayoutContextDispatch,
   intl,
 }) => {
+  const toggleBreakoutPanel = () => {
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+      value: sidebarContentPanel !== PANELS.BREAKOUT,
+    });
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+      value: sidebarContentPanel === PANELS.BREAKOUT
+        ? PANELS.NONE
+        : PANELS.BREAKOUT,
+    });
+  };
+
   if (hasBreakoutRoom) {
     return (
       <div className={styles.messages}>

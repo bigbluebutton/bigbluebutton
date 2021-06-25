@@ -172,7 +172,7 @@ class Create {
   // Initialize a Moderator session
   async joinWithUser3(testName) {
     if (testName === 'joinBreakoutroomsWithAudio') {
-      await this.page3.init(Page.getArgsWithAudio(), this.page1.meetingId, { ...params, fullName: 'Moderator3' }, undefined, testName);
+      await this.page3.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Moderator3' }, undefined, testName);
       await this.page3.closeAudioModal();
       await this.page3.waitForSelector(be.breakoutRoomsButton, ELEMENT_WAIT_TIME);
       await this.page3.click(be.breakoutRoomsButton, true);
@@ -205,7 +205,7 @@ class Create {
         await page3[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/00-breakout-page03-user-joined-with-mic-before-check-${testName}.png`) });
       }
     } else if (testName === 'joinBreakoutroomsWithVideo') {
-      await this.page3.init(Page.getArgsWithVideo(), this.page1.meetingId, { ...params, fullName: 'Moderator3' }, undefined, testName);
+      await this.page3.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Moderator3' }, undefined, testName);
       await this.page3.closeAudioModal();
       await this.page3.waitForSelector(be.breakoutRoomsButton, ELEMENT_WAIT_TIME);
       await this.page3.click(be.breakoutRoomsButton, true);

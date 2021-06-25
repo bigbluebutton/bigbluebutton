@@ -65,33 +65,31 @@ export default function handleValidateAuthToken({ body }, meetingId) {
     return;
   }
 
-  if (valid) {
-    // Define user ID on connections
-    pendingAuths.forEach(
-      (pendingAuth) => {
-        const { methodInvocationObject } = pendingAuth;
+  // Define user ID on connections
+  pendingAuths.forEach(
+    (pendingAuth) => {
+      const { methodInvocationObject } = pendingAuth;
 
-        /* Logic migrated from validateAuthToken method ( postponed to only run in case of success response ) - Begin */
-        const sessionId = `${meetingId}--${userId}`;
+      /* Logic migrated from validateAuthToken method ( postponed to only run in case of success response ) - Begin */
+      const sessionId = `${meetingId}--${userId}`;
 
-        methodInvocationObject.setUserId(sessionId);
+      methodInvocationObject.setUserId(sessionId);
 
-        const User = Users.findOne({
-          meetingId,
-          userId,
-        });
+      const User = Users.findOne({
+        meetingId,
+        userId,
+      });
 
-        if (!User) {
-          createDummyUser(meetingId, userId, authToken);
-        }
+      if (!User) {
+        createDummyUser(meetingId, userId, authToken);
+      }
 
-        ClientConnections.add(sessionId, methodInvocationObject.connection);
-        upsertValidationState(meetingId, userId, ValidationStates.VALIDATED, methodInvocationObject.connection.id);
+      ClientConnections.add(sessionId, methodInvocationObject.connection);
+      upsertValidationState(meetingId, userId, ValidationStates.VALIDATED, methodInvocationObject.connection.id);
 
-        /* End of logic migrated from validateAuthToken */
-      },
-    );
-  }
+      /* End of logic migrated from validateAuthToken */
+    },
+  );
 
   const selector = {
     meetingId,
@@ -105,7 +103,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
   if (!User) return;
 
   // Publish user join message
-  if (valid && !waitForApproval) {
+  if (!waitForApproval) {
     Logger.info('User=', User);
     userJoin(meetingId, userId, User.authToken);
   }
@@ -124,11 +122,9 @@ export default function handleValidateAuthToken({ body }, meetingId) {
     const numberAffected = Users.update(selector, modifier);
 
     if (numberAffected) {
-      if (valid) {
-        const sessionUserId = `${meetingId}-${userId}`;
-        const currentConnectionId = User.connectionId ? User.connectionId : false;
-        clearOtherSessions(sessionUserId, currentConnectionId);
-      }
+      const sessionUserId = `${meetingId}-${userId}`;
+      const currentConnectionId = User.connectionId ? User.connectionId : false;
+      clearOtherSessions(sessionUserId, currentConnectionId);
 
       Logger.info(`Validated auth token as ${valid} user=${userId} meeting=${meetingId}`);
     } else {

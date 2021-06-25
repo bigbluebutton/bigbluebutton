@@ -69,14 +69,11 @@ const takeOwnership = (locale) => {
   makeCall('takeOwnership', locale);
 };
 
-const formatEntry = (entry) => {
-  const letterIndex = entry.charAt(0) === ' ' ? 1 : 0;
-  const formattedEntry = `${entry.charAt(letterIndex).toUpperCase() + entry.slice(letterIndex + 1)}.\n\n`;
-  return formattedEntry;
-};
-
 const appendText = (text, locale) => {
-  makeCall('appendText', formatEntry(text), locale);
+  if (typeof text !== 'string' || text.length === 0) return;
+
+  const formattedText = `${text.trim().replace(/^\w/, (c) => c.toUpperCase())}\n\n`;
+  makeCall('appendText', formattedText, locale);
 };
 
 const canIOwnThisPad = (ownerId) => {

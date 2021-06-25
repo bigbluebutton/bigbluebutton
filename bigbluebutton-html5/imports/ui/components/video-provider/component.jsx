@@ -280,8 +280,7 @@ class VideoProvider extends Component {
     this.disconnectStreams(streamsToDisconnect);
 
     if (CAMERA_QUALITY_THRESHOLDS_ENABLED) {
-      const floorStream = streams.find(vs => vs.floor === true);
-      this.updateThreshold(this.props.totalNumberOfStreams, floorStream);
+      this.updateThreshold(this.props.totalNumberOfStreams);
     }
   }
 
@@ -564,7 +563,6 @@ class VideoProvider extends Component {
         conn.onconnectionstatechange = () => {
           this._handleIceConnectionStateChange(stream, isLocal);
         };
-        VideoService.monitor(conn);
       }
     }
   }

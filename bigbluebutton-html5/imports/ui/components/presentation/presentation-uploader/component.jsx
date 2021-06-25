@@ -254,6 +254,15 @@ class PresentationUploader extends Component {
   componentDidUpdate(prevProps) {
     const { isOpen, presentations: propPresentations } = this.props;
     const { presentations } = this.state;
+    //Updates presentation list when chat modal opens to avoid missing presentations
+    if (isOpen && !prevProps.isOpen) {
+      this.setState({
+        presentations: Object.values({
+          ...propPresentations,
+          ...presentations,
+        }),
+      });
+    }
 
     // cleared local presetation state errors and set to presentations available on the server
     if (presentations.length === 0 && propPresentations.length > 1) {
@@ -271,7 +280,7 @@ class PresentationUploader extends Component {
     }
 
     if (presentations.length > 0) {
-      const selected = propPresentations.filter(p => p.isCurrent);
+      const selected = propPresentations.filter((p) => p.isCurrent);
       if (selected.length > 0) Session.set('selectedToBeNextCurrent', selected[0].id);
     }
 
@@ -284,6 +293,10 @@ class PresentationUploader extends Component {
         render: this.renderToastList(),
       });
     }
+  }
+
+  componentWillUnmount() {
+    Session.set('showUploadPresentationView', false);
   }
 
   isDefault(presentation) {
@@ -303,8 +316,8 @@ class PresentationUploader extends Component {
     const validExtentions = fileValidMimeTypes.map((fileValid) => fileValid.extension);
     const [accepted, rejected] = _.partition(files
       .concat(files2), (f) => (
-      validMimes.includes(f.type) || validExtentions.includes(`.${f.name.split('.').pop()}`)
-    ));
+        validMimes.includes(f.type) || validExtentions.includes(`.${f.name.split('.').pop()}`)
+      ));
 
     const presentationsToUpload = accepted.map((file) => {
       const id = _.uniqueId(file.name);
@@ -646,7 +659,7 @@ class PresentationUploader extends Component {
     let converted = 0;
 
     let presentationsSorted = presentations
-      .filter(p => (p.upload.progress || p.conversion.status) && p.file)
+      .filter((p) => (p.upload.progress || p.conversion.status) && p.file)
       .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp)
       .sort((a, b) => a.conversion.done - b.conversion.done);
 
@@ -978,8 +991,7 @@ class PresentationUploader extends Component {
                 disabled={disableActions}
                 label={hasNewUpload
                   ? intl.formatMessage(intlMessages.uploadLabel)
-                  : intl.formatMessage(intlMessages.confirmLabel)
-                }
+                  : intl.formatMessage(intlMessages.confirmLabel)}
               />
             </div>
           </div>

@@ -137,7 +137,6 @@
     "app.meeting.ended": "Cette session s'est terminée",
     "app.meeting.meetingTimeRemaining": "Temps de réunion restant : {0}",
     "app.meeting.meetingTimeHasEnded": "Le temps s'est écoulé. La réunion sera bientôt close",
-    "app.meeting.endedByUserMessage": "La réunion a été terminée par {0}",
     "app.meeting.endedMessage": "Vous serez redirigé vers l'écran d'accueil",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "La conférence se fermera dans une minute.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "La conférence se fermera dans {0} minutes.",
@@ -189,7 +188,6 @@
     "app.presentationUploder.currentBadge": "En cours",
     "app.presentationUploder.rejectedError": "Le ou les fichiers sélectionnés ont été rejetés. Veuillez vérifier leurs formats.",
     "app.presentationUploder.upload.progress": "Chargement ({0}%)",
-    "app.presentationUploder.upload.413": "Le fichier est trop volumineux. Veuillez le diviser en plusieurs fichiers.",
     "app.presentationUploder.genericError": "Oups, quelque chose s'est mal passé...",
     "app.presentationUploder.upload.408": "Le jeton de demande de téléversement a expiré.",
     "app.presentationUploder.upload.404": "404 : jeton de téléversement invalide",
@@ -199,10 +197,8 @@
     "app.presentationUploder.conversion.generatingThumbnail": "Génération des vignettes...",
     "app.presentationUploder.conversion.generatedSlides": "Diapositives générées...",
     "app.presentationUploder.conversion.generatingSvg": "Génération des images SVG...",
-    "app.presentationUploder.conversion.pageCountExceeded": "Nombre de pages dépassés. Merci de diviser le fichier en plusieurs fichiers.",
     "app.presentationUploder.conversion.officeDocConversionInvalid": "Échec du traitement du document Office. Veuillez télécharger un PDF à la place.",
     "app.presentationUploder.conversion.officeDocConversionFailed": "Échec du traitement du document office. Veuillez télécharger un PDF à la place.",
-    "app.presentationUploder.conversion.pdfHasBigPage": "Nous n'avons pas pu convertir le fichier PDF, veuillez essayer de l'optimiser",
     "app.presentationUploder.conversion.timeout": "Oups, la conversion a pris trop de temps",
     "app.presentationUploder.conversion.pageCountFailed": "Impossible de déterminer le nombre de pages.",
     "app.presentationUploder.isDownloadableLabel": "Le téléchargement de la présentation n'est pas autorisé - cliquez pour autoriser le téléchargement",
@@ -791,4 +787,3 @@
     "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(il sera désactivé si vous faites glisser ou redimensionnez la zone des webcams)"
 
 }
-

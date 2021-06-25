@@ -2,16 +2,20 @@ import React, { useContext } from 'react';
 import { makeCall } from '/imports/ui/services/api';
 import { withTracker } from 'meteor/react-meteor-data';
 import Presentations from '/imports/api/presentations';
-import PresentationAreaService from '/imports/ui/components/presentation/service';
+import PresentationService from '/imports/ui/components/presentation/service';
 import Poll from '/imports/ui/components/poll/component';
+import { Session } from 'meteor/session';
 import Service from './service';
 import Auth from '/imports/ui/services/auth';
 import { UsersContext } from '../components-data/users-context/context';
+import { NLayoutContext } from '../layout/context/context';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
 const PollContainer = ({ ...props }) => {
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextDispatch } = newLayoutContext;
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
 
@@ -21,7 +25,7 @@ const PollContainer = ({ ...props }) => {
     usernames[user.userId] = { userId: user.userId, name: user.name };
   });
 
-  return <Poll {...props} usernames={usernames} />;
+  return <Poll {...{ newLayoutContextDispatch, ...props }} usernames={usernames} />;
 };
 
 export default withTracker(() => {
@@ -31,13 +35,15 @@ export default withTracker(() => {
     current: true,
   }, { fields: { podId: 1 } }) || {};
 
-  const currentSlide = PresentationAreaService.getCurrentSlide(currentPresentation.podId);
+  const currentSlide = PresentationService.getCurrentSlide(currentPresentation.podId);
 
   const pollId = currentSlide ? currentSlide.id : PUBLIC_CHAT_KEY;
 
-  const startPoll = (type, question = '') => makeCall('startPoll', type, pollId, question);
+  const pollTypes = Service.pollTypes;
 
-  const startCustomPoll = (type, question = '', answers) => makeCall('startPoll', type, pollId, question, answers);
+  const startPoll = (type, secretPoll, question = '') => makeCall('startPoll', pollTypes, type, pollId, secretPoll, question);
+
+  const startCustomPoll = (type, secretPoll, question = '', answers) => makeCall('startPoll', pollTypes, type, pollId, secretPoll, question, answers);
 
   const stopPoll = () => makeCall('stopPoll');
 
@@ -50,6 +56,8 @@ export default withTracker(() => {
     stopPoll,
     publishPoll: Service.publishPoll,
     currentPoll: Service.currentPoll(),
+    isDefaultPoll: Service.isDefaultPoll,
+    checkPollType: Service.checkPollType,
     resetPollPanel: Session.get('resetPollPanel') || false,
     pollAnswerIds: Service.pollAnswerIds,
     isMeteorConnected: Meteor.status().connected,

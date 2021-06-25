@@ -160,12 +160,52 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildStopExternalVideoEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, "nodeJSapp")
+    val envelope = BbbCoreEnvelope(StopExternalVideoEvtMsg.NAME, routing)
+
+    val body = StopExternalVideoEvtMsgBody()
+    val header = BbbClientMsgHeader(StopExternalVideoEvtMsg.NAME, meetingId, "not-used")
+    val event = StopExternalVideoEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildMeetingCreatedEvtMsg(meetingId: String, props: DefaultProps): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(MeetingCreatedEvtMsg.NAME, routing)
     val header = BbbCoreBaseHeader(MeetingCreatedEvtMsg.NAME)
     val body = MeetingCreatedEvtBody(props)
     val event = MeetingCreatedEvtMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildMeetingInfoAnalyticsMsg(analytics: MeetingInfoAnalytics): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(MeetingInfoAnalyticsMsg.NAME, routing)
+    val header = BbbCoreBaseHeader(MeetingInfoAnalyticsMsg.NAME)
+    val body = MeetingInfoAnalyticsMsgBody(analytics)
+    val event = MeetingInfoAnalyticsMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildMeetingInfoAnalyticsServiceMsg(analytics: MeetingInfoAnalytics): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(MeetingInfoAnalyticsServiceMsg.NAME, routing)
+    val header = BbbCoreBaseHeader(MeetingInfoAnalyticsServiceMsg.NAME)
+    val body = MeetingInfoAnalyticsMsgBody(analytics)
+    val event = MeetingInfoAnalyticsServiceMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildCamStreamSubscribeSysMsg(meetingId: String, userId: String, streamId: String, sfuSessionId: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(CamStreamSubscribeSysMsg.NAME, routing)
+    val header = BbbCoreBaseHeader(CamStreamSubscribeSysMsg.NAME)
+    val body = CamStreamSubscribeSysMsgBody(meetingId, userId, streamId, sfuSessionId)
+    val event = CamStreamSubscribeSysMsg(header, body)
+
     BbbCommonEnvCoreMsg(envelope, event)
   }
 

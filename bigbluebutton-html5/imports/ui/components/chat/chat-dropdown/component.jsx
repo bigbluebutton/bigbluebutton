@@ -4,10 +4,6 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import Clipboard from 'clipboard';
 import _ from 'lodash';
 import Dropdown from '/imports/ui/components/dropdown/component';
-import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
-import DropdownContent from '/imports/ui/components/dropdown/content/component';
-import DropdownList from '/imports/ui/components/dropdown/list/component';
-import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import Button from '/imports/ui/components/button/component';
 
 import ChatService from '../service';
@@ -30,6 +26,9 @@ const intlMessages = defineMessages({
     description: 'Chat Options',
   },
 });
+
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const ENABLE_SAVE_AND_COPY_PUBLIC_CHAT = CHAT_CONFIG.enableSaveAndCopyPublicChat;
 
 class ChatDropdown extends PureComponent {
   constructor(props) {
@@ -82,14 +81,22 @@ class ChatDropdown extends PureComponent {
 
   getAvailableActions() {
     const {
-      intl, isMeteorConnected, amIModerator, meetingIsBreakout, meetingName, timeWindowsValues, users,
+      intl,
+      isMeteorConnected,
+      amIModerator,
+      meetingIsBreakout,
+      meetingName,
+      timeWindowsValues,
+      users,
     } = this.props;
 
     const clearIcon = 'delete';
     const saveIcon = 'download';
     const copyIcon = 'copy';
     return _.compact([
-      <DropdownListItem
+      ENABLE_SAVE_AND_COPY_PUBLIC_CHAT
+      && (
+      <Dropdown.DropdownListItem
         data-test="chatSave"
         icon={saveIcon}
         label={intl.formatMessage(intlMessages.save)}
@@ -103,21 +110,25 @@ class ChatDropdown extends PureComponent {
           link.setAttribute('download', `bbb-${meetingName}[public-chat]_${dateString}.txt`);
           link.setAttribute(
             'href',
-            `data: ${mimeType} ;charset=utf-8,
-            ${encodeURIComponent(ChatService.exportChat(timeWindowsValues, users, intl))}`,
+            `data: ${mimeType} ;charset=utf-8,`
+            + `${encodeURIComponent(ChatService.exportChat(timeWindowsValues, users, intl))}`,
           );
           link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
         }}
-      />,
-      <DropdownListItem
+      />
+      ),
+      ENABLE_SAVE_AND_COPY_PUBLIC_CHAT
+      && (
+      <Dropdown.DropdownListItem
         data-test="chatCopy"
         icon={copyIcon}
         id="clipboardButton"
         label={intl.formatMessage(intlMessages.copy)}
         key={this.actionsKey[1]}
-      />,
+      />
+      ),
       !meetingIsBreakout && amIModerator && isMeteorConnected ? (
-        <DropdownListItem
+        <Dropdown.DropdownListItem
           data-test="chatClear"
           icon={clearIcon}
           label={intl.formatMessage(intlMessages.clear)}
@@ -129,18 +140,21 @@ class ChatDropdown extends PureComponent {
   }
 
   render() {
-    const { intl } = this.props;
+    const {
+      intl,
+      amIModerator,
+    } = this.props;
     const { isSettingOpen } = this.state;
 
     const availableActions = this.getAvailableActions();
-
+    if (!amIModerator && !ENABLE_SAVE_AND_COPY_PUBLIC_CHAT) return null;
     return (
       <Dropdown
         isOpen={isSettingOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
       >
-        <DropdownTrigger tabIndex={0}>
+        <Dropdown.DropdownTrigger tabIndex={0}>
           <Button
             data-test="chatDropdownTrigger"
             icon="more"
@@ -153,10 +167,10 @@ class ChatDropdown extends PureComponent {
             aria-label={intl.formatMessage(intlMessages.options)}
             onClick={() => null}
           />
-        </DropdownTrigger>
-        <DropdownContent placement="bottom right">
-          <DropdownList>{availableActions}</DropdownList>
-        </DropdownContent>
+        </Dropdown.DropdownTrigger>
+        <Dropdown.DropdownContent placement="bottom right">
+          <Dropdown.DropdownList>{availableActions}</Dropdown.DropdownList>
+        </Dropdown.DropdownContent>
       </Dropdown>
     );
   }

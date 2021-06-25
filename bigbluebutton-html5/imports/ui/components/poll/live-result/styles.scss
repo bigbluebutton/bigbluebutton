@@ -167,6 +167,8 @@
 
 .title {
   font-weight: bold;
+  word-break: break-all;
+  white-space: pre-wrap;
 }
 
 @keyframes ellipsis {
