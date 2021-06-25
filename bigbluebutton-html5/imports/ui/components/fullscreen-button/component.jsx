@@ -4,6 +4,7 @@ import Button from '/imports/ui/components/button/component';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import { styles } from './styles';
+import { ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
   fullscreenButton: {
@@ -48,11 +49,13 @@ const FullscreenButtonComponent = ({
   handleToggleFullScreen,
   isIphone,
   isFullscreen,
+  layoutManagerLoaded,
+  newLayoutContextDispatch,
 }) => {
   if (isIphone) return null;
 
   const formattedLabel = (isFullscreen) => {
-    return(isFullscreen ?
+    return (isFullscreen ?
       intl.formatMessage(
         intlMessages.fullscreenUndoButton,
         ({ 0: elementName || '' }),
@@ -71,13 +74,24 @@ const FullscreenButtonComponent = ({
     [styles.bottom]: bottom,
   });
 
+  const handleClick = () => {
+    if (layoutManagerLoaded === 'legacy') {
+      handleToggleFullScreen(fullscreenRef);
+    } else {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_IS_FULLSCREEN,
+        value: !isFullscreen,
+      });
+    }
+  }
+
   return (
     <div className={wrapperClassName}>
       <Button
         color="default"
         icon={!isFullscreen ? 'fullscreen' : 'exit_fullscreen'}
         size="sm"
-        onClick={() => handleToggleFullScreen(fullscreenRef)}
+        onClick={() => handleClick()}
         label={formattedLabel(isFullscreen)}
         hideLabel
         className={cx(styles.button, styles.fullScreenButton, className)}
