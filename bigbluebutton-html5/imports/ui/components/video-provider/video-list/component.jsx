@@ -125,6 +125,15 @@ class VideoList extends Component {
     window.addEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
+  componentDidUpdate(prevProps) {
+    const { layoutType } = this.props;
+    const { layoutType: prevLayoutType } = prevProps;
+
+    if (layoutType !== prevLayoutType) {
+      this.handleCanvasResize();
+    }
+  }
+
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleCanvasResize, false);
     window.removeEventListener('layoutSizesSets', this.handleCanvasResize, false);
@@ -389,10 +398,6 @@ class VideoList extends Component {
           this.canvas = ref;
         }}
         className={canvasClassName}
-        style={{
-          width: '100%',
-          height: '100%',
-        }}
       >
 
         {this.renderPreviousPageButton()}
