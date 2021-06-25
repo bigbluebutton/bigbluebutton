@@ -492,7 +492,9 @@ class Presentation extends PureComponent {
 
   renderPresentationClose() {
     const { isFullscreen } = this.state;
-    if (!shouldEnableSwapLayout() || isFullscreen) {
+    const { layoutLoaded, fullscreenContext } = this.props;
+
+    if (!shouldEnableSwapLayout() || isFullscreen || layoutLoaded === 'new' && fullscreenContext) {
       return null;
     }
     return <PresentationCloseButton toggleSwapLayout={MediaService.toggleSwapLayout} />;
