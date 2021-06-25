@@ -28,7 +28,7 @@ public:
     #
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
-    bbbServerVersion: 2.3
+    bbbServerVersion: 2.4
     copyright: '©2021 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
@@ -90,6 +90,8 @@ public:
         guestWaitingAudioAlerts: true
         guestWaitingPushAlerts: true
         paginationEnabled: true
+        pushLayoutToEveryone: false
+        selectedLayout: 'legacy'
         # fallbackLocale: if the locale the client is loaded in does not have a
         # translation a string, it will use the translation from the locale
         # specified in fallbackLocale. Note that fallbackLocale should be a
@@ -375,7 +377,7 @@ public:
     toggleSelfVoice: false
   poll:
     enabled: true
-    max_custom: 5
+    maxCustom: 5
     allowDragAndDropFile: false
     maxTypedAnswerLength: 45
     chatMessage: true

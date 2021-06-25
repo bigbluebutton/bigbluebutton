@@ -578,7 +578,6 @@ class UserDropdown extends PureComponent {
   render() {
     const {
       compact,
-      currentUser,
       user,
       intl,
       isThisMeetingLocked,

@@ -349,7 +349,7 @@ class Presentation extends PureComponent {
     }
     if (layoutLoaded === 'new' && newPresentationAreaSize) {
       presentationSizes.presentationWidth = newPresentationAreaSize.presentationAreaWidth;
-      presentationSizes.presentationHeight = newPresentationAreaSize.presentationAreaHeight;
+      presentationSizes.presentationHeight = newPresentationAreaSize.presentationAreaHeight - (this.getToolbarHeight() || 0);
       return presentationSizes;
     }
 
@@ -492,7 +492,9 @@ class Presentation extends PureComponent {
 
   renderPresentationClose() {
     const { isFullscreen } = this.state;
-    if (!shouldEnableSwapLayout() || isFullscreen) {
+    const { layoutLoaded, fullscreenContext } = this.props;
+
+    if (!shouldEnableSwapLayout() || isFullscreen || layoutLoaded === 'new' && fullscreenContext) {
       return null;
     }
     return <PresentationCloseButton toggleSwapLayout={MediaService.toggleSwapLayout} />;
@@ -818,6 +820,7 @@ class Presentation extends PureComponent {
       slidePosition,
       presentationBounds,
       layoutLoaded,
+      fullscreenContext,
     } = this.props;
 
     const {
@@ -867,6 +870,8 @@ class Presentation extends PureComponent {
           left: layoutLoaded === 'new' ? presentationBounds.left : undefined,
           width: layoutLoaded === 'new' ? presentationBounds.width : undefined,
           height: layoutLoaded === 'new' ? presentationBounds.height : undefined,
+          zIndex: layoutLoaded === 'new' && fullscreenContext ? presentationBounds.zIndex : undefined,
+          backgroundColor: layoutLoaded === 'new' ? '#06172A' : undefined,
         }}
       >
         {isFullscreen && <PollingContainer />}

@@ -401,6 +401,7 @@ class VideoFocusLayout extends Component {
       mediaBounds.top = 0;
       mediaBounds.left = 0;
       mediaBounds.zIndex = 99;
+      return mediaBounds;
     }
 
     if (deviceType === DEVICE_TYPE.MOBILE) {

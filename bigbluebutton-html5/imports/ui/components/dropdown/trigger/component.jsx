@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 import cx from 'classnames';
 
 import KEY_CODES from '/imports/utils/keyCodes';
