@@ -43,7 +43,7 @@ const ButtonEmoji = (props) => {
   );
 
   return (
-    <span className={styles.emojiButtonContainer}>
+    <span>
       <TooltipContainer title={label}>
         <div
           tabIndex={-1}
