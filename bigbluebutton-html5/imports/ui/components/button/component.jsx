@@ -249,7 +249,7 @@ export default class Button extends BaseButton {
     return (
       <span className={cx(classNames)}>
         {label}
-        {this.props.children}
+        {!this.hasButtonEmojiComponent() ? this.props.children : null}
       </span>
     );
   }
