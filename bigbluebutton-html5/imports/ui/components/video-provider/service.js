@@ -639,7 +639,6 @@ class VideoService {
   }
 
   disableReason() {
-    const { viewParticipantsWebcams } = Settings.dataSaving;
     const locks = {
       videoLocked: this.isUserLocked(),
       videoConnecting: this.isConnecting,
