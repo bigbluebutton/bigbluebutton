@@ -39,18 +39,6 @@ class VideoListItem extends Component {
     this.updateOrientation = this.updateOrientation.bind(this);
   }
 
-  onStreamStateChange(e) {
-    const { streamState } = e.detail;
-    const { isStreamHealthy } = this.state;
-
-    const newHealthState = !isStreamStateUnhealthy(streamState);
-    e.stopPropagation();
-
-    if (newHealthState !== isStreamHealthy) {
-      this.setState({ isStreamHealthy: newHealthState });
-    }
-  }
-
   componentDidMount() {
     const { onVideoItemMount, webcamDraggableDispatch, cameraId } = this.props;
 
@@ -99,6 +87,18 @@ class VideoListItem extends Component {
     window.removeEventListener('resize', this.updateOrientation);
   }
 
+  onStreamStateChange(e) {
+    const { streamState } = e.detail;
+    const { isStreamHealthy } = this.state;
+
+    const newHealthState = !isStreamStateUnhealthy(streamState);
+    e.stopPropagation();
+
+    if (newHealthState !== isStreamHealthy) {
+      this.setState({ isStreamHealthy: newHealthState });
+    }
+  }
+
   onFullscreenChange() {
     const { webcamDraggableDispatch } = this.props;
     const { isFullscreen } = this.state;
@@ -137,7 +137,7 @@ class VideoListItem extends Component {
     return _.compact([
       <Dropdown.DropdownListTitle className={styles.hiddenDesktop} key="name">{name}</Dropdown.DropdownListTitle>,
       <Dropdown.DropdownListSeparator className={styles.hiddenDesktop} key="sep" />,
-      ...actions.map(action => (<Dropdown.DropdownListItem key={`${cameraId}-${action.actionName}`} {...action} />)),
+      ...actions.map((action) => (<Dropdown.DropdownListItem key={`${cameraId}-${action.actionName}`} {...action} />)),
     ]);
   }
 
@@ -173,9 +173,9 @@ class VideoListItem extends Component {
       name,
       voiceUser,
       numOfStreams,
-      webcamDraggableState,
       swapLayout,
       mirrored,
+      webcamDraggableState,
     } = this.props;
     const availableActions = this.getAvailableActions();
     const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
@@ -195,21 +195,24 @@ class VideoListItem extends Component {
       >
         {
           !videoIsReady
-            && (
-            <div data-test="webcamConnecting" className={cx({
-              [styles.connecting]: true,
-              [styles.content]: true,
-              [styles.talking]: voiceUser.talking,
-            })}>
+          && (
+            <div
+              data-test="webcamConnecting"
+              className={cx({
+                [styles.connecting]: true,
+                [styles.content]: true,
+                [styles.talking]: voiceUser.talking,
+              })}
+            >
               <span className={styles.loadingText}>{name}</span>
             </div>
-            )
+          )
 
         }
 
         {
           shouldRenderReconnect
-            && <div className={styles.reconnecting} />
+          && <div className={styles.reconnecting} />
         }
 
         <div
@@ -225,7 +228,8 @@ class VideoListItem extends Component {
                 && !isFullscreen && !swapLayout,
               [styles.cursorGrabbing]: webcamDraggableState.dragging
                 && !isFullscreen && !swapLayout,
-              [styles.mirroredVideo]: (this.mirrorOwnWebcam && !mirrored) || (!this.mirrorOwnWebcam && mirrored),
+              [styles.mirroredVideo]: (this.mirrorOwnWebcam && !mirrored)
+                || (!this.mirrorOwnWebcam && mirrored),
               [styles.unhealthyStream]: shouldRenderReconnect,
             })}
             ref={(ref) => { this.videoTag = ref; }}
@@ -234,42 +238,40 @@ class VideoListItem extends Component {
           />
           {videoIsReady && this.renderFullscreenButton()}
         </div>
-        { videoIsReady
+        {videoIsReady
           && (
-          <div className={styles.info}>
-            {enableVideoMenu && availableActions.length >= 3
-              ? (
-                <Dropdown tethered={isTethered} placement="right bottom" className={isFirefox ? styles.dropdownFireFox : styles.dropdown}>
-                  <Dropdown.DropdownTrigger className={styles.dropdownTrigger}>
-                    <span>{name}</span>
-                  </Dropdown.DropdownTrigger>
-                  <Dropdown.DropdownContent placement="top left" className={styles.dropdownContent}>
-                    <Dropdown.DropdownList className={styles.dropdownList}>
-                      {availableActions}
-                    </Dropdown.DropdownList>
-                  </Dropdown.DropdownContent>
-                </Dropdown>
-              )
-              : (
-                <div className={isFirefox ? styles.dropdownFireFox
-                  : styles.dropdown}
-                >
-                  <span className={cx({
-                    [styles.userName]: true,
-                    [styles.noMenu]: numOfStreams < 3,
-                  })}
+            <div className={styles.info}>
+              {enableVideoMenu && availableActions.length >= 3
+                ? (
+                  <Dropdown tethered={isTethered} placement="right bottom" className={isFirefox ? styles.dropdownFireFox : styles.dropdown}>
+                    <Dropdown.DropdownTrigger className={styles.dropdownTrigger}>
+                      <span>{name}</span>
+                    </Dropdown.DropdownTrigger>
+                    <Dropdown.DropdownContent placement="top left" className={styles.dropdownContent}>
+                      <Dropdown.DropdownList className={styles.dropdownList}>
+                        {availableActions}
+                      </Dropdown.DropdownList>
+                    </Dropdown.DropdownContent>
+                  </Dropdown>
+                )
+                : (
+                  <div className={isFirefox ? styles.dropdownFireFox
+                    : styles.dropdown}
                   >
-                    {name}
-                  </span>
-                </div>
-              )
-          }
-            {voiceUser.muted && !voiceUser.listenOnly ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
-            {voiceUser.listenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
-            {voiceUser.joined && !voiceUser.muted ? <Icon className={styles.voice} iconName="unmute" /> : null}
-          </div>
-          )
-        }
+                    <span className={cx({
+                      [styles.userName]: true,
+                      [styles.noMenu]: numOfStreams < 3,
+                    })}
+                    >
+                      {name}
+                    </span>
+                  </div>
+                )}
+              {voiceUser.muted && !voiceUser.listenOnly ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
+              {voiceUser.listenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
+              {voiceUser.joined && !voiceUser.muted ? <Icon className={styles.voice} iconName="unmute" /> : null}
+            </div>
+          )}
       </div>
     );
   }

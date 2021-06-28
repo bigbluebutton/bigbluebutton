@@ -386,7 +386,7 @@ class VideoProvider extends Component {
     }
   }
 
-  clearRestartTimers (stream) {
+  clearRestartTimers(stream) {
     if (this.restartTimeout[stream]) {
       clearTimeout(this.restartTimeout[stream]);
       delete this.restartTimeout[stream];
@@ -703,7 +703,7 @@ class VideoProvider extends Component {
     this.sendMessage(message);
   }
 
-  _handleIceConnectionStateChange (stream, isLocal) {
+  _handleIceConnectionStateChange(stream, isLocal) {
     const { intl } = this.props;
     const peer = this.webRtcPeers[stream];
     const role = VideoService.getRole(isLocal);
@@ -860,15 +860,23 @@ class VideoProvider extends Component {
   }
 
   render() {
-    const { swapLayout, currentVideoPageIndex, streams } = this.props;
+    const {
+      swapLayout,
+      currentVideoPageIndex,
+      streams,
+      cameraDockBounds,
+    } = this.props;
 
     return (
       <VideoListContainer
-        streams={streams}
+        {...{
+          streams,
+          swapLayout,
+          currentVideoPageIndex,
+          cameraDockBounds,
+        }}
         onVideoItemMount={this.createVideoTag}
         onVideoItemUnmount={this.destroyVideoTag}
-        swapLayout={swapLayout}
-        currentVideoPageIndex={currentVideoPageIndex}
       />
     );
   }

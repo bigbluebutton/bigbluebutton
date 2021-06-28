@@ -31,7 +31,7 @@ import MediaContainer from '../media/container';
 const propTypes = {
   actionsbar: PropTypes.node,
   media: PropTypes.node,
-  meetingLayout: PropTypes.string.isRequired
+  meetingLayout: PropTypes.string.isRequired,
 };
 
 const defaultProps = {
@@ -134,8 +134,20 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     },
   );
   const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { publishedPoll: 1, voiceProp: 1, randomlySelectedUser: 1, layout: 1 } });
-  const { publishedPoll, voiceProp, randomlySelectedUser, layout } = currentMeeting;
+    {
+      fields: {
+        publishedPoll: 1,
+        voiceProp: 1,
+        randomlySelectedUser: 1,
+        layout: 1,
+      },
+    });
+  const {
+    publishedPoll,
+    voiceProp,
+    randomlySelectedUser,
+    layout,
+  } = currentMeeting;
 
   if (!currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
@@ -179,7 +191,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     shouldShowScreenshare,
     shouldShowPresentation: !shouldShowScreenshare && !shouldShowExternalVideo,
     shouldShowExternalVideo,
-    isLargeFont: Session.get('isLargeFont')
+    isLargeFont: Session.get('isLargeFont'),
   };
 })(AppContainer)));
 
