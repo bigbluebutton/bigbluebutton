@@ -150,13 +150,13 @@ class Tooltip extends Component {
       [WrappedComponent, ...otherChildren] = grandChildren;
 
       WrappedComponentBound = React.cloneElement(WrappedComponent, {
-        ...restProps,
         id: this.tippySelectorId,
         className: cx(WrappedComponent.props.className, className),
+        key: this.tippySelectorId,
       });
 
       const ParentComponent = React.Children.only(children);
-      const updatedChildren = [WrappedComponentBound, otherChildren];
+      const updatedChildren = [WrappedComponentBound, ...otherChildren];
 
       const ParentComponentBound = React.cloneElement(ParentComponent, null,
         updatedChildren);
