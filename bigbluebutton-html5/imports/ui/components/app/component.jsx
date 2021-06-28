@@ -129,6 +129,10 @@ const LAYERED_BREAKPOINT = 640;
 const isLayeredView = window.matchMedia(`(max-width: ${LAYERED_BREAKPOINT}px)`);
 
 class App extends Component {
+  static renderWebcamsContainer() {
+    return <NewWebcamContainer />;
+  }
+
   constructor(props) {
     super(props);
     this.state = {
@@ -138,6 +142,7 @@ class App extends Component {
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
     this.renderMedia = withDraggableContext(this.renderMedia.bind(this));
+    this.renderWebcamsContainer = withDraggableContext(App.renderWebcamsContainer.bind(this));
 
     this.throttledDeviceType = throttle(() => this.setDeviceType(),
       50, { trailing: true, leading: true }).bind(this);
@@ -573,7 +578,7 @@ class App extends Component {
                 <NavBarContainer main="new" />
                 <SidebarNavigationContainer />
                 <SidebarContentContainer />
-                <NewWebcamContainer />
+                {this.renderWebcamsContainer()}
                 {shouldShowPresentation ? <PresentationAreaContainer /> : null}
                 {shouldShowScreenshare ? <ScreenshareContainer /> : null}
                 {shouldShowExternalVideo ? <ExternalVideoContainer isPresenter={isPresenter} /> : null}

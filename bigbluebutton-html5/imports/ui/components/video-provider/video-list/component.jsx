@@ -5,7 +5,6 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { styles } from './styles';
 import VideoListItemContainer from './video-list-item/container';
-import { withDraggableConsumer } from '../../media/webcam-draggable-overlay/context';
 import AutoplayOverlay from '../../media/autoplay-overlay/component';
 import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
@@ -126,48 +125,19 @@ class VideoList extends Component {
     window.addEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
+  componentDidUpdate(prevProps) {
+    const { layoutType } = this.props;
+    const { layoutType: prevLayoutType } = prevProps;
+
+    if (layoutType !== prevLayoutType) {
+      this.handleCanvasResize();
+    }
+  }
+
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleCanvasResize, false);
     window.removeEventListener('layoutSizesSets', this.handleCanvasResize, false);
     window.removeEventListener('videoPlayFailed', this.handlePlayElementFailed);
-  }
-
-  setOptimalGrid() {
-    const { streams, webcamDraggableDispatch } = this.props;
-    let numItems = streams.length;
-    if (numItems < 1 || !this.canvas || !this.grid) {
-      return;
-    }
-    const { focusedId } = this.state;
-    const { width: canvasWidth, height: canvasHeight } = this.canvas.getBoundingClientRect();
-
-    const gridGutter = parseInt(window.getComputedStyle(this.grid)
-      .getPropertyValue('grid-row-gap'), 10);
-    const hasFocusedItem = numItems > 2 && focusedId;
-    // Has a focused item so we need +3 cells
-    if (hasFocusedItem) {
-      numItems += 3;
-    }
-    const optimalGrid = _.range(1, numItems + 1)
-      .reduce((currentGrid, col) => {
-        const testGrid = findOptimalGrid(
-          canvasWidth, canvasHeight, gridGutter,
-          ASPECT_RATIO, numItems, col,
-        );
-        // We need a minimun of 2 rows and columns for the focused
-        const focusedConstraint = hasFocusedItem ? testGrid.rows > 1 && testGrid.columns > 1 : true;
-        const betterThanCurrent = testGrid.filledArea > currentGrid.filledArea;
-        return focusedConstraint && betterThanCurrent ? testGrid : currentGrid;
-      }, { filledArea: 0 });
-    webcamDraggableDispatch(
-      {
-        type: 'setOptimalGrid',
-        value: optimalGrid,
-      },
-    );
-    this.setState({
-      optimalGrid,
-    });
   }
 
   handleAllowAutoplay() {
@@ -219,11 +189,74 @@ class VideoList extends Component {
     window.dispatchEvent(new Event('videoFocusChange'));
   }
 
+  handleCanvasResize() {
+    if (!this.ticking) {
+      window.requestAnimationFrame(() => {
+        this.ticking = false;
+        this.setOptimalGrid();
+      });
+    }
+    this.ticking = true;
+  }
+
+  setOptimalGrid() {
+    const {
+      streams,
+      cameraDockBounds,
+      webcamDraggableDispatch,
+      layoutLoaded,
+    } = this.props;
+    let numItems = streams.length;
+    if (numItems < 1 || !this.canvas || !this.grid) {
+      return;
+    }
+    const { focusedId } = this.state;
+    let canvasWidth;
+    let canvasHeight;
+    const canvasBounds = this.canvas.getBoundingClientRect();
+
+    if (layoutLoaded === 'legacy') {
+      canvasWidth = canvasBounds?.width;
+      canvasHeight = canvasBounds?.height;
+    } else {
+      canvasWidth = cameraDockBounds?.width;
+      canvasHeight = cameraDockBounds?.height;
+    }
+
+    const gridGutter = parseInt(window.getComputedStyle(this.grid)
+      .getPropertyValue('grid-row-gap'), 10);
+    const hasFocusedItem = numItems > 2 && focusedId;
+    // Has a focused item so we need +3 cells
+    if (hasFocusedItem) {
+      numItems += 3;
+    }
+    const optimalGrid = _.range(1, numItems + 1)
+      .reduce((currentGrid, col) => {
+        const testGrid = findOptimalGrid(
+          canvasWidth, canvasHeight, gridGutter,
+          ASPECT_RATIO, numItems, col,
+        );
+        // We need a minimun of 2 rows and columns for the focused
+        const focusedConstraint = hasFocusedItem ? testGrid.rows > 1 && testGrid.columns > 1 : true;
+        const betterThanCurrent = testGrid.filledArea > currentGrid.filledArea;
+        return focusedConstraint && betterThanCurrent ? testGrid : currentGrid;
+      }, { filledArea: 0 });
+    webcamDraggableDispatch(
+      {
+        type: 'setOptimalGrid',
+        value: optimalGrid,
+      },
+    );
+    this.setState({
+      optimalGrid,
+    });
+  }
+
   mirrorCamera(stream) {
     const { mirroredCameras } = this.state;
     if (this.cameraIsMirrored(stream)) {
       this.setState({
-        mirroredCameras: mirroredCameras.filter(x => x != stream),
+        mirroredCameras: mirroredCameras.filter((x) => x != stream),
       });
     } else {
       this.setState({
@@ -235,16 +268,6 @@ class VideoList extends Component {
   cameraIsMirrored(stream) {
     const { mirroredCameras } = this.state;
     return mirroredCameras.indexOf(stream) >= 0;
-  }
-
-  handleCanvasResize() {
-    if (!this.ticking) {
-      window.requestAnimationFrame(() => {
-        this.ticking = false;
-        this.setOptimalGrid();
-      });
-    }
-    this.ticking = true;
   }
 
   renderNextPageButton() {
@@ -311,10 +334,10 @@ class VideoList extends Component {
       const isFocused = focusedId === stream;
       const isFocusedIntlKey = !isFocused ? 'focus' : 'unfocus';
       const isMirrored = this.cameraIsMirrored(stream);
-      let actions = [{
+      const actions = [{
         actionName: ACTION_NAME_MIRROR,
-        label: intl.formatMessage(intlMessages['mirrorLabel']),
-        description: intl.formatMessage(intlMessages['mirrorDesc']),
+        label: intl.formatMessage(intlMessages.mirrorLabel),
+        description: intl.formatMessage(intlMessages.mirrorDesc),
         onClick: () => this.mirrorCamera(stream),
       }];
 
@@ -355,7 +378,10 @@ class VideoList extends Component {
   }
 
   render() {
-    const { streams, intl } = this.props;
+    const {
+      streams,
+      intl,
+    } = this.props;
     const { optimalGrid, autoplayBlocked } = this.state;
 
     const canvasClassName = cx({
@@ -392,7 +418,7 @@ class VideoList extends Component {
             {this.renderVideoList()}
           </div>
         )}
-        { !autoplayBlocked ? null : (
+        {!autoplayBlocked ? null : (
           <AutoplayOverlay
             autoplayBlockedDesc={intl.formatMessage(intlMessages.autoplayBlockedDesc)}
             autoplayAllowLabel={intl.formatMessage(intlMessages.autoplayAllowLabel)}
@@ -409,4 +435,4 @@ class VideoList extends Component {
 
 VideoList.propTypes = propTypes;
 
-export default injectIntl(withDraggableConsumer(VideoList));
+export default injectIntl(VideoList);
