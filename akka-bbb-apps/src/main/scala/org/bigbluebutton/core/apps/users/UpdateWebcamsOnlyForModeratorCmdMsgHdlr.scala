@@ -3,7 +3,6 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core2.Permissions
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
 trait UpdateWebcamsOnlyForModeratorCmdMsgHdlr extends RightsManagementTrait {
