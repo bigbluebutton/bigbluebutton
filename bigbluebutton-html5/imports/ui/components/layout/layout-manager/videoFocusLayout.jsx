@@ -267,20 +267,43 @@ class VideoFocusLayout extends Component {
     };
   }
 
-  calculatesSidebarContentHeight(presentationHeight) {
+  calculatesSidebarContentHeight() {
     const { newLayoutContextState } = this.props;
-    const { deviceType, input } = newLayoutContextState;
-    let sidebarContentHeight = 0;
-    if (input.sidebarContent.isOpen) {
+    const { deviceType, input,output } = newLayoutContextState;
+    const { sidebarContentMinHeight } = DEFAULT_VALUES;
+    const { sidebarContent: inputContent } = input;
+    const { sidebarContent: outputContent } = output;
+    let minHeight = 0;
+    let height = 0;
+    let maxHeight = 0;
+    if (inputContent.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
-        sidebarContentHeight = this.mainHeight() - DEFAULT_VALUES.navBarHeight;
-      } else if (input.cameraDock.numCameras > 0) {
-        sidebarContentHeight = this.mainHeight() - presentationHeight;
+        height = this.mainHeight() - DEFAULT_VALUES.navBarHeight;
+        minHeight = this.mainHeight();
+        maxHeight = this.mainHeight();
       } else {
-        sidebarContentHeight = this.mainHeight();
+        if (input.cameraDock.numCameras > 0) {
+          if(inputContent.height > 0 && inputContent.height < this.mainHeight()){
+            height = inputContent.height;
+            maxHeight = this.mainHeight();
+          }else{
+            const { size: slideSize } = input.presentation.currentSlide;
+            const calculatedHeight = slideSize.height * outputContent.width / slideSize.width;
+            height = this.mainHeight() - calculatedHeight;
+            maxHeight = height;
+          }
+        } else {
+          height = this.mainHeight();
+          maxHeight = height;
+        }
+        minHeight = sidebarContentMinHeight;
       }
     }
-    return sidebarContentHeight;
+    return {
+      minHeight,
+      height,
+      maxHeight,
+    };
   }
 
   calculatesSidebarContentBounds(sidebarNavWidth) {
@@ -390,6 +413,7 @@ class VideoFocusLayout extends Component {
     cameraDockBounds,
     sidebarNavWidth,
     sidebarContentWidth,
+    sidebarContentHeight,
   ) {
     const { newLayoutContextState } = this.props;
     const { deviceType, input } = newLayoutContextState;
@@ -410,19 +434,9 @@ class VideoFocusLayout extends Component {
       mediaBounds.top = mediaAreaBounds.top + cameraDockBounds.height;
       mediaBounds.width = mediaAreaBounds.width;
     } else if (input.cameraDock.numCameras > 0) {
-      if (input.presentation.height === 0) {
-        mediaBounds.height = min(
-          max(this.mainHeight() * 0.2, DEFAULT_VALUES.presentationMinHeight),
-          this.mainHeight() - DEFAULT_VALUES.presentationMinHeight,
-        );
-      } else {
-        mediaBounds.height = min(
-          max(input.presentation.height, DEFAULT_VALUES.presentationMinHeight),
-          this.mainHeight() - DEFAULT_VALUES.presentationMinHeight,
-        );
-      }
+      mediaBounds.height = this.mainHeight() - sidebarContentHeight;
       mediaBounds.left = sidebarNavWidth;
-      mediaBounds.top = this.mainHeight() - mediaBounds.height;
+      mediaBounds.top = sidebarContentHeight;
       mediaBounds.width = sidebarContentWidth;
       mediaBounds.zIndex = 1;
     } else {
@@ -455,12 +469,15 @@ class VideoFocusLayout extends Component {
     const navbarBounds = this.calculatesNavbarBounds(mediaAreaBounds);
     const actionbarBounds = this.calculatesActionbarBounds(mediaAreaBounds);
     const cameraDockBounds = this.calculatesCameraDockBounds(mediaAreaBounds);
+    const sidebarContentHeight = this.calculatesSidebarContentHeight();
     const mediaBounds = this.calculatesMediaBounds(
-      mediaAreaBounds, cameraDockBounds, sidebarNavWidth.width, sidebarContentWidth.width,
+      mediaAreaBounds, 
+      cameraDockBounds, 
+      sidebarNavWidth.width, 
+      sidebarContentWidth.width,
+      sidebarContentHeight.height,
     );
-    const sidebarContentHeight = this.calculatesSidebarContentHeight(
-      mediaBounds.height,
-    );
+    const isBottomResizable = input.cameraDock.numCameras > 0;
 
     newLayoutContextDispatch({
       type: ACTIONS.SET_NAVBAR_OUTPUT,
@@ -522,7 +539,9 @@ class VideoFocusLayout extends Component {
         minWidth: sidebarContentWidth.minWidth,
         width: sidebarContentWidth.width,
         maxWidth: sidebarContentWidth.maxWidth,
-        height: sidebarContentHeight,
+        minHeight: sidebarContentHeight.minHeight,
+        height: sidebarContentHeight.height,
+        maxHeight: sidebarContentHeight.maxHeight,
         top: sidebarContentBounds.top,
         left: sidebarContentBounds.left,
         currentPanelType: input.currentPanelType,
@@ -538,7 +557,7 @@ class VideoFocusLayout extends Component {
       value: {
         top: false,
         right: true,
-        bottom: false,
+        bottom: isBottomResizable,
         left: false,
       },
     });
