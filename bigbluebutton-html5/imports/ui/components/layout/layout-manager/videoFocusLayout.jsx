@@ -269,7 +269,7 @@ class VideoFocusLayout extends Component {
 
   calculatesSidebarContentHeight() {
     const { newLayoutContextState } = this.props;
-    const { deviceType, input,output } = newLayoutContextState;
+    const { deviceType, input, output } = newLayoutContextState;
     const { sidebarContentMinHeight } = DEFAULT_VALUES;
     const { sidebarContent: inputContent } = input;
     const { sidebarContent: outputContent } = output;
@@ -283,10 +283,10 @@ class VideoFocusLayout extends Component {
         maxHeight = this.mainHeight();
       } else {
         if (input.cameraDock.numCameras > 0) {
-          if(inputContent.height > 0 && inputContent.height < this.mainHeight()){
+          if (inputContent.height > 0 && inputContent.height < this.mainHeight()) {
             height = inputContent.height;
             maxHeight = this.mainHeight();
-          }else{
+          } else {
             const { size: slideSize } = input.presentation.currentSlide;
             const calculatedHeight = slideSize.height * outputContent.width / slideSize.width;
             height = this.mainHeight() - calculatedHeight;
@@ -471,9 +471,9 @@ class VideoFocusLayout extends Component {
     const cameraDockBounds = this.calculatesCameraDockBounds(mediaAreaBounds);
     const sidebarContentHeight = this.calculatesSidebarContentHeight();
     const mediaBounds = this.calculatesMediaBounds(
-      mediaAreaBounds, 
-      cameraDockBounds, 
-      sidebarNavWidth.width, 
+      mediaAreaBounds,
+      cameraDockBounds,
+      sidebarNavWidth.width,
       sidebarContentWidth.width,
       sidebarContentHeight.height,
     );

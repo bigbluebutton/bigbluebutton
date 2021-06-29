@@ -25,7 +25,6 @@ const propTypes = {
 
 const SidebarContent = (props) => {
   const {
-    // display,
     top,
     left,
     zIndex,
@@ -48,20 +47,16 @@ const SidebarContent = (props) => {
   const [resizeStartHeight, setResizeStartHeight] = useState(0);
 
   useEffect(() => {
-    if (!isResizing) setResizableWidth(width);
-  }, [width]);
+    if (!isResizing) {
+      setResizableWidth(width);
+      setResizableHeight(height);
+    }
+  }, [width, height]);
 
   useEffect(() => {
-    if (!isResizing) setResizableHeight(height);
-  }, [height]);
-  
-  useEffect(() => {
-  }, [resizeStartWidth]);
+  }, [resizeStartWidth, resizeStartHeight]);
 
-  useEffect(() => {
-  }, [resizeStartHeight]);
-
-  const setSidebarContentSize = (dWidth,dHeight) => {
+  const setSidebarContentSize = (dWidth, dHeight) => {
     const newWidth = resizeStartWidth + dWidth;
     const newHeight = resizeStartHeight + dHeight;
 
