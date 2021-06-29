@@ -109,7 +109,20 @@ class AudioManager {
     });
   }
 
+  async trickleIce() {
+    if (!this.listenOnlyBridge) return [];
+
+    if (this.validIceCandidates && this.validIceCandidates.length) {
+      return this.validIceCandidates;
+    }
+
+    this.validIceCandidates = await this.listenOnlyBridge.trickleIce() || [];
+    return this.validIceCandidates;
+  }
+
   joinMicrophone() {
+    this.audioJoinStartTime = new Date();
+    this.logAudioJoinTime = false;
     this.isListenOnly = false;
     this.isEchoTest = false;
 
@@ -125,15 +138,19 @@ class AudioManager {
   }
 
   joinEchoTest() {
+    this.audioJoinStartTime = new Date();
+    this.logAudioJoinTime = false;
     this.isListenOnly = false;
     this.isEchoTest = true;
 
     return this.onAudioJoining.bind(this)()
-      .then(() => {
+      .then(async () => {
+        const validIceCandidates = await this.trickleIce();
         const callOptions = {
           isListenOnly: false,
           extension: ECHO_TEST_NUMBER,
           inputStream: this.inputStream,
+          validIceCandidates,
         };
         logger.info({ logCode: 'audiomanager_join_echotest', extraInfo: { logType: 'user_action' } }, 'User requested to join audio conference with mic');
         return this.joinAudio(callOptions, this.callStateCallback.bind(this));
@@ -183,6 +200,8 @@ class AudioManager {
   }
 
   async joinListenOnly(r = 0) {
+    this.audioJoinStartTime = new Date();
+    this.logAudioJoinTime = false;
     let retries = r;
     this.isListenOnly = true;
     this.isEchoTest = false;
@@ -332,6 +351,13 @@ class AudioManager {
         added: (id, fields) => this.onVoiceUserChanges(fields),
         changed: (id, fields) => this.onVoiceUserChanges(fields),
       });
+    }
+    const secondsToActivateAudio = (new Date() - this.audioJoinStartTime) / 1000;
+
+    if (!this.logAudioJoinTime) {
+      this.logAudioJoinTime = true;
+      logger.info({ logCode: 'audio_mic_join_time' }, 'Time needed to '
+      + `connect audio (seconds): ${secondsToActivateAudio}`);
     }
 
     if (!this.isEchoTest) {
