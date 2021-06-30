@@ -1,18 +1,35 @@
 package org.bigbluebutton.api.model.request;
 
+import org.bigbluebutton.api.model.constraint.MeetingEndedConstraint;
+import org.bigbluebutton.api.model.constraint.MeetingExistsConstraint;
+import org.bigbluebutton.api.model.constraint.MeetingIDConstraint;
+import org.bigbluebutton.api.model.constraint.PasswordConstraint;
 import org.bigbluebutton.api.model.shared.Checksum;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import java.util.Map;
 
-public class JoinMeeting extends Request {
+public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
 
-    @NotEmpty(message = "You must provide a meeting ID")
-    @Size(min = 2, max = 256, message = "Meeting ID must be between 2 and 256 characters")
-    @Pattern(regexp = "^[a-zA-Z0-9\\s!@#$%^&*()_\\-+=\\[\\]{};:.'\"<>?\\\\|\\/]+$", message = "Meeting name cannot contain ','")
+    public enum Params implements RequestParameters {
+        MEETING_ID("meetingID"),
+        USER_ID("userID"),
+        FULL_NAME("fullName"),
+        PASSWORD("password"),
+        GUEST("guest"),
+        AUTH("auth"),
+        CREATE_TIME("createTime");
+
+        private final String value;
+
+        Params(String value) { this.value = value; }
+
+        public String getValue() { return value; }
+    }
+
+    @MeetingIDConstraint
+    @MeetingExistsConstraint
+    @MeetingEndedConstraint
     private String meetingID;
 
     private String userID;
@@ -20,8 +37,7 @@ public class JoinMeeting extends Request {
     @NotEmpty(message = "You must provide your name")
     private String fullName;
 
-    @NotEmpty(message = "You must provide your password")
-    @Size(min = 2, max = 64, message = "Password must be between 8 and 20 characters")
+    @PasswordConstraint
     private String password;
 
     private Boolean guest;
@@ -92,12 +108,15 @@ public class JoinMeeting extends Request {
 
     @Override
     public void populateFromParamsMap(Map<String, String[]> params) {
-        if(params.containsKey("meetingID")) setMeetingID(params.get("meetingID")[0]);
-        if(params.containsKey("userID")) setUserID(params.get("userID")[0]);
-        if(params.containsKey("fullName")) setFullName(params.get("fullName")[0]);
-        if(params.containsKey("password")) setPassword(params.get("password")[0]);
-        if(params.containsKey("guest")) setGuest(Boolean.parseBoolean(params.get("guest")[0]));
-        if(params.containsKey("auth")) setAuth(Boolean.parseBoolean(params.get("auth")[0]));
-        if(params.containsKey("createTime")) setCreateTime(Long.parseLong(params.get("createTime")[0]));
+        if(params.containsKey(Params.MEETING_ID.getValue())) {
+            setMeetingID(params.get(Params.MEETING_ID.getValue())[0]);
+        }
+
+        if(params.containsKey(Params.USER_ID.getValue())) setUserID(params.get(Params.USER_ID.getValue())[0]);
+        if(params.containsKey(Params.FULL_NAME.getValue())) setFullName(params.get(Params.FULL_NAME.getValue())[0]);
+        if(params.containsKey(Params.PASSWORD.getValue())) setPassword(params.get(Params.PASSWORD.getValue())[0]);
+        if(params.containsKey(Params.GUEST.getValue())) setGuest(Boolean.parseBoolean(params.get(Params.GUEST.getValue())[0]));
+        if(params.containsKey(Params.AUTH.getValue())) setAuth(Boolean.parseBoolean(params.get(Params.AUTH.getValue())[0]));
+        if(params.containsKey(Params.CREATE_TIME.getValue())) setCreateTime(Long.parseLong(params.get(Params.CREATE_TIME.getValue())[0]));
     }
 }

@@ -1,32 +1,45 @@
 package org.bigbluebutton.api.model.request;
 
+import org.bigbluebutton.api.model.constraint.MeetingIDConstraint;
+import org.bigbluebutton.api.model.constraint.MeetingNameConstraint;
+import org.bigbluebutton.api.model.constraint.PasswordConstraint;
 import org.bigbluebutton.api.model.shared.Checksum;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import java.util.Map;
 
-public class CreateMeeting extends Request {
+public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
 
-    @NotEmpty(message = "You must provide a meeting name")
-    @Size(min = 2, max = 256, message = "Meeting name must be between 2 and 256 characters")
-    @Pattern(regexp = "^[a-zA-Z0-9\\s!@#$%^&*()_\\-+=\\[\\]{};:.'\"<>?\\\\|\\/]+$", message = "Meeting name cannot contain ','")
+    public enum Params implements RequestParameters {
+        NAME("name"),
+        MEETING_ID("meetingID"),
+        VOICE_BRIDGE("voiceBridge"),
+        ATTENDEE_PW("attendeePW"),
+        MODERATOR_PW("moderatorPW"),
+        IS_BREAKOUT_ROOM("isBreakoutRoom"),
+        RECORD("record");
+
+        private final String value;
+
+        Params(String value) { this.value = value; }
+
+        public String getValue() { return value; }
+    }
+
+    @MeetingNameConstraint
     private String name;
 
-    @NotEmpty(message = "You must provide a meeting ID")
-    @Size(min = 2, max = 256, message = "Meeting ID must be between 2 and 256 characters")
-    @Pattern(regexp = "^[a-zA-Z0-9\\s!@#$%^&*()_\\-+=\\[\\]{};:.'\"<>?\\\\|\\/]+$", message = "Meeting ID cannot contain ','")
+    @MeetingIDConstraint
     private String meetingID;
 
     @NotEmpty(message = "You must provide a voice bridge")
     private String voiceBridge;
 
-    @NotEmpty(message = "You must provide an attendee password")
+    @PasswordConstraint
     private String attendeePW;
 
-    @NotEmpty(message = "You must provide a moderator password")
+    @PasswordConstraint
     private String moderatorPW;
 
     @NotNull(message = "You must provide whether this meeting is breakout room")
@@ -97,12 +110,12 @@ public class CreateMeeting extends Request {
 
     @Override
     public void populateFromParamsMap(Map<String, String[]> params) {
-        if(params.containsKey("name")) setName(params.get("name")[0]);
-        if(params.containsKey("meetingID")) setMeetingID(params.get("meetingID")[0]);
-        if(params.containsKey("voiceBridge")) setVoiceBridge(params.get("voiceBridge")[0]);
-        if(params.containsKey("attendeePW")) setAttendeePW(params.get("attendeePW")[0]);
-        if(params.containsKey("moderatorPW")) setModeratorPW(params.get("moderatorPW")[0]);
-        if(params.containsKey("isBreakoutRoom")) setBreakoutRoom(Boolean.parseBoolean(params.get("isBreakoutRoom")[0]));
-        if(params.containsKey("record")) setRecord(Boolean.parseBoolean(params.get("record")[0]));
+        if(params.containsKey(Params.NAME.getValue())) setName(params.get(Params.NAME.getValue())[0]);
+        if(params.containsKey(Params.MEETING_ID.getValue())) setMeetingID(params.get(Params.MEETING_ID.getValue())[0]);
+        if(params.containsKey(Params.VOICE_BRIDGE.getValue())) setVoiceBridge(params.get(Params.VOICE_BRIDGE.getValue())[0]);
+        if(params.containsKey(Params.ATTENDEE_PW.getValue())) setAttendeePW(params.get(Params.ATTENDEE_PW.getValue())[0]);
+        if(params.containsKey(Params.MODERATOR_PW.getValue())) setModeratorPW(params.get(Params.MODERATOR_PW.getValue())[0]);
+        if(params.containsKey(Params.IS_BREAKOUT_ROOM.getValue())) setBreakoutRoom(Boolean.parseBoolean(params.get(Params.IS_BREAKOUT_ROOM.value)[0]));
+        if(params.containsKey(Params.RECORD.getValue())) setRecord(Boolean.parseBoolean(params.get(Params.RECORD.getValue())[0]));
     }
 }

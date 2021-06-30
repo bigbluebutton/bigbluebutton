@@ -4,30 +4,41 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.bigbluebutton.api.model.shared.Checksum;
-import org.bigbluebutton.api.model.constraint.ChecksumConstraint;
-import org.bigbluebutton.api.service.ValidatorService;
+import org.bigbluebutton.api.model.constraint.GetChecksumConstraint;
+import org.bigbluebutton.api.model.shared.GetChecksum;
+import org.bigbluebutton.api.service.ServiceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ChecksumValidator implements ConstraintValidator<ChecksumConstraint, Checksum> {
+public class GetChecksumValidator implements ConstraintValidator<GetChecksumConstraint, GetChecksum> {
 
-    private static Logger log = LoggerFactory.getLogger(ChecksumValidator.class);
-
-    @Override
-    public void initialize(ChecksumConstraint checksumConstraint) {}
+    private static Logger log = LoggerFactory.getLogger(GetChecksumValidator.class);
 
     @Override
-    public boolean isValid(Checksum checksum, ConstraintValidatorContext context) {
-        String securitySalt = ValidatorService.getSecuritySalt();
+    public void initialize(GetChecksumConstraint checksumConstraint) {}
 
-        log.info("Security salt: {}", securitySalt);
+    @Override
+    public boolean isValid(GetChecksum checksum, ConstraintValidatorContext context) {
+        String securitySalt = ServiceUtils.getValidationService().getSecuritySalt();
+
+        if (securitySalt.isEmpty()) {
+            log.warn("Security is disabled in this service. Make sure this is intentional.");
+            return true;
+        }
 
         String queryStringWithoutChecksum = checksum.getQueryStringWithoutChecksum();
         log.info("query string after checksum removed: [{}]", queryStringWithoutChecksum);
 
+        if(queryStringWithoutChecksum == null) {
+            return false;
+        }
+
         String providedChecksum = checksum.getChecksum();
         log.info("CHECKSUM={} length={}", providedChecksum, providedChecksum.length());
+
+        if(providedChecksum == null) {
+            return false;
+        }
 
         String data = checksum.getApiCall() + queryStringWithoutChecksum + securitySalt;
         String createdCheckSum = DigestUtils.sha1Hex(data);
