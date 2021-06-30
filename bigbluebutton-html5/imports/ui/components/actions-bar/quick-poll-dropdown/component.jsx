@@ -10,6 +10,9 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import { styles } from '../styles';
 
+const POLL_SETTINGS = Meteor.settings.public.poll;
+const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
+
 const intlMessages = defineMessages({
   quickPollLabel: {
     id: 'app.poll.quickPollTitle',
@@ -47,7 +50,7 @@ const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, pollTypes) => 
   const pollItemElements = parsedSlides.map((poll) => {
     let { poll: label, type } = poll;
     let itemLabel = label;
-    let answers = null;
+    let letterAnswers = [];
 
     if (type !== pollTypes.YesNo && 
         type !== pollTypes.YesNoAbstention && 
@@ -55,6 +58,16 @@ const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, pollTypes) => 
     {
       const { options } = itemLabel;
       itemLabel = options.join('/').replace(/[\n.)]/g, '');
+      if (type === pollTypes.Custom) {
+        for (const option of options) {
+          const letterOption = option.replace(/[\r.)]/g, '');
+          if (letterAnswers.length < MAX_CUSTOM_FIELDS) {
+            letterAnswers.push(letterOption);
+          } else {
+            break;
+          }
+        }
+      }
     }
 
     // removes any whitespace from the label
@@ -72,7 +85,8 @@ const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, pollTypes) => 
       <DropdownListItem
         label={itemLabel}
         key={_.uniqueId('quick-poll-item')}
-        onClick={() => startPoll(type, slideId, answers)}
+        onClick={() => startPoll(type, slideId, letterAnswers)}
+        answers={letterAnswers}
       />
     );
   });
@@ -112,14 +126,15 @@ class QuickPollDropdown extends Component {
 
     if (quickPollOptions.length === 0) return null;
 
+    let answers = null;
     let quickPollLabel = '';
     if (quickPolls.length > 0) {
       const { props: pollProps } = quickPolls[0];
       quickPollLabel = pollProps.label;
+      answers = pollProps.answers;
     }
 
     let singlePollType = null;
-    let answers = null;
     if (quickPolls.length === 1 && quickPollOptions.length) {
       const { type } = quickPollOptions[0];
       singlePollType = type;

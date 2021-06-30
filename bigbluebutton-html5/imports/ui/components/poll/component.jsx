@@ -151,7 +151,7 @@ const intlMessages = defineMessages({
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
 
-const MAX_CUSTOM_FIELDS = POLL_SETTINGS.max_custom;
+const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
 const MAX_INPUT_CHARS = POLL_SETTINGS.maxTypedAnswerLength;
 const QUESTION_MAX_INPUT_CHARS = 400;
 const FILE_DRAG_AND_DROP_ENABLED = POLL_SETTINGS.allowDragAndDropFile;
@@ -494,7 +494,7 @@ class Poll extends Component {
                           label={intl.formatMessage(intlMessages.addOptionLabel)}
                           color="default"
                           icon="add"
-                          disabled={optList.length === MAX_CUSTOM_FIELDS}
+                          disabled={optList.length >= MAX_CUSTOM_FIELDS}
                           onClick={() => this.handleAddOption()}
                         />
                       )}
