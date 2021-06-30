@@ -5,7 +5,7 @@ import TooltipContainer from '/imports/ui/components/tooltip/container';
 import { styles } from './styles';
 import Icon from '../icon/component';
 import BaseButton from './base/component';
-import ButtonEmoji from './button-emoji/component';
+import ButtonEmoji from './button-emoji/ButtonEmoji';
 
 const SIZES = [
   'jumbo', 'lg', 'md', 'sm',

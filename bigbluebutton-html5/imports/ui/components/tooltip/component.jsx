@@ -9,7 +9,8 @@ import 'tippy.js/dist/svg-arrow.css';
 import 'tippy.js/animations/shift-away.css';
 import './bbbtip.css';
 import BaseButton from '/imports/ui/components/button/base/component';
-import ButtonEmoji from '/imports/ui/components/button/button-emoji/component';
+import ButtonEmoji from
+  '/imports/ui/components/button/button-emoji/ButtonEmoji';
 
 const ANIMATION_DURATION = 350;
 const ANIMATION_DELAY = [150, 50];
@@ -158,10 +159,8 @@ class Tooltip extends Component {
       const ParentComponent = React.Children.only(children);
       const updatedChildren = [WrappedComponentBound, ...otherChildren];
 
-      const ParentComponentBound = React.cloneElement(ParentComponent, null,
+      return React.cloneElement(ParentComponent, null,
         updatedChildren);
-
-      return ParentComponentBound;
     }
 
     WrappedComponent = React.Children.only(children);

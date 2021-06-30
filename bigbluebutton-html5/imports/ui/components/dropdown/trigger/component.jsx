@@ -84,10 +84,8 @@ export default class DropdownTrigger extends Component {
         triggerComponentProps);
 
       const ButtonComponent = React.Children.only(children);
-      const ButtonComponentBounded = React.cloneElement(ButtonComponent,
+      return React.cloneElement(ButtonComponent,
         buttonComponentProps, TriggerComponentBounded);
-
-      return ButtonComponentBounded;
     }
 
     buttonComponentProps.className = cx(children.props.className, className);
