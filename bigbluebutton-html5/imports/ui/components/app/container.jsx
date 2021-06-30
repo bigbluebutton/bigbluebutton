@@ -56,17 +56,18 @@ const AppContainer = (props) => {
     navbar,
     actionsbar,
     media,
+    currentUserId,
     ...otherProps
   } = props;
 
-  return (
+  return currentUserId ?
     <App
       navbar={navbar}
       actionsbar={actionsbar}
       media={media}
       {...otherProps}
     />
-  );
+    : null
 };
 
 const currentUserEmoji = currentUser => (currentUser ? {
@@ -95,7 +96,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     { fields: { publishedPoll: 1, voiceProp: 1, randomlySelectedUser: 1 } });
   const { publishedPoll, voiceProp, randomlySelectedUser } = currentMeeting;
 
-  if (!currentUser.approved) {
+  if (currentUser && !currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
   }
 
@@ -122,8 +123,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     startBandwidthMonitoring,
     handleNetworkConnection: () => updateNavigatorConnection(navigator.connection),
     randomlySelectedUser,
-    currentUserId: currentUser.userId,
-    isPresenter: currentUser.presenter,
+    currentUserId: currentUser?.userId,
+    isPresenter: currentUser?.presenter,
     isLargeFont: Session.get('isLargeFont')
   };
 })(AppContainer)));
