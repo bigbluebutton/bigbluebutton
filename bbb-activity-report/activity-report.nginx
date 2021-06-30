@@ -1,0 +1,15 @@
+
+location /activity-reportt {
+                return 301 /playback/presentation/0.81/playback.html?$query_string;
+                # If you have recordings from 0.9.0 beta versions and are sure
+                # that you will never want to play recordings made with
+                # BigBlueButton 0.81, comment the line above and uncomment the
+                # following line:
+                #return 301 /playback/presentation/0.9.0/playback.html?$query_string;
+        }
+
+
+location /activity-report {
+        root    /var/bigbluebutton;
+	index	index.html index.htm;
+}

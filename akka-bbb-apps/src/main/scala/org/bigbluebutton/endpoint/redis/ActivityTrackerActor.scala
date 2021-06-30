@@ -149,10 +149,6 @@ class ActivityTrackerActor(
     val newUser = UserActivityTracker(
       msg.body.intId, msg.body.extId, msg.body.name
     )
-
-    log.info(newUser.intId)
-    log.info(newUser.name)
-
     val findMeeting = meetings.values.find(m => m.intId == msg.header.meetingId)
 
     val registeredMeeting: MeetingActivityTracker = findMeeting.getOrElse({
@@ -164,8 +160,6 @@ class ActivityTrackerActor(
     val refreshedMeeting = registeredMeeting.copy(users = registeredMeeting.users + (newUser.intId -> newUser))
 
     meetings += (refreshedMeeting.intId -> refreshedMeeting)
-
-    log.info("----meetings: " + meetings.toVector.length)
   }
 
   private def handleUserLeftMeetingEvtMsg(msg: UserLeftMeetingEvtMsg): Unit = {
@@ -183,7 +177,6 @@ class ActivityTrackerActor(
   }
 
   private def handleUserEmojiChangedEvtMsg(msg: UserEmojiChangedEvtMsg) {
-
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
       user <- meeting.users.values.find(u => u.intId == msg.body.userId)
@@ -266,7 +259,6 @@ class ActivityTrackerActor(
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
       user <- meeting.users.values.find(u => u.intId == msg.header.userId)
     } yield {
-      //val lastTalk: Talk = user.talks.last.copy(stoppedOn = System.currentTimeMillis())
       val updatedUser = user.copy(answers = user.answers + (msg.body.pollId -> msg.body.answer))
       val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
       meetings += (updatedMeeting.intId -> updatedMeeting)
@@ -274,9 +266,6 @@ class ActivityTrackerActor(
   }
 
   private def handleCreateMeetingReqMsg(msg: CreateMeetingReqMsg): Unit = {
-    log.info("------------------")
-    log.info("handleCreateMeetingReqMsg.")
-
     val newMeeting = MeetingActivityTracker(
       msg.body.props.meetingProp.intId,
       msg.body.props.meetingProp.extId,
@@ -287,47 +276,22 @@ class ActivityTrackerActor(
   }
 
   private def handleMeetingEndingEvtMsg(msg: MeetingEndingEvtMsg): Unit = {
-    log.info("------------------")
-    log.info("handleMeetingEndingEvtMsg.")
-
     for {
       meeting <- meetings.values.find(m => m.intId == msg.body.meetingId)
     } yield {
-      log.info("------------------")
-      log.info("-----Meeting ended! (infos will be sent)")
-      log.info(meeting.name)
-      log.info("users: " + meeting.users.toVector.length)
-
       meeting.users.map(user => {
         log.info(user._2.toString)
       })
-
       meetings = meetings.-(meeting.intId)
     }
   }
 
   private def sendPeriodicReport(): Unit = {
-    log.info("------------------")
-    log.info("SendPeriodicReport.")
-    log.info("meetings: " + meetings.toVector.length)
-
-    log.info(JsonUtil.toJson(meetings))
-
     meetings.map(meeting => {
-      log.info("------------------")
-      log.info(meeting._2.name)
-      log.info("users: " + meeting._2.users.toVector.length)
-
-      log.info(JsonUtil.toJson(meeting._2))
-
       val activityJson: String = JsonUtil.toJson(meeting._2)
-
       val event = MsgBuilder.buildActivityReportEvtMsg(meeting._2.intId, activityJson)
-//      healthzService.sendPubSubStatusMessage(msg.body.akkaAppsTimestamp, System.currentTimeMillis())
       outGW.send(event)
-
     })
-
 
   }
 

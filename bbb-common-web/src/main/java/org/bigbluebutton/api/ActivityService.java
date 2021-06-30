@@ -28,11 +28,11 @@ public class ActivityService {
     private static Logger log = LoggerFactory.getLogger(ActivityService.class);
     private static String activitiesDir = "/var/bigbluebutton/activity-report";
 
-    public void writeActivityJsonFile(String meetingId, String activityJson) {
-        this.createDirectory(new File(this.getDestinationBaseDirectoryName()));
+    public void writeActivityJsonFile(String meetingId, String activityReportAccessToken, String activityJson) {
+        File baseDir = new File(this.getDestinationBaseDirectoryName(meetingId,activityReportAccessToken));
+        if (!baseDir.exists()) baseDir.mkdirs();
 
-        String jsonFileName = this.getDestinationBaseDirectoryName() + File.separatorChar + meetingId + ".json";
-        File jsonFile = new File(jsonFileName);
+        File jsonFile = new File(baseDir.getAbsolutePath() + File.separatorChar + "activity-report.json");
 
         try {
             FileOutputStream fileOutput = new FileOutputStream(jsonFile);
@@ -46,13 +46,8 @@ public class ActivityService {
         }
     }
 
-    private static void createDirectory(File directory) {
-        if (!directory.exists())
-            directory.mkdirs();
-    }
-
-    private String getDestinationBaseDirectoryName() {
-        return activitiesDir;
+    private String getDestinationBaseDirectoryName(String meetingId, String activityReportAccessToken) {
+        return activitiesDir + File.separatorChar + meetingId + File.separatorChar + activityReportAccessToken;
     }
 
     public void setActivitiesDir(String dir) {

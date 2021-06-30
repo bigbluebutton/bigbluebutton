@@ -344,6 +344,9 @@ public class ParamsProcessorUtil {
         String viewerPass = processPassword(params.get(ApiParams.ATTENDEE_PW));
         String modPass = processPassword(params.get(ApiParams.MODERATOR_PW));
 
+        //Generate token to access Activity Report
+        String activityReportAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
+
         // Get the digits for voice conference for users joining through the
         // phone.
         // If none is provided, generate one.
@@ -496,6 +499,7 @@ public class ParamsProcessorUtil {
 				.withLockSettingsParams(lockSettingsParams)
 				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
                 .withHTML5InstanceId(html5InstanceId)
+                .withActivityReportAccessToken(activityReportAccessToken)
                 .build();
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {

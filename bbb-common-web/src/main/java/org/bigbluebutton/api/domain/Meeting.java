@@ -51,6 +51,7 @@ public class Meeting {
 	private String webVoice;
 	private String moderatorPass;
 	private String viewerPass;
+	private String activityReportAccessToken;
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
 	private String modOnlyMessage = "";
@@ -107,6 +108,7 @@ public class Meeting {
         intMeetingId = builder.internalId;
         viewerPass = builder.viewerPass;
         moderatorPass = builder.moderatorPass;
+		activityReportAccessToken = builder.activityReportAccessToken;
         maxUsers = builder.maxUsers;
         bannerColor = builder.bannerColor;
         bannerText = builder.bannerText;
@@ -323,7 +325,11 @@ public class Meeting {
 	public String getViewerPassword() {
 		return viewerPass;
 	}
-	
+
+	public String getActivityReportAccessToken() {
+		return activityReportAccessToken;
+	}
+
     public String getWelcomeMessageTemplate() {
         return welcomeMsgTemplate;
     }
@@ -704,6 +710,7 @@ public class Meeting {
         private boolean webcamsOnlyForModerator;
     	private String moderatorPass;
     	private String viewerPass;
+    	private String activityReportAccessToken;
     	private int duration;
     	private String webVoice;
     	private String telVoice;
@@ -793,6 +800,11 @@ public class Meeting {
 	    	return this;
 	    }
     	
+    	public Builder withActivityReportAccessToken(String p) {
+	    	this.activityReportAccessToken = p;
+	    	return this;
+	    }
+
     	public Builder withWelcomeMessage(String w) {
     		welcomeMsg = w;
     		return this;

@@ -29,6 +29,7 @@ trait AppsTestFixtures {
   val webcamsOnlyForModerator = false;
   val moderatorPassword = "modpass"
   val viewerPassword = "viewpass"
+  val activityReportAccessToken = "arToken"
   val createTime = System.currentTimeMillis
   val createDate = "Oct 26, 2015"
   val isBreakout = false
@@ -52,7 +53,7 @@ trait AppsTestFixtures {
   val durationProps = DurationProps(duration = durationInMinutes, createdTime = createTime, createdDate = createDate,
     meetingExpireIfNoUserJoinedInMinutes = meetingExpireIfNoUserJoinedInMinutes, meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes,
     userInactivityInspectTimerInMinutes = userInactivityInspectTimerInMinutes, userInactivityThresholdInMinutes = userInactivityInspectTimerInMinutes, userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes)
-  val password = PasswordProp(moderatorPass = moderatorPassword, viewerPass = viewerPassword)
+  val password = PasswordProp(moderatorPass = moderatorPassword, viewerPass = viewerPassword, activityReportAccessToken = activityReportAccessToken)
   val recordProp = RecordProp(record = record, autoStartRecording = autoStartRecording,
     allowStartStopRecording = allowStartStopRecording, keepEvents = keepEvents )
   val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,

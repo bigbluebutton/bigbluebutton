@@ -401,7 +401,7 @@ public class MeetingService implements MessageListener {
 
     gw.createMeeting(m.getInternalId(), m.getExternalId(), m.getParentMeetingId(), m.getName(), m.isRecord(),
             m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
-            m.getWebcamsOnlyForModerator(), m.getModeratorPassword(), m.getViewerPassword(), m.getCreateTime(),
+            m.getWebcamsOnlyForModerator(), m.getModeratorPassword(), m.getViewerPassword(), m.getActivityReportAccessToken(), m.getCreateTime(),
             formatPrettyDate(m.getCreateTime()), m.isBreakout(), m.getSequence(), m.isFreeJoin(), m.getMetadata(),
             m.getGuestPolicy(), m.getAuthenticatedGuest(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(), m.getModeratorOnlyMessage(),
             m.getDialNumber(), m.getMaxUsers(),
@@ -963,7 +963,7 @@ public class MeetingService implements MessageListener {
       String logStr = gson.toJson(logData);
 
       log.info(" --analytics-- data={}", logStr);
-      activityService.writeActivityJsonFile(message.meetingId, message.activityJson);
+      activityService.writeActivityJsonFile(message.meetingId, m.getActivityReportAccessToken(), message.activityJson);
     }
   }
 
