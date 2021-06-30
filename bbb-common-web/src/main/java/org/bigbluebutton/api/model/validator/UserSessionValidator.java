@@ -14,6 +14,11 @@ public class UserSessionValidator implements ConstraintValidator<UserSessionCons
 
     @Override
     public boolean isValid(String sessionToken, ConstraintValidatorContext constraintValidatorContext) {
+
+        if(sessionToken == null) {
+            return false;
+        }
+
         UserSession userSession = ServiceUtils.getMeetingService().getUserSessionWithAuthToken(sessionToken);
 
         if(userSession == null) {

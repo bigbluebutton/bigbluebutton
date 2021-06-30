@@ -686,7 +686,6 @@ class ApiController {
     String API_CALL = 'guestWait'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
-    ApiErrors errors = new ApiErrors()
     String msgKey = "defaultKey"
     String msgValue = "defaultValue"
     String destURL = paramsProcessorUtil.getDefaultLogoutUrl()
@@ -704,6 +703,9 @@ class ApiController {
       return
     }
 
+    String sessionToken = sanitizeSessionToken(params.sessionToken)
+    UserSession us = getUserSession(sessionToken)
+    Meeting meeting = meetingService.getMeeting(us.meetingID)
     String status = us.guestStatus
     destURL = us.clientUrl
     String lobbyMsg = meeting.getGuestLobbyMessage()
@@ -788,6 +790,10 @@ class ApiController {
     String respMessage = "Session not found."
     boolean reject = false;
 
+    String sessionToken
+    UserSession us
+    Meeting meeting
+
     String validationResponse = validateRequest(
             ValidationService.ApiCall.ENTER,
             request.getParameterMap(),
@@ -797,15 +803,15 @@ class ApiController {
     if(!validationResponse.isEmpty()) {
       respMessage = validationResponse
       reject = true
-    }
+    } else {
+      sessionToken = sanitizeSessionToken(params.sessionToken)
+      us = getUserSession(sessionToken)
+      meeting = meetingService.getMeeting(us.meetingID)
+      meeting.userEntered(us.internalUserId)
 
-    String sessionToken = sanitizeSessionToken(params.sessionToken)
-    UserSession us = getUserSession(sessionToken)
-    Meeting meeting = meetingService.getMeeting(us.meetingID)
-    meeting.userEntered(us.internalUserId)
-
-    if (!hasValidSession(sessionToken)) {
-      reject = true;
+      if (!hasValidSession(sessionToken)) {
+        reject = true;
+      }
     }
 
     if (reject) {
@@ -925,6 +931,10 @@ class ApiController {
 
     boolean reject = false;
 
+    String sessionToken
+    UserSession us
+    Meeting meeting
+
     String validationResponse = validateRequest(
             ValidationService.ApiCall.STUNS,
             request.getParameterMap(),
@@ -933,14 +943,14 @@ class ApiController {
 
     if(!validationResponse.isEmpty()) {
       reject = true
-    }
+    } else {
+      sessionToken = sanitizeSessionToken(params.sessionToken)
+      us = getUserSession(sessionToken)
+      meeting = meetingService.getMeeting(us.meetingID)
 
-    String sessionToken = sanitizeSessionToken(params.sessionToken)
-    UserSession us = getUserSession(sessionToken)
-    Meeting meeting = meetingService.getMeeting(us.meetingID)
-
-    if (!hasValidSession(sessionToken)) {
-      reject = true;
+      if (!hasValidSession(sessionToken)) {
+        reject = true;
+      }
     }
 
     if (reject) {
