@@ -362,10 +362,12 @@ const reducer = (state, action) => {
       };
     }
     case ACTIONS.SET_SIDEBAR_CONTENT_SIZE: {
-      const { width, browserWidth } = action.value;
+      const { width, browserWidth, height, browserHeight } = action.value;
       const { sidebarContent } = state.input;
       if (sidebarContent.width === width
-        && sidebarContent.browserWidth === browserWidth) {
+        && sidebarContent.browserWidth === browserWidth
+        && sidebarContent.height === height
+        && sidebarContent.browserHeight === browserHeight) {
         return state;
       }
       return {
@@ -376,6 +378,8 @@ const reducer = (state, action) => {
             ...sidebarContent,
             width,
             browserWidth,
+            height,
+            browserHeight,
           },
         },
       };

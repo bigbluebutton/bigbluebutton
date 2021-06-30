@@ -35,6 +35,7 @@ const DEFAULT_VALUES = {
 
   sidebarContentMaxWidth: 350,
   sidebarContentMinWidth: 150,
+  sidebarContentMinHeight: 200,
   sidebarContentHeight: '100%',
   sidebarContentTop: 0,
   sidebarContentTabOrder: 2,
