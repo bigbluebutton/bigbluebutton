@@ -42,6 +42,8 @@ export default function addConnectionStatus(status, type, value) {
     check(type, String);
     check(value, Object);
 
+    if (!this.userId) return;
+
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
     check(meetingId, String);
