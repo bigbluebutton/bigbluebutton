@@ -79,6 +79,15 @@ public:
     showAudioFilters: true
     raiseHandActionButton:
       enabled: true
+    # If enabled, before joining microphone the client will perform a trickle
+    # ICE against Kurento and use the information about successfull
+    # candidate-pairs to filter out local candidates in SIP.js's SDP.
+    # Try enabling this setting in scenarios where the listenonly mode works,
+    # but microphone doesn't (for example, when using VPN).
+    # For compatibility check "Browser compatbility" section in:
+    # https://developer.mozilla.org/en-US/docs/Web/API/RTCDtlsTransport/iceTransport
+    # This is an EXPERIMENTAL setting and the default value is false
+    # experimentalUseKmsTrickleIceForMicrophone: false
     defaultSettings:
       application:
         animations: true

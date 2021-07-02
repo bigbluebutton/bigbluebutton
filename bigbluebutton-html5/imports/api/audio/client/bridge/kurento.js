@@ -193,6 +193,48 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
     });
   }
 
+  trickleIce() {
+    return new Promise((resolve, reject) => {
+      try {
+        fetchWebRTCMappedStunTurnServers(this.sessionToken)
+          .then((iceServers) => {
+            const options = {
+              userName: this.name,
+              caleeName: `${GLOBAL_AUDIO_PREFIX}${this.voiceBridge}`,
+              iceServers,
+            };
+
+            this.broker = new ListenOnlyBroker(
+              Auth.authenticateURL(SFU_URL),
+              this.voiceBridge,
+              this.userId,
+              this.internalMeetingID,
+              RECV_ROLE,
+              options,
+            );
+
+            this.broker.onstart = () => {
+              const { peerConnection } = this.broker.webRtcPeer;
+
+              if (!peerConnection) return resolve(null);
+
+              const selectedCandidatePair = peerConnection.getReceivers()[0]
+                .transport.iceTransport.getSelectedCandidatePair();
+
+              const validIceCandidate = [selectedCandidatePair.local];
+
+              this.broker.stop();
+              return resolve(validIceCandidate);
+            };
+
+            this.broker.listen();
+          });
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
   joinAudio({ isListenOnly }, callback) {
     return new Promise(async (resolve, reject) => {
       if (!isListenOnly) return reject(new Error('Invalid bridge option'));
