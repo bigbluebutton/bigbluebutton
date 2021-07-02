@@ -11,6 +11,7 @@ import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills
 import { monitorAudioConnection } from '/imports/utils/stats';
 import AudioErrors from './error-codes';
 import {Meteor} from "meteor/meteor";
+import browserInfo from '/imports/utils/browserInfo';
 
 const STATS = Meteor.settings.public.stats;
 const MEDIA = Meteor.settings.public.media;
@@ -20,6 +21,8 @@ const MAX_LISTEN_ONLY_RETRIES = 1;
 const LISTEN_ONLY_CALL_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 25000;
 const DEFAULT_INPUT_DEVICE_ID = 'default';
 const DEFAULT_OUTPUT_DEVICE_ID = 'default';
+const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE = Meteor.settings
+  .public.app.experimentalUseKmsTrickleIceForMicrophone;
 
 const CALL_STATES = {
   STARTED: 'started',
@@ -110,12 +113,21 @@ class AudioManager {
   }
 
   async trickleIce() {
-    if (!this.listenOnlyBridge) return [];
+    const { isFirefox, isIe, isSafari } = browserInfo;
+
+    if (!this.listenOnlyBridge
+      || isFirefox
+      || isIe
+      || isSafari) return [];
 
     if (this.validIceCandidates && this.validIceCandidates.length) {
+      logger.info({ logCode: 'audiomanager_trickle_ice_reuse_candidate' },
+        'Reusing trickle-ice information before activating microphone');
       return this.validIceCandidates;
     }
 
+    logger.info({ logCode: 'audiomanager_trickle_ice_get_local_candidate' },
+      'Performing trickle-ice before activating microphone');
     this.validIceCandidates = await this.listenOnlyBridge.trickleIce() || [];
     return this.validIceCandidates;
   }
@@ -145,7 +157,11 @@ class AudioManager {
 
     return this.onAudioJoining.bind(this)()
       .then(async () => {
-        const validIceCandidates = await this.trickleIce();
+        let validIceCandidates = [];
+        if (EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE) {
+          validIceCandidates = await this.trickleIce();
+        }
+
         const callOptions = {
           isListenOnly: false,
           extension: ECHO_TEST_NUMBER,
