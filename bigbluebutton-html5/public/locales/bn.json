@@ -6,7 +6,7 @@
     "app.chat.disconnected": "সংযোগ ছিন্ন হয়েছে, বার্তা পাঠানো যাচ্ছে না",
     "app.chat.locked": "কথাবার্তা বন্ধ, বার্তা পাঠানো যাবে না<br>",
     "app.chat.inputLabel": "চ্যাটের জন্য বার্তা ইনপুট {0}",
-    "app.chat.inputPlaceholder": "বার্তা পাঠান {0}",
+    "app.chat.inputPlaceholder": "বার্তা পাঠাও {0}",
     "app.chat.titlePublic": "পাবলিক চ্যাট",
     "app.chat.titlePrivate": "{0} এর সাথে ব্যক্তিগত চ্যাট করুন",
     "app.chat.partnerDisconnected": "{0} the সভাটি ছেড়ে গেছে",
@@ -139,6 +139,7 @@
     "app.meeting.ended": "এই অধিবেশন শেষ হয়েছে",
     "app.meeting.meetingTimeRemaining": "সভার সময় বাকি: {0}",
     "app.meeting.meetingTimeHasEnded": "সময় শেষ। শীঘ্রই সভা বন্ধ হবে",
+    "app.meeting.endedByUserMessage": "{0} এই সেশন শেষ করে দিয়েছে",
     "app.meeting.endedMessage": "আপনাকে হোম স্ক্রিনে ফরোয়ার্ড করা হবে",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "এক মিনিটের মধ্যে সভা বন্ধ হচ্ছে।",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "সভাটি {0} মিনিটের মধ্যে শেষ হচ্ছে।",
@@ -787,6 +788,7 @@
     "app.createBreakoutRoom.addParticipantLabel": "+ অংশগ্রহণকারী যুক্ত করুন",
     "app.createBreakoutRoom.freeJoin": "ব্যবহারকারীদের যোগদানের জন্য একটি ব্রেকআউট ঘর চয়ন করার অনুমতি দিন",
     "app.createBreakoutRoom.leastOneWarnBreakout": "আপনার অবশ্যই একটি ব্রেকআউট রুমে কমপক্ষে একজন ব্যবহারকারী রাখা উচিত।",
+    "app.createBreakoutRoom.minimumDurationWarnBreakout": "আলাদা কক্ষের সর্বনিম্ন সময় হচ্ছে {0} মিনিট",
     "app.createBreakoutRoom.modalDesc": "টিপ: একটি নির্দিষ্ট ব্রেকআউট কক্ষে কোনও ব্যবহারকারীর নাম নির্ধারণের জন্য আপনি টেনে এনে ফেলে দিতে পারেন।",
     "app.createBreakoutRoom.roomTime": "{0} মিনিট",
     "app.createBreakoutRoom.numberOfRoomsError": "কক্ষের সংখ্যা অবৈধ",
@@ -810,7 +812,9 @@
     "app.debugWindow.form.userAgentLabel": "ব্যবহারিক দূত",
     "app.debugWindow.form.button.copy": "অনুলিপি",
     "app.debugWindow.form.enableAutoarrangeLayoutLabel": "স্বতঃ বিন্যাস বিন্যাস সক্ষম করুন",
-    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(আপনি ওয়েবক্যামের অঞ্চলটি টেনে আনলে বা পুনরায় আকার দিলে এটি অক্ষম হয়ে যাবে)"
+    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(আপনি ওয়েবক্যামের অঞ্চলটি টেনে আনলে বা পুনরায় আকার দিলে এটি অক্ষম হয়ে যাবে)",
+    "app.debugWindow.form.chatLoggerLabel": "কথার লগার হার পরীক্ষা করো",
+    "app.debugWindow.form.button.apply": "প্রয়োগ"
 
 }
 

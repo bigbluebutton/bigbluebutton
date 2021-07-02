@@ -474,7 +474,7 @@
     "app.audioModal.echoTestTitle": "Dies ist ein persönlicher Echotest. Sprechen Sie ein paar Worte. Hören Sie sich selbst?",
     "app.audioModal.settingsTitle": "Audioeinstellungen ändern",
     "app.audioModal.helpTitle": "Es gab ein Problem mit ihren Mediengeräten (Mikrofon/Webcam)",
-    "app.audioModal.helpText": "Haben Sie die Zugriffsrechte auf Ihr Mikrofon erteilt? Hinweis: Der Berechtigungs-Dialog dazu wird angezeigt, wenn Sie der Audiokonferenz beitreten. Dabei fragt Ihr Mediengerät nach der Zugriffserlaubnis. Bitte akzeptieren Sie diesen Dialog, um der Audiokonferenz beizutreten. Falls dies nicht zutrifft, dann verändern Sie bitte die Mikrofonberechtigung in ihren Browsereinstellungen.",
+    "app.audioModal.helpText": "Haben Sie die Zugriffsrechte auf Ihr Mikrofon erteilt? Hinweis: Der Berechtigungsdialog dazu wird angezeigt, wenn Sie der Audiokonferenz beitreten. Dabei fragt Ihr Mediengerät nach der Zugriffserlaubnis. Bitte akzeptieren Sie diesen Dialog, um der Audiokonferenz beizutreten. Falls dies nicht zutrifft, dann verändern Sie bitte die Mikrofonberechtigung in Ihren Browsereinstellungen.",
     "app.audioModal.help.noSSL": "Diese Seite ist nicht über HTTPS abgesichtert. Um Zugriff auf Ihr Mikrofon zu erlauben, muss die Webseite über HTTPS bereitgestellt werden. Bitte kontaktieren Sie den Serveradministrator.",
     "app.audioModal.help.macNotAllowed": "Es scheint so, als ob Ihre Mac Systemeinstellungen die Mikrofonfreigabe blockiert. Öffnen Sie Systemeinstellungen > Sicherheit & Privatsphäre > Mikrofon und stellen Sie sicher, dass der von Ihnen verwendete Browser ausgewählt ist.",
     "app.audioModal.audioDialTitle": "Mit dem Telefon teilnehmen",
@@ -788,6 +788,7 @@
     "app.createBreakoutRoom.addParticipantLabel": "+ Teilnehmer hinzufügen",
     "app.createBreakoutRoom.freeJoin": "Den Teilnehmern erlauben, sich selbst einen Gruppenraum auszusuchen.",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Jedem Gruppenraum muss wenigstens ein Teilnehmer zugeordnet sein.",
+    "app.createBreakoutRoom.minimumDurationWarnBreakout": "Die Mindestdauer für einen Gruppenraum beträgt {0} Minuten.",
     "app.createBreakoutRoom.modalDesc": "Tipp: Sie können die Teilnehmer per Drag-and-Drop einem bestimmten Gruppenraum zuweisen.",
     "app.createBreakoutRoom.roomTime": "{0} Minuten",
     "app.createBreakoutRoom.numberOfRoomsError": "Die Raumanzahl ist ungültig.",
@@ -811,7 +812,9 @@
     "app.debugWindow.form.userAgentLabel": "User Agent",
     "app.debugWindow.form.button.copy": "Kopieren",
     "app.debugWindow.form.enableAutoarrangeLayoutLabel": "Automatisches Anordnungslayout aktivieren",
-    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(es wird deaktiviert, wenn Sie den Webcambereich ziehen oder in der Größe verändern)"
+    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(es wird deaktiviert, wenn Sie den Webcambereich ziehen oder in der Größe verändern)",
+    "app.debugWindow.form.chatLoggerLabel": "Test der Chatprotokollierungsstufen",
+    "app.debugWindow.form.button.apply": "Anwenden"
 
 }
 
