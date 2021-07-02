@@ -65,6 +65,7 @@ const AppContainer = (props) => {
       navbar={navbar}
       actionsbar={actionsbar}
       media={media}
+      currentUserId={currentUserId}
       {...otherProps}
     />
     : null
