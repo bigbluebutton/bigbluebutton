@@ -13,9 +13,7 @@ import VideoService from '../video-provider/service';
 import { styles } from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
-
-const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
-const GUM_TIMEOUT = Meteor.settings.public.kurento.gUMTimeout;
+import { notify } from '/imports/ui/services/notification';
 
 const VIEW_STATES = {
   finding: 'finding',
@@ -187,23 +185,17 @@ class VideoPreview extends Component {
     this.handleSelectProfile = this.handleSelectProfile.bind(this);
 
     this.deviceStream = null;
-
     this._isMounted = false;
 
     this.state = {
       webcamDeviceId,
       availableWebcams: null,
-      availableProfiles: {},
       selectedProfile: null,
       isStartSharingDisabled: true,
       viewState: VIEW_STATES.finding,
       deviceError: null,
       previewError: null,
     };
-
-    this.userParameterProfile = VideoService.getUserParameterProfile();
-    this.mirrorOwnWebcam = VideoService.mirrorOwnWebcam();
-    this.skipVideoPreview = PreviewService.getSkipVideoPreview();
   }
 
   componentDidMount() {
@@ -214,65 +206,68 @@ class VideoPreview extends Component {
     this._isMounted = true;
 
     if (deviceInfo.hasMediaDevices) {
-      try {
-        let firstAllowedDeviceId;
+      navigator.mediaDevices.enumerateDevices().then((devices) => {
+        VideoService.updateNumberOfDevices(devices);
+        // Video preview skip is activated, short circuit via a simpler procedure
+        if (PreviewService.getSkipVideoPreview()) return this.skipVideoPreview();
+        // Late enumerateDevices resolution, stop.
+        if (!this._isMounted) return;
 
-        navigator.mediaDevices.enumerateDevices().then((devices) => {
-          VideoService.updateNumberOfDevices(devices);
-          // Late enumerateDevices resolution, stop.
-          if (!this._isMounted) return;
+        let {
+          webcams,
+          areLabelled,
+          areIdentified
+        } = PreviewService.digestVideoDevices(devices, webcamDeviceId);
 
-          let {
+        logger.debug({
+          logCode: 'video_preview_enumerate_devices',
+          extraInfo: {
+            devices,
             webcams,
-            areLabelled,
-            areIdentified
-          } = PreviewService.digestVideoDevices(devices, webcamDeviceId);
+          },
+        }, `Enumerate devices came back. There are ${devices.length} devices and ${webcams.length} are video inputs`);
 
-          logger.debug({
-            logCode: 'video_preview_enumerate_devices',
-            extraInfo: {
-              devices,
-              webcams,
-            },
-          }, `Enumerate devices came back. There are ${devices.length} devices and ${webcams.length} are video inputs`);
+        if (webcams.length > 0) {
+          this.getInitialCameraStream(webcams[0].deviceId)
+            .then(async () => {
+              // Late gUM resolve, stop.
+              if (!this._isMounted) return;
 
-          if (webcams.length > 0) {
-            this.getInitialPreview(webcams[0].deviceId)
-              .then(async () => {
-                // Late gUM resolution, stop.
-                if (!this._isMounted) return;
-
-                if (!areLabelled || !areIdentified) {
-                  // If they aren't labelled or have nullish deviceIds, run
-                  // enumeration again and get their full versions
-                  // Why: fingerprinting countermeasures obfuscate those when
-                  // no permission was granted via gUM
+              if (!areLabelled || !areIdentified) {
+                // If they aren't labelled or have nullish deviceIds, run
+                // enumeration again and get their full versions
+                // Why: fingerprinting countermeasures obfuscate those when
+                // no permission was granted via gUM
+                try {
                   const newDevices = await navigator.mediaDevices.enumerateDevices();
                   webcams = PreviewService.digestVideoDevices(newDevices, webcamDeviceId).webcams;
+                } catch (error) {
+                  // Not a critical error beucase it should only affect UI; log it
+                  // and go ahead
+                  logger.error({
+                    logCode: 'video_preview_enumerate_relabel_failure',
+                    extraInfo: {
+                      errorName: error.name, errorMessage: error.message,
+                    },
+                  }, 'enumerateDevices for relabelling failed');
                 }
+              }
 
-                this.setState({
-                  availableWebcams: webcams,
-                });
-
-                if (!this.skipVideoPreview) {
-                  this.setState({
-                    viewState: VIEW_STATES.found,
-                  });
-                }
-
-                this.displayPreview();
+              this.setState({
+                availableWebcams: webcams,
+                viewState: VIEW_STATES.found,
               });
-          } else {
-            // There were no webcams coming from enumerateDevices. Throw an error.
-            throw new Error('NotFoundError');
-          }
-        }).catch((error) => {
-          this.handleDeviceError('enumerate', error, 'enumerating devices');
-        });
-      } catch (error) {
-        this.handleDeviceError('grabbing', error, 'grabbing initial video stream');
-      }
+              this.displayPreview();
+            });
+        } else {
+          // There were no webcams coming from enumerateDevices. Throw an error.
+          const noWebcamsError = new Error('NotFoundError');
+          this.handleDeviceError('enumerate', noWebcamsError, ': no webcams found');
+        }
+      }).catch((error) => {
+        // enumerateDevices failed
+        this.handleDeviceError('enumerate', error, 'enumerating devices');
+      });
     } else {
       // Top-level navigator.mediaDevices is not supported.
       // The session went through the version checking, but somehow ended here.
@@ -283,20 +278,15 @@ class VideoPreview extends Component {
   }
 
   componentWillUnmount() {
-    this.cleanupUnusedStream(this.deviceStream, this.state.webcamDeviceId);
-    this.deviceStream = null;
-
-    if (this.video) {
-      this.video.srcObject = null;
-    }
-
+    PreviewService.terminateCameraStream(this.deviceStream, this.state.webcamDeviceId);
+    this.cleanupStreamAndVideo();
     this._isMounted = false;
   }
 
   handleSelectWebcam(event) {
     const webcamValue = event.target.value;
 
-    this.getInitialPreview(webcamValue).then(() => {
+    this.getInitialCameraStream(webcamValue).then(() => {
       this.displayPreview();
     });
   }
@@ -305,9 +295,8 @@ class VideoPreview extends Component {
     const profileValue = event.target.value;
     const { webcamDeviceId } = this.state;
 
-    const selectedProfile = CAMERA_PROFILES.find(profile => profile.id === profileValue);
-
-    this.getPreviewStream(webcamDeviceId, selectedProfile).then(() => {
+    const selectedProfile = PreviewService.getCameraProfile(profileValue);
+    this.getCameraStream(webcamDeviceId, selectedProfile).then(() => {
       this.displayPreview();
     });
   }
@@ -321,7 +310,7 @@ class VideoPreview extends Component {
     if(!PreviewService.storeStream(webcamDeviceId, this.deviceStream)) {
       MediaStreamUtils.stopMediaStreamTracks(this.deviceStream);
     }
-    this.deviceStream = null;
+    this.cleanupStreamAndVideo();
     startSharing(webcamDeviceId);
     if (resolve) resolve();
   }
@@ -331,7 +320,7 @@ class VideoPreview extends Component {
     const { webcamDeviceId } = this.state;
     PreviewService.deleteStream(webcamDeviceId);
     stopSharing(webcamDeviceId);
-    this.deviceStream = null;
+    this.cleanupStreamAndVideo();
     if (resolve) resolve();
   }
 
@@ -344,7 +333,7 @@ class VideoPreview extends Component {
   handleProceed() {
     const { resolve, closeModal } = this.props;
 
-    this.cleanupUnusedStream(this.deviceStream, this.state.webcamDeviceId);
+    PreviewService.terminateCameraStream(this.deviceStream, this.state.webcamDeviceId);
     closeModal();
     if (resolve) resolve();
   }
@@ -395,75 +384,46 @@ class VideoPreview extends Component {
       { 0: `${error.name}: ${error.message}` });
   }
 
-  cleanupUnusedStream (stream, deviceId) {
-    // Cleanup current stream if it wasn't shared/stored
-    if (stream && !PreviewService.hasStream(deviceId)) {
-      MediaStreamUtils.stopMediaStreamTracks(stream);
-    }
-  }
-
-  getInitialPreview(deviceId) {
-    const { webcamDeviceId } = this.state;
-    const availableProfiles = CAMERA_PROFILES.filter(p => !p.hidden);
-
-    this.cleanupUnusedStream(this.deviceStream, webcamDeviceId);
-
-    this.setState({
-      webcamDeviceId: deviceId,
-      isStartSharingDisabled: true,
-      availableProfiles,
-    });
-    PreviewService.changeWebcam(deviceId);
-
-    if (availableProfiles.length > 0) {
-      const defaultProfile = availableProfiles.find(profile => profile.id === this.userParameterProfile)
-        || availableProfiles.find(profile => profile.default)
-        || availableProfiles[0];
-      return this.getPreviewStream(deviceId, defaultProfile);
-    } else {
-      return Promise.resolve();
-    }
-  }
-
-  doGUM(deviceId, profile) {
-    // Check if this is an already loaded stream
-    if (deviceId && PreviewService.hasStream(deviceId)) {
-      return Promise.resolve(PreviewService.getStream(deviceId));
-    }
-
-    const constraints = {
-      audio: false,
-      video: { ...profile.constraints },
-    };
-
-    if (deviceId) {
-      constraints.video.deviceId = { exact: deviceId };
-    }
-
-    if (this.video) {
-      this.video.srcObject = null;
-    }
+  cleanupStreamAndVideo() {
     this.deviceStream = null;
-
-    return PreviewService.promiseTimeout(GUM_TIMEOUT, navigator.mediaDevices.getUserMedia(constraints));
+    if (this.video) this.video.srcObject = null;
   }
 
-  getPreviewStream(deviceId, profile) {
+  updateDeviceId (deviceId) {
+    let actualDeviceId = deviceId;
+
+    if (!actualDeviceId) {
+      actualDeviceId = MediaStreamUtils.extractVideoDeviceId(this.deviceStream);
+    }
+
+    this.setState({ webcamDeviceId: actualDeviceId, });
+    PreviewService.changeWebcam(actualDeviceId);
+  }
+
+  getInitialCameraStream(deviceId) {
+    const { webcamDeviceId } = this.state;
+    const defaultProfile = PreviewService.getDefaultProfile();
+
+    PreviewService.terminateCameraStream(this.deviceStream, webcamDeviceId);
+
+    return this.getCameraStream(deviceId, defaultProfile).then(() => {
+      this.updateDeviceId(deviceId);
+    });
+  }
+
+  getCameraStream(deviceId, profile) {
     this.setState({
       selectedProfile: profile.id,
       isStartSharingDisabled: true,
       previewError: undefined,
     });
+
     PreviewService.changeProfile(profile.id);
+    this.cleanupStreamAndVideo();
 
-    if (this.skipVideoPreview) {
-      this.handleStartSharing();
-      return Promise.resolve();
-    }
-
-    return this.doGUM(deviceId, profile).then((stream) => {
-      // Late GUM resolution, clean up tracks, stop.
-      if (!this._isMounted) return this.cleanupUnusedStream(stream, deviceId);
+    return PreviewService.doGUM(deviceId, profile).then((stream) => {
+      // Late GUM resolve, clean up tracks, stop.
+      if (!this._isMounted) return PreviewService.terminateCameraStream(stream, deviceId);
 
       this.setState({
         isStartSharingDisabled: false,
@@ -471,14 +431,27 @@ class VideoPreview extends Component {
 
       this.deviceStream = stream;
     }).catch((error) => {
-      this.handlePreviewError('do_gum_preview', error, 'displaying final selection');
+      // When video preview is set to skip, we need some way to bubble errors
+      // up to users; so re-throw the error
+      if (!PreviewService.getSkipVideoPreview()) {
+        this.handlePreviewError('do_gum_preview', error, 'displaying final selection');
+      } else {
+        throw error;
+      }
     });
   }
 
   displayPreview() {
-    if (this.deviceStream) {
-      this.video.srcObject = this.deviceStream;
-    }
+    if (this.deviceStream && this.video) this.video.srcObject = this.deviceStream;
+  }
+
+  skipVideoPreview() {
+    this.getInitialCameraStream().then(() => {
+      this.handleStartSharing();
+    }).catch(error => {
+      this.cleanupStreamAndVideo();
+      notify(this.handleGUMError(error), 'error', 'video');
+    });
   }
 
   supportWarning() {
@@ -505,7 +478,6 @@ class VideoPreview extends Component {
     const {
       webcamDeviceId,
       availableWebcams,
-      availableProfiles,
       selectedProfile,
     } = this.state;
 
@@ -548,7 +520,7 @@ class VideoPreview extends Component {
               <label className={styles.label} htmlFor="setQuality">
                 {intl.formatMessage(intlMessages.qualityLabel)}
               </label>
-              {availableProfiles && availableProfiles.length > 0
+              {PreviewService.PREVIEW_CAMERA_PROFILES.length > 0
                 ? (
                   <select
                     id="setQuality"
@@ -556,7 +528,7 @@ class VideoPreview extends Component {
                     className={styles.select}
                     onChange={this.handleSelectProfile}
                   >
-                    {availableProfiles.map((profile) => {
+                    {PreviewService.PREVIEW_CAMERA_PROFILES.map((profile) => {
                       const label = intlMessages[`${profile.id}`]
                         ? intl.formatMessage(intlMessages[`${profile.id}`])
                         : profile.name;
@@ -624,10 +596,10 @@ class VideoPreview extends Component {
                   : (
                     <video
                       id="preview"
-                      data-test={this.mirrorOwnWebcam ? 'mirroredVideoPreview' : 'videoPreview'}
+                      data-test={VideoService.mirrorOwnWebcam() ? 'mirroredVideoPreview' : 'videoPreview'}
                       className={cx({
                         [styles.preview]: true,
-                        [styles.mirroredVideo]: this.mirrorOwnWebcam,
+                        [styles.mirroredVideo]: VideoService.mirrorOwnWebcam(),
                       })}
                       ref={(ref) => { this.video = ref; }}
                       autoPlay
@@ -656,7 +628,7 @@ class VideoPreview extends Component {
       deviceError,
       previewError,
     } = this.state;
-    const shouldDisableButtons = this.skipVideoPreview && !(deviceError || previewError);
+    const shouldDisableButtons = PreviewService.getSkipVideoPreview() && !(deviceError || previewError);
 
     const shared = sharedDevices.includes(webcamDeviceId);
 
@@ -726,7 +698,7 @@ class VideoPreview extends Component {
       return null;
     }
 
-    if (this.skipVideoPreview) {
+    if (PreviewService.getSkipVideoPreview()) {
       return null;
     }
 
@@ -735,7 +707,7 @@ class VideoPreview extends Component {
       previewError,
     } = this.state;
 
-    const allowCloseModal = !!(deviceError || previewError) || !this.skipVideoPreview;
+    const allowCloseModal = !!(deviceError || previewError) || !PreviewService.getSkipVideoPreview();
 
     return (
       <Modal

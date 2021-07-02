@@ -22,7 +22,21 @@ const getVideoTracks = (stream) => {
   return videoTracks;
 }
 
+const extractVideoDeviceId = (stream) => {
+  // An empty string is the browser's default...
+  let deviceId = '';
+  const tracks = getVideoTracks(stream);
+
+  if (tracks[0] && typeof tracks[0].getSettings === 'function') {
+    const settings = tracks[0].getSettings();
+    deviceId = settings.deviceId;
+  }
+
+  return deviceId;
+}
+
 export default {
   stopMediaStreamTracks,
   getVideoTracks,
+  extractVideoDeviceId,
 };
