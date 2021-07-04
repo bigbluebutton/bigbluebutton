@@ -111,7 +111,7 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
 
     if (isLastOptionInteger === isCurrentValueInteger) {
       if (isCurrentValueInteger){
-        if (parseInt(currentValue.replace(/[\r.]g/,'')) > parseInt(lastOption.replace(/[\r.]g/,''))) {
+        if (parseInt(currentValue.replace(/[\r.]g/,'')) == parseInt(lastOption.replace(/[\r.]g/,'')) + 1) {
           options.push(currentValue);
         } else {
           acc.push({
@@ -119,7 +119,7 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
           });
         }
       } else {
-        if (currentValue.toLowerCase().charCodeAt(1) > lastOption.toLowerCase().charCodeAt(1)) {
+        if (currentValue.toLowerCase().charCodeAt(1) == lastOption.toLowerCase().charCodeAt(1) + 1) {
           options.push(currentValue);
         } else {
           acc.push({
