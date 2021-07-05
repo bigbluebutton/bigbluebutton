@@ -99,7 +99,7 @@
   }
 
   @include mq($hasPhoneDimentions) {
-    grid-template-columns: repeat(1, 1fr);
+    grid-template-columns: repeat(var(--col-amount), 1fr);
 
     .pollButtonWrapper button {
       grid-column: 1;
