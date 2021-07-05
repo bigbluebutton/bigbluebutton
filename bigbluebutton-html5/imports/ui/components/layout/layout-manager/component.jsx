@@ -306,7 +306,7 @@ class LayoutManagerComponent extends Component {
       return;
     }
 
-    if ((mediaAreaWidth - presentationWidth) > (mediaAreaHeight - presentationHeight)) {
+    if (!isMobile && ((mediaAreaWidth - presentationWidth) > (mediaAreaHeight - presentationHeight))) {
       layoutContextDispatch(
         {
           type: 'setWebcamsPlacement',
