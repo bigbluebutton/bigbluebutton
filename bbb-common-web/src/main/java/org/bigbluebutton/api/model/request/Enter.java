@@ -49,4 +49,9 @@ public class Enter implements Request<Enter.Params> {
             meetingID = sessionService.getMeetingID();
         }
     }
+
+    @Override
+    public void convertParamsFromString() {
+
+    }
 }

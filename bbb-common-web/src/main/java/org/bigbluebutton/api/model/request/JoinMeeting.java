@@ -1,9 +1,6 @@
 package org.bigbluebutton.api.model.request;
 
-import org.bigbluebutton.api.model.constraint.MeetingEndedConstraint;
-import org.bigbluebutton.api.model.constraint.MeetingExistsConstraint;
-import org.bigbluebutton.api.model.constraint.MeetingIDConstraint;
-import org.bigbluebutton.api.model.constraint.PasswordConstraint;
+import org.bigbluebutton.api.model.constraint.*;
 import org.bigbluebutton.api.model.shared.Checksum;
 
 import javax.validation.constraints.NotEmpty;
@@ -40,8 +37,12 @@ public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
     @PasswordConstraint
     private String password;
 
+    @IsBooleanConstraint(message = "Guest must be a boolean value (true or false)")
+    private String guestString;
     private Boolean guest;
 
+    @IsBooleanConstraint(message = "Auth must be a boolean value (true or false)")
+    private String authString;
     private Boolean auth;
 
     private Long createTime;
@@ -82,6 +83,8 @@ public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
         this.password = password;
     }
 
+    public void setGuestString(String guestString) { this.guestString = guestString; }
+
     public Boolean getGuest() {
         return guest;
     }
@@ -89,6 +92,8 @@ public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
     public void setGuest(Boolean guest) {
         this.guest = guest;
     }
+
+    public void setAuthString(String authString) { this.authString = authString; }
 
     public Boolean getAuth() {
         return auth;
@@ -115,8 +120,14 @@ public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
         if(params.containsKey(Params.USER_ID.getValue())) setUserID(params.get(Params.USER_ID.getValue())[0]);
         if(params.containsKey(Params.FULL_NAME.getValue())) setFullName(params.get(Params.FULL_NAME.getValue())[0]);
         if(params.containsKey(Params.PASSWORD.getValue())) setPassword(params.get(Params.PASSWORD.getValue())[0]);
-        if(params.containsKey(Params.GUEST.getValue())) setGuest(Boolean.parseBoolean(params.get(Params.GUEST.getValue())[0]));
-        if(params.containsKey(Params.AUTH.getValue())) setAuth(Boolean.parseBoolean(params.get(Params.AUTH.getValue())[0]));
+        if(params.containsKey(Params.GUEST.getValue())) setGuestString(params.get(Params.GUEST.getValue())[0]);
+        if(params.containsKey(Params.AUTH.getValue())) setAuthString(params.get(Params.AUTH.getValue())[0]);
         if(params.containsKey(Params.CREATE_TIME.getValue())) setCreateTime(Long.parseLong(params.get(Params.CREATE_TIME.getValue())[0]));
+    }
+
+    @Override
+    public void convertParamsFromString() {
+        guest = Boolean.parseBoolean(guestString);
+        auth = Boolean.parseBoolean(authString);
     }
 }

@@ -23,4 +23,8 @@ public abstract class RequestWithChecksum<P extends Enum<P> & RequestParameters>
     }
 
     public abstract void populateFromParamsMap(Map<String, String[]> params);
+
+    public void convertParamsFromString() {
+
+    }
 }

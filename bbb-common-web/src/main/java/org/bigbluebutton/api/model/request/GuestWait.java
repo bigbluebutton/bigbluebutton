@@ -50,4 +50,9 @@ public class GuestWait implements Request<GuestWait.Params> {
             meetingID = sessionService.getMeetingID();
         }
     }
+
+    @Override
+    public void convertParamsFromString() {
+
+    }
 }

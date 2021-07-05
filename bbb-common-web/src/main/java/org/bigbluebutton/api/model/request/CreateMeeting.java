@@ -1,8 +1,6 @@
 package org.bigbluebutton.api.model.request;
 
-import org.bigbluebutton.api.model.constraint.MeetingIDConstraint;
-import org.bigbluebutton.api.model.constraint.MeetingNameConstraint;
-import org.bigbluebutton.api.model.constraint.PasswordConstraint;
+import org.bigbluebutton.api.model.constraint.*;
 import org.bigbluebutton.api.model.shared.Checksum;
 
 import javax.validation.constraints.NotEmpty;
@@ -34,7 +32,9 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
     private String meetingID;
 
     @NotEmpty(message = "You must provide a voice bridge")
-    private String voiceBridge;
+    @IsIntegralConstraint(message = "Voice bridge must be a 5-digit integral value")
+    private String voiceBridgeString;
+    private Integer voiceBridge;
 
     @PasswordConstraint
     private String attendeePW;
@@ -42,10 +42,14 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
     @PasswordConstraint
     private String moderatorPW;
 
-    @NotNull(message = "You must provide whether this meeting is breakout room")
+    @NotEmpty(message = "You must provide whether this meeting is breakout room")
+    @IsBooleanConstraint(message = "You must provide a boolean value (true or false) for the breakout room")
+    private String isBreakoutRoomString;
     private Boolean isBreakoutRoom;
 
-    @NotNull(message = "You must provide whether to record this meeting")
+    @NotEmpty(message = "You must provide whether to record this meeting")
+    @IsBooleanConstraint(message = "Record must be a boolean value (true or false)")
+    private String recordString;
     private Boolean record;
 
     public CreateMeeting(Checksum checksum) {
@@ -68,13 +72,17 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
         this.meetingID = meetingID;
     }
 
-    public String getVoiceBridge() {
-        return voiceBridge;
+    public String getVoiceBridgeString() {
+        return voiceBridgeString;
     }
 
-    public void setVoiceBridge(String voiceBridge) {
-        this.voiceBridge = voiceBridge;
+    public void setVoiceBridgeString(String voiceBridgeString) {
+        this.voiceBridgeString = voiceBridgeString;
     }
+
+    public Integer getVoiceBridge() { return voiceBridge; }
+
+    public void setVoiceBridge(Integer voiceBridge) { this.voiceBridge = voiceBridge; }
 
     public String getAttendeePW() {
         return attendeePW;
@@ -92,6 +100,8 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
         this.moderatorPW = moderatorPW;
     }
 
+    public void setBreakoutRoomString(String breakoutRoomString) { isBreakoutRoomString = breakoutRoomString; }
+
     public Boolean isBreakoutRoom() {
         return isBreakoutRoom;
     }
@@ -99,6 +109,8 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
     public void setBreakoutRoom(boolean breakoutRoom) {
         isBreakoutRoom = breakoutRoom;
     }
+
+    public void setRecordString(String recordString) { this.recordString = recordString; }
 
     public Boolean isRecord() {
         return record;
@@ -112,10 +124,17 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
     public void populateFromParamsMap(Map<String, String[]> params) {
         if(params.containsKey(Params.NAME.getValue())) setName(params.get(Params.NAME.getValue())[0]);
         if(params.containsKey(Params.MEETING_ID.getValue())) setMeetingID(params.get(Params.MEETING_ID.getValue())[0]);
-        if(params.containsKey(Params.VOICE_BRIDGE.getValue())) setVoiceBridge(params.get(Params.VOICE_BRIDGE.getValue())[0]);
+        if(params.containsKey(Params.VOICE_BRIDGE.getValue())) setVoiceBridgeString(params.get(Params.VOICE_BRIDGE.getValue())[0]);
         if(params.containsKey(Params.ATTENDEE_PW.getValue())) setAttendeePW(params.get(Params.ATTENDEE_PW.getValue())[0]);
         if(params.containsKey(Params.MODERATOR_PW.getValue())) setModeratorPW(params.get(Params.MODERATOR_PW.getValue())[0]);
-        if(params.containsKey(Params.IS_BREAKOUT_ROOM.getValue())) setBreakoutRoom(Boolean.parseBoolean(params.get(Params.IS_BREAKOUT_ROOM.value)[0]));
-        if(params.containsKey(Params.RECORD.getValue())) setRecord(Boolean.parseBoolean(params.get(Params.RECORD.getValue())[0]));
+        if(params.containsKey(Params.IS_BREAKOUT_ROOM.getValue())) setBreakoutRoomString(params.get(Params.IS_BREAKOUT_ROOM.value)[0]);
+        if(params.containsKey(Params.RECORD.getValue())) setRecordString(params.get(Params.RECORD.getValue())[0]);
+    }
+
+    @Override
+    public void convertParamsFromString() {
+        voiceBridge = Integer.parseInt(voiceBridgeString);
+        isBreakoutRoom = Boolean.parseBoolean(isBreakoutRoomString);
+        record = Boolean.parseBoolean(recordString);
     }
 }

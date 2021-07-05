@@ -47,4 +47,9 @@ public class Stuns implements Request<Stuns.Params> {
         }
     }
 
+    @Override
+    public void convertParamsFromString() {
+
+    }
+
 }

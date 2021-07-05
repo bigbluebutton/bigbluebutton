@@ -146,6 +146,10 @@ public class ValidationService {
             violationSet.add(violation.getMessage());
         }
 
+        if(violationSet.isEmpty()) {
+            classToValidate.convertParamsFromString();
+        }
+
         return violationSet;
     }
 

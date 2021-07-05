@@ -33,4 +33,9 @@ public class SignOut implements Request<SignOut.Params> {
     public void populateFromParamsMap(Map<String, String[]> params) {
         if(params.containsKey(Enter.Params.SESSION_TOKEN.getValue())) setSessionToken(params.get(Enter.Params.SESSION_TOKEN.getValue())[0]);
     }
+
+    @Override
+    public void convertParamsFromString() {
+
+    }
 }
