@@ -190,7 +190,7 @@
   padding: 0 !important;
   overflow: hidden;
   display: none !important;
-  
+
 }
 
 .icon {
@@ -240,9 +240,13 @@
 
   .emojiButtonIcon {
     position: absolute;
-    top: 50%;
-    height: 50%;
+    top: 0;
+    height: 60%;
     left: 0;
+    width: 75%;
+    margin-left: 25%;
+    font-size: 50%;
+    margin-top: 40%;
     color: var(--btn-default-color);
   }
 }
