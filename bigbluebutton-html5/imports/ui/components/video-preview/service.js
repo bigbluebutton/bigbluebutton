@@ -49,4 +49,8 @@ export default {
     Session.set('WebcamProfileId', profileId);
   },
   getSkipVideoPreview,
+  changeVirtualBackground: (backgroundObj) => {
+    Session.set('VirtualBackgroundName', backgroundObj);
+  },
+  virtualBackground: () => Session.get('VirtualBackgroundName'),
 };

@@ -31,6 +31,7 @@ export default withModalMounter(withTracker(({ mountModal }) => ({
   startSharing: (deviceId) => {
     mountModal(null);
     VideoService.joinVideo(deviceId);
+    VideoService.setVirtualBackgroundInformation(Service.virtualBackground());
   },
   stopSharing: (deviceId) => {
     mountModal(null);
@@ -49,4 +50,9 @@ export default withModalMounter(withTracker(({ mountModal }) => ({
   changeProfile: profileId => Service.changeProfile(profileId),
   hasMediaDevices: deviceInfo.hasMediaDevices,
   hasVideoStream: VideoService.hasVideoStream(),
+  changeVirtualBackground: (backgroundObj) => {
+    // TODO: Add new VideoService function to handle virtual background stream
+    Service.changeVirtualBackground(backgroundObj)
+  },
+  virtualBackground: Service.virtualBackground(),
 }))(VideoPreviewContainer));

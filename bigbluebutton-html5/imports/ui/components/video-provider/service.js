@@ -811,6 +811,14 @@ class VideoService {
 
     return finalThreshold;
   }
+
+  getVirtualBackgroundInformation() {
+    return this.virtualBackgroundObject;
+  }
+
+  setVirtualBackgroundInformation(virtualBackgroundObject) {
+    this.virtualBackgroundObject = virtualBackgroundObject;
+  }
 }
 
 const videoService = new VideoService();
@@ -818,7 +826,7 @@ const videoService = new VideoService();
 export default {
   storeDeviceIds: () => videoService.storeDeviceIds(),
   exitVideo: () => videoService.exitVideo(),
-  joinVideo: deviceId => videoService.joinVideo(deviceId),
+  joinVideo: (deviceId) => videoService.joinVideo(deviceId),
   stopVideo: cameraId => videoService.stopVideo(cameraId),
   getVideoStreams: () => videoService.getVideoStreams(),
   getInfo: () => videoService.getInfo(),
@@ -852,4 +860,6 @@ export default {
   getPageChangeDebounceTime: () => { return PAGE_CHANGE_DEBOUNCE_TIME },
   getUsersIdFromVideoStreams: () => videoService.getUsersIdFromVideoStreams(),
   shouldRenderPaginationToggle: () => videoService.shouldRenderPaginationToggle(),
+  getVirtualBackgroundInformation: () => videoService.getVirtualBackgroundInformation(),
+  setVirtualBackgroundInformation: virtualBackgroundObject => videoService.setVirtualBackgroundInformation(virtualBackgroundObject),
 };

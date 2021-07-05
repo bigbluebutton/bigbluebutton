@@ -53,6 +53,12 @@ const intlMessages = defineMessages({
   prevPageLabel: {
     id: 'app.video.pagination.prevPage',
   },
+  toggleVirtualBgOnLabel: {
+    id: 'app.video.virtualBackground.toggleVirtualBgOn',
+  },
+  toggleVirtualBgOffLabel: {
+    id: 'app.video.virtualBackground.toggleVirtualBgOff',
+  },
 });
 
 const findOptimalGrid = (canvasWidth, canvasHeight, gutter, aspectRatio, numItems, columns = 1) => {
@@ -80,10 +86,15 @@ const ASPECT_RATIO = 4 / 3;
 const ACTION_NAME_FOCUS = 'focus';
 const ACTION_NAME_MIRROR = 'mirror';
 
+const VIRTUALBACKGROUNDCONFIG = Meteor.settings.public.virtualBackgrounds;
+let VIRTUALBACKGROUNDENABLED = true;
+if (VIRTUALBACKGROUNDCONFIG != null) {
+  VIRTUALBACKGROUNDENABLED = VIRTUALBACKGROUNDCONFIG.enabled;
+}
+
 class VideoList extends Component {
   constructor(props) {
     super(props);
-
     this.state = {
       focusedId: false,
       optimalGrid: {
@@ -270,6 +281,11 @@ class VideoList extends Component {
     return mirroredCameras.indexOf(stream) >= 0;
   }
 
+  handleVirtualBgToggle(stream) {
+    const { virtualBgChangeHandler, virtualBgIsActive } = this.props;
+    virtualBgChangeHandler(!virtualBgIsActive.includes(stream), stream);
+  }
+
   renderNextPageButton() {
     const { intl, numberOfPages, currentVideoPageIndex } = this.props;
 
@@ -325,6 +341,8 @@ class VideoList extends Component {
       onVideoItemMount,
       onVideoItemUnmount,
       swapLayout,
+      currentUserId,
+      virtualBgIsActive,
     } = this.props;
     const { focusedId } = this.state;
 
@@ -340,6 +358,21 @@ class VideoList extends Component {
         description: intl.formatMessage(intlMessages.mirrorDesc),
         onClick: () => this.mirrorCamera(stream),
       }];
+
+      // Disable virtual backgrounds for iOS
+      let isiOS = false;
+      const userAgent = window.navigator.userAgent;
+      if (userAgent.match(/iPad/i) || userAgent.match(/iPhone/i)) {
+        isiOS = true;
+      }
+      if (currentUserId === userId && !isiOS && VIRTUALBACKGROUNDENABLED) {
+        actions.push({
+          actionName: 'blurBackground',
+          label: intl.formatMessage(virtualBgIsActive.includes(stream) ? intlMessages['toggleVirtualBgOffLabel'] : intlMessages['toggleVirtualBgOnLabel']),
+          description: 'Blur',
+          onClick: () => this.handleVirtualBgToggle(stream)
+        })
+      }
 
       if (numOfStreams > 2) {
         actions.push({
