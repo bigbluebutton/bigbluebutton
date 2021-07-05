@@ -52,6 +52,9 @@ const storeStream = (deviceId, stream) => {
     const track = MediaStreamUtils.getVideoTracks(stream)[0];
     if (track) {
       track.addEventListener('ended', cleanup, { once: true });
+      // Extra safeguard: Firefox doesn't fire the 'ended' when it should
+      // but it invokes the callback (?), so hook up to both
+      track.onended = cleanup;
     }
   }
 
