@@ -410,7 +410,7 @@ class SmartLayout extends Component {
 
     // TODO Adicionar min e max para a apresentação
 
-    if (input.presentation.isFullscreen) {
+    if (input.fullscreen.element === 'Presentation') {
       mediaBounds.width = this.mainWidth();
       mediaBounds.height = this.mainHeight();
       mediaBounds.top = 0;

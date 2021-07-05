@@ -419,7 +419,7 @@ class VideoFocusLayout extends Component {
     const { deviceType, input } = newLayoutContextState;
     const mediaBounds = {};
 
-    if (input.presentation.isFullscreen) {
+    if (input.fullscreen.element === 'Presentation') {
       mediaBounds.width = this.mainWidth();
       mediaBounds.height = this.mainHeight();
       mediaBounds.top = 0;
