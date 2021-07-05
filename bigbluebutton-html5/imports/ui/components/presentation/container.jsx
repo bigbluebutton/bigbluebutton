@@ -21,7 +21,8 @@ const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props
   const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
   const { input, output, layoutLoaded } = newLayoutContextState;
   const { presentation } = output;
-  const { isFullscreen: fullscreenContext } = input.presentation;
+  const { element } = input.fullscreen;
+  const fullscreenContext = (element === 'Presentation');
   const { layoutSwapped, podId } = props;
 
   const usingUsersContext = useContext(UsersContext);

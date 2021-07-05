@@ -705,22 +705,6 @@ const reducer = (state, action) => {
         },
       };
     }
-    case ACTIONS.SET_PRESENTATION_IS_FULLSCREEN: {
-      const { presentation } = state.input;
-      if (presentation.isFullscreen === action.value) {
-        return state;
-      }
-      return {
-        ...state,
-        input: {
-          ...state.input,
-          presentation: {
-            ...presentation,
-            isFullscreen: action.value,
-          },
-        },
-      };
-    }
     case ACTIONS.SET_PRESENTATION_SLIDES_LENGTH: {
       const { presentation } = state.input;
       if (presentation.slidesLength === action.value) {
@@ -882,6 +866,24 @@ const reducer = (state, action) => {
             tabOrder,
             isResizable,
             zIndex,
+          },
+        },
+      };
+    }
+
+    // FULLSCREEN
+    case ACTIONS.SET_FULLSCREEN_ELEMENT: {
+      const { fullscreen } = state.input;
+      if (fullscreen.element === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          fullscreen: {
+            ...fullscreen,
+            element: action.value,
           },
         },
       };

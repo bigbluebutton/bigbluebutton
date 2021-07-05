@@ -51,6 +51,7 @@ const FullscreenButtonComponent = ({
   isFullscreen,
   layoutManagerLoaded,
   newLayoutContextDispatch,
+  element,
 }) => {
   if (isIphone) return null;
 
@@ -78,9 +79,11 @@ const FullscreenButtonComponent = ({
     if (layoutManagerLoaded === 'legacy') {
       handleToggleFullScreen(fullscreenRef);
     } else {
+      const newValue = (elementName === element) ? '' : elementName;
+
       newLayoutContextDispatch({
-        type: ACTIONS.SET_PRESENTATION_IS_FULLSCREEN,
-        value: !isFullscreen,
+        type: ACTIONS.SET_FULLSCREEN_ELEMENT,
+        value: newValue,
       });
     }
   }

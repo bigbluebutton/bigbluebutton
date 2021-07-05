@@ -73,10 +73,11 @@ export const ACTIONS = {
   SET_PRESENTATION_NUM_CURRENT_SLIDE: 'setPresentationNumCurrentSlide',
   SET_PRESENTATION_SLIDES_LENGTH: 'setPresentationSlideslength',
   SET_PRESENTATION_SIZE: 'setPresentationSize',
-  SET_PRESENTATION_IS_FULLSCREEN: 'setPresentationIsFullscreen',
   SET_PRESENTATION_OUTPUT: 'setPresentationOutput',
   SET_PRESENTATION_IS_RESIZABLE: 'setPresentationIsResizable',
   SET_PRESENTATION_RESIZABLE_EDGE: 'setPresentationResizableEdge',
+
+  SET_FULLSCREEN_ELEMENT: 'setFullscreenElement',
 
   SET_HAS_SCREEN_SHARE: 'setHasScreenShare',
   SET_SCREEN_SHARE_SIZE: 'setScreenShareSize',
