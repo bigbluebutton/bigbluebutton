@@ -9,14 +9,14 @@ exports.alerts = '.toastify-content';
 exports.isTalking = '[data-test="isTalking"]';
 exports.wasTalking = '[data-test="wasTalking"]';
 exports.joinAudio = 'button[data-test="joinAudio"]';
-exports.leaveAudio = 'button[data-test="leaveAudio"]';
+exports.leaveAudio = 'button[aria-label="Change/Leave audio"]';
+exports.disconnectAudio = 'li[data-test="disconnectAudio"]';
 
 exports.actions = 'button[aria-label="Actions"]';
 exports.options = 'button[aria-label="Options"]';
 exports.userList = 'button[aria-label="Users and Messages Toggle"]';
 exports.joinAudio = 'button[aria-label="Join Audio"]';
 exports.connectingStatus = 'div[class^="connecting--"]';
-exports.leaveAudio = 'button[aria-label="Leave Audio"]';
 exports.videoMenu = 'button[aria-label="Open video menu dropdown"]';
 exports.screenShare = 'button[aria-label="Share your screen"]';
 exports.screenshareConnecting = 'div[data-test="screenshareConnecting"]';

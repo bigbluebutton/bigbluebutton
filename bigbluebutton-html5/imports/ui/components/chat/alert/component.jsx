@@ -8,6 +8,9 @@ import ChatPushAlert from './push-alert/component';
 import Service from '../service';
 import { styles } from '../styles';
 
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.chat_clear;
+
 const propTypes = {
   pushAlertDisabled: PropTypes.bool.isRequired,
   activeChats: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -152,7 +155,7 @@ class ChatAlert extends PureComponent {
     } = this.props;
     const contentMessage = message
       .map((content) => {
-        if (content.text === 'PUBLIC_CHAT_CLEAR') return intl.formatMessage(intlMessages.publicChatClear);
+        if (content.text === PUBLIC_CHAT_CLEAR) return intl.formatMessage(intlMessages.publicChatClear);
         /* this code is to remove html tags that come in the server's messages */
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = content.text;

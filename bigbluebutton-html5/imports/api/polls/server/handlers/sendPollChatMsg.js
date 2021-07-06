@@ -11,9 +11,6 @@ export default function sendPollChatMsg({ body }, meetingId) {
   const PUBLIC_CHAT_SYSTEM_ID = CHAT_CONFIG.system_userid;
   const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
   const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
-  const MAX_POLL_RESULT_BARS = 20;
-
-  const { answers, numRespondents } = poll;
 
   const pollData = Polls.findOne({ meetingId });
 
@@ -21,36 +18,13 @@ export default function sendPollChatMsg({ body }, meetingId) {
     Logger.error(`Attempted to send chat message of inexisting poll for meetingId: ${meetingId}`);
     return false;
   }
-  
-  const caseInsensitiveReducer = (acc, item) => {
-    const index = acc.findIndex(ans => ans.key.toLowerCase() === item.key.toLowerCase());
-    if(index !== -1) {
-      if(acc[index].numVotes >= item.numVotes) acc[index].numVotes += item.numVotes;
-      else {
-        const tempVotes = acc[index].numVotes;
-        acc[index] = item;
-        acc[index].numVotes += tempVotes;
-      }
-    } else {
-      acc.push(item);
-    }
-    return acc;
+
+  const pollResultData = poll;
+  pollResultData.pollType = pollData.pollType;
+  const extra = {
+    type: 'poll',
+    pollResultData,
   };
-
-  let responded = 0;
-  let resultString = `bbb-published-poll-\n${pollData.question.split('<br/>').join('<br#>').split('\n').join('<br#>')}\n`;
-
-  answers.map((item) => {
-    responded += item.numVotes;
-    return item;
-  }).reduce(caseInsensitiveReducer, []).map((item) => {
-    item.key = item.key.split('<br/>').join('<br#>');
-    const numResponded = responded === numRespondents ? numRespondents : responded;
-    const pct = Math.round(item.numVotes / numResponded * 100);
-    const pctBars = "|".repeat(pct * MAX_POLL_RESULT_BARS / 100);
-    const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
-    resultString += `${item.key}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
-  });
 
   const payload = {
     id: `${SYSTEM_CHAT_TYPE}-${CHAT_POLL_RESULTS_MESSAGE}`,
@@ -60,7 +34,8 @@ export default function sendPollChatMsg({ body }, meetingId) {
       id: PUBLIC_CHAT_SYSTEM_ID,
       name: '',
     },
-    message: resultString,
+    message: '',
+    extra,
   };
 
   removePoll(meetingId, pollData.id);

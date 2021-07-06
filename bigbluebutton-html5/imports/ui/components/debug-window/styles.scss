@@ -94,3 +94,11 @@
     }
   }
 }
+
+.toggleLabel {
+  margin-right: var(--sm-padding-x);
+
+  [dir="rtl"] & {
+    margin: 0 0 0 var(--sm-padding-x);
+  }
+}

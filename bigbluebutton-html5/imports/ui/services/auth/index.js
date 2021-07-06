@@ -231,7 +231,11 @@ class Auth {
       Tracker.autorun((c) => {
         computation = c;
 
-        const authenticationTokenValidation = AuthTokenValidation.findOne({}, { sort: { updatedAt: -1 } });
+        const selector = {
+          connectionId: Meteor.connection._lastSessionId,
+        };
+
+        const authenticationTokenValidation = AuthTokenValidation.findOne(selector);
 
         if (!authenticationTokenValidation) return;
 

@@ -35,9 +35,11 @@ export default withTracker(() => {
 
   const pollId = currentSlide ? currentSlide.id : PUBLIC_CHAT_KEY;
 
-  const startPoll = (type, question = '') => makeCall('startPoll', type, pollId, question);
+  const pollTypes = Service.pollTypes;
 
-  const startCustomPoll = (type, question = '', answers) => makeCall('startPoll', type, pollId, question, answers);
+  const startPoll = (type, question = '') => makeCall('startPoll', pollTypes, type, pollId, question);
+
+  const startCustomPoll = (type, question = '', answers) => makeCall('startPoll', pollTypes, type, pollId, question, answers);
 
   const stopPoll = () => makeCall('stopPoll');
 
@@ -50,6 +52,8 @@ export default withTracker(() => {
     stopPoll,
     publishPoll: Service.publishPoll,
     currentPoll: Service.currentPoll(),
+    isDefaultPoll: Service.isDefaultPoll,
+    checkPollType: Service.checkPollType,
     resetPollPanel: Session.get('resetPollPanel') || false,
     pollAnswerIds: Service.pollAnswerIds,
     isMeteorConnected: Meteor.status().connected,

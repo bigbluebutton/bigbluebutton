@@ -115,6 +115,7 @@ public class ParamsProcessorUtil {
     private Integer userActivitySignResponseDelayInMinutes = 5;
     private Boolean defaultAllowDuplicateExtUserid = true;
 	private Boolean defaultEndWhenNoModerator = false;
+	private Integer defaultEndWhenNoModeratorDelayInMinutes = 1;
 	private Integer defaultHtml5InstanceId = 1;
 
 	private String formatConfNum(String s) {
@@ -439,6 +440,15 @@ public class ParamsProcessorUtil {
           }
         }
 
+        int endWhenNoModeratorDelayInMinutes = defaultEndWhenNoModeratorDelayInMinutes;
+        if (!StringUtils.isEmpty(params.get(ApiParams.END_WHEN_NO_MODERATOR_DELAY_IN_MINUTES))) {
+          try {
+              endWhenNoModeratorDelayInMinutes = Integer.parseInt(params.get(ApiParams.END_WHEN_NO_MODERATOR_DELAY_IN_MINUTES));
+          } catch (Exception ex) {
+            log.warn("Invalid param [endWhenNoModeratorDelayInMinutes] for meeting=[{}]", internalMeetingId);
+          }
+        }
+
         String guestPolicy = defaultGuestPolicy;
         if (!StringUtils.isEmpty(params.get(ApiParams.GUEST_POLICY))) {
         	guestPolicy = params.get(ApiParams.GUEST_POLICY);
@@ -523,6 +533,8 @@ public class ParamsProcessorUtil {
 		meeting.setUserActivitySignResponseDelayInMinutes(userActivitySignResponseDelayInMinutes);
 		meeting.setUserInactivityThresholdInMinutes(userInactivityThresholdInMinutes);
 //		meeting.setHtml5InstanceId(html5InstanceId);
+        meeting.setEndWhenNoModerator(endWhenNoModerator);
+        meeting.setEndWhenNoModeratorDelayInMinutes(endWhenNoModeratorDelayInMinutes);
 
         // Add extra parameters for breakout room
         if (isBreakout) {
@@ -542,6 +554,12 @@ public class ParamsProcessorUtil {
 		if (!StringUtils.isEmpty(params.get(ApiParams.MUTE_ON_START))) {
         	muteOnStart = Boolean.parseBoolean(params.get(ApiParams.MUTE_ON_START));
         }
+
+		// when a moderator joins in a breakout room only with the audio, and the muteOnStart is set to true,
+		// the moderator is unable to unmute himself, because they don't have an icon to do so
+		if (isBreakout) {
+			muteOnStart = false;
+		}
 
 		meeting.setMuteOnStart(muteOnStart);
 
@@ -1156,5 +1174,8 @@ public class ParamsProcessorUtil {
 		this.defaultEndWhenNoModerator = val;
 	}
 
+    public void setEndWhenNoModeratorDelayInMinutes(Integer value) {
+        this.defaultEndWhenNoModeratorDelayInMinutes = value;
+    }
 
 }
