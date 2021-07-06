@@ -47,7 +47,6 @@ export const INITIAL_INPUT_STATE = {
     browserWidth: 0,
     browserHeight: 0,
     isDragging: false,
-    isFullscreen: false,
   },
   presentation: {
     isOpen: true,

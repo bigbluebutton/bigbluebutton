@@ -338,19 +338,6 @@ class PresentationFocusLayout extends Component {
     const { deviceType, input } = newLayoutContextState;
     const cameraDockBounds = {};
 
-    if (input.cameraDock.isFullscreen) {
-      cameraDockBounds.width = this.mainWidth();
-      cameraDockBounds.minWidth = this.mainWidth();
-      cameraDockBounds.maxWidth = this.mainWidth();
-      cameraDockBounds.height = this.mainHeight();
-      cameraDockBounds.minHeight = this.mainHeight();
-      cameraDockBounds.maxHeight = this.mainHeight();
-      cameraDockBounds.top = 0;
-      cameraDockBounds.left = 0;
-      cameraDockBounds.zIndex = 99;
-      return cameraDockBounds;
-    }
-
     if (input.cameraDock.numCameras > 0) {
       let cameraDockHeight = 0;
       if (deviceType === DEVICE_TYPE.MOBILE) {

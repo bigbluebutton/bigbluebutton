@@ -629,22 +629,6 @@ const reducer = (state, action) => {
         },
       };
     }
-    case ACTIONS.SET_CAMERA_DOCK_IS_FULLSCREEN: {
-      const { cameraDock } = state.input;
-      if (cameraDock.isFullscreen === action.value) {
-        return state;
-      }
-      return {
-        ...state,
-        input: {
-          ...state.input,
-          cameraDock: {
-            ...cameraDock,
-            isFullscreen: action.value,
-          },
-        },
-      };
-    }
     case ACTIONS.SET_CAMERA_DOCK_RESIZABLE_EDGE: {
       const {
         top, right, bottom, left,

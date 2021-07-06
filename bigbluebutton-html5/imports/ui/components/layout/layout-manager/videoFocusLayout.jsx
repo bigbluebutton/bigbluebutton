@@ -362,22 +362,9 @@ class VideoFocusLayout extends Component {
     const { newLayoutContextState } = this.props;
     const { deviceType, input } = newLayoutContextState;
     const { cameraDock } = input;
-    const { isFullscreen, numCameras } = cameraDock;
+    const { numCameras } = cameraDock;
 
     const cameraDockBounds = {};
-
-    if (isFullscreen) {
-      cameraDockBounds.width = this.mainWidth();
-      cameraDockBounds.minWidth = this.mainWidth();
-      cameraDockBounds.maxWidth = this.mainWidth();
-      cameraDockBounds.height = this.mainHeight();
-      cameraDockBounds.minHeight = this.mainHeight();
-      cameraDockBounds.maxHeight = this.mainHeight();
-      cameraDockBounds.top = 0;
-      cameraDockBounds.left = 0;
-      cameraDockBounds.zIndex = 99;
-      return cameraDockBounds;
-    }
 
     if (numCameras > 0) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
