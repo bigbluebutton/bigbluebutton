@@ -3,28 +3,32 @@ import FullscreenButtonComponent from './component';
 import FullscreenService from './service';
 import { NLayoutContext } from '../layout/context/context';
 
-const FullscreenButtonContainer = props => <FullscreenButtonComponent {...props} />;
+const FullscreenButtonContainer = (props) => <FullscreenButtonComponent {...props} />;
 
 export default (props) => {
-  const handleToggleFullScreen = ref => FullscreenService.toggleFullScreen(ref);
-  const isIphone = (navigator.userAgent.match(/iPhone/i)) ? true : false;
+  const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
+  const isIphone = !!(navigator.userAgent.match(/iPhone/i));
 
+  const { isFullscreen: fullscreenProps } = props;
   const newLayoutContext = useContext(NLayoutContext);
   const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
   const { layoutLoaded: layoutManagerLoaded } = newLayoutContextState;
   const { input } = newLayoutContextState;
   const { fullscreen } = input;
   const { element: currentElement } = fullscreen;
-  const isFullscreen = layoutManagerLoaded === 'new' ? !!currentElement : props.isFullscreen;
+  const isFullscreen = layoutManagerLoaded === 'new' ? !!currentElement : fullscreenProps;
 
   return (
-    <FullscreenButtonContainer {...props} {...{
-      handleToggleFullScreen,
-      isIphone,
-      layoutManagerLoaded,
-      isFullscreen,
-      currentElement,
-      newLayoutContextDispatch
-    }} />
+    <FullscreenButtonContainer
+      {...props}
+      {...{
+        handleToggleFullScreen,
+        isIphone,
+        layoutManagerLoaded,
+        isFullscreen,
+        currentElement,
+        newLayoutContextDispatch,
+      }}
+    />
   );
 };

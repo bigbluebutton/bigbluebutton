@@ -229,7 +229,7 @@ class VideoListItem extends Component {
             className={cx({
               [styles.media]: true,
               [styles.cursorGrab]: !webcamDraggableState.dragging
-                && !isFullscreen && !isFullscreenContext  && !swapLayout,
+                && !isFullscreen && !isFullscreenContext && !swapLayout,
               [styles.cursorGrabbing]: webcamDraggableState.dragging
                 && !isFullscreen && !isFullscreenContext && !swapLayout,
               [styles.mirroredVideo]: (this.mirrorOwnWebcam && !mirrored)

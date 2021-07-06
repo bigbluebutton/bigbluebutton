@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import VoiceUsers from '/imports/api/voice-users/';
 import VideoListItem from './component';
@@ -14,12 +15,15 @@ const VideoListItemContainer = (props) => {
   const isFullscreenContext = (element === cameraId);
 
   return (
-    <VideoListItem {...props} {...{
-      layoutManagerLoaded,
-      isFullscreenContext,
-      newLayoutContextDispatch,
-      layoutLoaded,
-    }} />
+    <VideoListItem
+      {...props}
+      {...{
+        layoutManagerLoaded,
+        isFullscreenContext,
+        newLayoutContextDispatch,
+        layoutLoaded,
+      }}
+    />
   );
 };
 
@@ -33,3 +37,7 @@ export default withTracker((props) => {
       { fields: { muted: 1, listenOnly: 1, talking: 1 } }),
   };
 })(VideoListItemContainer);
+
+VideoListItemContainer.propTypes = {
+  cameraId: PropTypes.string.isRequired,
+};
