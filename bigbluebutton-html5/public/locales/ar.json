@@ -788,6 +788,7 @@
     "app.createBreakoutRoom.addParticipantLabel": "+ إضافة مشارك",
     "app.createBreakoutRoom.freeJoin": "السماح للمستخدمين باختيار الغرفة المفرقة الذين يودون الالتحاق بها",
     "app.createBreakoutRoom.leastOneWarnBreakout": "يجب وضع مستخدم واحد علي الأقل في غرفة مفرقة.",
+    "app.createBreakoutRoom.minimumDurationWarnBreakout": "الحد الأدنى لمدة الغرفة الفرعية {0} دقيقة.",
     "app.createBreakoutRoom.modalDesc": "نصيحة: يمكنك سحب اسم المستخدم وإفلاته لتعيينها إلى غرفة مفترقة محددة.",
     "app.createBreakoutRoom.roomTime": "{0} دقيقة",
     "app.createBreakoutRoom.numberOfRoomsError": "عدد الغرف غير صحيح.",
@@ -811,7 +812,9 @@
     "app.debugWindow.form.userAgentLabel": "وكيل المستخدم",
     "app.debugWindow.form.button.copy": "نسخ",
     "app.debugWindow.form.enableAutoarrangeLayoutLabel": "قم بتمكين الترتيب التلقائي",
-    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(سيتم تعطيله إذا قمت بسحب أو تغيير حجم منطقة كاميرات الويب)"
+    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(سيتم تعطيله إذا قمت بسحب أو تغيير حجم منطقة كاميرات الويب)",
+    "app.debugWindow.form.chatLoggerLabel": "اختبار مستويات مسجل وقوعات الدردشة",
+    "app.debugWindow.form.button.apply": "تطبيق"
 
 }
 

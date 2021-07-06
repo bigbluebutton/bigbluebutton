@@ -259,7 +259,7 @@ class PollDrawComponent extends Component {
       const _tempArray = [];
       const _result = reducedResult[i];
 
-      if (isDefaultPoll) {
+      if (isDefaultPoll && pollAnswerIds[_result.key.toLowerCase()]) {
         _result.key = intl.formatMessage(pollAnswerIds[_result.key.toLowerCase()]);
       }
 

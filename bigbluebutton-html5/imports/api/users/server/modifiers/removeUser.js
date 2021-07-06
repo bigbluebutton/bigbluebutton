@@ -17,36 +17,30 @@ export default function removeUser(meetingId, userId) {
   check(meetingId, String);
   check(userId, String);
 
-  const selector = {
-    meetingId,
-    userId,
-  };
-
   try {
+    if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
+      const sessionUserId = `${meetingId}-${userId}`;
+      ClientConnections.removeClientConnection(`${meetingId}--${userId}`);
+      clearAllSessions(sessionUserId);
+
+      // we don't want to fully process the redis message in frontend
+      // since the backend is supposed to update Mongo
+      if (process.env.BBB_HTML5_ROLE === 'frontend') {
+        return;
+      }
+    }
+
+    const selector = {
+      meetingId,
+      userId,
+    };
+
     setloggedOutStatus(userId, meetingId, true);
     VideoStreams.remove({ meetingId, userId });
-    const sessionUserId = `${meetingId}-${userId}`;
-
-    ClientConnections.removeClientConnection(`${meetingId}--${userId}`);
-
-    clearAllSessions(sessionUserId);
 
     clearUserInfoForRequester(meetingId, userId);
 
-    /*
-    Timeout added to reduce the probability that "userRemove" happens too close to "ejectUser",
-    redirecting user to the wrong component.
-    This is a workaround and should be removed as soon as a better fix is made
-    see: https://github.com/bigbluebutton/bigbluebutton/pull/12057
-    */
-    const DELAY_USER_REMOVAL_TIMEOUT_MS = 1000;
-
-    Meteor.wrapAsync((callback) => {
-      Meteor.setTimeout(() => {
-        Users.remove(selector);
-        callback();
-      }, DELAY_USER_REMOVAL_TIMEOUT_MS);
-    })();
+    Users.remove(selector);
 
     Logger.info(`Removed user id=${userId} meeting=${meetingId}`);
   } catch (err) {
