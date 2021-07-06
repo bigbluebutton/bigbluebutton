@@ -14,8 +14,8 @@ export default (props) => {
   const { layoutLoaded: layoutManagerLoaded } = newLayoutContextState;
   const { input } = newLayoutContextState;
   const { fullscreen } = input;
-  const { element } = fullscreen;
-  const isFullscreen = layoutManagerLoaded === 'new' ? !!element : props.isFullscreen;
+  const { element: currentElement } = fullscreen;
+  const isFullscreen = layoutManagerLoaded === 'new' ? !!currentElement : props.isFullscreen;
 
   return (
     <FullscreenButtonContainer {...props} {...{
@@ -23,7 +23,7 @@ export default (props) => {
       isIphone,
       layoutManagerLoaded,
       isFullscreen,
-      element,
+      currentElement,
       newLayoutContextDispatch
     }} />
   );
