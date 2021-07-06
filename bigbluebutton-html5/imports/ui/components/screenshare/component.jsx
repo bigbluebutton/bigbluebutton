@@ -170,7 +170,7 @@ class ScreenshareComponent extends React.Component {
   }
 
   renderFullscreenButton() {
-    const { intl } = this.props;
+    const { intl, fullscreenElementId } = this.props;
     const { isFullscreen } = this.state;
 
     if (!ALLOW_FULLSCREEN) return null;
@@ -180,6 +180,7 @@ class ScreenshareComponent extends React.Component {
         key={_.uniqueId('fullscreenButton-')}
         elementName={intl.formatMessage(intlMessages.screenShareLabel)}
         fullscreenRef={this.screenshareContainer}
+        elementId={fullscreenElementId}
         isFullscreen={isFullscreen}
         dark
       />
@@ -285,7 +286,16 @@ class ScreenshareComponent extends React.Component {
 
   render() {
     const { loaded, autoplayBlocked, isStreamHealthy } = this.state;
-    const { isPresenter, isGloballyBroadcasting, top, left, width, height, layoutLoaded } = this.props;
+    const {
+      isPresenter,
+      isGloballyBroadcasting,
+      top,
+      left,
+      width,
+      height,
+      zIndex,
+      layoutLoaded,
+    } = this.props;
 
     // Conditions to render the (re)connecting spinner and the unhealthy stream
     // grayscale:
@@ -307,6 +317,8 @@ class ScreenshareComponent extends React.Component {
               left,
               height,
               width,
+              zIndex,
+              backgroundColor: '#06172A',
             }
             : {
               height: '100%',

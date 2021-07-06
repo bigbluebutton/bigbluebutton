@@ -559,8 +559,9 @@ class CustomLayout extends Component {
       - (DEFAULT_VALUES.navBarHeight + DEFAULT_VALUES.actionBarHeight);
     const mediaAreaWidth = this.mainWidth() - (sidebarNavWidth + sidebarContentWidth);
     const mediaBounds = {};
+    const { element: fullscreenElement } = input.fullscreen;
 
-    if (input.fullscreen.element === 'Presentation') {
+    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
       mediaBounds.width = this.mainWidth();
       mediaBounds.height = this.mainHeight();
       mediaBounds.top = 0;
@@ -787,6 +788,7 @@ class CustomLayout extends Component {
         height: mediaBounds.height,
         top: mediaBounds.top,
         left: mediaBounds.left,
+        zIndex: mediaBounds.zIndex,
       },
     });
 

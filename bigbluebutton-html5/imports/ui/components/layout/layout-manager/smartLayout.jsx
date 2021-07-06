@@ -394,10 +394,11 @@ class SmartLayout extends Component {
     const { newLayoutContextState } = this.props;
     const { input } = newLayoutContextState;
     const mediaBounds = {};
+    const { element: fullscreenElement } = input.fullscreen;
 
     // TODO Adicionar min e max para a apresentação
 
-    if (input.fullscreen.element === 'Presentation') {
+    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
       mediaBounds.width = this.mainWidth();
       mediaBounds.height = this.mainHeight();
       mediaBounds.top = 0;
@@ -596,6 +597,7 @@ class SmartLayout extends Component {
         height: mediaBounds.height,
         top: mediaBounds.top,
         left: mediaBounds.left,
+        zIndex: mediaBounds.zIndex,
       },
     });
 

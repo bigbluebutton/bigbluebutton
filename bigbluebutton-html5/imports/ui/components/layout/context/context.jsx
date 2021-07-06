@@ -921,12 +921,14 @@ const reducer = (state, action) => {
         height,
         top,
         left,
+        zIndex,
       } = action.value;
       const { screenShare } = state.output;
       if (screenShare.width === width
         && screenShare.height === height
         && screenShare.top === top
-        && screenShare.left === left) {
+        && screenShare.left === left
+        && screenShare.zIndex === zIndex) {
         return state;
       }
       return {
@@ -939,6 +941,7 @@ const reducer = (state, action) => {
             height,
             top,
             left,
+            zIndex,
           },
         },
       };

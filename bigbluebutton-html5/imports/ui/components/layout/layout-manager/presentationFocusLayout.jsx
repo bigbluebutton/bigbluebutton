@@ -382,8 +382,9 @@ class PresentationFocusLayout extends Component {
     const { newLayoutContextState } = this.props;
     const { deviceType, input } = newLayoutContextState;
     const mediaBounds = {};
+    const { element: fullscreenElement } = input.fullscreen;
 
-    if (input.fullscreen.element === 'Presentation') {
+    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
       mediaBounds.width = this.mainWidth();
       mediaBounds.height = this.mainHeight();
       mediaBounds.top = 0;
@@ -569,6 +570,7 @@ class PresentationFocusLayout extends Component {
         height: mediaBounds.height,
         top: mediaBounds.top,
         left: mediaBounds.left,
+        zIndex: mediaBounds.zIndex,
       },
     });
 
