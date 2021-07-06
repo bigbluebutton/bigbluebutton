@@ -498,7 +498,7 @@
     "app.audioManager.mediaError": "Fehler: Es gab ein Problem bei der Abfrage Ihrer Mediengeräte",
     "app.audio.joinAudio": "Audio starten",
     "app.audio.leaveAudio": "Audio beenden",
-    "app.audio.changeLeaveAudio": "Ändern/Audio beenden",
+    "app.audio.changeAudioDevice": "Ändern/Audio beenden",
     "app.audio.enterSessionLabel": "An Konferenz teilnehmen",
     "app.audio.playSoundLabel": "Testton abspielen",
     "app.audio.backLabel": "Zurück",

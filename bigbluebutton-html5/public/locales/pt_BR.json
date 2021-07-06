@@ -496,7 +496,7 @@
     "app.audioManager.mediaError": "Erro: Houve um problema ao consultar seus dispositivos de mídia",
     "app.audio.joinAudio": "Ativar áudio",
     "app.audio.leaveAudio": "Desativar áudio",
-    "app.audio.changeLeaveAudio": "Alterar/sair do áudio",
+    "app.audio.changeAudioDevice": "Alterar dispositivo de áudio",
     "app.audio.enterSessionLabel": "Entrar na sessão",
     "app.audio.playSoundLabel": "Tocar som de teste",
     "app.audio.backLabel": "Voltar",

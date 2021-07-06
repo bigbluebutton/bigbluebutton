@@ -485,7 +485,7 @@
     "app.audioManager.mediaError": "Помилка: Виникли проблеми з пристроями відтворення звуку",
     "app.audio.joinAudio": "Приєднатися до голосової конференції ",
     "app.audio.leaveAudio": "Вийти з аудіо конференції",
-    "app.audio.changeLeaveAudio": "Змінити/Покинути аудіо",
+    "app.audio.changeAudioDevice": "Змінити/Покинути аудіо",
     "app.audio.enterSessionLabel": "Приєднатися до сеансу",
     "app.audio.playSoundLabel": "Відтворити звук",
     "app.audio.backLabel": "Назад",
