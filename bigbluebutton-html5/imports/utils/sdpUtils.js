@@ -66,7 +66,7 @@ const stripMDnsCandidates = (sdp) => {
 };
 
 const filterValidIceCandidates = (validIceCandidates, sdp) => {
-  if (!validIceCandidates.length) return sdp;
+  if (!validIceCandidates || !validIceCandidates.length) return sdp;
 
   const matchCandidatesIp = (candidate, mediaCandidate) => (
     (candidate.address && candidate.address.includes(mediaCandidate.ip))
