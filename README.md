@@ -17,6 +17,19 @@ You can install on a Ubuntu 18.04 64-bit server.  We provide [bbb-install.sh](ht
 
 For full technical documentation BigBlueButton -- including architecture, features, API, and GreenLight (the default front-end) -- see [https://docs.bigbluebutton.org/](https://docs.bigbluebutton.org/).
 
+Translation Feature Settings
+============================
+
+When using the translation feature, the system will periodically check if the interpreter is speaking (determined by the setting 'speech detection threshold') and then lower the volume of the original voice channel ('original volume') to make the interpreter more audible.
+
+### Speech detection threshold
+
+Speech input volume at which the system will detect that the interpreter is speaking. Change this setting from -100 (most sensitive / always on) to 0 (least sensitive / disabled). 
+
+### Original Volume
+
+The volume to which the original voice channel is attenuated to whenever an interpreter is speaking. Lower numbers mean lower volume. This is saved per-session for each channel separately.
+
 Working with a custom HTML 5 client
 ==========================================================
 
