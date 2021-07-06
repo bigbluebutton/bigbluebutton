@@ -61,6 +61,7 @@ const AppContainer = (props) => {
     meetingLayout,
     settingsLayout,
     pushLayoutToEveryone,
+    currentUserId,
     ...otherProps
   } = props;
   const {
@@ -77,11 +78,12 @@ const AppContainer = (props) => {
   const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
   const sidebarContentIsOpen = sidebarContent.isOpen;
 
-  return (
+  return currentUserId ?
     <App
       {...{
         actionsbar,
         actionsBarStyle,
+        currentUserId,
         media,
         layoutType,
         layoutLoaded,
@@ -97,7 +99,7 @@ const AppContainer = (props) => {
       }}
       {...otherProps}
     />
-  );
+    : null
 };
 
 const currentUserEmoji = (currentUser) => (currentUser
@@ -149,7 +151,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     layout,
   } = currentMeeting;
 
-  if (!currentUser.approved) {
+  if (currentUser && !currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
   }
 
@@ -181,8 +183,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     hasPublishedPoll: publishedPoll,
     layoutManagerLoaded,
     randomlySelectedUser,
-    currentUserId: currentUser.userId,
-    isPresenter: currentUser.presenter,
+    currentUserId: currentUser?.userId,
+    isPresenter: currentUser?.presenter,
     meetingLayout: layout,
     settingsLayout: AppSettings.selectedLayout,
     pushLayoutToEveryone: AppSettings.pushLayoutToEveryone,

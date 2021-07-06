@@ -147,14 +147,14 @@ const getPollResultString = (pollResultData, intl) => {
 const matchYesNoPoll = (yesValue, noValue, contentString) => {
   const ynPollString = `(${yesValue}\\s*\\/\\s*${noValue})|(${noValue}\\s*\\/\\s*${yesValue})`;
   const ynOptionsRegex = new RegExp(ynPollString, 'gi');
-  const ynPoll = contentString.match(ynOptionsRegex) || [];
+  const ynPoll = contentString.replace(/\n/g,'').match(ynOptionsRegex) || [];
   return ynPoll;
 }
 
 const matchYesNoAbstentionPoll = (yesValue, noValue, abstentionValue, contentString) => {
   const ynaPollString = `(${yesValue}\\s*\\/\\s*${noValue}\\s*\\/\\s*${abstentionValue})|(${yesValue}\\s*\\/\\s*${abstentionValue}\\s*\\/\\s*${noValue})|(${abstentionValue}\\s*\\/\\s*${yesValue}\\s*\\/\\s*${noValue})|(${abstentionValue}\\s*\\/\\s*${noValue}\\s*\\/\\s*${yesValue})|(${noValue}\\s*\\/\\s*${yesValue}\\s*\\/\\s*${abstentionValue})|(${noValue}\\s*\\/\\s*${abstentionValue}\\s*\\/\\s*${yesValue})`;
   const ynaOptionsRegex = new RegExp(ynaPollString, 'gi');
-  const ynaPoll = contentString.match(ynaOptionsRegex) || [];
+  const ynaPoll = contentString.replace(/\n/g,'').match(ynaOptionsRegex) || [];
   return ynaPoll;
 }
 

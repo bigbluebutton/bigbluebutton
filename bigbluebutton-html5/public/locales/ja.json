@@ -788,6 +788,7 @@
     "app.createBreakoutRoom.addParticipantLabel": "＋参加者を追加",
     "app.createBreakoutRoom.freeJoin": "ユーザーに参加する小会議室を選択させる",
     "app.createBreakoutRoom.leastOneWarnBreakout": "小会議室には最低１人のユーザーが必要です。",
+    "app.createBreakoutRoom.minimumDurationWarnBreakout": "小会議室の最小利用時間は{0}分です。",
     "app.createBreakoutRoom.modalDesc": "ヒント：ユーザー名前をドラッグアンドドロップして、特定の小会議室に割り当てることができます。",
     "app.createBreakoutRoom.roomTime": "{0} 分",
     "app.createBreakoutRoom.numberOfRoomsError": "会議室の数が正しく設定されていません。",
@@ -811,7 +812,9 @@
     "app.debugWindow.form.userAgentLabel": "ユーザーエージェント",
     "app.debugWindow.form.button.copy": "コピー",
     "app.debugWindow.form.enableAutoarrangeLayoutLabel": "自動レイアウトを有効にする",
-    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "（ウェブカメラエリアをドラッグしたりリサイズしたりすると無効となります）"
+    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "（ウェブカメラエリアをドラッグしたりリサイズしたりすると無効となります）",
+    "app.debugWindow.form.chatLoggerLabel": "チャットロガーレベルをテストする",
+    "app.debugWindow.form.button.apply": "設定"
 
 }
 
