@@ -401,10 +401,7 @@ class VideoPreview extends Component {
   }
 
   getInitialCameraStream(deviceId) {
-    const { webcamDeviceId } = this.state;
     const defaultProfile = PreviewService.getDefaultProfile();
-
-    PreviewService.terminateCameraStream(this.deviceStream, webcamDeviceId);
 
     return this.getCameraStream(deviceId, defaultProfile).then(() => {
       this.updateDeviceId(deviceId);
@@ -412,6 +409,8 @@ class VideoPreview extends Component {
   }
 
   getCameraStream(deviceId, profile) {
+    const { webcamDeviceId } = this.state;
+
     this.setState({
       selectedProfile: profile.id,
       isStartSharingDisabled: true,
@@ -419,6 +418,7 @@ class VideoPreview extends Component {
     });
 
     PreviewService.changeProfile(profile.id);
+    PreviewService.terminateCameraStream(this.deviceStream, webcamDeviceId);
     this.cleanupStreamAndVideo();
 
     return PreviewService.doGUM(deviceId, profile).then((stream) => {
