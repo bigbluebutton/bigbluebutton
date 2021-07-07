@@ -182,7 +182,7 @@ export default class KurentoScreenshareBridge {
         reconnecting: this.reconnecting,
         bridge: BRIDGE_NAME
       },
-    }, 'Screenshare broker failure');
+    }, `Screenshare broker failure: ${errorMessage}`);
 
     // Screensharing was already successfully negotiated and error occurred during
     // during call; schedule a reconnect
