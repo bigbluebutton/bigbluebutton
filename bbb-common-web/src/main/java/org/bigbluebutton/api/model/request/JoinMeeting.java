@@ -45,6 +45,8 @@ public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
     private String authString;
     private Boolean auth;
 
+    @IsIntegralConstraint
+    private String createTimeString;
     private Long createTime;
 
     public JoinMeeting(Checksum checksum) {
@@ -103,6 +105,8 @@ public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
         this.auth = auth;
     }
 
+    public void setCreateTimeString(String createTimeString) { this.createTimeString = createTimeString; }
+
     public Long getCreateTime() {
         return createTime;
     }
@@ -122,12 +126,16 @@ public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
         if(params.containsKey(Params.PASSWORD.getValue())) setPassword(params.get(Params.PASSWORD.getValue())[0]);
         if(params.containsKey(Params.GUEST.getValue())) setGuestString(params.get(Params.GUEST.getValue())[0]);
         if(params.containsKey(Params.AUTH.getValue())) setAuthString(params.get(Params.AUTH.getValue())[0]);
-        if(params.containsKey(Params.CREATE_TIME.getValue())) setCreateTime(Long.parseLong(params.get(Params.CREATE_TIME.getValue())[0]));
+        if(params.containsKey(Params.CREATE_TIME.getValue())) setCreateTimeString(params.get(Params.CREATE_TIME.getValue())[0]);
     }
 
     @Override
     public void convertParamsFromString() {
         guest = Boolean.parseBoolean(guestString);
         auth = Boolean.parseBoolean(authString);
+
+        if(createTimeString != null) {
+            createTime = Long.parseLong(createTimeString);
+        }
     }
 }
