@@ -279,7 +279,7 @@ class UserDropdown extends PureComponent {
 
       const statuses = Object.keys(getEmojiList);
 
-      statuses.map(s => {
+      statuses.forEach(s => {
         actions.push({
           key: s,
           label: intl.formatMessage({ id: `app.actionsBar.emojiMenu.${s}Label` }),
