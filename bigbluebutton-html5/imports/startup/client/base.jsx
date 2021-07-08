@@ -237,7 +237,7 @@ class Base extends Component {
     }
 
     if (ejected) {
-      return (<MeetingEnded code="403" reason={ejectedReason} />);
+      return (<MeetingEnded code="403" ejectedReason={ejectedReason} />);
     }
 
     if ((meetingHasEnded || User?.loggedOut) && meetingIsBreakout) {
@@ -246,7 +246,7 @@ class Base extends Component {
     }
 
     if (((meetingHasEnded && !meetingIsBreakout)) || (codeError && User?.loggedOut)) {
-      return (<MeetingEnded code={codeError} endedReason={meetingEndedReason} reason={ejectedReason} />);
+      return (<MeetingEnded code={codeError} endedReason={meetingEndedReason} ejectedReason={ejectedReason} />);
     }
 
     if (codeError && !meetingHasEnded) {

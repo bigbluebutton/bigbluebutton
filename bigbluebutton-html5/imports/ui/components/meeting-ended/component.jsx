@@ -103,11 +103,13 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   code: PropTypes.string.isRequired,
-  reason: PropTypes.string,
+  ejectedReason: PropTypes.string,
+  endedReason: PropTypes.string,
 };
 
 const defaultProps = {
-  reason: null,
+  ejectedReason: null,
+  endedReason: null,
 };
 
 class MeetingEnded extends PureComponent {
@@ -241,10 +243,10 @@ class MeetingEnded extends PureComponent {
   }
 
   renderNoFeedback() {
-    const { intl, code, reason } = this.props;
+    const { intl, code, ejectedReason } = this.props;
 
-    const logMessage = reason === 'user_requested_eject_reason' ? 'User removed from the meeting' : 'Meeting ended component, no feedback configured';
-    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason } }, logMessage);
+    const logMessage = ejectedReason === 'user_requested_eject_reason' ? 'User removed from the meeting' : 'Meeting ended component, no feedback configured';
+    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason: ejectedReason } }, logMessage);
 
     return (
       <div className={styles.parent}>
@@ -277,7 +279,7 @@ class MeetingEnded extends PureComponent {
   }
 
   renderFeedback() {
-    const { intl, code, reason } = this.props;
+    const { intl, code, ejectedReason } = this.props;
     const {
       selected,
       dispatched,
@@ -285,8 +287,8 @@ class MeetingEnded extends PureComponent {
 
     const noRating = selected <= 0;
 
-    const logMessage = reason === 'user_requested_eject_reason' ? 'User removed from the meeting' : 'Meeting ended component, feedback allowed';
-    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason } }, logMessage);
+    const logMessage = ejectedReason === 'user_requested_eject_reason' ? 'User removed from the meeting' : 'Meeting ended component, feedback allowed';
+    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason: ejectedReason } }, logMessage);
 
     return (
       <div className={styles.parent}>
