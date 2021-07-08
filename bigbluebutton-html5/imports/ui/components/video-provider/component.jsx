@@ -36,6 +36,10 @@ const intlClientErrors = defineMessages({
     id: 'app.video.mediaFlowTimeout1020',
     description: 'Media flow timeout',
   },
+  mediaTimedOutError: {
+    id: 'app.video.mediaTimedOutError',
+    description: 'Media was ejected by the server due to lack of valid media',
+  },
 });
 
 const intlSFUErrors = defineMessages({
@@ -791,6 +795,7 @@ class VideoProvider extends Component {
   }
 
   handlePlayStop(message) {
+    const { intl } = this.props;
     const { cameraId: stream, role } = message;
 
     logger.info({
@@ -800,6 +805,8 @@ class VideoProvider extends Component {
         role,
       },
     }, `Received request from SFU to stop camera. Role: ${role}`);
+
+    VideoService.notify(intl.formatMessage(intlClientErrors.mediaTimedOutError));
     this.stopWebRTCPeer(stream, false);
   }
 
