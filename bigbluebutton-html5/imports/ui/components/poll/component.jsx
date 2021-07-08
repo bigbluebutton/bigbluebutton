@@ -204,8 +204,21 @@ class Poll extends Component {
   }
 
   componentDidUpdate() {
+    const { amIPresenter, newLayoutContextDispatch } = this.props;
+
     if (Session.equals('resetPollPanel', true)) {
       this.handleBackClick();
+    }
+
+    if (!amIPresenter) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+        value: false,
+      });
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+        value: PANELS.NONE,
+      });
     }
   }
 
