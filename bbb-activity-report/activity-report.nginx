@@ -1,4 +1,5 @@
-location /activity-report {
-        root    /var/bigbluebutton;
-	index	index.html index.htm;
+location /activity-report/ {
+    alias /var/bigbluebutton/activity-report/;
+    autoindex off;
 }
+

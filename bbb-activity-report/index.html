@@ -149,7 +149,7 @@
 					if(typeof params.meeting == 'undefined') return;
 					if(typeof params.report == 'undefined') return;
 
-					fetch(params.meeting + "/" + params.report + "/activity-report.json")
+					fetch(params.meeting + "/" + params.report + "/activity_report.json")
 			  		.then(response => response.json())
 			  		.then(json => this.activitiesJson = json);
             	},

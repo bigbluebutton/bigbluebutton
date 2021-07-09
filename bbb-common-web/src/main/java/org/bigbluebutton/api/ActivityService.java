@@ -32,7 +32,7 @@ public class ActivityService {
         File baseDir = new File(this.getDestinationBaseDirectoryName(meetingId,activityReportAccessToken));
         if (!baseDir.exists()) baseDir.mkdirs();
 
-        File jsonFile = new File(baseDir.getAbsolutePath() + File.separatorChar + "activity-report.json");
+        File jsonFile = new File(baseDir.getAbsolutePath() + File.separatorChar + "activity_report.json");
 
         try {
             FileOutputStream fileOutput = new FileOutputStream(jsonFile);
