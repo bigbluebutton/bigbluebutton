@@ -271,11 +271,11 @@ class ScreenshareComponent extends React.Component {
   }
 
   renderScreenshareDefault() {
+    const { intl } = this.props;
     const {
-      intl,
       isFullscreen,
-    } = this.props;
-    const { loaded } = this.state;
+      loaded,
+    } = this.state;
 
     return (
       <div
