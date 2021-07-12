@@ -17,6 +17,7 @@ import {
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { ACTIONS } from '../../../layout/enums';
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
@@ -100,7 +101,7 @@ class VideoListItem extends Component {
   }
 
   onFullscreenChange() {
-    const { webcamDraggableDispatch } = this.props;
+    const { webcamDraggableDispatch, newLayoutContextDispatch } = this.props;
     const { isFullscreen } = this.state;
     const serviceIsFullscreen = FullscreenService.isFullScreen(this.videoContainer);
 
@@ -112,6 +113,9 @@ class VideoListItem extends Component {
           value: serviceIsFullscreen,
         },
       );
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_FULLSCREEN_ELEMENT
+      })
     }
   }
 
@@ -153,10 +157,11 @@ class VideoListItem extends Component {
 
     return (
       <FullscreenButtonContainer
-        data-test="presentationFullscreenButton"
+        data-test="webcamsFullscreenButton"
         fullscreenRef={this.videoContainer}
         elementName={name}
         elementId={cameraId}
+        elementGroup="webcams"
         isFullscreen={isFullscreen}
         dark
       />

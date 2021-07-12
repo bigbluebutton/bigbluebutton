@@ -32,6 +32,10 @@ const initState = {
   layoutLoaded: 'legacy',
   fontSize: DEFAULT_VALUES.fontSize,
   idChatOpen: DEFAULT_VALUES.idChatOpen,
+  fullscreen: {
+    element: '',
+    group: '',
+  },
   input: INITIAL_INPUT_STATE,
   output: INITIAL_OUTPUT_STATE,
 };
@@ -150,7 +154,6 @@ const reducer = (state, action) => {
 
     // NOTIFICATIONS BAR
     case ACTIONS.SET_HAS_NOTIFICATIONS_BAR: {
-      console.log("action trigger")
       const { notificationsBar } = state.input;
       if (notificationsBar.hasNotification === action.value) {
         return state;
@@ -399,7 +402,12 @@ const reducer = (state, action) => {
       };
     }
     case ACTIONS.SET_SIDEBAR_CONTENT_SIZE: {
-      const { width, browserWidth, height, browserHeight } = action.value;
+      const {
+        width,
+        browserWidth,
+        height,
+        browserHeight,
+      } = action.value;
       const { sidebarContent } = state.input;
       if (sidebarContent.width === width
         && sidebarContent.browserWidth === browserWidth
@@ -557,6 +565,22 @@ const reducer = (state, action) => {
         },
       };
     }
+    case ACTIONS.SET_CAMERA_DOCK_IS_RESIZING: {
+      const { cameraDock } = state.input;
+      if (cameraDock.isResizing === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          cameraDock: {
+            ...cameraDock,
+            isResizing: action.value,
+          },
+        },
+      };
+    }
     case ACTIONS.SET_CAMERA_DOCK_POSITION: {
       const { cameraDock } = state.input;
       if (cameraDock.position === action.value) {
@@ -598,6 +622,28 @@ const reducer = (state, action) => {
         },
       };
     }
+    case ACTIONS.SET_CAMERA_DOCK_OPTIMAL_GRID_SIZE: {
+      const { width, height } = action.value;
+      const { cameraDock } = state.input;
+      const { cameraOptimalGridSize } = cameraDock;
+      if (cameraOptimalGridSize.width === width
+        && cameraOptimalGridSize.height === height) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          cameraDock: {
+            ...cameraDock,
+            cameraOptimalGridSize: {
+              width,
+              height,
+            },
+          },
+        },
+      };
+    }
     case ACTIONS.SET_CAMERA_DOCK_OUTPUT: {
       const {
         display,
@@ -611,7 +657,7 @@ const reducer = (state, action) => {
         left,
         tabOrder,
         isDraggable,
-        isResizable,
+        resizableEdge,
         zIndex,
       } = action.value;
       const { cameraDock } = state.output;
@@ -624,7 +670,7 @@ const reducer = (state, action) => {
         && cameraDock.tabOrder === tabOrder
         && cameraDock.isDraggable === isDraggable
         && cameraDock.zIndex === zIndex
-        && cameraDock.isResizable === isResizable) {
+        && cameraDock.resizableEdge === resizableEdge) {
         return state;
       }
       return {
@@ -644,7 +690,7 @@ const reducer = (state, action) => {
             left,
             tabOrder,
             isDraggable,
-            isResizable,
+            resizableEdge,
             zIndex,
           },
         },
@@ -662,33 +708,6 @@ const reducer = (state, action) => {
           cameraDock: {
             ...cameraDock,
             isDraggable: action.value,
-          },
-        },
-      };
-    }
-    case ACTIONS.SET_CAMERA_DOCK_RESIZABLE_EDGE: {
-      const {
-        top, right, bottom, left,
-      } = action.value;
-      const { cameraDock } = state.output;
-      if (cameraDock.resizableEdge.top === top
-        && cameraDock.resizableEdge.right === right
-        && cameraDock.resizableEdge.bottom === bottom
-        && cameraDock.resizableEdge.left === left) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          cameraDock: {
-            ...cameraDock,
-            resizableEdge: {
-              top,
-              right,
-              bottom,
-              left,
-            },
           },
         },
       };
@@ -894,18 +913,16 @@ const reducer = (state, action) => {
 
     // FULLSCREEN
     case ACTIONS.SET_FULLSCREEN_ELEMENT: {
-      const { fullscreen } = state.input;
-      if (fullscreen.element === action.value) {
+      const { fullscreen } = state;
+      if (fullscreen.element === action.value.element
+        && fullscreen.group === action.value.group) {
         return state;
       }
       return {
         ...state,
-        input: {
-          ...state.input,
-          fullscreen: {
-            ...fullscreen,
-            element: action.value,
-          },
+        fullscreen: {
+          element: action.value.element,
+          group: action.value.group,
         },
       };
     }

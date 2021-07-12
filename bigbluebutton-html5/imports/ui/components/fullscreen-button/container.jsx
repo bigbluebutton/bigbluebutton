@@ -13,9 +13,8 @@ export default (props) => {
   const newLayoutContext = useContext(NLayoutContext);
   const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
   const { layoutLoaded: layoutManagerLoaded } = newLayoutContextState;
-  const { input } = newLayoutContextState;
-  const { fullscreen } = input;
-  const { element: currentElement } = fullscreen;
+  const { fullscreen } = newLayoutContextState;
+  const { element: currentElement, group: currentGroup } = fullscreen;
   const isFullscreen = layoutManagerLoaded === 'new' ? !!currentElement : fullscreenProps;
 
   return (
@@ -27,6 +26,7 @@ export default (props) => {
         layoutManagerLoaded,
         isFullscreen,
         currentElement,
+        currentGroup,
         newLayoutContextDispatch,
       }}
     />
