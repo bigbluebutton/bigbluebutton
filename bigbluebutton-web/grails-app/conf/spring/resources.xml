@@ -26,6 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         http://www.springframework.org/schema/util 
         http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
 
     <bean id="characterEncodingFilter" class="org.springframework.web.filter.CharacterEncodingFilter">
         <property name="encoding">
@@ -113,6 +114,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="configService" class="org.bigbluebutton.api.ClientConfigService" init-method="init">
         <property name="configDir" value="${configDir}"/>
         <property name="clientConfigServiceHelper" ref="configServiceHelper"/>
+    </bean>
+
+    <bean id="validationService" class="org.bigbluebutton.api.service.ValidationService">
+        <property name="securitySalt" value="${securitySalt}"/>
+        <property name="allowRequestsWithoutSession" value="${allowRequestsWithoutSession}"/>
+    </bean>
+
+    <bean id="serviceUtils" class="org.bigbluebutton.api.service.ServiceUtils">
+        <property name="meetingService" ref="meetingService" />
+        <property name="validationService" ref="validationService" />
     </bean>
 
     <bean id="paramsProcessorUtil" class="org.bigbluebutton.api.ParamsProcessorUtil">
