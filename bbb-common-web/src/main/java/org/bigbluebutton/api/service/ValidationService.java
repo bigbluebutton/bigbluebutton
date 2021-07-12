@@ -62,7 +62,6 @@ public class ValidationService {
 
     public Set<String> validate(ApiCall apiCall, Map<String, String[]> params, String queryString) {
         log.info("Validating {} request with query string {}", apiCall.getName(), queryString);
-//        log.info("Request has params: {}", mapToString(params));
 
         params = sanitizeParams(params);
 

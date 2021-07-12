@@ -247,17 +247,6 @@ class ApiController {
       role = Meeting.ROLE_ATTENDEE
     }
 
-    if (role == null) {
-      // BEGIN - backward compatibility
-      invalid("invalidPassword", "You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference.", REDIRECT_RESPONSE);
-      return
-      // END - backward compatibility
-
-      errors.invalidPasswordError()
-      respondWithErrors(errors, REDIRECT_RESPONSE)
-      return
-    }
-
     // We preprend "w_" to our internal meeting Id to indicate that this is a web user.
     // For users joining using the phone, we will prepend "v_" so it will be easier
     // to distinguish users who doesn't have a web client. (ralam june 12, 2017)
@@ -265,7 +254,11 @@ class ApiController {
 
     String authToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
 
+    log.debug "Auth token: " + authToken
+
     String sessionToken = RandomStringUtils.randomAlphanumeric(16).toLowerCase()
+
+    log.debug "Session token: " + sessionToken
 
     String externUserID = params.userID
     if (StringUtils.isEmpty(externUserID)) {
@@ -741,14 +734,12 @@ class ApiController {
       case GuestPolicy.ALLOW:
         // IF the user was allowed to join but there is no room available in
         // the meeting we must hold his approval
-        if (hasReachedMaxParticipants(meeting, us)) {
-          meetingService.guestIsWaiting(us.meetingID, us.internalUserId)
-          destURL = guestURL
-          msgKey = "seatWait"
-          msgValue = "Guest waiting for a seat in the meeting."
-          redirectClient = false
-          status = GuestPolicy.WAIT
-        }
+        meetingService.guestIsWaiting(us.meetingID, us.internalUserId)
+        destURL = guestURL
+        msgKey = "seatWait"
+        msgValue = "Guest waiting for a seat in the meeting."
+        redirectClient = false
+        status = GuestPolicy.WAIT
         break
       default:
         break
@@ -797,7 +788,7 @@ class ApiController {
     String validationResponse = validateRequest(
             ValidationService.ApiCall.ENTER,
             request.getParameterMap(),
-            request.getQueryString()
+            request.getQueryString(),
     )
 
     if(!validationResponse.isEmpty()) {
@@ -818,7 +809,9 @@ class ApiController {
       // Determine the logout url so we can send the user there.
       String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
 
-      logoutUrl = us.logoutUrl
+      if(us != null) {
+        logoutUrl = us.logoutUrl
+      }
 
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
@@ -938,7 +931,7 @@ class ApiController {
     String validationResponse = validateRequest(
             ValidationService.ApiCall.STUNS,
             request.getParameterMap(),
-            request.getQueryString()
+            request.getQueryString(),
     )
 
     if(!validationResponse.isEmpty()) {

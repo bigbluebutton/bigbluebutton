@@ -1,0 +1,396 @@
+{
+	"info": {
+		"_postman_id": "ea8bed57-8057-4c0a-954a-a843d466aea6",
+		"name": "invalid_checksum",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "create",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonResponse = xml2Json(pm.response.text());",
+							"",
+							"console.log(jsonResponse)",
+							"",
+							"pm.test(\"Return code is SUCCESS\", function () {",
+							"    pm.expect(jsonResponse.response.returncode).to.eql(\"FAILED\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/{{path}}/create?name={{external_meeting_id}}&{{param_meeting_id}}={{external_meeting_id}}&voiceBridge=79363&{{param_attendee_password}}={{attendee_password}}&{{param_moderator_password}}={{moderator_password}}&isBreakoutRoom=false&record=true&{{param_checksum}}=4852bde87aaab9a403ee9b3bf16f9d48b15d949af1b3e6ce3942d7f8d114e05d",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"{{path}}",
+						"create"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "{{external_meeting_id}}"
+						},
+						{
+							"key": "{{param_meeting_id}}",
+							"value": "{{external_meeting_id}}"
+						},
+						{
+							"key": "voiceBridge",
+							"value": "79363"
+						},
+						{
+							"key": "{{param_attendee_password}}",
+							"value": "{{attendee_password}}"
+						},
+						{
+							"key": "{{param_moderator_password}}",
+							"value": "{{moderator_password}}"
+						},
+						{
+							"key": "isBreakoutRoom",
+							"value": "false"
+						},
+						{
+							"key": "record",
+							"value": "true"
+						},
+						{
+							"key": "{{param_checksum}}",
+							"value": "4852bde87aaab9a403ee9b3bf16f9d48b15d949af1b3e6ce3942d7f8d114e05d"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "join",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/{{path}}/join?{{param_meeting_id}}={{external_meeting_id}}&userID=test&fullName=Test User&{{param_password}}={{moderator_password}}&guest=false&auth=true&{{param_checksum}}=0a2c2e6dd7ae5115ff5d7ed1382301c27dc0eb18",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"{{path}}",
+						"join"
+					],
+					"query": [
+						{
+							"key": "{{param_meeting_id}}",
+							"value": "{{external_meeting_id}}"
+						},
+						{
+							"key": "userID",
+							"value": "test"
+						},
+						{
+							"key": "fullName",
+							"value": "Test User"
+						},
+						{
+							"key": "{{param_password}}",
+							"value": "{{moderator_password}}"
+						},
+						{
+							"key": "guest",
+							"value": "false"
+						},
+						{
+							"key": "auth",
+							"value": "true"
+						},
+						{
+							"key": "{{param_checksum}}",
+							"value": "0a2c2e6dd7ae5115ff5d7ed1382301c27dc0eb18"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "isMeetingRunning",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonResponse = xml2Json(pm.response.text());",
+							"",
+							"console.log(jsonResponse)",
+							"",
+							"pm.test(\"Return code is SUCCESS\", function () {",
+							"    pm.expect(jsonResponse.response.returncode).to.eql(\"FAILED\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/{{path}}/isMeetingRunning?{{param_meeting_id}}={{external_meeting_id}}&{{param_checksum}}=37bfc54506286a489d9defddac34b1757920c0df",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"{{path}}",
+						"isMeetingRunning"
+					],
+					"query": [
+						{
+							"key": "{{param_meeting_id}}",
+							"value": "{{external_meeting_id}}"
+						},
+						{
+							"key": "{{param_checksum}}",
+							"value": "37bfc54506286a489d9defddac34b1757920c0df"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "end",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonResponse = xml2Json(pm.response.text());",
+							"",
+							"console.log(jsonResponse)",
+							"",
+							"pm.test(\"Return code is SUCCESS\", function () {",
+							"    pm.expect(jsonResponse.response.returncode).to.eql(\"FAILED\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/{{path}}/end?{{param_meeting_id}}={{external_meeting_id}}&{{param_password}}={{moderator_password}}&{{param_checksum}}=0354af2b0f33f85705e6f1789f88107b23d56f1e",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"{{path}}",
+						"end"
+					],
+					"query": [
+						{
+							"key": "{{param_meeting_id}}",
+							"value": "{{external_meeting_id}}"
+						},
+						{
+							"key": "{{param_password}}",
+							"value": "{{moderator_password}}"
+						},
+						{
+							"key": "{{param_checksum}}",
+							"value": "0354af2b0f33f85705e6f1789f88107b23d56f1e"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getMeetingInfo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonResponse = xml2Json(pm.response.text());",
+							"",
+							"console.log(jsonResponse)",
+							"",
+							"pm.test(\"Return code is SUCCESS\", function () {",
+							"    pm.expect(jsonResponse.response.returncode).to.eql(\"FAILED\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/{{path}}/getMeetingInfo?{{param_meeting_id}}={{external_meeting_id}}&checksum=85d659f04c01a0e625d1beaf23a7ef4049a65493",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"{{path}}",
+						"getMeetingInfo"
+					],
+					"query": [
+						{
+							"key": "{{param_meeting_id}}",
+							"value": "{{external_meeting_id}}"
+						},
+						{
+							"key": "checksum",
+							"value": "85d659f04c01a0e625d1beaf23a7ef4049a65493"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getMeetings",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonResponse = xml2Json(pm.response.text());",
+							"",
+							"console.log(jsonResponse)",
+							"",
+							"pm.test(\"Return code is SUCCESS\", function () {",
+							"    pm.expect(jsonResponse.response.returncode).to.eql(\"FAILED\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/{{path}}/getMeetings?checksum=536d8d9f61853554bd495306665151ad0843450d",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"{{path}}",
+						"getMeetings"
+					],
+					"query": [
+						{
+							"key": "checksum",
+							"value": "536d8d9f61853554bd495306665151ad0843450d"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getSessions",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonResponse = xml2Json(pm.response.text());",
+							"",
+							"console.log(jsonResponse)",
+							"",
+							"pm.test(\"Return code is SUCCESS\", function () {",
+							"    pm.expect(jsonResponse.response.returncode).to.eql(\"FAILED\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/{{path}}/getSessions?checksum=7dab7b203f78845eff87eaed4453e02b90f8c65g",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"{{path}}",
+						"getSessions"
+					],
+					"query": [
+						{
+							"key": "checksum",
+							"value": "7dab7b203f78845eff87eaed4453e02b90f8c65g"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "setPollXML",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonResponse = xml2Json(pm.response.text());",
+							"",
+							"console.log(jsonResponse)",
+							"",
+							"pm.test(\"Return code is SUCCESS\", function () {",
+							"    pm.expect(jsonResponse.response.returncode).to.eql(\"FAILED\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/{{path}}/setPollXML?meetingID=Demo Meeting&pollXML=<poll><title>Test Poll</title><question>Test Question</question><questionType>Test</questionType><answers><answer>Answer1</answer><answer>Answer2</answer></answers></poll>&checksum=0cc4142338cc45d4f6eacfbcfa2ea9754061e7eb",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"{{path}}",
+						"setPollXML"
+					],
+					"query": [
+						{
+							"key": "meetingID",
+							"value": "Demo Meeting"
+						},
+						{
+							"key": "pollXML",
+							"value": "<poll><title>Test Poll</title><question>Test Question</question><questionType>Test</questionType><answers><answer>Answer1</answer><answer>Answer2</answer></answers></poll>"
+						},
+						{
+							"key": "checksum",
+							"value": "0cc4142338cc45d4f6eacfbcfa2ea9754061e7eb"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
