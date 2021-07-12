@@ -575,6 +575,7 @@ class App extends Component {
                   height: layoutManagerLoaded !== 'both' ? '100%' : '50%',
                 }}
               >
+                <BannerBarContainer />
                 <NavBarContainer main="new" />
                 <SidebarNavigationContainer />
                 <SidebarContentContainer />

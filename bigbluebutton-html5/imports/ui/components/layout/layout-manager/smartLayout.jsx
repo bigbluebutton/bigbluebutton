@@ -67,6 +67,14 @@ class SmartLayout extends Component {
     return wHeight;
   }
 
+  bannerHeight() {
+    const { newLayoutContextState } = this.props;
+    const { input } = newLayoutContextState;
+    const { bannerBar } = input;
+
+    return bannerBar.hasBanner ? DEFAULT_VALUES.bannerHeight : 0;
+  }
+
   init() {
     const { newLayoutContextState, newLayoutContextDispatch } = this.props;
     const { deviceType, input } = newLayoutContextState;
@@ -135,7 +143,7 @@ class SmartLayout extends Component {
 
     let top = 0;
     if (layoutLoaded === 'both') top = this.mainHeight();
-    else top = DEFAULT_VALUES.navBarTop;
+    else top = DEFAULT_VALUES.navBarTop + this.bannerHeight();
 
     return {
       width: this.mainWidth() - mediaAreaBounds.left,
@@ -203,7 +211,7 @@ class SmartLayout extends Component {
       if (deviceType === DEVICE_TYPE.MOBILE) {
         sidebarNavHeight = this.mainHeight() - DEFAULT_VALUES.navBarHeight;
       } else {
-        sidebarNavHeight = this.mainHeight();
+        sidebarNavHeight = this.mainHeight() - this.bannerHeight();
       }
     }
     return sidebarNavHeight;
@@ -215,7 +223,7 @@ class SmartLayout extends Component {
 
     let top = 0;
     if (layoutLoaded === 'both') top = this.mainHeight();
-    else top = DEFAULT_VALUES.sidebarNavTop;
+    else top = DEFAULT_VALUES.sidebarNavTop + this.bannerHeight();
 
     if (deviceType === DEVICE_TYPE.MOBILE) top = DEFAULT_VALUES.navBarHeight;
 
@@ -269,7 +277,7 @@ class SmartLayout extends Component {
       if (deviceType === DEVICE_TYPE.MOBILE) {
         sidebarContentHeight = this.mainHeight() - DEFAULT_VALUES.navBarHeight;
       } else {
-        sidebarContentHeight = this.mainHeight();
+        sidebarContentHeight = this.mainHeight() - this.bannerHeight();
       }
     }
     return sidebarContentHeight;
@@ -281,7 +289,7 @@ class SmartLayout extends Component {
 
     let top = 0;
     if (layoutLoaded === 'both') top = this.mainHeight();
-    else top = DEFAULT_VALUES.sidebarNavTop;
+    else top = DEFAULT_VALUES.sidebarNavTop + this.bannerHeight();
 
     if (deviceType === DEVICE_TYPE.MOBILE) top = DEFAULT_VALUES.navBarHeight;
 
@@ -317,11 +325,11 @@ class SmartLayout extends Component {
     }
 
     if (layoutLoaded === 'both') top = this.mainHeight() / 2;
-    else top = DEFAULT_VALUES.navBarHeight;
+    else top = DEFAULT_VALUES.navBarHeight + this.bannerHeight();
 
     return {
       width,
-      height: this.mainHeight() - (DEFAULT_VALUES.navBarHeight + DEFAULT_VALUES.actionBarHeight),
+      height: this.mainHeight() - (DEFAULT_VALUES.navBarHeight + DEFAULT_VALUES.actionBarHeight + this.bannerHeight()),
       top,
       left,
     };
