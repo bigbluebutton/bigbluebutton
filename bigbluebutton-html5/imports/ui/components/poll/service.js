@@ -23,7 +23,7 @@ const pollTypes = {
   A3: 'A-3',
   A4: 'A-4',
   A5: 'A-5',
-  Custom: 'custom',
+  Custom: 'CUSTOM',
   Response: 'R-',
 }
 
@@ -95,7 +95,9 @@ const getPollResultsText = (isDefaultPoll, answers, numRespondents, intl) => {
     const pctBars = "|".repeat(pct * MAX_POLL_RESULT_BARS / 100);
     const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
     if (isDefaultPoll) {
-      const translatedKey = intl.formatMessage(pollAnswerIds[item.key.toLowerCase()]);
+      const translatedKey = pollAnswerIds[item.key.toLowerCase()] 
+        ? intl.formatMessage(pollAnswerIds[item.key.toLowerCase()])
+        : item.key;
       resultString += `${translatedKey}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
     } else {
       resultString += `${item.id+1}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
@@ -145,14 +147,14 @@ const getPollResultString = (pollResultData, intl) => {
 const matchYesNoPoll = (yesValue, noValue, contentString) => {
   const ynPollString = `(${yesValue}\\s*\\/\\s*${noValue})|(${noValue}\\s*\\/\\s*${yesValue})`;
   const ynOptionsRegex = new RegExp(ynPollString, 'gi');
-  const ynPoll = contentString.match(ynOptionsRegex) || [];
+  const ynPoll = contentString.replace(/\n/g,'').match(ynOptionsRegex) || [];
   return ynPoll;
 }
 
 const matchYesNoAbstentionPoll = (yesValue, noValue, abstentionValue, contentString) => {
   const ynaPollString = `(${yesValue}\\s*\\/\\s*${noValue}\\s*\\/\\s*${abstentionValue})|(${yesValue}\\s*\\/\\s*${abstentionValue}\\s*\\/\\s*${noValue})|(${abstentionValue}\\s*\\/\\s*${yesValue}\\s*\\/\\s*${noValue})|(${abstentionValue}\\s*\\/\\s*${noValue}\\s*\\/\\s*${yesValue})|(${noValue}\\s*\\/\\s*${yesValue}\\s*\\/\\s*${abstentionValue})|(${noValue}\\s*\\/\\s*${abstentionValue}\\s*\\/\\s*${yesValue})`;
   const ynaOptionsRegex = new RegExp(ynaPollString, 'gi');
-  const ynaPoll = contentString.match(ynaOptionsRegex) || [];
+  const ynaPoll = contentString.replace(/\n/g,'').match(ynaOptionsRegex) || [];
   return ynaPoll;
 }
 

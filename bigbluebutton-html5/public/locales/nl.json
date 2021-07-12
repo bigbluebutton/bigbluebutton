@@ -139,7 +139,6 @@
     "app.meeting.ended": "Deze sessie is beëindigd",
     "app.meeting.meetingTimeRemaining": "Resterende vergadertijd: {0}",
     "app.meeting.meetingTimeHasEnded": "Tijd verstreken. Vergadering wordt spoedig afgesloten",
-    "app.meeting.endedByUserMessage": "Vergadering is beëindigd door {0}",
     "app.meeting.endedMessage": "U wordt teruggestuurd naar het startscherm",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "Vergadering sluit over één minuut.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "Vergadering sluit over {0} minuten.",
