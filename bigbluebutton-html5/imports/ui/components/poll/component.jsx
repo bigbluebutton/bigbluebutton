@@ -282,8 +282,10 @@ class Poll extends Component {
   }
 
   handleToggle() {
-    const toggledValue = !this.state.secretPoll;
-    this.setState({ secretPoll: toggledValue});
+    const { secretPoll } = this.state;
+    const toggledValue = !secretPoll;
+    Session.set('secretPoll', toggledValue);
+    this.setState({ secretPoll: toggledValue });
   }
 
   setOptListLength(len) {
@@ -403,7 +405,14 @@ class Poll extends Component {
     const {
       type, secretPoll, optList, question, error,
     } = this.state;
-    const { startPoll, startCustomPoll, intl, pollTypes, isDefaultPoll, checkPollType } = this.props;
+    const {
+      startPoll,
+      startCustomPoll,
+      intl,
+      pollTypes,
+      isDefaultPoll,
+      checkPollType,
+    } = this.props;
     const defaultPoll = isDefaultPoll(type);
     return (
       <div>
