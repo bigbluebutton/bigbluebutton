@@ -68,6 +68,17 @@ class CustomLayout extends Component {
     return wHeight;
   }
 
+  bannerAreaHeight() {
+    const { newLayoutContextState } = this.props;
+    const { input } = newLayoutContextState;
+    const { bannerBar, notificationsBar } = input;
+
+    const bannerHeight = bannerBar.hasBanner ? DEFAULT_VALUES.bannerHeight : 0;
+    const notificationHeight = notificationsBar.hasNotification ? DEFAULT_VALUES.bannerHeight : 0;
+
+    return bannerHeight + notificationHeight;
+  }
+
   calculatesDropAreas(sidebarNavWidth, sidebarContentWidth, cameraDockBounds) {
     const mediaAreaHeight = this.mainHeight()
       - (DEFAULT_VALUES.navBarHeight + DEFAULT_VALUES.actionBarHeight);
@@ -192,7 +203,7 @@ class CustomLayout extends Component {
 
     let top = 0;
     if (layoutLoaded === 'both') top = this.mainHeight();
-    else top = DEFAULT_VALUES.navBarTop;
+    else top = DEFAULT_VALUES.navBarTop + this.bannerAreaHeight();
 
     return {
       width: this.mainWidth() - mediaAreaBounds.left,
@@ -265,6 +276,7 @@ class CustomLayout extends Component {
       } else {
         sidebarNavHeight = this.mainHeight();
       }
+      sidebarNavHeight -= this.bannerAreaHeight();
     }
     return sidebarNavHeight;
   }
@@ -275,9 +287,11 @@ class CustomLayout extends Component {
 
     let top = 0;
     if (layoutLoaded === 'both') top = this.mainHeight();
-    else top = DEFAULT_VALUES.sidebarNavTop;
+    else top = DEFAULT_VALUES.sidebarNavTop + this.bannerAreaHeight();
 
-    if (deviceType === DEVICE_TYPE.MOBILE) top = DEFAULT_VALUES.navBarHeight;
+    if (deviceType === DEVICE_TYPE.MOBILE) {
+      top = DEFAULT_VALUES.navBarHeight + this.bannerAreaHeight();
+    }
 
     return {
       top,
@@ -339,6 +353,7 @@ class CustomLayout extends Component {
       } else {
         sidebarContentHeight = this.mainHeight();
       }
+      sidebarContentHeight -= this.bannerAreaHeight();
     }
     return sidebarContentHeight;
   }
@@ -349,9 +364,11 @@ class CustomLayout extends Component {
 
     let top = 0;
     if (layoutLoaded === 'both') top = this.mainHeight();
-    else top = DEFAULT_VALUES.sidebarNavTop;
+    else top = DEFAULT_VALUES.sidebarNavTop + this.bannerAreaHeight();
 
-    if (deviceType === DEVICE_TYPE.MOBILE) top = DEFAULT_VALUES.navBarHeight;
+    if (deviceType === DEVICE_TYPE.MOBILE) {
+      top = DEFAULT_VALUES.navBarHeight + this.bannerAreaHeight();
+    }
 
     return {
       top,
@@ -365,6 +382,7 @@ class CustomLayout extends Component {
     const { newLayoutContextState } = this.props;
     const { deviceType, input, layoutLoaded } = newLayoutContextState;
     const { sidebarContent } = input;
+    const { navBarHeight, actionBarHeight } = DEFAULT_VALUES;
     let left = 0;
     let width = 0;
     let top = 0;
@@ -385,11 +403,11 @@ class CustomLayout extends Component {
     }
 
     if (layoutLoaded === 'both') top = this.mainHeight() / 2;
-    else top = DEFAULT_VALUES.navBarHeight;
+    else top = DEFAULT_VALUES.navBarHeight + this.bannerAreaHeight();
 
     return {
       width,
-      height: this.mainHeight() - (DEFAULT_VALUES.navBarHeight + DEFAULT_VALUES.actionBarHeight),
+      height: this.mainHeight() - (navBarHeight + actionBarHeight + this.bannerAreaHeight()),
       top,
       left,
     };
@@ -622,7 +640,7 @@ class CustomLayout extends Component {
     } else {
       mediaBounds.width = mediaAreaWidth;
       mediaBounds.height = mediaAreaHeight;
-      mediaBounds.top = DEFAULT_VALUES.navBarHeight;
+      mediaBounds.top = DEFAULT_VALUES.navBarHeight + this.bannerAreaHeight();
       mediaBounds.left = sidebarNavWidth + sidebarContentWidth;
     }
 

@@ -1,12 +1,14 @@
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import React, { Fragment } from 'react';
+import React, { Fragment, useContext, useEffect } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Auth from '/imports/ui/services/auth';
 import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
 import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
 import { styles } from './styles.scss';
+import { NLayoutContext } from '../layout/context/context';
+import { ACTIONS } from '../layout/enums';
 
 import breakoutService from '/imports/ui/components/breakout-room/service';
 import NotificationsBar from './component';
@@ -74,6 +76,23 @@ const intlMessages = defineMessages({
 
 const NotificationsBarContainer = (props) => {
   const { message, color } = props;
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
+  const { input } = newLayoutContextState;
+  const { notificationsBar } = input;
+  const { hasNotification } = notificationsBar;
+
+  useEffect(() => {
+    const localHasNotification = !!message;
+
+    if(localHasNotification !== hasNotification){
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_HAS_NOTIFICATIONS_BAR,
+        value: localHasNotification,
+      });
+    }
+  }, [message, hasNotification]);
+
   if (_.isEmpty(message)) {
     return null;
   }

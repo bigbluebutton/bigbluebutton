@@ -18,6 +18,8 @@ const DEFAULT_VALUES = {
   presentationTabOrder: 5,
   presentationMinHeight: 220,
 
+  bannerHeight: 34,
+
   navBarHeight: 85,
   navBarTop: 0,
   navBarTabOrder: 3,

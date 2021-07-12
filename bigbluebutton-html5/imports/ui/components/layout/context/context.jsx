@@ -130,6 +130,43 @@ const reducer = (state, action) => {
       };
     }
 
+    // BANNER BAR
+    case ACTIONS.SET_HAS_BANNER_BAR: {
+      const { bannerBar } = state.input;
+      if (bannerBar.hasBanner === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          bannerBar: {
+            ...bannerBar,
+            hasBanner: action.value,
+          },
+        },
+      };
+    }
+
+    // NOTIFICATIONS BAR
+    case ACTIONS.SET_HAS_NOTIFICATIONS_BAR: {
+      console.log("action trigger")
+      const { notificationsBar } = state.input;
+      if (notificationsBar.hasNotification === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          notificationsBar: {
+            ...notificationsBar,
+            hasNotification: action.value,
+          },
+        },
+      };
+    }
+
     // NAV BAR
     case ACTIONS.SET_NAVBAR_OUTPUT: {
       const {

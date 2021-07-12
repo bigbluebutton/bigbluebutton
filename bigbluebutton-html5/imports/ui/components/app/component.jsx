@@ -577,6 +577,8 @@ class App extends Component {
               >
                 {this.renderActivityCheck()}
                 {this.renderUserInformation()}
+                <BannerBarContainer />
+                <NotificationsBarContainer />
                 <NavBarContainer main="new" />
                 <SidebarNavigationContainer />
                 <SidebarContentContainer />
