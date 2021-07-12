@@ -69,6 +69,7 @@
     padding: 0 .5rem 0 0;
     display: inline-block;
     vertical-align: middle;
+    white-space: nowrap;
   }
 }
 
@@ -165,6 +166,11 @@
 
 .withError {
   color: var(--color-danger);
+}
+
+.breakoutRoomListNameLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .usersAssignedNumberLabel {
