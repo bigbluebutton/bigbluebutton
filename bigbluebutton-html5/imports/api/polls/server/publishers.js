@@ -3,7 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import Polls from '/imports/api/polls';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
-function currentPoll() {
+function currentPoll(secretPoll) {
   const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
@@ -19,7 +19,15 @@ function currentPoll() {
     meetingId,
   };
 
-  return Polls.find(selector);
+  const options = { fields: {} };
+
+  const hasPoll = Polls.findOne(selector);
+
+  if ((hasPoll && hasPoll.secretPoll) || secretPoll) {
+    options.fields.responses = 0;
+  }
+
+  return Polls.find(selector, options);
 }
 
 function publishCurrentPoll(...args) {

@@ -29,7 +29,8 @@ const PollContainer = ({ ...props }) => {
 };
 
 export default withTracker(() => {
-  Meteor.subscribe('current-poll');
+  const isPollSecret = Session.get('secretPoll') || false;
+  Meteor.subscribe('current-poll', isPollSecret);
 
   const currentPresentation = Presentations.findOne({
     current: true,
@@ -39,7 +40,7 @@ export default withTracker(() => {
 
   const pollId = currentSlide ? currentSlide.id : PUBLIC_CHAT_KEY;
 
-  const pollTypes = Service.pollTypes;
+  const { pollTypes } = Service;
 
   const startPoll = (type, secretPoll, question = '') => makeCall('startPoll', pollTypes, type, pollId, secretPoll, question);
 
@@ -50,7 +51,7 @@ export default withTracker(() => {
   return {
     currentSlide,
     amIPresenter: Service.amIPresenter(),
-    pollTypes: Service.pollTypes,
+    pollTypes,
     startPoll,
     startCustomPoll,
     stopPoll,

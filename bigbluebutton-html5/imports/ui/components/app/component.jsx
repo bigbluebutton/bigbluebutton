@@ -575,6 +575,8 @@ class App extends Component {
                   height: layoutManagerLoaded !== 'both' ? '100%' : '50%',
                 }}
               >
+                {this.renderActivityCheck()}
+                {this.renderUserInformation()}
                 <BannerBarContainer />
                 <NotificationsBarContainer />
                 <NavBarContainer main="new" />
@@ -585,6 +587,8 @@ class App extends Component {
                 {shouldShowScreenshare ? <ScreenshareContainer /> : null}
                 {shouldShowExternalVideo ? <ExternalVideoContainer isPresenter={isPresenter} /> : null}
                 <UploaderContainer />
+                <BreakoutRoomInvitation />
+                <AudioContainer />
                 <ToastContainer rtl />
                 {(audioAlertEnabled || pushAlertEnabled)
                   && (
@@ -593,9 +597,15 @@ class App extends Component {
                       pushAlertEnabled={pushAlertEnabled}
                     />
                   )}
+                <WaitingNotifierContainer />
+                <LockNotifier />
+                <StatusNotifier status="raiseHand" />
+                <ManyWebcamsNotifier />
                 <PollingContainer />
                 <ModalContainer />
                 {this.renderActionsBar()}
+                {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
+                {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
               </div>
             </>
           )}
