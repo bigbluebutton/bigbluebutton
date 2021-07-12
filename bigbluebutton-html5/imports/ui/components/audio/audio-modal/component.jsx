@@ -285,13 +285,14 @@ class AudioModal extends Component {
   handleJoinListenOnly() {
     const {
       joinListenOnly,
+      isConnecting,
     } = this.props;
 
     const {
       disableActions,
     } = this.state;
 
-    if (disableActions) return;
+    if (disableActions && isConnecting) return;
 
     this.setState({
       disableActions: true,
@@ -313,13 +314,14 @@ class AudioModal extends Component {
   handleJoinMicrophone() {
     const {
       joinMicrophone,
+      isConnecting,
     } = this.props;
 
     const {
       disableActions,
     } = this.state;
 
-    if (disableActions) return;
+    if (disableActions && isConnecting) return;
 
     this.setState({
       hasError: false,
