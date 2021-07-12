@@ -3,22 +3,29 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
-trait UpdateWebcamsOnlyForModeratorCmdMsgHdlr {
+trait UpdateWebcamsOnlyForModeratorCmdMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
 
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
 
   def handleUpdateWebcamsOnlyForModeratorCmdMsg(msg: UpdateWebcamsOnlyForModeratorCmdMsg) {
-    log.info("Change webcams only for moderator status. meetingId=" + liveMeeting.props.meetingProp.intId + " webcamsOnlyForModeratorrecording=" + msg.body.webcamsOnlyForModerator)
-    if (MeetingStatus2x.webcamsOnlyForModeratorEnabled(liveMeeting.status) != msg.body.webcamsOnlyForModerator) {
-      MeetingStatus2x.setWebcamsOnlyForModerator(liveMeeting.status, msg.body.webcamsOnlyForModerator)
 
-      val event = buildWebcamsOnlyForModeratorChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.setBy, msg.body.webcamsOnlyForModerator)
-      outGW.send(event)
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to change lock settings"
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
+    } else {
+      log.info("Change webcams only for moderator status. meetingId=" + liveMeeting.props.meetingProp.intId + " webcamsOnlyForModeratorrecording=" + msg.body.webcamsOnlyForModerator)
+      if (MeetingStatus2x.webcamsOnlyForModeratorEnabled(liveMeeting.status) != msg.body.webcamsOnlyForModerator) {
+        MeetingStatus2x.setWebcamsOnlyForModerator(liveMeeting.status, msg.body.webcamsOnlyForModerator)
+
+        val event = buildWebcamsOnlyForModeratorChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.setBy, msg.body.webcamsOnlyForModerator)
+        outGW.send(event)
+      }
     }
-
     def buildWebcamsOnlyForModeratorChangedEvtMsg(meetingId: String, userId: String, webcamsOnlyForModerator: Boolean): BbbCommonEnvCoreMsg = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
       val envelope = BbbCoreEnvelope(WebcamsOnlyForModeratorChangedEvtMsg.NAME, routing)

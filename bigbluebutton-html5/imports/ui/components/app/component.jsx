@@ -27,7 +27,9 @@ import UploaderContainer from '/imports/ui/components/presentation/presentation-
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
 import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
 import NewWebcamContainer from '../webcam/container';
-import PresentationPodsContainer from '../presentation-pod/container';
+import PresentationAreaContainer from '../presentation/presentation-area/container';
+import ScreenshareContainer from '../screenshare/container';
+import ExternalVideoContainer from '../external-video-player/container';
 import { styles } from './styles';
 import {
   LAYOUT_TYPE, DEVICE_TYPE, ACTIONS,
@@ -44,12 +46,14 @@ import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import { makeCall } from '/imports/ui/services/api';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
+import { NAVBAR_HEIGHT, LARGE_NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager/component';
+import Settings from '/imports/ui/services/settings';
+import LayoutService from '/imports/ui/components/layout/service';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
 const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
-const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 const OVERRIDE_LOCALE = APP_CONFIG.defaultSettings.application.overrideLocale;
 
 const intlMessages = defineMessages({
@@ -125,6 +129,10 @@ const LAYERED_BREAKPOINT = 640;
 const isLayeredView = window.matchMedia(`(max-width: ${LAYERED_BREAKPOINT}px)`);
 
 class App extends Component {
+  static renderWebcamsContainer() {
+    return <NewWebcamContainer />;
+  }
+
   constructor(props) {
     super(props);
     this.state = {
@@ -134,6 +142,7 @@ class App extends Component {
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
     this.renderMedia = withDraggableContext(this.renderMedia.bind(this));
+    this.renderWebcamsContainer = withDraggableContext(App.renderWebcamsContainer.bind(this));
 
     this.throttledDeviceType = throttle(() => this.setDeviceType(),
       50, { trailing: true, leading: true }).bind(this);
@@ -145,8 +154,7 @@ class App extends Component {
       notify,
       intl,
       validIOSVersion,
-      startBandwidthMonitoring,
-      handleNetworkConnection,
+      newLayoutContextDispatch,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -154,8 +162,14 @@ class App extends Component {
     MediaService.setSwapLayout();
     Modal.setAppElement('#app');
 
+    const fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
     document.getElementsByTagName('html')[0].lang = locale;
-    document.getElementsByTagName('html')[0].style.fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
+    document.getElementsByTagName('html')[0].style.fontSize = fontSize;
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_FONT_SIZE,
+      value: parseInt(fontSize.slice(0, -2)),
+    });
 
     const body = document.getElementsByTagName('body')[0];
 
@@ -177,15 +191,6 @@ class App extends Component {
     window.ondragover = (e) => { e.preventDefault(); };
     window.ondrop = (e) => { e.preventDefault(); };
 
-    if (ENABLE_NETWORK_MONITORING) {
-      if (navigator.connection) {
-        handleNetworkConnection();
-        navigator.connection.addEventListener('change', handleNetworkConnection);
-      }
-
-      startBandwidthMonitoring();
-    }
-
     if (isMobile()) makeCall('setMobileUser');
 
     ConnectionStatusService.startRoundTripTime();
@@ -204,7 +209,47 @@ class App extends Component {
       mountModal,
       deviceType,
       isPresenter,
+      meetingLayout,
+      settingsLayout,
+      layoutType,
+      layoutLoaded,
+      pushLayoutToEveryone,
+      newLayoutContextDispatch,
     } = this.props;
+
+
+    if (meetingLayout !== prevProps.meetingLayout) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_LAYOUT_TYPE,
+        value: meetingLayout,
+      });
+
+      Settings.application.selectedLayout = meetingLayout;
+      Settings.save();
+    }
+
+    const newLayoutManager = settingsLayout === 'legacy' ? 'legacy' : 'new';
+
+    if (settingsLayout !== prevProps.settingsLayout ||
+      settingsLayout !== layoutType ||
+      newLayoutManager !== layoutLoaded
+    ) {
+      Session.set('layoutManagerLoaded', newLayoutManager);
+
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_LAYOUT_LOADED,
+        value: newLayoutManager,
+      });
+
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_LAYOUT_TYPE,
+        value: settingsLayout,
+      });
+
+      if (pushLayoutToEveryone) {
+        LayoutService.setMeetingLayout(settingsLayout);
+      }
+    }
 
     if (!isPresenter && randomlySelectedUser.length > 0) mountModal(<RandomUserSelectContainer />);
 
@@ -253,12 +298,7 @@ class App extends Component {
   }
 
   componentWillUnmount() {
-    const { handleNetworkConnection } = this.props;
     window.removeEventListener('resize', this.handleWindowResize, false);
-    if (navigator.connection) {
-      navigator.connection.addEventListener('change', handleNetworkConnection, false);
-    }
-
     ConnectionStatusService.stopRoundTripTime();
   }
 
@@ -317,6 +357,37 @@ class App extends Component {
         }}
         shouldAriaHide={this.shouldAriaHide}
       />
+    );
+  }
+
+  renderNavBar() {
+    const { navbar, isLargeFont } = this.props;
+
+    if (!navbar) return null;
+
+    const realNavbarHeight = isLargeFont ? LARGE_NAVBAR_HEIGHT : NAVBAR_HEIGHT;
+
+    return (
+      <header
+        className={styles.navbar}
+        style={{
+          height: realNavbarHeight,
+        }}
+      >
+        {navbar}
+      </header>
+    );
+  }
+
+  renderSidebar() {
+    const { sidebar } = this.props;
+
+    if (!sidebar) return null;
+
+    return (
+      <aside className={styles.sidebar}>
+        {sidebar}
+      </aside>
     );
   }
 
@@ -436,6 +507,10 @@ class App extends Component {
       sidebarContentIsOpen,
       audioAlertEnabled,
       pushAlertEnabled,
+      shouldShowPresentation,
+      shouldShowScreenshare,
+      shouldShowExternalVideo,
+      isPresenter,
     } = this.props;
 
     return (
@@ -500,13 +575,37 @@ class App extends Component {
                   height: layoutManagerLoaded !== 'both' ? '100%' : '50%',
                 }}
               >
+                {this.renderActivityCheck()}
+                {this.renderUserInformation()}
+                <BannerBarContainer />
+                <NotificationsBarContainer />
                 <NavBarContainer main="new" />
                 <SidebarNavigationContainer />
                 <SidebarContentContainer />
-                <NewWebcamContainer />
-                <PresentationPodsContainer />
+                {this.renderWebcamsContainer()}
+                {shouldShowPresentation ? <PresentationAreaContainer /> : null}
+                {shouldShowScreenshare ? <ScreenshareContainer /> : null}
+                {shouldShowExternalVideo ? <ExternalVideoContainer isPresenter={isPresenter} /> : null}
+                <UploaderContainer />
+                <BreakoutRoomInvitation />
+                <AudioContainer />
+                <ToastContainer rtl />
+                {(audioAlertEnabled || pushAlertEnabled)
+                  && (
+                    <ChatAlertContainer
+                      audioAlertEnabled={audioAlertEnabled}
+                      pushAlertEnabled={pushAlertEnabled}
+                    />
+                  )}
+                <WaitingNotifierContainer />
+                <LockNotifier />
+                <StatusNotifier status="raiseHand" />
+                <ManyWebcamsNotifier />
+                <PollingContainer />
                 <ModalContainer />
                 {this.renderActionsBar()}
+                {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
+                {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
               </div>
             </>
           )}

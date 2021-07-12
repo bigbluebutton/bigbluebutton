@@ -16,6 +16,7 @@
 }
 
 .newLayout{
+  @extend %flex-column;
   background-color: #06172A;
 }
 

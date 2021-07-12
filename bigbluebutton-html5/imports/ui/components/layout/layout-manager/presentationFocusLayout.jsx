@@ -1,12 +1,10 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { throttle, defaultsDeep } from 'lodash';
 import NewLayoutContext from '../context/context';
 import DEFAULT_VALUES from '../defaultValues';
 import { INITIAL_INPUT_STATE } from '../context/initState';
 import { DEVICE_TYPE, ACTIONS } from '../enums';
 
-// const windowWidth = () => window.document.documentElement.clientWidth;
-// const windowHeight = () => window.document.documentElement.clientHeight;
 const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 
@@ -36,7 +34,8 @@ class PresentationFocusLayout extends Component {
     const { newLayoutContextState } = this.props;
     return newLayoutContextState.input !== nextProps.newLayoutContextState.input
       || newLayoutContextState.deviceType !== nextProps.newLayoutContextState.deviceType
-      || newLayoutContextState.layoutLoaded !== nextProps.newLayoutContextState.layoutLoaded;
+      || newLayoutContextState.layoutLoaded !== nextProps.newLayoutContextState.layoutLoaded
+      || newLayoutContextState.fontSize !== nextProps.newLayoutContextState.fontSize;
   }
 
   componentDidUpdate(prevProps) {
@@ -65,6 +64,17 @@ class PresentationFocusLayout extends Component {
 
     if (layoutLoaded === 'both') return wHeight / 2;
     return wHeight;
+  }
+
+  bannerAreaHeight() {
+    const { newLayoutContextState } = this.props;
+    const { input } = newLayoutContextState;
+    const { bannerBar, notificationsBar } = input;
+
+    const bannerHeight = bannerBar.hasBanner ? DEFAULT_VALUES.bannerHeight : 0;
+    const notificationHeight = notificationsBar.hasNotification ? DEFAULT_VALUES.bannerHeight : 0;
+
+    return bannerHeight + notificationHeight;
   }
 
   init() {
@@ -135,7 +145,7 @@ class PresentationFocusLayout extends Component {
 
     let top = 0;
     if (layoutLoaded === 'both') top = this.mainHeight();
-    else top = DEFAULT_VALUES.navBarTop;
+    else top = DEFAULT_VALUES.navBarTop + this.bannerAreaHeight();
 
     return {
       width: this.mainWidth() - mediaAreaBounds.left,
@@ -148,12 +158,16 @@ class PresentationFocusLayout extends Component {
 
   calculatesActionbarBounds(mediaAreaBounds) {
     const { newLayoutContextState } = this.props;
-    const { input } = newLayoutContextState;
+    const { input, fontSize } = newLayoutContextState;
+
+    const BASE_FONT_SIZE = 16;
+    const actionBarHeight = DEFAULT_VALUES.actionBarHeight / BASE_FONT_SIZE * fontSize;
+
     return {
       display: input.actionBar.hasActionBar,
       width: this.mainWidth() - mediaAreaBounds.left,
-      height: DEFAULT_VALUES.actionBarHeight,
-      top: this.mainHeight() - DEFAULT_VALUES.actionBarHeight,
+      height: actionBarHeight,
+      top: this.mainHeight() - actionBarHeight,
       left: mediaAreaBounds.left,
       zIndex: 1,
     };
@@ -194,12 +208,13 @@ class PresentationFocusLayout extends Component {
   calculatesSidebarNavHeight() {
     const { newLayoutContextState } = this.props;
     const { deviceType, input } = newLayoutContextState;
+    const { navBarHeight } = DEFAULT_VALUES;
     let sidebarNavHeight = 0;
     if (input.sidebarNavigation.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
-        sidebarNavHeight = this.mainHeight() - DEFAULT_VALUES.navBarHeight;
+        sidebarNavHeight = this.mainHeight() - navBarHeight - this.bannerAreaHeight();
       } else {
-        sidebarNavHeight = this.mainHeight();
+        sidebarNavHeight = this.mainHeight() - this.bannerAreaHeight();
       }
     }
     return sidebarNavHeight;
@@ -208,16 +223,17 @@ class PresentationFocusLayout extends Component {
   calculatesSidebarNavBounds() {
     const { newLayoutContextState } = this.props;
     const { deviceType, layoutLoaded } = newLayoutContextState;
+    const { sidebarNavTop, navBarHeight, sidebarNavLeft } = DEFAULT_VALUES;
 
     let top = 0;
     if (layoutLoaded === 'both') top = this.mainHeight();
-    else top = DEFAULT_VALUES.sidebarNavTop;
+    else top = sidebarNavTop + this.bannerAreaHeight();
 
-    if (deviceType === DEVICE_TYPE.MOBILE) top = DEFAULT_VALUES.navBarHeight;
+    if (deviceType === DEVICE_TYPE.MOBILE) top = navBarHeight + this.bannerAreaHeight();
 
     return {
       top,
-      left: DEFAULT_VALUES.sidebarNavLeft,
+      left: sidebarNavLeft,
       zIndex: deviceType === DEVICE_TYPE.MOBILE ? 11 : 1,
     };
   }
@@ -260,14 +276,15 @@ class PresentationFocusLayout extends Component {
   calculatesSidebarContentHeight(cameraDockHeight) {
     const { newLayoutContextState } = this.props;
     const { deviceType, input } = newLayoutContextState;
+    const { navBarHeight } = DEFAULT_VALUES;
     let sidebarContentHeight = 0;
     if (input.sidebarContent.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
-        sidebarContentHeight = this.mainHeight() - DEFAULT_VALUES.navBarHeight;
+        sidebarContentHeight = this.mainHeight() - navBarHeight - this.bannerAreaHeight();
       } else if (input.cameraDock.numCameras > 0) {
-        sidebarContentHeight = this.mainHeight() - cameraDockHeight;
+        sidebarContentHeight = this.mainHeight() - cameraDockHeight - this.bannerAreaHeight();
       } else {
-        sidebarContentHeight = this.mainHeight();
+        sidebarContentHeight = this.mainHeight() - this.bannerAreaHeight();
       }
     }
     return sidebarContentHeight;
@@ -276,12 +293,13 @@ class PresentationFocusLayout extends Component {
   calculatesSidebarContentBounds(sidebarNavWidth) {
     const { newLayoutContextState } = this.props;
     const { deviceType, layoutLoaded } = newLayoutContextState;
+    const { navBarHeight, sidebarNavTop } = DEFAULT_VALUES;
 
     let top = 0;
     if (layoutLoaded === 'both') top = this.mainHeight();
-    else top = DEFAULT_VALUES.sidebarNavTop;
+    else top = sidebarNavTop + this.bannerAreaHeight();
 
-    if (deviceType === DEVICE_TYPE.MOBILE) top = DEFAULT_VALUES.navBarHeight;
+    if (deviceType === DEVICE_TYPE.MOBILE) top = navBarHeight + this.bannerAreaHeight();
 
     return {
       top,
@@ -295,6 +313,7 @@ class PresentationFocusLayout extends Component {
     const { newLayoutContextState } = this.props;
     const { deviceType, input, layoutLoaded } = newLayoutContextState;
     const { sidebarContent } = input;
+    const { navBarHeight, actionBarHeight } = DEFAULT_VALUES;
     let left = 0;
     let width = 0;
     let top = 0;
@@ -315,18 +334,18 @@ class PresentationFocusLayout extends Component {
     }
 
     if (layoutLoaded === 'both') top = this.mainHeight() / 2;
-    else top = DEFAULT_VALUES.navBarHeight;
+    else top = navBarHeight + this.bannerAreaHeight();
 
     return {
       width,
-      height: this.mainHeight() - (DEFAULT_VALUES.navBarHeight + DEFAULT_VALUES.actionBarHeight),
+      height: this.mainHeight() - (navBarHeight + actionBarHeight + this.bannerAreaHeight()),
       top,
       left,
     };
   }
 
   calculatesCameraDockBounds(
-    presentationBounds,
+    mediaBounds,
     mediaAreaBounds,
     sidebarNavWidth,
     sidebarContentWidth,
@@ -335,30 +354,17 @@ class PresentationFocusLayout extends Component {
     const { deviceType, input } = newLayoutContextState;
     const cameraDockBounds = {};
 
-    if (input.cameraDock.isFullscreen) {
-      cameraDockBounds.width = this.mainWidth();
-      cameraDockBounds.minWidth = this.mainWidth();
-      cameraDockBounds.maxWidth = this.mainWidth();
-      cameraDockBounds.height = this.mainHeight();
-      cameraDockBounds.minHeight = this.mainHeight();
-      cameraDockBounds.maxHeight = this.mainHeight();
-      cameraDockBounds.top = 0;
-      cameraDockBounds.left = 0;
-      cameraDockBounds.zIndex = 99;
-      return cameraDockBounds;
-    }
-
     if (input.cameraDock.numCameras > 0) {
       let cameraDockHeight = 0;
       if (deviceType === DEVICE_TYPE.MOBILE) {
-        cameraDockBounds.top = mediaAreaBounds.top + presentationBounds.height;
+        cameraDockBounds.top = mediaAreaBounds.top + mediaBounds.height;
         cameraDockBounds.left = mediaAreaBounds.left;
         cameraDockBounds.minWidth = mediaAreaBounds.width;
         cameraDockBounds.width = mediaAreaBounds.width;
         cameraDockBounds.maxWidth = mediaAreaBounds.width;
         cameraDockBounds.minHeight = DEFAULT_VALUES.cameraDockMinHeight;
-        cameraDockBounds.height = mediaAreaBounds.height - presentationBounds.height;
-        cameraDockBounds.maxHeight = mediaAreaBounds.height - presentationBounds.height;
+        cameraDockBounds.height = mediaAreaBounds.height - mediaBounds.height;
+        cameraDockBounds.maxHeight = mediaAreaBounds.height - mediaBounds.height;
       } else {
         if (input.cameraDock.height === 0) {
           cameraDockHeight = min(
@@ -388,31 +394,32 @@ class PresentationFocusLayout extends Component {
     return cameraDockBounds;
   }
 
-  calculatesPresentationBounds(mediaAreaBounds) {
+  calculatesMediaBounds(mediaAreaBounds) {
     const { newLayoutContextState } = this.props;
     const { deviceType, input } = newLayoutContextState;
-    const presentationBounds = {};
+    const mediaBounds = {};
+    const { element: fullscreenElement } = input.fullscreen;
 
-    if (input.presentation.isFullscreen) {
-      presentationBounds.width = this.mainWidth();
-      presentationBounds.height = this.mainHeight();
-      presentationBounds.top = 0;
-      presentationBounds.left = 0;
-      presentationBounds.zIndex = 99;
-      return presentationBounds;
+    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
+      mediaBounds.width = this.mainWidth();
+      mediaBounds.height = this.mainHeight();
+      mediaBounds.top = 0;
+      mediaBounds.left = 0;
+      mediaBounds.zIndex = 99;
+      return mediaBounds;
     }
 
     if (deviceType === DEVICE_TYPE.MOBILE && input.cameraDock.numCameras > 0) {
-      presentationBounds.height = mediaAreaBounds.height * 0.7;
+      mediaBounds.height = mediaAreaBounds.height * 0.7;
     } else {
-      presentationBounds.height = mediaAreaBounds.height;
+      mediaBounds.height = mediaAreaBounds.height;
     }
-    presentationBounds.width = mediaAreaBounds.width;
-    presentationBounds.top = DEFAULT_VALUES.navBarHeight;
-    presentationBounds.left = mediaAreaBounds.left;
-    presentationBounds.zIndex = 1;
+    mediaBounds.width = mediaAreaBounds.width;
+    mediaBounds.top = DEFAULT_VALUES.navBarHeight + this.bannerAreaHeight();
+    mediaBounds.left = mediaAreaBounds.left;
+    mediaBounds.zIndex = 1;
 
-    return presentationBounds;
+    return mediaBounds;
   }
 
   calculatesLayout() {
@@ -433,9 +440,9 @@ class PresentationFocusLayout extends Component {
     );
     const navbarBounds = this.calculatesNavbarBounds(mediaAreaBounds);
     const actionbarBounds = this.calculatesActionbarBounds(mediaAreaBounds);
-    const presentationBounds = this.calculatesPresentationBounds(mediaAreaBounds);
+    const mediaBounds = this.calculatesMediaBounds(mediaAreaBounds);
     const cameraDockBounds = this.calculatesCameraDockBounds(
-      presentationBounds, mediaAreaBounds, sidebarNavWidth.width, sidebarContentWidth.width,
+      mediaBounds, mediaAreaBounds, sidebarNavWidth.width, sidebarContentWidth.width,
     );
     const sidebarContentHeight = this.calculatesSidebarContentHeight(cameraDockBounds.height);
 
@@ -562,13 +569,34 @@ class PresentationFocusLayout extends Component {
       type: ACTIONS.SET_PRESENTATION_OUTPUT,
       value: {
         display: input.presentation.isOpen,
-        width: presentationBounds.width,
-        height: presentationBounds.height,
-        top: presentationBounds.top,
-        left: presentationBounds.left,
+        width: mediaBounds.width,
+        height: mediaBounds.height,
+        top: mediaBounds.top,
+        left: mediaBounds.left,
         tabOrder: DEFAULT_VALUES.presentationTabOrder,
         isResizable: false,
-        zIndex: presentationBounds.zIndex,
+        zIndex: mediaBounds.zIndex,
+      },
+    });
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_SCREEN_SHARE_OUTPUT,
+      value: {
+        width: mediaBounds.width,
+        height: mediaBounds.height,
+        top: mediaBounds.top,
+        left: mediaBounds.left,
+        zIndex: mediaBounds.zIndex,
+      },
+    });
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
+      value: {
+        width: mediaBounds.width,
+        height: mediaBounds.height,
+        top: mediaBounds.top,
+        left: mediaBounds.left,
       },
     });
   }

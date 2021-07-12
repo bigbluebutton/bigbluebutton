@@ -6,6 +6,7 @@ import _ from 'lodash';
 import { Session } from 'meteor/session';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
+import Toggle from '/imports/ui/components/switch/component';
 import LiveResult from './live-result/component';
 import { styles } from './styles.scss';
 import { PANELS, ACTIONS } from '../layout/enums';
@@ -104,6 +105,18 @@ const intlMessages = defineMessages({
     id: 'app.poll.start.label',
     description: '',
   },
+  secretPollLabel: {
+    id: 'app.poll.secretPoll.label',
+    description: '',
+  },
+  isSecretPollLabel: {
+    id: 'app.poll.secretPoll.isSecretLabel',
+    description: '',
+  },
+  nonSecretPollLabel: {
+    id: 'app.poll.secretPoll.notSecretLabel',
+    description: 'label explaining that the presenter will see for which option everyone voted',
+  },
   questionTitle: {
     id: 'app.poll.question.title',
     description: '',
@@ -152,7 +165,7 @@ const intlMessages = defineMessages({
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
 
-const MAX_CUSTOM_FIELDS = POLL_SETTINGS.max_custom;
+const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
 const MAX_INPUT_CHARS = POLL_SETTINGS.maxTypedAnswerLength;
 const QUESTION_MAX_INPUT_CHARS = 400;
 const FILE_DRAG_AND_DROP_ENABLED = POLL_SETTINGS.allowDragAndDropFile;
@@ -172,6 +185,7 @@ class Poll extends Component {
       question: '',
       optList: [],
       error: null,
+      secretPoll: false,
     };
 
     this.handleBackClick = this.handleBackClick.bind(this);
@@ -190,8 +204,21 @@ class Poll extends Component {
   }
 
   componentDidUpdate() {
+    const { amIPresenter, newLayoutContextDispatch } = this.props;
+
     if (Session.equals('resetPollPanel', true)) {
       this.handleBackClick();
+    }
+
+    if (!amIPresenter) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+        value: false,
+      });
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+        value: PANELS.NONE,
+      });
     }
   }
 
@@ -252,6 +279,13 @@ class Poll extends Component {
   handleAddOption() {
     const { optList } = this.state;
     this.setState({ optList: [...optList, { val: '' }] });
+  }
+
+  handleToggle() {
+    const { secretPoll } = this.state;
+    const toggledValue = !secretPoll;
+    Session.set('secretPoll', toggledValue);
+    this.setState({ secretPoll: toggledValue });
   }
 
   setOptListLength(len) {
@@ -344,6 +378,7 @@ class Poll extends Component {
       currentPoll,
       pollAnswerIds,
       usernames,
+      isDefaultPoll,
     } = this.props;
 
     return (
@@ -358,6 +393,7 @@ class Poll extends Component {
             currentPoll,
             pollAnswerIds,
             usernames,
+            isDefaultPoll,
           }}
           handleBackClick={this.handleBackClick}
         />
@@ -367,9 +403,16 @@ class Poll extends Component {
 
   renderPollOptions() {
     const {
-      type, optList, question, error,
+      type, secretPoll, optList, question, error,
     } = this.state;
-    const { startPoll, startCustomPoll, intl, pollTypes, isDefaultPoll, checkPollType } = this.props;
+    const {
+      startPoll,
+      startCustomPoll,
+      intl,
+      pollTypes,
+      isDefaultPoll,
+      checkPollType,
+    } = this.props;
     const defaultPoll = isDefaultPoll(type);
     return (
       <div>
@@ -485,10 +528,30 @@ class Poll extends Component {
                           label={intl.formatMessage(intlMessages.addOptionLabel)}
                           color="default"
                           icon="add"
-                          disabled={optList.length === MAX_CUSTOM_FIELDS}
+                          disabled={optList.length >= MAX_CUSTOM_FIELDS}
                           onClick={() => this.handleAddOption()}
                         />
                       )}
+                    <div className={styles.row}>
+                      <div className={styles.col} aria-hidden="true">
+                          <label className={styles.label}>
+                            {intl.formatMessage(intlMessages.secretPollLabel)}
+                          </label>
+                      </div>
+                      <div className={styles.col}>
+                        <label className={styles.toggle}>
+                          <Toggle
+                            icons={false}
+                            defaultChecked={secretPoll}
+                            onChange={() => this.handleToggle()}
+                            ariaLabel={intl.formatMessage(intlMessages.secretPollLabel)}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                    <div>
+                      {intl.formatMessage(secretPoll ? intlMessages.isSecretPollLabel : intlMessages.nonSecretPollLabel)}
+                    </div>
                     <Button
                       className={styles.startPollBtn}
                       data-test="startPoll"
@@ -522,11 +585,12 @@ class Poll extends Component {
                           if (verifiedPollType === pollTypes.Custom) {
                             startCustomPoll(
                               verifiedPollType,
+                              secretPoll,
                               question,
                               _.compact(verifiedOptions),
                             );
                           } else {
-                            startPoll(verifiedPollType, question);
+                            startPoll(verifiedPollType, secretPoll, question);
                           }
                         });
                       }}

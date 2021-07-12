@@ -246,27 +246,54 @@ class VideoPlayer extends Component {
   }
 
   handleResize() {
+    const { top, left, height, width, layoutLoaded } = this.props;
+
     if (!this.player || !this.playerParent) {
       return;
     }
 
-    const par = this.playerParent.parentElement;
-    const w = par.clientWidth;
-    const h = par.clientHeight;
-    const idealW = h * 16 / 9;
+    if (layoutLoaded === 'new') {
+      const idealW = height * 16 / 9;
 
-    const style = {};
-    if (idealW > w) {
-      style.width = w;
-      style.height = w * 9 / 16;
-    } else {
-      style.width = idealW;
-      style.height = h;
+      const style = {};
+      if (idealW > width) {
+        style.width = width;
+        style.height = width * 9 / 16;
+      } else {
+        style.width = idealW;
+        style.height = height;
+      }
+      style.top = top + (height - style.height) / 2;
+      style.left = left + (width - style.width) / 2;
+
+      const styles = `
+        position: absolute;
+        width: ${style.width}px;
+        height: ${style.height}px;
+        top: ${style.top}px;
+        left: ${style.left}px;
+      `;
+      this.player.wrapper.style = styles;
+    }else{
+      const par = this.playerParent.parentElement;
+      const w = par.clientWidth;
+      const h = par.clientHeight;
+      const idealW = h * 16 / 9;
+
+      const style = {};
+      if (idealW > w) {
+        style.width = w;
+        style.height = w * 9 / 16;
+      } else {
+        style.width = idealW;
+        style.height = h;
+      }
+
+      const styles = `width: ${style.width}px; height: ${style.height}px;`;
+
+      this.player.wrapper.style = styles;
+      this.playerParent.style = styles;
     }
-
-    const styleStr = `width: ${style.width}px; height: ${style.height}px;`;
-    this.player.wrapper.style = styleStr;
-    this.playerParent.style = styleStr;
   }
 
   clearVideoListeners() {

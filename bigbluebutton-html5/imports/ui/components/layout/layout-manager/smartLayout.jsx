@@ -1,12 +1,10 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import _ from 'lodash';
 import NewLayoutContext from '../context/context';
 import DEFAULT_VALUES from '../defaultValues';
 import { INITIAL_INPUT_STATE } from '../context/initState';
 import { DEVICE_TYPE, ACTIONS } from '../enums';
 
-// const windowWidth = () => window.document.documentElement.clientWidth;
-// const windowHeight = () => window.document.documentElement.clientHeight;
 const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 
@@ -36,7 +34,8 @@ class SmartLayout extends Component {
     const { newLayoutContextState } = this.props;
     return newLayoutContextState.input !== nextProps.newLayoutContextState.input
       || newLayoutContextState.deviceType !== nextProps.newLayoutContextState.deviceType
-      || newLayoutContextState.layoutLoaded !== nextProps.newLayoutContextState.layoutLoaded;
+      || newLayoutContextState.layoutLoaded !== nextProps.newLayoutContextState.layoutLoaded
+      || newLayoutContextState.fontSize !== nextProps.newLayoutContextState.fontSize;
   }
 
   componentDidUpdate(prevProps) {
@@ -66,6 +65,17 @@ class SmartLayout extends Component {
 
     if (layoutLoaded === 'both') return wHeight / 2;
     return wHeight;
+  }
+
+  bannerAreaHeight() {
+    const { newLayoutContextState } = this.props;
+    const { input } = newLayoutContextState;
+    const { bannerBar, notificationsBar } = input;
+
+    const bannerHeight = bannerBar.hasBanner ? DEFAULT_VALUES.bannerHeight : 0;
+    const notificationHeight = notificationsBar.hasNotification ? DEFAULT_VALUES.bannerHeight : 0;
+
+    return bannerHeight + notificationHeight;
   }
 
   init() {
@@ -136,7 +146,7 @@ class SmartLayout extends Component {
 
     let top = 0;
     if (layoutLoaded === 'both') top = this.mainHeight();
-    else top = DEFAULT_VALUES.navBarTop;
+    else top = DEFAULT_VALUES.navBarTop + this.bannerAreaHeight();
 
     return {
       width: this.mainWidth() - mediaAreaBounds.left,
@@ -149,12 +159,16 @@ class SmartLayout extends Component {
 
   calculatesActionbarBounds(mediaAreaBounds) {
     const { newLayoutContextState } = this.props;
-    const { input } = newLayoutContextState;
+    const { input, fontSize } = newLayoutContextState;
+
+    const BASE_FONT_SIZE = 16;
+    const actionBarHeight = DEFAULT_VALUES.actionBarHeight / BASE_FONT_SIZE * fontSize;
+
     return {
       display: input.actionBar.hasActionBar,
       width: this.mainWidth() - mediaAreaBounds.left,
-      height: DEFAULT_VALUES.actionBarHeight,
-      top: this.mainHeight() - DEFAULT_VALUES.actionBarHeight,
+      height: actionBarHeight,
+      top: this.mainHeight() - actionBarHeight,
       left: mediaAreaBounds.left,
       zIndex: 1,
     };
@@ -202,6 +216,7 @@ class SmartLayout extends Component {
       } else {
         sidebarNavHeight = this.mainHeight();
       }
+      sidebarNavHeight -= this.bannerAreaHeight();
     }
     return sidebarNavHeight;
   }
@@ -209,16 +224,17 @@ class SmartLayout extends Component {
   calculatesSidebarNavBounds() {
     const { newLayoutContextState } = this.props;
     const { deviceType, layoutLoaded } = newLayoutContextState;
+    const { sidebarNavTop, navBarHeight, sidebarNavLeft } = DEFAULT_VALUES;
 
     let top = 0;
     if (layoutLoaded === 'both') top = this.mainHeight();
-    else top = DEFAULT_VALUES.sidebarNavTop;
+    else top = sidebarNavTop + this.bannerAreaHeight();
 
-    if (deviceType === DEVICE_TYPE.MOBILE) top = DEFAULT_VALUES.navBarHeight;
+    if (deviceType === DEVICE_TYPE.MOBILE) top = navBarHeight + this.bannerAreaHeight();
 
     return {
       top,
-      left: DEFAULT_VALUES.sidebarNavLeft,
+      left: sidebarNavLeft,
       zIndex: deviceType === DEVICE_TYPE.MOBILE ? 11 : 1,
     };
   }
@@ -268,6 +284,7 @@ class SmartLayout extends Component {
       } else {
         sidebarContentHeight = this.mainHeight();
       }
+      sidebarContentHeight -= this.bannerAreaHeight();
     }
     return sidebarContentHeight;
   }
@@ -275,12 +292,13 @@ class SmartLayout extends Component {
   calculatesSidebarContentBounds(sidebarNavWidth) {
     const { newLayoutContextState } = this.props;
     const { deviceType, layoutLoaded } = newLayoutContextState;
+    const { sidebarNavTop, navBarHeight } = DEFAULT_VALUES;
 
     let top = 0;
     if (layoutLoaded === 'both') top = this.mainHeight();
-    else top = DEFAULT_VALUES.sidebarNavTop;
+    else top = sidebarNavTop + this.bannerAreaHeight();
 
-    if (deviceType === DEVICE_TYPE.MOBILE) top = DEFAULT_VALUES.navBarHeight;
+    if (deviceType === DEVICE_TYPE.MOBILE) top = navBarHeight + this.bannerAreaHeight();
 
     return {
       top,
@@ -294,6 +312,7 @@ class SmartLayout extends Component {
     const { newLayoutContextState } = this.props;
     const { deviceType, input, layoutLoaded } = newLayoutContextState;
     const { sidebarContent } = input;
+    const { actionBarHeight, navBarHeight } = DEFAULT_VALUES;
     let left = 0;
     let width = 0;
     let top = 0;
@@ -314,49 +333,36 @@ class SmartLayout extends Component {
     }
 
     if (layoutLoaded === 'both') top = this.mainHeight() / 2;
-    else top = DEFAULT_VALUES.navBarHeight;
+    else top = navBarHeight + this.bannerAreaHeight();
 
     return {
       width,
-      height: this.mainHeight() - (DEFAULT_VALUES.navBarHeight + DEFAULT_VALUES.actionBarHeight),
+      height: this.mainHeight() - (navBarHeight + actionBarHeight + this.bannerAreaHeight()),
       top,
       left,
     };
   }
 
-  calculatesCameraDockBounds(mediaAreaBounds, presentationBounds) {
+  calculatesCameraDockBounds(mediaAreaBounds, mediaBounds) {
     const { newLayoutContextState } = this.props;
     const { input } = newLayoutContextState;
 
     const cameraDockBounds = {};
-
-    if (input.cameraDock.isFullscreen) {
-      cameraDockBounds.width = this.mainWidth();
-      cameraDockBounds.minWidth = this.mainWidth();
-      cameraDockBounds.maxWidth = this.mainWidth();
-      cameraDockBounds.height = this.mainHeight();
-      cameraDockBounds.minHeight = this.mainHeight();
-      cameraDockBounds.maxHeight = this.mainHeight();
-      cameraDockBounds.top = 0;
-      cameraDockBounds.left = 0;
-      cameraDockBounds.zIndex = 99;
-      return cameraDockBounds;
-    }
 
     if (input.cameraDock.numCameras > 0) {
       cameraDockBounds.top = mediaAreaBounds.top;
       cameraDockBounds.left = mediaAreaBounds.left;
       cameraDockBounds.zIndex = 1;
 
-      if (presentationBounds.width < mediaAreaBounds.width) {
-        cameraDockBounds.width = mediaAreaBounds.width - presentationBounds.width;
+      if (mediaBounds.width < mediaAreaBounds.width) {
+        cameraDockBounds.width = mediaAreaBounds.width - mediaBounds.width;
         cameraDockBounds.maxWidth = mediaAreaBounds.width * 0.8;
         cameraDockBounds.height = mediaAreaBounds.height;
         cameraDockBounds.maxHeight = mediaAreaBounds.height;
       } else {
         cameraDockBounds.width = mediaAreaBounds.width;
         cameraDockBounds.maxWidth = mediaAreaBounds.width;
-        cameraDockBounds.height = mediaAreaBounds.height - presentationBounds.height;
+        cameraDockBounds.height = mediaAreaBounds.height - mediaBounds.height;
         cameraDockBounds.maxHeight = mediaAreaBounds.height * 0.8;
       }
 
@@ -400,61 +406,62 @@ class SmartLayout extends Component {
     };
   }
 
-  calculatesPresentationBounds(mediaAreaBounds, slideSize) {
+  calculatesMediaBounds(mediaAreaBounds, slideSize) {
     const { newLayoutContextState } = this.props;
     const { input } = newLayoutContextState;
-    const presentationBounds = {};
+    const mediaBounds = {};
+    const { element: fullscreenElement } = input.fullscreen;
 
     // TODO Adicionar min e max para a apresentação
 
-    if (input.presentation.isFullscreen) {
-      presentationBounds.width = this.mainWidth();
-      presentationBounds.height = this.mainHeight();
-      presentationBounds.top = 0;
-      presentationBounds.left = 0;
-      presentationBounds.zIndex = 99;
-      return presentationBounds;
+    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
+      mediaBounds.width = this.mainWidth();
+      mediaBounds.height = this.mainHeight();
+      mediaBounds.top = 0;
+      mediaBounds.left = 0;
+      mediaBounds.zIndex = 99;
+      return mediaBounds;
     }
 
     if (input.cameraDock.numCameras > 0 && !input.cameraDock.isDragging) {
       if (slideSize.width !== 0 && slideSize.height !== 0) {
         if (slideSize.width < mediaAreaBounds.width) {
           if (slideSize.width < (mediaAreaBounds.width * 0.8)) {
-            presentationBounds.width = slideSize.width;
+            mediaBounds.width = slideSize.width;
           } else {
-            presentationBounds.width = mediaAreaBounds.width * 0.8;
+            mediaBounds.width = mediaAreaBounds.width * 0.8;
           }
-          presentationBounds.height = mediaAreaBounds.height;
-          presentationBounds.top = mediaAreaBounds.top;
-          presentationBounds.left = mediaAreaBounds.left
-            + (mediaAreaBounds.width - presentationBounds.width);
+          mediaBounds.height = mediaAreaBounds.height;
+          mediaBounds.top = mediaAreaBounds.top;
+          mediaBounds.left = mediaAreaBounds.left
+            + (mediaAreaBounds.width - mediaBounds.width);
         } else {
           if (slideSize.height < (mediaAreaBounds.height * 0.8)) {
-            presentationBounds.height = slideSize.height;
+            mediaBounds.height = slideSize.height;
           } else {
-            presentationBounds.height = mediaAreaBounds.height * 0.8;
+            mediaBounds.height = mediaAreaBounds.height * 0.8;
           }
-          presentationBounds.width = mediaAreaBounds.width;
-          presentationBounds.top = mediaAreaBounds.top
-            + (mediaAreaBounds.height - presentationBounds.height);
-          presentationBounds.left = mediaAreaBounds.left;
+          mediaBounds.width = mediaAreaBounds.width;
+          mediaBounds.top = mediaAreaBounds.top
+            + (mediaAreaBounds.height - mediaBounds.height);
+          mediaBounds.left = mediaAreaBounds.left;
         }
       } else {
-        presentationBounds.width = mediaAreaBounds.width;
-        presentationBounds.height = mediaAreaBounds.height * 0.8;
-        presentationBounds.top = mediaAreaBounds.top
-          + (mediaAreaBounds.height - presentationBounds.height);
-        presentationBounds.left = mediaAreaBounds.left;
+        mediaBounds.width = mediaAreaBounds.width;
+        mediaBounds.height = mediaAreaBounds.height * 0.8;
+        mediaBounds.top = mediaAreaBounds.top
+          + (mediaAreaBounds.height - mediaBounds.height);
+        mediaBounds.left = mediaAreaBounds.left;
       }
     } else {
-      presentationBounds.width = mediaAreaBounds.width;
-      presentationBounds.height = mediaAreaBounds.height;
-      presentationBounds.top = mediaAreaBounds.top;
-      presentationBounds.left = mediaAreaBounds.left;
+      mediaBounds.width = mediaAreaBounds.width;
+      mediaBounds.height = mediaAreaBounds.height;
+      mediaBounds.top = mediaAreaBounds.top;
+      mediaBounds.left = mediaAreaBounds.left;
     }
-    presentationBounds.zIndex = 1;
+    mediaBounds.zIndex = 1;
 
-    return presentationBounds;
+    return mediaBounds;
   }
 
   calculatesLayout() {
@@ -474,8 +481,8 @@ class SmartLayout extends Component {
     const navbarBounds = this.calculatesNavbarBounds(mediaAreaBounds);
     const actionbarBounds = this.calculatesActionbarBounds(mediaAreaBounds);
     const slideSize = this.calculatesSlideSize(mediaAreaBounds);
-    const presentationBounds = this.calculatesPresentationBounds(mediaAreaBounds, slideSize);
-    const cameraDockBounds = this.calculatesCameraDockBounds(mediaAreaBounds, presentationBounds);
+    const mediaBounds = this.calculatesMediaBounds(mediaAreaBounds, slideSize);
+    const cameraDockBounds = this.calculatesCameraDockBounds(mediaAreaBounds, mediaBounds);
 
     newLayoutContextDispatch({
       type: ACTIONS.SET_NAVBAR_OUTPUT,
@@ -589,13 +596,34 @@ class SmartLayout extends Component {
       type: ACTIONS.SET_PRESENTATION_OUTPUT,
       value: {
         display: input.presentation.isOpen,
-        width: presentationBounds.width,
-        height: presentationBounds.height,
-        top: presentationBounds.top,
-        left: presentationBounds.left,
+        width: mediaBounds.width,
+        height: mediaBounds.height,
+        top: mediaBounds.top,
+        left: mediaBounds.left,
         tabOrder: DEFAULT_VALUES.presentationTabOrder,
         isResizable: false,
-        zIndex: presentationBounds.zIndex,
+        zIndex: mediaBounds.zIndex,
+      },
+    });
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_SCREEN_SHARE_OUTPUT,
+      value: {
+        width: mediaBounds.width,
+        height: mediaBounds.height,
+        top: mediaBounds.top,
+        left: mediaBounds.left,
+        zIndex: mediaBounds.zIndex,
+      },
+    });
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
+      value: {
+        width: mediaBounds.width,
+        height: mediaBounds.height,
+        top: mediaBounds.top,
+        left: mediaBounds.left,
       },
     });
   }

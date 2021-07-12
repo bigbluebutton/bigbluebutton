@@ -3,7 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import Polls from '/imports/api/polls';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
-function currentPoll() {
+function currentPoll(secretPoll) {
   const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
@@ -19,7 +19,15 @@ function currentPoll() {
     meetingId,
   };
 
-  return Polls.find(selector);
+  const options = { fields: {} };
+
+  const hasPoll = Polls.findOne(selector);
+
+  if ((hasPoll && hasPoll.secretPoll) || secretPoll) {
+    options.fields.responses = 0;
+  }
+
+  return Polls.find(selector, options);
 }
 
 function publishCurrentPoll(...args) {
@@ -29,7 +37,6 @@ function publishCurrentPoll(...args) {
 
 Meteor.publish('current-poll', publishCurrentPoll);
 
-
 function polls() {
   const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
@@ -37,6 +44,13 @@ function polls() {
     Logger.warn(`Publishing Polls was requested by unauth connection ${this.connection.id}`);
     return Polls.find({ meetingId: '' });
   }
+
+  const options = {
+    fields: {
+      'answers.numVotes': 0,
+      responses: 0,
+    },
+  };
 
   const { meetingId, userId } = tokenValidation;
 
@@ -47,7 +61,7 @@ function polls() {
     users: userId,
   };
 
-  return Polls.find(selector);
+  return Polls.find(selector, options);
 }
 
 function publish(...args) {
