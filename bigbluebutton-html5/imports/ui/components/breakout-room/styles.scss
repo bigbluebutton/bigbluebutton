@@ -167,6 +167,11 @@
   color: var(--color-danger);
 }
 
+.breakoutRoomListNameLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .usersAssignedNumberLabel {
   margin: 0 0 0 .25rem;
 

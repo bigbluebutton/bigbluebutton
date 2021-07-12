@@ -334,7 +334,7 @@ class BreakoutRoom extends PureComponent {
         key={`breakoutRoomItems-${breakout.breakoutId}`}
       >
         <div className={styles.content} key={`breakoutRoomList-${breakout.breakoutId}`}>
-          <span aria-hidden>
+          <span className={styles.breakoutRoomListNameLabel} aria-hidden>
             { breakout.isDefaultName
               ? intl.formatMessage(intlMessages.breakoutRoom, { 0: breakout.sequence })
               : breakout.shortName }
