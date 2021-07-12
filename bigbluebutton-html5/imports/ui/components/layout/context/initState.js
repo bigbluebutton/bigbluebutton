@@ -12,6 +12,9 @@ export const INITIAL_INPUT_STATE = {
   bannerBar: {
     hasBanner: false,
   },
+  notificationsBar: {
+    hasNotification: false,
+  },
   navBar: {
     hasNavBar: true,
     height: DEFAULT_VALUES.navBarHeight,

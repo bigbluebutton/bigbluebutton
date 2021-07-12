@@ -576,6 +576,7 @@ class App extends Component {
                 }}
               >
                 <BannerBarContainer />
+                <NotificationsBarContainer />
                 <NavBarContainer main="new" />
                 <SidebarNavigationContainer />
                 <SidebarContentContainer />

@@ -148,6 +148,25 @@ const reducer = (state, action) => {
       };
     }
 
+    // NOTIFICATIONS BAR
+    case ACTIONS.SET_HAS_NOTIFICATIONS_BAR: {
+      console.log("action trigger")
+      const { notificationsBar } = state.input;
+      if (notificationsBar.hasNotification === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          notificationsBar: {
+            ...notificationsBar,
+            hasNotification: action.value,
+          },
+        },
+      };
+    }
+
     // NAV BAR
     case ACTIONS.SET_NAVBAR_OUTPUT: {
       const {
