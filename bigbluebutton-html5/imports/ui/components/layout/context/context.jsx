@@ -666,22 +666,6 @@ const reducer = (state, action) => {
         },
       };
     }
-    case ACTIONS.SET_CAMERA_DOCK_IS_FULLSCREEN: {
-      const { cameraDock } = state.input;
-      if (cameraDock.isFullscreen === action.value) {
-        return state;
-      }
-      return {
-        ...state,
-        input: {
-          ...state.input,
-          cameraDock: {
-            ...cameraDock,
-            isFullscreen: action.value,
-          },
-        },
-      };
-    }
     case ACTIONS.SET_CAMERA_DOCK_RESIZABLE_EDGE: {
       const {
         top, right, bottom, left,
@@ -738,22 +722,6 @@ const reducer = (state, action) => {
           presentation: {
             ...presentation,
             isOpen: action.value,
-          },
-        },
-      };
-    }
-    case ACTIONS.SET_PRESENTATION_IS_FULLSCREEN: {
-      const { presentation } = state.input;
-      if (presentation.isFullscreen === action.value) {
-        return state;
-      }
-      return {
-        ...state,
-        input: {
-          ...state.input,
-          presentation: {
-            ...presentation,
-            isFullscreen: action.value,
           },
         },
       };
@@ -924,6 +892,24 @@ const reducer = (state, action) => {
       };
     }
 
+    // FULLSCREEN
+    case ACTIONS.SET_FULLSCREEN_ELEMENT: {
+      const { fullscreen } = state.input;
+      if (fullscreen.element === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          fullscreen: {
+            ...fullscreen,
+            element: action.value,
+          },
+        },
+      };
+    }
+
     // SCREEN SHARE
     case ACTIONS.SET_HAS_SCREEN_SHARE: {
       const { screenShare } = state.input;
@@ -972,12 +958,14 @@ const reducer = (state, action) => {
         height,
         top,
         left,
+        zIndex,
       } = action.value;
       const { screenShare } = state.output;
       if (screenShare.width === width
         && screenShare.height === height
         && screenShare.top === top
-        && screenShare.left === left) {
+        && screenShare.left === left
+        && screenShare.zIndex === zIndex) {
         return state;
       }
       return {
@@ -990,6 +978,7 @@ const reducer = (state, action) => {
             height,
             top,
             left,
+            zIndex,
           },
         },
       };

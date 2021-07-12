@@ -65,7 +65,6 @@ export const ACTIONS = {
   SET_CAMERA_DOCK_SIZE: 'setCameraDockSize',
   SET_CAMERA_DOCK_OUTPUT: 'setCameraDockOutput',
   SET_CAMERA_DOCK_IS_DRAGGABLE: 'setCameraDockIsDraggable',
-  SET_CAMERA_DOCK_IS_FULLSCREEN: 'setCameraDockIsFullscreen',
   SET_CAMERA_DOCK_IS_RESIZABLE: 'setCameraDockIsResizable',
   SET_CAMERA_DOCK_RESIZABLE_EDGE: 'setCameraDockResizableEdge',
 
@@ -76,10 +75,11 @@ export const ACTIONS = {
   SET_PRESENTATION_NUM_CURRENT_SLIDE: 'setPresentationNumCurrentSlide',
   SET_PRESENTATION_SLIDES_LENGTH: 'setPresentationSlideslength',
   SET_PRESENTATION_SIZE: 'setPresentationSize',
-  SET_PRESENTATION_IS_FULLSCREEN: 'setPresentationIsFullscreen',
   SET_PRESENTATION_OUTPUT: 'setPresentationOutput',
   SET_PRESENTATION_IS_RESIZABLE: 'setPresentationIsResizable',
   SET_PRESENTATION_RESIZABLE_EDGE: 'setPresentationResizableEdge',
+
+  SET_FULLSCREEN_ELEMENT: 'setFullscreenElement',
 
   SET_HAS_SCREEN_SHARE: 'setHasScreenShare',
   SET_SCREEN_SHARE_SIZE: 'setScreenShareSize',

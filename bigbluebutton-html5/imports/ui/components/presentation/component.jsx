@@ -703,6 +703,7 @@ class Presentation extends PureComponent {
     const {
       currentSlide,
       podId,
+      fullscreenElementId,
     } = this.props;
     const { zoom, fitToWidth, isFullscreen } = this.state;
 
@@ -715,6 +716,7 @@ class Presentation extends PureComponent {
           zoom,
           podId,
           currentSlide,
+          fullscreenElementId
         }}
         isFullscreen={isFullscreen}
         fullscreenRef={this.refPresentationContainer}
@@ -759,6 +761,7 @@ class Presentation extends PureComponent {
     const {
       intl,
       userIsPresenter,
+      fullscreenElementId,
     } = this.props;
     const { isFullscreen } = this.state;
 
@@ -768,6 +771,7 @@ class Presentation extends PureComponent {
       <FullscreenButtonContainer
         fullscreenRef={this.refPresentationContainer}
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
+        elementId={fullscreenElementId}
         isFullscreen={isFullscreen}
         dark
         bottom

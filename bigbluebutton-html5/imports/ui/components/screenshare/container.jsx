@@ -11,13 +11,29 @@ import ScreenshareComponent from './component';
 import { NLayoutContext } from '../layout/context/context';
 
 const ScreenshareContainer = (props) => {
-  const NewLayoutManager = useContext(NLayoutContext);
-  const { newLayoutContextState } = NewLayoutManager;
-  const { output, layoutLoaded } = newLayoutContextState;
+  const fullscreenElementId = 'Screenshare';
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
+  const { output, input, layoutLoaded } = newLayoutContextState;
   const { screenShare } = output;
+  const { element } = input.fullscreen;
+  const fullscreenContext = (element === fullscreenElementId);
 
   if (isVideoBroadcasting()) {
-    return <ScreenshareComponent {...props} {...screenShare} layoutLoaded={layoutLoaded} />;
+    return (
+      <ScreenshareComponent
+        {
+        ...{
+          newLayoutContextDispatch,
+          ...props,
+          ...screenShare,
+          layoutLoaded,
+          fullscreenContext,
+          fullscreenElementId,
+        }
+        }
+      />
+    );
   }
   return null;
 };

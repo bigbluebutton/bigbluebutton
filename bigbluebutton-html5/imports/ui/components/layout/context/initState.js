@@ -53,11 +53,9 @@ export const INITIAL_INPUT_STATE = {
     browserWidth: 0,
     browserHeight: 0,
     isDragging: false,
-    isFullscreen: false,
   },
   presentation: {
     isOpen: true,
-    isFullscreen: false,
     slidesLength: 0,
     currentSlide: {
       num: 0,
@@ -70,6 +68,9 @@ export const INITIAL_INPUT_STATE = {
     height: 0,
     browserWidth: 0,
     browserHeight: 0,
+  },
+  fullscreen: {
+    element: '',
   },
   screenShare: {
     hasScreenShare: false,

@@ -146,7 +146,7 @@ class VideoListItem extends Component {
   }
 
   renderFullscreenButton() {
-    const { name } = this.props;
+    const { name, cameraId } = this.props;
     const { isFullscreen } = this.state;
 
     if (!ALLOW_FULLSCREEN) return null;
@@ -156,6 +156,7 @@ class VideoListItem extends Component {
         data-test="presentationFullscreenButton"
         fullscreenRef={this.videoContainer}
         elementName={name}
+        elementId={cameraId}
         isFullscreen={isFullscreen}
         dark
       />
@@ -176,6 +177,8 @@ class VideoListItem extends Component {
       swapLayout,
       mirrored,
       webcamDraggableState,
+      isFullscreenContext,
+      layoutLoaded,
     } = this.props;
     const availableActions = this.getAvailableActions();
     const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
@@ -191,6 +194,7 @@ class VideoListItem extends Component {
         className={cx({
           [styles.content]: true,
           [styles.talking]: voiceUser.talking,
+          [styles.fullscreen]: layoutLoaded === 'new' && isFullscreenContext,
         })}
       >
         {
@@ -225,9 +229,9 @@ class VideoListItem extends Component {
             className={cx({
               [styles.media]: true,
               [styles.cursorGrab]: !webcamDraggableState.dragging
-                && !isFullscreen && !swapLayout,
+                && !isFullscreen && !isFullscreenContext && !swapLayout,
               [styles.cursorGrabbing]: webcamDraggableState.dragging
-                && !isFullscreen && !swapLayout,
+                && !isFullscreen && !isFullscreenContext && !swapLayout,
               [styles.mirroredVideo]: (this.mirrorOwnWebcam && !mirrored)
                 || (!this.mirrorOwnWebcam && mirrored),
               [styles.unhealthyStream]: shouldRenderReconnect,

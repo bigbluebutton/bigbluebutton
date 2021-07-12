@@ -354,19 +354,6 @@ class PresentationFocusLayout extends Component {
     const { deviceType, input } = newLayoutContextState;
     const cameraDockBounds = {};
 
-    if (input.cameraDock.isFullscreen) {
-      cameraDockBounds.width = this.mainWidth();
-      cameraDockBounds.minWidth = this.mainWidth();
-      cameraDockBounds.maxWidth = this.mainWidth();
-      cameraDockBounds.height = this.mainHeight();
-      cameraDockBounds.minHeight = this.mainHeight();
-      cameraDockBounds.maxHeight = this.mainHeight();
-      cameraDockBounds.top = 0;
-      cameraDockBounds.left = 0;
-      cameraDockBounds.zIndex = 99;
-      return cameraDockBounds;
-    }
-
     if (input.cameraDock.numCameras > 0) {
       let cameraDockHeight = 0;
       if (deviceType === DEVICE_TYPE.MOBILE) {
@@ -411,8 +398,9 @@ class PresentationFocusLayout extends Component {
     const { newLayoutContextState } = this.props;
     const { deviceType, input } = newLayoutContextState;
     const mediaBounds = {};
+    const { element: fullscreenElement } = input.fullscreen;
 
-    if (input.presentation.isFullscreen) {
+    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
       mediaBounds.width = this.mainWidth();
       mediaBounds.height = this.mainHeight();
       mediaBounds.top = 0;
@@ -598,6 +586,7 @@ class PresentationFocusLayout extends Component {
         height: mediaBounds.height,
         top: mediaBounds.top,
         left: mediaBounds.left,
+        zIndex: mediaBounds.zIndex,
       },
     });
 

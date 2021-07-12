@@ -349,19 +349,6 @@ class SmartLayout extends Component {
 
     const cameraDockBounds = {};
 
-    if (input.cameraDock.isFullscreen) {
-      cameraDockBounds.width = this.mainWidth();
-      cameraDockBounds.minWidth = this.mainWidth();
-      cameraDockBounds.maxWidth = this.mainWidth();
-      cameraDockBounds.height = this.mainHeight();
-      cameraDockBounds.minHeight = this.mainHeight();
-      cameraDockBounds.maxHeight = this.mainHeight();
-      cameraDockBounds.top = 0;
-      cameraDockBounds.left = 0;
-      cameraDockBounds.zIndex = 99;
-      return cameraDockBounds;
-    }
-
     if (input.cameraDock.numCameras > 0) {
       cameraDockBounds.top = mediaAreaBounds.top;
       cameraDockBounds.left = mediaAreaBounds.left;
@@ -423,10 +410,11 @@ class SmartLayout extends Component {
     const { newLayoutContextState } = this.props;
     const { input } = newLayoutContextState;
     const mediaBounds = {};
+    const { element: fullscreenElement } = input.fullscreen;
 
     // TODO Adicionar min e max para a apresentação
 
-    if (input.presentation.isFullscreen) {
+    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
       mediaBounds.width = this.mainWidth();
       mediaBounds.height = this.mainHeight();
       mediaBounds.top = 0;
@@ -625,6 +613,7 @@ class SmartLayout extends Component {
         height: mediaBounds.height,
         top: mediaBounds.top,
         left: mediaBounds.left,
+        zIndex: mediaBounds.zIndex,
       },
     });
 
