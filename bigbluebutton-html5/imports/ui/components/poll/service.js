@@ -25,7 +25,7 @@ const pollTypes = {
   A5: 'A-5',
   Custom: 'CUSTOM',
   Response: 'R-',
-}
+};
 
 const pollAnswerIds = {
   true: {
@@ -89,31 +89,30 @@ const getPollResultsText = (isDefaultPoll, answers, numRespondents, intl) => {
   answers.map((item) => {
     responded += item.numVotes;
     return item;
-  }).reduce(caseInsensitiveReducer, []).map((item) => {
+  }).reduce(caseInsensitiveReducer, []).forEach((item) => {
     const numResponded = responded === numRespondents ? numRespondents : responded;
-    const pct = Math.round(item.numVotes / numResponded * 100);
-    const pctBars = "|".repeat(pct * MAX_POLL_RESULT_BARS / 100);
+    const pct = Math.round((item.numVotes / numResponded) * 100);
+    const pctBars = '|'.repeat((pct * MAX_POLL_RESULT_BARS) / 100);
     const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
     if (isDefaultPoll) {
-      const translatedKey = pollAnswerIds[item.key.toLowerCase()] 
+      const translatedKey = pollAnswerIds[item.key.toLowerCase()]
         ? intl.formatMessage(pollAnswerIds[item.key.toLowerCase()])
         : item.key;
       resultString += `${translatedKey}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
     } else {
-      resultString += `${item.id+1}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
-      optionsString += `${item.id+1}: ${item.key}\n`;
+      resultString += `${item.id + 1}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
+      optionsString += `${item.id + 1}: ${item.key}\n`;
     }
   });
 
   return { resultString, optionsString };
-}
+};
 
-const isDefaultPoll = (pollType) => { 
-  return pollType !== pollTypes.Custom && pollType !== pollTypes.Response
-}
+const isDefaultPoll = (pollType) => pollType !== pollTypes.Custom
+  && pollType !== pollTypes.Response;
 
 const getPollResultString = (pollResultData, intl) => {
-  const formatBoldBlack = s => s.bold().fontcolor('black');
+  const formatBoldBlack = (s) => s.bold().fontcolor('black');
 
   // Sanitize. See: https://gist.github.com/sagewall/47164de600df05fb0f6f44d48a09c0bd
   const sanitize = (value) => {
@@ -123,8 +122,11 @@ const getPollResultString = (pollResultData, intl) => {
   };
 
   const { answers, numRespondents, questionType } = pollResultData;
-  const ísDefault = isDefaultPoll(questionType)
-  let { resultString, optionsString } = getPollResultsText(ísDefault, answers, numRespondents, intl)
+  const ísDefault = isDefaultPoll(questionType);
+  let {
+    resultString,
+    optionsString,
+  } = getPollResultsText(ísDefault, answers, numRespondents, intl);
   resultString = sanitize(resultString);
   optionsString = sanitize(optionsString);
 
@@ -142,30 +144,38 @@ const getPollResultString = (pollResultData, intl) => {
   }
 
   return pollText;
-}
+};
 
 const matchYesNoPoll = (yesValue, noValue, contentString) => {
   const ynPollString = `(${yesValue}\\s*\\/\\s*${noValue})|(${noValue}\\s*\\/\\s*${yesValue})`;
   const ynOptionsRegex = new RegExp(ynPollString, 'gi');
-  const ynPoll = contentString.match(ynOptionsRegex) || [];
+  const ynPoll = contentString.replace(/\n/g,'').match(ynOptionsRegex) || [];
   return ynPoll;
-}
+};
 
 const matchYesNoAbstentionPoll = (yesValue, noValue, abstentionValue, contentString) => {
   const ynaPollString = `(${yesValue}\\s*\\/\\s*${noValue}\\s*\\/\\s*${abstentionValue})|(${yesValue}\\s*\\/\\s*${abstentionValue}\\s*\\/\\s*${noValue})|(${abstentionValue}\\s*\\/\\s*${yesValue}\\s*\\/\\s*${noValue})|(${abstentionValue}\\s*\\/\\s*${noValue}\\s*\\/\\s*${yesValue})|(${noValue}\\s*\\/\\s*${yesValue}\\s*\\/\\s*${abstentionValue})|(${noValue}\\s*\\/\\s*${abstentionValue}\\s*\\/\\s*${yesValue})`;
   const ynaOptionsRegex = new RegExp(ynaPollString, 'gi');
-  const ynaPoll = contentString.match(ynaOptionsRegex) || [];
+  const ynaPoll = contentString.replace(/\n/g,'').match(ynaOptionsRegex) || [];
   return ynaPoll;
-}
+};
 
 const matchTrueFalsePoll = (trueValue, falseValue, contentString) => {
   const tfPollString = `(${trueValue}\\s*\\/\\s*${falseValue})|(${falseValue}\\s*\\/\\s*${trueValue})`;
   const tgOptionsRegex = new RegExp(tfPollString, 'gi');
   const tfPoll = contentString.match(tgOptionsRegex) || [];
   return tfPoll;
-}
+};
 
-const checkPollType = (type, optList, yesValue, noValue, abstentionValue, trueValue, falseValue) => {
+const checkPollType = (
+  type,
+  optList,
+  yesValue,
+  noValue,
+  abstentionValue,
+  trueValue,
+  falseValue,
+) => {
   let _type = type;
   let pollString = '';
   let defaultMatch = null;
@@ -199,7 +209,7 @@ const checkPollType = (type, optList, yesValue, noValue, abstentionValue, trueVa
       break;
   }
   return _type;
-}
+};
 
 export default {
   amIPresenter: () => Users.findOne(
@@ -210,10 +220,10 @@ export default {
   currentPoll: () => Polls.findOne({ meetingId: Auth.meetingID }),
   pollAnswerIds,
   POLL_AVATAR_COLOR,
-  isDefaultPoll: isDefaultPoll,
-  getPollResultString: getPollResultString,
-  matchYesNoPoll: matchYesNoPoll,
-  matchYesNoAbstentionPoll: matchYesNoAbstentionPoll,
-  matchTrueFalsePoll: matchTrueFalsePoll,
-  checkPollType: checkPollType,
+  isDefaultPoll,
+  getPollResultString,
+  matchYesNoPoll,
+  matchYesNoAbstentionPoll,
+  matchTrueFalsePoll,
+  checkPollType,
 };

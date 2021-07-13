@@ -13,7 +13,7 @@ case class BreakoutRoomJoinURLEvtMsgBody(parentId: String, breakoutId: String, e
 object BreakoutRoomsListEvtMsg { val NAME = "BreakoutRoomsListEvtMsg" }
 case class BreakoutRoomsListEvtMsg(header: BbbClientMsgHeader, body: BreakoutRoomsListEvtMsgBody) extends BbbCoreMsg
 case class BreakoutRoomsListEvtMsgBody(meetingId: String, rooms: Vector[BreakoutRoomInfo], roomsReady: Boolean)
-case class BreakoutRoomInfo(name: String, externalId: String, breakoutId: String, sequence: Int, freeJoin: Boolean)
+case class BreakoutRoomInfo(name: String, externalId: String, breakoutId: String, sequence: Int, shortName: String, isDefaultName: Boolean, freeJoin: Boolean)
 
 object BreakoutRoomsListMsg { val NAME = "BreakoutRoomsListMsg" }
 case class BreakoutRoomsListMsg(header: BbbClientMsgHeader, body: BreakoutRoomsListMsgBody) extends StandardMsg
@@ -47,6 +47,8 @@ case class BreakoutRoomDetail(
     name:                    String,
     parentId:                String,
     sequence:                Integer,
+    shortName:               String,
+    isDefaultName:           Boolean,
     freeJoin:                Boolean,
     dialNumber:              String,
     voiceConfId:             String,
@@ -65,7 +67,7 @@ case class BreakoutRoomDetail(
 object CreateBreakoutRoomsCmdMsg { val NAME = "CreateBreakoutRoomsCmdMsg" }
 case class CreateBreakoutRoomsCmdMsg(header: BbbClientMsgHeader, body: CreateBreakoutRoomsCmdMsgBody) extends StandardMsg
 case class CreateBreakoutRoomsCmdMsgBody(meetingId: String, durationInMinutes: Int, record: Boolean, rooms: Vector[BreakoutRoomMsgBody])
-case class BreakoutRoomMsgBody(name: String, sequence: Int, freeJoin: Boolean, users: Vector[String])
+case class BreakoutRoomMsgBody(name: String, sequence: Int, shortName: String, isDefaultName: Boolean, freeJoin: Boolean, users: Vector[String])
 
 // Sent by user to request ending all the breakout rooms
 object EndAllBreakoutRoomsMsg { val NAME = "EndAllBreakoutRoomsMsg" }

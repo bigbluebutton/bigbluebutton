@@ -41,6 +41,8 @@ class Metrics {
     const currentProcessingTimestamp = Date.now();
     const processTime = currentProcessingTimestamp - processingStartTimestamp;
 
+    this.addEvent(meetingId, eventName, size);
+
     if (!this.metrics[meetingId].wasInQueue.hasOwnProperty(eventName)) {
       this.metrics[meetingId].wasInQueue[eventName] = {
         count: 1,

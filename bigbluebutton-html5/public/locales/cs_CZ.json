@@ -497,7 +497,7 @@
     "app.audioManager.mediaError": "Chyba: došlo k problému s přístupem k Vašim audio zařízením",
     "app.audio.joinAudio": "Připojit zvuk",
     "app.audio.leaveAudio": "Zrušit zvuk",
-    "app.audio.changeLeaveAudio": "Změnit/opustit audio",
+    "app.audio.changeAudioDevice": "Změnit/opustit audio",
     "app.audio.enterSessionLabel": "Zúčastnit se setkání",
     "app.audio.playSoundLabel": "Přehrát zvuk",
     "app.audio.backLabel": "Zpět",

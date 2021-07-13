@@ -226,6 +226,7 @@ class PresentationToolbar extends PureComponent {
       currentSlide,
       allowExternalVideo,
       screenSharingCheck,
+      fullscreenElementId,
     } = this.props;
 
     const { isMobile } = deviceInfo;
@@ -375,6 +376,7 @@ class PresentationToolbar extends PureComponent {
                     isFullscreen={isFullscreen}
                     elementName={intl.formatMessage(intlMessages.presentationLabel)}
                     className={styles.presentationBtn}
+                    elementId={fullscreenElementId}
                   />
                 )
                 : null

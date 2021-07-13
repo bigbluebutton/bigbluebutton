@@ -720,6 +720,7 @@ public class ParamsProcessorUtil {
         return "";
     }
 
+	// Can be removed. Checksum validation is performed by the ChecksumValidator
 	public boolean isChecksumSame(String apiCall, String checksum, String queryString) {
 		if (StringUtils.isEmpty(securitySalt)) {
 			log.warn("Security is disabled in this service. Make sure this is intentional.");

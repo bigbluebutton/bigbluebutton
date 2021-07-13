@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Button from '/imports/ui/components/button/component';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 
@@ -9,6 +10,15 @@ const propTypes = {
 };
 
 export default class DropdownTrigger extends Component {
+  static isButtonTriggerOnEmoji(buttonComponent) {
+    return (
+      buttonComponent
+      && (buttonComponent.type === Button)
+      && (buttonComponent.props)
+      && (buttonComponent.props.children)
+    );
+  }
+
   constructor(props) {
     super(props);
     this.handleClick = this.handleClick.bind(this);
@@ -16,13 +26,15 @@ export default class DropdownTrigger extends Component {
     this.trigger = null;
   }
 
-  handleClick() {
+  handleClick(e) {
+    e.stopPropagation();
     const { dropdownToggle, onClick } = this.props;
     if (onClick) onClick();
     return dropdownToggle();
   }
 
   handleKeyDown(event) {
+    event.stopPropagation();
     const { dropdownShow, dropdownHide } = this.props;
 
     if ([KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.which)) {
@@ -49,16 +61,38 @@ export default class DropdownTrigger extends Component {
       ...restProps
     } = remainingProps;
 
-    const TriggerComponent = React.Children.only(children);
+    let TriggerComponent;
+    let TriggerComponentBounded;
 
-    const TriggerComponentBounded = React.cloneElement(TriggerComponent, {
+    const buttonComponentProps = {
       ...restProps,
-      ref: (ref) => { this.trigger = ref; },
+      'aria-expanded': dropdownIsOpen,
+    };
+
+    const triggerComponentProps = {
       onClick: this.handleClick,
       onKeyDown: this.handleKeyDown,
-      className: cx(children.props.className, className),
-      'aria-expanded': dropdownIsOpen,
-    });
+    };
+
+    if (DropdownTrigger.isButtonTriggerOnEmoji(children)) {
+      const { children: grandChildren } = children.props;
+
+      triggerComponentProps.className = cx(children.props.className, className);
+
+      TriggerComponent = React.Children.only(grandChildren);
+      TriggerComponentBounded = React.cloneElement(TriggerComponent,
+        triggerComponentProps);
+
+      const ButtonComponent = React.Children.only(children);
+      return React.cloneElement(ButtonComponent,
+        buttonComponentProps, TriggerComponentBounded);
+    }
+
+    buttonComponentProps.className = cx(children.props.className, className);
+    TriggerComponent = React.Children.only(children);
+
+    TriggerComponentBounded = React.cloneElement(TriggerComponent,
+      { ...buttonComponentProps, ...triggerComponentProps });
 
     return TriggerComponentBounded;
   }

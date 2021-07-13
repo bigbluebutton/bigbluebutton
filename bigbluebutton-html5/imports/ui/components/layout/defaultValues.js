@@ -18,6 +18,8 @@ const DEFAULT_VALUES = {
   presentationTabOrder: 5,
   presentationMinHeight: 220,
 
+  bannerHeight: 34,
+
   navBarHeight: 85,
   navBarTop: 0,
   navBarTabOrder: 3,
@@ -35,6 +37,7 @@ const DEFAULT_VALUES = {
 
   sidebarContentMaxWidth: 350,
   sidebarContentMinWidth: 150,
+  sidebarContentMinHeight: 200,
   sidebarContentHeight: '100%',
   sidebarContentTop: 0,
   sidebarContentTabOrder: 2,

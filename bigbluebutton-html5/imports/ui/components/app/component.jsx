@@ -129,6 +129,10 @@ const LAYERED_BREAKPOINT = 640;
 const isLayeredView = window.matchMedia(`(max-width: ${LAYERED_BREAKPOINT}px)`);
 
 class App extends Component {
+  static renderWebcamsContainer() {
+    return <NewWebcamContainer />;
+  }
+
   constructor(props) {
     super(props);
     this.state = {
@@ -138,6 +142,7 @@ class App extends Component {
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
     this.renderMedia = withDraggableContext(this.renderMedia.bind(this));
+    this.renderWebcamsContainer = withDraggableContext(App.renderWebcamsContainer.bind(this));
 
     this.throttledDeviceType = throttle(() => this.setDeviceType(),
       50, { trailing: true, leading: true }).bind(this);
@@ -570,14 +575,20 @@ class App extends Component {
                   height: layoutManagerLoaded !== 'both' ? '100%' : '50%',
                 }}
               >
+                {this.renderActivityCheck()}
+                {this.renderUserInformation()}
+                <BannerBarContainer />
+                <NotificationsBarContainer />
                 <NavBarContainer main="new" />
                 <SidebarNavigationContainer />
                 <SidebarContentContainer />
-                <NewWebcamContainer />
+                {this.renderWebcamsContainer()}
                 {shouldShowPresentation ? <PresentationAreaContainer /> : null}
                 {shouldShowScreenshare ? <ScreenshareContainer /> : null}
                 {shouldShowExternalVideo ? <ExternalVideoContainer isPresenter={isPresenter} /> : null}
                 <UploaderContainer />
+                <BreakoutRoomInvitation />
+                <AudioContainer />
                 <ToastContainer rtl />
                 {(audioAlertEnabled || pushAlertEnabled)
                   && (
@@ -586,9 +597,15 @@ class App extends Component {
                       pushAlertEnabled={pushAlertEnabled}
                     />
                   )}
+                <WaitingNotifierContainer />
+                <LockNotifier />
+                <StatusNotifier status="raiseHand" />
+                <ManyWebcamsNotifier />
                 <PollingContainer />
                 <ModalContainer />
                 {this.renderActionsBar()}
+                {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
+                {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
               </div>
             </>
           )}

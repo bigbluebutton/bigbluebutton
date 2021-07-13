@@ -786,6 +786,7 @@
     "app.createBreakoutRoom.addParticipantLabel": "+ Aggiungi partecipante",
     "app.createBreakoutRoom.freeJoin": "Permetti agli utenti di entrare in una Stanza Separata",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Devi posizionare almeno un utente nella Stanza Separata",
+    "app.createBreakoutRoom.minimumDurationWarnBreakout": "La durata minima per le stanze separate è di {0} minuti.",
     "app.createBreakoutRoom.modalDesc": "Consiglio: Per assegnare un utente ad una stanza trascina il suo nome sulla stanza prescelta",
     "app.createBreakoutRoom.roomTime": "{0} minuti",
     "app.createBreakoutRoom.numberOfRoomsError": "Il numero di stanze non è valido.",
@@ -809,7 +810,8 @@
     "app.debugWindow.form.userAgentLabel": "User Agent",
     "app.debugWindow.form.button.copy": "Copia",
     "app.debugWindow.form.enableAutoarrangeLayoutLabel": "Abilita il layout disposizione automatica",
-    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(verrà disabilitato se trascini o ridimensioni l’area webcam)"
+    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(verrà disabilitato se trascini o ridimensioni l’area webcam)",
+    "app.debugWindow.form.button.apply": "Applica"
 
 }
 

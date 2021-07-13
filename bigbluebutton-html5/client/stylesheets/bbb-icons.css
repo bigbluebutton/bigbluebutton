@@ -301,3 +301,6 @@
 .icon-bbb-no_palm_rejection:before {
   content: "\e95a";
 }
+.icon-bbb-device_list_selector:before {
+  content: "\e95b";
+}

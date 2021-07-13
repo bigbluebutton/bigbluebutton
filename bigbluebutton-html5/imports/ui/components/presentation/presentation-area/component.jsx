@@ -2,8 +2,6 @@ import React from 'react';
 import PresentationPodsContainer from '../../presentation-pod/container';
 
 const PresentationArea = ({
-  top,
-  left,
   width,
   height,
 }) => {
@@ -12,16 +10,7 @@ const PresentationArea = ({
     presentationAreaHeight: height,
   };
   return (
-    <div
-      style={{
-        top,
-        left,
-        width,
-        height,
-      }}
-    >
-      <PresentationPodsContainer {...{ presentationAreaSize }} />
-    </div>
+    <PresentationPodsContainer {...{ presentationAreaSize }} />
   );
 };
 

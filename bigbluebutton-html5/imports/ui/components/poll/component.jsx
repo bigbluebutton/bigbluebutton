@@ -204,8 +204,21 @@ class Poll extends Component {
   }
 
   componentDidUpdate() {
+    const { amIPresenter, newLayoutContextDispatch } = this.props;
+
     if (Session.equals('resetPollPanel', true)) {
       this.handleBackClick();
+    }
+
+    if (!amIPresenter) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+        value: false,
+      });
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+        value: PANELS.NONE,
+      });
     }
   }
 
@@ -269,8 +282,10 @@ class Poll extends Component {
   }
 
   handleToggle() {
-    const toggledValue = !this.state.secretPoll;
-    this.setState({ secretPoll: toggledValue});
+    const { secretPoll } = this.state;
+    const toggledValue = !secretPoll;
+    Session.set('secretPoll', toggledValue);
+    this.setState({ secretPoll: toggledValue });
   }
 
   setOptListLength(len) {
@@ -390,7 +405,14 @@ class Poll extends Component {
     const {
       type, secretPoll, optList, question, error,
     } = this.state;
-    const { startPoll, startCustomPoll, intl, pollTypes, isDefaultPoll, checkPollType } = this.props;
+    const {
+      startPoll,
+      startCustomPoll,
+      intl,
+      pollTypes,
+      isDefaultPoll,
+      checkPollType,
+    } = this.props;
     const defaultPoll = isDefaultPoll(type);
     return (
       <div>

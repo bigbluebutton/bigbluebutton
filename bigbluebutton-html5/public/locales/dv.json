@@ -788,6 +788,7 @@
     "app.createBreakoutRoom.addParticipantLabel": "+ ބައިވެރިއެއް އިތުރު ކޮށްލާ",
     "app.createBreakoutRoom.freeJoin": "ޔޫސާތައް ބޭނުން ބްރޭކްއައުޓް ރޫމަކާ ވަނުމަށް ހުއްދަދީ",
     "app.createBreakoutRoom.leastOneWarnBreakout": "މަދުވެގެން އެއް ޔޫސާރ ބްރޭކްއައުޓް ރޫމަކަށް ލާން ޖެހޭ",
+    "app.createBreakoutRoom.minimumDurationWarnBreakout": "ބްރޭކްއައުޓް ރޫމަކަށް އެންމެ ކުޑަ ވަގުތަކީ {0} މިނިޓެވެ.",
     "app.createBreakoutRoom.modalDesc": "އެހީ: ވަކި ޔޫސާރެއް ވަކި ބްރޭކްއައުޓް ރޫމަކަށް ލުމަށް، އެ ޔޫސާރެއްގެ ނަން އެ ބްރޭކްއައުޓް ރޫމަކަށް މައުސުން ދަމާލާފައި ވައްޓާލެވިދާނެ",
     "app.createBreakoutRoom.roomTime": "{0} މިނިޓު",
     "app.createBreakoutRoom.numberOfRoomsError": "ކޮޓަރީގެ އަދަދު ރަނގަޅެއް ނޫން",
@@ -811,7 +812,9 @@
     "app.debugWindow.form.userAgentLabel": "ޔޫސަރ އޭޖެންޓް",
     "app.debugWindow.form.button.copy": "ކޮޕީ",
     "app.debugWindow.form.enableAutoarrangeLayoutLabel": "އޮޓޯ އެރޭންޖް ލޭއައުޓް ޖައްސާ",
-    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(ވެބްކެމް އޭރިއާ ސައިޒް ބަދަލު ކުރުމުން ނުވަތަ ދަމާލާފައި ގެންގޮއްސި ނަމަ ބޭނުން ނުކުރެވޭގޮތް ވާނެއެވެ)"
+    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(ވެބްކެމް އޭރިއާ ސައިޒް ބަދަލު ކުރުމުން ނުވަތަ ދަމާލާފައި ގެންގޮއްސި ނަމަ ބޭނުން ނުކުރެވޭގޮތް ވާނެއެވެ)",
+    "app.debugWindow.form.chatLoggerLabel": "ޗެޓް ލޮގުކުރާ ވަރު އިމްތިހާނު ކުރޭ",
+    "app.debugWindow.form.button.apply": "އެޕްލައީ ކުރޭ"
 
 }
 

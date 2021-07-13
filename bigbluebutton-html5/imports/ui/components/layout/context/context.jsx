@@ -130,6 +130,43 @@ const reducer = (state, action) => {
       };
     }
 
+    // BANNER BAR
+    case ACTIONS.SET_HAS_BANNER_BAR: {
+      const { bannerBar } = state.input;
+      if (bannerBar.hasBanner === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          bannerBar: {
+            ...bannerBar,
+            hasBanner: action.value,
+          },
+        },
+      };
+    }
+
+    // NOTIFICATIONS BAR
+    case ACTIONS.SET_HAS_NOTIFICATIONS_BAR: {
+      console.log("action trigger")
+      const { notificationsBar } = state.input;
+      if (notificationsBar.hasNotification === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          notificationsBar: {
+            ...notificationsBar,
+            hasNotification: action.value,
+          },
+        },
+      };
+    }
+
     // NAV BAR
     case ACTIONS.SET_NAVBAR_OUTPUT: {
       const {
@@ -362,10 +399,12 @@ const reducer = (state, action) => {
       };
     }
     case ACTIONS.SET_SIDEBAR_CONTENT_SIZE: {
-      const { width, browserWidth } = action.value;
+      const { width, browserWidth, height, browserHeight } = action.value;
       const { sidebarContent } = state.input;
       if (sidebarContent.width === width
-        && sidebarContent.browserWidth === browserWidth) {
+        && sidebarContent.browserWidth === browserWidth
+        && sidebarContent.height === height
+        && sidebarContent.browserHeight === browserHeight) {
         return state;
       }
       return {
@@ -376,6 +415,8 @@ const reducer = (state, action) => {
             ...sidebarContent,
             width,
             browserWidth,
+            height,
+            browserHeight,
           },
         },
       };
@@ -625,22 +666,6 @@ const reducer = (state, action) => {
         },
       };
     }
-    case ACTIONS.SET_CAMERA_DOCK_IS_FULLSCREEN: {
-      const { cameraDock } = state.input;
-      if (cameraDock.isFullscreen === action.value) {
-        return state;
-      }
-      return {
-        ...state,
-        input: {
-          ...state.input,
-          cameraDock: {
-            ...cameraDock,
-            isFullscreen: action.value,
-          },
-        },
-      };
-    }
     case ACTIONS.SET_CAMERA_DOCK_RESIZABLE_EDGE: {
       const {
         top, right, bottom, left,
@@ -697,22 +722,6 @@ const reducer = (state, action) => {
           presentation: {
             ...presentation,
             isOpen: action.value,
-          },
-        },
-      };
-    }
-    case ACTIONS.SET_PRESENTATION_IS_FULLSCREEN: {
-      const { presentation } = state.input;
-      if (presentation.isFullscreen === action.value) {
-        return state;
-      }
-      return {
-        ...state,
-        input: {
-          ...state.input,
-          presentation: {
-            ...presentation,
-            isFullscreen: action.value,
           },
         },
       };
@@ -883,6 +892,24 @@ const reducer = (state, action) => {
       };
     }
 
+    // FULLSCREEN
+    case ACTIONS.SET_FULLSCREEN_ELEMENT: {
+      const { fullscreen } = state.input;
+      if (fullscreen.element === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          fullscreen: {
+            ...fullscreen,
+            element: action.value,
+          },
+        },
+      };
+    }
+
     // SCREEN SHARE
     case ACTIONS.SET_HAS_SCREEN_SHARE: {
       const { screenShare } = state.input;
@@ -931,12 +958,14 @@ const reducer = (state, action) => {
         height,
         top,
         left,
+        zIndex,
       } = action.value;
       const { screenShare } = state.output;
       if (screenShare.width === width
         && screenShare.height === height
         && screenShare.top === top
-        && screenShare.left === left) {
+        && screenShare.left === left
+        && screenShare.zIndex === zIndex) {
         return state;
       }
       return {
@@ -949,6 +978,7 @@ const reducer = (state, action) => {
             height,
             top,
             left,
+            zIndex,
           },
         },
       };

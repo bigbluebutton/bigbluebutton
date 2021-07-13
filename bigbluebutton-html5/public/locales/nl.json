@@ -497,7 +497,7 @@
     "app.audioManager.mediaError": "Fout: er is een probleem opgetreden bij het ophalen van uw media-apparaten",
     "app.audio.joinAudio": "Deelnemen aan audio",
     "app.audio.leaveAudio": "Audio verlaten",
-    "app.audio.changeLeaveAudio": "Wijzig/verlaat audio",
+    "app.audio.changeAudioDevice": "Wijzig/verlaat audio",
     "app.audio.enterSessionLabel": "Neem deel aan sessie",
     "app.audio.playSoundLabel": "Geluid afspelen",
     "app.audio.backLabel": "Terug",

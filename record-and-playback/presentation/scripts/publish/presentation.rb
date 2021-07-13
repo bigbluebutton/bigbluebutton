@@ -1202,6 +1202,38 @@ def processPollEvents(events, package_dir)
   end
 end
 
+def processExternalVideoEvents(events, package_dir)
+  BigBlueButton.logger.info("Processing external video events")
+
+  # Retrieve external video events
+  external_video_events = BigBlueButton::Events.match_start_and_stop_external_video_events(
+    BigBlueButton::Events.get_start_and_stop_external_video_events(@doc))
+
+  external_videos = []
+  $rec_events.each do |re|
+    external_video_events.each do |event|
+      #BigBlueButton.logger.info("Processing rec event #{re} and external video event #{event}")
+      timestamp = (translateTimestamp(event[:start_timestamp]) / 1000).to_i
+      # do not add same external_video twice
+      if (external_videos.find {|ev| ev[:timestamp] == timestamp}.nil?)
+        if ((event[:start_timestamp] >= re[:start_timestamp] and event[:start_timestamp] <= re[:stop_timestamp]) || 
+           (event[:start_timestamp] < re[:start_timestamp] and event[:stop_timestamp] >= re[:start_timestamp]))
+          external_videos << {
+            :timestamp => timestamp,
+            :external_video_url => event[:external_video_url]
+          }
+        end
+      end
+    end
+  end
+
+  if not external_videos.empty?
+    File.open("#{package_dir}/external_videos.json", "w") do |f|
+      f.puts(external_videos.to_json)
+    end
+  end
+end
+
 $shapes_svg_filename = 'shapes.svg'
 $panzooms_xml_filename = 'panzooms.xml'
 $cursor_xml_filename = 'cursor.xml'
@@ -1400,6 +1432,8 @@ begin
         processDeskshareEvents(@doc)
 
         processPollEvents(@doc, package_dir)
+
+        processExternalVideoEvents(@doc, package_dir)
 
         # Write slides.xml to file
         File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts $slides_doc.to_xml }
