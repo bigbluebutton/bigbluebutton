@@ -161,7 +161,7 @@ class PresentationFocusLayout extends Component {
     const { input, fontSize } = newLayoutContextState;
 
     const BASE_FONT_SIZE = 16;
-    const actionBarHeight = DEFAULT_VALUES.actionBarHeight / BASE_FONT_SIZE * fontSize;
+    const actionBarHeight = (DEFAULT_VALUES.actionBarHeight / BASE_FONT_SIZE) * fontSize;
 
     return {
       display: input.actionBar.hasActionBar,
@@ -396,9 +396,9 @@ class PresentationFocusLayout extends Component {
 
   calculatesMediaBounds(mediaAreaBounds) {
     const { newLayoutContextState } = this.props;
-    const { deviceType, input } = newLayoutContextState;
+    const { deviceType, input, fullscreen } = newLayoutContextState;
     const mediaBounds = {};
-    const { element: fullscreenElement } = input.fullscreen;
+    const { element: fullscreenElement } = fullscreen;
 
     if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
       mediaBounds.width = this.mainWidth();
@@ -549,19 +549,13 @@ class PresentationFocusLayout extends Component {
         left: cameraDockBounds.left,
         tabOrder: 4,
         isDraggable: false,
-        isResizable: deviceType !== DEVICE_TYPE.MOBILE
-          && deviceType !== DEVICE_TYPE.TABLET,
+        resizableEdge: {
+          top: false,
+          right: false,
+          bottom: false,
+          left: false,
+        },
         zIndex: cameraDockBounds.zIndex,
-      },
-    });
-
-    newLayoutContextDispatch({
-      type: ACTIONS.SET_CAMERA_DOCK_RESIZABLE_EDGE,
-      value: {
-        top: true,
-        right: false,
-        bottom: false,
-        left: false,
       },
     });
 

@@ -416,7 +416,7 @@ class WebcamDraggable extends PureComponent {
     }
 
     return (
-      <Fragment>
+      <>
         <div
           className={dropZoneTopClassName}
           style={{ height: '15vh' }}
@@ -520,7 +520,7 @@ class WebcamDraggable extends PureComponent {
             className={dropZoneBgRightClassName}
           />
         </div>
-      </Fragment>
+      </>
     );
   }
 }

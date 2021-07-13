@@ -14,9 +14,9 @@ const ScreenshareContainer = (props) => {
   const fullscreenElementId = 'Screenshare';
   const newLayoutContext = useContext(NLayoutContext);
   const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { output, input, layoutLoaded } = newLayoutContextState;
+  const { output, layoutLoaded, fullscreen } = newLayoutContextState;
   const { screenShare } = output;
-  const { element } = input.fullscreen;
+  const { element } = fullscreen;
   const fullscreenContext = (element === fullscreenElementId);
 
   if (isVideoBroadcasting()) {

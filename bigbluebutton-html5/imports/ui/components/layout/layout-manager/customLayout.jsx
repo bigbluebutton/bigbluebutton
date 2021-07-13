@@ -5,6 +5,8 @@ import DEFAULT_VALUES from '../defaultValues';
 import { INITIAL_INPUT_STATE } from '../context/initState';
 import { DEVICE_TYPE, ACTIONS, CAMERADOCK_POSITION } from '../enums';
 
+const windowWidth = () => window.document.documentElement.clientWidth;
+const windowHeight = () => window.document.documentElement.clientHeight;
 const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 
@@ -35,7 +37,8 @@ class CustomLayout extends Component {
     return newLayoutContextState.input !== nextProps.newLayoutContextState.input
       || newLayoutContextState.deviceType !== nextProps.newLayoutContextState.deviceType
       || newLayoutContextState.layoutLoaded !== nextProps.newLayoutContextState.layoutLoaded
-      || newLayoutContextState.fontSize !== nextProps.newLayoutContextState.fontSize;
+      || newLayoutContextState.fontSize !== nextProps.newLayoutContextState.fontSize
+      || newLayoutContextState.fullscreen !== nextProps.newLayoutContextState.fullscreen;
   }
 
   componentDidUpdate(prevProps) {
@@ -218,7 +221,7 @@ class CustomLayout extends Component {
     const { input, fontSize } = newLayoutContextState;
 
     const BASE_FONT_SIZE = 16;
-    const actionBarHeight = DEFAULT_VALUES.actionBarHeight / BASE_FONT_SIZE * fontSize;
+    const actionBarHeight = (DEFAULT_VALUES.actionBarHeight / BASE_FONT_SIZE) * fontSize;
 
     return {
       display: input.actionBar.hasActionBar,
@@ -415,7 +418,7 @@ class CustomLayout extends Component {
 
   calculatesCameraDockBounds(sidebarNavWidth, sidebarContentWidth, mediaAreaBounds) {
     const { newLayoutContextState } = this.props;
-    const { input } = newLayoutContextState;
+    const { input, fullscreen } = newLayoutContextState;
 
     const cameraDockBounds = {};
 
@@ -560,6 +563,20 @@ class CustomLayout extends Component {
         default:
           console.log('default');
       }
+
+      if (fullscreen.group === 'webcams') {
+        cameraDockBounds.width = windowWidth();
+        cameraDockBounds.minWidth = windowWidth();
+        cameraDockBounds.maxWidth = windowWidth();
+        cameraDockBounds.height = windowHeight();
+        cameraDockBounds.minHeight = windowHeight();
+        cameraDockBounds.maxHeight = windowHeight();
+        cameraDockBounds.top = 0;
+        cameraDockBounds.left = 0;
+        cameraDockBounds.zIndex = 99;
+        return cameraDockBounds;
+      }
+
       if (input.cameraDock.isDragging) cameraDockBounds.zIndex = 99;
       else cameraDockBounds.zIndex = 1;
     } else {
@@ -572,12 +589,12 @@ class CustomLayout extends Component {
 
   calculatesMediaBounds(sidebarNavWidth, sidebarContentWidth, cameraDockBounds) {
     const { newLayoutContextState } = this.props;
-    const { input } = newLayoutContextState;
+    const { input, fullscreen } = newLayoutContextState;
     const mediaAreaHeight = this.mainHeight()
       - (DEFAULT_VALUES.navBarHeight + DEFAULT_VALUES.actionBarHeight);
     const mediaAreaWidth = this.mainWidth() - (sidebarNavWidth + sidebarContentWidth);
     const mediaBounds = {};
-    const { element: fullscreenElement } = input.fullscreen;
+    const { element: fullscreenElement } = fullscreen;
 
     if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
       mediaBounds.width = this.mainWidth();
@@ -752,6 +769,7 @@ class CustomLayout extends Component {
       type: ACTIONS.SET_CAMERA_DOCK_OUTPUT,
       value: {
         display: input.cameraDock.numCameras > 0,
+        position: input.cameraDock.position,
         minWidth: cameraDockBounds.minWidth,
         width: cameraDockBounds.width,
         maxWidth: cameraDockBounds.maxWidth,
@@ -763,20 +781,14 @@ class CustomLayout extends Component {
         tabOrder: 4,
         isDraggable: deviceType !== DEVICE_TYPE.MOBILE
           && deviceType !== DEVICE_TYPE.TABLET,
-        isResizable: deviceType !== DEVICE_TYPE.MOBILE
-          && deviceType !== DEVICE_TYPE.TABLET,
+        resizableEdge: {
+          top: input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM
+            || input.cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM,
+          right: input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT,
+          bottom: input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_TOP,
+          left: input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT,
+        },
         zIndex: cameraDockBounds.zIndex,
-      },
-    });
-
-    newLayoutContextDispatch({
-      type: ACTIONS.SET_CAMERA_DOCK_RESIZABLE_EDGE,
-      value: {
-        top: input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM
-          || input.cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM,
-        right: input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT,
-        bottom: input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_TOP,
-        left: input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT,
       },
     });
 

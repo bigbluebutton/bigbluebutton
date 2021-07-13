@@ -5,6 +5,8 @@ import DEFAULT_VALUES from '../defaultValues';
 import { INITIAL_INPUT_STATE } from '../context/initState';
 import { DEVICE_TYPE, ACTIONS } from '../enums';
 
+const windowWidth = () => window.document.documentElement.clientWidth;
+const windowHeight = () => window.document.documentElement.clientHeight;
 const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 
@@ -35,7 +37,8 @@ class VideoFocusLayout extends Component {
     return newLayoutContextState.input !== nextProps.newLayoutContextState.input
       || newLayoutContextState.deviceType !== nextProps.newLayoutContextState.deviceType
       || newLayoutContextState.layoutLoaded !== nextProps.newLayoutContextState.layoutLoaded
-      || newLayoutContextState.fontSize !== nextProps.newLayoutContextState.fontSize;
+      || newLayoutContextState.fontSize !== nextProps.newLayoutContextState.fontSize
+      || newLayoutContextState.fullscreen !== nextProps.newLayoutContextState.fullscreen;
   }
 
   componentDidUpdate(prevProps) {
@@ -168,7 +171,7 @@ class VideoFocusLayout extends Component {
     const { input, fontSize } = newLayoutContextState;
 
     const BASE_FONT_SIZE = 16;
-    const actionBarHeight = DEFAULT_VALUES.actionBarHeight / BASE_FONT_SIZE * fontSize;
+    const actionBarHeight = (DEFAULT_VALUES.actionBarHeight / BASE_FONT_SIZE) * fontSize;
 
     return {
       display: input.actionBar.hasActionBar,
@@ -301,7 +304,7 @@ class VideoFocusLayout extends Component {
             maxHeight = this.mainHeight() - this.bannerAreaHeight();
           } else {
             const { size: slideSize } = input.presentation.currentSlide;
-            const calculatedHeight = slideSize.height * outputContent.width / slideSize.width;
+            const calculatedHeight = (slideSize.height * outputContent.width) / slideSize.width;
             height = this.mainHeight() - calculatedHeight - this.bannerAreaHeight();
             maxHeight = height;
           }
@@ -375,7 +378,7 @@ class VideoFocusLayout extends Component {
 
   calculatesCameraDockBounds(mediaAreaBounds) {
     const { newLayoutContextState } = this.props;
-    const { deviceType, input } = newLayoutContextState;
+    const { deviceType, input, fullscreen } = newLayoutContextState;
     const { cameraDock } = input;
     const { numCameras } = cameraDock;
 
@@ -398,6 +401,19 @@ class VideoFocusLayout extends Component {
       cameraDockBounds.width = mediaAreaBounds.width;
       cameraDockBounds.maxWidth = mediaAreaBounds.width;
       cameraDockBounds.zIndex = 1;
+
+      if (fullscreen.group === 'webcams') {
+        cameraDockBounds.width = windowWidth();
+        cameraDockBounds.minWidth = windowWidth();
+        cameraDockBounds.maxWidth = windowWidth();
+        cameraDockBounds.height = windowHeight();
+        cameraDockBounds.minHeight = windowHeight();
+        cameraDockBounds.maxHeight = windowHeight();
+        cameraDockBounds.top = 0;
+        cameraDockBounds.left = 0;
+        cameraDockBounds.zIndex = 99;
+      }
+
       return cameraDockBounds;
     }
 
@@ -418,9 +434,9 @@ class VideoFocusLayout extends Component {
     sidebarContentHeight,
   ) {
     const { newLayoutContextState } = this.props;
-    const { deviceType, input } = newLayoutContextState;
+    const { deviceType, input, fullscreen } = newLayoutContextState;
     const mediaBounds = {};
-    const { element: fullscreenElement } = input.fullscreen;
+    const { element: fullscreenElement } = fullscreen;
 
     if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
       mediaBounds.width = this.mainWidth();
@@ -587,7 +603,12 @@ class VideoFocusLayout extends Component {
         left: cameraDockBounds.left,
         tabOrder: 4,
         isDraggable: false,
-        isResizable: false,
+        resizableEdge: {
+          top: false,
+          right: false,
+          bottom: false,
+          left: false,
+        },
         zIndex: cameraDockBounds.zIndex,
       },
     });
