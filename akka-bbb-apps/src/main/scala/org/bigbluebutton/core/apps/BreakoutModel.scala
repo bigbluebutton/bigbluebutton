@@ -9,11 +9,13 @@ object BreakoutModel {
       externalId:    String,
       name:          String,
       sequence:      Integer,
+      shortName:     String,
+      isDefaultName: Boolean,
       freeJoin:      Boolean,
       voiceConf:     String,
       assignedUsers: Vector[String]
   ): BreakoutRoom2x = {
-    new BreakoutRoom2x(id, externalId, name, parentId, sequence, freeJoin, voiceConf, assignedUsers, Vector(), Vector(), None, false)
+    new BreakoutRoom2x(id, externalId, name, parentId, sequence, shortName, isDefaultName, freeJoin, voiceConf, assignedUsers, Vector(), Vector(), None, false)
   }
 
 }
@@ -75,4 +77,9 @@ case class BreakoutModel(
   def removeRoom(id: String): BreakoutModel = {
     copy(rooms = rooms - id)
   }
+
+  def extendTime(timeToExtendInMinutes: Int): BreakoutModel = {
+    copy(durationInMinutes = durationInMinutes + timeToExtendInMinutes)
+  }
+
 }

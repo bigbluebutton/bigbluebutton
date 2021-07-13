@@ -30,7 +30,12 @@ const initState = {
   deviceType: null,
   layoutType: DEFAULT_VALUES.layoutType,
   layoutLoaded: 'legacy',
+  fontSize: DEFAULT_VALUES.fontSize,
   idChatOpen: DEFAULT_VALUES.idChatOpen,
+  fullscreen: {
+    element: '',
+    group: '',
+  },
   input: INITIAL_INPUT_STATE,
   output: INITIAL_OUTPUT_STATE,
 };
@@ -80,6 +85,16 @@ const reducer = (state, action) => {
       };
     }
 
+    // FONT SIZE
+    case ACTIONS.SET_FONT_SIZE: {
+      const { fontSize } = state;
+      if (fontSize === action.value) return state;
+      return {
+        ...state,
+        fontSize: action.value,
+      };
+    }
+
     // ID CHAT open in sidebar content panel
     case ACTIONS.SET_ID_CHAT_OPEN: {
       if (state.idChatOpen === action.value) return state;
@@ -114,6 +129,42 @@ const reducer = (state, action) => {
           browser: {
             width,
             height,
+          },
+        },
+      };
+    }
+
+    // BANNER BAR
+    case ACTIONS.SET_HAS_BANNER_BAR: {
+      const { bannerBar } = state.input;
+      if (bannerBar.hasBanner === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          bannerBar: {
+            ...bannerBar,
+            hasBanner: action.value,
+          },
+        },
+      };
+    }
+
+    // NOTIFICATIONS BAR
+    case ACTIONS.SET_HAS_NOTIFICATIONS_BAR: {
+      const { notificationsBar } = state.input;
+      if (notificationsBar.hasNotification === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          notificationsBar: {
+            ...notificationsBar,
+            hasNotification: action.value,
           },
         },
       };
@@ -351,10 +402,17 @@ const reducer = (state, action) => {
       };
     }
     case ACTIONS.SET_SIDEBAR_CONTENT_SIZE: {
-      const { width, browserWidth } = action.value;
+      const {
+        width,
+        browserWidth,
+        height,
+        browserHeight,
+      } = action.value;
       const { sidebarContent } = state.input;
       if (sidebarContent.width === width
-        && sidebarContent.browserWidth === browserWidth) {
+        && sidebarContent.browserWidth === browserWidth
+        && sidebarContent.height === height
+        && sidebarContent.browserHeight === browserHeight) {
         return state;
       }
       return {
@@ -365,6 +423,8 @@ const reducer = (state, action) => {
             ...sidebarContent,
             width,
             browserWidth,
+            height,
+            browserHeight,
           },
         },
       };
@@ -505,6 +565,22 @@ const reducer = (state, action) => {
         },
       };
     }
+    case ACTIONS.SET_CAMERA_DOCK_IS_RESIZING: {
+      const { cameraDock } = state.input;
+      if (cameraDock.isResizing === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          cameraDock: {
+            ...cameraDock,
+            isResizing: action.value,
+          },
+        },
+      };
+    }
     case ACTIONS.SET_CAMERA_DOCK_POSITION: {
       const { cameraDock } = state.input;
       if (cameraDock.position === action.value) {
@@ -546,9 +622,32 @@ const reducer = (state, action) => {
         },
       };
     }
+    case ACTIONS.SET_CAMERA_DOCK_OPTIMAL_GRID_SIZE: {
+      const { width, height } = action.value;
+      const { cameraDock } = state.input;
+      const { cameraOptimalGridSize } = cameraDock;
+      if (cameraOptimalGridSize.width === width
+        && cameraOptimalGridSize.height === height) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          cameraDock: {
+            ...cameraDock,
+            cameraOptimalGridSize: {
+              width,
+              height,
+            },
+          },
+        },
+      };
+    }
     case ACTIONS.SET_CAMERA_DOCK_OUTPUT: {
       const {
         display,
+        position,
         minWidth,
         width,
         maxWidth,
@@ -559,11 +658,12 @@ const reducer = (state, action) => {
         left,
         tabOrder,
         isDraggable,
-        isResizable,
+        resizableEdge,
         zIndex,
       } = action.value;
       const { cameraDock } = state.output;
       if (cameraDock.display === display
+        && cameraDock.position === position
         && cameraDock.width === width
         && cameraDock.height === height
         && cameraDock.maxHeight === maxHeight
@@ -572,7 +672,7 @@ const reducer = (state, action) => {
         && cameraDock.tabOrder === tabOrder
         && cameraDock.isDraggable === isDraggable
         && cameraDock.zIndex === zIndex
-        && cameraDock.isResizable === isResizable) {
+        && cameraDock.resizableEdge === resizableEdge) {
         return state;
       }
       return {
@@ -582,6 +682,7 @@ const reducer = (state, action) => {
           cameraDock: {
             ...cameraDock,
             display,
+            position,
             minWidth,
             width,
             maxWidth,
@@ -592,7 +693,7 @@ const reducer = (state, action) => {
             left,
             tabOrder,
             isDraggable,
-            isResizable,
+            resizableEdge,
             zIndex,
           },
         },
@@ -610,49 +711,6 @@ const reducer = (state, action) => {
           cameraDock: {
             ...cameraDock,
             isDraggable: action.value,
-          },
-        },
-      };
-    }
-    case ACTIONS.SET_CAMERA_DOCK_IS_FULLSCREEN: {
-      const { cameraDock } = state.input;
-      if (cameraDock.isFullscreen === action.value) {
-        return state;
-      }
-      return {
-        ...state,
-        input: {
-          ...state.input,
-          cameraDock: {
-            ...cameraDock,
-            isFullscreen: action.value,
-          },
-        },
-      };
-    }
-    case ACTIONS.SET_CAMERA_DOCK_RESIZABLE_EDGE: {
-      const {
-        top, right, bottom, left,
-      } = action.value;
-      const { cameraDock } = state.output;
-      if (cameraDock.resizableEdge.top === top
-        && cameraDock.resizableEdge.right === right
-        && cameraDock.resizableEdge.bottom === bottom
-        && cameraDock.resizableEdge.left === left) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          cameraDock: {
-            ...cameraDock,
-            resizableEdge: {
-              top,
-              right,
-              bottom,
-              left,
-            },
           },
         },
       };
@@ -686,22 +744,6 @@ const reducer = (state, action) => {
           presentation: {
             ...presentation,
             isOpen: action.value,
-          },
-        },
-      };
-    }
-    case ACTIONS.SET_PRESENTATION_IS_FULLSCREEN: {
-      const { presentation } = state.input;
-      if (presentation.isFullscreen === action.value) {
-        return state;
-      }
-      return {
-        ...state,
-        input: {
-          ...state.input,
-          presentation: {
-            ...presentation,
-            isFullscreen: action.value,
           },
         },
       };
@@ -872,6 +914,22 @@ const reducer = (state, action) => {
       };
     }
 
+    // FULLSCREEN
+    case ACTIONS.SET_FULLSCREEN_ELEMENT: {
+      const { fullscreen } = state;
+      if (fullscreen.element === action.value.element
+        && fullscreen.group === action.value.group) {
+        return state;
+      }
+      return {
+        ...state,
+        fullscreen: {
+          element: action.value.element,
+          group: action.value.group,
+        },
+      };
+    }
+
     // SCREEN SHARE
     case ACTIONS.SET_HAS_SCREEN_SHARE: {
       const { screenShare } = state.input;
@@ -910,6 +968,37 @@ const reducer = (state, action) => {
             height,
             browserWidth,
             browserHeight,
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_SCREEN_SHARE_OUTPUT: {
+      const {
+        width,
+        height,
+        top,
+        left,
+        zIndex,
+      } = action.value;
+      const { screenShare } = state.output;
+      if (screenShare.width === width
+        && screenShare.height === height
+        && screenShare.top === top
+        && screenShare.left === left
+        && screenShare.zIndex === zIndex) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          screenShare: {
+            ...screenShare,
+            width,
+            height,
+            top,
+            left,
+            zIndex,
           },
         },
       };
@@ -953,6 +1042,34 @@ const reducer = (state, action) => {
             height,
             browserWidth,
             browserHeight,
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT: {
+      const {
+        width,
+        height,
+        top,
+        left,
+      } = action.value;
+      const { externalVideo } = state.output;
+      if (externalVideo.width === width
+        && externalVideo.height === height
+        && externalVideo.top === top
+        && externalVideo.left === left) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          externalVideo: {
+            ...externalVideo,
+            width,
+            height,
+            top,
+            left,
           },
         },
       };

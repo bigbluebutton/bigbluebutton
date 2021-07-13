@@ -14,7 +14,7 @@ import org.bigbluebutton.endpoint.redis.AppsRedisSubscriberActor
 import org.bigbluebutton.endpoint.redis.RedisRecorderActor
 import org.bigbluebutton.endpoint.redis.ActivityTrackerActor
 import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
-import org.bigbluebutton.service.HealthzService
+import org.bigbluebutton.service.{ HealthzService, MeetingInfoActor, MeetingInfoService }
 
 object Boot extends App with SystemConfiguration {
 
@@ -41,10 +41,18 @@ object Boot extends App with SystemConfiguration {
   )
 
   val msgSender = new MessageSender(redisPublisher)
+  val bbbMsgBus = new BbbMsgRouterEventBus
 
   val healthzService = HealthzService(system)
 
-  val apiService = new ApiService(healthzService)
+  val meetingInfoActorRef = system.actorOf(MeetingInfoActor.props())
+
+  outBus2.subscribe(meetingInfoActorRef, outBbbMsgMsgChannel)
+  bbbMsgBus.subscribe(meetingInfoActorRef, analyticsChannel)
+
+  val meetingInfoService = MeetingInfoService(system, meetingInfoActorRef)
+
+  val apiService = new ApiService(healthzService, meetingInfoService)
 
   val redisRecorderActor = system.actorOf(
     RedisRecorderActor.props(system, redisConfig, healthzService),
@@ -58,8 +66,6 @@ object Boot extends App with SystemConfiguration {
 
   recordingEventBus.subscribe(redisRecorderActor, outMessageChannel)
   val incomingJsonMessageBus = new IncomingJsonMessageBus
-
-  val bbbMsgBus = new BbbMsgRouterEventBus
 
   val fromAkkaAppsMsgSenderActorRef = system.actorOf(FromAkkaAppsMsgSenderActor.props(msgSender))
 

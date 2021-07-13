@@ -25,6 +25,7 @@ export const ACTIONS = {
   SET_AUTO_ARRANGE_LAYOUT: 'setAutoArrangeLayout',
   SET_LAYOUT_TYPE: 'setLayoutType',
   SET_DEVICE_TYPE: 'setDeviceType',
+  SET_FONT_SIZE: 'setFontSize',
 
   SET_LAYOUT_LOADED: 'setLayoutLoaded',
   SET_LAYOUT_INPUT: 'setLayoutInput',
@@ -35,6 +36,9 @@ export const ACTIONS = {
   SET_ID_CHAT_OPEN: 'setIdChatOpen',
 
   SET_BROWSER_SIZE: 'setBrowserSize',
+
+  SET_HAS_BANNER_BAR: 'setHasBannerBar',
+  SET_HAS_NOTIFICATIONS_BAR: 'setHasNotificationsBar',
 
   SET_NAVBAR_OUTPUT: 'setNavBarOutput',
 
@@ -57,11 +61,12 @@ export const ACTIONS = {
 
   SET_NUM_CAMERAS: 'setNumCameras',
   SET_CAMERA_DOCK_IS_DRAGGING: 'setCameraDockIsDragging',
+  SET_CAMERA_DOCK_IS_RESIZING: 'setCameraDockIsResizing',
   SET_CAMERA_DOCK_POSITION: 'setCameraDockPosition',
   SET_CAMERA_DOCK_SIZE: 'setCameraDockSize',
+  SET_CAMERA_DOCK_OPTIMAL_GRID_SIZE: 'setCameraDockOptimalGridSize',
   SET_CAMERA_DOCK_OUTPUT: 'setCameraDockOutput',
   SET_CAMERA_DOCK_IS_DRAGGABLE: 'setCameraDockIsDraggable',
-  SET_CAMERA_DOCK_IS_FULLSCREEN: 'setCameraDockIsFullscreen',
   SET_CAMERA_DOCK_IS_RESIZABLE: 'setCameraDockIsResizable',
   SET_CAMERA_DOCK_RESIZABLE_EDGE: 'setCameraDockResizableEdge',
 
@@ -72,16 +77,19 @@ export const ACTIONS = {
   SET_PRESENTATION_NUM_CURRENT_SLIDE: 'setPresentationNumCurrentSlide',
   SET_PRESENTATION_SLIDES_LENGTH: 'setPresentationSlideslength',
   SET_PRESENTATION_SIZE: 'setPresentationSize',
-  SET_PRESENTATION_IS_FULLSCREEN: 'setPresentationIsFullscreen',
   SET_PRESENTATION_OUTPUT: 'setPresentationOutput',
   SET_PRESENTATION_IS_RESIZABLE: 'setPresentationIsResizable',
   SET_PRESENTATION_RESIZABLE_EDGE: 'setPresentationResizableEdge',
 
+  SET_FULLSCREEN_ELEMENT: 'setFullscreenElement',
+
   SET_HAS_SCREEN_SHARE: 'setHasScreenShare',
   SET_SCREEN_SHARE_SIZE: 'setScreenShareSize',
+  SET_SCREEN_SHARE_OUTPUT: 'setScreenShareOutput',
 
   SET_HAS_EXTERNAL_VIDEO: 'setHasExternalVideo',
   SET_EXTERNAL_VIDEO_SIZE: 'setExternalVideoSize',
+  SET_EXTERNAL_VIDEO_OUTPUT: 'setExternalVideoOutput',
 };
 
 export const PANELS = {

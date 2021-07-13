@@ -139,7 +139,6 @@
     "app.meeting.ended": "ഈ സെഷൻ അവസാനിച്ചു",
     "app.meeting.meetingTimeRemaining": "മീറ്റിംഗ് സമയം ശേഷിക്കുന്നു: {0}",
     "app.meeting.meetingTimeHasEnded": "സമയം അവസാനിച്ചു. മീറ്റിംഗ് ഉടൻ അവസാനിക്കും",
-    "app.meeting.endedByUserMessage": "മീറ്റിംഗ് {0 by അവസാനിപ്പിച്ചു",
     "app.meeting.endedMessage": "നിങ്ങളെ ഹോം സ്‌ക്രീനിലേക്ക് തിരികെ കൈമാറും",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "മീറ്റിംഗ് ഒരു മിനിറ്റിനുള്ളിൽ അവസാനിക്കുന്നു.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "മീറ്റിംഗ് {0} മിനിറ്റിനുള്ളിൽ അവസാനിക്കുന്നു.",

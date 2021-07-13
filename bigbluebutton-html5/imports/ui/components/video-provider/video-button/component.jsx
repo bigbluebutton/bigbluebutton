@@ -25,10 +25,6 @@ const intlMessages = defineMessages({
     id: 'app.video.connecting',
     description: 'video connecting label',
   },
-  dataSaving: {
-    id: 'app.video.dataSaving',
-    description: 'video data saving label',
-  },
   meteorDisconnected: {
     id: 'app.video.clientDisconnected',
     description: 'Meteor disconnected label',

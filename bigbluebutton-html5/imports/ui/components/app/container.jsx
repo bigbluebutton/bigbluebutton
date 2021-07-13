@@ -12,8 +12,9 @@ import CaptionsService from '/imports/ui/components/captions/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
-import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
 import { NLayoutContext } from '../layout/context/context';
+import Settings from '/imports/ui/services/settings';
+import MediaService from '/imports/ui/components/media/service';
 
 import {
   getFontSize,
@@ -30,6 +31,7 @@ import MediaContainer from '../media/container';
 const propTypes = {
   actionsbar: PropTypes.node,
   media: PropTypes.node,
+  meetingLayout: PropTypes.string.isRequired,
 };
 
 const defaultProps = {
@@ -56,12 +58,17 @@ const AppContainer = (props) => {
   const {
     actionsbar,
     media,
+    meetingLayout,
+    settingsLayout,
+    pushLayoutToEveryone,
+    currentUserId,
     ...otherProps
   } = props;
   const {
     input,
     output,
     layoutType,
+    layoutLoaded,
     deviceType,
   } = newLayoutContextState;
   const { sidebarContent, sidebarNavigation } = input;
@@ -71,13 +78,18 @@ const AppContainer = (props) => {
   const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
   const sidebarContentIsOpen = sidebarContent.isOpen;
 
-  return (
+  return currentUserId ?
     <App
       {...{
         actionsbar,
         actionsBarStyle,
+        currentUserId,
         media,
         layoutType,
+        layoutLoaded,
+        meetingLayout,
+        settingsLayout,
+        pushLayoutToEveryone,
         deviceType,
         newLayoutContextDispatch,
         sidebarNavPanel,
@@ -87,7 +99,7 @@ const AppContainer = (props) => {
       }}
       {...otherProps}
     />
-  );
+    : null
 };
 
 const currentUserEmoji = (currentUser) => (currentUser
@@ -124,10 +136,22 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     },
   );
   const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { publishedPoll: 1, voiceProp: 1, randomlySelectedUser: 1 } });
-  const { publishedPoll, voiceProp, randomlySelectedUser } = currentMeeting;
+    {
+      fields: {
+        publishedPoll: 1,
+        voiceProp: 1,
+        randomlySelectedUser: 1,
+        layout: 1,
+      },
+    });
+  const {
+    publishedPoll,
+    voiceProp,
+    randomlySelectedUser,
+    layout,
+  } = currentMeeting;
 
-  if (!currentUser.approved) {
+  if (currentUser && !currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
   }
 
@@ -137,6 +161,11 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   }).fetch();
 
   const layoutManagerLoaded = Session.get('layoutManagerLoaded');
+  const AppSettings = Settings.application;
+  const { viewScreenshare } = Settings.dataSaving;
+  const shouldShowScreenshare = MediaService.shouldShowScreenshare()
+    && (viewScreenshare || MediaService.isUserPresenter());
+  const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
 
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
@@ -152,12 +181,19 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     meetingMuted: voiceProp.muteOnStart,
     currentUserEmoji: currentUserEmoji(currentUser),
     hasPublishedPoll: publishedPoll,
-    startBandwidthMonitoring,
-    handleNetworkConnection: () => updateNavigatorConnection(navigator.connection),
     layoutManagerLoaded,
     randomlySelectedUser,
-    currentUserId: currentUser.userId,
-    isPresenter: currentUser.presenter,
+    currentUserId: currentUser?.userId,
+    isPresenter: currentUser?.presenter,
+    meetingLayout: layout,
+    settingsLayout: AppSettings.selectedLayout,
+    pushLayoutToEveryone: AppSettings.pushLayoutToEveryone,
+    audioAlertEnabled: AppSettings.chatAudioAlerts,
+    pushAlertEnabled: AppSettings.chatPushAlerts,
+    shouldShowScreenshare,
+    shouldShowPresentation: !shouldShowScreenshare && !shouldShowExternalVideo,
+    shouldShowExternalVideo,
+    isLargeFont: Session.get('isLargeFont'),
   };
 })(AppContainer)));
 
