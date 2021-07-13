@@ -42,12 +42,12 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
     @PasswordConstraint
     private String moderatorPW;
 
-    @NotEmpty(message = "You must provide whether this meeting is breakout room")
+    //@NotEmpty(message = "You must provide whether this meeting is breakout room")
     @IsBooleanConstraint(message = "You must provide a boolean value (true or false) for the breakout room")
     private String isBreakoutRoomString;
     private Boolean isBreakoutRoom;
 
-    @NotEmpty(message = "You must provide whether to record this meeting")
+    //@NotEmpty(message = "You must provide whether to record this meeting")
     @IsBooleanConstraint(message = "Record must be a boolean value (true or false)")
     private String recordString;
     private Boolean record;
