@@ -30,12 +30,7 @@ const webcamLayoutTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 10.83,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(10.83, screenshot);
   });
 };
 module.exports = exports = webcamLayoutTest;

@@ -219,7 +219,7 @@ class Page {
     };
   }
 
-  static checkRegression(numb) {
+  static checkRegression(numb, screenshot) {
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
         failureThreshold: numb,

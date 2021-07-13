@@ -33,15 +33,10 @@ const screenShareTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 1.37,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(1.37, screenshot);
   });
 
-  test('Share screen unvailable on Mobile Android', async () => {
+  test('Share screen unavailable on Mobile Android', async () => {
     process.env.IS_MOBILE = true;
     const test = new ShareScreen();
     let response;
@@ -59,15 +54,10 @@ const screenShareTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 1.37,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(1.37, screenshot);
   });
 
-  test('Share screen unvailable on Mobile iPhone', async () => {
+  test('Share screen unavailable on Mobile iPhone', async () => {
     process.env.IS_MOBILE = true;
     const test = new ShareScreen();
     let response;
@@ -85,15 +75,10 @@ const screenShareTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 1.37,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(1.37, screenshot);
   });
 
-  test('Share screen unvailable on Tablet iPad', async () => {
+  test('Share screen unavailable on Tablet iPad', async () => {
     process.env.IS_MOBILE = true;
     const test = new ShareScreen();
     let response;
@@ -111,12 +96,7 @@ const screenShareTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 1.37,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(1.37, screenshot);
   });
 };
 module.exports = exports = screenShareTest;

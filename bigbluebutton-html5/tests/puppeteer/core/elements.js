@@ -27,3 +27,4 @@ exports.meetingEndedModal = 'div[data-test="meetingEndedModal"]';
 exports.rating = 'div[data-test="rating"]';
 exports.whiteboard = 'svg[data-test="whiteboard"]';
 exports.pollMenuButton = 'button[data-test="pollMenuButton"]';
+exports.unauthorized = 'h1[data-test="unauthorized"]';
