@@ -769,6 +769,7 @@ class CustomLayout extends Component {
       type: ACTIONS.SET_CAMERA_DOCK_OUTPUT,
       value: {
         display: input.cameraDock.numCameras > 0,
+        position: input.cameraDock.position,
         minWidth: cameraDockBounds.minWidth,
         width: cameraDockBounds.width,
         maxWidth: cameraDockBounds.maxWidth,

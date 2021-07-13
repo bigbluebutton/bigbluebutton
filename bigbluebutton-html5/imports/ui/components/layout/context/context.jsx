@@ -647,6 +647,7 @@ const reducer = (state, action) => {
     case ACTIONS.SET_CAMERA_DOCK_OUTPUT: {
       const {
         display,
+        position,
         minWidth,
         width,
         maxWidth,
@@ -662,6 +663,7 @@ const reducer = (state, action) => {
       } = action.value;
       const { cameraDock } = state.output;
       if (cameraDock.display === display
+        && cameraDock.position === position
         && cameraDock.width === width
         && cameraDock.height === height
         && cameraDock.maxHeight === maxHeight
@@ -680,6 +682,7 @@ const reducer = (state, action) => {
           cameraDock: {
             ...cameraDock,
             display,
+            position,
             minWidth,
             width,
             maxWidth,

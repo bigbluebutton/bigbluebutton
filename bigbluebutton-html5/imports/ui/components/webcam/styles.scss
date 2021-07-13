@@ -1,12 +1,22 @@
-.resizeWrapper {
-    div {
-      width: 100% !important;
-
-      &:hover {
-        background-color: rgba(255, 255, 255, .3);
-      }
-    }
+%resizable {
+  &:hover {
+    background-color: rgba(255, 255, 255, .3);
   }
+}
+
+.resizeWrapperH {
+  div {
+    @extend %resizable;
+    width: 100% !important;
+  }
+}
+
+.resizeWrapperV {
+  div {
+    @extend %resizable;
+    height: 100% !important;
+  }
+}
 
 .draggable {
   video {
