@@ -93,7 +93,6 @@ const WebcamComponent = ({
         onMouseDown={
           cameraDock.isDraggable ? (e) => e.preventDefault() : undefined
         }
-        // add isMobile
         disabled={!cameraDock.isDraggable || isResizing || isFullscreen}
         position={
           {
@@ -110,7 +109,7 @@ const WebcamComponent = ({
             width: cameraDock.width,
             height: cameraDock.height,
           }}
-          handleWrapperClass="resizeWrapper"
+          handleWrapperClass={styles.resizeWrapper}
           onResizeStart={() => {
             setIsResizing(true);
             setResizeStart({ width: cameraDock.width, height: cameraDock.height });
@@ -132,22 +131,15 @@ const WebcamComponent = ({
             bottomLeft: false,
             bottomRight: false,
           }}
-          // className={
-          //   !swapLayout
-          //     ? overlayClassName
-          //     : contentClassName
-          // }
           style={{
             position: 'absolute',
             zIndex: cameraDock.zIndex,
-            // top: cameraDock.top,
-            // left: cameraDock.left,
           }}
         >
           <div
             id="cameraDock"
             className={draggableClassName}
-            draggable={!cameraDock.isDraggable && !isFullscreen ? 'true' : undefined}
+            draggable={cameraDock.isDraggable && !isFullscreen ? 'true' : undefined}
             style={{
               width: cameraDock.width,
               height: cameraDock.height,
