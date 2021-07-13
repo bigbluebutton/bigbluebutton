@@ -6,6 +6,7 @@ import styles from './styles.scss';
 import { ACTIONS, CAMERADOCK_POSITION } from '../layout/enums';
 import DropAreaContainer from './drop-areas/container';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
+import Storage from '/imports/ui/services/storage/session';
 
 const WebcamComponent = ({
   cameraDock,
@@ -18,9 +19,46 @@ const WebcamComponent = ({
   const [isFullscreen, setIsFullScreen] = useState(false);
   const [resizeStart, setResizeStart] = useState({ width: 0, height: 0 });
 
+  const lastSize = Storage.getItem('webcamSize') || { width: 0, height: 0 };
+  const { width: lastWidth, height: lastHeight } = lastSize;
+
+  const isCameraTopOrBottom = cameraDock.position === CAMERADOCK_POSITION.CONTENT_TOP
+    || cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM;
+  const isCameraLeftOrRight = cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT
+    || cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT;
+
   useEffect(() => {
     setIsFullScreen(fullscreen.group === 'webcams');
   }, [fullscreen]);
+
+  useEffect(() => {
+    if (isCameraTopOrBottom && lastHeight > 0) {
+      newLayoutContextDispatch(
+        {
+          type: ACTIONS.SET_CAMERA_DOCK_SIZE,
+          value: {
+            width: cameraDock.width,
+            height: lastHeight,
+            browserWidth: window.innerWidth,
+            browserHeight: window.innerHeight,
+          },
+        },
+      );
+    }
+    if (isCameraLeftOrRight && lastWidth > 0) {
+      newLayoutContextDispatch(
+        {
+          type: ACTIONS.SET_CAMERA_DOCK_SIZE,
+          value: {
+            width: lastWidth,
+            height: cameraDock.height,
+            browserWidth: window.innerWidth,
+            browserHeight: window.innerHeight,
+          },
+        },
+      );
+    }
+  }, [cameraDock.position, lastWidth, lastHeight]);
 
   const onResizeHandle = (deltaWidth, deltaHeight) => {
     if (cameraDock.resizableEdge.top || cameraDock.resizableEdge.bottom) {
@@ -124,6 +162,12 @@ const WebcamComponent = ({
             onResizeHandle(d.width, d.height);
           }}
           onResizeStop={() => {
+            if (isCameraTopOrBottom) {
+              Storage.setItem('webcamSize', { width: lastWidth, height: cameraDock.height });
+            }
+            if (isCameraLeftOrRight) {
+              Storage.setItem('webcamSize', { width: cameraDock.width, height: lastHeight });
+            }
             setResizeStart({ width: 0, height: 0 });
             setTimeout(() => setIsResizing(false), 500);
           }}
