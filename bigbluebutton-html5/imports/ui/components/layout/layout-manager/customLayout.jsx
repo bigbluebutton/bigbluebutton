@@ -3,7 +3,9 @@ import _ from 'lodash';
 import NewLayoutContext from '../context/context';
 import DEFAULT_VALUES from '../defaultValues';
 import { INITIAL_INPUT_STATE } from '../context/initState';
-import { DEVICE_TYPE, ACTIONS, CAMERADOCK_POSITION } from '../enums';
+import {
+  DEVICE_TYPE, ACTIONS, CAMERADOCK_POSITION, PANELS,
+} from '../enums';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -168,6 +170,8 @@ class CustomLayout extends Component {
         }, INITIAL_INPUT_STATE),
       });
     } else {
+      const { sidebarContentPanel } = input.sidebarContent;
+
       newLayoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: _.defaultsDeep({
@@ -175,8 +179,10 @@ class CustomLayout extends Component {
             isOpen: true,
           },
           sidebarContent: {
-            isOpen: deviceType === DEVICE_TYPE.TABLET_LANDSCAPE
-              || deviceType === DEVICE_TYPE.DESKTOP,
+            isOpen: sidebarContentPanel !== PANELS.NONE
+              && (deviceType === DEVICE_TYPE.TABLET_LANDSCAPE
+                || deviceType === DEVICE_TYPE.DESKTOP),
+            sidebarContentPanel,
           },
           sidebarContentHorizontalResizer: {
             isOpen: false,

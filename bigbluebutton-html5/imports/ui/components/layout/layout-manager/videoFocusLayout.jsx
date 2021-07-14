@@ -3,7 +3,7 @@ import { throttle, defaultsDeep } from 'lodash';
 import LayoutContext from '../context/context';
 import DEFAULT_VALUES from '../defaultValues';
 import { INITIAL_INPUT_STATE } from '../context/initState';
-import { DEVICE_TYPE, ACTIONS } from '../enums';
+import { DEVICE_TYPE, ACTIONS, PANELS } from '../enums';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -114,6 +114,8 @@ class VideoFocusLayout extends Component {
         ),
       });
     } else {
+      const { sidebarContentPanel } = input.sidebarContent;
+
       newLayoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: defaultsDeep(
@@ -122,8 +124,10 @@ class VideoFocusLayout extends Component {
               isOpen: true,
             },
             sidebarContent: {
-              isOpen: deviceType === DEVICE_TYPE.TABLET_LANDSCAPE
-                || deviceType === DEVICE_TYPE.DESKTOP,
+              isOpen: sidebarContentPanel !== PANELS.NONE
+              && (deviceType === DEVICE_TYPE.TABLET_LANDSCAPE
+                || deviceType === DEVICE_TYPE.DESKTOP),
+              sidebarContentPanel,
             },
             SidebarContentHorizontalResizer: {
               isOpen: false,
