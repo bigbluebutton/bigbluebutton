@@ -372,8 +372,12 @@ class AudioManager {
 
     if (!this.logAudioJoinTime) {
       this.logAudioJoinTime = true;
-      logger.info({ logCode: 'audio_mic_join_time' }, 'Time needed to '
-      + `connect audio (seconds): ${secondsToActivateAudio}`);
+      logger.info({
+        logCode: 'audio_mic_join_time',
+        extraInfo: {
+          secondsToActivateAudio,
+        },
+      }, `Time needed to connect audio (seconds): ${secondsToActivateAudio}`);
     }
 
     if (!this.isEchoTest) {
