@@ -78,7 +78,6 @@ const Adapter = () => {
     });
 
     window.addEventListener(EVENT_NAME_SUBSCRIPTION_READY, () => {
-      console.log('aconteceu');
       setSubscriptionReady(true);
     });
   }, []);
@@ -88,7 +87,6 @@ const Adapter = () => {
     if (connectionStatus.connected && !syncStarted && Auth.userID && subscriptionReady) {
       setTimeout(() => {
         setSync(true);
-        console.log('iniciou o sync');
         startSyncMessagesbeforeJoin(dispatch);
       }, 1000);
     }
