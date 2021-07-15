@@ -29,6 +29,7 @@ import '/imports/api/pads/server';
 import '/imports/api/guest-users/server';
 import '/imports/api/local-settings/server';
 import '/imports/api/voice-call-states/server';
+import '/imports/api/user-reaction/server';
 
 // Commons
 import '/imports/api/log-client/server';

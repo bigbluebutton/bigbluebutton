@@ -546,6 +546,9 @@ public:
       frequentEmojiSortOnClick: false
     # e.g.: disableEmojis: ['1F595','1F922']
     disableEmojis: []
+  userReaction:
+    enabled: true
+    expire: 60
   notes:
     enabled: true
     id: notes

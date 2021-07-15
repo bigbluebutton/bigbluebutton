@@ -4,6 +4,7 @@ import VoiceUsers from '/imports/api/voice-users';
 import GroupChat from '/imports/api/group-chat';
 import Breakouts from '/imports/api/breakouts';
 import Meetings from '/imports/api/meetings';
+import UserReaction from '/imports/api/user-reaction';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
@@ -198,6 +199,25 @@ const addIsSharingWebcam = (users) => {
   });
 };
 
+const addUserReaction = (users) => {
+  const usersReactions = UserReaction.find({
+    meetingId: Auth.meetingID,
+  }).fetch();
+
+  return users.map((user) => {
+    let reaction = '';
+    const obj = usersReactions.find(us => us.userId === user.userId);
+    if (obj !== undefined) {
+      ({ reaction } = obj);
+    }
+
+    return {
+      ...user,
+      reaction,
+    };
+  });
+};
+
 const getUsers = () => {
   let users = Users
     .find({
@@ -215,7 +235,7 @@ const getUsers = () => {
     }
   }
 
-  return addIsSharingWebcam(addWhiteboardAccess(users)).sort(sortUsers);
+  return addIsSharingWebcam(addUserReaction(addWhiteboardAccess(users))).sort(sortUsers);
 };
 
 const formatUsers = (contextUsers, videoUsers, whiteboardUsers) => {
