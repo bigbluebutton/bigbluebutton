@@ -287,6 +287,7 @@ class BreakoutRoom extends PureComponent {
         roomList.removeEventListener('keydown', this.handleMoveEvent, true);
       }
     }
+    this.handleDismiss();
   }
 
   componentDidUpdate(prevProps, prevstate) {
