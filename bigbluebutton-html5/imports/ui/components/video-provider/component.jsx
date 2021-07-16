@@ -475,7 +475,9 @@ class VideoProvider extends Component {
         video: constraints,
       },
       onicecandidate: this._getOnIceCandidateCallback(stream, isLocal),
-      videoStream: VideoService.getPreloadedStream(),
+      // Only try to fetch a stored MediaStream if this is a publisher to avoid
+      // using a publisher's media stream accidentally
+      videoStream: isLocal ? VideoService.getPreloadedStream() : undefined,
     };
 
     try {
