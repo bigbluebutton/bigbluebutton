@@ -21,7 +21,7 @@ import { withDraggableConsumer } from '../media/webcam-draggable-overlay/context
 import Icon from '/imports/ui/components/icon/component';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import PollingContainer from '/imports/ui/components/polling/container';
-import { ACTIONS } from '../layout/enums';
+import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -495,11 +495,14 @@ class Presentation extends PureComponent {
     const { isFullscreen } = this.state;
     const {
       layoutLoaded,
+      layoutType,
       fullscreenContext,
       newLayoutContextDispatch,
     } = this.props;
 
-    if (!shouldEnableSwapLayout() || isFullscreen || layoutLoaded === 'new' && fullscreenContext) {
+    if (!shouldEnableSwapLayout() ||
+      isFullscreen ||
+      (layoutLoaded === 'new' && (fullscreenContext || layoutType === LAYOUT_TYPE.PRESENTATION_FOCUS))) {
       return null;
     }
     return <PresentationCloseButton
