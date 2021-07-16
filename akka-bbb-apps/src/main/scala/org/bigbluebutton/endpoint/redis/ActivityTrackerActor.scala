@@ -19,6 +19,7 @@ case class MeetingActivityTracker(
   name:  String,
   users: Map[String, UserActivityTracker] = Map(),
   polls: Map[String, Poll] = Map(),
+  screenshares: Vector[Screenshare] = Vector(),
 )
 
 case class UserActivityTracker(
@@ -28,7 +29,6 @@ case class UserActivityTracker(
   answers:            Map[String,String] = Map(),
   talks:              Vector[Talk] = Vector(),
   webcams:            Vector[Webcam] = Vector(),
-  screenshares:       Vector[Screenshare] = Vector(),
   totalOfMessages:    Long = 0,
   totalOfRaiseHands:  Long = 0,
   totalOfEmojis:      Long = 0,
@@ -123,6 +123,8 @@ class ActivityTrackerActor(
       // Screenshare
       case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
       case m: ScreenshareRtmpBroadcastStoppedEvtMsg => handleScreenshareRtmpBroadcastStoppedEvtMsg(m)
+      //case m: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg => handleScreenshareRtmpBroadcastStartedVoiceConfEvtMsg(m)
+      //case m: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg => handleScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg(m)
       //case m: DeskShareNotifyViewersRTMP  => handleDeskShareNotifyViewersRTMP(m)
 
       // Meeting
@@ -279,27 +281,21 @@ class ActivityTrackerActor(
   private def handleScreenshareRtmpBroadcastStartedEvtMsg(msg: ScreenshareRtmpBroadcastStartedEvtMsg) {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-      user <- meeting.users.values.find(u => u.intId == msg.header.userId)
     } yield {
-      val updatedUser = user.copy(screenshares = user.screenshares :+ Screenshare())
-      val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
+      val updatedMeeting = meeting.copy(screenshares = meeting.screenshares :+ Screenshare())
       meetings += (updatedMeeting.intId -> updatedMeeting)
     }
-
   }
 
   private def handleScreenshareRtmpBroadcastStoppedEvtMsg(msg: ScreenshareRtmpBroadcastStoppedEvtMsg) {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-      user <- meeting.users.values.find(u => u.intId == msg.header.userId)
     } yield {
-      val lastScreenshare: Screenshare = user.screenshares.last.copy(stoppedOn = System.currentTimeMillis())
-      val updatedUser = user.copy(screenshares = user.screenshares.dropRight(1) :+ lastScreenshare)
-      val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
+      val lastScreenshare: Screenshare = meeting.screenshares.last.copy(stoppedOn = System.currentTimeMillis())
+      val updatedMeeting = meeting.copy(screenshares = meeting.screenshares.dropRight(1) :+ lastScreenshare)
       meetings += (updatedMeeting.intId -> updatedMeeting)
     }
   }
-
 
   private def handleCreateMeetingReqMsg(msg: CreateMeetingReqMsg): Unit = {
     val newMeeting = MeetingActivityTracker(
