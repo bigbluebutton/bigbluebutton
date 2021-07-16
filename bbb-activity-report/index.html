@@ -43,10 +43,10 @@
 					<td style="text-align: right;"><b>Name:</b></td>
 					<td>{{activitiesJson.name}}</td>
 				</tr>
-				<tr>
+				<!-- <tr>
 					<td style="text-align: right;"><b>ExtId:</b></td>
 					<td>{{activitiesJson.intId}}</td>
-				</tr>
+				</tr> -->
 				<tr>
 					<td style="text-align: right;"><b>Participants:</b></td>
 					<td>{{totalOfUsers}}</td>
@@ -59,6 +59,10 @@
 					<td style="text-align: right;"><b>Raise Hand:</b></td>
 					<td>{{totalOfRaiseHand}}</td>
 				</tr>
+				<tr>
+					<td style="text-align: right;"><b>ScreenShare (mins):</b></td>
+					<td>{{timeOfScreenShare}}</td>
+				</tr>
 
 			</table>
 
@@ -70,7 +74,7 @@
 			            <th>Time Joined</th>
 			            <th>Duration (mins)</th>
 			            <th>Talk Time (secs)</th>
-			            <th>Camera Time (secs)</th>
+			            <th>Camera Time (mins)</th>
 			            <th>Messages</th>
 			            <th>Emojis</th>
 			            <th>Raise hand</th>
@@ -81,8 +85,8 @@
 			            <td>{{user.name}}</td>
 			            <td>{{getDate(user.registeredOn)}}</td>
 			            <td>{{user.leftOn ? tsToMins(user.leftOn - user.registeredOn) : tsToMins(new Date().getTime() - user.registeredOn)}}</td>
-			            <td>{{tsToSecs(getTalkTime(user.talks))}}</td>
-			            <td>{{tsToMins(getTalkTime(user.webcams))}}</td>
+			            <td>{{tsToSecs(getSumOfTime(user.talks))}}</td>
+			            <td>{{tsToMins(getSumOfTime(user.webcams))}}</td>
 			            <td>{{user.totalOfMessages}}</td>
 			            <td>{{user.totalOfEmojis}}</td>
 			            <td>{{user.totalOfRaiseHands}}</td>
@@ -140,6 +144,13 @@
             		} else {
             			return 0;
             		}
+            	},
+            	timeOfScreenShare: function() {
+            		if(this.activitiesJson && this.activitiesJson.screenshares) {
+            			return this.tsToMins(this.getSumOfTime(this.activitiesJson.screenshares));
+            		} else {
+            			return 0;
+            		}
             	}
             },
             methods: {
@@ -174,7 +185,7 @@
                 tsToSecs: function(ts) {
                 	return Math.floor(ts / 1000)
                 },
-                getTalkTime: function(talksArr) {
+                getSumOfTime: function(talksArr) {
                 	return talksArr.reduce( function( prevVal, elem ) {
                 		if(elem.stoppedOn > 0) return prevVal + (elem.stoppedOn - elem.startedOn);
 					    else return prevVal + (new Date().getTime()  - elem.startedOn);
