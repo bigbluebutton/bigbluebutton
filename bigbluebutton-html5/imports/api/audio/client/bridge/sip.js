@@ -742,6 +742,7 @@ class SIPSession {
         logCode: 'sip_js_ice_gathering_time',
         extraInfo: {
           callerIdName: this.user.callerIdName,
+          secondsToGatherIce,
         },
       }, `ICE gathering candidates took (s): ${secondsToGatherIce}`);
     }
