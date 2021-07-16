@@ -170,6 +170,7 @@ class Presentation extends PureComponent {
       restoreOnUpdate,
       layoutContextDispatch,
       layoutContextState,
+      newLayoutContextDispatch,
       userIsPresenter,
       layoutManagerLoaded,
       presentationBounds,
@@ -267,7 +268,7 @@ class Presentation extends PureComponent {
           || slidePosition.viewBoxWidth !== prevProps.slidePosition.viewBoxWidth;
         const pollPublished = publishedPoll && !prevProps.publishedPoll;
         if (slideChanged || positionChanged || pollPublished) {
-          toggleSwapLayout();
+          toggleSwapLayout(newLayoutContextDispatch);
         }
       }
 
@@ -492,12 +493,19 @@ class Presentation extends PureComponent {
 
   renderPresentationClose() {
     const { isFullscreen } = this.state;
-    const { layoutLoaded, fullscreenContext } = this.props;
+    const {
+      layoutLoaded,
+      fullscreenContext,
+      newLayoutContextDispatch,
+    } = this.props;
 
     if (!shouldEnableSwapLayout() || isFullscreen || layoutLoaded === 'new' && fullscreenContext) {
       return null;
     }
-    return <PresentationCloseButton toggleSwapLayout={MediaService.toggleSwapLayout} />;
+    return <PresentationCloseButton
+      toggleSwapLayout={MediaService.toggleSwapLayout}
+      newLayoutContextDispatch={newLayoutContextDispatch}
+    />;
   }
 
   renderOverlays(slideObj, svgDimensions, viewBoxPosition, viewBoxDimensions, physicalDimensions) {

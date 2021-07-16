@@ -34,6 +34,7 @@ class ActionsBar extends PureComponent {
       setEmojiStatus,
       currentUser,
       shortcuts,
+      newLayoutContextDispatch,
     } = this.props;
 
     return (
@@ -81,6 +82,7 @@ class ActionsBar extends PureComponent {
             ? (
               <PresentationOptionsContainer
                 toggleSwapLayout={toggleSwapLayout}
+                newLayoutContextDispatch={newLayoutContextDispatch}
                 isThereCurrentPresentation={isThereCurrentPresentation}
               />
             )
