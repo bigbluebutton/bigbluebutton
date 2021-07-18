@@ -88,8 +88,11 @@ class Pad extends PureComponent {
     this.handleListen = this.handleListen.bind(this);
     
     this.recognition.addEventListener('end', () => {
-      notify(intl.formatMessage(intlMessages.speechRecognitionStop), 'info', 'warning');
-      this.stopListen();
+      const { listening } = this.state;
+      if (listening) {
+        notify(intl.formatMessage(intlMessages.speechRecognitionStop), 'info', 'warning');
+        this.stopListen();
+      }
     });
   }
 
