@@ -52,6 +52,12 @@
   } 
 }
 
+.wide {
+  :global(.MuiPaper-root) {
+    width: 100%;
+  }
+}
+
 .menuitem {
   transition: none !important;
   font-size: 90% !important;
@@ -64,8 +70,16 @@
 }
 
 .emojiSelected {
-  span,
+  div,
   i {
     color: var(--color-primary);
+  }
+
+  &:focus,
+  &:hover {
+    div,
+    i {
+      color: #FFF ;
+    }
   }
 }

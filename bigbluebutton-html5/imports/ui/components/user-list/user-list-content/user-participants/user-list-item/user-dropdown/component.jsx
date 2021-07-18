@@ -653,6 +653,7 @@ class UserDropdown extends PureComponent {
       <BBBMenu 
         trigger={
           <div
+            tabindex={-1}
             onClick={() => this.setState({ selected: true })} 
             className={cx(userItemContentsStyle)} 
             aria-controls="default-dropdown-menu" 
@@ -662,6 +663,7 @@ class UserDropdown extends PureComponent {
           </div>
         }
         actions={actions}
+        selectedEmoji={user.emoji}
         onCloseCallback={() => this.setState({ selected: false, showNestedOptions: false })}
       />
     );

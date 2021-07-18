@@ -18,6 +18,7 @@ const intlMessages = defineMessages({
   },
 });
 
+//Used to switch to mobile view
 const MAX_WIDTH = 640;
 
 class BBBMenu extends React.Component {
@@ -46,12 +47,17 @@ class BBBMenu extends React.Component {
   };
 
   makeMenuItems() {
-    const { actions } = this.props;
+    const { actions, selectedEmoji } = this.props;
+
     return actions?.map(a => {
-      const { label, onClick } = a;
+      const { label, onClick, key } = a;
+      const itemClasses = [styles.menuitem];
+
+      if (key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase())) itemClasses.push(styles.emojiSelected);
+
       return [<MenuItem 
         key={label}
-        className={styles.menuitem}
+        className={itemClasses.join(' ')}
         disableRipple={true}
         disableGutters={true}
         style={{ paddingLeft: '4px',paddingRight: '4px',paddingTop: '8px', paddingBottom: '8px', marginLeft: '4px', marginRight: '4px' }}
@@ -74,8 +80,11 @@ class BBBMenu extends React.Component {
   
   render() {
     const { anchorEl } = this.state;
-    const { trigger, intl, opts } = this.props;
+    const { trigger, intl, opts, wide } = this.props;
     const actionsItems = this.makeMenuItems();
+
+    const menuClasses = [styles.menu];
+    if (wide) menuClasses.push(styles.wide)
 
     return (
       <div>
@@ -85,7 +94,7 @@ class BBBMenu extends React.Component {
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={this.handleClose}
-          className={styles.menu}
+          className={menuClasses.join(' ')}
         >
           {actionsItems}
           {anchorEl && window.innerWidth < MAX_WIDTH && 
@@ -116,7 +125,8 @@ BBBMenu.defaultProps = {
     anchorOrigin: { vertical: 'top', horizontal: 'right' },
     transformorigin: { vertical: 'top', horizontal: 'top' },
   },
-  onCloseCallback: () => {}
+  onCloseCallback: () => {},
+  wide: false,
 };
 
 BBBMenu.propTypes = {
@@ -136,4 +146,6 @@ BBBMenu.propTypes = {
   })).isRequired,
 
   onCloseCallback: PropTypes.func,
+
+  wide: PropTypes.bool,
 };
