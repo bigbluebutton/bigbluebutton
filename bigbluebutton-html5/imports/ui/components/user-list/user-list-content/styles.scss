@@ -46,7 +46,6 @@
 
   &:hover {
     @extend %highContrastOutline;
-    box-shadow: inset 1px 0 3px var(--color-primary);
   }
 
   &:focus,
