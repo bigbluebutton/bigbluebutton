@@ -11,6 +11,10 @@ const intlMessages = defineMessages({
     id: 'app.about.version',
     description: 'Client version label',
   },
+  serververs: {
+    id: 'app.about.serververs',
+    description: 'Server version label',
+  },
   copyright: {
     id: 'app.about.copyright',
     defaultMessage: (new Date().getFullYear()),
@@ -34,7 +38,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const AboutComponent = ({ intl, clientBuild, copyright }) => (
+const AboutComponent = ({ intl, serverVers, clientBuild, copyright }) => (
   <Modal
     title={intl.formatMessage(intlMessages.title)}
     dismiss={{
@@ -43,6 +47,7 @@ const AboutComponent = ({ intl, clientBuild, copyright }) => (
     }}
   >
     {`${intl.formatMessage(intlMessages.copyright)} ${copyright}`} <br />
+    {`${intl.formatMessage(intlMessages.serververs)} ${serverVers}`}<br />
     {`${intl.formatMessage(intlMessages.version)} ${clientBuild}`}
   </Modal>
 );
