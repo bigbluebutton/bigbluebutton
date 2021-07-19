@@ -202,6 +202,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UserLeaveReqMsg](envelope, jsonNode)
       case ChangeUserEmojiCmdMsg.NAME =>
         routeGenericMsg[ChangeUserEmojiCmdMsg](envelope, jsonNode)
+      case ChangeUserNameCmdMsg.NAME =>
+        routeGenericMsg[ChangeUserNameCmdMsg](envelope, jsonNode)
       case ChangeUserRoleCmdMsg.NAME =>
         routeGenericMsg[ChangeUserRoleCmdMsg](envelope, jsonNode)
 

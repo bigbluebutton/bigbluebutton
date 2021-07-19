@@ -95,6 +95,7 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: UserInactivityInspectMsg                       => logMessage(msg)
 
       case m: ChangeUserRoleCmdMsg                           => logMessage(msg)
+      case m: ChangeUserNameCmdMsg                           => logMessage(msg)
 
       // Voice
       case m: UserMutedVoiceEvtMsg =>

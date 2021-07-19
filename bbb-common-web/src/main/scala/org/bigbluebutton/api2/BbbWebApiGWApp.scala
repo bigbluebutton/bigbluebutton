@@ -139,6 +139,7 @@ class BbbWebApiGWApp(
                     endWhenNoModeratorDelayInMinutes:       java.lang.Integer,
                     muteOnStart:                            java.lang.Boolean,
                     allowModsToUnmuteUsers:                 java.lang.Boolean,
+                    allowModsToChangeUsernames:             java.lang.Boolean,
                     keepEvents:                             java.lang.Boolean,
                     breakoutParams:                         BreakoutRoomsParams,
                     lockSettingsParams:                     LockSettingsParams,
@@ -176,7 +177,8 @@ class BbbWebApiGWApp(
       modOnlyMessage = modOnlyMessage)
     val voiceProp = VoiceProp(telVoice = voiceBridge, voiceConf = voiceBridge, dialNumber = dialNumber, muteOnStart = muteOnStart.booleanValue())
     val usersProp = UsersProp(maxUsers = maxUsers.intValue(), webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
-      guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(), authenticatedGuest = authenticatedGuest.booleanValue())
+      guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(), allowModsToChangeUsernames = allowModsToChangeUsernames.booleanValue(),
+      authenticatedGuest = authenticatedGuest.booleanValue())
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
     val screenshareProps = ScreenshareProps(
       screenshareConf = voiceBridge + screenshareConfSuffix,
