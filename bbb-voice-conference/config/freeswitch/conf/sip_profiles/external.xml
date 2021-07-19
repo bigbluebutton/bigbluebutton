@@ -52,7 +52,7 @@
          for presence.
     -->
     <!-- Name of the db to use for this profile -->
-    <!--<param name="dbname" value="share_presence"/>-->
+    <param name="dbname" value="sqlite://memory://file:external?mode=memory&amp;cache=shared"/>
     <!--<param name="presence-hosts" value="$${domain}"/>-->
     <!--<param name="force-register-domain" value="$${domain}"/>-->
     <!--all inbound reg will stored in the db using this domain -->
