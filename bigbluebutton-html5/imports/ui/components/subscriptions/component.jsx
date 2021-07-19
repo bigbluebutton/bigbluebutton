@@ -23,12 +23,15 @@ const SUBSCRIPTIONS = [
 ];
 
 const EVENT_NAME = 'bbb-group-chat-messages-subscription-has-stoppped';
+const EVENT_NAME_SUBSCRIPTION_READY = 'bbb-group-chat-messages-subscriptions-ready';
 
 class Subscriptions extends Component {
   componentDidUpdate() {
     const { subscriptionsReady } = this.props;
     if (subscriptionsReady) {
       Session.set('subscriptionsReady', true);
+      const event = new Event(EVENT_NAME_SUBSCRIPTION_READY);
+      window.dispatchEvent(event);
     }
   }
 
