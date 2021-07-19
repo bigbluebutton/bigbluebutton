@@ -193,7 +193,7 @@ class MeetingEnded extends PureComponent {
       return intl.formatMessage(intlMessage[code]);
     }
 
-    return intlMessage[430];
+    return intl.formatMessage(intlMessage[430]);
   }
 
   sendFeedback() {
