@@ -15,7 +15,7 @@ trait EndMeetingSysCmdMsgHdlr extends HandlerHelpers {
   def handleEndMeeting(msg: EndMeetingSysCmdMsg, state: MeetingState2x): Unit = {
     endAllBreakoutRooms(eventBus, liveMeeting, state, MeetingEndReason.ENDED_FROM_API)
     log.info("Meeting {} ended by from API.", msg.body.meetingId)
-    sendEndMeetingDueToExpiry(MeetingEndReason.ENDED_FROM_API, eventBus, outGW, liveMeeting, "system")
+    sendEndMeetingDueToExpiry(MeetingEndReason.ENDED_FROM_API, eventBus, outGW, liveMeeting, "system", "System")
   }
 
 }

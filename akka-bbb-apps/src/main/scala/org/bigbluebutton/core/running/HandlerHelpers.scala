@@ -152,7 +152,7 @@ trait HandlerHelpers extends SystemConfiguration {
     newState
   }
 
-  def endMeeting(outGW: OutMsgRouter, liveMeeting: LiveMeeting, reason: String, userId: String): Unit = {
+  def endMeeting(outGW: OutMsgRouter, liveMeeting: LiveMeeting, reason: String, userId: String, userName: String): Unit = {
     def buildMeetingEndingEvtMsg(meetingId: String, userId: String): BbbCommonEnvCoreMsg = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
       val envelope = BbbCoreEnvelope(MeetingEndingEvtMsg.NAME, routing)
@@ -217,8 +217,8 @@ trait HandlerHelpers extends SystemConfiguration {
     state.update(None)
   }
 
-  def sendEndMeetingDueToExpiry(reason: String, eventBus: InternalEventBus, outGW: OutMsgRouter, liveMeeting: LiveMeeting, userId: String): Unit = {
-    endMeeting(outGW, liveMeeting, reason, userId)
+  def sendEndMeetingDueToExpiry(reason: String, eventBus: InternalEventBus, outGW: OutMsgRouter, liveMeeting: LiveMeeting, userId: String, userName: String): Unit = {
+    endMeeting(outGW, liveMeeting, reason, userId, userName)
     notifyParentThatBreakoutEnded(eventBus, liveMeeting)
     ejectAllUsersFromVoiceConf(outGW, liveMeeting)
     destroyMeeting(eventBus, liveMeeting.props.meetingProp.intId)

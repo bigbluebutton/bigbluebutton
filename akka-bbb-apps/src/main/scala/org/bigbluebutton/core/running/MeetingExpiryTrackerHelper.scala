@@ -21,7 +21,7 @@ trait MeetingExpiryTrackerHelper extends HandlerHelpers {
         expireReason <- reason
       } yield {
         endAllBreakoutRooms(eventBus, liveMeeting, state, expireReason)
-        sendEndMeetingDueToExpiry(expireReason, eventBus, outGW, liveMeeting, "system")
+        sendEndMeetingDueToExpiry(expireReason, eventBus, outGW, liveMeeting, "system", "System")
       }
     }
 
