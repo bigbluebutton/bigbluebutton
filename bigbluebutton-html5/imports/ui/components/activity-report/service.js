@@ -20,22 +20,13 @@ const isModerator = () => {
   return false;
 };
 
-const getActivityReportAccessToken = () => {
-  let activityReportAccessToken = null;
-
-  const meetingId = Auth.meetingID;
-  const meetingObject = Meetings.findOne({
-    meetingId,
-  }, { fields: { 'password.activityReportAccessToken': 1 } });
-
-  if (meetingObject != null) {
-    if (meetingObject.password && meetingObject.password.activityReportAccessToken) {
-      activityReportAccessToken = meetingObject.password.activityReportAccessToken;
-    }
-  }
-
-  return activityReportAccessToken;
-};
+const getActivityReportAccessToken = () => ((
+  Meetings.findOne(
+    { meetingId: Auth.meetingID },
+    {
+      fields: { 'password.activityReportAccessToken': 1 },
+    },
+  ) || {}).password || {}).activityReportAccessToken || null;
 
 const openActivityReportUrl = () => {
   window.open(`/activity-report/?meeting=${Auth.meetingID}&report=${getActivityReportAccessToken()}`, '_blank');

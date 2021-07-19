@@ -14,7 +14,7 @@ import ConnectionStatusButton from '/imports/ui/components/connection-status/but
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import SettingsDropdownContainer from './settings-dropdown/container';
 import { PANELS, ACTIONS } from '../layout/enums';
-import ActivityReportButton from '../activity-report/button/component';
+import ActivityReportButton from '../activity-report/button/container';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {

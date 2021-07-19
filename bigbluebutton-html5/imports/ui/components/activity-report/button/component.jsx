@@ -19,11 +19,13 @@ class ActivityReportButton extends PureComponent {
   render() {
     const {
       intl,
+      activityReportAccessToken,
+      isModerator,
     } = this.props;
 
     return (
-      ActivityReportService.isModerator()
-      && ActivityReportService.getActivityReportAccessToken() != null
+      isModerator
+      && activityReportAccessToken != null
         ? (
           <div className={styles.buttonWrapper}>
             <Button
