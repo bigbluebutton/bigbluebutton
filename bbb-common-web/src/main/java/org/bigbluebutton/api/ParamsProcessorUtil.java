@@ -77,6 +77,7 @@ public class ParamsProcessorUtil {
     private String defaultAvatarURL;
     private String defaultGuestPolicy;
     private Boolean authenticatedGuest;
+    private String defaultMeetingLayout;
     private int defaultMeetingDuration;
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
@@ -447,11 +448,16 @@ public class ParamsProcessorUtil {
         String guestPolicy = defaultGuestPolicy;
         if (!StringUtils.isEmpty(params.get(ApiParams.GUEST_POLICY))) {
         	guestPolicy = params.get(ApiParams.GUEST_POLICY);
-		}
+		    }
+
+        String meetingLayout = defaultMeetingLayout;
+
+        if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_LAYOUT))) {
+            meetingLayout = params.get(ApiParams.MEETING_LAYOUT);
+        }
+
         BreakoutRoomsParams breakoutParams = processBreakoutRoomsParams(params);
         LockSettingsParams lockSettingsParams = processLockSettingsParams(params);
-
-
 
         // Collect metadata for this meeting that the third-party app wants to
         // store if meeting is recorded.
@@ -501,6 +507,7 @@ public class ParamsProcessorUtil {
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
                 .withGuestPolicy(guestPolicy)
                 .withAuthenticatedGuest(authenticatedGuest)
+                .withMeetingLayout(meetingLayout)
 				.withBreakoutRoomsParams(breakoutParams)
 				.withLockSettingsParams(lockSettingsParams)
 				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
@@ -912,6 +919,10 @@ public class ParamsProcessorUtil {
 
 	public void setAuthenticatedGuest(Boolean value) {
 		this.authenticatedGuest = value;
+	}
+
+  public void setDefaultMeetingLayout(String meetingLayout) {
+		this.defaultMeetingLayout =  meetingLayout;
 	}
 
 	public void setClientLogoutTimerInMinutes(Integer value) {

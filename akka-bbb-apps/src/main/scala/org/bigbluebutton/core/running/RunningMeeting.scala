@@ -45,6 +45,12 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
     GuestPolicy(props.usersProp.guestPolicy, SystemUser.ID)
   )
 
+  Layouts.setCurrentLayout(
+    liveMeeting.layouts,
+    props.usersProp.meetingLayout,
+    SystemUser.ID
+  )
+
   private val recordEvents = props.recordProp.record || props.recordProp.keepEvents
   val outMsgRouter = new OutMsgRouter(recordEvents, outGW)
 
