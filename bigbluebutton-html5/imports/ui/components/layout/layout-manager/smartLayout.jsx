@@ -353,6 +353,8 @@ class SmartLayout extends Component {
   calculatesCameraDockBounds(mediaAreaBounds, mediaBounds) {
     const { newLayoutContextState } = this.props;
     const { input, fullscreen } = newLayoutContextState;
+    const { presentation } = input;
+    const { isOpen } = presentation;
 
     const cameraDockBounds = {};
 
@@ -361,7 +363,12 @@ class SmartLayout extends Component {
       cameraDockBounds.left = mediaAreaBounds.left;
       cameraDockBounds.zIndex = 1;
 
-      if (mediaBounds.width < mediaAreaBounds.width) {
+      if (!isOpen) {
+        cameraDockBounds.width = mediaAreaBounds.width;
+        cameraDockBounds.maxWidth = mediaAreaBounds.width;
+        cameraDockBounds.height = mediaAreaBounds.height;
+        cameraDockBounds.maxHeight = mediaAreaBounds.height;
+      } else if (mediaBounds.width < mediaAreaBounds.width) {
         cameraDockBounds.width = mediaAreaBounds.width - mediaBounds.width;
         cameraDockBounds.maxWidth = mediaAreaBounds.width * 0.8;
         cameraDockBounds.height = mediaAreaBounds.height;
@@ -428,10 +435,21 @@ class SmartLayout extends Component {
   calculatesMediaBounds(mediaAreaBounds, slideSize) {
     const { newLayoutContextState } = this.props;
     const { input, fullscreen } = newLayoutContextState;
+    const { presentation } = input;
+    const { isOpen } = presentation;
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
 
     // TODO Adicionar min e max para a apresentação
+
+    if (!isOpen) {
+      mediaBounds.width = 0;
+      mediaBounds.height = 0;
+      mediaBounds.top = 0;
+      mediaBounds.left = 0;
+      mediaBounds.zIndex = 0;
+      return mediaBounds;
+    }
 
     if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
       mediaBounds.width = this.mainWidth();

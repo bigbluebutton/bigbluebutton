@@ -5,6 +5,7 @@ import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import { ACTIONS } from '../layout/enums';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
@@ -51,10 +52,15 @@ const setSwapLayout = () => {
   swapLayout.tracker.changed();
 };
 
-const toggleSwapLayout = () => {
+const toggleSwapLayout = (newLayoutContextDispatch) => {
   window.dispatchEvent(new Event('togglePresentationHide'));
   swapLayout.value = !swapLayout.value;
   swapLayout.tracker.changed();
+
+  newLayoutContextDispatch({
+    type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+    value: !swapLayout.value,
+  });
 };
 
 export const shouldEnableSwapLayout = () => !shouldShowScreenshare() && !shouldShowExternalVideo();
