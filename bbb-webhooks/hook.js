@@ -34,6 +34,7 @@ module.exports = class Hook {
     this.id = null;
     this.callbackURL = null;
     this.externalMeetingID = null;
+    this.eventID = null;
     this.queue = [];
     this.emitter = null;
     this.redisClient = Application.redisClient();
@@ -82,20 +83,26 @@ module.exports = class Hook {
   // Puts a new message in the queue. Will also trigger a processing in the queue so this
   // message might be processed instantly.
   enqueue(message) {
-    this.redisClient.llen(config.get("redis.keys.eventsPrefix") + ":" + this.id, (error, reply) => {
-      const length = reply;
-      if (length < config.get("hooks.queueSize") && this.queue.length < config.get("hooks.queueSize")) {
-        Logger.info(`[Hook] ${this.callbackURL} enqueueing message:`, JSON.stringify(message));
-        // Add message to redis queue
-        this.redisClient.rpush(config.get("redis.keys.eventsPrefix") + ":" + this.id, JSON.stringify(message), (error,reply) => {
-          if (error != null) { Logger.error("[Hook] error pushing event to redis queue:", JSON.stringify(message), error); }
-        });
-        this.queue.push(JSON.stringify(message));
-        this._processQueue();
-      } else {
-        Logger.warn(`[Hook] ${this.callbackURL} queue size exceed, event:`, JSON.stringify(message));
-      }
-    });
+    // If the event is not in the hook's event list, skip it.
+    if ((this.eventID != null) && ((message == null) || (message.data == null) || (message.data.id == null) || (!this.eventID.some( ev => ev == message.data.id.toLowerCase() )))) {
+      Logger.info(`[Hook] ${this.callbackURL} skipping message from queue because not in event list for hook:`, JSON.stringify(message));
+    }
+    else {
+      this.redisClient.llen(config.get("redis.keys.eventsPrefix") + ":" + this.id, (error, reply) => {
+        const length = reply;
+        if (length < config.get("hooks.queueSize") && this.queue.length < config.get("hooks.queueSize")) {
+          Logger.info(`[Hook] ${this.callbackURL} enqueueing message:`, JSON.stringify(message));
+          // Add message to redis queue
+          this.redisClient.rpush(config.get("redis.keys.eventsPrefix") + ":" + this.id, JSON.stringify(message), (error,reply) => {
+            if (error != null) { Logger.error("[Hook] error pushing event to redis queue:", JSON.stringify(message), error); }
+          });
+          this.queue.push(JSON.stringify(message));
+          this._processQueue();
+        } else {
+          Logger.warn(`[Hook] ${this.callbackURL} queue size exceed, event:`, JSON.stringify(message));
+        }
+      });
+    }
   }
 
   toRedis() {
@@ -106,6 +113,7 @@ module.exports = class Hook {
       "getRaw": this.getRaw
     };
     if (this.externalMeetingID != null) { r.externalMeetingID = this.externalMeetingID; }
+    if (this.eventID != null) { r.eventID = this.eventID.join(); }
     return r;
   }
 
@@ -118,6 +126,11 @@ module.exports = class Hook {
       this.externalMeetingID = redisData.externalMeetingID;
     } else {
       this.externalMeetingID = null;
+    }
+    if (redisData.eventID != null) {
+      this.eventID = redisData.eventID.toLowerCase().split(',');
+    } else {
+      this.eventID = null;
     }
   }
 
@@ -155,7 +168,7 @@ module.exports = class Hook {
     });
   }
 
-  static addSubscription(callbackURL, meetingID, getRaw, callback) {
+  static addSubscription(callbackURL, meetingID, eventID, getRaw, callback) {
     let hook = Hook.findByCallbackURLSync(callbackURL);
     if (hook != null) {
       return (typeof callback === 'function' ? callback(new Error("There is already a subscription for this callback URL"), hook) : undefined);
@@ -167,6 +180,9 @@ module.exports = class Hook {
       hook = new Hook();
       hook.callbackURL = callbackURL;
       hook.externalMeetingID = meetingID;
+      if (eventID != null) {
+        hook.eventID = eventID.toLowerCase().split(',');
+      }
       hook.getRaw = getRaw;
       hook.permanent = config.get("hooks.permanentURLs").some( obj => {
         return obj.url === callbackURL
