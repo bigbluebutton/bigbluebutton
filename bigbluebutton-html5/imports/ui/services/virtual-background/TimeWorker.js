@@ -1,3 +1,8 @@
+/* NOTICE: This file is a Derivative Work of the original component in Jitsi Meet
+ * See https://github.com/jitsi/jitsi-meet/tree/master/react/features/stream-effects/virtual-background/vendor.
+ * It is copied under the Apache Public License 2.0 (see https://www.apache.org/licenses/LICENSE-2.0).
+ */
+
 /**
  * SET_TIMEOUT constant is used to set interval and it is set in
  * the id property of the request.data property. timeMs property must

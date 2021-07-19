@@ -11,6 +11,8 @@ import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import VideoService from '/imports/ui/components/video-provider/service';
 import Button from '/imports/ui/components/button/component';
 import { ACTIONS } from '../../layout/enums';
+import { isVirtualBackgroundEnabled } from '/imports/ui/services/virtual-background/service'
+import VideoPreviewService from '/imports/ui/components/video-preview/service';
 
 const propTypes = {
   streams: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -21,6 +23,7 @@ const propTypes = {
   swapLayout: PropTypes.bool.isRequired,
   numberOfPages: PropTypes.number.isRequired,
   currentVideoPageIndex: PropTypes.number.isRequired,
+  toggleVirtualBg: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -54,11 +57,8 @@ const intlMessages = defineMessages({
   prevPageLabel: {
     id: 'app.video.pagination.prevPage',
   },
-  toggleVirtualBgOnLabel: {
-    id: 'app.video.virtualBackground.toggleVirtualBgOn',
-  },
-  toggleVirtualBgOffLabel: {
-    id: 'app.video.virtualBackground.toggleVirtualBgOff',
+  toggleVirtualBg: {
+    id: 'app.video.virtualBackground.toggleVirtualBg',
   },
 });
 
@@ -86,16 +86,12 @@ const findOptimalGrid = (canvasWidth, canvasHeight, gutter, aspectRatio, numItem
 const ASPECT_RATIO = 4 / 3;
 const ACTION_NAME_FOCUS = 'focus';
 const ACTION_NAME_MIRROR = 'mirror';
-
-const VIRTUALBACKGROUNDCONFIG = Meteor.settings.public.virtualBackgrounds;
-let VIRTUALBACKGROUNDENABLED = true;
-if (VIRTUALBACKGROUNDCONFIG != null) {
-  VIRTUALBACKGROUNDENABLED = VIRTUALBACKGROUNDCONFIG.enabled;
-}
+const ACTION_NAME_BACKGROUND = 'blurBackground';
 
 class VideoList extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       focusedId: false,
       optimalGrid: {
@@ -294,11 +290,6 @@ class VideoList extends Component {
     return mirroredCameras.indexOf(stream) >= 0;
   }
 
-  handleVirtualBgToggle(stream) {
-    const { virtualBgChangeHandler, virtualBgIsActive } = this.props;
-    virtualBgChangeHandler(!virtualBgIsActive.includes(stream), stream);
-  }
-
   renderNextPageButton() {
     const { intl, numberOfPages, currentVideoPageIndex } = this.props;
 
@@ -347,6 +338,20 @@ class VideoList extends Component {
     );
   }
 
+  assembleVirtualBgAction (collectionStream, onClickCallback) {
+    const { intl } = this.props;
+    const { deviceId, stream: streamId } = collectionStream;
+    const localVideoStream = VideoPreviewService.getStream(deviceId);
+
+    if (localVideoStream == null) return false;
+
+    return {
+      actionName: ACTION_NAME_BACKGROUND,
+      label: intl.formatMessage(intlMessages.toggleVirtualBg),
+      onClick: () => onClickCallback(streamId, localVideoStream)
+    };
+  }
+
   renderVideoList() {
     const {
       intl,
@@ -354,12 +359,11 @@ class VideoList extends Component {
       onVideoItemMount,
       onVideoItemUnmount,
       swapLayout,
-      currentUserId,
-      virtualBgIsActive,
+      toggleVirtualBg,
     } = this.props;
     const { focusedId } = this.state;
-
     const numOfStreams = streams.length;
+
     return streams.map((vs) => {
       const { stream, userId, name } = vs;
       const isFocused = focusedId === stream;
@@ -372,19 +376,9 @@ class VideoList extends Component {
         onClick: () => this.mirrorCamera(stream),
       }];
 
-      // Disable virtual backgrounds for iOS
-      let isiOS = false;
-      const userAgent = window.navigator.userAgent;
-      if (userAgent.match(/iPad/i) || userAgent.match(/iPhone/i)) {
-        isiOS = true;
-      }
-      if (currentUserId === userId && !isiOS && VIRTUALBACKGROUNDENABLED) {
-        actions.push({
-          actionName: 'blurBackground',
-          label: intl.formatMessage(virtualBgIsActive.includes(stream) ? intlMessages['toggleVirtualBgOffLabel'] : intlMessages['toggleVirtualBgOnLabel']),
-          description: 'Blur',
-          onClick: () => this.handleVirtualBgToggle(stream)
-        })
+      if (VideoService.isLocalStream(stream) && isVirtualBackgroundEnabled()) {
+        const bgAction = this.assembleVirtualBgAction(vs, toggleVirtualBg);
+        if (bgAction) actions.push(bgAction);
       }
 
       if (numOfStreams > 2) {

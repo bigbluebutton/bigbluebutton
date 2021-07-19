@@ -2,6 +2,7 @@ import Storage from '/imports/ui/services/storage/session';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import VideoService from '/imports/ui/components/video-provider/service';
+import { BBBVideoStream } from '/imports/ui/services/webrtc-base/bbb-video-stream';
 
 const GUM_TIMEOUT = Meteor.settings.public.kurento.gUMTimeout;
 // Unfiltered, includes hidden profiles
@@ -39,24 +40,9 @@ const storeStream = (deviceId, stream) => {
   VIDEO_STREAM_STORAGE.set(deviceId, stream);
 
   // Stream insurance: clean it up if it ends (see the events being listened to below)
-  const cleanup = () => {
-    deleteStream(deviceId)
-  }
-
-  // Dirty, but effective way of checking whether the browser supports the 'inactive'
-  // event. If the oninactive interface is null, it can be overridden === supported.
-  // If undefined, it's not; so we fallback to the track 'ended' event.
-  if (stream.oninactive === null) {
-    stream.addEventListener('inactive', cleanup, { once: true });
-  } else {
-    const track = MediaStreamUtils.getVideoTracks(stream)[0];
-    if (track) {
-      track.addEventListener('ended', cleanup, { once: true });
-      // Extra safeguard: Firefox doesn't fire the 'ended' when it should
-      // but it invokes the callback (?), so hook up to both
-      track.onended = cleanup;
-    }
-  }
+  stream.on('inactive', () => {
+    deleteStream(deviceId);
+  });
 
   return true;
 }
@@ -150,6 +136,7 @@ const digestVideoDevices = (devices, priorityDevice) => {
   };
 }
 
+// Returns a promise that resolves an instance of BBBVideoStream or rejects an *Error
 const doGUM = (deviceId, profile) => {
   // Check if this is an already loaded stream
   if (deviceId && hasStream(deviceId)) {
@@ -165,13 +152,19 @@ const doGUM = (deviceId, profile) => {
     constraints.video.deviceId = { exact: deviceId };
   }
 
-  return promiseTimeout(GUM_TIMEOUT, navigator.mediaDevices.getUserMedia(constraints));
+  const postProcessedgUM = (cts) => {
+    return navigator.mediaDevices.getUserMedia(cts).then((stream) => {
+      return (new BBBVideoStream(stream));
+    });
+  };
+
+  return promiseTimeout(GUM_TIMEOUT, postProcessedgUM(constraints));
 }
 
-const terminateCameraStream = (stream, deviceId) => {
+const terminateCameraStream = (bbbVideoStream, deviceId) => {
   // Cleanup current stream if it wasn't shared/stored
-  if (stream && !hasStream(deviceId)) {
-    MediaStreamUtils.stopMediaStreamTracks(stream);
+  if (bbbVideoStream && !hasStream(deviceId)) {
+    bbbVideoStream.stop()
   }
 }
 
@@ -196,8 +189,4 @@ export default {
   getCameraProfile,
   doGUM,
   terminateCameraStream,
-  changeVirtualBackground: (backgroundObj) => {
-    Session.set('VirtualBackgroundName', backgroundObj);
-  },
-  virtualBackground: () => Session.get('VirtualBackgroundName'),
 };

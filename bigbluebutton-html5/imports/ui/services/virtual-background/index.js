@@ -1,5 +1,9 @@
+/* NOTICE: This file is a Derivative Work of the original component in Jitsi Meet
+ * See https://github.com/jitsi/jitsi-meet/tree/master/react/features/stream-effects/virtual-background/vendor.
+ * It is partially copied under the Apache Public License 2.0 (see https://www.apache.org/licenses/LICENSE-2.0).
+ */
+
 import * as wasmcheck from 'wasm-check';
-import {Meteor} from "meteor/meteor";
 import createTFLiteModule from './tflite/tflite.js';
 import createTFLiteSIMDModule from './tflite/tflite-simd.js';
 import {
@@ -8,37 +12,13 @@ import {
     SET_TIMEOUT,
     timerWorkerScript
 } from './TimeWorker';
-
-const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId;
-
-const VIRTUALBACKGROUNDCONFIG = Meteor.settings.public.virtualBackgrounds;
-let IMAGESPATH = '/resources/images/virtual-backgrounds/';
-let ISSTOREDONBBB = true;
-
-if (VIRTUALBACKGROUNDCONFIG != null) {
-    IMAGESPATH = VIRTUALBACKGROUNDCONFIG.imagesPath;
-    ISSTOREDONBBB = VIRTUALBACKGROUNDCONFIG.storedOnBBB;
-}
-
-
-const models = {
-    model96: '/resources/tfmodels/segm_lite_v681.tflite',
-    model144: '/resources/tfmodels/segm_full_v679.tflite'
-};
-
-const segmentationDimensions = {
-    model96: {
-        height: 96,
-        width: 160
-    },
-    model144: {
-        height: 144,
-        width: 256
-    }
-};
+import {
+  BASE_PATH,
+  MODELS,
+  getVirtualBgImagePath,
+} from '/imports/ui/services/virtual-background/service'
 
 const blurValue = '25px';
-
 
 class VirtualBackgroundService {
 
@@ -212,7 +192,7 @@ class VirtualBackgroundService {
     }
 
     changeBackgroundImage(parameters = null) {
-        const virtualBackgroundImagePath = (ISSTOREDONBBB ? baseName : '') + IMAGESPATH;
+        const virtualBackgroundImagePath = getVirtualBgImagePath();
         let imagesrc = virtualBackgroundImagePath + '';
         let type = 'blur';
         if (parameters != null && Object.keys(parameters).length > 0) {
@@ -293,14 +273,14 @@ export async function createVirtualBackgroundService(parameters = null) {
 
     if (wasmcheck.feature.simd) {
         tflite = await createTFLiteSIMDModule();
-        modelResponse = await fetch(baseName+models.model144);
+        modelResponse = await fetch(BASE_PATH+MODELS.model144.path);
     } else {
         tflite = await createTFLiteModule();
-        modelResponse = await fetch(baseName+models.model96);
+        modelResponse = await fetch(BASE_PATH+MODELS.model96.path);
     }
 
     const modelBufferOffset = tflite._getModelBufferMemoryOffset();
-    const virtualBackgroundImagePath = (ISSTOREDONBBB ? baseName : '') + IMAGESPATH;
+    const virtualBackgroundImagePath = getVirtualBgImagePath();
 
     if (parameters == null) {
         parameters = {};
@@ -320,7 +300,7 @@ export async function createVirtualBackgroundService(parameters = null) {
     tflite._loadModel(model.byteLength);
 
     const options = {
-        ...wasmcheck.feature.simd ? segmentationDimensions.model144 : segmentationDimensions.model96,
+        ...wasmcheck.feature.simd ? MODELS.model144.segmentationDimensions : MODELS.model96.segmentationDimensions,
         virtualBackground: parameters
     };
 

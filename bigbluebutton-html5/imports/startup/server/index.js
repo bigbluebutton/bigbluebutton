@@ -323,6 +323,9 @@ WebApp.connectHandlers.use('/guestWait', (req, res) => {
   res.end(guestWaitHtml);
 });
 
+// WASM endpoint to be used to fetch the .wasm models for camera effects
+// (blur, virtual background).
+// See: /imports/ui/services/virtual-backgrounds/
 WebApp.connectHandlers.use('/wasm', (req, res) => {
   const pathname = req._parsedUrl.pathname;
   let file = "";

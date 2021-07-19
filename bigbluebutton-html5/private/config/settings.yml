@@ -640,7 +640,7 @@ public:
       flushOnClose: true
       logTag: ''
   virtualBackgrounds:
-    enabled: true
+    enabled: false
     storedOnBBB: true
     showThumbnails: true
     imagesPath: /resources/images/virtual-backgrounds/
@@ -714,4 +714,4 @@ private:
       version: 10
     - browser: YandexBrowser
       version: 19
-      
+
