@@ -28,6 +28,7 @@ export default class ShapeDrawListener extends Component {
       y: undefined,
     };
 
+    this.isFilled = false;
     // to track the status of drawing
     this.isDrawing = false;
 
@@ -140,6 +141,7 @@ export default class ShapeDrawListener extends Component {
     // if you switch to a different window using Alt+Tab while mouse is down and release it
     // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
     } else {
+      this.isFilled = event.ctrlKey;
       this.sendLastMessage();
     }
   }
@@ -147,14 +149,17 @@ export default class ShapeDrawListener extends Component {
   handleTouchMove(event) {
     event.preventDefault();
     const { clientX, clientY } = event.changedTouches[0];
+    this.isFilled = event.ctrlKey;
     this.commonDrawMoveHandler(clientX, clientY);
   }
 
-  handleTouchEnd() {
+  handleTouchEnd(event) {
+    this.isFilled = event.ctrlKey;
     this.sendLastMessage();
   }
 
-  handleTouchCancel() {
+  handleTouchCancel(event) {
+    this.isFilled = event.ctrlKey;
     this.sendLastMessage();
   }
 
@@ -182,11 +187,13 @@ export default class ShapeDrawListener extends Component {
   // main mouse move handler
   handleMouseMove(event) {
     const { clientX, clientY } = event;
+    this.isFilled = event.ctrlKey;
     this.commonDrawMoveHandler(clientX, clientY);
   }
 
   // main mouse up handler
-  handleMouseUp() {
+  handleMouseUp(event) {
+    this.isFilled = event.ctrlKey;
     this.sendLastMessage();
   }
 
@@ -220,6 +227,7 @@ export default class ShapeDrawListener extends Component {
       this.currentStatus,
       getCurrentShapeId(),
       drawSettings.tool,
+      this.isFilled,
     );
     this.lastSentCoordinate = this.currentCoordinate;
 
@@ -245,6 +253,7 @@ export default class ShapeDrawListener extends Component {
           DRAW_END,
           getCurrentShapeId(),
           drawSettings.tool,
+          this.isFilled,
         );
       }
       this.resetState();
@@ -277,7 +286,7 @@ export default class ShapeDrawListener extends Component {
 
   // since Rectangle / Triangle / Ellipse / Line have the same coordinate structure
   // we use the same function for all of them
-  handleDrawCommonAnnotation(startPoint, endPoint, status, id, shapeType) {
+  handleDrawCommonAnnotation(startPoint, endPoint, status, id, shapeType, isFilled) {
     const {
       whiteboardId,
       userId,
@@ -312,6 +321,7 @@ export default class ShapeDrawListener extends Component {
         whiteboardId,
         status,
         type: shapeType,
+        fill: isFilled,
       },
       wbId: whiteboardId,
       userId,
