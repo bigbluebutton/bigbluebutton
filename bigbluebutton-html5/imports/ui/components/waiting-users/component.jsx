@@ -111,7 +111,7 @@ const renderGuestUserItem = (
       <Button
         key={`userbtn-deny-${userId}`}
         className={styles.button}
-        color="primary"
+        color="danger"
         size="lg"
         ghost
         label={intl.formatMessage(intlMessages.deny)}
@@ -193,10 +193,10 @@ const WaitingUsers = (props) => {
     return cb();
   };
 
-  const renderButton = (message, { key, policy, action }) => (
+  const renderButton = (message, { key, color, policy, action }) => (
     <Button
       key={key}
-      color="primary"
+      color={color}
       label={message}
       size="lg"
       onClick={changePolicy(rememberChoice, policy, action)}
@@ -209,6 +209,7 @@ const WaitingUsers = (props) => {
       messageId: intlMessages.allowAllAuthenticated,
       action: () => guestUsersCall(authenticatedUsers, ALLOW_STATUS),
       key: 'allow-all-auth',
+      color: 'primary',
       policy: 'ALWAYS_ACCEPT_AUTH',
     },
     {
@@ -218,6 +219,7 @@ const WaitingUsers = (props) => {
         ALLOW_STATUS,
       ),
       key: 'allow-all-guest',
+      color: 'primary',
       policy: 'ALWAYS_ACCEPT',
     },
   ];
@@ -227,12 +229,14 @@ const WaitingUsers = (props) => {
       messageId: intlMessages.allowEveryone,
       action: () => guestUsersCall([...guestUsers, ...authenticatedUsers], ALLOW_STATUS),
       key: 'allow-everyone',
+      color: 'primary',
       policy: 'ALWAYS_ACCEPT',
     },
     {
       messageId: intlMessages.denyEveryone,
       action: () => guestUsersCall([...guestUsers, ...authenticatedUsers], DENY_STATUS),
       key: 'deny-everyone',
+      color: 'danger',
       policy: 'ALWAYS_DENY',
     },
   ];
