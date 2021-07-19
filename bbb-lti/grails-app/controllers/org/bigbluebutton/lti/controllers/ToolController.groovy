@@ -187,23 +187,34 @@ class ToolController {
     }
 
     private Object doJoinMeeting(Map<String, String> params) {
-        setLocalization(params)
-        String welcome = message(code: "bigbluebutton.welcome.header", args: ["\"{0}\"", "\"{1}\""]) + "<br>"
-        // Check for [custom_]welcome parameter being passed from the LTI
-        if (params.containsKey(Parameter.CUSTOM_WELCOME) && params.get(Parameter.CUSTOM_WELCOME) != null) {
-            welcome = params.get(Parameter.CUSTOM_WELCOME) + "<br>"
-            log.debug "Overriding default welcome message with: [" + welcome + "]"
+        boolean attendeeCanStartMeeting = ltiService.getAttendeeCanStartMeeting()
+        String destinationURL;
+        // room can only be opened if user has moderator rights or attendees are allowed to open up
+        // not yet running rooms by themselves
+        if (bigbluebuttonService.isModerator(params) || attendeeCanStartMeeting
+            || (!attendeeCanStartMeeting && bigbluebuttonService.isMeetingRunning(params))) {
+            setLocalization(params)
+            String welcome = message(code: "bigbluebutton.welcome.header", args: ["\"{0}\"", "\"{1}\""]) + "<br>"
+            // Check for [custom_]welcome parameter being passed from the LTI
+            if (params.containsKey(Parameter.CUSTOM_WELCOME) && params.get(Parameter.CUSTOM_WELCOME) != null) {
+                welcome = params.get(Parameter.CUSTOM_WELCOME) + "<br>"
+                log.debug "Overriding default welcome message with: [" + welcome + "]"
+            }
+            if (params.containsKey(Parameter.CUSTOM_RECORD) && Boolean.parseBoolean(params.get(Parameter.CUSTOM_RECORD)) || ltiService.allRecordedByDefault()) {
+                welcome += "<br><b>" + message(code: "bigbluebutton.welcome.record") + "</b><br>"
+                log.debug "Adding record warning to welcome message, welcome is now: [" + welcome + "]"
+            }
+            if (params.containsKey(Parameter.CUSTOM_DURATION) && Integer.parseInt(params.get(Parameter.CUSTOM_DURATION)) > 0) {
+                welcome += "<br><b>" + message(code: "bigbluebutton.welcome.duration", args: [params.get(Parameter.CUSTOM_DURATION)]) + "</b><br>"
+                log.debug "Adding duration warning to welcome message, welcome is now: [" + welcome + "]"
+            }
+            welcome += "<br>" + message(code: "bigbluebutton.welcome.footer") + "<br>"
+            destinationURL = bigbluebuttonService.getJoinURL(params, welcome, ltiService.mode)
+        } else {
+            log.debug "Meeting is not running yet and attendees are not allowed to create new meetings. " +
+                "Immediately redirecting to return page."
+            destinationURL = params.get(Parameter.LAUNCH_RETURN_URL)
         }
-        if (params.containsKey(Parameter.CUSTOM_RECORD) && Boolean.parseBoolean(params.get(Parameter.CUSTOM_RECORD)) || ltiService.allRecordedByDefault()) {
-            welcome += "<br><b>" + message(code: "bigbluebutton.welcome.record") + "</b><br>"
-            log.debug "Adding record warning to welcome message, welcome is now: [" + welcome + "]"
-        }
-        if (params.containsKey(Parameter.CUSTOM_DURATION) && Integer.parseInt(params.get(Parameter.CUSTOM_DURATION)) > 0) {
-            welcome += "<br><b>" + message(code: "bigbluebutton.welcome.duration", args: [params.get(Parameter.CUSTOM_DURATION)]) + "</b><br>"
-            log.debug "Adding duration warning to welcome message, welcome is now: [" + welcome + "]"
-        }
-        welcome += "<br>" + message(code: "bigbluebutton.welcome.footer") + "<br>"
-        String destinationURL = bigbluebuttonService.getJoinURL(params, welcome, ltiService.mode)
         if (destinationURL == null) {
             Map<String, String> result = new HashMap<String, String>()
             result.put("messageKey", "BigBlueButtonServerError")

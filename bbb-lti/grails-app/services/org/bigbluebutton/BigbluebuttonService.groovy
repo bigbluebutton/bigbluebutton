@@ -391,4 +391,20 @@ class BigbluebuttonService {
 	}
 	return result;
     }
+
+    public boolean isMeetingRunning(params) {
+        // Set the injected values
+        if (!url.equals(bbbProxy.url) && !url.equals("")) {
+            bbbProxy.setUrl(url)
+        }
+        if (!salt.equals(bbbProxy.salt) && !salt.equals("")) {
+            bbbProxy.setSalt(salt)
+        }
+
+        Map<String, Object> apiCallResult = doAPICall(bbbProxy.getIsMeetingRunningURL(getValidatedMeetingId(getParamsForMeetingId(params))));
+        JSONObject jsonResponseObject = (JSONObject) apiCallResult.get("response");
+
+        return jsonResponseObject.get("returncode") == "SUCCESS" ?
+                Boolean.parseBoolean(jsonResponseObject.get("running").toString()) : false;
+    }
 }

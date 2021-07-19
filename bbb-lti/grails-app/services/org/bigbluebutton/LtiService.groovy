@@ -35,6 +35,7 @@ class LtiService {
     def recordedByDefault = "false"
     def canvasPlacements = ""
     def canvasPlacementName = "BigBlueButton"
+    def attendeeCanStartMeeting = "true"
 
     Map<String, String> consumerMap
 
@@ -149,6 +150,10 @@ class LtiService {
 
     def String[] getCanvasPlacements() {
         return this.canvasPlacements
+    }
+
+    def boolean getAttendeeCanStartMeeting() {
+        return Boolean.parseBoolean(this.attendeeCanStartMeeting);
     }
 }
 
