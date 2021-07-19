@@ -1,3 +1,18 @@
+@import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/variables/_all";
+
+.hoverToolbar {
+  display: none;
+
+  :hover > & {
+    display: flex;
+  }
+}
+
+.videoPlayerWrapper {
+  position: relative;
+}
+
 .videoPlayer iframe {
   display: flex;
   flex-flow: column;
