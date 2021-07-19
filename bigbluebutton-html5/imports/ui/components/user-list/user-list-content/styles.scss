@@ -40,11 +40,9 @@
   @include elementFocus(var(--list-item-bg-hover));
   @include scrollbox-vertical(var(--user-list-bg));
   
-
   > div {
     outline: none;
   }
-
 
   &:hover {
     @extend %highContrastOutline;
@@ -52,9 +50,9 @@
 
   &:focus,
   &:active {
-    box-shadow: none;
+    box-shadow: inset 1px 0 3px var(--color-primary);
     border-radius: none;
-    outline-style: none;
+    outline-style: transparent;
   }
 
   flex-grow: 1;

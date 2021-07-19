@@ -30,6 +30,7 @@
     "@babel/runtime": "^7.13.10",
     "@browser-bunyan/server-stream": "^1.6.1",
     "@jitsi/sdp-interop": "0.1.14",
+    "@material-ui/core": "^4.11.4",
     "autoprefixer": "^10.2.5",
     "axios": "^0.21.1",
     "babel-runtime": "~6.26.0",
