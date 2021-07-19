@@ -5,6 +5,8 @@ import DEFAULT_VALUES from '../defaultValues';
 import { INITIAL_INPUT_STATE } from '../context/initState';
 import { DEVICE_TYPE, ACTIONS, PANELS } from '../enums';
 
+const windowWidth = () => window.document.documentElement.clientWidth;
+const windowHeight = () => window.document.documentElement.clientHeight;
 const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 
@@ -35,7 +37,8 @@ class PresentationFocusLayout extends Component {
     return newLayoutContextState.input !== nextProps.newLayoutContextState.input
       || newLayoutContextState.deviceType !== nextProps.newLayoutContextState.deviceType
       || newLayoutContextState.layoutLoaded !== nextProps.newLayoutContextState.layoutLoaded
-      || newLayoutContextState.fontSize !== nextProps.newLayoutContextState.fontSize;
+      || newLayoutContextState.fontSize !== nextProps.newLayoutContextState.fontSize
+      || newLayoutContextState.fullscreen !== nextProps.newLayoutContextState.fullscreen;
   }
 
   componentDidUpdate(prevProps) {
@@ -355,11 +358,25 @@ class PresentationFocusLayout extends Component {
     sidebarContentWidth,
   ) {
     const { newLayoutContextState } = this.props;
-    const { deviceType, input } = newLayoutContextState;
+    const { deviceType, input, fullscreen } = newLayoutContextState;
     const cameraDockBounds = {};
 
     if (input.cameraDock.numCameras > 0) {
       let cameraDockHeight = 0;
+
+      if (fullscreen.group === 'webcams') {
+        cameraDockBounds.width = windowWidth();
+        cameraDockBounds.minWidth = windowWidth();
+        cameraDockBounds.maxWidth = windowWidth();
+        cameraDockBounds.height = windowHeight();
+        cameraDockBounds.minHeight = windowHeight();
+        cameraDockBounds.maxHeight = windowHeight();
+        cameraDockBounds.top = 0;
+        cameraDockBounds.left = 0;
+        cameraDockBounds.zIndex = 99;
+        return cameraDockBounds;
+      }
+
       if (deviceType === DEVICE_TYPE.MOBILE) {
         cameraDockBounds.top = mediaAreaBounds.top + mediaBounds.height;
         cameraDockBounds.left = mediaAreaBounds.left;
