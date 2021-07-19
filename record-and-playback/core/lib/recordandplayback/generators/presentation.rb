@@ -115,10 +115,14 @@ module BigBlueButton
       BigBlueButton.logger.info("Task: Getting from events the presentation to be used for preview")
       presentation = {}
       doc = Nokogiri::XML(File.open(events_xml))
+      presentation_filenames = {}
+      doc.xpath("//event[@eventname='ConversionCompletedEvent']").each do |conversion_event|
+        presentation_filenames[conversion_event.xpath("presentationName").text] = conversion_event.xpath("originalFilename").text
+      end
       doc.xpath("//event[@eventname='SharePresentationEvent']").each do |presentation_event|
         # Extract presentation data from events
         presentation_id = presentation_event.xpath("presentationName").text
-        presentation_filename = presentation_event.xpath("originalFilename").text
+        presentation_filename = presentation_filenames[presentation_id]
         # Set textfile directory
         textfiles_dir = "#{process_dir}/presentation/#{presentation_id}/textfiles"
         # Set presentation hashmap to be returned
