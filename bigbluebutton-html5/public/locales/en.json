@@ -49,6 +49,7 @@
     "app.captions.pad.dictationStop": "Stop dictation",
     "app.captions.pad.dictationOnDesc": "Turns speech recognition on",
     "app.captions.pad.dictationOffDesc": "Turns speech recognition off",
+    "app.captions.pad.speechRecognitionStop": "Speech recognition stopped due to the browser incompatibility or some time of silence",
     "app.textInput.sendLabel": "Send",
     "app.note.title": "Shared Notes",
     "app.note.label": "Note",
