@@ -20,6 +20,14 @@ const resetTextShapeActiveId = () => {
   }
 };
 
+const setTextShapeOffset = (offset) => {
+  const drawSettings = Storage.getItem(DRAW_SETTINGS);
+  if (drawSettings) {
+    drawSettings.textShape.textShapeOffset = offset;
+    Storage.setItem(DRAW_SETTINGS, drawSettings);
+  }
+};
+  
 const isPresenter = () => {
   const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } });
   return currentUser ? currentUser.presenter : false;
@@ -33,6 +41,7 @@ const activeTextShapeId = () => {
 export default {
   setTextShapeValue,
   activeTextShapeId,
+  setTextShapeOffset,
   isPresenter,
   resetTextShapeActiveId,
 };
