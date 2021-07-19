@@ -47,12 +47,14 @@ export default class ShapePointerListener extends Component {
   }
 
   componentDidMount() {
+    const { eventWindow } = this.props;
     // to send the last message if the user refreshes the page while drawing
-    window.addEventListener('beforeunload', this.sendLastMessage);
+    eventWindow.addEventListener('beforeunload', this.sendLastMessage);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('beforeunload', this.sendLastMessage);
+    const { eventWindow } = this.props;
+    eventWindow.removeEventListener('beforeunload', this.sendLastMessage);
 
     // sending the last message on componentDidUnmount
     this.sendLastMessage();
@@ -189,6 +191,7 @@ export default class ShapePointerListener extends Component {
   }
 
   resetState() {
+    const { eventWindow } = this.props;
     // resetting the current drawing state
     this.isDrawing = false;
     this.currentStatus = undefined;
@@ -205,9 +208,9 @@ export default class ShapePointerListener extends Component {
       y: undefined,
     };
     // remove event handler
-    window.removeEventListener('pointerup', this.handlePointerUp);
-    window.removeEventListener('pointermove', this.handlePointerMove);
-    window.removeEventListener('pointercancel', this.handlePointerCancel, true);
+    eventWindow.removeEventListener('pointerup', this.handlePointerUp);
+    eventWindow.removeEventListener('pointermove', this.handlePointerMove);
+    eventWindow.removeEventListener('pointercancel', this.handlePointerCancel, true);
   }
 
   // since Rectangle / Triangle / Ellipse / Line have the same coordinate structure
@@ -271,6 +274,7 @@ export default class ShapePointerListener extends Component {
   }
 
   handlePointerDown(event) {
+    const { eventWindow } = this.props;
     this.palmRejectionActivated = Storage.getItem(PALM_REJECTION_MODE);
     switch (event.pointerType) {
       case 'mouse': {
@@ -279,8 +283,8 @@ export default class ShapePointerListener extends Component {
 
         if (!this.isDrawing) {
           if (isLeftClick) {
-            window.addEventListener('pointerup', this.handlePointerUp);
-            window.addEventListener('pointermove', this.handlePointerMove);
+            eventWindow.addEventListener('pointerup', this.handlePointerUp);
+            eventWindow.addEventListener('pointermove', this.handlePointerMove);
 
             const { clientX, clientY } = event;
             this.commonDrawStartHandler(clientX, clientY);
@@ -311,11 +315,12 @@ export default class ShapePointerListener extends Component {
 
   // handler for finger touch and pencil touch
   touchPenDownHandler(event) {
+    const { eventWindow } = this.props;
     event.preventDefault();
     if (!this.isDrawing) {
-      window.addEventListener('pointerup', this.handlePointerUp);
-      window.addEventListener('pointermove', this.handlePointerMove);
-      window.addEventListener('pointercancel', this.handlePointerCancel, true);
+      eventWindow.addEventListener('pointerup', this.handlePointerUp);
+      eventWindow.addEventListener('pointermove', this.handlePointerMove);
+      eventWindow.addEventListener('pointercancel', this.handlePointerCancel, true);
 
       const { clientX, clientY } = event;
       this.commonDrawStartHandler(clientX, clientY);
@@ -398,6 +403,7 @@ export default class ShapePointerListener extends Component {
     const {
       actions,
       drawSettings,
+      separatePresentationWindow,
     } = this.props;
 
     const {
@@ -408,7 +414,11 @@ export default class ShapePointerListener extends Component {
       tool,
     } = drawSettings;
 
-    const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
+    let baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
+    const hostUri = `https://${window.document.location.hostname}`;
+    if (separatePresentationWindow) {
+      baseName = hostUri + baseName ;
+    }
     const shapeDrawStyle = {
       width: '100%',
       height: '100%',
