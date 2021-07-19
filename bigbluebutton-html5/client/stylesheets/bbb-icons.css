@@ -55,6 +55,9 @@
 .icon-bbb-line_tool:before {
   content: "\e91c";
 }
+.icon-bbb-marker_tool:before {
+  content: "\e95c";
+}
 .icon-bbb-circle_tool:before {
   content: "\e91d";
 }

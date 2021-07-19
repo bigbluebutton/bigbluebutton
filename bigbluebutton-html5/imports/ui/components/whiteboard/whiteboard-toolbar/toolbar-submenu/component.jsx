@@ -35,6 +35,10 @@ const intlMessages = defineMessages({
     id: 'app.whiteboard.toolbar.tools.text',
     description: 'Tool submenu text annotation',
   },
+  toolMarker: {
+    id: 'app.whiteboard.toolbar.tools.marker',
+    description: 'Tool submenu marker item',
+  },
   colorBlack: {
     id: 'app.whiteboard.toolbar.color.black',
     description: 'Color submenu black color',
