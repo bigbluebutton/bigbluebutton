@@ -43,6 +43,12 @@ function meetings(role) {
     },
   };
 
+  if (User.role === ROLE_MODERATOR) {
+    delete options.fields.password;
+    options.fields['password.viewerPass'] = false;
+    options.fields['password.moderatorPass'] = false;
+  }
+
   return Meetings.find(selector, options);
 }
 

@@ -86,6 +86,7 @@ export default function addMeeting(meeting) {
     password: {
       viewerPass: String,
       moderatorPass: String,
+      activityReportAccessToken: String,
     },
     voiceProp: {
       voiceConf: String,

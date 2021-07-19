@@ -20,7 +20,7 @@ case class BreakoutProps(
     privateChatEnabled: Boolean
 )
 
-case class PasswordProp(moderatorPass: String, viewerPass: String)
+case class PasswordProp(moderatorPass: String, viewerPass: String, activityReportAccessToken: String)
 
 case class RecordProp(record: Boolean, autoStartRecording: Boolean, allowStartStopRecording: Boolean, keepEvents: Boolean)
 
