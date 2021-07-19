@@ -17,6 +17,8 @@ hooks:
     - from-akka-apps-redis-channel
     - from-bbb-web-redis-channel
     - from-akka-apps-chat-redis-channel
+    - from-akka-apps-pres-redis-channel
+    - from-etherpad-redis-channel
     - bigbluebutton:from-bbb-apps:meeting
     - bigbluebutton:from-bbb-apps:users
     - bigbluebutton:from-bbb-apps:chat
