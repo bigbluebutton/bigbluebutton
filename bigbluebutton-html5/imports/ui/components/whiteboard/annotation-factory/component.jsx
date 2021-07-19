@@ -9,6 +9,7 @@ import Rectangle from '../annotations/rectangle/component';
 import Text from '../annotations/text/container';
 import Triangle from '../annotations/triangle/component';
 import Pencil from '../annotations/pencil/component';
+import Benzene from '../annotations/benzene/component';
 
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
@@ -96,6 +97,7 @@ AnnotationFactory.defaultProps = {
     ellipse: Ellipse,
     line: Line,
     poll_result: Poll,
+    benzene: Benzene,
     rectangle: Rectangle,
     text: Text,
     triangle: Triangle,

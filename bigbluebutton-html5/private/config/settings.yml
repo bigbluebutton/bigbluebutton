@@ -596,6 +596,8 @@ public:
       tools:
         - icon: text_tool
           value: text
+        - icon: benzene_tool
+          value: benzene
         - icon: line_tool
           value: line
         - icon: circle_tool
@@ -610,6 +612,7 @@ public:
           value: hand
       presenterTools:
         - text
+        - benzene
         - line
         - ellipse
         - triangle
@@ -618,6 +621,7 @@ public:
         - hand
       multiUserTools:
         - text
+        - benzene
         - line
         - ellipse
         - triangle
