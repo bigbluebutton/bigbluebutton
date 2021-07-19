@@ -1428,7 +1428,7 @@ class ApiController {
     StringBuilder violationMessage = new StringBuilder()
 
     if(!violations.isEmpty()) {
-      violationMessage.append("Validation Error: ")
+      //violationMessage.append("Validation Error: ")
       for (String violation: violations) {
         log.error violation
       }
