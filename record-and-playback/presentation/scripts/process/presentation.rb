@@ -130,6 +130,11 @@ if not FileTest.directory?(target_dir)
 
     participants = recording.at_xpath("participants")
     participants.content = BigBlueButton::Events.get_num_participants(@doc)
+    
+    participantsIDs = BigBlueButton::Events.get_userIDs(@doc)
+    userID_file = File.new("#{target_dir}/users.json","w")
+    JSON.dump(participantsIDs, userID_file)
+    userID_file.close
 
     ## Remove empty meta
     metadata.search('//recording/meta').each do |meta|
