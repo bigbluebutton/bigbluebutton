@@ -35,13 +35,21 @@ const getCurrentCursorIds = (podId, whiteboardId) => {
       },
     };
 
+    selector._id = { $nin: [] };
     // if there is a presenter cursor - excluding it from the query
     if (data.presenterCursorId) {
-      selector._id = {
-        $ne: data.presenterCursorId._id,
-      };
+      selector._id.$nin.push(data.presenterCursorId._id);
     }
-
+    if (WhiteboardService.hideAnnotationsForAnnotator()) {
+      // Annotation hiding happens only for annotators who are not the presenter
+      if (WhiteboardService.hasAccessToWhiteboard(whiteboardId) && Auth.userID !== pod.currentPresenterId) {
+        const multiUser = WhiteboardService.getMultiUser(whiteboardId);
+        // Show cursors of the presenter and the current user
+        const multiUserToBeRemoved = multiUser.filter(u => (u !== Auth.userID && u !== pod.currentPresenterId));
+        const multiUserHiddenCursor = multiUserToBeRemoved.map(u => getPresenterCursorId(whiteboardId, u)).filter(u => u).map(u => u._id);
+        Array.prototype.push.apply(selector._id.$nin, multiUserHiddenCursor);
+      }
+    }
     data.multiUserCursorIds = Cursor.find(selector, filter).fetch();
   } else {
     // it's not multi-user, assigning an empty array

@@ -11,6 +11,7 @@ case class Permissions(
     disablePubChat:         Boolean = false,
     disableNote:            Boolean = false,
     hideUserList:           Boolean = false,
+    hideAnnotations:        Boolean = false,
     lockedLayout:           Boolean = false,
     lockOnJoin:             Boolean = true,
     lockOnJoinConfigurable: Boolean = false

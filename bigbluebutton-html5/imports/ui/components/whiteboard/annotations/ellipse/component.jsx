@@ -4,8 +4,8 @@ import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers'
 
 export default class EllipseDrawComponent extends Component {
   shouldComponentUpdate(nextProps) {
-    const { version } = this.props;
-    return version !== nextProps.version;
+    const { version, hidden } = this.props;
+    return version !== nextProps.version || hidden !== nextProps.hidden;
   }
 
   getCoordinates() {
@@ -39,12 +39,13 @@ export default class EllipseDrawComponent extends Component {
 
   render() {
     const results = this.getCoordinates();
-    const { annotation, slideWidth } = this.props;
+    const { annotation, slideWidth, hidden } = this.props;
     const {
       cx, cy, rx, ry,
     } = results;
 
     return (
+      hidden ? null :
       <ellipse
         cx={cx}
         cy={cy}

@@ -85,8 +85,8 @@ export default class PencilDrawComponent extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    const { version } = this.props;
-    return version !== nextProps.version;
+    const { version, hidden } = this.props;
+    return version !== nextProps.version || hidden !== nextProps.hidden;
   }
 
   componentDidUpdate(prevProps) {
@@ -142,8 +142,9 @@ export default class PencilDrawComponent extends Component {
   }
 
   render() {
-    const { annotation, slideWidth } = this.props;
+    const { annotation, slideWidth, hidden } = this.props;
     return (
+      hidden ? null :
       <path
         fill="none"
         stroke={getFormattedColor(annotation.color)}

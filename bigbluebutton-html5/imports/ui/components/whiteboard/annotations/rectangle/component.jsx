@@ -4,8 +4,8 @@ import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers'
 
 export default class RectangleDrawComponent extends Component {
   shouldComponentUpdate(nextProps) {
-    const { version } = this.props;
-    return version !== nextProps.version;
+    const { version, hidden } = this.props;
+    return version !== nextProps.version || hidden !== nextProps.hidden;
   }
 
   getCoordinates() {
@@ -46,9 +46,10 @@ export default class RectangleDrawComponent extends Component {
 
   render() {
     const results = this.getCoordinates();
-    const { annotation, slideWidth } = this.props;
+    const { annotation, slideWidth, hidden } = this.props;
 
     return (
+      hidden ? null :
       <rect
         x={results.x}
         y={results.y}
