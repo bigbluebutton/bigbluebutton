@@ -84,6 +84,7 @@ trait HandlerHelpers extends SystemConfiguration {
             outGW.send(event)
             val newState = startRecordingIfAutoStart2x(outGW, liveMeeting, state)
             if (!Users2x.hasPresenter(liveMeeting.users2x)) {
+              // println(s"userJoinMeeting will trigger an automaticallyAssignPresenter for user=${newUser}")
               UsersApp.automaticallyAssignPresenter(outGW, liveMeeting)
             }
             newState.update(newState.expiryTracker.setUserHasJoined())
