@@ -5,6 +5,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
+import org.bigbluebutton.core.record.events.{ParticipantJoinedVoiceRecordEvent, ParticipantLeftVoiceRecordEvent, ParticipantMutedVoiceRecordEvent}
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 import scala.concurrent.duration._
@@ -112,9 +113,9 @@ class ActivityTrackerActor(
             case m: UserBroadcastCamStoppedEvtMsg         => handleUserBroadcastCamStoppedEvtMsg(m)
 
       // Voice
-      //      case m: UserJoinedVoiceConfToClientEvtMsg     => handleUserJoinedVoiceConfToClientEvtMsg(m)
-      //      case m: UserLeftVoiceConfToClientEvtMsg       => handleUserLeftVoiceConfToClientEvtMsg(m)
-      //      case m: UserMutedVoiceEvtMsg                  => handleUserMutedVoiceEvtMsg(m)
+            case m: UserJoinedVoiceConfToClientEvtMsg     => handleUserJoinedVoiceConfToClientEvtMsg(m)
+            case m: UserLeftVoiceConfToClientEvtMsg       => handleUserLeftVoiceConfToClientEvtMsg(m)
+            case m: UserMutedVoiceEvtMsg                  => handleUserMutedVoiceEvtMsg(m)
             case m: UserTalkingVoiceEvtMsg                => handleUserTalkingVoiceEvtMsg(m)
       //
       //      case m: VoiceRecordingStartedEvtMsg           => handleVoiceRecordingStartedEvtMsg(m)
@@ -159,20 +160,20 @@ class ActivityTrackerActor(
 
 
   private def handleUserJoinedMeetingEvtMsg(msg: UserJoinedMeetingEvtMsg): Unit = {
-    val newUser = UserActivityTracker(
-      msg.body.intId, msg.body.extId, msg.body.name
-    )
-    val findMeeting = meetings.values.find(m => m.intId == msg.header.meetingId)
-
-    val registeredMeeting: MeetingActivityTracker = findMeeting.getOrElse({
+    val meeting: MeetingActivityTracker = meetings.values.find(m => m.intId == msg.header.meetingId)
+      .getOrElse({
       MeetingActivityTracker(
         msg.header.meetingId, msg.header.meetingId, msg.header.meetingId, Map()
       )
     })
 
-    val refreshedMeeting = registeredMeeting.copy(users = registeredMeeting.users + (newUser.intId -> newUser))
+    val user: UserActivityTracker = meeting.users.values.find(u => u.intId == msg.body.intId).getOrElse({
+      UserActivityTracker(
+        msg.body.intId, msg.body.extId, msg.body.name
+      )
+    })
 
-    meetings += (refreshedMeeting.intId -> refreshedMeeting)
+    meetings += (meeting.intId -> meeting.copy(users = meeting.users + (user.intId -> user.copy(leftOn = 0))))
   }
 
   private def handleUserLeftMeetingEvtMsg(msg: UserLeftMeetingEvtMsg): Unit = {
@@ -205,7 +206,6 @@ class ActivityTrackerActor(
 
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }
-
     }
   }
 
@@ -235,6 +235,27 @@ class ActivityTrackerActor(
 
   }
 
+  private def handleUserJoinedVoiceConfToClientEvtMsg(msg: UserJoinedVoiceConfToClientEvtMsg): Unit = {
+    //dont store this info
+  }
+
+  private def handleUserLeftVoiceConfToClientEvtMsg(msg: UserLeftVoiceConfToClientEvtMsg) {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      user <- meeting.users.values.find(u => u.intId == msg.body.intId)
+    } yield {
+      endLastUserTalk(meeting, user)
+    }
+  }
+
+  private def handleUserMutedVoiceEvtMsg(msg: UserMutedVoiceEvtMsg) {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      user <- meeting.users.values.find(u => u.intId == msg.body.intId)
+    } yield {
+      endLastUserTalk(meeting, user)
+    }
+  }
 
   private def handleUserTalkingVoiceEvtMsg(msg: UserTalkingVoiceEvtMsg) {
     for {
@@ -246,11 +267,17 @@ class ActivityTrackerActor(
         val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
         meetings += (updatedMeeting.intId -> updatedMeeting)
       } else {
-        val lastTalk: Talk = user.talks.last.copy(stoppedOn = System.currentTimeMillis())
-        val updatedUser = user.copy(talks = user.talks.dropRight(1) :+ lastTalk)
-        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
-        meetings += (updatedMeeting.intId -> updatedMeeting)
+        endLastUserTalk(meeting, user)
       }
+    }
+  }
+
+  private def endLastUserTalk(meeting: MeetingActivityTracker, user: UserActivityTracker): Unit = {
+    val lastTalk: Talk = user.talks.last
+    if(lastTalk.stoppedOn == 0) {
+      val updatedUser = user.copy(talks = user.talks.dropRight(1) :+ lastTalk.copy(stoppedOn = System.currentTimeMillis()))
+      val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
+      meetings += (updatedMeeting.intId -> updatedMeeting)
     }
   }
 
