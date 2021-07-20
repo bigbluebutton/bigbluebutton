@@ -15,14 +15,8 @@ import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import {
   USERLIST_MIN_WIDTH,
   USERLIST_MAX_WIDTH,
-  CHAT_MIN_WIDTH,
-  CHAT_MAX_WIDTH,
-  POLL_MIN_WIDTH,
-  POLL_MAX_WIDTH,
-  NOTE_MIN_WIDTH,
-  NOTE_MAX_WIDTH,
-  BREAKOUT_MIN_WIDTH,
-  BREAKOUT_MAX_WIDTH,
+  PANEL_MIN_WIDTH,
+  PANEL_MAX_WIDTH,
 } from '/imports/ui/components/layout/layout-manager/component';
 import { PANELS } from '../layout/enums';
 
@@ -228,16 +222,17 @@ class PanelManager extends Component {
   }
 
   breakoutResizeStop(addvalue) {
-    const { breakoutRoomWidth } = this.state;
+    const { secondPanelWidth } = this.state;
     const { layoutContextDispatch } = this.props;
 
-    this.setBreakoutRoomWidth(breakoutRoomWidth + addvalue);
+    const newSecondPanelWidth = secondPanelWidth + addvalue;
+    this.setSecondPanelWidth(newSecondPanelWidth);
 
     layoutContextDispatch(
       {
         type: 'setBreakoutRoomSize',
         value: {
-          width: breakoutRoomWidth + addvalue,
+          width: newSecondPanelWidth,
         },
       },
     );
@@ -332,8 +327,8 @@ class PanelManager extends Component {
 
     return (
       <Resizable
-        minWidth={CHAT_MIN_WIDTH}
-        maxWidth={CHAT_MAX_WIDTH}
+        minWidth={PANEL_MIN_WIDTH}
+        maxWidth={PANEL_MAX_WIDTH}
         ref={(node) => { this.resizableChat = node; }}
         enable={resizableEnableOptions}
         key={this.chatKey}
@@ -379,8 +374,8 @@ class PanelManager extends Component {
 
     return (
       <Resizable
-        minWidth={NOTE_MIN_WIDTH}
-        maxWidth={NOTE_MAX_WIDTH}
+        minWidth={PANEL_MIN_WIDTH}
+        maxWidth={PANEL_MAX_WIDTH}
         ref={(node) => { this.resizableNote = node; }}
         enable={resizableEnableOptions}
         key={this.noteKey}
@@ -523,8 +518,8 @@ class PanelManager extends Component {
 
     return (
       <Resizable
-        minWidth={BREAKOUT_MIN_WIDTH}
-        maxWidth={BREAKOUT_MAX_WIDTH}
+        minWidth={PANEL_MIN_WIDTH}
+        maxWidth={PANEL_MAX_WIDTH}
         ref={(node) => { this.resizableBreakout = node; }}
         enable={resizableEnableOptions}
         key={this.breakoutroomKey}
@@ -563,8 +558,8 @@ class PanelManager extends Component {
 
     return (
       <Resizable
-        minWidth={POLL_MIN_WIDTH}
-        maxWidth={POLL_MAX_WIDTH}
+        minWidth={PANEL_MIN_WIDTH}
+        maxWidth={PANEL_MAX_WIDTH}
         ref={(node) => { this.resizablePoll = node; }}
         enable={resizableEnableOptions}
         key={this.pollKey}
