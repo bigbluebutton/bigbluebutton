@@ -604,7 +604,6 @@ class UserDropdown extends PureComponent {
     userItemContentsStyle[styles.dropdown] = true;
     userItemContentsStyle[styles.userListItem] = !isActionsOpen;
     userItemContentsStyle[styles.usertListItemWithMenu] = isActionsOpen;
-    userItemContentsStyle[styles.userListBtn] = true;
 
     const you = isMe(user.userId) ? intl.formatMessage(messages.you) : '';
 
@@ -653,7 +652,7 @@ class UserDropdown extends PureComponent {
       <BBBMenu 
         trigger={
           <div
-            tabindex={-1}
+            tabIndex={-1}
             onClick={() => this.setState({ selected: true })} 
             className={cx(userItemContentsStyle)} 
             aria-controls="default-dropdown-menu" 

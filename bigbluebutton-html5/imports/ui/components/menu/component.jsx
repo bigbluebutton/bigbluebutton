@@ -69,7 +69,7 @@ class BBBMenu extends React.Component {
         }}>
           <div style={{ display: 'flex', flexFlow: 'row', width: '100%'}}>
             {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
-            <div className={styles.ddLabel} className={styles.option}>{label}</div>
+            <div className={styles.option}>{label}</div>
             {a.iconRight ? <Icon iconName={a.iconRight} key="iconRight" className={styles.iRight} /> : null}
           </div>
         </MenuItem>,
