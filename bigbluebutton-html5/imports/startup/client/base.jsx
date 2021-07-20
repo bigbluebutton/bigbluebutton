@@ -80,10 +80,7 @@ class Base extends Component {
   }
 
   componentDidMount() {
-    const { animations, newLayoutContextState, newLayoutContextDispatch } = this.props;
-    const { input } = newLayoutContextState;
-    const { sidebarContent } = input;
-    const { sidebarContentPanel } = sidebarContent;
+    const { animations } = this.props;
 
     const {
       userID: localUserId,
@@ -141,53 +138,6 @@ class Base extends Component {
         }
       },
     });
-
-    if (!sidebarContentPanel || Session.equals('subscriptionsReady', true)) {
-      if (!checkedUserSettings) {
-        if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
-          if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
-            newLayoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-              value: true,
-            });
-            newLayoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: true,
-            });
-            newLayoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-              value: PANELS.CHAT,
-            });
-            newLayoutContextDispatch({
-              type: ACTIONS.SET_ID_CHAT_OPEN,
-              value: PUBLIC_CHAT_ID,
-            });
-          } else {
-            newLayoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-              value: true,
-            });
-            newLayoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: false,
-            });
-          }
-        } else {
-          newLayoutContextDispatch({
-            type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-            value: false,
-          });
-          newLayoutContextDispatch({
-            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-            value: false,
-          });
-        }
-
-        if (Session.equals('subscriptionsReady', true)) {
-          checkedUserSettings = true;
-        }
-      }
-    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -200,12 +150,17 @@ class Base extends Component {
       subscriptionsReady,
       layoutContextDispatch,
       newLayoutContextDispatch,
+      newLayoutContextState,
       usersVideo,
     } = this.props;
     const {
       loading,
       meetingExisted,
     } = this.state;
+
+    const { input } = newLayoutContextState;
+    const { sidebarContent } = input;
+    const { sidebarContentPanel } = sidebarContent;
 
     if (usersVideo !== prevProps.usersVideo) {
       newLayoutContextDispatch({
@@ -257,6 +212,53 @@ class Base extends Component {
     } else if (!animations && animations !== prevProps.animations) {
       if (enabled) HTML.classList.remove('animationsEnabled');
       HTML.classList.add('animationsDisabled');
+    }
+
+    if (sidebarContentPanel === PANELS.NONE || Session.equals('subscriptionsReady', true)) {
+      if (!checkedUserSettings) {
+        if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
+          if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+              value: true,
+            });
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: true,
+            });
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+              value: PANELS.CHAT,
+            });
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_ID_CHAT_OPEN,
+              value: PUBLIC_CHAT_ID,
+            });
+          } else {
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+              value: true,
+            });
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: false,
+            });
+          }
+        } else {
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+            value: false,
+          });
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: false,
+          });
+        }
+
+        if (Session.equals('subscriptionsReady', true)) {
+          checkedUserSettings = true;
+        }
+      }
     }
   }
 
