@@ -324,7 +324,8 @@ class SIPSession {
 
       const timeout = setTimeout(() => {
         trackerControl.stop();
-        logger.error({ logCode: 'sip_js_transfer_timed_out' }, 'Timeout on transferring from echo test to conference');
+        logger.warn({ logCode: 'sip_js_transfer_timed_out' },
+          'Timeout on transferring from echo test to conference');
         this.callback({
           status: this.baseCallStates.failed,
           error: 1008,
@@ -928,14 +929,14 @@ class SIPSession {
 
       const handleIceNegotiationFailed = (peer) => {
         if (iceCompleted) {
-          logger.error({
+          logger.warn({
             logCode: 'sipjs_ice_failed_after',
             extraInfo: {
               callerIdName: this.user.callerIdName,
             },
           }, 'ICE connection failed after success');
         } else {
-          logger.error({
+          logger.warn({
             logCode: 'sipjs_ice_failed_before',
             extraInfo: {
               callerIdName: this.user.callerIdName,
@@ -955,7 +956,7 @@ class SIPSession {
 
       const handleIceConnectionTerminated = (peer) => {
         if (!this.userRequestedHangup) {
-          logger.error({
+          logger.warn({
             logCode: 'sipjs_ice_closed',
             extraInfo: {
               callerIdName: this.user.callerIdName,
@@ -1082,7 +1083,7 @@ class SIPSession {
           mappedCause = '1005';
         }
 
-        logger.error({
+        logger.warn({
           logCode: 'sip_js_call_terminated',
           extraInfo: { cause, callerIdName: this.user.callerIdName },
         }, `Audio call terminated. cause=${cause}`);
@@ -1111,7 +1112,7 @@ class SIPSession {
             handleSessionTerminated();
             break;
           default:
-            logger.error({
+            logger.warn({
               logCode: 'sipjs_ice_session_unknown_state',
               extraInfo: {
                 callerIdName: this.user.callerIdName,
