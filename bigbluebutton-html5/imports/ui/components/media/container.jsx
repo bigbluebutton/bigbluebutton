@@ -138,6 +138,7 @@ export default withLayoutConsumer(withModalMounter(withTracker(() => {
   }
 
   data.webcamsPlacement = Storage.getItem('webcamsPlacement');
+  data.isRTL = document.documentElement.getAttribute('dir') === 'rtl';
 
   MediaContainer.propTypes = propTypes;
   return data;

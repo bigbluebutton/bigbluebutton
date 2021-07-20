@@ -12,6 +12,7 @@ import CaptionsService from '/imports/ui/components/captions/service';
 import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
 import { styles } from './styles';
 import { getUserNamesLink } from '/imports/ui/components/user-list/service';
+import Settings from '/imports/ui/services/settings';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -151,16 +152,17 @@ class UserOptions extends PureComponent {
 
   onSaveUserNames() {
     const { intl, meetingName } = this.props;
+    const lang = Settings.application.locale;
     const date = new Date();
+
+    const dateString = lang ? date.toLocaleDateString(lang) : date.toLocaleDateString();
+    const timeString = lang ? date.toLocaleTimeString(lang) : date.toLocaleTimeString();
+
     getUserNamesLink(
       intl.formatMessage(intlMessages.savedNamesListTitle,
         {
           0: meetingName,
-          1: `${date.toLocaleDateString(
-            document.documentElement.lang,
-          )}:${date.toLocaleTimeString(
-            document.documentElement.lang,
-          )}`,
+          1: `${dateString}:${timeString}`,
         }),
       intl.formatMessage(intlMessages.sortedFirstNameHeading),
       intl.formatMessage(intlMessages.sortedLastNameHeading),
