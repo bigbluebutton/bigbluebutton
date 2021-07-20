@@ -41,7 +41,7 @@ const DEFAULT_VALUES = {
   sidebarContentHeight: '100%',
   sidebarContentTop: 0,
   sidebarContentTabOrder: 2,
-  sidebarContentPanel: PANELS.CHAT,
+  sidebarContentPanel: PANELS.NONE,
 };
 
 export default DEFAULT_VALUES;
