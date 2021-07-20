@@ -94,8 +94,7 @@
 
 .content {
   display: flex;
-  height: 14rem;
-  max-height: 40vh;
+  height: 22rem;
   justify-content: center;
   align-items: center;
 
@@ -200,4 +199,20 @@
   to {
     width: 1.5em;
   }
+}
+
+.virtualBackgroundRow {
+  padding-top: 0.5rem;
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  padding-bottom: 2rem;
+
+  input {
+    border-radius: 0.3rem;
+  }
+}
+
+.virtualBackgroundDisabled {
+  filter: grayscale(100%);
 }

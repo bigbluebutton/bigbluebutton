@@ -323,6 +323,26 @@ WebApp.connectHandlers.use('/guestWait', (req, res) => {
   res.end(guestWaitHtml);
 });
 
+WebApp.connectHandlers.use('/wasm', (req, res) => {
+  const pathname = req._parsedUrl.pathname;
+  let file = "";
+  let hasError = false;
+  try {
+    file = Assets.getBinary(pathname.substr(1, pathname.length-1));
+  } catch (error) {
+    hasError = true;
+    Logger.warn(`Could not find WASM file: ${error}`);
+  }
+
+  res.setHeader('Content-Type', 'application/wasm');
+  if (hasError) {
+    res.writeHead(404);
+  } else {
+    res.writeHead(200);
+  }
+  res.end(file);
+});
+
 
 export const eventEmitter = Redis.emitter;
 

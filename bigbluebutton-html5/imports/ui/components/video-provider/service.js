@@ -822,6 +822,14 @@ class VideoService {
 
     return VideoPreviewService.getStream(this.deviceId);
   }
+
+  getVirtualBackgroundInformation() {
+    return this.virtualBackgroundObject;
+  }
+
+  setVirtualBackgroundInformation(virtualBackgroundObject) {
+    this.virtualBackgroundObject = virtualBackgroundObject;
+  }
 }
 
 const videoService = new VideoService();
@@ -829,7 +837,7 @@ const videoService = new VideoService();
 export default {
   storeDeviceIds: () => videoService.storeDeviceIds(),
   exitVideo: () => videoService.exitVideo(),
-  joinVideo: deviceId => videoService.joinVideo(deviceId),
+  joinVideo: (deviceId) => videoService.joinVideo(deviceId),
   stopVideo: cameraId => videoService.stopVideo(cameraId),
   getVideoStreams: () => videoService.getVideoStreams(),
   getInfo: () => videoService.getInfo(),
@@ -864,4 +872,6 @@ export default {
   getUsersIdFromVideoStreams: () => videoService.getUsersIdFromVideoStreams(),
   shouldRenderPaginationToggle: () => videoService.shouldRenderPaginationToggle(),
   getPreloadedStream: () => videoService.getPreloadedStream(),
+  getVirtualBackgroundInformation: () => videoService.getVirtualBackgroundInformation(),
+  setVirtualBackgroundInformation: virtualBackgroundObject => videoService.setVirtualBackgroundInformation(virtualBackgroundObject),
 };

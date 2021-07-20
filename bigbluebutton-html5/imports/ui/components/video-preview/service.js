@@ -196,4 +196,8 @@ export default {
   getCameraProfile,
   doGUM,
   terminateCameraStream,
+  changeVirtualBackground: (backgroundObj) => {
+    Session.set('VirtualBackgroundName', backgroundObj);
+  },
+  virtualBackground: () => Session.get('VirtualBackgroundName'),
 };

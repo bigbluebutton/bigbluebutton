@@ -14,6 +14,23 @@ import { styles } from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { notify } from '/imports/ui/services/notification';
+import { createVirtualBackgroundService } from '../../services/virtual-background';
+
+const VIRTUALBACKGROUNDCONFIG = Meteor.settings.public.virtualBackgrounds;
+let VIRTUALBACKGROUNDENABLED = true;
+let THUMBNAILSPATH = '/resources/images/virtual-backgrounds/thumbnails/';
+let IMAGENAMES = ['home.jpg', 'coffeeshop.jpg', 'board.jpg'];
+let ISSTOREDONBBB = true;
+let SHOWTHUMBNAILS = true;
+if (VIRTUALBACKGROUNDCONFIG != null) {
+  VIRTUALBACKGROUNDENABLED = VIRTUALBACKGROUNDCONFIG.enabled;
+  THUMBNAILSPATH = VIRTUALBACKGROUNDCONFIG.thumbnailsPath;
+  IMAGENAMES = VIRTUALBACKGROUNDCONFIG.fileNames;
+  ISSTOREDONBBB = VIRTUALBACKGROUNDCONFIG.storedOnBBB;
+  SHOWTHUMBNAILS = VIRTUALBACKGROUNDCONFIG.showThumbnails;
+}
+
+
 
 const VIEW_STATES = {
   finding: 'finding',
@@ -30,18 +47,25 @@ const propTypes = {
   hasVideoStream: PropTypes.bool.isRequired,
   webcamDeviceId: PropTypes.string,
   sharedDevices: PropTypes.arrayOf(PropTypes.string),
+  virtualBackground: PropTypes.object,
+  changeVirtualBackground: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
   resolve: null,
   webcamDeviceId: null,
   sharedDevices: [],
+  virtualBackground: {},
 };
 
 const intlMessages = defineMessages({
   webcamSettingsTitle: {
     id: 'app.videoPreview.webcamSettingsTitle',
     description: 'Title for the video preview modal',
+  },
+  virtualBackgroundSettingsLabel: {
+    id: 'app.videoPreview.webcamVirtualBackgroundLabel',
+    description: 'Label for the virtual background',
   },
   closeLabel: {
     id: 'app.videoPreview.closeLabel',
@@ -167,6 +191,12 @@ const intlMessages = defineMessages({
     id: 'app.video.genericError',
     description: 'error message for when the webcam sharing fails with unknown error',
   },
+  noneLabel: {
+    id: 'app.video.virtualBackground.none',
+  },
+  blurLabel: {
+    id: 'app.video.virtualBackground.blur',
+  }
 });
 
 class VideoPreview extends Component {
@@ -195,6 +225,7 @@ class VideoPreview extends Component {
       viewState: VIEW_STATES.finding,
       deviceError: null,
       previewError: null,
+      virtualBackgroundError: null,
     };
   }
 
@@ -289,6 +320,95 @@ class VideoPreview extends Component {
     this.getInitialCameraStream(webcamValue).then(() => {
       this.displayPreview();
     });
+  }
+
+  handleSelectVirtualBackground(event) {
+    if(typeof event == 'string') {
+      event = JSON.parse(event);
+    }
+    const parameters = {
+      type: event.type,
+      name: event.name,
+      isVirtualBackground: event.isVirtualBackground
+    }
+
+    if (parameters.name === "none")
+    {
+      return this.handleStopVirtualBackgroundSharing(true);
+    }
+
+    if (this.virtualBackgroundReference != null) {
+      this.changeVirtualBackgroundImage(parameters);
+    } else {
+      this.createVirtualBackgroundStream(parameters);
+    }
+  }
+
+  changeVirtualBackgroundImage(parameters) {
+    this.virtualBackgroundReference.changeBackgroundImage(parameters);
+    this.setVirtualBackgroundStates(parameters);
+  }
+
+  createVirtualBackgroundStream(parameters, stream = null) {
+    const buildParams = {
+      isVirtualBackground: parameters.isVirtualBackground,
+      backgroundType: parameters.type,
+      backgroundFilename: parameters.name
+    }
+    createVirtualBackgroundService(buildParams).then((res) => {
+      this.virtualBackgroundReference = res;
+      let effect = res.startEffect(stream ? stream : this.deviceStream)
+      this.video.srcObject = effect;
+      this.setVirtualBackgroundStates(parameters);
+    }).catch((error) => {
+      this.handleVirtualBackgroundError('do_virtualbg_preview', error, 'creating virtual background service instance');
+    });
+  }
+
+  setVirtualBackgroundStates(parameters) {
+    const { changeVirtualBackground } = this.props;
+
+    this.setState({
+      virtualBackground: {
+        type: parameters.type,
+        name: parameters.name,
+        isVirtualBackground: parameters.isVirtualBackground
+      },
+    });
+    changeVirtualBackground({
+      type: parameters.type,
+      name: parameters.name,
+      isVirtualBackground: parameters.isVirtualBackground
+    });
+  }
+
+  handleStopVirtualBackgroundSharing(resetState = false) {
+    const { changeVirtualBackground } = this.props;
+
+    if(this.virtualBackgroundReference != null) {
+      this.virtualBackgroundReference.stopEffect();
+      this.video.srcObject = this.deviceStream;
+      delete this.virtualBackgroundReference;
+    }
+    if(resetState) {
+      this.setState({
+        virtualBackground: {},
+      });
+      changeVirtualBackground({});
+    }
+  }
+
+  virtualBackgroundInformationExists(virtualBackgroundInformation) {
+    return (virtualBackgroundInformation != null && Object.keys(virtualBackgroundInformation).length > 0);
+  }
+
+  getVirtualBackgroundThumbnail(name) {
+    const base = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId;
+
+    if(name === 'blur.jpg') {
+      return base + '/resources/images/virtual-backgrounds/thumbnails/' + name;
+    }
+    return (ISSTOREDONBBB ? base : '') + THUMBNAILSPATH + name;
   }
 
   handleSelectProfile(event) {
@@ -389,6 +509,19 @@ class VideoPreview extends Component {
     if (this.video) this.video.srcObject = null;
   }
 
+  handleVirtualBackgroundError(logCode, error, description) {
+    logger.warn({
+      logCode: `video_preview_${logCode}_error`,
+      extraInfo: {
+        errorName: error.name,
+        errorMessage: error.message,
+      },
+    }, `Error ${description}`);
+    this.setState({
+      virtualBackgroundError: this.handleGUMError(error),
+    });
+  }
+
   updateDeviceId (deviceId) {
     let actualDeviceId = deviceId;
 
@@ -409,7 +542,7 @@ class VideoPreview extends Component {
   }
 
   getCameraStream(deviceId, profile) {
-    const { webcamDeviceId } = this.state;
+    const { webcamDeviceId, virtualBackground, } = this.state;
 
     this.setState({
       selectedProfile: profile.id,
@@ -429,6 +562,10 @@ class VideoPreview extends Component {
         isStartSharingDisabled: false,
       });
 
+      if (this.virtualBackgroundInformationExists(virtualBackground)) {
+        this.handleStopVirtualBackgroundSharing();
+        this.createVirtualBackgroundStream(virtualBackground, stream);
+      }
       this.deviceStream = stream;
     }).catch((error) => {
       // When video preview is set to skip, we need some way to bubble errors
@@ -613,6 +750,7 @@ class VideoPreview extends Component {
                     />
                   )
               }
+              {this.renderVirtualBackgroundSelection()}
             </div>
             {this.renderDeviceSelectors()}
           </div>
@@ -690,6 +828,106 @@ class VideoPreview extends Component {
         </div>
       </div>
     );
+  }
+
+  renderVirtualBackgroundSelection() {
+    const {
+      intl,
+      virtualBackground
+    } = this.props;
+
+    // Disable virtual backgrounds for iOS
+    const userAgent = window.navigator.userAgent;
+    if (userAgent.match(/iPad/i) || userAgent.match(/iPhone/i) || !VIRTUALBACKGROUNDENABLED) {
+      return;
+    }
+
+    if(SHOWTHUMBNAILS) {
+      return (
+        <div>
+          <label className={styles.label}>
+              {intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
+          </label>
+          <div className={styles.virtualBackgroundRow}>
+            <Button
+              icon="close"
+              label=""
+              onClick={() => this.handleSelectVirtualBackground({type: 'image', name: 'none'})}
+            />
+            <input
+              type="image"
+              src={this.getVirtualBackgroundThumbnail('blur.jpg')}
+              onClick={() => this.handleSelectVirtualBackground(
+                {
+                  type: 'blur',
+                  name: '',
+                  isVirtualBackground: false
+                })}
+              />
+              {/* className={this.virtualBackgroundIsLoading? styles.virtualBackgroundDisabled : ''} */}
+            {IMAGENAMES.map((image, index) => (
+              <input
+                type="image"
+                key={index}
+                src={this.getVirtualBackgroundThumbnail(image)}
+                onClick={() => this.handleSelectVirtualBackground(
+                  {
+                    type: 'image',
+                    name: image,
+                    isVirtualBackground: true
+                  }
+                )}
+              />
+            ))}
+
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div>
+          <label className={styles.label} htmlFor="setVirtualBg">
+            {intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
+          </label>
+          {/* style={{pointerEvents: this.virtualBackgroundIsLoading ? 'none' : 'all'}} */}
+          <div className={styles.virtualBackgroundRow}>
+            <select
+              value={JSON.stringify(virtualBackground) || ''}
+              className={styles.select}
+              onChange={e => this.handleSelectVirtualBackground(e.target.value)}
+            >
+              <option value={
+                JSON.stringify({
+                type: 'none',
+                name: 'none',
+                isVirtualBackground: false
+              })}>
+                {intl.formatMessage(intlMessages['noneLabel'])}
+              </option>
+              <option value={
+                JSON.stringify({
+                type: 'blur',
+                name: '',
+                isVirtualBackground: false
+              })}>
+                {intl.formatMessage(intlMessages['blurLabel'])}
+              </option>
+
+              {IMAGENAMES.map((image, index) => (
+                <option key={index} value={
+                  JSON.stringify({
+                    type: 'image',
+                    name: image,
+                    isVirtualBackground: true
+                  })}>
+                    {image.split(".")[0]}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      );
+    }
   }
 
   render() {
