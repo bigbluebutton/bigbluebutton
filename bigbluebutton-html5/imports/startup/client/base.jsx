@@ -286,6 +286,7 @@ class Base extends Component {
       ejectedReason,
       meetingExist,
       meetingHasEnded,
+      meetingEndedReason,
       meetingIsBreakout,
       subscriptionsReady,
       User,
@@ -296,7 +297,7 @@ class Base extends Component {
     }
 
     if (ejected) {
-      return (<MeetingEnded code="403" reason={ejectedReason} />);
+      return (<MeetingEnded code="403" ejectedReason={ejectedReason} />);
     }
 
     if ((meetingHasEnded || User?.loggedOut) && meetingIsBreakout) {
@@ -305,7 +306,7 @@ class Base extends Component {
     }
 
     if (((meetingHasEnded && !meetingIsBreakout)) || (codeError && User?.loggedOut)) {
-      return (<MeetingEnded code={codeError} />);
+      return (<MeetingEnded code={codeError} endedReason={meetingEndedReason} ejectedReason={ejectedReason} />);
     }
 
     if (codeError && !meetingHasEnded) {
@@ -377,6 +378,7 @@ const BaseContainer = withTracker(() => {
   const meeting = Meetings.findOne({ meetingId }, {
     fields: {
       meetingEnded: 1,
+      meetingEndedReason: 1,
       meetingProp: 1,
     },
   });
@@ -388,6 +390,7 @@ const BaseContainer = withTracker(() => {
   const approved = User?.approved && User?.guest;
   const ejected = User?.ejected;
   const ejectedReason = User?.ejectedReason;
+  const meetingEndedReason = meeting?.meetingEndedReason;
 
   let userSubscriptionHandler;
 
@@ -466,6 +469,7 @@ const BaseContainer = withTracker(() => {
     isMeteorConnected: Meteor.status().connected,
     meetingExist: !!meeting,
     meetingHasEnded: !!meeting && meeting.meetingEnded,
+    meetingEndedReason,
     meetingIsBreakout: AppService.meetingIsBreakout(),
     subscriptionsReady: Session.get('subscriptionsReady'),
     loggedIn,

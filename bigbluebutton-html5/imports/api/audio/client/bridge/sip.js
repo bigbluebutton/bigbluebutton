@@ -726,17 +726,23 @@ class SIPSession {
   }
 
   onIceGatheringStateChange(event) {
-    const secondsToGatherIce = (new Date() - this._sessionStartTime) / 1000;
-
     const iceGatheringState = event.target
       ? event.target.iceGatheringState
       : null;
 
+    if ((iceGatheringState === 'gathering') && (!this._iceGatheringStartTime)) {
+      this._iceGatheringStartTime = new Date();
+    }
+
     if (iceGatheringState === 'complete') {
+      const secondsToGatherIce = (new Date()
+        - (this._iceGatheringStartTime || this._sessionStartTime)) / 1000;
+
       logger.info({
         logCode: 'sip_js_ice_gathering_time',
         extraInfo: {
           callerIdName: this.user.callerIdName,
+          secondsToGatherIce,
         },
       }, `ICE gathering candidates took (s): ${secondsToGatherIce}`);
     }

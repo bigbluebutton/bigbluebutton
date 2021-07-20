@@ -40,6 +40,14 @@ const intlMessage = defineMessages({
     id: 'app.meeting.endedByUserMessage',
     description: 'message informing who ended the meeting',
   },
+  messageEndedByNoModeratorSingular: {
+    id: 'app.meeting.endedByNoModeratorMessageSingular',
+    description: 'message informing that the meeting was ended due to no moderator present (singular)',
+  },
+  messageEndedByNoModeratorPlural: {
+    id: 'app.meeting.endedByNoModeratorMessagePlural',
+    description: 'message informing that the meeting was ended due to no moderator present (plural)',
+  },
   buttonOkay: {
     id: 'app.meeting.endNotification.ok.label',
     description: 'label okay for button',
@@ -95,11 +103,13 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   code: PropTypes.string.isRequired,
-  reason: PropTypes.string,
+  ejectedReason: PropTypes.string,
+  endedReason: PropTypes.string,
 };
 
 const defaultProps = {
-  reason: null,
+  ejectedReason: null,
+  endedReason: null,
 };
 
 class MeetingEnded extends PureComponent {
@@ -123,6 +133,8 @@ class MeetingEnded extends PureComponent {
 
     const meeting = Meetings.findOne({ id: user.meetingID });
     if (meeting) {
+      this.endWhenNoModeratorMinutes = meeting.durationProps.endWhenNoModeratorDelayInMinutes;
+
       const endedBy = Users.findOne({
         userId: meeting.meetingEndedBy,
       }, { fields: { name: 1 } });
@@ -136,6 +148,7 @@ class MeetingEnded extends PureComponent {
     this.confirmRedirect = this.confirmRedirect.bind(this);
     this.sendFeedback = this.sendFeedback.bind(this);
     this.shouldShowFeedback = this.shouldShowFeedback.bind(this);
+    this.getEndingMessage = this.getEndingMessage.bind(this);
 
     AudioManager.exitAudio();
     Meteor.disconnect();
@@ -161,6 +174,26 @@ class MeetingEnded extends PureComponent {
       if (meetingIsBreakout()) window.close();
       if (allowRedirectToLogoutURL()) logoutRouteHandler();
     }
+  }
+
+  getEndingMessage() {
+    const { intl, code, endedReason } = this.props;
+
+    if (endedReason && endedReason === 'ENDED_DUE_TO_NO_MODERATOR') {
+      return this.endWhenNoModeratorMinutes === 1
+        ? intl.formatMessage(intlMessage.messageEndedByNoModeratorSingular)
+        : intl.formatMessage(intlMessage.messageEndedByNoModeratorPlural, { 0: this.endWhenNoModeratorMinutes });
+    }
+
+    if (this.meetingEndedBy) {
+      return intl.formatMessage(intlMessage.messageEndedByUser, { 0: this.meetingEndedBy });
+    }
+
+    if (intlMessage[code]) {
+      return intl.formatMessage(intlMessage[code]);
+    }
+
+    return intl.formatMessage(intlMessage[430]);
   }
 
   sendFeedback() {
@@ -210,19 +243,17 @@ class MeetingEnded extends PureComponent {
   }
 
   renderNoFeedback() {
-    const { intl, code, reason } = this.props;
+    const { intl, code, ejectedReason } = this.props;
 
-    const logMessage = reason === 'user_requested_eject_reason' ? 'User removed from the meeting' : 'Meeting ended component, no feedback configured';
-    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason } }, logMessage);
+    const logMessage = ejectedReason === 'user_requested_eject_reason' ? 'User removed from the meeting' : 'Meeting ended component, no feedback configured';
+    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason: ejectedReason } }, logMessage);
 
     return (
       <div className={styles.parent}>
         <div className={styles.modal}>
           <div className={styles.content}>
             <h1 className={styles.title} data-test="meetingEndedModalTitle">
-              {this.meetingEndedBy
-                ? intl.formatMessage(intlMessage.messageEndedByUser, { 0: this.meetingEndedBy })
-                : intl.formatMessage(intlMessage[code] || intlMessage[430])}
+              {this.getEndingMessage()}
             </h1>
             {!allowRedirectToLogoutURL() ? null : (
               <div>
@@ -248,7 +279,7 @@ class MeetingEnded extends PureComponent {
   }
 
   renderFeedback() {
-    const { intl, code, reason } = this.props;
+    const { intl, code, ejectedReason } = this.props;
     const {
       selected,
       dispatched,
@@ -256,17 +287,15 @@ class MeetingEnded extends PureComponent {
 
     const noRating = selected <= 0;
 
-    const logMessage = reason === 'user_requested_eject_reason' ? 'User removed from the meeting' : 'Meeting ended component, feedback allowed';
-    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason } }, logMessage);
+    const logMessage = ejectedReason === 'user_requested_eject_reason' ? 'User removed from the meeting' : 'Meeting ended component, feedback allowed';
+    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason: ejectedReason } }, logMessage);
 
     return (
       <div className={styles.parent}>
         <div className={styles.modal} data-test="meetingEndedModal">
           <div className={styles.content}>
             <h1 className={styles.title}>
-              {
-                intl.formatMessage(intlMessage[reason] || intlMessage[430])
-              }
+              {this.getEndingMessage()}
             </h1>
             <div className={styles.text}>
               {this.shouldShowFeedback()

@@ -534,9 +534,14 @@ class VideoService {
   }
 
   webcamsOnlyForModerator() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID },
+    const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
       { fields: { 'usersProp.webcamsOnlyForModerator': 1 } });
-    return m?.usersProp ? m.usersProp.webcamsOnlyForModerator : false;
+    const user = Users.findOne({ userId: Auth.userID }, { fields: { locked: 1, role: 1 } });
+
+    if (meeting?.usersProp && user?.role !== ROLE_MODERATOR && user?.locked) {
+      return meeting.usersProp.webcamsOnlyForModerator;
+    }
+    return false;
   }
 
   getInfo() {
