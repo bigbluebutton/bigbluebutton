@@ -14,7 +14,6 @@ import ConnectionStatusButton from '/imports/ui/components/connection-status/but
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import SettingsDropdownContainer from './settings-dropdown/container';
 import { PANELS, ACTIONS } from '../layout/enums';
-import ActivityReportButton from '../activity-report/button/container';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -184,7 +183,6 @@ class NavBar extends Component {
           </div>
           <div className={styles.right}>
             {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
-            {amIModerator ? <ActivityReportButton /> : null}
             <SettingsDropdownContainer amIModerator={amIModerator} />
           </div>
         </div>
