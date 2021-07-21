@@ -119,9 +119,7 @@ class PresentationFocusLayout extends Component {
             isOpen: true,
           },
           sidebarContent: {
-            isOpen: sidebarContentPanel !== PANELS.NONE
-              && (deviceType === DEVICE_TYPE.TABLET_LANDSCAPE
-                || deviceType === DEVICE_TYPE.DESKTOP),
+            isOpen: sidebarContentPanel !== PANELS.NONE,
             sidebarContentPanel,
           },
           SidebarContentHorizontalResizer: {
