@@ -3,8 +3,10 @@ import { throttle, defaultsDeep } from 'lodash';
 import NewLayoutContext from '../context/context';
 import DEFAULT_VALUES from '../defaultValues';
 import { INITIAL_INPUT_STATE } from '../context/initState';
-import { DEVICE_TYPE, ACTIONS } from '../enums';
+import { DEVICE_TYPE, ACTIONS, PANELS } from '../enums';
 
+const windowWidth = () => window.document.documentElement.clientWidth;
+const windowHeight = () => window.document.documentElement.clientHeight;
 const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 
@@ -35,7 +37,8 @@ class PresentationFocusLayout extends Component {
     return newLayoutContextState.input !== nextProps.newLayoutContextState.input
       || newLayoutContextState.deviceType !== nextProps.newLayoutContextState.deviceType
       || newLayoutContextState.layoutLoaded !== nextProps.newLayoutContextState.layoutLoaded
-      || newLayoutContextState.fontSize !== nextProps.newLayoutContextState.fontSize;
+      || newLayoutContextState.fontSize !== nextProps.newLayoutContextState.fontSize
+      || newLayoutContextState.fullscreen !== nextProps.newLayoutContextState.fullscreen;
   }
 
   componentDidUpdate(prevProps) {
@@ -107,6 +110,8 @@ class PresentationFocusLayout extends Component {
         }, INITIAL_INPUT_STATE),
       });
     } else {
+      const { sidebarContentPanel } = input.sidebarContent;
+
       newLayoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: defaultsDeep({
@@ -114,8 +119,10 @@ class PresentationFocusLayout extends Component {
             isOpen: true,
           },
           sidebarContent: {
-            isOpen: deviceType === DEVICE_TYPE.TABLET_LANDSCAPE
-              || deviceType === DEVICE_TYPE.DESKTOP,
+            isOpen: sidebarContentPanel !== PANELS.NONE
+              && (deviceType === DEVICE_TYPE.TABLET_LANDSCAPE
+                || deviceType === DEVICE_TYPE.DESKTOP),
+            sidebarContentPanel,
           },
           SidebarContentHorizontalResizer: {
             isOpen: false,
@@ -234,7 +241,7 @@ class PresentationFocusLayout extends Component {
     return {
       top,
       left: sidebarNavLeft,
-      zIndex: deviceType === DEVICE_TYPE.MOBILE ? 11 : 1,
+      zIndex: deviceType === DEVICE_TYPE.MOBILE ? 11 : 2,
     };
   }
 
@@ -305,7 +312,7 @@ class PresentationFocusLayout extends Component {
       top,
       left: deviceType === DEVICE_TYPE.MOBILE
         || deviceType === DEVICE_TYPE.TABLET_PORTRAIT ? 0 : sidebarNavWidth,
-      zIndex: deviceType === DEVICE_TYPE.MOBILE ? 11 : 2,
+      zIndex: deviceType === DEVICE_TYPE.MOBILE ? 11 : 1,
     };
   }
 
@@ -351,11 +358,25 @@ class PresentationFocusLayout extends Component {
     sidebarContentWidth,
   ) {
     const { newLayoutContextState } = this.props;
-    const { deviceType, input } = newLayoutContextState;
+    const { deviceType, input, fullscreen } = newLayoutContextState;
     const cameraDockBounds = {};
 
     if (input.cameraDock.numCameras > 0) {
       let cameraDockHeight = 0;
+
+      if (fullscreen.group === 'webcams') {
+        cameraDockBounds.width = windowWidth();
+        cameraDockBounds.minWidth = windowWidth();
+        cameraDockBounds.maxWidth = windowWidth();
+        cameraDockBounds.height = windowHeight();
+        cameraDockBounds.minHeight = windowHeight();
+        cameraDockBounds.maxHeight = windowHeight();
+        cameraDockBounds.top = 0;
+        cameraDockBounds.left = 0;
+        cameraDockBounds.zIndex = 99;
+        return cameraDockBounds;
+      }
+
       if (deviceType === DEVICE_TYPE.MOBILE) {
         cameraDockBounds.top = mediaAreaBounds.top + mediaBounds.height;
         cameraDockBounds.left = mediaAreaBounds.left;

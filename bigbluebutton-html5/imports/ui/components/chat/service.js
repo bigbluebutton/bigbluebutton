@@ -263,6 +263,11 @@ const exportChat = (timeWindowList, users, intl) => {
       const hour = date.getHours().toString().padStart(2, 0);
       const min = date.getMinutes().toString().padStart(2, 0);
       const hourMin = `[${hour}:${min}]`;
+
+      // Skip the reduce aggregation for the sync messages because they aren't localized, causing an error in line 268
+      // Also they're temporary (preliminary) messages, so it doesn't make sense export them
+      if (['SYSTEM_MESSAGE-sync-msg', 'synced'].includes(message.id)) return acc;
+
       let userName = message.id.startsWith(SYSTEM_CHAT_TYPE)
         ? ''
         : `${users[timeWindow.sender].name}: `;

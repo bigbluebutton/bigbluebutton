@@ -20,6 +20,7 @@ const propTypes = {
   refMediaContainer: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
   layoutContextState: PropTypes.objectOf(Object).isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
+  isRTL: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -196,12 +197,12 @@ class WebcamDraggable extends PureComponent {
   }
 
   calculatePosition() {
-    const { layoutContextState } = this.props;
+    const { layoutContextState, isRTL } = this.props;
     const { mediaBounds } = layoutContextState;
 
     const { top: mediaTop, left: mediaLeft } = mediaBounds;
     const { top: webcamsListTop, left: webcamsListLeft } = this.getWebcamsListBounds();
-    const x = webcamsListLeft - mediaLeft;
+    const x = !isRTL ? (webcamsListLeft - mediaLeft) : webcamsListLeft;
     const y = webcamsListTop - mediaTop;
     return {
       x,
@@ -279,6 +280,7 @@ class WebcamDraggable extends PureComponent {
       swapLayout,
       hideOverlay,
       audioModalIsOpen,
+      isRTL,
     } = this.props;
 
     const { isMobile } = deviceInfo;
@@ -426,7 +428,7 @@ class WebcamDraggable extends PureComponent {
           />
         </div>
         <div
-          className={dropZoneLeftClassName}
+          className={!isRTL ? dropZoneLeftClassName : dropZoneRightClassName}
           style={{
             width: '15vh',
             height: `calc(${mediaHeight}px - (15vh * 2))`,
@@ -510,7 +512,7 @@ class WebcamDraggable extends PureComponent {
           />
         </div>
         <div
-          className={dropZoneRightClassName}
+          className={!isRTL ? dropZoneRightClassName : dropZoneLeftClassName}
           style={{
             width: '15vh',
             height: `calc(${mediaHeight}px - (15vh * 2))`,

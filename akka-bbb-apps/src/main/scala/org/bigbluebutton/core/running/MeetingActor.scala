@@ -872,6 +872,7 @@ class MeetingActor(
         outGW.send(userLeftMeetingEvent)
 
         if (u.presenter) {
+          log.info("removeUsersWithExpiredUserLeftFlag will cause an automaticallyAssignPresenter because user={} left", u)
           UsersApp.automaticallyAssignPresenter(outGW, liveMeeting)
 
           // request screenshare to end
