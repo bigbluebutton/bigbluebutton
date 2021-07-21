@@ -107,6 +107,12 @@
 			            <td>{{user.name}}</td>
 			            <td v-for="poll in activitiesJson.polls">{{getUserAnswere(user,poll)}}</td>
 			        </tr>
+			        <tr>
+			            <td>Anonymous</td>
+			            <td  class="text-block" v-for="poll in activitiesJson.polls">
+			            	<span v-html="poll.anonymousAnswers.join('<br>')"></span>
+			        	</td>
+			        </tr>
 			    </tbody>
 			</table>
 		</div>

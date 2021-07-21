@@ -5,7 +5,6 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
-import org.bigbluebutton.core.record.events.{ParticipantJoinedVoiceRecordEvent, ParticipantLeftVoiceRecordEvent, ParticipantMutedVoiceRecordEvent}
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 import scala.concurrent.duration._
@@ -40,8 +39,10 @@ case class UserActivityTracker(
 case class Poll(
   pollId:     String,
   pollType:   String,
+  anonymous: Boolean,
   question:   String,
   options:    Vector[String] = Vector(),
+  anonymousAnswers: Vector[String] = Vector(),
   createdOn:  Long = System.currentTimeMillis(),
 )
 
@@ -286,7 +287,7 @@ class ActivityTrackerActor(
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
     } yield {
       val options = msg.body.poll.answers.map(answer => answer.key)
-      val newPoll = Poll(msg.body.pollId, msg.body.pollType, msg.body.question, options.toVector)
+      val newPoll = Poll(msg.body.pollId, msg.body.pollType, msg.body.secretPoll, msg.body.question, options.toVector)
 
       val updatedMeeting = meeting.copy(polls = meeting.polls + (newPoll.pollId -> newPoll))
       meetings += (updatedMeeting.intId -> updatedMeeting)
@@ -299,9 +300,23 @@ class ActivityTrackerActor(
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
       user <- meeting.users.values.find(u => u.intId == msg.header.userId)
     } yield {
-      val updatedUser = user.copy(answers = user.answers + (msg.body.pollId -> msg.body.answer))
-      val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
-      meetings += (updatedMeeting.intId -> updatedMeeting)
+
+
+      if(msg.body.isSecret) {
+        //Store Anonymous Poll in `poll.anonymousAnswers`
+        for {
+          poll <- meeting.polls.find(p => p._1 == msg.body.pollId)
+        } yield {
+          val updatedPoll = poll._2.copy(anonymousAnswers = poll._2.anonymousAnswers :+ msg.body.answer)
+          val updatedMeeting = meeting.copy(polls = meeting.polls + (poll._1 -> updatedPoll))
+          meetings += (updatedMeeting.intId -> updatedMeeting)
+        }
+      } else {
+        //Store Public Poll in `user.answers`
+        val updatedUser = user.copy(answers = user.answers + (msg.body.pollId -> msg.body.answer))
+        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
+        meetings += (updatedMeeting.intId -> updatedMeeting)
+      }
     }
   }
 
