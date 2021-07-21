@@ -67,6 +67,7 @@
 #   2020-05-20 NJH  Add port 443 to --Network and clean up tmp file.
 #   2020-06-23 JFS  Remove defaultGuestPolicy warning for HTML5 client
 #   2020-10-22 AGG  Removing Flash/Red5 related code (yay!)
+#   2021-07-16 JFS  Add defaultMeetingLayout information
 
 #set -x
 #set -e
@@ -439,7 +440,7 @@ display_bigbluebutton_status () {
         for ((i = 1 ; i <= $NUMBER_OF_BACKEND_NODEJS_PROCESSES; i++)); do
           units="$units bbb-html5-backend@$i"
         done
-		
+
         for ((i = 1; i <= $NUMBER_OF_FRONTEND_NODEJS_PROCESSES; i++)); do
           units="$units bbb-html5-frontend@$i"
         done
@@ -1276,8 +1277,8 @@ check_state() {
         else
           STUN_SERVER="$STUN_SERVER 3478"
         fi
-     
-        if which stunclient > /dev/null 2>&1; then 
+
+        if which stunclient > /dev/null 2>&1; then
           if stunclient --mode full --localport 30000 $STUN_SERVER | grep -q "fail\|Unable\ to\ resolve"; then
             echo
             echo "#"
@@ -1340,6 +1341,7 @@ if [ $CHECK ]; then
     echo "       bigbluebutton.web.serverURL: $(get_bbb_web_config_value bigbluebutton.web.serverURL)"
     echo "                defaultGuestPolicy: $(get_bbb_web_config_value defaultGuestPolicy)"
     echo "                 svgImagesRequired: $(get_bbb_web_config_value svgImagesRequired)"
+    echo "              defaultMeetingLayout: $(get_bbb_web_config_value defaultMeetingLayout)"
 
     echo
     echo "/etc/nginx/sites-available/bigbluebutton (nginx)"
