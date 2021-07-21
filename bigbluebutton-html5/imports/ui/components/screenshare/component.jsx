@@ -10,6 +10,7 @@ import AutoplayOverlay from '../media/autoplay-overlay/component';
 import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import PollingContainer from '/imports/ui/components/polling/container';
+import { notify } from '/imports/ui/services/notification';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import {
   SCREENSHARE_MEDIA_ELEMENT_NAME,
@@ -44,6 +45,14 @@ const intlMessages = defineMessages({
   autoplayAllowLabel: {
     id: 'app.media.screenshare.autoplayAllowLabel',
   },
+  screenshareStarted: {
+    id: 'app.media.screenshare.start',
+    description: 'toast to show when a screenshare has started',
+  },
+  screenshareEnded: {
+    id: 'app.media.screenshare.end',
+    description: 'toast to show when a screenshare has ended',
+  },
 });
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
@@ -69,6 +78,8 @@ class ScreenshareComponent extends React.Component {
   }
 
   componentDidMount() {
+    const { intl } = this.props;
+
     screenshareHasStarted();
     this.screenshareContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
     // Autoplay failure handling
@@ -77,6 +88,8 @@ class ScreenshareComponent extends React.Component {
     subscribeToStreamStateChange('screenshare', this.onStreamStateChange);
     // Attaches the local stream if it exists to serve as the local presenter preview
     attachLocalPreviewStream(getMediaElement());
+
+    notify(intl.formatMessage(intlMessages.screenshareStarted), 'info', 'desktop');
   }
 
   componentDidUpdate(prevProps) {
@@ -94,6 +107,7 @@ class ScreenshareComponent extends React.Component {
       shouldEnableSwapLayout,
       toggleSwapLayout,
       newLayoutContextDispatch,
+      intl,
     } = this.props;
     const layoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
     if (layoutSwapped) toggleSwapLayout(newLayoutContextDispatch);
@@ -101,6 +115,8 @@ class ScreenshareComponent extends React.Component {
     this.screenshareContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     unsubscribeFromStreamStateChange('screenshare', this.onStreamStateChange);
+
+    notify(intl.formatMessage(intlMessages.screenshareEnded), 'info', 'desktop');
   }
 
   onStreamStateChange(event) {
