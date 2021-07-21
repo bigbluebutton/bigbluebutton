@@ -541,7 +541,7 @@ const roving = (...args) => {
   if ([KEY_CODES.ARROW_RIGHT, KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.keyCode)) {
     const tether = document.activeElement.firstChild;
     const dropdownTrigger = tether.firstChild;
-    dropdownTrigger.click();
+    dropdownTrigger?.click();
     focusFirstDropDownItem();
   }
 };
