@@ -124,9 +124,7 @@ class VideoFocusLayout extends Component {
               isOpen: true,
             },
             sidebarContent: {
-              isOpen: sidebarContentPanel !== PANELS.NONE
-              && (deviceType === DEVICE_TYPE.TABLET_LANDSCAPE
-                || deviceType === DEVICE_TYPE.DESKTOP),
+              isOpen: sidebarContentPanel !== PANELS.NONE,
               sidebarContentPanel,
             },
             SidebarContentHorizontalResizer: {
@@ -339,16 +337,14 @@ class VideoFocusLayout extends Component {
 
     return {
       top,
-      left: deviceType === DEVICE_TYPE.MOBILE
-        || deviceType === DEVICE_TYPE.TABLET_PORTRAIT ? 0 : sidebarNavWidth,
+      left: deviceType === DEVICE_TYPE.MOBILE ? 0 : sidebarNavWidth,
       zIndex: deviceType === DEVICE_TYPE.MOBILE ? 11 : 1,
     };
   }
 
   calculatesMediaAreaBounds(sidebarNavWidth, sidebarContentWidth) {
     const { newLayoutContextState } = this.props;
-    const { deviceType, input, layoutLoaded } = newLayoutContextState;
-    const { sidebarContent } = input;
+    const { deviceType, layoutLoaded } = newLayoutContextState;
     const { navBarHeight, actionBarHeight } = DEFAULT_VALUES;
     let left = 0;
     let width = 0;
@@ -356,14 +352,6 @@ class VideoFocusLayout extends Component {
     if (deviceType === DEVICE_TYPE.MOBILE) {
       left = 0;
       width = this.mainWidth();
-    } else if (deviceType === DEVICE_TYPE.TABLET_PORTRAIT) {
-      if (sidebarContent.isOpen) {
-        left = sidebarContentWidth;
-        width = this.mainWidth() - sidebarContentWidth;
-      } else {
-        left = sidebarNavWidth;
-        width = this.mainWidth() - sidebarNavWidth;
-      }
     } else {
       left = sidebarNavWidth + sidebarContentWidth;
       width = this.mainWidth() - sidebarNavWidth - sidebarContentWidth;
