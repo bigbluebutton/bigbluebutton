@@ -164,9 +164,9 @@ class SmartLayout extends Component {
     };
   }
 
-  calculatesActionbarBounds(mediaAreaBounds) {
+  calculatesActionbarHeight() {
     const { newLayoutContextState } = this.props;
-    const { input, fontSize } = newLayoutContextState;
+    const { fontSize } = newLayoutContextState;
 
     const BASE_FONT_SIZE = 14; // 90% font size
     const BASE_HEIGHT = DEFAULT_VALUES.actionBarHeight;
@@ -175,12 +175,25 @@ class SmartLayout extends Component {
     const actionBarHeight = ((BASE_HEIGHT / BASE_FONT_SIZE) * fontSize);
 
     return {
-      display: input.actionBar.hasActionBar,
-      width: this.mainWidth() - mediaAreaBounds.left,
       height: actionBarHeight + (PADDING * 2),
       innerHeight: actionBarHeight,
       padding: PADDING,
-      top: this.mainHeight() - (actionBarHeight + (PADDING * 2)),
+    };
+  }
+
+  calculatesActionbarBounds(mediaAreaBounds) {
+    const { newLayoutContextState } = this.props;
+    const { input } = newLayoutContextState;
+
+    const actionBarHeight = this.calculatesActionbarHeight();
+
+    return {
+      display: input.actionBar.hasActionBar,
+      width: this.mainWidth() - mediaAreaBounds.left,
+      height: actionBarHeight.height,
+      innerHeight: actionBarHeight.innerHeight,
+      padding: actionBarHeight.padding,
+      top: this.mainHeight() - actionBarHeight.height,
       left: mediaAreaBounds.left,
       zIndex: 1,
     };
@@ -324,7 +337,8 @@ class SmartLayout extends Component {
     const { newLayoutContextState } = this.props;
     const { deviceType, input, layoutLoaded } = newLayoutContextState;
     const { sidebarContent } = input;
-    const { actionBarHeight, navBarHeight } = DEFAULT_VALUES;
+    const { navBarHeight } = DEFAULT_VALUES;
+    const { height: actionBarHeight } = this.calculatesActionbarHeight();
     let left = 0;
     let width = 0;
     let top = 0;
