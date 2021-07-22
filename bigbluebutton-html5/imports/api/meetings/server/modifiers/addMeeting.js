@@ -51,6 +51,7 @@ export default function addMeeting(meeting) {
       intId: String,
       extId: String,
       isBreakout: Boolean,
+      activityReportTracking: Boolean,
       name: String,
     },
     usersProp: {

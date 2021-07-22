@@ -161,20 +161,17 @@ class ActivityTrackerActor(
 
 
   private def handleUserJoinedMeetingEvtMsg(msg: UserJoinedMeetingEvtMsg): Unit = {
-    val meeting: MeetingActivityTracker = meetings.values.find(m => m.intId == msg.header.meetingId)
-      .getOrElse({
-      MeetingActivityTracker(
-        msg.header.meetingId, msg.header.meetingId, msg.header.meetingId, Map()
-      )
-    })
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+    } yield {
+      val user: UserActivityTracker = meeting.users.values.find(u => u.intId == msg.body.intId).getOrElse({
+        UserActivityTracker(
+          msg.body.intId, msg.body.extId, msg.body.name
+        )
+      })
 
-    val user: UserActivityTracker = meeting.users.values.find(u => u.intId == msg.body.intId).getOrElse({
-      UserActivityTracker(
-        msg.body.intId, msg.body.extId, msg.body.name
-      )
-    })
-
-    meetings += (meeting.intId -> meeting.copy(users = meeting.users + (user.intId -> user.copy(leftOn = 0))))
+      meetings += (meeting.intId -> meeting.copy(users = meeting.users + (user.intId -> user.copy(leftOn = 0))))
+    }
   }
 
   private def handleUserLeftMeetingEvtMsg(msg: UserLeftMeetingEvtMsg): Unit = {
@@ -340,23 +337,31 @@ class ActivityTrackerActor(
   }
 
   private def handleCreateMeetingReqMsg(msg: CreateMeetingReqMsg): Unit = {
-    val newMeeting = MeetingActivityTracker(
-      msg.body.props.meetingProp.intId,
-      msg.body.props.meetingProp.extId,
-      msg.body.props.meetingProp.name,
-    )
+    if(msg.body.props.meetingProp.activityReportTracking) {
+      val newMeeting = MeetingActivityTracker(
+        msg.body.props.meetingProp.intId,
+        msg.body.props.meetingProp.extId,
+        msg.body.props.meetingProp.name,
+      )
 
-    meetings += (newMeeting.intId -> newMeeting)
+      meetings += (newMeeting.intId -> newMeeting)
+
+      log.info("ActivityTracker created for meeting {}.",msg.body.props.meetingProp.intId)
+    } else {
+      log.info("ActivityTracker disabled for meeting {}.",msg.body.props.meetingProp.intId)
+    }
   }
 
   private def handleMeetingEndingEvtMsg(msg: MeetingEndingEvtMsg): Unit = {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.body.meetingId)
     } yield {
-      meeting.users.map(user => {
-        log.info(user._2.toString)
-      })
+
+      //Send report one last time
+      sendPeriodicReport()
+
       meetings = meetings.-(meeting.intId)
+      log.info("ActivityTracker removed for meeting {}.",meeting.intId)
     }
   }
 
@@ -365,6 +370,8 @@ class ActivityTrackerActor(
       val activityJson: String = JsonUtil.toJson(meeting._2)
       val event = MsgBuilder.buildActivityReportEvtMsg(meeting._2.intId, activityJson)
       outGW.send(event)
+
+      log.info("Activity Report sent for meeting {}: {}",meeting._2.intId,activityJson)
     })
 
   }

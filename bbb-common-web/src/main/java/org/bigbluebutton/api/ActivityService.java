@@ -29,12 +29,18 @@ public class ActivityService {
     private static String activitiesDir = "/var/bigbluebutton/activity-report";
 
     public void writeActivityJsonFile(String meetingId, String activityReportAccessToken, String activityJson) {
-        File baseDir = new File(this.getDestinationBaseDirectoryName(meetingId,activityReportAccessToken));
-        if (!baseDir.exists()) baseDir.mkdirs();
-
-        File jsonFile = new File(baseDir.getAbsolutePath() + File.separatorChar + "activity_report.json");
 
         try {
+            if(activityReportAccessToken.length() == 0) {
+                log.error("ActivityReport AccessToken not found. JSON file will not be saved for meeting {}.",meetingId);
+                return;
+            }
+
+            File baseDir = new File(this.getDestinationBaseDirectoryName(meetingId,activityReportAccessToken));
+            if (!baseDir.exists()) baseDir.mkdirs();
+
+            File jsonFile = new File(baseDir.getAbsolutePath() + File.separatorChar + "activity_report.json");
+
             FileOutputStream fileOutput = new FileOutputStream(jsonFile);
             fileOutput.write(activityJson.getBytes());
 
