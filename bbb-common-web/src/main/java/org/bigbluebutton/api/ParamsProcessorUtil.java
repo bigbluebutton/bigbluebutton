@@ -427,10 +427,6 @@ public class ParamsProcessorUtil {
             }
         }
 
-        log.info("activityReportTrack--------------------------------");
-        log.info("activityReportTrack--------------------------------");
-        log.info(activityReportTrack ? "true" : "false");
-
         //Generate token to access Activity Report
         String activityReportAccessToken = "";
         if(activityReportTrack == true) {
