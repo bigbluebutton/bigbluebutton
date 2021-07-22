@@ -289,8 +289,9 @@ class VideoFocusLayout extends Component {
     const { newLayoutContextState } = this.props;
     const { deviceType, input, output } = newLayoutContextState;
     const { sidebarContentMinHeight } = DEFAULT_VALUES;
-    const { sidebarContent: inputContent } = input;
+    const { sidebarContent: inputContent, presentation } = input;
     const { sidebarContent: outputContent } = output;
+    const { isOpen } = presentation;
     let minHeight = 0;
     let height = 0;
     let maxHeight = 0;
@@ -300,7 +301,7 @@ class VideoFocusLayout extends Component {
         minHeight = this.mainHeight() - this.bannerAreaHeight();
         maxHeight = this.mainHeight() - this.bannerAreaHeight();
       } else {
-        if (input.cameraDock.numCameras > 0) {
+        if (input.cameraDock.numCameras > 0 && isOpen) {
           if (inputContent.height > 0 && inputContent.height < this.mainHeight()) {
             height = inputContent.height - this.bannerAreaHeight();
             maxHeight = this.mainHeight() - this.bannerAreaHeight();
