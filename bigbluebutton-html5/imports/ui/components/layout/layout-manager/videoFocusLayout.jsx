@@ -174,14 +174,19 @@ class VideoFocusLayout extends Component {
     const { newLayoutContextState } = this.props;
     const { input, fontSize } = newLayoutContextState;
 
-    const BASE_FONT_SIZE = 16;
-    const actionBarHeight = (DEFAULT_VALUES.actionBarHeight / BASE_FONT_SIZE) * fontSize;
+    const BASE_FONT_SIZE = 14; // 90% font size
+    const BASE_HEIGHT = DEFAULT_VALUES.actionBarHeight;
+    const PADDING = DEFAULT_VALUES.actionBarPadding;
+
+    const actionBarHeight = ((BASE_HEIGHT / BASE_FONT_SIZE) * fontSize);
 
     return {
       display: input.actionBar.hasActionBar,
       width: this.mainWidth() - mediaAreaBounds.left,
-      height: actionBarHeight,
-      top: this.mainHeight() - actionBarHeight,
+      height: actionBarHeight + (PADDING * 2),
+      innerHeight: actionBarHeight,
+      padding: PADDING,
+      top: this.mainHeight() - (actionBarHeight + (PADDING * 2)),
       left: mediaAreaBounds.left,
       zIndex: 1,
     };
@@ -521,8 +526,10 @@ class VideoFocusLayout extends Component {
         display: input.actionBar.hasActionBar,
         width: actionbarBounds.width,
         height: actionbarBounds.height,
+        innerHeight: actionbarBounds.innerHeight,
         top: actionbarBounds.top,
         left: actionbarBounds.left,
+        padding: actionbarBounds.padding,
         tabOrder: DEFAULT_VALUES.actionBarTabOrder,
         zIndex: actionbarBounds.zIndex,
       },
