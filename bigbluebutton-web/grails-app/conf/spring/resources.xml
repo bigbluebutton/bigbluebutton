@@ -46,6 +46,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="meetingService" class="org.bigbluebutton.api.MeetingService" init-method="start" destroy-method="stop">
         <property name="redisStorageService" ref="redisStorageService"/>
+        <property name="activityService" ref="activityService"/>
         <property name="recordingService" ref="recordingService"/>
         <property name="presDownloadService" ref="presDownloadService"/>
         <property name="paramsProcessorUtil" ref="paramsProcessorUtil"/>
@@ -107,6 +108,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultTextTrackUrl" value="${defaultTextTrackUrl}"/>
     </bean>
 
+    <bean id="activityService" class="org.bigbluebutton.api.ActivityService">
+        <property name="activitiesDir" value="${activitiesDir}"/>
+    </bean>
+
     <bean id="html5LoadBalancingService" class="org.bigbluebutton.api.HTML5LoadBalancingService" init-method="init" />
 
     <bean id="configServiceHelper" class="org.bigbluebutton.api.ClientConfigServiceHelperImp"/>
@@ -146,6 +151,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
         <property name="autoStartRecording" value="${autoStartRecording}"/>
         <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
+        <property name="activityReportTracking" value="${activityReportTracking}"/>
         <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
         <property name="useDefaultAvatar" value="${useDefaultAvatar}"/>
         <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
