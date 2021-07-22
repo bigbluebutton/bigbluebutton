@@ -169,6 +169,10 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: LockSettingsNotInitializedRespMsg => logMessage(msg)
       case m: MeetingInfoAnalyticsMsg => logMessage(msg)
 
+      // Layout
+      case m: BroadcastLayoutMsg => logMessage(msg)
+      case m: BroadcastLayoutEvtMsg => logMessage(msg)
+
       case _ => // ignore message
     }
   }

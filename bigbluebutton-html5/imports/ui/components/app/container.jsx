@@ -78,28 +78,30 @@ const AppContainer = (props) => {
   const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
   const sidebarContentIsOpen = sidebarContent.isOpen;
 
-  return currentUserId ?
-    <App
-      {...{
-        actionsbar,
-        actionsBarStyle,
-        currentUserId,
-        media,
-        layoutType,
-        layoutLoaded,
-        meetingLayout,
-        settingsLayout,
-        pushLayoutToEveryone,
-        deviceType,
-        newLayoutContextDispatch,
-        sidebarNavPanel,
-        sidebarNavigationIsOpen,
-        sidebarContentPanel,
-        sidebarContentIsOpen,
-      }}
-      {...otherProps}
-    />
-    : null
+  return currentUserId
+    ? (
+      <App
+        {...{
+          actionsbar,
+          actionsBarStyle,
+          currentUserId,
+          media,
+          layoutType,
+          layoutLoaded,
+          meetingLayout,
+          settingsLayout,
+          pushLayoutToEveryone,
+          deviceType,
+          newLayoutContextDispatch,
+          sidebarNavPanel,
+          sidebarNavigationIsOpen,
+          sidebarContentPanel,
+          sidebarContentIsOpen,
+        }}
+        {...otherProps}
+      />
+    )
+    : null;
 };
 
 const currentUserEmoji = (currentUser) => (currentUser
@@ -163,9 +165,9 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   const layoutManagerLoaded = Session.get('layoutManagerLoaded');
   const AppSettings = Settings.application;
   const { viewScreenshare } = Settings.dataSaving;
-  const shouldShowScreenshare = MediaService.shouldShowScreenshare()
-    && (viewScreenshare || MediaService.isUserPresenter());
   const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
+  const shouldShowScreenshare = MediaService.shouldShowScreenshare()
+    && (viewScreenshare || MediaService.isUserPresenter()) && !shouldShowExternalVideo;
 
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,

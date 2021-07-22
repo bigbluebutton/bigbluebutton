@@ -31,7 +31,7 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
     @MeetingIDConstraint
     private String meetingID;
 
-    @NotEmpty(message = "You must provide a voice bridge")
+    //@NotEmpty(message = "You must provide a voice bridge")
     @IsIntegralConstraint(message = "Voice bridge must be a 5-digit integral value")
     private String voiceBridgeString;
     private Integer voiceBridge;
@@ -42,12 +42,12 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
     @PasswordConstraint
     private String moderatorPW;
 
-    @NotEmpty(message = "You must provide whether this meeting is breakout room")
+    //@NotEmpty(message = "You must provide whether this meeting is breakout room")
     @IsBooleanConstraint(message = "You must provide a boolean value (true or false) for the breakout room")
     private String isBreakoutRoomString;
     private Boolean isBreakoutRoom;
 
-    @NotEmpty(message = "You must provide whether to record this meeting")
+    //@NotEmpty(message = "You must provide whether to record this meeting")
     @IsBooleanConstraint(message = "Record must be a boolean value (true or false)")
     private String recordString;
     private Boolean record;
@@ -133,7 +133,9 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
 
     @Override
     public void convertParamsFromString() {
-        voiceBridge = Integer.parseInt(voiceBridgeString);
+        if (voiceBridge != null) {
+            voiceBridge = Integer.parseInt(voiceBridgeString);
+        }
         isBreakoutRoom = Boolean.parseBoolean(isBreakoutRoomString);
         record = Boolean.parseBoolean(recordString);
     }

@@ -10,6 +10,7 @@ import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import VideoService from '/imports/ui/components/video-provider/service';
 import Button from '/imports/ui/components/button/component';
+import { ACTIONS } from '../../layout/enums';
 
 const propTypes = {
   streams: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -126,10 +127,14 @@ class VideoList extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { layoutType } = this.props;
-    const { layoutType: prevLayoutType } = prevProps;
+    const { layoutType, cameraDock } = this.props;
+    const { width: cameraDockWidth, height: cameraDockHeight } = cameraDock;
+    const { layoutType: prevLayoutType, cameraDock: prevCameraDock } = prevProps;
+    const { width: prevCameraDockWidth, height: prevCameraDockHeight } = prevCameraDock;
 
-    if (layoutType !== prevLayoutType) {
+    if (layoutType !== prevLayoutType
+      || cameraDockWidth !== prevCameraDockWidth
+      || cameraDockHeight !== prevCameraDockHeight) {
       this.handleCanvasResize();
     }
   }
@@ -202,9 +207,10 @@ class VideoList extends Component {
   setOptimalGrid() {
     const {
       streams,
-      cameraDockBounds,
+      cameraDock,
       webcamDraggableDispatch,
       layoutLoaded,
+      newLayoutContextDispatch,
     } = this.props;
     let numItems = streams.length;
     if (numItems < 1 || !this.canvas || !this.grid) {
@@ -219,8 +225,8 @@ class VideoList extends Component {
       canvasWidth = canvasBounds?.width;
       canvasHeight = canvasBounds?.height;
     } else {
-      canvasWidth = cameraDockBounds?.width;
-      canvasHeight = cameraDockBounds?.height;
+      canvasWidth = cameraDock?.width;
+      canvasHeight = cameraDock?.height;
     }
 
     const gridGutter = parseInt(window.getComputedStyle(this.grid)
@@ -247,6 +253,13 @@ class VideoList extends Component {
         value: optimalGrid,
       },
     );
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_CAMERA_DOCK_OPTIMAL_GRID_SIZE,
+      value: {
+        width: optimalGrid.width,
+        height: optimalGrid.height,
+      },
+    });
     this.setState({
       optimalGrid,
     });

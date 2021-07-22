@@ -15,6 +15,7 @@ trait AssignPresenterReqMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleAssignPresenterReqMsg(msg: AssignPresenterReqMsg, state: MeetingState2x): MeetingState2x = {
+    log.info("handleAssignPresenterReqMsg: assignedBy={} newPresenterId={}", msg.body.assignedBy, msg.body.newPresenterId)
     AssignPresenterActionHandler.handleAction(liveMeeting, outGW, msg.body.assignedBy, msg.body.newPresenterId)
 
     // Change presenter of default presentation pod
@@ -68,11 +69,13 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
       for {
         oldPres <- Users2x.findPresenter(liveMeeting.users2x)
       } yield {
-        // Stop external video if it's running
-        ExternalVideoModel.stop(outGW, liveMeeting)
+        if (oldPres.intId != newPresenterId) {
+          // Stop external video if it's running
+          ExternalVideoModel.stop(outGW, liveMeeting)
 
-        Users2x.makeNotPresenter(liveMeeting.users2x, oldPres.intId)
-        broadcastOldPresenterChange(oldPres)
+          Users2x.makeNotPresenter(liveMeeting.users2x, oldPres.intId)
+          broadcastOldPresenterChange(oldPres)
+        }
       }
 
       for {

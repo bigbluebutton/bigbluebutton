@@ -18,7 +18,9 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   fullscreenRef: PropTypes.instanceOf(Element),
   dark: PropTypes.bool,
   bottom: PropTypes.bool,
@@ -45,6 +47,7 @@ const FullscreenButtonComponent = ({
   bottom,
   elementName,
   elementId,
+  elementGroup,
   className,
   fullscreenRef,
   handleToggleFullScreen,
@@ -53,20 +56,20 @@ const FullscreenButtonComponent = ({
   layoutManagerLoaded,
   newLayoutContextDispatch,
   currentElement,
+  currentGroup,
 }) => {
   if (isIphone) return null;
 
-  const formattedLabel = (isFullscreen) => {
-    return (isFullscreen ?
-      intl.formatMessage(
-        intlMessages.fullscreenUndoButton,
-        ({ 0: elementName || '' }),
-      ) :
-      intl.formatMessage(
-        intlMessages.fullscreenButton,
-        ({ 0: elementName || '' }),
-      ));
-  };
+  const formattedLabel = (fullscreen) => (fullscreen
+    ? intl.formatMessage(
+      intlMessages.fullscreenUndoButton,
+      ({ 0: elementName || '' }),
+    )
+    : intl.formatMessage(
+      intlMessages.fullscreenButton,
+      ({ 0: elementName || '' }),
+    )
+  );
 
   const wrapperClassName = cx({
     [styles.wrapper]: true,
@@ -80,14 +83,18 @@ const FullscreenButtonComponent = ({
     if (layoutManagerLoaded === 'legacy') {
       handleToggleFullScreen(fullscreenRef);
     } else {
-      const newValue = (elementId === currentElement) ? '' : elementId;
+      const newElement = (elementId === currentElement) ? '' : elementId;
+      const newGroup = (elementGroup === currentGroup) ? '' : elementGroup;
 
       newLayoutContextDispatch({
         type: ACTIONS.SET_FULLSCREEN_ELEMENT,
-        value: newValue,
+        value: {
+          element: newElement,
+          group: newGroup,
+        },
       });
     }
-  }
+  };
 
   return (
     <div className={wrapperClassName}>

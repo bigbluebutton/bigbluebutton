@@ -61,8 +61,10 @@ export const ACTIONS = {
 
   SET_NUM_CAMERAS: 'setNumCameras',
   SET_CAMERA_DOCK_IS_DRAGGING: 'setCameraDockIsDragging',
+  SET_CAMERA_DOCK_IS_RESIZING: 'setCameraDockIsResizing',
   SET_CAMERA_DOCK_POSITION: 'setCameraDockPosition',
   SET_CAMERA_DOCK_SIZE: 'setCameraDockSize',
+  SET_CAMERA_DOCK_OPTIMAL_GRID_SIZE: 'setCameraDockOptimalGridSize',
   SET_CAMERA_DOCK_OUTPUT: 'setCameraDockOutput',
   SET_CAMERA_DOCK_IS_DRAGGABLE: 'setCameraDockIsDraggable',
   SET_CAMERA_DOCK_IS_RESIZABLE: 'setCameraDockIsResizable',

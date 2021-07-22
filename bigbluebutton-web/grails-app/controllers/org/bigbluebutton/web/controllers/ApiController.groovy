@@ -294,6 +294,7 @@ class ApiController {
     us.authed = authenticated
     us.guestStatus = guestStatusVal
     us.logoutUrl = meeting.getLogoutUrl()
+    us.defaultLayout = meeting.getMeetingLayout()
 
     if (!StringUtils.isEmpty(params.defaultLayout)) {
       us.defaultLayout = params.defaultLayout;
@@ -1425,16 +1426,20 @@ class ApiController {
 
   private String validateRequest(ValidationService.ApiCall apiCall, Map<String, String[]> params, String queryString) {
     Set<String> violations = validationService.validate(apiCall, params, queryString)
-    StringBuilder violationMessages = new StringBuilder()
+    StringBuilder violationMessage = new StringBuilder()
 
     if(!violations.isEmpty()) {
-      for(String violation: violations) {
-        violationMessages.append(violation + "\n");
+      //violationMessage.append("Validation Error: ")
+      for (String violation: violations) {
         log.error violation
+      }
+      for(String violation: violations) {
+        violationMessage.append(violation);
+        break
       }
     }
 
-    return violationMessages.toString()
+    return violationMessage.toString()
   }
 
 }

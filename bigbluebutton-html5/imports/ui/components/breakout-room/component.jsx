@@ -101,6 +101,7 @@ class BreakoutRoom extends PureComponent {
     this.resetExtendTimeForm = this.resetExtendTimeForm.bind(this);
     this.renderUserActions = this.renderUserActions.bind(this);
     this.returnBackToMeeeting = this.returnBackToMeeeting.bind(this);
+    this.closePanel = this.closePanel.bind(this);
     this.state = {
       requestedBreakoutId: '',
       waiting: false,
@@ -118,6 +119,7 @@ class BreakoutRoom extends PureComponent {
       setBreakoutAudioTransferStatus,
       isMicrophoneUser,
       isReconnecting,
+      breakoutRooms,
     } = this.props;
 
     const {
@@ -125,6 +127,10 @@ class BreakoutRoom extends PureComponent {
       requestedBreakoutId,
       joinedAudioOnly,
     } = this.state;
+
+    if (breakoutRooms.length === 0) {
+      return this.closePanel();
+    }
 
     if (waiting) {
       const breakoutUser = breakoutRoomUser(requestedBreakoutId);
@@ -198,6 +204,19 @@ class BreakoutRoom extends PureComponent {
     const { transferUserToMeeting, meetingId } = this.props;
     transferUserToMeeting(breakoutId, meetingId);
     this.setState({ joinedAudioOnly: false, breakoutId });
+  }
+
+  closePanel() {
+    const { newLayoutContextDispatch } = this.props;
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+      value: false,
+    });
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+      value: PANELS.NONE,
+    });
   }
 
   renderUserActions(breakoutId, joinedUsers, number) {
@@ -459,7 +478,6 @@ class BreakoutRoom extends PureComponent {
       intl,
       endAllBreakouts,
       amIModerator,
-      newLayoutContextDispatch,
     } = this.props;
     return (
       <div className={styles.panel}>
@@ -469,14 +487,7 @@ class BreakoutRoom extends PureComponent {
           aria-label={intl.formatMessage(intlMessages.breakoutAriaTitle)}
           className={styles.header}
           onClick={() => {
-            newLayoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: false,
-            });
-            newLayoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-              value: PANELS.NONE,
-            });
+            this.closePanel();
           }}
         />
         {this.renderBreakoutRooms()}
@@ -491,14 +502,7 @@ class BreakoutRoom extends PureComponent {
                 label={intl.formatMessage(intlMessages.endAllBreakouts)}
                 className={styles.endButton}
                 onClick={() => {
-                  newLayoutContextDispatch({
-                    type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-                    value: false,
-                  });
-                  newLayoutContextDispatch({
-                    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-                    value: PANELS.NONE,
-                  });
+                  this.closePanel();
                   endAllBreakouts();
                 }}
               />

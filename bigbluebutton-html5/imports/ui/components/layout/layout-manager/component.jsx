@@ -14,13 +14,11 @@ const { isMobile } = deviceInfo;
 // values based on sass file
 const USERLIST_MIN_WIDTH = 150;
 const USERLIST_MAX_WIDTH = 240;
-const CHAT_MIN_WIDTH = 320;
-const CHAT_MAX_WIDTH = 400;
+const PANEL_MIN_WIDTH = 320;
+const PANEL_MAX_WIDTH = 400;
 const NAVBAR_HEIGHT = 112;
 const LARGE_NAVBAR_HEIGHT = 170;
 const ACTIONSBAR_HEIGHT = isMobile ? 50 : 42;
-const BREAKOUT_MIN_WIDTH = 320;
-const BREAKOUT_MAX_WIDTH = 400;
 
 const WEBCAMSAREA_MIN_PERCENT = 0.2;
 const WEBCAMSAREA_MAX_PERCENT = 0.8;
@@ -333,7 +331,7 @@ class LayoutManagerComponent extends Component {
       };
     } else if (!storageSecondPanelWidth) {
       newPanelSize = {
-        width: min(max((this.windowWidth() * 0.2), CHAT_MIN_WIDTH), CHAT_MAX_WIDTH),
+        width: min(max((this.windowWidth() * 0.2), PANEL_MIN_WIDTH), PANEL_MAX_WIDTH),
       };
     } else {
       newPanelSize = {
@@ -558,14 +556,12 @@ export default withLayoutConsumer(NewLayoutManager.withConsumer(LayoutManagerCom
 export {
   USERLIST_MIN_WIDTH,
   USERLIST_MAX_WIDTH,
-  CHAT_MIN_WIDTH,
-  CHAT_MAX_WIDTH,
+  PANEL_MIN_WIDTH,
+  PANEL_MAX_WIDTH,
   NAVBAR_HEIGHT,
   LARGE_NAVBAR_HEIGHT,
   ACTIONSBAR_HEIGHT,
   WEBCAMSAREA_MIN_PERCENT,
   WEBCAMSAREA_MAX_PERCENT,
   PRESENTATIONAREA_MIN_WIDTH,
-  BREAKOUT_MIN_WIDTH,
-  BREAKOUT_MAX_WIDTH,
 };

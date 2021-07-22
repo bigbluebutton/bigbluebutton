@@ -22,7 +22,12 @@ const intlMessages = defineMessages({
 
 const shouldUnswapLayout = () => MediaService.shouldShowScreenshare() || MediaService.shouldShowExternalVideo();
 
-const PresentationOptionsContainer = ({ intl, toggleSwapLayout, isThereCurrentPresentation }) => {
+const PresentationOptionsContainer = ({
+  intl,
+  toggleSwapLayout,
+  isThereCurrentPresentation,
+  newLayoutContextDispatch
+}) => {
   if (shouldUnswapLayout()) toggleSwapLayout();
   return (
     <Button
@@ -34,7 +39,7 @@ const PresentationOptionsContainer = ({ intl, toggleSwapLayout, isThereCurrentPr
       hideLabel
       circle
       size="lg"
-      onClick={toggleSwapLayout}
+      onClick={() => toggleSwapLayout(newLayoutContextDispatch)}
       id="restore-presentation"
       disabled={!isThereCurrentPresentation}
     />

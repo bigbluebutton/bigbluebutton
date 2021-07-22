@@ -155,6 +155,8 @@ class App extends Component {
       intl,
       validIOSVersion,
       newLayoutContextDispatch,
+      meetingLayout,
+      settingsLayout,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -170,6 +172,11 @@ class App extends Component {
       type: ACTIONS.SET_FONT_SIZE,
       value: parseInt(fontSize.slice(0, -2)),
     });
+
+    const currentLayout = settingsLayout ? settingsLayout : meetingLayout;
+
+    Settings.application.selectedLayout = currentLayout;
+    Settings.save();
 
     const body = document.getElementsByTagName('body')[0];
 
@@ -216,7 +223,6 @@ class App extends Component {
       pushLayoutToEveryone,
       newLayoutContextDispatch,
     } = this.props;
-
 
     if (meetingLayout !== prevProps.meetingLayout) {
       newLayoutContextDispatch({

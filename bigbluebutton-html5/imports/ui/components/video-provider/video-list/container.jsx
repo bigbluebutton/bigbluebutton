@@ -9,15 +9,24 @@ const VideoListContainer = ({ children, ...props }) => {
   const newLayoutContext = useContext(NLayoutContext);
   const webcamDraggableContext = useContext(WebcamDraggableContext);
   const { webcamDraggableDispatch } = webcamDraggableContext;
-  const { newLayoutContextState } = newLayoutContext;
-  const { layoutLoaded, layoutType } = newLayoutContextState;
+  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
+  const { layoutLoaded, layoutType, output } = newLayoutContextState;
+  const { cameraDock } = output;
 
   const { streams } = props;
   return (
     !streams.length
       ? null
       : (
-        <VideoList {...{ layoutLoaded, layoutType, webcamDraggableDispatch, ...props }}>
+        <VideoList {...{
+          layoutLoaded,
+          layoutType,
+          cameraDock,
+          webcamDraggableDispatch,
+          newLayoutContextDispatch,
+          ...props,
+        }}
+        >
           {children}
         </VideoList>
       )

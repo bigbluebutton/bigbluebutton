@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Settings from '/imports/ui/services/settings';
-import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
-import { notify } from '/imports/ui/services/notification';
 import VideoService from '/imports/ui/components/video-provider/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { withModalMounter } from '/imports/ui/components/modal/service';
@@ -23,41 +21,9 @@ const LAYOUT_CONFIG = Meteor.settings.public.layout;
 
 const propTypes = {
   isScreensharing: PropTypes.bool.isRequired,
-  intl: PropTypes.shape({
-    formatMessage: PropTypes.func.isRequired,
-  }).isRequired,
 };
 
-const intlMessages = defineMessages({
-  screenshareStarted: {
-    id: 'app.media.screenshare.start',
-    description: 'toast to show when a screenshare has started',
-  },
-  screenshareEnded: {
-    id: 'app.media.screenshare.end',
-    description: 'toast to show when a screenshare has ended',
-  },
-});
-
 class MediaContainer extends Component {
-  componentDidUpdate(prevProps) {
-    const {
-      isScreensharing,
-      intl,
-    } = this.props;
-    const {
-      isScreensharing: wasScreenSharing,
-    } = prevProps;
-
-    if (isScreensharing !== wasScreenSharing) {
-      if (!wasScreenSharing) {
-        notify(intl.formatMessage(intlMessages.screenshareStarted), 'info', 'desktop');
-      } else {
-        notify(intl.formatMessage(intlMessages.screenshareEnded), 'info', 'desktop');
-      }
-    }
-  }
-
   render() {
     return <Media {...this.props} />;
   }
@@ -138,7 +104,8 @@ export default withLayoutConsumer(withModalMounter(withTracker(() => {
   }
 
   data.webcamsPlacement = Storage.getItem('webcamsPlacement');
+  data.isRTL = document.documentElement.getAttribute('dir') === 'rtl';
 
   MediaContainer.propTypes = propTypes;
   return data;
-})(injectIntl(MediaContainer))));
+})(MediaContainer)));

@@ -77,10 +77,12 @@ public class ParamsProcessorUtil {
     private String defaultAvatarURL;
     private String defaultGuestPolicy;
     private Boolean authenticatedGuest;
+    private String defaultMeetingLayout;
     private int defaultMeetingDuration;
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
+    private boolean activityReportTracking;
     private boolean webcamsOnlyForModerator;
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
@@ -414,6 +416,24 @@ public class ParamsProcessorUtil {
             }
         }
 
+        boolean activityReportTrack = activityReportTracking;
+        if (!StringUtils.isEmpty(params.get(ApiParams.ACTIVITY_REPORT_TRACKING))) {
+            try {
+                activityReportTrack = Boolean.parseBoolean(params
+                        .get(ApiParams.ACTIVITY_REPORT_TRACKING));
+            } catch (Exception ex) {
+                log.warn(
+                        "Invalid param [activityReportTracking] for meeting=[{}]",
+                        internalMeetingId);
+            }
+        }
+
+        //Generate token to access Activity Report
+        String activityReportAccessToken = "";
+        if(activityReportTrack == true) {
+            activityReportAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
+        }
+
         boolean webcamsOnlyForMod = webcamsOnlyForModerator;
         if (!StringUtils.isEmpty(params.get(ApiParams.WEBCAMS_ONLY_FOR_MODERATOR))) {
             try {
@@ -447,11 +467,16 @@ public class ParamsProcessorUtil {
         String guestPolicy = defaultGuestPolicy;
         if (!StringUtils.isEmpty(params.get(ApiParams.GUEST_POLICY))) {
         	guestPolicy = params.get(ApiParams.GUEST_POLICY);
-		}
+		    }
+
+        String meetingLayout = defaultMeetingLayout;
+
+        if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_LAYOUT))) {
+            meetingLayout = params.get(ApiParams.MEETING_LAYOUT);
+        }
+
         BreakoutRoomsParams breakoutParams = processBreakoutRoomsParams(params);
         LockSettingsParams lockSettingsParams = processLockSettingsParams(params);
-
-
 
         // Collect metadata for this meeting that the third-party app wants to
         // store if meeting is recorded.
@@ -501,10 +526,13 @@ public class ParamsProcessorUtil {
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
                 .withGuestPolicy(guestPolicy)
                 .withAuthenticatedGuest(authenticatedGuest)
+                .withMeetingLayout(meetingLayout)
 				.withBreakoutRoomsParams(breakoutParams)
 				.withLockSettingsParams(lockSettingsParams)
 				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
                 .withHTML5InstanceId(html5InstanceId)
+                .withActivityReportTracking(activityReportTrack)
+                .withActivityReportAccessToken(activityReportAccessToken)
                 .build();
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
@@ -894,6 +922,10 @@ public class ParamsProcessorUtil {
         this.allowStartStopRecording = allowStartStopRecording;
     }
 
+    public void setActivityReportTracking(boolean activityReportTracking) {
+        this.activityReportTracking = activityReportTracking;
+    }
+
     public void setWebcamsOnlyForModerator(boolean webcamsOnlyForModerator) {
         this.webcamsOnlyForModerator = webcamsOnlyForModerator;
     }
@@ -912,6 +944,10 @@ public class ParamsProcessorUtil {
 
 	public void setAuthenticatedGuest(Boolean value) {
 		this.authenticatedGuest = value;
+	}
+
+  public void setDefaultMeetingLayout(String meetingLayout) {
+		this.defaultMeetingLayout =  meetingLayout;
 	}
 
 	public void setClientLogoutTimerInMinutes(Integer value) {
