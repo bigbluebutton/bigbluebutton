@@ -424,6 +424,8 @@ class CustomLayout extends Component {
         cameraDockBounds.maxWidth = mediaAreaBounds.width;
         cameraDockBounds.height = mediaAreaBounds.height;
         cameraDockBounds.maxHeight = mediaAreaBounds.height;
+        cameraDockBounds.top = DEFAULT_VALUES.navBarHeight;
+        cameraDockBounds.left = mediaAreaBounds.left;
       } else {
         let cameraDockLeft = 0;
         let cameraDockHeight = 0;
