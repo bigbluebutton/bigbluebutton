@@ -838,7 +838,16 @@ class VideoProvider extends Component {
   }
 
   destroyVideoTag(stream) {
-    delete this.videoTags[stream]
+    const videoElement = this.videoTags[stream];
+
+    if (videoElement == null) return;
+
+    if (typeof videoElement.pause === 'function') {
+      videoElement.pause();
+      videoElement.srcObject = null;
+    }
+
+    delete this.videoTags[stream];
   }
 
   handlePlayStop(message) {
