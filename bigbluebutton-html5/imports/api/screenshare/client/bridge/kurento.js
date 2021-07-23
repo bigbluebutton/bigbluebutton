@@ -283,6 +283,8 @@ export default class KurentoScreenshareBridge {
   };
 
   stop() {
+    const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG);
+
     if (this.broker) {
       this.broker.stop();
       // Checks if this session is a sharer and if it's not reconnecting
@@ -294,6 +296,12 @@ export default class KurentoScreenshareBridge {
       }
       this.broker = null;
     }
+
+    if (mediaElement && typeof mediaElement.pause === 'function') {
+      mediaElement.pause();
+      mediaElement.srcObject = null;
+    }
+
     this.gdmStream = null;
     this.clearReconnectionTimeout();
   }
