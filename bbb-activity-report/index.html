@@ -60,7 +60,7 @@
 					<td>{{totalOfRaiseHand}}</td>
 				</tr>
 				<tr>
-					<td style="text-align: right;"><b>ScreenShare (mins):</b></td>
+					<td style="text-align: right;"><b>ScreenShare:</b></td>
 					<td>{{timeOfScreenShare}}</td>
 				</tr>
 
@@ -72,9 +72,9 @@
 			        <tr>
 			            <th>Participant</th>
 			            <th>Time Joined</th>
-			            <th>Duration (mins)</th>
-			            <th>Talk Time (secs)</th>
-			            <th>Camera Time (mins)</th>
+			            <th>Duration</th>
+			            <th>Talk Time</th>
+			            <th>Camera Time</th>
 			            <th>Messages</th>
 			            <th>Emojis</th>
 			            <th>Raise hand</th>
@@ -84,9 +84,9 @@
 			        <tr v-for="user in activitiesJson.users">
 			            <td>{{user.name}}</td>
 			            <td>{{getDate(user.registeredOn)}}</td>
-			            <td>{{user.leftOn ? tsToMins(user.leftOn - user.registeredOn) : tsToMins(new Date().getTime() - user.registeredOn)}}</td>
-			            <td>{{tsToSecs(getSumOfTime(user.talks))}}</td>
-			            <td>{{tsToMins(getSumOfTime(user.webcams))}}</td>
+			            <td>{{user.leftOn ? tsToHHmmss(user.leftOn - user.registeredOn) : tsToHHmmss(new Date().getTime() - user.registeredOn)}}</td>
+			            <td>{{tsToHHmmss(user.talk.totalTime)}}</td>
+			            <td>{{tsToHHmmss(getSumOfTime(user.webcams))}}</td>
 			            <td>{{user.totalOfMessages}}</td>
 			            <td>{{user.totalOfEmojis}}</td>
 			            <td>{{user.totalOfRaiseHands}}</td>
@@ -153,7 +153,7 @@
             	},
             	timeOfScreenShare: function() {
             		if(this.activitiesJson && this.activitiesJson.screenshares) {
-            			return this.tsToMins(this.getSumOfTime(this.activitiesJson.screenshares));
+            			return this.tsToHHmmss(this.getSumOfTime(this.activitiesJson.screenshares));
             		} else {
             			return 0;
             		}
@@ -186,10 +186,13 @@
                     return dateTime;
                 },
                 tsToMins: function(ts) {
-                	return Math.floor((ts / 1000) / 60)
+                	return Math.floor((ts / 1000) / 60);
                 },
                 tsToSecs: function(ts) {
-                	return Math.floor(ts / 1000)
+                	return Math.floor(ts / 1000);
+                },
+                tsToHHmmss: function(ts) {
+                	return (new Date(ts).toISOString().substr(11, 8));
                 },
                 getSumOfTime: function(talksArr) {
                 	return talksArr.reduce( function( prevVal, elem ) {

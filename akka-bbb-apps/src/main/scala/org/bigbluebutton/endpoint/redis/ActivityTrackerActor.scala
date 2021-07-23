@@ -27,7 +27,7 @@ case class UserActivityTracker(
   extId:              String,
   name:               String,
   answers:            Map[String,String] = Map(),
-  talks:              Vector[Talk] = Vector(),
+  talk:               Talk = Talk(),
   webcams:            Vector[Webcam] = Vector(),
   totalOfMessages:    Long = 0,
   totalOfRaiseHands:  Long = 0,
@@ -47,8 +47,8 @@ case class Poll(
 )
 
 case class Talk(
-  startedOn: Long = System.currentTimeMillis(),
-  stoppedOn: Long = 0,
+  totalTime: Long = 0,
+  lastTalkStartedOn: Long = 0,
 )
 
 case class Webcam(
@@ -217,7 +217,7 @@ class ActivityTrackerActor(
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
       user <- meeting.users.values.find(u => u.intId == msg.body.intId)
     } yield {
-      endLastUserTalk(meeting, user)
+      endUserTalk(meeting, user)
     }
   }
 
@@ -226,7 +226,7 @@ class ActivityTrackerActor(
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
       user <- meeting.users.values.find(u => u.intId == msg.body.intId)
     } yield {
-      endLastUserTalk(meeting, user)
+      endUserTalk(meeting, user)
     }
   }
 
@@ -236,19 +236,23 @@ class ActivityTrackerActor(
       user <- meeting.users.values.find(u => u.intId == msg.body.intId)
     } yield {
       if(msg.body.talking) {
-        val updatedUser = user.copy(talks = user.talks :+ Talk())
+        val updatedUser = user.copy(talk = user.talk.copy(lastTalkStartedOn = System.currentTimeMillis()))
         val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
         meetings += (updatedMeeting.intId -> updatedMeeting)
       } else {
-        endLastUserTalk(meeting, user)
+        endUserTalk(meeting, user)
       }
     }
   }
 
-  private def endLastUserTalk(meeting: MeetingActivityTracker, user: UserActivityTracker): Unit = {
-    val lastTalk: Talk = user.talks.last
-    if(lastTalk.stoppedOn == 0) {
-      val updatedUser = user.copy(talks = user.talks.dropRight(1) :+ lastTalk.copy(stoppedOn = System.currentTimeMillis()))
+  private def endUserTalk(meeting: MeetingActivityTracker, user: UserActivityTracker): Unit = {
+    if(user.talk.lastTalkStartedOn > 0) {
+      val updatedUser = user.copy(
+        talk = user.talk.copy(
+          lastTalkStartedOn = 0,
+          totalTime = user.talk.totalTime + (System.currentTimeMillis() - user.talk.lastTalkStartedOn)
+        )
+      )
       val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
       meetings += (updatedMeeting.intId -> updatedMeeting)
     }
