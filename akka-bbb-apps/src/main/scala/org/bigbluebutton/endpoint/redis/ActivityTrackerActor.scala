@@ -79,16 +79,11 @@ object ActivityTrackerActor {
 class ActivityTrackerActor(
     system:         ActorSystem,
     val outGW:          OutMessageGateway,
-//    healthzService: HealthzService
 ) extends Actor with ActorLogging {
 
   private var meetings: Map[String, MeetingActivityTracker] = Map()
 
   system.scheduler.schedule(10.seconds, 10.seconds, self, SendPeriodicReport)
-
-//  private def record(session: String, message: java.util.Map[java.lang.String, java.lang.String]): Unit = {
-//    redis.recordAndExpire(session, message)
-//  }
 
   def receive = {
     //=============================
@@ -102,47 +97,33 @@ class ActivityTrackerActor(
     msg.core match {
       // Chat
             case m: GroupChatMessageBroadcastEvtMsg       => handleGroupChatMessageBroadcastEvtMsg(m)
-//            case m: ClearPublicChatHistoryEvtMsg          => handleClearPublicChatHistoryEvtMsg(m)
 
       // User
       case m: UserJoinedMeetingEvtMsg => handleUserJoinedMeetingEvtMsg(m)
       case m: UserLeftMeetingEvtMsg   => handleUserLeftMeetingEvtMsg(m)
-      //      case m: PresenterAssignedEvtMsg               => handlePresenterAssignedEvtMsg(m)
-            case m: UserEmojiChangedEvtMsg                => handleUserEmojiChangedEvtMsg(m)
-      //      case m: UserRoleChangedEvtMsg                 => handleUserRoleChangedEvtMsg(m)
-            case m: UserBroadcastCamStartedEvtMsg         => handleUserBroadcastCamStartedEvtMsg(m)
-            case m: UserBroadcastCamStoppedEvtMsg         => handleUserBroadcastCamStoppedEvtMsg(m)
+      case m: UserEmojiChangedEvtMsg                => handleUserEmojiChangedEvtMsg(m)
+      case m: UserBroadcastCamStartedEvtMsg         => handleUserBroadcastCamStartedEvtMsg(m)
+      case m: UserBroadcastCamStoppedEvtMsg         => handleUserBroadcastCamStoppedEvtMsg(m)
 
       // Voice
-            case m: UserJoinedVoiceConfToClientEvtMsg     => handleUserJoinedVoiceConfToClientEvtMsg(m)
-            case m: UserLeftVoiceConfToClientEvtMsg       => handleUserLeftVoiceConfToClientEvtMsg(m)
-            case m: UserMutedVoiceEvtMsg                  => handleUserMutedVoiceEvtMsg(m)
-            case m: UserTalkingVoiceEvtMsg                => handleUserTalkingVoiceEvtMsg(m)
-      //
-      //      case m: VoiceRecordingStartedEvtMsg           => handleVoiceRecordingStartedEvtMsg(m)
-      //      case m: VoiceRecordingStoppedEvtMsg           => handleVoiceRecordingStoppedEvtMsg(m)
+      case m: UserJoinedVoiceConfToClientEvtMsg     => handleUserJoinedVoiceConfToClientEvtMsg(m)
+      case m: UserLeftVoiceConfToClientEvtMsg       => handleUserLeftVoiceConfToClientEvtMsg(m)
+      case m: UserMutedVoiceEvtMsg                  => handleUserMutedVoiceEvtMsg(m)
+      case m: UserTalkingVoiceEvtMsg                => handleUserTalkingVoiceEvtMsg(m)
 
       // Screenshare
       case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
       case m: ScreenshareRtmpBroadcastStoppedEvtMsg => handleScreenshareRtmpBroadcastStoppedEvtMsg(m)
-      //case m: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg => handleScreenshareRtmpBroadcastStartedVoiceConfEvtMsg(m)
-      //case m: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg => handleScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg(m)
-      //case m: DeskShareNotifyViewersRTMP  => handleDeskShareNotifyViewersRTMP(m)
 
       // Meeting
-      //      case m: RecordingStatusChangedEvtMsg          => handleRecordingStatusChangedEvtMsg(m)
-      //      case m: RecordStatusResetSysMsg               => handleRecordStatusResetSysMsg(m)
-      //      case m: WebcamsOnlyForModeratorChangedEvtMsg  => handleWebcamsOnlyForModeratorChangedEvtMsg(m)
       case m: CreateMeetingReqMsg         => handleCreateMeetingReqMsg(m)
       case m: MeetingEndingEvtMsg     => handleMeetingEndingEvtMsg(m)
 
       // Poll
       case m: PollStartedEvtMsg                     => handlePollStartedEvtMsg(m)
       case m: UserRespondedToPollRecordMsg          => handleUserRespondedToPollRecordMsg(m)
-//      case m: PollStoppedEvtMsg                     => handlePollStoppedEvtMsg(m)
-//      case m: PollShowResultEvtMsg                  => handlePollShowResultEvtMsg(m)
 
-      case _                          => // message not to be recorded.
+      case _                          => // message not to be handled.
     }
   }
 
@@ -234,7 +215,7 @@ class ActivityTrackerActor(
   }
 
   private def handleUserJoinedVoiceConfToClientEvtMsg(msg: UserJoinedVoiceConfToClientEvtMsg): Unit = {
-    //dont store this info
+    //dont store this info yet
   }
 
   private def handleUserLeftVoiceConfToClientEvtMsg(msg: UserLeftVoiceConfToClientEvtMsg) {
@@ -370,7 +351,7 @@ class ActivityTrackerActor(
       val activityJson: String = JsonUtil.toJson(meeting._2)
       val event = MsgBuilder.buildActivityReportEvtMsg(meeting._2.intId, activityJson)
       outGW.send(event)
-      
+
       log.info("Activity Report sent for meeting {}",meeting._2.intId)
     })
 
