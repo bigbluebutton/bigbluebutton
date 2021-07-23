@@ -370,8 +370,8 @@ class ActivityTrackerActor(
       val activityJson: String = JsonUtil.toJson(meeting._2)
       val event = MsgBuilder.buildActivityReportEvtMsg(meeting._2.intId, activityJson)
       outGW.send(event)
-
-      log.info("Activity Report sent for meeting {}: {}",meeting._2.intId,activityJson)
+      
+      log.info("Activity Report sent for meeting {}",meeting._2.intId)
     })
 
   }
