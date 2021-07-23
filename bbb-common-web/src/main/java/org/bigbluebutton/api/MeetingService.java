@@ -49,6 +49,7 @@ import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.RegisteredUser;
 import org.bigbluebutton.api.domain.User;
 import org.bigbluebutton.api.domain.UserSession;
+import org.bigbluebutton.api.domain.MeetingLayout;
 import org.bigbluebutton.api.messaging.MessageListener;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
@@ -117,7 +118,7 @@ public class MeetingService implements MessageListener {
   public void addUserSession(String token, UserSession user) {
     sessions.put(token, user);
   }
-  
+
   public String getTokenByUserId(String internalUserId) {
       String result = null;
       for (Entry<String, UserSession> e : sessions.entrySet()) {
@@ -393,6 +394,7 @@ public class MeetingService implements MessageListener {
     logData.put("description", "Create meeting.");
 
     logData.put("meetingKeepEvents", m.getMeetingKeepEvents());
+    logData.put("meetingLayout", m.getMeetingLayout());
 
     Gson gson = new Gson();
     String logStr = gson.toJson(logData);
@@ -404,7 +406,7 @@ public class MeetingService implements MessageListener {
             m.getWebcamsOnlyForModerator(), m.getModeratorPassword(), m.getViewerPassword(),
             m.getActivityReportTracking(), m.getActivityReportAccessToken(), m.getCreateTime(),
             formatPrettyDate(m.getCreateTime()), m.isBreakout(), m.getSequence(), m.isFreeJoin(), m.getMetadata(),
-            m.getGuestPolicy(), m.getAuthenticatedGuest(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(), m.getModeratorOnlyMessage(),
+            m.getGuestPolicy(), m.getAuthenticatedGuest(), m.getMeetingLayout(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(), m.getModeratorOnlyMessage(),
             m.getDialNumber(), m.getMaxUsers(),
             m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes(),
             m.getUserInactivityInspectTimerInMinutes(), m.getUserInactivityThresholdInMinutes(),
@@ -557,7 +559,7 @@ public class MeetingService implements MessageListener {
   public String getCaptionTrackInboxDir() {
   	return recordingService.getCaptionTrackInboxDir();
   }
-  
+
   public String getCaptionsDir() {
     return recordingService.getCaptionsDir();
   }
@@ -671,7 +673,7 @@ public class MeetingService implements MessageListener {
       log.error(" --analytics-- data={}", logStr);
     }
   }
-  
+
   private void processUpdateRecordingStatus(UpdateRecordingStatus message) {
     Meeting m = getMeeting(message.meetingId);
       // Set only once
