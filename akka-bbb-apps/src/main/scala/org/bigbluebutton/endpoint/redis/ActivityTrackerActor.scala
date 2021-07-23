@@ -66,13 +66,11 @@ object ActivityTrackerActor {
   def props(
              system:         ActorSystem,
              outGW:          OutMessageGateway,
-//             healthzService: HealthzService
   ): Props =
     Props(
       classOf[ActivityTrackerActor],
       system,
       outGW
-//      healthzService
     )
 }
 
@@ -96,7 +94,7 @@ class ActivityTrackerActor(
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
       // Chat
-            case m: GroupChatMessageBroadcastEvtMsg       => handleGroupChatMessageBroadcastEvtMsg(m)
+      case m: GroupChatMessageBroadcastEvtMsg       => handleGroupChatMessageBroadcastEvtMsg(m)
 
       // User
       case m: UserJoinedMeetingEvtMsg => handleUserJoinedMeetingEvtMsg(m)
@@ -165,8 +163,6 @@ class ActivityTrackerActor(
 
       meetings += (updatedMeeting.intId -> updatedMeeting)
     }
-
-
   }
 
   private def handleUserEmojiChangedEvtMsg(msg: UserEmojiChangedEvtMsg) {
@@ -198,7 +194,6 @@ class ActivityTrackerActor(
       val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
       meetings += (updatedMeeting.intId -> updatedMeeting)
     }
-
   }
 
   private def handleUserBroadcastCamStoppedEvtMsg(msg: UserBroadcastCamStoppedEvtMsg) {
@@ -211,7 +206,6 @@ class ActivityTrackerActor(
       val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
       meetings += (updatedMeeting.intId -> updatedMeeting)
     }
-
   }
 
   private def handleUserJoinedVoiceConfToClientEvtMsg(msg: UserJoinedVoiceConfToClientEvtMsg): Unit = {
@@ -270,7 +264,6 @@ class ActivityTrackerActor(
       val updatedMeeting = meeting.copy(polls = meeting.polls + (newPoll.pollId -> newPoll))
       meetings += (updatedMeeting.intId -> updatedMeeting)
     }
-
   }
 
   private def handleUserRespondedToPollRecordMsg(msg: UserRespondedToPollRecordMsg): Unit = {
@@ -278,8 +271,6 @@ class ActivityTrackerActor(
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
       user <- meeting.users.values.find(u => u.intId == msg.header.userId)
     } yield {
-
-
       if(msg.body.isSecret) {
         //Store Anonymous Poll in `poll.anonymousAnswers`
         for {
@@ -337,7 +328,6 @@ class ActivityTrackerActor(
     for {
       meeting <- meetings.values.find(m => m.intId == msg.body.meetingId)
     } yield {
-
       //Send report one last time
       sendPeriodicReport()
 
@@ -354,7 +344,6 @@ class ActivityTrackerActor(
 
       log.info("Activity Report sent for meeting {}",meeting._2.intId)
     })
-
   }
 
 }
