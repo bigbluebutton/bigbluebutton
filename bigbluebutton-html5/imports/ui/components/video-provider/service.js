@@ -819,7 +819,6 @@ class VideoService {
 
   getPreloadedStream () {
     if (this.deviceId == null) return;
-
     return VideoPreviewService.getStream(this.deviceId);
   }
 }

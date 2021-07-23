@@ -4,6 +4,7 @@ import {
   defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
+import VirtualBgSelector from '/imports/ui/components/video-preview/virtual-background/component'
 import logger from '/imports/startup/client/logger';
 import Modal from '/imports/ui/components/modal/simple/component';
 import browserInfo from '/imports/utils/browserInfo';
@@ -14,6 +15,13 @@ import { styles } from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { notify } from '/imports/ui/services/notification';
+import {
+  EFFECT_TYPES,
+  SHOW_THUMBNAILS,
+  setSessionVirtualBackgroundInfo,
+  isVirtualBackgroundEnabled,
+  getSessionVirtualBackgroundInfo,
+} from '/imports/ui/services/virtual-background/service'
 
 const VIEW_STATES = {
   finding: 'finding',
@@ -167,6 +175,10 @@ const intlMessages = defineMessages({
     id: 'app.video.genericError',
     description: 'error message for when the webcam sharing fails with unknown error',
   },
+  virtualBgGenericError: {
+    id: 'app.video.virtualBackground.genericError',
+    description: 'Failed to apply camera effect',
+  },
 });
 
 class VideoPreview extends Component {
@@ -183,8 +195,8 @@ class VideoPreview extends Component {
     this.handleStopSharingAll = this.handleStopSharingAll.bind(this);
     this.handleSelectWebcam = this.handleSelectWebcam.bind(this);
     this.handleSelectProfile = this.handleSelectProfile.bind(this);
+    this.handleVirtualBgSelected = this.handleVirtualBgSelected.bind(this);
 
-    this.deviceStream = null;
     this._isMounted = false;
 
     this.state = {
@@ -196,6 +208,14 @@ class VideoPreview extends Component {
       deviceError: null,
       previewError: null,
     };
+  }
+
+  set currentVideoStream (bbbVideoStream) {
+    this._currentVideoStream = bbbVideoStream;
+  }
+
+  get currentVideoStream () {
+    return this._currentVideoStream;
   }
 
   componentDidMount() {
@@ -278,7 +298,8 @@ class VideoPreview extends Component {
   }
 
   componentWillUnmount() {
-    PreviewService.terminateCameraStream(this.deviceStream, this.state.webcamDeviceId);
+    const { webcamDeviceId } = this.state;
+    PreviewService.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
     this.cleanupStreamAndVideo();
     this._isMounted = false;
   }
@@ -288,6 +309,39 @@ class VideoPreview extends Component {
 
     this.getInitialCameraStream(webcamValue).then(() => {
       this.displayPreview();
+    });
+  }
+
+  // Resolves into true if the background switch is successful, false otherwise
+  handleVirtualBgSelected(type, name) {
+    if (type !== EFFECT_TYPES.NONE_TYPE) {
+      return this.startVirtualBackground(this.currentVideoStream, type, name);
+    } else {
+      this.stopVirtualBackground(this.currentVideoStream);
+      return Promise.resolve(true);
+    }
+  }
+
+  stopVirtualBackground(bbbVideoStream) {
+    if (bbbVideoStream) {
+      bbbVideoStream.stopVirtualBackground();
+      this.displayPreview();
+    }
+  }
+
+  startVirtualBackground(bbbVideoStream, type, name) {
+    this.setState({ isStartSharingDisabled: true });
+
+    if (bbbVideoStream == null) return Promise.resolve(false);
+
+    return bbbVideoStream.startVirtualBackground(type, name).then(() => {
+      this.displayPreview();
+      return true;
+    }).catch(error => {
+      this.handleVirtualBgError(error, type, name);
+      return false;
+    }).finally(() => {
+      this.setState({ isStartSharingDisabled: false });
     });
   }
 
@@ -304,12 +358,17 @@ class VideoPreview extends Component {
   handleStartSharing() {
     const { resolve, startSharing } = this.props;
     const { webcamDeviceId } = this.state;
-    // Only streams that will be shared should be stored in the service.
-    // If the store call returns false, we're duplicating stuff. So clean this one
+    // Only streams that will be shared should be stored in the service.  // If the store call returns false, we're duplicating stuff. So clean this one
     // up because it's an impostor.
-    if(!PreviewService.storeStream(webcamDeviceId, this.deviceStream)) {
-      MediaStreamUtils.stopMediaStreamTracks(this.deviceStream);
+    if(!PreviewService.storeStream(webcamDeviceId, this.currentVideoStream)) {
+      this.currentVideoStream.stop();
     }
+
+    // Update this session's virtual camera effect information if it's enabled
+    setSessionVirtualBackgroundInfo(
+      this.currentVideoStream.virtualBgType,
+      this.currentVideoStream.virtualBgName,
+    );
     this.cleanupStreamAndVideo();
     startSharing(webcamDeviceId);
     if (resolve) resolve();
@@ -332,8 +391,9 @@ class VideoPreview extends Component {
 
   handleProceed() {
     const { resolve, closeModal } = this.props;
+    const { webcamDeviceId } = this.state;
 
-    PreviewService.terminateCameraStream(this.deviceStream, this.state.webcamDeviceId);
+    PreviewService.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
     closeModal();
     if (resolve) resolve();
   }
@@ -385,15 +445,30 @@ class VideoPreview extends Component {
   }
 
   cleanupStreamAndVideo() {
-    this.deviceStream = null;
+    this.currentVideoStream = null;
     if (this.video) this.video.srcObject = null;
+  }
+
+  handleVirtualBgError(error, type, name) {
+    const { intl } = this.props;
+    logger.error({
+      logCode: `video_preview_virtualbg_error`,
+      extraInfo: {
+        errorName: error.name,
+        errorMessage: error.message,
+        virtualBgType: type,
+        virtualBgName: name,
+      },
+    }, `Failed to toggle virtual background: ${error.message}`);
+
+    notify(intl.formatMessage(intlMessages.virtualBgGenericError), 'error', 'video');
   }
 
   updateDeviceId (deviceId) {
     let actualDeviceId = deviceId;
 
-    if (!actualDeviceId) {
-      actualDeviceId = MediaStreamUtils.extractVideoDeviceId(this.deviceStream);
+    if (!actualDeviceId && this.currentVideoStream) {
+      actualDeviceId = MediaStreamUtils.extractVideoDeviceId(this.currentVideoStream.mediaStream);
     }
 
     this.setState({ webcamDeviceId: actualDeviceId, });
@@ -418,18 +493,18 @@ class VideoPreview extends Component {
     });
 
     PreviewService.changeProfile(profile.id);
-    PreviewService.terminateCameraStream(this.deviceStream, webcamDeviceId);
+    PreviewService.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
     this.cleanupStreamAndVideo();
 
-    return PreviewService.doGUM(deviceId, profile).then((stream) => {
+    // The return of doGUM is an instance of BBBVideoStream (a thin wrapper over a MediaStream)
+    return PreviewService.doGUM(deviceId, profile).then((bbbVideoStream) => {
       // Late GUM resolve, clean up tracks, stop.
-      if (!this._isMounted) return PreviewService.terminateCameraStream(stream, deviceId);
+      if (!this._isMounted) return PreviewService.terminateCameraStream(bbbVideoStream, deviceId);
 
+      this.currentVideoStream = bbbVideoStream;
       this.setState({
         isStartSharingDisabled: false,
       });
-
-      this.deviceStream = stream;
     }).catch((error) => {
       // When video preview is set to skip, we need some way to bubble errors
       // up to users; so re-throw the error
@@ -442,7 +517,9 @@ class VideoPreview extends Component {
   }
 
   displayPreview() {
-    if (this.deviceStream && this.video) this.video.srcObject = this.deviceStream;
+    if (this.currentVideoStream && this.video) {
+      this.video.srcObject = this.currentVideoStream.mediaStream;
+    }
   }
 
   skipVideoPreview() {
@@ -555,7 +632,25 @@ class VideoPreview extends Component {
             </span>
           )
         }
+        {isVirtualBackgroundEnabled() && this.renderVirtualBgSelector()}
       </div>
+    );
+  }
+
+  renderVirtualBgSelector() {
+    const { isStartSharingDisabled } = this.state;
+    const initialVirtualBgState = this.currentVideoStream ? {
+      type: this.currentVideoStream.virtualBgType,
+      name: this.currentVideoStream.virtualBgName
+    } : getSessionVirtualBackgroundInfo();
+
+    return (
+      <VirtualBgSelector
+        handleVirtualBgSelected={this.handleVirtualBgSelected}
+        locked={isStartSharingDisabled}
+        showThumbnails={SHOW_THUMBNAILS}
+        initialVirtualBgState={initialVirtualBgState}
+      />
     );
   }
 
