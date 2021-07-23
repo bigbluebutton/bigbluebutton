@@ -277,8 +277,16 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
   }
 
   exitAudio() {
+    const mediaElement = document.getElementById(MEDIA_TAG);
+
     this.broker.stop();
     this.clearReconnectionTimeout();
+
+    if (mediaElement && typeof mediaElement.pause === 'function') {
+      mediaElement.pause();
+      mediaElement.srcObject = null;
+    }
+
     return Promise.resolve();
   }
 }
