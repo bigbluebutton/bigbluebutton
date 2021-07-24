@@ -11,6 +11,12 @@ import {
 } from '/imports/utils/fetchStunTurnServers';
 import logger from '/imports/startup/client/logger';
 import { notifyStreamStateChange } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
+import VideoPreviewService from '../video-preview/service';
+import MediaStreamUtils from '/imports/utils/media-stream-utils';
+import { BBBVideoStream } from '/imports/ui/services/webrtc-base/bbb-video-stream';
+import {
+  getSessionVirtualBackgroundInfoWithDefault
+} from '/imports/ui/services/virtual-background/service'
 
 // Default values and default empty object to be backwards compat with 2.2.
 // FIXME Remove hardcoded defaults 2.3.
@@ -35,6 +41,14 @@ const intlClientErrors = defineMessages({
   mediaFlowTimeout: {
     id: 'app.video.mediaFlowTimeout1020',
     description: 'Media flow timeout',
+  },
+  mediaTimedOutError: {
+    id: 'app.video.mediaTimedOutError',
+    description: 'Media was ejected by the server due to lack of valid media',
+  },
+  virtualBgGenericError: {
+    id: 'app.video.virtualBackground.genericError',
+    description: 'Failed to apply camera effect',
   },
 });
 
@@ -119,6 +133,7 @@ class VideoProvider extends Component {
     this.onWsClose = this.onWsClose.bind(this);
     this.onWsMessage = this.onWsMessage.bind(this);
     this.updateStreams = this.updateStreams.bind(this);
+    this.toggleVirtualBg = this.toggleVirtualBg.bind(this)
     this.debouncedConnectStreams = _.debounce(
       this.connectStreams,
       VideoService.getPageChangeDebounceTime(),
@@ -386,7 +401,7 @@ class VideoProvider extends Component {
     }
   }
 
-  clearRestartTimers (stream) {
+  clearRestartTimers(stream) {
     if (this.restartTimeout[stream]) {
       clearTimeout(this.restartTimeout[stream]);
       delete this.restartTimeout[stream];
@@ -441,9 +456,14 @@ class VideoProvider extends Component {
     const role = VideoService.getRole(isLocal);
 
     if (peer) {
+      if (peer && peer.bbbVideoStream) {
+        peer.bbbVideoStream.stop();
+      }
+
       if (typeof peer.dispose === 'function') {
         peer.dispose();
       }
+
       delete this.outboundIceQueues[stream];
       delete this.webRtcPeers[stream];
     } else {
@@ -464,6 +484,14 @@ class VideoProvider extends Component {
     }
 
     this.webRtcPeers[stream] = {};
+    const { constraints, bitrate, id: profileId } = VideoService.getCameraProfile();
+    const peerOptions = {
+      mediaConstraints: {
+        audio: false,
+        video: constraints,
+      },
+      onicecandidate: this._getOnIceCandidateCallback(stream, isLocal),
+    };
 
     try {
       iceServers = await fetchWebRTCMappedStunTurnServers(this.info.sessionToken);
@@ -480,15 +508,7 @@ class VideoProvider extends Component {
       // Use fallback STUN server
       iceServers = getMappedFallbackStun();
     } finally {
-      const { constraints, bitrate, id: profileId } = VideoService.getCameraProfile();
       this.outboundIceQueues[stream] = [];
-      const peerOptions = {
-        mediaConstraints: {
-          audio: false,
-          video: constraints,
-        },
-        onicecandidate: this._getOnIceCandidateCallback(stream, isLocal),
-      };
 
       if (iceServers.length > 0) {
         peerOptions.configuration = {};
@@ -496,8 +516,13 @@ class VideoProvider extends Component {
       }
 
       let WebRtcPeerObj;
+      let bbbVideoStream
       if (isLocal) {
         WebRtcPeerObj = window.kurentoUtils.WebRtcPeer.WebRtcPeerSendonly;
+        bbbVideoStream = VideoService.getPreloadedStream();
+        if (bbbVideoStream) {
+          peerOptions.videoStream = bbbVideoStream.mediaStream;
+        }
       } else {
         WebRtcPeerObj = window.kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
       }
@@ -519,6 +544,25 @@ class VideoProvider extends Component {
 
         if (error) {
           return this._onWebRTCError(error, stream, isLocal);
+        }
+
+        if (peer.isPublisher) {
+          // Store the media stream if necessary. The scenario here is one where
+          // there is no preloaded stream stored.
+          if (bbbVideoStream == null) {
+            bbbVideoStream = new BBBVideoStream(peer.getLocalStream());
+            VideoPreviewService.storeStream(
+              MediaStreamUtils.extractVideoDeviceId(bbbVideoStream.mediaStream),
+              bbbVideoStream
+            );
+          }
+
+          peer.bbbVideoStream = bbbVideoStream;
+          bbbVideoStream.on('streamSwapped', ({ newStream }) => {
+            if (newStream && newStream instanceof MediaStream) {
+              this.replacePCVideoTracks(stream, newStream);
+            }
+          });
         }
 
         peer.generateOffer((errorGenOffer, offerSdp) => {
@@ -563,7 +607,6 @@ class VideoProvider extends Component {
         conn.onconnectionstatechange = () => {
           this._handleIceConnectionStateChange(stream, isLocal);
         };
-        VideoService.monitor(conn);
       }
     }
   }
@@ -704,7 +747,7 @@ class VideoProvider extends Component {
     this.sendMessage(message);
   }
 
-  _handleIceConnectionStateChange (stream, isLocal) {
+  _handleIceConnectionStateChange(stream, isLocal) {
     const { intl } = this.props;
     const peer = this.webRtcPeers[stream];
     const role = VideoService.getRole(isLocal);
@@ -739,8 +782,21 @@ class VideoProvider extends Component {
     }
   }
 
+  attach (peer, videoElement) {
+    if (peer && videoElement) {
+      const stream = peer.isPublisher ? peer.getLocalStream() : peer.getRemoteStream();
+      videoElement.pause();
+      videoElement.srcObject = stream;
+      videoElement.load();
+    }
+  }
+
+  getVideoElement(streamId) {
+    return this.videoTags[streamId];
+  }
+
   attachVideoStream(stream) {
-    const video = this.videoTags[stream];
+    const video = this.getVideoElement(stream);
 
     if (video == null) {
       logger.warn({
@@ -757,14 +813,6 @@ class VideoProvider extends Component {
       return; // Skip if the stream is already attached
     }
 
-    const attachVideoStreamHelper = () => {
-      const stream = isLocal ? peer.getLocalStream() : peer.getRemoteStream();
-      video.pause();
-      video.srcObject = stream;
-      video.load();
-      peer.attached = true;
-    };
-
     // Conditions to safely attach a stream to a video element in all browsers:
     // 1 - Peer exists
     // 2 - It hasn't been attached yet
@@ -774,7 +822,10 @@ class VideoProvider extends Component {
     // do so is waiting for the server to confirm that media has flown out of it
     // towards the remote end.
     const isAbleToAttach = peer && !peer.attached && (peer.started || isLocal);
-    if (isAbleToAttach) attachVideoStreamHelper();
+    if (isAbleToAttach) {
+      this.attach(peer, video);
+      peer.attached = true;
+    }
   }
 
   createVideoTag(stream, video) {
@@ -787,10 +838,20 @@ class VideoProvider extends Component {
   }
 
   destroyVideoTag(stream) {
-    delete this.videoTags[stream]
+    const videoElement = this.videoTags[stream];
+
+    if (videoElement == null) return;
+
+    if (typeof videoElement.pause === 'function') {
+      videoElement.pause();
+      videoElement.srcObject = null;
+    }
+
+    delete this.videoTags[stream];
   }
 
   handlePlayStop(message) {
+    const { intl } = this.props;
     const { cameraId: stream, role } = message;
 
     logger.info({
@@ -800,6 +861,8 @@ class VideoProvider extends Component {
         role,
       },
     }, `Received request from SFU to stop camera. Role: ${role}`);
+
+    VideoService.notify(intl.formatMessage(intlClientErrors.mediaTimedOutError));
     this.stopWebRTCPeer(stream, false);
   }
 
@@ -860,16 +923,81 @@ class VideoProvider extends Component {
     }
   }
 
+  replacePCVideoTracks (streamId, mediaStream) {
+    let replaced = false;
+    const peer = this.webRtcPeers[streamId];
+    const videoElement = this.getVideoElement(streamId);
+
+    if (peer == null || mediaStream == null || videoElement == null) return;
+
+    const pc = peer.peerConnection;
+    const newTracks = mediaStream.getVideoTracks();
+
+    if (pc) {
+      try {
+        pc.getSenders().forEach((sender, index) => {
+          if (sender.track && sender.track.kind === 'video') {
+            const newTrack = newTracks[index];
+            if (newTrack == null) return;
+            sender.replaceTrack(newTrack);
+            replaced = true;
+          }
+        });
+      } catch (error) {
+        logger.error({
+          logCode: 'video_provider_replacepc_error',
+          extraInfo: { errorMessage: error.message, cameraId: streamId },
+        }, `Failed to replace peer connection tracks: ${error.message}`);
+      }
+    }
+
+    if (replaced) {
+      peer.localStream = mediaStream;
+      this.attach(peer, videoElement);
+    }
+  }
+
+  toggleVirtualBg(streamId, bbbVideoStream) {
+    if (!bbbVideoStream.isVirtualBackgroundEnabled) {
+      const { intl } = this.props;
+      const { name, type } = getSessionVirtualBackgroundInfoWithDefault();
+      bbbVideoStream.startVirtualBackground(type, name).catch(error => {
+        logger.error({
+          logCode: 'video_provider_virtualbg_error',
+          extraInfo: {
+            errorCode: error.code,
+            errorMessage: error.message,
+            cameraId: streamId,
+            virtualBgType: type,
+            virtualBgName: name,
+          },
+        }, `Failed to toggle virtual background: ${error.message}`);
+        VideoService.notify(intl.formatMessage(intlClientErrors.virtualBgGenericError));
+      });
+    } else {
+      bbbVideoStream.stopVirtualBackground();
+    }
+  }
+
   render() {
-    const { swapLayout, currentVideoPageIndex, streams } = this.props;
+    const {
+      swapLayout,
+      currentVideoPageIndex,
+      streams,
+      cameraDockBounds,
+    } = this.props;
 
     return (
       <VideoListContainer
-        streams={streams}
+        {...{
+          streams,
+          swapLayout,
+          currentVideoPageIndex,
+          cameraDockBounds,
+        }}
         onVideoItemMount={this.createVideoTag}
         onVideoItemUnmount={this.destroyVideoTag}
-        swapLayout={swapLayout}
-        currentVideoPageIndex={currentVideoPageIndex}
+        toggleVirtualBg={this.toggleVirtualBg}
       />
     );
   }

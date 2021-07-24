@@ -195,7 +195,7 @@ public class ResponseBuilder {
 
         Map<String, Serializable> data = new HashMap<String, Serializable>();
         data.put("returnCode", returnCode);
-        data.put("sessionsList", new ArrayList<UserSession>(sessions));
+        data.put("sessionsList", new ArrayList<>(sessions));
         data.put("msgKey", msgKey);
         data.put("msg", msg);
 

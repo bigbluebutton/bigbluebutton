@@ -42,6 +42,10 @@ class PollStartedRecordEvent extends AbstractPollRecordEvent {
   def setType(pollType: String) {
     eventMap.put(TYPE, pollType)
   }
+
+  def setSecretPoll(secretPoll: Boolean) {
+    eventMap.put(SECRET_POLL, secretPoll.toString)
+  }
 }
 
 object PollStartedRecordEvent {
@@ -49,4 +53,5 @@ object PollStartedRecordEvent {
   protected final val QUESTION = "question"
   protected final val ANSWERS = "answers"
   protected final val TYPE = "type"
+  protected final val SECRET_POLL = "secretPoll"
 }

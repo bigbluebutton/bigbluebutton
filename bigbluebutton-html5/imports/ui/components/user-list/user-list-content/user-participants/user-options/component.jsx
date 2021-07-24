@@ -12,6 +12,7 @@ import CaptionsService from '/imports/ui/components/captions/service';
 import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
 import { styles } from './styles';
 import { getUserNamesLink } from '/imports/ui/components/user-list/service';
+import Settings from '/imports/ui/services/settings';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -92,6 +93,14 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.createBreakoutRoomDesc',
     description: 'Description of create breakout room option',
   },
+  activityReportLabel: {
+    id: 'app.activity-report.label',
+    description: 'Activity Report label',
+  },
+  activityReportDesc: {
+    id: 'app.activity-report.description',
+    description: 'Activity Report description',
+  },
   invitationItem: {
     id: 'app.invitation.title',
     description: 'invitation to breakout title',
@@ -136,6 +145,7 @@ class UserOptions extends PureComponent {
     this.lockId = _.uniqueId('list-item-');
     this.guestPolicyId = _.uniqueId('list-item-');
     this.createBreakoutId = _.uniqueId('list-item-');
+    this.activityReportId = _.uniqueId('list-item-');
     this.saveUsersNameId = _.uniqueId('list-item-');
     this.captionsId = _.uniqueId('list-item-');
 
@@ -151,16 +161,17 @@ class UserOptions extends PureComponent {
 
   onSaveUserNames() {
     const { intl, meetingName } = this.props;
+    const lang = Settings.application.locale;
     const date = new Date();
+
+    const dateString = lang ? date.toLocaleDateString(lang) : date.toLocaleDateString();
+    const timeString = lang ? date.toLocaleTimeString(lang) : date.toLocaleTimeString();
+
     getUserNamesLink(
       intl.formatMessage(intlMessages.savedNamesListTitle,
         {
           0: meetingName,
-          1: `${date.toLocaleDateString(
-            document.documentElement.lang,
-          )}:${date.toLocaleTimeString(
-            document.documentElement.lang,
-          )}`,
+          1: `${dateString}:${timeString}`,
         }),
       intl.formatMessage(intlMessages.sortedFirstNameHeading),
       intl.formatMessage(intlMessages.sortedLastNameHeading),
@@ -221,6 +232,8 @@ class UserOptions extends PureComponent {
       hasBreakoutRoom,
       isBreakoutEnabled,
       getUsersNotAssigned,
+      activityReportAccessToken,
+      openActivityReportUrl,
       amIModerator,
       users,
       isMeteorConnected,
@@ -297,6 +310,17 @@ class UserOptions extends PureComponent {
           data-test="guestPolicyLabel"
           description={intl.formatMessage(intlMessages.guestPolicyDesc)}
           onClick={() => mountModal(<GuestPolicyContainer />)}
+        />
+      ) : null
+      ),
+      (amIModerator && activityReportAccessToken != null ? (
+        <Dropdown.DropdownListItem
+          data-test="openActivityReport"
+          icon="multi_whiteboard"
+          label={intl.formatMessage(intlMessages.activityReportLabel)}
+          description={intl.formatMessage(intlMessages.activityReportDesc)}
+          key={this.activityReportId}
+          onClick={openActivityReportUrl}
         />
       ) : null
       ),

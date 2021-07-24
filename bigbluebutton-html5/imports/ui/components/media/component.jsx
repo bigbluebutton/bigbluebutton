@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import deviceInfo from '/imports/utils/deviceInfo';
-import Settings from '/imports/ui/services/settings';
 import WebcamDraggable from './webcam-draggable-overlay/component';
 import { styles } from './styles';
 import Storage from '../../services/storage/session';
@@ -15,16 +14,15 @@ const propTypes = {
   singleWebcam: PropTypes.bool.isRequired,
   hideOverlay: PropTypes.bool,
   swapLayout: PropTypes.bool,
-  disableVideo: PropTypes.bool,
   audioModalIsOpen: PropTypes.bool,
   layoutContextState: PropTypes.instanceOf(Object).isRequired,
+  isRTL: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
   usersVideo: [],
   hideOverlay: true,
   swapLayout: false,
-  disableVideo: false,
   audioModalIsOpen: false,
 };
 
@@ -40,12 +38,12 @@ export default class Media extends Component {
       swapLayout,
       singleWebcam,
       hideOverlay,
-      disableVideo,
       children,
       audioModalIsOpen,
       usersVideo,
       layoutContextState,
       isMeteorConnected,
+      isRTL,
     } = this.props;
 
     const { webcamsPlacement: placement } = layoutContextState;
@@ -67,8 +65,8 @@ export default class Media extends Component {
       [styles.containerV]: webcamsPlacement === 'top' || webcamsPlacement === 'bottom' || webcamsPlacement === 'floating',
       [styles.containerH]: webcamsPlacement === 'left' || webcamsPlacement === 'right',
     });
-    const { viewParticipantsWebcams } = Settings.dataSaving;
-    const showVideo = usersVideo.length > 0 && viewParticipantsWebcams && isMeteorConnected;
+
+    const showVideo = usersVideo.length > 0 && isMeteorConnected;
 
     return (
       <div
@@ -114,9 +112,9 @@ export default class Media extends Component {
             singleWebcam={singleWebcam}
             usersVideoLenght={usersVideo.length}
             hideOverlay={hideOverlay}
-            disableVideo={disableVideo}
             audioModalIsOpen={audioModalIsOpen}
             usersVideo={usersVideo}
+            isRTL={isRTL}
           />
         ) : null}
       </div>

@@ -3,9 +3,9 @@ import { withTracker } from 'meteor/react-meteor-data';
 import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '/imports/ui/components/media/service';
 import { notify } from '/imports/ui/services/notification';
 import { Session } from 'meteor/session';
-import PresentationAreaService from './service';
+import PresentationService from './service';
 import { Slides } from '/imports/api/slides';
-import PresentationArea from '/imports/ui/components/presentation/component';
+import Presentation from '/imports/ui/components/presentation/component';
 import PresentationToolbarService from './presentation-toolbar/service';
 import { UsersContext } from '../components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
@@ -16,11 +16,14 @@ import WhiteboardService from '/imports/ui/components/whiteboard/service';
 
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
-const PresentationAreaContainer = ({ presentationPodIds, mountPresentationArea, ...props }) => {
+const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props }) => {
+  const fullscreenElementId = 'Presentation';
   const newLayoutContext = useContext(NLayoutContext);
   const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { output, layoutLoaded } = newLayoutContextState;
+  const { output, layoutLoaded, layoutType, fullscreen } = newLayoutContextState;
   const { presentation } = output;
+  const { element } = fullscreen;
+  const fullscreenContext = (element === fullscreenElementId);
   const { layoutSwapped, podId } = props;
 
   const usingUsersContext = useContext(UsersContext);
@@ -29,9 +32,9 @@ const PresentationAreaContainer = ({ presentationPodIds, mountPresentationArea, 
 
   const userIsPresenter = (podId === 'DEFAULT_PRESENTATION_POD') ? currentUser.presenter : props.isPresenter;
 
-  return mountPresentationArea
+  return mountPresentation
     && (
-      <PresentationArea
+      <Presentation
         {
         ...{
           newLayoutContextDispatch,
@@ -40,6 +43,9 @@ const PresentationAreaContainer = ({ presentationPodIds, mountPresentationArea, 
           userIsPresenter: userIsPresenter && !layoutSwapped,
           presentationBounds: presentation,
           layoutLoaded,
+          layoutType,
+          fullscreenContext,
+          fullscreenElementId,
         }
         }
       />
@@ -51,8 +57,8 @@ const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;
 const fetchedpresentation = {};
 
 export default withTracker(({ podId }) => {
-  const currentSlide = PresentationAreaService.getCurrentSlide(podId);
-  const presentationIsDownloadable = PresentationAreaService.isPresentationDownloadable(podId);
+  const currentSlide = PresentationService.getCurrentSlide(podId);
+  const presentationIsDownloadable = PresentationService.isPresentationDownloadable(podId);
   const layoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
 
   let slidePosition;
@@ -61,7 +67,7 @@ export default withTracker(({ podId }) => {
       presentationId,
       id: slideId,
     } = currentSlide;
-    slidePosition = PresentationAreaService.getSlidePosition(podId, presentationId, slideId);
+    slidePosition = PresentationService.getSlidePosition(podId, presentationId, slideId);
     if (PRELOAD_NEXT_SLIDE && !fetchedpresentation[presentationId]) {
       fetchedpresentation[presentationId] = {
         canFetch: true,
@@ -101,13 +107,13 @@ export default withTracker(({ podId }) => {
   return {
     currentSlide,
     slidePosition,
-    downloadPresentationUri: PresentationAreaService.downloadPresentationUri(podId),
-    isPresenter: PresentationAreaService.isPresenter(podId),
+    downloadPresentationUri: PresentationService.downloadPresentationUri(podId),
+    isPresenter: PresentationService.isPresenter(podId),
     multiUser: WhiteboardService.hasMultiUserAccess(currentSlide && currentSlide.id, Auth.userID)
       && !layoutSwapped,
     presentationIsDownloadable,
-    mountPresentationArea: !!currentSlide,
-    currentPresentation: PresentationAreaService.getCurrentPresentation(podId),
+    mountPresentation: !!currentSlide,
+    currentPresentation: PresentationService.getCurrentPresentation(podId),
     notify,
     zoomSlide: PresentationToolbarService.zoomSlide,
     podId,
@@ -125,4 +131,4 @@ export default withTracker(({ podId }) => {
     ),
     layoutManagerLoaded,
   };
-})(PresentationAreaContainer);
+})(PresentationContainer);

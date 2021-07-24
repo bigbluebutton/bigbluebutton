@@ -1,41 +1,72 @@
 .wrapper {
   position: absolute;
-  left: 0;
   right: auto;
+  left: 0;
   background-color: var(--color-transparent);
   cursor: pointer;
-  border: none !important;
+  border: 0;
+  z-index: 2;
+  margin: 2px;
+  bottom: 0;
 
   [dir="rtl"] & {
-    left: auto;
-    right: 0;
+    right: 0;//auto;
+    left : auto;//0;
+  }
+
+  [class*="presentationZoomControls"] & {
+    position: relative !important;
   }
 }
 
 .button {
-  span, span:active, span:hover {
+
+  &,
+  &:active,
+  &:hover,
+  &:focus {
     background-color: var(--color-transparent) !important;
     border: none !important;
+
     i {
       border: none !important;
       background-color: var(--color-transparent) !important;
-      font-weight: bold !important;
     }
   }
 }
 
 .light {
-  top: 0;
+  background-color: var(--color-transparent);
 }
 
-.light .button span i {
-  color: var(--color-white);
+.light .button i {
+  color: var(--color-black);
 }
 
 .dark {
+  background-color: rgba(0,0,0,.3);
+}
+
+.dark .button i {
+  color: var(--color-white);
+}
+
+.top{
+  top: 0;
+}
+
+.bottom{
   bottom: 0;
 }
 
-.dark .button span i {
-  color: var(--color-black);
+.downloadPresentationButton {
+  padding: 5px;
+
+  &:hover {
+    border: 0;
+  }
+
+  i {
+    font-size: 1rem;
+  }
 }

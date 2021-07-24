@@ -39,7 +39,7 @@ const isLocked = () => {
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { 'lockSettingsProps.disableNote': 1 } });
   const user = Users.findOne({ userId: Auth.userID }, { fields: { locked: 1, role: 1 } });
 
-  if (meeting.lockSettingsProps && user.role !== ROLE_MODERATOR) {
+  if (meeting.lockSettingsProps && user.role !== ROLE_MODERATOR && user.locked) {
     return meeting.lockSettingsProps.disableNote;
   }
   return false;

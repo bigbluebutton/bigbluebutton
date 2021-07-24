@@ -180,6 +180,35 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildMeetingInfoAnalyticsMsg(analytics: MeetingInfoAnalytics): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(MeetingInfoAnalyticsMsg.NAME, routing)
+    val header = BbbCoreBaseHeader(MeetingInfoAnalyticsMsg.NAME)
+    val body = MeetingInfoAnalyticsMsgBody(analytics)
+    val event = MeetingInfoAnalyticsMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildMeetingInfoAnalyticsServiceMsg(analytics: MeetingInfoAnalytics): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(MeetingInfoAnalyticsServiceMsg.NAME, routing)
+    val header = BbbCoreBaseHeader(MeetingInfoAnalyticsServiceMsg.NAME)
+    val body = MeetingInfoAnalyticsMsgBody(analytics)
+    val event = MeetingInfoAnalyticsServiceMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildCamStreamSubscribeSysMsg(meetingId: String, userId: String, streamId: String, sfuSessionId: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(CamStreamSubscribeSysMsg.NAME, routing)
+    val header = BbbCoreBaseHeader(CamStreamSubscribeSysMsg.NAME)
+    val body = CamStreamSubscribeSysMsgBody(meetingId, userId, streamId, sfuSessionId)
+    val event = CamStreamSubscribeSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildMeetingDestroyedEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(MeetingDestroyedEvtMsg.NAME, routing)
@@ -515,4 +544,15 @@ object MsgBuilder {
 
     BbbCommonEnvCoreMsg(envelope, event)
   }
+
+  def buildActivityReportEvtMsg(meetingId: String, activityJson: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(ActivityReportEvtMsg.NAME, routing)
+    val body = ActivityReportEvtMsgBody(activityJson)
+    val header = BbbCoreHeaderWithMeetingId(ActivityReportEvtMsg.NAME, meetingId)
+    val event = ActivityReportEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
 }

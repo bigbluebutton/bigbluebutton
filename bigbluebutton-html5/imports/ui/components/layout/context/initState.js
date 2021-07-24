@@ -9,6 +9,12 @@ export const INITIAL_INPUT_STATE = {
     width: 0,
     height: 0,
   },
+  bannerBar: {
+    hasBanner: false,
+  },
+  notificationsBar: {
+    hasNotification: false,
+  },
   navBar: {
     hasNavBar: true,
     height: DEFAULT_VALUES.navBarHeight,
@@ -31,6 +37,12 @@ export const INITIAL_INPUT_STATE = {
     height: 0,
     browserWidth: 0,
     sidebarContentPanel: DEFAULT_VALUES.sidebarContentPanel,
+    resizableEdge: {
+      top: false,
+      right: false,
+      bottom: false,
+      left: false,
+    },
   },
   sidebarContentHorizontalResizer: {
     isOpen: true,
@@ -47,11 +59,14 @@ export const INITIAL_INPUT_STATE = {
     browserWidth: 0,
     browserHeight: 0,
     isDragging: false,
-    isFullscreen: false,
+    isResizing: false,
+    cameraOptimalGridSize: {
+      width: 0,
+      height: 0,
+    },
   },
   presentation: {
     isOpen: true,
-    isFullscreen: false,
     slidesLength: 0,
     currentSlide: {
       num: 0,
@@ -147,6 +162,7 @@ export const INITIAL_OUTPUT_STATE = {
   },
   cameraDock: {
     display: false,
+    position: null,
     minWidth: 0,
     width: 0,
     maxWidth: 0,

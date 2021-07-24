@@ -14,19 +14,18 @@ import { WEBCAMSAREA_MIN_PERCENT, PRESENTATIONAREA_MIN_WIDTH } from '/imports/ui
 const propTypes = {
   swapLayout: PropTypes.bool,
   hideOverlay: PropTypes.bool,
-  disableVideo: PropTypes.bool,
   audioModalIsOpen: PropTypes.bool,
   webcamDraggableState: PropTypes.objectOf(Object).isRequired,
   webcamDraggableDispatch: PropTypes.func.isRequired,
   refMediaContainer: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
   layoutContextState: PropTypes.objectOf(Object).isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
+  isRTL: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
   swapLayout: false,
   hideOverlay: false,
-  disableVideo: false,
   audioModalIsOpen: false,
   refMediaContainer: null,
 };
@@ -198,12 +197,12 @@ class WebcamDraggable extends PureComponent {
   }
 
   calculatePosition() {
-    const { layoutContextState } = this.props;
+    const { layoutContextState, isRTL } = this.props;
     const { mediaBounds } = layoutContextState;
 
     const { top: mediaTop, left: mediaLeft } = mediaBounds;
     const { top: webcamsListTop, left: webcamsListLeft } = this.getWebcamsListBounds();
-    const x = webcamsListLeft - mediaLeft;
+    const x = !isRTL ? (webcamsListLeft - mediaLeft) : webcamsListLeft;
     const y = webcamsListTop - mediaTop;
     return {
       x,
@@ -280,8 +279,8 @@ class WebcamDraggable extends PureComponent {
       webcamDraggableState,
       swapLayout,
       hideOverlay,
-      disableVideo,
       audioModalIsOpen,
+      isRTL,
     } = this.props;
 
     const { isMobile } = deviceInfo;
@@ -419,7 +418,7 @@ class WebcamDraggable extends PureComponent {
     }
 
     return (
-      <Fragment>
+      <>
         <div
           className={dropZoneTopClassName}
           style={{ height: '15vh' }}
@@ -429,7 +428,7 @@ class WebcamDraggable extends PureComponent {
           />
         </div>
         <div
-          className={dropZoneLeftClassName}
+          className={!isRTL ? dropZoneLeftClassName : dropZoneRightClassName}
           style={{
             width: '15vh',
             height: `calc(${mediaHeight}px - (15vh * 2))`,
@@ -494,8 +493,7 @@ class WebcamDraggable extends PureComponent {
             }}
           >
             {
-              !disableVideo
-                && !audioModalIsOpen
+              !audioModalIsOpen
                 ? (
                   <VideoProviderContainer
                     swapLayout={swapLayout}
@@ -514,7 +512,7 @@ class WebcamDraggable extends PureComponent {
           />
         </div>
         <div
-          className={dropZoneRightClassName}
+          className={!isRTL ? dropZoneRightClassName : dropZoneLeftClassName}
           style={{
             width: '15vh',
             height: `calc(${mediaHeight}px - (15vh * 2))`,
@@ -524,7 +522,7 @@ class WebcamDraggable extends PureComponent {
             className={dropZoneBgRightClassName}
           />
         </div>
-      </Fragment>
+      </>
     );
   }
 }

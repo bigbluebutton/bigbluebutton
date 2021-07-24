@@ -104,9 +104,9 @@ const reducer = (state, action) => {
   }
 };
 
-const ContextConsumer = Component => props => (
+const ContextConsumer = (Component) => (props) => (
   <WebcamDraggableContext.Consumer>
-    {contexts => <Component {...props} {...contexts} />}
+    {(contexts) => <Component {...props} {...contexts} />}
   </WebcamDraggableContext.Consumer>
 );
 
@@ -142,15 +142,15 @@ const ContextProvider = (props) => {
   );
 };
 
-const withProvider = Component => props => (
+const withProvider = (Component) => (props) => (
   <ContextProvider {...props}>
     <Component />
   </ContextProvider>
 );
 
-const withDraggableConsumer = Component => ContextConsumer(Component);
+const withDraggableConsumer = (Component) => ContextConsumer(Component);
 
-const withDraggableContext = Component => withProvider(withDraggableConsumer(Component));
+const withDraggableContext = (Component) => withProvider(withDraggableConsumer(Component));
 
 export {
   withProvider,
