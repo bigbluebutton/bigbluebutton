@@ -79,6 +79,7 @@ import org.bigbluebutton.api.messaging.messages.UserLeft;
 import org.bigbluebutton.api.messaging.messages.UserLeftVoice;
 import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
 import org.bigbluebutton.api.messaging.messages.UserRoleChanged;
+import org.bigbluebutton.api.messaging.messages.UserNameChanged;
 import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
@@ -1078,6 +1079,28 @@ public class MeetingService implements MessageListener {
     log.warn("The meeting {} doesn't exist", message.meetingId);
   }
 
+  private void userNameChanged(UserNameChanged message) {
+    Meeting m = getMeeting(message.meetingId);
+    if (m != null) {
+      User user = m.getUserById(message.userId);
+      if (user != null) {
+        String oldUserName = user.getFullname();
+        user.setFullname(message.newUserName);
+        String sessionToken = getTokenByUserId(user.getInternalUserId());
+        if (sessionToken != null) {
+          UserSession userSession = getUserSessionWithAuthToken(sessionToken);
+          userSession.fullname = message.newUserName;
+          sessions.replace(sessionToken, userSession);
+        }
+        log.debug("Setting new username \"" + message.newUserName + "\" in meeting {} for participant: {}", message.meetingId, oldUserName);
+        return;
+      }
+      log.warn("The participant {} doesn't exist in the meeting {}", message.userId, message.meetingId);
+      return;
+    }
+    log.warn("The meeting {} doesn't exist", message.meetingId);
+  }
+
   private void processMessage(final IMessage message) {
     Runnable task = new Runnable() {
       public void run() {
@@ -1095,6 +1118,8 @@ public class MeetingService implements MessageListener {
           updatedStatus((UserStatusChanged) message);
         } else if (message instanceof UserRoleChanged) {
           userRoleChanged((UserRoleChanged) message);
+        } else if (message instanceof UserNameChanged) {
+          userNameChanged((UserNameChanged) message);
         } else if (message instanceof UserJoinedVoice) {
           userJoinedVoice((UserJoinedVoice) message);
         } else if (message instanceof UserLeftVoice) {
