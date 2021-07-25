@@ -15,6 +15,7 @@ import UserInfos from '/imports/api/users-infos';
 import { NLayoutContext } from '../layout/context/context';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
+import Storage from '/imports/ui/services/storage/session';
 
 import {
   getFontSize,
@@ -125,6 +126,12 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   Users.find({ userId: Auth.userID, meetingId: Auth.meetingID }).observe({
     removed() {
       endMeeting('403');
+    },
+  });
+
+  Users.find({ userId: Auth.userID, meetingId: Auth.meetingID }).observe({
+    changed(userAfterChange) {
+      Storage.setItem('fullname', userAfterChange.name);
     },
   });
 
