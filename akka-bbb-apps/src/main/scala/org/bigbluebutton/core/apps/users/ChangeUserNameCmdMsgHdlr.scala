@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.Users2x
+import org.bigbluebutton.core.models.{ Users2x, VoiceUsers }
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
@@ -22,6 +22,7 @@ trait ChangeUserNameCmdMsgHdlr extends RightsManagementTrait {
         uvo <- Users2x.setUserName(liveMeeting.users2x, msg.body.userId, msg.body.newUserName)
       } yield {
         sendUserNameChangedEvtMsg(outGW, liveMeeting.props.meetingProp.intId, msg.body.userId, msg.body.newUserName)
+        VoiceUsers.callerNameChanged(liveMeeting.voiceUsers, msg.body.userId, msg.body.newUserName)
       }
     }
   }

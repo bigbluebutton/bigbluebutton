@@ -11,6 +11,7 @@ export default function changeUserName(newUserName, userId, meetingId) {
   const modifier = {
     $set: {
       name: newUserName,
+      sortName: newUserName.trim().toLowerCase(),
     },
   };
 
@@ -22,6 +23,6 @@ export default function changeUserName(newUserName, userId, meetingId) {
       Logger.info(`Changed user name=${newUserName} id=${userId} meeting=${meetingId}`);
     }
   } catch (err) {
-    Logger.error(`Changed user name: ${err}`);
+    Logger.error(`Error changing user name: ${err}`);
   }
 }

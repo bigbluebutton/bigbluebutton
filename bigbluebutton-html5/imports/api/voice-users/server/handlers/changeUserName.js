@@ -16,6 +16,7 @@ export default function changeUserName(payload, meetingId) {
     intId: userId,
   };
 
+  // callerNum still partly contains old username which should be ok
   const modifier = {
     $set: {
       callerName: newUserName,

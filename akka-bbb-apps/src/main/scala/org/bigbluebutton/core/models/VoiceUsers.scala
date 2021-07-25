@@ -56,6 +56,17 @@ object VoiceUsers {
     }
   }
 
+  def callerNameChanged(users: VoiceUsers, voiceUserId: String, newUserName: String): Option[VoiceUserState] = {
+    for {
+      u <- findWithVoiceUserId(users, voiceUserId)
+    } yield {
+      val vu = u.modify(_.callerName).setTo(newUserName)
+        .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
+      users.save(vu)
+      vu
+    }
+  }
+
   def userTalking(users: VoiceUsers, voiceUserId: String, talking: Boolean): Option[VoiceUserState] = {
     for {
       u <- findWithVoiceUserId(users, voiceUserId)
