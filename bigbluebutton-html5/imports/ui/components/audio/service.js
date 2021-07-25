@@ -67,8 +67,6 @@ const init = (messages, intl) => {
   AudioManager.init(userData, audioEventHandler);
 };
 
-
-
 const isTranslatorTalking = () => {
   const translationLanguageExtension = AudioManager.translationLanguageExtension;
   let isTranslatorTalking = false;

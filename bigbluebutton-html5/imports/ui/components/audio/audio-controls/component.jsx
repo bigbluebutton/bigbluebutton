@@ -111,6 +111,7 @@ class AudioControls extends PureComponent {
 
   renderLeaveButtonWithoutLiveStreamSelector() {
     const {
+      handleToggleMuteMicrophone,
       handleJoinAudio,
       handleLeaveAudio,
       disable,

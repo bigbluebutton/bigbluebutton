@@ -14,7 +14,7 @@ import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills
 import { monitorAudioConnection } from '/imports/utils/stats';
 import AudioErrors from './error-codes';
 import {Meteor} from "meteor/meteor";
-import {makeCall} from "../api";
+import browserInfo from '/imports/utils/browserInfo';
 import { BehaviorSubject } from "rxjs";
 
 const STATS = Meteor.settings.public.stats;
@@ -25,6 +25,8 @@ const MAX_LISTEN_ONLY_RETRIES = 1;
 const LISTEN_ONLY_CALL_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 25000;
 const DEFAULT_INPUT_DEVICE_ID = 'default';
 const DEFAULT_OUTPUT_DEVICE_ID = 'default';
+const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE = Meteor.settings
+  .public.app.experimentalUseKmsTrickleIceForMicrophone;
 const TRANSLATOR_SPEECH_DETECTION_THRESHOLD = MEDIA.translation.translator.speakDetection.threshold || -70;
 
 const CALL_STATES = {
@@ -54,6 +56,7 @@ class AudioManager {
       status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
       breakoutMeetingId: null,
     };
+
     this.translatorStream = null;
     this.translatorSpeechEvents = null;
 
@@ -163,7 +166,29 @@ class AudioManager {
     });
   }
 
+  async trickleIce() {
+    const { isFirefox, isIe, isSafari } = browserInfo;
+
+    if (!this.listenOnlyBridge
+      || isFirefox
+      || isIe
+      || isSafari) return [];
+
+    if (this.validIceCandidates && this.validIceCandidates.length) {
+      logger.info({ logCode: 'audiomanager_trickle_ice_reuse_candidate' },
+        'Reusing trickle-ice information before activating microphone');
+      return this.validIceCandidates;
+    }
+
+    logger.info({ logCode: 'audiomanager_trickle_ice_get_local_candidate' },
+      'Performing trickle-ice before activating microphone');
+    this.validIceCandidates = await this.listenOnlyBridge.trickleIce() || [];
+    return this.validIceCandidates;
+  }
+
   joinMicrophone() {
+    this.audioJoinStartTime = new Date();
+    this.logAudioJoinTime = false;
     this.isListenOnly = false;
     this.isEchoTest = false;
 
@@ -179,15 +204,23 @@ class AudioManager {
   }
 
   joinEchoTest() {
+    this.audioJoinStartTime = new Date();
+    this.logAudioJoinTime = false;
     this.isListenOnly = false;
     this.isEchoTest = true;
 
     return this.onAudioJoining.bind(this)()
-      .then(() => {
+      .then(async () => {
+        let validIceCandidates = [];
+        if (EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE) {
+          validIceCandidates = await this.trickleIce();
+        }
+
         const callOptions = {
           isListenOnly: false,
           extension: ECHO_TEST_NUMBER,
           inputStream: this.inputStream,
+          validIceCandidates,
         };
         logger.info({ logCode: 'audiomanager_join_echotest', extraInfo: { logType: 'user_action' } }, 'User requested to join audio conference with mic');
         return this.joinAudio(callOptions, this.callStateCallback.bind(this));
@@ -237,6 +270,8 @@ class AudioManager {
   }
 
   async joinListenOnly(r = 0) {
+    this.audioJoinStartTime = new Date();
+    this.logAudioJoinTime = false;
     let retries = r;
     this.isListenOnly = true;
     this.isEchoTest = false;
@@ -393,6 +428,17 @@ class AudioManager {
         added: (id, fields) => this.onVoiceUserChanges(fields),
         changed: (id, fields) => this.onVoiceUserChanges(fields),
       });
+    }
+    const secondsToActivateAudio = (new Date() - this.audioJoinStartTime) / 1000;
+
+    if (!this.logAudioJoinTime) {
+      this.logAudioJoinTime = true;
+      logger.info({
+        logCode: 'audio_mic_join_time',
+        extraInfo: {
+          secondsToActivateAudio,
+        },
+      }, `Time needed to connect audio (seconds): ${secondsToActivateAudio}`);
     }
 
     if (!this.isEchoTest) {
@@ -804,6 +850,7 @@ class AudioManager {
   async updateAudioConstraints(constraints) {
     await this.bridge.updateAudioConstraints(constraints);
   }
+
   async handleTranslationChannelStateChange(languageExtension, message) {
     this.translationState = message.status;
     this.notifyTranslationChannelStateChange(languageExtension, message);

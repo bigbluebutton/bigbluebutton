@@ -28,7 +28,7 @@ import { withDraggableContext } from '../media/webcam-draggable-overlay/context'
 import { styles } from './styles';
 import { makeCall } from '/imports/ui/services/api';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
-import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager/component';
+import { NAVBAR_HEIGHT, LARGE_NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager/component';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -267,15 +267,17 @@ class App extends Component {
   }
 
   renderNavBar() {
-    const { navbar } = this.props;
+    const { navbar, isLargeFont } = this.props;
 
     if (!navbar) return null;
+
+    const realNavbarHeight = isLargeFont ? LARGE_NAVBAR_HEIGHT : NAVBAR_HEIGHT;
 
     return (
       <header
         className={styles.navbar}
         style={{
-          height: NAVBAR_HEIGHT,
+          height: realNavbarHeight,
         }}
       >
         {navbar}

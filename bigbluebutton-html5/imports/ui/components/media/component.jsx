@@ -18,6 +18,7 @@ const propTypes = {
   disableVideo: PropTypes.bool,
   audioModalIsOpen: PropTypes.bool,
   layoutContextState: PropTypes.instanceOf(Object).isRequired,
+  isRTL: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -46,6 +47,7 @@ export default class Media extends Component {
       usersVideo,
       layoutContextState,
       isMeteorConnected,
+      isRTL,
     } = this.props;
 
     const { webcamsPlacement: placement } = layoutContextState;
@@ -117,6 +119,7 @@ export default class Media extends Component {
             disableVideo={disableVideo}
             audioModalIsOpen={audioModalIsOpen}
             usersVideo={usersVideo}
+            isRTL={isRTL}
           />
         ) : null}
       </div>

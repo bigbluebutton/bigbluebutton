@@ -10,6 +10,9 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import { styles } from '../styles';
 
+const POLL_SETTINGS = Meteor.settings.public.poll;
+const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
+
 const intlMessages = defineMessages({
   quickPollLabel: {
     id: 'app.poll.quickPollTitle',
@@ -43,41 +46,28 @@ const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
 };
 
-const getLocalizedAnswers = (type, intl) => {
-  switch (type) {
-    case 'TF':
-      return [
-        intl.formatMessage(intlMessages.trueOptionLabel),
-        intl.formatMessage(intlMessages.falseOptionLabel),
-      ];
-    case 'YN':
-      return [
-        intl.formatMessage(intlMessages.yesOptionLabel),
-        intl.formatMessage(intlMessages.noOptionLabel),
-      ];
-    case 'YNA':
-      return [
-        intl.formatMessage(intlMessages.yesOptionLabel),
-        intl.formatMessage(intlMessages.noOptionLabel),
-        intl.formatMessage(intlMessages.abstentionOptionLabel),
-      ];
-    default:
-      return null;
-  }
-};
-
-const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, intl) => {
+const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, pollTypes) => {
   const pollItemElements = parsedSlides.map((poll) => {
     let { poll: label, type } = poll;
     let itemLabel = label;
-    let answers = null;
+    let letterAnswers = [];
 
-    if (type !== 'YN' && type !== 'YNA' && type !== 'TF') {
+    if (type !== pollTypes.YesNo && 
+        type !== pollTypes.YesNoAbstention && 
+        type !== pollTypes.TrueFalse) 
+    {
       const { options } = itemLabel;
       itemLabel = options.join('/').replace(/[\n.)]/g, '');
-    } else {
-      answers = getLocalizedAnswers(type, intl);
-      type = 'custom';
+      if (type === pollTypes.Custom) {
+        for (const option of options) {
+          const letterOption = option.replace(/[\r.)]/g, '');
+          if (letterAnswers.length < MAX_CUSTOM_FIELDS) {
+            letterAnswers.push(letterOption);
+          } else {
+            break;
+          }
+        }
+      }
     }
 
     // removes any whitespace from the label
@@ -95,7 +85,8 @@ const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, intl) => {
       <DropdownListItem
         label={itemLabel}
         key={_.uniqueId('quick-poll-item')}
-        onClick={() => startPoll(type, slideId, answers)}
+        onClick={() => startPoll(type, slideId, letterAnswers)}
+        answers={letterAnswers}
       />
     );
   });
@@ -119,6 +110,7 @@ class QuickPollDropdown extends Component {
       currentSlide,
       activePoll,
       className,
+      pollTypes,
     } = this.props;
 
     const parsedSlide = parseCurrentSlideContent(
@@ -130,26 +122,22 @@ class QuickPollDropdown extends Component {
     );
 
     const { slideId, quickPollOptions } = parsedSlide;
-    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions, startPoll, intl);
+    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions, startPoll, pollTypes);
 
     if (quickPollOptions.length === 0) return null;
 
+    let answers = null;
     let quickPollLabel = '';
     if (quickPolls.length > 0) {
       const { props: pollProps } = quickPolls[0];
       quickPollLabel = pollProps.label;
+      answers = pollProps.answers;
     }
 
     let singlePollType = null;
-    let answers = null;
     if (quickPolls.length === 1 && quickPollOptions.length) {
       const { type } = quickPollOptions[0];
       singlePollType = type;
-    }
-
-    if (singlePollType === 'TF' || singlePollType === 'YN' || singlePollType === 'YNA') {
-      answers = getLocalizedAnswers(singlePollType, intl);
-      singlePollType = 'custom';
     }
 
     let btn = (

@@ -134,6 +134,14 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
   & > .freeJoinLabel {
     color: var(--color-danger);
   }
+
+  & > .labelText {
+    color: var(--color-danger);
+  }
+
+  & .duration {
+    border-color: var(--color-danger) !important;
+  }
 }
 
 .breakoutBox {
@@ -333,7 +341,7 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 
 .checkBoxesContainer {
   @extend %flex-row;
-  margin-top: 1rem;
+  margin-top: 2rem;
 }
 
 .withError {

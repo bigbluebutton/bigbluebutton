@@ -12,7 +12,6 @@ import JoinVideoOptionsContainer from '../video-provider/video-button/container'
 import PresentationOptionsContainer from './presentation-options/component';
 import Storage from '/imports/ui/services/storage/session';
 import AudioManager from '/imports/ui/services/audio-manager';
-import { makeCall } from "../../services/api";
 import { defineMessages, injectIntl } from 'react-intl';
 
 import Meetings from '/imports/api/meetings';
@@ -226,7 +225,6 @@ class ActionsBar extends PureComponent {
       hasLanguages,
     } = this.props;
 
-
     return (
       <div
         className={styles.actionsbar}
@@ -257,7 +255,6 @@ class ActionsBar extends PureComponent {
         <div className={styles.center}>
           <AudioControlsContainer
               currentLanguage={this.state.translationLanguage}
-
           />
           {enableVideo
             ? (

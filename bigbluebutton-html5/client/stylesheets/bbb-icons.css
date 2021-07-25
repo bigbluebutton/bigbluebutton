@@ -295,9 +295,3 @@
 .icon-bbb-no_palm_rejection:before {
   content: "\e95a";
 }
-.icon-bbb-globe:before {
-  content: "\1f310";
-}
-.icon-bbb-translation {
-  background-image: url("/html5client/resources/images/bbb_trans_icons.svg");
-}

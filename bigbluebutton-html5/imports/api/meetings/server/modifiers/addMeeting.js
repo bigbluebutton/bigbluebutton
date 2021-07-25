@@ -47,6 +47,8 @@ export default function addMeeting(meeting) {
       userInactivityInspectTimerInMinutes: Number,
       userInactivityThresholdInMinutes: Number,
       userActivitySignResponseDelayInMinutes: Number,
+      endWhenNoModerator: Boolean,
+      endWhenNoModeratorDelayInMinutes: Number,
       timeRemaining: Number,
     },
     welcomeProp: {

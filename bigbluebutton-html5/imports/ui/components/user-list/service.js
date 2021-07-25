@@ -284,16 +284,19 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
 const isVoiceOnlyUser = userId => userId.toString().startsWith('v_');
 
 const isMeetingLocked = (id) => {
-  const meeting = Meetings.findOne({ meetingId: id }, { fields: { lockSettingsProps: 1 } });
+  const meeting = Meetings.findOne({ meetingId: id },
+    { fields: { lockSettingsProps: 1, usersProp: 1 } });
   let isLocked = false;
 
   if (meeting.lockSettingsProps !== undefined) {
-    const lockSettings = meeting.lockSettingsProps;
+    const {lockSettingsProps:lockSettings, usersProp} = meeting;
 
     if (lockSettings.disableCam
       || lockSettings.disableMic
       || lockSettings.disablePrivateChat
-      || lockSettings.disablePublicChat) {
+      || lockSettings.disablePublicChat
+      || lockSettings.disableNote
+      || usersProp.webcamsOnlyForModerator) {
       isLocked = true;
     }
   }

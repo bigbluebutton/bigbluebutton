@@ -17,6 +17,9 @@ You can install on a Ubuntu 18.04 64-bit server.  We provide [bbb-install.sh](ht
 
 For full technical documentation BigBlueButton -- including architecture, features, API, and GreenLight (the default front-end) -- see [https://docs.bigbluebutton.org/](https://docs.bigbluebutton.org/).
 
+BigBlueButton and the BigBlueButton Logo are trademarks of [BigBlueButton Inc](https://bigbluebutton.org) .
+
+
 Translation Feature Settings
 ============================
 

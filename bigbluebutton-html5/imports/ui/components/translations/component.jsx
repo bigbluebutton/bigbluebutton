@@ -7,7 +7,6 @@ import { makeCall } from '/imports/ui/services/api';
 import Meeting from "/imports/ui/services/meeting";
 import Button from '/imports/ui/components/button/component';
 import AudioManager from '/imports/ui/services/audio-manager';
-import TranslationManager from '/imports/ui/services/translation-manager';
 
 const intlMessages = defineMessages({
     translationsTitle: {
@@ -65,7 +64,7 @@ class Translations extends Component{
     }
 
     componentDidUpdate() {
-        TranslationManager.$languagesChanged.next(null);
+        // TranslationManager.$languagesChanged.next(null);
     }
 
     createEditForm = () => {

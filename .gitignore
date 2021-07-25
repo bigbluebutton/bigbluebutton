@@ -35,3 +35,4 @@ clients/flash/**/.gradle
 *.iml
 *~
 **/node_modules/
+.github/
