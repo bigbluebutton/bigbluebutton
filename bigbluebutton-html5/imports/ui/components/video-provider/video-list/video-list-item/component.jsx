@@ -18,6 +18,7 @@ import {
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { ACTIONS } from '../../../layout/enums';
+import Users from '../../../../../api/users';
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
@@ -176,7 +177,7 @@ class VideoListItem extends Component {
       isPortrait,
     } = this.state;
     const {
-      name,
+      userId,
       voiceUser,
       numOfStreams,
       swapLayout,
@@ -185,6 +186,9 @@ class VideoListItem extends Component {
       isFullscreenContext,
       layoutLoaded,
     } = this.props;
+    // this refetch of the username is needed in case of username change since start of the session
+    // otherwise preview name would be the old one
+    const { name } = Users.findOne({ userId }, { fields: { name: 1 } });
     const availableActions = this.getAvailableActions();
     const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
     const shouldRenderReconnect = !isStreamHealthy && videoIsReady;
