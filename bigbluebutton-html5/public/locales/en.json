@@ -56,6 +56,7 @@
     "app.changeUserNameModal.cancelLabel": "Cancel",
     "app.changeUserNameModal.label": "Change username of user {0}:",
     "app.changeUserNameModal.desc": "Type in new username for user {0}",
+    "app.changeUserNameModal.validationError": "Length of username mustn't exceed 20 characters.",
     "app.textInput.sendLabel": "Send",
     "app.note.title": "Shared Notes",
     "app.note.label": "Note",

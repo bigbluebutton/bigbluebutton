@@ -43,6 +43,13 @@
   margin-top: 10px;
 }
 
+.errorLabel {
+  text-align: center;
+  line-height: var(--line-height-base);
+  color: var(--color-danger);
+  margin-top: 20px;
+}
+
 .modal {
   @extend .modal;
   padding: var(--sm-padding-y);

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { defineMessages } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import Modal from '/imports/ui/components/modal/simple/component';
@@ -6,6 +6,7 @@ import Button from '/imports/ui/components/button/component';
 import PropTypes from 'prop-types';
 import { styles } from './styles';
 import TextInput from '/imports/ui/components/text-input/component';
+import SanitizeHTML from 'sanitize-html';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 
@@ -25,6 +26,10 @@ const messages = defineMessages({
   changeUserNameDesc: {
     id: 'app.changeUserNameModal.desc',
     description: 'description for change user name modal',
+  },
+  changeUserNameValidationError: {
+    id: 'app.changeUserNameModal.validationError',
+    description: 'Error message if username is not allowed',
   },
   userNameChangedMessage: {
     id: 'app.chat.userNameChangedMessage',
@@ -58,6 +63,32 @@ function ChangeUserNameModal(props) {
 
   const currentUserName = Users.findOne({ userId: Auth.userID }).name;
 
+  const [usernameValidationErrorMessage, setUsernameValidationErrorMessage] = useState('');
+  const sanitizeUsernameBeforeChanging = (newlyTypedInUsername) => {
+    // 30 seems to be a good max length, but could be anything else
+    if (newlyTypedInUsername.length > 30) {
+      setUsernameValidationErrorMessage(intl.formatMessage(messages.changeUserNameValidationError));
+      return;
+    }
+    // stripping off any html tags
+    const strippedUsername = SanitizeHTML(newlyTypedInUsername, {
+      allowedTags: [],
+      allowedAttributes: {},
+    });
+    onConfirm(user.userId, strippedUsername,
+      currentUserName === user.name
+        ? intl.formatMessage(messages.ownUserNameChangedMessage, {
+          0: user.name,
+          1: strippedUsername,
+        })
+        : intl.formatMessage(messages.userNameChangedMessage, {
+          0: user.name,
+          1: strippedUsername,
+          2: currentUserName,
+        }));
+    mountModal(null);
+  };
+
   return (
     <Modal
       overlayClassName={styles.overlay}
@@ -73,26 +104,17 @@ function ChangeUserNameModal(props) {
         </div>
         <div className={styles.newUsernameInput}>
           <TextInput
-            send={(newlyTypedInUsername) => {
-              onConfirm(user.userId, newlyTypedInUsername,
-                currentUserName === user.name
-                  ? intl.formatMessage(messages.ownUserNameChangedMessage, {
-                    0: user.name,
-                    1: newlyTypedInUsername,
-                  })
-                  : intl.formatMessage(messages.userNameChangedMessage, {
-                    0: user.name,
-                    1: newlyTypedInUsername,
-                    2: currentUserName,
-                  }));
-              mountModal(null);
-            }}
+            send={(newlyTypedInUsername) => sanitizeUsernameBeforeChanging(newlyTypedInUsername)}
+            onTextChange={() => setUsernameValidationErrorMessage('')}
             placeholder={user.name}
             id="newUserNameInput"
             aria-label={intl.formatMessage(messages.changeUserNameDesc, { 0: user.name })}
           />
           <div aria-hidden className={styles.description}>
             {intl.formatMessage(messages.changeUserNameDesc, { 0: user.name })}
+          </div>
+          <div aria-hidden className={styles.errorLabel}>
+            {usernameValidationErrorMessage}
           </div>
         </div>
 
