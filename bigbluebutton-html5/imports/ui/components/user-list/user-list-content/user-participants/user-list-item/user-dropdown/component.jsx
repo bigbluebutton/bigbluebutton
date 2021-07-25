@@ -475,7 +475,7 @@ class UserDropdown extends PureComponent {
       });
     }
 
-    if (allowedToChangeUserName && isMeteorConnected) {
+    if (allowedToChangeUserName && isMeteorConnected && !meetingIsBreakout) {
       actions.push({
         key: "changeName",
         label: intl.formatMessage(messages.ChangeUserNameLabel),
