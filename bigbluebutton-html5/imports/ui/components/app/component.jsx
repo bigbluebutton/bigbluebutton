@@ -157,9 +157,15 @@ class App extends Component {
       newLayoutContextDispatch,
       meetingLayout,
       settingsLayout,
+      isRTL,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
+
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_IS_RTL,
+      value: isRTL,
+    });
 
     MediaService.setSwapLayout();
     Modal.setAppElement('#app');
@@ -222,6 +228,7 @@ class App extends Component {
       layoutLoaded,
       pushLayoutToEveryone,
       newLayoutContextDispatch,
+      isRTL,
     } = this.props;
 
     if (meetingLayout !== prevProps.meetingLayout) {
@@ -232,6 +239,13 @@ class App extends Component {
 
       Settings.application.selectedLayout = meetingLayout;
       Settings.save();
+    }
+
+    if (isRTL !== prevProps.isRTL) {
+      newLayoutContextDispatch({
+        type: ACTIONS.SET_IS_RTL,
+        value: isRTL,
+      });
     }
 
     const newLayoutManager = settingsLayout === 'legacy' ? 'legacy' : 'new';

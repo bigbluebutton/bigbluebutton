@@ -28,6 +28,7 @@ export const NLayoutContext = createContext();
 
 const initState = {
   deviceType: null,
+  isRTL: false,
   layoutType: DEFAULT_VALUES.layoutType,
   layoutLoaded: 'legacy',
   fontSize: DEFAULT_VALUES.fontSize,
@@ -60,6 +61,15 @@ const reducer = (state, action) => {
           ...state.input,
           autoarrAngeLayout: action.value,
         },
+      };
+    }
+
+    case ACTIONS.SET_IS_RTL: {
+      const { isRTL } = state;
+      if (isRTL === action.value) return state;
+      return {
+        ...state,
+        isRTL: action.value,
       };
     }
 
