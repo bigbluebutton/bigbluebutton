@@ -260,7 +260,7 @@ class VideoPlayer extends Component {
   }
 
   handleResize() {
-    const { top, left, height, width, layoutLoaded } = this.props;
+    const { top, left, right, height, width, layoutLoaded } = this.props;
 
     if (!this.player || !this.playerParent) {
       return;
@@ -279,6 +279,7 @@ class VideoPlayer extends Component {
       }
       style.top = top + (height - style.height) / 2;
       style.left = left + (width - style.width) / 2;
+      style.right = right + (width - style.width) / 2;
 
       const styles = `
         position: absolute;
@@ -286,6 +287,7 @@ class VideoPlayer extends Component {
         height: ${style.height}px;
         top: ${style.top}px;
         left: ${style.left}px;
+        right: ${style.right}px;
       `;
       this.player.wrapper.style = styles;
     }else{

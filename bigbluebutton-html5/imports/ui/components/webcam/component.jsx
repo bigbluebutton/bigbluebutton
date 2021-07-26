@@ -184,6 +184,7 @@ const WebcamComponent = ({
           style={{
             position: 'absolute',
             zIndex: cameraDock.zIndex,
+            right: cameraDock.right,
           }}
         >
           <div

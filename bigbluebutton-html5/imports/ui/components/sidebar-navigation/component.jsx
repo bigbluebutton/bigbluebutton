@@ -6,7 +6,8 @@ import UserListContainer from '../user-list/container';
 
 const propTypes = {
   top: PropTypes.number.isRequired,
-  left: PropTypes.number.isRequired,
+  left: PropTypes.number,
+  right: PropTypes.number,
   zIndex: PropTypes.number.isRequired,
   minWidth: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
@@ -17,11 +18,17 @@ const propTypes = {
   contextDispatch: PropTypes.func.isRequired,
 };
 
+const defaultProps = {
+  left: null,
+  right: null,
+};
+
 const SidebarNavigation = (props) => {
   const {
     // display,
     top,
     left,
+    right,
     zIndex,
     minWidth,
     width,
@@ -86,6 +93,7 @@ const SidebarNavigation = (props) => {
         position: 'absolute',
         top,
         left,
+        right,
         zIndex,
         width,
         height,
@@ -97,4 +105,5 @@ const SidebarNavigation = (props) => {
 };
 
 SidebarNavigation.propTypes = propTypes;
+SidebarNavigation.defaultProps = defaultProps;
 export default SidebarNavigation;

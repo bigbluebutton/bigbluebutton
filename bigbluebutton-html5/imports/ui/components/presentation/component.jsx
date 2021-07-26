@@ -883,6 +883,7 @@ class Presentation extends PureComponent {
         style={{
           top: layoutLoaded === 'new' ? presentationBounds.top : undefined,
           left: layoutLoaded === 'new' ? presentationBounds.left : undefined,
+          right: layoutLoaded === 'new' ? presentationBounds.right : undefined,
           width: layoutLoaded === 'new' ? presentationBounds.width : undefined,
           height: layoutLoaded === 'new' ? presentationBounds.height : undefined,
           zIndex: layoutLoaded === 'new' && fullscreenContext ? presentationBounds.zIndex : undefined,
