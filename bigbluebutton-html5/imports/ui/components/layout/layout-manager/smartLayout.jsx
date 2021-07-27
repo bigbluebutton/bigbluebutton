@@ -387,6 +387,7 @@ class SmartLayout extends Component {
         cameraDockBounds.maxHeight = windowHeight();
         cameraDockBounds.top = 0;
         cameraDockBounds.left = 0;
+        cameraDockBounds.right = 0;
         cameraDockBounds.zIndex = 99;
       }
     } else {
