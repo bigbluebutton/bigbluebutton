@@ -512,8 +512,8 @@ class CustomLayout extends Component {
 
             cameraDockBounds.top = DEFAULT_VALUES.navBarHeight;
             const sizeValue = input.presentation.isOpen
-            ? (mediaAreaBounds.left + mediaAreaBounds.width) - cameraDockWidth
-            : mediaAreaBounds.left;
+              ? (mediaAreaBounds.left + mediaAreaBounds.width) - cameraDockWidth
+              : mediaAreaBounds.left;
             cameraDockBounds.left = !isRTL ? sizeValue : 0;
             cameraDockBounds.right = isRTL ? sizeValue + sidebarSize : 0;
             cameraDockBounds.minWidth = DEFAULT_VALUES.cameraDockMinWidth;

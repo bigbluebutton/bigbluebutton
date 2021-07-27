@@ -25,7 +25,6 @@ const defaultProps = {
 
 const SidebarNavigation = (props) => {
   const {
-    // display,
     top,
     left,
     right,
@@ -84,7 +83,7 @@ const SidebarNavigation = (props) => {
         setIsResizing(true);
         setResizeStartWidth(resizableWidth);
       }}
-      onResize={(...[,,, delta]) => setSidebarNavWidth(delta.width)}
+      onResize={(...[, , , delta]) => setSidebarNavWidth(delta.width)}
       onResizeStop={() => {
         setIsResizing(false);
         setResizeStartWidth(0);

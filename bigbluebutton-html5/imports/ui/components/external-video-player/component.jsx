@@ -191,8 +191,8 @@ class VideoPlayer extends Component {
     // If message is just a quick pause/un-pause just send nothing
     const sinceLastMessage = (timestamp - this.lastMessageTimestamp) / 1000;
     if ((msg === 'play' && this.lastMessage === 'stop'
-         || msg === 'stop' && this.lastMessage === 'play')
-         && sinceLastMessage < THROTTLE_INTERVAL_SECONDS) {
+      || msg === 'stop' && this.lastMessage === 'play')
+      && sinceLastMessage < THROTTLE_INTERVAL_SECONDS) {
       return clearTimeout(this.throttleTimeout);
     }
 
@@ -290,7 +290,7 @@ class VideoPlayer extends Component {
         right: ${style.right}px;
       `;
       this.player.wrapper.style = styles;
-    }else{
+    } else {
       const par = this.playerParent.parentElement;
       const w = par.clientWidth;
       const h = par.clientHeight;
@@ -493,7 +493,7 @@ class VideoPlayer extends Component {
 
   handleReload() {
     // increment key and force a re-render of the video component
-    this.setState({key: this.state.key + 1});
+    this.setState({ key: this.state.key + 1 });
 
     // hack, resize player
     this.resizeListener();
@@ -536,19 +536,19 @@ class VideoPlayer extends Component {
           key={'react-player' + key}
           ref={(ref) => { this.player = ref; }}
         />
-        { !isPresenter ?
-            <div className={styles.hoverToolbar}>
-              <VolumeSlider
-                volume={volume}
-                muted={muted || mutedByEchoTest}
-                onMuted={this.handleOnMuted}
-                onVolumeChanged={this.handleVolumeChanged}
-              />
-              <ReloadButton
-                handleReload={this.handleReload}
-                label={intl.formatMessage(intlMessages.refreshLabel)}>
-              </ReloadButton>
-            </div>
+        {!isPresenter ?
+          <div className={styles.hoverToolbar}>
+            <VolumeSlider
+              volume={volume}
+              muted={muted || mutedByEchoTest}
+              onMuted={this.handleOnMuted}
+              onVolumeChanged={this.handleVolumeChanged}
+            />
+            <ReloadButton
+              handleReload={this.handleReload}
+              label={intl.formatMessage(intlMessages.refreshLabel)}>
+            </ReloadButton>
+          </div>
           : null
         }
       </div>

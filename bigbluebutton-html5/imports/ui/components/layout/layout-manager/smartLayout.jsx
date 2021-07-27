@@ -148,8 +148,7 @@ class SmartLayout extends Component {
 
   calculatesNavbarBounds(mediaAreaBounds) {
     const { newLayoutContextState } = this.props;
-    const { isRTL } = newLayoutContextState;
-    const { layoutLoaded } = newLayoutContextState;
+    const { layoutLoaded, isRTL } = newLayoutContextState;
 
     let top = 0;
     if (layoutLoaded === 'both') top = this.mainHeight();
@@ -488,7 +487,7 @@ class SmartLayout extends Component {
           mediaBounds.height = mediaAreaBounds.height;
           mediaBounds.top = mediaAreaBounds.top;
           const sizeValue = mediaAreaBounds.left
-          + (mediaAreaBounds.width - mediaBounds.width);
+            + (mediaAreaBounds.width - mediaBounds.width);
           mediaBounds.left = !isRTL ? sizeValue : null;
           mediaBounds.right = isRTL ? sidebarSize : null;
         } else {
