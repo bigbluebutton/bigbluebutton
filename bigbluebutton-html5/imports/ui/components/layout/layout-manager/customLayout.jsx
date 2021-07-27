@@ -350,12 +350,15 @@ class CustomLayout extends Component {
   calculatesSidebarContentHeight(cameraDockHeight) {
     const { newLayoutContextState } = this.props;
     const { deviceType, input } = newLayoutContextState;
+    const { presentation } = input;
+    const { isOpen } = presentation;
     let sidebarContentHeight = 0;
     if (input.sidebarContent.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
         sidebarContentHeight = this.mainHeight() - DEFAULT_VALUES.navBarHeight;
       } else if (input.cameraDock.numCameras > 0
-        && input.cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM) {
+        && input.cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM
+        && isOpen) {
         sidebarContentHeight = this.mainHeight() - cameraDockHeight;
       } else {
         sidebarContentHeight = this.mainHeight();
@@ -424,6 +427,8 @@ class CustomLayout extends Component {
         cameraDockBounds.maxWidth = mediaAreaBounds.width;
         cameraDockBounds.height = mediaAreaBounds.height;
         cameraDockBounds.maxHeight = mediaAreaBounds.height;
+        cameraDockBounds.top = DEFAULT_VALUES.navBarHeight;
+        cameraDockBounds.left = mediaAreaBounds.left;
       } else {
         let cameraDockLeft = 0;
         let cameraDockHeight = 0;
