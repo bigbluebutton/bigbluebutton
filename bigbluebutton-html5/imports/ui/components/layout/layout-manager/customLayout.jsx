@@ -862,9 +862,11 @@ class CustomLayout extends Component {
         resizableEdge: {
           top: input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM
             || input.cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM,
-          right: input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT,
+          right: (!isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT)
+            || (isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT),
           bottom: input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_TOP,
-          left: input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT,
+          left: (!isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT)
+            || (isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT),
         },
         zIndex: cameraDockBounds.zIndex,
       },
