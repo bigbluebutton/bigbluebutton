@@ -140,7 +140,7 @@ const WebcamComponent = ({
         disabled={!cameraDock.isDraggable || isResizing || isFullscreen}
         position={
           {
-            x: cameraDock.left,
+            x: cameraDock.left - cameraDock.right,
             y: cameraDock.top,
           }
         }
@@ -184,7 +184,6 @@ const WebcamComponent = ({
           style={{
             position: 'absolute',
             zIndex: cameraDock.zIndex,
-            right: cameraDock.right,
           }}
         >
           <div
