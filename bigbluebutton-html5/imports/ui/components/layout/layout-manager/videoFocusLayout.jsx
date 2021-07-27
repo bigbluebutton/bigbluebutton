@@ -36,6 +36,7 @@ class VideoFocusLayout extends Component {
     const { newLayoutContextState } = this.props;
     return newLayoutContextState.input !== nextProps.newLayoutContextState.input
       || newLayoutContextState.deviceType !== nextProps.newLayoutContextState.deviceType
+      || newLayoutContextState.isRTL !== nextProps.newLayoutContextState.isRTL
       || newLayoutContextState.layoutLoaded !== nextProps.newLayoutContextState.layoutLoaded
       || newLayoutContextState.fontSize !== nextProps.newLayoutContextState.fontSize
       || newLayoutContextState.fullscreen !== nextProps.newLayoutContextState.fullscreen;
@@ -153,34 +154,34 @@ class VideoFocusLayout extends Component {
 
   calculatesNavbarBounds(mediaAreaBounds) {
     const { newLayoutContextState } = this.props;
-    const { layoutLoaded } = newLayoutContextState;
+    const { layoutLoaded, isRTL } = newLayoutContextState;
 
     let top = 0;
     if (layoutLoaded === 'both') top = this.mainHeight();
     else top = DEFAULT_VALUES.navBarTop + this.bannerAreaHeight();
 
     return {
-      width: this.mainWidth() - mediaAreaBounds.left,
+      width: mediaAreaBounds.width,
       height: DEFAULT_VALUES.navBarHeight,
       top,
-      left: mediaAreaBounds.left,
+      left: !isRTL ? mediaAreaBounds.left : 0,
       zIndex: 1,
     };
   }
 
   calculatesActionbarBounds(mediaAreaBounds) {
     const { newLayoutContextState } = this.props;
-    const { input, fontSize } = newLayoutContextState;
+    const { input, fontSize, isRTL } = newLayoutContextState;
 
     const BASE_FONT_SIZE = 16;
     const actionBarHeight = (DEFAULT_VALUES.actionBarHeight / BASE_FONT_SIZE) * fontSize;
 
     return {
       display: input.actionBar.hasActionBar,
-      width: this.mainWidth() - mediaAreaBounds.left,
+      width: mediaAreaBounds.width,
       height: actionBarHeight,
       top: this.mainHeight() - actionBarHeight,
-      left: mediaAreaBounds.left,
+      left: !isRTL ? mediaAreaBounds.left : 0,
       zIndex: 1,
     };
   }
@@ -234,7 +235,7 @@ class VideoFocusLayout extends Component {
 
   calculatesSidebarNavBounds() {
     const { newLayoutContextState } = this.props;
-    const { deviceType, layoutLoaded } = newLayoutContextState;
+    const { deviceType, layoutLoaded, isRTL } = newLayoutContextState;
     const { sidebarNavTop, navBarHeight, sidebarNavLeft } = DEFAULT_VALUES;
 
     let top = 0;
@@ -245,7 +246,8 @@ class VideoFocusLayout extends Component {
 
     return {
       top,
-      left: sidebarNavLeft,
+      left: !isRTL ? sidebarNavLeft : null,
+      right: isRTL ? sidebarNavLeft : null,
       zIndex: deviceType === DEVICE_TYPE.MOBILE ? 10 : 2,
     };
   }
@@ -326,7 +328,7 @@ class VideoFocusLayout extends Component {
 
   calculatesSidebarContentBounds(sidebarNavWidth) {
     const { newLayoutContextState } = this.props;
-    const { deviceType, layoutLoaded } = newLayoutContextState;
+    const { deviceType, layoutLoaded, isRTL } = newLayoutContextState;
     const { sidebarNavTop, navBarHeight } = DEFAULT_VALUES;
 
     let top = 0;
@@ -337,14 +339,15 @@ class VideoFocusLayout extends Component {
 
     return {
       top,
-      left: deviceType === DEVICE_TYPE.MOBILE ? 0 : sidebarNavWidth,
+      left: !isRTL ? (deviceType === DEVICE_TYPE.MOBILE ? 0 : sidebarNavWidth) : null,
+      right: isRTL ? (deviceType === DEVICE_TYPE.MOBILE ? 0 : sidebarNavWidth) : null,
       zIndex: deviceType === DEVICE_TYPE.MOBILE ? 11 : 1,
     };
   }
 
   calculatesMediaAreaBounds(sidebarNavWidth, sidebarContentWidth) {
     const { newLayoutContextState } = this.props;
-    const { deviceType, layoutLoaded } = newLayoutContextState;
+    const { deviceType, layoutLoaded, isRTL } = newLayoutContextState;
     const { navBarHeight, actionBarHeight } = DEFAULT_VALUES;
     let left = 0;
     let width = 0;
@@ -353,7 +356,7 @@ class VideoFocusLayout extends Component {
       left = 0;
       width = this.mainWidth();
     } else {
-      left = sidebarNavWidth + sidebarContentWidth;
+      left = !isRTL ? sidebarNavWidth + sidebarContentWidth : 0;
       width = this.mainWidth() - sidebarNavWidth - sidebarContentWidth;
     }
 
@@ -368,9 +371,9 @@ class VideoFocusLayout extends Component {
     };
   }
 
-  calculatesCameraDockBounds(mediaAreaBounds) {
+  calculatesCameraDockBounds(mediaAreaBounds, sidebarSize) {
     const { newLayoutContextState } = this.props;
-    const { deviceType, input, fullscreen } = newLayoutContextState;
+    const { deviceType, input, fullscreen, isRTL } = newLayoutContextState;
     const { cameraDock } = input;
     const { numCameras } = cameraDock;
 
@@ -388,7 +391,8 @@ class VideoFocusLayout extends Component {
       }
 
       cameraDockBounds.top = DEFAULT_VALUES.navBarHeight;
-      cameraDockBounds.left = mediaAreaBounds.left;
+      cameraDockBounds.left = !isRTL ? mediaAreaBounds.left : null;
+      cameraDockBounds.right = isRTL ? sidebarSize : null;
       cameraDockBounds.minWidth = mediaAreaBounds.width;
       cameraDockBounds.width = mediaAreaBounds.width;
       cameraDockBounds.maxWidth = mediaAreaBounds.width;
@@ -412,6 +416,7 @@ class VideoFocusLayout extends Component {
     cameraDockBounds.top = 0;
     cameraDockBounds.left = 0;
     cameraDockBounds.minWidth = 0;
+    cameraDockBounds.height = 0;
     cameraDockBounds.width = 0;
     cameraDockBounds.maxWidth = 0;
     cameraDockBounds.zIndex = 0;
@@ -426,15 +431,17 @@ class VideoFocusLayout extends Component {
     sidebarContentHeight,
   ) {
     const { newLayoutContextState } = this.props;
-    const { deviceType, input, fullscreen } = newLayoutContextState;
+    const { deviceType, input, fullscreen, isRTL } = newLayoutContextState;
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
+    const sidebarSize = sidebarNavWidth + sidebarContentWidth;
 
     if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
       mediaBounds.width = this.mainWidth();
       mediaBounds.height = this.mainHeight();
       mediaBounds.top = 0;
       mediaBounds.left = 0;
+      mediaBounds.right = 0;
       mediaBounds.zIndex = 99;
       return mediaBounds;
     }
@@ -446,7 +453,8 @@ class VideoFocusLayout extends Component {
       mediaBounds.width = mediaAreaBounds.width;
     } else if (input.cameraDock.numCameras > 0) {
       mediaBounds.height = this.mainHeight() - sidebarContentHeight;
-      mediaBounds.left = sidebarNavWidth;
+      mediaBounds.left = !isRTL ? sidebarNavWidth : 0;
+      mediaBounds.right = isRTL ? sidebarNavWidth : 0;
       mediaBounds.top = sidebarContentHeight;
       mediaBounds.width = sidebarContentWidth;
       mediaBounds.zIndex = 1;
@@ -454,7 +462,8 @@ class VideoFocusLayout extends Component {
       mediaBounds.height = mediaAreaBounds.height;
       mediaBounds.width = mediaAreaBounds.width;
       mediaBounds.top = DEFAULT_VALUES.navBarHeight + this.bannerAreaHeight();
-      mediaBounds.left = mediaAreaBounds.left;
+      mediaBounds.left = !isRTL ? mediaAreaBounds.left : null;
+      mediaBounds.right = isRTL ? sidebarSize : null;
       mediaBounds.zIndex = 1;
     }
 
@@ -463,7 +472,7 @@ class VideoFocusLayout extends Component {
 
   calculatesLayout() {
     const { newLayoutContextState, newLayoutContextDispatch } = this.props;
-    const { deviceType, input } = newLayoutContextState;
+    const { deviceType, input, isRTL } = newLayoutContextState;
 
     const sidebarNavWidth = this.calculatesSidebarNavWidth();
     const sidebarNavHeight = this.calculatesSidebarNavHeight();
@@ -479,7 +488,8 @@ class VideoFocusLayout extends Component {
     );
     const navbarBounds = this.calculatesNavbarBounds(mediaAreaBounds);
     const actionbarBounds = this.calculatesActionbarBounds(mediaAreaBounds);
-    const cameraDockBounds = this.calculatesCameraDockBounds(mediaAreaBounds);
+    const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.width;
+    const cameraDockBounds = this.calculatesCameraDockBounds(mediaAreaBounds, sidebarSize);
     const sidebarContentHeight = this.calculatesSidebarContentHeight();
     const mediaBounds = this.calculatesMediaBounds(
       mediaAreaBounds,
@@ -526,6 +536,7 @@ class VideoFocusLayout extends Component {
         height: sidebarNavHeight,
         top: sidebarNavBounds.top,
         left: sidebarNavBounds.left,
+        right: sidebarNavBounds.right,
         tabOrder: DEFAULT_VALUES.sidebarNavTabOrder,
         isResizable: deviceType !== DEVICE_TYPE.MOBILE
           && deviceType !== DEVICE_TYPE.TABLET,
@@ -537,9 +548,9 @@ class VideoFocusLayout extends Component {
       type: ACTIONS.SET_SIDEBAR_NAVIGATION_RESIZABLE_EDGE,
       value: {
         top: false,
-        right: true,
+        right: !isRTL,
         bottom: false,
-        left: false,
+        left: isRTL,
       },
     });
 
@@ -555,6 +566,7 @@ class VideoFocusLayout extends Component {
         maxHeight: sidebarContentHeight.maxHeight,
         top: sidebarContentBounds.top,
         left: sidebarContentBounds.left,
+        right: sidebarContentBounds.right,
         currentPanelType: input.currentPanelType,
         tabOrder: DEFAULT_VALUES.sidebarContentTabOrder,
         isResizable: deviceType !== DEVICE_TYPE.MOBILE
@@ -567,9 +579,9 @@ class VideoFocusLayout extends Component {
       type: ACTIONS.SET_SIDEBAR_CONTENT_RESIZABLE_EDGE,
       value: {
         top: false,
-        right: true,
+        right: !isRTL,
         bottom: isBottomResizable,
-        left: false,
+        left: isRTL,
       },
     });
 
@@ -593,6 +605,7 @@ class VideoFocusLayout extends Component {
         maxHeight: cameraDockBounds.maxHeight,
         top: cameraDockBounds.top,
         left: cameraDockBounds.left,
+        right: cameraDockBounds.right,
         tabOrder: 4,
         isDraggable: false,
         resizableEdge: {
@@ -613,6 +626,7 @@ class VideoFocusLayout extends Component {
         height: mediaBounds.height,
         top: mediaBounds.top,
         left: mediaBounds.left,
+        right: isRTL ? mediaBounds.right : null,
         tabOrder: DEFAULT_VALUES.presentationTabOrder,
         isResizable: deviceType !== DEVICE_TYPE.MOBILE
           && deviceType !== DEVICE_TYPE.TABLET,
@@ -637,6 +651,7 @@ class VideoFocusLayout extends Component {
         height: mediaBounds.height,
         top: mediaBounds.top,
         left: mediaBounds.left,
+        right: isRTL ? mediaBounds.right : null,
         zIndex: mediaBounds.zIndex,
       },
     });
@@ -648,6 +663,7 @@ class VideoFocusLayout extends Component {
         height: mediaBounds.height,
         top: mediaBounds.top,
         left: mediaBounds.left,
+        right: isRTL ? mediaBounds.right : null,
       },
     });
   }
