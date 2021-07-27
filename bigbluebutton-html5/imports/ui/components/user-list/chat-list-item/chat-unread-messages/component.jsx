@@ -25,9 +25,9 @@ const defaultProps = {
 const ChatUnreadCounter = props => (
   <div
     className={styles.unreadMessages}
-    aria-label={props.counter > 0
-      ? props.intl.formatMessage(intlMessages.unreadSingular, { 0: props.counter })
-      : props.intl.formatMessage(intlMessages.unreadPlural, { 0: props.counter })}
+    aria-label={props.counter > 1
+      ? props.intl.formatMessage(intlMessages.unreadPlural, { 0: props.counter })
+      : props.intl.formatMessage(intlMessages.unreadSingular)}
   >
     <div className={styles.unreadMessagesText} aria-hidden="true">
       {props.counter}
