@@ -216,14 +216,16 @@ const reducer = (state, action) => {
     // ACTION BAR
     case ACTIONS.SET_ACTIONBAR_OUTPUT: {
       const {
-        display, width, height, top, left, tabOrder, zIndex,
+        display, width, height, innerHeight, top, left, padding, tabOrder, zIndex,
       } = action.value;
       const { actionBar } = state.output;
       if (actionBar.display === display
         && actionBar.width === width
         && actionBar.height === height
+        && actionBar.innerHeight === innerHeight
         && actionBar.top === top
         && actionBar.left === left
+        && actionBar.padding === padding
         && actionBar.zIndex === zIndex
         && actionBar.tabOrder === tabOrder) {
         return state;
@@ -237,8 +239,10 @@ const reducer = (state, action) => {
             display,
             width,
             height,
+            innerHeight,
             top,
             left,
+            padding,
             tabOrder,
             zIndex,
           },

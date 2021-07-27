@@ -35,14 +35,22 @@ class ActionsBar extends PureComponent {
       currentUser,
       shortcuts,
       newLayoutContextDispatch,
+      layoutManagerLoaded,
+      actionsBarStyle,
     } = this.props;
 
     return (
       <div
         className={styles.actionsbar}
-        style={{
-          height: ACTIONSBAR_HEIGHT,
-        }}
+        style={
+          layoutManagerLoaded === 'new'
+            ? {
+              height: actionsBarStyle.innerHeight,
+            }
+            : {
+              height: ACTIONSBAR_HEIGHT,
+            }
+        }
       >
         <div className={styles.left}>
           <ActionsDropdown {...{

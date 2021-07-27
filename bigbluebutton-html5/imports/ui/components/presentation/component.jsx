@@ -214,6 +214,13 @@ class Presentation extends PureComponent {
             height: currHeight,
           },
         });
+        newLayoutContextDispatch({
+          type: ACTIONS.SET_PRESENTATION_CURRENT_SLIDE_SIZE,
+          value: {
+            width: currWidth,
+            height: currHeight,
+          },
+        });
         if (currWidth > currHeight || currWidth === currHeight) {
           layoutContextDispatch({
             type: 'setPresentationOrientation',
