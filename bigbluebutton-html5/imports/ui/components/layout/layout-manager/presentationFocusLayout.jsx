@@ -161,18 +161,36 @@ class PresentationFocusLayout extends Component {
     };
   }
 
+  calculatesActionbarHeight() {
+    const { newLayoutContextState } = this.props;
+    const { fontSize } = newLayoutContextState;
+
+    const BASE_FONT_SIZE = 14; // 90% font size
+    const BASE_HEIGHT = DEFAULT_VALUES.actionBarHeight;
+    const PADDING = DEFAULT_VALUES.actionBarPadding;
+
+    const actionBarHeight = ((BASE_HEIGHT / BASE_FONT_SIZE) * fontSize);
+
+    return {
+      height: actionBarHeight + (PADDING * 2),
+      innerHeight: actionBarHeight,
+      padding: PADDING,
+    };
+  }
+
   calculatesActionbarBounds(mediaAreaBounds) {
     const { newLayoutContextState } = this.props;
-    const { input, fontSize } = newLayoutContextState;
+    const { input } = newLayoutContextState;
 
-    const BASE_FONT_SIZE = 16;
-    const actionBarHeight = (DEFAULT_VALUES.actionBarHeight / BASE_FONT_SIZE) * fontSize;
+    const actionBarHeight = this.calculatesActionbarHeight();
 
     return {
       display: input.actionBar.hasActionBar,
       width: this.mainWidth() - mediaAreaBounds.left,
-      height: actionBarHeight,
-      top: this.mainHeight() - actionBarHeight,
+      height: actionBarHeight.height,
+      innerHeight: actionBarHeight.innerHeight,
+      padding: actionBarHeight.padding,
+      top: this.mainHeight() - actionBarHeight.height,
       left: mediaAreaBounds.left,
       zIndex: 1,
     };
@@ -316,7 +334,8 @@ class PresentationFocusLayout extends Component {
   calculatesMediaAreaBounds(sidebarNavWidth, sidebarContentWidth) {
     const { newLayoutContextState } = this.props;
     const { deviceType, layoutLoaded } = newLayoutContextState;
-    const { navBarHeight, actionBarHeight } = DEFAULT_VALUES;
+    const { navBarHeight } = DEFAULT_VALUES;
+    const { height: actionBarHeight } = this.calculatesActionbarHeight();
     let left = 0;
     let width = 0;
     let top = 0;
@@ -474,8 +493,10 @@ class PresentationFocusLayout extends Component {
         display: input.actionBar.hasActionBar,
         width: actionbarBounds.width,
         height: actionbarBounds.height,
+        innerHeight: actionbarBounds.innerHeight,
         top: actionbarBounds.top,
         left: actionbarBounds.left,
+        padding: actionbarBounds.padding,
         tabOrder: DEFAULT_VALUES.actionBarTabOrder,
         zIndex: actionbarBounds.zIndex,
       },
