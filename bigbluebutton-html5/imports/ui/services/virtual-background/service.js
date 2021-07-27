@@ -1,4 +1,5 @@
 import deviceInfo from '/imports/utils/deviceInfo';
+import browserInfo from '/imports/utils/browserInfo';
 import { createVirtualBackgroundService } from '/imports/ui/services/virtual-background';
 
 const BLUR_FILENAME = 'blur.jpg';
@@ -82,9 +83,8 @@ const getSessionVirtualBackgroundInfoWithDefault = () => {
   };
 }
 
-const isVirtualBackgroundEnabled = () => {
-  return VIRTUAL_BACKGROUND_ENABLED && !deviceInfo.isIOS;
-}
+const isVirtualBackgroundEnabled = () => VIRTUAL_BACKGROUND_ENABLED
+  && !(deviceInfo.isIOS || browserInfo.isSafari);
 
 const getVirtualBgImagePath = () => {
   return (IS_STORED_ON_BBB ? BASE_PATH : '') + IMAGES_PATH;
