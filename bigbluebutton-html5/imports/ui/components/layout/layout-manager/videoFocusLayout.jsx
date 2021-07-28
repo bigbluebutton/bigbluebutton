@@ -325,7 +325,11 @@ class VideoFocusLayout extends Component {
             maxHeight = this.mainHeight() - this.bannerAreaHeight();
           } else {
             const { size: slideSize } = input.presentation.currentSlide;
-            const calculatedHeight = (slideSize.height * outputContent.width) / slideSize.width;
+            let calculatedHeight = (this.mainHeight() - this.bannerAreaHeight()) * 0.3;
+
+            if (slideSize.height > 0 && slideSize.width > 0) {
+              calculatedHeight = (slideSize.height * outputContent.width) / slideSize.width;
+            }
             height = this.mainHeight() - calculatedHeight - this.bannerAreaHeight();
             maxHeight = height;
           }
