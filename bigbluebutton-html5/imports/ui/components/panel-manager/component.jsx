@@ -428,7 +428,7 @@ class PanelManager extends Component {
         key={this.captionsKey}
         size={{ width: secondPanelWidth }}
         onResizeStop={(e, direction, ref, d) => {
-          this.captionsResizeStop(secondPanelWidth + d.width);
+          this.captionsResizeStop(d.width);
         }}
       >
         {this.renderCaptions()}
@@ -475,7 +475,7 @@ class PanelManager extends Component {
         key={this.waitingUsers}
         size={{ width: secondPanelWidth }}
         onResizeStop={(e, direction, ref, d) => {
-          this.waitingResizeStop(secondPanelWidth + d.width);
+          this.waitingResizeStop(d.width);
         }}
       >
         {this.renderWaitingUsersPanel()}
@@ -565,8 +565,7 @@ class PanelManager extends Component {
         key={this.pollKey}
         size={{ width: secondPanelWidth }}
         onResizeStop={(e, direction, ref, d) => {
-          // window.dispatchEvent(new Event('resize'));
-          this.pollResizeStop(secondPanelWidth + d.width);
+          this.pollResizeStop(d.width);
         }}
       >
         {this.renderPoll()}
