@@ -31,9 +31,13 @@
   &:active {
     box-shadow: none;
     border-radius: none;
+    box-shadow: inset 0 0 1px var(--color-primary);
+    outline-style: transparent;
   }
 
   overflow-x: hidden;
+  padding-top: 1px;
+  padding-right: 1px;
 }
 
 .virtulizedScrollableList {
@@ -50,7 +54,7 @@
 
   &:focus,
   &:active {
-    box-shadow: inset 1px 0 3px var(--color-primary);
+    box-shadow: inset 0 0 1px var(--color-primary);
     border-radius: none;
     outline-style: transparent;
   }
@@ -64,6 +68,7 @@
     margin: 0 var(--md-padding-y) 1px 0;
   }
   margin-left: 0;
+  padding-top: 1px;
 }
 
 .list {
