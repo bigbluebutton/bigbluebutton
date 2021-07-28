@@ -394,6 +394,7 @@ class VideoList extends Component {
     const {
       streams,
       intl,
+      layoutLoaded
     } = this.props;
     const { optimalGrid, autoplayBlocked } = this.state;
 
@@ -411,6 +412,9 @@ class VideoList extends Component {
           this.canvas = ref;
         }}
         className={canvasClassName}
+        style={{
+          minHeight: layoutLoaded === 'new' ? `inherit` : undefined,
+        }}
       >
 
         {this.renderPreviousPageButton()}

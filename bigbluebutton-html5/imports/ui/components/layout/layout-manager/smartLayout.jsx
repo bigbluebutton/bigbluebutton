@@ -362,7 +362,6 @@ class SmartLayout extends Component {
         cameraDockBounds.maxWidth = mediaAreaBounds.width * 0.8;
         cameraDockBounds.height = mediaAreaBounds.height;
         cameraDockBounds.maxHeight = mediaAreaBounds.height;
-        cameraDockBounds.right += camerasMargin;
         cameraDockBounds.left += camerasMargin;
         cameraDockBounds.width -= (camerasMargin * 2);
       } else {
@@ -433,7 +432,6 @@ class SmartLayout extends Component {
     const { isOpen } = presentation;
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
-    const { camerasMargin } = DEFAULT_VALUES;
 
     // TODO Adicionar min e max para a apresentação
 
@@ -477,8 +475,6 @@ class SmartLayout extends Component {
           mediaBounds.top = mediaAreaBounds.top
             + (mediaAreaBounds.height - mediaBounds.height);
           mediaBounds.left = mediaAreaBounds.left;
-          mediaBounds.top += camerasMargin;
-          mediaBounds.height -= camerasMargin;
         }
       } else {
         mediaBounds.width = mediaAreaBounds.width;
