@@ -11,8 +11,6 @@ import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import VideoService from '/imports/ui/components/video-provider/service';
 import Button from '/imports/ui/components/button/component';
 import { ACTIONS } from '../../layout/enums';
-import { isVirtualBackgroundEnabled } from '/imports/ui/services/virtual-background/service'
-import VideoPreviewService from '/imports/ui/components/video-preview/service';
 
 const propTypes = {
   streams: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -23,7 +21,6 @@ const propTypes = {
   swapLayout: PropTypes.bool.isRequired,
   numberOfPages: PropTypes.number.isRequired,
   currentVideoPageIndex: PropTypes.number.isRequired,
-  toggleVirtualBg: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -56,9 +53,6 @@ const intlMessages = defineMessages({
   },
   prevPageLabel: {
     id: 'app.video.pagination.prevPage',
-  },
-  toggleVirtualBg: {
-    id: 'app.video.virtualBackground.toggleVirtualBg',
   },
 });
 
@@ -338,20 +332,6 @@ class VideoList extends Component {
     );
   }
 
-  assembleVirtualBgAction (collectionStream, onClickCallback) {
-    const { intl } = this.props;
-    const { deviceId, stream: streamId } = collectionStream;
-    const localVideoStream = VideoPreviewService.getStream(deviceId);
-
-    if (localVideoStream == null) return false;
-
-    return {
-      actionName: ACTION_NAME_BACKGROUND,
-      label: intl.formatMessage(intlMessages.toggleVirtualBg),
-      onClick: () => onClickCallback(streamId, localVideoStream)
-    };
-  }
-
   renderVideoList() {
     const {
       intl,
@@ -359,7 +339,6 @@ class VideoList extends Component {
       onVideoItemMount,
       onVideoItemUnmount,
       swapLayout,
-      toggleVirtualBg,
     } = this.props;
     const { focusedId } = this.state;
     const numOfStreams = streams.length;
@@ -375,11 +354,6 @@ class VideoList extends Component {
         description: intl.formatMessage(intlMessages.mirrorDesc),
         onClick: () => this.mirrorCamera(stream),
       }];
-
-      if (VideoService.isLocalStream(stream) && isVirtualBackgroundEnabled()) {
-        const bgAction = this.assembleVirtualBgAction(vs, toggleVirtualBg);
-        if (bgAction) actions.push(bgAction);
-      }
 
       if (numOfStreams > 2) {
         actions.push({
