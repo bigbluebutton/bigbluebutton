@@ -155,6 +155,12 @@ class VideoPlayer extends Component {
   }
 
   componentDidUpdate(prevProp, prevState) {
+    const { top, left, layoutLoaded } = this.props;
+
+    if (layoutLoaded === 'new' && (top !== prevProp.top || left !== prevProp.left)) {
+      this.handleResize();
+    }
+
     // Detect presenter change and redo the sync and listeners to reassign video to the new one
     if (this.props.isPresenter !== prevProp.isPresenter) {
       this.clearVideoListeners();
