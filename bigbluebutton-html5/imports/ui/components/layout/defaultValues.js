@@ -25,7 +25,8 @@ const DEFAULT_VALUES = {
   navBarTop: 0,
   navBarTabOrder: 3,
 
-  actionBarHeight: 65,
+  actionBarHeight: 42,
+  actionBarPadding: 11.2,
   actionBarTabOrder: 6,
 
   sidebarNavMaxWidth: 240,

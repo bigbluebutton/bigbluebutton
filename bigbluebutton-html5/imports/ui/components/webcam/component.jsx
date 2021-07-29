@@ -121,9 +121,9 @@ const WebcamComponent = ({
   });
   const resizableClassName = cx({
     [styles.resizeWrapperH]: cameraDock.position === CAMERADOCK_POSITION.CONTENT_TOP
-    || cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM,
+      || cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM,
     [styles.resizeWrapperV]: cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT
-    || cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT,
+      || cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT,
   });
 
   return (
@@ -140,7 +140,7 @@ const WebcamComponent = ({
         disabled={!cameraDock.isDraggable || isResizing || isFullscreen}
         position={
           {
-            x: cameraDock.left,
+            x: cameraDock.left - cameraDock.right,
             y: cameraDock.top,
           }
         }

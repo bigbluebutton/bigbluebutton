@@ -155,6 +155,12 @@ class VideoPlayer extends Component {
   }
 
   componentDidUpdate(prevProp, prevState) {
+    const { top, left, layoutLoaded } = this.props;
+
+    if (layoutLoaded === 'new' && (top !== prevProp.top || left !== prevProp.left)) {
+      this.handleResize();
+    }
+
     // Detect presenter change and redo the sync and listeners to reassign video to the new one
     if (this.props.isPresenter !== prevProp.isPresenter) {
       this.clearVideoListeners();
@@ -191,8 +197,8 @@ class VideoPlayer extends Component {
     // If message is just a quick pause/un-pause just send nothing
     const sinceLastMessage = (timestamp - this.lastMessageTimestamp) / 1000;
     if ((msg === 'play' && this.lastMessage === 'stop'
-         || msg === 'stop' && this.lastMessage === 'play')
-         && sinceLastMessage < THROTTLE_INTERVAL_SECONDS) {
+      || msg === 'stop' && this.lastMessage === 'play')
+      && sinceLastMessage < THROTTLE_INTERVAL_SECONDS) {
       return clearTimeout(this.throttleTimeout);
     }
 
@@ -260,7 +266,7 @@ class VideoPlayer extends Component {
   }
 
   handleResize() {
-    const { top, left, height, width, layoutLoaded } = this.props;
+    const { top, left, right, height, width, layoutLoaded } = this.props;
 
     if (!this.player || !this.playerParent) {
       return;
@@ -279,6 +285,7 @@ class VideoPlayer extends Component {
       }
       style.top = top + (height - style.height) / 2;
       style.left = left + (width - style.width) / 2;
+      style.right = right + (width - style.width) / 2;
 
       const styles = `
         position: absolute;
@@ -286,9 +293,10 @@ class VideoPlayer extends Component {
         height: ${style.height}px;
         top: ${style.top}px;
         left: ${style.left}px;
+        right: ${style.right}px;
       `;
       this.player.wrapper.style = styles;
-    }else{
+    } else {
       const par = this.playerParent.parentElement;
       const w = par.clientWidth;
       const h = par.clientHeight;
@@ -491,7 +499,7 @@ class VideoPlayer extends Component {
 
   handleReload() {
     // increment key and force a re-render of the video component
-    this.setState({key: this.state.key + 1});
+    this.setState({ key: this.state.key + 1 });
 
     // hack, resize player
     this.resizeListener();
@@ -534,19 +542,19 @@ class VideoPlayer extends Component {
           key={'react-player' + key}
           ref={(ref) => { this.player = ref; }}
         />
-        { !isPresenter ?
-            <div className={styles.hoverToolbar}>
-              <VolumeSlider
-                volume={volume}
-                muted={muted || mutedByEchoTest}
-                onMuted={this.handleOnMuted}
-                onVolumeChanged={this.handleVolumeChanged}
-              />
-              <ReloadButton
-                handleReload={this.handleReload}
-                label={intl.formatMessage(intlMessages.refreshLabel)}>
-              </ReloadButton>
-            </div>
+        {!isPresenter ?
+          <div className={styles.hoverToolbar}>
+            <VolumeSlider
+              volume={volume}
+              muted={muted || mutedByEchoTest}
+              onMuted={this.handleOnMuted}
+              onVolumeChanged={this.handleVolumeChanged}
+            />
+            <ReloadButton
+              handleReload={this.handleReload}
+              label={intl.formatMessage(intlMessages.refreshLabel)}>
+            </ReloadButton>
+          </div>
           : null
         }
       </div>

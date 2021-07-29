@@ -13,7 +13,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @NotEmpty(message = "You must provide a meeting ID")
 @Size(min = 2, max = 256, message = "Meeting ID must be between 2 and 256 characters")
-@Pattern(regexp = "^[a-zA-Z0-9\\s!@#$%^&*()_\\-+=\\[\\]{};:.'\"<>?\\\\|\\/]+$", message = "Meeting ID cannot contain ','")
+@Pattern(regexp = "^[^,]+$", message = "Meeting ID cannot contain ','")
 @Constraint(validatedBy = {})
 @Target(FIELD)
 @Retention(RUNTIME)

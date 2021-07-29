@@ -27,7 +27,7 @@ case class UserActivityTracker(
   extId:              String,
   name:               String,
   answers:            Map[String,String] = Map(),
-  talks:              Vector[Talk] = Vector(),
+  talk:               Talk = Talk(),
   webcams:            Vector[Webcam] = Vector(),
   totalOfMessages:    Long = 0,
   totalOfRaiseHands:  Long = 0,
@@ -47,8 +47,8 @@ case class Poll(
 )
 
 case class Talk(
-  startedOn: Long = System.currentTimeMillis(),
-  stoppedOn: Long = 0,
+  totalTime: Long = 0,
+  lastTalkStartedOn: Long = 0,
 )
 
 case class Webcam(
@@ -66,29 +66,22 @@ object ActivityTrackerActor {
   def props(
              system:         ActorSystem,
              outGW:          OutMessageGateway,
-//             healthzService: HealthzService
   ): Props =
     Props(
       classOf[ActivityTrackerActor],
       system,
       outGW
-//      healthzService
     )
 }
 
 class ActivityTrackerActor(
     system:         ActorSystem,
     val outGW:          OutMessageGateway,
-//    healthzService: HealthzService
 ) extends Actor with ActorLogging {
 
   private var meetings: Map[String, MeetingActivityTracker] = Map()
 
   system.scheduler.schedule(10.seconds, 10.seconds, self, SendPeriodicReport)
-
-//  private def record(session: String, message: java.util.Map[java.lang.String, java.lang.String]): Unit = {
-//    redis.recordAndExpire(session, message)
-//  }
 
   def receive = {
     //=============================
@@ -101,48 +94,34 @@ class ActivityTrackerActor(
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
       // Chat
-            case m: GroupChatMessageBroadcastEvtMsg       => handleGroupChatMessageBroadcastEvtMsg(m)
-//            case m: ClearPublicChatHistoryEvtMsg          => handleClearPublicChatHistoryEvtMsg(m)
+      case m: GroupChatMessageBroadcastEvtMsg       => handleGroupChatMessageBroadcastEvtMsg(m)
 
       // User
       case m: UserJoinedMeetingEvtMsg => handleUserJoinedMeetingEvtMsg(m)
       case m: UserLeftMeetingEvtMsg   => handleUserLeftMeetingEvtMsg(m)
-      //      case m: PresenterAssignedEvtMsg               => handlePresenterAssignedEvtMsg(m)
-            case m: UserEmojiChangedEvtMsg                => handleUserEmojiChangedEvtMsg(m)
-      //      case m: UserRoleChangedEvtMsg                 => handleUserRoleChangedEvtMsg(m)
-            case m: UserBroadcastCamStartedEvtMsg         => handleUserBroadcastCamStartedEvtMsg(m)
-            case m: UserBroadcastCamStoppedEvtMsg         => handleUserBroadcastCamStoppedEvtMsg(m)
+      case m: UserEmojiChangedEvtMsg                => handleUserEmojiChangedEvtMsg(m)
+      case m: UserBroadcastCamStartedEvtMsg         => handleUserBroadcastCamStartedEvtMsg(m)
+      case m: UserBroadcastCamStoppedEvtMsg         => handleUserBroadcastCamStoppedEvtMsg(m)
 
       // Voice
-            case m: UserJoinedVoiceConfToClientEvtMsg     => handleUserJoinedVoiceConfToClientEvtMsg(m)
-            case m: UserLeftVoiceConfToClientEvtMsg       => handleUserLeftVoiceConfToClientEvtMsg(m)
-            case m: UserMutedVoiceEvtMsg                  => handleUserMutedVoiceEvtMsg(m)
-            case m: UserTalkingVoiceEvtMsg                => handleUserTalkingVoiceEvtMsg(m)
-      //
-      //      case m: VoiceRecordingStartedEvtMsg           => handleVoiceRecordingStartedEvtMsg(m)
-      //      case m: VoiceRecordingStoppedEvtMsg           => handleVoiceRecordingStoppedEvtMsg(m)
+      case m: UserJoinedVoiceConfToClientEvtMsg     => handleUserJoinedVoiceConfToClientEvtMsg(m)
+      case m: UserLeftVoiceConfToClientEvtMsg       => handleUserLeftVoiceConfToClientEvtMsg(m)
+      case m: UserMutedVoiceEvtMsg                  => handleUserMutedVoiceEvtMsg(m)
+      case m: UserTalkingVoiceEvtMsg                => handleUserTalkingVoiceEvtMsg(m)
 
       // Screenshare
       case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
       case m: ScreenshareRtmpBroadcastStoppedEvtMsg => handleScreenshareRtmpBroadcastStoppedEvtMsg(m)
-      //case m: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg => handleScreenshareRtmpBroadcastStartedVoiceConfEvtMsg(m)
-      //case m: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg => handleScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg(m)
-      //case m: DeskShareNotifyViewersRTMP  => handleDeskShareNotifyViewersRTMP(m)
 
       // Meeting
-      //      case m: RecordingStatusChangedEvtMsg          => handleRecordingStatusChangedEvtMsg(m)
-      //      case m: RecordStatusResetSysMsg               => handleRecordStatusResetSysMsg(m)
-      //      case m: WebcamsOnlyForModeratorChangedEvtMsg  => handleWebcamsOnlyForModeratorChangedEvtMsg(m)
       case m: CreateMeetingReqMsg         => handleCreateMeetingReqMsg(m)
       case m: MeetingEndingEvtMsg     => handleMeetingEndingEvtMsg(m)
 
       // Poll
       case m: PollStartedEvtMsg                     => handlePollStartedEvtMsg(m)
       case m: UserRespondedToPollRecordMsg          => handleUserRespondedToPollRecordMsg(m)
-//      case m: PollStoppedEvtMsg                     => handlePollStoppedEvtMsg(m)
-//      case m: PollShowResultEvtMsg                  => handlePollShowResultEvtMsg(m)
 
-      case _                          => // message not to be recorded.
+      case _                          => // message not to be handled.
     }
   }
 
@@ -184,8 +163,6 @@ class ActivityTrackerActor(
 
       meetings += (updatedMeeting.intId -> updatedMeeting)
     }
-
-
   }
 
   private def handleUserEmojiChangedEvtMsg(msg: UserEmojiChangedEvtMsg) {
@@ -217,7 +194,6 @@ class ActivityTrackerActor(
       val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
       meetings += (updatedMeeting.intId -> updatedMeeting)
     }
-
   }
 
   private def handleUserBroadcastCamStoppedEvtMsg(msg: UserBroadcastCamStoppedEvtMsg) {
@@ -230,11 +206,10 @@ class ActivityTrackerActor(
       val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
       meetings += (updatedMeeting.intId -> updatedMeeting)
     }
-
   }
 
   private def handleUserJoinedVoiceConfToClientEvtMsg(msg: UserJoinedVoiceConfToClientEvtMsg): Unit = {
-    //dont store this info
+    //dont store this info yet
   }
 
   private def handleUserLeftVoiceConfToClientEvtMsg(msg: UserLeftVoiceConfToClientEvtMsg) {
@@ -242,7 +217,7 @@ class ActivityTrackerActor(
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
       user <- meeting.users.values.find(u => u.intId == msg.body.intId)
     } yield {
-      endLastUserTalk(meeting, user)
+      endUserTalk(meeting, user)
     }
   }
 
@@ -251,7 +226,7 @@ class ActivityTrackerActor(
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
       user <- meeting.users.values.find(u => u.intId == msg.body.intId)
     } yield {
-      endLastUserTalk(meeting, user)
+      endUserTalk(meeting, user)
     }
   }
 
@@ -261,19 +236,23 @@ class ActivityTrackerActor(
       user <- meeting.users.values.find(u => u.intId == msg.body.intId)
     } yield {
       if(msg.body.talking) {
-        val updatedUser = user.copy(talks = user.talks :+ Talk())
+        val updatedUser = user.copy(talk = user.talk.copy(lastTalkStartedOn = System.currentTimeMillis()))
         val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
         meetings += (updatedMeeting.intId -> updatedMeeting)
       } else {
-        endLastUserTalk(meeting, user)
+        endUserTalk(meeting, user)
       }
     }
   }
 
-  private def endLastUserTalk(meeting: MeetingActivityTracker, user: UserActivityTracker): Unit = {
-    val lastTalk: Talk = user.talks.last
-    if(lastTalk.stoppedOn == 0) {
-      val updatedUser = user.copy(talks = user.talks.dropRight(1) :+ lastTalk.copy(stoppedOn = System.currentTimeMillis()))
+  private def endUserTalk(meeting: MeetingActivityTracker, user: UserActivityTracker): Unit = {
+    if(user.talk.lastTalkStartedOn > 0) {
+      val updatedUser = user.copy(
+        talk = user.talk.copy(
+          lastTalkStartedOn = 0,
+          totalTime = user.talk.totalTime + (System.currentTimeMillis() - user.talk.lastTalkStartedOn)
+        )
+      )
       val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
       meetings += (updatedMeeting.intId -> updatedMeeting)
     }
@@ -289,7 +268,6 @@ class ActivityTrackerActor(
       val updatedMeeting = meeting.copy(polls = meeting.polls + (newPoll.pollId -> newPoll))
       meetings += (updatedMeeting.intId -> updatedMeeting)
     }
-
   }
 
   private def handleUserRespondedToPollRecordMsg(msg: UserRespondedToPollRecordMsg): Unit = {
@@ -297,8 +275,6 @@ class ActivityTrackerActor(
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
       user <- meeting.users.values.find(u => u.intId == msg.header.userId)
     } yield {
-
-
       if(msg.body.isSecret) {
         //Store Anonymous Poll in `poll.anonymousAnswers`
         for {
@@ -356,7 +332,6 @@ class ActivityTrackerActor(
     for {
       meeting <- meetings.values.find(m => m.intId == msg.body.meetingId)
     } yield {
-
       //Send report one last time
       sendPeriodicReport()
 
@@ -371,9 +346,8 @@ class ActivityTrackerActor(
       val event = MsgBuilder.buildActivityReportEvtMsg(meeting._2.intId, activityJson)
       outGW.send(event)
 
-      log.info("Activity Report sent for meeting {}: {}",meeting._2.intId,activityJson)
+      log.info("Activity Report sent for meeting {}",meeting._2.intId)
     })
-
   }
 
 }

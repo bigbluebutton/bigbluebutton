@@ -214,6 +214,13 @@ class Presentation extends PureComponent {
             height: currHeight,
           },
         });
+        newLayoutContextDispatch({
+          type: ACTIONS.SET_PRESENTATION_CURRENT_SLIDE_SIZE,
+          value: {
+            width: currWidth,
+            height: currHeight,
+          },
+        });
         if (currWidth > currHeight || currWidth === currHeight) {
           layoutContextDispatch({
             type: 'setPresentationOrientation',
@@ -883,6 +890,7 @@ class Presentation extends PureComponent {
         style={{
           top: layoutLoaded === 'new' ? presentationBounds.top : undefined,
           left: layoutLoaded === 'new' ? presentationBounds.left : undefined,
+          right: layoutLoaded === 'new' ? presentationBounds.right : undefined,
           width: layoutLoaded === 'new' ? presentationBounds.width : undefined,
           height: layoutLoaded === 'new' ? presentationBounds.height : undefined,
           zIndex: layoutLoaded === 'new' && fullscreenContext ? presentationBounds.zIndex : undefined,

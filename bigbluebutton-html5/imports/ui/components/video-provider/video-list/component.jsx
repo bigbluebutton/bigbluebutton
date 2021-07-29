@@ -80,6 +80,7 @@ const findOptimalGrid = (canvasWidth, canvasHeight, gutter, aspectRatio, numItem
 const ASPECT_RATIO = 4 / 3;
 const ACTION_NAME_FOCUS = 'focus';
 const ACTION_NAME_MIRROR = 'mirror';
+const ACTION_NAME_BACKGROUND = 'blurBackground';
 
 class VideoList extends Component {
   constructor(props) {
@@ -340,8 +341,8 @@ class VideoList extends Component {
       swapLayout,
     } = this.props;
     const { focusedId } = this.state;
-
     const numOfStreams = streams.length;
+
     return streams.map((vs) => {
       const { stream, userId, name } = vs;
       const isFocused = focusedId === stream;

@@ -23,7 +23,9 @@ const ActionsBarContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
   const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextDispatch } = newLayoutContext;
+  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
+  const { output } = newLayoutContextState;
+  const { actionBar: actionsBarStyle } = output;
 
   const currentUser = { userId: Auth.userID, emoji: users[Auth.meetingID][Auth.userID].emoji };
 
@@ -33,6 +35,7 @@ const ActionsBarContainer = (props) => {
         ...props,
         currentUser,
         newLayoutContextDispatch,
+        actionsBarStyle,
       }
     }
     />
@@ -65,4 +68,5 @@ export default withTracker(() => ({
     { fields: {} }),
   allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,
   setEmojiStatus: UserListService.setEmojiStatus,
+  layoutManagerLoaded: Session.get('layoutManagerLoaded'),
 }))(injectIntl(ActionsBarContainer));
