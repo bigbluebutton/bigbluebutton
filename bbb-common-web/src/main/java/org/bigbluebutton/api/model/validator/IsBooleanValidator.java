@@ -4,6 +4,7 @@ import org.bigbluebutton.api.model.constraint.IsBooleanConstraint;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.Locale;
 
 public class IsBooleanValidator implements ConstraintValidator<IsBooleanConstraint, String> {
 
@@ -18,11 +19,10 @@ public class IsBooleanValidator implements ConstraintValidator<IsBooleanConstrai
         }
 
         Boolean isValid = false;
+        value = value.toLowerCase();
 
         switch(value) {
-            case "True":
             case "true":
-            case "False":
             case "false":
             case "0":
             case "1":
