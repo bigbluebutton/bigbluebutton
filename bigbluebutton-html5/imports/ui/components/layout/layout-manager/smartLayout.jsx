@@ -398,8 +398,8 @@ class SmartLayout extends Component {
         cameraDockBounds.height -= (camerasMargin * 2);
       }
 
-      cameraDockBounds.minWidth = DEFAULT_VALUES.cameraDockMinWidth;
-      cameraDockBounds.minHeight = DEFAULT_VALUES.cameraDockMinHeight;
+      cameraDockBounds.minWidth = cameraDockBounds.width;
+      cameraDockBounds.minHeight = cameraDockBounds.height;
 
       if (fullscreen.group === 'webcams') {
         cameraDockBounds.width = windowWidth();
