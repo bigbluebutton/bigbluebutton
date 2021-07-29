@@ -284,10 +284,21 @@ class VideoList extends Component {
     return mirroredCameras.indexOf(stream) >= 0;
   }
 
+  displayPageButtons() {
+    const { numberOfPages, cameraDock } = this.props;
+    const { width: cameraDockWidth } = cameraDock;
+
+    if (!VideoService.isPaginationEnabled() || numberOfPages <= 1 || cameraDockWidth === 0) {
+      return false;
+    }
+
+    return true;
+  }
+
   renderNextPageButton() {
     const { intl, numberOfPages, currentVideoPageIndex } = this.props;
 
-    if (!VideoService.isPaginationEnabled() || numberOfPages <= 1) return null;
+    if (!this.displayPageButtons()) return null;
 
     const currentPage = currentVideoPageIndex + 1;
     const nextPageLabel = intl.formatMessage(intlMessages.nextPageLabel);
@@ -311,7 +322,7 @@ class VideoList extends Component {
   renderPreviousPageButton() {
     const { intl, currentVideoPageIndex, numberOfPages } = this.props;
 
-    if (!VideoService.isPaginationEnabled() || numberOfPages <= 1) return null;
+    if (!this.displayPageButtons()) return null;
 
     const currentPage = currentVideoPageIndex + 1;
     const prevPageLabel = intl.formatMessage(intlMessages.prevPageLabel);
