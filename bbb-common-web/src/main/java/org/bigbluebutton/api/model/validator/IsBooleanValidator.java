@@ -24,6 +24,8 @@ public class IsBooleanValidator implements ConstraintValidator<IsBooleanConstrai
             case "true":
             case "False":
             case "false":
+            case "0":
+            case "1":
                 isValid = true;
                 break;
             default:
