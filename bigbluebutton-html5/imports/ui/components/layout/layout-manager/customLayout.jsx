@@ -682,7 +682,7 @@ class CustomLayout extends Component {
           mediaBounds.height = mediaAreaHeight;
           mediaBounds.top = navBarHeight;
           mediaBounds.left = !isRTL ? sidebarSize - camerasMargin : null;
-          mediaBounds.right = isRTL ? sidebarSize : null;
+          mediaBounds.right = isRTL ? sidebarSize - camerasMargin : null;
           break;
         case CAMERADOCK_POSITION.CONTENT_BOTTOM:
           mediaBounds.width = mediaAreaWidth;
@@ -698,7 +698,7 @@ class CustomLayout extends Component {
           const sizeValue = sidebarNavWidth
             + sidebarContentWidth + mediaAreaWidth - mediaBounds.width;
           mediaBounds.left = !isRTL ? sizeValue + camerasMargin : null;
-          mediaBounds.right = isRTL ? sidebarSize : null;
+          mediaBounds.right = isRTL ? sidebarSize + camerasMargin : null;
           break;
         case CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM:
           mediaBounds.width = mediaAreaWidth;
