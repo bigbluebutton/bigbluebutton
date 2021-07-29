@@ -28,6 +28,7 @@ export const NLayoutContext = createContext();
 
 const initState = {
   deviceType: null,
+  isRTL: false,
   layoutType: DEFAULT_VALUES.layoutType,
   layoutLoaded: 'legacy',
   fontSize: DEFAULT_VALUES.fontSize,
@@ -60,6 +61,15 @@ const reducer = (state, action) => {
           ...state.input,
           autoarrAngeLayout: action.value,
         },
+      };
+    }
+
+    case ACTIONS.SET_IS_RTL: {
+      const { isRTL } = state;
+      if (isRTL === action.value) return state;
+      return {
+        ...state,
+        isRTL: action.value,
       };
     }
 
@@ -303,6 +313,7 @@ const reducer = (state, action) => {
         maxHeight,
         top,
         left,
+        right,
         tabOrder,
         isResizable,
         zIndex,
@@ -317,6 +328,7 @@ const reducer = (state, action) => {
         && sidebarNavigation.maxHeight === height
         && sidebarNavigation.top === top
         && sidebarNavigation.left === left
+        && sidebarNavigation.right === right
         && sidebarNavigation.tabOrder === tabOrder
         && sidebarNavigation.zIndex === zIndex
         && sidebarNavigation.isResizable === isResizable) {
@@ -337,6 +349,7 @@ const reducer = (state, action) => {
             maxHeight,
             top,
             left,
+            right,
             tabOrder,
             isResizable,
             zIndex,
@@ -444,6 +457,7 @@ const reducer = (state, action) => {
         maxHeight,
         top,
         left,
+        right,
         currentPanelType,
         tabOrder,
         isResizable,
@@ -459,6 +473,7 @@ const reducer = (state, action) => {
         && sidebarContent.maxHeight === maxHeight
         && sidebarContent.top === top
         && sidebarContent.left === left
+        && sidebarContent.right === right
         && sidebarContent.tabOrder === tabOrder
         && sidebarContent.zIndex === zIndex
         && sidebarContent.isResizable === isResizable) {
@@ -479,6 +494,7 @@ const reducer = (state, action) => {
             maxHeight,
             top,
             left,
+            right,
             currentPanelType,
             tabOrder,
             isResizable,
@@ -660,6 +676,7 @@ const reducer = (state, action) => {
         maxHeight,
         top,
         left,
+        right,
         tabOrder,
         isDraggable,
         resizableEdge,
@@ -673,6 +690,7 @@ const reducer = (state, action) => {
         && cameraDock.maxHeight === maxHeight
         && cameraDock.top === top
         && cameraDock.left === left
+        && cameraDock.right === right
         && cameraDock.tabOrder === tabOrder
         && cameraDock.isDraggable === isDraggable
         && cameraDock.zIndex === zIndex
@@ -695,6 +713,7 @@ const reducer = (state, action) => {
             maxHeight,
             top,
             left,
+            right,
             tabOrder,
             isDraggable,
             resizableEdge,
@@ -876,6 +895,7 @@ const reducer = (state, action) => {
         maxHeight,
         top,
         left,
+        right,
         tabOrder,
         isResizable,
         zIndex,
@@ -890,6 +910,7 @@ const reducer = (state, action) => {
         && presentation.maxHeight === maxHeight
         && presentation.top === top
         && presentation.left === left
+        && presentation.right === right
         && presentation.tabOrder === tabOrder
         && presentation.zIndex === zIndex
         && presentation.isResizable === isResizable) {
@@ -910,6 +931,7 @@ const reducer = (state, action) => {
             maxHeight,
             top,
             left,
+            right,
             tabOrder,
             isResizable,
             zIndex,
@@ -982,6 +1004,7 @@ const reducer = (state, action) => {
         height,
         top,
         left,
+        right,
         zIndex,
       } = action.value;
       const { screenShare } = state.output;
@@ -989,6 +1012,7 @@ const reducer = (state, action) => {
         && screenShare.height === height
         && screenShare.top === top
         && screenShare.left === left
+        && screenShare.right === right
         && screenShare.zIndex === zIndex) {
         return state;
       }
@@ -1002,6 +1026,7 @@ const reducer = (state, action) => {
             height,
             top,
             left,
+            right,
             zIndex,
           },
         },
@@ -1056,12 +1081,14 @@ const reducer = (state, action) => {
         height,
         top,
         left,
+        right,
       } = action.value;
       const { externalVideo } = state.output;
       if (externalVideo.width === width
         && externalVideo.height === height
         && externalVideo.top === top
-        && externalVideo.left === left) {
+        && externalVideo.left === left
+        && externalVideo.right === right) {
         return state;
       }
       return {
@@ -1074,6 +1101,7 @@ const reducer = (state, action) => {
             height,
             top,
             left,
+            right,
           },
         },
       };
