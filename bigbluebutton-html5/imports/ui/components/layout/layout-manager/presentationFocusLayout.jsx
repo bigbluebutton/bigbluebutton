@@ -310,8 +310,8 @@ class PresentationFocusLayout extends Component {
     if (input.sidebarContent.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
         height = this.mainHeight() - navBarHeight - this.bannerAreaHeight();
-        minHeight = this.mainHeight();
-        maxHeight = this.mainHeight();
+        minHeight = height;
+        maxHeight = height;
       } else if (input.cameraDock.numCameras > 0) {
         if (input.sidebarContent.height === 0) {
           height = (this.mainHeight() * 0.75) - this.bannerAreaHeight();
@@ -319,12 +319,12 @@ class PresentationFocusLayout extends Component {
           height = min(max(input.sidebarContent.height, sidebarContentMinHeight),
             this.mainHeight());
         }
-        minHeight = this.mainHeight() * 0.25;
-        maxHeight = this.mainHeight() * 0.75;
+        minHeight = this.mainHeight() * 0.25 - this.bannerAreaHeight();
+        maxHeight = this.mainHeight() * 0.75 - this.bannerAreaHeight();
       } else {
         height = this.mainHeight() - this.bannerAreaHeight();
-        minHeight = this.mainHeight();
-        maxHeight = this.mainHeight();
+        minHeight = height;
+        maxHeight = height;
       }
     }
     return {
