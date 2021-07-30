@@ -308,38 +308,34 @@ class VideoFocusLayout extends Component {
   calculatesSidebarContentHeight() {
     const { newLayoutContextState } = this.props;
     const { deviceType, input, output } = newLayoutContextState;
-    const { sidebarContentMinHeight } = DEFAULT_VALUES;
     const { sidebarContent: inputContent, presentation } = input;
     const { sidebarContent: outputContent } = output;
-    const { isOpen } = presentation;
     let minHeight = 0;
     let height = 0;
     let maxHeight = 0;
     if (inputContent.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
         height = this.mainHeight() - DEFAULT_VALUES.navBarHeight - this.bannerAreaHeight();
-        minHeight = this.mainHeight() - this.bannerAreaHeight();
-        maxHeight = this.mainHeight() - this.bannerAreaHeight();
-      } else {
-        if (input.cameraDock.numCameras > 0 && isOpen) {
-          if (inputContent.height > 0 && inputContent.height < this.mainHeight()) {
-            height = inputContent.height - this.bannerAreaHeight();
-            maxHeight = this.mainHeight() - this.bannerAreaHeight();
-          } else {
-            const { size: slideSize } = input.presentation.currentSlide;
-            let calculatedHeight = (this.mainHeight() - this.bannerAreaHeight()) * 0.3;
-
-            if (slideSize.height > 0 && slideSize.width > 0) {
-              calculatedHeight = (slideSize.height * outputContent.width) / slideSize.width;
-            }
-            height = this.mainHeight() - calculatedHeight - this.bannerAreaHeight();
-            maxHeight = height;
-          }
+        minHeight = height;
+        maxHeight = height;
+      } else if (input.cameraDock.numCameras > 0 && presentation.isOpen) {
+        if (inputContent.height > 0 && inputContent.height < this.mainHeight()) {
+          height = inputContent.height - this.bannerAreaHeight();
         } else {
-          height = this.mainHeight() - this.bannerAreaHeight();
-          maxHeight = height;
+          const { size: slideSize } = input.presentation.currentSlide;
+          let calculatedHeight = (this.mainHeight() - this.bannerAreaHeight()) * 0.3;
+
+          if (slideSize.height > 0 && slideSize.width > 0) {
+            calculatedHeight = (slideSize.height * outputContent.width) / slideSize.width;
+          }
+          height = this.mainHeight() - calculatedHeight - this.bannerAreaHeight();
         }
-        minHeight = sidebarContentMinHeight;
+        maxHeight = this.mainHeight() * 0.75 - this.bannerAreaHeight();
+        minHeight = this.mainHeight() * 0.25 - this.bannerAreaHeight();
+      } else {
+        height = this.mainHeight() - this.bannerAreaHeight();
+        maxHeight = height;
+        minHeight = height;
       }
     }
     return {
@@ -360,10 +356,15 @@ class VideoFocusLayout extends Component {
 
     if (deviceType === DEVICE_TYPE.MOBILE) top = navBarHeight + this.bannerAreaHeight();
 
+    let left = deviceType === DEVICE_TYPE.MOBILE ? 0 : sidebarNavWidth;
+    let right = deviceType === DEVICE_TYPE.MOBILE ? 0 : sidebarNavWidth;
+    left = !isRTL ? left : null;
+    right = isRTL ? right : null;
+
     return {
       top,
-      left: !isRTL ? (deviceType === DEVICE_TYPE.MOBILE ? 0 : sidebarNavWidth) : null,
-      right: isRTL ? (deviceType === DEVICE_TYPE.MOBILE ? 0 : sidebarNavWidth) : null,
+      left,
+      right,
       zIndex: deviceType === DEVICE_TYPE.MOBILE ? 11 : 1,
     };
   }
@@ -397,7 +398,9 @@ class VideoFocusLayout extends Component {
 
   calculatesCameraDockBounds(mediaAreaBounds, sidebarSize) {
     const { newLayoutContextState } = this.props;
-    const { deviceType, input, fullscreen, isRTL } = newLayoutContextState;
+    const {
+      deviceType, input, fullscreen, isRTL,
+    } = newLayoutContextState;
     const { cameraDock } = input;
     const { numCameras } = cameraDock;
 
@@ -455,7 +458,9 @@ class VideoFocusLayout extends Component {
     sidebarContentHeight,
   ) {
     const { newLayoutContextState } = this.props;
-    const { deviceType, input, fullscreen, isRTL } = newLayoutContextState;
+    const {
+      deviceType, input, fullscreen, isRTL,
+    } = newLayoutContextState;
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
     const sidebarSize = sidebarNavWidth + sidebarContentWidth;
