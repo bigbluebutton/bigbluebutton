@@ -7,6 +7,7 @@ import Button from '/imports/ui/components/button/component';
 import logger from '/imports/startup/client/logger';
 import PadService from './service';
 import CaptionsService from '/imports/ui/components/captions/service';
+import { notify } from '/imports/ui/services/notification';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -46,6 +47,10 @@ const intlMessages = defineMessages({
     id: 'app.captions.pad.dictationOffDesc',
     description: 'Aria description for button that turns off speech recognition',
   },
+  speechRecognitionStop: {
+    id: 'app.captions.pad.speechRecognitionStop',
+    description: 'Notification for stopped speech recognition',
+  },  
 });
 
 const propTypes = {
@@ -76,11 +81,21 @@ class Pad extends PureComponent {
       listening: false,
     };
 
-    const { locale } = props;
+    const { locale, intl } = props;
     this.recognition = CaptionsService.initSpeechRecognition(locale);
 
     this.toggleListen = this.toggleListen.bind(this);
     this.handleListen = this.handleListen.bind(this);
+    
+    if (this.recognition) {
+      this.recognition.addEventListener('end', () => {
+        const { listening } = this.state;
+        if (listening) {
+          notify(intl.formatMessage(intlMessages.speechRecognitionStop), 'info', 'warning');
+          this.stopListen();
+        }
+      });
+    }
   }
 
   componentDidUpdate() {
@@ -91,8 +106,13 @@ class Pad extends PureComponent {
     } = this.props;
 
     if (this.recognition) {
+      if (ownerId !== currentUserId) {
+        this.recognition.stop();
+      } else if (this.state.listening && this.recognition.lang !== locale) {
+        this.recognition.stop();
+        this.stopListen();
+      }
       this.recognition.lang = locale;
-      if (ownerId !== currentUserId) this.recognition.stop();
     }
   }
 
@@ -167,6 +187,10 @@ class Pad extends PureComponent {
     this.setState({
       listening: !listening,
     }, this.handleListen);
+  }
+  
+  stopListen() {
+    this.setState({ listening: false });
   }
 
   render() {
