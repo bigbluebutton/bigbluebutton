@@ -106,8 +106,13 @@ class Pad extends PureComponent {
     } = this.props;
 
     if (this.recognition) {
+      if (ownerId !== currentUserId) {
+        this.recognition.stop();
+      } else if (this.state.listening && this.recognition.lang !== locale) {
+        this.recognition.stop();
+        this.stopListen();
+      }
       this.recognition.lang = locale;
-      if (ownerId !== currentUserId) this.recognition.stop();
     }
   }
 
