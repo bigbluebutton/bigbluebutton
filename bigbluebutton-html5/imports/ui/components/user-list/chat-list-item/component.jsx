@@ -163,7 +163,7 @@ const ChatListItem = (props) => {
               />
             )}
         </div>
-        <div className={styles.chatName}>
+        <div className={styles.chatName} aria-live="off">
           {!compact
             ? (
               <span className={styles.chatNameMain}>
