@@ -178,12 +178,27 @@
   width: 100%;
 }
 
+.userNameSequence {
+  font-weight: bold;
+  background-color: var(--color-gray-lightest);
+  display: inline-block;
+  vertical-align: middle;
+  padding-inline: 5px;
+  [dir="ltr"] & {
+    margin-right: 5px;
+  }
+  [dir="rtl"] & {
+    margin-left: 5px;
+  }
+}
+
 .userName {
   min-width: 0;
   display: inline-block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  vertical-align: middle;
 }
 
 .lobbyMessage {

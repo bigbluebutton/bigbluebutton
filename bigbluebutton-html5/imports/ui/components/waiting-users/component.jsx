@@ -91,10 +91,10 @@ const renderGuestUserItem = (
           {getNameInitials(name)}
         </UserAvatar>
       </div>
-      <p key={`user-name-${userId}`} className={styles.userName}>
-        {sequence}
-        {name}
-      </p>
+      <div key={`user-name-${userId}`}>
+        <div className={styles.userNameSequence}>{sequence}</div>
+        <div className={styles.userName}>{name}</div>
+      </div>
     </div>
 
     <div key={`userlist-btns-${userId}`} className={styles.buttonContainer}>
