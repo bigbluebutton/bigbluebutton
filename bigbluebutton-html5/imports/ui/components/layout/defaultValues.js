@@ -12,8 +12,9 @@ const DEFAULT_VALUES = {
 
   cameraPosition: CAMERADOCK_POSITION.CONTENT_TOP,
   cameraDockTabOrder: 4,
-  cameraDockMinHeight: 140,
-  cameraDockMinWidth: 140,
+  cameraDockMinHeight: 120,
+  cameraDockMinWidth: 120,
+  camerasMargin: 10,
 
   presentationTabOrder: 5,
   presentationMinHeight: 220,

@@ -365,6 +365,7 @@ class SmartLayout extends Component {
     const { input, fullscreen, isRTL } = newLayoutContextState;
     const { presentation } = input;
     const { isOpen } = presentation;
+    const { camerasMargin } = DEFAULT_VALUES;
 
     const cameraDockBounds = {};
     cameraDockBounds.isCameraHorizontal = false;
@@ -385,16 +386,20 @@ class SmartLayout extends Component {
         cameraDockBounds.maxWidth = mediaAreaBounds.width * 0.8;
         cameraDockBounds.height = mediaAreaBounds.height;
         cameraDockBounds.maxHeight = mediaAreaBounds.height;
+        cameraDockBounds.left += camerasMargin;
+        cameraDockBounds.width -= (camerasMargin * 2);
         cameraDockBounds.isCameraHorizontal = true;
       } else {
         cameraDockBounds.width = mediaAreaBounds.width;
         cameraDockBounds.maxWidth = mediaAreaBounds.width;
         cameraDockBounds.height = mediaAreaBounds.height - mediaBounds.height;
         cameraDockBounds.maxHeight = mediaAreaBounds.height * 0.8;
+        cameraDockBounds.top += camerasMargin;
+        cameraDockBounds.height -= (camerasMargin * 2);
       }
 
-      cameraDockBounds.minWidth = DEFAULT_VALUES.cameraDockMinWidth;
-      cameraDockBounds.minHeight = DEFAULT_VALUES.cameraDockMinHeight;
+      cameraDockBounds.minWidth = cameraDockBounds.width;
+      cameraDockBounds.minHeight = cameraDockBounds.height;
 
       if (fullscreen.group === 'webcams') {
         cameraDockBounds.width = windowWidth();
