@@ -735,12 +735,14 @@ class ApiController {
       case GuestPolicy.ALLOW:
         // IF the user was allowed to join but there is no room available in
         // the meeting we must hold his approval
-        meetingService.guestIsWaiting(us.meetingID, us.internalUserId)
-        destURL = guestURL
-        msgKey = "seatWait"
-        msgValue = "Guest waiting for a seat in the meeting."
-        redirectClient = false
-        status = GuestPolicy.WAIT
+        if (hasReachedMaxParticipants(meeting, us)) {
+          meetingService.guestIsWaiting(us.meetingID, us.internalUserId)
+          destURL = guestURL
+          msgKey = "seatWait"
+          msgValue = "Guest waiting for a seat in the meeting."
+          redirectClient = false
+          status = GuestPolicy.WAIT
+        }
         break
       default:
         break
