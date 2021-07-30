@@ -325,11 +325,18 @@ class PresentationFocusLayout extends Component {
 
     if (deviceType === DEVICE_TYPE.MOBILE) top = navBarHeight + this.bannerAreaHeight();
 
+    let left = deviceType === DEVICE_TYPE.MOBILE ? 0 : sidebarNavWidth;
+    let right = deviceType === DEVICE_TYPE.MOBILE ? 0 : sidebarNavWidth;
+    left = !isRTL ? left : null;
+    right = isRTL ? right : null;
+
+    const zIndex = deviceType === DEVICE_TYPE.MOBILE ? 11 : 1;
+
     return {
       top,
-      left: !isRTL ? (deviceType === DEVICE_TYPE.MOBILE ? 0 : sidebarNavWidth) : null,
-      right: isRTL ? (deviceType === DEVICE_TYPE.MOBILE ? 0 : sidebarNavWidth) : null,
-      zIndex: deviceType === DEVICE_TYPE.MOBILE ? 11 : 1,
+      left,
+      right,
+      zIndex,
     };
   }
 
