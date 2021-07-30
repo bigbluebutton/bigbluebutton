@@ -175,6 +175,8 @@ const ChatListItem = (props) => {
         {(stateUreadCount > 0)
           ? (
             <ChatUnreadCounter
+              chat={chat}
+              isPublicChat={isPublicChat}
               counter={stateUreadCount}
             />
           )
