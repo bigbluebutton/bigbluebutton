@@ -16,10 +16,10 @@ function currentPoll() {
   const { meetingId, userId } = tokenValidation;
 
   const User = Users.findOne({ userId, meetingId }, { fields: { role: 1 } });
-  if (!User || User.role != ROLE_MODERATOR) {
+  if (!User || User.role !== ROLE_MODERATOR) {
     Logger.warn(
       'Publishing current-poll was requested by non-moderator connection',
-      { meetingId, userId, connectionId: this.connection.id }
+      { meetingId, userId, connectionId: this.connection.id },
     );
     return Polls.find({ meetingId: '' });
   }
