@@ -74,8 +74,6 @@
     "app.userList.mobile": "Mobile",
     "app.userList.guest": "Invité",
     "app.userList.menuTitleContext": "Options disponibles",
-    "app.userList.chatListItem.unreadSingular": "{0} nouveau message",
-    "app.userList.chatListItem.unreadPlural": "{0} nouveaux messages",
     "app.userList.menu.chat.label": "Démarrer une discussion privée",
     "app.userList.menu.clearStatus.label": "Effacer le statut",
     "app.userList.menu.removeUser.label": "Retirer l'utilisateur",
@@ -498,7 +496,6 @@
     "app.audioManager.mediaError": "Erreur : il y a un problème pour obtenir vos périphériques multimédias",
     "app.audio.joinAudio": "Rejoindre l'audio",
     "app.audio.leaveAudio": "Quitter l'audio",
-    "app.audio.changeAudioDevice": "Modifier/Quitter l'audio",
     "app.audio.enterSessionLabel": "Entrer une session",
     "app.audio.playSoundLabel": "Jouer son",
     "app.audio.backLabel": "Retour",
@@ -671,7 +668,6 @@
     "app.videoPreview.profileNotFoundLabel": "Profil de caméra non supporté",
     "app.video.joinVideo": "Partager webcam",
     "app.video.connecting": "Le partage de la webcam démarre...",
-    "app.video.dataSaving": "Le partage de la webcam est désactivé en économies de données",
     "app.video.leaveVideo": "Arrêtez le partage de la webcam",
     "app.video.iceCandidateError": "Erreur lors de l'ajout du candidat ICE",
     "app.video.iceConnectionStateError": "Échec de connexion (erreur ICE 1107)",
@@ -799,8 +795,6 @@
     "app.externalVideo.urlError": "Cette URL vidéo n'est pas supportée",
     "app.externalVideo.close": "Fermer",
     "app.externalVideo.autoPlayWarning": "Jouer la vidéo pour permettre la synchronisation des médias",
-    "app.network.connection.effective.slow": "Nous remarquons des problèmes de connectivité.",
-    "app.network.connection.effective.slow.help": "Plus d'information",
     "app.externalVideo.noteLabel": "Remarque : les vidéos externes partagées n'apparaîtront pas dans l'enregistrement. Les URL YouTube, Vimeo, Instructure Media, Twitch, Dailymotion et les URL de fichiers multimédias (par exemple https://example.com/xy.mp4) sont pris en charge.",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Partager une vidéo externe",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Arrêter le partage de vidéo externe",
@@ -817,3 +811,4 @@
     "app.debugWindow.form.button.apply": "Appliquer"
 
 }
+

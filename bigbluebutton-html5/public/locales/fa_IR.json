@@ -74,8 +74,6 @@
     "app.userList.mobile": "تلفن همراه",
     "app.userList.guest": "مهمان",
     "app.userList.menuTitleContext": "گزینه‌های موجود",
-    "app.userList.chatListItem.unreadSingular": "{0} پیام جدید",
-    "app.userList.chatListItem.unreadPlural": "{0} پیام‌ جدید",
     "app.userList.menu.chat.label": "شروع گفتگوی خصوصی",
     "app.userList.menu.clearStatus.label": "پاک کردن وضعیت",
     "app.userList.menu.removeUser.label": "حذف کاربر",
@@ -498,7 +496,6 @@
     "app.audioManager.mediaError": "خطا: مشکلی در اتصال به سخت افزار صوتی/تصویری شما پیش آمده است",
     "app.audio.joinAudio": "پیوستن به صدا",
     "app.audio.leaveAudio": "ترک صدا",
-    "app.audio.changeAudioDevice": "تغییر/ترک صدا",
     "app.audio.enterSessionLabel": "ورود به جلسه",
     "app.audio.playSoundLabel": "پخش صدا",
     "app.audio.backLabel": "بازگشت",
@@ -671,7 +668,6 @@
     "app.videoPreview.profileNotFoundLabel": "پروفایل دوربین پیشتیبانی نمیشود",
     "app.video.joinVideo": "اشتراک گذاری دوربین",
     "app.video.connecting": "اشتراک وب کم در حال شروع است ...",
-    "app.video.dataSaving": "اشتراک وب کم در بخش (Data Saving) غیرفعال شده است",
     "app.video.leaveVideo": "متوقف کردن اشتراک گذاری دوربین",
     "app.video.iceCandidateError": "خطا در افزودن کاندید ICE",
     "app.video.iceConnectionStateError": "اتصال موفقیت آمیز نبود (خطای ICE ۱۱۰۷)",
@@ -799,8 +795,6 @@
     "app.externalVideo.urlError": "آدرس این ویدیو غیر معتبر است",
     "app.externalVideo.close": "بستن",
     "app.externalVideo.autoPlayWarning": "برای به هنگام سازی ، ویدیو را پخش کنید",
-    "app.network.connection.effective.slow": "ما مشکلاتی در  اتصال مشاهده میکنیم",
-    "app.network.connection.effective.slow.help": "اطلاعات بیشتر",
     "app.externalVideo.noteLabel": "نکته: ویدیوهای خارجی به اشتراک گذاشته شده در ضبط ظاهر نمی‌شوند.نشانی‌های وب یوتیوب، ویمیو، Instructure Media، توییچ، دیلی‌موشن و فایل‌های رسانه‌ای (به عنوان مثال https://example.com/xy.mp4) پشتیبانی می‌شوند.",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "اشتراک یک ویدیوی خارجی",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "متوقف کردن نمایش ویدیوی خارجی",
@@ -817,3 +811,4 @@
     "app.debugWindow.form.button.apply": "اعمال"
 
 }
+

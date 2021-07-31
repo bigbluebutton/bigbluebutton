@@ -65,8 +65,6 @@
     "app.userList.toggleCompactView.label": "कॉम्पैक्ट व्यू मोड को टॉगल करें",
     "app.userList.guest": "अतिथि",
     "app.userList.menuTitleContext": "उपलब्ध विकल्प",
-    "app.userList.chatListItem.unreadSingular": "{0} नया संदेश",
-    "app.userList.chatListItem.unreadPlural": "{0} नया संदेश",
     "app.userList.menu.clearStatus.label": "स्पष्ट स्थिति",
     "app.userList.menu.removeUser.label": "उपयोगकर्ता निकालें",
     "app.userList.menu.muteUserAudio.label": "उपयोगकर्ता को म्यूट करें",
