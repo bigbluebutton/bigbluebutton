@@ -74,8 +74,6 @@
     "app.userList.mobile": "Móvel",
     "app.userList.guest": "Convidado",
     "app.userList.menuTitleContext": "Opções disponíveis",
-    "app.userList.chatListItem.unreadSingular": "{0} nova mensagem",
-    "app.userList.chatListItem.unreadPlural": "{0} novas mensagens",
     "app.userList.menu.chat.label": "Iniciar bate-papo privado",
     "app.userList.menu.clearStatus.label": "Limpar status",
     "app.userList.menu.removeUser.label": "Remover usuário",
@@ -496,7 +494,6 @@
     "app.audioManager.mediaError": "Erro: Houve um problema ao consultar seus dispositivos de mídia",
     "app.audio.joinAudio": "Ativar áudio",
     "app.audio.leaveAudio": "Desativar áudio",
-    "app.audio.changeAudioDevice": "Alterar dispositivo de áudio",
     "app.audio.enterSessionLabel": "Entrar na sessão",
     "app.audio.playSoundLabel": "Tocar som de teste",
     "app.audio.backLabel": "Voltar",
@@ -669,7 +666,6 @@
     "app.videoPreview.profileNotFoundLabel": "Nenhum perfil de câmera suportado",
     "app.video.joinVideo": "Compartilhar webcam",
     "app.video.connecting": "Iniciando o compartilhamento da webcam ...",
-    "app.video.dataSaving": "O compartilhamento da webcam está desativado no modo de Economia de Dados",
     "app.video.leaveVideo": "Parar de compartilhar webcam",
     "app.video.iceCandidateError": "Erro ao adicionar o candidato ICE",
     "app.video.iceConnectionStateError": "Falha na conexão (erro ICE 1107)",
@@ -796,8 +792,6 @@
     "app.externalVideo.urlError": "Essa URL de vídeo não é suportada",
     "app.externalVideo.close": "Fechar",
     "app.externalVideo.autoPlayWarning": "Clique no vídeo para habilitar a sincronização",
-    "app.network.connection.effective.slow": "Estamos percebendo problemas de conectividade.",
-    "app.network.connection.effective.slow.help": "Mais informações",
     "app.externalVideo.noteLabel": "Observação: Os vídeos externos compartilhados não são exibidos na gravação. YouTube, Vimeo, Instructure Media, Twitch, Dailymotion e URLs de arquivos de mídia (por exemplo: https://example.com/xy.mp4) são suportados.",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Compartilhar um vídeo externo",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Parar de compartilhar vídeo externo",
@@ -812,3 +806,4 @@
     "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(é desativado se você arrastar ou redimensionar a área das webcams)"
 
 }
+
