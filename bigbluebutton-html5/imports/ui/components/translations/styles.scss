@@ -93,3 +93,13 @@
 [data-tooltip]:not([data-tooltip-persistent]):before {
   pointer-events: none;
 }
+
+.speechDetectionThresholdWrapper {
+  max-width: 270px;
+}
+
+.speechDetectionThresholdExplanation {
+  margin: 5px 0 0 0;
+  font-size: .8em;
+  text-align: justify;
+}

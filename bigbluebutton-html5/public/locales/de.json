@@ -835,8 +835,10 @@
     "app.translation.filterMarker.languageListening": "hören",
     "app.translation.filterMarker.languageTranslating": "sprechen",
     "app.translation.speechDetectionThresholdInfo": "Sprachschwellenwert f. Übersetzer (-100 bis 0)",
-    "app.translation.speechDetectionThresholdExplanation": "The system tries to recognize when you are actually speaking while interpreting. The volume of the original audio is then lowered for the listeners so they can hear your voice. The center of the mic-symbol in the mute-button turns solid when speech is recognized. Use this feedback to fine-tune the threshold to your current setup. Change this setting from -100 (most sensitive / always on) to 0 (least sensitive / disabled). Click \"set\" to activate the new setting. This affects only you in the current session. Changes are not saved.  Tip: Make sure your microphone provides a decent audio-level without clipping (check system mixer-settings).",
-    "app.translation.language.originalVolume": "Original-Laustärke"
+    "app.translation.speechDetectionThresholdExplanation": "Während Sie als Übersetzer:in aktiv sind, versucht das System zu entecken, ob sie gerade sprechen. Ist dies der Fall, wird die Laustärke des Original-Audiokanals abgesenkt, damit die Zuhörer:innen ihre Stimme besser hören können. Mithilfe des Mikrofon-Buttons, der sich weiß färbt, wenn sie sprechen, können Sie den Sprachschwellenwert ändern und an Ihr Setup anpassen. Das Spektrum reicht von -100 (dauerhaft aktiviert) bis 0 (dauerhaft deaktiviert). Klicken sie auf \"Set\", um den Wert für die aktuelle Sitzung zu speichern (eine dauerhafte Speicherung ist nicht möglich). Bitte vergewissern Sie sich, dass ihr Mikrofon über einen ausreichenden Eingangspegel verfügt, ohne zu übersteuern. Dies kann über die Audio-Optionen Ihres Betriebssystems eingestellt werden.",
+    "app.translation.language.interpretationVolumeHeader": "Lautstärke Übersetzung",
+    "app.translation.language.interpretationVolumeOriginal": "Original",
+    "app.translation.language.interpretationVolumeInterpretation": "Übersetzung"
 
 }
 

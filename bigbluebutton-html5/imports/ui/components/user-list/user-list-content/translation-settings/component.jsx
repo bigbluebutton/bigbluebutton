@@ -18,23 +18,36 @@ const intlMessages = defineMessages({
     description: 'Name of none language',
     defaultMessage: 'None',
   },
-  originalVolume: {
-    id: 'app.translation.language.originalVolume',
-    description: 'Name of original volume header',
+  interpretationVolumeHeader: {
+    id: 'app.translation.language.interpretationVolumeHeader',
+    description: 'Name of interpretation volume header',
     defaultMessage: 'None',
-  }
+  },
+  interpretationVolumeOriginal: {
+    id: 'app.translation.language.interpretationVolumeOriginal',
+    description: 'Name of original interpretation volume - original',
+    defaultMessage: 'None',
+  },
+  interpretationVolumeInterpretation: {
+    id: 'app.translation.language.interpretationVolumeInterpretation',
+    description: 'Name of original interpretation volume',
+    defaultMessage: 'None',
+  },
 });
 
 class TranslationSettings extends Component {
 
   state = {
     languages: [],
-    translationOriginalVolume: AudioManager.translationOriginalVolume
+    translationOriginalVolume: AudioManager.translationOriginalVolume,
+    selectedChannel: AudioManager.$translationChannelSelected.value
   };
 
   componentDidMount() {
-
     this.getLanguages();
+    AudioManager.$translationChannelSelected.subscribe((val) => {
+      this.setState({selectedChannel: val})
+    })
   }
 
   getLanguages() {
@@ -68,17 +81,21 @@ class TranslationSettings extends Component {
       <div key={"translation-settings"}>
         <div className={cstyles.container}>
           <h2 className={cstyles.smallTitle}>
-            {intl.formatMessage(intlMessages.originalVolume)}
+            {intl.formatMessage(intlMessages.interpretationVolumeHeader)}
           </h2>
         </div>
         {this.state.languages.map(function (language, index) {
-          if(language.extension >= 0) return (
+          if(language.extension >= 0 && language.extension === this.state.selectedChannel) return (
             <div className={styles.translationOriginalVolumePanel}>
               <div>{language.name}:</div>
-
-              <input type="range" data-ext={index} id="volume" name="volume" min="0" max="1" step=".01"
+              <input type="range" data-ext={index} className={styles.volume} id="volume" name="volume" min="0" max="1" step=".01"
                      defaultValue={this.state.translationOriginalVolume[index]}
                      onChange={this.setTranslationOriginalVolume.bind(this)}/>
+              <div className={styles.interpretationVolumeWrapper}>
+                <div className={styles.interpretationVolumeOriginal}>{intl.formatMessage(intlMessages.interpretationVolumeOriginal)}</div>
+                <div className={styles.interpretationVolumeInterpretation}>{intl.formatMessage(intlMessages.interpretationVolumeInterpretation)}</div>
+              </div>
+
             </div>
           )
         }, this)

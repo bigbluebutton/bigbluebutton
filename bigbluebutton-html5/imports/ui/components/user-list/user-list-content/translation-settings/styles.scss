@@ -3,3 +3,20 @@
 .translationOriginalVolumePanel {
   margin: 8px 0 8px 4px;
 }
+.interpretationVolumeWrapper {
+  display: table;
+}
+
+.interpretationVolumeOriginal {
+  display: table-cell;
+  text-align: left;
+  vertical-align: middle;
+  width: 50%;
+}
+
+.interpretationVolumeInterpretation{
+  display: table-cell;
+  text-align: right;
+  vertical-align: middle;
+  width: 50%;
+}

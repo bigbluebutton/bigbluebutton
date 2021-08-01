@@ -199,11 +199,16 @@ class Translations extends Component{
                         : null
                     }
                 </p>
+              <div className={styles.speechDetectionThresholdWrapper}>
                 <div>{intl.formatMessage(intlMessages.speechDetectionThresholdInfo)}:</div>
                 <form onSubmit={this.handleSubmit}>
                     <input id="speechDetectionThreshold" type="number" value={this.state.speechDetectionThreshold} onChange={this.setThreshold.bind(this)} />
                     <input type="submit" onClick={ this.updateThreshold.bind(this) } value="Set" />
                 </form>
+                <div className={styles.speechDetectionThresholdExplanation}>
+                    {intl.formatMessage(intlMessages.speechDetectionThresholdExplanation)}
+                </div>
+              </div>
             </div>
         );
     }

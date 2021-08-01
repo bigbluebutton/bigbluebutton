@@ -60,8 +60,9 @@ class AudioManager {
     this.translatorStream = null;
     this.translatorSpeechEvents = null;
 
-    this.$translatorSpeechDetectionThresholdChanged = new BehaviorSubject(TRANSLATOR_SPEECH_DETECTION_THRESHOLD)
-    this.$translatorSpeakingChanged = new BehaviorSubject(false)
+    this.$translatorSpeechDetectionThresholdChanged = new BehaviorSubject(TRANSLATOR_SPEECH_DETECTION_THRESHOLD);
+    this.$translationChannelSelected= new BehaviorSubject(-1);
+    this.$translatorSpeakingChanged = new BehaviorSubject(false);
     this.$translatorChannelLanguageExtensionChanged = new BehaviorSubject(-1);
 
     this.$translationOriginalVolumeChanged = new BehaviorSubject({ extension: -1, volume: 0 });
@@ -853,6 +854,7 @@ class AudioManager {
 
   async handleTranslationChannelStateChange(languageExtension, message) {
     this.translationState = message.status;
+    this.$translationChannelSelected.next(languageExtension);
     this.notifyTranslationChannelStateChange(languageExtension, message);
   }
 
