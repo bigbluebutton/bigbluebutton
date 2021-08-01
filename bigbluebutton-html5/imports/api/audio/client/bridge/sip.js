@@ -1024,7 +1024,7 @@ class SIPSession {
                       currentState: peer.connectionState,
                       callerIdName: this.user.callerIdName,
                     },
-                  }, 'ICE connection success, but user is already connected'
+                  }, 'ICE connection success, but user is already connected, '
                   + 'ignoring it...'
                   + `${peer.iceConnectionState}`);
 
