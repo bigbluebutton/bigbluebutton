@@ -11,14 +11,14 @@ import org.bigbluebutton.core.running.LiveMeeting
 
 object Polls {
 
-  def handleStartPollReqMsg(state: MeetingState2x, userId: String, pollId: String, pollType: String, questionText: String,
+  def handleStartPollReqMsg(state: MeetingState2x, userId: String, pollId: String, pollType: String, secretPoll: Boolean, questionText: String,
                             lm: LiveMeeting): Option[SimplePollOutVO] = {
 
     def createPoll(stampedPollId: String): Option[Poll] = {
       val numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter
 
       for {
-        poll <- PollFactory.createPoll(stampedPollId, pollType, numRespondents, None, Some(questionText))
+        poll <- PollFactory.createPoll(stampedPollId, pollType, numRespondents, None, Some(questionText), secretPoll)
       } yield {
         lm.polls.save(poll)
         poll
@@ -166,13 +166,13 @@ object Polls {
     }
   }
 
-  def handleStartCustomPollReqMsg(state: MeetingState2x, requesterId: String, pollId: String, pollType: String,
+  def handleStartCustomPollReqMsg(state: MeetingState2x, requesterId: String, pollId: String, pollType: String, secretPoll: Boolean,
                                   answers: Seq[String], questionText: String, lm: LiveMeeting): Option[SimplePollOutVO] = {
 
     def createPoll(stampedPollId: String): Option[Poll] = {
       val numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter
       for {
-        poll <- PollFactory.createPoll(stampedPollId, pollType, numRespondents, Some(answers), Some(questionText))
+        poll <- PollFactory.createPoll(stampedPollId, pollType, numRespondents, Some(answers), Some(questionText), secretPoll)
       } yield {
         lm.polls.save(poll)
         poll
@@ -255,6 +255,7 @@ object Polls {
     shape += "numRespondents" -> new Integer(result.numRespondents)
     shape += "numResponders" -> new Integer(result.numResponders)
     shape += "type" -> WhiteboardKeyUtil.POLL_RESULT_TYPE
+    shape += "pollType" -> result.questionType
     shape += "id" -> result.id
     shape += "status" -> WhiteboardKeyUtil.DRAW_END_STATUS
 
@@ -561,12 +562,12 @@ object PollFactory {
     questionOption
   }
 
-  def createPoll(id: String, pollType: String, numRespondents: Int, answers: Option[Seq[String]], questionText: Option[String]): Option[Poll] = {
+  def createPoll(id: String, pollType: String, numRespondents: Int, answers: Option[Seq[String]], questionText: Option[String], isSecret: Boolean): Option[Poll] = {
     var poll: Option[Poll] = None
 
     createQuestion(pollType, answers, questionText) match {
       case Some(question) => {
-        poll = Some(new Poll(id, Array(question), numRespondents, None))
+        poll = Some(new Poll(id, Array(question), numRespondents, None, isSecret))
       }
       case None => poll = None
     }
@@ -582,7 +583,7 @@ case class ResponderVO(responseID: String, user: Responder)
 case class ResponseOutVO(id: String, text: String, responders: Array[Responder] = Array[Responder]())
 case class QuestionOutVO(id: String, multiResponse: Boolean, question: String, responses: Array[ResponseOutVO])
 
-class Poll(val id: String, val questions: Array[Question], val numRespondents: Int, val title: Option[String]) {
+class Poll(val id: String, val questions: Array[Question], val numRespondents: Int, val title: Option[String], val isSecret: Boolean) {
   private var _started: Boolean = false
   private var _stopped: Boolean = false
   private var _showResult: Boolean = false
@@ -636,7 +637,7 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
       qvos += q.toQuestionVO
     })
 
-    new PollVO(id, qvos.toArray, title, _started, _stopped, _showResult)
+    new PollVO(id, qvos.toArray, title, _started, _stopped, _showResult, isSecret)
   }
 
   def toSimplePollOutVO(): SimplePollOutVO = {
@@ -644,7 +645,7 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
   }
 
   def toSimplePollResultOutVO(): SimplePollResultOutVO = {
-    new SimplePollResultOutVO(id, questions(0).text, questions(0).toSimpleVotesOutVO(), numRespondents, _numResponders)
+    new SimplePollResultOutVO(id, questions(0).questionType, questions(0).text, questions(0).toSimpleVotesOutVO(), numRespondents, _numResponders)
   }
 }
 

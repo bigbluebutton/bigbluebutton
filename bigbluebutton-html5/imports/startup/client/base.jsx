@@ -80,10 +80,7 @@ class Base extends Component {
   }
 
   componentDidMount() {
-    const { animations, newLayoutContextState, newLayoutContextDispatch } = this.props;
-    const { input } = newLayoutContextState;
-    const { sidebarContent } = input;
-    const { sidebarContentPanel } = sidebarContent;
+    const { animations } = this.props;
 
     const {
       userID: localUserId,
@@ -141,53 +138,6 @@ class Base extends Component {
         }
       },
     });
-
-    if (!sidebarContentPanel || Session.equals('subscriptionsReady', true)) {
-      if (!checkedUserSettings) {
-        if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
-          if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
-            newLayoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-              value: true,
-            });
-            newLayoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: true,
-            });
-            newLayoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-              value: PANELS.CHAT,
-            });
-            newLayoutContextDispatch({
-              type: ACTIONS.SET_ID_CHAT_OPEN,
-              value: PUBLIC_CHAT_ID,
-            });
-          } else {
-            newLayoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-              value: true,
-            });
-            newLayoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: false,
-            });
-          }
-        } else {
-          newLayoutContextDispatch({
-            type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-            value: false,
-          });
-          newLayoutContextDispatch({
-            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-            value: false,
-          });
-        }
-
-        if (Session.equals('subscriptionsReady', true)) {
-          checkedUserSettings = true;
-        }
-      }
-    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -200,12 +150,17 @@ class Base extends Component {
       subscriptionsReady,
       layoutContextDispatch,
       newLayoutContextDispatch,
+      newLayoutContextState,
       usersVideo,
     } = this.props;
     const {
       loading,
       meetingExisted,
     } = this.state;
+
+    const { input } = newLayoutContextState;
+    const { sidebarContent } = input;
+    const { sidebarContentPanel } = sidebarContent;
 
     if (usersVideo !== prevProps.usersVideo) {
       newLayoutContextDispatch({
@@ -258,6 +213,53 @@ class Base extends Component {
       if (enabled) HTML.classList.remove('animationsEnabled');
       HTML.classList.add('animationsDisabled');
     }
+
+    if (sidebarContentPanel === PANELS.NONE || Session.equals('subscriptionsReady', true)) {
+      if (!checkedUserSettings) {
+        if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
+          if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+              value: true,
+            });
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: true,
+            });
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+              value: PANELS.CHAT,
+            });
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_ID_CHAT_OPEN,
+              value: PUBLIC_CHAT_ID,
+            });
+          } else {
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+              value: true,
+            });
+            newLayoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: false,
+            });
+          }
+        } else {
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+            value: false,
+          });
+          newLayoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: false,
+          });
+        }
+
+        if (Session.equals('subscriptionsReady', true)) {
+          checkedUserSettings = true;
+        }
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -286,6 +288,7 @@ class Base extends Component {
       ejectedReason,
       meetingExist,
       meetingHasEnded,
+      meetingEndedReason,
       meetingIsBreakout,
       subscriptionsReady,
       User,
@@ -296,7 +299,7 @@ class Base extends Component {
     }
 
     if (ejected) {
-      return (<MeetingEnded code="403" reason={ejectedReason} />);
+      return (<MeetingEnded code="403" ejectedReason={ejectedReason} />);
     }
 
     if ((meetingHasEnded || User?.loggedOut) && meetingIsBreakout) {
@@ -305,7 +308,7 @@ class Base extends Component {
     }
 
     if (((meetingHasEnded && !meetingIsBreakout)) || (codeError && User?.loggedOut)) {
-      return (<MeetingEnded code={codeError} />);
+      return (<MeetingEnded code={codeError} endedReason={meetingEndedReason} ejectedReason={ejectedReason} />);
     }
 
     if (codeError && !meetingHasEnded) {
@@ -377,6 +380,7 @@ const BaseContainer = withTracker(() => {
   const meeting = Meetings.findOne({ meetingId }, {
     fields: {
       meetingEnded: 1,
+      meetingEndedReason: 1,
       meetingProp: 1,
     },
   });
@@ -388,6 +392,7 @@ const BaseContainer = withTracker(() => {
   const approved = User?.approved && User?.guest;
   const ejected = User?.ejected;
   const ejectedReason = User?.ejectedReason;
+  const meetingEndedReason = meeting?.meetingEndedReason;
 
   let userSubscriptionHandler;
 
@@ -466,6 +471,7 @@ const BaseContainer = withTracker(() => {
     isMeteorConnected: Meteor.status().connected,
     meetingExist: !!meeting,
     meetingHasEnded: !!meeting && meeting.meetingEnded,
+    meetingEndedReason,
     meetingIsBreakout: AppService.meetingIsBreakout(),
     subscriptionsReady: Session.get('subscriptionsReady'),
     loggedIn,

@@ -1,5 +1,7 @@
 package org.bigbluebutton.core.models
 
+import scala.collection.mutable.Map
+
 object Layouts {
   def setCurrentLayout(instance: Layouts, layout: String, setBy: String) {
     instance.currentLayout = layout
@@ -28,4 +30,14 @@ class Layouts {
   private var currentLayout = "";
   // this is not being set by the client, and we need to apply the layouts to all users, not just viewers, so will keep the default value of this as false
   private var affectViewersOnly = true
+}
+
+object LayoutsType {
+  val layoutsType = Map(
+    "legacy" -> "LEGACY",
+    "custom" -> "CUSTOM_LAYOUT",
+    "smart" -> "SMART_LAYOUT",
+    "presentationFocus" -> "PRESENTATION_FOCUS",
+    "videoFocus" -> "VIDEO_FOCUS"
+  )
 }

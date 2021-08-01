@@ -4,6 +4,9 @@ import { Slides, SlidePositions } from '/imports/api/slides';
 import Auth from '/imports/ui/services/auth';
 import PollService from '/imports/ui/components/poll/service';
 
+const POLL_SETTINGS = Meteor.settings.public.poll;
+const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
+
 const getCurrentPresentation = podId => Presentations.findOne({
   podId,
   current: true,
@@ -81,7 +84,7 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     content,
   } = currentSlide;
 
-  const pollRegex = /[1-6A-Fa-f][.)].*/g;
+  const pollRegex = /[1-9A-Ia-i][.)].*/g;
   let optionsPoll = content.match(pollRegex) || [];
   if (optionsPoll) optionsPoll = optionsPoll.map(opt => `\r${opt[0]}.`);
 
@@ -120,10 +123,22 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     return acc;
   }, []).filter(({
     options,
-  }) => options.length > 1 && options.length < 7).forEach(poll => quickPollOptions.push({
-    type: `${pollTypes.Letter}${poll.options.length}`,
-    poll,
-  }));
+  }) => options.length > 1 && options.length < 10).forEach(poll => {
+    if (poll.options.length <= 5 || MAX_CUSTOM_FIELDS <= 5) {
+      const maxAnswer = poll.options.length > MAX_CUSTOM_FIELDS 
+        ? MAX_CUSTOM_FIELDS
+        : poll.options.length
+      quickPollOptions.push({
+        type: `${pollTypes.Letter}${maxAnswer}`,
+        poll,
+      })
+    } else {
+      quickPollOptions.push({
+        type: pollTypes.Custom,
+        poll,
+      })
+    }
+  });
 
   if (quickPollOptions.length > 0) {
     content = content.replace(new RegExp(pollRegex), '');
@@ -155,17 +170,12 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
 };
 
 const isPresenter = (podId) => {
-  // a main presenter in the meeting always owns a default pod
-  if (podId !== 'DEFAULT_PRESENTATION_POD') {
-    // if a pod is not default, then we check whether this user owns a current pod
-    const selector = {
-      meetingId: Auth.meetingID,
-      podId,
-    };
-    const pod = PresentationPods.findOne(selector);
-    return pod.currentPresenterId === Auth.userID;
-  }
-  return true;
+  const selector = {
+    meetingId: Auth.meetingID,
+    podId,
+  };
+  const pod = PresentationPods.findOne(selector);
+  return pod?.currentPresenterId === Auth.userID;
 };
 
 export default {

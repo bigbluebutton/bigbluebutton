@@ -23,6 +23,12 @@ const intlMessages = defineMessages({
   pollQuestionTitle: {
     id: 'app.polling.pollQuestionTitle',
   },
+  responseIsSecret: {
+    id: 'app.polling.responseSecret',
+  },
+  responseNotSecret: {
+    id: 'app.polling.responseNotSecret',
+  },
   submitLabel: {
     id: 'app.polling.submitLabel',
   },
@@ -92,7 +98,8 @@ class Polling extends Component {
       handleVote,
       handleTypedVote,
       pollAnswerIds,
-      pollTypes
+      pollTypes,
+      isDefaultPoll,
     } = this.props;
 
     const {
@@ -101,7 +108,8 @@ class Polling extends Component {
 
     if (!poll) return null;
 
-    const { stackOptions, answers, question } = poll;
+    const { stackOptions, answers, question, pollType } = poll;
+    const defaultPoll = isDefaultPoll(pollType);
 
     const pollAnswerStyles = {
       [styles.pollingAnswers]: true,
@@ -133,8 +141,7 @@ class Polling extends Component {
             poll.pollType !== pollTypes.Response && (
               <span>
                 {
-                  question.length === 0
-                  && (
+                  question.length === 0 && (
                     <div className={styles.pollingTitle}>
                       {intl.formatMessage(intlMessages.pollingTitleLabel)}
                     </div>
@@ -144,7 +151,7 @@ class Polling extends Component {
                   {poll.answers.map((pollAnswer) => {
                     const formattedMessageIndex = pollAnswer.key.toLowerCase();
                     let label = pollAnswer.key;
-                    if (pollAnswerIds[formattedMessageIndex]) {
+                    if (defaultPoll && pollAnswerIds[formattedMessageIndex]) {
                       label = intl.formatMessage(pollAnswerIds[formattedMessageIndex]);
                     }
 
@@ -217,6 +224,9 @@ class Polling extends Component {
               </div>
             )
           }
+          <div className={styles.pollingSecret}>
+            {intl.formatMessage(poll.secretPoll ? intlMessages.responseIsSecret : intlMessages.responseNotSecret)}
+          </div>
         </div>
       </div>
     );

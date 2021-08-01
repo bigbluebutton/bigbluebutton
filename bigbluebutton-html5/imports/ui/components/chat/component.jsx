@@ -56,8 +56,8 @@ const Chat = (props) => {
 
   const userSentMessage = UserSentMessageCollection.findOne({ userId: Auth.userID, sent: true });
 
-  const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
-  const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
+  const HIDE_CHAT_AK = shortcuts.hideprivatechat;
+  const CLOSE_CHAT_AK = shortcuts.closeprivatechat;
   ChatLogger.debug('ChatComponent::render', props);
   return (
     <div
@@ -85,7 +85,7 @@ const Chat = (props) => {
               });
             }}
             aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
-            accessKey={HIDE_CHAT_AK}
+            accessKey={chatID !== 'public' ? HIDE_CHAT_AK : null}
             label={title}
             icon="left_arrow"
             className={styles.hideBtn}

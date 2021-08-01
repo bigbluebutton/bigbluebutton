@@ -7,6 +7,9 @@ import Dropdown from '/imports/ui/components/dropdown/component';
 import { styles } from '../styles';
 import { PANELS, ACTIONS } from '../../layout/enums';
 
+const POLL_SETTINGS = Meteor.settings.public.poll;
+const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
+
 const intlMessages = defineMessages({
   quickPollLabel: {
     id: 'app.poll.quickPollTitle',
@@ -42,29 +45,6 @@ const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
 };
 
-const getLocalizedAnswers = (type, intl, pollTypes) => {
-  switch (type) {
-    case pollTypes.TrueFalse:
-      return [
-        intl.formatMessage(intlMessages.trueOptionLabel),
-        intl.formatMessage(intlMessages.falseOptionLabel),
-      ];
-    case pollTypes.YesNo:
-      return [
-        intl.formatMessage(intlMessages.yesOptionLabel),
-        intl.formatMessage(intlMessages.noOptionLabel),
-      ];
-    case pollTypes.YesNoAbstention:
-      return [
-        intl.formatMessage(intlMessages.yesOptionLabel),
-        intl.formatMessage(intlMessages.noOptionLabel),
-        intl.formatMessage(intlMessages.abstentionOptionLabel),
-      ];
-    default:
-      return null;
-  }
-};
-
 const handleClickQuickPoll = (newLayoutContextDispatch) => {
   newLayoutContextDispatch({
     type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -77,21 +57,29 @@ const handleClickQuickPoll = (newLayoutContextDispatch) => {
   Session.set('forcePollOpen', true);
   Session.set('pollInitiated', true);
 };
-const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, intl, pollTypes, newLayoutContextDispatch) => {
+
+const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, pollTypes, newLayoutContextDispatch) => {
   const pollItemElements = parsedSlides.map((poll) => {
     const { poll: label } = poll;
     let { type } = poll;
     let itemLabel = label;
-    let answers = null;
+    let letterAnswers = [];
 
     if (type !== pollTypes.YesNo &&
       type !== pollTypes.YesNoAbstention &&
       type !== pollTypes.TrueFalse) {
       const { options } = itemLabel;
       itemLabel = options.join('/').replace(/[\n.)]/g, '');
-    } else {
-      answers = getLocalizedAnswers(type, intl, pollTypes);
-      type = pollTypes.Custom;
+      if (type === pollTypes.Custom) {
+        for (const option of options) {
+          const letterOption = option.replace(/[\r.)]/g, '');
+          if (letterAnswers.length < MAX_CUSTOM_FIELDS) {
+            letterAnswers.push(letterOption);
+          } else {
+            break;
+          }
+        }
+      }
     }
 
     // removes any whitespace from the label
@@ -111,8 +99,9 @@ const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, intl, pollType
         key={_.uniqueId('quick-poll-item')}
         onClick={() => {
           handleClickQuickPoll(newLayoutContextDispatch);
-          startPoll(type, slideId, answers);
+          startPoll(type, slideId, letterAnswers);
         }}
+        answers={letterAnswers}
       />
     );
   });
@@ -149,28 +138,22 @@ class QuickPollDropdown extends Component {
     );
 
     const { slideId, quickPollOptions } = parsedSlide;
-    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions, startPoll, intl, pollTypes, newLayoutContextDispatch);
+    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions, startPoll, pollTypes, newLayoutContextDispatch);
 
     if (quickPollOptions.length === 0) return null;
 
+    let answers = null;
     let quickPollLabel = '';
     if (quickPolls.length > 0) {
       const { props: pollProps } = quickPolls[0];
       quickPollLabel = pollProps.label;
+      answers = pollProps.answers;
     }
 
     let singlePollType = null;
-    let answers = null;
     if (quickPolls.length === 1 && quickPollOptions.length) {
       const { type } = quickPollOptions[0];
       singlePollType = type;
-    }
-
-    if (singlePollType === pollTypes.TrueFalse ||
-      singlePollType === pollTypes.YesNo ||
-      singlePollType === pollTypes.YesNoAbstention) {
-      answers = getLocalizedAnswers(singlePollType, intl, pollTypes);
-      singlePollType = pollTypes.Custom;
     }
 
     let btn = (

@@ -33,9 +33,9 @@ export default function updateVotes(poll, meetingId) {
     const numberAffected = Polls.update(selector, modifier);
 
     if (numberAffected) {
-      Logger.info(`Updating Polls collection (meetingId: ${meetingId}, pollId: ${id}!)`);
+      Logger.info(`Updating Polls collection vote (meetingId: ${meetingId}, pollId: ${id}!)`);
     }
   } catch (err) {
-    Logger.error(`Updating Polls collection: ${err}`);
+    Logger.error(`Updating Polls collection vote: ${err}`);
   }
 }

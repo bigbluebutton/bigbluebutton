@@ -1,13 +1,13 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-* 
+*
 * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
 * Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-* 
+*
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
@@ -42,7 +42,7 @@ public class Meeting {
 	private String parentMeetingId = "bbb-none"; // Initialize so we don't send null in the json message.
 	private Integer sequence = 0;
 	private Boolean freeJoin = false;
-    private Integer duration = 0;	 
+  private Integer duration = 0;
 	private long createdTime = 0;
 	private long startTime = 0;
 	private long endTime = 0;
@@ -51,6 +51,8 @@ public class Meeting {
 	private String webVoice;
 	private String moderatorPass;
 	private String viewerPass;
+	private Boolean activityReportTracking;
+	private String activityReportAccessToken;
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
 	private String modOnlyMessage = "";
@@ -69,6 +71,7 @@ public class Meeting {
 	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
 	private String guestLobbyMessage = "";
 	private Boolean authenticatedGuest = false;
+	private String meetingLayout = MeetingLayout.SMART_LAYOUT;
 	private boolean userHasJoined = false;
 	private Map<String, String> pads;
 	private Map<String, String> metadata;
@@ -107,6 +110,8 @@ public class Meeting {
         intMeetingId = builder.internalId;
         viewerPass = builder.viewerPass;
         moderatorPass = builder.moderatorPass;
+		activityReportTracking = builder.activityReportTracking;
+		activityReportAccessToken = builder.activityReportAccessToken;
         maxUsers = builder.maxUsers;
         bannerColor = builder.bannerColor;
         bannerText = builder.bannerText;
@@ -128,6 +133,7 @@ public class Meeting {
         isBreakout = builder.isBreakout;
         guestPolicy = builder.guestPolicy;
         authenticatedGuest = builder.authenticatedGuest;
+				meetingLayout = builder.meetingLayout;
         breakoutRoomsParams = builder.breakoutRoomsParams;
         lockSettingsParams = builder.lockSettingsParams;
         allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
@@ -219,11 +225,11 @@ public class Meeting {
     public long getStartTime() {
 		return startTime;
 	}
-	
+
 	public void setStartTime(long t) {
 		startTime = t;
 	}
-	
+
 	public long getCreateTime() {
 		return createdTime;
 	}
@@ -243,35 +249,35 @@ public class Meeting {
     public void setFreeJoin(Boolean freeJoin) {
         this.freeJoin = freeJoin;
     }
-	
+
 	public Integer getDuration() {
 		return duration;
 	}
-	
+
 	public long getEndTime() {
 		return endTime;
 	}
-	
+
 	public void setModeratorOnlyMessage(String msg) {
 		modOnlyMessage = msg;
 	}
-	
+
 	public String getModeratorOnlyMessage() {
 		return modOnlyMessage;
 	}
-	
+
 	public void setEndTime(long t) {
 		endTime = t;
 	}
-	
+
 	public boolean isRunning() {
 		return ! users.isEmpty();
 	}
-	
+
 	public Boolean isBreakout() {
 	  return isBreakout;
 	}
-	
+
     public void setHaveRecordingMarks(boolean marks) {
         haveRecordingMarks = marks;
     }
@@ -279,7 +285,7 @@ public class Meeting {
     public boolean haveRecordingMarks() {
         return  haveRecordingMarks;
     }
-    
+
 	public String getName() {
 		return name;
 	}
@@ -295,7 +301,7 @@ public class Meeting {
 	public String getExternalId() {
 		return extMeetingId;
 	}
-	
+
 	public String getInternalId() {
 		return intMeetingId;
 	}
@@ -323,10 +329,18 @@ public class Meeting {
 	public String getViewerPassword() {
 		return viewerPass;
 	}
-	
-    public String getWelcomeMessageTemplate() {
-        return welcomeMsgTemplate;
-    }
+
+	public Boolean getActivityReportTracking() {
+		return activityReportTracking;
+	}
+  
+	public String getActivityReportAccessToken() {
+		return activityReportAccessToken;
+	}
+
+  public String getWelcomeMessageTemplate() {
+    return welcomeMsgTemplate;
+  }
 
 	public String getWelcomeMessage() {
 		return welcomeMsg;
@@ -358,6 +372,14 @@ public class Meeting {
 
 	public Boolean getAuthenticatedGuest() {
 		return authenticatedGuest;
+	}
+
+	public void setMeetingLayout(String layout) {
+		meetingLayout = layout;
+	}
+
+	public String getMeetingLayout() {
+		return meetingLayout;
 	}
 
 	private String getUnauthenticatedGuestStatus(Boolean guest) {
@@ -413,15 +435,15 @@ public class Meeting {
 	public int getMaxUsers() {
 		return maxUsers;
 	}
-	
+
 	public int getLogoutTimer() {
 		return logoutTimer;
 	}
-	
+
 	public String getBannerColor() {
 		return bannerColor;
 	}
-	
+
 	public String getBannerText() {
 		return bannerText;
 	}
@@ -429,19 +451,19 @@ public class Meeting {
 	public boolean isRecord() {
 		return record;
 	}
-	
+
 	public boolean getAutoStartRecording() {
 		return autoStartRecording;
 	}
-	
+
 	public boolean getAllowStartStopRecording() {
 		return allowStartStopRecording;
 	}
-	
+
     public boolean getWebcamsOnlyForModerator() {
         return webcamsOnlyForModerator;
     }
-	
+
 	public boolean hasUserJoined() {
 		return userHasJoined;
 	}
@@ -525,11 +547,11 @@ public class Meeting {
         return null;
     }
 
-	    
+
 	public int getNumUsers(){
 		return this.users.size();
 	}
-	
+
     public int getNumModerators() {
         int sum = 0;
         for (Map.Entry<String, User> entry : users.entrySet()) {
@@ -539,7 +561,7 @@ public class Meeting {
         }
         return sum;
     }
-	
+
 	public String getDialNumber() {
 		return dialNumber;
 	}
@@ -553,7 +575,7 @@ public class Meeting {
         }
         return sum;
     }
-	
+
     public int getNumVoiceJoined() {
         int sum = 0;
         for (Map.Entry<String, User> entry : users.entrySet()) {
@@ -572,7 +594,7 @@ public class Meeting {
         }
         return sum;
     }
-	
+
 	public void addPad(String padId, String readOnlyId) {
 		pads.put(padId, readOnlyId);
 	}
@@ -601,7 +623,7 @@ public class Meeting {
 	public Integer getMeetingExpireIfNoUserJoinedInMinutes() {
 		return meetingExpireIfNoUserJoinedInMinutes;
 	}
-	
+
    public Integer getUserInactivityInspectTimerInMinutes() {
         return userInactivityInspectTimerInMinutes;
     }
@@ -609,7 +631,7 @@ public class Meeting {
     public void setUserInactivityInspectTimerInMinutes(Integer userInactivityInjspectTimerInMinutes) {
         this.userInactivityInspectTimerInMinutes = userInactivityInjspectTimerInMinutes;
     }
-    
+
     public Integer getUserInactivityThresholdInMinutes() {
         return userInactivityThresholdInMinutes;
     }
@@ -704,6 +726,8 @@ public class Meeting {
         private boolean webcamsOnlyForModerator;
     	private String moderatorPass;
     	private String viewerPass;
+    	private Boolean activityReportTracking;
+    	private String activityReportAccessToken;
     	private int duration;
     	private String webVoice;
     	private String telVoice;
@@ -720,6 +744,7 @@ public class Meeting {
     	private boolean isBreakout;
     	private String guestPolicy;
     	private Boolean authenticatedGuest;
+			private String meetingLayout;
     	private BreakoutRoomsParams breakoutRoomsParams;
     	private LockSettingsParams lockSettingsParams;
 		private Boolean allowDuplicateExtUserid;
@@ -732,7 +757,7 @@ public class Meeting {
     		this.internalId = internalId;
     		this.createdTime = createTime;
     	}
- 
+
     	public Builder withName(String name) {
     		this.name = name;
     		return this;
@@ -742,17 +767,17 @@ public class Meeting {
     		duration = minutes;
     		return this;
     	}
-    	
+
     	public Builder withMaxUsers(int n) {
     		maxUsers = n;
     		return this;
     	}
-    	
+
     	public Builder withRecording(boolean record) {
     		this.record = record;
     		return this;
     	}
-    	
+
     	public Builder withAutoStartRecording(boolean start) {
     		this.autoStartRecording = start;
     		return this;
@@ -762,37 +787,47 @@ public class Meeting {
     		this.allowStartStopRecording = allow;
     		return this;
     	}
-    
+
         public Builder withWebcamsOnlyForModerator(boolean only) {
             this.webcamsOnlyForModerator = only;
             return this;
         }
-    	
+
     	public Builder withWebVoice(String w) {
     		this.webVoice = w;
     		return this;
     	}
-    	
+
     	public Builder withTelVoice(String t) {
     		this.telVoice = t;
     		return this;
     	}
-    	
+
     	public Builder withDialNumber(String d) {
     		this.dialNumber = d;
     		return this;
     	}
-    	
+
     	public Builder withModeratorPass(String p) {
     		this.moderatorPass = p;
     		return this;
     	}
-    	
-    	public Builder withViewerPass(String p) {  		
+
+    	public Builder withViewerPass(String p) {
 	    	this.viewerPass = p;
 	    	return this;
 	    }
     	
+    	public Builder withActivityReportTracking(Boolean e) {
+	    	this.activityReportTracking = e;
+	    	return this;
+	    }
+
+    	public Builder withActivityReportAccessToken(String t) {
+	    	this.activityReportAccessToken = t;
+	    	return this;
+	    }
+
     	public Builder withWelcomeMessage(String w) {
     		welcomeMsg = w;
     		return this;
@@ -802,12 +837,12 @@ public class Meeting {
             welcomeMsgTemplate = w;
             return this;
         }
-           
+
     	public Builder withDefaultAvatarURL(String w) {
     		defaultAvatarURL = w;
     		return this;
     	}
-    	
+
     	public Builder isBreakout(Boolean b) {
     	  isBreakout = b;
     	  return this;
@@ -817,22 +852,22 @@ public class Meeting {
     		logoutUrl = l;
     		return this;
     	}
-    	
+
     	public Builder withLogoutTimer(int l) {
     		logoutTimer = l;
     		return this;
     	}
-    	
+
     	public Builder withBannerColor(String c) {
     		bannerColor = c;
     		return this;
     	}
-    	
+
     	public Builder withBannerText(String t) {
     		bannerText = t;
     		return this;
     	}
-    	
+
     	public Builder withMetadata(Map<String, String> m) {
     		metadata = m;
     		return this;
@@ -841,12 +876,17 @@ public class Meeting {
     	public Builder withGuestPolicy(String policy) {
     		guestPolicy = policy;
     		return  this;
-		}
-    
+			}
+
     	public Builder withAuthenticatedGuest(Boolean authGuest) {
     		authenticatedGuest = authGuest;
     		return this;
     	}
+
+			public Builder withMeetingLayout(String layout) {
+				meetingLayout = layout;
+				return this;
+			}
 
 		public Builder withBreakoutRoomsParams(BreakoutRoomsParams params) {
     		breakoutRoomsParams = params;
@@ -877,7 +917,7 @@ public class Meeting {
     		html5InstanceId = instanceId;
     		return this;
 		}
-    
+
     	public Meeting build() {
     		return new Meeting(this);
     	}

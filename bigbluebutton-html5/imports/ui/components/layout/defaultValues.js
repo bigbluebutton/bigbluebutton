@@ -8,20 +8,25 @@ const DEFAULT_VALUES = {
   layoutType: LAYOUT_TYPE.CUSTOM_LAYOUT,
   panelType: 'chat',
   idChatOpen: PUBLIC_CHAT_ID,
+  fontSize: 16,
 
   cameraPosition: CAMERADOCK_POSITION.CONTENT_TOP,
   cameraDockTabOrder: 4,
-  cameraDockMinHeight: 140,
-  cameraDockMinWidth: 140,
+  cameraDockMinHeight: 120,
+  cameraDockMinWidth: 120,
+  camerasMargin: 10,
 
   presentationTabOrder: 5,
-  presentationMinHeight: 140,
+  presentationMinHeight: 220,
+
+  bannerHeight: 34,
 
   navBarHeight: 85,
   navBarTop: 0,
   navBarTabOrder: 3,
 
-  actionBarHeight: 65,
+  actionBarHeight: 42,
+  actionBarPadding: 11.2,
   actionBarTabOrder: 6,
 
   sidebarNavMaxWidth: 240,
@@ -34,10 +39,11 @@ const DEFAULT_VALUES = {
 
   sidebarContentMaxWidth: 350,
   sidebarContentMinWidth: 150,
+  sidebarContentMinHeight: 200,
   sidebarContentHeight: '100%',
   sidebarContentTop: 0,
   sidebarContentTabOrder: 2,
-  sidebarContentPanel: PANELS.CHAT,
+  sidebarContentPanel: PANELS.NONE,
 };
 
 export default DEFAULT_VALUES;

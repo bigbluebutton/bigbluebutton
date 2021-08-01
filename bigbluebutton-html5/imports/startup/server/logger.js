@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { createLogger, format, transports } from 'winston';
 
-const LOG_CONFIG = Meteor.settings.private.serverLog || {};
+const LOG_CONFIG = Meteor?.settings?.private?.serverLog || {};
 const { level } = LOG_CONFIG;
 
 const Logger = createLogger({

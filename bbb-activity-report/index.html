@@ -1,0 +1,204 @@
+<html>
+	<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+	<style>
+		.styled-table {
+	    border-collapse: collapse;
+	    margin: 25px 0;
+	    font-size: 0.9em;
+	    font-family: sans-serif;
+	    min-width: 400px;
+	    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+	}
+	.styled-table thead tr {
+	    background-color: #0F70D7E3;
+	    color: #ffffff;
+	    text-align: left;
+	}
+	.styled-table th,
+	.styled-table td {
+	    padding: 12px 15px;
+	}
+	.styled-table tbody tr {
+	    border-bottom: 1px solid #dddddd;
+	}
+
+	.styled-table tbody tr:nth-of-type(even) {
+	    background-color: #f3f3f3;
+	}
+
+	.styled-table tbody tr:last-of-type {
+	    border-bottom: 2px solid #0F70D7E3;
+	}
+	.styled-table tbody tr.active-row {
+	    font-weight: bold;
+	    color: #3a3a3a;
+	}
+
+	</style>
+
+	<body>
+		<div id="app">
+			<table>
+				<tr>
+					<td style="text-align: right;"><b>Name:</b></td>
+					<td>{{activitiesJson.name}}</td>
+				</tr>
+				<!-- <tr>
+					<td style="text-align: right;"><b>ExtId:</b></td>
+					<td>{{activitiesJson.intId}}</td>
+				</tr> -->
+				<tr>
+					<td style="text-align: right;"><b>Participants:</b></td>
+					<td>{{totalOfUsers}}</td>
+				</tr>
+				<tr>
+					<td style="text-align: right;"><b>Polls:</b></td>
+					<td>{{totalOfPolls}}</td>
+				</tr>
+				<tr>
+					<td style="text-align: right;"><b>Raise Hand:</b></td>
+					<td>{{totalOfRaiseHand}}</td>
+				</tr>
+				<tr>
+					<td style="text-align: right;"><b>ScreenShare:</b></td>
+					<td>{{timeOfScreenShare}}</td>
+				</tr>
+
+			</table>
+
+			<br />
+			<table class="styled-table">
+			    <thead>
+			        <tr>
+			            <th>Participant</th>
+			            <th>Time Joined</th>
+			            <th>Duration</th>
+			            <th>Talk Time</th>
+			            <th>Camera Time</th>
+			            <th>Messages</th>
+			            <th>Emojis</th>
+			            <th>Raise hand</th>
+			        </tr>
+			    </thead>
+			    <tbody>
+			        <tr v-for="user in activitiesJson.users">
+			            <td>{{user.name}}</td>
+			            <td>{{getDate(user.registeredOn)}}</td>
+			            <td>{{user.leftOn ? tsToHHmmss(user.leftOn - user.registeredOn) : tsToHHmmss(new Date().getTime() - user.registeredOn)}}</td>
+			            <td>{{tsToHHmmss(user.talk.totalTime)}}</td>
+			            <td>{{tsToHHmmss(getSumOfTime(user.webcams))}}</td>
+			            <td>{{user.totalOfMessages}}</td>
+			            <td>{{user.totalOfEmojis}}</td>
+			            <td>{{user.totalOfRaiseHands}}</td>
+			        </tr>
+			    </tbody>
+			</table>
+			<br />
+			<h3>Polls</h3>
+			<table class="styled-table">
+			    <thead>
+			        <tr>
+			            <th>Participant</th>
+			            <th v-for="poll in activitiesJson.polls">{{poll.question}}</th>
+			        </tr>
+			    </thead>
+			    <tbody>
+			        <tr v-for="user in activitiesJson.users">
+			            <td>{{user.name}}</td>
+			            <td v-for="poll in activitiesJson.polls">{{getUserAnswere(user,poll)}}</td>
+			        </tr>
+			        <tr>
+			            <td>Anonymous</td>
+			            <td  class="text-block" v-for="poll in activitiesJson.polls">
+			            	<span v-html="poll.anonymousAnswers.join('<br>')"></span>
+			        	</td>
+			        </tr>
+			    </tbody>
+			</table>
+		</div>
+
+		<script type="text/javascript">
+        new Vue({
+            el: "#app",
+            data: {
+                activitiesJson: {},
+            },
+            created() {
+            	this.fetchActivitiesJson();
+			  	setInterval(this.fetchActivitiesJson, 3000);
+            },
+            computed: {
+            	totalOfUsers: function() {
+            		if(this.activitiesJson && this.activitiesJson.users) {
+            			return Object.keys(this.activitiesJson.users).length;
+            		} else {
+            			return 0;
+            		}
+            	},
+            	totalOfPolls: function() {
+            		if(this.activitiesJson && this.activitiesJson.polls) {
+            			return Object.keys(this.activitiesJson.polls).length;
+            		} else {
+            			return 0;
+            		}
+            	},
+            	totalOfRaiseHand: function() {
+            		if(this.activitiesJson && this.activitiesJson.users) {
+            			return Object.values(this.activitiesJson.users).reduce( function( prevVal, elem ) {
+						    return prevVal + elem.totalOfRaiseHands;
+						}, 0 );
+            		} else {
+            			return 0;
+            		}
+            	},
+            	timeOfScreenShare: function() {
+            		if(this.activitiesJson && this.activitiesJson.screenshares) {
+            			return this.tsToHHmmss(this.getSumOfTime(this.activitiesJson.screenshares));
+            		} else {
+            			return 0;
+            		}
+            	}
+            },
+            methods: {
+            	fetchActivitiesJson: function() {
+					let urlSearchParams = new URLSearchParams(window.location.search);
+					let params = Object.fromEntries(urlSearchParams.entries());
+					if(typeof params.meeting == 'undefined') return;
+					if(typeof params.report == 'undefined') return;
+
+					fetch(params.meeting + "/" + params.report + "/activity_report.json")
+			  		.then(response => response.json())
+			  		.then(json => this.activitiesJson = json);
+            	},
+            	getUserAnswere(user,poll) {
+					//let pollId = po
+					if(typeof user.answers[poll.pollId] != 'undefined') {
+						return user.answers[poll.pollId];
+					} else {
+						return '';
+					}
+            	},
+            	getDate: function(ts) {
+                    const dt = new Date(ts);
+                    const date = dt.getFullYear()+'-'+(dt.getMonth()+1).toString().padStart(2, "0")+'-'+dt.getDate().toString().padStart(2, "0");
+                    const time = dt.getHours().toString().padStart(2, "0") + ":" + dt.getMinutes().toString().padStart(2, "0") + ":" + dt.getSeconds().toString().padStart(2, "0");
+                    const dateTime = date +' '+ time;
+                    return dateTime;
+                },
+                tsToHHmmss: function(ts) {
+                	return (new Date(ts).toISOString().substr(11, 8));
+                },
+                getSumOfTime: function(talksArr) {
+                	return talksArr.reduce( function( prevVal, elem ) {
+                		if(elem.stoppedOn > 0) return prevVal + (elem.stoppedOn - elem.startedOn);
+					    else return prevVal + (new Date().getTime()  - elem.startedOn);
+					}, 0 );
+                }
+            }
+
+        });
+    </script>
+
+	</body>
+	
+</html>

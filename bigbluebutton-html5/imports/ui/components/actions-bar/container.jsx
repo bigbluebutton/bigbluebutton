@@ -12,6 +12,7 @@ import Service from './service';
 import UserListService from '/imports/ui/components/user-list/service';
 import ExternalVideoService from '/imports/ui/components/external-video-player/service';
 import CaptionsService from '/imports/ui/components/captions/service';
+import { NLayoutContext } from '../layout/context/context';
 
 import MediaService, {
   getSwapLayout,
@@ -21,6 +22,10 @@ import MediaService, {
 const ActionsBarContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
+  const newLayoutContext = useContext(NLayoutContext);
+  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
+  const { output } = newLayoutContextState;
+  const { actionBar: actionsBarStyle } = output;
 
   const currentUser = { userId: Auth.userID, emoji: users[Auth.meetingID][Auth.userID].emoji };
 
@@ -29,6 +34,8 @@ const ActionsBarContainer = (props) => {
       ...{
         ...props,
         currentUser,
+        newLayoutContextDispatch,
+        actionsBarStyle,
       }
     }
     />
@@ -61,4 +68,5 @@ export default withTracker(() => ({
     { fields: {} }),
   allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,
   setEmojiStatus: UserListService.setEmojiStatus,
+  layoutManagerLoaded: Session.get('layoutManagerLoaded'),
 }))(injectIntl(ActionsBarContainer));

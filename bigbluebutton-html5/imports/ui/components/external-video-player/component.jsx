@@ -4,6 +4,10 @@ import { defineMessages, injectIntl } from 'react-intl';
 import ReactPlayer from 'react-player';
 import { sendMessage, onMessage, removeAllListeners } from './service';
 import logger from '/imports/startup/client/logger';
+import Service from './service';
+
+import VolumeSlider from './volume-slider/component';
+import ReloadButton from '/imports/ui/components/reload-button/component';
 
 import ArcPlayer from './custom-players/arc-player';
 import PeerTubePlayer from './custom-players/peertube';
@@ -14,6 +18,9 @@ const intlMessages = defineMessages({
   autoPlayWarning: {
     id: 'app.externalVideo.autoPlayWarning',
     description: 'Shown when user needs to interact with player to make it work',
+  },
+  refreshLabel: {
+    id: 'app.externalVideo.refreshLabel',
   },
 });
 
@@ -42,10 +49,12 @@ class VideoPlayer extends Component {
     this.throttleTimeout = null;
 
     this.state = {
-      mutedByEchoTest: false,
+      muted: false,
       playing: false,
       autoPlayBlocked: false,
+      volume: 1,
       playbackRate: 1,
+      key: 0,
     };
 
     this.opts = {
@@ -53,18 +62,18 @@ class VideoPlayer extends Component {
       playerOptions: {
         autoplay: true,
         playsinline: true,
-        controls: true,
+        controls: isPresenter,
       },
       file: {
         attributes: {
-          controls: true,
-          autoPlay: true,
-          playsInline: true,
+          controls: isPresenter ? 'controls' : '',
+          autoplay: 'autoplay',
+          playsinline: 'playsinline',
         },
       },
       dailymotion: {
         params: {
-          controls: true,
+          controls: isPresenter,
         },
       },
       youtube: {
@@ -74,7 +83,7 @@ class VideoPlayer extends Component {
           autohide: 1,
           rel: 0,
           ecver: 2,
-          controls: isPresenter ? 1 : 2,
+          controls: isPresenter ? 1 : 0,
         },
       },
       peertube: {
@@ -82,7 +91,7 @@ class VideoPlayer extends Component {
       },
       twitch: {
         options: {
-          controls: true,
+          controls: isPresenter,
         },
         playerId: 'externalVideoPlayerTwitch',
       },
@@ -94,12 +103,18 @@ class VideoPlayer extends Component {
     this.clearVideoListeners = this.clearVideoListeners.bind(this);
     this.handleFirstPlay = this.handleFirstPlay.bind(this);
     this.handleResize = this.handleResize.bind(this);
+    this.handleReload = this.handleReload.bind(this);
+    this.handleOnProgress = this.handleOnProgress.bind(this);
     this.handleOnReady = this.handleOnReady.bind(this);
     this.handleOnPlay = this.handleOnPlay.bind(this);
     this.handleOnPause = this.handleOnPause.bind(this);
+    this.handleVolumeChanged = this.handleVolumeChanged.bind(this);
+    this.handleOnMuted = this.handleOnMuted.bind(this);
     this.sendSyncMessage = this.sendSyncMessage.bind(this);
     this.getCurrentPlaybackRate = this.getCurrentPlaybackRate.bind(this);
     this.getCurrentTime = this.getCurrentTime.bind(this);
+    this.getCurrentVolume = this.getCurrentVolume.bind(this);
+    this.getMuted = this.getMuted.bind(this);
     this.setPlaybackRate = this.setPlaybackRate.bind(this);
     this.resizeListener = () => {
       setTimeout(this.handleResize, 0);
@@ -140,6 +155,12 @@ class VideoPlayer extends Component {
   }
 
   componentDidUpdate(prevProp, prevState) {
+    const { top, left, layoutLoaded } = this.props;
+
+    if (layoutLoaded === 'new' && (top !== prevProp.top || left !== prevProp.left)) {
+      this.handleResize();
+    }
+
     // Detect presenter change and redo the sync and listeners to reassign video to the new one
     if (this.props.isPresenter !== prevProp.isPresenter) {
       this.clearVideoListeners();
@@ -176,8 +197,8 @@ class VideoPlayer extends Component {
     // If message is just a quick pause/un-pause just send nothing
     const sinceLastMessage = (timestamp - this.lastMessageTimestamp) / 1000;
     if ((msg === 'play' && this.lastMessage === 'stop'
-         || msg === 'stop' && this.lastMessage === 'play')
-         && sinceLastMessage < THROTTLE_INTERVAL_SECONDS) {
+      || msg === 'stop' && this.lastMessage === 'play')
+      && sinceLastMessage < THROTTLE_INTERVAL_SECONDS) {
       return clearTimeout(this.throttleTimeout);
     }
 
@@ -245,27 +266,56 @@ class VideoPlayer extends Component {
   }
 
   handleResize() {
+    const { top, left, right, height, width, layoutLoaded } = this.props;
+
     if (!this.player || !this.playerParent) {
       return;
     }
 
-    const par = this.playerParent.parentElement;
-    const w = par.clientWidth;
-    const h = par.clientHeight;
-    const idealW = h * 16 / 9;
+    if (layoutLoaded === 'new') {
+      const idealW = height * 16 / 9;
 
-    const style = {};
-    if (idealW > w) {
-      style.width = w;
-      style.height = w * 9 / 16;
+      const style = {};
+      if (idealW > width) {
+        style.width = width;
+        style.height = width * 9 / 16;
+      } else {
+        style.width = idealW;
+        style.height = height;
+      }
+      style.top = top + (height - style.height) / 2;
+      style.left = left + (width - style.width) / 2;
+      style.right = right + (width - style.width) / 2;
+
+      const styles = `
+        position: absolute;
+        width: ${style.width}px;
+        height: ${style.height}px;
+        top: ${style.top}px;
+        left: ${style.left}px;
+        right: ${style.right}px;
+      `;
+      this.player.wrapper.style = styles;
     } else {
-      style.width = idealW;
-      style.height = h;
-    }
+      const par = this.playerParent.parentElement;
+      const w = par.clientWidth;
+      const h = par.clientHeight;
+      const idealW = h * 16 / 9;
 
-    const styleStr = `width: ${style.width}px; height: ${style.height}px;`;
-    this.player.wrapper.style = styleStr;
-    this.playerParent.style = styleStr;
+      const style = {};
+      if (idealW > w) {
+        style.width = w;
+        style.height = w * 9 / 16;
+      } else {
+        style.width = idealW;
+        style.height = h;
+      }
+
+      const styles = `width: ${style.width}px; height: ${style.height}px;`;
+
+      this.player.wrapper.style = styles;
+      this.playerParent.style = styles;
+    }
   }
 
   clearVideoListeners() {
@@ -345,8 +395,9 @@ class VideoPlayer extends Component {
 
         this.seekTo(time);
 
-        if (playing !== state) {
-          this.setState({ playing: state });
+        const playingState = Service.getPlayingState(state);
+        if (playing !== playingState) {
+          this.setState({ playing: playingState });
         }
       });
     }
@@ -358,7 +409,6 @@ class VideoPlayer extends Component {
     if (!player) {
       return logger.error('No player on seek');
     }
-
 
     // Seek if viewer has drifted too far away from presenter
     if (Math.abs(this.getCurrentTime() - time) > SYNC_INTERVAL_SECONDS * 0.75) {
@@ -420,16 +470,53 @@ class VideoPlayer extends Component {
     }
   }
 
+  handleOnProgress() {
+    const volume = this.getCurrentVolume();
+    const muted = this.getMuted();
+
+    this.setState({ volume, muted });
+  }
+
+  getMuted() {
+    const intPlayer = this.player && this.player.getInternalPlayer();
+
+    return (intPlayer && intPlayer.isMuted && intPlayer.isMuted()) || this.state.muted;
+  }
+
+  getCurrentVolume() {
+    const intPlayer = this.player && this.player.getInternalPlayer();
+
+    return (intPlayer && intPlayer.getVolume && intPlayer.getVolume() / 100.0) || this.state.volume;
+  }
+
+  handleVolumeChanged(volume) {
+    this.setState({ volume });
+  }
+
+  handleOnMuted(muted) {
+    this.setState({ muted });
+  }
+
+  handleReload() {
+    // increment key and force a re-render of the video component
+    this.setState({ key: this.state.key + 1 });
+
+    // hack, resize player
+    this.resizeListener();
+  }
+
   render() {
-    const { videoUrl, intl } = this.props;
+    const { videoUrl, isPresenter, intl } = this.props;
     const {
       playing, playbackRate, mutedByEchoTest, autoPlayBlocked,
+      volume, muted, key,
     } = this.state;
 
     return (
       <div
         id="video-player"
         data-test="videoPlayer"
+        className={styles.videoPlayerWrapper}
         ref={(ref) => { this.playerParent = ref; }}
       >
         {autoPlayBlocked
@@ -444,14 +531,32 @@ class VideoPlayer extends Component {
           className={styles.videoPlayer}
           url={videoUrl}
           config={this.opts}
-          muted={mutedByEchoTest}
+          volume={(muted || mutedByEchoTest) ? 0 : volume}
+          muted={muted || mutedByEchoTest}
           playing={playing}
           playbackRate={playbackRate}
+          onProgress={this.handleOnProgress}
           onReady={this.handleOnReady}
           onPlay={this.handleOnPlay}
           onPause={this.handleOnPause}
+          key={'react-player' + key}
           ref={(ref) => { this.player = ref; }}
         />
+        {!isPresenter ?
+          <div className={styles.hoverToolbar}>
+            <VolumeSlider
+              volume={volume}
+              muted={muted || mutedByEchoTest}
+              onMuted={this.handleOnMuted}
+              onVolumeChanged={this.handleVolumeChanged}
+            />
+            <ReloadButton
+              handleReload={this.handleReload}
+              label={intl.formatMessage(intlMessages.refreshLabel)}>
+            </ReloadButton>
+          </div>
+          : null
+        }
       </div>
     );
   }

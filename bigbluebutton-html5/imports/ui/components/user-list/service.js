@@ -10,6 +10,7 @@ import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
+import VideoService from '/imports/ui/components/video-provider/service';
 import logger from '/imports/startup/client/logger';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { Session } from 'meteor/session';
@@ -178,6 +179,19 @@ const addWhiteboardAccess = (users) => {
   });
 };
 
+const addIsSharingWebcam = (users) => {
+  const usersId = VideoService.getUsersIdFromVideoStreams();
+
+  return users.map((user) => {
+    const isSharingWebcam = usersId.includes(user.userId);
+
+    return {
+      ...user,
+      isSharingWebcam,
+    };
+  });
+};
+
 const getUsers = () => {
   let users = Users
     .find({
@@ -195,7 +209,7 @@ const getUsers = () => {
     }
   }
 
-  return addWhiteboardAccess(users).sort(sortUsers);
+  return addIsSharingWebcam(addWhiteboardAccess(users)).sort(sortUsers);
 };
 
 const getUserCount = () => Users.find({ meetingId: Auth.meetingID }).count();
@@ -285,16 +299,19 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
 const isVoiceOnlyUser = (userId) => userId.toString().startsWith('v_');
 
 const isMeetingLocked = (id) => {
-  const meeting = Meetings.findOne({ meetingId: id }, { fields: { lockSettingsProps: 1 } });
+  const meeting = Meetings.findOne({ meetingId: id },
+    { fields: { lockSettingsProps: 1, usersProp: 1 } });
   let isLocked = false;
 
   if (meeting.lockSettingsProps !== undefined) {
-    const lockSettings = meeting.lockSettingsProps;
+    const {lockSettingsProps:lockSettings, usersProp} = meeting;
 
     if (lockSettings.disableCam
       || lockSettings.disableMic
       || lockSettings.disablePrivateChat
-      || lockSettings.disablePublicChat) {
+      || lockSettings.disablePublicChat
+      || lockSettings.disableNote
+      || usersProp.webcamsOnlyForModerator) {
       isLocked = true;
     }
   }
@@ -524,7 +541,7 @@ const roving = (...args) => {
   if ([KEY_CODES.ARROW_RIGHT, KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.keyCode)) {
     const tether = document.activeElement.firstChild;
     const dropdownTrigger = tether.firstChild;
-    dropdownTrigger.click();
+    dropdownTrigger?.click();
     focusFirstDropDownItem();
   }
 };
