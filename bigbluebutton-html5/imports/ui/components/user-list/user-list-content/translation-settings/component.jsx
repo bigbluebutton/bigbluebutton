@@ -67,7 +67,7 @@ class TranslationSettings extends Component {
     if (pEvent.target.dataset.hasOwnProperty("ext")) {
       AudioManager.$translationOriginalVolumeChanged.next({
         extension: pEvent.target.dataset["ext"],
-        volume: pEvent.target.value
+        volume: 1 - pEvent.target.value
       });
     }
   }
