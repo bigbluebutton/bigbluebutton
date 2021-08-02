@@ -64,6 +64,7 @@ class DropdownListItem extends Component {
       className,
       style,
       intl,
+      'data-test': dataTest,
     } = this.props;
 
     const isSelected = className && className.includes('emojiSelected');
@@ -80,6 +81,7 @@ class DropdownListItem extends Component {
         className={cx(styles.item, className)}
         style={style}
         role="menuitem"
+        data-test={dataTest}
       >
         {
           children || this.renderDefault()
