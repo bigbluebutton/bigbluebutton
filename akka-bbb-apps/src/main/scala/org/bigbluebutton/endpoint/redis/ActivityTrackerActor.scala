@@ -17,9 +17,12 @@ case class MeetingActivityTracker(
   intId: String,
   extId: String,
   name:  String,
+  activityReportAccessToken: String,
   users: Map[String, UserActivityTracker] = Map(),
   polls: Map[String, Poll] = Map(),
   screenshares: Vector[Screenshare] = Vector(),
+  createdOn: Long = System.currentTimeMillis(),
+  endedOn: Long = 0,
 )
 
 case class UserActivityTracker(
@@ -318,6 +321,7 @@ class ActivityTrackerActor(
         msg.body.props.meetingProp.intId,
         msg.body.props.meetingProp.extId,
         msg.body.props.meetingProp.name,
+        msg.body.props.password.activityReportAccessToken,
       )
 
       meetings += (newMeeting.intId -> newMeeting)
@@ -332,22 +336,38 @@ class ActivityTrackerActor(
     for {
       meeting <- meetings.values.find(m => m.intId == msg.body.meetingId)
     } yield {
-      //Send report one last time
-      sendPeriodicReport()
 
-      meetings = meetings.-(meeting.intId)
-      log.info("ActivityTracker removed for meeting {}.",meeting.intId)
+      //Update endedOn
+      val endedOn : Long = System.currentTimeMillis()
+      var updatedMeeting = meeting.copy(endedOn = endedOn)
+
+      //Set all users leftOn
+      updatedMeeting.users.values.filter(u => u.leftOn == 0).map(user => {
+        updatedMeeting = updatedMeeting.copy(users = updatedMeeting.users + (user.intId -> user.copy(leftOn = endedOn)))
+      })
+
+      meetings += (updatedMeeting.intId -> updatedMeeting)
+
+      //Send report one last time
+      sendReport(updatedMeeting)
+
+      meetings = meetings.-(updatedMeeting.intId)
+      log.info("ActivityTracker removed for meeting {}.",updatedMeeting.intId)
     }
   }
 
   private def sendPeriodicReport(): Unit = {
     meetings.map(meeting => {
-      val activityJson: String = JsonUtil.toJson(meeting._2)
-      val event = MsgBuilder.buildActivityReportEvtMsg(meeting._2.intId, activityJson)
-      outGW.send(event)
-
-      log.info("Activity Report sent for meeting {}",meeting._2.intId)
+      sendReport(meeting._2)
     })
+  }
+
+  private def sendReport(meeting : MeetingActivityTracker): Unit = {
+    val activityJson: String = JsonUtil.toJson(meeting)
+    val event = MsgBuilder.buildActivityReportEvtMsg(meeting.intId, activityJson)
+    outGW.send(event)
+
+    log.info("Activity Report sent for meeting {}",meeting.intId)
   }
 
 }

@@ -40,6 +40,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.bigbluebutton.api.HTML5LoadBalancingService;
@@ -953,21 +954,23 @@ public class MeetingService implements MessageListener {
   }
 
   public void processActivityReport(ActivityReport message) {
-    Meeting m = getMeeting(message.meetingId);
-    if (m != null) {
-      Map<String, Object> logData = new HashMap<String, Object>();
-      logData.put("meetingId", m.getInternalId());
-      logData.put("externalMeetingId", m.getExternalId());
-      logData.put("name", m.getName());
-      logData.put("logCode", "update_activity_json");
-      logData.put("description", "Updating activities json.");
+    //Get all data from Json instead of getMeeting(message.meetingId), to process messages received even after meeting ended
+    JsonObject activityJsonObject = new Gson().fromJson(message.activityJson, JsonObject.class).getAsJsonObject();
+    String activityReportAccessToken = activityJsonObject.get("activityReportAccessToken").getAsString();
 
-      Gson gson = new Gson();
-      String logStr = gson.toJson(logData);
+    Map<String, Object> logData = new HashMap<String, Object>();
+    logData.put("meetingId", activityJsonObject.get("intId").getAsString());
+    logData.put("externalMeetingId", activityJsonObject.get("extId").getAsString());
+    logData.put("name", activityJsonObject.get("name").getAsString());
+    logData.put("logCode", "update_activity_json");
+    logData.put("description", "Updating activities json.");
 
-      log.info(" --analytics-- data={}", logStr);
-      activityService.writeActivityJsonFile(message.meetingId, m.getActivityReportAccessToken(), message.activityJson);
-    }
+    Gson gson = new Gson();
+    String logStr = gson.toJson(logData);
+
+    log.info(" --analytics-- data={}", logStr);
+
+    activityService.writeActivityJsonFile(message.meetingId, activityReportAccessToken, message.activityJson);
   }
 
   @Override
