@@ -55,7 +55,10 @@ VIDEO_EXTENSION = File.file?("#{@published_files}/video/webcams.mp4") ? "mp4" : 
 # Set this to true if the whiteboard supports whiteboard animations
 REMOVE_REDUNDANT_SHAPES = false
 
-BENCHMARK = false ? "-benchmark " : ""
+BENCHMARK_FFMPEG = false
+BENCHMARK = BENCHMARK_FFMPEG ? "-benchmark " : ""
+
+THREADS = 4
 
 # Output video size
 OUTPUT_WIDTH = 1920
@@ -544,7 +547,7 @@ def render_video(duration, meeting_name)
     "[whiteboard][chat]overlay=y=#{WEBCAMS_HEIGHT}[chats];[chats][webcams]overlay' "
   end
 
-  render << "-c:a aac -crf #{CONSTANT_RATE_FACTOR} -shortest -y -t #{duration} "
+  render << "-c:a aac -crf #{CONSTANT_RATE_FACTOR} -shortest -y -t #{duration} -threads #{THREADS} "
   render << "-metadata title='#{meeting_name}' #{BENCHMARK} #{@published_files}/meeting.mp4"
 
   ffmpeg = system(render)
@@ -666,8 +669,8 @@ def export_presentation
   BigBlueButton.logger.info("Starting to export video")
 
   render_video(duration, meeting_name)
-  #add_chapters(duration, slides)
-  #add_captions
+  # add_chapters(duration, slides)
+  # add_captions
 
   BigBlueButton.logger.info("Exported recording available at #{@published_files}/meeting.mp4. Rendering took: #{Time.now - start}")
 end
@@ -680,4 +683,3 @@ FileUtils.rm_rf(["#{@published_files}/chats", "#{@published_files}/cursor", "#{@
                  "#{@published_files}/meeting_metadata"])
 
 exit(0)
-
