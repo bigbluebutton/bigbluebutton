@@ -1,5 +1,5 @@
 exports.joinAudio = 'button[aria-label="Join audio"]';
-exports.leaveAudio = 'button[aria-label="Change/Leave audio"]';
+exports.leaveAudio = 'button[aria-label="Leave audio"]';
 exports.disconnectAudio = 'li[data-test="disconnectAudio"]';
 exports.listen = 'button[aria-label="Listen only"]';
 exports.connectingStatus = 'div[class^="connecting-"]';
