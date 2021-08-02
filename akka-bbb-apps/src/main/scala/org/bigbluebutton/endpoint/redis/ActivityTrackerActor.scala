@@ -7,6 +7,7 @@ import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
+import java.security.MessageDigest
 import scala.concurrent.duration._
 import scala.concurrent._
 import ExecutionContext.Implicits.global
@@ -83,6 +84,7 @@ class ActivityTrackerActor(
 ) extends Actor with ActorLogging {
 
   private var meetings: Map[String, MeetingActivityTracker] = Map()
+  private var meetingsLastJsonHash : Map[String,String] = Map()
 
   system.scheduler.schedule(10.seconds, 10.seconds, self, SendPeriodicReport)
 
@@ -364,10 +366,17 @@ class ActivityTrackerActor(
 
   private def sendReport(meeting : MeetingActivityTracker): Unit = {
     val activityJson: String = JsonUtil.toJson(meeting)
-    val event = MsgBuilder.buildActivityReportEvtMsg(meeting.intId, activityJson)
-    outGW.send(event)
 
-    log.info("Activity Report sent for meeting {}",meeting.intId)
+    //Avoid send repeated activity jsons
+    val activityJsonHash : String = MessageDigest.getInstance("MD5").digest(activityJson.getBytes).mkString
+    if(!meetingsLastJsonHash.contains(meeting.intId) || meetingsLastJsonHash.get(meeting.intId).getOrElse("") != activityJsonHash) {
+      val event = MsgBuilder.buildActivityReportEvtMsg(meeting.intId, activityJson)
+      outGW.send(event)
+
+      meetingsLastJsonHash += (meeting.intId -> activityJsonHash)
+
+      log.info("Activity Report sent for meeting {}",meeting.intId)
+    }
   }
 
 }
