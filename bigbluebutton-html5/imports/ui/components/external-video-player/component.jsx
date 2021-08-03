@@ -155,9 +155,9 @@ class VideoPlayer extends Component {
   }
 
   componentDidUpdate(prevProp, prevState) {
-    const { top, left, layoutLoaded } = this.props;
+    const { top, left, right, layoutLoaded } = this.props;
 
-    if (layoutLoaded === 'new' && (top !== prevProp.top || left !== prevProp.left)) {
+    if (layoutLoaded === 'new' && (top !== prevProp.top || left !== prevProp.right || right !== prevProp.right)) {
       this.handleResize();
     }
 
