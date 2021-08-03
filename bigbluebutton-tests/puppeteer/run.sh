@@ -8,7 +8,7 @@ BBB Health Check
 OPTIONS:
   -t <test name: webcamlayout/whiteboard/webcam/virtualizedlist/user/sharednotes/screenshare/presentation/polling/notifications/customparameters/chat/breakout/audio/all>
 
-  -u Print usage 
+  -u Print usage
 HERE
 
 }
@@ -53,8 +53,8 @@ main() {
   fi
 
 echo "Test is starting in 5 seconds..." && sleep 5;echo $Test " Test has started."
-
-env $(cat tests/puppeteer/.env | xargs)  jest $TEST.test.js --color --detectOpenHandles --forceExit
+echo $PWD
+env $(cat .env | xargs)  jest $TEST.test.js --color --detectOpenHandles --forceExit
 }
 
 
