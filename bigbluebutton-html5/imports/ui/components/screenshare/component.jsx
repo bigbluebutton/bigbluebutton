@@ -263,7 +263,7 @@ class ScreenshareComponent extends React.Component {
   }
 
   renderScreensharePresenter() {
-    const { loaded, switched } = this.state;
+    const { switched } = this.state;
     const { isGloballyBroadcasting, intl } = this.props;
 
     return (
@@ -272,7 +272,7 @@ class ScreenshareComponent extends React.Component {
         key="screenshareContainer"
         ref={(ref) => { this.screenshareContainer = ref; }}
       >
-        {loaded && this.renderSwitchButton()}
+        {isGloballyBroadcasting && this.renderSwitchButton()}
         {this.renderVideo(switched)}
 
         {isGloballyBroadcasting
