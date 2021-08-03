@@ -516,7 +516,7 @@ class CustomLayout extends Component {
               ? (mediaAreaBounds.left + mediaAreaBounds.width) - cameraDockWidth
               : mediaAreaBounds.left;
             cameraDockBounds.left = !isRTL ? sizeValue : 0;
-            cameraDockBounds.right = isRTL ? sizeValue + sidebarSize : 0;
+            cameraDockBounds.right = isRTL ? sizeValue + sidebarSize + (camerasMargin * 2) : null;
             cameraDockBounds.minWidth = DEFAULT_VALUES.cameraDockMinWidth;
             cameraDockBounds.width = cameraDockWidth - camerasMargin;
             cameraDockBounds.maxWidth = mediaAreaBounds.width * 0.8;
@@ -573,7 +573,7 @@ class CustomLayout extends Component {
 
             cameraDockBounds.top = DEFAULT_VALUES.navBarHeight;
             cameraDockBounds.left = mediaAreaBounds.left;
-            cameraDockBounds.right = isRTL ? sidebarSize : null;
+            cameraDockBounds.right = isRTL ? sidebarSize + (camerasMargin * 2) : null;
             cameraDockBounds.minWidth = DEFAULT_VALUES.cameraDockMinWidth;
             cameraDockBounds.width = cameraDockWidth - camerasMargin;
             cameraDockBounds.maxWidth = mediaAreaBounds.width * 0.8;
@@ -727,6 +727,7 @@ class CustomLayout extends Component {
     const { deviceType, input, isRTL } = newLayoutContextState;
     const { cameraDock } = input;
     const { position: cameraPosition } = cameraDock;
+    const { camerasMargin } = DEFAULT_VALUES;
 
     const sidebarNavWidth = this.calculatesSidebarNavWidth();
     const sidebarNavHeight = this.calculatesSidebarNavHeight();
@@ -750,7 +751,15 @@ class CustomLayout extends Component {
     );
     const { height: actionBarHeight } = this.calculatesActionbarHeight();
 
-    const horizontalCameraDiff = cameraPosition === CAMERADOCK_POSITION.CONTENT_LEFT ? cameraDockBounds.width : 0;
+    let horizontalCameraDiff = 0;
+
+    if (cameraPosition === CAMERADOCK_POSITION.CONTENT_LEFT) {
+      horizontalCameraDiff = cameraDockBounds.width + (camerasMargin * 2);
+    }
+
+    if (cameraPosition === CAMERADOCK_POSITION.CONTENT_RIGHT) {
+      horizontalCameraDiff = camerasMargin * 2;
+    }
 
     newLayoutContextDispatch({
       type: ACTIONS.SET_NAVBAR_OUTPUT,
@@ -901,7 +910,7 @@ class CustomLayout extends Component {
         height: mediaBounds.height,
         top: mediaBounds.top,
         left: mediaBounds.left,
-        right: mediaBounds.right,
+        right: isRTL ? (mediaBounds.right + horizontalCameraDiff) : null,
         zIndex: mediaBounds.zIndex,
       },
     });
@@ -913,7 +922,7 @@ class CustomLayout extends Component {
         height: mediaBounds.height,
         top: mediaBounds.top,
         left: mediaBounds.left,
-        right: mediaBounds.right,
+        right: isRTL ? (mediaBounds.right + horizontalCameraDiff) : null,
       },
     });
   }
