@@ -895,7 +895,7 @@ class Presentation extends PureComponent {
 
     let presentationLeft = presentationBounds.left;
 
-    if (presentationBounds.width < containerWidth && !isMobile) {
+    if (userIsPresenter && presentationBounds.width < containerWidth && !isMobile) {
       presentationLeft -= ((containerWidth - presentationBounds.width) / 2);
     }
 

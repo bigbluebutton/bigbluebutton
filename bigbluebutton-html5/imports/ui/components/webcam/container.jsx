@@ -7,6 +7,7 @@ import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '/imports/ui
 import Auth from '/imports/ui/services/auth';
 import breakoutService from '/imports/ui/components/breakout-room/service';
 import VideoService from '/imports/ui/components/video-provider/service';
+import { UsersContext } from '../components-data/users-context/context';
 
 import { NLayoutContext } from '../layout/context/context';
 import WebcamComponent from '/imports/ui/components/webcam/component';
@@ -22,6 +23,10 @@ const WebcamContainer = ({
   const { fullscreen, output } = newLayoutContextState;
   const { cameraDock, cameraOptimalGridSize } = output;
 
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+  const currentUser = users[Auth.meetingID][Auth.userID];
+
   return !disableVideo
     && !audioModalIsOpen
     && usersVideo.length > 0
@@ -34,6 +39,7 @@ const WebcamContainer = ({
           cameraOptimalGridSize,
           newLayoutContextDispatch,
           fullscreen,
+          isPresenter: currentUser.presenter,
         }}
       />
     )

@@ -377,7 +377,7 @@ class SmartLayout extends Component {
     if (input.cameraDock.numCameras > 0) {
       cameraDockBounds.top = mediaAreaBounds.top;
       cameraDockBounds.left = mediaAreaBounds.left;
-      cameraDockBounds.right = isRTL ? sidebarSize : null;
+      cameraDockBounds.right = isRTL ? (sidebarSize + (camerasMargin *2)) : null;
       cameraDockBounds.zIndex = 1;
 
       if (!isOpen) {
@@ -462,6 +462,7 @@ class SmartLayout extends Component {
     const { isOpen } = presentation;
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
+    const { camerasMargin } = DEFAULT_VALUES;
 
     // TODO Adicionar min e max para a apresentação
 
@@ -498,7 +499,7 @@ class SmartLayout extends Component {
           const sizeValue = mediaAreaBounds.left
             + (mediaAreaBounds.width - mediaBounds.width);
           mediaBounds.left = !isRTL ? sizeValue : null;
-          mediaBounds.right = isRTL ? sidebarSize : null;
+          mediaBounds.right = isRTL ? sidebarSize + (camerasMargin *2) : null;
         } else {
           if (slideSize.height < (mediaAreaBounds.height * 0.8)) {
             mediaBounds.height = slideSize.height;
