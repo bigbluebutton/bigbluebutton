@@ -18,8 +18,6 @@ const UserListContainer = props => <UserList {...props} />;
 UserListContainer.propTypes = propTypes;
 
 export default withTracker(({ compact }) => {
-  const layoutManagerLoaded = Session.get('layoutManagerLoaded');
-
   return {
     hasBreakoutRoom: Service.hasBreakoutRoom(),
     isPublicChat: Service.isPublicChat,
@@ -36,6 +34,5 @@ export default withTracker(({ compact }) => {
     hasPrivateChatBetweenUsers: Service.hasPrivateChatBetweenUsers,
     toggleUserLock: Service.toggleUserLock,
     requestUserInformation: Service.requestUserInformation,
-    layoutManagerLoaded,
   };
 })(UserListContainer);

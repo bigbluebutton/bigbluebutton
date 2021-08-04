@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Session } from 'meteor/session';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -37,10 +36,7 @@ const NavBarContainer = ({ children, ...props }) => {
   const { chats: groupChatsMessages } = usingChatContext;
   const { users } = usingUsersContext;
   const { groupChat: groupChats } = usingGroupChatContext;
-  const {
-    layoutManagerLoaded,
-    ...rest
-  } = props;
+  const { ...rest } = props;
   const {
     input, output,
   } = newLayoutContextState;
@@ -64,7 +60,6 @@ const NavBarContainer = ({ children, ...props }) => {
         amIModerator,
         hasUnreadMessages,
         hasUnreadNotes,
-        layoutManagerLoaded,
         sidebarNavPanel,
         sidebarContentPanel,
         sidebarNavigation,
@@ -103,14 +98,11 @@ export default withTracker(() => {
 
   const { connectRecordingObserver, processOutsideToggleRecording } = Service;
 
-  const layoutManagerLoaded = Session.get('layoutManagerLoaded');
-
   return {
     currentUserId: Auth.userID,
     processOutsideToggleRecording,
     connectRecordingObserver,
     meetingId,
     presentationTitle: meetingTitle,
-    layoutManagerLoaded,
   };
 })(NavBarContainer);

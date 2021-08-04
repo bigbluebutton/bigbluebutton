@@ -102,7 +102,6 @@ export default withTracker(({ podId }) => {
     }
   }
 
-  const layoutManagerLoaded = Session.get('layoutManagerLoaded');
   return {
     currentSlide,
     slidePosition,
@@ -128,6 +127,5 @@ export default withTracker(({ podId }) => {
       'bbb_force_restore_presentation_on_new_events',
       Meteor.settings.public.presentation.restoreOnUpdate,
     ),
-    layoutManagerLoaded,
   };
 })(PresentationContainer);

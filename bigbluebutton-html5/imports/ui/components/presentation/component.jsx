@@ -172,7 +172,6 @@ class Presentation extends PureComponent {
       layoutContextState,
       newLayoutContextDispatch,
       userIsPresenter,
-      layoutManagerLoaded,
       presentationBounds,
     } = this.props;
 
@@ -279,8 +278,7 @@ class Presentation extends PureComponent {
         }
       }
 
-      if (prevProps.layoutManagerLoaded !== layoutManagerLoaded
-        || presentationBounds !== prevPresentationBounds) this.onResize();
+      if (presentationBounds !== prevPresentationBounds) this.onResize();
     }
   }
 
