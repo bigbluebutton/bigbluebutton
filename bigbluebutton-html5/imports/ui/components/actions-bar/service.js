@@ -59,6 +59,12 @@ const muteMicrophone = () => {
   }
 }
 
+const unmuteMicrophone = () => {
+  if (AudioManager.isMuted) {
+    makeCall('toggleVoice');
+  }
+}
+
 const isTranslatorTalking = () => {
   const translationLanguageExtension = AudioManager.translationLanguageExtension;
   let isTranslatorTalking = false;
@@ -96,6 +102,7 @@ export default {
   takePresenterRole,
   isSharingVideo: () => getVideoUrl(),
   muteMicrophone,
+  unmuteMicrophone,
   isTranslatorTalking,
   isTranslatorMuted: () => AudioManager.isTranslatorMuted(),
   hasLanguages: () => Meeting.hasLanguages(),

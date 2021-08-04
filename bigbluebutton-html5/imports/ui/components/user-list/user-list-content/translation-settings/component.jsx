@@ -86,9 +86,9 @@ class TranslationSettings extends Component {
         </div>
         {this.state.languages.map(function (language, index) {
           if(language.extension >= 0 && language.extension === this.state.selectedChannel) return (
-            <div className={styles.translationOriginalVolumePanel}>
+            <div key={index} className={styles.translationOriginalVolumePanel}>
               <div>{language.name}:</div>
-              <input type="range" data-ext={index} className={styles.volume} id="volume" name="volume" min="0" max="1" step=".01"
+              <input type="range" data-ext={index} name="volume" min="0" max="1" step=".01"
                      defaultValue={this.state.translationOriginalVolume[index]}
                      onChange={this.setTranslationOriginalVolume.bind(this)}/>
               <div className={styles.interpretationVolumeWrapper}>

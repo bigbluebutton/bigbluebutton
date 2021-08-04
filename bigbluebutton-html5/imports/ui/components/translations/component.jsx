@@ -176,7 +176,7 @@ class Translations extends Component{
                             intl={intl}
                         />
                     }else{
-                        return (<div style={{margin: "0 0 10px 0;"}}>
+                        return (<div style={{margin: "0 0 10px 0"}}>
                             <Language
                             active={this.state.active}
                             name={language.name}

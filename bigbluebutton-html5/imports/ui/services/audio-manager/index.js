@@ -97,7 +97,7 @@ class AudioManager {
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
 
     // this.muteHandles = new Set();
-    this.$translatorMuted = new BehaviorSubject(true);
+    this.$translatorMuted = new BehaviorSubject(false);
     this.$translatorMuted.subscribe((val) => {
       this.setSenderTrackEnabledTranslator(!val);
     })
@@ -866,6 +866,10 @@ class AudioManager {
     this.translationStateCallbacks.add(translationStateChangeCallback);
   }
 
+  resetTranslationChannelSelected() {
+    this.$translationChannelSelected.next(-1);
+  }
+
   openTranslationChannel(languageExtension) {
     return new Promise((resolve, reject) => {
       if (this.translationBridge.activeSession) {
@@ -891,6 +895,7 @@ class AudioManager {
         });
         this.translationBridge.userData.languageExtension = languageExtension;
       } else {
+        this.resetTranslationChannelSelected();
         resolve(-1);
       }
     });
