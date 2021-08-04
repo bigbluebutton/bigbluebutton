@@ -39,7 +39,6 @@ class CustomLayout extends Component {
     return newLayoutContextState.input !== nextProps.newLayoutContextState.input
       || newLayoutContextState.deviceType !== nextProps.newLayoutContextState.deviceType
       || newLayoutContextState.isRTL !== nextProps.newLayoutContextState.isRTL
-      || newLayoutContextState.layoutLoaded !== nextProps.newLayoutContextState.layoutLoaded
       || newLayoutContextState.fontSize !== nextProps.newLayoutContextState.fontSize
       || newLayoutContextState.fullscreen !== nextProps.newLayoutContextState.fullscreen;
   }
@@ -48,8 +47,7 @@ class CustomLayout extends Component {
     const { newLayoutContextState } = this.props;
     const { deviceType } = newLayoutContextState;
 
-    if (prevProps.newLayoutContextState.deviceType !== deviceType
-      || newLayoutContextState.layoutLoaded !== prevProps.newLayoutContextState.layoutLoaded) {
+    if (prevProps.newLayoutContextState.deviceType !== deviceType) {
       this.init();
     } else {
       this.throttledCalculatesLayout();

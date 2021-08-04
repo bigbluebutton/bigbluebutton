@@ -30,7 +30,6 @@ const initState = {
   deviceType: null,
   isRTL: false,
   layoutType: DEFAULT_VALUES.layoutType,
-  layoutLoaded: 'legacy',
   fontSize: DEFAULT_VALUES.fontSize,
   idChatOpen: DEFAULT_VALUES.idChatOpen,
   fullscreen: {
@@ -81,17 +80,6 @@ const reducer = (state, action) => {
       return {
         ...state,
         layoutType: action.value,
-      };
-    }
-
-    // LAYOUT TYPE LOADED
-    // only while the new layout manager is being developed
-    case ACTIONS.SET_LAYOUT_LOADED: {
-      const { layoutLoaded } = state;
-      if (layoutLoaded === action.value) return state;
-      return {
-        ...state,
-        layoutLoaded: action.value,
       };
     }
 

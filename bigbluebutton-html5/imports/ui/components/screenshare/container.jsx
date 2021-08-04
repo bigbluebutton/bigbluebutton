@@ -14,7 +14,7 @@ const ScreenshareContainer = (props) => {
   const fullscreenElementId = 'Screenshare';
   const newLayoutContext = useContext(NLayoutContext);
   const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { output, layoutLoaded, fullscreen } = newLayoutContextState;
+  const { output, fullscreen } = newLayoutContextState;
   const { screenShare } = output;
   const { element } = fullscreen;
   const fullscreenContext = (element === fullscreenElementId);
@@ -27,7 +27,6 @@ const ScreenshareContainer = (props) => {
           newLayoutContextDispatch,
           ...props,
           ...screenShare,
-          layoutLoaded,
           fullscreenContext,
           fullscreenElementId,
         }

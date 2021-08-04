@@ -477,7 +477,6 @@ const BaseContainer = withTracker(() => {
     loggedIn,
     codeError,
     usersVideo,
-    layoutManagerLoaded: Session.get('layoutManagerLoaded'),
   };
 })(LayoutContext.withLayoutContext(NewLayoutContext.withContext(Base)));
 

@@ -225,7 +225,6 @@ class App extends Component {
       meetingLayout,
       settingsLayout,
       layoutType,
-      layoutLoaded,
       pushLayoutToEveryone,
       newLayoutContextDispatch,
       isRTL,
@@ -248,19 +247,7 @@ class App extends Component {
       });
     }
 
-    const newLayoutManager = settingsLayout === 'legacy' ? 'legacy' : 'new';
-
-    if (settingsLayout !== prevProps.settingsLayout ||
-      settingsLayout !== layoutType ||
-      newLayoutManager !== layoutLoaded
-    ) {
-      Session.set('layoutManagerLoaded', newLayoutManager);
-
-      newLayoutContextDispatch({
-        type: ACTIONS.SET_LAYOUT_LOADED,
-        value: newLayoutManager,
-      });
-
+    if (settingsLayout !== prevProps.settingsLayout ||settingsLayout !== layoutType) {
       newLayoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_TYPE,
         value: settingsLayout,
