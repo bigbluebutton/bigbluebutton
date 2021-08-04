@@ -377,7 +377,7 @@ class SmartLayout extends Component {
     if (input.cameraDock.numCameras > 0) {
       cameraDockBounds.top = mediaAreaBounds.top;
       cameraDockBounds.left = mediaAreaBounds.left;
-      cameraDockBounds.right = isRTL ? (sidebarSize + (camerasMargin *2)) : null;
+      cameraDockBounds.right = isRTL ? sidebarSize + (camerasMargin * 2) : null;
       cameraDockBounds.zIndex = 1;
 
       if (!isOpen) {
@@ -499,7 +499,7 @@ class SmartLayout extends Component {
           const sizeValue = mediaAreaBounds.left
             + (mediaAreaBounds.width - mediaBounds.width);
           mediaBounds.left = !isRTL ? sizeValue : null;
-          mediaBounds.right = isRTL ? sidebarSize + (camerasMargin *2) : null;
+          mediaBounds.right = isRTL ? sidebarSize : null;
         } else {
           if (slideSize.height < (mediaAreaBounds.height * 0.8)) {
             mediaBounds.height = slideSize.height;
@@ -538,6 +538,7 @@ class SmartLayout extends Component {
   calculatesLayout() {
     const { newLayoutContextState, newLayoutContextDispatch } = this.props;
     const { deviceType, input, isRTL } = newLayoutContextState;
+    const { camerasMargin } = DEFAULT_VALUES;
 
     const sidebarNavWidth = this.calculatesSidebarNavWidth();
     const sidebarNavHeight = this.calculatesSidebarNavHeight();
@@ -555,7 +556,9 @@ class SmartLayout extends Component {
     const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.width;
     const mediaBounds = this.calculatesMediaBounds(mediaAreaBounds, slideSize, sidebarSize);
     const cameraDockBounds = this.calculatesCameraDockBounds(mediaAreaBounds, mediaBounds, sidebarSize);
-    const horizontalCameraDiff = cameraDockBounds.isCameraHorizontal ? cameraDockBounds.width : 0;
+    const horizontalCameraDiff = cameraDockBounds.isCameraHorizontal
+      ? cameraDockBounds.width + (camerasMargin * 2)
+      : 0;
 
     newLayoutContextDispatch({
       type: ACTIONS.SET_NAVBAR_OUTPUT,
@@ -697,7 +700,7 @@ class SmartLayout extends Component {
         height: mediaBounds.height,
         top: mediaBounds.top,
         left: mediaBounds.left,
-        right: mediaBounds.right,
+        right: isRTL ? (mediaBounds.right + horizontalCameraDiff) : null,
         zIndex: mediaBounds.zIndex,
       },
     });
@@ -709,7 +712,7 @@ class SmartLayout extends Component {
         height: mediaBounds.height,
         top: mediaBounds.top,
         left: mediaBounds.left,
-        right: mediaBounds.right,
+        right: isRTL ? (mediaBounds.right + horizontalCameraDiff) : null,
       },
     });
   }

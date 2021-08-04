@@ -515,8 +515,8 @@ class CustomLayout extends Component {
             const sizeValue = input.presentation.isOpen
               ? (mediaAreaBounds.left + mediaAreaBounds.width) - cameraDockWidth
               : mediaAreaBounds.left;
-            cameraDockBounds.left = !isRTL ? (sizeValue + camerasMargin) : 0;
-            cameraDockBounds.right = isRTL ? (sizeValue + camerasMargin) + sidebarSize : 0;
+            cameraDockBounds.left = !isRTL ? sizeValue + camerasMargin : 0;
+            cameraDockBounds.right = isRTL ? sizeValue + sidebarSize + camerasMargin : null;
             cameraDockBounds.minWidth = DEFAULT_VALUES.cameraDockMinWidth;
             cameraDockBounds.width = cameraDockWidth - (camerasMargin * 2);
             cameraDockBounds.maxWidth = mediaAreaBounds.width * 0.8;
@@ -574,7 +574,7 @@ class CustomLayout extends Component {
 
             cameraDockBounds.top = DEFAULT_VALUES.navBarHeight;
             cameraDockBounds.left = mediaAreaBounds.left + camerasMargin;
-            cameraDockBounds.right = isRTL ? (sidebarSize + (camerasMargin *2)) : null;
+            cameraDockBounds.right = isRTL ? sidebarSize + (camerasMargin * 2) : null;
             cameraDockBounds.minWidth = DEFAULT_VALUES.cameraDockMinWidth;
             cameraDockBounds.width = cameraDockWidth - (camerasMargin *2);
             cameraDockBounds.maxWidth = mediaAreaBounds.width * 0.8;
@@ -684,7 +684,7 @@ class CustomLayout extends Component {
           mediaBounds.height = mediaAreaHeight;
           mediaBounds.top = navBarHeight;
           mediaBounds.left = !isRTL ? sidebarSize : null;
-          mediaBounds.right = isRTL ? sidebarSize : null;
+          mediaBounds.right = isRTL ? sidebarSize - (camerasMargin *2) : null;
           break;
         case CAMERADOCK_POSITION.CONTENT_BOTTOM:
           mediaBounds.width = mediaAreaWidth;
@@ -700,7 +700,7 @@ class CustomLayout extends Component {
           const sizeValue = sidebarNavWidth
             + sidebarContentWidth + mediaAreaWidth - mediaBounds.width;
           mediaBounds.left = !isRTL ? sizeValue : null;
-          mediaBounds.right = isRTL ? sidebarSize + (camerasMargin * 2) : null;
+          mediaBounds.right = isRTL ? sidebarSize : null;
           break;
         case CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM:
           mediaBounds.width = mediaAreaWidth;
@@ -729,6 +729,7 @@ class CustomLayout extends Component {
     const { deviceType, input, isRTL } = newLayoutContextState;
     const { cameraDock } = input;
     const { position: cameraPosition } = cameraDock;
+    const { camerasMargin } = DEFAULT_VALUES;
 
     const sidebarNavWidth = this.calculatesSidebarNavWidth();
     const sidebarNavHeight = this.calculatesSidebarNavHeight();
@@ -752,7 +753,15 @@ class CustomLayout extends Component {
     );
     const { height: actionBarHeight } = this.calculatesActionbarHeight();
 
-    const horizontalCameraDiff = cameraPosition === CAMERADOCK_POSITION.CONTENT_LEFT ? cameraDockBounds.width : 0;
+    let horizontalCameraDiff = 0;
+
+    if (cameraPosition === CAMERADOCK_POSITION.CONTENT_LEFT) {
+      horizontalCameraDiff = cameraDockBounds.width + (camerasMargin * 2);
+    }
+
+    if (cameraPosition === CAMERADOCK_POSITION.CONTENT_RIGHT) {
+      horizontalCameraDiff = camerasMargin * 2;
+    }
 
     newLayoutContextDispatch({
       type: ACTIONS.SET_NAVBAR_OUTPUT,
@@ -904,7 +913,7 @@ class CustomLayout extends Component {
         height: mediaBounds.height,
         top: mediaBounds.top,
         left: mediaBounds.left,
-        right: mediaBounds.right,
+        right: isRTL ? (mediaBounds.right + horizontalCameraDiff) : null,
         zIndex: mediaBounds.zIndex,
       },
     });
@@ -916,7 +925,7 @@ class CustomLayout extends Component {
         height: mediaBounds.height,
         top: mediaBounds.top,
         left: mediaBounds.left,
-        right: mediaBounds.right,
+        right: isRTL ? (mediaBounds.right + horizontalCameraDiff) : null,
       },
     });
   }
