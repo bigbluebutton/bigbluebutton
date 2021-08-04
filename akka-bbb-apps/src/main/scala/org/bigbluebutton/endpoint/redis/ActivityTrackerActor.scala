@@ -338,15 +338,29 @@ class ActivityTrackerActor(
     for {
       meeting <- meetings.values.find(m => m.intId == msg.body.meetingId)
     } yield {
-
-      //Update endedOn
+      //Update endedOn and screenshares.stoppedOn, user.totalTime talks, webcams.stoppedOn
       val endedOn : Long = System.currentTimeMillis()
-      var updatedMeeting = meeting.copy(endedOn = endedOn)
-
-      //Set all users leftOn
-      updatedMeeting.users.values.filter(u => u.leftOn == 0).map(user => {
-        updatedMeeting = updatedMeeting.copy(users = updatedMeeting.users + (user.intId -> user.copy(leftOn = endedOn)))
+      val updatedMeeting = meeting.copy(
+        endedOn = endedOn,
+        screenshares = meeting.screenshares.map(screenshare => {
+          if(screenshare.stoppedOn > 0) screenshare;
+          else screenshare.copy(stoppedOn = endedOn)
+        }),
+        users = meeting.users.map(user => {
+          (user._1 ->
+            user._2.copy(
+              leftOn = if(user._2.leftOn > 0) user._2.leftOn else endedOn,
+              talk = user._2.talk.copy(
+                totalTime = user._2.talk.totalTime + (if (user._2.talk.lastTalkStartedOn > 0) (endedOn - user._2.talk.lastTalkStartedOn) else 0),
+                lastTalkStartedOn = 0
+              ),
+              webcams = user._2.webcams.map(webcam => {
+                if(webcam.stoppedOn > 0) webcam
+                else webcam.copy(stoppedOn = endedOn)
+              })
+          ))
       })
+      )
 
       meetings += (updatedMeeting.intId -> updatedMeeting)
 
