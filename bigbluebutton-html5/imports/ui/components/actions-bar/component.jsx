@@ -164,13 +164,11 @@ class ActionsBar extends PureComponent {
     };
 
     AudioManager.openTranslatorChannel(language.extension, onInternalConnected).then(() => {
-      console.log("#@# language.extension: ");
-      console.log(language.extension);
-      if( language.extension > 0 ) {
-        Service.muteMicrophone();
-      } else {
-        Service.unmuteMicrophone();
-      }
+      // if( language.extension > 0 ) {
+      //   Service.muteMicrophone();
+      // } else {
+      //   Service.unmuteMicrophone();
+      // }
       // if (language.extension > 0 && !this.state.translatorLanguage && !AudioManager.isTranslatorMuted()) {
       //   this.handleMuteTranslator()
       // }

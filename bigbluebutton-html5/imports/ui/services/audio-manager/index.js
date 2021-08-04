@@ -16,6 +16,7 @@ import AudioErrors from './error-codes';
 import {Meteor} from "meteor/meteor";
 import browserInfo from '/imports/utils/browserInfo';
 import { BehaviorSubject } from "rxjs";
+import Service from "../../components/actions-bar/service";
 
 const STATS = Meteor.settings.public.stats;
 const MEDIA = Meteor.settings.public.media;
@@ -57,8 +58,19 @@ class AudioManager {
       breakoutMeetingId: null,
     };
 
+    this.setSenderTrackSettings = {
+      maxTries: 3,
+      base: 0,
+      inc: 500,
+      i: 0
+    };
+
+
     this.translatorStream = null;
     this.translatorSpeechEvents = null;
+
+    // this shows whether the user wants to be muted, regardless of the channel they have chosen
+    this.$muteIntended = new BehaviorSubject(false);
 
     this.$translatorSpeechDetectionThresholdChanged = new BehaviorSubject(TRANSLATOR_SPEECH_DETECTION_THRESHOLD);
     this.$translationChannelSelected= new BehaviorSubject(-1);
@@ -97,7 +109,7 @@ class AudioManager {
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
 
     // this.muteHandles = new Set();
-    this.$translatorMuted = new BehaviorSubject(false);
+    this.$translatorMuted = new BehaviorSubject(true);
     this.$translatorMuted.subscribe((val) => {
       this.setSenderTrackEnabledTranslator(!val);
     })
@@ -806,16 +818,27 @@ class AudioManager {
     try {
       if (this.translatorBridge.activeSession) {
         // Bridge -> SIP.js bridge, the only full audio capable one right now
-        const peer = this.translatorBridge.getPeerConnection();
-        peer.getSenders().forEach(sender => {
-          const {track} = sender;
-          if (track && track.kind === 'audio') {
-            track.enabled = shouldEnable;
-          }
-        });
+          const peer = this.translatorBridge.getPeerConnection();
+          peer.getSenders().forEach(sender => {
+            const {track} = sender;
+            if (track && track.kind === 'audio') {
+              track.enabled = shouldEnable;
+              this.setSenderTrackSettings.i = 0;
+              this.setSenderTrackSettings.base = 0;
+            }
+          });
       }
     }catch (e) {
-      //ignore it is muted two times anyway
+      if(++this.setSenderTrackSettings.i === this.setSenderTrackSettings.maxTries) {
+        this.setSenderTrackSettings.i = 0;
+        this.setSenderTrackSettings.base = 0;
+        return;
+      }
+      console.log("error getting peer. retrying in " + ( 0 + this.setSenderTrackSettings.base + this.setSenderTrackSettings.inc));
+      setTimeout(() => {
+        this.setSenderTrackEnabledTranslator(shouldEnable)
+      }, this.setSenderTrackSettings.base + this.setSenderTrackSettings.inc);
+      this.setSenderTrackSettings.base = this.setSenderTrackSettings.base + this.setSenderTrackSettings.inc;
     }
   }
 
@@ -911,7 +934,7 @@ class AudioManager {
     }
 
     if( languageExtension >= 0 ) {
-      let success = function (inputStream) {
+      let success = (inputStream) => {
         let speechEventsOptions = {
           interval: 200,
           threshold: this.$translatorSpeechDetectionThresholdChanged.value,
@@ -963,14 +986,33 @@ class AudioManager {
         }
         translatorBridgechangeInputDeviceIdPromise.then(() => this.translatorBridge.joinAudio(callOptions, callback));
         this.translatorChannelOpen = true;
+        Service.muteMicrophone();
+        this.restoreMuteState(true);
       }
       return navigator.mediaDevices.getUserMedia({ audio: { deviceId: this.inputDeviceId }, video: false }).then(success.bind(this));
     }else{
       let mainaudio = document.getElementById("remote-media")
       mainaudio.vol = 1
-
+      this._muteTranslator();
+      this.restoreMuteState(false);
     }
 
+  }
+
+  /**
+   * Check current channel is translation or floor, and set the mute state according to the mute intent.
+   * @param isTranslator
+   */
+  restoreMuteState(isTranslator) {
+    let muteIntended = this.$muteIntended.value;
+    console.log("restoring mute state for " + (isTranslator ? "translator" : "floor" ) + " to " + muteIntended);
+    if(isTranslator) {
+      if(muteIntended) this._muteTranslator();
+      else this._unmuteTranslator();
+    } else {
+      if(muteIntended) Service.muteMicrophone();
+      else Service.unmuteMicrophone();
+    }
   }
 
   setTranslationFloorVolumeByExt(pExt) {
@@ -986,11 +1028,21 @@ class AudioManager {
   }
 
   muteTranslator() {
+    this.$muteIntended.next(true);
+    this._muteTranslator();
+  }
+
+  _muteTranslator() {
     this.$translatorMuted.next(true);
     this.notifyMuteStateListener();
   }
 
   unmuteTranslator() {
+    this.$muteIntended.next(false);
+    this._unmuteTranslator();
+  }
+
+  _unmuteTranslator() {
     this.$translatorMuted.next(false);
     this.notifyMuteStateListener();
   }

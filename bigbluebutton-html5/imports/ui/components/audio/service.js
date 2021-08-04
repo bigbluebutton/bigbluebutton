@@ -94,12 +94,14 @@ const toggleMuteMicrophone = throttle(() => {
       logCode: 'audiomanager_unmute_audio',
       extraInfo: { logType: 'user_action' },
     }, 'microphone unmuted by user');
+    AudioManager.$muteIntended.next(false);
     makeCall('toggleVoice');
   } else {
     logger.info({
       logCode: 'audiomanager_mute_audio',
       extraInfo: { logType: 'user_action' },
     }, 'microphone muted by user');
+    AudioManager.$muteIntended.next(true);
     makeCall('toggleVoice');
   }
 }, TOGGLE_MUTE_THROTTLE_TIME);
