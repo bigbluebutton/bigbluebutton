@@ -13,6 +13,7 @@ import Meetings from '/imports/api/meetings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { NLayoutContext } from '../layout/context/context';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
+import { DEVICE_TYPE } from '../layout/enums';
 
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
@@ -20,7 +21,7 @@ const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props
   const fullscreenElementId = 'Presentation';
   const newLayoutContext = useContext(NLayoutContext);
   const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { output, layoutLoaded, layoutType, fullscreen } = newLayoutContextState;
+  const { output, layoutLoaded, layoutType, fullscreen, deviceType } = newLayoutContextState;
   const { presentation } = output;
   const { element } = fullscreen;
   const fullscreenContext = (element === fullscreenElementId);
@@ -46,6 +47,7 @@ const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props
           layoutType,
           fullscreenContext,
           fullscreenElementId,
+          isMobile: deviceType === DEVICE_TYPE.MOBILE
         }
         }
       />

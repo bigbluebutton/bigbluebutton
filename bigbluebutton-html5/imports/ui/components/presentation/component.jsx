@@ -22,6 +22,7 @@ import Icon from '/imports/ui/components/icon/component';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import PollingContainer from '/imports/ui/components/polling/container';
 import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
+import DEFAULT_VALUES from '../layout/defaultValues';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -717,16 +718,22 @@ class Presentation extends PureComponent {
     );
   }
 
-  renderPresentationToolbar() {
+  renderPresentationToolbar(svgWidth) {
     const {
       currentSlide,
       podId,
       fullscreenElementId,
+      isMobile,
     } = this.props;
     const { zoom, fitToWidth, isFullscreen } = this.state;
 
     if (!currentSlide) return null;
 
+    const { presentationToolbarMinWidth } = DEFAULT_VALUES;
+
+    const toolbarWidth = ((this.refWhiteboardArea && svgWidth > presentationToolbarMinWidth) || isMobile)
+      ? svgWidth
+      : presentationToolbarMinWidth;
     return (
       <PresentationToolbarContainer
         {...{
@@ -734,7 +741,8 @@ class Presentation extends PureComponent {
           zoom,
           podId,
           currentSlide,
-          fullscreenElementId
+          fullscreenElementId,
+          toolbarWidth,
         }}
         isFullscreen={isFullscreen}
         fullscreenRef={this.refPresentationContainer}
@@ -843,6 +851,7 @@ class Presentation extends PureComponent {
       presentationBounds,
       layoutLoaded,
       fullscreenContext,
+      isMobile,
     } = this.props;
 
     const {
@@ -878,9 +887,16 @@ class Presentation extends PureComponent {
 
     const toolbarHeight = this.getToolbarHeight();
 
-    let toolbarWidth = 0;
-    if (this.refWhiteboardArea) {
-      toolbarWidth = svgWidth;
+    const { presentationToolbarMinWidth } = DEFAULT_VALUES;
+
+    const containerWidth = (svgWidth > presentationToolbarMinWidth || isMobile)
+      ? svgWidth
+      : presentationToolbarMinWidth;
+
+    let presentationLeft = presentationBounds.left;
+
+    if (presentationBounds.width < containerWidth && !isMobile) {
+      presentationLeft -= ((containerWidth - presentationBounds.width) / 2);
     }
 
     return (
@@ -889,7 +905,7 @@ class Presentation extends PureComponent {
         className={styles.presentationContainer}
         style={{
           top: layoutLoaded === 'new' ? presentationBounds.top : undefined,
-          left: layoutLoaded === 'new' ? presentationBounds.left : undefined,
+          left: layoutLoaded === 'new' ? presentationLeft : undefined,
           right: layoutLoaded === 'new' ? presentationBounds.right : undefined,
           width: layoutLoaded === 'new' ? presentationBounds.width : undefined,
           height: layoutLoaded === 'new' ? presentationBounds.height : undefined,
@@ -926,11 +942,11 @@ class Presentation extends PureComponent {
                   ref={(ref) => { this.refPresentationToolbar = ref; }}
                   style={
                     {
-                      width: toolbarWidth,
+                      width: containerWidth,
                     }
                   }
                 >
-                  {this.renderPresentationToolbar()}
+                  {this.renderPresentationToolbar(svgWidth)}
                 </div>
               )
               : null}

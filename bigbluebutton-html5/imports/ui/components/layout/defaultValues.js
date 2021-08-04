@@ -18,6 +18,7 @@ const DEFAULT_VALUES = {
 
   presentationTabOrder: 5,
   presentationMinHeight: 220,
+  presentationToolbarMinWidth: 430,
 
   bannerHeight: 34,
 
