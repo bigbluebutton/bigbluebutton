@@ -179,7 +179,6 @@ class VideoListItem extends Component {
       mirrored,
       webcamDraggableState,
       isFullscreenContext,
-      layoutLoaded,
     } = this.props;
     const availableActions = this.getAvailableActions();
     const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
@@ -195,7 +194,7 @@ class VideoListItem extends Component {
         className={cx({
           [styles.content]: true,
           [styles.talking]: voiceUser.talking,
-          [styles.fullscreen]: layoutLoaded === 'new' && isFullscreenContext,
+          [styles.fullscreen]: isFullscreenContext,
         })}
       >
         {

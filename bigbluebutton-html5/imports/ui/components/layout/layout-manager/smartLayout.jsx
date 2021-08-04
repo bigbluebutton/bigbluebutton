@@ -54,21 +54,11 @@ class SmartLayout extends Component {
   }
 
   mainWidth() {
-    const { newLayoutContextState } = this.props;
-    const { layoutLoaded } = newLayoutContextState;
-    const wWidth = window.document.documentElement.clientWidth;
-
-    if (layoutLoaded === 'both') return wWidth / 2;
-    return wWidth;
+    return window.document.documentElement.clientWidth;
   }
 
   mainHeight() {
-    const { newLayoutContextState } = this.props;
-    const { layoutLoaded } = newLayoutContextState;
-    const wHeight = window.document.documentElement.clientHeight;
-
-    if (layoutLoaded === 'both') return wHeight / 2;
-    return wHeight;
+    return window.document.documentElement.clientHeight;
   }
 
   bannerAreaHeight() {
@@ -148,16 +138,12 @@ class SmartLayout extends Component {
 
   calculatesNavbarBounds(mediaAreaBounds) {
     const { newLayoutContextState } = this.props;
-    const { layoutLoaded, isRTL } = newLayoutContextState;
-
-    let top = 0;
-    if (layoutLoaded === 'both') top = this.mainHeight();
-    else top = DEFAULT_VALUES.navBarTop + this.bannerAreaHeight();
+    const { isRTL } = newLayoutContextState;
 
     return {
       width: mediaAreaBounds.width,
       height: DEFAULT_VALUES.navBarHeight,
-      top,
+      top: DEFAULT_VALUES.navBarTop + this.bannerAreaHeight(),
       left: !isRTL ? mediaAreaBounds.left : 0,
       zIndex: 1,
     };
@@ -247,13 +233,10 @@ class SmartLayout extends Component {
 
   calculatesSidebarNavBounds() {
     const { newLayoutContextState } = this.props;
-    const { deviceType, layoutLoaded, isRTL } = newLayoutContextState;
+    const { deviceType, isRTL } = newLayoutContextState;
     const { sidebarNavTop, navBarHeight, sidebarNavLeft } = DEFAULT_VALUES;
 
-    let top = 0;
-    if (layoutLoaded === 'both') top = this.mainHeight();
-    else top = sidebarNavTop + this.bannerAreaHeight();
-
+    let top = sidebarNavTop + this.bannerAreaHeight()
     if (deviceType === DEVICE_TYPE.MOBILE) top = navBarHeight + this.bannerAreaHeight();
 
     return {
@@ -316,12 +299,10 @@ class SmartLayout extends Component {
 
   calculatesSidebarContentBounds(sidebarNavWidth) {
     const { newLayoutContextState } = this.props;
-    const { deviceType, layoutLoaded, isRTL } = newLayoutContextState;
+    const { deviceType, isRTL } = newLayoutContextState;
     const { sidebarNavTop, navBarHeight } = DEFAULT_VALUES;
 
-    let top = 0;
-    if (layoutLoaded === 'both') top = this.mainHeight();
-    else top = sidebarNavTop + this.bannerAreaHeight();
+    let top = sidebarNavTop + this.bannerAreaHeight();
 
     if (deviceType === DEVICE_TYPE.MOBILE) top = navBarHeight + this.bannerAreaHeight();
 
@@ -335,12 +316,11 @@ class SmartLayout extends Component {
 
   calculatesMediaAreaBounds(sidebarNavWidth, sidebarContentWidth) {
     const { newLayoutContextState } = this.props;
-    const { deviceType, layoutLoaded, isRTL } = newLayoutContextState;
+    const { deviceType, isRTL } = newLayoutContextState;
     const { navBarHeight } = DEFAULT_VALUES;
     const { height: actionBarHeight } = this.calculatesActionbarHeight();
     let left = 0;
     let width = 0;
-    let top = 0;
     if (deviceType === DEVICE_TYPE.MOBILE) {
       left = 0;
       width = this.mainWidth();
@@ -349,13 +329,10 @@ class SmartLayout extends Component {
       width = this.mainWidth() - sidebarNavWidth - sidebarContentWidth;
     }
 
-    if (layoutLoaded === 'both') top = this.mainHeight() / 2;
-    else top = navBarHeight + this.bannerAreaHeight();
-
     return {
       width,
       height: this.mainHeight() - (navBarHeight + actionBarHeight + this.bannerAreaHeight()),
-      top,
+      top: navBarHeight + this.bannerAreaHeight(),
       left,
     };
   }

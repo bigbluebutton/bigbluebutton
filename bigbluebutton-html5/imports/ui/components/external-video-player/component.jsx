@@ -155,9 +155,9 @@ class VideoPlayer extends Component {
   }
 
   componentDidUpdate(prevProp, prevState) {
-    const { top, left, right, layoutLoaded } = this.props;
+    const { top, left, right } = this.props;
 
-    if (layoutLoaded === 'new' && (top !== prevProp.top || left !== prevProp.right || right !== prevProp.right)) {
+    if (top !== prevProp.top || left !== prevProp.right || right !== prevProp.right) {
       this.handleResize();
     }
 
@@ -266,56 +266,35 @@ class VideoPlayer extends Component {
   }
 
   handleResize() {
-    const { top, left, right, height, width, layoutLoaded } = this.props;
+    const { top, left, right, height, width } = this.props;
 
     if (!this.player || !this.playerParent) {
       return;
     }
 
-    if (layoutLoaded === 'new') {
-      const idealW = height * 16 / 9;
+    const idealW = height * 16 / 9;
 
-      const style = {};
-      if (idealW > width) {
-        style.width = width;
-        style.height = width * 9 / 16;
-      } else {
-        style.width = idealW;
-        style.height = height;
-      }
-      style.top = top + (height - style.height) / 2;
-      style.left = left + (width - style.width) / 2;
-      style.right = right + (width - style.width) / 2;
-
-      const styles = `
-        position: absolute;
-        width: ${style.width}px;
-        height: ${style.height}px;
-        top: ${style.top}px;
-        left: ${style.left}px;
-        right: ${style.right}px;
-      `;
-      this.player.wrapper.style = styles;
+    const style = {};
+    if (idealW > width) {
+      style.width = width;
+      style.height = width * 9 / 16;
     } else {
-      const par = this.playerParent.parentElement;
-      const w = par.clientWidth;
-      const h = par.clientHeight;
-      const idealW = h * 16 / 9;
-
-      const style = {};
-      if (idealW > w) {
-        style.width = w;
-        style.height = w * 9 / 16;
-      } else {
-        style.width = idealW;
-        style.height = h;
-      }
-
-      const styles = `width: ${style.width}px; height: ${style.height}px;`;
-
-      this.player.wrapper.style = styles;
-      this.playerParent.style = styles;
+      style.width = idealW;
+      style.height = height;
     }
+    style.top = top + (height - style.height) / 2;
+    style.left = left + (width - style.width) / 2;
+    style.right = right + (width - style.width) / 2;
+
+    const styles = `
+      position: absolute;
+      width: ${style.width}px;
+      height: ${style.height}px;
+      top: ${style.top}px;
+      left: ${style.left}px;
+      right: ${style.right}px;
+    `;
+    this.player.wrapper.style = styles;
   }
 
   clearVideoListeners() {
