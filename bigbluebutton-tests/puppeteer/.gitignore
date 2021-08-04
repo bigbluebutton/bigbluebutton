@@ -3,7 +3,7 @@ screenshots/*
 !screenshots/screenshots.txt
 downloads/*
 !downloads/downloads.txt
-.env
 media/*
 data/
+.env
 __image_snapshots__/
