@@ -27,6 +27,8 @@ import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
 
+const CUSTOM_STYLE_URL = Meteor.settings.public.app.customStyleUrl;
+
 const propTypes = {
   navbar: PropTypes.node,
   actionsbar: PropTypes.node,
@@ -60,24 +62,26 @@ const AppContainer = (props) => {
     ...otherProps
   } = props;
 
-  return currentUserId ?
-    <App
-      navbar={navbar}
-      actionsbar={actionsbar}
-      media={media}
-      currentUserId={currentUserId}
-      {...otherProps}
-    />
-    : null
+  return currentUserId
+    ? (
+      <App
+        navbar={navbar}
+        actionsbar={actionsbar}
+        media={media}
+        currentUserId={currentUserId}
+        {...otherProps}
+      />
+    )
+    : null;
 };
 
-const currentUserEmoji = currentUser => (currentUser ? {
+const currentUserEmoji = (currentUser) => (currentUser ? {
   status: currentUser.emoji,
   changedAt: currentUser.emojiTime,
 } : {
-    status: 'none',
-    changedAt: null,
-  });
+  status: 'none',
+  changedAt: null,
+});
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   const authTokenValidation = AuthTokenValidation.findOne({}, { sort: { updatedAt: -1 } });
@@ -92,7 +96,11 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     },
   });
 
-  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { approved: 1, emoji: 1, userId: 1, presenter: 1 } });
+  const currentUser = Users.findOne({ userId: Auth.userID }, {
+    fields: {
+      approved: 1, emoji: 1, userId: 1, presenter: 1,
+    },
+  });
   const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { publishedPoll: 1, voiceProp: 1, randomlySelectedUser: 1 } });
   const { publishedPoll, voiceProp, randomlySelectedUser } = currentMeeting;
@@ -106,12 +114,18 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     requesterUserId: Auth.userID,
   }).fetch();
 
+  let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
+
+  if (!customStyleUrl && CUSTOM_STYLE_URL) {
+    customStyleUrl = CUSTOM_STYLE_URL;
+  }
+
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
     fontSize: getFontSize(),
     hasBreakoutRooms: getBreakoutRooms().length > 0,
     customStyle: getFromUserSettings('bbb_custom_style', false),
-    customStyleUrl: getFromUserSettings('bbb_custom_style_url', false),
+    customStyleUrl,
     openPanel: Session.get('openPanel'),
     UserInfo,
     notify,
@@ -126,7 +140,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     randomlySelectedUser,
     currentUserId: currentUser?.userId,
     isPresenter: currentUser?.presenter,
-    isLargeFont: Session.get('isLargeFont')
+    isLargeFont: Session.get('isLargeFont'),
   };
 })(AppContainer)));
 
