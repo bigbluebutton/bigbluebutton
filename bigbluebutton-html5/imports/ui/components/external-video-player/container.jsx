@@ -10,7 +10,6 @@ const ExternalVideoContainer = (props) => {
   const { layoutContextState } = layoutManager;
   const { output } = layoutContextState;
   const { externalVideo } = output;
-  console.log('externalVideo', externalVideo);
   return <ExternalVideoComponent {...{ ...props }} {...externalVideo} />;
 };
 

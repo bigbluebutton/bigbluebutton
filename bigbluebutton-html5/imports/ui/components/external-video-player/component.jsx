@@ -17,7 +17,7 @@ import {
 import logger from '/imports/startup/client/logger';
 
 import VolumeSlider from './volume-slider/component';
-import Button from '/imports/ui/components/button/component';
+import ReloadButton from '/imports/ui/components/reload-button/component';
 
 import ArcPlayer from './custom-players/arc-player';
 import PeerTubePlayer from './custom-players/peertube';
@@ -37,11 +37,6 @@ const intlMessages = defineMessages({
 const SYNC_INTERVAL_SECONDS = 5;
 const THROTTLE_INTERVAL_SECONDS = 0.5;
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
-const DEBOUNCE_TIMEOUT = 5000;
-const DEBOUNCE_OPTIONS = {
-  leading: true,
-  trailing: false,
-};
 
 ReactPlayer.addCustomPlayer(PeerTubePlayer);
 ReactPlayer.addCustomPlayer(ArcPlayer);
@@ -144,7 +139,6 @@ class VideoPlayer extends Component {
   }
 
   componentDidMount() {
-    window.addEventListener('layoutSizesSets', this.resizeListener);
     window.addEventListener('beforeunload', this.onBeforeUnload);
 
     clearInterval(this.syncInterval);
@@ -181,7 +175,6 @@ class VideoPlayer extends Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.resizeListener);
     window.removeEventListener('beforeunload', this.onBeforeUnload);
 
     VideoPlayer.clearVideoListeners();
@@ -278,9 +271,6 @@ class VideoPlayer extends Component {
     const { key } = this.state;
     // increment key and force a re-render of the video component
     this.setState({ key: key + 1 });
-
-    // hack, resize player
-    this.resizeListener();
   }
 
   onBeforeUnload() {
@@ -544,17 +534,10 @@ class VideoPlayer extends Component {
                       onVolumeChanged={this.handleVolumeChanged}
                     />
 
-                    <span className={styles.button}>
-                      <Button
-                        color="primary"
-                        icon="refresh"
-                        size="md"
-                        circle
-                        onClick={_.debounce(this.handleReload, DEBOUNCE_TIMEOUT, DEBOUNCE_OPTIONS)}
-                        label={intl.formatMessage(intlMessages.refreshLabel)}
-                        hideLabel
-                      />
-                    </span>
+                    <ReloadButton
+                      handleReload={this.handleReload}
+                      label={intl.formatMessage(intlMessages.refreshLabel)}>
+                    </ReloadButton>
                   </div>
                 ),
                 this.isMobile && (
