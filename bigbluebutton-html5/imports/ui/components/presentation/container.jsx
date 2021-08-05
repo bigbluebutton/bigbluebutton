@@ -20,7 +20,7 @@ const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props
   const fullscreenElementId = 'Presentation';
   const newLayoutContext = useContext(NLayoutContext);
   const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { output, layoutLoaded, layoutType, fullscreen } = newLayoutContextState;
+  const { output, layoutType, fullscreen } = newLayoutContextState;
   const { presentation } = output;
   const { element } = fullscreen;
   const fullscreenContext = (element === fullscreenElementId);
@@ -42,7 +42,6 @@ const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props
           isViewer: currentUser.role === ROLE_VIEWER,
           userIsPresenter: userIsPresenter && !layoutSwapped,
           presentationBounds: presentation,
-          layoutLoaded,
           layoutType,
           fullscreenContext,
           fullscreenElementId,
@@ -103,7 +102,6 @@ export default withTracker(({ podId }) => {
     }
   }
 
-  const layoutManagerLoaded = Session.get('layoutManagerLoaded');
   return {
     currentSlide,
     slidePosition,
@@ -129,6 +127,5 @@ export default withTracker(({ podId }) => {
       'bbb_force_restore_presentation_on_new_events',
       Meteor.settings.public.presentation.restoreOnUpdate,
     ),
-    layoutManagerLoaded,
   };
 })(PresentationContainer);

@@ -9,8 +9,7 @@ const VideoListItemContainer = (props) => {
   const { cameraId } = props;
   const newLayoutContext = useContext(NLayoutContext);
   const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { layoutLoaded: layoutManagerLoaded } = newLayoutContextState;
-  const { layoutLoaded, fullscreen } = newLayoutContextState;
+  const { fullscreen } = newLayoutContextState;
   const { element } = fullscreen;
   const isFullscreenContext = (element === cameraId);
 
@@ -18,10 +17,8 @@ const VideoListItemContainer = (props) => {
     <VideoListItem
       {...props}
       {...{
-        layoutManagerLoaded,
         isFullscreenContext,
         newLayoutContextDispatch,
-        layoutLoaded,
       }}
     />
   );

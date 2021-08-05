@@ -330,7 +330,6 @@ class ScreenshareComponent extends React.Component {
       width,
       height,
       zIndex,
-      layoutLoaded,
     } = this.props;
 
     // Conditions to render the (re)connecting dots and the unhealthy stream
@@ -346,21 +345,16 @@ class ScreenshareComponent extends React.Component {
     return (
       <div
         style={
-          layoutLoaded === 'new'
-            ? {
-              position: 'absolute',
-              top,
-              left,
-              right,
-              height,
-              width,
-              zIndex,
-              backgroundColor: '#06172A',
-            }
-            : {
-              height: '100%',
-              width: '100%',
-            }
+          {
+            position: 'absolute',
+            top,
+            left,
+            right,
+            height,
+            width,
+            zIndex,
+            backgroundColor: '#06172A',
+          }
         }
       >
         {(shouldRenderConnectingState)

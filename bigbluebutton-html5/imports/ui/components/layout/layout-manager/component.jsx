@@ -96,7 +96,7 @@ class LayoutManagerComponent extends Component {
     window.addEventListener('webcamPlacementChange', () => {
       this.setLayoutSizes(false, false, true);
     });
-    
+
     window.addEventListener('fullscreenchange', () => {
       setTimeout(() => this.setLayoutSizes(), 200);
     });
@@ -109,7 +109,6 @@ class LayoutManagerComponent extends Component {
   componentDidUpdate(prevProps) {
     const {
       layoutContextState,
-      layoutManagerLoaded,
       screenIsShared,
       newLayoutContextState,
     } = this.props;
@@ -136,7 +135,6 @@ class LayoutManagerComponent extends Component {
     } = prevInput;
 
     if (numUsersVideo !== prevNumUsersVideo
-      || prevProps.layoutManagerLoaded !== layoutManagerLoaded
       || prevScreenIsShared !== screenIsShared
       || sidebarNavigation.isOpen !== prevSidebarNavigation.isOpen
       || sidebarContent.isOpen !== prevSidebarContent.isOpen) {
@@ -241,21 +239,11 @@ class LayoutManagerComponent extends Component {
   }
 
   windowWidth() {
-    const { layoutManagerLoaded } = this.props;
-    return (
-      layoutManagerLoaded !== 'both'
-        ? window.document.documentElement.clientWidth
-        : window.document.documentElement.clientWidth * 0.5
-    );
+    return window.document.documentElement.clientWidth;
   }
 
   windowHeight() {
-    const { layoutManagerLoaded } = this.props;
-    return (
-      layoutManagerLoaded !== 'both'
-        ? window.document.documentElement.clientHeight
-        : window.document.documentElement.clientHeight * 0.5
-    );
+    return window.document.documentElement.clientHeight;
   }
 
   defineWebcamPlacement(mediaAreaWidth, mediaAreaHeight, presentationWidth, presentationHeight) {
@@ -516,7 +504,6 @@ class LayoutManagerComponent extends Component {
       height: webcamsAreaHeight,
     };
     let newPresentationAreaSize;
-    let newScreenShareAreaSize;
     const { presentationAreaWidth, presentationAreaHeight } = this.calculatesPresentationAreaSize(
       mediaAreaWidth, mediaAreaHeight, webcamsAreaWidth, webcamsAreaHeight,
     );
@@ -532,7 +519,7 @@ class LayoutManagerComponent extends Component {
       };
     }
 
-    newScreenShareAreaSize = {
+    const newScreenShareAreaSize = {
       width: presentationAreaWidth || 0,
       height: presentationAreaHeight || 0,
     };

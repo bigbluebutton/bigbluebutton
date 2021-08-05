@@ -172,7 +172,6 @@ class Presentation extends PureComponent {
       layoutContextState,
       newLayoutContextDispatch,
       userIsPresenter,
-      layoutManagerLoaded,
       presentationBounds,
     } = this.props;
 
@@ -279,8 +278,7 @@ class Presentation extends PureComponent {
         }
       }
 
-      if (prevProps.layoutManagerLoaded !== layoutManagerLoaded
-        || presentationBounds !== prevPresentationBounds) this.onResize();
+      if (presentationBounds !== prevPresentationBounds) this.onResize();
     }
   }
 
@@ -329,35 +327,18 @@ class Presentation extends PureComponent {
 
   getPresentationSizesAvailable() {
     const {
-      layoutContextState,
       presentationBounds,
-      layoutLoaded,
       presentationAreaSize: newPresentationAreaSize,
     } = this.props;
-    const {
-      presentationAreaSize,
-      webcamsAreaResizing,
-      mediaBounds,
-      tempWebcamsAreaSize,
-      webcamsPlacement,
-    } = layoutContextState;
     const presentationSizes = {
       presentationWidth: 0,
       presentationHeight: 0,
     };
 
-    if (layoutLoaded === 'legacy') {
-      presentationSizes.presentationWidth = webcamsAreaResizing && (webcamsPlacement === 'left' || webcamsPlacement === 'right')
-        ? mediaBounds.width - tempWebcamsAreaSize.width
-        : presentationAreaSize.width;
-      presentationSizes.presentationHeight = webcamsAreaResizing && (webcamsPlacement === 'top' || webcamsPlacement === 'bottom')
-        ? mediaBounds.height - tempWebcamsAreaSize.height - (this.getToolbarHeight() || 0) - 30
-        : presentationAreaSize.height - (this.getToolbarHeight() || 0);
-      return presentationSizes;
-    }
-    if (layoutLoaded === 'new' && newPresentationAreaSize) {
+    if (newPresentationAreaSize) {
       presentationSizes.presentationWidth = newPresentationAreaSize.presentationAreaWidth;
-      presentationSizes.presentationHeight = newPresentationAreaSize.presentationAreaHeight - (this.getToolbarHeight() || 0);
+      presentationSizes.presentationHeight = newPresentationAreaSize
+        .presentationAreaHeight - (this.getToolbarHeight() || 0);
       return presentationSizes;
     }
 
@@ -501,21 +482,23 @@ class Presentation extends PureComponent {
   renderPresentationClose() {
     const { isFullscreen } = this.state;
     const {
-      layoutLoaded,
       layoutType,
       fullscreenContext,
       newLayoutContextDispatch,
     } = this.props;
 
-    if (!shouldEnableSwapLayout() ||
-      isFullscreen ||
-      (layoutLoaded === 'new' && (fullscreenContext || layoutType === LAYOUT_TYPE.PRESENTATION_FOCUS))) {
+    if (!shouldEnableSwapLayout()
+      || isFullscreen
+      || fullscreenContext
+      || layoutType === LAYOUT_TYPE.PRESENTATION_FOCUS) {
       return null;
     }
-    return <PresentationCloseButton
-      toggleSwapLayout={MediaService.toggleSwapLayout}
-      newLayoutContextDispatch={newLayoutContextDispatch}
-    />;
+    return (
+      <PresentationCloseButton
+        toggleSwapLayout={MediaService.toggleSwapLayout}
+        newLayoutContextDispatch={newLayoutContextDispatch}
+      />
+    );
   }
 
   renderOverlays(slideObj, svgDimensions, viewBoxPosition, viewBoxDimensions, physicalDimensions) {
@@ -734,7 +717,7 @@ class Presentation extends PureComponent {
           zoom,
           podId,
           currentSlide,
-          fullscreenElementId
+          fullscreenElementId,
         }}
         isFullscreen={isFullscreen}
         fullscreenRef={this.refPresentationContainer}
@@ -841,7 +824,6 @@ class Presentation extends PureComponent {
       multiUser,
       slidePosition,
       presentationBounds,
-      layoutLoaded,
       fullscreenContext,
     } = this.props;
 
@@ -888,13 +870,13 @@ class Presentation extends PureComponent {
         ref={(ref) => { this.refPresentationContainer = ref; }}
         className={styles.presentationContainer}
         style={{
-          top: layoutLoaded === 'new' ? presentationBounds.top : undefined,
-          left: layoutLoaded === 'new' ? presentationBounds.left : undefined,
-          right: layoutLoaded === 'new' ? presentationBounds.right : undefined,
-          width: layoutLoaded === 'new' ? presentationBounds.width : undefined,
-          height: layoutLoaded === 'new' ? presentationBounds.height : undefined,
-          zIndex: layoutLoaded === 'new' && fullscreenContext ? presentationBounds.zIndex : undefined,
-          backgroundColor: layoutLoaded === 'new' ? '#06172A' : undefined,
+          top: presentationBounds.top,
+          left: presentationBounds.left,
+          right: presentationBounds.right,
+          width: presentationBounds.width,
+          height: presentationBounds.height,
+          zIndex: fullscreenContext ? presentationBounds.zIndex : undefined,
+          backgroundColor: '#06172A',
         }}
       >
         {isFullscreen && <PollingContainer />}

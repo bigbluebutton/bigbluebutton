@@ -176,10 +176,10 @@ class App extends Component {
 
     newLayoutContextDispatch({
       type: ACTIONS.SET_FONT_SIZE,
-      value: parseInt(fontSize.slice(0, -2)),
+      value: parseInt(fontSize.slice(0, -2), 10),
     });
 
-    const currentLayout = settingsLayout ? settingsLayout : meetingLayout;
+    const currentLayout = settingsLayout || meetingLayout;
 
     Settings.application.selectedLayout = currentLayout;
     Settings.save();
@@ -225,7 +225,6 @@ class App extends Component {
       meetingLayout,
       settingsLayout,
       layoutType,
-      layoutLoaded,
       pushLayoutToEveryone,
       newLayoutContextDispatch,
       isRTL,
@@ -248,19 +247,8 @@ class App extends Component {
       });
     }
 
-    const newLayoutManager = settingsLayout === 'legacy' ? 'legacy' : 'new';
-
-    if (settingsLayout !== prevProps.settingsLayout ||
-      settingsLayout !== layoutType ||
-      newLayoutManager !== layoutLoaded
-    ) {
-      Session.set('layoutManagerLoaded', newLayoutManager);
-
-      newLayoutContextDispatch({
-        type: ACTIONS.SET_LAYOUT_LOADED,
-        value: newLayoutManager,
-      });
-
+    if (settingsLayout !== prevProps.settingsLayout
+      || settingsLayout !== layoutType) {
       newLayoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_TYPE,
         value: settingsLayout,
@@ -447,7 +435,6 @@ class App extends Component {
     const {
       actionsbar,
       intl,
-      layoutManagerLoaded,
       actionsBarStyle,
     } = this.props;
 
@@ -459,18 +446,14 @@ class App extends Component {
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
         aria-hidden={this.shouldAriaHide()}
         style={
-          layoutManagerLoaded === 'new'
-            ? {
-              position: 'absolute',
-              top: actionsBarStyle.top,
-              left: actionsBarStyle.left,
-              height: actionsBarStyle.height,
-              width: actionsBarStyle.width,
-              padding: actionsBarStyle.padding,
-            }
-            : {
-              position: 'relative',
-            }
+          {
+            position: 'absolute',
+            top: actionsBarStyle.top,
+            left: actionsBarStyle.left,
+            height: actionsBarStyle.height,
+            width: actionsBarStyle.width,
+            padding: actionsBarStyle.padding,
+          }
         }
       >
         {actionsbar}
@@ -523,9 +506,6 @@ class App extends Component {
     const {
       customStyle,
       customStyleUrl,
-      layoutManagerLoaded,
-      sidebarNavigationIsOpen,
-      sidebarContentIsOpen,
       audioAlertEnabled,
       pushAlertEnabled,
       shouldShowPresentation,
@@ -537,99 +517,50 @@ class App extends Component {
     return (
       <>
         {this.renderLayoutManager()}
-        {(layoutManagerLoaded === 'legacy' || layoutManagerLoaded === 'both')
-          && (
-            <main
-              className={styles.main}
-              style={{
-                width: layoutManagerLoaded !== 'both' ? '100%' : '50%',
-                height: layoutManagerLoaded !== 'both' ? '100%' : '50%',
-              }}
-            >
-              {this.renderActivityCheck()}
-              {this.renderUserInformation()}
-              <BannerBarContainer />
-              <NotificationsBarContainer />
-              <section className={styles.wrapper}>
-                {this.renderPanel()}
-                <div className={
-                  sidebarNavigationIsOpen
-                    && sidebarContentIsOpen
-                    ? styles.content
-                    : styles.noPanelContent
-                }
-                >
-                  <NavBarContainer main="legacy" />
-                  {this.renderMedia()}
-                  {this.renderActionsBar()}
-                </div>
-              </section>
-              <UploaderContainer />
-              <BreakoutRoomInvitation />
-              <PollingContainer />
-              <ModalContainer />
-              <AudioContainer />
-              <ToastContainer rtl />
-              {(audioAlertEnabled || pushAlertEnabled)
-                && (
-                  <ChatAlertContainer
-                    audioAlertEnabled={audioAlertEnabled}
-                    pushAlertEnabled={pushAlertEnabled}
-                  />
-                )}
-              <WaitingNotifierContainer />
-              <LockNotifier />
-              <StatusNotifier status="raiseHand" />
-              <ManyWebcamsNotifier />
-              {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
-              {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
-            </main>
-          )}
-        {(layoutManagerLoaded === 'new' || layoutManagerLoaded === 'both')
-          && (
-            <>
-              <div
-                id="newLayout"
-                className={styles.newLayout}
-                style={{
-                  width: layoutManagerLoaded !== 'both' ? '100%' : '50%',
-                  height: layoutManagerLoaded !== 'both' ? '100%' : '50%',
-                }}
-              >
-                {this.renderActivityCheck()}
-                {this.renderUserInformation()}
-                <BannerBarContainer />
-                <NotificationsBarContainer />
-                <SidebarNavigationContainer />
-                <SidebarContentContainer />
-                <NavBarContainer main="new" />
-                {this.renderWebcamsContainer()}
-                {shouldShowPresentation ? <PresentationAreaContainer /> : null}
-                {shouldShowScreenshare ? <ScreenshareContainer /> : null}
-                {shouldShowExternalVideo ? <ExternalVideoContainer isPresenter={isPresenter} /> : null}
-                <UploaderContainer />
-                <BreakoutRoomInvitation />
-                <AudioContainer />
-                <ToastContainer rtl />
-                {(audioAlertEnabled || pushAlertEnabled)
-                  && (
-                    <ChatAlertContainer
-                      audioAlertEnabled={audioAlertEnabled}
-                      pushAlertEnabled={pushAlertEnabled}
-                    />
-                  )}
-                <WaitingNotifierContainer />
-                <LockNotifier />
-                <StatusNotifier status="raiseHand" />
-                <ManyWebcamsNotifier />
-                <PollingContainer />
-                <ModalContainer />
-                {this.renderActionsBar()}
-                {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
-                {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
-              </div>
-            </>
-          )}
+        <div
+          id="newLayout"
+          className={styles.newLayout}
+          style={{
+            width: '100%',
+            height: '100%',
+          }}
+        >
+          {this.renderActivityCheck()}
+          {this.renderUserInformation()}
+          <BannerBarContainer />
+          <NotificationsBarContainer />
+          <SidebarNavigationContainer />
+          <SidebarContentContainer />
+          <NavBarContainer main="new" />
+          {this.renderWebcamsContainer()}
+          {shouldShowPresentation ? <PresentationAreaContainer /> : null}
+          {shouldShowScreenshare ? <ScreenshareContainer /> : null}
+          {
+            shouldShowExternalVideo
+              ? <ExternalVideoContainer isPresenter={isPresenter} />
+              : null
+          }
+          <UploaderContainer />
+          <BreakoutRoomInvitation />
+          <AudioContainer />
+          <ToastContainer rtl />
+          {(audioAlertEnabled || pushAlertEnabled)
+            && (
+              <ChatAlertContainer
+                audioAlertEnabled={audioAlertEnabled}
+                pushAlertEnabled={pushAlertEnabled}
+              />
+            )}
+          <WaitingNotifierContainer />
+          <LockNotifier />
+          <StatusNotifier status="raiseHand" />
+          <ManyWebcamsNotifier />
+          <PollingContainer />
+          <ModalContainer />
+          {this.renderActionsBar()}
+          {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
+          {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
+        </div>
       </>
     );
   }

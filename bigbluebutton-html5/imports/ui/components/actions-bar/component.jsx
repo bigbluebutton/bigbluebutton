@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
-import { ACTIONSBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager/component';
 import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from './styles.scss';
@@ -35,7 +34,6 @@ class ActionsBar extends PureComponent {
       currentUser,
       shortcuts,
       newLayoutContextDispatch,
-      layoutManagerLoaded,
       actionsBarStyle,
     } = this.props;
 
@@ -43,13 +41,9 @@ class ActionsBar extends PureComponent {
       <div
         className={styles.actionsbar}
         style={
-          layoutManagerLoaded === 'new'
-            ? {
-              height: actionsBarStyle.innerHeight,
-            }
-            : {
-              height: ACTIONSBAR_HEIGHT,
-            }
+          {
+            height: actionsBarStyle.innerHeight,
+          }
         }
       >
         <div className={styles.left}>

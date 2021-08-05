@@ -210,7 +210,6 @@ class VideoList extends Component {
       streams,
       cameraDock,
       webcamDraggableDispatch,
-      layoutLoaded,
       newLayoutContextDispatch,
     } = this.props;
     let numItems = streams.length;
@@ -218,17 +217,8 @@ class VideoList extends Component {
       return;
     }
     const { focusedId } = this.state;
-    let canvasWidth;
-    let canvasHeight;
-    const canvasBounds = this.canvas.getBoundingClientRect();
-
-    if (layoutLoaded === 'legacy') {
-      canvasWidth = canvasBounds?.width;
-      canvasHeight = canvasBounds?.height;
-    } else {
-      canvasWidth = cameraDock?.width;
-      canvasHeight = cameraDock?.height;
-    }
+    const canvasWidth = cameraDock?.width;
+    const canvasHeight = cameraDock?.height;
 
     const gridGutter = parseInt(window.getComputedStyle(this.grid)
       .getPropertyValue('grid-row-gap'), 10);
@@ -406,7 +396,6 @@ class VideoList extends Component {
     const {
       streams,
       intl,
-      layoutLoaded
     } = this.props;
     const { optimalGrid, autoplayBlocked } = this.state;
 
@@ -425,10 +414,9 @@ class VideoList extends Component {
         }}
         className={canvasClassName}
         style={{
-          minHeight: layoutLoaded === 'new' ? `inherit` : undefined,
+          minHeight: 'inherit',
         }}
       >
-
         {this.renderPreviousPageButton()}
 
         {!streams.length ? null : (
@@ -456,7 +444,6 @@ class VideoList extends Component {
         )}
 
         {this.renderNextPageButton()}
-
       </div>
     );
   }

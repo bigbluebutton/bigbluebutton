@@ -68,5 +68,4 @@ export default withTracker(() => ({
     { fields: {} }),
   allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,
   setEmojiStatus: UserListService.setEmojiStatus,
-  layoutManagerLoaded: Session.get('layoutManagerLoaded'),
 }))(injectIntl(ActionsBarContainer));

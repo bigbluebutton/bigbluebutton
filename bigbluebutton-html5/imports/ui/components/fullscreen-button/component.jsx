@@ -21,14 +21,12 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  fullscreenRef: PropTypes.instanceOf(Element),
   dark: PropTypes.bool,
   bottom: PropTypes.bool,
   isIphone: PropTypes.bool,
   isFullscreen: PropTypes.bool,
   elementName: PropTypes.string,
   className: PropTypes.string,
-  handleToggleFullScreen: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -38,7 +36,6 @@ const defaultProps = {
   isFullscreen: false,
   elementName: '',
   className: '',
-  fullscreenRef: null,
 };
 
 const FullscreenButtonComponent = ({
@@ -49,11 +46,8 @@ const FullscreenButtonComponent = ({
   elementId,
   elementGroup,
   className,
-  fullscreenRef,
-  handleToggleFullScreen,
   isIphone,
   isFullscreen,
-  layoutManagerLoaded,
   newLayoutContextDispatch,
   currentElement,
   currentGroup,
@@ -80,20 +74,16 @@ const FullscreenButtonComponent = ({
   });
 
   const handleClick = () => {
-    if (layoutManagerLoaded === 'legacy') {
-      handleToggleFullScreen(fullscreenRef);
-    } else {
-      const newElement = (elementId === currentElement) ? '' : elementId;
-      const newGroup = (elementGroup === currentGroup) ? '' : elementGroup;
+    const newElement = (elementId === currentElement) ? '' : elementId;
+    const newGroup = (elementGroup === currentGroup) ? '' : elementGroup;
 
-      newLayoutContextDispatch({
-        type: ACTIONS.SET_FULLSCREEN_ELEMENT,
-        value: {
-          element: newElement,
-          group: newGroup,
-        },
-      });
-    }
+    newLayoutContextDispatch({
+      type: ACTIONS.SET_FULLSCREEN_ELEMENT,
+      value: {
+        element: newElement,
+        group: newGroup,
+      },
+    });
   };
 
   return (

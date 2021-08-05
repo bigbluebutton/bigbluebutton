@@ -10,7 +10,7 @@ const VideoListContainer = ({ children, ...props }) => {
   const webcamDraggableContext = useContext(WebcamDraggableContext);
   const { webcamDraggableDispatch } = webcamDraggableContext;
   const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { layoutLoaded, layoutType, output } = newLayoutContextState;
+  const { layoutType, output } = newLayoutContextState;
   const { cameraDock } = output;
 
   const { streams } = props;
@@ -19,7 +19,6 @@ const VideoListContainer = ({ children, ...props }) => {
       ? null
       : (
         <VideoList {...{
-          layoutLoaded,
           layoutType,
           cameraDock,
           webcamDraggableDispatch,

@@ -8,10 +8,10 @@ import { NLayoutContext } from '../layout/context/context';
 const ExternalVideoContainer = (props) => {
   const NewLayoutManager = useContext(NLayoutContext);
   const { newLayoutContextState } = NewLayoutManager;
-  const { output, layoutLoaded } = newLayoutContextState;
+  const { output } = newLayoutContextState;
   const { externalVideo } = output;
 
-  return <ExternalVideoComponent {...{ ...props }} {...externalVideo} layoutLoaded={layoutLoaded} />
+  return <ExternalVideoComponent {...{ ...props }} {...externalVideo} />;
 };
 
 export default withTracker(({ isPresenter }) => {

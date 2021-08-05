@@ -68,7 +68,6 @@ const AppContainer = (props) => {
     input,
     output,
     layoutType,
-    layoutLoaded,
     deviceType,
   } = newLayoutContextState;
   const { sidebarContent, sidebarNavigation } = input;
@@ -87,7 +86,6 @@ const AppContainer = (props) => {
           currentUserId,
           media,
           layoutType,
-          layoutLoaded,
           meetingLayout,
           settingsLayout,
           pushLayoutToEveryone,
@@ -162,7 +160,6 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     requesterUserId: Auth.userID,
   }).fetch();
 
-  const layoutManagerLoaded = Session.get('layoutManagerLoaded');
   const AppSettings = Settings.application;
   const { viewScreenshare } = Settings.dataSaving;
   const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
@@ -183,7 +180,6 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     meetingMuted: voiceProp.muteOnStart,
     currentUserEmoji: currentUserEmoji(currentUser),
     hasPublishedPoll: publishedPoll,
-    layoutManagerLoaded,
     randomlySelectedUser,
     currentUserId: currentUser?.userId,
     isPresenter: currentUser?.presenter,
