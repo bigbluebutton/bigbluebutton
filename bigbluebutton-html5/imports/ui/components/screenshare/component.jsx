@@ -105,11 +105,11 @@ class ScreenshareComponent extends React.Component {
       getSwapLayout,
       shouldEnableSwapLayout,
       toggleSwapLayout,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
       intl,
     } = this.props;
     const layoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
-    if (layoutSwapped) toggleSwapLayout(newLayoutContextDispatch);
+    if (layoutSwapped) toggleSwapLayout(layoutContextDispatch);
     screenshareHasEnded();
     this.screenshareContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);

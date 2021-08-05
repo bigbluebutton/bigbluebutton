@@ -166,7 +166,7 @@ class Settings extends Component {
       isModerator,
       showGuestNotification,
       showToggleLabel,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
       selectedLayout,
     } = this.props;
 
@@ -216,7 +216,7 @@ class Settings extends Component {
             settings={current.application}
             showToggleLabel={showToggleLabel}
             displaySettingsStatus={this.displaySettingsStatus}
-            newLayoutContextDispatch={newLayoutContextDispatch}
+            layoutContextDispatch={layoutContextDispatch}
             selectedLayout={selectedLayout}
             isModerator={isModerator}
           />

@@ -58,7 +58,7 @@ const ChatAlert = (props) => {
     unreadMessagesCountByChat,
     unreadMessagesByChat,
     intl,
-    newLayoutContextDispatch,
+    layoutContextDispatch,
   } = props;
 
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
@@ -120,10 +120,10 @@ const ChatAlert = (props) => {
           newTimeWindow.durationDiff = durationDiff;
           timewindowsToAlert.push(newTimeWindow);
 
-          const newLastAlertTimestampByChat = { ...lastAlertTimestampByChat };
+          const lastAlertTimestampByChat = { ...lastAlertTimestampByChat };
           if (timeWindow.timestamp > (lastAlertTimestampByChat[timeWindow.chatId] || 0)) {
-            newLastAlertTimestampByChat[timeWindow.chatId] = timeWindow.timestamp;
-            setLastAlertTimestampByChat(newLastAlertTimestampByChat);
+            lastAlertTimestampByChat[timeWindow.chatId] = timeWindow.timestamp;
+            setLastAlertTimestampByChat(lastAlertTimestampByChat);
           }
         }
       });
@@ -189,7 +189,7 @@ const ChatAlert = (props) => {
               () => setUnreadMessages(newUnreadMessages)
             }
             alertDuration={timeWindow.durationDiff}
-            newLayoutContextDispatch={newLayoutContextDispatch}
+            layoutContextDispatch={layoutContextDispatch}
           />
         ) : null;
     })

@@ -4,12 +4,12 @@ import NotificationsBar from '/imports/ui/components/notifications-bar/component
 import { styles } from './styles';
 import { ACTIONS } from '../layout/enums';
 
-const BannerBar = ({ text, color, hasBanner: propsHasBanner, newLayoutContextDispatch }) => {
+const BannerBar = ({ text, color, hasBanner: propsHasBanner, layoutContextDispatch }) => {
   useEffect(() => {
     const localHasBanner = !!text;
 
     if(localHasBanner !== propsHasBanner){
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_HAS_BANNER_BAR,
         value: localHasBanner,
       });

@@ -11,7 +11,7 @@ import { UsersContext } from '/imports/ui/components/components-data/users-conte
 import NoteService from '/imports/ui/components/note/service';
 import Service from './service';
 import NavBar from './component';
-import { NLayoutContext } from '../layout/context/context';
+import LayoutContext from '../layout/context';
 
 const PUBLIC_CONFIG = Meteor.settings.public;
 const ROLE_MODERATOR = PUBLIC_CONFIG.user.role_moderator;
@@ -28,8 +28,8 @@ const checkUnreadMessages = ({
 };
 
 const NavBarContainer = ({ children, ...props }) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextState, layoutContextDispatch } = layoutContext;
   const usingChatContext = useContext(ChatContext);
   const usingUsersContext = useContext(UsersContext);
   const usingGroupChatContext = useContext(GroupChatContext);
@@ -39,7 +39,7 @@ const NavBarContainer = ({ children, ...props }) => {
   const { ...rest } = props;
   const {
     input, output,
-  } = newLayoutContextState;
+  } = layoutContextState;
   const { sidebarContent, sidebarNavigation } = input;
   const { sidebarNavPanel } = sidebarNavigation;
   const { sidebarContentPanel } = sidebarContent;
@@ -64,7 +64,7 @@ const NavBarContainer = ({ children, ...props }) => {
         sidebarContentPanel,
         sidebarNavigation,
         sidebarContent,
-        newLayoutContextDispatch,
+        layoutContextDispatch,
         isExpanded,
         ...rest,
       }}

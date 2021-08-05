@@ -48,7 +48,7 @@ const FullscreenButtonComponent = ({
   className,
   isIphone,
   isFullscreen,
-  newLayoutContextDispatch,
+  layoutContextDispatch,
   currentElement,
   currentGroup,
 }) => {
@@ -77,7 +77,7 @@ const FullscreenButtonComponent = ({
     const newElement = (elementId === currentElement) ? '' : elementId;
     const newGroup = (elementGroup === currentGroup) ? '' : elementGroup;
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_FULLSCREEN_ELEMENT,
       value: {
         element: newElement,

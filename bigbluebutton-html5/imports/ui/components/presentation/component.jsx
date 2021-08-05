@@ -109,14 +109,14 @@ class Presentation extends PureComponent {
     window.addEventListener('resize', this.onResize, false);
 
     const {
-      currentSlide, slidePosition, newLayoutContextDispatch,
+      currentSlide, slidePosition, layoutContextDispatch,
     } = this.props;
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_PRESENTATION_NUM_CURRENT_SLIDE,
       value: currentSlide.num,
     });
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_PRESENTATION_CURRENT_SLIDE_SIZE,
       value: {
         width: slidePosition.width,
@@ -135,7 +135,7 @@ class Presentation extends PureComponent {
       isViewer,
       toggleSwapLayout,
       restoreOnUpdate,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
       userIsPresenter,
       presentationBounds,
       numCameras,
@@ -155,7 +155,7 @@ class Presentation extends PureComponent {
       const { width: currWidth, height: currHeight } = slidePosition;
 
       if (prevWidth !== currWidth || prevHeight !== currHeight) {
-        newLayoutContextDispatch({
+        layoutContextDispatch({
           type: ACTIONS.SET_PRESENTATION_CURRENT_SLIDE_SIZE,
           value: {
             width: currWidth,
@@ -204,7 +204,7 @@ class Presentation extends PureComponent {
           || slidePosition.viewBoxWidth !== prevProps.slidePosition.viewBoxWidth;
         const pollPublished = publishedPoll && !prevProps.publishedPoll;
         if (slideChanged || positionChanged || pollPublished) {
-          toggleSwapLayout(newLayoutContextDispatch);
+          toggleSwapLayout(layoutContextDispatch);
         }
       }
 
@@ -411,7 +411,7 @@ class Presentation extends PureComponent {
     const {
       layoutType,
       fullscreenContext,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
     } = this.props;
 
     if (!shouldEnableSwapLayout()
@@ -423,7 +423,7 @@ class Presentation extends PureComponent {
     return (
       <PresentationCloseButton
         toggleSwapLayout={MediaService.toggleSwapLayout}
-        newLayoutContextDispatch={newLayoutContextDispatch}
+        layoutContextDispatch={layoutContextDispatch}
       />
     );
   }

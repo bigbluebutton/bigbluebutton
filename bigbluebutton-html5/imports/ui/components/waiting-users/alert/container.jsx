@@ -4,16 +4,16 @@ import Auth from '/imports/ui/services/auth';
 import GuestUsers from '/imports/api/guest-users/';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import WaitingComponent from './component';
-import { NLayoutContext } from '../../layout/context/context';
+import LayoutContext from '../../layout/context';
 import { PANELS } from '../../layout/enums';
 
 const USER_CONFIG = Meteor.settings.public.user;
 const ROLE_MODERATOR = USER_CONFIG.role_moderator;
 
 const WaitingContainer = (props) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { input } = newLayoutContextState;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextState, layoutContextDispatch } = layoutContext;
+  const { input } = layoutContextState;
   const { sidebarContent } = input;
   const { sidebarContentPanel } = sidebarContent;
   const managementPanelIsOpen = sidebarContentPanel === PANELS.WAITING_USERS;
@@ -25,7 +25,7 @@ const WaitingContainer = (props) => {
   const joinTime = currentUser.authTokenValidatedTime;
   return (
     <WaitingComponent {...{
-      newLayoutContextDispatch,
+      layoutContextDispatch,
       managementPanelIsOpen,
       ...props,
       currentUserIsModerator,

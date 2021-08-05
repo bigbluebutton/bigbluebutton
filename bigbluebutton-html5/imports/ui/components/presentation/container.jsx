@@ -11,18 +11,18 @@ import { UsersContext } from '../components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import { NLayoutContext } from '../layout/context/context';
+import LayoutContext from '../layout/context';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
 const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props }) => {
   const fullscreenElementId = 'Presentation';
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextState, layoutContextDispatch } = layoutContext;
   const {
     input, output, layoutType, fullscreen,
-  } = newLayoutContextState;
+  } = layoutContextState;
   const { cameraDock } = input;
   const { numCameras } = cameraDock;
   const { presentation } = output;
@@ -41,7 +41,7 @@ const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props
       <Presentation
         {
         ...{
-          newLayoutContextDispatch,
+          layoutContextDispatch,
           numCameras,
           ...props,
           isViewer: currentUser.role === ROLE_VIEWER,

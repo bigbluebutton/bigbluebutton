@@ -19,7 +19,7 @@ import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import NewLayoutContext from '../../ui/components/layout/context/context';
+import { LayoutContextFunc } from '../../ui/components/layout/context';
 import VideoService from '/imports/ui/components/video-provider/service';
 import DebugWindow from '/imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
@@ -144,8 +144,8 @@ class Base extends Component {
       ejected,
       isMeteorConnected,
       subscriptionsReady,
-      newLayoutContextDispatch,
-      newLayoutContextState,
+      layoutContextDispatch,
+      layoutContextState,
       usersVideo,
     } = this.props;
     const {
@@ -153,12 +153,12 @@ class Base extends Component {
       meetingExisted,
     } = this.state;
 
-    const { input } = newLayoutContextState;
+    const { input } = layoutContextState;
     const { sidebarContent } = input;
     const { sidebarContentPanel } = sidebarContent;
 
     if (usersVideo !== prevProps.usersVideo) {
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_NUM_CAMERAS,
         value: usersVideo.length,
       });
@@ -207,38 +207,38 @@ class Base extends Component {
       if (!checkedUserSettings) {
         if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
           if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
-            newLayoutContextDispatch({
+            layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
               value: true,
             });
-            newLayoutContextDispatch({
+            layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
               value: true,
             });
-            newLayoutContextDispatch({
+            layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
               value: PANELS.CHAT,
             });
-            newLayoutContextDispatch({
+            layoutContextDispatch({
               type: ACTIONS.SET_ID_CHAT_OPEN,
               value: PUBLIC_CHAT_ID,
             });
           } else {
-            newLayoutContextDispatch({
+            layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
               value: true,
             });
-            newLayoutContextDispatch({
+            layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
               value: false,
             });
           }
         } else {
-          newLayoutContextDispatch({
+          layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
             value: false,
           });
-          newLayoutContextDispatch({
+          layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
             value: false,
           });
@@ -466,6 +466,6 @@ const BaseContainer = withTracker(() => {
     codeError,
     usersVideo,
   };
-})(NewLayoutContext.withContext(Base));
+})(LayoutContextFunc.withContext(Base));
 
 export default BaseContainer;

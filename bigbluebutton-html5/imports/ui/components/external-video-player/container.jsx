@@ -3,12 +3,12 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import { getVideoUrl } from './service';
 import ExternalVideoComponent from './component';
-import { NLayoutContext } from '../layout/context/context';
+import LayoutContext from '../layout/context';
 
 const ExternalVideoContainer = (props) => {
-  const NewLayoutManager = useContext(NLayoutContext);
-  const { newLayoutContextState } = NewLayoutManager;
-  const { output } = newLayoutContextState;
+  const layoutManager = useContext(LayoutContext);
+  const { layoutContextState } = layoutManager;
+  const { output } = layoutContextState;
   const { externalVideo } = output;
 
   return <ExternalVideoComponent {...{ ...props }} {...externalVideo} />;

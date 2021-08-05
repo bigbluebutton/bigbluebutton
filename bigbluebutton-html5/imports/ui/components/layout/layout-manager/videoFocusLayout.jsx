@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { throttle, defaultsDeep } from 'lodash';
-import LayoutContext from '../context/context';
-import DEFAULT_VALUES from '../defaultValues';
-import { INITIAL_INPUT_STATE } from '../context/initState';
-import { DEVICE_TYPE, ACTIONS, PANELS } from '../enums';
+import { LayoutContextFunc } from '/imports/ui/components/layout/context';
+import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
+import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
+import { DEVICE_TYPE, ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -20,9 +20,9 @@ class VideoFocusLayout extends Component {
 
   componentDidMount() {
     this.init();
-    const { newLayoutContextDispatch } = this.props;
+    const { layoutContextDispatch } = this.props;
     window.addEventListener('resize', () => {
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_BROWSER_SIZE,
         value: {
           width: window.document.documentElement.clientWidth,
@@ -33,18 +33,18 @@ class VideoFocusLayout extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    const { newLayoutContextState } = this.props;
-    return newLayoutContextState.input !== nextProps.newLayoutContextState.input
-      || newLayoutContextState.deviceType !== nextProps.newLayoutContextState.deviceType
-      || newLayoutContextState.isRTL !== nextProps.newLayoutContextState.isRTL
-      || newLayoutContextState.fontSize !== nextProps.newLayoutContextState.fontSize
-      || newLayoutContextState.fullscreen !== nextProps.newLayoutContextState.fullscreen;
+    const { layoutContextState } = this.props;
+    return layoutContextState.input !== nextProps.layoutContextState.input
+      || layoutContextState.deviceType !== nextProps.layoutContextState.deviceType
+      || layoutContextState.isRTL !== nextProps.layoutContextState.isRTL
+      || layoutContextState.fontSize !== nextProps.layoutContextState.fontSize
+      || layoutContextState.fullscreen !== nextProps.layoutContextState.fullscreen;
   }
 
   componentDidUpdate(prevProps) {
-    const { newLayoutContextState } = this.props;
-    const { deviceType } = newLayoutContextState;
-    if (prevProps.newLayoutContextState.deviceType !== deviceType) {
+    const { layoutContextState } = this.props;
+    const { deviceType } = layoutContextState;
+    if (prevProps.layoutContextState.deviceType !== deviceType) {
       this.init();
     } else {
       this.throttledCalculatesLayout();
@@ -60,8 +60,8 @@ class VideoFocusLayout extends Component {
   }
 
   bannerAreaHeight() {
-    const { newLayoutContextState } = this.props;
-    const { input } = newLayoutContextState;
+    const { layoutContextState } = this.props;
+    const { input } = layoutContextState;
     const { bannerBar, notificationsBar } = input;
 
     const bannerHeight = bannerBar.hasBanner ? DEFAULT_VALUES.bannerHeight : 0;
@@ -71,11 +71,11 @@ class VideoFocusLayout extends Component {
   }
 
   init() {
-    const { newLayoutContextState, newLayoutContextDispatch } = this.props;
-    const { input } = newLayoutContextState;
-    const { deviceType } = newLayoutContextState;
+    const { layoutContextState, layoutContextDispatch } = this.props;
+    const { input } = layoutContextState;
+    const { deviceType } = layoutContextState;
     if (deviceType === DEVICE_TYPE.MOBILE) {
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: defaultsDeep(
           {
@@ -106,7 +106,7 @@ class VideoFocusLayout extends Component {
     } else {
       const { sidebarContentPanel } = input.sidebarContent;
 
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: defaultsDeep(
           {
@@ -142,8 +142,8 @@ class VideoFocusLayout extends Component {
   }
 
   calculatesNavbarBounds(mediaAreaBounds) {
-    const { newLayoutContextState } = this.props;
-    const { isRTL } = newLayoutContextState;
+    const { layoutContextState } = this.props;
+    const { isRTL } = layoutContextState;
 
     return {
       width: mediaAreaBounds.width,
@@ -155,8 +155,8 @@ class VideoFocusLayout extends Component {
   }
 
   calculatesActionbarHeight() {
-    const { newLayoutContextState } = this.props;
-    const { fontSize } = newLayoutContextState;
+    const { layoutContextState } = this.props;
+    const { fontSize } = layoutContextState;
 
     const BASE_FONT_SIZE = 14; // 90% font size
     const BASE_HEIGHT = DEFAULT_VALUES.actionBarHeight;
@@ -172,8 +172,8 @@ class VideoFocusLayout extends Component {
   }
 
   calculatesActionbarBounds(mediaAreaBounds) {
-    const { newLayoutContextState } = this.props;
-    const { input, isRTL } = newLayoutContextState;
+    const { layoutContextState } = this.props;
+    const { input, isRTL } = layoutContextState;
 
     const actionBarHeight = this.calculatesActionbarHeight();
 
@@ -190,8 +190,8 @@ class VideoFocusLayout extends Component {
   }
 
   calculatesSidebarNavWidth() {
-    const { newLayoutContextState } = this.props;
-    const { deviceType, input } = newLayoutContextState;
+    const { layoutContextState } = this.props;
+    const { deviceType, input } = layoutContextState;
     const {
       sidebarNavMinWidth,
       sidebarNavMaxWidth,
@@ -222,8 +222,8 @@ class VideoFocusLayout extends Component {
   }
 
   calculatesSidebarNavHeight() {
-    const { newLayoutContextState } = this.props;
-    const { deviceType, input } = newLayoutContextState;
+    const { layoutContextState } = this.props;
+    const { deviceType, input } = layoutContextState;
     let sidebarNavHeight = 0;
     if (input.sidebarNavigation.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
@@ -237,8 +237,8 @@ class VideoFocusLayout extends Component {
   }
 
   calculatesSidebarNavBounds() {
-    const { newLayoutContextState } = this.props;
-    const { deviceType, isRTL } = newLayoutContextState;
+    const { layoutContextState } = this.props;
+    const { deviceType, isRTL } = layoutContextState;
     const { sidebarNavTop, navBarHeight, sidebarNavLeft } = DEFAULT_VALUES;
 
     let top = sidebarNavTop + this.bannerAreaHeight();
@@ -254,8 +254,8 @@ class VideoFocusLayout extends Component {
   }
 
   calculatesSidebarContentWidth() {
-    const { newLayoutContextState } = this.props;
-    const { deviceType, input } = newLayoutContextState;
+    const { layoutContextState } = this.props;
+    const { deviceType, input } = layoutContextState;
     const {
       sidebarContentMinWidth,
       sidebarContentMaxWidth,
@@ -289,8 +289,8 @@ class VideoFocusLayout extends Component {
   }
 
   calculatesSidebarContentHeight() {
-    const { newLayoutContextState } = this.props;
-    const { deviceType, input, output } = newLayoutContextState;
+    const { layoutContextState } = this.props;
+    const { deviceType, input, output } = layoutContextState;
     const { sidebarContent: inputContent, presentation } = input;
     const { sidebarContent: outputContent } = output;
     let minHeight = 0;
@@ -329,8 +329,8 @@ class VideoFocusLayout extends Component {
   }
 
   calculatesSidebarContentBounds(sidebarNavWidth) {
-    const { newLayoutContextState } = this.props;
-    const { deviceType, isRTL } = newLayoutContextState;
+    const { layoutContextState } = this.props;
+    const { deviceType, isRTL } = layoutContextState;
     const { sidebarNavTop, navBarHeight } = DEFAULT_VALUES;
 
     let top = sidebarNavTop + this.bannerAreaHeight();
@@ -351,8 +351,8 @@ class VideoFocusLayout extends Component {
   }
 
   calculatesMediaAreaBounds(sidebarNavWidth, sidebarContentWidth) {
-    const { newLayoutContextState } = this.props;
-    const { deviceType, isRTL } = newLayoutContextState;
+    const { layoutContextState } = this.props;
+    const { deviceType, isRTL } = layoutContextState;
     const { navBarHeight } = DEFAULT_VALUES;
     const { height: actionBarHeight } = this.calculatesActionbarHeight();
     let left = 0;
@@ -374,10 +374,10 @@ class VideoFocusLayout extends Component {
   }
 
   calculatesCameraDockBounds(mediaAreaBounds, sidebarSize) {
-    const { newLayoutContextState } = this.props;
+    const { layoutContextState } = this.props;
     const {
       deviceType, input, fullscreen, isRTL,
-    } = newLayoutContextState;
+    } = layoutContextState;
     const { cameraDock } = input;
     const { numCameras } = cameraDock;
 
@@ -434,10 +434,10 @@ class VideoFocusLayout extends Component {
     sidebarContentWidth,
     sidebarContentHeight,
   ) {
-    const { newLayoutContextState } = this.props;
+    const { layoutContextState } = this.props;
     const {
       deviceType, input, fullscreen, isRTL,
-    } = newLayoutContextState;
+    } = layoutContextState;
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
     const sidebarSize = sidebarNavWidth + sidebarContentWidth;
@@ -477,8 +477,8 @@ class VideoFocusLayout extends Component {
   }
 
   calculatesLayout() {
-    const { newLayoutContextState, newLayoutContextDispatch } = this.props;
-    const { deviceType, input, isRTL } = newLayoutContextState;
+    const { layoutContextState, layoutContextDispatch } = this.props;
+    const { deviceType, input, isRTL } = layoutContextState;
 
     const sidebarNavWidth = this.calculatesSidebarNavWidth();
     const sidebarNavHeight = this.calculatesSidebarNavHeight();
@@ -506,7 +506,7 @@ class VideoFocusLayout extends Component {
     );
     const isBottomResizable = input.cameraDock.numCameras > 0;
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_NAVBAR_OUTPUT,
       value: {
         display: input.navBar.hasNavBar,
@@ -519,7 +519,7 @@ class VideoFocusLayout extends Component {
       },
     });
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_ACTIONBAR_OUTPUT,
       value: {
         display: input.actionBar.hasActionBar,
@@ -534,7 +534,7 @@ class VideoFocusLayout extends Component {
       },
     });
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_NAVIGATION_OUTPUT,
       value: {
         display: input.sidebarNavigation.isOpen,
@@ -552,7 +552,7 @@ class VideoFocusLayout extends Component {
       },
     });
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_NAVIGATION_RESIZABLE_EDGE,
       value: {
         top: false,
@@ -562,7 +562,7 @@ class VideoFocusLayout extends Component {
       },
     });
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_OUTPUT,
       value: {
         display: input.sidebarContent.isOpen,
@@ -583,7 +583,7 @@ class VideoFocusLayout extends Component {
       },
     });
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_RESIZABLE_EDGE,
       value: {
         top: false,
@@ -593,7 +593,7 @@ class VideoFocusLayout extends Component {
       },
     });
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_MEDIA_AREA_SIZE,
       value: {
         width: mediaAreaBounds.width,
@@ -601,7 +601,7 @@ class VideoFocusLayout extends Component {
       },
     });
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_OUTPUT,
       value: {
         display: input.cameraDock.numCameras > 0,
@@ -626,7 +626,7 @@ class VideoFocusLayout extends Component {
       },
     });
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_PRESENTATION_OUTPUT,
       value: {
         display: input.presentation.isOpen,
@@ -642,7 +642,7 @@ class VideoFocusLayout extends Component {
       },
     });
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_PRESENTATION_RESIZABLE_EDGE,
       value: {
         top: true,
@@ -652,7 +652,7 @@ class VideoFocusLayout extends Component {
       },
     });
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SCREEN_SHARE_OUTPUT,
       value: {
         width: mediaBounds.width,
@@ -664,7 +664,7 @@ class VideoFocusLayout extends Component {
       },
     });
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
       value: {
         width: mediaBounds.width,
@@ -681,4 +681,4 @@ class VideoFocusLayout extends Component {
   }
 }
 
-export default LayoutContext.withConsumer(VideoFocusLayout);
+export default LayoutContextFunc.withConsumer(VideoFocusLayout);

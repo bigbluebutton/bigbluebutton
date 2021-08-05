@@ -12,7 +12,7 @@ import CaptionsService from '/imports/ui/components/captions/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
-import { NLayoutContext } from '../layout/context/context';
+import LayoutContext from '../layout/context';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
 
@@ -49,8 +49,8 @@ const endMeeting = (code) => {
 };
 
 const AppContainer = (props) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextState, layoutContextDispatch } = layoutContext;
 
   const {
     actionsbar,
@@ -65,7 +65,7 @@ const AppContainer = (props) => {
     output,
     layoutType,
     deviceType,
-  } = newLayoutContextState;
+  } = layoutContextState;
   const { sidebarContent, sidebarNavigation } = input;
   const { actionBar: actionsBarStyle } = output;
   const { sidebarNavPanel } = sidebarNavigation;
@@ -85,7 +85,7 @@ const AppContainer = (props) => {
           settingsLayout,
           pushLayoutToEveryone,
           deviceType,
-          newLayoutContextDispatch,
+          layoutContextDispatch,
           sidebarNavPanel,
           sidebarNavigationIsOpen,
           sidebarContentPanel,

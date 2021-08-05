@@ -2,12 +2,12 @@ import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import VideoList from '/imports/ui/components/video-provider/video-list/component';
 import VideoService from '/imports/ui/components/video-provider/service';
-import { NLayoutContext } from '../../layout/context/context';
+import LayoutContext from '../../layout/context';
 
 const VideoListContainer = ({ children, ...props }) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { layoutType, output } = newLayoutContextState;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextState, layoutContextDispatch } = layoutContext;
+  const { layoutType, output } = layoutContextState;
   const { cameraDock } = output;
 
   const { streams } = props;
@@ -18,7 +18,7 @@ const VideoListContainer = ({ children, ...props }) => {
         <VideoList {...{
           layoutType,
           cameraDock,
-          newLayoutContextDispatch,
+          layoutContextDispatch,
           ...props,
         }}
         >

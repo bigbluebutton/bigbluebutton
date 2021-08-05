@@ -202,7 +202,7 @@ class ApplicationMenu extends BaseMenu {
   }
 
   changeFontSize(size) {
-    const { newLayoutContextDispatch } = this.props;
+    const { layoutContextDispatch } = this.props;
     const obj = this.state;
     obj.settings.fontSize = size;
     this.setState(obj, () => {
@@ -210,7 +210,7 @@ class ApplicationMenu extends BaseMenu {
       this.handleUpdateFontSize(this.state.settings.fontSize);
     });
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_FONT_SIZE,
       value: parseInt(size.slice(0, -2)),
     });

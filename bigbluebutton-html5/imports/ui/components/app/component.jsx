@@ -145,7 +145,7 @@ class App extends Component {
       notify,
       intl,
       validIOSVersion,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
       meetingLayout,
       settingsLayout,
       isRTL,
@@ -153,7 +153,7 @@ class App extends Component {
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_IS_RTL,
       value: isRTL,
     });
@@ -165,7 +165,7 @@ class App extends Component {
     document.getElementsByTagName('html')[0].lang = locale;
     document.getElementsByTagName('html')[0].style.fontSize = fontSize;
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_FONT_SIZE,
       value: parseInt(fontSize.slice(0, -2), 10),
     });
@@ -217,12 +217,12 @@ class App extends Component {
       settingsLayout,
       layoutType,
       pushLayoutToEveryone,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
       isRTL,
     } = this.props;
 
     if (meetingLayout !== prevProps.meetingLayout) {
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_TYPE,
         value: meetingLayout,
       });
@@ -232,7 +232,7 @@ class App extends Component {
     }
 
     if (isRTL !== prevProps.isRTL) {
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_IS_RTL,
         value: isRTL,
       });
@@ -240,7 +240,7 @@ class App extends Component {
 
     if (settingsLayout !== prevProps.settingsLayout
       || settingsLayout !== layoutType) {
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_TYPE,
         value: settingsLayout,
       });
@@ -311,7 +311,7 @@ class App extends Component {
   }
 
   setDeviceType() {
-    const { deviceType, newLayoutContextDispatch } = this.props;
+    const { deviceType, layoutContextDispatch } = this.props;
     let newDeviceType = null;
     if (isMobile()) newDeviceType = DEVICE_TYPE.MOBILE;
     if (isTablet()) newDeviceType = DEVICE_TYPE.TABLET;
@@ -320,7 +320,7 @@ class App extends Component {
     if (isDesktop()) newDeviceType = DEVICE_TYPE.DESKTOP;
 
     if (newDeviceType !== deviceType) {
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_DEVICE_TYPE,
         value: newDeviceType,
       });
@@ -464,8 +464,8 @@ class App extends Component {
       <>
         {this.renderLayoutManager()}
         <div
-          id="newLayout"
-          className={styles.newLayout}
+          id="layout"
+          className={styles.layout}
           style={{
             width: '100%',
             height: '100%',

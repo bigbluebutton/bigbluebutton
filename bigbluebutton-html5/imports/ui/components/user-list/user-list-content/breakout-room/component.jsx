@@ -15,15 +15,15 @@ const intlMessages = defineMessages({
 const BreakoutRoomItem = ({
   hasBreakoutRoom,
   sidebarContentPanel,
-  newLayoutContextDispatch,
+  layoutContextDispatch,
   intl,
 }) => {
   const toggleBreakoutPanel = () => {
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
       value: sidebarContentPanel !== PANELS.BREAKOUT,
     });
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
       value: sidebarContentPanel === PANELS.BREAKOUT
         ? PANELS.NONE

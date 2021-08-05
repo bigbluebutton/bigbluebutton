@@ -1,7 +1,7 @@
 import React, { createContext, useReducer } from 'react';
 import PropTypes from 'prop-types';
-import { ACTIONS } from '../enums';
-import DEFAULT_VALUES from '../defaultValues';
+import { ACTIONS } from '/imports/ui/components/layout/enums';
+import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
 
 // variable to debug in console log
@@ -24,7 +24,7 @@ const providerPropTypes = {
   ]).isRequired,
 };
 
-export const NLayoutContext = createContext();
+const LayoutContext = createContext();
 
 const initState = {
   deviceType: null,
@@ -1101,16 +1101,16 @@ const reducer = (state, action) => {
 };
 
 const ContextProvider = (props) => {
-  const [newLayoutContextState, newLayoutContextDispatch] = useReducer(reducer, initState);
+  const [layoutContextState, layoutContextDispatch] = useReducer(reducer, initState);
   const { children } = props;
   return (
-    <NLayoutContext.Provider value={{
-      newLayoutContextState,
-      newLayoutContextDispatch,
+    <LayoutContext.Provider value={{
+      layoutContextState,
+      layoutContextDispatch,
     }}
     >
       {children}
-    </NLayoutContext.Provider>
+    </LayoutContext.Provider>
   );
 };
 ContextProvider.propTypes = providerPropTypes;
@@ -1122,12 +1122,14 @@ const withProvider = (Component) => (props) => (
 );
 
 const withConsumer = (Component) => (props) => (
-  <NLayoutContext.Consumer>
+  <LayoutContext.Consumer>
     {(contexts) => <Component {...props} {...contexts} />}
-  </NLayoutContext.Consumer>
+  </LayoutContext.Consumer>
 );
 
-export default {
+export default LayoutContext;
+
+export const LayoutContextFunc = {
   withProvider,
   withConsumer,
   withContext: (Component) => withProvider(withConsumer(Component)),

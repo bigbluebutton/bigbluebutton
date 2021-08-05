@@ -232,7 +232,7 @@ class UserDropdown extends PureComponent {
       meetingIsBreakout,
       mountModal,
       usersProp,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
     } = this.props;
     const { showNestedOptions } = this.state;
 
@@ -317,15 +317,15 @@ class UserDropdown extends PureComponent {
         onClick: () => {
           this.handleClose();
           getGroupChatPrivate(currentUser.userId, user);
-          newLayoutContextDispatch({
+          layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
             value: true,
           });
-          newLayoutContextDispatch({
+          layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
             value: PANELS.CHAT,
           });
-          newLayoutContextDispatch({
+          layoutContextDispatch({
             type: ACTIONS.SET_ID_CHAT_OPEN,
             value: user.userId,
           });
