@@ -8,7 +8,7 @@ import Auth from '/imports/ui/services/auth';
 import breakoutService from '/imports/ui/components/breakout-room/service';
 import VideoService from '/imports/ui/components/video-provider/service';
 
-import { NLayoutContext } from '../layout/context/context';
+import LayoutContext from '../layout/context';
 import WebcamComponent from '/imports/ui/components/webcam/component';
 
 const WebcamContainer = ({
@@ -17,9 +17,9 @@ const WebcamContainer = ({
   usersVideo,
   disableVideo,
 }) => {
-  const LayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState, newLayoutContextDispatch } = LayoutContext;
-  const { fullscreen, output } = newLayoutContextState;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextState, layoutContextDispatch } = layoutContext;
+  const { fullscreen, output } = layoutContextState;
   const { cameraDock, cameraOptimalGridSize } = output;
 
   return !disableVideo
@@ -32,7 +32,7 @@ const WebcamContainer = ({
           usersVideo,
           cameraDock,
           cameraOptimalGridSize,
-          newLayoutContextDispatch,
+          layoutContextDispatch,
           fullscreen,
         }}
       />

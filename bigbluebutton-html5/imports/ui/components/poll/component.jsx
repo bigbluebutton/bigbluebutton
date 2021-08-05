@@ -204,18 +204,18 @@ class Poll extends Component {
   }
 
   componentDidUpdate() {
-    const { amIPresenter, newLayoutContextDispatch } = this.props;
+    const { amIPresenter, layoutContextDispatch } = this.props;
 
     if (Session.equals('resetPollPanel', true)) {
       this.handleBackClick();
     }
 
     if (!amIPresenter) {
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
         value: false,
       });
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
         value: PANELS.NONE,
       });
@@ -660,7 +660,7 @@ class Poll extends Component {
       intl,
       stopPoll,
       currentPoll,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
     } = this.props;
 
     return (
@@ -675,11 +675,11 @@ class Poll extends Component {
             aria-label={intl.formatMessage(intlMessages.hidePollDesc)}
             className={styles.hideBtn}
             onClick={() => {
-              newLayoutContextDispatch({
+              layoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
                 value: false,
               });
-              newLayoutContextDispatch({
+              layoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                 value: PANELS.NONE,
               });
@@ -690,11 +690,11 @@ class Poll extends Component {
             aria-label={`${intl.formatMessage(intlMessages.closeLabel)} ${intl.formatMessage(intlMessages.pollPaneTitle)}`}
             onClick={() => {
               if (currentPoll) stopPoll();
-              newLayoutContextDispatch({
+              layoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
                 value: false,
               });
-              newLayoutContextDispatch({
+              layoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                 value: PANELS.NONE,
               });

@@ -7,7 +7,7 @@ import Auth from '/imports/ui/services/auth';
 import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
 import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
 import { styles } from './styles.scss';
-import { NLayoutContext } from '../layout/context/context';
+import LayoutContext from '../layout/context';
 import { ACTIONS } from '../layout/enums';
 
 import breakoutService from '/imports/ui/components/breakout-room/service';
@@ -76,9 +76,9 @@ const intlMessages = defineMessages({
 
 const NotificationsBarContainer = (props) => {
   const { message, color } = props;
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { input } = newLayoutContextState;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextState, layoutContextDispatch } = layoutContext;
+  const { input } = layoutContextState;
   const { notificationsBar } = input;
   const { hasNotification } = notificationsBar;
 
@@ -86,7 +86,7 @@ const NotificationsBarContainer = (props) => {
     const localHasNotification = !!message;
 
     if(localHasNotification !== hasNotification){
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_HAS_NOTIFICATIONS_BAR,
         value: localHasNotification,
       });

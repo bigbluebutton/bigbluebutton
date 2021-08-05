@@ -16,7 +16,6 @@ const propTypes = {
   streams: PropTypes.arrayOf(PropTypes.object).isRequired,
   onVideoItemMount: PropTypes.func.isRequired,
   onVideoItemUnmount: PropTypes.func.isRequired,
-  webcamDraggableDispatch: PropTypes.func.isRequired,
   intl: PropTypes.objectOf(Object).isRequired,
   swapLayout: PropTypes.bool.isRequired,
   numberOfPages: PropTypes.number.isRequired,
@@ -113,17 +112,8 @@ class VideoList extends Component {
   }
 
   componentDidMount() {
-    const { webcamDraggableDispatch } = this.props;
-    webcamDraggableDispatch(
-      {
-        type: 'setVideoListRef',
-        value: this.grid,
-      },
-    );
-
     this.handleCanvasResize();
     window.addEventListener('resize', this.handleCanvasResize, false);
-    window.addEventListener('layoutSizesSets', this.handleCanvasResize, false);
     window.addEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
@@ -142,7 +132,6 @@ class VideoList extends Component {
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleCanvasResize, false);
-    window.removeEventListener('layoutSizesSets', this.handleCanvasResize, false);
     window.removeEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
@@ -209,26 +198,15 @@ class VideoList extends Component {
     const {
       streams,
       cameraDock,
-      webcamDraggableDispatch,
-      layoutLoaded,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
     } = this.props;
     let numItems = streams.length;
     if (numItems < 1 || !this.canvas || !this.grid) {
       return;
     }
     const { focusedId } = this.state;
-    let canvasWidth;
-    let canvasHeight;
-    const canvasBounds = this.canvas.getBoundingClientRect();
-
-    if (layoutLoaded === 'legacy') {
-      canvasWidth = canvasBounds?.width;
-      canvasHeight = canvasBounds?.height;
-    } else {
-      canvasWidth = cameraDock?.width;
-      canvasHeight = cameraDock?.height;
-    }
+    const canvasWidth = cameraDock?.width;
+    const canvasHeight = cameraDock?.height;
 
     const gridGutter = parseInt(window.getComputedStyle(this.grid)
       .getPropertyValue('grid-row-gap'), 10);
@@ -248,13 +226,7 @@ class VideoList extends Component {
         const betterThanCurrent = testGrid.filledArea > currentGrid.filledArea;
         return focusedConstraint && betterThanCurrent ? testGrid : currentGrid;
       }, { filledArea: 0 });
-    webcamDraggableDispatch(
-      {
-        type: 'setOptimalGrid',
-        value: optimalGrid,
-      },
-    );
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_OPTIMAL_GRID_SIZE,
       value: {
         width: optimalGrid.width,
@@ -406,7 +378,6 @@ class VideoList extends Component {
     const {
       streams,
       intl,
-      layoutLoaded
     } = this.props;
     const { optimalGrid, autoplayBlocked } = this.state;
 
@@ -425,10 +396,9 @@ class VideoList extends Component {
         }}
         className={canvasClassName}
         style={{
-          minHeight: layoutLoaded === 'new' ? `inherit` : undefined,
+          minHeight: 'inherit',
         }}
       >
-
         {this.renderPreviousPageButton()}
 
         {!streams.length ? null : (
@@ -456,7 +426,6 @@ class VideoList extends Component {
         )}
 
         {this.renderNextPageButton()}
-
       </div>
     );
   }

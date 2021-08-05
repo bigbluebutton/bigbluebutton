@@ -67,7 +67,7 @@ const ChatListItem = (props) => {
     shortcuts: TOGGLE_CHAT_PUB_AK,
     sidebarContentIsOpen,
     sidebarContentPanel,
-    newLayoutContextDispatch,
+    layoutContextDispatch,
   } = props;
 
   const chatPanelOpen = sidebarContentIsOpen && sidebarContentPanel === PANELS.CHAT;
@@ -90,7 +90,7 @@ const ChatListItem = (props) => {
 
   useEffect(() => {
     if (chat.userId !== PUBLIC_CHAT_KEY && chat.userId === idChatOpen) {
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_ID_CHAT_OPEN,
         value: chat.chatId,
       });
@@ -102,34 +102,34 @@ const ChatListItem = (props) => {
 
     if (sidebarContentIsOpen && sidebarContentPanel === PANELS.CHAT) {
       if (idChatOpen === chat.chatId) {
-        newLayoutContextDispatch({
+        layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
           value: false,
         });
-        newLayoutContextDispatch({
+        layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
           value: PANELS.NONE,
         });
-        newLayoutContextDispatch({
+        layoutContextDispatch({
           type: ACTIONS.SET_ID_CHAT_OPEN,
           value: '',
         });
       } else {
-        newLayoutContextDispatch({
+        layoutContextDispatch({
           type: ACTIONS.SET_ID_CHAT_OPEN,
           value: chat.chatId,
         });
       }
     } else {
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
         value: true,
       });
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
         value: PANELS.CHAT,
       });
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_ID_CHAT_OPEN,
         value: chat.chatId,
       });

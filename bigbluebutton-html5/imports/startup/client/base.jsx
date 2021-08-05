@@ -19,12 +19,10 @@ import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import LayoutContext from '/imports/ui/components/layout/context';
-import NewLayoutContext from '../../ui/components/layout/context/context';
+import { LayoutContextFunc } from '../../ui/components/layout/context';
 import VideoService from '/imports/ui/components/video-provider/service';
 import DebugWindow from '/imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
-import LayoutManagerContainer from '/imports/ui/components/layout/layout-manager/container';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
@@ -89,8 +87,6 @@ class Base extends Component {
     if (animations) HTML.classList.add('animationsEnabled');
     if (!animations) HTML.classList.add('animationsDisabled');
 
-    Session.set('layoutManagerLoaded', 'legacy');
-
     fullscreenChangedEvents.forEach((event) => {
       document.addEventListener(event, Base.handleFullscreenChange);
     });
@@ -149,8 +145,7 @@ class Base extends Component {
       isMeteorConnected,
       subscriptionsReady,
       layoutContextDispatch,
-      newLayoutContextDispatch,
-      newLayoutContextState,
+      layoutContextState,
       usersVideo,
     } = this.props;
     const {
@@ -158,21 +153,15 @@ class Base extends Component {
       meetingExisted,
     } = this.state;
 
-    const { input } = newLayoutContextState;
+    const { input } = layoutContextState;
     const { sidebarContent } = input;
     const { sidebarContentPanel } = sidebarContent;
 
     if (usersVideo !== prevProps.usersVideo) {
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_NUM_CAMERAS,
         value: usersVideo.length,
       });
-      layoutContextDispatch(
-        {
-          type: 'setUsersVideo',
-          value: usersVideo.length,
-        },
-      );
     }
 
     if (!prevProps.subscriptionsReady && subscriptionsReady) {
@@ -218,38 +207,38 @@ class Base extends Component {
       if (!checkedUserSettings) {
         if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
           if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
-            newLayoutContextDispatch({
+            layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
               value: true,
             });
-            newLayoutContextDispatch({
+            layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
               value: true,
             });
-            newLayoutContextDispatch({
+            layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
               value: PANELS.CHAT,
             });
-            newLayoutContextDispatch({
+            layoutContextDispatch({
               type: ACTIONS.SET_ID_CHAT_OPEN,
               value: PUBLIC_CHAT_ID,
             });
           } else {
-            newLayoutContextDispatch({
+            layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
               value: true,
             });
-            newLayoutContextDispatch({
+            layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
               value: false,
             });
           }
         } else {
-          newLayoutContextDispatch({
+          layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
             value: false,
           });
-          newLayoutContextDispatch({
+          layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
             value: false,
           });
@@ -331,7 +320,6 @@ class Base extends Component {
     return (
       <>
         {meetingExist && Auth.loggedIn && <DebugWindow />}
-        {meetingExist && Auth.loggedIn && <LayoutManagerContainer />}
         {
           (!meetingExisted && !meetingExist && Auth.loggedIn)
             ? <LoadingScreen />
@@ -477,8 +465,7 @@ const BaseContainer = withTracker(() => {
     loggedIn,
     codeError,
     usersVideo,
-    layoutManagerLoaded: Session.get('layoutManagerLoaded'),
   };
-})(LayoutContext.withLayoutContext(NewLayoutContext.withContext(Base)));
+})(LayoutContextFunc.withContext(Base));
 
 export default BaseContainer;

@@ -152,15 +152,15 @@ const WaitingUsers = (props) => {
     const {
       authenticatedUsers,
       guestUsers,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
     } = props;
 
     if (!authenticatedUsers.length && !guestUsers.length) {
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
         value: false,
       });
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
         value: PANELS.NONE,
       });
@@ -177,7 +177,7 @@ const WaitingUsers = (props) => {
     setGuestLobbyMessage,
     guestLobbyMessage,
     authenticatedGuest,
-    newLayoutContextDispatch,
+    layoutContextDispatch,
     allowRememberChoice,
   } = props;
 
@@ -251,11 +251,11 @@ const WaitingUsers = (props) => {
         >
           <Button
             onClick={() => {
-              newLayoutContextDispatch({
+              layoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
                 value: false,
               });
-              newLayoutContextDispatch({
+              layoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                 value: PANELS.NONE,
               });
