@@ -24,7 +24,7 @@ const findBreakouts = () => {
 const breakoutRoomUser = (breakoutId) => {
   const breakoutRooms = findBreakouts();
   const breakoutRoom = breakoutRooms.filter(breakout => breakout.breakoutId === breakoutId).shift();
-  const breakoutUser = breakoutRoom.users.filter(user => user.userId === Auth.userID).shift();
+  const breakoutUser = breakoutRoom.users?.filter(user => user.userId === Auth.userID).shift();
   return breakoutUser;
 };
 
