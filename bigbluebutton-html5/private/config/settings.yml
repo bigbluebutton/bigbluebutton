@@ -28,7 +28,7 @@ public:
     #
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
-    bbbServerVersion: 2.3
+    bbbServerVersion: 2.4
     copyright: '©2021 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
@@ -42,7 +42,6 @@ public:
     allowUserLookup: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
-    enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
     enableTalkingIndicator: true
@@ -79,6 +78,15 @@ public:
     showAudioFilters: true
     raiseHandActionButton:
       enabled: true
+    # If enabled, before joining microphone the client will perform a trickle
+    # ICE against Kurento and use the information about successfull
+    # candidate-pairs to filter out local candidates in SIP.js's SDP.
+    # Try enabling this setting in scenarios where the listenonly mode works,
+    # but microphone doesn't (for example, when using VPN).
+    # For compatibility check "Browser compatbility" section in:
+    # https://developer.mozilla.org/en-US/docs/Web/API/RTCDtlsTransport/iceTransport
+    # This is an EXPERIMENTAL setting and the default value is false
+    # experimentalUseKmsTrickleIceForMicrophone: false
     defaultSettings:
       application:
         animations: true
@@ -91,6 +99,7 @@ public:
         guestWaitingAudioAlerts: true
         guestWaitingPushAlerts: true
         paginationEnabled: true
+        pushLayoutToEveryone: false
         # fallbackLocale: if the locale the client is loaded in does not have a
         # translation a string, it will use the translation from the locale
         # specified in fallbackLocale. Note that fallbackLocale should be a
@@ -171,9 +180,6 @@ public:
       - warning
   externalVideoPlayer:
     enabled: true
-  networkMonitoring:
-    enableNetworkMonitoring: false
-    packetLostThreshold: 10
   kurento:
     wsUrl: HOST
     # Valid for video-provider. Time (ms) before its WS connection times out
@@ -379,9 +385,10 @@ public:
     toggleSelfVoice: false
   poll:
     enabled: true
-    max_custom: 5
+    maxCustom: 5
     allowDragAndDropFile: false
     maxTypedAnswerLength: 45
+    chatMessage: true
   captions:
     enabled: true
     enableDictation: false
@@ -396,6 +403,7 @@ public:
     enabled: true
     itemsPerPage: 100
     timeBetweenFetchs: 1000
+    enableSaveAndCopyPublicChat: true
     bufferChatInsertsMs: 0
     startClosed: false
     min_message_length: 1
@@ -533,6 +541,7 @@ public:
       moderator: false
       mobile: true
       guest: true
+      sharingWebcam: true
   whiteboard:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150
@@ -629,6 +638,16 @@ public:
       throttleInterval: 400
       flushOnClose: true
       logTag: ''
+  virtualBackgrounds:
+    enabled: true
+    storedOnBBB: true
+    showThumbnails: true
+    imagesPath: /resources/images/virtual-backgrounds/
+    thumbnailsPath: /resources/images/virtual-backgrounds/thumbnails/
+    fileNames:
+      - home.jpg
+      - coffeeshop.jpg
+      - board.jpg
 private:
   analytics:
     includeChat: true
@@ -694,3 +713,4 @@ private:
       version: 10
     - browser: YandexBrowser
       version: 19
+

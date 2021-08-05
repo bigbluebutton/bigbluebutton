@@ -13,6 +13,7 @@ import { initPads } from '/imports/api/common/server/etherpad';
 import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
 import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
+import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 
 const addExternalVideo = (meetingId) => {
   const selector = { meetingId };
@@ -51,6 +52,7 @@ export default function addMeeting(meeting) {
       intId: String,
       extId: String,
       isBreakout: Boolean,
+      activityReportTracking: Boolean,
       name: String,
     },
     usersProp: {
@@ -59,6 +61,7 @@ export default function addMeeting(meeting) {
       authenticatedGuest: Boolean,
       maxUsers: Number,
       allowModsToUnmuteUsers: Boolean,
+      meetingLayout: String,
     },
     durationProps: {
       createdTime: Number,
@@ -86,6 +89,7 @@ export default function addMeeting(meeting) {
     password: {
       viewerPass: String,
       moderatorPass: String,
+      activityReportAccessToken: String,
     },
     voiceProp: {
       voiceConf: String,
@@ -169,6 +173,7 @@ export default function addMeeting(meeting) {
     $set: Object.assign({
       meetingId,
       meetingEnded,
+      layout: LAYOUT_TYPE[meeting.usersProp.meetingLayout] || 'smart',
       publishedPoll: false,
       guestLobbyMessage: '',
       randomlySelectedUser: [],

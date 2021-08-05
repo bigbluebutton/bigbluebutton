@@ -8,7 +8,6 @@ import VideoStreams from '/imports/api/video-streams';
 import UserListService from '/imports/ui/components/user-list/service';
 import { makeCall } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
-import { monitorVideoConnection } from '/imports/utils/stats';
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -27,7 +26,6 @@ const MULTIPLE_CAMERAS = Meteor.settings.public.app.enableMultipleCameras;
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
-const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 const MIRROR_WEBCAM = Meteor.settings.public.app.mirrorOwnWebcam;
 const CAMERA_QUALITY_THRESHOLDS = Meteor.settings.public.kurento.cameraQualityThresholds.thresholds || [];
 const {
@@ -379,6 +377,15 @@ class VideoService {
     return [...paginatedStreams, ...mine];
   }
 
+  getUsersIdFromVideoStreams() {
+    const usersId = VideoStreams.find(
+      { meetingId: Auth.meetingID },
+      { fields: { userId: 1 } },
+    ).fetch().map(user => user.userId);
+
+    return usersId;
+  }
+
   getVideoStreams() {
     const pageSize = this.getMyPageSize();
     const isPaginationDisabled = !this.isPaginationEnabled() || pageSize === 0;
@@ -390,6 +397,10 @@ class VideoService {
       { meetingId: Auth.meetingID },
       { fields: neededDataTypes },
     ).fetch();
+
+    // Data savings enabled will only show local streams
+    const { viewParticipantsWebcams } = Settings.dataSaving;
+    if (!viewParticipantsWebcams) streams = this.filterLocalOnly(streams);
 
     const moderatorOnly = this.webcamsOnlyForModerator();
     if (moderatorOnly) streams = this.filterModeratorOnly(streams);
@@ -512,6 +523,10 @@ class VideoService {
     return streams;
   }
 
+  filterLocalOnly(streams) {
+    return streams.filter(stream => stream.userId === Auth.userID);
+  }
+
   disableCam() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID },
       { fields: { 'lockSettingsProps.disableCam': 1 } });
@@ -519,9 +534,14 @@ class VideoService {
   }
 
   webcamsOnlyForModerator() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID },
+    const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
       { fields: { 'usersProp.webcamsOnlyForModerator': 1 } });
-    return m?.usersProp ? m.usersProp.webcamsOnlyForModerator : false;
+    const user = Users.findOne({ userId: Auth.userID }, { fields: { locked: 1, role: 1 } });
+
+    if (meeting?.usersProp && user?.role !== ROLE_MODERATOR && user?.locked) {
+      return meeting.usersProp.webcamsOnlyForModerator;
+    }
+    return false;
   }
 
   getInfo() {
@@ -544,7 +564,7 @@ class VideoService {
     return isOwnWebcam && isEnabledMirroring;
   }
 
-  getMyStream(deviceId) {
+  getMyStreamId(deviceId) {
     const videoStream = VideoStreams.findOne(
       {
         meetingId: Auth.meetingID,
@@ -624,11 +644,9 @@ class VideoService {
   }
 
   disableReason() {
-    const { viewParticipantsWebcams } = Settings.dataSaving;
     const locks = {
       videoLocked: this.isUserLocked(),
       videoConnecting: this.isConnecting,
-      dataSaving: !viewParticipantsWebcams,
       meteorDisconnected: !Meteor.status().connected
     };
     const locksKeys = Object.keys(locks);
@@ -660,10 +678,6 @@ class VideoService {
       && !this.isMobile
       && !this.isSafari
       && this.numberOfDevices > 1;
-  }
-
-  monitor(conn) {
-    if (ENABLE_NETWORK_MONITORING) monitorVideoConnection(conn);
   }
 
   // to be used soon (Paulo)
@@ -802,6 +816,11 @@ class VideoService {
 
     return finalThreshold;
   }
+
+  getPreloadedStream () {
+    if (this.deviceId == null) return;
+    return VideoPreviewService.getStream(this.deviceId);
+  }
 }
 
 const videoService = new VideoService();
@@ -813,7 +832,7 @@ export default {
   stopVideo: cameraId => videoService.stopVideo(cameraId),
   getVideoStreams: () => videoService.getVideoStreams(),
   getInfo: () => videoService.getInfo(),
-  getMyStream: deviceId => videoService.getMyStream(deviceId),
+  getMyStreamId: deviceId => videoService.getMyStreamId(deviceId),
   isUserLocked: () => videoService.isUserLocked(),
   lockUser: () => videoService.lockUser(),
   getAuthenticatedURL: () => videoService.getAuthenticatedURL(),
@@ -829,7 +848,6 @@ export default {
   getSharedDevices: () => videoService.getSharedDevices(),
   getUserParameterProfile: () => videoService.getUserParameterProfile(),
   isMultipleCamerasEnabled: () => videoService.isMultipleCamerasEnabled(),
-  monitor: conn => videoService.monitor(conn),
   mirrorOwnWebcam: userId => videoService.mirrorOwnWebcam(userId),
   onBeforeUnload: () => videoService.onBeforeUnload(),
   notify: message => notify(message, 'error', 'video'),
@@ -842,5 +860,7 @@ export default {
   getPreviousVideoPage: () => videoService.getPreviousVideoPage(),
   getNextVideoPage: () => videoService.getNextVideoPage(),
   getPageChangeDebounceTime: () => { return PAGE_CHANGE_DEBOUNCE_TIME },
+  getUsersIdFromVideoStreams: () => videoService.getUsersIdFromVideoStreams(),
   shouldRenderPaginationToggle: () => videoService.shouldRenderPaginationToggle(),
+  getPreloadedStream: () => videoService.getPreloadedStream(),
 };

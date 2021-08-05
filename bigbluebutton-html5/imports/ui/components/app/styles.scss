@@ -15,7 +15,8 @@
   position: relative;
 }
 
-.newLayout{
+.layout{
+  @extend %flex-column;
   background-color: #06172A;
 }
 

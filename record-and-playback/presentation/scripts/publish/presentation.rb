@@ -27,7 +27,7 @@ require 'trollop'
 require 'yaml'
 require 'builder'
 require 'fastimage' # require fastimage to get the image size of the slides (gem install fastimage)
-
+require 'json'
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 bbb_props = BigBlueButton.read_props
@@ -1115,6 +1115,125 @@ def processDeskshareEvents(events)
   end
 end
 
+def getPollQuestion(event)
+  question = ""
+  if not event.at_xpath("question").nil?
+    question = event.at_xpath("question").text
+  end
+
+  question
+end
+
+def getPollAnswers(event)
+  answers = []
+  if not event.at_xpath("answers").nil?
+    answers = JSON.load(event.at_xpath("answers").content)
+  end
+
+  answers
+end
+
+def getPollRespondents(event)
+  respondents = 0
+  if not event.at_xpath("numRespondents").nil?
+    respondents = event.at_xpath("numRespondents").text.to_i
+  end
+
+  respondents
+end
+
+def getPollResponders(event)
+  responders = 0
+  if not event.at_xpath("numResponders").nil?
+    responders = event.at_xpath("numResponders").text.to_i
+  end
+
+  responders
+end
+
+def getPollId(event)
+  id = ""
+  if not event.at_xpath("pollId").nil?
+    id = event.at_xpath("pollId").text
+  end
+
+  id
+end
+
+def getPollType(events, published_poll_event)
+  published_poll_id = getPollId(published_poll_event)
+
+  type = ""
+  events.xpath("//event[@eventname='PollStartedRecordEvent']").each do |event|
+    poll_id = getPollId(event)
+
+    if poll_id.eql?(published_poll_id)
+      type = event.at_xpath("type").text
+      break
+    end
+  end
+
+  type
+end
+
+def processPollEvents(events, package_dir)
+  BigBlueButton.logger.info("Processing poll events")
+
+  published_polls = []
+  $rec_events.each do |re|
+    events.xpath("//event[@eventname='PollPublishedRecordEvent']").each do |event|
+      if (event[:timestamp].to_i >= re[:start_timestamp] and event[:timestamp].to_i <= re[:stop_timestamp])
+        published_polls << {
+          :timestamp => (translateTimestamp(event[:timestamp]) / 1000).to_i,
+          :type => getPollType(events, event),
+          :question => getPollQuestion(event),
+          :answers => getPollAnswers(event),
+          :respondents => getPollRespondents(event),
+          :responders => getPollResponders(event)
+        }
+      end
+    end
+  end
+
+  if not published_polls.empty?
+    File.open("#{package_dir}/polls.json", "w") do |f|
+      f.puts(published_polls.to_json)
+    end
+  end
+end
+
+def processExternalVideoEvents(events, package_dir)
+  BigBlueButton.logger.info("Processing external video events")
+
+  # Retrieve external video events
+  external_video_events = BigBlueButton::Events.match_start_and_stop_external_video_events(
+    BigBlueButton::Events.get_start_and_stop_external_video_events(@doc))
+
+  external_videos = []
+  $rec_events.each do |re|
+    external_video_events.each do |event|
+      #BigBlueButton.logger.info("Processing rec event #{re} and external video event #{event}")
+      timestamp = (translateTimestamp(event[:start_timestamp]) / 1000).to_i
+      # do not add same external_video twice
+      if (external_videos.find {|ev| ev[:timestamp] == timestamp}.nil?)
+        if ((event[:start_timestamp] >= re[:start_timestamp] and event[:start_timestamp] <= re[:stop_timestamp]) || 
+           (event[:start_timestamp] < re[:start_timestamp] and event[:stop_timestamp] >= re[:start_timestamp]))
+          external_videos << {
+            :timestamp => timestamp,
+            :external_video_url => event[:external_video_url]
+          }
+        end
+      end
+    end
+  end
+
+  if not external_videos.empty?
+    File.open("#{package_dir}/external_videos.json", "w") do |f|
+      f.puts(external_videos.to_json)
+    end
+  end
+end
+
 $shapes_svg_filename = 'shapes.svg'
 $panzooms_xml_filename = 'panzooms.xml'
 $cursor_xml_filename = 'cursor.xml'
@@ -1311,6 +1430,10 @@ begin
         processPresentation(package_dir)
 
         processDeskshareEvents(@doc)
+
+        processPollEvents(@doc, package_dir)
+
+        processExternalVideoEvents(@doc, package_dir)
 
         # Write slides.xml to file
         File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts $slides_doc.to_xml }

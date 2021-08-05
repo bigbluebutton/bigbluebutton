@@ -12,6 +12,7 @@ import Service from './service';
 import UserListService from '/imports/ui/components/user-list/service';
 import ExternalVideoService from '/imports/ui/components/external-video-player/service';
 import CaptionsService from '/imports/ui/components/captions/service';
+import LayoutContext from '../layout/context';
 
 import MediaService, {
   getSwapLayout,
@@ -21,6 +22,10 @@ import MediaService, {
 const ActionsBarContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextState, layoutContextDispatch } = layoutContext;
+  const { output } = layoutContextState;
+  const { actionBar: actionsBarStyle } = output;
 
   const currentUser = { userId: Auth.userID, emoji: users[Auth.meetingID][Auth.userID].emoji };
 
@@ -29,6 +34,8 @@ const ActionsBarContainer = (props) => {
       ...{
         ...props,
         currentUser,
+        layoutContextDispatch,
+        actionsBarStyle,
       }
     }
     />

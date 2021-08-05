@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import injectNotify from '/imports/ui/components/toast/inject-notify/component';
-import { Session } from 'meteor/session';
 import { PANELS, ACTIONS } from '../../../layout/enums';
 
 const propTypes = {
@@ -11,6 +10,7 @@ const propTypes = {
   title: PropTypes.node.isRequired,
   content: PropTypes.node.isRequired,
   alertDuration: PropTypes.number.isRequired,
+  layoutContextDispatch: PropTypes.func.isRequired,
 };
 
 class ChatPushAlert extends PureComponent {
@@ -24,7 +24,7 @@ class ChatPushAlert extends PureComponent {
   }
 
   link(title, chatId) {
-    const { newLayoutContextDispatch } = this.props;
+    const { layoutContextDispatch } = this.props;
 
     return (
       <div
@@ -33,11 +33,15 @@ class ChatPushAlert extends PureComponent {
         aria-label={title}
         tabIndex={0}
         onClick={() => {
-          newLayoutContextDispatch({
+          layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
             value: true,
           });
-          newLayoutContextDispatch({
+          layoutContextDispatch({
+            type: ACTIONS.SET_ID_CHAT_OPEN,
+            value: chatId,
+          });
+          layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
             value: PANELS.CHAT,
           });
@@ -53,6 +57,7 @@ class ChatPushAlert extends PureComponent {
     const {
       notify,
       onOpen,
+      onClose,
       chatId,
       title,
       content,
@@ -63,7 +68,7 @@ class ChatPushAlert extends PureComponent {
       this.link(title, chatId),
       'info',
       'chat',
-      { onOpen, autoClose: alertDuration },
+      { onOpen, onClose, autoClose: alertDuration },
       this.link(content, chatId),
       true,
     );

@@ -12,7 +12,8 @@ import { styles } from '/imports/ui/components/app/styles';
 
 const propTypes = {
   top: PropTypes.number.isRequired,
-  left: PropTypes.number.isRequired,
+  left: PropTypes.number,
+  right: PropTypes.number,
   zIndex: PropTypes.number.isRequired,
   minWidth: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
@@ -23,16 +24,23 @@ const propTypes = {
   contextDispatch: PropTypes.func.isRequired,
 };
 
+const defaultProps = {
+  left: null,
+  right: null,
+};
+
 const SidebarContent = (props) => {
   const {
-    // display,
     top,
     left,
+    right,
     zIndex,
     minWidth,
     width,
     maxWidth,
+    minHeight,
     height,
+    maxHeight,
     isResizable,
     resizableEdge,
     contextDispatch,
@@ -40,25 +48,33 @@ const SidebarContent = (props) => {
   } = props;
 
   const [resizableWidth, setResizableWidth] = useState(width);
+  const [resizableHeight, setResizableHeight] = useState(height);
   const [isResizing, setIsResizing] = useState(false);
   const [resizeStartWidth, setResizeStartWidth] = useState(0);
+  const [resizeStartHeight, setResizeStartHeight] = useState(0);
 
   useEffect(() => {
-    if (!isResizing) setResizableWidth(width);
-  }, [width]);
+    if (!isResizing) {
+      setResizableWidth(width);
+      setResizableHeight(height);
+    }
+  }, [width, height]);
 
   useEffect(() => {
-  }, [resizeStartWidth]);
+  }, [resizeStartWidth, resizeStartHeight]);
 
-  const setSidebarContentWidth = (dWidth) => {
+  const setSidebarContentSize = (dWidth, dHeight) => {
     const newWidth = resizeStartWidth + dWidth;
+    const newHeight = resizeStartHeight + dHeight;
 
     setResizableWidth(newWidth);
+    setResizableHeight(newHeight);
 
     contextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_SIZE,
       value: {
         width: newWidth,
+        height: newHeight,
         browserWidth: window.innerWidth,
         browserHeight: window.innerHeight,
       },
@@ -69,6 +85,8 @@ const SidebarContent = (props) => {
     <Resizable
       minWidth={minWidth}
       maxWidth={maxWidth}
+      minHeight={minHeight}
+      maxHeight={maxHeight}
       size={{
         width,
         height,
@@ -83,16 +101,19 @@ const SidebarContent = (props) => {
       onResizeStart={() => {
         setIsResizing(true);
         setResizeStartWidth(resizableWidth);
+        setResizeStartHeight(resizableHeight);
       }}
-      onResize={(...[, , , delta]) => setSidebarContentWidth(delta.width)}
+      onResize={(...[, , , delta]) => setSidebarContentSize(delta.width, delta.height)}
       onResizeStop={() => {
         setIsResizing(false);
         setResizeStartWidth(0);
+        setResizeStartHeight(0);
       }}
       style={{
         position: 'absolute',
         top,
         left,
+        right,
         zIndex,
         width,
         height,
@@ -103,7 +124,7 @@ const SidebarContent = (props) => {
       {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer />}
       {sidebarContentPanel === PANELS.POLL
         && (
-          <div className={styles.poll} style={{ minWidth }} id="pollPanel">
+          <div className={styles.poll} style={{ minWidth, top: '0' }} id="pollPanel">
             <PollContainer />
           </div>
         )}
@@ -114,4 +135,5 @@ const SidebarContent = (props) => {
 };
 
 SidebarContent.propTypes = propTypes;
+SidebarContent.defaultProps = defaultProps;
 export default SidebarContent;

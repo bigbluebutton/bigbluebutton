@@ -39,7 +39,7 @@ const isLocked = () => {
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { 'lockSettingsProps.disableNote': 1 } });
   const user = Users.findOne({ userId: Auth.userID }, { fields: { locked: 1, role: 1 } });
 
-  if (meeting.lockSettingsProps && user.role !== ROLE_MODERATOR) {
+  if (meeting.lockSettingsProps && user.role !== ROLE_MODERATOR && user.locked) {
     return meeting.lockSettingsProps.disableNote;
   }
   return false;
@@ -93,12 +93,12 @@ const isEnabled = () => {
   return NOTE_CONFIG.enabled && note;
 };
 
-const toggleNotePanel = (sidebarContentPanel, newLayoutContextDispatch) => {
-  newLayoutContextDispatch({
+const toggleNotePanel = (sidebarContentPanel, layoutContextDispatch) => {
+  layoutContextDispatch({
     type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
     value: sidebarContentPanel !== PANELS.SHARED_NOTES,
   });
-  newLayoutContextDispatch({
+  layoutContextDispatch({
     type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
     value: sidebarContentPanel === PANELS.SHARED_NOTES
       ? PANELS.NONE

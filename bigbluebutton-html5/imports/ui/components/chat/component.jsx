@@ -48,7 +48,7 @@ const Chat = (props) => {
     timeWindowsValues,
     dispatch,
     count,
-    newLayoutContextDispatch,
+    layoutContextDispatch,
     syncing,
     syncedPercent,
     lastTimeWindowValuesBuild,
@@ -56,8 +56,8 @@ const Chat = (props) => {
 
   const userSentMessage = UserSentMessageCollection.findOne({ userId: Auth.userID, sent: true });
 
-  const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
-  const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
+  const HIDE_CHAT_AK = shortcuts.hideprivatechat;
+  const CLOSE_CHAT_AK = shortcuts.closeprivatechat;
   ChatLogger.debug('ChatComponent::render', props);
   return (
     <div
@@ -71,21 +71,21 @@ const Chat = (props) => {
         >
           <Button
             onClick={() => {
-              newLayoutContextDispatch({
+              layoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
                 value: false,
               });
-              newLayoutContextDispatch({
+              layoutContextDispatch({
                 type: ACTIONS.SET_ID_CHAT_OPEN,
                 value: '',
               });
-              newLayoutContextDispatch({
+              layoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                 value: PANELS.NONE,
               });
             }}
             aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
-            accessKey={HIDE_CHAT_AK}
+            accessKey={chatID !== 'public' ? HIDE_CHAT_AK : null}
             label={title}
             icon="left_arrow"
             className={styles.hideBtn}
@@ -102,15 +102,15 @@ const Chat = (props) => {
                 hideLabel
                 onClick={() => {
                   actions.handleClosePrivateChat(chatID);
-                  newLayoutContextDispatch({
+                  layoutContextDispatch({
                     type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
                     value: false,
                   });
-                  newLayoutContextDispatch({
+                  layoutContextDispatch({
                     type: ACTIONS.SET_ID_CHAT_OPEN,
                     value: '',
                   });
-                  newLayoutContextDispatch({
+                  layoutContextDispatch({
                     type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                     value: PANELS.NONE,
                   });

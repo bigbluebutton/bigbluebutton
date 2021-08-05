@@ -1,12 +1,12 @@
 import React from 'react';
 import SidebarContent from './component';
-import NewLayoutContext from '../layout/context/context';
+import { LayoutContextFunc } from '../layout/context';
 
 const SidebarContentContainer = (props) => {
-  const { newLayoutContextState, newLayoutContextDispatch } = props;
+  const { layoutContextState, layoutContextDispatch } = props;
   const {
     output, input,
-  } = newLayoutContextState;
+  } = layoutContextState;
   const { sidebarContent: sidebarContentInput } = input;
   const { sidebarContentPanel } = sidebarContentInput;
   const { sidebarContent } = output;
@@ -16,10 +16,10 @@ const SidebarContentContainer = (props) => {
   return (
     <SidebarContent
       {...sidebarContent}
-      contextDispatch={newLayoutContextDispatch}
+      contextDispatch={layoutContextDispatch}
       sidebarContentPanel={sidebarContentPanel}
     />
   );
 };
 
-export default NewLayoutContext.withConsumer(SidebarContentContainer);
+export default LayoutContextFunc.withConsumer(SidebarContentContainer);

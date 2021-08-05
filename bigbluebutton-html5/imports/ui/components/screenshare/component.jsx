@@ -4,13 +4,13 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import FullscreenService from '../fullscreen-button/service';
 import FullscreenButtonContainer from '../fullscreen-button/container';
+import SwitchButtonContainer from './switch-button/container';
 import { styles } from './styles';
 import AutoplayOverlay from '../media/autoplay-overlay/component';
 import logger from '/imports/startup/client/logger';
-import cx from 'classnames';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import PollingContainer from '/imports/ui/components/polling/container';
-import { withLayoutConsumer } from '/imports/ui/components/layout/context';
+import { notify } from '/imports/ui/services/notification';
 import {
   SCREENSHARE_MEDIA_ELEMENT_NAME,
   screenshareHasEnded,
@@ -29,11 +29,28 @@ const intlMessages = defineMessages({
     id: 'app.screenshare.screenShareLabel',
     description: 'screen share area element label',
   },
+  presenterLoadingLabel: {
+    id: 'app.screenshare.presenterLoadingLabel',
+  },
+  viewerLoadingLabel: {
+    id: 'app.screenshare.viewerLoadingLabel',
+  },
+  presenterSharingLabel: {
+    id: 'app.screenshare.presenterSharingLabel',
+  },
   autoplayBlockedDesc: {
     id: 'app.media.screenshare.autoplayBlockedDesc',
   },
   autoplayAllowLabel: {
     id: 'app.media.screenshare.autoplayAllowLabel',
+  },
+  screenshareStarted: {
+    id: 'app.media.screenshare.start',
+    description: 'toast to show when a screenshare has started',
+  },
+  screenshareEnded: {
+    id: 'app.media.screenshare.end',
+    description: 'toast to show when a screenshare has ended',
   },
 });
 
@@ -47,6 +64,7 @@ class ScreenshareComponent extends React.Component {
       isFullscreen: false,
       autoplayBlocked: false,
       isStreamHealthy: false,
+      switched: false,
     };
 
     this.onLoadedData = this.onLoadedData.bind(this);
@@ -55,9 +73,12 @@ class ScreenshareComponent extends React.Component {
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.failedMediaElements = [];
     this.onStreamStateChange = this.onStreamStateChange.bind(this);
+    this.onSwitched = this.onSwitched.bind(this);
   }
 
   componentDidMount() {
+    const { intl } = this.props;
+
     screenshareHasStarted();
     this.screenshareContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
     // Autoplay failure handling
@@ -66,6 +87,8 @@ class ScreenshareComponent extends React.Component {
     subscribeToStreamStateChange('screenshare', this.onStreamStateChange);
     // Attaches the local stream if it exists to serve as the local presenter preview
     attachLocalPreviewStream(getMediaElement());
+
+    notify(intl.formatMessage(intlMessages.screenshareStarted), 'info', 'desktop');
   }
 
   componentDidUpdate(prevProps) {
@@ -82,16 +105,20 @@ class ScreenshareComponent extends React.Component {
       getSwapLayout,
       shouldEnableSwapLayout,
       toggleSwapLayout,
+      layoutContextDispatch,
+      intl,
     } = this.props;
     const layoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
-    if (layoutSwapped) toggleSwapLayout();
+    if (layoutSwapped) toggleSwapLayout(layoutContextDispatch);
     screenshareHasEnded();
     this.screenshareContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     unsubscribeFromStreamStateChange('screenshare', this.onStreamStateChange);
+
+    notify(intl.formatMessage(intlMessages.screenshareEnded), 'info', 'desktop');
   }
 
-  onStreamStateChange (event) {
+  onStreamStateChange(event) {
     const { streamState } = event.detail;
     const { isStreamHealthy } = this.state;
 
@@ -106,13 +133,15 @@ class ScreenshareComponent extends React.Component {
     this.setState({ loaded: true });
   }
 
+  onSwitched() {
+    this.setState(prevState => ({ switched: !prevState.switched }));
+  }
+
   onFullscreenChange() {
-    const { layoutContextDispatch } = this.props;
     const { isFullscreen } = this.state;
     const newIsFullscreen = FullscreenService.isFullScreen(this.screenshareContainer);
     if (isFullscreen !== newIsFullscreen) {
       this.setState({ isFullscreen: newIsFullscreen });
-      layoutContextDispatch({ type: 'setScreenShareFullscreen', value: newIsFullscreen });
     }
   }
 
@@ -158,7 +187,7 @@ class ScreenshareComponent extends React.Component {
   }
 
   renderFullscreenButton() {
-    const { intl } = this.props;
+    const { intl, fullscreenElementId } = this.props;
     const { isFullscreen } = this.state;
 
     if (!ALLOW_FULLSCREEN) return null;
@@ -168,6 +197,7 @@ class ScreenshareComponent extends React.Component {
         key={_.uniqueId('fullscreenButton-')}
         elementName={intl.formatMessage(intlMessages.screenShareLabel)}
         fullscreenRef={this.screenshareContainer}
+        elementId={fullscreenElementId}
         isFullscreen={isFullscreen}
         dark
       />
@@ -187,11 +217,119 @@ class ScreenshareComponent extends React.Component {
     );
   }
 
-  render() {
-    const { loaded, autoplayBlocked, isFullscreen, isStreamHealthy } = this.state;
-    const { isPresenter, isGloballyBroadcasting } = this.props;
+  renderSwitchButton() {
+    const { switched } = this.state;
 
-    // Conditions to render the (re)connecting spinner and the unhealthy stream
+    return (
+      <SwitchButtonContainer
+        handleSwitch={this.onSwitched}
+        switched={switched}
+        dark
+      />
+    );
+  }
+
+  renderVideo(switched) {
+    const { isGloballyBroadcasting } = this.props;
+
+    return (
+      <video
+        id={SCREENSHARE_MEDIA_ELEMENT_NAME}
+        key={SCREENSHARE_MEDIA_ELEMENT_NAME}
+        style={switched
+          ? { maxHeight: '100%', width: '100%', height: '100%' }
+          : { maxHeight: '25%', width: '25%', height: '25%' }}
+        className={!isGloballyBroadcasting ? styles.unhealthyStream : null}
+        playsInline
+        onLoadedData={this.onLoadedData}
+        ref={(ref) => {
+          this.videoTag = ref;
+        }}
+        muted
+      />
+    );
+  }
+
+  renderScreenshareContainerInside(mainText) {
+
+    return (
+      <div className={styles.screenshareContainerInside}>
+        <h1 className={styles.mainText}>{mainText}</h1>
+      </div>
+    );
+  }
+
+  renderScreensharePresenter() {
+    const { switched } = this.state;
+    const { isGloballyBroadcasting, intl } = this.props;
+
+    return (
+      <div
+        className={switched ? styles.screenshareContainer : styles.screenshareContainerPresenter}
+        key="screenshareContainer"
+        ref={(ref) => { this.screenshareContainer = ref; }}
+      >
+        {isGloballyBroadcasting && this.renderSwitchButton()}
+        {this.renderVideo(switched)}
+
+        {isGloballyBroadcasting
+          ? (
+            <div>
+              {!switched
+                && this.renderScreenshareContainerInside(intl.formatMessage(intlMessages.presenterSharingLabel))}
+            </div>
+          )
+          : this.renderScreenshareContainerInside(intl.formatMessage(intlMessages.presenterLoadingLabel))
+        }
+      </div>
+    );
+  }
+
+  renderScreenshareDefault() {
+    const { intl } = this.props;
+    const {
+      isFullscreen,
+      loaded,
+    } = this.state;
+
+    return (
+      <div
+        className={styles.screenshareContainer}
+        key="screenshareContainer"
+        ref={(ref) => {
+          this.screenshareContainer = ref;
+        }}
+      >
+        {isFullscreen && <PollingContainer />}
+        {loaded && this.renderFullscreenButton()}
+        {this.renderVideo(true)}
+
+        <div className={styles.screenshareContainerDefault}>
+          {!loaded
+            ? this.renderScreenshareContainerInside(
+              intl.formatMessage(intlMessages.viewerLoadingLabel),
+            )
+            : null
+          }
+        </div>
+      </div>
+    );
+  }
+
+  render() {
+    const { loaded, autoplayBlocked, isStreamHealthy } = this.state;
+    const {
+      isPresenter,
+      isGloballyBroadcasting,
+      top,
+      left,
+      right,
+      width,
+      height,
+      zIndex,
+    } = this.props;
+
+    // Conditions to render the (re)connecting dots and the unhealthy stream
     // grayscale:
     // 1 - The local media tag has not received any stream data yet
     // 2 - The user is a presenter and the stream wasn't globally broadcasted yet
@@ -202,48 +340,42 @@ class ScreenshareComponent extends React.Component {
       || !isStreamHealthy && loaded && isGloballyBroadcasting;
 
     return (
-      [(shouldRenderConnectingState)
-        ? (
-          <div
-            key={_.uniqueId('screenshareArea-')}
-            className={styles.connecting}
-            data-test="screenshareConnecting"
-          />
-        )
-        : null,
-      !autoplayBlocked
-        ? null
-        : (this.renderAutoplayOverlay()),
-      (
-        <div
-          className={styles.screenshareContainer}
-          key="screenshareContainer"
-          ref={(ref) => { this.screenshareContainer = ref; }}
-        >
-
-          {isFullscreen && <PollingContainer />}
-
-          {loaded && this.renderFullscreenButton()}
-
-          <video
-            id={SCREENSHARE_MEDIA_ELEMENT_NAME}
-            key={SCREENSHARE_MEDIA_ELEMENT_NAME}
-            style={{ maxHeight: '100%', width: '100%', height: '100%' }}
-            playsInline
-            onLoadedData={this.onLoadedData}
-            ref={(ref) => { this.videoTag = ref; }}
-            className={cx({
-              [styles.unhealthyStream]: shouldRenderConnectingState,
-            })}
-            muted
-          />
-        </div>
-      )]
+      <div
+        style={
+          {
+            position: 'absolute',
+            top,
+            left,
+            right,
+            height,
+            width,
+            zIndex,
+            backgroundColor: '#06172A',
+          }
+        }
+      >
+        {(shouldRenderConnectingState)
+          && (
+            <div
+              key={_.uniqueId('screenshareArea-')}
+              className={styles.spinnerWrapper}
+              data-test="screenshareConnecting"
+            >
+              <div className={styles.spinner}>
+                <div className={styles.bounce1} />
+                <div className={styles.bounce2} />
+                <div />
+              </div>
+            </div>
+          )}
+        {autoplayBlocked ? this.renderAutoplayOverlay() : null}
+        {isPresenter ? this.renderScreensharePresenter() : this.renderScreenshareDefault()}
+      </div>
     );
   }
 }
 
-export default injectIntl(withLayoutConsumer(ScreenshareComponent));
+export default injectIntl(ScreenshareComponent);
 
 ScreenshareComponent.propTypes = {
   intl: PropTypes.object.isRequired,

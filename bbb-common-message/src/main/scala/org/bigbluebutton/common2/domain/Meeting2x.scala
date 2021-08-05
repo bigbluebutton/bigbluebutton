@@ -6,9 +6,9 @@ case class DurationProps(duration: Int, createdTime: Long, createdDate: String,
                          meetingExpireIfNoUserJoinedInMinutes: Int, meetingExpireWhenLastUserLeftInMinutes: Int,
                          userInactivityInspectTimerInMinutes: Int, userInactivityThresholdInMinutes: Int,
                          userActivitySignResponseDelayInMinutes: Int,
-                         endWhenNoModerator: Boolean, endWhenNoModeratorDelayInMinutes: Int)
+                         endWhenNoModerator:                     Boolean, endWhenNoModeratorDelayInMinutes: Int)
 
-case class MeetingProp(name: String, extId: String, intId: String, isBreakout: Boolean)
+case class MeetingProp(name: String, extId: String, intId: String, isBreakout: Boolean, activityReportTracking: Boolean)
 
 case class BreakoutProps(
     parentId:           String,
@@ -20,7 +20,7 @@ case class BreakoutProps(
     privateChatEnabled: Boolean
 )
 
-case class PasswordProp(moderatorPass: String, viewerPass: String)
+case class PasswordProp(moderatorPass: String, viewerPass: String, activityReportAccessToken: String)
 
 case class RecordProp(record: Boolean, autoStartRecording: Boolean, allowStartStopRecording: Boolean, keepEvents: Boolean)
 
@@ -28,7 +28,7 @@ case class WelcomeProp(welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMe
 
 case class VoiceProp(telVoice: String, voiceConf: String, dialNumber: String, muteOnStart: Boolean)
 
-case class UsersProp(maxUsers: Int, webcamsOnlyForModerator: Boolean, guestPolicy: String, allowModsToUnmuteUsers: Boolean, authenticatedGuest: Boolean)
+case class UsersProp(maxUsers: Int, webcamsOnlyForModerator: Boolean, guestPolicy: String, meetingLayout: String, allowModsToUnmuteUsers: Boolean, authenticatedGuest: Boolean)
 
 case class MetadataProp(metadata: collection.immutable.Map[String, String])
 
@@ -77,11 +77,11 @@ case class Meeting2x(defaultProps: DefaultProps, meetingStatus: MeetingStatus)
 case class SimpleAnswerOutVO(id: Int, key: String)
 case class SimplePollOutVO(id: String, answers: Array[SimpleAnswerOutVO])
 case class SimpleVoteOutVO(id: Int, key: String, numVotes: Int)
-case class SimplePollResultOutVO(id: String, questionText: Option[String], answers: Array[SimpleVoteOutVO], numRespondents: Int, numResponders: Int)
+case class SimplePollResultOutVO(id: String, questionType: String, questionText: Option[String], answers: Array[SimpleVoteOutVO], numRespondents: Int, numResponders: Int)
 case class Responder(userId: String, name: String)
 case class AnswerVO(id: Int, key: String, text: Option[String], responders: Option[Array[Responder]])
 case class QuestionVO(id: Int, questionType: String, multiResponse: Boolean, questionText: Option[String], answers: Option[Array[AnswerVO]])
-case class PollVO(id: String, questions: Array[QuestionVO], title: Option[String], started: Boolean, stopped: Boolean, showResult: Boolean)
+case class PollVO(id: String, questions: Array[QuestionVO], title: Option[String], started: Boolean, stopped: Boolean, showResult: Boolean, isSecret: Boolean)
 
 case class UserVO(id: String, externalId: String, name: String, role: String,
                   guest: Boolean, authed: Boolean, guestStatus: String, emojiStatus: String,

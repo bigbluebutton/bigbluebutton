@@ -75,19 +75,18 @@ export const sortLocalPresenterAlphabetical = (s1, s2) => {
 //     1.1.: the sorting function has the same behaviour as a regular .sort callback
 //   2 - add an entry to SORTING_METHODS, the key being the name to be used
 //   in settings.yml and the value object like the aforementioned
+const MANDATORY_DATA_TYPES = { userId: 1, stream: 1, name: 1, deviceId: 1, };
 const SORTING_METHODS = Object.freeze({
   // Default
   LOCAL_ALPHABETICAL: {
     sortingMethod: sortLocalAlphabetical,
-    neededDataTypes: {
-      userId: 1, stream: 1, name: 1,
-    },
+    neededDataTypes: MANDATORY_DATA_TYPES,
     localFirst: true,
   },
   VOICE_ACTIVITY_LOCAL: {
     sortingMethod: sortVoiceActivityLocal,
     neededDataTypes: {
-      userId: 1, stream: 1, name: 1, lastFloorTime: 1, floor: 1,
+      lastFloorTime: 1, floor: 1, ...MANDATORY_DATA_TYPES,
     },
     filter: true,
     localFirst: false,
@@ -95,16 +94,14 @@ const SORTING_METHODS = Object.freeze({
   LOCAL_VOICE_ACTIVITY: {
     sortingMethod: sortLocalVoiceActivity,
     neededDataTypes: {
-      userId: 1, stream: 1, name: 1, lastFloorTime: 1, floor: 1,
+      lastFloorTime: 1, floor: 1, ...MANDATORY_DATA_TYPES,
     },
     filter: true,
     localFirst: true,
   },
   LOCAL_PRESENTER_ALPHABETICAL: {
     sortingMethod: sortLocalPresenterAlphabetical,
-    neededDataTypes: {
-      userId: 1, stream: 1, name: 1,
-    },
+    neededDataTypes: MANDATORY_DATA_TYPES,
     localFirst: true,
   }
 });
