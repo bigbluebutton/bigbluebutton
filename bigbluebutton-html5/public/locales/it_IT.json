@@ -49,6 +49,7 @@
     "app.captions.pad.dictationStop": "Interrompi dettatura",
     "app.captions.pad.dictationOnDesc": "Attiva riconoscimento vocale",
     "app.captions.pad.dictationOffDesc": "Disattiva riconoscimento vocale",
+    "app.captions.pad.speechRecognitionStop": "Il riconoscimento vocale si è fermato per colpa dell'incompatibilità del browser oppure per l'assenza di suono per troppo tempo",
     "app.textInput.sendLabel": "Invia",
     "app.note.title": "Note condivise",
     "app.note.label": "Note",
@@ -140,6 +141,8 @@
     "app.meeting.meetingTimeRemaining": "Tempo rimanente al termine del meeting: {0}",
     "app.meeting.meetingTimeHasEnded": "Tempo scaduto. Il meeting terminerà a breve",
     "app.meeting.endedByUserMessage": "La sessione è stata terminata da {0}",
+    "app.meeting.endedByNoModeratorMessageSingular": "Il meeting è stato terminato dopo un minuto a causa della mancanza di un moderatore",
+    "app.meeting.endedByNoModeratorMessagePlural": "Il meeting è stato terminato dopo {0} minuti a causa della mancanza di un moderatore",
     "app.meeting.endedMessage": "Verrai riportato alla pagina iniziale",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "Il meeting termino tra un minuto.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "Il meeting termino tra {0} minuti.",
@@ -526,7 +529,7 @@
     "app.meeting-ended.rating.legendLabel": "Parere sul servizio",
     "app.meeting-ended.rating.starLabel": "Stella",
     "app.modal.close": "Chiudi",
-    "app.modal.close.description": "Annula le modifiche e chiudi la finestra",
+    "app.modal.close.description": "Annulla le modifiche e chiudi la finestra",
     "app.modal.confirm": "Fatto",
     "app.modal.newTab": "(apre una nuova scheda)",
     "app.modal.confirm.description": "Salva le modifiche e chiudi la finestra",
@@ -744,6 +747,8 @@
     "app.whiteboard.toolbar.clear": "Cancella tutte le annotazioni",
     "app.whiteboard.toolbar.multiUserOn": "Attiva la lavagna multi-utente",
     "app.whiteboard.toolbar.multiUserOff": "Disattiva lavagna multi-utente",
+    "app.whiteboard.toolbar.palmRejectionOn": "Abilita il riconoscimento della mano",
+    "app.whiteboard.toolbar.palmRejectionOff": "Disabilita il riconoscimento della mano",
     "app.whiteboard.toolbar.fontSize": "Lista deimensioni caratteri",
     "app.feedback.title": "Sei uscito dal meeting",
     "app.feedback.subtitle": "Saremmo lieti di conoscere il tuo parere riguardo al sistema LIVE (opzionale)",
@@ -811,6 +816,7 @@
     "app.debugWindow.form.button.copy": "Copia",
     "app.debugWindow.form.enableAutoarrangeLayoutLabel": "Abilita il layout disposizione automatica",
     "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(verrà disabilitato se trascini o ridimensioni l’area webcam)",
+    "app.debugWindow.form.chatLoggerLabel": "Verifica i livelli del registratore delle chat",
     "app.debugWindow.form.button.apply": "Applica"
 
 }
