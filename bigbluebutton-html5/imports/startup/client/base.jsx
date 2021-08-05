@@ -19,12 +19,10 @@ import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import LayoutContext from '/imports/ui/components/layout/context';
 import NewLayoutContext from '../../ui/components/layout/context/context';
 import VideoService from '/imports/ui/components/video-provider/service';
 import DebugWindow from '/imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
-import LayoutManagerContainer from '/imports/ui/components/layout/layout-manager/container';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
@@ -146,7 +144,6 @@ class Base extends Component {
       ejected,
       isMeteorConnected,
       subscriptionsReady,
-      layoutContextDispatch,
       newLayoutContextDispatch,
       newLayoutContextState,
       usersVideo,
@@ -165,12 +162,6 @@ class Base extends Component {
         type: ACTIONS.SET_NUM_CAMERAS,
         value: usersVideo.length,
       });
-      layoutContextDispatch(
-        {
-          type: 'setUsersVideo',
-          value: usersVideo.length,
-        },
-      );
     }
 
     if (!prevProps.subscriptionsReady && subscriptionsReady) {
@@ -329,7 +320,6 @@ class Base extends Component {
     return (
       <>
         {meetingExist && Auth.loggedIn && <DebugWindow />}
-        {meetingExist && Auth.loggedIn && <LayoutManagerContainer />}
         {
           (!meetingExisted && !meetingExist && Auth.loggedIn)
             ? <LoadingScreen />
@@ -476,6 +466,6 @@ const BaseContainer = withTracker(() => {
     codeError,
     usersVideo,
   };
-})(LayoutContext.withLayoutContext(NewLayoutContext.withContext(Base)));
+})(NewLayoutContext.withContext(Base));
 
 export default BaseContainer;

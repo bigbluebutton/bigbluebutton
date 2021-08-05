@@ -11,7 +11,6 @@ import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import PollingContainer from '/imports/ui/components/polling/container';
 import { notify } from '/imports/ui/services/notification';
-import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import {
   SCREENSHARE_MEDIA_ELEMENT_NAME,
   screenshareHasEnded,
@@ -139,12 +138,10 @@ class ScreenshareComponent extends React.Component {
   }
 
   onFullscreenChange() {
-    const { layoutContextDispatch } = this.props;
     const { isFullscreen } = this.state;
     const newIsFullscreen = FullscreenService.isFullScreen(this.screenshareContainer);
     if (isFullscreen !== newIsFullscreen) {
       this.setState({ isFullscreen: newIsFullscreen });
-      layoutContextDispatch({ type: 'setScreenShareFullscreen', value: newIsFullscreen });
     }
   }
 
@@ -378,7 +375,7 @@ class ScreenshareComponent extends React.Component {
   }
 }
 
-export default injectIntl(withLayoutConsumer(ScreenshareComponent));
+export default injectIntl(ScreenshareComponent);
 
 ScreenshareComponent.propTypes = {
   intl: PropTypes.object.isRequired,

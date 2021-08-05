@@ -5,7 +5,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Modal from 'react-modal';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
-import PanelManager from '/imports/ui/components/panel-manager/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
@@ -25,7 +24,6 @@ import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
-import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
 import NewWebcamContainer from '../webcam/container';
 import PresentationAreaContainer from '../presentation/presentation-area/container';
 import ScreenshareContainer from '../screenshare/container';
@@ -46,7 +44,7 @@ import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import { makeCall } from '/imports/ui/services/api';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
-import { NAVBAR_HEIGHT, LARGE_NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager/component';
+import { NAVBAR_HEIGHT, LARGE_NAVBAR_HEIGHT } from '/imports/ui/components/layout/defaultValues';
 import Settings from '/imports/ui/services/settings';
 import LayoutService from '/imports/ui/components/layout/service';
 
@@ -64,10 +62,6 @@ const intlMessages = defineMessages({
   chatLabel: {
     id: 'app.chat.label',
     description: 'Aria-label for Chat Section',
-  },
-  mediaLabel: {
-    id: 'app.media.label',
-    description: 'Aria-label for Media Section',
   },
   actionsBarLabel: {
     id: 'app.actionsBar.label',
@@ -110,7 +104,6 @@ const intlMessages = defineMessages({
 const propTypes = {
   navbar: PropTypes.element,
   sidebar: PropTypes.element,
-  media: PropTypes.element,
   actionsbar: PropTypes.element,
   captions: PropTypes.element,
   locale: PropTypes.string,
@@ -119,7 +112,6 @@ const propTypes = {
 const defaultProps = {
   navbar: null,
   sidebar: null,
-  media: null,
   actionsbar: null,
   captions: null,
   locale: OVERRIDE_LOCALE || navigator.language,
@@ -141,8 +133,7 @@ class App extends Component {
 
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
-    this.renderMedia = withDraggableContext(this.renderMedia.bind(this));
-    this.renderWebcamsContainer = withDraggableContext(App.renderWebcamsContainer.bind(this));
+    this.renderWebcamsContainer = App.renderWebcamsContainer.bind(this);
 
     this.throttledDeviceType = throttle(() => this.setDeviceType(),
       50, { trailing: true, leading: true }).bind(this);
@@ -343,31 +334,6 @@ class App extends Component {
       && (isPhone || isLayeredView.matches);
   }
 
-  renderPanel() {
-    const { enableResize } = this.state;
-    const {
-      sidebarNavPanel,
-      sidebarNavigationIsOpen,
-      sidebarContentPanel,
-      sidebarContentIsOpen,
-      isRTL,
-    } = this.props;
-
-    return (
-      <PanelManager
-        {...{
-          sidebarNavPanel,
-          sidebarNavigationIsOpen,
-          sidebarContentPanel,
-          sidebarContentIsOpen,
-          enableResize,
-          isRTL,
-        }}
-        shouldAriaHide={this.shouldAriaHide}
-      />
-    );
-  }
-
   renderNavBar() {
     const { navbar, isLargeFont } = this.props;
 
@@ -408,26 +374,6 @@ class App extends Component {
       <div className={styles.captionsWrapper}>
         {captions}
       </div>
-    );
-  }
-
-  renderMedia() {
-    const {
-      media,
-      intl,
-    } = this.props;
-
-    if (!media) return null;
-
-    return (
-      <section
-        className={styles.media}
-        aria-label={intl.formatMessage(intlMessages.mediaLabel)}
-        aria-hidden={this.shouldAriaHide()}
-      >
-        {media}
-        {this.renderCaptions()}
-      </section>
     );
   }
 

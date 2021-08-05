@@ -5,9 +5,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles.scss';
 import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
-import Toggle from '/imports/ui/components/switch/component';
-import Storage from '/imports/ui/services/storage/session';
-import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 
 const intlMessages = defineMessages({
@@ -30,14 +27,6 @@ const intlMessages = defineMessages({
   copyButtonLabel: {
     id: 'app.debugWindow.form.button.copy',
     description: 'User agent form copy button',
-  },
-  enableAutoarrangeLayoutLabel: {
-    id: 'app.debugWindow.form.enableAutoarrangeLayoutLabel',
-    description: 'Enable Autoarrange layout label',
-  },
-  enableAutoarrangeLayoutDescription: {
-    id: 'app.debugWindow.form.enableAutoarrangeLayoutDescription',
-    description: 'Enable Autoarrange layout description',
   },
   chatLoggerLabel: {
     id: 'app.debugWindow.form.chatLoggerLabel',
@@ -67,7 +56,6 @@ class DebugWindow extends Component {
     this.state = {
       showDebugWindow: false,
       logLevel: ChatLogger.getLogLevel(),
-      autoArrangeLayout: Storage.getItem('autoArrangeLayout'),
     };
   }
 
@@ -106,24 +94,6 @@ class DebugWindow extends Component {
     );
   }
 
-  autoArrangeToggle() {
-    const { layoutContextDispatch } = this.props;
-    const autoArrangeLayout = Storage.getItem('autoArrangeLayout');
-
-    this.setState({
-      autoArrangeLayout: !autoArrangeLayout,
-    });
-
-    layoutContextDispatch(
-      {
-        type: 'setAutoArrangeLayout',
-        value: !autoArrangeLayout,
-      },
-    );
-
-    window.dispatchEvent(new Event('autoArrangeChanged'));
-  }
-
   render() {
     const { showDebugWindow, logLevel } = this.state;
     const chatLoggerLevelsNames = Object.keys(ChatLogger.levels);
@@ -131,7 +101,6 @@ class DebugWindow extends Component {
     if (!DEBUG_WINDOW_ENABLED || !showDebugWindow) return false;
 
     const { intl } = this.props;
-    const { autoArrangeLayout } = this.state;
 
     return (
       <Draggable
@@ -199,25 +168,6 @@ class DebugWindow extends Component {
                 </div>
                 <div className={styles.row}>
                   <div className={styles.cell}>
-                    {`${intl.formatMessage(intlMessages.enableAutoarrangeLayoutLabel)}:`}
-                  </div>
-                  <div className={styles.cell}>
-                    <div className={styles.cellContent}>
-                      {this.displaySettingsStatus(autoArrangeLayout)}
-                      <Toggle
-                        className={styles.autoArrangeToggle}
-                        icons={false}
-                        defaultChecked={autoArrangeLayout}
-                        onChange={() => this.autoArrangeToggle()}
-                        ariaLabel={intl.formatMessage(intlMessages.enableAutoarrangeLayoutLabel)}
-                        showToggleLabel={false}
-                      />
-                      <p>{`${intl.formatMessage(intlMessages.enableAutoarrangeLayoutDescription)}`}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className={styles.row}>
-                  <div className={styles.cell}>
                     {`${intl.formatMessage(intlMessages.chatLoggerLabel)}:`}
                   </div>
                   <div className={styles.cell}>
@@ -260,4 +210,4 @@ class DebugWindow extends Component {
   }
 }
 
-export default withLayoutConsumer(injectIntl(DebugWindow));
+export default injectIntl(DebugWindow);

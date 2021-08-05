@@ -20,7 +20,11 @@ const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props
   const fullscreenElementId = 'Presentation';
   const newLayoutContext = useContext(NLayoutContext);
   const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { output, layoutType, fullscreen } = newLayoutContextState;
+  const {
+    input, output, layoutType, fullscreen,
+  } = newLayoutContextState;
+  const { cameraDock } = input;
+  const { numCameras } = cameraDock;
   const { presentation } = output;
   const { element } = fullscreen;
   const fullscreenContext = (element === fullscreenElementId);
@@ -38,6 +42,7 @@ const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props
         {
         ...{
           newLayoutContextDispatch,
+          numCameras,
           ...props,
           isViewer: currentUser.role === ROLE_VIEWER,
           userIsPresenter: userIsPresenter && !layoutSwapped,

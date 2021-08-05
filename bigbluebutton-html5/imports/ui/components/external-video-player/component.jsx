@@ -124,7 +124,6 @@ class VideoPlayer extends Component {
 
   componentDidMount() {
     window.addEventListener('resize', this.resizeListener);
-    window.addEventListener('layoutSizesSets', this.resizeListener);
     window.addEventListener('beforeunload', this.onBeforeUnload);
 
     clearInterval(this.syncInterval);

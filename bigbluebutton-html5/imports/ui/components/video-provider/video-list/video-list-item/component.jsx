@@ -9,7 +9,6 @@ import Icon from '/imports/ui/components/icon/component';
 import FullscreenService from '/imports/ui/components/fullscreen-button/service';
 import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
 import { styles } from '../styles';
-import { withDraggableConsumer } from '/imports/ui/components/media/webcam-draggable-overlay/context';
 import VideoService from '../../service';
 import {
   isStreamStateUnhealthy,
@@ -40,14 +39,7 @@ class VideoListItem extends Component {
   }
 
   componentDidMount() {
-    const { onVideoItemMount, webcamDraggableDispatch, cameraId } = this.props;
-
-    webcamDraggableDispatch(
-      {
-        type: 'setVideoRef',
-        value: this.videoTag,
-      },
-    );
+    const { onVideoItemMount, cameraId } = this.props;
 
     onVideoItemMount(this.videoTag);
     this.videoTag.addEventListener('loadeddata', this.setVideoIsReady);
@@ -100,18 +92,11 @@ class VideoListItem extends Component {
   }
 
   onFullscreenChange() {
-    const { webcamDraggableDispatch } = this.props;
     const { isFullscreen } = this.state;
     const serviceIsFullscreen = FullscreenService.isFullScreen(this.videoContainer);
 
     if (isFullscreen !== serviceIsFullscreen) {
       this.setState({ isFullscreen: serviceIsFullscreen });
-      webcamDraggableDispatch(
-        {
-          type: 'setIsCameraFullscreen',
-          value: serviceIsFullscreen,
-        },
-      );
     }
   }
 
@@ -177,7 +162,6 @@ class VideoListItem extends Component {
       numOfStreams,
       swapLayout,
       mirrored,
-      webcamDraggableState,
       isFullscreenContext,
     } = this.props;
     const availableActions = this.getAvailableActions();
@@ -228,10 +212,6 @@ class VideoListItem extends Component {
             data-test={this.mirrorOwnWebcam ? 'mirroredVideoContainer' : 'videoContainer'}
             className={cx({
               [styles.media]: true,
-              [styles.cursorGrab]: !webcamDraggableState.dragging
-                && !isFullscreen && !isFullscreenContext && !swapLayout,
-              [styles.cursorGrabbing]: webcamDraggableState.dragging
-                && !isFullscreen && !isFullscreenContext && !swapLayout,
               [styles.mirroredVideo]: (this.mirrorOwnWebcam && !mirrored)
                 || (!this.mirrorOwnWebcam && mirrored),
               [styles.unhealthyStream]: shouldRenderReconnect,
@@ -281,7 +261,7 @@ class VideoListItem extends Component {
   }
 }
 
-export default withDraggableConsumer(VideoListItem);
+export default VideoListItem;
 
 VideoListItem.defaultProps = {
   numOfStreams: 0,

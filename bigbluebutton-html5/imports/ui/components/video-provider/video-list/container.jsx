@@ -3,12 +3,9 @@ import { withTracker } from 'meteor/react-meteor-data';
 import VideoList from '/imports/ui/components/video-provider/video-list/component';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { NLayoutContext } from '../../layout/context/context';
-import { WebcamDraggableContext } from '../../media/webcam-draggable-overlay/context';
 
 const VideoListContainer = ({ children, ...props }) => {
   const newLayoutContext = useContext(NLayoutContext);
-  const webcamDraggableContext = useContext(WebcamDraggableContext);
-  const { webcamDraggableDispatch } = webcamDraggableContext;
   const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
   const { layoutType, output } = newLayoutContextState;
   const { cameraDock } = output;
@@ -21,7 +18,6 @@ const VideoListContainer = ({ children, ...props }) => {
         <VideoList {...{
           layoutType,
           cameraDock,
-          webcamDraggableDispatch,
           newLayoutContextDispatch,
           ...props,
         }}

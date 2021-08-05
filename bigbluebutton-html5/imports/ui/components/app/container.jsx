@@ -26,17 +26,14 @@ import { withModalMounter } from '../modal/service';
 
 import App from './component';
 import ActionsBarContainer from '../actions-bar/container';
-import MediaContainer from '../media/container';
 
 const propTypes = {
   actionsbar: PropTypes.node,
-  media: PropTypes.node,
   meetingLayout: PropTypes.string.isRequired,
 };
 
 const defaultProps = {
   actionsbar: <ActionsBarContainer />,
-  media: <MediaContainer />,
 };
 
 const intlMessages = defineMessages({
@@ -57,7 +54,6 @@ const AppContainer = (props) => {
 
   const {
     actionsbar,
-    media,
     meetingLayout,
     settingsLayout,
     pushLayoutToEveryone,
@@ -84,7 +80,6 @@ const AppContainer = (props) => {
           actionsbar,
           actionsBarStyle,
           currentUserId,
-          media,
           layoutType,
           meetingLayout,
           settingsLayout,

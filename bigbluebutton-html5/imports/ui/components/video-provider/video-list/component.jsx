@@ -16,7 +16,6 @@ const propTypes = {
   streams: PropTypes.arrayOf(PropTypes.object).isRequired,
   onVideoItemMount: PropTypes.func.isRequired,
   onVideoItemUnmount: PropTypes.func.isRequired,
-  webcamDraggableDispatch: PropTypes.func.isRequired,
   intl: PropTypes.objectOf(Object).isRequired,
   swapLayout: PropTypes.bool.isRequired,
   numberOfPages: PropTypes.number.isRequired,
@@ -113,17 +112,8 @@ class VideoList extends Component {
   }
 
   componentDidMount() {
-    const { webcamDraggableDispatch } = this.props;
-    webcamDraggableDispatch(
-      {
-        type: 'setVideoListRef',
-        value: this.grid,
-      },
-    );
-
     this.handleCanvasResize();
     window.addEventListener('resize', this.handleCanvasResize, false);
-    window.addEventListener('layoutSizesSets', this.handleCanvasResize, false);
     window.addEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
@@ -142,7 +132,6 @@ class VideoList extends Component {
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleCanvasResize, false);
-    window.removeEventListener('layoutSizesSets', this.handleCanvasResize, false);
     window.removeEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
@@ -209,7 +198,6 @@ class VideoList extends Component {
     const {
       streams,
       cameraDock,
-      webcamDraggableDispatch,
       newLayoutContextDispatch,
     } = this.props;
     let numItems = streams.length;
@@ -238,12 +226,6 @@ class VideoList extends Component {
         const betterThanCurrent = testGrid.filledArea > currentGrid.filledArea;
         return focusedConstraint && betterThanCurrent ? testGrid : currentGrid;
       }, { filledArea: 0 });
-    webcamDraggableDispatch(
-      {
-        type: 'setOptimalGrid',
-        value: optimalGrid,
-      },
-    );
     newLayoutContextDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_OPTIMAL_GRID_SIZE,
       value: {
