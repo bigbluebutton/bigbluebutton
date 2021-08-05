@@ -45,12 +45,12 @@ const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
 };
 
-const handleClickQuickPoll = (newLayoutContextDispatch) => {
-  newLayoutContextDispatch({
+const handleClickQuickPoll = (layoutContextDispatch) => {
+  layoutContextDispatch({
     type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
     value: true,
   });
-  newLayoutContextDispatch({
+  layoutContextDispatch({
     type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
     value: PANELS.POLL,
   });
@@ -58,7 +58,7 @@ const handleClickQuickPoll = (newLayoutContextDispatch) => {
   Session.set('pollInitiated', true);
 };
 
-const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, pollTypes, newLayoutContextDispatch) => {
+const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, pollTypes, layoutContextDispatch) => {
   const pollItemElements = parsedSlides.map((poll) => {
     const { poll: label } = poll;
     let { type } = poll;
@@ -98,7 +98,7 @@ const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, pollTypes, new
         label={itemLabel}
         key={_.uniqueId('quick-poll-item')}
         onClick={() => {
-          handleClickQuickPoll(newLayoutContextDispatch);
+          handleClickQuickPoll(layoutContextDispatch);
           startPoll(type, slideId, letterAnswers);
         }}
         answers={letterAnswers}
@@ -125,7 +125,7 @@ class QuickPollDropdown extends Component {
       currentSlide,
       activePoll,
       className,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
       pollTypes,
     } = this.props;
 
@@ -138,7 +138,7 @@ class QuickPollDropdown extends Component {
     );
 
     const { slideId, quickPollOptions } = parsedSlide;
-    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions, startPoll, pollTypes, newLayoutContextDispatch);
+    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions, startPoll, pollTypes, layoutContextDispatch);
 
     if (quickPollOptions.length === 0) return null;
 
@@ -163,7 +163,7 @@ class QuickPollDropdown extends Component {
         label={quickPollLabel}
         tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
         onClick={() => {
-          handleClickQuickPoll(newLayoutContextDispatch);
+          handleClickQuickPoll(layoutContextDispatch);
           startPoll(singlePollType, currentSlide.id, answers);
         }}
         size="lg"

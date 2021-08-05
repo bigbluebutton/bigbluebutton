@@ -52,12 +52,12 @@ const setSwapLayout = () => {
   swapLayout.tracker.changed();
 };
 
-const toggleSwapLayout = (newLayoutContextDispatch) => {
+const toggleSwapLayout = (layoutContextDispatch) => {
   window.dispatchEvent(new Event('togglePresentationHide'));
   swapLayout.value = !swapLayout.value;
   swapLayout.tracker.changed();
 
-  newLayoutContextDispatch({
+  layoutContextDispatch({
     type: ACTIONS.SET_PRESENTATION_IS_OPEN,
     value: !swapLayout.value,
   });

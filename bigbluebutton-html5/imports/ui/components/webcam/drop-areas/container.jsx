@@ -1,11 +1,11 @@
 import React, { useContext } from 'react';
-import { NLayoutContext } from '../../layout/context/context';
+import LayoutContext from '../../layout/context';
 import DropArea from './component';
 
 const DropAreaContainer = () => {
-  const LayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState } = LayoutContext;
-  const { output } = newLayoutContextState;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextState } = layoutContext;
+  const { output } = layoutContextState;
   const { dropZoneAreas } = output;
 
   return (

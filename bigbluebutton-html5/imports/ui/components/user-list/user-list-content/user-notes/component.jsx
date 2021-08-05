@@ -73,7 +73,7 @@ class UserNotes extends Component {
 
   renderNotes() {
     const {
-      intl, disableNote, sidebarContentPanel, newLayoutContextDispatch
+      intl, disableNote, sidebarContentPanel, layoutContextDispatch
     } = this.props;
     const { unread } = this.state;
 
@@ -98,7 +98,7 @@ class UserNotes extends Component {
         role="button"
         tabIndex={0}
         className={styles.listItem}
-        onClick={() => NoteService.toggleNotePanel(sidebarContentPanel, newLayoutContextDispatch)}
+        onClick={() => NoteService.toggleNotePanel(sidebarContentPanel, layoutContextDispatch)}
         onKeyPress={() => { }}
       >
         <Icon iconName="copy" />

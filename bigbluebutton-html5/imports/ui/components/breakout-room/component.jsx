@@ -207,13 +207,13 @@ class BreakoutRoom extends PureComponent {
   }
 
   closePanel() {
-    const { newLayoutContextDispatch } = this.props;
+    const { layoutContextDispatch } = this.props;
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
       value: false,
     });
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
       value: PANELS.NONE,
     });

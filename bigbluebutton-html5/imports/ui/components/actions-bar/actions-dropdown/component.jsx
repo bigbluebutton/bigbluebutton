@@ -121,7 +121,7 @@ class ActionsDropdown extends PureComponent {
       isSelectRandomUserEnabled,
       stopExternalVideoShare,
       mountModal,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
     } = this.props;
 
     const {
@@ -150,11 +150,11 @@ class ActionsDropdown extends PureComponent {
               if (Session.equals('pollInitiated', true)) {
                 Session.set('resetPollPanel', true);
               }
-              newLayoutContextDispatch({
+              layoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
                 value: true,
               });
-              newLayoutContextDispatch({
+              layoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                 value: PANELS.POLL,
               });

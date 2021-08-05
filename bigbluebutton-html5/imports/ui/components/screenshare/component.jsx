@@ -11,7 +11,6 @@ import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import PollingContainer from '/imports/ui/components/polling/container';
 import { notify } from '/imports/ui/services/notification';
-import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import {
   SCREENSHARE_MEDIA_ELEMENT_NAME,
   screenshareHasEnded,
@@ -106,11 +105,11 @@ class ScreenshareComponent extends React.Component {
       getSwapLayout,
       shouldEnableSwapLayout,
       toggleSwapLayout,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
       intl,
     } = this.props;
     const layoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
-    if (layoutSwapped) toggleSwapLayout(newLayoutContextDispatch);
+    if (layoutSwapped) toggleSwapLayout(layoutContextDispatch);
     screenshareHasEnded();
     this.screenshareContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
@@ -139,12 +138,10 @@ class ScreenshareComponent extends React.Component {
   }
 
   onFullscreenChange() {
-    const { layoutContextDispatch } = this.props;
     const { isFullscreen } = this.state;
     const newIsFullscreen = FullscreenService.isFullScreen(this.screenshareContainer);
     if (isFullscreen !== newIsFullscreen) {
       this.setState({ isFullscreen: newIsFullscreen });
-      layoutContextDispatch({ type: 'setScreenShareFullscreen', value: newIsFullscreen });
     }
   }
 
@@ -330,7 +327,6 @@ class ScreenshareComponent extends React.Component {
       width,
       height,
       zIndex,
-      layoutLoaded,
     } = this.props;
 
     // Conditions to render the (re)connecting dots and the unhealthy stream
@@ -346,21 +342,16 @@ class ScreenshareComponent extends React.Component {
     return (
       <div
         style={
-          layoutLoaded === 'new'
-            ? {
-              position: 'absolute',
-              top,
-              left,
-              right,
-              height,
-              width,
-              zIndex,
-              backgroundColor: '#06172A',
-            }
-            : {
-              height: '100%',
-              width: '100%',
-            }
+          {
+            position: 'absolute',
+            top,
+            left,
+            right,
+            height,
+            width,
+            zIndex,
+            backgroundColor: '#06172A',
+          }
         }
       >
         {(shouldRenderConnectingState)
@@ -384,7 +375,7 @@ class ScreenshareComponent extends React.Component {
   }
 }
 
-export default injectIntl(withLayoutConsumer(ScreenshareComponent));
+export default injectIntl(ScreenshareComponent);
 
 ScreenshareComponent.propTypes = {
   intl: PropTypes.object.isRequired,

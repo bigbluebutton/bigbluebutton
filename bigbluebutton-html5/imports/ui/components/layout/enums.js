@@ -28,7 +28,6 @@ export const ACTIONS = {
   SET_DEVICE_TYPE: 'setDeviceType',
   SET_FONT_SIZE: 'setFontSize',
 
-  SET_LAYOUT_LOADED: 'setLayoutLoaded',
   SET_LAYOUT_INPUT: 'setLayoutInput',
 
   SET_SIDEBAR_NAVIGATION_PANEL: 'setSidebarNavigationPanel',

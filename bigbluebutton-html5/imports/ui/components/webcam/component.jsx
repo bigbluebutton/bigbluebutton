@@ -11,7 +11,7 @@ import Storage from '/imports/ui/services/storage/session';
 const WebcamComponent = ({
   cameraDock,
   swapLayout,
-  newLayoutContextDispatch,
+  layoutContextDispatch,
   fullscreen,
   isPresenter,
 }) => {
@@ -35,7 +35,7 @@ const WebcamComponent = ({
 
   useEffect(() => {
     if (isCameraTopOrBottom && lastHeight > 0) {
-      newLayoutContextDispatch(
+      layoutContextDispatch(
         {
           type: ACTIONS.SET_CAMERA_DOCK_SIZE,
           value: {
@@ -48,7 +48,7 @@ const WebcamComponent = ({
       );
     }
     if (isCameraLeftOrRight && lastWidth > 0) {
-      newLayoutContextDispatch(
+      layoutContextDispatch(
         {
           type: ACTIONS.SET_CAMERA_DOCK_SIZE,
           value: {
@@ -67,7 +67,7 @@ const WebcamComponent = ({
     setCameraMaxWidth(newCameraMaxWidth);
 
     if (isCameraLeftOrRight && cameraDock.width > newCameraMaxWidth) {
-      newLayoutContextDispatch(
+      layoutContextDispatch(
         {
           type: ACTIONS.SET_CAMERA_DOCK_SIZE,
           value: {
@@ -84,7 +84,7 @@ const WebcamComponent = ({
 
   const onResizeHandle = (deltaWidth, deltaHeight) => {
     if (cameraDock.resizableEdge.top || cameraDock.resizableEdge.bottom) {
-      newLayoutContextDispatch(
+      layoutContextDispatch(
         {
           type: ACTIONS.SET_CAMERA_DOCK_SIZE,
           value: {
@@ -97,7 +97,7 @@ const WebcamComponent = ({
       );
     }
     if (cameraDock.resizableEdge.left || cameraDock.resizableEdge.right) {
-      newLayoutContextDispatch(
+      layoutContextDispatch(
         {
           type: ACTIONS.SET_CAMERA_DOCK_SIZE,
           value: {
@@ -114,7 +114,7 @@ const WebcamComponent = ({
   const handleWebcamDragStart = () => {
     setIsDragging(true);
     document.body.style.overflow = 'hidden';
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_IS_DRAGGING,
       value: true,
     });
@@ -125,13 +125,13 @@ const WebcamComponent = ({
     document.body.style.overflow = 'auto';
 
     if (Object.values(CAMERADOCK_POSITION).includes(e.target.id)) {
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_CAMERA_DOCK_POSITION,
         value: e.target.id,
       });
     }
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_IS_DRAGGING,
       value: false,
     });

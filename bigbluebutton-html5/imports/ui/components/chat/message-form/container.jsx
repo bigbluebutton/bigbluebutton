@@ -3,15 +3,15 @@ import _ from 'lodash';
 import { makeCall } from '/imports/ui/services/api';
 import MessageForm from './component';
 import ChatService from '/imports/ui/components/chat/service';
-import { NLayoutContext } from '../../layout/context/context';
+import LayoutContext from '../../layout/context';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const START_TYPING_THROTTLE_INTERVAL = 2000;
 
 const MessageFormContainer = (props) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState } = newLayoutContext;
-  const { idChatOpen } = newLayoutContextState;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextState } = layoutContext;
+  const { idChatOpen } = layoutContextState;
   const handleSendMessage = (message) => {
     ChatService.setUserSentMessage(true);
     return ChatService.sendGroupMessage(message, idChatOpen);
