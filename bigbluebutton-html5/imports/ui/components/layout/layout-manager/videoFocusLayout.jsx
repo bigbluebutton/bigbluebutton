@@ -315,6 +315,10 @@ class VideoFocusLayout extends Component {
         }
         maxHeight = this.mainHeight() * 0.75 - this.bannerAreaHeight();
         minHeight = this.mainHeight() * 0.25 - this.bannerAreaHeight();
+
+        if (height > maxHeight) {
+          height = maxHeight;
+        }
       } else {
         height = this.mainHeight() - this.bannerAreaHeight();
         maxHeight = height;
