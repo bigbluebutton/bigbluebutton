@@ -49,6 +49,7 @@
     "app.captions.pad.dictationStop": "Dikte etmeyi durdur",
     "app.captions.pad.dictationOnDesc": " Konuşma tanımayı açar",
     "app.captions.pad.dictationOffDesc": " Konuşma tanımayı kapatır",
+    "app.captions.pad.speechRecognitionStop": "Tarayıcı uyumsuzluğu veya bir süre sessizlik nedeniyle konuşma tanıma durduruldu",
     "app.textInput.sendLabel": "Gönderildi",
     "app.note.title": "Paylaşılan Notlar",
     "app.note.label": "Not",
@@ -139,6 +140,9 @@
     "app.meeting.ended": "Oturum sonlandı",
     "app.meeting.meetingTimeRemaining": "Oturumun bitmesine kalan süre: {0}",
     "app.meeting.meetingTimeHasEnded": "Zaman bitti. Oturum kısa süre sonra kapanacak",
+    "app.meeting.endedByUserMessage": "Oturum {0} tarafından sonlandırıldı.",
+    "app.meeting.endedByNoModeratorMessageSingular": "Bir dakikadır moderatör bulunmadığı için toplantı sonlandırıldı.",
+    "app.meeting.endedByNoModeratorMessagePlural": "{0} dakikadır moderatör bulunmadığından toplantı sonlandırıldı.",
     "app.meeting.endedMessage": "Ana ekrana geri yönlendirileceksiniz",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "Toplantı bir dakika içinde kapanacak.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "Toplantı {0} dakika içinde kapanacak.",
@@ -787,6 +791,7 @@
     "app.createBreakoutRoom.addParticipantLabel": "+ Katılımcı ekle",
     "app.createBreakoutRoom.freeJoin": "Kullanıcıların katılmak için bir çalışma odası seçmesine izin ver",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Bir çalışma odasına en az bir kullanıcı atamalısınız..",
+    "app.createBreakoutRoom.minimumDurationWarnBreakout": "Bir çalışma odası için en az süre {0} dakikadır.",
     "app.createBreakoutRoom.modalDesc": "İpucu: Herhangi bir çalışma odasına atama yapmak için kullanıcının adını sürükleyip bırakabilirsiniz.",
     "app.createBreakoutRoom.roomTime": "{0} dakika",
     "app.createBreakoutRoom.numberOfRoomsError": "Oda sayısı geçersiz.",
@@ -810,7 +815,9 @@
     "app.debugWindow.form.userAgentLabel": "Kullanıcı Aracısı",
     "app.debugWindow.form.button.copy": "Kopyala",
     "app.debugWindow.form.enableAutoarrangeLayoutLabel": "Otomatik Düzenleme yerleşimini Etkinleştir",
-    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(web kamerası alanını sürüklerseniz veya yeniden boyutlandırırsanız devre dışı bırakılır)"
+    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(web kamerası alanını sürüklerseniz veya yeniden boyutlandırırsanız devre dışı bırakılır)",
+    "app.debugWindow.form.chatLoggerLabel": "Sohbet Kaydedici Düzeylerini Test Edin",
+    "app.debugWindow.form.button.apply": "Uygula"
 
 }
 
