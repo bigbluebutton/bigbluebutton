@@ -120,10 +120,10 @@ const ChatAlert = (props) => {
           newTimeWindow.durationDiff = durationDiff;
           timewindowsToAlert.push(newTimeWindow);
 
-          const lastAlertTimestampByChat = { ...lastAlertTimestampByChat };
+          const newLastAlertTimestampByChat = { ...lastAlertTimestampByChat };
           if (timeWindow.timestamp > (lastAlertTimestampByChat[timeWindow.chatId] || 0)) {
-            lastAlertTimestampByChat[timeWindow.chatId] = timeWindow.timestamp;
-            setLastAlertTimestampByChat(lastAlertTimestampByChat);
+            newLastAlertTimestampByChat[timeWindow.chatId] = timeWindow.timestamp;
+            setLastAlertTimestampByChat(newLastAlertTimestampByChat);
           }
         }
       });
