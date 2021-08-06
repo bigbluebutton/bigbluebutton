@@ -83,8 +83,13 @@ const getSessionVirtualBackgroundInfoWithDefault = () => {
   };
 }
 
-const isVirtualBackgroundEnabled = () => VIRTUAL_BACKGROUND_ENABLED
-  && !(deviceInfo.isIOS || browserInfo.isSafari);
+const isVirtualBackgroundEnabled = () => {
+  return VIRTUAL_BACKGROUND_ENABLED;
+}
+
+const isVirtualBackgroundSupported = () => {
+  return !(deviceInfo.isIOS || browserInfo.isSafari);
+}
 
 const getVirtualBgImagePath = () => {
   return (IS_STORED_ON_BBB ? BASE_PATH : '') + IMAGES_PATH;
@@ -104,6 +109,7 @@ export {
   getSessionVirtualBackgroundInfo,
   getSessionVirtualBackgroundInfoWithDefault,
   isVirtualBackgroundEnabled,
+  isVirtualBackgroundSupported,
   createVirtualBackgroundStream,
   getVirtualBackgroundThumbnail,
   getVirtualBgImagePath,

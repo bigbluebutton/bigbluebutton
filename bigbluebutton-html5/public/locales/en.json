@@ -686,6 +686,7 @@
     "app.videoPreview.webcamPreviewLabel": "Webcam preview",
     "app.videoPreview.webcamSettingsTitle": "Webcam settings",
     "app.videoPreview.webcamVirtualBackgroundLabel": "Virtual background settings",
+    "app.videoPreview.webcamVirtualBackgroundDisabledLabel": "This device does not support virtual backgrounds",
     "app.videoPreview.webcamNotFoundLabel": "Webcam not found",
     "app.videoPreview.profileNotFoundLabel": "No supported camera profile",
     "app.video.joinVideo": "Share webcam",
