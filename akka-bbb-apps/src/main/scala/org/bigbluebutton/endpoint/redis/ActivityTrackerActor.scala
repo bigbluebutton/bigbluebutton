@@ -7,6 +7,7 @@ import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
+import java.security.MessageDigest
 import scala.concurrent.duration._
 import scala.concurrent._
 import ExecutionContext.Implicits.global
@@ -17,9 +18,12 @@ case class MeetingActivityTracker(
   intId: String,
   extId: String,
   name:  String,
+  activityReportAccessToken: String,
   users: Map[String, UserActivityTracker] = Map(),
   polls: Map[String, Poll] = Map(),
   screenshares: Vector[Screenshare] = Vector(),
+  createdOn: Long = System.currentTimeMillis(),
+  endedOn: Long = 0,
 )
 
 case class UserActivityTracker(
@@ -80,6 +84,7 @@ class ActivityTrackerActor(
 ) extends Actor with ActorLogging {
 
   private var meetings: Map[String, MeetingActivityTracker] = Map()
+  private var meetingsLastJsonHash : Map[String,String] = Map()
 
   system.scheduler.schedule(10.seconds, 10.seconds, self, SendPeriodicReport)
 
@@ -318,6 +323,7 @@ class ActivityTrackerActor(
         msg.body.props.meetingProp.intId,
         msg.body.props.meetingProp.extId,
         msg.body.props.meetingProp.name,
+        msg.body.props.password.activityReportAccessToken,
       )
 
       meetings += (newMeeting.intId -> newMeeting)
@@ -332,22 +338,59 @@ class ActivityTrackerActor(
     for {
       meeting <- meetings.values.find(m => m.intId == msg.body.meetingId)
     } yield {
-      //Send report one last time
-      sendPeriodicReport()
+      //Update endedOn and screenshares.stoppedOn, user.totalTime talks, webcams.stoppedOn
+      val endedOn : Long = System.currentTimeMillis()
+      val updatedMeeting = meeting.copy(
+        endedOn = endedOn,
+        screenshares = meeting.screenshares.map(screenshare => {
+          if(screenshare.stoppedOn > 0) screenshare;
+          else screenshare.copy(stoppedOn = endedOn)
+        }),
+        users = meeting.users.map(user => {
+          (user._1 ->
+            user._2.copy(
+              leftOn = if(user._2.leftOn > 0) user._2.leftOn else endedOn,
+              talk = user._2.talk.copy(
+                totalTime = user._2.talk.totalTime + (if (user._2.talk.lastTalkStartedOn > 0) (endedOn - user._2.talk.lastTalkStartedOn) else 0),
+                lastTalkStartedOn = 0
+              ),
+              webcams = user._2.webcams.map(webcam => {
+                if(webcam.stoppedOn > 0) webcam
+                else webcam.copy(stoppedOn = endedOn)
+              })
+          ))
+      })
+      )
 
-      meetings = meetings.-(meeting.intId)
-      log.info("ActivityTracker removed for meeting {}.",meeting.intId)
+      meetings += (updatedMeeting.intId -> updatedMeeting)
+
+      //Send report one last time
+      sendReport(updatedMeeting)
+
+      meetings = meetings.-(updatedMeeting.intId)
+      log.info("ActivityTracker removed for meeting {}.",updatedMeeting.intId)
     }
   }
 
   private def sendPeriodicReport(): Unit = {
     meetings.map(meeting => {
-      val activityJson: String = JsonUtil.toJson(meeting._2)
-      val event = MsgBuilder.buildActivityReportEvtMsg(meeting._2.intId, activityJson)
+      sendReport(meeting._2)
+    })
+  }
+
+  private def sendReport(meeting : MeetingActivityTracker): Unit = {
+    val activityJson: String = JsonUtil.toJson(meeting)
+
+    //Avoid send repeated activity jsons
+    val activityJsonHash : String = MessageDigest.getInstance("MD5").digest(activityJson.getBytes).mkString
+    if(!meetingsLastJsonHash.contains(meeting.intId) || meetingsLastJsonHash.get(meeting.intId).getOrElse("") != activityJsonHash) {
+      val event = MsgBuilder.buildActivityReportEvtMsg(meeting.intId, activityJson)
       outGW.send(event)
 
-      log.info("Activity Report sent for meeting {}",meeting._2.intId)
-    })
+      meetingsLastJsonHash += (meeting.intId -> activityJsonHash)
+
+      log.info("Activity Report sent for meeting {}",meeting.intId)
+    }
   }
 
 }
