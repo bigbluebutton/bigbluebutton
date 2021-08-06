@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "axios": "^0.21.1",
+    "child_process": "^1.0.2",
     "babel-jest": "^27.0.6",
     "dotenv": "^6.0.0",
     "fs-extra": "^9.1.0",
