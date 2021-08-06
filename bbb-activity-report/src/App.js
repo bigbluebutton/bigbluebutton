@@ -18,7 +18,7 @@ class App extends React.Component {
     this.fetchActivitiesJson();
     setInterval(() => {
       this.fetchActivitiesJson();
-    }, 3000);
+    }, 10000);
   }
 
   fetchActivitiesJson() {
