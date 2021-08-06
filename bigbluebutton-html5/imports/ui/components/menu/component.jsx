@@ -34,12 +34,12 @@ class BBBMenu extends React.Component {
   }
 
   handleClick(event) {
-    this.setState({ anchorEl: event.currentTarget})
+    this.setState({ anchorEl: event.currentTarget });
   };
-    
+
   handleClose() {
     const { onCloseCallback } = this.props;
-    this.setState({ anchorEl: null}, onCloseCallback());
+    this.setState({ anchorEl: null }, onCloseCallback());
   };
 
   setAnchorEl(el) {
@@ -50,34 +50,38 @@ class BBBMenu extends React.Component {
     const { actions, selectedEmoji } = this.props;
 
     return actions?.map(a => {
-      const { label, onClick, key } = a;
+      const { dataTest, label, onClick, key } = a;
       const itemClasses = [styles.menuitem];
 
-      if (key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase())) itemClasses.push(styles.emojiSelected);
+      if (key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase())) {
+        itemClasses.push(styles.emojiSelected);
+      };
 
-      return [<MenuItem 
-        key={label}
-        className={itemClasses.join(' ')}
-        disableRipple={true}
-        disableGutters={true}
-        style={{ paddingLeft: '4px',paddingRight: '4px',paddingTop: '8px', paddingBottom: '8px', marginLeft: '4px', marginRight: '4px' }}
-        onClick={() => { 
-          onClick();
-          const close = !key.includes('setstatus') && !key.includes('back');
-          // prevent menu close for sub menu actions
-          if (close) this.handleClose();
-        }}>
-          <div style={{ display: 'flex', flexFlow: 'row', width: '100%'}}>
+      return [
+        <MenuItem
+          data-test={dataTest}
+          key={label}
+          className={itemClasses.join(' ')}
+          disableRipple={true}
+          disableGutters={true}
+          style={{ paddingLeft: '4px', paddingRight: '4px', paddingTop: '8px', paddingBottom: '8px', marginLeft: '4px', marginRight: '4px' }}
+          onClick={() => {
+            onClick();
+            const close = !key.includes('setstatus') && !key.includes('back');
+            // prevent menu close for sub menu actions
+            if (close) this.handleClose();
+          }}>
+          <div style={{ display: 'flex', flexFlow: 'row', width: '100%' }}>
             {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
             <div className={styles.option}>{label}</div>
             {a.iconRight ? <Icon iconName={a.iconRight} key="iconRight" className={styles.iRight} /> : null}
           </div>
         </MenuItem>,
-        a.divider && <Divider />  
-    ];
+        a.divider && <Divider />
+      ];
     });
   }
-  
+
   render() {
     const { anchorEl } = this.state;
     const { trigger, intl, opts, wide } = this.props;
@@ -88,7 +92,9 @@ class BBBMenu extends React.Component {
 
     return (
       <div>
-        <div onClick={this.handleClick}>{trigger}</div>
+        <div onClick={this.handleClick} role="menuitem" tabIndex={0}>
+          {trigger}
+        </div>
         <Menu
           {...opts}
           anchorEl={anchorEl}
@@ -97,7 +103,7 @@ class BBBMenu extends React.Component {
           className={menuClasses.join(' ')}
         >
           {actionsItems}
-          {anchorEl && window.innerWidth < MAX_WIDTH && 
+          {anchorEl && window.innerWidth < MAX_WIDTH &&
             <Button
               className={styles.closeBtn}
               label={intl.formatMessage(intlMessages.close)}

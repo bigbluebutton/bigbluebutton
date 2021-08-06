@@ -93,6 +93,7 @@ const chatTest = () => {
     } finally {
       await test.close();
     }
+    expect(response).toBe(true);
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
         failureThreshold: 0.9,

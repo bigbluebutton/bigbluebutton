@@ -168,6 +168,16 @@ async function presetationUpload(test) {
   }
 }
 
+function encodeCustomParams(param) {
+  try {
+    let splited = param.split('=');
+    splited[1] = encodeURIComponent(splited[1]).replace(/%20/g, '+');
+    return splited.join('=');
+  } catch (e) {
+    console.log(e);
+  }
+}
+
 exports.zoomIn = zoomIn;
 exports.zoomOut = zoomOut;
 exports.poll = poll;
@@ -182,3 +192,4 @@ exports.autoJoinTest = autoJoinTest;
 exports.listenOnlyMode = listenOnlyMode;
 exports.forceListenOnly = forceListenOnly;
 exports.skipCheck = skipCheck;
+exports.encodeCustomParams = encodeCustomParams;

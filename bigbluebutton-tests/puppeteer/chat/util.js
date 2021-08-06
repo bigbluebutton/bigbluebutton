@@ -22,7 +22,9 @@ async function openPrivateChatMessage(page1, page2) {
   Object.values(arguments).forEach(async argument => await argument.waitForSelector(ule.userListItem, ELEMENT_WAIT_TIME));
   await page1.page.evaluate(clickOnTheOtherUser, ule.userListItem);
   await page2.page.evaluate(clickOnTheOtherUser, ule.userListItem);
+  await page1.page.waitForSelector(e.activeChat, ELEMENT_WAIT_TIME);
   await page1.page.evaluate(clickThePrivateChatButton, e.activeChat);
+  await page2.page.waitForSelector(e.activeChat, ELEMENT_WAIT_TIME);
   await page2.page.evaluate(clickThePrivateChatButton, e.activeChat);
 }
 
