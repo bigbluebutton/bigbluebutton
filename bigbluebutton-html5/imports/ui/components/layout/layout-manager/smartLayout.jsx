@@ -338,13 +338,17 @@ class SmartLayout extends Component {
 
   calculatesCameraDockBounds(mediaAreaBounds, mediaBounds, sidebarSize) {
     const { layoutContextState } = this.props;
-    const { input, fullscreen, isRTL } = layoutContextState;
+    const { input, fullscreen, isRTL, deviceType } = layoutContextState;
     const { presentation } = input;
     const { isOpen } = presentation;
-    const { camerasMargin } = DEFAULT_VALUES;
+    const { camerasMargin, presentationToolbarMinWidth } = DEFAULT_VALUES;
 
     const cameraDockBounds = {};
     cameraDockBounds.isCameraHorizontal = false;
+    const mediaBoundsWidth = (mediaBounds.width > presentationToolbarMinWidth
+      && deviceType !== DEVICE_TYPE.MOBILE)
+      ? mediaBounds.width
+      : presentationToolbarMinWidth;
 
     if (input.cameraDock.numCameras > 0) {
       cameraDockBounds.top = mediaAreaBounds.top;
@@ -358,7 +362,7 @@ class SmartLayout extends Component {
         cameraDockBounds.height = mediaAreaBounds.height;
         cameraDockBounds.maxHeight = mediaAreaBounds.height;
       } else if (mediaBounds.width < mediaAreaBounds.width) {
-        cameraDockBounds.width = mediaAreaBounds.width - mediaBounds.width;
+        cameraDockBounds.width = mediaAreaBounds.width - mediaBoundsWidth;
         cameraDockBounds.maxWidth = mediaAreaBounds.width * 0.8;
         cameraDockBounds.height = mediaAreaBounds.height;
         cameraDockBounds.maxHeight = mediaAreaBounds.height;
@@ -434,6 +438,7 @@ class SmartLayout extends Component {
     const { isOpen } = presentation;
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
+    const { camerasMargin } = DEFAULT_VALUES;
 
     // TODO Adicionar min e max para a apresentação
 

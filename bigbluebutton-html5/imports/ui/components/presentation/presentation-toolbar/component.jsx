@@ -224,6 +224,7 @@ class PresentationToolbar extends PureComponent {
       startPoll,
       currentSlide,
       fullscreenElementId,
+      toolbarWidth,
     } = this.props;
 
     const { isMobile } = deviceInfo;
@@ -240,7 +241,13 @@ class PresentationToolbar extends PureComponent {
       : `${intl.formatMessage(intlMessages.nextSlideLabel)} (${currentSlideNum >= 1 ? (currentSlideNum + 1) : ''})`;
 
     return (
-      <div id="presentationToolbarWrapper" className={styles.presentationToolbarWrapper}>
+      <div id="presentationToolbarWrapper"
+        className={styles.presentationToolbarWrapper}
+        style={
+          {
+            width: toolbarWidth,
+          }
+        }>
         {this.renderAriaDescs()}
         {
           <div>
@@ -258,7 +265,7 @@ class PresentationToolbar extends PureComponent {
                   className={styles.presentationBtn}
                 />
               ) : null
-          }
+            }
           </div>
         }
         {

@@ -659,6 +659,7 @@ const reducer = (state, action) => {
         minWidth,
         width,
         maxWidth,
+        presenterMaxWidth,
         minHeight,
         height,
         maxHeight,
@@ -674,6 +675,8 @@ const reducer = (state, action) => {
       if (cameraDock.display === display
         && cameraDock.position === position
         && cameraDock.width === width
+        && cameraDock.maxWidth === maxWidth
+        && cameraDock.presenterMaxWidth === presenterMaxWidth
         && cameraDock.height === height
         && cameraDock.maxHeight === maxHeight
         && cameraDock.top === top
@@ -696,6 +699,7 @@ const reducer = (state, action) => {
             minWidth,
             width,
             maxWidth,
+            presenterMaxWidth,
             minHeight,
             height,
             maxHeight,
