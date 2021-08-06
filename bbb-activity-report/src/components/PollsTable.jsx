@@ -18,7 +18,7 @@ class PollsTable extends React.Component {
         <thead>
           <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-100">
             <th className="px-4 py-3">
-              <FormattedMessage id="app.pollsTable.colParticipant" defaultMessage="Participant" />
+              <FormattedMessage id="app.learningDashboard.pollsTable.colParticipant" defaultMessage="Participant" />
             </th>
             {typeof polls === 'object' && Object.values(polls || {}).length > 0 ? (
               Object.values(polls || {}).map((poll, index) => <th className="px-4 py-3 text-center">{poll.question || `Poll ${index + 1}`}</th>)
@@ -70,7 +70,7 @@ class PollsTable extends React.Component {
                         { poll.anonymous
                           ? (
                             <span title={intl.formatMessage({
-                              id: 'app.pollsTable.anonymousAnswer',
+                              id: 'app.learningDashboard.pollsTable.anonymousAnswer',
                               defaultMessage: 'Anonymous Poll (answers in the last row)',
                             })}
                             >
@@ -124,7 +124,7 @@ class PollsTable extends React.Component {
                 </div>
                 <div>
                   <p className="font-semibold">
-                    <FormattedMessage id="app.pollsTable.anonymousRowName" defaultMessage="Anonymous" />
+                    <FormattedMessage id="app.learningDashboard.pollsTable.anonymousRowName" defaultMessage="Anonymous" />
                   </p>
                 </div>
               </div>
