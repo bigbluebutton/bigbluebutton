@@ -27,6 +27,8 @@ import { withModalMounter } from '../modal/service';
 import App from './component';
 import ActionsBarContainer from '../actions-bar/container';
 
+const CUSTOM_STYLE_URL = Meteor.settings.public.app.customStyleUrl;
+
 const propTypes = {
   actionsbar: PropTypes.node,
   meetingLayout: PropTypes.string.isRequired,
@@ -160,13 +162,18 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
   const shouldShowScreenshare = MediaService.shouldShowScreenshare()
     && (viewScreenshare || MediaService.isUserPresenter()) && !shouldShowExternalVideo;
+  let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
+
+  if (!customStyleUrl && CUSTOM_STYLE_URL) {
+    customStyleUrl = CUSTOM_STYLE_URL;
+  }
 
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
     fontSize: getFontSize(),
     hasBreakoutRooms: getBreakoutRooms().length > 0,
     customStyle: getFromUserSettings('bbb_custom_style', false),
-    customStyleUrl: getFromUserSettings('bbb_custom_style_url', false),
+    customStyleUrl,
     UserInfo,
     notify,
     validIOSVersion,

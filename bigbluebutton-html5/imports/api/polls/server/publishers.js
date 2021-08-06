@@ -25,30 +25,31 @@ function currentPoll(secretPoll) {
 
   const { meetingId, userId } = tokenValidation;
 
-  const User = Users.findOne({ userId, meetingId }, { fields: { role: 1 } });
-  if (!User || User.role !== ROLE_MODERATOR) {
-    Logger.warn(
-      'Publishing current-poll was requested by non-moderator connection',
-      { meetingId, userId, connectionId: this.connection.id }
-    );
-    return Polls.find({ meetingId: '' });
+  const User = Users.findOne({ userId, meetingId }, { fields: { role: 1, presenter: 1 } });
+
+  if (!!User && (User.role === ROLE_MODERATOR || User.presenter)) {
+    Logger.debug('Publishing Polls', { meetingId, userId });
+
+    const selector = {
+      meetingId,
+    };
+
+    const options = { fields: {} };
+
+    const hasPoll = Polls.findOne(selector);
+
+    if ((hasPoll && hasPoll.secretPoll) || secretPoll) {
+      options.fields.responses = 0;
+    }
+
+    return Polls.find(selector, options);
   }
 
-  Logger.debug('Publishing Polls', { meetingId, userId });
-
-  const selector = {
-    meetingId,
-  };
-
-  const options = { fields: {} };
-
-  const hasPoll = Polls.findOne(selector);
-
-  if ((hasPoll && hasPoll.secretPoll) || secretPoll) {
-    options.fields.responses = 0;
-  }
-
-  return Polls.find(selector, options);
+  Logger.warn(
+    'Publishing current-poll was requested by non-moderator connection',
+    { meetingId, userId, connectionId: this.connection.id },
+  );
+  return Polls.find({ meetingId: '' });
 }
 
 function publishCurrentPoll(...args) {

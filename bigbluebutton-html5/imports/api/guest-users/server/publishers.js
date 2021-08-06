@@ -6,7 +6,7 @@ import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-v
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
-function guestUsers() {
+function guestUsers(role) {
   const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
@@ -19,7 +19,7 @@ function guestUsers() {
   const User = Users.findOne({ userId, meetingId }, { fields: { role: 1 } });
   if (!User || User.role !== ROLE_MODERATOR) {
     Logger.warn(
-      'Publishing current-poll was requested by non-moderator connection',
+      'Publishing GuestUser was requested by non-moderator connection',
       { meetingId, userId, connectionId: this.connection.id },
     );
     return GuestUsers.find({ meetingId: '' });
