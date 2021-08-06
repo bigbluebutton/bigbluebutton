@@ -75,17 +75,17 @@ class WriterMenu extends PureComponent {
   }
 
   handleStart() {
-    const { closeModal, takeOwnership, newLayoutContextDispatch } = this.props;
+    const { closeModal, takeOwnership, layoutContextDispatch } = this.props;
     const { locale } = this.state;
 
     takeOwnership(locale);
     Session.set('captionsLocale', locale);
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
       value: true,
     });
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
       value: PANELS.CAPTIONS,
     });

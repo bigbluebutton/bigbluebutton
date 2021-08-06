@@ -202,7 +202,7 @@ class ApplicationMenu extends BaseMenu {
   }
 
   changeFontSize(size) {
-    const { newLayoutContextDispatch } = this.props;
+    const { layoutContextDispatch } = this.props;
     const obj = this.state;
     obj.settings.fontSize = size;
     this.setState(obj, () => {
@@ -210,7 +210,7 @@ class ApplicationMenu extends BaseMenu {
       this.handleUpdateFontSize(this.state.settings.fontSize);
     });
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_FONT_SIZE,
       value: parseInt(size.slice(0, -2)),
     });
@@ -334,7 +334,6 @@ class ApplicationMenu extends BaseMenu {
                 id="layoutList"
                 value={settings.selectedLayout}
               >
-                <option key="legacy" value="legacy">{intl.formatMessage(intlMessages.legacyLayout)}</option>
                 {
                   Object.values(LAYOUT_TYPE)
                     .map((layout) => <option key={layout} value={layout}>{intl.formatMessage(intlMessages[`${layout}Layout`])}</option>)

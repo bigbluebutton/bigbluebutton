@@ -93,12 +93,12 @@ const isEnabled = () => {
   return NOTE_CONFIG.enabled && note;
 };
 
-const toggleNotePanel = (sidebarContentPanel, newLayoutContextDispatch) => {
-  newLayoutContextDispatch({
+const toggleNotePanel = (sidebarContentPanel, layoutContextDispatch) => {
+  layoutContextDispatch({
     type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
     value: sidebarContentPanel !== PANELS.SHARED_NOTES,
   });
-  newLayoutContextDispatch({
+  layoutContextDispatch({
     type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
     value: sidebarContentPanel === PANELS.SHARED_NOTES
       ? PANELS.NONE

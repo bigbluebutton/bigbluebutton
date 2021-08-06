@@ -8,6 +8,7 @@ import {
   BLUR_FILENAME,
   IMAGE_NAMES,
   getVirtualBackgroundThumbnail,
+  isVirtualBackgroundSupported,
 } from '/imports/ui/services/virtual-background/service'
 
 const propTypes = {
@@ -27,6 +28,10 @@ const intlMessages = defineMessages({
   virtualBackgroundSettingsLabel: {
     id: 'app.videoPreview.webcamVirtualBackgroundLabel',
     description: 'Label for the virtual background',
+  },
+  virtualBackgroundSettingsDisabledLabel: {
+    id: 'app.videoPreview.webcamVirtualBackgroundDisabledLabel',
+    description: 'Label for the unsupported virtual background',
   },
   noneLabel: {
     id: 'app.video.virtualBackground.none',
@@ -63,12 +68,14 @@ const VirtualBgSelector = ({
   };
 
   const renderDropdownSelector = () => {
+    const disabled = locked || !isVirtualBackgroundSupported();
+
     return (
       <div className={styles.virtualBackgroundRowDropdown}>
         <select
           value={JSON.stringify(currentVirtualBg)}
           className={styles.select}
-          disabled={locked}
+          disabled={disabled}
           onChange={event => {
             const { type, name } = JSON.parse(event.target.value);
             _virtualBgSelected(type, name);
@@ -96,32 +103,36 @@ const VirtualBgSelector = ({
   }
 
   const renderThumbnailSelector = () => {
+    const disabled = locked || !isVirtualBackgroundSupported();
+
     return (
       <div className={styles.virtualBackgroundRowThumbnail}>
         <Button
           icon='close'
           label={intl.formatMessage(intlMessages.noneLabel)}
           hideLabel
-          disabled={locked}
+          disabled={disabled}
           onClick={() => _virtualBgSelected(EFFECT_TYPES.NONE_TYPE)}
         />
 
       <input
         type="image"
+        alt="image-input"
         aria-label={EFFECT_TYPES.BLUR_TYPE}
         src={getVirtualBackgroundThumbnail(BLUR_FILENAME)}
-        disabled={locked}
+        disabled={disabled}
         onClick={() => _virtualBgSelected(EFFECT_TYPES.BLUR_TYPE)}
       />
 
     {IMAGE_NAMES.map((imageName, index) => (
       <input
         type="image"
+        alt="image-input"
         aria-label={imageName}
         key={`${imageName}-${index}`}
         src={getVirtualBackgroundThumbnail(imageName)}
         onClick={() => _virtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, imageName)}
-        disabled={locked}
+        disabled={disabled}
       />
     ))}
   </div>
@@ -134,13 +145,15 @@ const VirtualBgSelector = ({
   };
 
   return (
-    <div>
+    <>
       <label className={styles.label}>
-        {intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
+        {!isVirtualBackgroundSupported()
+          ? intl.formatMessage(intlMessages.virtualBackgroundSettingsDisabledLabel)
+          : intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
       </label>
 
       {renderSelector()}
-    </div>
+    </>
   );
 };
 
@@ -149,7 +162,7 @@ VirtualBgSelector.defaultProps = {
   showThumbnails: false,
   initialVirtualBgState: {
     type: EFFECT_TYPES.NONE_TYPE,
-  }
+  },
 };
 
 export default injectIntl(VirtualBgSelector);

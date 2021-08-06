@@ -28,17 +28,17 @@ const CaptionsListItem = (props) => {
     locale,
     tabIndex,
     sidebarContentPanel,
-    newLayoutContextDispatch,
+    layoutContextDispatch,
   } = props;
 
   const handleClickToggleCaptions = () => {
     if (sidebarContentPanel !== PANELS.CAPTIONS) {
       Session.set('captionsLocale', locale.locale);
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
         value: true,
       });
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
         value: PANELS.CAPTIONS,
       });
@@ -47,11 +47,11 @@ const CaptionsListItem = (props) => {
       if (captionsLocale !== locale.locale) {
         Session.set('captionsLocale', locale.locale);
       } else {
-        newLayoutContextDispatch({
+        layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
           value: false,
         });
-        newLayoutContextDispatch({
+        layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
           value: PANELS.NONE,
         });

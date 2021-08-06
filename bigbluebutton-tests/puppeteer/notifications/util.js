@@ -1,4 +1,4 @@
-const ne = require('../notifications/elements');
+const ne = require('./elements');
 const ule = require('../user/elements');
 const ce = require('../chat/elements');
 const e = require('../core/elements');
@@ -40,19 +40,19 @@ async function waitForToast(test) {
 
 async function getLastToastValue(test) {
   await test.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
-  const toast = test.page.evaluate(async () => {
-    const lastToast = await document.querySelectorAll('div[data-test="toastSmallMsg"]')[0].innerText;
+  const toast = test.page.evaluate(async (toastMsgSelector) => {
+    const lastToast = await document.querySelectorAll(toastMsgSelector)[0].innerText;
     return lastToast;
-  });
+  }, ne.smallToastMsg);
   return toast;
 }
 
 async function getOtherToastValue(test) {
   await test.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
-  const toast = test.page.evaluate(async () => {
-    const lastToast = await document.querySelectorAll('div[data-test="toastSmallMsg"]')[1].innerText;
+  const toast = test.page.evaluate(async (toastMsgSelector) => {
+    const lastToast = await document.querySelectorAll(toastMsgSelector)[1].innerText;
     return lastToast;
-  });
+  }, ne.smallToastMsg);
   return toast;
 }
 
@@ -82,6 +82,12 @@ async function privateChatMessageToast(page2) {
   // Open private Chat with the other User
   await page2.page.evaluate(clickOnElement, ule.userListItem);
   await page2.page.evaluate(clickThePrivateChatButton, ce.activeChat);
+  // wait for the private chat to be ready
+  await page2.page.waitForFunction(
+    (chatSelector) => document.querySelectorAll(chatSelector).length == 2,
+    { timeout: ELEMENT_WAIT_TIME },
+    ce.chatButton
+  );
   // send a private message
   await page2.page.type(ce.privateChat, ce.message1);
   await page2.click(ce.sendButton, true);

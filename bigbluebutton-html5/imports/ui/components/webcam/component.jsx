@@ -11,13 +11,15 @@ import Storage from '/imports/ui/services/storage/session';
 const WebcamComponent = ({
   cameraDock,
   swapLayout,
-  newLayoutContextDispatch,
+  layoutContextDispatch,
   fullscreen,
+  isPresenter,
 }) => {
   const [isResizing, setIsResizing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isFullscreen, setIsFullScreen] = useState(false);
   const [resizeStart, setResizeStart] = useState({ width: 0, height: 0 });
+  const [cameraMaxWidth, setCameraMaxWidth] = useState(0);
 
   const lastSize = Storage.getItem('webcamSize') || { width: 0, height: 0 };
   const { width: lastWidth, height: lastHeight } = lastSize;
@@ -33,7 +35,7 @@ const WebcamComponent = ({
 
   useEffect(() => {
     if (isCameraTopOrBottom && lastHeight > 0) {
-      newLayoutContextDispatch(
+      layoutContextDispatch(
         {
           type: ACTIONS.SET_CAMERA_DOCK_SIZE,
           value: {
@@ -46,7 +48,7 @@ const WebcamComponent = ({
       );
     }
     if (isCameraLeftOrRight && lastWidth > 0) {
-      newLayoutContextDispatch(
+      layoutContextDispatch(
         {
           type: ACTIONS.SET_CAMERA_DOCK_SIZE,
           value: {
@@ -60,9 +62,29 @@ const WebcamComponent = ({
     }
   }, [cameraDock.position, lastWidth, lastHeight]);
 
+  useEffect(() => {
+    const newCameraMaxWidth = (isPresenter && cameraDock.presenterMaxWidth) ? cameraDock.presenterMaxWidth: cameraDock.maxWidth;
+    setCameraMaxWidth(newCameraMaxWidth);
+
+    if (isCameraLeftOrRight && cameraDock.width > newCameraMaxWidth) {
+      layoutContextDispatch(
+        {
+          type: ACTIONS.SET_CAMERA_DOCK_SIZE,
+          value: {
+            width: newCameraMaxWidth,
+            height: cameraDock.height,
+            browserWidth: window.innerWidth,
+            browserHeight: window.innerHeight,
+          },
+        },
+      );
+      Storage.setItem('webcamSize', { width: newCameraMaxWidth, height: lastHeight });
+    }
+  }, [cameraDock.position, isPresenter]);
+
   const onResizeHandle = (deltaWidth, deltaHeight) => {
     if (cameraDock.resizableEdge.top || cameraDock.resizableEdge.bottom) {
-      newLayoutContextDispatch(
+      layoutContextDispatch(
         {
           type: ACTIONS.SET_CAMERA_DOCK_SIZE,
           value: {
@@ -75,7 +97,7 @@ const WebcamComponent = ({
       );
     }
     if (cameraDock.resizableEdge.left || cameraDock.resizableEdge.right) {
-      newLayoutContextDispatch(
+      layoutContextDispatch(
         {
           type: ACTIONS.SET_CAMERA_DOCK_SIZE,
           value: {
@@ -92,7 +114,7 @@ const WebcamComponent = ({
   const handleWebcamDragStart = () => {
     setIsDragging(true);
     document.body.style.overflow = 'hidden';
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_IS_DRAGGING,
       value: true,
     });
@@ -103,13 +125,13 @@ const WebcamComponent = ({
     document.body.style.overflow = 'auto';
 
     if (Object.values(CAMERADOCK_POSITION).includes(e.target.id)) {
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_CAMERA_DOCK_POSITION,
         value: e.target.id,
       });
     }
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_IS_DRAGGING,
       value: false,
     });
@@ -148,7 +170,7 @@ const WebcamComponent = ({
         <Resizable
           minWidth={cameraDock.minWidth}
           minHeight={cameraDock.minHeight}
-          maxWidth={cameraDock.maxWidth}
+          maxWidth={cameraMaxWidth}
           size={{
             width: cameraDock.width,
             height: cameraDock.height,

@@ -8,13 +8,13 @@ import {
   isGloballyBroadcasting,
 } from './service';
 import ScreenshareComponent from './component';
-import { NLayoutContext } from '../layout/context/context';
+import LayoutContext from '../layout/context';
 
 const ScreenshareContainer = (props) => {
   const fullscreenElementId = 'Screenshare';
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { output, layoutLoaded, fullscreen } = newLayoutContextState;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextState, layoutContextDispatch } = layoutContext;
+  const { output, fullscreen } = layoutContextState;
   const { screenShare } = output;
   const { element } = fullscreen;
   const fullscreenContext = (element === fullscreenElementId);
@@ -24,10 +24,9 @@ const ScreenshareContainer = (props) => {
       <ScreenshareComponent
         {
         ...{
-          newLayoutContextDispatch,
+          layoutContextDispatch,
           ...props,
           ...screenShare,
-          layoutLoaded,
           fullscreenContext,
           fullscreenElementId,
         }

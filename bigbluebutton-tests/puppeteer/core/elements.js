@@ -9,7 +9,7 @@ exports.alerts = '.toastify-content';
 exports.isTalking = '[data-test="isTalking"]';
 exports.wasTalking = '[data-test="wasTalking"]';
 exports.joinAudio = 'button[data-test="joinAudio"]';
-exports.leaveAudio = 'button[aria-label="Change/Leave audio"]';
+exports.leaveAudio = 'button[aria-label="Leave audio"]';
 exports.disconnectAudio = 'li[data-test="disconnectAudio"]';
 
 exports.actions = 'button[aria-label="Actions"]';

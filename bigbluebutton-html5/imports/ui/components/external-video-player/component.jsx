@@ -2,9 +2,19 @@ import React, { Component } from 'react';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import ReactPlayer from 'react-player';
-import { sendMessage, onMessage, removeAllListeners } from './service';
+import _ from 'lodash';
+import {
+  sendMessage,
+  onMessage,
+  removeAllListeners,
+  getPlayingState,
+} from './service';
+
+import {
+  isMobile, isTablet,
+} from '../layout/utils';
+
 import logger from '/imports/startup/client/logger';
-import Service from './service';
 
 import VolumeSlider from './volume-slider/component';
 import ReloadButton from '/imports/ui/components/reload-button/component';
@@ -32,6 +42,13 @@ ReactPlayer.addCustomPlayer(PeerTubePlayer);
 ReactPlayer.addCustomPlayer(ArcPlayer);
 
 class VideoPlayer extends Component {
+  static clearVideoListeners() {
+    removeAllListeners('play');
+    removeAllListeners('stop');
+    removeAllListeners('playerUpdate');
+    removeAllListeners('presenterReady');
+  }
+
   constructor(props) {
     super(props);
 
@@ -96,13 +113,12 @@ class VideoPlayer extends Component {
         playerId: 'externalVideoPlayerTwitch',
       },
       preload: true,
+      showHoverToolBar: false,
     };
 
     this.registerVideoListeners = this.registerVideoListeners.bind(this);
     this.autoPlayBlockDetected = this.autoPlayBlockDetected.bind(this);
-    this.clearVideoListeners = this.clearVideoListeners.bind(this);
     this.handleFirstPlay = this.handleFirstPlay.bind(this);
-    this.handleResize = this.handleResize.bind(this);
     this.handleReload = this.handleReload.bind(this);
     this.handleOnProgress = this.handleOnProgress.bind(this);
     this.handleOnReady = this.handleOnReady.bind(this);
@@ -116,60 +132,20 @@ class VideoPlayer extends Component {
     this.getCurrentVolume = this.getCurrentVolume.bind(this);
     this.getMuted = this.getMuted.bind(this);
     this.setPlaybackRate = this.setPlaybackRate.bind(this);
-    this.resizeListener = () => {
-      setTimeout(this.handleResize, 0);
-    };
     this.onBeforeUnload = this.onBeforeUnload.bind(this);
+
+    this.isMobile = isMobile() || isTablet();
+    this.mobileHoverSetTimeout = null;
   }
 
   componentDidMount() {
-    window.addEventListener('resize', this.resizeListener);
-    window.addEventListener('layoutSizesSets', this.resizeListener);
     window.addEventListener('beforeunload', this.onBeforeUnload);
 
     clearInterval(this.syncInterval);
     clearTimeout(this.autoPlayTimeout);
 
-    this.clearVideoListeners();
+    VideoPlayer.clearVideoListeners();
     this.registerVideoListeners();
-  }
-
-  onBeforeUnload() {
-    const { isPresenter } = this.props;
-
-    if (isPresenter) {
-      this.sendSyncMessage('stop');
-    }
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.resizeListener);
-    window.removeEventListener('beforeunload', this.onBeforeUnload);
-
-    this.clearVideoListeners();
-
-    clearInterval(this.syncInterval);
-    clearTimeout(this.autoPlayTimeout);
-
-    this.player = null;
-  }
-
-  componentDidUpdate(prevProp, prevState) {
-    const { top, left, right, layoutLoaded } = this.props;
-
-    if (layoutLoaded === 'new' && (top !== prevProp.top || left !== prevProp.right || right !== prevProp.right)) {
-      this.handleResize();
-    }
-
-    // Detect presenter change and redo the sync and listeners to reassign video to the new one
-    if (this.props.isPresenter !== prevProp.isPresenter) {
-      this.clearVideoListeners();
-
-      clearInterval(this.syncInterval);
-      clearTimeout(this.autoPlayTimeout);
-
-      this.registerVideoListeners();
-    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -185,42 +161,43 @@ class VideoPlayer extends Component {
     return true;
   }
 
-  static getDerivedStateFromProps(props) {
-    const { inEchoTest } = props;
+  componentDidUpdate(prevProp) {
+    // Detect presenter change and redo the sync and listeners to reassign video to the new one
+    const { isPresenter } = this.props;
+    if (isPresenter !== prevProp.isPresenter) {
+      VideoPlayer.clearVideoListeners();
 
-    return { mutedByEchoTest: inEchoTest };
-  }
+      clearInterval(this.syncInterval);
+      clearTimeout(this.autoPlayTimeout);
 
-  sendSyncMessage(msg, params) {
-    const timestamp = Date.now();
-
-    // If message is just a quick pause/un-pause just send nothing
-    const sinceLastMessage = (timestamp - this.lastMessageTimestamp) / 1000;
-    if ((msg === 'play' && this.lastMessage === 'stop'
-      || msg === 'stop' && this.lastMessage === 'play')
-      && sinceLastMessage < THROTTLE_INTERVAL_SECONDS) {
-      return clearTimeout(this.throttleTimeout);
-    }
-
-    // Ignore repeat presenter ready messages
-    if (this.lastMessage === msg && msg === 'presenterReady') {
-      logger.debug('Ignoring a repeated presenterReady message');
-    } else {
-      // Play/pause messages are sent with a delay, to permit cancelling it in case of
-      // quick sucessive play/pauses
-      const messageDelay = (msg === 'play' || msg === 'stop') ? THROTTLE_INTERVAL_SECONDS : 0;
-
-      this.throttleTimeout = setTimeout(() => {
-        sendMessage(msg, { ...params });
-      }, messageDelay * 1000);
-
-      this.lastMessage = msg;
-      this.lastMessageTimestamp = timestamp;
+      this.registerVideoListeners();
     }
   }
 
-  autoPlayBlockDetected() {
-    this.setState({ autoPlayBlocked: true });
+  componentWillUnmount() {
+    window.removeEventListener('beforeunload', this.onBeforeUnload);
+
+    VideoPlayer.clearVideoListeners();
+
+    clearInterval(this.syncInterval);
+    clearTimeout(this.autoPlayTimeout);
+
+    this.player = null;
+  }
+
+  handleOnReady() {
+    const { hasPlayedBefore, playerIsReady } = this;
+
+    if (hasPlayedBefore || playerIsReady) {
+      return;
+    }
+
+    this.playerIsReady = true;
+
+    this.autoPlayTimeout = setTimeout(
+      this.autoPlayBlockDetected,
+      AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS * 1000,
+    );
   }
 
   handleFirstPlay() {
@@ -237,201 +214,6 @@ class VideoPlayer extends Component {
         this.sendSyncMessage('presenterReady');
       }
     }
-  }
-
-  getCurrentTime() {
-    if (this.player && this.player.getCurrentTime) {
-      return Math.round(this.player.getCurrentTime());
-    }
-  }
-
-  getCurrentPlaybackRate() {
-    const intPlayer = this.player && this.player.getInternalPlayer();
-
-    return (intPlayer && intPlayer.getPlaybackRate && intPlayer.getPlaybackRate()) || 1;
-  }
-
-  setPlaybackRate(rate) {
-    const intPlayer = this.player && this.player.getInternalPlayer();
-    const currentRate = this.getCurrentPlaybackRate();
-
-    if (currentRate === rate) {
-      return;
-    }
-
-    this.setState({ playbackRate: rate });
-    if (intPlayer && intPlayer.setPlaybackRate) {
-      intPlayer.setPlaybackRate(rate);
-    }
-  }
-
-  handleResize() {
-    const { top, left, right, height, width, layoutLoaded } = this.props;
-
-    if (!this.player || !this.playerParent) {
-      return;
-    }
-
-    if (layoutLoaded === 'new') {
-      const idealW = height * 16 / 9;
-
-      const style = {};
-      if (idealW > width) {
-        style.width = width;
-        style.height = width * 9 / 16;
-      } else {
-        style.width = idealW;
-        style.height = height;
-      }
-      style.top = top + (height - style.height) / 2;
-      style.left = left + (width - style.width) / 2;
-      style.right = right + (width - style.width) / 2;
-
-      const styles = `
-        position: absolute;
-        width: ${style.width}px;
-        height: ${style.height}px;
-        top: ${style.top}px;
-        left: ${style.left}px;
-        right: ${style.right}px;
-      `;
-      this.player.wrapper.style = styles;
-    } else {
-      const par = this.playerParent.parentElement;
-      const w = par.clientWidth;
-      const h = par.clientHeight;
-      const idealW = h * 16 / 9;
-
-      const style = {};
-      if (idealW > w) {
-        style.width = w;
-        style.height = w * 9 / 16;
-      } else {
-        style.width = idealW;
-        style.height = h;
-      }
-
-      const styles = `width: ${style.width}px; height: ${style.height}px;`;
-
-      this.player.wrapper.style = styles;
-      this.playerParent.style = styles;
-    }
-  }
-
-  clearVideoListeners() {
-    removeAllListeners('play');
-    removeAllListeners('stop');
-    removeAllListeners('playerUpdate');
-    removeAllListeners('presenterReady');
-  }
-
-  registerVideoListeners() {
-    const { isPresenter } = this.props;
-
-    if (isPresenter) {
-      this.syncInterval = setInterval(() => {
-        const { playing } = this.state;
-        const curTime = this.getCurrentTime();
-        const rate = this.getCurrentPlaybackRate();
-
-        // Always pause video if presenter is has not started sharing, e.g., blocked by autoplay
-        const playingState = this.hasPlayedBefore ? playing : false;
-
-        this.sendSyncMessage('playerUpdate', { rate, time: curTime, state: playingState });
-      }, SYNC_INTERVAL_SECONDS * 1000);
-    } else {
-      onMessage('play', ({ time }) => {
-        const { hasPlayedBefore, player } = this;
-
-        if (!player || !hasPlayedBefore) {
-          return;
-        }
-        this.seekTo(time);
-        this.setState({ playing: true });
-
-        logger.debug({ logCode: 'external_video_client_play' }, 'Play external video');
-      });
-
-      onMessage('stop', ({ time }) => {
-        const { hasPlayedBefore, player } = this;
-
-        if (!player || !hasPlayedBefore) {
-          return;
-        }
-        this.seekTo(time);
-        this.setState({ playing: false });
-
-        logger.debug({ logCode: 'external_video_client_stop' }, 'Stop external video');
-      });
-
-      onMessage('presenterReady', (data) => {
-        const { hasPlayedBefore } = this;
-
-        logger.debug({ logCode: 'external_video_presenter_ready' }, 'Presenter is ready to sync');
-
-        if (!hasPlayedBefore) {
-          this.setState({ playing: true });
-        }
-      });
-
-      onMessage('playerUpdate', (data) => {
-        const { hasPlayedBefore, player } = this;
-        const { playing } = this.state;
-        const { time, rate, state } = data;
-
-        if (!player || !hasPlayedBefore) {
-          return;
-        }
-
-        if (rate !== this.getCurrentPlaybackRate()) {
-          this.setPlaybackRate(rate);
-          logger.debug({
-            logCode: 'external_video_client_update_rate',
-            extraInfo: {
-              newRate: rate,
-            },
-          }, 'Change external video playback rate.');
-        }
-
-        this.seekTo(time);
-
-        const playingState = Service.getPlayingState(state);
-        if (playing !== playingState) {
-          this.setState({ playing: playingState });
-        }
-      });
-    }
-  }
-
-  seekTo(time) {
-    const { player } = this;
-
-    if (!player) {
-      return logger.error('No player on seek');
-    }
-
-    // Seek if viewer has drifted too far away from presenter
-    if (Math.abs(this.getCurrentTime() - time) > SYNC_INTERVAL_SECONDS * 0.75) {
-      player.seekTo(time, true);
-      logger.debug({
-        logCode: 'external_video_client_update_seek',
-        extraInfo: { time },
-      }, `Seek external video to: ${time}`);
-    }
-  }
-
-  handleOnReady() {
-    const { hasPlayedBefore, playerIsReady } = this;
-
-    if (hasPlayedBefore || playerIsReady) {
-      return;
-    }
-
-    this.playerIsReady = true;
-
-    this.handleResize();
-
-    this.autoPlayTimeout = setTimeout(this.autoPlayBlockDetected, AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS * 1000);
   }
 
   handleOnPlay() {
@@ -477,18 +259,6 @@ class VideoPlayer extends Component {
     this.setState({ volume, muted });
   }
 
-  getMuted() {
-    const intPlayer = this.player && this.player.getInternalPlayer();
-
-    return (intPlayer && intPlayer.isMuted && intPlayer.isMuted()) || this.state.muted;
-  }
-
-  getCurrentVolume() {
-    const intPlayer = this.player && this.player.getInternalPlayer();
-
-    return (intPlayer && intPlayer.getVolume && intPlayer.getVolume() / 100.0) || this.state.volume;
-  }
-
   handleVolumeChanged(volume) {
     this.setState({ volume });
   }
@@ -498,66 +268,299 @@ class VideoPlayer extends Component {
   }
 
   handleReload() {
+    const { key } = this.state;
     // increment key and force a re-render of the video component
-    this.setState({ key: this.state.key + 1 });
+    this.setState({ key: key + 1 });
+  }
 
-    // hack, resize player
-    this.resizeListener();
+  onBeforeUnload() {
+    const { isPresenter } = this.props;
+
+    if (isPresenter) {
+      this.sendSyncMessage('stop');
+    }
+  }
+
+  static getDerivedStateFromProps(props) {
+    const { inEchoTest } = props;
+
+    return { mutedByEchoTest: inEchoTest };
+  }
+
+  getCurrentTime() {
+    if (this.player && this.player.getCurrentTime) {
+      return Math.round(this.player.getCurrentTime());
+    }
+    return 0;
+  }
+
+  getCurrentPlaybackRate() {
+    const intPlayer = this.player && this.player.getInternalPlayer();
+
+    return (intPlayer && intPlayer.getPlaybackRate && intPlayer.getPlaybackRate()) || 1;
+  }
+
+  setPlaybackRate(rate) {
+    const intPlayer = this.player && this.player.getInternalPlayer();
+    const currentRate = this.getCurrentPlaybackRate();
+
+    if (currentRate === rate) {
+      return;
+    }
+
+    this.setState({ playbackRate: rate });
+    if (intPlayer && intPlayer.setPlaybackRate) {
+      intPlayer.setPlaybackRate(rate);
+    }
+  }
+
+  getCurrentVolume() {
+    const { volume } = this.state;
+    const intPlayer = this.player && this.player.getInternalPlayer();
+
+    return (intPlayer && intPlayer.getVolume && intPlayer.getVolume() / 100.0) || volume;
+  }
+
+  getMuted() {
+    const { muted } = this.state;
+    const intPlayer = this.player && this.player.getInternalPlayer();
+
+    return (intPlayer && intPlayer.isMuted && intPlayer.isMuted()) || muted;
+  }
+
+  autoPlayBlockDetected() {
+    this.setState({ autoPlayBlocked: true });
+  }
+
+  sendSyncMessage(msg, params) {
+    const timestamp = Date.now();
+
+    // If message is just a quick pause/un-pause just send nothing
+    const sinceLastMessage = (timestamp - this.lastMessageTimestamp) / 1000;
+    if ((
+      (msg === 'play' && this.lastMessage === 'stop')
+      || (msg === 'stop' && this.lastMessage === 'play'))
+         && sinceLastMessage < THROTTLE_INTERVAL_SECONDS) {
+      return clearTimeout(this.throttleTimeout);
+    }
+
+    // Ignore repeat presenter ready messages
+    if (this.lastMessage === msg && msg === 'presenterReady') {
+      logger.debug('Ignoring a repeated presenterReady message');
+    } else {
+      // Play/pause messages are sent with a delay, to permit cancelling it in case of
+      // quick sucessive play/pauses
+      const messageDelay = (msg === 'play' || msg === 'stop') ? THROTTLE_INTERVAL_SECONDS : 0;
+
+      this.throttleTimeout = setTimeout(() => {
+        sendMessage(msg, { ...params });
+      }, messageDelay * 1000);
+
+      this.lastMessage = msg;
+      this.lastMessageTimestamp = timestamp;
+    }
+  }
+
+  registerVideoListeners() {
+    const { isPresenter } = this.props;
+
+    if (isPresenter) {
+      this.syncInterval = setInterval(() => {
+        const { playing } = this.state;
+        const curTime = this.getCurrentTime();
+        const rate = this.getCurrentPlaybackRate();
+
+        // Always pause video if presenter is has not started sharing, e.g., blocked by autoplay
+        const playingState = this.hasPlayedBefore ? playing : false;
+
+        this.sendSyncMessage('playerUpdate', { rate, time: curTime, state: playingState });
+      }, SYNC_INTERVAL_SECONDS * 1000);
+    } else {
+      onMessage('play', ({ time }) => {
+        const { hasPlayedBefore, player } = this;
+
+        if (!player || !hasPlayedBefore) {
+          return;
+        }
+        this.seekTo(time);
+        this.setState({ playing: true });
+
+        logger.debug({ logCode: 'external_video_client_play' }, 'Play external video');
+      });
+
+      onMessage('stop', ({ time }) => {
+        const { hasPlayedBefore, player } = this;
+
+        if (!player || !hasPlayedBefore) {
+          return;
+        }
+        this.seekTo(time);
+        this.setState({ playing: false });
+
+        logger.debug({ logCode: 'external_video_client_stop' }, 'Stop external video');
+      });
+
+      onMessage('presenterReady', () => {
+        const { hasPlayedBefore } = this;
+
+        logger.debug({ logCode: 'external_video_presenter_ready' }, 'Presenter is ready to sync');
+
+        if (!hasPlayedBefore) {
+          this.setState({ playing: true });
+        }
+      });
+
+      onMessage('playerUpdate', (data) => {
+        const { hasPlayedBefore, player } = this;
+        const { playing } = this.state;
+        const { time, rate, state } = data;
+
+        if (!player || !hasPlayedBefore) {
+          return;
+        }
+
+        if (rate !== this.getCurrentPlaybackRate()) {
+          this.setPlaybackRate(rate);
+          logger.debug({
+            logCode: 'external_video_client_update_rate',
+            extraInfo: {
+              newRate: rate,
+            },
+          }, 'Change external video playback rate.');
+        }
+
+        this.seekTo(time);
+
+        const playingState = getPlayingState(state);
+        if (playing !== playingState) {
+          this.setState({ playing: playingState });
+        }
+      });
+    }
+  }
+
+  seekTo(time) {
+    const { player } = this;
+
+    if (!player) {
+      return logger.error('No player on seek');
+    }
+
+    // Seek if viewer has drifted too far away from presenter
+    if (Math.abs(this.getCurrentTime() - time) > SYNC_INTERVAL_SECONDS * 0.75) {
+      player.seekTo(time, true);
+      logger.debug({
+        logCode: 'external_video_client_update_seek',
+        extraInfo: { time },
+      }, `Seek external video to: ${time}`);
+    }
   }
 
   render() {
-    const { videoUrl, isPresenter, intl } = this.props;
+    const {
+      videoUrl,
+      isPresenter,
+      intl,
+      top,
+      left,
+      height,
+      width,
+    } = this.props;
+
     const {
       playing, playbackRate, mutedByEchoTest, autoPlayBlocked,
-      volume, muted, key,
+      volume, muted, key, showHoverToolBar,
     } = this.state;
 
+    const mobileHoverToolBarStyle = showHoverToolBar
+      ? styles.showMobileHoverToolbar
+      : styles.dontShowMobileHoverToolbar;
+    const desktopHoverToolBarStyle = styles.hoverToolbar;
+
+    const hoverToolbarStyle = this.isMobile ? mobileHoverToolBarStyle : desktopHoverToolBarStyle;
     return (
-      <div
-        id="video-player"
-        data-test="videoPlayer"
-        className={styles.videoPlayerWrapper}
-        ref={(ref) => { this.playerParent = ref; }}
+      <span
+        style={{
+          position: 'absolute',
+          top,
+          left,
+          height,
+          width,
+        }}
       >
-        {autoPlayBlocked
-          ? (
-            <p className={styles.autoPlayWarning}>
-              {intl.formatMessage(intlMessages.autoPlayWarning)}
-            </p>
-          )
-          : ''
-        }
-        <ReactPlayer
-          className={styles.videoPlayer}
-          url={videoUrl}
-          config={this.opts}
-          volume={(muted || mutedByEchoTest) ? 0 : volume}
-          muted={muted || mutedByEchoTest}
-          playing={playing}
-          playbackRate={playbackRate}
-          onProgress={this.handleOnProgress}
-          onReady={this.handleOnReady}
-          onPlay={this.handleOnPlay}
-          onPause={this.handleOnPause}
-          key={'react-player' + key}
-          ref={(ref) => { this.player = ref; }}
-        />
-        {!isPresenter ?
-          <div className={styles.hoverToolbar}>
-            <VolumeSlider
-              volume={volume}
-              muted={muted || mutedByEchoTest}
-              onMuted={this.handleOnMuted}
-              onVolumeChanged={this.handleVolumeChanged}
-            />
-            <ReloadButton
-              handleReload={this.handleReload}
-              label={intl.formatMessage(intlMessages.refreshLabel)}>
-            </ReloadButton>
-          </div>
-          : null
-        }
-      </div>
+        <div
+          id="video-player"
+          data-test="videoPlayer"
+          className={styles.videoPlayerWrapper}
+          ref={(ref) => { this.playerParent = ref; }}
+        >
+          {
+            autoPlayBlocked
+              ? (
+                <p className={styles.autoPlayWarning}>
+                  {intl.formatMessage(intlMessages.autoPlayWarning)}
+                </p>
+              )
+              : ''
+          }
+
+          <ReactPlayer
+            className={styles.videoPlayer}
+            url={videoUrl}
+            config={this.opts}
+            volume={(muted || mutedByEchoTest) ? 0 : volume}
+            muted={muted || mutedByEchoTest}
+            playing={playing}
+            playbackRate={playbackRate}
+            onProgress={this.handleOnProgress}
+            onReady={this.handleOnReady}
+            onPlay={this.handleOnPlay}
+            onPause={this.handleOnPause}
+            key={`react-player${key}`}
+            ref={(ref) => { this.player = ref; }}
+            height="100%"
+            width="100%"
+          />
+          {
+            !isPresenter
+              ? [
+                (
+                  <div className={hoverToolbarStyle} key="hover-toolbar-external-video">
+                    <VolumeSlider
+                      volume={volume}
+                      muted={muted || mutedByEchoTest}
+                      onMuted={this.handleOnMuted}
+                      onVolumeChanged={this.handleVolumeChanged}
+                    />
+
+                    <ReloadButton
+                      handleReload={this.handleReload}
+                      label={intl.formatMessage(intlMessages.refreshLabel)}>
+                    </ReloadButton>
+                  </div>
+                ),
+                (this.isMobile && playing) && (
+                  <span
+                    className={styles.mobileControlsOverlay}
+                    key="mobile-overlay-external-video"
+                    ref={(ref) => { this.overlay = ref; }}
+                    onTouchStart={() => {
+                      clearTimeout(this.mobileHoverSetTimeout);
+                      this.setState({ showHoverToolBar: true });
+                    }}
+                    onTouchEnd={() => {
+                      this.mobileHoverSetTimeout = setTimeout(
+                        () => this.setState({ showHoverToolBar: false }),
+                        5000,
+                      );
+                    }}
+                  />
+                ),
+              ]
+              : null
+          }
+        </div>
+      </span>
     );
   }
 }

@@ -23,7 +23,6 @@
 
   min-width: 200px;
   background-color: rgba(0,0,0,0.5);
-  padding: 0.5em 1em 0.5em 1em;
   border-radius: 32px;
 
   i {
@@ -32,6 +31,7 @@
     font-size: 200%;
     cursor: pointer;
   }
+  z-index: 2;
 }
 
 .volumeSlider {
