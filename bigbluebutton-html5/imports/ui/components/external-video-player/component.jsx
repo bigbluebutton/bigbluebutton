@@ -465,7 +465,6 @@ class VideoPlayer extends Component {
       left,
       height,
       width,
-      layoutLoaded,
     } = this.props;
 
     const {
@@ -526,7 +525,7 @@ class VideoPlayer extends Component {
             !isPresenter
               ? [
                 (
-                  <div className={hoverToolbarStyle}>
+                  <div className={hoverToolbarStyle} key="hover-toolbar-external-video">
                     <VolumeSlider
                       volume={volume}
                       muted={muted || mutedByEchoTest}
@@ -540,9 +539,10 @@ class VideoPlayer extends Component {
                     </ReloadButton>
                   </div>
                 ),
-                this.isMobile && (
+                (this.isMobile && playing) && (
                   <span
                     className={styles.mobileControlsOverlay}
+                    key="mobile-overlay-external-video"
                     ref={(ref) => { this.overlay = ref; }}
                     onTouchStart={() => {
                       clearTimeout(this.mobileHoverSetTimeout);
