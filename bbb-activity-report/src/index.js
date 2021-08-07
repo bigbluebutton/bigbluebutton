@@ -27,7 +27,7 @@ class Dashboard extends React.Component {
     }
 
     const fetchMessages = (lang) => new Promise((resolve, reject) => {
-      const url = `./translations/${lang.replace('-', '_')}.json`;
+      const url = `/html5client/locales/${lang.replace('-', '_')}.json`;
       fetch(url).then((response) => {
         if (!response.ok) return reject();
         return resolve(response.json());
@@ -36,7 +36,11 @@ class Dashboard extends React.Component {
 
     Promise.all([fetchMessages('en'), fetchMessages(language)])
       .then((values) => {
-        let mergedMessages = { ...values[0] };
+        let mergedMessages = {};
+
+        if (values[0]) {
+          mergedMessages = Object.assign(mergedMessages, values[0]);
+        }
 
         if (values[1]) {
           mergedMessages = Object.assign(mergedMessages, values[1]);

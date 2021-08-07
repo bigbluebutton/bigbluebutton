@@ -18,7 +18,7 @@ class App extends React.Component {
     this.fetchActivitiesJson();
     setInterval(() => {
       this.fetchActivitiesJson();
-    }, 3000);
+    }, 10000);
   }
 
   fetchActivitiesJson() {
@@ -70,7 +70,7 @@ class App extends React.Component {
       <div className="mx-10">
         <div className="flex items-start justify-between pb-3">
           <h1 className="mt-3 text-2xl font-semibold whitespace-nowrap inline-block">
-            <FormattedMessage id="app.dashboard" defaultMessage="Dashboard" />
+            <FormattedMessage id="app.learningDashboard.dashboardTitle" defaultMessage="Learning Dashboard" />
           </h1>
           <div className="mt-3 text-right px-4 py-1 text-gray-500 inline-block">
             <p className="font-bold">
@@ -79,12 +79,12 @@ class App extends React.Component {
                         activitiesJson.endedOn > 0
                           ? (
                             <span className="px-2 py-1 ml-3 font-semibold leading-tight text-red-700 bg-red-100 rounded-full">
-                              <FormattedMessage id="app.indicators.meetingStatusEnded" defaultMessage="Ended" />
+                              <FormattedMessage id="app.learningDashboard.indicators.meetingStatusEnded" defaultMessage="Ended" />
                             </span>
                           )
                           : (
                             <span className="px-2 py-1 ml-3 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
-                              <FormattedMessage id="app.indicators.meetingStatusActive" defaultMessage="Active" />
+                              <FormattedMessage id="app.learningDashboard.indicators.meetingStatusActive" defaultMessage="Active" />
                             </span>
                           )
                     }
@@ -102,7 +102,7 @@ class App extends React.Component {
 
         <div className="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
           <Card
-            name={intl.formatMessage({ id: 'app.indicators.participants', defaultMessage: 'Participants' })}
+            name={intl.formatMessage({ id: 'app.learningDashboard.indicators.participants', defaultMessage: 'Participants' })}
             number={Object.values(activitiesJson.users || {}).length}
             cardClass="border-pink-500"
             iconClass="bg-pink-50 text-pink-500"
@@ -123,7 +123,7 @@ class App extends React.Component {
             </svg>
           </Card>
           <Card
-            name={intl.formatMessage({ id: 'app.indicators.polls', defaultMessage: 'Polls' })}
+            name={intl.formatMessage({ id: 'app.learningDashboard.indicators.polls', defaultMessage: 'Polls' })}
             number={Object.values(activitiesJson.polls || {}).length}
             cardClass="border-blue-500"
             iconClass="bg-blue-100 text-blue-500"
@@ -144,7 +144,7 @@ class App extends React.Component {
             </svg>
           </Card>
           <Card
-            name={intl.formatMessage({ id: 'app.indicators.raiseHand', defaultMessage: 'Raise Hand' })}
+            name={intl.formatMessage({ id: 'app.learningDashboard.indicators.raiseHand', defaultMessage: 'Raise Hand' })}
             number={totalOfRaiseHand()}
             cardClass="border-purple-500"
             iconClass="bg-purple-200 text-purple-500"
@@ -165,7 +165,7 @@ class App extends React.Component {
             </svg>
           </Card>
           <Card
-            name={intl.formatMessage({ id: 'app.indicators.duration', defaultMessage: 'Duration' })}
+            name={intl.formatMessage({ id: 'app.learningDashboard.indicators.duration', defaultMessage: 'Duration' })}
             number={tsToHHmmss(totalOfActivity())}
             cardClass="border-green-500"
             iconClass="bg-green-100 text-green-500"
@@ -201,7 +201,7 @@ class App extends React.Component {
           <option value="overview">
             {
                     intl.formatMessage({
-                      id: 'app.participantsTable.title',
+                      id: 'app.learningDashboard.participantsTable.title',
                       defaultMessage: 'Overview',
                     })
                 }
@@ -209,7 +209,7 @@ class App extends React.Component {
           <option value="polling">
             {
                     intl.formatMessage({
-                      id: 'app.pollsTable.title',
+                      id: 'app.learningDashboard.pollsTable.title',
                       defaultMessage: 'Polling',
                     })
                 }
