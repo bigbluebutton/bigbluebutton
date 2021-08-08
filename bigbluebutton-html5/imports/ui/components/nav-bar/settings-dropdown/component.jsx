@@ -302,6 +302,7 @@ class SettingsDropdown extends PureComponent {
     return (
    
       <BBBMenu
+        accessKey={OPEN_OPTIONS_AK}
         trigger={
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}

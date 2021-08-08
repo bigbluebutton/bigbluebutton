@@ -88,11 +88,11 @@ class BBBMenu extends React.Component {
     const actionsItems = this.makeMenuItems();
 
     const menuClasses = [styles.menu];
-    if (wide) menuClasses.push(styles.wide)
+    if (wide) menuClasses.push(styles.wide);
 
     return (
       <div>
-        <div onClick={this.handleClick}>{trigger}</div>
+        <div onClick={this.handleClick} accessKey={this.props?.accessKey}>{trigger}</div>
         <Menu
           {...opts}
           anchorEl={anchorEl}
@@ -148,6 +148,7 @@ BBBMenu.propTypes = {
     iconRight: PropTypes.string,
     divider: PropTypes.bool,
     dividerTop: PropTypes.bool,
+    accessKey: PropTypes.string,
   })).isRequired,
 
   onCloseCallback: PropTypes.func,

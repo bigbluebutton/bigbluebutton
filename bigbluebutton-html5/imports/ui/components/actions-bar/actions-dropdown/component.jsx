@@ -270,7 +270,8 @@ class ActionsDropdown extends PureComponent {
     }
 
     return (
-      <BBBMenu 
+      <BBBMenu
+        accessKey={OPEN_ACTIONS_AK}
         trigger={
           <Button
             className={isDropdownOpen ? styles.hideDropdownButton : ''}
