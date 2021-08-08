@@ -8,7 +8,7 @@ import { makeCall } from '/imports/ui/services/api';
 import AboutContainer from '/imports/ui/components/about/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
 import Button from '/imports/ui/components/button/component';
-import Dropdown from '/imports/ui/components/dropdown/component';
+import BBBMenu from "/imports/ui/components/menu/component";
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import FullscreenService from '../../fullscreen-button/service';
@@ -152,7 +152,7 @@ class SettingsDropdown extends PureComponent {
     }
   }
 
-  getFullscreenItem() {
+  getFullscreenItem(menuItems) {
     const {
       intl,
       noIOSFullscreen,
@@ -173,13 +173,15 @@ class SettingsDropdown extends PureComponent {
     }
 
     return (
-      <Dropdown.DropdownListItem
-        key="list-item-fullscreen"
-        icon={fullscreenIcon}
-        label={fullscreenLabel}
-        description={fullscreenDesc}
-        onClick={handleToggleFullscreen}
-      />
+      menuItems.push(
+        {
+          key: "list-item-fullscreen",
+          icon: fullscreenIcon,
+          label: fullscreenLabel,
+          // description: fullscreenDesc,
+          onClick: handleToggleFullscreen           
+        }
+      )      
     );
   }
 
@@ -192,6 +194,7 @@ class SettingsDropdown extends PureComponent {
   }
 
   renderMenuItems() {
+    
     const {
       intl, mountModal, amIModerator, isBreakoutRoom, isMeteorConnected,
     } = this.props;
@@ -204,69 +207,87 @@ class SettingsDropdown extends PureComponent {
       allowLogout: allowLogoutSetting,
     } = Meteor.settings.public.app;
 
-    const logoutOption = (
-      <Dropdown.DropdownListItem
-        key="list-item-logout"
-        data-test="logout"
-        icon="logout"
-        label={intl.formatMessage(intlMessages.leaveSessionLabel)}
-        description={intl.formatMessage(intlMessages.leaveSessionDesc)}
-        onClick={() => this.leaveSession()}
-      />
+    this.menuItems = [];
+
+    this.getFullscreenItem(this.menuItems),
+
+    this.menuItems.push(
+      {
+        key: "list-item-settings",
+        icon: "settings",
+        dataTest: "settings",
+        label: intl.formatMessage(intlMessages.settingsLabel),
+        // description: intl.formatMessage(intlMessages.settingsDesc),
+        onClick: () => mountModal(<SettingsMenuContainer />)
+      },
+      {
+        key: "list-item-about",
+        icon: "about",
+        label: intl.formatMessage(intlMessages.aboutLabel),
+        // description: intl.formatMessage(intlMessages.aboutDesc),
+        onClick: () => mountModal(<AboutContainer />)        
+      }
     );
 
-    const shouldRenderLogoutOption = (isMeteorConnected && allowLogoutSetting)
-      ? logoutOption
-      : null;
+    if (!helpButton) {
+      return null;
+    } else {
+      this.menuItems.push(
+        {
+          key: "list-item-help",
+          icon: "help",
+          iconRight: "popout_window",
+          label: intl.formatMessage(intlMessages.helpLabel),
+          // description: intl.formatMessage(intlMessages.helpDesc),
+          onClick: () => window.open(`${helpLink}`)
+        }
+      );
+    }
+    
+    this.menuItems.push(
+      {
+        key: "list-item-shortcuts",
+        icon: "shortcuts",
+        label: intl.formatMessage(intlMessages.hotkeysLabel),
+        // description: intl.formatMessage(intlMessages.hotkeysDesc),
+        onClick: () => mountModal(<ShortcutHelpComponent />),       
+        divider: true
+      }
+    );
 
-    return _.compact([
-      this.getFullscreenItem(),
-      (<Dropdown.DropdownListItem
-        key="list-item-settings"
-        icon="settings"
-        data-test="settings"
-        label={intl.formatMessage(intlMessages.settingsLabel)}
-        description={intl.formatMessage(intlMessages.settingsDesc)}
-        onClick={() => mountModal(<SettingsMenuContainer />)}
-      />),
-      (<Dropdown.DropdownListItem
-        key="list-item-about"
-        icon="about"
-        label={intl.formatMessage(intlMessages.aboutLabel)}
-        description={intl.formatMessage(intlMessages.aboutDesc)}
-        onClick={() => mountModal(<AboutContainer />)}
-      />),
-      !helpButton ? null
-        : (
-          <Dropdown.DropdownListItem
-            key="list-item-help"
-            icon="help"
-            iconRight="popout_window"
-            label={intl.formatMessage(intlMessages.helpLabel)}
-            description={intl.formatMessage(intlMessages.helpDesc)}
-            onClick={() => window.open(`${helpLink}`)}
-          />
-        ),
-      (<Dropdown.DropdownListItem
-        key="list-item-shortcuts"
-        icon="shortcuts"
-        label={intl.formatMessage(intlMessages.hotkeysLabel)}
-        description={intl.formatMessage(intlMessages.hotkeysDesc)}
-        onClick={() => mountModal(<ShortcutHelpComponent />)}
-      />),
-      (isMeteorConnected ? <Dropdown.DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
-      allowedToEndMeeting && isMeteorConnected
-        ? (<Dropdown.DropdownListItem
-          key="list-item-end-meeting"
-          icon="application"
-          label={intl.formatMessage(intlMessages.endMeetingLabel)}
-          description={intl.formatMessage(intlMessages.endMeetingDesc)}
-          onClick={() => mountModal(<EndMeetingConfirmationContainer />)}
-        />
-        )
-        : null,
-      shouldRenderLogoutOption,
-    ]);
+    if (allowedToEndMeeting && isMeteorConnected) {
+      this.menuItems.push(
+        {
+          key: "list-item-end-meeting",
+          icon: "application",
+          label: intl.formatMessage(intlMessages.endMeetingLabel),
+          // description: intl.formatMessage(intlMessages.endMeetingDesc),
+          onClick: () => mountModal(<EndMeetingConfirmationContainer />)             
+        }
+      )
+    } else {
+      return null;
+    }  
+
+    const logoutOption = (
+      this.menuItems.push(
+        {
+          key: "list-item-logout",
+          dataTest: "logout",
+          icon: "logout",
+          label: intl.formatMessage(intlMessages.leaveSessionLabel),
+          // description: intl.formatMessage(intlMessages.leaveSessionDesc),
+          onClick: () => this.leaveSession()
+        }
+      )
+    );
+
+    const shouldRenderLogoutOption = (isMeteorConnected && allowLogoutSetting) ? logoutOption : null;    
+    
+    shouldRenderLogoutOption;
+
+    return this.menuItems;
+
   }
 
   render() {
@@ -279,14 +300,9 @@ class SettingsDropdown extends PureComponent {
     const { isSettingOpen } = this.state;
 
     return (
-      <Dropdown
-        className={styles.dropdown}
-        autoFocus
-        keepOpen={isSettingOpen}
-        onShow={this.onActionsShow}
-        onHide={this.onActionsHide}
-      >
-        <Dropdown.DropdownTrigger tabIndex={0} accessKey={OPEN_OPTIONS_AK}>
+   
+      <BBBMenu
+        trigger={
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"
@@ -298,14 +314,12 @@ class SettingsDropdown extends PureComponent {
             // FIXME: Without onClick react proptypes keep warning
             // even after the DropdownTrigger inject an onClick handler
             onClick={() => null}
-          />
-        </Dropdown.DropdownTrigger>
-        <Dropdown.DropdownContent placement="bottom right">
-          <Dropdown.DropdownList>
-            {this.renderMenuItems()}
-          </Dropdown.DropdownList>
-        </Dropdown.DropdownContent>
-      </Dropdown>
+          />          
+        }
+        
+        actions={this.renderMenuItems()}
+      />
+
     );
   }
 }

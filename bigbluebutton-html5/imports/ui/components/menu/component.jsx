@@ -43,6 +43,8 @@ class BBBMenu extends React.Component {
   };
 
   setAnchorEl(el) {
+    console.log(el)
+    debugger
     this.setState({ anchorEl: el });
   };
 
@@ -51,22 +53,24 @@ class BBBMenu extends React.Component {
 
     return actions?.map(a => {
       const { label, onClick, key } = a;
-      const itemClasses = [styles.menuitem];
+      const itemClasses = [styles.menuitem, a?.className];
 
       if (key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase())) itemClasses.push(styles.emojiSelected);
 
-      return [<MenuItem 
-        key={label}
-        className={itemClasses.join(' ')}
-        disableRipple={true}
-        disableGutters={true}
-        style={{ paddingLeft: '4px',paddingRight: '4px',paddingTop: '8px', paddingBottom: '8px', marginLeft: '4px', marginRight: '4px' }}
-        onClick={() => { 
-          onClick();
-          const close = !key.includes('setstatus') && !key.includes('back');
-          // prevent menu close for sub menu actions
-          if (close) this.handleClose();
-        }}>
+      return [
+        a.dividerTop && <Divider />,  
+        <MenuItem 
+          key={label}
+          className={itemClasses.join(' ')}
+          disableRipple={true}
+          disableGutters={true}
+          style={{ paddingLeft: '4px',paddingRight: '4px',paddingTop: '8px', paddingBottom: '8px', marginLeft: '4px', marginRight: '4px' }}
+          onClick={() => { 
+            onClick();
+            const close = !key.includes('setstatus') && !key.includes('back');
+            // prevent menu close for sub menu actions
+            if (close) this.handleClose();
+          }}>
           <div style={{ display: 'flex', flexFlow: 'row', width: '100%'}}>
             {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
             <div className={styles.option}>{label}</div>
@@ -74,7 +78,7 @@ class BBBMenu extends React.Component {
           </div>
         </MenuItem>,
         a.divider && <Divider />  
-    ];
+      ];
     });
   }
   
@@ -123,7 +127,7 @@ BBBMenu.defaultProps = {
     getContentAnchorEl: null,
     fullwidth: "true",
     anchorOrigin: { vertical: 'top', horizontal: 'right' },
-    transformorigin: { vertical: 'top', horizontal: 'top' },
+    transformorigin: { vertical: 'top', horizontal: 'right' },
   },
   onCloseCallback: () => {},
   wide: false,
@@ -143,6 +147,7 @@ BBBMenu.propTypes = {
     icon: PropTypes.string,
     iconRight: PropTypes.string,
     divider: PropTypes.bool,
+    dividerTop: PropTypes.bool,
   })).isRequired,
 
   onCloseCallback: PropTypes.func,
