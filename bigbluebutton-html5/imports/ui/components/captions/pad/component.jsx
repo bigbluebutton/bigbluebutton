@@ -200,7 +200,7 @@ class Pad extends PureComponent {
       readOnlyPadId,
       ownerId,
       name,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
     } = this.props;
 
     const { listening } = this.state;
@@ -212,11 +212,11 @@ class Pad extends PureComponent {
           <div className={styles.title}>
             <Button
               onClick={() => {
-                newLayoutContextDispatch({
+                layoutContextDispatch({
                   type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
                   value: false,
                 });
-                newLayoutContextDispatch({
+                layoutContextDispatch({
                   type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                   value: PANELS.NONE,
                 });

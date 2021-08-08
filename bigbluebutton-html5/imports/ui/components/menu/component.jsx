@@ -34,12 +34,12 @@ class BBBMenu extends React.Component {
   }
 
   handleClick(event) {
-    this.setState({ anchorEl: event.currentTarget})
+    this.setState({ anchorEl: event.currentTarget });
   };
-    
+
   handleClose() {
     const { onCloseCallback } = this.props;
-    this.setState({ anchorEl: null}, onCloseCallback());
+    this.setState({ anchorEl: null }, onCloseCallback());
   };
 
   setAnchorEl(el) {
@@ -59,7 +59,7 @@ class BBBMenu extends React.Component {
 
       return [
         a.dividerTop && <Divider />,  
-        <MenuItem 
+        <MenuItem
           key={label}
           className={itemClasses.join(' ')}
           disableRipple={true}
@@ -81,7 +81,7 @@ class BBBMenu extends React.Component {
       ];
     });
   }
-  
+
   render() {
     const { anchorEl } = this.state;
     const { trigger, intl, opts, wide } = this.props;
@@ -101,7 +101,7 @@ class BBBMenu extends React.Component {
           className={menuClasses.join(' ')}
         >
           {actionsItems}
-          {anchorEl && window.innerWidth < MAX_WIDTH && 
+          {anchorEl && window.innerWidth < MAX_WIDTH &&
             <Button
               className={styles.closeBtn}
               label={intl.formatMessage(intlMessages.close)}

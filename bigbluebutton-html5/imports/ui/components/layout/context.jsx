@@ -1,248 +1,1101 @@
-import React, { createContext, useReducer, useEffect } from 'react';
-import Storage from '/imports/ui/services/storage/session';
+import React, { createContext, useReducer } from 'react';
+import PropTypes from 'prop-types';
+import { ACTIONS } from '/imports/ui/components/layout/enums';
+import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
+import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
 
-export const LayoutContext = createContext();
+// variable to debug in console log
+const debug = false;
 
-const initialState = {
-  autoArrangeLayout: true,
-  webcamsAreaResizing: false,
-  numUsersVideo: null,
-  windowSize: {
-    width: 0,
-    height: 0,
+const debugActions = (action, value) => {
+  const baseStyles = [
+    'color: #fff',
+    'background-color: #d64541',
+    'padding: 2px 4px',
+    'border-radius: 2px',
+  ].join(';');
+  return debug && console.log(`%c${action}`, baseStyles, value);
+};
+
+const providerPropTypes = {
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+  ]).isRequired,
+};
+
+const LayoutContext = createContext();
+
+const initState = {
+  deviceType: null,
+  isRTL: false,
+  layoutType: DEFAULT_VALUES.layoutType,
+  fontSize: DEFAULT_VALUES.fontSize,
+  idChatOpen: DEFAULT_VALUES.idChatOpen,
+  fullscreen: {
+    element: '',
+    group: '',
   },
-  mediaBounds: {
-    width: 0,
-    height: 0,
-    top: 0,
-    left: 0,
-  },
-  userListSize: {
-    width: 0,
-  },
-  secondPanelSize: {
-    width: 0,
-  },
-  chatSize: {
-    width: 0,
-  },
-  noteSize: {
-    width: 0,
-  },
-  captionsSize: {
-    width: 0,
-  },
-  pollSize: {
-    width: 0,
-  },
-  waitingSize: {
-    width: 0,
-  },
-  breakoutRoomSize: {
-    width: 0,
-  },
-  webcamsAreaSize: {
-    width: 0,
-    height: 0,
-  },
-  tempWebcamsAreaSize: {
-    width: 0,
-    height: 0,
-  },
-  webcamsAreaUserSetsHeight: 0,
-  webcamsAreaUserSetsWidth: 0,
-  webcamsPlacement: 'top',
-  presentationAreaSize: {
-    width: 0,
-    height: 0,
-  },
-  presentationSlideSize: {
-    width: 0,
-    height: 0,
-  },
-  presentationIsFullscreen: null,
-  presentationOrientation: null,
-  screenShareIsFullscreen: null,
+  input: INITIAL_INPUT_STATE,
+  output: INITIAL_OUTPUT_STATE,
 };
 
 const reducer = (state, action) => {
+  debugActions(action.type, action.value);
   switch (action.type) {
-    case 'setAutoArrangeLayout': {
+    case ACTIONS.SET_LAYOUT_INPUT: {
+      if (state.input === action.value) return state;
       return {
         ...state,
-        autoArrangeLayout: action.value,
+        input: action.value,
       };
     }
-    case 'setWebcamsAreaResizing': {
+
+    case ACTIONS.SET_AUTO_ARRANGE_LAYOUT: {
+      const { autoarrAngeLayout } = state.input;
+      if (autoarrAngeLayout === action.value) return state;
       return {
         ...state,
-        webcamsAreaResizing: action.value,
-      };
-    }
-    case 'setUsersVideo': {
-      return {
-        ...state,
-        numUsersVideo: action.value,
-      };
-    }
-    case 'setWindowSize': {
-      return {
-        ...state,
-        windowSize: {
-          width: action.value.width,
-          height: action.value.height,
+        input: {
+          ...state.input,
+          autoarrAngeLayout: action.value,
         },
       };
     }
-    case 'setMediaBounds': {
+
+    case ACTIONS.SET_IS_RTL: {
+      const { isRTL } = state;
+      if (isRTL === action.value) return state;
       return {
         ...state,
-        mediaBounds: {
-          width: action.value.width,
-          height: action.value.height,
-          top: action.value.top,
-          left: action.value.left,
+        isRTL: action.value,
+      };
+    }
+
+    // LAYOUT TYPE
+    // using to load a diferent layout manager
+    case ACTIONS.SET_LAYOUT_TYPE: {
+      const { layoutType } = state.input;
+      if (layoutType === action.value) return state;
+      return {
+        ...state,
+        layoutType: action.value,
+      };
+    }
+
+    // FONT SIZE
+    case ACTIONS.SET_FONT_SIZE: {
+      const { fontSize } = state;
+      if (fontSize === action.value) return state;
+      return {
+        ...state,
+        fontSize: action.value,
+      };
+    }
+
+    // ID CHAT open in sidebar content panel
+    case ACTIONS.SET_ID_CHAT_OPEN: {
+      if (state.idChatOpen === action.value) return state;
+      return {
+        ...state,
+        idChatOpen: action.value,
+      };
+    }
+
+    // DEVICE
+    case ACTIONS.SET_DEVICE_TYPE: {
+      const { deviceType } = state;
+      if (deviceType === action.value) return state;
+      return {
+        ...state,
+        deviceType: action.value,
+      };
+    }
+
+    // BROWSER
+    case ACTIONS.SET_BROWSER_SIZE: {
+      const { width, height } = action.value;
+      const { browser } = state.input;
+      if (browser.width === width
+        && browser.height === height) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          browser: {
+            width,
+            height,
+          },
         },
       };
     }
-    case 'setUserListSize': {
+
+    // BANNER BAR
+    case ACTIONS.SET_HAS_BANNER_BAR: {
+      const { bannerBar } = state.input;
+      if (bannerBar.hasBanner === action.value) {
+        return state;
+      }
       return {
         ...state,
-        userListSize: {
-          width: action.value.width,
+        input: {
+          ...state.input,
+          bannerBar: {
+            ...bannerBar,
+            hasBanner: action.value,
+          },
         },
       };
     }
-    case 'setSecondPanelSize': {
+
+    // NOTIFICATIONS BAR
+    case ACTIONS.SET_HAS_NOTIFICATIONS_BAR: {
+      const { notificationsBar } = state.input;
+      if (notificationsBar.hasNotification === action.value) {
+        return state;
+      }
       return {
         ...state,
-        secondPanelSize: {
-          width: action.value,
+        input: {
+          ...state.input,
+          notificationsBar: {
+            ...notificationsBar,
+            hasNotification: action.value,
+          },
         },
       };
     }
-    case 'setChatSize': {
+
+    // NAV BAR
+    case ACTIONS.SET_NAVBAR_OUTPUT: {
+      const {
+        display, width, height, top, left, tabOrder, zIndex,
+      } = action.value;
+      const { navBar } = state.output;
+      if (navBar.display === display
+        && navBar.width === width
+        && navBar.height === height
+        && navBar.top === top
+        && navBar.left === left
+        && navBar.zIndex === zIndex
+        && navBar.tabOrder === tabOrder) {
+        return state;
+      }
       return {
         ...state,
-        chatSize: {
-          width: action.value.width,
+        output: {
+          ...state.output,
+          navBar: {
+            ...navBar,
+            display,
+            width,
+            height,
+            top,
+            left,
+            tabOrder,
+            zIndex,
+          },
         },
       };
     }
-    case 'setNoteSize': {
+
+    // ACTION BAR
+    case ACTIONS.SET_ACTIONBAR_OUTPUT: {
+      const {
+        display, width, height, innerHeight, top, left, padding, tabOrder, zIndex,
+      } = action.value;
+      const { actionBar } = state.output;
+      if (actionBar.display === display
+        && actionBar.width === width
+        && actionBar.height === height
+        && actionBar.innerHeight === innerHeight
+        && actionBar.top === top
+        && actionBar.left === left
+        && actionBar.padding === padding
+        && actionBar.zIndex === zIndex
+        && actionBar.tabOrder === tabOrder) {
+        return state;
+      }
       return {
         ...state,
-        noteSize: {
-          width: action.value.width,
+        output: {
+          ...state.output,
+          actionBar: {
+            ...actionBar,
+            display,
+            width,
+            height,
+            innerHeight,
+            top,
+            left,
+            padding,
+            tabOrder,
+            zIndex,
+          },
         },
       };
     }
-    case 'setCaptionsSize': {
+
+    // SIDEBAR NAVIGATION
+    case ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN: {
+      const { sidebarNavigation } = state.input;
+      if (sidebarNavigation.isOpen === action.value) {
+        return state;
+      }
       return {
         ...state,
-        captionsSize: {
-          width: action.value.width,
+        input: {
+          ...state.input,
+          sidebarNavigation: {
+            ...sidebarNavigation,
+            isOpen: action.value,
+          },
         },
       };
     }
-    case 'setPollSize': {
+    case ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL: {
+      const { sidebarNavigation } = state.input;
+      if (sidebarNavigation.sidebarNavPanel === action.value) {
+        return state;
+      }
       return {
         ...state,
-        pollSize: {
-          width: action.value.width,
+        input: {
+          ...state.input,
+          sidebarNavigation: {
+            ...sidebarNavigation,
+            sidebarNavPanel: action.value,
+          },
         },
       };
     }
-    case 'setWaitingUsersPanelSize': {
+    case ACTIONS.SET_SIDEBAR_NAVIGATION_SIZE: {
+      const { width, browserWidth } = action.value;
+      const { sidebarNavigation } = state.input;
+      if (sidebarNavigation.width === width
+        && sidebarNavigation.browserWidth === browserWidth) {
+        return state;
+      }
       return {
         ...state,
-        waitingSize: {
-          width: action.value.width,
+        input: {
+          ...state.input,
+          sidebarNavigation: {
+            ...sidebarNavigation,
+            width,
+            browserWidth,
+          },
         },
       };
     }
-    case 'setBreakoutRoomSize': {
+    case ACTIONS.SET_SIDEBAR_NAVIGATION_OUTPUT: {
+      const {
+        display,
+        minWidth,
+        width,
+        maxWidth,
+        minHeight,
+        height,
+        maxHeight,
+        top,
+        left,
+        right,
+        tabOrder,
+        isResizable,
+        zIndex,
+      } = action.value;
+      const { sidebarNavigation } = state.output;
+      if (sidebarNavigation.display === display
+        && sidebarNavigation.minWidth === width
+        && sidebarNavigation.maxWidth === width
+        && sidebarNavigation.width === width
+        && sidebarNavigation.minHeight === height
+        && sidebarNavigation.height === height
+        && sidebarNavigation.maxHeight === height
+        && sidebarNavigation.top === top
+        && sidebarNavigation.left === left
+        && sidebarNavigation.right === right
+        && sidebarNavigation.tabOrder === tabOrder
+        && sidebarNavigation.zIndex === zIndex
+        && sidebarNavigation.isResizable === isResizable) {
+        return state;
+      }
       return {
         ...state,
-        breakoutRoomSize: {
-          width: action.value.width,
+        output: {
+          ...state.output,
+          sidebarNavigation: {
+            ...sidebarNavigation,
+            display,
+            minWidth,
+            width,
+            maxWidth,
+            minHeight,
+            height,
+            maxHeight,
+            top,
+            left,
+            right,
+            tabOrder,
+            isResizable,
+            zIndex,
+          },
         },
       };
     }
-    case 'setWebcamsPlacement': {
-      // webcamsPlacement: ('top' | 'right' | 'bottom' | 'left') string
+    case ACTIONS.SET_SIDEBAR_NAVIGATION_RESIZABLE_EDGE: {
+      const {
+        top, right, bottom, left,
+      } = action.value;
+      const { sidebarNavigation } = state.output;
+      if (sidebarNavigation.resizableEdge.top === top
+        && sidebarNavigation.resizableEdge.right === right
+        && sidebarNavigation.resizableEdge.bottom === bottom
+        && sidebarNavigation.resizableEdge.left === left) {
+        return state;
+      }
       return {
         ...state,
-        webcamsPlacement: action.value,
-      };
-    }
-    case 'setWebcamsAreaSize': {
-      return {
-        ...state,
-        webcamsAreaSize: {
-          width: action.value.width,
-          height: action.value.height,
+        output: {
+          ...state.output,
+          sidebarNavigation: {
+            ...sidebarNavigation,
+            resizableEdge: {
+              top,
+              right,
+              bottom,
+              left,
+            },
+          },
         },
       };
     }
-    case 'setTempWebcamsAreaSize': {
+
+    // SIDEBAR CONTENT
+    case ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN: {
+      const { sidebarContent } = state.input;
+      if (sidebarContent.isOpen === action.value) {
+        return state;
+      }
       return {
         ...state,
-        tempWebcamsAreaSize: {
-          width: action.value.width,
-          height: action.value.height,
+        input: {
+          ...state.input,
+          sidebarContent: {
+            ...sidebarContent,
+            isOpen: action.value,
+          },
         },
       };
     }
-    case 'setWebcamsAreaUserSetsHeight': {
+    case ACTIONS.SET_SIDEBAR_CONTENT_PANEL: {
+      const { sidebarContent } = state.input;
+      if (sidebarContent.sidebarContentPanel === action.value) {
+        return state;
+      }
       return {
         ...state,
-        webcamsAreaUserSetsHeight: action.value,
-      };
-    }
-    case 'setWebcamsAreaUserSetsWidth': {
-      return {
-        ...state,
-        webcamsAreaUserSetsWidth: action.value,
-      };
-    }
-    case 'setPresentationAreaSize': {
-      return {
-        ...state,
-        presentationAreaSize: {
-          width: action.value.width,
-          height: action.value.height,
+        input: {
+          ...state.input,
+          sidebarContent: {
+            ...sidebarContent,
+            sidebarContentPanel: action.value,
+          },
         },
       };
     }
-    case 'setPresentationSlideSize': {
+    case ACTIONS.SET_SIDEBAR_CONTENT_SIZE: {
+      const {
+        width,
+        browserWidth,
+        height,
+        browserHeight,
+      } = action.value;
+      const { sidebarContent } = state.input;
+      if (sidebarContent.width === width
+        && sidebarContent.browserWidth === browserWidth
+        && sidebarContent.height === height
+        && sidebarContent.browserHeight === browserHeight) {
+        return state;
+      }
       return {
         ...state,
-        presentationSlideSize: {
-          width: action.value.width,
-          height: action.value.height,
+        input: {
+          ...state.input,
+          sidebarContent: {
+            ...sidebarContent,
+            width,
+            browserWidth,
+            height,
+            browserHeight,
+          },
         },
       };
     }
-    case 'setPresentationFullscreen': {
-      // presentationIsFullscreen: (true | false) boolean
+    case ACTIONS.SET_SIDEBAR_CONTENT_OUTPUT: {
+      const {
+        display,
+        minWidth,
+        width,
+        maxWidth,
+        minHeight,
+        height,
+        maxHeight,
+        top,
+        left,
+        right,
+        currentPanelType,
+        tabOrder,
+        isResizable,
+        zIndex,
+      } = action.value;
+      const { sidebarContent } = state.output;
+      if (sidebarContent.display === display
+        && sidebarContent.minWidth === minWidth
+        && sidebarContent.width === width
+        && sidebarContent.maxWidth === maxWidth
+        && sidebarContent.minHeight === minHeight
+        && sidebarContent.height === height
+        && sidebarContent.maxHeight === maxHeight
+        && sidebarContent.top === top
+        && sidebarContent.left === left
+        && sidebarContent.right === right
+        && sidebarContent.tabOrder === tabOrder
+        && sidebarContent.zIndex === zIndex
+        && sidebarContent.isResizable === isResizable) {
+        return state;
+      }
       return {
         ...state,
-        presentationIsFullscreen: action.value,
+        output: {
+          ...state.output,
+          sidebarContent: {
+            ...sidebarContent,
+            display,
+            minWidth,
+            width,
+            maxWidth,
+            minHeight,
+            height,
+            maxHeight,
+            top,
+            left,
+            right,
+            currentPanelType,
+            tabOrder,
+            isResizable,
+            zIndex,
+          },
+        },
       };
     }
-    case 'setPresentationOrientation': {
-      // presentationOrientation: ('portrait' | 'landscape') string
+    case ACTIONS.SET_SIDEBAR_CONTENT_RESIZABLE_EDGE: {
+      const {
+        top, right, bottom, left,
+      } = action.value;
+      const { sidebarContent } = state.output;
+      if (sidebarContent.resizableEdge.top === top
+        && sidebarContent.resizableEdge.right === right
+        && sidebarContent.resizableEdge.bottom === bottom
+        && sidebarContent.resizableEdge.left === left) {
+        return state;
+      }
       return {
         ...state,
-        presentationOrientation: action.value,
+        output: {
+          ...state.output,
+          sidebarContent: {
+            ...sidebarContent,
+            resizableEdge: {
+              top,
+              right,
+              bottom,
+              left,
+            },
+          },
+        },
       };
     }
-    case 'setScreenShareFullscreen': {
-      // screenshareIsFullscreen: (true | false) boolean
+
+    // MEDIA
+    case ACTIONS.SET_MEDIA_AREA_SIZE: {
+      const { width, height } = action.value;
+      const { mediaArea } = state.output;
+      if (mediaArea.width === width
+        && mediaArea.height === height) {
+        return state;
+      }
       return {
         ...state,
-        screenShareIsFullscreen: action.value,
+        output: {
+          ...state.output,
+          mediaArea: {
+            ...mediaArea,
+            width,
+            height,
+          },
+        },
+      };
+    }
+
+    // WEBCAMS
+    case ACTIONS.SET_NUM_CAMERAS: {
+      const { cameraDock } = state.input;
+      if (cameraDock.numCameras === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          cameraDock: {
+            ...cameraDock,
+            numCameras: action.value,
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_CAMERA_DOCK_IS_DRAGGING: {
+      const { cameraDock } = state.input;
+      if (cameraDock.isDragging === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          cameraDock: {
+            ...cameraDock,
+            isDragging: action.value,
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_CAMERA_DOCK_IS_RESIZING: {
+      const { cameraDock } = state.input;
+      if (cameraDock.isResizing === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          cameraDock: {
+            ...cameraDock,
+            isResizing: action.value,
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_CAMERA_DOCK_POSITION: {
+      const { cameraDock } = state.input;
+      if (cameraDock.position === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          cameraDock: {
+            ...cameraDock,
+            position: action.value,
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_CAMERA_DOCK_SIZE: {
+      const {
+        width, height, browserWidth, browserHeight,
+      } = action.value;
+      const { cameraDock } = state.input;
+      if (cameraDock.width === width
+        && cameraDock.height === height
+        && cameraDock.browserWidth === browserWidth
+        && cameraDock.browserHeight === browserHeight) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          cameraDock: {
+            ...cameraDock,
+            width,
+            height,
+            browserWidth,
+            browserHeight,
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_CAMERA_DOCK_OPTIMAL_GRID_SIZE: {
+      const { width, height } = action.value;
+      const { cameraDock } = state.input;
+      const { cameraOptimalGridSize } = cameraDock;
+      if (cameraOptimalGridSize.width === width
+        && cameraOptimalGridSize.height === height) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          cameraDock: {
+            ...cameraDock,
+            cameraOptimalGridSize: {
+              width,
+              height,
+            },
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_CAMERA_DOCK_OUTPUT: {
+      const {
+        display,
+        position,
+        minWidth,
+        width,
+        maxWidth,
+        presenterMaxWidth,
+        minHeight,
+        height,
+        maxHeight,
+        top,
+        left,
+        right,
+        tabOrder,
+        isDraggable,
+        resizableEdge,
+        zIndex,
+      } = action.value;
+      const { cameraDock } = state.output;
+      if (cameraDock.display === display
+        && cameraDock.position === position
+        && cameraDock.width === width
+        && cameraDock.maxWidth === maxWidth
+        && cameraDock.presenterMaxWidth === presenterMaxWidth
+        && cameraDock.height === height
+        && cameraDock.maxHeight === maxHeight
+        && cameraDock.top === top
+        && cameraDock.left === left
+        && cameraDock.right === right
+        && cameraDock.tabOrder === tabOrder
+        && cameraDock.isDraggable === isDraggable
+        && cameraDock.zIndex === zIndex
+        && cameraDock.resizableEdge === resizableEdge) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          cameraDock: {
+            ...cameraDock,
+            display,
+            position,
+            minWidth,
+            width,
+            maxWidth,
+            presenterMaxWidth,
+            minHeight,
+            height,
+            maxHeight,
+            top,
+            left,
+            right,
+            tabOrder,
+            isDraggable,
+            resizableEdge,
+            zIndex,
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_CAMERA_DOCK_IS_DRAGGABLE: {
+      const { cameraDock } = state.output;
+      if (cameraDock.isDraggable === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          cameraDock: {
+            ...cameraDock,
+            isDraggable: action.value,
+          },
+        },
+      };
+    }
+
+    // WEBCAMS DROP AREAS
+    case ACTIONS.SET_DROP_AREAS: {
+      const { dropZoneAreas } = state.output;
+      if (dropZoneAreas === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          dropZoneAreas: action.value,
+        },
+      };
+    }
+
+    // PRESENTATION
+    case ACTIONS.SET_PRESENTATION_IS_OPEN: {
+      const { presentation } = state.input;
+      if (presentation.isOpen === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          presentation: {
+            ...presentation,
+            isOpen: action.value,
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_PRESENTATION_SLIDES_LENGTH: {
+      const { presentation } = state.input;
+      if (presentation.slidesLength === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          presentation: {
+            ...presentation,
+            slidesLength: action.value,
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_PRESENTATION_NUM_CURRENT_SLIDE: {
+      const { presentation } = state.input;
+      if (presentation.currentSlide.num === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          presentation: {
+            ...presentation,
+            currentSlide: {
+              ...presentation.currentSlide,
+              num: action.value,
+            },
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_PRESENTATION_CURRENT_SLIDE_SIZE: {
+      const { width, height } = action.value;
+      const { presentation } = state.input;
+      const { currentSlide } = presentation;
+      if (currentSlide.size.width === width
+        && currentSlide.size.height === height) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          presentation: {
+            ...presentation,
+            currentSlide: {
+              ...currentSlide,
+              size: {
+                width,
+                height,
+              },
+            },
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_PRESENTATION_RESIZABLE_EDGE: {
+      const {
+        top, right, bottom, left,
+      } = action.value;
+      const { presentation } = state.output;
+      const { resizableEdge } = presentation;
+      if (resizableEdge.top === top
+        && resizableEdge.right === right
+        && resizableEdge.bottom === bottom
+        && resizableEdge.left === left) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          presentation: {
+            ...presentation,
+            resizableEdge: {
+              top,
+              right,
+              bottom,
+              left,
+            },
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_PRESENTATION_SIZE: {
+      const {
+        width, height, browserWidth, browserHeight,
+      } = action.value;
+      const { presentation } = state.input;
+      if (presentation.width === width
+        && presentation.height === height
+        && presentation.browserWidth === browserWidth
+        && presentation.browserHeight === browserHeight) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          presentation: {
+            ...presentation,
+            width,
+            height,
+            browserWidth,
+            browserHeight,
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_PRESENTATION_OUTPUT: {
+      const {
+        display,
+        minWidth,
+        width,
+        maxWidth,
+        minHeight,
+        height,
+        maxHeight,
+        top,
+        left,
+        right,
+        tabOrder,
+        isResizable,
+        zIndex,
+      } = action.value;
+      const { presentation } = state.output;
+      if (presentation.display === display
+        && presentation.minWidth === minWidth
+        && presentation.width === width
+        && presentation.maxWidth === maxWidth
+        && presentation.minHeight === minHeight
+        && presentation.height === height
+        && presentation.maxHeight === maxHeight
+        && presentation.top === top
+        && presentation.left === left
+        && presentation.right === right
+        && presentation.tabOrder === tabOrder
+        && presentation.zIndex === zIndex
+        && presentation.isResizable === isResizable) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          presentation: {
+            ...presentation,
+            display,
+            minWidth,
+            width,
+            maxWidth,
+            minHeight,
+            height,
+            maxHeight,
+            top,
+            left,
+            right,
+            tabOrder,
+            isResizable,
+            zIndex,
+          },
+        },
+      };
+    }
+
+    // FULLSCREEN
+    case ACTIONS.SET_FULLSCREEN_ELEMENT: {
+      const { fullscreen } = state;
+      if (fullscreen.element === action.value.element
+        && fullscreen.group === action.value.group) {
+        return state;
+      }
+      return {
+        ...state,
+        fullscreen: {
+          element: action.value.element,
+          group: action.value.group,
+        },
+      };
+    }
+
+    // SCREEN SHARE
+    case ACTIONS.SET_HAS_SCREEN_SHARE: {
+      const { screenShare } = state.input;
+      if (screenShare.hasScreenShare === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          screenShare: {
+            ...screenShare,
+            hasScreenShare: action.value,
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_SCREEN_SHARE_SIZE: {
+      const {
+        width, height, browserWidth, browserHeight,
+      } = action.value;
+      const { screenShare } = state.input;
+      if (screenShare.width === width
+        && screenShare.height === height
+        && screenShare.browserWidth === browserWidth
+        && screenShare.browserHeight === browserHeight) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          screenShare: {
+            ...screenShare,
+            width,
+            height,
+            browserWidth,
+            browserHeight,
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_SCREEN_SHARE_OUTPUT: {
+      const {
+        width,
+        height,
+        top,
+        left,
+        right,
+        zIndex,
+      } = action.value;
+      const { screenShare } = state.output;
+      if (screenShare.width === width
+        && screenShare.height === height
+        && screenShare.top === top
+        && screenShare.left === left
+        && screenShare.right === right
+        && screenShare.zIndex === zIndex) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          screenShare: {
+            ...screenShare,
+            width,
+            height,
+            top,
+            left,
+            right,
+            zIndex,
+          },
+        },
+      };
+    }
+
+    // EXTERNAL VIDEO
+    case ACTIONS.SET_HAS_EXTERNAL_VIDEO: {
+      const { externalVideo } = state.input;
+      if (externalVideo.hasExternalVideo === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          externalVideo: {
+            ...externalVideo,
+            hasExternalVideo: action.value,
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_EXTERNAL_VIDEO_SIZE: {
+      const {
+        width, height, browserWidth, browserHeight,
+      } = action.value;
+      const { externalVideo } = state.input;
+      if (externalVideo.width === width
+        && externalVideo.height === height
+        && externalVideo.browserWidth === browserWidth
+        && externalVideo.browserHeight === browserHeight) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          externalVideo: {
+            ...externalVideo,
+            width,
+            height,
+            browserWidth,
+            browserHeight,
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT: {
+      const {
+        width,
+        height,
+        top,
+        left,
+        right,
+      } = action.value;
+      const { externalVideo } = state.output;
+      if (externalVideo.width === width
+        && externalVideo.height === height
+        && externalVideo.top === top
+        && externalVideo.left === left
+        && externalVideo.right === right) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          externalVideo: {
+            ...externalVideo,
+            width,
+            height,
+            top,
+            left,
+            right,
+          },
+        },
       };
     }
     default: {
@@ -252,27 +1105,8 @@ const reducer = (state, action) => {
 };
 
 const ContextProvider = (props) => {
-  const [layoutContextState, layoutContextDispatch] = useReducer(reducer, initialState);
-  const {
-    webcamsPlacement,
-    webcamsAreaUserSetsHeight,
-    webcamsAreaUserSetsWidth,
-    autoArrangeLayout,
-  } = layoutContextState;
+  const [layoutContextState, layoutContextDispatch] = useReducer(reducer, initState);
   const { children } = props;
-
-  useEffect(() => {
-    Storage.setItem('webcamsPlacement', webcamsPlacement);
-    Storage.setItem('webcamsAreaUserSetsHeight', webcamsAreaUserSetsHeight);
-    Storage.setItem('webcamsAreaUserSetsWidth', webcamsAreaUserSetsWidth);
-    Storage.setItem('autoArrangeLayout', autoArrangeLayout);
-  }, [
-    webcamsPlacement,
-    webcamsAreaUserSetsHeight,
-    webcamsAreaUserSetsWidth,
-    autoArrangeLayout,
-  ]);
-
   return (
     <LayoutContext.Provider value={{
       layoutContextState,
@@ -283,24 +1117,24 @@ const ContextProvider = (props) => {
     </LayoutContext.Provider>
   );
 };
+ContextProvider.propTypes = providerPropTypes;
 
-const withProvider = Component => props => (
+const withProvider = (Component) => (props) => (
   <ContextProvider>
     <Component {...props} />
   </ContextProvider>
 );
 
-const ContextConsumer = Component => props => (
+const withConsumer = (Component) => (props) => (
   <LayoutContext.Consumer>
-    {contexts => <Component {...props} {...contexts} />}
+    {(contexts) => <Component {...props} {...contexts} />}
   </LayoutContext.Consumer>
 );
 
-const withLayoutConsumer = Component => ContextConsumer(Component);
-const withLayoutContext = Component => withProvider(withLayoutConsumer(Component));
+export default LayoutContext;
 
-export {
+export const LayoutContextFunc = {
   withProvider,
-  withLayoutConsumer,
-  withLayoutContext,
+  withConsumer,
+  withContext: (Component) => withProvider(withConsumer(Component)),
 };

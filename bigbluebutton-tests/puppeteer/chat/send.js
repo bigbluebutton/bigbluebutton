@@ -13,7 +13,7 @@ class Send extends Page {
     await util.openChat(this);
 
     // 0 messages
-    const chat0 = await this.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length === 0);
+    const chat0 = await this.page.evaluate((chatSelector) => document.querySelectorAll(chatSelector).length === 0, e.chatUserMessageText);
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await this.screenshot(`${testName}`, `01-before-chat-message-send-[${this.meetingId}]`);
     }
@@ -26,9 +26,10 @@ class Send extends Page {
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await this.screenshot(`${testName}`, `03-after-chat-message-send-[${this.meetingId}]`);
     }
+    await this.waitForSelector(e.chatUserMessageText);
 
     // 1 message
-    const chat1 = await this.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length === 1);
+    const chat1 = await this.page.evaluate((chatSelector) => document.querySelectorAll(chatSelector).length === 1, e.chatUserMessageText);
     return chat0 === chat1;
   }
 }

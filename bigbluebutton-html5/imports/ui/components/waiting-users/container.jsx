@@ -5,12 +5,12 @@ import GuestUsers from '/imports/api/guest-users/';
 import Meetings from '/imports/api/meetings';
 import Service from './service';
 import WaitingComponent from './component';
-import { NLayoutContext } from '../layout/context/context';
+import LayoutContext from '../layout/context';
 
 const WaitingContainer = (props) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextDispatch } = newLayoutContext;
-  return <WaitingComponent {...{ newLayoutContextDispatch, ...props }} />;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextDispatch } = layoutContext;
+  return <WaitingComponent {...{ layoutContextDispatch, ...props }} />;
 };
 
 export default withTracker(() => {

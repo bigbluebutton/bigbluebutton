@@ -26,7 +26,7 @@ const PresentationOptionsContainer = ({
   intl,
   toggleSwapLayout,
   isThereCurrentPresentation,
-  newLayoutContextDispatch
+  layoutContextDispatch
 }) => {
   if (shouldUnswapLayout()) toggleSwapLayout();
   return (
@@ -39,7 +39,7 @@ const PresentationOptionsContainer = ({
       hideLabel
       circle
       size="lg"
-      onClick={() => toggleSwapLayout(newLayoutContextDispatch)}
+      onClick={() => toggleSwapLayout(layoutContextDispatch)}
       id="restore-presentation"
       disabled={!isThereCurrentPresentation}
     />

@@ -58,7 +58,7 @@ const ChatAlert = (props) => {
     unreadMessagesCountByChat,
     unreadMessagesByChat,
     intl,
-    newLayoutContextDispatch,
+    layoutContextDispatch,
   } = props;
 
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
@@ -189,7 +189,7 @@ const ChatAlert = (props) => {
               () => setUnreadMessages(newUnreadMessages)
             }
             alertDuration={timeWindow.durationDiff}
-            newLayoutContextDispatch={newLayoutContextDispatch}
+            layoutContextDispatch={layoutContextDispatch}
           />
         ) : null;
     })

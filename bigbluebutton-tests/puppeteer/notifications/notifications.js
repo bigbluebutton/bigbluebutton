@@ -62,7 +62,7 @@ class Notifications extends MultiUsers {
     await this.page1.screenshot(`${testName}`, `05-page01-public-chat-message-sent-${testName}`);
     await this.page1.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
     await this.page1.waitForSelector(ne.hasUnreadMessages, ELEMENT_WAIT_TIME);
-    const lastToast = await util.getOtherToastValue(this.page1);
+    const lastToast = await util.getLastToastValue(this.page1);
     await this.page1.screenshot(`${testName}`, `06-page01-public-chat-toast-${testName}`);
     return expectedToastValue === lastToast;
   }
@@ -82,7 +82,7 @@ class Notifications extends MultiUsers {
     await this.page1.screenshot(`${testName}`, `05-page01-private-chat-message-sent-${testName}`);
     await this.page1.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
     await this.page1.waitForSelector(ne.hasUnreadMessages, ELEMENT_WAIT_TIME);
-    const lastToast = await util.getOtherToastValue(this.page1);
+    const lastToast = await util.getLastToastValue(this.page1);
     await this.page1.screenshot(`${testName}`, `06-page01-public-chat-toast-${testName}`);
     return expectedToastValue === lastToast;
   }

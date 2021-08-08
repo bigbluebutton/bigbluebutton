@@ -174,7 +174,6 @@ class UserDropdown extends PureComponent {
     const scrollContainer = getScrollContainerRef();
 
     if (dropdown && scrollContainer) {
-      const dropdownTrigger = dropdown.children[0];
       const list = findDOMNode(this.list);
       const children = [].slice.call(list.children);
       children.find(child => child.getAttribute('role') === 'menuitem').focus();
@@ -232,13 +231,19 @@ class UserDropdown extends PureComponent {
       meetingIsBreakout,
       mountModal,
       usersProp,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
     } = this.props;
     const { showNestedOptions } = this.state;
 
     const amIPresenter = currentUser.presenter;
     const amIModerator = currentUser.role === ROLE_MODERATOR;
-    const actionPermissions = getAvailableActions(amIModerator, meetingIsBreakout, user, voiceUser, usersProp, amIPresenter);
+    const actionPermissions = getAvailableActions(amIModerator,
+      meetingIsBreakout,
+      user,
+      voiceUser,
+      usersProp,
+      amIPresenter
+    );
     const actions = [];
 
     const {
@@ -312,20 +317,21 @@ class UserDropdown extends PureComponent {
 
     if (showChatOption) {
       actions.push({
+        dataTest: "activeChat",
         key: "activeChat",
         label: intl.formatMessage(messages.StartPrivateChat),
         onClick: () => {
           this.handleClose();
           getGroupChatPrivate(currentUser.userId, user);
-          newLayoutContextDispatch({
+          layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
             value: true,
           });
-          newLayoutContextDispatch({
+          layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
             value: PANELS.CHAT,
           });
-          newLayoutContextDispatch({
+          layoutContextDispatch({
             type: ACTIONS.SET_ID_CHAT_OPEN,
             value: user.userId,
           });
@@ -371,7 +377,9 @@ class UserDropdown extends PureComponent {
     }
 
     if (allowedToChangeWhiteboardAccess && !user.presenter && isMeteorConnected) {
-      const label = user.whiteboardAccess ? intl.formatMessage(messages.removeWhiteboardAccess) : intl.formatMessage(messages.giveWhiteboardAccess);
+      const label = user.whiteboardAccess
+        ? intl.formatMessage(messages.removeWhiteboardAccess)
+        : intl.formatMessage(messages.giveWhiteboardAccess);
 
       actions.push({
         key: "changeWhiteboardAccess",
@@ -498,8 +506,6 @@ class UserDropdown extends PureComponent {
   checkDropdownDirection() {
     const { scrollArea } = this.props;
     if (this.isDropdownActivedByUser()) {
-      const dropdown = this.getDropdownMenuParent();
-      const dropdownTrigger = dropdown.children[0];
       const nextState = {
         dropdownVisible: true,
       };
@@ -511,12 +517,7 @@ class UserDropdown extends PureComponent {
         dropdownBoundaries.height,
       );
 
-      if (!isDropdownVisible && scrollArea) {
-        const { offsetTop, offsetHeight } = dropdownTrigger;
-        const offsetPageTop = (offsetTop + offsetHeight) - scrollArea.scrollTop;
-        
-        nextState.dropdownDirection = 'bottom';
-      }
+      if (!isDropdownVisible && scrollArea) nextState.dropdownDirection = 'bottom';
 
       this.setState(nextState);
     }
@@ -591,16 +592,14 @@ class UserDropdown extends PureComponent {
 
     const {
       isActionsOpen,
-      dropdownVisible,
-      dropdownDirection,
-      showNestedOptions,
+      selected,
     } = this.state;
 
     const actions = this.getUsersActions();
 
     const userItemContentsStyle = {};
 
-    userItemContentsStyle[styles.selected] = this.state.selected === true;
+    userItemContentsStyle[styles.selected] = selected === true;
     userItemContentsStyle[styles.dropdown] = true;
     userItemContentsStyle[styles.userListItem] = !isActionsOpen;
     userItemContentsStyle[styles.usertListItemWithMenu] = isActionsOpen;

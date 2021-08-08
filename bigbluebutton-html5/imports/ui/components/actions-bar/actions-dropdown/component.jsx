@@ -122,7 +122,7 @@ class ActionsDropdown extends PureComponent {
       isSelectRandomUserEnabled,
       stopExternalVideoShare,
       mountModal,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
     } = this.props;
 
     const {
