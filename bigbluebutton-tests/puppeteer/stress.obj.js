@@ -19,7 +19,6 @@ const stressTest = () => {
       await test.logger(e);
     }
     expect(response).toBe(true);
-    // await Page.checkRegression(2.0);
   });
 };
 
