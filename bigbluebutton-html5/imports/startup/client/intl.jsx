@@ -35,7 +35,9 @@ class IntlStartup extends Component {
       Settings.application.isRTL = false;
     }
     Session.set('isLargeFont', LARGE_FONT_LANGUAGES.includes(localeName.substring(0, 2)));
-    window.dispatchEvent(new Event('localeChanged'));
+    const localeChangedEvent = new Event('localeChanged')
+    localeChangedEvent.isRTL = Settings.application.isRTL;
+    window.dispatchEvent(localeChangedEvent);
     Settings.save();
   }
 
