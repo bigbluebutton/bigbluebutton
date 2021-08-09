@@ -192,10 +192,10 @@ class App extends Component {
 
     this.handleWindowResize();
     window.addEventListener('resize', this.handleWindowResize, false);
-    window.addEventListener('localeChanged', (event) => {
+    window.addEventListener('localeChanged', () => {
       layoutContextDispatch({
         type: ACTIONS.SET_IS_RTL,
-        value: event.isRTL,
+        value: Settings.application.isRTL,
       });
     });
     window.ondragover = (e) => { e.preventDefault(); };
