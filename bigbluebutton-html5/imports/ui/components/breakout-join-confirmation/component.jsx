@@ -39,6 +39,10 @@ const intlMessages = defineMessages({
     id: 'app.breakoutJoinConfirmation.dismissDesc',
     description: 'adds context to dismiss option',
   },
+  generatingURL: {
+    id: 'app.createBreakoutRoom.generatingURLMessage',
+    description: 'label for generating breakout room url',
+  },
 });
 
 const propTypes = {
@@ -179,6 +183,7 @@ class BreakoutJoinConfirmation extends Component {
             ))
           }
         </select>
+        { waiting ? <span>{intl.formatMessage(intlMessages.generatingURL)}</span> : null}
       </div>
     );
   }

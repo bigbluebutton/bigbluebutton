@@ -769,6 +769,7 @@
     "app.createBreakoutRoom.ariaTitle": "Hide Breakout Rooms",
     "app.createBreakoutRoom.breakoutRoomLabel": "Breakout Rooms {0}",
     "app.createBreakoutRoom.generatingURL": "Generating URL",
+    "app.createBreakoutRoom.generatingURLMessage": "We are generating a join URL for the selected breakout room. It may take a few seconds...",
     "app.createBreakoutRoom.generatedURL": "Generated",
     "app.createBreakoutRoom.duration": "Duration {0}",
     "app.createBreakoutRoom.room": "Room {0}",
