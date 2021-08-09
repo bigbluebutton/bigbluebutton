@@ -155,7 +155,7 @@ def add_chapters(duration, slides)
     chapter << "[CHAPTER]\nSTART=#{chapter_start * 1e9}\nEND=#{chapter_end * 1e9}\ntitle=#{title}\n\n"
   end
 
-  File.open("meeting_metadata", "a") do |file|
+  File.open("#{@published_files}/meeting_metadata", "a") do |file|
     file << chapter
   end
 
@@ -566,11 +566,6 @@ def render_whiteboard(panzooms, slides, shapes, timestamps)
   intervals = intervals.drop(1) if intervals.first == -1
 
   frame_number = 0
-  frames = []
-
-  intervals.each_cons(2) do |(a, b)|
-    frames << [a, b]
-  end
 
   # Render the visible frame for each interval
   File.open("#{@published_files}/timestamps/whiteboard_timestamps", "w", 0o600) do |file|
@@ -578,7 +573,7 @@ def render_whiteboard(panzooms, slides, shapes, timestamps)
     slide = slides[slide_number]
     view_box = ""
 
-    frames.each do |interval_start, interval_end|
+    intervals.each_cons(2).each do |interval_start, interval_end|
       # Get view_box parameter of the current slide
       _, view_box = panzooms.shift if !panzooms.empty? && interval_start >= panzooms.first.first
 
@@ -588,13 +583,9 @@ def render_whiteboard(panzooms, slides, shapes, timestamps)
       end
 
       draw = shapes_interval_tree.search(interval_start, unique: false, sort: false)
-      draw = [] if draw.nil?
 
-      if draw.nil?
-        draw = []
-      elsif REMOVE_REDUNDANT_SHAPES && !draw.empty?
-        draw = remove_adjacent(draw)
-      end
+      draw = [] if draw.nil?
+      draw = remove_adjacent(draw) if REMOVE_REDUNDANT_SHAPES && !draw.empty?
 
       svg_export(draw, view_box, slide.href, slide.width, slide.height, frame_number)
 
@@ -669,7 +660,7 @@ def export_presentation
   BigBlueButton.logger.info("Starting to export video")
 
   render_video(duration, meeting_name)
-  # add_chapters(duration, slides)
+  add_chapters(duration, slides)
   # add_captions
 
   BigBlueButton.logger.info("Exported recording available at #{@published_files}/meeting.mp4. Rendering took: #{Time.now - start}")
