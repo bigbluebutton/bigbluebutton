@@ -147,7 +147,7 @@ class ActionsDropdown extends PureComponent {
         // description: formatMessage(presentationDesc),
         key: this.presentationItemId,
         onClick: handlePresentationClick,
-        dividerTop: true,
+        dividerTop: this.props?.presentations?.length > 1 ? true : false,
       })
     }
 
@@ -260,7 +260,7 @@ class ActionsDropdown extends PureComponent {
 
     const availableActions = this.getAvailableActions();
     const availablePresentations = this.makePresentationItems();
-    const children = availablePresentations.length > 2 && amIPresenter
+    const children = availablePresentations.length > 1 && amIPresenter
       ? availablePresentations.concat(availableActions) : availableActions;
 
     if ((!amIPresenter && !amIModerator)
