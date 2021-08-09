@@ -21,7 +21,6 @@ export default withTracker(() => {
     denied: false,
   }).fetch();
 
-
   const authenticatedUsers = GuestUsers.find({
     meetingId: Auth.meetingID,
     authenticated: true,

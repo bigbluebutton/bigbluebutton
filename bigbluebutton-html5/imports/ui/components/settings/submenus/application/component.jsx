@@ -130,9 +130,7 @@ class ApplicationMenu extends BaseMenu {
 
   componentWillUnmount() {
     // fix Warning: Can't perform a React state update on an unmounted component
-    this.setState = (state, callback) => {
-
-    };
+    this.setState = () => {};
   }
 
   setInitialFontSize() {
@@ -175,7 +173,7 @@ class ApplicationMenu extends BaseMenu {
       : _constraints || {};
 
     isAnyFilterEnabled = Object.values(constraints).find(
-      constraintValue => _isConstraintEnabled(constraintValue),
+      (constraintValue) => _isConstraintEnabled(constraintValue),
     );
 
     return isAnyFilterEnabled;
@@ -212,7 +210,7 @@ class ApplicationMenu extends BaseMenu {
 
     layoutContextDispatch({
       type: ACTIONS.SET_FONT_SIZE,
-      value: parseInt(size.slice(0, -2)),
+      value: parseInt(size.slice(0, -2), 10),
     });
   }
 
@@ -282,7 +280,7 @@ class ApplicationMenu extends BaseMenu {
 
   renderPaginationToggle() {
     // See VideoService's method for an explanation
-    if (!VideoService.shouldRenderPaginationToggle()) return;
+    if (!VideoService.shouldRenderPaginationToggle()) return false;
 
     const { intl, showToggleLabel, displaySettingsStatus } = this.props;
     const { settings } = this.state;
@@ -291,6 +289,7 @@ class ApplicationMenu extends BaseMenu {
       <div className={styles.row}>
         <div className={styles.col} aria-hidden="true">
           <div className={styles.formElement}>
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
             <label className={styles.label}>
               {intl.formatMessage(intlMessages.paginationEnabledLabel)}
             </label>
@@ -313,7 +312,9 @@ class ApplicationMenu extends BaseMenu {
   }
 
   renderChangeLayout() {
-    const { intl, showToggleLabel, displaySettingsStatus, isModerator } = this.props;
+    const {
+      intl, showToggleLabel, displaySettingsStatus, isModerator,
+    } = this.props;
     const { settings } = this.state;
 
     return (
@@ -330,7 +331,7 @@ class ApplicationMenu extends BaseMenu {
             <div className={cx(styles.formElement, styles.pullContentRight)}>
               <select
                 className={styles.select}
-                onChange={e => this.handleSelectChange('selectedLayout', e)}
+                onChange={(e) => this.handleSelectChange('selectedLayout', e)}
                 id="layoutList"
                 value={settings.selectedLayout}
               >
@@ -347,6 +348,7 @@ class ApplicationMenu extends BaseMenu {
           <div className={styles.row}>
             <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
+                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
                 <label className={styles.label}>
                   {intl.formatMessage(intlMessages.pushLayoutOptionLabel)}
                 </label>
@@ -405,6 +407,7 @@ class ApplicationMenu extends BaseMenu {
           <div className={styles.row}>
             <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
+                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
                 <label className={styles.label}>
                   {intl.formatMessage(intlMessages.animationsLabel)}
                 </label>
@@ -444,7 +447,7 @@ class ApplicationMenu extends BaseMenu {
                 {showSelect ? (
                   <LocalesDropdown
                     allLocales={allLocales}
-                    handleChange={e => this.handleSelectChange('locale', e)}
+                    handleChange={(e) => this.handleSelectChange('locale', e)}
                     value={settings.locale}
                     elementId="langSelector"
                     elementClass={styles.select}
@@ -465,6 +468,7 @@ class ApplicationMenu extends BaseMenu {
           <div className={styles.row}>
             <div className={styles.col}>
               <div className={styles.formElement}>
+                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
                 <label className={styles.label}>
                   {intl.formatMessage(intlMessages.fontSizeControlLabel)}
                 </label>
@@ -472,6 +476,7 @@ class ApplicationMenu extends BaseMenu {
             </div>
             <div className={styles.col}>
               <div aria-hidden className={cx(styles.formElement, styles.pullContentCenter)}>
+                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
                 <label className={cx(styles.label, styles.bold)}>
                   {`${pixelPercentage[settings.fontSize]}`}
                 </label>

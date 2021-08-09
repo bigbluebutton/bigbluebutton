@@ -79,7 +79,7 @@ const findOptimalGrid = (canvasWidth, canvasHeight, gutter, aspectRatio, numItem
 const ASPECT_RATIO = 4 / 3;
 const ACTION_NAME_FOCUS = 'focus';
 const ACTION_NAME_MIRROR = 'mirror';
-const ACTION_NAME_BACKGROUND = 'blurBackground';
+// const ACTION_NAME_BACKGROUND = 'blurBackground';
 
 class VideoList extends Component {
   constructor(props) {
@@ -242,7 +242,7 @@ class VideoList extends Component {
     const { mirroredCameras } = this.state;
     if (this.cameraIsMirrored(stream)) {
       this.setState({
-        mirroredCameras: mirroredCameras.filter((x) => x != stream),
+        mirroredCameras: mirroredCameras.filter((x) => x !== stream),
       });
     } else {
       this.setState({

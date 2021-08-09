@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import ReactPlayer from 'react-player';
-import _ from 'lodash';
 import {
   sendMessage,
   onMessage,
@@ -19,8 +18,8 @@ import logger from '/imports/startup/client/logger';
 import VolumeSlider from './volume-slider/component';
 import ReloadButton from '/imports/ui/components/reload-button/component';
 
-import ArcPlayer from './custom-players/arc-player';
-import PeerTubePlayer from './custom-players/peertube';
+import ArcPlayer from '/imports/ui/components/external-video-player/custom-players/arc-player';
+import PeerTubePlayer from '/imports/ui/components/external-video-player/custom-players/peertube';
 
 import { styles } from './styles';
 
@@ -359,6 +358,7 @@ class VideoPlayer extends Component {
       this.lastMessage = msg;
       this.lastMessageTimestamp = timestamp;
     }
+    return true;
   }
 
   registerVideoListeners() {
@@ -454,6 +454,7 @@ class VideoPlayer extends Component {
         extraInfo: { time },
       }, `Seek external video to: ${time}`);
     }
+    return true;
   }
 
   render() {
@@ -535,8 +536,8 @@ class VideoPlayer extends Component {
 
                     <ReloadButton
                       handleReload={this.handleReload}
-                      label={intl.formatMessage(intlMessages.refreshLabel)}>
-                    </ReloadButton>
+                      label={intl.formatMessage(intlMessages.refreshLabel)}
+                    />
                   </div>
                 ),
                 (this.isMobile && playing) && (

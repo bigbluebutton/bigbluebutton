@@ -19,6 +19,13 @@ const defaultProps = {
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 
 class AudioStreamVolume extends Component {
+  static handleError(error) {
+    logger.error({
+      logCode: 'audiostreamvolume_handleError',
+      extraInfo: { error },
+    }, 'Encountered error while creating audio context');
+  }
+
   constructor(props) {
     super(props);
 
@@ -26,7 +33,7 @@ class AudioStreamVolume extends Component {
     this.closeAudioContext = this.closeAudioContext.bind(this);
     this.handleConnectStreamToProcessor = this.handleConnectStreamToProcessor.bind(this);
     this.handleAudioProcess = this.handleAudioProcess.bind(this);
-    this.handleError = this.handleError.bind(this);
+    this.handleError = AudioStreamVolume.handleError.bind(this);
 
     this.state = {
       slow: 0,
@@ -51,6 +58,22 @@ class AudioStreamVolume extends Component {
 
   componentWillUnmount() {
     this.closeAudioContext();
+  }
+
+  handleConnectStreamToProcessor(stream) {
+    this.source = this.audioContext.createMediaStreamSource(stream);
+    this.source.connect(this.scriptProcessor);
+    this.scriptProcessor.connect(this.audioContext.destination);
+  }
+
+  handleAudioProcess(event) {
+    const input = event.inputBuffer.getChannelData(0);
+    const sum = input.reduce((a, b) => a + (b * b), 0);
+    const instant = Math.sqrt(sum / input.length);
+
+    this.setState((prevState) => ({
+      slow: (0.75 * prevState.slow) + (0.25 * instant),
+    }));
   }
 
   createAudioContext() {
@@ -83,30 +106,6 @@ class AudioStreamVolume extends Component {
       this.scriptProcessor = null;
       this.source = null;
     });
-  }
-
-  handleConnectStreamToProcessor(stream) {
-    this.source = this.audioContext.createMediaStreamSource(stream);
-    this.source.connect(this.scriptProcessor);
-    this.scriptProcessor.connect(this.audioContext.destination);
-  }
-
-  handleAudioProcess(event) {
-    const input = event.inputBuffer.getChannelData(0);
-    const sum = input.reduce((a, b) => a + (b * b), 0);
-    const instant = Math.sqrt(sum / input.length);
-
-    this.setState(prevState => ({
-      instant,
-      slow: (0.75 * prevState.slow) + (0.25 * instant),
-    }));
-  }
-
-  handleError(error) {
-    logger.error({
-      logCode: 'audiostreamvolume_handleError',
-      extraInfo: { error },
-    }, 'Encountered error while creating audio context');
   }
 
   render() {

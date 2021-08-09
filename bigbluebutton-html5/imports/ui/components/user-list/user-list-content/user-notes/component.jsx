@@ -73,7 +73,7 @@ class UserNotes extends Component {
 
   renderNotes() {
     const {
-      intl, disableNote, sidebarContentPanel, layoutContextDispatch
+      intl, disableNote, sidebarContentPanel, layoutContextDispatch,
     } = this.props;
     const { unread } = this.state;
 

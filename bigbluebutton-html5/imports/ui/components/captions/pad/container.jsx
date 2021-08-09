@@ -7,7 +7,6 @@ import Auth from '/imports/ui/services/auth';
 import LayoutContext from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
 
-
 const PadContainer = (props) => {
   const layoutContext = useContext(LayoutContext);
   const { layoutContextDispatch } = layoutContext;

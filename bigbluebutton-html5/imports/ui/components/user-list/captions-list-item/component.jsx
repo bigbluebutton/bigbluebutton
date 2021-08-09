@@ -7,7 +7,9 @@ import { styles } from '/imports/ui/components/user-list/user-list-content/style
 import { PANELS, ACTIONS } from '../../layout/enums';
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   locale: PropTypes.shape({
     locale: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,

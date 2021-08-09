@@ -145,7 +145,7 @@ const Chat = (props) => {
           syncing,
           syncedPercent,
           lastTimeWindowValuesBuild,
-          userSentMessage
+          userSentMessage,
         }}
       />
       <MessageFormContainer

@@ -12,7 +12,6 @@ const BreakoutContainer = (props) => {
   return <BreakoutComponent {...{ layoutContextDispatch, ...props }} />;
 };
 
-
 export default withTracker((props) => {
   const {
     endAllBreakouts,
