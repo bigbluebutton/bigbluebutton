@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import FullscreenButtonComponent from './component';
-import FullscreenService from './service';
 import LayoutContext from '../layout/context';
 
 const FullscreenButtonContainer = (props) => <FullscreenButtonComponent {...props} />;

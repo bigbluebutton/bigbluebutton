@@ -152,7 +152,6 @@ class VideoListItem extends Component {
   render() {
     const {
       videoIsReady,
-      isFullscreen,
       isStreamHealthy,
       isPortrait,
     } = this.state;
@@ -160,7 +159,6 @@ class VideoListItem extends Component {
       name,
       voiceUser,
       numOfStreams,
-      swapLayout,
       mirrored,
       isFullscreenContext,
     } = this.props;

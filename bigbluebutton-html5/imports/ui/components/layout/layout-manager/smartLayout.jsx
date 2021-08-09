@@ -51,14 +51,6 @@ class SmartLayout extends Component {
     }
   }
 
-  mainWidth() {
-    return window.document.documentElement.clientWidth;
-  }
-
-  mainHeight() {
-    return window.document.documentElement.clientHeight;
-  }
-
   bannerAreaHeight() {
     const { layoutContextState } = this.props;
     const { input } = layoutContextState;
@@ -176,7 +168,7 @@ class SmartLayout extends Component {
       height: actionBarHeight.height,
       innerHeight: actionBarHeight.innerHeight,
       padding: actionBarHeight.padding,
-      top: this.mainHeight() - actionBarHeight.height,
+      top: windowHeight() - actionBarHeight.height,
       left: !isRTL ? mediaAreaBounds.left : 0,
       zIndex: 1,
     };
@@ -194,12 +186,12 @@ class SmartLayout extends Component {
     let maxWidth = 0;
     if (input.sidebarNavigation.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
-        minWidth = this.mainWidth();
-        width = this.mainWidth();
-        maxWidth = this.mainWidth();
+        minWidth = windowWidth();
+        width = windowWidth();
+        maxWidth = windowWidth();
       } else {
         if (input.sidebarNavigation.width === 0) {
-          width = min(max((this.mainWidth() * 0.2), sidebarNavMinWidth), sidebarNavMaxWidth);
+          width = min(max((windowWidth() * 0.2), sidebarNavMinWidth), sidebarNavMaxWidth);
         } else {
           width = min(max(input.sidebarNavigation.width, sidebarNavMinWidth), sidebarNavMaxWidth);
         }
@@ -220,9 +212,9 @@ class SmartLayout extends Component {
     let sidebarNavHeight = 0;
     if (input.sidebarNavigation.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
-        sidebarNavHeight = this.mainHeight() - DEFAULT_VALUES.navBarHeight;
+        sidebarNavHeight = windowHeight() - DEFAULT_VALUES.navBarHeight;
       } else {
-        sidebarNavHeight = this.mainHeight();
+        sidebarNavHeight = windowHeight();
       }
       sidebarNavHeight -= this.bannerAreaHeight();
     }
@@ -258,13 +250,13 @@ class SmartLayout extends Component {
     let maxWidth = 0;
     if (input.sidebarContent.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
-        minWidth = this.mainWidth();
-        width = this.mainWidth();
-        maxWidth = this.mainWidth();
+        minWidth = windowWidth();
+        width = windowWidth();
+        maxWidth = windowWidth();
       } else {
         if (input.sidebarContent.width === 0) {
           width = min(
-            max((this.mainWidth() * 0.2), sidebarContentMinWidth), sidebarContentMaxWidth,
+            max((windowWidth() * 0.2), sidebarContentMinWidth), sidebarContentMaxWidth,
           );
         } else {
           width = min(max(input.sidebarContent.width, sidebarContentMinWidth),
@@ -287,9 +279,9 @@ class SmartLayout extends Component {
     let sidebarContentHeight = 0;
     if (input.sidebarContent.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
-        sidebarContentHeight = this.mainHeight() - DEFAULT_VALUES.navBarHeight;
+        sidebarContentHeight = windowHeight() - DEFAULT_VALUES.navBarHeight;
       } else {
-        sidebarContentHeight = this.mainHeight();
+        sidebarContentHeight = windowHeight();
       }
       sidebarContentHeight -= this.bannerAreaHeight();
     }
@@ -305,10 +297,16 @@ class SmartLayout extends Component {
 
     if (deviceType === DEVICE_TYPE.MOBILE) top = navBarHeight + this.bannerAreaHeight();
 
+    let left = deviceType === DEVICE_TYPE.MOBILE ? 0 : sidebarNavWidth;
+    left = !isRTL ? left : null;
+
+    let right = deviceType === DEVICE_TYPE.MOBILE ? 0 : sidebarNavWidth;
+    right = isRTL ? right : null;
+
     return {
       top,
-      left: !isRTL ? (deviceType === DEVICE_TYPE.MOBILE ? 0 : sidebarNavWidth) : null,
-      right: isRTL ? (deviceType === DEVICE_TYPE.MOBILE ? 0 : sidebarNavWidth) : null,
+      left,
+      right,
       zIndex: deviceType === DEVICE_TYPE.MOBILE ? 11 : 1,
     };
   }
@@ -322,15 +320,15 @@ class SmartLayout extends Component {
     let width = 0;
     if (deviceType === DEVICE_TYPE.MOBILE) {
       left = 0;
-      width = this.mainWidth();
+      width = windowWidth();
     } else {
       left = !isRTL ? sidebarNavWidth + sidebarContentWidth : 0;
-      width = this.mainWidth() - sidebarNavWidth - sidebarContentWidth;
+      width = windowWidth() - sidebarNavWidth - sidebarContentWidth;
     }
 
     return {
       width,
-      height: this.mainHeight() - (navBarHeight + actionBarHeight + this.bannerAreaHeight()),
+      height: windowHeight() - (navBarHeight + actionBarHeight + this.bannerAreaHeight()),
       top: navBarHeight + this.bannerAreaHeight(),
       left,
     };
@@ -453,8 +451,8 @@ class SmartLayout extends Component {
     }
 
     if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
-      mediaBounds.width = this.mainWidth();
-      mediaBounds.height = this.mainHeight();
+      mediaBounds.width = windowWidth();
+      mediaBounds.height = windowHeight();
       mediaBounds.top = 0;
       mediaBounds.left = !isRTL ? 0 : null;
       mediaBounds.right = isRTL ? 0 : null;
@@ -531,7 +529,8 @@ class SmartLayout extends Component {
     const slideSize = this.calculatesSlideSize(mediaAreaBounds);
     const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.width;
     const mediaBounds = this.calculatesMediaBounds(mediaAreaBounds, slideSize, sidebarSize);
-    const cameraDockBounds = this.calculatesCameraDockBounds(mediaAreaBounds, mediaBounds, sidebarSize);
+    const cameraDockBounds = this
+      .calculatesCameraDockBounds(mediaAreaBounds, mediaBounds, sidebarSize);
     const horizontalCameraDiff = cameraDockBounds.isCameraHorizontal
       ? cameraDockBounds.width + (camerasMargin * 2)
       : 0;

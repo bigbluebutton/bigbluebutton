@@ -297,7 +297,13 @@ class Base extends Component {
     }
 
     if (((meetingHasEnded && !meetingIsBreakout)) || (codeError && User?.loggedOut)) {
-      return (<MeetingEnded code={codeError} endedReason={meetingEndedReason} ejectedReason={ejectedReason} />);
+      return (
+        <MeetingEnded
+          code={codeError}
+          endedReason={meetingEndedReason}
+          ejectedReason={ejectedReason}
+        />
+      );
     }
 
     if (codeError && !meetingHasEnded) {

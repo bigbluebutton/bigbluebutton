@@ -48,6 +48,7 @@ const BreakoutRoomItem = ({
               data-test="breakoutRoomsItem"
               className={styles.listItem}
               aria-label={intl.formatMessage(intlMessages.breakoutTitle)}
+              onKeyPress={() => {}}
             >
               <Icon iconName="rooms" />
               <span aria-hidden>{intl.formatMessage(intlMessages.breakoutTitle)}</span>

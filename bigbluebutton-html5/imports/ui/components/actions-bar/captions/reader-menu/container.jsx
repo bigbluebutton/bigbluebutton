@@ -4,7 +4,7 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import ReaderMenu from './component';
 import CaptionsService from '/imports/ui/components/captions/service';
 
-const ReaderMenuContainer = props => <ReaderMenu {...props} />;
+const ReaderMenuContainer = (props) => <ReaderMenu {...props} />;
 
 export default withModalMounter(withTracker(({ mountModal }) => ({
   closeModal: () => mountModal(null),

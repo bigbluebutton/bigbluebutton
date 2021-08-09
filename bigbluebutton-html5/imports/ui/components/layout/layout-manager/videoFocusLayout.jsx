@@ -51,14 +51,6 @@ class VideoFocusLayout extends Component {
     }
   }
 
-  mainWidth() {
-    return window.document.documentElement.clientWidth;
-  }
-
-  mainHeight() {
-    return window.document.documentElement.clientHeight;
-  }
-
   bannerAreaHeight() {
     const { layoutContextState } = this.props;
     const { input } = layoutContextState;
@@ -183,7 +175,7 @@ class VideoFocusLayout extends Component {
       height: actionBarHeight.height,
       innerHeight: actionBarHeight.innerHeight,
       padding: actionBarHeight.padding,
-      top: this.mainHeight() - actionBarHeight.height,
+      top: windowHeight() - actionBarHeight.height,
       left: !isRTL ? mediaAreaBounds.left : 0,
       zIndex: 1,
     };
@@ -201,12 +193,12 @@ class VideoFocusLayout extends Component {
     let maxWidth = 0;
     if (input.sidebarNavigation.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
-        minWidth = this.mainWidth();
-        width = this.mainWidth();
-        maxWidth = this.mainWidth();
+        minWidth = windowWidth();
+        width = windowWidth();
+        maxWidth = windowWidth();
       } else {
         if (input.sidebarNavigation.width === 0) {
-          width = min(max((this.mainWidth() * 0.2), sidebarNavMinWidth), sidebarNavMaxWidth);
+          width = min(max((windowWidth() * 0.2), sidebarNavMinWidth), sidebarNavMaxWidth);
         } else {
           width = min(max(input.sidebarNavigation.width, sidebarNavMinWidth), sidebarNavMaxWidth);
         }
@@ -227,9 +219,9 @@ class VideoFocusLayout extends Component {
     let sidebarNavHeight = 0;
     if (input.sidebarNavigation.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
-        sidebarNavHeight = this.mainHeight() - DEFAULT_VALUES.navBarHeight;
+        sidebarNavHeight = windowHeight() - DEFAULT_VALUES.navBarHeight;
       } else {
-        sidebarNavHeight = this.mainHeight();
+        sidebarNavHeight = windowHeight();
       }
       sidebarNavHeight -= this.bannerAreaHeight();
     }
@@ -265,13 +257,13 @@ class VideoFocusLayout extends Component {
     let maxWidth = 0;
     if (input.sidebarContent.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
-        minWidth = this.mainWidth();
-        width = this.mainWidth();
-        maxWidth = this.mainWidth();
+        minWidth = windowWidth();
+        width = windowWidth();
+        maxWidth = windowWidth();
       } else {
         if (input.sidebarContent.width === 0) {
           width = min(
-            max((this.mainWidth() * 0.2), sidebarContentMinWidth), sidebarContentMaxWidth,
+            max((windowWidth() * 0.2), sidebarContentMinWidth), sidebarContentMaxWidth,
           );
         } else {
           width = min(max(input.sidebarContent.width, sidebarContentMinWidth),
@@ -298,29 +290,25 @@ class VideoFocusLayout extends Component {
     let maxHeight = 0;
     if (inputContent.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
-        height = this.mainHeight() - DEFAULT_VALUES.navBarHeight - this.bannerAreaHeight();
+        height = windowHeight() - DEFAULT_VALUES.navBarHeight - this.bannerAreaHeight();
         minHeight = height;
         maxHeight = height;
       } else if (input.cameraDock.numCameras > 0 && presentation.isOpen) {
-        if (inputContent.height > 0 && inputContent.height < this.mainHeight()) {
+        if (inputContent.height > 0 && inputContent.height < windowHeight()) {
           height = inputContent.height - this.bannerAreaHeight();
         } else {
           const { size: slideSize } = input.presentation.currentSlide;
-          let calculatedHeight = (this.mainHeight() - this.bannerAreaHeight()) * 0.3;
+          let calculatedHeight = (windowHeight() - this.bannerAreaHeight()) * 0.3;
 
           if (slideSize.height > 0 && slideSize.width > 0) {
             calculatedHeight = (slideSize.height * outputContent.width) / slideSize.width;
           }
-          height = this.mainHeight() - calculatedHeight - this.bannerAreaHeight();
+          height = windowHeight() - calculatedHeight - this.bannerAreaHeight();
         }
-        maxHeight = this.mainHeight() * 0.75 - this.bannerAreaHeight();
-        minHeight = this.mainHeight() * 0.25 - this.bannerAreaHeight();
-
-        if (height > maxHeight) {
-          height = maxHeight;
-        }
+        maxHeight = windowHeight() * 0.75 - this.bannerAreaHeight();
+        minHeight = windowHeight() * 0.25 - this.bannerAreaHeight();
       } else {
-        height = this.mainHeight() - this.bannerAreaHeight();
+        height = windowHeight() - this.bannerAreaHeight();
         maxHeight = height;
         minHeight = height;
       }
@@ -363,15 +351,15 @@ class VideoFocusLayout extends Component {
     let width = 0;
     if (deviceType === DEVICE_TYPE.MOBILE) {
       left = 0;
-      width = this.mainWidth();
+      width = windowWidth();
     } else {
       left = !isRTL ? sidebarNavWidth + sidebarContentWidth : 0;
-      width = this.mainWidth() - sidebarNavWidth - sidebarContentWidth;
+      width = windowWidth() - sidebarNavWidth - sidebarContentWidth;
     }
 
     return {
       width,
-      height: this.mainHeight() - (navBarHeight + actionBarHeight + this.bannerAreaHeight()),
+      height: windowHeight() - (navBarHeight + actionBarHeight + this.bannerAreaHeight()),
       top: navBarHeight + this.bannerAreaHeight(),
       left,
     };
@@ -447,8 +435,8 @@ class VideoFocusLayout extends Component {
     const sidebarSize = sidebarNavWidth + sidebarContentWidth;
 
     if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
-      mediaBounds.width = this.mainWidth();
-      mediaBounds.height = this.mainHeight();
+      mediaBounds.width = windowWidth();
+      mediaBounds.height = windowHeight();
       mediaBounds.top = 0;
       mediaBounds.left = 0;
       mediaBounds.right = 0;
@@ -462,7 +450,7 @@ class VideoFocusLayout extends Component {
       mediaBounds.top = mediaAreaBounds.top + cameraDockBounds.height;
       mediaBounds.width = mediaAreaBounds.width;
     } else if (input.cameraDock.numCameras > 0) {
-      mediaBounds.height = this.mainHeight() - sidebarContentHeight;
+      mediaBounds.height = windowHeight() - sidebarContentHeight;
       mediaBounds.left = !isRTL ? sidebarNavWidth : 0;
       mediaBounds.right = isRTL ? sidebarNavWidth : 0;
       mediaBounds.top = sidebarContentHeight;

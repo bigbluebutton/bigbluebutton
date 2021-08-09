@@ -11,11 +11,11 @@ import {
   getAvailableLocales,
 } from './service';
 
-const SettingsContainer = props => {
+const SettingsContainer = (props) => {
   const layoutContext = useContext(LayoutContext);
   const { layoutContextDispatch } = layoutContext;
 
-  return <Settings {...props} layoutContextDispatch={layoutContextDispatch} />
+  return <Settings {...props} layoutContextDispatch={layoutContextDispatch} />;
 };
 
 export default withTracker(() => ({

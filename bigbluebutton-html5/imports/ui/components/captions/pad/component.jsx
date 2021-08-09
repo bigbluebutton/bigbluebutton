@@ -50,7 +50,7 @@ const intlMessages = defineMessages({
   speechRecognitionStop: {
     id: 'app.captions.pad.speechRecognitionStop',
     description: 'Notification for stopped speech recognition',
-  },  
+  },
 });
 
 const propTypes = {
@@ -85,7 +85,7 @@ class Pad extends PureComponent {
 
     this.toggleListen = this.toggleListen.bind(this);
     this.handleListen = this.handleListen.bind(this);
-    
+
     if (this.recognition) {
       this.recognition.addEventListener('end', () => {
         const { listening } = this.state;
@@ -104,10 +104,12 @@ class Pad extends PureComponent {
       currentUserId,
     } = this.props;
 
+    const { listening } = this.state;
+
     if (this.recognition) {
       if (ownerId !== currentUserId) {
         this.recognition.stop();
-      } else if (this.state.listening && this.recognition.lang !== locale) {
+      } else if (listening && this.recognition.lang !== locale) {
         this.recognition.stop();
         this.stopListen();
       }
@@ -187,7 +189,7 @@ class Pad extends PureComponent {
       listening: !listening,
     }, this.handleListen);
   }
-  
+
   stopListen() {
     this.setState({ listening: false });
   }

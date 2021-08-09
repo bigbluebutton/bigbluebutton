@@ -452,7 +452,11 @@ class Poll extends Component {
                   ],
                 });
               }}
-              className={cx(styles.pBtn, styles.btnMR, { [styles.selectedBtnBlue]: type === pollTypes.TrueFalse })}
+              className={
+                cx(styles.pBtn, styles.btnMR, {
+                  [styles.selectedBtnBlue]: type === pollTypes.TrueFalse,
+                })
+              }
             />
             <Button
               label={intl.formatMessage(intlMessages.a4)}
@@ -468,7 +472,11 @@ class Poll extends Component {
                   ],
                 });
               }}
-              className={cx(styles.pBtn, styles.btnML, { [styles.selectedBtnBlue]: type === pollTypes.Letter })}
+              className={
+                cx(styles.pBtn, styles.btnML, {
+                  [styles.selectedBtnBlue]: type === pollTypes.Letter,
+                })
+              }
             />
           </div>
           <Button
@@ -484,16 +492,24 @@ class Poll extends Component {
                 ],
               });
             }}
-            className={cx(styles.pBtn, styles.yna, { [styles.selectedBtnBlue]: type === pollTypes.YesNoAbstention })}
+            className={
+              cx(styles.pBtn, styles.yna, {
+                [styles.selectedBtnBlue]: type === pollTypes.YesNoAbstention,
+              })
+            }
           />
           <Button
             label={intl.formatMessage(intlMessages.userResponse)}
             color="default"
             onClick={() => { this.setState({ type: pollTypes.Response }); }}
-            className={cx(styles.pBtn, styles.fullWidth, { [styles.selectedBtnWhite]: type === pollTypes.Response })}
+            className={
+              cx(styles.pBtn, styles.fullWidth, {
+                [styles.selectedBtnWhite]: type === pollTypes.Response,
+              })
+            }
           />
         </div>
-        { type
+        {type
           && (
             <div data-test="responseChoices">
               <h4>{intl.formatMessage(intlMessages.responseChoices)}</h4>
@@ -534,11 +550,13 @@ class Poll extends Component {
                       )}
                     <div className={styles.row}>
                       <div className={styles.col} aria-hidden="true">
-                          <label className={styles.label}>
-                            {intl.formatMessage(intlMessages.secretPollLabel)}
-                          </label>
+                        {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+                        <label className={styles.label}>
+                          {intl.formatMessage(intlMessages.secretPollLabel)}
+                        </label>
                       </div>
                       <div className={styles.col}>
+                        {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
                         <label className={styles.toggle}>
                           <Toggle
                             icons={false}
@@ -550,7 +568,11 @@ class Poll extends Component {
                       </div>
                     </div>
                     <div>
-                      {intl.formatMessage(secretPoll ? intlMessages.isSecretPollLabel : intlMessages.nonSecretPollLabel)}
+                      {
+                        intl.formatMessage(secretPoll
+                          ? intlMessages.isSecretPollLabel
+                          : intlMessages.nonSecretPollLabel)
+                      }
                     </div>
                     <Button
                       className={styles.startPollBtn}
@@ -564,8 +586,12 @@ class Poll extends Component {
                         });
 
                         let err = null;
-                        if (type === pollTypes.Response && question.length === 0) err = intl.formatMessage(intlMessages.questionErr);
-                        if (!hasVal && type !== pollTypes.Response) err = intl.formatMessage(intlMessages.optionErr);
+                        if (type === pollTypes.Response && question.length === 0) {
+                          err = intl.formatMessage(intlMessages.questionErr);
+                        }
+                        if (!hasVal && type !== pollTypes.Response) {
+                          err = intl.formatMessage(intlMessages.optionErr);
+                        }
                         if (err) return this.setState({ error: err });
 
                         return this.setState({ isPolling: true }, () => {
@@ -576,7 +602,7 @@ class Poll extends Component {
                             intl.formatMessage(intlMessages.no),
                             intl.formatMessage(intlMessages.abstention),
                             intl.formatMessage(intlMessages.true),
-                            intl.formatMessage(intlMessages.false)
+                            intl.formatMessage(intlMessages.false),
                           );
                           const verifiedOptions = optList.map((o) => {
                             if (o.val.length > 0) return o.val;
@@ -596,7 +622,9 @@ class Poll extends Component {
                       }}
                     />
                     {
-                      FILE_DRAG_AND_DROP_ENABLED && type !== pollTypes.Response && this.renderDragDrop()
+                      FILE_DRAG_AND_DROP_ENABLED
+                      && type !== pollTypes.Response
+                      && this.renderDragDrop()
                     }
                   </div>
                 )

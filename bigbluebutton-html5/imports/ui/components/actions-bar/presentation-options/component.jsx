@@ -5,7 +5,9 @@ import Button from '/imports/ui/components/button/component';
 import MediaService from '/imports/ui/components/media/service';
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   toggleSwapLayout: PropTypes.func.isRequired,
 };
 
@@ -20,13 +22,15 @@ const intlMessages = defineMessages({
   },
 });
 
-const shouldUnswapLayout = () => MediaService.shouldShowScreenshare() || MediaService.shouldShowExternalVideo();
+const shouldUnswapLayout = () => (
+  MediaService.shouldShowScreenshare() || MediaService.shouldShowExternalVideo()
+);
 
 const PresentationOptionsContainer = ({
   intl,
   toggleSwapLayout,
   isThereCurrentPresentation,
-  layoutContextDispatch
+  layoutContextDispatch,
 }) => {
   if (shouldUnswapLayout()) toggleSwapLayout();
   return (
