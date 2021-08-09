@@ -54,12 +54,15 @@ const propTypes = {
   breakoutName: PropTypes.string.isRequired,
 };
 
+let interval = null;
+
 class BreakoutJoinConfirmation extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       selectValue: props.breakout.breakoutId,
+      waiting: false,
     };
 
     this.handleJoinBreakoutConfirmation = this.handleJoinBreakoutConfirmation.bind(this);
@@ -122,7 +125,7 @@ class BreakoutJoinConfirmation extends Component {
     mountModal(null);
   }
 
-  handleSelectChange(e) {
+  async handleSelectChange(e) {
     const { value } = e.target;
     const {
       requestJoinURL,
@@ -132,12 +135,30 @@ class BreakoutJoinConfirmation extends Component {
     this.setState({ selectValue: value });
     if (!getURL(value)) {
       requestJoinURL(value);
+
+      this.setState({
+        waiting: true,
+      })
+      await new Promise((resolve) => {
+
+        interval = setInterval(() => {
+          const temp = getURL(value);
+          if (temp !== "") {
+
+            resolve();
+            clearInterval(interval)
+            this.setState({
+              waiting: false,
+            })
+          }
+        }, 1000)
+      })
     }
   }
 
   renderSelectMeeting() {
     const { breakouts, intl } = this.props;
-    const { selectValue } = this.state;
+    const { selectValue, waiting, } = this.state;
     return (
       <div className={styles.selectParent}>
         {`${intl.formatMessage(intlMessages.freeJoinMessage)}`}
@@ -145,6 +166,7 @@ class BreakoutJoinConfirmation extends Component {
           className={styles.select}
           value={selectValue}
           onChange={this.handleSelectChange}
+          disabled={waiting}
         >
           {
             breakouts.map(({ name, breakoutId }) => (
@@ -163,6 +185,7 @@ class BreakoutJoinConfirmation extends Component {
 
   render() {
     const { intl, breakoutName, isFreeJoin } = this.props;
+    const { waiting } = this.state;
 
     return (
       <Modal
@@ -172,6 +195,7 @@ class BreakoutJoinConfirmation extends Component {
           label: intl.formatMessage(intlMessages.confirmLabel),
           description: intl.formatMessage(intlMessages.confirmDesc),
           icon: 'popout_window',
+          disabled: waiting,
         }}
         dismiss={{
           label: intl.formatMessage(intlMessages.dismissLabel),
