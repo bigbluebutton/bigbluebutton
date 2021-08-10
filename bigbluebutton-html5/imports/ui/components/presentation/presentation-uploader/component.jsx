@@ -18,7 +18,6 @@ const { isMobile } = deviceInfo;
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
-  defaultFileName: PropTypes.string.isRequired,
   handleSave: PropTypes.func.isRequired,
   dispatchTogglePresentationDownloadable: PropTypes.func.isRequired,
   fileValidMimeTypes: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -226,6 +225,7 @@ class PresentationUploader extends Component {
       toUploadCount: 0,
     };
 
+    this.defaultPresentationId = null;
     this.toastId = null;
     this.hasError = null;
 
@@ -279,6 +279,15 @@ class PresentationUploader extends Component {
       }
     }
 
+
+    // Get the very first uploaded presentation's ID (default)
+    if (propPresentations.length > 0) {
+      const defaultPresentation = propPresentations.reduce(
+        (pres1, pres2) => (pres1.uploadTimestamp < pres2.uploadTimestamp ? pres1 : pres2)
+      );
+      this.defaultPresentationId = defaultPresentation.id;
+    }
+
     if (presentations.length > 0) {
       const selected = propPresentations.filter((p) => p.isCurrent);
       if (selected.length > 0) Session.set('selectedToBeNextCurrent', selected[0].id);
@@ -300,9 +309,7 @@ class PresentationUploader extends Component {
   }
 
   isDefault(presentation) {
-    const { defaultFileName } = this.props;
-    return presentation.filename === defaultFileName
-      && !presentation.id.includes(defaultFileName);
+    return presentation.id === this.defaultPresentationId;
   }
 
   handleDismissToast() {
