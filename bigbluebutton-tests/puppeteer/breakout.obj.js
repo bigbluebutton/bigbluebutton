@@ -34,12 +34,7 @@ const breakoutTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 8,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(8.0, screenshot);
   });
 
   // Join Breakout Room
@@ -66,12 +61,7 @@ const breakoutTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 4,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(4.0, screenshot);
   });
 
   // Join Breakout Room with Video
@@ -98,12 +88,7 @@ const breakoutTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.6,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(0.6, screenshot);
   });
 
   // Join Breakout Room and start Screen Share
@@ -130,12 +115,7 @@ const breakoutTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.7,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(0.7, screenshot);
   });
 
   // Join Breakout Room with Audio
@@ -162,12 +142,7 @@ const breakoutTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 3.6,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(3.6, screenshot);
   });
 };
 module.exports = exports = breakoutTest;

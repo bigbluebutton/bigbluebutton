@@ -277,7 +277,6 @@
     "app.externalVideo.urlInput": "Dodaj URL videa",
     "app.externalVideo.urlError": "Video URL nije dozvoljen",
     "app.externalVideo.close": "Zatvori",
-    "app.network.connection.effective.slow.help": "Više informacija",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Podijeli vanjski video",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Zaustavi dijeljenje vanjskog videa"
 

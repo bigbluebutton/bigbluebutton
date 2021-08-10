@@ -1,6 +1,7 @@
 {
     "app.home.greeting": "Via prezentaĵo komenciĝos baldaŭ ...",
     "app.chat.submitLabel": "Sendi mesaĝon",
+    "app.chat.loading": "Ŝarĝitaj babilmesaĝoj: {0}%",
     "app.chat.errorMaxMessageLength": "La mesaĝo estas tro longa je {0} signo(j)",
     "app.chat.disconnected": "Vi malkonektiĝis, mesaĝoj ne sendeblas",
     "app.chat.locked": "La babilejo estas ŝlosita, mesaĝoj ne sendeblas",
@@ -48,6 +49,7 @@
     "app.captions.pad.dictationStop": "Ĉesi dikti",
     "app.captions.pad.dictationOnDesc": "Ŝaltas parolrekonon",
     "app.captions.pad.dictationOffDesc": "Malŝaltas parolrekonon",
+    "app.textInput.sendLabel": "Sendi",
     "app.note.title": "Komunigitaj notoj",
     "app.note.label": "Noto",
     "app.note.hideNoteLabel": "Kaŝi noton",
@@ -70,8 +72,6 @@
     "app.userList.moderator": "Moderatoro",
     "app.userList.guest": "Gasto",
     "app.userList.menuTitleContext": "Disponeblaj opcioj",
-    "app.userList.chatListItem.unreadSingular": "{0} Nova Mesaĝo",
-    "app.userList.chatListItem.unreadPlural": "{0} Novaj Mesaĝoj",
     "app.userList.menu.chat.label": "Komenci privatan babiladon",
     "app.userList.menu.clearStatus.label": "Viŝi staton",
     "app.userList.menu.removeUser.label": "Forigi uzanton",
@@ -685,15 +685,17 @@
     "app.externalVideo.urlError": "Ĉi tiu videa URL ne estas subtenata",
     "app.externalVideo.close": "Fermi",
     "app.externalVideo.autoPlayWarning": "Ludigi la videon por ebligi aŭdvidan sinkronigon",
-    "app.network.connection.effective.slow": "Ni rimarkas konektajn problemojn.",
-    "app.network.connection.effective.slow.help": "Pli da informoj",
     "app.externalVideo.noteLabel": "Rimarko: Eksteraj videoj ne aperos en la registraĵo. YouTube, Vimeo, Instructure Media, Twitch, Dailymotion kaj URL-oj de aŭdvidaj dosieroj (ekz. https://example.com/xy.mp4) estas subtenataj.",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Kundividi eksteran videon",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Ĉesi kundividi eksteran videon",
     "app.iOSWarning.label": "Bonvolu ĝisdatigi al almenaŭ iOS 12.2",
     "app.legacy.unsupportedBrowser": "Ŝajnas, ke vi uzas retumilon, kiu ne estas subtenata. Bonvolu uzi aŭ {0} aŭ {1} por plena subteno.",
     "app.legacy.upgradeBrowser": "Ŝajnas, ke vi uzas malnovan version de subtenata reumilo. Bonvolu ĝisdatigi vian retumilon por plena subteno.",
-    "app.legacy.criosBrowser": "Sur iOS bonvolu uzi Safari por plena subteno."
+    "app.legacy.criosBrowser": "Sur iOS bonvolu uzi Safari por plena subteno.",
+    "playback.button.about.aria": "Pri",
+    "playback.player.chat.message.poll.question": "Demando",
+    "playback.player.chat.message.poll.option.yes": "Jes",
+    "playback.player.chat.message.poll.option.no": "Ne"
 
 }
 

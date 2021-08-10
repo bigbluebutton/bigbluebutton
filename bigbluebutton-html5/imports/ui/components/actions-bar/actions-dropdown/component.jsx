@@ -14,7 +14,9 @@ import { PANELS, ACTIONS } from '../../layout/enums';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   mountModal: PropTypes.func.isRequired,
   amIModerator: PropTypes.bool.isRequired,
   shortcuts: PropTypes.string,
@@ -121,7 +123,7 @@ class ActionsDropdown extends PureComponent {
       isSelectRandomUserEnabled,
       stopExternalVideoShare,
       mountModal,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
     } = this.props;
 
     const {
@@ -150,11 +152,11 @@ class ActionsDropdown extends PureComponent {
               if (Session.equals('pollInitiated', true)) {
                 Session.set('resetPollPanel', true);
               }
-              newLayoutContextDispatch({
+              layoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
                 value: true,
               });
-              newLayoutContextDispatch({
+              layoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                 value: PANELS.POLL,
               });
@@ -260,7 +262,7 @@ class ActionsDropdown extends PureComponent {
       isMeteorConnected,
       isDropdownOpen,
       sidebarContent,
-      sidebarNavigation
+      sidebarNavigation,
     } = this.props;
 
     const availableActions = this.getAvailableActions();

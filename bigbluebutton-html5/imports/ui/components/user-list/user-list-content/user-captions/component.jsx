@@ -48,10 +48,10 @@ class UserCaptions extends Component {
     const {
       ownedLocales,
       sidebarContentPanel,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
     } = this.props;
 
-    return ownedLocales.map(locale => (
+    return ownedLocales.map((locale) => (
       <CSSTransition
         classNames={listTransition}
         appear
@@ -62,7 +62,12 @@ class UserCaptions extends Component {
         className={styles.captionsList}
         key={locale.locale}
       >
-        <CaptionsListItem {...{ locale, newLayoutContextDispatch, sidebarContentPanel }} tabIndex={-1} />
+        <CaptionsListItem
+          {...{
+            locale, layoutContextDispatch, sidebarContentPanel,
+          }}
+          tabIndex={-1}
+        />
       </CSSTransition>
     ));
   }

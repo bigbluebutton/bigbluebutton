@@ -2,13 +2,13 @@ import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Note from './component';
 import NoteService from './service';
-import { NLayoutContext } from '../layout/context/context';
+import LayoutContext from '../layout/context';
 
 const NoteContainer = ({ children, ...props }) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextDispatch } = newLayoutContext;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextDispatch } = layoutContext;
   return (
-    <Note {...{ newLayoutContextDispatch, ...props }}>
+    <Note {...{ layoutContextDispatch, ...props }}>
       {children}
     </Note>
   );

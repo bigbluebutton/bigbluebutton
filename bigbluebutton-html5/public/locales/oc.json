@@ -57,8 +57,6 @@
     "app.userList.label": "Lista utilizaires",
     "app.userList.guest": "Convidat",
     "app.userList.menuTitleContext": "Opcions disponiblas",
-    "app.userList.chatListItem.unreadSingular": "{0} Messatge novèl",
-    "app.userList.chatListItem.unreadPlural": "{0} Messatges novèls",
     "app.userList.menu.chat.label": "Començar una discussion privada",
     "app.userList.menu.clearStatus.label": "Escafar estatut",
     "app.userList.menu.removeUser.label": "Levar l’utilizaire",
@@ -261,7 +259,6 @@
     "app.externalVideo.start": "Partejar una vidèo novèla",
     "app.externalVideo.urlInput": "Ajustar l’URL d’una vidèo",
     "app.externalVideo.close": "Tampar",
-    "app.network.connection.effective.slow.help": "Mai d‘informacions",
     "app.debugWindow.form.button.copy": "Copiar"
 
 }

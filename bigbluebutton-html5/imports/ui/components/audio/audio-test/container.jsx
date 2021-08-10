@@ -3,7 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Service from '/imports/ui/components/audio/service';
 import AudioTest from './component';
 
-const AudioTestContainer = props => <AudioTest {...props} />;
+const AudioTestContainer = (props) => <AudioTest {...props} />;
 
 export default withTracker(() => ({
   outputDeviceId: Service.outputDeviceId(),

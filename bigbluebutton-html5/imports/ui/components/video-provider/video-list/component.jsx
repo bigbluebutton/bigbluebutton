@@ -11,19 +11,15 @@ import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import VideoService from '/imports/ui/components/video-provider/service';
 import Button from '/imports/ui/components/button/component';
 import { ACTIONS } from '../../layout/enums';
-import { isVirtualBackgroundEnabled } from '/imports/ui/services/virtual-background/service'
-import VideoPreviewService from '/imports/ui/components/video-preview/service';
 
 const propTypes = {
   streams: PropTypes.arrayOf(PropTypes.object).isRequired,
   onVideoItemMount: PropTypes.func.isRequired,
   onVideoItemUnmount: PropTypes.func.isRequired,
-  webcamDraggableDispatch: PropTypes.func.isRequired,
   intl: PropTypes.objectOf(Object).isRequired,
   swapLayout: PropTypes.bool.isRequired,
   numberOfPages: PropTypes.number.isRequired,
   currentVideoPageIndex: PropTypes.number.isRequired,
-  toggleVirtualBg: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -57,9 +53,6 @@ const intlMessages = defineMessages({
   prevPageLabel: {
     id: 'app.video.pagination.prevPage',
   },
-  toggleVirtualBg: {
-    id: 'app.video.virtualBackground.toggleVirtualBg',
-  },
 });
 
 const findOptimalGrid = (canvasWidth, canvasHeight, gutter, aspectRatio, numItems, columns = 1) => {
@@ -86,7 +79,7 @@ const findOptimalGrid = (canvasWidth, canvasHeight, gutter, aspectRatio, numItem
 const ASPECT_RATIO = 4 / 3;
 const ACTION_NAME_FOCUS = 'focus';
 const ACTION_NAME_MIRROR = 'mirror';
-const ACTION_NAME_BACKGROUND = 'blurBackground';
+// const ACTION_NAME_BACKGROUND = 'blurBackground';
 
 class VideoList extends Component {
   constructor(props) {
@@ -119,17 +112,8 @@ class VideoList extends Component {
   }
 
   componentDidMount() {
-    const { webcamDraggableDispatch } = this.props;
-    webcamDraggableDispatch(
-      {
-        type: 'setVideoListRef',
-        value: this.grid,
-      },
-    );
-
     this.handleCanvasResize();
     window.addEventListener('resize', this.handleCanvasResize, false);
-    window.addEventListener('layoutSizesSets', this.handleCanvasResize, false);
     window.addEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
@@ -148,7 +132,6 @@ class VideoList extends Component {
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleCanvasResize, false);
-    window.removeEventListener('layoutSizesSets', this.handleCanvasResize, false);
     window.removeEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
@@ -215,26 +198,15 @@ class VideoList extends Component {
     const {
       streams,
       cameraDock,
-      webcamDraggableDispatch,
-      layoutLoaded,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
     } = this.props;
     let numItems = streams.length;
     if (numItems < 1 || !this.canvas || !this.grid) {
       return;
     }
     const { focusedId } = this.state;
-    let canvasWidth;
-    let canvasHeight;
-    const canvasBounds = this.canvas.getBoundingClientRect();
-
-    if (layoutLoaded === 'legacy') {
-      canvasWidth = canvasBounds?.width;
-      canvasHeight = canvasBounds?.height;
-    } else {
-      canvasWidth = cameraDock?.width;
-      canvasHeight = cameraDock?.height;
-    }
+    const canvasWidth = cameraDock?.width;
+    const canvasHeight = cameraDock?.height;
 
     const gridGutter = parseInt(window.getComputedStyle(this.grid)
       .getPropertyValue('grid-row-gap'), 10);
@@ -254,13 +226,7 @@ class VideoList extends Component {
         const betterThanCurrent = testGrid.filledArea > currentGrid.filledArea;
         return focusedConstraint && betterThanCurrent ? testGrid : currentGrid;
       }, { filledArea: 0 });
-    webcamDraggableDispatch(
-      {
-        type: 'setOptimalGrid',
-        value: optimalGrid,
-      },
-    );
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_OPTIMAL_GRID_SIZE,
       value: {
         width: optimalGrid.width,
@@ -276,7 +242,7 @@ class VideoList extends Component {
     const { mirroredCameras } = this.state;
     if (this.cameraIsMirrored(stream)) {
       this.setState({
-        mirroredCameras: mirroredCameras.filter((x) => x != stream),
+        mirroredCameras: mirroredCameras.filter((x) => x !== stream),
       });
     } else {
       this.setState({
@@ -290,10 +256,21 @@ class VideoList extends Component {
     return mirroredCameras.indexOf(stream) >= 0;
   }
 
+  displayPageButtons() {
+    const { numberOfPages, cameraDock } = this.props;
+    const { width: cameraDockWidth } = cameraDock;
+
+    if (!VideoService.isPaginationEnabled() || numberOfPages <= 1 || cameraDockWidth === 0) {
+      return false;
+    }
+
+    return true;
+  }
+
   renderNextPageButton() {
     const { intl, numberOfPages, currentVideoPageIndex } = this.props;
 
-    if (!VideoService.isPaginationEnabled() || numberOfPages <= 1) return null;
+    if (!this.displayPageButtons()) return null;
 
     const currentPage = currentVideoPageIndex + 1;
     const nextPageLabel = intl.formatMessage(intlMessages.nextPageLabel);
@@ -317,7 +294,7 @@ class VideoList extends Component {
   renderPreviousPageButton() {
     const { intl, currentVideoPageIndex, numberOfPages } = this.props;
 
-    if (!VideoService.isPaginationEnabled() || numberOfPages <= 1) return null;
+    if (!this.displayPageButtons()) return null;
 
     const currentPage = currentVideoPageIndex + 1;
     const prevPageLabel = intl.formatMessage(intlMessages.prevPageLabel);
@@ -338,20 +315,6 @@ class VideoList extends Component {
     );
   }
 
-  assembleVirtualBgAction (collectionStream, onClickCallback) {
-    const { intl } = this.props;
-    const { deviceId, stream: streamId } = collectionStream;
-    const localVideoStream = VideoPreviewService.getStream(deviceId);
-
-    if (localVideoStream == null) return false;
-
-    return {
-      actionName: ACTION_NAME_BACKGROUND,
-      label: intl.formatMessage(intlMessages.toggleVirtualBg),
-      onClick: () => onClickCallback(streamId, localVideoStream)
-    };
-  }
-
   renderVideoList() {
     const {
       intl,
@@ -359,7 +322,6 @@ class VideoList extends Component {
       onVideoItemMount,
       onVideoItemUnmount,
       swapLayout,
-      toggleVirtualBg,
     } = this.props;
     const { focusedId } = this.state;
     const numOfStreams = streams.length;
@@ -375,11 +337,6 @@ class VideoList extends Component {
         description: intl.formatMessage(intlMessages.mirrorDesc),
         onClick: () => this.mirrorCamera(stream),
       }];
-
-      if (VideoService.isLocalStream(stream) && isVirtualBackgroundEnabled()) {
-        const bgAction = this.assembleVirtualBgAction(vs, toggleVirtualBg);
-        if (bgAction) actions.push(bgAction);
-      }
 
       if (numOfStreams > 2) {
         actions.push({
@@ -438,8 +395,10 @@ class VideoList extends Component {
           this.canvas = ref;
         }}
         className={canvasClassName}
+        style={{
+          minHeight: 'inherit',
+        }}
       >
-
         {this.renderPreviousPageButton()}
 
         {!streams.length ? null : (
@@ -467,7 +426,6 @@ class VideoList extends Component {
         )}
 
         {this.renderNextPageButton()}
-
       </div>
     );
   }

@@ -10,6 +10,7 @@ import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-pol
 import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/container';
 import CaptionsService from '/imports/ui/components/captions/service';
 import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
+import BBBMenu from "/imports/ui/components/menu/component";
 import { styles } from './styles';
 import { getUserNamesLink } from '/imports/ui/components/user-list/service';
 import Settings from '/imports/ui/services/settings';
@@ -250,114 +251,108 @@ class UserOptions extends PureComponent {
       && hasBreakoutRoom
       && getUsersNotAssigned(users).length;
 
-    this.menuItems = _.compact([
-      (isMeteorConnected ? (
-        <Dropdown.DropdownListItem
-          key={this.clearStatusId}
-          icon="clear_status"
-          label={intl.formatMessage(intlMessages.clearAllLabel)}
-          description={intl.formatMessage(intlMessages.clearAllDesc)}
-          onClick={toggleStatus}
-        />
-      ) : null
-      ),
-      (!meetingIsBreakout && isMeteorConnected ? (
-        <Dropdown.DropdownListItem
-          key={this.muteAllId}
-          icon={isMeetingMuted ? 'unmute' : 'mute'}
-          label={intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllLabel' : 'muteAllLabel'])}
-          description={intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllDesc' : 'muteAllDesc'])}
-          onClick={toggleMuteAllUsers}
-        />
-      ) : null
-      ),
-      (!meetingIsBreakout && !isMeetingMuted && isMeteorConnected ? (
-        <Dropdown.DropdownListItem
-          key={this.muteId}
-          icon="mute"
-          label={intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
-          description={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
-          onClick={toggleMuteAllUsersExceptPresenter}
-        />
-      ) : null
-      ),
-      (amIModerator
-        ? (
-          <Dropdown.DropdownListItem
-            icon="download"
-            label={intl.formatMessage(intlMessages.saveUserNames)}
-            key={this.saveUsersNameId}
-            onClick={this.onSaveUserNames}
-          />
-        )
-        : null
-      ),
-      (!meetingIsBreakout && isMeteorConnected ? (
-        <Dropdown.DropdownListItem
-          key={this.lockId}
-          icon="lock"
-          label={intl.formatMessage(intlMessages.lockViewersLabel)}
-          description={intl.formatMessage(intlMessages.lockViewersDesc)}
-          onClick={() => mountModal(<LockViewersContainer />)}
-        />
-      ) : null
-      ),
-      (!meetingIsBreakout && isMeteorConnected && dynamicGuestPolicy ? (
-        <Dropdown.DropdownListItem
-          key={this.guestPolicyId}
-          icon="user"
-          label={intl.formatMessage(intlMessages.guestPolicyLabel)}
-          data-test="guestPolicyLabel"
-          description={intl.formatMessage(intlMessages.guestPolicyDesc)}
-          onClick={() => mountModal(<GuestPolicyContainer />)}
-        />
-      ) : null
-      ),
-      (amIModerator && activityReportAccessToken != null ? (
-        <Dropdown.DropdownListItem
-          data-test="openActivityReport"
-          icon="multi_whiteboard"
-          label={intl.formatMessage(intlMessages.activityReportLabel)}
-          description={intl.formatMessage(intlMessages.activityReportDesc)}
-          key={this.activityReportId}
-          onClick={openActivityReportUrl}
-        />
-      ) : null
-      ),
-      (isMeteorConnected ? <Dropdown.DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
-      (canCreateBreakout && isMeteorConnected ? (
-        <Dropdown.DropdownListItem
-          data-test="createBreakoutRooms"
-          key={this.createBreakoutId}
-          icon="rooms"
-          label={intl.formatMessage(intlMessages.createBreakoutRoom)}
-          description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
-          onClick={this.onCreateBreakouts}
-        />
-      ) : null
-      ),
-      (canInviteUsers && isMeteorConnected ? (
-        <Dropdown.DropdownListItem
-          data-test="inviteBreakoutRooms"
-          icon="rooms"
-          label={intl.formatMessage(intlMessages.invitationItem)}
-          key={this.createBreakoutId}
-          onClick={this.onInvitationUsers}
-        />
-      ) : null
-      ),
-      (amIModerator && CaptionsService.isCaptionsEnabled() && isMeteorConnected
-        ? (
-          <Dropdown.DropdownListItem
-            icon="closed_caption"
-            label={intl.formatMessage(intlMessages.captionsLabel)}
-            description={intl.formatMessage(intlMessages.captionsDesc)}
-            key={this.captionsId}
-            onClick={this.handleCaptionsClick}
-          />
-        )
-        : null),
-    ]);
+
+    this.menuItems = [];
+    
+    if (isMeteorConnected) {
+      if (!meetingIsBreakout) {
+        this.menuItems.push({
+          key: this.muteAllId,
+          label: intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllLabel' : 'muteAllLabel']),
+          // description: intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllDesc' : 'muteAllDesc']),
+          onClick: toggleMuteAllUsers,
+          icon: isMeetingMuted ? 'unmute' : 'mute',
+        });
+
+        if (!isMeetingMuted) {
+          this.menuItems.push({
+            key: this.muteId,
+            label: intl.formatMessage(intlMessages.muteAllExceptPresenterLabel),
+            // description: intl.formatMessage(intlMessages.muteAllExceptPresenterDesc),
+            onClick: toggleMuteAllUsersExceptPresenter,
+            icon: 'mute',
+          });
+        }
+
+        this.menuItems.push({
+          key: this.lockId,
+          label: intl.formatMessage(intlMessages.lockViewersLabel),
+          // description: intl.formatMessage(intlMessages.lockViewersDesc),
+          onClick: () => mountModal(<LockViewersContainer />),
+          icon: 'lock'
+        });
+
+
+
+        if (dynamicGuestPolicy) {
+          this.menuItems.push({
+            key: this.guestPolicyId,
+            icon: "user",
+            label: intl.formatMessage(intlMessages.guestPolicyLabel),
+            // description: intl.formatMessage(intlMessages.guestPolicyDesc),
+            onClick: () => mountModal(<GuestPolicyContainer />),
+          })
+        }
+      }
+
+      if (amIModerator) {
+        this.menuItems.push({
+          key: this.saveUsersNameId,
+          label: intl.formatMessage(intlMessages.saveUserNames),
+          // description: ,
+          onClick: this.onSaveUserNames,
+          icon: 'download',
+        });
+
+        if (activityReportAccessToken != null) {
+          this.menuItems.push({
+            icon: "multi_whiteboard",
+            label: intl.formatMessage(intlMessages.activityReportLabel),
+            description: intl.formatMessage(intlMessages.activityReportDesc),
+            key: this.activityReportId,
+            onClick: openActivityReportUrl,
+          })
+        }
+      }
+
+      this.menuItems.push({
+        key: this.clearStatusId,
+        label: intl.formatMessage(intlMessages.clearAllLabel),
+        // description: intl.formatMessage(intlMessages.clearAllDesc),
+        onClick: toggleStatus,
+        icon: 'clear_status',
+        divider: true,
+      });
+
+      if (canCreateBreakout) {
+        this.menuItems.push({
+          key: this.createBreakoutId,
+          icon: "rooms",
+          label: intl.formatMessage(intlMessages.createBreakoutRoom),
+          // description: intl.formatMessage(intlMessages.createBreakoutRoomDesc),
+          onClick: this.onCreateBreakouts,
+        })
+      }
+
+      if (canInviteUsers) {
+        this.menuItems.push({
+          icon: "rooms",
+          label: intl.formatMessage(intlMessages.invitationItem),
+          key: this.createBreakoutId,
+          onClick: this.onInvitationUsers,
+        })
+      }
+
+      if (amIModerator && CaptionsService.isCaptionsEnabled()) {
+        this.menuItems.push({
+          icon: "closed_caption",
+          label: intl.formatMessage(intlMessages.captionsLabel),
+          // description: intl.formatMessage(intlMessages.captionsDesc),
+          key: this.captionsId,
+          onClick: this.handleCaptionsClick,
+        })
+      }
+    }
 
     return this.menuItems;
   }
@@ -367,15 +362,8 @@ class UserOptions extends PureComponent {
     const { intl } = this.props;
 
     return (
-      <Dropdown
-        ref={(ref) => { this.dropdown = ref; }}
-        autoFocus={false}
-        isOpen={isUserOptionsOpen}
-        onShow={this.onActionsShow}
-        onHide={this.onActionsHide}
-        className={styles.dropdown}
-      >
-        <Dropdown.DropdownTrigger tabIndex={0}>
+      <BBBMenu 
+      trigger={
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
             data-test="manageUsers"
@@ -387,18 +375,9 @@ class UserOptions extends PureComponent {
             size="sm"
             onClick={() => null}
           />
-        </Dropdown.DropdownTrigger>
-        <Dropdown.DropdownContent
-          className={styles.dropdownContent}
-          placement="right top"
-        >
-          <Dropdown.DropdownList>
-            {
-              this.renderMenuItems()
-            }
-          </Dropdown.DropdownList>
-        </Dropdown.DropdownContent>
-      </Dropdown>
+      }
+      actions={this.renderMenuItems()}
+    />
     );
   }
 }

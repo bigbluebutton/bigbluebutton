@@ -19,66 +19,76 @@
 
 package org.bigbluebutton.presentation.imp;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A wrapper class the executes an external command. 
- * 
- * See http://kylecartmell.com/?p=9
+ * A wrapper class the executes an external command.
  * 
  * @author Richard Alam
- *
+ * @author Marcel Hellkamp
  */
 public class ExternalProcessExecutor {
 	private static Logger log = LoggerFactory.getLogger(ExternalProcessExecutor.class);
-	
+	// Replace with ProcessBuilder.Redirect.DISCARD in java 9+
+	private static File DISCARD = new File(
+			System.getProperty("os.name").startsWith("Windows") ? "NUL" : "/dev/null");
+
+	/**
+	 * Run COMMAND for at most timeoutMillis while ignoring any output.
+	 * 
+	 * @deprecated The COMMAND string is split on whitespace to create an argument
+	 *             list. This won't work for arguments that contain whitespace. Use
+	 *             {@link #exec(List, Duration)} instead.
+	 * 
+	 * @param COMMAND       A single command or whitespace separated list of
+	 *                      arguments.
+	 * @param timeoutMillis Timeout in milliseconds.
+	 * @return true if the command terminated in time with an exit value of 0.
+	 */
+	@Deprecated
 	public boolean exec(String COMMAND, long timeoutMillis) {
-        Timer timer = new Timer(false);
-        Process p = null;
-        try {
-            InterruptTimerTask interrupter = new InterruptTimerTask(Thread.currentThread());
-            timer.schedule(interrupter, timeoutMillis);
-            p = Runtime.getRuntime().exec(COMMAND);
-            int result = p.waitFor();
-            if (result == 0) {
-                return true;
-            } else {
-                return false;
-            }
-
-        } catch(Exception e) {
-        	log.info("TIMEDOUT excuting : {}", COMMAND);
-        	if (p != null) {
-        	    p.destroy();
-        	}
-        } finally {
-            timer.cancel();     // If the process returns within the timeout period, we have to stop the interrupter
-                                // so that it does not unexpectedly interrupt some other code later.
-
-            Thread.interrupted();   // We need to clear the interrupt flag on the current thread just in case
-                                    // interrupter executed after waitFor had already returned but before timer.cancel
-                                    // took effect.
-                                    //
-                                    // Oh, and there's also Sun bug 6420270 to worry about here.
-        }  
-		return false;
+		return exec(Arrays.asList(COMMAND.split("[ \\t\\n\\r\\f]+")), Duration.ofMillis(timeoutMillis));
 	}
-	
 
-	class InterruptTimerTask extends TimerTask {
-	    private Thread thread;
+	/**
+	 * Run a command for a limited amount of time while ignoring any output.
+	 * 
+	 * @param cmd     List containing the program and its arguments.
+	 * @param timeout Maximum execution time.
+	 * @return true if the command terminated in time with an exit value of 0.
+	 */
+	public boolean exec(List<String> cmd, Duration timeout) {
 
-	    public InterruptTimerTask(Thread t) {
-	        this.thread = t;
-	    }
+		ProcessBuilder pb = new ProcessBuilder(cmd);
+		pb.redirectError(DISCARD);
+		pb.redirectOutput(DISCARD);
 
-	    public void run() {
-	        thread.interrupt();
-	    }
+		Process proc;
+		try {
+			proc = pb.start();
+		} catch (IOException e) {
+			log.error("Failed to execute: {}", String.join(" ", cmd), e);
+			return false;
+		}
 
+		try {
+			if (!proc.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS)) {
+				log.warn("TIMEDOUT excuting: {}", String.join(" ", cmd));
+				proc.destroy();
+			}
+			return !proc.isAlive() && proc.exitValue() == 0;
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			proc.destroy();
+			return false;
+		}
 	}
 }

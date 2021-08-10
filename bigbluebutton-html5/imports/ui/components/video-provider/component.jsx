@@ -133,7 +133,6 @@ class VideoProvider extends Component {
     this.onWsClose = this.onWsClose.bind(this);
     this.onWsMessage = this.onWsMessage.bind(this);
     this.updateStreams = this.updateStreams.bind(this);
-    this.toggleVirtualBg = this.toggleVirtualBg.bind(this)
     this.debouncedConnectStreams = _.debounce(
       this.connectStreams,
       VideoService.getPageChangeDebounceTime(),
@@ -957,28 +956,6 @@ class VideoProvider extends Component {
     }
   }
 
-  toggleVirtualBg(streamId, bbbVideoStream) {
-    if (!bbbVideoStream.isVirtualBackgroundEnabled) {
-      const { intl } = this.props;
-      const { name, type } = getSessionVirtualBackgroundInfoWithDefault();
-      bbbVideoStream.startVirtualBackground(type, name).catch(error => {
-        logger.error({
-          logCode: 'video_provider_virtualbg_error',
-          extraInfo: {
-            errorCode: error.code,
-            errorMessage: error.message,
-            cameraId: streamId,
-            virtualBgType: type,
-            virtualBgName: name,
-          },
-        }, `Failed to toggle virtual background: ${error.message}`);
-        VideoService.notify(intl.formatMessage(intlClientErrors.virtualBgGenericError));
-      });
-    } else {
-      bbbVideoStream.stopVirtualBackground();
-    }
-  }
-
   render() {
     const {
       swapLayout,
@@ -997,7 +974,6 @@ class VideoProvider extends Component {
         }}
         onVideoItemMount={this.createVideoTag}
         onVideoItemUnmount={this.destroyVideoTag}
-        toggleVirtualBg={this.toggleVirtualBg}
       />
     );
   }

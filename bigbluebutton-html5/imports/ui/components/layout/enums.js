@@ -23,11 +23,11 @@ export const CAMERADOCK_POSITION = {
 
 export const ACTIONS = {
   SET_AUTO_ARRANGE_LAYOUT: 'setAutoArrangeLayout',
+  SET_IS_RTL: 'setIsRTL',
   SET_LAYOUT_TYPE: 'setLayoutType',
   SET_DEVICE_TYPE: 'setDeviceType',
   SET_FONT_SIZE: 'setFontSize',
 
-  SET_LAYOUT_LOADED: 'setLayoutLoaded',
   SET_LAYOUT_INPUT: 'setLayoutInput',
 
   SET_SIDEBAR_NAVIGATION_PANEL: 'setSidebarNavigationPanel',

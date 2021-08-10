@@ -34,7 +34,7 @@ class Page {
 
   async getSettingsYaml() {
     try {
-      const settings = yaml.load(fs.readFileSync(path.join(__dirname, '../../../private/config/settings.yml'), 'utf8'));
+      const settings = yaml.load(fs.readFileSync(path.join(__dirname, '../../../bigbluebutton-html5/private/config/settings.yml'), 'utf8'));
       return settings;
     } catch (e) {
       console.log(e);
@@ -219,7 +219,7 @@ class Page {
     };
   }
 
-  static checkRegression(numb) {
+  static checkRegression(numb, screenshot) {
     if (process.env.REGRESSION_TESTING === 'true') {
       expect(screenshot).toMatchImageSnapshot({
         failureThreshold: numb,

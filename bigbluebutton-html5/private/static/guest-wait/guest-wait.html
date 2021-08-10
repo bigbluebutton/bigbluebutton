@@ -110,11 +110,45 @@
         });
     };
 
-    function fetchLocalizedMessages() {
+    async function fetchOverrideLocale() {
+      const token = findSessionToken();
+      let overrideLocale = false;
+
+      if (token) {
+        const sessionToken = token.split('=')[1];
+
+        // use enter api to get params for the client
+        const ENTER_ENDPOINT = `/bigbluebutton/api/enter?sessionToken=${sessionToken}`;
+        const url = new URL(`${window.location.origin}${ENTER_ENDPOINT}`);
+
+        const fetchContent = await fetch(url, { credentials: 'same-origin' });
+        const parseToJson = await fetchContent.json();
+        const { response } = parseToJson;
+
+        if (response.returncode !== 'FAILED') {
+          const { customdata } = response;
+
+          customdata.forEach((el) => {
+            const settingKey = Object.keys(el).shift();
+
+            if (settingKey === 'bbb_override_default_locale') {
+              overrideLocale = el[settingKey];
+            }
+          });
+        }
+      }
+      return overrideLocale;
+    }
+
+    async function fetchLocalizedMessages() {
       const DEFAULT_LANGUAGE = 'en';
       const LOCALES_ENDPOINT = '/html5client/locale';
       const url = new URL(`${window.location.origin}${LOCALES_ENDPOINT}`);
-      url.search = `locale=${navigator.language}`;
+      const overrideLocale = await fetchOverrideLocale();
+
+      url.search = overrideLocale
+        ? `locale=${overrideLocale}`
+        : `locale=${navigator.language}&init=true`;
 
       const localesPath = 'locales';
 

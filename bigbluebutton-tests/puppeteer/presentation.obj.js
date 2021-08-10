@@ -31,12 +31,7 @@ const presentationTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 0.81,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(0.81, screenshot);
   });
 
   test('Upload presentation', async () => {
@@ -59,12 +54,7 @@ const presentationTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    if (process.env.REGRESSION_TESTING === 'true') {
-      expect(screenshot).toMatchImageSnapshot({
-        failureThreshold: 24.62,
-        failureThresholdType: 'percent',
-      });
-    }
+    await Page.checkRegression(24.62, screenshot);
   });
 };
 module.exports = exports = presentationTest;

@@ -10,6 +10,7 @@ import { Session } from 'meteor/session';
 
 const propTypes = {
   locale: PropTypes.string,
+  overrideLocaleFromPassedParameter: PropTypes.string,
   children: PropTypes.element.isRequired,
 };
 
@@ -20,6 +21,7 @@ const LARGE_FONT_LANGUAGES = ['te', 'km'];
 
 const defaultProps = {
   locale: DEFAULT_LANGUAGE,
+  overrideLocaleFromPassedParameter: null,
 };
 
 class IntlStartup extends Component {
@@ -60,9 +62,14 @@ class IntlStartup extends Component {
 
   componentDidUpdate(prevProps) {
     const { fetching, messages, normalizedLocale } = this.state;
-    const { locale } = this.props;
-    const shouldFetch = (!fetching && _.isEmpty(messages)) || ((locale !== prevProps.locale) && (normalizedLocale && (locale !== normalizedLocale)));
-    if (shouldFetch) this.fetchLocalizedMessages(locale);
+    const { locale, overrideLocaleFromPassedParameter } = this.props;
+
+    if (overrideLocaleFromPassedParameter !== prevProps.overrideLocaleFromPassedParameter) {
+      this.fetchLocalizedMessages(overrideLocaleFromPassedParameter);
+    } else {
+      const shouldFetch = (!fetching && _.isEmpty(messages)) || ((locale !== prevProps.locale) && (normalizedLocale && (locale !== normalizedLocale)));
+      if (shouldFetch) this.fetchLocalizedMessages(locale);
+    }
   }
 
   fetchLocalizedMessages(locale, init = false) {

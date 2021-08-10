@@ -1,33 +1,55 @@
 import { Meteor } from 'meteor/meteor';
 import Logger from '/imports/startup/server/logger';
+import Users from '/imports/api/users';
 import Polls from '/imports/api/polls';
-import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
+import AuthTokenValidation, {
+  ValidationStates,
+} from '/imports/api/auth-token-validation';
+
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 function currentPoll(secretPoll) {
-  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+  const tokenValidation = AuthTokenValidation.findOne({
+    connectionId: this.connection.id,
+  });
 
-  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
-    Logger.warn(`Publishing Polls was requested by unauth connection ${this.connection.id}`);
+  if (
+    !tokenValidation ||
+    tokenValidation.validationStatus !== ValidationStates.VALIDATED
+  ) {
+    Logger.warn(
+      `Publishing Polls was requested by unauth connection ${this.connection.id}`
+    );
     return Polls.find({ meetingId: '' });
   }
 
   const { meetingId, userId } = tokenValidation;
 
-  Logger.debug('Publishing Polls', { meetingId, userId });
+  const User = Users.findOne({ userId, meetingId }, { fields: { role: 1, presenter: 1 } });
 
-  const selector = {
-    meetingId,
-  };
+  if (!!User && (User.role === ROLE_MODERATOR || User.presenter)) {
+    Logger.debug('Publishing Polls', { meetingId, userId });
 
-  const options = { fields: {} };
+    const selector = {
+      meetingId,
+    };
 
-  const hasPoll = Polls.findOne(selector);
+    const options = { fields: {} };
 
-  if ((hasPoll && hasPoll.secretPoll) || secretPoll) {
-    options.fields.responses = 0;
+    const hasPoll = Polls.findOne(selector);
+
+    if ((hasPoll && hasPoll.secretPoll) || secretPoll) {
+      options.fields.responses = 0;
+    }
+
+    return Polls.find(selector, options);
   }
 
-  return Polls.find(selector, options);
+  Logger.warn(
+    'Publishing current-poll was requested by non-moderator connection',
+    { meetingId, userId, connectionId: this.connection.id },
+  );
+  return Polls.find({ meetingId: '' });
 }
 
 function publishCurrentPoll(...args) {
@@ -38,10 +60,17 @@ function publishCurrentPoll(...args) {
 Meteor.publish('current-poll', publishCurrentPoll);
 
 function polls() {
-  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+  const tokenValidation = AuthTokenValidation.findOne({
+    connectionId: this.connection.id,
+  });
 
-  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
-    Logger.warn(`Publishing Polls was requested by unauth connection ${this.connection.id}`);
+  if (
+    !tokenValidation ||
+    tokenValidation.validationStatus !== ValidationStates.VALIDATED
+  ) {
+    Logger.warn(
+      `Publishing Polls was requested by unauth connection ${this.connection.id}`
+    );
     return Polls.find({ meetingId: '' });
   }
 

@@ -11,7 +11,6 @@ import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import PollingContainer from '/imports/ui/components/polling/container';
 import { notify } from '/imports/ui/services/notification';
-import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import {
   SCREENSHARE_MEDIA_ELEMENT_NAME,
   screenshareHasEnded,
@@ -58,6 +57,14 @@ const intlMessages = defineMessages({
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
 class ScreenshareComponent extends React.Component {
+  static renderScreenshareContainerInside(mainText) {
+    return (
+      <div className={styles.screenshareContainerInside}>
+        <h1 className={styles.mainText}>{mainText}</h1>
+      </div>
+    );
+  }
+
   constructor() {
     super();
     this.state = {
@@ -106,46 +113,17 @@ class ScreenshareComponent extends React.Component {
       getSwapLayout,
       shouldEnableSwapLayout,
       toggleSwapLayout,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
       intl,
     } = this.props;
     const layoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
-    if (layoutSwapped) toggleSwapLayout(newLayoutContextDispatch);
+    if (layoutSwapped) toggleSwapLayout(layoutContextDispatch);
     screenshareHasEnded();
     this.screenshareContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     unsubscribeFromStreamStateChange('screenshare', this.onStreamStateChange);
 
     notify(intl.formatMessage(intlMessages.screenshareEnded), 'info', 'desktop');
-  }
-
-  onStreamStateChange(event) {
-    const { streamState } = event.detail;
-    const { isStreamHealthy } = this.state;
-
-    const newHealthState = !isStreamStateUnhealthy(streamState);
-    event.stopPropagation();
-    if (newHealthState !== isStreamHealthy) {
-      this.setState({ isStreamHealthy: newHealthState });
-    }
-  }
-
-  onLoadedData() {
-    this.setState({ loaded: true });
-  }
-
-  onSwitched() {
-    this.setState(prevState => ({ switched: !prevState.switched }));
-  }
-
-  onFullscreenChange() {
-    const { layoutContextDispatch } = this.props;
-    const { isFullscreen } = this.state;
-    const newIsFullscreen = FullscreenService.isFullScreen(this.screenshareContainer);
-    if (isFullscreen !== newIsFullscreen) {
-      this.setState({ isFullscreen: newIsFullscreen });
-      layoutContextDispatch({ type: 'setScreenShareFullscreen', value: newIsFullscreen });
-    }
   }
 
   handleAllowAutoplay() {
@@ -186,6 +164,33 @@ class ScreenshareComponent extends React.Component {
       }, 'Prompting user for action to play screenshare media');
 
       this.setState({ autoplayBlocked: true });
+    }
+  }
+
+  onStreamStateChange(event) {
+    const { streamState } = event.detail;
+    const { isStreamHealthy } = this.state;
+
+    const newHealthState = !isStreamStateUnhealthy(streamState);
+    event.stopPropagation();
+    if (newHealthState !== isStreamHealthy) {
+      this.setState({ isStreamHealthy: newHealthState });
+    }
+  }
+
+  onLoadedData() {
+    this.setState({ loaded: true });
+  }
+
+  onSwitched() {
+    this.setState((prevState) => ({ switched: !prevState.switched }));
+  }
+
+  onFullscreenChange() {
+    const { isFullscreen } = this.state;
+    const newIsFullscreen = FullscreenService.isFullScreen(this.screenshareContainer);
+    if (isFullscreen !== newIsFullscreen) {
+      this.setState({ isFullscreen: newIsFullscreen });
     }
   }
 
@@ -253,17 +258,8 @@ class ScreenshareComponent extends React.Component {
     );
   }
 
-  renderScreenshareContainerInside(mainText) {
-
-    return (
-      <div className={styles.screenshareContainerInside}>
-        <h1 className={styles.mainText}>{mainText}</h1>
-      </div>
-    );
-  }
-
   renderScreensharePresenter() {
-    const { loaded, switched } = this.state;
+    const { switched } = this.state;
     const { isGloballyBroadcasting, intl } = this.props;
 
     return (
@@ -272,17 +268,22 @@ class ScreenshareComponent extends React.Component {
         key="screenshareContainer"
         ref={(ref) => { this.screenshareContainer = ref; }}
       >
-        {loaded && this.renderSwitchButton()}
+        {isGloballyBroadcasting && this.renderSwitchButton()}
         {this.renderVideo(switched)}
 
-        {isGloballyBroadcasting
-          ? (
-            <div>
-              {!switched
-                && this.renderScreenshareContainerInside(intl.formatMessage(intlMessages.presenterSharingLabel))}
-            </div>
-          )
-          : this.renderScreenshareContainerInside(intl.formatMessage(intlMessages.presenterLoadingLabel))
+        {
+          isGloballyBroadcasting
+            ? (
+              <div>
+                {!switched
+                  && ScreenshareComponent.renderScreenshareContainerInside(
+                    intl.formatMessage(intlMessages.presenterSharingLabel),
+                  )}
+              </div>
+            )
+            : ScreenshareComponent.renderScreenshareContainerInside(
+              intl.formatMessage(intlMessages.presenterLoadingLabel),
+            )
         }
       </div>
     );
@@ -308,11 +309,12 @@ class ScreenshareComponent extends React.Component {
         {this.renderVideo(true)}
 
         <div className={styles.screenshareContainerDefault}>
-          {!loaded
-            ? this.renderScreenshareContainerInside(
-              intl.formatMessage(intlMessages.viewerLoadingLabel),
-            )
-            : null
+          {
+            !loaded
+              ? ScreenshareComponent.renderScreenshareContainerInside(
+                intl.formatMessage(intlMessages.viewerLoadingLabel),
+              )
+              : null
           }
         </div>
       </div>
@@ -326,10 +328,10 @@ class ScreenshareComponent extends React.Component {
       isGloballyBroadcasting,
       top,
       left,
+      right,
       width,
       height,
       zIndex,
-      layoutLoaded,
     } = this.props;
 
     // Conditions to render the (re)connecting dots and the unhealthy stream
@@ -340,25 +342,21 @@ class ScreenshareComponent extends React.Component {
     // state transitioned to an unhealthy stream. tl;dr: screen sharing reconnection
     const shouldRenderConnectingState = !loaded
       || (isPresenter && !isGloballyBroadcasting)
-      || !isStreamHealthy && loaded && isGloballyBroadcasting;
+      || (!isStreamHealthy && loaded && isGloballyBroadcasting);
 
     return (
       <div
         style={
-          layoutLoaded === 'new'
-            ? {
-              position: 'absolute',
-              top,
-              left,
-              height,
-              width,
-              zIndex,
-              backgroundColor: '#06172A',
-            }
-            : {
-              height: '100%',
-              width: '100%',
-            }
+          {
+            position: 'absolute',
+            top,
+            left,
+            right,
+            height,
+            width,
+            zIndex,
+            backgroundColor: '#06172A',
+          }
         }
       >
         {(shouldRenderConnectingState)
@@ -382,9 +380,11 @@ class ScreenshareComponent extends React.Component {
   }
 }
 
-export default injectIntl(withLayoutConsumer(ScreenshareComponent));
+export default injectIntl(ScreenshareComponent);
 
 ScreenshareComponent.propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   isPresenter: PropTypes.bool.isRequired,
 };
