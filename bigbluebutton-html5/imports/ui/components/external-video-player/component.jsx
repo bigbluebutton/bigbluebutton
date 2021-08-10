@@ -464,6 +464,7 @@ class VideoPlayer extends Component {
       intl,
       top,
       left,
+      right,
       height,
       width,
     } = this.props;
@@ -485,6 +486,7 @@ class VideoPlayer extends Component {
           position: 'absolute',
           top,
           left,
+          right,
           height,
           width,
         }}
