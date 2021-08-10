@@ -646,6 +646,8 @@
     "app.connection-status.description": "View users' connection status",
     "app.connection-status.empty": "There are currently no reported connection issues",
     "app.connection-status.more": "more",
+    "app.connection-status.copy": "Copy network data",
+    "app.connection-status.copied": "Copied!",
     "app.connection-status.label": "Connection status",
     "app.connection-status.notification": "Loss in your connection was detected",
     "app.connection-status.offline": "offline",

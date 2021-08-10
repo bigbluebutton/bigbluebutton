@@ -30,6 +30,14 @@ const intlMessages = defineMessages({
     id: 'app.connection-status.more',
     description: 'More about conectivity issues',
   },
+  copy: {
+    id: 'app.connection-status.copy',
+    description: 'Copy network data',
+  },
+  copied: {
+    id: 'app.connection-status.copied',
+    description: 'Copied network data',
+  },
   offline: {
     id: 'app.connection-status.offline',
     description: 'Offline user',
@@ -119,6 +127,9 @@ class ConnectionStatusComponent extends PureComponent {
           : intl.formatMessage(intlMessages.off)}
       </span>
     );
+  }
+
+  async copyNetworkData(e) {
   }
 
   renderConnections() {
@@ -282,6 +293,15 @@ class ConnectionStatusComponent extends PureComponent {
                 </a>
               )
             }
+          </div>
+          <div
+            className={styles.copy}
+            role="button"
+            onClick={this.copyNetworkData.bind(this)}
+            onKeyPress={this.copyNetworkData.bind(this)}
+            tabIndex={0}
+          >
+            {intl.formatMessage(intlMessages.copy)}
           </div>
           {this.renderDataSaving()}
           <div className={styles.content}>

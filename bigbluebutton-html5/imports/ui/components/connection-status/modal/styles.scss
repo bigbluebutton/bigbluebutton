@@ -42,7 +42,7 @@
 .description {
   text-align: center;
   color: var(--color-gray);
-  margin-bottom: var(--jumbo-padding-y)
+  margin-bottom: var(--sm-padding-y)
 }
 
 .label {
@@ -131,6 +131,13 @@
       height: 2.05rem;
     }
   }
+}
+
+.copy {
+  display: flex;
+  float: right;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .right {
