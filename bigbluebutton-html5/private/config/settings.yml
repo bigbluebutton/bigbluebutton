@@ -46,6 +46,7 @@ public:
     enableGuestLobbyMessage: true
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
+    enableWebcamEmojiButton: false
     enableTalkingIndicator: true
     mirrorOwnWebcam: false
     viewersInWebcam: 8

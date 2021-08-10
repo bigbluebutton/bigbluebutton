@@ -718,6 +718,7 @@
     "app.video.joinVideo": "Share webcam",
     "app.video.connecting": "Webcam sharing is starting ...",
     "app.video.leaveVideo": "Stop sharing webcam",
+    "app.video.advancedVideo": "Open advanced settings",
     "app.video.iceCandidateError": "Error on adding ICE candidate",
     "app.video.iceConnectionStateError": "Connection failure (ICE error 1107)",
     "app.video.permissionError": "Error on sharing webcam.  Please check permissions",
