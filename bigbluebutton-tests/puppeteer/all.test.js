@@ -1,6 +1,6 @@
 const audioTest = require('./audio.obj');
-const chatTest = require('./chat.obj');
 const breakoutTest = require('./breakout.obj');
+const chatTest = require('./chat.obj');
 const customParametersTest = require('./customparameters.obj');
 const notificationsTest = require('./notifications.obj');
 const pollingTest = require('./polling.obj');
