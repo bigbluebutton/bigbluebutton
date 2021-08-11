@@ -315,7 +315,9 @@ class InputStreamLiveSelector extends Component {
           </Button>
         </Dropdown.DropdownTrigger>
         <Dropdown.DropdownContent className={styles.dropdownContent}>
-          <Dropdown.DropdownList className={cx(styles.scrollableList, styles.dropdownListContainer)}>
+          <Dropdown.DropdownList
+            className={cx(styles.scrollableList, styles.dropdownListContainer)}
+          >
             {dropdownListComplete}
           </Dropdown.DropdownList>
         </Dropdown.DropdownContent>

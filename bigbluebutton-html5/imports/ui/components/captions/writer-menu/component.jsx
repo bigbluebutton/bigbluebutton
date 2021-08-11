@@ -116,9 +116,10 @@ class WriterMenu extends PureComponent {
           </h3>
         </header>
         <div className={styles.content}>
-          <label>
+          <span>
             {intl.formatMessage(intlMessages.subtitle)}
-          </label>
+          </span>
+          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
           <label
             aria-hidden
             htmlFor="captionsLangSelector"

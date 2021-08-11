@@ -17,7 +17,7 @@ const MessageFormContainer = (props) => {
     return ChatService.sendGroupMessage(message, idChatOpen);
   };
   const startUserTyping = _.throttle(
-    chatId => makeCall('startUserTyping', chatId),
+    (chatId) => makeCall('startUserTyping', chatId),
     START_TYPING_THROTTLE_INTERVAL,
   );
   const stopUserTyping = () => makeCall('stopUserTyping');

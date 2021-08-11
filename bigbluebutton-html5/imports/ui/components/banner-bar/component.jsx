@@ -4,11 +4,13 @@ import NotificationsBar from '/imports/ui/components/notifications-bar/component
 import { styles } from './styles';
 import { ACTIONS } from '../layout/enums';
 
-const BannerBar = ({ text, color, hasBanner: propsHasBanner, layoutContextDispatch }) => {
+const BannerBar = ({
+  text, color, hasBanner: propsHasBanner, layoutContextDispatch,
+}) => {
   useEffect(() => {
     const localHasBanner = !!text;
 
-    if(localHasBanner !== propsHasBanner){
+    if (localHasBanner !== propsHasBanner) {
       layoutContextDispatch({
         type: ACTIONS.SET_HAS_BANNER_BAR,
         value: localHasBanner,
@@ -25,7 +27,7 @@ const BannerBar = ({ text, color, hasBanner: propsHasBanner, layoutContextDispat
       </span>
     </NotificationsBar>
   );
-}
+};
 
 BannerBar.propTypes = {
   text: PropTypes.string.isRequired,

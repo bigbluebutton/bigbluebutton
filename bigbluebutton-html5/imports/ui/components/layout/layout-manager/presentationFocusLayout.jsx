@@ -51,14 +51,6 @@ class PresentationFocusLayout extends Component {
     }
   }
 
-  mainWidth() {
-    return window.document.documentElement.clientWidth;
-  }
-
-  mainHeight() {
-    return window.document.documentElement.clientHeight;
-  }
-
   bannerAreaHeight() {
     const { layoutContextState } = this.props;
     const { input } = layoutContextState;
@@ -176,7 +168,7 @@ class PresentationFocusLayout extends Component {
       height: actionBarHeight.height,
       innerHeight: actionBarHeight.innerHeight,
       padding: actionBarHeight.padding,
-      top: this.mainHeight() - actionBarHeight.height,
+      top: windowHeight() - actionBarHeight.height,
       left: !isRTL ? mediaAreaBounds.left : 0,
       zIndex: 1,
     };
@@ -194,12 +186,12 @@ class PresentationFocusLayout extends Component {
     let maxWidth = 0;
     if (input.sidebarNavigation.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
-        minWidth = this.mainWidth();
-        width = this.mainWidth();
-        maxWidth = this.mainWidth();
+        minWidth = windowWidth();
+        width = windowWidth();
+        maxWidth = windowWidth();
       } else {
         if (input.sidebarNavigation.width === 0) {
-          width = min(max((this.mainWidth() * 0.2), sidebarNavMinWidth), sidebarNavMaxWidth);
+          width = min(max((windowWidth() * 0.2), sidebarNavMinWidth), sidebarNavMaxWidth);
         } else {
           width = min(max(input.sidebarNavigation.width, sidebarNavMinWidth), sidebarNavMaxWidth);
         }
@@ -221,9 +213,9 @@ class PresentationFocusLayout extends Component {
     let sidebarNavHeight = 0;
     if (input.sidebarNavigation.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
-        sidebarNavHeight = this.mainHeight() - navBarHeight - this.bannerAreaHeight();
+        sidebarNavHeight = windowHeight() - navBarHeight - this.bannerAreaHeight();
       } else {
-        sidebarNavHeight = this.mainHeight() - this.bannerAreaHeight();
+        sidebarNavHeight = windowHeight() - this.bannerAreaHeight();
       }
     }
     return sidebarNavHeight;
@@ -258,13 +250,13 @@ class PresentationFocusLayout extends Component {
     let maxWidth = 0;
     if (input.sidebarContent.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
-        minWidth = this.mainWidth();
-        width = this.mainWidth();
-        maxWidth = this.mainWidth();
+        minWidth = windowWidth();
+        width = windowWidth();
+        maxWidth = windowWidth();
       } else {
         if (input.sidebarContent.width === 0) {
           width = min(
-            max((this.mainWidth() * 0.2), sidebarContentMinWidth), sidebarContentMaxWidth,
+            max((windowWidth() * 0.2), sidebarContentMinWidth), sidebarContentMaxWidth,
           );
         } else {
           width = min(max(input.sidebarContent.width, sidebarContentMinWidth),
@@ -293,20 +285,20 @@ class PresentationFocusLayout extends Component {
     let maxHeight = 0;
     if (input.sidebarContent.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
-        height = this.mainHeight() - navBarHeight - this.bannerAreaHeight();
+        height = windowHeight() - navBarHeight - this.bannerAreaHeight();
         minHeight = height;
         maxHeight = height;
       } else if (input.cameraDock.numCameras > 0) {
         if (input.sidebarContent.height === 0) {
-          height = (this.mainHeight() * 0.75) - this.bannerAreaHeight();
+          height = (windowHeight() * 0.75) - this.bannerAreaHeight();
         } else {
           height = min(max(input.sidebarContent.height, sidebarContentMinHeight),
-            this.mainHeight());
+            windowHeight());
         }
-        minHeight = this.mainHeight() * 0.25 - this.bannerAreaHeight();
-        maxHeight = this.mainHeight() * 0.75 - this.bannerAreaHeight();
+        minHeight = windowHeight() * 0.25 - this.bannerAreaHeight();
+        maxHeight = windowHeight() * 0.75 - this.bannerAreaHeight();
       } else {
-        height = this.mainHeight() - this.bannerAreaHeight();
+        height = windowHeight() - this.bannerAreaHeight();
         minHeight = height;
         maxHeight = height;
       }
@@ -351,15 +343,15 @@ class PresentationFocusLayout extends Component {
     let width = 0;
     if (deviceType === DEVICE_TYPE.MOBILE) {
       left = 0;
-      width = this.mainWidth();
+      width = windowWidth();
     } else {
       left = !isRTL ? sidebarNavWidth + sidebarContentWidth : 0;
-      width = this.mainWidth() - sidebarNavWidth - sidebarContentWidth;
+      width = windowWidth() - sidebarNavWidth - sidebarContentWidth;
     }
 
     return {
       width,
-      height: this.mainHeight() - (navBarHeight + actionBarHeight + this.bannerAreaHeight()),
+      height: windowHeight() - (navBarHeight + actionBarHeight + this.bannerAreaHeight()),
       top: navBarHeight + this.bannerAreaHeight(),
       left,
     };
@@ -408,16 +400,16 @@ class PresentationFocusLayout extends Component {
       } else {
         if (input.cameraDock.height === 0) {
           cameraDockHeight = min(
-            max((this.mainHeight() - sidebarContentHeight), DEFAULT_VALUES.cameraDockMinHeight),
-            (this.mainHeight() - DEFAULT_VALUES.cameraDockMinHeight),
+            max((windowHeight() - sidebarContentHeight), DEFAULT_VALUES.cameraDockMinHeight),
+            (windowHeight() - DEFAULT_VALUES.cameraDockMinHeight),
           );
         } else {
           cameraDockHeight = min(
             max(input.cameraDock.height, DEFAULT_VALUES.cameraDockMinHeight),
-            (this.mainHeight() - DEFAULT_VALUES.cameraDockMinHeight),
+            (windowHeight() - DEFAULT_VALUES.cameraDockMinHeight),
           );
         }
-        cameraDockBounds.top = this.mainHeight() - cameraDockHeight;
+        cameraDockBounds.top = windowHeight() - cameraDockHeight;
         cameraDockBounds.left = !isRTL ? sidebarNavWidth : 0;
         cameraDockBounds.right = isRTL ? sidebarNavWidth : 0;
         cameraDockBounds.minWidth = sidebarContentWidth;
@@ -425,7 +417,7 @@ class PresentationFocusLayout extends Component {
         cameraDockBounds.maxWidth = sidebarContentWidth;
         cameraDockBounds.minHeight = DEFAULT_VALUES.cameraDockMinHeight;
         cameraDockBounds.height = cameraDockHeight;
-        cameraDockBounds.maxHeight = this.mainHeight() - sidebarContentHeight;
+        cameraDockBounds.maxHeight = windowHeight() - sidebarContentHeight;
         cameraDockBounds.zIndex = 1;
       }
     } else {
@@ -444,8 +436,8 @@ class PresentationFocusLayout extends Component {
     const { element: fullscreenElement } = fullscreen;
 
     if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
-      mediaBounds.width = this.mainWidth();
-      mediaBounds.height = this.mainHeight();
+      mediaBounds.width = windowWidth();
+      mediaBounds.height = windowHeight();
       mediaBounds.top = 0;
       mediaBounds.left = !isRTL ? 0 : null;
       mediaBounds.right = isRTL ? 0 : null;

@@ -16,7 +16,9 @@ import AudioDial from '../audio-dial/component';
 import AudioAutoplayPrompt from '../autoplay/component';
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   closeModal: PropTypes.func.isRequired,
   joinMicrophone: PropTypes.func.isRequired,
   joinListenOnly: PropTypes.func.isRequired,
@@ -173,13 +175,18 @@ class AudioModal extends Component {
 
       if (joinFullAudioImmediately && !listenOnlyMode) return this.handleJoinMicrophone();
     }
+    return false;
   }
 
   componentDidUpdate(prevProps) {
     const { autoplayBlocked, closeModal } = this.props;
 
     if (autoplayBlocked !== prevProps.autoplayBlocked) {
-      autoplayBlocked ? this.setState({ content: 'autoplayBlocked' }) : closeModal();
+      if (autoplayBlocked) {
+        this.setContent('autoplayBlocked');
+      } else {
+        closeModal();
+      }
     }
   }
 
@@ -244,7 +251,7 @@ class AudioModal extends Component {
       disableActions,
     } = this.state;
 
-    if (disableActions && isConnecting) return;
+    if (disableActions && isConnecting) return null;
 
     this.setState({
       hasError: false,
@@ -292,7 +299,7 @@ class AudioModal extends Component {
       disableActions,
     } = this.state;
 
-    if (disableActions && isConnecting) return;
+    if (disableActions && isConnecting) return null;
 
     this.setState({
       disableActions: true,
@@ -333,6 +340,10 @@ class AudioModal extends Component {
         disableActions: false,
       });
     }).catch(this.handleGoToAudioOptions);
+  }
+
+  setContent(content) {
+    this.setState(content);
   }
 
   skipAudioOptions() {
@@ -377,7 +388,11 @@ class AudioModal extends Component {
                 circle
                 size="jumbo"
                 disabled={audioLocked}
-                onClick={joinFullAudioImmediately ? this.handleJoinMicrophone : this.handleGoToEchoTest}
+                onClick={
+                  joinFullAudioImmediately
+                    ? this.handleJoinMicrophone
+                    : this.handleGoToEchoTest
+                }
               />
             )
             : null}
@@ -430,16 +445,18 @@ class AudioModal extends Component {
           <div className={styles.text}>
             {intl.formatMessage(intlMessages.iOSErrorRecommendation)}
           </div>
-        </div>);
+        </div>
+      );
     }
 
     if (this.skipAudioOptions()) {
       return (
         <div className={styles.connecting} role="alert">
           <span data-test={!isEchoTest ? 'connecting' : 'connectingToEchoTest'}>
-            {!isEchoTest
-              ? intl.formatMessage(intlMessages.connecting)
-              : intl.formatMessage(intlMessages.connectingEchoTest)
+            {
+              !isEchoTest
+                ? intl.formatMessage(intlMessages.connecting)
+                : intl.formatMessage(intlMessages.connectingEchoTest)
             }
           </span>
           <span className={styles.connectingAnimation} />
@@ -556,25 +573,26 @@ class AudioModal extends Component {
               />
             </p>
           ) : null}
-          {!this.skipAudioOptions()
-            ? (
-              <header
-                data-test="audioModalHeader"
-                className={styles.header}
-              >
-                {
-                  isIOSChrome ? null
-                    : (
-                      <h2 className={styles.title}>
-                        {content
-                          ? intl.formatMessage(this.contents[content].title)
-                          : intl.formatMessage(intlMessages.audioChoiceLabel)}
-                      </h2>
-                    )
-                }
-              </header>
-            )
-            : null
+          {
+            !this.skipAudioOptions()
+              ? (
+                <header
+                  data-test="audioModalHeader"
+                  className={styles.header}
+                >
+                  {
+                    isIOSChrome ? null
+                      : (
+                        <h2 className={styles.title}>
+                          {content
+                            ? intl.formatMessage(this.contents[content].title)
+                            : intl.formatMessage(intlMessages.audioChoiceLabel)}
+                        </h2>
+                      )
+                  }
+                </header>
+              )
+              : null
           }
           <div className={styles.content}>
             {this.renderContent()}

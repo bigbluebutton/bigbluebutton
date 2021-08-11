@@ -14,5 +14,5 @@ const WriterMenuContainer = (props) => {
 export default withModalMounter(withTracker(({ mountModal }) => ({
   closeModal: () => mountModal(null),
   allLocales: CaptionsService.getAvailableLocales(),
-  takeOwnership: locale => CaptionsService.takeOwnership(locale),
+  takeOwnership: (locale) => CaptionsService.takeOwnership(locale),
 }))(WriterMenuContainer));
