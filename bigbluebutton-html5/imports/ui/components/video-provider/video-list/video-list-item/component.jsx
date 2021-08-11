@@ -4,7 +4,8 @@ import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import cx from 'classnames';
-import Dropdown from '/imports/ui/components/dropdown/component';
+import BBBMenu from "/imports/ui/components/menu/component";
+import ListItem from "@material-ui/core/ListItem";
 import Icon from '/imports/ui/components/icon/component';
 import FullscreenService from '/imports/ui/components/fullscreen-button/service';
 import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
@@ -118,12 +119,27 @@ class VideoListItem extends Component {
       cameraId,
       name,
     } = this.props;
-
-    return _.compact([
-      <Dropdown.DropdownListTitle className={styles.hiddenDesktop} key="name">{name}</Dropdown.DropdownListTitle>,
-      <Dropdown.DropdownListSeparator className={styles.hiddenDesktop} key="sep" />,
-      ...actions.map((action) => (<Dropdown.DropdownListItem key={`${cameraId}-${action.actionName}`} {...action} />)),
-    ]);
+    const MAX_WIDTH = 640;
+    const fullWidthMenu = window.innerWidth < MAX_WIDTH;
+    const menuItems = [];
+    if (fullWidthMenu) menuItems.push({
+      key: `${cameraId}-${name}`,
+      label: name,
+      onClick: () => {},
+      disabled: true,
+    })
+    actions?.map((a, i) => {
+        let topDivider = false;
+        if (i === 0 && fullWidthMenu) topDivider = true;
+        menuItems.push({
+          key: `${cameraId}-${a?.actionName}`,
+          label: a?.actionName,
+          description: a?.description,
+          onClick: a?.onClick,
+          dividerTop: topDivider,
+        });
+    });
+    return menuItems
   }
 
   updateOrientation() {
@@ -225,18 +241,22 @@ class VideoListItem extends Component {
         {videoIsReady
           && (
             <div className={styles.info}>
-              {enableVideoMenu && availableActions.length >= 3
+              {enableVideoMenu && availableActions.length >= 1
                 ? (
-                  <Dropdown tethered={isTethered} placement="right bottom" className={isFirefox ? styles.dropdownFireFox : styles.dropdown}>
-                    <Dropdown.DropdownTrigger className={styles.dropdownTrigger}>
-                      <span>{name}</span>
-                    </Dropdown.DropdownTrigger>
-                    <Dropdown.DropdownContent placement="top left" className={styles.dropdownContent}>
-                      <Dropdown.DropdownList className={styles.dropdownList}>
-                        {availableActions}
-                      </Dropdown.DropdownList>
-                    </Dropdown.DropdownContent>
-                  </Dropdown>
+                  <BBBMenu
+                    trigger={<div className={styles.dropdownTrigger}><span>{name}</span></div>}
+                    actions={this.getAvailableActions()}
+                    opts={{
+                      id: "default-dropdown-menu",
+                      keepMounted: true,
+                      transitionDuration: 0,
+                      elevation: 3,
+                      getContentAnchorEl: null,
+                      fullwidth: "true",
+                      anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
+                      transformorigin: { vertical: 'bottom', horizontal: 'left' },
+                    }}
+                  />                  
                 )
                 : (
                   <div className={isFirefox ? styles.dropdownFireFox

@@ -302,6 +302,7 @@ class SettingsDropdown extends PureComponent {
     return (
    
       <BBBMenu
+        classes={[styles.offsetTop]}
         accessKey={OPEN_OPTIONS_AK}
         trigger={
           <Button

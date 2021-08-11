@@ -271,6 +271,7 @@ class ActionsDropdown extends PureComponent {
 
     return (
       <BBBMenu
+        classes={[styles.offsetBottom]}
         accessKey={OPEN_ACTIONS_AK}
         trigger={
           <Button
@@ -287,6 +288,7 @@ class ActionsDropdown extends PureComponent {
         }
         actions={children}
         opts={{
+          disablePortal: true,
           id: "default-dropdown-menu",
           keepMounted: true,
           transitionDuration: 0,

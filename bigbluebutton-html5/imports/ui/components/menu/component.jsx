@@ -52,18 +52,19 @@ class BBBMenu extends React.Component {
     const { actions, selectedEmoji } = this.props;
 
     return actions?.map(a => {
-      const { label, onClick, key } = a;
+      const { label, onClick, key, disabled } = a;
       const itemClasses = [styles.menuitem, a?.className];
 
       if (key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase())) itemClasses.push(styles.emojiSelected);
 
       return [
-        a.dividerTop && <Divider />,  
+        a.dividerTop && <Divider disabled />,  
         <MenuItem
           key={label}
           className={itemClasses.join(' ')}
           disableRipple={true}
           disableGutters={true}
+          disabled={disabled}
           style={{ paddingLeft: '4px',paddingRight: '4px',paddingTop: '8px', paddingBottom: '8px', marginLeft: '4px', marginRight: '4px' }}
           onClick={() => { 
             onClick();
@@ -77,17 +78,17 @@ class BBBMenu extends React.Component {
             {a.iconRight ? <Icon iconName={a.iconRight} key="iconRight" className={styles.iRight} /> : null}
           </div>
         </MenuItem>,
-        a.divider && <Divider />  
+        a.divider && <Divider disabled />  
       ];
     });
   }
 
   render() {
     const { anchorEl } = this.state;
-    const { trigger, intl, opts, wide } = this.props;
+    const { trigger, intl, opts, wide, classes } = this.props;
     const actionsItems = this.makeMenuItems();
-
-    const menuClasses = [styles.menu];
+    const menuClasses = classes || [];
+    menuClasses.push(styles.menu);
     if (wide) menuClasses.push(styles.wide);
 
     return (
@@ -146,6 +147,7 @@ BBBMenu.propTypes = {
     onClick: PropTypes.func.isRequired,
     icon: PropTypes.string,
     iconRight: PropTypes.string,
+    disabled: PropTypes.bool, 
     divider: PropTypes.bool,
     dividerTop: PropTypes.bool,
     accessKey: PropTypes.string,
