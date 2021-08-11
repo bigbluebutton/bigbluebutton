@@ -769,6 +769,7 @@
     "app.createBreakoutRoom.ariaTitle": "Gruppenräume verbergen",
     "app.createBreakoutRoom.breakoutRoomLabel": "Gruppenräume {0}",
     "app.createBreakoutRoom.generatingURL": "Erzeuge URL",
+    "app.createBreakoutRoom.generatingURLMessage": "Wir generieren eine Teilnahme-URL für den ausgewählten Gruppenraum. Das kann ein paar Sekunden dauern...",
     "app.createBreakoutRoom.generatedURL": "Erzeugt",
     "app.createBreakoutRoom.duration": "Dauer {0}",
     "app.createBreakoutRoom.room": "Raum {0}",
