@@ -21,9 +21,10 @@ const WebcamContainer = ({
   const layoutContext = useContext(LayoutContext);
   const { layoutContextState, layoutContextDispatch } = layoutContext;
   const { fullscreen, output, input, isRTL } = layoutContextState;
-  const { cameraDock } = output;
+  const { cameraDock, presentation } = output;
   const { cameraDock: cameraDockInput } = input;
   const { cameraOptimalGridSize } = cameraDockInput;
+  const { display: displayPresentation } = presentation;
 
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
@@ -42,6 +43,7 @@ const WebcamContainer = ({
           layoutContextDispatch,
           fullscreen,
           isPresenter: currentUser.presenter,
+          displayPresentation,
           isRTL,
         }}
       />

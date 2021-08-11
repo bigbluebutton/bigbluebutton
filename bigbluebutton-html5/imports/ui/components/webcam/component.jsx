@@ -14,6 +14,7 @@ const WebcamComponent = ({
   layoutContextDispatch,
   fullscreen,
   isPresenter,
+  displayPresentation,
   cameraOptimalGridSize: cameraSize,
   isRTL,
 }) => {
@@ -83,7 +84,7 @@ const WebcamComponent = ({
       );
       Storage.setItem('webcamSize', { width: newCameraMaxWidth, height: lastHeight });
     }
-  }, [cameraDock.position, isPresenter]);
+  }, [cameraDock.position, isPresenter, displayPresentation]);
 
   const onResizeHandle = (deltaWidth, deltaHeight) => {
     if (cameraDock.resizableEdge.top || cameraDock.resizableEdge.bottom) {
