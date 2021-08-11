@@ -16,6 +16,7 @@ import {
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { ACTIONS } from '/imports/ui/components/layout/enums';
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
@@ -70,13 +71,28 @@ class VideoListItem extends Component {
   }
 
   componentWillUnmount() {
-    const { cameraId, onVideoItemUnmount } = this.props;
+    const {
+      cameraId,
+      onVideoItemUnmount,
+      isFullscreenContext,
+      layoutContextDispatch,
+    } = this.props;
 
     this.videoTag.removeEventListener('loadeddata', this.setVideoIsReady);
     this.videoContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
     unsubscribeFromStreamStateChange(cameraId, this.onStreamStateChange);
     onVideoItemUnmount(cameraId);
     window.removeEventListener('resize', this.updateOrientation);
+
+    if (isFullscreenContext) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_FULLSCREEN_ELEMENT,
+        value: {
+          element: '',
+          group: '',
+        },
+      });
+    }
   }
 
   onStreamStateChange(e) {

@@ -23,6 +23,7 @@ import {
   subscribeToStreamStateChange,
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
+import { ACTIONS } from '/imports/ui/components/layout/enums';
 
 const intlMessages = defineMessages({
   screenShareLabel: {
@@ -114,6 +115,7 @@ class ScreenshareComponent extends React.Component {
       shouldEnableSwapLayout,
       toggleSwapLayout,
       layoutContextDispatch,
+      fullscreenContext,
       intl,
     } = this.props;
     const layoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
@@ -124,6 +126,16 @@ class ScreenshareComponent extends React.Component {
     unsubscribeFromStreamStateChange('screenshare', this.onStreamStateChange);
 
     notify(intl.formatMessage(intlMessages.screenshareEnded), 'info', 'desktop');
+
+    if (fullscreenContext) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_FULLSCREEN_ELEMENT,
+        value: {
+          element: '',
+          group: '',
+        },
+      });
+    }
   }
 
   handleAllowAutoplay() {
