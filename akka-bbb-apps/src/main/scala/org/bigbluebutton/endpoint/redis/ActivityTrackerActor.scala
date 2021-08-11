@@ -5,6 +5,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
+import org.bigbluebutton.core.models.Roles
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 import java.security.MessageDigest
@@ -30,6 +31,7 @@ case class UserActivityTracker(
   intId:              String,
   extId:              String,
   name:               String,
+  isModerator:        Boolean,
   answers:            Map[String,String] = Map(),
   talk:               Talk = Talk(),
   emojis:            Vector[Emoji] = Vector(),
@@ -109,6 +111,7 @@ class ActivityTrackerActor(
       case m: UserJoinedMeetingEvtMsg => handleUserJoinedMeetingEvtMsg(m)
       case m: UserLeftMeetingEvtMsg   => handleUserLeftMeetingEvtMsg(m)
       case m: UserEmojiChangedEvtMsg                => handleUserEmojiChangedEvtMsg(m)
+      case m: UserRoleChangedEvtMsg                 => handleUserRoleChangedEvtMsg(m)
       case m: UserBroadcastCamStartedEvtMsg         => handleUserBroadcastCamStartedEvtMsg(m)
       case m: UserBroadcastCamStoppedEvtMsg         => handleUserBroadcastCamStoppedEvtMsg(m)
 
@@ -154,7 +157,7 @@ class ActivityTrackerActor(
     } yield {
       val user: UserActivityTracker = meeting.users.values.find(u => u.intId == msg.body.intId).getOrElse({
         UserActivityTracker(
-          msg.body.intId, msg.body.extId, msg.body.name
+          msg.body.intId, msg.body.extId, msg.body.name, (msg.body.role == Roles.MODERATOR_ROLE)
         )
       })
 
@@ -181,6 +184,20 @@ class ActivityTrackerActor(
     } yield {
       if (msg.body.emoji != "none") {
         val updatedUser = user.copy(emojis = user.emojis :+ Emoji(msg.body.emoji))
+        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
+
+        meetings += (updatedMeeting.intId -> updatedMeeting)
+      }
+    }
+  }
+
+  private def handleUserRoleChangedEvtMsg(msg: UserRoleChangedEvtMsg) {
+    if(msg.body.role == Roles.MODERATOR_ROLE) {
+      for {
+        meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+        user <- meeting.users.values.find(u => u.intId == msg.body.userId)
+      } yield {
+        val updatedUser = user.copy(isModerator = true)
         val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
 
         meetings += (updatedMeeting.intId -> updatedMeeting)
