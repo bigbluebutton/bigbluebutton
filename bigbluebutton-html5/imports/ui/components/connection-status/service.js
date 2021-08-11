@@ -305,6 +305,28 @@ const notification = (level, intl) => {
   if (intl) notify(intl.formatMessage(intlMessages.notification), level, 'warning');
 };
 
+const getNetworkData = () => {
+  const data = {
+    client_external_ip_address: 'a.b.c.d',
+    is_using_turn: 'false',
+    audio_download_rate: 'adr',
+    audio_upload_rate: 'aur',
+    jitter_buffer: 'jb',
+    packet_loss_rate: 'plr',
+    user: {
+      time: new Date(),
+      username: Auth.username,
+      meeting_name: Auth.confname,
+      meeting_id: Auth.meetingID,
+      connection_id: Auth.connectionID,
+      user_id: Auth.userID,
+      extern_user_id: Auth.externUserID,
+    },
+  };
+
+  return JSON.stringify(data, null, 2);
+};
+
 export default {
   getConnectionStatus,
   getStats,
@@ -314,4 +336,5 @@ export default {
   startRoundTripTime,
   stopRoundTripTime,
   updateDataSavingSettings,
+  getNetworkData,
 };

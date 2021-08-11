@@ -130,6 +130,17 @@ class ConnectionStatusComponent extends PureComponent {
   }
 
   async copyNetworkData(e) {
+    const { intl } = this.props;
+    const { target: copyButton } = e;
+
+    copyButton.innerHTML = intl.formatMessage(intlMessages.copied);
+
+    const data = Service.getNetworkData();
+    await navigator.clipboard.writeText(data);
+
+    this.copyNetworkDataTimeout = setTimeout(() => {
+      copyButton.innerHTML = intl.formatMessage(intlMessages.copy);
+    }, 1000);
   }
 
   renderConnections() {
