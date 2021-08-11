@@ -197,6 +197,9 @@ public:
       # subscribe reattempt increases the reconnection timer up to this
       maxTimeout: 60000
     screenshare:
+      # Experimental. True is the canonical behavior. Flip to false to reverse
+      # the negotiation flow for subscribers.
+      subscriberOffering: true
       bitrate: 1500
       mediaTimeouts:
         maxConnectionAttempts: 2

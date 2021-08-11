@@ -7,6 +7,7 @@ import { SCREENSHARING_ERRORS } from './errors';
 
 const SFU_CONFIG = Meteor.settings.public.kurento;
 const SFU_URL = SFU_CONFIG.wsUrl;
+const OFFERING = SFU_CONFIG.screenshare.subscriberOffering;
 
 const BRIDGE_NAME = 'kurento'
 const SCREENSHARE_VIDEO_TAG = 'screenshareVideo';
@@ -202,6 +203,7 @@ export default class KurentoScreenshareBridge {
       iceServers,
       userName: Auth.fullname,
       hasAudio,
+      offering: OFFERING,
     };
 
     this.broker = new ScreenshareBroker(
@@ -259,6 +261,7 @@ export default class KurentoScreenshareBridge {
         stream,
         hasAudio: this.hasAudio,
         bitrate: BridgeService.BASE_BITRATE,
+        offering: true,
       };
 
       this.broker = new ScreenshareBroker(
