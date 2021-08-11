@@ -82,7 +82,12 @@ class ScreenshareComponent extends React.Component {
   }
 
   componentDidMount() {
-    const { intl } = this.props;
+    const {
+      getSwapLayout,
+      toggleSwapLayout,
+      layoutContextDispatch,
+      intl,
+    } = this.props;
 
     screenshareHasStarted();
     // Autoplay failure handling
@@ -93,6 +98,8 @@ class ScreenshareComponent extends React.Component {
     attachLocalPreviewStream(getMediaElement());
 
     notify(intl.formatMessage(intlMessages.screenshareStarted), 'info', 'desktop');
+
+    if (getSwapLayout()) toggleSwapLayout(layoutContextDispatch);
   }
 
   componentDidUpdate(prevProps) {
@@ -105,16 +112,7 @@ class ScreenshareComponent extends React.Component {
   }
 
   componentWillUnmount() {
-    const {
-      getSwapLayout,
-      shouldEnableSwapLayout,
-      toggleSwapLayout,
-      layoutContextDispatch,
-      fullscreenContext,
-      intl,
-    } = this.props;
-    const layoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
-    if (layoutSwapped) toggleSwapLayout(layoutContextDispatch);
+    const { intl, fullscreenContext, layoutContextDispatch } = this.props;
     screenshareHasEnded();
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     unsubscribeFromStreamStateChange('screenshare', this.onStreamStateChange);

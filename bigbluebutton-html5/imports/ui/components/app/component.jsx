@@ -192,6 +192,12 @@ class App extends Component {
 
     this.handleWindowResize();
     window.addEventListener('resize', this.handleWindowResize, false);
+    window.addEventListener('localeChanged', () => {
+      layoutContextDispatch({
+        type: ACTIONS.SET_IS_RTL,
+        value: Settings.application.isRTL,
+      });
+    });
     window.ondragover = (e) => { e.preventDefault(); };
     window.ondrop = (e) => { e.preventDefault(); };
 
@@ -218,7 +224,6 @@ class App extends Component {
       layoutType,
       pushLayoutToEveryone,
       layoutContextDispatch,
-      isRTL,
     } = this.props;
 
     if (meetingLayout !== prevProps.meetingLayout) {
@@ -229,13 +234,6 @@ class App extends Component {
 
       Settings.application.selectedLayout = meetingLayout;
       Settings.save();
-    }
-
-    if (isRTL !== prevProps.isRTL) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_IS_RTL,
-        value: isRTL,
-      });
     }
 
     if (settingsLayout !== prevProps.settingsLayout
