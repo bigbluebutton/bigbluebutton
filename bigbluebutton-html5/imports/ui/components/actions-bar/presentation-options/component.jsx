@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
-import MediaService from '/imports/ui/components/media/service';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -22,33 +21,26 @@ const intlMessages = defineMessages({
   },
 });
 
-const shouldUnswapLayout = () => (
-  MediaService.shouldShowScreenshare() || MediaService.shouldShowExternalVideo()
-);
-
 const PresentationOptionsContainer = ({
   intl,
   toggleSwapLayout,
   isThereCurrentPresentation,
   layoutContextDispatch,
-}) => {
-  if (shouldUnswapLayout()) toggleSwapLayout();
-  return (
-    <Button
-      icon="presentation"
-      data-test="restorePresentationButton"
-      label={intl.formatMessage(intlMessages.restorePresentationLabel)}
-      description={intl.formatMessage(intlMessages.restorePresentationDesc)}
-      color="primary"
-      hideLabel
-      circle
-      size="lg"
-      onClick={() => toggleSwapLayout(layoutContextDispatch)}
-      id="restore-presentation"
-      disabled={!isThereCurrentPresentation}
-    />
-  );
-};
+}) => (
+  <Button
+    icon="presentation"
+    data-test="restorePresentationButton"
+    label={intl.formatMessage(intlMessages.restorePresentationLabel)}
+    description={intl.formatMessage(intlMessages.restorePresentationDesc)}
+    color="primary"
+    hideLabel
+    circle
+    size="lg"
+    onClick={() => toggleSwapLayout(layoutContextDispatch)}
+    id="restore-presentation"
+    disabled={!isThereCurrentPresentation}
+  />
+);
 
 PresentationOptionsContainer.propTypes = propTypes;
 export default injectIntl(PresentationOptionsContainer);

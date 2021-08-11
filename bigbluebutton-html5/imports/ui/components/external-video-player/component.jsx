@@ -138,6 +138,12 @@ class VideoPlayer extends Component {
   }
 
   componentDidMount() {
+    const {
+      getSwapLayout,
+      toggleSwapLayout,
+      layoutContextDispatch,
+    } = this.props;
+
     window.addEventListener('beforeunload', this.onBeforeUnload);
 
     clearInterval(this.syncInterval);
@@ -145,6 +151,8 @@ class VideoPlayer extends Component {
 
     VideoPlayer.clearVideoListeners();
     this.registerVideoListeners();
+
+    if (getSwapLayout()) toggleSwapLayout(layoutContextDispatch);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
