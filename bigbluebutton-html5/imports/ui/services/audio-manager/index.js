@@ -1005,7 +1005,6 @@ class AudioManager {
    */
   restoreMuteState(isTranslator) {
     let muteIntended = this.$muteIntended.value;
-    console.log("restoring mute state for " + (isTranslator ? "translator" : "floor" ) + " to " + muteIntended);
     if(isTranslator) {
       if(muteIntended) this._muteTranslator();
       else this._unmuteTranslator();
