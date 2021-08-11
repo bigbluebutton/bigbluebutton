@@ -118,14 +118,19 @@ class VideoList extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { layoutType, cameraDock } = this.props;
+    const { layoutType, cameraDock, streams } = this.props;
     const { width: cameraDockWidth, height: cameraDockHeight } = cameraDock;
-    const { layoutType: prevLayoutType, cameraDock: prevCameraDock } = prevProps;
+    const {
+      layoutType: prevLayoutType,
+      cameraDock: prevCameraDock,
+      streams: prevStreams,
+    } = prevProps;
     const { width: prevCameraDockWidth, height: prevCameraDockHeight } = prevCameraDock;
 
     if (layoutType !== prevLayoutType
       || cameraDockWidth !== prevCameraDockWidth
-      || cameraDockHeight !== prevCameraDockHeight) {
+      || cameraDockHeight !== prevCameraDockHeight
+      || streams.length !== prevStreams.length) {
       this.handleCanvasResize();
     }
   }

@@ -76,10 +76,6 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.pushLayoutOptionLabel',
     description: 'enable/disable push layout to all users',
   },
-  legacyLayout: {
-    id: 'app.layout.style.legacy',
-    description: 'label for legacy layout style',
-  },
   customLayout: {
     id: 'app.layout.style.custom',
     description: 'label for custom layout style',
