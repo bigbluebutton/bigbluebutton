@@ -32,10 +32,9 @@ case class UserActivityTracker(
   name:               String,
   answers:            Map[String,String] = Map(),
   talk:               Talk = Talk(),
+  emojis:            Vector[Emoji] = Vector(),
   webcams:            Vector[Webcam] = Vector(),
   totalOfMessages:    Long = 0,
-  totalOfRaiseHands:  Long = 0,
-  totalOfEmojis:      Long = 0,
   registeredOn:       Long = System.currentTimeMillis(),
   leftOn:             Long = 0,
 )
@@ -53,6 +52,11 @@ case class Poll(
 case class Talk(
   totalTime: Long = 0,
   lastTalkStartedOn: Long = 0,
+)
+
+case class Emoji(
+  name: String,
+  sentOn: Long = System.currentTimeMillis(),
 )
 
 case class Webcam(
@@ -175,13 +179,8 @@ class ActivityTrackerActor(
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
       user <- meeting.users.values.find(u => u.intId == msg.body.userId)
     } yield {
-
-      if (msg.body.emoji == "raiseHand") {
-        val updatedUser = user.copy(totalOfRaiseHands = user.totalOfRaiseHands + 1)
-        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
-        meetings += (updatedMeeting.intId -> updatedMeeting)
-      } else if (msg.body.emoji != "none") {
-        val updatedUser = user.copy(totalOfEmojis = user.totalOfEmojis + 1)
+      if (msg.body.emoji != "none") {
+        val updatedUser = user.copy(emojis = user.emojis :+ Emoji(msg.body.emoji))
         val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
 
         meetings += (updatedMeeting.intId -> updatedMeeting)
@@ -384,6 +383,7 @@ class ActivityTrackerActor(
     //Avoid send repeated activity jsons
     val activityJsonHash : String = MessageDigest.getInstance("MD5").digest(activityJson.getBytes).mkString
     if(!meetingsLastJsonHash.contains(meeting.intId) || meetingsLastJsonHash.get(meeting.intId).getOrElse("") != activityJsonHash) {
+
       val event = MsgBuilder.buildActivityReportEvtMsg(meeting.intId, activityJson)
       outGW.send(event)
 

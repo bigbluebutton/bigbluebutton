@@ -40,7 +40,7 @@ class UsersTable extends React.Component {
             <th className="px-4 py-3 text-center">
               <FormattedMessage id="app.learningDashboard.participantsTable.colMessages" defaultMessage="Messages" />
             </th>
-            <th className="px-4 py-3 text-center">
+            <th className="px-4 py-3 text-left">
               <FormattedMessage id="app.learningDashboard.participantsTable.colEmojis" defaultMessage="Emojis" />
             </th>
             <th className="px-4 py-3 text-center">
@@ -230,30 +230,82 @@ class UsersTable extends React.Component {
                       </span>
                     ) : null }
                 </td>
-                <td className="px-4 py-3 text-sm text-center">
-                  { user.totalOfEmojis > 0
-                    ? (
-                      <span>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 mr-1 inline"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        {user.totalOfEmojis}
-                      </span>
-                    ) : null }
+                <td className="px-4 py-3 text-sm text-left">
+                  { user.emojis.filter((emoji) => emoji.name === 'away').length > 0 ? (
+                    <div className="text-xs">
+                      <i className="icon-bbb-time text-sm" />
+                      &nbsp;
+                      {user.emojis.filter((emoji) => emoji.name === 'away').length}
+                      &nbsp;
+                      <FormattedMessage id="app.actionsBar.emojiMenu.awayLabel" defaultMessage="Away" />
+                    </div>
+                  ) : null}
+                  { user.emojis.filter((emoji) => emoji.name === 'neutral').length > 0 ? (
+                    <div className="text-xs">
+                      <i className="icon-bbb-undecided text-sm" />
+                      &nbsp;
+                      {user.emojis.filter((emoji) => emoji.name === 'neutral').length}
+                      &nbsp;
+                      <FormattedMessage id="app.actionsBar.emojiMenu.neutralLabel" defaultMessage="Undecided" />
+                    </div>
+                  ) : null}
+                  { user.emojis.filter((emoji) => emoji.name === 'confused').length > 0 ? (
+                    <div className="text-xs">
+                      <i className="icon-bbb-undecided text-sm" />
+                      &nbsp;
+                      {user.emojis.filter((emoji) => emoji.name === 'confused').length}
+                      &nbsp;
+                      <FormattedMessage id="app.actionsBar.emojiMenu.confusedLabel" defaultMessage="Confused" />
+                    </div>
+                  ) : null}
+                  { user.emojis.filter((emoji) => emoji.name === 'sad').length > 0 ? (
+                    <div className="text-xs">
+                      <i className="icon-bbb-sad text-sm" />
+                      &nbsp;
+                      {user.emojis.filter((emoji) => emoji.name === 'sad').length}
+                      &nbsp;
+                      <FormattedMessage id="app.actionsBar.emojiMenu.sadLabel" defaultMessage="Sad" />
+                    </div>
+                  ) : null}
+                  { user.emojis.filter((emoji) => emoji.name === 'happy').length > 0 ? (
+                    <div className="text-xs">
+                      <i className="icon-bbb-happy text-sm" />
+                      &nbsp;
+                      {user.emojis.filter((emoji) => emoji.name === 'happy').length}
+                      &nbsp;
+                      <FormattedMessage id="app.actionsBar.emojiMenu.happyLabel" defaultMessage="Happy" />
+                    </div>
+                  ) : null}
+                  { user.emojis.filter((emoji) => emoji.name === 'applause').length > 0 ? (
+                    <div className="text-xs">
+                      <i className="icon-bbb-applause text-sm" />
+                      &nbsp;
+                      {user.emojis.filter((emoji) => emoji.name === 'applause').length}
+                      &nbsp;
+                      <FormattedMessage id="app.actionsBar.emojiMenu.applauseLabel" defaultMessage="Applaud" />
+                    </div>
+                  ) : null}
+                  { user.emojis.filter((emoji) => emoji.name === 'thumbsUp').length > 0 ? (
+                    <div className="text-xs">
+                      <i className="icon-bbb-thumbs_up text-sm" />
+                      &nbsp;
+                      {user.emojis.filter((emoji) => emoji.name === 'thumbsUp').length}
+                      &nbsp;
+                      <FormattedMessage id="app.actionsBar.emojiMenu.thumbsUpLabel" defaultMessage="Thumbs up" />
+                    </div>
+                  ) : null}
+                  { user.emojis.filter((emoji) => emoji.name === 'thumbsDown').length > 0 ? (
+                    <div className="text-xs">
+                      <i className="icon-bbb-thumbs_down text-sm" />
+                      &nbsp;
+                      {user.emojis.filter((emoji) => emoji.name === 'thumbsDown').length}
+                      &nbsp;
+                      <FormattedMessage id="app.actionsBar.emojiMenu.thumbsDownLabel" defaultMessage="Thumbs down" />
+                    </div>
+                  ) : null}
                 </td>
                 <td className="px-4 py-3 text-sm text-center">
-                  { user.totalOfRaiseHands > 0
+                  { user.emojis.filter((emoji) => emoji.name === 'raiseHand').length > 0
                     ? (
                       <span>
                         <svg
@@ -270,7 +322,7 @@ class UsersTable extends React.Component {
                             d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"
                           />
                         </svg>
-                        {user.totalOfRaiseHands}
+                        {user.emojis.filter((emoji) => emoji.name === 'raiseHand').length}
                       </span>
                     ) : null }
                 </td>

@@ -1,5 +1,6 @@
 import React from 'react';
 import './App.css';
+import './bbb-icons.css';
 import { FormattedMessage, FormattedDate, injectIntl } from 'react-intl';
 import Card from './components/Card';
 import UsersTable from './components/UsersTable';
@@ -42,7 +43,7 @@ class App extends React.Component {
     function totalOfRaiseHand() {
       if (activitiesJson && activitiesJson.users) {
         return Object.values(activitiesJson.users)
-          .reduce((prevVal, elem) => prevVal + elem.totalOfRaiseHands, 0);
+          .reduce((prevVal, elem) => prevVal + elem.emojis.filter((emoji) => emoji.name === 'raiseHand').length, 0);
       }
       return 0;
     }
