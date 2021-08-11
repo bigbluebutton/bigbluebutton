@@ -1,3 +1,3 @@
 const triggerTest = require('./trigger.obj');
 
-describe('Shared Notes ', triggerTest);
+describe('Trigger ', triggerTest);
