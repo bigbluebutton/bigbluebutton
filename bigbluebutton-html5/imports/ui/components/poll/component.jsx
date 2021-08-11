@@ -161,6 +161,22 @@ const intlMessages = defineMessages({
     id: 'app.poll.abstention',
     description: '',
   },
+  startPollDesc: {
+    id: 'app.poll.startPollDesc',
+    description: '',
+  },
+  showRespDesc: {
+    id: 'app.poll.showRespDesc',
+    description: '',
+  },
+  addRespDesc: {
+    id: 'app.poll.addRespDesc',
+    description: '',
+  },
+  deleteRespDesc: {
+    id: 'app.poll.deleteRespDesc',
+    description: '',
+  },
 });
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
@@ -345,18 +361,22 @@ class Poll extends Component {
             />
             {i > 1
               ? (
-                <Button
-                  className={styles.deleteBtn}
-                  label={intl.formatMessage(intlMessages.delete)}
-                  icon="delete"
-                  data-test="deletePollOption"
-                  hideLabel
-                  circle
-                  color="default"
-                  onClick={() => {
-                    this.handleRemoveOption(i);
-                  }}
-                />
+                <>
+                  <Button
+                    className={styles.deleteBtn}
+                    label={intl.formatMessage(intlMessages.delete)}
+                    aria-describedby={`option-${i}`}
+                    icon="delete"
+                    data-test="deletePollOption"
+                    hideLabel
+                    circle
+                    color="default"
+                    onClick={() => {
+                      this.handleRemoveOption(i);
+                    }}
+                  />
+                  <span className="sr-only" id={`option-${i}`}>{intl.formatMessage(intlMessages.deleteRespDesc, { 0: o.val })}</span>
+                </>
               )
               : <div style={{ width: '40px' }} />}
           </div>
@@ -420,7 +440,7 @@ class Poll extends Component {
           {intl.formatMessage(intlMessages.pollPanelDesc)}
         </div>
         <div>
-          <h4>{intl.formatMessage(intlMessages.questionTitle)}</h4>
+          <h4 aria-hidden>{intl.formatMessage(intlMessages.questionTitle)}</h4>
           <textarea
             data-test="pollQuestionArea"
             className={styles.pollQuestion}
@@ -429,6 +449,7 @@ class Poll extends Component {
             rows="4"
             cols="35"
             maxLength={QUESTION_MAX_INPUT_CHARS}
+            aria-label={intl.formatMessage(intlMessages.questionTitle)}
             placeholder={intl.formatMessage(intlMessages.questionLabel)}
           />
           {(type === pollTypes.Response && question.length === 0 && error) ? (
@@ -442,6 +463,7 @@ class Poll extends Component {
           <div className={styles.responseType}>
             <Button
               label={intl.formatMessage(intlMessages.tf)}
+              aria-describedby="poll-config-button"
               color="default"
               onClick={() => {
                 this.setState({
@@ -460,6 +482,7 @@ class Poll extends Component {
             />
             <Button
               label={intl.formatMessage(intlMessages.a4)}
+              aria-describedby="poll-config-button"
               color="default"
               onClick={() => {
                 this.setState({
@@ -481,6 +504,7 @@ class Poll extends Component {
           </div>
           <Button
             label={intl.formatMessage(intlMessages.yna)}
+            aria-describedby="poll-config-button"
             color="default"
             onClick={() => {
               this.setState({
@@ -500,6 +524,7 @@ class Poll extends Component {
           />
           <Button
             label={intl.formatMessage(intlMessages.userResponse)}
+            aria-describedby="poll-config-button"
             color="default"
             onClick={() => { this.setState({ type: pollTypes.Response }); }}
             className={
@@ -542,6 +567,7 @@ class Poll extends Component {
                           className={styles.addItemBtn}
                           data-test="addItem"
                           label={intl.formatMessage(intlMessages.addOptionLabel)}
+                          aria-describedby="add-item-button"
                           color="default"
                           icon="add"
                           disabled={optList.length >= MAX_CUSTOM_FIELDS}
@@ -736,6 +762,9 @@ class Poll extends Component {
           />
         </header>
         {this.renderPollPanel()}
+        <span className="sr-only" id="poll-config-button">{intl.formatMessage(intlMessages.showRespDesc)}</span>
+        <span className="sr-only" id="add-item-button">{intl.formatMessage(intlMessages.addRespDesc)}</span>
+        <span className="sr-only" id="start-poll-button">{intl.formatMessage(intlMessages.startPollDesc)}</span>
       </div>
     );
   }

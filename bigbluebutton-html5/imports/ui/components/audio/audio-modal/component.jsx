@@ -404,7 +404,7 @@ class AudioModal extends Component {
                       : this.handleGoToEchoTest
                   }
                 />
-                <span className={styles.visuallyHidden} id="mic-description">
+                <span className="sr-only" id="mic-description">
                   {intl.formatMessage(intlMessages.microphoneDesc)}
                 </span>
               </>
@@ -421,7 +421,7 @@ class AudioModal extends Component {
                   size="jumbo"
                   onClick={this.handleJoinListenOnly}
                 />
-                <span className={styles.visuallyHidden} id="listenOnly-description">
+                <span className="sr-only" id="listenOnly-description">
                   {intl.formatMessage(intlMessages.listenOnlyDesc)}
                 </span>
               </>
