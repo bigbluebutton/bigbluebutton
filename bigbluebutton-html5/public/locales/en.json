@@ -475,6 +475,8 @@
     "app.audioModal.ariaTitle": "Join audio modal",
     "app.audioModal.microphoneLabel": "Microphone",
     "app.audioModal.listenOnlyLabel": "Listen only",
+    "app.audioModal.microphoneDesc": "Joins audio conference with mic",
+    "app.audioModal.listenOnlyDesc": "Joins audio conference as listen only",
     "app.audioModal.audioChoiceLabel": "How would you like to join the audio?",
     "app.audioModal.iOSBrowser": "Audio/Video not supported",
     "app.audioModal.iOSErrorDescription": "At this time audio and video are not supported on Chrome for iOS.",
