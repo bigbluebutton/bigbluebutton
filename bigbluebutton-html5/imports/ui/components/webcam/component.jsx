@@ -14,6 +14,8 @@ const WebcamComponent = ({
   layoutContextDispatch,
   fullscreen,
   isPresenter,
+  cameraOptimalGridSize: cameraSize,
+  isRTL,
 }) => {
   const [isResizing, setIsResizing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -28,6 +30,7 @@ const WebcamComponent = ({
     || cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM;
   const isCameraLeftOrRight = cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT
     || cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT;
+  const isCameraSidebar = cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM;
 
   useEffect(() => {
     setIsFullScreen(fullscreen.group === 'webcams');
@@ -63,7 +66,7 @@ const WebcamComponent = ({
   }, [cameraDock.position, lastWidth, lastHeight]);
 
   useEffect(() => {
-    const newCameraMaxWidth = (isPresenter && cameraDock.presenterMaxWidth) ? cameraDock.presenterMaxWidth: cameraDock.maxWidth;
+    const newCameraMaxWidth = (isPresenter && cameraDock.presenterMaxWidth) ? cameraDock.presenterMaxWidth : cameraDock.maxWidth;
     setCameraMaxWidth(newCameraMaxWidth);
 
     if (isCameraLeftOrRight && cameraDock.width > newCameraMaxWidth) {
@@ -148,6 +151,19 @@ const WebcamComponent = ({
       || cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT,
   });
 
+  let draggableOffset = {
+    left: isDragging && (isCameraTopOrBottom || isCameraSidebar)
+      ? ((cameraDock.width - cameraSize.width) / 2)
+      : 0,
+    top: isDragging && isCameraLeftOrRight
+      ? ((cameraDock.height - cameraSize.height) / 2)
+      : 0,
+  };
+
+  if (isRTL) {
+    draggableOffset.left = draggableOffset.left * -1;
+  }
+
   return (
     <>
       {isDragging ? <DropAreaContainer /> : null}
@@ -162,18 +178,18 @@ const WebcamComponent = ({
         disabled={!cameraDock.isDraggable || isResizing || isFullscreen}
         position={
           {
-            x: cameraDock.left - cameraDock.right,
-            y: cameraDock.top,
+            x: cameraDock.left - cameraDock.right + draggableOffset.left,
+            y: cameraDock.top + draggableOffset.top,
           }
         }
       >
         <Resizable
-          minWidth={cameraDock.minWidth}
-          minHeight={cameraDock.minHeight}
-          maxWidth={cameraMaxWidth}
+          minWidth={isDragging ? cameraSize.width : cameraDock.minWidth}
+          minHeight={isDragging ? cameraSize.height : cameraDock.minHeight}
+          maxWidth={isDragging ? cameraSize.width : cameraMaxWidth}
           size={{
-            width: cameraDock.width,
-            height: cameraDock.height,
+            width: isDragging ? cameraSize.width : cameraDock.width,
+            height: isDragging ? cameraSize.height : cameraDock.height,
           }}
           handleWrapperClass={resizableClassName}
           onResizeStart={() => {
@@ -213,8 +229,8 @@ const WebcamComponent = ({
             className={draggableClassName}
             draggable={cameraDock.isDraggable && !isFullscreen ? 'true' : undefined}
             style={{
-              width: cameraDock.width,
-              height: cameraDock.height,
+              width: isDragging ? cameraSize.width : cameraDock.width,
+              height: isDragging ? cameraSize.height : cameraDock.height,
               opacity: isDragging ? 0.5 : undefined,
             }}
           >
