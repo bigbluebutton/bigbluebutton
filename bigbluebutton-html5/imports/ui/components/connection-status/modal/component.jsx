@@ -9,6 +9,8 @@ import Service from '../service';
 import Modal from '/imports/ui/components/modal/simple/component';
 import { styles } from './styles';
 
+const NETWORK_MONITORING_INTERVAL_MS = 2000;
+
 const intlMessages = defineMessages({
   ariaTitle: {
     id: 'app.connection-status.ariaTitle',
@@ -29,6 +31,14 @@ const intlMessages = defineMessages({
   more: {
     id: 'app.connection-status.more',
     description: 'More about conectivity issues',
+  },
+  audioLabel: {
+    id: 'app.settings.audioTab.label',
+    description: 'Audio label',
+  },
+  videoLabel: {
+    id: 'app.settings.videoTab.label',
+    description: 'Video label',
   },
   copy: {
     id: 'app.connection-status.copy',
@@ -88,15 +98,87 @@ class ConnectionStatusComponent extends PureComponent {
   constructor(props) {
     super(props);
 
+    const { intl } = this.props;
+
     this.help = Service.getHelp();
-    this.state = { dataSaving: props.dataSaving };
+    this.state = {
+      dataSaving: props.dataSaving,
+      hasNetworkData: false,
+      networkData: {
+        user: {
+
+        },
+        audio: {
+          audioCurrentUploadRate: 0,
+          audioCurrentDownloadRate: 0,
+        },
+        video: {
+          videoCurrentUploadRate: 0,
+          videoCurrentDownloadRate: 0,
+        },
+      },
+    };
     this.displaySettingsStatus = this.displaySettingsStatus.bind(this);
+    this.rateInterval = null;
+
+    this.audioLabel = (intl.formatMessage(intlMessages.audioLabel)).charAt(0);
+    this.videoLabel = (intl.formatMessage(intlMessages.videoLabel)).charAt(0);
+  }
+
+  async componentDidMount() {
+    this.startMonitoringNetwork();
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.rateInterval);
   }
 
   handleDataSavingChange(key) {
     const { dataSaving } = this.state;
     dataSaving[key] = !dataSaving[key];
     this.setState(dataSaving);
+  }
+
+  /**
+   * Start monitoring the network data.
+   * @return {Promise} A Promise that resolves when process started.
+   */
+  async startMonitoringNetwork() {
+    let previousData = await Service.getNetworkData();
+    this.rateInterval = setInterval(async () => {
+      const data = await Service.getNetworkData();
+
+      const {
+        outbound: audioCurrentUploadRate,
+        inbound: audioCurrentDownloadRate,
+      } = Service.calculateBitsPerSecond(data, previousData);
+
+      const audio = {
+        audioCurrentUploadRate,
+        audioCurrentDownloadRate,
+        transport: data.transportStats,
+      };
+
+      // SAMPLE DATA
+      const video = {
+        videoCurrentUploadRate: Math.floor(Math.random() * 100),
+        videoCurrentDownloadRate: Math.floor(Math.random() * 100),
+      };
+
+      const { user } = data;
+
+      const networkData = {
+        user,
+        audio,
+        video,
+      };
+
+      previousData = data;
+      this.setState({
+        networkData,
+        hasNetworkData: true,
+      });
+    }, NETWORK_MONITORING_INTERVAL_MS);
   }
 
   renderEmpty() {
@@ -129,13 +211,28 @@ class ConnectionStatusComponent extends PureComponent {
     );
   }
 
+  /**
+   * Copy network data to clipboard
+   * @param  {Object}  e              Event object from click event
+   * @return {Promise}   A Promise that is resolved after data is copied.
+   *
+   *
+   */
   async copyNetworkData(e) {
     const { intl } = this.props;
+    const {
+      networkData,
+      hasNetworkData,
+    } = this.state;
+
+    if (!hasNetworkData) return;
+
     const { target: copyButton } = e;
 
     copyButton.innerHTML = intl.formatMessage(intlMessages.copied);
 
-    const data = Service.getNetworkData();
+    const data = JSON.stringify(networkData, null, 2);
+
     await navigator.clipboard.writeText(data);
 
     this.copyNetworkDataTimeout = setTimeout(() => {
@@ -272,6 +369,72 @@ class ConnectionStatusComponent extends PureComponent {
     );
   }
 
+  /**
+   * Render network data , containing information abount current upload and
+   * download rates
+   * @return {Object} The component to be renderized.
+   */
+  renderNetworkData() {
+    const {
+      audioLabel,
+      videoLabel,
+    } = this;
+
+    const { networkData } = this.state;
+
+    const {
+      audioCurrentUploadRate,
+      audioCurrentDownloadRate,
+    } = networkData.audio;
+
+    const {
+      videoCurrentUploadRate,
+      videoCurrentDownloadRate,
+    } = networkData.video;
+
+    return (
+      <div
+        className={styles.networkData}
+      >
+        <p>
+          {`↑${audioLabel}: ${audioCurrentUploadRate} kbps |`}
+        </p>
+        <p>
+          {`↓${audioLabel}: ${audioCurrentDownloadRate} kbps |`}
+        </p>
+        <p>
+          {`↑${videoLabel}: ${videoCurrentUploadRate} kbps |`}
+        </p>
+        <p>
+          {`↓${videoLabel}: ${videoCurrentDownloadRate} kbps`}
+        </p>
+      </div>
+    );
+  }
+
+  /**
+   * Renders the clipboard's copy button, for network stats.
+   * @return {Object} - The component to be renderized
+   */
+  renderCopyDataButton() {
+    const { intl } = this.props;
+
+    const { hasNetworkData } = this.state;
+    return (
+      <div>
+        <span
+          className={cx(styles.copy, !hasNetworkData ? styles.disabled : '')}
+          role="button"
+          onClick={this.copyNetworkData.bind(this)}
+          onKeyPress={this.copyNetworkData.bind(this)}
+          tabIndex={0}
+        >
+          <p>{intl.formatMessage(intlMessages.copy)}</p>
+        </span>
+      </div>
+    );
+  }
+
   render() {
     const {
       closeModal,
@@ -305,14 +468,9 @@ class ConnectionStatusComponent extends PureComponent {
               )
             }
           </div>
-          <div
-            className={styles.copy}
-            role="button"
-            onClick={this.copyNetworkData.bind(this)}
-            onKeyPress={this.copyNetworkData.bind(this)}
-            tabIndex={0}
-          >
-            {intl.formatMessage(intlMessages.copy)}
+          <div className={styles.networkDataContainer}>
+            {this.renderNetworkData()}
+            {this.renderCopyDataButton()}
           </div>
           {this.renderDataSaving()}
           <div className={styles.content}>

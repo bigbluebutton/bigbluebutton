@@ -68,6 +68,8 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
   }
 
   getPeerConnection() {
+    if (!this.broker) return null;
+
     const webRtcPeer = this.broker.webRtcPeer;
     if (webRtcPeer) return webRtcPeer.peerConnection;
     return null;

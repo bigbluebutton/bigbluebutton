@@ -38,6 +38,14 @@ const BREAKOUT_AUDIO_TRANSFER_STATES = {
   RETURNING: 'returning',
 };
 
+/**
+ * Audio status to be filtered in getStats()
+ */
+const FILTER_AUDIO_STATS = [
+  'outbound-rtp',
+  'inbound-rtp',
+];
+
 class AudioManager {
   constructor() {
     this._inputDevice = {
@@ -748,6 +756,74 @@ class AudioManager {
 
   async updateAudioConstraints(constraints) {
     await this.bridge.updateAudioConstraints(constraints);
+  }
+
+  getCurrentBridge() {
+    return this.isListenOnly ? this.listenOnlyBridge : this.bridge;
+  }
+
+  async getInternalExternalIpAddressesFromPeer() {
+    const bridge = this.getCurrentBridge();
+
+    if (!bridge) return null;
+
+    const peer = bridge.getPeerConnection();
+
+    let transports = {};
+
+    if (!peer) return transports;
+
+    const receivers = peer.getReceivers();
+
+    if (receivers && receivers[0] && receivers[0].transport
+      && receivers[0].transport.iceTransport
+      && receivers[0].transport.iceTransport) {
+      const selectedPair = receivers[0].transport.iceTransport
+        .getSelectedCandidatePair();
+
+      if (!selectedPair) return null;
+
+      const {
+        address: internalAddress,
+        relatedAddress: externalAddress,
+        port: internalPort,
+        relatedPort: externalPort,
+      } = selectedPair.local;
+
+      transports = {
+        internalAddress,
+        externalAddress,
+        internalPort,
+        externalPort,
+      };
+    }
+
+    return transports;
+  }
+
+  async getStats() {
+    const bridge = this.getCurrentBridge();
+
+    if (!bridge) return null;
+
+    const peer = bridge.getPeerConnection();
+
+    if (!peer) return null;
+
+    const peerStats = await peer.getStats();
+
+    const audioStats = {};
+
+    peerStats.forEach((stat) => {
+      if (FILTER_AUDIO_STATS.includes(stat.type)) {
+        audioStats[stat.type] = stat;
+      }
+    });
+
+    const transportStats = await this
+      .getInternalExternalIpAddressesFromPeer(peer);
+
+    return { transportStats, ...audioStats };
   }
 }
 

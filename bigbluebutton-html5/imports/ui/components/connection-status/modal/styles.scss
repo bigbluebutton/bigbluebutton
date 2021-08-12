@@ -133,11 +133,36 @@
   }
 }
 
+.networkDataContainer {
+  display: grid;
+  float: left;
+  grid-template-columns: auto auto;
+  width: 100%;
+}
+
+.networkData {
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+  float: left;
+
+  p {
+    text-align: center;
+  }
+}
+
+.disabled {
+  cursor: not-allowed !important;
+}
+
 .copy {
   display: flex;
   float: right;
   text-decoration: underline;
   cursor: pointer;
+
+  p {
+    margin-left: auto;
+  }
 }
 
 .right {

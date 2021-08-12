@@ -8,6 +8,7 @@ import _ from 'lodash';
 import { Session } from 'meteor/session';
 import { notify } from '/imports/ui/services/notification';
 import { makeCall } from '/imports/ui/services/api';
+import AudioService from '/imports/ui/components/audio/service';
 
 const STATS = Meteor.settings.public.stats;
 const NOTIFICATION = STATS.notification;
@@ -305,7 +306,36 @@ const notification = (level, intl) => {
   if (intl) notify(intl.formatMessage(intlMessages.notification), level, 'warning');
 };
 
-const getNetworkData = () => {
+/**
+ * Retrieves the inbound and outbound data using WebRTC getStats API.
+ * @returns An Object with format (property:type) :
+ *   {
+ *     transportStats: Object,
+ *     inbound-rtp: RTCInboundRtpStreamStats,
+ *     outbound-rtp: RTCOutboundRtpStreamStats,
+ *   }
+ * For more information see:
+ * https://developer.mozilla.org/en-US/docs/Web/API/RTCInboundRtpStreamStats
+ * and
+ * https://developer.mozilla.org/en-US/docs/Web/API/RTCOutboundRtpStreamStats
+ */
+const getAudioData = async () => {
+  const data = await AudioService.getStats();
+
+  if (!data) return {};
+
+  return data;
+};
+
+
+/**
+ * Get the user, audio and video data from current active streams.
+ * For audio, this will get information about the mic/listen-only stream.
+ * @returns An Object containing all this data.
+ */
+const getNetworkData = async () => {
+  const audioData = await getAudioData();
+
   const data = {
     client_external_ip_address: 'a.b.c.d',
     is_using_turn: 'false',
@@ -324,7 +354,86 @@ const getNetworkData = () => {
     },
   };
 
-  return JSON.stringify(data, null, 2);
+  const fullData = {
+    ...data,
+    ...audioData,
+  };
+
+  return fullData;
+};
+
+/**
+ * Calculates both upload and download rates using data retreived from getStats
+ * API. For upload (outbound-rtp) we use both bytesSent and timestamp fields.
+ * byteSent field contains the number of octets sent at the given timestamp,
+ * more information can be found in:
+ * https://www.w3.org/TR/webrtc-stats/#dom-rtcsentrtpstreamstats-bytessent
+ *
+ * timestamp is given in millisseconds, more information can be found in:
+ * https://www.w3.org/TR/webrtc-stats/#webidl-1049090475
+ * @param {Object} currentData - The object returned from getStats / service's
+ *                               getNetworkData()
+ * @param {*} previousData     - The sabe object as above, but representing
+ *                               a data collected in past (previous call of
+ *                               service's getNetworkData())
+ * @returns An object of numbers, containing both outbound (upload) and inbound
+ *          (download) rates (kbps).
+ */
+const calculateBitsPerSecond = (currentData, previousData) => {
+  const result = {
+    outbound: 0,
+    inbound: 0,
+  };
+
+  if (!currentData || !previousData) return result;
+
+  const currentOutboundData = currentData['outbound-rtp'];
+  const currentInboundData = currentData['inbound-rtp'];
+  const previousOutboundData = previousData['outbound-rtp'];
+  const previousInboundData = previousData['inbound-rtp'];
+
+  if (currentOutboundData && previousOutboundData) {
+    const {
+      bytesSent: outboundBytesSent,
+      headerBytesSent: outboundHeaderBytesSent,
+      timestamp: outboundTimestamp,
+    } = currentOutboundData;
+
+    const {
+      bytesSent: previousOutboundBytesSent,
+      headerBytesSent: previousOutboundHeaderBytesSent,
+      timestamp: previousOutboundTimestamp,
+    } = previousOutboundData;
+
+    const outboundBytesPerSecond = (outboundBytesSent + outboundHeaderBytesSent
+      - previousOutboundBytesSent - previousOutboundHeaderBytesSent)
+      / (outboundTimestamp - previousOutboundTimestamp);
+
+    result.outbound = Math.round((outboundBytesPerSecond * 8 * 1000) / 1024);
+  }
+
+  if (currentInboundData && previousInboundData) {
+    const {
+      bytesReceived: inboundBytesReceived,
+      headerBytesReceived: inboundHeaderBytesReceived,
+      timestamp: inboundTimestamp,
+    } = currentInboundData;
+
+    const {
+      bytesReceived: previousInboundBytesReceived,
+      headerBytesReceived: previousInboundHeaderBytesReceived,
+      timestamp: previousInboundTimestamp,
+    } = previousInboundData;
+
+    const inboundBytesPerSecond = (inboundBytesReceived
+      + inboundHeaderBytesReceived - previousInboundBytesReceived
+      - previousInboundHeaderBytesReceived) / (inboundTimestamp
+        - previousInboundTimestamp);
+
+    result.inbound = Math.round((inboundBytesPerSecond * 8 * 1000) / 1024);
+  }
+
+  return result;
 };
 
 export default {
@@ -337,4 +446,5 @@ export default {
   stopRoundTripTime,
   updateDataSavingSettings,
   getNetworkData,
+  calculateBitsPerSecond,
 };
