@@ -7,6 +7,9 @@
   line-height: 1;
   margin-right: 1.65rem;
   margin-left: .5rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .closeBtn {
@@ -49,6 +52,7 @@
     border-radius: var(--border-radius);
     border: 0;
     z-index: 9999;
+    max-width: 16rem;
   } 
 }
 
@@ -61,9 +65,12 @@
 .menuitem {
   transition: none !important;
   font-size: 90% !important;
-
+  
   &:focus,
   &:hover {
+    i { 
+      color: #FFF;
+    }
     color: #FFF;
     background-color: var(--color-primary) !important;
   }
