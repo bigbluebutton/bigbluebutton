@@ -634,6 +634,8 @@ class Presentation extends PureComponent {
       podId,
       fullscreenElementId,
       isMobile,
+      layoutType,
+      numCameras,
     } = this.props;
     const { zoom, fitToWidth, isFullscreen } = this.state;
 
@@ -641,7 +643,9 @@ class Presentation extends PureComponent {
 
     const { presentationToolbarMinWidth } = DEFAULT_VALUES;
 
-    const toolbarWidth = ((this.refWhiteboardArea && svgWidth > presentationToolbarMinWidth) || isMobile)
+    const toolbarWidth = ((this.refWhiteboardArea && svgWidth > presentationToolbarMinWidth)
+      || isMobile
+      || (layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0))
       ? svgWidth
       : presentationToolbarMinWidth;
     return (
@@ -761,6 +765,8 @@ class Presentation extends PureComponent {
       presentationBounds,
       fullscreenContext,
       isMobile,
+      layoutType,
+      numCameras,
     } = this.props;
 
     const {
@@ -798,15 +804,12 @@ class Presentation extends PureComponent {
 
     const { presentationToolbarMinWidth } = DEFAULT_VALUES;
 
-    const containerWidth = (svgWidth > presentationToolbarMinWidth || isMobile)
+    const isLargePresentation = (svgWidth > presentationToolbarMinWidth || isMobile)
+      && !(layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0);
+
+    const containerWidth = isLargePresentation
       ? svgWidth
       : presentationToolbarMinWidth;
-
-    let presentationLeft = presentationBounds.left;
-
-    if (userIsPresenter && presentationBounds.width < containerWidth && !isMobile) {
-      presentationLeft -= ((containerWidth - presentationBounds.width) / 2);
-    }
 
     return (
       <div
@@ -814,7 +817,7 @@ class Presentation extends PureComponent {
         className={styles.presentationContainer}
         style={{
           top: presentationBounds.top,
-          left: presentationLeft,
+          left: presentationBounds.left,
           right: presentationBounds.right,
           width: presentationBounds.width,
           height: presentationBounds.height,
