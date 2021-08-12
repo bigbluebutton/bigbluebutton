@@ -1,6 +1,6 @@
 {
   "name": "activity-report-app",
-  "homepage": "/activity-report/",
+  "homepage": "/learning-dashboard/",
   "version": "0.1.0",
   "private": true,
   "lint-staged": {

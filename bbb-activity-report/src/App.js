@@ -32,7 +32,7 @@ class App extends React.Component {
       .then((response) => response.json())
       .then((json) => {
         this.setState({ activitiesJson: json });
-        document.title = `Dashboard - ${json.name}`;
+        document.title = `Learning Dashboard - ${json.name}`;
       });
   }
 

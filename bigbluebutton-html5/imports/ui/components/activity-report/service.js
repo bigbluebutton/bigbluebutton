@@ -29,7 +29,7 @@ const getActivityReportAccessToken = () => ((
   ) || {}).password || {}).activityReportAccessToken || null;
 
 const openActivityReportUrl = () => {
-  window.open(`/activity-report/?meeting=${Auth.meetingID}&report=${getActivityReportAccessToken()}`, '_blank');
+  window.open(`/learning-dashboard/?meeting=${Auth.meetingID}&report=${getActivityReportAccessToken()}`, '_blank');
 };
 
 export default {

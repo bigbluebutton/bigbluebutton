@@ -1,4 +1,4 @@
-location /activity-report/ {
+location /learning-dashboard/ {
     alias /var/bigbluebutton/activity-report/;
     autoindex off;
 }
