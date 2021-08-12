@@ -37,7 +37,6 @@
     "bowser": "^2.11.0",
     "browser-bunyan": "^1.6.3",
     "classnames": "^2.2.6",
-    "clipboard": "^2.0.8",
     "crypto-js": "^4.0.0",
     "eventemitter2": "~5.0.1",
     "fastdom": "^1.0.10",

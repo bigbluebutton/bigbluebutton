@@ -48,23 +48,21 @@ export default function addUser(meetingId, userData) {
     from a list based on the userId */
   const color = COLOR_LIST[stringHash(user.intId) % COLOR_LIST.length];
 
-  const userInfos = Object.assign(
-    {
-      meetingId,
-      sortName: user.name.trim().toLowerCase(),
-      color,
-      mobile: false,
-      breakoutProps: {
-        isBreakoutUser: Meeting.meetingProp.isBreakout,
-        parentId: Meeting.breakoutProps.parentId,
-      },
-      effectiveConnectionType: null,
-      inactivityCheck: false,
-      responseDelay: 0,
-      loggedOut: false,
+  const userInfos = {
+    meetingId,
+    sortName: user.name.trim().toLowerCase(),
+    color,
+    mobile: false,
+    breakoutProps: {
+      isBreakoutUser: Meeting.meetingProp.isBreakout,
+      parentId: Meeting.breakoutProps.parentId,
     },
-    flat(user),
-  );
+    effectiveConnectionType: null,
+    inactivityCheck: false,
+    responseDelay: 0,
+    loggedOut: false,
+    ...flat(user),
+  };
 
   const modifier = {
     $set: userInfos,
@@ -85,6 +83,17 @@ export default function addUser(meetingId, userData) {
       voiceConf: '',
       joined: false,
     });
+  }
+
+  /**
+   * Add a verification to check if the user was set as presenter.
+   * In some cases the user information is set after the presenter is set
+   * causing the first moderator to join a meeting be marked as presenter: false
+   */
+  const partialUser = Users.findOne(selector);
+
+  if (partialUser?.presenter) {
+    modifier.$set.presenter = true;
   }
 
   try {

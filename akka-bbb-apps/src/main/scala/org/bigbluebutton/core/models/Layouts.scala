@@ -34,7 +34,6 @@ class Layouts {
 
 object LayoutsType {
   val layoutsType = Map(
-    "legacy" -> "LEGACY",
     "custom" -> "CUSTOM_LAYOUT",
     "smart" -> "SMART_LAYOUT",
     "presentationFocus" -> "PRESENTATION_FOCUS",

@@ -43,6 +43,8 @@ class BBBMenu extends React.Component {
   };
 
   setAnchorEl(el) {
+    console.log(el)
+    debugger
     this.setState({ anchorEl: el });
   };
 
@@ -50,51 +52,48 @@ class BBBMenu extends React.Component {
     const { actions, selectedEmoji } = this.props;
 
     return actions?.map(a => {
-      const { dataTest, label, onClick, key } = a;
-      const itemClasses = [styles.menuitem];
+      const { label, onClick, key, disabled } = a;
+      const itemClasses = [styles.menuitem, a?.className];
 
-      if (key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase())) {
-        itemClasses.push(styles.emojiSelected);
-      };
+      if (key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase())) itemClasses.push(styles.emojiSelected);
 
       return [
+        a.dividerTop && <Divider disabled />,  
         <MenuItem
-          data-test={dataTest}
           key={label}
           className={itemClasses.join(' ')}
           disableRipple={true}
           disableGutters={true}
-          style={{ paddingLeft: '4px', paddingRight: '4px', paddingTop: '8px', paddingBottom: '8px', marginLeft: '4px', marginRight: '4px' }}
-          onClick={() => {
+          disabled={disabled}
+          style={{ paddingLeft: '4px',paddingRight: '4px',paddingTop: '8px', paddingBottom: '8px', marginLeft: '4px', marginRight: '4px' }}
+          onClick={() => { 
             onClick();
             const close = !key.includes('setstatus') && !key.includes('back');
             // prevent menu close for sub menu actions
             if (close) this.handleClose();
           }}>
-          <div style={{ display: 'flex', flexFlow: 'row', width: '100%' }}>
+          <div style={{ display: 'flex', flexFlow: 'row', width: '100%'}}>
             {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
             <div className={styles.option}>{label}</div>
             {a.iconRight ? <Icon iconName={a.iconRight} key="iconRight" className={styles.iRight} /> : null}
           </div>
         </MenuItem>,
-        a.divider && <Divider />
+        a.divider && <Divider disabled />  
       ];
     });
   }
 
   render() {
     const { anchorEl } = this.state;
-    const { trigger, intl, opts, wide } = this.props;
+    const { trigger, intl, opts, wide, classes } = this.props;
     const actionsItems = this.makeMenuItems();
-
-    const menuClasses = [styles.menu];
-    if (wide) menuClasses.push(styles.wide)
+    const menuClasses = classes || [];
+    menuClasses.push(styles.menu);
+    if (wide) menuClasses.push(styles.wide);
 
     return (
       <div>
-        <div onClick={this.handleClick} role="menuitem" tabIndex={0}>
-          {trigger}
-        </div>
+        <div onClick={this.handleClick} accessKey={this.props?.accessKey}>{trigger}</div>
         <Menu
           {...opts}
           anchorEl={anchorEl}
@@ -129,7 +128,7 @@ BBBMenu.defaultProps = {
     getContentAnchorEl: null,
     fullwidth: "true",
     anchorOrigin: { vertical: 'top', horizontal: 'right' },
-    transformorigin: { vertical: 'top', horizontal: 'top' },
+    transformorigin: { vertical: 'top', horizontal: 'right' },
   },
   onCloseCallback: () => {},
   wide: false,
@@ -148,7 +147,10 @@ BBBMenu.propTypes = {
     onClick: PropTypes.func.isRequired,
     icon: PropTypes.string,
     iconRight: PropTypes.string,
+    disabled: PropTypes.bool, 
     divider: PropTypes.bool,
+    dividerTop: PropTypes.bool,
+    accessKey: PropTypes.string,
   })).isRequired,
 
   onCloseCallback: PropTypes.func,

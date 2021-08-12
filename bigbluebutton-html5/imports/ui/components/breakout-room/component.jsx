@@ -105,6 +105,7 @@ class BreakoutRoom extends PureComponent {
     this.state = {
       requestedBreakoutId: '',
       waiting: false,
+      generated: false,
       joinedAudioOnly: false,
       breakoutId: '',
       visibleExtendTimeForm: false,
@@ -126,19 +127,19 @@ class BreakoutRoom extends PureComponent {
       waiting,
       requestedBreakoutId,
       joinedAudioOnly,
+      generated,
     } = this.state;
 
     if (breakoutRooms.length === 0) {
       return this.closePanel();
     }
 
-    if (waiting) {
+    if (waiting && !generated) {
       const breakoutUser = breakoutRoomUser(requestedBreakoutId);
 
       if (!breakoutUser) return false;
       if (breakoutUser.redirectToHtml5JoinURL !== '') {
-        window.open(breakoutUser.redirectToHtml5JoinURL, '_blank');
-        _.delay(() => this.setState({ waiting: false }), 1000);
+        _.delay(() => this.setState({ generated: true, waiting: false }), 1000);
       }
     }
 
@@ -169,7 +170,7 @@ class BreakoutRoom extends PureComponent {
 
     if (hasUser) {
       window.open(hasUser.redirectToHtml5JoinURL, '_blank');
-      this.setState({ waiting: false });
+      this.setState({ waiting: false, generated: false });
     }
     return null;
   }
@@ -236,6 +237,7 @@ class BreakoutRoom extends PureComponent {
       breakoutId: _stateBreakoutId,
       requestedBreakoutId,
       waiting,
+      generated,
     } = this.state;
 
     const {
@@ -283,7 +285,11 @@ class BreakoutRoom extends PureComponent {
             )
             : (
               <Button
-                label={intl.formatMessage(intlMessages.breakoutJoin)}
+                label={
+                  generated && requestedBreakoutId === breakoutId
+                    ? intl.formatMessage(intlMessages.generatedURL)
+                    : intl.formatMessage(intlMessages.breakoutJoin)
+                }
                 data-test="breakoutJoin"
                 aria-label={`${intl.formatMessage(intlMessages.breakoutJoin)} ${number}`}
                 onClick={() => {

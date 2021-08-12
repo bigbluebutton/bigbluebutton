@@ -76,6 +76,8 @@
     "app.userList.guest": "Misafir",
     "app.userList.sharingWebcam": "Web Kamerası",
     "app.userList.menuTitleContext": "Mevcut seçenekler",
+    "app.userList.chatListItem.unreadSingular": "Bir yeni mesaj",
+    "app.userList.chatListItem.unreadPlural": "{0} yeni mesaj",
     "app.userList.menu.chat.label": "Özel mesaj yaz",
     "app.userList.menu.clearStatus.label": "Durumu temizle",
     "app.userList.menu.removeUser.label": "Kullanıcı uzaklaştır",

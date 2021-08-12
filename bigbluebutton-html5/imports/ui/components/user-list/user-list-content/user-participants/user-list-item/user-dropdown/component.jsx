@@ -251,6 +251,8 @@ class UserDropdown extends PureComponent {
       layoutContextDispatch,
     } = this.props;
     const { showNestedOptions } = this.state;
+    const { clientType } = user;
+    const isDialInUser = clientType === 'dial-in-user';
 
     const amIPresenter = currentUser.presenter;
     const amIModerator = currentUser.role === ROLE_MODERATOR;
@@ -325,7 +327,7 @@ class UserDropdown extends PureComponent {
 
     const showChatOption = CHAT_ENABLED
       && enablePrivateChat
-      && user.clientType !== 'dial-in-user'
+      && !isDialInUser
       && !meetingIsBreakout
       && isMeteorConnected;
 
@@ -389,7 +391,7 @@ class UserDropdown extends PureComponent {
       });
     }
 
-    if (allowedToChangeWhiteboardAccess && !user.presenter && isMeteorConnected) {
+    if (allowedToChangeWhiteboardAccess && !user.presenter && isMeteorConnected && !isDialInUser) {
       const label = user.whiteboardAccess
         ? intl.formatMessage(messages.removeWhiteboardAccess)
         : intl.formatMessage(messages.giveWhiteboardAccess);
@@ -405,7 +407,7 @@ class UserDropdown extends PureComponent {
       });
     }
 
-    if (allowedToSetPresenter && isMeteorConnected) {
+    if (allowedToSetPresenter && isMeteorConnected && !isDialInUser) {
       actions.push({
         key: 'setPresenter',
         label: isMe(user.userId)

@@ -1,6 +1,6 @@
 const audioTest = require('./audio.obj');
-const chatTest = require('./chat.obj');
 const breakoutTest = require('./breakout.obj');
+const chatTest = require('./chat.obj');
 const customParametersTest = require('./customparameters.obj');
 const notificationsTest = require('./notifications.obj');
 const pollingTest = require('./polling.obj');
@@ -12,6 +12,7 @@ const virtualizedListTest = require('./virtualizedlist.obj');
 const webcamTest = require('./webcam.obj');
 const webcamLayout = require('./webcamlayout.obj');
 const whiteboardTest = require('./whiteboard.obj');
+const stressTest = require('./stress.obj');
 
 process.setMaxListeners(Infinity);
 
@@ -29,3 +30,6 @@ describe('Virtualized List', virtualizedListTest);
 describe('Webcam', webcamTest);
 describe('Webcam Layout', webcamLayout);
 describe('Whiteboard', whiteboardTest);
+if (process.env.STRESS_TEST === 'true') {
+  describe('Stress', stressTest);
+};
