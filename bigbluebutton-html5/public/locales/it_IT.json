@@ -76,6 +76,8 @@
     "app.userList.guest": "Ospite",
     "app.userList.sharingWebcam": "Webcam",
     "app.userList.menuTitleContext": "Opzioni disponibili",
+    "app.userList.chatListItem.unreadSingular": "Un nuovo messaggio",
+    "app.userList.chatListItem.unreadPlural": "{0} nuovi messaggi",
     "app.userList.menu.chat.label": "Avvia una chat privata",
     "app.userList.menu.clearStatus.label": "Cancella stato",
     "app.userList.menu.removeUser.label": "Rimuovi utente",
