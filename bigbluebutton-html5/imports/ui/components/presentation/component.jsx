@@ -214,8 +214,20 @@ class Presentation extends PureComponent {
   }
 
   componentWillUnmount() {
+    const { fullscreenContext, layoutContextDispatch } = this.props;
+
     window.removeEventListener('resize', this.onResize, false);
     this.refPresentationContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
+
+    if (fullscreenContext) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_FULLSCREEN_ELEMENT,
+        value: {
+          element: '',
+          group: '',
+        },
+      });
+    }
   }
 
   handleResize() {
