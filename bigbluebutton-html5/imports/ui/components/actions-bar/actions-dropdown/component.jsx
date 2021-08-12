@@ -3,7 +3,6 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
-import Dropdown from '/imports/ui/components/dropdown/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
@@ -129,11 +128,8 @@ class ActionsDropdown extends PureComponent {
 
     const {
       pollBtnLabel,
-      pollBtnDesc,
       presentationLabel,
-      presentationDesc,
       takePresenter,
-      takePresenterDesc,
     } = intlMessages;
 
     const {
@@ -146,7 +142,6 @@ class ActionsDropdown extends PureComponent {
       actions.push({
         icon: "presentation",
         label: formatMessage(presentationLabel),
-        // description: formatMessage(presentationDesc),
         key: this.presentationItemId,
         onClick: handlePresentationClick,
         dividerTop: this.props?.presentations?.length > 1 ? true : false,
@@ -157,17 +152,16 @@ class ActionsDropdown extends PureComponent {
       actions.push({
         icon: "polling",
         label: formatMessage(pollBtnLabel),
-        // description: formatMessage(pollBtnDesc),
         key: this.pollId,
         onClick: () => {
           if (Session.equals('pollInitiated', true)) {
             Session.set('resetPollPanel', true);
           }
-          newLayoutContextDispatch({
+          layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
             value: true,
           });
-          newLayoutContextDispatch({
+          layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
             value: PANELS.POLL,
           });
@@ -180,7 +174,6 @@ class ActionsDropdown extends PureComponent {
       actions.push({
         icon: "presentation",
         label: formatMessage(takePresenter),
-        // description: formatMessage(takePresenterDesc),
         key: this.takePresenterId,
         onClick: () => handleTakePresenter(),
       });
@@ -191,7 +184,6 @@ class ActionsDropdown extends PureComponent {
         icon: "video",
         label: !isSharingVideo ? intl.formatMessage(intlMessages.startExternalVideoLabel)
           : intl.formatMessage(intlMessages.stopExternalVideoLabel),
-        // description: "External Video",
         key: "external-video",
         onClick: isSharingVideo ? stopExternalVideoShare : this.handleExternalVideoClick,
       })
@@ -201,7 +193,6 @@ class ActionsDropdown extends PureComponent {
       actions.push({
         icon: "user",
         label: intl.formatMessage(intlMessages.selectRandUserLabel),
-        // description: intl.formatMessage(intlMessages.selectRandUserDesc),
         key: this.selectUserRandId,
         onClick: () => mountModal(<RandomUserSelectContainer isSelectedUser={false} />),
       })
@@ -256,8 +247,6 @@ class ActionsDropdown extends PureComponent {
       shortcuts: OPEN_ACTIONS_AK,
       isMeteorConnected,
       isDropdownOpen,
-      sidebarContent,
-      sidebarNavigation,
     } = this.props;
 
     const availableActions = this.getAvailableActions();
