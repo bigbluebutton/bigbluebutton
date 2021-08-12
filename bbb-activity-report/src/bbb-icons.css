@@ -7,7 +7,7 @@
 
 [class^="icon-bbb-"], [class*=" icon-bbb-"] {
   /* use !important to prevent issues with browser extensions that change fonts */
-  font-family: 'bbb-icons' !important;
+  font-family: 'bbb-icons', sans-serif !important;
   speak: none;
   position: relative;
   /*top: 1px;*/
@@ -15,7 +15,6 @@
   font-style: normal;
   font-weight: 400;
   line-height: 1;
-  -webkit-font-smoothing: antialiased;
   width: 1em;
   text-align: center;
   vertical-align: middle;
