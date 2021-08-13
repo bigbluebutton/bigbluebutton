@@ -51,16 +51,16 @@ class Trigger extends Page {
 
       await sleep(5000);
       await this.logger('Stopping Network Service...');
-      await exec('sh tests/puppeteer/events/stop-network.sh', (error, data, getter) => {
+      await exec('sh events/stop-network.sh', async (error, data, getter) => {
         if (error) {
-          console.log("error", error.message);
+          await this.logger("error", error.message);
           return;
         }
         if (getter) {
-          console.log("data", data);
+          await this.logger("data", data);
           return;
         }
-        console.log("data", data);
+        await this.logger("data", data);
       });
       const meteorStatus = await this.page.evaluate(() => Meteor.status());
       const meteorStatusConfirm = await meteorStatus.status === "offline";
@@ -70,16 +70,16 @@ class Trigger extends Page {
       await this.logger('Counting ', CLIENT_RECONNECTION_TIMEOUT / 6000, ' seconds...');
       await sleep(CLIENT_RECONNECTION_TIMEOUT);
       await this.logger('Restarting Network Service...');
-      await exec('sh tests/puppeteer/events/restart-network.sh', (error, data, getter) => {
+      await exec('sh events/restart-network.sh', async (error, data, getter) => {
         if (error) {
-          console.log("error", error.message);
+          await this.logger("error", error.message);
           return;
         }
         if (getter) {
-          console.log("data", data);
+          await this.logger("data", data);
           return;
         }
-        console.log("data", data);
+        await this.logger("data", data);
       });
       await this.screenshot(`${testName}`, `04-after-network-service-restart-[${this.meetingId}]`);
 
