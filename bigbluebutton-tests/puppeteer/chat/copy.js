@@ -35,7 +35,7 @@ class Copy extends Page {
       const copiedText = await this.page.evaluate(async () => await navigator.clipboard.readText());
       return copiedText.includes(`${p.fullName}: ${e.message}`);
     } catch (e) {
-      console.log(e);
+      await this.logger(e);
       return false;
     }
   }

@@ -28,7 +28,8 @@ class Draw extends Page {
       await this.waitForSelector(e.drawnRectangle, ELEMENT_WAIT_TIME);
       const shapes1 = await this.getTestElements();
       shapes1 !== '<g></g>';
-      return true;
+
+      return shapes0 && shapes1;
     } catch (e) {
       await this.logger(e);
       return false;
@@ -36,9 +37,13 @@ class Draw extends Page {
   }
 
   async getTestElements() {
-    await this.waitForSelector('g[clip-path="url(#viewBox)"]', ELEMENT_WAIT_TIME);
-    const shapes = await this.page.evaluate(() => document.querySelector('svg g[clip-path]').children[1].outerHTML);
-    return shapes;
+    try {
+      await this.waitForSelector('g[clip-path="url(#viewBox)"]', ELEMENT_WAIT_TIME);
+      const shapes = await this.page.evaluate(() => document.querySelector('svg g[clip-path]').children[1].outerHTML);
+      return shapes;
+    } catch (e) {
+      await this.logger(e);
+    }
   }
 }
 

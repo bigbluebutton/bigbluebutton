@@ -7,18 +7,29 @@ class Check extends Share {
   }
 
   async compare() {
-    await util.enableWebcam(page1, page2);
-    const respUser = await util.compareWebcamsContents(this);
-    return respUser === true;
+    try {
+      await util.enableWebcam(page1, page2);
+      const respUser = await util.compareWebcamsContents(this);
+      return respUser === true;
+    } catch (e) {
+      await this.logger(e);
+      return false;
+    }
   }
 
   async test() {
-    const parsedSettings = await this.getSettingsYaml();
-    const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
+    try {
+      const parsedSettings = await this.getSettingsYaml();
+      const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
 
-    await util.enableWebcam(this, videoPreviewTimeout);
-    const respUser = await util.webcamContentCheck(this);
-    return respUser === true;
+      await util.enableWebcam(this, videoPreviewTimeout);
+      const respUser = await util.webcamContentCheck(this);
+      return respUser === true;
+    } catch (e) {
+      await this.logger(e);
+      return false;
+    }
   }
 }
+
 module.exports = exports = Check;

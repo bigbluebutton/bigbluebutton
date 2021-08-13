@@ -31,9 +31,9 @@ class Stress extends Page {
         if (failureCount > maxFailRate) return false;
       }
       return true;
-    } catch (err) {
+    } catch (e) {
       await this.close();
-      this.logger(err);
+      this.logger(e);
       return false;
     }
   }

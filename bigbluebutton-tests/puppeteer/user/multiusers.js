@@ -42,24 +42,39 @@ class MultiUsers {
   }
 
   async multiUsersPublicChat() {
-    const chat0 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
-    await util.sendPublicChatMessage(this.page1, this.page2);
-    const chat1 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
-    return chat0 !== chat1;
+    try {
+      const chat0 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
+      await util.sendPublicChatMessage(this.page1, this.page2);
+      const chat1 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
+      return chat0 !== chat1;
+    } catch (e) {
+      await this.page1.logger(e);
+      return false;
+    }
   }
 
   async multiUsersPrivateChat() {
-    await util.openPrivateChatMessage(this.page1, this.page2);
-    const chat0 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
-    await util.sendPrivateChatMessage(this.page1, this.page2);
-    await sleep(2000);
-    const chat1 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
-    return chat0 !== chat1;
+    try {
+      await util.openPrivateChatMessage(this.page1, this.page2);
+      const chat0 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
+      await util.sendPrivateChatMessage(this.page1, this.page2);
+      await sleep(2000);
+      const chat1 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
+      return chat0 !== chat1;
+    } catch (e) {
+      await this.page1.logger(e);
+      return false;
+    }
   }
 
   async test() {
-    const checks = await this.checkForOtherUser();
-    return checks.firstCheck !== false && checks.secondCheck !== false;
+    try {
+      const checks = await this.checkForOtherUser();
+      return checks.firstCheck !== false && checks.secondCheck !== false;
+    } catch (e) {
+      await this.page1.logger(e);
+      return false;
+    }
   }
 
   async randomPoll(testName) {
@@ -95,7 +110,6 @@ class MultiUsers {
       switch (chosenRandomNb) {
         case 0:
           // Adding a poll option
-          console.log({ chosenRandomNb }, ' <= True / False');
           await this.page1.waitForSelector(ple.responseChoices, ELEMENT_WAIT_TIME);
           await this.page1.waitForSelector(ple.addItem, ELEMENT_WAIT_TIME);
           await this.page1.click(ple.addItem, true);
@@ -106,14 +120,12 @@ class MultiUsers {
 
         case 1:
           // Deleting a poll option
-          console.log({ chosenRandomNb }, ' <= A / B / C / D');
           await this.page1.waitForSelector(ple.deletePollOption, ELEMENT_WAIT_TIME);
           await this.page1.clickNItem(ple.deletePollOption, true, customs[1]);
           break;
 
         case 2:
           // Editing a poll option
-          console.log({ chosenRandomNb }, ' <= Yes / No / Abstention');
           await this.page1.waitForSelector(ple.responseChoices, ELEMENT_WAIT_TIME);
           await this.page1.clickNItem(ple.pollOptionItem, true, 2);
           await this.page1.hold('Control');
@@ -125,7 +137,6 @@ class MultiUsers {
 
         case 3:
           // Do nothing to let Users write their single response answer
-          console.log({ chosenRandomNb }, ' <= User Response');
           await this.page1.waitForSelector(ple.responseChoices, ELEMENT_WAIT_TIME);
           await sleep(2000);
           break;
@@ -134,7 +145,6 @@ class MultiUsers {
       await this.page1.waitForSelector(ple.startPoll, ELEMENT_WAIT_TIME);
       await this.page1.click(ple.startPoll, true);
       await this.page2.waitForSelector(ple.pollingContainer, ELEMENT_WAIT_TIME);
-      console.log({ condition });
       switch (condition) {
         case true:
           await this.page2.clickNItem(ple.pollAnswerOptionBtn, true, 2);
@@ -151,50 +161,70 @@ class MultiUsers {
       await sleep(2000);
       const receivedAnswerFound = await this.page1.page.evaluate(utilCustomParams.countTestElements, ple.receivedAnswer);
       await sleep(2000);
-      return receivedAnswerFound;
+      return receivedAnswerFound === true;
     } catch (e) {
-      console.log(e);
+      await this.page1.logger(e);
       return false;
     }
   }
 
   async testWhiteboardAccess() {
-    await this.page1.closeAudioModal();
-    await this.page2.closeAudioModal();
-    await this.page3.closeAudioModal();
-    await this.page1.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
-    await this.page1.clickNItem(we.userListItem, true, 1);
-    await this.page1.clickNItem(we.changeWhiteboardAccess, true, 1);
-    await sleep(2000);
-    const resp = await this.page1.page.evaluate(async () => await document.querySelector('[data-test="multiWhiteboardTool"]').children[0].innerText === '1');
-    return resp;
+    try {
+      await this.page1.closeAudioModal();
+      await this.page2.closeAudioModal();
+      await this.page3.closeAudioModal();
+      await this.page1.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
+      await this.page1.clickNItem(we.userListItem, true, 1);
+      await this.page1.clickNItem(we.changeWhiteboardAccess, true, 1);
+      await sleep(2000);
+      const resp = await this.page1.page.evaluate(async () => await document.querySelector('[data-test="multiWhiteboardTool"]').children[0].innerText === '1');
+      return resp === true;
+    } catch (e) {
+      await this.page1.logger(e);
+      return false;
+    }
   }
 
   // Raise Hand
   async raiseHandTest() {
-    await this.page1.closeAudioModal();
-    await this.page2.closeAudioModal();
-    await this.page2.waitForSelector(we.raiseHandLabel, ELEMENT_WAIT_TIME);
-    await this.page2.click(we.raiseHandLabel, true);
-    await sleep(2000);
-    const resp = await this.page2.page.evaluate(utilCustomParams.countTestElements, we.lowerHandLabel);
-    return resp;
+    try {
+      await this.page1.closeAudioModal();
+      await this.page2.closeAudioModal();
+      await this.page2.waitForSelector(we.raiseHandLabel, ELEMENT_WAIT_TIME);
+      await this.page2.click(we.raiseHandLabel, true);
+      await sleep(2000);
+      const resp = await this.page2.page.evaluate(utilCustomParams.countTestElements, we.lowerHandLabel);
+      return resp === true;
+    } catch (e) {
+      await this.page1.logger(e);
+      return false;
+    }
   }
 
   // Lower Hand
   async lowerHandTest() {
-    await this.page2.waitForSelector(we.lowerHandLabel, ELEMENT_WAIT_TIME);
-    await this.page2.click(we.lowerHandLabel, true);
-    await sleep(2000);
-    const resp = await this.page2.page.evaluate(utilCustomParams.countTestElements, we.raiseHandLabel);
-    return resp;
+    try {
+      await this.page2.waitForSelector(we.lowerHandLabel, ELEMENT_WAIT_TIME);
+      await this.page2.click(we.lowerHandLabel, true);
+      await sleep(2000);
+      const resp = await this.page2.page.evaluate(utilCustomParams.countTestElements, we.raiseHandLabel);
+      return resp === true;
+    } catch (e) {
+      await this.page2.logger(e);
+      return false;
+    }
   }
 
   // Get Avatars Colors from Userlist and Notification toast
   async getAvatarColorAndCompareWithUserListItem() {
-    const avatarInToastElementColor = await this.page1.page.$eval(we.avatarsWrapperAvatar, (elem) => getComputedStyle(elem).backgroundColor);
-    const avatarInUserListColor = await this.page1.page.$eval('[data-test="userListItem"] > div [data-test="userAvatar"]', (elem) => getComputedStyle(elem).backgroundColor);
-    return avatarInToastElementColor === avatarInUserListColor;
+    try {
+      const avatarInToastElementColor = await this.page1.page.$eval(we.avatarsWrapperAvatar, (elem) => getComputedStyle(elem).backgroundColor);
+      const avatarInUserListColor = await this.page1.page.$eval('[data-test="userListItem"] > div [data-test="userAvatar"]', (elem) => getComputedStyle(elem).backgroundColor);
+      return avatarInToastElementColor === avatarInUserListColor;
+    } catch (e) {
+      await this.page1.logger(e);
+      return false;
+    }
   }
 
   async userOfflineWithInternetProblem() {
@@ -212,7 +242,7 @@ class MultiUsers {
       const connectionStatusOfflineUser = await this.page1.page.evaluate(utilUser.countTestElements, ue.connectionStatusOfflineUser) === true;
       return connectionStatusOfflineUser && connectionStatusItemEmpty;
     } catch (e) {
-      console.log(e);
+      await this.page1.logger(e);
       return false;
     }
   }
@@ -225,7 +255,7 @@ class MultiUsers {
       const chatPanel = await this.page2.page.evaluate(utilUser.countTestElements, ue.chatButton) === false;
       return userlistPanel && chatPanel;
     } catch (e) {
-      console.log(e);
+      await this.page1.logger(e);
       return false;
     }
   }
@@ -239,11 +269,10 @@ class MultiUsers {
       await this.page2.click(ue.chatButton, true);
       const onUserListPanel = await this.page1.isNotVisible(cu.hidePresentation, ELEMENT_WAIT_TIME) === true;
       const onChatPanel = await this.page2.page.evaluate(utilUser.countTestElements, cu.hidePresentation) === false;
-      console.log({onUserListPanel, onChatPanel});
       await sleep(2000);
       return onUserListPanel && onChatPanel;
     } catch (e) {
-      console.log(e);
+      await this.page1.logger(e);
       return false;
     }
   }
@@ -256,23 +285,32 @@ class MultiUsers {
       await this.page2.click(ue.chatButton, true);
       const whiteboard = await this.page1.page.evaluate(utilUser.countTestElements, ue.chatButton) === false;
       const onChatPanel = await this.page2.isNotVisible(ue.chatButton, ELEMENT_WAIT_TIME) === true;
-      console.log({whiteboard, onChatPanel});
       await sleep(2000);
       return whiteboard && onChatPanel;
     } catch (e) {
-      console.log(e);
+      await this.page1.logger(e);
       return false;
     }
   }
 
   // Close all Pages
   async close(page1, page2) {
-    await page1.close();
-    await page2.close();
+    try {
+      await page1.close();
+      await page2.close();
+    } catch (e) {
+      await this.page1.logger(e);
+      return false;
+    }
   }
 
   async closePage(page) {
-    await page.close();
+    try {
+      await page.close();
+    } catch (e) {
+      await this.page1.logger(e);
+      return false;
+    }
   }
 }
 

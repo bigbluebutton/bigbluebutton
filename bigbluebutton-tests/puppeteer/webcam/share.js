@@ -9,30 +9,44 @@ class Share extends Page {
   }
 
   async test() {
-    const parsedSettings = await this.getSettingsYaml();
-    const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-    const response = await util.enableWebcam(this, videoPreviewTimeout);
-    return response;
+    try {
+      const parsedSettings = await this.getSettingsYaml();
+      const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
+      const response = await util.enableWebcam(this, videoPreviewTimeout);
+      return response;
+    } catch (e) {
+      await this.logger(e);
+      return false;
+    }
   }
 
   async webcamLayoutStart() {
-    await this.joinMicrophone();
-    const parsedSettings = await this.getSettingsYaml();
-    const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-    await util.enableWebcam(this, videoPreviewTimeout);
+    try {
+      await this.joinMicrophone();
+      const parsedSettings = await this.getSettingsYaml();
+      const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
+      await util.enableWebcam(this, videoPreviewTimeout);
+    } catch (e) {
+      await this.logger(e);
+    }
   }
 
   async webcamLayoutTest(testName) {
-    await this.waitForSelector(wle.webcamVideo, VIDEO_LOADING_WAIT_TIME);
-    await this.waitForSelector(wle.stopSharingWebcam, VIDEO_LOADING_WAIT_TIME);
-    const foundTestElement = await this.page.evaluate(util.countTestElements, wle.webcamItemTalkingUser) !== 0;
-    if (foundTestElement === true) {
-      await this.screenshot(`${testName}`, `success-${testName}`);
-      this.logger(testName, ' passed');
-      return true;
-    } else if (foundTestElement === false) {
-      await this.screenshot(`${testName}`, `fail-${testName}`);
-      this.logger(testName, ' failed');
+    try {
+      await this.waitForSelector(wle.webcamVideo, VIDEO_LOADING_WAIT_TIME);
+      await this.waitForSelector(wle.stopSharingWebcam, VIDEO_LOADING_WAIT_TIME);
+      const foundTestElement = await this.page.evaluate(util.countTestElements, wle.webcamItemTalkingUser) !== 0;
+      if (foundTestElement === true) {
+        await this.screenshot(`${testName}`, `success-${testName}`);
+        this.logger(testName, ' passed');
+        return true;
+      } else if (foundTestElement === false) {
+        await this.screenshot(`${testName}`, `fail-${testName}`);
+        this.logger(testName, ' failed');
+        return false;
+      }
+    } catch (e) {
+      await this.logger(e);
       return false;
     }
   }

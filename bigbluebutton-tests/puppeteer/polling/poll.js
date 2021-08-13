@@ -16,7 +16,7 @@ class Polling extends Page {
       const resp = this.page.evaluate(() => document.querySelectorAll('[data-test="pollMenuButton"]').length === 1);
       return resp;
     } catch (e) {
-      console.log(e);
+      await this.logger(e);
       return false;
     }
   }

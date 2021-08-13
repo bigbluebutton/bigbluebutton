@@ -42,7 +42,7 @@ class Clear extends Page {
 
       return chat0 && chatResp;
     } catch (e) {
-      console.log(e);
+      await this.logger(e);
       return false;
     }
   }

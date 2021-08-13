@@ -13,30 +13,45 @@ class Status extends Page {
   }
 
   async test() {
-    await util.setStatus(this, e.applaud);
-    const resp1 = await this.page.evaluate(util.countTestElements, e.applauseIcon);
-    await util.setStatus(this, e.away);
-    const resp2 = await this.page.evaluate(util.countTestElements, e.awayIcon);
+    try {
+      await util.setStatus(this, e.applaud);
+      const resp1 = await this.page.evaluate(util.countTestElements, e.applauseIcon);
+      await util.setStatus(this, e.away);
+      const resp2 = await this.page.evaluate(util.countTestElements, e.awayIcon);
 
-    await this.click(e.firstUser, true);
-    await this.waitForSelector(e.clearStatus, ELEMENT_WAIT_TIME);
-    await this.click(e.clearStatus, true);
-    return resp1 === resp2;
+      await this.click(e.firstUser, true);
+      await this.waitForSelector(e.clearStatus, ELEMENT_WAIT_TIME);
+      await this.click(e.clearStatus, true);
+      return resp1 === resp2;
+    } catch (e) {
+      await this.logger(e);
+      return false;
+    }
   }
 
   async mobileTagName() {
-    await this.page.waitForSelector(e.userList, ELEMENT_WAIT_TIME);
-    await this.page.click(e.userList, true);
-    await this.page.waitForSelector(e.firstUser, ELEMENT_WAIT_TIME);
+    try {
+      await this.page.waitForSelector(e.userList, ELEMENT_WAIT_TIME);
+      await this.page.click(e.userList, true);
+      await this.page.waitForSelector(e.firstUser, ELEMENT_WAIT_TIME);
 
-    const response = await this.page.evaluate(util.countTestElements, e.mobileUser) === true;
-    return response;
+      const response = await this.page.evaluate(util.countTestElements, e.mobileUser) === true;
+      return response === true;
+    } catch (e) {
+      await this.logger(e);
+      return false;
+    }
   }
 
   async findConnectionStatusModal() {
-    await util.connectionStatus(this.page);
-    const resp = await this.page.evaluate(util.countTestElements, e.connectionStatusModal) === true;
-    return resp;
+    try {
+      await util.connectionStatus(this.page);
+      const resp = await this.page.evaluate(util.countTestElements, e.connectionStatusModal) === true;
+      return resp === true;
+    } catch (e) {
+      await this.logger(e);
+      return false;
+    }
   }
 
   async disableWebcamsFromConnectionStatus() {
@@ -52,7 +67,7 @@ class Status extends Page {
       const webcamsIsDisabledInDataSaving = await this.page.evaluate(util.countTestElements, e.webcamsIsDisabledInDataSaving) === true;
       return webcamsIsDisabledInDataSaving === true;
     } catch (e) {
-      console.log(e);
+      await this.logger(e);
       return false;
     }
   }
@@ -71,7 +86,7 @@ class Status extends Page {
       const webcamsIsDisabledInDataSaving = await this.page.evaluate(util.countTestElements, e.screenshareLocked) === true;
       return webcamsIsDisabledInDataSaving === true;
     } catch (e) {
-      console.log(e);
+      await this.logger(e);
       return false;
     }
   }
@@ -89,9 +104,10 @@ class Status extends Page {
       const connectionStatusItemUser = await this.page.evaluate(util.countTestElements, e.connectionStatusItemUser) === true;
       return connectionStatusItemUser && connectionStatusItemEmpty;
     } catch (e) {
-      console.log(e);
+      await this.logger(e);
       return false;
     }
   }
 }
+
 module.exports = exports = Status;

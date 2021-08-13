@@ -25,7 +25,7 @@ class VirtualizeList {
       }
       await this.page1.getMetrics();
     } catch (e) {
-      console.log(e);
+      await this.page1.logger(e);
     }
   }
 
@@ -43,7 +43,8 @@ class VirtualizeList {
         return true;
       }
     } catch (e) {
-      console.log(e);
+      await this.page1.logger(e);
+      return false;
     }
   }
 
@@ -52,7 +53,7 @@ class VirtualizeList {
       this.page1.close();
       this.pagesArray.forEach(page => page.close());
     } catch (e) {
-      console.log(e);
+      await this.page1.logger(e);
     }
   }
 }
