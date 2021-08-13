@@ -20,6 +20,8 @@ For example, to build the `bbb-html5` package, run the following command from th
 
 The package will be put into the `artifacts/` subdirectory.
 
+Note that this will pull in the required Docker image from a remote server. If you want to build the container yourself, get the `Dockerfile` from [the repo](https://gitlab.senfcall.de/senfcall-public/docker-bbb-build), [build it locally](https://docs.docker.com/engine/reference/commandline/build/#text-files) and change the image url in `.gitlab-ci.yml` to the locally built one.
+
 ## build using CI
 
 ![Diagram showing the CI build process](bbb-ci.png)
