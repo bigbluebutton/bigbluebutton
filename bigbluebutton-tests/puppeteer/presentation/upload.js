@@ -19,9 +19,8 @@ class Upload extends Page {
       await this.click(ce.actions, true);
       await this.click(e.uploadPresentation, true);
 
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await this.screenshot(`${testName}`, `01-before-presentation-upload-[${testName}]`);
-      }
+      await this.screenshot(`${testName}`, `01-before-presentation-upload-[${testName}]`);
+
       await this.waitForSelector(e.fileUpload, ELEMENT_WAIT_TIME);
       const fileUpload = await this.page.$(e.fileUpload);
       await fileUpload.uploadFile(`${__dirname}/upload-test.png`);
@@ -39,9 +38,8 @@ class Upload extends Page {
       await this.page.waitForFunction(
         'document.querySelector("body").innerText.includes("Current presentation")',
       );
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await this.screenshot(`${testName}`, `02-after-presentation-upload-[${testName}]`);
-      }
+      await this.screenshot(`${testName}`, `02-after-presentation-upload-[${testName}]`);
+
       const slides1 = await this.page.evaluate(async () => await document.querySelector('svg g g g').outerHTML);
 
       await this.logger('\nSlides before presentation upload:');

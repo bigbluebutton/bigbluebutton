@@ -113,30 +113,25 @@ class Create {
     try {
       await this.page1.closeAudioModal();
       await this.page2.closeAudioModal();
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await this.page1.screenshot(`${testName}`, `01-page01-initialized-${testName}`);
-        await this.page2.screenshot(`${testName}`, `01-page02-initialized-${testName}`);
-      }
+      await this.page1.screenshot(`${testName}`, `01-page01-initialized-${testName}`);
+      await this.page2.screenshot(`${testName}`, `01-page02-initialized-${testName}`);
+
       await this.page1.page.evaluate(util.clickTestElement, be.manageUsers);
       await this.page1.page.evaluate(util.clickTestElement, be.createBreakoutRooms);
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await this.page1.screenshot(`${testName}`, `02-page01-creating-breakoutrooms-${testName}`);
-      }
+      await this.page1.screenshot(`${testName}`, `02-page01-creating-breakoutrooms-${testName}`);
+
       await this.page1.waitForSelector(be.randomlyAssign, ELEMENT_WAIT_TIME);
       await this.page1.page.evaluate(util.clickTestElement, be.randomlyAssign);
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await this.page1.screenshot(`${testName}`, `03-page01-randomly-assign-user-${testName}`);
-      }
+      await this.page1.screenshot(`${testName}`, `03-page01-randomly-assign-user-${testName}`);
+
       await this.page1.waitForSelector(be.modalConfirmButton, ELEMENT_WAIT_TIME);
       await this.page1.page.evaluate(util.clickTestElement, be.modalConfirmButton);
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await this.page1.screenshot(`${testName}`, `04-page01-confirm-breakoutrooms-creation-${testName}`);
-      }
+      await this.page1.screenshot(`${testName}`, `04-page01-confirm-breakoutrooms-creation-${testName}`);
+
       await this.page2.waitForSelector(be.modalConfirmButton, ELEMENT_WAIT_TIME);
       await this.page2.page.evaluate(util.clickTestElement, be.modalConfirmButton);
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await this.page2.screenshot(`${testName}`, `02-page02-accept-invite-breakoutrooms-${testName}`);
-      }
+      await this.page2.screenshot(`${testName}`, `02-page02-accept-invite-breakoutrooms-${testName}`);
+
       await this.page2.page.bringToFront();
       await this.page2.waitForSelector(be.breakoutRoomsItem, ELEMENT_WAIT_TIME);
       await this.page2.waitForSelector(be.chatButton, ELEMENT_WAIT_TIME);
@@ -163,14 +158,12 @@ class Create {
     try {
       const resp = await this.page1.page.evaluate(() => document.querySelectorAll('div[data-test="breakoutRoomsItem"]').length !== 0);
       if (resp === true) {
-        if (process.env.GENERATE_EVIDENCES === 'true') {
-          await this.page1.screenshot(`${testName}`, `05-page01-success-${testName}`);
-        }
+        await this.page1.screenshot(`${testName}`, `05-page01-success-${testName}`);
+
         return true;
       }
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await this.page1.screenshot(`${testName}`, `05-page01-fail-${testName}`);
-      }
+      await this.page1.screenshot(`${testName}`, `05-page01-fail-${testName}`);
+
       return false;
     } catch (e) {
       await this.page1.logger(e);

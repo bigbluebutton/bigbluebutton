@@ -14,9 +14,8 @@ class Poll extends Notifications {
     try {
       // 0 messages
       const chat0 = await this.page3.page.evaluate(() => document.querySelectorAll('p[data-test="chatPollMessageText"]').length === 0);
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await this.page3.screenshot(`${testName}`, `01-before-chat-message-send-[${this.page3.meetingId}]`);
-      }
+      await this.page3.screenshot(`${testName}`, `01-before-chat-message-send-[${this.page3.meetingId}]`);
+
       await this.publishPollResults(testName);
 
       await this.page3.waitForSelector(e.chatButton, ELEMENT_WAIT_TIME);

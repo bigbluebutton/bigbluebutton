@@ -14,19 +14,16 @@ class Copy extends Page {
   async test(testName) {
     try {
       await util.openChat(this);
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await this.screenshot(`${testName}`, `01-before-sending-chat-message-[${this.meetingId}]`);
-      }
+      await this.screenshot(`${testName}`, `01-before-sending-chat-message-[${this.meetingId}]`);
+
       // sending a message
       await this.type(e.chatBox, e.message);
       await this.click(e.sendButton);
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await this.screenshot(`${testName}`, `02-chat-message-sent-[${this.meetingId}]`);
-      }
+      await this.screenshot(`${testName}`, `02-chat-message-sent-[${this.meetingId}]`);
+
       await this.click(e.chatOptions);
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await this.screenshot(`${testName}`, `03-chat-options-clicked-[${this.meetingId}]`);
-      }
+      await this.screenshot(`${testName}`, `03-chat-options-clicked-[${this.meetingId}]`);
+
       await this.waitForSelector(e.chatUserMessageText, ELEMENT_WAIT_TIME);
       await this.click(e.chatCopy);
       // enable access to browser context clipboard

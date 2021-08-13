@@ -12,18 +12,15 @@ class Trigger extends Page {
 
   async triggerMeteorDisconnect(testName) {
     try {
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await this.screenshot(`${testName}`, `01-before-audio-modal-close-[${this.meetingId}]`);
-      }
+      await this.screenshot(`${testName}`, `01-before-audio-modal-close-[${this.meetingId}]`);
+
       await this.closeAudioModal();
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await this.screenshot(`${testName}`, `02-after-audio-modal-close-[${this.meetingId}]`);
-      }
+      await this.screenshot(`${testName}`, `02-after-audio-modal-close-[${this.meetingId}]`);
+
       await sleep(5000);
       await this.page.evaluate(() => Meteor.disconnect());
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await this.screenshot(`${testName}`, `03-after-meteor-disconnection-[${this.meetingId}]`);
-      }
+      await this.screenshot(`${testName}`, `03-after-meteor-disconnection-[${this.meetingId}]`);
+
       await sleep(CLIENT_RECONNECTION_TIMEOUT);
       const meteorStatus = await this.page.evaluate(() => Meteor.status());
       const meteorStatusConfirm = await meteorStatus.status === "offline";
@@ -34,9 +31,8 @@ class Trigger extends Page {
       await this.logger('Check if Connections Buttons are disabled => ', getAudioButton);
       await this.page.evaluate(() => Meteor.reconnect());
       await sleep(3000);
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await this.screenshot(`${testName}`, `04-after-meteor-reconnection-[${this.meetingId}]`);
-      }
+      await this.screenshot(`${testName}`, `04-after-meteor-reconnection-[${this.meetingId}]`);
+
       const findUnauthorized = await this.page.evaluate(util.countTestElements, e.unauthorized) === true;
       await this.logger('Check if Unauthorized message appears => ', findUnauthorized);
       return meteorStatusConfirm && getAudioButton && findUnauthorized;
@@ -48,13 +44,11 @@ class Trigger extends Page {
 
   async triggerNetworkServiceDisconnection(testName) {
     try {
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await this.screenshot(`${testName}`, `01-before-audio-modal-close-[${this.meetingId}]`);
-      }
+      await this.screenshot(`${testName}`, `01-before-audio-modal-close-[${this.meetingId}]`);
+
       await this.closeAudioModal();
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await this.screenshot(`${testName}`, `02-after-audio-modal-close-[${this.meetingId}]`);
-      }
+      await this.screenshot(`${testName}`, `02-after-audio-modal-close-[${this.meetingId}]`);
+
       await sleep(5000);
       await this.logger('Stopping Network Service...');
       await exec('sh tests/puppeteer/events/stop-network.sh', (error, data, getter) => {
@@ -71,9 +65,8 @@ class Trigger extends Page {
       const meteorStatus = await this.page.evaluate(() => Meteor.status());
       const meteorStatusConfirm = await meteorStatus.status === "offline";
       await this.logger('Check if Meteor is Offline => ', meteorStatusConfirm);
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await this.screenshot(`${testName}`, `03-after-network-service-shutdown-[${this.meetingId}]`);
-      }
+      await this.screenshot(`${testName}`, `03-after-network-service-shutdown-[${this.meetingId}]`);
+
       await this.logger('Counting ', CLIENT_RECONNECTION_TIMEOUT / 6000, ' seconds...');
       await sleep(CLIENT_RECONNECTION_TIMEOUT);
       await this.logger('Restarting Network Service...');
@@ -88,9 +81,8 @@ class Trigger extends Page {
         }
         console.log("data", data);
       });
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await this.screenshot(`${testName}`, `04-after-network-service-restart-[${this.meetingId}]`);
-      }
+      await this.screenshot(`${testName}`, `04-after-network-service-restart-[${this.meetingId}]`);
+
       await this.page.reload();
       await this.closeAudioModal();
       const getAudioButton = await this.page.evaluate(() =>
