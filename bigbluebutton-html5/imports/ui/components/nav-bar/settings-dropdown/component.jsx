@@ -229,9 +229,7 @@ class SettingsDropdown extends PureComponent {
       }
     );
 
-    if (!helpButton) {
-      return null;
-    } else {
+    if (helpButton) {
       this.menuItems.push(
         {
           key: "list-item-help",
@@ -265,11 +263,9 @@ class SettingsDropdown extends PureComponent {
           onClick: () => mountModal(<EndMeetingConfirmationContainer />)             
         }
       )
-    } else {
-      return null;
-    }  
+    }
 
-    const logoutOption = (
+    if (allowLogoutSetting && isMeteorConnected) {
       this.menuItems.push(
         {
           key: "list-item-logout",
@@ -280,11 +276,7 @@ class SettingsDropdown extends PureComponent {
           onClick: () => this.leaveSession()
         }
       )
-    );
-
-    const shouldRenderLogoutOption = (isMeteorConnected && allowLogoutSetting) ? logoutOption : null;    
-    
-    shouldRenderLogoutOption;
+    }
 
     return this.menuItems;
 
@@ -296,8 +288,6 @@ class SettingsDropdown extends PureComponent {
       shortcuts: OPEN_OPTIONS_AK,
       isDropdownOpen,
     } = this.props;
-
-    const { isSettingOpen } = this.state;
 
     return (
    
