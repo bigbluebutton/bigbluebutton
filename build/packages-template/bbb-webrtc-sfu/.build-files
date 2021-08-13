@@ -1,0 +1,12 @@
+after-install.sh
+bbb-restart-kms
+bbb-webrtc-sfu.logrotate
+bbb-webrtc-sfu.service
+before-install.sh
+before-remove.sh
+build.sh
+kurento-media-server.service
+opts-bionic.sh
+opts-centos7.sh
+opts-xenial.sh
+webrtc-sfu.nginx
