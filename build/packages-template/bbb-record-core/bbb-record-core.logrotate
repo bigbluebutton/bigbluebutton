@@ -1,0 +1,12 @@
+/var/log/bigbluebutton/bbb-rap-worker.log 
+/var/log/bigbluebutton/sanity.log 
+{
+        weekly
+        missingok
+        rotate 8
+        compress
+        delaycompress
+        nocreate
+        notifempty
+        sharedscripts
+}

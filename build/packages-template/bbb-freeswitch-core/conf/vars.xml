@@ -1,0 +1,450 @@
+<include>
+  <!-- Preprocessor Variables
+       These are introduced when configuration strings must be consistent across modules.
+       NOTICE: YOU CAN NOT COMMENT OUT AN X-PRE-PROCESS line, Remove the line instead.
+
+       WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
+
+       YOU SHOULD CHANGE THIS default_password value if you don't want to be subject to any
+       toll fraud in the future.  It's your responsibility to secure your own system.
+
+       This default config is used to demonstrate the feature set of FreeSWITCH.
+
+       WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
+  -->
+  <X-PRE-PROCESS cmd="set" data="default_password=1234"/>
+  <!-- Did you change it yet? -->
+  <!--
+      The following variables are set dynamically - calculated if possible by freeswitch - and
+      are available to the config as $${variable}.  You can see their calculated value via fs_cli
+      by entering eval $${variable}
+
+      hostname
+      local_ip_v4
+      local_mask_v4
+      local_ip_v6
+      switch_serial
+      base_dir
+      recordings_dir
+      sound_prefix
+      sounds_dir
+      conf_dir
+      log_dir
+      run_dir
+      db_dir
+      mod_dir
+      htdocs_dir
+      script_dir
+      temp_dir
+      grammar_dir
+      certs_dir
+      storage_dir
+      cache_dir
+      core_uuid
+      zrtp_enabled
+      nat_public_addr
+      nat_private_addr
+      nat_type
+
+  -->
+
+
+  <X-PRE-PROCESS cmd="set" data="sound_prefix=$${sounds_dir}/en/us/callie"/>
+
+  <!--
+      This setting is what sets the default domain FreeSWITCH will use if all else fails.
+
+      FreeSWICH will default to $${local_ip_v4} unless changed.  Changing this setting does
+      affect the sip authentication.  Please review conf/directory/default.xml for more
+      information on this topic.
+  -->
+  <X-PRE-PROCESS cmd="set" data="local_ip_v4=10.0.3.66"/>
+
+  <X-PRE-PROCESS cmd="set" data="domain=$${local_ip_v4}"/>
+  <X-PRE-PROCESS cmd="set" data="domain_name=$${domain}"/>
+  <X-PRE-PROCESS cmd="set" data="hold_music=local_stream://moh"/>
+  <X-PRE-PROCESS cmd="set" data="use_profile=external"/>
+  <X-PRE-PROCESS cmd="set" data="rtp_sdes_suites=AEAD_AES_256_GCM_8|AEAD_AES_128_GCM_8|AES_CM_256_HMAC_SHA1_80|AES_CM_192_HMAC_SHA1_80|AES_CM_128_HMAC_SHA1_80|AES_CM_256_HMAC_SHA1_32|AES_CM_192_HMAC_SHA1_32|AES_CM_128_HMAC_SHA1_32|AES_CM_128_NULL_AUTH"/>
+  <!--
+      Enable ZRTP globally you can override this on a per channel basis
+
+      http://wiki.freeswitch.org/wiki/ZRTP (on how to enable zrtp)
+  -->
+  <X-PRE-PROCESS cmd="set" data="zrtp_secure_media=true"/>
+  <!--
+      NOTICE: When using SRTP it's critical that you do not offer or accept
+      variable bit rate codecs, doing so would leak information and possibly
+      compromise your SRTP stream. (FS-6404)
+
+      Supported SRTP Crypto Suites:
+
+      AEAD_AES_256_GCM_8
+      ____________________________________________________________________________
+      This algorithm is identical to AEAD_AES_256_GCM (see Section 5.2 of
+      [RFC5116]), except that the tag length, t, is 8, and an
+      authentication tag with a length of 8 octets (64 bits) is used.
+      An AEAD_AES_256_GCM_8 ciphertext is exactly 8 octets longer than its
+      corresponding plaintext.
+
+
+      AEAD_AES_128_GCM_8
+      ____________________________________________________________________________
+      This algorithm is identical to AEAD_AES_128_GCM (see Section 5.1 of
+      [RFC5116]), except that the tag length, t, is 8, and an
+      authentication tag with a length of 8 octets (64 bits) is used.
+      An AEAD_AES_128_GCM_8 ciphertext is exactly 8 octets longer than its
+      corresponding plaintext.
+
+
+      AES_CM_256_HMAC_SHA1_80 | AES_CM_192_HMAC_SHA1_80 | AES_CM_128_HMAC_SHA1_80
+      ____________________________________________________________________________
+      AES_CM_128_HMAC_SHA1_80 is the SRTP default AES Counter Mode cipher
+      and HMAC-SHA1 message authentication with an 80-bit authentication
+      tag. The master-key length is 128 bits and has a default lifetime of
+      a maximum of 2^48 SRTP packets or 2^31 SRTCP packets, whichever comes
+      first.
+
+
+      AES_CM_256_HMAC_SHA1_32 | AES_CM_192_HMAC_SHA1_32 | AES_CM_128_HMAC_SHA1_32
+      ____________________________________________________________________________
+      This crypto-suite is identical to AES_CM_128_HMAC_SHA1_80 except that
+      the authentication tag is 32 bits. The length of the base64-decoded key and
+      salt value for this crypto-suite MUST be 30 octets i.e., 240 bits; otherwise,
+      the crypto attribute is considered invalid.
+
+
+      AES_CM_128_NULL_AUTH
+      ____________________________________________________________________________
+      The SRTP default cipher (AES-128 Counter Mode), but to use no authentication
+      method.  This policy is NOT RECOMMENDED unless it is unavoidable; see
+      Section 7.5 of [RFC3711].
+
+
+      SRTP variables that modify behaviors based on direction/leg:
+
+      rtp_secure_media
+      ____________________________________________________________________________
+      possible values:
+          mandatory - Accept/Offer SAVP negotiation ONLY
+          optional  - Accept/Offer SAVP/AVP with SAVP preferred
+          forbidden - More useful for inbound to deny SAVP negotiation
+          false     - implies forbidden
+          true      - implies mandatory
+
+      default if not set is accept SAVP inbound if offered.
+
+
+      rtp_secure_media_inbound | rtp_secure_media_outbound
+      ____________________________________________________________________________
+      This is the same as rtp_secure_media, but would apply to either inbound
+      or outbound offers specifically.
+
+
+      How to specify crypto suites:
+      ____________________________________________________________________________
+      By default without specifying any crypto suites FreeSWITCH will offer
+      crypto suites from strongest to weakest accepting the strongest each
+      endpoint has in common.  If you wish to force specific crypto suites you
+      can do so by appending the suites in a comma separated list in the order
+      that you wish to offer them in.
+
+      Examples:
+
+          rtp_secure_media=mandatory:AES_CM_256_HMAC_SHA1_80,AES_CM_256_HMAC_SHA1_32
+          rtp_secure_media=true:AES_CM_256_HMAC_SHA1_80,AES_CM_256_HMAC_SHA1_32
+          rtp_secure_media=optional:AES_CM_256_HMAC_SHA1_80
+          rtp_secure_media=true:AES_CM_256_HMAC_SHA1_80
+
+      Additionally you can narrow this down on either inbound or outbound by
+      specifying as so:
+
+          rtp_secure_media_inbound=true:AEAD_AES_256_GCM_8
+          rtp_secure_media_inbound=mandatory:AEAD_AES_256_GCM_8
+          rtp_secure_media_outbound=true:AEAD_AES_128_GCM_8
+          rtp_secure_media_outbound=optional:AEAD_AES_128_GCM_8
+
+
+      rtp_secure_media_suites
+      ____________________________________________________________________________
+      Optionaly you can use rtp_secure_media_suites to dictate the suite list
+      and only use rtp_secure_media=[optional|mandatory|false|true] without having
+      to dictate the suite list with the rtp_secure_media* variables.
+  -->
+  <!--
+       Examples of codec options: (module must be compiled and loaded)
+
+       codecname[@8000h|16000h|32000h[@XXi]]
+
+       XX is the frame size must be multples allowed for the codec
+       FreeSWITCH can support 10-120ms on some codecs.
+       We do not support exceeding the MTU of the RTP packet.
+
+
+       iLBC@30i         - iLBC using mode=30 which will win in all cases.
+       DVI4@8000h@20i   - IMA ADPCM 8kHz using 20ms ptime. (multiples of 10)
+       DVI4@16000h@40i  - IMA ADPCM 16kHz using 40ms ptime. (multiples of 10)
+       speex@8000h@20i  - Speex 8kHz using 20ms ptime.
+       speex@16000h@20i - Speex 16kHz using 20ms ptime.
+       speex@32000h@20i - Speex 32kHz using 20ms ptime.
+       BV16             - BroadVoice 16kb/s narrowband, 8kHz
+       BV32             - BroadVoice 32kb/s wideband, 16kHz
+       G7221@16000h     - G722.1 16kHz (aka Siren 7)
+       G7221@32000h     - G722.1C 32kHz (aka Siren 14)
+       CELT@32000h      - CELT 32kHz, only 10ms supported
+       CELT@48000h      - CELT 48kHz, only 10ms supported
+       GSM@40i          - GSM 8kHz using 40ms ptime. (GSM is done in multiples of 20, Default is 20ms)
+       G722             - G722 16kHz using default 20ms ptime. (multiples of 10)
+       PCMU             - G711 8kHz ulaw using default 20ms ptime. (multiples of 10)
+       PCMA             - G711 8kHz alaw using default 20ms ptime. (multiples of 10)
+       G726-16          - G726 16kbit adpcm using default 20ms ptime. (multiples of 10)
+       G726-24          - G726 24kbit adpcm using default 20ms ptime. (multiples of 10)
+       G726-32          - G726 32kbit adpcm using default 20ms ptime. (multiples of 10)
+       G726-40          - G726 40kbit adpcm using default 20ms ptime. (multiples of 10)
+       AAL2-G726-16     - Same as G726-16 but using AAL2 packing. (multiples of 10)
+       AAL2-G726-24     - Same as G726-24 but using AAL2 packing. (multiples of 10)
+       AAL2-G726-32     - Same as G726-32 but using AAL2 packing. (multiples of 10)
+       AAL2-G726-40     - Same as G726-40 but using AAL2 packing. (multiples of 10)
+       LPC              - LPC10 using 90ms ptime (only supports 90ms at this time in FreeSWITCH)
+       L16              - L16 isn't recommended for VoIP but you can do it. L16 can exceed the MTU rather quickly.
+
+       These are the passthru audio codecs:
+
+       G729             - G729 in passthru mode. (mod_g729)
+       G723             - G723.1 in passthru mode. (mod_g723_1)
+       AMR              - AMR in passthru mode. (mod_amr)
+
+       These are the passthru video codecs: (mod_h26x)
+
+       H261             - H.261 Video
+       H263             - H.263 Video
+       H263-1998        - H.263-1998 Video
+       H263-2000        - H.263-2000 Video
+       H264             - H.264 Video
+
+       RTP Dynamic Payload Numbers currently used in FreeSWITCH and what for.
+
+       96  - AMR
+       97  - iLBC (30)
+       98  - iLBC (20)
+       99  - Speex 8kHz, 16kHz, 32kHz
+       100 -
+       101 - telephone-event
+       102 -
+       103 -
+       104 -
+       105 -
+       106 - BV16
+       107 - G722.1 (16kHz)
+       108 -
+       109 -
+       110 -
+       111 -
+       112 -
+       113 -
+       114 - CELT 32kHz, 48kHz
+       115 - G722.1C (32kHz)
+       116 -
+       117 - SILK 8kHz
+       118 - SILK 12kHz
+       119 - SILK 16kHz
+       120 - SILK 24kHz
+       121 - AAL2-G726-40 && G726-40
+       122 - AAL2-G726-32 && G726-32
+       123 - AAL2-G726-24 && G726-24
+       124 - AAL2-G726-16 && G726-16
+       125 -
+       126 -
+       127 - BV32
+
+  -->
+  <X-PRE-PROCESS cmd="set" data="global_codec_prefs=OPUS,speex@16000h@20i,speex@8000h@20i,G722,PCMU,PCMA"/>
+  <X-PRE-PROCESS cmd="set" data="outbound_codec_prefs=OPUS,speex@16000h@20i,G722,PCMU,PCMA"/>
+
+  <!--
+      xmpp_client_profile and xmpp_server_profile
+      xmpp_client_profile can be any string.
+      xmpp_server_profile is appended to "dingaling_" to form the database name
+      containing the "subscriptions" table.
+      used by: dingaling.conf.xml enum.conf.xml
+  -->
+
+  <X-PRE-PROCESS cmd="set" data="xmpp_client_profile=xmppc"/>
+  <X-PRE-PROCESS cmd="set" data="xmpp_server_profile=xmpps"/>
+  <!--
+       THIS IS ONLY USED FOR DINGALING
+
+       bind_server_ip
+
+       Can be an ip address, a dns name, or "auto".
+       This determines an ip address available on this host to bind.
+       If you are separating RTP and SIP traffic, you will want to have
+       use different addresses where this variable appears.
+       Used by: dingaling.conf.xml
+  -->
+  <X-PRE-PROCESS cmd="set" data="bind_server_ip=auto"/>
+
+  <!-- NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE
+
+       If you're going to load test FreeSWITCH please input real IP addresses
+       for external_rtp_ip and external_sip_ip
+  -->
+
+  <!-- external_rtp_ip
+       Can be an one of:
+           ip address: "12.34.56.78"
+           a stun server lookup: "stun:stun.server.com"
+           a DNS name: "host:host.server.com"
+       where fs.mydomain.com is a DNS A record-useful when fs is on
+       a dynamic IP address, and uses a dynamic DNS updater.
+       If unspecified, the bind_server_ip value is used.
+       Used by: sofia.conf.xml dingaling.conf.xml
+  -->
+  <X-PRE-PROCESS cmd="set" data="external_rtp_ip=stun:stun.l.google.com:19302"/>
+
+  <!-- external_sip_ip
+      Used as the public IP address for SDP.
+       Can be an one of:
+           ip address: "12.34.56.78"
+           a stun server lookup: "stun:stun.server.com"
+           a DNS name: "host:host.server.com"
+       where fs.mydomain.com is a DNS A record-useful when fs is on
+       a dynamic IP address, and uses a dynamic DNS updater.
+       If unspecified, the bind_server_ip value is used.
+       Used by: sofia.conf.xml dingaling.conf.xml
+  -->
+  <X-PRE-PROCESS cmd="set" data="external_sip_ip=stun:stun.l.google.com:19302"/>
+
+  <!-- unroll-loops
+       Used to turn on sip loopback unrolling.
+  -->
+  <X-PRE-PROCESS cmd="set" data="unroll_loops=true"/>
+
+  <!-- outbound_caller_id and outbound_caller_name
+       The caller ID telephone number we should use when calling out.
+       Used by: conference.conf.xml and user directory for default
+       outbound callerid name and number.
+  -->
+  <X-PRE-PROCESS cmd="set" data="outbound_caller_name=FreeSWITCH"/>
+  <X-PRE-PROCESS cmd="set" data="outbound_caller_id=0000000000"/>
+
+  <!-- various debug and defaults -->
+  <X-PRE-PROCESS cmd="set" data="call_debug=false"/>
+  <X-PRE-PROCESS cmd="set" data="console_loglevel=info"/>
+  <X-PRE-PROCESS cmd="set" data="default_areacode=918"/>
+  <X-PRE-PROCESS cmd="set" data="default_country=US"/>
+
+  <!-- if false or undefined, the destination number is included in presence NOTIFY dm:note.
+       if true, the destination number is not included -->
+  <X-PRE-PROCESS cmd="set" data="presence_privacy=false"/>
+
+  <X-PRE-PROCESS cmd="set" data="au-ring=%(400,200,383,417);%(400,2000,383,417)"/>
+  <X-PRE-PROCESS cmd="set" data="be-ring=%(1000,3000,425)"/>
+  <X-PRE-PROCESS cmd="set" data="ca-ring=%(2000,4000,440,480)"/>
+  <X-PRE-PROCESS cmd="set" data="cn-ring=%(1000,4000,450)"/>
+  <X-PRE-PROCESS cmd="set" data="cy-ring=%(1500,3000,425)"/>
+  <X-PRE-PROCESS cmd="set" data="cz-ring=%(1000,4000,425)"/>
+  <X-PRE-PROCESS cmd="set" data="de-ring=%(1000,4000,425)"/>
+  <X-PRE-PROCESS cmd="set" data="dk-ring=%(1000,4000,425)"/>
+  <X-PRE-PROCESS cmd="set" data="dz-ring=%(1500,3500,425)"/>
+  <X-PRE-PROCESS cmd="set" data="eg-ring=%(2000,1000,475,375)"/>
+  <X-PRE-PROCESS cmd="set" data="es-ring=%(1500,3000,425)"/>
+  <X-PRE-PROCESS cmd="set" data="fi-ring=%(1000,4000,425)"/>
+  <X-PRE-PROCESS cmd="set" data="fr-ring=%(1500,3500,440)"/>
+  <X-PRE-PROCESS cmd="set" data="hk-ring=%(400,200,440,480);%(400,3000,440,480)"/>
+  <X-PRE-PROCESS cmd="set" data="hu-ring=%(1250,3750,425)"/>
+  <X-PRE-PROCESS cmd="set" data="il-ring=%(1000,3000,400)"/>
+  <X-PRE-PROCESS cmd="set" data="in-ring=%(400,200,425,375);%(400,2000,425,375)"/>
+  <X-PRE-PROCESS cmd="set" data="jp-ring=%(1000,2000,420,380)"/>
+  <X-PRE-PROCESS cmd="set" data="ko-ring=%(1000,2000,440,480)"/>
+  <X-PRE-PROCESS cmd="set" data="pk-ring=%(1000,2000,400)"/>
+  <X-PRE-PROCESS cmd="set" data="pl-ring=%(1000,4000,425)"/>
+  <X-PRE-PROCESS cmd="set" data="ro-ring=%(1850,4150,475,425)"/>
+  <X-PRE-PROCESS cmd="set" data="rs-ring=%(1000,4000,425)"/>
+  <X-PRE-PROCESS cmd="set" data="ru-ring=%(800,3200,425)"/>
+  <X-PRE-PROCESS cmd="set" data="sa-ring=%(1200,4600,425)"/>
+  <X-PRE-PROCESS cmd="set" data="tr-ring=%(2000,4000,450)"/>
+  <X-PRE-PROCESS cmd="set" data="uk-ring=%(400,200,400,450);%(400,2000,400,450)"/>
+  <X-PRE-PROCESS cmd="set" data="us-ring=%(2000,4000,440,480)"/>
+  <X-PRE-PROCESS cmd="set" data="bong-ring=v=-7;%(100,0,941.0,1477.0);v=-7;>=2;+=.1;%(1400,0,350,440)"/>
+  <X-PRE-PROCESS cmd="set" data="beep=%(1000,0,640)"/>
+  <X-PRE-PROCESS cmd="set" data="sit=%(274,0,913.8);%(274,0,1370.6);%(380,0,1776.7)"/>
+
+  <!--
+       Digits Dialed filter: (FS-6940)
+
+       The digits stream may contain valid credit card numbers or social security numbers, These digit
+       filters will allow you to make a valant effort to stamp out sensitive information for
+       PCI/HIPPA compliance. (see xml_cdr dialed_digits)
+
+       df_us_ssn   = US Social Security Number pattern
+       df_us_luhn  = Visa, MasterCard, American Express, Diners Club, Discover and JCB
+  -->
+  <X-PRE-PROCESS cmd="set" data="df_us_ssn=(?!219099999|078051120)(?!666|000|9\d{2})\d{3}(?!00)\d{2}(?!0{4})\d{4}"/>
+  <X-PRE-PROCESS cmd="set" data="df_luhn=?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|6(?:011|5[0-9]{2})[0-9]{12}|(?:2131|1800|35\d{3})\d{11}"/>
+  <!-- change XX to X below to enable -->
+  <XX-PRE-PROCESS cmd="set" data="digits_dialed_filter=(($${df_luhn})|($${df_us_ssn}))"/>
+
+  <!--
+      Setting up your default sip provider is easy.
+      Below are some values that should work in most cases.
+
+      These are for conf/directory/default/example.com.xml
+  -->
+  <X-PRE-PROCESS cmd="set" data="default_provider=example.com"/>
+  <X-PRE-PROCESS cmd="set" data="default_provider_username=joeuser"/>
+  <X-PRE-PROCESS cmd="set" data="default_provider_password=password"/>
+  <X-PRE-PROCESS cmd="set" data="default_provider_from_domain=example.com"/>
+  <!-- true or false -->
+  <X-PRE-PROCESS cmd="set" data="default_provider_register=false"/>
+  <X-PRE-PROCESS cmd="set" data="default_provider_contact=5000"/>
+
+  <!--
+     SIP and TLS settings. http://wiki.freeswitch.org/wiki/Tls
+
+     valid options: sslv2,sslv3,sslv23,tlsv1,tlsv1.1,tlsv1.2
+
+     default: tlsv1,tlsv1.1,tlsv1.2
+  -->
+  <X-PRE-PROCESS cmd="set" data="sip_tls_version=tlsv1,tlsv1.1,tlsv1.2"/>
+
+  <!--
+     TLS cipher suite: default ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH
+
+     The actual ciphers supported will change per platform.
+
+     openssl ciphers -v 'ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH'
+
+     Will show you what is available in your verion of openssl.
+  -->
+  <X-PRE-PROCESS cmd="set" data="sip_tls_ciphers=ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH"/>
+
+  <!-- Internal SIP Profile -->
+  <X-PRE-PROCESS cmd="set" data="internal_auth_calls=true"/>
+  <X-PRE-PROCESS cmd="set" data="internal_sip_port=5090"/>
+  <X-PRE-PROCESS cmd="set" data="internal_tls_port=5061"/>
+  <X-PRE-PROCESS cmd="set" data="internal_ssl_enable=false"/>
+
+  <!-- External SIP Profile -->
+  <X-PRE-PROCESS cmd="set" data="external_auth_calls=false"/>
+  <X-PRE-PROCESS cmd="set" data="external_sip_port=5060"/>
+  <X-PRE-PROCESS cmd="set" data="external_tls_port=5081"/>
+  <X-PRE-PROCESS cmd="set" data="external_ssl_enable=false"/>
+
+  <!-- Video Settings -->
+  <!-- Setting the max bandwdith -->
+  <X-PRE-PROCESS cmd="set" data="rtp_video_max_bandwidth_in=1mb"/>
+  <X-PRE-PROCESS cmd="set" data="rtp_video_max_bandwidth_out=1mb"/>
+
+  <!-- WebRTC Video -->
+  <!-- Suppress CNG for WebRTC Audio -->
+  <X-PRE-PROCESS cmd="set" data="suppress_cng=true"/>
+  <!-- Enable liberal DTMF for those that can't get it right -->
+  <X-PRE-PROCESS cmd="set" data="rtp_liberal_dtmf=true"/>
+  <!-- Helps with WebRTC Audio -->
+
+  <!-- Stock Video Avatars -->
+  <X-PRE-PROCESS cmd="set" data="video_mute_png=$${images_dir}/default-mute.png"/>
+  <X-PRE-PROCESS cmd="set" data="video_no_avatar_png=$${images_dir}/default-avatar.png"/>
+
+</include>
+
