@@ -9,6 +9,7 @@ import { Session } from 'meteor/session';
 import { notify } from '/imports/ui/services/notification';
 import { makeCall } from '/imports/ui/services/api';
 import AudioService from '/imports/ui/components/audio/service';
+import VideoService from '/imports/ui/components/video-provider/service';
 
 const STATS = Meteor.settings.public.stats;
 const NOTIFICATION = STATS.notification;
@@ -327,6 +328,13 @@ const getAudioData = async () => {
   return data;
 };
 
+const getVideoData = async () => {
+  const data = await VideoService.getStats();
+
+  if (!data) return {};
+
+  return data;
+};
 
 /**
  * Get the user, audio and video data from current active streams.
@@ -334,29 +342,24 @@ const getAudioData = async () => {
  * @returns An Object containing all this data.
  */
 const getNetworkData = async () => {
-  const audioData = await getAudioData();
+  const audio = await getAudioData();
 
-  const data = {
-    client_external_ip_address: 'a.b.c.d',
-    is_using_turn: 'false',
-    audio_download_rate: 'adr',
-    audio_upload_rate: 'aur',
-    jitter_buffer: 'jb',
-    packet_loss_rate: 'plr',
-    user: {
-      time: new Date(),
-      username: Auth.username,
-      meeting_name: Auth.confname,
-      meeting_id: Auth.meetingID,
-      connection_id: Auth.connectionID,
-      user_id: Auth.userID,
-      extern_user_id: Auth.externUserID,
-    },
+  const video = await getVideoData();
+
+  const user = {
+    time: new Date(),
+    username: Auth.username,
+    meeting_name: Auth.confname,
+    meeting_id: Auth.meetingID,
+    connection_id: Auth.connectionID,
+    user_id: Auth.userID,
+    extern_user_id: Auth.externUserID,
   };
 
   const fullData = {
-    ...data,
-    ...audioData,
+    user,
+    audio,
+    video,
   };
 
   return fullData;
@@ -373,7 +376,7 @@ const getNetworkData = async () => {
  * https://www.w3.org/TR/webrtc-stats/#webidl-1049090475
  * @param {Object} currentData - The object returned from getStats / service's
  *                               getNetworkData()
- * @param {*} previousData     - The sabe object as above, but representing
+ * @param {Object} previousData - The same object as above, but representing
  *                               a data collected in past (previous call of
  *                               service's getNetworkData())
  * @returns An object of numbers, containing both outbound (upload) and inbound
@@ -436,6 +439,38 @@ const calculateBitsPerSecond = (currentData, previousData) => {
   return result;
 };
 
+/**
+ * Similar to calculateBitsPerSecond, but it receives stats from multiple
+ * peers. The total inbound/outbound is the sum of all peers.
+ * @param {Object} currentData - The Object returned from
+ *                               getStats / service's getNetworkData()
+ * @param {Object} previousData - The same object as above, but
+ *                                representing a data collected in past
+ *                                (previous call of service's getNetworkData())
+ */
+const calculateBitsPerSecondFromMultipleData = (currentData, previousData) => {
+  const result = {
+    outbound: 0,
+    inbound: 0,
+  };
+
+  if (!currentData || !previousData) return result;
+
+  Object.keys(currentData).forEach((peerId) => {
+    if (previousData[peerId]) {
+      const {
+        outbound: peerOutbound,
+        inbound: peerInbound,
+      } = calculateBitsPerSecond(currentData[peerId], previousData[peerId]);
+
+      result.outbound += peerOutbound;
+      result.inbound += peerInbound;
+    }
+  });
+
+  return result;
+};
+
 export default {
   getConnectionStatus,
   getStats,
@@ -447,4 +482,5 @@ export default {
   updateDataSavingSettings,
   getNetworkData,
   calculateBitsPerSecond,
+  calculateBitsPerSecondFromMultipleData,
 };

@@ -109,7 +109,7 @@ class VideoProvider extends Component {
     this.wsQueue = [];
     this.restartTimeout = {};
     this.restartTimer = {};
-    this.webRtcPeers = {};
+    this.webRtcPeers = VideoService.getWebRtcPeers();
     this.outboundIceQueues = {};
     this.videoTags = {};
 

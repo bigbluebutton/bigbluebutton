@@ -151,18 +151,23 @@ class ConnectionStatusComponent extends PureComponent {
       const {
         outbound: audioCurrentUploadRate,
         inbound: audioCurrentDownloadRate,
-      } = Service.calculateBitsPerSecond(data, previousData);
+      } = Service.calculateBitsPerSecond(data.audio, previousData.audio);
 
       const audio = {
         audioCurrentUploadRate,
         audioCurrentDownloadRate,
-        transport: data.transportStats,
+        transport: data.audio.transportStats,
       };
 
-      // SAMPLE DATA
+      const {
+        outbound: videoCurrentUploadRate,
+        inbound: videoCurrentDownloadRate,
+      } = Service.calculateBitsPerSecondFromMultipleData(data.video,
+        previousData.video);
+
       const video = {
-        videoCurrentUploadRate: Math.floor(Math.random() * 100),
-        videoCurrentDownloadRate: Math.floor(Math.random() * 100),
+        videoCurrentUploadRate,
+        videoCurrentDownloadRate,
       };
 
       const { user } = data;
