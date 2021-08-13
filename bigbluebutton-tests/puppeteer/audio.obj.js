@@ -24,7 +24,7 @@ const audioTest = () => {
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
     } catch (e) {
-      console.log(e);
+      await test.logger(e);
     } finally {
       await test.close();
     }
@@ -46,7 +46,7 @@ const audioTest = () => {
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
     } catch (e) {
-      console.log(e);
+      await test.logger(e);
     } finally {
       await test.close();
     }
