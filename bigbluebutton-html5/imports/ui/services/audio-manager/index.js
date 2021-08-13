@@ -758,10 +758,34 @@ class AudioManager {
     await this.bridge.updateAudioConstraints(constraints);
   }
 
+  /**
+   * Helper for retrieving the current bridge being used by audio.
+   * @returns An Object representing the current bridge.
+   */
   getCurrentBridge() {
     return this.isListenOnly ? this.listenOnlyBridge : this.bridge;
   }
 
+  /**
+   * Gets the information about private/public ip address from active peer.
+   * The information retrieved from selected pair from the current
+   * RTCIceTransport and returned in a new Object with format:
+   * {
+   *   internalAddress: String,
+   *   externalAddress: String,
+   *   internalPort: Number,
+   *   externalPort: Number,
+   * }
+   *
+   * If users isn't behind NAT, externalAddress and externalPort may be null.
+   *
+   * For more information see:
+   * https://w3c.github.io/webrtc-pc/#dom-rtcicetransport-getlocalcandidates
+   * and
+   * https://w3c.github.io/webrtc-pc/#rtcicecandidate-interface
+   * @returns An Object containing the information about private/public IP
+   *          addresses and ports.
+   */
   async getInternalExternalIpAddressesFromPeer() {
     const bridge = this.getCurrentBridge();
 
@@ -801,6 +825,18 @@ class AudioManager {
     return transports;
   }
 
+  /**
+   * Get stats about active audio peer.
+   * We filter the status based on FILTER_AUDIO_STATUS constant.
+   * We also append to the returned object the information about peer's
+   * transport. This transport information is retrieved by
+   * getInternalExternalIpAddressesFromPeer().
+   *
+   * @returns An Object containing the status about the active audio peer.
+   *
+   * For more information see:
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getStats
+   */
   async getStats() {
     const bridge = this.getCurrentBridge();
 
