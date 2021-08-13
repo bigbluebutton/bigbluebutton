@@ -41,7 +41,7 @@ async function webcamContentCheck(test) {
   const repeats = 5;
   let check;
   for (let i = repeats; i >= 1; i--) {
-    console.log(`loop ${i}`);
+    test.logger(`loop ${i}`);
     const checkCameras = function (i) {
       const videos = document.querySelectorAll('video');
       const lastVideoColor = document.lastVideoColor || {};
@@ -78,7 +78,6 @@ async function clickTestElement(element) {
 
 async function countTestElements(element) {
   const respCount = await document.querySelectorAll(element).length;
-  console.log({ respCount });
   return respCount;
 }
 
