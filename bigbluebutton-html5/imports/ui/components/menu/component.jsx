@@ -52,7 +52,7 @@ class BBBMenu extends React.Component {
     const { actions, selectedEmoji } = this.props;
 
     return actions?.map(a => {
-      const { label, onClick, key, disabled } = a;
+      const { dataTest, label, onClick, key, disabled } = a;
       const itemClasses = [styles.menuitem, a?.className];
 
       if (key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase())) itemClasses.push(styles.emojiSelected);
@@ -61,6 +61,7 @@ class BBBMenu extends React.Component {
         a.dividerTop && <Divider disabled />,  
         <MenuItem
           key={label}
+          data-test={dataTest}
           className={itemClasses.join(' ')}
           disableRipple={true}
           disableGutters={true}
