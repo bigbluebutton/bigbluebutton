@@ -4,10 +4,11 @@ const Page = require('../core/page');
 const params = require('../params');
 const util = require('./util');
 const utilScreenShare = require('../screenshare/util'); // utils imported from screenshare folder
+const e = require('../core/elements');
 const ne = require('./elements');
 const pe = require('../presentation/elements');
 const we = require('../whiteboard/elements');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_TIME, UPLOAD_PDF_WAIT_TIME } = require('../core/constants');
 
 class Notifications extends MultiUsers {
   constructor() {
@@ -128,7 +129,7 @@ class Notifications extends MultiUsers {
     await this.page3.screenshot(`${testName}`, `03-page03-upload-file-menu-${testName}`);
     await this.page3.waitForSelector(pe.fileUpload, ELEMENT_WAIT_TIME);
     const fileUpload = await this.page3.page.$(pe.fileUpload);
-    await fileUpload.uploadFile(path.join(__dirname, '../media/DifferentSizes.pdf'));
+    await fileUpload.uploadFile(path.join(__dirname, `../media/${e.pdfFileName}.pdf`));
     await this.page3.page.waitForFunction(
       'document.querySelector("body").innerText.includes("To be uploaded ...")',
     );
@@ -138,7 +139,7 @@ class Notifications extends MultiUsers {
       'document.querySelector("body").innerText.includes("Converting file")',
     );
     await this.page3.screenshot(`${testName}`, `04-page03-file-uploaded-and-ready-${testName}`);
-    await this.page3.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
+    await this.page3.waitForSelector(ne.smallToastMsg, UPLOAD_PDF_WAIT_TIME);
     await this.page3.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
     await this.page3.screenshot(`${testName}`, `05-page03-presentation-changed-${testName}`);
     try {
