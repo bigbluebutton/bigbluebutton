@@ -96,8 +96,8 @@ async function privateChatMessageToast(page2) {
 
 // File upload notification
 async function uploadFileMenu(test) {
-  await test.page.evaluate(clickOnElement, ne.dropdownContent);
-  await test.page.evaluate(clickOnElement, ne.uploadPresentation);
+  await test.click(e.actions);
+  await test.click(ne.uploadPresentation);
 }
 
 async function getFileItemStatus(element, value) {
@@ -105,8 +105,10 @@ async function getFileItemStatus(element, value) {
 }
 
 async function startPoll(test) {
-  await test.page.evaluate(clickOnElement, ne.dropdownContent);
-  await test.page.evaluate(clickOnElement, ne.polling);
+  await test.waitForSelector(e.actions);
+  await test.click(e.actions);
+  await test.waitForSelector(ne.polling);
+  await test.click(ne.polling);
   await test.waitForSelector(ne.hidePollDesc, ELEMENT_WAIT_TIME);
   await test.waitForSelector(ne.polling, ELEMENT_WAIT_TIME);
   await test.page.evaluate(clickOnElement, ne.polling);
