@@ -124,7 +124,7 @@ class ChatDropdown extends PureComponent {
       <BBBMenu
         trigger={
           <Button
-            data-test="chatDropdownTrigger"
+            data-test="chatOptionsMenu"
             icon="more"
             size="sm"
             ghost

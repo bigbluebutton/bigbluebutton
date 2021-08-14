@@ -141,6 +141,7 @@ class ActionsDropdown extends PureComponent {
     if (amIPresenter) {
       actions.push({
         icon: "presentation",
+        dataTest: "uploadPresentation",
         label: formatMessage(presentationLabel),
         key: this.presentationItemId,
         onClick: handlePresentationClick,
@@ -151,6 +152,7 @@ class ActionsDropdown extends PureComponent {
     if (amIPresenter && isPollingEnabled) {
       actions.push({
         icon: "polling",
+        dataTest: "polling",
         label: formatMessage(pollBtnLabel),
         key: this.pollId,
         onClick: () => {

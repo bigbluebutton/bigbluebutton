@@ -291,6 +291,7 @@ class UserOptions extends PureComponent {
             label: intl.formatMessage(intlMessages.guestPolicyLabel),
             // description: intl.formatMessage(intlMessages.guestPolicyDesc),
             onClick: () => mountModal(<GuestPolicyContainer />),
+            dataTest: "guestPolicyLabel",
           })
         }
       }
@@ -331,6 +332,7 @@ class UserOptions extends PureComponent {
           label: intl.formatMessage(intlMessages.createBreakoutRoom),
           // description: intl.formatMessage(intlMessages.createBreakoutRoomDesc),
           onClick: this.onCreateBreakouts,
+          dataTest: "createBreakoutRooms",
         })
       }
 
@@ -350,6 +352,7 @@ class UserOptions extends PureComponent {
           // description: intl.formatMessage(intlMessages.captionsDesc),
           key: this.captionsId,
           onClick: this.handleCaptionsClick,
+          dataTest: "inviteBreakoutRooms",
         })
       }
     }
