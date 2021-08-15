@@ -256,6 +256,31 @@ class PresentationUploader extends Component {
     const { presentations } = this.state;
     //Updates presentation list when chat modal opens to avoid missing presentations
     if (isOpen && !prevProps.isOpen) {
+      const  focusableElements =
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+      const modal = document.getElementById('upload-modal');
+      const firstFocusableElement = modal?.querySelectorAll(focusableElements)[0];
+      const focusableContent = modal?.querySelectorAll(focusableElements);
+      const lastFocusableElement = focusableContent[focusableContent.length - 1];
+      
+      firstFocusableElement.focus();
+  
+      modal.addEventListener('keydown', function(e) {
+        let tab = e.key === 'Tab' || e.keyCode === 9;
+        if (!tab) return;
+        if (e.shiftKey) {
+          if (document.activeElement === firstFocusableElement) {
+            lastFocusableElement.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === lastFocusableElement) {
+            firstFocusableElement.focus();
+            e.preventDefault();
+          }
+        }
+      });
+
       this.setState({
         presentations: Object.values({
           ...propPresentations,
@@ -970,7 +995,7 @@ class PresentationUploader extends Component {
     });
 
     return isOpen ? (
-      <div className={styles.modal}>
+      <div id="upload-modal" className={styles.modal}>
         <div
           className={styles.modalInner}
         >
