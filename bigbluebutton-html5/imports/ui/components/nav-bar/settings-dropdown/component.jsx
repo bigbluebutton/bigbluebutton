@@ -178,7 +178,7 @@ class SettingsDropdown extends PureComponent {
           key: "list-item-fullscreen",
           icon: fullscreenIcon,
           label: fullscreenLabel,
-          // description: fullscreenDesc,
+          description: fullscreenDesc,
           onClick: handleToggleFullscreen           
         }
       )      
@@ -209,7 +209,7 @@ class SettingsDropdown extends PureComponent {
 
     this.menuItems = [];
 
-    this.getFullscreenItem(this.menuItems),
+    this.getFullscreenItem(this.menuItems);
 
     this.menuItems.push(
       {
@@ -217,28 +217,26 @@ class SettingsDropdown extends PureComponent {
         icon: "settings",
         dataTest: "settings",
         label: intl.formatMessage(intlMessages.settingsLabel),
-        // description: intl.formatMessage(intlMessages.settingsDesc),
+        description: intl.formatMessage(intlMessages.settingsDesc),
         onClick: () => mountModal(<SettingsMenuContainer />)
       },
       {
         key: "list-item-about",
         icon: "about",
         label: intl.formatMessage(intlMessages.aboutLabel),
-        // description: intl.formatMessage(intlMessages.aboutDesc),
+        description: intl.formatMessage(intlMessages.aboutDesc),
         onClick: () => mountModal(<AboutContainer />)        
       }
     );
 
-    if (!helpButton) {
-      return null;
-    } else {
+    if (helpButton) {
       this.menuItems.push(
         {
           key: "list-item-help",
           icon: "help",
           iconRight: "popout_window",
           label: intl.formatMessage(intlMessages.helpLabel),
-          // description: intl.formatMessage(intlMessages.helpDesc),
+          description: intl.formatMessage(intlMessages.helpDesc),
           onClick: () => window.open(`${helpLink}`)
         }
       );
@@ -249,7 +247,7 @@ class SettingsDropdown extends PureComponent {
         key: "list-item-shortcuts",
         icon: "shortcuts",
         label: intl.formatMessage(intlMessages.hotkeysLabel),
-        // description: intl.formatMessage(intlMessages.hotkeysDesc),
+        description: intl.formatMessage(intlMessages.hotkeysDesc),
         onClick: () => mountModal(<ShortcutHelpComponent />),       
         divider: true
       }
@@ -261,33 +259,26 @@ class SettingsDropdown extends PureComponent {
           key: "list-item-end-meeting",
           icon: "application",
           label: intl.formatMessage(intlMessages.endMeetingLabel),
-          // description: intl.formatMessage(intlMessages.endMeetingDesc),
+          description: intl.formatMessage(intlMessages.endMeetingDesc),
           onClick: () => mountModal(<EndMeetingConfirmationContainer />)             
         }
       )
-    } else {
-      return null;
-    }  
+    }
 
-    const logoutOption = (
+    if (isMeteorConnected && allowLogoutSetting) {
       this.menuItems.push(
         {
           key: "list-item-logout",
           dataTest: "logout",
           icon: "logout",
           label: intl.formatMessage(intlMessages.leaveSessionLabel),
-          // description: intl.formatMessage(intlMessages.leaveSessionDesc),
+          description: intl.formatMessage(intlMessages.leaveSessionDesc),
           onClick: () => this.leaveSession()
         }
       )
-    );
-
-    const shouldRenderLogoutOption = (isMeteorConnected && allowLogoutSetting) ? logoutOption : null;    
-    
-    shouldRenderLogoutOption;
+    };
 
     return this.menuItems;
-
   }
 
   render() {
