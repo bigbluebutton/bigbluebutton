@@ -276,7 +276,7 @@ class SettingsDropdown extends PureComponent {
           onClick: () => this.leaveSession()
         }
       )
-    };
+    }
 
     return this.menuItems;
   }
