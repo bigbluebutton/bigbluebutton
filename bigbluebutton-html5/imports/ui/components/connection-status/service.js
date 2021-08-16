@@ -316,9 +316,9 @@ const notification = (level, intl) => {
  *     outbound-rtp: RTCOutboundRtpStreamStats,
  *   }
  * For more information see:
- * https://developer.mozilla.org/en-US/docs/Web/API/RTCInboundRtpStreamStats
+ * https://www.w3.org/TR/webrtc-stats/#dom-rtcinboundrtpstreamstats
  * and
- * https://developer.mozilla.org/en-US/docs/Web/API/RTCOutboundRtpStreamStats
+ * https://www.w3.org/TR/webrtc-stats/#dom-rtcoutboundrtpstreamstats
  */
 const getAudioData = async () => {
   const data = await AudioService.getStats();
