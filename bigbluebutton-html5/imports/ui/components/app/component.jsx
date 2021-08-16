@@ -364,12 +364,25 @@ class App extends Component {
   }
 
   renderCaptions() {
-    const { captions } = this.props;
+    const {
+      captions,
+      captionsStyle,
+    } = this.props;
 
     if (!captions) return null;
 
     return (
-      <div className={styles.captionsWrapper}>
+      <div
+        className={styles.captionsWrapper}
+        style={
+          {
+            position: 'absolute',
+            left: captionsStyle.left,
+            right: captionsStyle.right,
+            width: captionsStyle.width,
+          }
+        }
+      >
         {captions}
       </div>
     );
@@ -484,6 +497,7 @@ class App extends Component {
               ? <ExternalVideoContainer isPresenter={isPresenter} />
               : null
           }
+          {this.renderCaptions()}
           <UploaderContainer />
           <BreakoutRoomInvitation />
           <AudioContainer />

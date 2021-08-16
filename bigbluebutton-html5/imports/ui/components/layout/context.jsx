@@ -238,6 +238,31 @@ const reducer = (state, action) => {
       };
     }
 
+    // CAPTIONS
+    case ACTIONS.SET_CAPTIONS_OUTPUT: {
+      const {
+        left, right, width,
+      } = action.value;
+      const { captions } = state.output;
+      if (captions.left === left
+        && captions.right === right
+        && captions.width === width) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          captions: {
+            ...captions,
+            left,
+            right,
+            width,
+          },
+        },
+      };
+    }
+
     // SIDEBAR NAVIGATION
     case ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN: {
       const { sidebarNavigation } = state.input;
