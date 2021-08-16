@@ -130,7 +130,7 @@ class ConnectionStatusComponent extends PureComponent {
   }
 
   componentWillUnmount() {
-    clearInterval(this.rateInterval);
+    Meteor.clearInterval(this.rateInterval);
   }
 
   handleDataSavingChange(key) {
@@ -145,7 +145,7 @@ class ConnectionStatusComponent extends PureComponent {
    */
   async startMonitoringNetwork() {
     let previousData = await Service.getNetworkData();
-    this.rateInterval = setInterval(async () => {
+    this.rateInterval = Meteor.setInterval(async () => {
       const data = await Service.getNetworkData();
 
       const {
