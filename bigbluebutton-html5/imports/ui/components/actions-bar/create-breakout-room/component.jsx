@@ -43,6 +43,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.randomlyAssign',
     description: 'randomly assign label',
   },
+  randomlyAssignDesc: {
+    id: 'app.createBreakoutRoom.randomlyAssignDesc',
+    description: 'randomly assign label description',
+  },
   breakoutRoom: {
     id: 'app.createBreakoutRoom.room',
     description: 'breakout room',
@@ -770,6 +774,7 @@ class BreakoutRoom extends PureComponent {
           <Button
             data-test="randomlyAssign"
             label={intl.formatMessage(intlMessages.randomlyAssign)}
+            aria-describedby="randomlyAssignDesc"
             className={styles.randomlyAssignBtn}
             onClick={this.onAssignRandomly}
             size="sm"
@@ -781,6 +786,9 @@ class BreakoutRoom extends PureComponent {
           ? styles.withError : styles.dontShow}
         >
           {intl.formatMessage(intlMessages.numberOfRoomsIsValid)}
+        </span>
+        <span id="randomlyAssignDesc" className="sr-only">
+          {intl.formatMessage(intlMessages.randomlyAssignDesc)}
         </span>
       </React.Fragment>
     );

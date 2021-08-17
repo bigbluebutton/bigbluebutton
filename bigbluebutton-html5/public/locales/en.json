@@ -811,6 +811,7 @@
     "app.createBreakoutRoom.numberOfRooms": "Number of rooms",
     "app.createBreakoutRoom.durationInMinutes": "Duration (minutes)",
     "app.createBreakoutRoom.randomlyAssign": "Randomly assign",
+    "app.createBreakoutRoom.randomlyAssignDesc": "Assigns users randomly to breakout rooms",
     "app.createBreakoutRoom.endAllBreakouts": "End all breakout rooms",
     "app.createBreakoutRoom.roomName": "{0} (Room - {1})",
     "app.createBreakoutRoom.doneLabel": "Done",
