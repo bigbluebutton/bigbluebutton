@@ -52,7 +52,7 @@ async function webcamContentCheck(test) {
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
         context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-        const pixel = context.getImageData(50, 50, 1, 1).data;
+        const pixel = context.getImageData(0, 0, 1, 1).data;
         const pixelString = new Array(pixel).join(' ').toString();
 
         if (lastVideoColor[v]) {
@@ -66,6 +66,7 @@ async function webcamContentCheck(test) {
     };
 
     check = await test.page.evaluate(checkCameras, i);
+    if (!check) return false;
     await sleep(LOOP_INTERVAL);
   }
   return check === true;
