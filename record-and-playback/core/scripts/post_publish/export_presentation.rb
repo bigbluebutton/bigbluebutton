@@ -28,9 +28,6 @@ BigBlueButton.logger = logger
 
 BigBlueButton.logger.info("Started exporting presentation for [#{meeting_id}]")
 
-# Track how long the code is taking
-start = Time.now
-
 @published_files = "/var/bigbluebutton/published/presentation/#{meeting_id}"
 
 # Creates scratch directories
@@ -223,7 +220,7 @@ def convert_whiteboard_shapes(whiteboard)
     builder = Builder::XmlMarkup.new
     builder.text(x: x, y: y, fill: text_color, "xml:space" => "preserve") do
       text.each do |line|
-        line = line.to_s
+        line = Loofah.fragment(line.to_s).scrub!(:strip).text.unicode_normalize
 
         if line == "<br/>"
           builder.tspan(x: x, dy: "0.9em") { builder << "<br/>" }
@@ -232,7 +229,7 @@ def convert_whiteboard_shapes(whiteboard)
           line_breaks = line.chars.each_slice((text_box_width / (font_size * 0.52)).to_i).map(&:join)
 
           line_breaks.each do |row|
-            safe_message = Loofah.fragment(row).scrub!(:escape).text.unicode_normalize
+            safe_message = Loofah.fragment(row).scrub!(:escape)
             builder.tspan(x: x, dy: "0.9em") { builder << safe_message }
           end
         end
@@ -306,7 +303,7 @@ def parse_whiteboard_shapes(shape_reader)
 
     shape_undo = slide_out if shape_undo.negative?
 
-    shape_enter = [[shape_timestamp, slide_in].max, slide_out].min
+    shape_enter = [shape_timestamp, slide_in].max
     shape_leave = [[shape_undo, slide_in].max, slide_out].min
 
     timestamps << shape_enter
