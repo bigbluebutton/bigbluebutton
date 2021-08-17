@@ -308,6 +308,7 @@ class UserOptions extends PureComponent {
         if (activityReportAccessToken != null) {
           this.menuItems.push({
             icon: "multi_whiteboard",
+            iconRight: "popout_window",
             label: intl.formatMessage(intlMessages.activityReportLabel),
             description: intl.formatMessage(intlMessages.activityReportDesc),
             key: this.activityReportId,
