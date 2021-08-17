@@ -1,6 +1,7 @@
 const Page = require('../core/page');
 const util = require('./util');
 const wle = require('./elements');
+const e = require('../core/elements');
 const { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } = require('../core/constants'); // core constants (Timeouts vars imported)
 
 class Share extends Page {
@@ -25,6 +26,7 @@ class Share extends Page {
   async webcamLayoutTest(testName) {
     await this.waitForSelector(wle.webcamVideo, VIDEO_LOADING_WAIT_TIME);
     await this.waitForSelector(wle.stopSharingWebcam, VIDEO_LOADING_WAIT_TIME);
+    await this.waitForSelector(e.isTalking);
     const foundTestElement = await this.page.evaluate(util.countTestElements, wle.webcamItemTalkingUser) !== 0;
     if (foundTestElement === true) {
       await this.screenshot(`${testName}`, `success-${testName}`);
