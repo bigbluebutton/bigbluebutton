@@ -61,7 +61,7 @@ class BBBMenu extends React.Component {
         a.dividerTop && <Divider disabled />,  
         <MenuItem
           key={label}
-          data-test={dataTest}
+          data-test={dataTest || key}
           className={itemClasses.join(' ')}
           disableRipple={true}
           disableGutters={true}
