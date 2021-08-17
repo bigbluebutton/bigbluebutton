@@ -31,17 +31,13 @@ const intlMessages = defineMessages({
 class UserCaptions extends Component {
   constructor(props) {
     super(props);
-
-    this.updatedOwnledLocales = this.updatedOwnledLocales.bind(this);
   }
 
   shouldComponentUpdate(nextProps) {
-    return this.updatedOwnledLocales(nextProps);
-  }
+    const { ownedLocales, sidebarContentPanel } = this.props;
 
-  updatedOwnledLocales(nextProps) {
-    const { ownedLocales } = this.props;
-    return ownedLocales.length !== nextProps.ownedLocales.length;
+    return ownedLocales.length !== nextProps.ownedLocales.length
+      || sidebarContentPanel !== nextProps.sidebarContentPanel;
   }
 
   renderCaptions() {
