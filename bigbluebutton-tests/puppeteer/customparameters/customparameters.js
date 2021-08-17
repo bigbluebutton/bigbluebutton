@@ -535,8 +535,6 @@ class CustomParameters {
     await this.page1.screenshot(`${testName}`, `02-page1-${testName}`);
     await this.page2.closeAudioModal();
     await this.page2.screenshot(`${testName}`, `02-page2-${testName}`);
-    await this.page1.waitForSelector(cpe.container, ELEMENT_WAIT_TIME);
-    await this.page2.waitForSelector(cpe.hidePresentation, ELEMENT_WAIT_TIME);
     await this.page2.click(cpe.hidePresentation, true);
     await this.page2.screenshot(`${testName}`, `03-page2-${testName}`);
     const pollCase = await util.poll(this.page1, this.page2);
