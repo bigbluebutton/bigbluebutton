@@ -871,7 +871,7 @@ class BreakoutRoom extends PureComponent {
     return this.getUserByRoom(room)
       .map((user) => (
         <p
-          tabIndex={0}
+          tabIndex={-1}
           id={user.userId}
           key={user.userId}
           className={cx(
