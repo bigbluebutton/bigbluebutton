@@ -1,7 +1,7 @@
 @import "../../stylesheets/variables/breakpoints";
 
 .muteWarning {
-  position: absolute;
+  position: absolute !important;
   color: var(--color-white);
   background-color: var(--color-tip-bg);
   text-align: center;
@@ -9,10 +9,10 @@
   font-size: var(--font-size-xl);
   padding: var(--md-padding-x);
   border-radius: var(--border-radius);
-  top: -50%;
+  top: -100%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 1;
+  z-index: 100;
   cursor: pointer;
 
   > span {
@@ -25,5 +25,18 @@
 }
 
 .alignForMod {
-  left: 52.25%;
+  left: 72.25%;
+}
+
+.alignForViewer {
+  left: 80%;  
+}
+
+.alignForMod, .alignForViewer {
+  [dir="rtl"] & {
+    left: 20%;
+  }  
+  @include mq($medium-only) {
+    font-size: var(--font-size-sm);;
+  }
 }

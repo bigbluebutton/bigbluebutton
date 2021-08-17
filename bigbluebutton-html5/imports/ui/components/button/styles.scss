@@ -219,7 +219,7 @@
   height: 100%;
   top: 0;
   left: 0;
-  z-index: 1;
+  z-index: 0;
 }
 
 .emojiButton {
@@ -232,6 +232,7 @@
   background-color: var(--btn-default-bg);
   overflow: hidden;
   z-index: 2;
+  border: none;
 
   &:hover {
     transform: scale(1.5);
