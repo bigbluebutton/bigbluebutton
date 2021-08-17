@@ -111,6 +111,8 @@ class ConnectionStatusComponent extends PureComponent {
         audio: {
           audioCurrentUploadRate: 0,
           audioCurrentDownloadRate: 0,
+          jitter: 0,
+          packetsLost: 0,
         },
         video: {
           videoCurrentUploadRate: 0,
@@ -156,6 +158,8 @@ class ConnectionStatusComponent extends PureComponent {
       const audio = {
         audioCurrentUploadRate,
         audioCurrentDownloadRate,
+        jitter: data.audio['inbound-rtp'].jitterBufferAverage,
+        packetsLost: data.audio['inbound-rtp'].packetsLost,
         transport: data.audio.transportStats,
       };
 

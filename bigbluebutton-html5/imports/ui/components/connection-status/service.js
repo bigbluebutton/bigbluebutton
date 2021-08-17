@@ -308,6 +308,50 @@ const notification = (level, intl) => {
 };
 
 /**
+ * Calculates the jitter buffer average.
+ * For more information see:
+ * https://www.w3.org/TR/webrtc-stats/#dom-rtcinboundrtpstreamstats-jitterbufferdelay
+ * @param {Object} inboundRtpData The RTCInboundRtpStreamStats object retrieved
+ *                                in getStats() call.
+ * @returns The jitter buffer average in ms
+ */
+const calculateJitterBufferAverage = (inboundRtpData) => {
+  if (!inboundRtpData) return 0;
+
+  const {
+    jitterBufferDelay,
+    jitterBufferEmittedCount,
+  } = inboundRtpData;
+
+  if (!jitterBufferDelay || !jitterBufferEmittedCount) return 0;
+
+  return Math.round((jitterBufferDelay / jitterBufferEmittedCount) * 1000);
+};
+
+/**
+ * Returns a new Object containing extra parameters calculated from inbound
+ * data. The input data is also appended in the returned Object.
+ * @param {Object} currentData - The object returned from getStats / service's
+ *                               getNetworkData()
+ * @returns {Object} the currentData object with the extra inbound network
+ *                    added to it.
+ */
+const addExtraInboundNetworkParameters = (data) => {
+  if (!data) return data;
+
+  const inboundRtpData = data['inbound-rtp'];
+
+  if (!inboundRtpData) return data;
+
+  const extraParameters = {
+    jitterBufferAverage: calculateJitterBufferAverage(inboundRtpData),
+    packetsLost: inboundRtpData.packetsLost,
+  };
+
+  return Object.assign(inboundRtpData, extraParameters);
+};
+
+/**
  * Retrieves the inbound and outbound data using WebRTC getStats API.
  * @returns An Object with format (property:type) :
  *   {
@@ -324,6 +368,8 @@ const getAudioData = async () => {
   const data = await AudioService.getStats();
 
   if (!data) return {};
+
+  addExtraInboundNetworkParameters(data);
 
   return data;
 };
