@@ -12,8 +12,7 @@ const { ELEMENT_WAIT_TIME } = require('./constants');
 const e = require('./elements');
 const ue = require('../user/elements');
 const { NETWORK_PRESETS } = require('./profiles');
-const audioCapture = `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`;
-const videoCapture = `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`;
+const videoCapture = `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.mjpeg')}`;
 const devices = require('./devices');
 const linuxDesktop = devices['Linux Desktop'];
 
@@ -201,7 +200,6 @@ class Page {
       '--use-fake-device-for-media-stream',
       '--no-default-browser-check',
       '--window-size=1150,980',
-      audioCapture,
       videoCapture,
       '--allow-file-access',
       '--lang=en-US',
