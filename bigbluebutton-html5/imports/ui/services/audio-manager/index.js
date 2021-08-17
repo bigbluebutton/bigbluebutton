@@ -812,6 +812,7 @@ class AudioManager {
         relatedAddress: externalAddress,
         port: internalPort,
         relatedPort: externalPort,
+        type,
       } = selectedPair.local;
 
       transports = {
@@ -819,6 +820,7 @@ class AudioManager {
         externalAddress,
         internalPort,
         externalPort,
+        isUsingTurn: (type === 'relay'),
       };
     }
 
