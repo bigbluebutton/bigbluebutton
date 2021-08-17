@@ -115,6 +115,10 @@ export const INITIAL_OUTPUT_STATE = {
     tabOrder: 0,
     zIndex: 1,
   },
+  captions: {
+    left: 0,
+    right: 0,
+  },
   sidebarNavigation: {
     display: true,
     minWidth: 0,
