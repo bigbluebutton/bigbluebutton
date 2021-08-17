@@ -241,12 +241,12 @@ const reducer = (state, action) => {
     // CAPTIONS
     case ACTIONS.SET_CAPTIONS_OUTPUT: {
       const {
-        left, right, width,
+        left, right, maxWidth,
       } = action.value;
       const { captions } = state.output;
       if (captions.left === left
         && captions.right === right
-        && captions.width === width) {
+        && captions.maxWidth === maxWidth) {
         return state;
       }
       return {
@@ -257,7 +257,7 @@ const reducer = (state, action) => {
             ...captions,
             left,
             right,
-            width,
+            maxWidth,
           },
         },
       };

@@ -568,7 +568,7 @@ class SmartLayout extends Component {
       value: {
         left: !isRTL ? (mediaBounds.left + captionsMargin) : null,
         right: isRTL ? (mediaBounds.right + captionsMargin) : null,
-        width: mediaBounds.width - (captionsMargin * 2),
+        maxWidth: mediaBounds.width - (captionsMargin * 2),
       },
     });
 

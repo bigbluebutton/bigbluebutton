@@ -379,7 +379,7 @@ class App extends Component {
             position: 'absolute',
             left: captionsStyle.left,
             right: captionsStyle.right,
-            width: captionsStyle.width,
+            maxWidth: captionsStyle.maxWidth,
           }
         }
       >
