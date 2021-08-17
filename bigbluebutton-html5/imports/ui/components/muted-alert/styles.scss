@@ -37,6 +37,6 @@
     left: 20%;
   }  
   @include mq($medium-only) {
-    font-size: var(--font-size-sm);;
+    font-size: var(--font-size-sm);
   }
 }

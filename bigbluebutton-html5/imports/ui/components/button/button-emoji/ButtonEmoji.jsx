@@ -32,7 +32,7 @@ const defaultProps = {
   onFocus: null,
   tabIndex: -1,
   hideLabel: false,
-  onClick: () => {},
+  onClick: null,
 };
 
 const ButtonEmoji = (props) => {
