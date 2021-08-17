@@ -23,14 +23,11 @@ const propTypes = {
   tabIndex: PropTypes.number,
 
   hideLabel: PropTypes.bool,
-
-  onClick: PropTypes.func,
 };
 
 const defaultProps = {
   emoji: '',
   label: '',
-  onClick: null,
   onKeyDown: null,
   onFocus: null,
   tabIndex: -1,
