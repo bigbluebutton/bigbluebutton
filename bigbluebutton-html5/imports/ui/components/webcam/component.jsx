@@ -34,6 +34,20 @@ const WebcamComponent = ({
   const isCameraSidebar = cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM;
 
   useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, []);
+
+  useEffect(() => {
     setIsFullScreen(fullscreen.group === 'webcams');
   }, [fullscreen]);
 
