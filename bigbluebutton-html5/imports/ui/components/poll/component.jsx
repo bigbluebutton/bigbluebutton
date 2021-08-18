@@ -177,6 +177,14 @@ const intlMessages = defineMessages({
     id: 'app.poll.deleteRespDesc',
     description: '',
   },
+  on: {
+    id: 'app.switch.onLabel',
+    description: 'label for toggle switch on state',
+  },
+  off: {
+    id: 'app.switch.offLabel',
+    description: 'label for toggle switch off state',
+  },
 });
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
@@ -209,6 +217,7 @@ class Poll extends Component {
     this.handleRemoveOption = this.handleRemoveOption.bind(this);
     this.handleTextareaChange = this.handleTextareaChange.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.displayToggleStatus = this.displayToggleStatus.bind(this);
   }
 
   componentDidMount() {
@@ -320,6 +329,17 @@ class Poll extends Component {
         diff += 1;
       }
     }
+  }
+
+  displayToggleStatus(status) {
+    const { intl } = this.props;
+
+    return (
+      <span className={styles.toggleLabel}>
+        {status ? intl.formatMessage(intlMessages.on)
+          : intl.formatMessage(intlMessages.off)}
+      </span>
+    );
   }
 
   pushToCustomPollValues(text) {
@@ -557,7 +577,7 @@ class Poll extends Component {
                 && (
                   <div style={{
                     display: 'flex',
-                    flexFlow: 'column',
+                    flexFlow: 'wrap',
                   }}
                   >
                     {defaultPoll && this.renderInputs()}
@@ -584,11 +604,13 @@ class Poll extends Component {
                       <div className={styles.col}>
                         {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
                         <label className={styles.toggle}>
+                          {this.displayToggleStatus(secretPoll)}
                           <Toggle
                             icons={false}
                             defaultChecked={secretPoll}
                             onChange={() => this.handleToggle()}
                             ariaLabel={intl.formatMessage(intlMessages.secretPollLabel)}
+                            showToggleLabel={false}
                           />
                         </label>
                       </div>
