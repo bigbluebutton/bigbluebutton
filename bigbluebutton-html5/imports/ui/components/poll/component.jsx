@@ -177,6 +177,14 @@ const intlMessages = defineMessages({
     id: 'app.poll.deleteRespDesc',
     description: '',
   },
+  on: {
+    id: 'app.switch.onLabel',
+    description: 'label for toggle switch on state',
+  },
+  off: {
+    id: 'app.switch.offLabel',
+    description: 'label for toggle switch off state',
+  },
 });
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
@@ -209,6 +217,7 @@ class Poll extends Component {
     this.handleRemoveOption = this.handleRemoveOption.bind(this);
     this.handleTextareaChange = this.handleTextareaChange.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.displayToggleStatus = this.displayToggleStatus.bind(this);
   }
 
   componentDidMount() {
@@ -320,6 +329,17 @@ class Poll extends Component {
         diff += 1;
       }
     }
+  }
+
+  displayToggleStatus(status) {
+    const { intl } = this.props;
+
+    return (
+      <span className={styles.toggleLabel}>
+        {status ? intl.formatMessage(intlMessages.on)
+          : intl.formatMessage(intlMessages.off)}
+      </span>
+    );
   }
 
   pushToCustomPollValues(text) {
@@ -475,7 +495,7 @@ class Poll extends Component {
                 });
               }}
               className={
-                cx(styles.pBtn, styles.btnMR, {
+                cx(styles.pBtn, {
                   [styles.selectedBtnBlue]: type === pollTypes.TrueFalse,
                 })
               }
@@ -496,43 +516,43 @@ class Poll extends Component {
                 });
               }}
               className={
-                cx(styles.pBtn, styles.btnML, {
+                cx(styles.pBtn, {
                   [styles.selectedBtnBlue]: type === pollTypes.Letter,
                 })
               }
             />
-          </div>
-          <Button
-            label={intl.formatMessage(intlMessages.yna)}
-            aria-describedby="poll-config-button"
-            color="default"
-            onClick={() => {
-              this.setState({
-                type: pollTypes.YesNoAbstention,
-                optList: [
-                  { val: intl.formatMessage(intlMessages.yes) },
-                  { val: intl.formatMessage(intlMessages.no) },
-                  { val: intl.formatMessage(intlMessages.abstention) },
-                ],
-              });
-            }}
-            className={
+            <Button
+              label={intl.formatMessage(intlMessages.yna)}
+              aria-describedby="poll-config-button"
+              color="default"
+              onClick={() => {
+                this.setState({
+                  type: pollTypes.YesNoAbstention,
+                  optList: [
+                    { val: intl.formatMessage(intlMessages.yes) },
+                    { val: intl.formatMessage(intlMessages.no) },
+                    { val: intl.formatMessage(intlMessages.abstention) },
+                  ],
+                });
+              }}
+              className={
               cx(styles.pBtn, styles.yna, {
                 [styles.selectedBtnBlue]: type === pollTypes.YesNoAbstention,
               })
             }
-          />
-          <Button
-            label={intl.formatMessage(intlMessages.userResponse)}
-            aria-describedby="poll-config-button"
-            color="default"
-            onClick={() => { this.setState({ type: pollTypes.Response }); }}
-            className={
+            />
+            <Button
+              label={intl.formatMessage(intlMessages.userResponse)}
+              aria-describedby="poll-config-button"
+              color="default"
+              onClick={() => { this.setState({ type: pollTypes.Response }); }}
+              className={
               cx(styles.pBtn, styles.fullWidth, {
                 [styles.selectedBtnWhite]: type === pollTypes.Response,
               })
             }
-          />
+            />
+          </div>
         </div>
         {type
           && (
@@ -557,7 +577,7 @@ class Poll extends Component {
                 && (
                   <div style={{
                     display: 'flex',
-                    flexFlow: 'column',
+                    flexFlow: 'wrap',
                   }}
                   >
                     {defaultPoll && this.renderInputs()}
@@ -584,11 +604,13 @@ class Poll extends Component {
                       <div className={styles.col}>
                         {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
                         <label className={styles.toggle}>
+                          {this.displayToggleStatus(secretPoll)}
                           <Toggle
                             icons={false}
                             defaultChecked={secretPoll}
                             onChange={() => this.handleToggle()}
                             ariaLabel={intl.formatMessage(intlMessages.secretPollLabel)}
+                            showToggleLabel={false}
                           />
                         </label>
                       </div>
