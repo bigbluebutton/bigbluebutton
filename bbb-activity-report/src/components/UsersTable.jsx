@@ -57,8 +57,8 @@ class UsersTable extends React.Component {
               .sort((a, b) => {
                 if (a.isModerator === true && b.isModerator === false) return -1;
                 if (a.isModerator === false && b.isModerator === true) return 1;
-                if (a.name < b.name) return -1;
-                if (a.name > b.name) return 1;
+                if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
+                if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
                 return 0;
               })
               .map((user) => (
