@@ -475,7 +475,7 @@ class Poll extends Component {
                 });
               }}
               className={
-                cx(styles.pBtn, styles.btnMR, {
+                cx(styles.pBtn, {
                   [styles.selectedBtnBlue]: type === pollTypes.TrueFalse,
                 })
               }
@@ -496,43 +496,43 @@ class Poll extends Component {
                 });
               }}
               className={
-                cx(styles.pBtn, styles.btnML, {
+                cx(styles.pBtn, {
                   [styles.selectedBtnBlue]: type === pollTypes.Letter,
                 })
               }
             />
-          </div>
-          <Button
-            label={intl.formatMessage(intlMessages.yna)}
-            aria-describedby="poll-config-button"
-            color="default"
-            onClick={() => {
-              this.setState({
-                type: pollTypes.YesNoAbstention,
-                optList: [
-                  { val: intl.formatMessage(intlMessages.yes) },
-                  { val: intl.formatMessage(intlMessages.no) },
-                  { val: intl.formatMessage(intlMessages.abstention) },
-                ],
-              });
-            }}
-            className={
+            <Button
+              label={intl.formatMessage(intlMessages.yna)}
+              aria-describedby="poll-config-button"
+              color="default"
+              onClick={() => {
+                this.setState({
+                  type: pollTypes.YesNoAbstention,
+                  optList: [
+                    { val: intl.formatMessage(intlMessages.yes) },
+                    { val: intl.formatMessage(intlMessages.no) },
+                    { val: intl.formatMessage(intlMessages.abstention) },
+                  ],
+                });
+              }}
+              className={
               cx(styles.pBtn, styles.yna, {
                 [styles.selectedBtnBlue]: type === pollTypes.YesNoAbstention,
               })
             }
-          />
-          <Button
-            label={intl.formatMessage(intlMessages.userResponse)}
-            aria-describedby="poll-config-button"
-            color="default"
-            onClick={() => { this.setState({ type: pollTypes.Response }); }}
-            className={
+            />
+            <Button
+              label={intl.formatMessage(intlMessages.userResponse)}
+              aria-describedby="poll-config-button"
+              color="default"
+              onClick={() => { this.setState({ type: pollTypes.Response }); }}
+              className={
               cx(styles.pBtn, styles.fullWidth, {
                 [styles.selectedBtnWhite]: type === pollTypes.Response,
               })
             }
-          />
+            />
+          </div>
         </div>
         {type
           && (

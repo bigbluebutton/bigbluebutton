@@ -203,9 +203,9 @@
 .responseType {
     display: flex;
     justify-content: space-between;
+    flex-flow: wrap;
     position: relative;
     width: 100%;
-    height: var(--poll-input-height);
     margin-bottom: var(--lg-padding-x);
 
     button {
@@ -308,21 +308,14 @@
 
 .pBtn {
     border: solid var(--color-gray-light) 1px;
-    height: var(--poll-input-height);
+    min-height: var(--poll-input-height);
     font-size: var(--font-size-base);
+    white-space: pre-wrap;
     span {
         &:hover {
             opacity: 1;
         }
     }
-}
-
-.btnML {
-    margin-left: 3%;
-}
-
-.btnMR {
-    margin-right: 3%;
 }
 
 .deleteBtn {
@@ -333,7 +326,7 @@
     }
 }
 
-.yna {
+.pBtn {
     width: 100%;
     margin-bottom: 1rem;
 }
