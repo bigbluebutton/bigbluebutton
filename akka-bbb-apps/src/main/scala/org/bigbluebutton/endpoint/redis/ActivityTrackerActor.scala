@@ -32,6 +32,7 @@ case class UserActivityTracker(
   extId:              String,
   name:               String,
   isModerator:        Boolean,
+  isDialIn:           Boolean = false,
   answers:            Map[String,String] = Map(),
   talk:               Talk = Talk(),
   emojis:            Vector[Emoji] = Vector(),
@@ -150,7 +151,6 @@ class ActivityTrackerActor(
     }
   }
 
-
   private def handleUserJoinedMeetingEvtMsg(msg: UserJoinedMeetingEvtMsg): Unit = {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
@@ -230,7 +230,20 @@ class ActivityTrackerActor(
   }
 
   private def handleUserJoinedVoiceConfToClientEvtMsg(msg: UserJoinedVoiceConfToClientEvtMsg): Unit = {
-    //dont store this info yet
+    //Create users for Dial-in connections
+    if(msg.body.intId.startsWith("v_")) {
+      for {
+        meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      } yield {
+        val user: UserActivityTracker = meeting.users.values.find(u => u.intId == msg.body.intId).getOrElse({
+          UserActivityTracker(
+            msg.body.intId, msg.body.callerNum, msg.body.callerName, false, true
+          )
+        })
+
+        meetings += (meeting.intId -> meeting.copy(users = meeting.users + (user.intId -> user.copy(leftOn = 0))))
+      }
+    }
   }
 
   private def handleUserLeftVoiceConfToClientEvtMsg(msg: UserLeftVoiceConfToClientEvtMsg) {
@@ -239,6 +252,13 @@ class ActivityTrackerActor(
       user <- meeting.users.values.find(u => u.intId == msg.body.intId)
     } yield {
       endUserTalk(meeting, user)
+
+      if(user.isDialIn) {
+        val updatedUser = user.copy(leftOn = System.currentTimeMillis())
+        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
+
+        meetings += (updatedMeeting.intId -> updatedMeeting)
+      }
     }
   }
 
