@@ -1,6 +1,6 @@
 const Page = require('../core/page');
+const e = require('../core/elements');
 const utilNotification = require('../notifications/util');
-const { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } = require('../core/constants'); // core constants (Timeouts vars imported)
 
 class Polling extends Page {
   constructor() {
@@ -13,7 +13,9 @@ class Polling extends Page {
       if (process.env.GENERATE_EVIDENCES === 'true') {
         await this.screenshot(`${testName}`, `01-before-chat-message-send-[${this.meetingId}]`);
       }
-      const resp = this.page.evaluate(() => document.querySelectorAll('[data-test="pollMenuButton"]').length === 1);
+      const resp = this.page.evaluate((pollMenuSelector) => {
+        return document.querySelectorAll(pollMenuSelector).length === 1;
+      }, e.pollMenuButton);
       return resp;
     } catch (e) {
       console.log(e);

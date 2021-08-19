@@ -12,7 +12,7 @@ class Poll extends Notifications {
 
   async test(testName) {
     // 0 messages
-    const chat0 = await this.page3.page.evaluate(() => document.querySelectorAll('p[data-test="chatPollMessageText"]').length === 0);
+    const chat0 = await this.page3.page.evaluate((chatPollSelector) => document.querySelectorAll(chatPollSelector).length === 0, e.chatPollMessageText);
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await this.page3.screenshot(`${testName}`, `01-before-chat-message-send-[${this.page3.meetingId}]`);
     }
@@ -23,7 +23,7 @@ class Poll extends Notifications {
     await this.page3.waitForSelector(e.chatPollMessageText, ELEMENT_WAIT_TIME);
 
     // 1 message
-    const chat1 = await this.page3.page.evaluate(() => document.querySelectorAll('p[data-test="chatPollMessageText"]').length === 1);
+    const chat1 = await this.page3.page.evaluate((chatPollSelector) => document.querySelectorAll(chatPollSelector).length === 1, e.chatPollMessageText);
     return chat0 === chat1;
   }
 }

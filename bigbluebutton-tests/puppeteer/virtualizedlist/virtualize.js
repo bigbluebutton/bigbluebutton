@@ -31,7 +31,9 @@ class VirtualizeList {
 
   async test() {
     try {
-      const USER_LIST_VLIST_VISIBLE_USERS = await this.page1.page.evaluate(async () => await document.querySelectorAll('[data-test^="userListItem"]').length);
+      const USER_LIST_VLIST_VISIBLE_USERS = await this.page1.page.evaluate((anyUser) => {
+        document.querySelectorAll(anyUser).length;
+      }, ue.anyUser);
       const totalNumberOfUsersMongo = await this.page1.page.evaluate(() => {
         const collection = require('/imports/api/users/index.js');
         const users = collection.default._collection.find().count();

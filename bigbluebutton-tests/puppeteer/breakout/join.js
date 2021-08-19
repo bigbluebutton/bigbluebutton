@@ -93,7 +93,10 @@ class Join extends Create {
       await this.page3.waitForSelector(e.chatButton, ELEMENT_WAIT_TIME);
       await this.page3.click(e.chatButton, true);
       await this.page3.click(e.breakoutRoomsItem, true);
-      const resp = await this.page3.page.evaluate(async () => await document.querySelectorAll('span[class^="alreadyConnected--"]') !== null);
+
+      const resp = await this.page3.page.evaluate(async (alreadyConnectedSelector) => {
+        await document.querySelectorAll(alreadyConnectedSelector) !== null
+      }, e.alreadyConnected);
       return resp;
     }
   }

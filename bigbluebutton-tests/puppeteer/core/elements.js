@@ -6,10 +6,11 @@ exports.echoYes = 'button[aria-label="Echo is audible"]';
 exports.title = '._imports_ui_components_nav_bar__styles__presentationTitle';
 exports.alerts = '.toastify-content';
 exports.presenterClassName = 'presenter--';
+exports.zoomIn = 'button[aria-label="Zoom in"]';
 
 exports.isTalking = '[data-test="isTalking"]';
 exports.wasTalking = '[data-test="wasTalking"]';
-exports.joinAudio = 'button[data-test="joinAudio"]';
+// exports.joinAudio = 'button[data-test="joinAudio"]';
 exports.leaveAudio = 'button[aria-label="Leave audio"]';
 exports.disconnectAudio = 'li[data-test="disconnectAudio"]';
 

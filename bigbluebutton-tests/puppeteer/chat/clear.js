@@ -25,7 +25,9 @@ class Clear extends Page {
         await this.screenshot(`${testName}`, `02-after-chat-message-send-[${this.meetingId}]`);
       }
 
-      const chat0 = await this.page.evaluate(() => document.querySelectorAll('p[data-test="chatClearMessageText"]').length === 0);
+      const chat0 = await this.page.evaluate((chatClearMessageSelector) => {
+        document.querySelectorAll(chatClearMessageSelector).length === 0;
+      }, e.chatClearMessageText);
 
       // clear
       await this.click(e.chatOptions, true);

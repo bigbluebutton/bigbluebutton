@@ -15,8 +15,8 @@ async function countTestElements(element) {
 }
 
 async function connectionStatus(test) {
-  await test.click('button[data-test="connectionStatusButton"]', true);
-  await test.waitForSelector('div[aria-label="Connection status modal"]', ELEMENT_WAIT_TIME);
+  await test.click(e.connectionStatusBtn, true);
+  await test.waitForSelector(e.connectionStatusModal, ELEMENT_WAIT_TIME);
 }
 
 exports.countTestElements = countTestElements;

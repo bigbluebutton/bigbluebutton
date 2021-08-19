@@ -3,6 +3,7 @@ const path = require('path');
 const Page = require('../core/page');
 const params = require('../params');
 const util = require('./util');
+const { countTestElements } = require('../user/util');
 const be = require('./elements'); // breakout elements
 const we = require('../webcam/elements'); // webcam elements
 const ae = require('../audio/elements'); // audio elements
@@ -156,7 +157,7 @@ class Create {
 
   // Check if Breakoutrooms have been created
   async testCreatedBreakout(testName) {
-    const resp = await this.page1.page.evaluate(() => document.querySelectorAll('div[data-test="breakoutRoomsItem"]').length !== 0);
+    const resp = await this.page1.page.evaluate(countTestElements, be.breakoutRoomsItem);
     if (resp === true) {
       if (process.env.GENERATE_EVIDENCES === 'true') {
         await this.page1.screenshot(`${testName}`, `05-page01-success-${testName}`);

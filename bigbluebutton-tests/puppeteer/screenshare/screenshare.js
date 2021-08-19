@@ -28,7 +28,9 @@ class ShareScreen extends Page {
     await this.startRecording(testName);
     await this.closeAudioModal();
     try {
-      const screenshareBtn = await this.page.evaluate(() => document.querySelectorAll('button[aria-label="Share your screen"]').length === 0) === true;
+      const screenshareBtn = await this.page.evaluate((screenShare) => {
+        document.querySelectorAll(screenShare).length === 0;
+      }, e.screenShare);
       return screenshareBtn;
     } catch (e) {
       console.log(e);

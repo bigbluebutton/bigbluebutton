@@ -40,18 +40,16 @@ async function waitForToast(test) {
 
 async function getLastToastValue(test) {
   await test.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
-  const toast = test.page.evaluate(async (toastMsgSelector) => {
-    const lastToast = await document.querySelectorAll(toastMsgSelector)[0].innerText;
-    return lastToast;
+  const toast = test.page.evaluate((smallToastMsg) => {
+    return document.querySelectorAll(smallToastMsg)[0].innerText;
   }, ne.smallToastMsg);
   return toast;
 }
 
 async function getOtherToastValue(test) {
   await test.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
-  const toast = test.page.evaluate(async (toastMsgSelector) => {
-    const lastToast = await document.querySelectorAll(toastMsgSelector)[1].innerText;
-    return lastToast;
+  const toast = test.page.evaluate((smallToastMsg) => {
+    return document.querySelectorAll(smallToastMsg)[1].innerText;
   }, ne.smallToastMsg);
   return toast;
 }

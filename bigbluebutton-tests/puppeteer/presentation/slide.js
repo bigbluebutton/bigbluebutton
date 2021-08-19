@@ -17,14 +17,14 @@ class Slide extends Page {
     await this.waitForSelector(e.nextSlide, ELEMENT_WAIT_TIME);
     await this.click(e.nextSlide, true);
     await this.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
-    await this.page.waitFor(1000);
+    await this.page.waitForSelector(1000);
 
     const svg1 = await this.page.evaluate(async () => await document.querySelector('svg g g g').outerHTML.indexOf('/svg/2') !== -1);
 
     await this.waitForSelector(e.prevSlide, ELEMENT_WAIT_TIME);
     await this.click(e.prevSlide, true);
     await this.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
-    await this.page.waitFor(1000);
+    await this.page.waitForSelector(1000);
 
     const svg2 = await this.page.evaluate(async () => await document.querySelector('svg g g g').outerHTML.indexOf('/svg/1') !== -1);
 

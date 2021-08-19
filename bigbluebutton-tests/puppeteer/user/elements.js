@@ -32,3 +32,5 @@ exports.chatButton = '[accesskey="P"]';
 exports.chatPanel = 'section[data-test="chatPanel"]';
 exports.userListButton = '[accesskey="U"]';
 exports.userListPanel = 'div[data-test="userListPanel"]';
+exports.multiWhiteboardTool = 'span[data-test="multiWhiteboardTool"]'
+exports.connectionStatusBtn = 'button[data-test="connectionStatusButton"]';
