@@ -55,7 +55,7 @@ const JoinVideoButton = ({
   mountVideoPreview,
 }) => {
   const exitVideo = () => hasVideoStream && !VideoService.isMultipleCamerasEnabled();
-  const { enableWebcamEmojiButton } = Meteor.settings.public.app;
+  const { enableWebcamSelectorButton } = Meteor.settings.public.app;
 
   const handleOnClick = debounce(() => {
     if (!validIOSVersion()) {
@@ -79,7 +79,7 @@ const JoinVideoButton = ({
     : intl.formatMessage(intlMessages.joinVideo);
 
   if (disableReason) label = intl.formatMessage(intlMessages[disableReason]);
-  const shouldEnableEmojiButton = enableWebcamEmojiButton;
+  const shouldEnableEmojiButton = enableWebcamSelectorButton;
 
   const renderEmojiButton = () => (
     shouldEnableEmojiButton
