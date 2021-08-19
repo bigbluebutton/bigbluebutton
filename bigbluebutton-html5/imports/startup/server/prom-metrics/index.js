@@ -12,18 +12,18 @@ const {
       ? Meteor.settings.private.prometheus
       : { enabled: false };
 
-const MCSPrometheusAgent = new Agent(METRICS_HOST, METRICS_PORT, {
+const PrometheusAgent = new Agent(METRICS_HOST, METRICS_PORT, {
   path: METRICS_PATH,
   prefix: METRICS_PREFIX,
   collectDefaultMetrics: COLLECT_DEFAULT_METRICS,
 });
 
 if (METRICS_ENABLED) {
-  MCSPrometheusAgent.start();
+  PrometheusAgent.start();
 }
 
 module.exports = {
   METRICS_PREFIX,
   Agent,
-  MCSPrometheusAgent,
+  PrometheusAgent,
 };
