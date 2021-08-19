@@ -18,3 +18,10 @@
   @extend .virtualBackgroundRowDropdown;
   margin-top: 0.4rem;
 }
+
+.virtualBackgroundItem:focus{
+  color: var(--btn-default-color);
+  background-color: var(--btn-default-bg);
+  background-clip: padding-box;
+  box-shadow: 0 0 0 var(--border-size) var(--btn-primary-border);
+}

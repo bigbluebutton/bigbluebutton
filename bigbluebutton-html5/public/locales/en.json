@@ -730,6 +730,7 @@
     "app.video.clientDisconnected": "Webcam cannot be shared due to connection issues",
     "app.video.virtualBackground.none": "None",
     "app.video.virtualBackground.blur": "Blur",
+    "app.video.virtualBackground.thumbnail": "Thumbnail: {0}",
     "app.video.virtualBackground.genericError": "Failed to apply camera effect. Try again.",
     "app.fullscreenButton.label": "Make {0} fullscreen",
     "app.fullscreenUndoButton.label": "Undo {0} fullscreen",
