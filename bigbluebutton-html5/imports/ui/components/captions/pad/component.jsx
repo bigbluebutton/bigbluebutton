@@ -203,6 +203,7 @@ class Pad extends PureComponent {
       ownerId,
       name,
       layoutContextDispatch,
+      isResizing,
     } = this.props;
 
     const { listening } = this.state;
@@ -275,6 +276,9 @@ class Pad extends PureComponent {
           title="etherpad"
           src={url}
           aria-describedby="padEscapeHint"
+          style={{
+            pointerEvents: isResizing ? 'none' : 'inherit',
+          }}
         />
         <span id="padEscapeHint" className={styles.hint} aria-hidden>
           {intl.formatMessage(intlMessages.tip)}

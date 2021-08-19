@@ -48,6 +48,7 @@ class Note extends Component {
       intl,
       isRTL,
       layoutContextDispatch,
+      isResizing,
     } = this.props;
 
     const url = isLocked ? this.readOnlyURL : this.noteURL;
@@ -84,6 +85,9 @@ class Note extends Component {
           title="etherpad"
           src={url}
           aria-describedby="sharedNotesEscapeHint"
+          style={{
+            pointerEvents: isResizing ? 'none' : 'inherit',
+          }}
         />
         <span id="sharedNotesEscapeHint" className={styles.hint} aria-hidden>
           {intl.formatMessage(intlMessages.tipLabel)}
