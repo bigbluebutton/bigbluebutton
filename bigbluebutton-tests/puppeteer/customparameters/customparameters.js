@@ -373,7 +373,7 @@ class CustomParameters {
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
     await this.page1.closeAudioModal();
-    await this.page1.waitForSelector(cpe.container, ELEMENT_WAIT_TIME);
+    await this.page1.waitForSelector(pe.actions, ELEMENT_WAIT_TIME);
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
     const isNotHidden = await this.page1.page.$eval(cpe.restorePresentation, elem => elem.offsetHeight !== 0);
     console.log(isNotHidden);
@@ -451,7 +451,7 @@ class CustomParameters {
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
     await this.page1.closeAudioModal();
-    await this.page1.waitForSelector(cpe.container, ELEMENT_WAIT_TIME);
+    await this.page1.waitForSelector(pe.actions, ELEMENT_WAIT_TIME);
     if (await this.page1.page.evaluate(util.countTestElements, cpe.restorePresentation) === false && await this.page1.page.evaluate(util.countTestElements, cpe.defaultContent) === false) {
       await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
       this.page1.logger(testName, ' failed');
@@ -468,7 +468,7 @@ class CustomParameters {
     await this.page1.startRecording(testName);
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
     await this.page1.closeAudioModal();
-    await this.page1.waitForSelector(cpe.container, ELEMENT_WAIT_TIME);
+    await this.page1.waitForSelector(pe.actions, ELEMENT_WAIT_TIME);
     if (await this.page1.page.evaluate(util.countTestElements, cpe.chat) === true) {
       await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
       this.page1.logger(testName, ' failed');
@@ -491,7 +491,6 @@ class CustomParameters {
     await this.page1.screenshot(`${testName}`, `02-page1-${testName}`);
     await this.page2.closeAudioModal();
     await this.page2.screenshot(`${testName}`, `02-page2-${testName}`);
-    await this.page1.waitForSelector(cpe.container, ELEMENT_WAIT_TIME);
     await this.page2.waitForSelector(cpe.hidePresentation, ELEMENT_WAIT_TIME);
     await this.page2.click(cpe.hidePresentation, true);
     await this.page2.screenshot(`${testName}`, `03-page2-${testName}`);
@@ -514,7 +513,7 @@ class CustomParameters {
     await this.page1.screenshot(`${testName}`, `06-page1-${testName}`);
     await this.page2.screenshot(`${testName}`, `07-page2-${testName}`);
     if (zoomInCase === true && zoomOutCase === true && pollCase === true && previousSlideCase === true && nextSlideCase === true && annotationCase === true
-       && await this.page2.page.evaluate(util.countTestElements, cpe.restorePresentation) === true) {
+      && await this.page2.page.evaluate(util.countTestElements, cpe.restorePresentation) === true) {
       await this.page2.screenshot(`${testName}`, `08-page2-fail-${testName}`);
       this.page1.logger(testName, ' failed');
       return false;
@@ -535,7 +534,6 @@ class CustomParameters {
     await this.page1.screenshot(`${testName}`, `02-page1-${testName}`);
     await this.page2.closeAudioModal();
     await this.page2.screenshot(`${testName}`, `02-page2-${testName}`);
-    await this.page1.waitForSelector(cpe.container, ELEMENT_WAIT_TIME);
     await this.page2.waitForSelector(cpe.hidePresentation, ELEMENT_WAIT_TIME);
     await this.page2.click(cpe.hidePresentation, true);
     await this.page2.screenshot(`${testName}`, `03-page2-${testName}`);
@@ -544,7 +542,7 @@ class CustomParameters {
     await this.page1.screenshot(`${testName}`, `03-page1-${testName}`);
     await this.page2.screenshot(`${testName}`, `04-page2-${testName}`);
     if (pollCase === true
-       && await this.page2.page.evaluate(util.countTestElements, cpe.restorePresentation) === true) {
+      && await this.page2.page.evaluate(util.countTestElements, cpe.restorePresentation) === true) {
       await this.page2.screenshot(`${testName}`, `05-page2-fail-${testName}`);
       await this.page1.logger(testName, ' failed');
       return false;

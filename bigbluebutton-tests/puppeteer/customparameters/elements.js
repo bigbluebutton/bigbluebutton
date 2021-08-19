@@ -21,7 +21,6 @@ exports.tools = 'button[aria-label="Tools"]';
 exports.actions = 'button[aria-label="Actions"]';
 exports.hidePresentation = 'button[data-test="hidePresentationButton"]';
 exports.restorePresentation = 'button[data-test="restorePresentationButton"]';
-exports.container = 'div[id="container"]';
 exports.defaultContent = 'div[class^="defaultContent--"]';
 exports.notificationBar = 'div[class^="notificationsBar--"]';
 exports.chat = 'section[aria-label="Chat"]';
