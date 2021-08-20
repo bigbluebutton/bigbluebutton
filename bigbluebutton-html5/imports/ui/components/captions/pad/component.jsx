@@ -130,7 +130,14 @@ class Pad extends PureComponent {
       // Starts and stops the recognition when listening.
       // Throws an error if start() is called on a recognition that has already been started.
       if (listening) {
-        this.recognition.start();
+        try {
+          this.recognition.start();
+        } catch (e) {
+          logger.error({
+            logCode: 'captions_recognition',
+            extraInfo: { error: e.error },
+          }, 'Captions pad error when starting the recognition');
+        }
       } else {
         this.recognition.stop();
       }
