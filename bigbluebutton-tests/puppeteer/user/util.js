@@ -10,15 +10,10 @@ async function setStatus(test, status) {
   await test.click(status, true);
 }
 
-async function countTestElements(element) {
-  return document.querySelectorAll(element).length !== 0;
-}
-
 async function connectionStatus(test) {
   await test.click(e.connectionStatusBtn, true);
   await test.waitForSelector(e.connectionStatusModal, ELEMENT_WAIT_TIME);
 }
 
-exports.countTestElements = countTestElements;
 exports.setStatus = setStatus;
 exports.connectionStatus = connectionStatus;

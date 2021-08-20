@@ -1,13 +1,12 @@
 const path = require('path');
 const moment = require('moment');
-const Page = require('../core/page');
 const Create = require('./create');
-const util = require('./util');
 const utilScreenShare = require('../screenshare/util');
 const e = require('./elements');
 const pe = require('../core/elements');
 const we = require('../webcam/elements');
 const ae = require('../audio/elements');
+const { checkElement } = require('../core/util');
 const { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } = require('../core/constants'); // core constants (Timeouts vars imported)
 
 const today = moment().format('DD-MM-YYYY');
@@ -41,7 +40,7 @@ class Join extends Create {
         }
         this.page3.logger('before pages check');
 
-        const respTalkingIndicatorElement = await page2[2].evaluate(util.getTestElement, pe.isTalking);
+        const respTalkingIndicatorElement = await page2[2].evaluate(checkElement, pe.isTalking);
         const resp = respTalkingIndicatorElement === true;
 
         if (process.env.GENERATE_EVIDENCES === 'true') {
@@ -62,7 +61,7 @@ class Join extends Create {
       }
       this.page2.logger('before pages check');
 
-      const respWebcamElement = await page2[2].evaluate(util.getTestElement, we.videoContainer);
+      const respWebcamElement = await page2[2].evaluate(checkElement, we.videoContainer);
       const resp = respWebcamElement === true;
 
       if (process.env.GENERATE_EVIDENCES === 'true') {
@@ -94,9 +93,7 @@ class Join extends Create {
       await this.page3.click(e.chatButton, true);
       await this.page3.click(e.breakoutRoomsItem, true);
 
-      const resp = await this.page3.page.evaluate(async (alreadyConnectedSelector) => {
-        await document.querySelectorAll(alreadyConnectedSelector) !== null
-      }, e.alreadyConnected);
+      const resp = await this.page3.page.evaluate(checkElement, e.alreadyConnected);
       return resp;
     }
   }

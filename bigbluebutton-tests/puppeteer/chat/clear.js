@@ -3,7 +3,7 @@
 const Page = require('../core/page');
 const e = require('./elements');
 const util = require('./util');
-const { chatPushAlerts } = require('../notifications/elements');
+const { checkElementLengthEqualTo } = require('../core/util');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
 
 class Clear extends Page {
@@ -25,9 +25,7 @@ class Clear extends Page {
         await this.screenshot(`${testName}`, `02-after-chat-message-send-[${this.meetingId}]`);
       }
 
-      const chat0 = await this.page.evaluate((chatClearMessageSelector) => {
-        document.querySelectorAll(chatClearMessageSelector).length === 0;
-      }, e.chatClearMessageText);
+      const chat0 = await this.page.evaluate(checkElementLengthEqualTo, e.chatClearMessageText, 0);
 
       // clear
       await this.click(e.chatOptions, true);

@@ -2,7 +2,6 @@ const Page = require('../core/page');
 const params = require('../params');
 const util = require('../chat/util');
 const utilUser = require('./util');
-const utilCustomParams = require('../customparameters/util');
 const pe = require('../core/elements');
 const ne = require('../notifications/elements');
 const ple = require('../polling/elemens');
@@ -10,8 +9,9 @@ const we = require('../whiteboard/elements');
 const ue = require('./elements');
 const ce = require('../chat/elements');
 const cu = require('../customparameters/elements');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const { sleep } = require('../core/helper');
+const { getElementLength, checkElementLengthEqualTo, checkElementLengthDifferentTo } = require('../core/util');
 
 class MultiUsers {
   constructor() {
@@ -33,12 +33,8 @@ class MultiUsers {
 
   // Run the test for the page
   async checkForOtherUser() {
-    const firstCheck = await this.page1.page.evaluate((userListItem) => {
-      document.querySelectorAll(userListItem).length > 0;
-    }, ue.userListItem);
-    const secondCheck = await this.page1.page.evaluate((userListItem) => {
-      document.querySelectorAll(userListItem).length > 0;
-    }, ue.userListItem);
+    const firstCheck = await this.page1.page.evaluate(getElementLength, ue.userListItem) > 0;
+    const secondCheck = await this.page1.page.evaluate(getElementLength, ue.userListItem) > 0;
     return {
       firstCheck,
       secondCheck,
@@ -46,27 +42,19 @@ class MultiUsers {
   }
 
   async multiUsersPublicChat() {
-    const chat0 = await this.page1.page.evaluate((chatUserMessageText) => {
-      document.querySelectorAll(chatUserMessageText).length;
-    }, ce.chatUserMessageText);
+    const chat0 = await this.page1.page.evaluate(getElementLength, ce.chatUserMessageText);
     await util.sendPublicChatMessage(this.page1, this.page2);
-    const chat1 = await this.page1.page.evaluate((chatUserMessageText) => {
-      document.querySelectorAll(chatUserMessageText).length;
-    }, ce.chatUserMessageText);
+    const chat1 = await this.page1.page.evaluate(getElementLength, ce.chatUserMessageText);
 
     return chat0 !== chat1;
   }
 
   async multiUsersPrivateChat() {
     await util.openPrivateChatMessage(this.page1, this.page2);
-    const chat0 = await this.page1.page.evaluate((chatUserMessageText) => {
-      document.querySelectorAll(chatUserMessageText).length;
-    }, ce.chatUserMessageText);
+    const chat0 = await this.page1.page.evaluate(getElementLength, ce.chatUserMessageText);
     await util.sendPrivateChatMessage(this.page1, this.page2);
     await sleep(2000);
-    const chat1 = await this.page1.page.evaluate((chatUserMessageText) => {
-      document.querySelectorAll(chatUserMessageText).length;
-    }, ce.chatUserMessageText);
+    const chat1 = await this.page1.page.evaluate(getElementLength, ce.chatUserMessageText);
 
     return chat0 !== chat1;
   }
@@ -163,7 +151,7 @@ class MultiUsers {
       await this.page1.waitForSelector(ple.publishLabel, ELEMENT_WAIT_TIME);
       await this.page1.click(ple.publishLabel, true);
       await sleep(2000);
-      const receivedAnswerFound = await this.page1.page.evaluate(utilCustomParams.countTestElements, ple.receivedAnswer);
+      const receivedAnswerFound = await this.page1.page.evaluate(checkElementLengthDifferentTo, ple.receivedAnswer, 0);
       await sleep(2000);
       return receivedAnswerFound;
     } catch (e) {
@@ -193,7 +181,7 @@ class MultiUsers {
     await this.page2.waitForSelector(we.raiseHandLabel, ELEMENT_WAIT_TIME);
     await this.page2.click(we.raiseHandLabel, true);
     await sleep(2000);
-    const resp = await this.page2.page.evaluate(utilCustomParams.countTestElements, we.lowerHandLabel);
+    const resp = await this.page2.page.evaluate(checkElementLengthDifferentTo, we.lowerHandLabel, 0);
     return resp;
   }
 
@@ -202,7 +190,7 @@ class MultiUsers {
     await this.page2.waitForSelector(we.lowerHandLabel, ELEMENT_WAIT_TIME);
     await this.page2.click(we.lowerHandLabel, true);
     await sleep(2000);
-    const resp = await this.page2.page.evaluate(utilCustomParams.countTestElements, we.raiseHandLabel);
+    const resp = await this.page2.page.evaluate(checkElementLengthDifferentTo, we.raiseHandLabel, 0);
     return resp;
   }
 
@@ -224,8 +212,8 @@ class MultiUsers {
       await sleep(5000);
       await utilUser.connectionStatus(this.page1);
       await sleep(5000);
-      const connectionStatusItemEmpty = await this.page1.page.evaluate(utilUser.countTestElements, ue.connectionStatusItemEmpty) === false;
-      const connectionStatusOfflineUser = await this.page1.page.evaluate(utilUser.countTestElements, ue.connectionStatusOfflineUser) === true;
+      const connectionStatusItemEmpty = await this.page1.page.evaluate(checkElementLengthEqualTo, ue.connectionStatusItemEmpty, 0);
+      const connectionStatusOfflineUser = await this.page1.page.evaluate(checkElementLengthDifferentTo, ue.connectionStatusOfflineUser, 0) === true;
       return connectionStatusOfflineUser && connectionStatusItemEmpty;
     } catch (e) {
       console.log(e);
@@ -237,8 +225,8 @@ class MultiUsers {
     try {
       await this.page1.closeAudioModal();
       await this.page2.closeAudioModal();
-      const userlistPanel = await this.page1.page.evaluate(utilUser.countTestElements, ue.chatButton) === false;
-      const chatPanel = await this.page2.page.evaluate(utilUser.countTestElements, ue.chatButton) === false;
+      const userlistPanel = await this.page1.page.evaluate(checkElementLengthEqualTo, ue.chatButton, 0);
+      const chatPanel = await this.page2.page.evaluate(checkElementLengthEqualTo, ue.chatButton, 0);
       return userlistPanel && chatPanel;
     } catch (e) {
       console.log(e);
@@ -254,7 +242,7 @@ class MultiUsers {
       await this.page2.click(ue.userListButton, true);
       await this.page2.click(ue.chatButton, true);
       const onUserListPanel = await this.page1.isNotVisible(cu.hidePresentation, ELEMENT_WAIT_TIME) === true;
-      const onChatPanel = await this.page2.page.evaluate(utilUser.countTestElements, cu.hidePresentation) === false;
+      const onChatPanel = await this.page2.page.evaluate(checkElementLengthEqualTo, cu.hidePresentation, 0);
       console.log({ onUserListPanel, onChatPanel });
       await sleep(2000);
       return onUserListPanel && onChatPanel;
@@ -270,7 +258,7 @@ class MultiUsers {
       await this.page2.closeAudioModal();
       await this.page2.click(ue.userListButton, true);
       await this.page2.click(ue.chatButton, true);
-      const whiteboard = await this.page1.page.evaluate(utilUser.countTestElements, ue.chatButton) === false;
+      const whiteboard = await this.page1.page.evaluate(checkElementLengthEqualTo, ue.chatButton, 0);
       const onChatPanel = await this.page2.isNotVisible(ue.chatButton, ELEMENT_WAIT_TIME) === true;
       console.log({ whiteboard, onChatPanel });
       await sleep(2000);

@@ -2,6 +2,7 @@ const Page = require('../core/page');
 const params = require('../params');
 const { USER_LIST_VLIST_BOTS_LISTENING, ELEMENT_WAIT_TIME } = require('../core/constants');
 const ue = require('../user/elements');
+const { getElementLength } = require('../core/util')
 
 class VirtualizeList {
   constructor() {
@@ -31,9 +32,7 @@ class VirtualizeList {
 
   async test() {
     try {
-      const USER_LIST_VLIST_VISIBLE_USERS = await this.page1.page.evaluate((anyUser) => {
-        document.querySelectorAll(anyUser).length;
-      }, ue.anyUser);
+      const USER_LIST_VLIST_VISIBLE_USERS = await this.page1.page.evaluate(getElementLength, ue.anyUser);
       const totalNumberOfUsersMongo = await this.page1.page.evaluate(() => {
         const collection = require('/imports/api/users/index.js');
         const users = collection.default._collection.find().count();

@@ -2,15 +2,13 @@ const moment = require('moment');
 const path = require('path');
 const Page = require('../core/page');
 const params = require('../params');
-const util = require('./util');
-const { countTestElements } = require('../user/util');
 const be = require('./elements'); // breakout elements
 const we = require('../webcam/elements'); // webcam elements
 const ae = require('../audio/elements'); // audio elements
 const ue = require('../user/elements'); // user elements
 const ce = require('../customparameters/elements'); // customparameters elements
 const e = require('../core/elements'); // page base elements
-// core constants (Timeouts vars imported)
+const { checkElement, clickElement } = require('../core/util');
 const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 const today = moment().format('DD-MM-YYYY');
@@ -49,7 +47,7 @@ class Create {
       await this.page1.click(ue.askModerator, true);
       await this.page1.screenshot(`${testName}`, `05-clicked-askModerator-[${this.page1.meetingId}]`);
       await this.initViewer(testName);
-      const responseLoggedIn = await this.page1.page.evaluate(util.getTestElement, ue.waitingUsersBtn);
+      const responseLoggedIn = await this.page1.page.evaluate(checkElement, ue.waitingUsersBtn);
       await this.page1.screenshot(`${testName}`, `06-after-viewer-acceptance-[${this.page1.meetingId}]`);
       return responseLoggedIn;
     } catch (e) {
@@ -75,7 +73,7 @@ class Create {
       await this.page1.screenshot(`${testName}`, `05-clicked-alwaysAccept-[${this.page1.meetingId}]`);
       await this.initViewer(testName);
       await this.page3.closeAudioModal();
-      const responseLoggedIn = await this.page3.page.evaluate(util.getTestElement, e.whiteboard);
+      const responseLoggedIn = await this.page3.page.evaluate(checkElement, e.whiteboard);
       await this.page3.screenshot(`${testName}`, `06-after-viewer-connection-[${this.page1.meetingId}]`);
       return responseLoggedIn;
     } catch (e) {
@@ -100,7 +98,7 @@ class Create {
       await this.page1.click(ue.alwaysAccept, true);
       await this.page1.screenshot(`${testName}`, `05-clicked-alwaysAccept-[${this.page1.meetingId}]`);
       await this.initViewer(testName);
-      const responseLoggedIn = await this.page3.page.evaluate(util.getTestElement, ue.joinMeetingDemoPage);
+      const responseLoggedIn = await this.page3.page.evaluate(checkElement, ue.joinMeetingDemoPage);
       await this.page3.screenshot(`${testName}`, `06-after-viewer-gets-denied-[${this.page1.meetingId}]`);
       return responseLoggedIn;
     } catch (e) {
@@ -117,23 +115,23 @@ class Create {
       await this.page1.screenshot(`${testName}`, `01-page01-initialized-${testName}`);
       await this.page2.screenshot(`${testName}`, `01-page02-initialized-${testName}`);
     }
-    await this.page1.page.evaluate(util.clickTestElement, be.manageUsers);
-    await this.page1.page.evaluate(util.clickTestElement, be.createBreakoutRooms);
+    await this.page1.page.evaluate(clickElement, be.manageUsers);
+    await this.page1.page.evaluate(clickElement, be.createBreakoutRooms);
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await this.page1.screenshot(`${testName}`, `02-page01-creating-breakoutrooms-${testName}`);
     }
     await this.page1.waitForSelector(be.randomlyAssign, ELEMENT_WAIT_TIME);
-    await this.page1.page.evaluate(util.clickTestElement, be.randomlyAssign);
+    await this.page1.page.evaluate(clickElement, be.randomlyAssign);
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await this.page1.screenshot(`${testName}`, `03-page01-randomly-assign-user-${testName}`);
     }
     await this.page1.waitForSelector(be.modalConfirmButton, ELEMENT_WAIT_TIME);
-    await this.page1.page.evaluate(util.clickTestElement, be.modalConfirmButton);
+    await this.page1.page.evaluate(clickElement, be.modalConfirmButton);
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await this.page1.screenshot(`${testName}`, `04-page01-confirm-breakoutrooms-creation-${testName}`);
     }
     await this.page2.waitForSelector(be.modalConfirmButton, ELEMENT_WAIT_TIME);
-    await this.page2.page.evaluate(util.clickTestElement, be.modalConfirmButton);
+    await this.page2.page.evaluate(clickElement, be.modalConfirmButton);
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await this.page2.screenshot(`${testName}`, `02-page02-accept-invite-breakoutrooms-${testName}`);
     }
@@ -157,7 +155,7 @@ class Create {
 
   // Check if Breakoutrooms have been created
   async testCreatedBreakout(testName) {
-    const resp = await this.page1.page.evaluate(countTestElements, be.breakoutRoomsItem);
+    const resp = await this.page1.page.evaluate(checkElement, be.breakoutRoomsItem);
     if (resp === true) {
       if (process.env.GENERATE_EVIDENCES === 'true') {
         await this.page1.screenshot(`${testName}`, `05-page01-success-${testName}`);

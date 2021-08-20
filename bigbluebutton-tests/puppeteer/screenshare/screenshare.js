@@ -3,6 +3,7 @@ const util = require('./util');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } = require('../core/constants');
 const { sleep } = require('../core/helper');
+const { checkElementLengthEqualTo } = require('../core/util');
 
 class ShareScreen extends Page {
   constructor() {
@@ -28,9 +29,7 @@ class ShareScreen extends Page {
     await this.startRecording(testName);
     await this.closeAudioModal();
     try {
-      const screenshareBtn = await this.page.evaluate((screenShare) => {
-        document.querySelectorAll(screenShare).length === 0;
-      }, e.screenShare);
+      const screenshareBtn = await this.page.evaluate(checkElementLengthEqualTo, e.screenShare, 1);
       return screenshareBtn;
     } catch (e) {
       console.log(e);

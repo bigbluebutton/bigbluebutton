@@ -9,6 +9,7 @@ const PuppeteerVideoRecorder = require('puppeteer-video-recorder');
 const helper = require('./helper');
 const params = require('../params');
 const { ELEMENT_WAIT_TIME } = require('./constants');
+const { getElementLength } = require('./util');
 const e = require('./elements');
 const ue = require('../user/elements');
 const { NETWORK_PRESETS } = require('./profiles');
@@ -414,7 +415,7 @@ class Page {
       const users = collection.default._collection.find({}, {}, {}, {}, {}, { loggedOut: 'false' }).count();
       return users;
     });
-    const totalNumberOfUsersDom = await this.page.evaluate(async () => await document.querySelectorAll('[data-test^="userListItem"]').length);
+    const totalNumberOfUsersDom = await this.page.evaluate(getElementLength, '[data-test^="userListItem"]');
     this.logger({ totalNumberOfUsersDom, totalNumberOfUsersMongo });
     const metric = await this.page.metrics();
     pageMetricsObj.totalNumberOfUsersMongoObj = totalNumberOfUsersMongo;

@@ -1,8 +1,8 @@
 // Test: Sending a chat message
 
 const Notifications = require('../notifications/notifications');
-const Page = require('../core/page');
 const e = require('./elements');
+const { checkElementLengthEqualTo } = require('../core/util');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
 
 class Poll extends Notifications {
@@ -12,7 +12,7 @@ class Poll extends Notifications {
 
   async test(testName) {
     // 0 messages
-    const chat0 = await this.page3.page.evaluate((chatPollSelector) => document.querySelectorAll(chatPollSelector).length === 0, e.chatPollMessageText);
+    const chat0 = await this.page3.page.evaluate(checkElementLengthEqualTo, e.chatPollMessageText, 0);
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await this.page3.screenshot(`${testName}`, `01-before-chat-message-send-[${this.page3.meetingId}]`);
     }
@@ -23,7 +23,7 @@ class Poll extends Notifications {
     await this.page3.waitForSelector(e.chatPollMessageText, ELEMENT_WAIT_TIME);
 
     // 1 message
-    const chat1 = await this.page3.page.evaluate((chatPollSelector) => document.querySelectorAll(chatPollSelector).length === 1, e.chatPollMessageText);
+    const chat1 = await this.page3.page.evaluate(checkElementLengthEqualTo, e.chatPollMessageText, 1);
     return chat0 === chat1;
   }
 }

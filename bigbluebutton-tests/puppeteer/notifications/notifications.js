@@ -8,6 +8,7 @@ const ne = require('./elements');
 const pe = require('../presentation/elements');
 const we = require('../whiteboard/elements');
 const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { checkElementTextIncludes } = require('../core/util');
 
 class Notifications extends MultiUsers {
   constructor() {
@@ -106,8 +107,8 @@ class Notifications extends MultiUsers {
     await this.page4.closeAudioModal();
     await this.page3.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
     try {
-      await this.page3.page.waitForFunction(
-        'document.querySelector("body").innerText.includes("User joined the session")',
+      await this.page3.page.waitForFunction(checkElementTextIncludes, {},
+        'body', 'User joined the session'
       );
       await this.page3.screenshot(`${testName}`, `04-page03-user-join-toast-${testName}`);
       return true;
@@ -129,21 +130,21 @@ class Notifications extends MultiUsers {
     await this.page3.waitForSelector(pe.fileUpload, ELEMENT_WAIT_TIME);
     const fileUpload = await this.page3.page.$(pe.fileUpload);
     await fileUpload.uploadFile(path.join(__dirname, '../media/DifferentSizes.pdf'));
-    await this.page3.page.waitForFunction(
-      'document.querySelector("body").innerText.includes("To be uploaded ...")',
+    await this.page3.page.waitForFunction(checkElementTextIncludes, {},
+      'body', 'To be uploaded ...'
     );
     await this.page3.waitForSelector(pe.upload, ELEMENT_WAIT_TIME);
     await this.page3.click(pe.upload, true);
-    await this.page3.page.waitForFunction(
-      'document.querySelector("body").innerText.includes("Converting file")',
+    await this.page3.page.waitForFunction(checkElementTextIncludes, {},
+      'body', 'Converting file'
     );
     await this.page3.screenshot(`${testName}`, `04-page03-file-uploaded-and-ready-${testName}`);
     await this.page3.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
     await this.page3.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
     await this.page3.screenshot(`${testName}`, `05-page03-presentation-changed-${testName}`);
     try {
-      await this.page3.page.waitForFunction(
-        'document.querySelector("body").innerText.includes("Current presentation")',
+      await this.page3.page.waitForFunction(checkElementTextIncludes, {},
+        'body', 'Current presentation'
       );
       await this.page3.screenshot(`${testName}`, `06-page03-presentation-change-toast-${testName}`);
       return true;

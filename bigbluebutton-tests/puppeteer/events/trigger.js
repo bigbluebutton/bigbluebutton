@@ -1,9 +1,9 @@
 const Page = require('../core/page');
-const e = require('../core/elements');
-const util = require('../customparameters/util');
 const { exec } = require("child_process");
 const { CLIENT_RECONNECTION_TIMEOUT } = require('../core/constants'); // core constants (Timeouts vars imported)
 const { sleep } = require('../core/helper');
+const e = require('../core/elements');
+const { checkElementLengthDifferentTo } = require('../core/util');
 
 class Trigger extends Page {
   constructor() {
@@ -36,7 +36,7 @@ class Trigger extends Page {
     if (process.env.GENERATE_EVIDENCES === 'true') {
         await this.screenshot(`${testName}`, `04-after-meteor-reconnection-[${this.meetingId}]`);
     }
-    const findUnauthorized = await this.page.evaluate(util.countTestElements, e.unauthorized) === true;
+    const findUnauthorized = await this.page.evaluate(checkElementLengthDifferentTo, e.unauthorized, 0) === true;
     await this.logger('Check if Unauthorized message appears => ', findUnauthorized);
     return meteorStatusConfirm && getAudioButton && findUnauthorized;
   }
@@ -92,7 +92,7 @@ class Trigger extends Page {
         .getAttribute('aria-disabled') === "true");
     await this.logger('Check if Connections Buttons are disabled => ', getAudioButton);
     await sleep(3000);
-    const findUnauthorized = await this.page.evaluate(util.countTestElements, e.unauthorized) === true;
+    const findUnauthorized = await this.page.evaluate(checkElementLengthDifferentTo, e.unauthorized, 0) === true;
     await this.logger('Check if Unauthorized message appears => ', findUnauthorized);
     return meteorStatusConfirm && getAudioButton && findUnauthorized;
   }

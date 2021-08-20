@@ -1,18 +1,15 @@
-const Page = require('../core/page');
 const path = require('path');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const ne = require('../notifications/elements');
 const pe = require('../presentation/elements');
 const ce = require('../customparameters/elements');
 const we = require('../whiteboard/elements');
 const poe = require('../polling/elemens');
 const e = require('../core/elements');
+const { checkElementLengthEqualTo, checkElementLengthDifferentTo, checkElementText } = require('../core/util');
 
 async function autoJoinTest(test) {
   try {
-    const resp = await test.page.evaluate((audioDialogSelector) => {
-      return document.querySelectorAll(audioDialogSelector).length === 0;
-    }, e.audioDialog);
+    const resp = await test.page.evaluate(checkElementLengthEqualTo, e.audioDialog, 0);
     return resp === true;
   } catch (e) {
     console.log(e);
@@ -35,13 +32,10 @@ async function listenOnlyMode(test) {
 
 async function forceListenOnly(test) {
   try {
-    const resp = await test.page.evaluate((connecting, echoYes, toastSelector) => {
-      document.querySelectorAll(connecting)[0];
-      if (document.querySelectorAll(echoYes).length > 0) {
-        return false;
-      }
-      return document.querySelectorAll(toastSelector)[0].innerText === 'You have joined the audio conference';
-    }, e.connectingStatus, e.echoYes, ce.toastContainer);
+    const checkEchoYes = await test.page.evaluate(checkElementLengthEqualTo, e.echoYes, 0);
+    if (!checkEchoYes) return false;
+    const resp = await test.page.evaluate(checkElementText, ce.toastContainer, 'You have joined the audio conference');
+
     return resp === true;
   } catch (e) {
     console.log(e);
@@ -53,22 +47,14 @@ async function skipCheck(test) {
   // maybe not used
   try {
     await test.waitForSelector(ce.toastContainer, ELEMENT_WAIT_TIME);
-    const resp1 = await test.page.evaluate(countTestElements, e.toastContainer);
+    const resp1 = await test.page.evaluate(checkElementLengthDifferentTo, e.toastContainer, 0);
     await test.waitForSelector(ce.muteBtn, ELEMENT_WAIT_TIME);
-    const resp2 = await test.page.evaluate(countTestElements, ce.muteBtn);
+    const resp2 = await test.page.evaluate(checkElementLengthDifferentTo, ce.muteBtn, 0);
     return resp1 === true && resp2 === true;
   } catch (e) {
     console.log(e);
     return false;
   }
-}
-
-async function countTestElements(element) {
-  return document.querySelectorAll(element).length !== 0;
-}
-
-async function getTestElement(element) {
-  return document.querySelectorAll(element).length === 0;
 }
 
 function hexToRgb(hex) {
@@ -197,8 +183,6 @@ exports.nextSlide = nextSlide;
 exports.annotation = annotation;
 exports.presetationUpload = presetationUpload;
 exports.hexToRgb = hexToRgb;
-exports.getTestElement = getTestElement;
-exports.countTestElements = countTestElements;
 exports.autoJoinTest = autoJoinTest;
 exports.listenOnlyMode = listenOnlyMode;
 exports.forceListenOnly = forceListenOnly;
