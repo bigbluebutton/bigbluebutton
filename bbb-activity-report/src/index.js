@@ -5,27 +5,31 @@ import { IntlProvider } from 'react-intl';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+function getLanguage() {
+  let { language } = navigator;
+
+  const urlSearchParams = new URLSearchParams(window.location.search);
+  const params = Object.fromEntries(urlSearchParams.entries());
+  if (typeof params.lang !== 'undefined') {
+    language = params.lang;
+  }
+
+  return language;
+}
+
 class Dashboard extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
       intlMessages: {},
-      intlLocale: 'en',
+      intlLocale: getLanguage(),
     };
 
     this.setMessages();
   }
 
   setMessages() {
-    let { language } = navigator;
-
-    const urlSearchParams = new URLSearchParams(window.location.search);
-    const params = Object.fromEntries(urlSearchParams.entries());
-    if (typeof params.lang !== 'undefined') {
-      language = params.lang;
-    }
-
     const fetchMessages = (lang) => new Promise((resolve, reject) => {
       const url = `/html5client/locales/${lang.replace('-', '_')}.json`;
       fetch(url).then((response) => {
@@ -34,7 +38,7 @@ class Dashboard extends React.Component {
       });
     });
 
-    Promise.all([fetchMessages('en'), fetchMessages(language)])
+    Promise.all([fetchMessages('en'), fetchMessages(getLanguage())])
       .then((values) => {
         let mergedMessages = {};
 
@@ -46,7 +50,7 @@ class Dashboard extends React.Component {
           mergedMessages = Object.assign(mergedMessages, values[1]);
         }
 
-        this.setState({ intlMessages: mergedMessages, intlLocale: language });
+        this.setState({ intlMessages: mergedMessages });
       }).catch(() => {});
   }
 

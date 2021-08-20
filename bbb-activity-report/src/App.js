@@ -67,6 +67,56 @@ class App extends React.Component {
       return maxTime - minTime;
     }
 
+    function getAverageActivityScore() {
+      let meetingAveragePoints = 0;
+
+      const allUsers = Object.values(activitiesJson.users || {})
+        .filter((currUser) => !currUser.isModerator);
+      const nrOfUsers = allUsers.length;
+
+      // Calculate points of Talking
+      const usersTalkTime = allUsers.map((currUser) => currUser.talk.totalTime);
+      const maxTalkTime = Math.max(...usersTalkTime);
+      const totalTalkTime = usersTalkTime.reduce((prev, val) => prev + val, 0);
+      if (totalTalkTime > 0) {
+        meetingAveragePoints += ((totalTalkTime / nrOfUsers) / maxTalkTime) * 2;
+      }
+
+      // Calculate points of Chatting
+      const usersTotalOfMessages = allUsers.map((currUser) => currUser.totalOfMessages);
+      const maxMessages = Math.max(...usersTotalOfMessages);
+      const totalMessages = usersTotalOfMessages.reduce((prev, val) => prev + val, 0);
+      if (maxMessages > 0) {
+        meetingAveragePoints += ((totalMessages / nrOfUsers) / maxMessages) * 2;
+      }
+
+      // Calculate points of Raise hand
+      const usersRaiseHand = allUsers.map((currUser) => currUser.emojis.filter((emoji) => emoji.name === 'raiseHand').length);
+      const maxRaiseHand = Math.max(...usersRaiseHand);
+      const totalRaiseHand = usersRaiseHand.reduce((prev, val) => prev + val, 0);
+      if (maxRaiseHand > 0) {
+        meetingAveragePoints += ((totalRaiseHand / nrOfUsers) / maxMessages) * 2;
+      }
+
+      // Calculate points of Emojis
+      const usersEmojis = allUsers.map((currUser) => currUser.emojis.filter((emoji) => emoji.name !== 'raiseHand').length);
+      const maxEmojis = Math.max(...usersEmojis);
+      const totalEmojis = usersEmojis.reduce((prev, val) => prev + val, 0);
+      if (maxEmojis > 0) {
+        meetingAveragePoints += ((totalEmojis / nrOfUsers) / maxEmojis) * 2;
+      }
+
+      // Calculate points of Polls
+      const totalOfPolls = Object.values(activitiesJson.polls || {}).length;
+      if (totalOfPolls > 0) {
+        const totalAnswers = allUsers
+          .reduce((prevVal, currUser) => prevVal + Object.values(currUser.answers || {}).length, 0);
+        meetingAveragePoints += ((totalAnswers / nrOfUsers) / totalOfPolls) * 2;
+      }
+
+      return meetingAveragePoints;
+    }
+
     return (
       <div className="mx-10">
         <div className="flex items-start justify-between pb-3">
@@ -176,9 +226,41 @@ class App extends React.Component {
               />
             </svg>
           </Card>
+          <div aria-hidden="true" className="cursor-pointer" onClick={() => { this.setState({ tab: 'overview_activityscore' }); }}>
+            <Card
+              name={intl.formatMessage({ id: 'app.learningDashboard.indicators.activityScore', defaultMessage: 'Activity Score' })}
+              number={intl.formatNumber((getAverageActivityScore() || 0), {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 1,
+              })}
+              cardClass="border-green-500"
+              iconClass="bg-green-200 text-green-500"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"
+                />
+              </svg>
+            </Card>
+          </div>
         </div>
         <h1 className="block my-1 pr-2 text-xl font-semibold">
-          { tab === 'overview'
+          { tab === 'overview' || tab === 'overview_activityscore'
             ? <FormattedMessage id="app.learningDashboard.participantsTable.title" defaultMessage="Overview" />
             : null }
           { tab === 'polling'
@@ -187,11 +269,13 @@ class App extends React.Component {
         </h1>
         <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
           <div className="w-full overflow-x-auto">
-            { tab === 'overview'
+            { (tab === 'overview' || tab === 'overview_activityscore')
               ? (
                 <UsersTable
                   allUsers={activitiesJson.users}
                   totalOfActivityTime={totalOfActivity()}
+                  totalOfPolls={Object.values(activitiesJson.polls || {}).length}
+                  tab={tab}
                 />
               )
               : null }

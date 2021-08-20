@@ -892,6 +892,7 @@
     "app.learningDashboard.indicators.participants": "Participants",
     "app.learningDashboard.indicators.polls": "Polls",
     "app.learningDashboard.indicators.raiseHand": "Raise Hand",
+    "app.learningDashboard.indicators.activityScore": "Activity Score",
     "app.learningDashboard.indicators.duration": "Duration",
     "app.learningDashboard.participantsTable.title": "Overview",
     "app.learningDashboard.participantsTable.colParticipant": "Participant",

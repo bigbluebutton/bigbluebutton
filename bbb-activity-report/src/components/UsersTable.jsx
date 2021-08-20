@@ -1,15 +1,63 @@
 import React from 'react';
-import { FormattedMessage, FormattedDate, injectIntl } from 'react-intl';
+import {
+  FormattedMessage, FormattedDate, FormattedNumber, injectIntl,
+} from 'react-intl';
 
 class UsersTable extends React.Component {
   render() {
-    const { allUsers, totalOfActivityTime } = this.props;
+    const {
+      allUsers, totalOfActivityTime, totalOfPolls, tab,
+    } = this.props;
 
     function getSumOfTime(eventsArr) {
       return eventsArr.reduce((prevVal, elem) => {
         if (elem.stoppedOn > 0) return prevVal + (elem.stoppedOn - elem.startedOn);
         return prevVal + (new Date().getTime() - elem.startedOn);
       }, 0);
+    }
+
+    function getActivityScore(user) {
+      if (user.isModerator) return 0;
+
+      const allUsersArr = Object.values(allUsers || {}).filter((currUser) => !currUser.isModerator);
+      let userPoints = 0;
+
+      // Calculate points of Talking
+      const usersTalkTime = allUsersArr.map((currUser) => currUser.talk.totalTime);
+      const maxTalkTime = Math.max(...usersTalkTime);
+      if (maxTalkTime > 0) {
+        userPoints += (user.talk.totalTime / maxTalkTime) * 2;
+      }
+
+      // Calculate points of Chatting
+      const usersTotalOfMessages = allUsersArr.map((currUser) => currUser.totalOfMessages);
+      const maxMessages = Math.max(...usersTotalOfMessages);
+      if (maxMessages > 0) {
+        userPoints += (user.totalOfMessages / maxMessages) * 2;
+      }
+
+      // Calculate points of Raise hand
+      const usersRaiseHand = allUsersArr.map((currUser) => currUser.emojis.filter((emoji) => emoji.name === 'raiseHand').length);
+      const maxRaiseHand = Math.max(...usersRaiseHand);
+      const userRaiseHand = user.emojis.filter((emoji) => emoji.name === 'raiseHand').length;
+      if (maxRaiseHand > 0) {
+        userPoints += (userRaiseHand / maxRaiseHand) * 2;
+      }
+
+      // Calculate points of Emojis
+      const usersEmojis = allUsersArr.map((currUser) => currUser.emojis.filter((emoji) => emoji.name !== 'raiseHand').length);
+      const maxEmojis = Math.max(...usersEmojis);
+      const userEmojis = user.emojis.filter((emoji) => emoji.name !== 'raiseHand').length;
+      if (maxEmojis > 0) {
+        userPoints += (userEmojis / maxEmojis) * 2;
+      }
+
+      // Calculate points of Polls
+      if (totalOfPolls > 0) {
+        userPoints += (Object.values(user.answers || {}).length / totalOfPolls) * 2;
+      }
+
+      return userPoints;
     }
 
     function getOnlinePercentage(registeredOn, leftOn) {
@@ -21,12 +69,32 @@ class UsersTable extends React.Component {
       return (new Date(ts).toISOString().substr(11, 8));
     }
 
+    const usersActivityScore = {};
+    Object.values(allUsers || {}).forEach((user) => {
+      usersActivityScore[user.intId] = getActivityScore(user);
+    });
+
     return (
       <table className="w-full whitespace-no-wrap">
         <thead>
           <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-100">
             <th className="px-4 py-3">
               <FormattedMessage id="app.learningDashboard.participantsTable.colParticipant" defaultMessage="Participant" />
+              {
+                tab === 'overview'
+                  ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 inline"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+                    </svg>
+                  )
+                  : null
+              }
             </th>
             <th className="px-4 py-3 text-center">
               <FormattedMessage id="app.learningDashboard.participantsTable.colOnline" defaultMessage="Online time" />
@@ -46,6 +114,24 @@ class UsersTable extends React.Component {
             <th className="px-4 py-3 text-center">
               <FormattedMessage id="app.learningDashboard.participantsTable.colRaiseHands" defaultMessage="Raise Hand" />
             </th>
+            <th className="px-4 py-3 text-center">
+              <FormattedMessage id="app.learningDashboard.participantsTable.colActivityScore" defaultMessage="Activity Score" />
+              {
+                tab === 'overview_activityscore'
+                  ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 inline"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+                    </svg>
+                  )
+                  : null
+              }
+            </th>
             <th className="px-4 py-3">
               <FormattedMessage id="app.learningDashboard.participantsTable.colStatus" defaultMessage="Status" />
             </th>
@@ -55,8 +141,10 @@ class UsersTable extends React.Component {
           { typeof allUsers === 'object' && Object.values(allUsers || {}).length > 0 ? (
             Object.values(allUsers || {})
               .sort((a, b) => {
-                if (a.isModerator === true && b.isModerator === false) return -1;
+                if (tab === 'overview_activityscore' && usersActivityScore[a.intId] < usersActivityScore[b.intId]) return 1;
+                if (tab === 'overview_activityscore' && usersActivityScore[a.intId] > usersActivityScore[b.intId]) return -1;
                 if (a.isModerator === false && b.isModerator === true) return 1;
+                if (a.isModerator === true && b.isModerator === false) return -1;
                 if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
                 if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
                 return 0;
@@ -179,7 +267,9 @@ class UsersTable extends React.Component {
                       />
                     </svg>
                     { tsToHHmmss(
-                      (user.leftOn > 0 ? user.leftOn : (new Date()).getTime()) - user.registeredOn,
+                      (user.leftOn > 0
+                        ? user.leftOn
+                        : (new Date()).getTime()) - user.registeredOn,
                     ) }
                     <br />
                     <div
@@ -356,6 +446,24 @@ class UsersTable extends React.Component {
                         </span>
                       ) : null }
                   </td>
+                  {
+                      !user.isModerator ? (
+                        <td className="px-4 py-3 text-sm text-center items">
+                          <svg viewBox="0 0 82 12" width="82" height="12" className="flex-none m-auto inline">
+                            <rect width="12" height="12" fill={usersActivityScore[user.intId] > 0 ? '#A7F3D0' : '#e4e4e7'} />
+                            <rect width="12" height="12" x="14" fill={usersActivityScore[user.intId] > 2 ? '#6EE7B7' : '#e4e4e7'} />
+                            <rect width="12" height="12" x="28" fill={usersActivityScore[user.intId] > 4 ? '#34D399' : '#e4e4e7'} />
+                            <rect width="12" height="12" x="42" fill={usersActivityScore[user.intId] > 6 ? '#10B981' : '#e4e4e7'} />
+                            <rect width="12" height="12" x="56" fill={usersActivityScore[user.intId] > 8 ? '#059669' : '#e4e4e7'} />
+                            <rect width="12" height="12" x="70" fill={usersActivityScore[user.intId] === 10 ? '#047857' : '#e4e4e7'} />
+                          </svg>
+                          &nbsp;
+                          <span className="text-xs bg-gray-200 rounded-full px-2 ml-1">
+                            <FormattedNumber value={usersActivityScore[user.intId]} minimumFractionDigits="0" maximumFractionDigits="1" />
+                          </span>
+                        </td>
+                      ) : <td />
+                    }
                   <td className="px-4 py-3 text-xs">
                     {
                                       user.leftOn > 0

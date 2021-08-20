@@ -19,6 +19,15 @@ class PollsTable extends React.Component {
           <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-100">
             <th className="px-4 py-3">
               <FormattedMessage id="app.learningDashboard.pollsTable.colParticipant" defaultMessage="Participant" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 inline"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+              </svg>
             </th>
             {typeof polls === 'object' && Object.values(polls || {}).length > 0 ? (
               Object.values(polls || {}).map((poll, index) => <th className="px-4 py-3 text-center">{poll.question || `Poll ${index + 1}`}</th>)
