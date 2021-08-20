@@ -1,10 +1,6 @@
 @import "/imports/ui/components/video-preview/styles";
 
 .virtualBackgroundRowDropdown {
-  display: flex;
-  justify-content: inherit;
-  width: 100%;
-
   input {
     border-radius: 0.3rem;
   }
@@ -12,6 +8,15 @@
   input:disabled {
     filter: grayscale(100%);
   }
+
+  button {
+    padding: var(--btn-lg-padding);
+  }
+
+  button, input {
+    border: var(--border-size-small) solid var(--user-thumbnail-border);
+    margin: 0 0.15em;
+  }  
 }
 
 .virtualBackgroundRowThumbnail {
@@ -24,4 +29,10 @@
   background-color: var(--btn-default-bg);
   background-clip: padding-box;
   box-shadow: 0 0 0 var(--border-size) var(--btn-primary-border);
+}
+
+.bgWrapper {
+  display: flex;
+  justify-content: space-between;
+  overflow-x: auto;  
 }

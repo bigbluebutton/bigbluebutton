@@ -117,47 +117,49 @@ const VirtualBgSelector = ({
 
     return (
       <div className={styles.virtualBackgroundRowThumbnail}>
-        <Button
-          icon='close'
-          label={intl.formatMessage(intlMessages.noneLabel)}
-          hideLabel
-          disabled={disabled}
-          onClick={() => _virtualBgSelected(EFFECT_TYPES.NONE_TYPE)}
-        />
-
-        <TooltipContainer title={intl.formatMessage(intlMessages.blurLabel)} key={`blur-0`}>
-          <input
-            type="image"
-            className={styles.virtualBackgroundItem}
-            alt="image-input"
-            aria-label={EFFECT_TYPES.BLUR_TYPE}
-            src={getVirtualBackgroundThumbnail(BLUR_FILENAME)}
+        <div className={styles.bgWrapper}>
+          <Button
+            icon='close'
+            label={intl.formatMessage(intlMessages.noneLabel)}
+            hideLabel
             disabled={disabled}
-            ref={ref => inputElementsRef.current[0] = ref}
-            onClick={() => _virtualBgSelected(EFFECT_TYPES.BLUR_TYPE, 'Blur', 0)}
+            onClick={() => _virtualBgSelected(EFFECT_TYPES.NONE_TYPE)}
           />
-        </TooltipContainer>
 
-        {IMAGE_NAMES.map((imageName, index) => (
-          <TooltipContainer
-            title={intl.formatMessage(
-              intlMessages.thumbnailLabel,
-              ({ 0: imageName }),
-            )}
-            key={`${imageName}-${index}`}
-          >
+          <TooltipContainer title={intl.formatMessage(intlMessages.blurLabel)} key={`blur-0`}>
             <input
               type="image"
               className={styles.virtualBackgroundItem}
               alt="image-input"
-              aria-label={imageName}
-              src={getVirtualBackgroundThumbnail(imageName)}
-              ref={ref => inputElementsRef.current[index + 1] = ref}
-              onClick={() => _virtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, imageName, index + 1)}
+              aria-label={EFFECT_TYPES.BLUR_TYPE}
+              src={getVirtualBackgroundThumbnail(BLUR_FILENAME)}
               disabled={disabled}
+              ref={ref => inputElementsRef.current[0] = ref}
+              onClick={() => _virtualBgSelected(EFFECT_TYPES.BLUR_TYPE, 'Blur', 0)}
             />
           </TooltipContainer>
-        ))}
+
+          {IMAGE_NAMES.map((imageName, index) => (
+            <TooltipContainer
+              title={intl.formatMessage(
+                intlMessages.thumbnailLabel,
+                ({ 0: imageName }),
+              )}
+              key={`${imageName}-${index}`}
+            >
+              <input
+                type="image"
+                className={styles.virtualBackgroundItem}
+                alt="image-input"
+                aria-label={imageName}
+                src={getVirtualBackgroundThumbnail(imageName)}
+                ref={ref => inputElementsRef.current[index + 1] = ref}
+                onClick={() => _virtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, imageName, index + 1)}
+                disabled={disabled}
+              />
+            </TooltipContainer>
+          ))}
+        </div>
       </div>
     );
   };
