@@ -1,13 +1,13 @@
-const {
+import {
   register,
   collectDefaultMetrics,
-} = require('prom-client');
+} from 'prom-client';
 
-const HTTPServer = require('http')
+import HTTPServer from 'http';
 import Logger from '../logger';
 const LOG_PREFIX = '[prom-scrape-agt]';
 
-module.exports = class PrometheusScrapeAgent {
+class PrometheusScrapeAgent {
   constructor(host, port, options) {
     this.host = host;
     this.port = port;
@@ -88,3 +88,5 @@ module.exports = class PrometheusScrapeAgent {
     }
   }
 }
+
+export default PrometheusScrapeAgent;

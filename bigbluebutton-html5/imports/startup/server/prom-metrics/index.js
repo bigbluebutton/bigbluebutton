@@ -1,4 +1,4 @@
-const Agent = require('./promAgent.js');
+import Agent from './promAgent.js';
 
 const METRICS_PREFIX = "html5_"
 
@@ -22,7 +22,7 @@ if (METRICS_ENABLED) {
   PrometheusAgent.start();
 }
 
-module.exports = {
+export default {
   METRICS_PREFIX,
   Agent,
   PrometheusAgent,
