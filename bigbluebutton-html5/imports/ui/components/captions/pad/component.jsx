@@ -65,6 +65,8 @@ const propTypes = {
   }).isRequired,
 };
 
+const THROTTLE_INTERVAL_SECONDS = 0.5;
+
 class Pad extends PureComponent {
   static getDerivedStateFromProps(nextProps) {
     if (nextProps.ownerId !== nextProps.currentUserId) {
@@ -95,6 +97,8 @@ class Pad extends PureComponent {
         }
       });
     }
+    
+    this.lastToggleTimestamp = Date.now();
   }
 
   componentDidUpdate() {
@@ -185,9 +189,15 @@ class Pad extends PureComponent {
       listening,
     } = this.state;
 
+    const timestamp = Date.now();
+    const sinceLastToggle = (timestamp - this.lastToggleTimestamp) / 1000;
+    if (sinceLastToggle < THROTTLE_INTERVAL_SECONDS) { return; }
+    
     this.setState({
       listening: !listening,
     }, this.handleListen);
+    
+    this.lastToggleTimestamp = timestamp;
   }
 
   stopListen() {
