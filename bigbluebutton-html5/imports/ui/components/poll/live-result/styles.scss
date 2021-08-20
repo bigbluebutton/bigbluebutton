@@ -13,6 +13,8 @@
   margin-top: var(--sm-padding-y);
   margin-bottom: var(--sm-padding-y);
   font-size: var(--font-size-base);
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .main {
