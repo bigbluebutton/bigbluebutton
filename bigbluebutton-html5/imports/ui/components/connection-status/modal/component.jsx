@@ -155,11 +155,19 @@ class ConnectionStatusComponent extends PureComponent {
         inbound: audioCurrentDownloadRate,
       } = Service.calculateBitsPerSecond(data.audio, previousData.audio);
 
+      const jitter = data.audio['inbound-rtp']
+        ? data.audio['inbound-rtp'].jitterBufferAverage
+        : 0;
+
+      const packetsLost = data.audio['inbound-rtp']
+        ? data.audio['inbound-rtp'].packetsLost
+        : 0;
+
       const audio = {
         audioCurrentUploadRate,
         audioCurrentDownloadRate,
-        jitter: data.audio['inbound-rtp'].jitterBufferAverage,
-        packetsLost: data.audio['inbound-rtp'].packetsLost,
+        jitter,
+        packetsLost,
         transport: data.audio.transportStats,
       };
 
