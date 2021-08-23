@@ -2,6 +2,8 @@ import React from 'react';
 import {
   FormattedMessage, FormattedDate, FormattedNumber, injectIntl,
 } from 'react-intl';
+import { getUserEmojisSummary, emojiConfigs } from '../services/EmojiService';
+import UserAvatar from './UserAvatar';
 
 class UsersTable extends React.Component {
   render() {
@@ -59,6 +61,11 @@ class UsersTable extends React.Component {
 
       return userPoints;
     }
+
+    const usersEmojisSummary = {};
+    Object.values(allUsers || {}).forEach((user) => {
+      usersEmojisSummary[user.intId] = getUserEmojisSummary(user, 'raiseHand');
+    });
 
     function getOnlinePercentage(registeredOn, leftOn) {
       const totalUserOnlineTime = ((leftOn > 0 ? leftOn : (new Date()).getTime())) - registeredOn;
@@ -157,33 +164,7 @@ class UsersTable extends React.Component {
                         {/* <img className="object-cover w-full h-full rounded-full" */}
                         {/*     src="" */}
                         {/*     alt="" loading="lazy" /> */}
-                        <div className={`border-2 border-gray-800 items-center ${user.isModerator ? 'rounded-md' : 'rounded-full'}`}>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-full w-full p-1"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            {user.isDialIn
-                              ? (
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                                />
-                              )
-                              : (
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                                />
-                              )}
-                          </svg>
-                        </div>
+                        <UserAvatar user={user} />
                         <div
                           className="absolute inset-0 rounded-full shadow-inner"
                           aria-hidden="true"
@@ -351,78 +332,20 @@ class UsersTable extends React.Component {
                       ) : null }
                   </td>
                   <td className="px-4 py-3 text-sm text-left">
-                    { user.emojis.filter((emoji) => emoji.name === 'away').length > 0 ? (
-                      <div className="text-xs">
-                        <i className="icon-bbb-time text-sm" />
-                        &nbsp;
-                        {user.emojis.filter((emoji) => emoji.name === 'away').length}
-                        &nbsp;
-                        <FormattedMessage id="app.actionsBar.emojiMenu.awayLabel" defaultMessage="Away" />
-                      </div>
-                    ) : null}
-                    { user.emojis.filter((emoji) => emoji.name === 'neutral').length > 0 ? (
-                      <div className="text-xs">
-                        <i className="icon-bbb-undecided text-sm" />
-                        &nbsp;
-                        {user.emojis.filter((emoji) => emoji.name === 'neutral').length}
-                        &nbsp;
-                        <FormattedMessage id="app.actionsBar.emojiMenu.neutralLabel" defaultMessage="Undecided" />
-                      </div>
-                    ) : null}
-                    { user.emojis.filter((emoji) => emoji.name === 'confused').length > 0 ? (
-                      <div className="text-xs">
-                        <i className="icon-bbb-undecided text-sm" />
-                        &nbsp;
-                        {user.emojis.filter((emoji) => emoji.name === 'confused').length}
-                        &nbsp;
-                        <FormattedMessage id="app.actionsBar.emojiMenu.confusedLabel" defaultMessage="Confused" />
-                      </div>
-                    ) : null}
-                    { user.emojis.filter((emoji) => emoji.name === 'sad').length > 0 ? (
-                      <div className="text-xs">
-                        <i className="icon-bbb-sad text-sm" />
-                        &nbsp;
-                        {user.emojis.filter((emoji) => emoji.name === 'sad').length}
-                        &nbsp;
-                        <FormattedMessage id="app.actionsBar.emojiMenu.sadLabel" defaultMessage="Sad" />
-                      </div>
-                    ) : null}
-                    { user.emojis.filter((emoji) => emoji.name === 'happy').length > 0 ? (
-                      <div className="text-xs">
-                        <i className="icon-bbb-happy text-sm" />
-                        &nbsp;
-                        {user.emojis.filter((emoji) => emoji.name === 'happy').length}
-                        &nbsp;
-                        <FormattedMessage id="app.actionsBar.emojiMenu.happyLabel" defaultMessage="Happy" />
-                      </div>
-                    ) : null}
-                    { user.emojis.filter((emoji) => emoji.name === 'applause').length > 0 ? (
-                      <div className="text-xs">
-                        <i className="icon-bbb-applause text-sm" />
-                        &nbsp;
-                        {user.emojis.filter((emoji) => emoji.name === 'applause').length}
-                        &nbsp;
-                        <FormattedMessage id="app.actionsBar.emojiMenu.applauseLabel" defaultMessage="Applaud" />
-                      </div>
-                    ) : null}
-                    { user.emojis.filter((emoji) => emoji.name === 'thumbsUp').length > 0 ? (
-                      <div className="text-xs">
-                        <i className="icon-bbb-thumbs_up text-sm" />
-                        &nbsp;
-                        {user.emojis.filter((emoji) => emoji.name === 'thumbsUp').length}
-                        &nbsp;
-                        <FormattedMessage id="app.actionsBar.emojiMenu.thumbsUpLabel" defaultMessage="Thumbs up" />
-                      </div>
-                    ) : null}
-                    { user.emojis.filter((emoji) => emoji.name === 'thumbsDown').length > 0 ? (
-                      <div className="text-xs">
-                        <i className="icon-bbb-thumbs_down text-sm" />
-                        &nbsp;
-                        {user.emojis.filter((emoji) => emoji.name === 'thumbsDown').length}
-                        &nbsp;
-                        <FormattedMessage id="app.actionsBar.emojiMenu.thumbsDownLabel" defaultMessage="Thumbs down" />
-                      </div>
-                    ) : null}
+                    {
+                      Object.keys(usersEmojisSummary[user.intId] || {}).map((emoji) => (
+                        <div className="text-xs">
+                          <i className={`${emojiConfigs[emoji].icon} text-sm`} />
+                          &nbsp;
+                          { usersEmojisSummary[user.intId][emoji] }
+                          &nbsp;
+                          <FormattedMessage
+                            id={emojiConfigs[emoji].intlId}
+                            defaultMessage={emojiConfigs[emoji].defaultMessage}
+                          />
+                        </div>
+                      ))
+                    }
                   </td>
                   <td className="px-4 py-3 text-sm text-center">
                     { user.emojis.filter((emoji) => emoji.name === 'raiseHand').length > 0
