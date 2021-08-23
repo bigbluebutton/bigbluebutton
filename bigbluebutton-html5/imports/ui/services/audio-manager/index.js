@@ -829,7 +829,7 @@ class AudioManager {
 
   /**
    * Get stats about active audio peer.
-   * We filter the status based on FILTER_AUDIO_STATUS constant.
+   * We filter the status based on FILTER_AUDIO_STATS constant.
    * We also append to the returned object the information about peer's
    * transport. This transport information is retrieved by
    * getInternalExternalIpAddressesFromPeer().

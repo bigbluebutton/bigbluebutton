@@ -850,7 +850,7 @@ class VideoService {
 
   /**
    * Get stats about all active video peer.
-   * We filter the status based on FILTER_AUDIO_STATUS constant.
+   * We filter the status based on FILTER_VIDEO_STATS constant.
    *
    * For more information see:
    * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getStats
