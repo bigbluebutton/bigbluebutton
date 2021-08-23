@@ -35,25 +35,24 @@ const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props
 
   const userIsPresenter = (podId === 'DEFAULT_PRESENTATION_POD') ? currentUser.presenter : props.isPresenter;
 
-  return mountPresentation
-    && (
-      <Presentation
-        {
-        ...{
-          layoutContextDispatch,
-          numCameras,
-          ...props,
-          isViewer: currentUser.role === ROLE_VIEWER,
-          userIsPresenter: userIsPresenter && !layoutSwapped,
-          presentationBounds: presentation,
-          layoutType,
-          fullscreenContext,
-          fullscreenElementId,
-          isMobile: deviceType === DEVICE_TYPE.MOBILE
-        }
-        }
-      />
-    );
+  return (
+    <Presentation
+      {
+      ...{
+        layoutContextDispatch,
+        numCameras,
+        ...props,
+        isViewer: currentUser.role === ROLE_VIEWER,
+        userIsPresenter: userIsPresenter && !layoutSwapped,
+        presentationBounds: presentation,
+        layoutType,
+        fullscreenContext,
+        fullscreenElementId,
+        isMobile: deviceType === DEVICE_TYPE.MOBILE
+      }
+      }
+    />
+  );
 };
 
 const APP_CONFIG = Meteor.settings.public.app;
