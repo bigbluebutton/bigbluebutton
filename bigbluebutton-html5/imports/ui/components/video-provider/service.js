@@ -854,7 +854,13 @@ class VideoService {
    *
    * For more information see:
    * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getStats
-   * @returns An Object containing the information about each active peer
+   * and
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
+   * @returns An Object containing the information about each active peer.
+   *          The returned object follows the format:
+   *          {
+   *            peerId: RTCStatsReport
+   *          }
    */
   async getStats() {
     const peers = this.getActivePeers();

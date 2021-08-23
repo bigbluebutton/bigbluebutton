@@ -838,6 +838,8 @@ class AudioManager {
    *
    * For more information see:
    * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getStats
+   * and
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
    */
   async getStats() {
     const bridge = this.getCurrentBridge();

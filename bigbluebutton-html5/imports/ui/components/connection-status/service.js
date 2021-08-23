@@ -10,6 +10,7 @@ import { notify } from '/imports/ui/services/notification';
 import { makeCall } from '/imports/ui/services/api';
 import AudioService from '/imports/ui/components/audio/service';
 import VideoService from '/imports/ui/components/video-provider/service';
+import ScreenshareService from '/imports/ui/components/screenshare/service';
 
 const STATS = Meteor.settings.public.stats;
 const NOTIFICATION = STATS.notification;
@@ -352,7 +353,7 @@ const addExtraInboundNetworkParameters = (data) => {
 };
 
 /**
- * Retrieves the inbound and outbound data using WebRTC getStats API.
+ * Retrieves the inbound and outbound data using WebRTC getStats API, for audio.
  * @returns An Object with format (property:type) :
  *   {
  *     transportStats: Object,
@@ -374,12 +375,23 @@ const getAudioData = async () => {
   return data;
 };
 
+/**
+ * Retrieves the inbound and outbound data using WebRTC getStats API, for video.
+ * The video stats contains the stats about all video peers (cameras) and
+ * for screenshare peer appended into one single object, containing the id
+ * of the peers with it's stats information.
+ * @returns An Object containing video data for all video peers and screenshare
+ *          peer
+ */
 const getVideoData = async () => {
-  const data = await VideoService.getStats();
+  const camerasData = await VideoService.getStats() || {};
 
-  if (!data) return {};
+  const screenshareData = await ScreenshareService.getStats() || {};
 
-  return data;
+  return {
+    ...camerasData,
+    ...screenshareData,
+  };
 };
 
 /**
