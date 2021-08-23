@@ -1,6 +1,10 @@
 import Agent from './promAgent.js';
 
-const METRICS_PREFIX = "html5_"
+import {
+  METRICS_PREFIX,
+  METRIC_NAMES,
+  buildMetrics
+} from './metrics.js';
 
 const {
     enabled: METRICS_ENABLED,
@@ -19,10 +23,12 @@ const PrometheusAgent = new Agent(METRICS_HOST, METRICS_PORT, {
 });
 
 if (METRICS_ENABLED) {
+  PrometheusAgent.injectMetrics(buildMetrics());
   PrometheusAgent.start();
 }
 
-export default {
+export {
+  METRIC_NAMES,
   METRICS_PREFIX,
   Agent,
   PrometheusAgent,
