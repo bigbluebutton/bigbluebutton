@@ -4,6 +4,7 @@ import './bbb-icons.css';
 import { FormattedMessage, FormattedDate, injectIntl } from 'react-intl';
 import Card from './components/Card';
 import UsersTable from './components/UsersTable';
+import EmojisTable from './components/EmojisTable';
 import PollsTable from './components/PollsTable';
 
 class App extends React.Component {
@@ -205,27 +206,29 @@ class App extends React.Component {
               </svg>
             </Card>
           </div>
-          <Card
-            name={intl.formatMessage({ id: 'app.learningDashboard.indicators.raiseHand', defaultMessage: 'Raise Hand' })}
-            number={totalOfRaiseHand()}
-            cardClass="border-purple-500"
-            iconClass="bg-purple-200 text-purple-500"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+          <div aria-hidden="true" className="cursor-pointer" onClick={() => { this.setState({ tab: 'emojis' }); }}>
+            <Card
+              name={intl.formatMessage({ id: 'app.learningDashboard.indicators.raiseHand', defaultMessage: 'Raise Hand' })}
+              number={totalOfRaiseHand()}
+              cardClass="border-purple-500"
+              iconClass="bg-purple-200 text-purple-500"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"
-              />
-            </svg>
-          </Card>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"
+                />
+              </svg>
+            </Card>
+          </div>
           <div aria-hidden="true" className="cursor-pointer" onClick={() => { this.setState({ tab: 'overview_activityscore' }); }}>
             <Card
               name={intl.formatMessage({ id: 'app.learningDashboard.indicators.activityScore', defaultMessage: 'Activity Score' })}
@@ -263,6 +266,9 @@ class App extends React.Component {
           { tab === 'overview' || tab === 'overview_activityscore'
             ? <FormattedMessage id="app.learningDashboard.participantsTable.title" defaultMessage="Overview" />
             : null }
+          { tab === 'emojis'
+            ? <FormattedMessage id="app.learningDashboard.emojisTable.title" defaultMessage="Emojis" />
+            : null }
           { tab === 'polling'
             ? <FormattedMessage id="app.learningDashboard.pollsTable.title" defaultMessage="Polling" />
             : null }
@@ -278,6 +284,9 @@ class App extends React.Component {
                   tab={tab}
                 />
               )
+              : null }
+            { (tab === 'emojis')
+              ? <EmojisTable allUsers={activitiesJson.users} />
               : null }
             { tab === 'polling'
               ? <PollsTable polls={activitiesJson.polls} allUsers={activitiesJson.users} />
