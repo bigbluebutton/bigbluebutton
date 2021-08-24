@@ -430,11 +430,24 @@ class PresentationUploader extends Component {
     const {
       handleSave,
       selectedToBeNextCurrent,
+      presentations: propPresentations,
+      dispatchTogglePresentationDownloadable,
     } = this.props;
     const { disableActions, presentations } = this.state;
     const presentationsToSave = presentations;
 
     this.setState({ disableActions: true });
+
+    presentations.forEach(item => {
+      if (item.upload.done) {
+        const didDownloadableStateChange = propPresentations.some(
+          (p) => p.id === item.id && p.isDownloadable !== item.isDownloadable
+        );
+        if (didDownloadableStateChange) {
+          dispatchTogglePresentationDownloadable(item, item.isDownloadable);
+        }
+      }
+    });
 
     if (hasNewUpload) {
       this.toastId = toast.info(this.renderToastList(), {
@@ -501,7 +514,6 @@ class PresentationUploader extends Component {
   }
 
   handleToggleDownloadable(item) {
-    const { dispatchTogglePresentationDownloadable } = this.props;
     const { presentations } = this.state;
 
     const oldDownloadableState = item.isDownloadable;
@@ -520,12 +532,6 @@ class PresentationUploader extends Component {
     this.setState({
       presentations: presentationsUpdated,
     });
-
-    // If the presentation has not be uploaded yet, adjusting the state suffices
-    // otherwise set previously uploaded presentation to [not] be downloadable
-    if (item.upload.done) {
-      dispatchTogglePresentationDownloadable(item, !oldDownloadableState);
-    }
   }
 
   updateFileKey(id, key, value, operation = '$set') {
