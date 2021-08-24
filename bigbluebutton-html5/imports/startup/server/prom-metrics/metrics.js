@@ -1,5 +1,4 @@
 const {
-  Gauge,
   Counter,
 } = require('prom-client');
 
