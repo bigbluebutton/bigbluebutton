@@ -336,7 +336,9 @@ class SmartLayout extends Component {
 
   calculatesCameraDockBounds(mediaAreaBounds, mediaBounds, sidebarSize) {
     const { layoutContextState } = this.props;
-    const { input, fullscreen, isRTL, deviceType } = layoutContextState;
+    const {
+      input, fullscreen, isRTL, deviceType,
+    } = layoutContextState;
     const { presentation } = input;
     const { isOpen } = presentation;
     const { camerasMargin, presentationToolbarMinWidth } = DEFAULT_VALUES;
@@ -436,9 +438,6 @@ class SmartLayout extends Component {
     const { isOpen } = presentation;
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
-    const { camerasMargin } = DEFAULT_VALUES;
-
-    // TODO Adicionar min e max para a apresentação
 
     if (!isOpen) {
       mediaBounds.width = 0;

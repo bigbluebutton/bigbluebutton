@@ -4,7 +4,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import Button from '/imports/ui/components/button/component';
-import Dropdown from '/imports/ui/components/dropdown/component';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
 import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
 import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/container';
@@ -362,7 +361,6 @@ class UserOptions extends PureComponent {
   }
 
   render() {
-    const { isUserOptionsOpen } = this.state;
     const { intl } = this.props;
 
     return (
