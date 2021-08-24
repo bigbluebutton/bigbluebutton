@@ -134,35 +134,30 @@
 }
 
 .networkDataContainer {
-  display: grid;
-  float: left;
-  grid-template-columns: auto auto;
   width: 100%;
+  display: flex;
+  background-color: var(--color-off-white);
 }
 
 .networkData {
-  display: grid;
-  grid-template-columns: auto auto auto auto;
   float: left;
-
-  p {
-    text-align: center;
-  }
+  font-size: var(--font-size-small);
+  margin-left: var(--sm-padding-x);
 }
 
 .disabled {
   cursor: not-allowed !important;
 }
 
+.copyContainer {
+  width: 100%;
+}
+
 .copy {
-  display: flex;
   float: right;
   text-decoration: underline;
   cursor: pointer;
-
-  p {
-    margin-left: auto;
-  }
+  margin-right: var(--sm-padding-x);
 }
 
 .right {

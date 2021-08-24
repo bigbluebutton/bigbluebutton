@@ -72,6 +72,26 @@ const intlMessages = defineMessages({
     id: 'app.switch.offLabel',
     description: 'label for toggle switch off state',
   },
+  no: {
+    id: 'app.connection-status.no',
+    description: 'No to is using turn',
+  },
+  yes: {
+    id: 'app.connection-status.yes',
+    description: 'Yes to is using turn',
+  },
+  usingTurn: {
+    id: 'app.connection-status.usingTurn',
+    description: 'User is using turn server',
+  },
+  jitter: {
+    id: 'app.connection-status.jitter',
+    description: 'Jitter buffer in ms',
+  },
+  lostPackets: {
+    id: 'app.connection-status.lostPackets',
+    description: 'Number of lost packets',
+  },
 });
 
 const propTypes = {
@@ -113,6 +133,7 @@ class ConnectionStatusComponent extends PureComponent {
           audioCurrentDownloadRate: 0,
           jitter: 0,
           packetsLost: 0,
+          transportStats: {},
         },
         video: {
           videoCurrentUploadRate: 0,
@@ -168,7 +189,7 @@ class ConnectionStatusComponent extends PureComponent {
         audioCurrentDownloadRate,
         jitter,
         packetsLost,
-        transport: data.audio.transportStats,
+        transportStats: data.audio.transportStats,
       };
 
       const {
@@ -397,11 +418,16 @@ class ConnectionStatusComponent extends PureComponent {
       videoLabel,
     } = this;
 
+    const { intl } = this.props;
+
     const { networkData } = this.state;
 
     const {
       audioCurrentUploadRate,
       audioCurrentDownloadRate,
+      jitter,
+      packetsLost,
+      transportStats,
     } = networkData.audio;
 
     const {
@@ -409,22 +435,44 @@ class ConnectionStatusComponent extends PureComponent {
       videoCurrentDownloadRate,
     } = networkData.video;
 
+    let isUsingTurn = '--';
+
+    if (transportStats) {
+      switch (transportStats.isUsingTurn) {
+        case true:
+          isUsingTurn = intl.formatMessage(intlMessages.yes);
+          break;
+        case false:
+          isUsingTurn = intl.formatMessage(intlMessages.no);
+          break;
+        default:
+          break;
+      }
+    }
+
     return (
-      <div
-        className={styles.networkData}
-      >
-        <p>
-          {`↑${audioLabel}: ${audioCurrentUploadRate} kbps |`}
-        </p>
-        <p>
-          {`↓${audioLabel}: ${audioCurrentDownloadRate} kbps |`}
-        </p>
-        <p>
-          {`↑${videoLabel}: ${videoCurrentUploadRate} kbps |`}
-        </p>
-        <p>
-          {`↓${videoLabel}: ${videoCurrentDownloadRate} kbps`}
-        </p>
+      <div className={styles.networkDataContainer}>
+        <div className={styles.networkData}>
+          {`↑${audioLabel}: ${audioCurrentUploadRate} k`}
+        </div>
+        <div className={styles.networkData}>
+          {`↓${audioLabel}: ${audioCurrentDownloadRate} k`}
+        </div>
+        <div className={styles.networkData}>
+          {`↑${videoLabel}: ${videoCurrentUploadRate} k`}
+        </div>
+        <div className={styles.networkData}>
+          {`↓${videoLabel}: ${videoCurrentDownloadRate} k`}
+        </div>
+        <div className={styles.networkData}>
+          {`${intl.formatMessage(intlMessages.jitter)}: ${jitter} ms`}
+        </div>
+        <div className={styles.networkData}>
+          {`${intl.formatMessage(intlMessages.lostPackets)}: ${packetsLost}`}
+        </div>
+        <div className={styles.networkData}>
+          {`${intl.formatMessage(intlMessages.usingTurn)}: ${isUsingTurn}`}
+        </div>
       </div>
     );
   }
@@ -438,7 +486,7 @@ class ConnectionStatusComponent extends PureComponent {
 
     const { hasNetworkData } = this.state;
     return (
-      <div>
+      <div className={styles.copyContainer}>
         <span
           className={cx(styles.copy, !hasNetworkData ? styles.disabled : '')}
           role="button"
@@ -446,7 +494,7 @@ class ConnectionStatusComponent extends PureComponent {
           onKeyPress={this.copyNetworkData.bind(this)}
           tabIndex={0}
         >
-          <p>{intl.formatMessage(intlMessages.copy)}</p>
+          {intl.formatMessage(intlMessages.copy)}
         </span>
       </div>
     );
@@ -485,10 +533,8 @@ class ConnectionStatusComponent extends PureComponent {
               )
             }
           </div>
-          <div className={styles.networkDataContainer}>
-            {this.renderNetworkData()}
-            {this.renderCopyDataButton()}
-          </div>
+          {this.renderNetworkData()}
+          {this.renderCopyDataButton()}
           {this.renderDataSaving()}
           <div className={styles.content}>
             <div className={styles.wrapper}>
