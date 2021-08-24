@@ -598,7 +598,7 @@ class VideoPreview extends Component {
             </span>
           )
           : (
-            <span>
+            <>
               <label className={styles.label} htmlFor="setQuality">
                 {intl.formatMessage(intlMessages.qualityLabel)}
               </label>
@@ -629,7 +629,7 @@ class VideoPreview extends Component {
                   </span>
                 )
               }
-            </span>
+            </>
           )
         }
         {isVirtualBackgroundEnabled() && this.renderVirtualBgSelector()}
