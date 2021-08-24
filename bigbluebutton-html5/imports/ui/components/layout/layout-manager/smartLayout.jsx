@@ -436,7 +436,6 @@ class SmartLayout extends Component {
     const { isOpen } = presentation;
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
-    const { camerasMargin } = DEFAULT_VALUES;
 
     // TODO Adicionar min e max para a apresentação
 

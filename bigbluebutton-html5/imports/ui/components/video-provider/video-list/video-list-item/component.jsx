@@ -2,10 +2,8 @@ import React, { Component } from 'react';
 import browserInfo from '/imports/utils/browserInfo';
 import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import cx from 'classnames';
-import BBBMenu from "/imports/ui/components/menu/component";
-import ListItem from "@material-ui/core/ListItem";
+import BBBMenu from '/imports/ui/components/menu/component';
 import Icon from '/imports/ui/components/icon/component';
 import FullscreenService from '/imports/ui/components/fullscreen-button/service';
 import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
@@ -185,7 +183,6 @@ class VideoListItem extends Component {
     const {
       videoIsReady,
       isStreamHealthy,
-      isPortrait,
     } = this.state;
     const {
       name,
@@ -199,8 +196,6 @@ class VideoListItem extends Component {
     const shouldRenderReconnect = !isStreamHealthy && videoIsReady;
 
     const { isFirefox } = browserInfo;
-    const { isPhone } = deviceInfo;
-    const isTethered = isPhone && isPortrait;
 
     return (
       <div
