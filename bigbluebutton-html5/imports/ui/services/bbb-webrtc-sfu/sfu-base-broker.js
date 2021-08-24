@@ -54,6 +54,14 @@ class BaseBroker {
     // To be implemented by inheritors
   }
 
+  handleSFUError (sfuResponse) {
+    // To be implemented by inheritors
+  }
+
+  sendLocalDescription (localDescription) {
+    // To be implemented by inheritors
+  }
+
   openWSConnection () {
     return new Promise((resolve, reject) => {
       this.ws = new WebSocket(this.wsUrl);
@@ -102,39 +110,62 @@ class BaseBroker {
     this.sendMessage({ id: 'ping' });
   }
 
-  processAnswer (message) {
-    const { response, sdpAnswer, role, connectionId } = message;
+  _handleRemoteDescriptionProcessing (error, localDescription = null) {
+    if (error) {
+      logger.error({
+        logCode: `${this.logCodePrefix}_processanswer_error`,
+        extraInfo: {
+          errorMessage: error.name || error.message || 'Unknown error',
+          sfuComponent: this.sfuComponent,
+        }
+      }, `Error processing SDP answer from SFU for ${this.sfuComponent}`);
+      // 1305: "PEER_NEGOTIATION_FAILED",
+      return this.onerror(BaseBroker.assembleError(1305));
+    }
 
-    if (response !== 'accepted') return this.handleSFUError(message);
+    // There is a new local description; send it back to the server
+    if (localDescription) this.sendLocalDescription(localDescription);
+
+    // Mark the peer as negotiated and flush the ICE queue
+    this.webRtcPeer.negotiated = true;
+    this.processIceQueue();
+  }
+
+  _validateStartResponse (sfuResponse) {
+    const { response, role } = sfuResponse;
+
+    if (response !== 'accepted') {
+      this.handleSFUError(sfuResponse);
+      return false;
+    }
 
     logger.debug({
       logCode: `${this.logCodePrefix}_start_success`,
       extraInfo: {
-        sfuConnectionId: connectionId,
         role,
         sfuComponent: this.sfuComponent,
       }
     }, `Start request accepted for ${this.sfuComponent}`);
 
-    this.webRtcPeer.processAnswer(sdpAnswer, (error) => {
-      if (error) {
-        logger.error({
-          logCode: `${this.logCodePrefix}_processanswer_error`,
-          extraInfo: {
-            errorMessage: error.name || error.message || 'Unknown error',
-            sfuConnectionId: connectionId,
-            role,
-            sfuComponent: this.sfuComponent,
-          }
-        }, `Error processing SDP answer from SFU for ${this.sfuComponent}`);
-        // 1305: "PEER_NEGOTIATION_FAILED",
-        return this.onerror(BaseBroker.assembleError(1305));
-      }
+    return true;
+  }
 
-      // Mark the peer as negotiated and flush the ICE queue
-      this.webRtcPeer.negotiated = true;
-      this.processIceQueue();
-    });
+  processOffer (sfuResponse) {
+    if (this._validateStartResponse(sfuResponse)) {
+      this.webRtcPeer.processOffer(
+        sfuResponse.sdpAnswer,
+        this._handleRemoteDescriptionProcessing.bind(this)
+      );
+    }
+  }
+
+  processAnswer (sfuResponse) {
+    if (this._validateStartResponse(sfuResponse)) {
+      this.webRtcPeer.processAnswer(
+        sfuResponse.sdpAnswer,
+        this._handleRemoteDescriptionProcessing.bind(this)
+      );
+    }
   }
 
   addIceServers (options) {

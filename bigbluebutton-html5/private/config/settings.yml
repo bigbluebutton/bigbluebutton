@@ -199,6 +199,9 @@ public:
       # subscribe reattempt increases the reconnection timer up to this
       maxTimeout: 60000
     screenshare:
+      # Experimental. True is the canonical behavior. Flip to false to reverse
+      # the negotiation flow for subscribers.
+      subscriberOffering: true
       bitrate: 1500
       mediaTimeouts:
         maxConnectionAttempts: 2
@@ -447,6 +450,9 @@ public:
     echoTestNumber: 'echo'
     relayOnlyOnReconnect: false
     listenOnlyCallTimeout: 25000
+    # Experimental. True is the canonical behavior. Flip to false to reverse
+    # the negotiation flow for LO subscribers.
+    listenOnlyOffering: true
     #Timeout (ms) for gathering ICE candidates. When this timeout expires
     #the SDP is sent to the server with the candidates the browser gathered
     #so far. Increasing this value might help avoiding 1004 error when
