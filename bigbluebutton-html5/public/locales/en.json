@@ -910,6 +910,6 @@
     "app.learningDashboard.pollsTable.colParticipant": "Participant",
     "app.learningDashboard.pollsTable.anonymousAnswer": "Anonymous Poll (answers in the last row)",
     "app.learningDashboard.pollsTable.anonymousRowName": "Anonymous",
-    "app.learningDashboard.emojisTable.title": "Emojis",
-    "app.learningDashboard.emojisTable.colParticipant": "Participant"
+    "app.learningDashboard.statusTimelineTable.title": "Status Timeline",
+    "app.learningDashboard.statusTimelineTable.colParticipant": "Participant"
 }

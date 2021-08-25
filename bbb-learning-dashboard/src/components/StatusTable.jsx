@@ -3,7 +3,7 @@ import { FormattedMessage, injectIntl } from 'react-intl';
 import { getUserEmojisSummary, emojiConfigs } from '../services/EmojiService';
 import UserAvatar from './UserAvatar';
 
-class EmojisTable extends React.Component {
+class StatusTable extends React.Component {
   render() {
     const spanMinutes = 10 * 60000; // 10 minutes default
     const { allUsers, intl } = this.props;
@@ -13,7 +13,10 @@ class EmojisTable extends React.Component {
     }
 
     const usersRegisteredTimes = Object.values(allUsers || {}).map((user) => user.registeredOn);
-    const usersLeftTimes = Object.values(allUsers || {}).map((user) => user.leftOn);
+    const usersLeftTimes = Object.values(allUsers || {}).map((user) => {
+      if (user.leftOn === 0) return (new Date()).getTime();
+      return user.leftOn;
+    });
 
     const firstRegisteredOnTime = Math.min(...usersRegisteredTimes);
     const lastLeftOnTime = Math.max(...usersLeftTimes);
@@ -30,7 +33,7 @@ class EmojisTable extends React.Component {
         <thead>
           <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-100">
             <th className="px-4 py-3">
-              <FormattedMessage id="app.learningDashboard.emojisTable.colParticipant" defaultMessage="Participant" />
+              <FormattedMessage id="app.learningDashboard.statusTimelineTable.colParticipant" defaultMessage="Participant" />
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-4 w-4 inline"
@@ -146,4 +149,4 @@ class EmojisTable extends React.Component {
   }
 }
 
-export default injectIntl(EmojisTable);
+export default injectIntl(StatusTable);

@@ -4,7 +4,7 @@ import './bbb-icons.css';
 import { FormattedMessage, FormattedDate, injectIntl } from 'react-intl';
 import Card from './components/Card';
 import UsersTable from './components/UsersTable';
-import EmojisTable from './components/EmojisTable';
+import StatusTable from './components/StatusTable';
 import PollsTable from './components/PollsTable';
 
 class App extends React.Component {
@@ -206,7 +206,7 @@ class App extends React.Component {
               </svg>
             </Card>
           </div>
-          <div aria-hidden="true" className="cursor-pointer" onClick={() => { this.setState({ tab: 'emojis' }); }}>
+          <div aria-hidden="true" className="cursor-pointer" onClick={() => { this.setState({ tab: 'status_timeline' }); }}>
             <Card
               name={intl.formatMessage({ id: 'app.learningDashboard.indicators.raiseHand', defaultMessage: 'Raise Hand' })}
               number={totalOfRaiseHand()}
@@ -266,8 +266,8 @@ class App extends React.Component {
           { tab === 'overview' || tab === 'overview_activityscore'
             ? <FormattedMessage id="app.learningDashboard.participantsTable.title" defaultMessage="Overview" />
             : null }
-          { tab === 'emojis'
-            ? <FormattedMessage id="app.learningDashboard.emojisTable.title" defaultMessage="Emojis" />
+          { tab === 'status_timeline'
+            ? <FormattedMessage id="app.learningDashboard.statusTimelineTable.title" defaultMessage="Status Timeline" />
             : null }
           { tab === 'polling'
             ? <FormattedMessage id="app.learningDashboard.pollsTable.title" defaultMessage="Polling" />
@@ -285,8 +285,8 @@ class App extends React.Component {
                 />
               )
               : null }
-            { (tab === 'emojis')
-              ? <EmojisTable allUsers={activitiesJson.users} />
+            { (tab === 'status_timeline')
+              ? <StatusTable allUsers={activitiesJson.users} />
               : null }
             { tab === 'polling'
               ? <PollsTable polls={activitiesJson.polls} allUsers={activitiesJson.users} />
