@@ -90,6 +90,12 @@ public:
     # https://developer.mozilla.org/en-US/docs/Web/API/RTCDtlsTransport/iceTransport
     # This is an EXPERIMENTAL setting and the default value is false
     # experimentalUseKmsTrickleIceForMicrophone: false
+    #
+    # Shows stats about download and upload rates, audio jitter, lost packets
+    # and turn information
+    enableNetworkStats: false
+    # Enable the button to allow users to copy network stats to clipboard
+    enableCopyNetworkStatsButton: false
     defaultSettings:
       application:
         animations: true
