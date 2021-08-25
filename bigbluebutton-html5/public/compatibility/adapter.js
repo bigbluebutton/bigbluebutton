@@ -2460,7 +2460,7 @@
    */
   function extractVersion(uastring, expr, pos) {
     var match = uastring.match(expr);
-    return match && match.length >= pos && parseInt(match[pos], 10);
+    return match && match.length > pos && parseInt(match[pos], 10);
   }
   
   // Wraps the peerconnection event eventNameToWrap in a function
