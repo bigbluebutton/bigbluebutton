@@ -12,7 +12,6 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import RemoveUserModal from '/imports/ui/components/modal/remove-user/component';
 import BBBMenu from '/imports/ui/components/menu/component';
 import ChangeUserNameModal from '/imports/ui/components/modal/change-username/component';
-import BBBMenu from "/imports/ui/components/menu/component";
 import { styles } from './styles';
 import UserName from '../user-name/component';
 import { PANELS, ACTIONS } from '../../../../../layout/enums';
@@ -497,11 +496,11 @@ class UserDropdown extends PureComponent {
         label: intl.formatMessage(messages.ChangeUserNameLabel),
         onClick: () => {
           this.onActionsHide(mountModal(
-              <ChangeUserNameModal
-                  intl={intl}
-                  user={user}
-                  onConfirm={changeUserName}
-              />,
+            <ChangeUserNameModal
+              intl={intl}
+              user={user}
+              onConfirm={changeUserName}
+            />,
           ));
 
           this.handleClose();
