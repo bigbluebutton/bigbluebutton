@@ -301,6 +301,7 @@ class InputStreamLiveSelector extends Component {
             aria-label={intl.formatMessage(intlMessages.leaveAudio)}
             label={intl.formatMessage(intlMessages.leaveAudio)}
             accessKey={shortcuts.leaveaudio}
+            data-test="leaveAudio"
             hideLabel
             color="primary"
             icon={isListenOnly ? 'listen' : 'audio_on'}
