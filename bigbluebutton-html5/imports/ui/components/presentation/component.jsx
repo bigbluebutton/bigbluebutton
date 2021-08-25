@@ -644,12 +644,11 @@ class Presentation extends PureComponent {
     const {
       currentSlide,
       podId,
-      fullscreenElementId,
       isMobile,
       layoutType,
       numCameras,
     } = this.props;
-    const { zoom, fitToWidth, isFullscreen } = this.state;
+    const { zoom, fitToWidth } = this.state;
 
     if (!currentSlide) return null;
 
@@ -667,11 +666,8 @@ class Presentation extends PureComponent {
           zoom,
           podId,
           currentSlide,
-          fullscreenElementId,
           toolbarWidth,
         }}
-        isFullscreen={isFullscreen}
-        fullscreenRef={this.refPresentationContainer}
         currentSlideNum={currentSlide.num}
         presentationId={currentSlide.presentationId}
         zoomChanger={this.zoomChanger}
@@ -712,12 +708,11 @@ class Presentation extends PureComponent {
   renderPresentationFullscreen() {
     const {
       intl,
-      userIsPresenter,
       fullscreenElementId,
     } = this.props;
     const { isFullscreen } = this.state;
 
-    if (userIsPresenter || !ALLOW_FULLSCREEN) return null;
+    if (!ALLOW_FULLSCREEN) return null;
 
     return (
       <FullscreenButtonContainer
@@ -725,8 +720,9 @@ class Presentation extends PureComponent {
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         elementId={fullscreenElementId}
         isFullscreen={isFullscreen}
-        dark
-        bottom
+        color="primary"
+        fullScreenStyle={false}
+        className={styles.presentationFullscreen}
       />
     );
   }
