@@ -24,19 +24,19 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileOutputStream;
 
-public class ActivityService {
-    private static Logger log = LoggerFactory.getLogger(ActivityService.class);
-    private static String activitiesDir = "/var/bigbluebutton/activity-report";
+public class LearningDashboardService {
+    private static Logger log = LoggerFactory.getLogger(LearningDashboardService.class);
+    private static String learningDashboardFilesDir = "/var/bigbluebutton/learning-dashboard";
 
-    public void writeActivityJsonFile(String meetingId, String activityReportAccessToken, String activityJson) {
+    public void writeActivityJsonFile(String meetingId, String learningDashboardAccessToken, String activityJson) {
 
         try {
-            if(activityReportAccessToken.length() == 0) {
-                log.error("ActivityReport AccessToken not found. JSON file will not be saved for meeting {}.",meetingId);
+            if(learningDashboardAccessToken.length() == 0) {
+                log.error("LearningDashboard AccessToken not found. JSON file will not be saved for meeting {}.",meetingId);
                 return;
             }
 
-            File baseDir = new File(this.getDestinationBaseDirectoryName(meetingId,activityReportAccessToken));
+            File baseDir = new File(this.getDestinationBaseDirectoryName(meetingId,learningDashboardAccessToken));
             if (!baseDir.exists()) baseDir.mkdirs();
 
             File jsonFile = new File(baseDir.getAbsolutePath() + File.separatorChar + "activity_report.json");
@@ -46,17 +46,17 @@ public class ActivityService {
 
             fileOutput.close();
 
-            log.info("Activities JSON ({}) updated for meeting {}.",jsonFile.getAbsolutePath(),meetingId);
+            log.info("Learning Dashboard ({}) updated for meeting {}.",jsonFile.getAbsolutePath(),meetingId);
         } catch(Exception e) {
             System.out.println(e);
         }
     }
 
-    private String getDestinationBaseDirectoryName(String meetingId, String activityReportAccessToken) {
-        return activitiesDir + File.separatorChar + meetingId + File.separatorChar + activityReportAccessToken;
+    private String getDestinationBaseDirectoryName(String meetingId, String learningDashboardAccessToken) {
+        return learningDashboardFilesDir + File.separatorChar + meetingId + File.separatorChar + learningDashboardAccessToken;
     }
 
-    public void setActivitiesDir(String dir) {
-        activitiesDir = dir;
+    public void setLearningDashboardFilesDir(String dir) {
+        learningDashboardFilesDir = dir;
     }
 }

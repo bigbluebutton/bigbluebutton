@@ -90,7 +90,7 @@ public class MeetingService implements MessageListener {
   private final ConcurrentMap<String, UserSession> sessions;
 
   private RecordingService recordingService;
-  private ActivityService activityService;
+  private LearningDashboardService learningDashboardService;
   private WaitingGuestCleanupTimerTask waitingGuestCleaner;
   private UserCleanupTimerTask userCleaner;
   private EnteredUserCleanupTimerTask enteredUserCleaner;
@@ -405,7 +405,7 @@ public class MeetingService implements MessageListener {
     gw.createMeeting(m.getInternalId(), m.getExternalId(), m.getParentMeetingId(), m.getName(), m.isRecord(),
             m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
             m.getWebcamsOnlyForModerator(), m.getModeratorPassword(), m.getViewerPassword(),
-            m.getActivityReportTracking(), m.getActivityReportAccessToken(), m.getCreateTime(),
+            m.getlearningDashboardEnabled(), m.getLearningDashboardAccessToken(), m.getCreateTime(),
             formatPrettyDate(m.getCreateTime()), m.isBreakout(), m.getSequence(), m.isFreeJoin(), m.getMetadata(),
             m.getGuestPolicy(), m.getAuthenticatedGuest(), m.getMeetingLayout(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(), m.getModeratorOnlyMessage(),
             m.getDialNumber(), m.getMaxUsers(),
@@ -953,10 +953,10 @@ public class MeetingService implements MessageListener {
     }
   }
 
-  public void processActivityReport(ActivityReport message) {
+  public void processLearningDashboard(LearningDashboard message) {
     //Get all data from Json instead of getMeeting(message.meetingId), to process messages received even after meeting ended
     JsonObject activityJsonObject = new Gson().fromJson(message.activityJson, JsonObject.class).getAsJsonObject();
-    String activityReportAccessToken = activityJsonObject.get("activityReportAccessToken").getAsString();
+    String learningDashboardAccessToken = activityJsonObject.get("learningDashboardAccessToken").getAsString();
 
     Map<String, Object> logData = new HashMap<String, Object>();
     logData.put("meetingId", activityJsonObject.get("intId").getAsString());
@@ -970,7 +970,7 @@ public class MeetingService implements MessageListener {
 
     log.info(" --analytics-- data={}", logStr);
 
-    activityService.writeActivityJsonFile(message.meetingId, activityReportAccessToken, message.activityJson);
+    learningDashboardService.writeActivityJsonFile(message.meetingId, learningDashboardAccessToken, message.activityJson);
   }
 
   @Override
@@ -1129,8 +1129,8 @@ public class MeetingService implements MessageListener {
           processMakePresentationDownloadableMsg((MakePresentationDownloadableMsg) message);
         } else if (message instanceof UpdateRecordingStatus) {
           processUpdateRecordingStatus((UpdateRecordingStatus) message);
-        } else if (message instanceof ActivityReport) {
-          processActivityReport((ActivityReport) message);
+        } else if (message instanceof LearningDashboard) {
+          processLearningDashboard((LearningDashboard) message);
         }
       }
     };
@@ -1216,8 +1216,8 @@ public class MeetingService implements MessageListener {
     recordingService = s;
   }
 
-  public void setActivityService(ActivityService s) {
-    activityService = s;
+  public void setLearningDashboardService(LearningDashboardService s) {
+    learningDashboardService = s;
   }
 
   public void setRedisStorageService(RedisStorageService mess) {

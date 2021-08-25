@@ -94,12 +94,12 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.createBreakoutRoomDesc',
     description: 'Description of create breakout room option',
   },
-  activityReportLabel: {
-    id: 'app.activity-report.label',
+  learningDashboardLabel: {
+    id: 'app.learning-dashboard.label',
     description: 'Activity Report label',
   },
-  activityReportDesc: {
-    id: 'app.activity-report.description',
+  learningDashboardDesc: {
+    id: 'app.learning-dashboard.description',
     description: 'Activity Report description',
   },
   invitationItem: {
@@ -146,7 +146,7 @@ class UserOptions extends PureComponent {
     this.lockId = _.uniqueId('list-item-');
     this.guestPolicyId = _.uniqueId('list-item-');
     this.createBreakoutId = _.uniqueId('list-item-');
-    this.activityReportId = _.uniqueId('list-item-');
+    this.learningDashboardId = _.uniqueId('list-item-');
     this.saveUsersNameId = _.uniqueId('list-item-');
     this.captionsId = _.uniqueId('list-item-');
 
@@ -233,8 +233,8 @@ class UserOptions extends PureComponent {
       hasBreakoutRoom,
       isBreakoutEnabled,
       getUsersNotAssigned,
-      activityReportAccessToken,
-      openActivityReportUrl,
+      learningDashboardAccessToken,
+      openLearningDashboardUrl,
       amIModerator,
       users,
       isMeteorConnected,
@@ -305,14 +305,14 @@ class UserOptions extends PureComponent {
           icon: 'download',
         });
 
-        if (activityReportAccessToken != null) {
+        if (learningDashboardAccessToken != null) {
           this.menuItems.push({
             icon: "multi_whiteboard",
             iconRight: "popout_window",
-            label: intl.formatMessage(intlMessages.activityReportLabel),
-            description: intl.formatMessage(intlMessages.activityReportDesc),
-            key: this.activityReportId,
-            onClick: openActivityReportUrl,
+            label: intl.formatMessage(intlMessages.learningDashboardLabel),
+            description: intl.formatMessage(intlMessages.learningDashboardDesc),
+            key: this.learningDashboardId,
+            onClick: openLearningDashboardUrl,
           })
         }
       }

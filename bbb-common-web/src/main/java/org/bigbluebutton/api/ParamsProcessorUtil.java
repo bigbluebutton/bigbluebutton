@@ -82,7 +82,7 @@ public class ParamsProcessorUtil {
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
-    private boolean activityReportTracking;
+    private boolean learningDashboardEnabled;
     private boolean webcamsOnlyForModerator;
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
@@ -416,22 +416,22 @@ public class ParamsProcessorUtil {
             }
         }
 
-        boolean activityReportTrack = activityReportTracking;
+        boolean learningDashboardEnabled = learningDashboardEnabled;
         if (!StringUtils.isEmpty(params.get(ApiParams.ACTIVITY_REPORT_TRACKING))) {
             try {
-                activityReportTrack = Boolean.parseBoolean(params
+                learningDashboardEnabled = Boolean.parseBoolean(params
                         .get(ApiParams.ACTIVITY_REPORT_TRACKING));
             } catch (Exception ex) {
                 log.warn(
-                        "Invalid param [activityReportTracking] for meeting=[{}]",
+                        "Invalid param [learningDashboardEnabled] for meeting=[{}]",
                         internalMeetingId);
             }
         }
 
         //Generate token to access Activity Report
-        String activityReportAccessToken = "";
-        if(activityReportTrack == true) {
-            activityReportAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
+        String learningDashboardAccessToken = "";
+        if(learningDashboardEnabled == true) {
+            learningDashboardAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
         }
 
         boolean webcamsOnlyForMod = webcamsOnlyForModerator;
@@ -531,8 +531,8 @@ public class ParamsProcessorUtil {
 				.withLockSettingsParams(lockSettingsParams)
 				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
                 .withHTML5InstanceId(html5InstanceId)
-                .withActivityReportTracking(activityReportTrack)
-                .withActivityReportAccessToken(activityReportAccessToken)
+                .withlearningDashboardEnabled(learningDashboardEnabled)
+                .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .build();
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
@@ -922,8 +922,8 @@ public class ParamsProcessorUtil {
         this.allowStartStopRecording = allowStartStopRecording;
     }
 
-    public void setActivityReportTracking(boolean activityReportTracking) {
-        this.activityReportTracking = activityReportTracking;
+    public void setlearningDashboardEnabled(boolean learningDashboardEnabled) {
+        this.learningDashboardEnabled = learningDashboardEnabled;
     }
 
     public void setWebcamsOnlyForModerator(boolean webcamsOnlyForModerator) {

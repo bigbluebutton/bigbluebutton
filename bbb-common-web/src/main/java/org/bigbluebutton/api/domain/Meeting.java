@@ -51,8 +51,8 @@ public class Meeting {
 	private String webVoice;
 	private String moderatorPass;
 	private String viewerPass;
-	private Boolean activityReportTracking;
-	private String activityReportAccessToken;
+	private Boolean learningDashboardEnabled;
+	private String learningDashboardAccessToken;
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
 	private String modOnlyMessage = "";
@@ -110,8 +110,8 @@ public class Meeting {
         intMeetingId = builder.internalId;
         viewerPass = builder.viewerPass;
         moderatorPass = builder.moderatorPass;
-		activityReportTracking = builder.activityReportTracking;
-		activityReportAccessToken = builder.activityReportAccessToken;
+		learningDashboardEnabled = builder.learningDashboardEnabled;
+		learningDashboardAccessToken = builder.learningDashboardAccessToken;
         maxUsers = builder.maxUsers;
         bannerColor = builder.bannerColor;
         bannerText = builder.bannerText;
@@ -330,12 +330,12 @@ public class Meeting {
 		return viewerPass;
 	}
 
-	public Boolean getActivityReportTracking() {
-		return activityReportTracking;
+	public Boolean getlearningDashboardEnabled() {
+		return learningDashboardEnabled;
 	}
   
-	public String getActivityReportAccessToken() {
-		return activityReportAccessToken;
+	public String getLearningDashboardAccessToken() {
+		return learningDashboardAccessToken;
 	}
 
   public String getWelcomeMessageTemplate() {
@@ -726,8 +726,8 @@ public class Meeting {
         private boolean webcamsOnlyForModerator;
     	private String moderatorPass;
     	private String viewerPass;
-    	private Boolean activityReportTracking;
-    	private String activityReportAccessToken;
+    	private Boolean learningDashboardEnabled;
+    	private String learningDashboardAccessToken;
     	private int duration;
     	private String webVoice;
     	private String telVoice;
@@ -818,13 +818,13 @@ public class Meeting {
 	    	return this;
 	    }
     	
-    	public Builder withActivityReportTracking(Boolean e) {
-	    	this.activityReportTracking = e;
+    	public Builder withlearningDashboardEnabled(Boolean e) {
+	    	this.learningDashboardEnabled = e;
 	    	return this;
 	    }
 
-    	public Builder withActivityReportAccessToken(String t) {
-	    	this.activityReportAccessToken = t;
+    	public Builder withLearningDashboardAccessToken(String t) {
+	    	this.learningDashboardAccessToken = t;
 	    	return this;
 	    }
 
