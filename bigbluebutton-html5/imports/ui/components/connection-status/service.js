@@ -324,9 +324,27 @@ const calculateJitterBufferAverage = (inboundRtpData) => {
     jitterBufferEmittedCount,
   } = inboundRtpData;
 
-  if (!jitterBufferDelay || !jitterBufferEmittedCount) return 0;
+  if (!jitterBufferDelay || !jitterBufferEmittedCount) return '--';
 
   return Math.round((jitterBufferDelay / jitterBufferEmittedCount) * 1000);
+};
+
+/**
+ * Given the data returned from getStats(), returns an array containing all the
+ * the stats of the given type.
+ * For more information see:
+ * https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
+ * and
+ * https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsType
+ * @param {Object} data - RTCStatsReport object returned from getStats() API
+ * @param {String} type - The string type corresponding to RTCStatsType object
+ * @returns {Array[Object]} An array containing all occurrences of the given
+ *                          type in the data Object.
+ */
+const getDataType = (data, type) => {
+  if (!data || typeof data !== 'object' || !type) return [];
+
+  return Object.values(data).filter((stat) => stat.type === type);
 };
 
 /**
@@ -340,7 +358,7 @@ const calculateJitterBufferAverage = (inboundRtpData) => {
 const addExtraInboundNetworkParameters = (data) => {
   if (!data) return data;
 
-  const inboundRtpData = data['inbound-rtp'];
+  const inboundRtpData = getDataType(data, 'inbound-rtp')[0];
 
   if (!inboundRtpData) return data;
 
@@ -448,23 +466,33 @@ const calculateBitsPerSecond = (currentData, previousData) => {
 
   if (!currentData || !previousData) return result;
 
-  const currentOutboundData = currentData['outbound-rtp'];
-  const currentInboundData = currentData['inbound-rtp'];
-  const previousOutboundData = previousData['outbound-rtp'];
-  const previousInboundData = previousData['inbound-rtp'];
+  const currentOutboundData = getDataType(currentData, 'outbound-rtp')[0];
+  const currentInboundData = getDataType(currentData, 'inbound-rtp')[0];
+  const previousOutboundData = getDataType(previousData, 'outbound-rtp')[0];
+  const previousInboundData = getDataType(previousData, 'inbound-rtp')[0];
 
   if (currentOutboundData && previousOutboundData) {
     const {
       bytesSent: outboundBytesSent,
-      headerBytesSent: outboundHeaderBytesSent,
       timestamp: outboundTimestamp,
     } = currentOutboundData;
 
+    let {
+      headerBytesSent: outboundHeaderBytesSent,
+    } = currentOutboundData;
+
+    if (!outboundHeaderBytesSent) outboundHeaderBytesSent = 0;
+
     const {
       bytesSent: previousOutboundBytesSent,
-      headerBytesSent: previousOutboundHeaderBytesSent,
       timestamp: previousOutboundTimestamp,
     } = previousOutboundData;
+
+    let {
+      headerBytesSent: previousOutboundHeaderBytesSent,
+    } = previousOutboundData;
+
+    if (!previousOutboundHeaderBytesSent) previousOutboundHeaderBytesSent = 0;
 
     const outboundBytesPerSecond = (outboundBytesSent + outboundHeaderBytesSent
       - previousOutboundBytesSent - previousOutboundHeaderBytesSent)
@@ -476,15 +504,27 @@ const calculateBitsPerSecond = (currentData, previousData) => {
   if (currentInboundData && previousInboundData) {
     const {
       bytesReceived: inboundBytesReceived,
-      headerBytesReceived: inboundHeaderBytesReceived,
       timestamp: inboundTimestamp,
     } = currentInboundData;
 
+    let {
+      headerBytesReceived: inboundHeaderBytesReceived,
+    } = currentInboundData;
+
+    if (!inboundHeaderBytesReceived) inboundHeaderBytesReceived = 0;
+
     const {
       bytesReceived: previousInboundBytesReceived,
-      headerBytesReceived: previousInboundHeaderBytesReceived,
       timestamp: previousInboundTimestamp,
     } = previousInboundData;
+
+    let {
+      headerBytesReceived: previousInboundHeaderBytesReceived,
+    } = previousInboundData;
+
+    if (!previousInboundHeaderBytesReceived) {
+      previousInboundHeaderBytesReceived = 0;
+    }
 
     const inboundBytesPerSecond = (inboundBytesReceived
       + inboundHeaderBytesReceived - previousInboundBytesReceived
