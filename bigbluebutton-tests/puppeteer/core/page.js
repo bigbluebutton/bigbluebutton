@@ -172,7 +172,7 @@ class Page {
   }
 
   async returnElement(element) {
-    return await document.querySelectorAll(element)[0];
+    return document.querySelectorAll(element)[0];
   }
 
   async getUserAgent(test) {

@@ -22,7 +22,7 @@ async function listenOnlyMode(test) {
   try {
     const resp = await test.page.evaluate(async (connectionSelector, echoYes) => {
       await document.querySelectorAll(connectionSelector)[0];
-      return await document.querySelectorAll(echoYes).length !== 0;
+      return document.querySelectorAll(echoYes).length !== 0;
     }, e.connectingStatus, e.echoYes);
     return resp === true;
   } catch (e) {

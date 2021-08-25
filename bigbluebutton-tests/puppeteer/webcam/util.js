@@ -18,12 +18,12 @@ async function enableWebcam(test, videoPreviewTimeout) {
   await test.waitForSelector(we.webcamConnecting, ELEMENT_WAIT_TIME);
   await test.waitForSelector(we.webcamVideo, VIDEO_LOADING_WAIT_TIME);
   await test.waitForSelector(we.leaveVideo, VIDEO_LOADING_WAIT_TIME);
-  return await test.page.evaluate(checkElementLengthDifferentTo, we.webcamVideo, 0);
+  return test.page.evaluate(checkElementLengthDifferentTo, we.webcamVideo, 0);
 }
 
 async function evaluateCheck(test) {
   await test.waitForSelector(we.videoContainer, ELEMENT_WAIT_TIME);
-  return await test.page.evaluate(checkElement, we.presentationFullscreenButton, 1);
+  return test.page.evaluate(checkElement, we.presentationFullscreenButton, 1);
 }
 
 async function startAndCheckForWebcams(test) {
