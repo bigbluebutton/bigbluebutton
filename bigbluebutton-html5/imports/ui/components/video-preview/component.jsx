@@ -758,7 +758,7 @@ class VideoPreview extends Component {
         {this.renderContent()}
 
         <div className={styles.footer}>
-          {hasVideoStream
+          {hasVideoStream && VideoService.isMultipleCamerasEnabled()
             ? (
               <div className={styles.extraActions}>
                 <Button
