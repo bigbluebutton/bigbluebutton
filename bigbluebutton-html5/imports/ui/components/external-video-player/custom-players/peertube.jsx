@@ -1,7 +1,8 @@
 import loadScript from 'load-script';
 import React, { Component } from 'react'
 
-const MATCH_URL = new RegExp("(https?)://(.*)/videos/watch/(.*)");
+//To work with PeerTube >=v3.3 URL patterns
+const MATCH_URL = new RegExp("(https?)://(.*)(/videos/watch/|/w/)(.*)");
 
 const SDK_URL = 'https://unpkg.com/@peertube/embed-api/build/player.min.js';
 
