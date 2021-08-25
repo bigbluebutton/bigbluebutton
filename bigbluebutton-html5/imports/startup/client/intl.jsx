@@ -26,20 +26,6 @@ const defaultProps = {
 };
 
 class IntlStartup extends Component {
-  static saveLocale(localeName) {
-    Settings.application.locale = localeName;
-    if (RTL_LANGUAGES.includes(localeName.substring(0, 2))) {
-      document.body.parentNode.setAttribute('dir', 'rtl');
-      Settings.application.isRTL = true;
-    } else {
-      document.body.parentNode.setAttribute('dir', 'ltr');
-      Settings.application.isRTL = false;
-    }
-    Session.set('isLargeFont', LARGE_FONT_LANGUAGES.includes(localeName.substring(0, 2)));
-    window.dispatchEvent(new Event('localeChanged'));
-    Settings.save();
-  }
-
   constructor(props) {
     super(props);
 
@@ -149,7 +135,17 @@ class IntlStartup extends Component {
 
               const dasherizedLocale = normalizedLocale.replace('_', '-');
               this.setState({ messages: mergedMessages, fetching: false, normalizedLocale: dasherizedLocale }, () => {
-                IntlStartup.saveLocale(dasherizedLocale);
+                Settings.application.locale = dasherizedLocale;
+                if (RTL_LANGUAGES.includes(dasherizedLocale.substring(0, 2))) {
+                  document.body.parentNode.setAttribute('dir', 'rtl');
+                  Settings.application.isRTL = true;
+                } else {
+                  document.body.parentNode.setAttribute('dir', 'ltr');
+                  Settings.application.isRTL = false;
+                }
+                Session.set('isLargeFont', LARGE_FONT_LANGUAGES.includes(dasherizedLocale.substring(0, 2)));
+                window.dispatchEvent(new Event('localeChanged'));
+                Settings.save();
               });
             });
         });
