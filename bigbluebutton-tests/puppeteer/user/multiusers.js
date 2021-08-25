@@ -169,7 +169,7 @@ class MultiUsers {
     await this.page1.clickNItem(we.changeWhiteboardAccess, true, 1);
     await sleep(2000);
     const resp = await this.page1.page.evaluate((multiWhiteboardTool) => {
-      document.querySelector(multiWhiteboardTool).children[0].innerText === '1';
+      return document.querySelector(multiWhiteboardTool).children[0].innerText === '1';
     }, ue.multiWhiteboardTool);
     return resp === true;
   }
