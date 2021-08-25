@@ -416,10 +416,10 @@ public class ParamsProcessorUtil {
             }
         }
 
-        boolean learningDashboardEnabled = learningDashboardEnabled;
+        boolean learningDashboardEn = learningDashboardEnabled;
         if (!StringUtils.isEmpty(params.get(ApiParams.ACTIVITY_REPORT_TRACKING))) {
             try {
-                learningDashboardEnabled = Boolean.parseBoolean(params
+                learningDashboardEn = Boolean.parseBoolean(params
                         .get(ApiParams.ACTIVITY_REPORT_TRACKING));
             } catch (Exception ex) {
                 log.warn(
@@ -430,7 +430,7 @@ public class ParamsProcessorUtil {
 
         //Generate token to access Activity Report
         String learningDashboardAccessToken = "";
-        if(learningDashboardEnabled == true) {
+        if(learningDashboardEn == true) {
             learningDashboardAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
         }
 
@@ -531,7 +531,7 @@ public class ParamsProcessorUtil {
 				.withLockSettingsParams(lockSettingsParams)
 				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
                 .withHTML5InstanceId(html5InstanceId)
-                .withlearningDashboardEnabled(learningDashboardEnabled)
+                .withlearningDashboardEnabled(learningDashboardEn)
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .build();
 
