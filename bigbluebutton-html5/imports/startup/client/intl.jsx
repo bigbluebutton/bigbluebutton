@@ -7,6 +7,7 @@ import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
+import Logger from '/imports/startup/client/logger';
 
 const propTypes = {
   locale: PropTypes.string,
@@ -104,7 +105,12 @@ class IntlStartup extends Component {
                 if (!response.ok) {
                   return resolve(false);
                 }
-                return resolve(response.json());
+                return response.json()
+                  .then((jsonResponse) => resolve(jsonResponse))
+                  .catch(() => {
+                    Logger.error({ logCode: 'intl_parse_locale_SyntaxError' }, `Could not parse locale file ${regionDefaultLocale}.json, invalid json`);
+                    resolve(false);
+                  });
               });
           });
 
@@ -117,7 +123,12 @@ class IntlStartup extends Component {
                 if (!response.ok) {
                   return resolve(false);
                 }
-                return resolve(response.json());
+                return response.json()
+                  .then((jsonResponse) => resolve(jsonResponse))
+                  .catch(() => {
+                    Logger.error({ logCode: 'intl_parse_locale_SyntaxError' }, `Could not parse locale file ${normalizedLocale}.json, invalid json`);
+                    resolve(false);
+                  });
               });
           });
 
@@ -139,11 +150,6 @@ class IntlStartup extends Component {
               const dasherizedLocale = normalizedLocale.replace('_', '-');
               this.setState({ messages: mergedMessages, fetching: false, normalizedLocale: dasherizedLocale }, () => {
                 IntlStartup.saveLocale(dasherizedLocale);
-              });
-            })
-            .catch(() => {
-              this.setState({ fetching: false, normalizedLocale: null }, () => {
-                IntlStartup.saveLocale(DEFAULT_LANGUAGE);
               });
             });
         });
