@@ -830,7 +830,7 @@ class Presentation extends PureComponent {
       ? svgWidth
       : presentationToolbarMinWidth;
 
-    if (!currentPresentation) {
+    if (!currentPresentation && this.refPresentationContainer) {
       return (
         <PresentationPlaceholder
           {

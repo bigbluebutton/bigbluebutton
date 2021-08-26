@@ -126,7 +126,6 @@ export default withTracker(({ podId }) => {
         publishedPoll: 1,
       },
     }).publishedPoll,
-    currentPresentationId: Session.get('currentPresentationId') || null,
     restoreOnUpdate: getFromUserSettings(
       'bbb_force_restore_presentation_on_new_events',
       Meteor.settings.public.presentation.restoreOnUpdate,
