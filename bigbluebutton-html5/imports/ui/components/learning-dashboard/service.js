@@ -20,20 +20,20 @@ const isModerator = () => {
   return false;
 };
 
-const getActivityReportAccessToken = () => ((
+const getLearningDashboardAccessToken = () => ((
   Meetings.findOne(
     { meetingId: Auth.meetingID },
     {
-      fields: { 'password.activityReportAccessToken': 1 },
+      fields: { 'password.learningDashboardAccessToken': 1 },
     },
-  ) || {}).password || {}).activityReportAccessToken || null;
+  ) || {}).password || {}).learningDashboardAccessToken || null;
 
-const openActivityReportUrl = (lang) => {
-  window.open(`/learning-dashboard/?meeting=${Auth.meetingID}&report=${getActivityReportAccessToken()}&lang=${lang}`, '_blank');
+const openLearningDashboardUrl = (lang) => {
+  window.open(`/learning-dashboard/?meeting=${Auth.meetingID}&report=${getLearningDashboardAccessToken()}&lang=${lang}`, '_blank');
 };
 
 export default {
   isModerator,
-  getActivityReportAccessToken,
-  openActivityReportUrl,
+  getLearningDashboardAccessToken,
+  openLearningDashboardUrl,
 };

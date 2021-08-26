@@ -670,9 +670,9 @@
     "app.connection-status.label": "Connection status",
     "app.connection-status.notification": "Loss in your connection was detected",
     "app.connection-status.offline": "offline",
-    "app.activity-report.label": "Learning Dashboard",
-    "app.activity-report.description": "Open dashboard with users activities",
-    "app.activity-report.clickHereToOpen": "Open Learning Dashboard",
+    "app.learning-dashboard.label": "Learning Dashboard",
+    "app.learning-dashboard.description": "Open dashboard with users activities",
+    "app.learning-dashboard.clickHereToOpen": "Open Learning Dashboard",
     "app.recording.startTitle": "Start recording",
     "app.recording.stopTitle": "Pause recording",
     "app.recording.resumeTitle": "Resume recording",
@@ -895,6 +895,7 @@
     "app.learningDashboard.indicators.participants": "Participants",
     "app.learningDashboard.indicators.polls": "Polls",
     "app.learningDashboard.indicators.raiseHand": "Raise Hand",
+    "app.learningDashboard.indicators.activityScore": "Activity Score",
     "app.learningDashboard.indicators.duration": "Duration",
     "app.learningDashboard.participantsTable.title": "Overview",
     "app.learningDashboard.participantsTable.colParticipant": "Participant",
@@ -911,5 +912,7 @@
     "app.learningDashboard.pollsTable.title": "Polling",
     "app.learningDashboard.pollsTable.colParticipant": "Participant",
     "app.learningDashboard.pollsTable.anonymousAnswer": "Anonymous Poll (answers in the last row)",
-    "app.learningDashboard.pollsTable.anonymousRowName": "Anonymous"
+    "app.learningDashboard.pollsTable.anonymousRowName": "Anonymous",
+    "app.learningDashboard.statusTimelineTable.title": "Status Timeline",
+    "app.learningDashboard.statusTimelineTable.colParticipant": "Participant"
 }

@@ -1,9 +1,15 @@
 import React from 'react';
-import { FormattedMessage, FormattedDate, injectIntl } from 'react-intl';
+import {
+  FormattedMessage, FormattedDate, FormattedNumber, injectIntl,
+} from 'react-intl';
+import { getUserEmojisSummary, emojiConfigs } from '../services/EmojiService';
+import UserAvatar from './UserAvatar';
 
 class UsersTable extends React.Component {
   render() {
-    const { allUsers, totalOfActivityTime } = this.props;
+    const {
+      allUsers, totalOfActivityTime, totalOfPolls, tab,
+    } = this.props;
 
     function getSumOfTime(eventsArr) {
       return eventsArr.reduce((prevVal, elem) => {
@@ -11,6 +17,55 @@ class UsersTable extends React.Component {
         return prevVal + (new Date().getTime() - elem.startedOn);
       }, 0);
     }
+
+    function getActivityScore(user) {
+      if (user.isModerator) return 0;
+
+      const allUsersArr = Object.values(allUsers || {}).filter((currUser) => !currUser.isModerator);
+      let userPoints = 0;
+
+      // Calculate points of Talking
+      const usersTalkTime = allUsersArr.map((currUser) => currUser.talk.totalTime);
+      const maxTalkTime = Math.max(...usersTalkTime);
+      if (maxTalkTime > 0) {
+        userPoints += (user.talk.totalTime / maxTalkTime) * 2;
+      }
+
+      // Calculate points of Chatting
+      const usersTotalOfMessages = allUsersArr.map((currUser) => currUser.totalOfMessages);
+      const maxMessages = Math.max(...usersTotalOfMessages);
+      if (maxMessages > 0) {
+        userPoints += (user.totalOfMessages / maxMessages) * 2;
+      }
+
+      // Calculate points of Raise hand
+      const usersRaiseHand = allUsersArr.map((currUser) => currUser.emojis.filter((emoji) => emoji.name === 'raiseHand').length);
+      const maxRaiseHand = Math.max(...usersRaiseHand);
+      const userRaiseHand = user.emojis.filter((emoji) => emoji.name === 'raiseHand').length;
+      if (maxRaiseHand > 0) {
+        userPoints += (userRaiseHand / maxRaiseHand) * 2;
+      }
+
+      // Calculate points of Emojis
+      const usersEmojis = allUsersArr.map((currUser) => currUser.emojis.filter((emoji) => emoji.name !== 'raiseHand').length);
+      const maxEmojis = Math.max(...usersEmojis);
+      const userEmojis = user.emojis.filter((emoji) => emoji.name !== 'raiseHand').length;
+      if (maxEmojis > 0) {
+        userPoints += (userEmojis / maxEmojis) * 2;
+      }
+
+      // Calculate points of Polls
+      if (totalOfPolls > 0) {
+        userPoints += (Object.values(user.answers || {}).length / totalOfPolls) * 2;
+      }
+
+      return userPoints;
+    }
+
+    const usersEmojisSummary = {};
+    Object.values(allUsers || {}).forEach((user) => {
+      usersEmojisSummary[user.intId] = getUserEmojisSummary(user, 'raiseHand');
+    });
 
     function getOnlinePercentage(registeredOn, leftOn) {
       const totalUserOnlineTime = ((leftOn > 0 ? leftOn : (new Date()).getTime())) - registeredOn;
@@ -21,12 +76,32 @@ class UsersTable extends React.Component {
       return (new Date(ts).toISOString().substr(11, 8));
     }
 
+    const usersActivityScore = {};
+    Object.values(allUsers || {}).forEach((user) => {
+      usersActivityScore[user.intId] = getActivityScore(user);
+    });
+
     return (
       <table className="w-full whitespace-no-wrap">
         <thead>
           <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-100">
             <th className="px-4 py-3">
               <FormattedMessage id="app.learningDashboard.participantsTable.colParticipant" defaultMessage="Participant" />
+              {
+                tab === 'overview'
+                  ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 inline"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+                    </svg>
+                  )
+                  : null
+              }
             </th>
             <th className="px-4 py-3 text-center">
               <FormattedMessage id="app.learningDashboard.participantsTable.colOnline" defaultMessage="Online time" />
@@ -46,6 +121,24 @@ class UsersTable extends React.Component {
             <th className="px-4 py-3 text-center">
               <FormattedMessage id="app.learningDashboard.participantsTable.colRaiseHands" defaultMessage="Raise Hand" />
             </th>
+            <th className="px-4 py-3 text-center">
+              <FormattedMessage id="app.learningDashboard.participantsTable.colActivityScore" defaultMessage="Activity Score" />
+              {
+                tab === 'overview_activityscore'
+                  ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 inline"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+                    </svg>
+                  )
+                  : null
+              }
+            </th>
             <th className="px-4 py-3">
               <FormattedMessage id="app.learningDashboard.participantsTable.colStatus" defaultMessage="Status" />
             </th>
@@ -55,10 +148,12 @@ class UsersTable extends React.Component {
           { typeof allUsers === 'object' && Object.values(allUsers || {}).length > 0 ? (
             Object.values(allUsers || {})
               .sort((a, b) => {
-                if (a.isModerator === true && b.isModerator === false) return -1;
+                if (tab === 'overview_activityscore' && usersActivityScore[a.intId] < usersActivityScore[b.intId]) return 1;
+                if (tab === 'overview_activityscore' && usersActivityScore[a.intId] > usersActivityScore[b.intId]) return -1;
                 if (a.isModerator === false && b.isModerator === true) return 1;
-                if (a.name < b.name) return -1;
-                if (a.name > b.name) return 1;
+                if (a.isModerator === true && b.isModerator === false) return -1;
+                if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
+                if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
                 return 0;
               })
               .map((user) => (
@@ -69,33 +164,7 @@ class UsersTable extends React.Component {
                         {/* <img className="object-cover w-full h-full rounded-full" */}
                         {/*     src="" */}
                         {/*     alt="" loading="lazy" /> */}
-                        <div className={`border-2 border-gray-800 items-center ${user.isModerator ? 'rounded-md' : 'rounded-full'}`}>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-full w-full p-1"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            {user.isDialIn
-                              ? (
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                                />
-                              )
-                              : (
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                                />
-                              )}
-                          </svg>
-                        </div>
+                        <UserAvatar user={user} />
                         <div
                           className="absolute inset-0 rounded-full shadow-inner"
                           aria-hidden="true"
@@ -179,7 +248,9 @@ class UsersTable extends React.Component {
                       />
                     </svg>
                     { tsToHHmmss(
-                      (user.leftOn > 0 ? user.leftOn : (new Date()).getTime()) - user.registeredOn,
+                      (user.leftOn > 0
+                        ? user.leftOn
+                        : (new Date()).getTime()) - user.registeredOn,
                     ) }
                     <br />
                     <div
@@ -261,78 +332,20 @@ class UsersTable extends React.Component {
                       ) : null }
                   </td>
                   <td className="px-4 py-3 text-sm text-left">
-                    { user.emojis.filter((emoji) => emoji.name === 'away').length > 0 ? (
-                      <div className="text-xs">
-                        <i className="icon-bbb-time text-sm" />
-                        &nbsp;
-                        {user.emojis.filter((emoji) => emoji.name === 'away').length}
-                        &nbsp;
-                        <FormattedMessage id="app.actionsBar.emojiMenu.awayLabel" defaultMessage="Away" />
-                      </div>
-                    ) : null}
-                    { user.emojis.filter((emoji) => emoji.name === 'neutral').length > 0 ? (
-                      <div className="text-xs">
-                        <i className="icon-bbb-undecided text-sm" />
-                        &nbsp;
-                        {user.emojis.filter((emoji) => emoji.name === 'neutral').length}
-                        &nbsp;
-                        <FormattedMessage id="app.actionsBar.emojiMenu.neutralLabel" defaultMessage="Undecided" />
-                      </div>
-                    ) : null}
-                    { user.emojis.filter((emoji) => emoji.name === 'confused').length > 0 ? (
-                      <div className="text-xs">
-                        <i className="icon-bbb-undecided text-sm" />
-                        &nbsp;
-                        {user.emojis.filter((emoji) => emoji.name === 'confused').length}
-                        &nbsp;
-                        <FormattedMessage id="app.actionsBar.emojiMenu.confusedLabel" defaultMessage="Confused" />
-                      </div>
-                    ) : null}
-                    { user.emojis.filter((emoji) => emoji.name === 'sad').length > 0 ? (
-                      <div className="text-xs">
-                        <i className="icon-bbb-sad text-sm" />
-                        &nbsp;
-                        {user.emojis.filter((emoji) => emoji.name === 'sad').length}
-                        &nbsp;
-                        <FormattedMessage id="app.actionsBar.emojiMenu.sadLabel" defaultMessage="Sad" />
-                      </div>
-                    ) : null}
-                    { user.emojis.filter((emoji) => emoji.name === 'happy').length > 0 ? (
-                      <div className="text-xs">
-                        <i className="icon-bbb-happy text-sm" />
-                        &nbsp;
-                        {user.emojis.filter((emoji) => emoji.name === 'happy').length}
-                        &nbsp;
-                        <FormattedMessage id="app.actionsBar.emojiMenu.happyLabel" defaultMessage="Happy" />
-                      </div>
-                    ) : null}
-                    { user.emojis.filter((emoji) => emoji.name === 'applause').length > 0 ? (
-                      <div className="text-xs">
-                        <i className="icon-bbb-applause text-sm" />
-                        &nbsp;
-                        {user.emojis.filter((emoji) => emoji.name === 'applause').length}
-                        &nbsp;
-                        <FormattedMessage id="app.actionsBar.emojiMenu.applauseLabel" defaultMessage="Applaud" />
-                      </div>
-                    ) : null}
-                    { user.emojis.filter((emoji) => emoji.name === 'thumbsUp').length > 0 ? (
-                      <div className="text-xs">
-                        <i className="icon-bbb-thumbs_up text-sm" />
-                        &nbsp;
-                        {user.emojis.filter((emoji) => emoji.name === 'thumbsUp').length}
-                        &nbsp;
-                        <FormattedMessage id="app.actionsBar.emojiMenu.thumbsUpLabel" defaultMessage="Thumbs up" />
-                      </div>
-                    ) : null}
-                    { user.emojis.filter((emoji) => emoji.name === 'thumbsDown').length > 0 ? (
-                      <div className="text-xs">
-                        <i className="icon-bbb-thumbs_down text-sm" />
-                        &nbsp;
-                        {user.emojis.filter((emoji) => emoji.name === 'thumbsDown').length}
-                        &nbsp;
-                        <FormattedMessage id="app.actionsBar.emojiMenu.thumbsDownLabel" defaultMessage="Thumbs down" />
-                      </div>
-                    ) : null}
+                    {
+                      Object.keys(usersEmojisSummary[user.intId] || {}).map((emoji) => (
+                        <div className="text-xs">
+                          <i className={`${emojiConfigs[emoji].icon} text-sm`} />
+                          &nbsp;
+                          { usersEmojisSummary[user.intId][emoji] }
+                          &nbsp;
+                          <FormattedMessage
+                            id={emojiConfigs[emoji].intlId}
+                            defaultMessage={emojiConfigs[emoji].defaultMessage}
+                          />
+                        </div>
+                      ))
+                    }
                   </td>
                   <td className="px-4 py-3 text-sm text-center">
                     { user.emojis.filter((emoji) => emoji.name === 'raiseHand').length > 0
@@ -356,6 +369,24 @@ class UsersTable extends React.Component {
                         </span>
                       ) : null }
                   </td>
+                  {
+                      !user.isModerator ? (
+                        <td className="px-4 py-3 text-sm text-center items">
+                          <svg viewBox="0 0 82 12" width="82" height="12" className="flex-none m-auto inline">
+                            <rect width="12" height="12" fill={usersActivityScore[user.intId] > 0 ? '#A7F3D0' : '#e4e4e7'} />
+                            <rect width="12" height="12" x="14" fill={usersActivityScore[user.intId] > 2 ? '#6EE7B7' : '#e4e4e7'} />
+                            <rect width="12" height="12" x="28" fill={usersActivityScore[user.intId] > 4 ? '#34D399' : '#e4e4e7'} />
+                            <rect width="12" height="12" x="42" fill={usersActivityScore[user.intId] > 6 ? '#10B981' : '#e4e4e7'} />
+                            <rect width="12" height="12" x="56" fill={usersActivityScore[user.intId] > 8 ? '#059669' : '#e4e4e7'} />
+                            <rect width="12" height="12" x="70" fill={usersActivityScore[user.intId] === 10 ? '#047857' : '#e4e4e7'} />
+                          </svg>
+                          &nbsp;
+                          <span className="text-xs bg-gray-200 rounded-full px-2 ml-1">
+                            <FormattedNumber value={usersActivityScore[user.intId]} minimumFractionDigits="0" maximumFractionDigits="1" />
+                          </span>
+                        </td>
+                      ) : <td />
+                    }
                   <td className="px-4 py-3 text-xs">
                     {
                                       user.leftOn > 0
