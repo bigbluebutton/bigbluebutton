@@ -29,3 +29,9 @@ exports.rating = 'div[data-test="rating"]';
 exports.whiteboard = 'svg[data-test="whiteboard"]';
 exports.pollMenuButton = 'button[data-test="pollMenuButton"]';
 exports.unauthorized = 'h1[data-test="unauthorized"]';
+
+exports.presentationDownloadBtn = 'button[data-test="presentationDownload"]';
+exports.toastDownload = 'a[data-test="toastDownload"]';
+exports.confirmManagePresentation = 'button[data-test="confirmManagePresentation"]';
+exports.allowPresentationDownload = 'button[data-test="allowPresentationDownload"]';
+exports.disallowPresentationDownload = 'button[data-test="disallowPresentationDownload"]';

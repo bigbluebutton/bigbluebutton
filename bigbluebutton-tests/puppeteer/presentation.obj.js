@@ -1,6 +1,7 @@
 const Page = require('./core/page');
 const Slide = require('./presentation/slide');
 const Upload = require('./presentation/upload');
+const Presentation = require('./presentation/presentation');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
 const { MAX_PRESENTATION_TEST_TIMEOUT } = require('./core/constants'); // core constants (Timeouts vars imported)
 
@@ -52,6 +53,28 @@ const presentationTest = () => {
       await test.logger(e);
     } finally {
       await test.close();
+    }
+    expect(response).toBe(true);
+    await Page.checkRegression(24.62, screenshot);
+  });
+
+  test('Allow and disallow presentation download', async () => {
+    const test = new Presentation();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'allowAndDisallowPresentationDownload';
+      await test.modPage.logger('begin of ', testName);
+      await test.initPages(testName);
+      await test.modPage.startRecording(testName);
+      response = await test.allowAndDisallowDownload(testName);
+      await test.modPage.stopRecording();
+      screenshot = await test.modPage.screenshot();
+      await test.modPage.logger('end of ', testName);
+    } catch (e) {
+      await test.modPage.logger(e);
+    } finally {
+      await test.closePages();
     }
     expect(response).toBe(true);
     await Page.checkRegression(24.62, screenshot);
