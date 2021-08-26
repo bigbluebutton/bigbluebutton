@@ -28,8 +28,8 @@ const getLearningDashboardAccessToken = () => ((
     },
   ) || {}).password || {}).learningDashboardAccessToken || null;
 
-const openLearningDashboardUrl = () => {
-  window.open(`/learning-dashboard/?meeting=${Auth.meetingID}&report=${getLearningDashboardAccessToken()}`, '_blank');
+const openLearningDashboardUrl = (lang) => {
+  window.open(`/learning-dashboard/?meeting=${Auth.meetingID}&report=${getLearningDashboardAccessToken()}&lang=${lang}`, '_blank');
 };
 
 export default {

@@ -2,6 +2,7 @@ import logger from '/imports/startup/client/logger';
 import BaseBroker from '/imports/ui/services/bbb-webrtc-sfu/sfu-base-broker';
 
 const ON_ICE_CANDIDATE_MSG = 'iceCandidate';
+const SUBSCRIBER_ANSWER = 'subscriberAnswer';
 const SFU_COMPONENT_NAME = 'audio';
 
 class ListenOnlyBroker extends BaseBroker {
@@ -18,8 +19,9 @@ class ListenOnlyBroker extends BaseBroker {
     this.userId = userId;
     this.internalMeetingId = internalMeetingId;
     this.role = role;
+    this.offering = true;
 
-    // Optional parameters are: userName, caleeName, iceServers
+    // Optional parameters are: userName, caleeName, iceServers, offering
     Object.assign(this, options);
   }
 
@@ -55,7 +57,12 @@ class ListenOnlyBroker extends BaseBroker {
         }
 
         this.webRtcPeer.iceQueue = [];
-        this.webRtcPeer.generateOffer(this.onOfferGenerated.bind(this));
+
+        if (this.offering) {
+          this.webRtcPeer.generateOffer(this.onOfferGenerated.bind(this));
+        } else {
+          this.sendStartReq()
+        }
       });
 
       this.webRtcPeer.peerConnection.onconnectionstatechange = this.handleConnectionStateChange.bind(this);
@@ -73,7 +80,7 @@ class ListenOnlyBroker extends BaseBroker {
 
     switch (parsedMessage.id) {
       case 'startResponse':
-        this.processAnswer(parsedMessage);
+        this.onRemoteDescriptionReceived(parsedMessage);
         break;
       case 'iceCandidate':
         this.handleIceCandidate(parsedMessage.candidate);
@@ -113,6 +120,47 @@ class ListenOnlyBroker extends BaseBroker {
     this.onerror(error);
   }
 
+  sendLocalDescription (localDescription) {
+    const message = {
+      id: SUBSCRIBER_ANSWER,
+      type: this.sfuComponent,
+      role: this.role,
+      voiceBridge: this.voiceBridge,
+      sdpOffer: localDescription,
+    };
+
+    this.sendMessage(message);
+  }
+
+  onRemoteDescriptionReceived (sfuResponse) {
+    if (this.offering) {
+      return this.processAnswer(sfuResponse);
+    }
+
+    return this.processOffer(sfuResponse);
+  }
+
+  sendStartReq (offer) {
+    const message = {
+      id: 'start',
+      type: this.sfuComponent,
+      role: this.role,
+      internalMeetingId: this.internalMeetingId,
+      voiceBridge: this.voiceBridge,
+      caleeName: this.caleeName,
+      userId: this.userId,
+      userName: this.userName,
+      sdpOffer: offer,
+    };
+
+    logger.debug({
+      logCode: `${this.logCodePrefix}_offer_generated`,
+      extraInfo: { sfuComponent: this.sfuComponent, role: this.role },
+    }, `SFU audio offer generated`);
+
+    this.sendMessage(message);
+  }
+
   onOfferGenerated (error, sdpOffer) {
     if (error) {
       logger.error({
@@ -127,24 +175,7 @@ class ListenOnlyBroker extends BaseBroker {
       return this.onerror(error);
     }
 
-    const message = {
-      id: 'start',
-      type: this.sfuComponent,
-      role: this.role,
-      internalMeetingId: this.internalMeetingId,
-      voiceBridge: this.voiceBridge,
-      caleeName: this.caleeName,
-      userId: this.userId,
-      userName: this.userName,
-      sdpOffer,
-    };
-
-    logger.debug({
-      logCode: `${this.logCodePrefix}_offer_generated`,
-      extraInfo: { sfuComponent: this.sfuComponent, role: this.role },
-    }, `SFU audio offer generated`);
-
-    this.sendMessage(message);
+    this.sendStartReq(sdpOffer);
   }
 
   onIceCandidate (candidate, role) {

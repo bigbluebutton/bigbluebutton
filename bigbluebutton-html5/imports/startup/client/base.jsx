@@ -133,6 +133,39 @@ class Base extends Component {
           );
         }
       },
+      removed: (user) => {
+        const subscriptionsReady = Session.get('subscriptionsReady');
+
+        if (!subscriptionsReady) return;
+
+        const {
+          userLeaveAudioAlerts,
+          userLeavePushAlerts,
+        } = Settings.application;
+
+        if (!userLeaveAudioAlerts && !userLeavePushAlerts) return;
+
+        if (userLeaveAudioAlerts) {
+          AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
+            + Meteor.settings.public.app.basename
+            + Meteor.settings.public.app.instanceId}`
+            + '/resources/sounds/notify.mp3');
+        }
+
+        if (userLeavePushAlerts) {
+          notify(
+            <FormattedMessage
+              id="app.notification.userLeavePushAlert"
+              description="Notification for a user leaves the meeting"
+              values={{
+                0: user.name,
+              }}
+            />,
+            'info',
+            'user',
+          );
+        }
+      },
     });
   }
 
