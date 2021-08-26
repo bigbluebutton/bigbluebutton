@@ -21,8 +21,8 @@ class Save extends Page {
       let clicked = '';
       clicked = await this.page.addListener('click', () => document.addEventListener('click'));
       return clicked !== '';
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }

@@ -48,8 +48,8 @@ class Upload extends Page {
       await this.logger(slides1);
 
       return slides0 !== slides1;
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }

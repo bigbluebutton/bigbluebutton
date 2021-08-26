@@ -51,8 +51,8 @@ class Create {
       const responseLoggedIn = await this.page1.page.evaluate(util.getTestElement, ue.waitingUsersBtn);
       await this.page1.screenshot(`${testName}`, `06-after-viewer-acceptance-[${this.page1.meetingId}]`);
       return responseLoggedIn;
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
       return false;
     }
   }
@@ -77,8 +77,8 @@ class Create {
       const responseLoggedIn = await this.page3.page.evaluate(util.getTestElement, e.whiteboard);
       await this.page3.screenshot(`${testName}`, `06-after-viewer-connection-[${this.page1.meetingId}]`);
       return responseLoggedIn;
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
       return false;
     }
   }
@@ -102,8 +102,8 @@ class Create {
       const responseLoggedIn = await this.page3.page.evaluate(util.getTestElement, ue.joinMeetingDemoPage);
       await this.page3.screenshot(`${testName}`, `06-after-viewer-gets-denied-[${this.page1.meetingId}]`);
       return responseLoggedIn;
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
       return false;
     }
   }
@@ -148,8 +148,8 @@ class Create {
       if (process.env.GENERATE_EVIDENCES === 'true') {
         await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/04-breakout-page02-after-closing-audio-modal.png`) });
       }
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
     }
   }
 
@@ -165,8 +165,8 @@ class Create {
       await this.page1.screenshot(`${testName}`, `05-page01-fail-${testName}`);
 
       return false;
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
       return false;
     }
   }
@@ -273,8 +273,8 @@ class Create {
         await this.page3.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Moderator3' }, undefined, testName);
         await this.page3.closeAudioModal();
       }
-    } catch (e) {
-      await this.page3.logger(e);
+    } catch (err) {
+      await this.page3.logger(err);
     }
   }
 
@@ -283,8 +283,8 @@ class Create {
     try {
       await this.page1.close();
       await this.page2.close();
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
     }
   }
 
@@ -292,8 +292,8 @@ class Create {
   async closePage(page) {
     try {
       await page.close();
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
     }
   }
 }

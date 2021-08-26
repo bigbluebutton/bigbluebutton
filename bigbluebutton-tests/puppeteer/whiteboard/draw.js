@@ -30,8 +30,8 @@ class Draw extends Page {
       shapes1 !== '<g></g>';
 
       return shapes0 && shapes1;
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }
@@ -41,8 +41,8 @@ class Draw extends Page {
       await this.waitForSelector('g[clip-path="url(#viewBox)"]', ELEMENT_WAIT_TIME);
       const shapes = await this.page.evaluate(() => document.querySelector('svg g[clip-path]').children[1].outerHTML);
       return shapes;
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
     }
   }
 }

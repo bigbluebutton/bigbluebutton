@@ -23,8 +23,8 @@ class Status extends Page {
       await this.waitForSelector(e.clearStatus, ELEMENT_WAIT_TIME);
       await this.click(e.clearStatus, true);
       return resp1 === resp2;
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }
@@ -37,8 +37,8 @@ class Status extends Page {
 
       const response = await this.page.evaluate(util.countTestElements, e.mobileUser) === true;
       return response === true;
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }
@@ -48,8 +48,8 @@ class Status extends Page {
       await util.connectionStatus(this.page);
       const resp = await this.page.evaluate(util.countTestElements, e.connectionStatusModal) === true;
       return resp === true;
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }
@@ -66,8 +66,8 @@ class Status extends Page {
       await sleep(2000);
       const webcamsIsDisabledInDataSaving = await this.page.evaluate(util.countTestElements, e.webcamsIsDisabledInDataSaving) === true;
       return webcamsIsDisabledInDataSaving === true;
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }
@@ -85,8 +85,8 @@ class Status extends Page {
       await sleep(2000);
       const webcamsIsDisabledInDataSaving = await this.page.evaluate(util.countTestElements, e.screenshareLocked) === true;
       return webcamsIsDisabledInDataSaving === true;
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }
@@ -103,8 +103,8 @@ class Status extends Page {
       const connectionStatusItemEmpty = await this.page.evaluate(util.countTestElements, e.connectionStatusItemEmpty) === false;
       const connectionStatusItemUser = await this.page.evaluate(util.countTestElements, e.connectionStatusItemUser) === true;
       return connectionStatusItemUser && connectionStatusItemEmpty;
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }

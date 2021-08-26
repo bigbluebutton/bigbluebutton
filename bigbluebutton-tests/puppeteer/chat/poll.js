@@ -25,8 +25,8 @@ class Poll extends Notifications {
       // 1 message
       const chat1 = await this.page3.page.evaluate(() => document.querySelectorAll('p[data-test="chatPollMessageText"]').length === 1);
       return chat0 === chat1;
-    } catch (e) {
-      await this.page3.logger(e);
+    } catch (err) {
+      await this.page3.logger(err);
       return false;
     }
   }

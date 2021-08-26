@@ -91,8 +91,8 @@ class Join extends Create {
         const resp = await this.page3.page.evaluate(async () => await document.querySelectorAll('span[class^="alreadyConnected--"]') !== null);
         return resp === true;
       }
-    } catch (e) {
-      await this.page3.logger(e);
+    } catch (err) {
+      await this.page3.logger(err);
       return false;
     }
   }
@@ -103,8 +103,8 @@ class Join extends Create {
       await this.page1.close();
       await this.page2.close();
       await this.page3.close();
-    } catch (e) {
-      await this.page3.logger(e);
+    } catch (err) {
+      await this.page3.logger(err);
     }
   }
 }

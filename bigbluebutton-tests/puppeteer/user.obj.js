@@ -31,8 +31,8 @@ const userTest = () => {
       await test.logger('end of ', testName);
       await test.stopRecording();
       screenshot = await test.page.screenshot();
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -55,8 +55,8 @@ const userTest = () => {
       await test.logger('end of ', testName);
       await test.stopRecording();
       screenshot = await test.page.screenshot();
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -82,8 +82,8 @@ const userTest = () => {
       await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end osf ', testName);
-    } catch (e) {
-      await test.page1.logger(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
     }
@@ -106,8 +106,8 @@ const userTest = () => {
       await test.stopRecording();
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -130,8 +130,8 @@ const userTest = () => {
       await test.stopRecording();
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -154,8 +154,8 @@ const userTest = () => {
       await test.stopRecording();
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -178,8 +178,8 @@ const userTest = () => {
       await test.stopRecording();
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -202,8 +202,8 @@ const userTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end of ', testName);
-    } catch (e) {
-      await test.page1.logger(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -231,8 +231,8 @@ const userTest = () => {
       await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end of ', testName);
-    } catch (e) {
-      await test.page1.logger(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
     }
@@ -257,8 +257,8 @@ const userTest = () => {
       await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end of ', testName);
-    } catch (e) {
-      await test.page1.logger(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
       await test.closePage(test.page3);
@@ -284,8 +284,8 @@ const userTest = () => {
       await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end of ', testName);
-    } catch (e) {
-      await test.page1.logger(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
       await test.closePage(test.page3);
@@ -311,8 +311,8 @@ const userTest = () => {
       await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end of ', testName);
-    } catch (e) {
-      await test.page1.logger(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
       await test.closePage(test.page3);
@@ -339,8 +339,8 @@ const userTest = () => {
       await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end of ', testName);
-    } catch (e) {
-      await test.page1.logger(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
     }
@@ -366,8 +366,8 @@ const userTest = () => {
       await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end of ', testName);
-    } catch (e) {
-      await test.page1.logger(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
     }
@@ -393,8 +393,8 @@ const userTest = () => {
       await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end of ', testName);
-    } catch (e) {
-      await test.page1.logger(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
     }
@@ -420,8 +420,8 @@ const userTest = () => {
       await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end of ', testName);
-    } catch (e) {
-      await test.page1.logger(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
     }

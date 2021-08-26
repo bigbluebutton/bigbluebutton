@@ -30,8 +30,8 @@ class Slide extends Page {
       const svg2 = await this.page.evaluate(async () => await document.querySelector('svg g g g').outerHTML.indexOf('/svg/1') !== -1);
 
       return svg0 === true && svg1 === true && svg2 === true;
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }

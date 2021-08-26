@@ -17,8 +17,8 @@ class ShareScreen extends Page {
       await sleep(5000);
       const response = await util.getScreenShareContainer(this);
       return response;
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }
@@ -30,8 +30,8 @@ class ShareScreen extends Page {
       await this.closeAudioModal();
       const screenshareBtn = await this.page.evaluate(() => document.querySelectorAll('button[aria-label="Share your screen"]').length === 0) === true;
       return screenshareBtn;
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }

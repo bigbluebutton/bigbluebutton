@@ -29,8 +29,8 @@ class Send extends Page {
       // 1 message
       const chat1 = await this.page.evaluate((chatSelector) => document.querySelectorAll(chatSelector).length === 1, e.chatUserMessageText);
       return chat0 === chat1;
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }

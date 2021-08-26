@@ -14,8 +14,8 @@ class Share extends Page {
       const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
       const response = await util.enableWebcam(this, videoPreviewTimeout);
       return response;
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }
@@ -26,8 +26,8 @@ class Share extends Page {
       const parsedSettings = await this.getSettingsYaml();
       const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
       await util.enableWebcam(this, videoPreviewTimeout);
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
     }
   }
 
@@ -45,8 +45,8 @@ class Share extends Page {
         this.logger(testName, ' failed');
         return false;
       }
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }

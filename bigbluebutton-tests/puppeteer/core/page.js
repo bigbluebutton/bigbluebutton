@@ -36,8 +36,8 @@ class Page {
     try {
       const settings = yaml.load(fs.readFileSync(path.join(__dirname, '../../../bigbluebutton-html5/private/config/settings.yml'), 'utf8'));
       return settings;
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
     }
   }
 
@@ -88,8 +88,8 @@ class Page {
         await this.waitForSelector(ue.anyUser, ELEMENT_WAIT_TIME);
         await this.getMetrics(testFolderName);
       }
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
     }
   }
 
@@ -232,8 +232,8 @@ class Page {
     try {
       await this.page.waitForSelector(el, { visible: false, timeout: timeout });
       return true;
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }
@@ -424,8 +424,8 @@ class Page {
     const createFile = async () => {
       try {
         fs.appendFileSync(metricsFile, `${JSON.stringify(pageMetricsObj)},\n`);
-      } catch (e) {
-        await this.logger(e);
+      } catch (err) {
+        await this.logger(err);
       }
     };
     await createFile();

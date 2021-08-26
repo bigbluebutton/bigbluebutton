@@ -26,8 +26,8 @@ const customParametersTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -49,8 +49,8 @@ const customParametersTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -72,8 +72,8 @@ const customParametersTest = () => {
       await test.page2.stopRecording();
       screenshot = await test.page2.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page2);
     }
@@ -95,8 +95,8 @@ const customParametersTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -118,8 +118,8 @@ const customParametersTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -141,8 +141,8 @@ const customParametersTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -164,8 +164,8 @@ const customParametersTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -188,8 +188,8 @@ const customParametersTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -211,8 +211,8 @@ const customParametersTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -234,8 +234,8 @@ const customParametersTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -257,8 +257,8 @@ const customParametersTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -280,8 +280,8 @@ const customParametersTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -304,8 +304,8 @@ const customParametersTest = () => {
       await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
     }
@@ -327,8 +327,8 @@ const customParametersTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -351,8 +351,8 @@ const customParametersTest = () => {
       await test.page2.stopRecording();
       screenshot = await test.page2.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
     }
@@ -374,8 +374,8 @@ const customParametersTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -397,8 +397,8 @@ const customParametersTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -421,8 +421,8 @@ const customParametersTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -444,8 +444,8 @@ const customParametersTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -467,8 +467,8 @@ const customParametersTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -491,8 +491,8 @@ const customParametersTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -514,8 +514,8 @@ const customParametersTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -539,8 +539,8 @@ const customParametersTest = () => {
       await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
     }
@@ -560,8 +560,8 @@ const customParametersTest = () => {
       response = await test.recordMeeting(testName, Page.getArgs(), undefined, `${c.recordMeeting}`);
       await test.page1.stopRecording();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -581,8 +581,8 @@ const customParametersTest = () => {
       response = await test.skipVideoPreview(testName, Page.getArgs(), undefined, `${c.skipVideoPreview}`);
       await test.page1.stopRecording();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -602,8 +602,8 @@ const customParametersTest = () => {
       response = await test.skipVideoPreviewOnFirstJoin(testName, Page.getArgs(), undefined, `${c.skipVideoPreviewOnFirstJoin}`);
       await test.page1.stopRecording();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -624,8 +624,8 @@ const customParametersTest = () => {
       response = await test.mirrorOwnWebcam(testName, Page.getArgs(), undefined, `${c.mirrorOwnWebcam}`);
       await test.page1.stopRecording();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -645,8 +645,8 @@ const customParametersTest = () => {
       response = await test.showParticipantsOnLogin(testName, Page.getArgs(), undefined, `${c.showParticipantsOnLogin}`);
       await test.page1.stopRecording();
       await page.logger('after ', testName);
-    } catch (e) {
-      await page.logger(e);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }

@@ -47,8 +47,8 @@ class MultiUsers {
       await util.sendPublicChatMessage(this.page1, this.page2);
       const chat1 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
       return chat0 !== chat1;
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
       return false;
     }
   }
@@ -61,8 +61,8 @@ class MultiUsers {
       await sleep(2000);
       const chat1 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
       return chat0 !== chat1;
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
       return false;
     }
   }
@@ -71,8 +71,8 @@ class MultiUsers {
     try {
       const checks = await this.checkForOtherUser();
       return checks.firstCheck !== false && checks.secondCheck !== false;
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
       return false;
     }
   }
@@ -162,8 +162,8 @@ class MultiUsers {
       const receivedAnswerFound = await this.page1.page.evaluate(utilCustomParams.countTestElements, ple.receivedAnswer);
       await sleep(2000);
       return receivedAnswerFound === true;
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
       return false;
     }
   }
@@ -179,8 +179,8 @@ class MultiUsers {
       await sleep(2000);
       const resp = await this.page1.page.evaluate(async () => await document.querySelector('[data-test="multiWhiteboardTool"]').children[0].innerText === '1');
       return resp === true;
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
       return false;
     }
   }
@@ -195,8 +195,8 @@ class MultiUsers {
       await sleep(2000);
       const resp = await this.page2.page.evaluate(utilCustomParams.countTestElements, we.lowerHandLabel);
       return resp === true;
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
       return false;
     }
   }
@@ -209,8 +209,8 @@ class MultiUsers {
       await sleep(2000);
       const resp = await this.page2.page.evaluate(utilCustomParams.countTestElements, we.raiseHandLabel);
       return resp === true;
-    } catch (e) {
-      await this.page2.logger(e);
+    } catch (err) {
+      await this.page2.logger(err);
       return false;
     }
   }
@@ -221,8 +221,8 @@ class MultiUsers {
       const avatarInToastElementColor = await this.page1.page.$eval(we.avatarsWrapperAvatar, (elem) => getComputedStyle(elem).backgroundColor);
       const avatarInUserListColor = await this.page1.page.$eval('[data-test="userListItem"] > div [data-test="userAvatar"]', (elem) => getComputedStyle(elem).backgroundColor);
       return avatarInToastElementColor === avatarInUserListColor;
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
       return false;
     }
   }
@@ -241,8 +241,8 @@ class MultiUsers {
       const connectionStatusItemEmpty = await this.page1.page.evaluate(utilUser.countTestElements, ue.connectionStatusItemEmpty) === false;
       const connectionStatusOfflineUser = await this.page1.page.evaluate(utilUser.countTestElements, ue.connectionStatusOfflineUser) === true;
       return connectionStatusOfflineUser && connectionStatusItemEmpty;
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
       return false;
     }
   }
@@ -254,8 +254,8 @@ class MultiUsers {
       const userlistPanel = await this.page1.page.evaluate(utilUser.countTestElements, ue.chatButton) === false;
       const chatPanel = await this.page2.page.evaluate(utilUser.countTestElements, ue.chatButton) === false;
       return userlistPanel && chatPanel;
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
       return false;
     }
   }
@@ -271,8 +271,8 @@ class MultiUsers {
       const onChatPanel = await this.page2.page.evaluate(utilUser.countTestElements, cu.hidePresentation) === false;
       await sleep(2000);
       return onUserListPanel && onChatPanel;
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
       return false;
     }
   }
@@ -287,8 +287,8 @@ class MultiUsers {
       const onChatPanel = await this.page2.isNotVisible(ue.chatButton, ELEMENT_WAIT_TIME) === true;
       await sleep(2000);
       return whiteboard && onChatPanel;
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
       return false;
     }
   }
@@ -298,8 +298,8 @@ class MultiUsers {
     try {
       await page1.close();
       await page2.close();
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
       return false;
     }
   }
@@ -307,8 +307,8 @@ class MultiUsers {
   async closePage(page) {
     try {
       await page.close();
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
       return false;
     }
   }

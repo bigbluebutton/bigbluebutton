@@ -31,8 +31,8 @@ class Copy extends Page {
       await context.overridePermissions(process.env.BBB_SERVER_URL, ['clipboard-read']);
       const copiedText = await this.page.evaluate(async () => await navigator.clipboard.readText());
       return copiedText.includes(`${p.fullName}: ${e.message}`);
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }

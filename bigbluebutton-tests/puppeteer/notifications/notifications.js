@@ -46,8 +46,8 @@ class Notifications extends MultiUsers {
       const resp = await util.getLastToastValue(this.page1) === ne.savedSettingsToast;
       await this.page1.screenshot(`${testName}`, `04-page01-saved-Settings-toast-${testName}`);
       return resp === true;
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
       return false;
     }
   }
@@ -71,8 +71,8 @@ class Notifications extends MultiUsers {
       const lastToast = await util.getLastToastValue(this.page1);
       await this.page1.screenshot(`${testName}`, `06-page01-public-chat-toast-${testName}`);
       return expectedToastValue === lastToast;
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
       return false;
     }
   }
@@ -96,8 +96,8 @@ class Notifications extends MultiUsers {
       const lastToast = await util.getLastToastValue(this.page1);
       await this.page1.screenshot(`${testName}`, `06-page01-public-chat-toast-${testName}`);
       return expectedToastValue === lastToast;
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
       return false;
     }
   }
@@ -108,8 +108,8 @@ class Notifications extends MultiUsers {
       await util.popupMenu(page);
       await util.enableUserJoinPopup(page);
       await util.saveSettings(page);
-    } catch (e) {
-      await this.page1.logger(e);
+    } catch (err) {
+      await this.page1.logger(err);
       return false;
     }
   }
@@ -131,8 +131,8 @@ class Notifications extends MultiUsers {
       );
       await this.page3.screenshot(`${testName}`, `04-page03-user-join-toast-${testName}`);
       return true;
-    } catch (e) {
-      await this.page3.logger(e);
+    } catch (err) {
+      await this.page3.logger(err);
       return false;
     }
   }
@@ -167,8 +167,8 @@ class Notifications extends MultiUsers {
       );
       await this.page3.screenshot(`${testName}`, `06-page03-presentation-change-toast-${testName}`);
       return true;
-    } catch (e) {
-      await this.page3.logger(e);
+    } catch (err) {
+      await this.page3.logger(err);
       return false;
     }
   }
@@ -186,8 +186,8 @@ class Notifications extends MultiUsers {
       const resp = await util.getLastToastValue(this.page3);
       await this.page3.screenshot(`${testName}`, `04-page03-poll-toast-${testName}`);
       return resp === true;
-    } catch (e) {
-      await this.page3.logger(e);
+    } catch (err) {
+      await this.page3.logger(err);
       return false;
     }
   }
@@ -202,8 +202,8 @@ class Notifications extends MultiUsers {
       const resp = await util.getLastToastValue(this.page3) === ne.joinAudioToast;
       await this.page3.screenshot(`${testName}`, `03-page03-audio-toast-${testName}`);
       return resp === true;
-    } catch (e) {
-      await this.page3.logger(e);
+    } catch (err) {
+      await this.page3.logger(err);
       return false;
     }
   }
@@ -220,8 +220,8 @@ class Notifications extends MultiUsers {
       const response = await util.getLastToastValue(this.page3);
       await this.page3.screenshot(`${testName}`, `04-page03-screenshare-toast-${testName}`);
       return response === true;
-    } catch (e) {
-      await this.page3.logger(e);
+    } catch (err) {
+      await this.page3.logger(err);
       return false;
     }
   }
@@ -230,8 +230,8 @@ class Notifications extends MultiUsers {
     try {
       await this.page3.close();
       await this.page4.close();
-    } catch (e) {
-      await this.page3.logger(e);
+    } catch (err) {
+      await this.page3.logger(err);
       return false;
     }
   }

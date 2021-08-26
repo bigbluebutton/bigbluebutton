@@ -28,8 +28,8 @@ const breakoutTest = () => {
       await test.page1.stopRecording();
       screenshot = await page2[2].screenshot();
       await test.page1.logger('end of ', testName);
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -55,8 +55,8 @@ const breakoutTest = () => {
       await test.page1.stopRecording();
       screenshot = await page2[2].screenshot();
       await test.page1.logger('end of ', testName);
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -82,8 +82,8 @@ const breakoutTest = () => {
       await test.page1.stopRecording();
       screenshot = await page2[2].screenshot();
       await test.page1.logger('end of ', testName);
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -109,8 +109,8 @@ const breakoutTest = () => {
       await test.page1.stopRecording();
       screenshot = await page2[2].screenshot();
       await test.page1.logger('end of ', testName);
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -136,8 +136,8 @@ const breakoutTest = () => {
       await test.page1.stopRecording();
       screenshot = await page2[2].screenshot();
       await test.page1.logger('end of ', testName);
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }

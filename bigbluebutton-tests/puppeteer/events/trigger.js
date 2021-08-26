@@ -36,8 +36,8 @@ class Trigger extends Page {
       const findUnauthorized = await this.page.evaluate(util.countTestElements, e.unauthorized) === true;
       await this.logger('Check if Unauthorized message appears => ', findUnauthorized);
       return meteorStatusConfirm && getAudioButton && findUnauthorized;
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }
@@ -93,8 +93,8 @@ class Trigger extends Page {
       const findUnauthorized = await this.page.evaluate(util.countTestElements, e.unauthorized) === true;
       await this.logger('Check if Unauthorized message appears => ', findUnauthorized);
       return meteorStatusConfirm && getAudioButton && findUnauthorized;
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }

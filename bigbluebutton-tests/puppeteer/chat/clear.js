@@ -37,8 +37,8 @@ class Clear extends Page {
       const chatResp = await this.waitForSelector(e.chatClearMessageText, ELEMENT_WAIT_TIME).then(() => true);
 
       return chat0 && chatResp;
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }

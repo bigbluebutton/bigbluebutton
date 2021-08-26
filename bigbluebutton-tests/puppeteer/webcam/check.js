@@ -11,8 +11,8 @@ class Check extends Share {
       await util.enableWebcam(page1, page2);
       const respUser = await util.compareWebcamsContents(this);
       return respUser === true;
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }
@@ -25,8 +25,8 @@ class Check extends Share {
       await util.enableWebcam(this, videoPreviewTimeout);
       const respUser = await util.webcamContentCheck(this);
       return respUser === true;
-    } catch (e) {
-      await this.logger(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }
