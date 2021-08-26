@@ -83,6 +83,7 @@ public class ParamsProcessorUtil {
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
     private boolean learningDashboardEnabled;
+    private boolean learningDashboardCleanupEnabled;
     private boolean webcamsOnlyForModerator;
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
@@ -417,13 +418,25 @@ public class ParamsProcessorUtil {
         }
 
         boolean learningDashboardEn = learningDashboardEnabled;
-        if (!StringUtils.isEmpty(params.get(ApiParams.ACTIVITY_REPORT_TRACKING))) {
+        if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED))) {
             try {
                 learningDashboardEn = Boolean.parseBoolean(params
-                        .get(ApiParams.ACTIVITY_REPORT_TRACKING));
+                        .get(ApiParams.LEARNING_DASHBOARD_ENABLED));
             } catch (Exception ex) {
                 log.warn(
                         "Invalid param [learningDashboardEnabled] for meeting=[{}]",
+                        internalMeetingId);
+            }
+        }
+
+        boolean learningDashboardCleanupEn = learningDashboardCleanupEnabled;
+        if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_CLEANUP_ENABLED))) {
+            try {
+                learningDashboardCleanupEn = Boolean.parseBoolean(params
+                        .get(ApiParams.LEARNING_DASHBOARD_CLEANUP_ENABLED));
+            } catch (Exception ex) {
+                log.warn(
+                        "Invalid param [learningDashboardCleanupEnabled] for meeting=[{}]",
                         internalMeetingId);
             }
         }
@@ -532,6 +545,7 @@ public class ParamsProcessorUtil {
 				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
                 .withHTML5InstanceId(html5InstanceId)
                 .withlearningDashboardEnabled(learningDashboardEn)
+                .withlearningDashboardCleanupEnabled(learningDashboardCleanupEn)
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .build();
 
@@ -922,8 +936,12 @@ public class ParamsProcessorUtil {
         this.allowStartStopRecording = allowStartStopRecording;
     }
 
-    public void setlearningDashboardEnabled(boolean learningDashboardEnabled) {
+    public void setLearningDashboardEnabled(boolean learningDashboardEnabled) {
         this.learningDashboardEnabled = learningDashboardEnabled;
+    }
+
+    public void setLearningDashboardCleanupEnabled(boolean learningDashboardCleanupEnabled) {
+        this.learningDashboardCleanupEnabled = learningDashboardCleanupEnabled;
     }
 
     public void setWebcamsOnlyForModerator(boolean webcamsOnlyForModerator) {

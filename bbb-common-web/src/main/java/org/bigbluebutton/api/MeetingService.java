@@ -405,7 +405,7 @@ public class MeetingService implements MessageListener {
     gw.createMeeting(m.getInternalId(), m.getExternalId(), m.getParentMeetingId(), m.getName(), m.isRecord(),
             m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
             m.getWebcamsOnlyForModerator(), m.getModeratorPassword(), m.getViewerPassword(),
-            m.getlearningDashboardEnabled(), m.getLearningDashboardAccessToken(), m.getCreateTime(),
+            m.getLearningDashboardEnabled(), m.getLearningDashboardAccessToken(), m.getCreateTime(),
             formatPrettyDate(m.getCreateTime()), m.isBreakout(), m.getSequence(), m.isFreeJoin(), m.getMetadata(),
             m.getGuestPolicy(), m.getAuthenticatedGuest(), m.getMeetingLayout(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(), m.getModeratorOnlyMessage(),
             m.getDialNumber(), m.getMaxUsers(),
@@ -857,6 +857,11 @@ public class MeetingService implements MessageListener {
           String meetingEndedCallbackURL = m.getMeetingEndedCallbackURL();
           callbackUrlService.handleMessage(new MeetingEndedEvent(m.getInternalId(), m.getExternalId(), m.getName(), meetingEndedCallbackURL));
         }
+      }
+
+      //Remove Learning Dashboard files
+      if(m.getLearningDashboardCleanupEnabled() == true) {
+        learningDashboardService.removeActivityJsonFile(message.meetingId);
       }
 
       processRemoveEndedMeeting(message);

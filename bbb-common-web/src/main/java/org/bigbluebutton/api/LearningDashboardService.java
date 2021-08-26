@@ -27,6 +27,7 @@ import java.io.FileOutputStream;
 public class LearningDashboardService {
     private static Logger log = LoggerFactory.getLogger(LearningDashboardService.class);
     private static String learningDashboardFilesDir = "/var/bigbluebutton/learning-dashboard";
+    private static int cleanUpDelaySeconds = 120;
 
     public void writeActivityJsonFile(String meetingId, String learningDashboardAccessToken, String activityJson) {
 
@@ -52,8 +53,40 @@ public class LearningDashboardService {
         }
     }
 
+    public void removeActivityJsonFile(String meetingId) {
+        //Delay `cleanUpDelaySeconds` then moderators can open the Dashboard before files has been removed
+        new java.util.Timer().schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        File ldMeetingFilesDir = new File(learningDashboardFilesDir + File.separatorChar + meetingId);
+                        LearningDashboardService.deleteDirectory(ldMeetingFilesDir);
+                        log.info("Learning Dashboard files removed for meeting {}.",meetingId);
+                    }
+                },
+                LearningDashboardService.cleanUpDelaySeconds * 1000
+        );
+    }
+
     private String getDestinationBaseDirectoryName(String meetingId, String learningDashboardAccessToken) {
         return learningDashboardFilesDir + File.separatorChar + meetingId + File.separatorChar + learningDashboardAccessToken;
+    }
+
+    private static void deleteDirectory(File directory) {
+        /**
+         * Go through each directory and check if it's not empty. We need to
+         * delete files inside a directory before a directory can be deleted.
+         **/
+        File[] files = directory.listFiles();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                deleteDirectory(file);
+            } else {
+                file.delete();
+            }
+        }
+        // Now that the directory is empty. Delete it.
+        directory.delete();
     }
 
     public void setLearningDashboardFilesDir(String dir) {
