@@ -310,7 +310,7 @@ class UserOptions extends PureComponent {
             label: intl.formatMessage(intlMessages.learningDashboardLabel),
             description: intl.formatMessage(intlMessages.learningDashboardDesc),
             key: this.learningDashboardId,
-            onClick: openLearningDashboardUrl,
+            onClick: () => { openLearningDashboardUrl(locale); },
           });
         }
       }
