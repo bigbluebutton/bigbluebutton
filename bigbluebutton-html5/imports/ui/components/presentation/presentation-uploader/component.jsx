@@ -785,6 +785,7 @@ class PresentationUploader extends Component {
               disabled={disableActions}
               className={isDownloadableStyle}
               label={formattedDownloadableLabel}
+              data-test={item.isDownloadable ? 'disallowPresentationDownload' : 'allowPresentationDownload'}
               aria-label={formattedDownloadableAriaLabel}
               hideLabel
               size="sm"
@@ -993,6 +994,7 @@ class PresentationUploader extends Component {
               />
               <Button
                 className={styles.confirm}
+                data-test="confirmManagePresentation"
                 color="primary"
                 onClick={() => this.handleConfirm(hasNewUpload)}
                 disabled={disableActions}
