@@ -250,6 +250,7 @@ class UserOptions extends PureComponent {
       && hasBreakoutRoom
       && getUsersNotAssigned(users).length;
 
+    const { locale } = intl;
 
     this.menuItems = [];
     
@@ -311,7 +312,7 @@ class UserOptions extends PureComponent {
             label: intl.formatMessage(intlMessages.activityReportLabel),
             description: intl.formatMessage(intlMessages.activityReportDesc),
             key: this.activityReportId,
-            onClick: openActivityReportUrl,
+            onClick: () => openActivityReportUrl(locale),
           })
         }
       }
