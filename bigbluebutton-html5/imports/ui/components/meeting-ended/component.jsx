@@ -250,6 +250,8 @@ class MeetingEnded extends PureComponent {
   renderNoFeedback() {
     const { intl, code, ejectedReason } = this.props;
 
+    const { locale } = intl;
+
     const logMessage = ejectedReason === 'user_requested_eject_reason' ? 'User removed from the meeting' : 'Meeting ended component, no feedback configured';
     logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason: ejectedReason } }, logMessage);
 
@@ -270,7 +272,7 @@ class MeetingEnded extends PureComponent {
                         <Button
                           icon="multi_whiteboard"
                           color="default"
-                          onClick={LearningDashboardService.openLearningDashboardUrl}
+                          onClick={LearningDashboardService.openLearningDashboardUrl(locale)}
                           className={styles.button}
                           label={intl.formatMessage(intlMessage.open_activity_report_btn)}
                           description={intl.formatMessage(intlMessage.open_activity_report_btn)}
