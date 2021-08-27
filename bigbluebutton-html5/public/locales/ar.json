@@ -769,6 +769,7 @@
     "app.createBreakoutRoom.ariaTitle": "إخفاء الغرفة المفرقة",
     "app.createBreakoutRoom.breakoutRoomLabel": "غرفة مفرقة {0}",
     "app.createBreakoutRoom.generatingURL": "إنشاء الرابط",
+    "app.createBreakoutRoom.generatingURLMessage": "نقوم بإنشاء رابط خاص بالغرفة الجانبية المختارة. قد يستغرق الأمر بضع ثوان ...",
     "app.createBreakoutRoom.generatedURL": "تم الانشاء",
     "app.createBreakoutRoom.duration": "المدة {0}",
     "app.createBreakoutRoom.room": "الغرفة {0}",

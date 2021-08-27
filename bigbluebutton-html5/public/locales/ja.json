@@ -769,6 +769,7 @@
     "app.createBreakoutRoom.ariaTitle": "小会議室を隠す",
     "app.createBreakoutRoom.breakoutRoomLabel": "小会議室 {0}",
     "app.createBreakoutRoom.generatingURL": "URL生成中",
+    "app.createBreakoutRoom.generatingURLMessage": "選択された小会議室に参加するためのURLを作成しています。少し時間がかかるかもしれません...",
     "app.createBreakoutRoom.generatedURL": "生成されました",
     "app.createBreakoutRoom.duration": "利用時間 {0}",
     "app.createBreakoutRoom.room": "会議室 {0}",
