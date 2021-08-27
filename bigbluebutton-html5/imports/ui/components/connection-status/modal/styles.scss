@@ -158,6 +158,11 @@
   text-decoration: underline;
   cursor: pointer;
   margin-right: var(--sm-padding-x);
+
+  [dir="rtl"] & {
+    margin-left: var(--sm-padding-x);
+    float: left;
+  }
 }
 
 .right {
