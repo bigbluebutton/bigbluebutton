@@ -243,6 +243,7 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint, podId) =
     })
     .then((presentations) => {
       if (currentPresentation === undefined) {
+        setPresentation('', podId);
         return Promise.resolve();
       }
 

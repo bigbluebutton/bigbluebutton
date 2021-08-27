@@ -500,7 +500,6 @@ public:
     help: STATS_HELP_URL
   presentation:
     allowDownloadable: true
-    defaultPresentationFile: default.pdf
     panZoomThrottle: 32
     restoreOnUpdate: false
     uploadEndpoint: '/bigbluebutton/presentation/upload'
