@@ -769,6 +769,7 @@
     "app.createBreakoutRoom.ariaTitle": "Agochar as salas parciais",
     "app.createBreakoutRoom.breakoutRoomLabel": "Salas parciais {0}",
     "app.createBreakoutRoom.generatingURL": "Xerando o URL",
+    "app.createBreakoutRoom.generatingURLMessage": "Estamos xerando un URL de acceso para a sala parcial seleccionada. Isto pode levar uns segundos...",
     "app.createBreakoutRoom.generatedURL": "Xerado",
     "app.createBreakoutRoom.duration": "Duración {0}",
     "app.createBreakoutRoom.room": "Sala {0}",

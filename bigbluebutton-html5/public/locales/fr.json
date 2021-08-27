@@ -769,6 +769,7 @@
     "app.createBreakoutRoom.ariaTitle": "Masquer les salles de réunion privées",
     "app.createBreakoutRoom.breakoutRoomLabel": "Réunions privées {0}",
     "app.createBreakoutRoom.generatingURL": "Générer l'URL",
+    "app.createBreakoutRoom.generatingURLMessage": "Nous sommes en train de générer une URL pour rejoindre la salle de groupe. Cela peut prendre quelques secondes...",
     "app.createBreakoutRoom.generatedURL": "Généré",
     "app.createBreakoutRoom.duration": "Durée {0}",
     "app.createBreakoutRoom.room": "Réunion {0}",
