@@ -1,0 +1,898 @@
+openapi: 3.0.1
+info:
+  title: Big Blue Button
+  description: API specification for Big Blue Button
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: ralam@blindsidenetworks.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 2.0.0
+externalDocs:
+  description: Find out more about Big Blue Button
+  url: http://docs.bigbluebutton.org
+servers:
+- url: https://api.bigbluebutton.org/2.0
+tags:
+- name: meeting
+  description: Access to meetings
+  externalDocs:
+    description: Find out more
+    url: http://docs.bigbluebutton.org
+- name: recording
+  description: Access to meeting recordings
+  
+paths:
+  /meetings:
+    post:
+      tags:
+      - meeting
+      summary: Create a new meeting
+      operationId: createMeeting
+      requestBody:
+        description: Meeting object to be created
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeetingRequest'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/MeetingRequest'
+        required: true
+      responses:
+        201:
+          $ref: '#/components/responses/Hateoas'
+        405:
+          $ref: '#/components/responses/ValidationError'
+      security:
+      - api_key: []
+      x-codegen-request-body-name: body
+  
+  /meetings/search:
+    post:
+      tags:
+      - meeting
+      summary: Retrieve meetings
+      operationId: getMeetings
+      requestBody:
+        description: Search filters for meetings
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filters:
+                  type: "object"
+                  properties:
+                    meetingIds:
+                      type: array
+                      items:
+                        type: string
+                    roomIds:
+                      type: array
+                      items:
+                        type: string
+          application/xml:
+            schema:
+              type: object
+              properties:
+                meetingIds:
+                  type: array
+                  items:
+                    type: string
+                roomIds:
+                  type: array
+                  items:
+                    type: string
+              xml:
+                name: search
+        required: false
+      responses:
+        200:
+          $ref: '#/components/responses/Hateoas'
+        405:
+          $ref: '#/components/responses/ValidationError'
+      security:
+      - api_key: []
+      x-codegen-request-body-name: body
+      
+  /meetings/{meetingId}:
+    get:
+      tags:
+      - meeting
+      summary: Retrieve a single meeting
+      operationId: findMeetingById
+      parameters:
+      - name: meetingId
+        in: path
+        description: ID of the meeting to retrieve
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          $ref: '#/components/responses/Meeting'
+        404:
+          $ref: '#/components/responses/NotFound'
+        405:
+          $ref: '#/components/responses/ValidationError'
+      security:
+      - api_key: []
+    delete:
+      tags:
+      - meeting
+      summary: End a meeting
+      operationId: endMeeting
+      parameters:
+      - name: meetingId
+        in: path
+        description: ID of the meeting to be ended
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-Meeting-PW
+        schema:
+          type: string
+        required: true
+      responses:
+        204:
+          description: Meeting was successfully ended
+          content: {}
+        404:
+          $ref: '#/components/responses/NotFound'
+        405:
+          $ref: '#/components/responses/ValidationError'
+      security:
+      - api_key: []
+      x-codegen-request-body-name: body
+    patch:
+      tags:
+      - meeting
+      summary: Update an existing meeting
+      operationId: updateMeeting
+      parameters:
+      - name: meetingId
+        in: path
+        description: ID of the meeting to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Meeting object to be updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeetingRequest'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/MeetingRequest'
+        required: true
+      responses:
+        200:
+          $ref: '#/components/responses/Hateoas'
+        404:
+          $ref: '#/components/responses/NotFound'
+        405:
+          $ref: '#/components/responses/ValidationError'
+      security:
+      - api_key: []
+      x-codegen-request-body-name: body
+      
+  /meetings/{meetingId}/join:
+    post:
+      tags:
+      - meeting
+      summary: Join a meeting
+      operationId: joinMeeting
+      parameters:
+      - name: meetingId
+        in: path
+        description: The ID of the meeting the user wishes to join
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Join'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Join'
+        required: true
+      responses:
+        200:
+          $ref: '#/components/responses/Hateoas'
+        404:
+          $ref: '#/components/responses/NotFound'
+        405:
+          $ref: '#/components/responses/ValidationError'
+      security:
+      - api_key: []
+      x-codegen-request-body-name: body
+      
+  /meetings/{meetingId}/recordings:
+    get:
+      tags:
+      - meeting
+      summary: Retreieve the recordings of a specified meeting
+      operationId: meetingRecording
+      parameters:
+      - name: meetingId
+        in: path
+        description: The ID of the meeting the user wishes to join
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          $ref: '#/components/responses/Hateoas'
+        404:
+          $ref: '#/components/responses/NotFound'
+        405:
+          $ref: '#/components/responses/ValidationError'
+      security:
+      - api_key: []
+      
+  /recordings/search:
+    get:
+      tags:
+      - recording
+      summary: Returns recordings
+      operationId: getRecordings
+      parameters:
+        - in: query
+          name: query
+          schema:
+            type: string
+          description: "Search query string"  
+        - in: query
+          name: page
+          schema:
+            type: integer
+            format: int32
+          description: "Page number"  
+        - in: query
+          name: size
+          schema:
+            type: integer
+            format: int32
+          description: "Page size"  
+      responses:
+        200:
+          $ref: '#/components/responses/Hateoas'
+        405:
+          $ref: '#/components/responses/ValidationError'
+      security:
+      - api_key: []
+      x-codegen-request-body-name: body
+      
+  /recordings/{recordingId}:
+    get:
+      tags:
+      - recording
+      summary: Retrieve a single recording
+      operationId: getRecording
+      parameters:
+      - name: recordingId
+        in: path
+        description: ID of the recording to be retrieved
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          $ref: '#/components/responses/Recording'
+        404:
+          $ref: '#/components/responses/NotFound'
+        405:
+          $ref: '#/components/responses/ValidationError'
+      security:
+      - api_key: []
+    delete:
+      tags:
+      - recording
+      summary: Delete a recording
+      operationId: deleteRecording
+      parameters:
+      - name: recordingId
+        in: path
+        description: ID of the recording to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        204:
+          description: Recording was successfully deleted
+          content: {}
+        404:
+          $ref: '#/components/responses/NotFound'
+        405:
+          $ref: '#/components/responses/ValidationError'
+      security:
+      - api_key: []
+    patch:
+      tags:
+      - recording
+      summary: Update an existing recording
+      operationId: updateRecording
+      parameters:
+      - name: recordingId
+        in: path
+        description: ID of the recording to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Recording object to be updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecordingPatch'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/RecordingPatch'
+        required: true
+      responses:
+        200:
+          $ref: '#/components/responses/Hateoas'
+        404:
+          $ref: '#/components/responses/NotFound'
+        405:
+          $ref: '#/components/responses/ValidationError'
+      security:
+      - api_key: []
+      x-codegen-request-body-name: body
+      
+components:
+  schemas:
+    MeetingRequest:
+      required:
+      - meetingId
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+        meetingId:
+          type: string
+        voiceBridge:
+          type: integer
+          format: int32
+        attendeePw:
+          type: string
+        moderatorPw:
+          type: string
+        isBreakoutRoom:
+          type: boolean
+        record:
+          type: boolean
+      xml:
+        name: meetingRequest
+    MeetingResponse:
+      type: object
+      properties:
+        meetingID:
+          type: string
+        internalMeetingID:
+          type: string
+        parentMeetingID:
+          type: string
+        attendeePW:
+          type: string
+        moderatorPW:
+          type: string
+        createTime:
+          type: integer
+          format: int64
+        voiceBridge:
+          type: integer
+          format: int32
+        dialNumber:
+          type: string
+        createDate:
+          type: string
+        hasUserJoined:
+          type: boolean
+        duration:
+          type: integer
+          format: int32
+        hasBeenForciblyEnded:
+          type: boolean
+        messageKey:
+          type: string
+        message:
+          type: string
+      xml:
+        name: meetingResponse
+    Recording:
+      type: object
+      properties:
+        recordId:
+          type: string
+        meetingId:
+          type: string
+        internalMeetingId:
+          type: string
+        name:
+          type: string
+        isBreakout:
+          type: boolean
+        published:
+          type: boolean
+        state:
+          type: string
+        startTime:
+          type: integer
+          format: int64
+        endTime:
+          type: integer
+          format: int64
+        participants:
+          type: integer
+          format: int32
+        rawSize:
+          type: integer
+          format: int64
+        metadata:
+          $ref: '#/components/schemas/RecordingMetadata'
+        size:
+          type: integer
+          format: int64
+        playback:
+          $ref: '#/components/schemas/Playback'
+      xml:
+        name: recordingResponse
+    RecordingMetadata:
+      type: object
+      properties:
+        bbb-origin-version:
+          type: string
+        meetingName:
+          type: string
+        meetingId:
+          type: string
+        gl-listed:
+          type: boolean
+        bbb-origin:
+          type: string
+        isBreakout:
+          type: boolean
+        bbb-origin-server-name:
+          type: string
+      xml:
+        name: recordingMetadata
+    Playback:
+      type: object
+      properties:
+        format:
+          type: object
+          properties:
+            type:
+              type: string
+            url:
+              type: string
+            processingTime:
+              type: integer
+              format: int32
+            length:
+              type: integer
+              format: int32
+            size:
+              type: integer
+              format: int64
+            preview:
+              type: object
+              properties:
+                images:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Image'
+      xml:
+        name: playback
+    RecordingPatch:
+      type: array
+      items:
+        type: object
+        properties:
+          op:
+            type: string
+            example: ["add", "move", "replace", "move", "copy", "test"]
+          path:
+            type: string
+          value:
+            type: string
+    Image:
+      type: object
+      properties:
+        alt:
+          type: string
+          xml:
+            attribute: true
+        height:
+          type: integer
+          format: int32
+          xml:
+            attribute: true
+        width:
+          type: integer
+          format: int32
+          xml:
+            attribute: true
+        src:
+          type: string
+          xml:
+            attribute: true
+      xml:
+        name: img
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        description:
+          type: string
+      xml:
+        name: error
+    Link:
+      type: object
+      properties:
+        rel:
+          type: string
+        href:
+          type: string
+      xml:
+        name: link
+    Join:
+      required:
+      - fullName
+      - password
+      - userId
+      type: object
+      properties:
+        userId:
+          type: string
+        fullName:
+          type: string
+        password:
+          type: string
+        guest:
+          type: boolean
+        auth:
+          type: boolean
+        createTime:
+          type: integer
+          format: int64
+      xml:
+        name: join
+    NumericQuery:
+      type: object
+      properties:
+        lowerBound:
+          type: integer
+          format: int64
+        upperBound:
+          type: integer
+          format: int64
+        order:
+          type: string
+          example: desc
+      xml:
+        name: numeric_query
+          
+  responses:
+    Default:
+      description: An unexpected error occurred
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties: {}
+              errors:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+        application/xml:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties: {}
+              errors:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+            xml:
+              name: default
+        
+    Hateoas:
+      description: Request successful
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  links:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'
+              errors:
+                type: object
+                properties: {}
+        application/xml:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  links:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'
+              errors:
+                type: object
+                properties: {}
+            xml:
+              name: hateoas
+    InvalidID:
+      description: Invalid ID provided
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties: {}
+              errors:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+        application/xml:   
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties: {}
+              errors:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+            xml:
+              name: invalidID
+    Meeting:
+      description: Meeting successfully retrieved
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  meeting:
+                    $ref: '#/components/schemas/MeetingResponse'
+                  links:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'  
+              errors:
+                type: object
+                properties: {}
+        application/xml:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  meeting:
+                    $ref: '#/components/schemas/MeetingResponse'
+                  links:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'  
+              errors:
+                type: object
+                properties: {}
+            xml:
+              name: meeting
+    Meetings:
+      description: Meetings successfully retrieved
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  meetings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MeetingResponse'
+              errors:
+                type: object
+                properties: {}
+        application/xml:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  meetings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MeetingResponse'
+              errors:
+                type: object
+                properties: {}
+            xml:
+              name: meetings
+    NotFound:
+      description: The specified resource could not be found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties: {}
+              errors:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+        application/xml:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties: {}
+              errors:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+            xml:
+              name: notFound
+    Recording:
+      description: Recording successfully retrieved
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  recording:
+                    $ref: '#/components/schemas/Recording'
+                  links:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'  
+              errors:
+                type: object
+                properties: {}
+        application/xml:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  recording:
+                    $ref: '#/components/schemas/Recording'
+                  links:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'  
+              errors:
+                type: object
+                properties: {}
+            xml:
+              name: recording
+    Recordings:
+      description: Recordings successfully retrieved
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  recordings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Recording'
+              errors:
+                type: object
+                properties: {}
+        application/xml:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  recordings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Recording'
+              errors:
+                type: object
+                properties: {}
+            xml:
+              name: recordings
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties: {}
+              errors:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+        application/xml:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties: {}
+              errors:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+            xml:
+              name: validationError
+                    
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
