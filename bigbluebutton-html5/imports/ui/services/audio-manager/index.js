@@ -38,6 +38,17 @@ const BREAKOUT_AUDIO_TRANSFER_STATES = {
   RETURNING: 'returning',
 };
 
+/**
+ * Audio status to be filtered in getStats()
+ */
+const FILTER_AUDIO_STATS = [
+  'outbound-rtp',
+  'inbound-rtp',
+  'candidate-pair',
+  'local-candidate',
+  'transport',
+];
+
 class AudioManager {
   constructor() {
     this._inputDevice = {
@@ -748,6 +759,209 @@ class AudioManager {
 
   async updateAudioConstraints(constraints) {
     await this.bridge.updateAudioConstraints(constraints);
+  }
+
+  /**
+   * Helper for retrieving the current bridge being used by audio.
+   * @returns An Object representing the current bridge.
+   */
+  getCurrentBridge() {
+    return this.isListenOnly ? this.listenOnlyBridge : this.bridge;
+  }
+
+  /**
+   * Get the info about candidate-pair that is being used by the current peer.
+   * For firefox, or any other browser that doesn't support iceTransport
+   * property of RTCDtlsTransport, we retrieve the selected local candidate
+   * by looking into stats returned from getStats() api. For other browsers,
+   * we should use getSelectedCandidatePairFromPeer instead, because it has
+   * relatedAddress and relatedPort information about local candidate.
+   *
+   * @param {Object} stats object returned by getStats() api
+   * @returns An Object of type RTCIceCandidatePairStats containing information
+   *          about the candidate-pair being used by the peer.
+   *
+   * For firefox, we can use the 'selected' flag to find the candidate pair
+   * being used, while in chrome we can retrieved the selected pair
+   * by looking for the corresponding transport of the active peer.
+   * For more information see:
+   * https://www.w3.org/TR/webrtc-stats/#dom-rtcicecandidatepairstats
+   * and
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCIceCandidatePairStats/selected#value
+   */
+  static getSelectedCandidatePairFromStats(stats) {
+    if (!stats || typeof stats !== 'object') return null;
+
+    const transport = Object.values(stats).find((stat) => stat.type
+      === 'transport') || {};
+
+    return Object.values(stats).find((stat) => stat.type === 'candidate-pair'
+      && stat.nominated && (stat.selected
+        || stat.id === transport.selectedCandidatePairId));
+  }
+
+  /**
+   * Get the info about candidate-pair that is being used by the current peer.
+   * This function's return value (RTCIceCandidatePair object ) is different
+   * from getSelectedCandidatePairFromStats (RTCIceCandidatePairStats object).
+   * The information returned here contains the relatedAddress and relatedPort
+   * fields (only for candidates that are derived from another candidate, for
+   * host candidates, these fields are null). These field can be helpful for
+   * debugging network issues. For all the browsers that support iceTransport
+   * field of RTCDtlsTransport, we use this function as default to retrieve
+   * information about current selected-pair. For other browsers we retrieve it
+   * from getSelectedCandidatePairFromStats
+   *
+   * @returns {Object} An RTCIceCandidatePair represented the selected
+   *                   candidate-pair of the active peer.
+   *
+   * For more info see:
+   * https://www.w3.org/TR/webrtc/#dom-rtcicecandidatepair
+   * and
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCIceCandidatePair
+   * and
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCDtlsTransport
+   */
+  getSelectedCandidatePairFromPeer() {
+    const bridge = this.getCurrentBridge();
+
+    if (!bridge) return null;
+
+    const peer = bridge.getPeerConnection();
+
+    if (!peer) return null;
+
+    let selectedPair = null;
+
+    const receivers = peer.getReceivers();
+    if (receivers && receivers[0] && receivers[0].transport
+        && receivers[0].transport.iceTransport
+        && receivers[0].transport.iceTransport) {
+      selectedPair = receivers[0].transport.iceTransport
+        .getSelectedCandidatePair();
+    }
+
+    return selectedPair;
+  }
+
+  /**
+   * Gets the selected local-candidate information. For browsers that support
+   * iceTransport property (see getSelectedCandidatePairFromPeer) we get this
+   * info from peer, otherwise we retrieve this information from getStats() api
+   *
+   * @param {Object} [stats] The status object returned from getStats() api
+   * @returns {Object} An Object containing the information about the
+   *                   local-candidate. For browsers that support iceTransport
+   *                   property, the object's type is RCIceCandidate. A
+   *                   RTCIceCandidateStats is returned, otherwise.
+   *
+   * For more info see:
+   * https://www.w3.org/TR/webrtc/#dom-rtcicecandidate
+   * and
+   * https://www.w3.org/TR/webrtc-stats/#dom-rtcicecandidatestats
+   *
+   */
+  getSelectedLocalCandidate(stats) {
+    let selectedPair = this.getSelectedCandidatePairFromPeer();
+
+    if (selectedPair) return selectedPair.local;
+
+    if (!stats) return null;
+
+    selectedPair = AudioManager.getSelectedCandidatePairFromStats(stats);
+
+    if (selectedPair) return stats[selectedPair.localCandidateId];
+
+    return null;
+  }
+
+  /**
+   * Gets the information about private/public ip address from peer
+   * stats. The information retrieved from selected pair from the current
+   * RTCIceTransport and returned in a new Object with format:
+   * {
+   *   address: String,
+   *   relatedAddress: String,
+   *   port: Number,
+   *   relatedPort: Number,
+   *   candidateType: String,
+   *   selectedLocalCandidate: Object,
+   * }
+   *
+   * If users isn't behind NAT, relatedAddress and relatedPort may be null.
+   *
+   * @returns An Object containing the information about private/public IP
+   *          addresses and ports.
+   *
+   * For more information see:
+   * https://www.w3.org/TR/webrtc-stats/#dom-rtcicecandidatepairstats
+   * and
+   * https://www.w3.org/TR/webrtc-stats/#dom-rtcicecandidatestats
+   * and
+   * https://www.w3.org/TR/webrtc/#rtcicecandidatetype-enum
+   */
+  async getInternalExternalIpAddresses(stats) {
+    let transports = {};
+
+    if (stats) {
+      const selectedLocalCandidate = this.getSelectedLocalCandidate(stats);
+
+      if (!selectedLocalCandidate) return transports;
+
+      const candidateType = selectedLocalCandidate.candidateType
+        || selectedLocalCandidate.type;
+
+      transports = {
+        isUsingTurn: (candidateType === 'relay'),
+        address: selectedLocalCandidate.address,
+        relatedAddress: selectedLocalCandidate.relatedAddress,
+        port: selectedLocalCandidate.port,
+        relatedPort: selectedLocalCandidate.relatedPort,
+        candidateType,
+        selectedLocalCandidate,
+      };
+    }
+
+    return transports;
+  }
+
+  /**
+   * Get stats about active audio peer.
+   * We filter the status based on FILTER_AUDIO_STATS constant.
+   * We also append to the returned object the information about peer's
+   * transport. This transport information is retrieved by
+   * getInternalExternalIpAddressesFromPeer().
+   *
+   * @returns An Object containing the status about the active audio peer.
+   *
+   * For more information see:
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getStats
+   * and
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
+   */
+  async getStats() {
+    const bridge = this.getCurrentBridge();
+
+    if (!bridge) return null;
+
+    const peer = bridge.getPeerConnection();
+
+    if (!peer) return null;
+
+    const peerStats = await peer.getStats();
+
+    const audioStats = {};
+
+    peerStats.forEach((stat) => {
+      if (FILTER_AUDIO_STATS.includes(stat.type)) {
+        audioStats[stat.id] = stat;
+      }
+    });
+
+    const transportStats = await this
+      .getInternalExternalIpAddresses(audioStats);
+
+    return { transportStats, ...audioStats };
   }
 }
 

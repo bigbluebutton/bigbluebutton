@@ -44,6 +44,11 @@ const {
   defaultSorting: DEFAULT_SORTING,
 } = Meteor.settings.public.kurento.cameraSortingModes;
 
+const FILTER_VIDEO_STATS = [
+  'outbound-rtp',
+  'inbound-rtp',
+];
+
 const TOKEN = '_';
 
 class VideoService {
@@ -73,6 +78,7 @@ class VideoService {
       }
       this.updateNumberOfDevices();
     }
+    this.webRtcPeers = {};
   }
 
   defineProperties(obj) {
@@ -807,6 +813,77 @@ class VideoService {
 
     return finalThreshold;
   }
+
+  /**
+   * Getter for webRtcPeers hash, which stores a reference for all
+   * RTCPeerConnection objects.
+   */
+  getWebRtcPeers() {
+    return this.webRtcPeers;
+  }
+
+  /**
+   * Get all active video peers.
+   * @returns An Object containing the reference for all active peers peers
+   */
+  getActivePeers() {
+    const videoData = this.getVideoStreams();
+
+    if (!videoData) return null;
+
+    const { streams: activeVideoStreams } = videoData;
+
+    if (!activeVideoStreams) return null;
+
+    const peers = this.getWebRtcPeers();
+
+    const activePeers = {};
+
+    activeVideoStreams.forEach((stream) => {
+      if (peers[stream.stream]) {
+        activePeers[stream.stream] = peers[stream.stream].peerConnection;
+      }
+    });
+
+    return activePeers;
+  }
+
+  /**
+   * Get stats about all active video peer.
+   * We filter the status based on FILTER_VIDEO_STATS constant.
+   *
+   * For more information see:
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getStats
+   * and
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
+   * @returns An Object containing the information about each active peer.
+   *          The returned object follows the format:
+   *          {
+   *            peerId: RTCStatsReport
+   *          }
+   */
+  async getStats() {
+    const peers = this.getActivePeers();
+
+    if (!peers) return null;
+
+    const stats = {};
+
+    await Promise.all(Object.keys(peers).map(async (peerId) => {
+      const peerStats = await peers[peerId].getStats();
+
+      const videoStats = {};
+
+      peerStats.forEach((stat) => {
+        if (FILTER_VIDEO_STATS.includes(stat.type)) {
+          videoStats[stat.type] = stat;
+        }
+      });
+      stats[peerId] = videoStats;
+    }));
+
+    return stats;
+  }
 }
 
 const videoService = new VideoService();
@@ -848,4 +925,6 @@ export default {
   getNextVideoPage: () => videoService.getNextVideoPage(),
   getPageChangeDebounceTime: () => { return PAGE_CHANGE_DEBOUNCE_TIME },
   shouldRenderPaginationToggle: () => videoService.shouldRenderPaginationToggle(),
+  getWebRtcPeers: () => videoService.getWebRtcPeers(),
+  getStats: () => videoService.getStats(),
 };
