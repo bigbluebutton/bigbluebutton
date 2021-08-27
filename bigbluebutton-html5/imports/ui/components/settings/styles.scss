@@ -86,14 +86,9 @@
 
   @include mq($small-only) {
     width: 100%;
-    margin-left: 1rem;
-    margin-right: inherit;
-
-   [dir="rtl"] & {
-     margin-left: inherit;
-     margin-right: 1rem;
-   }
-
+    margin: 0;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 }
 

@@ -78,10 +78,6 @@ const UserName = (props) => {
 
   const userNameSub = [];
 
-  if (compact) {
-    return null;
-  }
-
   if (user.isSharingWebcam && LABEL.sharingWebcam) {
     userNameSub.push(
       <span key={_.uniqueId('video-')}>
