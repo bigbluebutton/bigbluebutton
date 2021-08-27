@@ -425,6 +425,7 @@ class Presentation extends PureComponent {
       layoutType,
       fullscreenContext,
       layoutContextDispatch,
+      isIphone,
     } = this.props;
 
     if (!shouldEnableSwapLayout()
@@ -437,6 +438,7 @@ class Presentation extends PureComponent {
       <PresentationCloseButton
         toggleSwapLayout={MediaService.toggleSwapLayout}
         layoutContextDispatch={layoutContextDispatch}
+        isIphone={isIphone}
       />
     );
   }

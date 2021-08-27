@@ -3,7 +3,7 @@
   z-index: 1;
   position: absolute;
   top: 0;
-  right: 40px;
+  right: 0;
   left: auto;
   cursor: pointer;
   margin: 2px;
@@ -11,5 +11,20 @@
   [dir="rtl"] & {
     right: auto;
     left :0;
+  }
+}
+
+.buttonWithMargin {
+  z-index: 1;
+  position: absolute;
+  top: 0;
+  right: 40px;
+  left: auto;
+  cursor: pointer;
+  margin: 2px;
+
+  [dir="rtl"] & {
+    right: auto;
+    left : 40px;
   }
 }
