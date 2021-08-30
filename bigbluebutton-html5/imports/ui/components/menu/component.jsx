@@ -145,7 +145,7 @@ BBBMenu.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.shape({
     key: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
-    onClick: PropTypes.func.isRequired,
+    onClick: PropTypes.func,
     icon: PropTypes.string,
     iconRight: PropTypes.string,
     disabled: PropTypes.bool, 
