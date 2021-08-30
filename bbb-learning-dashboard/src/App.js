@@ -4,6 +4,7 @@ import './bbb-icons.css';
 import { FormattedMessage, FormattedDate, injectIntl } from 'react-intl';
 import Card from './components/Card';
 import UsersTable from './components/UsersTable';
+import StatusTable from './components/StatusTable';
 import PollsTable from './components/PollsTable';
 
 class App extends React.Component {
@@ -26,14 +27,27 @@ class App extends React.Component {
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
     if (typeof params.meeting === 'undefined') return;
-    if (typeof params.report === 'undefined') return;
 
-    fetch(`${params.meeting}/${params.report}/activity_report.json`)
-      .then((response) => response.json())
-      .then((json) => {
-        this.setState({ activitiesJson: json });
-        document.title = `Learning Dashboard - ${json.name}`;
+    let learningDashboardAccessToken = '';
+    if (typeof params.report !== 'undefined') {
+      learningDashboardAccessToken = params.report;
+    } else {
+      const cookieName = `learningDashboardAccessToken-${params.meeting}`;
+      const cDecoded = decodeURIComponent(document.cookie);
+      const cArr = cDecoded.split('; ');
+      cArr.forEach((val) => {
+        if (val.indexOf(`${cookieName}=`) === 0) learningDashboardAccessToken = val.substring((`${cookieName}=`).length);
       });
+    }
+
+    if (learningDashboardAccessToken !== '') {
+      fetch(`${params.meeting}/${learningDashboardAccessToken}/activity_report.json`)
+        .then((response) => response.json())
+        .then((json) => {
+          this.setState({ activitiesJson: json });
+          document.title = `Learning Dashboard - ${json.name}`;
+        });
+    }
   }
 
   render() {
@@ -65,6 +79,56 @@ class App extends React.Component {
       }, 0);
 
       return maxTime - minTime;
+    }
+
+    function getAverageActivityScore() {
+      let meetingAveragePoints = 0;
+
+      const allUsers = Object.values(activitiesJson.users || {})
+        .filter((currUser) => !currUser.isModerator);
+      const nrOfUsers = allUsers.length;
+
+      // Calculate points of Talking
+      const usersTalkTime = allUsers.map((currUser) => currUser.talk.totalTime);
+      const maxTalkTime = Math.max(...usersTalkTime);
+      const totalTalkTime = usersTalkTime.reduce((prev, val) => prev + val, 0);
+      if (totalTalkTime > 0) {
+        meetingAveragePoints += ((totalTalkTime / nrOfUsers) / maxTalkTime) * 2;
+      }
+
+      // Calculate points of Chatting
+      const usersTotalOfMessages = allUsers.map((currUser) => currUser.totalOfMessages);
+      const maxMessages = Math.max(...usersTotalOfMessages);
+      const totalMessages = usersTotalOfMessages.reduce((prev, val) => prev + val, 0);
+      if (maxMessages > 0) {
+        meetingAveragePoints += ((totalMessages / nrOfUsers) / maxMessages) * 2;
+      }
+
+      // Calculate points of Raise hand
+      const usersRaiseHand = allUsers.map((currUser) => currUser.emojis.filter((emoji) => emoji.name === 'raiseHand').length);
+      const maxRaiseHand = Math.max(...usersRaiseHand);
+      const totalRaiseHand = usersRaiseHand.reduce((prev, val) => prev + val, 0);
+      if (maxRaiseHand > 0) {
+        meetingAveragePoints += ((totalRaiseHand / nrOfUsers) / maxMessages) * 2;
+      }
+
+      // Calculate points of Emojis
+      const usersEmojis = allUsers.map((currUser) => currUser.emojis.filter((emoji) => emoji.name !== 'raiseHand').length);
+      const maxEmojis = Math.max(...usersEmojis);
+      const totalEmojis = usersEmojis.reduce((prev, val) => prev + val, 0);
+      if (maxEmojis > 0) {
+        meetingAveragePoints += ((totalEmojis / nrOfUsers) / maxEmojis) * 2;
+      }
+
+      // Calculate points of Polls
+      const totalOfPolls = Object.values(activitiesJson.polls || {}).length;
+      if (totalOfPolls > 0) {
+        const totalAnswers = allUsers
+          .reduce((prevVal, currUser) => prevVal + Object.values(currUser.answers || {}).length, 0);
+        meetingAveragePoints += ((totalAnswers / nrOfUsers) / totalOfPolls) * 2;
+      }
+
+      return meetingAveragePoints;
     }
 
     return (
@@ -108,8 +172,13 @@ class App extends React.Component {
         <div className="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
           <div aria-hidden="true" className="cursor-pointer" onClick={() => { this.setState({ tab: 'overview' }); }}>
             <Card
-              name={intl.formatMessage({ id: 'app.learningDashboard.indicators.participants', defaultMessage: 'Participants' })}
-              number={Object.values(activitiesJson.users || {}).length}
+              name={
+                activitiesJson.endedOn === 0
+                  ? intl.formatMessage({ id: 'app.learningDashboard.indicators.participantsOnline', defaultMessage: 'Active Participants' })
+                  : intl.formatMessage({ id: 'app.learningDashboard.indicators.participantsTotal', defaultMessage: 'Total Number Of Participants' })
+              }
+              number={Object.values(activitiesJson.users || {})
+                .filter((u) => activitiesJson.endedOn > 0 || u.leftOn === 0).length}
               cardClass="border-pink-500"
               iconClass="bg-pink-50 text-pink-500"
               onClick={() => {
@@ -155,31 +224,68 @@ class App extends React.Component {
               </svg>
             </Card>
           </div>
-          <Card
-            name={intl.formatMessage({ id: 'app.learningDashboard.indicators.raiseHand', defaultMessage: 'Raise Hand' })}
-            number={totalOfRaiseHand()}
-            cardClass="border-purple-500"
-            iconClass="bg-purple-200 text-purple-500"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+          <div aria-hidden="true" className="cursor-pointer" onClick={() => { this.setState({ tab: 'status_timeline' }); }}>
+            <Card
+              name={intl.formatMessage({ id: 'app.learningDashboard.indicators.raiseHand', defaultMessage: 'Raise Hand' })}
+              number={totalOfRaiseHand()}
+              cardClass="border-purple-500"
+              iconClass="bg-purple-200 text-purple-500"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"
-              />
-            </svg>
-          </Card>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"
+                />
+              </svg>
+            </Card>
+          </div>
+          <div aria-hidden="true" className="cursor-pointer" onClick={() => { this.setState({ tab: 'overview_activityscore' }); }}>
+            <Card
+              name={intl.formatMessage({ id: 'app.learningDashboard.indicators.activityScore', defaultMessage: 'Activity Score' })}
+              number={intl.formatNumber((getAverageActivityScore() || 0), {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 1,
+              })}
+              cardClass="border-green-500"
+              iconClass="bg-green-200 text-green-500"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"
+                />
+              </svg>
+            </Card>
+          </div>
         </div>
         <h1 className="block my-1 pr-2 text-xl font-semibold">
-          { tab === 'overview'
+          { tab === 'overview' || tab === 'overview_activityscore'
             ? <FormattedMessage id="app.learningDashboard.participantsTable.title" defaultMessage="Overview" />
+            : null }
+          { tab === 'status_timeline'
+            ? <FormattedMessage id="app.learningDashboard.statusTimelineTable.title" defaultMessage="Status Timeline" />
             : null }
           { tab === 'polling'
             ? <FormattedMessage id="app.learningDashboard.pollsTable.title" defaultMessage="Polling" />
@@ -187,13 +293,18 @@ class App extends React.Component {
         </h1>
         <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
           <div className="w-full overflow-x-auto">
-            { tab === 'overview'
+            { (tab === 'overview' || tab === 'overview_activityscore')
               ? (
                 <UsersTable
                   allUsers={activitiesJson.users}
                   totalOfActivityTime={totalOfActivity()}
+                  totalOfPolls={Object.values(activitiesJson.polls || {}).length}
+                  tab={tab}
                 />
               )
+              : null }
+            { (tab === 'status_timeline')
+              ? <StatusTable allUsers={activitiesJson.users} />
               : null }
             { tab === 'polling'
               ? <PollsTable polls={activitiesJson.polls} allUsers={activitiesJson.users} />
