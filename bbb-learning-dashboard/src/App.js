@@ -27,14 +27,27 @@ class App extends React.Component {
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
     if (typeof params.meeting === 'undefined') return;
-    if (typeof params.report === 'undefined') return;
 
-    fetch(`${params.meeting}/${params.report}/activity_report.json`)
-      .then((response) => response.json())
-      .then((json) => {
-        this.setState({ activitiesJson: json });
-        document.title = `Learning Dashboard - ${json.name}`;
+    let learningDashboardAccessToken = '';
+    if (typeof params.report !== 'undefined') {
+      learningDashboardAccessToken = params.report;
+    } else {
+      const cookieName = `learningDashboardAccessToken-${params.meeting}`;
+      const cDecoded = decodeURIComponent(document.cookie);
+      const cArr = cDecoded.split('; ');
+      cArr.forEach((val) => {
+        if (val.indexOf(`${cookieName}=`) === 0) learningDashboardAccessToken = val.substring((`${cookieName}=`).length);
       });
+    }
+
+    if (learningDashboardAccessToken !== '') {
+      fetch(`${params.meeting}/${learningDashboardAccessToken}/activity_report.json`)
+        .then((response) => response.json())
+        .then((json) => {
+          this.setState({ activitiesJson: json });
+          document.title = `Learning Dashboard - ${json.name}`;
+        });
+    }
   }
 
   render() {
@@ -159,8 +172,13 @@ class App extends React.Component {
         <div className="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
           <div aria-hidden="true" className="cursor-pointer" onClick={() => { this.setState({ tab: 'overview' }); }}>
             <Card
-              name={intl.formatMessage({ id: 'app.learningDashboard.indicators.participants', defaultMessage: 'Participants' })}
-              number={Object.values(activitiesJson.users || {}).length}
+              name={
+                activitiesJson.endedOn === 0
+                  ? intl.formatMessage({ id: 'app.learningDashboard.indicators.participantsOnline', defaultMessage: 'Active Participants' })
+                  : intl.formatMessage({ id: 'app.learningDashboard.indicators.participantsTotal', defaultMessage: 'Total Number Of Participants' })
+              }
+              number={Object.values(activitiesJson.users || {})
+                .filter((u) => activitiesJson.endedOn > 0 || u.leftOn === 0).length}
               cardClass="border-pink-500"
               iconClass="bg-pink-50 text-pink-500"
               onClick={() => {

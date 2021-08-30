@@ -29,7 +29,10 @@ const getLearningDashboardAccessToken = () => ((
   ) || {}).password || {}).learningDashboardAccessToken || null;
 
 const openLearningDashboardUrl = (lang) => {
-  window.open(`/learning-dashboard/?meeting=${Auth.meetingID}&report=${getLearningDashboardAccessToken()}&lang=${lang}`, '_blank');
+  const cookieExpiresDate = new Date();
+  cookieExpiresDate.setTime(cookieExpiresDate.getTime() + 3600000);
+  document.cookie = `learningDashboardAccessToken-${Auth.meetingID}=${getLearningDashboardAccessToken()}; expires=${cookieExpiresDate.toGMTString()}; path=/`;
+  window.open(`/learning-dashboard/?meeting=${Auth.meetingID}&lang=${lang}`, '_blank');
 };
 
 export default {
