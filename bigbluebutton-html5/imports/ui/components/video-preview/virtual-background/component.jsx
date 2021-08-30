@@ -10,7 +10,8 @@ import {
   IMAGE_NAMES,
   getVirtualBackgroundThumbnail,
   isVirtualBackgroundSupported,
-} from '/imports/ui/services/virtual-background/service'
+} from '/imports/ui/services/virtual-background/service';
+import { capitalizeFirstLetter } from '/imports/utils/string-utils';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -42,9 +43,9 @@ const intlMessages = defineMessages({
     id: 'app.video.virtualBackground.blur',
     description: 'Label for the blurred camera option',
   },
-  thumbnailLabel: {
-    id: 'app.video.virtualBackground.thumbnail',
-    description: 'Label for the image camera options',
+  camBgAriaDesc: {
+    id: 'app.video.virtualBackground.camBgAriaDesc',
+    description: 'Label for virtual background button aria',
   }
 });
 
@@ -61,21 +62,21 @@ const VirtualBgSelector = ({
 
   const inputElementsRef = useRef([]);
 
-  const _virtualBgSelected = (type, name, index) => {
-    handleVirtualBgSelected(type, name).then(switched => {
-      // Reset to the base NONE_TYPE effect if it failed because the expected
-      // behaviour from upstream's method is to actually stop/reset the effect
-      // service if it fails
-      if (!switched) {
-        return setCurrentVirtualBg({ type: EFFECT_TYPES.NONE_TYPE });
-      }
+  const _virtualBgSelected = (type, name, index) =>
+    handleVirtualBgSelected(type, name)
+      .then(switched => {
+        // Reset to the base NONE_TYPE effect if it failed because the expected
+        // behaviour from upstream's method is to actually stop/reset the effect
+        // service if it fails
+        if (!switched) {
+          return setCurrentVirtualBg({ type: EFFECT_TYPES.NONE_TYPE });
+        }
 
-      if (index >= 0) {
-        inputElementsRef.current[index].focus();
-      }
-      setCurrentVirtualBg({ type, name });
-    });
-  };
+        if (index >= 0) {
+          inputElementsRef.current[index].focus();
+        }
+        return setCurrentVirtualBg({ type, name });
+      });
 
   const renderDropdownSelector = () => {
     const disabled = locked || !isVirtualBackgroundSupported();
@@ -99,14 +100,17 @@ const VirtualBgSelector = ({
             {intl.formatMessage(intlMessages.blurLabel)}
           </option>
 
-          {IMAGE_NAMES.map((imageName, index) => (
-            <option key={`${imageName}-${index}`} value={JSON.stringify({
-              type: EFFECT_TYPES.IMAGE_TYPE,
-              name: imageName,
-            })}>
-            {imageName.split(".")[0]}
-          </option>
-          ))}
+          {IMAGE_NAMES.map((imageName, i) => {
+            const k = `${imageName}-${i}`;
+            return (
+              <option key={k} value={JSON.stringify({
+                type: EFFECT_TYPES.IMAGE_TYPE,
+                name: imageName,
+              })}>
+                {imageName.split(".")[0]}
+              </option>
+            );
+          })}
         </select>
       </div>
     );
@@ -118,47 +122,66 @@ const VirtualBgSelector = ({
     return (
       <div className={styles.virtualBackgroundRowThumbnail}>
         <div className={styles.bgWrapper}>
-          <Button
-            icon='close'
-            label={intl.formatMessage(intlMessages.noneLabel)}
-            hideLabel
-            disabled={disabled}
-            onClick={() => _virtualBgSelected(EFFECT_TYPES.NONE_TYPE)}
-          />
+          <>
+            <Button
+              className={styles.bgNone}
+              icon='close'
+              label={intl.formatMessage(intlMessages.noneLabel)}
+              aria-describedby={`vr-cam-btn-none`}
+              hideLabel
+              disabled={disabled}
+              onClick={() => _virtualBgSelected(EFFECT_TYPES.NONE_TYPE)}
+            />
+            <div aria-hidden className="sr-only" id={`vr-cam-btn-none`}>
+              {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: EFFECT_TYPES.NONE_TYPE })}
+            </div>
+          </>
 
           <TooltipContainer title={intl.formatMessage(intlMessages.blurLabel)} key={`blur-0`}>
-            <input
-              type="image"
-              className={styles.virtualBackgroundItem}
-              alt="image-input"
-              aria-label={EFFECT_TYPES.BLUR_TYPE}
-              src={getVirtualBackgroundThumbnail(BLUR_FILENAME)}
-              disabled={disabled}
-              ref={ref => inputElementsRef.current[0] = ref}
-              onClick={() => _virtualBgSelected(EFFECT_TYPES.BLUR_TYPE, 'Blur', 0)}
-            />
+            <>
+              <div
+                role="button"
+                className={styles.virtualBackgroundItem}
+                aria-label={EFFECT_TYPES.BLUR_TYPE}
+                aria-describedby={`vr-cam-btn-blur`}
+                tabIndex={0}
+                disabled={disabled}
+                ref={ref => { inputElementsRef.current[0] = ref; }}
+                onClick={() => _virtualBgSelected(EFFECT_TYPES.BLUR_TYPE, 'Blur', 0)}
+              >
+                <img aria-hidden className={styles.bgImage} src={getVirtualBackgroundThumbnail(BLUR_FILENAME)} />
+              </div>
+              <div aria-hidden className="sr-only" id={`vr-cam-btn-blur`}>
+                {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: EFFECT_TYPES.BLUR_TYPE })}
+              </div>
+            </>
           </TooltipContainer>
 
           {IMAGE_NAMES.map((imageName, index) => (
             <TooltipContainer
-              title={intl.formatMessage(
-                intlMessages.thumbnailLabel,
-                ({ 0: imageName }),
-              )}
+              title={capitalizeFirstLetter(imageName.split('.').shift())}
               key={`${imageName}-${index}`}
             >
-              <input
-                type="image"
-                className={styles.virtualBackgroundItem}
-                alt="image-input"
-                aria-label={imageName}
-                src={getVirtualBackgroundThumbnail(imageName)}
-                ref={ref => inputElementsRef.current[index + 1] = ref}
-                onClick={() => _virtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, imageName, index + 1)}
-                disabled={disabled}
-              />
+              <>
+                <div
+                  tabIndex={0}
+                  role="button"
+                  className={styles.virtualBackgroundItem}
+                  aria-label={capitalizeFirstLetter(imageName.split('.').shift())}
+                  aria-describedby={`vr-cam-btn-${index}`}
+                  ref={ref => inputElementsRef.current[index + 1] = ref}
+                  onClick={() => _virtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, imageName, index + 1)}
+                  disabled={disabled}
+                >
+                  <img aria-hidden className={styles.bgImage} src={getVirtualBackgroundThumbnail(imageName)} />
+                </div>
+                <div aria-hidden className="sr-only" id={`vr-cam-btn-${index}`}>
+                  {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: capitalizeFirstLetter(imageName.split('.').shift()) })}
+                </div>
+            </>
             </TooltipContainer>
           ))}
+
         </div>
       </div>
     );
