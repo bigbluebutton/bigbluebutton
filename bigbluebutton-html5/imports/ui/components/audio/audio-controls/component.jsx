@@ -131,7 +131,7 @@ class AudioControls extends PureComponent {
         ghost={!inAudio}
         icon={joinIcon}
         size="lg"
-        circle        
+        circle
         accessKey={inAudio ? shortcuts.leaveaudio : shortcuts.joinaudio}
       />
     );
@@ -157,7 +157,8 @@ class AudioControls extends PureComponent {
       if (_enableDynamicDeviceSelection) {
         return AudioControls.renderLeaveButtonWithLiveStreamSelector(this
           .props);
-      }      
+      }
+
       return this.renderLeaveButtonWithoutLiveStreamSelector();
     }
 
@@ -188,7 +189,7 @@ class AudioControls extends PureComponent {
         className={cx(styles.muteToggle, !talking || styles.glow, !muted || styles.btn)}
         onClick={handleToggleMuteMicrophone}
         disabled={disable}
-        hideLabel    
+        hideLabel
         label={label}
         aria-label={label}
         color={!muted ? 'primary' : 'default'}
