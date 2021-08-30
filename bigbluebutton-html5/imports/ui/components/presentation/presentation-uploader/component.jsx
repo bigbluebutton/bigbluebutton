@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
+import { TAB } from '/imports/utils/keyCodes';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/button/component';
 import Checkbox from '/imports/ui/components/checkbox/component';
@@ -18,7 +19,6 @@ const { isMobile } = deviceInfo;
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
-  defaultFileName: PropTypes.string.isRequired,
   handleSave: PropTypes.func.isRequired,
   dispatchTogglePresentationDownloadable: PropTypes.func.isRequired,
   fileValidMimeTypes: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -248,35 +248,44 @@ class PresentationUploader extends Component {
     // utilities
     this.deepMergeUpdateFileKey = this.deepMergeUpdateFileKey.bind(this);
     this.updateFileKey = this.updateFileKey.bind(this);
-    this.isDefault = this.isDefault.bind(this);
   }
 
   componentDidUpdate(prevProps) {
     const { isOpen, presentations: propPresentations } = this.props;
     const { presentations } = this.state;
-    //Updates presentation list when chat modal opens to avoid missing presentations
+    // Updates presentation list when chat modal opens to avoid missing presentations
     if (isOpen && !prevProps.isOpen) {
+      const  focusableElements =
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+      const modal = document.getElementById('upload-modal');
+      const firstFocusableElement = modal?.querySelectorAll(focusableElements)[0];
+      const focusableContent = modal?.querySelectorAll(focusableElements);
+      const lastFocusableElement = focusableContent[focusableContent.length - 1];
+      
+      firstFocusableElement.focus();
+  
+      modal.addEventListener('keydown', function(e) {
+        let tab = e.key === 'Tab' || e.keyCode === TAB;
+        if (!tab) return;
+        if (e.shiftKey) {
+          if (document.activeElement === firstFocusableElement) {
+            lastFocusableElement.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === lastFocusableElement) {
+            firstFocusableElement.focus();
+            e.preventDefault();
+          }
+        }
+      });
+
       this.setState({
         presentations: Object.values({
           ...propPresentations,
           ...presentations,
         }),
       });
-    }
-
-    // cleared local presetation state errors and set to presentations available on the server
-    if (presentations.length === 0 && propPresentations.length > 1) {
-      return this.setState({ presentations: propPresentations });
-    }
-
-    // Only presentation available is the default coming from the server.
-    // set as selectedToBeNextCurrentOnConfirm once upload / coversion complete
-    if (presentations.length === 0 && propPresentations.length === 1) {
-      if (propPresentations[0].upload.done && propPresentations[0].conversion.done) {
-        return this.setState({
-          presentations: propPresentations,
-        }, Session.set('selectedToBeNextCurrent', propPresentations[0].id));
-      }
     }
 
     if (presentations.length > 0) {
@@ -297,12 +306,6 @@ class PresentationUploader extends Component {
 
   componentWillUnmount() {
     Session.set('showUploadPresentationView', false);
-  }
-
-  isDefault(presentation) {
-    const { defaultFileName } = this.props;
-    return presentation.filename === defaultFileName
-      && !presentation.id.includes(defaultFileName);
   }
 
   handleDismissToast() {
@@ -391,11 +394,12 @@ class PresentationUploader extends Component {
       }),
     }, () => {
       const { presentations: updatedPresentations, oldCurrentId } = this.state;
+      const commands = {};
+
       const currentIndex = updatedPresentations.findIndex((p) => p.isCurrent);
       const actualCurrentIndex = updatedPresentations.findIndex((p) => p.id === oldCurrentId);
 
       if (currentIndex === -1 && updatedPresentations.length > 0) {
-        const commands = {};
         const newCurrentIndex = actualCurrentIndex === -1 ? 0 : actualCurrentIndex;
         commands[newCurrentIndex] = {
           $apply: (presentation) => {
@@ -404,10 +408,10 @@ class PresentationUploader extends Component {
             return p;
           },
         };
-
-        const updatedCurrent = update(updatedPresentations, commands);
-        this.setState({ presentations: updatedCurrent });
       }
+
+      const updatedCurrent = update(updatedPresentations, commands);
+      this.setState({ presentations: updatedCurrent });
     });
   }
 
@@ -722,7 +726,8 @@ class PresentationUploader extends Component {
   renderPresentationItem(item) {
     const { disableActions, hasError: stateError } = this.state;
     const {
-      intl, selectedToBeNextCurrent,
+      intl,
+      selectedToBeNextCurrent,
     } = this.props;
 
     const isActualCurrent = selectedToBeNextCurrent ? item.id === selectedToBeNextCurrent : item.isCurrent;
@@ -743,7 +748,6 @@ class PresentationUploader extends Component {
       [styles.tableItemAnimated]: isProcessing,
     };
 
-    const hideRemove = this.isDefault(item);
     const formattedDownloadableLabel = !item.isDownloadable
       ? intl.formatMessage(intlMessages.isDownloadable)
       : intl.formatMessage(intlMessages.isNotDownloadable);
@@ -799,18 +803,16 @@ class PresentationUploader extends Component {
               onChange={() => this.handleCurrentChange(item.id)}
               disabled={disableActions}
             />
-            {hideRemove ? null : (
-              <Button
-                disabled={disableActions}
-                className={cx(styles.itemAction, styles.itemActionRemove)}
-                label={intl.formatMessage(intlMessages.removePresentation)}
-                aria-label={`${intl.formatMessage(intlMessages.removePresentation)} ${item.filename}`}
-                size="sm"
-                icon="delete"
-                hideLabel
-                onClick={() => this.handleRemove(item)}
-              />
-            )}
+            <Button
+              disabled={disableActions}
+              className={cx(styles.itemAction, styles.itemActionRemove)}
+              label={intl.formatMessage(intlMessages.removePresentation)}
+              aria-label={`${intl.formatMessage(intlMessages.removePresentation)} ${item.filename}`}
+              size="sm"
+              icon="delete"
+              hideLabel
+              onClick={() => this.handleRemove(item)}
+            />
           </td>
         )}
       </tr>
@@ -977,7 +979,7 @@ class PresentationUploader extends Component {
     });
 
     return isOpen ? (
-      <div className={styles.modal}>
+      <div id="upload-modal" className={styles.modal}>
         <div
           className={styles.modalInner}
         >

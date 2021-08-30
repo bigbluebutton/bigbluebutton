@@ -27,6 +27,8 @@ const propTypes = {
   isFullscreen: PropTypes.bool,
   elementName: PropTypes.string,
   className: PropTypes.string,
+  color: PropTypes.string,
+  fullScreenStyle: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -36,6 +38,8 @@ const defaultProps = {
   isFullscreen: false,
   elementName: '',
   className: '',
+  color: 'default',
+  fullScreenStyle: true,
 };
 
 const FullscreenButtonComponent = ({
@@ -51,6 +55,8 @@ const FullscreenButtonComponent = ({
   layoutContextDispatch,
   currentElement,
   currentGroup,
+  color,
+  fullScreenStyle,
 }) => {
   if (isIphone) return null;
 
@@ -86,16 +92,22 @@ const FullscreenButtonComponent = ({
     });
   };
 
+  const buttonClassName = cx({
+    [styles.button]: fullScreenStyle,
+    [styles.fullScreenButton]: fullScreenStyle,
+    [className]: true,
+  });
+
   return (
     <div className={wrapperClassName}>
       <Button
-        color="default"
+        color={color || 'default'}
         icon={!isFullscreen ? 'fullscreen' : 'exit_fullscreen'}
         size="sm"
         onClick={() => handleClick()}
         label={formattedLabel(isFullscreen)}
         hideLabel
-        className={cx(styles.button, styles.fullScreenButton, className)}
+        className={buttonClassName}
         data-test="presentationFullscreenButton"
       />
     </div>

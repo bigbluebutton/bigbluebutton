@@ -88,6 +88,8 @@ public class ParamsProcessorUtil {
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultKeepEvents = false;
+    private Boolean useDefaultLogo;
+    private String defaultLogoURL;
 
 		private boolean defaultBreakoutRoomsEnabled;
 		private boolean defaultBreakoutRoomsRecord;
@@ -579,6 +581,8 @@ public class ParamsProcessorUtil {
 
 		if (!StringUtils.isEmpty(params.get(ApiParams.LOGO))) {
 			meeting.setCustomLogoURL(params.get(ApiParams.LOGO));
+		} else if (this.getUseDefaultLogo()) {
+			meeting.setCustomLogoURL(this.getDefaultLogoURL());
 		}
 
 		if (!StringUtils.isEmpty(params.get(ApiParams.COPYRIGHT))) {
@@ -627,6 +631,14 @@ public class ParamsProcessorUtil {
 	public String getDefaultGuestWaitURL() {
 		return defaultGuestWaitURL;
         }
+
+	public Boolean getUseDefaultLogo() {
+		return useDefaultLogo;
+	}
+
+	public String getDefaultLogoURL() {
+		return defaultLogoURL;
+	}
 
 	public Boolean getAllowRequestsWithoutSession() {
 		return allowRequestsWithoutSession;
@@ -915,6 +927,14 @@ public class ParamsProcessorUtil {
 	public void setDefaultGuestWaitURL(String url) {
 		this.defaultGuestWaitURL = url;
         }
+
+	public void setUseDefaultLogo(Boolean value) {
+		this.useDefaultLogo = value;
+	}
+
+	public void setDefaultLogoURL(String url) {
+		this.defaultLogoURL = url;
+	}
 
 	public void setAllowRequestsWithoutSession(Boolean allowRequestsWithoutSession) {
 		this.allowRequestsWithoutSession = allowRequestsWithoutSession;

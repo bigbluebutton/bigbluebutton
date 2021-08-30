@@ -66,7 +66,7 @@ class BreakoutJoinConfirmation extends Component {
 
     this.state = {
       selectValue: props.breakout.breakoutId,
-      waiting: false,
+      waiting: true,
     };
 
     this.handleJoinBreakoutConfirmation = this.handleJoinBreakoutConfirmation.bind(this);
@@ -77,17 +77,21 @@ class BreakoutJoinConfirmation extends Component {
   componentDidMount() {
     const {
       isFreeJoin,
-      requestJoinURL,
-      getURL,
     } = this.props;
 
     const {
       selectValue,
     } = this.state;
 
-    if (isFreeJoin && !getURL(selectValue)) {
-      requestJoinURL(selectValue);
+    if (isFreeJoin) {
+      this.fetchJoinURL(selectValue);
+    } else {
+      this.setState({ waiting: false });
     }
+  }
+
+  componentWillUnmount() {
+    if (interval) clearInterval(interval);
   }
 
   handleJoinBreakoutConfirmation() {
@@ -129,35 +133,40 @@ class BreakoutJoinConfirmation extends Component {
     mountModal(null);
   }
 
-  async handleSelectChange(e) {
-    const { value } = e.target;
+  async fetchJoinURL(selectValue) {
     const {
       requestJoinURL,
       getURL,
     } = this.props;
 
-    this.setState({ selectValue: value });
-    if (!getURL(value)) {
-      requestJoinURL(value);
+    this.setState({ selectValue });
 
-      this.setState({
-        waiting: true,
-      })
+    if (!getURL(selectValue)) {
+      requestJoinURL(selectValue);
+
+      this.setState({ waiting: true });
+
       await new Promise((resolve) => {
 
         interval = setInterval(() => {
-          const temp = getURL(value);
-          if (temp !== "") {
+          const url = getURL(selectValue);
 
+          if (url !== "") {
             resolve();
-            clearInterval(interval)
-            this.setState({
-              waiting: false,
-            })
+            clearInterval(interval);
+            this.setState({ waiting: false });
           }
         }, 1000)
       })
+    } else {
+      this.setState({ waiting: false });
     }
+  }
+
+  handleSelectChange(e) {
+    const { value } = e.target;
+
+    this.fetchJoinURL(value);
   }
 
   renderSelectMeeting() {
