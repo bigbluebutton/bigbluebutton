@@ -1,9 +1,9 @@
 import React, { useState, useRef } from 'react';
+import { findDOMNode } from 'react-dom';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { styles } from './styles';
 import Button from '/imports/ui/components/button/component';
-import TooltipContainer from '/imports/ui/components/tooltip/container';
 import {
   EFFECT_TYPES,
   BLUR_FILENAME,
@@ -73,7 +73,7 @@ const VirtualBgSelector = ({
         }
 
         if (index >= 0) {
-          inputElementsRef.current[index].focus();
+          findDOMNode(inputElementsRef.current[index]).focus();
         }
         return setCurrentVirtualBg({ type, name });
       });
@@ -137,50 +137,51 @@ const VirtualBgSelector = ({
             </div>
           </>
 
-          <TooltipContainer title={intl.formatMessage(intlMessages.blurLabel)} key={`blur-0`}>
-            <>
-              <div
-                role="button"
-                className={styles.virtualBackgroundItem}
-                aria-label={EFFECT_TYPES.BLUR_TYPE}
-                aria-describedby={`vr-cam-btn-blur`}
-                tabIndex={0}
-                disabled={disabled}
-                ref={ref => { inputElementsRef.current[0] = ref; }}
-                onClick={() => _virtualBgSelected(EFFECT_TYPES.BLUR_TYPE, 'Blur', 0)}
-              >
-                <img aria-hidden className={styles.bgImage} src={getVirtualBackgroundThumbnail(BLUR_FILENAME)} />
-              </div>
-              <div aria-hidden className="sr-only" id={`vr-cam-btn-blur`}>
-                {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: EFFECT_TYPES.BLUR_TYPE })}
-              </div>
-            </>
-          </TooltipContainer>
+          <>
+            <Button
+              style={{ backgroundImage: `url('${getVirtualBackgroundThumbnail(BLUR_FILENAME)}')` }}
+              className={styles.virtualBackgroundItem}
+              aria-label={EFFECT_TYPES.BLUR_TYPE}
+              label={capitalizeFirstLetter(EFFECT_TYPES.BLUR_TYPE)}
+              aria-describedby={`vr-cam-btn-blur`}
+              tabIndex={0}
+              hideLabel
+              disabled={disabled}
+              ref={ref => { inputElementsRef.current[0] = ref; }}
+              onClick={() => _virtualBgSelected(EFFECT_TYPES.BLUR_TYPE, 'Blur', 0)}
+            />
+            <div aria-hidden className="sr-only" id={`vr-cam-btn-blur`}>
+              {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: EFFECT_TYPES.BLUR_TYPE })}
+            </div>
+          </>
 
-          {IMAGE_NAMES.map((imageName, index) => (
-            <TooltipContainer
-              title={capitalizeFirstLetter(imageName.split('.').shift())}
-              key={`${imageName}-${index}`}
-            >
-              <>
-                <div
+          {IMAGE_NAMES.map((imageName, index) => {
+            return (
+              <div key={`${imageName}-${index}`} style={{ position: 'relative' }}>
+                <Button
+                  id={`${imageName}-${index}`}
+                  label={capitalizeFirstLetter(imageName.split('.').shift())}
                   tabIndex={0}
                   role="button"
                   className={styles.virtualBackgroundItem}
                   aria-label={capitalizeFirstLetter(imageName.split('.').shift())}
                   aria-describedby={`vr-cam-btn-${index}`}
+                  hideLabel
                   ref={ref => inputElementsRef.current[index + 1] = ref}
                   onClick={() => _virtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, imageName, index + 1)}
                   disabled={disabled}
-                >
-                  <img aria-hidden className={styles.bgImage} src={getVirtualBackgroundThumbnail(imageName)} />
-                </div>
+                />
+                <img onClick={() => {
+                  const node = findDOMNode(inputElementsRef.current[index + 1]);
+                  node.focus();
+                  node.click();
+                }} aria-hidden className={styles.thumbnail} src={getVirtualBackgroundThumbnail(imageName)} />
                 <div aria-hidden className="sr-only" id={`vr-cam-btn-${index}`}>
                   {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: capitalizeFirstLetter(imageName.split('.').shift()) })}
                 </div>
-            </>
-            </TooltipContainer>
-          ))}
+              </div>
+            )
+          })}
 
         </div>
       </div>

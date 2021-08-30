@@ -1,5 +1,14 @@
 @import "/imports/ui/components/video-preview/styles";
 
+.thumbnail {
+  width: 47px;
+  height: 47px;
+  position: absolute;
+  cursor: pointer;
+  top: 1px;
+  left: 2px;
+}
+
 .virtualBackgroundRowDropdown {
   input {
     border-radius: 0.3rem;
@@ -54,6 +63,6 @@
 .bgNone,
 .bgImage {
   border-radius: 3px;
-  height: 46px;
-  width: 46px;
+  height: 48px;
+  width: 48px;
 }
