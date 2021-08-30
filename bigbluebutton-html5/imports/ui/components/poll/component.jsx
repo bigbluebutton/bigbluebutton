@@ -707,7 +707,7 @@ class Poll extends Component {
 
     if (!currentSlide) return this.renderNoSlidePanel();
 
-    if (isPolling || (!isPolling && currentPoll)) {
+    if (isPolling || currentPoll) {
       return this.renderActivePollOptions();
     }
 

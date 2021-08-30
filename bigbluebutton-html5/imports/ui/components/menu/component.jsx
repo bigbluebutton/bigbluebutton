@@ -93,7 +93,7 @@ class BBBMenu extends React.Component {
     if (wide) menuClasses.push(styles.wide);
 
     return (
-      <div>
+      <>
         <div onClick={this.handleClick} accessKey={this.props?.accessKey}>{trigger}</div>
         <Menu
           {...opts}
@@ -113,7 +113,7 @@ class BBBMenu extends React.Component {
             />
           }
         </Menu>
-      </div>
+      </>
     );
   }
 }
