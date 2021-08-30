@@ -37,12 +37,16 @@ const defaultProps = {
 
 const ButtonEmoji = (props) => {
   const {
+    hideLabel,
+    ...newProps
+  } = props;
+
+  const {
     emoji,
     label,
     tabIndex,
-    hideLabel,
     onClick,
-  } = props;
+  } = newProps;
 
   const IconComponent = (
     <Icon
@@ -55,8 +59,9 @@ const ButtonEmoji = (props) => {
     <span>
       <TooltipContainer title={label}>
         <button
+          type="button"
           tabIndex={tabIndex}
-          {...props}
+          {...newProps}
           className={styles.emojiButton}
           aria-label={label}
           onClick={onClick}

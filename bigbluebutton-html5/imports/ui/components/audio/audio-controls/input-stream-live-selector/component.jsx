@@ -219,6 +219,7 @@ class InputStreamLiveSelector extends Component {
         label: title,
         disabled: true,
         dividerTop: (!renderSeparator),
+        onClick: () => {},
       },
     ];
     const deviceList = (listLength > 0)
@@ -238,6 +239,7 @@ class InputStreamLiveSelector extends Component {
             ? intl.formatMessage(intlMessages.loading)
             : intl.formatMessage(intlMessages.noDeviceFound),
           className: styles.disableDeviceSelection,
+          onClick: () => {},
         },
       ];
     return listTitle.concat(deviceList);
