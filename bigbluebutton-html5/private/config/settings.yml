@@ -92,9 +92,9 @@ public:
     #
     # Shows stats about download and upload rates, audio jitter, lost packets
     # and turn information
-    enableNetworkStats: false
+    enableNetworkStats: true
     # Enable the button to allow users to copy network stats to clipboard
-    enableCopyNetworkStatsButton: false
+    enableCopyNetworkStatsButton: true
     defaultSettings:
       application:
         animations: true
@@ -728,4 +728,3 @@ private:
       version: 10
     - browser: YandexBrowser
       version: 19
-
