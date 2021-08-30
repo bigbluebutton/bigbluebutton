@@ -272,7 +272,7 @@ class MeetingEnded extends PureComponent {
                         <Button
                           icon="multi_whiteboard"
                           color="default"
-                          onClick={LearningDashboardService.openLearningDashboardUrl(locale)}
+                          onClick={() => LearningDashboardService.openLearningDashboardUrl(locale)}
                           className={styles.button}
                           label={intl.formatMessage(intlMessage.open_activity_report_btn)}
                           description={intl.formatMessage(intlMessage.open_activity_report_btn)}
