@@ -115,6 +115,10 @@ class Tooltip extends Component {
     if (elem && elem._tippy) elem._tippy.setProps(opts);
   }
 
+  componentWillUnmount() {
+    if (this.tooltip[0]) this.tooltip[0].hide();
+  }
+
   onShow() {
     document.addEventListener('keyup', this.handleEscapeHide);
   }
