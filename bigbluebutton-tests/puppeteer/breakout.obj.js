@@ -29,7 +29,7 @@ const breakoutTest = () => {
       screenshot = await page2[2].screenshot();
       await test.page1.logger('end of ', testName);
     } catch (err) {
-      await test.logger(err);
+      await test.page1.logger(err);
     } finally {
       await test.close();
     }
@@ -56,7 +56,7 @@ const breakoutTest = () => {
       screenshot = await page2[2].screenshot();
       await test.page1.logger('end of ', testName);
     } catch (err) {
-      await test.logger(err);
+      await test.page1.logger(err);
     } finally {
       await test.close();
     }
@@ -83,7 +83,7 @@ const breakoutTest = () => {
       screenshot = await page2[2].screenshot();
       await test.page1.logger('end of ', testName);
     } catch (err) {
-      await test.logger(err);
+      await test.page1.logger(err);
     } finally {
       await test.close();
     }
@@ -110,7 +110,7 @@ const breakoutTest = () => {
       screenshot = await page2[2].screenshot();
       await test.page1.logger('end of ', testName);
     } catch (err) {
-      await test.logger(err);
+      await test.page1.logger(err);
     } finally {
       await test.close();
     }
@@ -137,7 +137,7 @@ const breakoutTest = () => {
       screenshot = await page2[2].screenshot();
       await test.page1.logger('end of ', testName);
     } catch (err) {
-      await test.logger(err);
+      await test.page1.logger(err);
     } finally {
       await test.close();
     }
