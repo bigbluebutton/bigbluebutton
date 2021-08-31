@@ -1,6 +1,5 @@
 declare -A DEBNAME_TO_SOURCEDIR
 
-DEBNAME_TO_SOURCEDIR[bbb-activity-report]="bbb-activity-report"
 DEBNAME_TO_SOURCEDIR[bbb-apps-akka]="akka-bbb-apps bbb-common-message"
 DEBNAME_TO_SOURCEDIR[bbb-config]="bigbluebutton-config"
 DEBNAME_TO_SOURCEDIR[bbb-demo]="bbb-api-demo"
@@ -9,6 +8,7 @@ DEBNAME_TO_SOURCEDIR[bbb-freeswitch-core]="freeswitch"
 DEBNAME_TO_SOURCEDIR[bbb-freeswitch-sounds]="do_not_copy_anything"
 DEBNAME_TO_SOURCEDIR[bbb-fsesl-akka]="akka-bbb-fsesl bbb-common-message bbb-fsesl-client"
 DEBNAME_TO_SOURCEDIR[bbb-html5]="bigbluebutton-html5"
+DEBNAME_TO_SOURCEDIR[bbb-learning-dashboard]="bbb-learning-dashboard"
 DEBNAME_TO_SOURCEDIR[bbb-libreoffice-docker]="bbb-libreoffice"
 DEBNAME_TO_SOURCEDIR[bbb-lti]="bbb-lti"
 DEBNAME_TO_SOURCEDIR[bbb-mkclean]="do_not_copy_anything"
