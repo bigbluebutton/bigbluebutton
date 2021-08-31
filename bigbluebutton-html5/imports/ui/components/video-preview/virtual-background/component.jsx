@@ -134,6 +134,7 @@ const VirtualBgSelector = ({
               label={intl.formatMessage(intlMessages.noneLabel)}
               aria-describedby={`vr-cam-btn-none`}
               hideLabel
+              tabIndex={disabled ? -1 : 0}
               disabled={disabled}
               onClick={() => _virtualBgSelected(EFFECT_TYPES.NONE_TYPE)}
             />
@@ -149,7 +150,7 @@ const VirtualBgSelector = ({
               aria-label={EFFECT_TYPES.BLUR_TYPE}
               label={capitalizeFirstLetter(EFFECT_TYPES.BLUR_TYPE)}
               aria-describedby={`vr-cam-btn-blur`}
-              tabIndex={0}
+              tabIndex={disabled ? -1 : 0}
               hideLabel
               disabled={disabled}
               ref={ref => { inputElementsRef.current[0] = ref; }}
@@ -166,7 +167,7 @@ const VirtualBgSelector = ({
                 <Button
                   id={`${imageName}-${index}`}
                   label={capitalizeFirstLetter(imageName.split('.').shift())}
-                  tabIndex={0}
+                  tabIndex={disabled ? -1 : 0}
                   role="button"
                   className={thumbnailStyles.join(' ')}
                   aria-label={capitalizeFirstLetter(imageName.split('.').shift())}
