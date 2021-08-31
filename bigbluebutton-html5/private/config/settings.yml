@@ -208,6 +208,11 @@ public:
       # Experimental. True is the canonical behavior. Flip to false to reverse
       # the negotiation flow for subscribers.
       subscriberOffering: true
+      # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
+      # media server adapter should be used for screen sharing.
+      # Default is undefined, which means the default setting in bbb-webrtc-sfu
+      # prevails (screenshareMediaServer).
+      #mediaServer: Kurento
       bitrate: 1500
       mediaTimeouts:
         maxConnectionAttempts: 2
@@ -307,6 +312,16 @@ public:
     enableVideo: true
     enableVideoMenu: true
     enableListenOnly: true
+    # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
+    # media server adapter should be used for listen only.
+    # Default is undefined, which means the default setting in bbb-webrtc-sfu
+    # prevails (listenOnlyMediaServer).
+    #listenOnlyMediaServer: Kurento
+    # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
+    # media server adapter should be used for webcams.
+    # Default is undefined, which means the default setting in bbb-webrtc-sfu
+    # prevails (videoMediaServer).
+    #videoMediaServer: Kurento
     autoShareWebcam: false
     skipVideoPreview: false
     skipVideoPreviewOnFirstJoin: false

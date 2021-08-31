@@ -24,7 +24,7 @@ class ScreenshareBroker extends BaseBroker {
     this.hasAudio = false;
     this.offering = true;
 
-    // Optional parameters are: userName, caleeName, iceServers, hasAudio, bitrate, offering
+    // Optional parameters are: userName, caleeName, iceServers, hasAudio, bitrate, offering, mediaServer
     Object.assign(this, options);
   }
 
@@ -126,6 +126,7 @@ class ScreenshareBroker extends BaseBroker {
       sdpOffer: offer,
       hasAudio: !!this.hasAudio,
       bitrate: this.bitrate,
+      mediaServer: this.mediaServer,
     };
 
     this.sendMessage(message);

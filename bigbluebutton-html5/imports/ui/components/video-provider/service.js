@@ -19,6 +19,7 @@ import {
   getSortingMethod,
   sortVideoStreams,
 } from '/imports/ui/components/video-provider/stream-sorting';
+import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
 const MULTIPLE_CAMERAS = Meteor.settings.public.app.enableMultipleCameras;
@@ -41,6 +42,7 @@ const {
   paginationSorting: PAGINATION_SORTING,
   defaultSorting: DEFAULT_SORTING,
 } = Meteor.settings.public.kurento.cameraSortingModes;
+const DEFAULT_VIDEO_MEDIA_SERVER = Meteor.settings.public.kurento.videoMediaServer;
 
 const FILTER_VIDEO_STATS = [
   'outbound-rtp',
@@ -473,6 +475,10 @@ class VideoService {
     return streams.find(s => s.stream === stream);
   }
 
+  getMediaServerAdapter() {
+    return getFromMeetingSettings('media-server-video', DEFAULT_VIDEO_MEDIA_SERVER);
+  }
+
   getMyRole () {
     return Users.findOne({ userId: Auth.userID },
       { fields: { role: 1 } })?.role;
@@ -489,12 +495,7 @@ class VideoService {
     // meta_hack-record-viewer-video is 'false' this user won't have this video
     // stream recorded.
     if (this.hackRecordViewer === null) {
-      const prop = Meetings.findOne(
-        { meetingId: Auth.meetingID },
-        { fields: { 'metadataProp': 1 } },
-      ).metadataProp;
-
-      const value = prop.metadata ? prop.metadata['hack-record-viewer-video'] : null;
+      const value = getFromMeetingSettings('hack-record-viewer-video', null);
       this.hackRecordViewer = value ? value.toLowerCase() === 'true' : true;
     }
 
@@ -923,6 +924,7 @@ export default {
   addCandidateToPeer: (peer, candidate, cameraId) => videoService.addCandidateToPeer(peer, candidate, cameraId),
   processInboundIceQueue: (peer, cameraId) => videoService.processInboundIceQueue(peer, cameraId),
   getRole: isLocal => videoService.getRole(isLocal),
+  getMediaServerAdapter: () => videoService.getMediaServerAdapter(),
   getRecord: () => videoService.getRecord(),
   getSharedDevices: () => videoService.getSharedDevices(),
   getUserParameterProfile: () => videoService.getUserParameterProfile(),

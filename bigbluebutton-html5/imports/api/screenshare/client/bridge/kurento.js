@@ -224,6 +224,7 @@ export default class KurentoScreenshareBridge {
       userName: Auth.fullname,
       hasAudio,
       offering: OFFERING,
+      mediaServer: BridgeService.getMediaServerAdapter(),
     };
 
     this.broker = new ScreenshareBroker(
@@ -282,6 +283,7 @@ export default class KurentoScreenshareBridge {
         hasAudio: this.hasAudio,
         bitrate: BridgeService.BASE_BITRATE,
         offering: true,
+        mediaServer: BridgeService.getMediaServerAdapter(),
       };
 
       this.broker = new ScreenshareBroker(
