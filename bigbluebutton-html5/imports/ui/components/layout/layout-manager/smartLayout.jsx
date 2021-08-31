@@ -336,7 +336,9 @@ class SmartLayout extends Component {
 
   calculatesCameraDockBounds(mediaAreaBounds, mediaBounds, sidebarSize) {
     const { layoutContextState } = this.props;
-    const { input, fullscreen, isRTL, deviceType } = layoutContextState;
+    const {
+      input, fullscreen, isRTL, deviceType,
+    } = layoutContextState;
     const { presentation } = input;
     const { isOpen } = presentation;
     const { camerasMargin, presentationToolbarMinWidth } = DEFAULT_VALUES;
@@ -431,14 +433,13 @@ class SmartLayout extends Component {
 
   calculatesMediaBounds(mediaAreaBounds, slideSize, sidebarSize) {
     const { layoutContextState } = this.props;
-    const { input, fullscreen, isRTL } = layoutContextState;
+    const {
+      input, fullscreen, isRTL, deviceType,
+    } = layoutContextState;
     const { presentation } = input;
     const { isOpen } = presentation;
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
-    const { camerasMargin } = DEFAULT_VALUES;
-
-    // TODO Adicionar min e max para a apresentação
 
     if (!isOpen) {
       mediaBounds.width = 0;
@@ -462,7 +463,7 @@ class SmartLayout extends Component {
 
     if (input.cameraDock.numCameras > 0 && !input.cameraDock.isDragging) {
       if (slideSize.width !== 0 && slideSize.height !== 0) {
-        if (slideSize.width < mediaAreaBounds.width) {
+        if (slideSize.width < mediaAreaBounds.width && deviceType !== DEVICE_TYPE.MOBILE) {
           if (slideSize.width < (mediaAreaBounds.width * 0.8)) {
             mediaBounds.width = slideSize.width;
           } else {
@@ -512,7 +513,7 @@ class SmartLayout extends Component {
   calculatesLayout() {
     const { layoutContextState, layoutContextDispatch } = this.props;
     const { deviceType, input, isRTL } = layoutContextState;
-    const { camerasMargin } = DEFAULT_VALUES;
+    const { camerasMargin, captionsMargin } = DEFAULT_VALUES;
 
     const sidebarNavWidth = this.calculatesSidebarNavWidth();
     const sidebarNavHeight = this.calculatesSidebarNavHeight();
@@ -560,6 +561,15 @@ class SmartLayout extends Component {
         padding: actionbarBounds.padding,
         tabOrder: DEFAULT_VALUES.actionBarTabOrder,
         zIndex: actionbarBounds.zIndex,
+      },
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_CAPTIONS_OUTPUT,
+      value: {
+        left: !isRTL ? (mediaBounds.left + captionsMargin) : null,
+        right: isRTL ? (mediaBounds.right + captionsMargin) : null,
+        maxWidth: mediaBounds.width - (captionsMargin * 2),
       },
     });
 

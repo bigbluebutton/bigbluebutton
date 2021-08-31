@@ -9,8 +9,7 @@ const ple = require('../polling/elemens');
 const we = require('../whiteboard/elements');
 const ue = require('./elements');
 const cu = require('../customparameters/elements');
-const pre = require('../presentation/elements');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const { sleep } = require('../core/helper');
 
 class MultiUsers {
@@ -158,10 +157,9 @@ class MultiUsers {
       }
       await this.page1.waitForSelector(ple.publishLabel, ELEMENT_WAIT_TIME);
       await this.page1.click(ple.publishLabel, true);
-      await sleep(2000);
+      await this.page1.waitForSelector(ple.restartPoll, ELEMENT_WAIT_TIME);
       const receivedAnswerFound = await this.page1.page.evaluate(utilCustomParams.countTestElements, ple.receivedAnswer);
-      await sleep(2000);
-      return receivedAnswerFound === true;
+      return receivedAnswerFound;
     } catch (err) {
       await this.page1.logger(err);
       return false;

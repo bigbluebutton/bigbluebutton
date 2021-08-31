@@ -74,7 +74,7 @@ const getAvailableQuickPolls = (
       itemLabel = options.join('/').replace(/[\n.)]/g, '');
       if (type === pollTypes.Custom) {
         for (let i = 0; i < options.length; i += 1) {
-          const letterOption = options[i].replace(/[\r.)]/g, '');
+          const letterOption = options[i].replace(/[\r.)]/g, '').toUpperCase();
           if (letterAnswers.length < MAX_CUSTOM_FIELDS) {
             letterAnswers.push(letterOption);
           } else {

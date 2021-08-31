@@ -1,5 +1,6 @@
 import React from 'react';
 import { FormattedMessage, injectIntl } from 'react-intl';
+import UserAvatar from './UserAvatar';
 
 class PollsTable extends React.Component {
   render() {
@@ -19,6 +20,15 @@ class PollsTable extends React.Component {
           <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-100">
             <th className="px-4 py-3">
               <FormattedMessage id="app.learningDashboard.pollsTable.colParticipant" defaultMessage="Participant" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 inline"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+              </svg>
             </th>
             {typeof polls === 'object' && Object.values(polls || {}).length > 0 ? (
               Object.values(polls || {}).map((poll, index) => <th className="px-4 py-3 text-center">{poll.question || `Poll ${index + 1}`}</th>)
@@ -34,28 +44,7 @@ class PollsTable extends React.Component {
                   <td className="px-4 py-3">
                     <div className="flex items-center text-sm">
                       <div className="relative hidden w-8 h-8 mr-3 rounded-full md:block">
-                        {/* <img className="object-cover w-full h-full rounded-full" */}
-                        {/*     src="" */}
-                        {/*     alt="" loading="lazy" /> */}
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="relative hidden w-8 h-8 mr-3 rounded-full md:block"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-
-                        <div
-                          className="absolute inset-0 rounded-full shadow-inner"
-                          aria-hidden="true"
-                        />
+                        <UserAvatar user={user} />
                       </div>
                       <div>
                         <p className="font-semibold">{user.name}</p>

@@ -34,6 +34,20 @@ const WebcamComponent = ({
   const isCameraSidebar = cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM;
 
   useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, []);
+
+  useEffect(() => {
     setIsFullScreen(fullscreen.group === 'webcams');
   }, [fullscreen]);
 
@@ -196,6 +210,10 @@ const WebcamComponent = ({
           onResizeStart={() => {
             setIsResizing(true);
             setResizeStart({ width: cameraDock.width, height: cameraDock.height });
+            layoutContextDispatch({
+              type: ACTIONS.SET_CAMERA_DOCK_IS_RESIZING,
+              value: true,
+            });
           }}
           onResize={(e, direction, ref, d) => {
             onResizeHandle(d.width, d.height);
@@ -209,6 +227,10 @@ const WebcamComponent = ({
             }
             setResizeStart({ width: 0, height: 0 });
             setTimeout(() => setIsResizing(false), 500);
+            layoutContextDispatch({
+              type: ACTIONS.SET_CAMERA_DOCK_IS_RESIZING,
+              value: false,
+            });
           }}
           enable={{
             top: !isFullscreen && !isDragging && !swapLayout && cameraDock.resizableEdge.top,

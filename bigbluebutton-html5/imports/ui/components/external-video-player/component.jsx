@@ -475,6 +475,7 @@ class VideoPlayer extends Component {
       right,
       height,
       width,
+      isResizing,
     } = this.props;
 
     const {
@@ -497,6 +498,7 @@ class VideoPlayer extends Component {
           right,
           height,
           width,
+          pointerEvents: isResizing ? 'none' : 'inherit',
         }}
       >
         <div

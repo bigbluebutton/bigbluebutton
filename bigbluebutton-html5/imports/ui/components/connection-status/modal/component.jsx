@@ -9,6 +9,8 @@ import Service from '../service';
 import Modal from '/imports/ui/components/modal/simple/component';
 import { styles } from './styles';
 
+const NETWORK_MONITORING_INTERVAL_MS = 2000;
+
 const intlMessages = defineMessages({
   ariaTitle: {
     id: 'app.connection-status.ariaTitle',
@@ -29,6 +31,22 @@ const intlMessages = defineMessages({
   more: {
     id: 'app.connection-status.more',
     description: 'More about conectivity issues',
+  },
+  audioLabel: {
+    id: 'app.settings.audioTab.label',
+    description: 'Audio label',
+  },
+  videoLabel: {
+    id: 'app.settings.videoTab.label',
+    description: 'Video label',
+  },
+  copy: {
+    id: 'app.connection-status.copy',
+    description: 'Copy network data',
+  },
+  copied: {
+    id: 'app.connection-status.copied',
+    description: 'Copied network data',
   },
   offline: {
     id: 'app.connection-status.offline',
@@ -53,6 +71,26 @@ const intlMessages = defineMessages({
   off: {
     id: 'app.switch.offLabel',
     description: 'label for toggle switch off state',
+  },
+  no: {
+    id: 'app.connection-status.no',
+    description: 'No to is using turn',
+  },
+  yes: {
+    id: 'app.connection-status.yes',
+    description: 'Yes to is using turn',
+  },
+  usingTurn: {
+    id: 'app.connection-status.usingTurn',
+    description: 'User is using turn server',
+  },
+  jitter: {
+    id: 'app.connection-status.jitter',
+    description: 'Jitter buffer in ms',
+  },
+  lostPackets: {
+    id: 'app.connection-status.lostPackets',
+    description: 'Number of lost packets',
   },
 });
 
@@ -80,15 +118,105 @@ class ConnectionStatusComponent extends PureComponent {
   constructor(props) {
     super(props);
 
+    const { intl } = this.props;
+
     this.help = Service.getHelp();
-    this.state = { dataSaving: props.dataSaving };
+    this.state = {
+      dataSaving: props.dataSaving,
+      hasNetworkData: false,
+      networkData: {
+        user: {
+
+        },
+        audio: {
+          audioCurrentUploadRate: 0,
+          audioCurrentDownloadRate: 0,
+          jitter: 0,
+          packetsLost: 0,
+          transportStats: {},
+        },
+        video: {
+          videoCurrentUploadRate: 0,
+          videoCurrentDownloadRate: 0,
+        },
+      },
+    };
     this.displaySettingsStatus = this.displaySettingsStatus.bind(this);
+    this.rateInterval = null;
+
+    this.audioLabel = (intl.formatMessage(intlMessages.audioLabel)).charAt(0);
+    this.videoLabel = (intl.formatMessage(intlMessages.videoLabel)).charAt(0);
+  }
+
+  async componentDidMount() {
+    this.startMonitoringNetwork();
+  }
+
+  componentWillUnmount() {
+    Meteor.clearInterval(this.rateInterval);
   }
 
   handleDataSavingChange(key) {
     const { dataSaving } = this.state;
     dataSaving[key] = !dataSaving[key];
     this.setState(dataSaving);
+  }
+
+  /**
+   * Start monitoring the network data.
+   * @return {Promise} A Promise that resolves when process started.
+   */
+  async startMonitoringNetwork() {
+    let previousData = await Service.getNetworkData();
+    this.rateInterval = Meteor.setInterval(async () => {
+      const data = await Service.getNetworkData();
+
+      const {
+        outbound: audioCurrentUploadRate,
+        inbound: audioCurrentDownloadRate,
+      } = Service.calculateBitsPerSecond(data.audio, previousData.audio);
+
+      const jitter = data.audio['inbound-rtp']
+        ? data.audio['inbound-rtp'].jitterBufferAverage
+        : 0;
+
+      const packetsLost = data.audio['inbound-rtp']
+        ? data.audio['inbound-rtp'].packetsLost
+        : 0;
+
+      const audio = {
+        audioCurrentUploadRate,
+        audioCurrentDownloadRate,
+        jitter,
+        packetsLost,
+        transportStats: data.audio.transportStats,
+      };
+
+      const {
+        outbound: videoCurrentUploadRate,
+        inbound: videoCurrentDownloadRate,
+      } = Service.calculateBitsPerSecondFromMultipleData(data.video,
+        previousData.video);
+
+      const video = {
+        videoCurrentUploadRate,
+        videoCurrentDownloadRate,
+      };
+
+      const { user } = data;
+
+      const networkData = {
+        user,
+        audio,
+        video,
+      };
+
+      previousData = data;
+      this.setState({
+        networkData,
+        hasNetworkData: true,
+      });
+    }, NETWORK_MONITORING_INTERVAL_MS);
   }
 
   renderEmpty() {
@@ -119,6 +247,35 @@ class ConnectionStatusComponent extends PureComponent {
           : intl.formatMessage(intlMessages.off)}
       </span>
     );
+  }
+
+  /**
+   * Copy network data to clipboard
+   * @param  {Object}  e              Event object from click event
+   * @return {Promise}   A Promise that is resolved after data is copied.
+   *
+   *
+   */
+  async copyNetworkData(e) {
+    const { intl } = this.props;
+    const {
+      networkData,
+      hasNetworkData,
+    } = this.state;
+
+    if (!hasNetworkData) return;
+
+    const { target: copyButton } = e;
+
+    copyButton.innerHTML = intl.formatMessage(intlMessages.copied);
+
+    const data = JSON.stringify(networkData, null, 2);
+
+    await navigator.clipboard.writeText(data);
+
+    this.copyNetworkDataTimeout = setTimeout(() => {
+      copyButton.innerHTML = intl.formatMessage(intlMessages.copy);
+    }, 1000);
   }
 
   renderConnections() {
@@ -250,6 +407,111 @@ class ConnectionStatusComponent extends PureComponent {
     );
   }
 
+  /**
+   * Render network data , containing information abount current upload and
+   * download rates
+   * @return {Object} The component to be renderized.
+   */
+  renderNetworkData() {
+    const { enableNetworkStats } = Meteor.settings.public.app;
+
+    if (!enableNetworkStats) {
+      return null;
+    }
+
+    const {
+      audioLabel,
+      videoLabel,
+    } = this;
+
+    const { intl } = this.props;
+
+    const { networkData } = this.state;
+
+    const {
+      audioCurrentUploadRate,
+      audioCurrentDownloadRate,
+      jitter,
+      packetsLost,
+      transportStats,
+    } = networkData.audio;
+
+    const {
+      videoCurrentUploadRate,
+      videoCurrentDownloadRate,
+    } = networkData.video;
+
+    let isUsingTurn = '--';
+
+    if (transportStats) {
+      switch (transportStats.isUsingTurn) {
+        case true:
+          isUsingTurn = intl.formatMessage(intlMessages.yes);
+          break;
+        case false:
+          isUsingTurn = intl.formatMessage(intlMessages.no);
+          break;
+        default:
+          break;
+      }
+    }
+
+    return (
+      <div className={styles.networkDataContainer}>
+        <div className={styles.networkData}>
+          {`↑${audioLabel}: ${audioCurrentUploadRate} k`}
+        </div>
+        <div className={styles.networkData}>
+          {`↓${audioLabel}: ${audioCurrentDownloadRate} k`}
+        </div>
+        <div className={styles.networkData}>
+          {`↑${videoLabel}: ${videoCurrentUploadRate} k`}
+        </div>
+        <div className={styles.networkData}>
+          {`↓${videoLabel}: ${videoCurrentDownloadRate} k`}
+        </div>
+        <div className={styles.networkData}>
+          {`${intl.formatMessage(intlMessages.jitter)}: ${jitter} ms`}
+        </div>
+        <div className={styles.networkData}>
+          {`${intl.formatMessage(intlMessages.lostPackets)}: ${packetsLost}`}
+        </div>
+        <div className={styles.networkData}>
+          {`${intl.formatMessage(intlMessages.usingTurn)}: ${isUsingTurn}`}
+        </div>
+      </div>
+    );
+  }
+
+  /**
+   * Renders the clipboard's copy button, for network stats.
+   * @return {Object} - The component to be renderized
+   */
+  renderCopyDataButton() {
+    const { enableCopyNetworkStatsButton } = Meteor.settings.public.app;
+
+    if (!enableCopyNetworkStatsButton) {
+      return null;
+    }
+
+    const { intl } = this.props;
+
+    const { hasNetworkData } = this.state;
+    return (
+      <div className={styles.copyContainer}>
+        <span
+          className={cx(styles.copy, !hasNetworkData ? styles.disabled : '')}
+          role="button"
+          onClick={this.copyNetworkData.bind(this)}
+          onKeyPress={this.copyNetworkData.bind(this)}
+          tabIndex={0}
+        >
+          {intl.formatMessage(intlMessages.copy)}
+        </span>
+      </div>
+    );
+  }
+
   render() {
     const {
       closeModal,
@@ -283,6 +545,8 @@ class ConnectionStatusComponent extends PureComponent {
               )
             }
           </div>
+          {this.renderNetworkData()}
+          {this.renderCopyDataButton()}
           {this.renderDataSaving()}
           <div className={styles.content}>
             <div className={styles.wrapper}>

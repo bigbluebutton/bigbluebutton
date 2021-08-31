@@ -15,23 +15,24 @@ import ExecutionContext.Implicits.global
 
 case object SendPeriodicReport
 
-case class MeetingActivityTracker(
+case class Meeting(
   intId: String,
   extId: String,
   name:  String,
-  activityReportAccessToken: String,
-  users: Map[String, UserActivityTracker] = Map(),
+  learningDashboardAccessToken: String,
+  users: Map[String, User] = Map(),
   polls: Map[String, Poll] = Map(),
   screenshares: Vector[Screenshare] = Vector(),
   createdOn: Long = System.currentTimeMillis(),
   endedOn: Long = 0,
 )
 
-case class UserActivityTracker(
+case class User(
   intId:              String,
   extId:              String,
   name:               String,
   isModerator:        Boolean,
+  isDialIn:           Boolean = false,
   answers:            Map[String,String] = Map(),
   talk:               Talk = Talk(),
   emojis:            Vector[Emoji] = Vector(),
@@ -72,24 +73,24 @@ case class Screenshare(
 )
 
 
-object ActivityTrackerActor {
+object LearningDashboardActor {
   def props(
              system:         ActorSystem,
              outGW:          OutMessageGateway,
   ): Props =
     Props(
-      classOf[ActivityTrackerActor],
+      classOf[LearningDashboardActor],
       system,
       outGW
     )
 }
 
-class ActivityTrackerActor(
+class LearningDashboardActor(
     system:         ActorSystem,
     val outGW:          OutMessageGateway,
 ) extends Actor with ActorLogging {
 
-  private var meetings: Map[String, MeetingActivityTracker] = Map()
+  private var meetings: Map[String, Meeting] = Map()
   private var meetingsLastJsonHash : Map[String,String] = Map()
 
   system.scheduler.schedule(10.seconds, 10.seconds, self, SendPeriodicReport)
@@ -150,13 +151,12 @@ class ActivityTrackerActor(
     }
   }
 
-
   private def handleUserJoinedMeetingEvtMsg(msg: UserJoinedMeetingEvtMsg): Unit = {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
     } yield {
-      val user: UserActivityTracker = meeting.users.values.find(u => u.intId == msg.body.intId).getOrElse({
-        UserActivityTracker(
+      val user: User = meeting.users.values.find(u => u.intId == msg.body.intId).getOrElse({
+        User(
           msg.body.intId, msg.body.extId, msg.body.name, (msg.body.role == Roles.MODERATOR_ROLE)
         )
       })
@@ -230,7 +230,20 @@ class ActivityTrackerActor(
   }
 
   private def handleUserJoinedVoiceConfToClientEvtMsg(msg: UserJoinedVoiceConfToClientEvtMsg): Unit = {
-    //dont store this info yet
+    //Create users for Dial-in connections
+    if(msg.body.intId.startsWith("v_")) {
+      for {
+        meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      } yield {
+        val user: User = meeting.users.values.find(u => u.intId == msg.body.intId).getOrElse({
+          User(
+            msg.body.intId, msg.body.callerNum, msg.body.callerName, false, true
+          )
+        })
+
+        meetings += (meeting.intId -> meeting.copy(users = meeting.users + (user.intId -> user.copy(leftOn = 0))))
+      }
+    }
   }
 
   private def handleUserLeftVoiceConfToClientEvtMsg(msg: UserLeftVoiceConfToClientEvtMsg) {
@@ -239,6 +252,13 @@ class ActivityTrackerActor(
       user <- meeting.users.values.find(u => u.intId == msg.body.intId)
     } yield {
       endUserTalk(meeting, user)
+
+      if(user.isDialIn) {
+        val updatedUser = user.copy(leftOn = System.currentTimeMillis())
+        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
+
+        meetings += (updatedMeeting.intId -> updatedMeeting)
+      }
     }
   }
 
@@ -266,7 +286,7 @@ class ActivityTrackerActor(
     }
   }
 
-  private def endUserTalk(meeting: MeetingActivityTracker, user: UserActivityTracker): Unit = {
+  private def endUserTalk(meeting: Meeting, user: User): Unit = {
     if(user.talk.lastTalkStartedOn > 0) {
       val updatedUser = user.copy(
         talk = user.talk.copy(
@@ -334,19 +354,19 @@ class ActivityTrackerActor(
   }
 
   private def handleCreateMeetingReqMsg(msg: CreateMeetingReqMsg): Unit = {
-    if(msg.body.props.meetingProp.activityReportTracking) {
-      val newMeeting = MeetingActivityTracker(
+    if(msg.body.props.meetingProp.learningDashboardEnabled) {
+      val newMeeting = Meeting(
         msg.body.props.meetingProp.intId,
         msg.body.props.meetingProp.extId,
         msg.body.props.meetingProp.name,
-        msg.body.props.password.activityReportAccessToken,
+        msg.body.props.password.learningDashboardAccessToken,
       )
 
       meetings += (newMeeting.intId -> newMeeting)
 
-      log.info("ActivityTracker created for meeting {}.",msg.body.props.meetingProp.intId)
+      log.info(" created for meeting {}.",msg.body.props.meetingProp.intId)
     } else {
-      log.info("ActivityTracker disabled for meeting {}.",msg.body.props.meetingProp.intId)
+      log.info(" disabled for meeting {}.",msg.body.props.meetingProp.intId)
     }
   }
 
@@ -384,7 +404,7 @@ class ActivityTrackerActor(
       sendReport(updatedMeeting)
 
       meetings = meetings.-(updatedMeeting.intId)
-      log.info("ActivityTracker removed for meeting {}.",updatedMeeting.intId)
+      log.info(" removed for meeting {}.",updatedMeeting.intId)
     }
   }
 
@@ -394,14 +414,14 @@ class ActivityTrackerActor(
     })
   }
 
-  private def sendReport(meeting : MeetingActivityTracker): Unit = {
+  private def sendReport(meeting : Meeting): Unit = {
     val activityJson: String = JsonUtil.toJson(meeting)
 
     //Avoid send repeated activity jsons
     val activityJsonHash : String = MessageDigest.getInstance("MD5").digest(activityJson.getBytes).mkString
     if(!meetingsLastJsonHash.contains(meeting.intId) || meetingsLastJsonHash.get(meeting.intId).getOrElse("") != activityJsonHash) {
 
-      val event = MsgBuilder.buildActivityReportEvtMsg(meeting.intId, activityJson)
+      val event = MsgBuilder.buildLearningDashboardEvtMsg(meeting.intId, activityJson)
       outGW.send(event)
 
       meetingsLastJsonHash += (meeting.intId -> activityJsonHash)

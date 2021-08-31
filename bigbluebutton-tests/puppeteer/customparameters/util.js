@@ -5,6 +5,7 @@ const pe = require('../presentation/elements');
 const ce = require('../customparameters/elements');
 const we = require('../whiteboard/elements');
 const poe = require('../polling/elemens');
+const e = require('../core/elements');
 
 async function autoJoinTest(test) {
   const resp = await test.page.evaluate(async () => {
@@ -159,7 +160,7 @@ async function presetationUpload(test) {
     await test.waitForSelector(pe.uploadPresentation, ELEMENT_WAIT_TIME);
     await test.click(pe.uploadPresentation, true);
     const elementHandle = await test.page.$('input[type=file]');
-    await elementHandle.uploadFile(path.join(__dirname, '../media/DifferentSizes.pdf'));
+    await elementHandle.uploadFile(path.join(__dirname, `../media/${e.pdfFileName}.pdf`));
     await test.click(ce.confirmBtn, true);
     return true;
   } catch (err) {

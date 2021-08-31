@@ -69,7 +69,7 @@ const AppContainer = (props) => {
     deviceType,
   } = layoutContextState;
   const { sidebarContent, sidebarNavigation } = input;
-  const { actionBar: actionsBarStyle } = output;
+  const { actionBar: actionsBarStyle, captions: captionsStyle } = output;
   const { sidebarNavPanel } = sidebarNavigation;
   const { sidebarContentPanel } = sidebarContent;
   const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
@@ -81,6 +81,7 @@ const AppContainer = (props) => {
         {...{
           actionsbar,
           actionsBarStyle,
+          captionsStyle,
           currentUserId,
           layoutType,
           meetingLayout,

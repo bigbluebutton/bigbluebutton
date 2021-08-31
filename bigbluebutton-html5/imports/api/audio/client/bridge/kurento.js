@@ -13,6 +13,7 @@ const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag.replace(/#/g, '');
 const GLOBAL_AUDIO_PREFIX = 'GLOBAL_AUDIO_';
 const RECONNECT_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
+const OFFERING = MEDIA.listenOnlyOffering;
 const RECV_ROLE = 'recv';
 const BRIDGE_NAME = 'kurento';
 
@@ -68,6 +69,8 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
   }
 
   getPeerConnection() {
+    if (!this.broker) return null;
+
     const webRtcPeer = this.broker.webRtcPeer;
     if (webRtcPeer) return webRtcPeer.peerConnection;
     return null;
@@ -202,6 +205,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
               userName: this.name,
               caleeName: `${GLOBAL_AUDIO_PREFIX}${this.voiceBridge}`,
               iceServers,
+              offering: OFFERING,
             };
 
             this.broker = new ListenOnlyBroker(
@@ -252,6 +256,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
           userName: this.name,
           caleeName: `${GLOBAL_AUDIO_PREFIX}${this.voiceBridge}`,
           iceServers,
+          offering: OFFERING,
         };
 
         this.broker = new ListenOnlyBroker(
