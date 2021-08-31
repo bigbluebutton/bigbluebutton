@@ -335,11 +335,14 @@ class ScreenshareComponent extends React.Component {
       || (isPresenter && !isGloballyBroadcasting)
       || (!isStreamHealthy && loaded && isGloballyBroadcasting);
 
+    const display = (width > 0 && height > 0) ? 'inherit' : 'none';
+
     return (
       <div
         style={
           {
             position: 'absolute',
+            display,
             top,
             left,
             right,
