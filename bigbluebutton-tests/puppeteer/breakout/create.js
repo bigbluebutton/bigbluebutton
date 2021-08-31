@@ -150,6 +150,7 @@ class Create {
       }
     } catch (err) {
       await this.page1.logger(err);
+      return false;
     }
   }
 
