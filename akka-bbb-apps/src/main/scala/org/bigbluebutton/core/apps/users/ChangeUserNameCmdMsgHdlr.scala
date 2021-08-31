@@ -18,12 +18,12 @@ trait ChangeUserNameCmdMsgHdlr extends RightsManagementTrait {
       val reason = "No permission to change user name."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
-      for {
-        uvo <- Users2x.setUserName(liveMeeting.users2x, msg.body.userId, msg.body.newUserName)
-      } yield {
-        sendUserNameChangedEvtMsg(outGW, liveMeeting.props.meetingProp.intId, msg.body.userId, msg.body.newUserName)
-        VoiceUsers.callerNameChanged(liveMeeting.voiceUsers, msg.body.userId, msg.body.newUserName)
+      // Voice users aren't contained in liveMeeting.users2x
+      if (Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId).isDefined) {
+        Users2x.setUserName(liveMeeting.users2x, msg.body.userId, msg.body.newUserName)
       }
+      sendUserNameChangedEvtMsg(outGW, liveMeeting.props.meetingProp.intId, msg.body.userId, msg.body.newUserName)
+      VoiceUsers.callerNameChanged(liveMeeting.voiceUsers, msg.body.userId, msg.body.newUserName)
     }
   }
 
