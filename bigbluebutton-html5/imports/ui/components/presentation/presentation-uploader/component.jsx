@@ -724,7 +724,7 @@ class PresentationUploader extends Component {
   }
 
   renderPresentationItem(item) {
-    const { disableActions, hasError: stateError } = this.state;
+    const { disableActions } = this.state;
     const {
       intl,
       selectedToBeNextCurrent,
@@ -736,7 +736,7 @@ class PresentationUploader extends Component {
     const hasError = item.conversion.error || item.upload.error;
     const isProcessing = (isUploading || isConverting) && !hasError;
 
-    if (!stateError && hasError) {
+    if (hasError) {
       this.hasError = true;
     }
 

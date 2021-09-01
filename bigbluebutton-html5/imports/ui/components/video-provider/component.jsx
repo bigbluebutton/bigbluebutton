@@ -108,10 +108,6 @@ class VideoProvider extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      socketOpen: false,
-    };
-
     this.info = VideoService.getInfo();
 
     // Set a valid bbb-webrtc-sfu application server socket in the settings
@@ -224,8 +220,6 @@ class VideoProvider extends Component {
     clearInterval(this.pingInterval);
 
     VideoService.exitVideo();
-
-    this.setState({ socketOpen: false });
   }
 
   onWsOpen() {
@@ -239,8 +233,6 @@ class VideoProvider extends Component {
     }
 
     this.pingInterval = setInterval(this.ping.bind(this), PING_INTERVAL);
-
-    this.setState({ socketOpen: true });
   }
 
   updateThreshold(numberOfPublishers) {
