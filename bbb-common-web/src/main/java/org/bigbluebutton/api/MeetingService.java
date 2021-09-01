@@ -975,7 +975,7 @@ public class MeetingService implements MessageListener {
 
     log.info(" --analytics-- data={}", logStr);
 
-    learningDashboardService.writeActivityJsonFile(message.meetingId, learningDashboardAccessToken, message.activityJson);
+    learningDashboardService.writeJsonDataFile(message.meetingId, learningDashboardAccessToken, message.activityJson);
   }
 
   @Override

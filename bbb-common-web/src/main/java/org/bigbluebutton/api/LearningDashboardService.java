@@ -29,7 +29,7 @@ public class LearningDashboardService {
     private static String learningDashboardFilesDir = "/var/bigbluebutton/learning-dashboard";
     private static int cleanUpDelaySeconds = 120;
 
-    public void writeActivityJsonFile(String meetingId, String learningDashboardAccessToken, String activityJson) {
+    public void writeJsonDataFile(String meetingId, String learningDashboardAccessToken, String activityJson) {
 
         try {
             if(learningDashboardAccessToken.length() == 0) {
@@ -40,7 +40,7 @@ public class LearningDashboardService {
             File baseDir = new File(this.getDestinationBaseDirectoryName(meetingId,learningDashboardAccessToken));
             if (!baseDir.exists()) baseDir.mkdirs();
 
-            File jsonFile = new File(baseDir.getAbsolutePath() + File.separatorChar + "activity_report.json");
+            File jsonFile = new File(baseDir.getAbsolutePath() + File.separatorChar + "learning_dashboard_data.json");
 
             FileOutputStream fileOutput = new FileOutputStream(jsonFile);
             fileOutput.write(activityJson.getBytes());
