@@ -29,8 +29,8 @@ const pollingTest = () => {
       await test.logger('end of ', testName);
       await test.stopRecording();
       screenshot = await test.page.screenshot();
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -52,8 +52,8 @@ const pollingTest = () => {
       await test.page3.logger('end of ', testName);
       await test.page3.stopRecording();
       screenshot = await test.page3.page.screenshot();
-    } catch (e) {
-      await test.page3.logger(e);
+    } catch (err) {
+      await test.page3.logger(err);
     } finally {
       await test.closePage(test.page3);
     }
@@ -75,8 +75,8 @@ const pollingTest = () => {
       await test.page1.logger('end of ', testName);
       await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
-    } catch (e) {
-      await test.page1.logger(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
     }
@@ -99,8 +99,8 @@ const pollingTest = () => {
       await test.page1.stopRecording();
       await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
-    } catch (e) {
-      await test.page1.logger(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
     }

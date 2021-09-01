@@ -28,8 +28,8 @@ const breakoutTest = () => {
       await test.page1.stopRecording();
       screenshot = await page2[2].screenshot();
       await test.page1.logger('end of ', testName);
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close();
     }
@@ -55,8 +55,8 @@ const breakoutTest = () => {
       await test.page1.stopRecording();
       screenshot = await page2[2].screenshot();
       await test.page1.logger('end of ', testName);
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close();
     }
@@ -82,8 +82,8 @@ const breakoutTest = () => {
       await test.page1.stopRecording();
       screenshot = await page2[2].screenshot();
       await test.page1.logger('end of ', testName);
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close();
     }
@@ -109,8 +109,8 @@ const breakoutTest = () => {
       await test.page1.stopRecording();
       screenshot = await page2[2].screenshot();
       await test.page1.logger('end of ', testName);
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close();
     }
@@ -136,8 +136,8 @@ const breakoutTest = () => {
       await test.page1.stopRecording();
       screenshot = await page2[2].screenshot();
       await test.page1.logger('end of ', testName);
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close();
     }
@@ -145,4 +145,5 @@ const breakoutTest = () => {
     await Page.checkRegression(3.6, screenshot);
   });
 };
+
 module.exports = exports = breakoutTest;
