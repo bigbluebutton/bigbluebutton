@@ -147,7 +147,7 @@ class VideoListItem extends Component {
         if (i === 0 && fullWidthMenu) topDivider = true;
         menuItems.push({
           key: `${cameraId}-${a?.actionName}`,
-          label: a?.actionName,
+          label: a?.label,
           description: a?.description,
           onClick: a?.onClick,
           dividerTop: topDivider,
