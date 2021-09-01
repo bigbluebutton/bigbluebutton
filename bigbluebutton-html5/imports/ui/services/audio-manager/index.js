@@ -115,9 +115,9 @@ class AudioManager {
 
       this.bridges = {};
 
-      Object.values(bridges).forEach((bridge) => {
+      Object.values(bridges).forEach(async (bridge) => {
         // eslint-disable-next-line import/no-dynamic-require, global-require
-        this.bridges[bridge.name] = require(DEFAULT_AUDIO_BRIDGES_PATH
+        this.bridges[bridge.name] = await import(DEFAULT_AUDIO_BRIDGES_PATH
           + bridge.path);
       });
 
