@@ -119,6 +119,11 @@ const VirtualBgSelector = ({
   const renderThumbnailSelector = () => {
     const disabled = locked || !isVirtualBackgroundSupported();
 
+    const thumbnailStyles = [
+      styles.virtualBackgroundItem,
+      disabled && styles.disabled
+    ];
+
     return (
       <div className={styles.virtualBackgroundRowThumbnail}>
         <div className={styles.bgWrapper}>
@@ -129,6 +134,7 @@ const VirtualBgSelector = ({
               label={intl.formatMessage(intlMessages.noneLabel)}
               aria-describedby={`vr-cam-btn-none`}
               hideLabel
+              tabIndex={disabled ? -1 : 0}
               disabled={disabled}
               onClick={() => _virtualBgSelected(EFFECT_TYPES.NONE_TYPE)}
             />
@@ -140,11 +146,11 @@ const VirtualBgSelector = ({
           <>
             <Button
               style={{ backgroundImage: `url('${getVirtualBackgroundThumbnail(BLUR_FILENAME)}')` }}
-              className={styles.virtualBackgroundItem}
+              className={thumbnailStyles.join(' ')}
               aria-label={EFFECT_TYPES.BLUR_TYPE}
               label={capitalizeFirstLetter(EFFECT_TYPES.BLUR_TYPE)}
               aria-describedby={`vr-cam-btn-blur`}
-              tabIndex={0}
+              tabIndex={disabled ? -1 : 0}
               hideLabel
               disabled={disabled}
               ref={ref => { inputElementsRef.current[0] = ref; }}
@@ -161,9 +167,9 @@ const VirtualBgSelector = ({
                 <Button
                   id={`${imageName}-${index}`}
                   label={capitalizeFirstLetter(imageName.split('.').shift())}
-                  tabIndex={0}
+                  tabIndex={disabled ? -1 : 0}
                   role="button"
-                  className={styles.virtualBackgroundItem}
+                  className={thumbnailStyles.join(' ')}
                   aria-label={capitalizeFirstLetter(imageName.split('.').shift())}
                   aria-describedby={`vr-cam-btn-${index}`}
                   hideLabel
