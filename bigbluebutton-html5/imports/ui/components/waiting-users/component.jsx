@@ -92,8 +92,7 @@ const renderGuestUserItem = (
         </UserAvatar>
       </div>
       <p key={`user-name-${userId}`} className={styles.userName}>
-        {sequence}
-        {name}
+        {`[${sequence}] ${name}`}
       </p>
     </div>
 
