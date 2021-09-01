@@ -860,8 +860,8 @@ public class MeetingService implements MessageListener {
       }
 
       //Remove Learning Dashboard files
-      if(m.getLearningDashboardCleanupInMinutes() > 0) {
-        learningDashboardService.removeJsonDataFile(message.meetingId, m.getLearningDashboardCleanupInMinutes());
+      if(m.getLearningDashboardCleanupDelayInMinutes() > 0) {
+        learningDashboardService.removeJsonDataFile(message.meetingId, m.getLearningDashboardCleanupDelayInMinutes());
       }
 
       processRemoveEndedMeeting(message);

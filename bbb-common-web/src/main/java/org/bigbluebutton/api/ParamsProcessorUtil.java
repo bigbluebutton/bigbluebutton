@@ -83,7 +83,7 @@ public class ParamsProcessorUtil {
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
     private boolean learningDashboardEnabled;
-    private int learningDashboardCleanupInMinutes;
+    private int learningDashboardCleanupDelayInMinutes;
     private boolean webcamsOnlyForModerator;
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
@@ -431,14 +431,14 @@ public class ParamsProcessorUtil {
             }
         }
 
-        int learningDashboardCleanupMins = learningDashboardCleanupInMinutes;
-        if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_CLEANUP_IN_MINUTES))) {
+        int learningDashboardCleanupMins = learningDashboardCleanupDelayInMinutes;
+        if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES))) {
             try {
                 learningDashboardCleanupMins = Integer.parseInt(params
-                        .get(ApiParams.LEARNING_DASHBOARD_CLEANUP_IN_MINUTES));
+                        .get(ApiParams.LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES));
             } catch (Exception ex) {
                 log.warn(
-                        "Invalid param [learningDashboardCleanupInMinutes] for meeting=[{}]",
+                        "Invalid param [learningDashboardCleanupDelayInMinutes] for meeting=[{}]",
                         internalMeetingId);
             }
         }
@@ -547,7 +547,7 @@ public class ParamsProcessorUtil {
 				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
                 .withHTML5InstanceId(html5InstanceId)
                 .withLearningDashboardEnabled(learningDashboardEn)
-                .withLearningDashboardCleanupInMinutes(learningDashboardCleanupMins)
+                .withLearningDashboardCleanupDelayInMinutes(learningDashboardCleanupMins)
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .build();
 
@@ -960,8 +960,8 @@ public class ParamsProcessorUtil {
         this.learningDashboardEnabled = learningDashboardEnabled;
     }
 
-    public void setlearningDashboardCleanupInMinutes(int learningDashboardCleanupInMinutes) {
-        this.learningDashboardCleanupInMinutes = learningDashboardCleanupInMinutes;
+    public void setlearningDashboardCleanupDelayInMinutes(int learningDashboardCleanupDelayInMinutes) {
+        this.learningDashboardCleanupDelayInMinutes = learningDashboardCleanupDelayInMinutes;
     }
 
     public void setWebcamsOnlyForModerator(boolean webcamsOnlyForModerator) {

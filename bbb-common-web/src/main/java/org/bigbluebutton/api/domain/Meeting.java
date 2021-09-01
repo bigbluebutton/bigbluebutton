@@ -52,7 +52,7 @@ public class Meeting {
 	private String moderatorPass;
 	private String viewerPass;
 	private Boolean learningDashboardEnabled;
-	private int learningDashboardCleanupInMinutes;
+	private int learningDashboardCleanupDelayInMinutes;
 	private String learningDashboardAccessToken;
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
@@ -112,7 +112,7 @@ public class Meeting {
         viewerPass = builder.viewerPass;
         moderatorPass = builder.moderatorPass;
 		learningDashboardEnabled = builder.learningDashboardEnabled;
-		learningDashboardCleanupInMinutes = builder.learningDashboardCleanupInMinutes;
+		learningDashboardCleanupDelayInMinutes = builder.learningDashboardCleanupDelayInMinutes;
 		learningDashboardAccessToken = builder.learningDashboardAccessToken;
         maxUsers = builder.maxUsers;
         bannerColor = builder.bannerColor;
@@ -336,8 +336,8 @@ public class Meeting {
 		return learningDashboardEnabled;
 	}
 
-	public int getLearningDashboardCleanupInMinutes() {
-		return learningDashboardCleanupInMinutes;
+	public int getLearningDashboardCleanupDelayInMinutes() {
+		return learningDashboardCleanupDelayInMinutes;
 	}
 
 	public String getLearningDashboardAccessToken() {
@@ -733,7 +733,7 @@ public class Meeting {
     	private String moderatorPass;
     	private String viewerPass;
     	private Boolean learningDashboardEnabled;
-    	private int learningDashboardCleanupInMinutes;
+    	private int learningDashboardCleanupDelayInMinutes;
     	private String learningDashboardAccessToken;
     	private int duration;
     	private String webVoice;
@@ -830,8 +830,8 @@ public class Meeting {
 	    	return this;
 	    }
 
-    	public Builder withLearningDashboardCleanupInMinutes(int m) {
-	    	this.learningDashboardCleanupInMinutes = m;
+    	public Builder withLearningDashboardCleanupDelayInMinutes(int m) {
+	    	this.learningDashboardCleanupDelayInMinutes = m;
 	    	return this;
 	    }
 

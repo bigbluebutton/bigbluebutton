@@ -56,7 +56,7 @@ public class ApiParams {
     public static final String VOICE_BRIDGE = "voiceBridge";
     public static final String WEB_VOICE = "webVoice";
     public static final String LEARNING_DASHBOARD_ENABLED = "learningDashboardEnabled";
-    public static final String LEARNING_DASHBOARD_CLEANUP_IN_MINUTES = "learningDashboardCleanupInMinutes";
+    public static final String LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES = "learningDashboardCleanupDelayInMinutes";
     public static final String WEBCAMS_ONLY_FOR_MODERATOR = "webcamsOnlyForModerator";
     public static final String WELCOME = "welcome";
     public static final String HTML5_INSTANCE_ID = "html5InstanceId";
