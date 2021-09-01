@@ -39,9 +39,19 @@ class BBBMenu extends React.Component {
     this.setState({ anchorEl: event.currentTarget });
   };
 
-  handleClose() {
+  handleClose(event) {
     const { onCloseCallback } = this.props;
     this.setState({ anchorEl: null }, onCloseCallback());
+
+    if (event) {
+      event.persist();
+
+      if (event.type === 'click') {
+        setTimeout(() => {
+          document.activeElement.blur();
+        }, 0);
+      }
+    }
   };
 
   makeMenuItems() {
@@ -62,12 +72,12 @@ class BBBMenu extends React.Component {
           disableRipple={true}
           disableGutters={true}
           disabled={disabled}
-          style={{ paddingLeft: '4px', paddingRight: '4px', paddingTop: '8px', paddingBottom: '8px', marginLeft: '4px', marginRight: '4px' }}
-          onClick={() => {
+          style={{ paddingLeft: '4px',paddingRight: '4px',paddingTop: '8px', paddingBottom: '8px', marginLeft: '4px', marginRight: '4px' }}
+          onClick={(event) => {
             onClick();
             const close = !key.includes('setstatus') && !key.includes('back');
             // prevent menu close for sub menu actions
-            if (close) this.handleClose();
+            if (close) this.handleClose(event);
           }}>
           <div style={{ display: 'flex', flexFlow: 'row', width: '100%' }}>
             {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}

@@ -108,6 +108,7 @@ class VideoProvider extends Component {
   constructor(props) {
     super(props);
 
+    // socketOpen state is there to force update when the signaling socket opens or closes
     this.state = {
       socketOpen: false,
     };

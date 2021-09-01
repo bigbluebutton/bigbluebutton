@@ -135,10 +135,6 @@ class UserOptions extends PureComponent {
   constructor(props) {
     super(props);
 
-    this.state = {
-      isUserOptionsOpen: false,
-    };
-
     this.clearStatusId = _.uniqueId('list-item-');
     this.muteId = _.uniqueId('list-item-');
     this.muteAllId = _.uniqueId('list-item-');
@@ -149,8 +145,6 @@ class UserOptions extends PureComponent {
     this.saveUsersNameId = _.uniqueId('list-item-');
     this.captionsId = _.uniqueId('list-item-');
 
-    this.onActionsShow = this.onActionsShow.bind(this);
-    this.onActionsHide = this.onActionsHide.bind(this);
     this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
     this.handleCaptionsClick = this.handleCaptionsClick.bind(this);
     this.onCreateBreakouts = this.onCreateBreakouts.bind(this);
@@ -177,18 +171,6 @@ class UserOptions extends PureComponent {
       intl.formatMessage(intlMessages.sortedLastNameHeading),
     ).dispatchEvent(new MouseEvent('click',
       { bubbles: true, cancelable: true, view: window }));
-  }
-
-  onActionsShow() {
-    this.setState({
-      isUserOptionsOpen: true,
-    });
-  }
-
-  onActionsHide() {
-    this.setState({
-      isUserOptionsOpen: false,
-    });
   }
 
   onCreateBreakouts() {

@@ -26,8 +26,8 @@ const sharedNotesTest = () => {
       await test.page1.stopRecording();
       await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
-    } catch (e) {
-      await test.page1.logger(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close();
     }
