@@ -126,12 +126,12 @@ class Create {
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await this.page1.screenshot(`${testName}`, `03-page01-randomly-assign-user-${testName}`);
     }
-    await this.page1.waitForSelector(be.modalConfirmButton, ELEMENT_WAIT_TIME);
+    await this.page1.waitForSelector(be.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
     await this.page1.page.evaluate(util.clickTestElement, be.modalConfirmButton);
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await this.page1.screenshot(`${testName}`, `04-page01-confirm-breakoutrooms-creation-${testName}`);
     }
-    await this.page2.waitForSelector(be.modalConfirmButton, ELEMENT_WAIT_TIME);
+    await this.page2.waitForSelector(be.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
     await this.page2.page.evaluate(util.clickTestElement, be.modalConfirmButton);
     if (process.env.GENERATE_EVIDENCES === 'true') {
       await this.page2.screenshot(`${testName}`, `02-page02-accept-invite-breakoutrooms-${testName}`);
@@ -141,7 +141,7 @@ class Create {
     await this.page2.waitForSelector(be.chatButton, ELEMENT_WAIT_TIME);
     await this.page2.click(be.chatButton, true);
     await this.page2.click(be.breakoutRoomsItem, true);
-    await this.page2.waitForSelector(be.alreadyConnected, ELEMENT_WAIT_TIME);
+    await this.page2.waitForSelector(be.alreadyConnected, ELEMENT_WAIT_LONGER_TIME);
     const page2 = await this.page2.browser.pages();
     await page2[2].bringToFront();
     if (process.env.GENERATE_EVIDENCES === 'true') {
@@ -183,6 +183,8 @@ class Create {
       await this.page3.click(be.breakoutRoomsItem, true);
 
       await this.page3.waitForSelector(be.joinRoom1, ELEMENT_WAIT_TIME);
+      await this.page3.click(be.joinRoom1);
+      // wait to generate URL and click again to join
       await this.page3.click(be.joinRoom1, true);
       await this.page3.waitForSelector(be.alreadyConnected, ELEMENT_WAIT_LONGER_TIME);
 
@@ -210,6 +212,8 @@ class Create {
       await this.page3.waitForSelector(be.breakoutRoomsButton, ELEMENT_WAIT_TIME);
       await this.page3.click(be.breakoutRoomsButton, true);
       await this.page3.waitForSelector(be.joinRoom1, ELEMENT_WAIT_TIME);
+      await this.page3.click(be.joinRoom1);
+      // wait to generate URL and click again to join
       await this.page3.click(be.joinRoom1, true);
       await this.page3.waitForSelector(be.alreadyConnected, ELEMENT_WAIT_TIME);
 
@@ -239,6 +243,8 @@ class Create {
       await this.page3.waitForSelector(be.breakoutRoomsButton, ELEMENT_WAIT_TIME);
       await this.page3.click(be.breakoutRoomsButton, true);
       await this.page3.waitForSelector(be.joinRoom1, ELEMENT_WAIT_TIME);
+      await this.page3.click(be.joinRoom1);
+      // wait to generate URL and click again to join
       await this.page3.click(be.joinRoom1, true);
       await this.page3.waitForSelector(be.alreadyConnected, ELEMENT_WAIT_TIME);
       const page3 = await this.page3.browser.pages();

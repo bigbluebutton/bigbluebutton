@@ -37,9 +37,19 @@ class BBBMenu extends React.Component {
     this.setState({ anchorEl: event.currentTarget });
   };
 
-  handleClose() {
+  handleClose(event) {
     const { onCloseCallback } = this.props;
     this.setState({ anchorEl: null }, onCloseCallback());
+
+    if (event) {
+      event.persist();
+
+      if (event.type === 'click') {
+        setTimeout(() => {
+          document.activeElement.blur();
+        }, 0);
+      }
+    }
   };
 
   setAnchorEl(el) {
@@ -52,7 +62,7 @@ class BBBMenu extends React.Component {
     const { actions, selectedEmoji } = this.props;
 
     return actions?.map(a => {
-      const { label, onClick, key, disabled } = a;
+      const { dataTest, label, onClick, key, disabled } = a;
       const itemClasses = [styles.menuitem, a?.className];
 
       if (key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase())) itemClasses.push(styles.emojiSelected);
@@ -61,16 +71,17 @@ class BBBMenu extends React.Component {
         a.dividerTop && <Divider disabled />,  
         <MenuItem
           key={label}
+          data-test={dataTest || key}
           className={itemClasses.join(' ')}
           disableRipple={true}
           disableGutters={true}
           disabled={disabled}
           style={{ paddingLeft: '4px',paddingRight: '4px',paddingTop: '8px', paddingBottom: '8px', marginLeft: '4px', marginRight: '4px' }}
-          onClick={() => { 
+          onClick={(event) => {
             onClick();
             const close = !key.includes('setstatus') && !key.includes('back');
             // prevent menu close for sub menu actions
-            if (close) this.handleClose();
+            if (close) this.handleClose(event);
           }}>
           <div style={{ display: 'flex', flexFlow: 'row', width: '100%'}}>
             {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
@@ -92,7 +103,7 @@ class BBBMenu extends React.Component {
     if (wide) menuClasses.push(styles.wide);
 
     return (
-      <div>
+      <>
         <div onClick={this.handleClick} accessKey={this.props?.accessKey}>{trigger}</div>
         <Menu
           {...opts}
@@ -112,7 +123,7 @@ class BBBMenu extends React.Component {
             />
           }
         </Menu>
-      </div>
+      </>
     );
   }
 }
@@ -144,7 +155,7 @@ BBBMenu.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.shape({
     key: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
-    onClick: PropTypes.func.isRequired,
+    onClick: PropTypes.func,
     icon: PropTypes.string,
     iconRight: PropTypes.string,
     disabled: PropTypes.bool, 

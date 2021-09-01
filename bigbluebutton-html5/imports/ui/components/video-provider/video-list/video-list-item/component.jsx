@@ -2,10 +2,8 @@ import React, { Component } from 'react';
 import browserInfo from '/imports/utils/browserInfo';
 import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import cx from 'classnames';
-import BBBMenu from "/imports/ui/components/menu/component";
-import ListItem from "@material-ui/core/ListItem";
+import BBBMenu from '/imports/ui/components/menu/component';
 import Icon from '/imports/ui/components/icon/component';
 import FullscreenService from '/imports/ui/components/fullscreen-button/service';
 import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
@@ -16,7 +14,6 @@ import {
   subscribeToStreamStateChange,
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
-import deviceInfo from '/imports/utils/deviceInfo';
 import Users from '../../../../../api/users';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 
@@ -38,7 +35,6 @@ class VideoListItem extends Component {
     this.setVideoIsReady = this.setVideoIsReady.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
     this.onStreamStateChange = this.onStreamStateChange.bind(this);
-    this.updateOrientation = this.updateOrientation.bind(this);
   }
 
   componentDidMount() {
@@ -48,7 +44,6 @@ class VideoListItem extends Component {
     this.videoTag.addEventListener('loadeddata', this.setVideoIsReady);
     this.videoContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
     subscribeToStreamStateChange(cameraId, this.onStreamStateChange);
-    window.addEventListener('resize', this.updateOrientation);
   }
 
   componentDidUpdate() {
@@ -84,7 +79,6 @@ class VideoListItem extends Component {
     this.videoContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
     unsubscribeFromStreamStateChange(cameraId, this.onStreamStateChange);
     onVideoItemUnmount(cameraId);
-    window.removeEventListener('resize', this.updateOrientation);
 
     if (isFullscreenContext) {
       layoutContextDispatch({
@@ -150,17 +144,13 @@ class VideoListItem extends Component {
         if (i === 0 && fullWidthMenu) topDivider = true;
         menuItems.push({
           key: `${cameraId}-${a?.actionName}`,
-          label: a?.actionName,
+          label: a?.label,
           description: a?.description,
           onClick: a?.onClick,
           dividerTop: topDivider,
         });
     });
     return menuItems
-  }
-
-  updateOrientation() {
-    this.setState({ isPortrait: deviceInfo.isPortrait() });
   }
 
   renderFullscreenButton() {
@@ -186,7 +176,6 @@ class VideoListItem extends Component {
     const {
       videoIsReady,
       isStreamHealthy,
-      isPortrait,
     } = this.state;
     const {
       userId,
@@ -203,8 +192,6 @@ class VideoListItem extends Component {
     const shouldRenderReconnect = !isStreamHealthy && videoIsReady;
 
     const { isFirefox } = browserInfo;
-    const { isPhone } = deviceInfo;
-    const isTethered = isPhone && isPortrait;
 
     return (
       <div

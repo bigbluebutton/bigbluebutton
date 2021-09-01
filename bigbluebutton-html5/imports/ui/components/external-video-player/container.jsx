@@ -9,8 +9,10 @@ import MediaService, { getSwapLayout } from '/imports/ui/components/media/servic
 const ExternalVideoContainer = (props) => {
   const layoutManager = useContext(LayoutContext);
   const { layoutContextState, layoutContextDispatch } = layoutManager;
-  const { output } = layoutContextState;
+  const { output, input } = layoutContextState;
   const { externalVideo } = output;
+  const { cameraDock } = input;
+  const { isResizing } = cameraDock;
   return (
     <ExternalVideoComponent
       {
@@ -18,6 +20,7 @@ const ExternalVideoContainer = (props) => {
         layoutContextDispatch,
         ...props,
         ...externalVideo,
+        isResizing,
       }
       }
     />

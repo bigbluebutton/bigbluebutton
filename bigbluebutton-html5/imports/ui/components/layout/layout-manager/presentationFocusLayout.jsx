@@ -462,6 +462,7 @@ class PresentationFocusLayout extends Component {
   calculatesLayout() {
     const { layoutContextState, layoutContextDispatch } = this.props;
     const { deviceType, input, isRTL } = layoutContextState;
+    const { captionsMargin } = DEFAULT_VALUES;
 
     const sidebarNavWidth = this.calculatesSidebarNavWidth();
     const sidebarNavHeight = this.calculatesSidebarNavHeight();
@@ -513,6 +514,15 @@ class PresentationFocusLayout extends Component {
         padding: actionbarBounds.padding,
         tabOrder: DEFAULT_VALUES.actionBarTabOrder,
         zIndex: actionbarBounds.zIndex,
+      },
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_CAPTIONS_OUTPUT,
+      value: {
+        left: !isRTL ? (mediaBounds.left + captionsMargin) : null,
+        right: isRTL ? (mediaBounds.right + captionsMargin) : null,
+        maxWidth: mediaBounds.width - (captionsMargin * 2),
       },
     });
 

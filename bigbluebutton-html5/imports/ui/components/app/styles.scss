@@ -1,10 +1,12 @@
-@import "/imports/ui/stylesheets/variables/_all";
+@import '/imports/ui/stylesheets/variables/_all';
 @import '/imports/ui/stylesheets/mixins/_indicators';
 
 :root {
   --navbar-height: 3.9375rem; // TODO: Change to NavBar real height
   --actionsbar-height: 75px; // TODO: Change to ActionsBar real height
-  --bars-padding: calc(var(--lg-padding-x) - .45rem); // -.45 so user-list and chat title is aligned with the presentation title
+  --bars-padding: calc(
+    var(--lg-padding-x) - 0.45rem
+  ); // -.45 so user-list and chat title is aligned with the presentation title
   --userlist-handle-width: 5px; // 5px so user-list and chat resize handle render as the same size
   --poll-pane-min-width: 20em;
   --panel-margin-left: 0.1em;
@@ -15,9 +17,9 @@
   position: relative;
 }
 
-.layout{
+.layout {
   @extend %flex-column;
-  background-color: #06172A;
+  background-color: #06172a;
 }
 
 .navbar {
@@ -59,7 +61,8 @@
   }
 }
 
-.content, .noPanelContent {
+.content,
+.noPanelContent {
   @extend %full-page;
   order: 3;
 
@@ -74,7 +77,7 @@
     pointer-events: none;
 
     :global(.animationsEnabled) & {
-      transition: opacity .3s;
+      transition: opacity 0.3s;
     }
   }
 
@@ -92,11 +95,11 @@
   }
 }
 
-.content{
-  margin:0 0 0 var(--panel-margin-left);
+.content {
+  margin: 0 0 0 var(--panel-margin-left);
 
-  [dir="rtl"] & {
-    margin:0 var(--panel-margin-left) 0 0;
+  [dir='rtl'] & {
+    margin: 0 var(--panel-margin-left) 0 0;
   }
 }
 
@@ -201,7 +204,7 @@
   overflow: hidden;
   z-index: 0;
 
-  [dir="rtl"] & {
+  [dir='rtl'] & {
     margin: 0 var(--panel-margin-right) 0 0;
   }
 
@@ -211,12 +214,10 @@
 }
 
 .captionsWrapper {
-  position: absolute;
-  width: auto;
   height: auto;
   bottom: 100px;
   left: 20%;
-  z-index: 2;
+  z-index: 5;
 }
 
 .actionsbar {

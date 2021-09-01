@@ -1030,7 +1030,7 @@ class SIPSession {
                       currentState: peer.connectionState,
                       callerIdName: this.user.callerIdName,
                     },
-                  }, 'ICE connection success, but user is already connected'
+                  }, 'ICE connection success, but user is already connected, '
                   + 'ignoring it...'
                   + `${peer.iceConnectionState}`);
 
@@ -1429,6 +1429,8 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   getPeerConnection() {
+    if (!this.activeSession) return null;
+
     const { currentSession } = this.activeSession;
     if (currentSession && currentSession.sessionDescriptionHandler) {
       return currentSession.sessionDescriptionHandler.peerConnection;

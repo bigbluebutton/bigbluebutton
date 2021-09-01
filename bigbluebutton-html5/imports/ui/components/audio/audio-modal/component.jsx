@@ -112,10 +112,6 @@ const intlMessages = defineMessages({
     id: 'app.audioModal.connecting',
     description: 'Message for audio connecting',
   },
-  connectingEchoTest: {
-    id: 'app.audioModal.connectingEchoTest',
-    description: 'Message for echo test connecting',
-  },
   ariaModalTitle: {
     id: 'app.audioModal.ariaTitle',
     description: 'aria label for modal title',
@@ -471,11 +467,7 @@ class AudioModal extends Component {
       return (
         <div className={styles.connecting} role="alert">
           <span data-test={!isEchoTest ? 'connecting' : 'connectingToEchoTest'}>
-            {
-              !isEchoTest
-                ? intl.formatMessage(intlMessages.connecting)
-                : intl.formatMessage(intlMessages.connectingEchoTest)
-            }
+            {intl.formatMessage(intlMessages.connecting)}
           </span>
           <span className={styles.connectingAnimation} />
         </div>

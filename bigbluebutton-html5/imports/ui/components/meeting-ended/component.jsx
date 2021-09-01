@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
 import Auth from '/imports/ui/services/auth';
-import ActivityReportService from '../activity-report/service';
+import LearningDashboardService from '../learning-dashboard/service';
 import Button from '/imports/ui/components/button/component';
 import allowRedirectToLogoutURL from './service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -98,7 +98,7 @@ const intlMessage = defineMessages({
     description: 'message for whom was kicked by inactivity',
   },
   open_activity_report_btn: {
-    id: 'app.activity-report.clickHereToOpen',
+    id: 'app.learning-dashboard.clickHereToOpen',
     description: 'description of link to open activity report',
   },
 });
@@ -250,6 +250,8 @@ class MeetingEnded extends PureComponent {
   renderNoFeedback() {
     const { intl, code, ejectedReason } = this.props;
 
+    const { locale } = intl;
+
     const logMessage = ejectedReason === 'user_requested_eject_reason' ? 'User removed from the meeting' : 'Meeting ended component, no feedback configured';
     logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason: ejectedReason } }, logMessage);
 
@@ -263,14 +265,14 @@ class MeetingEnded extends PureComponent {
             {!allowRedirectToLogoutURL() ? null : (
               <div>
                 {
-                  ActivityReportService.isModerator()
-                  && ActivityReportService.getActivityReportAccessToken() != null
+                  LearningDashboardService.isModerator()
+                  && LearningDashboardService.getLearningDashboardAccessToken() != null
                     ? (
                       <div className={styles.text}>
                         <Button
                           icon="multi_whiteboard"
                           color="default"
-                          onClick={ActivityReportService.openActivityReportUrl}
+                          onClick={() => LearningDashboardService.openLearningDashboardUrl(locale)}
                           className={styles.button}
                           label={intl.formatMessage(intlMessage.open_activity_report_btn)}
                           description={intl.formatMessage(intlMessage.open_activity_report_btn)}

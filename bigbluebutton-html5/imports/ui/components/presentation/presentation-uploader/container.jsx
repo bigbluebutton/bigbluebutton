@@ -28,7 +28,6 @@ export default withTracker(() => {
 
   return {
     presentations: currentPresentations,
-    defaultFileName: PRESENTATION_CONFIG.defaultPresentationFile,
     fileValidMimeTypes: PRESENTATION_CONFIG.uploadValidMimeTypes,
     handleSave: (presentations) => Service.persistPresentationChanges(
       currentPresentations,

@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import React, { Fragment, useContext, useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Auth from '/imports/ui/services/auth';

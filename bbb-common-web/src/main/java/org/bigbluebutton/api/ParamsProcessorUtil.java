@@ -82,12 +82,15 @@ public class ParamsProcessorUtil {
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
-    private boolean activityReportTracking;
+    private boolean learningDashboardEnabled;
+    private boolean learningDashboardCleanupEnabled;
     private boolean webcamsOnlyForModerator;
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultAllowModsToChangeUsernames = false;
     private boolean defaultKeepEvents = false;
+    private Boolean useDefaultLogo;
+    private String defaultLogoURL;
 
 		private boolean defaultBreakoutRoomsEnabled;
 		private boolean defaultBreakoutRoomsRecord;
@@ -417,22 +420,34 @@ public class ParamsProcessorUtil {
             }
         }
 
-        boolean activityReportTrack = activityReportTracking;
-        if (!StringUtils.isEmpty(params.get(ApiParams.ACTIVITY_REPORT_TRACKING))) {
+        boolean learningDashboardEn = learningDashboardEnabled;
+        if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED))) {
             try {
-                activityReportTrack = Boolean.parseBoolean(params
-                        .get(ApiParams.ACTIVITY_REPORT_TRACKING));
+                learningDashboardEn = Boolean.parseBoolean(params
+                        .get(ApiParams.LEARNING_DASHBOARD_ENABLED));
             } catch (Exception ex) {
                 log.warn(
-                        "Invalid param [activityReportTracking] for meeting=[{}]",
+                        "Invalid param [learningDashboardEnabled] for meeting=[{}]",
+                        internalMeetingId);
+            }
+        }
+
+        boolean learningDashboardCleanupEn = learningDashboardCleanupEnabled;
+        if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_CLEANUP_ENABLED))) {
+            try {
+                learningDashboardCleanupEn = Boolean.parseBoolean(params
+                        .get(ApiParams.LEARNING_DASHBOARD_CLEANUP_ENABLED));
+            } catch (Exception ex) {
+                log.warn(
+                        "Invalid param [learningDashboardCleanupEnabled] for meeting=[{}]",
                         internalMeetingId);
             }
         }
 
         //Generate token to access Activity Report
-        String activityReportAccessToken = "";
-        if(activityReportTrack == true) {
-            activityReportAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
+        String learningDashboardAccessToken = "";
+        if(learningDashboardEn == true) {
+            learningDashboardAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
         }
 
         boolean webcamsOnlyForMod = webcamsOnlyForModerator;
@@ -532,8 +547,9 @@ public class ParamsProcessorUtil {
 				.withLockSettingsParams(lockSettingsParams)
 				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
                 .withHTML5InstanceId(html5InstanceId)
-                .withActivityReportTracking(activityReportTrack)
-                .withActivityReportAccessToken(activityReportAccessToken)
+                .withlearningDashboardEnabled(learningDashboardEn)
+                .withlearningDashboardCleanupEnabled(learningDashboardCleanupEn)
+                .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .build();
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
@@ -566,6 +582,8 @@ public class ParamsProcessorUtil {
 
 		if (!StringUtils.isEmpty(params.get(ApiParams.LOGO))) {
 			meeting.setCustomLogoURL(params.get(ApiParams.LOGO));
+		} else if (this.getUseDefaultLogo()) {
+			meeting.setCustomLogoURL(this.getDefaultLogoURL());
 		}
 
 		if (!StringUtils.isEmpty(params.get(ApiParams.COPYRIGHT))) {
@@ -620,6 +638,14 @@ public class ParamsProcessorUtil {
 	public String getDefaultGuestWaitURL() {
 		return defaultGuestWaitURL;
         }
+
+	public Boolean getUseDefaultLogo() {
+		return useDefaultLogo;
+	}
+
+	public String getDefaultLogoURL() {
+		return defaultLogoURL;
+	}
 
 	public Boolean getAllowRequestsWithoutSession() {
 		return allowRequestsWithoutSession;
@@ -909,6 +935,14 @@ public class ParamsProcessorUtil {
 		this.defaultGuestWaitURL = url;
         }
 
+	public void setUseDefaultLogo(Boolean value) {
+		this.useDefaultLogo = value;
+	}
+
+	public void setDefaultLogoURL(String url) {
+		this.defaultLogoURL = url;
+	}
+
 	public void setAllowRequestsWithoutSession(Boolean allowRequestsWithoutSession) {
 		this.allowRequestsWithoutSession = allowRequestsWithoutSession;
 	}
@@ -929,8 +963,12 @@ public class ParamsProcessorUtil {
         this.allowStartStopRecording = allowStartStopRecording;
     }
 
-    public void setActivityReportTracking(boolean activityReportTracking) {
-        this.activityReportTracking = activityReportTracking;
+    public void setLearningDashboardEnabled(boolean learningDashboardEnabled) {
+        this.learningDashboardEnabled = learningDashboardEnabled;
+    }
+
+    public void setLearningDashboardCleanupEnabled(boolean learningDashboardCleanupEnabled) {
+        this.learningDashboardCleanupEnabled = learningDashboardCleanupEnabled;
     }
 
     public void setWebcamsOnlyForModerator(boolean webcamsOnlyForModerator) {

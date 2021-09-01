@@ -43,6 +43,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.randomlyAssign',
     description: 'randomly assign label',
   },
+  randomlyAssignDesc: {
+    id: 'app.createBreakoutRoom.randomlyAssignDesc',
+    description: 'randomly assign label description',
+  },
   breakoutRoom: {
     id: 'app.createBreakoutRoom.room',
     description: 'breakout room',
@@ -255,7 +259,7 @@ class BreakoutRoom extends PureComponent {
   handleShiftUser(activeListSibling) {
     const { users } = this.state;
     if (activeListSibling) {
-      const text = activeListSibling.getElementsByTagName('p')[0].innerText;
+      const text = activeListSibling.getElementsByTagName('input')[0].value;
       const roomNumber = text.match(/\d/g).join('');
       users.forEach((u, index) => {
         if (u.userId === document.activeElement.id) {
@@ -624,7 +628,7 @@ class BreakoutRoom extends PureComponent {
               }
             />
           </p>
-          <div className={styles.breakoutBox} onDrop={drop(0)} onDragOver={allowDrop}>
+          <div className={styles.breakoutBox} onDrop={drop(0)} onDragOver={allowDrop} tabIndex={0}>
             {this.renderUserItemByRoom(0)}
           </div>
           <span className={leastOneUserIsValid ? styles.dontShow : styles.spanWarn}>
@@ -647,7 +651,7 @@ class BreakoutRoom extends PureComponent {
                   aria-label={intl.formatMessage(intlMessages.duration)}
                 />
               </p>
-              <div className={styles.breakoutBox} onDrop={drop(value)} onDragOver={allowDrop}>
+              <div className={styles.breakoutBox} onDrop={drop(value)} onDragOver={allowDrop} tabIndex={0}>
                 {this.renderUserItemByRoom(value)}
                 {isInvitation && this.renderJoinedUsers(value)}
               </div>
@@ -770,6 +774,7 @@ class BreakoutRoom extends PureComponent {
           <Button
             data-test="randomlyAssign"
             label={intl.formatMessage(intlMessages.randomlyAssign)}
+            aria-describedby="randomlyAssignDesc"
             className={styles.randomlyAssignBtn}
             onClick={this.onAssignRandomly}
             size="sm"
@@ -781,6 +786,9 @@ class BreakoutRoom extends PureComponent {
           ? styles.withError : styles.dontShow}
         >
           {intl.formatMessage(intlMessages.numberOfRoomsIsValid)}
+        </span>
+        <span id="randomlyAssignDesc" className="sr-only">
+          {intl.formatMessage(intlMessages.randomlyAssignDesc)}
         </span>
       </React.Fragment>
     );
@@ -871,6 +879,7 @@ class BreakoutRoom extends PureComponent {
     return this.getUserByRoom(room)
       .map((user) => (
         <p
+          tabIndex={-1}
           id={user.userId}
           key={user.userId}
           className={cx(

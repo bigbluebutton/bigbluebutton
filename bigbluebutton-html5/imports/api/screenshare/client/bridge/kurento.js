@@ -7,6 +7,7 @@ import { SCREENSHARING_ERRORS } from './errors';
 
 const SFU_CONFIG = Meteor.settings.public.kurento;
 const SFU_URL = SFU_CONFIG.wsUrl;
+const OFFERING = SFU_CONFIG.screenshare.subscriberOffering;
 
 const BRIDGE_NAME = 'kurento'
 const SCREENSHARE_VIDEO_TAG = 'screenshareVideo';
@@ -51,6 +52,26 @@ export default class KurentoScreenshareBridge {
 
   set gdmStream(stream) {
     this._gdmStream = stream;
+  }
+
+  /**
+   * Get the RTCPeerConnection object related to the screensharing stream.
+   * @returns {Object} The RTCPeerConnection object related to the presenter/
+   *                   viewer peer. If there's no stream being shared, returns
+   *                   null.
+   */
+  getPeerConnection() {
+    try {
+      let peerConnection = null;
+
+      if (this.broker && this.broker.webRtcPeer) {
+        peerConnection = this.broker.webRtcPeer.peerConnection;
+      }
+
+      return peerConnection;
+    } catch (error) {
+      return null;
+    }
   }
 
   outboundStreamReconnect() {
@@ -202,6 +223,8 @@ export default class KurentoScreenshareBridge {
       iceServers,
       userName: Auth.fullname,
       hasAudio,
+      offering: OFFERING,
+      mediaServer: BridgeService.getMediaServerAdapter(),
     };
 
     this.broker = new ScreenshareBroker(
@@ -259,6 +282,8 @@ export default class KurentoScreenshareBridge {
         stream,
         hasAudio: this.hasAudio,
         bitrate: BridgeService.BASE_BITRATE,
+        offering: true,
+        mediaServer: BridgeService.getMediaServerAdapter(),
       };
 
       this.broker = new ScreenshareBroker(
