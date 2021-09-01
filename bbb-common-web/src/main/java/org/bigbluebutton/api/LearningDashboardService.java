@@ -27,7 +27,6 @@ import java.io.FileOutputStream;
 public class LearningDashboardService {
     private static Logger log = LoggerFactory.getLogger(LearningDashboardService.class);
     private static String learningDashboardFilesDir = "/var/bigbluebutton/learning-dashboard";
-    private static int cleanUpDelaySeconds = 120;
 
     public void writeJsonDataFile(String meetingId, String learningDashboardAccessToken, String activityJson) {
 
@@ -53,8 +52,8 @@ public class LearningDashboardService {
         }
     }
 
-    public void removeActivityJsonFile(String meetingId) {
-        //Delay `cleanUpDelaySeconds` then moderators can open the Dashboard before files has been removed
+    public void removeJsonDataFile(String meetingId, int cleanUpDelayMinutes) {
+        //Delay `cleanUpDelayMinutes` then moderators can open the Dashboard before files has been removed
         new java.util.Timer().schedule(
                 new java.util.TimerTask() {
                     @Override
@@ -64,7 +63,7 @@ public class LearningDashboardService {
                         log.info("Learning Dashboard files removed for meeting {}.",meetingId);
                     }
                 },
-                LearningDashboardService.cleanUpDelaySeconds * 1000
+                (cleanUpDelayMinutes * 60) * 1000
         );
     }
 
