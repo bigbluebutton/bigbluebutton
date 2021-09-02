@@ -9,6 +9,7 @@ const ne = require('./elements');
 const pe = require('../presentation/elements');
 const we = require('../whiteboard/elements');
 const { ELEMENT_WAIT_TIME, UPLOAD_PDF_WAIT_TIME } = require('../core/constants');
+const { checkElementTextIncludes } = require('../core/util');
 
 class Notifications extends MultiUsers {
   constructor() {
@@ -186,7 +187,7 @@ class Notifications extends MultiUsers {
       await this.page3.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
       const resp = await util.getLastToastValue(this.page3);
       await this.page3.screenshot(`${testName}`, `04-page03-poll-toast-${testName}`);
-      return resp === true;
+      return resp;
     } catch (err) {
       await this.page3.logger(err);
       return false;
@@ -202,7 +203,7 @@ class Notifications extends MultiUsers {
       await this.page3.screenshot(`${testName}`, `02-page03-joined-microphone-${testName}`);
       const resp = await util.getLastToastValue(this.page3) === ne.joinAudioToast;
       await this.page3.screenshot(`${testName}`, `03-page03-audio-toast-${testName}`);
-      return resp === true;
+      return resp;
     } catch (err) {
       await this.page3.logger(err);
       return false;
@@ -220,7 +221,7 @@ class Notifications extends MultiUsers {
       await this.page3.screenshot(`${testName}`, `03-page03-screenshare-started-${testName}`);
       const response = await util.getLastToastValue(this.page3);
       await this.page3.screenshot(`${testName}`, `04-page03-screenshare-toast-${testName}`);
-      return response === true;
+      return response;
     } catch (err) {
       await this.page3.logger(err);
       return false;

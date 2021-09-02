@@ -43,7 +43,7 @@ class MultiUsers {
 
   async multiUsersPublicChat() {
     try {
-      const chat0 = await this.page1.page.evaluate(getElementLength, ce.chatUserMessageText;
+      const chat0 = await this.page1.page.evaluate(getElementLength, ce.chatUserMessageText);
       await util.sendPublicChatMessage(this.page1, this.page2);
       const chat1 = await this.page1.page.evaluate(getElementLength, ce.chatUserMessageText);
       return chat0 !== chat1;

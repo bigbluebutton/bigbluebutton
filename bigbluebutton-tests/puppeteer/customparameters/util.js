@@ -5,6 +5,7 @@ const ce = require('../customparameters/elements');
 const we = require('../whiteboard/elements');
 const poe = require('../polling/elemens');
 const e = require('../core/elements');
+const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { checkElementLengthEqualTo, checkElementLengthDifferentTo, checkElementText } = require('../core/util');
 
 async function autoJoinTest(test) {
