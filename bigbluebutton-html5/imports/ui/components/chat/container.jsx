@@ -13,6 +13,7 @@ import lockContextContainer from '/imports/ui/components/lock-viewers/context/co
 import Chat from '/imports/ui/components/chat/component';
 import ChatService from './service';
 import { LayoutContextFunc } from '../layout/context';
+import Users from '/imports/api/users';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -135,10 +136,15 @@ const ChatContainer = (props) => {
 
   const { groupChat } = usingGroupChatContext;
   const participants = groupChat[idChatOpen]?.participants;
-  const chatName = participants?.filter((user) => user.id !== Auth.userID)[0]?.name;
-  const title = chatName
-    ? intl.formatMessage(intlMessages.titlePrivate, { 0: chatName })
+  const chatPartner = participants?.filter((user) => user.id !== Auth.userID)[0];
+  const chatTitle = chatPartner
+    ? Users.findOne({ userId: chatPartner.id }, { fields: { name: 1 } }).name
+    : undefined;
+  const title = chatPartner
+    ? intl.formatMessage(intlMessages.titlePrivate, { 0: chatTitle })
     : intl.formatMessage(intlMessages.titlePublic);
+
+  const chatName = chatPartner ? chatPartner.name : undefined;
 
   let partnerIsLoggedOut = false;
 
