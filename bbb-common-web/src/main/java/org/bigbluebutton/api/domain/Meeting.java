@@ -52,7 +52,7 @@ public class Meeting {
 	private String moderatorPass;
 	private String viewerPass;
 	private Boolean learningDashboardEnabled;
-	private Boolean learningDashboardCleanupEnabled;
+	private int learningDashboardCleanupDelayInMinutes;
 	private String learningDashboardAccessToken;
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
@@ -112,7 +112,7 @@ public class Meeting {
         viewerPass = builder.viewerPass;
         moderatorPass = builder.moderatorPass;
 		learningDashboardEnabled = builder.learningDashboardEnabled;
-		learningDashboardCleanupEnabled = builder.learningDashboardCleanupEnabled;
+		learningDashboardCleanupDelayInMinutes = builder.learningDashboardCleanupDelayInMinutes;
 		learningDashboardAccessToken = builder.learningDashboardAccessToken;
         maxUsers = builder.maxUsers;
         bannerColor = builder.bannerColor;
@@ -336,8 +336,8 @@ public class Meeting {
 		return learningDashboardEnabled;
 	}
 
-	public Boolean getLearningDashboardCleanupEnabled() {
-		return learningDashboardCleanupEnabled;
+	public int getLearningDashboardCleanupDelayInMinutes() {
+		return learningDashboardCleanupDelayInMinutes;
 	}
 
 	public String getLearningDashboardAccessToken() {
@@ -733,7 +733,7 @@ public class Meeting {
     	private String moderatorPass;
     	private String viewerPass;
     	private Boolean learningDashboardEnabled;
-    	private Boolean learningDashboardCleanupEnabled;
+    	private int learningDashboardCleanupDelayInMinutes;
     	private String learningDashboardAccessToken;
     	private int duration;
     	private String webVoice;
@@ -825,13 +825,13 @@ public class Meeting {
 	    	return this;
 	    }
     	
-    	public Builder withlearningDashboardEnabled(Boolean e) {
+    	public Builder withLearningDashboardEnabled(Boolean e) {
 	    	this.learningDashboardEnabled = e;
 	    	return this;
 	    }
 
-    	public Builder withlearningDashboardCleanupEnabled(Boolean e) {
-	    	this.learningDashboardCleanupEnabled = e;
+    	public Builder withLearningDashboardCleanupDelayInMinutes(int m) {
+	    	this.learningDashboardCleanupDelayInMinutes = m;
 	    	return this;
 	    }
 
