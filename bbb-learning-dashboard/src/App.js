@@ -41,7 +41,7 @@ class App extends React.Component {
     }
 
     if (learningDashboardAccessToken !== '') {
-      fetch(`${params.meeting}/${learningDashboardAccessToken}/activity_report.json`)
+      fetch(`${params.meeting}/${learningDashboardAccessToken}/learning_dashboard_data.json`)
         .then((response) => response.json())
         .then((json) => {
           this.setState({ activitiesJson: json });
