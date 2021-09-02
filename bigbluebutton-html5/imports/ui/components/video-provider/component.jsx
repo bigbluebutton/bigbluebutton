@@ -112,6 +112,7 @@ class VideoProvider extends Component {
     this.state = {
       socketOpen: false,
     };
+    this._isMounted = false;
 
     this.info = VideoService.getInfo();
 
@@ -142,6 +143,7 @@ class VideoProvider extends Component {
   }
 
   componentDidMount() {
+    this._isMounted = true;
     this.ws.onopen = this.onWsOpen;
     this.ws.onclose = this.onWsClose;
 
@@ -183,6 +185,7 @@ class VideoProvider extends Component {
 
     // Close websocket connection to prevent multiple reconnects from happening
     this.ws.close();
+    this._isMounted = false;
   }
 
   onWsMessage(message) {
@@ -622,6 +625,9 @@ class VideoProvider extends Component {
       }
 
       peerBuilderFunc(stream, peerOptions).then((offer) => {
+        if (!this._isMounted) {
+          return this.stopWebRTCPeer(stream, false);
+        }
         const peer = this.webRtcPeers[stream];
 
         if (peer && peer.peerConnection) {
