@@ -6,29 +6,38 @@ import Card from './components/Card';
 import UsersTable from './components/UsersTable';
 import StatusTable from './components/StatusTable';
 import PollsTable from './components/PollsTable';
+import ErrorMessage from './components/ErrorMessage';
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      loading: true,
       activitiesJson: {},
       tab: 'overview',
+      meetingId: '',
+      learningDashboardAccessToken: '',
     };
   }
 
   componentDidMount() {
-    this.fetchActivitiesJson();
+    this.setDashboardParams();
     setInterval(() => {
       this.fetchActivitiesJson();
     }, 10000);
   }
 
-  fetchActivitiesJson() {
+  setDashboardParams() {
+    let learningDashboardAccessToken = '';
+    let meetingId = '';
+
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
-    if (typeof params.meeting === 'undefined') return;
 
-    let learningDashboardAccessToken = '';
+    if (typeof params.meeting !== 'undefined') {
+      meetingId = params.meeting;
+    }
+
     if (typeof params.report !== 'undefined') {
       learningDashboardAccessToken = params.report;
     } else {
@@ -40,18 +49,30 @@ class App extends React.Component {
       });
     }
 
+    this.setState({ learningDashboardAccessToken, meetingId }, this.fetchActivitiesJson);
+  }
+
+  fetchActivitiesJson() {
+    const { learningDashboardAccessToken, meetingId } = this.state;
+
     if (learningDashboardAccessToken !== '') {
-      fetch(`${params.meeting}/${learningDashboardAccessToken}/learning_dashboard_data.json`)
+      fetch(`${meetingId}/${learningDashboardAccessToken}/learning_dashboard_data.json`)
         .then((response) => response.json())
         .then((json) => {
-          this.setState({ activitiesJson: json });
+          this.setState({ activitiesJson: json, loading: false });
           document.title = `Learning Dashboard - ${json.name}`;
+        }).catch(() => {
+          this.setState({ loading: false });
         });
+    } else {
+      this.setState({ loading: false });
     }
   }
 
   render() {
-    const { activitiesJson, tab } = this.state;
+    const {
+      activitiesJson, tab, learningDashboardAccessToken, loading,
+    } = this.state;
     const { intl } = this.props;
 
     function totalOfRaiseHand() {
@@ -131,6 +152,15 @@ class App extends React.Component {
       return meetingAveragePoints;
     }
 
+    function getErrorMessage() {
+      if (learningDashboardAccessToken === '') {
+        return intl.formatMessage({ id: 'app.learningDashboard.errors.invalidToken', defaultMessage: 'Invalid session token' });
+      }
+      return intl.formatMessage({ id: 'app.learningDashboard.errors.dataUnavailable', defaultMessage: 'Data is no longer available' });
+    }
+
+    if (loading === false && typeof activitiesJson.name === 'undefined') return <ErrorMessage message={getErrorMessage()} />;
+
     return (
       <div className="mx-10">
         <div className="flex items-start justify-between pb-3">
@@ -148,18 +178,23 @@ class App extends React.Component {
                 day="numeric"
               />
               {
-                        activitiesJson.endedOn > 0
-                          ? (
-                            <span className="px-2 py-1 ml-3 font-semibold leading-tight text-red-700 bg-red-100 rounded-full">
-                              <FormattedMessage id="app.learningDashboard.indicators.meetingStatusEnded" defaultMessage="Ended" />
-                            </span>
-                          )
-                          : (
-                            <span className="px-2 py-1 ml-3 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
-                              <FormattedMessage id="app.learningDashboard.indicators.meetingStatusActive" defaultMessage="Active" />
-                            </span>
-                          )
-                    }
+                activitiesJson.endedOn > 0
+                  ? (
+                    <span className="px-2 py-1 ml-3 font-semibold leading-tight text-red-700 bg-red-100 rounded-full">
+                      <FormattedMessage id="app.learningDashboard.indicators.meetingStatusEnded" defaultMessage="Ended" />
+                    </span>
+                  )
+                  : null
+              }
+              {
+                activitiesJson.endedOn === 0
+                  ? (
+                    <span className="px-2 py-1 ml-3 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
+                      <FormattedMessage id="app.learningDashboard.indicators.meetingStatusActive" defaultMessage="Active" />
+                    </span>
+                  )
+                  : null
+              }
             </p>
             <p>
               <FormattedMessage id="app.learningDashboard.indicators.duration" defaultMessage="Duration" />
