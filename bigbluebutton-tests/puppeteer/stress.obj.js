@@ -10,8 +10,8 @@ const stressTest = () => {
       await test.logger('begin of ', testName);
       response = await test.moderatorAsPresenter(testName);
       await test.logger('end of ', testName);
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     }
     expect(response).toBe(true);
   });

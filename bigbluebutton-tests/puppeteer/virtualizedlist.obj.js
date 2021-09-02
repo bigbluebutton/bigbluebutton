@@ -18,8 +18,8 @@ const virtualizedListTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end of ', testName);
-    } catch (e) {
-      await test.page1.logger(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close();
     }

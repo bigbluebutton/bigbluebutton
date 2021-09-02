@@ -30,8 +30,8 @@ const chatTest = () => {
       await test.stopRecording();
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -54,8 +54,8 @@ const chatTest = () => {
       await test.stopRecording();
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -78,8 +78,8 @@ const chatTest = () => {
       await test.stopRecording();
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -102,8 +102,8 @@ const chatTest = () => {
       await test.stopRecording();
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -127,8 +127,8 @@ const chatTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end of ', testName);
-    } catch (e) {
-      await test.page1.logger(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
     }
@@ -152,8 +152,8 @@ const chatTest = () => {
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end of ', testName);
-    } catch (e) {
-      await test.page1.logger(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
     }
@@ -175,8 +175,8 @@ const chatTest = () => {
       await test.page3.startRecording();
       screenshot = await test.page3.page.screenshot();
       await test.page3.logger('end of ', testName);
-    } catch (e) {
-      await test.page3.logger(e);
+    } catch (err) {
+      await test.page3.logger(err);
     } finally {
       await test.closePage(test.page3);
     }

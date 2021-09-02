@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
+import { TAB } from '/imports/utils/keyCodes';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/button/component';
 import Checkbox from '/imports/ui/components/checkbox/component';
@@ -254,6 +255,31 @@ class PresentationUploader extends Component {
     const { presentations } = this.state;
     // Updates presentation list when chat modal opens to avoid missing presentations
     if (isOpen && !prevProps.isOpen) {
+      const  focusableElements =
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+      const modal = document.getElementById('upload-modal');
+      const firstFocusableElement = modal?.querySelectorAll(focusableElements)[0];
+      const focusableContent = modal?.querySelectorAll(focusableElements);
+      const lastFocusableElement = focusableContent[focusableContent.length - 1];
+      
+      firstFocusableElement.focus();
+  
+      modal.addEventListener('keydown', function(e) {
+        let tab = e.key === 'Tab' || e.keyCode === TAB;
+        if (!tab) return;
+        if (e.shiftKey) {
+          if (document.activeElement === firstFocusableElement) {
+            lastFocusableElement.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === lastFocusableElement) {
+            firstFocusableElement.focus();
+            e.preventDefault();
+          }
+        }
+      });
+
       this.setState({
         presentations: Object.values({
           ...propPresentations,
@@ -698,7 +724,7 @@ class PresentationUploader extends Component {
   }
 
   renderPresentationItem(item) {
-    const { disableActions, hasError: stateError } = this.state;
+    const { disableActions } = this.state;
     const {
       intl,
       selectedToBeNextCurrent,
@@ -710,7 +736,7 @@ class PresentationUploader extends Component {
     const hasError = item.conversion.error || item.upload.error;
     const isProcessing = (isUploading || isConverting) && !hasError;
 
-    if (!stateError && hasError) {
+    if (hasError) {
       this.hasError = true;
     }
 
@@ -953,7 +979,7 @@ class PresentationUploader extends Component {
     });
 
     return isOpen ? (
-      <div className={styles.modal}>
+      <div id="upload-modal" className={styles.modal}>
         <div
           className={styles.modalInner}
         >

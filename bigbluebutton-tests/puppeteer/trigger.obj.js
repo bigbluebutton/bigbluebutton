@@ -20,8 +20,8 @@ const triggerTest = () => {
       await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
       response = await test.triggerMeteorDisconnect(testName);
       screenshot = await test.page.screenshot();
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -39,8 +39,8 @@ const triggerTest = () => {
       await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
       response = await test.triggerNetworkServiceDisconnection(testName);
       screenshot = await test.page.screenshot();
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }

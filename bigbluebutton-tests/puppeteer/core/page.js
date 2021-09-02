@@ -12,8 +12,6 @@ const { ELEMENT_WAIT_TIME } = require('./constants');
 const e = require('./elements');
 const ue = require('../user/elements');
 const { NETWORK_PRESETS } = require('./profiles');
-const audioCapture = `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`;
-const videoCapture = `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`;
 const devices = require('./devices');
 const linuxDesktop = devices['Linux Desktop'];
 
@@ -36,8 +34,8 @@ class Page {
     try {
       const settings = yaml.load(fs.readFileSync(path.join(__dirname, '../../../bigbluebutton-html5/private/config/settings.yml'), 'utf8'));
       return settings;
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      await this.logger(err);
     }
   }
 
@@ -79,7 +77,7 @@ class Page {
       });
       await this.setDownloadBehavior(`${this.parentDir}/downloads`);
       this.meetingId = await helper.createMeeting(params, meetingId, customParameter);
-      this.logger('Meeting ID: ', this.meetingId);
+      await this.logger('Meeting ID: ', this.meetingId);
 
       const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, isModerator, customParameter);
       await this.page.goto(joinURL, { waitUntil: 'networkidle2' });
@@ -88,8 +86,8 @@ class Page {
         await this.waitForSelector(ue.anyUser, ELEMENT_WAIT_TIME);
         await this.getMetrics(testFolderName);
       }
-    } catch (e) {
-      this.logger(e);
+    } catch (err) {
+      await this.logger(err);
     }
   }
 
@@ -201,8 +199,6 @@ class Page {
       '--use-fake-device-for-media-stream',
       '--no-default-browser-check',
       '--window-size=1150,980',
-      audioCapture,
-      videoCapture,
       '--allow-file-access',
       '--lang=en-US',
     ];
@@ -225,15 +221,15 @@ class Page {
         failureThreshold: numb,
         failureThresholdType: 'percent',
       });
-    }  
+    }
   }
 
   async isNotVisible(el, timeout) {
     try {
-      await this.page.waitForSelector(el, {visible: false, timeout: timeout});
+      await this.page.waitForSelector(el, { visible: false, timeout: timeout });
       return true;
-    } catch(e) {
-      console.log(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }
@@ -415,20 +411,20 @@ class Page {
       return users;
     });
     const totalNumberOfUsersDom = await this.page.evaluate(async () => await document.querySelectorAll('[data-test^="userListItem"]').length);
-    this.logger({ totalNumberOfUsersDom, totalNumberOfUsersMongo });
+    await this.logger({ totalNumberOfUsersDom, totalNumberOfUsersMongo });
     const metric = await this.page.metrics();
     pageMetricsObj.totalNumberOfUsersMongoObj = totalNumberOfUsersMongo;
     pageMetricsObj.totalNumberOfUsersDomObj = totalNumberOfUsersDom;
     pageMetricsObj[`metricObj-${this.meetingId}`] = metric;
     const metricsFile = path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testFolderName}/metrics/metrics-${this.effectiveParams.fullName}-[${this.meetingId}].json`);
-    const createFile = () => {
+    const createFile = async () => {
       try {
         fs.appendFileSync(metricsFile, `${JSON.stringify(pageMetricsObj)},\n`);
-      } catch (error) {
-        this.logger(error);
+      } catch (err) {
+        await this.logger(err);
       }
     };
-    createFile();
+    await createFile();
   }
 }
 

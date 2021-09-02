@@ -21,13 +21,16 @@ const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props
   const fullscreenElementId = 'Presentation';
   const layoutContext = useContext(LayoutContext);
   const { layoutContextState, layoutContextDispatch } = layoutContext;
-  const { input, output, layoutType, fullscreen, deviceType } = layoutContextState;
+  const {
+    input, output, layoutType, fullscreen, deviceType,
+  } = layoutContextState;
   const { cameraDock } = input;
   const { numCameras } = cameraDock;
   const { presentation } = output;
   const { element } = fullscreen;
   const fullscreenContext = (element === fullscreenElementId);
   const { layoutSwapped, podId } = props;
+  const isIphone = !!(navigator.userAgent.match(/iPhone/i));
 
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
@@ -48,7 +51,8 @@ const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props
         layoutType,
         fullscreenContext,
         fullscreenElementId,
-        isMobile: deviceType === DEVICE_TYPE.MOBILE
+        isMobile: deviceType === DEVICE_TYPE.MOBILE,
+        isIphone,
       }
       }
     />

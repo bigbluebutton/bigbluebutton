@@ -108,6 +108,7 @@ class VideoProvider extends Component {
   constructor(props) {
     super(props);
 
+    // socketOpen state is there to force update when the signaling socket opens or closes
     this.state = {
       socketOpen: false,
     };
@@ -123,7 +124,7 @@ class VideoProvider extends Component {
     this.wsQueue = [];
     this.restartTimeout = {};
     this.restartTimer = {};
-    this.webRtcPeers = {};
+    this.webRtcPeers = VideoService.getWebRtcPeers();
     this.outboundIceQueues = {};
     this.videoTags = {};
 
@@ -642,6 +643,7 @@ class VideoProvider extends Component {
           userName: this.info.userName,
           bitrate,
           record: VideoService.getRecord(),
+          mediaServer: VideoService.getMediaServerAdapter(),
         };
 
         logger.info({

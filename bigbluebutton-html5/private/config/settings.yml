@@ -89,6 +89,12 @@ public:
     # https://developer.mozilla.org/en-US/docs/Web/API/RTCDtlsTransport/iceTransport
     # This is an EXPERIMENTAL setting and the default value is false
     # experimentalUseKmsTrickleIceForMicrophone: false
+    #
+    # Shows stats about download and upload rates, audio jitter, lost packets
+    # and turn information
+    enableNetworkStats: true
+    # Enable the button to allow users to copy network stats to clipboard
+    enableCopyNetworkStatsButton: true
     defaultSettings:
       application:
         animations: true
@@ -202,6 +208,11 @@ public:
       # Experimental. True is the canonical behavior. Flip to false to reverse
       # the negotiation flow for subscribers.
       subscriberOffering: true
+      # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
+      # media server adapter should be used for screen sharing.
+      # Default is undefined, which means the default setting in bbb-webrtc-sfu
+      # prevails (screenshareMediaServer).
+      #mediaServer: Kurento
       bitrate: 1500
       mediaTimeouts:
         maxConnectionAttempts: 2
@@ -301,6 +312,16 @@ public:
     enableVideo: true
     enableVideoMenu: true
     enableListenOnly: true
+    # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
+    # media server adapter should be used for listen only.
+    # Default is undefined, which means the default setting in bbb-webrtc-sfu
+    # prevails (listenOnlyMediaServer).
+    #listenOnlyMediaServer: Kurento
+    # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
+    # media server adapter should be used for webcams.
+    # Default is undefined, which means the default setting in bbb-webrtc-sfu
+    # prevails (videoMediaServer).
+    #videoMediaServer: Kurento
     autoShareWebcam: false
     skipVideoPreview: false
     skipVideoPreviewOnFirstJoin: false
@@ -722,4 +743,3 @@ private:
       version: 10
     - browser: YandexBrowser
       version: 19
-
