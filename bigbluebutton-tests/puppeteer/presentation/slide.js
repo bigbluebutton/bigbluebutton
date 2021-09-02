@@ -19,14 +19,14 @@ class Slide extends Page {
       await this.waitForSelector(e.nextSlide, ELEMENT_WAIT_TIME);
       await this.click(e.nextSlide, true);
       await this.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
-      await this.page.waitForSelector(1000);
+      await this.page.waitForTimeout(1000);
 
       const svg1 = await this.page.evaluate(util.checkSvgIndex, '/svg/2');
 
       await this.waitForSelector(e.prevSlide, ELEMENT_WAIT_TIME);
       await this.click(e.prevSlide, true);
       await this.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
-      await this.page.waitForSelector(1000);
+      await this.page.waitForTimeout(1000);
 
       const svg2 = await this.page.evaluate(util.checkSvgIndex, '/svg/1');
 
