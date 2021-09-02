@@ -376,7 +376,6 @@ class CustomParameters {
     await this.page1.waitForSelector(cpe.container, ELEMENT_WAIT_TIME);
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
     const isNotHidden = await this.page1.page.$eval(cpe.restorePresentation, elem => elem.offsetHeight !== 0);
-    console.log(isNotHidden);
     if (isNotHidden === false) {
       await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
       this.page1.logger(testName, ' failed');
@@ -433,8 +432,6 @@ class CustomParameters {
     await this.page1.waitForSelector(cpe.notificationBar, ELEMENT_WAIT_TIME);
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
     const notificationBarColor = await this.page1.page.$eval('div[class^="notificationsBar--"]', elem => getComputedStyle(elem).backgroundColor);
-    console.log('colorToRGB => ', colorToRGB);
-    console.log('notificationBarColor => ', notificationBarColor);
     if (notificationBarColor !== colorToRGB) {
       await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
       this.page1.logger(testName, ' failed');

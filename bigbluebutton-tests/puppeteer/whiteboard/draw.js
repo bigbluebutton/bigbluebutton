@@ -28,17 +28,22 @@ class Draw extends Page {
       await this.waitForSelector(e.drawnRectangle, ELEMENT_WAIT_TIME);
       const shapes1 = await this.getTestElements();
       shapes1 !== '<g></g>';
-      return true;
-    } catch (e) {
-      await this.logger(e);
+
+      return shapes0 && shapes1;
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }
 
   async getTestElements() {
-    await this.waitForSelector('g[clip-path="url(#viewBox)"]', ELEMENT_WAIT_TIME);
-    const shapes = await this.page.evaluate(() => document.querySelector('svg g[clip-path]').children[1].outerHTML);
-    return shapes;
+    try {
+      await this.waitForSelector('g[clip-path="url(#viewBox)"]', ELEMENT_WAIT_TIME);
+      const shapes = await this.page.evaluate(() => document.querySelector('svg g[clip-path]').children[1].outerHTML);
+      return shapes;
+    } catch (err) {
+      await this.logger(err);
+    }
   }
 }
 
