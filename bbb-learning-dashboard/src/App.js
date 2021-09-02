@@ -209,8 +209,8 @@ class App extends React.Component {
             <Card
               name={
                 activitiesJson.endedOn === 0
-                  ? intl.formatMessage({ id: 'app.learningDashboard.indicators.participantsOnline', defaultMessage: 'Active Participants' })
-                  : intl.formatMessage({ id: 'app.learningDashboard.indicators.participantsTotal', defaultMessage: 'Total Number Of Participants' })
+                  ? intl.formatMessage({ id: 'app.learningDashboard.indicators.usersOnline', defaultMessage: 'Active Users' })
+                  : intl.formatMessage({ id: 'app.learningDashboard.indicators.usersTotal', defaultMessage: 'Total Number Of Users' })
               }
               number={Object.values(activitiesJson.users || {})
                 .filter((u) => activitiesJson.endedOn > 0 || u.leftOn === 0).length}
@@ -317,7 +317,7 @@ class App extends React.Component {
         </div>
         <h1 className="block my-1 pr-2 text-xl font-semibold">
           { tab === 'overview' || tab === 'overview_activityscore'
-            ? <FormattedMessage id="app.learningDashboard.participantsTable.title" defaultMessage="Overview" />
+            ? <FormattedMessage id="app.learningDashboard.usersTable.title" defaultMessage="Overview" />
             : null }
           { tab === 'status_timeline'
             ? <FormattedMessage id="app.learningDashboard.statusTimelineTable.title" defaultMessage="Status Timeline" />
