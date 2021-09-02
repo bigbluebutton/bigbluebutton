@@ -21,16 +21,16 @@ done
 
 ##
 
-mkdir -p staging/var/bigbluebutton/activity-report
+mkdir -p staging/var/bigbluebutton/learning-dashboard
 
 mkdir -p staging/etc/bigbluebutton/nginx
-cp activity-report.nginx staging/etc/bigbluebutton/nginx
+cp learning-dashboard.nginx staging/etc/bigbluebutton/nginx
 
 
-# install dependencies, create build, copy build over to destinatino
-npm install
+# install dependencies, create build, copy build over to destination
+npm ci
 npm run build
-cp -r build/* staging/var/bigbluebutton/activity-report
+cp -r build/* staging/var/bigbluebutton/learning-dashboard
 
 ##
 
@@ -38,10 +38,11 @@ cp -r build/* staging/var/bigbluebutton/activity-report
 
 fpm -s dir -C ./staging -n $PACKAGE \
     --version $VERSION --epoch $EPOCH \
+    --before-install before-install.sh \
     --after-install after-install.sh        \
     --after-remove  after-remove.sh        \
     --depends unzip                        \
-    --description "BigBlueButton bbb-activity-report" \
+    --description "BigBlueButton bbb-learning-dashboard" \
     $DIRECTORIES \
     $OPTS
 

@@ -164,6 +164,7 @@ class NavBar extends Component {
               hideLabel
               data-test={hasNotification ? 'hasUnreadMessages' : null}
               label={intl.formatMessage(intlMessages.toggleUserListLabel)}
+              tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
               aria-label={ariaLabel}
               icon="user"
               className={cx(toggleBtnClasses)}

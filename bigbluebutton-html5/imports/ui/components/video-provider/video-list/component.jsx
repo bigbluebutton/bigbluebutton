@@ -118,6 +118,7 @@ class VideoList extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    const { focusedId } = this.state;
     const { layoutType, cameraDock, streams } = this.props;
     const { width: cameraDockWidth, height: cameraDockHeight } = cameraDock;
     const {
@@ -127,6 +128,11 @@ class VideoList extends Component {
     } = prevProps;
     const { width: prevCameraDockWidth, height: prevCameraDockHeight } = prevCameraDock;
 
+    const focusedStream = streams.filter((item) => item.stream === focusedId);
+
+    if (focusedId && focusedStream.length === 0) {
+      this.handleVideoFocus(focusedId);
+    }
     if (layoutType !== prevLayoutType
       || cameraDockWidth !== prevCameraDockWidth
       || cameraDockHeight !== prevCameraDockHeight

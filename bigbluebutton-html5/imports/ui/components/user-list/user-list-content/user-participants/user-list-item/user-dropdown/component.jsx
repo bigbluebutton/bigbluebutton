@@ -295,7 +295,6 @@ class UserDropdown extends PureComponent {
       statuses.forEach((s) => {
         actions.push({
           key: s,
-          dataTest: s,
           label: intl.formatMessage({ id: `app.actionsBar.emojiMenu.${s}Label` }),
           onClick: () => {
             setEmojiStatus(user.userId, s);
@@ -327,7 +326,6 @@ class UserDropdown extends PureComponent {
     if (showChatOption) {
       actions.push({
         key: 'activeChat',
-        dataTest: "activeChat",
         label: intl.formatMessage(messages.StartPrivateChat),
         onClick: () => {
           this.handleClose();

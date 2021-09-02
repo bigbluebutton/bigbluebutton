@@ -11,8 +11,8 @@ async function autoJoinTest(test) {
   try {
     const resp = await test.page.evaluate(checkElementLengthEqualTo, e.audioDialog, 0);
     return resp === true;
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
+    console.log(err);
     return false;
   }
 }
@@ -25,8 +25,8 @@ async function listenOnlyMode(test) {
       return document.querySelectorAll(echoYes).length !== 0;
     }, e.connectingStatus, e.echoYes);
     return resp === true;
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
+    console.log(err);
   }
 }
 
@@ -37,8 +37,8 @@ async function forceListenOnly(test) {
     const resp = await test.page.evaluate(checkElementText, ce.toastContainer, 'You have joined the audio conference');
 
     return resp === true;
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
+    console.log(err);
     return false
   }
 }
@@ -51,8 +51,8 @@ async function skipCheck(test) {
     await test.waitForSelector(ce.muteBtn, ELEMENT_WAIT_TIME);
     const resp2 = await test.page.evaluate(checkElementLengthDifferentTo, ce.muteBtn, 0);
     return resp1 === true && resp2 === true;
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
+    console.log(err);
     return false;
   }
 }
@@ -73,8 +73,8 @@ async function zoomIn(test) {
       }, 100);
     }, e.zoomIn);
     return true;
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
+    console.log(err);
     return false;
   }
 }
@@ -87,8 +87,8 @@ async function zoomOut(test) {
       }, 100);
     }, e.zoomIn);
     return true;
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
+    console.log(err);
     return false;
   }
 }
@@ -109,8 +109,8 @@ async function poll(page1, page2) {
     await page1.waitForSelector(ne.publishPollingResults, ELEMENT_WAIT_TIME);
     await page1.click(ne.publishPollingResults, true);
     return true;
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
+    console.log(err);
     return false;
   }
 }
@@ -120,8 +120,8 @@ async function previousSlide(test) {
     await test.waitForSelector(pe.prevSlide, ELEMENT_WAIT_TIME);
     await test.click(pe.prevSlide, true);
     return true;
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
+    console.log(err);
     return false;
   }
 }
@@ -131,8 +131,8 @@ async function nextSlide(test) {
     await test.waitForSelector(pe.nextSlide, ELEMENT_WAIT_TIME);
     await test.click(pe.nextSlide, true);
     return true;
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
+    console.log(err);
     return false;
   }
 }
@@ -156,11 +156,11 @@ async function presetationUpload(test) {
     await test.waitForSelector(pe.uploadPresentation, ELEMENT_WAIT_TIME);
     await test.click(pe.uploadPresentation, true);
     const elementHandle = await test.page.$(pe.fileUpload);
-    await elementHandle.uploadFile(path.join(__dirname, '../media/DifferentSizes.pdf'));
+    await elementHandle.uploadFile(path.join(__dirname, `../media/${e.pdfFileName}.pdf`));
     await test.click(ce.confirmBtn, true);
     return true;
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
+    console.log(err);
     return false;
   }
 }
@@ -170,8 +170,8 @@ function encodeCustomParams(param) {
     let splited = param.split('=');
     splited[1] = encodeURIComponent(splited[1]).replace(/%20/g, '+');
     return splited.join('=');
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
+    console.log(err);
   }
 }
 

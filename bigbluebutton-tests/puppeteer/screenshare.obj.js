@@ -27,8 +27,8 @@ const screenShareTest = () => {
       await test.logger('end of ', testName);
       await test.stopRecording();
       screenshot = await test.page.screenshot();
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -48,8 +48,8 @@ const screenShareTest = () => {
       await test.logger('end of ', testName);
       await test.stopRecording();
       screenshot = await test.page.screenshot();
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -69,8 +69,8 @@ const screenShareTest = () => {
       await test.logger('end of ', testName);
       await test.stopRecording();
       screenshot = await test.page.screenshot();
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -90,8 +90,8 @@ const screenShareTest = () => {
       await test.logger('end of ', testName);
       await test.stopRecording();
       screenshot = await test.page.screenshot();
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }

@@ -5,9 +5,8 @@ import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
 import ButtonEmoji from '/imports/ui/components/button/button-emoji/ButtonEmoji';
-import Dropdown from '/imports/ui/components/dropdown/component';
+import BBBMenu from '/imports/ui/components/menu/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import cx from 'classnames';
 
 import { styles } from '../styles';
 
@@ -62,7 +61,6 @@ class InputStreamLiveSelector extends Component {
     if (deviceName && (deviceName.length <= DEVICE_LABEL_MAX_LENGTH)) {
       return deviceName;
     }
-
     return `${deviceName.substring(0, DEVICE_LABEL_MAX_LENGTH - 3)}...`;
   }
 
@@ -214,45 +212,35 @@ class InputStreamLiveSelector extends Component {
     const {
       intl,
     } = this.props;
-
-    const listLenght = list ? list.length : -1;
-
+    const listLength = list ? list.length : -1;
     const listTitle = [
-      <Dropdown.DropdownListTitle key={`audioDeviceList-${deviceKind}`}>
-        {title}
-      </Dropdown.DropdownListTitle>,
+      {
+        key: `audioDeviceList-${deviceKind}`,
+        label: title,
+        disabled: true,
+        dividerTop: (!renderSeparator),
+      },
     ];
-
-    const deviceList = (listLenght > 0)
+    const deviceList = (listLength > 0)
       ? list.map((device) => (
-        <Dropdown.DropdownListItem
-          key={`${device.deviceId}-${deviceKind}`}
-          label={InputStreamLiveSelector.truncateDeviceName(device.label)}
-          onClick={() => this.onDeviceListClick(device.deviceId, deviceKind,
-            callback)}
-          className={(device.deviceId === currentDeviceId)
-            ? styles.selectedDevice : ''}
-        />
+        {
+          key: `${device.deviceId}-${deviceKind}`,
+          label: InputStreamLiveSelector.truncateDeviceName(device.label),
+          className: (device.deviceId === currentDeviceId) ? styles.selectedDevice : '',
+          iconRight: (device.deviceId === currentDeviceId) ? 'check' : null,
+          onClick: () => this.onDeviceListClick(device.deviceId, deviceKind, callback),
+        }
       ))
       : [
-        <Dropdown.DropdownListItem
-          key={`noDeviceFoundKey-${deviceKind}-`}
-          className={styles.disableDeviceSelection}
-          label={
-            listLenght < 0
-              ? intl.formatMessage(intlMessages.loading)
-              : intl.formatMessage(intlMessages.noDeviceFound)
-          }
-        />,
+        {
+          key: `noDeviceFoundKey-${deviceKind}-`,
+          label: listLength < 0
+            ? intl.formatMessage(intlMessages.loading)
+            : intl.formatMessage(intlMessages.noDeviceFound),
+          className: styles.disableDeviceSelection,
+        },
       ];
-
-    const listSeparator = [
-      <Dropdown.DropdownListSeparator key={`audioDeviceListSeparator-${deviceKind}`} />,
-    ];
-
-    return listTitle.concat(deviceList).concat(
-      renderSeparator ? listSeparator : [],
-    );
+    return listTitle.concat(deviceList);
   }
 
   render() {
@@ -295,34 +283,34 @@ class InputStreamLiveSelector extends Component {
     const dropdownListComplete = inputDeviceList.concat(outputDeviceList);
 
     return (
-      <Dropdown>
-        <Dropdown.DropdownTrigger>
-          <Button
-            aria-label={intl.formatMessage(intlMessages.leaveAudio)}
-            label={intl.formatMessage(intlMessages.leaveAudio)}
-            accessKey={shortcuts.leaveaudio}
-            data-test="leaveAudio"
-            hideLabel
-            color="primary"
-            icon={isListenOnly ? 'listen' : 'audio_on'}
-            size="lg"
-            circle
-            onClick={() => handleLeaveAudio()}
-          >
+      <BBBMenu
+        trigger={(
+          <>
+            <Button
+              aria-label={intl.formatMessage(intlMessages.leaveAudio)}
+              label={intl.formatMessage(intlMessages.leaveAudio)}
+              accessKey={shortcuts.leaveaudio}
+              data-test="leaveAudio"
+              hideLabel
+              color="primary"
+              icon={isListenOnly ? 'listen' : 'audio_on'}
+              size="lg"
+              circle
+              onClick={(e) => {
+                e.stopPropagation();
+                handleLeaveAudio();
+              }}
+            />
             <ButtonEmoji
               emoji="device_list_selector"
               label={intl.formatMessage(intlMessages.changeAudioDevice)}
+              hideLabel
+              tabIndex={0}
             />
-          </Button>
-        </Dropdown.DropdownTrigger>
-        <Dropdown.DropdownContent className={styles.dropdownContent}>
-          <Dropdown.DropdownList
-            className={cx(styles.scrollableList, styles.dropdownListContainer)}
-          >
-            {dropdownListComplete}
-          </Dropdown.DropdownList>
-        </Dropdown.DropdownContent>
-      </Dropdown>
+          </>
+        )}
+        actions={dropdownListComplete}
+      />
     );
   }
 }

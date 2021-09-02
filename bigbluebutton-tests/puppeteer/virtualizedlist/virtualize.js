@@ -25,8 +25,8 @@ class VirtualizeList {
         await this.page1.getMetrics();
       }
       await this.page1.getMetrics();
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      await this.page1.logger(err);
     }
   }
 
@@ -43,8 +43,9 @@ class VirtualizeList {
       } if ((USER_LIST_VLIST_VISIBLE_USERS !== totalNumberOfUsersMongo) && (USER_LIST_VLIST_VISIBLE_USERS < totalNumberOfUsersMongo)) {
         return true;
       }
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      await this.page1.logger(err);
+      return false;
     }
   }
 
@@ -52,8 +53,8 @@ class VirtualizeList {
     try {
       this.page1.close();
       this.pagesArray.forEach(page => page.close());
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      await this.page1.logger(err);
     }
   }
 }

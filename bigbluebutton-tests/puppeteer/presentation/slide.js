@@ -10,26 +10,31 @@ class Slide extends Page {
   }
 
   async test() {
-    await this.waitForSelector(we.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await this.waitForSelector(e.presentationToolbarWrapper, ELEMENT_WAIT_TIME);
+    try {
+      await this.waitForSelector(we.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+      await this.waitForSelector(e.presentationToolbarWrapper, ELEMENT_WAIT_TIME);
 
-    const svg0 = await this.page.evaluate(util.checkSvgIndex, '/svg/1');
+      const svg0 = await this.page.evaluate(util.checkSvgIndex, '/svg/1');
 
-    await this.waitForSelector(e.nextSlide, ELEMENT_WAIT_TIME);
-    await this.click(e.nextSlide, true);
-    await this.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
-    await this.page.waitForSelector(1000);
+      await this.waitForSelector(e.nextSlide, ELEMENT_WAIT_TIME);
+      await this.click(e.nextSlide, true);
+      await this.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
+      await this.page.waitForSelector(1000);
 
-    const svg1 = await this.page.evaluate(util.checkSvgIndex, '/svg/2');
+      const svg1 = await this.page.evaluate(util.checkSvgIndex, '/svg/2');
 
-    await this.waitForSelector(e.prevSlide, ELEMENT_WAIT_TIME);
-    await this.click(e.prevSlide, true);
-    await this.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
-    await this.page.waitForSelector(1000);
+      await this.waitForSelector(e.prevSlide, ELEMENT_WAIT_TIME);
+      await this.click(e.prevSlide, true);
+      await this.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
+      await this.page.waitForSelector(1000);
 
-    const svg2 = await this.page.evaluate(util.checkSvgIndex, '/svg/1');
+      const svg2 = await this.page.evaluate(util.checkSvgIndex, '/svg/1');
 
-    return svg0 === true && svg1 === true && svg2 === true;
+      return svg0 === true && svg1 === true && svg2 === true;
+    } catch (err) {
+      await this.logger(err);
+      return false;
+    }
   }
 }
 

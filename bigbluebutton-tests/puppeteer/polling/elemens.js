@@ -12,5 +12,6 @@ exports.pollAnswerOptionBtn = 'button[data-test="pollAnswerOption"]';
 exports.pollAnswerOptionInput = 'input[data-test="pollAnswerOption"]';
 exports.pollSubmitAnswer = 'button[data-test="submitAnswer"]';
 exports.startPoll = 'button[data-test="startPoll"]';
+exports.restartPoll = 'button[data-test="restartPoll"]';
 exports.receivedAnswer = 'td[data-test="receivedAnswer"]';
 exports.publishLabel = 'button[data-test="publishLabel"]';

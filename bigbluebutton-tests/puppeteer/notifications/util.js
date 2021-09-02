@@ -80,8 +80,8 @@ async function uploadFileMenu(test) {
 }
 
 async function startPoll(test) {
-  await test.page.evaluate(clickElement, ne.dropdownContent);
-  await test.page.evaluate(clickElement, ne.polling);
+  await test.click(e.actions);
+  await test.click(ne.polling);
   await test.waitForSelector(ne.hidePollDesc, ELEMENT_WAIT_TIME);
   await test.waitForSelector(ne.polling, ELEMENT_WAIT_TIME);
   await test.page.evaluate(clickElement, ne.polling);

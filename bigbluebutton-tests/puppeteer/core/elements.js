@@ -7,6 +7,7 @@ exports.title = '._imports_ui_components_nav_bar__styles__presentationTitle';
 exports.alerts = '.toastify-content';
 exports.presenterClassName = 'presenter--';
 exports.zoomIn = 'button[aria-label="Zoom in"]';
+exports.pdfFileName = '100PagesFile';
 
 exports.isTalking = '[data-test="isTalking"]';
 exports.wasTalking = '[data-test="wasTalking"]';

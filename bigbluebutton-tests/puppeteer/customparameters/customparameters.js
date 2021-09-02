@@ -376,7 +376,6 @@ class CustomParameters {
     await this.page1.waitForSelector(pe.actions, ELEMENT_WAIT_TIME);
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
     const isNotHidden = await this.page1.page.$eval(cpe.restorePresentation, elem => elem.offsetHeight !== 0);
-    console.log(isNotHidden);
     if (isNotHidden !== true) {
       await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
       this.page1.logger(testName, ' failed');
@@ -432,8 +431,6 @@ class CustomParameters {
     await this.page1.waitForSelector(cpe.notificationBar, ELEMENT_WAIT_TIME);
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
     const notificationBarColor = await this.page1.page.$eval('div[class^="notificationsBar--"]', elem => getComputedStyle(elem).backgroundColor);
-    console.log('colorToRGB => ', colorToRGB);
-    console.log('notificationBarColor => ', notificationBarColor);
     if (notificationBarColor !== colorToRGB) {
       await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
       this.page1.logger(testName, ' failed');
@@ -534,7 +531,6 @@ class CustomParameters {
     await this.page1.screenshot(`${testName}`, `02-page1-${testName}`);
     await this.page2.closeAudioModal();
     await this.page2.screenshot(`${testName}`, `02-page2-${testName}`);
-    await this.page2.waitForSelector(cpe.hidePresentation, ELEMENT_WAIT_TIME);
     await this.page2.click(cpe.hidePresentation, true);
     await this.page2.screenshot(`${testName}`, `03-page2-${testName}`);
     const pollCase = await util.poll(this.page1, this.page2) === true;

@@ -70,6 +70,12 @@ class WriterMenu extends PureComponent {
     this.handleStart = this.handleStart.bind(this);
   }
 
+  componentWillUnmount() {
+    const { closeModal } = this.props;
+
+    closeModal();
+  }
+
   handleChange(event) {
     this.setState({ locale: event.target.value });
   }

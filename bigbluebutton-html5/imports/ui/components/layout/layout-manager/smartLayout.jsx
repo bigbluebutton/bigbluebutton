@@ -336,7 +336,9 @@ class SmartLayout extends Component {
 
   calculatesCameraDockBounds(mediaAreaBounds, mediaBounds, sidebarSize) {
     const { layoutContextState } = this.props;
-    const { input, fullscreen, isRTL, deviceType } = layoutContextState;
+    const {
+      input, fullscreen, isRTL, deviceType,
+    } = layoutContextState;
     const { presentation } = input;
     const { isOpen } = presentation;
     const { camerasMargin, presentationToolbarMinWidth } = DEFAULT_VALUES;
@@ -431,14 +433,13 @@ class SmartLayout extends Component {
 
   calculatesMediaBounds(mediaAreaBounds, slideSize, sidebarSize) {
     const { layoutContextState } = this.props;
-    const { input, fullscreen, isRTL } = layoutContextState;
+    const {
+      input, fullscreen, isRTL, deviceType,
+    } = layoutContextState;
     const { presentation } = input;
     const { isOpen } = presentation;
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
-    const { camerasMargin } = DEFAULT_VALUES;
-
-    // TODO Adicionar min e max para a apresentação
 
     if (!isOpen) {
       mediaBounds.width = 0;
@@ -462,7 +463,7 @@ class SmartLayout extends Component {
 
     if (input.cameraDock.numCameras > 0 && !input.cameraDock.isDragging) {
       if (slideSize.width !== 0 && slideSize.height !== 0) {
-        if (slideSize.width < mediaAreaBounds.width) {
+        if (slideSize.width < mediaAreaBounds.width && deviceType !== DEVICE_TYPE.MOBILE) {
           if (slideSize.width < (mediaAreaBounds.width * 0.8)) {
             mediaBounds.width = slideSize.width;
           } else {

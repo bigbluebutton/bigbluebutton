@@ -6,9 +6,12 @@ import LayoutContext from '../layout/context';
 
 const NoteContainer = ({ children, ...props }) => {
   const layoutContext = useContext(LayoutContext);
-  const { layoutContextDispatch } = layoutContext;
+  const { layoutContextDispatch, layoutContextState } = layoutContext;
+  const { input } = layoutContextState;
+  const { cameraDock } = input;
+  const { isResizing } = cameraDock;
   return (
-    <Note {...{ layoutContextDispatch, ...props }}>
+    <Note {...{ layoutContextDispatch, isResizing, ...props }}>
       {children}
     </Note>
   );
