@@ -20,7 +20,7 @@ import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 import Storage from '/imports/ui/services/storage/session';
 import browserInfo from '/imports/utils/browserInfo';
-import Users from '../../../users';
+import Users from '/imports/api/users';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;

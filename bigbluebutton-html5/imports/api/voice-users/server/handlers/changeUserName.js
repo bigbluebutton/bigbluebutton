@@ -1,6 +1,6 @@
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
-import VoiceUsers from '../../index';
+import VoiceUsers from '/imports/api/voice-users';
 
 export default function changeUserName(payload, meetingId) {
   check(payload.body, Object);

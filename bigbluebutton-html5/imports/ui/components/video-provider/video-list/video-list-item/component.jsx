@@ -14,7 +14,7 @@ import {
   subscribeToStreamStateChange,
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
-import Users from '../../../../../api/users';
+import Users from '/imports/api/users';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
