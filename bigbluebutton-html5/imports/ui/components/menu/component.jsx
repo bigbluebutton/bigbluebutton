@@ -103,7 +103,7 @@ class BBBMenu extends React.Component {
         <div
           onClick={(e) => {
             e.persist();
-            this.opts.autoFocus = (e.nativeEvent.pointerType !== 'mouse');
+            this.opts.autoFocus = !(['mouse', 'touch'].includes(e.nativeEvent.pointerType));
             this.handleClick(e);
           }}
           accessKey={this.props?.accessKey}
