@@ -53,6 +53,9 @@ const propTypes = {
   }).isRequired,
 };
 
+// 30 seems to be a good max length, but could be anything else
+const USERNAME_MAX_LENGTH = 30;
+
 function ChangeUserNameModal(props) {
   const {
     mountModal,
@@ -65,8 +68,7 @@ function ChangeUserNameModal(props) {
 
   const [usernameValidationErrorMessage, setUsernameValidationErrorMessage] = useState('');
   const sanitizeUsernameBeforeChanging = (newlyTypedInUsername) => {
-    // 30 seems to be a good max length, but could be anything else
-    if (newlyTypedInUsername.length > 30) {
+    if (newlyTypedInUsername.length > USERNAME_MAX_LENGTH) {
       setUsernameValidationErrorMessage(intl.formatMessage(messages.changeUserNameValidationError));
       return;
     }
