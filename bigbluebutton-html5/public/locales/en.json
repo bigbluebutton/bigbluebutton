@@ -662,6 +662,7 @@
     "app.guest-policy.button.askModerator": "Ask moderator",
     "app.guest-policy.button.alwaysAccept": "Always accept",
     "app.guest-policy.button.alwaysDeny": "Always deny",
+    "app.guest-policy.policyBtnDesc": "Sets meeting guest policy",
     "app.connection-status.ariaTitle": "Connection status modal",
     "app.connection-status.title": "Connection status",
     "app.connection-status.description": "View users' connection status",
