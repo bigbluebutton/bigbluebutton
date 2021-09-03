@@ -158,7 +158,7 @@ class App extends Component {
       value: isRTL,
     });
 
-    MediaService.setSwapLayout();
+    MediaService.setSwapLayout(layoutContextDispatch);
     Modal.setAppElement('#app');
 
     const fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;

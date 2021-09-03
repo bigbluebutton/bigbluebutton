@@ -147,6 +147,7 @@ class CustomLayout extends Component {
             isOpen: false,
           },
           presentation: {
+            isOpen: input.presentation.isOpen,
             slidesLength: input.presentation.slidesLength,
             currentSlide: {
               ...input.presentation.currentSlide,
@@ -174,6 +175,7 @@ class CustomLayout extends Component {
             isOpen: false,
           },
           presentation: {
+            isOpen: input.presentation.isOpen,
             slidesLength: input.presentation.slidesLength,
             currentSlide: {
               ...input.presentation.currentSlide,
