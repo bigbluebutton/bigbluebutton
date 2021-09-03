@@ -24,8 +24,8 @@ const webcamTest = () => {
       await test.stopRecording();
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -46,8 +46,8 @@ const webcamTest = () => {
       await test.stopRecording();
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }

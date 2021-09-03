@@ -46,6 +46,12 @@ const propTypes = {
 };
 
 class GuestPolicyComponent extends PureComponent {
+  componentWillUnmount() {
+    const { closeModal } = this.props;
+
+    closeModal();
+  }
+
   render() {
     const {
       closeModal,

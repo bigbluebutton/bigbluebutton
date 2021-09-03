@@ -23,7 +23,7 @@ module BigBlueButton
       FFMPEG_AEVALSRC = "aevalsrc=s=48000:c=stereo:exprs=0|0"
       FFMPEG_AFORMAT = "aresample=async=1000,aformat=sample_fmts=s16:sample_rates=48000:channel_layouts=stereo"
       FFMPEG_WF_CODEC = 'libvorbis'
-      FFMPEG_WF_ARGS = ['-vn', '-c:a', FFMPEG_WF_CODEC, '-q:a', '2', '-f', 'ogg']
+      FFMPEG_WF_ARGS = ['-c:a', FFMPEG_WF_CODEC, '-q:a', '2', '-f', 'ogg']
       WF_EXT = 'ogg'
 
       def self.dump(edl)
@@ -51,7 +51,7 @@ module BigBlueButton
         ffmpeg_cmd += ['-filter_complex', "amix=inputs=#{inputs.length}"]
 
         output = "#{output_basename}.#{WF_EXT}"
-        ffmpeg_cmd += [*FFMPEG_WF_ARGS, output]
+        ffmpeg_cmd += ['-vn', *FFMPEG_WF_ARGS, output]
 
         BigBlueButton.logger.info "Running audio mixer..."
         exitstatus = BigBlueButton.exec_ret(*ffmpeg_cmd)
@@ -182,7 +182,7 @@ module BigBlueButton
         ffmpeg_cmd << '-filter_complex_script' << filter_complex_script
 
         output = "#{output_basename}.#{WF_EXT}"
-        ffmpeg_cmd += [*FFMPEG_WF_ARGS, output]
+        ffmpeg_cmd += ['-vn', *FFMPEG_WF_ARGS, output]
 
         BigBlueButton.logger.info "Running audio processing..."
         exitstatus = BigBlueButton.exec_ret(*ffmpeg_cmd)

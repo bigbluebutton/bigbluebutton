@@ -54,6 +54,26 @@ export default class KurentoScreenshareBridge {
     this._gdmStream = stream;
   }
 
+  /**
+   * Get the RTCPeerConnection object related to the screensharing stream.
+   * @returns {Object} The RTCPeerConnection object related to the presenter/
+   *                   viewer peer. If there's no stream being shared, returns
+   *                   null.
+   */
+  getPeerConnection() {
+    try {
+      let peerConnection = null;
+
+      if (this.broker && this.broker.webRtcPeer) {
+        peerConnection = this.broker.webRtcPeer.peerConnection;
+      }
+
+      return peerConnection;
+    } catch (error) {
+      return null;
+    }
+  }
+
   outboundStreamReconnect() {
     const currentRestartIntervalMs = this.restartIntervalMs;
     const stream = this.gdmStream;
@@ -204,6 +224,7 @@ export default class KurentoScreenshareBridge {
       userName: Auth.fullname,
       hasAudio,
       offering: OFFERING,
+      mediaServer: BridgeService.getMediaServerAdapter(),
     };
 
     this.broker = new ScreenshareBroker(
@@ -262,6 +283,7 @@ export default class KurentoScreenshareBridge {
         hasAudio: this.hasAudio,
         bitrate: BridgeService.BASE_BITRATE,
         offering: true,
+        mediaServer: BridgeService.getMediaServerAdapter(),
       };
 
       this.broker = new ScreenshareBroker(

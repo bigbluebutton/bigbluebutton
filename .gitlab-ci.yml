@@ -62,11 +62,6 @@ get_external_dependencies:
       - cache/.gradle
 
 # jobs for all packages in the "build" stage (templated from above)
-bbb-activity-report:
-  extends: .build_job
-  script:
-    - build/setup-inside-docker.sh bbb-activity-report
-
 bbb-apps-akka-build:
   extends: .build_job
   script:
@@ -106,6 +101,11 @@ bbb-html5-build:
   extends: .build_job
   script:
     - build/setup-inside-docker.sh bbb-html5
+
+bbb-learning-dashboard:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-learning-dashboard
 
 bbb-libreoffice-docker-build:
   extends: .build_job

@@ -31,8 +31,8 @@ const userTest = () => {
       await test.logger('end of ', testName);
       await test.stopRecording();
       screenshot = await test.page.screenshot();
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -55,8 +55,8 @@ const userTest = () => {
       await test.logger('end of ', testName);
       await test.stopRecording();
       screenshot = await test.page.screenshot();
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -81,7 +81,7 @@ const userTest = () => {
       await test.page1.stopRecording();
       await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
-      await test.page1.logger('end of ', testName);
+      await test.page1.logger('end osf ', testName);
     } catch (err) {
       await test.page1.logger(err);
     } finally {
@@ -429,4 +429,5 @@ const userTest = () => {
     await Page.checkRegression(2.0, screenshot);
   });
 };
+
 module.exports = exports = userTest;

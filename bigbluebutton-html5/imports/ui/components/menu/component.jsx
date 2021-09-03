@@ -28,7 +28,9 @@ class BBBMenu extends React.Component {
       anchorEl: null,
     };
 
-    this.setAnchorEl = this.setAnchorEl.bind(this);
+    this.opts = props.opts;
+    this.autoFocus = false;
+
     this.handleClick = this.handleClick.bind(this);
     this.handleClose = this.handleClose.bind(this);
   }
@@ -37,15 +39,19 @@ class BBBMenu extends React.Component {
     this.setState({ anchorEl: event.currentTarget });
   };
 
-  handleClose() {
+  handleClose(event) {
     const { onCloseCallback } = this.props;
     this.setState({ anchorEl: null }, onCloseCallback());
-  };
 
-  setAnchorEl(el) {
-    console.log(el)
-    debugger
-    this.setState({ anchorEl: el });
+    if (event) {
+      event.persist();
+
+      if (event.type === 'click') {
+        setTimeout(() => {
+          document.activeElement.blur();
+        }, 0);
+      }
+    }
   };
 
   makeMenuItems() {
@@ -58,35 +64,35 @@ class BBBMenu extends React.Component {
       if (key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase())) itemClasses.push(styles.emojiSelected);
 
       return [
-        a.dividerTop && <Divider disabled />,  
+        a.dividerTop && <Divider disabled />,
         <MenuItem
           key={label}
-          data-test={dataTest}
+          data-test={dataTest || key}
           className={itemClasses.join(' ')}
           disableRipple={true}
           disableGutters={true}
           disabled={disabled}
           style={{ paddingLeft: '4px',paddingRight: '4px',paddingTop: '8px', paddingBottom: '8px', marginLeft: '4px', marginRight: '4px' }}
-          onClick={() => { 
+          onClick={(event) => {
             onClick();
             const close = !key.includes('setstatus') && !key.includes('back');
             // prevent menu close for sub menu actions
-            if (close) this.handleClose();
+            if (close) this.handleClose(event);
           }}>
-          <div style={{ display: 'flex', flexFlow: 'row', width: '100%'}}>
+          <div style={{ display: 'flex', flexFlow: 'row', width: '100%' }}>
             {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
             <div className={styles.option}>{label}</div>
             {a.iconRight ? <Icon iconName={a.iconRight} key="iconRight" className={styles.iRight} /> : null}
           </div>
         </MenuItem>,
-        a.divider && <Divider disabled />  
+        a.divider && <Divider disabled />
       ];
     });
   }
 
   render() {
     const { anchorEl } = this.state;
-    const { trigger, intl, opts, wide, classes } = this.props;
+    const { trigger, intl, wide, classes } = this.props;
     const actionsItems = this.makeMenuItems();
     const menuClasses = classes || [];
     menuClasses.push(styles.menu);
@@ -94,9 +100,19 @@ class BBBMenu extends React.Component {
 
     return (
       <>
-        <div onClick={this.handleClick} accessKey={this.props?.accessKey}>{trigger}</div>
+        <div
+          onClick={(e) => {
+            e.persist();
+            this.opts.autoFocus = !(['mouse', 'touch'].includes(e.nativeEvent.pointerType));
+            this.handleClick(e);
+          }}
+          accessKey={this.props?.accessKey}
+        >
+          {trigger}
+        </div>
+
         <Menu
-          {...opts}
+          {...this.opts}
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={this.handleClose}
@@ -123,6 +139,7 @@ export default injectIntl(BBBMenu);
 BBBMenu.defaultProps = {
   opts: {
     id: "default-dropdown-menu",
+    autoFocus: false,
     keepMounted: true,
     transitionDuration: 0,
     elevation: 3,
@@ -131,7 +148,7 @@ BBBMenu.defaultProps = {
     anchorOrigin: { vertical: 'top', horizontal: 'right' },
     transformorigin: { vertical: 'top', horizontal: 'right' },
   },
-  onCloseCallback: () => {},
+  onCloseCallback: () => { },
   wide: false,
 };
 
@@ -145,10 +162,10 @@ BBBMenu.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.shape({
     key: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
-    onClick: PropTypes.func.isRequired,
+    onClick: PropTypes.func,
     icon: PropTypes.string,
     iconRight: PropTypes.string,
-    disabled: PropTypes.bool, 
+    disabled: PropTypes.bool,
     divider: PropTypes.bool,
     dividerTop: PropTypes.bool,
     accessKey: PropTypes.string,

@@ -1,5 +1,0 @@
-location /learning-dashboard/ {
-    alias /var/bigbluebutton/activity-report/;
-    autoindex off;
-}
-
