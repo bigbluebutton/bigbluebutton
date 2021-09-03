@@ -84,7 +84,7 @@ class GuestPolicyComponent extends PureComponent {
           <div className={styles.content}>
             <Button
               color="primary"
-              className={styles.button}
+              className={[styles.button, guestPolicy === ASK_MODERATOR && styles.active].join(' ')}
               disabled={guestPolicy === ASK_MODERATOR}
               label={intl.formatMessage(intlMessages.askModerator)}
               data-test="askModerator"
@@ -95,7 +95,7 @@ class GuestPolicyComponent extends PureComponent {
             />
             <Button
               color="primary"
-              className={styles.button}
+              className={[styles.button, guestPolicy === ALWAYS_ACCEPT && styles.active].join(' ')}
               disabled={guestPolicy === ALWAYS_ACCEPT}
               label={intl.formatMessage(intlMessages.alwaysAccept)}
               data-test="alwaysAccept"
@@ -106,7 +106,7 @@ class GuestPolicyComponent extends PureComponent {
             />
             <Button
               color="primary"
-              className={styles.button}
+              className={[styles.button, guestPolicy === ALWAYS_DENY && styles.active].join(' ')}
               disabled={guestPolicy === ALWAYS_DENY}
               label={intl.formatMessage(intlMessages.alwaysDeny)}
               data-test="alwaysDeny"
