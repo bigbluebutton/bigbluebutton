@@ -6,6 +6,7 @@ import Styled from './styles';
 const CDN = Meteor.settings.public.app.cdn;
 const BASENAME = Meteor.settings.public.app.basename;
 const HOST = CDN + BASENAME;
+const trackName = Meteor.settings.public.timer.music.track;
 
 class Indicator extends Component {
   constructor(props) {
@@ -15,6 +16,8 @@ class Indicator extends Component {
     this.interval = null;
 
     this.alarm = null;
+    this.music = null;
+
     // We need to avoid trigger on mount
     this.triggered = true;
 
@@ -26,6 +29,8 @@ class Indicator extends Component {
     const { running } = timer;
 
     this.alarm = new Audio(`${HOST}/resources/sounds/alarm.mp3`);
+    this.setUpMusic();
+
     this.triggered = this.initTriggered();
 
     const { current } = this.timeRef;
@@ -57,6 +62,15 @@ class Indicator extends Component {
     if (prevRunning && !running) {
       clearInterval(this.interval);
     }
+  }
+
+  setUpMusic() {
+    this.music = new Audio(`${HOST}/resources/sounds/${trackName}.mp3`);
+    this.music.volume = TimerService.getMusicVolume();
+    this.music.addEventListener('ended', () => {
+      this.music.currentTime = 0;
+      this.music.play();
+    }, false);
   }
 
   updateAlarmTrigger(prevTimer, timer) {
@@ -121,6 +135,35 @@ class Indicator extends Component {
     return enabled && running && zero && !stopwatch;
   }
 
+  playMusic() {
+    if (this.music !== null) {
+      this.music.play();
+    }
+  }
+
+  stopMusic() {
+    if (this.music !== null) {
+      this.music.pause();
+      this.music.currentTime = 0;
+    }
+  }
+
+  shouldStopMusic(time) {
+    const { timer } = this.props;
+    const {
+      running,
+      stopwatch,
+    } = timer;
+
+    const isActive = TimerService.isMusicActive();
+    const zero = time === 0;
+    const validMusic = this.music != null;
+
+    const reachedZeroOrStopped = (running && zero) || (!running);
+
+    return !isActive || !validMusic || stopwatch || reachedZeroOrStopped;
+  }
+
   getTime() {
     const {
       timer,
@@ -142,6 +185,12 @@ class Indicator extends Component {
       updatedTime = elapsedTime;
     } else {
       updatedTime = Math.max(time - elapsedTime, 0);
+    }
+
+    if (this.shouldStopMusic(updatedTime)) {
+      this.stopMusic();
+    } else {
+      this.playMusic();
     }
 
     if (this.soundAlarm(updatedTime)) {

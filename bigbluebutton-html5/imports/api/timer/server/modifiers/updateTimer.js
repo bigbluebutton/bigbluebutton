@@ -15,6 +15,7 @@ const getActivateModifier = () => {
       time,
       accumulated: 0,
       timestamp: 0,
+      music: false,
     },
   };
 };
@@ -63,6 +64,7 @@ const getSwitchModifier = (stopwatch) => {
       running: false,
       accumulated: 0,
       timestamp: 0,
+      music: false,
     },
   };
 };
@@ -78,13 +80,22 @@ const getSetModifier = (time) => {
   };
 };
 
+const getMusicModifier = (music) => {
+  return {
+    $set: {
+      music,
+    },
+  };
+};
 
-export default function updateTimer(action, meetingId, time = 0, stopwatch = true, accumulated = 0) {
+
+export default function updateTimer(action, meetingId, time = 0, stopwatch = true, accumulated = 0, music = false) {
   check(action, String);
   check(meetingId, String);
   check(time, Number);
   check(stopwatch, Boolean);
   check(accumulated, Number);
+  check(music, Boolean);
 
   const selector = {
     meetingId,
@@ -113,6 +124,9 @@ export default function updateTimer(action, meetingId, time = 0, stopwatch = tru
       break;
     case 'set':
       modifier = getSetModifier(time);
+      break;
+    case 'music':
+      modifier = getMusicModifier(music);
       break;
     default:
       Logger.error(`Unhandled timer action=${action}`);

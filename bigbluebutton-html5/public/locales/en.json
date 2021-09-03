@@ -66,6 +66,7 @@
     "app.timer.hours": "hours",
     "app.timer.minutes": "minutes",
     "app.timer.seconds": "seconds",
+    "app.timer.music": "Music",
     "app.captions.label": "Captions",
     "app.captions.menu.close": "Close",
     "app.captions.menu.start": "Start",

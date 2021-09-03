@@ -22,6 +22,7 @@ export default function addTimer(meetingId) {
     time,
     accumulated: 0,
     timestamp: 0,
+    music: false,
   };
 
   const cb = (err, numChanged) => {

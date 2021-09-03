@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
 import Service from './service';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import Toggle from '/imports/ui/components/common/switch/component';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -46,6 +46,10 @@ const intlMessages = defineMessages({
   seconds: {
     id: 'app.timer.seconds',
     description: 'Timer seconds label',
+  },
+  music: {
+    id: 'app.timer.music',
+    description: 'Music toggle label',
   },
 });
 
@@ -188,6 +192,11 @@ class Timer extends Component {
     }
   }
 
+  handleOnMusicChange() {
+    const { isMusicActive } = this.props;
+    Service.setMusic(!isMusicActive);
+  }
+
   renderControls() {
     const {
       intl,
@@ -211,6 +220,40 @@ class Timer extends Component {
           onClick={() => Service.resetTimer()}
         />
       </Styled.TimerControls>
+    );
+  }
+
+  renderToggle() {
+    const {
+      intl,
+      timer,
+      isMusicActive,
+    } = this.props;
+
+    const {
+      stopwatch,
+    } = timer;
+
+    return (
+      <Styled.TimerSongsWrapper>
+        <Styled.TimerRow>
+          <Styled.TimerCol
+            disabled={stopwatch}
+          >
+            {intl.formatMessage(intlMessages.music)}
+          </Styled.TimerCol>
+          <Styled.TimerCol
+            pullContentRight
+          >
+            <Toggle
+              onChange={() => this.handleOnMusicChange()}
+              icons={false}
+              disabled={stopwatch}
+              checked={isMusicActive}
+            />
+          </Styled.TimerCol>
+        </Styled.TimerRow>
+      </Styled.TimerSongsWrapper>
     );
   }
 
@@ -266,6 +309,8 @@ class Timer extends Component {
             onChange={(event) => this.handleOnSecondsChange(event)}
           />
         </Styled.StopwatchTime>
+        { Service.isMusicEnabled()
+          ? this.renderToggle() : null}
         {this.renderControls()}
       </div>
     );

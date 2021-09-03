@@ -516,6 +516,10 @@ public:
   timer:
     enabled: false
     alarm: true
+    music:
+      enabled: false
+      volume: 0.4
+      track: "pianoChords"
     interval:
       clock: 100
       offset: 60000

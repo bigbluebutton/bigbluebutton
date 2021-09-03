@@ -7,6 +7,7 @@ import stopTimer from './methods/stopTimer';
 import switchTimer from './methods/switchTimer';
 import setTimer from './methods/setTimer';
 import getServerTime from './methods/getServerTime';
+import setMusic from './methods/setMusic';
 
 Meteor.methods({
   activateTimer,
@@ -17,4 +18,5 @@ Meteor.methods({
   switchTimer,
   setTimer,
   getServerTime,
+  setMusic,
 });

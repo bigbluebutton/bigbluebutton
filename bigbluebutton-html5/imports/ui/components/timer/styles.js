@@ -155,6 +155,33 @@ const TimerControlButton = styled(Button)`
   margin: 0 1rem;
 `;
 
+const TimerSongsWrapper = styled.div`
+  display: flex;
+  flex-flow: column;
+  margin-top: 2rem;
+  margin-bottom: -2rem;
+`;
+
+const TimerRow = styled.div`
+  display: flex;
+  flex-flow: row;
+  flex-grow: 1;
+`;
+
+const PullContentRight = `
+  display: flex;
+  justify-content: flex-end;
+  flex-flow: row;
+`;
+
+const TimerCol = styled.div`
+  display: flex;
+  flex-grow: 1;
+  flex-basis: 0;
+  ${({ disabled }) => disabled && 'opacity: 50%'}
+  ${({ pullContentRight }) => pullContentRight && `${PullContentRight}`}
+`;
+
 export default {
   TimerSidebarContent,
   TimerHeader,
@@ -171,4 +198,7 @@ export default {
   TimerPresetButton,
   TimerControls,
   TimerControlButton,
+  TimerSongsWrapper,
+  TimerRow,
+  TimerCol,
 };

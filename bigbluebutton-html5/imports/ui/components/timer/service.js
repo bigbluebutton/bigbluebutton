@@ -26,6 +26,12 @@ const getMaxHours = () => MAX_HOURS;
 
 const isAlarmEnabled = () => isEnabled() && TIMER_CONFIG.alarm;
 
+const isMusicEnabled = () => TIMER_CONFIG.music.enabled;
+
+const getMusicVolume = () => TIMER_CONFIG.music.volume;
+
+const getMusicTrack = () => TIMER_CONFIG.music.track;
+
 const isActive = () => {
   const timer = Timer.findOne(
     { meetingId: Auth.meetingID },
@@ -33,6 +39,17 @@ const isActive = () => {
   );
 
   if (timer) return timer.active;
+  return false;
+};
+
+const isMusicActive = () => {
+  const timer = Timer.findOne(
+    { meetingId: Auth.meetingID },
+    { fields: { music: 1 } },
+  );
+
+  if (timer) return isMusicEnabled() && timer.music;
+
   return false;
 };
 
@@ -72,9 +89,22 @@ const setTimer = (time) => makeCall('setTimer', time);
 
 const resetTimer = () => makeCall('resetTimer');
 
-const activateTimer = () => makeCall('activateTimer').then(result => togglePanel());
+const activateTimer = (layoutContextDispatch) => makeCall('activateTimer').then(result => {
+  layoutContextDispatch({
+    type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+    value: true,
+  });
+  layoutContextDispatch({
+    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+    value: PANELS.TIMER,
+  });
+});;
 
 const deactivateTimer = () => makeCall('deactivateTimer');
+
+const setMusic = (music) => {
+  makeCall('setMusic', music);
+};
 
 const fetchTimeOffset = () => {
   const t0 = Date.now();
@@ -272,6 +302,10 @@ export default {
   OFFSET_INTERVAL,
   isActive,
   isEnabled,
+  isMusicEnabled,
+  isMusicActive,
+  getMusicVolume,
+  getMusicTrack,
   isRunning,
   isStopwatch,
   isAlarmEnabled,
@@ -285,6 +319,7 @@ export default {
   activateTimer,
   deactivateTimer,
   fetchTimeOffset,
+  setMusic,
   getTimeOffset,
   getElapsedTime,
   getInterval,
