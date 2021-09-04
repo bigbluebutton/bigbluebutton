@@ -59,11 +59,14 @@ const WaitingUsers = ({
           >
             <Icon iconName="user" />
             <span>{intl.formatMessage(intlMessages.title)}</span>
-            <div className={styles.unreadMessages}>
-              <div className={styles.unreadMessagesText}>
-                {pendingUsers.length}
-              </div>
-            </div>
+            { pendingUsers.length > 0
+              && (
+                <div className={styles.unreadMessages}>
+                  <div className={styles.unreadMessagesText}>
+                    {pendingUsers.length}
+                  </div>
+                </div>
+              )}
           </div>
         </div>
       </div>

@@ -7,6 +7,7 @@ import UserContent from './component';
 import GuestUsers from '/imports/api/guest-users/';
 import LayoutContext from '../../layout/context';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
+import WaitingUsersService from '/imports/ui/components/waiting-users/service';
 
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const STARTED_CHAT_LIST_KEY = 'startedChatList';
@@ -47,4 +48,5 @@ export default withTracker(() => ({
     approved: false,
     denied: false,
   }).fetch(),
+  isWaitingRoomEnabled: WaitingUsersService.isWaitingRoomEnabled(),
 }))(UserContentContainer);

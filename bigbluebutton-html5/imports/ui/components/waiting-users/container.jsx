@@ -37,6 +37,7 @@ export default withTracker(() => {
     guestUsers,
     authenticatedUsers,
     guestUsersCall: Service.guestUsersCall,
+    isWaitingRoomEnabled: Service.isWaitingRoomEnabled(),
     changeGuestPolicy: Service.changeGuestPolicy,
     isGuestLobbyMessageEnabled: Service.isGuestLobbyMessageEnabled,
     setGuestLobbyMessage: Service.setGuestLobbyMessage,

@@ -44,6 +44,7 @@ class UserContent extends PureComponent {
       forcePollOpen,
       hasBreakoutRoom,
       pendingUsers,
+      isWaitingRoomEnabled,
       requestUserInformation,
       currentClosedChats,
       sidebarContentPanel,
@@ -82,7 +83,7 @@ class UserContent extends PureComponent {
             intl,
           }}
         />
-        {pendingUsers.length > 0 && currentUser.role === ROLE_MODERATOR
+        { (isWaitingRoomEnabled || pendingUsers.length > 0) && currentUser.role === ROLE_MODERATOR
           ? (
             <WaitingUsers
               {...{
