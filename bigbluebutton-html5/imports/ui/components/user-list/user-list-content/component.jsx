@@ -45,12 +45,16 @@ class UserContent extends PureComponent {
       hasBreakoutRoom,
       pendingUsers,
       isWaitingRoomEnabled,
+      isGuestLobbyMessageEnabled,
       requestUserInformation,
       currentClosedChats,
       sidebarContentPanel,
       layoutContextDispatch,
       startedChats,
     } = this.props;
+
+    const showWaitingRoom = (isGuestLobbyMessageEnabled && isWaitingRoomEnabled)
+      || pendingUsers.length > 0;
 
     return (
       <div
@@ -83,7 +87,7 @@ class UserContent extends PureComponent {
             intl,
           }}
         />
-        { (isWaitingRoomEnabled || pendingUsers.length > 0) && currentUser.role === ROLE_MODERATOR
+        {showWaitingRoom && currentUser.role === ROLE_MODERATOR
           ? (
             <WaitingUsers
               {...{

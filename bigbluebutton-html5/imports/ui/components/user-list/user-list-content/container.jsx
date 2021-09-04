@@ -26,11 +26,14 @@ const UserContentContainer = (props) => {
     locked: users[Auth.meetingID][Auth.userID].locked,
     role: users[Auth.meetingID][Auth.userID].role,
   };
+  const { isGuestLobbyMessageEnabled } = WaitingUsersService;
+
   return (
     <UserContent
       {...{
         layoutContextDispatch,
         sidebarContentPanel,
+        isGuestLobbyMessageEnabled,
         ...props,
       }}
       currentUser={currentUser}
