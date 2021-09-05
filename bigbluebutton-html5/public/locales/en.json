@@ -914,6 +914,7 @@
     "app.learningDashboard.participantsTable.colMessages": "Messages",
     "app.learningDashboard.participantsTable.colEmojis": "Emojis",
     "app.learningDashboard.participantsTable.colRaiseHands": "Raise Hands",
+    "app.learningDashboard.participantsTable.colActivityScore": "Activity Score",
     "app.learningDashboard.participantsTable.colStatus": "Status",
     "app.learningDashboard.participantsTable.userStatusOnline": "Online",
     "app.learningDashboard.participantsTable.userStatusOffline": "Offline",
