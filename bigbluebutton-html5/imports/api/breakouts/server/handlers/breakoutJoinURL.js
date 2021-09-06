@@ -26,13 +26,27 @@ export default function handleBreakoutJoinURL({ body }) {
   };
 
   try {
-    const { insertedId, numberAffected } = Breakouts.upsert(selector, modifier);
+    const ATTEMPT_EVERY_MS = 1000;
 
-    if (insertedId) {
-      Logger.info(`Added breakout id=${breakoutId}`);
-    } else if (numberAffected) {
+    let numberAffected = 0;
+
+    const updateBreakout = Meteor.bindEnvironment(() => {
+      numberAffected = Breakouts.update(selector, modifier);
+    });
+
+    const updateBreakoutPromise = new Promise((resolve) => {
+      const updateBreakoutInterval = setInterval(() => {
+        updateBreakout();
+
+        if (numberAffected) {
+          resolve(clearInterval(updateBreakoutInterval));
+        }
+      }, ATTEMPT_EVERY_MS);
+    });
+
+    updateBreakoutPromise.then(() => {
       Logger.info(`Upserted breakout id=${breakoutId}`);
-    }
+    });
   } catch (err) {
     Logger.error(`Adding breakout to collection: ${err}`);
   }
