@@ -26,11 +26,15 @@ class CollectionEventsBroker {
   }
 
   dispatchEvent(msg, updates) {
-    const msgIndex = CollectionEventsBroker.getKey(msg, updates);
-    const { fields } = msg;
-    const callback = this.callbacks[msgIndex];
-    if (callback) {
-      callback(fields);
+    try {
+      const msgIndex = CollectionEventsBroker.getKey(msg, updates);
+      const { fields } = msg;
+      const callback = this.callbacks[msgIndex];
+      if (callback) {
+        callback({ ...fields, referenceId: msg.id });
+      }
+    } catch (error) {
+      console.error('Error:', error);
     }
     // TODO: also process the updates object
   }

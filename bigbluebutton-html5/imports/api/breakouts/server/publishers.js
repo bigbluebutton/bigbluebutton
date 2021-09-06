@@ -3,10 +3,11 @@ import Breakouts from '/imports/api/breakouts';
 import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
+import { publicationSafeGuard } from '/imports/api/common/server/helpers';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
-function breakouts(role) {
+function breakouts() {
   const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
@@ -25,7 +26,19 @@ function breakouts(role) {
         { breakoutId: meetingId },
       ],
     };
+    // Monitor this publication and stop it when user is not a moderator anymore
+    const comparisonFunc = () => {
+      const user = Users.findOne({ userId, meetingId }, { fields: { role: 1, userId: 1 } });
+      const condition = user.role === ROLE_MODERATOR;
 
+      if (!condition) {
+        Logger.info(`conditions aren't filled anymore in publication ${this._name}: 
+        user.role === ROLE_MODERATOR :${condition}, user.role: ${user.role} ROLE_MODERATOR: ${ROLE_MODERATOR}`);
+      }
+
+      return condition;
+    };
+    publicationSafeGuard(comparisonFunc, this);
     return Breakouts.find(presenterSelector);
   }
 
