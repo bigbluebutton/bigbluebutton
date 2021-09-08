@@ -3,6 +3,7 @@ const e = require('./elements');
 const ne = require('../notifications/elements');
 const ce = require('../core/elements');
 const params = require('../params');
+const { checkElement } = require('../core/util');
 
 class Presentation {
   constructor() {
@@ -43,10 +44,7 @@ class Presentation {
       await this.userPage.screenshot(testName, `3-userPage-after-allow-download-and-save-[${this.modPage.meetingId}]`);
       await this.userPage.waitForSelector(ce.toastDownload);
       // check download button in presentation after ALLOW it - should be true
-      //!
-      const hasPresentationDownloadBtnAfterAllow = await this.userPage.page.evaluate((presentationDownloadBtn) => {
-        return document.querySelectorAll(presentationDownloadBtn)[0] !== undefined;
-      }, ce.presentationDownloadBtn);
+      const hasPresentationDownloadBtnAfterAllow = await this.userPage.page.evaluate(checkElement, ce.presentationDownloadBtn);
 
       // disallow the presentation download
       await this.modPage.click(ce.actions);
@@ -57,10 +55,7 @@ class Presentation {
       await this.modPage.screenshot(testName, `5-userPage-after-disallow-download-[${this.modPage.meetingId}]`);
       await this.userPage.waitForElementHandleToBeRemoved(ce.toastDownload);
       // check download button in presentation after DISALLOW it - should be false
-      //!
-      const hasPresentationDownloadBtnAfterDisallow = await this.userPage.page.evaluate((presentationDownloadBtn) => {
-        return document.querySelectorAll(presentationDownloadBtn)[0] !== undefined;
-      }, ce.presentationDownloadBtn);
+      const hasPresentationDownloadBtnAfterDisallow = await this.userPage.page.evaluate(checkElement, ce.presentationDownloadBtn);
 
       return hasPresentationDownloadBtnAfterAllow && !hasPresentationDownloadBtnAfterDisallow;
     } catch (err) {
