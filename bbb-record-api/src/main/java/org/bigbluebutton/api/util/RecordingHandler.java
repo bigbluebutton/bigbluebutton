@@ -13,14 +13,19 @@ import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.sql.SQLXML;
 import java.util.Vector;
 
 public class RecordingHandler {
 
     public static final String BASE_PATH = "/var/bigbluebutton";
     public static final String PUBLISHED_RECORDINGS_PATH = BASE_PATH + "/published/presentation";
-    public static String UNPUBLISHED_RECORDINGS_PATH = BASE_PATH + "/unpublished";
+    public static final String UNPUBLISHED_RECORDINGS_PATH = BASE_PATH + "/unpublished";
 
     private static final Logger logger = LoggerFactory.getLogger(RecordingHandler.class);
 
@@ -129,24 +134,26 @@ public class RecordingHandler {
 
     private RecordingMetadata parseRecordingMetadata(Document recordingDocument) {
         NodeList metaNode = recordingDocument.getElementsByTagName("meta");
-        Element metaElement = (Element) metaNode.item(0);
+        Node meta = metaNode.item(0);
 
-        String bbbOrigin = getMetaElementTagContent(metaElement, "bbb-origin");
-        String bbbOriginServerName = getMetaElementTagContent(metaElement, "bbb-origin-server-name");
-        String bbbOriginVersion = getMetaElementTagContent(metaElement, "bbb-origin-version");
-        String glListed = getMetaElementTagContent(metaElement, "gl-listed");
-        String isBreakout = getMetaElementTagContent(metaElement, "isBreakout");
-        String meetingId = getMetaElementTagContent(metaElement, "meetingId");
-        String meetingName = getMetaElementTagContent(metaElement, "meetingName");
+//        String bbbOrigin = getMetaElementTagContent(metaElement, "bbb-origin");
+//        String bbbOriginServerName = getMetaElementTagContent(metaElement, "bbb-origin-server-name");
+//        String bbbOriginVersion = getMetaElementTagContent(metaElement, "bbb-origin-version");
+//        String glListed = getMetaElementTagContent(metaElement, "gl-listed");
+//        String isBreakout = getMetaElementTagContent(metaElement, "isBreakout");
+//        String meetingId = getMetaElementTagContent(metaElement, "meetingId");
+//        String meetingName = getMetaElementTagContent(metaElement, "meetingName");
 
         RecordingMetadata recordingMetadata = new RecordingMetadata();
-        recordingMetadata.setBbbOrigin(bbbOrigin);
-        recordingMetadata.setBbbOriginServerName(bbbOriginServerName);
-        recordingMetadata.setBbbOriginVersion(bbbOriginVersion);
-        recordingMetadata.setGlListed(Boolean.parseBoolean(glListed));
-        recordingMetadata.setIsBreakout(Boolean.parseBoolean(isBreakout));
-        recordingMetadata.setMeetingId(meetingId);
-        recordingMetadata.setMeetingName(meetingName);
+        recordingMetadata.setContent(childNodesToString(meta));
+
+//        recordingMetadata.setBbbOrigin(bbbOrigin);
+//        recordingMetadata.setBbbOriginServerName(bbbOriginServerName);
+//        recordingMetadata.setBbbOriginVersion(bbbOriginVersion);
+//        recordingMetadata.setGlListed(Boolean.parseBoolean(glListed));
+//        recordingMetadata.setIsBreakout(Boolean.parseBoolean(isBreakout));
+//        recordingMetadata.setMeetingId(meetingId);
+//        recordingMetadata.setMeetingName(meetingName);
 
         logger.info("Finished constructing metadata: {}", recordingMetadata);
 
@@ -228,5 +235,30 @@ public class RecordingHandler {
         }
 
         return "";
+    }
+
+    private String nodeToString(Node node) throws TransformerException {
+        StringWriter writer = new StringWriter();
+        Transformer transformer = TransformerFactory.newInstance().newTransformer();
+        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.transform(new DOMSource(node), new StreamResult(writer));
+        return writer.toString();
+    }
+
+    private String childNodesToString(Node node) {
+        StringBuilder builder = new StringBuilder();
+        NodeList children = node.getChildNodes();
+
+        for(int i = 0; i < children.getLength(); i++) {
+            try {
+                String childString = nodeToString(children.item(i));
+                builder.append(childString);
+            } catch(TransformerException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return builder.toString();
     }
 }

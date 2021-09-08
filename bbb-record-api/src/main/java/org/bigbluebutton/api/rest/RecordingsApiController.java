@@ -53,9 +53,9 @@ public class RecordingsApiController implements RecordingsApi {
         this.recordingService = recordingService;
     }
 
-    public ResponseEntity<StandardResponse> deleteRecording(@Parameter(in = ParameterIn.PATH, description = "ID of the recording to be deleted", required=true,
+    public ResponseEntity<ResponseEnvelope> deleteRecording(@Parameter(in = ParameterIn.PATH, description = "ID of the recording to be deleted", required=true,
             schema=@Schema()) @PathVariable("recordingId") String recordingId) {
-        StandardResponse response = new StandardResponse();
+        ResponseEnvelope response = new ResponseEnvelope();
 
         if(recordingId == null || recordingId.isEmpty()) {
             Errors errors = new Errors();
@@ -77,9 +77,9 @@ public class RecordingsApiController implements RecordingsApi {
         }
     }
 
-    public ResponseEntity<StandardResponse> getRecording(@Parameter(in = ParameterIn.PATH, description = "ID of the recording to be retrieved", required=true,
+    public ResponseEntity<ResponseEnvelope> getRecording(@Parameter(in = ParameterIn.PATH, description = "ID of the recording to be retrieved", required=true,
             schema=@Schema()) @PathVariable("recordingId") String recordingId) {
-        StandardResponse response = new StandardResponse();
+        ResponseEnvelope response = new ResponseEnvelope();
 
         if(recordingId == null || recordingId.isEmpty()) {
             Errors errors = new Errors();
@@ -106,11 +106,11 @@ public class RecordingsApiController implements RecordingsApi {
     }
 
     @Override
-    public ResponseEntity<StandardResponse> getRecordings(@Parameter(in = ParameterIn.QUERY, description = "Search filters for recordings",
+    public ResponseEntity<ResponseEnvelope> getRecordings(@Parameter(in = ParameterIn.QUERY, description = "Search filters for recordings",
             schema = @Schema()) @RequestParam(value = "query", required = false) String query, @Parameter(in = ParameterIn.QUERY, description = "Page number",
             schema = @Schema()) @RequestParam(value = "page", required = false) Integer page, @Parameter(in = ParameterIn.QUERY, description = "Page size",
             schema = @Schema()) @RequestParam(value = "size", required = false) Integer size) {
-        StandardResponse response = new StandardResponse();
+        ResponseEnvelope response = new ResponseEnvelope();
 
         if(query == null || query.isEmpty()) {
             Errors errors = new Errors();
@@ -148,10 +148,10 @@ public class RecordingsApiController implements RecordingsApi {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    public ResponseEntity<StandardResponse> updateRecording(@Parameter(in = ParameterIn.PATH, description = "ID of the recording to be updated", required=true,
+    public ResponseEntity<ResponseEnvelope> updateRecording(@Parameter(in = ParameterIn.PATH, description = "ID of the recording to be updated", required=true,
             schema=@Schema()) @PathVariable("recordingId") String recordingId, @Parameter(in = ParameterIn.DEFAULT, description = "Recording object to be updated",
             required=true, schema=@Schema()) @Valid @RequestBody JsonPatch patch) {
-        StandardResponse response = new StandardResponse();
+        ResponseEnvelope response = new ResponseEnvelope();
 
         Optional<Recording> recording = recordingService.findById(recordingId);
         if(recording.isPresent()) {

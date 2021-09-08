@@ -19,7 +19,7 @@ public class RemoteConnectionManager {
 
     public static final String USERNAME = "root";
     public static final String HOST = "demo1.bigbluebutton.org";
-    public static final String PRIVATE_KEY_PATH = "Z:/.ssh/id_rsa";
+    public static final String PRIVATE_KEY_PATH = "";
     public static final int PORT = 22;
 
     private static final Logger logger = LoggerFactory.getLogger(DataStore.class);

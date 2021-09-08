@@ -6,13 +6,13 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 @Data
-public class StandardResponse {
+public class ResponseEnvelope {
 
     private Payload payload;
 
     private Errors errors;
 
-    public StandardResponse() {
+    public ResponseEnvelope() {
         payload = new EmptyPayload();
         errors = new Errors();
     }
