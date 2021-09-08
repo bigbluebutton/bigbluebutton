@@ -76,7 +76,7 @@ const presentationTest = () => {
     await Page.checkRegression(24.62, screenshot);
   });
 
-  test.only('Remove all presentation', async () => {
+  test('Remove all presentation', async () => {
     const test = new Presentation();
     let response;
     let screenshot;
