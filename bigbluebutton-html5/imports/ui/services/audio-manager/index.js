@@ -102,7 +102,7 @@ class AudioManager {
    * @param {Object} userData The Object representing user data to be passed to
    *                      the bridge.
    */
-  loadBridges(userData) {
+  async loadBridges(userData) {
     let FullAudioBridge = SIPBridge;
     let ListenOnlyBridge = KurentoBridge;
 
@@ -115,11 +115,11 @@ class AudioManager {
 
       this.bridges = {};
 
-      Object.values(bridges).forEach(async (bridge) => {
+      await Promise.all(Object.values(bridges).map(async (bridge) => {
         // eslint-disable-next-line import/no-dynamic-require, global-require
         this.bridges[bridge.name] = await import(DEFAULT_AUDIO_BRIDGES_PATH
           + bridge.path);
-      });
+      }));
 
       if (defaultFullAudioBridge && (this.bridges[defaultFullAudioBridge])) {
         FullAudioBridge = this.bridges[defaultFullAudioBridge];
