@@ -21,7 +21,7 @@ const presentationTest = () => {
       await test.modPage.startRecording(testName);
       response = await test.skipSlide();
       await test.modPage.stopRecording(testName);
-      screenshot = await test.modPage.screenshot();
+      screenshot = await test.modPage.page.screenshot();
       await test.modPage.logger('end of ', testName);
     } catch (err) {
       await test.modPage.logger(err);
@@ -43,7 +43,7 @@ const presentationTest = () => {
       await test.modPage.startRecording(testName);
       response = await test.uploadPresentation(testName);
       await test.modPage.stopRecording();
-      screenshot = await test.modPage.screenshot();
+      screenshot = await test.modPage.page.screenshot();
       await test.modPage.logger('end of ', testName);
     } catch (err) {
       await test.modPage.logger(err);
@@ -65,7 +65,29 @@ const presentationTest = () => {
       await test.modPage.startRecording(testName);
       response = await test.allowAndDisallowDownload(testName);
       await test.modPage.stopRecording();
-      screenshot = await test.modPage.screenshot();
+      screenshot = await test.modPage.page.screenshot();
+      await test.modPage.logger('end of ', testName);
+    } catch (e) {
+      await test.modPage.logger(e);
+    } finally {
+      await test.closePages();
+    }
+    expect(response).toBe(true);
+    await Page.checkRegression(24.62, screenshot);
+  });
+
+  test.only('Remove all presentation', async () => {
+    const test = new Presentation();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'removeAllPresentation';
+      await test.modPage.logger('begin of ', testName);
+      await test.initPages(testName);
+      await test.modPage.startRecording(testName);
+      response = await test.removeAllPresentation(testName);
+      await test.modPage.stopRecording();
+      screenshot = await test.modPage.page.screenshot();
       await test.modPage.logger('end of ', testName);
     } catch (e) {
       await test.modPage.logger(e);

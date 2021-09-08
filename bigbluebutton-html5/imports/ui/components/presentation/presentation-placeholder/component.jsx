@@ -23,6 +23,7 @@ const PresentationPlaceholder = ({
   <div
     ref={(ref) => setPresentationRef(ref)}
     className={styles.presentationPlaceholder}
+    data-test="presentationPlaceholder"
     style={{
       top,
       left,

@@ -6,7 +6,7 @@ const we = require('../whiteboard/elements');
 const params = require('../params');
 const util = require('./util');
 const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
-const { checkElement, checkElementTextIncludes } = require('../core/util');
+const { checkElement, checkElementTextIncludes, checkElementText } = require('../core/util');
 
 class Presentation {
   constructor() {
@@ -136,7 +136,28 @@ class Presentation {
 
       return hasPresentationDownloadBtnAfterAllow && !hasPresentationDownloadBtnAfterDisallow;
     } catch (err) {
-      this.modPage.logger(err);
+      await this.modPage.logger(err);
+      return false;
+    }
+  }
+
+  async removeAllPresentation(testName) {
+    try {
+      await this.modPage.waitForSelector(we.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+      await this.modPage.click(ce.actions);
+      await this.modPage.click(e.uploadPresentation);
+      await this.modPage.screenshot(testName, `1-modPage-before-remove-download-[${this.modPage.meetingId}]`);
+      await this.modPage.click(e.removePresentation);
+      await this.modPage.click(ce.confirmManagePresentation);
+      await this.modPage.waitForSelector(ce.actions, ELEMENT_WAIT_TIME);
+      await this.modPage.screenshot(testName, `2-modPage-after-remove-download-[${this.modPage.meetingId}]`);
+      await this.userPage.screenshot(testName, `3-userPage-after-remove-download-[${this.modPage.meetingId}]`);
+      const modPagePlaceholder = await this.modPage.page.evaluate(checkElementText, e.presentationPlaceholder, e.presentationPlaceholderLabel);
+      const userPagePlaceholder = await this.userPage.page.evaluate(checkElementText, e.presentationPlaceholder, e.presentationPlaceholderLabel);
+
+      return modPagePlaceholder && userPagePlaceholder;
+    } catch (err) {
+      await this.modPage.logger(err);
       return false;
     }
   }
