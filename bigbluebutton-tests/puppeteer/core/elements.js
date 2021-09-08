@@ -6,17 +6,18 @@ exports.echoYes = 'button[aria-label="Echo is audible"]';
 exports.title = '._imports_ui_components_nav_bar__styles__presentationTitle';
 exports.alerts = '.toastify-content';
 exports.presenterClassName = 'presenter--';
+exports.zoomIn = 'button[aria-label="Zoom in"]';
+exports.pdfFileName = '100PagesFile';
 
 exports.isTalking = '[data-test="isTalking"]';
 exports.wasTalking = '[data-test="wasTalking"]';
 exports.joinAudio = 'button[data-test="joinAudio"]';
-exports.leaveAudio = 'button[aria-label="Leave audio"]';
+exports.leaveAudio = 'button[data-test="leaveAudio"]';
 exports.disconnectAudio = 'li[data-test="disconnectAudio"]';
 
 exports.actions = 'button[aria-label="Actions"]';
 exports.options = 'button[aria-label="Options"]';
 exports.userList = 'button[aria-label="Users and Messages Toggle"]';
-exports.joinAudio = 'button[aria-label="Join Audio"]';
 exports.connectingStatus = 'div[class^="connecting--"]';
 exports.videoMenu = 'button[aria-label="Open video menu dropdown"]';
 exports.screenShare = 'button[aria-label="Share your screen"]';
@@ -27,7 +28,7 @@ exports.logout = 'li[data-test="logout"]';
 exports.meetingEndedModal = 'div[data-test="meetingEndedModal"]';
 exports.rating = 'div[data-test="rating"]';
 exports.whiteboard = 'svg[data-test="whiteboard"]';
-exports.pollMenuButton = 'button[data-test="pollMenuButton"]';
+exports.pollMenuButton = 'div[data-test="pollMenuButton"]';
 exports.unauthorized = 'h1[data-test="unauthorized"]';
 
 exports.presentationDownloadBtn = 'button[data-test="presentationDownload"]';

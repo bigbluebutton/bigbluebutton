@@ -2,6 +2,7 @@ const Page = require('../core/page');
 const params = require('../params');
 const { USER_LIST_VLIST_BOTS_LISTENING, ELEMENT_WAIT_TIME } = require('../core/constants');
 const ue = require('../user/elements');
+const { getElementLength } = require('../core/util')
 
 class VirtualizeList {
   constructor() {
@@ -24,14 +25,14 @@ class VirtualizeList {
         await this.page1.getMetrics();
       }
       await this.page1.getMetrics();
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      await this.page1.logger(err);
     }
   }
 
   async test() {
     try {
-      const USER_LIST_VLIST_VISIBLE_USERS = await this.page1.page.evaluate(async () => await document.querySelectorAll('[data-test^="userListItem"]').length);
+      const USER_LIST_VLIST_VISIBLE_USERS = await this.page1.page.evaluate(getElementLength, ue.anyUser);
       const totalNumberOfUsersMongo = await this.page1.page.evaluate(() => {
         const collection = require('/imports/api/users/index.js');
         const users = collection.default._collection.find().count();
@@ -42,8 +43,9 @@ class VirtualizeList {
       } if ((USER_LIST_VLIST_VISIBLE_USERS !== totalNumberOfUsersMongo) && (USER_LIST_VLIST_VISIBLE_USERS < totalNumberOfUsersMongo)) {
         return true;
       }
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      await this.page1.logger(err);
+      return false;
     }
   }
 
@@ -51,8 +53,8 @@ class VirtualizeList {
     try {
       this.page1.close();
       this.pagesArray.forEach(page => page.close());
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      await this.page1.logger(err);
     }
   }
 }

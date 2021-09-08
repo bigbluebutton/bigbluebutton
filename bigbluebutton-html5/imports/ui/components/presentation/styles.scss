@@ -161,3 +161,17 @@
   height: 1px; width: 1px;
   margin: -1px; padding: 0; border: 0;
 }
+
+.presentationFullscreen{
+  z-index: 1;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: auto;
+  cursor: pointer;
+
+  [dir="rtl"] & {
+    right: auto;
+    left : 0;
+  }
+}

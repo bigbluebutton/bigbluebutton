@@ -4,10 +4,12 @@ const Page = require('../core/page');
 const params = require('../params');
 const util = require('./util');
 const utilScreenShare = require('../screenshare/util'); // utils imported from screenshare folder
+const e = require('../core/elements');
 const ne = require('./elements');
 const pe = require('../presentation/elements');
 const we = require('../whiteboard/elements');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_TIME, UPLOAD_PDF_WAIT_TIME } = require('../core/constants');
+const { checkElementTextIncludes } = require('../core/util');
 
 class Notifications extends MultiUsers {
   constructor() {
@@ -35,165 +37,205 @@ class Notifications extends MultiUsers {
 
   // Save Settings toast notification
   async saveSettingsNotification(testName) {
-    await this.init(undefined, testName);
-    await this.page1.startRecording(testName);
-    await this.page1.screenshot(`${testName}`, `01-page01-initialized-${testName}`);
-    await util.popupMenu(this.page1);
-    await this.page1.screenshot(`${testName}`, `02-page01-popupMenu-${testName}`);
-    await util.saveSettings(this.page1);
-    await this.page1.screenshot(`${testName}`, `03-page01-save-settings-${testName}`);
-    const resp = await util.getLastToastValue(this.page1) === ne.savedSettingsToast;
-    await this.page1.screenshot(`${testName}`, `04-page01-saved-Settings-toast-${testName}`);
-    return resp === true;
+    try {
+      await this.init(undefined, testName);
+      await this.page1.startRecording(testName);
+      await this.page1.screenshot(`${testName}`, `01-page01-initialized-${testName}`);
+      await util.popupMenu(this.page1);
+      await this.page1.screenshot(`${testName}`, `02-page01-popupMenu-${testName}`);
+      await util.saveSettings(this.page1);
+      await this.page1.screenshot(`${testName}`, `03-page01-save-settings-${testName}`);
+      const resp = await util.getLastToastValue(this.page1) === ne.savedSettingsToast;
+      await this.page1.screenshot(`${testName}`, `04-page01-saved-Settings-toast-${testName}`);
+      return resp === true;
+    } catch (err) {
+      await this.page1.logger(err);
+      return false;
+    }
   }
 
   // Public chat toast notification
   async publicChatNotification(testName) {
-    await this.init(undefined, testName);
-    await this.page1.startRecording(testName);
-    await this.page1.screenshot(`${testName}`, `01-page01-initialized-${testName}`);
-    await util.popupMenu(this.page1);
-    await this.page1.screenshot(`${testName}`, `02-page01-popup-menu-${testName}`);
-    await util.enableChatPopup(this.page1);
-    await this.page1.screenshot(`${testName}`, `03-page01-setting-popup-option-${testName}`);
-    await util.saveSettings(this.page1);
-    await this.page1.screenshot(`${testName}`, `04-page01-applied-settings-${testName}`);
-    const expectedToastValue = await util.publicChatMessageToast(this.page1, this.page2);
-    await this.page1.screenshot(`${testName}`, `05-page01-public-chat-message-sent-${testName}`);
-    await this.page1.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
-    await this.page1.waitForSelector(ne.hasUnreadMessages, ELEMENT_WAIT_TIME);
-    const lastToast = await util.getLastToastValue(this.page1);
-    await this.page1.screenshot(`${testName}`, `06-page01-public-chat-toast-${testName}`);
-    return expectedToastValue === lastToast;
+    try {
+      await this.init(undefined, testName);
+      await this.page1.startRecording(testName);
+      await this.page1.screenshot(`${testName}`, `01-page01-initialized-${testName}`);
+      await util.popupMenu(this.page1);
+      await this.page1.screenshot(`${testName}`, `02-page01-popup-menu-${testName}`);
+      await util.enableChatPopup(this.page1);
+      await this.page1.screenshot(`${testName}`, `03-page01-setting-popup-option-${testName}`);
+      await util.saveSettings(this.page1);
+      await this.page1.screenshot(`${testName}`, `04-page01-applied-settings-${testName}`);
+      const expectedToastValue = await util.publicChatMessageToast(this.page1, this.page2);
+      await this.page1.screenshot(`${testName}`, `05-page01-public-chat-message-sent-${testName}`);
+      await this.page1.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
+      await this.page1.waitForSelector(ne.hasUnreadMessages, ELEMENT_WAIT_TIME);
+      const lastToast = await util.getLastToastValue(this.page1);
+      await this.page1.screenshot(`${testName}`, `06-page01-public-chat-toast-${testName}`);
+      return expectedToastValue === lastToast;
+    } catch (err) {
+      await this.page1.logger(err);
+      return false;
+    }
   }
 
   // Private chat toast notification
   async privateChatNotification(testName) {
-    await this.init(undefined, testName);
-    await this.page1.startRecording(testName);
-    await this.page1.screenshot(`${testName}`, `01-page01-initialized-${testName}`);
-    await util.popupMenu(this.page1);
-    await this.page1.screenshot(`${testName}`, `02-page01-popup-menu-${testName}`);
-    await util.enableChatPopup(this.page1);
-    await this.page1.screenshot(`${testName}`, `03-page01-setting-popup-option-${testName}`);
-    await util.saveSettings(this.page1);
-    await this.page1.screenshot(`${testName}`, `04-page01-applied-settings-${testName}`);
-    const expectedToastValue = await util.privateChatMessageToast(this.page2);
-    await this.page1.screenshot(`${testName}`, `05-page01-private-chat-message-sent-${testName}`);
-    await this.page1.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
-    await this.page1.waitForSelector(ne.hasUnreadMessages, ELEMENT_WAIT_TIME);
-    const lastToast = await util.getLastToastValue(this.page1);
-    await this.page1.screenshot(`${testName}`, `06-page01-public-chat-toast-${testName}`);
-    return expectedToastValue === lastToast;
+    try {
+      await this.init(undefined, testName);
+      await this.page1.startRecording(testName);
+      await this.page1.screenshot(`${testName}`, `01-page01-initialized-${testName}`);
+      await util.popupMenu(this.page1);
+      await this.page1.screenshot(`${testName}`, `02-page01-popup-menu-${testName}`);
+      await util.enableChatPopup(this.page1);
+      await this.page1.screenshot(`${testName}`, `03-page01-setting-popup-option-${testName}`);
+      await util.saveSettings(this.page1);
+      await this.page1.screenshot(`${testName}`, `04-page01-applied-settings-${testName}`);
+      const expectedToastValue = await util.privateChatMessageToast(this.page2);
+      await this.page1.screenshot(`${testName}`, `05-page01-private-chat-message-sent-${testName}`);
+      await this.page1.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
+      await this.page1.waitForSelector(ne.hasUnreadMessages, ELEMENT_WAIT_TIME);
+      const lastToast = await util.getLastToastValue(this.page1);
+      await this.page1.screenshot(`${testName}`, `06-page01-public-chat-toast-${testName}`);
+      return expectedToastValue === lastToast;
+    } catch (err) {
+      await this.page1.logger(err);
+      return false;
+    }
   }
 
   // User join toast notification
   async userJoinNotification(page) {
-    await util.popupMenu(page);
-    await util.enableUserJoinPopup(page);
-    await util.saveSettings(page);
+    try {
+      await util.popupMenu(page);
+      await util.enableUserJoinPopup(page);
+      await util.saveSettings(page);
+    } catch (err) {
+      await this.page1.logger(err);
+      return false;
+    }
   }
 
   async getUserJoinPopupResponse(testName) {
-    await this.initUser3(Page.getArgs(), undefined, testName);
-    await this.page3.startRecording(testName);
-    await this.page3.screenshot(`${testName}`, `01-page03-initialized-${testName}`);
-    await this.page3.closeAudioModal();
-    await this.page3.screenshot(`${testName}`, `02-page03-audio-modal-closed-${testName}`);
-    await this.userJoinNotification(this.page3);
-    await this.page3.screenshot(`${testName}`, `03-page03-after-user-join-notification-activation-${testName}`);
-    await this.initUser4(testName);
-    await this.page4.closeAudioModal();
-    await this.page3.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
     try {
-      await this.page3.page.waitForFunction(
-        'document.querySelector("body").innerText.includes("User joined the session")',
+      await this.initUser3(Page.getArgs(), undefined, testName);
+      await this.page3.startRecording(testName);
+      await this.page3.screenshot(`${testName}`, `01-page03-initialized-${testName}`);
+      await this.page3.closeAudioModal();
+      await this.page3.screenshot(`${testName}`, `02-page03-audio-modal-closed-${testName}`);
+      await this.userJoinNotification(this.page3);
+      await this.page3.screenshot(`${testName}`, `03-page03-after-user-join-notification-activation-${testName}`);
+      await this.initUser4(testName);
+      await this.page4.closeAudioModal();
+      await this.page3.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
+      await this.page3.page.waitForFunction(checkElementTextIncludes, {},
+        'body', 'User joined the session'
       );
       await this.page3.screenshot(`${testName}`, `04-page03-user-join-toast-${testName}`);
       return true;
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      await this.page3.logger(err);
       return false;
     }
   }
 
   // File upload notification
   async fileUploaderNotification(testName) {
-    await this.initUser3(Page.getArgs(), undefined, testName);
-    await this.page3.startRecording(testName);
-    await this.page3.screenshot(`${testName}`, `01-page03-initialized-${testName}`);
-    await this.page3.closeAudioModal();
-    await this.page3.screenshot(`${testName}`, `02-page03-audio-modal-closed-${testName}`);
-    await util.uploadFileMenu(this.page3);
-    await this.page3.screenshot(`${testName}`, `03-page03-upload-file-menu-${testName}`);
-    await this.page3.waitForSelector(pe.fileUpload, ELEMENT_WAIT_TIME);
-    const fileUpload = await this.page3.page.$(pe.fileUpload);
-    await fileUpload.uploadFile(path.join(__dirname, '../media/DifferentSizes.pdf'));
-    await this.page3.page.waitForFunction(
-      'document.querySelector("body").innerText.includes("To be uploaded ...")',
-    );
-    await this.page3.waitForSelector(pe.upload, ELEMENT_WAIT_TIME);
-    await this.page3.click(pe.upload, true);
-    await this.page3.page.waitForFunction(
-      'document.querySelector("body").innerText.includes("Converting file")',
-    );
-    await this.page3.screenshot(`${testName}`, `04-page03-file-uploaded-and-ready-${testName}`);
-    await this.page3.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
-    await this.page3.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
-    await this.page3.screenshot(`${testName}`, `05-page03-presentation-changed-${testName}`);
     try {
-      await this.page3.page.waitForFunction(
-        'document.querySelector("body").innerText.includes("Current presentation")',
+      await this.initUser3(Page.getArgs(), undefined, testName);
+      await this.page3.startRecording(testName);
+      await this.page3.screenshot(`${testName}`, `01-page03-initialized-${testName}`);
+      await this.page3.closeAudioModal();
+      await this.page3.screenshot(`${testName}`, `02-page03-audio-modal-closed-${testName}`);
+      await util.uploadFileMenu(this.page3);
+      await this.page3.screenshot(`${testName}`, `03-page03-upload-file-menu-${testName}`);
+      await this.page3.waitForSelector(pe.fileUpload, ELEMENT_WAIT_TIME);
+      const fileUpload = await this.page3.page.$(pe.fileUpload);
+      await fileUpload.uploadFile(path.join(__dirname, `../media/${e.pdfFileName}.pdf`));
+      await this.page3.page.waitForFunction(checkElementTextIncludes, {},
+        'body', 'To be uploaded ...'
+      );
+      await this.page3.waitForSelector(pe.upload, ELEMENT_WAIT_TIME);
+      await this.page3.click(pe.upload, true);
+      await this.page3.page.waitForFunction(checkElementTextIncludes, {},
+        'body', 'Converting file'
+      );
+      await this.page3.screenshot(`${testName}`, `04-page03-file-uploaded-and-ready-${testName}`);
+      await this.page3.waitForSelector(ne.smallToastMsg, UPLOAD_PDF_WAIT_TIME);
+      await this.page3.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
+      await this.page3.screenshot(`${testName}`, `05-page03-presentation-changed-${testName}`);
+      await this.page3.page.waitForFunction(checkElementTextIncludes, {},
+        'body', 'Current presentation'
       );
       await this.page3.screenshot(`${testName}`, `06-page03-presentation-change-toast-${testName}`);
       return true;
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      await this.page3.logger(err);
       return false;
     }
   }
 
   // Publish Poll Results notification
   async publishPollResults(testName) {
-    await this.page3.screenshot(`${testName}`, `01-page03-initialized-${testName}`);
-    await this.page3.closeAudioModal();
-    await this.page3.screenshot(`${testName}`, `02-page03-audio-modal-closed-${testName}`);
-    await this.page3.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
-    await util.startPoll(this.page3);
-    await this.page3.screenshot(`${testName}`, `03-page03-started-poll-${testName}`);
-    await this.page3.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
-    const resp = await util.getLastToastValue(this.page3);
-    await this.page3.screenshot(`${testName}`, `04-page03-poll-toast-${testName}`);
-    return resp;
+    try {
+      await this.page3.screenshot(`${testName}`, `01-page03-initialized-${testName}`);
+      await this.page3.closeAudioModal();
+      await this.page3.screenshot(`${testName}`, `02-page03-audio-modal-closed-${testName}`);
+      await this.page3.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
+      await util.startPoll(this.page3);
+      await this.page3.screenshot(`${testName}`, `03-page03-started-poll-${testName}`);
+      await this.page3.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
+      const resp = await util.getLastToastValue(this.page3);
+      await this.page3.screenshot(`${testName}`, `04-page03-poll-toast-${testName}`);
+      return resp;
+    } catch (err) {
+      await this.page3.logger(err);
+      return false;
+    }
   }
 
   async audioNotification(testName) {
-    await this.initUser3(Page.getArgs(), undefined, testName);
-    await this.page3.startRecording(testName);
-    await this.page3.screenshot(`${testName}`, `01-page03-initialized-${testName}`);
-    await this.page3.joinMicrophone();
-    await this.page3.screenshot(`${testName}`, `02-page03-joined-microphone-${testName}`);
-    const resp = await util.getLastToastValue(this.page3) === ne.joinAudioToast;
-    await this.page3.screenshot(`${testName}`, `03-page03-audio-toast-${testName}`);
-    return resp === true;
+    try {
+      await this.initUser3(Page.getArgs(), undefined, testName);
+      await this.page3.startRecording(testName);
+      await this.page3.screenshot(`${testName}`, `01-page03-initialized-${testName}`);
+      await this.page3.joinMicrophone();
+      await this.page3.screenshot(`${testName}`, `02-page03-joined-microphone-${testName}`);
+      const resp = await util.getLastToastValue(this.page3) === ne.joinAudioToast;
+      await this.page3.screenshot(`${testName}`, `03-page03-audio-toast-${testName}`);
+      return resp;
+    } catch (err) {
+      await this.page3.logger(err);
+      return false;
+    }
   }
 
   async screenshareToast(testName) {
-    await this.initUser3(Page.getArgs(), undefined, testName);
-    await this.page3.startRecording(testName);
-    await this.page3.screenshot(`${testName}`, `01-page03-initialized-${testName}`);
-    await this.page3.closeAudioModal();
-    await this.page3.screenshot(`${testName}`, `02-page03-audio-modal-closed-${testName}`);
-    await utilScreenShare.startScreenshare(this.page3);
-    await this.page3.screenshot(`${testName}`, `03-page03-screenshare-started-${testName}`);
-    const response = await util.getLastToastValue(this.page3);
-    await this.page3.screenshot(`${testName}`, `04-page03-screenshare-toast-${testName}`);
-    return response;
+    try {
+      await this.initUser3(Page.getArgs(), undefined, testName);
+      await this.page3.startRecording(testName);
+      await this.page3.screenshot(`${testName}`, `01-page03-initialized-${testName}`);
+      await this.page3.closeAudioModal();
+      await this.page3.screenshot(`${testName}`, `02-page03-audio-modal-closed-${testName}`);
+      await utilScreenShare.startScreenshare(this.page3);
+      await this.page3.screenshot(`${testName}`, `03-page03-screenshare-started-${testName}`);
+      const response = await util.getLastToastValue(this.page3);
+      await this.page3.screenshot(`${testName}`, `04-page03-screenshare-toast-${testName}`);
+      return response;
+    } catch (err) {
+      await this.page3.logger(err);
+      return false;
+    }
   }
 
   async closePages() {
-    await this.page3.close();
-    await this.page4.close();
+    try {
+      await this.page3.close();
+      await this.page4.close();
+    } catch (err) {
+      await this.page3.logger(err);
+      return false;
+    }
   }
 }
 

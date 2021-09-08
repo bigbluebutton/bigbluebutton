@@ -9,6 +9,7 @@ import CaptionsService from '/imports/ui/components/captions/service';
 import { notify } from '/imports/ui/services/notification';
 import { styles } from './styles';
 import { PANELS, ACTIONS } from '../../layout/enums';
+import _ from 'lodash';
 
 const intlMessages = defineMessages({
   hide: {
@@ -65,6 +66,12 @@ const propTypes = {
   }).isRequired,
 };
 
+const DEBOUNCE_TIMEOUT = 500;
+const DEBOUNCE_OPTIONS = {
+  leading: true,
+  trailing: false,
+};
+
 class Pad extends PureComponent {
   static getDerivedStateFromProps(nextProps) {
     if (nextProps.ownerId !== nextProps.currentUserId) {
@@ -83,7 +90,7 @@ class Pad extends PureComponent {
     const { locale, intl } = props;
     this.recognition = CaptionsService.initSpeechRecognition(locale);
 
-    this.toggleListen = this.toggleListen.bind(this);
+    this.toggleListen = _.debounce(this.toggleListen.bind(this), DEBOUNCE_TIMEOUT, DEBOUNCE_OPTIONS);
     this.handleListen = this.handleListen.bind(this);
 
     if (this.recognition) {
@@ -130,7 +137,14 @@ class Pad extends PureComponent {
       // Starts and stops the recognition when listening.
       // Throws an error if start() is called on a recognition that has already been started.
       if (listening) {
-        this.recognition.start();
+        try {
+          this.recognition.start();
+        } catch (e) {
+          logger.error({
+            logCode: 'captions_recognition',
+            extraInfo: { error: e.error },
+          }, 'Captions pad error when starting the recognition');
+        }
       } else {
         this.recognition.stop();
       }

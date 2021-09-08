@@ -46,7 +46,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="meetingService" class="org.bigbluebutton.api.MeetingService" init-method="start" destroy-method="stop">
         <property name="redisStorageService" ref="redisStorageService"/>
-        <property name="activityService" ref="activityService"/>
+        <property name="learningDashboardService" ref="learningDashboardService"/>
         <property name="recordingService" ref="recordingService"/>
         <property name="presDownloadService" ref="presDownloadService"/>
         <property name="paramsProcessorUtil" ref="paramsProcessorUtil"/>
@@ -108,8 +108,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultTextTrackUrl" value="${defaultTextTrackUrl}"/>
     </bean>
 
-    <bean id="activityService" class="org.bigbluebutton.api.ActivityService">
-        <property name="activitiesDir" value="${activitiesDir}"/>
+    <bean id="learningDashboardService" class="org.bigbluebutton.api.LearningDashboardService">
+        <property name="learningDashboardFilesDir" value="${learningDashboardFilesDir}"/>
     </bean>
 
     <bean id="html5LoadBalancingService" class="org.bigbluebutton.api.HTML5LoadBalancingService" init-method="init" />
@@ -145,13 +145,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultServerUrl" value="${bigbluebutton.web.serverURL}"/>
         <property name="defaultNumDigitsForTelVoice" value="${defaultNumDigitsForTelVoice}"/>
         <property name="defaultHTML5ClientUrl" value="${defaultHTML5ClientUrl}"/>
+        <property name="useDefaultLogo" value="${useDefaultLogo}"/>
+        <property name="defaultLogoURL" value="${defaultLogoURL}"/>
         <property name="defaultGuestWaitURL" value="${defaultGuestWaitURL}"/>
         <property name="allowRequestsWithoutSession" value="${allowRequestsWithoutSession}"/>
         <property name="defaultMeetingDuration" value="${defaultMeetingDuration}"/>
         <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
         <property name="autoStartRecording" value="${autoStartRecording}"/>
         <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
-        <property name="activityReportTracking" value="${activityReportTracking}"/>
+        <property name="learningDashboardEnabled" value="${learningDashboardEnabled}"/>
+        <property name="learningDashboardCleanupDelayInMinutes" value="${learningDashboardCleanupDelayInMinutes}"/>
         <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
         <property name="useDefaultAvatar" value="${useDefaultAvatar}"/>
         <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>

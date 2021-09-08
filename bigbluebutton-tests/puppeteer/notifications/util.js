@@ -3,28 +3,25 @@ const ule = require('../user/elements');
 const ce = require('../chat/elements');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
-
-async function clickTestElement(element) {
-  await document.querySelectorAll(element)[0].click();
-}
+const { clickElement, getElementText, checkElement, checkElementLengthEqualTo } = require('../core/util');
 
 async function popupMenu(test) {
-  await test.page.evaluate(clickTestElement, e.options);
-  await test.page.evaluate(clickTestElement, ne.settings);
+  await test.page.evaluate(clickElement, e.options);
+  await test.page.evaluate(clickElement, ne.settings);
 }
 
 async function enableChatPopup(test) {
   await test.waitForSelector(ne.notificationsTab, ELEMENT_WAIT_TIME);
-  await test.page.evaluate(clickTestElement, ne.notificationsTab);
+  await test.page.evaluate(clickElement, ne.notificationsTab);
   await test.waitForSelector(ne.chatPushAlerts, ELEMENT_WAIT_TIME);
-  await test.page.evaluate(clickTestElement, ne.chatPushAlerts);
+  await test.page.evaluate(clickElement, ne.chatPushAlerts);
 }
 
 async function enableUserJoinPopup(test) {
   await test.waitForSelector(ne.notificationsTab, ELEMENT_WAIT_TIME);
-  await test.page.evaluate(clickTestElement, ne.notificationsTab);
+  await test.page.evaluate(clickElement, ne.notificationsTab);
   await test.waitForSelector(ne.userJoinPushAlerts, ELEMENT_WAIT_TIME);
-  await test.page.evaluate(clickTestElement, ne.userJoinPushAlerts);
+  await test.page.evaluate(clickElement, ne.userJoinPushAlerts);
 }
 
 async function saveSettings(page) {
@@ -34,44 +31,26 @@ async function saveSettings(page) {
 
 async function waitForToast(test) {
   await test.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
-  const resp = await test.page.evaluate(getTestElement, ne.smallToastMsg) !== null;
+  const resp = await test.page.evaluate(checkElement, ne.smallToastMsg, 1);
   return resp;
 }
 
 async function getLastToastValue(test) {
   await test.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
-  const toast = test.page.evaluate(async (toastMsgSelector) => {
-    const lastToast = await document.querySelectorAll(toastMsgSelector)[0].innerText;
-    return lastToast;
-  }, ne.smallToastMsg);
+  const toast = test.page.evaluate(getElementText, ne.smallToastMsg);
   return toast;
 }
 
 async function getOtherToastValue(test) {
   await test.waitForSelector(ne.smallToastMsg, ELEMENT_WAIT_TIME);
-  const toast = test.page.evaluate(async (toastMsgSelector) => {
-    const lastToast = await document.querySelectorAll(toastMsgSelector)[1].innerText;
-    return lastToast;
-  }, ne.smallToastMsg);
+  const toast = test.page.evaluate(getElementText, ne.smallToastMsg, 1);
   return toast;
-}
-
-async function getTestElement(element) {
-  await document.querySelectorAll(element)[1];
-}
-
-async function clickOnElement(element) {
-  await document.querySelectorAll(element)[0].click();
-}
-
-async function clickThePrivateChatButton(element) {
-  await document.querySelectorAll(element)[0].click();
 }
 
 async function publicChatMessageToast(page1, page2) {
   // Open private Chat with the other User
-  await page1.page.evaluate(clickOnElement, ule.userListItem);
-  await page1.page.evaluate(clickThePrivateChatButton, ce.activeChat);
+  await page1.page.evaluate(clickElement, ule.userListItem);
+  await page1.page.evaluate(clickElement, ce.activeChat);
   // send a public message
   await page2.page.type(ce.publicChat, ce.publicMessage1);
   await page2.click(ce.sendButton, true);
@@ -80,13 +59,13 @@ async function publicChatMessageToast(page1, page2) {
 
 async function privateChatMessageToast(page2) {
   // Open private Chat with the other User
-  await page2.page.evaluate(clickOnElement, ule.userListItem);
-  await page2.page.evaluate(clickThePrivateChatButton, ce.activeChat);
+  await page2.page.evaluate(clickElement, ule.userListItem);
+  await page2.page.evaluate(clickElement, ce.activeChat);
   // wait for the private chat to be ready
   await page2.page.waitForFunction(
-    (chatSelector) => document.querySelectorAll(chatSelector).length == 2,
+    checkElementLengthEqualTo,
     { timeout: ELEMENT_WAIT_TIME },
-    ce.chatButton
+    ce.chatButton, 2
   );
   // send a private message
   await page2.page.type(ce.privateChat, ce.message1);
@@ -96,29 +75,24 @@ async function privateChatMessageToast(page2) {
 
 // File upload notification
 async function uploadFileMenu(test) {
-  await test.page.evaluate(clickOnElement, ne.dropdownContent);
-  await test.page.evaluate(clickOnElement, ne.uploadPresentation);
-}
-
-async function getFileItemStatus(element, value) {
-  document.querySelectorAll(element)[1].innerText.includes(value);
+  await test.click(e.actions);
+  await test.click(ne.uploadPresentation);
 }
 
 async function startPoll(test) {
-  await test.page.evaluate(clickOnElement, ne.dropdownContent);
-  await test.page.evaluate(clickOnElement, ne.polling);
+  await test.click(e.actions);
+  await test.click(ne.polling);
   await test.waitForSelector(ne.hidePollDesc, ELEMENT_WAIT_TIME);
   await test.waitForSelector(ne.polling, ELEMENT_WAIT_TIME);
-  await test.page.evaluate(clickOnElement, ne.polling);
+  await test.page.evaluate(clickElement, ne.polling);
   await test.waitForSelector(ne.pollYesNoAbstentionBtn, ELEMENT_WAIT_TIME);
   await test.click(ne.pollYesNoAbstentionBtn, true);
   await test.waitForSelector(ne.startPoll, ELEMENT_WAIT_TIME);
   await test.click(ne.startPoll, true);
   await test.waitForSelector(ne.publishLabel, ELEMENT_WAIT_TIME);
-  await test.page.evaluate(clickOnElement, ne.publishLabel);
+  await test.page.evaluate(clickElement, ne.publishLabel);
 }
 
-exports.getFileItemStatus = getFileItemStatus;
 exports.privateChatMessageToast = privateChatMessageToast;
 exports.publicChatMessageToast = publicChatMessageToast;
 exports.enableUserJoinPopup = enableUserJoinPopup;
@@ -126,10 +100,7 @@ exports.getOtherToastValue = getOtherToastValue;
 exports.getLastToastValue = getLastToastValue;
 exports.enableChatPopup = enableChatPopup;
 exports.uploadFileMenu = uploadFileMenu;
-exports.getTestElement = getTestElement;
 exports.saveSettings = saveSettings;
 exports.waitForToast = waitForToast;
 exports.popupMenu = popupMenu;
-exports.clickTestElement = clickTestElement;
 exports.startPoll = startPoll;
-exports.clickOnElement = clickOnElement;

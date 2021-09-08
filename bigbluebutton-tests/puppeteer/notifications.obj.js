@@ -23,8 +23,8 @@ const notificationsTest = () => {
       await test.page1.logger('end of ', testName);
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
-    } catch (e) {
-      await test.page1.logger(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
       await test.page1.logger('Save Setting notification !');
@@ -44,8 +44,8 @@ const notificationsTest = () => {
       await test.page1.logger('end of ', testName);
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
-    } catch (e) {
-      await test.page1.logger(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
       await test.page1.logger('Public Chat notification !');
@@ -65,8 +65,8 @@ const notificationsTest = () => {
       await test.page1.logger('end of ', testName);
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
-    } catch (e) {
-      await test.page1.logger(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
       await test.page1.logger('Private Chat notification !');
@@ -86,8 +86,8 @@ const notificationsTest = () => {
       await test.page3.logger('end of ', testName);
       await test.page3.stopRecording();
       screenshot = await test.page3.page.screenshot();
-    } catch (e) {
-      await test.page3.logger(e);
+    } catch (err) {
+      await test.page3.logger(err);
     } finally {
       await test.closePages();
       await test.page3.logger('User join notification !');
@@ -107,8 +107,8 @@ const notificationsTest = () => {
       await test.page3.logger('end of ', testName);
       await test.page3.stopRecording();
       screenshot = await test.page3.page.screenshot();
-    } catch (e) {
-      await test.page3.logger(e);
+    } catch (err) {
+      await test.page3.logger(err);
     } finally {
       await test.closePage(test.page3);
       await test.page3.logger('Presentation upload notification !');
@@ -129,8 +129,8 @@ const notificationsTest = () => {
       await test.page3.logger('end of ', testName);
       await test.page3.stopRecording();
       screenshot = await test.page3.page.screenshot();
-    } catch (e) {
-      await test.page3.logger(e);
+    } catch (err) {
+      await test.page3.logger(err);
     } finally {
       await test.closePage(test.page3);
       await test.page3.logger('Poll results notification !');
@@ -150,8 +150,8 @@ const notificationsTest = () => {
       await test.page3.logger('end of ', testName);
       await test.page3.stopRecording();
       screenshot = await test.page3.page.screenshot();
-    } catch (e) {
-      await test.page3.logger(e);
+    } catch (err) {
+      await test.page3.logger(err);
     } finally {
       await test.closePage(test.page3);
       await test.page3.logger('Screenshare notification !');
@@ -171,8 +171,8 @@ const notificationsTest = () => {
       await test.page3.logger('end of ', testName);
       await test.page3.stopRecording();
       screenshot = await test.page3.page.screenshot();
-    } catch (e) {
-      await test.page3.logger(e);
+    } catch (err) {
+      await test.page3.logger(err);
     } finally {
       await test.closePage(test.page3);
       await test.page3.logger('Audio notification !');

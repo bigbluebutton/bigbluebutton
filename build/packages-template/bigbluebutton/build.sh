@@ -13,14 +13,14 @@ if [ -n "$CI_PROJECT_DIR" ]; then
   cp $CI_PROJECT_DIR/packages_to_skip.txt .
 fi
 
-PKGS="bbb-activity-report
-bbb-apps-akka
+PKGS="bbb-apps-akka
 bbb-config
 bbb-etherpad
 bbb-freeswitch-core
 bbb-freeswitch-sounds
 bbb-fsesl-akka
 bbb-html5
+bbb-learning-dashboard
 bbb-libreoffice-docker
 bbb-mkclean
 bbb-playback

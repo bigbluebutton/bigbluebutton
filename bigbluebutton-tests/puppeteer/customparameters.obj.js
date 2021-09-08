@@ -21,13 +21,13 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'autoJoin';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.autoJoin(testName, Page.getArgs(), undefined, c.autoJoin);
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -44,13 +44,13 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'listenOnlyMode';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.listenOnlyMode(testName, Page.getArgs(), undefined, c.listenOnlyMode);
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -67,13 +67,13 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'forceListenOnly';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.forceListenOnly(testName, Page.getArgs(), undefined, c.forceListenOnly);
       await test.page2.stopRecording();
       screenshot = await test.page2.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page2);
     }
@@ -90,13 +90,13 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'skipCheck';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.skipCheck(testName, Page.getArgs(), undefined, c.skipCheck);
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -113,13 +113,13 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'skipCheckOnFirstJoin';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.skipCheckOnFirstJoin(testName, Page.getArgs(), undefined, c.skipCheckOnFirstJoin);
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -136,13 +136,13 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'clientTitle';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.clientTitle(testName, Page.getArgs(), undefined, c.clientTitle);
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -159,13 +159,13 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'askForFeedbackOnLogout';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.askForFeedbackOnLogout(testName, Page.getArgs(), undefined, c.askForFeedbackOnLogout);
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -182,14 +182,14 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'displayBrandingArea';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       const parameterWithLogo = `${c.displayBrandingArea}&${util.encodeCustomParams(c.logo)}`;
       response = await test.displayBrandingArea(testName, Page.getArgs(), undefined, parameterWithLogo);
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -206,13 +206,13 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'shortcuts';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.shortcuts(testName, Page.getArgs(), undefined, util.encodeCustomParams(c.shortcuts));
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -229,13 +229,13 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'enableScreensharing';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.enableScreensharing(testName, Page.getArgs(), undefined, c.enableScreensharing);
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -252,13 +252,13 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'enableVideo';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.enableVideo(testName, Page.getArgs(), undefined, c.enableVideo);
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -275,13 +275,13 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'autoShareWebcam';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.autoShareWebcam(testName, Page.getArgs(), undefined, c.autoShareWebcam);
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -298,14 +298,14 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'multiUserPenOnly';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.multiUserPenOnly(testName, Page.getArgs(), undefined, c.multiUserPenOnly);
       await test.page1.stopRecording();
       await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
     }
@@ -322,13 +322,13 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'presenterTools';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.presenterTools(testName, Page.getArgs(), undefined, util.encodeCustomParams(c.presenterTools));
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -345,14 +345,14 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'multiUserTools';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.multiUserTools(testName, Page.getArgs(), undefined, util.encodeCustomParams(c.multiUserTools));
       await test.page1.stopRecording();
       await test.page2.stopRecording();
       screenshot = await test.page2.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
     }
@@ -369,13 +369,13 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'customStyle';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.customStyle(testName, Page.getArgs(), undefined, util.encodeCustomParams(c.customStyle));
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -392,13 +392,13 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'customStyleUrl';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.customStyleUrl(testName, Page.getArgs(), undefined, util.encodeCustomParams(c.customStyleUrl));
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -416,13 +416,13 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'autoSwapLayout';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.autoSwapLayout(testName, Page.getArgs(), undefined, c.autoSwapLayout);
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -439,13 +439,13 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'hidePresentation';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.hidePresentation(testName, Page.getArgs(), undefined, util.encodeCustomParams(c.hidePresentation));
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -462,13 +462,13 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'bannerText';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.bannerText(testName, Page.getArgs(), undefined, util.encodeCustomParams(c.bannerText));
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -485,14 +485,14 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'bannerColor';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       const colorToRGB = util.hexToRgb(c.color);
       response = await test.bannerColor(testName, Page.getArgs(), undefined, `${c.bannerColor}&${util.encodeCustomParams(c.bannerText)}`, colorToRGB);
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -509,13 +509,13 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'showPublicChatOnLogin';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.showPublicChatOnLogin(testName, Page.getArgs(), undefined, `${c.showPublicChatOnLogin}`);
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -533,14 +533,14 @@ const customParametersTest = () => {
     let screenshot;
     try {
       const testName = 'forceRestorePresentationOnNewEvents';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.forceRestorePresentationOnNewEvents(testName, Page.getArgs(), undefined, `${c.forceRestorePresentationOnNewEvents}`);
       await test.page1.stopRecording();
       await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
     }
@@ -556,12 +556,12 @@ const customParametersTest = () => {
     let response;
     try {
       const testName = 'recordMeeting';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.recordMeeting(testName, Page.getArgs(), undefined, `${c.recordMeeting}`);
       await test.page1.stopRecording();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -577,12 +577,12 @@ const customParametersTest = () => {
     let response;
     try {
       const testName = 'skipVideoPreview';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.skipVideoPreview(testName, Page.getArgs(), undefined, `${c.skipVideoPreview}`);
       await test.page1.stopRecording();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -598,12 +598,12 @@ const customParametersTest = () => {
     let response;
     try {
       const testName = 'skipVideoPreviewOnFirstJoin';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.skipVideoPreviewOnFirstJoin(testName, Page.getArgs(), undefined, `${c.skipVideoPreviewOnFirstJoin}`);
       await test.page1.stopRecording();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -620,12 +620,12 @@ const customParametersTest = () => {
     let response;
     try {
       const testName = 'mirrorOwnWebcam';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.mirrorOwnWebcam(testName, Page.getArgs(), undefined, `${c.mirrorOwnWebcam}`);
       await test.page1.stopRecording();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }
@@ -641,12 +641,12 @@ const customParametersTest = () => {
     let response;
     try {
       const testName = 'showParticipantsOnLogin';
-      page.logger('before ', testName);
+      await page.logger('before ', testName);
       response = await test.showParticipantsOnLogin(testName, Page.getArgs(), undefined, `${c.showParticipantsOnLogin}`);
       await test.page1.stopRecording();
-      page.logger('after ', testName);
-    } catch (e) {
-      page.logger(e);
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
     } finally {
       await test.closePage(test.page1);
     }

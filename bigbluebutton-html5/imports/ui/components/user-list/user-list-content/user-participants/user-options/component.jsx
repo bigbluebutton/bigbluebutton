@@ -4,13 +4,12 @@ import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import Button from '/imports/ui/components/button/component';
-import Dropdown from '/imports/ui/components/dropdown/component';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
 import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
 import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/container';
 import CaptionsService from '/imports/ui/components/captions/service';
 import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
-import BBBMenu from "/imports/ui/components/menu/component";
+import BBBMenu from '/imports/ui/components/menu/component';
 import { styles } from './styles';
 import { getUserNamesLink } from '/imports/ui/components/user-list/service';
 import Settings from '/imports/ui/services/settings';
@@ -94,12 +93,12 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.createBreakoutRoomDesc',
     description: 'Description of create breakout room option',
   },
-  activityReportLabel: {
-    id: 'app.activity-report.label',
+  learningDashboardLabel: {
+    id: 'app.learning-dashboard.label',
     description: 'Activity Report label',
   },
-  activityReportDesc: {
-    id: 'app.activity-report.description',
+  learningDashboardDesc: {
+    id: 'app.learning-dashboard.description',
     description: 'Activity Report description',
   },
   invitationItem: {
@@ -136,22 +135,16 @@ class UserOptions extends PureComponent {
   constructor(props) {
     super(props);
 
-    this.state = {
-      isUserOptionsOpen: false,
-    };
-
     this.clearStatusId = _.uniqueId('list-item-');
     this.muteId = _.uniqueId('list-item-');
     this.muteAllId = _.uniqueId('list-item-');
     this.lockId = _.uniqueId('list-item-');
     this.guestPolicyId = _.uniqueId('list-item-');
     this.createBreakoutId = _.uniqueId('list-item-');
-    this.activityReportId = _.uniqueId('list-item-');
+    this.learningDashboardId = _.uniqueId('list-item-');
     this.saveUsersNameId = _.uniqueId('list-item-');
     this.captionsId = _.uniqueId('list-item-');
 
-    this.onActionsShow = this.onActionsShow.bind(this);
-    this.onActionsHide = this.onActionsHide.bind(this);
     this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
     this.handleCaptionsClick = this.handleCaptionsClick.bind(this);
     this.onCreateBreakouts = this.onCreateBreakouts.bind(this);
@@ -178,18 +171,6 @@ class UserOptions extends PureComponent {
       intl.formatMessage(intlMessages.sortedLastNameHeading),
     ).dispatchEvent(new MouseEvent('click',
       { bubbles: true, cancelable: true, view: window }));
-  }
-
-  onActionsShow() {
-    this.setState({
-      isUserOptionsOpen: true,
-    });
-  }
-
-  onActionsHide() {
-    this.setState({
-      isUserOptionsOpen: false,
-    });
   }
 
   onCreateBreakouts() {
@@ -233,8 +214,8 @@ class UserOptions extends PureComponent {
       hasBreakoutRoom,
       isBreakoutEnabled,
       getUsersNotAssigned,
-      activityReportAccessToken,
-      openActivityReportUrl,
+      learningDashboardAccessToken,
+      openLearningDashboardUrl,
       amIModerator,
       users,
       isMeteorConnected,
@@ -251,9 +232,10 @@ class UserOptions extends PureComponent {
       && hasBreakoutRoom
       && getUsersNotAssigned(users).length;
 
+    const { locale } = intl;
 
     this.menuItems = [];
-    
+
     if (isMeteorConnected) {
       if (!meetingIsBreakout) {
         this.menuItems.push({
@@ -279,20 +261,18 @@ class UserOptions extends PureComponent {
           label: intl.formatMessage(intlMessages.lockViewersLabel),
           // description: intl.formatMessage(intlMessages.lockViewersDesc),
           onClick: () => mountModal(<LockViewersContainer />),
-          icon: 'lock'
+          icon: 'lock',
         });
-
-
 
         if (dynamicGuestPolicy) {
           this.menuItems.push({
             key: this.guestPolicyId,
-            icon: "user",
+            icon: 'user',
             label: intl.formatMessage(intlMessages.guestPolicyLabel),
             // description: intl.formatMessage(intlMessages.guestPolicyDesc),
             onClick: () => mountModal(<GuestPolicyContainer />),
-            dataTest: "guestPolicyLabel",
-          })
+            dataTest: 'guestPolicyLabel',
+          });
         }
       }
 
@@ -305,15 +285,15 @@ class UserOptions extends PureComponent {
           icon: 'download',
         });
 
-        if (activityReportAccessToken != null) {
+        if (learningDashboardAccessToken != null) {
           this.menuItems.push({
-            icon: "multi_whiteboard",
-            iconRight: "popout_window",
-            label: intl.formatMessage(intlMessages.activityReportLabel),
-            description: intl.formatMessage(intlMessages.activityReportDesc),
-            key: this.activityReportId,
-            onClick: openActivityReportUrl,
-          })
+            icon: 'multi_whiteboard',
+            iconRight: 'popout_window',
+            label: intl.formatMessage(intlMessages.learningDashboardLabel),
+            description: intl.formatMessage(intlMessages.learningDashboardDesc),
+            key: this.learningDashboardId,
+            onClick: () => { openLearningDashboardUrl(locale); },
+          });
         }
       }
 
@@ -329,32 +309,32 @@ class UserOptions extends PureComponent {
       if (canCreateBreakout) {
         this.menuItems.push({
           key: this.createBreakoutId,
-          icon: "rooms",
+          icon: 'rooms',
           label: intl.formatMessage(intlMessages.createBreakoutRoom),
           // description: intl.formatMessage(intlMessages.createBreakoutRoomDesc),
           onClick: this.onCreateBreakouts,
-          dataTest: "createBreakoutRooms",
-        })
+          dataTest: 'createBreakoutRooms',
+        });
       }
 
       if (canInviteUsers) {
         this.menuItems.push({
-          icon: "rooms",
+          icon: 'rooms',
           label: intl.formatMessage(intlMessages.invitationItem),
           key: this.createBreakoutId,
           onClick: this.onInvitationUsers,
-        })
+        });
       }
 
       if (amIModerator && CaptionsService.isCaptionsEnabled()) {
         this.menuItems.push({
-          icon: "closed_caption",
+          icon: 'closed_caption',
           label: intl.formatMessage(intlMessages.captionsLabel),
           // description: intl.formatMessage(intlMessages.captionsDesc),
           key: this.captionsId,
           onClick: this.handleCaptionsClick,
-          dataTest: "inviteBreakoutRooms",
-        })
+          dataTest: 'inviteBreakoutRooms',
+        });
       }
     }
 
@@ -362,12 +342,11 @@ class UserOptions extends PureComponent {
   }
 
   render() {
-    const { isUserOptionsOpen } = this.state;
     const { intl } = this.props;
 
     return (
-      <BBBMenu 
-      trigger={
+      <BBBMenu
+        trigger={(
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
             data-test="manageUsers"
@@ -379,9 +358,9 @@ class UserOptions extends PureComponent {
             size="sm"
             onClick={() => null}
           />
-      }
-      actions={this.renderMenuItems()}
-    />
+        )}
+        actions={this.renderMenuItems()}
+      />
     );
   }
 }
