@@ -347,7 +347,7 @@ class UserOptions extends PureComponent {
     return (
       <BBBMenu
         trigger={(
-          <Button
+          <Button          
             label={intl.formatMessage(intlMessages.optionsLabel)}
             data-test="manageUsers"
             icon="settings"

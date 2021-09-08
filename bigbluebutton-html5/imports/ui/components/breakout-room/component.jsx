@@ -119,6 +119,10 @@ class BreakoutRoom extends PureComponent {
     };
   }
 
+  componentDidMount() {
+    if (this.panel) this.panel.firstChild.focus();
+  }
+
   componentDidUpdate() {
     const {
       breakoutRoomUser,
@@ -513,7 +517,7 @@ class BreakoutRoom extends PureComponent {
       amIModerator,
     } = this.props;
     return (
-      <div className={styles.panel}>
+      <div className={styles.panel} ref={(n) => this.panel = n}>
         <Button
           icon="left_arrow"
           label={intl.formatMessage(intlMessages.breakoutTitle)}
