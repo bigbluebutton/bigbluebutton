@@ -25,6 +25,8 @@
     "app.chat.multi.typing": "Multiple users are typing",
     "app.chat.one.typing": "{0} is typing",
     "app.chat.two.typing": "{0} and {1} are typing",
+    "app.chat.copySuccess": "Copied chat transcript",
+    "app.chat.copyErr": "Copy chat transcript failed",
     "app.captions.label": "Captions",
     "app.captions.menu.close": "Close",
     "app.captions.menu.start": "Start",

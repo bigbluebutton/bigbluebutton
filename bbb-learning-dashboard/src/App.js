@@ -45,7 +45,6 @@ class App extends React.Component {
         .then((response) => response.json())
         .then((json) => {
           this.setState({ activitiesJson: json });
-          document.title = `Learning Dashboard - ${json.name}`;
         });
     }
   }
@@ -53,6 +52,8 @@ class App extends React.Component {
   render() {
     const { activitiesJson, tab } = this.state;
     const { intl } = this.props;
+
+    document.title = `${intl.formatMessage({ id: 'app.learningDashboard.dashboardTitle', defaultMessage: 'Learning Dashboard' })} - ${activitiesJson.name}`;
 
     function totalOfRaiseHand() {
       if (activitiesJson && activitiesJson.users) {

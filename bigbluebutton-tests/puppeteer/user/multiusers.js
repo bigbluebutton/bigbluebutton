@@ -2,15 +2,16 @@ const Page = require('../core/page');
 const params = require('../params');
 const util = require('../chat/util');
 const utilUser = require('./util');
-const utilCustomParams = require('../customparameters/util');
 const pe = require('../core/elements');
 const ne = require('../notifications/elements');
 const ple = require('../polling/elemens');
 const we = require('../whiteboard/elements');
 const ue = require('./elements');
+const ce = require('../chat/elements');
 const cu = require('../customparameters/elements');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const { sleep } = require('../core/helper');
+const { getElementLength, checkElementLengthEqualTo, checkElementLengthDifferentTo } = require('../core/util');
 
 class MultiUsers {
   constructor() {
@@ -32,8 +33,8 @@ class MultiUsers {
 
   // Run the test for the page
   async checkForOtherUser() {
-    const firstCheck = await this.page1.page.evaluate(() => document.querySelectorAll('[data-test="userListItem"]').length > 0);
-    const secondCheck = await this.page2.page.evaluate(() => document.querySelectorAll('[data-test="userListItem"]').length > 0);
+    const firstCheck = await this.page1.page.evaluate(getElementLength, ue.userListItem) > 0;
+    const secondCheck = await this.page1.page.evaluate(getElementLength, ue.userListItem) > 0;
     return {
       firstCheck,
       secondCheck,
@@ -42,9 +43,9 @@ class MultiUsers {
 
   async multiUsersPublicChat() {
     try {
-      const chat0 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
+      const chat0 = await this.page1.page.evaluate(getElementLength, ce.chatUserMessageText);
       await util.sendPublicChatMessage(this.page1, this.page2);
-      const chat1 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
+      const chat1 = await this.page1.page.evaluate(getElementLength, ce.chatUserMessageText);
       return chat0 !== chat1;
     } catch (err) {
       await this.page1.logger(err);
@@ -55,10 +56,10 @@ class MultiUsers {
   async multiUsersPrivateChat() {
     try {
       await util.openPrivateChatMessage(this.page1, this.page2);
-      const chat0 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
+      const chat0 = await this.page1.page.evaluate(getElementLength, ce.chatUserMessageText);
       await util.sendPrivateChatMessage(this.page1, this.page2);
       await sleep(2000);
-      const chat1 = await this.page1.page.evaluate(() => document.querySelectorAll('p[data-test="chatUserMessageText"]').length);
+      const chat1 = await this.page1.page.evaluate(getElementLength, ce.chatUserMessageText);
       return chat0 !== chat1;
     } catch (err) {
       await this.page1.logger(err);
@@ -90,15 +91,15 @@ class MultiUsers {
       await this.page1.page.focus(ple.pollQuestionArea);
       await this.page1.page.keyboard.type(ple.pollQuestion);
 
-      const chosenRandomNb = await this.page1.page.evaluate(() => {
-        const responseTypesDiv = document.querySelector('div[data-test="responseTypes"]');
+      const chosenRandomNb = await this.page1.page.evaluate((responseTypes) => {
+        const responseTypesDiv = document.querySelector(responseTypes);
         const buttons = responseTypesDiv.querySelectorAll('button');
         const countButtons = buttons.length;
         const randomNb = Math.floor(Math.random() * countButtons) + 1;
         const chosenRandomNb = randomNb - 1;
         responseTypesDiv.querySelectorAll('button')[chosenRandomNb].click();
         return chosenRandomNb;
-      });
+      }, ple.responseTypes);
 
       const customs = {
         0: ple.uncertain,
@@ -158,7 +159,7 @@ class MultiUsers {
       await this.page1.waitForSelector(ple.publishLabel, ELEMENT_WAIT_TIME);
       await this.page1.click(ple.publishLabel, true);
       await this.page1.waitForSelector(ple.restartPoll, ELEMENT_WAIT_TIME);
-      const receivedAnswerFound = await this.page1.page.evaluate(utilCustomParams.countTestElements, ple.receivedAnswer);
+      const receivedAnswerFound = await this.page1.page.evaluate(checkElementLengthDifferentTo, ple.receivedAnswer, 0);
       return receivedAnswerFound;
     } catch (err) {
       await this.page1.logger(err);
@@ -175,7 +176,9 @@ class MultiUsers {
       await this.page1.clickNItem(we.userListItem, true, 1);
       await this.page1.clickNItem(we.changeWhiteboardAccess, true, 1);
       await sleep(2000);
-      const resp = await this.page1.page.evaluate(async () => await document.querySelector('[data-test="multiWhiteboardTool"]').children[0].innerText === '1');
+      const resp = await this.page1.page.evaluate((multiWhiteboardTool) => {
+        return document.querySelector(multiWhiteboardTool).children[0].innerText === '1';
+      }, ue.multiWhiteboardTool);
       return resp === true;
     } catch (err) {
       await this.page1.logger(err);
@@ -191,7 +194,7 @@ class MultiUsers {
       await this.page2.waitForSelector(we.raiseHandLabel, ELEMENT_WAIT_TIME);
       await this.page2.click(we.raiseHandLabel, true);
       await sleep(2000);
-      const resp = await this.page2.page.evaluate(utilCustomParams.countTestElements, we.lowerHandLabel);
+      const resp = await this.page2.page.evaluate(checkElementLengthDifferentTo, we.lowerHandLabel, 0);
       return resp === true;
     } catch (err) {
       await this.page1.logger(err);
@@ -205,7 +208,7 @@ class MultiUsers {
       await this.page2.waitForSelector(we.lowerHandLabel, ELEMENT_WAIT_TIME);
       await this.page2.click(we.lowerHandLabel, true);
       await sleep(2000);
-      const resp = await this.page2.page.evaluate(utilCustomParams.countTestElements, we.raiseHandLabel);
+      const resp = await this.page2.page.evaluate(checkElementLengthDifferentTo, we.raiseHandLabel, 0);
       return resp === true;
     } catch (err) {
       await this.page2.logger(err);
@@ -217,7 +220,7 @@ class MultiUsers {
   async getAvatarColorAndCompareWithUserListItem() {
     try {
       const avatarInToastElementColor = await this.page1.page.$eval(we.avatarsWrapperAvatar, (elem) => getComputedStyle(elem).backgroundColor);
-      const avatarInUserListColor = await this.page1.page.$eval('[data-test="userListItem"] > div [data-test="userAvatar"]', (elem) => getComputedStyle(elem).backgroundColor);
+      const avatarInUserListColor = await this.page1.page.$eval(`${ue.userListItem} > div ${ue.statusIcon}`, (elem) => getComputedStyle(elem).backgroundColor);
       return avatarInToastElementColor === avatarInUserListColor;
     } catch (err) {
       await this.page1.logger(err);
@@ -236,8 +239,8 @@ class MultiUsers {
       await sleep(5000);
       await utilUser.connectionStatus(this.page1);
       await sleep(5000);
-      const connectionStatusItemEmpty = await this.page1.page.evaluate(utilUser.countTestElements, ue.connectionStatusItemEmpty) === false;
-      const connectionStatusOfflineUser = await this.page1.page.evaluate(utilUser.countTestElements, ue.connectionStatusOfflineUser) === true;
+      const connectionStatusItemEmpty = await this.page1.page.evaluate(checkElementLengthEqualTo, ue.connectionStatusItemEmpty, 0);
+      const connectionStatusOfflineUser = await this.page1.page.evaluate(checkElementLengthDifferentTo, ue.connectionStatusOfflineUser, 0) === true;
       return connectionStatusOfflineUser && connectionStatusItemEmpty;
     } catch (err) {
       await this.page1.logger(err);
@@ -249,8 +252,8 @@ class MultiUsers {
     try {
       await this.page1.closeAudioModal();
       await this.page2.closeAudioModal();
-      const userlistPanel = await this.page1.page.evaluate(utilUser.countTestElements, ue.chatButton) === false;
-      const chatPanel = await this.page2.page.evaluate(utilUser.countTestElements, ue.chatButton) === false;
+      const userlistPanel = await this.page1.page.evaluate(checkElementLengthEqualTo, ue.chatButton, 0);
+      const chatPanel = await this.page2.page.evaluate(checkElementLengthEqualTo, ue.chatButton, 0);
       return userlistPanel && chatPanel;
     } catch (err) {
       await this.page1.logger(err);
@@ -266,7 +269,7 @@ class MultiUsers {
       await this.page2.click(ue.userListButton, true);
       await this.page2.click(ue.chatButton, true);
       const onUserListPanel = await this.page1.isNotVisible(cu.hidePresentation, ELEMENT_WAIT_TIME) === true;
-      const onChatPanel = await this.page2.page.evaluate(utilUser.countTestElements, cu.hidePresentation) === false;
+      const onChatPanel = await this.page2.page.evaluate(checkElementLengthEqualTo, cu.hidePresentation, 0);
       await sleep(2000);
       return onUserListPanel && onChatPanel;
     } catch (err) {
@@ -281,7 +284,7 @@ class MultiUsers {
       await this.page2.closeAudioModal();
       await this.page2.click(ue.userListButton, true);
       await this.page2.click(ue.chatButton, true);
-      const whiteboard = await this.page1.page.evaluate(utilUser.countTestElements, ue.chatButton) === false;
+      const whiteboard = await this.page1.page.evaluate(checkElementLengthEqualTo, ue.chatButton, 0);
       const onChatPanel = await this.page2.isNotVisible(ue.chatButton, ELEMENT_WAIT_TIME) === true;
       await sleep(2000);
       return whiteboard && onChatPanel;
