@@ -335,12 +335,12 @@ const reducer = (state, action) => {
       } = action.value;
       const { sidebarNavigation } = state.output;
       if (sidebarNavigation.display === display
-        && sidebarNavigation.minWidth === width
-        && sidebarNavigation.maxWidth === width
+        && sidebarNavigation.minWidth === minWidth
+        && sidebarNavigation.maxWidth === maxWidth
         && sidebarNavigation.width === width
-        && sidebarNavigation.minHeight === height
+        && sidebarNavigation.minHeight === minHeight
         && sidebarNavigation.height === height
-        && sidebarNavigation.maxHeight === height
+        && sidebarNavigation.maxHeight === maxHeight
         && sidebarNavigation.top === top
         && sidebarNavigation.left === left
         && sidebarNavigation.right === right
