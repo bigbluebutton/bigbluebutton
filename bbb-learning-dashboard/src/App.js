@@ -75,6 +75,8 @@ class App extends React.Component {
     } = this.state;
     const { intl } = this.props;
 
+    document.title = `${intl.formatMessage({ id: 'app.learningDashboard.dashboardTitle', defaultMessage: 'Learning Dashboard' })} - ${activitiesJson.name}`;
+
     function totalOfRaiseHand() {
       if (activitiesJson && activitiesJson.users) {
         return Object.values(activitiesJson.users)

@@ -28,6 +28,16 @@ redis_port: 6379
 # and have another script process it.
 store_recording_status: false
 
+# Whether to anonymize the sender of chat messages in the processed
+# recordings. The settings here are the defaults; they can be overridden
+# by passing meta parameters on the meeting create call.
+# meta param: meta_bbb-anonymize-chat (true/false)
+anonymize_chat: false
+# By default only names of viewers are anonymized - if you would also
+# like to anonymize moderators, you can set this to true:
+# meta param: meta_bbb-anonymize-chat-moderators (true/false)
+anonymize_chat_moderators: false
+
 # Sequence of recording steps. Keys are the current step, values
 # are the next step(s). Examples:
 #   current_step: next_step
