@@ -41,7 +41,7 @@ const PresentationFocusLayout = () => {
   const prevDeviceType = usePrevious(deviceType);
 
   const throttledCalculatesLayout = _.throttle(() => calculatesLayout(),
-    50, { 'trailing': true, 'leading': true });
+    50, { trailing: true, leading: true });
 
   useEffect(() => {
     window.addEventListener('resize', () => {
