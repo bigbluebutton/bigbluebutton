@@ -2,24 +2,23 @@ import React from 'react';
 import SidebarContent from './component';
 import { LayoutContextFunc } from '../layout/context';
 
-const SidebarContentContainer = (props) => {
-  const { layoutContextState, layoutContextDispatch } = props;
-  const {
-    output, input,
-  } = layoutContextState;
-  const { sidebarContent: sidebarContentInput } = input;
-  const { sidebarContentPanel } = sidebarContentInput;
-  const { sidebarContent } = output;
+const SidebarContentContainer = () => {
+  const { layoutContextSelector } = LayoutContextFunc;
 
-  if (sidebarContent.display === false) return null;
+  const sidebarContentInput = layoutContextSelector.selectInput((i) => i.sidebarContent);
+  const sidebarContentOutput = layoutContextSelector.selectOutput((i) => i.sidebarContent);
+  const layoutDispatch = layoutContextSelector.layoutDispatch();
+  const { sidebarContentPanel } = sidebarContentInput;
+
+  if (sidebarContentOutput.display === false) return null;
 
   return (
     <SidebarContent
-      {...sidebarContent}
-      contextDispatch={layoutContextDispatch}
+      {...sidebarContentOutput}
+      contextDispatch={layoutDispatch}
       sidebarContentPanel={sidebarContentPanel}
     />
   );
 };
 
-export default LayoutContextFunc.withConsumer(SidebarContentContainer);
+export default SidebarContentContainer;
