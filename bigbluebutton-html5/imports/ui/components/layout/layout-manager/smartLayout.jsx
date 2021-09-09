@@ -65,7 +65,7 @@ const SmartLayout = () => {
     } else {
       throttledCalculatesLayout();
     }
-  }, [input, deviceType]);
+  }, [input, deviceType, isRTL, fontSize, fullscreen]);
 
   const bannerAreaHeight = () => {
     const { hasNotification } = notificationsBarInput;
