@@ -1,4 +1,5 @@
-import React, { createContext, useReducer } from 'react';
+import React, { useReducer } from 'react';
+import { createContext, useContextSelector } from 'use-context-selector';
 import PropTypes from 'prop-types';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
@@ -24,7 +25,8 @@ const providerPropTypes = {
   ]).isRequired,
 };
 
-const LayoutContext = createContext();
+const LayoutContext = React.createContext();
+const LayoutContextSelector = createContext();
 
 const initState = {
   deviceType: null,
@@ -1133,13 +1135,21 @@ const ContextProvider = (props) => {
   const [layoutContextState, layoutContextDispatch] = useReducer(reducer, initState);
   const { children } = props;
   return (
-    <LayoutContext.Provider value={{
-      layoutContextState,
-      layoutContextDispatch,
-    }}
+    <LayoutContextSelector.Provider value={
+      [
+        layoutContextState,
+        layoutContextDispatch,
+      ]
+    }
     >
-      {children}
-    </LayoutContext.Provider>
+      <LayoutContext.Provider value={{
+        layoutContextState,
+        layoutContextDispatch,
+      }}
+      >
+        {children}
+      </LayoutContext.Provider>
+    </LayoutContextSelector.Provider>
   );
 };
 ContextProvider.propTypes = providerPropTypes;
@@ -1156,10 +1166,29 @@ const withConsumer = (Component) => (props) => (
   </LayoutContext.Consumer>
 );
 
+const select = (selector) => {
+  return useContextSelector(LayoutContextSelector, layout => selector(layout[0]));
+};
+const selectInput = (selector) => {
+  return useContextSelector(LayoutContextSelector, layout => selector(layout[0].input));
+};
+const selectOutput = (selector) => {
+  return useContextSelector(LayoutContextSelector, layout => selector(layout[0].output));
+};
+const layoutDispatch = () => {
+  return useContextSelector(LayoutContextSelector, layout => layout[1]);
+};
+
 export default LayoutContext;
 
 export const LayoutContextFunc = {
   withProvider,
   withConsumer,
   withContext: (Component) => withProvider(withConsumer(Component)),
+  layoutContextSelector: {
+    select,
+    selectInput,
+    selectOutput,
+    layoutDispatch,
+  },
 };

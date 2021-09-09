@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useEffect, useRef } from 'react';
 import _ from 'lodash';
 import { LayoutContextFunc } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
@@ -12,19 +12,42 @@ const windowHeight = () => window.document.documentElement.clientHeight;
 const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 
-class CustomLayout extends Component {
-  constructor(props) {
-    super(props);
-
-    this.throttledCalculatesLayout = _.throttle(() => this.calculatesLayout(),
-      50, { trailing: true, leading: true });
+const CustomLayout = () => {
+  function usePrevious(value) {
+    const ref = useRef();
+    useEffect(() => {
+      ref.current = value;
+    });
+    return ref.current;
   }
 
-  componentDidMount() {
-    this.init();
-    const { layoutContextDispatch } = this.props;
+  const { layoutContextSelector } = LayoutContextFunc;
+  const layoutDispatch = layoutContextSelector.layoutDispatch();
+
+  const input = layoutContextSelector.select((i) => i.input);
+  const deviceType = layoutContextSelector.select((i) => i.deviceType);
+  const isRTL = layoutContextSelector.select((i) => i.isRTL);
+  const fullscreen = layoutContextSelector.select((i) => i.fullscreen);
+  const fontSize = layoutContextSelector.select((i) => i.fontSize);
+  const currentPanelType = layoutContextSelector.select((i) => i.currentPanelType);
+
+  const bannerBarInput = layoutContextSelector.selectInput((i) => i.bannerBar);
+  const notificationsBarInput = layoutContextSelector.selectInput((i) => i.notificationsBar);
+  const presentationInput = layoutContextSelector.selectInput((i) => i.presentation);
+  const sidebarNavigationInput = layoutContextSelector.selectInput((i) => i.sidebarNavigation);
+  const sidebarContentInput = layoutContextSelector.selectInput((i) => i.sidebarContent);
+  const cameraDockInput = layoutContextSelector.selectInput((i) => i.cameraDock);
+  const actionbarInput = layoutContextSelector.selectInput((i) => i.actionBar);
+  const navbarInput = layoutContextSelector.selectInput((i) => i.navBar);
+
+  const prevDeviceType = usePrevious(deviceType);
+
+  const throttledCalculatesLayout = _.throttle(() => calculatesLayout(),
+    50, { 'trailing': true, 'leading': true });
+
+  useEffect(() => {
     window.addEventListener('resize', () => {
-      layoutContextDispatch({
+      layoutDispatch({
         type: ACTIONS.SET_BROWSER_SIZE,
         value: {
           width: window.document.documentElement.clientWidth,
@@ -32,43 +55,31 @@ class CustomLayout extends Component {
         },
       });
     });
-  }
+  }, []);
 
-  shouldComponentUpdate(nextProps) {
-    const { layoutContextState } = this.props;
-    return layoutContextState.input !== nextProps.layoutContextState.input
-      || layoutContextState.deviceType !== nextProps.layoutContextState.deviceType
-      || layoutContextState.isRTL !== nextProps.layoutContextState.isRTL
-      || layoutContextState.fontSize !== nextProps.layoutContextState.fontSize
-      || layoutContextState.fullscreen !== nextProps.layoutContextState.fullscreen;
-  }
+  useEffect(() => {
+    if (deviceType === null) return;
 
-  componentDidUpdate(prevProps) {
-    const { layoutContextState } = this.props;
-    const { deviceType } = layoutContextState;
-
-    if (prevProps.layoutContextState.deviceType !== deviceType) {
-      this.init();
+    if (deviceType !== prevDeviceType) {
+      // reset layout if deviceType changed
+      // not all options is supported in all devices
+      init();
     } else {
-      this.throttledCalculatesLayout();
+      throttledCalculatesLayout();
     }
-  }
+  }, [input, deviceType]);
 
-  bannerAreaHeight() {
-    const { layoutContextState } = this.props;
-    const { input } = layoutContextState;
-    const { bannerBar, notificationsBar } = input;
-
-    const bannerHeight = bannerBar.hasBanner ? DEFAULT_VALUES.bannerHeight : 0;
-    const notificationHeight = notificationsBar.hasNotification ? DEFAULT_VALUES.bannerHeight : 0;
+  const bannerAreaHeight = () => {
+    const { hasNotification } = notificationsBarInput;
+    const { hasBanner } = bannerBarInput;
+    const bannerHeight = hasBanner ? DEFAULT_VALUES.bannerHeight : 0;
+    const notificationHeight = hasNotification ? DEFAULT_VALUES.bannerHeight : 0;
 
     return bannerHeight + notificationHeight;
-  }
+  };
 
-  calculatesDropAreas(sidebarNavWidth, sidebarContentWidth, cameraDockBounds) {
-    const { layoutContextState } = this.props;
-    const { isRTL } = layoutContextState;
-    const { height: actionBarHeight } = this.calculatesActionbarHeight();
+  const calculatesDropAreas = (sidebarNavWidth, sidebarContentWidth, cameraDockBounds) => {
+    const { height: actionBarHeight } = calculatesActionbarHeight();
     const mediaAreaHeight = windowHeight()
       - (DEFAULT_VALUES.navBarHeight + actionBarHeight);
     const mediaAreaWidth = windowWidth() - (sidebarNavWidth + sidebarContentWidth);
@@ -125,42 +136,39 @@ class CustomLayout extends Component {
     };
 
     return dropZones;
-  }
+  };
 
-  init() {
-    const { layoutContextState, layoutContextDispatch } = this.props;
-    const { deviceType, input } = layoutContextState;
-
+  const init = () => {
     if (deviceType === DEVICE_TYPE.MOBILE) {
-      layoutContextDispatch({
+      layoutDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: _.defaultsDeep({
           sidebarNavigation: {
             isOpen: false,
-            sidebarNavPanel: input.sidebarNavigation.sidebarNavPanel,
+            sidebarNavPanel: sidebarNavigationInput.sidebarNavPanel,
           },
           sidebarContent: {
             isOpen: false,
-            sidebarContentPanel: input.sidebarContent.sidebarContentPanel,
+            sidebarContentPanel: sidebarContentInput.sidebarContentPanel,
           },
           sidebarContentHorizontalResizer: {
             isOpen: false,
           },
           presentation: {
-            slidesLength: input.presentation.slidesLength,
+            slidesLength: presentationInput.slidesLength,
             currentSlide: {
-              ...input.presentation.currentSlide,
+              ...presentationInput.currentSlide,
             },
           },
           cameraDock: {
-            numCameras: input.cameraDock.numCameras,
+            numCameras: cameraDockInput.numCameras,
           },
         }, INITIAL_INPUT_STATE),
       });
     } else {
-      const { sidebarContentPanel } = input.sidebarContent;
+      const { sidebarContentPanel } = sidebarContentInput;
 
-      layoutContextDispatch({
+      layoutDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: _.defaultsDeep({
           sidebarNavigation: {
@@ -174,40 +182,30 @@ class CustomLayout extends Component {
             isOpen: false,
           },
           presentation: {
-            slidesLength: input.presentation.slidesLength,
+            slidesLength: presentationInput.slidesLength,
             currentSlide: {
-              ...input.presentation.currentSlide,
+              ...presentationInput.currentSlide,
             },
           },
           cameraDock: {
-            numCameras: input.cameraDock.numCameras,
+            numCameras: cameraDockInput.numCameras,
           },
         }, INITIAL_INPUT_STATE),
       });
     }
-    this.throttledCalculatesLayout();
-  }
+    throttledCalculatesLayout();
+  };
 
-  reset() {
-    this.init();
-  }
-
-  calculatesNavbarBounds(mediaAreaBounds) {
-    const { layoutContextState } = this.props;
-    const { isRTL } = layoutContextState;
-
+  const calculatesNavbarBounds = (mediaAreaBounds) => {
     return {
       width: mediaAreaBounds.width,
       height: DEFAULT_VALUES.navBarHeight,
-      top: DEFAULT_VALUES.navBarTop + this.bannerAreaHeight(),
+      top: DEFAULT_VALUES.navBarTop + bannerAreaHeight(),
       left: !isRTL ? mediaAreaBounds.left : 0,
     };
   }
 
-  calculatesActionbarHeight() {
-    const { layoutContextState } = this.props;
-    const { fontSize } = layoutContextState;
-
+  const calculatesActionbarHeight = () => {
     const BASE_FONT_SIZE = 14; // 90% font size
     const BASE_HEIGHT = DEFAULT_VALUES.actionBarHeight;
     const PADDING = DEFAULT_VALUES.actionBarPadding;
@@ -219,16 +217,13 @@ class CustomLayout extends Component {
       innerHeight: actionBarHeight,
       padding: PADDING,
     };
-  }
+  };
 
-  calculatesActionbarBounds(mediaAreaBounds) {
-    const { layoutContextState } = this.props;
-    const { input, isRTL } = layoutContextState;
-
-    const actionBarHeight = this.calculatesActionbarHeight();
+  const calculatesActionbarBounds = (mediaAreaBounds) => {
+    const actionBarHeight = calculatesActionbarHeight();
 
     return {
-      display: input.actionBar.hasActionBar,
+      display: actionbarInput.hasActionBar,
       width: mediaAreaBounds.width,
       height: actionBarHeight.height,
       innerHeight: actionBarHeight.innerHeight,
@@ -237,11 +232,9 @@ class CustomLayout extends Component {
       left: !isRTL ? mediaAreaBounds.left : 0,
       zIndex: 1,
     };
-  }
+  };
 
-  calculatesSidebarNavWidth() {
-    const { layoutContextState } = this.props;
-    const { deviceType, input } = layoutContextState;
+  const calculatesSidebarNavWidth = () => {
     const {
       sidebarNavMinWidth,
       sidebarNavMaxWidth,
@@ -249,16 +242,16 @@ class CustomLayout extends Component {
     let minWidth = 0;
     let width = 0;
     let maxWidth = 0;
-    if (input.sidebarNavigation.isOpen) {
+    if (sidebarNavigationInput.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
         minWidth = windowWidth();
         width = windowWidth();
         maxWidth = windowWidth();
       } else {
-        if (input.sidebarNavigation.width === 0) {
+        if (sidebarNavigationInput.width === 0) {
           width = min(max((windowWidth() * 0.2), sidebarNavMinWidth), sidebarNavMaxWidth);
         } else {
-          width = min(max(input.sidebarNavigation.width, sidebarNavMinWidth), sidebarNavMaxWidth);
+          width = min(max(sidebarNavigationInput.width, sidebarNavMinWidth), sidebarNavMaxWidth);
         }
         minWidth = sidebarNavMinWidth;
         maxWidth = sidebarNavMaxWidth;
@@ -273,32 +266,28 @@ class CustomLayout extends Component {
       width,
       maxWidth,
     };
-  }
+  };
 
-  calculatesSidebarNavHeight() {
-    const { layoutContextState } = this.props;
-    const { deviceType, input } = layoutContextState;
+  const calculatesSidebarNavHeight = () => {
     let sidebarNavHeight = 0;
-    if (input.sidebarNavigation.isOpen) {
+    if (sidebarNavigationInput.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
         sidebarNavHeight = windowHeight() - DEFAULT_VALUES.navBarHeight;
       } else {
         sidebarNavHeight = windowHeight();
       }
-      sidebarNavHeight -= this.bannerAreaHeight();
+      sidebarNavHeight -= bannerAreaHeight();
     }
     return sidebarNavHeight;
-  }
+  };
 
-  calculatesSidebarNavBounds() {
-    const { layoutContextState } = this.props;
-    const { deviceType, isRTL } = layoutContextState;
+  const calculatesSidebarNavBounds = () => {
     const { sidebarNavTop, navBarHeight, sidebarNavLeft } = DEFAULT_VALUES;
 
-    let top = sidebarNavTop + this.bannerAreaHeight();
+    let top = sidebarNavTop + bannerAreaHeight();
 
     if (deviceType === DEVICE_TYPE.MOBILE) {
-      top = navBarHeight + this.bannerAreaHeight();
+      top = navBarHeight + bannerAreaHeight();
     }
 
     return {
@@ -307,11 +296,9 @@ class CustomLayout extends Component {
       right: isRTL ? sidebarNavLeft : null,
       zIndex: deviceType === DEVICE_TYPE.MOBILE ? 10 : 2,
     };
-  }
+  };
 
-  calculatesSidebarContentWidth() {
-    const { layoutContextState } = this.props;
-    const { deviceType, input } = layoutContextState;
+  const calculatesSidebarContentWidth = () => {
     const {
       sidebarContentMinWidth,
       sidebarContentMaxWidth,
@@ -319,18 +306,18 @@ class CustomLayout extends Component {
     let minWidth = 0;
     let width = 0;
     let maxWidth = 0;
-    if (input.sidebarContent.isOpen) {
+    if (sidebarContentInput.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
         minWidth = windowWidth();
         width = windowWidth();
         maxWidth = windowWidth();
       } else {
-        if (input.sidebarContent.width === 0) {
+        if (sidebarContentInput.width === 0) {
           width = min(
             max((windowWidth() * 0.2), sidebarContentMinWidth), sidebarContentMaxWidth,
           );
         } else {
-          width = min(max(input.sidebarContent.width, sidebarContentMinWidth),
+          width = min(max(sidebarContentInput.width, sidebarContentMinWidth),
             sidebarContentMaxWidth);
         }
         minWidth = sidebarContentMinWidth;
@@ -347,37 +334,31 @@ class CustomLayout extends Component {
       width,
       maxWidth,
     };
-  }
+  };
 
-  calculatesSidebarContentHeight(cameraDockHeight) {
-    const { layoutContextState } = this.props;
-    const { deviceType, input } = layoutContextState;
-    const { presentation } = input;
-    const { isOpen } = presentation;
+  const calculatesSidebarContentHeight = (cameraDockHeight) => {
+    const { isOpen } = presentationInput;
     let sidebarContentHeight = 0;
-    if (input.sidebarContent.isOpen) {
+    if (sidebarContentInput.isOpen) {
       if (deviceType === DEVICE_TYPE.MOBILE) {
         sidebarContentHeight = windowHeight() - DEFAULT_VALUES.navBarHeight;
-      } else if (input.cameraDock.numCameras > 0
-        && input.cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM
+      } else if (cameraDockInput.numCameras > 0
+        && cameraDockInput.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM
         && isOpen) {
         sidebarContentHeight = windowHeight() - cameraDockHeight;
       } else {
         sidebarContentHeight = windowHeight();
       }
-      sidebarContentHeight -= this.bannerAreaHeight();
+      sidebarContentHeight -= bannerAreaHeight();
     }
     return sidebarContentHeight;
-  }
+  };
 
-  calculatesSidebarContentBounds(sidebarNavWidth) {
-    const { layoutContextState } = this.props;
-    const { deviceType, isRTL } = layoutContextState;
-
-    let top = DEFAULT_VALUES.sidebarNavTop + this.bannerAreaHeight();
+  const calculatesSidebarContentBounds = (sidebarNavWidth) => {
+    let top = DEFAULT_VALUES.sidebarNavTop + bannerAreaHeight();
 
     if (deviceType === DEVICE_TYPE.MOBILE) {
-      top = DEFAULT_VALUES.navBarHeight + this.bannerAreaHeight();
+      top = DEFAULT_VALUES.navBarHeight + bannerAreaHeight();
     }
 
     let left = deviceType === DEVICE_TYPE.MOBILE ? 0 : sidebarNavWidth;
@@ -392,13 +373,11 @@ class CustomLayout extends Component {
       right,
       zIndex: deviceType === DEVICE_TYPE.MOBILE ? 11 : 1,
     };
-  }
+  };
 
-  calculatesMediaAreaBounds(sidebarNavWidth, sidebarContentWidth) {
-    const { layoutContextState } = this.props;
-    const { deviceType, isRTL } = layoutContextState;
+  const calculatesMediaAreaBounds = (sidebarNavWidth, sidebarContentWidth) => {
     const { navBarHeight } = DEFAULT_VALUES;
-    const { height: actionBarHeight } = this.calculatesActionbarHeight();
+    const { height: actionBarHeight } = calculatesActionbarHeight();
     let left = 0;
     let width = 0;
     if (deviceType === DEVICE_TYPE.MOBILE) {
@@ -411,25 +390,20 @@ class CustomLayout extends Component {
 
     return {
       width,
-      height: windowHeight() - (navBarHeight + actionBarHeight + this.bannerAreaHeight()),
-      top: DEFAULT_VALUES.navBarHeight + this.bannerAreaHeight(),
+      height: windowHeight() - (navBarHeight + actionBarHeight + bannerAreaHeight()),
+      top: DEFAULT_VALUES.navBarHeight + bannerAreaHeight(),
       left,
     };
-  }
+  };
 
-  calculatesCameraDockBounds(sidebarNavWidth, sidebarContentWidth, mediaAreaBounds) {
-    const { layoutContextState } = this.props;
-    const {
-      input, fullscreen, isRTL, deviceType,
-    } = layoutContextState;
-    const { presentation } = input;
-    const { isOpen } = presentation;
+  const calculatesCameraDockBounds = (sidebarNavWidth, sidebarContentWidth, mediaAreaBounds) => {
+    const { isOpen } = presentationInput;
     const { camerasMargin } = DEFAULT_VALUES;
     const sidebarSize = sidebarNavWidth + sidebarContentWidth;
 
     const cameraDockBounds = {};
 
-    if (input.cameraDock.numCameras > 0) {
+    if (cameraDockInput.numCameras > 0) {
       if (!isOpen) {
         cameraDockBounds.width = mediaAreaBounds.width;
         cameraDockBounds.maxWidth = mediaAreaBounds.width;
@@ -442,12 +416,12 @@ class CustomLayout extends Component {
         let cameraDockLeft = 0;
         let cameraDockHeight = 0;
         let cameraDockWidth = 0;
-        switch (input.cameraDock.position) {
+        switch (cameraDockInput.position) {
           case CAMERADOCK_POSITION.CONTENT_TOP: {
             cameraDockLeft = mediaAreaBounds.left;
 
-            if (input.cameraDock.height === 0 || deviceType === DEVICE_TYPE.MOBILE) {
-              if (input.presentation.isOpen) {
+            if (cameraDockInput.height === 0 || deviceType === DEVICE_TYPE.MOBILE) {
+              if (presentationInput.isOpen) {
                 cameraDockHeight = min(
                   max((mediaAreaBounds.height * 0.2), DEFAULT_VALUES.cameraDockMinHeight),
                   (mediaAreaBounds.height - DEFAULT_VALUES.cameraDockMinHeight),
@@ -457,7 +431,7 @@ class CustomLayout extends Component {
               }
             } else {
               cameraDockHeight = min(
-                max(input.cameraDock.height, DEFAULT_VALUES.cameraDockMinHeight),
+                max(cameraDockInput.height, DEFAULT_VALUES.cameraDockMinHeight),
                 (mediaAreaBounds.height - DEFAULT_VALUES.cameraDockMinHeight),
               );
             }
@@ -474,8 +448,8 @@ class CustomLayout extends Component {
             break;
           }
           case CAMERADOCK_POSITION.CONTENT_RIGHT: {
-            if (input.cameraDock.width === 0) {
-              if (input.presentation.isOpen) {
+            if (cameraDockInput.width === 0) {
+              if (presentationInput.isOpen) {
                 cameraDockWidth = min(
                   max((mediaAreaBounds.width * 0.2), DEFAULT_VALUES.cameraDockMinWidth),
                   (mediaAreaBounds.width - DEFAULT_VALUES.cameraDockMinWidth),
@@ -485,13 +459,13 @@ class CustomLayout extends Component {
               }
             } else {
               cameraDockWidth = min(
-                max(input.cameraDock.width, DEFAULT_VALUES.cameraDockMinWidth),
+                max(cameraDockInput.width, DEFAULT_VALUES.cameraDockMinWidth),
                 (mediaAreaBounds.width - DEFAULT_VALUES.cameraDockMinWidth),
               );
             }
 
             cameraDockBounds.top = DEFAULT_VALUES.navBarHeight;
-            const sizeValue = input.presentation.isOpen
+            const sizeValue = presentationInput.isOpen
               ? (mediaAreaBounds.left + mediaAreaBounds.width) - cameraDockWidth
               : mediaAreaBounds.left;
             cameraDockBounds.left = !isRTL ? sizeValue + camerasMargin : 0;
@@ -510,8 +484,8 @@ class CustomLayout extends Component {
           case CAMERADOCK_POSITION.CONTENT_BOTTOM: {
             cameraDockLeft = mediaAreaBounds.left;
 
-            if (input.cameraDock.height === 0) {
-              if (input.presentation.isOpen) {
+            if (cameraDockInput.height === 0) {
+              if (presentationInput.isOpen) {
                 cameraDockHeight = min(
                   max((mediaAreaBounds.height * 0.2), DEFAULT_VALUES.cameraDockMinHeight),
                   (mediaAreaBounds.height - DEFAULT_VALUES.cameraDockMinHeight),
@@ -521,7 +495,7 @@ class CustomLayout extends Component {
               }
             } else {
               cameraDockHeight = min(
-                max(input.cameraDock.height, DEFAULT_VALUES.cameraDockMinHeight),
+                max(cameraDockInput.height, DEFAULT_VALUES.cameraDockMinHeight),
                 (mediaAreaBounds.height - DEFAULT_VALUES.cameraDockMinHeight),
               );
             }
@@ -539,8 +513,8 @@ class CustomLayout extends Component {
             break;
           }
           case CAMERADOCK_POSITION.CONTENT_LEFT: {
-            if (input.cameraDock.width === 0) {
-              if (input.presentation.isOpen) {
+            if (cameraDockInput.width === 0) {
+              if (presentationInput.isOpen) {
                 cameraDockWidth = min(
                   max((mediaAreaBounds.width * 0.2), DEFAULT_VALUES.cameraDockMinWidth),
                   (mediaAreaBounds.width - DEFAULT_VALUES.cameraDockMinWidth),
@@ -550,7 +524,7 @@ class CustomLayout extends Component {
               }
             } else {
               cameraDockWidth = min(
-                max(input.cameraDock.width, DEFAULT_VALUES.cameraDockMinWidth),
+                max(cameraDockInput.width, DEFAULT_VALUES.cameraDockMinWidth),
                 (mediaAreaBounds.width - DEFAULT_VALUES.cameraDockMinWidth),
               );
             }
@@ -570,14 +544,14 @@ class CustomLayout extends Component {
             break;
           }
           case CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM: {
-            if (input.cameraDock.height === 0) {
+            if (cameraDockInput.height === 0) {
               cameraDockHeight = min(
                 max((windowHeight() * 0.2), DEFAULT_VALUES.cameraDockMinHeight),
                 (windowHeight() - DEFAULT_VALUES.cameraDockMinHeight),
               );
             } else {
               cameraDockHeight = min(
-                max(input.cameraDock.height, DEFAULT_VALUES.cameraDockMinHeight),
+                max(cameraDockInput.height, DEFAULT_VALUES.cameraDockMinHeight),
                 (windowHeight() - DEFAULT_VALUES.cameraDockMinHeight),
               );
             }
@@ -612,7 +586,7 @@ class CustomLayout extends Component {
           return cameraDockBounds;
         }
 
-        if (input.cameraDock.isDragging) cameraDockBounds.zIndex = 99;
+        if (cameraDockInput.isDragging) cameraDockBounds.zIndex = 99;
         else cameraDockBounds.zIndex = 1;
       }
     } else {
@@ -621,14 +595,11 @@ class CustomLayout extends Component {
     }
 
     return cameraDockBounds;
-  }
+  };
 
-  calculatesMediaBounds(sidebarNavWidth, sidebarContentWidth, cameraDockBounds) {
-    const { layoutContextState } = this.props;
-    const { input, fullscreen, isRTL } = layoutContextState;
-    const { presentation } = input;
-    const { isOpen } = presentation;
-    const { height: actionBarHeight } = this.calculatesActionbarHeight();
+  const calculatesMediaBounds = (sidebarNavWidth, sidebarContentWidth, cameraDockBounds) => {
+    const { isOpen } = presentationInput;
+    const { height: actionBarHeight } = calculatesActionbarHeight();
     const mediaAreaHeight = windowHeight()
       - (DEFAULT_VALUES.navBarHeight + actionBarHeight);
     const mediaAreaWidth = windowWidth() - (sidebarNavWidth + sidebarContentWidth);
@@ -658,8 +629,8 @@ class CustomLayout extends Component {
 
     const sidebarSize = sidebarNavWidth + sidebarContentWidth;
 
-    if (input.cameraDock.numCameras > 0 && !input.cameraDock.isDragging) {
-      switch (input.cameraDock.position) {
+    if (cameraDockInput.numCameras > 0 && !cameraDockInput.isDragging) {
+      switch (cameraDockInput.position) {
         case CAMERADOCK_POSITION.CONTENT_TOP: {
           mediaBounds.width = mediaAreaWidth;
           mediaBounds.height = mediaAreaHeight - cameraDockBounds.height - camerasMargin;
@@ -710,7 +681,7 @@ class CustomLayout extends Component {
     } else {
       mediaBounds.width = mediaAreaWidth;
       mediaBounds.height = mediaAreaHeight;
-      mediaBounds.top = DEFAULT_VALUES.navBarHeight + this.bannerAreaHeight();
+      mediaBounds.top = DEFAULT_VALUES.navBarHeight + bannerAreaHeight();
       mediaBounds.left = !isRTL ? sidebarSize : null;
       mediaBounds.right = isRTL ? sidebarSize : null;
     }
@@ -718,34 +689,27 @@ class CustomLayout extends Component {
     return mediaBounds;
   }
 
-  calculatesLayout() {
-    const { layoutContextState, layoutContextDispatch } = this.props;
-    const { deviceType, input, isRTL } = layoutContextState;
-    const { cameraDock } = input;
-    const { position: cameraPosition } = cameraDock;
+  const calculatesLayout = () => {
+    const { position: cameraPosition } = cameraDockInput;
     const { camerasMargin, captionsMargin } = DEFAULT_VALUES;
 
-    const sidebarNavWidth = this.calculatesSidebarNavWidth();
-    const sidebarNavHeight = this.calculatesSidebarNavHeight();
-    const sidebarContentWidth = this.calculatesSidebarContentWidth();
-    const sidebarNavBounds = this
-      .calculatesSidebarNavBounds(sidebarNavWidth.width, sidebarContentWidth.width);
-    const sidebarContentBounds = this
-      .calculatesSidebarContentBounds(sidebarNavWidth.width, sidebarContentWidth.width);
-    const mediaAreaBounds = this
-      .calculatesMediaAreaBounds(sidebarNavWidth.width, sidebarContentWidth.width);
-    const navbarBounds = this.calculatesNavbarBounds(mediaAreaBounds);
-    const actionbarBounds = this.calculatesActionbarBounds(mediaAreaBounds);
-    const cameraDockBounds = this.calculatesCameraDockBounds(
+    const sidebarNavWidth = calculatesSidebarNavWidth();
+    const sidebarNavHeight = calculatesSidebarNavHeight();
+    const sidebarContentWidth = calculatesSidebarContentWidth();
+    const sidebarNavBounds = calculatesSidebarNavBounds(sidebarNavWidth.width, sidebarContentWidth.width);
+    const sidebarContentBounds = calculatesSidebarContentBounds(sidebarNavWidth.width, sidebarContentWidth.width);
+    const mediaAreaBounds = calculatesMediaAreaBounds(sidebarNavWidth.width, sidebarContentWidth.width);
+    const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
+    const actionbarBounds = calculatesActionbarBounds(mediaAreaBounds);
+    const cameraDockBounds = calculatesCameraDockBounds(
       sidebarNavWidth.width, sidebarContentWidth.width, mediaAreaBounds,
     );
-    const dropZoneAreas = this
-      .calculatesDropAreas(sidebarNavWidth.width, sidebarContentWidth.width, cameraDockBounds);
-    const sidebarContentHeight = this.calculatesSidebarContentHeight(cameraDockBounds.height);
-    const mediaBounds = this.calculatesMediaBounds(
+    const dropZoneAreas = calculatesDropAreas(sidebarNavWidth.width, sidebarContentWidth.width, cameraDockBounds);
+    const sidebarContentHeight = calculatesSidebarContentHeight(cameraDockBounds.height);
+    const mediaBounds = calculatesMediaBounds(
       sidebarNavWidth.width, sidebarContentWidth.width, cameraDockBounds,
     );
-    const { height: actionBarHeight } = this.calculatesActionbarHeight();
+    const { height: actionBarHeight } = calculatesActionbarHeight();
 
     let horizontalCameraDiff = 0;
 
@@ -757,10 +721,10 @@ class CustomLayout extends Component {
       horizontalCameraDiff = camerasMargin * 2;
     }
 
-    layoutContextDispatch({
+    layoutDispatch({
       type: ACTIONS.SET_NAVBAR_OUTPUT,
       value: {
-        display: input.navBar.hasNavBar,
+        display: navbarInput.hasNavBar,
         width: navbarBounds.width,
         height: navbarBounds.height,
         top: navbarBounds.top,
@@ -769,10 +733,10 @@ class CustomLayout extends Component {
       },
     });
 
-    layoutContextDispatch({
+    layoutDispatch({
       type: ACTIONS.SET_ACTIONBAR_OUTPUT,
       value: {
-        display: input.actionBar.hasActionBar,
+        display: actionbarInput.hasActionBar,
         width: actionbarBounds.width,
         height: actionbarBounds.height,
         innerHeight: actionbarBounds.innerHeight,
@@ -784,7 +748,7 @@ class CustomLayout extends Component {
       },
     });
 
-    layoutContextDispatch({
+    layoutDispatch({
       type: ACTIONS.SET_CAPTIONS_OUTPUT,
       value: {
         left: !isRTL ? (mediaBounds.left + captionsMargin) : null,
@@ -793,10 +757,10 @@ class CustomLayout extends Component {
       },
     });
 
-    layoutContextDispatch({
+    layoutDispatch({
       type: ACTIONS.SET_SIDEBAR_NAVIGATION_OUTPUT,
       value: {
-        display: input.sidebarNavigation.isOpen,
+        display: sidebarNavigationInput.isOpen,
         minWidth: sidebarNavWidth.minWidth,
         width: sidebarNavWidth.width,
         maxWidth: sidebarNavWidth.maxWidth,
@@ -811,7 +775,7 @@ class CustomLayout extends Component {
       },
     });
 
-    layoutContextDispatch({
+    layoutDispatch({
       type: ACTIONS.SET_SIDEBAR_NAVIGATION_RESIZABLE_EDGE,
       value: {
         top: false,
@@ -821,10 +785,10 @@ class CustomLayout extends Component {
       },
     });
 
-    layoutContextDispatch({
+    layoutDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_OUTPUT,
       value: {
-        display: input.sidebarContent.isOpen,
+        display: sidebarContentInput.isOpen,
         minWidth: sidebarContentWidth.minWidth,
         width: sidebarContentWidth.width,
         maxWidth: sidebarContentWidth.maxWidth,
@@ -832,7 +796,7 @@ class CustomLayout extends Component {
         top: sidebarContentBounds.top,
         left: sidebarContentBounds.left,
         right: sidebarContentBounds.right,
-        currentPanelType: input.currentPanelType,
+        currentPanelType,
         tabOrder: DEFAULT_VALUES.sidebarContentTabOrder,
         isResizable: deviceType !== DEVICE_TYPE.MOBILE
           && deviceType !== DEVICE_TYPE.TABLET,
@@ -840,7 +804,7 @@ class CustomLayout extends Component {
       },
     });
 
-    layoutContextDispatch({
+    layoutDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_RESIZABLE_EDGE,
       value: {
         top: false,
@@ -850,7 +814,7 @@ class CustomLayout extends Component {
       },
     });
 
-    layoutContextDispatch({
+    layoutDispatch({
       type: ACTIONS.SET_MEDIA_AREA_SIZE,
       value: {
         width: windowWidth() - sidebarNavWidth.width - sidebarContentWidth.width,
@@ -858,11 +822,11 @@ class CustomLayout extends Component {
       },
     });
 
-    layoutContextDispatch({
+    layoutDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_OUTPUT,
       value: {
-        display: input.cameraDock.numCameras > 0,
-        position: input.cameraDock.position,
+        display: cameraDockInput.numCameras > 0,
+        position: cameraDockInput.position,
         minWidth: cameraDockBounds.minWidth,
         width: cameraDockBounds.width,
         maxWidth: cameraDockBounds.maxWidth,
@@ -877,27 +841,27 @@ class CustomLayout extends Component {
         isDraggable: deviceType !== DEVICE_TYPE.MOBILE
           && deviceType !== DEVICE_TYPE.TABLET,
         resizableEdge: {
-          top: input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM
-            || input.cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM,
-          right: (!isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT)
-            || (isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT),
-          bottom: input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_TOP,
-          left: (!isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT)
-            || (isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT),
+          top: cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_BOTTOM
+            || cameraDockInput.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM,
+          right: (!isRTL && cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_LEFT)
+            || (isRTL && cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_RIGHT),
+          bottom: cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_TOP,
+          left: (!isRTL && cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_RIGHT)
+            || (isRTL && cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_LEFT),
         },
         zIndex: cameraDockBounds.zIndex,
       },
     });
 
-    layoutContextDispatch({
+    layoutDispatch({
       type: ACTIONS.SET_DROP_AREAS,
       value: dropZoneAreas,
     });
 
-    layoutContextDispatch({
+    layoutDispatch({
       type: ACTIONS.SET_PRESENTATION_OUTPUT,
       value: {
-        display: input.presentation.isOpen,
+        display: presentationInput.isOpen,
         width: mediaBounds.width,
         height: mediaBounds.height,
         top: mediaBounds.top,
@@ -909,7 +873,7 @@ class CustomLayout extends Component {
       },
     });
 
-    layoutContextDispatch({
+    layoutDispatch({
       type: ACTIONS.SET_SCREEN_SHARE_OUTPUT,
       value: {
         width: mediaBounds.width,
@@ -921,7 +885,7 @@ class CustomLayout extends Component {
       },
     });
 
-    layoutContextDispatch({
+    layoutDispatch({
       type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
       value: {
         width: mediaBounds.width,
@@ -931,11 +895,9 @@ class CustomLayout extends Component {
         right: isRTL ? (mediaBounds.right + horizontalCameraDiff) : null,
       },
     });
-  }
+  };
 
-  render() {
-    return null;
-  }
-}
+  return null;
+};
 
-export default LayoutContextFunc.withConsumer(CustomLayout);
+export default CustomLayout;
