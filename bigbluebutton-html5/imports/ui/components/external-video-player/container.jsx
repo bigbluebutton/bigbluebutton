@@ -1,18 +1,19 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import { getVideoUrl } from './service';
 import ExternalVideoComponent from './component';
-import LayoutContext from '../layout/context';
+import { LayoutContextFunc } from '../layout/context';
 import MediaService, { getSwapLayout } from '/imports/ui/components/media/service';
 
 const ExternalVideoContainer = (props) => {
-  const layoutManager = useContext(LayoutContext);
-  const { layoutContextState, layoutContextDispatch } = layoutManager;
-  const { output, input } = layoutContextState;
-  const { externalVideo } = output;
-  const { cameraDock } = input;
+  const { layoutContextSelector } = LayoutContextFunc;
+
+  const externalVideo = layoutContextSelector.selectOutput((i) => i.externalVideo);
+  const cameraDock = layoutContextSelector.selectInput((i) => i.cameraDock);
   const { isResizing } = cameraDock;
+  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+
   return (
     <ExternalVideoComponent
       {

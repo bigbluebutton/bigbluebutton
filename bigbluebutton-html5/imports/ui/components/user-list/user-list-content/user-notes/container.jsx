@@ -1,16 +1,16 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import NoteService from '/imports/ui/components/note/service';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import UserNotes from './component';
-import LayoutContext from '../../../layout/context';
+import { LayoutContextFunc } from '../../../layout/context';
 
 const UserNotesContainer = (props) => {
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState, layoutContextDispatch } = layoutContext;
-  const { input } = layoutContextState;
-  const { sidebarContent } = input;
+  const { layoutContextSelector } = LayoutContextFunc;
+
+  const sidebarContent = layoutContextSelector.selectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
+  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
   return <UserNotes {...{ layoutContextDispatch, sidebarContentPanel, ...props }} />;
 };
 

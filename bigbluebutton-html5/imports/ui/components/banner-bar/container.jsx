@@ -1,15 +1,15 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Session } from 'meteor/session';
 import { withTracker } from 'meteor/react-meteor-data';
 import BannerComponent from './component';
-import LayoutContext from '../layout/context';
+import { LayoutContextFunc } from '../layout/context';
 
 const BannerContainer = (props) => {
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState, layoutContextDispatch } = layoutContext;
-  const { input } = layoutContextState;
-  const { bannerBar } = input;
+  const { layoutContextSelector } = LayoutContextFunc;
+
+  const bannerBar = layoutContextSelector.selectInput((i) => i.bannerBar);
   const { hasBanner } = bannerBar;
+  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
 
   return <BannerComponent {...{ hasBanner, layoutContextDispatch, ...props }} />;
 };

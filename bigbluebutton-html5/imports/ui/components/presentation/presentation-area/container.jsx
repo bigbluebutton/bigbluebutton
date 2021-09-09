@@ -1,12 +1,11 @@
-import React, { useContext } from 'react';
-import LayoutContext from '../../layout/context';
+import React from 'react';
+import { LayoutContextFunc } from '../../layout/context';
 import PresentationArea from './component';
 
 const PresentationAreaContainer = () => {
-  const layoutManager = useContext(LayoutContext);
-  const { layoutContextState } = layoutManager;
-  const { output } = layoutContextState;
-  const { presentation } = output;
+  const { layoutContextSelector } = LayoutContextFunc;
+
+  const presentation = layoutContextSelector.selectOutput((i) => i.presentation);
 
   return <PresentationArea {...{ ...presentation }} />;
 };
