@@ -106,8 +106,8 @@ class AudioManager {
 
       await Promise.all(Object.values(bridges).map(async (bridge) => {
         // eslint-disable-next-line import/no-dynamic-require, global-require
-        this.bridges[bridge.name] = await import(DEFAULT_AUDIO_BRIDGES_PATH
-          + bridge.path);
+        this.bridges[bridge.name] = (await import(DEFAULT_AUDIO_BRIDGES_PATH
+          + bridge.path) || {}).default;
       }));
 
       if (defaultFullAudioBridge && (this.bridges[defaultFullAudioBridge])) {
