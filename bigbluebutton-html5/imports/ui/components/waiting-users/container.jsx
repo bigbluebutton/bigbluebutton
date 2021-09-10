@@ -1,15 +1,16 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import GuestUsers from '/imports/api/guest-users/';
 import Meetings from '/imports/api/meetings';
 import Service from './service';
 import WaitingComponent from './component';
-import LayoutContext from '../layout/context';
+import { LayoutContextFunc } from '../layout/context';
 
 const WaitingContainer = (props) => {
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextDispatch } = layoutContext;
+  const { layoutContextSelector } = LayoutContextFunc;
+  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+
   return <WaitingComponent {...{ layoutContextDispatch, ...props }} />;
 };
 

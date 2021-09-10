@@ -71,11 +71,14 @@ const ChatContainer = (props) => {
     isChatLockedPublic,
     isChatLockedPrivate,
     users: propUsers,
-    layoutContextState,
-    layoutContextDispatch,
     ...restProps
   } = props;
-  const { idChatOpen } = layoutContextState;
+
+  const { layoutContextSelector } = LayoutContextFunc;
+
+  const idChatOpen = layoutContextSelector.select((i) => i.idChatOpen);
+  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+
   const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
 
   const chatID = idChatOpen;
@@ -264,4 +267,4 @@ export default lockContextContainer(injectIntl(withTracker(({ intl, userLocks })
       handleClosePrivateChat: ChatService.closePrivateChat,
     },
   };
-})(LayoutContextFunc.withConsumer(ChatContainer))));
+})(ChatContainer)));

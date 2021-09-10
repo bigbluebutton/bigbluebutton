@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import VoiceUsers from '/imports/api/voice-users';
 import Auth from '/imports/ui/services/auth';
@@ -7,7 +7,7 @@ import TalkingIndicator from './component';
 import { makeCall } from '/imports/ui/services/api';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import Service from './service';
-import LayoutContext from '../../layout/context';
+import { LayoutContextFunc } from '../../layout/context';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const { enableTalkingIndicator } = APP_CONFIG;
@@ -15,12 +15,14 @@ const TALKING_INDICATOR_MUTE_INTERVAL = 500;
 
 const TalkingIndicatorContainer = (props) => {
   if (!enableTalkingIndicator) return null;
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState, layoutContextDispatch } = layoutContext;
-  const { input } = layoutContextState;
-  const { sidebarContent, sidebarNavigation } = input;
-  const { sidebarNavPanel } = sidebarNavigation;
+  const { layoutContextSelector } = LayoutContextFunc;
+
+  const sidebarContent = layoutContextSelector.selectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
+  const sidebarNavigation = layoutContextSelector.selectInput((i) => i.sidebarNavigation);
+  const { sidebarNavPanel } = sidebarNavigation;
+  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+
   const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
   const sidebarContentIsOpen = sidebarContent.isOpen;
   return (

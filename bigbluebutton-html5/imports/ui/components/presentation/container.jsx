@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '/imports/ui/components/media/service';
 import { notify } from '/imports/ui/services/notification';
-import { Session } from 'meteor/session';
 import PresentationService from './service';
 import { Slides } from '/imports/api/slides';
 import Presentation from '/imports/ui/components/presentation/component';
@@ -11,25 +10,29 @@ import { UsersContext } from '../components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import LayoutContext from '../layout/context';
+import { LayoutContextFunc } from '../layout/context';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { DEVICE_TYPE } from '../layout/enums';
 
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
 const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props }) => {
-  const fullscreenElementId = 'Presentation';
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState, layoutContextDispatch } = layoutContext;
-  const {
-    input, output, layoutType, fullscreen, deviceType,
-  } = layoutContextState;
-  const { cameraDock } = input;
-  const { numCameras } = cameraDock;
-  const { presentation } = output;
-  const { element } = fullscreen;
-  const fullscreenContext = (element === fullscreenElementId);
   const { layoutSwapped, podId } = props;
+
+  const { layoutContextSelector } = LayoutContextFunc;
+
+  const cameraDock = layoutContextSelector.selectInput((i) => i.cameraDock);
+  const presentation = layoutContextSelector.selectOutput((i) => i.presentation);
+  const layoutType = layoutContextSelector.select((i) => i.layoutType);
+  const fullscreen = layoutContextSelector.select((i) => i.fullscreen);
+  const deviceType = layoutContextSelector.select((i) => i.deviceType);
+  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+
+  const { numCameras } = cameraDock;
+  const { element } = fullscreen;
+  const fullscreenElementId = 'Presentation';
+  const fullscreenContext = (element === fullscreenElementId);
+
   const isIphone = !!(navigator.userAgent.match(/iPhone/i));
 
   const usingUsersContext = useContext(UsersContext);

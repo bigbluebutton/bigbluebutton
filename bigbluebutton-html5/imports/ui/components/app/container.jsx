@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -12,7 +12,7 @@ import CaptionsService from '/imports/ui/components/captions/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
-import LayoutContext from '../layout/context';
+import { LayoutContextFunc } from '../layout/context';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
 
@@ -51,9 +51,6 @@ const endMeeting = (code) => {
 };
 
 const AppContainer = (props) => {
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState, layoutContextDispatch } = layoutContext;
-
   const {
     actionsbar,
     meetingLayout,
@@ -62,16 +59,20 @@ const AppContainer = (props) => {
     currentUserId,
     ...otherProps
   } = props;
-  const {
-    input,
-    output,
-    layoutType,
-    deviceType,
-  } = layoutContextState;
-  const { sidebarContent, sidebarNavigation } = input;
-  const { actionBar: actionsBarStyle, captions: captionsStyle } = output;
-  const { sidebarNavPanel } = sidebarNavigation;
+
+  const { layoutContextSelector } = LayoutContextFunc;
+
+  const sidebarContent = layoutContextSelector.selectInput((i) => i.sidebarContent);
+  const sidebarNavigation = layoutContextSelector.selectInput((i) => i.sidebarNavigation);
+  const actionsBarStyle = layoutContextSelector.selectOutput((i) => i.actionBar);
+  const captionsStyle = layoutContextSelector.selectOutput((i) => i.captions);
+  const layoutType = layoutContextSelector.select((i) => i.layoutType);
+  const deviceType = layoutContextSelector.select((i) => i.deviceType);
+  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+
   const { sidebarContentPanel } = sidebarContent;
+  const { sidebarNavPanel } = sidebarNavigation;
+
   const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
   const sidebarContentIsOpen = sidebarContent.isOpen;
 

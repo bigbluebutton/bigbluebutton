@@ -25,7 +25,6 @@ const providerPropTypes = {
   ]).isRequired,
 };
 
-const LayoutContext = React.createContext();
 const LayoutContextSelector = createContext();
 
 const initState = {
@@ -1142,29 +1141,11 @@ const ContextProvider = (props) => {
       ]
     }
     >
-      <LayoutContext.Provider value={{
-        layoutContextState,
-        layoutContextDispatch,
-      }}
-      >
-        {children}
-      </LayoutContext.Provider>
+      {children}
     </LayoutContextSelector.Provider>
   );
 };
 ContextProvider.propTypes = providerPropTypes;
-
-const withProvider = (Component) => (props) => (
-  <ContextProvider>
-    <Component {...props} />
-  </ContextProvider>
-);
-
-const withConsumer = (Component) => (props) => (
-  <LayoutContext.Consumer>
-    {(contexts) => <Component {...props} {...contexts} />}
-  </LayoutContext.Consumer>
-);
 
 const select = (selector) => {
   return useContextSelector(LayoutContextSelector, layout => selector(layout[0]));
@@ -1179,12 +1160,10 @@ const layoutDispatch = () => {
   return useContextSelector(LayoutContextSelector, layout => layout[1]);
 };
 
-export default LayoutContext;
+export default LayoutContextSelector;
 
 export const LayoutContextFunc = {
-  withProvider,
-  withConsumer,
-  withContext: (Component) => withProvider(withConsumer(Component)),
+  ContextProvider,
   layoutContextSelector: {
     select,
     selectInput,
