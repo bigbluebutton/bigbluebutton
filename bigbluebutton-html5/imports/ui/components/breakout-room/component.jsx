@@ -313,7 +313,7 @@ class BreakoutRoom extends PureComponent {
               <Button
                 label={this.getBreakoutLabel(breakoutId)}
                 data-test="breakoutJoin"
-                aria-label={`${intl.formatMessage(intlMessages.breakoutJoin)} ${number}`}
+                aria-label={`${this.getBreakoutLabel(breakoutId)} ${this.props.breakoutRooms[number - 1]?.shortName }`}
                 onClick={() => {
                   this.getBreakoutURL(breakoutId);
                   // leave main room's audio,
