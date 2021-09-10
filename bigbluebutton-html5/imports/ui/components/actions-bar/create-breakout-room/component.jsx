@@ -253,7 +253,6 @@ class BreakoutRoom extends PureComponent {
         roomList.removeEventListener('keydown', this.handleMoveEvent, true);
       }
     }
-    this.handleDismiss();
   }
 
   handleShiftUser(activeListSibling) {
@@ -373,7 +372,7 @@ class BreakoutRoom extends PureComponent {
       return;
     }
 
-    this.setState({ preventClosing: false });
+    this.handleDismiss();
 
     const rooms = _.range(1, numberOfRooms + 1).map((seq) => ({
       users: this.getUserByRoom(seq).map((u) => u.userId),
@@ -403,7 +402,7 @@ class BreakoutRoom extends PureComponent {
       breakoutUsers.forEach((user) => sendInvitation(breakoutId, user.userId));
     });
 
-    this.setState({ preventClosing: false });
+    this.handleDismiss();
   }
 
   onAssignRandomly() {
