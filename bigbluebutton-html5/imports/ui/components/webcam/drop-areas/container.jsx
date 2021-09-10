@@ -1,11 +1,9 @@
 import React from 'react';
-import { LayoutContextFunc } from '../../layout/context';
+import { layoutSelectOutput } from '../../layout/context';
 import DropArea from './component';
 
 const DropAreaContainer = () => {
-  const { layoutContextSelector } = LayoutContextFunc;
-
-  const dropZoneAreas = layoutContextSelector.selectOutput((i) => i.dropZoneAreas);
+  const dropZoneAreas = layoutSelectOutput((i) => i.dropZoneAreas);
 
   return (
     Object.keys(dropZoneAreas).map((objectKey) => (

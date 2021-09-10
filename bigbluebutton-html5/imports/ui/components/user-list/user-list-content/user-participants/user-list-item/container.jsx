@@ -5,11 +5,10 @@ import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UserListItem from './component';
 import UserListService from '/imports/ui/components/user-list/service';
-import { LayoutContextFunc } from '../../../../layout/context';
+import { layoutDispatch } from '../../../../layout/context';
 
 const UserListItemContainer = (props) => {
-  const { layoutContextSelector } = LayoutContextFunc;
-  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+  const layoutContextDispatch = layoutDispatch();
 
   return <UserListItem {...{ layoutContextDispatch, ...props }} />;
 };

@@ -2,14 +2,12 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import VideoList from '/imports/ui/components/video-provider/video-list/component';
 import VideoService from '/imports/ui/components/video-provider/service';
-import { LayoutContextFunc } from '../../layout/context';
+import { layoutSelect, layoutSelectOutput, layoutDispatch } from '../../layout/context';
 
 const VideoListContainer = ({ children, ...props }) => {
-  const { layoutContextSelector } = LayoutContextFunc;
-
-  const layoutType = layoutContextSelector.select((i) => i.layoutType);
-  const cameraDock = layoutContextSelector.selectOutput((i) => i.cameraDock);
-  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+  const layoutType = layoutSelect((i) => i.layoutType);
+  const cameraDock = layoutSelectOutput((i) => i.cameraDock);
+  const layoutContextDispatch = layoutDispatch();
 
   const { streams } = props;
   return (

@@ -2,7 +2,7 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import SettingsService from '/imports/ui/services/settings';
 import Settings from './component';
-import { LayoutContextFunc } from '../layout/context';
+import { layoutDispatch } from '../layout/context';
 
 import {
   getUserRoles,
@@ -12,8 +12,7 @@ import {
 } from './service';
 
 const SettingsContainer = (props) => {
-  const { layoutContextSelector } = LayoutContextFunc;
-  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+  const layoutContextDispatch = layoutDispatch();
 
   return <Settings {...props} layoutContextDispatch={layoutContextDispatch} />;
 };

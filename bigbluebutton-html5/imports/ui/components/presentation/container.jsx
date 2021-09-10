@@ -10,7 +10,12 @@ import { UsersContext } from '../components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import { LayoutContextFunc } from '../layout/context';
+import {
+  layoutSelect,
+  layoutSelectInput,
+  layoutSelectOutput,
+  layoutDispatch,
+} from '../layout/context';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { DEVICE_TYPE } from '../layout/enums';
 
@@ -19,14 +24,12 @@ const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props }) => {
   const { layoutSwapped, podId } = props;
 
-  const { layoutContextSelector } = LayoutContextFunc;
-
-  const cameraDock = layoutContextSelector.selectInput((i) => i.cameraDock);
-  const presentation = layoutContextSelector.selectOutput((i) => i.presentation);
-  const layoutType = layoutContextSelector.select((i) => i.layoutType);
-  const fullscreen = layoutContextSelector.select((i) => i.fullscreen);
-  const deviceType = layoutContextSelector.select((i) => i.deviceType);
-  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+  const cameraDock = layoutSelectInput((i) => i.cameraDock);
+  const presentation = layoutSelectOutput((i) => i.presentation);
+  const layoutType = layoutSelect((i) => i.layoutType);
+  const fullscreen = layoutSelect((i) => i.fullscreen);
+  const deviceType = layoutSelect((i) => i.deviceType);
+  const layoutContextDispatch = layoutDispatch();
 
   const { numCameras } = cameraDock;
   const { element } = fullscreen;

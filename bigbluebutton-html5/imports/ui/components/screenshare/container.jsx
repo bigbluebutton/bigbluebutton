@@ -8,14 +8,12 @@ import {
   isGloballyBroadcasting,
 } from './service';
 import ScreenshareComponent from './component';
-import { LayoutContextFunc } from '../layout/context';
+import { layoutSelect, layoutSelectOutput, layoutDispatch } from '../layout/context';
 
 const ScreenshareContainer = (props) => {
-  const { layoutContextSelector } = LayoutContextFunc;
-
-  const screenShare = layoutContextSelector.selectOutput((i) => i.screenShare);
-  const fullscreen = layoutContextSelector.select((i) => i.fullscreen);
-  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+  const screenShare = layoutSelectOutput((i) => i.screenShare);
+  const fullscreen = layoutSelect((i) => i.fullscreen);
+  const layoutContextDispatch = layoutDispatch();
 
   const { element } = fullscreen;
   const fullscreenElementId = 'Screenshare';

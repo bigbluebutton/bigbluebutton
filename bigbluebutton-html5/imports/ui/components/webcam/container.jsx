@@ -8,8 +8,12 @@ import Auth from '/imports/ui/services/auth';
 import breakoutService from '/imports/ui/components/breakout-room/service';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { UsersContext } from '../components-data/users-context/context';
-
-import { LayoutContextFunc } from '../layout/context';
+import {
+  layoutSelect,
+  layoutSelectInput,
+  layoutSelectOutput,
+  layoutDispatch,
+} from '../layout/context';
 import WebcamComponent from '/imports/ui/components/webcam/component';
 
 const WebcamContainer = ({
@@ -18,14 +22,12 @@ const WebcamContainer = ({
   usersVideo,
   disableVideo,
 }) => {
-  const { layoutContextSelector } = LayoutContextFunc;
-
-  const fullscreen = layoutContextSelector.select((i) => i.fullscreen);
-  const isRTL = layoutContextSelector.select((i) => i.isRTL);
-  const cameraDockInput = layoutContextSelector.selectInput((i) => i.cameraDock);
-  const presentation = layoutContextSelector.selectOutput((i) => i.presentation);
-  const cameraDock = layoutContextSelector.selectOutput((i) => i.cameraDock);
-  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+  const fullscreen = layoutSelect((i) => i.fullscreen);
+  const isRTL = layoutSelect((i) => i.isRTL);
+  const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
+  const presentation = layoutSelectOutput((i) => i.presentation);
+  const cameraDock = layoutSelectOutput((i) => i.cameraDock);
+  const layoutContextDispatch = layoutDispatch();
 
   const { cameraOptimalGridSize } = cameraDockInput;
   const { display: displayPresentation } = presentation;

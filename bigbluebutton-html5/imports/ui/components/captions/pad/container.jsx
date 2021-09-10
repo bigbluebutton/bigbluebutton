@@ -4,15 +4,13 @@ import { Session } from 'meteor/session';
 import CaptionsService from '/imports/ui/components/captions/service';
 import Pad from './component';
 import Auth from '/imports/ui/services/auth';
-import { LayoutContextFunc } from '../../layout/context';
+import { layoutSelectInput, layoutDispatch } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
 
 const PadContainer = (props) => {
-  const { layoutContextSelector } = LayoutContextFunc;
-
-  const cameraDock = layoutContextSelector.selectInput((i) => i.cameraDock);
+  const cameraDock = layoutSelectInput((i) => i.cameraDock);
   const { isResizing } = cameraDock;
-  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+  const layoutContextDispatch = layoutDispatch();
 
   const {
     amIModerator,

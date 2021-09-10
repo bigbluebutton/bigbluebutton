@@ -1,13 +1,11 @@
 import React from 'react';
 import ChatListItem from './component';
-import { LayoutContextFunc } from '../../layout/context';
+import { layoutSelect, layoutSelectInput, layoutDispatch } from '../../layout/context';
 
 const ChatListItemContainer = (props) => {
-  const { layoutContextSelector } = LayoutContextFunc;
-
-  const sidebarContent = layoutContextSelector.selectInput((i) => i.sidebarContent);
-  const idChatOpen = layoutContextSelector.select((i) => i.idChatOpen);
-  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const idChatOpen = layoutSelect((i) => i.idChatOpen);
+  const layoutContextDispatch = layoutDispatch();
 
   const { sidebarContentPanel } = sidebarContent;
   const sidebarContentIsOpen = sidebarContent.isOpen;

@@ -1,13 +1,11 @@
 import React from 'react';
 import SidebarContent from './component';
-import { LayoutContextFunc } from '../layout/context';
+import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
 
 const SidebarContentContainer = () => {
-  const { layoutContextSelector } = LayoutContextFunc;
-
-  const sidebarContentInput = layoutContextSelector.selectInput((i) => i.sidebarContent);
-  const sidebarContentOutput = layoutContextSelector.selectOutput((i) => i.sidebarContent);
-  const layoutDispatch = layoutContextSelector.layoutDispatch();
+  const sidebarContentInput = layoutSelectInput((i) => i.sidebarContent);
+  const sidebarContentOutput = layoutSelectOutput((i) => i.sidebarContent);
+  const layoutContextDispatch = layoutDispatch();
   const { sidebarContentPanel } = sidebarContentInput;
 
   if (sidebarContentOutput.display === false) return null;
@@ -15,7 +13,7 @@ const SidebarContentContainer = () => {
   return (
     <SidebarContent
       {...sidebarContentOutput}
-      contextDispatch={layoutDispatch}
+      contextDispatch={layoutContextDispatch}
       sidebarContentPanel={sidebarContentPanel}
     />
   );

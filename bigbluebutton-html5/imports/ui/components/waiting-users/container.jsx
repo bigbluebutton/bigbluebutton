@@ -5,11 +5,10 @@ import GuestUsers from '/imports/api/guest-users/';
 import Meetings from '/imports/api/meetings';
 import Service from './service';
 import WaitingComponent from './component';
-import { LayoutContextFunc } from '../layout/context';
+import { layoutDispatch } from '../layout/context';
 
 const WaitingContainer = (props) => {
-  const { layoutContextSelector } = LayoutContextFunc;
-  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+  const layoutContextDispatch = layoutDispatch();
 
   return <WaitingComponent {...{ layoutContextDispatch, ...props }} />;
 };

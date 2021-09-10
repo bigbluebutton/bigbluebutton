@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import _ from 'lodash';
-import { LayoutContextFunc } from '/imports/ui/components/layout/context';
+import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import { DEVICE_TYPE, ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
@@ -19,24 +19,22 @@ const PresentationFocusLayout = () => {
     return ref.current;
   }
 
-  const { layoutContextSelector } = LayoutContextFunc;
-  const layoutDispatch = layoutContextSelector.layoutDispatch();
+  const input = layoutSelect((i) => i.input);
+  const deviceType = layoutSelect((i) => i.deviceType);
+  const isRTL = layoutSelect((i) => i.isRTL);
+  const fullscreen = layoutSelect((i) => i.fullscreen);
+  const fontSize = layoutSelect((i) => i.fontSize);
+  const currentPanelType = layoutSelect((i) => i.currentPanelType);
 
-  const input = layoutContextSelector.select((i) => i.input);
-  const deviceType = layoutContextSelector.select((i) => i.deviceType);
-  const isRTL = layoutContextSelector.select((i) => i.isRTL);
-  const fullscreen = layoutContextSelector.select((i) => i.fullscreen);
-  const fontSize = layoutContextSelector.select((i) => i.fontSize);
-  const currentPanelType = layoutContextSelector.select((i) => i.currentPanelType);
-
-  const bannerBarInput = layoutContextSelector.selectInput((i) => i.bannerBar);
-  const notificationsBarInput = layoutContextSelector.selectInput((i) => i.notificationsBar);
-  const presentationInput = layoutContextSelector.selectInput((i) => i.presentation);
-  const sidebarNavigationInput = layoutContextSelector.selectInput((i) => i.sidebarNavigation);
-  const sidebarContentInput = layoutContextSelector.selectInput((i) => i.sidebarContent);
-  const cameraDockInput = layoutContextSelector.selectInput((i) => i.cameraDock);
-  const actionbarInput = layoutContextSelector.selectInput((i) => i.actionBar);
-  const navbarInput = layoutContextSelector.selectInput((i) => i.navBar);
+  const bannerBarInput = layoutSelectInput((i) => i.bannerBar);
+  const notificationsBarInput = layoutSelectInput((i) => i.notificationsBar);
+  const presentationInput = layoutSelectInput((i) => i.presentation);
+  const sidebarNavigationInput = layoutSelectInput((i) => i.sidebarNavigation);
+  const sidebarContentInput = layoutSelectInput((i) => i.sidebarContent);
+  const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
+  const actionbarInput = layoutSelectInput((i) => i.actionBar);
+  const navbarInput = layoutSelectInput((i) => i.navBar);
+  const layoutContextDispatch = layoutDispatch();
 
   const prevDeviceType = usePrevious(deviceType);
 
@@ -45,7 +43,7 @@ const PresentationFocusLayout = () => {
 
   useEffect(() => {
     window.addEventListener('resize', () => {
-      layoutDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_BROWSER_SIZE,
         value: {
           width: window.document.documentElement.clientWidth,
@@ -78,7 +76,7 @@ const PresentationFocusLayout = () => {
 
   const init = () => {
     if (deviceType === DEVICE_TYPE.MOBILE) {
-      layoutDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: _.defaultsDeep({
           sidebarNavigation: {
@@ -106,7 +104,7 @@ const PresentationFocusLayout = () => {
     } else {
       const { sidebarContentPanel } = sidebarContentInput;
 
-      layoutDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: _.defaultsDeep({
           sidebarNavigation: {
@@ -460,7 +458,7 @@ const PresentationFocusLayout = () => {
       sidebarContentHeight.height,
     );
 
-    layoutDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_NAVBAR_OUTPUT,
       value: {
         display: navbarInput.hasNavBar,
@@ -473,7 +471,7 @@ const PresentationFocusLayout = () => {
       },
     });
 
-    layoutDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_ACTIONBAR_OUTPUT,
       value: {
         display: actionbarInput.hasActionBar,
@@ -488,7 +486,7 @@ const PresentationFocusLayout = () => {
       },
     });
 
-    layoutDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_CAPTIONS_OUTPUT,
       value: {
         left: !isRTL ? (mediaBounds.left + captionsMargin) : null,
@@ -497,7 +495,7 @@ const PresentationFocusLayout = () => {
       },
     });
 
-    layoutDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_NAVIGATION_OUTPUT,
       value: {
         display: sidebarNavigationInput.isOpen,
@@ -515,7 +513,7 @@ const PresentationFocusLayout = () => {
       },
     });
 
-    layoutDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_NAVIGATION_RESIZABLE_EDGE,
       value: {
         top: false,
@@ -525,7 +523,7 @@ const PresentationFocusLayout = () => {
       },
     });
 
-    layoutDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_OUTPUT,
       value: {
         display: sidebarContentInput.isOpen,
@@ -546,7 +544,7 @@ const PresentationFocusLayout = () => {
       },
     });
 
-    layoutDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_RESIZABLE_EDGE,
       value: {
         top: false,
@@ -556,7 +554,7 @@ const PresentationFocusLayout = () => {
       },
     });
 
-    layoutDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_MEDIA_AREA_SIZE,
       value: {
         width: mediaAreaBounds.width,
@@ -564,7 +562,7 @@ const PresentationFocusLayout = () => {
       },
     });
 
-    layoutDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_OUTPUT,
       value: {
         display: cameraDockInput.numCameras > 0,
@@ -589,7 +587,7 @@ const PresentationFocusLayout = () => {
       },
     });
 
-    layoutDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_PRESENTATION_OUTPUT,
       value: {
         display: presentationInput.isOpen,
@@ -604,7 +602,7 @@ const PresentationFocusLayout = () => {
       },
     });
 
-    layoutDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SCREEN_SHARE_OUTPUT,
       value: {
         width: mediaBounds.width,
@@ -616,7 +614,7 @@ const PresentationFocusLayout = () => {
       },
     });
 
-    layoutDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
       value: {
         width: mediaBounds.width,

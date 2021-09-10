@@ -1130,7 +1130,7 @@ const reducer = (state, action) => {
   }
 };
 
-const ContextProvider = (props) => {
+const LayoutContextProvider = (props) => {
   const [layoutContextState, layoutContextDispatch] = useReducer(reducer, initState);
   const { children } = props;
   return (
@@ -1145,29 +1145,25 @@ const ContextProvider = (props) => {
     </LayoutContextSelector.Provider>
   );
 };
-ContextProvider.propTypes = providerPropTypes;
+LayoutContextProvider.propTypes = providerPropTypes;
 
-const select = (selector) => {
+const layoutSelect = (selector) => {
   return useContextSelector(LayoutContextSelector, layout => selector(layout[0]));
 };
-const selectInput = (selector) => {
+const layoutSelectInput = (selector) => {
   return useContextSelector(LayoutContextSelector, layout => selector(layout[0].input));
 };
-const selectOutput = (selector) => {
+const layoutSelectOutput = (selector) => {
   return useContextSelector(LayoutContextSelector, layout => selector(layout[0].output));
 };
 const layoutDispatch = () => {
   return useContextSelector(LayoutContextSelector, layout => layout[1]);
 };
 
-export default LayoutContextSelector;
-
-export const LayoutContextFunc = {
-  ContextProvider,
-  layoutContextSelector: {
-    select,
-    selectInput,
-    selectOutput,
-    layoutDispatch,
-  },
-};
+export {
+  LayoutContextProvider,
+  layoutSelect,
+  layoutSelectInput,
+  layoutSelectOutput,
+  layoutDispatch,
+}

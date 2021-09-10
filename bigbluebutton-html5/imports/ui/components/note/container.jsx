@@ -2,14 +2,12 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Note from './component';
 import NoteService from './service';
-import { LayoutContextFunc } from '../layout/context';
+import { layoutSelectInput, layoutDispatch } from '../layout/context';
 
 const NoteContainer = ({ children, ...props }) => {
-  const { layoutContextSelector } = LayoutContextFunc;
-
-  const cameraDock = layoutContextSelector.selectInput((i) => i.cameraDock);
+  const cameraDock = layoutSelectInput((i) => i.cameraDock);
   const { isResizing } = cameraDock;
-  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+  const layoutContextDispatch = layoutDispatch();
 
   return (
     <Note {...{ layoutContextDispatch, isResizing, ...props }}>

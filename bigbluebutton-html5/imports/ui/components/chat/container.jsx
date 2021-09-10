@@ -12,7 +12,7 @@ import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import Chat from '/imports/ui/components/chat/component';
 import ChatService from './service';
-import { LayoutContextFunc } from '../layout/context';
+import { layoutSelect, layoutDispatch } from '../layout/context';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -74,10 +74,8 @@ const ChatContainer = (props) => {
     ...restProps
   } = props;
 
-  const { layoutContextSelector } = LayoutContextFunc;
-
-  const idChatOpen = layoutContextSelector.select((i) => i.idChatOpen);
-  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+  const idChatOpen = layoutSelect((i) => i.idChatOpen);
+  const layoutContextDispatch = layoutDispatch();
 
   const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
 

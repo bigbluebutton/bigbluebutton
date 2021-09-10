@@ -7,7 +7,7 @@ import Auth from '/imports/ui/services/auth';
 import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
 import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
 import { styles } from './styles.scss';
-import { LayoutContextFunc } from '../layout/context';
+import { layoutSelectInput, layoutDispatch } from '../layout/context';
 import { ACTIONS } from '../layout/enums';
 
 import breakoutService from '/imports/ui/components/breakout-room/service';
@@ -77,10 +77,8 @@ const intlMessages = defineMessages({
 const NotificationsBarContainer = (props) => {
   const { message, color } = props;
 
-  const { layoutContextSelector } = LayoutContextFunc;
-
-  const notificationsBar = layoutContextSelector.selectInput((i) => i.notificationsBar);
-  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+  const notificationsBar = layoutSelectInput((i) => i.notificationsBar);
+  const layoutContextDispatch = layoutDispatch();
 
   const { hasNotification } = notificationsBar;
 

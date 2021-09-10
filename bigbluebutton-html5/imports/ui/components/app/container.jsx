@@ -12,9 +12,14 @@ import CaptionsService from '/imports/ui/components/captions/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
-import { LayoutContextFunc } from '../layout/context';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
+import { 
+  layoutSelect, 
+  layoutSelectInput, 
+  layoutSelectOutput, 
+  layoutDispatch 
+} from '../layout/context';
 
 import {
   getFontSize,
@@ -60,15 +65,13 @@ const AppContainer = (props) => {
     ...otherProps
   } = props;
 
-  const { layoutContextSelector } = LayoutContextFunc;
-
-  const sidebarContent = layoutContextSelector.selectInput((i) => i.sidebarContent);
-  const sidebarNavigation = layoutContextSelector.selectInput((i) => i.sidebarNavigation);
-  const actionsBarStyle = layoutContextSelector.selectOutput((i) => i.actionBar);
-  const captionsStyle = layoutContextSelector.selectOutput((i) => i.captions);
-  const layoutType = layoutContextSelector.select((i) => i.layoutType);
-  const deviceType = layoutContextSelector.select((i) => i.deviceType);
-  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
+  const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
+  const captionsStyle = layoutSelectOutput((i) => i.captions);
+  const layoutType = layoutSelect((i) => i.layoutType);
+  const deviceType = layoutSelect((i) => i.deviceType);
+  const layoutContextDispatch = layoutDispatch();
 
   const { sidebarContentPanel } = sidebarContent;
   const { sidebarNavPanel } = sidebarNavigation;

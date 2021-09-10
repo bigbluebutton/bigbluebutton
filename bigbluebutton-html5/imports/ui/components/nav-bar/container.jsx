@@ -11,7 +11,7 @@ import { UsersContext } from '/imports/ui/components/components-data/users-conte
 import NoteService from '/imports/ui/components/note/service';
 import Service from './service';
 import NavBar from './component';
-import { LayoutContextFunc } from '../layout/context';
+import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
 
 const PUBLIC_CONFIG = Meteor.settings.public;
 const ROLE_MODERATOR = PUBLIC_CONFIG.user.role_moderator;
@@ -36,12 +36,10 @@ const NavBarContainer = ({ children, ...props }) => {
   const { groupChat: groupChats } = usingGroupChatContext;
   const { ...rest } = props;
 
-  const { layoutContextSelector } = LayoutContextFunc;
-
-  const sidebarContent = layoutContextSelector.selectInput((i) => i.sidebarContent);
-  const sidebarNavigation = layoutContextSelector.selectInput((i) => i.sidebarNavigation);
-  const navBar = layoutContextSelector.selectOutput((i) => i.navBar);
-  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
+  const navBar = layoutSelectOutput((i) => i.navBar);
+  const layoutContextDispatch = layoutDispatch();
 
   const { sidebarContentPanel } = sidebarContent;
   const { sidebarNavPanel } = sidebarNavigation;

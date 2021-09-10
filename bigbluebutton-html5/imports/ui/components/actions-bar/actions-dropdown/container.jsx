@@ -4,14 +4,12 @@ import Presentations from '/imports/api/presentations';
 import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
 import PresentationPodService from '/imports/ui/components/presentation-pod/service';
 import ActionsDropdown from './component';
-import { LayoutContextFunc } from '../../layout/context';
+import { layoutSelectInput, layoutDispatch } from '../../layout/context';
 
 const ActionsDropdownContainer = (props) => {
-  const { layoutContextSelector } = LayoutContextFunc;
-
-  const sidebarContent = layoutContextSelector.selectInput((i) => i.sidebarContent);
-  const sidebarNavigation = layoutContextSelector.selectInput((i) => i.sidebarNavigation);
-  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
+  const layoutContextDispatch = layoutDispatch();
 
   return (
     <ActionsDropdown {...{

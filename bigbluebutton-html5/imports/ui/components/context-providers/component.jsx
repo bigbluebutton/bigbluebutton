@@ -2,9 +2,7 @@ import React from 'react';
 import { ChatContextProvider } from '/imports/ui/components/components-data/chat-context/context';
 import { UsersContextProvider } from '/imports/ui/components/components-data/users-context/context';
 import { GroupChatContextProvider } from '/imports/ui/components/components-data/group-chat-context/context';
-import { LayoutContextFunc } from '/imports/ui/components/layout/context';
-
-const { ContextProvider: LayoutContextProvider } = LayoutContextFunc;
+import { LayoutContextProvider } from '/imports/ui/components/layout/context';
 
 const providersList = [
   ChatContextProvider,

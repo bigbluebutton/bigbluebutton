@@ -3,15 +3,14 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import CaptionsService from '/imports/ui/components/captions/service';
 import WriterMenu from './component';
-import { LayoutContextFunc } from '../../layout/context';
+import { layoutDispatch } from '../../layout/context';
 import Auth from '/imports/ui/services/auth';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const WriterMenuContainer = (props) => {
-  const { layoutContextSelector } = LayoutContextFunc;
-  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+  const layoutContextDispatch = layoutDispatch();
 
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;

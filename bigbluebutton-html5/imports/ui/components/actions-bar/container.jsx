@@ -12,7 +12,7 @@ import Service from './service';
 import UserListService from '/imports/ui/components/user-list/service';
 import ExternalVideoService from '/imports/ui/components/external-video-player/service';
 import CaptionsService from '/imports/ui/components/captions/service';
-import { LayoutContextFunc } from '../layout/context';
+import { layoutSelectOutput, layoutDispatch } from '../layout/context';
 
 import MediaService, {
   getSwapLayout,
@@ -20,10 +20,8 @@ import MediaService, {
 } from '../media/service';
 
 const ActionsBarContainer = (props) => {
-  const { layoutContextSelector } = LayoutContextFunc;
-
-  const actionsBarStyle = layoutContextSelector.selectOutput((i) => i.actionBar);
-  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+  const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
+  const layoutContextDispatch = layoutDispatch();
 
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;

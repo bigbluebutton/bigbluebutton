@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import ChatAlert from './component';
-import { LayoutContextFunc } from '../../layout/context';
+import { layoutSelect, layoutSelectInput, layoutDispatch } from '../../layout/context';
 import { PANELS } from '../../layout/enums';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import { ChatContext } from '/imports/ui/components/components-data/chat-context/context';
@@ -17,12 +17,10 @@ const propTypes = {
 };
 
 const ChatAlertContainer = (props) => {
-  const { layoutContextSelector } = LayoutContextFunc;
-
-  const idChatOpen = layoutContextSelector.select((i) => i.idChatOpen);
-  const sidebarContent = layoutContextSelector.selectInput((i) => i.sidebarContent);
+  const idChatOpen = layoutSelect((i) => i.idChatOpen);
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
-  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+  const layoutContextDispatch = layoutDispatch();
 
   const { audioAlertEnabled, pushAlertEnabled } = props;
 

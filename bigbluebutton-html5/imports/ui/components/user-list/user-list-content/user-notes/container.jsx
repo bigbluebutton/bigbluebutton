@@ -3,14 +3,12 @@ import { withTracker } from 'meteor/react-meteor-data';
 import NoteService from '/imports/ui/components/note/service';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import UserNotes from './component';
-import { LayoutContextFunc } from '../../../layout/context';
+import { layoutSelectInput, layoutDispatch } from '../../../layout/context';
 
 const UserNotesContainer = (props) => {
-  const { layoutContextSelector } = LayoutContextFunc;
-
-  const sidebarContent = layoutContextSelector.selectInput((i) => i.sidebarContent);
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
-  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+  const layoutContextDispatch = layoutDispatch();
   return <UserNotes {...{ layoutContextDispatch, sidebarContentPanel, ...props }} />;
 };
 

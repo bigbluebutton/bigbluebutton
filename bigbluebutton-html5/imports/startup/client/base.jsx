@@ -19,7 +19,7 @@ import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import { LayoutContextFunc } from '../../ui/components/layout/context';
+import { layoutSelectInput, layoutDispatch } from '../../ui/components/layout/context';
 import VideoService from '/imports/ui/components/video-provider/service';
 import DebugWindow from '/imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
@@ -80,10 +80,8 @@ const Base = (props) => {
     return ref.current;
   }
 
-  const { layoutContextSelector } = LayoutContextFunc;
-
-  const sidebarContent = layoutContextSelector.selectInput((i) => i.sidebarContent);
-  const layoutContextDispatch = layoutContextSelector.layoutDispatch();
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const layoutContextDispatch = layoutDispatch();
 
   const handleFullscreenChange = () => {
     if (document.fullscreenElement
