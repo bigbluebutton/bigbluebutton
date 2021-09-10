@@ -57,7 +57,9 @@ public class PresentationConversionCompletionService {
     }
 
     private void handleEndProcessing(PresentationToConvert p) {
-        presentationsToConvert.remove(p.getKey());
+        String presentationToConvertKey = p.getKey() + "_" + p.pres.getMeetingId();
+
+        presentationsToConvert.remove(presentationToConvertKey);
 
         Map<String, Object> logData = new HashMap<String, Object>();
         logData = new HashMap<String, Object>();
