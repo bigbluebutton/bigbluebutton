@@ -619,7 +619,7 @@ class BreakoutRoom extends PureComponent {
 
     return (
       <div className={styles.boxContainer} key="rooms-grid-" ref={(r) => { this.listOfUsers = r; }}>
-        <div className={!leastOneUserIsValid ? styles.changeToWarn : null}>
+        <div role="alert" className={!leastOneUserIsValid ? styles.changeToWarn : null}>
           <p className={styles.freeJoinLabel}>
             <input
               type="text"
