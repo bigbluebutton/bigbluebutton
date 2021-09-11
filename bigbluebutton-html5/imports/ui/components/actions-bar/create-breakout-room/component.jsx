@@ -127,7 +127,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.minimumDurationWarnBreakout',
     description: 'minimum duration warning message label',
   },
-
+  roomNameInputDesc: {
+    id: 'app.createBreakoutRoom.roomNameInputDesc',
+    description: 'aria description for room name change',
+  }
 });
 
 const BREAKOUT_LIM = Meteor.settings.public.app.breakouts.breakoutRoomLimit;
@@ -647,8 +650,12 @@ class BreakoutRoom extends PureComponent {
                   value={this.getRoomName(value)}
                   onChange={changeRoomName(value)}
                   onBlur={changeRoomName(value)}
-                  aria-label={intl.formatMessage(intlMessages.duration)}
+                  aria-label={`${this.getRoomName(value)}`}
+                  aria-describedby={this.getRoomName(value).length === 0 ? `room-error-${value}` : `room-input-${value}`}
                 />
+                <div aria-hidden id={`room-input-${value}`} className={"sr-only"}>
+                  {intl.formatMessage(intlMessages.roomNameInputDesc)}
+                </div>
               </p>
               <div className={styles.breakoutBox} onDrop={drop(value)} onDragOver={allowDrop} tabIndex={0}>
                 {this.renderUserItemByRoom(value)}
@@ -660,7 +667,7 @@ class BreakoutRoom extends PureComponent {
                 </span>
               ) : null}
               {this.getRoomName(value).length === 0 ? (
-                <span className={styles.spanWarn}>
+                <span aria-hidden id={`room-error-${value}`} className={styles.spanWarn}>
                   {intl.formatMessage(intlMessages.roomNameEmptyIsValid)}
                 </span>
               ) : null}
@@ -786,7 +793,7 @@ class BreakoutRoom extends PureComponent {
         >
           {intl.formatMessage(intlMessages.numberOfRoomsIsValid)}
         </span>
-        <span id="randomlyAssignDesc" className="sr-only">
+        <span aria-hidden id="randomlyAssignDesc" className="sr-only">
           {intl.formatMessage(intlMessages.randomlyAssignDesc)}
         </span>
       </React.Fragment>
