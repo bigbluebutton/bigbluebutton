@@ -31,17 +31,18 @@ BigBlueButton.logger.info("Started exporting presentation for [#{meeting_id}]")
 @published_files = "/var/bigbluebutton/published/presentation/#{meeting_id}"
 
 # Creates scratch directories
-Dir.mkdir("#{@published_files}/chats") unless File.exist?("#{@published_files}/chats")
-Dir.mkdir("#{@published_files}/cursor") unless File.exist?("#{@published_files}/cursor")
-Dir.mkdir("#{@published_files}/frames") unless File.exist?("#{@published_files}/frames")
-Dir.mkdir("#{@published_files}/timestamps") unless File.exist?("#{@published_files}/timestamps")
+FileUtils.mkdir_p(["#{@published_files}/chats", "#{@published_files}/cursor", "#{@published_files}/frames",
+                   "#{@published_files}/timestamps", "/var/bigbluebutton/published/video/#{meeting_id}"])
 
 # Setting the SVGZ option to true will write less data on the disk.
-SVGZ_COMPRESSION = false
+SVGZ_COMPRESSION = true
 
-# Set this to true if you've recompiled FFmpeg to enable external references. Writes less data on disk and is faster.
+# Set this to true if you've recompiled FFmpeg to enable external references. Writes less data on disk
 FFMPEG_REFERENCE_SUPPORT = false
 BASE_URI = FFMPEG_REFERENCE_SUPPORT ? "-base_uri #{@published_files}" : ""
+
+# Set this to true if you've recompiled FFmpeg with the movtext codec enabled
+CAPTION_SUPPORT = false
 
 # Video output quality: 0 is lossless, 51 is the worst. Default 23, 18 - 28 recommended
 CONSTANT_RATE_FACTOR = 23
@@ -73,7 +74,7 @@ CHAT_FONT_SIZE = 15
 CHAT_FONT_SIZE_X = (0.6 * CHAT_FONT_SIZE).to_i
 
 # Max. dimensions supported: 8032 x 32767
-CHAT_CANVAS_WIDTH = (8032 / CHAT_WIDTH) * CHAT_WIDTH
+CHAT_CANVAS_WIDTH = 640 # (8032 / CHAT_WIDTH) * CHAT_WIDTH
 CHAT_CANVAS_HEIGHT = (32_767 / CHAT_FONT_SIZE) * CHAT_FONT_SIZE
 
 # Dimensions of the whiteboard area
@@ -106,14 +107,14 @@ def add_captions
      language_names << "-metadata:s:s:#{i} language=#{json[i]['localeName'].downcase[0..2]} "
   end
 
-  render = "ffmpeg -i #{@published_files}/meeting.mp4 #{caption_input} " \
+  render = "ffmpeg -i #{@published_files}/meeting-tmp.mp4 #{caption_input} " \
             "-map 0:v -map 0:a #{maps} -c:v copy -c:a copy -c:s mov_text #{language_names} " \
             "-y #{@published_files}/meeting_captioned.mp4"
 
   ffmpeg = system(render)
 
   if ffmpeg
-    FileUtils.mv("#{@published_files}/meeting_captioned.mp4", "#{@published_files}/meeting.mp4")
+    FileUtils.mv("#{@published_files}/meeting_captioned.mp4", "#{@published_files}/meeting-tmp.mp4")
   else
       warn("An error occurred adding the captions to the video.")
       exit(false)
@@ -122,7 +123,7 @@ end
 
 def add_chapters(duration, slides)
   # Extract metadata
-  ffmpeg = system("ffmpeg -i #{@published_files}/meeting.mp4 -y -f ffmetadata #{@published_files}/meeting_metadata")
+  ffmpeg = system("ffmpeg -i #{@published_files}/meeting-tmp.mp4 -y -f ffmetadata #{@published_files}/meeting_metadata")
 
   unless ffmpeg
     warn("An error occurred extracting the video's metadata.")
@@ -156,12 +157,24 @@ def add_chapters(duration, slides)
     file << chapter
   end
 
-  ffmpeg = system("ffmpeg -i #{@published_files}/meeting.mp4 -i #{@published_files}/meeting_metadata -map_metadata 1 -map_chapters 1 -codec copy -y -t #{duration} #{@published_files}/meeting_chapters.mp4")
+  ffmpeg = system("ffmpeg -i #{@published_files}/meeting-tmp.mp4 -i #{@published_files}/meeting_metadata -map_metadata 1 -map_chapters 1 -codec copy -y -t #{duration} #{@published_files}/meeting_chapters.mp4")
   if ffmpeg
-    FileUtils.mv("#{@published_files}/meeting_chapters.mp4", "#{@published_files}/meeting.mp4")
+    FileUtils.mv("#{@published_files}/meeting_chapters.mp4", "#{@published_files}/meeting-tmp.mp4")
   else
     warn("Failed to add the chapters to the video.")
     exit(false)
+  end
+end
+
+def add_greenlight_buttons(metadata)
+  meeting_id = metadata.xpath('recording/id').inner_text
+  hostname = metadata.xpath('recording/meta/bbb-origin-server-name').inner_text
+
+  metadata.xpath('recording/playback/format').children.first.content = "Video"
+  metadata.xpath('recording/playback/link').children.first.content = "https://#{hostname}/presentation/#{meeting_id}/meeting.mp4"
+
+  File.open("/var/bigbluebutton/published/video/#{meeting_id}/metadata.xml", "w") do |file|
+    file.write(metadata)
   end
 end
 
@@ -326,7 +339,7 @@ def remove_adjacent(array)
     index += 1
   end
 
-  array.compact
+  array.compact! || array
 end
 
 def render_chat(chat_reader)
@@ -352,6 +365,9 @@ def render_chat(chat_reader)
 
   overlay_position = []
 
+  # Keep last n messages for seamless transitions between columns
+  duplicates = Array.new((CHAT_HEIGHT / (3 * CHAT_FONT_SIZE)) + 1) { nil }
+
   # Create SVG chat with all messages
   # Add 'xmlns' => 'http://www.w3.org/2000/svg' for visual debugging
   builder = Builder::XmlMarkup.new
@@ -362,6 +378,7 @@ def render_chat(chat_reader)
     messages.each do |timestamp, name, chat|
       # Strip HTML tags e.g. from links so it only displays the inner text
       chat = Loofah.fragment(chat).scrub!(:strip).text.unicode_normalize
+      name = Loofah.fragment(name).scrub!(:strip).text.unicode_normalize
 
       max_message_length = (CHAT_WIDTH / CHAT_FONT_SIZE_X) - 1
 
@@ -393,7 +410,25 @@ def render_chat(chat_reader)
       # Message height equals the line break amount + the line for the name / time + the empty line afterwards
       message_height = (line_wraps.size + 2) * CHAT_FONT_SIZE
 
+      # Add message to a new column if it goes over the canvas height
       if svg_y + message_height > CHAT_CANVAS_HEIGHT
+
+        # Insert duplicate messages when going to next column for a seamless transition
+        duplicate_y = CHAT_HEIGHT
+        duplicates.each do |header, duplicate_content, duplicate_x|
+          break if header.nil? || duplicate_y.negative?
+
+          duplicate_content.each do |content|
+            duplicate_y -= CHAT_FONT_SIZE
+            builder.text(x: duplicate_x + CHAT_WIDTH, y: duplicate_y) { builder << content }
+          end
+
+          duplicate_y -= CHAT_FONT_SIZE
+          builder.text(x: duplicate_x + CHAT_WIDTH, y: duplicate_y, "font-weight" => "bold") { builder << header }
+          duplicate_y -= CHAT_FONT_SIZE
+        end
+
+        # Set coordinates to new column
         svg_y = CHAT_HEIGHT + CHAT_FONT_SIZE
         svg_x += CHAT_WIDTH
 
@@ -406,10 +441,14 @@ def render_chat(chat_reader)
       overlay_position << [timestamp, chat_x, chat_y]
 
       # Username and chat timestamp
+      header = "#{name}    #{Time.at(timestamp.to_f.round(0)).utc.strftime('%H:%M:%S')}"
+
       builder.text(x: svg_x, y: svg_y, "font-weight" => "bold") {
-        builder << "#{name}    #{Time.at(timestamp.to_f.round(0)).utc.strftime('%H:%M:%S')}"
+        builder << header
       }
+
       svg_y += CHAT_FONT_SIZE
+      duplicate_content = []
 
       # Message text
       line_wraps.each do |a, b|
@@ -417,8 +456,12 @@ def render_chat(chat_reader)
 
         builder.text(x: svg_x, y: svg_y) { builder << safe_message }
         svg_y += CHAT_FONT_SIZE
+
+        duplicate_content.unshift(safe_message)
       end
 
+      duplicates.unshift([header, duplicate_content, svg_x])
+      duplicates.pop
       svg_y += CHAT_FONT_SIZE
     end
   end
@@ -545,7 +588,7 @@ def render_video(duration, meeting_name)
   end
 
   render << "-c:a aac -crf #{CONSTANT_RATE_FACTOR} -shortest -y -t #{duration} -threads #{THREADS} "
-  render << "-metadata title='#{meeting_name}' #{BENCHMARK} #{@published_files}/meeting.mp4"
+  render << "-metadata title=\"#{meeting_name}\" #{BENCHMARK} #{@published_files}/meeting-tmp.mp4"
 
   ffmpeg = system(render)
 
@@ -616,7 +659,7 @@ def svg_export(draw, view_box, slide_href, width, height, frame_number)
 
   File.open("#{@published_files}/frames/frame#{frame_number}.#{FILE_EXTENSION}", "w", 0o600) do |svg|
     if SVGZ_COMPRESSION
-      svgz = Zlib::GzipWriter.new(svg)
+      svgz = Zlib::GzipWriter.new(svg, Zlib::BEST_SPEED)
       svgz.write(builder.target!)
       svgz.close
     else
@@ -658,9 +701,12 @@ def export_presentation
 
   render_video(duration, meeting_name)
   add_chapters(duration, slides)
-  # add_captions
+  add_captions if CAPTION_SUPPORT
 
+  FileUtils.mv("#{@published_files}/meeting-tmp.mp4", "#{@published_files}/meeting.mp4")
   BigBlueButton.logger.info("Exported recording available at #{@published_files}/meeting.mp4. Rendering took: #{Time.now - start}")
+
+  add_greenlight_buttons(metadata)
 end
 
 export_presentation
