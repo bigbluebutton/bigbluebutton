@@ -43,6 +43,10 @@ class Indicator extends Component {
     const { timer } = this.props;
     const { timer: prevTimer } = prevProps;
 
+    if (this.shouldPlayMusic()) {
+      this.playMusic();
+    }
+
     this.updateInterval(prevTimer, timer);
     this.updateAlarmTrigger(prevTimer, timer);
   }
@@ -117,6 +121,7 @@ class Indicator extends Component {
 
   play() {
     if (this.alarm && !this.triggered) {
+      TimerService.timerEnded();
       this.triggered = true;
       this.alarm.play();
     }
@@ -136,8 +141,30 @@ class Indicator extends Component {
   }
 
   playMusic() {
-    if (this.music !== null) {
+    const handleUserInteraction = () => {
       this.music.play();
+      window.removeEventListener('click', handleUserInteraction);
+      window.removeEventListener('auxclick', handleUserInteraction);
+      window.removeEventListener('keydown', handleUserInteraction);
+      window.removeEventListener('touchstart', handleUserInteraction);
+    };
+
+    const playMusicAfterUserInteraction = () => {
+      window.addEventListener('click', handleUserInteraction);
+      window.addEventListener('auxclick', handleUserInteraction);
+      window.addEventListener('keydown', handleUserInteraction);
+      window.addEventListener('touchstart', handleUserInteraction);
+    };
+
+    this.handleUserInteraction = handleUserInteraction;
+
+    if (this.music !== null) {
+      this.music.play()
+        .catch((error) => {
+          if (error.name === 'NotAllowedError') {
+            playMusicAfterUserInteraction();
+          }
+        });
     }
   }
 
@@ -145,7 +172,25 @@ class Indicator extends Component {
     if (this.music !== null) {
       this.music.pause();
       this.music.currentTime = 0;
+      window.removeEventListener('click', this.handleUserInteraction);
+      window.removeEventListener('auxclick', this.handleUserInteraction);
+      window.removeEventListener('keydown', this.handleUserInteraction);
+      window.removeEventListener('touchstart', this.handleUserInteraction);
     }
+  }
+
+  shouldPlayMusic() {
+    const {
+      timer,
+      isMusicActive,
+    } = this.props;
+
+    const {
+      running,
+      stopwatch,
+    } = timer;
+
+    return isMusicActive && running && !stopwatch;
   }
 
   shouldStopMusic(time) {
@@ -189,8 +234,6 @@ class Indicator extends Component {
 
     if (this.shouldStopMusic(updatedTime)) {
       this.stopMusic();
-    } else {
-      this.playMusic();
     }
 
     if (this.soundAlarm(updatedTime)) {

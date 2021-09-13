@@ -102,6 +102,8 @@ const activateTimer = (layoutContextDispatch) => makeCall('activateTimer').then(
 
 const deactivateTimer = () => makeCall('deactivateTimer');
 
+const timerEnded = () => makeCall('timerEnded');
+
 const setMusic = (music) => {
   makeCall('setMusic', music);
 };
@@ -330,4 +332,5 @@ export default {
   closePanel,
   togglePanel,
   isModerator,
+  timerEnded,
 };

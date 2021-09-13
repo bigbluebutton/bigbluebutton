@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import Timer from '/imports/api/timer';
 import Logger from '/imports/startup/server/logger';
+import Users from '/imports/api/users';
 import { getDefaultTime } from '/imports/api/timer/server/helpers';
 
 const getActivateModifier = () => {
@@ -16,6 +17,7 @@ const getActivateModifier = () => {
       accumulated: 0,
       timestamp: 0,
       music: false,
+      ended: 0,
     },
   };
 };
@@ -25,6 +27,7 @@ const getDeactivateModifier = () => {
     $set: {
       active: false,
       running: false,
+      ended: 0,
     },
   };
 };
@@ -34,8 +37,41 @@ const getResetModifier = () => {
     $set: {
       accumulated: 0,
       timestamp: Date.now(),
+      ended: 0,
     },
   };
+};
+
+const handleTimerEndedNotifications = (fields, meetingId, handle) => {
+  const meetingUsers = Users.find({
+    meetingId,
+    validated: true,
+  }).count();
+
+  if (fields.running === false) {
+    handle.stop();
+  }
+
+  if (fields.ended >= Math.round(0.9 * meetingUsers)) {
+    const accumulated = 0;
+    updateTimer('stop', meetingId, 0, false, accumulated);
+  }
+};
+
+const setTimerEndObserver = (meetingId) => {
+  const { stopwatch } = Timer.findOne({ meetingId });
+
+  if (stopwatch === false) {
+    const meetingTimer = Timer.find(
+      { meetingId },
+      { fields: { ended: 1, running: 1 } },
+    );
+    const handle = meetingTimer.observeChanges({
+      changed: (id, fields) => {
+        handleTimerEndedNotifications(fields, meetingId, handle);
+      },
+    });
+  }
 };
 
 const getStartModifier = () => {
@@ -43,6 +79,7 @@ const getStartModifier = () => {
     $set: {
       running: true,
       timestamp: Date.now(),
+      ended: 0,
     },
   };
 };
@@ -53,6 +90,7 @@ const getStopModifier = (accumulated) => {
       running: false,
       accumulated,
       timestamp: 0,
+      ended: 0,
     },
   };
 };
@@ -65,6 +103,7 @@ const getSwitchModifier = (stopwatch) => {
       accumulated: 0,
       timestamp: 0,
       music: false,
+      ended: 0,
     },
   };
 };
@@ -88,6 +127,13 @@ const getMusicModifier = (music) => {
   };
 };
 
+const getEndedModifier = () => {
+  return {
+    $inc: {
+      ended: 1,
+    },
+  };
+};
 
 export default function updateTimer(action, meetingId, time = 0, stopwatch = true, accumulated = 0, music = false) {
   check(action, String);
@@ -114,6 +160,7 @@ export default function updateTimer(action, meetingId, time = 0, stopwatch = tru
       modifier = getResetModifier();
       break;
     case 'start':
+      setTimerEndObserver(meetingId);
       modifier = getStartModifier();
       break;
     case 'stop':
@@ -127,6 +174,9 @@ export default function updateTimer(action, meetingId, time = 0, stopwatch = tru
       break;
     case 'music':
       modifier = getMusicModifier(music);
+      break;
+    case 'ended':
+      modifier = getEndedModifier();
       break;
     default:
       Logger.error(`Unhandled timer action=${action}`);
