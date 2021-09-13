@@ -11,6 +11,7 @@ import LiveResult from './live-result/component';
 import { styles } from './styles.scss';
 import { PANELS, ACTIONS } from '../layout/enums';
 import DragAndDrop from './dragAndDrop/component';
+import { alertScreenReader } from '/imports/utils/dom-utils';
 
 const intlMessages = defineMessages({
   pollPaneTitle: {
@@ -185,6 +186,10 @@ const intlMessages = defineMessages({
     id: 'app.switch.offLabel',
     description: 'label for toggle switch off state',
   },
+  removePollOpt: {
+    id: 'app.poll.removePollOpt',
+    description: 'screen reader alert for removed poll option',
+  },
 });
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
@@ -295,10 +300,14 @@ class Poll extends Component {
   }
 
   handleRemoveOption(index) {
+    const { intl } = this.props;
     const { optList } = this.state;
     const list = [...optList];
+    const removed = list[index];
     list.splice(index, 1);
-    this.setState({ optList: list });
+    this.setState({ optList: list }, () => {
+      alertScreenReader(`${intl.formatMessage(intlMessages.removePollOpt, { 0: removed.val })}`);
+    });
   }
 
   handleAddOption() {
