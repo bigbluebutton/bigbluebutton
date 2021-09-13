@@ -850,6 +850,7 @@
     "app.createBreakoutRoom.extendTimeLabel": "Extend",
     "app.createBreakoutRoom.extendTimeCancel": "Cancel",
     "app.createBreakoutRoom.extendTimeHigherThanMeetingTimeError": "The breakout rooms duration can't exceed the meeting remaining time.",
+    "app.createBreakoutRoom.roomNameInputDesc": "Updates breakout room name",
     "app.externalVideo.start": "Share a new video",
     "app.externalVideo.title": "Share an external video",
     "app.externalVideo.input": "External Video URL",
