@@ -242,9 +242,7 @@ class Timer extends Component {
           >
             {intl.formatMessage(intlMessages.music)}
           </Styled.TimerCol>
-          <Styled.TimerCol
-            pullContentRight
-          >
+          <Styled.TimerCol>
             <Toggle
               onChange={() => this.handleOnMusicChange()}
               icons={false}

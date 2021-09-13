@@ -168,18 +168,12 @@ const TimerRow = styled.div`
   flex-grow: 1;
 `;
 
-const PullContentRight = `
-  display: flex;
-  justify-content: flex-end;
-  flex-flow: row;
-`;
-
 const TimerCol = styled.div`
   display: flex;
   flex-grow: 1;
   flex-basis: 0;
+  justify-content: center;
   ${({ disabled }) => disabled && 'opacity: 50%'}
-  ${({ pullContentRight }) => pullContentRight && `${PullContentRight}`}
 `;
 
 export default {
