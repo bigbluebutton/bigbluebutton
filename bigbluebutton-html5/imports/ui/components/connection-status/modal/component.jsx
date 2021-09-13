@@ -321,7 +321,7 @@ class ConnectionStatusComponent extends PureComponent {
                 {conn.offline ? ` (${intl.formatMessage(intlMessages.offline)})` : null}
               </div>
             </div>
-            <div className={styles.status}>
+            <div aria-label={`${intl.formatMessage(intlMessages.title)} ${conn.level}`} className={styles.status}>
               <div className={styles.icon}>
                 <Icon level={conn.level} />
               </div>

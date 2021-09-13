@@ -47,9 +47,14 @@ const swapLayout = {
   tracker: new Tracker.Dependency(),
 };
 
-const setSwapLayout = () => {
+const setSwapLayout = (layoutContextDispatch) => {
   swapLayout.value = getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout);
   swapLayout.tracker.changed();
+
+  layoutContextDispatch({
+    type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+    value: !swapLayout.value,
+  });
 };
 
 const toggleSwapLayout = (layoutContextDispatch) => {

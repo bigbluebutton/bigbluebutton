@@ -1,28 +1,31 @@
 const path = require('path');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const ne = require('../notifications/elements');
 const pe = require('../presentation/elements');
 const ce = require('../customparameters/elements');
 const we = require('../whiteboard/elements');
 const poe = require('../polling/elemens');
 const e = require('../core/elements');
+const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { checkElementLengthEqualTo, checkElementLengthDifferentTo, checkElementText } = require('../core/util');
 
 async function autoJoinTest(test) {
-  const resp = await test.page.evaluate(async () => {
-    const rep = await document.querySelectorAll('div[aria-label="Join audio modal"]').length === 0;
-    return rep !== false;
-  });
-  return resp;
+  try {
+    const resp = await test.page.evaluate(checkElementLengthEqualTo, e.audioDialog, 0);
+    return resp === true;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
 }
 
 async function listenOnlyMode(test) {
+  // maybe not used
   try {
-    const resp = await test.page.evaluate(async () => {
-      await document.querySelectorAll('div[class^="connecting--"]')[0];
-      const audibleButton = await document.querySelectorAll('button[aria-label="Echo is audible"]').length !== 0;
-      return audibleButton !== false;
-    });
-    return resp;
+    const resp = await test.page.evaluate(async (connectionSelector, echoYes) => {
+      await document.querySelectorAll(connectionSelector)[0];
+      return document.querySelectorAll(echoYes).length !== 0;
+    }, e.connectingStatus, e.echoYes);
+    return resp === true;
   } catch (err) {
     console.log(err);
   }
@@ -30,38 +33,29 @@ async function listenOnlyMode(test) {
 
 async function forceListenOnly(test) {
   try {
-    const resp = await test.page.evaluate(async () => {
-      await document.querySelectorAll('div[class^="connecting--"]')[0];
-      if (await document.querySelectorAll('button[aria-label="Echo is audible"]').length > 0) {
-        return false;
-      }
-      const audibleNotification = await document.querySelectorAll('div[class^="toastContainer--"]')[0].innerText === 'You have joined the audio conference';
-      return audibleNotification !== false;
-    });
-    return resp;
+    const checkEchoYes = await test.page.evaluate(checkElementLengthEqualTo, e.echoYes, 0);
+    if (!checkEchoYes) return false;
+    const resp = await test.page.evaluate(checkElementText, ce.toastContainer, 'You have joined the audio conference');
+
+    return resp === true;
   } catch (err) {
     console.log(err);
+    return false
   }
 }
 
 async function skipCheck(test) {
+  // maybe not used
   try {
     await test.waitForSelector(ce.toastContainer, ELEMENT_WAIT_TIME);
-    const resp1 = await test.page.evaluate(async () => await document.querySelectorAll('div[class^="toastContainer--"]').length !== 0);
+    const resp1 = await test.page.evaluate(checkElementLengthDifferentTo, e.toastContainer, 0);
     await test.waitForSelector(ce.muteBtn, ELEMENT_WAIT_TIME);
-    const resp2 = await test.page.evaluate(async () => await document.querySelectorAll('button[aria-label="Mute"]').length !== 0);
+    const resp2 = await test.page.evaluate(checkElementLengthDifferentTo, ce.muteBtn, 0);
     return resp1 === true && resp2 === true;
   } catch (err) {
     console.log(err);
+    return false;
   }
-}
-
-async function countTestElements(element) {
-  return document.querySelectorAll(element).length !== 0;
-}
-
-async function getTestElement(element) {
-  return document.querySelectorAll(element).length === 0;
 }
 
 function hexToRgb(hex) {
@@ -74,11 +68,11 @@ function hexToRgb(hex) {
 
 async function zoomIn(test) {
   try {
-    await test.page.evaluate(() => {
+    await test.page.evaluate((zoomIn) => {
       setInterval(() => {
-        document.querySelector('button[aria-label="Zoom in"]').scrollBy(0, 10);
+        document.querySelector(zoomIn).scrollBy(0, 10);
       }, 100);
-    });
+    }, e.zoomIn);
     return true;
   } catch (err) {
     console.log(err);
@@ -88,11 +82,12 @@ async function zoomIn(test) {
 
 async function zoomOut(test) {
   try {
-    await test.page.evaluate(() => {
+    await test.page.evaluate((zoomIn) => {
       setInterval(() => {
-        document.querySelector('button[aria-label="Zoom in"]').scrollBy(10, 0);
+        document.querySelector(zoomIn).scrollBy(10, 0);
       }, 100);
-    }); return true;
+    }, e.zoomIn);
+    return true;
   } catch (err) {
     console.log(err);
     return false;
@@ -102,7 +97,7 @@ async function zoomOut(test) {
 async function poll(page1, page2) {
   try {
     await page1.page.waitForSelector(ce.whiteboard, { visible: true, timeout: ELEMENT_WAIT_LONGER_TIME });
-    await page1.page.evaluate(async () => await document.querySelectorAll('button[aria-label="Actions"]')[0].click());
+    await page1.click(e.actions);
     await page1.waitForSelector(ne.polling, ELEMENT_WAIT_TIME);
     await page1.click(ne.polling, true);
     await page1.waitForSelector(ne.pollYesNoAbstentionBtn, ELEMENT_WAIT_TIME);
@@ -149,8 +144,10 @@ async function annotation(test) {
   await test.waitForSelector(we.pencil, ELEMENT_WAIT_TIME);
   await test.click(we.pencil, true);
   await test.click(ce.whiteboard, true);
-  const annoted = await test.page.evaluate(async () => await document.querySelectorAll('[data-test="whiteboard"] > g > g')[1].innerHTML !== '');
-  return annoted;
+  const annoted = await test.page.evaluate((whiteboard) => {
+    return document.querySelectorAll(`${whiteboard} > g > g`)[1].innerHTML !== '';
+  }, e.whiteboard);
+  return annoted === true;
 }
 
 async function presetationUpload(test) {
@@ -159,7 +156,7 @@ async function presetationUpload(test) {
     await test.click(ce.actions, true);
     await test.waitForSelector(pe.uploadPresentation, ELEMENT_WAIT_TIME);
     await test.click(pe.uploadPresentation, true);
-    const elementHandle = await test.page.$('input[type=file]');
+    const elementHandle = await test.page.$(pe.fileUpload);
     await elementHandle.uploadFile(path.join(__dirname, `../media/${e.pdfFileName}.pdf`));
     await test.click(ce.confirmBtn, true);
     return true;
@@ -187,8 +184,6 @@ exports.nextSlide = nextSlide;
 exports.annotation = annotation;
 exports.presetationUpload = presetationUpload;
 exports.hexToRgb = hexToRgb;
-exports.getTestElement = getTestElement;
-exports.countTestElements = countTestElements;
 exports.autoJoinTest = autoJoinTest;
 exports.listenOnlyMode = listenOnlyMode;
 exports.forceListenOnly = forceListenOnly;

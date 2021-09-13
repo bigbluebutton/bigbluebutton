@@ -1,5 +1,6 @@
 const e = require('./elements');
 const ule = require('../user/elements');
+const { clickElement } = require('../core/util');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
 
 async function openChat(test) {
@@ -20,12 +21,12 @@ async function sendPublicChatMessage(page1, page2) {
 async function openPrivateChatMessage(page1, page2) {
   // Open private Chat with the other User
   Object.values(arguments).forEach(async argument => await argument.waitForSelector(ule.userListItem, ELEMENT_WAIT_TIME));
-  await page1.page.evaluate(clickOnTheOtherUser, ule.userListItem);
-  await page2.page.evaluate(clickOnTheOtherUser, ule.userListItem);
+  await page1.page.evaluate(clickElement, ule.userListItem);
+  await page2.page.evaluate(clickElement, ule.userListItem);
   await page1.page.waitForSelector(e.activeChat, ELEMENT_WAIT_TIME);
-  await page1.page.evaluate(clickThePrivateChatButton, e.activeChat);
+  await page1.page.evaluate(clickElement, e.activeChat);
   await page2.page.waitForSelector(e.activeChat, ELEMENT_WAIT_TIME);
-  await page2.page.evaluate(clickThePrivateChatButton, e.activeChat);
+  await page2.page.evaluate(clickElement, e.activeChat);
 }
 
 async function sendPrivateChatMessage(page1, page2) {
@@ -39,14 +40,6 @@ async function sendPrivateChatMessage(page1, page2) {
   await page2.page.type(e.privateChat, e.message2);
   await page2.page.click(e.sendButton, true);
   await page2.page.screenshot(true);
-}
-
-async function clickOnTheOtherUser(element) {
-  await document.querySelectorAll(element)[0].click();
-}
-
-async function clickThePrivateChatButton(element) {
-  await document.querySelectorAll(element)[0].click();
 }
 
 async function checkForPublicMessageReception(page1, page2) {
