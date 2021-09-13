@@ -3,6 +3,7 @@
 const Page = require('../core/page');
 const e = require('./elements');
 const util = require('./util');
+const { checkElementLengthEqualTo } = require('../core/util');
 
 class Send extends Page {
   constructor() {
@@ -14,7 +15,7 @@ class Send extends Page {
       await util.openChat(this);
 
       // 0 messages
-      const chat0 = await this.page.evaluate((chatSelector) => document.querySelectorAll(chatSelector).length === 0, e.chatUserMessageText);
+      const chat0 = await this.page.evaluate(checkElementLengthEqualTo, e.chatUserMessageText, 0);
       await this.screenshot(`${testName}`, `01-before-chat-message-send-[${this.meetingId}]`);
 
       // send a message
@@ -27,7 +28,7 @@ class Send extends Page {
       await this.waitForSelector(e.chatUserMessageText);
 
       // 1 message
-      const chat1 = await this.page.evaluate((chatSelector) => document.querySelectorAll(chatSelector).length === 1, e.chatUserMessageText);
+      const chat1 = await this.page.evaluate(checkElementLengthEqualTo, e.chatUserMessageText, 1);
       return chat0 === chat1;
     } catch (err) {
       await this.logger(err);

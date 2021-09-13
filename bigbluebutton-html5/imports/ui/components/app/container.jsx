@@ -60,6 +60,7 @@ const AppContainer = (props) => {
     settingsLayout,
     pushLayoutToEveryone,
     currentUserId,
+    shouldShowPresentation: propsShouldShowPresentation,
     ...otherProps
   } = props;
   const {
@@ -68,12 +69,14 @@ const AppContainer = (props) => {
     layoutType,
     deviceType,
   } = layoutContextState;
-  const { sidebarContent, sidebarNavigation } = input;
+  const { sidebarContent, sidebarNavigation, presentation } = input;
   const { actionBar: actionsBarStyle, captions: captionsStyle } = output;
   const { sidebarNavPanel } = sidebarNavigation;
   const { sidebarContentPanel } = sidebarContent;
   const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
   const sidebarContentIsOpen = sidebarContent.isOpen;
+  const presentationIsOpen = presentation.isOpen;
+  const shouldShowPresentation = propsShouldShowPresentation && presentationIsOpen;
 
   return currentUserId
     ? (
@@ -93,6 +96,7 @@ const AppContainer = (props) => {
           sidebarNavigationIsOpen,
           sidebarContentPanel,
           sidebarContentIsOpen,
+          shouldShowPresentation,
         }}
         {...otherProps}
       />
@@ -162,7 +166,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   const { viewScreenshare } = Settings.dataSaving;
   const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
   const shouldShowScreenshare = MediaService.shouldShowScreenshare()
-    && (viewScreenshare || MediaService.isUserPresenter()) && !shouldShowExternalVideo;
+    && (viewScreenshare || MediaService.isUserPresenter());
   let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
 
   if (!customStyleUrl && CUSTOM_STYLE_URL) {

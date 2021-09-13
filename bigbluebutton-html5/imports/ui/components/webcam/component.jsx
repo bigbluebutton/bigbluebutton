@@ -98,7 +98,7 @@ const WebcamComponent = ({
       );
       Storage.setItem('webcamSize', { width: newCameraMaxWidth, height: lastHeight });
     }
-  }, [cameraDock.position, isPresenter, displayPresentation]);
+  }, [cameraDock.position, cameraDock.maxWidth, isPresenter, displayPresentation]);
 
   const onResizeHandle = (deltaWidth, deltaHeight) => {
     if (cameraDock.resizableEdge.top || cameraDock.resizableEdge.bottom) {

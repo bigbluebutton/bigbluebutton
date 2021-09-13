@@ -147,6 +147,7 @@ class CustomLayout extends Component {
             isOpen: false,
           },
           presentation: {
+            isOpen: input.presentation.isOpen,
             slidesLength: input.presentation.slidesLength,
             currentSlide: {
               ...input.presentation.currentSlide,
@@ -174,6 +175,7 @@ class CustomLayout extends Component {
             isOpen: false,
           },
           presentation: {
+            isOpen: input.presentation.isOpen,
             slidesLength: input.presentation.slidesLength,
             currentSlide: {
               ...input.presentation.currentSlide,
@@ -426,6 +428,7 @@ class CustomLayout extends Component {
     const { isOpen } = presentation;
     const { camerasMargin } = DEFAULT_VALUES;
     const sidebarSize = sidebarNavWidth + sidebarContentWidth;
+    const bannerAreaHeight = this.bannerAreaHeight();
 
     const cameraDockBounds = {};
 
@@ -462,7 +465,7 @@ class CustomLayout extends Component {
               );
             }
 
-            cameraDockBounds.top = DEFAULT_VALUES.navBarHeight;
+            cameraDockBounds.top = DEFAULT_VALUES.navBarHeight + bannerAreaHeight;
             cameraDockBounds.left = cameraDockLeft;
             cameraDockBounds.right = isRTL ? sidebarSize : null;
             cameraDockBounds.minWidth = mediaAreaBounds.width;
@@ -490,7 +493,7 @@ class CustomLayout extends Component {
               );
             }
 
-            cameraDockBounds.top = DEFAULT_VALUES.navBarHeight;
+            cameraDockBounds.top = DEFAULT_VALUES.navBarHeight + bannerAreaHeight;
             const sizeValue = input.presentation.isOpen
               ? (mediaAreaBounds.left + mediaAreaBounds.width) - cameraDockWidth
               : mediaAreaBounds.left;
@@ -527,7 +530,7 @@ class CustomLayout extends Component {
             }
 
             cameraDockBounds.top = DEFAULT_VALUES.navBarHeight
-              + mediaAreaBounds.height - cameraDockHeight;
+              + mediaAreaBounds.height - cameraDockHeight + bannerAreaHeight;
             cameraDockBounds.left = cameraDockLeft;
             cameraDockBounds.right = isRTL ? sidebarSize : null;
             cameraDockBounds.minWidth = mediaAreaBounds.width;
@@ -555,7 +558,7 @@ class CustomLayout extends Component {
               );
             }
 
-            cameraDockBounds.top = DEFAULT_VALUES.navBarHeight;
+            cameraDockBounds.top = DEFAULT_VALUES.navBarHeight + bannerAreaHeight;
             cameraDockBounds.left = mediaAreaBounds.left + camerasMargin;
             cameraDockBounds.right = isRTL ? sidebarSize + (camerasMargin * 2) : null;
             cameraDockBounds.minWidth = DEFAULT_VALUES.cameraDockMinWidth;
@@ -629,8 +632,9 @@ class CustomLayout extends Component {
     const { presentation } = input;
     const { isOpen } = presentation;
     const { height: actionBarHeight } = this.calculatesActionbarHeight();
+    const bannerAreaHeight = this.bannerAreaHeight();
     const mediaAreaHeight = windowHeight()
-      - (DEFAULT_VALUES.navBarHeight + actionBarHeight);
+      - (DEFAULT_VALUES.navBarHeight + actionBarHeight + bannerAreaHeight);
     const mediaAreaWidth = windowWidth() - (sidebarNavWidth + sidebarContentWidth);
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
@@ -663,7 +667,7 @@ class CustomLayout extends Component {
         case CAMERADOCK_POSITION.CONTENT_TOP: {
           mediaBounds.width = mediaAreaWidth;
           mediaBounds.height = mediaAreaHeight - cameraDockBounds.height - camerasMargin;
-          mediaBounds.top = navBarHeight + cameraDockBounds.height + camerasMargin;
+          mediaBounds.top = navBarHeight + cameraDockBounds.height + camerasMargin + bannerAreaHeight;
           mediaBounds.left = !isRTL ? sidebarSize : null;
           mediaBounds.right = isRTL ? sidebarSize : null;
           break;
@@ -671,7 +675,7 @@ class CustomLayout extends Component {
         case CAMERADOCK_POSITION.CONTENT_RIGHT: {
           mediaBounds.width = mediaAreaWidth - cameraDockBounds.width - camerasMargin;
           mediaBounds.height = mediaAreaHeight;
-          mediaBounds.top = navBarHeight;
+          mediaBounds.top = navBarHeight + bannerAreaHeight;
           mediaBounds.left = !isRTL ? sidebarSize : null;
           mediaBounds.right = isRTL ? sidebarSize - (camerasMargin * 2) : null;
           break;
@@ -679,7 +683,7 @@ class CustomLayout extends Component {
         case CAMERADOCK_POSITION.CONTENT_BOTTOM: {
           mediaBounds.width = mediaAreaWidth;
           mediaBounds.height = mediaAreaHeight - cameraDockBounds.height - camerasMargin;
-          mediaBounds.top = navBarHeight - camerasMargin;
+          mediaBounds.top = navBarHeight - camerasMargin + bannerAreaHeight;
           mediaBounds.left = !isRTL ? sidebarSize : null;
           mediaBounds.right = isRTL ? sidebarSize : null;
           break;
@@ -687,7 +691,7 @@ class CustomLayout extends Component {
         case CAMERADOCK_POSITION.CONTENT_LEFT: {
           mediaBounds.width = mediaAreaWidth - cameraDockBounds.width - camerasMargin;
           mediaBounds.height = mediaAreaHeight;
-          mediaBounds.top = navBarHeight;
+          mediaBounds.top = navBarHeight + bannerAreaHeight;
           const sizeValue = sidebarNavWidth
             + sidebarContentWidth + mediaAreaWidth - mediaBounds.width;
           mediaBounds.left = !isRTL ? sizeValue : null;
@@ -697,7 +701,7 @@ class CustomLayout extends Component {
         case CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM: {
           mediaBounds.width = mediaAreaWidth;
           mediaBounds.height = mediaAreaHeight;
-          mediaBounds.top = navBarHeight;
+          mediaBounds.top = navBarHeight + bannerAreaHeight;
           mediaBounds.left = !isRTL ? sidebarSize : null;
           mediaBounds.right = isRTL ? sidebarSize : null;
           break;
@@ -710,7 +714,7 @@ class CustomLayout extends Component {
     } else {
       mediaBounds.width = mediaAreaWidth;
       mediaBounds.height = mediaAreaHeight;
-      mediaBounds.top = DEFAULT_VALUES.navBarHeight + this.bannerAreaHeight();
+      mediaBounds.top = DEFAULT_VALUES.navBarHeight + bannerAreaHeight;
       mediaBounds.left = !isRTL ? sidebarSize : null;
       mediaBounds.right = isRTL ? sidebarSize : null;
     }
