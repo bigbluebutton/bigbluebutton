@@ -86,7 +86,7 @@ class UsersTable extends React.Component {
         <thead>
           <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-100">
             <th className="px-4 py-3">
-              <FormattedMessage id="app.learningDashboard.participantsTable.colParticipant" defaultMessage="Participant" />
+              <FormattedMessage id="app.learningDashboard.user" defaultMessage="User" />
               {
                 tab === 'overview'
                   ? (
@@ -104,25 +104,25 @@ class UsersTable extends React.Component {
               }
             </th>
             <th className="px-4 py-3 text-center">
-              <FormattedMessage id="app.learningDashboard.participantsTable.colOnline" defaultMessage="Online time" />
+              <FormattedMessage id="app.learningDashboard.usersTable.colOnline" defaultMessage="Online time" />
             </th>
             <th className="px-4 py-3 text-center">
-              <FormattedMessage id="app.learningDashboard.participantsTable.colTalk" defaultMessage="Talk time" />
+              <FormattedMessage id="app.learningDashboard.usersTable.colTalk" defaultMessage="Talk time" />
             </th>
             <th className="px-4 py-3 text-center">
-              <FormattedMessage id="app.learningDashboard.participantsTable.colWebcam" defaultMessage="Webcam Time" />
+              <FormattedMessage id="app.learningDashboard.usersTable.colWebcam" defaultMessage="Webcam Time" />
             </th>
             <th className="px-4 py-3 text-center">
-              <FormattedMessage id="app.learningDashboard.participantsTable.colMessages" defaultMessage="Messages" />
+              <FormattedMessage id="app.learningDashboard.usersTable.colMessages" defaultMessage="Messages" />
             </th>
             <th className="px-4 py-3 text-left">
-              <FormattedMessage id="app.learningDashboard.participantsTable.colEmojis" defaultMessage="Emojis" />
+              <FormattedMessage id="app.learningDashboard.usersTable.colEmojis" defaultMessage="Emojis" />
             </th>
             <th className="px-4 py-3 text-center">
-              <FormattedMessage id="app.learningDashboard.participantsTable.colRaiseHands" defaultMessage="Raise Hand" />
+              <FormattedMessage id="app.learningDashboard.usersTable.colRaiseHands" defaultMessage="Raise Hand" />
             </th>
             <th className="px-4 py-3 text-center">
-              <FormattedMessage id="app.learningDashboard.participantsTable.colActivityScore" defaultMessage="Activity Score" />
+              <FormattedMessage id="app.learningDashboard.usersTable.colActivityScore" defaultMessage="Activity Score" />
               {
                 tab === 'overview_activityscore'
                   ? (
@@ -140,7 +140,7 @@ class UsersTable extends React.Component {
               }
             </th>
             <th className="px-4 py-3">
-              <FormattedMessage id="app.learningDashboard.participantsTable.colStatus" defaultMessage="Status" />
+              <FormattedMessage id="app.learningDashboard.usersTable.colStatus" defaultMessage="Status" />
             </th>
           </tr>
         </thead>
@@ -392,12 +392,12 @@ class UsersTable extends React.Component {
                                       user.leftOn > 0
                                         ? (
                                           <span className="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full">
-                                            <FormattedMessage id="app.learningDashboard.participantsTable.userStatusOffline" defaultMessage="Offline" />
+                                            <FormattedMessage id="app.learningDashboard.usersTable.userStatusOffline" defaultMessage="Offline" />
                                           </span>
                                         )
                                         : (
                                           <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
-                                            <FormattedMessage id="app.learningDashboard.participantsTable.userStatusOnline" defaultMessage="Online" />
+                                            <FormattedMessage id="app.learningDashboard.usersTable.userStatusOnline" defaultMessage="Online" />
                                           </span>
                                         )
                                   }
@@ -407,7 +407,7 @@ class UsersTable extends React.Component {
           ) : (
             <tr className="text-gray-700">
               <td colSpan="8" className="px-4 py-3 text-sm text-center">
-                <FormattedMessage id="app.learningDashboard.participantsTable.noUsers" defaultMessage="No users" />
+                <FormattedMessage id="app.learningDashboard.usersTable.noUsers" defaultMessage="No users" />
               </td>
             </tr>
           )}
