@@ -117,6 +117,7 @@ class BBBMenu extends React.Component {
           open={Boolean(anchorEl)}
           onClose={this.handleClose}
           className={menuClasses.join(' ')}
+          style={{ zIndex: 9999 }}
         >
           {actionsItems}
           {anchorEl && window.innerWidth < MAX_WIDTH &&

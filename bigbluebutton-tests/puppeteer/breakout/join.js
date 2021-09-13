@@ -1,13 +1,12 @@
 const path = require('path');
 const moment = require('moment');
-const Page = require('../core/page');
 const Create = require('./create');
-const util = require('./util');
 const utilScreenShare = require('../screenshare/util');
 const e = require('./elements');
 const pe = require('../core/elements');
 const we = require('../webcam/elements');
 const ae = require('../audio/elements');
+const { checkElement } = require('../core/util');
 const { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } = require('../core/constants'); // core constants (Timeouts vars imported)
 
 const today = moment().format('DD-MM-YYYY');
@@ -41,7 +40,7 @@ class Join extends Create {
         }
         await this.page3.logger('before pages check');
 
-        const resp = await page2[2].evaluate(util.getTestElement, pe.isTalking);
+        const resp = await page2[2].evaluate(checkElement, pe.isTalking);
 
         if (process.env.GENERATE_EVIDENCES === 'true') {
           await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/06-breakout-page02-user-joined-with-audio-after-check-${testName}.png`) });
@@ -58,7 +57,7 @@ class Join extends Create {
         }
         await this.page3.logger('before pages check');
 
-        const resp = await page2[2].evaluate(util.getTestElement, we.videoContainer);
+        const resp = await page2[2].evaluate(checkElement, we.videoContainer);
 
         if (process.env.GENERATE_EVIDENCES === 'true') {
           await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/06-breakout-page02-user-joined-webcam-before-check-${testName}.png`) });
@@ -80,7 +79,7 @@ class Join extends Create {
           await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/06-breakout-page02-user-joined-screenshare-after-check-${testName}.png`) });
         }
 
-        await this.page3.logger('after pages check');
+        this.page2.logger('after pages check');
         return resp === true;
       } else {
         await this.page3.page.bringToFront();
@@ -88,7 +87,8 @@ class Join extends Create {
         await this.page3.waitForSelector(e.chatButton, ELEMENT_WAIT_TIME);
         await this.page3.click(e.chatButton, true);
         await this.page3.click(e.breakoutRoomsItem, true);
-        const resp = await this.page3.page.evaluate(async () => await document.querySelectorAll('span[class^="alreadyConnected--"]') !== null);
+        const resp = await this.page3.page.evaluate(checkElement, e.alreadyConnected);
+
         return resp === true;
       }
     } catch (err) {

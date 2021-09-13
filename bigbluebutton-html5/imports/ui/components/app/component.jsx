@@ -47,6 +47,7 @@ import ConnectionStatusService from '/imports/ui/components/connection-status/se
 import { NAVBAR_HEIGHT, LARGE_NAVBAR_HEIGHT } from '/imports/ui/components/layout/defaultValues';
 import Settings from '/imports/ui/services/settings';
 import LayoutService from '/imports/ui/components/layout/service';
+import { registerTitleView } from '/imports/utils/dom-utils';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -98,6 +99,10 @@ const intlMessages = defineMessages({
   pollPublishedLabel: {
     id: 'app.whiteboard.annotations.poll',
     description: 'message displayed when a poll is published',
+  },
+  defaultViewLabel: {
+    id: 'app.title.defaultViewLabel',
+    description: 'view name apended to document title',
   },
 });
 
@@ -153,12 +158,14 @@ class App extends Component {
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
 
+    registerTitleView(intl.formatMessage(intlMessages.defaultViewLabel));
+
     layoutContextDispatch({
       type: ACTIONS.SET_IS_RTL,
       value: isRTL,
     });
 
-    MediaService.setSwapLayout();
+    MediaService.setSwapLayout(layoutContextDispatch);
     Modal.setAppElement('#app');
 
     const fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;

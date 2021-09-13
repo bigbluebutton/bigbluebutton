@@ -13,6 +13,7 @@ import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import { toast } from 'react-toastify';
 import _ from 'lodash';
+import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
 import { styles } from './styles';
 
 const { isMobile } = deviceInfo;
@@ -214,6 +215,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.clearErrorsDesc',
     description: 'aria description for button clearing upload error',
   },
+  uploadViewTitle: {
+    id: 'app.presentationUploder.uploadViewTitle',
+    description: 'view name apended to document title',
+  }
 });
 
 class PresentationUploader extends Component {
@@ -251,10 +256,16 @@ class PresentationUploader extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { isOpen, presentations: propPresentations } = this.props;
+    const { isOpen, presentations: propPresentations, intl } = this.props;
     const { presentations } = this.state;
+
+    if (!isOpen && prevProps.isOpen) {
+      unregisterTitleView();
+    }
+
     // Updates presentation list when chat modal opens to avoid missing presentations
     if (isOpen && !prevProps.isOpen) {
+      registerTitleView(intl.formatMessage(intlMessages.uploadViewTitle));
       const  focusableElements =
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
       const modal = document.getElementById('upload-modal');
