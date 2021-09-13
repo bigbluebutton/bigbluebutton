@@ -47,6 +47,13 @@ class App extends React.Component {
       cArr.forEach((val) => {
         if (val.indexOf(`${cookieName}=`) === 0) learningDashboardAccessToken = val.substring((`${cookieName}=`).length);
       });
+
+      // Extend AccessToken lifetime by 30d (in each access)
+      if (learningDashboardAccessToken !== '') {
+        const cookieExpiresDate = new Date();
+        cookieExpiresDate.setTime(cookieExpiresDate.getTime() + (3600000 * 24 * 30));
+        document.cookie = `learningDashboardAccessToken-${meetingId}=${learningDashboardAccessToken}; expires=${cookieExpiresDate.toGMTString()}; path=/;SameSite=None;Secure`;
+      }
     }
 
     this.setState({ learningDashboardAccessToken, meetingId }, this.fetchActivitiesJson);
