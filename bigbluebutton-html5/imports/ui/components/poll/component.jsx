@@ -190,6 +190,10 @@ const intlMessages = defineMessages({
     id: 'app.poll.removePollOpt',
     description: 'screen reader alert for removed poll option',
   },
+  emptyPollOpt: {
+    id: 'app.poll.emptyPollOpt',
+    description: 'screen reader for blank poll option',
+  },
 });
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
@@ -306,7 +310,8 @@ class Poll extends Component {
     const removed = list[index];
     list.splice(index, 1);
     this.setState({ optList: list }, () => {
-      alertScreenReader(`${intl.formatMessage(intlMessages.removePollOpt, { 0: removed.val })}`);
+      alertScreenReader(`${intl.formatMessage(intlMessages.removePollOpt,
+        { 0: removed.val || intl.formatMessage(intlMessages.emptyPollOpt) })}`);
     });
   }
 
@@ -404,7 +409,10 @@ class Poll extends Component {
                       this.handleRemoveOption(i);
                     }}
                   />
-                  <span className="sr-only" id={`option-${i}`}>{intl.formatMessage(intlMessages.deleteRespDesc, { 0: o.val })}</span>
+                  <span className="sr-only" id={`option-${i}`}>
+                    {intl.formatMessage(intlMessages.deleteRespDesc,
+                      { 0: (o.val || intl.formatMessage(intlMessages.emptyPollOpt)) })}
+                  </span>
                 </>
               )
               : <div style={{ width: '40px' }} />}
