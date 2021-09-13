@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
@@ -55,35 +55,8 @@ const fullscreenChangedEvents = [
   'MSFullscreenChange',
 ];
 
-const Base = (props) => {
-  const {
-    approved,
-    meetingExist,
-    animations,
-    ejected,
-    ejectedReason,
-    isMeteorConnected,
-    subscriptionsReady,
-    usersVideo,
-    codeError,
-    meetingHasEnded,
-    meetingEndedReason,
-    meetingIsBreakout,
-    User,
-  } = props;
-
-  function usePrevious(value) {
-    const ref = useRef();
-    useEffect(() => {
-      ref.current = value;
-    });
-    return ref.current;
-  }
-
-  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
-  const layoutContextDispatch = layoutDispatch();
-
-  const handleFullscreenChange = () => {
+class Base extends Component {
+  static handleFullscreenChange() {
     if (document.fullscreenElement
       || document.webkitFullscreenElement
       || document.mozFullScreenElement
@@ -92,19 +65,21 @@ const Base = (props) => {
     } else {
       Session.set('isFullscreen', false);
     }
-  };
+  }
 
-  const [loading, setLoading] = useState(false);
-  const [meetingExisted, setMeetingExisted] = useState(false);
+  constructor(props) {
+    super(props);
 
-  const prevUsersVideo = usePrevious(usersVideo);
-  const prevSubscriptionsReady = usePrevious(subscriptionsReady);
-  const prevMeetingExist = usePrevious(meetingExist);
-  const prevMeetingExisted = usePrevious(meetingExisted);
-  const prevEjected = usePrevious(ejected);
-  const prevAnimations = usePrevious(animations);
+    this.state = {
+      loading: false,
+      meetingExisted: false,
+    };
+    this.updateLoadingState = this.updateLoadingState.bind(this);
+  }
 
-  useEffect(() => {
+  componentDidMount() {
+    const { animations } = this.props;
+
     const {
       userID: localUserId,
     } = Auth;
@@ -113,7 +88,7 @@ const Base = (props) => {
     if (!animations) HTML.classList.add('animationsDisabled');
 
     fullscreenChangedEvents.forEach((event) => {
-      document.addEventListener(event, handleFullscreenChange);
+      document.addEventListener(event, Base.handleFullscreenChange);
     });
     Session.set('isFullscreen', false);
 
@@ -126,9 +101,9 @@ const Base = (props) => {
 
     users.observe({
       added: (user) => {
-        const subscriptionsReadySession = Session.get('subscriptionsReady');
+        const subscriptionsReady = Session.get('subscriptionsReady');
 
-        if (!subscriptionsReadySession) return;
+        if (!subscriptionsReady) return;
 
         const {
           userJoinAudioAlerts,
@@ -159,9 +134,9 @@ const Base = (props) => {
         }
       },
       removed: (user) => {
-        const subscriptionsReadySession = Session.get('subscriptionsReady');
+        const subscriptionsReady = Session.get('subscriptionsReady');
 
-        if (!subscriptionsReadySession) return;
+        if (!subscriptionsReady) return;
 
         const {
           userLeaveAudioAlerts,
@@ -192,59 +167,67 @@ const Base = (props) => {
         }
       },
     });
+  }
 
-    return () => {
-      fullscreenChangedEvents.forEach((event) => {
-        document.removeEventListener(event, handleFullscreenChange);
-      });
-    };
-  }, []);
+  componentDidUpdate(prevProps, prevState) {
+    const {
+      approved,
+      meetingExist,
+      animations,
+      ejected,
+      isMeteorConnected,
+      subscriptionsReady,
+      layoutContextDispatch,
+      sidebarContentPanel,
+      usersVideo,
+    } = this.props;
+    const {
+      loading,
+      meetingExisted,
+    } = this.state;
 
-  useEffect(() => {
-    const { sidebarContentPanel } = sidebarContent;
-
-    if (usersVideo !== prevUsersVideo) {
+    if (usersVideo !== prevProps.usersVideo) {
       layoutContextDispatch({
         type: ACTIONS.SET_NUM_CAMERAS,
         value: usersVideo.length,
       });
     }
 
-    if (!prevSubscriptionsReady && subscriptionsReady) {
+    if (!prevProps.subscriptionsReady && subscriptionsReady) {
       logger.info({ logCode: 'startup_client_subscriptions_ready' }, 'Subscriptions are ready');
     }
 
-    if (prevMeetingExist && !meetingExist && !meetingExisted) {
-      setMeetingExisted(true);
+    if (prevProps.meetingExist && !meetingExist && !meetingExisted) {
+      this.setMeetingExisted(true);
     }
 
     // In case the meteor restart avoid error log
-    if (isMeteorConnected && (prevMeetingExisted !== meetingExisted) && meetingExisted) {
-      setMeetingExisted(false);
+    if (isMeteorConnected && (prevState.meetingExisted !== meetingExisted) && meetingExisted) {
+      this.setMeetingExisted(false);
     }
 
     // In case the meeting delayed to load
     if (!subscriptionsReady || !meetingExist) return;
 
-    if (approved && loading) setLoading(false);
+    if (approved && loading) this.updateLoadingState(false);
 
-    if (prevEjected || ejected) {
+    if (prevProps.ejected || ejected) {
       Session.set('codeError', '403');
       Session.set('isMeetingEnded', true);
     }
 
     // In case the meteor restart avoid error log
-    if (isMeteorConnected && (prevMeetingExisted !== meetingExisted)) {
-      setMeetingExisted(false);
+    if (isMeteorConnected && (prevState.meetingExisted !== meetingExisted)) {
+      this.setMeetingExisted(false);
     }
 
     const enabled = HTML.classList.contains('animationsEnabled');
     const disabled = HTML.classList.contains('animationsDisabled');
 
-    if (animations && animations !== prevAnimations) {
+    if (animations && animations !== prevProps.animations) {
       if (disabled) HTML.classList.remove('animationsDisabled');
       HTML.classList.add('animationsEnabled');
-    } else if (!animations && animations !== prevAnimations) {
+    } else if (!animations && animations !== prevProps.animations) {
       if (enabled) HTML.classList.remove('animationsEnabled');
       HTML.classList.add('animationsDisabled');
     }
@@ -295,14 +278,39 @@ const Base = (props) => {
         }
       }
     }
-  });
+  }
 
-  const renderByState = () => {
-    const updateLoadingState = (newLoading = false) => {
-      setLoading(newLoading);
-    };
+  componentWillUnmount() {
+    fullscreenChangedEvents.forEach((event) => {
+      document.removeEventListener(event, Base.handleFullscreenChange);
+    });
+  }
 
+  setMeetingExisted(meetingExisted) {
+    this.setState({ meetingExisted });
+  }
+
+  updateLoadingState(loading = false) {
+    this.setState({
+      loading,
+    });
+  }
+
+  renderByState() {
+    const { updateLoadingState } = this;
     const stateControls = { updateLoadingState };
+    const { loading } = this.state;
+    const {
+      codeError,
+      ejected,
+      ejectedReason,
+      meetingExist,
+      meetingHasEnded,
+      meetingEndedReason,
+      meetingIsBreakout,
+      subscriptionsReady,
+      User,
+    } = this.props;
 
     if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
@@ -335,25 +343,40 @@ const Base = (props) => {
       return (<MeetingEnded code={codeError} />);
     }
 
-    return (<AppContainer {...props} baseControls={stateControls} />);
-  };
+    return (<AppContainer {...this.props} baseControls={stateControls} />);
+  }
 
-  return (
-    <>
-      {meetingExist && Auth.loggedIn && <DebugWindow />}
-      {
-        (!meetingExisted && !meetingExist && Auth.loggedIn)
-          ? <LoadingScreen />
-          : renderByState()
-      }
-    </>
-  );
-};
+  render() {
+    const {
+      meetingExist,
+    } = this.props;
+    const { meetingExisted } = this.state;
+
+    return (
+      <>
+        {meetingExist && Auth.loggedIn && <DebugWindow />}
+        {
+          (!meetingExisted && !meetingExist && Auth.loggedIn)
+            ? <LoadingScreen />
+            : this.renderByState()
+        }
+      </>
+    );
+  }
+}
 
 Base.propTypes = propTypes;
 Base.defaultProps = defaultProps;
 
-const BaseContainer = withTracker(() => {
+const BaseContainer = (props) => {
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const { sidebarContentPanel } = sidebarContent;
+  const layoutContextDispatch = layoutDispatch();
+
+  return <Base {...{ sidebarContentPanel, layoutContextDispatch, ...props }} />;
+};
+
+export default withTracker(() => {
   const {
     animations,
   } = Settings.application;
@@ -486,6 +509,4 @@ const BaseContainer = withTracker(() => {
     codeError,
     usersVideo,
   };
-})(Base);
-
-export default BaseContainer;
+})(BaseContainer);
