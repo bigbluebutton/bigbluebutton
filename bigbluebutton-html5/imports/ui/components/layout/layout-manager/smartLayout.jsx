@@ -91,6 +91,7 @@ const SmartLayout = () => {
             isOpen: false,
           },
           presentation: {
+            isOpen: presentationInput.isOpen,
             slidesLength: presentationInput.slidesLength,
             currentSlide: {
               ...presentationInput.currentSlide,
@@ -118,6 +119,7 @@ const SmartLayout = () => {
             isOpen: false,
           },
           presentation: {
+            isOpen: presentationInput.isOpen,
             slidesLength: presentationInput.slidesLength,
             currentSlide: {
               ...presentationInput.currentSlide,

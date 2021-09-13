@@ -62,6 +62,7 @@ const AppContainer = (props) => {
     settingsLayout,
     pushLayoutToEveryone,
     currentUserId,
+    shouldShowPresentation: propsShouldShowPresentation,
     ...otherProps
   } = props;
 
@@ -69,15 +70,15 @@ const AppContainer = (props) => {
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
   const captionsStyle = layoutSelectOutput((i) => i.captions);
+  const presentation = layoutSelectInput((i) => i.presentation);
   const layoutType = layoutSelect((i) => i.layoutType);
   const deviceType = layoutSelect((i) => i.deviceType);
   const layoutContextDispatch = layoutDispatch();
 
-  const { sidebarContentPanel } = sidebarContent;
-  const { sidebarNavPanel } = sidebarNavigation;
-
-  const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
-  const sidebarContentIsOpen = sidebarContent.isOpen;
+  const { sidebarContentPanel, isOpen: sidebarContentIsOpen } = sidebarContent;
+  const { sidebarNavPanel, isOpen: sidebarNavigationIsOpen } = sidebarNavigation;
+  const { isOpen: presentationIsOpen } = presentation;
+  const shouldShowPresentation = propsShouldShowPresentation && presentationIsOpen;
 
   return currentUserId
     ? (
@@ -97,6 +98,7 @@ const AppContainer = (props) => {
           sidebarNavigationIsOpen,
           sidebarContentPanel,
           sidebarContentIsOpen,
+          shouldShowPresentation,
         }}
         {...otherProps}
       />

@@ -99,6 +99,7 @@ const VideoFocusLayout = () => {
               isOpen: false,
             },
             presentation: {
+              isOpen: presentationInput.isOpen,
               slidesLength: presentationInput.slidesLength,
               currentSlide: {
                 ...presentationInput.currentSlide,
@@ -129,6 +130,7 @@ const VideoFocusLayout = () => {
               isOpen: false,
             },
             presentation: {
+              isOpen: presentationInput.isOpen,
               slidesLength: presentationInput.slidesLength,
               currentSlide: {
                 ...presentationInput.currentSlide,
@@ -358,38 +360,49 @@ const VideoFocusLayout = () => {
 
   const calculatesCameraDockBounds = (mediaAreaBounds, sidebarSize) => {
     const cameraDockBounds = {};
+    const { isOpen } = presentationInput;
+    const { numCameras } = cameraDockInput;
 
-    if (cameraDockInput.numCameras > 0) {
-      if (deviceType === DEVICE_TYPE.MOBILE) {
-        cameraDockBounds.minHeight = mediaAreaBounds.height * 0.7;
-        cameraDockBounds.height = mediaAreaBounds.height * 0.7;
-        cameraDockBounds.maxHeight = mediaAreaBounds.height * 0.7;
-      } else {
-        cameraDockBounds.minHeight = mediaAreaBounds.height;
+    if (numCameras > 0) {
+      if (!isOpen) {
+        cameraDockBounds.width = mediaAreaBounds.width;
+        cameraDockBounds.maxWidth = mediaAreaBounds.width;
         cameraDockBounds.height = mediaAreaBounds.height;
         cameraDockBounds.maxHeight = mediaAreaBounds.height;
+        cameraDockBounds.top = DEFAULT_VALUES.navBarHeight;
+        cameraDockBounds.left = !isRTL ? mediaAreaBounds.left : 0;
+        cameraDockBounds.right = isRTL ? sidebarSize : null;
+      } else {
+        if (deviceType === DEVICE_TYPE.MOBILE) {
+          cameraDockBounds.minHeight = mediaAreaBounds.height * 0.7;
+          cameraDockBounds.height = mediaAreaBounds.height * 0.7;
+          cameraDockBounds.maxHeight = mediaAreaBounds.height * 0.7;
+        } else {
+          cameraDockBounds.minHeight = mediaAreaBounds.height;
+          cameraDockBounds.height = mediaAreaBounds.height;
+          cameraDockBounds.maxHeight = mediaAreaBounds.height;
+        }
+
+        cameraDockBounds.top = DEFAULT_VALUES.navBarHeight;
+        cameraDockBounds.left = !isRTL ? mediaAreaBounds.left : null;
+        cameraDockBounds.right = isRTL ? sidebarSize : null;
+        cameraDockBounds.minWidth = mediaAreaBounds.width;
+        cameraDockBounds.width = mediaAreaBounds.width;
+        cameraDockBounds.maxWidth = mediaAreaBounds.width;
+        cameraDockBounds.zIndex = 1;
+
+        if (fullscreen.group === 'webcams') {
+          cameraDockBounds.width = windowWidth();
+          cameraDockBounds.minWidth = windowWidth();
+          cameraDockBounds.maxWidth = windowWidth();
+          cameraDockBounds.height = windowHeight();
+          cameraDockBounds.minHeight = windowHeight();
+          cameraDockBounds.maxHeight = windowHeight();
+          cameraDockBounds.top = 0;
+          cameraDockBounds.left = 0;
+          cameraDockBounds.zIndex = 99;
+        }
       }
-
-      cameraDockBounds.top = DEFAULT_VALUES.navBarHeight;
-      cameraDockBounds.left = !isRTL ? mediaAreaBounds.left : null;
-      cameraDockBounds.right = isRTL ? sidebarSize : null;
-      cameraDockBounds.minWidth = mediaAreaBounds.width;
-      cameraDockBounds.width = mediaAreaBounds.width;
-      cameraDockBounds.maxWidth = mediaAreaBounds.width;
-      cameraDockBounds.zIndex = 1;
-
-      if (fullscreen.group === 'webcams') {
-        cameraDockBounds.width = windowWidth();
-        cameraDockBounds.minWidth = windowWidth();
-        cameraDockBounds.maxWidth = windowWidth();
-        cameraDockBounds.height = windowHeight();
-        cameraDockBounds.minHeight = windowHeight();
-        cameraDockBounds.maxHeight = windowHeight();
-        cameraDockBounds.top = 0;
-        cameraDockBounds.left = 0;
-        cameraDockBounds.zIndex = 99;
-      }
-
       return cameraDockBounds;
     }
 

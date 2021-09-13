@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<recording meeting_id="afa22bf4e2a55835006a0016776f700dcf8e981e-1630339972856" bbb_version="0.9.0">
+  <meeting
+    id="afa22bf4e2a55835006a0016776f700dcf8e981e-1630339972856"
+    externalId="chat_0_9" name="Chat 0.9 Test"
+    breakout="false"/>
+  <metadata
+    meetingName="Chat 0.9 Test"
+    meetingId="chat_0_9"
+    isBreakout="false"/>
+  <event timestamp="1061316615" module="PRESENTATION" eventname="SharePresentationEvent">
+    <presentationName>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1503524575790</presentationName>
+    <share>true</share>
+    <originalFilename>default.pdf</originalFilename>
+  </event>
+  <event timestamp="1061329979" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <name>Marinda Collins</name>
+    <role>MODERATOR</role>
+    <userId>9izxq660i7vr_1</userId>
+    <externalUserId>1000</externalUserId>
+  </event>
+  <event timestamp="1061397065" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <userId>vvyha6umxoyt_1</userId>
+    <externalUserId>1001</externalUserId>
+    <name>Phelix Fishman</name>
+    <role>VIEWER</role>
+  </event>
+  <event timestamp="1061511972" module="PARTICIPANT" eventname="RecordStatusEvent">
+    <userId>9izxq660i7vr_1</userId>
+    <status>true</status>
+  </event>
+  <event timestamp="1061536072" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <role>VIEWER</role>
+    <externalUserId>1002</externalUserId>
+    <userId>hs7iskkr7xrt_1</userId>
+    <name>Isaías Seelen</name>
+  </event>
+  <event timestamp="1061574575" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <role>VIEWER</role>
+    <userId>7m940cic73r3_1</userId>
+    <name>Mireia Castell</name>
+    <externalUserId>1003</externalUserId>
+  </event>
+  <event timestamp="1061629575" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <role>VIEWER</role>
+    <externalUserId>1004</externalUserId>
+    <userId>tgfbj6f828sp_1</userId>
+    <name>Liborius Hayes</name>
+  </event>
+  <event timestamp="1061703579" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <role>VIEWER</role>
+    <externalUserId>1005</externalUserId>
+    <userId>bepguk6d7dza_1</userId>
+    <name>Eva Aquino</name>
+  </event>
+  <event timestamp="1061749302" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <role>VIEWER</role>
+    <externalUserId>1006</externalUserId>
+    <userId>66ntqzexswc2_1</userId>
+    <name>Rodge Palazzo</name>
+  </event>
+  <event timestamp="1061825270" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <externalUserId>1007</externalUserId>
+    <role>VIEWER</role>
+    <name>Elias Stablum</name>
+    <userId>0q1hkmla9asu_1</userId>
+  </event>
+  <event timestamp="1061881172" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <userId>yyynfpyca09g_1</userId>
+    <externalUserId>1008</externalUserId>
+    <role>VIEWER</role>
+    <name>Evelina Keller</name>
+  </event>
+  <event timestamp="1061933105" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <userId>dmsj3897dwss_1</userId>
+    <role>VIEWER</role>
+    <name>Xhesika De Lange</name>
+    <externalUserId>1009</externalUserId>
+  </event>
+  <event timestamp="1061952342" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <name>Nimue Harlan</name>
+    <role>VIEWER</role>
+    <externalUserId>1010</externalUserId>
+    <userId>42dnty7rovjt_1</userId>
+  </event>
+  <event timestamp="1061962737" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <name>Elpidio O'Gorman</name>
+    <role>VIEWER</role>
+    <externalUserId>1011</externalUserId>
+    <userId>7ur69btts657_1</userId>
+  </event>
+  <event timestamp="1061998179" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>dmsj3897dwss_1</userId>
+  </event>
+  <event timestamp="1062008158" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>66ntqzexswc2_1</userId>
+  </event>
+  <event timestamp="1062013094" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <externalUserId>1012</externalUserId>
+    <role>VIEWER</role>
+    <userId>23uydbo9nauq_1</userId>
+    <name>Asa Darby</name>
+  </event>
+  <event timestamp="1062017073" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <externalUserId>1006</externalUserId>
+    <userId>12ipastd9pw1_1</userId>
+    <role>VIEWER</role>
+    <name>Rodge Palazzo</name>
+  </event>
+  <event timestamp="1062026555" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <name>Xhesika De Lange</name>
+    <role>VIEWER</role>
+    <externalUserId>1009</externalUserId>
+    <userId>ainnu65fiycz_1</userId>
+  </event>
+  <event timestamp="1062058796" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <externalUserId>1013</externalUserId>
+    <role>VIEWER</role>
+    <name>Arethusa Mann</name>
+    <userId>j73nq5k8xcaa_1</userId>
+  </event>
+  <event timestamp="1062142085" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <name>Ninel Mac Ruaidhrí</name>
+    <role>VIEWER</role>
+    <userId>nfuklna24flg_1</userId>
+    <externalUserId>1014</externalUserId>
+  </event>
+  <event timestamp="1062159696" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>ainnu65fiycz_1</userId>
+  </event>
+  <event timestamp="1062170527" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <externalUserId>1009</externalUserId>
+    <name>Xhesika De Lange</name>
+    <role>VIEWER</role>
+    <userId>2dc8jctma0nj_1</userId>
+  </event>
+  <event timestamp="1062260997" module="CHAT" eventname="PublicChatEvent">
+    <sender>Xhesika De Lange</sender>
+    <senderId>2dc8jctma0nj_1</senderId>
+    <message>
+      <![CDATA[Public chat 1]]>
+    </message>
+    <color>0</color>
+  </event>
+  <event timestamp="1062483994" module="CHAT" eventname="PublicChatEvent">
+    <color>0</color>
+    <senderId>23uydbo9nauq_1</senderId>
+    <message>
+      <![CDATA[Public chat 2]]>
+    </message>
+    <sender>Asa Darby</sender>
+  </event>
+  <event timestamp="1062500000" module="CHAT" eventname="ClearPublicChatEvent">
+  </event>
+  <event timestamp="1062914576" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>j73nq5k8xcaa_1</userId>
+  </event>
+  <event timestamp="1063007465" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <userId>fzlsahcijxo4_1</userId>
+    <externalUserId>1013</externalUserId>
+    <role>VIEWER</role>
+    <name>Arethusa Mann</name>
+  </event>
+  <event timestamp="1063309296" module="CHAT" eventname="PublicChatEvent">
+    <color>0</color>
+    <senderId>hs7iskkr7xrt_1</senderId>
+    <message>
+      <![CDATA[Public chat 3]]>
+    </message>
+    <sender>Isaías Seelen</sender>
+  </event>
+  <event timestamp="1064118099" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>fzlsahcijxo4_1</userId>
+  </event>
+  <event timestamp="1064118099" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <userId>fzlsahcijxo4_1</userId>
+    <externalUserId>1013</externalUserId>
+    <name>Arethusa Mann</name>
+    <role>VIEWER</role>
+  </event>
+  <event timestamp="1064123456" module="PARTICIPANT" eventname="RecordStatusEvent">
+    <userId>9izxq660i7vr_1</userId>
+    <status>false</status>
+  </event>
+  <event timestamp="1064181418" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>hs7iskkr7xrt_1</userId>
+  </event>
+  <event timestamp="1064370077" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <externalUserId>1002</externalUserId>
+    <role>VIEWER</role>
+    <userId>y096bmb53yu5_1</userId>
+    <name>Isaías Seelen</name>
+  </event>
+  <event timestamp="1064621935" module="CHAT" eventname="PublicChatEvent">
+    <color>0</color>
+    <senderId>nfuklna24flg_1</senderId>
+    <message>
+      <![CDATA[Public chat 4]]>
+    </message>
+    <sender>Ninel Mac Ruaidhrí</sender>
+  </event>
+  <event timestamp="1064635147" module="CHAT" eventname="PublicChatEvent">
+    <senderId>bepguk6d7dza_1</senderId>
+    <sender>Eva Aquino</sender>
+    <message>
+      <![CDATA[Public chat 5]]>
+    </message>
+    <color>0</color>
+  </event>
+  <event timestamp="1064645678" module="PARTICIPANT" eventname="RecordStatusEvent">
+    <userId>9izxq660i7vr_1</userId>
+    <status>true</status>
+  </event>
+  <event timestamp="1064656291" module="CHAT" eventname="PublicChatEvent">
+    <sender>Elias Stablum</sender>
+    <senderId>0q1hkmla9asu_1</senderId>
+    <color>0</color>
+    <message>
+      <![CDATA[Public chat 6]]>
+    </message>
+  </event>
+  <event timestamp="1064660118" module="CHAT" eventname="PublicChatEvent">
+    <senderId>fzlsahcijxo4_1</senderId>
+    <message>
+      <![CDATA[Public chat 7]]>
+    </message>
+    <sender>Arethusa Mann</sender>
+    <color>0</color>
+  </event>
+  <event timestamp="1064669521" module="CHAT" eventname="PublicChatEvent">
+    <message>
+      <![CDATA[Public chat 8]]>
+    </message>
+    <senderId>nfuklna24flg_1</senderId>
+    <sender>Ninel Mac Ruaidhrí</sender>
+    <color>0</color>
+  </event>
+  <event timestamp="1064671034" module="CHAT" eventname="PublicChatEvent">
+    <message>
+      <![CDATA[Public chat 9]]>
+    </message>
+    <color>0</color>
+    <sender>Mireia Castell</sender>
+    <senderId>7m940cic73r3_1</senderId>
+  </event>
+  <event timestamp="1064679602" module="CHAT" eventname="PublicChatEvent">
+    <sender>Ninel Mac Ruaidhrí</sender>
+    <message>
+      <![CDATA[Public chat 10]]>
+    </message>
+    <color>0</color>
+    <senderId>nfuklna24flg_1</senderId>
+  </event>
+  <event timestamp="1066752701" module="CHAT" eventname="PublicChatEvent">
+    <sender>Xhesika De Lange</sender>
+    <color>0</color>
+    <senderId>2dc8jctma0nj_1</senderId>
+    <message>
+      <![CDATA[Public chat 11]]>
+    </message>
+  </event>
+  <event timestamp="1066777963" module="CHAT" eventname="PublicChatEvent">
+    <sender>Arethusa Mann</sender>
+    <senderId>fzlsahcijxo4_1</senderId>
+    <color>0</color>
+    <message>
+      <![CDATA[Public chat 12]]>
+    </message>
+  </event>
+  <event timestamp="1066909573" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <userId>y096bmb53yu5_2</userId>
+    <role>VIEWER</role>
+    <name>Isaías Seelen</name>
+    <externalUserId>1002</externalUserId>
+  </event>
+  <event timestamp="1066966371" module="CHAT" eventname="PublicChatEvent">
+    <message>
+      <![CDATA[Public chat 13]]>
+    </message>
+    <color>0</color>
+    <senderId>2dc8jctma0nj_1</senderId>
+    <sender>Xhesika De Lange</sender>
+  </event>
+  <event timestamp="1069500636" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>0q1hkmla9asu_1</userId>
+  </event>
+  <event timestamp="1069502806" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <role>VIEWER</role>
+    <externalUserId>1008</externalUserId>
+    <userId>yyynfpyca09g_1</userId>
+    <name>Evelina Keller</name>
+  </event>
+  <event timestamp="1069502545" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>nfuklna24flg_1</userId>
+  </event>
+  <event timestamp="1069502806" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>yyynfpyca09g_1</userId>
+  </event>
+  <event timestamp="1069504995" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>2dc8jctma0nj_1</userId>
+  </event>
+  <event timestamp="1069505733" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>bepguk6d7dza_1</userId>
+  </event>
+  <event timestamp="1069507663" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>fzlsahcijxo4_1</userId>
+  </event>
+  <event timestamp="1069508668" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>7ur69btts657_1</userId>
+  </event>
+  <event timestamp="1069509022" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>23uydbo9nauq_1</userId>
+  </event>
+  <event timestamp="1069512636" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>12ipastd9pw1_1</userId>
+  </event>
+  <event timestamp="1069514445" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>7m940cic73r3_1</userId>
+  </event>
+  <event timestamp="1069595144" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>42dnty7rovjt_1</userId>
+  </event>
+  <event timestamp="1069686925" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>vvyha6umxoyt_1</userId>
+  </event>
+  <event timestamp="1069700912" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>y096bmb53yu5_2</userId>
+  </event>
+  <event timestamp="1069717589" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>tgfbj6f828sp_1</userId>
+  </event>
+  <event timestamp="1069722053" module="PARTICIPANT" eventname="RecordStatusEvent">
+    <userId>9izxq660i7vr_1</userId>
+    <status>false</status>
+  </event>
+  <event timestamp="1069746114" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>9izxq660i7vr_1</userId>
+  </event>
+  <event timestamp="1069802390" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>yyynfpyca09g_1</userId>
+  </event>
+  <event timestamp="1069897986" module="PARTICIPANT" eventname="EndAndKickAllEvent">
+  </event>
+</recording>
