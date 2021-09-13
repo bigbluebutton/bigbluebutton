@@ -923,6 +923,7 @@
     "app.learningDashboard.usersTable.colMessages": "Messages",
     "app.learningDashboard.usersTable.colEmojis": "Emojis",
     "app.learningDashboard.usersTable.colRaiseHands": "Raise Hands",
+    "app.learningDashboard.usersTable.colActivityScore": "Activity Score",
     "app.learningDashboard.usersTable.colStatus": "Status",
     "app.learningDashboard.usersTable.userStatusOnline": "Online",
     "app.learningDashboard.usersTable.userStatusOffline": "Offline",
