@@ -505,6 +505,7 @@ class WhiteboardToolbar extends Component {
         />
       ) : (
         <ToolbarMenuItem
+          expanded={currentSubmenuOpen === 'annotationList'}
           disabled={isDisabled}
           label={intl.formatMessage(intlMessages.toolbarTools)}
           icon={annotationSelected.icon}
@@ -540,6 +541,7 @@ class WhiteboardToolbar extends Component {
     return (
       <ToolbarMenuItem
         label={intl.formatMessage(intlMessages.toolbarFontSize)}
+        expanded={currentSubmenuOpen === 'fontSizeList'}
         customIcon={this.renderFontItemIcon()}
         onItemClick={this.displaySubMenu}
         objectToReturn="fontSizeList"
@@ -600,6 +602,7 @@ class WhiteboardToolbar extends Component {
     return (
       <ToolbarMenuItem
         disabled={isDisabled}
+        expanded={currentSubmenuOpen === 'thicknessList'}
         label={isDisabled
           ? intl.formatMessage(intlMessages.toolbarLineThicknessDisabled)
           : intl.formatMessage(intlMessages.toolbarLineThickness)}
@@ -690,6 +693,7 @@ class WhiteboardToolbar extends Component {
     return (
       <ToolbarMenuItem
         disabled={isDisabled}
+        expanded={currentSubmenuOpen === 'colorList'}
         label={isDisabled
           ? intl.formatMessage(intlMessages.toolbarLineColorDisabled)
           : intl.formatMessage(intlMessages.toolbarLineColor)}
