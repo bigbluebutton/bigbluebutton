@@ -620,7 +620,7 @@ class BreakoutRoom extends PureComponent {
     return (
       <div className={styles.boxContainer} key="rooms-grid-" ref={(r) => { this.listOfUsers = r; }}>
         <div role="alert" className={!leastOneUserIsValid ? styles.changeToWarn : null}>
-          <p className={styles.freeJoinLabel}>
+          <span className={styles.freeJoinLabel}>
             <input
               type="text"
               readOnly
@@ -629,7 +629,7 @@ class BreakoutRoom extends PureComponent {
                 intl.formatMessage(intlMessages.notAssigned, { 0: this.getUserByRoom(0).length })
               }
             />
-          </p>
+          </span>
           <div className={styles.breakoutBox} onDrop={drop(0)} onDragOver={allowDrop} tabIndex={0}>
             {this.renderUserItemByRoom(0)}
           </div>
@@ -640,7 +640,7 @@ class BreakoutRoom extends PureComponent {
         {
           _.range(1, rooms + 1).map((value) => (
             <div key={`room-${value}`}>
-              <p className={styles.freeJoinLabel}>
+              <span className={styles.freeJoinLabel}>
                 <input
                   type="text"
                   maxLength="255"
@@ -656,7 +656,7 @@ class BreakoutRoom extends PureComponent {
                 <div aria-hidden id={`room-input-${value}`} className={"sr-only"}>
                   {intl.formatMessage(intlMessages.roomNameInputDesc)}
                 </div>
-              </p>
+              </span>
               <div className={styles.breakoutBox} onDrop={drop(value)} onDragOver={allowDrop} tabIndex={0}>
                 {this.renderUserItemByRoom(value)}
                 {isInvitation && this.renderJoinedUsers(value)}
