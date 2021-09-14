@@ -178,7 +178,7 @@ class App extends React.Component {
             <br />
             <span className="text-sm font-medium">{activitiesJson.name || ''}</span>
           </h1>
-          <div className="mt-3 text-right py-1 text-gray-500 inline-block">
+          <div className="mt-3 col-text-right py-1 text-gray-500 inline-block">
             <p className="font-bold">
               <div className="inline">
                 <FormattedDate
