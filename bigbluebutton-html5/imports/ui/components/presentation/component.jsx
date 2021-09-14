@@ -761,6 +761,7 @@ class Presentation extends PureComponent {
             <span className={styles.toastDownload}>
               <div className={toastStyles.separator} />
               <a
+                data-test="toastDownload"
                 className={styles.downloadBtn}
                 aria-label={`${intl.formatMessage(intlMessages.downloadLabel)} ${currentPresentation.name}`}
                 href={downloadPresentationUri}
