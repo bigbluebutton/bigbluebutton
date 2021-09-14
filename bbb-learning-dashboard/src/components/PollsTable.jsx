@@ -39,6 +39,13 @@ class PollsTable extends React.Component {
           { typeof allUsers === 'object' && Object.values(allUsers || {}).length > 0 ? (
             Object.values(allUsers || {})
               .filter((user) => Object.values(user.answers).length > 0)
+              .sort((a, b) => {
+                if (a.isModerator === false && b.isModerator === true) return 1;
+                if (a.isModerator === true && b.isModerator === false) return -1;
+                if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
+                if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
+                return 0;
+              })
               .map((user) => (
                 <tr className="text-gray-700">
                   <td className="px-4 py-3">
