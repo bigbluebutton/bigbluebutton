@@ -31,8 +31,8 @@ class StatusTable extends React.Component {
     return (
       <table className="w-full whitespace-no-wrap">
         <thead>
-          <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-100">
-            <th className="px-4 py-3">
+          <tr className="text-xs font-semibold tracking-wide text-gray-500 uppercase border-b bg-gray-100">
+            <th className="px-4 py-3 col-text-left">
               <FormattedMessage id="app.learningDashboard.statusTimelineTable.colParticipant" defaultMessage="Participant" />
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -44,7 +44,7 @@ class StatusTable extends React.Component {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 13l-5 5m0 0l-5-5m5 5V6" />
               </svg>
             </th>
-            { periods.map((period) => <th className="px-4 py-3 text-left">{ `${tsToHHmmss(period - firstRegisteredOnTime)}` }</th>) }
+            { periods.map((period) => <th className="px-4 py-3 col-text-left">{ `${tsToHHmmss(period - firstRegisteredOnTime)}` }</th>) }
           </tr>
         </thead>
         <tbody className="bg-white divide-y">
@@ -54,9 +54,10 @@ class StatusTable extends React.Component {
                 <tr className="text-gray-700">
                   <td className="px-4 py-3">
                     <div className="flex items-center text-sm">
-                      <div className="relative hidden w-8 h-8 mr-3 rounded-full md:block">
+                      <div className="relative hidden w-8 h-8 rounded-full md:block">
                         <UserAvatar user={user} />
                       </div>
+                      &nbsp;&nbsp;
                       <div>
                         <p className="font-semibold">{user.name}</p>
                       </div>
@@ -68,7 +69,7 @@ class StatusTable extends React.Component {
                       period,
                       period + spanMinutes);
                     return (
-                      <td className="px-4 py-3 text-sm text-left">
+                      <td className="px-4 py-3 text-sm col-text-left">
                         {
                           user.registeredOn > period && user.registeredOn < period + spanMinutes
                             ? (

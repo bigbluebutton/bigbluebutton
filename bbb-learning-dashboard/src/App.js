@@ -140,27 +140,30 @@ class App extends React.Component {
             <br />
             <span className="text-sm font-medium">{activitiesJson.name || ''}</span>
           </h1>
-          <div className="mt-3 text-right px-4 py-1 text-gray-500 inline-block">
+          <div className="mt-3 text-right py-1 text-gray-500 inline-block">
             <p className="font-bold">
-              <FormattedDate
-                value={activitiesJson.createdOn}
-                year="numeric"
-                month="short"
-                day="numeric"
-              />
+              <div className="inline">
+                <FormattedDate
+                  value={activitiesJson.createdOn}
+                  year="numeric"
+                  month="short"
+                  day="numeric"
+                />
+              </div>
+              &nbsp;&nbsp;
               {
-                        activitiesJson.endedOn > 0
-                          ? (
-                            <span className="px-2 py-1 ml-3 font-semibold leading-tight text-red-700 bg-red-100 rounded-full">
-                              <FormattedMessage id="app.learningDashboard.indicators.meetingStatusEnded" defaultMessage="Ended" />
-                            </span>
-                          )
-                          : (
-                            <span className="px-2 py-1 ml-3 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
-                              <FormattedMessage id="app.learningDashboard.indicators.meetingStatusActive" defaultMessage="Active" />
-                            </span>
-                          )
-                    }
+                  activitiesJson.endedOn > 0
+                    ? (
+                      <span className="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full">
+                        <FormattedMessage id="app.learningDashboard.indicators.meetingStatusEnded" defaultMessage="Ended" />
+                      </span>
+                    )
+                    : (
+                      <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
+                        <FormattedMessage id="app.learningDashboard.indicators.meetingStatusActive" defaultMessage="Active" />
+                      </span>
+                    )
+              }
             </p>
             <p>
               <FormattedMessage id="app.learningDashboard.indicators.duration" defaultMessage="Duration" />
