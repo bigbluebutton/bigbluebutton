@@ -33,7 +33,7 @@ class StatusTable extends React.Component {
         <thead>
           <tr className="text-xs font-semibold tracking-wide text-gray-500 uppercase border-b bg-gray-100">
             <th className="px-4 py-3 col-text-left">
-              <FormattedMessage id="app.learningDashboard.statusTimelineTable.colParticipant" defaultMessage="Participant" />
+              <FormattedMessage id="app.learningDashboard.user" defaultMessage="User" />
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-4 w-4 inline"

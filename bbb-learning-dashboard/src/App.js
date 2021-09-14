@@ -6,29 +6,38 @@ import Card from './components/Card';
 import UsersTable from './components/UsersTable';
 import StatusTable from './components/StatusTable';
 import PollsTable from './components/PollsTable';
+import ErrorMessage from './components/ErrorMessage';
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      loading: true,
       activitiesJson: {},
       tab: 'overview',
+      meetingId: '',
+      learningDashboardAccessToken: '',
     };
   }
 
   componentDidMount() {
-    this.fetchActivitiesJson();
+    this.setDashboardParams();
     setInterval(() => {
       this.fetchActivitiesJson();
     }, 10000);
   }
 
-  fetchActivitiesJson() {
+  setDashboardParams() {
+    let learningDashboardAccessToken = '';
+    let meetingId = '';
+
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
-    if (typeof params.meeting === 'undefined') return;
 
-    let learningDashboardAccessToken = '';
+    if (typeof params.meeting !== 'undefined') {
+      meetingId = params.meeting;
+    }
+
     if (typeof params.report !== 'undefined') {
       learningDashboardAccessToken = params.report;
     } else {
@@ -38,19 +47,39 @@ class App extends React.Component {
       cArr.forEach((val) => {
         if (val.indexOf(`${cookieName}=`) === 0) learningDashboardAccessToken = val.substring((`${cookieName}=`).length);
       });
+
+      // Extend AccessToken lifetime by 30d (in each access)
+      if (learningDashboardAccessToken !== '') {
+        const cookieExpiresDate = new Date();
+        cookieExpiresDate.setTime(cookieExpiresDate.getTime() + (3600000 * 24 * 30));
+        document.cookie = `learningDashboardAccessToken-${meetingId}=${learningDashboardAccessToken}; expires=${cookieExpiresDate.toGMTString()}; path=/;SameSite=None;Secure`;
+      }
     }
 
+    this.setState({ learningDashboardAccessToken, meetingId }, this.fetchActivitiesJson);
+  }
+
+  fetchActivitiesJson() {
+    const { learningDashboardAccessToken, meetingId } = this.state;
+
     if (learningDashboardAccessToken !== '') {
-      fetch(`${params.meeting}/${learningDashboardAccessToken}/learning_dashboard_data.json`)
+      fetch(`${meetingId}/${learningDashboardAccessToken}/learning_dashboard_data.json`)
         .then((response) => response.json())
         .then((json) => {
-          this.setState({ activitiesJson: json });
+          this.setState({ activitiesJson: json, loading: false });
+          document.title = `Learning Dashboard - ${json.name}`;
+        }).catch(() => {
+          this.setState({ loading: false });
         });
+    } else {
+      this.setState({ loading: false });
     }
   }
 
   render() {
-    const { activitiesJson, tab } = this.state;
+    const {
+      activitiesJson, tab, learningDashboardAccessToken, loading,
+    } = this.state;
     const { intl } = this.props;
 
     document.title = `${intl.formatMessage({ id: 'app.learningDashboard.dashboardTitle', defaultMessage: 'Learning Dashboard' })} - ${activitiesJson.name}`;
@@ -132,6 +161,15 @@ class App extends React.Component {
       return meetingAveragePoints;
     }
 
+    function getErrorMessage() {
+      if (learningDashboardAccessToken === '') {
+        return intl.formatMessage({ id: 'app.learningDashboard.errors.invalidToken', defaultMessage: 'Invalid session token' });
+      }
+      return intl.formatMessage({ id: 'app.learningDashboard.errors.dataUnavailable', defaultMessage: 'Data is no longer available' });
+    }
+
+    if (loading === false && typeof activitiesJson.name === 'undefined') return <ErrorMessage message={getErrorMessage()} />;
+
     return (
       <div className="mx-10">
         <div className="flex items-start justify-between pb-3">
@@ -152,17 +190,22 @@ class App extends React.Component {
               </div>
               &nbsp;&nbsp;
               {
-                  activitiesJson.endedOn > 0
-                    ? (
-                      <span className="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full">
-                        <FormattedMessage id="app.learningDashboard.indicators.meetingStatusEnded" defaultMessage="Ended" />
-                      </span>
-                    )
-                    : (
-                      <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
-                        <FormattedMessage id="app.learningDashboard.indicators.meetingStatusActive" defaultMessage="Active" />
-                      </span>
-                    )
+                activitiesJson.endedOn > 0
+                  ? (
+                    <span className="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full">
+                      <FormattedMessage id="app.learningDashboard.indicators.meetingStatusEnded" defaultMessage="Ended" />
+                    </span>
+                  )
+                  : null
+              }
+              {
+                activitiesJson.endedOn === 0
+                  ? (
+                    <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
+                      <FormattedMessage id="app.learningDashboard.indicators.meetingStatusActive" defaultMessage="Active" />
+                    </span>
+                  )
+                  : null
               }
             </p>
             <p>
@@ -178,8 +221,8 @@ class App extends React.Component {
             <Card
               name={
                 activitiesJson.endedOn === 0
-                  ? intl.formatMessage({ id: 'app.learningDashboard.indicators.participantsOnline', defaultMessage: 'Active Participants' })
-                  : intl.formatMessage({ id: 'app.learningDashboard.indicators.participantsTotal', defaultMessage: 'Total Number Of Participants' })
+                  ? intl.formatMessage({ id: 'app.learningDashboard.indicators.usersOnline', defaultMessage: 'Active Users' })
+                  : intl.formatMessage({ id: 'app.learningDashboard.indicators.usersTotal', defaultMessage: 'Total Number Of Users' })
               }
               number={Object.values(activitiesJson.users || {})
                 .filter((u) => activitiesJson.endedOn > 0 || u.leftOn === 0).length}
@@ -286,7 +329,7 @@ class App extends React.Component {
         </div>
         <h1 className="block my-1 pr-2 text-xl font-semibold">
           { tab === 'overview' || tab === 'overview_activityscore'
-            ? <FormattedMessage id="app.learningDashboard.participantsTable.title" defaultMessage="Overview" />
+            ? <FormattedMessage id="app.learningDashboard.usersTable.title" defaultMessage="Overview" />
             : null }
           { tab === 'status_timeline'
             ? <FormattedMessage id="app.learningDashboard.statusTimelineTable.title" defaultMessage="Status Timeline" />

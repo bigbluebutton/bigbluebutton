@@ -800,6 +800,7 @@ class PresentationUploader extends Component {
               disabled={disableActions}
               className={isDownloadableStyle}
               label={formattedDownloadableLabel}
+              data-test={item.isDownloadable ? 'disallowPresentationDownload' : 'allowPresentationDownload'}
               aria-label={formattedDownloadableAriaLabel}
               hideLabel
               size="sm"
@@ -818,6 +819,7 @@ class PresentationUploader extends Component {
               disabled={disableActions}
               className={cx(styles.itemAction, styles.itemActionRemove)}
               label={intl.formatMessage(intlMessages.removePresentation)}
+              data-test="removePresentation"
               aria-label={`${intl.formatMessage(intlMessages.removePresentation)} ${item.filename}`}
               size="sm"
               icon="delete"
@@ -1006,6 +1008,7 @@ class PresentationUploader extends Component {
               />
               <Button
                 className={styles.confirm}
+                data-test="confirmManagePresentation"
                 color="primary"
                 onClick={() => this.handleConfirm(hasNewUpload)}
                 disabled={disableActions}
