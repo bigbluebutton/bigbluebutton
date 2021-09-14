@@ -801,10 +801,16 @@ class ApiController {
       sessionToken = sanitizeSessionToken(params.sessionToken)
       us = getUserSession(sessionToken)
       meeting = meetingService.getMeeting(us.meetingID)
-      meeting.userEntered(us.internalUserId)
 
       if (!hasValidSession(sessionToken)) {
         reject = true;
+      } else {
+        if(hasReachedMaxParticipants(meeting, us)) {
+          reject = true
+          respMessage = "The maximum number of participants allowed for this meeting has been reached."
+        } else {
+          meeting.userEntered(us.internalUserId)
+        }
       }
     }
 

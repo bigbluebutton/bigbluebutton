@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import TimeWindowChatItem from './component';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import ChatService from '../../service';
-import LayoutContext from '../../../layout/context';
+import { layoutSelect } from '../../../layout/context';
 import PollService from '/imports/ui/components/poll/service';
 import Auth from '/imports/ui/services/auth';
 
@@ -12,9 +12,9 @@ const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const TimeWindowChatItemContainer = (props) => {
   const { message, messageId } = props;
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState } = layoutContext;
-  const { idChatOpen } = layoutContextState;
+
+  const idChatOpen = layoutSelect((i) => i.idChatOpen);
+
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
   const {

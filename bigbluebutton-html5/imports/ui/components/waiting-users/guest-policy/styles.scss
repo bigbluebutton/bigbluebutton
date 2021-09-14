@@ -66,3 +66,9 @@
   box-sizing: border-box;
   margin: 5px;
 }
+
+.active {
+  span {
+    text-decoration: underline;
+  }
+}

@@ -1,7 +1,8 @@
 exports.pollingContainer = 'div[data-test="pollingContainer"]';
 exports.pollQuestionArea = 'textarea[data-test="pollQuestionArea"]';
 exports.pollQuestion = 'Are we good ?';
-exports.responseTypes = 'div[data-test="responseTypesLabel"]';
+exports.responseTypes = 'div[data-test="responseTypes"]';
+exports.responseTypesLabel = 'div[data-test="responseTypesLabel"]';
 exports.responseChoices = 'div[data-test="responseChoices"]';
 exports.addItem = 'button[data-test="addItem"]';
 exports.pollOptionItem = 'input[data-test="pollOptionItem"]';

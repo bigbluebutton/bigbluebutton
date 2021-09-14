@@ -1,14 +1,14 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import AudioService from '/imports/ui/components/audio/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import BreakoutComponent from './component';
 import Service from './service';
-import LayoutContext from '../layout/context';
+import { layoutDispatch } from '../layout/context';
 
 const BreakoutContainer = (props) => {
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextDispatch } = layoutContext;
+  const layoutContextDispatch = layoutDispatch();
+
   return <BreakoutComponent {...{ layoutContextDispatch, ...props }} />;
 };
 

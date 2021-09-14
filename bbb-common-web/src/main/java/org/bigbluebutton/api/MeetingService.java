@@ -861,8 +861,8 @@ public class MeetingService implements MessageListener {
       }
 
       //Remove Learning Dashboard files
-      if(m.getLearningDashboardCleanupEnabled() == true) {
-        learningDashboardService.removeActivityJsonFile(message.meetingId);
+      if(m.getLearningDashboardCleanupDelayInMinutes() > 0) {
+        learningDashboardService.removeJsonDataFile(message.meetingId, m.getLearningDashboardCleanupDelayInMinutes());
       }
 
       processRemoveEndedMeeting(message);
@@ -976,7 +976,7 @@ public class MeetingService implements MessageListener {
 
     log.info(" --analytics-- data={}", logStr);
 
-    learningDashboardService.writeActivityJsonFile(message.meetingId, learningDashboardAccessToken, message.activityJson);
+    learningDashboardService.writeJsonDataFile(message.meetingId, learningDashboardAccessToken, message.activityJson);
   }
 
   @Override

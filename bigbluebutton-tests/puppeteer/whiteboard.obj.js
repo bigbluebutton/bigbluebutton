@@ -28,8 +28,8 @@ const whiteboardTest = () => {
       await test.logger('end of ', testName);
       await test.stopRecording();
       screenshot = await test.page.screenshot();
-    } catch (e) {
-      await test.logger(e);
+    } catch (err) {
+      await test.logger(err);
     } finally {
       await test.close();
     }
@@ -56,8 +56,8 @@ const whiteboardTest = () => {
       await test.page1.stopRecording();
       await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
-    } catch (e) {
-      await test.page1.logger(e);
+    } catch (err) {
+      await test.page1.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
       await test.closePage(test.page3);

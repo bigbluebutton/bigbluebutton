@@ -43,13 +43,17 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.returnAudio',
     description: 'label for option to return audio',
   },
+  generateURL: {
+    id: 'app.createBreakoutRoom.generateURL',
+    description: 'label for generate breakout room url',
+  },
   generatingURL: {
     id: 'app.createBreakoutRoom.generatingURL',
     description: 'label for generating breakout room url',
   },
   generatedURL: {
     id: 'app.createBreakoutRoom.generatedURL',
-    description: 'label for generate breakout room url',
+    description: 'label for generated breakout room url',
   },
   endAllBreakouts: {
     id: 'app.createBreakoutRoom.endAllBreakouts',
@@ -94,6 +98,7 @@ class BreakoutRoom extends PureComponent {
     super(props);
     this.renderBreakoutRooms = this.renderBreakoutRooms.bind(this);
     this.getBreakoutURL = this.getBreakoutURL.bind(this);
+    this.getBreakoutLabel = this.getBreakoutLabel.bind(this);
     this.renderDuration = this.renderDuration.bind(this);
     this.transferUserToBreakoutRoom = this.transferUserToBreakoutRoom.bind(this);
     this.changeExtendTime = this.changeExtendTime.bind(this);
@@ -173,6 +178,23 @@ class BreakoutRoom extends PureComponent {
       this.setState({ waiting: false, generated: false });
     }
     return null;
+  }
+
+  getBreakoutLabel(breakoutId) {
+    const { intl, breakoutRoomUser } = this.props;
+    const { requestedBreakoutId, generated } = this.state;
+
+    const hasUser = breakoutRoomUser(breakoutId);
+
+    if (generated && requestedBreakoutId === breakoutId) {
+      return intl.formatMessage(intlMessages.generatedURL);
+    }
+
+    if (hasUser) {
+      return intl.formatMessage(intlMessages.breakoutJoin);
+    }
+
+    return intl.formatMessage(intlMessages.generateURL);
   }
 
   clearJoinedAudioOnly() {
@@ -285,11 +307,7 @@ class BreakoutRoom extends PureComponent {
             )
             : (
               <Button
-                label={
-                  generated && requestedBreakoutId === breakoutId
-                    ? intl.formatMessage(intlMessages.generatedURL)
-                    : intl.formatMessage(intlMessages.breakoutJoin)
-                }
+                label={this.getBreakoutLabel(breakoutId)}
                 data-test="breakoutJoin"
                 aria-label={`${intl.formatMessage(intlMessages.breakoutJoin)} ${number}`}
                 onClick={() => {
