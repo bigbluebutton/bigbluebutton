@@ -326,17 +326,17 @@ class UserOptions extends PureComponent {
         });
       }
       if (amIModerator) {
-	if (learningDashboardAccessToken != null) {
-	  this.menuItems.push({
+        if (learningDashboardAccessToken != null) {
+          this.menuItems.push({
             icon: 'multi_whiteboard',
-	    iconRight: 'popout_window',
-	    label: intl.formatMessage(intlMessages.learningDashboardLabel),
-	    description: intl.formatMessage(intlMessages.learningDashboardDesc),
-	    key: this.learningDashboardId,
-	    onClick: () => { openLearningDashboardUrl(locale); },
-	    dividerTop: true,
-	  });
-	 }
+            iconRight: 'popout_window',
+            label: intl.formatMessage(intlMessages.learningDashboardLabel),
+            description: intl.formatMessage(intlMessages.learningDashboardDesc),
+            key: this.learningDashboardId,
+            onClick: () => { openLearningDashboardUrl(locale); },
+            dividerTop: true,
+          });
+         }
       }
     }
 
