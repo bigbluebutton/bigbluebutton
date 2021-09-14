@@ -126,7 +126,11 @@ const VirtualBgSelector = ({
 
     return (
       <div className={styles.virtualBackgroundRowThumbnail}>
-        <div className={styles.bgWrapper}>
+        <div
+          role="group"
+          aria-label={intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
+          className={styles.bgWrapper}
+        >
           <>
             <Button
               className={styles.bgNone}
