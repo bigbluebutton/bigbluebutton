@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { defineMessages, injectIntl } from "react-intl";
+import Settings from '/imports/ui/services/settings';
 
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -83,7 +84,17 @@ class BBBMenu extends React.Component {
           }}>
           <div style={{ display: 'flex', flexFlow: 'row', width: '100%' }}>
             {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
-            <div className={styles.option}>{label}</div>
+            <div
+              className={styles.option}
+              style={
+                {
+                  marginRight: !Settings.application.isRTL ? '1.65rem' : '0.5rem',
+                  marginLeft: !Settings.application.isRTL ? '0.5rem' : '1.65rem',
+                }
+              }
+            >
+              {label}
+            </div>
             {a.iconRight ? <Icon iconName={a.iconRight} key="iconRight" className={styles.iRight} /> : null}
           </div>
         </MenuItem>,
