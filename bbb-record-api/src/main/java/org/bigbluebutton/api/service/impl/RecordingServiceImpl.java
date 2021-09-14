@@ -2,13 +2,17 @@ package org.bigbluebutton.api.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import org.bigbluebutton.api.dao.RecordingPredicatesBuilder;
 import org.bigbluebutton.api.dao.RecordingRepository;
+import org.bigbluebutton.api.model.dto.RecordingDTO;
+import org.bigbluebutton.api.model.dto.View;
 import org.bigbluebutton.api.model.entity.Recording;
+import org.bigbluebutton.api.model.mapper.RecordingMapper;
 import org.bigbluebutton.api.model.request.NumericQuery;
 import org.bigbluebutton.api.model.request.RecordingSearchBody;
 import org.bigbluebutton.api.model.request.RecordingSearchFilters;
@@ -32,11 +36,13 @@ public class RecordingServiceImpl implements RecordingService {
     private static final Logger logger = LoggerFactory.getLogger(RecordingServiceImpl.class);
 
     private RecordingRepository recordingRepository;
+    private RecordingMapper recordingMapper;
     List<Recording> recordings;
     List<Recording> temp;
 
-    public RecordingServiceImpl(RecordingRepository recordingRepository) {
+    public RecordingServiceImpl(RecordingRepository recordingRepository, RecordingMapper recordingMapper) {
         this.recordingRepository = recordingRepository;
+        this.recordingMapper = recordingMapper;
     }
 
     @Override
@@ -72,9 +78,13 @@ public class RecordingServiceImpl implements RecordingService {
 
     @Override
     public Recording patch(Recording recording, JsonPatch patch) throws JsonPatchException, JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode patched = patch.apply(mapper.convertValue(recording, JsonNode.class));
-        return mapper.treeToValue(patched, Recording.class);
+        RecordingDTO recordingDTO = recordingMapper.toRecordingDTO(recording);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        objectMapper.setConfig(objectMapper.getDeserializationConfig().withView(View.PatchView.class));
+        JsonNode patched = patch.apply(objectMapper.convertValue(recordingDTO, JsonNode.class));
+        RecordingDTO updatedRecordingDTO = objectMapper.treeToValue(patched, RecordingDTO.class);
+        return recordingMapper.toRecording(updatedRecordingDTO, recording);
     }
 
     @Override

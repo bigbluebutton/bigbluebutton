@@ -112,7 +112,7 @@ public class RecordingHandler {
         recording.setMeetingId(externalId);
         recording.setInternalMeetingId(id);
         recording.setName(name);
-        recording.setIsBreakout(Boolean.parseBoolean(breakout));
+        recording.setBreakout(Boolean.parseBoolean(breakout));
         recording.setPublished(Boolean.parseBoolean(published));
         recording.setState(state);
         recording.setStartTime(Long.parseLong(startTime));

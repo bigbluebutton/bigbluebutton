@@ -33,11 +33,11 @@ public class Recording extends RepresentationModel<Recording> {
 
   @JsonProperty("isBreakout")
   @Column(name = "is_breakout")
-  private Boolean isBreakout;
+  private boolean isBreakout;
 
   @JsonProperty("published")
   @Column(name = "published")
-  private Boolean published;
+  private boolean published;
 
   @JsonProperty("state")
   @Column(name = "state")
@@ -59,7 +59,7 @@ public class Recording extends RepresentationModel<Recording> {
   @Column(name = "raw_size")
   private Long rawSize;
 
-  @JsonProperty("metadata")
+  @JsonProperty("meta")
   @OneToOne(mappedBy = "recording", cascade = CascadeType.ALL)
   private RecordingMetadata metadata;
 
