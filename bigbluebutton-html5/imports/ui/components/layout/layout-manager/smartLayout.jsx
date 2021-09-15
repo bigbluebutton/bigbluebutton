@@ -375,6 +375,8 @@ class SmartLayout extends Component {
         cameraDockBounds.width -= (camerasMargin * 2);
         cameraDockBounds.isCameraHorizontal = true;
         cameraDockBounds.position = CAMERADOCK_POSITION.CONTENT_LEFT;
+        // button size in vertical position
+        cameraDockBounds.height -= 20;
       } else {
         cameraDockBounds.width = mediaAreaBounds.width;
         cameraDockBounds.maxWidth = mediaAreaBounds.width;
