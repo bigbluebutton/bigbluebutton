@@ -19,6 +19,12 @@
   justify-content: center;
 }
 
+.videoCanvasLRPosition {
+  flex-wrap: wrap;
+  align-content: center;
+  order: 0;
+}
+
 .videoList {
   display: grid;
 
@@ -258,12 +264,20 @@
   }
 }
 
+.nextPageLRPosition {
+  order: 3;
+}
+
 .previousPage {
   margin-right: 1px;
 
   @include mq($medium-up) {
     margin-right: 2px;
   }
+}
+
+.previousPageLRPosition {
+  order: 2;
 }
 
 .unhealthyStream {
@@ -283,4 +297,10 @@
   width: 100vw;
   height: 100vh;
   z-index: 99;
+}
+
+.break {
+  order: 1;
+  flex-basis: 100%;
+  height: 5px;
 }
