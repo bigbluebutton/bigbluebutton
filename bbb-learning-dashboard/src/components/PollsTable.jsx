@@ -17,7 +17,7 @@ class PollsTable extends React.Component {
     return (
       <table className="w-full whitespace-no-wrap">
         <thead>
-          <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-100">
+          <tr className="text-xs font-semibold tracking-wide col-text-left text-gray-500 uppercase border-b bg-gray-100">
             <th className="px-4 py-3">
               <FormattedMessage id="app.learningDashboard.user" defaultMessage="User" />
               <svg
@@ -39,13 +39,21 @@ class PollsTable extends React.Component {
           { typeof allUsers === 'object' && Object.values(allUsers || {}).length > 0 ? (
             Object.values(allUsers || {})
               .filter((user) => Object.values(user.answers).length > 0)
+              .sort((a, b) => {
+                if (a.isModerator === false && b.isModerator === true) return 1;
+                if (a.isModerator === true && b.isModerator === false) return -1;
+                if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
+                if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
+                return 0;
+              })
               .map((user) => (
                 <tr className="text-gray-700">
                   <td className="px-4 py-3">
                     <div className="flex items-center text-sm">
-                      <div className="relative hidden w-8 h-8 mr-3 rounded-full md:block">
+                      <div className="relative hidden w-8 h-8 rounded-full md:block">
                         <UserAvatar user={user} />
                       </div>
+                      &nbsp;&nbsp;
                       <div>
                         <p className="font-semibold">{user.name}</p>
                       </div>
