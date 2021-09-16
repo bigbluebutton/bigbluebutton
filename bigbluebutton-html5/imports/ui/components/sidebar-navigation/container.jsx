@@ -1,21 +1,19 @@
 import React from 'react';
-import { LayoutContextFunc } from '../layout/context';
+import { layoutDispatch, layoutSelectOutput } from '../layout/context';
 import SidebarNavigation from './component';
 
-const SidebarNavigationContainer = (props) => {
-  const { layoutContextState, layoutContextDispatch, openPanel } = props;
-  const { output } = layoutContextState;
-  const { sidebarNavigation } = output;
+const SidebarNavigationContainer = () => {
+  const sidebarNavigation = layoutSelectOutput((i) => i.sidebarNavigation);
+  const layoutContextDispatch = layoutDispatch();
 
   if (sidebarNavigation.display === false) return null;
 
   return (
     <SidebarNavigation
       {...sidebarNavigation}
-      openPanel={openPanel}
       contextDispatch={layoutContextDispatch}
     />
   );
 };
 
-export default LayoutContextFunc.withConsumer(SidebarNavigationContainer);
+export default SidebarNavigationContainer;
