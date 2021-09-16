@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.bigbluebutton.api.model.entity.Recording;
+import org.bigbluebutton.api.model.entity.RecordingMetadata;
 import org.bigbluebutton.api.model.response.Error;
 import org.bigbluebutton.api.model.response.*;
 import org.bigbluebutton.api.model.response.payload.RecordingPayload;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -129,6 +131,46 @@ public class RecordingsApiController implements RecordingsApi {
 
         Pageable pageable = PageRequest.of(page, size);
         Page<Recording> recordings = recordingService.searchRecordings(query, pageable);
+
+        if(recordings.toList().isEmpty()) {
+            Errors errors = new Errors();
+            errors.addError(Error.NO_RESULTS);
+            response.setErrors(errors);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        for(Recording recording: recordings.toList()) {
+            addSelfLink(recording);
+        }
+
+        RecordingSearchPayload payload = new RecordingSearchPayload();
+        payload.setRecordings(recordings);
+        response.setPayload(payload);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<ResponseEnvelope> searchMetadata(String query, Integer page, Integer size) {
+        ResponseEnvelope response = new ResponseEnvelope();
+
+        if(query == null || query.isEmpty()) {
+            Errors errors = new Errors();
+            errors.addError(Error.QUERY_NOT_PROVIDED);
+            response.setErrors(errors);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+
+        if(page == null) {
+            page = 0;
+        }
+
+        if(size == null) {
+            size = 20;
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Recording> recordings = recordingService.searchMetadata(query, pageable);
 
         if(recordings.toList().isEmpty()) {
             Errors errors = new Errors();

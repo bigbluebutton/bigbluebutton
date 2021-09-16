@@ -12,11 +12,13 @@ import org.bigbluebutton.api.dao.RecordingRepository;
 import org.bigbluebutton.api.model.dto.RecordingDTO;
 import org.bigbluebutton.api.model.dto.View;
 import org.bigbluebutton.api.model.entity.Recording;
+import org.bigbluebutton.api.model.entity.RecordingMetadata;
 import org.bigbluebutton.api.model.mapper.RecordingMapper;
 import org.bigbluebutton.api.model.request.NumericQuery;
 import org.bigbluebutton.api.model.request.RecordingSearchBody;
 import org.bigbluebutton.api.model.request.RecordingSearchFilters;
 import org.bigbluebutton.api.service.RecordingService;
+import org.bigbluebutton.api.util.DataStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -24,6 +26,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.sql.DataSource;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,12 +40,14 @@ public class RecordingServiceImpl implements RecordingService {
 
     private RecordingRepository recordingRepository;
     private RecordingMapper recordingMapper;
+    private DataStore dataStore;
     List<Recording> recordings;
     List<Recording> temp;
 
     public RecordingServiceImpl(RecordingRepository recordingRepository, RecordingMapper recordingMapper) {
         this.recordingRepository = recordingRepository;
         this.recordingMapper = recordingMapper;
+        this.dataStore = DataStore.getInstance();
     }
 
     @Override
@@ -74,6 +79,35 @@ public class RecordingServiceImpl implements RecordingService {
                     .collect(Collectors.toList()),
                 pageable
         );
+    }
+
+    @Override
+    public Page<Recording> searchMetadata(String query, Pageable pageable) {
+        Pattern pattern = Pattern.compile("(\\w+?)(:|<|>)(\\w+?),");
+        Matcher matcher = pattern.matcher(query + ",");
+
+        StringBuilder dbQueryString = new StringBuilder();
+        dbQueryString.append("SELECT * FROM recording_metadata");
+        int numMatches = 0;
+        while(matcher.find()) {
+            if(numMatches > 0) {
+                dbQueryString.append(" AND ");
+            }
+
+            String path = matcher.group(1) + "/text()";
+            String value = matcher.group(3);
+            String predicate = " WHERE xpath(content, '" + path + "') = '" + value +"'";
+            dbQueryString.append(predicate);
+        }
+
+        List<RecordingMetadata> metadataList = dataStore.executeQuery(dbQueryString.toString(), RecordingMetadata.class);
+        List<Recording> recordings = new ArrayList<>();
+
+        for(RecordingMetadata metadata: metadataList) {
+            recordings.add(metadata.getRecording());
+        }
+
+        return recordingListToPage(recordings, pageable);
     }
 
     @Override

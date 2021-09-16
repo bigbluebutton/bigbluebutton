@@ -70,6 +70,23 @@ public interface RecordingsApi {
             schema = @Schema()) @RequestParam(value = "page", required = false) Integer page, @Parameter(in = ParameterIn.QUERY, description = "Page size",
             schema = @Schema()) @RequestParam(value = "size", required = false) Integer size);
 
+    @Operation(summary = "Returns recordings", description = "", security = {
+            @SecurityRequirement(name = "api_key")    }, tags={ "recording" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Request successful",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = InlineResponse201.class))),
+            @ApiResponse(responseCode = "404", description = "No resources could be found",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "405", description = "Validation error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = InlineResponse405.class))) })
+    @RequestMapping(value = "/recordings/metadata/search",
+            produces = { "application/json", "application/xml" },
+            method = RequestMethod.GET)
+    ResponseEntity<ResponseEnvelope> searchMetadata(@Parameter(in = ParameterIn.QUERY, description = "Metadata query",
+            schema = @Schema()) @RequestParam(value = "query", required = false) String query, @Parameter(in = ParameterIn.QUERY, description = "Page number",
+            schema = @Schema()) @RequestParam(value = "page", required = false) Integer page, @Parameter(in = ParameterIn.QUERY, description = "Page size",
+            schema = @Schema()) @RequestParam(value = "size", required = false) Integer size);
+
 
     @Operation(summary = "Update an existing recording", description = "", security = {
         @SecurityRequirement(name = "api_key")    }, tags={ "recording" })

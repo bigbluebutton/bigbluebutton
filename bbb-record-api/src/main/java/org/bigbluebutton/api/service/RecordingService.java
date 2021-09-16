@@ -17,6 +17,7 @@ public interface RecordingService {
     Optional<Recording> findByInternalMeetingId(String internalMeetingId);
     Page<Recording> searchRecordings(RecordingSearchBody body, Pageable pageable);
     Page<Recording> searchRecordings(String query, Pageable pageable);
+    Page<Recording> searchMetadata(String query, Pageable pageable);
     Recording patch(Recording recording, JsonPatch patch) throws JsonPatchException, JsonProcessingException;
     void delete(Recording recording);
 }
