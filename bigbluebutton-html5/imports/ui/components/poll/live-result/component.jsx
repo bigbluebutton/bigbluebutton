@@ -64,7 +64,7 @@ class LiveResult extends PureComponent {
     const currentPollQuestion = (currentPoll.question) ? currentPoll.question : '';
 
     let userAnswers = responses
-      ? [...users, ...responses.map((u) => u.userId)]
+      ? [...users, ...responses.map(u => u.userId)]
       : [...users];
 
     userAnswers = userAnswers.map(id => usernames[id])
@@ -72,7 +72,7 @@ class LiveResult extends PureComponent {
         let answer = '';
 
         if (responses) {
-          const response = responses.find((r) => r.userId === user.userId);
+          const response = responses.find(r => r.userId === user.userId);
           if (response) {
             const answerKeys = [];
             response.answerIds.forEach((answerId) => {
@@ -227,7 +227,8 @@ class LiveResult extends PureComponent {
               data-test="restartPoll"
               className={styles.btn}
             />
-          )}
+          )
+        }
         <div className={styles.separator} />
         { currentPoll && !currentPoll.secretPoll
           ? (

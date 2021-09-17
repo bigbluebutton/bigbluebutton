@@ -820,7 +820,6 @@ class Poll extends Component {
               });
               Session.set('forcePollOpen', false);
               Session.set('pollInitiated', false);
-              window.dispatchEvent(new Event('panelChanged'));
             }}
             className={styles.closeBtn}
             icon="close"
