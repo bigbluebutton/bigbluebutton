@@ -423,8 +423,6 @@
     "app.audioModal.playAudio.arialabel" : "播放音频",
     "app.audioDial.tipIndicator": "提醒",
     "app.audioDial.tipMessage": "按手机上的“0”键可静音/取消静音。",
-    "app.audioModal.connecting": "正在连接",
-    "app.audioModal.connectingEchoTest": "连接回音测试",
     "app.audioManager.joinedAudio": "您已加入会议的音频交流",
     "app.audioManager.joinedEcho": "您已开始回音测试",
     "app.audioManager.leftAudio": "您已退出会议音频交流",

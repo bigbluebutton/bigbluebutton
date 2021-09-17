@@ -482,8 +482,6 @@
     "app.audioModal.playAudio.arialabel" : "ஆடியோவை இயக்கு",
     "app.audioDial.tipIndicator": "உதவிக்குறிப்பு",
     "app.audioDial.tipMessage": "உங்களை முடக்க / முடக்க உங்கள் தொலைபேசியில் '0' விசையை அழுத்தவும்.",
-    "app.audioModal.connecting": "இணைக்கிறது",
-    "app.audioModal.connectingEchoTest": "எதிரொலி சோதனைக்கு இணைக்கிறது",
     "app.audioManager.joinedAudio": "நீங்கள் ஆடியோ மாநாட்டில் சேர்ந்துள்ளீர்கள்",
     "app.audioManager.joinedEcho": "நீங்கள் எதிரொலி சோதனையில் சேர்ந்துள்ளீர்கள்",
     "app.audioManager.leftAudio": "நீங்கள் ஆடியோ மாநாட்டிலிருந்து வெளியேறிவிட்டீர்கள்",

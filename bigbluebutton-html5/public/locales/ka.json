@@ -388,8 +388,6 @@
     "app.audioModal.playAudio.arialabel" : "აუდიო",
     "app.audioDial.tipIndicator": "რჩევა",
     "app.audioDial.tipMessage": "საკუთარი თავისთვის ხმის გამოსართავად/ჩასართავად დაწკაპეთ '0' ღილაკზე",
-    "app.audioModal.connecting": "დაკავშირება",
-    "app.audioModal.connectingEchoTest": "დაკავშირება ხმის შემოწმების ტესტთან",
     "app.audioManager.joinedAudio": "თქვენ შეუერთდით აუდიო კონფერენციას",
     "app.audioManager.joinedEcho": "თქვენ შეუერთდით ხმის ტესტს",
     "app.audioManager.leftAudio": "თქვენ დატოვეთ აუდიო კონფერენცია",
