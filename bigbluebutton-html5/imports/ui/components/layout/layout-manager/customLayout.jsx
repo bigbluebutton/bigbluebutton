@@ -508,6 +508,8 @@ class CustomLayout extends Component {
             cameraDockBounds.minHeight = DEFAULT_VALUES.cameraDockMinHeight;
             cameraDockBounds.height = mediaAreaBounds.height;
             cameraDockBounds.maxHeight = mediaAreaBounds.height;
+            // button size in vertical position
+            cameraDockBounds.height -= 20;
             break;
           }
           case CAMERADOCK_POSITION.CONTENT_BOTTOM: {
@@ -570,6 +572,8 @@ class CustomLayout extends Component {
             cameraDockBounds.minHeight = mediaAreaBounds.height;
             cameraDockBounds.height = mediaAreaBounds.height;
             cameraDockBounds.maxHeight = mediaAreaBounds.height;
+            // button size in vertical position
+            cameraDockBounds.height -= 20;
             break;
           }
           case CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM: {
