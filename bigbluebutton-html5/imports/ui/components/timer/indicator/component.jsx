@@ -21,6 +21,8 @@ class Indicator extends Component {
     // We need to avoid trigger on mount
     this.triggered = true;
 
+    this.alreadyNotified = false;
+
     this.updateTime = this.updateTime.bind(this);
   }
 
@@ -89,6 +91,7 @@ class Indicator extends Component {
 
     if (reseted) {
       this.triggered = false;
+      this.alreadyNotified = false;
     }
   }
 
@@ -121,7 +124,6 @@ class Indicator extends Component {
 
   play() {
     if (this.alarm && !this.triggered) {
-      TimerService.timerEnded();
       this.triggered = true;
       this.alarm.play();
     }
@@ -209,6 +211,24 @@ class Indicator extends Component {
     return !isActive || !validMusic || stopwatch || reachedZeroOrStopped;
   }
 
+  shoulNotifyTimerEnded(time) {
+    const { timer } = this.props;
+    const {
+      running,
+      stopwatch,
+    } = timer;
+
+    if (stopwatch || !running) return false;
+
+    const reachedZero = time === 0;
+
+    if (reachedZero && !this.alreadyNotified) {
+      this.alreadyNotified = true;
+      return true;
+    }
+    return false;
+  }
+
   getTime() {
     const {
       timer,
@@ -230,6 +250,10 @@ class Indicator extends Component {
       updatedTime = elapsedTime;
     } else {
       updatedTime = Math.max(time - elapsedTime, 0);
+    }
+
+    if (this.shoulNotifyTimerEnded(updatedTime)) {
+      TimerService.timerEnded();
     }
 
     if (this.shouldStopMusic(updatedTime)) {

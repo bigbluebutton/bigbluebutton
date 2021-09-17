@@ -45,13 +45,14 @@ const getResetModifier = () => {
 const handleTimerEndedNotifications = (fields, meetingId, handle) => {
   const meetingUsers = Users.find({
     meetingId,
-    validated: true,
+    connectionStatus: 'online',
   }).count();
 
   if (fields.running === false) {
     handle.stop();
   }
 
+  //Timer is stopped when at least 90% of users online in the meetinng notify that it ended.
   if (fields.ended >= Math.round(0.9 * meetingUsers)) {
     const accumulated = 0;
     updateTimer('stop', meetingId, 0, false, accumulated);
