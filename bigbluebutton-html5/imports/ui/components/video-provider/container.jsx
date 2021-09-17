@@ -2,14 +2,13 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import VideoProvider from './component';
 import VideoService from './service';
-import { withLayoutContext } from '/imports/ui/components/layout/context';
 
 const VideoProviderContainer = ({ children, ...props }) => {
   const { streams } = props;
   return (!streams.length ? null : <VideoProvider {...props}>{children}</VideoProvider>);
 };
 
-export default withTracker(props => {
+export default withTracker(({ swapLayout, ...rest }) => {
   // getVideoStreams returns a dictionary consisting of:
   // {
   //  streams: array of mapped streams
@@ -17,14 +16,15 @@ export default withTracker(props => {
   // }
   const {
     streams,
-    totalNumberOfStreams
+    totalNumberOfStreams,
   } = VideoService.getVideoStreams();
 
   return {
-    swapLayout: props.swapLayout,
+    swapLayout,
     streams,
     totalNumberOfStreams,
     isUserLocked: VideoService.isUserLocked(),
     currentVideoPageIndex: VideoService.getCurrentVideoPageIndex(),
+    ...rest,
   };
-})( withLayoutContext(VideoProviderContainer));
+})(VideoProviderContainer);

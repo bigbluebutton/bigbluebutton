@@ -46,6 +46,9 @@ class UserContent extends PureComponent {
       pendingUsers,
       requestUserInformation,
       currentClosedChats,
+      sidebarContentPanel,
+      layoutContextDispatch,
+      startedChats,
     } = this.props;
 
     return (
@@ -62,6 +65,7 @@ class UserContent extends PureComponent {
                 intl,
                 roving,
                 currentClosedChats,
+                startedChats,
               }}
             />
           ) : null}
@@ -84,6 +88,8 @@ class UserContent extends PureComponent {
               {...{
                 intl,
                 pendingUsers,
+                sidebarContentPanel,
+                layoutContextDispatch,
               }}
             />
           ) : null}
@@ -92,9 +98,18 @@ class UserContent extends PureComponent {
           {...{
             pollIsOpen,
             forcePollOpen,
+            sidebarContentPanel,
+            layoutContextDispatch,
           }}
         />
-        <BreakoutRoomItem isPresenter={currentUser.presenter} hasBreakoutRoom={hasBreakoutRoom} />
+        <BreakoutRoomItem
+          isPresenter={currentUser.presenter}
+          {...{
+            hasBreakoutRoom,
+            sidebarContentPanel,
+            layoutContextDispatch,
+          }}
+        />
         <UserParticipantsContainer
           {...{
             compact,

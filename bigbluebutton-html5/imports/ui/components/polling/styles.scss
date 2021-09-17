@@ -52,6 +52,8 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    max-height: 95%;
+    overflow-y: auto;
 
     [dir="rtl"] & {
       left: 50%;
@@ -87,14 +89,6 @@
 .pollingAnswers {
   display: grid;
   grid-template-columns: repeat(var(--col-amount), 1fr);
-
-  > pollButtonWrapper:nth-child(odd) {
-      grid-column: 1;
-  }
-
-  > pollButtonWrapper:nth-child(even) {
-      grid-column: var(--col-amount);
-  }
 
   @include mq($hasPhoneDimentions) {
     grid-template-columns: repeat(1, 1fr);
@@ -149,6 +143,7 @@
 .qText {
   color: var(--color-text);
   word-break: break-word;
+  white-space: pre-wrap;
   font-size: var(--font-size-large);
   max-width: var(--poll-width);
   padding-right: var(--sm-padding-x);
@@ -184,3 +179,7 @@
 .multipleResponseAnswersTableAnswerText {
   text-align: left;
 }
+.pollingSecret {
+  font-size: var(--font-size-small);
+  max-width: var(--poll-width);
+} 

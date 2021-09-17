@@ -12,9 +12,9 @@ const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 const PresentationUploaderContainer = (props) => (
   props.isPresenter
   && (
-  <ErrorBoundary Fallback={() => <FallbackModal />}>
-    <PresentationUploader {...props} />
-  </ErrorBoundary>
+    <ErrorBoundary Fallback={() => <FallbackModal />}>
+      <PresentationUploader {...props} />
+    </ErrorBoundary>
   )
 );
 
@@ -28,7 +28,6 @@ export default withTracker(() => {
 
   return {
     presentations: currentPresentations,
-    defaultFileName: PRESENTATION_CONFIG.defaultPresentationFile,
     fileValidMimeTypes: PRESENTATION_CONFIG.uploadValidMimeTypes,
     handleSave: (presentations) => Service.persistPresentationChanges(
       currentPresentations,

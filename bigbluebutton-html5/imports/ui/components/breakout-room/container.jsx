@@ -4,21 +4,26 @@ import AudioService from '/imports/ui/components/audio/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import BreakoutComponent from './component';
 import Service from './service';
+import { layoutDispatch } from '../layout/context';
 
-const BreakoutContainer = props => <BreakoutComponent {...props} />;
+const BreakoutContainer = (props) => {
+  const layoutContextDispatch = layoutDispatch();
 
+  return <BreakoutComponent {...{ layoutContextDispatch, ...props }} />;
+};
 
 export default withTracker((props) => {
   const {
     endAllBreakouts,
     requestJoinURL,
+    extendBreakoutsTime,
+    isExtendTimeHigherThanMeetingRemaining,
     findBreakouts,
     breakoutRoomUser,
     transferUserToMeeting,
     transferToBreakout,
     meetingId,
     amIModerator,
-    closeBreakoutPanel,
     isUserInBreakoutRoom,
   } = Service;
 
@@ -36,13 +41,14 @@ export default withTracker((props) => {
     breakoutRooms,
     endAllBreakouts,
     requestJoinURL,
+    extendBreakoutsTime,
+    isExtendTimeHigherThanMeetingRemaining,
     breakoutRoomUser,
     transferUserToMeeting,
     transferToBreakout,
     isMicrophoneUser,
     meetingId: meetingId(),
     amIModerator: amIModerator(),
-    closeBreakoutPanel,
     isMeteorConnected,
     isUserInBreakoutRoom,
     exitAudio: () => AudioManager.exitAudio(),

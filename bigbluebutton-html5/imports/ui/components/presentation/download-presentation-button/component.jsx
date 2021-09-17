@@ -23,21 +23,31 @@ const defaultProps = {
 };
 
 const DownloadPresentationButton = ({
-  intl, handleDownloadPresentation, dark,
-}) => (
-  <div className={cx(styles.wrapper, dark ? styles.dark : styles.light)}>
-    <Button
-      color="default"
-      icon="template_download"
-      size="md"
-      onClick={handleDownloadPresentation}
-      label={intl.formatMessage(intlMessages.downloadPresentationButton)}
-      hideLabel
-      circle
-      className={styles.button}
-    />
-  </div>
-);
+  intl,
+  handleDownloadPresentation,
+  dark,
+}) => {
+
+  const wrapperClassName = cx({
+    [styles.wrapper]: true,
+    [styles.dark]: dark,
+    [styles.light]: !dark
+  });
+
+  return (
+    <div className={wrapperClassName}>
+      <Button
+        color="default"
+        icon="template_download"
+        size="sm"
+        onClick={handleDownloadPresentation}
+        label={intl.formatMessage(intlMessages.downloadPresentationButton)}
+        hideLabel
+        className={cx(styles.button, styles.downloadPresentationButton)}
+      />
+    </div>
+  );
+};
 
 DownloadPresentationButton.propTypes = propTypes;
 DownloadPresentationButton.defaultProps = defaultProps;

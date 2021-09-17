@@ -313,8 +313,8 @@ class WhiteboardToolbar extends Component {
         }
         // 1st case a)
         this.colorListIconColor.beginElement();
-        // 2nd case - never happens when the text tool is selected
-      } else if (thicknessSelected.value !== prevState.thicknessSelected.value) {
+        // 2nd case
+      } else if (thicknessSelected.value !== prevState.thicknessSelected.value && annotationSelected.value !== 'text') {
         this.thicknessListIconRadius.beginElement();
         // 3rd case
       } else if (annotationSelected.value !== 'text'
@@ -521,7 +521,7 @@ class WhiteboardToolbar extends Component {
                 customIcon={false}
                 label="Annotations"
                 onItemClick={this.handleAnnotationChange}
-                objectsToRender={panMode ? annotations[annotations.length - 1] : annotations}
+                objectsToRender={annotations}
                 objectSelected={annotationSelected}
                 handleMouseEnter={this.handleMouseEnter}
                 handleMouseLeave={this.handleMouseLeave}
@@ -806,7 +806,8 @@ class WhiteboardToolbar extends Component {
         disabled={!isMeteorConnected}
         label={palmRejection
           ? intl.formatMessage(intlMessages.toolbarPalmRejectionOff)
-          : intl.formatMessage(intlMessages.toolbarPalmRejectionOn)}
+          : intl.formatMessage(intlMessages.toolbarPalmRejectionOn)
+        }
         icon={palmRejection ? 'palm_rejection' : 'no_palm_rejection'}
         onItemClick={this.handleSwitchPalmRejectionMode}
         className={styles.toolbarButton}

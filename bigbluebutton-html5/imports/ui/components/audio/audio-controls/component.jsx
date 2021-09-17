@@ -79,6 +79,7 @@ class AudioControls extends PureComponent {
         hideLabel
         aria-label={intl.formatMessage(intlMessages.joinAudio)}
         label={intl.formatMessage(intlMessages.joinAudio)}
+        data-test="joinAudio"
         color="default"
         ghost
         icon="audio_off"
@@ -206,7 +207,7 @@ class AudioControls extends PureComponent {
 
     return (
       <span className={styles.container}>
-        {isVoiceUser && inputStream && muteAlertEnabled && !listenOnly && muted ? (
+        {isVoiceUser && inputStream && muteAlertEnabled && !listenOnly && muted && showMute ? (
           <MutedAlert {...{
             muted, inputStream, isViewer, isPresenter,
           }}

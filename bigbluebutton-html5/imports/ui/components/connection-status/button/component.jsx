@@ -20,7 +20,7 @@ const intlMessages = defineMessages({
 
 class ConnectionStatusButton extends PureComponent {
   renderIcon(level = 'normal') {
-    return (
+    return(
       <div className={styles.iconWrapper}>
         <Icon
           level={level}
@@ -77,7 +77,7 @@ class ConnectionStatusButton extends PureComponent {
         color = 'success';
     }
 
-    const level = stats || 'normal';
+    const level = stats ? stats : 'normal';
 
     return (
       <div className={styles.buttonWrapper}>

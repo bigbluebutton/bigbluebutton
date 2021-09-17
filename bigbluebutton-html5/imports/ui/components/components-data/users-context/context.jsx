@@ -55,7 +55,7 @@ const reducer = (state, action) => {
     // USER PERSISTENT DATA
     case ACTIONS.ADDED_USER_PERSISTENT_DATA: {
       const { user } = action.value;
-      if (state[user.meetingId][user.userId]) {
+      if (state[user.meetingId] && state[user.meetingId][user.userId]) {
         return state;
       }
 
@@ -112,7 +112,7 @@ export const UsersContextConsumer = (Component) => (props) => (
   </UsersContext.Consumer>
 );
 
-export const withUsersConsumer = (Component) => UsersContextConsumer(Component);
+export const withUsersConsumer = Component => UsersContextConsumer(Component);
 
 export default {
   UsersContextConsumer,

@@ -1,0 +1,74 @@
+@import "/imports/ui/components/video-preview/styles";
+
+:root {
+  --thumbnail-btn-md: 48px;
+  --thumbnail-img-md: 47px;
+  --thumbnail-img-top: 0.063rem;
+  --thumbnail-img-left: 0.188rem;
+}
+
+.thumbnail {
+  position: absolute;
+  cursor: pointer;
+  width: var(--thumbnail-img-md);
+  height: var(--thumbnail-img-md);
+  top: var(--thumbnail-img-top);
+  left: var(--thumbnail-img-left);
+}
+
+.virtualBackgroundRowDropdown {
+  button {
+    border: var(--border-size-small) solid var(--user-thumbnail-border);
+    margin: 0 0.15em;
+  }  
+}
+
+.virtualBackgroundRowThumbnail {
+  @extend .virtualBackgroundRowDropdown;
+  margin-top: 0.4rem;
+}
+
+.virtualBackgroundItem {
+  outline: none;
+  display: flex;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+  border-radius: var(--border-size-large);
+  cursor: pointer;
+  height: var(--thumbnail-btn-md);
+  width: var(--thumbnail-btn-md);
+  z-index: 1;
+  background-color: transparent;
+}
+
+.virtualBackgroundItem + img {
+  border-radius: var(--border-size-large);
+}
+
+.disabled,
+.disabled + img {
+  filter: grayscale(1);
+}
+
+.virtualBackgroundItem:focus{
+  color: var(--btn-default-color);
+  background-color: transparent;
+  background-clip: padding-box;
+  box-shadow: 0 0 0 var(--border-size) var(--btn-primary-border);
+}
+
+.bgWrapper {
+  display: flex;
+  justify-content: flex-start;
+  overflow-x: auto;
+  margin: var(--border-size-large);
+  padding: var(--border-size-large);
+}
+
+.bgNone,
+.bgImage {
+  border-radius: var(--border-size-large);
+  height: var(--thumbnail-btn-md);
+  width: var(--thumbnail-btn-md);
+}

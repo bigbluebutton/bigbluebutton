@@ -17,17 +17,20 @@ const SUBSCRIPTIONS = [
   'users', 'meetings', 'polls', 'presentations', 'slides', 'slide-positions', 'captions',
   'voiceUsers', 'whiteboard-multi-user', 'screenshare', 'group-chat',
   'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'note', 'meeting-time-remaining',
-  'network-information', 'local-settings', 'users-typing', 'record-meetings', 'video-streams',
-  'connection-status', 'voice-call-states',
+  'local-settings', 'users-typing', 'record-meetings', 'video-streams',
+  'connection-status', 'voice-call-states', 'external-video-meetings',
 ];
 
 const EVENT_NAME = 'bbb-group-chat-messages-subscription-has-stoppped';
+const EVENT_NAME_SUBSCRIPTION_READY = 'bbb-group-chat-messages-subscriptions-ready';
 
 class Subscriptions extends Component {
   componentDidUpdate() {
     const { subscriptionsReady } = this.props;
     if (subscriptionsReady) {
       Session.set('subscriptionsReady', true);
+      const event = new Event(EVENT_NAME_SUBSCRIPTION_READY);
+      window.dispatchEvent(event);
     }
   }
 
@@ -69,6 +72,7 @@ export default withTracker(() => {
     subscriptionsHandlers.push(Meteor.subscribe('meetings', currentUser.role, subscriptionErrorHandler));
     subscriptionsHandlers.push(Meteor.subscribe('users', currentUser.role, subscriptionErrorHandler));
     subscriptionsHandlers.push(Meteor.subscribe('breakouts', currentUser.role, subscriptionErrorHandler));
+    subscriptionsHandlers.push(Meteor.subscribe('guestUser', currentUser.role, subscriptionErrorHandler));
   }
 
   const annotationsHandler = Meteor.subscribe('annotations', {
@@ -103,7 +107,7 @@ export default withTracker(() => {
       ],
     }).fetch();
 
-    const chatIds = chats.map((chat) => chat.chatId);
+    const chatIds = chats.map(chat => chat.chatId);
 
     const subHandler = {
       ...subscriptionErrorHandler,

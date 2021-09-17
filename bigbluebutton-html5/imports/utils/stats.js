@@ -83,7 +83,7 @@ const collect = (conn, callback) => {
       }
 
       setTimeout(monitor, INTERVAL, conn, stats);
-    }).catch((error) => {
+    }).catch(error => {
       logger.debug(
         {
           logCode: 'stats_get_stats_error',
@@ -93,19 +93,21 @@ const collect = (conn, callback) => {
       );
     });
   };
-  monitor(conn, stats, 1);
+  monitor(conn, stats);
 };
 
-const buildData = (inboundRTP) => ({
-  packets: {
-    received: inboundRTP.packetsReceived,
-    lost: inboundRTP.packetsLost,
-  },
-  bytes: {
-    received: inboundRTP.bytesReceived,
-  },
-  jitter: inboundRTP.jitter,
-});
+const buildData = inboundRTP => {
+  return {
+    packets: {
+      received: inboundRTP.packetsReceived,
+      lost: inboundRTP.packetsLost
+    },
+    bytes: {
+      received: inboundRTP.bytesReceived
+    },
+    jitter: inboundRTP.jitter
+  };
+};
 
 const buildResult = (interval) => {
   const rate = calculateRate(interval.packets);
@@ -124,19 +126,21 @@ const buildResult = (interval) => {
   };
 };
 
-const clearResult = () => ({
-  packets: {
-    received: 0,
-    lost: 0,
-  },
-  bytes: {
-    received: 0,
-  },
-  jitter: 0,
-  rate: 0,
-  loss: 0,
-  MOS: 0,
-});
+const clearResult = () => {
+  return {
+    packets: {
+      received: 0,
+      lost: 0
+    },
+    bytes: {
+      received: 0
+    },
+    jitter: 0,
+    rate: 0,
+    loss: 0,
+    MOS: 0
+  };
+};
 
 const diff = (single, first, last) => Math.abs((single ? 0 : last) - first);
 
@@ -167,7 +171,7 @@ const calculateLoss = (rate) => 1 - (rate / 100);
 
 const calculateMOS = (rate) => 1 + (0.035) * rate + (0.000007) * rate * (rate - 60) * (100 - rate);
 
-const monitorAudioConnection = (conn) => {
+const monitorAudioConnection = conn => {
   if (!conn) return;
 
   logger.debug(
@@ -181,21 +185,6 @@ const monitorAudioConnection = (conn) => {
   });
 };
 
-const monitorVideoConnection = (conn) => {
-  if (!conn) return;
-
-  logger.debug(
-    { logCode: 'stats_video_monitor' },
-    'Starting to monitor video connection',
-  );
-
-  collect(conn, (result) => {
-    const event = new CustomEvent('videostats', { detail: result });
-    window.dispatchEvent(event);
-  });
-};
-
 export {
   monitorAudioConnection,
-  monitorVideoConnection,
 };

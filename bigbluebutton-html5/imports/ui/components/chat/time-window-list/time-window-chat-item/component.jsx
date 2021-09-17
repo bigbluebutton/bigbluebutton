@@ -12,6 +12,9 @@ import { styles } from './styles';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_CLEAR_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_clear;
+const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
+const CHAT_PUBLIC_ID = CHAT_CONFIG.public_id;
+const CHAT_EMPHASIZE_TEXT = CHAT_CONFIG.moderatorChatEmphasized;
 
 const propTypes = {
   user: PropTypes.shape({
@@ -78,7 +81,7 @@ class TimeWindowChatItem extends PureComponent {
       intl,
     } = this.props;
 
-    if (messages && messages[0].text.includes('bbb-published-poll-<br/>')) {
+    if (messages && messages[0].id.includes(CHAT_POLL_RESULTS_MESSAGE)) {
       return this.renderPollItem();
     }
 
@@ -94,7 +97,7 @@ class TimeWindowChatItem extends PureComponent {
                   text={intlMessages[message.text] ? intl.formatMessage(intlMessages[message.text]) : message.text }
                   time={message.time}
                   isSystemMessage={message.id ? true : false}
-                  systemMessageType={message.text === 'PUBLIC_CHAT_CLEAR' ? 'chatClearMessageText' : 'chatWelcomeMessageText'}
+                  systemMessageType={message.text === CHAT_CLEAR_MESSAGE ? 'chatClearMessageText' : 'chatWelcomeMessageText'}
                   chatAreaId={chatAreaId}
                   handleReadMessage={handleReadMessage}
                 />
@@ -127,6 +130,9 @@ class TimeWindowChatItem extends PureComponent {
     const regEx = /<a[^>]+>/i;
     ChatLogger.debug('TimeWindowChatItem::renderMessageItem', this.props);
     const defaultAvatarString = name?.toLowerCase().slice(0, 2) || "  ";
+    const emphasizedTextClass = isModerator && CHAT_EMPHASIZE_TEXT && chatId === CHAT_PUBLIC_ID ?
+      styles.emphasizedMessage : null;
+
     return (
       <div className={styles.item} key={`time-window-${messageKey}`}>
         <div className={styles.wrapper}>
@@ -159,7 +165,9 @@ class TimeWindowChatItem extends PureComponent {
             <div className={styles.messages}>
               {messages.map(message => (
                 <MessageChatItem
-                  className={(regEx.test(message.text) ? styles.hyperlink : styles.message)}
+                  className={regEx.test(message.text) ?
+                    cx(styles.hyperlink, emphasizedTextClass) :
+                    cx(styles.message, emphasizedTextClass)}
                   key={message.id}
                   text={message.text}
                   time={message.time}
@@ -193,9 +201,9 @@ class TimeWindowChatItem extends PureComponent {
       timestamp,
       color,
       intl,
-      isDefaultPoll,
-      extractPollQuestion,
+      getPollResultString,
       messages,
+      extra,
       scrollArea,
       chatAreaId,
       lastReadMessageTime,
@@ -229,15 +237,13 @@ class TimeWindowChatItem extends PureComponent {
               type="poll"
               className={cx(styles.message, styles.pollWrapper)}
               key={messages[0].id}
-              text={messages[0].text}
+              text={getPollResultString(extra.pollResultData, intl)}
               time={messages[0].time}
               chatAreaId={chatAreaId}
               lastReadMessageTime={lastReadMessageTime}
               handleReadMessage={handleReadMessage}
               scrollArea={scrollArea}
               color={color}
-              isDefaultPoll={isDefaultPoll(messages[0].text.replace('bbb-published-poll-<br/>', ''))}
-              extractPollQuestion={extractPollQuestion}
             />
           </div>
         </div>

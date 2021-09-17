@@ -99,7 +99,6 @@
     "app.presentationUploder.fileToUpload": "Bit će postavljeno ...",
     "app.presentationUploder.currentBadge": "Trenutačno",
     "app.presentationUploder.upload.progress": "Postavljanje ({0}%)",
-    "app.presentationUploder.upload.413": "Datoteka je prevelika. Podijelite ju u više manjih datoteka.",
     "app.presentationUploder.conversion.genericConversionStatus": "Konverzija datoteke ...",
     "app.presentationUploder.removePresentationLabel": "Uklonite prezentaciju",
     "app.presentationUploder.tableHeading.filename": "Datoteka",
@@ -278,7 +277,6 @@
     "app.externalVideo.urlInput": "Dodaj URL videa",
     "app.externalVideo.urlError": "Video URL nije dozvoljen",
     "app.externalVideo.close": "Zatvori",
-    "app.network.connection.effective.slow.help": "Više informacija",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Podijeli vanjski video",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Zaustavi dijeljenje vanjskog videa"
 

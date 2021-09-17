@@ -1,8 +1,7 @@
 import Breakouts from '/imports/api/breakouts';
-import Meetings from '/imports/api/meetings';
+import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
-import { Session } from 'meteor/session';
 import Users from '/imports/api/users';
 import UserListService from '/imports/ui/components/user-list/service';
 import fp from 'lodash/fp';
@@ -23,25 +22,52 @@ const findBreakouts = () => {
 
 const breakoutRoomUser = (breakoutId) => {
   const breakoutRooms = findBreakouts();
-  const breakoutRoom = breakoutRooms.filter((breakout) => breakout.breakoutId === breakoutId).shift();
-  const breakoutUser = breakoutRoom.users.filter((user) => user.userId === Auth.userID).shift();
+  const breakoutRoom = breakoutRooms.filter(breakout => breakout.breakoutId === breakoutId).shift();
+  const breakoutUser = breakoutRoom.users?.filter(user => user.userId === Auth.userID).shift();
   return breakoutUser;
-};
-
-const closeBreakoutPanel = () => {
-  Session.set('openPanel', 'userlist');
-  window.dispatchEvent(new Event('panelChanged'));
 };
 
 const endAllBreakouts = () => {
   makeCall('endAllBreakouts');
-  closeBreakoutPanel();
 };
 
 const requestJoinURL = (breakoutId) => {
   makeCall('requestJoinURL', {
     breakoutId,
   });
+};
+
+const isExtendTimeHigherThanMeetingRemaining = (extendTimeInMinutes) => {
+  const meetingId = Auth.meetingID;
+  const meetingTimeRemaining = MeetingTimeRemaining.findOne({ meetingId });
+
+  if (meetingTimeRemaining) {
+    const { timeRemaining } = meetingTimeRemaining;
+
+    if (timeRemaining) {
+      const breakoutRooms = findBreakouts();
+      const breakoutRoomsTimeRemaining = (breakoutRooms[0]).timeRemaining;
+      const newBreakoutRoomsRemainingTime = breakoutRoomsTimeRemaining + (extendTimeInMinutes * 60);
+      //  Keep margin of 5 seconds for breakout rooms end before parent meeting
+      const meetingTimeRemainingWithMargin = timeRemaining - 5;
+
+      if (newBreakoutRoomsRemainingTime > meetingTimeRemainingWithMargin) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+};
+
+const extendBreakoutsTime = (extendTimeInMinutes) => {
+  if (extendTimeInMinutes <= 0) return false;
+
+  makeCall('extendBreakoutsTime', {
+    extendTimeInMinutes,
+  });
+
+  return true;
 };
 
 const transferUserToMeeting = (fromMeetingId, toMeetingId) => makeCall('transferUser', fromMeetingId, toMeetingId);
@@ -114,12 +140,13 @@ const isUserInBreakoutRoom = (joinedUsers) => {
 export default {
   findBreakouts,
   endAllBreakouts,
+  extendBreakoutsTime,
+  isExtendTimeHigherThanMeetingRemaining,
   requestJoinURL,
   breakoutRoomUser,
   transferUserToMeeting,
   transferToBreakout,
   meetingId: () => Auth.meetingID,
-  closeBreakoutPanel,
   amIModerator,
   getBreakoutUserByUserId,
   getBreakoutByUser,

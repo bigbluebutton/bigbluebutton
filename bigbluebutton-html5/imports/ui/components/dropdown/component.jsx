@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
 import TetherComponent from 'react-tether';
@@ -9,8 +9,13 @@ import Button from '/imports/ui/components/button/component';
 import screenreaderTrap from 'makeup-screenreader-trap';
 import { Session } from 'meteor/session';
 import { styles } from './styles';
-import DropdownTrigger from './trigger/component';
-import DropdownContent from './content/component';
+
+import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
+import DropdownContent from '/imports/ui/components/dropdown/content/component';
+import DropdownList from '/imports/ui/components/dropdown/list/component';
+import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
+import DropdownListTitle from '/imports/ui/components/dropdown/list/title/component';
 
 const intlMessages = defineMessages({
   close: {
@@ -33,8 +38,8 @@ const propTypes = {
         + ` \`${componentName}\`. Validation failed.`);
     }
 
-    const trigger = children.find(x => x.type === DropdownTrigger);
-    const content = children.find(x => x.type === DropdownContent);
+    const trigger = children.find((x) => x.type === DropdownTrigger);
+    const content = children.find((x) => x.type === DropdownContent);
 
     if (!trigger) {
       return new Error(`Invalid prop \`${propName}\` supplied to`
@@ -53,11 +58,12 @@ const propTypes = {
   onHide: PropTypes.func,
   onShow: PropTypes.func,
   autoFocus: PropTypes.bool,
-  intl: PropTypes.object.isRequired,
   tethered: PropTypes.bool,
+  getContent: PropTypes.func,
 };
 
 const defaultProps = {
+  tethered: false,
   children: null,
   onShow: noop,
   onHide: noop,
@@ -79,11 +85,19 @@ const targetAttachments = {
 class Dropdown extends Component {
   constructor(props) {
     super(props);
-    this.state = { isOpen: false, isPortrait:deviceInfo.isPortrait() };
+    this.state = {
+      isOpen: false,
+      isPortrait: deviceInfo.isPortrait(),
+    };
     this.handleShow = this.handleShow.bind(this);
     this.handleHide = this.handleHide.bind(this);
     this.handleToggle = this.handleToggle.bind(this);
     this.handleWindowClick = this.handleWindowClick.bind(this);
+    this.updateOrientation = this.updateOrientation.bind(this);
+  }
+
+  componentDidMount() {
+    window.addEventListener('resize', this.updateOrientation);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -96,8 +110,6 @@ class Dropdown extends Component {
 
     const { isOpen } = this.state;
 
-    const openPanel = Session.get('openPanel');
-    const panelRef = document.getElementById(`${openPanel}Panel`);
     const enableSRTrap = isOpen && !tethered;
 
     if (enableSRTrap) {
@@ -123,16 +135,8 @@ class Dropdown extends Component {
     if (prevProps.keepOpen && !keepOpen) onHide();
   }
 
-  handleShow() {
-    Session.set('dropdownOpen', true);
-    const {
-      onShow,
-    } = this.props;
-    this.setState({ isOpen: true }, () => {
-      const { addEventListener } = window;
-      onShow();
-      addEventListener('click', this.handleWindowClick, true);
-    });
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.updateOrientation);
   }
 
   handleHide() {
@@ -145,16 +149,17 @@ class Dropdown extends Component {
     });
   }
 
-  componentDidMount() {
-    window.addEventListener('resize', this.updateOrientation);
+  handleShow() {
+    Session.set('dropdownOpen', true);
+    const {
+      onShow,
+    } = this.props;
+    this.setState({ isOpen: true }, () => {
+      const { addEventListener } = window;
+      onShow();
+      addEventListener('click', this.handleWindowClick, true);
+    });
   }
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.updateOrientation);
-  }
-
-  updateOrientation = () => {
-    this.setState({ isPortrait:deviceInfo.isPortrait() });
-  };
 
   handleWindowClick(event) {
     const { keepOpen, onHide } = this.props;
@@ -197,6 +202,10 @@ class Dropdown extends Component {
     return isOpen ? this.handleHide() : this.handleShow();
   }
 
+  updateOrientation() {
+    this.setState({ isPortrait: deviceInfo.isPortrait() });
+  }
+
   render() {
     const {
       children,
@@ -208,7 +217,6 @@ class Dropdown extends Component {
       getContent,
       ...otherProps
     } = this.props;
-
     const { isOpen, isPortrait } = this.state;
     const { isPhone } = deviceInfo;
     const placements = placement && placement.replace(' ', '-');
@@ -222,8 +230,8 @@ class Dropdown extends Component {
       transform: '',
     };
 
-    let trigger = children.find(x => x.type === DropdownTrigger);
-    let content = children.find(x => x.type === DropdownContent);
+    let trigger = children.find((x) => x.type === DropdownTrigger);
+    let content = children.find((x) => x.type === DropdownContent);
 
     trigger = React.cloneElement(trigger, {
       ref: (ref) => { this.trigger = ref; },
@@ -248,7 +256,6 @@ class Dropdown extends Component {
     });
 
     const showCloseBtn = (isOpen && keepOpen) || (isOpen && keepOpen === null);
-
     return (
       <div
         className={cx(styles.dropdown, className)}
@@ -280,11 +287,12 @@ class Dropdown extends Component {
                     to: 'scrollParent',
                   },
                 ]}
-                renderTarget={ref => (
+                renderTarget={(ref) => (
                   <span ref={ref}>
                     {trigger}
-                  </span>)}
-                renderElement={ref => (
+                  </span>
+                )}
+                renderElement={(ref) => (
                   <div
                     ref={ref}
                   >
@@ -300,11 +308,12 @@ class Dropdown extends Component {
                         />
                       ) : null}
                   </div>
-                )
-                }
-              />)
+                )}
+              />
+            )
             : (
-              <Fragment>
+              // Fix eslint rule https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-fragments.md
+              <>
                 {trigger}
                 {content}
                 {showCloseBtn
@@ -317,7 +326,7 @@ class Dropdown extends Component {
                       onClick={this.handleHide}
                     />
                   ) : null}
-              </Fragment>
+              </>
             )
         }
       </div>
@@ -327,4 +336,11 @@ class Dropdown extends Component {
 
 Dropdown.propTypes = propTypes;
 Dropdown.defaultProps = defaultProps;
+
+Dropdown.DropdownTrigger = DropdownTrigger;
+Dropdown.DropdownContent = DropdownContent;
+Dropdown.DropdownList = DropdownList;
+Dropdown.DropdownListSeparator = DropdownListSeparator;
+Dropdown.DropdownListItem = DropdownListItem;
+Dropdown.DropdownListTitle = DropdownListTitle;
 export default injectIntl(Dropdown, { forwardRef: true });

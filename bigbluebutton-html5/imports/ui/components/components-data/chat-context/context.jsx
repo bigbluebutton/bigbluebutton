@@ -29,7 +29,7 @@ export const ACTIONS = {
 };
 
 export const MESSAGE_TYPES = {
-  // messages before user login, synced via makecall
+  //messages before user login, synced via makecall
   HISTORY: 'history',
   // messages after user login, synced via subscription
   STREAM: 'stream',
@@ -52,6 +52,7 @@ export const ChatContext = createContext();
 const removedMessagesReadState = {};
 
 const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY) => {
+  
   const timeWindow = generateTimeWindow(msg.timestamp);
   const userId = msg.sender;
   const keyName = `${userId}-${timeWindow}`;
@@ -114,8 +115,8 @@ const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY
   const forPrivateChat = stateMessages.messageGroups;
   const messageGroups = msg.chatId === getGroupChatId() ? forPublicChat : forPrivateChat;
   const timewindowIndex = stateMessages.chatIndexes[keyName];
-  const groupMessage = messageGroups[`${keyName}-${timewindowIndex}`];
-
+  const groupMessage = messageGroups[keyName + '-' + timewindowIndex];
+  
   if (!groupMessage || (groupMessage && groupMessage.sender !== stateMessages.lastSender) || msg.id.startsWith(SYSTEM_CHAT_TYPE)) {
     const [tempGroupMessage, sender, newIndex] = msgBuilder(msg, stateMessages);
     stateMessages.lastSender = sender;
@@ -317,11 +318,11 @@ const reducer = (state, action) => {
       const chatIds = Object.keys(newState);
       chatIds.forEach((chatId) => {
         const chat = newState[chatId];
-        ['posJoinMessages', 'messageGroups'].forEach((group) => {
+        ['posJoinMessages','messageGroups'].forEach((group)=> {
           const messages = chat[group];
           if (messages) {
             const timeWindowIds = Object.keys(messages);
-            timeWindowIds.forEach((timeWindowId) => {
+            timeWindowIds.forEach((timeWindowId)=> {
               const timeWindow = messages[timeWindowId];
               if (timeWindow.messageType === MESSAGE_TYPES.STREAM) {
                 chat.unreadTimeWindows.delete(timeWindowId);
@@ -330,7 +331,7 @@ const reducer = (state, action) => {
               }
             });
           }
-        });
+        })
       });
 
       return newState;

@@ -21,8 +21,14 @@ const intlMessages = defineMessages({
   pollAnswerDesc: {
     id: 'app.polling.pollAnswerDesc',
   },
-  pollQestionTitle: {
+  pollQuestionTitle: {
     id: 'app.polling.pollQuestionTitle',
+  },
+  responseIsSecret: {
+    id: 'app.polling.responseSecret',
+  },
+  responseNotSecret: {
+    id: 'app.polling.responseNotSecret',
   },
   submitLabel: {
     id: 'app.polling.submitLabel',
@@ -115,6 +121,8 @@ class Polling extends Component {
       handleVote,
       handleTypedVote,
       pollAnswerIds,
+      pollTypes,
+      isDefaultPoll,
     } = this.props;
 
     const {
@@ -123,59 +131,77 @@ class Polling extends Component {
 
     if (!poll) return null;
 
-    const { stackOptions, answers, question } = poll;
+    const { stackOptions, answers, question, pollType } = poll;
+    const defaultPoll = isDefaultPoll(pollType);
 
     return (
-      <div>
-        {
-          poll.pollType !== 'RP' && (
-            <span>
-              {
-                question.length === 0
-                && (
-                  <div className={styles.pollingTitle}>
-                    {intl.formatMessage(intlMessages.pollingTitleLabel)}
-                  </div>
-                )
-              }
-              <div className={cx(pollAnswerStyles)}>
-                {poll.answers.map((pollAnswer) => {
-                  const formattedMessageIndex = pollAnswer.key.toLowerCase();
-                  let label = pollAnswer.key;
-                  if (pollAnswerIds[formattedMessageIndex]) {
-                    label = intl.formatMessage(pollAnswerIds[formattedMessageIndex]);
-                  }
-
-                  return (
-                    <div
-                      key={pollAnswer.id}
-                      className={styles.pollButtonWrapper}
-                    >
-                      <Button
-                        disabled={!isMeteorConnected}
-                        className={styles.pollingButton}
-                        color="primary"
-                        size="md"
-                        label={label}
-                        key={pollAnswer.key}
-                        onClick={() => handleVote(poll.pollId, [pollAnswer.id])}
-                        aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
-                        aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
-                        data-test="pollAnswerOption"
-                      />
-                      <div
-                        className={styles.hidden}
-                        id={`pollAnswerLabel${pollAnswer.key}`}
-                      >
-                        {intl.formatMessage(intlMessages.pollAnswerLabel, { 0: label })}
-                      </div>
-                      <div
-                        className={styles.hidden}
-                        id={`pollAnswerDesc${pollAnswer.key}`}
-                      >
-                        {intl.formatMessage(intlMessages.pollAnswerDesc, { 0: label })}
-                      </div>
+      <div className={styles.overlay}>
+        <div
+          data-test="pollingContainer"
+          className={cx({
+            [styles.pollingContainer]: true,
+            [styles.autoWidth]: stackOptions,
+          })}
+          role="alert"
+        >
+          {
+            question.length > 0 && (
+              <span className={styles.qHeader}>
+                <div className={styles.qTitle}>
+                  {intl.formatMessage(intlMessages.pollQuestionTitle)}
+                </div>
+                <div data-test="pollQuestion" className={styles.qText}>{question}</div>
+              </span>
+            )
+          }
+          {
+            poll.pollType !== pollTypes.Response && (
+              <span>
+                {
+                  question.length === 0 && (
+                    <div className={styles.pollingTitle}>
+                      {intl.formatMessage(intlMessages.pollingTitleLabel)}
                     </div>
+                  )
+                }
+                <div className={cx(pollAnswerStyles)}>
+                  {poll.answers.map((pollAnswer) => {
+                    const formattedMessageIndex = pollAnswer.key.toLowerCase();
+                    let label = pollAnswer.key;
+                    if (defaultPoll && pollAnswerIds[formattedMessageIndex]) {
+                      label = intl.formatMessage(pollAnswerIds[formattedMessageIndex]);
+                    }
+
+                    return (
+                      <div
+                        key={pollAnswer.id}
+                        className={styles.pollButtonWrapper}
+                      >
+                        <Button
+                          disabled={!isMeteorConnected}
+                          className={styles.pollingButton}
+                          color="primary"
+                          size="md"
+                          label={label}
+                          key={pollAnswer.key}
+                          onClick={() => handleVote(poll.pollId, pollAnswer)}
+                          aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
+                          aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
+                          data-test="pollAnswerOption"
+                        />
+                        <div
+                          className={styles.hidden}
+                          id={`pollAnswerLabel${pollAnswer.key}`}
+                        >
+                          {intl.formatMessage(intlMessages.pollAnswerLabel, { 0: label })}
+                        </div>
+                        <div
+                          className={styles.hidden}
+                          id={`pollAnswerDesc${pollAnswer.key}`}
+                        >
+                          {intl.formatMessage(intlMessages.pollAnswerDesc, { 0: label })}
+                        </div>
+                      </div>
                   );
                 })}
               </div>
@@ -183,7 +209,7 @@ class Polling extends Component {
           )
         }
         {
-          poll.pollType === 'RP'
+          poll.pollType === pollTypes.Response
           && (
             <div className={styles.typedResponseWrapper}>
               <input
@@ -215,6 +241,10 @@ class Polling extends Component {
             </div>
           )
         }
+        <div className={styles.pollingSecret}>
+          {intl.formatMessage(poll.secretPoll ? intlMessages.responseIsSecret : intlMessages.responseNotSecret)}
+        </div>
+      </div>
       </div>
     );
   }

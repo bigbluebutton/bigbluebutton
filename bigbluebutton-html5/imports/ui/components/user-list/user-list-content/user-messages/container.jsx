@@ -13,7 +13,7 @@ const UserMessagesContainer = (props) => {
   const { chats: groupChatsMessages } = usingChatContext;
   const { users } = usingUsersContext;
   const { groupChat: groupChats } = usingGroupChatContext;
-  const activeChats = Service.getActiveChats({ groupChatsMessages, groupChats, users: users[Auth.meetingID] });
+  const activeChats = Service.getActiveChats({ groupChatsMessages, groupChats, users:users[Auth.meetingID] });
   return <UserMessages {...{ ...props, activeChats }} />;
 };
 

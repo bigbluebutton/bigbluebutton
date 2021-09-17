@@ -16,7 +16,7 @@ case class PollShowResultEvtMsgBody(userId: String, pollId: String, poll: Simple
 
 object PollStartedEvtMsg { val NAME = "PollStartedEvtMsg" }
 case class PollStartedEvtMsg(header: BbbClientMsgHeader, body: PollStartedEvtMsgBody) extends BbbCoreMsg
-case class PollStartedEvtMsgBody(userId: String, pollId: String, pollType: String, question: String, poll: SimplePollOutVO)
+case class PollStartedEvtMsgBody(userId: String, pollId: String, pollType: String, secretPoll: Boolean, question: String, poll: SimplePollOutVO)
 
 object PollStoppedEvtMsg { val NAME = "PollStoppedEvtMsg" }
 case class PollStoppedEvtMsg(header: BbbClientMsgHeader, body: PollStoppedEvtMsgBody) extends BbbCoreMsg
@@ -28,11 +28,11 @@ case class PollUpdatedEvtMsgBody(pollId: String, poll: SimplePollResultOutVO)
 
 object UserRespondedToPollRecordMsg { val NAME = "UserRespondedToPollRecordMsg" }
 case class UserRespondedToPollRecordMsg(header: BbbClientMsgHeader, body: UserRespondedToPollRecordMsgBody) extends BbbCoreMsg
-case class UserRespondedToPollRecordMsgBody(pollId: String, answerIds: Seq[Int])
+case class UserRespondedToPollRecordMsgBody(pollId: String, answerId: Int, answer: String, isSecret: Boolean)
 
 object RespondToPollReqMsg { val NAME = "RespondToPollReqMsg" }
 case class RespondToPollReqMsg(header: BbbClientMsgHeader, body: RespondToPollReqMsgBody) extends StandardMsg
-case class RespondToPollReqMsgBody(requesterId: String, pollId: String, questionId: Int, answerIds: Seq[Int])
+case class RespondToPollReqMsgBody(requesterId: String, pollId: String, questionId: Int, answerId: Int)
 
 object RespondToTypedPollReqMsg { val NAME = "RespondToTypedPollReqMsg" }
 case class RespondToTypedPollReqMsg(header: BbbClientMsgHeader, body: RespondToTypedPollReqMsgBody) extends StandardMsg
@@ -40,7 +40,7 @@ case class RespondToTypedPollReqMsgBody(requesterId: String, pollId: String, que
 
 object UserRespondedToPollRespMsg { val NAME = "UserRespondedToPollRespMsg" }
 case class UserRespondedToPollRespMsg(header: BbbClientMsgHeader, body: UserRespondedToPollRespMsgBody) extends BbbCoreMsg
-case class UserRespondedToPollRespMsgBody(pollId: String, userId: String, answerIds: Seq[Int])
+case class UserRespondedToPollRespMsgBody(pollId: String, userId: String, answerId: Int)
 
 object UserRespondedToTypedPollRespMsg { val NAME = "UserRespondedToTypedPollRespMsg" }
 case class UserRespondedToTypedPollRespMsg(header: BbbClientMsgHeader, body: UserRespondedToTypedPollRespMsgBody) extends BbbCoreMsg
@@ -52,11 +52,11 @@ case class ShowPollResultReqMsgBody(requesterId: String, pollId: String)
 
 object StartCustomPollReqMsg { val NAME = "StartCustomPollReqMsg" }
 case class StartCustomPollReqMsg(header: BbbClientMsgHeader, body: StartCustomPollReqMsgBody) extends StandardMsg
-case class StartCustomPollReqMsgBody(requesterId: String, pollId: String, pollType: String, isMultipleResponse: Boolean, answers: Seq[String], question: String)
+case class StartCustomPollReqMsgBody(requesterId: String, pollId: String, pollType: String, secretPoll: Boolean, answers: Seq[String], question: String)
 
 object StartPollReqMsg { val NAME = "StartPollReqMsg" }
 case class StartPollReqMsg(header: BbbClientMsgHeader, body: StartPollReqMsgBody) extends StandardMsg
-case class StartPollReqMsgBody(requesterId: String, pollId: String, pollType: String, question: String, isMultipleResponse: Boolean)
+case class StartPollReqMsgBody(requesterId: String, pollId: String, pollType: String, secretPoll: Boolean, question: String)
 
 object StopPollReqMsg { val NAME = "StopPollReqMsg" }
 case class StopPollReqMsg(header: BbbClientMsgHeader, body: StopPollReqMsgBody) extends StandardMsg

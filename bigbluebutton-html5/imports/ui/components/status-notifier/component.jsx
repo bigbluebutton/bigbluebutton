@@ -114,7 +114,8 @@ class StatusNotifier extends Component {
         break;
     }
 
-    const raisedHandMessageString = length === 1 ? messages.raisedHandDescOneUser : messages.raisedHandDesc;
+    const raisedHandMessageString
+        = length === 1 ? messages.raisedHandDescOneUser : messages.raisedHandDesc;
     return intl.formatMessage(raisedHandMessageString, { 0: formattedNames });
   }
 

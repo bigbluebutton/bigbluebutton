@@ -62,7 +62,7 @@ export function initCursorStreamListener() {
     cursorStreamListener.on('message', ({ cursors }) => {
       Object.keys(cursors).forEach((cursorId) => {
         const cursor = cursors[cursorId];
-        const { userId } = cursor;
+        const userId = cursor.userId;
         delete cursor.userId;
         if (Auth.userID === userId) return;
         updateCursor(userId, cursor);

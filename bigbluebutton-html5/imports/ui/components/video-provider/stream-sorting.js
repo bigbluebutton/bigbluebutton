@@ -7,9 +7,9 @@ const DEFAULT_SORTING_MODE = 'LOCAL_ALPHABETICAL';
 export const sortVoiceActivity = (s1, s2) => {
   if (s2.lastFloorTime < s1.lastFloorTime) {
     return -1;
-  } if (s2.lastFloorTime > s1.lastFloorTime) {
+  } else if (s2.lastFloorTime > s1.lastFloorTime) {
     return 1;
-  } return 0;
+  } else return 0;
 };
 
 // lastFloorTime (descending) -> alphabetical -> local
@@ -22,29 +22,35 @@ export const sortVoiceActivityLocal = (s1, s2) => {
 
   return sortVoiceActivity(s1, s2)
     || UserListService.sortUsersByName(s1, s2);
-};
+}
 
 // local -> lastFloorTime (descending) -> alphabetical
-export const sortLocalVoiceActivity = (s1, s2) => UserListService.sortUsersByCurrent(s1, s2)
+export const sortLocalVoiceActivity = (s1, s2) => {
+  return UserListService.sortUsersByCurrent(s1, s2)
     || sortVoiceActivity(s1, s2)
     || UserListService.sortUsersByName(s1, s2);
+}
 
 // local -> alphabetic
-export const sortLocalAlphabetical = (s1, s2) => UserListService.sortUsersByCurrent(s1, s2)
+export const sortLocalAlphabetical = (s1, s2) => {
+  return UserListService.sortUsersByCurrent(s1, s2)
     || UserListService.sortUsersByName(s1, s2);
+};
 
 export const sortPresenter = (s1, s2) => {
   if (UserListService.isUserPresenter(s1.userId)) {
     return -1;
-  } if (UserListService.isUserPresenter(s2.userId)) {
+  } else if (UserListService.isUserPresenter(s2.userId)) {
     return 1;
-  } return 0;
+  } else return 0;
 };
 
 // local -> presenter -> alphabetical
-export const sortLocalPresenterAlphabetical = (s1, s2) => UserListService.sortUsersByCurrent(s1, s2)
+export const sortLocalPresenterAlphabetical = (s1, s2) => {
+  return UserListService.sortUsersByCurrent(s1, s2)
     || sortPresenter(s1, s2)
     || UserListService.sortUsersByName(s1, s2);
+};
 
 // SORTING_METHODS: registrar of configurable video stream sorting modes
 // Keys are the method name (String) which are to be configured in settings.yml
@@ -69,19 +75,18 @@ export const sortLocalPresenterAlphabetical = (s1, s2) => UserListService.sortUs
 //     1.1.: the sorting function has the same behaviour as a regular .sort callback
 //   2 - add an entry to SORTING_METHODS, the key being the name to be used
 //   in settings.yml and the value object like the aforementioned
+const MANDATORY_DATA_TYPES = { userId: 1, stream: 1, name: 1, deviceId: 1, };
 const SORTING_METHODS = Object.freeze({
   // Default
   LOCAL_ALPHABETICAL: {
     sortingMethod: sortLocalAlphabetical,
-    neededDataTypes: {
-      userId: 1, stream: 1, name: 1,
-    },
+    neededDataTypes: MANDATORY_DATA_TYPES,
     localFirst: true,
   },
   VOICE_ACTIVITY_LOCAL: {
     sortingMethod: sortVoiceActivityLocal,
     neededDataTypes: {
-      userId: 1, stream: 1, name: 1, lastFloorTime: 1, floor: 1,
+      lastFloorTime: 1, floor: 1, ...MANDATORY_DATA_TYPES,
     },
     filter: true,
     localFirst: false,
@@ -89,21 +94,21 @@ const SORTING_METHODS = Object.freeze({
   LOCAL_VOICE_ACTIVITY: {
     sortingMethod: sortLocalVoiceActivity,
     neededDataTypes: {
-      userId: 1, stream: 1, name: 1, lastFloorTime: 1, floor: 1,
+      lastFloorTime: 1, floor: 1, ...MANDATORY_DATA_TYPES,
     },
     filter: true,
     localFirst: true,
   },
   LOCAL_PRESENTER_ALPHABETICAL: {
     sortingMethod: sortLocalPresenterAlphabetical,
-    neededDataTypes: {
-      userId: 1, stream: 1, name: 1,
-    },
+    neededDataTypes: MANDATORY_DATA_TYPES,
     localFirst: true,
-  },
+  }
 });
 
-export const getSortingMethod = (identifier) => SORTING_METHODS[identifier] || SORTING_METHODS[DEFAULT_SORTING_MODE];
+export const getSortingMethod = (identifier) => {
+  return SORTING_METHODS[identifier] || SORTING_METHODS[DEFAULT_SORTING_MODE];
+};
 
 export const sortVideoStreams = (streams, mode) => {
   const { sortingMethod, filter } = getSortingMethod(mode);
@@ -111,7 +116,7 @@ export const sortVideoStreams = (streams, mode) => {
 
   if (!filter) return sorted;
 
-  return sorted.map((videoStream) => ({
+  return sorted.map(videoStream => ({
     stream: videoStream.stream,
     userId: videoStream.userId,
     name: videoStream.name,

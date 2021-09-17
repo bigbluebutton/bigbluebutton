@@ -20,12 +20,12 @@ function groupChatMsg(chatsIds) {
 
   Logger.debug('Publishing group-chat-msg', { meetingId, userId });
 
-  const User = Users.findOne({ userId });
+  const User = Users.findOne({ userId, meetingId });
   const selector = {
     timestamp: { $gte: User.authTokenValidatedTime },
     $or: [
       { meetingId, chatId: { $eq: PUBLIC_GROUP_CHAT_ID } },
-      { chatId: { $in: chatsIds } },
+      { meetingId, chatId: { $in: chatsIds } },
     ],
   };
   return GroupChatMsg.find(selector);

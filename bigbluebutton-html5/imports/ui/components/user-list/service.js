@@ -10,10 +10,13 @@ import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
+import VideoService from '/imports/ui/components/video-provider/service';
 import logger from '/imports/startup/client/logger';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
+import { Session } from 'meteor/session';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
@@ -22,6 +25,8 @@ const DIAL_IN_CLIENT_TYPE = 'dial-in-user';
 
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
+// session for chats the current user started
+const STARTED_CHAT_LIST_KEY = 'startedChatList';
 
 const CUSTOM_LOGO_URL_KEY = 'CustomLogoUrl';
 
@@ -139,7 +144,7 @@ const sortUsers = (a, b) => {
 };
 
 const isPublicChat = (chat) => (
-  chat.userId === 'public'
+  chat.userId === PUBLIC_CHAT_ID
 );
 
 const userFindSorting = {
@@ -174,6 +179,19 @@ const addWhiteboardAccess = (users) => {
   });
 };
 
+const addIsSharingWebcam = (users) => {
+  const usersId = VideoService.getUsersIdFromVideoStreams();
+
+  return users.map((user) => {
+    const isSharingWebcam = usersId.includes(user.userId);
+
+    return {
+      ...user,
+      isSharingWebcam,
+    };
+  });
+};
+
 const getUsers = () => {
   let users = Users
     .find({
@@ -191,7 +209,7 @@ const getUsers = () => {
     }
   }
 
-  return addWhiteboardAccess(users).sort(sortUsers);
+  return addIsSharingWebcam(addWhiteboardAccess(users)).sort(sortUsers);
 };
 
 const getUserCount = () => Users.find({ meetingId: Auth.meetingID }).count();
@@ -229,13 +247,15 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
 
   const chatInfo = chatIds.map((chatId) => {
     const contextChat = groupChatsMessages[chatId];
-    const isPublicChat = chatId === PUBLIC_GROUP_CHAT_ID;
+    const isPublicChatId = chatId === PUBLIC_GROUP_CHAT_ID;
     let unreadMessagesCount = 0;
     if (contextChat) {
       const unreadTimewindows = contextChat.unreadTimeWindows;
+      // eslint-disable-next-line
       for (const unreadTimeWindowId of unreadTimewindows) {
-        const timeWindow = (isPublicChat
-          ? contextChat?.preJoinMessages[unreadTimeWindowId] || contextChat?.posJoinMessages[unreadTimeWindowId]
+        const timeWindow = (isPublicChatId
+          ? contextChat?.preJoinMessages[unreadTimeWindowId]
+          || contextChat?.posJoinMessages[unreadTimeWindowId]
           : contextChat?.messageGroups[unreadTimeWindowId]);
         unreadMessagesCount += timeWindow.content.length;
       }
@@ -245,43 +265,53 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
       const groupChatsParticipants = groupChats[chatId].participants;
       const otherParticipant = groupChatsParticipants.filter((user) => user.id !== Auth.userID)[0];
       const user = users[otherParticipant.id];
+      const startedChats = Session.get(STARTED_CHAT_LIST_KEY) || [];
 
       return {
         color: user?.color || '#7b1fa2',
         isModerator: user?.role === ROLE_MODERATOR,
         name: user?.name || otherParticipant.name,
+        avatar: user?.avatar,
         chatId,
         unreadCounter: unreadMessagesCount,
         userId: user?.userId || otherParticipant.id,
+        shouldDisplayInChatList: groupChats[chatId].createdBy === Auth.userID
+          || startedChats.includes(chatId)
+          || !!contextChat,
       };
     }
 
     return {
-      userId: 'public',
+      userId: PUBLIC_CHAT_ID,
       name: 'Public Chat',
       icon: 'group_chat',
-      chatId: 'public',
+      chatId: PUBLIC_CHAT_ID,
       unreadCounter: unreadMessagesCount,
+      shouldDisplayInChatList: true,
     };
   });
 
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
-  return chatInfo.filter((chat) => !currentClosedChats.includes(chat.chatId));
+  return chatInfo.filter((chat) => !currentClosedChats.includes(chat.chatId)
+    && chat.shouldDisplayInChatList);
 };
 
 const isVoiceOnlyUser = (userId) => userId.toString().startsWith('v_');
 
 const isMeetingLocked = (id) => {
-  const meeting = Meetings.findOne({ meetingId: id }, { fields: { lockSettingsProps: 1 } });
+  const meeting = Meetings.findOne({ meetingId: id },
+    { fields: { lockSettingsProps: 1, usersProp: 1 } });
   let isLocked = false;
 
   if (meeting.lockSettingsProps !== undefined) {
-    const lockSettings = meeting.lockSettingsProps;
+    const {lockSettingsProps:lockSettings, usersProp} = meeting;
 
     if (lockSettings.disableCam
       || lockSettings.disableMic
       || lockSettings.disablePrivateChat
-      || lockSettings.disablePublicChat) {
+      || lockSettings.disablePublicChat
+      || lockSettings.disableNote
+      || usersProp.webcamsOnlyForModerator) {
       isLocked = true;
     }
   }
@@ -318,7 +348,9 @@ const curatedVoiceUser = (intId) => {
   };
 };
 
-const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectVoiceUser, usersProp, amIPresenter) => {
+const getAvailableActions = (
+  amIModerator, isBreakoutRoom, subjectUser, subjectVoiceUser, usersProp, amIPresenter,
+) => {
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId) || subjectUser.phone_user;
   const amISubjectUser = isMe(subjectUser.userId);
   const isSubjectUserModerator = subjectUser.role === ROLE_MODERATOR;
@@ -509,7 +541,7 @@ const roving = (...args) => {
   if ([KEY_CODES.ARROW_RIGHT, KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.keyCode)) {
     const tether = document.activeElement.firstChild;
     const dropdownTrigger = tether.firstChild;
-    dropdownTrigger.click();
+    dropdownTrigger?.click();
     focusFirstDropDownItem();
   }
 };
@@ -522,6 +554,12 @@ const getGroupChatPrivate = (senderUserId, receiver) => {
   if (!chat) {
     makeCall('createGroupChat', receiver);
   } else {
+    const startedChats = Session.get(STARTED_CHAT_LIST_KEY) || [];
+    if (_.indexOf(startedChats, chat.chatId) < 0) {
+      startedChats.push(chat.chatId);
+      Session.set(STARTED_CHAT_LIST_KEY, startedChats);
+    }
+
     const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
     if (_.indexOf(currentClosedChats, chat.chatId) > -1) {
       Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, chat.chatId));

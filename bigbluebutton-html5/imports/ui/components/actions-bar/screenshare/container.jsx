@@ -8,7 +8,7 @@ import {
   dataSavingSetting,
 } from '/imports/ui/components/screenshare/service';
 
-const ScreenshareButtonContainer = props => <ScreenshareButton {...props} />;
+const ScreenshareButtonContainer = (props) => <ScreenshareButton {...props} />;
 
 /*
  * All props, including the ones that are inherited from actions-bar
@@ -18,7 +18,7 @@ const ScreenshareButtonContainer = props => <ScreenshareButton {...props} />;
  * isMeteorConnected,
  * screenshareDataSavingSetting,
  */
-export default withModalMounter(withTracker(({ mountModal }) => ({
+export default withModalMounter(withTracker(() => ({
   isVideoBroadcasting: isVideoBroadcasting(),
   screenshareDataSavingSetting: dataSavingSetting(),
   enabled: getFromUserSettings(

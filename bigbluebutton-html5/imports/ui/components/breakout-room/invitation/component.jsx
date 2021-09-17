@@ -34,8 +34,6 @@ const openBreakoutJoinConfirmation = (breakout, breakoutName, mountModal) => mou
   />,
 );
 
-const closeBreakoutJoinConfirmation = mountModal => mountModal(null);
-
 class BreakoutRoomInvitation extends Component {
   constructor(props) {
     super(props);
@@ -57,7 +55,6 @@ class BreakoutRoomInvitation extends Component {
   checkBreakouts(oldProps) {
     const {
       breakouts,
-      mountModal,
       currentBreakoutUser,
       getBreakoutByUser,
       breakoutUserIsIn,
@@ -67,11 +64,7 @@ class BreakoutRoomInvitation extends Component {
       didSendBreakoutInvite,
     } = this.state;
 
-    const hadBreakouts = oldProps.breakouts.length > 0;
     const hasBreakouts = breakouts.length > 0;
-    if (!hasBreakouts && hadBreakouts) {
-      closeBreakoutJoinConfirmation(mountModal);
-    }
 
     if (hasBreakouts && !breakoutUserIsIn && BreakoutService.checkInviteModerators()) {
       // Have to check for freeJoin breakouts first because currentBreakoutUser will

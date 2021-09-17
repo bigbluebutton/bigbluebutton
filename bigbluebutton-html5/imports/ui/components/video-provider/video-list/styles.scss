@@ -104,13 +104,8 @@
   white-space: nowrap;
   z-index: 1;
   vertical-align: middle;
-  margin: 0 -0.25em 0 0;
   border-radius: 1px;
   opacity: 1;
-
-  [dir="rtl"] & {
-    margin: 0 0 0 -0.25em
-  }
 }
 
 .loadingText {
@@ -279,4 +274,13 @@
   @extend .connectingSpinner;
   background-color: transparent;
   color: var(--color-white);
+}
+
+.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99;
 }

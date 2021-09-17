@@ -8,11 +8,20 @@ import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UserListService from '/imports/ui/components/user-list/service';
 import AudioService from '/imports/ui/components/audio/service';
-import { Meteor } from 'meteor/meteor';
+import { Meteor } from "meteor/meteor";
+import MediaStreamUtils from '/imports/utils/media-stream-utils';
 
 const SCREENSHARE_MEDIA_ELEMENT_NAME = 'screenshareVideo';
 
-const _isSharingScreen = false;
+/**
+ * Screenshare status to be filtered in getStats()
+ */
+const FILTER_SCREENSHARE_STATS = [
+  'outbound-rtp',
+  'inbound-rtp',
+];
+
+let _isSharingScreen = false;
 const _sharingScreenDep = {
   value: false,
   tracker: new Tracker.Dependency(),
@@ -86,16 +95,6 @@ const attachLocalPreviewStream = (mediaElement) => {
   }
 };
 
-const stopStreamTracks = (stream) => {
-  if (stream && typeof stream.getTracks === 'function') {
-    stream.getTracks().forEach(track => {
-      if (typeof track.stop === 'function') {
-        track.stop();
-      }
-    });
-  }
-}
-
 const screenshareHasStarted = () => {
   // Presenter's screen preview is local, so skip
   if (!UserListService.amIPresenter()) {
@@ -113,7 +112,7 @@ const shareScreen = async (onFail) => {
 
   try {
     const stream = await BridgeService.getScreenStream();
-    if(!UserListService.isUserPresenter(Auth.userID)) return stopStreamTracks(stream);
+    if(!UserListService.isUserPresenter(Auth.userID)) return MediaStreamUtils.stopMediaStreamTracks(stream);
     await KurentoBridge.share(stream, onFail);
     setSharingScreen(true);
   } catch (error) {
@@ -142,6 +141,41 @@ const screenShareEndAlert = () => AudioService
 
 const dataSavingSetting = () => Settings.dataSaving.viewScreenshare;
 
+/**
+   * Get stats about all active screenshare peer.
+   * We filter the status based on FILTER_SCREENSHARE_STATS constant.
+   *
+   * For more information see:
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getStats
+   * and
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
+   * @returns An Object containing the information about each active peer
+   *          (currently one, for screenshare). The returned format
+   *          follows the format returned by video's service getStats, which
+   *          considers more than one peer connection to be returned.
+   *          The format is given by:
+   *          {
+   *            peerIdString: RTCStatsReport
+   *          }
+   */
+const getStats = async () => {
+  const peer = KurentoBridge.getPeerConnection();
+
+  if (!peer) return null;
+
+  const peerStats = await peer.getStats();
+
+  const screenshareStats = {};
+
+  peerStats.forEach((stat) => {
+    if (FILTER_SCREENSHARE_STATS.includes(stat.type)) {
+      screenshareStats[stat.type] = stat;
+    }
+  });
+
+  return { screenshareStats };
+};
+
 export {
   SCREENSHARE_MEDIA_ELEMENT_NAME,
   isVideoBroadcasting,
@@ -155,4 +189,5 @@ export {
   getMediaElement,
   attachLocalPreviewStream,
   isGloballyBroadcasting,
+  getStats,
 };

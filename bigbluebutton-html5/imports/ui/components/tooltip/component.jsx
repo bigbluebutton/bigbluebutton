@@ -8,6 +8,9 @@ import Tippy, { roundArrow, hideAll } from 'tippy.js';
 import 'tippy.js/dist/svg-arrow.css';
 import 'tippy.js/animations/shift-away.css';
 import './bbbtip.css';
+import BaseButton from '/imports/ui/components/button/base/component';
+import ButtonEmoji from
+  '/imports/ui/components/button/button-emoji/ButtonEmoji';
 
 const ANIMATION_DURATION = 350;
 const ANIMATION_DELAY = [150, 50];
@@ -17,7 +20,7 @@ const TIP_OFFSET = '0, 10';
 
 const propTypes = {
   title: PropTypes.string,
-  position: PropTypes.oneOf(['bottom', 'top']),
+  position: PropTypes.oneOf(['bottom','top']),
   children: PropTypes.element.isRequired,
   className: PropTypes.string,
 };
@@ -29,6 +32,19 @@ const defaultProps = {
 };
 
 class Tooltip extends Component {
+  static buttonComponentHasButtonEmoji(_component) {
+    return (
+      _component
+      && (_component.type === BaseButton)
+      && (_component.props)
+      && (_component.props.children)
+      && (typeof _component.props.children.find === 'function')
+      && (!!_component.props.children.find((_child) => (
+        _child && _child.type === ButtonEmoji
+      )))
+    );
+  }
+
   constructor(props) {
     super(props);
 
@@ -48,6 +64,7 @@ class Tooltip extends Component {
 
     const options = {
       aria: null,
+      allowHTML: false,
       animation: animations ? DEFAULT_ANIMATION : ANIMATION_NONE,
       arrow: roundArrow,
       boundary: 'window',
@@ -60,7 +77,7 @@ class Tooltip extends Component {
       placement: position,
       touch: 'hold',
       theme: 'bbbtip',
-      multiple:	false,
+      multiple: false,
       onBeforeUpdate: () => {
         hideAll();
       },
@@ -98,6 +115,10 @@ class Tooltip extends Component {
     if (elem && elem._tippy) elem._tippy.setProps(opts);
   }
 
+  componentWillUnmount() {
+    if (this.tooltip[0]) this.tooltip[0].hide();
+  }
+
   onShow() {
     document.addEventListener('keyup', this.handleEscapeHide);
   }
@@ -123,9 +144,32 @@ class Tooltip extends Component {
       ...restProps
     } = this.props;
 
-    const WrappedComponent = React.Children.only(children);
+    let WrappedComponent;
+    let WrappedComponentBound;
 
-    const WrappedComponentBound = React.cloneElement(WrappedComponent, {
+    if (Tooltip.buttonComponentHasButtonEmoji(children)) {
+      const { children: grandChildren } = children.props;
+
+      let otherChildren;
+
+      [WrappedComponent, ...otherChildren] = grandChildren;
+
+      WrappedComponentBound = React.cloneElement(WrappedComponent, {
+        id: this.tippySelectorId,
+        className: cx(WrappedComponent.props.className, className),
+        key: this.tippySelectorId,
+      });
+
+      const ParentComponent = React.Children.only(children);
+      const updatedChildren = [WrappedComponentBound, ...otherChildren];
+
+      return React.cloneElement(ParentComponent, null,
+        updatedChildren);
+    }
+
+    WrappedComponent = React.Children.only(children);
+
+    WrappedComponentBound = React.cloneElement(WrappedComponent, {
       ...restProps,
       id: this.tippySelectorId,
       className: cx(children.props.className, className),

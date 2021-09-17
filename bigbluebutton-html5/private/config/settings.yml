@@ -3,10 +3,20 @@ public:
     mobileFontSize: 16px
     desktopFontSize: 14px
     audioChatNotification: false
+    # Shows the audio modal when user joins the room. The audio modal prompts
+    # user to select an option ("Microphone" and/or "Listen only") for joining
+    # audio
     autoJoin: true
+    # Disables the listen only option in audio modal.
     listenOnlyMode: true
     forceListenOnly: false
+    # Skips the echo test when connecting with microphone.
     skipCheck: false
+    # Skips the echo test when connecting with microphone right after user
+    # joins the room the first time. Subsequents joins  to microphone won't
+    # have echo test skipped, for example if user leave and join mic again
+    # or reloading page and joining mic again.
+    # This setting won't have effect if skipCheck = true
     skipCheckOnJoin: false
     #
     # Allow users to change microphone/speaker dinamically
@@ -18,20 +28,22 @@ public:
     #
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
-    bbbServerVersion: 2.3
+    bbbServerVersion: 2.4
     copyright: '©2021 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     lockOnJoin: true
     cdn: ''
     basename: '/html5client'
+    # Use https URL of CSS file. Example: https://docs.bigbluebutton.org/admin/customize.html#examples
+    customStyleUrl: null
     askForFeedbackOnLogout: false
     # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
     allowDefaultLogoutUrl: true
     allowUserLookup: false
+    dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
-    enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
     enableTalkingIndicator: true
@@ -41,6 +53,7 @@ public:
     allowLogout: true
     allowFullscreen: true
     preloadNextSlides: 2
+    warnAboutUnsavedContentOnMeetingEnd: false
     mutedAlert:
       enabled: true
       interval: 200
@@ -58,6 +71,30 @@ public:
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
     customHeartbeat: false
     showAllAvailableLocales: true
+    # Show "Audio Filters for Microphone" option in settings menu.
+    # When set to true, users are able to enable/disable microphone constraints,
+    # otherwise default values for 'microphoneConstraints' option
+    # are used.
+    # For more info, see 'microphoneConstraints' option in this config.
+    # If not set, default value is true.
+    showAudioFilters: true
+    raiseHandActionButton:
+      enabled: true
+    # If enabled, before joining microphone the client will perform a trickle
+    # ICE against Kurento and use the information about successfull
+    # candidate-pairs to filter out local candidates in SIP.js's SDP.
+    # Try enabling this setting in scenarios where the listenonly mode works,
+    # but microphone doesn't (for example, when using VPN).
+    # For compatibility check "Browser compatbility" section in:
+    # https://developer.mozilla.org/en-US/docs/Web/API/RTCDtlsTransport/iceTransport
+    # This is an EXPERIMENTAL setting and the default value is false
+    # experimentalUseKmsTrickleIceForMicrophone: false
+    #
+    # Shows stats about download and upload rates, audio jitter, lost packets
+    # and turn information
+    enableNetworkStats: true
+    # Enable the button to allow users to copy network stats to clipboard
+    enableCopyNetworkStatsButton: true
     defaultSettings:
       application:
         animations: true
@@ -65,11 +102,14 @@ public:
         chatPushAlerts: false
         userJoinAudioAlerts: false
         userJoinPushAlerts: false
+        userLeaveAudioAlerts: false
+        userLeavePushAlerts: false
         raiseHandAudioAlerts: true
         raiseHandPushAlerts: true
         guestWaitingAudioAlerts: true
         guestWaitingPushAlerts: true
         paginationEnabled: true
+        pushLayoutToEveryone: false
         # fallbackLocale: if the locale the client is loaded in does not have a
         # translation a string, it will use the translation from the locale
         # specified in fallbackLocale. Note that fallbackLocale should be a
@@ -150,9 +190,6 @@ public:
       - warning
   externalVideoPlayer:
     enabled: true
-  networkMonitoring:
-    enableNetworkMonitoring: false
-    packetLostThreshold: 10
   kurento:
     wsUrl: HOST
     # Valid for video-provider. Time (ms) before its WS connection times out
@@ -168,6 +205,14 @@ public:
       # subscribe reattempt increases the reconnection timer up to this
       maxTimeout: 60000
     screenshare:
+      # Experimental. True is the canonical behavior. Flip to false to reverse
+      # the negotiation flow for subscribers.
+      subscriberOffering: true
+      # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
+      # media server adapter should be used for screen sharing.
+      # Default is undefined, which means the default setting in bbb-webrtc-sfu
+      # prevails (screenshareMediaServer).
+      #mediaServer: Kurento
       bitrate: 1500
       mediaTimeouts:
         maxConnectionAttempts: 2
@@ -267,6 +312,16 @@ public:
     enableVideo: true
     enableVideoMenu: true
     enableListenOnly: true
+    # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
+    # media server adapter should be used for listen only.
+    # Default is undefined, which means the default setting in bbb-webrtc-sfu
+    # prevails (listenOnlyMediaServer).
+    #listenOnlyMediaServer: Kurento
+    # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
+    # media server adapter should be used for webcams.
+    # Default is undefined, which means the default setting in bbb-webrtc-sfu
+    # prevails (videoMediaServer).
+    #videoMediaServer: Kurento
     autoShareWebcam: false
     skipVideoPreview: false
     skipVideoPreviewOnFirstJoin: false
@@ -358,9 +413,10 @@ public:
     toggleSelfVoice: false
   poll:
     enabled: true
-    max_custom: 5
+    maxCustom: 5
     allowDragAndDropFile: false
     maxTypedAnswerLength: 45
+    chatMessage: true
   captions:
     enabled: true
     enableDictation: false
@@ -375,6 +431,7 @@ public:
     enabled: true
     itemsPerPage: 100
     timeBetweenFetchs: 1000
+    enableSaveAndCopyPublicChat: true
     bufferChatInsertsMs: 0
     startClosed: false
     min_message_length: 1
@@ -395,6 +452,7 @@ public:
       chat_poll_result: PUBLIC_CHAT_POLL_RESULT
     typingIndicator:
       enabled: true
+    moderatorChatEmphasized: true
   note:
     enabled: true
     url: ETHERPAD_HOST
@@ -413,6 +471,9 @@ public:
     echoTestNumber: 'echo'
     relayOnlyOnReconnect: false
     listenOnlyCallTimeout: 25000
+    # Experimental. True is the canonical behavior. Flip to false to reverse
+    # the negotiation flow for LO subscribers.
+    listenOnlyOffering: true
     #Timeout (ms) for gathering ICE candidates. When this timeout expires
     #the SDP is sent to the server with the candidates the browser gathered
     #so far. Increasing this value might help avoiding 1004 error when
@@ -460,7 +521,6 @@ public:
     help: STATS_HELP_URL
   presentation:
     allowDownloadable: true
-    defaultPresentationFile: default.pdf
     panZoomThrottle: 32
     restoreOnUpdate: false
     uploadEndpoint: '/bigbluebutton/presentation/upload'
@@ -511,6 +571,7 @@ public:
       moderator: false
       mobile: true
       guest: true
+      sharingWebcam: true
   whiteboard:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150
@@ -607,6 +668,16 @@ public:
       throttleInterval: 400
       flushOnClose: true
       logTag: ''
+  virtualBackgrounds:
+    enabled: true
+    storedOnBBB: true
+    showThumbnails: true
+    imagesPath: /resources/images/virtual-backgrounds/
+    thumbnailsPath: /resources/images/virtual-backgrounds/thumbnails/
+    fileNames:
+      - home.jpg
+      - coffeeshop.jpg
+      - board.jpg
 private:
   analytics:
     includeChat: true

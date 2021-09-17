@@ -56,7 +56,7 @@ class RandomUserSelect extends Component {
       props.randomUserReq();
     }
 
-    if (SELECT_RANDOM_USER_COUNTDOWN) {
+    if(SELECT_RANDOM_USER_COUNTDOWN) {
       this.state = {
         count: 0,
       };
@@ -86,7 +86,7 @@ class RandomUserSelect extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (SELECT_RANDOM_USER_COUNTDOWN) {
+    if(SELECT_RANDOM_USER_COUNTDOWN) {
       if (this.props.currentUser.presenter && this.state.count == 0) {
         this.iterateSelection();
       }
@@ -105,7 +105,7 @@ class RandomUserSelect extends Component {
   }
 
   reselect() {
-    if (SELECT_RANDOM_USER_COUNTDOWN) {
+    if(SELECT_RANDOM_USER_COUNTDOWN) {
       this.setState({
         count: 0,
       });
@@ -127,8 +127,8 @@ class RandomUserSelect extends Component {
     if (mappedRandomlySelectedUsers.length < counter + 1) return null;
 
     const selectedUser = mappedRandomlySelectedUsers[counter][0];
-    const countDown = SELECT_RANDOM_USER_COUNTDOWN
-      ? mappedRandomlySelectedUsers.length - this.state.count - 1 : 0;
+    const countDown = SELECT_RANDOM_USER_COUNTDOWN ?
+      mappedRandomlySelectedUsers.length - this.state.count - 1 : 0;
 
     let viewElement;
 

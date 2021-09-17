@@ -7,7 +7,7 @@ import {
 } from '/imports/api/video-streams/server/helpers';
 import VoiceUsers from '/imports/api/voice-users/';
 
-const BASE_FLOOR_TIME = '0';
+const BASE_FLOOR_TIME = "0";
 
 export default function sharedWebcam(meetingId, userId, stream) {
   check(meetingId, String);
@@ -15,10 +15,10 @@ export default function sharedWebcam(meetingId, userId, stream) {
   check(stream, String);
 
   const deviceId = getDeviceId(stream);
-  const name = getUserName(userId);
+  const name = getUserName(userId, meetingId);
   const vu = VoiceUsers.findOne(
     { meetingId, intId: userId },
-    { fields: { floor: 1, lastFloorTime: 1 } },
+    { fields: { floor: 1, lastFloorTime: 1 }}
   ) || {};
   const floor = vu.floor || false;
   const lastFloorTime = vu.lastFloorTime || BASE_FLOOR_TIME;

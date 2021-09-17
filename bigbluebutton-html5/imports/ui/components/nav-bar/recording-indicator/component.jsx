@@ -138,7 +138,7 @@ class RecordingIndicator extends PureComponent {
     };
 
     const recordingIndicatorIcon = (
-      <span data-test="mainWhiteboard" className={styles.recordingIndicatorIcon}>
+      <span data-test="mainWhiteboard" className={cx(styles.recordingIndicatorIcon, (!isPhone || recording) && styles.presentationTitleMargin)}>
         <svg xmlns="http://www.w3.org/2000/svg" height="100%" version="1" viewBox="0 0 20 20">
           <g stroke="#FFF" fill="#FFF" strokeLinecap="square">
             <circle
@@ -164,7 +164,8 @@ class RecordingIndicator extends PureComponent {
 
     const recordMeetingButton = (
       <div
-        aria-label={title}
+        aria-label={recordTitle}
+        aria-describedby={"recording-description"}
         className={recording ? styles.recordingControlON : styles.recordingControlOFF}
         role="button"
         tabIndex={0}
@@ -173,14 +174,10 @@ class RecordingIndicator extends PureComponent {
         onKeyPress={recordingToggle}
       >
         {recordingIndicatorIcon}
-
-        <div className={cx(styles.presentationTitle, (!isPhone || recording) && styles.presentationTitleMargin)}>
-          {recording
-            ? (
-              <span className={styles.visuallyHidden}>
-                {`${intl.formatMessage(intlMessages.recordingAriaLabel)} ${humanizeSeconds(time)}`}
-              </span>
-            ) : null}
+        <div className={styles.presentationTitle}>
+          <span id={"recording-description"} className={styles.visuallyHidden}>
+            {`${title} ${recording ? humanizeSeconds(time) : ''}`}
+          </span>
           {recording
             ? <span aria-hidden>{humanizeSeconds(time)}</span> : <span>{recordTitle}</span>}
         </div>

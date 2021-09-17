@@ -63,6 +63,14 @@ const intlMessages = defineMessages({
     id: 'app.settings.save-notification.label',
     description: 'label shown in toast when settings are saved',
   },
+  on: {
+    id: 'app.switch.onLabel',
+    description: 'label for toggle switch on state',
+  },
+  off: {
+    id: 'app.switch.offLabel',
+    description: 'label for toggle switch off state',
+  },
 });
 
 const propTypes = {
@@ -77,6 +85,8 @@ const propTypes = {
     chatAudioAlerts: PropTypes.bool,
     chatPushAlerts: PropTypes.bool,
     userJoinAudioAlerts: PropTypes.bool,
+    userLeaveAudioAlerts: PropTypes.bool,
+    userLeavePushAlerts: PropTypes.bool,
     guestWaitingAudioAlerts: PropTypes.bool,
     guestWaitingPushAlerts: PropTypes.bool,
     paginationEnabled: PropTypes.bool,
@@ -88,6 +98,7 @@ const propTypes = {
   updateSettings: PropTypes.func.isRequired,
   availableLocales: PropTypes.objectOf(PropTypes.array).isRequired,
   mountModal: PropTypes.func.isRequired,
+  showToggleLabel: PropTypes.bool.isRequired,
 };
 
 class Settings extends Component {
@@ -117,6 +128,7 @@ class Settings extends Component {
     this.updateSettings = props.updateSettings;
     this.handleUpdateSettings = this.handleUpdateSettings.bind(this);
     this.handleSelectTab = this.handleSelectTab.bind(this);
+    this.displaySettingsStatus = this.displaySettingsStatus.bind(this);
   }
 
   componentDidMount() {
@@ -139,10 +151,25 @@ class Settings extends Component {
     });
   }
 
+  displaySettingsStatus(status) {
+    const { intl } = this.props;
+
+    return (
+      <span className={styles.toggleLabel}>
+        {status ? intl.formatMessage(intlMessages.on)
+          : intl.formatMessage(intlMessages.off)}
+      </span>
+    );
+  }
+
   renderModalContent() {
     const {
       intl,
       isModerator,
+      showGuestNotification,
+      showToggleLabel,
+      layoutContextDispatch,
+      selectedLayout,
     } = this.props;
 
     const {
@@ -168,13 +195,8 @@ class Settings extends Component {
             <Icon iconName="application" className={styles.icon} />
             <span id="appTab">{intl.formatMessage(intlMessages.appTabLabel)}</span>
           </Tab>
-          {/* <Tab className={styles.tabSelector} aria-labelledby="videoTab"> */}
-          {/* <Icon iconName='video' className={styles.icon}/> */}
-          {/* <span id="videoTab">{intl.formatMessage(intlMessages.videoTabLabel)}</span> */}
-          {/* </Tab> */}
           <Tab
             className={styles.tabSelector}
-            // aria-labelledby="appTab"
             selectedClassName={styles.selected}
           >
             <Icon iconName="alert" className={styles.icon} />
@@ -188,37 +210,35 @@ class Settings extends Component {
             <Icon iconName="network" className={styles.icon} />
             <span id="dataSaving">{intl.formatMessage(intlMessages.dataSavingLabel)}</span>
           </Tab>
-          {/* { isModerator ? */}
-          {/* <Tab className={styles.tabSelector} aria-labelledby="usersTab"> */}
-          {/* <Icon iconName="user" className={styles.icon} /> */}
-          {/* <span id="usersTab">{intl.formatMessage(intlMessages.usersTabLabel)}</span> */}
-          {/* </Tab> */}
-          {/* : null } */}
         </TabList>
         <TabPanel className={styles.tabPanel}>
           <Application
             allLocales={allLocales}
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
+            showToggleLabel={showToggleLabel}
+            displaySettingsStatus={this.displaySettingsStatus}
+            layoutContextDispatch={layoutContextDispatch}
+            selectedLayout={selectedLayout}
+            isModerator={isModerator}
           />
         </TabPanel>
         <TabPanel className={styles.tabPanel}>
           <Notification
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
+            showGuestNotification={showGuestNotification}
+            showToggleLabel={showToggleLabel}
+            displaySettingsStatus={this.displaySettingsStatus}
             {...{ isModerator }}
           />
         </TabPanel>
-        {/* <TabPanel className={styles.tabPanel}> */}
-        {/* <Video */}
-        {/* handleUpdateSettings={this.handleUpdateSettings} */}
-        {/* settings={this.state.current.video} */}
-        {/* /> */}
-        {/* </TabPanel> */}
         <TabPanel className={styles.tabPanel}>
           <DataSaving
             settings={current.dataSaving}
             handleUpdateSettings={this.handleUpdateSettings}
+            showToggleLabel={showToggleLabel}
+            displaySettingsStatus={this.displaySettingsStatus}
           />
         </TabPanel>
       </Tabs>

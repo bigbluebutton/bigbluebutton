@@ -19,10 +19,10 @@ import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import LayoutManagerContainer from '/imports/ui/components/layout/layout-manager/container';
-import { withLayoutContext } from '/imports/ui/components/layout/context';
+import { layoutSelectInput, layoutDispatch } from '../../ui/components/layout/context';
 import VideoService from '/imports/ui/components/video-provider/service';
 import DebugWindow from '/imports/ui/components/debug-window/component';
+import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
@@ -92,6 +92,7 @@ class Base extends Component {
     });
     Session.set('isFullscreen', false);
 
+    // TODO move this find to container
     const users = Users.find({
       meetingId: Auth.meetingID,
       validated: true,
@@ -132,6 +133,39 @@ class Base extends Component {
           );
         }
       },
+      removed: (user) => {
+        const subscriptionsReady = Session.get('subscriptionsReady');
+
+        if (!subscriptionsReady) return;
+
+        const {
+          userLeaveAudioAlerts,
+          userLeavePushAlerts,
+        } = Settings.application;
+
+        if (!userLeaveAudioAlerts && !userLeavePushAlerts) return;
+
+        if (userLeaveAudioAlerts) {
+          AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
+            + Meteor.settings.public.app.basename
+            + Meteor.settings.public.app.instanceId}`
+            + '/resources/sounds/notify.mp3');
+        }
+
+        if (userLeavePushAlerts) {
+          notify(
+            <FormattedMessage
+              id="app.notification.userLeavePushAlert"
+              description="Notification for a user leaves the meeting"
+              values={{
+                0: user.name,
+              }}
+            />,
+            'info',
+            'user',
+          );
+        }
+      },
     });
   }
 
@@ -144,6 +178,7 @@ class Base extends Component {
       isMeteorConnected,
       subscriptionsReady,
       layoutContextDispatch,
+      sidebarContentPanel,
       usersVideo,
     } = this.props;
     const {
@@ -152,12 +187,10 @@ class Base extends Component {
     } = this.state;
 
     if (usersVideo !== prevProps.usersVideo) {
-      layoutContextDispatch(
-        {
-          type: 'setUsersVideo',
-          value: usersVideo.length,
-        },
-      );
+      layoutContextDispatch({
+        type: ACTIONS.SET_NUM_CAMERAS,
+        value: usersVideo.length,
+      });
     }
 
     if (!prevProps.subscriptionsReady && subscriptionsReady) {
@@ -176,7 +209,7 @@ class Base extends Component {
     // In case the meeting delayed to load
     if (!subscriptionsReady || !meetingExist) return;
 
-    if (approved && loading && subscriptionsReady) this.updateLoadingState(false);
+    if (approved && loading) this.updateLoadingState(false);
 
     if (prevProps.ejected || ejected) {
       Session.set('codeError', '403');
@@ -197,6 +230,53 @@ class Base extends Component {
     } else if (!animations && animations !== prevProps.animations) {
       if (enabled) HTML.classList.remove('animationsEnabled');
       HTML.classList.add('animationsDisabled');
+    }
+
+    if (sidebarContentPanel === PANELS.NONE || Session.equals('subscriptionsReady', true)) {
+      if (!checkedUserSettings) {
+        if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
+          if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+              value: true,
+            });
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: true,
+            });
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+              value: PANELS.CHAT,
+            });
+            layoutContextDispatch({
+              type: ACTIONS.SET_ID_CHAT_OPEN,
+              value: PUBLIC_CHAT_ID,
+            });
+          } else {
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+              value: true,
+            });
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: false,
+            });
+          }
+        } else {
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+            value: false,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: false,
+          });
+        }
+
+        if (Session.equals('subscriptionsReady', true)) {
+          checkedUserSettings = true;
+        }
+      }
     }
   }
 
@@ -226,6 +306,7 @@ class Base extends Component {
       ejectedReason,
       meetingExist,
       meetingHasEnded,
+      meetingEndedReason,
       meetingIsBreakout,
       subscriptionsReady,
       User,
@@ -236,7 +317,7 @@ class Base extends Component {
     }
 
     if (ejected) {
-      return (<MeetingEnded code="403" reason={ejectedReason} />);
+      return (<MeetingEnded code="403" ejectedReason={ejectedReason} />);
     }
 
     if ((meetingHasEnded || User?.loggedOut) && meetingIsBreakout) {
@@ -245,7 +326,13 @@ class Base extends Component {
     }
 
     if (((meetingHasEnded && !meetingIsBreakout)) || (codeError && User?.loggedOut)) {
-      return (<MeetingEnded code={codeError} />);
+      return (
+        <MeetingEnded
+          code={codeError}
+          endedReason={meetingEndedReason}
+          ejectedReason={ejectedReason}
+        />
+      );
     }
 
     if (codeError && !meetingHasEnded) {
@@ -268,7 +355,6 @@ class Base extends Component {
     return (
       <>
         {meetingExist && Auth.loggedIn && <DebugWindow />}
-        {meetingExist && Auth.loggedIn && <LayoutManagerContainer />}
         {
           (!meetingExisted && !meetingExist && Auth.loggedIn)
             ? <LoadingScreen />
@@ -282,7 +368,15 @@ class Base extends Component {
 Base.propTypes = propTypes;
 Base.defaultProps = defaultProps;
 
-const BaseContainer = withTracker(() => {
+const BaseContainer = (props) => {
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const { sidebarContentPanel } = sidebarContent;
+  const layoutContextDispatch = layoutDispatch();
+
+  return <Base {...{ sidebarContentPanel, layoutContextDispatch, ...props }} />;
+};
+
+export default withTracker(() => {
   const {
     animations,
   } = Settings.application;
@@ -317,6 +411,7 @@ const BaseContainer = withTracker(() => {
   const meeting = Meetings.findOne({ meetingId }, {
     fields: {
       meetingEnded: 1,
+      meetingEndedReason: 1,
       meetingProp: 1,
     },
   });
@@ -328,6 +423,7 @@ const BaseContainer = withTracker(() => {
   const approved = User?.approved && User?.guest;
   const ejected = User?.ejected;
   const ejectedReason = User?.ejectedReason;
+  const meetingEndedReason = meeting?.meetingEndedReason;
 
   let userSubscriptionHandler;
 
@@ -391,25 +487,6 @@ const BaseContainer = withTracker(() => {
     },
   });
 
-  if (Session.equals('openPanel', undefined) || Session.equals('subscriptionsReady', true)) {
-    if (!checkedUserSettings) {
-      if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
-        if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
-          Session.set('openPanel', 'chat');
-          Session.set('idChatOpen', PUBLIC_CHAT_ID);
-        } else {
-          Session.set('openPanel', 'userlist');
-        }
-      } else {
-        Session.set('openPanel', '');
-      }
-      window.dispatchEvent(new Event('panelChanged'));
-      if (Session.equals('subscriptionsReady', true)) {
-        checkedUserSettings = true;
-      }
-    }
-  }
-
   const codeError = Session.get('codeError');
   const { streams: usersVideo } = VideoService.getVideoStreams();
 
@@ -425,12 +502,11 @@ const BaseContainer = withTracker(() => {
     isMeteorConnected: Meteor.status().connected,
     meetingExist: !!meeting,
     meetingHasEnded: !!meeting && meeting.meetingEnded,
+    meetingEndedReason,
     meetingIsBreakout: AppService.meetingIsBreakout(),
     subscriptionsReady: Session.get('subscriptionsReady'),
     loggedIn,
     codeError,
     usersVideo,
   };
-})(withLayoutContext(Base));
-
-export default BaseContainer;
+})(BaseContainer);

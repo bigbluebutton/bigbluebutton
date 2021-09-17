@@ -149,15 +149,15 @@ export default class Legacy extends Component {
   }
 
   render() {
-    const { browserName, isChrome } = browserInfo;
+    const { browserName, isSafari } = browserInfo;
     const { isIos } = deviceInfo;
 
     const { messages, normalizedLocale, viewState } = this.state;
     const isSupportedBrowser = supportedBrowsers.includes(browserName);
-    const isChromeIos = isIos && isChrome;
+    const isUnsupportedIos = isIos && !isSafari;
 
     let messageId = isSupportedBrowser ? 'app.legacy.upgradeBrowser' : 'app.legacy.unsupportedBrowser';
-    if (isChromeIos) messageId = 'app.legacy.criosBrowser';
+    if (isUnsupportedIos) messageId = 'app.legacy.criosBrowser';
 
     switch (viewState) {
       case READY:
@@ -178,7 +178,7 @@ export default class Legacy extends Component {
       case FALLBACK:
         return (
           <p className="browserWarning">
-            {isChromeIos ? (
+            {isUnsupportedIos ? (
               <span>Please use Safari on iOS for full support.</span>
             ) : (
               <span>

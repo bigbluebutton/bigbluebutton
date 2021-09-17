@@ -4,12 +4,35 @@ import {
   Match,
 } from 'meteor/check';
 import SanitizeHTML from 'sanitize-html';
-import Meetings, { RecordMeetings } from '/imports/api/meetings';
+import Meetings, {
+  RecordMeetings,
+  ExternalVideoMeetings,
+} from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 import { initPads } from '/imports/api/common/server/etherpad';
 import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
 import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
+import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
+
+const addExternalVideo = (meetingId) => {
+  const selector = { meetingId };
+
+  const modifier = {
+    meetingId,
+    externalVideoUrl: null,
+  };
+
+  try {
+    const { numberAffected } = ExternalVideoMeetings.upsert(selector, modifier);
+
+    if (numberAffected) {
+      Logger.verbose(`Added external video meetingId=${meetingId}`);
+    }
+  } catch (err) {
+    Logger.error(`Adding external video: ${err}`);
+  }
+};
 
 export default function addMeeting(meeting) {
   const meetingId = meeting.meetingProp.intId;
@@ -29,6 +52,7 @@ export default function addMeeting(meeting) {
       intId: String,
       extId: String,
       isBreakout: Boolean,
+      learningDashboardEnabled: Boolean,
       name: String,
     },
     usersProp: {
@@ -37,6 +61,7 @@ export default function addMeeting(meeting) {
       authenticatedGuest: Boolean,
       maxUsers: Number,
       allowModsToUnmuteUsers: Boolean,
+      meetingLayout: String,
     },
     durationProps: {
       createdTime: Number,
@@ -47,6 +72,8 @@ export default function addMeeting(meeting) {
       userInactivityInspectTimerInMinutes: Number,
       userInactivityThresholdInMinutes: Number,
       userActivitySignResponseDelayInMinutes: Number,
+      endWhenNoModerator: Boolean,
+      endWhenNoModeratorDelayInMinutes: Number,
       timeRemaining: Number,
     },
     welcomeProp: {
@@ -62,6 +89,7 @@ export default function addMeeting(meeting) {
     password: {
       viewerPass: String,
       moderatorPass: String,
+      learningDashboardAccessToken: String,
     },
     voiceProp: {
       voiceConf: String,
@@ -108,7 +136,7 @@ export default function addMeeting(meeting) {
 
   let { welcomeMsg } = newMeeting.welcomeProp;
 
-  const sanitizeTextInChat = (original) => SanitizeHTML(original, {
+  const sanitizeTextInChat = original => SanitizeHTML(original, {
     allowedTags: ['a', 'b', 'br', 'i', 'img', 'li', 'small', 'span', 'strong', 'u', 'ul'],
     allowedAttributes: {
       a: ['href', 'name', 'target'],
@@ -142,16 +170,16 @@ export default function addMeeting(meeting) {
   newMeeting.welcomeProp.modOnlyMessage = sanitizeTextInChat(newMeeting.welcomeProp.modOnlyMessage);
 
   const modifier = {
-    $set: {
+    $set: Object.assign({
       meetingId,
       meetingEnded,
+      layout: LAYOUT_TYPE[meeting.usersProp.meetingLayout] || 'smart',
       publishedPoll: false,
       guestLobbyMessage: '',
       randomlySelectedUser: [],
-      ...flat(newMeeting, {
-        safe: true,
-      }),
-    },
+    }, flat(newMeeting, {
+      safe: true,
+    })),
   };
 
   if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
@@ -176,6 +204,8 @@ export default function addMeeting(meeting) {
   } catch (err) {
     Logger.error(`Adding record prop to collection: ${err}`);
   }
+
+  addExternalVideo(meetingId);
 
   try {
     const { insertedId, numberAffected } = Meetings.upsert(selector, modifier);

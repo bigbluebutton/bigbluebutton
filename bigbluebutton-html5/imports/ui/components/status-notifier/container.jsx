@@ -30,6 +30,7 @@ export default withTracker((props) => {
     fields: {
       emojiTime: 1, emoji: 1, userId: 1, name: 1, color: 1,
     },
+    sort: { emojiTime: 1 },
   })
     .fetch()
     .filter((u) => u.emoji === status && u.userId !== Auth.userID);

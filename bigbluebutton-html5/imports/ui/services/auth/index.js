@@ -224,13 +224,21 @@ class Auth {
 
       makeCall('validateAuthToken', this.meetingID, this.userID, this.token, this.externUserID);
 
-      Meteor.subscribe('auth-token-validation', { meetingId: this.meetingID, userId: this.userID });
+      const authTokenSubscription = Meteor.subscribe('auth-token-validation', { meetingId: this.meetingID, userId: this.userID });
       Meteor.subscribe('current-user');
 
       Tracker.autorun((c) => {
         computation = c;
 
-        const authenticationTokenValidation = AuthTokenValidation.findOne({}, { sort: { updatedAt: -1 } });
+        if (!authTokenSubscription.ready()) {
+          return;
+        }
+
+        const selector = {
+          connectionId: Meteor.connection._lastSessionId,
+        };
+
+        const authenticationTokenValidation = AuthTokenValidation.findOne(selector);
 
         if (!authenticationTokenValidation) return;
 
