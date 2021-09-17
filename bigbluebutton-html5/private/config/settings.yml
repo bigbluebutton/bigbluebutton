@@ -494,6 +494,8 @@ public:
           path: 'bridge/sip'
         - name: kurento
           path: 'bridge/kurento'
+        - name: fullaudio
+          path: 'bridge/fullaudio'
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
