@@ -483,8 +483,6 @@
     "app.audioModal.playAudio.arialabel" : "އަޑު ޖައްސާ / ޕްލޭ ކުރޭ",
     "app.audioDial.tipIndicator": "އެހީއެއްގެ ގޮތުން",
     "app.audioDial.tipMessage": "ތިޔަ ފަރާތުގެ އަޑު ޖެއްސުމަށް ނުވަތަ ކަނޑާލުމަަށް ފޯނުގައި '0' ކަށް އޮއްބާލައްވައި",
-    "app.audioModal.connecting": "ގުޅައިދެވެމުން ދަނީ",
-    "app.audioModal.connectingEchoTest": "އެކޯ ޓެސްޓަށް ވަންނަނީ",
     "app.audioManager.joinedAudio": "މިހާރު ވަނީ އޯޑިއޯ ކޮންފަރެންސްގައި ބައިވެރި ވެވިފައި",
     "app.audioManager.joinedEcho": "އެކޯ ޓެސްޓަށް މިހާރުވަނީ ވަދެވިފައި",
     "app.audioManager.leftAudio": "މިހާރު ވަނީ އޯޑިއޯ ކޮންފަރެންސް ދޫކޮށް ދެވިފައި",

@@ -426,8 +426,6 @@
     "app.audioModal.playAudio.arialabel" : "Səsi çal",
     "app.audioDial.tipIndicator": "Kömək",
     "app.audioDial.tipMessage": "Səsinizi almaq / açmaq üçün telefonunuzda '0' düyməsini basın.",
-    "app.audioModal.connecting": "Bağlantı yaradılır",
-    "app.audioModal.connectingEchoTest": "Exo testinə bağlantı yaradılır",
     "app.audioManager.joinedAudio": "Siz səs toplantısına qoşuldunuz",
     "app.audioManager.joinedEcho": "Siz exo testinə  qoşuldunuz",
     "app.audioManager.leftAudio": "Siz səs toplantısını tərk etdiniz",

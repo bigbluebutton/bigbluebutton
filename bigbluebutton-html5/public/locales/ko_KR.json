@@ -482,8 +482,6 @@
     "app.audioModal.playAudio.arialabel" : "오디오 재생",
     "app.audioDial.tipIndicator": "팁",
     "app.audioDial.tipMessage": "전화기의 '0' 버튼을 누르면, 음소거/취소가 됩니다 ",
-    "app.audioModal.connecting": "접속중",
-    "app.audioModal.connectingEchoTest": "메아리 테스트를 위한 연결 ",
     "app.audioManager.joinedAudio": "오디오 컨퍼런스에 합류하셨습니다 ",
     "app.audioManager.joinedEcho": "메아리 테스트에 합류하셨습니다 ",
     "app.audioManager.leftAudio": "오디오 컨퍼런스에서 나오셨습니다 ",
