@@ -9,7 +9,7 @@ const getLang = () => {
 };
 
 const getPadParams = () => {
-  const config = {};
+  let config = {};
   config.lang = getLang();
   config.rtl = document.documentElement.getAttribute('dir') === 'rtl';
 

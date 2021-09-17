@@ -8,7 +8,7 @@ const DRAW_SETTINGS = 'drawSettings';
 const PALM_REJECTION_MODE = 'palmRejectionMode';
 const WHITEBOARD_TOOLBAR = Meteor.settings.public.whiteboard.toolbar;
 
-const makeSetter = (key) => (value) => {
+const makeSetter = key => (value) => {
   const drawSettings = Storage.getItem(DRAW_SETTINGS);
   if (drawSettings) {
     drawSettings[key] = value;
@@ -92,12 +92,14 @@ const filterAnnotationList = () => {
 
   const presenterTools = getFromUserSettings('bbb_presenter_tools', WHITEBOARD_TOOLBAR.presenterTools);
   if (amIPresenter && Array.isArray(presenterTools)) {
-    filteredAnnotationList = WHITEBOARD_TOOLBAR.tools.filter((el) => presenterTools.includes(el.value));
+    filteredAnnotationList = WHITEBOARD_TOOLBAR.tools.filter(el =>
+      presenterTools.includes(el.value));
   }
 
   const multiUserTools = getFromUserSettings('bbb_multi_user_tools', WHITEBOARD_TOOLBAR.multiUserTools);
   if (!amIPresenter && !multiUserPenOnly && Array.isArray(multiUserTools)) {
-    filteredAnnotationList = WHITEBOARD_TOOLBAR.tools.filter((el) => multiUserTools.includes(el.value));
+    filteredAnnotationList = WHITEBOARD_TOOLBAR.tools.filter(el =>
+      multiUserTools.includes(el.value));
   }
 
   return filteredAnnotationList;

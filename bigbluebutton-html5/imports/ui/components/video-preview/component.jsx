@@ -589,7 +589,8 @@ class VideoPreview extends Component {
             <span>
               {intl.formatMessage(intlMessages.webcamNotFoundLabel)}
             </span>
-          )}
+          )
+        }
         { shared
           ? (
             <span className={styles.label}>
@@ -765,7 +766,8 @@ class VideoPreview extends Component {
                 />
               </div>
             )
-            : null}
+            : null
+          }
           <div className={styles.actions}>
             <Button
               label={intl.formatMessage(intlMessages.cancelLabel)}
@@ -819,7 +821,8 @@ class VideoPreview extends Component {
       >
         {deviceInfo.hasMediaDevices
           ? this.renderModalContent()
-          : this.supportWarning()}
+          : this.supportWarning()
+        }
       </Modal>
     );
   }

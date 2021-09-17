@@ -4,9 +4,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Button from '/imports/ui/components/button/component';
-import {
-  List, AutoSizer, CellMeasurer, CellMeasurerCache,
-} from 'react-virtualized';
+import { List, AutoSizer,CellMeasurer, CellMeasurerCache } from 'react-virtualized';
 import { styles } from './styles';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import TimeWindowChatItem from './time-window-chat-item/container';
@@ -119,7 +117,7 @@ class TimeWindowList extends PureComponent {
       timeWindowsValues: prevTimeWindowsValues,
       chatId: prevChatId,
       syncing: prevSyncing,
-      syncedPercent: prevSyncedPercent,
+      syncedPercent: prevSyncedPercent
     } = prevProps;
 
     if (prevChatId !== chatId) {
@@ -174,29 +172,6 @@ class TimeWindowList extends PureComponent {
     }
 
     handleScrollUpdate(position || 1);
-  }
-
-  clearAndRecompute(index) {
-    let recomputed = false;
-
-    [500, 1000, 2000, 3000, 4000, 5000].forEach((i) => {
-      setTimeout(() => {
-        const { fontsLoaded } = this.state;
-        // this is needed because fontsLoaded will be false if user closes/open chatPanel
-        const fontStatus = document.fonts.status;
-
-        if (this.listRef) {
-          if ((fontsLoaded || fontStatus === 'loaded') && !recomputed) {
-            recomputed = true;
-
-            setTimeout(() => {
-              this.cache.clear(index);
-              this.listRef.recomputeRowHeights(index);
-            }, 500);
-          }
-        }
-      }, i);
-    });
   }
 
   scrollTo(position = null) {
@@ -293,7 +268,7 @@ class TimeWindowList extends PureComponent {
       scrollPosition,
       userScrolledBack,
     } = this.state;
-    ChatLogger.debug('TimeWindowList::render', { ...this.props }, { ...this.state }, new Date());
+    ChatLogger.debug('TimeWindowList::render', {...this.props},  {...this.state}, new Date());
 
     const shouldAutoScroll = !!(
       scrollPosition

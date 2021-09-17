@@ -40,20 +40,7 @@ export default function removeUser(meetingId, userId) {
 
     clearUserInfoForRequester(meetingId, userId);
 
-    /*
-    Timeout added to reduce the probability that "userRemove" happens too close to "ejectUser",
-    redirecting user to the wrong component.
-    This is a workaround and should be removed as soon as a better fix is made
-    see: https://github.com/bigbluebutton/bigbluebutton/pull/12057
-    */
-    const DELAY_USER_REMOVAL_TIMEOUT_MS = 1000;
-
-    Meteor.wrapAsync((callback) => {
-      Meteor.setTimeout(() => {
-        Users.remove(selector);
-        callback();
-      }, DELAY_USER_REMOVAL_TIMEOUT_MS);
-    })();
+    Users.remove(selector);
 
     Logger.info(`Removed user id=${userId} meeting=${meetingId}`);
   } catch (err) {

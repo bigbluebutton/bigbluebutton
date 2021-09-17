@@ -221,39 +221,6 @@ class BreakoutRoom extends PureComponent {
     }
   }
 
-  handleShiftUser(activeListSibling) {
-    const { users } = this.state;
-    if (activeListSibling) {
-      const text = activeListSibling.getElementsByTagName('p')[0].innerText;
-      const roomNumber = text.match(/\d/g).join('');
-      users.forEach((u) => {
-        const { childNodes } = document.activeElement;
-        if (!childNodes[childNodes.length - 1]) return;
-        if (u.userId === childNodes[childNodes.length - 1].id) {
-          u.room = text.substr(text.length - 1).includes(')') ? 0 : parseInt(roomNumber);
-        }
-      });
-    }
-  }
-
-  handleMoveEvent(event) {
-    if (this.listOfUsers) {
-      const { parentElement } = document.activeElement;
-      if (event.key.includes('ArrowRight')) this.handleShiftUser(parentElement.nextSibling);
-      if (event.key.includes('ArrowLeft')) this.handleShiftUser(parentElement.previousSibling);
-      this.setRoomUsers();
-    }
-  }
-
-  componentWillUnmount() {
-    if (this.listOfUsers) {
-      for (let i = 0; i < this.listOfUsers.children.length; i++) {
-        const roomList = this.listOfUsers.children[i].getElementsByTagName('div')[0];
-        roomList.removeEventListener('keydown', this.handleMoveEvent, true);
-      }
-    }
-  }
-
   componentDidUpdate(prevProps, prevstate) {
     if (this.listOfUsers) {
       for (let i = 0; i < this.listOfUsers.children.length; i += 1) {

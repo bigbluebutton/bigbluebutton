@@ -47,7 +47,7 @@ export function initCursorStreamListener() {
   const startStreamHandlersPromise = new Promise((resolve) => {
     const checkStreamHandlersInterval = setInterval(() => {
       const streamHandlersSize = Object.values(Meteor.StreamerCentral.instances[`cursor-${Auth.meetingID}`].handlers)
-        .filter((el) => el != undefined)
+        .filter(el => el != undefined)
         .length;
 
       if (!streamHandlersSize) {

@@ -6,8 +6,8 @@ import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
 import { ENTER } from '/imports/utils/keyCodes';
 import toastStyles from '/imports/ui/components/toast/styles';
-import { Meteor } from 'meteor/meteor';
 import { styles } from './styles';
+import {Meteor} from "meteor/meteor";
 
 const messages = defineMessages({
   lowerHandsLabel: {
@@ -92,7 +92,7 @@ class StatusNotifier extends Component {
     const { emojiUsers, intl } = this.props;
     if (emojiUsers.length === 0) return '';
 
-    const _names = emojiUsers.map((u) => u.name);
+    const _names = emojiUsers.map(u => u.name);
     const { length } = _names;
     const and = intl.formatMessage(messages.and);
     let formattedNames = '';
@@ -124,14 +124,14 @@ class StatusNotifier extends Component {
     let users = emojiUsers;
     if (emojiUsers.length > MAX_AVATAR_COUNT) users = users.slice(0, MAX_AVATAR_COUNT);
 
-    const avatars = users.map((u) => (
+    const avatars = users.map(u => (
       <div
         role="button"
         tabIndex={0}
         className={styles.avatar}
         style={{ backgroundColor: `${u.color}` }}
         onClick={() => clearUserStatus(u.userId)}
-        onKeyDown={(e) => (e.keyCode === ENTER ? clearUserStatus(u.userId) : null)}
+        onKeyDown={e => (e.keyCode === ENTER ? clearUserStatus(u.userId) : null)}
         key={`statusToastAvatar-${u.userId}`}
         data-test="avatarsWrapperAvatar"
       >
@@ -180,7 +180,7 @@ class StatusNotifier extends Component {
           color="default"
           size="md"
           onClick={() => {
-            emojiUsers.map((u) => clearUserStatus(u.userId));
+            emojiUsers.map(u => clearUserStatus(u.userId));
           }}
         />
       </div>

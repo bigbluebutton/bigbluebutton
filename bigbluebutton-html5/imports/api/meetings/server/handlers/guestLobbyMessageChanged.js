@@ -1,5 +1,5 @@
-import { check } from 'meteor/check';
 import setGuestLobbyMessage from '../modifiers/setGuestLobbyMessage';
+import { check } from 'meteor/check';
 
 export default function handleGuestLobbyMessageChanged({ body }, meetingId) {
   const { message } = body;

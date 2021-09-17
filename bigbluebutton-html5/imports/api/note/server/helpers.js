@@ -17,9 +17,9 @@ const getDataFromResponse = (data, key) => {
   return null;
 };
 
-const isNotePad = (padId) => padId.search(TOKEN);
+const isNotePad = padId => padId.search(TOKEN);
 
-const processForNotePadOnly = (fn) => (message, ...args) => {
+const processForNotePadOnly = fn => (message, ...args) => {
   const { body } = message;
   const { pad } = body;
   const { id } = pad;

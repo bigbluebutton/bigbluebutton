@@ -152,6 +152,7 @@ export default class TextDrawListener extends Component {
     // to prevent default behavior (scrolling) on devices (in Safari), when you draw a text box
     event.preventDefault();
 
+
     // if our current drawing state is not drawing the box and not writing the text
     if (!isDrawing && !isWritingText) {
       window.addEventListener('touchend', this.handleTouchEnd, { passive: false });
@@ -357,6 +358,7 @@ export default class TextDrawListener extends Component {
       textBoxY: y,
     });
   }
+
 
   commonDrawEndHandler() {
     const {

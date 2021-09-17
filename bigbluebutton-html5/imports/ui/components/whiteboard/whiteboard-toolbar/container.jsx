@@ -4,7 +4,7 @@ import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import WhiteboardToolbarService from './service';
 import WhiteboardToolbar from './component';
 
-const WhiteboardToolbarContainer = (props) => (
+const WhiteboardToolbarContainer = props => (
   <WhiteboardToolbar {...props} />
 );
 

@@ -446,6 +446,7 @@ class SIPSession {
           window.removeEventListener('beforeunload', this.onBeforeUnload);
         }
 
+
         hangupRetries += 1;
 
         setTimeout(() => {
@@ -827,7 +828,7 @@ class SIPSession {
       this.setupEventHandlers(inviter).then(() => {
         inviter.invite().then(() => {
           resolve();
-        }).catch((e) => reject(e));
+        }).catch(e => reject(e));
       });
     });
   }
@@ -1080,6 +1081,7 @@ class SIPSession {
         // any possile errors
         if (!this._currentSessionState) return false;
 
+
         let mappedCause;
         let cause;
         if (!iceCompleted) {
@@ -1193,7 +1195,7 @@ class SIPSession {
           if (supportedConstraints[constraintName]) {
             matchConstraints[constraintName] = constraintValue;
           }
-        },
+        }
       );
 
       return matchConstraints;
@@ -1227,7 +1229,7 @@ class SIPSession {
 
       const matchConstraints = this.filterSupportedConstraints(constraints);
 
-      // Chromium bug - see: https://bugs.chromium.org/p/chromium/issues/detail?id=796964&q=applyConstraints&can=2
+      //Chromium bug - see: https://bugs.chromium.org/p/chromium/issues/detail?id=796964&q=applyConstraints&can=2
       const { isChrome } = browserInfo;
 
       if (isChrome) {
@@ -1244,7 +1246,7 @@ class SIPSession {
           .sessionDescriptionHandler;
 
         localMediaStream.getAudioTracks().forEach(
-          (track) => track.applyConstraints(matchConstraints),
+          track => track.applyConstraints(matchConstraints),
         );
       }
     } catch (error) {
@@ -1367,7 +1369,7 @@ export default class SIPBridge extends BaseAudioBridge {
           if (this.activeSession.webrtcConnected) {
             // webrtc was able to connect so just try again
             message.silenceNotifications = true;
-            callback({ status: this.baseCallStates.reconnecting, bridge: BRIDGE_NAME });
+            callback({ status: this.baseCallStates.reconnecting, bridge: BRIDGE_NAME, });
             shouldTryReconnect = true;
           } else if (hasFallbackDomain === true && hostname !== IPV4_FALLBACK_DOMAIN) {
             message.silenceNotifications = true;

@@ -118,16 +118,6 @@ class Dropdown extends Component {
       screenreaderTrap.untrap();
     }
 
-    if (isOpen && tethered) {
-      if (!openPanel.includes('userlist') && panelRef) {
-        panelRef.setAttribute("aria-hidden", true);
-      }
-    }else if (!isOpen && tethered) {
-      if (panelRef) {
-        panelRef.setAttribute("aria-hidden", false);
-      }
-    }
-
     if (isOpen && !prevState.isOpen) { onShow(); }
 
     if (!isOpen && prevState.isOpen) { onHide(); }

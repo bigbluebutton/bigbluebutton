@@ -12,12 +12,12 @@ export default function handleGetVoiceUsers({ body }, meetingId) {
   check(users, Array);
 
   const meeting = Meetings.findOne({ meetingId }, { fields: { 'voiceProp.voiceConf': 1 } });
-  const usersIds = users.map((m) => m.intId);
+  const usersIds = users.map(m => m.intId);
 
   const voiceUsersIdsToUpdate = VoiceUsers.find({
     meetingId,
     intId: { $in: usersIds },
-  }, { fields: { intId: 1 } }).fetch().map((m) => m.intId);
+  }, { fields: { intId: 1 } }).fetch().map(m => m.intId);
 
   users.forEach((user) => {
     if (voiceUsersIdsToUpdate.indexOf(user.intId) >= 0) {
@@ -52,7 +52,7 @@ export default function handleGetVoiceUsers({ body }, meetingId) {
     meetingId,
     intId: { $nin: usersIds },
   }).fetch();
-  voiceUsersToRemove.forEach((user) => removeVoiceUser(meetingId, {
+  voiceUsersToRemove.forEach(user => removeVoiceUser(meetingId, {
     voiceConf: meeting.voiceProp.voiceConf,
     voiceUserId: user.voiceUserId,
     intId: user.intId,

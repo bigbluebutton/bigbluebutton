@@ -74,7 +74,7 @@ const transferUserToMeeting = (fromMeetingId, toMeetingId) => makeCall('transfer
 
 const transferToBreakout = (breakoutId) => {
   const breakoutRooms = findBreakouts();
-  const breakoutRoom = breakoutRooms.filter((breakout) => breakout.breakoutId === breakoutId).shift();
+  const breakoutRoom = breakoutRooms.filter(breakout => breakout.breakoutId === breakoutId).shift();
   const breakoutMeeting = Meetings.findOne({
     $and: [
       { 'breakoutProps.sequence': breakoutRoom.sequence },
@@ -96,24 +96,24 @@ const checkInviteModerators = () => {
   return !((amIModerator() && !BREAKOUTS_CONFIG.sendInvitationToIncludedModerators));
 };
 
-const getBreakoutByUserId = (userId) => Breakouts.find(
+const getBreakoutByUserId = userId => Breakouts.find(
   { 'users.userId': userId },
   { fields: { timeRemaining: 0 } },
 ).fetch();
 
-const getBreakoutByUser = (user) => Breakouts.findOne({ users: user });
+const getBreakoutByUser = user => Breakouts.findOne({ users: user });
 
-const getUsersFromBreakouts = (breakoutsArray) => breakoutsArray
-  .map((breakout) => breakout.users)
+const getUsersFromBreakouts = breakoutsArray => breakoutsArray
+  .map(breakout => breakout.users)
   .reduce((acc, usersArray) => [...acc, ...usersArray], []);
 
-const filterUserURLs = (userId) => (breakoutUsersArray) => breakoutUsersArray
-  .filter((user) => user.userId === userId);
+const filterUserURLs = userId => breakoutUsersArray => breakoutUsersArray
+  .filter(user => user.userId === userId);
 
-const getLastURLInserted = (breakoutURLArray) => breakoutURLArray
+const getLastURLInserted = breakoutURLArray => breakoutURLArray
   .sort((a, b) => a.insertedTime - b.insertedTime).pop();
 
-const getBreakoutUserByUserId = (userId) => fp.pipe(
+const getBreakoutUserByUserId = userId => fp.pipe(
   getBreakoutByUserId,
   getUsersFromBreakouts,
   filterUserURLs(userId),
@@ -129,12 +129,12 @@ const getBreakoutsNoTime = () => Breakouts.find(
   },
 ).fetch();
 
-const getBreakoutUserIsIn = (userId) => Breakouts.findOne({ 'joinedUsers.userId': new RegExp(`^${userId}`) }, { fields: { sequence: 1 } });
+const getBreakoutUserIsIn = userId => Breakouts.findOne({ 'joinedUsers.userId': new RegExp(`^${userId}`) }, { fields: { sequence: 1 } });
 
 const isUserInBreakoutRoom = (joinedUsers) => {
   const userId = Auth.userID;
 
-  return !!joinedUsers.find((user) => user.userId.startsWith(userId));
+  return !!joinedUsers.find(user => user.userId.startsWith(userId));
 };
 
 export default {

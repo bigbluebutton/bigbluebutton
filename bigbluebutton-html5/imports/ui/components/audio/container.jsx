@@ -205,10 +205,10 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
         return;
       }
       setTimeout(() => openAudioModal().then(() => {
-        if (enableVideo && autoShareWebcam) {
-          openVideoPreviewModal();
-        }
-      }), 0);
+         if (enableVideo && autoShareWebcam) {
+           openVideoPreviewModal();
+          }
+        }), 0);
     },
   });
 

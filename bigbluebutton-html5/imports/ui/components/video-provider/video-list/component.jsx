@@ -336,6 +336,7 @@ class VideoList extends Component {
     } = this.props;
     const { focusedId } = this.state;
     const numOfStreams = streams.length;
+
     return streams.map((vs) => {
       const { stream, userId, name } = vs;
       const isFocused = focusedId === stream;

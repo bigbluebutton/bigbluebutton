@@ -17,7 +17,7 @@ const getActiveCaptions = () => {
   return activeCaptions;
 };
 
-const getCaptions = (locale) => Captions.findOne({
+const getCaptions = locale => Captions.findOne({
   meetingId: Auth.meetingID,
   padId: { $regex: `${CAPTIONS_TOKEN}${locale}$` },
 });

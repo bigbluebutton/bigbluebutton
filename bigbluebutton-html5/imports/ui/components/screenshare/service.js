@@ -47,7 +47,7 @@ const isGloballyBroadcasting = () => {
     { fields: { 'screenshare.stream': 1 } });
 
   return (!screenshareEntry ? false : !!screenshareEntry.screenshare.stream);
-};
+}
 
 // when the meeting information has been updated check to see if it was
 // screensharing. If it has changed either trigger a call to receive video
@@ -75,7 +75,7 @@ const screenshareHasAudio = () => {
   }
 
   return !!screenshareEntry.screenshare.hasAudio;
-};
+}
 
 const screenshareHasEnded = () => {
   if (isSharingScreen()) {
@@ -85,7 +85,9 @@ const screenshareHasEnded = () => {
   KurentoBridge.stop();
 };
 
-const getMediaElement = () => document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
+const getMediaElement = () => {
+  return document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
+}
 
 const attachLocalPreviewStream = (mediaElement) => {
   const stream = KurentoBridge.gdmStream;
@@ -93,7 +95,7 @@ const attachLocalPreviewStream = (mediaElement) => {
     // Always muted, presenter preview.
     BridgeService.screenshareLoadAndPlayMediaStream(stream, mediaElement, true);
   }
-};
+}
 
 const screenshareHasStarted = () => {
   // Presenter's screen preview is local, so skip
@@ -129,7 +131,7 @@ const viewScreenshare = () => {
         errorName: error.name,
         errorMessage: error.message,
       },
-    }, 'Screenshare viewer failure');
+    }, `Screenshare viewer failure`);
   });
 };
 

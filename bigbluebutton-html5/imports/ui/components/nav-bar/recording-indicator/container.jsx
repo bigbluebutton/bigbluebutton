@@ -7,7 +7,7 @@ import VoiceUsers from '/imports/api/voice-users';
 import RecordIndicator from './component';
 import deviceInfo from '/imports/utils/deviceInfo';
 
-const RecordIndicatorContainer = (props) => (
+const RecordIndicatorContainer = props => (
   <RecordIndicator {...props} />
 );
 

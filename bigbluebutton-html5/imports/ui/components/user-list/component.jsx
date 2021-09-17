@@ -47,7 +47,7 @@ class UserList extends PureComponent {
             && CustomLogoUrl
             ? <CustomLogo CustomLogoUrl={CustomLogoUrl} /> : null
         }
-        <UserContentContainer
+        {<UserContentContainer
           {...{
             intl,
             compact,
@@ -59,7 +59,7 @@ class UserList extends PureComponent {
             requestUserInformation,
           }
           }
-        />
+        />}
       </div>
     );
   }

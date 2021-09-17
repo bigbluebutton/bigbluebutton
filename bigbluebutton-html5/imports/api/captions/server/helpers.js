@@ -32,7 +32,7 @@ const isEnabled = () => CAPTIONS_CONFIG.enabled;
 
 const getLocalesURL = () => LOCALES_URL;
 
-const processForCaptionsPadOnly = (fn) => (message, ...args) => {
+const processForCaptionsPadOnly = fn => (message, ...args) => {
   const { body } = message;
   const { pad } = body;
   const { id } = pad;

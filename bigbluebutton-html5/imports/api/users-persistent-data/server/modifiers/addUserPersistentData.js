@@ -28,6 +28,7 @@ export default function addUserPersistentData(user) {
     effectiveConnectionType: null,
   });
 
+
   const {
     intId,
     extId,

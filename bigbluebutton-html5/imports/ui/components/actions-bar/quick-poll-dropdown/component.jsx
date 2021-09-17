@@ -160,11 +160,6 @@ class QuickPollDropdown extends Component {
       singlePollType = type;
     }
 
-    if (singlePollType === 'TF' || singlePollType === 'YN' || singlePollType === 'YNA') {
-      answers = getLocalizedAnswers(singlePollType, intl);
-      singlePollType = 'custom';
-    }
-
     let btn = (
       <Button
         aria-label={intl.formatMessage(intlMessages.quickPollLabel)}

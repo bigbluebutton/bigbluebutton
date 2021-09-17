@@ -251,7 +251,7 @@ class VideoProvider extends Component {
     const { threshold, profile } = VideoService.getThreshold(numberOfPublishers);
     if (profile) {
       const publishers = Object.values(this.webRtcPeers)
-        .filter((peer) => peer.isPublisher)
+        .filter(peer => peer.isPublisher)
         .forEach((peer) => {
           // 0 means no threshold in place. Reapply original one if needed
           const profileToApply = (threshold === 0) ? peer.originalProfileId : profile;
@@ -298,8 +298,7 @@ class VideoProvider extends Component {
     this.disconnectStreams(streamsToDisconnect);
 
     if (CAMERA_QUALITY_THRESHOLDS_ENABLED) {
-      const floorStream = streams.find((vs) => vs.floor === true);
-      this.updateThreshold(this.props.totalNumberOfStreams, floorStream);
+      this.updateThreshold(this.props.totalNumberOfStreams);
     }
   }
 
@@ -485,6 +484,7 @@ class VideoProvider extends Component {
       if (typeof peer.dispose === 'function') {
         peer.dispose();
       }
+
       delete this.outboundIceQueues[stream];
       delete this.webRtcPeers[stream];
     } else {

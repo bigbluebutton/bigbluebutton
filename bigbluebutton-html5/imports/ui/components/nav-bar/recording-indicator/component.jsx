@@ -193,7 +193,7 @@ class RecordingIndicator extends PureComponent {
     const recordingButton = recording ? recordMeetingButtonWithTooltip : recordMeetingButton;
 
     return (
-      <>
+      <Fragment>
         {record
           ? <span className={styles.presentationTitleSeparator} aria-hidden>|</span>
           : null}
@@ -222,7 +222,7 @@ class RecordingIndicator extends PureComponent {
             </Tooltip>
           )}
         </div>
-      </>
+      </Fragment>
     );
   }
 }

@@ -221,7 +221,7 @@ const getConnectionStatus = () => {
       loggedOut,
     } = user;
 
-    const status = connectionStatus.find((status) => status.userId === userId);
+    const status = connectionStatus.find(status => status.userId === userId);
 
     if (status) {
       result.push({

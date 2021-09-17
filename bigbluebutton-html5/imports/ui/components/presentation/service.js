@@ -7,7 +7,7 @@ import PollService from '/imports/ui/components/poll/service';
 const POLL_SETTINGS = Meteor.settings.public.poll;
 const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
 
-const getCurrentPresentation = (podId) => Presentations.findOne({
+const getCurrentPresentation = podId => Presentations.findOne({
   podId,
   current: true,
 });
@@ -86,7 +86,7 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
 
   const pollRegex = /[1-9A-Ia-i][.)].*/g;
   let optionsPoll = content.match(pollRegex) || [];
-  if (optionsPoll) optionsPoll = optionsPoll.map((opt) => `\r${opt[0]}.`);
+  if (optionsPoll) optionsPoll = optionsPoll.map(opt => `\r${opt[0]}.`);
 
   optionsPoll.reduce((acc, currentValue) => {
     const lastElement = acc[acc.length - 1];

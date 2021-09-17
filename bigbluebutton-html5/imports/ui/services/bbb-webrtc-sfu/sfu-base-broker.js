@@ -30,27 +30,27 @@ class BaseBroker {
     window.addEventListener('beforeunload', this.onbeforeunload);
   }
 
-  set started(val) {
+  set started (val) {
     this._started = val;
   }
 
-  get started() {
+  get started () {
     return this._started;
   }
 
-  onbeforeunload() {
+  onbeforeunload () {
     return this.stop();
   }
 
-  onstart() {
+  onstart () {
     // To be implemented by inheritors
   }
 
-  onerror(error) {
+  onerror (error) {
     // To be implemented by inheritors
   }
 
-  onended() {
+  onended () {
     // To be implemented by inheritors
   }
 
@@ -79,7 +79,7 @@ class BaseBroker {
           extraInfo: {
             errorMessage: error.name || error.message || 'Unknown error',
             sfuComponent: this.sfuComponent,
-          },
+          }
         }, 'WebSocket connection to SFU failed');
 
         if (this.signallingTransportOpen) {
@@ -101,12 +101,12 @@ class BaseBroker {
     });
   }
 
-  sendMessage(message) {
+  sendMessage (message) {
     const jsonMessage = JSON.stringify(message);
     this.ws.send(jsonMessage);
   }
 
-  ping() {
+  ping () {
     this.sendMessage({ id: 'ping' });
   }
 
@@ -144,7 +144,7 @@ class BaseBroker {
       extraInfo: {
         role,
         sfuComponent: this.sfuComponent,
-      },
+      }
     }, `Start request accepted for ${this.sfuComponent}`);
 
     return true;
@@ -168,7 +168,7 @@ class BaseBroker {
     }
   }
 
-  addIceServers(options) {
+  addIceServers (options) {
     if (this.iceServers && this.iceServers.length > 0) {
       options.configuration = {};
       options.configuration.iceServers = this.iceServers;
@@ -177,7 +177,7 @@ class BaseBroker {
     return options;
   }
 
-  handleConnectionStateChange(eventIdentifier) {
+  handleConnectionStateChange (eventIdentifier) {
     if (this.webRtcPeer) {
       const { peerConnection } = this.webRtcPeer;
       const connectionState = peerConnection.connectionState;
@@ -194,7 +194,7 @@ class BaseBroker {
     }
   }
 
-  addIceCandidate(candidate) {
+  addIceCandidate (candidate) {
     this.webRtcPeer.addIceCandidate(candidate, (error) => {
       if (error) {
         // Just log the error. We can't be sure if a candidate failure on add is
@@ -207,13 +207,13 @@ class BaseBroker {
             errorCode: error.code || 'Unknown code',
             sfuComponent: this.sfuComponent,
             started: this.started,
-          },
-        }, 'Adding ICE candidate failed');
+          }
+        }, `Adding ICE candidate failed`);
       }
     });
   }
 
-  processIceQueue() {
+  processIceQueue () {
     const peer = this.webRtcPeer;
     while (peer.iceQueue.length) {
       const candidate = peer.iceQueue.shift();
@@ -221,7 +221,7 @@ class BaseBroker {
     }
   }
 
-  handleIceCandidate(candidate) {
+  handleIceCandidate (candidate) {
     const peer = this.webRtcPeer;
 
     if (peer.negotiated) {
@@ -236,16 +236,16 @@ class BaseBroker {
     }
   }
 
-  disposePeer() {
+  disposePeer () {
     if (this.webRtcPeer) {
       this.webRtcPeer.dispose();
       this.webRtcPeer = null;
     }
   }
 
-  stop() {
-    this.onstart = function () {};
-    this.onerror = function () {};
+  stop () {
+    this.onstart = function(){};
+    this.onerror = function(){};
     window.removeEventListener('beforeunload', this.onbeforeunload);
 
     if (this.webRtcPeer) {
@@ -253,7 +253,7 @@ class BaseBroker {
     }
 
     if (this.ws !== null) {
-      this.ws.onclose = function () {};
+      this.ws.onclose = function (){};
       this.ws.close();
     }
 
@@ -270,7 +270,7 @@ class BaseBroker {
     }, `Stopped broker session for ${this.sfuComponent}`);
 
     this.onended();
-    this.onended = function () {};
+    this.onended = function(){};
   }
 }
 

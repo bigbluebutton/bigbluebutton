@@ -542,7 +542,8 @@ class ConnectionStatusComponent extends PureComponent {
                 <a href={this.help} target="_blank" rel="noopener noreferrer">
                   {`(${intl.formatMessage(intlMessages.more)})`}
                 </a>
-              )}
+              )
+            }
           </div>
           {this.renderNetworkData()}
           {this.renderCopyDataButton()}

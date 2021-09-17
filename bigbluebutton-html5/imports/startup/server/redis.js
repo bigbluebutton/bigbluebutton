@@ -208,9 +208,10 @@ class RedisPubSub {
   }
 
   updateConfig(config) {
-    this.config = { ...this.config, ...config };
+    this.config = Object.assign({}, this.config, config);
     this.redisDebugEnabled = this.config.debug;
   }
+
 
   // TODO: Move this out of this class, maybe pass as a callback to init?
   handleSubscribe() {
@@ -308,7 +309,7 @@ class RedisPubSub {
             // but we still need to process it on the backend which is processing the rest of the events
             // for this meetingId (it does not contain instanceId either, so we cannot compare that)
             const meetingIdForMeetingEnded = parsedMessage.core.body.meetingId;
-            if (this.meetingsQueues[meetingIdForMeetingEnded]) {
+            if (!!this.meetingsQueues[meetingIdForMeetingEnded]) {
               this.meetingsQueues[NO_MEETING_ID].add({
                 pattern,
                 channel,
@@ -321,7 +322,7 @@ class RedisPubSub {
         }
       } else {
         // add to existing queue
-        if (this.meetingsQueues[meetingIdFromMessageCoreHeader]) {
+        if (!!this.meetingsQueues[meetingIdFromMessageCoreHeader]) {
           // only handle message if we have a queue for the meeting. If we don't have a queue, it means it's for a different instanceId
           this.meetingsQueues[meetingIdFromMessageCoreHeader].add({
             pattern,

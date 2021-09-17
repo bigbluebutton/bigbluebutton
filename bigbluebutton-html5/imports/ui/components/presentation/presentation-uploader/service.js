@@ -16,7 +16,7 @@ const futch = (url, opts = {}, onProgress) => new Promise((res, rej) => {
   xhr.open(opts.method || 'get', url);
 
   Object.keys(opts.headers || {})
-    .forEach((k) => xhr.setRequestHeader(k, opts.headers[k]));
+    .forEach(k => xhr.setRequestHeader(k, opts.headers[k]));
 
   xhr.onload = (e) => {
     if (e.target.status !== 200) {

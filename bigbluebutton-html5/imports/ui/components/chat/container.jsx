@@ -210,23 +210,6 @@ const ChatContainer = (props) => {
         timeWindowsValues.push(messagePartnerLoggedOut);
       }
 
-      if (partnerIsLoggedOut) {
-        const time = Date.now();
-        const id = `partner-disconnected-${time}`;
-        const messagePartnerLoggedOut = {
-          id,
-          content: [{
-            id,
-            text: intl.formatMessage(intlMessages.partnerDisconnected, { 0: chatName }),
-            time,
-          }],
-          time,
-          sender: null,
-        };
-
-        timeWindowsValues.push(messagePartnerLoggedOut);
-      }
-
       setLastMsg(lastMsg ? { ...lastMsg } : lastMsg);
       setTimeWindows(timeWindowsValues);
       setLastTimeWindowValuesBuild(Date.now());
