@@ -65,7 +65,7 @@ public interface RecordingsApi {
     @RequestMapping(value = "/recordings/search",
         produces = { "application/json", "application/xml" },
         method = RequestMethod.GET)
-    ResponseEntity<ResponseEnvelope> getRecordings(@Parameter(in = ParameterIn.QUERY, description = "Search filters for recordings",
+    ResponseEntity<ResponseEnvelope> searchRecordings(@Parameter(in = ParameterIn.QUERY, description = "Search filters for recordings",
             schema = @Schema()) @RequestParam(value = "query", required = false) String query, @Parameter(in = ParameterIn.QUERY, description = "Page number",
             schema = @Schema()) @RequestParam(value = "page", required = false) Integer page, @Parameter(in = ParameterIn.QUERY, description = "Page size",
             schema = @Schema()) @RequestParam(value = "size", required = false) Integer size);
@@ -82,7 +82,7 @@ public interface RecordingsApi {
     @RequestMapping(value = "/recordings/metadata/search",
             produces = { "application/json", "application/xml" },
             method = RequestMethod.GET)
-    ResponseEntity<ResponseEnvelope> searchMetadata(@Parameter(in = ParameterIn.QUERY, description = "Metadata query",
+    ResponseEntity<ResponseEnvelope> searchMetadata(@Parameter(in = ParameterIn.QUERY, description = "XPath formatted metadata query",
             schema = @Schema()) @RequestParam(value = "query", required = false) String query, @Parameter(in = ParameterIn.QUERY, description = "Page number",
             schema = @Schema()) @RequestParam(value = "page", required = false) Integer page, @Parameter(in = ParameterIn.QUERY, description = "Page size",
             schema = @Schema()) @RequestParam(value = "size", required = false) Integer size);

@@ -108,7 +108,7 @@ public class RecordingsApiController implements RecordingsApi {
     }
 
     @Override
-    public ResponseEntity<ResponseEnvelope> getRecordings(@Parameter(in = ParameterIn.QUERY, description = "Search filters for recordings",
+    public ResponseEntity<ResponseEnvelope> searchRecordings(@Parameter(in = ParameterIn.QUERY, description = "Search filters for recordings",
             schema = @Schema()) @RequestParam(value = "query", required = false) String query, @Parameter(in = ParameterIn.QUERY, description = "Page number",
             schema = @Schema()) @RequestParam(value = "page", required = false) Integer page, @Parameter(in = ParameterIn.QUERY, description = "Page size",
             schema = @Schema()) @RequestParam(value = "size", required = false) Integer size) {

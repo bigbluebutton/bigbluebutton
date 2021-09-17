@@ -241,12 +241,13 @@ paths:
       tags:
       - recording
       summary: Returns recordings
-      operationId: getRecordings
+      operationId: searchRecordings
       parameters:
         - in: query
           name: query
           schema:
             type: string
+            example: "field1:value1,field2:value2,field3:value3"
           description: "Search query string"  
         - in: query
           name: page
@@ -263,6 +264,44 @@ paths:
       responses:
         200:
           $ref: '#/components/responses/Hateoas'
+        404:
+          $ref: '#/components/responses/NotFound'
+        405:
+          $ref: '#/components/responses/ValidationError'
+      security:
+      - api_key: []
+      x-codegen-request-body-name: body
+  
+  /recordings/metadata/search:
+    get:
+      tags:
+      - recording
+      summary: Returns recordings
+      operationId: searchMetadata
+      parameters:
+        - in: query
+          name: query
+          schema:
+            type: string
+            example: "parent1/child1:value1,parent2/child2/child3:value2"
+          description: XPath formatted metadata query
+        - in: query
+          name: page
+          schema:
+            type: integer
+            format: int32
+          description: "Page number"  
+        - in: query
+          name: size
+          schema:
+            type: integer
+            format: int32
+          description: "Page size"  
+      responses:
+        200:
+          $ref: '#/components/responses/Hateoas'
+        404:
+          $ref: '#/components/responses/NotFound'
         405:
           $ref: '#/components/responses/ValidationError'
       security:
