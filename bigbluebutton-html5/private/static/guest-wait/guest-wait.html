@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>Guest Lobby</title>
+  <title>BigBlueButton - Guest Lobby</title>
   <meta charset="UTF-8">
   <style>
     :root {
@@ -24,6 +24,10 @@
       font-weight: bold;
       font-size: 24px;
       font-family: arial, sans-serif;
+    }
+
+    #content h1 {
+      font-size: 2rem;
     }
 
     .spinner {
@@ -149,6 +153,8 @@
       url.search = overrideLocale
         ? `locale=${overrideLocale}`
         : `locale=${navigator.language}&init=true`;
+      
+      document.getElementsByTagName('html')[0].lang = overrideLocale || navigator.language;
 
       const localesPath = 'locales';
 
@@ -320,12 +326,13 @@
 
 <body>
   <div id="content">
+    <h1>Waiting Room</h1>
     <div class="spinner">
       <div class="bounce1"></div>
       <div class="bounce2"></div>
       <div class="bounce3"></div>
     </div>
-    <p>Please wait for a moderator to approve you joining the meeting.</p>
+    <p aria-live="polite">Please wait for a moderator to approve you joining the meeting.</p>
   </div>
 </body>
 
