@@ -18,6 +18,7 @@
 /* eslint no-unused-vars: 0 */
 
 import './wdyr';
+import '../imports/ui/services/collection-hooks/collection-hooks';
 
 import React from 'react';
 import { Meteor } from 'meteor/meteor';

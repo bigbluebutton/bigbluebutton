@@ -8,4 +8,8 @@ if (Meteor.isServer) {
   UsersTyping._ensureIndex({ meetingId: 1, isTypingTo: 1 });
 }
 
+if (Meteor.isClient) {
+  GroupChatMsg.onAdded = () => false;
+}
+
 export { GroupChatMsg, UsersTyping };
