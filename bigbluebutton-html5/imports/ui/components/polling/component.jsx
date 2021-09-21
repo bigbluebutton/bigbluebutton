@@ -131,7 +131,7 @@ class Polling extends Component {
 
     if (!poll) return null;
 
-    const { stackOptions, answers, question, pollType } = poll;
+    const { answers, question, pollType } = poll;
     const defaultPoll = isDefaultPoll(pollType);
 
     return (
@@ -230,7 +230,7 @@ class Polling extends Component {
     );
   }
 
-  renderCheckboxAnswers(pollAnswerStyles) {
+  renderCheckboxAnswers() {
     const {
       isMeteorConnected,
       intl,
@@ -247,7 +247,6 @@ class Polling extends Component {
             {intl.formatMessage(intlMessages.pollingTitleLabel)}
           </div>
           )}
-        {/* <div className={cx(pollAnswerStyles)}> */}
         <table className={styles.multipleResponseAnswersTable}>
           {poll.answers.map((pollAnswer) => {
             const formattedMessageIndex = pollAnswer.key.toLowerCase();
@@ -287,7 +286,6 @@ class Polling extends Component {
             );
           })}
         </table>
-        {/* </div> */}
         <div>
           <Button
             className={styles.submitVoteBtn}
