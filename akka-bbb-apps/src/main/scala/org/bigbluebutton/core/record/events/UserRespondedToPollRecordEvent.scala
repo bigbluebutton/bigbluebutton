@@ -19,8 +19,6 @@
 
 package org.bigbluebutton.core.record.events
 
-import org.bigbluebutton.common2.util.JsonUtil
-
 class UserRespondedToPollRecordEvent extends AbstractPollRecordEvent {
   import UserRespondedToPollRecordEvent._
 
@@ -30,8 +28,8 @@ class UserRespondedToPollRecordEvent extends AbstractPollRecordEvent {
     eventMap.put(USER_ID, userId)
   }
 
-  def setAnswerId(answerIds: Array[Int]) {
-    eventMap.put(ANSWER_IDS, JsonUtil.toJson(answerIds))
+  def setAnswerId(answerId: Int) {
+    eventMap.put(ANSWER_ID, Integer.toString(answerId))
   }
 
   def setAnswer(answer: String) {
@@ -41,6 +39,6 @@ class UserRespondedToPollRecordEvent extends AbstractPollRecordEvent {
 
 object UserRespondedToPollRecordEvent {
   protected final val USER_ID = "userId"
-  protected final val ANSWER_IDS = "answerIds"
+  protected final val ANSWER_ID = "answerId"
   protected final val ANSWER = "answer"
 }

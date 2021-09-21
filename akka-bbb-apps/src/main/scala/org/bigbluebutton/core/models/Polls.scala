@@ -11,8 +11,8 @@ import org.bigbluebutton.core.running.LiveMeeting
 
 object Polls {
 
-  def handleStartPollReqMsg(state: MeetingState2x, userId: String, pollId: String, pollType: String, secretPoll: Boolean, multiResponse: Boolean, questionText: String,
-                            lm: LiveMeeting): Option[SimplePollOutVO] = {
+  def handleStartPollReqMsg(state: MeetingState2x, userId: String, pollId: String, pollType: String, secretPoll: Boolean, questionText: String,
+                            multiResponse: Boolean, lm: LiveMeeting): Option[SimplePollOutVO] = {
 
     def createPoll(stampedPollId: String): Option[Poll] = {
       val numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter
@@ -168,13 +168,13 @@ object Polls {
     }
   }
 
-  def handleStartCustomPollReqMsg(state: MeetingState2x, requesterId: String, pollId: String, pollType: String, secretPoll: Boolean, multiResponse: Boolean,
-                                  answers: Seq[String], questionText: String, lm: LiveMeeting): Option[SimplePollOutVO] = {
+  def handleStartCustomPollReqMsg(state: MeetingState2x, requesterId: String, pollId: String, pollType: String, secretPoll: Boolean,
+                                  multiResponse: Boolean, answers: Seq[String], questionText: String, lm: LiveMeeting): Option[SimplePollOutVO] = {
 
     def createPoll(stampedPollId: String): Option[Poll] = {
       val numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter
       for {
-        poll <- PollFactory.createPoll(stampedPollId, pollType, numRespondents, Some(answers), Some(questionText), secretPoll, multiResponse)
+        poll <- PollFactory.createPoll(stampedPollId, pollType, multiResponse, numRespondents, Some(answers), Some(questionText), secretPoll)
       } yield {
         lm.polls.save(poll)
         poll
@@ -452,32 +452,32 @@ object PollFactory {
   val LetterArray = Array("A", "B", "C", "D", "E", "F")
   val NumberArray = Array("1", "2", "3", "4", "5", "6")
 
-  private def processYesNoPollType(qType: String, text: Option[String], multiResponse: Boolean): Question = {
+  private def processYesNoPollType(qType: String, multiResponse: Boolean, text: Option[String]): Question = {
     val answers = new ArrayBuffer[Answer];
 
     answers += new Answer(0, "Yes", Some("Yes"))
     answers += new Answer(1, "No", Some("No"))
 
-    new Question(0, PollType.YesNoPollType, false, text, answers, multiResponse)
+    new Question(0, PollType.YesNoPollType, multiResponse, text, answers)
   }
 
-  private def processYesNoAbstentionPollType(qType: String, text: Option[String], multiResponse: Boolean): Question = {
+  private def processYesNoAbstentionPollType(qType: String, multiResponse: Boolean, text: Option[String]): Question = {
     val answers = new ArrayBuffer[Answer]
 
     answers += new Answer(0, "Yes", Some("Yes"))
     answers += new Answer(1, "No", Some("No"))
     answers += new Answer(2, "Abstention", Some("Abstention"))
 
-    new Question(0, PollType.YesNoAbstentionPollType, false, text, answers, multiResponse)
+    new Question(0, PollType.YesNoAbstentionPollType, multiResponse, text, answers)
   }
 
-  private def processTrueFalsePollType(qType: String, text: Option[String], multiResponse: Boolean): Question = {
+  private def processTrueFalsePollType(qType: String, multiResponse: Boolean, text: Option[String]): Question = {
     val answers = new ArrayBuffer[Answer];
 
     answers += new Answer(0, "True", Some("True"))
     answers += new Answer(1, "False", Some("False"))
 
-    new Question(0, PollType.TrueFalsePollType, false, text, answers, multiResponse)
+    new Question(0, PollType.TrueFalsePollType, multiResponse, text, answers)
   }
 
   private def processLetterPollType(qType: String, multiResponse: Boolean, text: Option[String]): Option[Question] = {
@@ -552,19 +552,19 @@ object PollFactory {
     var questionOption: Option[Question] = None
 
     if (qt.matches(PollType.YesNoPollType)) {
-      questionOption = Some(processYesNoPollType(qt, text, multiResponse))
+      questionOption = Some(processYesNoPollType(qt, multiResponse, text))
     } else if (qt.matches(PollType.YesNoAbstentionPollType)) {
-      questionOption = Some(processYesNoAbstentionPollType(qt, text, multiResponse))
+      questionOption = Some(processYesNoAbstentionPollType(qt, multiResponse, text))
     } else if (qt.matches(PollType.TrueFalsePollType)) {
-      questionOption = Some(processTrueFalsePollType(qt, text, multiResponse))
+      questionOption = Some(processTrueFalsePollType(qt, multiResponse, text))
     } else if (qt.matches(PollType.CustomPollType)) {
-      questionOption = processCustomPollType(qt, false, text, answers, multiResponse)
+      questionOption = processCustomPollType(qt, multiResponse, text, answers)
     } else if (qt.startsWith(PollType.LetterPollType)) {
-      questionOption = processLetterPollType(qt, false, text, multiResponse)
+      questionOption = processLetterPollType(qt, multiResponse, text)
     } else if (qt.startsWith(PollType.NumberPollType)) {
-      questionOption = processNumberPollType(qt, false, text, multiResponse)
+      questionOption = processNumberPollType(qt, multiResponse, text)
     } else if (qt.startsWith(PollType.ResponsePollType)) {
-      questionOption = processResponsePollType(qt, text, multiResponse)
+      questionOption = processResponsePollType(qt, text)
     }
 
     questionOption

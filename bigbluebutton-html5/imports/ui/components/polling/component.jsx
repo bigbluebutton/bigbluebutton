@@ -135,25 +135,7 @@ class Polling extends Component {
     const defaultPoll = isDefaultPoll(pollType);
 
     return (
-      <div className={styles.overlay}>
-        <div
-          data-test="pollingContainer"
-          className={cx({
-            [styles.pollingContainer]: true,
-            [styles.autoWidth]: stackOptions,
-          })}
-          role="alert"
-        >
-          {
-            question.length > 0 && (
-              <span className={styles.qHeader}>
-                <div className={styles.qTitle}>
-                  {intl.formatMessage(intlMessages.pollQuestionTitle)}
-                </div>
-                <div data-test="pollQuestion" className={styles.qText}>{question}</div>
-              </span>
-            )
-          }
+      <div>
           {
             poll.pollType !== pollTypes.Response && (
               <span>
@@ -165,7 +147,7 @@ class Polling extends Component {
                   )
                 }
                 <div className={cx(pollAnswerStyles)}>
-                  {poll.answers.map((pollAnswer) => {
+                  {answers.map((pollAnswer) => {
                     const formattedMessageIndex = pollAnswer.key.toLowerCase();
                     let label = pollAnswer.key;
                     if (defaultPoll && pollAnswerIds[formattedMessageIndex]) {
@@ -184,7 +166,7 @@ class Polling extends Component {
                           size="md"
                           label={label}
                           key={pollAnswer.key}
-                          onClick={() => handleVote(poll.pollId, pollAnswer)}
+                          onClick={() => handleVote(poll.pollId, [pollAnswer.id])}
                           aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
                           aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
                           data-test="pollAnswerOption"
@@ -244,7 +226,6 @@ class Polling extends Component {
         <div className={styles.pollingSecret}>
           {intl.formatMessage(poll.secretPoll ? intlMessages.responseIsSecret : intlMessages.responseNotSecret)}
         </div>
-      </div>
       </div>
     );
   }
@@ -351,7 +332,7 @@ class Polling extends Component {
             question.length > 0 && (
               <span className={styles.qHeader}>
                 <div className={styles.qTitle}>
-                  {intl.formatMessage(intlMessages.pollQestionTitle)}
+                  {intl.formatMessage(intlMessages.pollQuestionTitle)}
                 </div>
                 <div data-test="pollQuestion" className={styles.qText}>{question}</div>
               </span>

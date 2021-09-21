@@ -576,7 +576,7 @@ class RedisRecorderActor(
     } else {
       ev.setUserId(msg.header.userId)
     }
-    ev.setAnswerId(msg.body.answerIds.toArray)
+    ev.setAnswerId(msg.body.answerId)
     ev.setAnswer(msg.body.answer)
 
     record(msg.header.meetingId, ev.toMap.asJava)
