@@ -297,7 +297,7 @@ class CustomParameters {
       await this.page1.screenshot(`${testName}`, `01-${testName}`);
       await this.page1.closeAudioModal();
       await this.page1.screenshot(`${testName}`, `02-${testName}`);
-      const resp = await this.page1.page.evaluate(checkElementLengthEqualTo, e.webcamSettingsModal, 0);
+      const resp = await this.page1.hasElement(e.webcamSettingsModal);
       if (!resp) {
         await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
         await this.page1.logger(testName, ' failed');
