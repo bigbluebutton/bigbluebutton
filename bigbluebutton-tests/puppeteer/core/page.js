@@ -212,9 +212,9 @@ class Page {
     }
   }
 
-  async isNotVisible(el, timeout) {
+  async isNotVisible(element, timeout = ELEMENT_WAIT_TIME) {
     try {
-      await this.page.waitForSelector(el, { visible: false, timeout: timeout });
+      await this.hasElement(element, false, timeout);
       return true;
     } catch (err) {
       await this.logger(err);
@@ -229,6 +229,26 @@ class Page {
   // Returns a Promise that resolves when an element does not exist/is removed from the DOM
   async waitForElementHandleToBeRemoved(element, timeout = ELEMENT_WAIT_TIME) {
     await this.page.waitForSelector(element, { timeout, hidden: true });
+  }
+
+  async wasRemoved(element, timeout = ELEMENT_WAIT_TIME) {
+    try {
+      await this.waitForElementHandleToBeRemoved(element, timeout);
+      return true;
+    } catch (err) {
+      this.logger(err);
+      return false;
+    }
+  }
+
+  async hasElement(element, visible = false, timeout = ELEMENT_WAIT_TIME) {
+    try {
+      await this.page.waitForSelector(element, { visible, timeout });
+      return true;
+    } catch (err) {
+      await this.logger(err);
+      return false;
+    }
   }
 
   // Presses a hotkey (Ctrl, Alt and Shift can be held down while pressing the key)
@@ -300,6 +320,7 @@ class Page {
 
   async clickNItem(element, relief = false, n) {
     if (relief) await helper.sleep(1000);
+    await this.waitForSelector(element);
     const elementHandle = await this.page.$$(element);
     await elementHandle[n].click();
   }
@@ -380,7 +401,7 @@ class Page {
   }
 
   async waitForSelector(element, timeout = ELEMENT_WAIT_TIME) {
-    await this.page.waitForSelector(element, { timeout, visible: true });
+    await this.page.waitForSelector(element, { timeout });
   }
 
   async getMetrics(testFolderName) {

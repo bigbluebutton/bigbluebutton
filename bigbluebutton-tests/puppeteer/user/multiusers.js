@@ -254,7 +254,7 @@ class MultiUsers {
       await this.page1.waitAndClick(e.userListButton);
       await this.page2.waitAndClick(e.userListButton);
       await this.page2.waitAndClick(e.chatButtonKey);
-      const onUserListPanel = await this.page1.isNotVisible(e.hidePresentation, ELEMENT_WAIT_TIME) === true;
+      const onUserListPanel = await this.page1.isNotVisible(e.hidePresentation);
       const onChatPanel = await this.page2.page.evaluate(checkElementLengthEqualTo, e.hidePresentation, 0);
       await sleep(2000);
       return onUserListPanel && onChatPanel;
@@ -271,7 +271,7 @@ class MultiUsers {
       await this.page2.waitAndClick(e.userListButton);
       await this.page2.waitAndClick(e.chatButtonKey);
       const whiteboard = await this.page1.page.evaluate(checkElementLengthEqualTo, e.chatButtonKey, 0);
-      const onChatPanel = await this.page2.isNotVisible(e.chatButtonKey, ELEMENT_WAIT_TIME) === true;
+      const onChatPanel = await this.page2.isNotVisible(e.chatButtonKey);
       await sleep(2000);
       return whiteboard && onChatPanel;
     } catch (err) {
