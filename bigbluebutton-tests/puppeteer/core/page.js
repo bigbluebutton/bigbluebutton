@@ -108,13 +108,11 @@ class Page {
     const parsedSettings = await this.getSettingsYaml();
     const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
     await this.waitAndClick(e.leaveAudio, listenOnlyCallTimeout);
-    await this.waitAndClick(e.disconnectAudio);
   }
 
   // Leave audio
   async leaveAudio() {
     await this.waitAndClick(e.leaveAudio);
-    await this.waitAndClick(e.disconnectAudio);
     await this.waitForSelector(e.joinAudio);
   }
 

@@ -32,7 +32,6 @@ exports.isTalking = '[data-test="isTalking"]';
 exports.wasTalking = '[data-test="wasTalking"]';
 exports.joinAudio = 'button[data-test="joinAudio"]';
 exports.leaveAudio = 'button[data-test="leaveAudio"]';
-exports.disconnectAudio = 'li[data-test="disconnectAudio"]';
 exports.connectingStatus = 'div[class^="connecting--"]';
 exports.connecting = 'span[data-test="connecting"]';
 exports.connectingToEchoTest = 'span[data-test="connectingToEchoTest"]';
