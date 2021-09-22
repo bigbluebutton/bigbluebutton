@@ -47,7 +47,6 @@ const whiteboardTest = () => {
       const testName = 'giveWhiteboardAdditionalAccess';
       await test.page1.logger('begin of ', testName);
       await test.init(undefined, testName);
-      await test.initUser3(testName);
       await test.page1.startRecording(testName);
       await test.page2.startRecording(testName);
       await test.page1.logger('Test Name: ', testName);
@@ -60,7 +59,6 @@ const whiteboardTest = () => {
       await test.page1.logger(err);
     } finally {
       await test.close(test.page1, test.page2);
-      await test.closePage(test.page3);
     }
     expect(response).toBe(true);
     await Page.checkRegression(0.9, screenshot);

@@ -10,18 +10,22 @@ class MultiUsers {
   constructor() {
     this.page1 = new Page();
     this.page2 = new Page();
-    this.page3 = new Page();
+    this.userPage = new Page();
   }
 
   // Join BigBlueButton meeting
   async init(meetingId, testFolderName) {
-    await this.page1.init(Page.getArgs(), meetingId, params, undefined, testFolderName);
-    await this.page2.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'User2' }, undefined, testFolderName);
+    await this.initMod1(meetingId, testFolderName);
+    await this.page2.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Mod2' }, undefined, testFolderName);
+  }
+
+  async initMod1(meetingId, testFolderName) {
+    await this.page1.init(Page.getArgs(), meetingId, { ...params, fullName: 'Mod1'}, undefined, testFolderName);
   }
 
   // Join BigBlueButton meeting
-  async initUser3(testFolderName) {
-    await this.page3.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'User3' }, undefined, testFolderName);
+  async initUserPage(testFolderName) {
+    await this.userPage.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Attendee', moderatorPW: '' }, undefined, testFolderName);
   }
 
   // Run the test for the page
@@ -156,14 +160,92 @@ class MultiUsers {
     }
   }
 
+  async askModeratorGuestPolicy(testName) {
+    try {
+      await this.initMod1(undefined, testName);
+      await this.page1.screenshot(`${testName}`, `01-before-closing-audio-modal-[${this.page1.meetingId}]`);
+      await this.page1.closeAudioModal();
+      await this.page1.screenshot(`${testName}`, `02-after-closing-audio-modal-[${this.page1.meetingId}]`);
+
+      await this.page1.waitAndClick(e.manageUsers);
+      await this.page1.screenshot(`${testName}`, `03-opened-users-managing-[${this.page1.meetingId}]`);
+
+      await this.page1.waitAndClick(e.guestPolicyLabel);
+      await this.page1.screenshot(`${testName}`, `04-opened-guest-policy-[${this.page1.meetingId}]`);
+
+      await this.page1.waitAndClick(e.askModerator);
+      await this.page1.screenshot(`${testName}`, `05-clicked-askModerator-[${this.page1.meetingId}]`);
+      await this.initUserPage(testName);
+      await this.page1.bringToFront();
+
+      const responseLoggedIn = await this.page1.hasElement(e.waitingUsersBtn);
+      await this.page1.screenshot(`${testName}`, `06-after-viewer-acceptance-[${this.page1.meetingId}]`);
+      return responseLoggedIn;
+    } catch (err) {
+      await this.page1.logger(err);
+      return false;
+    }
+  }
+
+  async alwaysAcceptGuestPolicy(testName) {
+    try {
+      await this.initMod1(undefined, testName);
+      await this.page1.screenshot(`${testName}`, `01-before-closing-audio-modal-[${this.page1.meetingId}]`);
+      await this.page1.closeAudioModal();
+      await this.page1.screenshot(`${testName}`, `02-after-closing-audio-modal-[${this.page1.meetingId}]`);
+
+      await this.page1.waitAndClick(e.manageUsers);
+      await this.page1.screenshot(`${testName}`, `03-opened-users-managing-[${this.page1.meetingId}]`);
+
+      await this.page1.waitAndClick(e.guestPolicyLabel);
+      await this.page1.screenshot(`${testName}`, `04-opened-guest-policy-[${this.page1.meetingId}]`);
+
+      await this.page1.waitAndClick(e.alwaysAccept);
+      await this.page1.screenshot(`${testName}`, `05-clicked-alwaysAccept-[${this.page1.meetingId}]`);
+      await this.initUserPage(testName);
+
+      const responseLoggedIn = await this.userPage.hasElement(e.whiteboard);
+      await this.userPage.screenshot(`${testName}`, `06-after-viewer-connection-[${this.page1.meetingId}]`);
+      return responseLoggedIn;
+    } catch (err) {
+      await this.page1.logger(err);
+      return false;
+    }
+  }
+
+  async alwaysDenyGuestPolicy(testName) {
+    try {
+      await this.initMod1(undefined, testName);
+      await this.page1.screenshot(`${testName}`, `01-before-closing-audio-modal-[${this.page1.meetingId}]`);
+      await this.page1.closeAudioModal();
+      await this.page1.screenshot(`${testName}`, `02-after-closing-audio-modal-[${this.page1.meetingId}]`);
+
+      await this.page1.waitAndClick(e.manageUsers);
+      await this.page1.screenshot(`${testName}`, `03-opened-users-managing-[${this.page1.meetingId}]`);
+
+      await this.page1.waitAndClick(e.guestPolicyLabel);
+      await this.page1.screenshot(`${testName}`, `04-opened-guest-policy-[${this.page1.meetingId}]`);
+
+      await this.page1.waitAndClick(e.alwaysDeny);
+      await this.page1.screenshot(`${testName}`, `05-clicked-alwaysAccept-[${this.page1.meetingId}]`);
+      await this.initUserPage(testName);
+
+      const responseLoggedIn = await this.userPage.hasElement(e.joinMeetingDemoPage);
+      await this.userPage.screenshot(`${testName}`, `06-after-viewer-gets-denied-[${this.page1.meetingId}]`);
+      return responseLoggedIn;
+    } catch (err) {
+      await this.page1.logger(err);
+      return false;
+    }
+  }
+
   async testWhiteboardAccess() {
     try {
       await this.page1.closeAudioModal();
       await this.page2.closeAudioModal();
-      await this.page3.closeAudioModal();
       await this.page1.waitForSelector(e.whiteboard);
-      await this.page1.clickNItem(e.userListItem, true, 1);
-      await this.page1.clickNItem(e.changeWhiteboardAccess, true, 1);
+      await this.page1.waitAndClick(e.userListItem);
+      await this.page1.waitAndClick(e.changeWhiteboardAccess);
       await this.page1.waitForSelector(e.multiWhiteboardTool);
       const resp = await this.page1.page.evaluate((multiWhiteboardTool) => {
         return document.querySelector(multiWhiteboardTool).children[0].innerText === '1';
