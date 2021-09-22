@@ -35,11 +35,12 @@ class MultiUsers {
     };
   }
 
-  async multiUsersPublicChat() {
+  async multiUsersPublicChat(testName) {
     try {
       const chat0 = await this.page1.page.evaluate(getElementLength, e.chatUserMessageText);
-      await util.sendPublicChatMessage(this.page1, this.page2);
+      await util.sendPublicChatMessage(this.page1, this.page2, testName);
       const chat1 = await this.page1.page.evaluate(getElementLength, e.chatUserMessageText);
+
       return chat0 !== chat1;
     } catch (err) {
       await this.page1.logger(err);
@@ -47,12 +48,12 @@ class MultiUsers {
     }
   }
 
-  async multiUsersPrivateChat() {
+  async multiUsersPrivateChat(testName) {
     try {
       await util.openPrivateChatMessage(this.page1, this.page2);
       const chat0 = await this.page1.page.evaluate(checkElementLengthEqualTo, e.chatUserMessageText, 0);
 
-      await util.sendPrivateChatMessage(this.page1, this.page2);
+      await util.sendPrivateChatMessage(this.page1, this.page2, testName);
       const receivedMessages = await this.page1.hasElement(e.chatUserMessageText, true) && await this.page2.hasElement(e.chatUserMessageText, true);
 
       return chat0 && receivedMessages;
