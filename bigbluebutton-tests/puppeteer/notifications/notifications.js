@@ -10,7 +10,7 @@ const { checkElementTextIncludes } = require('../core/util');
 
 class Notifications extends MultiUsers {
   constructor() {
-    super('notifications');
+    super();
     this.page1 = new Page();
     this.page2 = new Page();
     this.page3 = new Page();

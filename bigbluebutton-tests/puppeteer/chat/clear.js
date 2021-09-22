@@ -7,7 +7,7 @@ const { checkElementLengthEqualTo } = require('../core/util');
 
 class Clear extends Page {
   constructor() {
-    super('chat-clear');
+    super();
   }
 
   async test(testName) {

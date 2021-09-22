@@ -5,7 +5,7 @@ const { checkElementLengthEqualTo } = require('../core/util');
 
 class Polling extends Page {
   constructor() {
-    super('polling-test');
+    super();
   }
 
   async test(testName) {

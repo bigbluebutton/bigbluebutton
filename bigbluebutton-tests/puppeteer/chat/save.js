@@ -6,7 +6,7 @@ const util = require('./util');
 
 class Save extends Page {
   constructor() {
-    super('chat-save');
+    super();
   }
 
   async test(testName) {

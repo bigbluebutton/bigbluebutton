@@ -16,8 +16,8 @@ const devices = require('./devices');
 const linuxDesktop = devices['Linux Desktop'];
 
 class Page {
-  constructor(name) {
-    this.name = name;
+  constructor(page) {
+    this.page = page;
     this.screenshotIndex = 0;
     this.meetingId;
     this.parentDir = this.getParentDir(__dirname);
@@ -303,6 +303,15 @@ class Page {
   // Release a hold pressed keyboard button
   async release(key) {
     await this.page.keyboard.up(key);
+  }
+
+  async bringToFront() {
+    await this.page.bringToFront();
+  }
+
+  async getLastTargetPage() {
+    const browserPages = await this.browser.pages();
+    return new Page(browserPages[browserPages.length - 1]);
   }
 
   async waitAndClick(element, timeout = ELEMENT_WAIT_TIME, relief = false) {

@@ -6,7 +6,7 @@ const { checkElementLengthEqualTo } = require('../core/util');
 
 class Poll extends Notifications {
   constructor() {
-    super('poll-result-message');
+    super();
   }
 
   async test(testName) {

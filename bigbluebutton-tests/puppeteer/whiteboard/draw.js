@@ -3,7 +3,7 @@ const e = require('../core/elements');
 
 class Draw extends Page {
   constructor() {
-    super('whiteboard-draw');
+    super();
   }
 
   async test() {

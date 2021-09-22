@@ -6,7 +6,7 @@ const { checkElementLengthEqualTo } = require('../core/util');
 
 class ShareScreen extends Page {
   constructor() {
-    super('share-screen');
+    super();
   }
 
   async test() {

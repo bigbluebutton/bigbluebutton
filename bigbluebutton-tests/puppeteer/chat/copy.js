@@ -7,7 +7,7 @@ const util = require('./util');
 
 class Copy extends Page {
   constructor() {
-    super('chat-copy');
+    super();
   }
 
   async test(testName) {

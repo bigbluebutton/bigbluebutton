@@ -6,7 +6,7 @@ const { VIDEO_LOADING_WAIT_TIME } = require('../core/constants'); // core consta
 
 class Share extends Page {
   constructor() {
-    super('webcam-share-test');
+    super();
   }
 
   async test() {

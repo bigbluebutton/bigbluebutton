@@ -7,7 +7,7 @@ const { checkElementLengthDifferentTo } = require('../core/util');
 
 class Trigger extends Page {
   constructor() {
-    super('trigger-events');
+    super();
   }
 
   async triggerMeteorDisconnect(testName) {

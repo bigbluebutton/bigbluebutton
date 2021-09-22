@@ -10,7 +10,7 @@ const today = moment().format('DD-MM-YYYY');
 
 class Join extends Create {
   constructor() {
-    super('join-breakout');
+    super();
   }
 
   // Join Existing Breakoutrooms

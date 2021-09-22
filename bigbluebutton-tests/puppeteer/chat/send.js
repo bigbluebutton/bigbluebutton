@@ -7,7 +7,7 @@ const { checkElementLengthEqualTo } = require('../core/util');
 
 class Send extends Page {
   constructor() {
-    super('chat-send');
+    super();
   }
 
   async test(testName) {

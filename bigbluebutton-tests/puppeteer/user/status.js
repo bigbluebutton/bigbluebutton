@@ -9,7 +9,7 @@ const { checkElementLengthEqualTo, checkElementLengthDifferentTo } = require('..
 
 class Status extends Page {
   constructor() {
-    super('user-status');
+    super();
   }
 
   async test() {

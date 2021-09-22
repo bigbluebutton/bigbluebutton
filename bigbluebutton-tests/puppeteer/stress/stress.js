@@ -7,7 +7,7 @@ const { checkElementLengthEqualTo } = require('../core/util');
 
 class Stress extends Page {
   constructor() {
-    super('stress');
+    super();
   }
 
   async moderatorAsPresenter(testName) {
