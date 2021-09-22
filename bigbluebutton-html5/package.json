@@ -31,7 +31,7 @@
     "@browser-bunyan/server-stream": "^1.6.1",
     "@jitsi/sdp-interop": "0.1.14",
     "autoprefixer": "^10.2.5",
-    "axios": "^0.21.1",
+    "axios": "^0.21.3",
     "babel-runtime": "~6.26.0",
     "bowser": "^2.11.0",
     "browser-bunyan": "^1.6.3",
