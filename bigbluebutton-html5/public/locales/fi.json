@@ -340,8 +340,6 @@
     "app.audioModal.audioDialTitle": "liity puhelimella",
     "app.audioDial.audioDialDescription": "Soita puhelimella",
     "app.audioDial.audioDialConfrenceText": "ja syötä seuraava istuonnon PIN-numero:",
-    "app.audioModal.connecting": "Yhdistää",
-    "app.audioModal.connectingEchoTest": "Yhdistää mikrofonitestiin",
     "app.audioManager.joinedAudio": "Olet liittynyt audio-konferenssiin",
     "app.audioManager.joinedEcho": "Olet liittynyt mikrofonitestiin",
     "app.audioManager.leftAudio": "Olet poistunut audiokonferenssista",

@@ -279,7 +279,13 @@ class VideoList extends Component {
   }
 
   renderNextPageButton() {
-    const { intl, numberOfPages, currentVideoPageIndex } = this.props;
+    const {
+      intl,
+      numberOfPages,
+      currentVideoPageIndex,
+      cameraDock,
+    } = this.props;
+    const { position } = cameraDock;
 
     if (!this.displayPageButtons()) return null;
 
@@ -297,13 +303,24 @@ class VideoList extends Component {
         onClick={VideoService.getNextVideoPage}
         label={nextPageDetailedLabel}
         hideLabel
-        className={cx(styles.nextPage)}
+        className={
+          cx({
+            [styles.nextPage]: true,
+            [styles.nextPageLRPosition]: position === 'contentRight' || position === 'contentLeft',
+          })
+        }
       />
     );
   }
 
   renderPreviousPageButton() {
-    const { intl, currentVideoPageIndex, numberOfPages } = this.props;
+    const {
+      intl,
+      currentVideoPageIndex,
+      numberOfPages,
+      cameraDock,
+    } = this.props;
+    const { position } = cameraDock;
 
     if (!this.displayPageButtons()) return null;
 
@@ -321,7 +338,12 @@ class VideoList extends Component {
         onClick={VideoService.getPreviousVideoPage}
         label={prevPageDetailedLabel}
         hideLabel
-        className={cx(styles.previousPage)}
+        className={
+          cx({
+            [styles.previousPage]: true,
+            [styles.previousPageLRPosition]: position === 'contentRight' || position === 'contentLeft',
+          })
+        }
       />
     );
   }
@@ -389,11 +411,14 @@ class VideoList extends Component {
     const {
       streams,
       intl,
+      cameraDock,
     } = this.props;
     const { optimalGrid, autoplayBlocked } = this.state;
+    const { position } = cameraDock;
 
     const canvasClassName = cx({
       [styles.videoCanvas]: true,
+      [styles.videoCanvasLRPosition]: position === 'contentRight' || position === 'contentLeft',
     });
 
     const videoListClassName = cx({
@@ -435,6 +460,11 @@ class VideoList extends Component {
             handleAllowAutoplay={this.handleAllowAutoplay}
           />
         )}
+
+        {
+          (position === 'contentRight' || position === 'contentLeft')
+          && <div className={styles.break} />
+        }
 
         {this.renderNextPageButton()}
       </div>

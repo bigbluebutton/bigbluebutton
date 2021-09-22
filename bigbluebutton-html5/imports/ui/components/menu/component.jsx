@@ -9,6 +9,8 @@ import { Divider } from "@material-ui/core";
 import Icon from "/imports/ui/components/icon/component";
 import Button from "/imports/ui/components/button/component";
 
+import { ENTER, SPACE } from "/imports/utils/keyCodes";
+
 import { styles } from "./styles";
 
 const intlMessages = defineMessages({
@@ -104,6 +106,11 @@ class BBBMenu extends React.Component {
           onClick={(e) => {
             e.persist();
             this.opts.autoFocus = !(['mouse', 'touch'].includes(e.nativeEvent.pointerType));
+            this.handleClick(e);
+          }}
+          onKeyPress={(e) => {
+            e.persist();
+            if (e.which !== ENTER) return null;
             this.handleClick(e);
           }}
           accessKey={this.props?.accessKey}

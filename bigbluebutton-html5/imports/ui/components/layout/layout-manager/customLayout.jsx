@@ -443,7 +443,7 @@ const CustomLayout = () => {
             cameraDockBounds.width = mediaAreaBounds.width;
             cameraDockBounds.maxWidth = mediaAreaBounds.width;
             cameraDockBounds.minHeight = DEFAULT_VALUES.cameraDockMinHeight;
-            cameraDockBounds.height = cameraDockHeight - camerasMargin;
+            cameraDockBounds.height = cameraDockHeight;
             cameraDockBounds.maxHeight = mediaAreaBounds.height * 0.8;
             break;
           }
@@ -468,10 +468,10 @@ const CustomLayout = () => {
             const sizeValue = presentationInput.isOpen
               ? (mediaAreaBounds.left + mediaAreaBounds.width) - cameraDockWidth
               : mediaAreaBounds.left;
-            cameraDockBounds.left = !isRTL ? sizeValue + camerasMargin : 0;
-            cameraDockBounds.right = isRTL ? sizeValue + sidebarSize + camerasMargin : null;
+            cameraDockBounds.left = !isRTL ? sizeValue - camerasMargin : 0;
+            cameraDockBounds.right = isRTL ? sizeValue + sidebarSize - camerasMargin : null;
             cameraDockBounds.minWidth = DEFAULT_VALUES.cameraDockMinWidth;
-            cameraDockBounds.width = cameraDockWidth - (camerasMargin * 2);
+            cameraDockBounds.width = cameraDockWidth;
             cameraDockBounds.maxWidth = mediaAreaBounds.width * 0.8;
             cameraDockBounds.presenterMaxWidth = mediaAreaBounds.width
               - DEFAULT_VALUES.presentationToolbarMinWidth
@@ -479,6 +479,8 @@ const CustomLayout = () => {
             cameraDockBounds.minHeight = DEFAULT_VALUES.cameraDockMinHeight;
             cameraDockBounds.height = mediaAreaBounds.height;
             cameraDockBounds.maxHeight = mediaAreaBounds.height;
+            // button size in vertical position
+            cameraDockBounds.height -= 20;
             break;
           }
           case CAMERADOCK_POSITION.CONTENT_BOTTOM: {
@@ -508,7 +510,7 @@ const CustomLayout = () => {
             cameraDockBounds.width = mediaAreaBounds.width;
             cameraDockBounds.maxWidth = mediaAreaBounds.width;
             cameraDockBounds.minHeight = DEFAULT_VALUES.cameraDockMinHeight;
-            cameraDockBounds.height = cameraDockHeight - camerasMargin;
+            cameraDockBounds.height = cameraDockHeight;
             cameraDockBounds.maxHeight = mediaAreaBounds.height * 0.8;
             break;
           }
@@ -533,7 +535,7 @@ const CustomLayout = () => {
             cameraDockBounds.left = mediaAreaBounds.left + camerasMargin;
             cameraDockBounds.right = isRTL ? sidebarSize + (camerasMargin * 2) : null;
             cameraDockBounds.minWidth = DEFAULT_VALUES.cameraDockMinWidth;
-            cameraDockBounds.width = cameraDockWidth - (camerasMargin * 2);
+            cameraDockBounds.width = cameraDockWidth;
             cameraDockBounds.maxWidth = mediaAreaBounds.width * 0.8;
             cameraDockBounds.presenterMaxWidth = mediaAreaBounds.width
               - DEFAULT_VALUES.presentationToolbarMinWidth
@@ -541,6 +543,8 @@ const CustomLayout = () => {
             cameraDockBounds.minHeight = mediaAreaBounds.height;
             cameraDockBounds.height = mediaAreaBounds.height;
             cameraDockBounds.maxHeight = mediaAreaBounds.height;
+            // button size in vertical position
+            cameraDockBounds.height -= 20;
             break;
           }
           case CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM: {
@@ -640,7 +644,7 @@ const CustomLayout = () => {
           break;
         }
         case CAMERADOCK_POSITION.CONTENT_RIGHT: {
-          mediaBounds.width = mediaAreaWidth - cameraDockBounds.width - camerasMargin;
+          mediaBounds.width = mediaAreaWidth - cameraDockBounds.width - (camerasMargin * 2);
           mediaBounds.height = mediaAreaHeight;
           mediaBounds.top = navBarHeight + bannerAreaHeight();
           mediaBounds.left = !isRTL ? sidebarSize : null;
@@ -656,7 +660,7 @@ const CustomLayout = () => {
           break;
         }
         case CAMERADOCK_POSITION.CONTENT_LEFT: {
-          mediaBounds.width = mediaAreaWidth - cameraDockBounds.width - camerasMargin;
+          mediaBounds.width = mediaAreaWidth - cameraDockBounds.width - (camerasMargin * 2);
           mediaBounds.height = mediaAreaHeight;
           mediaBounds.top = navBarHeight + bannerAreaHeight();
           const sizeValue = sidebarNavWidth

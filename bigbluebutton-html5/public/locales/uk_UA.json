@@ -470,8 +470,6 @@
     "app.audioModal.playAudio.arialabel" : "Відтворювати звук",
     "app.audioDial.tipIndicator": "Підказка",
     "app.audioDial.tipMessage": "Натисніть кнопку '0' на телефоні, щоб вимкнути чи увімкнути мікрофон",
-    "app.audioModal.connecting": "Приєднання",
-    "app.audioModal.connectingEchoTest": "Приєднання до перевірки звуку",
     "app.audioManager.joinedAudio": "Ви приєдналися до голосової конференції",
     "app.audioManager.joinedEcho": "Зараз відбуватиметься перевірка звуку",
     "app.audioManager.leftAudio": "Ви вийшли з голосової конференції",
