@@ -9,7 +9,7 @@ const PuppeteerVideoRecorder = require('puppeteer-video-recorder');
 const helper = require('./helper');
 const params = require('../params');
 const { ELEMENT_WAIT_TIME } = require('./constants');
-const { getElementLength, clickElement } = require('./util');
+const { getElementLength } = require('./util');
 const e = require('./elements');
 const { NETWORK_PRESETS } = require('./profiles');
 const devices = require('./devices');
@@ -312,10 +312,12 @@ class Page {
     await this.page.click(element, true);
   }
 
-  async waitAndClickElement(element, timeout = ELEMENT_WAIT_TIME, relief = false) {
+  async waitAndClickElement(element, index = 0, timeout = ELEMENT_WAIT_TIME, relief = false) {
     if (relief) await helper.sleep(1000);
     await this.waitForSelector(element, timeout);
-    await this.page.evaluate(clickElement, element);
+    await this.page.evaluate((element, index) => {
+      document.querySelectorAll(element)[index].click();
+    }, element, index);
   }
 
   async clickNItem(element, relief = false, n) {
