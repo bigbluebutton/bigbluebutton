@@ -2,7 +2,6 @@ const Page = require('../core/page');
 const util = require('./util');
 const e = require('../core/elements');
 const { VIDEO_LOADING_WAIT_TIME } = require('../core/constants');
-const { sleep } = require('../core/helper');
 const { checkElementLengthEqualTo } = require('../core/util');
 
 class ShareScreen extends Page {

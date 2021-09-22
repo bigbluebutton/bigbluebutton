@@ -1,6 +1,6 @@
 const path = require('path');
 const e = require('../core/elements');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { checkElementLengthEqualTo, checkElementLengthDifferentTo, checkElementText } = require('../core/util');
 
 async function autoJoinTest(test) {

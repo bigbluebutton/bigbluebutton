@@ -4,7 +4,6 @@ const util = require('../chat/util');
 const utilUser = require('./util');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
-const { sleep } = require('../core/helper');
 const { getElementLength, checkElementLengthEqualTo, checkElementLengthDifferentTo } = require('../core/util');
 
 class MultiUsers {

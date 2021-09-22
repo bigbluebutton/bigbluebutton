@@ -1,4 +1,3 @@
-const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const Page = require('../core/page');
 const e = require('../core/elements');
 
